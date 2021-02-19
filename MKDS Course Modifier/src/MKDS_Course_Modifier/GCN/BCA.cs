@@ -124,7 +124,7 @@ namespace MKDS_Course_Modifier.GCN
         }
       }
 
-      public byte[] ExportBonesAnimation(BMD b)
+      public byte[] ExportAsMa(BMD b)
       {
         MA.Node[] joints = b.GetJoints();
         //ScaleDialog scaleDialog = new ScaleDialog();

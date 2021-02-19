@@ -17,6 +17,6 @@ public class Cli {
     var bmd = new BMD(File.ReadAllBytes(bmdName));
     var bca = new BCA(File.ReadAllBytes(bcaName));
 
-    File.WriteAllBytes(outputName, bca.ANF1.ExportBonesAnimation(bmd));
+    File.WriteAllBytes(outputName, bca.ANF1.ExportAsMa(bmd));
   }
 }

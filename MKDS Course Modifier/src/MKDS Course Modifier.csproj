@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk">
   <!--Project was exported from assembly: R:\Documents\CSharpWorkspace\Pikmin2Utility\MKDS Course Modifier\MKDS Course Modifier.exe-->
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -7,12 +7,26 @@
     <ProjectGuid>{86022D00-3FF6-4C1C-A0E4-CF0A96BF9897}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AssemblyName>MKDS Course Modifier</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
-    <ApplicationVersion>4.0.0.0</ApplicationVersion>
+    <TargetFramework>net48</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <FileAlignment>512</FileAlignment>
+    <Platforms>AnyCPU;x64</Platforms>
+    <StartupObject>Cli</StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -33,6 +47,16 @@
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x86\Debug\</OutputPath>
@@ -40,7 +64,6 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
@@ -55,6 +78,49 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="MKDS_Course_Modifier\N64\**" />
+    <Compile Remove="MKDS_Course_Modifier\Sound\**" />
+    <Compile Remove="MKDS_Course_Modifier\UI\**" />
+    <Compile Remove="MKDS_Course_Modifier\_3DS\**" />
+    <Compile Remove="SevenZip\**" />
+    <Compile Remove="WaveLib\**" />
+    <Compile Remove="wyDay\**" />
+    <EmbeddedResource Remove="MKDS_Course_Modifier\N64\**" />
+    <EmbeddedResource Remove="MKDS_Course_Modifier\Sound\**" />
+    <EmbeddedResource Remove="MKDS_Course_Modifier\UI\**" />
+    <EmbeddedResource Remove="MKDS_Course_Modifier\_3DS\**" />
+    <EmbeddedResource Remove="SevenZip\**" />
+    <EmbeddedResource Remove="WaveLib\**" />
+    <EmbeddedResource Remove="wyDay\**" />
+    <None Remove="MKDS_Course_Modifier\N64\**" />
+    <None Remove="MKDS_Course_Modifier\Sound\**" />
+    <None Remove="MKDS_Course_Modifier\UI\**" />
+    <None Remove="MKDS_Course_Modifier\_3DS\**" />
+    <None Remove="SevenZip\**" />
+    <None Remove="WaveLib\**" />
+    <None Remove="wyDay\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="MKDS_Course_Modifier\Archive_Format\NARC.cs" />
+    <Compile Remove="MKDS_Course_Modifier\Archive_Format\NARC_new.cs" />
+    <Compile Remove="MKDS_Course_Modifier\Form1.cs" />
+    <Compile Remove="MKDS_Course_Modifier\IO\ARM9.cs" />
+    <Compile Remove="MKDS_Course_Modifier\IO\ByteFileInfo.cs" />
+    <Compile Remove="MKDS_Course_Modifier\IO\FileHandler.cs" />
+    <Compile Remove="MKDS_Course_Modifier\IO\NDS.cs" />
+    <Compile Remove="MKDS_Course_Modifier\IO\NDS_new.cs" />
+    <Compile Remove="MKDS_Course_Modifier\Misc\PAZ.cs" />
+    <Compile Remove="MKDS_Course_Modifier\Misc\sfxbin.cs" />
+    <Compile Remove="MKDS_Course_Modifier\Program.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Remove="MKDS_Course_Modifier\Form1.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MKDS_Course_Modifier\UI\MKDS\MRProperties.cs" />
+    <Compile Include="MKDS_Course_Modifier\UI\MKDS\NKMProperties.cs" />
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="DirectMidiNet">
       <HintPath>lib\DirectMidiNet.dll</HintPath>
@@ -98,161 +164,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AngleAltitudeControls\AngleAltitudeSelector.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="AngleAltitudeControls\AngleSelector.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="Chadsoft\CTools\Image\ConvertBlockDelegate.cs" />
-    <Compile Include="Chadsoft\CTools\Image\ImageDataFormat.cs" />
-    <Compile Include="Cli.cs" />
-    <Compile Include="Flobbster\Windows\Forms\PropertyBag.cs" />
-    <Compile Include="Flobbster\Windows\Forms\PropertySpec.cs" />
-    <Compile Include="Flobbster\Windows\Forms\PropertySpecEventArgs.cs" />
-    <Compile Include="Flobbster\Windows\Forms\PropertySpecEventHandler.cs" />
-    <Compile Include="Flobbster\Windows\Forms\PropertyTable.cs" />
-    <Compile Include="MKDS_Course_Modifier\Converters\Bytes.cs" />
-    <Compile Include="MKDS_Course_Modifier\Converters\Colission\Cube.cs" />
-    <Compile Include="MKDS_Course_Modifier\Converters\Colission\Helpers.cs" />
-    <Compile Include="MKDS_Course_Modifier\Converters\Colission\kclType.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="MKDS_Course_Modifier\Converters\Colission\Obj2Kcl.cs" />
-    <Compile Include="MKDS_Course_Modifier\Converters\Colission\Obj2Zcb.cs" />
-    <Compile Include="MKDS_Course_Modifier\Converters\Colission\OctreeNode.cs" />
-    <Compile Include="MKDS_Course_Modifier\Converters\Colission\Triangle.cs" />
-    <Compile Include="MKDS_Course_Modifier\Converters\Colission\zcbType.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="MKDS_Course_Modifier\Converters\Compression.cs" />
-    <Compile Include="MKDS_Course_Modifier\Converters\Graphic.cs" />
-    <Compile Include="MKDS_Course_Modifier\Converters\Sound.cs" />
-    <Compile Include="MKDS_Course_Modifier\Converters\_3D\NSBMDSettings.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="MKDS_Course_Modifier\Converters\_3D\Obj2Nsbmd.cs" />
-    <Compile Include="MKDS_Course_Modifier\Exceptions\SignatureNotCorrectException.cs" />
-    <Compile Include="MKDS_Course_Modifier\G2D_Binary_File_Format\NCER.cs" />
-    <Compile Include="MKDS_Course_Modifier\G2D_Binary_File_Format\NCGR.cs" />
-    <Compile Include="MKDS_Course_Modifier\G2D_Binary_File_Format\NCLR.cs" />
-    <Compile Include="MKDS_Course_Modifier\G2D_Binary_File_Format\NSCR.cs" />
-    <Compile Include="MKDS_Course_Modifier\G3D_Binary_File_Format\AnmHeader.cs" />
-    <Compile Include="MKDS_Course_Modifier\G3D_Binary_File_Format\DataBlockHeader.cs" />
-    <Compile Include="MKDS_Course_Modifier\G3D_Binary_File_Format\DictionaryData.cs" />
-    <Compile Include="MKDS_Course_Modifier\G3D_Binary_File_Format\Dictionary`1.cs" />
-    <Compile Include="MKDS_Course_Modifier\G3D_Binary_File_Format\FileHeader.cs" />
-    <Compile Include="MKDS_Course_Modifier\G3D_Binary_File_Format\MTX44.cs" />
-    <Compile Include="MKDS_Course_Modifier\G3D_Binary_File_Format\NSBCA.cs" />
-    <Compile Include="MKDS_Course_Modifier\G3D_Binary_File_Format\NSBMA.cs" />
-    <Compile Include="MKDS_Course_Modifier\G3D_Binary_File_Format\NSBMD.cs" />
-    <Compile Include="MKDS_Course_Modifier\G3D_Binary_File_Format\NSBTA.cs" />
-    <Compile Include="MKDS_Course_Modifier\G3D_Binary_File_Format\NSBTP.cs" />
-    <Compile Include="MKDS_Course_Modifier\G3D_Binary_File_Format\NSBTX.cs" />
-    <Compile Include="MKDS_Course_Modifier\G3D_Binary_File_Format\NSBVA.cs" />
-    <Compile Include="MKDS_Course_Modifier\G3D_Binary_File_Format\Shaders.cs" />
-    <Compile Include="MKDS_Course_Modifier\GCN\BCA.cs" />
-    <Compile Include="MKDS_Course_Modifier\GCN\BCK.cs" />
-    <Compile Include="MKDS_Course_Modifier\GCN\BCO.cs" />
-    <Compile Include="MKDS_Course_Modifier\GCN\BLO.cs" />
-    <Compile Include="MKDS_Course_Modifier\GCN\BLOShader.cs" />
-    <Compile Include="MKDS_Course_Modifier\GCN\BMD.cs" />
-    <Compile Include="MKDS_Course_Modifier\GCN\BMDShader.cs" />
-    <Compile Include="MKDS_Course_Modifier\GCN\BOL.cs" />
-    <Compile Include="MKDS_Course_Modifier\GCN\BTI.cs" />
-    <Compile Include="MKDS_Course_Modifier\GCN\JAudio\BMS.cs" />
-    <Compile Include="MKDS_Course_Modifier\GCN\MAP.cs" />
-    <Compile Include="MKDS_Course_Modifier\Language\LanguageHandler.cs" />
-    <Compile Include="MKDS_Course_Modifier\Language\Languages\af_ZA.cs" />
-    <Compile Include="MKDS_Course_Modifier\Language\Languages\en.cs" />
-    <Compile Include="MKDS_Course_Modifier\Language\Languages\es.cs" />
-    <Compile Include="MKDS_Course_Modifier\Language\Languages\es_419.cs" />
-    <Compile Include="MKDS_Course_Modifier\Language\Languages\fr.cs" />
-    <Compile Include="MKDS_Course_Modifier\Language\Languages\it.cs" />
-    <Compile Include="MKDS_Course_Modifier\Language\Languages\it_CH.cs" />
-    <Compile Include="MKDS_Course_Modifier\Language\Languages\mk.cs" />
-    <Compile Include="MKDS_Course_Modifier\Language\Languages\nl.cs" />
-    <Compile Include="MKDS_Course_Modifier\Language\Languages\pl_PL.cs" />
-    <Compile Include="MKDS_Course_Modifier\Language\Languages\tr_TR.cs" />
-    <Compile Include="MKDS_Course_Modifier\Language\MLCategoryAttribute.cs" />
-    <Compile Include="MKDS_Course_Modifier\Language\MLDescriptionAttribute.cs" />
-    <Compile Include="MKDS_Course_Modifier\Language\MLDisplayNameAttribute.cs" />
-    <Compile Include="MKDS_Course_Modifier\Misc\BMG.cs" />
-    <Compile Include="MKDS_Course_Modifier\Misc\BNCL.cs" />
-    <Compile Include="MKDS_Course_Modifier\Misc\DevIl.cs" />
-    <Compile Include="MKDS_Course_Modifier\Misc\FMV.cs" />
-    <Compile Include="MKDS_Course_Modifier\Misc\IMD.cs" />
-    <Compile Include="MKDS_Course_Modifier\Misc\MODS.cs" />
-    <Compile Include="MKDS_Course_Modifier\Misc\NNSMCS.cs" />
-    <Compile Include="MKDS_Course_Modifier\Misc\PAL.cs" />
-    <Compile Include="MKDS_Course_Modifier\Misc\Riff\RIFFChunkData.cs" />
-    <Compile Include="MKDS_Course_Modifier\Misc\Riff\RIFFChunk`1.cs" />
-    <Compile Include="MKDS_Course_Modifier\Misc\Riff\RIFFData.cs" />
-    <Compile Include="MKDS_Course_Modifier\Misc\Riff\RIFFLISTData.cs" />
-    <Compile Include="MKDS_Course_Modifier\Misc\Riff\RIFFLIST`1.cs" />
-    <Compile Include="MKDS_Course_Modifier\Misc\Riff\RIFF`1.cs" />
-    <Compile Include="MKDS_Course_Modifier\Misc\TEX.cs" />
-    <Compile Include="MKDS_Course_Modifier\Misc\VX.cs" />
-    <Compile Include="MKDS_Course_Modifier\MKDS\Grpconf.cs" />
-    <Compile Include="MKDS_Course_Modifier\MKDS\KCL.cs" />
-    <Compile Include="MKDS_Course_Modifier\MKDS\MKDS_Const.cs" />
-    <Compile Include="MKDS_Course_Modifier\MKDS\NKM.cs" />
-    <Compile Include="MKDS_Course_Modifier\MKDS\ObjectDb.cs" />
-    <Compile Include="MKDS_Course_Modifier\MPDS\BMAP.cs" />
-    <Compile Include="MKDS_Course_Modifier\MPDS\BoardLayout.cs" />
-    <Compile Include="MKDS_Course_Modifier\MPDS\HBDF.cs" />
-    <Compile Include="MKDS_Course_Modifier\Properties\Resources.cs" />
-    <Compile Include="MKDS_Course_Modifier\Properties\Settings.cs" />
-    <Compile Include="MKDS_Course_Modifier\SM64DS\BCA.cs" />
-    <Compile Include="MKDS_Course_Modifier\SM64DS\BMD.cs" />
-    <Compile Include="MKDS_Course_Modifier\UI\MKDS\NKMProperties.cs" />
-    <Compile Include="MKDS_Course_Modifier\_3D_Formats\DAE.cs" />
-    <Compile Include="MKDS_Course_Modifier\_3D_Formats\Group.cs" />
-    <Compile Include="MKDS_Course_Modifier\_3D_Formats\MA.cs" />
-    <Compile Include="MKDS_Course_Modifier\_3D_Formats\MLT.cs" />
-    <Compile Include="MKDS_Course_Modifier\_3D_Formats\OBJ.cs" />
-    <Compile Include="MKDS_Course_Modifier\_3D_Formats\Polygon.cs" />
-    <Compile Include="MKDS_Course_Modifier\_3D_Formats\PolygonType.cs" />
-    <Compile Include="MKDS_Course_Modifier\_3D_Formats\SKP.cs" />
-    <Compile Include="System\ControlHelper.cs" />
-    <Compile Include="System\Extensions.cs" />
-    <Compile Include="System\IO\EndianBinaryReader.cs" />
-    <Compile Include="System\IO\EndianBinaryWriter.cs" />
-    <Compile Include="System\IO\Endianness.cs" />
-    <Compile Include="System\IO\FileSize.cs" />
-    <Compile Include="System\ObjectIDTypeConverter.cs" />
-    <Compile Include="System\ObjectSelector.cs" />
-    <Compile Include="System\ObjectSettingsEditor.cs" />
-    <Compile Include="System\RotationSelector.cs" />
-    <Compile Include="System\UInt16HexTypeConverter.cs" />
-    <Compile Include="System\UInt32HexTypeConverter.cs" />
-    <Compile Include="Tao\OpenGl\GlNitro.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include=".editorconfig" />
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="AngleAltitudeControls\AngleAltitudeSelector.resx" />
-    <EmbeddedResource Include="AngleAltitudeControls\AngleSelector.resx" />
-    <EmbeddedResource Include="MKDS_Course_Modifier\Converters\Colission\kclType.resx" />
-    <EmbeddedResource Include="MKDS_Course_Modifier\Converters\Colission\zcbType.resx" />
-    <EmbeddedResource Include="MKDS_Course_Modifier\Converters\_3D\NSBMDSettings.resx" />
-    <EmbeddedResource Include="MKDS_Course_Modifier\Language\Languages\af-ZA.resx" />
-    <EmbeddedResource Include="MKDS_Course_Modifier\Language\Languages\en.resx" />
-    <EmbeddedResource Include="MKDS_Course_Modifier\Language\Languages\es-419.resx" />
-    <EmbeddedResource Include="MKDS_Course_Modifier\Language\Languages\es.resx" />
-    <EmbeddedResource Include="MKDS_Course_Modifier\Language\Languages\fr.resx" />
-    <EmbeddedResource Include="MKDS_Course_Modifier\Language\Languages\it-CH.resx" />
-    <EmbeddedResource Include="MKDS_Course_Modifier\Language\Languages\it.resx" />
-    <EmbeddedResource Include="MKDS_Course_Modifier\Language\Languages\mk.resx" />
-    <EmbeddedResource Include="MKDS_Course_Modifier\Language\Languages\nl.resx" />
-    <EmbeddedResource Include="MKDS_Course_Modifier\Language\Languages\pl-PL.resx" />
-    <EmbeddedResource Include="MKDS_Course_Modifier\Language\Languages\tr-TR.resx" />
-    <EmbeddedResource Include="MKDS_Course_Modifier\Properties\Resources.resx" />
-  </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
