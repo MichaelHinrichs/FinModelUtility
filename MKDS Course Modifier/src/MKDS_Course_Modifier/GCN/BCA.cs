@@ -88,6 +88,7 @@ namespace MKDS_Course_Modifier.GCN
       public ANF1Section(EndianBinaryReader er, out bool OK)
       {
         bool OK1;
+
         this.Header = new DataBlockHeader(er, "ANF1", out OK1);
         if (!OK1)
         {
@@ -106,13 +107,14 @@ namespace MKDS_Course_Modifier.GCN
           this.ScaleOffset = er.ReadUInt32();
           this.RotOffset = er.ReadUInt32();
           this.TransOffset = er.ReadUInt32();
+
           er.BaseStream.Position = (long) (32U + this.ScaleOffset);
           this.Scale = er.ReadSingles((int) this.NrScale);
           er.BaseStream.Position = (long) (32U + this.RotOffset);
           this.Rotation = er.ReadInt16s((int) this.NrRot);
           er.BaseStream.Position = (long) (32U + this.TransOffset);
           this.Translation = er.ReadSingles((int) this.NrTrans);
-          float RotScale = (float) (Math.Pow(2.0, 1.0) * 180.0 / 32768.0);
+          float RotScale = (float) (1 * Math.PI / 32768f);
           er.BaseStream.Position = (long) (32U + this.JointOffset);
           this.Joints = new BCA.ANF1Section.AnimatedJoint[(int) this.NrJoints];
           for (int index = 0; index < (int) this.NrJoints; ++index)

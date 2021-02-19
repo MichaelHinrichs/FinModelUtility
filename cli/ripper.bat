@@ -12,7 +12,7 @@ set hierarchyPath=%romPath%_dir\
 echo Checking for previously extracted file hierarchy.
 if not exist "%hierarchyPath%" (
   echo|set /p="Extracting file hierarchy... "
-  %szstoolsPath%gcmdump.exe "%romPath%"
+  "%szstoolsPath%gcmdump.exe" "%romPath%"
   echo OK!
   echo.
 )
@@ -31,7 +31,7 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
   for %%i in (*.szs) do (
     if not exist "%%i_dir" if not exist "%%i 0.rarc" (
       echo Extracting contents from %%d\%%i...
-      %szstoolsPath%yaz0dec.exe "%%i"
+      "%szstoolsPath%yaz0dec.exe" "%%i"
       echo OK!
       echo.
     )
@@ -39,7 +39,7 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
   for %%i in (*.rarc) do (
     if not exist "%%i_dir" (
       echo Extracting contents from %%d\%%i...
-      %szstoolsPath%rarcdump.exe "%%i"
+      "%szstoolsPath%rarcdump.exe" "%%i"
       echo OK!
       echo.
     )
