@@ -1,7 +1,9 @@
 @echo off 
 setlocal EnableDelayedExpansion
 
-set szstoolsPath=%~dp0%szstools\
+set outBasePath=%~dp0%out\
+set bmd2gltfBasePath=%~dp0%bmd2gltf\
+set szstoolsBasePath=%~dp0%szstools\
 
 :: TODO: Take this as an arg.
 set romPath=roms\pkmn2.gcm
@@ -12,7 +14,7 @@ set hierarchyPath=%romPath%_dir\
 echo Checking for previously extracted file hierarchy.
 if not exist "%hierarchyPath%" (
   echo|set /p="Extracting file hierarchy... "
-  "%szstoolsPath%gcmdump.exe" "%romPath%"
+  "%szstoolsBasePath%gcmdump.exe" "%romPath%"
   echo OK!
   echo.
 )
@@ -31,7 +33,7 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
   for %%i in (*.szs) do (
     if not exist "%%i_dir" if not exist "%%i 0.rarc" (
       echo Extracting contents from %%d\%%i...
-      "%szstoolsPath%yaz0dec.exe" "%%i"
+      "%szstoolsBasePath%yaz0dec.exe" "%%i"
       echo OK!
       echo.
     )
@@ -39,19 +41,19 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
   for %%i in (*.rarc) do (
     if not exist "%%i_dir" (
       echo Extracting contents from %%d\%%i...
-      "%szstoolsPath%rarcdump.exe" "%%i"
+      "%szstoolsBasePath%rarcdump.exe" "%%i"
       echo OK!
       echo.
     )
   )
 
   :: Gets model(s), but only expecting one
-  set modelFiles=
+  set modelName=%%~nd
+  set modelFile=
   for /d %%m in (".\model.szs*.rarc_dir") do (
     pushd "%%m"
     for %%b in (".\model\*.bmd") do (
-      set modelFile=%%d%%m%%b
-      set modelFiles=!modelFiles! "!modelFile!"
+      set modelFile="%%d%%m%%b"
     )
     popd
   )
@@ -68,10 +70,13 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
   )
 
   :: Merges models w/ animations
-  if defined modelFiles if defined animFiles (
-    :: TODO: Do the merging here
-    echo !modelFiles!
-    echo !animFiles!
+  if defined modelFile if defined animFiles (
+    set outputPath="%outBasePath%!modelName!.glb"
+
+    echo Processing !modelName!...
+    @echo on
+    "%bmd2gltfBasePath%bmd2gltf.exe" !outputPath! !modelFile! !animFiles!
+    @echo off
   )
 )
 

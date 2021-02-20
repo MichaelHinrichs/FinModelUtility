@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{86022D00-3FF6-4C1C-A0E4-CF0A96BF9897}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <AssemblyName>MKDS Course Modifier</AssemblyName>
+    <AssemblyName>bmd2gltf</AssemblyName>
     <TargetFramework>net472</TargetFramework>
     <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>

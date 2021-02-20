@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
@@ -11,7 +12,10 @@ using SharpGLTF.Memory;
 using SharpGLTF.Schema2;
 
 using MKDS_Course_Modifier._3D_Formats;
+using MKDS_Course_Modifier.G3D_Binary_File_Format;
 using MKDS_Course_Modifier.GCN;
+
+using TextureWrapMode = SharpGLTF.Schema2.TextureWrapMode;
 
 namespace mkds.exporter {
   using VERTEX =
@@ -29,7 +33,7 @@ namespace mkds.exporter {
     public static void Export(
         string filePath,
         BMD bmd,
-        IList<BCA>? bcas = null) {
+        IList<(string, BCA)>? pathsAndBcas = null) {
       var joints = bmd.GetJoints();
 
       var scale = 1;
@@ -64,15 +68,21 @@ namespace mkds.exporter {
         var parentNode = joint.Parent == null
                              ? rootNode
                              : jointNameToNode[joint.Parent];
-        var node = parentNode.CreateNode(jointName)
-                             .WithLocalTranslation(
-                                 GltfExporter.ConvertMsToCs_(
-                                     joint.Trans,
-                                     scale))
-                             .WithLocalRotation(
-                                 GltfExporter.ConvertMsToCs_(joint.Rot))
-                             .WithLocalScale(
-                                 GltfExporter.ConvertMsToCs_(joint.Scale));
+
+        var scaleVec = GltfExporter.ConvertMsToCs_(joint.Scale);
+
+        var node = parentNode.CreateNode(jointName);
+
+        node.WithLocalTranslation(
+            GltfExporter.ConvertMsToCs_(joint.Trans, scale));
+
+        var jointRotation = joint.Rot;
+        if (jointRotation.Length() > 0) {
+          node.WithLocalRotation(GltfExporter.ConvertMsToCs_(jointRotation));
+        }
+
+        var jointScale = joint.Scale;
+        node.WithLocalScale(GltfExporter.ConvertMsToCs_(jointScale));
 
         jointNameToNode[jointName] = node;
         jointNodes[1 + j] = node;
@@ -81,6 +91,7 @@ namespace mkds.exporter {
       skin.BindJoints(jointNodes.ToArray());
 
       // Gathers up texture materials.
+      // TODO: Check MAT3 for more specific material values
       var basePath = new FileInfo(filePath).Directory.FullName;
 
       var textures = bmd.TEX1.TextureHeaders;
@@ -116,12 +127,12 @@ namespace mkds.exporter {
       }
 
       // Gathers up animations.
-      var bcaCount = bcas?.Count ?? 0;
+      var bcaCount = pathsAndBcas?.Count ?? 0;
       for (var a = 0; a < bcaCount; ++a) {
-        var bca = bcas![a];
+        var (bcaPath, bca) = pathsAndBcas![a];
         var animatedJoints = bca.ANF1.Joints;
 
-        var animationName = $"animation{a}";
+        var animationName = new FileInfo(bcaPath).Name.Split('.')[0];
 
         var glTfAnimation = model.UseAnimation(animationName);
 
@@ -171,6 +182,8 @@ namespace mkds.exporter {
       }
 
       // Gathers up vertex builders.
+      var vertexData = bmd.VTX1;
+
       /*ModelViewMatrixTransformer.Push();
       ModelViewMatrixTransformer.Identity();
 
@@ -318,6 +331,191 @@ namespace mkds.exporter {
 
       model.Save(filePath);
     }
+
+    /*private static WriteMesh_(BMD bmd) {
+      MaterialBuilder? currentMaterial;
+
+      var vertexPositions = bmd.VTX1.Positions;
+      var vertexNormals = bmd.VTX1.Normals;
+      var vertexColors = bmd.VTX1.Colors;
+      var vertexUvs = bmd.VTX1.Texcoords;
+      var batches = bmd.SHP1.Batches;
+
+      var meshBuilder = VERTEX.CreateCompatibleMesh();
+
+      foreach (var entry in this.INF1.Entries) {
+        switch (entry.Type) {
+          case 0:
+            goto label_35;
+
+          case 16:
+            Gl.glTranslatef(this.JNT1.Joints[(int) entry.Index].Tx,
+                            this.JNT1.Joints[(int) entry.Index].Ty,
+                            this.JNT1.Joints[(int) entry.Index].Tz);
+            Gl.glRotatef(
+                (float) ((double) this.JNT1.Joints[(int) entry.Index].Rx /
+                         32768.0 *
+                         180.0),
+                1f,
+                0.0f,
+                0.0f);
+            Gl.glRotatef(
+                (float) ((double) this.JNT1.Joints[(int) entry.Index].Ry /
+                         32768.0 *
+                         180.0),
+                0.0f,
+                1f,
+                0.0f);
+            Gl.glRotatef(
+                (float) ((double) this.JNT1.Joints[(int) entry.Index].Rz /
+                         32768.0 *
+                         180.0),
+                0.0f,
+                0.0f,
+                1f);
+            Gl.glScalef(this.JNT1.Joints[(int) entry.Index].Sx,
+                        this.JNT1.Joints[(int) entry.Index].Sy,
+                        this.JNT1.Joints[(int) entry.Index].Sz);
+            break;
+
+          case 17:
+            Gl.glMatrixMode(5890);
+            Gl.glLoadIdentity();
+            for (int index = 0; index < 8; ++index) {
+              Gl.glActiveTexture(33984 + index);
+              Gl.glLoadIdentity();
+              if (this.MAT3.MaterialEntries[
+                          (int) this.MAT3.MaterialEntryIndieces[
+                              (int) entry.Index]]
+                      .TexStages[index] !=
+                  ushort.MaxValue)
+                Gl.glBindTexture(3553,
+                                 (int) this.MAT3.TextureIndieces[
+                                     (int) this
+                                           .MAT3.MaterialEntries[
+                                               (int) this
+                                                     .MAT3
+                                                     .MaterialEntryIndieces
+                                                     [(int) entry
+                                                          .Index]]
+                                           .TexStages[index]] +
+                                 1);
+              else
+                Gl.glBindTexture(3553, 0);
+            }
+            Gl.glMatrixMode(5888);
+            this.MAT3.glAlphaCompareglBendMode(
+                (int) this
+                      .MAT3.MaterialEntries[
+                          (int) this.MAT3.MaterialEntryIndieces[
+                              (int) entry.Index]]
+                      .Indices2[1],
+                (int) this
+                      .MAT3.MaterialEntries[
+                          (int) this.MAT3.MaterialEntryIndieces[
+                              (int) entry.Index]]
+                      .Indices2[2],
+                (int) this
+                      .MAT3.MaterialEntries[
+                          (int) this.MAT3.MaterialEntryIndieces[
+                              (int) entry.Index]]
+                      .Indices2[3]);
+            this.Shaders[
+                    (int) this.MAT3.MaterialEntryIndieces[(int) entry.Index]]
+                .Enable();
+            break;
+
+          case 18:
+            var batch = batches[(int) entry.Index];
+            foreach (var packet in batch.Packets) {
+              foreach (var primitive in packet.Primitives) {
+                var points = primitive.Points;
+                var pointsCount = points.Length;
+                var vertices = new VERTEX[pointsCount];
+
+                for (var p = 0; p < pointsCount; ++p) {
+                  var point = points[p];
+
+                  CsVector? gltfPosition = null;
+                  if (!batch.HasPositions) {
+                    throw new Exception(
+                        "How can a point not have a position??");
+                  } else {
+                    var position = vertexPositions[point.PosIndex];
+
+                    double x = position.X;
+                    double y = position.Y;
+                    double z = position.Z;
+
+                    PROJECT
+
+                        gltfPosition =
+                            new CsVector((float) x, (float) y, (float) z);
+                  }
+                  var vertexBuilder = VERTEX.Create(gltfPosition.Value);
+
+                  if (batch.HasNormals) {
+                    var normal = vertexNormals[point.NormalIndex];
+
+                    double normalX = normal.X;
+                    double normalY = normal.Y;
+                    double normalZ = normal.Z;
+
+                    PROJECT
+
+                    vertexBuilder = vertexBuilder.WithGeometry(
+                        vertexBuilder.Position,
+                        new CsVector((float) normalX,
+                                     (float) normalY,
+                                     (float) normalZ));
+                  }
+
+                  Vector4? gltfColor = null;
+                  if (batch.HasColors[0]) {
+                    var colorIndex = point.ColorIndex[0];
+                    var color = vertexColors[0][colorIndex];
+
+                    var r = color.R / (float) byte.MaxValue;
+                    var b = color.G / (float) byte.MaxValue;
+                    var g = color.B / (float) byte.MaxValue;
+                    var a = color.A / (float) byte.MaxValue;
+
+                    gltfColor = new Vector4(r, g, b, a);
+                  }
+
+                  // TODO: Support multiple texture coords?
+                  Vector2? gltfUv = null;
+                  if (batch.HasTexCoords[0]) {
+                    var uv = vertexUvs[0][point.TexCoordIndex[0]];
+                    gltfUv = new Vector2(uv.S, uv.T);
+                  }
+
+                  var hasColor = gltfColor != null;
+                  var hasUv = gltfUv != null;
+                  if (hasColor && hasUv) {
+                    vertexBuilder =
+                        vertexBuilder.WithMaterial(
+                            gltfColor.Value,
+                            gltfUv.Value);
+                  } else if (hasColor) {
+                    vertexBuilder = vertexBuilder.WithMaterial(gltfColor.Value);
+                  } else if (hasUv) {
+                    vertexBuilder = vertexBuilder.WithMaterial(gltfUv.Value);
+                  }
+
+                  vertices[p] = vertexBuilder;
+                }
+
+                var glPrimitiveType = primitive.GetGlPrimitive();
+                meshBuilder.UsePrimitive(currentMaterial);
+                
+                APPEND TO MODEL
+              }
+            }
+            break;
+        }
+      }
+    }*/
 
     private static CsQuaternion CreateQuaternion_(
         float xRadians,
