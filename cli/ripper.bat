@@ -47,23 +47,38 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
     )
   )
 
-  :: Gets model(s), but only expecting one
-  set modelName=%%~nd
+  :: Gets model/animations
+  set modelName=
   set modelFile=
+  set animFiles=
+
+  :: Gets from separate model/animation szs (e.g. Enemies)
   for /d %%m in (".\model.szs*.rarc_dir") do (
     pushd "%%m"
     for %%b in (".\model\*.bmd") do (
+      set modelName=%%~nd
       set modelFile="%%d%%m%%b"
     )
     popd
   )
-
-  :: Gets animation(s)
-  set animFiles=
   for /d %%a in (".\anim.szs*.rarc_dir") do (
     pushd "%%a"
-    for %%b in (".\anim\*.bca") do (
+    for %%b in (".\anim\*.bc*") do (
       set animFile=%%d%%a%%b
+      set animFiles=!animFiles! "!animFile!"
+    )
+    popd
+  )
+
+  :: Gets from model/animations in same szs (e.g. user\Kando)
+  for /d %%r in (".\arc.szs*.rarc_dir") do (
+    pushd "%%r"
+    for %%b in (".\arc\*.bmd") do (
+      set modelName=%%~nd
+      set modelFile="%%d%%r%%b"
+    )
+    for %%b in (".\arc\*.bc*") do (
+      set animFile=%%d%%r%%b
       set animFiles=!animFiles! "!animFile!"
     )
     popd
@@ -71,7 +86,10 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
 
   :: Merges models w/ animations
   if defined modelFile if defined animFiles (
-    set outputPath="%outBasePath%!modelName!.glb"
+    set modelBasePath=%outBasePath%!modelName!
+    set outputPath="!modelBasePath!\!modelName!.glb"
+
+    if not exist "!modelBasePath!" mkdir "!modelBasePath!"
 
     echo Processing !modelName!...
     @echo on

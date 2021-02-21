@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -33,7 +34,7 @@ namespace mkds.exporter {
     public static void Export(
         string filePath,
         BMD bmd,
-        IList<(string, BCA)>? pathsAndBcas = null) {
+        IList<(string, IBcx)>? pathsAndBcxs = null) {
       var joints = bmd.GetJoints();
 
       var scale = 1;
@@ -102,10 +103,10 @@ namespace mkds.exporter {
       for (var i = 0; i < textures.Length; ++i) {
         var glTexture = textures[i];
 
-        var texturePath = $"{basePath}/{i}.png";
-        glTexture.ToBitmap().Save(texturePath);
+        var stream = new MemoryStream();
+        glTexture.ToBitmap().Save(stream, ImageFormat.Png);
+        var glTfImage = new MemoryImage(stream.ToArray());
 
-        var glTfImage = new MemoryImage(texturePath);
         // TODO: Need to handle wrapping in the shader?
         var wrapModeS = GltfExporter.GetWrapMode_(glTexture.WrapS);
         var wrapModeT = GltfExporter.GetWrapMode_(glTexture.WrapS);
@@ -127,12 +128,12 @@ namespace mkds.exporter {
       }
 
       // Gathers up animations.
-      var bcaCount = pathsAndBcas?.Count ?? 0;
-      for (var a = 0; a < bcaCount; ++a) {
-        var (bcaPath, bca) = pathsAndBcas![a];
-        var animatedJoints = bca.ANF1.Joints;
+      var bcxCount = pathsAndBcxs?.Count ?? 0;
+      for (var a = 0; a < bcxCount; ++a) {
+        var (bcxPath, bcx) = pathsAndBcxs![a];
+        var animatedJoints = bcx.Anx1.Joints;
 
-        var animationName = new FileInfo(bcaPath).Name.Split('.')[0];
+        var animationName = new FileInfo(bcxPath).Name.Split('.')[0];
 
         var glTfAnimation = model.UseAnimation(animationName);
 
@@ -145,7 +146,8 @@ namespace mkds.exporter {
           var animatedJoint = animatedJoints[jointIndex];
           var values = animatedJoint.Values;
 
-          for (var f = 0; f < bca.ANF1.AnimLength; ++f) {
+          // TODO: Handle mirrored animations
+          for (var f = 0; f < bcx.Anx1.FrameCount; ++f) {
             var time = f / 30f;
 
             var x = animatedJoint.GetAnimValue(values.translationsX, f) *
@@ -329,7 +331,10 @@ namespace mkds.exporter {
       /*scene.CreateNode()
            .WithSkinnedMesh(mesh, rootNode.WorldMatrix, jointNodes.ToArray());*/
 
-      model.Save(filePath);
+      var writeSettings = new WriteSettings {
+          ImageWriting = ResourceWriteMode.SatelliteFile,
+      };
+      model.Save(filePath, writeSettings);
     }
 
     /*private static WriteMesh_(BMD bmd) {
