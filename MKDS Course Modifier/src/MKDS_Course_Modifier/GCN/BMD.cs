@@ -1500,13 +1500,17 @@ label_140:
           this.Padding = er.ReadUInt16();
           this.IsWeightedOffset = er.ReadUInt32();
           this.DataOffset = er.ReadUInt32();
+
           long position2 = er.BaseStream.Position;
+          
           er.BaseStream.Position = position1 + (long) this.IsWeightedOffset;
           this.IsWeighted = new bool[(int) this.Count];
           for (int index = 0; index < (int) this.Count; ++index)
             this.IsWeighted[index] = er.ReadByte() == (byte) 1;
-          er.BaseStream.Position = position1 + (long) this.IsWeightedOffset;
+          
+          er.BaseStream.Position = position1 + (long) this.DataOffset;
           this.Data = er.ReadUInt16s((int) this.Count);
+
           er.BaseStream.Position = position1 + (long) this.Header.size;
           OK = true;
         }

@@ -101,7 +101,7 @@ namespace MKDS_Course_Modifier.GCN {
           this.Translation = er.ReadSingles((int) this.NrTrans);
           float RotScale =
               (float) (Math.Pow(2.0, (double) this.AngleMultiplier) *
-                       180.0 /
+                       Math.PI /
                        32768.0);
           er.BaseStream.Position = (long) (32U + this.JointOffset);
           this.Joints = new AnimatedJoint[(int) this.NrJoints];

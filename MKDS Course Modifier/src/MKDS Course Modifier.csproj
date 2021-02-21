@@ -22,10 +22,12 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="MathNet.Numerics" Version="4.15.0" />
     <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0020" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="MKDS_Course_Modifier\N64\**" />
+    <Compile Remove="MKDS_Course_Modifier\Particles\**" />
     <Compile Remove="MKDS_Course_Modifier\Sound\**" />
     <Compile Remove="MKDS_Course_Modifier\UI\**" />
     <Compile Remove="MKDS_Course_Modifier\_3DS\**" />
@@ -33,6 +35,7 @@
     <Compile Remove="WaveLib\**" />
     <Compile Remove="wyDay\**" />
     <EmbeddedResource Remove="MKDS_Course_Modifier\N64\**" />
+    <EmbeddedResource Remove="MKDS_Course_Modifier\Particles\**" />
     <EmbeddedResource Remove="MKDS_Course_Modifier\Sound\**" />
     <EmbeddedResource Remove="MKDS_Course_Modifier\UI\**" />
     <EmbeddedResource Remove="MKDS_Course_Modifier\_3DS\**" />
@@ -40,6 +43,7 @@
     <EmbeddedResource Remove="WaveLib\**" />
     <EmbeddedResource Remove="wyDay\**" />
     <None Remove="MKDS_Course_Modifier\N64\**" />
+    <None Remove="MKDS_Course_Modifier\Particles\**" />
     <None Remove="MKDS_Course_Modifier\Sound\**" />
     <None Remove="MKDS_Course_Modifier\UI\**" />
     <None Remove="MKDS_Course_Modifier\_3DS\**" />
@@ -56,12 +60,17 @@
     <Compile Remove="MKDS_Course_Modifier\IO\FileHandler.cs" />
     <Compile Remove="MKDS_Course_Modifier\IO\NDS.cs" />
     <Compile Remove="MKDS_Course_Modifier\IO\NDS_new.cs" />
+    <Compile Remove="MKDS_Course_Modifier\Misc\BNCL.cs" />
+    <Compile Remove="MKDS_Course_Modifier\Misc\FMV.cs" />
     <Compile Remove="MKDS_Course_Modifier\Misc\PAZ.cs" />
     <Compile Remove="MKDS_Course_Modifier\Misc\sfxbin.cs" />
     <Compile Remove="MKDS_Course_Modifier\Program.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Remove="MKDS_Course_Modifier\Form1.resx" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="lib\FastColoredTextBox.dll" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MKDS_Course_Modifier\UI\MKDS\MRProperties.cs" />

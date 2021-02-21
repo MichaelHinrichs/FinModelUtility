@@ -4,7 +4,10 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Runtime.CompilerServices;
+
+using MathNet.Numerics.LinearAlgebra.Double;
+
+using MKDS_Course_Modifier.G3D_Binary_File_Format;
 
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
@@ -12,9 +15,9 @@ using SharpGLTF.Materials;
 using SharpGLTF.Memory;
 using SharpGLTF.Schema2;
 
-using MKDS_Course_Modifier._3D_Formats;
-using MKDS_Course_Modifier.G3D_Binary_File_Format;
 using MKDS_Course_Modifier.GCN;
+
+using Tao.OpenGl;
 
 using TextureWrapMode = SharpGLTF.Schema2.TextureWrapMode;
 
@@ -31,6 +34,8 @@ namespace mkds.exporter {
   using GxWrapTag = BMD.TEX1Section.GX_WRAP_TAG;
 
   public static class GltfExporter {
+    public static bool IncludeRootNode = false;
+
     public static void Export(
         string filePath,
         BMD bmd,
@@ -46,10 +51,15 @@ namespace mkds.exporter {
 
       var skin = model.CreateSkin();
 
-      var jointNodes = new GltfNode[1 + joints.Length];
-
       var rootNode = scene.CreateNode();
-      jointNodes[0] = rootNode;
+
+      GltfNode[] skinNodes;
+      if (IncludeRootNode) {
+        skinNodes = new GltfNode[1 + joints.Length];
+        skinNodes[0] = rootNode;
+      } else {
+        skinNodes = new GltfNode[joints.Length];
+      }
 
       // TODO: Use buffers for shader stuff?
       // TODO: Eliminate redundant definitions.
@@ -60,8 +70,10 @@ namespace mkds.exporter {
       // TODO: Environment color isn't used yet, giving weird colors for link.
 
       // Gathers up joints and their gltf nodes.
+      // TODO: Jeez, clean these up.
       var jointNameToNode = new Dictionary<string, GltfNode>();
       var jointsAndNodes = new (MkdsNode, GltfNode)[joints.Length];
+      var jointNodes = new GltfNode[joints.Length];
       for (var j = 0; j < joints.Length; ++j) {
         var joint = joints[j];
         var jointName = joint.Name;
@@ -69,8 +81,6 @@ namespace mkds.exporter {
         var parentNode = joint.Parent == null
                              ? rootNode
                              : jointNameToNode[joint.Parent];
-
-        var scaleVec = GltfExporter.ConvertMsToCs_(joint.Scale);
 
         var node = parentNode.CreateNode(jointName);
 
@@ -85,11 +95,16 @@ namespace mkds.exporter {
         var jointScale = joint.Scale;
         node.WithLocalScale(GltfExporter.ConvertMsToCs_(jointScale));
 
+        jointNodes[j] = node;
         jointNameToNode[jointName] = node;
-        jointNodes[1 + j] = node;
+        if (IncludeRootNode) {
+          skinNodes[1 + j] = node;
+        } else {
+          skinNodes[j] = node;
+        }
         jointsAndNodes[j] = (joint, node);
       }
-      skin.BindJoints(jointNodes.ToArray());
+      skin.BindJoints(skinNodes.ToArray());
 
       // Gathers up texture materials.
       // TODO: Check MAT3 for more specific material values
@@ -184,152 +199,9 @@ namespace mkds.exporter {
       }
 
       // Gathers up vertex builders.
-      var vertexData = bmd.VTX1;
-
-      /*ModelViewMatrixTransformer.Push();
-      ModelViewMatrixTransformer.Identity();
-
-      var vertexBuilders = new VERTEX[this.allVertices_.Count];
-
-      if (!hasLimbs) {
-        for (var v = 0; v < this.allVertices_.Count; ++v) {
-          var vertex = this.allVertices_[v];
-          var position = new Vector3(
-              (float)(vertex.X * scale),
-              (float)(vertex.Y * scale),
-              (float)(vertex.Z * scale));
-
-          vertexBuilders[v] = VERTEX.Create(position).WithSkinning((0, 1));
-        }
-      } else {
-        this.LimbMatrices.UpdateLimbMatrices(this.Limbs,
-                                             firstAnimation,
-                                             0);
-
-        for (var l = 0; l < limbsAndNodes.Length; ++l) {
-          var jointIndex = 1 + l;
-          var (limb, _) = limbsAndNodes[l];
-
-          ModelViewMatrixTransformer.Set(
-              this.LimbMatrices.GetMatrixForLimb((uint)l));
-
-          foreach (var vertexId in limb.OwnedVertices) {
-            var vertex = this.allVertices_[vertexId];
-
-            var x = vertex.X;
-            var y = vertex.Y;
-            var z = vertex.Z;
-
-            // Model MUST be pre-projected to match the orientation of the rig!
-            ModelViewMatrixTransformer.ProjectVertex(ref x, ref y, ref z);
-
-            var position = new Vector3(
-                (float)(x * scale),
-                (float)(y * scale),
-                (float)(z * scale));
-
-            vertexBuilders[vertexId] = VERTEX
-                                       .Create(position)
-                                       .WithSkinning((jointIndex, 1));
-          }
-        }
-      }*/
-
-      // Builds mesh.
-      var meshBuilder = VERTEX.CreateCompatibleMesh();
-
-      /*void AddTrianglesToMesh(IList<TriangleParams> triangles) {
-        foreach (var triangle in triangles) {
-          var shaderParams = triangle.ShaderParams;
-          var enableLighting = shaderParams.EnableLighting;
-          var withNormal = enableLighting;
-          var withPrimColor = withNormal && shaderParams.EnableCombiner;
-
-          // TODO: Should be possible to merge these by texture/shader.
-
-          var texture0MaterialPair = materials[1 + triangle.TextureIds[0]];
-
-          var texture0Material = shaderParams.EnableSphericalUv
-                                     ? texture0MaterialPair.Glossy
-                                     : enableLighting
-                                         ? texture0MaterialPair.Lit
-                                         : texture0MaterialPair.Unlit;
-
-          var trianglePrimitive = meshBuilder.UsePrimitive(texture0Material);
-          var triangleVertexBuilders = new List<IVertexBuilder>();
-
-          foreach (var vertexId in triangle.Vertices) {
-            var vertex = this.allVertices_[vertexId];
-
-            // TODO: How does environment color fit in?
-            var color = withNormal
-                            ? withPrimColor
-                                  ? new Vector4(shaderParams.PrimColor[0],
-                                                shaderParams.PrimColor[1],
-                                                shaderParams.PrimColor[2],
-                                                shaderParams.PrimColor[3])
-                                  : new Vector4(1)
-                            : new Vector4(vertex.R / 255f,
-                                          vertex.G / 255f,
-                                          vertex.B / 255f,
-                                          vertex.A / 255f);
-
-            var vertexBuilder = vertexBuilders[vertexId];
-
-            var texture0Id = triangle.TextureIds[0];
-            var texture0 = texture0Id >= 0
-                               ? this.allTextures_[triangle.TextureIds[0]]
-                               : null;
-            var tileDescriptor0 = texture0?.TileDescriptor;
-
-            var u = (float)(vertex.U * tileDescriptor0?.TextureWRatio ?? 0);
-            var v = (float)(vertex.V * tileDescriptor0?.TextureHRatio ?? 0);
-            vertexBuilder =
-                vertexBuilder.WithMaterial(color, new Vector2(u, v));
-
-            if (withNormal) {
-              // TODO: Normals seem broken?
-              // TODO: Might need to pre-project?
-
-              double x = vertex.NormalX;
-              double y = vertex.NormalY;
-              double z = vertex.NormalZ;
-              ModelViewMatrixTransformer.ProjectNormal(ref x, ref y, ref z);
-
-              var normal =
-                  Vector3.Normalize(
-                      new Vector3((float)x, (float)y, (float)z));
-              vertexBuilder =
-                  vertexBuilder.WithGeometry(vertexBuilder.Position, normal);
-            }
-
-            triangleVertexBuilders.Add(vertexBuilder);
-          }
-
-          trianglePrimitive.AddTriangle(triangleVertexBuilders[0],
-                                        triangleVertexBuilders[1],
-                                        triangleVertexBuilders[2]);
-        }
-      }
-
-      if (!hasLimbs) {
-        AddTrianglesToMesh(this.root_!.Triangles);
-      } else {
-        for (var l = 0; l < limbsAndNodes.Length; ++l) {
-          var (limb, _) = limbsAndNodes[l];
-
-          ModelViewMatrixTransformer.Set(
-              this.LimbMatrices.GetMatrixForLimb((uint)l));
-
-          AddTrianglesToMesh(limb.Triangles);
-        }
-      }
-      ModelViewMatrixTransformer.Pop();*/
-
-      var mesh = model.CreateMesh(meshBuilder);
-
-      /*scene.CreateNode()
-           .WithSkinnedMesh(mesh, rootNode.WorldMatrix, jointNodes.ToArray());*/
+      var mesh = GltfExporter.WriteMesh_(jointNodes, model, bmd);
+      scene.CreateNode()
+           .WithSkinnedMesh(mesh, rootNode.WorldMatrix, jointNodes.ToArray());
 
       var writeSettings = new WriteSettings {
           ImageWriting = ResourceWriteMode.SatelliteFile,
@@ -337,8 +209,19 @@ namespace mkds.exporter {
       model.Save(filePath, writeSettings);
     }
 
-    /*private static WriteMesh_(BMD bmd) {
-      MaterialBuilder? currentMaterial;
+    private static SoftwareModelViewMatrixTransformer transformer =
+        new SoftwareModelViewMatrixTransformer();
+
+    private static Mesh WriteMesh_(
+        Node[] jointNodes,
+        ModelRoot model,
+        BMD bmd) {
+      MaterialBuilder? currentMaterial = new MaterialBuilder("null")
+                                         .WithDoubleSide(true)
+                                         .WithUnlitShader();
+
+      var entries = bmd.INF1.Entries;
+      var joints = bmd.GetJoints();
 
       var vertexPositions = bmd.VTX1.Positions;
       var vertexNormals = bmd.VTX1.Normals;
@@ -348,47 +231,62 @@ namespace mkds.exporter {
 
       var meshBuilder = VERTEX.CreateCompatibleMesh();
 
-      foreach (var entry in this.INF1.Entries) {
+      var matrixIndices = new Dictionary<int, int>();
+
+      // TODO: Need to pre-compute matrices, vertices come w/ matrix index.
+      var matrices = new Matrix[joints.Length];
+      for (var e = 0; e < entries.Length; ++e) {
+        var entry = entries[e];
         switch (entry.Type) {
-          case 0:
-            goto label_35;
-
-          case 16:
-            Gl.glTranslatef(this.JNT1.Joints[(int) entry.Index].Tx,
-                            this.JNT1.Joints[(int) entry.Index].Ty,
-                            this.JNT1.Joints[(int) entry.Index].Tz);
-            Gl.glRotatef(
-                (float) ((double) this.JNT1.Joints[(int) entry.Index].Rx /
-                         32768.0 *
-                         180.0),
-                1f,
-                0.0f,
-                0.0f);
-            Gl.glRotatef(
-                (float) ((double) this.JNT1.Joints[(int) entry.Index].Ry /
-                         32768.0 *
-                         180.0),
-                0.0f,
-                1f,
-                0.0f);
-            Gl.glRotatef(
-                (float) ((double) this.JNT1.Joints[(int) entry.Index].Rz /
-                         32768.0 *
-                         180.0),
-                0.0f,
-                0.0f,
-                1f);
-            Gl.glScalef(this.JNT1.Joints[(int) entry.Index].Sx,
-                        this.JNT1.Joints[(int) entry.Index].Sy,
-                        this.JNT1.Joints[(int) entry.Index].Sz);
+          case 0x01: {
+            transformer.Push();
             break;
+          }
 
-          case 17:
-            Gl.glMatrixMode(5890);
-            Gl.glLoadIdentity();
-            for (int index = 0; index < 8; ++index) {
-              Gl.glActiveTexture(33984 + index);
-              Gl.glLoadIdentity();
+          case 0x02: {
+            transformer.Pop();
+            break;
+          }
+
+          // Joint
+          case 0x10:
+            var jointIndex = entry.Index;
+            var gltfNode = jointNodes[jointIndex];
+
+            // TODO: I think this is wrong, should be ignoring scale?
+            var m = GlMatrixUtil.CsToMn(gltfNode.WorldMatrix);
+            transformer.Set(m);
+
+            var cur = new DenseMatrix(4, 4);
+            transformer.Get(cur);
+            matrices[jointIndex] = cur;
+            break;
+        }
+      }
+
+      var matrixTable = new WeightedMatrix[10];
+      for (var e = 0; e < entries.Length; ++e) {
+        var entry = entries[e];
+        switch (entry.Type) {
+          // Terminator
+          case 0x00:
+            goto DoneRendering;
+
+          // Material
+          case 0x11:
+            var materialIndex = bmd.MAT3.MaterialEntryIndieces[entry.Index];
+            var material = bmd.MAT3.MaterialEntries[materialIndex];
+
+            // TODO: Use textures
+            /*if (material.TexStages[0] != ushort.MaxValue) {
+              bmd.MAT3.TextureIndieces[material]
+
+              currentMaterial = null;
+            } else {
+              currentMaterial = null;
+            }*/
+
+            /*for (int index = 0; index < 8; ++index) {
               if (this.MAT3.MaterialEntries[
                           (int) this.MAT3.MaterialEntryIndieces[
                               (int) entry.Index]]
@@ -407,8 +305,9 @@ namespace mkds.exporter {
                                  1);
               else
                 Gl.glBindTexture(3553, 0);
-            }
-            Gl.glMatrixMode(5888);
+            }*/
+
+            /*Gl.glMatrixMode(5888);
             this.MAT3.glAlphaCompareglBendMode(
                 (int) this
                       .MAT3.MaterialEntries[
@@ -427,19 +326,103 @@ namespace mkds.exporter {
                       .Indices2[3]);
             this.Shaders[
                     (int) this.MAT3.MaterialEntryIndieces[(int) entry.Index]]
-                .Enable();
+                .Enable();*/
             break;
 
-          case 18:
+          // Batch
+          case 0x12:
             var batch = batches[(int) entry.Index];
             foreach (var packet in batch.Packets) {
+              // Updates contents of matrix table
+              for (var i = 0; i < packet.MatrixTable.Length; ++i) {
+                var matrixTableIndex = packet.MatrixTable[i];
+
+                // Max value means keep old value.
+                if (matrixTableIndex == ushort.MaxValue) {
+                  continue;
+                }
+
+                var isWeighted = bmd.DRW1.IsWeighted[matrixTableIndex];
+                var drw1Index = bmd.DRW1.Data[matrixTableIndex];
+
+                if (isWeighted) {
+                  var weightedIndices = bmd.EVP1.WeightedIndices[drw1Index];
+                  var weightedMatrices = new List<MathNet.Numerics.LinearAlgebra.Matrix<double>>();
+                  var skinning = new List<(int, float)>();
+
+                  for (var w = 0; w < weightedIndices.Indices.Length; ++w) {
+                    var jointIndex = weightedIndices.Indices[w];
+                    var weight = weightedIndices.Weights[w];
+
+                    if (jointIndex >= joints.Length) {
+                      throw new InvalidDataException();
+                    }
+
+                    var skinToLocalLimbMatrix = ConvertMkdsToMn_(bmd.EVP1.Matrices[jointIndex]);
+                    var localLimbToWorldMatrix = matrices[jointIndex];
+                    var skinToWorldMatrix = localLimbToWorldMatrix.Multiply(skinToLocalLimbMatrix);
+                    //var skinToWorldMatrix = skinToLocalLimbMatrix.Multiply(localLimbToWorldMatrix);
+
+                    weightedMatrices.Add(skinToWorldMatrix);
+
+                    if (IncludeRootNode) {
+                      skinning.Add((1 + jointIndex, weight));
+                    } else {
+                      skinning.Add((jointIndex, weight));
+                    }
+                  }
+
+                  var wm = new WeightedMatrix {
+                      Matrices = weightedMatrices.ToArray(),
+                      Skinning = skinning.ToArray(),
+                  };
+                  matrixTable[i] = wm;
+                } 
+                // Unweighted bones are simple, just gets our precomputed limb
+                // matrix
+                else {
+                  var jointIndex = drw1Index;
+                  if (jointIndex >= joints.Length) {
+                    throw new InvalidDataException();
+                  }
+
+                  var skinning = new List<(int, float)>();
+                  if (IncludeRootNode) {
+                    skinning.Add((1 + jointIndex, 1));
+                  } else {
+                    skinning.Add((jointIndex, 1));
+                  }
+
+                  var wm = new WeightedMatrix {
+                      Matrices = new [] {matrices[jointIndex]},
+                      Skinning = skinning.ToArray(),
+                  };
+                  matrixTable[i] = wm;
+                }
+              }
+
+              // Adds primitives
               foreach (var primitive in packet.Primitives) {
                 var points = primitive.Points;
                 var pointsCount = points.Length;
                 var vertices = new VERTEX[pointsCount];
 
+                // TODO: Here or just above primitives?
+                var weightedMatrix = matrixTable[0];
+
                 for (var p = 0; p < pointsCount; ++p) {
                   var point = points[p];
+
+                  var matrixIndex = point.MatrixIndex / 3;
+                  weightedMatrix = matrixTable[matrixIndex];
+
+                  foreach (var skins in weightedMatrix.Skinning) {
+                    var ji = skins.Item1;
+                    var c = matrixIndices.ContainsKey(ji)
+                                ? matrixIndices[ji]
+                                : 0;
+                    matrixIndices[ji] = c + 1;
+                  }
 
                   CsVector? gltfPosition = null;
                   if (!batch.HasPositions) {
@@ -452,12 +435,15 @@ namespace mkds.exporter {
                     double y = position.Y;
                     double z = position.Z;
 
-                    PROJECT
+                    ProjectVertexWeighted(weightedMatrix, ref x, ref y, ref z);
 
-                        gltfPosition =
-                            new CsVector((float) x, (float) y, (float) z);
+                    gltfPosition =
+                        new CsVector((float) x, (float) y, (float) z);
                   }
-                  var vertexBuilder = VERTEX.Create(gltfPosition.Value);
+
+                  var vertexBuilder = VERTEX
+                                      .Create(gltfPosition.Value)
+                                      .WithSkinning(weightedMatrix.Skinning);
 
                   if (batch.HasNormals) {
                     var normal = vertexNormals[point.NormalIndex];
@@ -466,7 +452,10 @@ namespace mkds.exporter {
                     double normalY = normal.Y;
                     double normalZ = normal.Z;
 
-                    PROJECT
+                    ProjectNormalWeighted(weightedMatrix,
+                                          ref normalX,
+                                          ref normalY,
+                                          ref normalZ);
 
                     vertexBuilder = vertexBuilder.WithGeometry(
                         vertexBuilder.Position,
@@ -512,15 +501,135 @@ namespace mkds.exporter {
                 }
 
                 var glPrimitiveType = primitive.GetGlPrimitive();
-                meshBuilder.UsePrimitive(currentMaterial);
-                
-                APPEND TO MODEL
+
+                switch (glPrimitiveType) {
+                  case Gl.GL_TRIANGLES: {
+                    var triangles =
+                        meshBuilder.UsePrimitive(currentMaterial, 3);
+
+                    for (var v = 0; v < pointsCount; v += 3) {
+                      triangles.AddTriangle(vertices[v + 0],
+                                            vertices[v + 1],
+                                            vertices[v + 2]);
+                    }
+
+                    break;
+                  }
+
+                  case Gl.GL_TRIANGLE_STRIP: {
+                    var triangleStrip =
+                        meshBuilder.UsePrimitive(currentMaterial, 3);
+
+                    for (var v = 0; v < pointsCount - 2; ++v) {
+                      if (v % 2 == 0) {
+                        triangleStrip.AddTriangle(vertices[v + 0],
+                                                  vertices[v + 1],
+                                                  vertices[v + 2]);
+                      } else {
+                        // Switches drawing order to maintain proper winding:
+                        // https://www.khronos.org/opengl/wiki/Primitive
+                        triangleStrip.AddTriangle(vertices[v + 1],
+                                                  vertices[v + 0],
+                                                  vertices[v + 2]);
+                      }
+                    }
+                    break;
+                  }
+
+                  case Gl.GL_QUADS: {
+                    var quads =
+                        meshBuilder.UsePrimitive(currentMaterial, 4);
+
+                    for (var v = 0; v < pointsCount; v += 4) {
+                      quads.AddQuadrangle(vertices[v + 0],
+                                          vertices[v + 1],
+                                          vertices[v + 2],
+                                          vertices[v + 3]);
+                    }
+
+                    break;
+                  }
+
+                  default:
+                    throw new NotSupportedException(
+                        $"Unsupported primitive type: {glPrimitiveType}");
+                }
               }
             }
             break;
         }
       }
-    }*/
+
+      DoneRendering:
+      return model.CreateMesh(meshBuilder);
+    }
+
+    private static void ProjectVertexWeighted(
+        WeightedMatrix weightedMatrix,
+        ref double x,
+        ref double y,
+        ref double z) {
+      double outX = 0;
+      double outY = 0;
+      double outZ = 0;
+
+      transformer.Push();
+      for (var i = 0; i < weightedMatrix.Skinning.Length; ++i) {
+        var (_, weight) = weightedMatrix.Skinning[i];
+        var matrix = weightedMatrix.Matrices[i];
+
+        var tempX = x;
+        var tempY = y;
+        var tempZ = z;
+
+        // TODO: Need to factor in binding matrix to get coord in skin space.
+
+        transformer.Set(matrix);
+        transformer.ProjectVertex(ref tempX, ref tempY, ref tempZ);
+
+        outX += weight * tempX;
+        outY += weight * tempY;
+        outZ += weight * tempZ;
+      }
+      transformer.Pop();
+
+      x = outX;
+      y = outY;
+      z = outZ;
+    }
+
+    private static void ProjectNormalWeighted(
+        WeightedMatrix weightedMatrix,
+        ref double x,
+        ref double y,
+        ref double z) {
+      double outX = 0;
+      double outY = 0;
+      double outZ = 0;
+
+      transformer.Push();
+      for (var i = 0; i < weightedMatrix.Skinning.Length; ++i) {
+        var (_, weight) = weightedMatrix.Skinning[i];
+        var matrix = weightedMatrix.Matrices[i];
+
+        var tempX = x;
+        var tempY = y;
+        var tempZ = z;
+
+        transformer.Set(matrix);
+        transformer.ProjectNormal(ref tempX, ref tempY, ref tempZ);
+
+        outX += weight * tempX;
+        outY += weight * tempY;
+        outZ += weight * tempZ;
+      }
+      transformer.Pop();
+
+      var len = Math.Sqrt(outX * outX + outY * outY + outZ * outZ);
+      x = outX / len;
+      y = outY / len;
+      z = outZ / len;
+    }
 
     private static CsQuaternion CreateQuaternion_(
         float xRadians,
@@ -548,6 +657,17 @@ namespace mkds.exporter {
             W = msQuaternion.W
         };
 
+    private static Matrix ConvertMkdsToMn_(MTX44 mkds) {
+      var mn = new DenseMatrix(4, 4);
+
+      for (var y = 0; y < 4; ++y) {
+        for (var x = 0; x < 4; ++x) {
+          mn[y, x] = mkds[x, y];
+        }
+      }
+
+      return mn;
+    }
     private static TextureWrapMode GetWrapMode_(GxWrapTag wrapMode) {
       if ((wrapMode & GxWrapTag.GX_MIRROR) != 0) {
         return TextureWrapMode.MIRRORED_REPEAT;
@@ -559,5 +679,10 @@ namespace mkds.exporter {
 
       return TextureWrapMode.CLAMP_TO_EDGE;
     }
+  }
+
+  public class WeightedMatrix {
+    public (int, float)[] Skinning { get; set; }
+    public MathNet.Numerics.LinearAlgebra.Matrix<double>[] Matrices { get; set; }
   }
 }
