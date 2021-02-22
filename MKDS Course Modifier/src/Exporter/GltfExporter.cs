@@ -199,7 +199,7 @@ namespace mkds.exporter {
       }
 
       // Gathers up vertex builders.
-      var mesh = GltfExporter.WriteMesh_(jointNodes, model, bmd);
+      var mesh = GltfExporter.WriteMesh_(jointNodes, materials, model, bmd);
       scene.CreateNode()
            .WithSkinnedMesh(mesh, rootNode.WorldMatrix, jointNodes.ToArray());
 
@@ -214,11 +214,10 @@ namespace mkds.exporter {
 
     private static Mesh WriteMesh_(
         Node[] jointNodes,
+        MaterialBuilder[] materials,
         ModelRoot model,
         BMD bmd) {
-      MaterialBuilder? currentMaterial = new MaterialBuilder("null")
-                                         .WithDoubleSide(true)
-                                         .WithUnlitShader();
+      MaterialBuilder? currentMaterial = materials[0];
 
       var entries = bmd.INF1.Entries;
       var joints = bmd.GetJoints();
@@ -274,17 +273,16 @@ namespace mkds.exporter {
 
           // Material
           case 0x11:
-            var materialIndex = bmd.MAT3.MaterialEntryIndieces[entry.Index];
-            var material = bmd.MAT3.MaterialEntries[materialIndex];
+            var matIndex = bmd.MAT3.MaterialEntryIndieces[entry.Index];
+            var mat = bmd.MAT3.MaterialEntries[matIndex];
 
             // TODO: Use textures
-            /*if (material.TexStages[0] != ushort.MaxValue) {
-              bmd.MAT3.TextureIndieces[material]
-
-              currentMaterial = null;
+            if (mat.TexStages[0] != ushort.MaxValue) {
+              currentMaterial =
+                  materials[1 + bmd.MAT3.TextureIndieces[mat.TexStages[0]]];
             } else {
-              currentMaterial = null;
-            }*/
+              currentMaterial = materials[0];
+            }
 
             /*for (int index = 0; index < 8; ++index) {
               if (this.MAT3.MaterialEntries[
@@ -347,7 +345,8 @@ namespace mkds.exporter {
 
                 if (isWeighted) {
                   var weightedIndices = bmd.EVP1.WeightedIndices[drw1Index];
-                  var weightedMatrices = new List<MathNet.Numerics.LinearAlgebra.Matrix<double>>();
+                  var weightedMatrices =
+                      new List<MathNet.Numerics.LinearAlgebra.Matrix<double>>();
                   var skinning = new List<(int, float)>();
 
                   for (var w = 0; w < weightedIndices.Indices.Length; ++w) {
@@ -358,9 +357,11 @@ namespace mkds.exporter {
                       throw new InvalidDataException();
                     }
 
-                    var skinToLocalLimbMatrix = ConvertMkdsToMn_(bmd.EVP1.Matrices[jointIndex]);
+                    var skinToLocalLimbMatrix =
+                        ConvertMkdsToMn_(bmd.EVP1.Matrices[jointIndex]);
                     var localLimbToWorldMatrix = matrices[jointIndex];
-                    var skinToWorldMatrix = localLimbToWorldMatrix.Multiply(skinToLocalLimbMatrix);
+                    var skinToWorldMatrix =
+                        localLimbToWorldMatrix.Multiply(skinToLocalLimbMatrix);
                     //var skinToWorldMatrix = skinToLocalLimbMatrix.Multiply(localLimbToWorldMatrix);
 
                     weightedMatrices.Add(skinToWorldMatrix);
@@ -377,7 +378,7 @@ namespace mkds.exporter {
                       Skinning = skinning.ToArray(),
                   };
                   matrixTable[i] = wm;
-                } 
+                }
                 // Unweighted bones are simple, just gets our precomputed limb
                 // matrix
                 else {
@@ -394,7 +395,7 @@ namespace mkds.exporter {
                   }
 
                   var wm = new WeightedMatrix {
-                      Matrices = new [] {matrices[jointIndex]},
+                      Matrices = new[] {matrices[jointIndex]},
                       Skinning = skinning.ToArray(),
                   };
                   matrixTable[i] = wm;
@@ -475,6 +476,10 @@ namespace mkds.exporter {
                     var a = color.A / (float) byte.MaxValue;
 
                     gltfColor = new Vector4(r, g, b, a);
+                  } else {
+                    // TODO: Is this needed?
+                    // Keeps the model from being pitch black.
+                    gltfColor = new Vector4(1, 1, 1, 1);
                   }
 
                   // TODO: Support multiple texture coords?
@@ -668,6 +673,7 @@ namespace mkds.exporter {
 
       return mn;
     }
+
     private static TextureWrapMode GetWrapMode_(GxWrapTag wrapMode) {
       if ((wrapMode & GxWrapTag.GX_MIRROR) != 0) {
         return TextureWrapMode.MIRRORED_REPEAT;
@@ -683,6 +689,7 @@ namespace mkds.exporter {
 
   public class WeightedMatrix {
     public (int, float)[] Skinning { get; set; }
+
     public MathNet.Numerics.LinearAlgebra.Matrix<double>[] Matrices { get; set; }
   }
 }
