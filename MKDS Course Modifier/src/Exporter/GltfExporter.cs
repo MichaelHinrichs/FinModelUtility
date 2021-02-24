@@ -72,6 +72,8 @@ namespace mkds.exporter {
 
       // Gathers up joints and their gltf nodes.
       // TODO: Jeez, clean these up.
+      var firstAnimation = pathsAndBcxs[0].Item2;
+
       var jointNameToNode = new Dictionary<string, GltfNode>();
       var jointsAndNodes = new (MkdsNode, GltfNode)[joints.Length];
       var jointNodes = new GltfNode[joints.Length];
@@ -85,16 +87,20 @@ namespace mkds.exporter {
 
         var node = parentNode.CreateNode(jointName);
 
+        // We should be able to use the raw from joint, but this screws up the
+        // bones with multiple weights for some reason, perhaps because the
+        // model is contorted in an unnatural way? Anyway, we NEED to use the
+        // first animation instead.
         node.WithLocalTranslation(
-            GltfExporter.ConvertMsToCs_(joint.Trans, scale));
+            JointUtil.GetTranslation(firstAnimation, j, 0) * scale);
 
-        var jointRotation = joint.Rot;
+        var jointRotation =
+            JointUtil.GetRotation(firstAnimation, j, 0);
         if (jointRotation.Length() > 0) {
-          node.WithLocalRotation(GltfExporter.ConvertMsToCs_(jointRotation));
+          node.WithLocalRotation(jointRotation);
         }
 
-        var jointScale = joint.Scale;
-        node.WithLocalScale(GltfExporter.ConvertMsToCs_(jointScale));
+        node.WithLocalScale(JointUtil.GetScale(firstAnimation, j, 0));
 
         jointNodes[j] = node;
         jointNameToNode[jointName] = node;
@@ -148,8 +154,6 @@ namespace mkds.exporter {
       var bcxCount = pathsAndBcxs?.Count ?? 0;
       for (var a = 0; a < bcxCount; ++a) {
         var (bcxPath, bcx) = pathsAndBcxs![a];
-        var animatedJoints = bcx.Anx1.Joints;
-
         var animationName = new FileInfo(bcxPath).Name.Split('.')[0];
 
         var glTfAnimation = model.UseAnimation(animationName);
@@ -160,32 +164,15 @@ namespace mkds.exporter {
         var scaleKeyframes = new Dictionary<float, Vector3>();
         foreach (var (joint, node) in jointsAndNodes) {
           var jointIndex = bmd.JNT1.StringTable[joint.Name];
-          var animatedJoint = animatedJoints[jointIndex];
-          var values = animatedJoint.Values;
 
           // TODO: Handle mirrored animations
           for (var f = 0; f < bcx.Anx1.FrameCount; ++f) {
             var time = f / 30f;
 
-            var x = animatedJoint.GetAnimValue(values.translationsX, f) *
-                    scale;
-            var y = animatedJoint.GetAnimValue(values.translationsY, f) *
-                    scale;
-            var z = animatedJoint.GetAnimValue(values.translationsZ, f) *
-                    scale;
-            translationKeyframes[time] = new CsVector(x, y, z);
-
-            var xRadians = animatedJoint.GetAnimValue(values.rotationsX, f);
-            var yRadians = animatedJoint.GetAnimValue(values.rotationsY, f);
-            var zRadians = animatedJoint.GetAnimValue(values.rotationsZ, f);
-
-            rotationKeyframes[time] =
-                GltfExporter.CreateQuaternion_(xRadians, yRadians, zRadians);
-
-            var scaleX = animatedJoint.GetAnimValue(values.scalesX, f);
-            var scaleY = animatedJoint.GetAnimValue(values.scalesY, f);
-            var scaleZ = animatedJoint.GetAnimValue(values.scalesZ, f);
-            scaleKeyframes[time] = new CsVector(scaleX, scaleY, scaleZ);
+            translationKeyframes[time] =
+                JointUtil.GetTranslation(bcx, jointIndex, f) * scale;
+            rotationKeyframes[time] = JointUtil.GetRotation(bcx, jointIndex, f);
+            scaleKeyframes[time] = JointUtil.GetScale(bcx, jointIndex, f);
           }
 
           glTfAnimation.CreateTranslationChannel(
@@ -215,7 +202,7 @@ namespace mkds.exporter {
         new SoftwareModelViewMatrixTransformer();
 
     private static Mesh WriteMesh_(
-        Node[] jointNodes,
+        GltfNode[] jointNodes,
         MaterialBuilder[] materials,
         ModelRoot model,
         BMD bmd) {
@@ -360,12 +347,13 @@ namespace mkds.exporter {
                     if (jointIndex >= joints.Length) {
                       throw new InvalidDataException();
                     }
-                    
+
                     var skinToLocalLimbMatrix =
-                        ConvertMkdsToMn_(bmd.EVP1.InverseBindMatrices[jointIndex]);
+                        ConvertMkdsToMn_(
+                            bmd.EVP1.InverseBindMatrices[jointIndex]);
                     var localLimbToWorldMatrix = matrices[jointIndex];
-                    //var skinToWorldMatrix = localLimbToWorldMatrix.Multiply(skinToLocalLimbMatrix);
-                    var skinToWorldMatrix = localLimbToWorldMatrix * skinToLocalLimbMatrix* weight;
+                    var skinToWorldMatrix =
+                        localLimbToWorldMatrix * skinToLocalLimbMatrix * weight;
 
                     for (var j = 0; j < 4; ++j) {
                       for (var k = 0; k < 4; ++k) {
@@ -382,12 +370,10 @@ namespace mkds.exporter {
                     }
                   }
 
-                  var wm = new WeightedMatrix {
+                  matrixTable[i] = new WeightedMatrix {
                       Matrix = mergedMatrix,
-                      //Matrices = weightedMatrices.ToArray(),
                       Skinning = skinning.ToArray(),
                   };
-                  matrixTable[i] = wm;
                 }
                 // Unweighted bones are simple, just gets our precomputed limb
                 // matrix
@@ -404,12 +390,10 @@ namespace mkds.exporter {
                     skinning.Add((jointIndex, 1));
                   }
 
-                  var wm = new WeightedMatrix {
+                  matrixTable[i] = new WeightedMatrix {
                       Matrix = matrices[jointIndex],
-                      //Matrices = new[] {matrices[jointIndex]},
                       Skinning = skinning.ToArray(),
                   };
-                  matrixTable[i] = wm;
                 }
               }
 
@@ -424,8 +408,6 @@ namespace mkds.exporter {
 
                   var matrixIndex = point.MatrixIndex / 3;
                   var weightedMatrix = matrixTable[matrixIndex];
-
-                  var isWeighted = weightedMatrix.Skinning.Length > 1;
 
                   foreach (var skins in weightedMatrix.Skinning) {
                     var ji = skins.Item1;
@@ -489,9 +471,7 @@ namespace mkds.exporter {
                   } else {
                     // TODO: Is this needed?
                     // Keeps the model from being pitch black.
-                    gltfColor = isWeighted
-                                    ? new Vector4(1, 0, 0, 1)
-                                    : new Vector4(1, 1, 1, 1);
+                    gltfColor = new Vector4(1, 1, 1, 1);
                   }
 
                   // TODO: Support multiple texture coords?
@@ -586,35 +566,12 @@ namespace mkds.exporter {
         ref double x,
         ref double y,
         ref double z) {
-      double outX = 0;
-      double outY = 0;
-      double outZ = 0;
-
       transformer.Push();
       transformer.Set(weightedMatrix.Matrix);
+
       transformer.ProjectVertex(ref x, ref y, ref z, false);
-      /*for (var i = 0; i < weightedMatrix.Skinning.Length; ++i) {
-        var (_, weight) = weightedMatrix.Skinning[i];
-        var matrix = weightedMatrix.Matrices[i];
 
-        var tempX = x;
-        var tempY = y;
-        var tempZ = z;
-
-        // TODO: Need to factor in binding matrix to get coord in skin space.
-
-        transformer.Set(matrix);
-        transformer.ProjectVertex(ref tempX, ref tempY, ref tempZ);
-
-        outX += weight * tempX;
-        outY += weight * tempY;
-        outZ += weight * tempZ;
-      }*/
       transformer.Pop();
-
-      /*x = outX;
-      y = outY;
-      z = outZ;*/
     }
 
     private static void ProjectNormalWeighted(
@@ -622,62 +579,19 @@ namespace mkds.exporter {
         ref double x,
         ref double y,
         ref double z) {
-      double outX = 0;
-      double outY = 0;
-      double outZ = 0;
-
       transformer.Push();
       transformer.Set(weightedMatrix.Matrix);
-      transformer.ProjectNormal(ref x, ref y, ref z, true);
-      
-      /*for (var i = 0; i < weightedMatrix.Skinning.Length; ++i) {
-        var (_, weight) = weightedMatrix.Skinning[i];
-        var matrix = weightedMatrix.Matrices[i];
 
-        var tempX = x;
-        var tempY = y;
-        var tempZ = z;
+      transformer.ProjectNormal(ref x, ref y, ref z);
 
-        transformer.Set(matrix);
-        transformer.ProjectNormal(ref tempX, ref tempY, ref tempZ, false);
-
-        outX += weight * tempX;
-        outY += weight * tempY;
-        outZ += weight * tempZ;
-      }*/
       transformer.Pop();
 
-      /*var len = Math.Sqrt(outX * outX + outY * outY + outZ * outZ);
-      x = outX / len;
-      y = outY / len;
-      z = outZ / len;*/
+      // All of the normals are inside-out for some reason, we have to flip
+      // them manually.
+      x = -x;
+      y = -y;
+      z = -z;
     }
-
-    private static CsQuaternion CreateQuaternion_(
-        float xRadians,
-        float yRadians,
-        float zRadians) {
-      var qz = CsQuaternion.CreateFromYawPitchRoll(0, 0, zRadians);
-      var qy = CsQuaternion.CreateFromYawPitchRoll(yRadians, 0, 0);
-      var qx = CsQuaternion.CreateFromYawPitchRoll(0, xRadians, 0);
-
-      return CsQuaternion.Normalize(qz * qy * qx);
-    }
-
-    private static CsVector ConvertMsToCs_(MsVector msVector, float scale = 1)
-      => new CsVector {
-          X = msVector.X * scale,
-          Y = msVector.Y * scale,
-          Z = msVector.Z * scale,
-      };
-
-    private static CsQuaternion ConvertMsToCs_(MsQuaternion msQuaternion) =>
-        new CsQuaternion {
-            X = msQuaternion.X,
-            Y = msQuaternion.Y,
-            Z = msQuaternion.Z,
-            W = msQuaternion.W
-        };
 
     private static Matrix ConvertMkdsToMn_(MTX44 mkds) {
       var mn = new DenseMatrix(4, 4);
@@ -708,10 +622,5 @@ namespace mkds.exporter {
     public (int, float)[] Skinning { get; set; }
 
     public MathNet.Numerics.LinearAlgebra.Matrix<double> Matrix;
-
-    /*public MathNet.Numerics.LinearAlgebra.Matrix<double>[] Matrices {
-      get;
-      set;
-    }*/
   }
 }
