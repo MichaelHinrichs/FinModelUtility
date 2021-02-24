@@ -1413,7 +1413,7 @@ label_140:
       public ushort Padding;
       public uint[] Offsets;
       public byte[] Counts;
-      public MTX44[] Matrices;
+      public MTX44[] InverseBindMatrices;
       public BMD.EVP1Section.MultiMatrix[] WeightedIndices;
 
       public EVP1Section(EndianBinaryReader er, out bool OK)
@@ -1433,6 +1433,7 @@ label_140:
           long position2 = er.BaseStream.Position;
           er.BaseStream.Position = position1 + (long) this.Offsets[0];
           this.Counts = er.ReadBytes((int) this.Count);
+
           er.BaseStream.Position = position1 + (long) this.Offsets[1];
           this.WeightedIndices = new BMD.EVP1Section.MultiMatrix[(int) this.Count];
           int val1 = 0;
@@ -1446,6 +1447,7 @@ label_140:
               val1 = Math.Max(val1, (int) this.WeightedIndices[index1].Indices[index2] + 1);
             }
           }
+          
           er.BaseStream.Position = position1 + (long) this.Offsets[2];
           for (int index1 = 0; index1 < (int) this.Count; ++index1)
           {
@@ -1453,14 +1455,15 @@ label_140:
             for (int index2 = 0; index2 < (int) this.Counts[index1]; ++index2)
               this.WeightedIndices[index1].Weights[index2] = er.ReadSingle();
           }
+
           er.BaseStream.Position = position1 + (long) this.Offsets[3];
-          this.Matrices = new MTX44[val1];
+          this.InverseBindMatrices = new MTX44[val1];
           for (int index = 0; index < val1; ++index)
           {
             float[] array = er.ReadSingles(12);
             Array.Resize<float>(ref array, 16);
             array[15] = 1f;
-            this.Matrices[index] = (MTX44) array;
+            this.InverseBindMatrices[index] = (MTX44) array;
           }
           er.BaseStream.Position = position1 + (long) this.Header.size;
           OK = true;
@@ -1501,8 +1504,6 @@ label_140:
           this.IsWeightedOffset = er.ReadUInt32();
           this.DataOffset = er.ReadUInt32();
 
-          long position2 = er.BaseStream.Position;
-          
           er.BaseStream.Position = position1 + (long) this.IsWeightedOffset;
           this.IsWeighted = new bool[(int) this.Count];
           for (int index = 0; index < (int) this.Count; ++index)

@@ -5,40 +5,7 @@ using System.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 
 namespace mkds.exporter {
-  public interface IModelViewMatrixTransformer {
-    void ProjectVertex(ref double x, ref double y, ref double z);
-
-    void ProjectNormal(
-        ref double normalX,
-        ref double normalY,
-        ref double normalZ);
-
-    IModelViewMatrixTransformer Push();
-    IModelViewMatrixTransformer Pop();
-
-    IModelViewMatrixTransformer Identity();
-
-    IModelViewMatrixTransformer Translate(double x, double y, double z);
-
-    IModelViewMatrixTransformer Rotate(
-        double angle,
-        double x,
-        double y,
-        double z);
-
-    IModelViewMatrixTransformer Rotate(Quaternion q);
-
-    IModelViewMatrixTransformer Scale(double x, double y, double z);
-
-    IModelViewMatrixTransformer MultMatrix(Matrix<double> m);
-
-    void Get(Matrix<double> m);
-    void Set(Matrix<double> m);
-    void Set(Matrix4x4 m);
-  }
-
-  public class
-      SoftwareModelViewMatrixTransformer : IModelViewMatrixTransformer {
+  public class SoftwareModelViewMatrixTransformer {
     private Matrix<double> current_;
     private LinkedList<MatrixNode> stack_ = new LinkedList<MatrixNode>();
 
@@ -53,24 +20,29 @@ namespace mkds.exporter {
       this.current_ = this.current_;
     }
 
-    public void ProjectVertex(ref double x, ref double y, ref double z)
+    public void ProjectVertex(ref double x, ref double y, ref double z, bool correctPerspective = true)
       => GlMatrixUtil.Project(this.current_,
                               ref x,
                               ref y,
                               ref z,
-                              1);
+                              1,
+                              correctPerspective,
+                              false);
 
     public void ProjectNormal(
         ref double normalX,
         ref double normalY,
-        ref double normalZ)
+        ref double normalZ,
+        bool normalize = true)
       => GlMatrixUtil.Project(this.current_,
                               ref normalX,
                               ref normalY,
                               ref normalZ,
-                              0);
+                              0,
+                              false,
+                              normalize);
 
-    public IModelViewMatrixTransformer Push() {
+    public SoftwareModelViewMatrixTransformer Push() {
       Matrix<double> newMatrix;
       if (this.current_ == null) {
         newMatrix = Matrix<double>.Build.DenseIdentity(4, 4);
@@ -86,7 +58,7 @@ namespace mkds.exporter {
       return this;
     }
 
-    public IModelViewMatrixTransformer Pop() {
+    public SoftwareModelViewMatrixTransformer Pop() {
       if (this.stack_.Count <= 1) {
         throw new Exception("Popped too far.");
       }
@@ -106,7 +78,7 @@ namespace mkds.exporter {
     private readonly Matrix<double> resultBuffer_ =
         Matrix<double>.Build.DenseIdentity(4, 4);
 
-    public IModelViewMatrixTransformer Identity() {
+    public SoftwareModelViewMatrixTransformer Identity() {
       this.current_.Clear();
       for (var i = 0; i < 4; ++i) {
         this.current_[i, i] = 1;
@@ -116,7 +88,7 @@ namespace mkds.exporter {
     }
 
 
-    public IModelViewMatrixTransformer Translate(double x, double y, double z) {
+    public SoftwareModelViewMatrixTransformer Translate(double x, double y, double z) {
       this.rhsBuffer_.Clear();
       for (var i = 0; i < 4; ++i) {
         this.rhsBuffer_[i, i] = 1;
@@ -128,7 +100,7 @@ namespace mkds.exporter {
       return this.MultMatrix(this.rhsBuffer_);
     }
 
-    public IModelViewMatrixTransformer Rotate(
+    public SoftwareModelViewMatrixTransformer Rotate(
         double angle,
         double x,
         double y,
@@ -161,7 +133,7 @@ namespace mkds.exporter {
       return this.MultMatrix(this.rhsBuffer_);
     }
 
-    public IModelViewMatrixTransformer Rotate(Quaternion q) {
+    public SoftwareModelViewMatrixTransformer Rotate(Quaternion q) {
       var qx = q.X;
       var qy = q.Y;
       var qz = q.Z;
@@ -191,7 +163,7 @@ namespace mkds.exporter {
       return this.MultMatrix(this.rhsBuffer_);
     }
 
-    public IModelViewMatrixTransformer Scale(double x, double y, double z) {
+    public SoftwareModelViewMatrixTransformer Scale(double x, double y, double z) {
       this.rhsBuffer_.Clear();
       this.rhsBuffer_[0, 0] = x;
       this.rhsBuffer_[1, 1] = y;
@@ -201,7 +173,7 @@ namespace mkds.exporter {
       return this.MultMatrix(this.rhsBuffer_);
     }
 
-    public IModelViewMatrixTransformer MultMatrix(Matrix<double> m) {
+    public SoftwareModelViewMatrixTransformer MultMatrix(Matrix<double> m) {
       this.current_.Multiply(m, this.resultBuffer_);
       this.resultBuffer_.CopyTo(this.current_);
 
@@ -272,7 +244,9 @@ namespace mkds.exporter {
         ref double x,
         ref double y,
         ref double z,
-        int inW) {
+        int inW,
+        bool correctPerspective = true,
+        bool normalize = true) {
       var vector = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.Dense(4);
       vector[0] = x;
       vector[1] = y;
@@ -286,12 +260,19 @@ namespace mkds.exporter {
         y = result[1];
         z = result[2];
 
-        var len = Math.Sqrt(x * x + y * y + z * z);
-        x /= len;
-        y /= len;
-        z /= len;
+        if (normalize) {
+          var len = Math.Sqrt(x * x + y * y + z * z);
+          x /= len;
+          y /= len;
+          z /= len;
+        }
       } else {
         var w = result[3];
+
+        if (!correctPerspective) {
+          w = 1;
+        }
+
         x = result[0] / w;
         y = result[1] / w;
         z = result[2] / w;

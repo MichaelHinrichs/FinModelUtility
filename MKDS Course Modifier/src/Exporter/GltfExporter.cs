@@ -4,6 +4,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Security.Cryptography.X509Certificates;
 
 using MathNet.Numerics.LinearAlgebra.Double;
 
@@ -116,6 +117,7 @@ namespace mkds.exporter {
                      .WithDoubleSide(true)
                      .WithUnlitShader();
       for (var i = 0; i < textures.Length; ++i) {
+        var textureName = bmd.TEX1.StringTable.Entries[i];
         var glTexture = textures[i];
 
         var stream = new MemoryStream();
@@ -128,7 +130,7 @@ namespace mkds.exporter {
 
         // TODO: Alpha isn't always needed.
         // TODO: Double-sided isn't always needed.
-        var material = new MaterialBuilder($"material{i}")
+        var material = new MaterialBuilder(textureName)
                        .WithAlpha(SharpGLTF.Materials.AlphaMode.MASK)
                        .WithDoubleSide(true)
                        .WithSpecularGlossinessShader()
@@ -349,6 +351,8 @@ namespace mkds.exporter {
                       new List<MathNet.Numerics.LinearAlgebra.Matrix<double>>();
                   var skinning = new List<(int, float)>();
 
+                  var mergedMatrix = new DenseMatrix(4, 4);
+
                   for (var w = 0; w < weightedIndices.Indices.Length; ++w) {
                     var jointIndex = weightedIndices.Indices[w];
                     var weight = weightedIndices.Weights[w];
@@ -356,13 +360,18 @@ namespace mkds.exporter {
                     if (jointIndex >= joints.Length) {
                       throw new InvalidDataException();
                     }
-
+                    
                     var skinToLocalLimbMatrix =
-                        ConvertMkdsToMn_(bmd.EVP1.Matrices[jointIndex]);
+                        ConvertMkdsToMn_(bmd.EVP1.InverseBindMatrices[jointIndex]);
                     var localLimbToWorldMatrix = matrices[jointIndex];
-                    var skinToWorldMatrix =
-                        localLimbToWorldMatrix.Multiply(skinToLocalLimbMatrix);
-                    //var skinToWorldMatrix = skinToLocalLimbMatrix.Multiply(localLimbToWorldMatrix);
+                    //var skinToWorldMatrix = localLimbToWorldMatrix.Multiply(skinToLocalLimbMatrix);
+                    var skinToWorldMatrix = localLimbToWorldMatrix * skinToLocalLimbMatrix* weight;
+
+                    for (var j = 0; j < 4; ++j) {
+                      for (var k = 0; k < 4; ++k) {
+                        mergedMatrix[j, k] += skinToWorldMatrix[j, k];
+                      }
+                    }
 
                     weightedMatrices.Add(skinToWorldMatrix);
 
@@ -374,7 +383,8 @@ namespace mkds.exporter {
                   }
 
                   var wm = new WeightedMatrix {
-                      Matrices = weightedMatrices.ToArray(),
+                      Matrix = mergedMatrix,
+                      //Matrices = weightedMatrices.ToArray(),
                       Skinning = skinning.ToArray(),
                   };
                   matrixTable[i] = wm;
@@ -395,7 +405,8 @@ namespace mkds.exporter {
                   }
 
                   var wm = new WeightedMatrix {
-                      Matrices = new[] {matrices[jointIndex]},
+                      Matrix = matrices[jointIndex],
+                      //Matrices = new[] {matrices[jointIndex]},
                       Skinning = skinning.ToArray(),
                   };
                   matrixTable[i] = wm;
@@ -408,14 +419,13 @@ namespace mkds.exporter {
                 var pointsCount = points.Length;
                 var vertices = new VERTEX[pointsCount];
 
-                // TODO: Here or just above primitives?
-                var weightedMatrix = matrixTable[0];
-
                 for (var p = 0; p < pointsCount; ++p) {
                   var point = points[p];
 
                   var matrixIndex = point.MatrixIndex / 3;
-                  weightedMatrix = matrixTable[matrixIndex];
+                  var weightedMatrix = matrixTable[matrixIndex];
+
+                  var isWeighted = weightedMatrix.Skinning.Length > 1;
 
                   foreach (var skins in weightedMatrix.Skinning) {
                     var ji = skins.Item1;
@@ -479,7 +489,9 @@ namespace mkds.exporter {
                   } else {
                     // TODO: Is this needed?
                     // Keeps the model from being pitch black.
-                    gltfColor = new Vector4(1, 1, 1, 1);
+                    gltfColor = isWeighted
+                                    ? new Vector4(1, 0, 0, 1)
+                                    : new Vector4(1, 1, 1, 1);
                   }
 
                   // TODO: Support multiple texture coords?
@@ -579,7 +591,9 @@ namespace mkds.exporter {
       double outZ = 0;
 
       transformer.Push();
-      for (var i = 0; i < weightedMatrix.Skinning.Length; ++i) {
+      transformer.Set(weightedMatrix.Matrix);
+      transformer.ProjectVertex(ref x, ref y, ref z, false);
+      /*for (var i = 0; i < weightedMatrix.Skinning.Length; ++i) {
         var (_, weight) = weightedMatrix.Skinning[i];
         var matrix = weightedMatrix.Matrices[i];
 
@@ -595,12 +609,12 @@ namespace mkds.exporter {
         outX += weight * tempX;
         outY += weight * tempY;
         outZ += weight * tempZ;
-      }
+      }*/
       transformer.Pop();
 
-      x = outX;
+      /*x = outX;
       y = outY;
-      z = outZ;
+      z = outZ;*/
     }
 
     private static void ProjectNormalWeighted(
@@ -613,7 +627,10 @@ namespace mkds.exporter {
       double outZ = 0;
 
       transformer.Push();
-      for (var i = 0; i < weightedMatrix.Skinning.Length; ++i) {
+      transformer.Set(weightedMatrix.Matrix);
+      transformer.ProjectNormal(ref x, ref y, ref z, true);
+      
+      /*for (var i = 0; i < weightedMatrix.Skinning.Length; ++i) {
         var (_, weight) = weightedMatrix.Skinning[i];
         var matrix = weightedMatrix.Matrices[i];
 
@@ -622,18 +639,18 @@ namespace mkds.exporter {
         var tempZ = z;
 
         transformer.Set(matrix);
-        transformer.ProjectNormal(ref tempX, ref tempY, ref tempZ);
+        transformer.ProjectNormal(ref tempX, ref tempY, ref tempZ, false);
 
         outX += weight * tempX;
         outY += weight * tempY;
         outZ += weight * tempZ;
-      }
+      }*/
       transformer.Pop();
 
-      var len = Math.Sqrt(outX * outX + outY * outY + outZ * outZ);
+      /*var len = Math.Sqrt(outX * outX + outY * outY + outZ * outZ);
       x = outX / len;
       y = outY / len;
-      z = outZ / len;
+      z = outZ / len;*/
     }
 
     private static CsQuaternion CreateQuaternion_(
@@ -690,6 +707,11 @@ namespace mkds.exporter {
   public class WeightedMatrix {
     public (int, float)[] Skinning { get; set; }
 
-    public MathNet.Numerics.LinearAlgebra.Matrix<double>[] Matrices { get; set; }
+    public MathNet.Numerics.LinearAlgebra.Matrix<double> Matrix;
+
+    /*public MathNet.Numerics.LinearAlgebra.Matrix<double>[] Matrices {
+      get;
+      set;
+    }*/
   }
 }
