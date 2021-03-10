@@ -23,7 +23,7 @@ namespace mkds.exporter {
       var yRadians = animatedJoint.GetAnimValue(values.rotationsY, time);
       var zRadians = animatedJoint.GetAnimValue(values.rotationsZ, time);
 
-      return JointUtil.CreateQuaternion_(xRadians, yRadians, zRadians);
+      return QuaternionUtil.Create(xRadians, yRadians, zRadians);
     }
 
     public static Vector3 GetScale(IBcx bcx, int jointIndex, float time) {
@@ -35,17 +35,6 @@ namespace mkds.exporter {
       var z = animatedJoint.GetAnimValue(values.scalesZ, time);
 
       return new Vector3(x, y, z);
-    }
-
-    private static Quaternion CreateQuaternion_(
-        float xRadians,
-        float yRadians,
-        float zRadians) {
-      var qz = Quaternion.CreateFromYawPitchRoll(0, 0, zRadians);
-      var qy = Quaternion.CreateFromYawPitchRoll(yRadians, 0, 0);
-      var qx = Quaternion.CreateFromYawPitchRoll(0, xRadians, 0);
-
-      return Quaternion.Normalize(qz * qy * qx);
     }
   }
 }

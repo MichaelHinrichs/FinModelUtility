@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -32,7 +33,6 @@ namespace mkds.exporter {
   using MsQuaternion = Microsoft.Xna.Framework.Quaternion;
   using CsVector = System.Numerics.Vector3;
   using MsVector = Microsoft.Xna.Framework.Vector3;
-  using GxWrapTag = BMD.TEX1Section.GX_WRAP_TAG;
 
   public static class GltfExporter {
     public static bool IncludeRootNode = false;
@@ -40,7 +40,8 @@ namespace mkds.exporter {
     public static void Export(
         string filePath,
         BMD bmd,
-        IList<(string, IBcx)>? pathsAndBcxs = null) {
+        IList<(string, IBcx)>? pathsAndBcxs = null,
+        IList<(string, BTI)>? pathsAndBtis = null) {
       var joints = bmd.GetJoints();
 
       var scale = 1;
@@ -72,7 +73,8 @@ namespace mkds.exporter {
 
       // Gathers up joints and their gltf nodes.
       // TODO: Jeez, clean these up.
-      var firstAnimation = pathsAndBcxs[0].Item2;
+      var bcxCount = pathsAndBcxs?.Count ?? 0;
+      var firstAnimation = bcxCount > 0 ? pathsAndBcxs[0].Item2 : null;
 
       var jointNameToNode = new Dictionary<string, GltfNode>();
       var jointsAndNodes = new (MkdsNode, GltfNode)[joints.Length];
@@ -91,16 +93,28 @@ namespace mkds.exporter {
         // bones with multiple weights for some reason, perhaps because the
         // model is contorted in an unnatural way? Anyway, we NEED to use the
         // first animation instead.
-        node.WithLocalTranslation(
-            JointUtil.GetTranslation(firstAnimation, j, 0) * scale);
+        if (firstAnimation != null) {
+          node.WithLocalScale(JointUtil.GetScale(firstAnimation, j, 0));
 
-        var jointRotation =
-            JointUtil.GetRotation(firstAnimation, j, 0);
-        if (jointRotation.Length() > 0) {
-          node.WithLocalRotation(jointRotation);
+          var jointRotation =
+              JointUtil.GetRotation(firstAnimation, j, 0);
+          if (jointRotation.Length() > 0) {
+            node.WithLocalRotation(jointRotation);
+          }
+
+          node.WithLocalScale(JointUtil.GetScale(firstAnimation, j, 0));
+        } else {
+          var jnt = bmd.JNT1.Joints[j];
+          node.WithLocalTranslation(new Vector3(jnt.Tx, jnt.Ty, jnt.Tz) *
+                                    scale);
+
+          var jointRotation = QuaternionUtil.Create(jnt.Rx, jnt.Ry, jnt.Rz);
+          if (jointRotation.Length() > 0) {
+            node.WithLocalRotation(jointRotation);
+          }
+
+          node.WithLocalScale(new Vector3(jnt.Sx, jnt.Sy, jnt.Sz));
         }
-
-        node.WithLocalScale(JointUtil.GetScale(firstAnimation, j, 0));
 
         jointNodes[j] = node;
         jointNameToNode[jointName] = node;
@@ -123,16 +137,54 @@ namespace mkds.exporter {
                      .WithDoubleSide(true)
                      .WithUnlitShader();
       for (var i = 0; i < textures.Length; ++i) {
-        var textureName = bmd.TEX1.StringTable.Entries[i];
-        var glTexture = textures[i];
+        var textureName = bmd.TEX1.StringTable.Entries[i].Entry;
+
+        Bitmap? image = null;
+        var mirrorS = false;
+        var mirrorT = false;
+        var repeatS = false;
+        var repeatT = false;
+
+        // TODO: This doesn't feel right, where can we get the actual name?
+        if (textureName.Contains("_dummy_")) {
+          var prefix = textureName.Substring(0, textureName.IndexOf("_dummy_"));
+
+          var bti = pathsAndBtis
+                    .SkipWhile(pathAndBti
+                                   => !new FileInfo(pathAndBti.Item1)
+                                       .Name.StartsWith(prefix))
+                    .Select(pathAndBti => pathAndBti.Item2)
+                    .FirstOrDefault();
+
+          if (bti != null) {
+            image = bti.ToBitmap();
+            mirrorS = (bti.Header.WrapS & BTI.GX_WRAP_TAG.GX_MIRROR) != 0;
+            mirrorT = (bti.Header.WrapT & BTI.GX_WRAP_TAG.GX_MIRROR) != 0;
+            repeatS = (bti.Header.WrapS & BTI.GX_WRAP_TAG.GX_REPEAT) != 0;
+            repeatT = (bti.Header.WrapT & BTI.GX_WRAP_TAG.GX_REPEAT) != 0;
+          }
+        }
+
+        if (image == null) {
+          var mkdsTexture = textures[i];
+          image = mkdsTexture.ToBitmap();
+          mirrorS =
+              (mkdsTexture.WrapS & BMD.TEX1Section.GX_WRAP_TAG.GX_MIRROR) != 0;
+          mirrorT =
+              (mkdsTexture.WrapT & BMD.TEX1Section.GX_WRAP_TAG.GX_MIRROR) != 0;
+          repeatS =
+              (mkdsTexture.WrapS & BMD.TEX1Section.GX_WRAP_TAG.GX_REPEAT) != 0;
+          repeatT =
+              (mkdsTexture.WrapT & BMD.TEX1Section.GX_WRAP_TAG.GX_REPEAT) != 0;
+        }
 
         var stream = new MemoryStream();
-        glTexture.ToBitmap().Save(stream, ImageFormat.Png);
+        image.Save(stream, ImageFormat.Png);
         var glTfImage = new MemoryImage(stream.ToArray());
 
         // TODO: Need to handle wrapping in the shader?
-        var wrapModeS = GltfExporter.GetWrapMode_(glTexture.WrapS);
-        var wrapModeT = GltfExporter.GetWrapMode_(glTexture.WrapS);
+        var wrapModeS = GltfExporter.GetWrapMode_(mirrorS, repeatS);
+        var wrapModeT = GltfExporter.GetWrapMode_(mirrorT, repeatT);
 
         // TODO: Alpha isn't always needed.
         // TODO: Double-sided isn't always needed.
@@ -151,7 +203,6 @@ namespace mkds.exporter {
       }
 
       // Gathers up animations.
-      var bcxCount = pathsAndBcxs?.Count ?? 0;
       for (var a = 0; a < bcxCount; ++a) {
         var (bcxPath, bcx) = pathsAndBcxs![a];
         var animationName = new FileInfo(bcxPath).Name.Split('.')[0];
@@ -192,6 +243,7 @@ namespace mkds.exporter {
       scene.CreateNode()
            .WithSkinnedMesh(mesh, rootNode.WorldMatrix, jointNodes.ToArray());
 
+      Directory.CreateDirectory(new FileInfo(filePath).Directory.FullName);
       var writeSettings = new WriteSettings {
           ImageWriting = ResourceWriteMode.SatelliteFile,
       };
@@ -605,12 +657,12 @@ namespace mkds.exporter {
       return mn;
     }
 
-    private static TextureWrapMode GetWrapMode_(GxWrapTag wrapMode) {
-      if ((wrapMode & GxWrapTag.GX_MIRROR) != 0) {
+    private static TextureWrapMode GetWrapMode_(bool mirror, bool repeat) {
+      if (mirror) {
         return TextureWrapMode.MIRRORED_REPEAT;
       }
 
-      if ((wrapMode & GxWrapTag.GX_REPEAT) != 0) {
+      if (repeat) {
         return TextureWrapMode.REPEAT;
       }
 
