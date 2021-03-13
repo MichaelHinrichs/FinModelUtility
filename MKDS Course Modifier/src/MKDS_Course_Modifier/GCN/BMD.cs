@@ -4,6 +4,7 @@
 // MVID: DAEF8B62-698B-42D0-BEDD-3770EB8C9FE8
 // Assembly location: R:\Documents\CSharpWorkspace\Pikmin2Utility\MKDS Course Modifier\MKDS Course Modifier.exe
 
+using mkds.gcn.bmd;
 using Chadsoft.CTools.Image;
 using MKDS_Course_Modifier._3D_Formats;
 using MKDS_Course_Modifier.Converters;
@@ -2040,14 +2041,14 @@ label_140:
         }
         else
           Gl.glDisable(2929);
-        if (this.BlendFunctions[idxb].BlendMode == (byte) 0)
+        if (this.BlendFunctions[idxb].BlendMode == BmdBlendMode.NONE)
         {
           Gl.glDisable(3042);
         }
         else
         {
           Gl.glEnable(3042);
-          Gl.glBlendEquation(this.GetGlBlendMode((int) this.BlendFunctions[idxb].BlendMode));
+          Gl.glBlendEquation((int) Blending.BmdToGl(this.BlendFunctions[idxb].BlendMode));
           Gl.glBlendFunc(this.GetGlBlendFactor((int) this.BlendFunctions[idxb].SrcFactor), this.GetGlBlendFactor((int) this.BlendFunctions[idxb].DstFactor));
           Gl.glLogicOp(this.GetGlLogicOp((int) this.BlendFunctions[idxb].LogicOp));
         }
@@ -2081,11 +2082,6 @@ label_140:
           772,
           773
         }[factor];
-      }
-
-      private int GetGlBlendMode(int type)
-      {
-        return new int[4]{ 0, 32774, 32779, 32778 }[type];
       }
 
       private int GetGlLogicOp(int op)
@@ -2204,14 +2200,14 @@ label_140:
 
       public class BlendFunction
       {
-        public byte BlendMode;
+        public BmdBlendMode BlendMode;
         public byte SrcFactor;
         public byte DstFactor;
         public byte LogicOp;
 
         public BlendFunction(EndianBinaryReader er)
         {
-          this.BlendMode = er.ReadByte();
+          this.BlendMode = (BmdBlendMode) er.ReadByte();
           this.SrcFactor = er.ReadByte();
           this.DstFactor = er.ReadByte();
           this.LogicOp = er.ReadByte();

@@ -51,21 +51,12 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
   set modelName=
   set modelFile=
   set animFiles=
-
+  
   :: Gets from separate model/animation szs (e.g. Enemies)
   for /d %%m in (".\model.szs*.rarc_dir") do (
     pushd "%%m"
     for %%b in (".\model\*.bmd") do (
       set modelName=%%~nd
-      set modelFile="%%d%%m%%b"
-    )
-    popd
-  )
-  for /d %%a in (".\anim.szs*.rarc_dir") do (
-    pushd "%%a"
-    for %%b in (".\anim\*.bc*") do (
-      set animFile=%%d%%a%%b
-      set animFiles=!animFiles! "!animFile!"
     )
     popd
   )
@@ -75,25 +66,34 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
     pushd "%%r"
     for %%b in (".\arc\*.bmd") do (
       set modelName=%%~nd
-      set modelFile="%%d%%r%%b"
-    )
-    for %%b in (".\arc\*.bc*") do (
-      set animFile=%%d%%r%%b
-      set animFiles=!animFiles! "!animFile!"
+      echo !modelName!
     )
     popd
   )
 
-  :: Merges models w/ animations
+  :: Merges models + animations w/ automatic inputs
+  if defined modelName (
+    set modelBasePath=%outBasePath%!modelName!
+    set outputPath="!modelBasePath!\!modelName!.glb"
+
+    if not exist "!modelBasePath!" mkdir "!modelBasePath!"
+
+    echo Processing !modelName! (w/ automatic inputs)...
+    @echo on
+    "%bmd2gltfBasePath%bmd2gltf.exe" automatic --out "!outputPath!"
+    @echo off
+  )
+
+  :: Merges models + animations w/ manual inputs (not used yet...)
   if defined modelFile if defined animFiles (
     set modelBasePath=%outBasePath%!modelName!
     set outputPath="!modelBasePath!\!modelName!.glb"
 
     if not exist "!modelBasePath!" mkdir "!modelBasePath!"
 
-    echo Processing !modelName!...
+    echo Processing !modelName! (w/ manual inputs)...
     @echo on
-    "%bmd2gltfBasePath%bmd2gltf.exe" !outputPath! !modelFile! !animFiles!
+    "%bmd2gltfBasePath%bmd2gltf.exe" manual --out "!outputPath!" --bmd "!modelFile!" --bcx "!animFiles!"
     @echo off
   )
 )
@@ -101,8 +101,6 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
 :: Backs out from hierarchy
 popd
 
-
-:: TODO: Move merged files to out\
 
 
 echo Done!

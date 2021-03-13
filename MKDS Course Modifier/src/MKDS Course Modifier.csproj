@@ -11,17 +11,18 @@
     <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <StartupObject>Cli</StartupObject>
+    <StartupObject>mkds.cli.Cli</StartupObject>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\bmd2gltf\</OutputPath>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.9.0-preview1" />
     <PackageReference Include="MathNet.Numerics" Version="4.15.0" />
     <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0020" />
   </ItemGroup>
