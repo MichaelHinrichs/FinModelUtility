@@ -94,7 +94,9 @@ namespace mkds.exporter {
         // model is contorted in an unnatural way? Anyway, we NEED to use the
         // first animation instead.
         if (firstAnimation != null) {
-          node.WithLocalScale(JointUtil.GetScale(firstAnimation, j, 0));
+          var jointTranslation =
+              JointUtil.GetTranslation(firstAnimation, j, 0) * scale;
+          node.WithLocalTranslation(jointTranslation);
 
           var jointRotation =
               JointUtil.GetRotation(firstAnimation, j, 0);
@@ -102,7 +104,11 @@ namespace mkds.exporter {
             node.WithLocalRotation(jointRotation);
           }
 
-          node.WithLocalScale(JointUtil.GetScale(firstAnimation, j, 0));
+          // It seems like some animations shrink a bone to 0 to hide it, but
+          // this prevents us from calculating a determinant to invert the
+          // matrix. As a result, we can't safely include this here.
+          /*var jointScale = JointUtil.GetScale(firstAnimation, j, 0);
+          node.WithLocalScale(jointScale);*/
         } else {
           var jnt = bmd.JNT1.Joints[j];
           node.WithLocalTranslation(new Vector3(jnt.Tx, jnt.Ty, jnt.Tz) *
@@ -149,14 +155,17 @@ namespace mkds.exporter {
         if (textureName.Contains("_dummy_")) {
           var prefix = textureName.Substring(0, textureName.IndexOf("_dummy_"));
 
-          var bti = pathsAndBtis
+          var matchingPathAndBtis = pathsAndBtis
                     .SkipWhile(pathAndBti
                                    => !new FileInfo(pathAndBti.Item1)
-                                       .Name.StartsWith(prefix))
-                    .Select(pathAndBti => pathAndBti.Item2)
-                    .FirstOrDefault();
+                                       .Name.StartsWith(prefix));
 
-          if (bti != null) {
+          if (matchingPathAndBtis.Count() > 0) {
+            var matchingPathAndBti = matchingPathAndBtis.First();
+
+            textureName = new FileInfo(matchingPathAndBti.Item1).Name;
+            var bti = matchingPathAndBti.Item2;
+
             image = bti.ToBitmap();
             mirrorS = (bti.Header.WrapS & BTI.GX_WRAP_TAG.GX_MIRROR) != 0;
             mirrorT = (bti.Header.WrapT & BTI.GX_WRAP_TAG.GX_MIRROR) != 0;
@@ -180,7 +189,11 @@ namespace mkds.exporter {
 
         var stream = new MemoryStream();
         image.Save(stream, ImageFormat.Png);
-        var glTfImage = new MemoryImage(stream.ToArray());
+
+        var imageBytes = stream.ToArray();
+
+        File.WriteAllBytes($"{basePath}\\{textureName}.png", imageBytes);
+        var glTfImage = new MemoryImage(imageBytes);
 
         // TODO: Need to handle wrapping in the shader?
         var wrapModeS = GltfExporter.GetWrapMode_(mirrorS, repeatS);
