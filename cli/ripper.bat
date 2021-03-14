@@ -78,7 +78,7 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
 
     if not exist "!modelBasePath!" mkdir "!modelBasePath!"
 
-    echo Processing !modelName! (w/ automatic inputs)...
+    echo Processing !modelName! w/ automatic inputs...
     @echo on
     "%bmd2gltfBasePath%bmd2gltf.exe" automatic --out "!outputPath!"
     @echo off
@@ -91,7 +91,7 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
 
     if not exist "!modelBasePath!" mkdir "!modelBasePath!"
 
-    echo Processing !modelName! (w/ manual inputs)...
+    echo Processing !modelName! w/ manual inputs...
     @echo on
     "%bmd2gltfBasePath%bmd2gltf.exe" manual --out "!outputPath!" --bmd "!modelFile!" --bcx "!animFiles!"
     @echo off
