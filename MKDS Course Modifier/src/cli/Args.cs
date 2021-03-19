@@ -57,11 +57,18 @@ namespace mkds.cli {
                     return;
                   }
 
-                  Args.GetForEnemy("Pelplant",
+                  /*Args.GetForEnemy("Queen",
                                    out var outputPath,
                                    out var bmdPath,
                                    out var bcxPaths,
-                                   out var btiPaths);
+                                   out var btiPaths);*/
+                  Args.GetFromDirectory(
+                      new DirectoryInfo(
+                          "R:/Documents/CSharpWorkspace/Pikmin2Utility/cli/roms/pkmn2.gcm_dir/user/Kando/ufo"),
+                      out var outputPath,
+                      out var bmdPath,
+                      out var bcxPaths,
+                      out var btiPaths);
                   //GetForPikmin(out outputPath, out bmdPath);
                   //GetForTesting(out outputPath, out bmdPath, out bcxPaths);
 
@@ -102,22 +109,17 @@ namespace mkds.cli {
         out string bmdPath,
         out IList<string> bcxPaths,
         out IList<string> btiPaths) {
-      var basePath = "R:/Documents/CSharpWorkspace/Pikmin2Utility/";
-      outputPath = $"{basePath}cli/out/{name}/{name}.glb";
+      outputPath = Args.GetOutputPath(name);
 
+      var basePath = "R:/Documents/CSharpWorkspace/Pikmin2Utility/";
       var enemyBasePath =
           $"{basePath}cli/roms/pkmn2.gcm_dir/enemy/data/{name}/";
-      bmdPath = $"{enemyBasePath}model.szs 0.rarc_dir/model/enemy.bmd";
 
-      var bcxFiles =
-          new DirectoryInfo($"{enemyBasePath}anim.szs 0.rarc_dir/anim/");
-      bcxPaths = bcxFiles.GetFiles().Select(file => file.FullName).ToList();
-
-      btiPaths = new DirectoryInfo(enemyBasePath)
-                 .GetFiles()
-                 .SkipWhile(file => file.Extension != ".bti")
-                 .Select(file => file.FullName)
-                 .ToList();
+      Args.GetFromDirectory(new DirectoryInfo(enemyBasePath),
+                            out outputPath,
+                            out bmdPath,
+                            out bcxPaths,
+                            out btiPaths);
     }
 
     private static void GetForPikmin(
@@ -139,6 +141,26 @@ namespace mkds.cli {
                  .SkipWhile(file => file.Extension != ".bti")
                  .Select(file => file.FullName)
                  .ToList();*/
+    }
+
+    private static string GetOutputPath(string name) {
+      var basePath = "R:/Documents/CSharpWorkspace/Pikmin2Utility/";
+      return $"{basePath}cli/out/{name}/{name}.glb";
+    }
+
+    private static void GetFromDirectory(
+        DirectoryInfo directory,
+        out string outputPath,
+        out string bmdPath,
+        out IList<string> bcxPaths,
+        out IList<string> btiPaths) {
+      outputPath = Args.GetOutputPath(directory.Name);
+
+      bmdPath = Files.GetPathWithExtension(directory, "bmd");
+      bcxPaths = Arrays.Concat(
+          Files.GetPathsWithExtension(directory, "bca"),
+          Files.GetPathsWithExtension(directory, "bck"));
+      btiPaths = Files.GetPathsWithExtension(directory, "bti");
     }
   }
 }

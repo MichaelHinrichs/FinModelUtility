@@ -21,8 +21,6 @@ using MKDS_Course_Modifier.GCN;
 
 using Tao.OpenGl;
 
-using TextureWrapMode = SharpGLTF.Schema2.TextureWrapMode;
-
 namespace mkds.exporter {
   using VERTEX =
       VertexBuilder<VertexPositionNormal, VertexColor1Texture2, VertexJoints4>;
@@ -38,7 +36,7 @@ namespace mkds.exporter {
     public static bool IncludeRootNode = false;
 
     public static void Export(
-        string filePath,
+        string outputPath,
         BMD bmd,
         IList<(string, IBcx)>? pathsAndBcxs = null,
         IList<(string, BTI)>? pathsAndBtis = null) {
@@ -133,88 +131,6 @@ namespace mkds.exporter {
       }
       skin.BindJoints(skinNodes.ToArray());
 
-      // Gathers up texture materials.
-      // TODO: Check MAT3 for more specific material values
-      var basePath = new FileInfo(filePath).Directory.FullName;
-
-      var textures = bmd.TEX1.TextureHeaders;
-      var materials = new MaterialBuilder[1 + textures.Length];
-      materials[0] = new MaterialBuilder("null")
-                     .WithDoubleSide(true)
-                     .WithUnlitShader();
-      for (var i = 0; i < textures.Length; ++i) {
-        var textureName = bmd.TEX1.StringTable.Entries[i].Entry;
-
-        Bitmap? image = null;
-        var mirrorS = false;
-        var mirrorT = false;
-        var repeatS = false;
-        var repeatT = false;
-
-        // TODO: This doesn't feel right, where can we get the actual name?
-        if (textureName.Contains("_dummy_")) {
-          var prefix = textureName.Substring(0, textureName.IndexOf("_dummy_"));
-
-          var matchingPathAndBtis = pathsAndBtis
-                    .SkipWhile(pathAndBti
-                                   => !new FileInfo(pathAndBti.Item1)
-                                       .Name.StartsWith(prefix));
-
-          if (matchingPathAndBtis.Count() > 0) {
-            var matchingPathAndBti = matchingPathAndBtis.First();
-
-            textureName = new FileInfo(matchingPathAndBti.Item1).Name;
-            var bti = matchingPathAndBti.Item2;
-
-            image = bti.ToBitmap();
-            mirrorS = (bti.Header.WrapS & BTI.GX_WRAP_TAG.GX_MIRROR) != 0;
-            mirrorT = (bti.Header.WrapT & BTI.GX_WRAP_TAG.GX_MIRROR) != 0;
-            repeatS = (bti.Header.WrapS & BTI.GX_WRAP_TAG.GX_REPEAT) != 0;
-            repeatT = (bti.Header.WrapT & BTI.GX_WRAP_TAG.GX_REPEAT) != 0;
-          }
-        }
-
-        if (image == null) {
-          var mkdsTexture = textures[i];
-          image = mkdsTexture.ToBitmap();
-          mirrorS =
-              (mkdsTexture.WrapS & BMD.TEX1Section.GX_WRAP_TAG.GX_MIRROR) != 0;
-          mirrorT =
-              (mkdsTexture.WrapT & BMD.TEX1Section.GX_WRAP_TAG.GX_MIRROR) != 0;
-          repeatS =
-              (mkdsTexture.WrapS & BMD.TEX1Section.GX_WRAP_TAG.GX_REPEAT) != 0;
-          repeatT =
-              (mkdsTexture.WrapT & BMD.TEX1Section.GX_WRAP_TAG.GX_REPEAT) != 0;
-        }
-
-        var stream = new MemoryStream();
-        image.Save(stream, ImageFormat.Png);
-
-        var imageBytes = stream.ToArray();
-
-        File.WriteAllBytes($"{basePath}\\{textureName}.png", imageBytes);
-        var glTfImage = new MemoryImage(imageBytes);
-
-        // TODO: Need to handle wrapping in the shader?
-        var wrapModeS = GltfExporter.GetWrapMode_(mirrorS, repeatS);
-        var wrapModeT = GltfExporter.GetWrapMode_(mirrorT, repeatT);
-
-        // TODO: Alpha isn't always needed.
-        // TODO: Double-sided isn't always needed.
-        var material = new MaterialBuilder(textureName)
-                       .WithAlpha(SharpGLTF.Materials.AlphaMode.MASK)
-                       .WithDoubleSide(true)
-                       .WithSpecularGlossinessShader()
-                       .WithSpecularGlossiness(new Vector3(0), 0);
-
-        material.UseChannel(KnownChannel.Diffuse)
-                .UseTexture()
-                .WithPrimaryImage(glTfImage)
-                .WithSampler(wrapModeS, wrapModeT);
-
-        materials[1 + i] = material;
-      }
-
       // Gathers up animations.
       for (var a = 0; a < bcxCount; ++a) {
         var (bcxPath, bcx) = pathsAndBcxs![a];
@@ -252,15 +168,15 @@ namespace mkds.exporter {
       }
 
       // Gathers up vertex builders.
-      var mesh = GltfExporter.WriteMesh_(jointNodes, materials, model, bmd);
+      var mesh = GltfExporter.WriteMesh_(jointNodes, model, bmd, pathsAndBtis);
       scene.CreateNode()
            .WithSkinnedMesh(mesh, rootNode.WorldMatrix, jointNodes.ToArray());
 
-      Directory.CreateDirectory(new FileInfo(filePath).Directory.FullName);
+      Directory.CreateDirectory(new FileInfo(outputPath).Directory.FullName);
       var writeSettings = new WriteSettings {
           ImageWriting = ResourceWriteMode.SatelliteFile,
       };
-      model.Save(filePath, writeSettings);
+      model.Save(outputPath, writeSettings);
     }
 
     private static SoftwareModelViewMatrixTransformer transformer =
@@ -268,10 +184,10 @@ namespace mkds.exporter {
 
     private static Mesh WriteMesh_(
         GltfNode[] jointNodes,
-        MaterialBuilder[] materials,
         ModelRoot model,
-        BMD bmd) {
-      MaterialBuilder? currentMaterial = materials[0];
+        BMD bmd,
+        IList<(string, BTI)>? pathsAndBtis = null) {
+      MaterialBuilder? currentMaterial = null;
 
       var entries = bmd.INF1.Entries;
       var joints = bmd.GetJoints();
@@ -285,6 +201,8 @@ namespace mkds.exporter {
       var meshBuilder = VERTEX.CreateCompatibleMesh();
 
       var matrixIndices = new Dictionary<int, int>();
+
+      var materialManager = new GltfMaterialManager(bmd, pathsAndBtis);
 
       // TODO: Need to pre-compute matrices, vertices come w/ matrix index.
       var matrices = new Matrix[joints.Length];
@@ -327,58 +245,7 @@ namespace mkds.exporter {
 
           // Material
           case 0x11:
-            var matIndex = bmd.MAT3.MaterialEntryIndieces[entry.Index];
-            var mat = bmd.MAT3.MaterialEntries[matIndex];
-
-            // TODO: Use textures
-            if (mat.TexStages[0] != ushort.MaxValue) {
-              currentMaterial =
-                  materials[1 + bmd.MAT3.TextureIndieces[mat.TexStages[0]]];
-            } else {
-              currentMaterial = materials[0];
-            }
-
-            /*for (int index = 0; index < 8; ++index) {
-              if (this.MAT3.MaterialEntries[
-                          (int) this.MAT3.MaterialEntryIndieces[
-                              (int) entry.Index]]
-                      .TexStages[index] !=
-                  ushort.MaxValue)
-                Gl.glBindTexture(3553,
-                                 (int) this.MAT3.TextureIndieces[
-                                     (int) this
-                                           .MAT3.MaterialEntries[
-                                               (int) this
-                                                     .MAT3
-                                                     .MaterialEntryIndieces
-                                                     [(int) entry
-                                                          .Index]]
-                                           .TexStages[index]] +
-                                 1);
-              else
-                Gl.glBindTexture(3553, 0);
-            }*/
-
-            /*Gl.glMatrixMode(5888);
-            this.MAT3.glAlphaCompareglBendMode(
-                (int) this
-                      .MAT3.MaterialEntries[
-                          (int) this.MAT3.MaterialEntryIndieces[
-                              (int) entry.Index]]
-                      .Indices2[1],
-                (int) this
-                      .MAT3.MaterialEntries[
-                          (int) this.MAT3.MaterialEntryIndieces[
-                              (int) entry.Index]]
-                      .Indices2[2],
-                (int) this
-                      .MAT3.MaterialEntries[
-                          (int) this.MAT3.MaterialEntryIndieces[
-                              (int) entry.Index]]
-                      .Indices2[3]);
-            this.Shaders[
-                    (int) this.MAT3.MaterialEntryIndieces[(int) entry.Index]]
-                .Enable();*/
+            currentMaterial = materialManager.Get(entry.Index).MaterialBuilder;
             break;
 
           // Batch
@@ -668,18 +535,6 @@ namespace mkds.exporter {
       }
 
       return mn;
-    }
-
-    private static TextureWrapMode GetWrapMode_(bool mirror, bool repeat) {
-      if (mirror) {
-        return TextureWrapMode.MIRRORED_REPEAT;
-      }
-
-      if (repeat) {
-        return TextureWrapMode.REPEAT;
-      }
-
-      return TextureWrapMode.CLAMP_TO_EDGE;
     }
   }
 
