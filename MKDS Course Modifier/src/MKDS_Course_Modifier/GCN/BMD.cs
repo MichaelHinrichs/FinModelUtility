@@ -2049,7 +2049,7 @@ label_140:
         {
           Gl.glEnable(3042);
           Gl.glBlendEquation((int) Blending.BmdToGl(this.BlendFunctions[idxb].BlendMode));
-          Gl.glBlendFunc(this.GetGlBlendFactor((int) this.BlendFunctions[idxb].SrcFactor), this.GetGlBlendFactor((int) this.BlendFunctions[idxb].DstFactor));
+          Gl.glBlendFunc((int) BlendFactor.BmdToGl(this.BlendFunctions[idxb].SrcFactor), (int)BlendFactor.BmdToGl(this.BlendFunctions[idxb].DstFactor));
           Gl.glLogicOp((int) LogicOp.BmdToGl(this.BlendFunctions[idxb].LogicOp));
         }
       }
@@ -2069,20 +2069,6 @@ label_140:
         }[func];
       }
 
-      private int GetGlBlendFactor(int factor)
-      {
-        return new int[8]
-        {
-          0,
-          1,
-          768,
-          769,
-          770,
-          771,
-          772,
-          773
-        }[factor];
-      }
 
       public int[] GetSectionLengths()
       {
@@ -2178,15 +2164,15 @@ label_140:
       public class BlendFunction
       {
         public BmdBlendMode BlendMode;
-        public byte SrcFactor;
-        public byte DstFactor;
+        public BmdBlendFactor SrcFactor;
+        public BmdBlendFactor DstFactor;
         public BmdLogicOp LogicOp;
 
         public BlendFunction(EndianBinaryReader er)
         {
           this.BlendMode = (BmdBlendMode) er.ReadByte();
-          this.SrcFactor = er.ReadByte();
-          this.DstFactor = er.ReadByte();
+          this.SrcFactor = (BmdBlendFactor) er.ReadByte();
+          this.DstFactor = (BmdBlendFactor) er.ReadByte();
           this.LogicOp = (BmdLogicOp) er.ReadByte();
         }
       }

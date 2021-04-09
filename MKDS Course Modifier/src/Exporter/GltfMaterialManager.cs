@@ -40,8 +40,8 @@ namespace mkds.exporter {
 
     private IList<GltfMaterial> GetMaterials_(BMD bmd)
       => bmd.MAT3.MaterialEntries.Select(
-                materialEntry => new GltfMaterial(
-                    materialEntry,
+                (_, i) => new GltfMaterial(
+                    i,
                     bmd,
                     this.textures_))
             .ToList();

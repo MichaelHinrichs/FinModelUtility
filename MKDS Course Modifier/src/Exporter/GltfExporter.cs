@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Security.Cryptography.X509Certificates;
 
 using MathNet.Numerics.LinearAlgebra.Double;
 
@@ -26,11 +23,7 @@ namespace mkds.exporter {
       VertexBuilder<VertexPositionNormal, VertexColor1Texture2, VertexJoints4>;
   using GltfNode = SharpGLTF.Schema2.Node;
   using MkdsNode = MKDS_Course_Modifier._3D_Formats.MA.Node;
-  using AnimatedMkdsNode = MKDS_Course_Modifier._3D_Formats.MA.AnimatedNode;
-  using CsQuaternion = System.Numerics.Quaternion;
-  using MsQuaternion = Microsoft.Xna.Framework.Quaternion;
   using CsVector = System.Numerics.Vector3;
-  using MsVector = Microsoft.Xna.Framework.Vector3;
 
   public static class GltfExporter {
     public static bool IncludeRootNode = false;
@@ -187,7 +180,7 @@ namespace mkds.exporter {
         ModelRoot model,
         BMD bmd,
         IList<(string, BTI)>? pathsAndBtis = null) {
-      MaterialBuilder? currentMaterial = null;
+      GltfMaterial? currentMaterial = null;
 
       var entries = bmd.INF1.Entries;
       var joints = bmd.GetJoints();
@@ -245,7 +238,7 @@ namespace mkds.exporter {
 
           // Material
           case 0x11:
-            currentMaterial = materialManager.Get(entry.Index).MaterialBuilder;
+            currentMaterial = materialManager.Get(entry.Index);
             break;
 
           // Batch
@@ -406,24 +399,31 @@ namespace mkds.exporter {
                     gltfColor = new Vector4(1, 1, 1, 1);
                   }
 
+                  var texStageIndices = currentMaterial.CurrentTexStageIndices;
+
                   // TODO: Support multiple texture coords?
-                  Vector2? gltfUv = null;
-                  if (batch.HasTexCoords[0]) {
-                    var uv = vertexUvs[0][point.TexCoordIndex[0]];
-                    gltfUv = new Vector2(uv.S, uv.T);
+                  var hasUvs = false;
+                  var gltfUvs = new Vector2[2];
+
+                  // TODO: There can actually be up to 8, but how to use them all in glTF???
+                  foreach (var i in texStageIndices) {
+                    if (batch.HasTexCoords[i]) {
+                      var uv = vertexUvs[i][point.TexCoordIndex[i]];
+                      gltfUvs[i] = new Vector2(uv.S, uv.T);
+                      hasUvs = true;
+                    }
                   }
 
                   var hasColor = gltfColor != null;
-                  var hasUv = gltfUv != null;
-                  if (hasColor && hasUv) {
+                  if (hasColor && hasUvs) {
                     vertexBuilder =
                         vertexBuilder.WithMaterial(
                             gltfColor.Value,
-                            gltfUv.Value);
+                            gltfUvs);
                   } else if (hasColor) {
                     vertexBuilder = vertexBuilder.WithMaterial(gltfColor.Value);
-                  } else if (hasUv) {
-                    vertexBuilder = vertexBuilder.WithMaterial(gltfUv.Value);
+                  } else if (hasUvs) {
+                    vertexBuilder = vertexBuilder.WithMaterial(gltfUvs);
                   }
 
                   vertices[p] = vertexBuilder;
@@ -434,7 +434,9 @@ namespace mkds.exporter {
                 switch (glPrimitiveType) {
                   case Gl.GL_TRIANGLES: {
                     var triangles =
-                        meshBuilder.UsePrimitive(currentMaterial, 3);
+                        meshBuilder.UsePrimitive(
+                            currentMaterial.MaterialBuilder,
+                            3);
 
                     for (var v = 0; v < pointsCount; v += 3) {
                       triangles.AddTriangle(vertices[v + 0],
@@ -447,7 +449,9 @@ namespace mkds.exporter {
 
                   case Gl.GL_TRIANGLE_STRIP: {
                     var triangleStrip =
-                        meshBuilder.UsePrimitive(currentMaterial, 3);
+                        meshBuilder.UsePrimitive(
+                            currentMaterial.MaterialBuilder,
+                            3);
 
                     for (var v = 0; v < pointsCount - 2; ++v) {
                       if (v % 2 == 0) {
@@ -467,7 +471,9 @@ namespace mkds.exporter {
 
                   case Gl.GL_QUADS: {
                     var quads =
-                        meshBuilder.UsePrimitive(currentMaterial, 4);
+                        meshBuilder.UsePrimitive(
+                            currentMaterial.MaterialBuilder,
+                            4);
 
                     for (var v = 0; v < pointsCount; v += 4) {
                       quads.AddQuadrangle(vertices[v + 0],

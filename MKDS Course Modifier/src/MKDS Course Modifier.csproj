@@ -22,9 +22,11 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="AssimpNet" Version="5.0.0-beta1" />
     <PackageReference Include="CommandLineParser" Version="2.9.0-preview1" />
     <PackageReference Include="MathNet.Numerics" Version="4.15.0" />
     <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0020" />
+    <PackageReference Include="UkooLabs.FbxSharpie" Version="1.0.99" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="MKDS_Course_Modifier\N64\**" />
