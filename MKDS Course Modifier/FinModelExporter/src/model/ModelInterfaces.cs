@@ -9,7 +9,7 @@ namespace fin.model {
 
   public interface IBones {
     IReadOnlyList<IBone> All { get; }
-    IBone AddBone(IPosition localPosition);
+    IBone AddBone(float x, float y, float z);
   }
 
   public interface IBone {
@@ -17,9 +17,10 @@ namespace fin.model {
     IQuaternion LocalRotation { get; }
     IScale LocalScale { get; }
 
-    IBone SetLocalPosition(IPosition localPosition);
-    IBone SetLocalRotation(IQuaternion localRotation);
-    IBone SetLocalScale(IScale localScale);
+    IBone SetLocalPosition(float x, float y, float z);
+    IBone SetLocalRotationDegrees(float x, float y, float z);
+    IBone SetLocalRotationRadians(float x, float y, float z);
+    IBone SetLocalScale(float x, float y, float z);
   }
 
   public interface IMaterials {
@@ -28,14 +29,13 @@ namespace fin.model {
   }
 
   public interface IMaterial {
-
     // TODO: Setting texture layer(s).
     // TODO: Setting logic for combining texture layers.
   }
 
   public interface ISkin {
     IReadOnlyList<IVertex> Vertices { get; }
-    IVertex AddVertex(IPosition position);
+    IVertex AddVertex(float x, float y, float z);
 
     IReadOnlyList<IPrimitive> Primitives { get; }
     IPrimitive AddTriangle(IVertex v1, IVertex v2, IVertex v3);
@@ -48,6 +48,7 @@ namespace fin.model {
 
     IVertex SetWeights((IBone, float) weights);
     IVertex SetGlobalPosition(float x, float y, float z);
+
     IVertex SetGlobalNormal(float x, float y, float z);
     // TODO: Setting colors.
     // TODO: Setting multiple texture UVs.
@@ -66,9 +67,9 @@ namespace fin.model {
   }
 
   public interface IVector4 {
-    float X { get; }
-    float Y { get; }
-    float Z { get; }
+    float X { get; set; }
+    float Y { get; set; }
+    float Z { get; set; }
     float W { get; }
   }
 
@@ -77,18 +78,22 @@ namespace fin.model {
   public interface INormal : IVector4 {}
 
   public interface IVector3 {
-    float X { get; }
-    float Y { get; }
-    float Z { get; }
+    float X { get; set; }
+    float Y { get; set; }
+    float Z { get; set; }
   }
 
-  public interface IScale : IVector3 {
-    float X { get; }
-    float Y { get; }
-    float Z { get; }
-  }
+  public interface IScale : IVector3 {}
 
   public interface IQuaternion {
-    // TODO: These fields.
+    float XDegrees { get; }
+    float YDegrees { get; }
+    float ZDegrees { get; }
+    IQuaternion SetDegrees(float x, float y, float z);
+
+    float XRadians { get; }
+    float YRadians { get; }
+    float ZRadians { get; }
+    IQuaternion SetRadians(float x, float y, float z);
   }
 }
