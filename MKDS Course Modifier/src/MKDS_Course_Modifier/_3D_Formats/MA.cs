@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 
+using Color = System.Drawing.Color;
+
 namespace MKDS_Course_Modifier._3D_Formats
 {
   public class MA

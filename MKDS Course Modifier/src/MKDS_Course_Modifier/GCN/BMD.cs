@@ -23,6 +23,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using Tao.OpenGl;
+using System.Windows.Forms;
 
 namespace MKDS_Course_Modifier.GCN
 {
@@ -847,7 +848,7 @@ label_46:
                     nsbmd.modelSet.models[0].info.numTriangle += (ushort) (primitive.Points.Length - 2);
                     break;
                   default:
-                    int num4 = (int) System.Windows.MessageBox.Show("Unsupported Primitive!");
+                    int num4 = (int) MessageBox.Show("Unsupported Primitive!");
                     break;
                 }
                 Vector2[] vector2Array = (Vector2[]) null;

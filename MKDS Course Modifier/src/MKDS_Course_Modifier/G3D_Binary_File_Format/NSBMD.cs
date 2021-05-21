@@ -15,6 +15,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using Tao.OpenGl;
+using System.Windows.Forms;
 
 namespace MKDS_Course_Modifier.G3D_Binary_File_Format
 {
@@ -353,7 +354,7 @@ namespace MKDS_Course_Modifier.G3D_Binary_File_Format
                       flag7 = true;
                       if (((int) this.materials.materials[(int) num7].texImageParam & (int) ushort.MaxValue) != 0)
                       {
-                        int num8 = (int) System.Windows.MessageBox.Show("Texoffset is not 0!!!");
+                        int num8 = (int) MessageBox.Show("Texoffset is not 0!!!");
                       }
                       if (this.materials.materials[(int) num7].Fmt != Graphic.GXTexFmt.GX_TEXFMT_NONE)
                       {
@@ -531,7 +532,7 @@ label_23:
                             Gl.glDepthFunc(513);
                             break;
                           case 1:
-                            int num12 = (int) System.Windows.MessageBox.Show("EQUALS!");
+                            int num12 = (int) MessageBox.Show("EQUALS!");
                             Gl.glDepthFunc(514);
                             break;
                         }
@@ -548,7 +549,7 @@ label_23:
                             num13 = 8448;
                             break;
                           case 3:
-                            int num14 = (int) System.Windows.MessageBox.Show("SHADOW!");
+                            int num14 = (int) MessageBox.Show("SHADOW!");
                             num13 = 8448;
                             break;
                         }
