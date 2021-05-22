@@ -2,7 +2,6 @@
 
 namespace fin.exporter {
   public interface IExporter {
-    public void Export(IModel model) {
-    }
+    void Export(string outputPath, IModel model);
   }
 }

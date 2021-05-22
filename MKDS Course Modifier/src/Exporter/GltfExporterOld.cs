@@ -10,8 +10,6 @@ using MKDS_Course_Modifier.G3D_Binary_File_Format;
 
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
-using SharpGLTF.Materials;
-using SharpGLTF.Memory;
 using SharpGLTF.Schema2;
 
 using MKDS_Course_Modifier.GCN;
@@ -25,7 +23,7 @@ namespace mkds.exporter {
   using MkdsNode = MKDS_Course_Modifier._3D_Formats.MA.Node;
   using CsVector = System.Numerics.Vector3;
 
-  public static class GltfExporter {
+  public static class GltfExporterOld {
     public static bool IncludeRootNode = false;
 
     public static void Export(
@@ -161,7 +159,7 @@ namespace mkds.exporter {
       }
 
       // Gathers up vertex builders.
-      var mesh = GltfExporter.WriteMesh_(jointNodes, model, bmd, pathsAndBtis);
+      var mesh = GltfExporterOld.WriteMesh_(jointNodes, model, bmd, pathsAndBtis);
       scene.CreateNode()
            .WithSkinnedMesh(mesh, rootNode.WorldMatrix, jointNodes.ToArray());
 

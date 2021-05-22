@@ -14,7 +14,7 @@ namespace fin.model.impl {
         public BoneImpl(IBone? parent, float x, float y, float z) {
           this.Parent = parent;
           this.SetLocalPosition(x, y, z);
-         
+
           this.Children = new ReadOnlyCollection<IBone>(this.children_);
         }
 
@@ -34,9 +34,9 @@ namespace fin.model.impl {
         public IPosition LocalPosition { get; } =
           new PositionImpl();
 
-        public IQuaternion LocalRotation { get; }
+        public IQuaternion? LocalRotation { get; private set; }
 
-        public IScale LocalScale { get; } = new ScaleImpl();
+        public IScale? LocalScale { get; private set; }
 
         public IBone SetLocalPosition(float x, float y, float z) {
           this.LocalPosition.X = x;
@@ -46,19 +46,19 @@ namespace fin.model.impl {
         }
 
         public IBone SetLocalRotationDegrees(float x, float y, float z) {
+          this.LocalRotation ??= new QuaternionImpl();
           this.LocalRotation.SetDegrees(x, y, z);
           return this;
         }
 
-        public IBone SetLocalRotationRadians(float x, float y, float z) { 
+        public IBone SetLocalRotationRadians(float x, float y, float z) {
+          this.LocalRotation ??= new QuaternionImpl();
           this.LocalRotation.SetRadians(x, y, z);
           return this;
         }
 
         public IBone SetLocalScale(float x, float y, float z) {
-          this.LocalScale.X = x;
-          this.LocalScale.Y = y;
-          this.LocalScale.Z = z;
+          this.LocalScale ??= new ScaleImpl {X = x, Y = y, Z = z};
           return this;
         }
       }

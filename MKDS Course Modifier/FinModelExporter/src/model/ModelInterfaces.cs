@@ -4,8 +4,8 @@ namespace fin.model {
   public interface IModel {
     ISkeleton Skeleton { get; }
     ISkin Skin { get; }
-    IMaterials Materials { get; }
-    IAnimations Animations { get; }
+    IMaterialManager MaterialManager { get; }
+    IAnimationManager AnimationManager { get; }
   }
 
   public interface ISkeleton {
@@ -13,7 +13,7 @@ namespace fin.model {
   }
 
   public interface IBone {
-    string Name { get; }
+    string Name { get; set; }
 
     IBone? Parent { get; }
     IReadOnlyList<IBone> Children { get; }
@@ -64,7 +64,7 @@ namespace fin.model {
   }
 
 
-  public interface IMaterials {
+  public interface IMaterialManager {
     IReadOnlyList<IMaterial> All { get; }
     IMaterial AddMaterial();
   }

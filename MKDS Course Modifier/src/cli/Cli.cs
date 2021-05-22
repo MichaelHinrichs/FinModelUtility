@@ -2,6 +2,8 @@
 using System.IO;
 using System.Linq;
 
+using fin.exporter.gltf;
+
 using mkds.exporter;
 
 using MKDS_Course_Modifier.GCN;
@@ -33,7 +35,10 @@ namespace mkds.cli {
                                       new BTI(File.ReadAllBytes(btiPath))))
                   .ToList();
 
-      GltfExporter.Export(Args.OutputPath, bmd, pathsAndBcxs, pathsAndBtis);
+      //GltfExporterOld.Export(Args.OutputPath, bmd, pathsAndBcxs, pathsAndBtis);
+
+      var model = new ModelConverter().Convert(bmd, pathsAndBcxs, pathsAndBtis);
+      new GltfExporter().Export(Args.OutputPath, model);
 
       return 0;
     }

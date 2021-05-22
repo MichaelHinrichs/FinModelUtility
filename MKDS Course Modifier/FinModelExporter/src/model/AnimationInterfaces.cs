@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
 namespace fin.model {
-  public interface IAnimations {
+  public interface IAnimationManager {
     IReadOnlyList<IAnimation> Animations { get; }
     IAnimation AddAnimation();
   }
