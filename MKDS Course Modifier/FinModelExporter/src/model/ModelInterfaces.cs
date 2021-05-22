@@ -3,8 +3,8 @@
 namespace fin.model {
   public interface IModel {
     IBones Bones { get; }
-    IMaterials Materials { get; }
     ISkin Skin { get; }
+    IMaterials Materials { get; }
   }
 
   public interface IBones {
@@ -13,6 +13,8 @@ namespace fin.model {
   }
 
   public interface IBone {
+    string Name { get; }
+
     IPosition LocalPosition { get; }
     IQuaternion LocalRotation { get; }
     IScale LocalScale { get; }
@@ -23,15 +25,6 @@ namespace fin.model {
     IBone SetLocalScale(float x, float y, float z);
   }
 
-  public interface IMaterials {
-    IReadOnlyList<IMaterial> All { get; }
-    IMaterial AddMaterial();
-  }
-
-  public interface IMaterial {
-    // TODO: Setting texture layer(s).
-    // TODO: Setting logic for combining texture layers.
-  }
 
   public interface ISkin {
     IReadOnlyList<IVertex> Vertices { get; }
@@ -66,34 +59,16 @@ namespace fin.model {
     IPrimitive SetMaterial(IMaterial material);
   }
 
-  public interface IVector4 {
-    float X { get; set; }
-    float Y { get; set; }
-    float Z { get; set; }
-    float W { get; }
+
+  public interface IMaterials {
+    IReadOnlyList<IMaterial> All { get; }
+    IMaterial AddMaterial();
   }
 
-  public interface IPosition : IVector4 {}
+  public interface IMaterial {
+    string Name { get; }
 
-  public interface INormal : IVector4 {}
-
-  public interface IVector3 {
-    float X { get; set; }
-    float Y { get; set; }
-    float Z { get; set; }
-  }
-
-  public interface IScale : IVector3 {}
-
-  public interface IQuaternion {
-    float XDegrees { get; }
-    float YDegrees { get; }
-    float ZDegrees { get; }
-    IQuaternion SetDegrees(float x, float y, float z);
-
-    float XRadians { get; }
-    float YRadians { get; }
-    float ZRadians { get; }
-    IQuaternion SetRadians(float x, float y, float z);
+    // TODO: Setting texture layer(s).
+    // TODO: Setting logic for combining texture layers.
   }
 }

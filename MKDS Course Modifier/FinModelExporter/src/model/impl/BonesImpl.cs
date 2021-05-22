@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace fin.model.impl {
@@ -24,6 +23,8 @@ namespace fin.model.impl {
       private class BoneImpl : IBone {
         public BoneImpl(float x, float y, float z)
           => this.SetLocalPosition(x, y, z);
+
+        public string Name { get; set; }
 
         public IPosition LocalPosition { get; } =
           new PositionImpl();
