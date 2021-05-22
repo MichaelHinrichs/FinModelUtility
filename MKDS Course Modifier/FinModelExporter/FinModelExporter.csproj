@@ -3,4 +3,10 @@
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>fin</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="src\export\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AssimpNet" Version="5.0.0-beta1" />
+  </ItemGroup>
 </Project>
