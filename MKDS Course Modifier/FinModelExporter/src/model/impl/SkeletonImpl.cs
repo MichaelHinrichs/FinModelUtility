@@ -3,28 +3,33 @@ using System.Collections.ObjectModel;
 
 namespace fin.model.impl {
   public partial class ModelImpl {
-    public IBones Bones { get; } = new BonesImpl();
+    public ISkeleton Skeleton { get; } = new SkeletonImpl();
 
-    private class BonesImpl : IBones {
-      private IList<IBone> impl_ = new List<IBone>();
-
-      public BonesImpl() {
-        this.All = new ReadOnlyCollection<IBone>(this.impl_);
-      }
-
-      public IReadOnlyList<IBone> All { get; }
-
-      public IBone AddBone(float x, float y, float z) {
-        var bone = new BoneImpl(x, y, z);
-        this.impl_.Add(bone);
-        return bone;
-      }
+    private class SkeletonImpl : ISkeleton {
+      public IBone Root { get; } = new BoneImpl(null, 0, 0, 0);
 
       private class BoneImpl : IBone {
-        public BoneImpl(float x, float y, float z)
-          => this.SetLocalPosition(x, y, z);
+        private readonly IList<IBone> children_ = new List<IBone>();
+
+        public BoneImpl(IBone? parent, float x, float y, float z) {
+          this.Parent = parent;
+          this.SetLocalPosition(x, y, z);
+         
+          this.Children = new ReadOnlyCollection<IBone>(this.children_);
+        }
 
         public string Name { get; set; }
+
+
+        public IBone? Parent { get; }
+        public IReadOnlyList<IBone> Children { get; }
+
+        public IBone AddChild(float x, float y, float z) {
+          var child = new BoneImpl(this, x, y, z);
+          this.children_.Add(child);
+          return child;
+        }
+
 
         public IPosition LocalPosition { get; } =
           new PositionImpl();

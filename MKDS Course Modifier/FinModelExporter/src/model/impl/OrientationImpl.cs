@@ -24,6 +24,11 @@ namespace fin.model.impl {
 
       private Quaternion impl_ = Quaternion.Identity;
 
+      /// <summary>
+      ///   Length of the (x, y, z, w) quaternion vector.
+      /// </summary>
+      public float Length => this.impl_.Length();
+
       public float XDegrees => this.XRadians * QuaternionImpl.RAD_2_DEG;
       public float YDegrees => this.YRadians * QuaternionImpl.RAD_2_DEG;
       public float ZDegrees => this.ZRadians * QuaternionImpl.RAD_2_DEG;

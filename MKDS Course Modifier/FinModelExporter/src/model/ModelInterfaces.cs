@@ -2,22 +2,26 @@
 
 namespace fin.model {
   public interface IModel {
-    IBones Bones { get; }
+    ISkeleton Skeleton { get; }
     ISkin Skin { get; }
     IMaterials Materials { get; }
+    IAnimations Animations { get; }
   }
 
-  public interface IBones {
-    IReadOnlyList<IBone> All { get; }
-    IBone AddBone(float x, float y, float z);
+  public interface ISkeleton {
+    IBone Root { get; }
   }
 
   public interface IBone {
     string Name { get; }
 
+    IBone? Parent { get; }
+    IReadOnlyList<IBone> Children { get; }
+    IBone AddChild(float x, float y, float z);
+
     IPosition LocalPosition { get; }
-    IQuaternion LocalRotation { get; }
-    IScale LocalScale { get; }
+    IQuaternion? LocalRotation { get; }
+    IScale? LocalScale { get; }
 
     IBone SetLocalPosition(float x, float y, float z);
     IBone SetLocalRotationDegrees(float x, float y, float z);

@@ -21,6 +21,8 @@ namespace fin.model {
   public interface IScale : IVector3 {}
 
   public interface IQuaternion {
+    float Length { get; }
+
     float XDegrees { get; }
     float YDegrees { get; }
     float ZDegrees { get; }
