@@ -12,6 +12,13 @@ namespace fin.model.impl {
       public float W => 1;
     }
 
+    public class NormalImpl : INormal {
+      public float X { get; set; }
+      public float Y { get; set; }
+      public float Z { get; set; }
+      public float W => 0;
+    }
+
     public class ScaleImpl : IScale {
       public float X { get; set; }
       public float Y { get; set; }

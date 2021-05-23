@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
 
 namespace fin.model {
   public interface IModel {
@@ -35,29 +36,39 @@ namespace fin.model {
     IVertex AddVertex(float x, float y, float z);
 
     IReadOnlyList<IPrimitive> Primitives { get; }
-    IPrimitive AddTriangle(IVertex v1, IVertex v2, IVertex v3);
-    IPrimitive AddQuad(IVertex v1, IVertex v2, IVertex v3, IVertex v4);
+    
+    IPrimitive AddTriangles(params (IVertex, IVertex, IVertex)[] triangles);
+    IPrimitive AddTriangles(params IVertex[] vertices);
+
+    IPrimitive AddTriangleStrip(params IVertex[] vertices);
+
+    IPrimitive AddQuads(params (IVertex, IVertex, IVertex, IVertex)[] quads);
+    IPrimitive AddQuads(params IVertex[] vertices);
   }
 
   public interface IVertex {
-    IPosition GlobalPosition { get; }
-    INormal GlobalNormal { get; }
+    IReadOnlyList<(IBone, float)>? Weights { get; }
+    IVertex SetBone(IBone bone);
+    IVertex SetBones(params (IBone, float)[] weights);
 
-    IVertex SetWeights((IBone, float) weights);
+    IPosition GlobalPosition { get; }
     IVertex SetGlobalPosition(float x, float y, float z);
 
+    INormal? GlobalNormal { get; }
     IVertex SetGlobalNormal(float x, float y, float z);
     // TODO: Setting colors.
     // TODO: Setting multiple texture UVs.
   }
 
   public enum PrimitiveType {
-    TRIANGLE,
-    QUAD,
+    TRIANGLES,
+    TRIANGLE_STRIP,
+    QUADS,
     // TODO: Other types.
   }
 
   public interface IPrimitive {
+    PrimitiveType Type { get; }
     IReadOnlyList<IVertex> Vertices { get; }
 
     IPrimitive SetMaterial(IMaterial material);

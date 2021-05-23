@@ -24,7 +24,6 @@ namespace fin.exporter.gltf {
       var skinNodes = new List<GltfNode>();
       while (boneQueue.Count > 0) {
         var (node, bone) = boneQueue.Dequeue();
-        var boneName = bone.Name;
 
         // We should be able to use the raw bone positions, but this screws up
         // bones with multiple weights for some reason, perhaps because the
