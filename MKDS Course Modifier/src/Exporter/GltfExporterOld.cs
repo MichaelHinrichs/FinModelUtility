@@ -4,7 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 
+using fin.log;
+
 using MathNet.Numerics.LinearAlgebra.Double;
+
+using Microsoft.Extensions.Logging;
 
 using MKDS_Course_Modifier.G3D_Binary_File_Format;
 
@@ -23,14 +27,18 @@ namespace mkds.exporter {
   using MkdsNode = MKDS_Course_Modifier._3D_Formats.MA.Node;
   using CsVector = System.Numerics.Vector3;
 
-  public static class GltfExporterOld {
-    public static bool IncludeRootNode = false;
+  public class GltfExporterOld {
+    private readonly ILogger logger_ = Logging.Create<GltfExporterOld>();
 
-    public static void Export(
+    public const bool IncludeRootNode = false;
+
+    public void Export(
         string outputPath,
         BMD bmd,
         IList<(string, IBcx)>? pathsAndBcxs = null,
         IList<(string, BTI)>? pathsAndBtis = null) {
+      using var _ = this.logger_.BeginScope("Export");
+
       var joints = bmd.GetJoints();
 
       var scale = 1;
@@ -159,7 +167,8 @@ namespace mkds.exporter {
       }
 
       // Gathers up vertex builders.
-      var mesh = GltfExporterOld.WriteMesh_(jointNodes, model, bmd, pathsAndBtis);
+      var mesh =
+          GltfExporterOld.WriteMesh_(jointNodes, model, bmd, pathsAndBtis);
       scene.CreateNode()
            .WithSkinnedMesh(mesh, rootNode.WorldMatrix, jointNodes.ToArray());
 
@@ -167,6 +176,8 @@ namespace mkds.exporter {
       var writeSettings = new WriteSettings {
           ImageWriting = ResourceWriteMode.SatelliteFile,
       };
+
+      this.logger_.LogInformation($"Writing to {outputPath}...");
       model.Save(outputPath, writeSettings);
     }
 

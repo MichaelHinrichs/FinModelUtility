@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace mkds.util.array {
+namespace fin.util.array {
   public static class Arrays {
     public static T[] Concat<T>(params T[][] arrays) {
       var totalSize = arrays.Select(array => array.Length)

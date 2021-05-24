@@ -1,9 +1,9 @@
 ﻿using System.IO;
 using System.Linq;
 
-using mkds.util.asserts;
+using fin.util.asserts;
 
-namespace mkds.io {
+namespace fin.io {
   public static class Files {
     public static DirectoryInfo GetCwd()
       => new DirectoryInfo(Directory.GetCurrentDirectory());

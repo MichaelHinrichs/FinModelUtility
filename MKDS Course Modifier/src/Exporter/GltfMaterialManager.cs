@@ -2,11 +2,9 @@
 using System.IO;
 using System.Linq;
 
-using mkds.cli;
+using fin.cli;
 
 using MKDS_Course_Modifier.GCN;
-
-using SharpGLTF.Materials;
 
 namespace mkds.exporter {
   public class GltfMaterialManager {

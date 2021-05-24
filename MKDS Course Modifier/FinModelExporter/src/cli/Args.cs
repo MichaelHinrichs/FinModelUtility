@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 
 using CommandLine;
 using CommandLine.Text;
 
-using mkds.io;
-using mkds.util.array;
+using fin.io;
+using fin.log;
+using fin.util.array;
 
-namespace mkds.cli {
+namespace fin.cli {
+  // TODO: Hook downstream classes into this for args by system.
   public static class Args {
+    public static bool Verbose { get; private set; }
     public static string OutputPath { get; private set; } = "";
     public static string BmdPath { get; private set; } = "";
 
@@ -33,8 +34,10 @@ namespace mkds.cli {
           Parser.Default.ParseArguments(
                     args,
                     typeof(AutomaticOptions),
-                    typeof(ManualOptions))
+                    typeof(ManualOptions),
+                    typeof(DebugOptions))
                 .WithParsed((AutomaticOptions automaticOpts) => {
+                  Args.Verbose = automaticOpts.Verbose;
                   Args.OutputPath = automaticOpts.OutputPath;
                   Args.BmdPath = Files.GetPathWithExtension("bmd");
                   Args.BcxPaths = Arrays.Concat(Files.GetPathsWithExtension(
@@ -44,31 +47,31 @@ namespace mkds.cli {
                   Args.BtiPaths = Files.GetPathsWithExtension("bti");
                 })
                 .WithParsed((ManualOptions manualOpts) => {
+                  Args.Verbose = manualOpts.Verbose;
                   Args.OutputPath = manualOpts.OutputPath;
                   Args.BmdPath = manualOpts.BmdPath;
                   Args.BcxPaths = manualOpts.BcxPaths;
                   Args.BtiPaths = manualOpts.BtiPaths;
                 })
-                .WithNotParsed((IEnumerable<Error> parseErrors) => {
-                  // If debugger is not attached, assume we are running from
-                  // the command line.
-                  if (!Debugger.IsAttached) {
-                    errors = parseErrors;
-                    return;
-                  }
-
+                .WithParsed((DebugOptions debugOpts) => {
+                  Args.Verbose = debugOpts.Verbose;
+                  Args.GetForEnemy_("Chappy",
+                                    out var outputPath,
+                                    out var bmdPath,
+                                    out var bcxPaths,
+                                    out var btiPaths);
                   /*Args.GetForEnemy("Queen",
                                    out var outputPath,
                                    out var bmdPath,
                                    out var bcxPaths,
-                                   out var btiPaths);*/
-                  Args.GetFromDirectory(
+                                   out var btiPaths);
+                  /*Args.GetFromDirectory(
                       new DirectoryInfo(
                           "R:/Documents/CSharpWorkspace/Pikmin2Utility/cli/roms/pkmn2.gcm_dir/user/Kando/ufo"),
                       out var outputPath,
                       out var bmdPath,
                       out var bcxPaths,
-                      out var btiPaths);
+                      out var btiPaths);*/
                   //GetForPikmin(out outputPath, out bmdPath);
                   //GetForTesting(out outputPath, out bmdPath, out bcxPaths);
 
@@ -76,7 +79,8 @@ namespace mkds.cli {
                   Args.BmdPath = bmdPath;
                   Args.BcxPaths = bcxPaths;
                   Args.BtiPaths = btiPaths;
-                });
+                })
+                .WithNotParsed(parseErrors => errors = parseErrors);
 
       if (errors != null) {
         var helpText = HelpText.AutoBuild(parserResult);
@@ -84,9 +88,11 @@ namespace mkds.cli {
 
         throw new Exception();
       }
+
+      Logging.Initialize(Args.Verbose);
     }
 
-    private static void GetForTesting(
+    private static void GetForTesting_(
         out string outputPath,
         out string bmdPath,
         out IList<string> bcxPaths) {
@@ -103,26 +109,26 @@ namespace mkds.cli {
       };
     }
 
-    private static void GetForEnemy(
+    private static void GetForEnemy_(
         string name,
         out string outputPath,
         out string bmdPath,
         out IList<string> bcxPaths,
         out IList<string> btiPaths) {
-      outputPath = Args.GetOutputPath(name);
+      outputPath = Args.GetOutputPath_(name);
 
       var basePath = "R:/Documents/CSharpWorkspace/Pikmin2Utility/";
       var enemyBasePath =
           $"{basePath}cli/roms/pkmn2.gcm_dir/enemy/data/{name}/";
 
-      Args.GetFromDirectory(new DirectoryInfo(enemyBasePath),
+      Args.GetFromDirectory_(new DirectoryInfo(enemyBasePath),
                             out outputPath,
                             out bmdPath,
                             out bcxPaths,
                             out btiPaths);
     }
 
-    private static void GetForPikmin(
+    private static void GetForPikmin_(
         out string outputPath,
         out string bmdPath) {
       var basePath = "R:/Documents/CSharpWorkspace/Pikmin2Utility/";
@@ -143,18 +149,18 @@ namespace mkds.cli {
                  .ToList();*/
     }
 
-    private static string GetOutputPath(string name) {
+    private static string GetOutputPath_(string name) {
       var basePath = "R:/Documents/CSharpWorkspace/Pikmin2Utility/";
       return $"{basePath}cli/out/{name}/{name}.glb";
     }
 
-    private static void GetFromDirectory(
+    private static void GetFromDirectory_(
         DirectoryInfo directory,
         out string outputPath,
         out string bmdPath,
         out IList<string> bcxPaths,
         out IList<string> btiPaths) {
-      outputPath = Args.GetOutputPath(directory.Name);
+      outputPath = Args.GetOutputPath_(directory.Name);
 
       bmdPath = Files.GetPathWithExtension(directory, "bmd");
       bcxPaths = Arrays.Concat(

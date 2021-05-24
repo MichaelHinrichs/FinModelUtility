@@ -1,7 +1,14 @@
 ﻿using CommandLine;
 
-namespace mkds.cli {
-  public abstract class BConversionOptions {
+namespace fin.cli {
+  public abstract class BVerbosityOptions {
+    [Option("verbose",
+            HelpText = "Whether to print verbose log output.",
+            Required = false)]
+    public bool Verbose { get; set; }
+  }
+
+  public abstract class BConversionOptions : BVerbosityOptions {
     [Option("out",
             HelpText =
                 "Path to an output .glb/.gltf that will be generated.",
@@ -28,4 +35,9 @@ namespace mkds.cli {
     [Option("bti", HelpText = "Path(s) to input .bti textures.")]
     public string[] BtiPaths { get; set; }
   }
+
+  [Verb("debug",
+        HelpText =
+            "Convert GCN model with hardcoded input files. Not meant for general use.")]
+  public class DebugOptions : BVerbosityOptions { }
 }

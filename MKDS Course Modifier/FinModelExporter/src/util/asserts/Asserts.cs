@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace mkds.util.asserts {
+namespace fin.util.asserts {
   public class Asserts {
     private class AssertionException : Exception {
       public AssertionException(string message) : base(message) { }
