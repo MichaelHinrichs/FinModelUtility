@@ -56,12 +56,11 @@ namespace fin.math {
                                     localPosition.Z);
 
         var localRotation = boneTracks?.Rotations?.GetInterpolatedAtFrame(0) ??
-                            bone.LocalRotation;
+                            (bone.LocalRotation != null
+                                 ? QuaternionUtil.Create(bone.LocalRotation)
+                                 : null);
         if (localRotation != null) {
-          this.transformer_.Rotate(localRotation.X,
-                                   localRotation.Y,
-                                   localRotation.Z,
-                                   localRotation.W);
+          this.transformer_.Rotate(localRotation.Value);
         }
 
         var localScale = boneTracks?.Scales?.GetInterpolatedAtFrame(0) ??

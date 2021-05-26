@@ -97,7 +97,7 @@ namespace mkds.exporter {
           node.WithLocalTranslation(jointTranslation);
 
           var jointRotation =
-              JointUtil.GetRotation(firstAnimation, j, 0);
+              JointUtil.GetQuaternion(firstAnimation, j, 0);
           if (jointRotation.Length() > 0) {
             node.WithLocalRotation(jointRotation);
           }
@@ -151,7 +151,7 @@ namespace mkds.exporter {
 
             translationKeyframes[time] =
                 JointUtil.GetTranslation(bcx, jointIndex, f) * scale;
-            rotationKeyframes[time] = JointUtil.GetRotation(bcx, jointIndex, f);
+            rotationKeyframes[time] = JointUtil.GetQuaternion(bcx, jointIndex, f);
             scaleKeyframes[time] = JointUtil.GetScale(bcx, jointIndex, f);
           }
 

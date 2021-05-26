@@ -25,11 +25,17 @@ namespace fin.model.impl {
       public float Z { get; set; }
     }
 
-    public class QuaternionImpl : IQuaternion {
+    /*public class QuaternionImpl : IQuaternion {
       private const float DEG_2_RAD = (float) (Math.PI / 180);
       private const float RAD_2_DEG = 1 / DEG_2_RAD;
 
-      private Quaternion impl_ = Quaternion.Identity;
+      private Quaternion impl_;
+
+      public QuaternionImpl() => this.impl_ = Quaternion.Identity;
+
+      public QuaternionImpl(Quaternion impl) {
+        this.impl_ = impl;
+      }
 
       public float X => this.impl_.X;
       public float Y => this.impl_.Y;
@@ -59,6 +65,34 @@ namespace fin.model.impl {
 
       private IQuaternion SetRadiansImpl_(float x, float y, float z) {
         this.impl_ = QuaternionUtil.Create(x, y, z);
+        this.XRadians = x;
+        this.YRadians = y;
+        this.ZRadians = z;
+        return this;
+      }
+    }*/
+
+    public class RotationImpl : IRotation {
+      private const float DEG_2_RAD = (float)(Math.PI / 180);
+      private const float RAD_2_DEG = 1 / DEG_2_RAD;
+
+      public float XDegrees => this.XRadians * RotationImpl.RAD_2_DEG;
+      public float YDegrees => this.YRadians * RotationImpl.RAD_2_DEG;
+      public float ZDegrees => this.ZRadians * RotationImpl.RAD_2_DEG;
+
+      public IRotation SetDegrees(float x, float y, float z)
+        => this.SetRadiansImpl_(x * RotationImpl.DEG_2_RAD,
+                                y * RotationImpl.DEG_2_RAD,
+                                z * RotationImpl.DEG_2_RAD);
+
+      public float XRadians { get; private set; }
+      public float YRadians { get; private set; }
+      public float ZRadians { get; private set; }
+
+      public IRotation SetRadians(float x, float y, float z)
+        => this.SetRadiansImpl_(x, y, z);
+
+      private RotationImpl SetRadiansImpl_(float x, float y, float z) {
         this.XRadians = x;
         this.YRadians = y;
         this.ZRadians = z;

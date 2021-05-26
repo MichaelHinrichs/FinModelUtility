@@ -15,7 +15,7 @@ namespace mkds.exporter {
       return new Vector3(x, y, z);
     }
 
-    public static Quaternion GetRotation(IBcx bcx, int jointIndex, float time) {
+    public static Quaternion GetQuaternion(IBcx bcx, int jointIndex, float time) {
       var animatedJoint = bcx.Anx1.Joints[jointIndex];
       var values = animatedJoint.Values;
 
@@ -24,6 +24,17 @@ namespace mkds.exporter {
       var zRadians = animatedJoint.GetAnimValue(values.rotationsZ, time);
 
       return QuaternionUtil.Create(xRadians, yRadians, zRadians);
+    }
+
+    public static (float, float, float) GetRotation(IBcx bcx, int jointIndex, float time) {
+      var animatedJoint = bcx.Anx1.Joints[jointIndex];
+      var values = animatedJoint.Values;
+
+      var xRadians = animatedJoint.GetAnimValue(values.rotationsX, time);
+      var yRadians = animatedJoint.GetAnimValue(values.rotationsY, time);
+      var zRadians = animatedJoint.GetAnimValue(values.rotationsZ, time);
+
+      return (xRadians, yRadians, zRadians);
     }
 
     public static Vector3 GetScale(IBcx bcx, int jointIndex, float time) {

@@ -30,7 +30,8 @@ namespace fin.exporter.gltf {
         // model is contorted in an unnatural way? Anyway, we NEED to use the
         // first animation instead.
         if (firstAnimation != null) {
-          this.ApplyFirstFrameToNode_(node, firstAnimation.BoneTracks[bone]);
+          firstAnimation.BoneTracks.TryGetValue(bone, out var boneTracks);
+          this.ApplyFirstFrameToNode_(node, boneTracks);
         } else {
           this.ApplyBoneOrientationToNode_(node, bone);
         }
@@ -54,32 +55,34 @@ namespace fin.exporter.gltf {
     private void ApplyFirstFrameToNode_(GltfNode node, IBoneTracks? boneTracks)
       => this.ApplyOrientationToNode_(
           node,
-          boneTracks?.Positions?.GetInterpolatedAtFrame(0),
-          boneTracks?.Rotations?.GetInterpolatedAtFrame(0),
+          boneTracks?.Positions.GetInterpolatedAtFrame(0),
+          boneTracks?.Rotations.GetInterpolatedAtFrame(0),
           null);
 
     private void ApplyBoneOrientationToNode_(GltfNode node, IBone bone)
       => this.ApplyOrientationToNode_(
           node,
           bone.LocalPosition,
-          bone.LocalRotation,
+          bone.LocalRotation != null
+              ? QuaternionUtil.Create(
+                  bone.LocalRotation.XRadians,
+                  bone.LocalRotation.YRadians,
+                  bone.LocalRotation.ZRadians)
+              : null,
           bone.LocalScale);
 
     private void ApplyOrientationToNode_(
         GltfNode node,
         IPosition? position,
-        IQuaternion? rotation,
+        Quaternion? rotation,
         IScale? scale) {
       if (position != null) {
         node.WithLocalTranslation(
             new Vector3(position.X, position.Y, position.Z));
       }
 
-      if (rotation is {Length: > 0}) {
-        node.WithLocalRotation(QuaternionUtil.Create(
-                                   rotation.XRadians,
-                                   rotation.YRadians,
-                                   rotation.ZRadians));
+      if (rotation?.Length() > 0) {
+        node.WithLocalRotation(rotation.Value);
       }
 
       if (scale != null) {

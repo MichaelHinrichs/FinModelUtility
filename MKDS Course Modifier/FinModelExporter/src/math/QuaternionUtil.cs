@@ -1,7 +1,14 @@
 ﻿using System.Numerics;
 
+using fin.model;
+
 namespace fin.math {
   public static class QuaternionUtil {
+    public static Quaternion Create(IRotation rotation)
+      => QuaternionUtil.Create(rotation.XRadians,
+                               rotation.YRadians,
+                               rotation.ZRadians);
+
     public static Quaternion Create(
         float xRadians,
         float yRadians,

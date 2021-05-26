@@ -20,7 +20,7 @@ namespace fin.model {
 
   public interface IScale : IVector3 {}
 
-  public interface IQuaternion {
+  /*public interface IQuaternion {
     float X { get; }
     float Y { get; }
     float Z { get; }
@@ -37,5 +37,17 @@ namespace fin.model {
     float YRadians { get; }
     float ZRadians { get; }
     IQuaternion SetRadians(float x, float y, float z);
+  }*/
+
+  public interface IRotation {
+    float XDegrees { get; }
+    float YDegrees { get; }
+    float ZDegrees { get; }
+    IRotation SetDegrees(float x, float y, float z);
+
+    float XRadians { get; }
+    float YRadians { get; }
+    float ZRadians { get; }
+    IRotation SetRadians(float x, float y, float z);
   }
 }

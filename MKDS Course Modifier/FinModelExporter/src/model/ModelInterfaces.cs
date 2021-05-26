@@ -23,7 +23,7 @@ namespace fin.model {
     IBone AddChild(float x, float y, float z);
 
     IPosition LocalPosition { get; }
-    IQuaternion? LocalRotation { get; }
+    IRotation? LocalRotation { get; }
     IScale? LocalScale { get; }
 
     IBone SetLocalPosition(float x, float y, float z);

@@ -34,7 +34,7 @@ namespace fin.model.impl {
         public IPosition LocalPosition { get; } =
           new PositionImpl();
 
-        public IQuaternion? LocalRotation { get; private set; }
+        public IRotation? LocalRotation { get; private set; }
 
         public IScale? LocalScale { get; private set; }
 
@@ -46,13 +46,13 @@ namespace fin.model.impl {
         }
 
         public IBone SetLocalRotationDegrees(float x, float y, float z) {
-          this.LocalRotation ??= new QuaternionImpl();
+          this.LocalRotation ??= new RotationImpl();
           this.LocalRotation.SetDegrees(x, y, z);
           return this;
         }
 
         public IBone SetLocalRotationRadians(float x, float y, float z) {
-          this.LocalRotation ??= new QuaternionImpl();
+          this.LocalRotation ??= new RotationImpl();
           this.LocalRotation.SetRadians(x, y, z);
           return this;
         }
