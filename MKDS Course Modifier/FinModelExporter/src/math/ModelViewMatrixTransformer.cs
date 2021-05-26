@@ -4,13 +4,13 @@ using System.Numerics;
 
 using MathNet.Numerics.LinearAlgebra;
 
-namespace mkds.exporter {
+namespace fin.math {
   public class SoftwareModelViewMatrixTransformer {
     private Matrix<double> current_;
-    private LinkedList<MatrixNode> stack_ = new LinkedList<MatrixNode>();
+    private readonly LinkedList<MatrixNode> stack_ = new();
 
     private class MatrixNode {
-      public Matrix<double>? Matrix { get; set; }
+      public Matrix<double>? Matrix { get; init; }
     }
 
     public SoftwareModelViewMatrixTransformer() {
@@ -20,7 +20,11 @@ namespace mkds.exporter {
       this.current_ = this.current_;
     }
 
-    public void ProjectVertex(ref double x, ref double y, ref double z, bool correctPerspective = true)
+    public void ProjectVertex(
+        ref double x,
+        ref double y,
+        ref double z,
+        bool correctPerspective = true)
       => GlMatrixUtil.Project(this.current_,
                               ref x,
                               ref y,
@@ -88,7 +92,10 @@ namespace mkds.exporter {
     }
 
 
-    public SoftwareModelViewMatrixTransformer Translate(double x, double y, double z) {
+    public SoftwareModelViewMatrixTransformer Translate(
+        double x,
+        double y,
+        double z) {
       this.rhsBuffer_.Clear();
       for (var i = 0; i < 4; ++i) {
         this.rhsBuffer_[i, i] = 1;
@@ -100,7 +107,7 @@ namespace mkds.exporter {
       return this.MultMatrix(this.rhsBuffer_);
     }
 
-    public SoftwareModelViewMatrixTransformer Rotate(
+    public SoftwareModelViewMatrixTransformer RotateAroundAxis(
         double angle,
         double x,
         double y,
@@ -133,12 +140,14 @@ namespace mkds.exporter {
       return this.MultMatrix(this.rhsBuffer_);
     }
 
-    public SoftwareModelViewMatrixTransformer Rotate(Quaternion q) {
-      var qx = q.X;
-      var qy = q.Y;
-      var qz = q.Z;
-      var qw = q.W;
+    public SoftwareModelViewMatrixTransformer Rotate(Quaternion q)
+      => this.Rotate(q.X, q.Y, q.Z, q.W);
 
+    public SoftwareModelViewMatrixTransformer Rotate(
+        float qx,
+        float qy,
+        float qz,
+        float qw) {
       this.rhsBuffer_.Clear();
       this.rhsBuffer_[0, 0] = 1.0 - 2.0 * qy * qy - 2.0 * qz * qz;
       this.rhsBuffer_[0, 1] = 2.0 * qx * qy - 2.0 * qz * qw;
@@ -163,7 +172,10 @@ namespace mkds.exporter {
       return this.MultMatrix(this.rhsBuffer_);
     }
 
-    public SoftwareModelViewMatrixTransformer Scale(double x, double y, double z) {
+    public SoftwareModelViewMatrixTransformer Scale(
+        double x,
+        double y,
+        double z) {
       this.rhsBuffer_.Clear();
       this.rhsBuffer_[0, 0] = x;
       this.rhsBuffer_[1, 1] = y;

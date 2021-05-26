@@ -3,6 +3,10 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 
+using fin.math;
+
+using MathNet.Numerics.LinearAlgebra;
+
 namespace fin.model.impl {
   public partial class ModelImpl {
     public ISkin Skin { get; } = new SkinImpl();
@@ -74,36 +78,36 @@ namespace fin.model.impl {
 
       private class VertexImpl : IVertex {
         public VertexImpl(float x, float y, float z)
-          => this.SetGlobalPosition(x, y, z);
+          => this.SetLocalPosition(x, y, z);
 
+        public IReadOnlyList<BoneWeight>? Weights { get; private set; }
 
-        public IReadOnlyList<(IBone, float)>? Weights { get; private set; }
+        public IVertex SetBone(IBone bone)
+          => this.SetBones(new BoneWeight(bone, MatrixUtil.Identity, 1));
 
-        public IVertex SetBone(IBone bone) => this.SetBones((bone, 1));
-
-        public IVertex SetBones(params (IBone, float)[] weights) {
-          this.Weights = new ReadOnlyCollection<(IBone, float)>(weights);
+        public IVertex SetBones(params BoneWeight[] weights) {
+          this.Weights = new ReadOnlyCollection<BoneWeight>(weights);
           return this;
         }
 
 
-        public IPosition GlobalPosition { get; } = new PositionImpl();
+        public IPosition LocalPosition { get; } = new PositionImpl();
 
-        public IVertex SetGlobalPosition(float x, float y, float z) {
-          this.GlobalPosition.X = x;
-          this.GlobalPosition.Y = y;
-          this.GlobalPosition.Z = z;
+        public IVertex SetLocalPosition(float x, float y, float z) {
+          this.LocalPosition.X = x;
+          this.LocalPosition.Y = y;
+          this.LocalPosition.Z = z;
           return this;
         }
 
 
-        public INormal? GlobalNormal { get; private set; }
+        public INormal? LocalNormal { get; private set; }
 
-        public IVertex SetGlobalNormal(float x, float y, float z) {
-          this.GlobalNormal ??= new NormalImpl();
-          this.GlobalNormal.X = x;
-          this.GlobalNormal.Y = y;
-          this.GlobalNormal.Z = z;
+        public IVertex SetLocalNormal(float x, float y, float z) {
+          this.LocalNormal ??= new NormalImpl();
+          this.LocalNormal.X = x;
+          this.LocalNormal.Y = y;
+          this.LocalNormal.Z = z;
           return this;
         }
       }

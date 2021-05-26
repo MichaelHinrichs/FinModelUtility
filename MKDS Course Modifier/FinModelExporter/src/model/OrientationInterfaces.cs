@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Numerics;
 
 namespace fin.model {
   public interface IVector4 {
@@ -21,6 +21,11 @@ namespace fin.model {
   public interface IScale : IVector3 {}
 
   public interface IQuaternion {
+    float X { get; }
+    float Y { get; }
+    float Z { get; }
+    float W { get; }
+
     float Length { get; }
 
     float XDegrees { get; }

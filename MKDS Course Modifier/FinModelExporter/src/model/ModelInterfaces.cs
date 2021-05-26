@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 
+using MathNet.Numerics.LinearAlgebra;
+
 namespace fin.model {
   public interface IModel {
     ISkeleton Skeleton { get; }
@@ -46,16 +48,21 @@ namespace fin.model {
     IPrimitive AddQuads(params IVertex[] vertices);
   }
 
+  public record BoneWeight(
+      IBone Bone,
+      Matrix<double> SkinToBone,
+      float Weight);
+
   public interface IVertex {
-    IReadOnlyList<(IBone, float)>? Weights { get; }
+    IReadOnlyList<BoneWeight>? Weights { get; }
     IVertex SetBone(IBone bone);
-    IVertex SetBones(params (IBone, float)[] weights);
+    IVertex SetBones(params BoneWeight[] weights);
 
-    IPosition GlobalPosition { get; }
-    IVertex SetGlobalPosition(float x, float y, float z);
+    IPosition LocalPosition { get; }
+    IVertex SetLocalPosition(float x, float y, float z);
 
-    INormal? GlobalNormal { get; }
-    IVertex SetGlobalNormal(float x, float y, float z);
+    INormal? LocalNormal { get; }
+    IVertex SetLocalNormal(float x, float y, float z);
     // TODO: Setting colors.
     // TODO: Setting multiple texture UVs.
   }

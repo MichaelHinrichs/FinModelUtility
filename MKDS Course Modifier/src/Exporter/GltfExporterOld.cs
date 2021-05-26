@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 
 using fin.log;
+using fin.math;
 
 using MathNet.Numerics.LinearAlgebra.Double;
 

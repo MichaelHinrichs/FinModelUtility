@@ -46,7 +46,7 @@ namespace mkds.cli {
                                            new BTI(File.ReadAllBytes(btiPath))))
               .ToList();
 
-      var useStaticModel = false;
+      var useStaticModel = true;
       if (useStaticModel) {
         var model =
             new ModelConverter().Convert(bmd, pathsAndBcxs, pathsAndBtis);

@@ -1,14 +1,21 @@
 ﻿using System.IO;
 
+using fin.log;
 using fin.model;
+
+using Microsoft.Extensions.Logging;
 
 using SharpGLTF.Schema2;
 
 namespace fin.exporter.gltf {
   public class GltfExporter : IExporter {
+    private readonly ILogger logger_ = Logging.Create<GltfExporter>();
+
     public void Export(
         string outputPath,
         IModel model) {
+      this.logger_.BeginScope("Export");
+
       var modelRoot = ModelRoot.CreateModel();
 
       var scene = modelRoot.UseScene("default");
@@ -32,6 +39,8 @@ namespace fin.exporter.gltf {
       var writeSettings = new WriteSettings {
           ImageWriting = ResourceWriteMode.SatelliteFile,
       };
+
+      this.logger_.LogInformation($"Writing to {outputPath}...");
       modelRoot.Save(outputPath, writeSettings);
     }
   }
