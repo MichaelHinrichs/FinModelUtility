@@ -46,12 +46,13 @@ namespace mkds.cli {
                                            new BTI(File.ReadAllBytes(btiPath))))
               .ToList();
 
-      var useStaticModel = true;
-      if (useStaticModel) {
+      if (Args.Static) {
+        logger.LogInformation("Converting to a static mesh first.");
         var model =
             new ModelConverter().Convert(bmd, pathsAndBcxs, pathsAndBtis);
         new GltfExporter().Export(Args.OutputPath, model);
       } else {
+        logger.LogInformation("Exporting directly.");
         new GltfExporterOld().Export(Args.OutputPath,
                                      bmd,
                                      pathsAndBcxs,

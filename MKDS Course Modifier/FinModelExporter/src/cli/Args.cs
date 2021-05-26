@@ -12,7 +12,9 @@ using fin.util.array;
 namespace fin.cli {
   // TODO: Hook downstream classes into this for args by system.
   public static class Args {
+    public static bool Static { get; private set; }
     public static bool Verbose { get; private set; }
+
     public static string OutputPath { get; private set; } = "";
     public static string BmdPath { get; private set; } = "";
 
@@ -37,6 +39,7 @@ namespace fin.cli {
                     typeof(ManualOptions),
                     typeof(DebugOptions))
                 .WithParsed((AutomaticOptions automaticOpts) => {
+                  Args.Static = automaticOpts.Static;
                   Args.Verbose = automaticOpts.Verbose;
                   Args.OutputPath = automaticOpts.OutputPath;
                   Args.BmdPath = Files.GetPathWithExtension("bmd");
@@ -47,6 +50,7 @@ namespace fin.cli {
                   Args.BtiPaths = Files.GetPathsWithExtension("bti");
                 })
                 .WithParsed((ManualOptions manualOpts) => {
+                  Args.Static = manualOpts.Static;
                   Args.Verbose = manualOpts.Verbose;
                   Args.OutputPath = manualOpts.OutputPath;
                   Args.BmdPath = manualOpts.BmdPath;
@@ -54,6 +58,7 @@ namespace fin.cli {
                   Args.BtiPaths = manualOpts.BtiPaths;
                 })
                 .WithParsed((DebugOptions debugOpts) => {
+                  Args.Static = debugOpts.Static;
                   Args.Verbose = debugOpts.Verbose;
                   Args.GetForEnemy_("Chappy",
                                     out var outputPath,

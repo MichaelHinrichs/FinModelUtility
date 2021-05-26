@@ -17,8 +17,6 @@ namespace mkds.exporter {
         IList<(string, BTI)>? pathsAndBtis = null) {
       this.bmd_ = bmd;
 
-      var outputDirectory = new FileInfo(Args.OutputPath).Directory;
-
       this.textures_ = bmd.TEX1.TextureHeaders.Select((textureHeader, i) => {
                             var textureName =
                                 bmd.TEX1.StringTable.Entries[i].Entry;
@@ -29,6 +27,11 @@ namespace mkds.exporter {
                                 pathsAndBtis);
                           })
                           .ToList();
+
+      var outputDirectory = new FileInfo(Args.OutputPath).Directory;
+      foreach (var texture in this.textures_) {
+        texture.SaveInDirectory(outputDirectory);
+      }
 
       this.materials_ = this.GetMaterials_(bmd);
     }

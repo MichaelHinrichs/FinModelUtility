@@ -2,7 +2,7 @@
   "profiles": {
     "MKDS Course Modifier": {
       "commandName": "Project",
-      "commandLineArgs": "debug --verbose"
+      "commandLineArgs": "debug --verbose  --static"
     }
   }
 }

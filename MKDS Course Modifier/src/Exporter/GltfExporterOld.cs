@@ -412,28 +412,24 @@ namespace mkds.exporter {
                   var texStageIndices = currentMaterial.CurrentTexStageIndices;
 
                   // TODO: Support multiple texture coords?
-                  var hasUvs = false;
-                  var gltfUvs = new Vector2[2];
-
                   // TODO: There can actually be up to 8, but how to use them all in glTF???
-                  foreach (var i in texStageIndices) {
-                    if (batch.HasTexCoords[i]) {
-                      var uv = vertexUvs[i][point.TexCoordIndex[i]];
-                      gltfUvs[i] = new Vector2(uv.S, uv.T);
-                      hasUvs = true;
-                    }
+                  Vector2? gltfUv = null;
+                  if (batch.HasTexCoords[0]) {
+                    var uv = vertexUvs[0][point.TexCoordIndex[0]];
+                    gltfUv = new Vector2(uv.S, uv.T);
                   }
 
                   var hasColor = gltfColor != null;
-                  if (hasColor && hasUvs) {
+                  var hasUv = gltfUv != null;
+                  if (hasColor && hasUv) {
                     vertexBuilder =
                         vertexBuilder.WithMaterial(
                             gltfColor.Value,
-                            gltfUvs);
+                            gltfUv.Value);
                   } else if (hasColor) {
                     vertexBuilder = vertexBuilder.WithMaterial(gltfColor.Value);
-                  } else if (hasUvs) {
-                    vertexBuilder = vertexBuilder.WithMaterial(gltfUvs);
+                  } else if (hasUv) {
+                    vertexBuilder = vertexBuilder.WithMaterial(gltfUv.Value);
                   }
 
                   vertices[p] = vertexBuilder;

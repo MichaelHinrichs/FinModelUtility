@@ -67,9 +67,11 @@ namespace mkds.exporter {
       // TODO: Group these up into pairs, mask/non-mask?
       // TODO: Can we assume the last pair is diffuse?
       // TODO: This does *not* seem like a safe assumption for mask vs. non-mask.
-      var nonMaskTexturesAndMatrices = validTexturesAndMatrices.Where(
+      // We actually can't determine this with much accuracy yet.
+      var nonMaskTexturesAndMatrices = validTexturesAndMatrices;
+          /*.Where(
           textureAndMatrix
-              => !GltfMaterial.IsMaskTexture_(textureAndMatrix.texture.Header));
+              => !GltfMaterial.IsMaskTexture_(textureAndMatrix.texture.Header));*/
 
       var channels = new[] {KnownChannel.Diffuse};
       var diffuseChannelCount = channels.Length;

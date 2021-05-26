@@ -1,14 +1,20 @@
 ﻿using CommandLine;
 
 namespace fin.cli {
-  public abstract class BVerbosityOptions {
+  public abstract class BBasicOptions {
     [Option("verbose",
             HelpText = "Whether to print verbose log output.",
             Required = false)]
     public bool Verbose { get; set; }
+
+    [Option("static",
+            HelpText =
+                "Whether to extract a model to a static mesh before conversion. Currently a work-in-progress.",
+            Required = false)]
+    public bool Static { get; set; }
   }
 
-  public abstract class BConversionOptions : BVerbosityOptions {
+  public abstract class BConversionOptions : BBasicOptions {
     [Option("out",
             HelpText =
                 "Path to an output .glb/.gltf that will be generated.",
@@ -39,5 +45,5 @@ namespace fin.cli {
   [Verb("debug",
         HelpText =
             "Convert GCN model with hardcoded input files. Not meant for general use.")]
-  public class DebugOptions : BVerbosityOptions { }
+  public class DebugOptions : BBasicOptions {}
 }
