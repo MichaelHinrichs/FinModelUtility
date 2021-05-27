@@ -117,9 +117,12 @@ namespace fin.math {
         double nY = localNormal.Y;
         double nZ = localNormal.Z;
         this.transformer_.ProjectNormal(ref nX, ref nY, ref nZ);
-        outNormal.X = (float) nX;
-        outNormal.Y = (float) nY;
-        outNormal.Z = (float) nZ;
+
+        // All of the normals are inside-out for some reason, we have to flip
+        // them manually.
+        outNormal.X = (float) -nX;
+        outNormal.Y = (float) -nY;
+        outNormal.Z = (float) -nZ;
       }
 
       this.transformer_.Pop();

@@ -15,8 +15,7 @@ namespace fin.exporter.gltf {
     public (GltfNode, IBone)[] BuildAndBindSkeleton(
         GltfNode rootNode,
         GltfSkin skin,
-        ISkeleton skeleton,
-        IAnimation? firstAnimation) {
+        ISkeleton skeleton) {
       var rootBone = skeleton.Root;
 
       var boneQueue = new Queue<(GltfNode, IBone)>();
@@ -26,16 +25,7 @@ namespace fin.exporter.gltf {
       while (boneQueue.Count > 0) {
         var (node, bone) = boneQueue.Dequeue();
 
-        // We should be able to use the raw bone positions, but this screws up
-        // bones with multiple weights for some reason, perhaps because the
-        // model is contorted in an unnatural way? Anyway, we NEED to use the
-        // first animation instead.
-        if (firstAnimation != null) {
-          firstAnimation.BoneTracks.TryGetValue(bone, out var boneTracks);
-          this.ApplyFirstFrameToNode_(node, boneTracks);
-        } else {
-          this.ApplyBoneOrientationToNode_(node, bone);
-        }
+        this.ApplyBoneOrientationToNode_(node, bone);
 
         if (bone != rootBone) {
           skinNodesAndBones.Add((node, bone));
@@ -52,18 +42,6 @@ namespace fin.exporter.gltf {
 
       return skinNodesAndBones.ToArray();
     }
-
-    /// <summary>
-    ///   It seems like some animations shrink a bone to 0 to hide it, but this
-    ///   prevents us from calculating a determinant to invert the matrix. As a
-    ///   result, we can't safely include the scale here.
-    /// </summary>
-    private void ApplyFirstFrameToNode_(GltfNode node, IBoneTracks? boneTracks)
-      => this.ApplyOrientationToNode_(
-          node,
-          boneTracks?.Positions.GetInterpolatedAtFrame(0),
-          boneTracks?.Rotations.GetInterpolatedAtFrame(0),
-          null);
 
     private void ApplyBoneOrientationToNode_(GltfNode node, IBone bone)
       => this.ApplyOrientationToNode_(

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
@@ -21,16 +20,12 @@ namespace fin.exporter.gltf {
   public class GltfMeshBuilder {
     public Mesh BuildAndBindMesh(
         ModelRoot gltfModel,
-        IModel model,
-        IAnimation? firstAnimation) {
+        IModel model) {
       var skin = model.Skin;
 
       var boneTransformManager = new BoneTransformManager();
       var boneToIndex = boneTransformManager.CalculateMatrices(
-          model.Skeleton.Root,
-          firstAnimation != null
-              ? (firstAnimation, 0)
-              : null);
+          model.Skeleton.Root, null);
 
       var meshBuilder = VERTEX.CreateCompatibleMesh();
 

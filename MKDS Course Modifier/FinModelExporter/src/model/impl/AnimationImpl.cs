@@ -71,9 +71,9 @@ namespace fin.model.impl {
         var toFrac = progress;
 
         return new PositionImpl {
-            X = lhs.X * fromFrac + rhs.X + toFrac,
-            Y = lhs.Y * fromFrac + rhs.Y + toFrac,
-            Z = lhs.Z * fromFrac + rhs.Z + toFrac
+            X = lhs.X * fromFrac + rhs.X * toFrac,
+            Y = lhs.Y * fromFrac + rhs.Y * toFrac,
+            Z = lhs.Z * fromFrac + rhs.Z * toFrac
         };
       }
 
@@ -92,9 +92,9 @@ namespace fin.model.impl {
         var toFrac = progress;
 
         return new ScaleImpl {
-            X = lhs.X * fromFrac + rhs.X + toFrac,
-            Y = lhs.Y * fromFrac + rhs.Y + toFrac,
-            Z = lhs.Z * fromFrac + rhs.Z + toFrac
+            X = lhs.X * fromFrac + rhs.X * toFrac,
+            Y = lhs.Y * fromFrac + rhs.Y * toFrac,
+            Z = lhs.Z * fromFrac + rhs.Z * toFrac
         };
       }
 
