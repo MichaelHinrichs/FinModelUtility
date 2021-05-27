@@ -16,6 +16,8 @@ namespace fin.model {
   }
 
   public interface IBone {
+    // TODO: Allow caching matrices directly on this type.
+
     string Name { get; set; }
 
     IBone? Parent { get; }
@@ -54,6 +56,8 @@ namespace fin.model {
       float Weight);
 
   public interface IVertex {
+    // TODO: Allow caching vertex builders directly on this type.
+
     IReadOnlyList<BoneWeight>? Weights { get; }
     IVertex SetBone(IBone bone);
     IVertex SetBones(params BoneWeight[] weights);
