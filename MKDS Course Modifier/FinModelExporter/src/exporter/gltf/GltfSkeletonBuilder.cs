@@ -11,7 +11,7 @@ namespace fin.exporter.gltf {
   using GltfSkin = Skin;
 
   public class GltfSkeletonBuilder {
-    public void BuildAndBindSkeleton(
+    public GltfNode[] BuildAndBindSkeleton(
         GltfNode rootNode,
         GltfSkin skin,
         ISkeleton skeleton,
@@ -44,7 +44,11 @@ namespace fin.exporter.gltf {
           boneQueue.Enqueue((node.CreateNode(child.Name), child));
         }
       }
-      skin.BindJoints(skinNodes.ToArray());
+
+      var skinNodesArray = skinNodes.ToArray();
+      skin.BindJoints(skinNodesArray);
+
+      return skinNodesArray;
     }
 
     /// <summary>

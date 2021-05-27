@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
-using System.Numerics;
 
 using fin.model;
 
@@ -8,18 +6,7 @@ using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace fin.math {
-  public interface IBoneTransformManager {
-    void CalculateMatrices(
-        IBone rootBone,
-        (IAnimation, float)? animationAndFrame);
-
-    void ProjectVertex(
-        IVertex vertex,
-        IPosition outPosition,
-        INormal? outNormal = null);
-  }
-
-  public class BoneTransformManager : IBoneTransformManager {
+  public class BoneTransformManager {
     private readonly SoftwareModelViewMatrixTransformer transformer_ =
         new();
 
@@ -27,7 +14,7 @@ namespace fin.math {
     private readonly IDictionary<IBone, Matrix<double>> bonesToMatrices_ =
         new Dictionary<IBone, Matrix<double>>();
 
-    public void CalculateMatrices(
+    public IDictionary<IBone, int> CalculateMatrices(
         IBone rootBone,
         (IAnimation, float)? animationAndFrame) {
       var animation = animationAndFrame?.Item1;
@@ -40,6 +27,10 @@ namespace fin.math {
       var rootMatrix = new DenseMatrix(4, 4);
       this.transformer_.Get(rootMatrix);
 
+      // TODO: Cache this directly on the bone itself instead.
+      var bonesToIndex = new Dictionary<IBone, int>();
+      var boneIndex = -1;
+
       var boneQueue = new Queue<(IBone, Matrix<double>)>();
       boneQueue.Enqueue((rootBone, rootMatrix));
       while (boneQueue.Count > 0) {
@@ -47,15 +38,16 @@ namespace fin.math {
 
         this.transformer_.Set(matrix);
 
-        var boneTracks = animation?.BoneTracks[bone];
+        IBoneTracks? boneTracks = null;
+        animation?.BoneTracks.TryGetValue(bone, out boneTracks);
 
-        var localPosition = boneTracks?.Positions?.GetInterpolatedAtFrame(0) ??
+        var localPosition = boneTracks?.Positions.GetInterpolatedAtFrame(0) ??
                             bone.LocalPosition;
         this.transformer_.Translate(localPosition.X,
                                     localPosition.Y,
                                     localPosition.Z);
 
-        var localRotation = boneTracks?.Rotations?.GetInterpolatedAtFrame(0) ??
+        var localRotation = boneTracks?.Rotations.GetInterpolatedAtFrame(0) ??
                             (bone.LocalRotation != null
                                  ? QuaternionUtil.Create(bone.LocalRotation)
                                  : null);
@@ -63,7 +55,7 @@ namespace fin.math {
           this.transformer_.Rotate(localRotation.Value);
         }
 
-        var localScale = boneTracks?.Scales?.GetInterpolatedAtFrame(0) ??
+        var localScale = boneTracks?.Scales.GetInterpolatedAtFrame(0) ??
                          bone.LocalScale;
         if (localScale != null) {
           this.transformer_.Scale(localScale.X,
@@ -74,6 +66,7 @@ namespace fin.math {
         this.transformer_.Get(matrix);
 
         this.bonesToMatrices_[bone] = matrix;
+        bonesToIndex[bone] = boneIndex++;
 
         foreach (var child in bone.Children) {
           // TODO: Use a pool of matrices to prevent unneeded instantiations.
@@ -82,6 +75,8 @@ namespace fin.math {
       }
 
       this.transformer_.Pop();
+
+      return bonesToIndex;
     }
 
     public void ProjectVertex(

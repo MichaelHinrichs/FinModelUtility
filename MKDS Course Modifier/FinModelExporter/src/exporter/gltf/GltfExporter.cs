@@ -24,16 +24,21 @@ namespace fin.exporter.gltf {
       var animations = model.AnimationManager?.Animations;
       var firstAnimation = (animations?.Count ?? 0) > 0 ? animations[0] : null;
 
+      // Builds skeleton.
       var rootNode = scene.CreateNode();
-      new GltfSkeletonBuilder().BuildAndBindSkeleton(rootNode,
+      var skinNodes = new GltfSkeletonBuilder().BuildAndBindSkeleton(rootNode,
         skin,
         model.Skeleton,
         firstAnimation);
 
-      // Gathers up vertex builders.
-      /*var mesh = GltfExporterOld.WriteMesh_(jointNodes, model, bmd, pathsAndBtis);
+      // Builds mesh.
+      var mesh =
+          new GltfMeshBuilder().BuildAndBindMesh(
+              modelRoot,
+              model,
+              firstAnimation);
       scene.CreateNode()
-           .WithSkinnedMesh(mesh, rootNode.WorldMatrix, jointNodes.ToArray());*/
+           .WithSkinnedMesh(mesh, rootNode.WorldMatrix, skinNodes);
 
       Directory.CreateDirectory(new FileInfo(outputPath).Directory.FullName);
       var writeSettings = new WriteSettings {
