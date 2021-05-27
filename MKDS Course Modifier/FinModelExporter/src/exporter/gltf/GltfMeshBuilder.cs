@@ -17,9 +17,7 @@ using PrimitiveType = fin.model.PrimitiveType;
 namespace fin.exporter.gltf {
   using VERTEX =
       VertexBuilder<VertexPositionNormal, VertexColor1Texture2, VertexJoints4>;
-  using GltfNode = Node;
-  using GltfSkin = Skin;
-
+  
   public class GltfMeshBuilder {
     public Mesh BuildAndBindMesh(
         ModelRoot gltfModel,

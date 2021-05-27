@@ -36,6 +36,9 @@ namespace fin.model.impl {
 
         public string Name { get; set; }
 
+        public int FrameCount { get; set; }
+        public float Fps { get; set; }
+
         public IReadOnlyDictionary<IBone, IBoneTracks> BoneTracks { get; }
 
         public IBoneTracks AddBoneTracks(IBone bone) {

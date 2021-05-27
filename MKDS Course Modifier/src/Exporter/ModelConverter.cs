@@ -224,6 +224,9 @@ namespace mkds.exporter {
         var animation = model.AnimationManager.AddAnimation();
         animation.Name = animationName;
 
+        animation.FrameCount = bcx.Anx1.FrameCount;
+        animation.Fps = 30;
+
         // Writes translation/rotation/scale for each joint.
         foreach (var (joint, bone) in jointsAndBones) {
           var jointIndex = bmd.JNT1.StringTable[joint.Name];

@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 
 using fin.log;
 using fin.model;
@@ -26,10 +27,17 @@ namespace fin.exporter.gltf {
 
       // Builds skeleton.
       var rootNode = scene.CreateNode();
-      var skinNodes = new GltfSkeletonBuilder().BuildAndBindSkeleton(rootNode,
-        skin,
-        model.Skeleton,
-        firstAnimation);
+      var skinNodeAndBones = new GltfSkeletonBuilder().BuildAndBindSkeleton(
+          rootNode,
+          skin,
+          model.Skeleton,
+          firstAnimation);
+
+      // Builds animations.
+      new GltfAnimationBuilder().BuildAnimations(
+          modelRoot,
+          skinNodeAndBones,
+          model.AnimationManager.Animations);
 
       // Builds mesh.
       var mesh =
@@ -38,7 +46,12 @@ namespace fin.exporter.gltf {
               model,
               firstAnimation);
       scene.CreateNode()
-           .WithSkinnedMesh(mesh, rootNode.WorldMatrix, skinNodes);
+           .WithSkinnedMesh(mesh,
+                            rootNode.WorldMatrix,
+                            skinNodeAndBones
+                                .Select(
+                                    skinNodeAndBone => skinNodeAndBone.Item1)
+                                .ToArray());
 
       Directory.CreateDirectory(new FileInfo(outputPath).Directory.FullName);
       var writeSettings = new WriteSettings {

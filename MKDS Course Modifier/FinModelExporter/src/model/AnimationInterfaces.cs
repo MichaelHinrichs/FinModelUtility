@@ -10,6 +10,9 @@ namespace fin.model {
   public interface IAnimation {
     string Name { get; set; }
     
+    int FrameCount { get; set; }
+    float Fps { get; set; }
+
     IReadOnlyDictionary<IBone, IBoneTracks> BoneTracks { get; }
     IBoneTracks AddBoneTracks(IBone bone);
 

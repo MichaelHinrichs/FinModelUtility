@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 using fin.math;
@@ -11,7 +12,7 @@ namespace fin.exporter.gltf {
   using GltfSkin = Skin;
 
   public class GltfSkeletonBuilder {
-    public GltfNode[] BuildAndBindSkeleton(
+    public (GltfNode, IBone)[] BuildAndBindSkeleton(
         GltfNode rootNode,
         GltfSkin skin,
         ISkeleton skeleton,
@@ -21,7 +22,7 @@ namespace fin.exporter.gltf {
       var boneQueue = new Queue<(GltfNode, IBone)>();
       boneQueue.Enqueue((rootNode, rootBone));
 
-      var skinNodes = new List<GltfNode>();
+      var skinNodesAndBones = new List<(GltfNode, IBone)>();
       while (boneQueue.Count > 0) {
         var (node, bone) = boneQueue.Dequeue();
 
@@ -37,7 +38,7 @@ namespace fin.exporter.gltf {
         }
 
         if (bone != rootBone) {
-          skinNodes.Add(node);
+          skinNodesAndBones.Add((node, bone));
         }
 
         foreach (var child in bone.Children) {
@@ -45,10 +46,11 @@ namespace fin.exporter.gltf {
         }
       }
 
-      var skinNodesArray = skinNodes.ToArray();
-      skin.BindJoints(skinNodesArray);
+      skin.BindJoints(skinNodesAndBones
+                      .Select(skinNodesAndBone => skinNodesAndBone.Item1)
+                      .ToArray());
 
-      return skinNodesArray;
+      return skinNodesAndBones.ToArray();
     }
 
     /// <summary>
