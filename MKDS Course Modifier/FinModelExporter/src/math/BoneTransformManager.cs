@@ -41,13 +41,13 @@ namespace fin.math {
         IBoneTracks? boneTracks = null;
         animation?.BoneTracks.TryGetValue(bone, out boneTracks);
 
-        var localPosition = boneTracks?.Positions.GetInterpolatedAtFrame(0) ??
+        var localPosition = boneTracks?.Positions.GetInterpolatedFrame(0) ??
                             bone.LocalPosition;
         this.transformer_.Translate(localPosition.X,
                                     localPosition.Y,
                                     localPosition.Z);
 
-        var localRotation = boneTracks?.Rotations.GetInterpolatedAtFrame(0) ??
+        var localRotation = boneTracks?.Rotations.GetInterpolatedFrame(0) ??
                             (bone.LocalRotation != null
                                  ? QuaternionUtil.Create(bone.LocalRotation)
                                  : null);
@@ -55,7 +55,7 @@ namespace fin.math {
           this.transformer_.Rotate(localRotation.Value);
         }
 
-        var localScale = boneTracks?.Scales.GetInterpolatedAtFrame(0) ??
+        var localScale = boneTracks?.Scales.GetInterpolatedFrame(0) ??
                          bone.LocalScale;
         if (localScale != null) {
           this.transformer_.Scale(localScale.X,

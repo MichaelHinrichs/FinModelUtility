@@ -17,7 +17,6 @@ using Tao.OpenGl;
 
 namespace mkds.exporter {
   using MkdsNode = MKDS_Course_Modifier._3D_Formats.MA.Node;
-  using CsVector = System.Numerics.Vector3;
 
   public class ModelConverter {
     public IModel Convert(
@@ -29,13 +28,6 @@ namespace mkds.exporter {
       var jointsAndBones = this.ConvertBones_(model, bmd);
       this.ConvertAnimations_(model, bmd, pathsAndBcxs, jointsAndBones);
       this.ConvertMesh_(model, bmd, jointsAndBones);
-
-      // Gathers up vertex builders.
-      /*var mesh =
-          ModelConverter.WriteMesh_(jointNodes, model, bmd, pathsAndBtis);
-      scene.CreateNode()
-           .WithSkinnedMesh(mesh, rootNode.WorldMatrix, jointNodes.ToArray());
-      */
 
       return model;
     }
@@ -66,6 +58,57 @@ namespace mkds.exporter {
       }
 
       return jointsAndBones;
+    }
+
+    private void ConvertAnimations_(
+        IModel model,
+        BMD bmd,
+        IList<(string, IBcx)>? pathsAndBcxs,
+        (MkdsNode, IBone)[] jointsAndBones) {
+      var bcxCount = pathsAndBcxs?.Count ?? 0;
+      for (var a = 0; a < bcxCount; ++a) {
+        var (bcxPath, bcx) = pathsAndBcxs![a];
+        var animationName = new FileInfo(bcxPath).Name.Split('.')[0];
+
+        var animation = model.AnimationManager.AddAnimation();
+        animation.Name = animationName;
+
+        animation.FrameCount = bcx.Anx1.FrameCount;
+        animation.Fps = 30;
+
+        // Writes translation/rotation/scale for each joint.
+        foreach (var (joint, bone) in jointsAndBones) {
+          var jointIndex = bmd.JNT1.StringTable[joint.Name];
+
+          var boneTracks = animation.AddBoneTracks(bone);
+
+          // TODO: Handle mirrored animations
+          // TODO: *Just* write keyframes.
+          for (var f = 0; f < bcx.Anx1.FrameCount; ++f) {
+            var position = JointUtil.GetTranslation(bcx, jointIndex, f);
+            boneTracks.Positions.Set(f,
+                                     new ModelImpl.PositionImpl {
+                                       X = position.X,
+                                       Y = position.Y,
+                                       Z = position.Z
+                                     });
+
+            var (xRadians, yRadians, zRadians) =
+                JointUtil.GetRotation(bcx, jointIndex, f);
+            var rotation = new ModelImpl.RotationImpl();
+            rotation.SetRadians(xRadians, yRadians, zRadians);
+            boneTracks.Rotations.Set(f, rotation);
+
+            var scale = JointUtil.GetScale(bcx, jointIndex, f);
+            boneTracks.Scales.Set(f,
+                                  new ModelImpl.ScaleImpl {
+                                    X = scale.X,
+                                    Y = scale.Y,
+                                    Z = scale.Z,
+                                  });
+          }
+        }
+      }
     }
 
     private void ConvertMesh_(
@@ -210,58 +253,7 @@ namespace mkds.exporter {
 
       DoneRendering: ;
     }
-
-    private void ConvertAnimations_(
-        IModel model,
-        BMD bmd,
-        IList<(string, IBcx)>? pathsAndBcxs,
-        (MkdsNode, IBone)[] jointsAndBones) {
-      var bcxCount = pathsAndBcxs?.Count ?? 0;
-      for (var a = 0; a < bcxCount; ++a) {
-        var (bcxPath, bcx) = pathsAndBcxs![a];
-        var animationName = new FileInfo(bcxPath).Name.Split('.')[0];
-
-        var animation = model.AnimationManager.AddAnimation();
-        animation.Name = animationName;
-
-        animation.FrameCount = bcx.Anx1.FrameCount;
-        animation.Fps = 30;
-
-        // Writes translation/rotation/scale for each joint.
-        foreach (var (joint, bone) in jointsAndBones) {
-          var jointIndex = bmd.JNT1.StringTable[joint.Name];
-
-          var boneTracks = animation.AddBoneTracks(bone);
-
-          // TODO: Handle mirrored animations
-          // TODO: *Just* write keyframes.
-          for (var f = 0; f < bcx.Anx1.FrameCount; ++f) {
-            var position = JointUtil.GetTranslation(bcx, jointIndex, f);
-            boneTracks.Positions.Set(f,
-                                     new ModelImpl.PositionImpl {
-                                         X = position.X,
-                                         Y = position.Y,
-                                         Z = position.Z
-                                     });
-
-            var (xRadians, yRadians, zRadians) =
-                JointUtil.GetRotation(bcx, jointIndex, f);
-            var rotation = new ModelImpl.RotationImpl();
-            rotation.SetRadians(xRadians, yRadians, zRadians);
-            boneTracks.Rotations.Set(f, rotation);
-
-            var scale = JointUtil.GetScale(bcx, jointIndex, f);
-            boneTracks.Scales.Set(f,
-                                  new ModelImpl.ScaleImpl {
-                                      X = scale.X,
-                                      Y = scale.Y,
-                                      Z = scale.Z,
-                                  });
-          }
-        }
-      }
-    }
-
+    
     private static Matrix ConvertMkdsToMn_(MTX44 mkds) {
       var mn = new DenseMatrix(4, 4);
 

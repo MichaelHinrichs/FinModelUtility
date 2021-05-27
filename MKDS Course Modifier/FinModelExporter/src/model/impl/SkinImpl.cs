@@ -1,11 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
 
 using fin.math;
-
-using MathNet.Numerics.LinearAlgebra;
 
 namespace fin.model.impl {
   public partial class ModelImpl {

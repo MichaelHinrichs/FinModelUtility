@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 
+using fin.math;
 using fin.model;
 
 using SharpGLTF.Schema2;
@@ -16,6 +17,8 @@ namespace fin.exporter.gltf {
       foreach (var animation in animations) {
         var gltfAnimation = gltfModel.UseAnimation(animation.Name);
 
+        var fps = animation.Fps;
+
         // Writes translation/rotation/scale for each joint.
         var translationKeyframes = new Dictionary<float, Vector3>();
         var rotationKeyframes = new Dictionary<float, Quaternion>();
@@ -25,18 +28,26 @@ namespace fin.exporter.gltf {
             continue;
           }
 
-          // TODO: Handle mirrored animations
-          for (var f = 0; f < animation.FrameCount; ++f) {
-            var time = f / animation.Fps;
+          translationKeyframes.Clear();
+          rotationKeyframes.Clear();
+          scaleKeyframes.Clear();
 
-            var position = boneTracks.Positions.GetInterpolatedAtFrame(f);
-            var rotation = boneTracks.Rotations.GetInterpolatedAtFrame(f);
-            var scale = boneTracks.Scales.GetInterpolatedAtFrame(f);
-
-            translationKeyframes[time] =
+          foreach (var positionKeyframe in boneTracks.Positions.Keyframes) {
+            var position = positionKeyframe.Value;
+            translationKeyframes[positionKeyframe.Frame / fps] =
                 new Vector3(position.X, position.Y, position.Z);
-            rotationKeyframes[time] = rotation;
-            scaleKeyframes[time] = new Vector3(scale.X, scale.Y, scale.Z);
+          }
+
+          foreach (var rotationKeyframe in boneTracks.Rotations.Keyframes) {
+            var rotation = rotationKeyframe.Value;
+            rotationKeyframes[rotationKeyframe.Frame / fps] =
+                QuaternionUtil.Create(rotation);
+          }
+
+          foreach (var scaleKeyframe in boneTracks.Scales.Keyframes) {
+            var scale = scaleKeyframe.Value;
+            scaleKeyframes[scaleKeyframe.Frame / fps] =
+                new Vector3(scale.X, scale.Y, scale.Z);
           }
 
           gltfAnimation.CreateTranslationChannel(

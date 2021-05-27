@@ -16,7 +16,6 @@ namespace fin.model {
     IReadOnlyDictionary<IBone, IBoneTracks> BoneTracks { get; }
     IBoneTracks AddBoneTracks(IBone bone);
 
-    // TODO: Allow setting fps.
     // TODO: Allow setting looping behavior (once, back and forth, etc.)
   }
 
@@ -32,12 +31,17 @@ namespace fin.model {
 
   public interface ITrack<T> : ITrack<T, T> {}
 
+  public record Keyframe<T>(int Frame, T Value);
+
   public interface ITrack<TValue, out TInterpolated> {
+    IReadOnlyList<Keyframe<TValue>> Keyframes { get; }
+
     void Set(int frame, TValue t);
 
-    TValue? GetAtFrame(int frame);
-    TInterpolated? GetInterpolatedAtFrame(float frame);
+    TValue? GetKeyframe(int frame);
+    TInterpolated? GetInterpolatedFrame(float frame);
 
+    // TODO: Allow setting tangent(s) at each frame.
     // TODO: Allow setting easing at each frame.
     // TODO: Split getting into exactly at frame and interpolated at frame.
     // TODO: Allow getting at fractional frames.

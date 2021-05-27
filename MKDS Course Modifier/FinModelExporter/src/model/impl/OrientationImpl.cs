@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Numerics;
-
-using fin.math;
 
 namespace fin.model.impl {
   public partial class ModelImpl {

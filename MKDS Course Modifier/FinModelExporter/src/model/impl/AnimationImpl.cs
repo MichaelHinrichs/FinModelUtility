@@ -106,17 +106,21 @@ namespace fin.model.impl {
           base(interpolator) {}
     }
 
-    public class
-        TrackImpl<TValue, TInterpolated> : ITrack<TValue, TInterpolated> {
+    public class TrackImpl<TValue, TInterpolated> :
+        ITrack<TValue, TInterpolated> {
       public readonly Func<TValue, TValue, float, TInterpolated> interpolator_;
+
+      private readonly IList<Keyframe<TValue>> keyframesAndValues_ =
+          new List<Keyframe<TValue>>();
 
       public TrackImpl(
           Func<TValue, TValue, float, TInterpolated> interpolator) {
         this.interpolator_ = interpolator;
+        this.Keyframes =
+            new ReadOnlyCollection<Keyframe<TValue>>(this.keyframesAndValues_);
       }
 
-      public IList<(int, TValue)> keyframesAndValues_ =
-          new List<(int, TValue)>();
+      public IReadOnlyList<Keyframe<TValue>> Keyframes { get; }
 
       public void Set(int frame, TValue t) {
         this.FindIndexOfKeyframe_(frame,
@@ -125,7 +129,7 @@ namespace fin.model.impl {
                                   out var keyframeDefined,
                                   out var pastEnd);
 
-        var keyframeAndValue = (frame, t);
+        var keyframeAndValue = new Keyframe<TValue>(frame, t);
         if (pastEnd) {
           this.keyframesAndValues_.Add(keyframeAndValue);
         } else if (keyframeDefined) {
@@ -135,7 +139,7 @@ namespace fin.model.impl {
         }
       }
 
-      public TValue? GetAtFrame(int frame) {
+      public TValue? GetKeyframe(int frame) {
         this.FindIndexOfKeyframe_(frame,
                                   out _,
                                   out var value,
@@ -145,7 +149,7 @@ namespace fin.model.impl {
         return keyframeDefined ? value : default;
       }
 
-      public TInterpolated? GetInterpolatedAtFrame(float frame) {
+      public TInterpolated? GetInterpolatedFrame(float frame) {
         this.FindIndexOfKeyframe_((int) frame,
                                   out var fromKeyframeIndex,
                                   out var fromValue,

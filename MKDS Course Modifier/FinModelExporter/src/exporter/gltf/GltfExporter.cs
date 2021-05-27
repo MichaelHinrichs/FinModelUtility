@@ -82,12 +82,12 @@ namespace fin.exporter.gltf {
 
         animation.BoneTracks.TryGetValue(bone, out var boneTracks);
 
-        var localPosition = boneTracks?.Positions.GetInterpolatedAtFrame(0);
+        var localPosition = boneTracks?.Positions.GetInterpolatedFrame(0);
         bone.SetLocalPosition(localPosition?.X ?? 0,
                               localPosition?.Y ?? 0,
                               localPosition?.Z ?? 0);
 
-        var localRotation = boneTracks?.Rotations.GetAtFrame(0);
+        var localRotation = boneTracks?.Rotations.GetKeyframe(0);
         bone.SetLocalRotationRadians(localRotation?.XRadians ?? 0,
                                      localRotation?.YRadians ?? 0,
                                      localRotation?.ZRadians ?? 0);

@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-
-namespace fin.model {
+﻿namespace fin.model {
   public interface IVector4 {
     float X { get; set; }
     float Y { get; set; }
