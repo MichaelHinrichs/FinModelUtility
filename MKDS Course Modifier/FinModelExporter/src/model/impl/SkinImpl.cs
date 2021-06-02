@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 
@@ -107,6 +108,21 @@ namespace fin.model.impl {
           this.LocalNormal.Z = z;
           return this;
         }
+
+
+        public IColor? Color { get; }
+
+        public IVertex SetColor(byte r, byte g, byte b)
+          => throw new NotImplementedException();
+
+
+        public IReadOnlyList<IUv>? Uvs { get; }
+
+        public IVertex SetUv(float u, float v)
+          => throw new NotImplementedException();
+
+        public IVertex SetUv(int uvIndex, float u, float v)
+          => throw new NotImplementedException();
       }
 
 

@@ -15,9 +15,12 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="6.0.0-preview.1.21102.12" />
     <PackageReference Include="Microsoft.IdentityModel.Logging" Version="6.11.1" />
+    <PackageReference Include="ShaderGen" Version="1.2.0-beta1" />
+    <PackageReference Include="ShaderGen.Primitives" Version="1.2.0-beta1" />
     <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0020" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="src\shader\" />
     <Folder Include="src\renderer\" />
   </ItemGroup>
 </Project>

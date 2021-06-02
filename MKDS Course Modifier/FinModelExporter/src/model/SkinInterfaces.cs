@@ -23,6 +23,11 @@ namespace fin.model {
       Matrix<double> SkinToBone,
       float Weight);
 
+  public interface IUv {
+    float U { get; set; }
+    float V { get; set; }
+  }
+
   public interface IVertex {
     // TODO: Allow caching vertex builders directly on this type.
 
@@ -35,8 +40,13 @@ namespace fin.model {
 
     INormal? LocalNormal { get; }
     IVertex SetLocalNormal(float x, float y, float z);
-    // TODO: Setting colors.
-    // TODO: Setting multiple texture UVs.
+
+    IColor? Color { get; }
+    IVertex SetColor(byte r, byte g, byte b);
+
+    IReadOnlyList<IUv>? Uvs { get; }
+    IVertex SetUv(float u, float v);
+    IVertex SetUv(int uvIndex, float u, float v);
   }
 
   public enum PrimitiveType {
