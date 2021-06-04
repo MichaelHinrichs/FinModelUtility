@@ -1,13 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace fin.shader {
   public interface IGlslShader {
+    IReadOnlyList<IGlslVariable> Ins { get; }
     TValue In<TValue>(string paramName) where TValue : IGlslValue;
+
+    IReadOnlyList<IGlslVariable> Outs { get; }
     TValue Out<TValue>(string paramName) where TValue : IGlslValue;
+
+    IReadOnlyList<IGlslVariable> Uniforms { get; }
     TValue Uniform<TValue>(string paramName) where TValue : IGlslValue;
 
-    IGlslAction Main();
+    // TODO: Support structs?
 
+    IReadOnlyList<IGlslMethod> Methods { get; }
+    IGlslAction Main();
     IGlslFunc<TOut> Method<TOut>(string methodName)
         where TOut : IGlslValue;
 
@@ -25,10 +33,61 @@ namespace fin.shader {
         where TOut : IGlslValue;
   }
 
-  public interface IGlslValue {}
+  public enum GlslValueType {
+    BOOL,
+    INT,
+    UINT,
+    FLOAT,
+    DOUBLE,
 
-  public interface IGlslVariable<TValue> where TValue : IGlslValue {
-    IGlslValue Value { get; }
+    BVEC2,
+    BVEC3,
+    BVEC4,
+
+    IVEC2,
+    IVEC3,
+    IVEC4,
+
+    UVEC2,
+    UVEC3,
+    UVEC4,
+
+    VEC2,
+    VEC3,
+    VEC4,
+
+    DVEC2,
+    DVEC3,
+    DVEC4,
+
+    MAT2,
+    MAT2X3,
+    MAT2X4,
+
+    MAT3x2,
+    MAT3,
+    MAT3x4,
+
+    MAT4X2,
+    MAT4X3,
+    MAT4,
+
+    SAMPLER2D,
+  }
+
+
+  public interface IGlslValue {
+    GlslValueType Type { get; }
+  }
+
+
+  public interface IGlslVariable {
+    string Name { get; }
+    IGlslValue UntypedValue { get; }
+  }
+
+  public interface IGlslVariable<TValue> : IGlslVariable where TValue : IGlslValue {
+    TValue Value { get; }
   }
 
 

@@ -8,16 +8,16 @@ using fin.util.strings;
 
 namespace fin.language.writer {
   [TestClass]
-  public class AsyncNestedLanguageWriterImplTest {
+  public class NestedLanguageWriterImplTest {
     [TestMethod]
-    public async Task TestAll() {
-      var writer = new AsyncNestedStringBuilderImpl("  ");
+    public void TestAll() {
+      var writer = new NestedStringBuilderImpl("  ");
 
       writer.Write("foo")
-            .WriteLine(Task.FromResult("bar"))
+            .WriteLine("bar")
             .Write("(")
             .Nest("foo")
-            .Nest(Task.FromResult("bar"))
+            .Nest("bar")
             .WriteLine(")")
             .Write("(")
             .Nest(
@@ -28,8 +28,8 @@ namespace fin.language.writer {
                      .WriteLine(")"))
             .WriteLine(")")
             .WriteLine("hello")
-            .Write(Task.FromResult("goodbye"));
-      var actualText = await writer.ToString();
+            .Write("goodbye");
+      var actualText = writer.ToString();
 
       var expectedLines = new[] {
           "foobar",

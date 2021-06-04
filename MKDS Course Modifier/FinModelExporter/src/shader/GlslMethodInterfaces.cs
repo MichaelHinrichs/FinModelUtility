@@ -1,4 +1,13 @@
-﻿namespace fin.shader {
+﻿using System.Collections.Generic;
+
+namespace fin.shader {
+  public interface IGlslMethod {
+    string Name { get; }
+
+    IReadOnlyList<IGlslVariable> Parameters { get; }
+    IGlslValue? Return { get; }
+  }
+
   public interface IGlslAction {
   }
 

@@ -28,8 +28,8 @@ namespace fin.language.writer {
     public abstract override BAsyncNestedStringBuilder WriteLine(
         Task<string> content);
 
-
-    public abstract string Indent { get; set; }
+    
+    public abstract string Indent { get; }
     
     public abstract BAsyncNestedStringBuilder Nest(string content);
 

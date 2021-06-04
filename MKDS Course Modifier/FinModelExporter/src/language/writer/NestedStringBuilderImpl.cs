@@ -1,38 +1,23 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
-using fin.data;
-
-using System.Threading.Tasks;
-
 namespace fin.language.writer {
-  public class AsyncNestedStringBuilderImpl : BAsyncNestedStringBuilder {
-    private readonly AsyncCollector<(string, int)> impl_ = new();
+  public class NestedStringBuilderImpl : BNestedStringBuilder {
+    private readonly List<(string, int)> impl_ = new();
     private int indentLevel_ = 0;
 
-    public AsyncNestedStringBuilderImpl(string indent = "") {
+    public NestedStringBuilderImpl(string indent = "") {
       this.Indent = indent;
     }
 
 
-    public override BAsyncNestedStringBuilder Write(string content) {
+    public override BNestedStringBuilder Write(string content) {
       this.Write_(content);
       return this;
     }
 
-    public override BAsyncNestedStringBuilder Write(Task<string> content) {
-      this.Write_(content);
-      return this;
-    }
-
-
-    public override BAsyncNestedStringBuilder WriteLine(string content) {
-      this.Write_(content);
-      this.Write_("\n");
-      return this;
-    }
-
-    public override BAsyncNestedStringBuilder WriteLine(Task<string> content) {
+    public override BNestedStringBuilder WriteLine(string content) {
       this.Write_(content);
       this.Write_("\n");
       return this;
@@ -42,7 +27,7 @@ namespace fin.language.writer {
     public override string Indent { get; }
 
 
-    public override BAsyncNestedStringBuilder Nest(
+    public override BNestedStringBuilder Nest(
         string content) {
       ++this.indentLevel_;
       this.Write_(content);
@@ -50,17 +35,8 @@ namespace fin.language.writer {
       return this;
     }
 
-    public override BAsyncNestedStringBuilder Nest(
-        Task<string> content) {
-      ++this.indentLevel_;
-      this.Write_(content);
-      --this.indentLevel_;
-      return this;
-    }
-
-
-    public override BAsyncNestedStringBuilder Nest(
-        Action<BAsyncNestedStringBuilder> callback) {
+    public override BNestedStringBuilder Nest(
+        Action<BNestedStringBuilder> callback) {
       ++this.indentLevel_;
       callback(this);
       --this.indentLevel_;
@@ -68,14 +44,13 @@ namespace fin.language.writer {
     }
 
 
-    public override async Task<string> ToString() {
+    public override string ToString() {
       var builder = new StringBuilder();
 
       var currentLine = new StringBuilder();
       var currentIndent = 0;
 
-      var contentAndIndents = await this.impl_.ToArray();
-      foreach (var (content, indent) in contentAndIndents) {
+      foreach (var (content, indent) in this.impl_) {
         var lines = content.Split('\n');
 
         var appendContent = currentLine.Length > 0 &&
@@ -123,11 +98,5 @@ namespace fin.language.writer {
 
     private void Write_(string content)
       => this.impl_.Add((content, this.indentLevel_));
-
-    private void Write_(Task<string> content) {
-      var indentLevel = this.indentLevel_;
-      this.impl_.Add(
-          content.ContinueWith(content => (content.Result, indentLevel)));
-    }
   }
 }
