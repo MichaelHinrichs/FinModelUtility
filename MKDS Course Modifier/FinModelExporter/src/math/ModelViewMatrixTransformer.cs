@@ -201,25 +201,25 @@ namespace fin.math {
     }
 
     public void Set(Matrix4x4 m) {
-      /*this.current_[0, 0] = m.M11;
-      this.current_[0, 1] = m.M12;
-      this.current_[0, 2] = m.M13;
-      this.current_[0, 3] = m.M14;
+      this.current_[0, 0] = m.M11;
+      this.current_[0, 1] = m.M21;
+      this.current_[0, 2] = m.M31;
+      this.current_[0, 3] = m.M41;
 
-      this.current_[1, 0] = m.M21;
+      this.current_[1, 0] = m.M12;
       this.current_[1, 1] = m.M22;
-      this.current_[1, 2] = m.M23;
-      this.current_[1, 3] = m.M24;
+      this.current_[1, 2] = m.M32;
+      this.current_[1, 3] = m.M42;
 
-      this.current_[2, 0] = m.M31;
-      this.current_[2, 1] = m.M32;
+      this.current_[2, 0] = m.M13;
+      this.current_[2, 1] = m.M23;
       this.current_[2, 2] = m.M33;
-      this.current_[2, 3] = m.M34;
+      this.current_[2, 3] = m.M43;
 
-      this.current_[3, 0] = m.M41;
-      this.current_[3, 1] = m.M42;
-      this.current_[3, 2] = m.M43;
-      this.current_[3, 3] = m.M44;*/
+      this.current_[3, 0] = m.M14;
+      this.current_[3, 1] = m.M24;
+      this.current_[3, 2] = m.M34;
+      this.current_[3, 3] = m.M44;
     }
   }
 

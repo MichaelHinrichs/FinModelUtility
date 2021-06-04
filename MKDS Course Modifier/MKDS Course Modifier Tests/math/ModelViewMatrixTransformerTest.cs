@@ -1,8 +1,7 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace mkds.exporter {
+namespace fin.math {
   [TestClass]
   public class ModelViewMatrixTransformerTest {
     [TestMethod]
