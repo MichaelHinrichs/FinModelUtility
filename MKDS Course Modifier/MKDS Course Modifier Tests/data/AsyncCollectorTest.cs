@@ -11,12 +11,19 @@ namespace fin.data {
     public async Task TestToArray() {
       var collector = new AsyncCollector<string>();
 
+      var delay = new TaskCompletionSource();
+
       collector.Add("foo");
       collector.Add("bar");
-      collector.Add(Task.FromResult("bar"));
+      collector.Add(delay.Task.ContinueWith(_ => "awaited"));
 
-      Expect.AreEqual(new[] {"foo", "bar", "awaited"},
-                      await collector.ToArray());
+      var toArray = collector.ToArray();
+      collector.Clear();
+
+      delay.SetResult();
+
+      Expect.AreArraysEqual(new[] {"foo", "bar", "awaited"},
+                      await toArray);
     }
   }
 }

@@ -16,7 +16,7 @@ namespace fin.util.asserts {
     public static void AreEqual<T>(T expected, T actual, string? message = null)
       => Assert.AreEqual(expected, actual, message);
 
-    public static void AreEqual<T>(
+    public static void AreArraysEqual<T>(
         IEnumerable<T> expected,
         IEnumerable<T> actual,
         string? message = null) {
