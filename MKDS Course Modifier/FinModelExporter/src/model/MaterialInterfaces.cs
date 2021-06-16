@@ -1,9 +1,19 @@
 ﻿using System.Collections.Generic;
+using System.Drawing;
 
 namespace fin.model {
   public interface IMaterialManager {
     IReadOnlyList<IMaterial> All { get; }
-    IMaterial AddMaterial();
+    ITextureMaterial AddTextureMaterial(ITexture texture);
+    ILayerMaterial AddLayerMaterial();
+
+    ITexture CreateTexture(Bitmap imageData);
+  }
+
+  public enum MaterialType {
+    TEXTURED,
+    PBR,
+    LAYER,
   }
 
 
@@ -11,7 +21,7 @@ namespace fin.model {
     string Name { get; set; }
 
     IReadOnlyList<ITexture> Textures { get; }
-    
+
     IShader Shader { get; }
   }
 
@@ -29,6 +39,13 @@ namespace fin.model {
   }
 
 
+  public interface ITextureMaterial : IMaterial {
+    ITexture Texture { get; }
+
+    bool Unlit { get; set; }
+  }
+
+
   // TODO: Support empty white materials
   // TODO: Support basic diffuse materials
   // TODO: Support lit/unlit
@@ -43,19 +60,57 @@ namespace fin.model {
     ILayer AddColorShaderParamLayer(string name);
 
     // TODO: Where to source data from?
-    ILayer AddTextureLayer();
+    ILayer AddTextureLayer(ITexture texture);
 
     // TODO: Generate shader based on layers.
   }
 
   public enum BlendMode {
+    NONE,
     ADD,
-    MULTIPLY,
+    SUBTRACT,
+    REVERSE_SUBTRACT,
+  }
+
+  public enum BlendFactor {
+    ZERO,
+    ONE,
+    SRC_COLOR,
+    ONE_MINUS_SRC_COLOR,
+    SRC_ALPHA,
+    ONE_MINUS_SRC_ALPHA,
+    DST_ALPHA,
+    ONE_MINUS_DST_ALPHA,
+  }
+
+  public enum LogicOp {
+    CLEAR,
+    AND,
+    AND_REVERSE,
+    COPY,
+    AND_INVERTED,
+    NOOP,
+    XOR,
+    OR,
+    NOR,
+    EQUIV,
+    INVERT,
+    OR_REVERSE,
+    COPY_INVERTED,
+    OR_INVERTED,
+    NAND,
+    SET,
   }
 
   public interface ILayer {
     IColorSource ColorSource { get; }
-    BlendMode BlendMode { get; }
+
+    // TODO: Add depth settings
+
+    BlendMode BlendMode { get; set; }
+    BlendFactor SrcFactor { get; set; }
+    BlendFactor DstFactor { get; set; }
+    LogicOp LogicOp { get; set; }
   }
 
   public enum ColorSourceType {
@@ -80,12 +135,17 @@ namespace fin.model {
     byte Bb { get; }
   }
 
-  public interface IColorShaderParam : IColorSource, IShaderParam<IColor> {
-  }
+  public interface IColorShaderParam : IColorSource, IShaderParam<IColor> {}
 
   public enum UvType {
     NORMAL,
     SPHERICAL,
+  }
+
+  public enum WrapMode {
+    CLAMP,
+    REPEAT,
+    MIRROR_REPEAT,
   }
 
   public interface ITexture : IColorSource {
@@ -94,16 +154,12 @@ namespace fin.model {
     int UvIndex { get; }
     UvType UvType { get; }
 
-    IImage Image { get; }
+    Bitmap ImageData { get; }
 
     // TODO: UV Scaling
     // TODO: Repeating types (clamp/repeat/back-and-forth)
     // TODO: Support fixed # of repeats
     // TODO: Support animated textures
     // TODO: Support animated texture index param
-  }
-
-  public interface IImage {
-    // TODO: How to specify image data?
   }
 }

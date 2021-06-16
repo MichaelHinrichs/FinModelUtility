@@ -25,6 +25,9 @@ namespace mkds.exporter {
         IList<(string, BTI)>? pathsAndBtis = null) {
       var model = new ModelImpl();
 
+      var materialManager =
+          new BmdMaterialManager(model, bmd, pathsAndBtis);
+
       var jointsAndBones = this.ConvertBones_(model, bmd);
       this.ConvertAnimations_(model, bmd, pathsAndBcxs, jointsAndBones);
       this.ConvertMesh_(model, bmd, jointsAndBones);
@@ -88,9 +91,9 @@ namespace mkds.exporter {
             var position = JointUtil.GetTranslation(bcx, jointIndex, f);
             boneTracks.Positions.Set(f,
                                      new ModelImpl.PositionImpl {
-                                       X = position.X,
-                                       Y = position.Y,
-                                       Z = position.Z
+                                         X = position.X,
+                                         Y = position.Y,
+                                         Z = position.Z
                                      });
 
             var (xRadians, yRadians, zRadians) =
@@ -102,9 +105,9 @@ namespace mkds.exporter {
             var scale = JointUtil.GetScale(bcx, jointIndex, f);
             boneTracks.Scales.Set(f,
                                   new ModelImpl.ScaleImpl {
-                                    X = scale.X,
-                                    Y = scale.Y,
-                                    Z = scale.Z,
+                                      X = scale.X,
+                                      Y = scale.Y,
+                                      Z = scale.Z,
                                   });
           }
         }
@@ -253,7 +256,7 @@ namespace mkds.exporter {
 
       DoneRendering: ;
     }
-    
+
     private static Matrix ConvertMkdsToMn_(MTX44 mkds) {
       var mn = new DenseMatrix(4, 4);
 
