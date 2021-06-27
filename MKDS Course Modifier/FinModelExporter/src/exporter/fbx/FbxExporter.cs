@@ -59,10 +59,15 @@ namespace fin.exporter.fbx {
           transform.Translation =
               new Vector3(position.X, position.Y, position.Z);
 
-          if (finBone.LocalRotation != null) {
-            var rotation = QuaternionUtil.Create(finBone.LocalRotation);
+          var rotation = finBone.LocalRotation;
+          if (rotation != null) {
+            transform.Rotation = Quaternion.FromEulerAngle(
+                new Vector3(rotation.XRadians,
+                            rotation.YRadians,
+                            rotation.ZRadians));
+            /*var quaternion = QuaternionUtil.Create(finBone.LocalRotation);
             transform.Rotation =
-                new Quaternion(rotation.W, rotation.X, rotation.Y, rotation.Z);
+                new Quaternion(quaternion.W, quaternion.X, quaternion.Y, quaternion.Z);*/
           }
 
           var fbxBone = new Bone(finBone.Name + "Bone") {
@@ -93,7 +98,7 @@ namespace fin.exporter.fbx {
             boneTransform.m32 = boneMatrix[3, 2];
             boneTransform.m33 = boneMatrix[3, 3];
 
-            fbxBone.BoneTransform = boneTransform;
+            //fbxBone.BoneTransform = boneTransform;
           }
 
           bones.Add(fbxBone);
@@ -107,8 +112,6 @@ namespace fin.exporter.fbx {
             boneQueue.Enqueue((childNode, child));
           }
         }
-
-        ;
       }
 
       {
@@ -126,14 +129,14 @@ namespace fin.exporter.fbx {
 
           var vertexIndex = vertex.Index;
 
-          //outPosition = vertex.LocalPosition;
+          var position = vertex.LocalPosition;
           //outNormal = vertex.LocalNormal;
 
           positions[vertexIndex] =
-              new Vector4(outPosition.X,
-                          outPosition.Y,
-                          outPosition.Z,
-                          outPosition.W);
+              new Vector4(position.X,
+                          position.Y,
+                          position.Z,
+                          position.W);
           normals[vertexIndex] =
               new Vector4(outNormal.X, outNormal.Y, outNormal.Z, outNormal.W);
 
