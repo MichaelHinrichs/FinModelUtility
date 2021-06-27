@@ -79,6 +79,9 @@ namespace fin.math {
       return bonesToIndex;
     }
 
+    public Matrix<double> GetMatrix(IBone bone)
+      => this.bonesToMatrices_[bone];
+
     public void ProjectVertex(
         IVertex vertex,
         IPosition outPosition,
@@ -87,7 +90,7 @@ namespace fin.math {
       var mergedMatrix = new DenseMatrix(4, 4);
       foreach (var weight in vertex.Weights) {
         var skinToBoneMatrix = weight.SkinToBone;
-        var boneMatrix = this.bonesToMatrices_[weight.Bone];
+        var boneMatrix = this.GetMatrix(weight.Bone);
 
         var skinToWorldMatrix =
             boneMatrix * skinToBoneMatrix * weight.Weight;

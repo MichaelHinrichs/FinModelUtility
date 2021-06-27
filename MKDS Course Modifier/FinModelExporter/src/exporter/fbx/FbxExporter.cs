@@ -25,19 +25,30 @@ namespace fin.exporter.fbx {
         this.ApplyFirstFrameToSkeleton_(model.Skeleton, firstAnimation);
       }
 
+      var boneTransformManager = new BoneTransformManager();
+      boneTransformManager.CalculateMatrices(model.Skeleton.Root,
+                                             firstAnimation != null
+                                                 ? (firstAnimation, 0)
+                                                 : null);
+
+
       var scene = new Scene();
 
       var mesh = new Mesh();
+      var meshNode = scene.RootNode.CreateChildNode("mesh", mesh);
+
+      var bones = new List<Bone>();
 
       var finToFbxBones = new Dictionary<IBone, Bone>();
+      var skd = new SkinDeformer("skeleton");
       {
         var skeleton = model.Skeleton;
 
-        var skd = new SkinDeformer();
         var boneQueue = new Queue<(Node, IBone)>();
 
-        scene.RootNode.Name = skeleton.Root.Name + "Node";
-        boneQueue.Enqueue((scene.RootNode, skeleton.Root));
+        var fbxSkeletonRoot =
+            scene.RootNode.CreateChildNode("skeletonNode", new Skeleton("sk"));
+        boneQueue.Enqueue((fbxSkeletonRoot, skeleton.Root));
 
         while (boneQueue.Count > 0) {
           var (fbxBoneNode, finBone) = boneQueue.Dequeue();
@@ -48,35 +59,61 @@ namespace fin.exporter.fbx {
           transform.Translation =
               new Vector3(position.X, position.Y, position.Z);
 
-          var rotation = QuaternionUtil.Create(finBone.LocalRotation);
-          transform.Rotation =
-              new Quaternion(rotation.W, rotation.X, rotation.Y, rotation.Z);
+          if (finBone.LocalRotation != null) {
+            var rotation = QuaternionUtil.Create(finBone.LocalRotation);
+            transform.Rotation =
+                new Quaternion(rotation.W, rotation.X, rotation.Y, rotation.Z);
+          }
 
           var fbxBone = new Bone(finBone.Name + "Bone") {
               Node = fbxBoneNode
           };
 
+          var boneMatrix = boneTransformManager.GetMatrix(finBone);
+          {
+            var boneTransform = fbxBone.BoneTransform;
+
+            boneTransform.m00 = boneMatrix[0, 0];
+            boneTransform.m01 = boneMatrix[0, 1];
+            boneTransform.m02 = boneMatrix[0, 2];
+            boneTransform.m03 = boneMatrix[0, 3];
+
+            boneTransform.m10 = boneMatrix[1, 0];
+            boneTransform.m11 = boneMatrix[1, 1];
+            boneTransform.m12 = boneMatrix[1, 2];
+            boneTransform.m13 = boneMatrix[1, 3];
+
+            boneTransform.m20 = boneMatrix[2, 0];
+            boneTransform.m21 = boneMatrix[2, 1];
+            boneTransform.m22 = boneMatrix[2, 2];
+            boneTransform.m23 = boneMatrix[2, 3];
+
+            boneTransform.m30 = boneMatrix[3, 0];
+            boneTransform.m31 = boneMatrix[3, 1];
+            boneTransform.m32 = boneMatrix[3, 2];
+            boneTransform.m33 = boneMatrix[3, 3];
+
+            fbxBone.BoneTransform = boneTransform;
+          }
+
+          bones.Add(fbxBone);
           finToFbxBones[finBone] = fbxBone;
-          skd.Bones.Add(fbxBone);
 
           foreach (var child in finBone.Children) {
-            var childNode = fbxBoneNode.CreateChildNode(child.Name + "Node");
+            var sk = new Skeleton(child.Name + "Sk") {Type = SkeletonType.Bone};
+
+            var childNode =
+                fbxBoneNode.CreateChildNode(child.Name + "Node", sk);
             boneQueue.Enqueue((childNode, child));
           }
         }
 
-        mesh.Deformers.Add(skd);
+        ;
       }
 
       {
-        var outPosition = new ModelImpl.PositionImpl();
-        var outNormal = new ModelImpl.NormalImpl();
-        var boneTransformManager = new BoneTransformManager();
-
-        boneTransformManager.CalculateMatrices(model.Skeleton.Root,
-                                               firstAnimation != null
-                                                   ? (firstAnimation, 0)
-                                                   : null);
+        IPosition outPosition = new ModelImpl.PositionImpl();
+        INormal outNormal = new ModelImpl.NormalImpl();
 
         var vertices = model.Skin.Vertices;
 
@@ -88,6 +125,9 @@ namespace fin.exporter.fbx {
                                              outNormal);
 
           var vertexIndex = vertex.Index;
+
+          //outPosition = vertex.LocalPosition;
+          //outNormal = vertex.LocalNormal;
 
           positions[vertexIndex] =
               new Vector4(outPosition.X,
@@ -109,11 +149,14 @@ namespace fin.exporter.fbx {
 
         var normalElement = new VertexElementNormal();
         normalElement.Data.AddRange(normals);
-
         mesh.AddElement(normalElement);
-
-        // TODO: Support normals.
       }
+
+      foreach (var bone in bones) {
+        skd.Bones.Add(bone);
+      }
+
+      mesh.Deformers.Add(skd);
 
       {
         var polygonBuilder = new PolygonBuilder(mesh);
@@ -165,11 +208,6 @@ namespace fin.exporter.fbx {
             default: throw new NotSupportedException();
           }
         }
-      }
-
-      {
-        //scene.RootNode.AddEntity(PolygonModifier.Triangulate(mesh));
-        scene.RootNode.CreateChildNode("mesh", mesh);
       }
 
       scene.Save(outputPath, FileFormat.FBX7700Binary);
