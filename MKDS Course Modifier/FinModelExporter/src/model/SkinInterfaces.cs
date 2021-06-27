@@ -31,6 +31,8 @@ namespace fin.model {
   public interface IVertex {
     // TODO: Allow caching vertex builders directly on this type.
 
+    int Index { get; }
+
     IReadOnlyList<BoneWeight>? Weights { get; }
     IVertex SetBone(IBone bone);
     IVertex SetBones(params BoneWeight[] weights);

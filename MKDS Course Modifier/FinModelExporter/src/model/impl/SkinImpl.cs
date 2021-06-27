@@ -21,7 +21,7 @@ namespace fin.model.impl {
       public IReadOnlyList<IVertex> Vertices { get; }
 
       public IVertex AddVertex(float x, float y, float z) {
-        var vertex = new VertexImpl(x, y, z);
+        var vertex = new VertexImpl(this.vertices_.Count, x, y, z);
         this.vertices_.Add(vertex);
         return vertex;
       }
@@ -75,8 +75,12 @@ namespace fin.model.impl {
       }
 
       private class VertexImpl : IVertex {
-        public VertexImpl(float x, float y, float z)
-          => this.SetLocalPosition(x, y, z);
+        public VertexImpl(int index, float x, float y, float z) {
+          this.Index = index;
+          this.SetLocalPosition(x, y, z);
+        }
+
+        public int Index { get; }
 
         public IReadOnlyList<BoneWeight>? Weights { get; private set; }
 

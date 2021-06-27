@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 
 using fin.cli;
+using fin.exporter.fbx;
 using fin.exporter.gltf;
 using fin.log;
 
@@ -48,9 +49,14 @@ namespace mkds.cli {
 
       if (Args.Static) {
         logger.LogInformation("Converting to a static mesh first.");
+
+        new FileInfo(Args.OutputPath).Directory.Create();
+
         var model =
             new ModelConverter().Convert(bmd, pathsAndBcxs, pathsAndBtis);
-        new GltfExporter().Export(Args.OutputPath, model);
+        new FbxExporter().Export(Args.OutputPath.Replace(".glb", ".fbx"),
+                                 model);
+        //new GltfExporter().Export(Args.OutputPath, model);
       } else {
         logger.LogInformation("Exporting directly.");
         new GltfExporterOld().Export(Args.OutputPath,

@@ -14,6 +14,12 @@ using LogicOp = fin.model.LogicOp;
 namespace mkds.exporter {
   using TextureMatrixInfo = BMD.MAT3Section.TextureMatrixInfo;
 
+  /// <summary>
+  ///   BMD material, one of the common formats for the GameCube.
+  ///
+  ///   For more info:
+  ///   http://www.amnoid.de/gc/tev.html
+  /// </summary>
   public class BmdMaterial {
     public record BmdLayerIndices(
         int Index,
@@ -83,6 +89,7 @@ namespace mkds.exporter {
       foreach (var layerData in validLayers) {
         var texture = materialManager.CreateTexture(layerData.Texture.Image);
 
+        // TODO: This isn't right, there should be unique functions for each 
         var alphaIndex = materialEntry.Indices2[1];
         var blendIndex = materialEntry.Indices2[2];
         var depthIndex = materialEntry.Indices2[3];

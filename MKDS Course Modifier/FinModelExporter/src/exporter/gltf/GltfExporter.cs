@@ -3,10 +3,8 @@ using System.IO;
 using System.Linq;
 
 using fin.log;
-using fin.math;
 using fin.model;
-
-using MathNet.Numerics.LinearAlgebra;
+using fin.util.asserts;
 
 using Microsoft.Extensions.Logging;
 
@@ -19,6 +17,8 @@ namespace fin.exporter.gltf {
     public void Export(
         string outputPath,
         IModel model) {
+      Asserts.True(outputPath.EndsWith(".gltf") || outputPath.EndsWith(".glb"));
+
       this.logger_.BeginScope("Export");
 
       var modelRoot = ModelRoot.CreateModel();
@@ -26,7 +26,7 @@ namespace fin.exporter.gltf {
       var scene = modelRoot.UseScene("default");
       var skin = modelRoot.CreateSkin();
 
-      var animations = model.AnimationManager?.Animations;
+      var animations = model.AnimationManager.Animations;
       var firstAnimation = (animations?.Count ?? 0) > 0 ? animations[0] : null;
 
       if (firstAnimation != null) {
