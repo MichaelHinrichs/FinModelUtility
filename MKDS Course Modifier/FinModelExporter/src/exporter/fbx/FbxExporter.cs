@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using Aspose.ThreeD;
 using Aspose.ThreeD.Deformers;
@@ -7,6 +8,7 @@ using Aspose.ThreeD.Utilities;
 
 using fin.math;
 using fin.model;
+using fin.model.impl;
 using fin.util.asserts;
 
 namespace fin.exporter.fbx {
@@ -27,6 +29,7 @@ namespace fin.exporter.fbx {
 
       var mesh = new Mesh();
 
+      var finToFbxBones = new Dictionary<IBone, Bone>();
       {
         var skeleton = model.Skeleton;
 
@@ -53,116 +56,121 @@ namespace fin.exporter.fbx {
               Node = fbxBoneNode
           };
 
+          finToFbxBones[finBone] = fbxBone;
           skd.Bones.Add(fbxBone);
 
           foreach (var child in finBone.Children) {
-            var childNode = new Node(child.Name + "Node");
-            fbxBoneNode.AddChildNode(childNode);
+            var childNode = fbxBoneNode.CreateChildNode(child.Name + "Node");
             boneQueue.Enqueue((childNode, child));
           }
         }
 
-        scene.RootNode.AddEntity(mesh);
-
         mesh.Deformers.Add(skd);
       }
 
-      /*{
+      {
+        var outPosition = new ModelImpl.PositionImpl();
+        var outNormal = new ModelImpl.NormalImpl();
+        var boneTransformManager = new BoneTransformManager();
+
+        boneTransformManager.CalculateMatrices(model.Skeleton.Root,
+                                               firstAnimation != null
+                                                   ? (firstAnimation, 0)
+                                                   : null);
+
         var vertices = model.Skin.Vertices;
 
         var positions = new Vector4[vertices.Count];
+        var normals = new Vector4[vertices.Count];
         foreach (var vertex in vertices) {
-          var localPosition = vertex.LocalPosition;
-          positions[vertex.Index] = vertex.LocalPosition.
+          boneTransformManager.ProjectVertex(vertex,
+                                             outPosition,
+                                             outNormal);
+
+          var vertexIndex = vertex.Index;
+
+          positions[vertexIndex] =
+              new Vector4(outPosition.X,
+                          outPosition.Y,
+                          outPosition.Z,
+                          outPosition.W);
+          normals[vertexIndex] =
+              new Vector4(outNormal.X, outNormal.Y, outNormal.Z, outNormal.W);
+
+          if (vertex.Weights != null) {
+            foreach (var weight in vertex.Weights) {
+              var fbxBone = finToFbxBones[weight.Bone];
+              fbxBone.SetWeight(vertexIndex, weight.Weight);
+            }
+          }
         }
+
+        mesh.ControlPoints.AddRange(positions);
+
+        var normalElement = new VertexElementNormal();
+        normalElement.Data.AddRange(normals);
+
+        mesh.AddElement(normalElement);
+
+        // TODO: Support normals.
       }
 
-      mesh.ControlPoints.AddRange();
+      {
+        var polygonBuilder = new PolygonBuilder(mesh);
 
+        foreach (var primitive in model.Skin.Primitives) {
+          var points = primitive.Vertices;
+          var pointsCount = points.Count;
 
-      foreach (var primitive in skin.Primitives) {
-        var points = primitive.Vertices;
-        var pointsCount = points.Count;
-        var vertices = new VERTEX[pointsCount];
-
-        for (var p = 0; p < pointsCount; ++p) {
-          var point = points[p];
-
-          boneTransformManager.ProjectVertex(point, outPosition, outNormal);
-
-          var position =
-              new Vector3(outPosition.X, outPosition.Y, outPosition.Z);
-          // TODO: Don't regenerate the skinning for each vertex, cache this somehow!
-          var vertexBuilder = VERTEX.Create(position);
-
-          if (point.Weights != null) {
-            vertexBuilder = vertexBuilder.WithSkinning(
-                point.Weights.Select(
-                         boneWeight
-                             => (boneToIndex[boneWeight.Bone],
-                                 boneWeight.Weight))
-                     .ToArray());
-          }
-
-          if (point.LocalNormal != null) {
-            vertexBuilder = vertexBuilder.WithGeometry(
-                position,
-                new Vector3(outNormal.X, outNormal.Y, outNormal.Z));
-          }
-
-          vertices[p] = vertexBuilder;
-        }
-
-        switch (primitive.Type) {
-          case PrimitiveType.TRIANGLES: {
-              var triangles =
-                  meshBuilder.UsePrimitive(materialBuilder,
-                                           3);
+          switch (primitive.Type) {
+            case PrimitiveType.TRIANGLES: {
               for (var v = 0; v < pointsCount; v += 3) {
-                triangles.AddTriangle(vertices[v + 0],
-                                      vertices[v + 1],
-                                      vertices[v + 2]);
+                polygonBuilder.Begin();
+                polygonBuilder.AddVertex(points[v + 0].Index);
+                polygonBuilder.AddVertex(points[v + 1].Index);
+                polygonBuilder.AddVertex(points[v + 2].Index);
+                polygonBuilder.End();
               }
               break;
             }
-          case PrimitiveType.TRIANGLE_STRIP: {
-              var triangleStrip =
-                  meshBuilder.UsePrimitive(materialBuilder,
-                                           3);
+            case PrimitiveType.TRIANGLE_STRIP: {
               for (var v = 0; v < pointsCount - 2; ++v) {
+                polygonBuilder.Begin();
                 if (v % 2 == 0) {
-                  triangleStrip.AddTriangle(vertices[v + 0],
-                                            vertices[v + 1],
-                                            vertices[v + 2]);
+                  polygonBuilder.AddVertex(points[v + 0].Index);
+                  polygonBuilder.AddVertex(points[v + 1].Index);
+                  polygonBuilder.AddVertex(points[v + 2].Index);
                 } else {
                   // Switches drawing order to maintain proper winding:
                   // https://www.khronos.org/opengl/wiki/Primitive
-                  triangleStrip.AddTriangle(vertices[v + 1],
-                                            vertices[v + 0],
-                                            vertices[v + 2]);
+                  polygonBuilder.AddVertex(points[v + 1].Index);
+                  polygonBuilder.AddVertex(points[v + 0].Index);
+                  polygonBuilder.AddVertex(points[v + 2].Index);
                 }
+                polygonBuilder.End();
               }
               break;
             }
-          case PrimitiveType.QUADS: {
-              var quads =
-                  meshBuilder.UsePrimitive(
-                      materialBuilder,
-                      4);
+            case PrimitiveType.QUADS: {
               for (var v = 0; v < pointsCount; v += 4) {
-                quads.AddQuadrangle(vertices[v + 0],
-                                    vertices[v + 1],
-                                    vertices[v + 2],
-                                    vertices[v + 3]);
+                polygonBuilder.Begin();
+                polygonBuilder.AddVertex(points[v + 0].Index);
+                polygonBuilder.AddVertex(points[v + 1].Index);
+                polygonBuilder.AddVertex(points[v + 2].Index);
+                polygonBuilder.AddVertex(points[v + 3].Index);
+                polygonBuilder.End();
               }
               break;
             }
-          default: throw new NotSupportedException();
+            default: throw new NotSupportedException();
+          }
         }
       }
 
-
-      mesh.CreatePolygon();*/
+      {
+        //scene.RootNode.AddEntity(PolygonModifier.Triangulate(mesh));
+        scene.RootNode.CreateChildNode("mesh", mesh);
+      }
 
       scene.Save(outputPath, FileFormat.FBX7700Binary);
     }
