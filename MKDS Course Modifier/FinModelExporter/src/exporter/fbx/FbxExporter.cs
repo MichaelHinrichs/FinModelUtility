@@ -6,6 +6,7 @@ using Aspose.ThreeD.Deformers;
 using Aspose.ThreeD.Entities;
 using Aspose.ThreeD.Utilities;
 
+using fin.io;
 using fin.math;
 using fin.model;
 using fin.model.impl;
@@ -13,10 +14,8 @@ using fin.util.asserts;
 
 namespace fin.exporter.fbx {
   public class FbxExporter : IExporter {
-    public void Export(
-        string outputPath,
-        IModel model) {
-      Asserts.True(outputPath.EndsWith(".fbx"));
+    public void Export(IFile outputFile, IModel model) {
+      Asserts.Equal(outputFile.Extension, ".fbx", "Target file is not an .fbx!");
 
       var animations = model.AnimationManager.Animations;
       var firstAnimation = (animations?.Count ?? 0) > 0 ? animations[0] : null;
@@ -98,6 +97,7 @@ namespace fin.exporter.fbx {
             boneTransform.m32 = boneMatrix[3, 2];
             boneTransform.m33 = boneMatrix[3, 3];
 
+            // TODO: Bone transform might be used for binding matrix?
             //fbxBone.BoneTransform = boneTransform;
           }
 
@@ -213,7 +213,7 @@ namespace fin.exporter.fbx {
         }
       }
 
-      scene.Save(outputPath, FileFormat.FBX7700Binary);
+      scene.Save(outputFile.Extension, FileFormat.FBX7700Binary);
     }
 
     // TODO: Pull this out somewhere else, or make this part of the model creation flow?

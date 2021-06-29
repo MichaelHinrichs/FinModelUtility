@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 
+using fin.io;
 using fin.log;
 using fin.model;
 using fin.util.asserts;
@@ -14,10 +15,11 @@ namespace fin.exporter.gltf {
   public class GltfExporter : IExporter {
     private readonly ILogger logger_ = Logging.Create<GltfExporter>();
 
-    public void Export(
-        string outputPath,
-        IModel model) {
-      Asserts.True(outputPath.EndsWith(".gltf") || outputPath.EndsWith(".glb"));
+    public void Export(IFile outputFile, IModel model) {
+      Asserts.True(
+          outputFile.Extension.EndsWith(".gltf") ||
+          outputFile.Extension.EndsWith(".glb"),
+          "Target file is not a GLTF format!");
 
       this.logger_.BeginScope("Export");
 
@@ -61,6 +63,7 @@ namespace fin.exporter.gltf {
                                     skinNodeAndBone => skinNodeAndBone.Item1)
                                 .ToArray());
 
+      var outputPath = outputFile.FullName;
       Directory.CreateDirectory(new FileInfo(outputPath).Directory.FullName);
       var writeSettings = new WriteSettings {
           ImageWriting = ResourceWriteMode.SatelliteFile,

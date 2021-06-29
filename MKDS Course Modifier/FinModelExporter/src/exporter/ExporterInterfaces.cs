@@ -1,7 +1,8 @@
-﻿using fin.model;
+﻿using fin.io;
+using fin.model;
 
 namespace fin.exporter {
   public interface IExporter {
-    void Export(string outputPath, IModel model);
+    void Export(IFile outputFile, IModel model);
   }
 }

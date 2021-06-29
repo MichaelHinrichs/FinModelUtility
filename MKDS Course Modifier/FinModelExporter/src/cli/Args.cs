@@ -16,6 +16,8 @@ namespace fin.cli {
     public static bool Verbose { get; private set; }
 
     public static string OutputPath { get; private set; } = "";
+    public static IFile OutputFile => new FinFile(Args.OutputPath);
+
     public static string BmdPath { get; private set; } = "";
 
     public static IList<string> BcxPaths { get; private set; } =
