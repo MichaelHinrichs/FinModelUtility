@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 using Assimp;
-using Assimp.Unmanaged;
 
+using fin.exporter.gltf;
 using fin.io;
 using fin.math;
 using fin.model;
@@ -14,6 +13,8 @@ using fin.util.asserts;
 
 namespace fin.exporter.assimp {
   public class AssimpExporter : IExporter {
+    // You're damn right I'm gonna prefix everything with ass.
+
     public void Export(IFile outputFile, IModel model) {
       var outputPath = outputFile.FullName;
       var outputExtension = outputFile.Extension;
@@ -22,28 +23,70 @@ namespace fin.exporter.assimp {
       var inputPath = inputFile.FullName;
       var inputExtension = inputFile.Extension;
 
-      var ctx = new AssimpContext();
+      using var ctx = new AssimpContext();
 
-      var supportedImportFormatExtensions = ctx.GetSupportedImportFormats();
-      Asserts.True(supportedImportFormatExtensions.Contains(inputExtension),
-                   $"'{inputExtension}' is not a supported import format!");
+      string exportFormatId;
+      {
+        var supportedImportFormatExtensions = ctx.GetSupportedImportFormats();
+        Asserts.True(supportedImportFormatExtensions.Contains(inputExtension),
+                     $"'{inputExtension}' is not a supported import format!");
 
-      var supportedExportFormats = ctx.GetSupportedExportFormats();
-      var exportFormatIds =
-          supportedExportFormats
-              .Where(exportFormat
-                         => outputExtension == $".{exportFormat.FileExtension}")
-              .Select(exportFormat => exportFormat.FormatId);
-      Asserts.True(exportFormatIds.Any(),
-                   $"'{outputExtension}' is not a supported export format!");
+        var supportedExportFormats = ctx.GetSupportedExportFormats();
+        var exportFormatIds =
+            supportedExportFormats
+                .Where(exportFormat
+                           => outputExtension ==
+                              $".{exportFormat.FileExtension}")
+                .Select(exportFormat => exportFormat.FormatId);
+        Asserts.True(exportFormatIds.Any(),
+                     $"'{outputExtension}' is not a supported export format!");
 
+        exportFormatId = exportFormatIds.First();
+      }
+
+      // Importing the pre-generated GLTF file does most of the hard work off
+      // the bat: generating the mesh with properly weighted bones.
+      new GltfExporter().Export(inputFile, model);
       var sc = ctx.ImportFile(inputPath);
-      var success = ctx.ExportFile(sc, outputPath, exportFormatIds.First());
+
+      // TODO: Export materials.
+      // TODO: Fix bone orientations.
+
+      // Fix animations jumbled in the conversion process.
+      var finAnimations = model.AnimationManager.Animations;
+      var assAnimations = sc.Animations;
+      for (var a = 0; a < assAnimations.Count; ++a) {
+        var assAnimation = assAnimations[a];
+        var finAnimation = finAnimations[a];
+
+        // Animations are SUPER slow, we need to speed them way up!
+        {
+          // Not entirely sure why this is right...
+          var animationSpeedup = 2 / assAnimation.DurationInTicks;
+
+          // TODO: Include tangents from the animation file.
+          foreach (var channel in assAnimation.NodeAnimationChannels) {
+            this.ScaleKeyTimes_(channel.PositionKeys, animationSpeedup);
+            this.ScaleKeyTimes_(channel.ScalingKeys, animationSpeedup);
+            this.ScaleKeyTimes_(channel.RotationKeys, animationSpeedup);
+          }
+        }
+
+        var assFps = assAnimation.TicksPerSecond;
+        var finFps = finAnimation.Fps;
+
+        assAnimation.TicksPerSecond = finFps;
+        assAnimation.DurationInTicks *= finFps / assFps;
+
+        // TODO: Include animation looping behavior here.
+      }
+      
+      var success = ctx.ExportFile(sc, outputPath, exportFormatId);
       Asserts.True(success, "Failed to export model.");
 
-      return;
+      /*var scene = new Scene();
 
-      /*var animations = model.AnimationManager.Animations;
+      var animations = model.AnimationManager.Animations;
       var firstAnimation = (animations?.Count ?? 0) > 0 ? animations[0] : null;
 
       if (firstAnimation != null) {
@@ -57,7 +100,6 @@ namespace fin.exporter.assimp {
                                                  : null);
 
 
-      var scene = new Scene();
 
       var mesh = new Mesh();
       var meshNode = scene.RootNode.CreateChildNode("mesh", mesh);
@@ -259,7 +301,8 @@ switch (primitive.Type) {
 }
 }
 
-scene.Save(outputPath, FileFormat.FBX7700Binary);
+var success = ctx.ExportFile(scene, outputPath, exportFormatId);
+Asserts.True(success, "Failed to export model.");
 }
 
 // TODO: Pull this out somewhere else, or make this part of the model creation flow?
@@ -297,6 +340,22 @@ foreach (var child in bone.Children) {
 boneQueue.Enqueue(child);
 }
 }*/
+    }
+
+    private void ScaleKeyTimes_(List<VectorKey> keys, double scale) {
+      for (var i = 0; i < keys.Count; ++i) {
+        var key = keys[i];
+        key.Time *= scale;
+        keys[i] = key;
+      }
+    }
+
+    private void ScaleKeyTimes_(List<QuaternionKey> keys, double scale) {
+      for (var i = 0; i < keys.Count; ++i) {
+        var key = keys[i];
+        key.Time *= scale;
+        keys[i] = key;
+      }
     }
   }
 }

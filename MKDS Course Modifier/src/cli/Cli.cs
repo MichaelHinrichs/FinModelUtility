@@ -56,7 +56,7 @@ namespace mkds.cli {
         var model =
             new ModelConverter().Convert(bmd, pathsAndBcxs, pathsAndBtis);
 
-        new GltfExporter().Export(outputFile, model);
+        //new GltfExporter().Export(outputFile, model);
         new AssimpExporter().Export(outputFile.CloneWithExtension(".fbx"),
                                     model);
       } else {
