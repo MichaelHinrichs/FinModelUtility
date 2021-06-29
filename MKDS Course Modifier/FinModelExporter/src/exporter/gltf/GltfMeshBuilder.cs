@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
 using fin.math;
 using fin.model;
 using fin.model.impl;
+using fin.util.asserts;
 
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
@@ -16,27 +18,23 @@ using PrimitiveType = fin.model.PrimitiveType;
 namespace fin.exporter.gltf {
   using VERTEX =
       VertexBuilder<VertexPositionNormal, VertexColor1Texture2, VertexJoints4>;
-  
+
   public class GltfMeshBuilder {
     public Mesh BuildAndBindMesh(
         ModelRoot gltfModel,
-        IModel model) {
+        IModel model,
+        Dictionary<IMaterial, MaterialBuilder> finToGltfMaterial) {
       var skin = model.Skin;
 
       var boneTransformManager = new BoneTransformManager();
       var boneToIndex = boneTransformManager.CalculateMatrices(
-          model.Skeleton.Root, null);
+          model.Skeleton.Root,
+          null);
 
       var meshBuilder = VERTEX.CreateCompatibleMesh();
 
       var outPosition = new ModelImpl.PositionImpl();
       var outNormal = new ModelImpl.NormalImpl();
-
-      var materialBuilder = new MaterialBuilder("default")
-                            .WithDoubleSide(true)
-                            .WithAlpha(SharpGLTF.Materials.AlphaMode.MASK)
-                            .WithSpecularGlossinessShader()
-                            .WithSpecularGlossiness(new Vector3(0), 0);
 
       foreach (var primitive in skin.Primitives) {
         var points = primitive.Vertices;
@@ -68,14 +66,24 @@ namespace fin.exporter.gltf {
                 new Vector3(outNormal.X, outNormal.Y, outNormal.Z));
           }
 
+          // TODO: Include color
+          var uvs = point.Uvs;
+          if ((uvs?.Count ?? 0) > 0) {
+            var uv = uvs[0];
+            vertexBuilder =
+                vertexBuilder.WithMaterial(new Vector4(1, 1, 1, 1),
+                                           new Vector2(uv.U, uv.V));
+          }
+
           vertices[p] = vertexBuilder;
         }
 
+        var materialBuilder = finToGltfMaterial[primitive.Material];
+        Asserts.Nonnull(materialBuilder);
         switch (primitive.Type) {
           case PrimitiveType.TRIANGLES: {
             var triangles =
-                meshBuilder.UsePrimitive(materialBuilder,
-                                         3);
+                meshBuilder.UsePrimitive(materialBuilder, 3);
             for (var v = 0; v < pointsCount; v += 3) {
               triangles.AddTriangle(vertices[v + 0],
                                     vertices[v + 1],
@@ -85,8 +93,7 @@ namespace fin.exporter.gltf {
           }
           case PrimitiveType.TRIANGLE_STRIP: {
             var triangleStrip =
-                meshBuilder.UsePrimitive(materialBuilder,
-                                         3);
+                meshBuilder.UsePrimitive(materialBuilder, 3);
             for (var v = 0; v < pointsCount - 2; ++v) {
               if (v % 2 == 0) {
                 triangleStrip.AddTriangle(vertices[v + 0],

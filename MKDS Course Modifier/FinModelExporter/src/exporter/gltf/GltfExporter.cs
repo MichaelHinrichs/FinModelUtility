@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 
 using fin.io;
 using fin.log;
@@ -9,7 +11,11 @@ using fin.util.asserts;
 
 using Microsoft.Extensions.Logging;
 
+using SharpGLTF.Materials;
+using SharpGLTF.Memory;
 using SharpGLTF.Schema2;
+
+using AlphaMode = SharpGLTF.Materials.AlphaMode;
 
 namespace fin.exporter.gltf {
   public class GltfExporter : IExporter {
@@ -53,8 +59,42 @@ namespace fin.exporter.gltf {
           skinNodeAndBones,
           model.AnimationManager.Animations);
 
+      // Builds materials.
+      // TODO: Update this if GLTF is ever extended...
+      var finToGltfMaterial = new Dictionary<IMaterial, MaterialBuilder>();
+      {
+        foreach (var finMaterial in model.MaterialManager.All) {
+          var gltfMaterial = new MaterialBuilder(finMaterial.Name);
+          gltfMaterial.WithDoubleSide(true)
+                      .WithAlpha(AlphaMode.MASK)
+                      .WithSpecularGlossinessShader()
+                      .WithSpecularGlossiness(new Vector3(0), 0);
+
+          var lastTexture = finMaterial.Textures.Last();
+          var textureBuilder = gltfMaterial.UseChannel(KnownChannel.Diffuse)
+                                           .UseTexture();
+
+          var imageStream = new MemoryStream();
+          lastTexture.ImageData.Save(imageStream, ImageFormat.Png);
+          var imageBytes = imageStream.ToArray();
+          var memoryImage = new MemoryImage(imageBytes);
+
+          textureBuilder.WithPrimaryImage(memoryImage)
+                        .WithCoordinateSet(0)
+                        .WithSampler(TextureWrapMode.REPEAT,
+                                     TextureWrapMode.REPEAT);
+          // TODO: Set clamping
+
+          finToGltfMaterial[finMaterial] = gltfMaterial;
+        }
+      }
+
       // Builds mesh.
-      var mesh = new GltfMeshBuilder().BuildAndBindMesh(modelRoot, model);
+      var mesh =
+          new GltfMeshBuilder().BuildAndBindMesh(
+              modelRoot,
+              model,
+              finToGltfMaterial);
       scene.CreateNode()
            .WithSkinnedMesh(mesh,
                             rootNode.WorldMatrix,
@@ -63,12 +103,12 @@ namespace fin.exporter.gltf {
                                     skinNodeAndBone => skinNodeAndBone.Item1)
                                 .ToArray());
 
-      var outputPath = outputFile.FullName;
-      Directory.CreateDirectory(new FileInfo(outputPath).Directory.FullName);
+      outputFile.GetParent().Create();
       var writeSettings = new WriteSettings {
           ImageWriting = ResourceWriteMode.SatelliteFile,
       };
 
+      var outputPath = outputFile.FullName;
       this.logger_.LogInformation($"Writing to {outputPath}...");
       modelRoot.Save(outputPath, writeSettings);
     }

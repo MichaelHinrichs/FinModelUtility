@@ -8,6 +8,7 @@ using MKDS_Course_Modifier.GCN;
 
 using fin.model;
 using fin.model.impl;
+using fin.util.asserts;
 
 using MathNet.Numerics.LinearAlgebra.Double;
 
@@ -30,7 +31,7 @@ namespace mkds.exporter {
 
       var jointsAndBones = this.ConvertBones_(model, bmd);
       this.ConvertAnimations_(model, bmd, pathsAndBcxs, jointsAndBones);
-      this.ConvertMesh_(model, bmd, jointsAndBones);
+      this.ConvertMesh_(model, bmd, jointsAndBones, materialManager);
 
       return model;
     }
@@ -117,7 +118,8 @@ namespace mkds.exporter {
     private void ConvertMesh_(
         IModel model,
         BMD bmd,
-        (MkdsNode, IBone)[] jointsAndBones) {
+        (MkdsNode, IBone)[] jointsAndBones,
+        BmdMaterialManager materialManager) {
       var skin = model.Skin;
 
       var joints = bmd.GetJoints();
@@ -129,6 +131,8 @@ namespace mkds.exporter {
       var entries = bmd.INF1.Entries;
       var batches = bmd.SHP1.Batches;
 
+      BmdMaterial? currentMaterial = null;
+
       var weightsTable = new BoneWeight[]?[10];
       foreach (var entry in entries) {
         switch (entry.Type) {
@@ -138,7 +142,7 @@ namespace mkds.exporter {
 
           // Material
           case 0x11:
-            //currentMaterial = materialManager.Get(entry.Index);
+            currentMaterial = materialManager.Get(entry.Index);
             break;
 
           // Batch
@@ -221,27 +225,35 @@ namespace mkds.exporter {
                   if (weights != null) {
                     vertex.SetBones(weights);
                   }
+
+                  // TODO: Include color
+                  // TODO: I don't think this is technically correct.
+                  if (batch.HasTexCoords[0]) {
+                    var texCoord = vertexUvs[0][point.TexCoordIndex[0]];
+                    vertex.SetUv(texCoord.S, texCoord.T);
+                  }
                 }
 
                 var glPrimitiveType = primitive.GetGlPrimitive();
 
+                Asserts.Nonnull(currentMaterial);
                 switch (glPrimitiveType) {
                   case Gl.GL_TRIANGLES: {
-                    // TODO: Add material.
-                    skin.AddTriangles(vertices);
+                    skin.AddTriangles(vertices)
+                        .SetMaterial(currentMaterial.Material);
                     break;
                   }
 
                   case Gl.GL_TRIANGLE_STRIP: {
-                    // TODO: Add material.
-                    skin.AddTriangleStrip(vertices);
-                    break;
+                    skin.AddTriangleStrip(vertices)
+                        .SetMaterial(currentMaterial.Material);
+                      break;
                   }
 
                   case Gl.GL_QUADS: {
-                    // TODO: Add material.
-                    skin.AddQuads(vertices);
-                    break;
+                    skin.AddQuads(vertices)
+                        .SetMaterial(currentMaterial.Material);
+                      break;
                   }
 
                   default:

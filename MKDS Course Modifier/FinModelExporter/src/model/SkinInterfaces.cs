@@ -62,6 +62,7 @@ namespace fin.model {
     PrimitiveType Type { get; }
     IReadOnlyList<IVertex> Vertices { get; }
 
+    IMaterial Material { get; }
     IPrimitive SetMaterial(IMaterial material);
   }
 }

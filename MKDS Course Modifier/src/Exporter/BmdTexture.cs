@@ -10,13 +10,11 @@ using MKDS_Course_Modifier.GCN;
 
 namespace mkds.exporter {
   public class BmdTexture {
-    private readonly string name_;
-
     public BmdTexture(
         string name,
         BMD.TEX1Section.TextureHeader header,
         IList<(string, BTI)>? pathsAndBtis = null) {
-      this.name_ = name;
+      this.Name = name;
       this.Header = header;
 
       var mirrorS = false;
@@ -64,6 +62,7 @@ namespace mkds.exporter {
       this.WrapModeT = BmdTexture.GetWrapMode_(mirrorT, repeatT);
     }
 
+    public string Name { get; }
     public BMD.TEX1Section.TextureHeader Header { get; }
     public Bitmap Image { get; }
     public WrapMode WrapModeS { get; }
@@ -75,7 +74,7 @@ namespace mkds.exporter {
 
       var imageBytes = stream.ToArray();
       
-      File.WriteAllBytes($"{directory.FullName}\\{this.name_}.png",
+      File.WriteAllBytes($"{directory.FullName}\\{this.Name}.png",
                          imageBytes);
     }
 

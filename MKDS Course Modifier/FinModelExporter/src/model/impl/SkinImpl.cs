@@ -75,9 +75,13 @@ namespace fin.model.impl {
       }
 
       private class VertexImpl : IVertex {
+        private readonly IUv[] uvs_ = new IUv[1];
+
         public VertexImpl(int index, float x, float y, float z) {
           this.Index = index;
           this.SetLocalPosition(x, y, z);
+
+          this.Uvs = new ReadOnlyCollection<IUv>(this.uvs_);
         }
 
         public int Index { get; }
@@ -122,11 +126,12 @@ namespace fin.model.impl {
 
         public IReadOnlyList<IUv>? Uvs { get; }
 
-        public IVertex SetUv(float u, float v)
-          => throw new NotImplementedException();
+        public IVertex SetUv(float u, float v) => this.SetUv(0, u, v);
 
-        public IVertex SetUv(int uvIndex, float u, float v)
-          => throw new NotImplementedException();
+        public IVertex SetUv(int uvIndex, float u, float v) {
+          this.uvs_[uvIndex] = new UvImpl { U = u, V = v };
+          return this;
+        }
       }
 
 
@@ -139,9 +144,17 @@ namespace fin.model.impl {
         public PrimitiveType Type { get; }
         public IReadOnlyList<IVertex> Vertices { get; }
 
+        public IMaterial Material { get; private set; }
+
         public IPrimitive SetMaterial(IMaterial material) {
-          throw new System.NotImplementedException();
+          this.Material = material;
+          return this;
         }
+      }
+
+      private class UvImpl : IUv {
+        public float U { get; set; }
+        public float V { get; set; }
       }
     }
   }
