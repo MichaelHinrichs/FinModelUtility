@@ -119,10 +119,10 @@ namespace fin.exporter.assimp {
           // TODO: Set shader
 
           {
-            var firstFinTexture = finMaterial.Textures.First();
+            var lastFinTexture = finMaterial.Textures.Last();
 
             var assTextureSlot = new TextureSlot();
-            assTextureSlot.FilePath = firstFinTexture.Name + ".png";
+            assTextureSlot.FilePath = lastFinTexture.Name + ".png";
             assTextureSlot.TextureType = TextureType.Diffuse;
 
             // TODO: Set blend mode
@@ -135,10 +135,7 @@ namespace fin.exporter.assimp {
           sc.Materials.Add(assMaterial);
         }
 
-        // TODO: Split mesh by material!
-        foreach (var mesh in sc.Meshes) {
-          mesh.MaterialIndex = materialIndex;
-        }
+        // Meshes should already have material indices set.
       }
 
       var success = ctx.ExportFile(sc, outputPath, exportFormatId);
