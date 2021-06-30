@@ -87,8 +87,12 @@ namespace mkds.exporter {
       // TODO: In the case where a reflection would have been present, if a
       // mask is grouped, pass it in the specular/glossiness.
       foreach (var layerData in validLayers) {
-        var texture = materialManager.CreateTexture(layerData.Texture.Image);
-        texture.Name = layerData.Texture.Name;
+        var bmdTexture = layerData.Texture;
+        var texture = materialManager.CreateTexture(bmdTexture.Image);
+
+        texture.Name = bmdTexture.Name;
+        texture.WrapModeU = bmdTexture.WrapModeS;
+        texture.WrapModeV = bmdTexture.WrapModeT;
 
         // TODO: This isn't right, there should be unique functions for each 
         var alphaIndex = materialEntry.Indices2[1];

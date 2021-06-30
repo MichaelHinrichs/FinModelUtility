@@ -42,6 +42,9 @@ namespace fin.model.impl {
       public int UvIndex { get; }
       public UvType UvType { get; }
       public Bitmap ImageData { get; }
+
+      public WrapMode WrapModeU { get; set; }
+      public WrapMode WrapModeV { get; set; }
     }
 
     private class TextureMaterialImpl : ITextureMaterial {

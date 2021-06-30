@@ -156,8 +156,10 @@ namespace fin.model {
 
     Bitmap ImageData { get; }
 
+    WrapMode WrapModeU { get; set; }
+    WrapMode WrapModeV { get; set; }
+
     // TODO: UV Scaling
-    // TODO: Repeating types (clamp/repeat/back-and-forth)
     // TODO: Support fixed # of repeats
     // TODO: Support animated textures
     // TODO: Support animated texture index param

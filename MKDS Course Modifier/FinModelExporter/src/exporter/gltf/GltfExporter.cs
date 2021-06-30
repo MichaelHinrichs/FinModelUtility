@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -81,9 +82,8 @@ namespace fin.exporter.gltf {
 
           textureBuilder.WithPrimaryImage(memoryImage)
                         .WithCoordinateSet(0)
-                        .WithSampler(TextureWrapMode.REPEAT,
-                                     TextureWrapMode.REPEAT);
-          // TODO: Set clamping
+                        .WithSampler(this.ConvertWrapMode_(lastTexture.WrapModeU),
+                                     this.ConvertWrapMode_(lastTexture.WrapModeV));
 
           finToGltfMaterial[finMaterial] = gltfMaterial;
         }
@@ -149,5 +149,13 @@ namespace fin.exporter.gltf {
         }
       }
     }
+
+    private TextureWrapMode ConvertWrapMode_(WrapMode wrapMode)
+      => wrapMode switch {
+          WrapMode.CLAMP => TextureWrapMode.CLAMP_TO_EDGE,
+          WrapMode.REPEAT => TextureWrapMode.REPEAT,
+          WrapMode.MIRROR_REPEAT => TextureWrapMode.MIRRORED_REPEAT,
+          _ => throw new ArgumentOutOfRangeException(nameof(wrapMode), wrapMode, null)
+      };
   }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -111,26 +112,53 @@ namespace fin.exporter.assimp {
 
         // TODO: Include textures?
 
-        var materialIndex = 0;
         foreach (var finMaterial in model.MaterialManager.All) {
           var assMaterial = new Material();
 
           assMaterial.Name = finMaterial.Name;
           // TODO: Set shader
 
-          {
+          if (finMaterial is ILayerMaterial layerMaterial) {
+            foreach (var layer in layerMaterial.Layers) {
+              // TODO: Support flat color layers by generating a 1x1 clamped texture of that color.
+
+              if (layer.ColorSource is ITexture finTexture) {
+                var assTextureSlot = new TextureSlot();
+                assTextureSlot.FilePath = finTexture.Name + ".png";
+                assTextureSlot.TextureType = TextureType.Diffuse;
+
+                // TODO: FBX doesn't support mirror. Blegh
+                assTextureSlot.WrapModeU =
+                    this.ConvertWrapMode_(finTexture.WrapModeU);
+                assTextureSlot.WrapModeV =
+                    this.ConvertWrapMode_(finTexture.WrapModeV);
+
+                // TODO: Set blend mode
+                //assTextureSlot.Operation =
+
+                // TODO: Set texture coord type
+
+                assMaterial.AddMaterialTexture(assTextureSlot);
+              }
+            }
+          }
+
+          /*{
             var lastFinTexture = finMaterial.Textures.Last();
 
             var assTextureSlot = new TextureSlot();
             assTextureSlot.FilePath = lastFinTexture.Name + ".png";
             assTextureSlot.TextureType = TextureType.Diffuse;
 
+            // TODO: FBX doesn't support mirror. Blegh
+            assTextureSlot.WrapModeU = this.ConvertWrapMode_(lastFinTexture.WrapModeU);
+            assTextureSlot.WrapModeV = this.ConvertWrapMode_(lastFinTexture.WrapModeV);
+
             // TODO: Set blend mode
-            // TODO: Set proper clamping
             // TODO: Set texture coord type
 
             assMaterial.TextureDiffuse = assTextureSlot;
-          }
+          }*/
 
           sc.Materials.Add(assMaterial);
         }
@@ -414,5 +442,16 @@ namespace fin.exporter.assimp {
         keys[i] = key;
       }
     }
+
+    private TextureWrapMode ConvertWrapMode_(WrapMode wrapMode)
+      => wrapMode switch {
+          WrapMode.CLAMP         => TextureWrapMode.Clamp,
+          WrapMode.REPEAT        => TextureWrapMode.Wrap,
+          WrapMode.MIRROR_REPEAT => TextureWrapMode.Mirror,
+          _ => throw new ArgumentOutOfRangeException(
+                   nameof(wrapMode),
+                   wrapMode,
+                   null)
+      };
   }
 }
