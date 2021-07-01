@@ -62,11 +62,19 @@ namespace fin.cli {
                 .WithParsed((DebugOptions debugOpts) => {
                   Args.Static = debugOpts.Static;
                   Args.Verbose = debugOpts.Verbose;
-                  Args.GetForEnemy_("Chappy",
+                  
+                  /*Args.GetForEnemy_("Chappy",
+                                    out var outputPath,
+                                    out var bmdPath,
+                                    out var bcxPaths,
+                                    out var btiPaths);*/
+                  Args.GetFromKando_("Ufo",
                                     out var outputPath,
                                     out var bmdPath,
                                     out var bcxPaths,
                                     out var btiPaths);
+
+
                   /*Args.GetForEnemy("Queen",
                                    out var outputPath,
                                    out var bmdPath,
@@ -129,10 +137,10 @@ namespace fin.cli {
           $"{basePath}cli/roms/pkmn2.gcm_dir/enemy/data/{name}/";
 
       Args.GetFromDirectory_(new DirectoryInfo(enemyBasePath),
-                            out outputPath,
-                            out bmdPath,
-                            out bcxPaths,
-                            out btiPaths);
+                             out outputPath,
+                             out bmdPath,
+                             out bcxPaths,
+                             out btiPaths);
     }
 
     private static void GetForPikmin_(
@@ -159,6 +167,29 @@ namespace fin.cli {
     private static string GetOutputPath_(string name) {
       var basePath = "R:/Documents/CSharpWorkspace/Pikmin2Utility/";
       return $"{basePath}cli/out/{name}/{name}.glb";
+    }
+
+    private static void GetFromKando_(
+        string name,
+        out string outputPath,
+        out string bmdPath,
+        out IList<string> bcxPaths,
+        out IList<string> btiPaths) {
+      outputPath = Args.GetOutputPath_(name);
+
+      var kandoDir = new FinDirectory(
+          @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn2.gcm_dir\user\Kando");
+      var entryDir = kandoDir.TryToGetSubdir(name);
+      var modelDir = entryDir.TryToGetSubdir(@"arc.szs 0.rarc_dir\arc");
+
+      var modelDirFullName = modelDir.FullName;
+      var modelDirInfo = new DirectoryInfo(entryDir.FullName);
+
+      bmdPath = Files.GetPathWithExtension(modelDirInfo, "bmd");
+      bcxPaths = Arrays.Concat(
+          Files.GetPathsWithExtension(modelDirInfo, "bca"),
+          Files.GetPathsWithExtension(modelDirInfo, "bck"));
+      btiPaths = Files.GetPathsWithExtension(modelDirInfo, "bti");
     }
 
     private static void GetFromDirectory_(

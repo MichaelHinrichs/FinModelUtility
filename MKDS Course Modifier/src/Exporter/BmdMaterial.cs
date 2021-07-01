@@ -12,6 +12,8 @@ using BlendFactor = fin.model.BlendFactor;
 using LogicOp = fin.model.LogicOp;
 
 namespace mkds.exporter {
+  using TevOrder = BMD.MAT3Section.TevOrder;
+  using TevStage = BMD.MAT3Section.TevStageProps;
   using TextureMatrixInfo = BMD.MAT3Section.TextureMatrixInfo;
 
   /// <summary>
@@ -40,6 +42,12 @@ namespace mkds.exporter {
         BmdTexture Texture,
         TextureMatrixInfo? Matrix);
 
+
+    public record BmdLayer2(
+        BmdTexture Texture,
+        byte TexCoordIndex,
+        BlendMode BlendMode);
+
     public BmdMaterial(
         IMaterialManager materialManager,
         int materialEntryIndex,
@@ -53,8 +61,29 @@ namespace mkds.exporter {
 
       this.Material = material;
 
+      // Tev Stages: These seem to be the layers of the material.
+      var tevStageIndices = materialEntry.TevStageInfo;
+      var tevStages =
+          tevStageIndices
+              .Select(tevStageIndex
+                          => tevStageIndex != 65535
+                                 ? bmd.MAT3.TevStages[tevStageIndex]
+                                 : null)
+              .ToArray();
+
+      // Tev Orders: These seem to be the textures inputs for each tev stage.
+      var tevOrderIndices = materialEntry.TevOrderInfo;
+      var tevOrders =
+          tevOrderIndices
+              .Select(tevOrderIndex
+                          => tevOrderIndex != 65535
+                                 ? bmd.MAT3.Tevorders[tevOrderIndex]
+                                 : null)
+              .ToArray();
+
+      // TODO: Need to select via tev stages instead?
       // Gathers up all tex stages and texture matrices.
-      var layerIndices = new List<BmdLayerIndices>();
+      /*var layerIndices = new List<BmdLayerIndices>();
       for (var i = 0; i < 8; ++i) {
         layerIndices.Add(
             new BmdLayerIndices(i,
@@ -63,7 +92,8 @@ namespace mkds.exporter {
       }
 
       var validLayerIndices =
-          layerIndices.Where(layerIndices => layerIndices.IsTexStageValid);
+          layerIndices.Where(layerIndices => layerIndices.IsTexStageValid)
+                      .ToArray();
 
       // TODO: Support layers that are just colors.
       var validLayers =
@@ -76,7 +106,62 @@ namespace mkds.exporter {
                                        layerIndices.IsMatrixIndexValid
                                            ? bmd.MAT3.TextureMatrices[
                                                layerIndices.MatrixIndex]
-                                           : null));
+                                           : null))
+              .ToArray();*/
+
+      // Hacks together an approximation of the tev stages as blended texture
+      // layers.
+      // TODO: Emulate real behavior with a shader!
+      // TODO: Final tev stage seems to be a flat color.
+      var layers = new List<BmdLayer2>();
+      for (var i = 0; i < 16; ++i) {
+        var tevStage = tevStages[i];
+        var tevOrder = tevOrders[i];
+
+        if (tevStage == null || tevOrder == null) {
+          continue;
+        }
+
+        var texStageIndex = tevOrder.TexMap;
+        if (texStageIndex == 255) {
+          continue;
+        }
+
+        var texStage = materialEntry.TexStages[texStageIndex];
+        var textureIndex = bmd.MAT3.TextureIndieces[texStage];
+        var texture = textures[textureIndex];
+
+        var cA = tevStage.color_a;
+        var cB = tevStage.color_b;
+        var cC = tevStage.color_c;
+        var cD = tevStage.color_d;
+
+        BlendMode blendMode;
+        // Additive: a * (1 - c) + b * c + d
+        if (tevStage.color_op == 0) {
+          var texC = TevStage.GxCc.GX_CC_TEXC;
+
+          // The whole a * (1 - c) + b * c mess cancels out to just +texC.
+          if (cA == texC && cB == texC && cC == texC) {
+            blendMode = BlendMode.ADD;
+          } else if (cB == texC) {
+            blendMode = BlendMode.MULTIPLY;
+          }
+          // This seems to be a mask?
+          else if (cC == texC) {
+            blendMode = BlendMode.MULTIPLY;
+          } else if (cD == texC) {
+            blendMode = BlendMode.ADD;
+          } else {
+            throw new NotSupportedException("Unsupported blend mode!");
+          }
+        } else {
+          throw new NotSupportedException("Unsupported color operation!");
+        }
+
+        var layer = new BmdLayer2(texture, tevOrder.TexcoordID, blendMode);
+        layers.Add(layer);
+      }
 
       // TODO: Use spherical environment mapping once glTF supports it.
       // TODO: Include texGenType (?) to determine which are masks,
@@ -86,7 +171,18 @@ namespace mkds.exporter {
       // crank the glossiness way up.
       // TODO: In the case where a reflection would have been present, if a
       // mask is grouped, pass it in the specular/glossiness.
-      foreach (var layerData in validLayers) {
+      foreach (var layerData in layers) {
+        var bmdTexture = layerData.Texture;
+        var texture = materialManager.CreateTexture(bmdTexture.Image);
+
+        texture.Name = bmdTexture.Name;
+        texture.WrapModeU = bmdTexture.WrapModeS;
+        texture.WrapModeV = bmdTexture.WrapModeT;
+
+        var layer = material.AddTextureLayer(texture);
+        layer.BlendMode = layerData.BlendMode;
+      }
+      /*foreach (var layerData in validLayers) {
         var bmdTexture = layerData.Texture;
         var texture = materialManager.CreateTexture(bmdTexture.Image);
 
@@ -140,7 +236,7 @@ namespace mkds.exporter {
         // TODO: Set blend mode
         // TODO: Set UV type
         // TODO: Set matrix
-      }
+      }*/
     }
 
     public IMaterial Material { get; }

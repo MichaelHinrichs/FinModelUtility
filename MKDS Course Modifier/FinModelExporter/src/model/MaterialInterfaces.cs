@@ -70,6 +70,7 @@ namespace fin.model {
     ADD,
     SUBTRACT,
     REVERSE_SUBTRACT,
+    MULTIPLY,
   }
 
   public enum BlendFactor {

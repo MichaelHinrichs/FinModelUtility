@@ -2194,16 +2194,15 @@ label_140:
         }
       }
 
-      public class TevStageProps
-      {
-        public byte color_a;
-        public byte color_b;
-        public byte color_c;
-        public byte color_d;
-        public byte alpha_a;
-        public byte alpha_b;
-        public byte alpha_c;
-        public byte alpha_d;
+      public class TevStageProps {
+        public GxCc color_a;
+        public GxCc color_b;
+        public GxCc color_c;
+        public GxCc color_d;
+        public GxCc alpha_a;
+        public GxCc alpha_b;
+        public GxCc alpha_c;
+        public GxCc alpha_d;
         public byte color_op;
         public byte alpha_op;
         public byte color_regid;
@@ -2223,25 +2222,44 @@ label_140:
         public TevStageProps(EndianBinaryReader er)
         {
           er.ReadByte();
-          this.color_a = er.ReadByte();
-          this.color_b = er.ReadByte();
-          this.color_c = er.ReadByte();
-          this.color_d = er.ReadByte();
+          this.color_a = (GxCc) er.ReadByte();
+          this.color_b = (GxCc) er.ReadByte();
+          this.color_c = (GxCc) er.ReadByte();
+          this.color_d = (GxCc) er.ReadByte();
           this.color_op = er.ReadByte();
           this.color_bias = er.ReadByte();
           this.color_scale = er.ReadByte();
           this.color_clamp = er.ReadByte() == (byte) 1;
           this.color_regid = er.ReadByte();
-          this.alpha_a = er.ReadByte();
-          this.alpha_b = er.ReadByte();
-          this.alpha_c = er.ReadByte();
-          this.alpha_d = er.ReadByte();
+          this.alpha_a = (GxCc) er.ReadByte();
+          this.alpha_b = (GxCc) er.ReadByte();
+          this.alpha_c = (GxCc) er.ReadByte();
+          this.alpha_d = (GxCc) er.ReadByte();
           this.alpha_op = er.ReadByte();
           this.alpha_bias = er.ReadByte();
           this.alpha_scale = er.ReadByte();
           this.alpha_clamp = er.ReadByte() == (byte) 1;
           this.alpha_regid = er.ReadByte();
           er.ReadByte();
+        }
+
+        public enum GxCc {
+          GX_CC_CPREV,
+          GX_CC_APREV,
+          GX_CC_C0,
+          GX_CC_A0,
+          GX_CC_C1,
+          GX_CC_A1,
+          GX_CC_C2,
+          GX_CC_A2,
+          GX_CC_TEXC,
+          GX_CC_TEXA,
+          GX_CC_RASC,
+          GX_CC_RASA,
+          GX_CC_ONE,
+          GX_CC_HALF,
+          GX_CC_KONST,
+          GX_CC_ZERO,
         }
       }
 

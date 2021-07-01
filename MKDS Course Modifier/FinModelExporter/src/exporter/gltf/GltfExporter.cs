@@ -65,25 +65,60 @@ namespace fin.exporter.gltf {
       var finToGltfMaterial = new Dictionary<IMaterial, MaterialBuilder>();
       {
         foreach (var finMaterial in model.MaterialManager.All) {
-          var gltfMaterial = new MaterialBuilder(finMaterial.Name);
-          gltfMaterial.WithDoubleSide(true)
-                      .WithAlpha(AlphaMode.MASK)
-                      .WithSpecularGlossinessShader()
-                      .WithSpecularGlossiness(new Vector3(0), 0);
+          var gltfMaterial = new MaterialBuilder(finMaterial.Name)
+                             .WithDoubleSide(true)
+                             .WithSpecularGlossinessShader()
+                             .WithSpecularGlossiness(new Vector3(0), 0);
 
-          var lastTexture = finMaterial.Textures.Last();
-          var textureBuilder = gltfMaterial.UseChannel(KnownChannel.Diffuse)
-                                           .UseTexture();
+          var hasTexture = finMaterial.Textures.Count > 0;
+          if (hasTexture && finMaterial is ILayerMaterial layerMaterial) {
+            var addLayers =
+                layerMaterial
+                    .Layers
+                    .Where(layer => layer.BlendMode == BlendMode.ADD);
+            var multiplyLayers =
+                layerMaterial
+                    .Layers
+                    .Where(layer => layer.BlendMode == BlendMode.MULTIPLY);
 
-          var imageStream = new MemoryStream();
-          lastTexture.ImageData.Save(imageStream, ImageFormat.Png);
-          var imageBytes = imageStream.ToArray();
-          var memoryImage = new MemoryImage(imageBytes);
+            var lastLayer = addLayers.Any()
+                                ? addLayers.Last()
+                                : multiplyLayers.Last();
+            var lastTexture = lastLayer.ColorSource as ITexture;
+            var textureBuilder = gltfMaterial.UseChannel(KnownChannel.Diffuse)
+                                             .UseTexture();
 
-          textureBuilder.WithPrimaryImage(memoryImage)
-                        .WithCoordinateSet(0)
-                        .WithSampler(this.ConvertWrapMode_(lastTexture.WrapModeU),
-                                     this.ConvertWrapMode_(lastTexture.WrapModeV));
+            var imageStream = new MemoryStream();
+            lastTexture.ImageData.Save(imageStream, ImageFormat.Png);
+            var imageBytes = imageStream.ToArray();
+            var memoryImage = new MemoryImage(imageBytes);
+
+            textureBuilder.WithPrimaryImage(memoryImage)
+                          .WithCoordinateSet(0)
+                          .WithSampler(
+                              this.ConvertWrapMode_(lastTexture.WrapModeU),
+                              this.ConvertWrapMode_(lastTexture.WrapModeV));
+          }
+
+          /*var hasTexture = finMaterial.Textures.Count > 0;
+          if (hasTexture) {
+            gltfMaterial.WithAlpha(AlphaMode.MASK);
+
+            var lastTexture = finMaterial.Textures.Last();
+            var textureBuilder = gltfMaterial.UseChannel(KnownChannel.Diffuse)
+                                             .UseTexture();
+
+            var imageStream = new MemoryStream();
+            lastTexture.ImageData.Save(imageStream, ImageFormat.Png);
+            var imageBytes = imageStream.ToArray();
+            var memoryImage = new MemoryImage(imageBytes);
+
+            textureBuilder.WithPrimaryImage(memoryImage)
+                          .WithCoordinateSet(0)
+                          .WithSampler(
+                              this.ConvertWrapMode_(lastTexture.WrapModeU),
+                              this.ConvertWrapMode_(lastTexture.WrapModeV));
+          }*/
 
           finToGltfMaterial[finMaterial] = gltfMaterial;
         }
@@ -152,10 +187,13 @@ namespace fin.exporter.gltf {
 
     private TextureWrapMode ConvertWrapMode_(WrapMode wrapMode)
       => wrapMode switch {
-          WrapMode.CLAMP => TextureWrapMode.CLAMP_TO_EDGE,
-          WrapMode.REPEAT => TextureWrapMode.REPEAT,
+          WrapMode.CLAMP         => TextureWrapMode.CLAMP_TO_EDGE,
+          WrapMode.REPEAT        => TextureWrapMode.REPEAT,
           WrapMode.MIRROR_REPEAT => TextureWrapMode.MIRRORED_REPEAT,
-          _ => throw new ArgumentOutOfRangeException(nameof(wrapMode), wrapMode, null)
+          _ => throw new ArgumentOutOfRangeException(
+                   nameof(wrapMode),
+                   wrapMode,
+                   null)
       };
   }
 }

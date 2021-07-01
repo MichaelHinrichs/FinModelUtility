@@ -23,9 +23,14 @@ namespace fin.model {
       Matrix<double> SkinToBone,
       float Weight);
 
-  public interface IUv {
-    float U { get; set; }
-    float V { get; set; }
+  public interface ITexCoord {
+    /// <summary>
+    ///   Index of the UV, for models with textures stacked on top of each other.
+    /// </summary>
+    int LayerIndex { get; }
+
+    float U { get; }
+    float V { get; }
   }
 
   public interface IVertex {
@@ -46,7 +51,7 @@ namespace fin.model {
     IColor? Color { get; }
     IVertex SetColor(byte r, byte g, byte b);
 
-    IReadOnlyList<IUv>? Uvs { get; }
+    IReadOnlyList<ITexCoord>? Uvs { get; }
     IVertex SetUv(float u, float v);
     IVertex SetUv(int uvIndex, float u, float v);
   }

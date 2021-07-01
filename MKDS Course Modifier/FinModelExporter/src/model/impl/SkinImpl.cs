@@ -75,13 +75,11 @@ namespace fin.model.impl {
       }
 
       private class VertexImpl : IVertex {
-        private readonly IUv[] uvs_ = new IUv[1];
+        private IList<ITexCoord>? uvs_;
 
         public VertexImpl(int index, float x, float y, float z) {
           this.Index = index;
           this.SetLocalPosition(x, y, z);
-
-          this.Uvs = new ReadOnlyCollection<IUv>(this.uvs_);
         }
 
         public int Index { get; }
@@ -124,12 +122,32 @@ namespace fin.model.impl {
           => throw new NotImplementedException();
 
 
-        public IReadOnlyList<IUv>? Uvs { get; }
+        public IReadOnlyList<ITexCoord>? Uvs { get; private set; }
 
         public IVertex SetUv(float u, float v) => this.SetUv(0, u, v);
 
         public IVertex SetUv(int uvIndex, float u, float v) {
-          this.uvs_[uvIndex] = new UvImpl { U = u, V = v };
+          if (this.uvs_ == null) {
+            this.uvs_ = new List<ITexCoord>();
+            this.Uvs = new ReadOnlyCollection<ITexCoord>(this.uvs_);
+          }
+
+          // TODO: Optimize this.
+          var index = -1;
+          for (var i = 0; i < this.uvs_.Count; ++i) {
+            if (this.uvs_[i].LayerIndex == uvIndex) {
+              index = i;
+              break;
+            }
+          }
+
+          var uv = new TexCoordImpl { LayerIndex = uvIndex, U = u, V = v};
+          if (index != -1) {
+            this.uvs_[index] = uv;
+          } else {
+            this.uvs_.Add(uv);
+          }
+
           return this;
         }
       }
@@ -152,9 +170,10 @@ namespace fin.model.impl {
         }
       }
 
-      private class UvImpl : IUv {
-        public float U { get; set; }
-        public float V { get; set; }
+      private class TexCoordImpl : ITexCoord {
+        public int LayerIndex { get; init; }
+        public float U { get; init; }
+        public float V { get; init; }
       }
     }
   }
