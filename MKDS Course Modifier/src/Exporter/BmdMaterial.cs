@@ -141,19 +141,24 @@ namespace mkds.exporter {
         if (tevStage.color_op == 0) {
           var texC = TevStage.GxCc.GX_CC_TEXC;
 
-          // The whole a * (1 - c) + b * c mess cancels out to just +texC.
           if (cA == texC && cB == texC && cC == texC) {
             blendMode = BlendMode.ADD;
-          } else if (cB == texC) {
+          } 
+          else if (cA != TevStage.GxCc.GX_CC_ZERO && cB == texC) {
             blendMode = BlendMode.MULTIPLY;
           }
-          // This seems to be a mask?
-          else if (cC == texC) {
+          else if (cB == texC) {
+            blendMode = BlendMode.ADD;
+          }
+          else if (cA == TevStage.GxCc.GX_CC_ZERO && cC == texC) {
             blendMode = BlendMode.MULTIPLY;
+          } else if (cC == texC) {
+            blendMode = BlendMode.ADD;
           } else if (cD == texC) {
             blendMode = BlendMode.ADD;
           } else {
-            throw new NotSupportedException("Unsupported blend mode!");
+            blendMode = BlendMode.NONE;
+            //throw new NotSupportedException("Unsupported blend mode!");
           }
         } else {
           throw new NotSupportedException("Unsupported color operation!");
@@ -180,6 +185,7 @@ namespace mkds.exporter {
         texture.WrapModeV = bmdTexture.WrapModeT;
 
         var layer = material.AddTextureLayer(texture);
+        layer.TexCoordIndex = layerData.TexCoordIndex;
         layer.BlendMode = layerData.BlendMode;
       }
       /*foreach (var layerData in validLayers) {

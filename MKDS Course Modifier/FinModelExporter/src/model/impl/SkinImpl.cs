@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 
 using fin.math;
 
@@ -135,13 +136,13 @@ namespace fin.model.impl {
           // TODO: Optimize this.
           var index = -1;
           for (var i = 0; i < this.uvs_.Count; ++i) {
-            if (this.uvs_[i].LayerIndex == uvIndex) {
+            if (this.uvs_[i].TexCoordIndex == uvIndex) {
               index = i;
               break;
             }
           }
 
-          var uv = new TexCoordImpl { LayerIndex = uvIndex, U = u, V = v};
+          var uv = new TexCoordImpl { TexCoordIndex = uvIndex, U = u, V = v};
           if (index != -1) {
             this.uvs_[index] = uv;
           } else {
@@ -150,6 +151,11 @@ namespace fin.model.impl {
 
           return this;
         }
+
+        public ITexCoord? GetUv() => this.GetUv(0);
+
+        public ITexCoord? GetUv(int uvIndex) 
+          => this.uvs_?.FirstOrDefault(uv => uv.TexCoordIndex == uvIndex);
       }
 
 
@@ -171,7 +177,7 @@ namespace fin.model.impl {
       }
 
       private class TexCoordImpl : ITexCoord {
-        public int LayerIndex { get; init; }
+        public int TexCoordIndex { get; init; }
         public float U { get; init; }
         public float V { get; init; }
       }

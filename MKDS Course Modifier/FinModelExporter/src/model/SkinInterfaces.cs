@@ -27,7 +27,7 @@ namespace fin.model {
     /// <summary>
     ///   Index of the UV, for models with textures stacked on top of each other.
     /// </summary>
-    int LayerIndex { get; }
+    int TexCoordIndex { get; }
 
     float U { get; }
     float V { get; }
@@ -54,6 +54,8 @@ namespace fin.model {
     IReadOnlyList<ITexCoord>? Uvs { get; }
     IVertex SetUv(float u, float v);
     IVertex SetUv(int uvIndex, float u, float v);
+    ITexCoord? GetUv();
+    ITexCoord? GetUv(int uvIndex);
   }
 
   public enum PrimitiveType {

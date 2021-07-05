@@ -62,24 +62,25 @@ namespace fin.cli {
                 .WithParsed((DebugOptions debugOpts) => {
                   Args.Static = debugOpts.Static;
                   Args.Verbose = debugOpts.Verbose;
-                  
-                  /*Args.GetForEnemy_("Chappy",
+
+                    /*Args.GetForEnemy_("Chappy",
+                                      out var outputPath,
+                                      out var bmdPath,
+                                      out var bcxPaths,
+                                      out var btiPaths);
+
+                    /*Args.GetFromKando_("Ufo",
                                     out var outputPath,
                                     out var bmdPath,
                                     out var bcxPaths,
                                     out var btiPaths);*/
-                  Args.GetFromKando_("Ufo",
-                                    out var outputPath,
-                                    out var bmdPath,
-                                    out var bcxPaths,
-                                    out var btiPaths);
 
-
-                  /*Args.GetForEnemy("Queen",
+                  Args.GetForEnemy_("Queen",
                                    out var outputPath,
                                    out var bmdPath,
                                    out var bcxPaths,
                                    out var btiPaths);
+
                   /*Args.GetFromDirectory(
                       new DirectoryInfo(
                           "R:/Documents/CSharpWorkspace/Pikmin2Utility/cli/roms/pkmn2.gcm_dir/user/Kando/ufo"),

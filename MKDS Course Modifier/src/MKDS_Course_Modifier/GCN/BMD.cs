@@ -2102,7 +2102,10 @@ label_140:
         public ushort[] ChanControls;
         public ushort[] Color2;
         public ushort[] Lights;
+
         public ushort[] TexGenInfo;
+        public TexGenType[] TexGenTypes;
+        
         public ushort[] TexGenInfo2;
         public ushort[] TexMatrices;
         public ushort[] DttMatrices;
@@ -2118,14 +2121,22 @@ label_140:
         public ushort[] Unknown2;
         public ushort[] Indices2;
 
-        public MaterialEntry(EndianBinaryReader er)
-        {
+        public MaterialEntry(EndianBinaryReader er) {
           this.Unknown1 = er.ReadBytes(8);
           this.Color1 = er.ReadUInt16s(2);
           this.ChanControls = er.ReadUInt16s(4);
           this.Color2 = er.ReadUInt16s(2);
           this.Lights = er.ReadUInt16s(8);
+          
           this.TexGenInfo = er.ReadUInt16s(8);
+          this.TexGenTypes =
+              this.TexGenInfo
+                  .Select(texGenType
+                              => texGenType != 65535
+                                     ? (TexGenType) texGenType
+                                     : TexGenType.UNDEFINED)
+                  .ToArray();
+
           this.TexGenInfo2 = er.ReadUInt16s(8);
           this.TexMatrices = er.ReadUInt16s(10);
           this.DttMatrices = er.ReadUInt16s(20);
@@ -2141,6 +2152,21 @@ label_140:
           this.Unknown2 = er.ReadUInt16s(12);
           this.Indices2 = er.ReadUInt16s(4);
         }
+
+        public enum TexGenType {
+          GX_TG_MTX3x4,
+          GX_TG_MTX2x4,
+          GX_TG_BUMP0,
+          GX_TG_BUMP1,
+          GX_TG_BUMP2,
+          GX_TG_BUMP3,
+          GX_TG_BUMP4,
+          GX_TG_BUMP5,
+          GX_TG_BUMP6,
+          GX_TG_BUMP7,
+          GX_TG_SRTG,
+          UNDEFINED,
+      }
       }
 
       public class AlphaCompare

@@ -62,7 +62,8 @@ namespace fin.exporter.gltf {
 
       // Builds materials.
       // TODO: Update this if GLTF is ever extended...
-      var finToGltfMaterial = new Dictionary<IMaterial, MaterialBuilder>();
+      var finToTexCoordAndGltfMaterial =
+          new Dictionary<IMaterial, (IList<byte>, MaterialBuilder)>();
       {
         foreach (var finMaterial in model.MaterialManager.All) {
           var gltfMaterial = new MaterialBuilder(finMaterial.Name)
@@ -75,29 +76,57 @@ namespace fin.exporter.gltf {
             var addLayers =
                 layerMaterial
                     .Layers
-                    .Where(layer => layer.BlendMode == BlendMode.ADD);
+                    .Where(layer => layer.BlendMode == BlendMode.ADD)
+                    .ToArray();
             var multiplyLayers =
                 layerMaterial
                     .Layers
-                    .Where(layer => layer.BlendMode == BlendMode.MULTIPLY);
+                    .Where(layer => layer.BlendMode == BlendMode.MULTIPLY)
+                    .ToArray();
 
-            var lastLayer = addLayers.Any()
-                                ? addLayers.Last()
-                                : multiplyLayers.Last();
-            var lastTexture = lastLayer.ColorSource as ITexture;
-            var textureBuilder = gltfMaterial.UseChannel(KnownChannel.Diffuse)
-                                             .UseTexture();
+            if (addLayers.Length == 0) {
+              throw new NotSupportedException("Expected to find an add layer!");
+            }
+            if (addLayers.Length > 1) {
+              ;
+            }
+            if (addLayers.Length > 2) {
+              throw new NotSupportedException("Too many add layers for GLTF!");
+            }
 
-            var imageStream = new MemoryStream();
-            lastTexture.ImageData.Save(imageStream, ImageFormat.Png);
-            var imageBytes = imageStream.ToArray();
-            var memoryImage = new MemoryImage(imageBytes);
+            /*var lastLayer = addLayers.Any()
+                                ? addLayers.First()
+                                : multiplyLayers.First();*/
 
-            textureBuilder.WithPrimaryImage(memoryImage)
-                          .WithCoordinateSet(0)
-                          .WithSampler(
-                              this.ConvertWrapMode_(lastTexture.WrapModeU),
-                              this.ConvertWrapMode_(lastTexture.WrapModeV));
+            var channels = new[] {KnownChannel.Diffuse, KnownChannel.Emissive};
+
+            var textureCoordIndices = new List<byte>();
+            for (var i = 0; i < addLayers.Length; ++i) {
+              var layer = addLayers[i];
+
+              var texture = layer.ColorSource as ITexture;
+              var textureBuilder = gltfMaterial.UseChannel(channels[i])
+                                               .UseTexture();
+
+              var imageStream = new MemoryStream();
+              texture.ImageData.Save(imageStream, ImageFormat.Png);
+              var imageBytes = imageStream.ToArray();
+              var memoryImage = new MemoryImage(imageBytes);
+
+              textureBuilder.WithPrimaryImage(memoryImage)
+                            .WithCoordinateSet(i)
+                            .WithSampler(
+                                this.ConvertWrapMode_(texture.WrapModeU),
+                                this.ConvertWrapMode_(texture.WrapModeV));
+
+              textureCoordIndices.Add(layer.TexCoordIndex);
+            }
+
+            finToTexCoordAndGltfMaterial[finMaterial] =
+                (textureCoordIndices, gltfMaterial);
+          } else {
+            finToTexCoordAndGltfMaterial[finMaterial] =
+                (new byte[] {0}, gltfMaterial);
           }
 
           /*var hasTexture = finMaterial.Textures.Count > 0;
@@ -119,8 +148,6 @@ namespace fin.exporter.gltf {
                               this.ConvertWrapMode_(lastTexture.WrapModeU),
                               this.ConvertWrapMode_(lastTexture.WrapModeV));
           }*/
-
-          finToGltfMaterial[finMaterial] = gltfMaterial;
         }
       }
 
@@ -129,7 +156,7 @@ namespace fin.exporter.gltf {
           new GltfMeshBuilder().BuildAndBindMesh(
               modelRoot,
               model,
-              finToGltfMaterial);
+              finToTexCoordAndGltfMaterial);
       scene.CreateNode()
            .WithSkinnedMesh(mesh,
                             rootNode.WorldMatrix,

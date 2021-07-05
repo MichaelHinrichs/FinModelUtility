@@ -106,12 +106,8 @@ namespace fin.model {
   public interface ILayer {
     IColorSource ColorSource { get; }
 
-    // TODO: Add depth settings
-
+    byte TexCoordIndex { get; set; }
     BlendMode BlendMode { get; set; }
-    BlendFactor SrcFactor { get; set; }
-    BlendFactor DstFactor { get; set; }
-    LogicOp LogicOp { get; set; }
   }
 
   public enum ColorSourceType {

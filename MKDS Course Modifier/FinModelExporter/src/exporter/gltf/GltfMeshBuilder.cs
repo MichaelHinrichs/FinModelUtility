@@ -23,7 +23,8 @@ namespace fin.exporter.gltf {
     public Mesh BuildAndBindMesh(
         ModelRoot gltfModel,
         IModel model,
-        Dictionary<IMaterial, MaterialBuilder> finToGltfMaterial) {
+        Dictionary<IMaterial, (IList<byte>, MaterialBuilder)>
+            finToTexCoordAndGltfMaterial) {
       var skin = model.Skin;
 
       var boneTransformManager = new BoneTransformManager();
@@ -37,6 +38,10 @@ namespace fin.exporter.gltf {
       var outNormal = new ModelImpl.NormalImpl();
 
       foreach (var primitive in skin.Primitives) {
+        var (texCoordIndices, materialBuilder) =
+            finToTexCoordAndGltfMaterial[primitive.Material];
+        Asserts.Nonnull(materialBuilder);
+
         var points = primitive.Vertices;
         var pointsCount = points.Count;
         var vertices = new VERTEX[pointsCount];
@@ -67,19 +72,18 @@ namespace fin.exporter.gltf {
           }
 
           // TODO: Include color
-          var uvs = point.Uvs;
-          if ((uvs?.Count ?? 0) > 0) {
-            var uv = uvs[0];
-            vertexBuilder =
-                vertexBuilder.WithMaterial(new Vector4(1, 1, 1, 1),
-                                           new Vector2(uv.U, uv.V));
-          }
+          var uvs =
+              texCoordIndices
+                  .Select(texCoordIndex => point.GetUv(texCoordIndex))
+                  .Where(uv => uv != null)
+                  .Select(uv => new Vector2(uv.U, uv.V));
+          vertexBuilder =
+              vertexBuilder.WithMaterial(new Vector4(1, 1, 1, 1),
+                                         uvs.ToArray());
 
           vertices[p] = vertexBuilder;
         }
 
-        var materialBuilder = finToGltfMaterial[primitive.Material];
-        Asserts.Nonnull(materialBuilder);
         switch (primitive.Type) {
           case PrimitiveType.TRIANGLES: {
             var triangles =

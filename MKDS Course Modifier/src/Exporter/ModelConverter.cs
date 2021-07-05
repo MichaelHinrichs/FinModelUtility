@@ -227,10 +227,11 @@ namespace mkds.exporter {
                   }
 
                   // TODO: Include color
-                  // TODO: I don't think this is technically correct.
-                  if (batch.HasTexCoords[0]) {
-                    var texCoord = vertexUvs[0][point.TexCoordIndex[0]];
-                    vertex.SetUv(texCoord.S, texCoord.T);
+                  for (var i = 0; i < 8; ++i) {
+                    if (batch.HasTexCoords[i]) {
+                      var texCoord = vertexUvs[i][point.TexCoordIndex[i]];
+                      vertex.SetUv(i, texCoord.S, texCoord.T);
+                    }
                   }
                 }
 

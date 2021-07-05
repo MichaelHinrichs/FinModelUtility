@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -12,7 +13,11 @@ using fin.math;
 using fin.model;
 using fin.util.asserts;
 
+using WrapMode = fin.model.WrapMode;
+
 namespace fin.exporter.assimp {
+  using FinBlendMode = fin.model.BlendMode;
+
   public class AssimpExporter : IExporter {
     // You can bet your ass I'm gonna prefix everything with ass.
 
@@ -107,10 +112,10 @@ namespace fin.exporter.assimp {
           sc.Textures.Add(assTexture);
         }*/
 
+        // TODO: Need to update the UVs...
+
         sc.Textures.Clear();
         sc.Materials.Clear();
-
-        // TODO: Include textures?
 
         foreach (var finMaterial in model.MaterialManager.All) {
           var assMaterial = new Material();
@@ -119,7 +124,54 @@ namespace fin.exporter.assimp {
           // TODO: Set shader
 
           if (finMaterial is ILayerMaterial layerMaterial) {
-            foreach (var layer in layerMaterial.Layers) {
+            var addLayers =
+                layerMaterial
+                    .Layers
+                    .Where(layer => layer.BlendMode == FinBlendMode.ADD)
+                    .ToArray();
+            var multiplyLayers =
+                layerMaterial
+                    .Layers
+                    .Where(layer => layer.BlendMode == FinBlendMode.MULTIPLY)
+                    .ToArray();
+
+            if (addLayers.Length == 0) {
+              throw new NotSupportedException("Expected to find an add layer!");
+            }
+            if (addLayers.Length > 1) {
+              ;
+            }
+            if (addLayers.Length > 2) {
+              throw new NotSupportedException("Too many add layers for GLTF!");
+            }
+
+            for (var i = 0; i < addLayers.Length; ++i) {
+              var layer = addLayers[i];
+
+              // TODO: Support flat color layers by generating a 1x1 clamped texture of that color.
+              if (layer.ColorSource is ITexture finTexture) {
+                var assTextureSlot = new TextureSlot();
+                assTextureSlot.FilePath = finTexture.Name + ".png";
+                assTextureSlot.TextureType = TextureType.Diffuse;
+
+                // TODO: FBX doesn't support mirror. Blegh
+                assTextureSlot.WrapModeU =
+                    this.ConvertWrapMode_(finTexture.WrapModeU);
+                assTextureSlot.WrapModeV =
+                    this.ConvertWrapMode_(finTexture.WrapModeV);
+
+                // TODO: Set blend mode
+                //assTextureSlot.Operation =
+
+                assTextureSlot.UVIndex = i;
+
+                // TODO: Set texture coord type
+
+                assMaterial.AddMaterialTexture(assTextureSlot);
+              }
+            }
+
+            /*foreach (var layer in layerMaterial.Layers) {
               // TODO: Support flat color layers by generating a 1x1 clamped texture of that color.
 
               if (layer.ColorSource is ITexture finTexture) {
@@ -140,7 +192,7 @@ namespace fin.exporter.assimp {
 
                 assMaterial.AddMaterialTexture(assTextureSlot);
               }
-            }
+            }*/
           }
 
           /*{

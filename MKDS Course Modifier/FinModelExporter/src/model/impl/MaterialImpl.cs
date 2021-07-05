@@ -102,10 +102,8 @@ namespace fin.model.impl {
 
         public IColorSource ColorSource { get; }
 
+        public byte TexCoordIndex { get; set; }
         public BlendMode BlendMode { get; set; }
-        public BlendFactor SrcFactor { get; set; }
-        public BlendFactor DstFactor { get; set; }
-        public LogicOp LogicOp { get; set; }
       }
     }
   }
