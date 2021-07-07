@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-using MathNet.Numerics.LinearAlgebra;
+using fin.math.matrix;
 
 namespace fin.model {
   public interface ISkin {
@@ -20,7 +20,8 @@ namespace fin.model {
 
   public record BoneWeight(
       IBone Bone,
-      Matrix<double> SkinToBone,
+      // TODO: This should be moved to the bone interface instead.
+      IReadOnlyFinMatrix4x4 SkinToBone,
       float Weight);
 
   public interface ITexCoord {

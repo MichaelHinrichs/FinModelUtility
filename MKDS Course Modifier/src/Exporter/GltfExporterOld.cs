@@ -182,8 +182,8 @@ namespace mkds.exporter {
       model.Save(outputPath, writeSettings);
     }
 
-    private static SoftwareModelViewMatrixTransformer transformer =
-        new SoftwareModelViewMatrixTransformer();
+    private static SoftwareModelViewMatrixTransformer2 transformer =
+        new SoftwareModelViewMatrixTransformer2();
 
     private static Mesh WriteMesh_(
         GltfNode[] jointNodes,
@@ -228,7 +228,7 @@ namespace mkds.exporter {
             var gltfNode = jointNodes[jointIndex];
 
             // TODO: I think this is wrong, should be ignoring scale?
-            var m = GlMatrixUtil.CsToMn(gltfNode.WorldMatrix);
+            var m = GlMatrixUtil2.CsToMn(gltfNode.WorldMatrix);
             transformer.Set(m);
 
             var cur = new DenseMatrix(4, 4);

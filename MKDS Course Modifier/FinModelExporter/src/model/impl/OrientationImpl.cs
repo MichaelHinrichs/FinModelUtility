@@ -7,6 +7,8 @@ namespace fin.model.impl {
       public float Y { get; set; }
       public float Z { get; set; }
       public float W => 1;
+
+      public override string ToString() => $"{{{this.X}, {this.Y}, {this.Z}, {this.W}}}";
     }
 
     public class NormalImpl : INormal {
@@ -14,6 +16,8 @@ namespace fin.model.impl {
       public float Y { get; set; }
       public float Z { get; set; }
       public float W => 0;
+
+      public override string ToString() => $"{{{this.X}, {this.Y}, {this.Z}, {this.W}}}";
     }
 
     public class ScaleImpl : IScale {

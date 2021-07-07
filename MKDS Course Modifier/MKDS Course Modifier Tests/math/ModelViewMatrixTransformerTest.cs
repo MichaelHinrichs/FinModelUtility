@@ -1,4 +1,7 @@
 ﻿using System.Numerics;
+
+using fin.math.matrix;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace fin.math {
@@ -6,7 +9,7 @@ namespace fin.math {
   public class ModelViewMatrixTransformerTest {
     [TestMethod]
     public void TestTranslate() {
-      var t = new SoftwareModelViewMatrixTransformer();
+      var t = new SoftwareModelViewMatrixTransformer2();
       t.Translate(1, 2, 3);
 
       var x = .12;
@@ -22,7 +25,7 @@ namespace fin.math {
     public void TestSetMatrixTranslate() {
       var m = Matrix4x4.CreateTranslation(1, 2, 3);
 
-      var t = new SoftwareModelViewMatrixTransformer();
+      var t = new SoftwareModelViewMatrixTransformer2();
       t.Set(m);
 
       var x = .12;

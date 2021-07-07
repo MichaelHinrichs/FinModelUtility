@@ -73,11 +73,11 @@ namespace fin.exporter.fbx {
               Node = fbxBoneNode
           };
 
-          var boneMatrix = boneTransformManager.GetMatrix(finBone);
+          var boneMatrix = boneTransformManager.GetWorldMatrix(finBone);
           {
             var boneTransform = fbxBone.BoneTransform;
 
-            boneTransform.m00 = boneMatrix[0, 0];
+            /*boneTransform.m00 = boneMatrix[0, 0];
             boneTransform.m01 = boneMatrix[0, 1];
             boneTransform.m02 = boneMatrix[0, 2];
             boneTransform.m03 = boneMatrix[0, 3];
@@ -95,7 +95,7 @@ namespace fin.exporter.fbx {
             boneTransform.m30 = boneMatrix[3, 0];
             boneTransform.m31 = boneMatrix[3, 1];
             boneTransform.m32 = boneMatrix[3, 2];
-            boneTransform.m33 = boneMatrix[3, 3];
+            boneTransform.m33 = boneMatrix[3, 3];*/
 
             // TODO: Bone transform might be used for binding matrix?
             //fbxBone.BoneTransform = boneTransform;

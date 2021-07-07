@@ -31,7 +31,7 @@ namespace fin.exporter.gltf {
       this.logger_.BeginScope("Export");
 
       var modelRoot = ModelRoot.CreateModel();
-
+                                         
       var scene = modelRoot.UseScene("default");
       var skin = modelRoot.CreateSkin();
 
@@ -157,6 +157,7 @@ namespace fin.exporter.gltf {
               modelRoot,
               model,
               finToTexCoordAndGltfMaterial);
+
       scene.CreateNode()
            .WithSkinnedMesh(mesh,
                             rootNode.WorldMatrix,

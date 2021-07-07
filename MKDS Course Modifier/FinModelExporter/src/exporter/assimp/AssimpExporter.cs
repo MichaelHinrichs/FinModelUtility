@@ -11,7 +11,10 @@ using fin.exporter.gltf;
 using fin.io;
 using fin.math;
 using fin.model;
+using fin.model.impl;
 using fin.util.asserts;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using WrapMode = fin.model.WrapMode;
 
@@ -49,6 +52,16 @@ namespace fin.exporter.assimp {
 
         exportFormatId = exportFormatIds.First();
       }
+
+      /*var assScene = new Scene();
+
+      new AssimpSkeletonBuilder().BuildAndBindSkeleton(assScene, model);
+      //new AssimpMeshBuilder().BuildAndBindMesh(assScene, model);
+
+      var wasSuccessful = ctx.ExportFile(assScene, outputPath, exportFormatId);
+      Asserts.True(wasSuccessful, "Failed to export model.");
+
+      return;*/
 
       // Importing the pre-generated GLTF file does most of the hard work off
       // the bat: generating the mesh with properly weighted bones.
@@ -114,11 +127,148 @@ namespace fin.exporter.assimp {
 
         // TODO: Need to update the UVs...
 
+        // Fix the UVs.
+        var finVertices = model.Skin.Vertices;
+        var assMeshes = sc.Meshes;
+
+        var animations = model.AnimationManager.Animations;
+        var firstAnimation =
+            (animations?.Count ?? 0) > 0 ? animations[0] : null;
+
+        var boneTransformManager = new BoneTransformManager();
+        /*boneTransformManager.CalculateMatrices(
+            model.Skeleton.Root,
+            firstAnimation != null ? (firstAnimation, 0) : null);*/
+        boneTransformManager.CalculateMatrices(model.Skeleton.Root, null);
+
+
+        var worldFinVerticesAndNormals =
+            finVertices.Select(finVertex => {
+                         IPosition position =
+                             new ModelImpl.PositionImpl();
+                         INormal normal = new ModelImpl.NormalImpl();
+                         boneTransformManager.ProjectVertex(
+                             finVertex,
+                             position,
+                             normal);
+                         return (position, normal);
+                       })
+                       .ToArray();
+
+        foreach (var assMesh in assMeshes) {
+          var assLocations = assMesh.Vertices;
+          var assNormals = assMesh.Normals;
+
+          var assUvs = assMesh.TextureCoordinateChannels;
+
+          var oldAssUvs = new List<Vector3D>[8];
+          for (var t = 0; t < 8; ++t) {
+            oldAssUvs[t] = assUvs[t].Select(x => x).ToList();
+            assUvs[t].Clear();
+          }
+
+
+          var hadUv = new bool[8];
+          for (var i = 0; i < assLocations.Count; ++i) {
+            var assLocation = assLocations[i];
+            var assNormal = assNormals[i];
+
+            // TODO: How to find this more efficiently???
+            var minIndex = -1;
+            for (var v = 0; v < worldFinVerticesAndNormals.Length; ++v) {
+              var (position, normal) = worldFinVerticesAndNormals[v];
+              var inNormal = finVertices[v].LocalNormal;
+
+              var tolerance = .005;
+
+              if (i == 131) {
+                var finUv = finVertices[v].GetUv(0);
+
+                if (Math.Abs(finUv.U - .9375) < tolerance ||
+                    Math.Abs((1 - finUv.U) - .9375) < tolerance) {
+                  var u0 = finUv.U;
+                  var v0 = 1 - finUv.V;
+                  ;
+                }
+              }
+
+              if (Math.Abs(position.X - assLocation.X) < tolerance &&
+                  Math.Abs(position.Y - assLocation.Y) < tolerance &&
+                  Math.Abs(position.Z - assLocation.Z) < tolerance) {
+                if (Math.Abs(normal.X - assNormal.X) < tolerance &&
+                    Math.Abs(normal.Y - assNormal.Y) < tolerance &&
+                    Math.Abs(normal.Z - assNormal.Z) < tolerance) {
+                  minIndex = v;
+                  break;
+                } else {
+                  ;
+                }
+              }
+            }
+
+            var minLocation = worldFinVerticesAndNormals[minIndex];
+            var minVertex = finVertices[minIndex];
+
+            for (var t = 0; t < 8; ++t) {
+              var uv = minVertex.GetUv(t);
+
+              if (uv != null) {
+                hadUv[t] = true;
+                assUvs[t].Add(new Vector3D(uv.U, 1 - uv.V, 0));
+              } else {
+                assUvs[t].Add(default);
+              }
+            }
+          }
+
+          for (var t = 0; t < 8; ++t) {
+            if (!hadUv[t]) {
+              assUvs[t].Clear();
+            }
+          }
+
+          var lhs = oldAssUvs[0];
+          var rhs = assUvs[0];
+          for (var i = 0; i < lhs.Count; ++i) {
+            var oldAssUv = lhs[i];
+            var assUv = rhs[i];
+
+            if (Math.Abs(oldAssUv.X - assUv.X) > .01 ||
+                Math.Abs(oldAssUv.Y - assUv.Y) > .01) {
+              var assWorld = assLocations[i];
+              ;
+            }
+          }
+
+          ;
+        }
+
+        // Re-add the textures.
+
         sc.Textures.Clear();
         sc.Materials.Clear();
 
         foreach (var finMaterial in model.MaterialManager.All) {
           var assMaterial = new Material();
+
+          assMaterial.Shaders.ShaderLanguageType = "HLSL";
+          assMaterial.Shaders.FragmentShader =
+              @"
+struct a2v { 
+  float4 Position : POSITION;
+  float4 Color    : COLOR0;
+};
+
+struct v2p {
+  float4 Position : POSITION;
+  float4 Color    : COLOR0; 
+};
+
+void main(in a2v IN, out v2p OUT, uniform float4x4 ModelViewMatrix) {
+  OUT.Position = mul(IN.Position, ModelViewMatrix);
+  OUT.Color    = float4(255, 255, 0, 0);
+}
+";
 
           assMaterial.Name = finMaterial.Name;
           // TODO: Set shader
@@ -152,7 +302,6 @@ namespace fin.exporter.assimp {
               if (layer.ColorSource is ITexture finTexture) {
                 var assTextureSlot = new TextureSlot();
                 assTextureSlot.FilePath = finTexture.Name + ".png";
-                assTextureSlot.TextureType = TextureType.Diffuse;
 
                 // TODO: FBX doesn't support mirror. Blegh
                 assTextureSlot.WrapModeU =
@@ -160,10 +309,16 @@ namespace fin.exporter.assimp {
                 assTextureSlot.WrapModeV =
                     this.ConvertWrapMode_(finTexture.WrapModeV);
 
+                if (i == 0) {
+                  assTextureSlot.TextureType = TextureType.Diffuse;
+                } else {
+                  assTextureSlot.TextureType = TextureType.Emissive;
+                }
+
                 // TODO: Set blend mode
                 //assTextureSlot.Operation =
 
-                assTextureSlot.UVIndex = i;
+                assTextureSlot.UVIndex = layer.TexCoordIndex;
 
                 // TODO: Set texture coord type
 

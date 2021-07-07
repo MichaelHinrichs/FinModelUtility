@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Numerics;
 
 using fin.math;
+using fin.math.matrix;
 
 using MKDS_Course_Modifier.GCN;
 
@@ -13,6 +15,7 @@ using fin.util.asserts;
 using MathNet.Numerics.LinearAlgebra.Double;
 
 using MKDS_Course_Modifier.G3D_Binary_File_Format;
+using MKDS_Course_Modifier.Language.Languages;
 
 using Tao.OpenGl;
 
@@ -131,7 +134,8 @@ namespace mkds.exporter {
       var entries = bmd.INF1.Entries;
       var batches = bmd.SHP1.Batches;
 
-      BmdMaterial? currentMaterial = null;
+      BMD.MAT3Section.MaterialEntry currentMaterialEntry = null;
+      BmdMaterial? currentBmdMaterial = null;
 
       var weightsTable = new BoneWeight[]?[10];
       foreach (var entry in entries) {
@@ -142,7 +146,8 @@ namespace mkds.exporter {
 
           // Material
           case 0x11:
-            currentMaterial = materialManager.Get(entry.Index);
+            currentMaterialEntry = bmd.MAT3.MaterialEntries[entry.Index];
+            currentBmdMaterial = materialManager.Get(entry.Index);
             break;
 
           // Batch
@@ -174,7 +179,7 @@ namespace mkds.exporter {
                     }
 
                     var skinToBoneMatrix =
-                        ModelConverter.ConvertMkdsToMn_(
+                        ModelConverter.ConvertMkdsToFin_(
                             bmd.EVP1.InverseBindMatrices[jointIndex]);
 
                     var bone = jointsAndBones[jointIndex].Item2;
@@ -191,7 +196,7 @@ namespace mkds.exporter {
 
                   var bone = jointsAndBones[jointIndex].Item2;
                   weights = new[]
-                      {new BoneWeight(bone, MatrixUtil.Identity, 1)};
+                      {new BoneWeight(bone, MatrixTransformUtil.IDENTITY, 1)};
                 }
                 weightsTable[i] = weights;
               }
@@ -237,23 +242,23 @@ namespace mkds.exporter {
 
                 var glPrimitiveType = primitive.GetGlPrimitive();
 
-                Asserts.Nonnull(currentMaterial);
+                Asserts.Nonnull(currentBmdMaterial);
                 switch (glPrimitiveType) {
                   case Gl.GL_TRIANGLES: {
                     skin.AddTriangles(vertices)
-                        .SetMaterial(currentMaterial.Material);
+                        .SetMaterial(currentBmdMaterial.Material);
                     break;
                   }
 
                   case Gl.GL_TRIANGLE_STRIP: {
                     skin.AddTriangleStrip(vertices)
-                        .SetMaterial(currentMaterial.Material);
+                        .SetMaterial(currentBmdMaterial.Material);
                       break;
                   }
 
                   case Gl.GL_QUADS: {
                     skin.AddQuads(vertices)
-                        .SetMaterial(currentMaterial.Material);
+                        .SetMaterial(currentBmdMaterial.Material);
                       break;
                   }
 
@@ -270,16 +275,16 @@ namespace mkds.exporter {
       DoneRendering: ;
     }
 
-    private static Matrix ConvertMkdsToMn_(MTX44 mkds) {
-      var mn = new DenseMatrix(4, 4);
+    private static IFinMatrix4x4 ConvertMkdsToFin_(MTX44 mkdsMatrix) {
+      var finMatrix = new FinMatrix4x4();
 
       for (var y = 0; y < 4; ++y) {
         for (var x = 0; x < 4; ++x) {
-          mn[y, x] = mkds[x, y];
+          finMatrix[y, x] = mkdsMatrix[x, y];
         }
       }
 
-      return mn;
+      return finMatrix;
     }
   }
 }

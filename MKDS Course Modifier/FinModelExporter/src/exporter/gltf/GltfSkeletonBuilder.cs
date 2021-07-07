@@ -3,6 +3,7 @@ using System.Linq;
 using System.Numerics;
 
 using fin.math;
+using fin.math.matrix;
 using fin.model;
 
 using SharpGLTF.Schema2;
@@ -43,35 +44,16 @@ namespace fin.exporter.gltf {
       return skinNodesAndBones.ToArray();
     }
 
-    private void ApplyBoneOrientationToNode_(GltfNode node, IBone bone)
-      => this.ApplyOrientationToNode_(
-          node,
-          bone.LocalPosition,
-          bone.LocalRotation != null
-              ? QuaternionUtil.Create(
-                  bone.LocalRotation.XRadians,
-                  bone.LocalRotation.YRadians,
-                  bone.LocalRotation.ZRadians)
-              : null,
-          bone.LocalScale);
+    private void ApplyBoneOrientationToNode_(GltfNode node, IBone bone) {
+      var systemMatrix = node.LocalMatrix;
 
-    private void ApplyOrientationToNode_(
-        GltfNode node,
-        IPosition? position,
-        Quaternion? rotation,
-        IScale? scale) {
-      if (position != null) {
-        node.WithLocalTranslation(
-            new Vector3(position.X, position.Y, position.Z));
-      }
+      MatrixConversionUtil.CopyFinIntoSystem(
+          MatrixTransformUtil.FromTrs(bone.LocalPosition,
+                                      bone.LocalRotation,
+                                      bone.LocalScale),
+          ref systemMatrix);
 
-      if (rotation?.Length() > 0) {
-        node.WithLocalRotation(rotation.Value);
-      }
-
-      if (scale != null) {
-        node.WithLocalScale(new Vector3(scale.X, scale.Y, scale.Z));
-      }
+      node.LocalMatrix = systemMatrix;
     }
   }
 }

@@ -114,6 +114,7 @@ namespace mkds.exporter {
       // TODO: Emulate real behavior with a shader!
       // TODO: Final tev stage seems to be a flat color.
       var layers = new List<BmdLayer2>();
+      byte texCoordIndex = 0;
       for (var i = 0; i < 16; ++i) {
         var tevStage = tevStages[i];
         var tevOrder = tevOrders[i];
@@ -143,14 +144,11 @@ namespace mkds.exporter {
 
           if (cA == texC && cB == texC && cC == texC) {
             blendMode = BlendMode.ADD;
-          } 
-          else if (cA != TevStage.GxCc.GX_CC_ZERO && cB == texC) {
+          } else if (cA != TevStage.GxCc.GX_CC_ZERO && cB == texC) {
             blendMode = BlendMode.MULTIPLY;
-          }
-          else if (cB == texC) {
+          } else if (cB == texC) {
             blendMode = BlendMode.ADD;
-          }
-          else if (cA == TevStage.GxCc.GX_CC_ZERO && cC == texC) {
+          } else if (cA == TevStage.GxCc.GX_CC_ZERO && cC == texC) {
             blendMode = BlendMode.MULTIPLY;
           } else if (cC == texC) {
             blendMode = BlendMode.ADD;
@@ -164,7 +162,10 @@ namespace mkds.exporter {
           throw new NotSupportedException("Unsupported color operation!");
         }
 
-        var layer = new BmdLayer2(texture, tevOrder.TexcoordID, blendMode);
+        var layer = new BmdLayer2(texture,
+                                  //texCoordIndex++,
+                                  materialEntry.Unknown1[tevOrder.TexcoordID],
+                                  blendMode);
         layers.Add(layer);
       }
 

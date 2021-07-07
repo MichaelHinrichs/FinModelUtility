@@ -5,6 +5,9 @@ using System.Diagnostics;
 using System.Linq;
 
 using fin.math;
+using fin.math.matrix;
+
+using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace fin.model.impl {
   public partial class ModelImpl {
@@ -88,7 +91,8 @@ namespace fin.model.impl {
         public IReadOnlyList<BoneWeight>? Weights { get; private set; }
 
         public IVertex SetBone(IBone bone)
-          => this.SetBones(new BoneWeight(bone, MatrixUtil.Identity, 1));
+          => this.SetBones(
+              new BoneWeight(bone, MatrixTransformUtil.IDENTITY, 1));
 
         public IVertex SetBones(params BoneWeight[] weights) {
           this.Weights = new ReadOnlyCollection<BoneWeight>(weights);
@@ -142,7 +146,7 @@ namespace fin.model.impl {
             }
           }
 
-          var uv = new TexCoordImpl { TexCoordIndex = uvIndex, U = u, V = v};
+          var uv = new TexCoordImpl {TexCoordIndex = uvIndex, U = u, V = v};
           if (index != -1) {
             this.uvs_[index] = uv;
           } else {
@@ -154,7 +158,7 @@ namespace fin.model.impl {
 
         public ITexCoord? GetUv() => this.GetUv(0);
 
-        public ITexCoord? GetUv(int uvIndex) 
+        public ITexCoord? GetUv(int uvIndex)
           => this.uvs_?.FirstOrDefault(uv => uv.TexCoordIndex == uvIndex);
       }
 
@@ -180,6 +184,8 @@ namespace fin.model.impl {
         public int TexCoordIndex { get; init; }
         public float U { get; init; }
         public float V { get; init; }
+
+        public override string ToString() => $"{{{this.U}, {this.V}}}";
       }
     }
   }

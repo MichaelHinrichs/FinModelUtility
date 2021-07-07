@@ -1,18 +1,19 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
 
+using fin.math.matrix;
 using fin.model;
-
-using MathNet.Numerics.LinearAlgebra;
-using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace fin.math {
   public class BoneTransformManager {
-    private readonly SoftwareModelViewMatrixTransformer transformer_ =
-        new();
+    private readonly SoftwareModelViewMatrixTransformer transformer_ = new();
 
     // TODO: This is going to be slow, can we put this somewhere else for O(1) access?
-    private readonly IDictionary<IBone, Matrix<double>> bonesToMatrices_ =
-        new Dictionary<IBone, Matrix<double>>();
+    private readonly Dictionary<IBone, IReadOnlyFinMatrix4x4>
+        bonesToLocalMatrices_ = new();
+
+    private readonly Dictionary<IBone, IReadOnlyFinMatrix4x4>
+        bonesToWorldMatrices_ = new();
 
     public IDictionary<IBone, int> CalculateMatrices(
         IBone rootBone,
@@ -24,14 +25,14 @@ namespace fin.math {
       this.transformer_.Identity();
 
       // TODO: Use a pool of matrices to prevent unneeded instantiations.
-      var rootMatrix = new DenseMatrix(4, 4);
+      var rootMatrix = new FinMatrix4x4();
       this.transformer_.Get(rootMatrix);
 
       // TODO: Cache this directly on the bone itself instead.
       var bonesToIndex = new Dictionary<IBone, int>();
       var boneIndex = -1;
 
-      var boneQueue = new Queue<(IBone, Matrix<double>)>();
+      var boneQueue = new Queue<(IBone, IFinMatrix4x4)>();
       boneQueue.Enqueue((rootBone, rootMatrix));
       while (boneQueue.Count > 0) {
         var (bone, matrix) = boneQueue.Dequeue();
@@ -43,29 +44,23 @@ namespace fin.math {
 
         var localPosition = boneTracks?.Positions.GetInterpolatedFrame(0) ??
                             bone.LocalPosition;
-        this.transformer_.Translate(localPosition.X,
-                                    localPosition.Y,
-                                    localPosition.Z);
 
         var localRotation = boneTracks?.Rotations.GetInterpolatedFrame(0) ??
                             (bone.LocalRotation != null
                                  ? QuaternionUtil.Create(bone.LocalRotation)
                                  : null);
-        if (localRotation != null) {
-          this.transformer_.Rotate(localRotation.Value);
-        }
 
         var localScale = boneTracks?.Scales.GetInterpolatedFrame(0) ??
                          bone.LocalScale;
-        if (localScale != null) {
-          this.transformer_.Scale(localScale.X,
-                                  localScale.Y,
-                                  localScale.Z);
-        }
 
-        this.transformer_.Get(matrix);
+        var localMatrix =
+            MatrixTransformUtil.FromTrs(localPosition,
+                                        localRotation,
+                                        localScale);
+        matrix.MultiplyInPlace(localMatrix);
 
-        this.bonesToMatrices_[bone] = matrix;
+        this.bonesToLocalMatrices_[bone] = localMatrix;
+        this.bonesToWorldMatrices_[bone] = matrix;
         bonesToIndex[bone] = boneIndex++;
 
         foreach (var child in bone.Children) {
@@ -79,27 +74,26 @@ namespace fin.math {
       return bonesToIndex;
     }
 
-    public Matrix<double> GetMatrix(IBone bone)
-      => this.bonesToMatrices_[bone];
+    public IReadOnlyFinMatrix4x4 GetLocalMatrix(IBone bone)
+      => this.bonesToLocalMatrices_[bone];
+
+    public IReadOnlyFinMatrix4x4 GetWorldMatrix(IBone bone)
+      => this.bonesToWorldMatrices_[bone];
 
     public void ProjectVertex(
         IVertex vertex,
         IPosition outPosition,
         INormal? outNormal = null) {
       // TODO: Precompute these in a shared way somehow.
-      var mergedMatrix = new DenseMatrix(4, 4);
+      var mergedMatrix = new FinMatrix4x4();
       foreach (var weight in vertex.Weights) {
         var skinToBoneMatrix = weight.SkinToBone;
-        var boneMatrix = this.GetMatrix(weight.Bone);
+        var boneMatrix = this.GetWorldMatrix(weight.Bone);
 
-        var skinToWorldMatrix =
-            boneMatrix * skinToBoneMatrix * weight.Weight;
+        var skinToWorldMatrix = boneMatrix.CloneAndMultiply(skinToBoneMatrix)
+                                          .MultiplyInPlace(weight.Weight);
 
-        for (var j = 0; j < 4; ++j) {
-          for (var k = 0; k < 4; ++k) {
-            mergedMatrix[j, k] += skinToWorldMatrix[j, k];
-          }
-        }
+        mergedMatrix.AddInPlace(skinToWorldMatrix);
       }
 
       this.transformer_.Push();
