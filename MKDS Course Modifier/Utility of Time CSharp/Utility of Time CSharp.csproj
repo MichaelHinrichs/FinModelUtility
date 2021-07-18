@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{089C1412-5CCA-4E35-A3A9-13BB34071E8C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>UoT</RootNamespace>
+    <AssemblyName>Utility of Time CSharp</AssemblyName>
+    <TargetFramework>net472</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="FastFuzzyStringMatcher" Version="1.0.0" />
+    <PackageReference Include="MathNet.Numerics" Version="4.15.0" />
+    <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0020" />
+    <PackageReference Include="SymSpell" Version="6.7.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="OpenSpatialLibrary, Version=0.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\Utility of Time\packages\TheOpenSpatialLibrary.0.5.0\lib\net40\OpenSpatialLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Tao.DevIl">
+      <HintPath>..\Utility of Time\Tao GL Libs\Tao.DevIl.dll</HintPath>
+    </Reference>
+    <Reference Include="Tao.FreeGlut">
+      <HintPath>..\Utility of Time\Tao GL Libs\Tao.FreeGlut.dll</HintPath>
+    </Reference>
+    <Reference Include="Tao.OpenGl">
+      <HintPath>..\Utility of Time\Tao GL Libs\Tao.OpenGl.dll</HintPath>
+    </Reference>
+    <Reference Include="Tao.Platform.Windows">
+      <HintPath>..\Utility of Time\Tao GL Libs\Tao.Platform.Windows.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="ui\common\component\fields\DiscreteFieldControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="ui\common\component\fields\FieldControlList.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="ui\common\component\tabs\HostPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="ui\main\tabs\animation\AnimationTab.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="ui\main\tabs\animation\AnimationSelectorPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="ui\common\component\fields\HostPanel - Copy.resx">
+      <DependentUpon>FieldControlList.resx</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="model\gltf\" />
+    <Folder Include="model\" />
+  </ItemGroup>
+</Project>
