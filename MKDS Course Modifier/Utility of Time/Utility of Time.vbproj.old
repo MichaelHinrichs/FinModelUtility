@@ -1,19 +1,35 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
   <PropertyGroup>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
     <GenerateResourceNeverLockTypeAssemblies>true</GenerateResourceNeverLockTypeAssemblies>
     <PlatformTarget>x86</PlatformTarget>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{99CEE4F4-041C-4147-AE4F-5E11988AE392}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RemoveIntegerChecks>true</RemoveIntegerChecks>
     <StartupObject>UoT.My.MyApplication</StartupObject>
     <RootNamespace>UoT</RootNamespace>
+    <AssemblyName>Utility of Time</AssemblyName>
     <MyType>WindowsForms</MyType>
+    <ApplicationIcon>
+    </ApplicationIcon>
+    <OptionStrict>Off</OptionStrict>
+    <OptionExplicit>On</OptionExplicit>
     <TargetZone>LocalIntranet</TargetZone>
     <GenerateManifests>true</GenerateManifests>
     <OptionCompare>Text</OptionCompare>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <OptionInfer>Off</OptionInfer>
     <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkProfile />
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -28,68 +44,126 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <UseWindowsForms>true</UseWindowsForms>
-    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <GenerateResourceNeverLockTypeAssemblies>true</GenerateResourceNeverLockTypeAssemblies>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
     <RemoveIntegerChecks>true</RemoveIntegerChecks>
-    <OutputPath>R:\Compiled\Utility of Time\</OutputPath>
-    <DocumentationFile></DocumentationFile>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <PlatformTarget>x86</PlatformTarget>
+    <OutputPath>..\..\..\Compiled\Utility of Time\</OutputPath>
+    <DocumentationFile>
+    </DocumentationFile>
     <NoWarn>41998,41999,42004,42016,42017,42018,42019,42020,42021,42022,42025,42026,42029,42031,42032,42036,42105,42106,42107,42353,42354,42355</NoWarn>
-    <WarningsAsErrors></WarningsAsErrors>
+    <WarningsAsErrors>
+    </WarningsAsErrors>
+    <WarningLevel>1</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <UseVSHostingProcess>true</UseVSHostingProcess>
+    <Optimize>false</Optimize>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <GenerateResourceNeverLockTypeAssemblies>true</GenerateResourceNeverLockTypeAssemblies>
+    <DebugType>pdbonly</DebugType>
     <DefineDebug>true</DefineDebug>
     <RemoveIntegerChecks>true</RemoveIntegerChecks>
+    <DefineTrace>true</DefineTrace>
+    <Optimize>true</Optimize>
     <IntegerChecks>false</IntegerChecks>
     <OutputPath>..\..\..\Compiled\Utility of Time\</OutputPath>
-    <DocumentationFile></DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
     <NoWarn>41998,41999,42004,42016,42017,42018,42019,42020,42021,42022,42025,42026,42029,42031,42032,42036,42105,42106,42107,42353,42354,42355</NoWarn>
-    <WarningsAsErrors></WarningsAsErrors>
+    <WarningsAsErrors>
+    </WarningsAsErrors>
+    <WarningLevel>1</WarningLevel>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <UseVSHostingProcess>true</UseVSHostingProcess>
     <DebugSymbols>true</DebugSymbols>
+    <PlatformTarget>x86</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
     <GenerateResourceNeverLockTypeAssemblies>true</GenerateResourceNeverLockTypeAssemblies>
+    <DebugSymbols>true</DebugSymbols>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
     <OutputPath>..\..\..\Compiled\Utility of Time\</OutputPath>
     <RemoveIntegerChecks>true</RemoveIntegerChecks>
-    <DocumentationFile></DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
+    <WarningLevel>1</WarningLevel>
     <NoWarn>41998,41999,42004,42016,42017,42018,42019,42020,42021,42022,42025,42026,42029,42031,42032,42036,42105,42106,42107,42353,42354,42355</NoWarn>
-    <WarningsAsErrors></WarningsAsErrors>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <WarningsAsErrors>
+    </WarningsAsErrors>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
     <GenerateResourceNeverLockTypeAssemblies>true</GenerateResourceNeverLockTypeAssemblies>
+    <DefineTrace>true</DefineTrace>
     <OutputPath>bin\x64\Release\</OutputPath>
     <RemoveIntegerChecks>true</RemoveIntegerChecks>
-    <DocumentationFile></DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
+    <Optimize>true</Optimize>
+    <WarningLevel>1</WarningLevel>
     <NoWarn>41998,41999,42004,42016,42017,42018,42019,42020,42021,42022,42025,42026,42029,42031,42032,42036,42105,42106,42107,42353,42354,42355</NoWarn>
-    <WarningsAsErrors></WarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <WarningsAsErrors>
+    </WarningsAsErrors>
     <DebugSymbols>true</DebugSymbols>
     <DefineDebug>true</DefineDebug>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
     <OutputPath>..\..\..\Compiled\Utility of Time\</OutputPath>
     <RemoveIntegerChecks>true</RemoveIntegerChecks>
-    <DocumentationFile></DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
+    <WarningLevel>1</WarningLevel>
     <NoWarn>41998,41999,42004,42016,42017,42018,42019,42020,42021,42022,42025,42026,42029,42031,42032,42036,42105,42106,42107,42353,42354,42355</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
     <UseVSHostingProcess>true</UseVSHostingProcess>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugSymbols>true</DebugSymbols>
     <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
     <OutputPath>..\..\..\Compiled\Utility of Time\</OutputPath>
     <RemoveIntegerChecks>true</RemoveIntegerChecks>
-    <DocumentationFile></DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
+    <Optimize>true</Optimize>
+    <WarningLevel>1</WarningLevel>
     <NoWarn>41998,41999,42004,42016,42017,42018,42019,42020,42021,42022,42025,42026,42029,42031,42032,42036,42105,42106,42107,42353,42354,42355</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.XML" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="Tao.DevIl, Version=1.6.8.3, Culture=neutral, PublicKeyToken=7ec4053013524957, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Tao GL Libs\Tao.DevIl.dll</HintPath>
@@ -108,27 +182,51 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Import Include="Microsoft.VisualBasic" />
+    <Import Include="System" />
+    <Import Include="System.Collections" />
+    <Import Include="System.Collections.Generic" />
+    <Import Include="System.Diagnostics" />
     <Import Include="System.Drawing" />
     <Import Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Preset Dialogs\ActorPresets.Designer.vb">
+    <Compile Include="Data Storage\GlobalVars.vb" />
+    <Compile Include="Display List\F3DEX2_Parser.vb" />
+    <Compile Include="Helpers\Functions.vb" />
+    <Compile Include="Main window\ApplicationEvents.vb" />
+    <Compile Include="Preset Dialogs\ActorPresets.Designer.vb">
       <DependentUpon>ActorPresets.vb</DependentUpon>
     </Compile>
-    <Compile Update="Main window\SetupDialog.Designer.vb">
+    <Compile Include="Preset Dialogs\ActorPresets.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Main window\SetupDialog.Designer.vb">
       <DependentUpon>SetupDialog.vb</DependentUpon>
     </Compile>
-    <Compile Update="My Project\Application.Designer.vb">
+    <Compile Include="Main window\SetupDialog.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Main window\MainWin.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Main window\MainWin.Designer.vb">
+      <DependentUpon>MainWin.vb</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Helpers\IniWriter.vb" />
+    <Compile Include="My Project\AssemblyInfo.vb" />
+    <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
       <DependentUpon>Application.myapp</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <Compile Update="My Project\Resources.Designer.vb">
+    <Compile Include="My Project\Resources.Designer.vb">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Update="My Project\Settings.Designer.vb">
+    <Compile Include="My Project\Settings.Designer.vb">
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -138,12 +236,33 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Main window\SetupDialog.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>SetupDialog.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main window\MainWin.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>MainWin.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="My Project\Resources.resx">
+      <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
+      <CustomToolNamespace>My.Resources</CustomToolNamespace>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
     <None Include="..\.editorconfig">
       <Link>.editorconfig</Link>
     </None>
-    <None Update="My Project\Application.myapp">
+    <None Include="My Project\Application.myapp">
       <Generator>MyApplicationCodeGenerator</Generator>
       <LastGenOutput>Application.Designer.vb</LastGenOutput>
+    </None>
+    <None Include="My Project\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <CustomToolNamespace>My</CustomToolNamespace>
+      <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -157,19 +276,58 @@
     <Content Include="Tao GL Libs\Tao.OpenGl.xml" />
     <Content Include="Tao GL Libs\Tao.Platform.Windows.dll" />
     <Content Include="Tao GL Libs\Tao.Platform.Windows.xml" />
-    <Compile Update="DL Command Editors\CombinerEditor.Designer.vb">
+    <None Include="Resources\icon_txt.gif" />
+    <Compile Include="ApplicationEvents.vb" />
+    <Compile Include="Databases\PresetReader.vb" />
+    <Compile Include="External Model Formats\3ds.vb" />
+    <Compile Include="DL Command Editors\CombinerEditor.Designer.vb">
       <DependentUpon>CombinerEditor.vb</DependentUpon>
     </Compile>
-    <Compile Update="Hex Editor\HexEditor.Designer.vb">
+    <Compile Include="DL Command Editors\CombinerEditor.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Display List\N64DlistAssembler.vb" />
+    <Compile Include="Hex Editor\HexEditor.Designer.vb">
       <DependentUpon>HexEditor.vb</DependentUpon>
     </Compile>
-    <Compile Update="Main window\BankSetup.Designer.vb">
+    <Compile Include="Hex Editor\HexEditor.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Main window\BankSetup.Designer.vb">
       <DependentUpon>BankSetup.vb</DependentUpon>
     </Compile>
-    <Compile Update="Level Creator\LevelCreator.Designer.vb">
+    <Compile Include="Main window\BankSetup.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MIPS r4300i\MIPS.vb" />
+    <Compile Include="External Model Formats\OBJData.vb" />
+    <Compile Include="Level Creator\LevelCreator.Designer.vb">
       <DependentUpon>LevelCreator.vb</DependentUpon>
     </Compile>
+    <Compile Include="Level Creator\LevelCreator.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="External Model Formats\OBJParser.vb" />
+    <Compile Include="External Model Formats\ObjToF3DEX2.vb" />
     <BaseApplicationManifest Include="My Project\app.manifest" />
+    <EmbeddedResource Include="Hex Editor\HexEditor.resx">
+      <DependentUpon>HexEditor.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main window\BankSetup.resx">
+      <DependentUpon>BankSetup.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Preset Dialogs\ActorPresets.resx">
+      <DependentUpon>ActorPresets.vb</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DL Command Editors\CombinerEditor.resx">
+      <DependentUpon>CombinerEditor.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Level Creator\LevelCreator.resx">
+      <DependentUpon>LevelCreator.vb</DependentUpon>
+    </EmbeddedResource>
+    <None Include="app.config" />
+    <None Include="Main window\app.config" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
@@ -195,79 +353,29 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Animation\" />
+    <Folder Include="bin\Debug\ext\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Utility of Time CSharp\Utility of Time CSharp.csproj" />
+    <ProjectReference Include="..\Utility of Time CSharp\Utility of Time CSharp.csproj">
+      <Project>{089c1412-5cca-4e35-a3a9-13bb34071e8c}</Project>
+      <Name>Utility of Time CSharp</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MathNet.Numerics">
       <Version>4.15.0</Version>
     </PackageReference>
-    <PackageReference Include="System.ComponentModel.Composition" Version="5.0.0" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="AboutBox.Designer.vb" />
-    <Compile Remove="AboutBox.vb" />
-    <Compile Remove="Animation\LimbHierarchyReader.vb" />
-    <Compile Remove="Animation\ZAnimation.vb" />
-    <Compile Remove="Backup\Animation\ZAnimation.vb" />
-    <Compile Remove="Backup\ApplicationEvents.vb" />
-    <Compile Remove="Backup\Data Storage\GlobalVars.vb" />
-    <Compile Remove="Backup\Data Storage\Structs.vb" />
-    <Compile Remove="Backup\Databases\PresetReader.vb" />
-    <Compile Remove="Backup\Display List\F3DEX2_Defs.vb" />
-    <Compile Remove="Backup\Display List\F3DEX2_Parser.vb" />
-    <Compile Remove="Backup\Display List\F3DEX_Defs.vb" />
-    <Compile Remove="Backup\Display List\MatrixManipulation.vb" />
-    <Compile Remove="Backup\Display List\N64DlistAssembler.vb" />
-    <Compile Remove="Backup\Display List\RDP_Defs.vb" />
-    <Compile Remove="Backup\Display List\TextureConverter.vb" />
-    <Compile Remove="Backup\DL Command Editors\CombinerEditor.Designer.vb" />
-    <Compile Remove="Backup\DL Command Editors\CombinerEditor.vb" />
-    <Compile Remove="Backup\External Model Formats\3ds.vb" />
-    <Compile Remove="Backup\External Model Formats\OBJData.vb" />
-    <Compile Remove="Backup\External Model Formats\OBJParser.vb" />
-    <Compile Remove="Backup\External Model Formats\ObjToF3DEX2.vb" />
-    <Compile Remove="Backup\Helpers\Functions.vb" />
-    <Compile Remove="Backup\Helpers\IniWriter.vb" />
-    <Compile Remove="Backup\Helpers\SLERP.vb" />
-    <Compile Remove="Backup\Hex Editor\HexEditor.Designer.vb" />
-    <Compile Remove="Backup\Hex Editor\HexEditor.vb" />
-    <Compile Remove="Backup\Level Creator\LevelCreator.Designer.vb" />
-    <Compile Remove="Backup\Level Creator\LevelCreator.vb" />
-    <Compile Remove="Backup\Main window\AboutBoxDialog.Designer.vb" />
-    <Compile Remove="Backup\Main window\AboutBoxDialog.vb" />
-    <Compile Remove="Backup\Main window\ApplicationEvents.vb" />
-    <Compile Remove="Backup\Main window\BankSetup.Designer.vb" />
-    <Compile Remove="Backup\Main window\BankSetup.vb" />
-    <Compile Remove="Backup\Main window\MainWin.Designer.vb" />
-    <Compile Remove="Backup\Main window\MainWin.vb" />
-    <Compile Remove="Backup\Main window\SetupDialog.Designer.vb" />
-    <Compile Remove="Backup\Main window\SetupDialog.vb" />
-    <Compile Remove="Backup\MIPS r4300i\MIPS.vb" />
-    <Compile Remove="Backup\My Project\Application.Designer.vb" />
-    <Compile Remove="Backup\My Project\AssemblyInfo.vb" />
-    <Compile Remove="Backup\My Project\Resources.Designer.vb" />
-    <Compile Remove="Backup\My Project\Settings.Designer.vb" />
-    <Compile Remove="Backup\Preset Dialogs\ActorPresets.Designer.vb" />
-    <Compile Remove="Backup\Preset Dialogs\ActorPresets.vb" />
-    <Compile Remove="Display List\DisplayListReader.vb" />
-    <Compile Remove="Main window\AboutBoxDialog.Designer.vb" />
-    <Compile Remove="Main window\AboutBoxDialog.vb" />
-    <EmbeddedResource Remove="AboutBox.resx" />
-    <EmbeddedResource Remove="Backup\DL Command Editors\CombinerEditor.resx" />
-    <EmbeddedResource Remove="Backup\Hex Editor\HexEditor.resx" />
-    <EmbeddedResource Remove="Backup\Level Creator\LevelCreator.resx" />
-    <EmbeddedResource Remove="Backup\Main window\AboutBoxDialog.resx" />
-    <EmbeddedResource Remove="Backup\Main window\BankSetup.resx" />
-    <EmbeddedResource Remove="Backup\Main window\MainWin.resx" />
-    <EmbeddedResource Remove="Backup\Main window\SetupDialog.resx" />
-    <EmbeddedResource Remove="Backup\My Project\Resources.resx" />
-    <EmbeddedResource Remove="Backup\Preset Dialogs\ActorPresets.resx" />
-    <EmbeddedResource Remove="Main window\AboutBoxDialog.resx" />
-  </ItemGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
+  <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
 </Project>

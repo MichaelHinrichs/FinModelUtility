@@ -291,7 +291,7 @@ namespace UoT {
     public uint no;
 
     public struct variable {
-      public uint var;
+      public int var;
       public string desc;
     }
 
