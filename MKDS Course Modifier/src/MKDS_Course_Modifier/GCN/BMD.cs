@@ -2376,8 +2376,7 @@ label_140:
         }
       }
 
-      public enum TextureFormat
-      {
+      public enum TextureFormat : byte {
         I4 = 0,
         I8 = 1,
         A4_I4 = 2,
@@ -2391,23 +2390,20 @@ label_140:
         S3TC1 = 14, // 0x0000000E
       }
 
-      public enum PaletteFormat
-      {
+      public enum PaletteFormat : byte {
         PAL_A8_I8,
         PAL_R5_G6_B5,
         PAL_A3_RGB5,
       }
 
-      public enum GX_WRAP_TAG
-      {
+      public enum GX_WRAP_TAG: byte {
         GX_CLAMP,
         GX_REPEAT,
         GX_MIRROR,
         GX_MAXTEXWRAPMODE,
       }
 
-      public enum GX_TEXTURE_FILTER
-      {
+      public enum GX_TEXTURE_FILTER : byte {
         GX_NEAR,
         GX_LINEAR,
         GX_NEAR_MIP_NEAR,
@@ -2418,30 +2414,32 @@ label_140:
         GX_NEAR3,
       }
 
-      public class TextureHeader
-      {
+      [StructLayout(LayoutKind.Sequential, Pack = 1)]
+      public class TextureHeader {
+        // Do not modify any of these types or the order!
         public BMD.TEX1Section.TextureFormat Format;
-        public byte Unknown1;
-        public ushort Width;
-        public ushort Height;
+        public Byte Unknown1;
+        public UInt16 Width;
+        public UInt16 Height;
         public BMD.TEX1Section.GX_WRAP_TAG WrapS;
         public BMD.TEX1Section.GX_WRAP_TAG WrapT;
-        public byte Unknown2;
+        public Byte Unknown2;
         public BMD.TEX1Section.PaletteFormat PaletteFormat;
-        public ushort NrPaletteEntries;
-        public uint PaletteOffset;
-        public uint Unknown3;
+        public UInt16 NrPaletteEntries;
+        public UInt32 PaletteOffset;
+        public UInt32 Unknown3;
         public BMD.TEX1Section.GX_TEXTURE_FILTER MinFilter;
         public BMD.TEX1Section.GX_TEXTURE_FILTER MagFilter;
-        public ushort Unknown4;
-        public byte NrMipMap;
-        public byte Unknown5;
-        public ushort Unknown6;
-        public uint DataOffset;
+        public UInt16 Unknown4;
+        public Byte NrMipMap;
+        public Byte Unknown5;
+        public UInt16 Unknown6;
+        public UInt32 DataOffset;
+
+        [NonSerialized]
         public byte[] Data;
 
-        public TextureHeader(EndianBinaryReader er, long baseoffset, int idx)
-        {
+        public TextureHeader(EndianBinaryReader er, long baseoffset, int idx) {
           this.Format = (BMD.TEX1Section.TextureFormat) er.ReadByte();
           this.Unknown1 = er.ReadByte();
           this.Width = er.ReadUInt16();
@@ -2505,18 +2503,10 @@ label_140:
           return bitmap;
         }
 
-        public int GetGlWrapModeS()
-        {
-          return this.GetGlWrapMode(this.WrapS);
-        }
+        public int GetGlWrapModeS() => this.GetGlWrapMode(this.WrapS);
+        public int GetGlWrapModeT() => this.GetGlWrapMode(this.WrapT);
 
-        public int GetGlWrapModeT()
-        {
-          return this.GetGlWrapMode(this.WrapT);
-        }
-
-        private int GetGlWrapMode(BMD.TEX1Section.GX_WRAP_TAG id)
-        {
+        private int GetGlWrapMode(BMD.TEX1Section.GX_WRAP_TAG id) {
           switch (id)
           {
             case BMD.TEX1Section.GX_WRAP_TAG.GX_CLAMP:
@@ -2532,18 +2522,10 @@ label_140:
           }
         }
 
-        public int GetGlFilterModeMin()
-        {
-          return this.GetGlFilterMode(this.MinFilter);
-        }
+        public int GetGlFilterModeMin() => this.GetGlFilterMode(this.MinFilter);
+        public int GetGlFilterModeMag() => this.GetGlFilterMode(this.MagFilter);
 
-        public int GetGlFilterModeMag()
-        {
-          return this.GetGlFilterMode(this.MagFilter);
-        }
-
-        private int GetGlFilterMode(BMD.TEX1Section.GX_TEXTURE_FILTER id)
-        {
+        private int GetGlFilterMode(BMD.TEX1Section.GX_TEXTURE_FILTER id) {
           switch (id)
           {
             case BMD.TEX1Section.GX_TEXTURE_FILTER.GX_NEAR:
@@ -2565,8 +2547,7 @@ label_140:
           }
         }
 
-        private int GetCompressedBufferSize()
-        {
+        private int GetCompressedBufferSize() {
           int num1 = (int) this.Width + (8 - (int) this.Width % 8) % 8;
           int num2 = (int) this.Width + (4 - (int) this.Width % 4) % 4;
           int num3 = (int) this.Height + (8 - (int) this.Height % 8) % 8;

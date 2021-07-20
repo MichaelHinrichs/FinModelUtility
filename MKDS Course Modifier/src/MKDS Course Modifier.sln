@@ -22,10 +22,13 @@ EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "Utility of Time", "..\Utility of Time\Utility of Time.vbproj", "{99CEE4F4-041C-4147-AE4F-5E11988AE392}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utility of Time CSharp", "..\Utility of Time CSharp\Utility of Time CSharp.csproj", "{089C1412-5CCA-4E35-A3A9-13BB34071E8C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{48B6183A-CF51-42A4-889E-A75DA704D71D} = {48B6183A-CF51-42A4-889E-A75DA704D71D}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utility of Time CSharp Tests", "..\Utility of Time CSharp Tests\Utility of Time CSharp Tests.csproj", "{AE0E039F-94BB-4A04-9C69-BA6A8B4DC475}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fin Tests", "..\Fin Tests\Fin Tests.csproj", "{8D0572E4-4867-4AB4-B0C3-AE0BDDD3FEC6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fin Tests", "..\Fin Tests\Fin Tests.csproj", "{8D0572E4-4867-4AB4-B0C3-AE0BDDD3FEC6}"
 	ProjectSection(ProjectDependencies) = postProject
 		{48B6183A-CF51-42A4-889E-A75DA704D71D} = {48B6183A-CF51-42A4-889E-A75DA704D71D}
 	EndProjectSection

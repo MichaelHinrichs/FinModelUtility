@@ -1,4 +1,7 @@
-﻿namespace UoT.limbs {
+﻿using System;
+using System.Runtime.InteropServices;
+
+namespace UoT.limbs {
   public interface IOldLimb {
     /// <summary>
     ///   Whether the limb is "visible", as determined by having a nonzero
@@ -19,6 +22,16 @@
 
     sbyte firstChild { get; }
     sbyte nextSibling { get; }
+  }
+
+  [StructLayout(LayoutKind.Explicit, Pack = 1)]
+  public class LimbData {
+    [FieldOffset(0 * 8)] public UInt16 x;
+    [FieldOffset(2 * 8)] public UInt16 y;
+    [FieldOffset(4 * 8)] public UInt16 z;
+    [FieldOffset(6 * 8)] public SByte firstChildIndex;
+    [FieldOffset(7 * 8)] public SByte nextSiblingIndex;
+    [FieldOffset(8 * 8)] public UInt32 displayListAddress;
   }
 
   public class Limb : IOldLimb {
