@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 
+using fin.proto;
+
 using UoT.util;
 
 namespace UoT.limbs {
@@ -103,62 +105,40 @@ namespace UoT.limbs {
                    k++) {
                 limbAddress = IoUtil.ReadUInt32(limbIndexBankBuffer,
                                                 (uint) (limbIndexOffset +
-                                                        4 * k));
+                                                      4 * k));
                 IoUtil.SplitAddress(limbAddress,
                                     out var limbBank,
                                     out var limbOffset);
                 var limbBankBuffer =
                     Asserts.Assert(RamBanks.GetBankByIndex(limbBank));
 
-                tmpHierarchy[k] = new Limb();
                 {
-                  var displayListAddress =
-                      IoUtil.ReadUInt32(limbBankBuffer,
-                                        (uint)(limbOffset + 8L));
+                  var limbData =
+                      FinMarshal.Deserialize<LimbData>(
+                          limbBankBuffer,
+                          (int) limbOffset,
+                          true);
+
+                  var limb = tmpHierarchy[k] = new Limb(limbData);
+
+                  var displayListAddress = limbData.displayListAddress;
                   IoUtil.SplitAddress(displayListAddress,
                                       out var displayListBank,
                                       out var displayListOffset);
 
-                  var visible = displayListAddress > 0;
-
-                  var withBlock = tmpHierarchy[k];
-
-                  withBlock.Visible = visible;
-                  withBlock.x =
-                      (short) IoUtil.ReadUInt16(
-                          limbBankBuffer,
-                          (uint) (limbOffset + 0L));
-                  withBlock.y =
-                      (short) IoUtil.ReadUInt16(
-                          limbBankBuffer,
-                          (uint) (limbOffset + 2L));
-                  withBlock.z =
-                      (short) IoUtil.ReadUInt16(
-                          limbBankBuffer,
-                          (uint) (limbOffset + 4L));
-                  withBlock.firstChild =
-                      (sbyte) limbBankBuffer[(int) (limbOffset + 6L)];
-                  withBlock.nextSibling =
-                      (sbyte) limbBankBuffer[(int) (limbOffset + 7L)];
-                  
-                  model.AddLimb(visible,
-                                withBlock.x,
-                                withBlock.y,
-                                withBlock.z,
-                                withBlock.firstChild,
-                                withBlock.nextSibling);
+                  model.AddLimb(limb.Visible,
+                                limb.x,
+                                limb.y,
+                                limb.z,
+                                limb.firstChild,
+                                limb.nextSibling);
 
                   if (displayListBank != 0L) {
                     var displayListBankBuffer =
                         RamBanks.GetBankByIndex(displayListBank);
-                    withBlock.DisplayListAddress = displayListAddress;
                     DisplayListReader.ReadInDL(dlManager,
                                                displayListAddress,
                                                dListSelection);
-                  } else if (!somethingVisible) {
-                    withBlock.DisplayListAddress = displayListAddress;
-                  } else {
-                    withBlock.DisplayListAddress = displayListAddress;
                   }
 
                   // Far model display list (i.e. LOD model). Only used for Link.
@@ -167,15 +147,12 @@ namespace UoT.limbs {
                   // ReDim Preserve N64DList(N64DList.Length)
                   // ReadInDL(Data, N64DList, .DisplayListLow, N64DList.Length - 1)
                   // Else
-                  withBlock.DisplayListLow = default;
 
                   // End If
                   PickerUtil.NextRgb(out var r, out var g, out var b);
-                  withBlock.r = r;
-                  withBlock.g = g;
-                  withBlock.b = b;
-
-                  tmpHierarchy[k] = withBlock;
+                  limb.r = r;
+                  limb.g = g;
+                  limb.b = b;
                 }
               }
 

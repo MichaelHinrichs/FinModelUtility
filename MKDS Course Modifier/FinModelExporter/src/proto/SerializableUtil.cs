@@ -24,7 +24,7 @@ namespace fin.proto {
     }
 
     public static T Deserialize<T>(Stream stream)
-      => StreamMarshal.Deserialize<T>(stream);
+      => FinMarshal.Deserialize<T>(stream);
 
     public static byte[] Serialize(object obj) {
       var stream = new MemoryStream();
@@ -36,7 +36,7 @@ namespace fin.proto {
       /*var type = obj.GetType();
 
       if (type.IsValueType) {*/
-      StreamMarshal.Serialize(obj, stream);
+      FinMarshal.Serialize(obj, stream);
       /*  return;
       }
 
@@ -49,38 +49,6 @@ namespace fin.proto {
       foreach (var field in serializedFields) {
         Serialize(field.GetValue(obj), stream);
       }*/
-    }
-  }
-
-  public static class StreamMarshal {
-    // TODO: Optimize this so it doesn't have to allocate for each object.
-    public static T Deserialize<T>(Stream stream) {
-      var size = Marshal.SizeOf(typeof(T));
-
-      var bytes = new byte[size];
-      stream.Read(bytes, 0, size);
-
-      var ptr = Marshal.AllocHGlobal(size);
-      Marshal.Copy(bytes, 0, ptr, size);
-
-      var obj = Marshal.PtrToStructure<T>(ptr);
-      Marshal.FreeHGlobal(ptr);
-
-      return obj;
-    }
-
-    // TODO: Optimize this so it doesn't have to allocate for each object.
-    public static void Serialize(object obj, Stream stream) {
-      var size = Marshal.SizeOf(obj);
-
-      var ptr = Marshal.AllocHGlobal(size);
-      Marshal.StructureToPtr(obj, ptr, false);
-
-      var bytes = new byte[size];
-      Marshal.Copy(ptr, bytes, 0, size);
-      Marshal.FreeHGlobal(ptr);
-
-      stream.Write(bytes, 0, size);
     }
   }
 

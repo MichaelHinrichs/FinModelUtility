@@ -26,22 +26,35 @@ namespace UoT.limbs {
 
   [StructLayout(LayoutKind.Explicit, Pack = 1)]
   public class LimbData {
-    [FieldOffset(0 * 8)] public UInt16 x;
-    [FieldOffset(2 * 8)] public UInt16 y;
-    [FieldOffset(4 * 8)] public UInt16 z;
-    [FieldOffset(6 * 8)] public SByte firstChildIndex;
-    [FieldOffset(7 * 8)] public SByte nextSiblingIndex;
-    [FieldOffset(8 * 8)] public UInt32 displayListAddress;
+    [FieldOffset(0)] public UInt16 x;
+    [FieldOffset(2)] public UInt16 y;
+    [FieldOffset(4)] public UInt16 z;
+    [FieldOffset(6)] public SByte firstChild;
+    [FieldOffset(7)] public SByte nextSibling;
+    [FieldOffset(8)] public UInt32 displayListAddress;
   }
 
   public class Limb : IOldLimb {
-    public bool Visible { get; set; }
+    public Limb(LimbData data) {
+      // TODO: This feels like a bug, what type of data is this?
+      this.x = (short) data.x;
+      this.y = (short) data.y;
+      this.z = (short) data.z;
+
+      this.firstChild = data.firstChild;
+      this.nextSibling = data.nextSibling;
+
+      this.DisplayListAddress = data.displayListAddress;
+      this.Visible = data.displayListAddress > 0;
+    }
+
+    public bool Visible { get; }
     public int VisibleIndex { get; set; }
 
     // X/Y/Z coordinates of the limb.
-    public short x { get; set; }
-    public short y { get; set; }
-    public short z { get; set; }
+    public short x { get; }
+    public short y { get; }
+    public short z { get; }
 
 
     // RGB color of this limb, used as a unique identifier when picking via the
@@ -51,10 +64,9 @@ namespace UoT.limbs {
     public double b { get; set; }
 
 
-    public sbyte firstChild { get; set; }
-    public sbyte nextSibling { get; set; }
+    public sbyte firstChild { get; }
+    public sbyte nextSibling { get; }
 
-    public uint DisplayListAddress { get; set; }
-    public uint DisplayListLow { get; set; }
+    public uint DisplayListAddress { get; }
   }
 }
