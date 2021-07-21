@@ -128,6 +128,7 @@ namespace UoT {
 
     public LimbMatrices LimbMatrices { get; } = new LimbMatrices();
 
+    // TODO: Support facial animations.
     public void Draw(
         IAnimation animation,
         IAnimationPlaybackManager animationPlaybackManager) {

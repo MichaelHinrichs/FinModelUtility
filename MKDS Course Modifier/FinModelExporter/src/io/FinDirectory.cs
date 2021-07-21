@@ -24,7 +24,7 @@ namespace fin.io {
     public string Name => this.impl_.Name;
     public string FullName => this.impl_.FullName;
 
-    public IDirectory GetParent() => new FinDirectory(this.impl_.Parent);
+    public IDirectory? GetParent() => new FinDirectory(this.impl_.Parent);
 
     public bool Exists => this.impl_.Exists;
 
@@ -71,8 +71,15 @@ namespace fin.io {
     public IEnumerable<IFile> GetExistingFiles()
       => this.impl_.EnumerateFiles().Select(file => new FinFile(file));
 
-    public IEnumerable<IFile> SearchForFiles(string searchPattern)
-      => this.impl_.GetFiles(searchPattern).Select(file => new FinFile(file));
+    public IEnumerable<IFile> SearchForFiles(
+        string searchPattern,
+        bool includeSubdirs = false)
+      => this.impl_
+             .GetFiles(searchPattern,
+                       includeSubdirs
+                           ? SearchOption.AllDirectories
+                           : SearchOption.TopDirectoryOnly)
+             .Select(file => new FinFile(file));
 
     public IFile TryToGetFile(string path) {
       // TODO: Handle subdirectories automatically.

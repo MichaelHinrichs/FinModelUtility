@@ -10,20 +10,26 @@ namespace fin.io {
 
     public static FileInfo[] GetFilesWithExtension(
         DirectoryInfo directory,
-        string extension)
-      => directory.GetFiles($"*.{extension}", SearchOption.AllDirectories);
+        string extension,
+        bool includeSubdirs = false)
+      => directory.GetFiles($"*.{extension}",
+                            includeSubdirs
+                                ? SearchOption.AllDirectories
+                                : SearchOption.TopDirectoryOnly);
 
     public static string[] GetPathsWithExtension(
         DirectoryInfo directory,
-        string extension)
-      => Files.GetFilesWithExtension(directory, extension)
+        string extension,
+        bool includeSubdirs = false)
+      => Files.GetFilesWithExtension(directory, extension, includeSubdirs)
               .Select(file => file.FullName)
               .ToArray();
 
     public static string GetPathWithExtension(
         DirectoryInfo directory,
-        string extension) {
-      var paths = Files.GetPathsWithExtension(directory, extension);
+        string extension,
+        bool includeSubdirs = false) {
+      var paths = Files.GetPathsWithExtension(directory, extension, includeSubdirs);
 
       var errorMessage =
           $"Expected to find a single '.{extension}' file within '{Files.GetCwd().FullName}' but found {paths.Length}";
@@ -42,13 +48,19 @@ namespace fin.io {
     }
 
 
-    public static FileInfo[] GetFilesWithExtension(string extension)
-      => Files.GetFilesWithExtension(Files.GetCwd(), extension);
+    public static FileInfo[] GetFilesWithExtension(
+        string extension,
+        bool includeSubdirs = false)
+      => Files.GetFilesWithExtension(Files.GetCwd(), extension, includeSubdirs);
 
-    public static string[] GetPathsWithExtension(string extension)
-      => Files.GetPathsWithExtension(Files.GetCwd(), extension);
+    public static string[] GetPathsWithExtension(
+        string extension,
+        bool includeSubdirs = false)
+      => Files.GetPathsWithExtension(Files.GetCwd(), extension, includeSubdirs);
 
-    public static string GetPathWithExtension(string extension)
-      => Files.GetPathWithExtension(Files.GetCwd(), extension);
+    public static string GetPathWithExtension(
+        string extension,
+        bool includeSubdirs = false)
+      => Files.GetPathWithExtension(Files.GetCwd(), extension, includeSubdirs);
   }
 }

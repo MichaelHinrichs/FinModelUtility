@@ -6,7 +6,7 @@ namespace fin.io {
     string Name { get; }
     string FullName { get; }
 
-    IDirectory GetParent();
+    IDirectory? GetParent();
     bool Exists { get; }
   }
 
@@ -17,7 +17,10 @@ namespace fin.io {
     IDirectory TryToGetSubdir(string relativePath, bool create = false);
 
     IEnumerable<IFile> GetExistingFiles();
-    IEnumerable<IFile> SearchForFiles(string searchPattern);
+
+    IEnumerable<IFile> SearchForFiles(
+        string searchPattern,
+        bool includeSubdirs = false);
 
     IFile TryToGetFile(string relativePath);
   }
@@ -25,7 +28,7 @@ namespace fin.io {
   public interface IFile : IIoObject {
     string Extension { get; }
     IFile CloneWithExtension(string newExtension);
-    
+
     StreamReader ReadAsText();
     byte[] SkimAllBytes();
   }

@@ -44,12 +44,14 @@ namespace fin.cli {
                   Args.Static = automaticOpts.Static;
                   Args.Verbose = automaticOpts.Verbose;
                   Args.OutputPath = automaticOpts.OutputPath;
-                  Args.BmdPath = Files.GetPathWithExtension("bmd");
+                  Args.BmdPath = Files.GetPathWithExtension("bmd", true);
                   Args.BcxPaths = Arrays.Concat(Files.GetPathsWithExtension(
-                                                    "bca"),
+                                                    "bca",
+                                                    true),
                                                 Files.GetPathsWithExtension(
-                                                    "bck"));
-                  Args.BtiPaths = Files.GetPathsWithExtension("bti");
+                                                    "bck",
+                                                    true));
+                  Args.BtiPaths = Files.GetPathsWithExtension("bti", true);
                 })
                 .WithParsed((ManualOptions manualOpts) => {
                   Args.Static = manualOpts.Static;
@@ -63,23 +65,23 @@ namespace fin.cli {
                   Args.Static = debugOpts.Static;
                   Args.Verbose = debugOpts.Verbose;
 
-                    /*Args.GetForEnemy_("Chappy",
-                                      out var outputPath,
-                                      out var bmdPath,
-                                      out var bcxPaths,
-                                      out var btiPaths);
-
-                    /*Args.GetFromKando_("Ufo",
+                  /*Args.GetForEnemy_("Chappy",
                                     out var outputPath,
                                     out var bmdPath,
                                     out var bcxPaths,
-                                    out var btiPaths);*/
+                                    out var btiPaths);
+
+                  /*Args.GetFromKando_("Ufo",
+                                  out var outputPath,
+                                  out var bmdPath,
+                                  out var bcxPaths,
+                                  out var btiPaths);*/
 
                   Args.GetForEnemy_("Queen",
-                                   out var outputPath,
-                                   out var bmdPath,
-                                   out var bcxPaths,
-                                   out var btiPaths);
+                                    out var outputPath,
+                                    out var bmdPath,
+                                    out var bcxPaths,
+                                    out var btiPaths);
 
                   /*Args.GetFromDirectory(
                       new DirectoryInfo(
@@ -186,11 +188,11 @@ namespace fin.cli {
       var modelDirFullName = modelDir.FullName;
       var modelDirInfo = new DirectoryInfo(entryDir.FullName);
 
-      bmdPath = Files.GetPathWithExtension(modelDirInfo, "bmd");
+      bmdPath = Files.GetPathWithExtension(modelDirInfo, "bmd", true);
       bcxPaths = Arrays.Concat(
-          Files.GetPathsWithExtension(modelDirInfo, "bca"),
-          Files.GetPathsWithExtension(modelDirInfo, "bck"));
-      btiPaths = Files.GetPathsWithExtension(modelDirInfo, "bti");
+          Files.GetPathsWithExtension(modelDirInfo, "bca", true),
+          Files.GetPathsWithExtension(modelDirInfo, "bck", true));
+      btiPaths = Files.GetPathsWithExtension(modelDirInfo, "bti", true);
     }
 
     private static void GetFromDirectory_(
@@ -201,11 +203,11 @@ namespace fin.cli {
         out IList<string> btiPaths) {
       outputPath = Args.GetOutputPath_(directory.Name);
 
-      bmdPath = Files.GetPathWithExtension(directory, "bmd");
+      bmdPath = Files.GetPathWithExtension(directory, "bmd", true);
       bcxPaths = Arrays.Concat(
-          Files.GetPathsWithExtension(directory, "bca"),
-          Files.GetPathsWithExtension(directory, "bck"));
-      btiPaths = Files.GetPathsWithExtension(directory, "bti");
+          Files.GetPathsWithExtension(directory, "bca", true),
+          Files.GetPathsWithExtension(directory, "bck", true));
+      btiPaths = Files.GetPathsWithExtension(directory, "bti", true);
     }
   }
 }

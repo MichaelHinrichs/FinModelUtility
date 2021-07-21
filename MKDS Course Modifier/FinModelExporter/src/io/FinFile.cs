@@ -29,7 +29,7 @@ namespace fin.io {
       return new FinFile(newFullName);
     }
 
-    public IDirectory GetParent() => new FinDirectory(this.impl_.Directory);
+    public IDirectory? GetParent() => new FinDirectory(this.impl_.Directory);
     public bool Exists => this.impl_.Exists;
 
     public StreamReader ReadAsText() => File.OpenText(this.FullName);

@@ -12,8 +12,9 @@
     <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <StartupObject>mkds.cli.Cli</StartupObject>
+    <StartupObject>MKDS_Course_Modifier.debug.Debug</StartupObject>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RootNamespace>mkds</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>bin\Debug</OutputPath>
