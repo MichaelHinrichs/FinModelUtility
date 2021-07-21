@@ -1,5 +1,5 @@
 ﻿namespace UoT.ui.main.files {
-  partial class ZFileTreeView {
+  partial class FileTreeView<TFile, TFiles> {
     /// <summary> 
     /// Required designer variable.
     /// </summary>
@@ -78,12 +78,12 @@
       this.fileTreeView_.Size = new System.Drawing.Size(225, 598);
       this.fileTreeView_.TabIndex = 15;
       // 
-      // ZFileTreeView
+      // FileTreeView
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.Controls.Add(splitContainer);
-      this.Name = "ZFileTreeView";
+      this.Name = "FileTreeView";
       this.Size = new System.Drawing.Size(225, 627);
       splitContainer.Panel1.ResumeLayout(false);
       splitContainer.Panel1.PerformLayout();

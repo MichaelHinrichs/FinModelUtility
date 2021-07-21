@@ -66,6 +66,9 @@
     <Compile Update="ui\common\component\tabs\HostPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="ui\main\files\FileTreeView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="ui\main\tabs\animation\AnimationTab.cs">
       <SubType>UserControl</SubType>
     </Compile>

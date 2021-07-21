@@ -1,4 +1,5 @@
 ﻿using UoT.memory.map;
+using UoT.ui.main.files;
 
 namespace UoT.memory.files {
   public enum ZFileType {
@@ -15,12 +16,8 @@ namespace UoT.memory.files {
     OTHER,
   }
 
-  public interface IZFile {
+  public interface IZFile : IUiFile {
     ZFileType Type { get; }
-
-    // TODO: Make these nonnull via init setters in C#9.
-    string? FileName { get; set; }
-    string? BetterFileName { get; set; }
 
     IShardedMemory Region { get; }
   }
