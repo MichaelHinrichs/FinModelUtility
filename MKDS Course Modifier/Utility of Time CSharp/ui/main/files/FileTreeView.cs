@@ -2,7 +2,6 @@
 using System.Windows.Forms;
 
 using UoT.common.fuzzy;
-using UoT.memory.files;
 using UoT.ui.common.component;
 using UoT.util;
 

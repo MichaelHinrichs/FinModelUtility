@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-
 using MathNet.Numerics.LinearAlgebra.Double;
-
-using UoT.animation.playback;
 
 namespace UoT.limbs {
   /// <summary>

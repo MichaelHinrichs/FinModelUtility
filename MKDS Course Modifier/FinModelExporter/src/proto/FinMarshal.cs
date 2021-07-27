@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace fin.proto {
@@ -14,16 +13,6 @@ namespace fin.proto {
       stream.Read(bytes, offset, size);
 
       return Deserialize<T>(bytes, offset);
-    }
-
-    // TODO: Optimize this so it doesn't have to allocate for each object.
-    public static void Serialize(object obj, Stream stream, int offset = 0) {
-      var size = Marshal.SizeOf(obj);
-
-      var bytes = new byte[size];
-      Serialize(obj, bytes, offset);
-
-      stream.Write(bytes, offset, size);
     }
 
     // TODO: Rewrite this w/ a data source interface instead.
@@ -39,11 +28,35 @@ namespace fin.proto {
       }
 
       if (flipEndian) {
-        FlipStructureInPlace(typeof(T), bytes, 0);
+        FlipStructureInPlace(typeof(T), bytes);
       }
 
       // TODO: Use the list directly.
-      return Deserialize<T>(bytes, 0);
+      return Deserialize<T>(bytes);
+    }
+
+    public static T Deserialize<T>(
+        byte[] bytes,
+        int offset = 0) {
+      var size = Marshal.SizeOf(typeof(T));
+
+      unsafe {
+        fixed (byte* p = bytes) {
+          var ptr = (IntPtr) p + offset;
+          return Marshal.PtrToStructure<T>(ptr);
+        }
+      }
+    }
+
+
+    // TODO: Optimize this so it doesn't have to allocate for each object.
+    public static void Serialize(object obj, Stream stream, int offset = 0) {
+      var size = Marshal.SizeOf(obj);
+
+      var bytes = new byte[size];
+      Serialize(obj, bytes, offset);
+
+      stream.Write(bytes, offset, size);
     }
 
     // TODO: Optimize this so it doesn't have to allocate for each object.
@@ -61,22 +74,6 @@ namespace fin.proto {
       }
     }
 
-
-    // TODO: Optimize this so it doesn't have to allocate for each object.
-    public static T Deserialize<T>(
-        byte[] bytes,
-        int offset = 0) {
-      var size = Marshal.SizeOf(typeof(T));
-
-      var ptr = Marshal.AllocHGlobal(size);
-      Marshal.Copy(bytes, offset, ptr, size);
-
-      var obj = Marshal.PtrToStructure<T>(ptr);
-      Marshal.FreeHGlobal(ptr);
-
-      return obj;
-    }
-
     // TODO: Optimize this so it doesn't have to allocate for each object.
     public static void Serialize(object obj, byte[] bytes, int offset = 0) {
       var size = Marshal.SizeOf(obj);
@@ -89,11 +86,10 @@ namespace fin.proto {
     }
 
     // https://stackoverflow.com/questions/2480116/marshalling-a-big-endian-byte-collection-into-a-struct-in-order-to-pull-out-valu
-    // TODO: Support endianness properly.
     public static void FlipStructureInPlace(
         Type type,
         byte[] bytes,
-        int offset) {
+        int offset = 0) {
       var size = Marshal.SizeOf(type);
 
       if (type.IsPrimitive) {
