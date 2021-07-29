@@ -16,7 +16,7 @@ namespace UoT.ui.common.component {
         new List<BetterTreeNode<T>>();
 
     // TODO: Possible to remove unboxing?
-    public T? AssociatedData { get; set; }
+    public T? Data { get; set; }
     public string? Text => this.impl_?.Text;
 
     public BetterTreeNode(TreeNode? impl, TreeNodeCollection collection) {

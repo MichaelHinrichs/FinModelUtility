@@ -1,41 +1,31 @@
 ﻿using UoT.memory.files;
-using UoT.ui.common.component;
 using UoT.util;
 
 namespace UoT.ui.main.files {
   public class ZFileTreeView : FileTreeView<IZFile, ZFiles> {
-    protected override void PopulateImpl(ZFiles zFiles, BetterTreeNode<FileNode> root) {
-      var modelsNode = root.Add("Actor models");
-      this.AddFileNodeFor(null, modelsNode);
+    protected override void PopulateImpl(ZFiles zFiles, FileNode root) {
+      var modelsNode = root.AddChild("Actor models");
       foreach (var model in zFiles.Objects) {
-        var modelNode = modelsNode.Add(model.BetterFileName!);
-        this.AddFileNodeFor(model, modelNode);
+        modelsNode.AddChild(model);
       }
 
-      var actorCodeNode = root.Add("Actor code");
-      this.AddFileNodeFor(null, actorCodeNode);
+      var actorCodeNode = root.AddChild("Actor code");
       foreach (var code in zFiles.ActorCode) {
-        var codeNode = actorCodeNode.Add(code.BetterFileName!);
-        this.AddFileNodeFor(code, codeNode);
+        actorCodeNode.AddChild(code);
       }
 
-      var scenesNode = root.Add("Scenes");
-      this.AddFileNodeFor(null, scenesNode);
+      var scenesNode = root.AddChild("Scenes");
       foreach (var scene in zFiles.Scenes) {
-        var sceneNode = scenesNode.Add(scene.BetterFileName!);
-        this.AddFileNodeFor(scene, sceneNode);
+        var sceneNode = scenesNode.AddChild(scene);
 
         foreach (var map in Asserts.Assert(scene.Maps)) {
-          var mapNode = sceneNode.Add(map.BetterFileName!);
-          this.AddFileNodeFor(map, mapNode);
+          sceneNode.AddChild(map);
         }
       }
 
-      var othersNode = root.Add("Others");
-      this.AddFileNodeFor(null, othersNode);
+      var othersNode = root.AddChild("Others");
       foreach (var other in zFiles.Others) {
-        var otherNode = othersNode.Add(other.BetterFileName!);
-        this.AddFileNodeFor(other, otherNode);
+        othersNode.AddChild(other);
       }
     }
   }

@@ -2,17 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace UoT.common.fuzzy {
-  public class SymSpellFuzzySearchResult<T> : IFuzzySearchResult<T> {
-    // TODO: Make nonnull via init, C#9.
-    public T AssociatedData { get; }
-    public float MatchPercentage { get; set; }
-
-    public SymSpellFuzzySearchResult(T associatedData) {
-      this.AssociatedData = associatedData;
-    }
-  }
-
+namespace fin.data.fuzzy {
   public class SymSpellFuzzySearchDictionary<T> : IFuzzySearchDictionary<T> {
     /**
      * var maxEditDistance =
@@ -21,17 +11,15 @@ namespace UoT.common.fuzzy {
     private const int MAX_EDIT_DISTANCE = 8;
 
     private readonly SymSpell impl_ =
-        new SymSpell(0,
-                     SymSpellFuzzySearchDictionary<T>.MAX_EDIT_DISTANCE,
-                     SymSpellFuzzySearchDictionary<T>.MAX_EDIT_DISTANCE + 1);
+        new(0,
+            SymSpellFuzzySearchDictionary<T>.MAX_EDIT_DISTANCE,
+            SymSpellFuzzySearchDictionary<T>.MAX_EDIT_DISTANCE + 1);
 
     private readonly IDictionary<string, ISet<T>> associatedData_ =
         new Dictionary<string, ISet<T>>();
 
     public void Add(string keyword, T associatedData) {
-      var tokens = this.Tokenize_(keyword);
-
-      foreach (var token in tokens) {
+      foreach (var token in this.Tokenize_(keyword)) {
         this.AddToken_(token, associatedData);
       }
     }
@@ -58,7 +46,7 @@ namespace UoT.common.fuzzy {
       var inverseTokenCount = 1f / tokens.Count();
 
       // TODO: Possible to do some of these lookups in O(1) time?
-      var wipResults = new Dictionary<T, SymSpellFuzzySearchResult<T>>();
+      var wipResults = new Dictionary<T, SymSpellFuzzySearchResult>();
 
       // 2) Look up each token in dictionary to find sets of data w/ that
       //    token.
@@ -76,10 +64,9 @@ namespace UoT.common.fuzzy {
                                           keyword.Length)) *
                                 100;
 
-          var associatedDatas = this.associatedData_[matchedKeyword];
-          foreach (var associatedData in associatedDatas) {
+          foreach (var associatedData in this.associatedData_[matchedKeyword]) {
             if (!wipResults.TryGetValue(associatedData, out var result)) {
-              result = new SymSpellFuzzySearchResult<T>(associatedData);
+              result = new SymSpellFuzzySearchResult(associatedData);
               wipResults.Add(associatedData, result);
             }
 
@@ -97,5 +84,14 @@ namespace UoT.common.fuzzy {
                 .Split(' ', '_', '-', '/')
                 .Select(rawToken => rawToken.Trim())
                 .Where(token => !string.IsNullOrEmpty(token));
+
+    private class SymSpellFuzzySearchResult : IFuzzySearchResult<T> {
+      public T Data { get; }
+      public float MatchPercentage { get; set; }
+
+      public SymSpellFuzzySearchResult(T associatedData) {
+        this.Data = associatedData;
+      }
+    }
   }
 }

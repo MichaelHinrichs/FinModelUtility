@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Windows.Forms;
 
-using UoT.common.fuzzy;
+using fin.data.fuzzy;
+
 using UoT.ui.common.component;
 using UoT.util;
 
@@ -22,10 +24,23 @@ namespace UoT.ui.main.files {
 
     private readonly BetterTreeView<FileNode> betterTreeView_;
 
-    private LinkedList<FileNode> fileNodes_ = new();
+    private readonly IFuzzyFilterTree<FileNode> filterImpl_ =
+        new FuzzyFilterTree<FileNode>(fileNode => {
+          var keywords = new HashSet<string>();
 
-    private readonly IFuzzySearchDictionary<FileNode> filterImpl_ =
-        new SymSpellFuzzySearchDictionary<FileNode>();
+          var file = fileNode.File;
+          if (file != null) {
+            var fileName = file.FileName;
+            keywords.Add(fileName!);
+
+            var betterFileName = file.BetterFileName;
+            if (!string.IsNullOrEmpty(betterFileName)) {
+              keywords.Add(betterFileName!);
+            }
+          }
+
+          return keywords;
+        });
 
     public delegate void FileSelectedHandler(TFile file);
 
@@ -33,23 +48,51 @@ namespace UoT.ui.main.files {
 
     // TODO: Clean this up.
     protected class FileNode {
-      public FileNode? Parent { get; set; }
-      public TFile? File { get; set; }
-      public HashSet<string> Keywords { get; } = new();
-      public double MatchPercentage { get; set; }
+      private readonly BetterTreeNode<FileNode> treeNode_;
+      private readonly IFuzzyNode<FileNode> filterNode_;
 
-      public List<FileNode> AllChildFileNodes { get; } = new();
+      public FileNode(FileTreeView<TFile, TFiles> treeView) {
+        this.treeNode_ = treeView.betterTreeView_.Root;
+        this.treeNode_.Data = this;
+
+        this.filterNode_ = treeView.filterImpl_.Root.AddChild(this);
+      }
+
+      private FileNode(FileNode parent, TFile file) {
+        this.File = file;
+
+        this.treeNode_ = parent.treeNode_.Add(file.BetterFileName);
+        this.treeNode_.Data = this;
+
+        this.filterNode_ = parent.filterNode_.AddChild(this);
+      }
+
+      private FileNode(FileNode parent, string text) {
+        this.treeNode_ = parent.treeNode_.Add(text);
+        this.treeNode_.Data = this;
+
+        this.filterNode_ = parent.filterNode_.AddChild(this);
+      }
+
+
+      public TFile? File { get; set; }
+
+      public FileNode? Parent => this.filterNode_.Parent?.Data;
+      public float MatchPercentage => this.filterNode_.MatchPercentage;
+      public IReadOnlySet<string> Keywords => this.filterNode_.Keywords;
+
+      public FileNode AddChild(TFile file) => new(this, file);
+      public FileNode AddChild(string text) => new(this, text);
     }
 
     public FileTreeView() {
       this.InitializeComponent();
 
-      this.filterTextBox_.TextChanged += (sender, args) => { this.Filter_(); };
+      this.filterTextBox_.TextChanged += (_, _) => this.Filter_();
 
       this.betterTreeView_ = new BetterTreeView<FileNode>(this.fileTreeView_);
-
       this.betterTreeView_.Selected += betterTreeNode => {
-        var associatedData = betterTreeNode?.AssociatedData;
+        var associatedData = betterTreeNode.Data;
         if (associatedData == null) {
           return;
         }
@@ -64,9 +107,7 @@ namespace UoT.ui.main.files {
     public void Populate(TFiles files) {
       this.betterTreeView_.BeginUpdate();
 
-      var root = this.betterTreeView_.Root;
-      this.PopulateImpl(files, root);
-
+      this.PopulateImpl(files, new FileNode(this));
       this.InitializeAutocomplete_();
 
       this.betterTreeView_.EndUpdate();
@@ -74,46 +115,22 @@ namespace UoT.ui.main.files {
 
     protected abstract void PopulateImpl(
         TFiles files,
-        BetterTreeNode<FileNode> root);
-
-    protected void AddFileNodeFor(
-        TFile? file,
-        BetterTreeNode<FileNode> treeNode) {
-      var parentFileNode = treeNode.Parent?.AssociatedData;
-
-      var fileNode = new FileNode {
-          Parent = parentFileNode,
-          File = file,
-      };
-      treeNode.AssociatedData = fileNode;
-
-      this.fileNodes_.AddLast(fileNode);
-      parentFileNode?.AllChildFileNodes?.Add(fileNode);
-
-      // Gathers keywords.
-      var keywords = fileNode.Keywords;
-
-      if (file != null) {
-        var fileName = file.FileName;
-        keywords.Add(fileName!);
-
-        var betterFileName = file.BetterFileName;
-        if (!string.IsNullOrEmpty(betterFileName)) {
-          keywords.Add(betterFileName!);
-        }
-
-        foreach (var keyword in keywords) {
-          this.filterImpl_.Add(keyword, fileNode);
-        }
-      }
-    }
+        FileNode root);
 
     private void InitializeAutocomplete_() {
       var allAutocompleteKeywords = new AutoCompleteStringCollection();
 
-      foreach (var zFileNode in this.fileNodes_) {
-        foreach (var keyword in zFileNode.Keywords) {
-          allAutocompleteKeywords.Add(keyword.ToLower());
+      Queue<IFuzzyNode<FileNode>> queue = new();
+      queue.Enqueue(this.filterImpl_.Root);
+      while (queue.Count > 0) {
+        var filterNode = queue.Dequeue();
+
+        foreach (var keyword in filterNode.Keywords) {
+          allAutocompleteKeywords.Add(keyword);
+        }
+
+        foreach (var child in filterNode.Children) {
+          queue.Enqueue(child);
         }
       }
 
@@ -124,7 +141,7 @@ namespace UoT.ui.main.files {
     private void Filter_() {
       var filterText = this.filterTextBox_.Text.ToLower();
 
-      this.ResetMatchPercentages_();
+      this.filterImpl_.Reset();
 
       this.betterTreeView_.BeginUpdate();
 
@@ -133,60 +150,27 @@ namespace UoT.ui.main.files {
 
         this.betterTreeView_.Comparer = null;
       } else {
-        const float matchPercentage = 20;
+        const float minMatchPercentage = .2f;
+        this.filterImpl_.Filter(filterText, minMatchPercentage);
 
-        var matches = this.filterImpl_.Search(filterText, matchPercentage);
-
-        this.PropagateMatchPercentages_(matches);
         this.betterTreeView_.Root.ResetChildrenRecursively(
             betterTreeNode
-                => Asserts.Assert(betterTreeNode.AssociatedData)
-                          .MatchPercentage >=
-                   matchPercentage);
+                => Asserts.Assert(betterTreeNode.Data).MatchPercentage >=
+                   minMatchPercentage);
 
-        this.betterTreeView_.Comparer =
-            this.betterTreeView_.Comparer ?? new FuzzyTreeComparer();
+        this.betterTreeView_.Comparer ??= new FuzzyTreeComparer();
       }
 
       this.betterTreeView_.EndUpdate();
-    }
-
-    private void ResetMatchPercentages_() {
-      foreach (var fileNode in this.fileNodes_) {
-        fileNode.MatchPercentage = 0;
-      }
-    }
-
-    private void PropagateMatchPercentages_(
-        IEnumerable<IFuzzySearchResult<FileNode>> matches) {
-      foreach (var match in matches) {
-        SetMatchPercentage_(match.AssociatedData, match.MatchPercentage);
-      }
-    }
-
-    private static void SetMatchPercentage_(
-        FileNode fileNode,
-        double matchPercentage) {
-      if (matchPercentage <= fileNode.MatchPercentage) {
-        return;
-      }
-      fileNode.MatchPercentage = matchPercentage;
-
-      var parentZFileNode = fileNode.Parent;
-      if (parentZFileNode == null) {
-        return;
-      }
-
-      SetMatchPercentage_(parentZFileNode, matchPercentage);
     }
 
     private class FuzzyTreeComparer : IComparer<BetterTreeNode<FileNode>> {
       public int Compare(
           BetterTreeNode<FileNode> lhs,
           BetterTreeNode<FileNode> rhs)
-        => -Asserts.Assert(lhs.AssociatedData)
+        => -Asserts.Assert(lhs.Data)
                    .MatchPercentage.CompareTo(
-                       Asserts.Assert(rhs.AssociatedData).MatchPercentage);
+                       Asserts.Assert(rhs.Data).MatchPercentage);
     }
   }
 }
