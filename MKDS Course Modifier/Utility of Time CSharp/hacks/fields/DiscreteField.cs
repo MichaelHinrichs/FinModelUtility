@@ -23,7 +23,7 @@ namespace UoT.hacks.fields {
     void Set(IDiscreteValue value);
   }
 
-  public interface IDiscretField<T> : IDiscreteField, IField<T> {
+  public interface IDiscreteField<T> : IDiscreteField, IField<T> {
     /// <summary>
     ///   List of possible values for this field. This should NOT ever change.
     /// </summary>
@@ -33,14 +33,13 @@ namespace UoT.hacks.fields {
   }
 
 
-  public class DiscreteField<T> : IDiscretField<T> {
+  public class DiscreteField<T> : IDiscreteField<T> {
     public class Builder {
       private readonly string name_;
 
       private IDiscreteValue<T>? defaultValue_;
 
-      private List<IDiscreteValue<T>> possibleValues_ =
-          new List<IDiscreteValue<T>>();
+      private readonly List<IDiscreteValue<T>> possibleValues_ = new();
 
       public Builder(string name) {
         this.name_ = name;

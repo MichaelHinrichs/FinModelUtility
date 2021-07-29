@@ -1,5 +1,5 @@
 ﻿namespace UoT {
-  public class Tunic {
+  public static class TunicConstants {
     /**
      * Selected tunic id @ 15E6D0
      * - 17: kokiri

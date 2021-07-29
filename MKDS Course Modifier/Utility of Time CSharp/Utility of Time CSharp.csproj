@@ -80,10 +80,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="model\gltf\" />
-    <Folder Include="model\" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\FinModelExporter\Fin.csproj" />
   </ItemGroup>
 </Project>

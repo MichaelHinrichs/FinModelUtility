@@ -8,7 +8,7 @@
 
     public static byte[]? GetColorForObject(string filename) {
       if (filename == "object_link_boy" || filename == "object_link_child") {
-        return Tunic.TUNIC_COLOR_KOKIRI;
+        return TunicConstants.TUNIC_COLOR_KOKIRI;
       }
 
       return null;

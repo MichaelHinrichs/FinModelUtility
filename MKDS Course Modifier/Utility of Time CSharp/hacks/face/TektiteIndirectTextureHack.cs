@@ -22,7 +22,7 @@ namespace UoT {
 
     public override IReadOnlyList<IField> Fields { get; }
 
-    private readonly IDiscretField<ushort> color_ =
+    private readonly IDiscreteField<ushort> color_ =
         new DiscreteField<ushort>.Builder("Color")
             .AddPossibleValue("Red", 0x1B00)
             .AddPossibleValue("Blue", 0x1300)
