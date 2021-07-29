@@ -12,6 +12,8 @@ namespace UoT {
     ///   Parses a set of animations according to the spec at:
     ///   https://wiki.cloudmodding.com/oot/Animation_Format#Normal_Animations
     /// </summary>
+    // TODO: Some jank still slips through, is there a proper list of these
+    // addresses somewhere in the file?
     public IList<IAnimation>? GetCommonAnimations(
         IBank bank,
         int limbCount,
@@ -91,10 +93,10 @@ namespace UoT {
         // All values of "tTrack" should be within the bounds of .Angles.
         var validTTracks = true;
         var limit = IoUtil.ReadUInt16(bank, attemptOffset + 12);
-        for (var i1 = 0; i1 < trackCount; i1++) {
+        for (var i1 = 0; i1 < 3 + trackCount; i1++) {
           var tTrack = IoUtil.ReadUInt16(
               rotationIndicesBuffer,
-              (uint) (rotationIndicesOffset + 6L + 2 * i1));
+              (uint) (rotationIndicesOffset + 2 * i1));
           if (tTrack < limit) {
             if (tTrack >= angleCount) {
               validTTracks = false;
@@ -125,13 +127,34 @@ namespace UoT {
           rotationValuesOffset = (uint) (rotationValuesOffset + 2L);
         }
 
-        animation.Position = new Vec3s {
-            X = IoUtil.ReadInt16(rotationIndicesBuffer, animation.TrackOffset),
-            Y = IoUtil.ReadInt16(rotationIndicesBuffer,
-                                 animation.TrackOffset + 2),
-            Z = IoUtil.ReadInt16(rotationIndicesBuffer,
-                                 animation.TrackOffset + 4),
-        };
+        // Translation is at the start.
+        var xList =
+            ReadFrames_(
+                IoUtil.ReadUInt16(rotationIndicesBuffer,
+                                  animation.TrackOffset + 0),
+                limit,
+                animation);
+        var yList =
+            ReadFrames_(
+                IoUtil.ReadUInt16(rotationIndicesBuffer,
+                                  animation.TrackOffset + 2),
+                limit,
+                animation);
+        var zList =
+            ReadFrames_(
+                IoUtil.ReadUInt16(rotationIndicesBuffer,
+                                  animation.TrackOffset + 4),
+                limit,
+                animation);
+
+        animation.Positions = new Vec3s[animation.FrameCount];
+        for (var pi = 0; pi < animation.FrameCount; ++pi) {
+          animation.Positions[pi] = new Vec3s {
+              X = (short) xList[Math.Min(pi, xList.Length - 1)],
+              Y = (short) yList[Math.Min(pi, yList.Length - 1)],
+              Z = (short) zList[Math.Min(pi, zList.Length - 1)],
+          };
+        }
 
         animation.Tracks = new NormalAnimationTrack[trackCount];
 
@@ -169,6 +192,31 @@ namespace UoT {
       }
 
       return animations.Count > 0 ? animations : null;
+    }
+
+    private static ushort[] ReadFrames_(
+        ushort tTrack,
+        ushort limit,
+        NormalAnimation animation) {
+      ushort[] frames;
+
+      // Constant
+      if (tTrack < limit) {
+        frames = new ushort[1];
+        frames[0] = animation.Angles[tTrack];
+      } else {
+        // Keyframes
+        frames = new ushort[animation.FrameCount];
+        for (var i2 = 0; i2 < animation.FrameCount; ++i2) {
+          try {
+            frames[i2] = animation.Angles[tTrack + i2];
+          } catch {
+            return null;
+          }
+        }
+      }
+
+      return frames;
     }
 
     /// <summary>

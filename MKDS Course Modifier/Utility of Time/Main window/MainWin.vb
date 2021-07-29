@@ -7,6 +7,7 @@ Imports UoT.animation
 Imports UoT.limbs
 Imports UoT.memory.files
 Imports UoT.memory.map
+Imports UoT.model
 Imports UoT.ui.main.viewer
 
 Public Class MainWin
@@ -2569,7 +2570,7 @@ Public Class MainWin
   Private SceneActors() As Door
   Private rmActorCount As Integer = 0
   Private scActorCount As Integer = 0
-  Private CopyActor() As Integer = {- 1, - 1, - 1, - 1, - 1, - 1, - 1, - 1} _
+  Private CopyActor() As Integer = {-1, -1, -1, -1, -1, -1, -1, -1} _
   'x pos, y pos, z pos, x rot, y rot, z rot, number, variable
   Private ActorPointer() As UInteger = {0, 0, 0} 'header pos, count, pointer
   Private RelocateActorPtr As Boolean = False
@@ -2588,7 +2589,7 @@ Public Class MainWin
 
 #Region "ANIMATION & HEIRARCHY"
 
-  Private LimbEntries(- 1) As Limb
+  Private LimbEntries(-1) As Limb
   Private CurrLimb As Integer = 0
   Private BoneColorFactor As New Color3UByte
   Private CurrAnimation As IAnimation
@@ -2758,13 +2759,13 @@ Public Class MainWin
   Private Sub SyncCameraToActor(ByVal ActorType As Integer, ByVal Actor As Integer)
     Select Case ActorType
       Case 0
-        cam.X = - RoomActors(Actor).x
-        cam.Y = - RoomActors(Actor).y - 1000
-        cam.Z = - RoomActors(Actor).z - 1000
+        cam.X = -RoomActors(Actor).x
+        cam.Y = -RoomActors(Actor).y - 1000
+        cam.Z = -RoomActors(Actor).z - 1000
       Case 1
-        cam.X = - SceneActors(Actor).x
-        cam.Y = - SceneActors(Actor).y - 1000
-        cam.Z = - SceneActors(Actor).z - 1000
+        cam.X = -SceneActors(Actor).x
+        cam.Y = -SceneActors(Actor).y - 1000
+        cam.Z = -SceneActors(Actor).z - 1000
     End Select
     cam.Pitch = 45
   End Sub
@@ -2778,18 +2779,18 @@ Public Class MainWin
       NewMouseX = LocalMouse.X
       NewMouseY = LocalMouse.Y
 
-      Dim camXRotd As Double = cam.Pitch/180*PI
-      Dim camYRotd As Double = cam.Yaw/180*PI
+      Dim camXRotd As Double = cam.Pitch / 180 * PI
+      Dim camYRotd As Double = cam.Yaw / 180 * PI
 
       ' TODO: What on earth is going on below?
 
       Dim MouseChanged As Boolean = False
       If NewMouseX <> OldMouseX Then
-        Dx = (NewMouseX - OldMouseX)*ToolSensitivity
+        Dx = (NewMouseX - OldMouseX) * ToolSensitivity
         MouseChanged = True
       End If
       If NewMouseY <> OldMouseY Then
-        Dy = (NewMouseY - OldMouseY)*ToolSensitivity
+        Dy = (NewMouseY - OldMouseY) * ToolSensitivity
         MouseChanged = True
       End If
 
@@ -2798,7 +2799,7 @@ Public Class MainWin
           If OldMouseX < NewMouseX Then
             '(MOUSE MOVE RIGHT)
             If ToolModes.SelectedItemType = ToolID.NONE Then
-              cam.Yaw += (NewMouseX - OldMouseX)*0.5
+              cam.Yaw += (NewMouseX - OldMouseX) * 0.5
               cam.Yaw = cam.Yaw Mod 360
             End If
             If _
@@ -2808,18 +2809,18 @@ Public Class MainWin
                 If OnSceneActor Then
                   For i As Integer = 0 To SelectedSceneActors.Count - 1
                     i1 = SelectedSceneActors(i)
-                    SceneActors(i1).x += Cos(camYRotd)*Dx
-                    SceneActors(i1).z += Sin(camYRotd)*Dx
+                    SceneActors(i1).x += Cos(camYRotd) * Dx
+                    SceneActors(i1).z += Sin(camYRotd) * Dx
                   Next
                 Else
                   For i As Integer = 0 To SelectedRoomActors.Count - 1
                     i1 = SelectedRoomActors(i)
-                    RoomActors(i1).x += Cos(camYRotd)*Dx
-                    RoomActors(i1).z += Sin(camYRotd)*Dx
+                    RoomActors(i1).x += Cos(camYRotd) * Dx
+                    RoomActors(i1).z += Sin(camYRotd) * Dx
                   Next
                 End If
-                cam.X += - Cos(camYRotd)*Dx
-                cam.Z += - Sin(camYRotd)*Dx
+                cam.X += -Cos(camYRotd) * Dx
+                cam.Z += -Sin(camYRotd) * Dx
                 UpdateActorPos()
               ElseIf ToolModes.SelectedItemType = ToolID.VERTEX Then
                 If RenderGraphics Then
@@ -2827,19 +2828,19 @@ Public Class MainWin
                 End If
                 If RenderCollision Then
                   For i2 = 0 To SelectedCollisionVert.Count - 1
-                    CollisionVerts.x(SelectedCollisionVert(i2)) += Cos(camYRotd)*Dx
-                    CollisionVerts.z(SelectedCollisionVert(i2)) += Sin(camYRotd)*Dx
+                    CollisionVerts.x(SelectedCollisionVert(i2)) += Cos(camYRotd) * Dx
+                    CollisionVerts.z(SelectedCollisionVert(i2)) += Sin(camYRotd) * Dx
                   Next
                 End If
-                cam.X += - Cos(camYRotd)*Dx
-                cam.Z += - Sin(camYRotd)*Dx
+                cam.X += -Cos(camYRotd) * Dx
+                cam.Z += -Sin(camYRotd) * Dx
               End If
             End If
           End If
           If OldMouseX > NewMouseX Then
             '(MOUSE MOVE LEFT) 
             If ToolModes.SelectedItemType = ToolID.NONE Then
-              cam.Yaw -= (OldMouseX - NewMouseX)*0.5
+              cam.Yaw -= (OldMouseX - NewMouseX) * 0.5
               cam.Yaw = cam.Yaw Mod 360
             End If
             If _
@@ -2849,18 +2850,18 @@ Public Class MainWin
                 If OnSceneActor Then
                   For i As Integer = 0 To SelectedSceneActors.Count - 1
                     i1 = SelectedSceneActors(i)
-                    SceneActors(i1).x += Cos(camYRotd)*Dx
-                    SceneActors(i1).z += Sin(camYRotd)*Dx
+                    SceneActors(i1).x += Cos(camYRotd) * Dx
+                    SceneActors(i1).z += Sin(camYRotd) * Dx
                   Next
                 Else
                   For i As Integer = 0 To SelectedRoomActors.Count - 1
                     i1 = SelectedRoomActors(i)
-                    RoomActors(i1).x += Cos(camYRotd)*Dx
-                    RoomActors(i1).z += Sin(camYRotd)*Dx
+                    RoomActors(i1).x += Cos(camYRotd) * Dx
+                    RoomActors(i1).z += Sin(camYRotd) * Dx
                   Next
                 End If
-                cam.X -= Cos(camYRotd)*Dx
-                cam.Z -= Sin(camYRotd)*Dx
+                cam.X -= Cos(camYRotd) * Dx
+                cam.Z -= Sin(camYRotd) * Dx
                 UpdateActorPos()
               ElseIf ToolModes.SelectedItemType = ToolID.VERTEX Then
                 If RenderGraphics Then
@@ -2868,22 +2869,22 @@ Public Class MainWin
                 End If
                 If RenderCollision Then
                   For i2 = 0 To SelectedCollisionVert.Count - 1
-                    CollisionVerts.x(SelectedCollisionVert(i2)) += Cos(camYRotd)*Dx
-                    CollisionVerts.z(SelectedCollisionVert(i2)) += Sin(camYRotd)*Dx
+                    CollisionVerts.x(SelectedCollisionVert(i2)) += Cos(camYRotd) * Dx
+                    CollisionVerts.z(SelectedCollisionVert(i2)) += Sin(camYRotd) * Dx
                   Next
                 End If
-                cam.X -= Cos(camYRotd)*Dx
-                cam.Z -= Sin(camYRotd)*Dx
+                cam.X -= Cos(camYRotd) * Dx
+                cam.Z -= Sin(camYRotd) * Dx
               End If
             End If
           End If
           If OldMouseY > NewMouseY Then
             '(MOUSE MOVE UP) 
             If ToolModes.SelectedItemType = ToolID.NONE Then
-              If cam.Pitch <= - 90 Then
-                cam.Pitch = - 90
+              If cam.Pitch <= -90 Then
+                cam.Pitch = -90
               Else
-                cam.Pitch += (Dy\ToolSensitivity)*0.5
+                cam.Pitch += (Dy \ ToolSensitivity) * 0.5
               End If
             End If
             If _
@@ -2920,7 +2921,7 @@ Public Class MainWin
               If cam.Pitch >= 90 Then
                 cam.Pitch = 90
               Else
-                cam.Pitch += (Dy\ToolSensitivity)*0.5
+                cam.Pitch += (Dy \ ToolSensitivity) * 0.5
               End If
             End If
             If _
@@ -2955,46 +2956,46 @@ Public Class MainWin
           If OldMouseY < NewMouseY Then
             '(MOUSE MOVE DOWN) 
             If ToolModes.SelectedItemType = ToolID.NONE Then
-              cam.Y += (OldMouseY - NewMouseY)*(CameraCoef/8)
+              cam.Y += (OldMouseY - NewMouseY) * (CameraCoef / 8)
             ElseIf ToolModes.SelectedItemType = ToolID.ACTOR Then
               If OnSceneActor Then
                 For i As Integer = 0 To SelectedSceneActors.Count - 1
                   i1 = SelectedSceneActors(i)
-                  SceneActors(i1).x += Sin(camYRotd)*Dy
-                  SceneActors(i1).z -= Cos(camYRotd)*Dy
+                  SceneActors(i1).x += Sin(camYRotd) * Dy
+                  SceneActors(i1).z -= Cos(camYRotd) * Dy
                 Next
               Else
                 For i As Integer = 0 To SelectedRoomActors.Count - 1
                   i1 = SelectedRoomActors(i)
-                  RoomActors(i1).x += Sin(camYRotd)*Dy
-                  RoomActors(i1).z -= Cos(camYRotd)*Dy
+                  RoomActors(i1).x += Sin(camYRotd) * Dy
+                  RoomActors(i1).z -= Cos(camYRotd) * Dy
                 Next
               End If
-              cam.X -= Sin(camYRotd)*Dy
-              cam.Z += Cos(camYRotd)*Dy
+              cam.X -= Sin(camYRotd) * Dy
+              cam.Z += Cos(camYRotd) * Dy
               UpdateActorPos()
             End If
           End If
           If OldMouseY > NewMouseY Then
             '(MOUSE MOVE DOWN) 
             If ToolModes.SelectedItemType = ToolID.NONE Then
-              cam.Y -= (NewMouseY - OldMouseY)*(CameraCoef/8)
+              cam.Y -= (NewMouseY - OldMouseY) * (CameraCoef / 8)
             ElseIf ToolModes.SelectedItemType = ToolID.ACTOR Then
               If OnSceneActor Then
                 For i As Integer = 0 To SelectedSceneActors.Count - 1
                   i1 = SelectedSceneActors(i)
-                  SceneActors(i1).x += Sin(camYRotd)*Dy
-                  SceneActors(i1).z -= Cos(camYRotd)*Dy
+                  SceneActors(i1).x += Sin(camYRotd) * Dy
+                  SceneActors(i1).z -= Cos(camYRotd) * Dy
                 Next
               Else
                 For i As Integer = 0 To SelectedRoomActors.Count - 1
                   i1 = SelectedRoomActors(i)
-                  RoomActors(i1).x += Sin(camYRotd)*Dy
-                  RoomActors(i1).z -= Cos(camYRotd)*Dy
+                  RoomActors(i1).x += Sin(camYRotd) * Dy
+                  RoomActors(i1).z -= Cos(camYRotd) * Dy
                 Next
               End If
-              cam.X -= Sin(camYRotd)*Dy
-              cam.Z += Cos(camYRotd)*Dy
+              cam.X -= Sin(camYRotd) * Dy
+              cam.Z += Cos(camYRotd) * Dy
               UpdateActorPos()
             End If
           End If
@@ -3012,7 +3013,7 @@ Public Class MainWin
           Case ToolID.DLIST
             curColor = Color.Blue
         End Select
-        GLPrint2D("+", UoTRender.PointToClient(Cursor.Position), curColor, Glut.GLUT_BITMAP_TIMES_ROMAN_24, - 10, - 15,
+        GLPrint2D("+", UoTRender.PointToClient(Cursor.Position), curColor, Glut.GLUT_BITMAP_TIMES_ROMAN_24, -10, -15,
                   True)
       End If
       If PrintTool Then
@@ -3046,7 +3047,11 @@ Public Class MainWin
         End If
       End If
     Catch err As Exception
-      GenericCatch(err)
+      If HandleErrors Then
+        GenericCatch(err)
+      Else
+        Throw
+      End If
     End Try
   End Sub
 
@@ -3070,9 +3075,9 @@ Public Class MainWin
       For i As Integer = 0 To RoomActors.Length - 1
         Gl.glPushMatrix()
         Gl.glTranslatef(RoomActors(i).x, RoomActors(i).y + 16, RoomActors(i).z)
-        Gl.glRotatef(RoomActors(i).xr\180, 1.0F, 0.0F, 0.0F)
-        Gl.glRotatef(RoomActors(i).yr\180, 0.0F, 1.0F, 0.0F)
-        Gl.glRotatef(RoomActors(i).zr\180, 0.0F, 0.0F, 1.0F)
+        Gl.glRotatef(RoomActors(i).xr \ 180, 1.0F, 0.0F, 0.0F)
+        Gl.glRotatef(RoomActors(i).yr \ 180, 0.0F, 1.0F, 0.0F)
+        Gl.glRotatef(RoomActors(i).zr \ 180, 0.0F, 0.0F, 1.0F)
         If SelectionMode Then
           If ToolModes.NoDepthTest Then Gl.glDisable(Gl.GL_DEPTH_TEST)
           Gl.glColor3ub(RoomActors(i).pickR, RoomActors(i).pickG, RoomActors(i).pickB)
@@ -3103,7 +3108,7 @@ Public Class MainWin
       For i As Integer = 0 To SceneActors.Length - 1
         Gl.glPushMatrix()
         Gl.glTranslatef(SceneActors(i).x, SceneActors(i).y + 16, SceneActors(i).z)
-        Gl.glRotatef(SceneActors(i).yr\180, 0.0F, 1.0F, 0.0F)
+        Gl.glRotatef(SceneActors(i).yr \ 180, 0.0F, 1.0F, 0.0F)
         If SelectionMode Then
           Gl.glColor3ub(SceneActors(i).pickR, SceneActors(i).pickG, SceneActors(i).pickB)
           Glut.glutSolidCube(ActorScaleP)
@@ -3186,9 +3191,9 @@ Public Class MainWin
         Dim f As Double = frameDelta
 
         ' TODO: Move this out.
-        Dim x As Double = startPos.X*(1 - f) + endPos.X*f
-        Dim y As Double = startPos.Y*(1 - f) + endPos.Y*f
-        Dim z As Double = startPos.Z*(1 - f) + endPos.Z*f
+        Dim x As Double = startPos.X * (1 - f) + endPos.X * f
+        Dim y As Double = startPos.Y * (1 - f) + endPos.Y * f
+        Dim z As Double = startPos.Z * (1 - f) + endPos.Z * f
 
         ModelViewMatrixTransformer.Translate(x, y, z)
 
@@ -3222,6 +3227,9 @@ Public Class MainWin
     If Not DlModel.IsComplete Then
       DlModel.IsComplete = True
       DlModel.SaveAsGlTf(ObjectDisplayName, animationTab_.AnimationBanks.Animations)
+
+      Dim modelConverter = New ModelConverter()
+      modelConverter.Convert()
     End If
   End Sub
 
@@ -3768,7 +3776,11 @@ Public Class MainWin
       Me.Focus()
       Initialize()
     Catch err As Exception
-      MsgBox(err.Message)
+      If HandleErrors Then
+        MsgBox(err.Message)
+      Else
+        Throw
+      End If
     End Try
   End Sub
 
@@ -3945,11 +3957,11 @@ Public Class MainWin
       Dim scActorPos As Integer = 0
       Dim scRoomCnt As Integer = 0
       Dim scRoomPos As Integer = 0
-      ReDim CollisionTriColor(- 1)
-      ReDim SceneActors(- 1)
-      ReDim ColTypes(- 1)
-      ReDim SceneExits(- 1)
-      ReDim CollisionPolies(- 1)
+      ReDim CollisionTriColor(-1)
+      ReDim SceneActors(-1)
+      ReDim ColTypes(-1)
+      ReDim SceneExits(-1)
+      ReDim CollisionPolies(-1)
 
       scActorCount = 0
 
@@ -4024,14 +4036,14 @@ Public Class MainWin
 
                   .offset = i1
 
-                  .no = (RamBanks.ZSceneBuffer(i1 + 4)*&H100) + (RamBanks.ZSceneBuffer(i1 + 5))
+                  .no = (RamBanks.ZSceneBuffer(i1 + 4) * &H100) + (RamBanks.ZSceneBuffer(i1 + 5))
 
-                  .x = (RamBanks.ZSceneBuffer(i1 + 6)*&H100) + (RamBanks.ZSceneBuffer(i1 + 7))
-                  .y = (RamBanks.ZSceneBuffer(i1 + 8)*&H100) + (RamBanks.ZSceneBuffer(i1 + 9))
-                  .z = (RamBanks.ZSceneBuffer(i1 + 10)*&H100) + (RamBanks.ZSceneBuffer(i1 + 11))
+                  .x = (RamBanks.ZSceneBuffer(i1 + 6) * &H100) + (RamBanks.ZSceneBuffer(i1 + 7))
+                  .y = (RamBanks.ZSceneBuffer(i1 + 8) * &H100) + (RamBanks.ZSceneBuffer(i1 + 9))
+                  .z = (RamBanks.ZSceneBuffer(i1 + 10) * &H100) + (RamBanks.ZSceneBuffer(i1 + 11))
 
-                  .yr = (RamBanks.ZSceneBuffer(i1 + 12)*&H100) + (RamBanks.ZSceneBuffer(i1 + 13))
-                  .var = (RamBanks.ZSceneBuffer(i1 + 14)*&H100) + (RamBanks.ZSceneBuffer(i1 + 15))
+                  .yr = (RamBanks.ZSceneBuffer(i1 + 12) * &H100) + (RamBanks.ZSceneBuffer(i1 + 13))
+                  .var = (RamBanks.ZSceneBuffer(i1 + 14) * &H100) + (RamBanks.ZSceneBuffer(i1 + 15))
                 End With
                 i1 += 16
 
@@ -4133,7 +4145,7 @@ Public Class MainWin
               End While
 
               ReDim CollisionTriColor(triCount)
-              Dim edgecnt As Integer = - 1
+              Dim edgecnt As Integer = -1
 
               While VertexOffset < colPtr
 
@@ -4182,8 +4194,11 @@ Public Class MainWin
         Next
       End If
     Catch err As Exception
-      MsgBox("Error parsing scene header: " & Environment.NewLine & Environment.NewLine & "Details: " & err.Message)
-      Exit Sub
+      If HandleErrors Then
+        MsgBox("Error parsing scene header: " & Environment.NewLine & Environment.NewLine & "Details: " & err.Message)
+      Else
+        Throw
+      End If
     End Try
   End Sub
 
@@ -4206,7 +4221,7 @@ Public Class MainWin
       Dim DLCnt As Integer = 0
       Dim FileTreeIndex As Integer = 0
       DlManager.Clear()
-      ReDim LimbEntries(- 1)
+      ReDim LimbEntries(-1)
 
       DListSelection.Items.Clear()
       DListSelection.Items.Add("Render all")
@@ -4235,8 +4250,12 @@ Public Class MainWin
 
       animationTab_.AnimationBanks.Reset(ObjectFilename, LimbEntries)
     Catch err As System.Exception
-      MsgBox(
-        "Error in entry point searching: " & Environment.NewLine & Environment.NewLine & "Debug Info: " & err.Message)
+      If HandleErrors Then
+        MsgBox(
+          "Error in entry point searching: " & Environment.NewLine & Environment.NewLine & "Debug Info: " & err.Message)
+      Else
+        Throw
+      End If
       Exit Sub
     End Try
   End Sub
