@@ -12,7 +12,7 @@
     <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <StartupObject>MKDS_Course_Modifier.debug.Debug</StartupObject>
+    <StartupObject>mkds.cli.Cli</StartupObject>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RootNamespace>mkds</RootNamespace>
   </PropertyGroup>
