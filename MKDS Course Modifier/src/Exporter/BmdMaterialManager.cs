@@ -2,6 +2,8 @@
 using System.IO;
 using System.Linq;
 
+using Newtonsoft.Json;
+
 using fin.cli;
 using fin.model;
 
@@ -17,8 +19,19 @@ namespace mkds.exporter {
         IModel model,
         BMD bmd,
         IList<(string, BTI)>? pathsAndBtis = null) {
+      var outputDirectory = new FileInfo(Args.OutputPath).Directory;
+
       this.bmd_ = bmd;
 
+      // Saves JSON representation of MAT3 for debugging materials
+      var jsonSerializer = new JsonSerializer();
+      jsonSerializer.Formatting = Formatting.Indented;
+      var jsonTextWriter = new StringWriter();
+      jsonSerializer.Serialize(jsonTextWriter, bmd.MAT3);
+      File.WriteAllText($"{outputDirectory.FullName}\\mat3.txt",
+                        jsonTextWriter.ToString());
+
+      // Saves textures in directory
       this.textures_ = bmd.TEX1.TextureHeaders.Select((textureHeader, i) => {
                             var textureName =
                                 bmd.TEX1.StringTable.Entries[i].Entry;
@@ -30,7 +43,6 @@ namespace mkds.exporter {
                           })
                           .ToList();
 
-      var outputDirectory = new FileInfo(Args.OutputPath).Directory;
       foreach (var texture in this.textures_) {
         texture.SaveInDirectory(outputDirectory);
       }
