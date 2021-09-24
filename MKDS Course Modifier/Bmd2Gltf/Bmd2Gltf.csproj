@@ -54,7 +54,9 @@
     <PackageReference Include="Microsoft.Packaging.Tools.Trimming" Version="1.1.0-preview1-25818-01" />
     <PackageReference Include="MonoGame.Framework.Portable" Version="3.7.1.189" />
     <PackageReference Include="OpenTK" Version="4.0.0" />
+    <PackageReference Include="System.Collections" Version="4.3.0" />
     <PackageReference Include="System.Drawing.Common" Version="6.0.0-rc.1.21451.13" />
+    <PackageReference Include="System.Runtime" Version="4.3.1" />
   </ItemGroup>
 
   <ItemGroup>

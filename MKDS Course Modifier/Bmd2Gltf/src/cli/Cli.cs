@@ -4,6 +4,7 @@ using System.Linq;
 
 using fin.cli;
 using fin.exporter.assimp;
+using fin.exporter.gltf;
 using fin.log;
 
 using Microsoft.Extensions.Logging;
@@ -45,6 +46,8 @@ namespace mkds.cli {
           Args.BtiPaths.Select(btiPath => (btiPath,
                                            new BTI(File.ReadAllBytes(btiPath))))
               .ToList();
+
+      BmdDebugHelper.ExportFilesInBmd(bmd, pathsAndBtis);
 
       var outputFile = Args.OutputFile;
       if (Args.Static) {
