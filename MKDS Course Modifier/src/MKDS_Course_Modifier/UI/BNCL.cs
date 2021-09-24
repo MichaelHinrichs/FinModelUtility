@@ -179,7 +179,7 @@ namespace MKDS_Course_Modifier.UI
     private void UploadCells()
     {
       for (int Index = 0; Index < (int) this.Cell.CellBankBlock.CellDataBank.numCells; ++Index)
-        GlNitro.glNitroTexImage2D(this.Cell.CellBankBlock.CellDataBank.GetBitmap(Index, this.Graphic, this.Palette), Index + 1, 9728);
+        GlNitro2.glNitroTexImage2D(this.Cell.CellBankBlock.CellDataBank.GetBitmap(Index, this.Graphic, this.Palette), Index + 1, 9728);
       this.Render(false, new Point());
     }
 

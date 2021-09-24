@@ -73,7 +73,7 @@ namespace MKDS_Course_Modifier.UI
         {
           int WrapModeS = 10497;
           int WrapModeT = 10497;
-          GlNitro.glNitroTexImage2D(texture.GetBitmap(0), Nr, WrapModeS, WrapModeT, 9729, 9729);
+          GlNitro2.glNitroTexImage2D(texture.GetBitmap(0), Nr, WrapModeS, WrapModeT, 9729, 9729);
           ++Nr;
         }
       }

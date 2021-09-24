@@ -72,7 +72,7 @@ namespace MKDS_Course_Modifier.UI
         foreach (MLT.Material material in this.Mlt.Materials)
         {
           if (material.DiffuseMap != null)
-            GlNitro.glNitroTexImage2D(material.DiffuseMap, Nr, 10497, 9728);
+            GlNitro2.glNitroTexImage2D(material.DiffuseMap, Nr, 10497, 9728);
           ++Nr;
         }
       }

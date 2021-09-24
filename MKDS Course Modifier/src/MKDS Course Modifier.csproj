@@ -6,15 +6,16 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{86022D00-3FF6-4C1C-A0E4-CF0A96BF9897}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <AssemblyName>bmd2gltf</AssemblyName>
+    <AssemblyName>mkds</AssemblyName>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <StartupObject>mkds.cli.Cli</StartupObject>
+    <StartupObject></StartupObject>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RootNamespace>mkds</RootNamespace>
+    <RuntimeIdentifier>win10-x86</RuntimeIdentifier>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>bin\Debug</OutputPath>
@@ -42,7 +43,6 @@
     <Compile Remove="MKDS_Course_Modifier\N64\**" />
     <Compile Remove="MKDS_Course_Modifier\Particles\**" />
     <Compile Remove="MKDS_Course_Modifier\Sound\**" />
-    <Compile Remove="MKDS_Course_Modifier\UI\**" />
     <Compile Remove="MKDS_Course_Modifier\_3DS\**" />
     <Compile Remove="SevenZip\**" />
     <Compile Remove="WaveLib\**" />
@@ -50,7 +50,6 @@
     <EmbeddedResource Remove="MKDS_Course_Modifier\N64\**" />
     <EmbeddedResource Remove="MKDS_Course_Modifier\Particles\**" />
     <EmbeddedResource Remove="MKDS_Course_Modifier\Sound\**" />
-    <EmbeddedResource Remove="MKDS_Course_Modifier\UI\**" />
     <EmbeddedResource Remove="MKDS_Course_Modifier\_3DS\**" />
     <EmbeddedResource Remove="SevenZip\**" />
     <EmbeddedResource Remove="WaveLib\**" />
@@ -58,7 +57,6 @@
     <None Remove="MKDS_Course_Modifier\N64\**" />
     <None Remove="MKDS_Course_Modifier\Particles\**" />
     <None Remove="MKDS_Course_Modifier\Sound\**" />
-    <None Remove="MKDS_Course_Modifier\UI\**" />
     <None Remove="MKDS_Course_Modifier\_3DS\**" />
     <None Remove="SevenZip\**" />
     <None Remove="WaveLib\**" />
@@ -73,21 +71,18 @@
     <Compile Remove="MKDS_Course_Modifier\IO\FileHandler.cs" />
     <Compile Remove="MKDS_Course_Modifier\IO\NDS.cs" />
     <Compile Remove="MKDS_Course_Modifier\IO\NDS_new.cs" />
-    <Compile Remove="MKDS_Course_Modifier\Misc\BNCL.cs" />
-    <Compile Remove="MKDS_Course_Modifier\Misc\FMV.cs" />
-    <Compile Remove="MKDS_Course_Modifier\Misc\PAZ.cs" />
-    <Compile Remove="MKDS_Course_Modifier\Misc\sfxbin.cs" />
     <Compile Remove="MKDS_Course_Modifier\Program.cs" />
+    <Compile Remove="MKDS_Course_Modifier\UI\FMV.cs" />
+    <Compile Remove="MKDS_Course_Modifier\UI\MKDS\MKDSEditor.cs" />
+    <Compile Remove="MKDS_Course_Modifier\UI\MKDS\NKMProperties.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Remove="MKDS_Course_Modifier\Form1.resx" />
+    <EmbeddedResource Remove="MKDS_Course_Modifier\UI\FMV.resx" />
+    <EmbeddedResource Remove="MKDS_Course_Modifier\UI\MKDS\MKDSEditor.resx" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="lib\FastColoredTextBox.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="MKDS_Course_Modifier\UI\MKDS\MRProperties.cs" />
-    <Compile Include="MKDS_Course_Modifier\UI\MKDS\NKMProperties.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="DirectMidiNet">
@@ -127,6 +122,138 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Bmd2Gltf\Bmd2Gltf.csproj" />
     <ProjectReference Include="..\FinModelExporter\Fin.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="MKDS_Course_Modifier\AngleAltitudeControls\AngleAltitudeSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\AngleAltitudeControls\AngleSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\Converters\Colission\kclType.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\Converters\Colission\zcbType.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\ASMEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\BaseForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\BLO.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\BMD.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\BMG.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\BNCL.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\CGFX.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\FragmentShaderApplier.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\G3DCVTR.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\J3D1.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\MDLF.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\MKDS\ARM9Editor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\MKDS\CoursePictureGenerator.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\MKDS\CourseSelector.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\MKDS\GlobalMapGenerator.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\MKDS\MR.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\MKDS\NKM.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\MKDS\NKMCheck.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\MKDS\ObjectDbEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\MKDS\ObjectDbObjectSettingsEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\MKDS\ObjectDbWikiTextGenerator.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\MKDS\ObjectSelector.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\NCER.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\NCLR.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\NCLREditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\NSBMD.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\NSBTA.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\NSBTX.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\NSCR.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\OBJ.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\OBJVertexColor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\ScaleDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\SPA.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\SSEQ.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\Test.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\WAV.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\WaveViewer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="MKDS_Course_Modifier\UI\_3DExportSettings.cs">
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="MKDS_Course_Modifier\Converters\_3D\" />
   </ItemGroup>
 </Project>

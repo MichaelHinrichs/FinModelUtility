@@ -259,7 +259,7 @@ namespace MKDS_Course_Modifier.UI.MKDS
       Gl.glBlendFunc(770, 771);
       Gl.glShadeModel(7425);
       Gl.glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
-      GlNitro.glNitroBindTextures(this.nsbmd, 1);
+      GlNitro2.glNitroBindTextures(this.nsbmd, 1);
       this.Render(false, 0, 0);
     }
 
@@ -283,7 +283,7 @@ namespace MKDS_Course_Modifier.UI.MKDS
       if (this.Root1.GetFileByPath("\\course_model_V.nsbmd") != null)
       {
         if (this.first)
-          GlNitro.glNitroBindTextures(this.nsbmd2, 16711426);
+          GlNitro2.glNitroBindTextures(this.nsbmd2, 16711426);
         Gl.glScalef(this.nsbmd2.modelSet.models[0].info.posScale / this.nsbmd.modelSet.models[0].info.posScale, this.nsbmd2.modelSet.models[0].info.posScale / this.nsbmd.modelSet.models[0].info.posScale, this.nsbmd2.modelSet.models[0].info.posScale / this.nsbmd.modelSet.models[0].info.posScale);
         Gl.glDisable(2884);
         this.nsbmd2.modelSet.models[0].ProcessSbc(MKDSEditor.X, MKDSEditor.Y, MKDSEditor.dist, MKDSEditor.elev, MKDSEditor.ang, this.picking, 16711426);
@@ -505,7 +505,7 @@ namespace MKDS_Course_Modifier.UI.MKDS
     {
       if (!this.objectstex.Contains(id))
       {
-        GlNitro.glNitroBindTextures(tmp, (int) id * (int) byte.MaxValue + 1 + this.texoffset * (int) ushort.MaxValue);
+        GlNitro2.glNitroBindTextures(tmp, (int) id * (int) byte.MaxValue + 1 + this.texoffset * (int) ushort.MaxValue);
         if (last)
           this.objectstex.Add(id);
       }

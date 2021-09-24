@@ -202,11 +202,11 @@ namespace MKDS_Course_Modifier.UI.MPDS
       Gl.glShadeModel(7425);
       Gl.glAlphaFunc(516, 0.0f);
       Gl.glClearColor(0.2f, 0.2f, 0.2f, 1f);
-      GlNitro.glNitroBindTextures(this.Model, 1);
-      GlNitro.glNitroBindTextures(this.Spaces, (int) this.Model.MDLFBlocks[0].NrTextures + 1);
-      GlNitro.glNitroBindTextures(this.Objects[0], (int) this.Model.MDLFBlocks[0].NrTextures + 1 + this.Spaces.TEXOBlocks.Length);
-      GlNitro.glNitroBindTextures(this.Objects[1], (int) this.Model.MDLFBlocks[0].NrTextures + 1 + this.Spaces.TEXOBlocks.Length + (int) this.Objects[0].MDLFBlocks[0].NrTextures);
-      GlNitro.glNitroBindTextures(this.Objects[2], (int) this.Model.MDLFBlocks[0].NrTextures + 1 + this.Spaces.TEXOBlocks.Length + (int) this.Objects[0].MDLFBlocks[0].NrTextures + (int) this.Objects[1].MDLFBlocks[0].NrTextures);
+      GlNitro2.glNitroBindTextures(this.Model, 1);
+      GlNitro2.glNitroBindTextures(this.Spaces, (int) this.Model.MDLFBlocks[0].NrTextures + 1);
+      GlNitro2.glNitroBindTextures(this.Objects[0], (int) this.Model.MDLFBlocks[0].NrTextures + 1 + this.Spaces.TEXOBlocks.Length);
+      GlNitro2.glNitroBindTextures(this.Objects[1], (int) this.Model.MDLFBlocks[0].NrTextures + 1 + this.Spaces.TEXOBlocks.Length + (int) this.Objects[0].MDLFBlocks[0].NrTextures);
+      GlNitro2.glNitroBindTextures(this.Objects[2], (int) this.Model.MDLFBlocks[0].NrTextures + 1 + this.Spaces.TEXOBlocks.Length + (int) this.Objects[0].MDLFBlocks[0].NrTextures + (int) this.Objects[1].MDLFBlocks[0].NrTextures);
       this.Render();
     }
 

@@ -382,7 +382,7 @@ namespace MKDS_Course_Modifier.UI.MKDS
       }
       this.img = (byte[]) null;
       this.map = (byte[]) null;
-      System.Drawing.Bitmap b = GlNitro.ScreenShot(this.simpleOpenGlControl1);
+      System.Drawing.Bitmap b = GlNitro2.ScreenShot(this.simpleOpenGlControl1);
       b.MakeTransparent(Color.FromArgb(0, 16, 96));
       Graphic.ConvertBitmap(b, this.pal, out this.img, out this.map, Graphic.GXTexFmt.GX_TEXFMT_PLTT16, true);
       b.Dispose();

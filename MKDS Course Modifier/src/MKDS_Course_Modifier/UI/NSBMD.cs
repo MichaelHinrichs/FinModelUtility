@@ -254,7 +254,7 @@ namespace MKDS_Course_Modifier.UI
       Gl.glBlendFunc(770, 771);
       Gl.glShadeModel(7425);
       Gl.glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
-      GlNitro.glNitroBindTextures(this.file, 1);
+      GlNitro2.glNitroBindTextures(this.file, 1);
       this.Render();
     }
 
@@ -304,7 +304,7 @@ namespace MKDS_Course_Modifier.UI
     {
       ((MenuItem) sender).Checked = true;
       this.SelBtpAnim = ((MenuItem) sender).Index - 2;
-      GlNitro.glNitroBindTextures(this.file, 1);
+      GlNitro2.glNitroBindTextures(this.file, 1);
       if (this.SelBtpAnim >= 0)
         this.BtpNumFrames = (int) this.Btp.texPatAnmSet.texPatAnm[this.SelBtpAnim].numFrame;
       this.SetZeroFrame();
@@ -556,7 +556,7 @@ namespace MKDS_Course_Modifier.UI
     public void SetNSBTX(MKDS_Course_Modifier.G3D_Binary_File_Format.NSBTX Btx)
     {
       this.file.TexPlttSet = Btx.TexPlttSet;
-      GlNitro.glNitroBindTextures(this.file, 1);
+      GlNitro2.glNitroBindTextures(this.file, 1);
       this.Render();
     }
 
@@ -584,7 +584,7 @@ namespace MKDS_Course_Modifier.UI
       this.menuItem3.MenuItems[0].Checked = true;
       this.menuItem2.MenuItems.Clear();
       this.menuItem5.MenuItems.Clear();
-      GlNitro.glNitroBindTextures(this.file, 1);
+      GlNitro2.glNitroBindTextures(this.file, 1);
       this.Render();
     }
 
@@ -642,7 +642,7 @@ namespace MKDS_Course_Modifier.UI
     private void menuItem16_Click(object sender, EventArgs e)
     {
       this.Render();
-      System.Drawing.Bitmap bitmap = GlNitro.ScreenShot(this.simpleOpenGlControl1);
+      System.Drawing.Bitmap bitmap = GlNitro2.ScreenShot(this.simpleOpenGlControl1);
       if (this.saveFileDialog3.ShowDialog() == DialogResult.OK && this.saveFileDialog3.FileName.Length > 0)
         bitmap.Save(this.saveFileDialog3.FileName, ImageFormat.Png);
       bitmap.Dispose();

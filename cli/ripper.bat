@@ -1,6 +1,8 @@
 @echo off 
 setlocal EnableDelayedExpansion
 
+set extraArgs=%1
+
 set outBasePath=%~dp0%out\
 set bmd2gltfBasePath=%~dp0%bmd2gltf\
 set szstoolsBasePath=%~dp0%szstools\
@@ -66,7 +68,6 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
     pushd "%%r"
     for %%b in (".\arc\*.bmd") do (
       set modelName=%%~nd
-      echo !modelName!
     )
     popd
   )
@@ -80,7 +81,7 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
 
     echo Processing !modelName! w/ automatic inputs...
     @echo on
-    "%bmd2gltfBasePath%bmd2gltf.exe" automatic --out "!outputPath!"
+    "%bmd2gltfBasePath%bmd2gltf.exe" automatic --out "!outputPath!" "%extraArgs%"
     @echo off
   )
 
@@ -93,7 +94,7 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
 
     echo Processing !modelName! w/ manual inputs...
     @echo on
-    "%bmd2gltfBasePath%bmd2gltf.exe" manual --out "!outputPath!" --bmd "!modelFile!" --bcx "!animFiles!"
+    "%bmd2gltfBasePath%bmd2gltf.exe" manual --out "!outputPath!" --bmd "!modelFile!" --bcx "!animFiles!" "%extraArgs%"
     @echo off
   )
 )

@@ -75,7 +75,7 @@ namespace MKDS_Course_Modifier.UI
       Gl.glShadeModel(7425);
       Gl.glAlphaFunc(516, 0.0f);
       Gl.glClearColor(0.2f, 0.2f, 0.2f, 1f);
-      GlNitro.glNitroBindTextures(this.file, 1);
+      GlNitro2.glNitroBindTextures(this.file, 1);
       this.Render();
     }
 
@@ -213,7 +213,7 @@ namespace MKDS_Course_Modifier.UI
       this.Bca = (BCA) null;
       this.SelBcaAnim = 0;
       this.menuItem2.MenuItems.Clear();
-      GlNitro.glNitroBindTextures(this.file, 1);
+      GlNitro2.glNitroBindTextures(this.file, 1);
       this.Render();
     }
 

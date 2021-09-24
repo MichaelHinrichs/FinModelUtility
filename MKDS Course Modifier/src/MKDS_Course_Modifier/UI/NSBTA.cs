@@ -52,8 +52,8 @@ namespace MKDS_Course_Modifier.UI
       Gl.glEnable(3553);
       Gl.glBlendFunc(770, 771);
       Gl.glEnable(3553);
-      GlNitro.glNitroTexImage2D(Resources.preview_background, 0, 10497);
-      GlNitro.glNitroTexImage2D(Resources.example, 1, 10497);
+      GlNitro2.glNitroTexImage2D(Resources.preview_background, 0, 10497);
+      GlNitro2.glNitroTexImage2D(Resources.example, 1, 10497);
       this.Render((float[]) null);
     }
 
