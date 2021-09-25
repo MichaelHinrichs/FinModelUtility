@@ -1,4 +1,6 @@
-﻿using CommandLine;
+﻿using System.Collections.Generic;
+
+using CommandLine;
 
 namespace fin.cli {
   public abstract class BBasicOptions {
@@ -36,10 +38,10 @@ namespace fin.cli {
     public string BmdPath { get; set; }
 
     [Option("bcx", HelpText = "Path(s) to input .bca/.bck animations.")]
-    public string[] BcxPaths { get; set; }
+    public IEnumerable<string> BcxPaths { get; set; }
 
     [Option("bti", HelpText = "Path(s) to input .bti textures.")]
-    public string[] BtiPaths { get; set; }
+    public IEnumerable<string> BtiPaths { get; set; }
   }
 
   [Verb("debug",

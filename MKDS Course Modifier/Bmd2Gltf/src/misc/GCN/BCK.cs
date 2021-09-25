@@ -12,7 +12,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
+using fin.log;
+
+using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.TestTools.UnitTesting.Logging;
+
+using mkds.exporter;
+
 namespace MKDS_Course_Modifier.GCN {
+  /// <summary>
+  /// https://wiki.cloudmodding.com/tww/BCK
+  /// </summary>
   public class BCK : IBcx {
     public const string Signature = "J3D1bck1";
     public BCK.BCKHeader Header;
@@ -106,11 +116,11 @@ namespace MKDS_Course_Modifier.GCN {
           er.BaseStream.Position = (long) (32U + this.JointOffset);
           this.Joints = new AnimatedJoint[(int) this.NrJoints];
           for (int index = 0; index < (int) this.NrJoints; ++index) {
-            var animatedJoint =  new AnimatedJoint(er);
+            var animatedJoint = new AnimatedJoint(er);
             animatedJoint.SetValues(this.Scale,
-                                     this.Rotation,
-                                     this.Translation,
-                                     RotScale);
+                                    this.Rotation,
+                                    this.Translation,
+                                    RotScale);
             this.Joints[index] = animatedJoint;
           }
           OK = true;
@@ -253,9 +263,9 @@ namespace MKDS_Course_Modifier.GCN {
                               ((double) keys[index].Time -
                                (double) keys[index - 1].Time));
           return this.Interpolate(keys[index - 1].Value,
-                                  keys[index - 1].Tangent,
+                                  keys[index - 1].OutgoingTangent,
                                   keys[index].Value,
-                                  keys[index].Tangent,
+                                  keys[index].IncomingTangent,
                                   t1);
         }
 
@@ -276,12 +286,12 @@ namespace MKDS_Course_Modifier.GCN {
           public class AnimIndex {
             public ushort Count;
             public ushort Index;
-            public ushort Zero;
+            public ushort TangentMode;
 
             public AnimIndex(EndianBinaryReader er) {
               this.Count = er.ReadUInt16();
               this.Index = er.ReadUInt16();
-              this.Zero = er.ReadUInt16();
+              this.TangentMode = er.ReadUInt16();
             }
           }
         }
@@ -329,25 +339,28 @@ namespace MKDS_Course_Modifier.GCN {
           private void SetKeysST(
               out IJointAnimKey[] Destination,
               float[] Source,
-              BCK.ANK1Section.AnimatedJoint.AnimComponent.AnimIndex Component) {
+              AnimComponent.AnimIndex Component) {
             Destination = new IJointAnimKey[(int) Component.Count];
-            if (Component.Zero != (ushort) 0)
-              throw new Exception("No Zero");
             if (Component.Count <= (ushort) 0)
               throw new Exception("Count <= 0");
             if (Component.Count == (ushort) 1) {
               Destination[0] =
-                  new BCK.ANK1Section.AnimatedJoint.JointAnim.Key(
+                  new Key(
                       0.0f,
                       Source[(int) Component.Index],
-                      0.0f);
+                      0,
+                      0);
             } else {
-              for (int index = 0; index < (int) Component.Count; ++index)
+              for (int index = 0; index < (int) Component.Count; ++index) {
+                // TODO: What to do about incoming/outgoing?
+                var tangent = Source[(int) Component.Index + 3 * index + 2];
                 Destination[index] =
-                    new BCK.ANK1Section.AnimatedJoint.JointAnim.Key(
+                    new Key(
                         Source[(int) Component.Index + 3 * index],
                         Source[(int) Component.Index + 3 * index + 1],
-                        Source[(int) Component.Index + 3 * index + 2]);
+                        tangent,
+                        tangent);
+              }
             }
           }
 
@@ -359,37 +372,48 @@ namespace MKDS_Course_Modifier.GCN {
             Destination =
                 new IJointAnimKey[(int) Component
                     .Count];
-            if (Component.Zero != (ushort) 0)
-              throw new Exception("No Zero");
             if (Component.Count <= (ushort) 0)
               throw new Exception("Count <= 0");
             if (Component.Count == (ushort) 1) {
               Destination[0] = new BCK.ANK1Section.AnimatedJoint.JointAnim.Key(
                   0.0f,
                   (float) Source[(int) Component.Index] * RotScale,
-                  0.0f);
+                  0,
+                  0);
             } else {
-              for (int index = 0; index < (int) Component.Count; ++index)
+              for (int index = 0; index < (int) Component.Count; ++index) {
+                // TODO: What to do about incoming/outgoing?
+                var tangent =
+                    (float) Source[(int) Component.Index + 3 * index + 2] *
+                    RotScale;
+
                 Destination[index] =
                     new BCK.ANK1Section.AnimatedJoint.JointAnim.Key(
                         (float) Source[(int) Component.Index + 3 * index],
                         (float) Source[(int) Component.Index + 3 * index + 1] *
                         RotScale,
-                        (float) Source[(int) Component.Index + 3 * index + 2] *
-                        RotScale);
+                        tangent,
+                        tangent);
+              }
             }
           }
 
           public class Key : IJointAnimKey {
-            public Key(float Time, float Value, float Tangent) {
+            public Key(
+                float Time,
+                float Value,
+                float incomingTangent,
+                float outgoingTangent) {
               this.Time = Time;
               this.Value = Value;
-              this.Tangent = Tangent;
+              this.IncomingTangent = incomingTangent;
+              this.OutgoingTangent = outgoingTangent;
             }
 
             public float Time { get; }
             public float Value { get; }
-            public float Tangent { get; }
+            public float IncomingTangent { get; } = 1;
+            public float OutgoingTangent { get; } = 1;
           }
         }
       }

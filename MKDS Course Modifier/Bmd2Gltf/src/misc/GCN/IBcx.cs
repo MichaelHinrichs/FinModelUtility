@@ -43,6 +43,7 @@ namespace MKDS_Course_Modifier.GCN {
   public interface IJointAnimKey {
     float Time { get; }
     float Value { get; }
-    float Tangent { get; }
+    float IncomingTangent { get; }
+    float OutgoingTangent { get; }
   }
 }

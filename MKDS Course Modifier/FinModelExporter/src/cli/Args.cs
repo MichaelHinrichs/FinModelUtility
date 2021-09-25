@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 using CommandLine;
 using CommandLine.Text;
@@ -58,8 +59,8 @@ namespace fin.cli {
                   Args.Verbose = manualOpts.Verbose;
                   Args.OutputPath = manualOpts.OutputPath;
                   Args.BmdPath = manualOpts.BmdPath;
-                  Args.BcxPaths = manualOpts.BcxPaths;
-                  Args.BtiPaths = manualOpts.BtiPaths;
+                  Args.BcxPaths = manualOpts.BcxPaths.ToList();
+                  Args.BtiPaths = manualOpts.BtiPaths.ToList();
                 })
                 .WithParsed((DebugOptions debugOpts) => {
                   Args.Static = debugOpts.Static;

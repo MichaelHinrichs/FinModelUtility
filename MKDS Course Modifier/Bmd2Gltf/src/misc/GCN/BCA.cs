@@ -354,7 +354,8 @@ namespace MKDS_Course_Modifier.GCN {
             public float Value { get; }
 
             // TODO: What should this actually be?
-            public float Tangent => 1;
+            public float IncomingTangent => 1;
+            public float OutgoingTangent => 1;
           }
         }
       }

@@ -75,14 +75,21 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
   :: Merges models + animations w/ automatic inputs
   if defined modelName (
     set modelBasePath=%outBasePath%!modelName!
-    set outputPath="!modelBasePath!\!modelName!.glb"
 
-    if not exist "!modelBasePath!" mkdir "!modelBasePath!"
+    >nul 2>nul dir /a-d "!modelBasePath!\*" && (set isModelProcessed=1) || (set isModelProcessed=)
+    if not defined isModelProcessed (
+      set outputPath="!modelBasePath!\!modelName!.glb"
 
-    echo Processing !modelName! w/ automatic inputs...
-    @echo on
-    "%bmd2gltfBasePath%bmd2gltf.exe" automatic --out "!outputPath!" "%extraArgs%"
-    @echo off
+      if not exist "!modelBasePath!" mkdir "!modelBasePath!"
+
+      echo Processing !modelName! w/ automatic inputs...
+      @echo on
+      "%bmd2gltfBasePath%bmd2gltf.exe" automatic --out "!outputPath!" "%extraArgs%"
+      @echo off
+    )
+    if defined isModelProcessed (
+      echo Model already processed for !modelName!
+    )
   )
 
   :: Merges models + animations w/ manual inputs (not used yet...)
@@ -98,6 +105,63 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
     @echo off
   )
 )
+
+popd
+pushd "%hierarchyPath%"
+
+:: Processes the Pikmin/Captain models
+set pikiBasePath=user\Kando\piki\pikis.szs 0.rarc_dir\designer
+
+set pikiAnimationsBasePath=!pikiBasePath!\motion
+set pikiAnimationFetchCmd=dir /b "!pikiAnimationsBasePath!"
+set pikiAnimations=
+for /f "tokens=*" %%a in ('!pikiAnimationFetchCmd!') do (
+  set pikiAnimations=!pikiAnimations! "!pikiAnimationsBasePath!\%%a"
+)
+
+set pikiPikminBasePath=!pikiBasePath!\piki_model
+set pikminModelNames=piki_p2_black piki_p2_blue piki_p2_red piki_p2_white piki_p2_yellow
+for %%m in (%pikminModelNames%) do (
+  set modelName=%%m
+  set modelBasePath=%outBasePath%!modelName!
+  set outputPath=!modelBasePath!\!modelName!.glb
+  
+  >nul 2>nul dir /a-d "!modelBasePath!\*" && (set isModelProcessed=1) || (set isModelProcessed=)
+  if not defined isModelProcessed (
+    if not exist "!modelBasePath!" mkdir "!modelBasePath!"
+
+    echo Processing !modelName! w/ manual inputs...
+    @echo on
+    "%bmd2gltfBasePath%bmd2gltf.exe" manual --out "!outputPath!" --bmd "!pikiPikminBasePath!\!modelName!.bmd" --bcx !pikiAnimations! "%extraArgs%"
+    @echo off
+  )
+  if defined isModelProcessed (
+    echo Model already processed for !modelName!
+  )
+)
+
+set pikiOrimaBasePath=!pikiBasePath!\orima_model
+set orimaModelNames=orima1 orima3 syatyou
+for %%m in (%orimaModelNames%) do (
+  set modelName=%%m
+  set modelBasePath=%outBasePath%!modelName!
+  set outputPath=!modelBasePath!\!modelName!.glb
+  
+  >nul 2>nul dir /a-d "!modelBasePath!\*" && (set isModelProcessed=1) || (set isModelProcessed=)
+  if not defined isModelProcessed (
+    if not exist "!modelBasePath!" mkdir "!modelBasePath!"
+  
+    echo Processing !modelName! w/ manual inputs...
+    @echo on
+    "%bmd2gltfBasePath%bmd2gltf.exe" manual --out "!outputPath!" --bmd "!pikiOrimaBasePath!\!modelName!.bmd" --bcx !pikiAnimations! "%extraArgs%"
+    @echo off
+  )
+  if defined isModelProcessed (
+    echo Model already processed for !modelName!
+  )
+)
+
+
 
 :: Backs out from hierarchy
 popd
