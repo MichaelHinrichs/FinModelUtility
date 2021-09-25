@@ -4,6 +4,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 
+using fin.io;
 using fin.model;
 
 using MKDS_Course_Modifier.GCN;
@@ -68,17 +69,21 @@ namespace mkds.exporter {
     public WrapMode WrapModeS { get; }
     public WrapMode WrapModeT { get; }
 
-    public void SaveInDirectory(DirectoryInfo directory) {
+    public void SaveInDirectory(IDirectory directory) {
       var stream = new MemoryStream();
       this.Image.Save(stream, ImageFormat.Png);
 
       var imageBytes = stream.ToArray();
-      
-      File.WriteAllBytes($"{directory.FullName}\\{this.Name}.png",
+
+      // Some names have invalid characters, so we need to process them out.
+      // - e.g. 256??256.png, which are meant to be dimensions
+      var name = this.Name.Replace("??", "x");
+
+      File.WriteAllBytes(Path.Join(directory.FullName, $"{name}.png"),
                          imageBytes);
     }
 
-  private static WrapMode GetWrapMode_(bool mirror, bool repeat) {
+    private static WrapMode GetWrapMode_(bool mirror, bool repeat) {
       if (mirror) {
         return WrapMode.MIRROR_REPEAT;
       }
@@ -86,7 +91,7 @@ namespace mkds.exporter {
       if (repeat) {
         return WrapMode.REPEAT;
       }
-      
+
       return WrapMode.CLAMP;
     }
   }

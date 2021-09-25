@@ -19,7 +19,7 @@ namespace fin.cli {
   public abstract class BConversionOptions : BBasicOptions {
     [Option("out",
             HelpText =
-                "Path to an output .glb/.gltf that will be generated.",
+                "Path to an output directory that the model(s) will be generated within.",
             Required = true)]
     public string OutputPath { get; set; }
   }
@@ -34,8 +34,9 @@ namespace fin.cli {
   public class ManualOptions : BConversionOptions {
     [Option("bmd",
             HelpText = "Path to an input .bmd model.",
-            Required = true)]
-    public string BmdPath { get; set; }
+            Required = true,
+            Min = 1)]
+    public IEnumerable<string> BmdPaths { get; set; }
 
     [Option("bcx", HelpText = "Path(s) to input .bca/.bck animations.")]
     public IEnumerable<string> BcxPaths { get; set; }

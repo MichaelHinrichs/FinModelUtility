@@ -78,13 +78,9 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
 
     >nul 2>nul dir /a-d "!modelBasePath!\*" && (set isModelProcessed=1) || (set isModelProcessed=)
     if not defined isModelProcessed (
-      set outputPath="!modelBasePath!\!modelName!.glb"
-
-      if not exist "!modelBasePath!" mkdir "!modelBasePath!"
-
       echo Processing !modelName! w/ automatic inputs...
       @echo on
-      "%bmd2gltfBasePath%bmd2gltf.exe" automatic --out "!outputPath!" "%extraArgs%"
+      "%bmd2gltfBasePath%bmd2gltf.exe" automatic --out "!modelBasePath!" "%extraArgs%"
       @echo off
     )
     if defined isModelProcessed (
@@ -95,13 +91,10 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
   :: Merges models + animations w/ manual inputs (not used yet...)
   if defined modelFile if defined animFiles (
     set modelBasePath=%outBasePath%!modelName!
-    set outputPath="!modelBasePath!\!modelName!.glb"
-
-    if not exist "!modelBasePath!" mkdir "!modelBasePath!"
 
     echo Processing !modelName! w/ manual inputs...
     @echo on
-    "%bmd2gltfBasePath%bmd2gltf.exe" manual --out "!outputPath!" --bmd "!modelFile!" --bcx "!animFiles!" "%extraArgs%"
+    "%bmd2gltfBasePath%bmd2gltf.exe" manual --out "!modelBasePath!" --bmd "!modelFile!" --bcx "!animFiles!" "%extraArgs%"
     @echo off
   )
 )
@@ -124,15 +117,12 @@ set pikminModelNames=piki_p2_black piki_p2_blue piki_p2_red piki_p2_white piki_p
 for %%m in (%pikminModelNames%) do (
   set modelName=%%m
   set modelBasePath=%outBasePath%!modelName!
-  set outputPath=!modelBasePath!\!modelName!.glb
   
   >nul 2>nul dir /a-d "!modelBasePath!\*" && (set isModelProcessed=1) || (set isModelProcessed=)
   if not defined isModelProcessed (
-    if not exist "!modelBasePath!" mkdir "!modelBasePath!"
-
     echo Processing !modelName! w/ manual inputs...
     @echo on
-    "%bmd2gltfBasePath%bmd2gltf.exe" manual --out "!outputPath!" --bmd "!pikiPikminBasePath!\!modelName!.bmd" --bcx !pikiAnimations! "%extraArgs%"
+    "%bmd2gltfBasePath%bmd2gltf.exe" manual --out "!modelBasePath!" --bmd "!pikiPikminBasePath!\!modelName!.bmd" --bcx !pikiAnimations! "%extraArgs%"
     @echo off
   )
   if defined isModelProcessed (
@@ -145,15 +135,12 @@ set orimaModelNames=orima1 orima3 syatyou
 for %%m in (%orimaModelNames%) do (
   set modelName=%%m
   set modelBasePath=%outBasePath%!modelName!
-  set outputPath=!modelBasePath!\!modelName!.glb
   
   >nul 2>nul dir /a-d "!modelBasePath!\*" && (set isModelProcessed=1) || (set isModelProcessed=)
   if not defined isModelProcessed (
-    if not exist "!modelBasePath!" mkdir "!modelBasePath!"
-  
     echo Processing !modelName! w/ manual inputs...
     @echo on
-    "%bmd2gltfBasePath%bmd2gltf.exe" manual --out "!outputPath!" --bmd "!pikiOrimaBasePath!\!modelName!.bmd" --bcx !pikiAnimations! "%extraArgs%"
+    "%bmd2gltfBasePath%bmd2gltf.exe" manual --out "!modelBasePath!" --bmd "!pikiOrimaBasePath!\!modelName!.bmd" --bcx !pikiAnimations! "%extraArgs%"
     @echo off
   )
   if defined isModelProcessed (

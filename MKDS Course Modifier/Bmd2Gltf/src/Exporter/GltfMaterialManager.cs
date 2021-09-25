@@ -28,7 +28,7 @@ namespace mkds.exporter {
                           })
                           .ToList();
 
-      var outputDirectory = new FileInfo(Args.OutputPath).Directory;
+      var outputDirectory = Args.OutputDirectory;
       foreach (var texture in this.textures_) {
         texture.SaveInDirectory(outputDirectory);
       }

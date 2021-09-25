@@ -13,13 +13,17 @@ using fin.util.array;
 namespace fin.cli {
   // TODO: Hook downstream classes into this for args by system.
   public static class Args {
+    public static bool Automatic { get; private set; }
     public static bool Static { get; private set; }
     public static bool Verbose { get; private set; }
 
-    public static string OutputPath { get; private set; } = "";
-    public static IFile OutputFile => new FinFile(Args.OutputPath);
+    public static string OutputDirectoryPath { get; private set; } = "";
 
-    public static string BmdPath { get; private set; } = "";
+    public static IDirectory OutputDirectory
+      => new FinDirectory(Args.OutputDirectoryPath);
+
+    public static IList<string> BmdPaths { get; private set; } =
+      new List<string>();
 
     public static IList<string> BcxPaths { get; private set; } =
       new List<string>();
@@ -42,10 +46,10 @@ namespace fin.cli {
                     typeof(ManualOptions),
                     typeof(DebugOptions))
                 .WithParsed((AutomaticOptions automaticOpts) => {
+                  Args.Automatic = true;
                   Args.Static = automaticOpts.Static;
                   Args.Verbose = automaticOpts.Verbose;
-                  Args.OutputPath = automaticOpts.OutputPath;
-                  Args.BmdPath = Files.GetPathWithExtension("bmd", true);
+                  Args.OutputDirectoryPath = automaticOpts.OutputPath;
                   Args.BcxPaths = Arrays.Concat(Files.GetPathsWithExtension(
                                                     "bca",
                                                     true),
@@ -53,16 +57,19 @@ namespace fin.cli {
                                                     "bck",
                                                     true));
                   Args.BtiPaths = Files.GetPathsWithExtension("bti", true);
+                  Args.BmdPaths = Files.GetPathsWithExtension("bmd", true);
                 })
                 .WithParsed((ManualOptions manualOpts) => {
+                  Args.Automatic = false;
                   Args.Static = manualOpts.Static;
                   Args.Verbose = manualOpts.Verbose;
-                  Args.OutputPath = manualOpts.OutputPath;
-                  Args.BmdPath = manualOpts.BmdPath;
+                  Args.OutputDirectoryPath = manualOpts.OutputPath;
+                  Args.BmdPaths = manualOpts.BmdPaths.ToList();
                   Args.BcxPaths = manualOpts.BcxPaths.ToList();
                   Args.BtiPaths = manualOpts.BtiPaths.ToList();
                 })
                 .WithParsed((DebugOptions debugOpts) => {
+                  Args.Automatic = false;
                   Args.Static = debugOpts.Static;
                   Args.Verbose = debugOpts.Verbose;
 
@@ -78,24 +85,32 @@ namespace fin.cli {
                                   out var bcxPaths,
                                   out var btiPaths);*/
 
-                  Args.GetForEnemy_("Queen",
+                  /*Args.GetForEnemy_("Queen",
                                     out var outputPath,
-                                    out var bmdPath,
+                                    out var bmdPaths,
                                     out var bcxPaths,
-                                    out var btiPaths);
+                                    out var btiPaths);*/
 
-                  /*Args.GetFromDirectory(
+                  Args.GetFromDirectory_(
                       new DirectoryInfo(
-                          "R:/Documents/CSharpWorkspace/Pikmin2Utility/cli/roms/pkmn2.gcm_dir/user/Kando/ufo"),
+                          "R:/Documents/CSharpWorkspace/Pikmin2Utility/cli/roms/pkmn2.gcm_dir/user/Kando/map/forest"),
                       out var outputPath,
-                      out var bmdPath,
+                      out var bmdPaths,
                       out var bcxPaths,
-                      out var btiPaths);*/
-                  //GetForPikmin(out outputPath, out bmdPath);
-                  //GetForTesting(out outputPath, out bmdPath, out bcxPaths);
+                      out var btiPaths);
 
-                  Args.OutputPath = outputPath;
-                  Args.BmdPath = bmdPath;
+                   /*Args.GetFromDirectory(
+                       new DirectoryInfo(
+                           "R:/Documents/CSharpWorkspace/Pikmin2Utility/cli/roms/pkmn2.gcm_dir/user/Kando/ufo"),
+                       out var outputPath,
+                       out var bmdPath,
+                       out var bcxPaths,
+                       out var btiPaths);*/
+                   //GetForPikmin(out outputPath, out bmdPath);
+                   //GetForTesting(out outputPath, out bmdPath, out bcxPaths);
+
+                   Args.OutputDirectoryPath = outputPath;
+                  Args.BmdPaths = bmdPaths;
                   Args.BcxPaths = bcxPaths;
                   Args.BtiPaths = btiPaths;
                 })
@@ -113,12 +128,13 @@ namespace fin.cli {
 
     private static void GetForTesting_(
         out string outputPath,
-        out string bmdPath,
+        out IList<string> bmdPaths,
         out IList<string> bcxPaths) {
       outputPath =
           "R:/Documents/CSharpWorkspace/Pikmin2Utility/cli/out/out.glb";
-      bmdPath =
-          "R:/Documents/CSharpWorkspace/Pikmin2Utility/cli/out/enemy.bmd";
+      bmdPaths = new[] {
+          "R:/Documents/CSharpWorkspace/Pikmin2Utility/cli/out/enemy.bmd"
+      };
       bcxPaths = new[] {
           "R:/Documents/CSharpWorkspace/Pikmin2Utility/cli/out/attack0.bca",
           "R:/Documents/CSharpWorkspace/Pikmin2Utility/cli/out/attack1.bca",
@@ -131,7 +147,7 @@ namespace fin.cli {
     private static void GetForEnemy_(
         string name,
         out string outputPath,
-        out string bmdPath,
+        out IList<string> bmdPaths,
         out IList<string> bcxPaths,
         out IList<string> btiPaths) {
       outputPath = Args.GetOutputPath_(name);
@@ -142,20 +158,20 @@ namespace fin.cli {
 
       Args.GetFromDirectory_(new DirectoryInfo(enemyBasePath),
                              out outputPath,
-                             out bmdPath,
+                             out bmdPaths,
                              out bcxPaths,
                              out btiPaths);
     }
 
     private static void GetForPikmin_(
         out string outputPath,
-        out string bmdPath) {
+        out IList<string> bmdPaths) {
       var basePath = "R:/Documents/CSharpWorkspace/Pikmin2Utility/";
       outputPath = $"{basePath}cli/out/Pikmin/Red/red.glb";
 
       var pikminBasePath =
           $"{basePath}cli/roms/pkmn2.gcm_dir/user/Kando/piki/pikis.szs 0.rarc_dir/designer/piki_model/";
-      bmdPath = $"{pikminBasePath}piki_p2_red.bmd";
+      bmdPaths = new[] {$"{pikminBasePath}piki_p2_red.bmd"};
 
       /*var bcxFiles =
           new DirectoryInfo($"{enemyBasePath}anim.szs 0.rarc_dir/anim/");
@@ -170,13 +186,13 @@ namespace fin.cli {
 
     private static string GetOutputPath_(string name) {
       var basePath = "R:/Documents/CSharpWorkspace/Pikmin2Utility/";
-      return $"{basePath}cli/out/{name}/{name}.glb";
+      return $"{basePath}cli/out/{name}/";
     }
 
     private static void GetFromKando_(
         string name,
         out string outputPath,
-        out string bmdPath,
+        out IList<string> bmdPaths,
         out IList<string> bcxPaths,
         out IList<string> btiPaths) {
       outputPath = Args.GetOutputPath_(name);
@@ -189,7 +205,7 @@ namespace fin.cli {
       var modelDirFullName = modelDir.FullName;
       var modelDirInfo = new DirectoryInfo(entryDir.FullName);
 
-      bmdPath = Files.GetPathWithExtension(modelDirInfo, "bmd", true);
+      bmdPaths = Files.GetPathsWithExtension(modelDirInfo, "bmd", true);
       bcxPaths = Arrays.Concat(
           Files.GetPathsWithExtension(modelDirInfo, "bca", true),
           Files.GetPathsWithExtension(modelDirInfo, "bck", true));
@@ -199,12 +215,12 @@ namespace fin.cli {
     private static void GetFromDirectory_(
         DirectoryInfo directory,
         out string outputPath,
-        out string bmdPath,
+        out IList<string> bmdPaths,
         out IList<string> bcxPaths,
         out IList<string> btiPaths) {
       outputPath = Args.GetOutputPath_(directory.Name);
 
-      bmdPath = Files.GetPathWithExtension(directory, "bmd", true);
+      bmdPaths = Files.GetPathsWithExtension(directory, "bmd", true);
       bcxPaths = Arrays.Concat(
           Files.GetPathsWithExtension(directory, "bca", true),
           Files.GetPathsWithExtension(directory, "bck", true));

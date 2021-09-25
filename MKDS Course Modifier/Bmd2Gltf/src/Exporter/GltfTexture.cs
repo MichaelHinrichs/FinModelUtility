@@ -4,6 +4,8 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 
+using fin.io;
+
 using MKDS_Course_Modifier.GCN;
 
 using SharpGLTF.Memory;
@@ -80,9 +82,14 @@ namespace mkds.exporter {
     public TextureWrapMode WrapModeS { get; }
     public TextureWrapMode WrapModeT { get; }
 
-    public void SaveInDirectory(DirectoryInfo directory) =>
-        File.WriteAllBytes($"{directory.FullName}\\{this.name_}.png",
-                           this.imageBytes_);
+    public void SaveInDirectory(IDirectory directory) {
+      // Some names have invalid characters, so we need to process them out.
+      // - e.g. 256??256.png, which are meant to be dimensions
+      var name = this.name_.Replace("??", "x");
+
+      File.WriteAllBytes($"{directory.FullName}\\{name}.png",
+                         this.imageBytes_);
+    }
 
     private static TextureWrapMode GetWrapMode_(bool mirror, bool repeat) {
       if (mirror) {

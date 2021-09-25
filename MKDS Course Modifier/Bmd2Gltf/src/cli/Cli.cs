@@ -6,6 +6,7 @@ using System.Linq;
 using fin.cli;
 using fin.exporter.assimp;
 using fin.exporter.gltf;
+using fin.io;
 using fin.log;
 using fin.util.asserts;
 
@@ -26,19 +27,28 @@ namespace mkds.cli {
 
       using var _2 = logger.BeginScope("Main");
       logger.LogInformation("Attempting to parse:");
-      logger.LogInformation("- model: " + Args.BmdPath);
-      logger.LogInformation("- " +
-                            Args.BcxPaths.Count +
-                            " animations:\n" +
-                            string.Join('\n', Args.BcxPaths));
-      logger.LogInformation("- " +
-                            Args.BtiPaths.Count +
-                            " textures:\n" +
-                            string.Join('\n', Args.BtiPaths));
+      logger.LogInformation(
+          $"- {Args.BmdPaths.Count} model(s):\n" +
+          string.Join('\n', Args.BmdPaths));
+      logger.LogInformation(
+          $"- {Args.BcxPaths.Count} animation(s):\n" +
+          string.Join('\n', Args.BcxPaths));
+      logger.LogInformation(
+          $"- {Args.BtiPaths.Count} external texture(s):\n" +
+          string.Join('\n', Args.BtiPaths));
 
-      var bmdExists = File.Exists(Args.BmdPath);
-      if (!bmdExists) {
-        throw new ArgumentException("Model does not exist: " + Args.BmdPath);
+      Asserts.True(
+          !Args.Automatic || (Args.BmdPaths.Count == 1 || !Args.BcxPaths.Any()),
+          "While automatically gathering files for a directory, found " +
+          "multiple BMDs and animations. Not sure which animations go with " +
+          "which BMDs, so aborting this operation.");
+
+      var nonexistentBmds =
+          Args.BmdPaths.Where(bmdPath => !File.Exists(bmdPath));
+      var bmdsExist = !nonexistentBmds.Any();
+      if (!bmdsExist) {
+        throw new ArgumentException("Some bmds don't exist: " +
+                                    string.Join(' ', nonexistentBmds));
       }
 
       var nonexistentBcxes =
@@ -57,9 +67,12 @@ namespace mkds.cli {
                                     string.Join(' ', nonexistentBtis));
       }
 
-      BMD bmd;
+      List<(string, BMD)> pathsAndBmds;
       try {
-        bmd = new BMD(File.ReadAllBytes(Args.BmdPath));
+        pathsAndBmds = Args.BmdPaths.Select(
+                               bmdPath => (bmdPath,
+                                           new BMD(File.ReadAllBytes(bmdPath))))
+                           .ToList();
       } catch {
         logger.LogError("Failed to load BMD!");
         throw;
@@ -98,26 +111,34 @@ namespace mkds.cli {
         throw;
       }
 
-      BmdDebugHelper.ExportFilesInBmd(bmd, pathsAndBtis);
+      var outputDirectory = Args.OutputDirectory;
+      outputDirectory.Create();
 
-      var outputFile = Args.OutputFile;
+      foreach (var (_, bmd) in pathsAndBmds) {
+        BmdDebugHelper.ExportFilesInBmd(bmd, pathsAndBtis);
+      }
+
       if (Args.Static) {
         logger.LogInformation("Converting to a static mesh first.");
 
-        outputFile.GetParent().Create();
+        foreach (var (bmdPath, bmd) in pathsAndBmds) {
+          var model =
+              new ModelConverter().Convert(bmd, pathsAndBcxs, pathsAndBtis);
 
-        var model =
-            new ModelConverter().Convert(bmd, pathsAndBcxs, pathsAndBtis);
-
-        //new GltfExporter().Export(outputFile, model);
-        new AssimpExporter().Export(outputFile.CloneWithExtension(".fbx"),
-                                    model);
+          //new GltfExporter().Export(outputFile, model);
+          new AssimpExporter().Export(
+              new FinFile(Path.Join(Args.OutputDirectoryPath, bmdPath))
+                  .CloneWithExtension(".fbx"),
+              model);
+        }
       } else {
         logger.LogInformation("Exporting directly.");
-        new GltfExporterOld().Export(Args.OutputPath,
-                                     bmd,
-                                     pathsAndBcxs,
-                                     pathsAndBtis);
+        foreach (var pathAndBmd in pathsAndBmds) {
+          new GltfExporterOld().Export(Args.OutputDirectoryPath,
+                                       pathAndBmd,
+                                       pathsAndBcxs,
+                                       pathsAndBtis);
+        }
       }
 
       return 0;

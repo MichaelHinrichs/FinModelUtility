@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 
+using fin.io;
 using fin.log;
 using fin.math;
 
@@ -34,11 +35,13 @@ namespace mkds.exporter {
     public const bool IncludeRootNode = false;
 
     public void Export(
-        string outputPath,
-        BMD bmd,
+        string outputDirectory,
+        (string, BMD) pathAndBmd,
         IList<(string, IBcx)>? pathsAndBcxs = null,
         IList<(string, BTI)>? pathsAndBtis = null) {
       using var _ = this.logger_.BeginScope("Export");
+
+      var (bmdPath, bmd) = pathAndBmd;
 
       var joints = bmd.GetJoints();
 
@@ -151,7 +154,8 @@ namespace mkds.exporter {
 
             translationKeyframes[time] =
                 JointUtil.GetTranslation(bcx, jointIndex, f) * scale;
-            rotationKeyframes[time] = JointUtil.GetQuaternion(bcx, jointIndex, f);
+            rotationKeyframes[time] =
+                JointUtil.GetQuaternion(bcx, jointIndex, f);
             scaleKeyframes[time] = JointUtil.GetScale(bcx, jointIndex, f);
           }
 
@@ -173,10 +177,13 @@ namespace mkds.exporter {
       scene.CreateNode()
            .WithSkinnedMesh(mesh, rootNode.WorldMatrix, jointNodes.ToArray());
 
-      Directory.CreateDirectory(new FileInfo(outputPath).Directory.FullName);
       var writeSettings = new WriteSettings {
           ImageWriting = ResourceWriteMode.SatelliteFile,
       };
+
+      var bmdFile = new FileInfo(bmdPath);
+      var outputFile = new FinFile(Path.Join(outputDirectory, bmdFile.Name));
+      var outputPath = outputFile.CloneWithExtension(".glb").FullName;
 
       this.logger_.LogInformation($"Writing to {outputPath}...");
       model.Save(outputPath, writeSettings);

@@ -13,14 +13,14 @@ namespace mkds.exporter {
     public static void ExportFilesInBmd(
         BMD bmd,
         IList<(string, BTI)> pathsAndBtis) {
-      var outputDirectory = new FileInfo(Args.OutputPath).Directory;
+      var outputDirectory = Args.OutputDirectory;
 
       // Saves JSON representation of MAT3 for debugging materials
       var jsonSerializer = new JsonSerializer();
       jsonSerializer.Formatting = Formatting.Indented;
       var jsonTextWriter = new StringWriter();
       jsonSerializer.Serialize(jsonTextWriter, bmd.MAT3);
-      File.WriteAllText($"{outputDirectory.FullName}\\mat3.txt",
+      File.WriteAllText(Path.Join(outputDirectory.FullName, "mat3.txt"),
                         jsonTextWriter.ToString());
 
       // Saves textures in directory
