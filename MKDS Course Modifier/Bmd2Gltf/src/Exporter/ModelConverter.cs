@@ -249,7 +249,13 @@ namespace mkds.exporter {
                   case Gl.GL_TRIANGLE_STRIP: {
                     skin.AddTriangleStrip(vertices)
                         .SetMaterial(currentBmdMaterial.Material);
-                      break;
+                    break;
+                  }
+
+                  case Gl.GL_TRIANGLE_FAN: {
+                    skin.AddTriangleFan(vertices)
+                        .SetMaterial(currentBmdMaterial.Material);
+                    break;
                   }
 
                   case Gl.GL_QUADS: {

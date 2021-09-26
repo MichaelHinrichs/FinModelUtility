@@ -13,6 +13,7 @@ namespace fin.model {
     IPrimitive AddTriangles(params IVertex[] vertices);
 
     IPrimitive AddTriangleStrip(params IVertex[] vertices);
+    IPrimitive AddTriangleFan(params IVertex[] vertices);
 
     IPrimitive AddQuads(params (IVertex, IVertex, IVertex, IVertex)[] quads);
     IPrimitive AddQuads(params IVertex[] vertices);
@@ -62,6 +63,7 @@ namespace fin.model {
   public enum PrimitiveType {
     TRIANGLES,
     TRIANGLE_STRIP,
+    TRIANGLE_FAN,
     QUADS,
     // TODO: Other types.
   }

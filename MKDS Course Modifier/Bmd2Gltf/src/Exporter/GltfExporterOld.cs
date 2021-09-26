@@ -482,6 +482,23 @@ namespace mkds.exporter {
                     break;
                   }
 
+                  case Gl.GL_TRIANGLE_FAN: {
+                    var triangleStrip =
+                        meshBuilder.UsePrimitive(
+                            currentMaterial.MaterialBuilder,
+                            3);
+
+                    // https://stackoverflow.com/a/8044252
+                    var firstVertex = vertices[0];
+                    var previousVertex = vertices[1];
+                    for (var v = 2; v < pointsCount; ++v) {
+                      triangleStrip.AddTriangle(firstVertex,
+                                                previousVertex,
+                                                vertices[v]);
+                    }
+                    break;
+                  }
+
                   case Gl.GL_QUADS: {
                     var quads =
                         meshBuilder.UsePrimitive(

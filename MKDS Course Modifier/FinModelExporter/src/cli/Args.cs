@@ -93,6 +93,14 @@ namespace fin.cli {
 
                   Args.GetFromDirectory_(
                       new DirectoryInfo(
+                          @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn2.gcm_dir\user\Kando\objects\bridge"),
+                      out var outputPath,
+                      out var bmdPaths,
+                      out var bcxPaths,
+                      out var btiPaths);
+
+                  /*Args.GetFromDirectory_(
+                      new DirectoryInfo(
                           "R:/Documents/CSharpWorkspace/Pikmin2Utility/cli/roms/pkmn2.gcm_dir/user/Kando/map/forest"),
                       out var outputPath,
                       out var bmdPaths,
@@ -106,10 +114,10 @@ namespace fin.cli {
                        out var bmdPath,
                        out var bcxPaths,
                        out var btiPaths);*/
-                   //GetForPikmin(out outputPath, out bmdPath);
-                   //GetForTesting(out outputPath, out bmdPath, out bcxPaths);
+                  //GetForPikmin(out outputPath, out bmdPath);
+                  //GetForTesting(out outputPath, out bmdPath, out bcxPaths);
 
-                   Args.OutputDirectoryPath = outputPath;
+                  Args.OutputDirectoryPath = outputPath;
                   Args.BmdPaths = bmdPaths;
                   Args.BcxPaths = bcxPaths;
                   Args.BtiPaths = btiPaths;

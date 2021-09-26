@@ -4,10 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 
-using fin.math;
 using fin.math.matrix;
-
-using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace fin.model.impl {
   public partial class ModelImpl {
@@ -54,6 +51,13 @@ namespace fin.model.impl {
       public IPrimitive AddTriangleStrip(params IVertex[] vertices) {
         var primitive =
             new PrimitiveImpl(PrimitiveType.TRIANGLE_STRIP, vertices);
+        this.primitives_.Add(primitive);
+        return primitive;
+      }
+
+      public IPrimitive AddTriangleFan(params IVertex[] vertices) {
+        var primitive =
+            new PrimitiveImpl(PrimitiveType.TRIANGLE_FAN, vertices);
         this.primitives_.Add(primitive);
         return primitive;
       }
