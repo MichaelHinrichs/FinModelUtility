@@ -1,19 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 using Assimp;
+using Assimp.Configs;
+using Assimp.Unmanaged;
 
 using fin.exporter.gltf;
 using fin.io;
+using fin.log;
 using fin.math;
 using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
 
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using WrapMode = fin.model.WrapMode;
@@ -21,7 +27,7 @@ using WrapMode = fin.model.WrapMode;
 namespace fin.exporter.assimp {
   using FinBlendMode = fin.model.BlendMode;
 
-  public class AssimpExporter : IExporter {
+  public class AssimpDirectExporter : IExporter {
     // You can bet your ass I'm gonna prefix everything with ass.
 
     public void Export(IFile outputFile, IModel model) {
@@ -50,9 +56,10 @@ namespace fin.exporter.assimp {
 
       var inputFile = outputFile.CloneWithExtension(".glb");
       var inputPath = inputFile.FullName;
-      //new GltfExporter().Export(inputFile, model);
-      //var sc = ctx.ImportFile(inputPath);
-      //;
+
+      new GltfExporter().Export(inputFile, model);
+      var sc = ctx.ImportFile(inputPath);
+      ;
 
       // [ ]: Get skeleton working
       // [ ]: Get mesh working
@@ -60,16 +67,29 @@ namespace fin.exporter.assimp {
       // [ ]: Get materials working
       // [ ]: Get multi-bone-binding working
 
-      var emptyMesh = new Mesh("empty mesh");
-      assScene.Meshes.Add(emptyMesh);
-
       new AssimpSkeletonBuilder().BuildAndBindSkeleton(assScene, model);
-      //new AssimpMeshBuilder().BuildAndBindMesh(assScene, model);
+      new AssimpMeshBuilder().BuildAndBindMesh(assScene, model);
 
+      /*var postProcessSteps = PostProcessSteps.FindInvalidData |
+                             PostProcessSteps.ValidateDataStructure |
+                             PostProcessSteps.GenerateBoundingBoxes |
+                             PostProcessSteps.JoinIdenticalVertices |
+                             PostProcessSteps.OptimizeMeshes |
+                             PostProcessSteps.PreTransformVertices;*/
 
+      LogStream.IsVerboseLoggingEnabled = true;
+      var logStream = new FinLogStream();
+      logStream.Attach();
 
-      var wasSuccessful = ctx.ExportFile(assScene, outputPath, exportFormatId);
-      Asserts.True(wasSuccessful, "Failed to export model.");
+      bool wasSuccessful = false;
+      try {
+        wasSuccessful =
+            ctx.ExportFile(assScene,
+                           outputPath,
+                           exportFormatId);
+      } catch (Exception e) {}
+      var error = AssimpLibrary.Instance.GetErrorString();
+      Asserts.True(wasSuccessful, "Failed to export model: " + error);
 
       return;
 
@@ -379,7 +399,7 @@ void main(in a2v IN, out v2p OUT, uniform float4x4 ModelViewMatrix) {
                 assMaterial.AddMaterialTexture(assTextureSlot);
               }
             }*/
-          }
+    }
 
     /*{
       var lastFinTexture = finMaterial.Textures.Last();
@@ -691,5 +711,21 @@ boneQueue.Enqueue(child);
                    wrapMode,
                    null)
       };
+
+    private class FinLogStream : LogStream {
+      private readonly ILogger impl_ = Logging.Create<FinLogStream>();
+
+      public FinLogStream() {}
+
+      public FinLogStream(string userData) : base(userData) {}
+
+      protected override void LogMessage(string msg, string userData) {
+        if (string.IsNullOrEmpty(userData)) {
+          this.impl_.LogInformation(msg);
+        } else {
+          this.impl_.LogInformation(string.Format("{0}: {1}", userData, msg));
+        }
+      }
+    }
   }
 }

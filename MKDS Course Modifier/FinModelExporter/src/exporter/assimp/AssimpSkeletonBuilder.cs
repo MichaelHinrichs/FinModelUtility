@@ -7,7 +7,7 @@ using fin.model;
 
 namespace fin.exporter.assimp {
   public class AssimpSkeletonBuilder {
-    public (Bone, IBone)[] BuildAndBindSkeleton(
+    public void BuildAndBindSkeleton(
         Scene assScene,
         IModel finModel) {
       var finRootBone = finModel.Skeleton.Root;
@@ -21,10 +21,6 @@ namespace fin.exporter.assimp {
       while (boneQueue.Count > 0) {
         var (assNode, finBone) = boneQueue.Dequeue();
 
-        var assBone = new Bone {
-          Name = assNode.Name
-        };
-
         this.ApplyBoneOrientationToNode_(assNode, finBone);
 
         foreach (var childFinBone in finBone.Children) {
@@ -34,8 +30,6 @@ namespace fin.exporter.assimp {
           boneQueue.Enqueue((childAssNode, childFinBone));
         }
       }
-
-      return skinNodesAndBones.ToArray();
     }
 
     private void ApplyBoneOrientationToNode_(Node assNode, IBone finBone) {

@@ -114,7 +114,7 @@ namespace fin.exporter.gltf {
               var memoryImage = new MemoryImage(imageBytes);
 
               textureBuilder.WithPrimaryImage(memoryImage)
-                            .WithCoordinateSet(i)
+                            .WithCoordinateSet(0)
                             .WithSampler(
                                 this.ConvertWrapMode_(texture.WrapModeU),
                                 this.ConvertWrapMode_(texture.WrapModeV));

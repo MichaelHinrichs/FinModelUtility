@@ -73,14 +73,13 @@ namespace fin.exporter.gltf {
           }
 
           // TODO: Include color
-          var uvs =
-              texCoordIndices
-                  .Select(texCoordIndex => point.GetUv(texCoordIndex))
-                  .Where(uv => uv != null)
-                  .Select(uv => new Vector2(uv.U, uv.V));
-          vertexBuilder =
-              vertexBuilder.WithMaterial(new Vector4(1, 1, 1, 1),
-                                         uvs.ToArray());
+          var uvs = point.Uvs;
+          if ((uvs?.Count ?? 0) > 0) {
+            var uv = uvs[0];
+            vertexBuilder =
+                vertexBuilder.WithMaterial(new Vector4(1, 1, 1, 1),
+                                           new Vector2(uv.U, uv.V));
+          }
 
           vertices[p] = vertexBuilder;
         }
