@@ -51,8 +51,12 @@ namespace mkds.exporter {
 
         var jnt = bmd.JNT1.Joints[j];
 
+        var rotationFactor = 1f / 32768f * 3.14159f;
         var bone = parentBone.AddChild(jnt.Tx, jnt.Ty, jnt.Tz)
-                             .SetLocalRotationRadians(jnt.Rx, jnt.Ry, jnt.Rz)
+                             .SetLocalRotationRadians(
+                                 jnt.Rx * rotationFactor,
+                                 jnt.Ry * rotationFactor,
+                                 jnt.Rz * rotationFactor)
                              .SetLocalScale(jnt.Sx, jnt.Sy, jnt.Sz);
         bone.Name = jointName;
 
@@ -261,7 +265,7 @@ namespace mkds.exporter {
                   case Gl.GL_QUADS: {
                     skin.AddQuads(vertices)
                         .SetMaterial(currentBmdMaterial.Material);
-                      break;
+                    break;
                   }
 
                   default:

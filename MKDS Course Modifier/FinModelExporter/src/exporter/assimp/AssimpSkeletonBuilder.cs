@@ -2,7 +2,6 @@
 
 using Assimp;
 
-using fin.math;
 using fin.math.matrix;
 using fin.model;
 
@@ -13,10 +12,7 @@ namespace fin.exporter.assimp {
         IModel finModel) {
       var finRootBone = finModel.Skeleton.Root;
 
-      var assMesh = new Mesh();
-      assScene.Meshes.Add(assMesh);
-
-      var assRootNode = new Node();
+      var assRootNode = assScene.RootNode;
 
       var boneQueue = new Queue<(Node, IBone)>();
       boneQueue.Enqueue((assRootNode, finRootBone));
@@ -25,10 +21,9 @@ namespace fin.exporter.assimp {
       while (boneQueue.Count > 0) {
         var (assNode, finBone) = boneQueue.Dequeue();
 
-        var assBone = new Bone();
-        assBone.Name = assNode.Name;
-
-        assMesh.Bones.Add(assBone);
+        var assBone = new Bone {
+          Name = assNode.Name
+        };
 
         this.ApplyBoneOrientationToNode_(assNode, finBone);
 

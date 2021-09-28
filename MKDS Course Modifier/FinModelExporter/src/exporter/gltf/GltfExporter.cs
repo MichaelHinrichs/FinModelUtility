@@ -166,7 +166,6 @@ namespace fin.exporter.gltf {
                                     skinNodeAndBone => skinNodeAndBone.Item1)
                                 .ToArray());
 
-      outputFile.GetParent().Create();
       var writeSettings = new WriteSettings {
           ImageWriting = ResourceWriteMode.SatelliteFile,
       };

@@ -126,8 +126,9 @@ namespace mkds.cli {
               new ModelConverter().Convert(bmd, pathsAndBcxs, pathsAndBtis);
 
           //new GltfExporter().Export(outputFile, model);
+          var bmdFile = new FileInfo(bmdPath);
           new AssimpExporter().Export(
-              new FinFile(Path.Join(Args.OutputDirectoryPath, bmdPath))
+              new FinFile(Path.Join(Args.OutputDirectoryPath, bmdFile.Name))
                   .CloneWithExtension(".fbx"),
               model);
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Text;
 
 using fin.math;
 using fin.model;
@@ -110,6 +111,20 @@ namespace fin.exporter.gltf {
                                           vertices[v + 0],
                                           vertices[v + 2]);
               }
+            }
+            break;
+          }
+          case PrimitiveType.TRIANGLE_FAN: {
+            var triangleStrip =
+                meshBuilder.UsePrimitive(materialBuilder, 3);
+
+            // https://stackoverflow.com/a/8044252
+            var firstVertex = vertices[0];
+            var previousVertex = vertices[1];
+            for (var v = 2; v < pointsCount; ++v) {
+              triangleStrip.AddTriangle(firstVertex,
+                                        previousVertex,
+                                        vertices[v]);
             }
             break;
           }
