@@ -56,13 +56,13 @@ namespace fin.src.exporter.assimp.indirect {
                   .ToArray();
 
           if (addLayers.Length == 0) {
-            throw new NotSupportedException("Expected to find an add layer!");
+            //throw new NotSupportedException("Expected to find an add layer!");
           }
           if (addLayers.Length > 1) {
             ;
           }
           if (addLayers.Length > 2) {
-            throw new NotSupportedException("Too many add layers for GLTF!");
+            //throw new NotSupportedException("Too many add layers for GLTF!");
           }
 
           for (var i = 0; i < addLayers.Length; ++i) {

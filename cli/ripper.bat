@@ -10,7 +10,7 @@ set szstoolsBasePath=%~dp0%szstools\
 :: TODO: Take this as an arg.
 set romPath=roms\pkmn2.gcm
 set hierarchyPath=%romPath%_dir\
-
+set fullHierarchyPath=%~dp0%!hierarchyPath!
 
 :: Extracts file hierarchy from the given ROM
 echo Checking for previously extracted file hierarchy.
@@ -30,6 +30,9 @@ echo Checking for previously extracted archives.
 set hierarchyListCmd="dir /b /s /ad *.* | sort"
 for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
   cd "%%d"
+  
+  set localDir=%%d
+  call set localDir=%%localDir:!fullHierarchyPath!=%%
 
   :: Extracts archives in the current directory
   for %%i in (*.szs) do (
@@ -74,7 +77,7 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
 
   :: Merges models + animations w/ automatic inputs
   if defined modelName (
-    set modelBasePath=%outBasePath%!modelName!
+    set modelBasePath=%outBasePath%!localDir!
 
     >nul 2>nul dir /a-d "!modelBasePath!\*" && (set isModelProcessed=1) || (set isModelProcessed=)
     if not defined isModelProcessed (

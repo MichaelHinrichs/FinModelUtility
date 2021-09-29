@@ -85,7 +85,7 @@ namespace fin.cli {
                                   out var bcxPaths,
                                   out var btiPaths);*/
 
-                  Args.GetForEnemy_("Queen", //"Queen"
+                  /*Args.GetForEnemy_("Queen", //"Queen"
                                     out var outputPath,
                                     out var bmdPaths,
                                     out var bcxPaths,
@@ -97,9 +97,9 @@ namespace fin.cli {
                       out var outputPath,
                       out var bmdPaths,
                       out var bcxPaths,
-                      out var btiPaths);
+                      out var btiPaths);*/
 
-                  /*Args.GetFromDirectory_(
+                  Args.GetFromDirectory_(
                       new DirectoryInfo(
                           "R:/Documents/CSharpWorkspace/Pikmin2Utility/cli/roms/pkmn2.gcm_dir/user/Kando/map/forest"),
                       out var outputPath,
