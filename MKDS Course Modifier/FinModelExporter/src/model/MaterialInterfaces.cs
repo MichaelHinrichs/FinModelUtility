@@ -126,10 +126,12 @@ namespace fin.model {
     float Rf { get; }
     float Gf { get; }
     float Bf { get; }
+    float Af { get; }
 
     byte Rb { get; }
     byte Gb { get; }
     byte Bb { get; }
+    byte Ab { get; }
   }
 
   public interface IColorShaderParam : IColorSource, IShaderParam<IColor> {}

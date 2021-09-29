@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -29,6 +30,9 @@ namespace fin.src.exporter.assimp.indirect {
           assUvs[t].Clear();
         }
 
+        var assColors = assMesh.VertexColorChannels[0];
+        assColors.Clear();
+
         var hadUv = new bool[8];
         foreach (var assUvIndexFloat in assUvIndices) {
           var assUvIndex = (int) Math.Round(assUvIndexFloat);
@@ -42,6 +46,16 @@ namespace fin.src.exporter.assimp.indirect {
             } else {
               assUvs[t].Add(default);
             }
+          }
+
+          var finColor = finVertex.Color;
+          if (finColor != null) {
+            assColors.Add(new Color4D(finColor.Rf,
+                                      finColor.Gf,
+                                      finColor.Bf,
+                                      finColor.Af));
+          } else {
+            assColors.Add(new Color4D(1, 1, 1, 1));
           }
         }
 

@@ -51,7 +51,7 @@ namespace fin.model {
     IVertex SetLocalNormal(float x, float y, float z);
 
     IColor? Color { get; }
-    IVertex SetColor(byte r, byte g, byte b);
+    IVertex SetColorBytes(byte r, byte g, byte b, byte a);
 
     IReadOnlyList<ITexCoord>? Uvs { get; }
     IVertex SetUv(float u, float v);

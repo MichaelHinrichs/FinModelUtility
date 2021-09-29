@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 using fin.math;
 using fin.math.matrix;
@@ -10,6 +11,8 @@ using MKDS_Course_Modifier.GCN;
 using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using MKDS_Course_Modifier.G3D_Binary_File_Format;
 
@@ -231,7 +234,24 @@ namespace mkds.exporter {
                     vertex.SetBones(weights);
                   }
 
-                  // TODO: Include color
+                  // TODO: Do the other colors need to be used too?
+                  var indicesWithColor =
+                      batch
+                          .HasColors
+                          .Select((hasColor, index) => (hasColor, index))
+                          .Where(hasColorAndIndex => hasColorAndIndex.hasColor)
+                          .Select(hasColorAndIndex => hasColorAndIndex.index)
+                          .ToList();
+                  Asserts.True(indicesWithColor.Count <= 1,
+                               "More than one color at a vertex, unsupported!");
+                  if (indicesWithColor.Count == 1) {
+                    var indexWithColor = indicesWithColor[0];
+                    var colorIndex = point.ColorIndex[indexWithColor];
+                    var color = vertexColors[indexWithColor][colorIndex];
+
+                    vertex.SetColorBytes(color.R, color.G, color.B, color.A);
+                  }
+
                   for (var i = 0; i < 8; ++i) {
                     if (batch.HasTexCoords[i]) {
                       var texCoord = vertexUvs[i][point.TexCoordIndex[i]];

@@ -75,18 +75,30 @@ namespace fin.exporter.gltf {
           }
 
           // TODO: Include color
+          var finColor = point.Color;
+          var hasColor = finColor != null;
+          var assColor = hasColor
+                             ? new Vector4(finColor.Rf,
+                                           finColor.Bf,
+                                           finColor.Gf,
+                                           finColor.Af)
+                             : new Vector4(1, 1, 1, 1);
+
           var uvs = point.Uvs;
           var hasUvs = (uvs?.Count ?? 0) > 0;
           if (!this.UvIndices) {
             if (hasUvs) {
               var uv = uvs[0];
               vertexBuilder =
-                  vertexBuilder.WithMaterial(new Vector4(1, 1, 1, 1),
+                  vertexBuilder.WithMaterial(assColor,
                                              new Vector2(uv.U, uv.V));
+            } else if (hasColor) {
+              vertexBuilder = vertexBuilder.WithMaterial(assColor);
+
             }
           } else {
             vertexBuilder =
-                vertexBuilder.WithMaterial(new Vector4(1, 1, 1, 1),
+                vertexBuilder.WithMaterial(assColor,
                                            new Vector2(
                                                hasUvs ? point.Index : -1,
                                                0));

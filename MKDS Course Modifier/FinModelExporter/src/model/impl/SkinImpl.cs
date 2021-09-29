@@ -125,10 +125,12 @@ namespace fin.model.impl {
         }
 
 
-        public IColor? Color { get; }
+        public IColor? Color { get; private set; }
 
-        public IVertex SetColor(byte r, byte g, byte b)
-          => throw new NotImplementedException();
+        public IVertex SetColorBytes(byte r, byte g, byte b, byte a) {
+          this.Color = ColorImpl.FromBytes(r, g, b, a);
+          return this;
+        }
 
 
         public IReadOnlyList<ITexCoord>? Uvs { get; private set; }
