@@ -4,6 +4,7 @@
 
 - cooliscool, as their Utility of Time program was used as the basis for the OoT exporter.
 - @Gericom, as their MKDS Course Modifier program was used as the basis for the Pikmin 2 exporter.
+- @intns, as their [MODConv](https://github.com/intns/MODConv) tool was ported to add support for Pikmin 1.
 
 ## Usage guide
 
