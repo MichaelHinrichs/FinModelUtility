@@ -2,8 +2,8 @@
 
 ## Credits
 
-- cooliscool, as their Utility of Time program was used as the basis for the OoT exporter
-- @Gericom, as their MKDS Course Modifier program was used as the basis for the Pikmin 2 exporter
+- cooliscool, as their Utility of Time program was used as the basis for the OoT exporter.
+- @Gericom, as their MKDS Course Modifier program was used as the basis for the Pikmin 2 exporter.
 
 ## Usage guide
 
