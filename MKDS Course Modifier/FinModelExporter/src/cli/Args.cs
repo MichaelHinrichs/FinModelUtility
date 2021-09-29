@@ -85,7 +85,7 @@ namespace fin.cli {
                                   out var bcxPaths,
                                   out var btiPaths);*/
 
-                  Args.GetForEnemy_("Chappy", //"Queen"
+                  Args.GetForEnemy_("Queen", //"Queen"
                                     out var outputPath,
                                     out var bmdPaths,
                                     out var bcxPaths,

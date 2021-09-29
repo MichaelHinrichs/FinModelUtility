@@ -58,7 +58,9 @@ namespace fin.exporter.assimp {
       var inputFile = outputFile.CloneWithExtension(".glb");
       var inputPath = inputFile.FullName;
 
-      new GltfExporter().Export(inputFile, model);
+      var gltfExporter = new GltfExporter();
+      gltfExporter.UvIndices = true;
+      gltfExporter.Export(inputFile, model);
       var sc = ctx.ImportFile(inputPath);
 
       // [ ]: Get skeleton working
@@ -74,142 +76,8 @@ namespace fin.exporter.assimp {
       // "Automatic Bone Orientation" if importing in Blender.
 
       new AssimpIndirectAnimationFixer().Fix(model, sc);
-      //new AssimpIndirectUvFixer().Fix(model, sc);
+      new AssimpIndirectUvFixer().Fix(model, sc);
       new AssimpIndirectTextureFixer().Fix(model, sc);
-
-      // Export materials.
-      {
-        // TODO: Need to update the UVs...
-
-        // Re-add the textures.
-
-        /*sc.Textures.Clear();
-        sc.Materials.Clear();
-
-        foreach (var finMaterial in model.MaterialManager.All) {
-          var assMaterial = new Material();
-
-          assMaterial.Shaders.ShaderLanguageType = "HLSL";
-          assMaterial.Shaders.FragmentShader =
-              @"
-struct a2v { 
-  float4 Position : POSITION;
-  float4 Color    : COLOR0;
-};
-
-struct v2p {
-  float4 Position : POSITION;
-  float4 Color    : COLOR0; 
-};
-
-void main(in a2v IN, out v2p OUT, uniform float4x4 ModelViewMatrix) {
-  OUT.Position = mul(IN.Position, ModelViewMatrix);
-  OUT.Color    = float4(255, 255, 0, 0);
-}
-";
-
-          assMaterial.Name = finMaterial.Name;
-          // TODO: Set shader
-
-          if (finMaterial is ILayerMaterial layerMaterial) {
-            var addLayers =
-                layerMaterial
-                    .Layers
-                    .Where(layer => layer.BlendMode == FinBlendMode.ADD)
-                    .ToArray();
-            var multiplyLayers =
-                layerMaterial
-                    .Layers
-                    .Where(layer => layer.BlendMode == FinBlendMode.MULTIPLY)
-                    .ToArray();
-
-            if (addLayers.Length == 0) {
-              throw new NotSupportedException("Expected to find an add layer!");
-            }
-            if (addLayers.Length > 1) {
-              ;
-            }
-            if (addLayers.Length > 2) {
-              throw new NotSupportedException("Too many add layers for GLTF!");
-            }
-
-            for (var i = 0; i < addLayers.Length; ++i) {
-              var layer = addLayers[i];
-
-              // TODO: Support flat color layers by generating a 1x1 clamped texture of that color.
-              if (layer.ColorSource is ITexture finTexture) {
-                var assTextureSlot = new TextureSlot();
-                assTextureSlot.FilePath = finTexture.Name + ".png";
-
-                // TODO: FBX doesn't support mirror. Blegh
-                assTextureSlot.WrapModeU =
-                    this.ConvertWrapMode_(finTexture.WrapModeU);
-                assTextureSlot.WrapModeV =
-                    this.ConvertWrapMode_(finTexture.WrapModeV);
-
-                if (i == 0) {
-                  assTextureSlot.TextureType = TextureType.Diffuse;
-                } else {
-                  assTextureSlot.TextureType = TextureType.Emissive;
-                }
-
-                // TODO: Set blend mode
-                //assTextureSlot.Operation =
-
-                assTextureSlot.UVIndex = layer.TexCoordIndex;
-
-                // TODO: Set texture coord type
-
-                assMaterial.AddMaterialTexture(assTextureSlot);
-              }
-            }
-
-            /*foreach (var layer in layerMaterial.Layers) {
-              // TODO: Support flat color layers by generating a 1x1 clamped texture of that color.
-
-              if (layer.ColorSource is ITexture finTexture) {
-                var assTextureSlot = new TextureSlot();
-                assTextureSlot.FilePath = finTexture.Name + ".png";
-                assTextureSlot.TextureType = TextureType.Diffuse;
-
-                // TODO: FBX doesn't support mirror. Blegh
-                assTextureSlot.WrapModeU =
-                    this.ConvertWrapMode_(finTexture.WrapModeU);
-                assTextureSlot.WrapModeV =
-                    this.ConvertWrapMode_(finTexture.WrapModeV);
-
-                // TODO: Set blend mode
-                //assTextureSlot.Operation =
-
-                // TODO: Set texture coord type
-
-                assMaterial.AddMaterialTexture(assTextureSlot);
-              }
-            }*/
-
-        /*{
-          var lastFinTexture = finMaterial.Textures.Last();
-  
-          var assTextureSlot = new TextureSlot();
-          assTextureSlot.FilePath = lastFinTexture.Name + ".png";
-          assTextureSlot.TextureType = TextureType.Diffuse;
-  
-          // TODO: FBX doesn't support mirror. Blegh
-          assTextureSlot.WrapModeU = this.ConvertWrapMode_(lastFinTexture.WrapModeU);
-          assTextureSlot.WrapModeV = this.ConvertWrapMode_(lastFinTexture.WrapModeV);
-  
-          // TODO: Set blend mode
-          // TODO: Set texture coord type
-  
-          assMaterial.TextureDiffuse = assTextureSlot;
-        }*/
-
-        // sc.Materials.Add(assMaterial);
-        //}
-
-        // Meshes should already have material indices set.
-        //}
-      }
 
       var success = ctx.ExportFile(sc, outputPath, exportFormatId);
       Asserts.True(success, "Failed to export model.");

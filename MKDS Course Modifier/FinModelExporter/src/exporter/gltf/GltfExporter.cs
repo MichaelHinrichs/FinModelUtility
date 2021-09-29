@@ -22,6 +22,8 @@ namespace fin.exporter.gltf {
   public class GltfExporter : IExporter {
     private readonly ILogger logger_ = Logging.Create<GltfExporter>();
 
+    public bool UvIndices { get; set; }
+
     public void Export(IFile outputFile, IModel model) {
       Asserts.True(
           outputFile.Extension.EndsWith(".gltf") ||
@@ -31,7 +33,7 @@ namespace fin.exporter.gltf {
       this.logger_.BeginScope("Export");
 
       var modelRoot = ModelRoot.CreateModel();
-                                         
+
       var scene = modelRoot.UseScene("default");
       var skin = modelRoot.CreateSkin();
 
@@ -152,11 +154,11 @@ namespace fin.exporter.gltf {
       }
 
       // Builds mesh.
-      var mesh =
-          new GltfMeshBuilder().BuildAndBindMesh(
-              modelRoot,
-              model,
-              finToTexCoordAndGltfMaterial);
+      var meshBuilder = new GltfMeshBuilder {UvIndices = this.UvIndices};
+      var mesh = meshBuilder.BuildAndBindMesh(
+          modelRoot,
+          model,
+          finToTexCoordAndGltfMaterial);
 
       scene.CreateNode()
            .WithSkinnedMesh(mesh,

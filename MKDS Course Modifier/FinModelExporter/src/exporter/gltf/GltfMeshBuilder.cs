@@ -21,6 +21,8 @@ namespace fin.exporter.gltf {
       VertexBuilder<VertexPositionNormal, VertexColor1Texture2, VertexJoints4>;
 
   public class GltfMeshBuilder {
+    public bool UvIndices { get; set; }
+
     public Mesh BuildAndBindMesh(
         ModelRoot gltfModel,
         IModel model,
@@ -74,11 +76,20 @@ namespace fin.exporter.gltf {
 
           // TODO: Include color
           var uvs = point.Uvs;
-          if ((uvs?.Count ?? 0) > 0) {
-            var uv = uvs[0];
+          var hasUvs = (uvs?.Count ?? 0) > 0;
+          if (!this.UvIndices) {
+            if (hasUvs) {
+              var uv = uvs[0];
+              vertexBuilder =
+                  vertexBuilder.WithMaterial(new Vector4(1, 1, 1, 1),
+                                             new Vector2(uv.U, uv.V));
+            }
+          } else {
             vertexBuilder =
                 vertexBuilder.WithMaterial(new Vector4(1, 1, 1, 1),
-                                           new Vector2(uv.U, uv.V));
+                                           new Vector2(
+                                               hasUvs ? point.Index : -1,
+                                               0));
           }
 
           vertices[p] = vertexBuilder;
