@@ -1,8 +1,6 @@
 @echo off 
 setlocal EnableDelayedExpansion
 
-set extraArgs=%1
-
 set outBasePath=%~dp0%out\
 set bmd2gltfBasePath=%~dp0%bmd2gltf\
 set szstoolsBasePath=%~dp0%szstools\
@@ -83,7 +81,7 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
     if not defined isModelProcessed (
       echo Processing !modelName! w/ automatic inputs...
       @echo on
-      "%bmd2gltfBasePath%bmd2gltf.exe" automatic --out "!modelBasePath!" "%extraArgs%"
+      "%bmd2gltfBasePath%bmd2gltf.exe" automatic --out "!modelBasePath!" --static --verbose
       @echo off
     )
     if defined isModelProcessed (
@@ -97,7 +95,7 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
 
     echo Processing !modelName! w/ manual inputs...
     @echo on
-    "%bmd2gltfBasePath%bmd2gltf.exe" manual --out "!modelBasePath!" --bmd "!modelFile!" --bcx "!animFiles!" "%extraArgs%"
+    "%bmd2gltfBasePath%bmd2gltf.exe" manual --out "!modelBasePath!" --bmd "!modelFile!" --bcx "!animFiles!" --static --verbose
     @echo off
   )
 )
@@ -125,7 +123,7 @@ for %%m in (%pikminModelNames%) do (
   if not defined isModelProcessed (
     echo Processing !modelName! w/ manual inputs...
     @echo on
-    "%bmd2gltfBasePath%bmd2gltf.exe" manual --out "!modelBasePath!" --bmd "!pikiPikminBasePath!\!modelName!.bmd" --bcx !pikiAnimations! "%extraArgs%"
+    "%bmd2gltfBasePath%bmd2gltf.exe" manual --out "!modelBasePath!" --bmd "!pikiPikminBasePath!\!modelName!.bmd" --bcx !pikiAnimations! --static --verbose
     @echo off
   )
   if defined isModelProcessed (
@@ -143,7 +141,7 @@ for %%m in (%orimaModelNames%) do (
   if not defined isModelProcessed (
     echo Processing !modelName! w/ manual inputs...
     @echo on
-    "%bmd2gltfBasePath%bmd2gltf.exe" manual --out "!modelBasePath!" --bmd "!pikiOrimaBasePath!\!modelName!.bmd" --bcx !pikiAnimations! "%extraArgs%"
+    "%bmd2gltfBasePath%bmd2gltf.exe" manual --out "!modelBasePath!" --bmd "!pikiOrimaBasePath!\!modelName!.bmd" --bcx !pikiAnimations! --static --verbose
     @echo off
   )
   if defined isModelProcessed (
