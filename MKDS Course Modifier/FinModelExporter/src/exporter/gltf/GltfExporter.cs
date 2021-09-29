@@ -169,7 +169,7 @@ namespace fin.exporter.gltf {
                                 .ToArray());
 
       var writeSettings = new WriteSettings {
-          ImageWriting = ResourceWriteMode.SatelliteFile,
+          ImageWriting = ResourceWriteMode.Embedded,
       };
 
       var outputPath = outputFile.FullName;
