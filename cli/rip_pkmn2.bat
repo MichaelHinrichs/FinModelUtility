@@ -73,7 +73,16 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
     popd
   )
   
-  :: Processes Pikmin leaf/bud/flower
+  :: Gets for treasures (AKA "Pellets"?)
+  if "!localDir:~0,15!"=="user\Abe\Pellet" (
+    if "!localDir:~-15!"==".szs 0.rarc_dir" (
+      for %%b in (".\arc\*.bmd") do (
+        set modelName=%%~nd
+      )
+    )
+  )
+
+  :: Gets for Pikmin leaf/bud/flower
   if "!localDir!"=="user\Kando\piki\pikis.szs 0.rarc_dir\designer\happa_model" (
     set modelName=%%~nd
   )
