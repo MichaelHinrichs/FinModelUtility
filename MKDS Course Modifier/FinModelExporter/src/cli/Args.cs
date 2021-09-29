@@ -101,7 +101,7 @@ namespace fin.cli {
 
                   Args.GetFromDirectory_(
                       new DirectoryInfo(
-                          "R:/Documents/CSharpWorkspace/Pikmin2Utility/cli/roms/pkmn2.gcm_dir/user/Kando/map/zukan/forest"),
+                          "R:/Documents/CSharpWorkspace/Pikmin2Utility/cli/roms/pkmn2.gcm_dir/user/Kando/piki/pikis.szs 0.rarc_dir/designer/happa_model"),
                       out var outputPath,
                       out var bmdPaths,
                       out var bcxPaths,

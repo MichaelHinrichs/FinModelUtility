@@ -94,14 +94,15 @@ namespace fin.exporter.gltf {
                                              new Vector2(uv.U, uv.V));
             } else if (hasColor) {
               vertexBuilder = vertexBuilder.WithMaterial(assColor);
-
             }
           } else {
+            // Importing the color directly via Assimp doesn't work for some
+            // reason.
             vertexBuilder =
-                vertexBuilder.WithMaterial(assColor,
+                vertexBuilder.WithMaterial(new Vector4(1, 1, 1, 1),
                                            new Vector2(
                                                hasUvs ? point.Index : -1,
-                                               0));
+                                               hasColor ? point.Index : -1));
           }
 
           vertices[p] = vertexBuilder;

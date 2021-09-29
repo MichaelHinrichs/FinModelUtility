@@ -72,6 +72,11 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
     )
     popd
   )
+  
+  :: Processes Pikmin leaf/bud/flower
+  if "!localDir!"=="user\Kando\piki\pikis.szs 0.rarc_dir\designer\happa_model" (
+    set modelName=%%~nd
+  )
 
   :: Merges models + animations w/ automatic inputs
   if defined modelName (

@@ -24,14 +24,13 @@ namespace fin.src.exporter.assimp.indirect {
       foreach (var assMesh in assMeshes) {
         var assUvIndices =
             assMesh.TextureCoordinateChannels[0].Select(uv => uv.X).ToList();
+        var assColorIndices =
+            assMesh.TextureCoordinateChannels[0].Select(uv => 1 - uv.Y).ToList();
 
         var assUvs = assMesh.TextureCoordinateChannels;
         for (var t = 0; t < 8; ++t) {
           assUvs[t].Clear();
         }
-
-        var assColors = assMesh.VertexColorChannels[0];
-        assColors.Clear();
 
         var hadUv = new bool[8];
         foreach (var assUvIndexFloat in assUvIndices) {
@@ -47,8 +46,16 @@ namespace fin.src.exporter.assimp.indirect {
               assUvs[t].Add(default);
             }
           }
+        }
 
-          var finColor = finVertex.Color;
+        var assColors = assMesh.VertexColorChannels[0];
+        assColors.Clear();
+
+        foreach (var assColorIndexFloat in assColorIndices) {
+          var assColorIndex = (int) Math.Round(assColorIndexFloat);
+
+          var finVertex = assColorIndex != -1 ? finVertices[assColorIndex] : null;
+          var finColor = finVertex?.Color;
           if (finColor != null) {
             assColors.Add(new Color4D(finColor.Rf,
                                       finColor.Gf,
