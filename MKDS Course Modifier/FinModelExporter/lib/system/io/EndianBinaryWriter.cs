@@ -43,6 +43,11 @@ namespace System.IO {
       this.Dispose(false);
     }
 
+    public long Position {
+      get => this.BaseStream.Position;
+      set => this.BaseStream.Position = value;
+    }
+
     public void Align(uint amt) {
       var pos = this.BaseStream.Position;
       for (var i = 0; i < ((~(amt - 1) & (pos + amt - 1)) - pos); ++i) {

@@ -21,6 +21,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="src\cli\ExportToObj.cs" />
+    <Compile Remove="src\gcn\collision\Collision.cs" />
+    <Compile Remove="src\gcn\Material.cs" />
+    <Compile Remove="src\gcn\MaterialLeft.cs" />
+    <Compile Remove="src\gcn\Mod.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="commands.cpp" />
     <None Remove="commands.hpp" />
     <None Remove="common.hpp" />

@@ -43,6 +43,11 @@ namespace System.IO {
       this.Dispose(false);
     }
 
+    public long Position {
+      get => this.BaseStream.Position;
+      set => this.BaseStream.Position = value;
+    }
+
     public void Align(uint amt) {
       var offs = amt - (this.BaseStream.Position % amt);
       if (offs != amt) {

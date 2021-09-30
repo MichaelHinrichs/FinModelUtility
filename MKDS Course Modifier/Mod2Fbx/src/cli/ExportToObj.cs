@@ -1,77 +1,63 @@
-﻿using fin.util.asserts;
+﻿using System.IO;
+using System.Linq;
+
+using fin.util.asserts;
 
 using mod.gcn;
 
 namespace mod.cli {
   public static class ExportToObj {
     public static void ExportToObj(Mod mod) {
-      if (mod.m_vertices.Count == 0 &&
-          mod.m_vnormals.Count == 0 &&
-          mod.m_colltris.m_collinfo.Count == 0) {
+      var hasVertices = mod.m_vertices.Any();
+      var hasNormals = mod.m_vnormals.Any();
+      var hasFaces = mod.m_colltris.m_collinfo.Count.Any();
+
+      if (!hasVertices && !hasNormals && !hasFaces) {
         Asserts.Fail("Loaded file has nothing to export!");
       }
 
-      const std::string & filename
-          = gTokeniser.isEnd() ? gModFileName + ".obj" : gTokeniser.next();
-      std::ofstream os(filename);
-      if (!os.is_open()) {
-        std::cout << "Error can't open " << filename << std::endl;
-        return;
-      }
+      using var os = new StreamWriter(
+          File.OpenWrite(
+              @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\out\test.obj"));
 
-      MODHeader & header = gModFile.m_header;
-      os <<
-          "# Date " <<
-          (u32) header.m_dateTime.m_year <<
-          " " <<
-          (u32) header.m_dateTime.m_month <<
-          " " <<
-          (u32) header.m_dateTime.m_day <<
-          std::endl;
+      var header = mod.m_header;
+      var dateTime = header.dateTime;
+      os.WriteLine($"# Date {dateTime.year} {dateTime.month} {dateTime.day}");
 
-      if (gModFile.m_vertices.size()) {
-        os << "\n# Vertices" << std::endl;
-        for ( const Vector3f 
-        &vpos : gModFile.m_vertices) {
-          os << "v " << vpos << std::endl;
+      if (hasVertices) {
+        os.WriteLine("# Vertices");
+        foreach (var vertex in mod.m_vertices) {
+          os.WriteLine($"v {vertex}");
         }
       }
 
-      if (gModFile.m_vnormals.size()) {
-        os << "\n# Vertex normals" << std::endl;
-        for ( const Vector3f 
-        &vnrm : gModFile.m_vnormals) {
-          os << "vn " << vnrm << std::endl;
+      if (hasNormals) {
+        os.WriteLine();
+        os.WriteLine("# Vertex normals");
+        foreach (var vnrm in mod.m_vnormals) {
+          os.WriteLine($"vn {vnrm}");
         }
       }
 
-      for (u32 i = 0; i < gModFile.m_texcoords.size(); i++) {
-        std::vector<Vector2f> & coords = gModFile.m_texcoords[i];
-        if (!coords.size()) {
+      for (var i = 0; i < mod.m_texcoords.Length; ++i) {
+        var coords = mod.m_texcoords[i];
+        if (coords.Count == 0) {
           continue;
         }
 
-        os << "\n# Texture coordinate " << i << std::endl;
-        for ( const Vector2f 
-        &vt : coords) {
-          os << "vt " << vt.x << " " << vt.y << std::endl;
+        os.WriteLine();
+        os.WriteLine("# Texture coordinate " + i);
+        foreach (var coord in coords) {
+          os.WriteLine($"vt {coord}");
         }
       }
 
-      if (gModFile.m_colltris.m_collinfo.size()) {
-        os << "\no collision_mesh" << std::endl;
-        for ( const BaseCollTriInfo 
-        &colInfo :
-        gModFile.m_colltris.m_collinfo) {
-          os <<
-              "f " <<
-              colInfo.m_indice.x + 1 <<
-              " " <<
-              colInfo.m_indice.y + 1 <<
-              " " <<
-              colInfo.m_indice.z + 1 <<
-              " " <<
-              std::endl;
+      var colInfos = mod.m_colltris.m_collinfo;
+      if (colInfos.Count != 0) {
+        os.WriteLine();
+        os.WriteLine("o collision mesh");
+        foreach (var colInfo in colInfos) {
+          os.WriteLine($"f ${colInfo.m_indice.x + 1} ${colInfo.m_indice.y + 1} ${colInfo.m_indice.z + 1}");
         }
       }
 
@@ -124,10 +110,8 @@ util::vector_reader::Endianness::Big);
     }
 }*/
 
-      os.flush();
-      os.close();
-
-      std::cout << "Done!" << std::endl;
+      os.Flush();
+      os.Close();
     }
   }
 }

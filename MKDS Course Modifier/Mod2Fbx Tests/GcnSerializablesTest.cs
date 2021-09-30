@@ -1,0 +1,148 @@
+using System.IO;
+
+using NUnit.Framework;
+
+using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
+
+namespace mod.gcn {
+  public class Tests {
+    [Test]
+    public void TestColourU8() => TestGcnSerializableSimple(new ColourU8());
+
+    [Test]
+    public void TestColourU16() => TestGcnSerializableSimple(new ColourU16());
+
+    [Test]
+    public void TestEnvelope() => TestGcnSerializableSimple(new Envelope());
+
+    [Test]
+    public void TestJoint() {
+      var joint = new Joint();
+
+      joint.parentIdx = 1;
+      joint.flags = 2;
+      joint.boundsMin.Set(3.1f, 4.1f, 5.1f);
+      joint.boundsMax.Set(6.1f, 7.1f, 8.1f);
+      joint.volumeRadius = 9.1f;
+      joint.scale.Set(10.1f, 11.1f, 12.1f);
+      joint.rotation.Set(13.1f, 14.1f, 15.1f);
+      joint.position.Set(16.1f, 17.1f, 18.1f);
+      joint.matpolys.Add(new JointMatPoly {
+          matIdx = 19,
+          meshIdx = 20,
+      });
+      joint.matpolys.Add(new JointMatPoly {
+          matIdx = 20,
+          meshIdx = 21,
+      });
+
+      TestGcnSerializableExisting(joint);
+    }
+
+    [Test]
+    public void TestJointMatPoly()
+      => TestGcnSerializableSimple(new JointMatPoly());
+
+    [Test]
+    public void TestMesh() {
+      var mesh = new Mesh {
+          boneIndex = 1,
+          vtxDescriptor = 2
+      };
+
+      var meshPacket = new MeshPacket();
+      meshPacket.indices.Add(3);
+      meshPacket.indices.Add(4);
+
+      var displayList = new DisplayList();
+      displayList.flags.intView = 5;
+      displayList.cmdCount = 6;
+      displayList.dlistData.Add(7);
+      displayList.dlistData.Add(8);
+      meshPacket.displaylists.Add(displayList);
+      meshPacket.displaylists.Add(displayList);
+
+      mesh.packets.Add(meshPacket);
+      mesh.packets.Add(meshPacket);
+
+      TestGcnSerializableExisting(mesh);
+    }
+
+    [Test]
+    public void TestNbt() => TestGcnSerializableSimple(new NBT());
+
+    [Test]
+    public void TestPlane() => TestGcnSerializableSimple(new Plane());
+
+    [Test]
+    public void TestTextureAttributes() {
+      var textureAttributes = new TextureAttributes {
+          index = 1,
+          tilingMode = 2,
+          unknown1 = 3,
+          unknown2 = 4
+      };
+
+      TestGcnSerializableExisting(textureAttributes);
+    }
+
+    [Test]
+    public void TestVector3f() => TestGcnSerializableSimple(new Vector3f());
+
+    [Test]
+    public void TestVector3i() => TestGcnSerializableSimple(new Vector3i());
+
+    [Test]
+    public void TestVtxMatrix() => TestGcnSerializableSimple(new VtxMatrix());
+
+    public static void TestGcnSerializableSimple(
+        IGcnSerializable gcnSerializable) {
+      var dataLen = 100;
+      var inData = new byte[dataLen];
+      for (var i = 0; i < dataLen; ++i) {
+        inData[i] = (byte) i;
+      }
+
+      using var reader = new EndianBinaryReader(new MemoryStream(inData));
+      gcnSerializable.Read(reader);
+
+      var outData = new byte[dataLen];
+      var writer = new EndianBinaryWriter(new MemoryStream(outData));
+      gcnSerializable.Write(writer);
+
+      Assert.AreEqual(reader.Position,
+                      writer.Position,
+                      "Expected reader and writer to move the same amount.");
+      for (var i = 0; i < reader.Position; ++i) {
+        Assert.AreEqual(inData[i],
+                        outData[i],
+                        $"Expected data to be equal at index: {i}");
+      }
+    }
+
+    public static void TestGcnSerializableExisting(
+        IGcnSerializable gcnSerializable) {
+      var dataLen = 300;
+      var firstOutData = new byte[dataLen];
+      var firstWriter = new EndianBinaryWriter(new MemoryStream(firstOutData));
+      gcnSerializable.Write(firstWriter);
+
+      using var reader = new EndianBinaryReader(new MemoryStream(firstOutData));
+      gcnSerializable.Read(reader);
+
+      var secondOutData = new byte[dataLen];
+      var secondWriter =
+          new EndianBinaryWriter(new MemoryStream(secondOutData));
+      gcnSerializable.Write(secondWriter);
+
+      Assert.IsTrue(firstWriter.Position == reader.Position &&
+                    reader.Position == secondWriter.Position,
+                    "Expected all readers & writers to move the same amount.");
+      for (var i = 0; i < reader.Position; ++i) {
+        Assert.AreEqual(firstOutData[i],
+                        secondOutData[i],
+                        $"Expected data to be equal at index: {i}");
+      }
+    }
+  }
+}
