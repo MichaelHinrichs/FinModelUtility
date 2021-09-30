@@ -43,6 +43,13 @@ namespace System.IO {
       this.Dispose(false);
     }
 
+    public void Align(uint amt) {
+      var offs = amt - (this.BaseStream.Position % amt);
+      if (offs != amt) {
+        this.BaseStream.Position += offs;
+      }
+    }
+
     private void FillBuffer_(int bytes, int stride) {
       if (this.buffer_ == null || this.buffer_.Length < bytes)
         this.buffer_ = new byte[bytes];

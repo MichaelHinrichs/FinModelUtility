@@ -20,13 +20,13 @@ namespace mod.gcn {
   public class Joint : IGcnSerializable {
     public uint parentIdx = 0;
     public uint flags = 0;
-    public Vector3f boundsMin = new();
-    public Vector3f boundsMax = new();
+    public readonly Vector3f boundsMin = new();
+    public readonly Vector3f boundsMax = new();
     public float volumeRadius = 0;
-    public Vector3f scale = new();
-    public Vector3f rotation = new();
-    public Vector3f position = new();
-    public List<JointMatPoly> matpolys = new();
+    public readonly Vector3f scale = new();
+    public readonly Vector3f rotation = new();
+    public readonly Vector3f position = new();
+    public readonly List<JointMatPoly> matpolys = new();
 
     public void Read(EndianBinaryReader reader) {
       this.parentIdx = reader.ReadUInt32();

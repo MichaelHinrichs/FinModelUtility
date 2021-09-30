@@ -43,6 +43,14 @@ namespace System.IO {
       this.Dispose(false);
     }
 
+    public void Align(uint amt) {
+      var pos = this.BaseStream.Position;
+      for (var i = 0; i < ((~(amt - 1) & (pos + amt - 1)) - pos); ++i) {
+        byte padding = 0;
+        this.Write(padding);
+      }
+    }
+
     private void WriteBuffer_(int bytes, int stride) {
       if (this.Reverse) {
         for (int index = 0; index < bytes; index += stride)

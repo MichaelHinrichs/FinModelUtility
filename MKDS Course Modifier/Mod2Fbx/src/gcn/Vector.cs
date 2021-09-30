@@ -6,7 +6,7 @@ namespace mod.gcn {
     T Y { get; set; }
     T Z { get; set; }
 
-    string ToString() => $"{this.X} {this.Y} {this.Z}";
+    string? ToString() => $"{this.X} {this.Y} {this.Z}";
   }
 
   public class Vector3f : IVector3<float> {
