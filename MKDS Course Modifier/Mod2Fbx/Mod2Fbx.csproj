@@ -21,7 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="src\cli\ExportToObj.cs" />
     <Compile Remove="src\gcn\MaterialLeft.cs" />
   </ItemGroup>
 

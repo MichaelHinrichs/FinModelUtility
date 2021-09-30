@@ -34,20 +34,24 @@ namespace mod.gcn {
     public readonly List<Vector2f>[] texcoords = new List<Vector2f>[8];
     public readonly List<Texture> textures = new();
     public readonly List<TextureAttributes> texattrs = new();
-    public readonly MaterialContainer materials;
+    public readonly MaterialContainer materials = new();
     public readonly List<VtxMatrix> vtxMatrix = new();
     public readonly List<Envelope> envelopes = new();
     public readonly List<Mesh> meshes = new();
     public readonly List<Joint> joints = new();
     public readonly List<string> jointNames = new();
-    public readonly CollTriInfo colltris;
-    public readonly CollGrid collgrid;
+    public readonly CollTriInfo colltris = new();
+    public readonly CollGrid collgrid = new();
     public readonly List<byte> eofBytes = new();
 
     public Mod() {}
     public Mod(EndianBinaryReader reader) => this.Read(reader);
 
     public void Read(EndianBinaryReader reader) {
+      for (var i = 0; i < 8; ++i) {
+        this.texcoords[i] = new List<Vector2f>();
+      }
+
       bool stopRead = false;
       while (!stopRead) {
         var position = reader.Position;
@@ -116,7 +120,7 @@ namespace mod.gcn {
 
             reader.Align(0x20);
             this.materials.texEnvironments.Clear();
-            for (var i = 0; i < numMaterials; ++i) {
+            for (var i = 0; i < numTexEnvironments; ++i) {
               var texEnvironment = new TEVInfo();
               texEnvironment.Read(reader);
               this.materials.texEnvironments.Add(texEnvironment);

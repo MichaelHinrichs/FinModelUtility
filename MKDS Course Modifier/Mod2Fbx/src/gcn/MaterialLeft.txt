@@ -1,11 +1,4 @@
-﻿  void PCI_Unk1::read(util::fstream_reader& reader) {
-    m_unknown1 = reader.readS32();
-    m_unknown2.read(reader);
-    m_unknown3.read(reader);
-    m_unknown4.read(reader);
-  }
-
-  void PCI_Unk1::write(util::fstream_writer& writer) {
+﻿  void PCI_Unk1::write(util::fstream_writer& writer) {
     writer.writeS32(m_unknown1);
     m_unknown2.write(writer);
     m_unknown3.write(writer);
@@ -19,11 +12,6 @@
     os << "\t\t\tUNK3_KEYFRAME " << p.m_unknown3 << std::endl;
     os << "\t\t\tUNK4_KEYFRAME " << p.m_unknown4 << std::endl;
     return os;
-  }
-
-  void PCI_Unk2::read(util::fstream_reader& reader) {
-    m_unknown1 = reader.readS32();
-    m_unknown2.read(reader);
   }
 
   void PCI_Unk2::write(util::fstream_writer& writer) {
@@ -78,12 +66,7 @@
     PrintList(os, p.m_unknown4, "UNK4_SIZE", "UNK4_INDEX", 3);
     PrintList(os, p.m_unknown5, "UNK5_SIZE", "UNK5_INDEX", 3);
 
-    return os;
-  }
-
-  void LightingInfo::read(util::fstream_reader& reader) {
-    m_typeFlags = reader.readU32();
-    m_unknown2 = reader.readF32();
+    return os;TextureData
   }
 
   void LightingInfo::write(util::fstream_writer& writer) {
@@ -98,14 +81,7 @@
     os << "\t\tUNK2 " << l.m_unknown2 << std::endl;
     return os;
   }
-
-  void PeInfo::read(util::fstream_reader& reader) {
-    m_unknown1 = reader.readS32();
-    m_unknown2 = reader.readS32();
-    m_unknown3 = reader.readS32();
-    m_unknown4 = reader.readS32();
-  }
-
+  
   void PeInfo::write(util::fstream_writer& writer) {
     writer.writeS32(m_unknown1);
     writer.writeS32(m_unknown2);
@@ -148,45 +124,6 @@
     PrintIndent(os, 7, "UNK3 " << t.m_unknown3);
     PrintIndent(os, 7, "UNK4 " << t.m_unknown4);
     return os;
-  }
-
-  void TextureData::read(util::fstream_reader& reader) {
-    m_unknown1 = reader.readS32();
-
-    m_unknown2 = reader.readS16();
-    m_unknown3 = reader.readS16();
-
-    m_unknown4 = reader.readU8();
-    m_unknown5 = reader.readU8();
-    m_unknown6 = reader.readU8();
-    m_unknown7 = reader.readU8();
-
-    m_unknown8 = reader.readU32();
-    m_unknown9 = reader.readS32();
-
-    m_unknown10 = reader.readF32();
-    m_unknown11 = reader.readF32();
-    m_unknown12 = reader.readF32();
-    m_unknown13 = reader.readF32();
-    m_unknown14 = reader.readF32();
-    m_unknown15 = reader.readF32();
-    m_unknown16 = reader.readF32();
-    m_unknown17 = reader.readF32();
-
-    m_unknown18.resize(reader.readU32());
-    for (mat::TXD_Unk1 & unk : m_unknown18) {
-      unk.read(reader);
-    }
-
-    m_unknown19.resize(reader.readU32());
-    for (mat::TXD_Unk1 & unk : m_unknown19) {
-      unk.read(reader);
-    }
-
-    m_unknown20.resize(reader.readU32());
-    for (mat::TXD_Unk1 & unk : m_unknown20) {
-      unk.read(reader);
-    }
   }
 
   void TextureData::write(util::fstream_writer& writer) {
@@ -252,21 +189,6 @@
     PrintList(os, t.m_unknown20, "UNK20_SIZE", "UNK20_INDEX", 6);
 
     return os;
-  }
-
-  void TextureInfo::read(util::fstream_reader& reader) {
-    m_unknown1 = reader.readS32();
-    m_unknown2.read(reader);
-
-    m_unknown3.resize(reader.readU32());
-    for (mat::TexGenData & genData : m_unknown3) {
-      genData.read(reader);
-    }
-
-    m_unknown4.resize(reader.readU32());
-    for (mat::TextureData & texData : m_unknown4) {
-      texData.read(reader);
-    }
   }
 
   void TextureInfo::write(util::fstream_writer& writer) {

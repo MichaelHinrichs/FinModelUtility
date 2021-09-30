@@ -9,8 +9,8 @@ namespace mod.cli {
           @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\tekis\chappy\chappy.mod";
       using var s = new EndianBinaryReader(File.OpenRead(inPath));
 
-      //var mod = new Mod(s);
-      //ExportToObj.ExportToObj(mod);
+      var mod = new Mod(s);
+      ExportToObj.Export(mod);
     }
   }
 }

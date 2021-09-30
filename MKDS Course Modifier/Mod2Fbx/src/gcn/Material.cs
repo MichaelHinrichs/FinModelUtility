@@ -88,13 +88,16 @@ namespace mod.gcn {
   };
 
   public class PCI_Unk1 : IGcnSerializable {
-    s32 m_unknown1 = 0;
-    KeyInfoU8 m_unknown2;
-    KeyInfoU8 m_unknown3;
-    KeyInfoU8 m_unknown4;
+    public int unknown1 = 0;
+    public readonly KeyInfoU8 unknown2 = new();
+    public readonly KeyInfoU8 unknown3 = new();
+    public readonly KeyInfoU8 unknown4 = new();
 
     public void Read(EndianBinaryReader reader) {
-      throw new System.NotImplementedException();
+      this.unknown1 = reader.ReadInt32();
+      this.unknown2.Read(reader);
+      this.unknown3.Read(reader);
+      this.unknown4.Read(reader);
     }
 
     public void Write(EndianBinaryWriter writer) {
@@ -103,54 +106,82 @@ namespace mod.gcn {
   }
 
   public class PCI_Unk2 : IGcnSerializable {
-    s32 m_unknown1 = 0;
-    KeyInfoU8 m_unknown2;
-
-    void read(util::fstream_reader& reader);
-    void write(util::fstream_writer& writer);
-  }
-
-  public class PolygonColourInfo : IGcnSerializable {
-    ColourU8 m_diffuseColour;
-    s32 m_unknown2 = 0;
-    f32 m_unknown3 = 0;
-    std::vector<PCI_Unk1> m_unknown4;
-    std::vector<PCI_Unk2> m_unknown5;
+    public int unknown1 = 0;
+    public readonly KeyInfoU8 unknown2 = new();
 
     public void Read(EndianBinaryReader reader) {
-      throw new System.NotImplementedException();
+      this.unknown1 = reader.ReadInt32();
+      this.unknown2.Read(reader);
     }
 
     public void Write(EndianBinaryWriter writer) {
       throw new System.NotImplementedException();
     }
-  };
+  }
+
+  public class PolygonColourInfo : IGcnSerializable {
+    public readonly ColourU8 diffuseColour = new();
+    public int unknown2 = 0;
+    public float unknown3 = 0;
+    public readonly List<PCI_Unk1> unknown4 = new();
+    public readonly List<PCI_Unk2> unknown5 = new();
+
+    public void Read(EndianBinaryReader reader) {
+      this.diffuseColour.Read(reader);
+      this.unknown2 = reader.ReadInt32();
+      this.unknown3 = reader.ReadSingle();
+
+      var numUnknown4 = reader.ReadUInt32();
+      this.unknown4.Clear();
+      for (var i = 0; i < numUnknown4; ++i) {
+        var unk = new PCI_Unk1();
+        unk.Read(reader);
+        this.unknown4.Add(unk);
+      }
+
+      var numUnknown5 = reader.ReadUInt32();
+      this.unknown5.Clear();
+      for (var i = 0; i < numUnknown5; ++i) {
+        var unk = new PCI_Unk2();
+        unk.Read(reader);
+        this.unknown5.Add(unk);
+      }
+    }
+
+    public void Write(EndianBinaryWriter writer) {
+      throw new System.NotImplementedException();
+    }
+  }
 
   public enum LightingInfoFlags {
     USE_SPOTLIGHT = 1
   }
 
   public class LightingInfo : IGcnSerializable {
-    u32 m_typeFlags = 0; // see LightingInfoFlags
-    f32 m_unknown2 = 0;
+    public uint typeFlags = 0; // see LightingInfoFlags
+    public float unknown2 = 0;
 
     public void Read(EndianBinaryReader reader) {
-      throw new System.NotImplementedException();
+      this.typeFlags = reader.ReadUInt32();
+      this.unknown2 = reader.ReadSingle();
     }
 
     public void Write(EndianBinaryWriter writer) {
       throw new System.NotImplementedException();
     }
-  };
+  }
 
   public class PeInfo : IGcnSerializable {
-    s32 m_unknown1 = 0;
-    s32 m_unknown2 = 0;
-    s32 m_unknown3 = 0;
-    s32 m_unknown4 = 0;
+    public int unknown1 = 0;
+    public int unknown2 = 0;
+    public int unknown3 = 0;
+    public int unknown4 = 0;
 
     public void Read(EndianBinaryReader reader) {
-      throw new System.NotImplementedException();
+      this.unknown1 = reader.ReadInt32();
+      this.unknown2 = reader.ReadInt32();
+      this.unknown3 = reader.ReadInt32();
+      this.unknown4 = reader.ReadInt32();
     }
 
     public void Write(EndianBinaryWriter writer) {
@@ -159,13 +190,16 @@ namespace mod.gcn {
   };
 
   public class TexGenData : IGcnSerializable {
-    u8 m_unknown1 = 0;
-    u8 m_unknown2 = 0;
-    u8 m_unknown3 = 0;
-    u8 m_unknown4 = 0;
+    public byte unknown1 = 0;
+    public byte unknown2 = 0;
+    public byte unknown3 = 0;
+    public byte unknown4 = 0;
 
     public void Read(EndianBinaryReader reader) {
-      throw new System.NotImplementedException();
+      this.unknown1 = reader.ReadByte();
+      this.unknown2 = reader.ReadByte();
+      this.unknown3 = reader.ReadByte();
+      this.unknown4 = reader.ReadByte();
     }
 
     public void Write(EndianBinaryWriter writer) {
@@ -195,33 +229,77 @@ namespace mod.gcn {
   }
 
   public class TextureData : IGcnSerializable {
-    s32 m_unknown1 = 0;
-    s16 m_unknown2 = 0;
-    s16 m_unknown3 = 0;
+    public int unknown1 = 0;
+    public short unknown2 = 0;
+    public short unknown3 = 0;
 
-    u8 m_unknown4 = 0;
-    u8 m_unknown5 = 0;
-    u8 m_unknown6 = 0;
-    u8 m_unknown7 = 0;
+    public byte unknown4 = 0;
+    public byte unknown5 = 0;
+    public byte unknown6 = 0;
+    public byte unknown7 = 0;
 
-    u32 m_unknown8 = 0;
-    s32 m_unknown9 = 0;
+    public uint unknown8 = 0;
+    public int unknown9 = 0;
 
-    f32 m_unknown10 = 0;
-    f32 m_unknown11 = 0;
-    f32 m_unknown12 = 0;
-    f32 m_unknown13 = 0;
-    f32 m_unknown14 = 0;
-    f32 m_unknown15 = 0;
-    f32 m_unknown16 = 0;
-    f32 m_unknown17 = 0;
+    public float unknown10 = 0;
+    public float unknown11 = 0;
+    public float unknown12 = 0;
+    public float unknown13 = 0;
+    public float unknown14 = 0;
+    public float unknown15 = 0;
+    public float unknown16 = 0;
+    public float unknown17 = 0;
 
-    std::vector<TXD_Unk1> m_unknown18;
-    std::vector<TXD_Unk1> m_unknown19;
-    std::vector<TXD_Unk1> m_unknown20;
+    public readonly List<TXD_Unk1> unknown18 = new();
+    public readonly List<TXD_Unk1> unknown19 = new();
+    public readonly List<TXD_Unk1> unknown20 = new();
 
     public void Read(EndianBinaryReader reader) {
-      throw new System.NotImplementedException();
+      this.unknown1 = reader.ReadInt32();
+
+      this.unknown2 = reader.ReadInt16();
+      this.unknown3 = reader.ReadInt16();
+
+      this.unknown4 = reader.ReadByte();
+      this.unknown5 = reader.ReadByte();
+      this.unknown6 = reader.ReadByte();
+      this.unknown7 = reader.ReadByte();
+
+      this.unknown8 = reader.ReadUInt32();
+      this.unknown9 = reader.ReadInt32();
+
+      this.unknown10 = reader.ReadSingle();
+      this.unknown11 = reader.ReadSingle();
+      this.unknown12 = reader.ReadSingle();
+      this.unknown13 = reader.ReadSingle();
+      this.unknown14 = reader.ReadSingle();
+      this.unknown15 = reader.ReadSingle();
+      this.unknown16 = reader.ReadSingle();
+      this.unknown17 = reader.ReadSingle();
+
+      this.unknown18.Clear();
+      var numUnknown18 = reader.ReadUInt32();
+      for (var i = 0; i < numUnknown18; ++i) {
+        var unk = new TXD_Unk1();
+        unk.Read(reader);
+        this.unknown18.Add(unk);
+      }
+
+      this.unknown19.Clear();
+      var numUnknown19 = reader.ReadUInt32();
+      for (var i = 0; i < numUnknown19; ++i) {
+        var unk = new TXD_Unk1();
+        unk.Read(reader);
+        this.unknown19.Add(unk);
+      }
+
+      this.unknown20.Clear();
+      var numUnknown20 = reader.ReadUInt32();
+      for (var i = 0; i < numUnknown20; ++i) {
+        var unk = new TXD_Unk1();
+        unk.Read(reader);
+        this.unknown20.Add(unk);
+      }
     }
 
     public void Write(EndianBinaryWriter writer) {
@@ -230,13 +308,30 @@ namespace mod.gcn {
   };
 
   public class TextureInfo : IGcnSerializable {
-    s32 m_unknown1 = 0;
-    Vector3f m_unknown2;
-    std::vector<TexGenData> m_unknown3;
-    std::vector<TextureData> m_unknown4;
+    public int unknown1 = 0;
+    public readonly Vector3f unknown2 = new();
+    public readonly List<TexGenData> unknown3 = new();
+    public readonly List<TextureData> unknown4 = new();
 
     public void Read(EndianBinaryReader reader) {
-      throw new System.NotImplementedException();
+      this.unknown1 = reader.ReadInt32();
+      this.unknown2.Read(reader);
+
+      var numUnknown3 = reader.ReadUInt32();
+      this.unknown3.Clear();
+      for (var i = 0; i < numUnknown3; ++i) {
+        var texGenData = new TexGenData();
+        texGenData.Read(reader);
+        this.unknown3.Add(texGenData);
+      }
+
+      var numUnknown4 = reader.ReadUInt32();
+      this.unknown4.Clear();
+      for (var i = 0; i < numUnknown4; ++i) {
+        var texData = new TextureData();
+        texData.Read(reader);
+        this.unknown4.Add(texData);
+      }
     }
 
     public void Write(EndianBinaryWriter writer) {
