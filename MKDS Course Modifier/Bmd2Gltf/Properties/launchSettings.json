@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "Bmd2Gltf": {
-      "commandName": "Project",
-      "commandLineArgs": "debug --verbose --static"
-    }
-  }
-}

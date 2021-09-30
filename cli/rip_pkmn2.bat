@@ -2,7 +2,7 @@
 setlocal EnableDelayedExpansion
 
 set outBasePath=%~dp0%out\
-set bmd2gltfBasePath=%~dp0%bmd2gltf\
+set bmd2fbxBasePath=%~dp0%bmd2fbx\
 set szstoolsBasePath=%~dp0%szstools\
 
 :: TODO: Take this as an arg.
@@ -95,7 +95,7 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
     if not defined isModelProcessed (
       echo Processing !modelName! w/ automatic inputs...
       @echo on
-      "%bmd2gltfBasePath%bmd2gltf.exe" automatic --out "!modelBasePath!" --static --verbose
+      "%bmd2fbxBasePath%bmd2fbx.exe" automatic --out "!modelBasePath!" --static --verbose
       @echo off
     )
     if defined isModelProcessed (
@@ -109,7 +109,7 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
 
     echo Processing !modelName! w/ manual inputs...
     @echo on
-    "%bmd2gltfBasePath%bmd2gltf.exe" manual --out "!modelBasePath!" --bmd "!modelFile!" --bcx "!animFiles!" --static --verbose
+    "%bmd2fbxBasePath%bmd2fbx.exe" manual --out "!modelBasePath!" --bmd "!modelFile!" --bcx "!animFiles!" --static --verbose
     @echo off
   )
 )
@@ -137,7 +137,7 @@ for %%m in (%pikminModelNames%) do (
   if not defined isModelProcessed (
     echo Processing !modelName! w/ manual inputs...
     @echo on
-    "%bmd2gltfBasePath%bmd2gltf.exe" manual --out "!modelBasePath!" --bmd "!pikiPikminBasePath!\!modelName!.bmd" --bcx !pikiAnimations! --static --verbose
+    "%bmd2fbxBasePath%bmd2fbx.exe" manual --out "!modelBasePath!" --bmd "!pikiPikminBasePath!\!modelName!.bmd" --bcx !pikiAnimations! --static --verbose
     @echo off
   )
   if defined isModelProcessed (
@@ -155,7 +155,7 @@ for %%m in (%orimaModelNames%) do (
   if not defined isModelProcessed (
     echo Processing !modelName! w/ manual inputs...
     @echo on
-    "%bmd2gltfBasePath%bmd2gltf.exe" manual --out "!modelBasePath!" --bmd "!pikiOrimaBasePath!\!modelName!.bmd" --bcx !pikiAnimations! --static --verbose
+    "%bmd2fbxBasePath%bmd2fbx.exe" manual --out "!modelBasePath!" --bmd "!pikiOrimaBasePath!\!modelName!.bmd" --bcx !pikiAnimations! --static --verbose
     @echo off
   )
   if defined isModelProcessed (
