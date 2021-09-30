@@ -8,6 +8,8 @@
     <StartupObject>bmd.cli.Cli</StartupObject>
     <Description>BMD-to-FBX model converter</Description>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup>

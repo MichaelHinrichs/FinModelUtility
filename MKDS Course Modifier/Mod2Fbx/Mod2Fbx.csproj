@@ -3,7 +3,35 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>mod</RootNamespace>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="common\**" />
+    <Compile Remove="done\**" />
+    <Compile Remove="util\**" />
+    <EmbeddedResource Remove="common\**" />
+    <EmbeddedResource Remove="done\**" />
+    <EmbeddedResource Remove="util\**" />
+    <None Remove="common\**" />
+    <None Remove="done\**" />
+    <None Remove="util\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="commands.cpp" />
+    <None Remove="commands.hpp" />
+    <None Remove="common.hpp" />
+    <None Remove="DMD.cpp" />
+    <None Remove="DMD.hpp" />
+    <None Remove="LICENSE" />
+    <None Remove="main.cpp" />
+    <None Remove="MOD.cpp" />
+    <None Remove="MOD.hpp" />
+    <None Remove="types.hpp" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\FinModelExporter\Fin.csproj" />
