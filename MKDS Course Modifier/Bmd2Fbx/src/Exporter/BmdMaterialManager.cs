@@ -1,15 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
-using Newtonsoft.Json;
-
-using fin.cli;
 using fin.model;
 
-using MKDS_Course_Modifier.GCN;
+using bmd.GCN;
 
-namespace mkds.exporter {
+namespace bmd.exporter {
   public class BmdMaterialManager {
     private readonly BMD bmd_;
     private readonly IList<BmdTexture> textures_;

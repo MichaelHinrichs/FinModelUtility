@@ -7,7 +7,7 @@
 using OpenTK;
 using System.Drawing;
 
-namespace MKDS_Course_Modifier._3D_Formats
+namespace bmd._3D_Formats
 {
   public class Polygon
   {

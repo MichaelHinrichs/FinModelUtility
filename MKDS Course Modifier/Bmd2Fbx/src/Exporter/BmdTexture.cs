@@ -7,9 +7,9 @@ using System.Linq;
 using fin.io;
 using fin.model;
 
-using MKDS_Course_Modifier.GCN;
+using bmd.GCN;
 
-namespace mkds.exporter {
+namespace bmd.exporter {
   public class BmdTexture {
     public BmdTexture(
         string name,

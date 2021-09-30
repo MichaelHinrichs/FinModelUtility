@@ -1,12 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
-using fin.cli;
+using bmd.cli;
+using bmd.GCN;
 
-using MKDS_Course_Modifier.GCN;
-
-namespace mkds.exporter {
+namespace bmd.exporter {
   public class GltfMaterialManager {
     private readonly BMD bmd_;
     private readonly IList<GltfTexture> textures_;

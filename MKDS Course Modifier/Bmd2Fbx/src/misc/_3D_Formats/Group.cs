@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 
-namespace MKDS_Course_Modifier._3D_Formats
+namespace bmd._3D_Formats
 {
   public class Group
   {

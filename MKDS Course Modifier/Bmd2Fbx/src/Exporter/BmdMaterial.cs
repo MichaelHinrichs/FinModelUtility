@@ -6,12 +6,12 @@ using fin.model;
 
 using mkds.gcn.bmd;
 
-using MKDS_Course_Modifier.GCN;
+using bmd.GCN;
 
 using BlendFactor = fin.model.BlendFactor;
 using LogicOp = fin.model.LogicOp;
 
-namespace mkds.exporter {
+namespace bmd.exporter {
   using TevOrder = BMD.MAT3Section.TevOrder;
   using TevStage = BMD.MAT3Section.TevStageProps;
   using TextureMatrixInfo = BMD.MAT3Section.TextureMatrixInfo;

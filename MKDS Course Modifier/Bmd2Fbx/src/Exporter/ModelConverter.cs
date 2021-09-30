@@ -6,20 +6,18 @@ using System.Linq;
 using fin.math;
 using fin.math.matrix;
 
-using MKDS_Course_Modifier.GCN;
+using bmd.GCN;
 
 using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using MKDS_Course_Modifier.G3D_Binary_File_Format;
+using bmd.G3D_Binary_File_Format;
 
 using Tao.OpenGl;
 
-namespace mkds.exporter {
-  using MkdsNode = MKDS_Course_Modifier._3D_Formats.MA.Node;
+namespace bmd.exporter {
+  using MkdsNode = bmd._3D_Formats.MA.Node;
 
   public class ModelConverter {
     public IModel Convert(

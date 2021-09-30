@@ -2,13 +2,12 @@
 using System.IO;
 using System.Linq;
 
-using fin.cli;
-
-using MKDS_Course_Modifier.GCN;
+using bmd.cli;
+using bmd.GCN;
 
 using Newtonsoft.Json;
 
-namespace mkds.exporter {
+namespace bmd.exporter {
   public static class BmdDebugHelper {
     public static void ExportFilesInBmd(
         BMD bmd,

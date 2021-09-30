@@ -14,7 +14,7 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 
-namespace MKDS_Course_Modifier._3D_Formats
+namespace bmd._3D_Formats
 {
   public class DAE
   {

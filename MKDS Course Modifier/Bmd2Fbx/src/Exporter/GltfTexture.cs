@@ -6,13 +6,13 @@ using System.Linq;
 
 using fin.io;
 
-using MKDS_Course_Modifier.GCN;
+using bmd.GCN;
 
 using SharpGLTF.Memory;
 
 using TextureWrapMode = SharpGLTF.Schema2.TextureWrapMode;
 
-namespace mkds.exporter {
+namespace bmd.exporter {
   public class GltfTexture {
     private readonly string name_;
     private readonly byte[] imageBytes_;

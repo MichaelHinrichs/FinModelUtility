@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-using fin.util.asserts;
-
 namespace fin.io {
   public class FinDirectory : IDirectory {
     private readonly DirectoryInfo impl_;

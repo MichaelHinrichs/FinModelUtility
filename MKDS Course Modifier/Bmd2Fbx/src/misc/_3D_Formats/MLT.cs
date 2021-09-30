@@ -12,7 +12,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
-namespace MKDS_Course_Modifier._3D_Formats
+namespace bmd._3D_Formats
 {
   public class MLT
   {

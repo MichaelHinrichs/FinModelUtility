@@ -7,7 +7,7 @@
 using OpenTK;
 using System;
 
-namespace MKDS_Course_Modifier.G3D_Binary_File_Format
+namespace bmd.G3D_Binary_File_Format
 {
   public class MTX44
   {

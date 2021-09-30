@@ -10,7 +10,7 @@ using fin.io;
 using fin.log;
 using fin.util.array;
 
-namespace fin.cli {
+namespace bmd.cli {
   // TODO: Hook downstream classes into this for args by system.
   public static class Args {
     public static bool Automatic { get; private set; }

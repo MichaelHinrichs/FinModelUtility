@@ -7,7 +7,7 @@
 using System.IO;
 using System.Text;
 
-namespace MKDS_Course_Modifier.G3D_Binary_File_Format
+namespace bmd.G3D_Binary_File_Format
 {
   public class FileHeader
   {

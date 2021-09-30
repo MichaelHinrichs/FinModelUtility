@@ -4,22 +4,15 @@
 // MVID: DAEF8B62-698B-42D0-BEDD-3770EB8C9FE8
 // Assembly location: R:\Documents\CSharpWorkspace\Pikmin2Utility\MKDS Course Modifier\MKDS Course Modifier.exe
 
-using MKDS_Course_Modifier._3D_Formats;
-using MKDS_Course_Modifier.G3D_Binary_File_Format;
+using bmd._3D_Formats;
+using bmd.G3D_Binary_File_Format;
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-using fin.log;
-
-using Microsoft.Extensions.Logging;
-using Microsoft.VisualStudio.TestTools.UnitTesting.Logging;
-
-using mkds.exporter;
-
-namespace MKDS_Course_Modifier.GCN {
+namespace bmd.GCN {
   /// <summary>
   /// https://wiki.cloudmodding.com/tww/BCK
   /// </summary>

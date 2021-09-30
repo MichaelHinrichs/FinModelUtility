@@ -39,7 +39,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bmd2Fbx", "..\Bmd2Fbx\Bmd2F
 		{48B6183A-CF51-42A4-889E-A75DA704D71D} = {48B6183A-CF51-42A4-889E-A75DA704D71D}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mod2Fbx", "..\Mod2Fbx\Mod2Fbx.csproj", "{2FE7D88B-9241-44B0-BC25-FE293EADCF59}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mod2Fbx", "..\Mod2Fbx\Mod2Fbx.csproj", "{2FE7D88B-9241-44B0-BC25-FE293EADCF59}"
+	ProjectSection(ProjectDependencies) = postProject
+		{48B6183A-CF51-42A4-889E-A75DA704D71D} = {48B6183A-CF51-42A4-889E-A75DA704D71D}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

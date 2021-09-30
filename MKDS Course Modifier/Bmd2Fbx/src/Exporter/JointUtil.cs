@@ -1,8 +1,10 @@
 ﻿using System.Numerics;
 
-using MKDS_Course_Modifier.GCN;
+using fin.math;
 
-namespace mkds.exporter {
+using bmd.GCN;
+
+namespace bmd.exporter {
   public static class JointUtil {
     public static Vector3 GetTranslation(IBcx bcx, int jointIndex, float time) {
       var animatedJoint = bcx.Anx1.Joints[jointIndex];

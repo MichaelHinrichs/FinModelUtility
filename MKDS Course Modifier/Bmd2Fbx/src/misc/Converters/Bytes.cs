@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace MKDS_Course_Modifier.Converters
+namespace bmd.Converters
 {
   public class Bytes
   {

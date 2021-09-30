@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using MKDS_Course_Modifier._3D_Formats;
+using bmd._3D_Formats;
 
-namespace MKDS_Course_Modifier.GCN {
+namespace bmd.GCN {
   public static class BcxConstants {
     // TODO: Pass this in via a flag?
     public static float MIN_TIME_UNIT = 1 / 30f;

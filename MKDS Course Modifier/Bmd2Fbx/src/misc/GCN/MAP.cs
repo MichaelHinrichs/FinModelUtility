@@ -8,7 +8,7 @@ using System;
 using System.Globalization;
 using System.IO;
 
-namespace MKDS_Course_Modifier.GCN
+namespace bmd.GCN
 {
   public class MAP
   {

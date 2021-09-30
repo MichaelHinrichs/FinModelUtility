@@ -12,21 +12,21 @@ using MathNet.Numerics.LinearAlgebra.Double;
 
 using Microsoft.Extensions.Logging;
 
-using MKDS_Course_Modifier.G3D_Binary_File_Format;
+using bmd.G3D_Binary_File_Format;
 
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Schema2;
 
-using MKDS_Course_Modifier.GCN;
+using bmd.GCN;
 
 using Tao.OpenGl;
 
-namespace mkds.exporter {
+namespace bmd.exporter {
   using VERTEX =
       VertexBuilder<VertexPositionNormal, VertexColor1Texture2, VertexJoints4>;
   using GltfNode = SharpGLTF.Schema2.Node;
-  using MkdsNode = MKDS_Course_Modifier._3D_Formats.MA.Node;
+  using MkdsNode = bmd._3D_Formats.MA.Node;
   using CsVector = System.Numerics.Vector3;
 
   public class GltfExporterOld {

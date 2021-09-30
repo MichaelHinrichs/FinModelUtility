@@ -4,15 +4,15 @@
 // MVID: DAEF8B62-698B-42D0-BEDD-3770EB8C9FE8
 // Assembly location: R:\Documents\CSharpWorkspace\Pikmin2Utility\MKDS Course Modifier\MKDS Course Modifier.exe
 
-using MKDS_Course_Modifier._3D_Formats;
-using MKDS_Course_Modifier.G3D_Binary_File_Format;
+using bmd._3D_Formats;
+using bmd.G3D_Binary_File_Format;
 //using MKDS_Course_Modifier.UI;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace MKDS_Course_Modifier.GCN {
+namespace bmd.GCN {
   public class BCA : IBcx {
     public const string Signature = "J3D1bca1";
     public BCA.BCAHeader Header;

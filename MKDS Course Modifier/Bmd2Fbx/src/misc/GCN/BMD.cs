@@ -6,10 +6,10 @@
 
 using mkds.gcn.bmd;
 using Chadsoft.CTools.Image;
-using MKDS_Course_Modifier._3D_Formats;
+using bmd._3D_Formats;
 //using MKDS_Course_Modifier.Converters._3D;
 //using MKDS_Course_Modifier.Converters.Colission;
-using MKDS_Course_Modifier.G3D_Binary_File_Format;
+using bmd.G3D_Binary_File_Format;
 //using MKDS_Course_Modifier.UI;
 using OpenTK;
 using System;
@@ -23,7 +23,7 @@ using System.Text;
 using Tao.OpenGl;
 using System.Drawing;
 
-namespace MKDS_Course_Modifier.GCN
+namespace bmd.GCN
 {
   public class BMD
   {

@@ -4,7 +4,7 @@ using System.Linq;
 
 using fin.io;
 
-namespace mkds.cli {
+namespace bmd.cli {
   public record ModelFiles (
       string Name,
       IEnumerable<IFile> BmdFiles,

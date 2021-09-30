@@ -2,11 +2,11 @@
 using System.Linq;
 using System.Numerics;
 
-using MKDS_Course_Modifier.GCN;
+using bmd.GCN;
 
 using SharpGLTF.Materials;
 
-namespace mkds.exporter {
+namespace bmd.exporter {
   public class DetailMaskPair {
     public GltfTexture Detail { get; }
     public GltfTexture? Mask { get; }

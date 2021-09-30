@@ -4,13 +4,13 @@
 // MVID: DAEF8B62-698B-42D0-BEDD-3770EB8C9FE8
 // Assembly location: R:\Documents\CSharpWorkspace\Pikmin2Utility\MKDS Course Modifier\MKDS Course Modifier.exe
 
-using MKDS_Course_Modifier.G3D_Binary_File_Format;
+using bmd.G3D_Binary_File_Format;
 using System;
 using System.Drawing;
 using System.IO;
 using System.Text;
 
-namespace MKDS_Course_Modifier.G2D_Binary_File_Format
+namespace bmd.G2D_Binary_File_Format
 {
   public class NCER
   {
@@ -148,26 +148,26 @@ namespace MKDS_Course_Modifier.G2D_Binary_File_Format
           {
             case NCER.cellBankBlock.cellDataBank.CharacterDataMapingType.NNS_G2D_CHARACTERMAPING_1D_32:
               Width = 32;
-              Height = Graphic.CharacterData.Data.Length * (Graphic.CharacterData.pixelFmt == MKDS_Course_Modifier.Converters.Graphic.GXTexFmt.GX_TEXFMT_PLTT16 ? 2 : 1) / 32;
+              Height = Graphic.CharacterData.Data.Length * (Graphic.CharacterData.pixelFmt == bmd.Converters.Graphic.GXTexFmt.GX_TEXFMT_PLTT16 ? 2 : 1) / 32;
               break;
             case NCER.cellBankBlock.cellDataBank.CharacterDataMapingType.NNS_G2D_CHARACTERMAPING_1D_64:
               Width = 64;
-              Height = Graphic.CharacterData.Data.Length * (Graphic.CharacterData.pixelFmt == MKDS_Course_Modifier.Converters.Graphic.GXTexFmt.GX_TEXFMT_PLTT16 ? 2 : 1) / 64;
+              Height = Graphic.CharacterData.Data.Length * (Graphic.CharacterData.pixelFmt == bmd.Converters.Graphic.GXTexFmt.GX_TEXFMT_PLTT16 ? 2 : 1) / 64;
               break;
             case NCER.cellBankBlock.cellDataBank.CharacterDataMapingType.NNS_G2D_CHARACTERMAPING_1D_128:
               Width = 128;
-              Height = Graphic.CharacterData.Data.Length * (Graphic.CharacterData.pixelFmt == MKDS_Course_Modifier.Converters.Graphic.GXTexFmt.GX_TEXFMT_PLTT16 ? 2 : 1) / 128;
+              Height = Graphic.CharacterData.Data.Length * (Graphic.CharacterData.pixelFmt == bmd.Converters.Graphic.GXTexFmt.GX_TEXFMT_PLTT16 ? 2 : 1) / 128;
               break;
             case NCER.cellBankBlock.cellDataBank.CharacterDataMapingType.NNS_G2D_CHARACTERMAPING_1D_256:
               Width = 256;
-              Height = Graphic.CharacterData.Data.Length * (Graphic.CharacterData.pixelFmt == MKDS_Course_Modifier.Converters.Graphic.GXTexFmt.GX_TEXFMT_PLTT16 ? 2 : 1) / 256;
+              Height = Graphic.CharacterData.Data.Length * (Graphic.CharacterData.pixelFmt == bmd.Converters.Graphic.GXTexFmt.GX_TEXFMT_PLTT16 ? 2 : 1) / 256;
               break;
             case NCER.cellBankBlock.cellDataBank.CharacterDataMapingType.NNS_G2D_CHARACTERMAPING_2D:
               Width = (int) Graphic.CharacterData.W * 8;
               Height = (int) Graphic.CharacterData.H * 8;
               break;
           }
-          return MKDS_Course_Modifier.Converters.Graphic.ConvertData(Graphic.CharacterData.Data, Palette.PaletteData.Data, Width, Height, this.CellData[Index], this.mappingMode, Graphic.CharacterData.pixelFmt, MKDS_Course_Modifier.Converters.Graphic.NNSG2dCharacterFmt.NNS_G2D_CHARACTER_FMT_CHAR);
+          return bmd.Converters.Graphic.ConvertData(Graphic.CharacterData.Data, Palette.PaletteData.Data, Width, Height, this.CellData[Index], this.mappingMode, Graphic.CharacterData.pixelFmt, bmd.Converters.Graphic.NNSG2dCharacterFmt.NNS_G2D_CHARACTER_FMT_CHAR);
         }
 
         public enum CharacterDataMapingType

@@ -7,7 +7,7 @@
 using System.Text;
 using Tao.OpenGl;
 
-namespace MKDS_Course_Modifier.GCN
+namespace bmd.GCN
 {
   public class BMDShader
   {

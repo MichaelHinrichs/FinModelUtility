@@ -4,7 +4,7 @@
 // MVID: DAEF8B62-698B-42D0-BEDD-3770EB8C9FE8
 // Assembly location: R:\Documents\CSharpWorkspace\Pikmin2Utility\MKDS Course Modifier\MKDS Course Modifier.exe
 
-namespace MKDS_Course_Modifier._3D_Formats
+namespace bmd._3D_Formats
 {
   public class SKP
   {

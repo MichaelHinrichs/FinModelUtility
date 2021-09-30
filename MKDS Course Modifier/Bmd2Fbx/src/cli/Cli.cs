@@ -3,20 +3,18 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-using fin.cli;
+using bmd.exporter;
+
 using fin.exporter.assimp;
-using fin.exporter.gltf;
 using fin.io;
 using fin.log;
 using fin.util.asserts;
 
 using Microsoft.Extensions.Logging;
 
-using mkds.exporter;
+using bmd.GCN;
 
-using MKDS_Course_Modifier.GCN;
-
-namespace mkds.cli {
+namespace bmd.cli {
   public class Cli {
     public static int Main(string[] args) {
       Args.PopulateFromArgs(args);

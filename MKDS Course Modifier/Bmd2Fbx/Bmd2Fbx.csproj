@@ -4,8 +4,8 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>bmd2fbx</AssemblyName>
-    <RootNamespace>mkds</RootNamespace>
-    <StartupObject>mkds.cli.Cli</StartupObject>
+    <RootNamespace>bmd</RootNamespace>
+    <StartupObject>bmd.cli.Cli</StartupObject>
     <Description>BMD-to-FBX model converter</Description>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>

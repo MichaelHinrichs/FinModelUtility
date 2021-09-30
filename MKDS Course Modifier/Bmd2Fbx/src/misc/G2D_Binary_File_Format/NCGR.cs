@@ -4,12 +4,12 @@
 // MVID: DAEF8B62-698B-42D0-BEDD-3770EB8C9FE8
 // Assembly location: R:\Documents\CSharpWorkspace\Pikmin2Utility\MKDS Course Modifier\MKDS Course Modifier.exe
 
-using MKDS_Course_Modifier.Converters;
-using MKDS_Course_Modifier.G3D_Binary_File_Format;
+using bmd.Converters;
+using bmd.G3D_Binary_File_Format;
 using System.Drawing;
 using System.IO;
 
-namespace MKDS_Course_Modifier.G2D_Binary_File_Format
+namespace bmd.G2D_Binary_File_Format
 {
   public class NCGR
   {

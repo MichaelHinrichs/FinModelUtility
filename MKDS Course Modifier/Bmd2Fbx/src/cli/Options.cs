@@ -2,7 +2,7 @@
 
 using CommandLine;
 
-namespace fin.cli {
+namespace bmd.cli {
   public abstract class BBasicOptions {
     [Option("verbose",
             HelpText = "Whether to print verbose log output.",

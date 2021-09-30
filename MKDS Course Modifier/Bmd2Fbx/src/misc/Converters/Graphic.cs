@@ -4,7 +4,7 @@
 // MVID: DAEF8B62-698B-42D0-BEDD-3770EB8C9FE8
 // Assembly location: R:\Documents\CSharpWorkspace\Pikmin2Utility\MKDS Course Modifier\MKDS Course Modifier.exe
 
-using MKDS_Course_Modifier.G2D_Binary_File_Format;
+using bmd.G2D_Binary_File_Format;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -12,7 +12,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 
-namespace MKDS_Course_Modifier.Converters
+namespace bmd.Converters
 {
   public class Graphic
   {
