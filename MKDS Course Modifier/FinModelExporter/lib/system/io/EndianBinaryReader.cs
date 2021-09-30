@@ -48,6 +48,8 @@ namespace System.IO {
       set => this.BaseStream.Position = value;
     }
 
+    public bool Eof => this.BaseStream.Position == this.BaseStream.Length;
+
     public void Align(uint amt) {
       var offs = amt - (this.BaseStream.Position % amt);
       if (offs != amt) {

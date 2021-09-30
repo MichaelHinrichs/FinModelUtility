@@ -7,6 +7,50 @@ using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 namespace mod.gcn {
   public class Tests {
     [Test]
+    public void TestBaseCollTriInfo()
+      => TestGcnSerializableSimple(new BaseCollTriInfo());
+
+    [Test]
+    public void TestBaseRoomInfo()
+      => TestGcnSerializableSimple(new BaseRoomInfo());
+
+    [Test]
+    public void TestCollGroup() {
+      var collGroup = new CollGroup();
+      collGroup.unknown1.Add(1);
+      collGroup.unknown1.Add(2);
+      collGroup.unknown2.Add(3);
+      collGroup.unknown2.Add(4);
+
+      TestGcnSerializableExisting(collGroup);
+    }
+
+    [Test]
+    public void TestCollGrid() {
+      var collGrid = new CollGrid();
+
+      collGrid.boundsMin.Set(1, 2, 3);
+      collGrid.boundsMax.Set(4, 5, 6);
+      collGrid.unknown1 = 7;
+      collGrid.gridX = 2;
+      collGrid.gridY = 3;
+      for (var i = 0; i < 2 * 3; ++i) {
+        collGrid.unknown2.Add(i);
+      }
+
+      var collGroup = new CollGroup();
+      collGroup.unknown1.Add(1);
+      collGroup.unknown1.Add(2);
+      collGroup.unknown2.Add(3);
+      collGroup.unknown2.Add(4);
+
+      collGrid.groups.Add(collGroup);
+      collGrid.groups.Add(collGroup);
+
+      TestGcnSerializableExisting(collGrid);
+    }
+
+    [Test]
     public void TestColourU8() => TestGcnSerializableSimple(new ColourU8());
 
     [Test]
@@ -75,6 +119,20 @@ namespace mod.gcn {
     public void TestPlane() => TestGcnSerializableSimple(new Plane());
 
     [Test]
+    public void TestTexture() {
+      var texture = new Texture {
+          width = 1,
+          height = 2,
+          format = 3,
+          unknown = 4,
+      };
+      texture.imageData.Add(5);
+      texture.imageData.Add(6);
+
+      TestGcnSerializableExisting(texture);
+    }
+
+    [Test]
     public void TestTextureAttributes() {
       var textureAttributes = new TextureAttributes {
           index = 1,
@@ -85,6 +143,13 @@ namespace mod.gcn {
 
       TestGcnSerializableExisting(textureAttributes);
     }
+
+    [Test]
+    public void TestVector2f() => TestGcnSerializableSimple(new Vector2f());
+
+    [Test]
+    public void TestVector2i() => TestGcnSerializableSimple(new Vector2i());
+
 
     [Test]
     public void TestVector3f() => TestGcnSerializableSimple(new Vector3f());

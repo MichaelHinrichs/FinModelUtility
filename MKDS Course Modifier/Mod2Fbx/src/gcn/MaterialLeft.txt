@@ -308,19 +308,6 @@
     return os;
   }
 
-  void Material::read(util::fstream_reader& reader) {
-    m_flags = reader.readU32();
-    m_unknown1 = reader.readU32();
-    m_colour.read(reader);
-
-    if (m_flags & static_cast<u32>(MaterialFlags::UsePVW)) {
-      m_unknown2 = reader.readU32();
-      m_colourInfo.read(reader);
-      m_lightingInfo.read(reader);
-      m_peInfo.read(reader);
-      m_texInfo.read(reader);
-    }
-  }
 
   void Material::write(util::fstream_writer& writer) {
     writer.writeU32(m_flags);
@@ -354,11 +341,6 @@
     return os;
   }
 
-  void TCR_Unk2::read(util::fstream_reader& reader) {
-    m_unknown1 = reader.readS32();
-    m_unknown2.read(reader);
-  }
-
   void TCR_Unk2::write(util::fstream_writer& writer) {
     writer.writeS32(m_unknown1);
     m_unknown2.write(writer);
@@ -368,22 +350,6 @@
     os << "\t\t\tUNK1 " << t.m_unknown1 << std::endl;
     os << "\t\t\tUNK2 " << t.m_unknown2 << std::endl;
     return os;
-  }
-
-  void TEVColReg::read(util::fstream_reader& reader) {
-    m_unknown1.read(reader);
-    m_unknown2 = reader.readS32();
-    m_unknown3 = reader.readF32();
-
-    m_unknown4.resize(reader.readU32());
-    for (mat::TCR_Unk1 & unk : m_unknown4) {
-      unk.read(reader);
-    }
-
-    m_unknown5.resize(reader.readU32());
-    for (mat::TCR_Unk2 & unk : m_unknown5) {
-      unk.read(reader);
-    }
   }
 
   void TEVColReg::write(util::fstream_writer& writer) {
@@ -422,21 +388,6 @@
     return os;
   }
 
-  void PVWCombiner::read(util::fstream_reader& reader) {
-    m_unknown1 = reader.readU8();
-    m_unknown2 = reader.readU8();
-    m_unknown3 = reader.readU8();
-    m_unknown4 = reader.readU8();
-    m_unknown5 = reader.readU8();
-    m_unknown6 = reader.readU8();
-    m_unknown7 = reader.readU8();
-    m_unknown8 = reader.readU8();
-    m_unknown9 = reader.readU8();
-    m_unknown10 = reader.readU8();
-    m_unknown11 = reader.readU8();
-    m_unknown12 = reader.readU8();
-  }
-
   void PVWCombiner::write(util::fstream_writer& writer) {
     writer.writeU8(m_unknown1);
     writer.writeU8(m_unknown2);
@@ -463,18 +414,6 @@
     return os;
   }
 
-  void TEVStage::read(util::fstream_reader& reader) {
-    m_unknown1 = reader.readU8();
-    m_unknown2 = reader.readU8();
-    m_unknown3 = reader.readU8();
-    m_unknown4 = reader.readU8();
-    m_unknown5 = reader.readU8();
-    m_unknown6 = reader.readU8();
-    reader.readU16();
-    m_unknown7.read(reader);
-    m_unknown8.read(reader);
-  }
-
   void TEVStage::write(util::fstream_writer& writer) {
     writer.writeU8(m_unknown1);
     writer.writeU8(m_unknown2);
@@ -499,22 +438,6 @@
     os << std::endl;
 
     return os;
-  }
-
-  void TEVInfo::read(util::fstream_reader& reader) {
-    m_unknown1.read(reader);
-    m_unknown2.read(reader);
-    m_unknown3.read(reader);
-
-    m_unknown4.read(reader);
-    m_unknown5.read(reader);
-    m_unknown6.read(reader);
-    m_unknown7.read(reader);
-
-    m_unknown8.resize(reader.readU32());
-    for (mat::TEVStage & stage : m_unknown8) {
-      stage.read(reader);
-    }
   }
 
   void TEVInfo::write(util::fstream_writer& writer) {

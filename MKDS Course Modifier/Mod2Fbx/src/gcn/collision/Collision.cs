@@ -2,200 +2,193 @@
 using System.IO;
 
 namespace mod.gcn {
-
-  struct BaseRoomInfo {
-    u32 m_index = 0;
-
-    void read(util::fstream_reader& reader);
-    void write(util::fstream_writer& writer);
-  };
-
-  struct BaseCollTriInfo {
-    u32 m_mapCode = 0;
-    Vector3i m_indice;
-    u16 m_unknown2 = 0;
-    u16 m_unknown3 = 0;
-    u16 m_unknown4 = 0;
-    u16 m_unknown5 = 0;
-    Plane m_plane;
-
-    void read(util::fstream_reader& reader);
-    void write(util::fstream_writer& writer);
-  };
-
-  struct CollTriInfo {
-    std::vector<BaseRoomInfo> m_roominfo;
-    std::vector<BaseCollTriInfo> m_collinfo;
-
-    void read(util::fstream_reader& reader);
-    void write(util::fstream_writer& writer);
-  };
-
-  struct CollGroup {
-    std::vector<u8> m_unknown1;
-    std::vector<u32> m_unknown2;
-
-    void read(util::fstream_reader& reader);
-    void write(util::fstream_writer& writer);
-  };
-
-  struct CollGrid : IGcnSerializable {
-    public readonly Vector3f m_boundsMin = new();
-    public readonly Vector3f m_boundsMax = new();
-    public float m_unknown1 = 0;
-    public uint m_gridX = 0;
-    public uint m_gridY = 0;
-    public readonly List<CollGroup> m_groups = new();
-    public readonly List<int> m_unknown2 = new();
+  public class BaseRoomInfo : IGcnSerializable {
+    public uint index = 0;
 
     public void Read(EndianBinaryReader reader) {
-      throw new System.NotImplementedException();
+      this.index = reader.ReadUInt32();
     }
 
     public void Write(EndianBinaryWriter writer) {
-      throw new System.NotImplementedException();
+      writer.Write(this.index);
+    }
+  }
+
+  public class BaseCollTriInfo : IGcnSerializable {
+    public uint mapCode = 0;
+    public readonly Vector3i indice = new();
+    public ushort unknown2 = 0;
+    public ushort unknown3 = 0;
+    public ushort unknown4 = 0;
+    public ushort unknown5 = 0;
+    public readonly Plane plane = new();
+
+    public void Read(EndianBinaryReader reader) {
+      this.mapCode = reader.ReadUInt32();
+      this.indice.Read(reader);
+
+      this.unknown2 = reader.ReadUInt16();
+      this.unknown3 = reader.ReadUInt16();
+      this.unknown4 = reader.ReadUInt16();
+      this.unknown5 = reader.ReadUInt16();
+
+      this.plane.Read(reader);
+    }
+
+    public void Write(EndianBinaryWriter writer) {
+      writer.Write(this.mapCode);
+      this.indice.Write(writer);
+
+      writer.Write(this.unknown2);
+      writer.Write(this.unknown3);
+      writer.Write(this.unknown4);
+      writer.Write(this.unknown5);
+
+      this.plane.Write(writer);
+    }
+  }
+
+  public class CollTriInfo : IGcnSerializable {
+    public readonly List<BaseRoomInfo> roominfo = new();
+    public readonly List<BaseCollTriInfo> collinfo = new();
+
+    public void Read(EndianBinaryReader reader) {
+      var numColInfos = reader.ReadUInt32();
+      var numRoomInfos = reader.ReadUInt32();
+
+      this.collinfo.Clear();
+      this.roominfo.Clear();
+
+      reader.Align(0x20);
+      for (var i = 0; i < numRoomInfos; ++i) {
+        var roomInfo = new BaseRoomInfo();
+        roomInfo.Read(reader);
+        this.roominfo.Add(roomInfo);
+      }
+
+      reader.Align(0x20);
+      for (var i = 0; i < numColInfos; ++i) {
+        var colInfo = new BaseCollTriInfo();
+        colInfo.Read(reader);
+        this.collinfo.Add(colInfo);
+      }
+
+      reader.Align(0x20);
+    }
+
+    public void Write(EndianBinaryWriter writer) {
+      var start = writer.StartChunk(0x100);
+      writer.Write(this.collinfo.Count);
+      writer.Write(this.roominfo.Count);
+
+      writer.Align(0x20);
+      foreach (var info in this.roominfo) {
+        info.Write(writer);
+      }
+
+      writer.Align(0x20);
+      foreach (var info in this.collinfo) {
+        info.Write(writer);
+      }
+
+      writer.FinishChunk(start);
+    }
+  }
+
+  public class CollGroup : IGcnSerializable {
+    public readonly List<byte> unknown1 = new();
+    public readonly List<uint> unknown2 = new();
+
+    public void Read(EndianBinaryReader reader) {
+      var numUnknown1 = reader.ReadUInt16();
+      var numUnknown2 = reader.ReadUInt16();
+
+      this.unknown2.Clear();
+      for (var i = 0; i < numUnknown2; ++i) {
+        this.unknown2.Add(reader.ReadUInt32());
+      }
+
+      this.unknown1.Clear();
+      for (var i = 0; i < numUnknown1; ++i) {
+        this.unknown1.Add(reader.ReadByte());
+      }
+    }
+
+    public void Write(EndianBinaryWriter writer) {
+      writer.Write((ushort) this.unknown1.Count);
+      writer.Write((ushort) this.unknown2.Count);
+
+      foreach (var i in this.unknown2) {
+        writer.Write(i);
+      }
+
+      foreach (var i in this.unknown1) {
+        writer.Write(i);
+      }
+    }
+  }
+
+  public class CollGrid : IGcnSerializable {
+    public readonly Vector3f boundsMin = new();
+    public readonly Vector3f boundsMax = new();
+    public float unknown1 = 0;
+    public uint gridX = 0;
+    public uint gridY = 0;
+    public readonly List<CollGroup> groups = new();
+    public readonly List<int> unknown2 = new();
+
+    public void Read(EndianBinaryReader reader) {
+      reader.Align(0x20);
+      this.boundsMin.Read(reader);
+      this.boundsMax.Read(reader);
+      this.unknown1 = reader.ReadSingle();
+      this.gridX = reader.ReadUInt32();
+      this.gridY = reader.ReadUInt32();
+
+      var numGroups = reader.ReadUInt32();
+      this.groups.Clear();
+      for (var i = 0; i < numGroups; ++i) {
+        var group = new CollGroup();
+        group.Read(reader);
+        this.groups.Add(group);
+      }
+
+      this.unknown2.Clear();
+      for (var i = 0; i < this.gridX * this.gridY; ++i) {
+        this.unknown2.Add(reader.ReadInt32());
+      }
+      reader.Align(0x20);
+    }
+
+    public void Write(EndianBinaryWriter writer) {
+      var start = writer.StartChunk(0x110);
+      writer.Align(0x20);
+      this.boundsMin.Write(writer);
+      this.boundsMax.Write(writer);
+      writer.Write(this.unknown1);
+      writer.Write(this.gridX);
+      writer.Write(this.gridY);
+
+      writer.Write(this.groups.Count);
+      foreach (var group in this.groups) {
+        group.Write(writer);
+      }
+
+      foreach (var i in this.unknown2) {
+        writer.Write(i);
+      }
+      writer.Align(0x20);
+      writer.FinishChunk(start);
     }
 
     public void Clear() {
-      this.m_boundsMin.Reset();
-      this.m_boundsMax.Reset();
-      this.m_unknown1 = 0;
-      this.m_gridX = 0;
-      this.m_gridY = 0;
-      this.m_groups.Clear();
-      this.m_unknown2.Clear();
+      this.boundsMin.Reset();
+      this.boundsMax.Reset();
+      this.unknown1 = 0;
+      this.gridX = 0;
+      this.gridY = 0;
+      this.groups.Clear();
+      this.unknown2.Clear();
     }
   }
-}
-
-
-
-void BaseRoomInfo::read(util::fstream_reader& reader) {
-  m_index = reader.readU32();
-}
-void BaseRoomInfo::write(util::fstream_writer& writer) {
-  writer.writeU32(m_index);
-}
-
-void BaseCollTriInfo::read(util::fstream_reader& reader) {
-  m_mapCode = reader.readU32();
-  m_indice.read(reader);
-
-  m_unknown2 = reader.readU16();
-  m_unknown3 = reader.readU16();
-  m_unknown4 = reader.readU16();
-  m_unknown5 = reader.readU16();
-
-  m_plane.read(reader);
-}
-
-void BaseCollTriInfo::write(util::fstream_writer& writer) {
-  writer.writeU32(m_mapCode);
-  m_indice.write(writer);
-
-  writer.writeU16(m_unknown2);
-  writer.writeU16(m_unknown3);
-  writer.writeU16(m_unknown4);
-  writer.writeU16(m_unknown5);
-
-  m_plane.write(writer);
-}
-
-void CollTriInfo::read(util::fstream_reader& reader) {
-  m_collinfo.resize(reader.readU32());
-  m_roominfo.resize(reader.readU32());
-
-  reader.align(0x20);
-  for (BaseRoomInfo & info : m_roominfo) {
-    info.read(reader);
-  }
-  reader.align(0x20);
-
-  for (BaseCollTriInfo & info : m_collinfo) {
-    info.read(reader);
-  }
-  reader.align(0x20);
-}
-
-void CollTriInfo::write(util::fstream_writer& writer) {
-  const u32 start = startChunk(writer, 0x100);
-  writer.writeU32(m_collinfo.size());
-  writer.writeU32(m_roominfo.size());
-  writer.align(0x20);
-  for (BaseRoomInfo & info : m_roominfo) {
-    info.write(writer);
-  }
-  writer.align(0x20);
-  for (BaseCollTriInfo & info : m_collinfo) {
-    info.write(writer);
-  }
-  finishChunk(writer, start);
-}
-
-void CollGroup::read(util::fstream_reader& reader) {
-  m_unknown1.resize(reader.readU16());
-
-  m_unknown2.resize(reader.readU16());
-  for (u32 & i : m_unknown2) {
-    i = reader.readU32();
-  }
-
-  for (u8 & i : m_unknown1) {
-    i = reader.readU8();
-  }
-}
-
-void CollGroup::write(util::fstream_writer& writer) {
-  writer.writeU16(static_cast<u16>(m_unknown1.size()));
-  writer.writeU16(static_cast<u16>(m_unknown2.size()));
-  for (u32 & i : m_unknown2) {
-    writer.writeU32(i);
-  }
-
-  for (u8 & i : m_unknown1) {
-    writer.writeU8(i);
-  }
-}
-
-void CollGrid::read(util::fstream_reader& reader) {
-  reader.align(0x20);
-  m_boundsMin.read(reader);
-  m_boundsMax.read(reader);
-  m_unknown1 = reader.readF32();
-  m_gridX = reader.readU32();
-  m_gridY = reader.readU32();
-  m_groups.resize(reader.readU32());
-  for (CollGroup & group : m_groups) {
-    group.read(reader);
-  }
-
-  for (u32 x = 0; x < m_gridX; x++) {
-    for (u32 y = 0; y < m_gridY; y++) {
-      m_unknown2.push_back(reader.readS32());
-    }
-  }
-  reader.align(0x20);
-}
-
-void CollGrid::write(util::fstream_writer& writer) {
-  const u32 start = startChunk(writer, 0x110);
-  writer.align(0x20);
-  m_boundsMin.write(writer);
-  m_boundsMax.write(writer);
-  writer.writeF32(m_unknown1);
-  writer.writeU32(m_gridX);
-  writer.writeU32(m_gridY);
-  writer.writeU32(m_groups.size());
-  for (CollGroup & group : m_groups) {
-    group.write(writer);
-  }
-  for (s32 & i : m_unknown2) {
-    writer.writeS32(i);
-  }
-  writer.align(0x20);
-  finishChunk(writer, start);
-}
-
-void CollGrid::clear() {
-
 }

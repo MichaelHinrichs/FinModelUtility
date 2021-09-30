@@ -56,6 +56,21 @@ namespace System.IO {
       }
     }
 
+    public long StartChunk(uint chunk) {
+      this.Write(chunk);
+      var position = this.Position;
+      this.Write((uint) 0);
+      return position;
+    }
+
+    public void FinishChunk(long chunkStart) {
+      this.Align(0x20);
+      var position = this.Position;
+      this.Position = chunkStart;
+      this.Write((uint) (position - chunkStart - 4));
+      this.Position = position;
+    }
+
     private void WriteBuffer_(int bytes, int stride) {
       if (this.Reverse) {
         for (int index = 0; index < bytes; index += stride)
