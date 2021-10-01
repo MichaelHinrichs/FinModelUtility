@@ -3,7 +3,6 @@
 using fin.math;
 using fin.model;
 using fin.model.impl;
-using fin.util.asserts;
 
 using mod.util;
 
@@ -31,15 +30,15 @@ namespace mod.gcn.image {
           byte r, g, b, a;
           if (alphaFlag == 1) {
             a = 255;
-            r = this.ExtractScaled(pix, 10, 5);
-            g = this.ExtractScaled(pix, 5, 5);
-            b = this.ExtractScaled(pix,0, 5);
+            r = ColorUtil.ExtractScaled(pix, 10, 5);
+            g = ColorUtil.ExtractScaled(pix, 5, 5);
+            b = ColorUtil.ExtractScaled(pix,0, 5);
           } else {
-            a = this.ExtractScaled(pix, 12, 3);
+            a = ColorUtil.ExtractScaled(pix, 12, 3);
 
-            r = this.ExtractScaled(pix, 8, 4, 17);
-            g = this.ExtractScaled(pix, 4, 4, 17);
-            b = this.ExtractScaled(pix, 0, 4, 17);
+            r = ColorUtil.ExtractScaled(pix, 8, 4, 17);
+            g = ColorUtil.ExtractScaled(pix, 4, 4, 17);
+            b = ColorUtil.ExtractScaled(pix, 0, 4, 17);
           }
 
           bl[j * 4 + i] = ColorImpl.FromBytes(r, g, b, a);

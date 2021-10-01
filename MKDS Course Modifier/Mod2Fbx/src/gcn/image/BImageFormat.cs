@@ -59,17 +59,5 @@ namespace mod.gcn.image {
         }
       }
     }
-
-    protected byte ExtractScaled(ushort col, int offset, int count) {
-      var maxPossible = Math.Pow(2, count);
-      var factor = 255 / maxPossible;
-      return this.ExtractScaled(col, offset, count, factor);
-    }
-
-    protected byte ExtractScaled(ushort col, int offset, int count, double factor) {
-      var extracted = BitLogic.ExtractFromRight(col, offset, count) * 1d;
-      return (byte)Math.Round(extracted * factor);
-    }
-
   }
 }

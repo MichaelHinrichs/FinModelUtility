@@ -65,9 +65,10 @@ namespace mod.gcn {
       BImageFormat? imageFormat = null;
       if (format == TextureFormat.RGB5A3) {
         imageFormat = new Rgb5A3(this.imageData, this.width, this.height);
-      }
-      else if (format == TextureFormat.RGB565) {
+      } else if (format == TextureFormat.RGB565) {
         imageFormat = new Rgb565(this.imageData, this.width, this.height);
+      } else if (format == TextureFormat.CMPR) {
+        imageFormat = new Cmpr(this.imageData, this.width, this.height);
       }
 
       if (imageFormat != null) {

@@ -27,12 +27,7 @@ namespace mod.gcn.image {
       for (var j = 0; j < 4; ++j) {
         for (var i = 0; i < 4; ++i) {
           var pix = s.ReadU16();
-
-          var r = this.ExtractScaled(pix, 11, 5);
-          var g = this.ExtractScaled(pix, 5, 6);
-          var b = this.ExtractScaled(pix, 0, 5);
-
-          bl[j * 4 + i] = ColorImpl.FromBytes(r, g, b, 255);
+          bl[j * 4 + i] = ColorUtil.ParseRgb565(pix);
         }
       }
 
