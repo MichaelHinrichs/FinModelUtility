@@ -43,11 +43,14 @@ namespace mod.gcn {
     public readonly CollTriInfo colltris = new();
     public readonly CollGrid collgrid = new();
     public readonly List<byte> eofBytes = new();
+    public bool hasNormals = false;
 
     public Mod() {}
     public Mod(EndianBinaryReader reader) => this.Read(reader);
 
     public void Read(EndianBinaryReader reader) {
+      this.hasNormals = false;
+
       for (var i = 0; i < 8; ++i) {
         this.texcoords[i] = new List<Vector2f>();
       }
@@ -90,6 +93,7 @@ namespace mod.gcn {
             Mod.ReadGenericChunk_(reader, this.vertices);
             break;
           case 0x11:
+            this.hasNormals = true;
             Mod.ReadGenericChunk_(reader, this.vnormals);
             break;
           case 0x12:
