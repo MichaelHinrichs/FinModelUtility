@@ -40,10 +40,18 @@ namespace fin.exporter.gltf {
       var outPosition = new ModelImpl.PositionImpl();
       var outNormal = new ModelImpl.NormalImpl();
 
+      var nullMaterialBuilder =
+          new MaterialBuilder("null").WithDoubleSide(true)
+                                     .WithSpecularGlossiness();
+
       foreach (var primitive in skin.Primitives) {
-        var (texCoordIndices, materialBuilder) =
-            finToTexCoordAndGltfMaterial[primitive.Material];
-        Asserts.Nonnull(materialBuilder);
+        MaterialBuilder materialBuilder;
+        if (primitive.Material != null) {
+          (_, materialBuilder) =
+              finToTexCoordAndGltfMaterial[primitive.Material];
+        } else {
+          materialBuilder = nullMaterialBuilder;
+        }
 
         var points = primitive.Vertices;
         var pointsCount = points.Count;
@@ -66,6 +74,8 @@ namespace fin.exporter.gltf {
                              => (boneToIndex[boneWeight.Bone],
                                  boneWeight.Weight))
                      .ToArray());
+          } else {
+            vertexBuilder = vertexBuilder.WithSkinning((0, 1));
           }
 
           if (point.LocalNormal != null) {

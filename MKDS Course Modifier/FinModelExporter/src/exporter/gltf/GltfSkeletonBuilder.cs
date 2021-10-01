@@ -37,9 +37,16 @@ namespace fin.exporter.gltf {
         }
       }
 
-      skin.BindJoints(skinNodesAndBones
+      var skinNodes = skinNodesAndBones
                       .Select(skinNodesAndBone => skinNodesAndBone.Item1)
-                      .ToArray());
+                      .ToArray();
+      if (skinNodes.Length > 0) {
+        skin.BindJoints(skinNodes);
+      } else {
+        var nullNode = rootNode.CreateNode("null");
+        skin.BindJoints(nullNode);
+        skinNodesAndBones.Add((nullNode, null));
+      }
 
       return skinNodesAndBones.ToArray();
     }

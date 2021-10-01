@@ -86,14 +86,18 @@ namespace fin.math {
         INormal? outNormal = null) {
       // TODO: Precompute these in a shared way somehow.
       var mergedMatrix = new FinMatrix4x4();
-      foreach (var weight in vertex.Weights) {
-        var skinToBoneMatrix = weight.SkinToBone;
-        var boneMatrix = this.GetWorldMatrix(weight.Bone);
+      if (vertex.Weights?.Count > 0) {
+        foreach (var weight in vertex.Weights) {
+          var skinToBoneMatrix = weight.SkinToBone;
+          var boneMatrix = this.GetWorldMatrix(weight.Bone);
 
-        var skinToWorldMatrix = boneMatrix.CloneAndMultiply(skinToBoneMatrix)
-                                          .MultiplyInPlace(weight.Weight);
+          var skinToWorldMatrix = boneMatrix.CloneAndMultiply(skinToBoneMatrix)
+                                            .MultiplyInPlace(weight.Weight);
 
-        mergedMatrix.AddInPlace(skinToWorldMatrix);
+          mergedMatrix.AddInPlace(skinToWorldMatrix);
+        }
+      } else {
+        mergedMatrix.SetIdentity();
       }
 
       this.transformer_.Push();

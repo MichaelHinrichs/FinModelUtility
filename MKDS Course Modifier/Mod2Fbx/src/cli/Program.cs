@@ -1,5 +1,8 @@
 ﻿using System.IO;
 
+using fin.exporter.gltf;
+using fin.io;
+
 using mod.gcn;
 
 namespace mod.cli {
@@ -10,7 +13,13 @@ namespace mod.cli {
       using var s = new EndianBinaryReader(File.OpenRead(inPath));
 
       var mod = new Mod(s);
-      ExportToObj.Export(mod);
+      //ExportToObj.Export(mod);
+
+      var model = ModelConverter.Convert(mod);
+      new GltfExporter().Export(
+          new FinFile(
+              @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\out\test.glb"),
+          model);
     }
   }
 }
