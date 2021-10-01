@@ -34,21 +34,6 @@ namespace mod.cli {
         Asserts.Fail("Loaded file has nothing to export!");
       }
 
-      // TODO: This is the wrong way to set up vertices, this array is just locations. We will need to piece them together with face data below
-      var finVertices = new IVertex[mod.vertices.Count];
-      for (var i = 0; i < mod.vertices.Count; ++i) {
-        var vertex = mod.vertices[i];
-        var finVertex = model.Skin.AddVertex(vertex.X, vertex.Y, vertex.Z);
-        finVertices[i] = finVertex;
-      }
-
-      /**
-        if (hasNormals) {
-          var vnrm = mod.vnormals[i];
-          finVertex.SetLocalNormal(vnrm.X, vnrm.Y, vnrm.Z);
-        }
-       */
-
       /*for (var i = 0; i < mod.texcoords.Length; ++i) {
         var coords = mod.texcoords[i];
         if (coords.Count == 0) {
@@ -90,11 +75,15 @@ namespace mod.cli {
               }
 
               var faceCount = reader.ReadU16();
-              var vertexIndices = new List<ushort>();
+              var positionIndices = new List<ushort>();
+              var normalIndices = new List<ushort>();
               for (var f = 0; f < faceCount; f++) {
                 foreach (var (attr, format) in vertexDescriptor) {
-                  if (attr == Vtx.Position) {
-                    vertexIndices.Add(reader.ReadU16());
+                  if (attr == Vtx.Position && format == VtxFmt.INDEX16) {
+                    positionIndices.Add(reader.ReadU16());
+                  } else if (attr == Vtx.Normal) {
+                    Asserts.Equal(VtxFmt.INDEX16, format);
+                    normalIndices.Add(reader.ReadU16());
                   } else if (format == null) {
                     reader.ReadU8();
                   } else if (format == VtxFmt.INDEX16) {
@@ -106,13 +95,25 @@ namespace mod.cli {
                 }
               }
 
-              var vertices =
-                  vertexIndices.Select(vertexIndex => finVertices[vertexIndex])
-                               .ToArray();
+              var finVertexList = new List<IVertex>();
+              for (var v = 0; v < positionIndices.Count; ++v) {
+                var position = mod.vertices[positionIndices[v]];
+                var finVertex =
+                    model.Skin.AddVertex(position.X, position.Y, position.Z);
+
+                if (normalIndices.Count > 0) {
+                  var normal = mod.vnormals[normalIndices[v]];
+                  finVertex.SetLocalNormal(normal.X, normal.Y, normal.Z);
+                }
+
+                finVertexList.Add(finVertex);
+              }
+
+              var finVertices = finVertexList.ToArray();
               if (opcode == Opcode.TRIANGLE_FAN) {
-                model.Skin.AddTriangleFan(vertices);
+                model.Skin.AddTriangleFan(finVertices);
               } else if (opcode == Opcode.TRIANGLE_STRIP) {
-                model.Skin.AddTriangleStrip(vertices);
+                model.Skin.AddTriangleStrip(finVertices);
               }
             }
           }
