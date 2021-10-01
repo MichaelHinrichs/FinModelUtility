@@ -6,6 +6,8 @@ using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using mod.gcn;
 using mod.util;
 
@@ -77,15 +79,26 @@ namespace mod.cli {
               var faceCount = reader.ReadU16();
               var positionIndices = new List<ushort>();
               var normalIndices = new List<ushort>();
+
+              var texCoordIndices = new List<ushort>[8];
+              for (var t = 0; t < 8; ++t) {
+                texCoordIndices[t] = new List<ushort>();
+              }
+
               for (var f = 0; f < faceCount; f++) {
                 foreach (var (attr, format) in vertexDescriptor) {
-                  if (attr == Vtx.Position && format == VtxFmt.INDEX16) {
-                    positionIndices.Add(reader.ReadU16());
-                  } else if (attr == Vtx.Normal) {
-                    Asserts.Equal(VtxFmt.INDEX16, format);
-                    normalIndices.Add(reader.ReadU16());
-                  } else if (format == null) {
+                  if (format == null) {
                     reader.ReadU8();
+                    continue;
+                  }
+
+                  if (attr == Vtx.Position) {
+                    positionIndices.Add(ModelConverter.Read_(reader, format));
+                  } else if (attr == Vtx.Normal) {
+                    normalIndices.Add(ModelConverter.Read_(reader, format));
+                  } else if (attr is >= Vtx.Tex0Coord and <= Vtx.Tex7Coord) {
+                    texCoordIndices[attr - Vtx.Tex0Coord]
+                        .Add(ModelConverter.Read_(reader, format));
                   } else if (format == VtxFmt.INDEX16) {
                     reader.ReadU16();
                   } else {
@@ -106,6 +119,14 @@ namespace mod.cli {
                   finVertex.SetLocalNormal(normal.X, normal.Y, normal.Z);
                 }
 
+                for (var t = 0; t < 8; ++t) {
+                  if (texCoordIndices[t].Count > 0) {
+                    var texCoord = mod.texcoords[t][texCoordIndices[t][v]];
+                    finVertex.SetUv(t, texCoord.X, texCoord.Y);
+                  }
+                  texCoordIndices[t] = new List<ushort>();
+                }
+
                 finVertexList.Add(finVertex);
               }
 
@@ -121,6 +142,17 @@ namespace mod.cli {
       }
 
       return model;
+    }
+
+    private static ushort Read_(VectorReader reader, VtxFmt? format) {
+      if (format == VtxFmt.INDEX16) {
+        return reader.ReadU16();
+      } else if (format == VtxFmt.INDEX8) {
+        return reader.ReadU8();
+      }
+
+      Asserts.Fail($"Unsupported format: {format}");
+      return 0;
     }
   }
 }
