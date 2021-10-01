@@ -106,29 +106,29 @@ namespace fin.model.impl {
         public BlendMode BlendMode { get; set; }
       }
     }
+  }
 
-    private class ColorImpl : IColor {
-      public ColorSourceType Type => ColorSourceType.COLOR;
+  public class ColorImpl : IColor {
+    public ColorSourceType Type => ColorSourceType.COLOR;
 
-      private ColorImpl(byte rb, byte gb, byte bb, byte ab) {
-        this.Rb = rb;
-        this.Gb = gb;
-        this.Bb = bb;
-        this.Ab = ab;
-      }
-
-      public static IColor FromBytes(byte rb, byte gb, byte bb, byte ab)
-        => new ColorImpl(rb, gb, bb, ab);
-
-      public float Rf => this.Rb / 255f;
-      public float Gf => this.Gb / 255f;
-      public float Bf => this.Bb / 255f;
-      public float Af => this.Ab / 255f;
-
-      public byte Rb { get; }
-      public byte Gb { get; }
-      public byte Bb { get; }
-      public byte Ab { get; }
+    private ColorImpl(byte rb, byte gb, byte bb, byte ab) {
+      this.Rb = rb;
+      this.Gb = gb;
+      this.Bb = bb;
+      this.Ab = ab;
     }
+
+    public static IColor FromBytes(byte rb, byte gb, byte bb, byte ab)
+      => new ColorImpl(rb, gb, bb, ab);
+
+    public float Rf => this.Rb / 255f;
+    public float Gf => this.Gb / 255f;
+    public float Bf => this.Bb / 255f;
+    public float Af => this.Ab / 255f;
+
+    public byte Rb { get; }
+    public byte Gb { get; }
+    public byte Bb { get; }
+    public byte Ab { get; }
   }
 }

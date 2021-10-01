@@ -7,7 +7,7 @@ namespace mod.util {
   }
 
   public class VectorReader {
-    private readonly List<byte> buffer_ = new();
+    private readonly IList<byte> buffer_ = new List<byte>();
     private int position_;
     private Endianness endianness_;
 
@@ -16,7 +16,7 @@ namespace mod.util {
     }
 
     public VectorReader(
-        List<byte> bytes,
+        IList<byte> bytes,
         int position = 0,
         Endianness endianness = Endianness.Little) {
       this.buffer_ = bytes;
@@ -24,7 +24,7 @@ namespace mod.util {
       this.endianness_ = endianness;
     }
 
-    public List<byte> GetBuffer() => this.buffer_;
+    public IList<byte> GetBuffer() => this.buffer_;
 
     public int GetRemaining() => this.buffer_.Count - this.position_;
 

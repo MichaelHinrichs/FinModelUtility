@@ -23,5 +23,13 @@ namespace fin.math {
 
       return (a, b, c, d);
     }
+
+    /// <summary>
+    //    Function to extract k bits from p position
+    //    and returns the extracted value as integer
+    /// </summary>
+    public static int ExtractFromRight(ushort number, int offset, int count)
+     // => (((1 << count) - 1) & (number >> (offset - 1)));
+    => (number >> offset) & ((1 << count) - 1);
   }
 }

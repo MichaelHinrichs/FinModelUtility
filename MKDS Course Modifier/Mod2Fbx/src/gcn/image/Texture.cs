@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
+using mod.gcn.image;
+
 namespace mod.gcn {
   public class Texture : IGcnSerializable {
     public ushort width = 0;
@@ -8,6 +10,19 @@ namespace mod.gcn {
     public uint format = 0;
     public uint unknown = 0;
     public readonly List<byte> imageData = new();
+
+    public static int TEMP = 0;
+
+    public enum TextureFormat {
+      RGB565 = 0,
+      CMPR = 1,
+      RGB5A3 = 2,
+      I4 = 3,
+      I8 = 4,
+      IA4 = 5,
+      IA8 = 6,
+      RGBA32 = 8,
+    }
 
     public void Read(EndianBinaryReader reader) {
       this.width = reader.ReadUInt16();
@@ -24,6 +39,8 @@ namespace mod.gcn {
       for (var i = 0; i < numImageData; ++i) {
         this.imageData.Add(reader.ReadByte());
       }
+
+      this.Save();
     }
 
     public void Write(EndianBinaryWriter writer) {
@@ -31,7 +48,7 @@ namespace mod.gcn {
       writer.Write(this.height);
       writer.Write(this.format);
       writer.Write(this.unknown);
-      
+
       for (var i = 0; i < 4; i++) {
         writer.Write((uint) 0);
       }
@@ -39,6 +56,26 @@ namespace mod.gcn {
       writer.Write(this.imageData.Count);
       foreach (var b in this.imageData) {
         writer.Write(b);
+      }
+    }
+
+    public void Save() {
+      var format = (TextureFormat) this.format;
+
+      BImageFormat? imageFormat = null;
+      if (format == TextureFormat.RGB5A3) {
+        imageFormat = new Rgb5A3(this.imageData, this.width, this.height);
+      }
+      else if (format == TextureFormat.RGB565) {
+        imageFormat = new Rgb565(this.imageData, this.width, this.height);
+      }
+
+      if (imageFormat != null) {
+        imageFormat.Image.Save(
+            @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\out\test" +
+            Texture.TEMP +
+            ".bmp");
+        Texture.TEMP++;
       }
     }
   }
