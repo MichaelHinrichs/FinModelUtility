@@ -36,18 +36,6 @@ namespace mod.cli {
         Asserts.Fail("Loaded file has nothing to export!");
       }
 
-      /*for (var i = 0; i < mod.texcoords.Length; ++i) {
-        var coords = mod.texcoords[i];
-        if (coords.Count == 0) {
-          continue;
-        }
-
-        os.WriteLine();
-        os.WriteLine("# Texture coordinate " + i);
-        foreach (var coord in coords) {
-          os.WriteLine($"vt {coord.X} {coord.Y}");
-        }
-      }*/
 
       /*var colInfos = mod.colltris.collinfo;
       if (colInfos.Count != 0) {
@@ -59,89 +47,135 @@ namespace mod.cli {
         }
       }*/
 
+
+      // Writes bones
+      var jointCount = mod.joints.Count;
+      var jointChildren = new List<int>[jointCount];
+      for (var i = 0; i < jointCount; ++i) {
+        jointChildren[i] = new();
+      }
+      for (var i = 0; i < jointCount; ++i) {
+        var joint = mod.joints[i];
+        var parentIndex = (int) joint.parentIdx;
+        if (parentIndex != -1) {
+          jointChildren[parentIndex].Add(i);
+        }
+      }
+      // TODO: Is 0 as the first a safe assumption?
+      var jointQueue = new Queue<(int, IBone?)>();
+      jointQueue.Enqueue((0, null));
+      while (jointQueue.Count > 0) {
+        var (jointIndex, parent) = jointQueue.Dequeue();
+
+        var joint = mod.joints[jointIndex];
+
+        var bone =
+            (parent ?? model.Skeleton.Root).AddChild(
+                joint.position.X,
+                joint.position.Y,
+                joint.position.Z);
+        bone.SetLocalRotationRadians(joint.rotation.X,
+                                     joint.rotation.Y,
+                                     joint.rotation.Z);
+
+        if (mod.jointNames.Count > 0) {
+          var jointName = mod.jointNames[jointIndex];
+          bone.Name = jointName;
+        }
+
+        foreach (var childIndex in jointChildren[jointIndex]) {
+          jointQueue.Enqueue((childIndex, bone));
+        }
+      }
+
+      // Writes skin
       foreach (var mesh in mod.meshes) {
-        var vertexDescriptor = new VertexDescriptor();
-        vertexDescriptor.FromPikmin1(mesh.vtxDescriptor, mod.hasNormals);
+        ModelConverter.AddMesh_(mod, mesh, model);
+      }
 
-        foreach (var meshPacket in mesh.packets) {
-          foreach (var dlist in meshPacket.displaylists) {
-            var reader = new VectorReader(dlist.dlistData, 0, Endianness.Big);
+      return model;
+    }
 
-            while (reader.GetRemaining() != 0) {
-              var opcodeByte = reader.ReadU8();
-              var opcode = (Opcode) opcodeByte;
+    private static void AddMesh_(Mod mod, Mesh mesh, IModel model) {
+      var vertexDescriptor = new VertexDescriptor();
+      vertexDescriptor.FromPikmin1(mesh.vtxDescriptor, mod.hasNormals);
 
-              if (opcode != Opcode.TRIANGLE_STRIP &&
-                  opcode != Opcode.TRIANGLE_FAN) {
-                continue;
+      foreach (var meshPacket in mesh.packets) {
+        foreach (var dlist in meshPacket.displaylists) {
+          var reader = new VectorReader(dlist.dlistData, 0, Endianness.Big);
+
+          while (reader.GetRemaining() != 0) {
+            var opcodeByte = reader.ReadU8();
+            var opcode = (Opcode) opcodeByte;
+
+            if (opcode != Opcode.TRIANGLE_STRIP &&
+                opcode != Opcode.TRIANGLE_FAN) {
+              continue;
+            }
+
+            var faceCount = reader.ReadU16();
+            var positionIndices = new List<ushort>();
+            var normalIndices = new List<ushort>();
+
+            var texCoordIndices = new List<ushort>[8];
+            for (var t = 0; t < 8; ++t) {
+              texCoordIndices[t] = new List<ushort>();
+            }
+
+            for (var f = 0; f < faceCount; f++) {
+              foreach (var (attr, format) in vertexDescriptor) {
+                if (format == null) {
+                  reader.ReadU8();
+                  continue;
+                }
+
+                if (attr == Vtx.Position) {
+                  positionIndices.Add(ModelConverter.Read_(reader, format));
+                } else if (attr == Vtx.Normal) {
+                  normalIndices.Add(ModelConverter.Read_(reader, format));
+                } else if (attr is >= Vtx.Tex0Coord and <= Vtx.Tex7Coord) {
+                  texCoordIndices[attr - Vtx.Tex0Coord]
+                      .Add(ModelConverter.Read_(reader, format));
+                } else if (format == VtxFmt.INDEX16) {
+                  reader.ReadU16();
+                } else {
+                  Asserts.Fail(
+                      $"Unexpected attribute/format ({attr}/{format})");
+                }
+              }
+            }
+
+            var finVertexList = new List<IVertex>();
+            for (var v = 0; v < positionIndices.Count; ++v) {
+              var position = mod.vertices[positionIndices[v]];
+              var finVertex =
+                  model.Skin.AddVertex(position.X, position.Y, position.Z);
+
+              if (normalIndices.Count > 0) {
+                var normal = mod.vnormals[normalIndices[v]];
+                finVertex.SetLocalNormal(normal.X, normal.Y, normal.Z);
               }
 
-              var faceCount = reader.ReadU16();
-              var positionIndices = new List<ushort>();
-              var normalIndices = new List<ushort>();
-
-              var texCoordIndices = new List<ushort>[8];
               for (var t = 0; t < 8; ++t) {
+                if (texCoordIndices[t].Count > 0) {
+                  var texCoord = mod.texcoords[t][texCoordIndices[t][v]];
+                  finVertex.SetUv(t, texCoord.X, texCoord.Y);
+                }
                 texCoordIndices[t] = new List<ushort>();
               }
 
-              for (var f = 0; f < faceCount; f++) {
-                foreach (var (attr, format) in vertexDescriptor) {
-                  if (format == null) {
-                    reader.ReadU8();
-                    continue;
-                  }
+              finVertexList.Add(finVertex);
+            }
 
-                  if (attr == Vtx.Position) {
-                    positionIndices.Add(ModelConverter.Read_(reader, format));
-                  } else if (attr == Vtx.Normal) {
-                    normalIndices.Add(ModelConverter.Read_(reader, format));
-                  } else if (attr is >= Vtx.Tex0Coord and <= Vtx.Tex7Coord) {
-                    texCoordIndices[attr - Vtx.Tex0Coord]
-                        .Add(ModelConverter.Read_(reader, format));
-                  } else if (format == VtxFmt.INDEX16) {
-                    reader.ReadU16();
-                  } else {
-                    Asserts.Fail(
-                        $"Unexpected attribute/format ({attr}/{format})");
-                  }
-                }
-              }
-
-              var finVertexList = new List<IVertex>();
-              for (var v = 0; v < positionIndices.Count; ++v) {
-                var position = mod.vertices[positionIndices[v]];
-                var finVertex =
-                    model.Skin.AddVertex(position.X, position.Y, position.Z);
-
-                if (normalIndices.Count > 0) {
-                  var normal = mod.vnormals[normalIndices[v]];
-                  finVertex.SetLocalNormal(normal.X, normal.Y, normal.Z);
-                }
-
-                for (var t = 0; t < 8; ++t) {
-                  if (texCoordIndices[t].Count > 0) {
-                    var texCoord = mod.texcoords[t][texCoordIndices[t][v]];
-                    finVertex.SetUv(t, texCoord.X, texCoord.Y);
-                  }
-                  texCoordIndices[t] = new List<ushort>();
-                }
-
-                finVertexList.Add(finVertex);
-              }
-
-              var finVertices = finVertexList.ToArray();
-              if (opcode == Opcode.TRIANGLE_FAN) {
-                model.Skin.AddTriangleFan(finVertices);
-              } else if (opcode == Opcode.TRIANGLE_STRIP) {
-                model.Skin.AddTriangleStrip(finVertices);
-              }
+            var finVertices = finVertexList.ToArray();
+            if (opcode == Opcode.TRIANGLE_FAN) {
+              model.Skin.AddTriangleFan(finVertices);
+            } else if (opcode == Opcode.TRIANGLE_STRIP) {
+              model.Skin.AddTriangleStrip(finVertices);
             }
           }
         }
       }
-
-      return model;
     }
 
     private static ushort Read_(VectorReader reader, VtxFmt? format) {
