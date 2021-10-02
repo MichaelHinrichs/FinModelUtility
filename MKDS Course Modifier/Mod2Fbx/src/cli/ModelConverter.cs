@@ -6,8 +6,6 @@ using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using mod.gcn;
 using mod.util;
 
@@ -36,7 +34,6 @@ namespace mod.cli {
         Asserts.Fail("Loaded file has nothing to export!");
       }
 
-
       /*var colInfos = mod.colltris.collinfo;
       if (colInfos.Count != 0) {
         os.WriteLine();
@@ -47,9 +44,32 @@ namespace mod.cli {
         }
       }*/
 
+      // Writes textures
+      var finTextures = new List<ITexture>();
+      foreach (var texture in mod.textures) {
+        finTextures.Add(
+            model.MaterialManager.CreateTexture(texture.ToBitmap()));
+
+        // TODO: Set attributes
+      }
+
+      // Writes materials
+      var finMaterials = new List<IMaterial>();
+      for (var i = 0; i < mod.materials.materials.Count; ++i) {
+        var material = mod.materials.materials[i];
+        var textureIndex = (int) material.unknown1;
+
+        IMaterial finMaterial = textureIndex != -1
+                           ? model.MaterialManager.AddTextureMaterial(
+                               finTextures[textureIndex])
+                           : model.MaterialManager.AddLayerMaterial();
+        finMaterial.Name = $"material {i}";
+        finMaterials.Add(finMaterial);
+      }
 
       // Writes bones
       var jointCount = mod.joints.Count;
+      var bones = new IBone[jointCount];
       var jointChildren = new List<int>[jointCount];
       for (var i = 0; i < jointCount; ++i) {
         jointChildren[i] = new();
@@ -81,22 +101,40 @@ namespace mod.cli {
         if (mod.jointNames.Count > 0) {
           var jointName = mod.jointNames[jointIndex];
           bone.Name = jointName;
+        } else {
+          bone.Name = $"bone {jointIndex}";
         }
+
+        bones[jointIndex] = bone;
 
         foreach (var childIndex in jointChildren[jointIndex]) {
           jointQueue.Enqueue((childIndex, bone));
         }
       }
 
-      // Writes skin
-      foreach (var mesh in mod.meshes) {
-        ModelConverter.AddMesh_(mod, mesh, model);
+      foreach (var joint in mod.joints) {
+        // Writes skin
+        foreach (var jointMatPoly in joint.matpolys) {
+          var meshIndex = jointMatPoly.meshIdx;
+          var mesh = mod.meshes[meshIndex];
+
+          var material = finMaterials[jointMatPoly.matIdx];
+          ModelConverter.AddMesh_(mod, mesh, material, model, bones);
+        }
       }
 
       return model;
     }
 
-    private static void AddMesh_(Mod mod, Mesh mesh, IModel model) {
+    private static void AddMesh_(
+        Mod mod,
+        Mesh mesh,
+        IMaterial material,
+        IModel model,
+        IBone[] bones) {
+      var currentBone = bones[mesh.boneIndex];
+      var currentColor = ColorImpl.FromBytes(255, 255, 255, 255);
+
       var vertexDescriptor = new VertexDescriptor();
       vertexDescriptor.FromPikmin1(mesh.vtxDescriptor, mod.hasNormals);
 
@@ -115,6 +153,7 @@ namespace mod.cli {
 
             var faceCount = reader.ReadU16();
             var positionIndices = new List<ushort>();
+            var vertexBones = new List<IBone>();
             var normalIndices = new List<ushort>();
 
             var texCoordIndices = new List<ushort>[8];
@@ -125,12 +164,20 @@ namespace mod.cli {
             for (var f = 0; f < faceCount; f++) {
               foreach (var (attr, format) in vertexDescriptor) {
                 if (format == null) {
-                  reader.ReadU8();
+                  var unused = reader.ReadU8();
+
+                  if (attr == Vtx.PosMatIdx) {
+                    var remappedBoneIndex =
+                        1 + meshPacket.indices[(unused / 3)];
+                    currentBone = bones[remappedBoneIndex];
+                  }
+
                   continue;
                 }
 
                 if (attr == Vtx.Position) {
                   positionIndices.Add(ModelConverter.Read_(reader, format));
+                  vertexBones.Add(currentBone);
                 } else if (attr == Vtx.Normal) {
                   normalIndices.Add(ModelConverter.Read_(reader, format));
                 } else if (attr is >= Vtx.Tex0Coord and <= Vtx.Tex7Coord) {
@@ -151,6 +198,8 @@ namespace mod.cli {
               var finVertex =
                   model.Skin.AddVertex(position.X, position.Y, position.Z);
 
+              finVertex.SetBone(vertexBones[v]);
+
               if (normalIndices.Count > 0) {
                 var normal = mod.vnormals[normalIndices[v]];
                 finVertex.SetLocalNormal(normal.X, normal.Y, normal.Z);
@@ -169,9 +218,9 @@ namespace mod.cli {
 
             var finVertices = finVertexList.ToArray();
             if (opcode == Opcode.TRIANGLE_FAN) {
-              model.Skin.AddTriangleFan(finVertices);
+              model.Skin.AddTriangleFan(finVertices).SetMaterial(material);
             } else if (opcode == Opcode.TRIANGLE_STRIP) {
-              model.Skin.AddTriangleStrip(finVertices);
+              model.Skin.AddTriangleStrip(finVertices).SetMaterial(material);
             }
           }
         }

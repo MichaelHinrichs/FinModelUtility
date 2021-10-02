@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 using fin.util.asserts;
@@ -55,10 +56,15 @@ namespace mod.gcn {
         this.texcoords[i] = new List<Vector2f>();
       }
 
+      Mod.FindAllChunks(reader);
+
       bool stopRead = false;
       while (!stopRead) {
         var position = reader.Position;
+
         var opcode = reader.ReadUInt32();
+        var opcodeName = Mod.GetChunkName(opcode);
+
         var length = reader.ReadUInt32();
 
         if ((position & 0x1F) != 0) {
@@ -79,6 +85,8 @@ namespace mod.gcn {
             ", " <<
             (ocString.has_value() ? ocString.value() : "Unknown chunk") <<
             std::endl;*/
+
+        var beforePosition = reader.Position;
 
         switch (opcode) {
           case 0:
@@ -183,6 +191,12 @@ namespace mod.gcn {
             reader.Position += length;
             break;
         }
+
+        var afterPosition = reader.Position;
+
+        /*Asserts.Equal(beforePosition + length,
+                      afterPosition,
+                      $"Read incorrect number of bytes for opcode: {opcodeName}");*/
       }
     }
 
@@ -277,6 +291,34 @@ namespace mod.gcn {
       }
 
       return null;
+    }
+
+    public static void FindAllChunks(EndianBinaryReader reader) {
+      var position = reader.Position;
+
+      var sections = new List<uint>();
+
+      // Loop until EOF
+      while (!sections.Contains(0xFFFF)) {
+        // Grab the Chunk's offset and metadata
+        var chunk_offset = reader.Position;
+
+        // Grab the Chunk ID and the length of the Chunk via it's header
+        var chunkId = reader.ReadUInt32();
+        var chunkLen = reader.ReadInt32();
+
+        var chunkData = reader.ReadBytes(chunkLen);
+
+        // Insert the chunk and a stream pointing to the chunk into the sections set
+        //sections[chunk_id] = [chunk_len, YL.bStream(chunk_data), chunk_offset]
+        sections.Add(chunkId);
+      }
+
+      var sectionNames =
+          sections.Select(section => Mod.GetChunkName(section))
+                  .ToList();
+
+      reader.Position = position;
     }
   }
 }

@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using mod.gcn.image;
 
@@ -10,8 +13,6 @@ namespace mod.gcn {
     public uint format = 0;
     public uint unknown = 0;
     public readonly List<byte> imageData = new();
-
-    public static int TEMP = 0;
 
     public enum TextureFormat {
       RGB565 = 0,
@@ -39,8 +40,6 @@ namespace mod.gcn {
       for (var i = 0; i < numImageData; ++i) {
         this.imageData.Add(reader.ReadByte());
       }
-
-      this.Save();
     }
 
     public void Write(EndianBinaryWriter writer) {
@@ -59,7 +58,7 @@ namespace mod.gcn {
       }
     }
 
-    public void Save() {
+    public Bitmap ToBitmap() {
       var format = (TextureFormat) this.format;
 
       BImageFormat? imageFormat = null;
@@ -69,15 +68,11 @@ namespace mod.gcn {
         imageFormat = new Rgb565(this.imageData, this.width, this.height);
       } else if (format == TextureFormat.CMPR) {
         imageFormat = new Cmpr(this.imageData, this.width, this.height);
+      } else {
+        Assert.Fail($"Unsupported type: {format}");
       }
 
-      if (imageFormat != null) {
-        imageFormat.Image.Save(
-            @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\out\test" +
-            Texture.TEMP +
-            ".bmp");
-        Texture.TEMP++;
-      }
+      return imageFormat.Image;
     }
   }
 
