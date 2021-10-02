@@ -68,6 +68,7 @@ namespace fin.src.exporter.assimp.indirect {
           for (var i = 0; i < addLayers.Length; ++i) {
             var layer = addLayers[i];
 
+            // TODO: Simplify/cut down on redundant logic
             // TODO: Support flat color layers by generating a 1x1 clamped texture of that color.
             if (layer.ColorSource is ITexture finTexture) {
               var assTextureSlot = new TextureSlot {
@@ -94,6 +95,22 @@ namespace fin.src.exporter.assimp.indirect {
               assMaterial.AddMaterialTexture(assTextureSlot);
             }
           }
+
+          // Meshes should already have material indices set.
+          sc.Materials.Add(assMaterial);
+        } else if (finMaterial is ITextureMaterial textureMaterial) {
+          var finTexture = textureMaterial.Texture;
+          var assTextureSlot = new TextureSlot {
+              FilePath = finTexture.Name + ".png",
+              WrapModeU = this.ConvertWrapMode_(finTexture.WrapModeU),
+              WrapModeV = this.ConvertWrapMode_(finTexture.WrapModeV)
+          };
+
+          assTextureSlot.TextureType = TextureType.Diffuse;
+
+          assTextureSlot.UVIndex = 0;
+
+          assMaterial.AddMaterialTexture(assTextureSlot);
 
           // Meshes should already have material indices set.
           sc.Materials.Add(assMaterial);

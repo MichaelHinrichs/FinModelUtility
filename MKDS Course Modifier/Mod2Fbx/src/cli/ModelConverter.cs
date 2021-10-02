@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 
+using fin.math;
 using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
@@ -22,6 +23,17 @@ namespace mod.cli {
       LINE_STRIP = 0xb0,
       POINTS = 0xb8,
     }
+
+    // TODO: Add more
+    public enum TilingMode {
+      CLAMP = 1,
+    }
+
+    public static WrapMode ConvertGcnToFin(TilingMode tilingMode)
+      => tilingMode switch {
+          TilingMode.CLAMP => WrapMode.CLAMP,
+          _                => WrapMode.REPEAT,
+      };
 
     public static IModel Convert(Mod mod) {
       var model = new ModelImpl();
@@ -46,11 +58,33 @@ namespace mod.cli {
 
       // Writes textures
       var finTextures = new List<ITexture>();
-      foreach (var texture in mod.textures) {
-        finTextures.Add(
-            model.MaterialManager.CreateTexture(texture.ToBitmap()));
+      for (var i = 0; i < mod.textures.Count; ++i) {
+        var texture = mod.textures[i];
+        var bitmap = texture.ToBitmap();
 
+        var finTexture =
+            model.MaterialManager.CreateTexture(bitmap);
+        finTexture.Name = $"texture {i}";
+
+        var textureAttr = mod.texattrs[i];
+
+        // TODO: These might be backwards
+        var tilingS =
+            (TilingMode) BitLogic.ExtractFromRight(
+                textureAttr.tilingMode,
+                0,
+                8);
+        var tilingT =
+            (TilingMode) BitLogic.ExtractFromRight(
+                textureAttr.tilingMode,
+                8,
+                8);
+
+        finTexture.WrapModeU = ModelConverter.ConvertGcnToFin(tilingS);
+        finTexture.WrapModeV = ModelConverter.ConvertGcnToFin(tilingT);
         // TODO: Set attributes
+
+        finTextures.Add(finTexture);
       }
 
       // Writes materials
@@ -60,9 +94,10 @@ namespace mod.cli {
         var textureIndex = (int) material.unknown1;
 
         IMaterial finMaterial = textureIndex != -1
-                           ? model.MaterialManager.AddTextureMaterial(
-                               finTextures[textureIndex])
-                           : model.MaterialManager.AddLayerMaterial();
+                                    ? model.MaterialManager.AddTextureMaterial(
+                                        finTextures[textureIndex])
+                                    : model.MaterialManager.AddLayerMaterial();
+
         finMaterial.Name = $"material {i}";
         finMaterials.Add(finMaterial);
       }
@@ -210,8 +245,12 @@ namespace mod.cli {
                   var texCoord = mod.texcoords[t][texCoordIndices[t][v]];
                   finVertex.SetUv(t, texCoord.X, texCoord.Y);
                 }
-                texCoordIndices[t] = new List<ushort>();
               }
+
+              finVertex.SetColorBytes(currentColor.Rb,
+                                      currentColor.Gb,
+                                      currentColor.Bb,
+                                      currentColor.Ab);
 
               finVertexList.Add(finVertex);
             }

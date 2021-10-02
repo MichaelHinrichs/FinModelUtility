@@ -23,6 +23,7 @@ namespace fin.exporter.gltf {
     private readonly ILogger logger_ = Logging.Create<GltfExporter>();
 
     public bool UvIndices { get; set; }
+    public bool Embedded { get; set; }
 
     public void Export(IFile outputFile, IModel model) {
       Asserts.True(
@@ -73,6 +74,7 @@ namespace fin.exporter.gltf {
                              .WithSpecularGlossinessShader()
                              .WithSpecularGlossiness(new Vector3(0), 0);
 
+          // TODO: Simplify/cut down on redundant logic
           var hasTexture = finMaterial.Textures.Count > 0;
           if (hasTexture && finMaterial is ILayerMaterial layerMaterial) {
             var addLayers =
@@ -126,6 +128,25 @@ namespace fin.exporter.gltf {
 
             finToTexCoordAndGltfMaterial[finMaterial] =
                 (textureCoordIndices, gltfMaterial);
+          } else if (hasTexture &&
+                     finMaterial is ITextureMaterial textureMaterial) {
+            var texture = textureMaterial.Texture;
+            var textureBuilder = gltfMaterial.UseChannel(KnownChannel.Diffuse)
+                                             .UseTexture();
+
+            var imageStream = new MemoryStream();
+            texture.ImageData.Save(imageStream, ImageFormat.Png);
+            var imageBytes = imageStream.ToArray();
+            var memoryImage = new MemoryImage(imageBytes);
+
+            textureBuilder.WithPrimaryImage(memoryImage)
+                          .WithCoordinateSet(0)
+                          .WithSampler(
+                              this.ConvertWrapMode_(texture.WrapModeU),
+                              this.ConvertWrapMode_(texture.WrapModeV));
+
+            finToTexCoordAndGltfMaterial[finMaterial] =
+                (new byte[] { 0 }, gltfMaterial);
           } else {
             finToTexCoordAndGltfMaterial[finMaterial] =
                 (new byte[] {0}, gltfMaterial);
@@ -169,7 +190,9 @@ namespace fin.exporter.gltf {
                                 .ToArray());
 
       var writeSettings = new WriteSettings {
-          ImageWriting = ResourceWriteMode.Embedded,
+          ImageWriting = this.Embedded
+                             ? ResourceWriteMode.Embedded
+                             : ResourceWriteMode.SatelliteFile,
       };
 
       var outputPath = outputFile.FullName;

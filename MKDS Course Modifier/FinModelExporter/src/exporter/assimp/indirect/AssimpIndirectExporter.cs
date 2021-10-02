@@ -1,27 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 
 using Assimp;
-using Assimp.Configs;
-using Assimp.Unmanaged;
 
 using fin.exporter.gltf;
 using fin.io;
-using fin.log;
-using fin.math;
 using fin.model;
-using fin.model.impl;
 using fin.src.exporter.assimp.indirect;
 using fin.util.asserts;
-
-using Microsoft.Extensions.Logging;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using WrapMode = fin.model.WrapMode;
 
@@ -60,6 +46,7 @@ namespace fin.exporter.assimp {
 
       var gltfExporter = new GltfExporter();
       gltfExporter.UvIndices = true;
+      gltfExporter.Embedded = true;
       gltfExporter.Export(inputFile, model);
       var sc = ctx.ImportFile(inputPath);
 
