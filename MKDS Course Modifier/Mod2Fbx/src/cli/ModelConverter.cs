@@ -167,7 +167,7 @@ namespace mod.cli {
         IMaterial material,
         IModel model,
         IBone[] bones) {
-      var currentBone = bones[mesh.boneIndex];
+      //var currentBone = bones[mesh.boneIndex];
       var currentColor = ColorImpl.FromBytes(255, 255, 255, 255);
 
       var vertexDescriptor = new VertexDescriptor();
@@ -188,7 +188,7 @@ namespace mod.cli {
 
             var faceCount = reader.ReadU16();
             var positionIndices = new List<ushort>();
-            var vertexBones = new List<IBone>();
+            var allVertexWeights = new List<VertexWeights>();
             var normalIndices = new List<ushort>();
 
             var texCoordIndices = new List<ushort>[8];
@@ -202,9 +202,34 @@ namespace mod.cli {
                   var unused = reader.ReadU8();
 
                   if (attr == Vtx.PosMatIdx) {
-                    var remappedBoneIndex =
-                        1 + meshPacket.indices[(unused / 3)];
-                    currentBone = bones[remappedBoneIndex];
+                    // TODO: Handle -1?
+                    var remappedBoneIndex = (int) (1 + meshPacket.indices[(unused / 3)]);
+
+                    var boneCount = bones.Length;
+                    // If the remapped index is small enough, it's just a bone
+                    if (remappedBoneIndex < boneCount) {
+                      var vertexWeights = new VertexWeights();
+                      vertexWeights.boneWeights.Add(
+                          new BoneWeight(bones[remappedBoneIndex],
+                                         new FinMatrix4x4().SetIdentity(),
+                                         1));
+                      allVertexWeights.Add(vertexWeights);
+                    } 
+                    // Otherwise, it seems to be an envelope?
+                    else {
+                      var vertexWeights = new VertexWeights();
+
+                      var envelope =
+                          mod.envelopes[remappedBoneIndex - boneCount];
+                      for (var w = 0; w < envelope.weights.Count; ++w) {
+                        vertexWeights.boneWeights.Add(
+                            new BoneWeight(bones[envelope.indices[w]],
+                                           new FinMatrix4x4().SetIdentity(),
+                                           envelope.weights[w]));
+                      }
+
+                      allVertexWeights.Add(vertexWeights);
+                    }
                   }
 
                   continue;
@@ -212,7 +237,6 @@ namespace mod.cli {
 
                 if (attr == Vtx.Position) {
                   positionIndices.Add(ModelConverter.Read_(reader, format));
-                  vertexBones.Add(currentBone);
                 } else if (attr == Vtx.Normal) {
                   normalIndices.Add(ModelConverter.Read_(reader, format));
                 } else if (attr is >= Vtx.Tex0Coord and <= Vtx.Tex7Coord) {
@@ -233,7 +257,7 @@ namespace mod.cli {
               var finVertex =
                   model.Skin.AddVertex(position.X, position.Y, position.Z);
 
-              finVertex.SetBone(vertexBones[v]);
+              finVertex.SetBones(allVertexWeights[v].boneWeights.ToArray());
 
               if (normalIndices.Count > 0) {
                 var normal = mod.vnormals[normalIndices[v]];
@@ -275,6 +299,10 @@ namespace mod.cli {
 
       Asserts.Fail($"Unsupported format: {format}");
       return 0;
+    }
+
+    private class VertexWeights {
+      public readonly List<BoneWeight> boneWeights = new();
     }
   }
 }

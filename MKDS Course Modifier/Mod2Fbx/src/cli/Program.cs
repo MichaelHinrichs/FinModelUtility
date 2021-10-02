@@ -9,11 +9,10 @@ using mod.gcn;
 namespace mod.cli {
   class Program {
     public static void Main(string[] args) {
-      /*var inPath =
-          @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\tekis\chappy\chappy.mod";*/
-
       var inPath =
-          @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\bosses\kogane\kogane.mod";
+          @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\tekis\chappy\chappy.mod";
+      //var inPath =
+      //    @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\bosses\pom\pom.mod";
       using var s = new EndianBinaryReader(File.OpenRead(inPath));
 
       var mod = new Mod(s);

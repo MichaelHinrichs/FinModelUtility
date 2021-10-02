@@ -140,7 +140,7 @@ namespace mod.gcn {
         return this.color1;
       }
 
-      if (enumval is <= Vtx.Tex0Coord and <= Vtx.Tex7Coord) {
+      if (enumval is >= Vtx.Tex0Coord and <= Vtx.Tex7Coord) {
         var texcoordid = enumval - Vtx.Tex0Coord;
         return this.texcoord[texcoordid];
       }
