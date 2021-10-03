@@ -30,19 +30,17 @@
     <None Remove="common.hpp" />
     <None Remove="DMD.cpp" />
     <None Remove="DMD.hpp" />
+    <None Remove="joint_render_decomp.txt" />
     <None Remove="LICENSE" />
     <None Remove="main.cpp" />
     <None Remove="MOD.cpp" />
     <None Remove="MOD.hpp" />
+    <None Remove="src\joint_render_decomp.cpp" />
     <None Remove="types.hpp" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\FinModelExporter\Fin.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="src\gcn\animation\" />
   </ItemGroup>
 
 </Project>

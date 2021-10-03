@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using fin.math;
@@ -8,6 +8,7 @@ using fin.model.impl;
 using fin.util.asserts;
 
 using mod.gcn;
+using mod.gcn.animation;
 using mod.util;
 
 using Endianness = mod.util.Endianness;
@@ -35,7 +36,7 @@ namespace mod.cli {
           _                => WrapMode.REPEAT,
       };
 
-    public static IModel Convert(Mod mod) {
+    public static IModel Convert(Mod mod, Anm? anm) {
       var model = new ModelImpl();
 
       var hasVertices = mod.vertices.Any();
@@ -103,12 +104,15 @@ namespace mod.cli {
       }
 
       // Writes bones
+      // TODO: Simplify these loops
       var jointCount = mod.joints.Count;
       var bones = new IBone[jointCount];
+      // Pass 1: Creates lists at each index in joint children
       var jointChildren = new List<int>[jointCount];
       for (var i = 0; i < jointCount; ++i) {
         jointChildren[i] = new();
       }
+      // Pass 2: Gathers up children of each bone via parent index
       for (var i = 0; i < jointCount; ++i) {
         var joint = mod.joints[i];
         var parentIndex = (int) joint.parentIdx;
@@ -116,6 +120,7 @@ namespace mod.cli {
           jointChildren[parentIndex].Add(i);
         }
       }
+      // Pass 3: Creates skeleton
       // TODO: Is 0 as the first a safe assumption?
       var jointQueue = new Queue<(int, IBone?)>();
       jointQueue.Enqueue((0, null));
@@ -147,8 +152,8 @@ namespace mod.cli {
         }
       }
 
+      // Pass 4: Writes each bone's meshes as skin
       foreach (var joint in mod.joints) {
-        // Writes skin
         foreach (var jointMatPoly in joint.matpolys) {
           var meshIndex = jointMatPoly.meshIdx;
           var mesh = mod.meshes[meshIndex];
@@ -157,6 +162,67 @@ namespace mod.cli {
           ModelConverter.AddMesh_(mod, mesh, material, model, bones);
         }
       }
+
+      // Writes animations
+      for (var d = 0; d < 1; d++) {
+        var dca = anm.Dcas[d];
+        var animation = model.AnimationManager.AddAnimation();
+
+        animation.Name = $"animation {d}"; //dca.Name;
+        animation.FrameCount = (int) dca.FrameCount;
+        animation.Fps = 30;
+
+        foreach (var jointIndexAndKeyframes in dca.jointKeyframesMap) {
+          var jointIndex = jointIndexAndKeyframes.Key;
+          var jointKeyframes = jointIndexAndKeyframes.Value;
+
+          var boneTracks = animation.AddBoneTracks(bones[jointIndex]);
+
+          var positionIndices = new int[3];
+          var positionKeyframes = jointKeyframes.position;
+
+          var rotationIndices = new int[3];
+          var rotationKeyframes = jointKeyframes.rotation;
+
+          var scaleIndices = new int[3];
+          var scaleKeyframes = jointKeyframes.scale;
+
+
+          for (var f = 0; f < animation.FrameCount; ++f) {
+            for (var i = 0; i < 3; ++i) {
+              positionIndices[i] = Math.Min(positionIndices[i] + 1,
+                                            positionKeyframes[i].Count -
+                                            1);
+              rotationIndices[i] = Math.Min(rotationIndices[i] + 1,
+                                            rotationKeyframes[i].Count -
+                                            1);
+              scaleIndices[i] = Math.Min(scaleIndices[i] + 1,
+                                         scaleKeyframes[i].Count - 1);
+            }
+
+            var position = new ModelImpl.PositionImpl {
+              X = positionKeyframes[0][positionIndices[0]].Value,
+              Y = positionKeyframes[1][positionIndices[1]].Value,
+              Z = positionKeyframes[2][positionIndices[2]].Value
+            };
+            boneTracks.Positions.Set(f, position);
+
+            var rotation = new ModelImpl.RotationImpl();
+            rotation.SetRadians(rotationKeyframes[0][rotationIndices[0]].Value,
+                                rotationKeyframes[1][rotationIndices[1]].Value,
+                                rotationKeyframes[2][rotationIndices[2]].Value);
+            boneTracks.Rotations.Set(f, rotation);
+
+            var scale = new ModelImpl.ScaleImpl {
+              X = scaleKeyframes[0][scaleIndices[0]].Value,
+              Y = scaleKeyframes[1][scaleIndices[1]].Value,
+              Z = scaleKeyframes[2][scaleIndices[2]].Value
+            };
+            boneTracks.Scales.Set(f, scale);
+          }
+        }
+      }
+
 
       return model;
     }
@@ -203,7 +269,8 @@ namespace mod.cli {
 
                   if (attr == Vtx.PosMatIdx) {
                     // TODO: Handle -1?
-                    var remappedBoneIndex = (int) (1 + meshPacket.indices[(unused / 3)]);
+                    var remappedBoneIndex =
+                        (int) (1 + meshPacket.indices[(unused / 3)]);
 
                     var boneCount = bones.Length;
                     // If the remapped index is small enough, it's just a bone
@@ -214,7 +281,7 @@ namespace mod.cli {
                                          new FinMatrix4x4().SetIdentity(),
                                          1));
                       allVertexWeights.Add(vertexWeights);
-                    } 
+                    }
                     // Otherwise, it seems to be an envelope?
                     else {
                       var vertexWeights = new VertexWeights();
