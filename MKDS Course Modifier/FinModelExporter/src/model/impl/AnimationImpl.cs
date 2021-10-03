@@ -54,16 +54,22 @@ namespace fin.model.impl {
 
     private class BoneTracksImpl : IBoneTracks {
       public ITrack<IPosition> Positions { get; } =
-        new TrackImpl<IPosition>(BoneTracksImpl.PositionInterpolator_);
+        new TrackImpl<IPosition>(TrackInterpolators.PositionInterpolator);
 
       public ITrack<IRotation, Quaternion> Rotations { get; } =
         new TrackImpl<IRotation, Quaternion>(
-            BoneTracksImpl.RotationInterpolator_);
+            TrackInterpolators.RotationInterpolator);
 
       public ITrack<IScale> Scales { get; } =
-        new TrackImpl<IScale>(BoneTracksImpl.ScaleInterpolator_);
+        new TrackImpl<IScale>(TrackInterpolators.ScaleInterpolator);
 
-      private static IPosition PositionInterpolator_(
+      
+
+      // TODO: Add pattern for specifying WITH given tracks
+    }
+
+    public static class TrackInterpolators {
+      public static IPosition PositionInterpolator(
           IPosition lhs,
           IPosition rhs,
           float progress) {
@@ -78,13 +84,13 @@ namespace fin.model.impl {
       }
 
       // TODO: Implement this.
-      private static Quaternion RotationInterpolator_(
+      public static Quaternion RotationInterpolator(
           IRotation lhs,
           IRotation rhs,
           float progress)
         => QuaternionUtil.Create(lhs.XRadians, lhs.YRadians, lhs.ZRadians);
 
-      private static IScale ScaleInterpolator_(
+      public static IScale ScaleInterpolator(
           IScale lhs,
           IScale rhs,
           float progress) {
@@ -97,8 +103,6 @@ namespace fin.model.impl {
             Z = lhs.Z * fromFrac + rhs.Z * toFrac
         };
       }
-
-      // TODO: Add pattern for specifying WITH given tracks
     }
 
     public class TrackImpl<T> : TrackImpl<T, T>, ITrack<T> {
