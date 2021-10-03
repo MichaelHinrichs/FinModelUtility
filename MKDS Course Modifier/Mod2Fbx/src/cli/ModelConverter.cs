@@ -164,61 +164,42 @@ namespace mod.cli {
       }
 
       // Writes animations
-      for (var d = 0; d < 1; d++) {
-        var dca = anm.Dcas[d];
+      for (var d = 0; d < anm.Dcxes.Count; d++) {
+        var dcx = anm.Dcxes[d];
         var animation = model.AnimationManager.AddAnimation();
 
-        animation.Name = $"animation {d}"; //dca.Name;
-        animation.FrameCount = (int) dca.FrameCount;
+        animation.Name = dcx.Name;
+        animation.FrameCount = (int) dcx.FrameCount;
         animation.Fps = 30;
 
-        foreach (var jointIndexAndKeyframes in dca.jointKeyframesMap) {
+        foreach (var jointIndexAndKeyframes in dcx.JointKeyframesMap) {
           var jointIndex = jointIndexAndKeyframes.Key;
           var jointKeyframes = jointIndexAndKeyframes.Value;
 
           var boneTracks = animation.AddBoneTracks(bones[jointIndex]);
 
-          var positionIndices = new int[3];
-          var positionKeyframes = jointKeyframes.position;
-
-          var rotationIndices = new int[3];
-          var rotationKeyframes = jointKeyframes.rotation;
-
-          var scaleIndices = new int[3];
-          var scaleKeyframes = jointKeyframes.scale;
+          // TODO: Encapsulate this logic within jointKeyframes
+          var positionKeyframes = jointKeyframes.Positions;
+          var rotationKeyframes = jointKeyframes.Rotations;
+          var scaleKeyframes = jointKeyframes.Scales;
 
 
+          // TODO: Write these sparsely
           for (var f = 0; f < animation.FrameCount; ++f) {
-            for (var i = 0; i < 3; ++i) {
-              positionIndices[i] = Math.Min(positionIndices[i] + 1,
-                                            positionKeyframes[i].Count -
-                                            1);
-              rotationIndices[i] = Math.Min(rotationIndices[i] + 1,
-                                            rotationKeyframes[i].Count -
-                                            1);
-              scaleIndices[i] = Math.Min(scaleIndices[i] + 1,
-                                         scaleKeyframes[i].Count - 1);
+            var position = positionKeyframes.GetKeyframe(f);
+            if (position != null) {
+              boneTracks.Positions.Set(f, position);
             }
 
-            var position = new ModelImpl.PositionImpl {
-              X = positionKeyframes[0][positionIndices[0]].Value,
-              Y = positionKeyframes[1][positionIndices[1]].Value,
-              Z = positionKeyframes[2][positionIndices[2]].Value
-            };
-            boneTracks.Positions.Set(f, position);
+            var rotation = rotationKeyframes.GetKeyframe(f);
+            if (rotation != null) {
+              boneTracks.Rotations.Set(f, rotation);
+            }
 
-            var rotation = new ModelImpl.RotationImpl();
-            rotation.SetRadians(rotationKeyframes[0][rotationIndices[0]].Value,
-                                rotationKeyframes[1][rotationIndices[1]].Value,
-                                rotationKeyframes[2][rotationIndices[2]].Value);
-            boneTracks.Rotations.Set(f, rotation);
-
-            var scale = new ModelImpl.ScaleImpl {
-              X = scaleKeyframes[0][scaleIndices[0]].Value,
-              Y = scaleKeyframes[1][scaleIndices[1]].Value,
-              Z = scaleKeyframes[2][scaleIndices[2]].Value
-            };
-            boneTracks.Scales.Set(f, scale);
+            var scale = scaleKeyframes.GetKeyframe(f);
+            if (scale != null) {
+              boneTracks.Scales.Set(f, scale);
+            }
           }
         }
       }
