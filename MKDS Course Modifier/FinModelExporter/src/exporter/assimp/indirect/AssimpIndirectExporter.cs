@@ -47,7 +47,7 @@ namespace fin.exporter.assimp.indirect {
       gltfExporter.UvIndices = true;
       gltfExporter.Embedded = true;
       gltfExporter.Export(inputFile, model);
-      
+
       var sc = ctx.ImportFile(inputPath);
       File.Delete(inputPath);
 
@@ -69,7 +69,13 @@ namespace fin.exporter.assimp.indirect {
           model);
 
       // Finally exports the fbx version.
-      var success = ctx.ExportFile(sc, outputPath, exportFormatId);
+      // TODO: Are these all safe to include?
+      var preProcessing =
+          PostProcessSteps.FindInvalidData |
+          PostProcessSteps.JoinIdenticalVertices;
+
+      var success =
+          ctx.ExportFile(sc, outputPath, exportFormatId, preProcessing);
       Asserts.True(success, "Failed to export model.");
     }
   }
