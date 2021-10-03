@@ -6,12 +6,11 @@ using Assimp;
 using fin.exporter.gltf;
 using fin.io;
 using fin.model;
-using fin.src.exporter.assimp.indirect;
 using fin.util.asserts;
 
 using WrapMode = fin.model.WrapMode;
 
-namespace fin.exporter.assimp {
+namespace fin.exporter.assimp.indirect {
   using FinBlendMode = fin.model.BlendMode;
 
   public class AssimpIndirectExporter : IExporter {
@@ -48,7 +47,9 @@ namespace fin.exporter.assimp {
       gltfExporter.UvIndices = true;
       gltfExporter.Embedded = true;
       gltfExporter.Export(inputFile, model);
+      
       var sc = ctx.ImportFile(inputPath);
+      File.Delete(inputPath);
 
       // Importing the pre-generated GLTF file does most of the hard work off
       // the bat: generating the mesh with properly weighted bones.
@@ -60,10 +61,16 @@ namespace fin.exporter.assimp {
       new AssimpIndirectUvFixer().Fix(model, sc);
       new AssimpIndirectTextureFixer().Fix(model, sc);
 
+      // Reexports the GLTF version in case the FBX version is screwed up.
+      gltfExporter.UvIndices = false;
+      gltfExporter.Embedded = false;
+      gltfExporter.Export(
+          new FinFile(inputFile.FullName.Replace(".glb", "_gltf.glb")),
+          model);
+
+      // Finally exports the fbx version.
       var success = ctx.ExportFile(sc, outputPath, exportFormatId);
       Asserts.True(success, "Failed to export model.");
-
-      File.Delete(inputPath);
     }
   }
 }

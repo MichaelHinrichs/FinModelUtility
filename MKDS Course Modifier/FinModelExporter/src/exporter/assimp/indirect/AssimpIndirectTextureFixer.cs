@@ -8,7 +8,7 @@ using Assimp;
 
 using fin.model;
 
-namespace fin.src.exporter.assimp.indirect {
+namespace fin.exporter.assimp.indirect {
   using WrapMode = fin.model.WrapMode;
   using FinBlendMode = fin.model.BlendMode;
 

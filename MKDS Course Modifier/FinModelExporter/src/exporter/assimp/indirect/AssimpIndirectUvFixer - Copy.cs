@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 using Assimp;
 
@@ -12,7 +10,7 @@ using fin.model;
 using fin.model.impl;
 using fin.src.data;
 
-namespace fin.src.exporter.assimp.indirect {
+namespace fin.exporter.assimp.indirect {
   public class AssimpIndirectUvFixerOld {
     private class TempVertex {
       public Vector3 Location { get; set; }

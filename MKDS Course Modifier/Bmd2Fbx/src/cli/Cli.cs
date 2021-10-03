@@ -5,7 +5,7 @@ using System.Linq;
 
 using bmd.exporter;
 
-using fin.exporter.assimp;
+using fin.exporter.assimp.indirect;
 using fin.io;
 using fin.log;
 using fin.util.asserts;

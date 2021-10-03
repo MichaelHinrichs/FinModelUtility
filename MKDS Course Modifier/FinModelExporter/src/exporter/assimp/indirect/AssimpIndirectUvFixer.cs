@@ -1,19 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 using Assimp;
 
-using fin.math;
 using fin.model;
-using fin.model.impl;
-using fin.src.data;
 
-namespace fin.src.exporter.assimp.indirect {
+namespace fin.exporter.assimp.indirect {
   public class AssimpIndirectUvFixer {
     public void Fix(IModel model, Scene sc) {
       var assMeshes = sc.Meshes;
