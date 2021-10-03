@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace mod.gcn {
+namespace mod.gcn.collision {
   public class BaseRoomInfo : IGcnSerializable {
     public uint index = 0;
 

@@ -41,4 +41,8 @@
     <ProjectReference Include="..\FinModelExporter\Fin.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="src\gcn\animation\" />
+  </ItemGroup>
+
 </Project>

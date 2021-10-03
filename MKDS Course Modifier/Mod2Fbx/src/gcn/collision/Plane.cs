@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace mod.gcn {
+namespace mod.gcn.collision {
   public class Plane : IGcnSerializable {
     public readonly Vector3f position = new();
     public float diameter = 0;

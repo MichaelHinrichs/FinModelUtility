@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 
 using fin.util.asserts;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using mod.gcn.collision;
 
 namespace mod.gcn {
   public class DateTime {
@@ -56,27 +55,24 @@ namespace mod.gcn {
         this.texcoords[i] = new List<Vector2f>();
       }
 
-      Mod.FindAllChunks(reader);
-
       bool stopRead = false;
       while (!stopRead) {
         var position = reader.Position;
 
-        var opcode = reader.ReadUInt32();
-        var opcodeName = Mod.GetChunkName(opcode);
+        var chunkId = (ChunkId) reader.ReadUInt32();
+        var chunkName = Chunk.GetName(chunkId);
 
         var length = reader.ReadUInt32();
 
         if ((position & 0x1F) != 0) {
           Asserts.Fail("Error in chunk " +
-                       opcode +
+                       chunkId +
                        ", offset " +
                        position +
                        ", chunk start isn't aligned to 0x20, this means an improper read occured.");
           return;
         }
 
-        var ocString = Mod.GetChunkName(opcode);
         /*std::cout <<
             "Reading 0x" <<
             std::hex <<
@@ -88,8 +84,8 @@ namespace mod.gcn {
 
         var beforePosition = reader.Position;
 
-        switch (opcode) {
-          case 0:
+        switch (chunkId) {
+          case ChunkId.HEADER:
             reader.Align(0x20);
             this.header.dateTime.year = reader.ReadUInt16();
             this.header.dateTime.month = reader.ReadByte();
@@ -97,36 +93,36 @@ namespace mod.gcn {
             this.header.flags = reader.ReadUInt32();
             reader.Align(0x20);
             break;
-          case 0x10:
+          case ChunkId.VERTICES:
             Mod.ReadGenericChunk_(reader, this.vertices);
             break;
-          case 0x11:
+          case ChunkId.VERTEX_NORMALS:
             this.hasNormals = true;
             Mod.ReadGenericChunk_(reader, this.vnormals);
             break;
-          case 0x12:
+          case ChunkId.VERTEX_NBTS:
             Mod.ReadGenericChunk_(reader, this.vertexnbt);
             break;
-          case 0x13:
+          case ChunkId.VERTEX_COLOURS:
             Mod.ReadGenericChunk_(reader, this.vcolours);
             break;
-          case 0x18:
-          case 0x19:
-          case 0x1A:
-          case 0x1B:
-          case 0x1C:
-          case 0x1D:
-          case 0x1E:
-          case 0x1F:
-            Mod.ReadGenericChunk_(reader, this.texcoords[opcode - 0x18]);
+          case ChunkId.TEX_COORD_0:
+          case ChunkId.TEX_COORD_1:
+          case ChunkId.TEX_COORD_2:
+          case ChunkId.TEX_COORD_3:
+          case ChunkId.TEX_COORD_4:
+          case ChunkId.TEX_COORD_5:
+          case ChunkId.TEX_COORD_6:
+          case ChunkId.TEX_COORD_7:
+            Mod.ReadGenericChunk_(reader, this.texcoords[(uint) chunkId - 0x18]);
             break;
-          case 0x20:
+          case ChunkId.TEXTURES:
             Mod.ReadGenericChunk_(reader, this.textures);
             break;
-          case 0x22:
+          case ChunkId.TEXTURE_ATTRIBUTES:
             Mod.ReadGenericChunk_(reader, this.texattrs);
             break;
-          case 0x30:
+          case ChunkId.MATERIALS:
             var numMaterials = reader.ReadUInt32();
             var numTexEnvironments = reader.ReadUInt32();
 
@@ -146,19 +142,19 @@ namespace mod.gcn {
             }
             reader.Align(0x20);
             break;
-          case 0x40:
+          case ChunkId.VERTEX_MATRIX:
             Mod.ReadGenericChunk_(reader, this.vtxMatrix);
             break;
-          case 0x41:
+          case ChunkId.MATRIX_ENVELOPE:
             Mod.ReadGenericChunk_(reader, this.envelopes);
             break;
-          case 0x50:
+          case ChunkId.MESH:
             Mod.ReadGenericChunk_(reader, this.meshes);
             break;
-          case 0x60:
+          case ChunkId.JOINTS:
             Mod.ReadGenericChunk_(reader, this.joints);
             break;
-          case 0x61:
+          case ChunkId.JOINT_NAMES:
             var numJointNames = reader.ReadUInt32();
             this.jointNames.Clear();
             reader.Align(0x20);
@@ -172,13 +168,13 @@ namespace mod.gcn {
             }
             reader.Align(0x20);
             break;
-          case 0x100:
+          case ChunkId.COLLISION_PRISM:
             this.colltris.Read(reader);
             break;
-          case 0x110:
+          case ChunkId.COLLISION_GRID:
             this.collgrid.Read(reader);
             break;
-          case 0xFFFF:
+          case ChunkId.END_OF_FILE:
             reader.Position += length;
 
             while (!reader.Eof) {
@@ -248,77 +244,6 @@ namespace mod.gcn {
       this.collgrid.Clear();
 
       this.eofBytes.Clear();
-    }
-
-    private static IDictionary<uint, string> CHUNK_NAMES_ =
-        new Dictionary<uint, string>();
-
-    static Mod() {
-      Mod.CHUNK_NAMES_[0x00] = "Header";
-      Mod.CHUNK_NAMES_[0x10] = "Vertices";
-      Mod.CHUNK_NAMES_[0x11] = "Vertex Normals";
-      Mod.CHUNK_NAMES_[0x12] = "Vertex Normal/Binormal/Tangent Descriptors";
-      Mod.CHUNK_NAMES_[0x13] = "Vertex Colours";
-
-      Mod.CHUNK_NAMES_[0x18] = "Texture Coordinate 0";
-      Mod.CHUNK_NAMES_[0x19] = "Texture Coordinate 1";
-      Mod.CHUNK_NAMES_[0x1A] = "Texture Coordinate 2";
-      Mod.CHUNK_NAMES_[0x1B] = "Texture Coordinate 3";
-      Mod.CHUNK_NAMES_[0x1C] = "Texture Coordinate 4";
-      Mod.CHUNK_NAMES_[0x1D] = "Texture Coordinate 5";
-      Mod.CHUNK_NAMES_[0x1E] = "Texture Coordinate 6";
-      Mod.CHUNK_NAMES_[0x1F] = "Texture Coordinate 7";
-
-      Mod.CHUNK_NAMES_[0x20] = "Textures";
-      Mod.CHUNK_NAMES_[0x22] = "Texture Attributes";
-      Mod.CHUNK_NAMES_[0x30] = "Materials";
-
-      Mod.CHUNK_NAMES_[0x40] = "Vertex Matrix";
-      Mod.CHUNK_NAMES_[0x41] = "Matrix Envelope";
-
-      Mod.CHUNK_NAMES_[0x50] = "Mesh";
-      Mod.CHUNK_NAMES_[0x60] = "Joints";
-      Mod.CHUNK_NAMES_[0x61] = "Joint Names";
-
-      Mod.CHUNK_NAMES_[0x100] = "Collision Prism";
-      Mod.CHUNK_NAMES_[0x110] = "Collision Grid";
-      Mod.CHUNK_NAMES_[0xFFFF] = "End Of File";
-    }
-
-    public static string? GetChunkName(uint opcode) {
-      if (Mod.CHUNK_NAMES_.TryGetValue(opcode, out var chunkName)) {
-        return chunkName;
-      }
-
-      return null;
-    }
-
-    public static void FindAllChunks(EndianBinaryReader reader) {
-      var position = reader.Position;
-
-      var sections = new List<uint>();
-
-      // Loop until EOF
-      while (!sections.Contains(0xFFFF)) {
-        // Grab the Chunk's offset and metadata
-        var chunk_offset = reader.Position;
-
-        // Grab the Chunk ID and the length of the Chunk via it's header
-        var chunkId = reader.ReadUInt32();
-        var chunkLen = reader.ReadInt32();
-
-        var chunkData = reader.ReadBytes(chunkLen);
-
-        // Insert the chunk and a stream pointing to the chunk into the sections set
-        //sections[chunk_id] = [chunk_len, YL.bStream(chunk_data), chunk_offset]
-        sections.Add(chunkId);
-      }
-
-      var sectionNames =
-          sections.Select(section => Mod.GetChunkName(section))
-                  .ToList();
-
-      reader.Position = position;
     }
   }
 }
