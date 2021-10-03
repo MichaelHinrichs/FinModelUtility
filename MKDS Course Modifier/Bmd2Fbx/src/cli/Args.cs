@@ -73,9 +73,9 @@ namespace bmd.cli {
                   Args.Static = debugOpts.Static;
                   Args.Verbose = debugOpts.Verbose;
 
-                  /*Args.GetForEnemy_("Chappy",
+                  Args.GetForEnemy_("Chappy",
                                     out var outputPath,
-                                    out var bmdPath,
+                                    out var bmdPaths,
                                     out var bcxPaths,
                                     out var btiPaths);
 
@@ -99,7 +99,7 @@ namespace bmd.cli {
                       out var bcxPaths,
                       out var btiPaths);*/
 
-                  Args.GetFromDirectory_(
+                  /*Args.GetFromDirectory_(
                       new DirectoryInfo(
                           "R:/Documents/CSharpWorkspace/Pikmin2Utility/cli/roms/pkmn2.gcm_dir/user/Kando/piki/pikis.szs 0.rarc_dir/designer/happa_model"),
                       out var outputPath,
