@@ -11,6 +11,8 @@ using mod.gcn;
 using mod.gcn.animation;
 using mod.util;
 
+using Optional.Unsafe;
+
 using Endianness = mod.util.Endianness;
 
 namespace mod.cli {
@@ -178,29 +180,30 @@ namespace mod.cli {
 
           var boneTracks = animation.AddBoneTracks(bones[jointIndex]);
 
-          // TODO: Encapsulate this logic within jointKeyframes
-          var positionKeyframes = jointKeyframes.Positions;
-          var rotationKeyframes = jointKeyframes.Rotations;
-          var scaleKeyframes = jointKeyframes.Scales;
-
-
-          // TODO: Write these sparsely
           for (var f = 0; f < animation.FrameCount; ++f) {
-            var position = positionKeyframes.GetKeyframe(f);
-            if (position != null) {
-              boneTracks.Positions.Set(f, position);
-            }
+            var scaleList = jointKeyframes.Scales.GetAxisListAtKeyframe(f);
+            var rotationList = jointKeyframes.Rotations.GetAxisListAtKeyframe(f);
+            var positionList = jointKeyframes.Positions.GetAxisListAtKeyframe(f);
 
-            var rotation = rotationKeyframes.GetKeyframe(f);
-            if (rotation != null) {
-              boneTracks.Rotations.Set(f, rotation);
-            }
+            for (var a = 0; a < 3; ++a) {
+              var scale = scaleList[a];
+              if (scale.HasValue) {
+                boneTracks.Scales.Set(f, a, scale.ValueOrFailure());
+              }
 
-            var scale = scaleKeyframes.GetKeyframe(f);
-            if (scale != null) {
-              boneTracks.Scales.Set(f, scale);
+              var rotation = rotationList[a];
+              if (rotation.HasValue) {
+                boneTracks.Rotations.Set(f, a, rotation.ValueOrFailure());
+              }
+
+              var position = positionList[a];
+              if (position.HasValue) {
+                boneTracks.Positions.Set(f, a, position.ValueOrFailure());
+              }
             }
           }
+
+          ;
         }
       }
 

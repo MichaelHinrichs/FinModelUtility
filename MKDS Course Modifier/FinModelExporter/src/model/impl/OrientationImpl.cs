@@ -24,6 +24,8 @@ namespace fin.model.impl {
       public float X { get; set; }
       public float Y { get; set; }
       public float Z { get; set; }
+      
+      public override string ToString() => $"{{{this.X}, {this.Y}, {this.Z}}}";
     }
 
     /*public class QuaternionImpl : IQuaternion {
@@ -99,6 +101,8 @@ namespace fin.model.impl {
         this.ZRadians = z;
         return this;
       }
+
+      public override string ToString() => $"{{{this.XDegrees}°, {this.YDegrees}°, {this.ZDegrees}°}}";
     }
   }
 }

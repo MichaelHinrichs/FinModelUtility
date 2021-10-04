@@ -32,23 +32,22 @@ namespace fin.exporter.gltf {
           rotationKeyframes.Clear();
           scaleKeyframes.Clear();
 
-          foreach (var positionKeyframe in boneTracks.Positions.Keyframes) {
-            var position = positionKeyframe.Value;
-            translationKeyframes[positionKeyframe.Frame / fps] =
+          // TODO: How to get keyframes for sparse tracks?
+          for (var i = 0; i < animation.FrameCount; ++i) {
+            var time = i / fps;
+
+            var position = boneTracks.Positions.GetInterpolatedFrame(i);
+            translationKeyframes[time] =
                 new Vector3(position.X, position.Y, position.Z);
+
+            var rotation = boneTracks.Rotations.GetInterpolatedFrame(i);
+            rotationKeyframes[time] = rotation;
+
+            var scale = boneTracks.Scales.GetInterpolatedFrame(i);
+            scaleKeyframes[time] = new Vector3(scale.X, scale.Y, scale.Z);
           }
 
-          foreach (var rotationKeyframe in boneTracks.Rotations.Keyframes) {
-            var rotation = rotationKeyframe.Value;
-            rotationKeyframes[rotationKeyframe.Frame / fps] =
-                QuaternionUtil.Create(rotation);
-          }
-
-          foreach (var scaleKeyframe in boneTracks.Scales.Keyframes) {
-            var scale = scaleKeyframe.Value;
-            scaleKeyframes[scaleKeyframe.Frame / fps] =
-                new Vector3(scale.X, scale.Y, scale.Z);
-          }
+          ;
 
           gltfAnimation.CreateTranslationChannel(
               node,

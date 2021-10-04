@@ -52,23 +52,21 @@ namespace fin.model.impl {
       }
     }
 
-    private class BoneTracksImpl : IBoneTracks {
-      public ITrack<IPosition> Positions { get; } =
-        new TrackImpl<IPosition>(TrackInterpolators.PositionInterpolator);
-
-      public ITrack<IRotation, Quaternion> Rotations { get; } =
-        new TrackImpl<IRotation, Quaternion>(
-            TrackInterpolators.RotationInterpolator);
-
-      public ITrack<IScale> Scales { get; } =
-        new TrackImpl<IScale>(TrackInterpolators.ScaleInterpolator);
-
-      
+    public class BoneTracksImpl : IBoneTracks {
+      public IPositionTrack Positions { get; } = new PositionTrackImpl();
+      public IRadiansRotationTrack Rotations { get; } = new RadiansRotationTrackImpl();
+      public IScaleTrack Scales { get; } = new ScaleTrackImpl();
 
       // TODO: Add pattern for specifying WITH given tracks
     }
 
     public static class TrackInterpolators {
+      public static float FloatInterpolator(
+          float lhs,
+          float rhs,
+          float progress)
+        => lhs * (1 - progress) + rhs * progress;
+
       public static IPosition PositionInterpolator(
           IPosition lhs,
           IPosition rhs,
@@ -102,113 +100,6 @@ namespace fin.model.impl {
             Y = lhs.Y * fromFrac + rhs.Y * toFrac,
             Z = lhs.Z * fromFrac + rhs.Z * toFrac
         };
-      }
-    }
-
-    public class TrackImpl<T> : TrackImpl<T, T>, ITrack<T> {
-      public TrackImpl(Func<T, T, float, T> interpolator) :
-          base(interpolator) {}
-    }
-
-    public class TrackImpl<TValue, TInterpolated> :
-        ITrack<TValue, TInterpolated> {
-      public readonly Func<TValue, TValue, float, TInterpolated> interpolator_;
-
-      private readonly IList<Keyframe<TValue>> keyframesAndValues_ =
-          new List<Keyframe<TValue>>();
-
-      public TrackImpl(
-          Func<TValue, TValue, float, TInterpolated> interpolator) {
-        this.interpolator_ = interpolator;
-        this.Keyframes =
-            new ReadOnlyCollection<Keyframe<TValue>>(this.keyframesAndValues_);
-      }
-
-      public IReadOnlyList<Keyframe<TValue>> Keyframes { get; }
-
-      public void Set(int frame, TValue t) {
-        this.FindIndexOfKeyframe_(frame,
-                                  out var keyframeIndex,
-                                  out _,
-                                  out var keyframeDefined,
-                                  out var pastEnd);
-
-        var keyframeAndValue = new Keyframe<TValue>(frame, t);
-        if (pastEnd) {
-          this.keyframesAndValues_.Add(keyframeAndValue);
-        } else if (keyframeDefined) {
-          this.keyframesAndValues_[keyframeIndex] = keyframeAndValue;
-        } else {
-          this.keyframesAndValues_.Insert(keyframeIndex, keyframeAndValue);
-        }
-      }
-
-      public TValue? GetKeyframe(int frame) {
-        this.FindIndexOfKeyframe_(frame,
-                                  out _,
-                                  out var value,
-                                  out var keyframeDefined,
-                                  out _);
-
-        return keyframeDefined ? value : default;
-      }
-
-      public TInterpolated? GetInterpolatedFrame(float frame) {
-        this.FindIndexOfKeyframe_((int) frame,
-                                  out var fromKeyframeIndex,
-                                  out var fromValue,
-                                  out var keyframeDefined,
-                                  out var pastEnd);
-
-        if (pastEnd) {
-          return default;
-        }
-
-        if (fromKeyframeIndex == this.keyframesAndValues_.Count - 1) {
-          return this.interpolator_(fromValue, fromValue, 0);
-        }
-
-        var (toKeyframeIndex, toValue) =
-            this.keyframesAndValues_[fromKeyframeIndex + 1];
-
-        return this.interpolator_(fromValue!,
-                                  toValue,
-                                  (frame - fromKeyframeIndex) /
-                                  (toKeyframeIndex - fromKeyframeIndex));
-      }
-
-      // TODO: Use a more efficient approach here, e.g. binary search.
-      private void FindIndexOfKeyframe_(
-          int frame,
-          out int keyframeIndex,
-          out TValue? value,
-          out bool keyframeDefined,
-          out bool pastEnd) {
-        var keyframeCount = this.keyframesAndValues_.Count;
-        for (var i = 0; i < keyframeCount; ++i) {
-          var (currentKeyframe, t) = this.keyframesAndValues_[i];
-
-          if (currentKeyframe == frame) {
-            keyframeIndex = i;
-            value = t;
-            keyframeDefined = true;
-            pastEnd = false;
-            return;
-          }
-
-          if (currentKeyframe > frame) {
-            keyframeIndex = i;
-            value = t;
-            keyframeDefined = false;
-            pastEnd = false;
-            return;
-          }
-        }
-
-        keyframeIndex = keyframeCount;
-        value = default;
-        keyframeDefined = false;
-        pastEnd = true;
       }
     }
   }

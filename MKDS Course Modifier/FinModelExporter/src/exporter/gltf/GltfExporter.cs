@@ -217,7 +217,7 @@ namespace fin.exporter.gltf {
                               localPosition?.Y ?? 0,
                               localPosition?.Z ?? 0);
 
-        var localRotation = boneTracks?.Rotations.GetKeyframe(0);
+        var localRotation = boneTracks?.Rotations.GetAlmostKeyframe(0);
         bone.SetLocalRotationRadians(localRotation?.XRadians ?? 0,
                                      localRotation?.YRadians ?? 0,
                                      localRotation?.ZRadians ?? 0);

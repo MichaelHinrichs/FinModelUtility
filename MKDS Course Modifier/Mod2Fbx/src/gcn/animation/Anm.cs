@@ -47,7 +47,7 @@ namespace mod.gcn.animation {
   public interface IDcx {
     string Name { get; }
     uint FrameCount { get; }
-    Dictionary<uint, JointKeyframes> JointKeyframesMap { get; }
+    Dictionary<uint, IBoneTracks> JointKeyframesMap { get; }
   }
 
   public static class DcxHelpers {
@@ -88,40 +88,32 @@ namespace mod.gcn.animation {
     // TODO: Do this sparsely
     public static void MergeKeyframesToPositionTrack(
         Keyframe[][] positionKeyframes,
-        ITrack<IPosition> positionTrack,
-        uint frameCount) {
-      var indices = new int[3];
-
-      /*for (var f = 0; f < frameCount; ++f) {
-        // Check if we need to progress the keyframes
-        for (var i = 0; i < 3; i++) {
-          if 
-
-          var index = indices[i];
-          var keyframe = positionKeyframes[index];
+        IPositionTrack positionTrack) {
+      for (var i = 0; i < 3; ++i) {
+        foreach (var keyframe in positionKeyframes[i]) {
+          positionTrack.Set(keyframe.Index, i, keyframe.Value);
         }
-
-        var position = new ModelImpl.PositionImpl {
-            X = positionKeyframes[]
-        };
-
-        positionTrack.Set(i, );
-
-      }*/
+      }
     }
 
     public static void MergeKeyframesToRotationTrack(
-        Keyframe[][] positionKeyframes,
-        ITrack<IRotation, Quaternion> positionTrack,
-        uint frameCount) {
-      for (var i = 0; i < frameCount; ++i) {}
+        Keyframe[][] rotationKeyframes,
+        IRadiansRotationTrack rotationTrack) {
+      for(var i = 0; i < 3; ++i) {
+        foreach (var keyframe in rotationKeyframes[i]) {
+          rotationTrack.Set(keyframe.Index, i, keyframe.Value);
+        }
+      }
     }
 
     public static void MergeKeyframesToScaleTrack(
-        Keyframe[][] positionKeyframes,
-        ITrack<IScale> positionTrack,
-        uint frameCount) {
-      for (var i = 0; i < frameCount; ++i) {}
+        Keyframe[][] scaleKeyframes,
+        IScaleTrack scaleTrack) {
+      for(var i = 0; i < 3; ++i) {
+        foreach (var keyframe in scaleKeyframes[i]) {
+          scaleTrack.Set(keyframe.Index, i, keyframe.Value);
+        }
+      }
     }
   }
 
@@ -129,7 +121,7 @@ namespace mod.gcn.animation {
     public string Name { get; private set; }
 
     public uint FrameCount { get; private set; }
-    public Dictionary<uint, JointKeyframes> JointKeyframesMap { get; } = new();
+    public Dictionary<uint, IBoneTracks> JointKeyframesMap { get; } = new();
 
     public void Read(EndianBinaryReader reader) {
       // TODO: Pull this out as a common "animation header"
@@ -162,27 +154,24 @@ namespace mod.gcn.animation {
         var jointIndex = reader.ReadUInt32();
         var parentIndex = reader.ReadUInt32();
 
-        var jointKeyframes = new JointKeyframes {JointIndex = jointIndex};
+        var jointKeyframes = new ModelImpl.BoneTracksImpl();
 
         Keyframe[][] frames;
 
         frames = this.ReadKeyframes_(reader, scaleValues);
         DcxHelpers.MergeKeyframesToScaleTrack(
             frames,
-            jointKeyframes.Scales,
-            this.FrameCount);
+            jointKeyframes.Scales);
 
         frames = this.ReadKeyframes_(reader, rotationValues);
         DcxHelpers.MergeKeyframesToRotationTrack(
             frames,
-            jointKeyframes.Rotations,
-            this.FrameCount);
+            jointKeyframes.Rotations);
 
         frames = this.ReadKeyframes_(reader, positionValues);
         DcxHelpers.MergeKeyframesToPositionTrack(
             frames,
-            jointKeyframes.Positions,
-            this.FrameCount);
+            jointKeyframes.Positions);
 
         this.JointKeyframesMap[jointIndex] = jointKeyframes;
       }
@@ -219,7 +208,7 @@ namespace mod.gcn.animation {
     public string Name { get; private set; }
 
     public uint FrameCount { get; private set; }
-    public Dictionary<uint, JointKeyframes> JointKeyframesMap { get; } = new();
+    public Dictionary<uint, IBoneTracks> JointKeyframesMap { get; } = new();
 
     public void Read(EndianBinaryReader reader) {
       // TODO: Pull this out as a common "animation header"
@@ -252,83 +241,23 @@ namespace mod.gcn.animation {
         var jointIndex = reader.ReadUInt32();
         var parentIndex = reader.ReadUInt32();
 
-        var jointKeyframes = new JointKeyframes {JointIndex = jointIndex};
+        var jointKeyframes = new ModelImpl.BoneTracksImpl();
 
-        for (var j = 0; j < 3; ++j) {
-          var scaleFrameCount = reader.ReadInt32();
-          var scaleFrameOffset = reader.ReadInt32();
-          var scaleFrameUnk = reader.ReadInt32();
+        Keyframe[][] frames;
+        frames = this.ReadKeyframes_(reader, scaleValues);
+        DcxHelpers.MergeKeyframesToScaleTrack(
+            frames,
+            jointKeyframes.Scales);
 
-          var sparse = (scaleFrameCount != 1 &&
-                        scaleFrameCount != this.FrameCount);
-          if (scaleFrameUnk != 0) {
-            ;
-          }
+        frames = this.ReadKeyframes_(reader, rotationValues);
+        DcxHelpers.MergeKeyframesToRotationTrack(
+            frames,
+            jointKeyframes.Rotations);
 
-          var frames = !sparse
-                           ? DcxHelpers.ReadDenseFrames(
-                               scaleValues,
-                               scaleFrameOffset,
-                               scaleFrameCount)
-                           : DcxHelpers.ReadSparseFrames(
-                               scaleValues,
-                               scaleFrameOffset,
-                               scaleFrameCount);
-          /*DcxHelpers.MergeKeyframesToScaleTrack(
-              null,
-              jointKeyframes.Scales,
-              this.FrameCount);*/
-        }
-        for (var k = 0; k < 3; ++k) {
-          var rotationFrameCount = reader.ReadInt32();
-          var rotationFrameOffset = reader.ReadInt32();
-          var rotationFrameUnk = reader.ReadInt32();
-
-          var sparse = (rotationFrameCount != 1 &&
-                        rotationFrameCount != this.FrameCount);
-          if (rotationFrameUnk != 0) {
-            ;
-          }
-
-          var frames = !sparse
-                           ? DcxHelpers.ReadDenseFrames(
-                               rotationValues,
-                               rotationFrameOffset,
-                               rotationFrameCount)
-                           : DcxHelpers.ReadSparseFrames(
-                               rotationValues,
-                               rotationFrameOffset,
-                               rotationFrameCount);
-          /*DcxHelpers.MergeKeyframesToRotationTrack(
-              null,
-              jointKeyframes.Rotations,
-              this.FrameCount);*/
-        }
-        for (var l = 0; l < 3; ++l) {
-          var positionFrameCount = reader.ReadInt32();
-          var positionFrameOffset = reader.ReadInt32();
-          var positionFrameUnk = reader.ReadInt32();
-
-          var sparse = (positionFrameCount != 1 &&
-                        positionFrameCount != this.FrameCount);
-          if (positionFrameUnk != 0) {
-            ;
-          }
-
-          var frames = !sparse
-                           ? DcxHelpers.ReadDenseFrames(
-                               positionValues,
-                               positionFrameOffset,
-                               positionFrameCount)
-                           : DcxHelpers.ReadSparseFrames(
-                               positionValues,
-                               positionFrameOffset,
-                               positionFrameCount);
-          /*DcxHelpers.MergeKeyframesToPositionTrack(
-              null,
-              jointKeyframes.Positions,
-              this.FrameCount);*/
-        }
+        frames = this.ReadKeyframes_(reader, positionValues);
+        DcxHelpers.MergeKeyframesToPositionTrack(
+            frames,
+            jointKeyframes.Positions);
 
         this.JointKeyframesMap[jointIndex] = jointKeyframes;
       }
@@ -341,25 +270,33 @@ namespace mod.gcn.animation {
                     "Read unexpected number of bytes in animation!");
     }
 
+    private Keyframe[][] ReadKeyframes_(
+        EndianBinaryReader reader,
+        float[] values) {
+      var frames = new Keyframe[3][];
+      for (var i = 0; i < 3; ++i) {
+        var frameCount = reader.ReadInt32();
+        var frameOffset = reader.ReadInt32();
+        var unk = reader.ReadInt32();
+
+        var sparse = (frameCount != 1 && frameCount != this.FrameCount);
+
+        frames[i] = !sparse
+                        ? DcxHelpers.ReadDenseFrames(
+                            values,
+                            frameOffset,
+                            frameCount)
+                        : DcxHelpers.ReadSparseFrames(
+                            values,
+                            frameOffset,
+                            frameCount);
+      }
+      return frames;
+    }
+
     public void Write(EndianBinaryWriter writer) {
       throw new NotImplementedException();
     }
-  }
-
-  public class JointKeyframes {
-    public uint JointIndex { get; set; }
-
-    public ITrack<IPosition> Positions { get; } =
-      new ModelImpl.TrackImpl<IPosition>(
-          ModelImpl.TrackInterpolators.PositionInterpolator);
-
-    public ITrack<IRotation, Quaternion> Rotations { get; } =
-      new ModelImpl.TrackImpl<IRotation, Quaternion>(
-          ModelImpl.TrackInterpolators.RotationInterpolator);
-
-    public ITrack<IScale> Scales { get; } =
-      new ModelImpl.TrackImpl<IScale>(ModelImpl.TrackInterpolators
-                                               .ScaleInterpolator);
   }
 
   public class Keyframe {

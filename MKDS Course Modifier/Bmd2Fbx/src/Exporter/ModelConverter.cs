@@ -94,26 +94,22 @@ namespace bmd.exporter {
           // TODO: *Just* write keyframes.
           for (var f = 0; f < bcx.Anx1.FrameCount; ++f) {
             var position = JointUtil.GetTranslation(bcx, jointIndex, f);
-            boneTracks.Positions.Set(f,
-                                     new ModelImpl.PositionImpl {
-                                         X = position.X,
-                                         Y = position.Y,
-                                         Z = position.Z
-                                     });
+            boneTracks.Positions.Set(f, 0, position.X);
+            boneTracks.Positions.Set(f, 1, position.Y);
+            boneTracks.Positions.Set(f, 2, position.Z);
 
             var (xRadians, yRadians, zRadians) =
                 JointUtil.GetRotation(bcx, jointIndex, f);
             var rotation = new ModelImpl.RotationImpl();
             rotation.SetRadians(xRadians, yRadians, zRadians);
-            boneTracks.Rotations.Set(f, rotation);
+            boneTracks.Rotations.Set(f, 0, rotation.XRadians);
+            boneTracks.Rotations.Set(f, 1, rotation.YRadians);
+            boneTracks.Rotations.Set(f, 2, rotation.ZRadians);
 
             var scale = JointUtil.GetScale(bcx, jointIndex, f);
-            boneTracks.Scales.Set(f,
-                                  new ModelImpl.ScaleImpl {
-                                      X = scale.X,
-                                      Y = scale.Y,
-                                      Z = scale.Z,
-                                  });
+            boneTracks.Scales.Set(f, 0, scale.X);
+            boneTracks.Scales.Set(f, 1, scale.Y);
+            boneTracks.Scales.Set(f, 2, scale.Z);
           }
         }
       }
