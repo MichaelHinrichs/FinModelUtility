@@ -8,6 +8,9 @@ using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
 
+using Optional;
+using Optional.Unsafe;
+
 namespace mod.gcn.animation {
   public class Anm : IGcnSerializable {
     public List<IDcx> Dcxes { get; } = new();
@@ -51,67 +54,83 @@ namespace mod.gcn.animation {
   }
 
   public static class DcxHelpers {
-    public static Keyframe[] ReadDenseFrames(
+    public static Keyframe<float>[] ReadDenseFrames(
         float[] values,
         int offset,
         int count
     ) {
-      var keyframes = new Keyframe[count];
+      var keyframes = new Keyframe<float>[count];
       for (var i = 0; i < count; ++i) {
-        keyframes[i] = new Keyframe {
-            Index = i,
-            Value = values[offset + i]
-        };
+        keyframes[i] =
+            new Keyframe<float>(i, values[offset + i], Option.None<float>());
       }
       return keyframes;
     }
 
-    public static Keyframe[] ReadSparseFrames(
+    public static Keyframe<float>[] ReadSparseFrames(
         float[] values,
         int offset,
         int count
     ) {
-      var keyframes = new Keyframe[count];
+      var keyframes = new Keyframe<float>[count];
       for (var i = 0; i < count; ++i) {
         var index = (int) values[offset + 3 * i];
         var value = values[offset + 3 * i + 1];
         var tangent = values[offset + 3 * i + 2];
 
-        keyframes[i] = new Keyframe {
-            Index = index,
-            Value = value
-        };
+        keyframes[i] = new Keyframe<float>(index, value, Option.Some(tangent));
       }
       return keyframes;
     }
 
     // TODO: Do this sparsely
     public static void MergeKeyframesToPositionTrack(
-        Keyframe[][] positionKeyframes,
+        Keyframe<float>[][] positionKeyframes,
         IPositionTrack positionTrack) {
       for (var i = 0; i < 3; ++i) {
         foreach (var keyframe in positionKeyframes[i]) {
-          positionTrack.Set(keyframe.Index, i, keyframe.Value);
+          if (keyframe.Tangent.HasValue) {
+            positionTrack.Set(keyframe.Frame,
+                              i,
+                              keyframe.Value,
+                              keyframe.Tangent.ValueOrFailure());
+          } else {
+            positionTrack.Set(keyframe.Frame, i, keyframe.Value);
+          }
         }
       }
     }
 
     public static void MergeKeyframesToRotationTrack(
-        Keyframe[][] rotationKeyframes,
+        Keyframe<float>[][] rotationKeyframes,
         IRadiansRotationTrack rotationTrack) {
-      for(var i = 0; i < 3; ++i) {
+      for (var i = 0; i < 3; ++i) {
         foreach (var keyframe in rotationKeyframes[i]) {
-          rotationTrack.Set(keyframe.Index, i, keyframe.Value);
+          if (keyframe.Tangent.HasValue) {
+            rotationTrack.Set(keyframe.Frame,
+                              i,
+                              keyframe.Value,
+                              keyframe.Tangent.ValueOrFailure());
+          } else {
+            rotationTrack.Set(keyframe.Frame, i, keyframe.Value);
+          }
         }
       }
     }
 
     public static void MergeKeyframesToScaleTrack(
-        Keyframe[][] scaleKeyframes,
+        Keyframe<float>[][] scaleKeyframes,
         IScaleTrack scaleTrack) {
-      for(var i = 0; i < 3; ++i) {
+      for (var i = 0; i < 3; ++i) {
         foreach (var keyframe in scaleKeyframes[i]) {
-          scaleTrack.Set(keyframe.Index, i, keyframe.Value);
+          if (keyframe.Tangent.HasValue) {
+            scaleTrack.Set(keyframe.Frame,
+                           i,
+                           keyframe.Value,
+                           keyframe.Tangent.ValueOrFailure());
+          } else {
+            scaleTrack.Set(keyframe.Frame, i, keyframe.Value);
+          }
         }
       }
     }
@@ -156,7 +175,7 @@ namespace mod.gcn.animation {
 
         var jointKeyframes = new ModelImpl.BoneTracksImpl();
 
-        Keyframe[][] frames;
+        Keyframe<float>[][] frames;
 
         frames = this.ReadKeyframes_(reader, scaleValues);
         DcxHelpers.MergeKeyframesToScaleTrack(
@@ -183,10 +202,10 @@ namespace mod.gcn.animation {
                     "Read unexpected number of bytes in animation!");
     }
 
-    private Keyframe[][] ReadKeyframes_(
+    private Keyframe<float>[][] ReadKeyframes_(
         EndianBinaryReader reader,
         float[] values) {
-      var frames = new Keyframe[3][];
+      var frames = new Keyframe<float>[3][];
       for (var i = 0; i < 3; ++i) {
         var frameCount = reader.ReadInt32();
         var frameOffset = reader.ReadInt32();
@@ -243,7 +262,7 @@ namespace mod.gcn.animation {
 
         var jointKeyframes = new ModelImpl.BoneTracksImpl();
 
-        Keyframe[][] frames;
+        Keyframe<float>[][] frames;
         frames = this.ReadKeyframes_(reader, scaleValues);
         DcxHelpers.MergeKeyframesToScaleTrack(
             frames,
@@ -270,10 +289,10 @@ namespace mod.gcn.animation {
                     "Read unexpected number of bytes in animation!");
     }
 
-    private Keyframe[][] ReadKeyframes_(
+    private Keyframe<float>[][] ReadKeyframes_(
         EndianBinaryReader reader,
         float[] values) {
-      var frames = new Keyframe[3][];
+      var frames = new Keyframe<float>[3][];
       for (var i = 0; i < 3; ++i) {
         var frameCount = reader.ReadInt32();
         var frameOffset = reader.ReadInt32();
@@ -297,10 +316,5 @@ namespace mod.gcn.animation {
     public void Write(EndianBinaryWriter writer) {
       throw new NotImplementedException();
     }
-  }
-
-  public class Keyframe {
-    public int Index { get; set; }
-    public float Value { get; set; }
   }
 }

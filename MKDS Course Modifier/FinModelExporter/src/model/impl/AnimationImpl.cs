@@ -54,18 +54,51 @@ namespace fin.model.impl {
 
     public class BoneTracksImpl : IBoneTracks {
       public IPositionTrack Positions { get; } = new PositionTrackImpl();
-      public IRadiansRotationTrack Rotations { get; } = new RadiansRotationTrackImpl();
+
+      public IRadiansRotationTrack Rotations { get; } =
+        new RadiansRotationTrackImpl();
+
       public IScaleTrack Scales { get; } = new ScaleTrackImpl();
 
       // TODO: Add pattern for specifying WITH given tracks
     }
 
     public static class TrackInterpolators {
-      public static float FloatInterpolator(
-          float lhs,
-          float rhs,
+      public static float Float(
+          float fromValue,
+          float toValue,
           float progress)
-        => lhs * (1 - progress) + rhs * progress;
+        => fromValue * (1 - progress) + toValue * progress;
+
+      public static float FloatWithTangents(
+          float fromValue,
+          float fromTangent,
+          float toValue,
+          float toTangent,
+          float progress,
+          float length)
+        => TrackInterpolators.GetPointHermite_(fromValue,
+                                               toValue,
+                                               fromTangent,
+                                               toTangent,
+                                               progress);
+
+      private static float GetPointHermite_(
+          float v1,
+          float v2,
+          float d1,
+          float d2,
+          float t) {
+        float num1 = (float)(2.0 * ((double)v1 - (double)v2)) + d1 + d2;
+        float num2 =
+            (float)(-3.0 * (double)v1 +
+                    3.0 * (double)v2 -
+                    2.0 * (double)d1) -
+            d2;
+        float num3 = d1;
+        float num4 = v1;
+        return ((num1 * t + num2) * t + num3) * t + num4;
+      }
 
       public static IPosition PositionInterpolator(
           IPosition lhs,

@@ -31,17 +31,18 @@ namespace fin.model {
   }
 
   // TODO: Add a track for animating params, e.g. textures, UVs, frames.
+  public record Keyframe<T>(int Frame, T Value, Option<float> Tangent);
+
 
   public interface ITrack<T> : ITrack<T, T> {}
-
-  public record Keyframe<T>(int Frame, T Value);
 
   public interface ITrack<TValue, TInterpolated> {
     IReadOnlyList<Keyframe<TValue>> Keyframes { get; }
 
     void Set(int frame, TValue t);
+    void Set(int frame, TValue t, float tangent);
 
-    Option<TValue> GetKeyframe(int frame);
+    Option<Keyframe<TValue>> GetKeyframe(int frame);
 
     Option<TInterpolated> GetInterpolatedFrame(
         float frame,
@@ -56,8 +57,9 @@ namespace fin.model {
   // TODO: Rethink this, this is getting way too complicated.
   public interface IAxesTrack<TAxis, TInterpolated> {
     void Set(int frame, int axis, TAxis value);
+    void Set(int frame, int axis, TAxis value, float tangent);
 
-    Option<TAxis>[] GetAxisListAtKeyframe(int keyframe);
+    Option<Keyframe<TAxis>>[] GetAxisListAtKeyframe(int keyframe);
 
     TInterpolated GetInterpolatedFrame(float frame);
   }
@@ -65,7 +67,7 @@ namespace fin.model {
   public interface IPositionTrack : IAxesTrack<float, IPosition> {}
 
   public interface IRadiansRotationTrack : IAxesTrack<float, Quaternion> {
-    // TODO: Document this
+    // TODO: Document this, better name
     public IRotation GetAlmostKeyframe(float frame);
   }
 

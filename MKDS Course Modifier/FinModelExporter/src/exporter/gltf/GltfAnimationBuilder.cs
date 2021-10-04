@@ -1,8 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 using fin.math;
 using fin.model;
+
+using Optional.Unsafe;
 
 using SharpGLTF.Schema2;
 
@@ -47,7 +50,11 @@ namespace fin.exporter.gltf {
             scaleKeyframes[time] = new Vector3(scale.X, scale.Y, scale.Z);
           }
 
-          ;
+          if (boneTracks.Positions.GetAxisListAtKeyframe(0)
+                        .Any(axis => axis.HasValue &&
+                                     axis.ValueOrFailure().Tangent.HasValue)) {
+            ;
+          }
 
           gltfAnimation.CreateTranslationChannel(
               node,

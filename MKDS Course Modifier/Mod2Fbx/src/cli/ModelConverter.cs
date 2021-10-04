@@ -180,30 +180,64 @@ namespace mod.cli {
 
           var boneTracks = animation.AddBoneTracks(bones[jointIndex]);
 
+          // TODO: Allow setting boneTracks to boneTracks directly
           for (var f = 0; f < animation.FrameCount; ++f) {
             var scaleList = jointKeyframes.Scales.GetAxisListAtKeyframe(f);
-            var rotationList = jointKeyframes.Rotations.GetAxisListAtKeyframe(f);
-            var positionList = jointKeyframes.Positions.GetAxisListAtKeyframe(f);
+            var rotationList =
+                jointKeyframes.Rotations.GetAxisListAtKeyframe(f);
+            var positionList =
+                jointKeyframes.Positions.GetAxisListAtKeyframe(f);
 
             for (var a = 0; a < 3; ++a) {
               var scale = scaleList[a];
               if (scale.HasValue) {
-                boneTracks.Scales.Set(f, a, scale.ValueOrFailure());
+                var scaleKeyframe = scale.ValueOrFailure();
+
+                if (scaleKeyframe.Tangent.HasValue) {
+                  boneTracks.Scales.Set(f,
+                                        a,
+                                        scaleKeyframe.Value,
+                                        scaleKeyframe.Tangent.ValueOrFailure());
+                } else {
+                  boneTracks.Scales.Set(f,
+                                        a,
+                                        scaleKeyframe.Value);
+                }
               }
 
               var rotation = rotationList[a];
               if (rotation.HasValue) {
-                boneTracks.Rotations.Set(f, a, rotation.ValueOrFailure());
+                var rotationKeyframe = rotation.ValueOrFailure();
+                if (rotationKeyframe.Tangent.HasValue) {
+                  boneTracks.Rotations.Set(f,
+                                           a,
+                                           rotationKeyframe.Value,
+                                           rotationKeyframe.Tangent
+                                               .ValueOrFailure());
+                } else {
+                  boneTracks.Rotations.Set(f, a, rotationKeyframe.Value);
+                }
               }
 
               var position = positionList[a];
               if (position.HasValue) {
-                boneTracks.Positions.Set(f, a, position.ValueOrFailure());
+                var positionKeyframe = position.ValueOrFailure();
+                if (positionKeyframe.Tangent.HasValue) {
+                  boneTracks.Positions.Set(f,
+                                           a,
+                                           positionKeyframe.Value,
+                                           positionKeyframe.Tangent
+                                               .ValueOrFailure());
+                } else {
+                  boneTracks.Positions.Set(f, a, positionKeyframe.Value);
+                }
               }
             }
           }
 
-          ;
+          if (dcx is Dck) {
+            ;
+          }
         }
       }
 
