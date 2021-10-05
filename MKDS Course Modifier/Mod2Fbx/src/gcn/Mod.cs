@@ -194,6 +194,8 @@ namespace mod.gcn {
                       afterPosition,
                       $"Read incorrect number of bytes for opcode: {opcodeName}");*/
       }
+
+      ;
     }
 
     private static void ReadGenericChunk_<T>(

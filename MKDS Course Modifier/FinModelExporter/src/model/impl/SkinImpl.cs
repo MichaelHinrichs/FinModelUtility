@@ -93,6 +93,7 @@ namespace fin.model.impl {
         public int Index { get; }
 
         public IReadOnlyList<BoneWeight>? Weights { get; private set; }
+        public bool Preproject { get; set; } = true;
 
         public IVertex SetBone(IBone bone)
           => this.SetBones(
@@ -128,7 +129,7 @@ namespace fin.model.impl {
         public IColor? Color { get; private set; }
 
         public IVertex SetColorBytes(byte r, byte g, byte b, byte a) {
-          this.Color = ColorImpl.FromBytes(r, g, b, a);
+          this.Color = ColorImpl.FromRgbaBytes(r, g, b, a);
           return this;
         }
 

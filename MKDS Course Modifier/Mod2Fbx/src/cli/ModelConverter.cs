@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 
 using fin.math;
@@ -14,6 +15,13 @@ using Endianness = mod.util.Endianness;
 
 namespace mod.cli {
   public static class ModelConverter {
+    /// <summary>
+    ///   GX's active matrices. These are deferred to when a vertex matrix is
+    ///   -1, which corresponds to using an active matrix from a previous
+    ///   display list.
+    /// </summary>
+    private static short[] ACTIVE_MATRICES_ = new short[10];
+
     public enum Opcode {
       QUADS = 0x80,
       TRIANGLES = 0x90,
@@ -36,6 +44,12 @@ namespace mod.cli {
       };
 
     public static IModel Convert(Mod mod, Anm? anm) {
+      // Resets the active matrices to -1. This lets us catch issues when
+      // attempting to use an invalid active matrix.
+      for (var i = 0; i < 10; ++i) {
+        ModelConverter.ACTIVE_MATRICES_[i] = -1;
+      }
+
       var model = new ModelImpl();
 
       var hasVertices = mod.vertices.Any();
@@ -105,7 +119,6 @@ namespace mod.cli {
       // Writes bones
       // TODO: Simplify these loops
       var jointCount = mod.joints.Count;
-      var bones = new IBone[jointCount];
       // Pass 1: Creates lists at each index in joint children
       var jointChildren = new List<int>[jointCount];
       for (var i = 0; i < jointCount; ++i) {
@@ -119,7 +132,10 @@ namespace mod.cli {
           jointChildren[parentIndex].Add(i);
         }
       }
+
       // Pass 3: Creates skeleton
+      var bones = new IBone[jointCount];
+
       // TODO: Is 0 as the first a safe assumption?
       var jointQueue = new Queue<(int, IBone?)>();
       jointQueue.Enqueue((0, null));
@@ -128,11 +144,10 @@ namespace mod.cli {
 
         var joint = mod.joints[jointIndex];
 
-        var bone =
-            (parent ?? model.Skeleton.Root).AddChild(
-                joint.position.X,
-                joint.position.Y,
-                joint.position.Z);
+        var bone = (parent ?? model.Skeleton.Root).AddChild(
+            joint.position.X,
+            joint.position.Y,
+            joint.position.Z);
         bone.SetLocalRotationRadians(joint.rotation.X,
                                      joint.rotation.Y,
                                      joint.rotation.Z);
@@ -183,7 +198,6 @@ namespace mod.cli {
         }
       }
 
-
       return model;
     }
 
@@ -196,7 +210,7 @@ namespace mod.cli {
         IModel model,
         IBone[] bones) {
       //var currentBone = bones[mesh.boneIndex];
-      var currentColor = ColorImpl.FromBytes(255, 255, 255, 255);
+      var currentColor = ColorImpl.FromRgbaBytes(255, 255, 255, 255);
 
       var vertexDescriptor = new VertexDescriptor();
       vertexDescriptor.FromPikmin1(mesh.vtxDescriptor, mod.hasNormals);
@@ -230,17 +244,35 @@ namespace mod.cli {
                   var unused = reader.ReadU8();
 
                   if (attr == Vtx.PosMatIdx) {
+                    // Internally, this represents which of the 10 active
+                    // matrices to bind to.
+                    var activeMatrixIndex = unused / 3;
+
                     Asserts.Equal(0, unused % 3);
+
+                    // This represents which vertex matrix the active matrix is
+                    // sourced from.
+                    var vertexMatrixIndex =
+                        meshPacket.indices[activeMatrixIndex];
+
+                    // -1 means no active matrix set by this display list,
+                    // defers to whatever the existing matrix is in this slot.
+                    if (vertexMatrixIndex == -1) {
+                      vertexMatrixIndex =
+                          ModelConverter.ACTIVE_MATRICES_[activeMatrixIndex];
+                      Asserts.False(vertexMatrixIndex == -1);
+                    }
+                    ACTIVE_MATRICES_[activeMatrixIndex] = vertexMatrixIndex;
+
+                    // TODO: Is there a real name for this?
+                    // Remaps from vertex matrix to "attachment" index.
                     var attachmentIndex =
-                        (short) meshPacket.indices[(unused / 3)];
+                        mod.vtxMatrix[vertexMatrixIndex].index;
 
-                    var boneIndex = 1 + attachmentIndex;
-                    
-                    var boneCount = bones.Length;
-                    var envelopeIndex = boneIndex - boneCount;
+                    // Positive indices refer to joints/bones.
+                    if (attachmentIndex >= 0) {
+                      var boneIndex = attachmentIndex;
 
-                    // If the remapped index is small enough, it's just a bone
-                    if (boneIndex < boneCount) {
                       var vertexWeights = new VertexWeights();
                       vertexWeights.boneWeights.Add(
                           new BoneWeight(bones[boneIndex],
@@ -248,10 +280,14 @@ namespace mod.cli {
                                          1));
                       allVertexWeights.Add(vertexWeights);
                     }
-                    // Otherwise, it seems to be an envelope?
-                    else if (attachmentIndex != -1) {
-                      ModelConverter.ENVELOPE_COUNTS_.TryGetValue(envelopeIndex, out var count);
-                      ModelConverter.ENVELOPE_COUNTS_[envelopeIndex] = count + 1;
+                    // Negative indices refer to envelopes.
+                    else {
+                      var envelopeIndex = -1 - attachmentIndex;
+                      ModelConverter.ENVELOPE_COUNTS_.TryGetValue(
+                          envelopeIndex,
+                          out var count);
+                      ModelConverter.ENVELOPE_COUNTS_[envelopeIndex] =
+                          count + 1;
 
                       var vertexWeights = new VertexWeights();
 
@@ -263,14 +299,9 @@ namespace mod.cli {
                                            envelope.weights[w]));
                       }
 
-                      allVertexWeights.Add(vertexWeights);
-                    } else {
-                      var vertexWeights = new VertexWeights();
-
-                      vertexWeights.boneWeights.Add(
-                          new BoneWeight(model.Skeleton.Root,
-                                         new FinMatrix4x4().SetIdentity(),
-                                         1));
+                      // TODO: Is this right? There's still some jank in some models
+                      // Seems that these need to NOT be projected
+                      vertexWeights.Preproject = false;
 
                       allVertexWeights.Add(vertexWeights);
                     }
@@ -302,6 +333,7 @@ namespace mod.cli {
                   model.Skin.AddVertex(position.X, position.Y, position.Z);
 
               finVertex.SetBones(allVertexWeights[v].boneWeights.ToArray());
+              finVertex.Preproject = allVertexWeights[v].Preproject;
 
               if (normalIndices.Count > 0) {
                 var normal = mod.vnormals[normalIndices[v]];
@@ -347,6 +379,7 @@ namespace mod.cli {
 
     private class VertexWeights {
       public readonly List<BoneWeight> boneWeights = new();
+      public bool Preproject { get; set; } = true;
     }
   }
 }

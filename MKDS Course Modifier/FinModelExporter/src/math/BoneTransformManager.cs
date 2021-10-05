@@ -84,6 +84,21 @@ namespace fin.math {
         IVertex vertex,
         IPosition outPosition,
         INormal? outNormal = null) {
+      var localPosition = vertex.LocalPosition;
+      var localNormal = vertex.LocalNormal;
+      if (!vertex.Preproject) {
+        outPosition.X = localPosition.X;
+        outPosition.Y = localPosition.Y;
+        outPosition.Z = localPosition.Z;
+
+        if (outNormal != null && localNormal != null) {
+          outNormal.X = -localNormal.X;
+          outNormal.Y = -localNormal.Y;
+          outNormal.Z = -localNormal.Z;
+        }
+        return;
+      }
+
       // TODO: Precompute these in a shared way somehow.
       var mergedMatrix = new FinMatrix4x4();
       if (vertex.Weights?.Count > 0) {
@@ -103,7 +118,6 @@ namespace fin.math {
       this.transformer_.Push();
       this.transformer_.Set(mergedMatrix);
 
-      var localPosition = vertex.LocalPosition;
       double x = localPosition.X;
       double y = localPosition.Y;
       double z = localPosition.Z;
@@ -112,7 +126,6 @@ namespace fin.math {
       outPosition.Y = (float) y;
       outPosition.Z = (float) z;
 
-      var localNormal = vertex.LocalNormal;
       if (outNormal != null && localNormal != null) {
         double nX = localNormal.X;
         double nY = localNormal.Y;

@@ -26,11 +26,11 @@ namespace mod.gcn.image {
       var g = ColorUtil.ExtractScaled(color, 5, 6);
       var b = ColorUtil.ExtractScaled(color, 0, 5);
 
-      return ColorImpl.FromBytes(r, g, b, 255);
+      return ColorImpl.FromRgbaBytes(r, g, b, 255);
     }
 
     public static IColor Interpolate(IColor from, IColor to, double amt)
-      => ColorImpl.FromBytes(
+      => ColorImpl.FromRgbaBytes(
           (byte) Math.Round(from.Rb * (1 - amt) + to.Rb * amt),
           (byte) Math.Round(from.Gb * (1 - amt) + to.Gb * amt),
           (byte) Math.Round(from.Bb * (1 - amt) + to.Bb * amt),

@@ -13,11 +13,13 @@ namespace mod.cli {
     public static void Main(string[] args) {
       Program.GetForTesting(out var modFile, out var anmFile);
 
-      //var inPath =
-      //    @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\bosses\pom\pom.mod";
-
       using var s = new EndianBinaryReader(modFile.OpenRead());
       var mod = new Mod(s);
+
+      for (var i = 0; i < mod.textures.Count; ++i) {
+        var texture = mod.textures[i];
+        texture.ToBitmap().Save(@"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\out\texture" + i + ".png");
+      }
 
       Anm? anm = null;
       if (anmFile != null) {
@@ -38,7 +40,17 @@ namespace mod.cli {
     }
 
     public static void GetForTesting(out IFile modFile, out IFile? anmFile) {
-      Program.GetFromDirectory(
+      modFile = new FinFile(
+          @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\tekis\beatle\beatle.mod");
+      anmFile = new FinFile(
+          @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\tekis\beatle\beatle.anm");
+
+      /*modFile = new FinFile(
+          @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\tekis\frog\frog.mod");
+      anmFile = new FinFile(
+          @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\tekis\frog\frog.anm");
+
+      /*Program.GetFromDirectory(
           new FinDirectory(
               @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\tekis\chappy\"),
           out modFile,

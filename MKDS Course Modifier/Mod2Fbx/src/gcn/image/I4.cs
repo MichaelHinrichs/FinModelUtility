@@ -28,8 +28,8 @@ namespace mod.gcn.image {
           var pix1 = ColorUtil.ExtractScaled(pixes, 4, 4, 17);
           var pix2 = ColorUtil.ExtractScaled(pixes, 0, 4, 17);
 
-          bl[j * 8 + 2 * i] = ColorImpl.FromBytes(pix1, pix1, pix1, 255);
-          bl[j * 8 + 2 * i + 1] = ColorImpl.FromBytes(pix2, pix2, pix2, 255);
+          bl[j * 8 + 2 * i] = ColorImpl.FromRgbaBytes(pix1, pix1, pix1, 255);
+          bl[j * 8 + 2 * i + 1] = ColorImpl.FromRgbaBytes(pix2, pix2, pix2, 255);
         }
       }
       

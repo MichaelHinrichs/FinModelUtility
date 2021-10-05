@@ -41,7 +41,7 @@ namespace mod.gcn.image {
             b = ColorUtil.ExtractScaled(pix, 0, 4, 17);
           }
 
-          bl[j * 4 + i] = ColorImpl.FromBytes(r, g, b, a);
+          bl[j * 4 + i] = ColorImpl.FromRgbaBytes(r, g, b, a);
         }
       }
 

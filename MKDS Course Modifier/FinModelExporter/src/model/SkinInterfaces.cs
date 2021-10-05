@@ -41,6 +41,8 @@ namespace fin.model {
     int Index { get; }
 
     IReadOnlyList<BoneWeight>? Weights { get; }
+    bool Preproject { get; set; }
+
     IVertex SetBone(IBone bone);
     IVertex SetBones(params BoneWeight[] weights);
 

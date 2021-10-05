@@ -60,14 +60,14 @@ namespace mod.gcn {
   }
 
   public class MeshPacket : IGcnSerializable {
-    public readonly List<ushort> indices = new();
+    public readonly List<short> indices = new();
     public readonly List<DisplayList> displaylists = new();
 
     public void Read(EndianBinaryReader reader) {
       this.indices.Clear();
       var numIndices = reader.ReadUInt32();
       for (var i = 0; i < numIndices; ++i) {
-        this.indices.Add(reader.ReadUInt16());
+        this.indices.Add(reader.ReadInt16());
       }
 
       this.displaylists.Clear();
