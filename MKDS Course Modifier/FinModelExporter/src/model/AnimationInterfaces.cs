@@ -1,8 +1,9 @@
-﻿using System;
+﻿using fin.util.optional;
+
 using System.Collections.Generic;
 using System.Numerics;
 
-using Optional;
+using fin.math.interpolation;
 
 namespace fin.model {
   public interface IAnimationManager {
@@ -23,30 +24,38 @@ namespace fin.model {
   }
 
   public interface IBoneTracks {
+    public void Set(IBoneTracks other);
+
+    // TODO: Should these be null if empty?
     public IPositionTrack Positions { get; }
     public IRadiansRotationTrack Rotations { get; }
     public IScaleTrack Scales { get; }
-
-    // TODO: Should these be null if empty?
   }
 
   // TODO: Add a track for animating params, e.g. textures, UVs, frames.
-  public record Keyframe<T>(int Frame, T Value, Option<float> Tangent);
+  public record Keyframe<T>(int Frame, T Value, Optional<float> Tangent);
 
 
   public interface ITrack<T> : ITrack<T, T> {}
 
   public interface ITrack<TValue, TInterpolated> {
+    public IInterpolator<TValue, TInterpolated> Interpolator { get; }
+
+    public IInterpolatorWithTangents<TValue, TInterpolated>
+        InterpolatorWithTangents { get; }
+
     IReadOnlyList<Keyframe<TValue>> Keyframes { get; }
 
+    void Set(ITrack<TValue, TInterpolated> other);
     void Set(int frame, TValue t);
     void Set(int frame, TValue t, float tangent);
+    void Set(int frame, TValue t, Optional<float> optionalTangent);
 
-    Option<Keyframe<TValue>> GetKeyframe(int frame);
+    Optional<Keyframe<TValue>> GetKeyframe(int frame);
 
-    Option<TInterpolated> GetInterpolatedFrame(
+    Optional<TInterpolated> GetInterpolatedFrame(
         float frame,
-        Option<TValue> defaultValue);
+        Optional<TValue> defaultValue);
 
     // TODO: Allow setting tangent(s) at each frame.
     // TODO: Allow setting easing at each frame.
@@ -56,10 +65,14 @@ namespace fin.model {
 
   // TODO: Rethink this, this is getting way too complicated.
   public interface IAxesTrack<TAxis, TInterpolated> {
+    void Set(IAxesTrack<TAxis, TInterpolated> other);
+
     void Set(int frame, int axis, TAxis value);
     void Set(int frame, int axis, TAxis value, float tangent);
+    void Set(int frame, int axis, TAxis value, Optional<float> optionalTangent);
 
-    Option<Keyframe<TAxis>>[] GetAxisListAtKeyframe(int keyframe);
+    IReadOnlyList<ITrack<TAxis>> AxisTracks { get; }
+    Optional<Keyframe<TAxis>>[] GetAxisListAtKeyframe(int keyframe);
 
     TInterpolated GetInterpolatedFrame(float frame);
   }

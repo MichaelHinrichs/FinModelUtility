@@ -1,24 +1,35 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Numerics;
 
 using fin.math;
-using fin.util.asserts;
-
-using Optional;
-using Optional.Unsafe;
+using fin.math.interpolation;
+using fin.util.optional;
 
 namespace fin.model.impl {
   public partial class ModelImpl {
     public class RadiansRotationTrackImpl : IRadiansRotationTrack {
-      private readonly Option<float> defaultRotation_ = Option.Some<float>(0);
+      private readonly Optional<float> defaultRotation_ = Optional.Of<float>(0);
       private readonly TrackImpl<float>[] axisTracks_;
 
       public RadiansRotationTrackImpl() {
         this.axisTracks_ = new TrackImpl<float>[3];
         for (var i = 0; i < 3; ++i) {
           this.axisTracks_[i] =
-              new TrackImpl<float>(TrackInterpolators.Float,
-                                   TrackInterpolators.FloatWithTangents);
+              new TrackImpl<float>(Interpolator.Float,
+                                   InterpolatorWithTangents.Float);
+        }
+
+        this.AxisTracks =
+            new ReadOnlyCollection<ITrack<float>>(this.axisTracks_);
+      }
+
+      public IReadOnlyList<ITrack<float>> AxisTracks { get; } 
+
+      public void Set(IAxesTrack<float, Quaternion> other) {
+        for (var i = 0; i < 3; ++i) {
+          this.axisTracks_[i].Set(other.AxisTracks[i]);
         }
       }
 
@@ -28,7 +39,14 @@ namespace fin.model.impl {
       public void Set(int frame, int axis, float radians, float tangent)
         => this.axisTracks_[axis].Set(frame, radians, tangent);
 
-      public Option<Keyframe<float>>[] GetAxisListAtKeyframe(int keyframe)
+      public void Set(
+          int frame,
+          int axis,
+          float radians,
+          Optional<float> tangent)
+        => this.axisTracks_[axis].Set(frame, radians, tangent);
+
+      public Optional<Keyframe<float>>[] GetAxisListAtKeyframe(int keyframe)
         => this.axisTracks_.Select(axis => axis.GetKeyframe(keyframe))
                .ToArray();
 
@@ -36,13 +54,13 @@ namespace fin.model.impl {
         => new RotationImpl().SetRadians(
             this.axisTracks_[0]
                 .GetInterpolatedFrame(frame, this.defaultRotation_)
-                .ValueOrFailure(),
+                .Assert(),
             this.axisTracks_[1]
                 .GetInterpolatedFrame(frame, this.defaultRotation_)
-                .ValueOrFailure(),
+                .Assert(),
             this.axisTracks_[2]
                 .GetInterpolatedFrame(frame, this.defaultRotation_)
-                .ValueOrFailure());
+                .Assert());
 
       public Quaternion GetInterpolatedFrame(float frame) {
         var xTrack = this.axisTracks_[0];
@@ -68,15 +86,15 @@ namespace fin.model.impl {
                                    out var zKeyframeDefined,
                                    out var zPastEnd);
 
-        var xRadians = xRadiansKeyframe.HasValue
-                           ? xRadiansKeyframe.ValueOrFailure().Value
-                           : this.defaultRotation_.ValueOrFailure();
-        var yRadians = yRadiansKeyframe.HasValue
-                           ? yRadiansKeyframe.ValueOrFailure().Value
-                           : this.defaultRotation_.ValueOrFailure();
-        var zRadians = zRadiansKeyframe.HasValue
-                           ? zRadiansKeyframe.ValueOrFailure().Value
-                           : this.defaultRotation_.ValueOrFailure();
+        var xRadians = xRadiansKeyframe.Pluck(keyframe => keyframe.Value)
+                                       .Or(this.defaultRotation_)
+                                       .Assert();
+        var yRadians = yRadiansKeyframe.Pluck(keyframe => keyframe.Value)
+                                       .Or(this.defaultRotation_)
+                                       .Assert();
+        var zRadians = zRadiansKeyframe.Pluck(keyframe => keyframe.Value)
+                                       .Or(this.defaultRotation_)
+                                       .Assert();
 
         return QuaternionUtil.Create(xRadians, yRadians, zRadians);
       }

@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Numerics;
 using System.Text;
 
 using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
-
-using Optional;
-using Optional.Unsafe;
+using fin.util.optional;
 
 namespace mod.gcn.animation {
   public class Anm : IGcnSerializable {
@@ -62,7 +59,7 @@ namespace mod.gcn.animation {
       var keyframes = new Keyframe<float>[count];
       for (var i = 0; i < count; ++i) {
         keyframes[i] =
-            new Keyframe<float>(i, values[offset + i], Option.None<float>());
+            new Keyframe<float>(i, values[offset + i], Optional.None<float>());
       }
       return keyframes;
     }
@@ -78,7 +75,7 @@ namespace mod.gcn.animation {
         var value = values[offset + 3 * i + 1];
         var tangent = values[offset + 3 * i + 2];
 
-        keyframes[i] = new Keyframe<float>(index, value, Option.Some(tangent));
+        keyframes[i] = new Keyframe<float>(index, value, Optional.Of(tangent));
       }
       return keyframes;
     }
@@ -89,14 +86,10 @@ namespace mod.gcn.animation {
         IPositionTrack positionTrack) {
       for (var i = 0; i < 3; ++i) {
         foreach (var keyframe in positionKeyframes[i]) {
-          if (keyframe.Tangent.HasValue) {
-            positionTrack.Set(keyframe.Frame,
-                              i,
-                              keyframe.Value,
-                              keyframe.Tangent.ValueOrFailure());
-          } else {
-            positionTrack.Set(keyframe.Frame, i, keyframe.Value);
-          }
+          positionTrack.Set(keyframe.Frame,
+                            i,
+                            keyframe.Value,
+                            keyframe.Tangent);
         }
       }
     }
@@ -106,14 +99,10 @@ namespace mod.gcn.animation {
         IRadiansRotationTrack rotationTrack) {
       for (var i = 0; i < 3; ++i) {
         foreach (var keyframe in rotationKeyframes[i]) {
-          if (keyframe.Tangent.HasValue) {
-            rotationTrack.Set(keyframe.Frame,
-                              i,
-                              keyframe.Value,
-                              keyframe.Tangent.ValueOrFailure());
-          } else {
-            rotationTrack.Set(keyframe.Frame, i, keyframe.Value);
-          }
+          rotationTrack.Set(keyframe.Frame,
+                            i,
+                            keyframe.Value,
+                            keyframe.Tangent);
         }
       }
     }
@@ -123,14 +112,10 @@ namespace mod.gcn.animation {
         IScaleTrack scaleTrack) {
       for (var i = 0; i < 3; ++i) {
         foreach (var keyframe in scaleKeyframes[i]) {
-          if (keyframe.Tangent.HasValue) {
-            scaleTrack.Set(keyframe.Frame,
-                           i,
-                           keyframe.Value,
-                           keyframe.Tangent.ValueOrFailure());
-          } else {
-            scaleTrack.Set(keyframe.Frame, i, keyframe.Value);
-          }
+          scaleTrack.Set(keyframe.Frame,
+                         i,
+                         keyframe.Value,
+                         keyframe.Tangent);
         }
       }
     }

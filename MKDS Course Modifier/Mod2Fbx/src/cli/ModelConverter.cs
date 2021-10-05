@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 using fin.math;
@@ -10,8 +9,6 @@ using fin.util.asserts;
 using mod.gcn;
 using mod.gcn.animation;
 using mod.util;
-
-using Optional.Unsafe;
 
 using Endianness = mod.util.Endianness;
 
@@ -178,62 +175,7 @@ namespace mod.cli {
           var jointIndex = jointIndexAndKeyframes.Key;
           var jointKeyframes = jointIndexAndKeyframes.Value;
 
-          var boneTracks = animation.AddBoneTracks(bones[jointIndex]);
-
-          // TODO: Allow setting boneTracks to boneTracks directly
-          for (var f = 0; f < animation.FrameCount; ++f) {
-            var scaleList = jointKeyframes.Scales.GetAxisListAtKeyframe(f);
-            var rotationList =
-                jointKeyframes.Rotations.GetAxisListAtKeyframe(f);
-            var positionList =
-                jointKeyframes.Positions.GetAxisListAtKeyframe(f);
-
-            for (var a = 0; a < 3; ++a) {
-              var scale = scaleList[a];
-              if (scale.HasValue) {
-                var scaleKeyframe = scale.ValueOrFailure();
-
-                if (scaleKeyframe.Tangent.HasValue) {
-                  boneTracks.Scales.Set(f,
-                                        a,
-                                        scaleKeyframe.Value,
-                                        scaleKeyframe.Tangent.ValueOrFailure());
-                } else {
-                  boneTracks.Scales.Set(f,
-                                        a,
-                                        scaleKeyframe.Value);
-                }
-              }
-
-              var rotation = rotationList[a];
-              if (rotation.HasValue) {
-                var rotationKeyframe = rotation.ValueOrFailure();
-                if (rotationKeyframe.Tangent.HasValue) {
-                  boneTracks.Rotations.Set(f,
-                                           a,
-                                           rotationKeyframe.Value,
-                                           rotationKeyframe.Tangent
-                                               .ValueOrFailure());
-                } else {
-                  boneTracks.Rotations.Set(f, a, rotationKeyframe.Value);
-                }
-              }
-
-              var position = positionList[a];
-              if (position.HasValue) {
-                var positionKeyframe = position.ValueOrFailure();
-                if (positionKeyframe.Tangent.HasValue) {
-                  boneTracks.Positions.Set(f,
-                                           a,
-                                           positionKeyframe.Value,
-                                           positionKeyframe.Tangent
-                                               .ValueOrFailure());
-                } else {
-                  boneTracks.Positions.Set(f, a, positionKeyframe.Value);
-                }
-              }
-            }
-          }
+          animation.AddBoneTracks(bones[jointIndex]).Set(jointKeyframes);
 
           if (dcx is Dck) {
             ;

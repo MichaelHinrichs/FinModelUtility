@@ -53,6 +53,12 @@ namespace fin.model.impl {
     }
 
     public class BoneTracksImpl : IBoneTracks {
+      public void Set(IBoneTracks other) {
+        this.Positions.Set(other.Positions);
+        this.Rotations.Set(other.Rotations);
+        this.Scales.Set(other.Scales);
+      }
+
       public IPositionTrack Positions { get; } = new PositionTrackImpl();
 
       public IRadiansRotationTrack Rotations { get; } =
@@ -64,42 +70,6 @@ namespace fin.model.impl {
     }
 
     public static class TrackInterpolators {
-      public static float Float(
-          float fromValue,
-          float toValue,
-          float progress)
-        => fromValue * (1 - progress) + toValue * progress;
-
-      public static float FloatWithTangents(
-          float fromValue,
-          float fromTangent,
-          float toValue,
-          float toTangent,
-          float progress,
-          float length)
-        => TrackInterpolators.GetPointHermite_(fromValue,
-                                               toValue,
-                                               fromTangent,
-                                               toTangent,
-                                               progress);
-
-      private static float GetPointHermite_(
-          float v1,
-          float v2,
-          float d1,
-          float d2,
-          float t) {
-        float num1 = (float)(2.0 * ((double)v1 - (double)v2)) + d1 + d2;
-        float num2 =
-            (float)(-3.0 * (double)v1 +
-                    3.0 * (double)v2 -
-                    2.0 * (double)d1) -
-            d2;
-        float num3 = d1;
-        float num4 = v1;
-        return ((num1 * t + num2) * t + num3) * t + num4;
-      }
-
       public static IPosition PositionInterpolator(
           IPosition lhs,
           IPosition rhs,

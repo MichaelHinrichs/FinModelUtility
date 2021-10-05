@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-using fin.util.asserts;
-
-using Optional;
-using Optional.Unsafe;
+using fin.math.interpolation;
+using fin.util.optional;
 
 namespace fin.model.impl {
   public partial class ModelImpl {
@@ -15,14 +13,19 @@ namespace fin.model.impl {
     public class PositionTrackImpl : IPositionTrack {
       private readonly ScalarAxesTrack<IPosition, float> impl_ =
           new(3,
-              Option.Some<float>(0),
-              TrackInterpolators.Float,
-              TrackInterpolators.FloatWithTangents,
+              Optional.Of<float>(0),
+              Interpolator.Float,
+              InterpolatorWithTangents.Float,
               axisList => new PositionImpl {
                   X = axisList[0],
                   Y = axisList[1],
                   Z = axisList[2],
               });
+
+      public IReadOnlyList<ITrack<float>> AxisTracks => this.impl_.AxisTracks;
+
+      public void Set(IAxesTrack<float, IPosition> other)
+        => this.impl_.Set(other);
 
       public void Set(int frame, int axis, float value)
         => this.impl_.Set(frame, axis, value);
@@ -30,7 +33,10 @@ namespace fin.model.impl {
       public void Set(int frame, int axis, float value, float tangent)
         => this.impl_.Set(frame, axis, value, tangent);
 
-      public Option<Keyframe<float>>[] GetAxisListAtKeyframe(int keyframe)
+      public void Set(int frame, int axis, float value, Optional<float> tangent)
+        => this.impl_.Set(frame, axis, value, tangent);
+
+      public Optional<Keyframe<float>>[] GetAxisListAtKeyframe(int keyframe)
         => this.impl_.GetAxisListAtKeyframe(keyframe);
 
       public IPosition GetInterpolatedFrame(float frame)
@@ -40,9 +46,9 @@ namespace fin.model.impl {
     public class ScaleTrackImpl : IScaleTrack {
       private readonly ScalarAxesTrack<IScale, float> impl_ =
           new(3,
-              Option.Some<float>(1),
-              TrackInterpolators.Float,
-              TrackInterpolators.FloatWithTangents,
+              Optional.Of<float>(1),
+              Interpolator.Float,
+              InterpolatorWithTangents.Float,
               axes
                   => new ScaleImpl {
                       X = axes[0],
@@ -50,13 +56,20 @@ namespace fin.model.impl {
                       Z = axes[2],
                   });
 
+      public IReadOnlyList<ITrack<float>> AxisTracks => this.impl_.AxisTracks;
+
+      public void Set(IAxesTrack<float, IScale> other) => this.impl_.Set(other);
+
       public void Set(int frame, int axis, float value)
         => this.impl_.Set(frame, axis, value);
 
       public void Set(int frame, int axis, float value, float tangent)
         => this.impl_.Set(frame, axis, value, tangent);
 
-      public Option<Keyframe<float>>[] GetAxisListAtKeyframe(int keyframe)
+      public void Set(int frame, int axis, float value, Optional<float> tangent)
+        => this.impl_.Set(frame, axis, value, tangent);
+
+      public Optional<Keyframe<float>>[] GetAxisListAtKeyframe(int keyframe)
         => this.impl_.GetAxisListAtKeyframe(keyframe);
 
       public IScale GetInterpolatedFrame(float frame)
@@ -66,51 +79,62 @@ namespace fin.model.impl {
 
     public class TrackImpl<T> : TrackImpl<T, T>, ITrack<T> {
       public TrackImpl(
-          InterpolateValues interpolator,
-          InterpolateValuesWithTangent interpolatorWithTangent) :
+          IInterpolator<T> interpolator,
+          IInterpolatorWithTangents<T> interpolatorWithTangent) :
           base(interpolator, interpolatorWithTangent) {}
     }
 
     public class TrackImpl<TValue, TInterpolated> :
         ITrack<TValue, TInterpolated> {
-      public delegate TInterpolated InterpolateValues(
-          TValue fromValue,
-          TValue toValue,
-          float progress);
-
-      public delegate TInterpolated InterpolateValuesWithTangent(
-          TValue fromValue,
-          float fromTangent,
-          TValue toValue,
-          float toTangent,
-          float progress,
-          float length);
-
-      public readonly InterpolateValues interpolator_;
-      public readonly InterpolateValuesWithTangent interpolatorWithTangent_;
-
       private readonly IList<Keyframe<TValue>> keyframesAndValues_ =
           new List<Keyframe<TValue>>();
 
       public TrackImpl(
-          InterpolateValues interpolator,
-          InterpolateValuesWithTangent interpolatorWithTangent) {
-        this.interpolator_ = interpolator;
-        this.interpolatorWithTangent_ = interpolatorWithTangent;
+          IInterpolator<TValue, TInterpolated> interpolator,
+          IInterpolatorWithTangents<TValue, TInterpolated>
+              interpolatorWithTangent) {
+        this.Interpolator = interpolator;
+        this.InterpolatorWithTangents = interpolatorWithTangent;
         this.Keyframes =
             new ReadOnlyCollection<Keyframe<TValue>>(
                 this.keyframesAndValues_);
       }
 
+      public IInterpolator<TValue, TInterpolated> Interpolator {
+        get;
+        private set;
+      }
+
+      public IInterpolatorWithTangents<TValue, TInterpolated>
+          InterpolatorWithTangents { get; private set; }
+
+
       public IReadOnlyList<Keyframe<TValue>> Keyframes { get; }
 
+      public void Set(ITrack<TValue, TInterpolated> other) {
+        this.Interpolator = other.Interpolator;
+        this.InterpolatorWithTangents = other.InterpolatorWithTangents;
+
+        foreach (var keyframe in other.Keyframes) {
+          this.Set(keyframe.Frame, keyframe.Value, keyframe.Tangent);
+        }
+      }
+
       public void Set(int frame, TValue t)
-        => this.SetImpl_(frame, t, Option.None<float>());
+        => this.SetImpl_(frame, t, Optional.None<float>());
 
       public void Set(int frame, TValue t, float tangent)
-        => this.SetImpl_(frame, t, Option.Some(tangent));
+        => this.SetImpl_(frame, t, Optional.Of(tangent));
 
-      private void SetImpl_(int frame, TValue t, Option<float> tangent) {
+      public void Set(int frame, TValue t, Optional<float> optionalTangent) {
+        if (optionalTangent.Try(out var tangent)) {
+          this.Set(frame, t, tangent);
+        } else {
+          this.Set(frame, t);
+        }
+      }
+
+      private void SetImpl_(int frame, TValue t, Optional<float> tangent) {
         this.FindIndexOfKeyframe(frame,
                                  out var keyframeIndex,
                                  out _,
@@ -126,7 +150,7 @@ namespace fin.model.impl {
         }
       }
 
-      public Option<Keyframe<TValue>> GetKeyframe(int frame) {
+      public Optional<Keyframe<TValue>> GetKeyframe(int frame) {
         this.FindIndexOfKeyframe(frame,
                                  out var keyframeIndex,
                                  out var value,
@@ -135,74 +159,66 @@ namespace fin.model.impl {
         if (this.keyframesAndValues_[keyframeIndex].Frame == frame) {
           return value;
         }
-        return Option.None<Keyframe<TValue>>();
+        return Optional.None<Keyframe<TValue>>();
       }
 
-      public Option<TInterpolated> GetInterpolatedFrame(
+      public Optional<TInterpolated> GetInterpolatedFrame(
           float frame,
-          Option<TValue> defaultValue) {
+          Optional<TValue> defaultValue) {
         this.FindIndexOfKeyframe((int) frame,
                                  out var fromKeyframeIndex,
                                  out var optionalFromKeyframe,
                                  out var keyframeDefined,
                                  out var pastEnd);
 
-        var optionalFromValue = optionalFromKeyframe.HasValue
-                                    ? Option.Some(
-                                        optionalFromKeyframe.ValueOrFailure()
-                                            .Value)
-                                    : defaultValue;
+        var hasFromValue = optionalFromKeyframe
+                           .Pluck(keyframe => keyframe.Value)
+                           .Or(defaultValue)
+                           .Try(out var fromValue);
 
-        if (!keyframeDefined && !defaultValue.HasValue) {
-          return Option.None<TInterpolated>();
+        if (!hasFromValue) {
+          return Optional.None<TInterpolated>();
         }
 
-        var fromValue = optionalFromValue.ValueOrFailure();
-        var hasFromTangent = optionalFromKeyframe.HasValue &&
-                             optionalFromKeyframe.ValueOrFailure()
-                                                 .Tangent.HasValue;
         var isLastKeyframe =
             fromKeyframeIndex == this.keyframesAndValues_.Count - 1;
 
         // TODO: Make this an option?
-        if (!keyframeDefined ||
-            pastEnd ||
-            isLastKeyframe) {
-          return Option.Some(
-              this.interpolator_(fromValue, fromValue, 0));
+        if (!keyframeDefined || pastEnd || isLastKeyframe) {
+          return Optional.Of(
+              this.Interpolator.Interpolate(fromValue, fromValue, 0));
         }
 
-        var (toKeyframeTime, toValue, toTangent) =
-            this.keyframesAndValues_[fromKeyframeIndex + 1];
+        var fromKeyframe =
+            optionalFromKeyframe.Assert("Keyframe should be defined here!");
+        var fromTime = fromKeyframe.Frame;
+        var hasFromTangent = fromKeyframe.Tangent.Try(out var fromTangent);
 
-        var fromKeyframe = optionalFromKeyframe.ValueOrFailure();
-        var fromKeyframeTime = fromKeyframe.Frame;
+        var toKeyframe = this.keyframesAndValues_[fromKeyframeIndex + 1];
+        var toValue = toKeyframe.Value;
+        var toTime = toKeyframe.Frame;
+        var hasToTangent = toKeyframe.Tangent.Try(out var toTangent);
 
-        var length = toKeyframeTime - fromKeyframeTime;
-        var progress = (frame - fromKeyframeTime) / length;
+        var duration = toTime - fromTime;
+        var progress = (frame - fromTime) / duration;
 
-        // TODO: Unfortunately, linear interpolation is way more accurate right
-        // now. What's going wrong here??
-        var useTangents = hasFromTangent && toTangent.HasValue;
-        return Option.Some(!useTangents
-                               ? this.interpolator_(fromValue!,
-                                                    toValue,
-                                                    progress)
-                               : this.interpolatorWithTangent_(
-                                   fromValue!,
-                                   optionalFromKeyframe.ValueOrFailure()
-                                       .Tangent.ValueOrFailure(),
-                                   toValue,
-                                   toTangent.ValueOrFailure(),
-                                   progress,
-                                   length));
+        var useTangents = hasFromTangent && hasToTangent;
+        return Optional.Of(
+            !useTangents
+                ? this.Interpolator.Interpolate(fromValue, toValue, progress)
+                : this.InterpolatorWithTangents.Interpolate(
+                    fromValue,
+                    fromTangent,
+                    toValue,
+                    toTangent,
+                    progress));
       }
 
       // TODO: Use a more efficient approach here, e.g. binary search.
       public void FindIndexOfKeyframe(
           int frame,
           out int keyframeIndex,
-          out Option<Keyframe<TValue>> keyframe,
+          out Optional<Keyframe<TValue>> keyframe,
           out bool keyframeDefined,
           out bool pastEnd) {
         var keyframeCount = this.keyframesAndValues_.Count;
@@ -211,7 +227,7 @@ namespace fin.model.impl {
 
           if (currentKeyframe.Frame <= frame) {
             keyframeIndex = i;
-            keyframe = Option.Some(currentKeyframe);
+            keyframe = Optional.Of(currentKeyframe);
             keyframeDefined = true;
             pastEnd = i == keyframeCount - 1;
             return;
@@ -219,7 +235,7 @@ namespace fin.model.impl {
         }
 
         keyframeIndex = keyframeCount;
-        keyframe = Option.None<Keyframe<TValue>>();
+        keyframe = Optional.None<Keyframe<TValue>>();
         keyframeDefined = false;
         pastEnd = true;
       }
@@ -230,10 +246,9 @@ namespace fin.model.impl {
         ScalarAxesTrack<TAxes, TAxis> : ScalarAxesTrack<TAxes, TAxis, TAxes> {
       public ScalarAxesTrack(
           int axisCount,
-          Option<TAxis> defaultValue,
-          TrackImpl<TAxis>.InterpolateValues axisInterpolator,
-          TrackImpl<TAxis>.InterpolateValuesWithTangent
-              axisInterpolatorWithTangent,
+          Optional<TAxis> defaultValue,
+          IInterpolator<TAxis> axisInterpolator,
+          IInterpolatorWithTangents<TAxis> axisInterpolatorWithTangent,
           MergeAxisListIntoInterpolated mergeAxisListIntoInterpolated)
           : base(axisCount,
                  defaultValue,
@@ -244,22 +259,21 @@ namespace fin.model.impl {
 
     public class ScalarAxesTrack<TAxes, TAxis, TInterpolated> :
         IAxesTrack<TAxis, TInterpolated> {
-      private readonly Option<TAxis> defaultValue_;
+      private readonly Optional<TAxis> defaultValue_;
 
       public delegate TInterpolated MergeAxisListIntoInterpolated(
           TAxis[] axisList);
 
-      private readonly TrackImpl<TAxis>[] axisTracks_;
+      private TrackImpl<TAxis>[] axisTracks_;
 
       private readonly MergeAxisListIntoInterpolated
           mergeAxisListIntoInterpolated_;
 
       public ScalarAxesTrack(
           int axisCount,
-          Option<TAxis> defaultValue,
-          TrackImpl<TAxis>.InterpolateValues axisInterpolator,
-          TrackImpl<TAxis>.InterpolateValuesWithTangent
-              axisInterpolatorWithTangent,
+          Optional<TAxis> defaultValue,
+          IInterpolator<TAxis> axisInterpolator,
+          IInterpolatorWithTangents<TAxis> axisInterpolatorWithTangent,
           MergeAxisListIntoInterpolated mergeAxisListIntoInterpolated) {
         this.axisTracks_ = new TrackImpl<TAxis>[axisCount];
         for (var i = 0; i < axisCount; ++i) {
@@ -268,9 +282,19 @@ namespace fin.model.impl {
                                    axisInterpolatorWithTangent);
         }
 
+        this.AxisTracks =
+            new ReadOnlyCollection<ITrack<TAxis>>(this.axisTracks_);
+
         this.defaultValue_ = defaultValue;
 
         this.mergeAxisListIntoInterpolated_ = mergeAxisListIntoInterpolated;
+      }
+
+      public void Set(IAxesTrack<TAxis, TInterpolated> other) {
+        var otherAxisTracks = other.AxisTracks;
+        for (var i = 0; i < otherAxisTracks.Count; ++i) {
+          this.axisTracks_[i].Set(otherAxisTracks[i]);
+        }
       }
 
       public void Set(int frame, int axis, TAxis value)
@@ -279,10 +303,25 @@ namespace fin.model.impl {
       public void Set(int frame, int axis, TAxis value, float tangent)
         => this.axisTracks_[axis].Set(frame, value, tangent);
 
-      public Option<Keyframe<TAxis>> GetKeyframe(int keyframe, int axis)
+      public void Set(
+          int frame,
+          int axis,
+          TAxis value,
+          Optional<float> optionalTangent) {
+        if (optionalTangent.Try(out var tangent)) {
+          this.Set(frame, axis, value, tangent);
+        } else {
+          this.Set(frame, axis, value);
+        }
+      }
+
+      public Optional<Keyframe<TAxis>> GetKeyframe(int keyframe, int axis)
         => this.axisTracks_[axis].GetKeyframe(keyframe);
 
-      public Option<Keyframe<TAxis>>[] GetAxisListAtKeyframe(int keyframe)
+
+      public IReadOnlyList<ITrack<TAxis>> AxisTracks { get; }
+
+      public Optional<Keyframe<TAxis>>[] GetAxisListAtKeyframe(int keyframe)
         => this.axisTracks_.Select(axis => axis.GetKeyframe(keyframe))
                .ToArray();
 
@@ -291,7 +330,7 @@ namespace fin.model.impl {
             this.axisTracks_.Select(
                 axis => axis.GetInterpolatedFrame(frame, this.defaultValue_));
         var axisList = optionAxisList
-                       .Select(axis => axis.ValueOrFailure(
+                       .Select(axis => axis.Assert(
                                    "Could not interpolate value for one of the axes!"))
                        .ToArray();
 
