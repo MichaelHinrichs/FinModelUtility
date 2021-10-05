@@ -25,7 +25,7 @@ namespace fin.model.impl {
             new ReadOnlyCollection<ITrack<float>>(this.axisTracks_);
       }
 
-      public IReadOnlyList<ITrack<float>> AxisTracks { get; } 
+      public IReadOnlyList<ITrack<float>> AxisTracks { get; }
 
       public void Set(IAxesTrack<float, Quaternion> other) {
         for (var i = 0; i < 3; ++i) {
@@ -70,7 +70,7 @@ namespace fin.model.impl {
         var keyframe = (int) frame;
 
         // TODO: Properly interpolate between first and final keyframe
-        xTrack.FindIndexOfKeyframe(keyframe,
+        /*xTrack.FindIndexOfKeyframe(keyframe,
                                    out var xKeyframeIndex,
                                    out var xRadiansKeyframe,
                                    out var xKeyframeDefined,
@@ -86,15 +86,27 @@ namespace fin.model.impl {
                                    out var zKeyframeDefined,
                                    out var zPastEnd);
 
-        var xRadians = xRadiansKeyframe.Pluck(keyframe => keyframe.Value)
+        var fromXRadians = xRadiansKeyframe.Pluck(keyframe => keyframe.Value)
                                        .Or(this.defaultRotation_)
                                        .Assert();
-        var yRadians = yRadiansKeyframe.Pluck(keyframe => keyframe.Value)
+        var fromYRadians = yRadiansKeyframe.Pluck(keyframe => keyframe.Value)
                                        .Or(this.defaultRotation_)
                                        .Assert();
-        var zRadians = zRadiansKeyframe.Pluck(keyframe => keyframe.Value)
+        var fromZRadians = zRadiansKeyframe.Pluck(keyframe => keyframe.Value)
                                        .Or(this.defaultRotation_)
                                        .Assert();
+
+        var xKeyframes = this.axisTracks_[0].Keyframes;
+        if (xKeyframeIndex < xKeyframes.Count) {
+
+        }*/
+
+        var xRadians =
+            xTrack.GetInterpolatedFrame(frame, this.defaultRotation_).Assert();
+        var yRadians =
+            yTrack.GetInterpolatedFrame(frame, this.defaultRotation_).Assert();
+        var zRadians =
+            zTrack.GetInterpolatedFrame(frame, this.defaultRotation_).Assert();
 
         return QuaternionUtil.Create(xRadians, yRadians, zRadians);
       }

@@ -11,6 +11,8 @@ namespace fin.io {
   }
 
   public interface IDirectory : IIoObject {
+    DirectoryInfo Info { get; }
+
     bool Create();
 
     IEnumerable<IDirectory> GetExistingSubdirs();
@@ -26,10 +28,15 @@ namespace fin.io {
   }
 
   public interface IFile : IIoObject {
+    FileInfo Info { get; }
+
     string Extension { get; }
     IFile CloneWithExtension(string newExtension);
 
     StreamReader ReadAsText();
     byte[] SkimAllBytes();
+
+    FileStream OpenRead();
+    FileStream OpenWrite();
   }
 }

@@ -4,15 +4,15 @@ using fin.util.asserts;
 
 namespace fin.io {
   public class FinFile : IFile {
-    private readonly FileInfo impl_;
+    public FinFile(FileInfo fileInfo) => this.Info = fileInfo;
+    public FinFile(string fullName) => this.Info = new FileInfo(fullName);
 
-    public FinFile(FileInfo fileInfo) => this.impl_ = fileInfo;
-    public FinFile(string fullName) => this.impl_ = new FileInfo(fullName);
+    public FileInfo Info { get; }
 
-    public string Name => this.impl_.Name;
-    public string FullName => this.impl_.FullName;
+    public string Name => this.Info.Name;
+    public string FullName => this.Info.FullName;
 
-    public string Extension => this.impl_.Extension;
+    public string Extension => this.Info.Extension;
 
     public IFile CloneWithExtension(string newExtension) {
       Asserts.True(newExtension.StartsWith("."),
@@ -29,10 +29,13 @@ namespace fin.io {
       return new FinFile(newFullName);
     }
 
-    public IDirectory? GetParent() => new FinDirectory(this.impl_.Directory);
-    public bool Exists => this.impl_.Exists;
+    public IDirectory? GetParent() => new FinDirectory(this.Info.Directory);
+    public bool Exists => this.Info.Exists;
 
     public StreamReader ReadAsText() => File.OpenText(this.FullName);
     public byte[] SkimAllBytes() => File.ReadAllBytes(this.FullName);
+
+    public FileStream OpenRead() => File.OpenRead(this.FullName);
+    public FileStream OpenWrite() => File.OpenWrite(this.FullName);
   }
 }

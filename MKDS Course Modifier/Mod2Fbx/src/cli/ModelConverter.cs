@@ -187,6 +187,8 @@ namespace mod.cli {
       return model;
     }
 
+    public static Dictionary<int, int> ENVELOPE_COUNTS_ = new();
+
     private static void AddMesh_(
         Mod mod,
         Mesh mesh,
@@ -228,32 +230,47 @@ namespace mod.cli {
                   var unused = reader.ReadU8();
 
                   if (attr == Vtx.PosMatIdx) {
-                    // TODO: Handle -1?
-                    var remappedBoneIndex =
-                        (int) (1 + meshPacket.indices[(unused / 3)]);
+                    Asserts.Equal(0, unused % 3);
+                    var attachmentIndex =
+                        (short) meshPacket.indices[(unused / 3)];
 
+                    var boneIndex = 1 + attachmentIndex;
+                    
                     var boneCount = bones.Length;
+                    var envelopeIndex = boneIndex - boneCount;
+
                     // If the remapped index is small enough, it's just a bone
-                    if (remappedBoneIndex < boneCount) {
+                    if (boneIndex < boneCount) {
                       var vertexWeights = new VertexWeights();
                       vertexWeights.boneWeights.Add(
-                          new BoneWeight(bones[remappedBoneIndex],
+                          new BoneWeight(bones[boneIndex],
                                          new FinMatrix4x4().SetIdentity(),
                                          1));
                       allVertexWeights.Add(vertexWeights);
                     }
                     // Otherwise, it seems to be an envelope?
-                    else {
+                    else if (attachmentIndex != -1) {
+                      ModelConverter.ENVELOPE_COUNTS_.TryGetValue(envelopeIndex, out var count);
+                      ModelConverter.ENVELOPE_COUNTS_[envelopeIndex] = count + 1;
+
                       var vertexWeights = new VertexWeights();
 
-                      var envelope =
-                          mod.envelopes[remappedBoneIndex - boneCount];
+                      var envelope = mod.envelopes[envelopeIndex];
                       for (var w = 0; w < envelope.weights.Count; ++w) {
                         vertexWeights.boneWeights.Add(
                             new BoneWeight(bones[envelope.indices[w]],
                                            new FinMatrix4x4().SetIdentity(),
                                            envelope.weights[w]));
                       }
+
+                      allVertexWeights.Add(vertexWeights);
+                    } else {
+                      var vertexWeights = new VertexWeights();
+
+                      vertexWeights.boneWeights.Add(
+                          new BoneWeight(model.Skeleton.Root,
+                                         new FinMatrix4x4().SetIdentity(),
+                                         1));
 
                       allVertexWeights.Add(vertexWeights);
                     }

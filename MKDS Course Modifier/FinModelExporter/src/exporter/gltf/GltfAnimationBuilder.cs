@@ -51,6 +51,8 @@ namespace fin.exporter.gltf {
           if (boneTracks.Positions.GetAxisListAtKeyframe(0)
                         .Any(axis => axis.Pluck(keyframe => keyframe.Tangent)
                                          .HasValue)) {
+
+            var u = boneTracks.Rotations.AxisTracks[0].Keyframes;
             ;
           }
 

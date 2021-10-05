@@ -68,11 +68,13 @@ namespace mod.gcn {
         imageFormat = new Rgb565(this.imageData, this.width, this.height);
       } else if (format == TextureFormat.CMPR) {
         imageFormat = new Cmpr(this.imageData, this.width, this.height);
+      } else if (format == TextureFormat.I4) {
+        imageFormat = new I4(this.imageData, this.width, this.height);
       } else {
-        //Assert.Fail($"Unsupported type: {format}");
+        Assert.Fail($"Unsupported type: {format}");
       }
 
-      return imageFormat?.Image ?? new Bitmap(4, 4);
+      return imageFormat.Image;
     }
   }
 

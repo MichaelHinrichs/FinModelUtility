@@ -49,7 +49,6 @@
               // TODO: Unfortunately, linear interpolation is way more accurate
               // right now.
               // What's going wrong here??
-
               return fromValue * (1 - progress) + toValue * progress;
 
               var v1 = fromValue;
