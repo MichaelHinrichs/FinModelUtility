@@ -40,8 +40,17 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
     set modelName=!localDir!
   )
 
+  set isTitles=
+  if "!localDir!"=="dataDir\cinemas\titles" (
+    set isTitles=1
+  )
+  
+  if defined isTitles (
+    echo dataDir\cinemas\titles is not currently supported, it's absolutely enormous.
+  )
+
   :: Merges models + animations w/ automatic inputs
-  if defined modelName (
+  if not defined isTitles if defined modelName (
     set modelBasePath=%outBasePath%!localDir!
 
     >nul 2>nul dir /a-d "!modelBasePath!\*" && (set isModelProcessed=1) || (set isModelProcessed=)

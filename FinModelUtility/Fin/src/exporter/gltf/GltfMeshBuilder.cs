@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Text;
 
 using fin.math;
 using fin.model;
 using fin.model.impl;
-using fin.util.asserts;
 
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;

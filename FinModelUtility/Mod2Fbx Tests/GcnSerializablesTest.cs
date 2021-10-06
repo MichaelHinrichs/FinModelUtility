@@ -125,7 +125,7 @@ namespace mod.gcn {
       var texture = new Texture {
           width = 1,
           height = 2,
-          format = 3,
+          format = (Texture.TextureFormat) 3,
           unknown = 4,
       };
       texture.imageData.Add(5);
