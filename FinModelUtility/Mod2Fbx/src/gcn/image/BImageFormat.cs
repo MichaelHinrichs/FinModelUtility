@@ -31,6 +31,26 @@ namespace mod.gcn.image {
       this.LoadImage_(rawData);
     }
 
+    public BImageFormat(
+        IList<byte> rawData,
+        int imageWidth,
+        int imageHeight,
+        int blockWidth,
+        int blockHeight,
+        int bitsPerPixel) {
+      this.imageWidth_ = imageWidth;
+      this.imageHeight_ = imageHeight;
+      this.blockWidth_ = blockWidth;
+      this.blockHeight_ = blockHeight;
+      this.bitsPerPixel_ = bitsPerPixel;
+      
+      this.blockSize_ = (int) (blockWidth * blockHeight * (bitsPerPixel / 8f));
+
+      this.Image = new Bitmap(imageWidth, imageHeight);
+
+      this.LoadImage_(rawData);
+    }
+
     public Bitmap Image { get; }
 
     protected abstract IColor[] DecodeBlock(IList<byte> block, int position);

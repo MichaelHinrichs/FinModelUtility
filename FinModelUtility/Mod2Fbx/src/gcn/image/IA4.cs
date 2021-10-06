@@ -13,7 +13,6 @@ namespace mod.gcn.image {
         imageHeight,
         8,
         4,
-        32,
         8) { }
 
     protected override IColor[] DecodeBlock(IList<byte> block, int position) {

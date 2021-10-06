@@ -24,7 +24,7 @@ namespace mod.gcn {
       I8 = 4,
       IA4 = 5,
       IA8 = 6,
-      RGBA32 = 8,
+      RGBA32 = 7,
     }
 
     public string Name => "texture" + this.index + "_" + this.format;
@@ -78,6 +78,8 @@ namespace mod.gcn {
         imageFormat = new IA4(this.imageData, this.width, this.height);
       } else if (this.format == TextureFormat.IA8) {
         imageFormat = new IA8(this.imageData, this.width, this.height);
+      } else if (this.format == TextureFormat.RGBA32) {
+        imageFormat = new Rgba32(this.imageData, this.width, this.height);
       } else {
         Asserts.Fail($"Unsupported type: {this.format}");
       }
