@@ -40,7 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FinModelExporter\Fin.csproj" />
+    <ProjectReference Include="..\Fin\Fin.csproj" />
   </ItemGroup>
 
 </Project>

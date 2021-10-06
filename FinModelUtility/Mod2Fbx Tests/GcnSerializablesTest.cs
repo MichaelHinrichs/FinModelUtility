@@ -1,5 +1,7 @@
 using System.IO;
 
+using mod.gcn.collision;
+
 using NUnit.Framework;
 
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;

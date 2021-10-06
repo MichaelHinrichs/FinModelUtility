@@ -122,8 +122,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Bmd2Gltf\Bmd2Gltf.csproj" />
-    <ProjectReference Include="..\FinModelExporter\Fin.csproj" />
+    <ProjectReference Include="..\Bmd2Fbx\Bmd2Fbx.csproj" />
+    <ProjectReference Include="..\Fin\Fin.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="MKDS_Course_Modifier\AngleAltitudeControls\AngleAltitudeSelector.cs">

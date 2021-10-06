@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FinModelExporter\Fin.csproj" />
+    <ProjectReference Include="..\Fin\Fin.csproj" />
     <ProjectReference Include="..\Mod2Fbx\Mod2Fbx.csproj" />
   </ItemGroup>
 
