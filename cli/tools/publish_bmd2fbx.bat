@@ -11,7 +11,7 @@ echo Deleting old bmd2fbx...
 del /q "!bmd2fbxBasePath!*"
 
 echo Building new bmd2fbx...
-cd ../
+cd ../../
 cd "FinModelUtility\Bmd2Fbx\"
 
 dotnet publish -c Release

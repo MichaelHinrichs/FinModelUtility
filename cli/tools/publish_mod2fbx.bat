@@ -11,7 +11,7 @@ echo Deleting old mod2fbx...
 del /q "!mod2fbxBasePath!*"
 
 echo Building new mod2fbx...
-cd ../
+cd ../../
 cd "FinModelUtility\Mod2Fbx\"
 
 dotnet publish -c Release

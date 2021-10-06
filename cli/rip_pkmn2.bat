@@ -2,8 +2,8 @@
 setlocal EnableDelayedExpansion
 
 set outBasePath=%~dp0%out\pkmn2\
-set bmd2fbxBasePath=%~dp0%bmd2fbx\
-set szstoolsBasePath=%~dp0%szstools\
+set bmd2fbxBasePath=%~dp0%tools\bmd2fbx\
+set szstoolsBasePath=%~dp0%tools\szstools\
 
 :: TODO: Take this as an arg.
 set romPath=roms\pkmn2.gcm
