@@ -16,7 +16,7 @@ namespace fin.exporter.assimp.indirect {
         // Animations are SUPER slow, we need to speed them way up!
         {
           // Not entirely sure why this is right...
-          var animationSpeedup = 2 / assAnimation.DurationInTicks;
+          var animationSpeedup = .001;
 
           // TODO: Include tangents from the animation file.
           foreach (var channel in assAnimation.NodeAnimationChannels) {

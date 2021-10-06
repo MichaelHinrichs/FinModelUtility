@@ -102,7 +102,7 @@ namespace mod.cli {
               @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\tekis\beatle\beatle.anm")
       };*/
 
-      Args.Automatic = true;
+      /*Args.Automatic = true;
       Args.GetFromDirectory(new FinDirectory(
                                 @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\bosses\kogane\"),
                             out outputDirectory,
@@ -130,12 +130,13 @@ namespace mod.cli {
       anmFile = new FinFile(
           @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\tekis\frog\frog.anm");*/
 
-      /*Args.GetFromDirectory(
+      Args.Automatic = true;
+      Args.GetFromDirectory(
           new FinDirectory(
               @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\tekis\chappy\"),
           out outputDirectory,
-          out var modFile,
-          out var anmFile);*/
+          out modFiles,
+          out anmFiles);
 
       /*modFiles = new[] {modFile};
 

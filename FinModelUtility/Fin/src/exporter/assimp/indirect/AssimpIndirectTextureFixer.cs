@@ -22,8 +22,10 @@ namespace fin.exporter.assimp.indirect {
         }
       }
 
+      var originalMaterialOrder =
+          sc.Materials.Select(material => material.Name).ToArray();
+
       sc.Textures.Clear();
-      sc.Materials.Clear();
 
       foreach (var finTexture in finTextures) {
         var imageData = finTexture.ImageData;
@@ -40,7 +42,17 @@ namespace fin.exporter.assimp.indirect {
         sc.Textures.Add(assTexture);
       }
 
-      foreach (var finMaterial in model.MaterialManager.All) {
+      // Need to keep order the same because Assimp references them by index.
+      for (var m = 0; m < originalMaterialOrder.Length; ++m) {
+        var originalMaterialName = originalMaterialOrder[m];
+        var finMaterial =
+            model.MaterialManager.All
+                 .FirstOrDefault(finMaterial => finMaterial.Name == originalMaterialName);
+
+        if (finMaterial == null) {
+          continue;
+        }
+        
         var assMaterial = new Material {Name = finMaterial.Name};
 
         if (finMaterial is ILayerMaterial layerMaterial) {
@@ -97,7 +109,7 @@ namespace fin.exporter.assimp.indirect {
           }
 
           // Meshes should already have material indices set.
-          sc.Materials.Add(assMaterial);
+          sc.Materials[m] = assMaterial;
         } else if (finMaterial is ITextureMaterial textureMaterial) {
           var finTexture = textureMaterial.Texture;
           var assTextureSlot = new TextureSlot {
@@ -113,7 +125,7 @@ namespace fin.exporter.assimp.indirect {
           assMaterial.AddMaterialTexture(assTextureSlot);
 
           // Meshes should already have material indices set.
-          sc.Materials.Add(assMaterial);
+          sc.Materials[m] = assMaterial;
         }
       }
     }
