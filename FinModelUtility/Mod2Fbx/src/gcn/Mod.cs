@@ -118,6 +118,9 @@ namespace mod.gcn {
             break;
           case ChunkId.TEXTURES:
             Mod.ReadGenericChunk_(reader, this.textures);
+            for (var i = 0; i < this.textures.Count; ++i) {
+              this.textures[i].index = i;
+            }
             break;
           case ChunkId.TEXTURE_ATTRIBUTES:
             Mod.ReadGenericChunk_(reader, this.texattrs);

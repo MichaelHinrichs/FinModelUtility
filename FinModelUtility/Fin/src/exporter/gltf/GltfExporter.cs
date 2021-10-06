@@ -70,7 +70,7 @@ namespace fin.exporter.gltf {
       {
         foreach (var finMaterial in model.MaterialManager.All) {
           var gltfMaterial = new MaterialBuilder(finMaterial.Name)
-                             .WithDoubleSide(true)
+                             .WithDoubleSide(false)
                              .WithSpecularGlossinessShader()
                              .WithSpecularGlossiness(new Vector3(0), 0);
 

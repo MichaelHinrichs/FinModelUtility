@@ -32,7 +32,7 @@ namespace mod.cli {
           string.Join('\n', Args.AnmFiles));
 
       var multipleModelsWithAnimationInAutomatic =
-          !Args.Automatic || (Args.ModFiles.Count == 1 || !Args.AnmFiles.Any());
+          Args.Automatic && Args.ModFiles.Count > 1 && Args.AnmFiles.Any();
       if (multipleModelsWithAnimationInAutomatic) {
         logger.LogWarning(
             "While automatically gathering files for a directory, found " +
@@ -95,7 +95,7 @@ namespace mod.cli {
           var texture = mod.textures[i];
           texture.ToBitmap()
                  .Save(Path.Combine(outputDirectory.FullName,
-                                    "texture" + i + ".png"));
+                                    $"{texture.Name}.png"));
         }
       }
 

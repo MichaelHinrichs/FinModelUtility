@@ -2,15 +2,17 @@
 using System.Drawing;
 using System.IO;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using fin.util.asserts;
 
 using mod.gcn.image;
 
 namespace mod.gcn {
   public class Texture : IGcnSerializable {
+    public int index;
+
     public ushort width = 0;
     public ushort height = 0;
-    public uint format = 0;
+    public TextureFormat format = 0;
     public uint unknown = 0;
     public readonly List<byte> imageData = new();
 
@@ -25,10 +27,12 @@ namespace mod.gcn {
       RGBA32 = 8,
     }
 
+    public string Name => "texture" + this.index + "_" + this.format;
+
     public void Read(EndianBinaryReader reader) {
       this.width = reader.ReadUInt16();
       this.height = reader.ReadUInt16();
-      this.format = reader.ReadUInt32();
+      this.format = (TextureFormat) reader.ReadUInt32();
       this.unknown = reader.ReadUInt32();
 
       for (var i = 0; i < 4; i++) {
@@ -45,7 +49,7 @@ namespace mod.gcn {
     public void Write(EndianBinaryWriter writer) {
       writer.Write(this.width);
       writer.Write(this.height);
-      writer.Write(this.format);
+      writer.Write((uint) this.format);
       writer.Write(this.unknown);
 
       for (var i = 0; i < 4; i++) {
@@ -59,21 +63,23 @@ namespace mod.gcn {
     }
 
     public Bitmap ToBitmap() {
-      var format = (TextureFormat) this.format;
-
       BImageFormat? imageFormat = null;
-      if (format == TextureFormat.RGB5A3) {
+      if (this.format == TextureFormat.RGB5A3) {
         imageFormat = new Rgb5A3(this.imageData, this.width, this.height);
-      } else if (format == TextureFormat.RGB565) {
+      } else if (this.format == TextureFormat.RGB565) {
         imageFormat = new Rgb565(this.imageData, this.width, this.height);
-      } else if (format == TextureFormat.CMPR) {
+      } else if (this.format == TextureFormat.CMPR) {
         imageFormat = new Cmpr(this.imageData, this.width, this.height);
-      } else if (format == TextureFormat.I4) {
+      } else if (this.format == TextureFormat.I4) {
         imageFormat = new I4(this.imageData, this.width, this.height);
-      } else if (format == TextureFormat.IA8) {
+      } else if (this.format == TextureFormat.I8) {
+        imageFormat = new I8(this.imageData, this.width, this.height);
+      } else if (this.format == TextureFormat.IA4) {
+        imageFormat = new IA4(this.imageData, this.width, this.height);
+      } else if (this.format == TextureFormat.IA8) {
         imageFormat = new IA8(this.imageData, this.width, this.height);
       } else {
-        Assert.Fail($"Unsupported type: {format}");
+        Asserts.Fail($"Unsupported type: {this.format}");
       }
 
       return imageFormat.Image;

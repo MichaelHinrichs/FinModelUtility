@@ -78,7 +78,7 @@ namespace mod.cli {
 
         var finTexture =
             model.MaterialManager.CreateTexture(bitmap);
-        finTexture.Name = $"texture {i}";
+        finTexture.Name = texture.Name;
 
         var textureAttr = mod.texattrs[i];
 
@@ -178,7 +178,7 @@ namespace mod.cli {
       }
 
       // Writes animations
-      for (var d = 0; d < anm.Dcxes.Count; d++) {
+      for (var d = 0; d < (anm?.Dcxes.Count ?? 0); d++) {
         var dcx = anm.Dcxes[d];
         var animation = model.AnimationManager.AddAnimation();
 

@@ -41,7 +41,7 @@ namespace fin.exporter.gltf {
       var outNormal = new ModelImpl.NormalImpl();
 
       var nullMaterialBuilder =
-          new MaterialBuilder("null").WithDoubleSide(true)
+          new MaterialBuilder("null").WithDoubleSide(false)
                                      .WithSpecularGlossiness();
 
       foreach (var primitive in skin.Primitives) {
@@ -123,9 +123,12 @@ namespace fin.exporter.gltf {
             var triangles =
                 meshBuilder.UsePrimitive(materialBuilder, 3);
             for (var v = 0; v < pointsCount; v += 3) {
-              triangles.AddTriangle(vertices[v + 0],
-                                    vertices[v + 1],
-                                    vertices[v + 2]);
+              var v1 = vertices[v + 0];
+              var v2 = vertices[v + 1];
+              var v3 = vertices[v + 2];
+
+              // Intentionally flipped to fix bug where faces were backwards.
+              triangles.AddTriangle(v1, v3, v2);
             }
             break;
           }
@@ -133,17 +136,21 @@ namespace fin.exporter.gltf {
             var triangleStrip =
                 meshBuilder.UsePrimitive(materialBuilder, 3);
             for (var v = 0; v < pointsCount - 2; ++v) {
+              VERTEX v1, v2, v3;
               if (v % 2 == 0) {
-                triangleStrip.AddTriangle(vertices[v + 0],
-                                          vertices[v + 1],
-                                          vertices[v + 2]);
+                v1 = vertices[v + 0];
+                v2 = vertices[v + 1];
+                v3 = vertices[v + 2];
               } else {
                 // Switches drawing order to maintain proper winding:
                 // https://www.khronos.org/opengl/wiki/Primitive
-                triangleStrip.AddTriangle(vertices[v + 1],
-                                          vertices[v + 0],
-                                          vertices[v + 2]);
+                v1 = vertices[v + 1];
+                v2 = vertices[v + 0];
+                v3 = vertices[v + 2];
               }
+
+              // Intentionally flipped to fix bug where faces were backwards.
+              triangleStrip.AddTriangle(v1, v3, v2);
             }
             break;
           }
@@ -155,9 +162,12 @@ namespace fin.exporter.gltf {
             var firstVertex = vertices[0];
             var previousVertex = vertices[1];
             for (var v = 2; v < pointsCount; ++v) {
-              triangleStrip.AddTriangle(firstVertex,
-                                        previousVertex,
-                                        vertices[v]);
+              var v1 = firstVertex;
+              var v2 = previousVertex;
+              var v3 = vertices[v];
+
+              // Intentionally flipped to fix bug where faces were backwards.
+              triangleStrip.AddTriangle(v1, v3, v2);
             }
             break;
           }

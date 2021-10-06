@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
-using fin.math;
+
 using fin.model;
 
 namespace mod.gcn.image {

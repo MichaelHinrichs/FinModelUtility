@@ -92,9 +92,9 @@ namespace fin.math {
         outPosition.Z = localPosition.Z;
 
         if (outNormal != null && localNormal != null) {
-          outNormal.X = -localNormal.X;
-          outNormal.Y = -localNormal.Y;
-          outNormal.Z = -localNormal.Z;
+          outNormal.X = localNormal.X;
+          outNormal.Y = localNormal.Y;
+          outNormal.Z = localNormal.Z;
         }
         return;
       }
@@ -134,9 +134,9 @@ namespace fin.math {
 
         // All of the normals are inside-out for some reason, we have to flip
         // them manually.
-        outNormal.X = (float) -nX;
-        outNormal.Y = (float) -nY;
-        outNormal.Z = (float) -nZ;
+        outNormal.X = (float) nX;
+        outNormal.Y = (float) nY;
+        outNormal.Z = (float) nZ;
       }
 
       this.transformer_.Pop();

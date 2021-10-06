@@ -16,6 +16,7 @@
     <PublishSingleFile>true</PublishSingleFile>
     <PublishTrimmed>true</PublishTrimmed>
     <Product>mod2fbx</Product>
+    <AssemblyName>mod2fbx</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

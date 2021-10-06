@@ -85,7 +85,7 @@ namespace mod.cli {
 
     private static IDirectory GetOutputDirectory_(string name) {
       var basePath = "R:/Documents/CSharpWorkspace/Pikmin2Utility/";
-      return new FinDirectory($"{basePath}cli/out/pkmn2/{name}/");
+      return new FinDirectory($"{basePath}cli/out/pkmn1/{name}/");
     }
 
     public static void GetForTesting(
@@ -93,11 +93,11 @@ namespace mod.cli {
         out IList<IFile> modFiles,
         out IList<IFile> anmFiles) {
       outputDirectory = Args.GetOutputDirectory_("beatle");
-      modFiles = new[] {
+      modFiles = new IFile[] {
           new FinFile(
               @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\tekis\beatle\beatle.mod")
       };
-      anmFiles = new[] {
+      anmFiles = new IFile[] {
           new FinFile(
               @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\tekis\beatle\beatle.anm")
       };
