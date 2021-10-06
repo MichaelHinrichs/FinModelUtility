@@ -1,7 +1,7 @@
 @echo off 
 setlocal EnableDelayedExpansion
 
-set outBasePath=%~dp0%out\
+set outBasePath=%~dp0%out\pkmn2\
 set bmd2fbxBasePath=%~dp0%bmd2fbx\
 set szstoolsBasePath=%~dp0%szstools\
 
