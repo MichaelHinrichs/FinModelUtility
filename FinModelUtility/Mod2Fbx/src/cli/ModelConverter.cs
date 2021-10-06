@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 
@@ -32,14 +33,15 @@ namespace mod.cli {
       POINTS = 0xb8,
     }
 
-    // TODO: Look into these more, surely there's a clamp?
     public enum TilingMode {
-      MIRROR_REPEAT = 1,
-      REPEAT = 2,
+      REPEAT = 0,
+      CLAMP = 1,
+      MIRROR_REPEAT = 2,
     }
 
     public static WrapMode ConvertGcnToFin(TilingMode tilingMode)
       => tilingMode switch {
+          TilingMode.CLAMP         => WrapMode.CLAMP,
           TilingMode.MIRROR_REPEAT => WrapMode.MIRROR_REPEAT,
           _                        => WrapMode.REPEAT,
       };
@@ -72,16 +74,18 @@ namespace mod.cli {
       }*/
 
       // Writes textures
-      var finTextures = new List<ITexture>();
-      for (var i = 0; i < mod.textures.Count; ++i) {
-        var texture = mod.textures[i];
+      var finTexturesAndAttrs =
+          new (ITexture, TextureAttributes)[mod.texattrs.Count];
+      for (var i = 0; i < mod.texattrs.Count; ++i) {
+        var textureAttr = mod.texattrs[i];
+
+        var textureIndex = textureAttr.index;
+        var texture = mod.textures[textureIndex];
         var bitmap = texture.ToBitmap();
 
         var finTexture =
             model.MaterialManager.CreateTexture(bitmap);
-        finTexture.Name = texture.Name;
-
-        var textureAttr = mod.texattrs[i];
+        finTexture.Name = $"texattr {i}";
 
         // TODO: These might be backwards
         var tilingS =
@@ -99,21 +103,31 @@ namespace mod.cli {
         finTexture.WrapModeV = ModelConverter.ConvertGcnToFin(tilingT);
         // TODO: Set attributes
 
-        finTextures.Add(finTexture);
+        finTexturesAndAttrs[i] = (finTexture, textureAttr);
       }
 
       // Writes materials
       var finMaterials = new List<IMaterial>();
       for (var i = 0; i < mod.materials.materials.Count; ++i) {
         var material = mod.materials.materials[i];
-        var textureIndex = (int) material.unknown1;
+        
+        ITexture? finTexture = null;
+        
+        var texturesInMaterial = material.texInfo.unknown4;
+        if (texturesInMaterial.Count > 0) {
+          var textureInMaterial = texturesInMaterial[0];
 
-        // TODO: -1 seems to be a material without a color. But what does it mean if it's past the end of the texture array?
-        IMaterial finMaterial =
-            textureIndex >= 0 && textureIndex < finTextures.Count
-                ? model.MaterialManager.AddTextureMaterial(
-                    finTextures[textureIndex])
-                : model.MaterialManager.AddLayerMaterial();
+          var texAttrIndex = textureInMaterial.unknown1;
+          TextureAttributes texAttr;
+          (finTexture, texAttr) = finTexturesAndAttrs[texAttrIndex];
+
+          ;
+        }
+
+        IMaterial finMaterial = finTexture != null
+                                    ? model.MaterialManager.AddTextureMaterial(
+                                        finTexture)
+                                    : model.MaterialManager.AddLayerMaterial();
 
         finMaterial.Name = $"material {i}";
         finMaterials.Add(finMaterial);
@@ -235,6 +249,7 @@ namespace mod.cli {
             var positionIndices = new List<ushort>();
             var allVertexWeights = new List<VertexWeights>();
             var normalIndices = new List<ushort>();
+            var color0Indices = new List<ushort>();
 
             var texCoordIndices = new List<ushort>[8];
             for (var t = 0; t < 8; ++t) {
@@ -317,6 +332,8 @@ namespace mod.cli {
                   positionIndices.Add(ModelConverter.Read_(reader, format));
                 } else if (attr == Vtx.Normal) {
                   normalIndices.Add(ModelConverter.Read_(reader, format));
+                } else if (attr == Vtx.Color0) {
+                  color0Indices.Add(ModelConverter.Read_(reader, format));
                 } else if (attr is >= Vtx.Tex0Coord and <= Vtx.Tex7Coord) {
                   texCoordIndices[attr - Vtx.Tex0Coord]
                       .Add(ModelConverter.Read_(reader, format));
@@ -350,17 +367,22 @@ namespace mod.cli {
                 finVertex.SetLocalNormal(normal.X, normal.Y, normal.Z);
               }
 
+              if (color0Indices.Count > 0) {
+                var color = mod.vcolours[color0Indices[v]];
+                finVertex.SetColorBytes(color.R, color.G, color.B, color.A);
+              } else {
+                finVertex.SetColorBytes(currentColor.Rb,
+                                        currentColor.Gb,
+                                        currentColor.Bb,
+                                        currentColor.Ab);
+              }
+
               for (var t = 0; t < 8; ++t) {
                 if (texCoordIndices[t].Count > 0) {
                   var texCoord = mod.texcoords[t][texCoordIndices[t][v]];
                   finVertex.SetUv(t, texCoord.X, texCoord.Y);
                 }
               }
-
-              finVertex.SetColorBytes(currentColor.Rb,
-                                      currentColor.Gb,
-                                      currentColor.Bb,
-                                      currentColor.Ab);
 
               finVertexList.Add(finVertex);
             }
