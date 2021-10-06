@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Mod2Fbx": {
+      "commandName": "Project",
+      "commandLineArgs": "debug --verbose"
+    }
+  }
+}

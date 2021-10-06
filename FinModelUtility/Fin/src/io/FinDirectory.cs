@@ -85,5 +85,7 @@ namespace fin.io {
         throw new Exception($"Expected to find {path}", e);
       }
     }
+
+    public override string ToString() => this.FullName;
   }
 }

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 
-using fin.math;
 using fin.model;
 using fin.model.impl;
 

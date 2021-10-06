@@ -37,5 +37,7 @@ namespace fin.io {
 
     public FileStream OpenRead() => File.OpenRead(this.FullName);
     public FileStream OpenWrite() => File.OpenWrite(this.FullName);
+
+    public override string ToString() => this.FullName;
   }
 }

@@ -33,7 +33,7 @@ namespace bmd.cli {
         HelpText = "Convert GCN model with manually-specified input files.")]
   public class ManualOptions : BConversionOptions {
     [Option("bmd",
-            HelpText = "Path to an input .bmd model.",
+            HelpText = "Path(s) to input .bmd models.",
             Required = true,
             Min = 1)]
     public IEnumerable<string> BmdPaths { get; set; }

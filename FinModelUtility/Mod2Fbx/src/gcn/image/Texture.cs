@@ -70,6 +70,8 @@ namespace mod.gcn {
         imageFormat = new Cmpr(this.imageData, this.width, this.height);
       } else if (format == TextureFormat.I4) {
         imageFormat = new I4(this.imageData, this.width, this.height);
+      } else if (format == TextureFormat.IA8) {
+        imageFormat = new IA8(this.imageData, this.width, this.height);
       } else {
         Assert.Fail($"Unsupported type: {format}");
       }
