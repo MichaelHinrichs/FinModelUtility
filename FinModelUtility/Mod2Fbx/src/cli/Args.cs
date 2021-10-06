@@ -92,7 +92,7 @@ namespace mod.cli {
         out IDirectory outputDirectory,
         out IList<IFile> modFiles,
         out IList<IFile> anmFiles) {
-      outputDirectory = Args.GetOutputDirectory_("beatle");
+      /*outputDirectory = Args.GetOutputDirectory_("beatle");
       modFiles = new IFile[] {
           new FinFile(
               @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\tekis\beatle\beatle.mod")
@@ -100,18 +100,50 @@ namespace mod.cli {
       anmFiles = new IFile[] {
           new FinFile(
               @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\tekis\beatle\beatle.anm")
+      };*/
+
+      Args.Automatic = true;
+      Args.GetFromDirectory(new FinDirectory(
+                                @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\bosses\kogane\"),
+                            out outputDirectory,
+                            out modFiles,
+                            out anmFiles);
+
+      /*outputDirectory = Args.GetOutputDirectory_("kingback");
+      var modFile = new FinFile(
+          @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\bosses\kingback\se_col.mod");
+      IFile anmFile = null;
+      //new FinFile(@"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\bosses\kingback\kingback.anm");
+
+      /*outputDirectory = Args.GetOutputDirectory_("logo");
+      modFiles = new IFile[] {
+          new FinFile(
+              @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\cinemas\titles\logo.mod")
       };
+      anmFiles = new IFile[] {
+          new FinFile(
+              @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\cinemas\titles\logo.anm")
+      };*/
 
       /*modFile = new FinFile(
           @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\tekis\frog\frog.mod");
       anmFile = new FinFile(
-          @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\tekis\frog\frog.anm");
+          @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\tekis\frog\frog.anm");*/
 
-      /*Program.GetFromDirectory(
+      /*Args.GetFromDirectory(
           new FinDirectory(
               @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\tekis\chappy\"),
-          out modFile,
-          out anmFile);
+          out outputDirectory,
+          out var modFile,
+          out var anmFile);*/
+
+      /*modFiles = new[] {modFile};
+
+      if (anmFile != null) {
+        anmFiles = new[] {anmFile};
+      } else {
+        anmFiles = new List<IFile>();
+      }*/
 
       /*Program.GetFromDirectory(
           new FinDirectory(
@@ -126,7 +158,7 @@ namespace mod.cli {
           out anmFile);*/
     }
 
-    public static void GetFromDirectory(
+    public static void GetOneFromDirectory(
         IDirectory directory,
         out IDirectory outputDirectory,
         out IFile modFile,
@@ -138,6 +170,17 @@ namespace mod.cli {
       var anmFiles = Files.GetFilesWithExtension(directory.Info, "anm");
       Asserts.True(anmFiles.Length <= 1, "Found more than one anm file!");
       anmFile = anmFiles[0];
+    }
+
+    public static void GetFromDirectory(
+        IDirectory directory,
+        out IDirectory outputDirectory,
+        out IList<IFile> modFiles,
+        out IList<IFile> anmFiles) {
+      outputDirectory = Args.GetOutputDirectory_(directory.Name);
+
+      modFiles = Files.GetFilesWithExtension(directory.Info, "mod");
+      anmFiles = Files.GetFilesWithExtension(directory.Info, "anm");
     }
   }
 }

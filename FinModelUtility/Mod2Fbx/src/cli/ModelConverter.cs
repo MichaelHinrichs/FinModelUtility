@@ -107,10 +107,12 @@ namespace mod.cli {
         var material = mod.materials.materials[i];
         var textureIndex = (int) material.unknown1;
 
-        IMaterial finMaterial = textureIndex != -1
-                                    ? model.MaterialManager.AddTextureMaterial(
-                                        finTextures[textureIndex])
-                                    : model.MaterialManager.AddLayerMaterial();
+        // TODO: -1 seems to be a material without a color. But what does it mean if it's past the end of the texture array?
+        IMaterial finMaterial =
+            textureIndex >= 0 && textureIndex < finTextures.Count
+                ? model.MaterialManager.AddTextureMaterial(
+                    finTextures[textureIndex])
+                : model.MaterialManager.AddLayerMaterial();
 
         finMaterial.Name = $"material {i}";
         finMaterials.Add(finMaterial);
@@ -332,10 +334,17 @@ namespace mod.cli {
               var finVertex =
                   model.Skin.AddVertex(position.X, position.Y, position.Z);
 
-              finVertex.SetBones(allVertexWeights[v].boneWeights.ToArray());
-              finVertex.Preproject = allVertexWeights[v].Preproject;
+              if (allVertexWeights.Count > 0) {
+                finVertex.SetBones(allVertexWeights[v].boneWeights.ToArray());
+                finVertex.Preproject = allVertexWeights[v].Preproject;
+              }
 
-              if (normalIndices.Count > 0) {
+              // TODO: For collision models, there can be normal indices when
+              // there are 0 normals. What does this mean? Is this how surface
+              // types are defined?
+              // TODO: What does it mean when the index is equal to the length
+              // of the normals array?
+              if (normalIndices.Count > 0 && mod.vnormals.Count > 0) {
                 var normal = mod.vnormals[normalIndices[v]];
                 finVertex.SetLocalNormal(normal.X, normal.Y, normal.Z);
               }

@@ -119,8 +119,8 @@ namespace mod.cli {
                      "Mod2fbx doesn't support multiple animation files yet!");
 
         Anm? anm = null;
-        if (filesAndAnms.Count > 0) {
-          anm = filesAndAnms[0].Item2;
+        if (modFilesAndAnms.Count > 0) {
+          anm = modFilesAndAnms[0].Item2;
         }
 
         var model = ModelConverter.Convert(mod, anm);
