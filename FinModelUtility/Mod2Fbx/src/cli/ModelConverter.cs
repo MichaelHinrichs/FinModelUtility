@@ -32,15 +32,16 @@ namespace mod.cli {
       POINTS = 0xb8,
     }
 
-    // TODO: Add more
+    // TODO: Look into these more, surely there's a clamp?
     public enum TilingMode {
-      CLAMP = 1,
+      MIRROR_REPEAT = 1,
+      REPEAT = 2,
     }
 
     public static WrapMode ConvertGcnToFin(TilingMode tilingMode)
       => tilingMode switch {
-          TilingMode.CLAMP => WrapMode.CLAMP,
-          _                => WrapMode.REPEAT,
+          TilingMode.MIRROR_REPEAT => WrapMode.MIRROR_REPEAT,
+          _                        => WrapMode.REPEAT,
       };
 
     public static IModel Convert(Mod mod, Anm? anm) {

@@ -158,10 +158,9 @@ namespace fin.exporter.gltf {
 
             // https://stackoverflow.com/a/8044252
             var firstVertex = vertices[0];
-            var previousVertex = vertices[1];
             for (var v = 2; v < pointsCount; ++v) {
               var v1 = firstVertex;
-              var v2 = previousVertex;
+              var v2 = vertices[v - 1];
               var v3 = vertices[v];
 
               // Intentionally flipped to fix bug where faces were backwards.
