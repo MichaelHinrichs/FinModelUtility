@@ -207,11 +207,13 @@ namespace fin.model.impl {
             !useTangents
                 ? this.Interpolator.Interpolate(fromValue, toValue, progress)
                 : this.InterpolatorWithTangents.Interpolate(
+                    fromTime,
                     fromValue,
                     fromTangent,
+                    toTime,
                     toValue,
                     toTangent,
-                    progress));
+                    frame));
       }
 
       // TODO: Use a more efficient approach here, e.g. binary search.

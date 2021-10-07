@@ -18,7 +18,7 @@ namespace fin.model.impl {
         for (var i = 0; i < 3; ++i) {
           this.axisTracks_[i] =
               new TrackImpl<float>(Interpolator.Float,
-                                   InterpolatorWithTangents.Float);
+                                   InterpolatorWithTangents.Radians);
         }
 
         this.AxisTracks =

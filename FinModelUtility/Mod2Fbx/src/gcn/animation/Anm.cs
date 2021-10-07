@@ -73,7 +73,10 @@ namespace mod.gcn.animation {
       for (var i = 0; i < count; ++i) {
         var index = (int) values[offset + 3 * i];
         var value = values[offset + 3 * i + 1];
-        var tangent = values[offset + 3 * i + 2];
+
+        // TODO: This is a guess, is this actually right?
+        // The tangents are HUGE, have to be scaled down by the FPS.
+        var tangent = values[offset + 3 * i + 2] / 30f;
 
         keyframes[i] = new Keyframe<float>(index, value, Optional.Of(tangent));
       }
@@ -282,6 +285,10 @@ namespace mod.gcn.animation {
         var frameCount = reader.ReadInt32();
         var frameOffset = reader.ReadInt32();
         var unk = reader.ReadInt32();
+
+        if (unk != 0) {
+          ;
+        }
 
         var sparse = (frameCount != 1 && frameCount != this.FrameCount);
 
