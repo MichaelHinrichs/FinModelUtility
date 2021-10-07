@@ -5,6 +5,9 @@ set outBasePath=%~dp0%out\pkmn2\
 set bmd2fbxBasePath=%~dp0%tools\bmd2fbx\
 set szstoolsBasePath=%~dp0%tools\szstools\
 
+:: Comment out this line below to disable processing treasures
+set processTreasures=1
+
 :: TODO: Take this as an arg.
 set romPath=roms\pkmn2.gcm
 set hierarchyPath=%romPath%_dir\
@@ -22,6 +25,59 @@ if not exist "%hierarchyPath%" (
 
 :: Navigates to hierarchy directory
 pushd "%hierarchyPath%"
+
+
+:: Processes the Pikmin/Captain models
+set pikiBasePath=user\Kando\piki\pikis.szs 0.rarc_dir\designer
+
+set pikiAnimationsBasePath=!pikiBasePath!\motion
+set pikiAnimationFetchCmd=dir /b "!pikiAnimationsBasePath!"
+set pikiAnimations=
+for /f "tokens=*" %%a in ('!pikiAnimationFetchCmd!') do (
+  set pikiAnimations=!pikiAnimations! "!pikiAnimationsBasePath!\%%a"
+)
+
+set pikiPikminBasePath=!pikiBasePath!\piki_model
+set pikminModelNames=piki_p2_black piki_p2_blue piki_p2_red piki_p2_white piki_p2_yellow
+for %%m in (%pikminModelNames%) do (
+  set modelName=%%m
+  set modelBasePath=%outBasePath%!modelName!
+  
+  >nul 2>nul dir /a-d "!modelBasePath!\*" && (set isModelProcessed=1) || (set isModelProcessed=)
+  if not defined isModelProcessed (
+    echo Processing !modelName! w/ manual inputs...
+    @echo on
+    "%bmd2fbxBasePath%bmd2fbx.exe" manual --out "!modelBasePath!" --bmd "!pikiPikminBasePath!\!modelName!.bmd" --bcx !pikiAnimations! --static --verbose
+    @echo off
+  )
+  if defined isModelProcessed (
+    echo Model already processed for !modelName!
+  )
+)
+
+set pikiOrimaBasePath=!pikiBasePath!\orima_model
+set orimaModelNames=orima1 orima3 syatyou
+for %%m in (%orimaModelNames%) do (
+  set modelName=%%m
+  set modelBasePath=%outBasePath%!modelName!
+  
+  >nul 2>nul dir /a-d "!modelBasePath!\*" && (set isModelProcessed=1) || (set isModelProcessed=)
+  if not defined isModelProcessed (
+    echo Processing !modelName! w/ manual inputs...
+    @echo on
+    "%bmd2fbxBasePath%bmd2fbx.exe" manual --out "!modelBasePath!" --bmd "!pikiOrimaBasePath!\!modelName!.bmd" --bcx !pikiAnimations! --static --verbose
+    @echo off
+  )
+  if defined isModelProcessed (
+    echo Model already processed for !modelName!
+  )
+)
+
+
+:: Resets to hierarchy directory
+popd
+pushd "%hierarchyPath%"
+
 
 :: Iterates through all directories in the hierarchy
 echo Checking for previously extracted archives.
@@ -74,10 +130,12 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
   )
   
   :: Gets for treasures (AKA "Pellets"?)
-  if "!localDir:~0,15!"=="user\Abe\Pellet" (
-    if "!localDir:~-15!"==".szs 0.rarc_dir" (
-      for %%b in (".\arc\*.bmd") do (
-        set modelName=%%~nd
+  if defined processTreasures (
+    if "!localDir:~0,15!"=="user\Abe\Pellet" (
+      if "!localDir:~-15!"==".szs 0.rarc_dir" (
+        for %%b in (".\arc\*.bmd") do (
+          set modelName=%%~nd
+        )
       )
     )
   )
@@ -113,57 +171,6 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
     @echo off
   )
 )
-
-popd
-pushd "%hierarchyPath%"
-
-:: Processes the Pikmin/Captain models
-set pikiBasePath=user\Kando\piki\pikis.szs 0.rarc_dir\designer
-
-set pikiAnimationsBasePath=!pikiBasePath!\motion
-set pikiAnimationFetchCmd=dir /b "!pikiAnimationsBasePath!"
-set pikiAnimations=
-for /f "tokens=*" %%a in ('!pikiAnimationFetchCmd!') do (
-  set pikiAnimations=!pikiAnimations! "!pikiAnimationsBasePath!\%%a"
-)
-
-set pikiPikminBasePath=!pikiBasePath!\piki_model
-set pikminModelNames=piki_p2_black piki_p2_blue piki_p2_red piki_p2_white piki_p2_yellow
-for %%m in (%pikminModelNames%) do (
-  set modelName=%%m
-  set modelBasePath=%outBasePath%!modelName!
-  
-  >nul 2>nul dir /a-d "!modelBasePath!\*" && (set isModelProcessed=1) || (set isModelProcessed=)
-  if not defined isModelProcessed (
-    echo Processing !modelName! w/ manual inputs...
-    @echo on
-    "%bmd2fbxBasePath%bmd2fbx.exe" manual --out "!modelBasePath!" --bmd "!pikiPikminBasePath!\!modelName!.bmd" --bcx !pikiAnimations! --static --verbose
-    @echo off
-  )
-  if defined isModelProcessed (
-    echo Model already processed for !modelName!
-  )
-)
-
-set pikiOrimaBasePath=!pikiBasePath!\orima_model
-set orimaModelNames=orima1 orima3 syatyou
-for %%m in (%orimaModelNames%) do (
-  set modelName=%%m
-  set modelBasePath=%outBasePath%!modelName!
-  
-  >nul 2>nul dir /a-d "!modelBasePath!\*" && (set isModelProcessed=1) || (set isModelProcessed=)
-  if not defined isModelProcessed (
-    echo Processing !modelName! w/ manual inputs...
-    @echo on
-    "%bmd2fbxBasePath%bmd2fbx.exe" manual --out "!modelBasePath!" --bmd "!pikiOrimaBasePath!\!modelName!.bmd" --bcx !pikiAnimations! --static --verbose
-    @echo off
-  )
-  if defined isModelProcessed (
-    echo Model already processed for !modelName!
-  )
-)
-
-
 
 :: Backs out from hierarchy
 popd
