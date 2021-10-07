@@ -133,7 +133,7 @@ namespace mod.cli {
       Args.Automatic = true;
       Args.GetFromDirectory(
           new FinDirectory(
-              @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\tekis\beatle\"),
+              @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\bosses\snake\"),
           out outputDirectory,
           out modFiles,
           out anmFiles);

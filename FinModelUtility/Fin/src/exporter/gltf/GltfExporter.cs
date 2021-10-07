@@ -47,7 +47,7 @@ namespace fin.exporter.gltf {
         // bones with multiple weights for some reason, perhaps because the
         // model is contorted in an unnatural way? Anyway, we NEED to use the
         // first animation instead.
-        this.ApplyFirstFrameToSkeleton_(model.Skeleton, firstAnimation);
+        //this.ApplyFirstFrameToSkeleton_(model.Skeleton, firstAnimation);
       }
 
       // Builds skeleton.

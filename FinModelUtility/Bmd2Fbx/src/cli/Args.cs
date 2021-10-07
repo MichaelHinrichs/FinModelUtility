@@ -194,7 +194,7 @@ namespace bmd.cli {
 
     private static string GetOutputPath_(string name) {
       var basePath = "R:/Documents/CSharpWorkspace/Pikmin2Utility/";
-      return $"{basePath}cli/out/{name}/";
+      return $"{basePath}cli/out/pkmn2/{name}/";
     }
 
     private static void GetFromKando_(
