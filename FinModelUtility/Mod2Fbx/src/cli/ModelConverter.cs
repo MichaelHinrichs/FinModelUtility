@@ -170,6 +170,7 @@ namespace mod.cli {
         bone.SetLocalRotationRadians(joint.rotation.X,
                                      joint.rotation.Y,
                                      joint.rotation.Z);
+        bone.SetLocalScale(joint.scale.X, joint.scale.Y, joint.scale.Z);
 
         if (mod.jointNames.Count > 0) {
           var jointName = mod.jointNames[jointIndex];
@@ -368,11 +369,14 @@ namespace mod.cli {
               // TODO: For collision models, there can be normal indices when
               // there are 0 normals. What does this mean? Is this how surface
               // types are defined?
-              // TODO: What does it mean when the index is equal to the length
-              // of the normals array?
               if (normalIndices.Count > 0 && mod.vnormals.Count > 0) {
-                var normal = finModCache.NormalsByIndex[normalIndices[v]];
-                finVertex.SetLocalNormal(normal);
+                var normalIndex = normalIndices[v];
+                // TODO: What does it mean when the index is past the length
+                // of the normals array??
+                if (normalIndex < mod.vnormals.Count) {
+                  var normal = finModCache.NormalsByIndex[normalIndex];
+                  finVertex.SetLocalNormal(normal);
+                }
               }
 
               if (color0Indices.Count > 0) {

@@ -143,18 +143,18 @@ namespace mod.cli {
           out outputDirectory,
           out modFiles,
           out anmFiles);*/
-      /*Args.GetFromDirectory(
+      Args.GetFromDirectory(
           new FinDirectory(
-              @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\bosses\kingback\"),
+              @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\bosses\king\"),
           out outputDirectory,
           out modFiles,
-          out anmFiles);*/
-      Args.GetFromDirectory(
+          out anmFiles);
+      /*Args.GetFromDirectory(
           new FinDirectory(
               @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\courses\stage1"),
           out outputDirectory,
           out modFiles,
-          out anmFiles);
+          out anmFiles);*/
       /*Args.GetFromDirectory(
           new FinDirectory(
               @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\courses\stage2"),
