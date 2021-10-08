@@ -53,6 +53,8 @@ namespace mod.cli {
         ModelConverter.ACTIVE_MATRICES_[i] = -1;
       }
 
+      var finModCache = new FinModCache(mod);
+
       var model = new ModelImpl();
 
       var hasVertices = mod.vertices.Any();
@@ -110,9 +112,9 @@ namespace mod.cli {
       var finMaterials = new List<IMaterial>();
       for (var i = 0; i < mod.materials.materials.Count; ++i) {
         var material = mod.materials.materials[i];
-        
+
         ITexture? finTexture = null;
-        
+
         var texturesInMaterial = material.texInfo.unknown4;
         if (texturesInMaterial.Count > 0) {
           var textureInMaterial = texturesInMaterial[0];
@@ -190,7 +192,12 @@ namespace mod.cli {
           var mesh = mod.meshes[meshIndex];
 
           var material = finMaterials[jointMatPoly.matIdx];
-          ModelConverter.AddMesh_(mod, mesh, material, model, bones);
+          ModelConverter.AddMesh_(mod,
+                                  mesh,
+                                  material,
+                                  model,
+                                  bones,
+                                  finModCache);
         }
       }
 
@@ -225,7 +232,8 @@ namespace mod.cli {
         Mesh mesh,
         IMaterial material,
         IModel model,
-        IBone[] bones) {
+        IBone[] bones,
+        FinModCache finModCache) {
       //var currentBone = bones[mesh.boneIndex];
       var currentColor = ColorImpl.FromRgbaBytes(255, 255, 255, 255);
 
@@ -348,9 +356,9 @@ namespace mod.cli {
 
             var finVertexList = new List<IVertex>();
             for (var v = 0; v < positionIndices.Count; ++v) {
-              var position = mod.vertices[positionIndices[v]];
+              var position = finModCache.PositionsByIndex[positionIndices[v]];
               var finVertex =
-                  model.Skin.AddVertex(position.X, position.Y, position.Z);
+                  model.Skin.AddVertex(position);
 
               if (allVertexWeights.Count > 0) {
                 finVertex.SetBones(allVertexWeights[v].boneWeights.ToArray());
@@ -363,24 +371,22 @@ namespace mod.cli {
               // TODO: What does it mean when the index is equal to the length
               // of the normals array?
               if (normalIndices.Count > 0 && mod.vnormals.Count > 0) {
-                var normal = mod.vnormals[normalIndices[v]];
-                finVertex.SetLocalNormal(normal.X, normal.Y, normal.Z);
+                var normal = finModCache.NormalsByIndex[normalIndices[v]];
+                finVertex.SetLocalNormal(normal);
               }
 
               if (color0Indices.Count > 0) {
-                var color = mod.vcolours[color0Indices[v]];
-                finVertex.SetColorBytes(color.R, color.G, color.B, color.A);
+                var color = finModCache.ColorsByIndex[color0Indices[v]];
+                finVertex.SetColor(color);
               } else {
-                finVertex.SetColorBytes(currentColor.Rb,
-                                        currentColor.Gb,
-                                        currentColor.Bb,
-                                        currentColor.Ab);
+                finVertex.SetColor(finModCache.Default);
               }
 
               for (var t = 0; t < 8; ++t) {
                 if (texCoordIndices[t].Count > 0) {
-                  var texCoord = mod.texcoords[t][texCoordIndices[t][v]];
-                  finVertex.SetUv(t, texCoord.X, texCoord.Y);
+                  var texCoord =
+                      finModCache.TexCoordsByIndex[t][texCoordIndices[t][v]];
+                  finVertex.SetUv(t, texCoord);
                 }
               }
 
@@ -398,13 +404,62 @@ namespace mod.cli {
       }
     }
 
+    private record FinModCache {
+      public IPosition[] PositionsByIndex { get; }
+
+      public INormal[] NormalsByIndex { get; }
+
+      public IColor[] ColorsByIndex { get; }
+
+      public IColor Default { get; } =
+        ColorImpl.FromRgbaBytes(255, 255, 255, 255);
+
+      public ITexCoord[][] TexCoordsByIndex { get; }
+
+      public FinModCache(Mod mod) {
+        this.PositionsByIndex =
+            mod.vertices.Select(
+                   position => new ModelImpl.PositionImpl {
+                       X = position.X,
+                       Y = position.Y,
+                       Z = position.Z,
+                   })
+               .ToArray();
+        this.NormalsByIndex =
+            mod.vnormals.Select(
+                   vnormals => new ModelImpl.NormalImpl {
+                       X = vnormals.X,
+                       Y = vnormals.Y,
+                       Z = vnormals.Z,
+                   })
+               .ToArray();
+        this.ColorsByIndex =
+            mod.vcolours.Select(
+                   vcolour => ColorImpl.FromRgbaBytes(
+                       vcolour.R,
+                       vcolour.G,
+                       vcolour.B,
+                       vcolour.A))
+               .ToArray();
+        this.TexCoordsByIndex =
+            mod.texcoords.Select(
+                   texcoords
+                       => texcoords.Select(
+                                       texcoord => new ModelImpl.TexCoordImpl {
+                                           U = texcoord.X,
+                                           V = texcoord.Y,
+                                       })
+                                   .ToArray())
+               .ToArray();
+      }
+    }
+
     private static ushort Read_(VectorReader reader, VtxFmt? format) {
       if (format == VtxFmt.INDEX16) {
         return reader.ReadU16();
       } else if (format == VtxFmt.INDEX8) {
         return reader.ReadU8();
       }
-
       Asserts.Fail($"Unsupported format: {format}");
       return 0;
     }

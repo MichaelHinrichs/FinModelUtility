@@ -21,6 +21,12 @@ namespace fin.model.impl {
 
       public IReadOnlyList<IVertex> Vertices { get; }
 
+      public IVertex AddVertex(IPosition position) {
+        var vertex = new VertexImpl(this.vertices_.Count, position);
+        this.vertices_.Add(vertex);
+        return vertex;
+      }
+
       public IVertex AddVertex(float x, float y, float z) {
         var vertex = new VertexImpl(this.vertices_.Count, x, y, z);
         this.vertices_.Add(vertex);
@@ -83,7 +89,12 @@ namespace fin.model.impl {
       }
 
       private class VertexImpl : IVertex {
-        private IList<ITexCoord>? uvs_;
+        private IDictionary<int, ITexCoord>? uvs_;
+
+        public VertexImpl(int index, IPosition position) {
+          this.Index = index;
+          this.SetLocalPosition(position);
+        }
 
         public VertexImpl(int index, float x, float y, float z) {
           this.Index = index;
@@ -105,68 +116,72 @@ namespace fin.model.impl {
         }
 
 
-        public IPosition LocalPosition { get; } = new PositionImpl();
+        public IPosition LocalPosition { get; private set; }
 
-        public IVertex SetLocalPosition(float x, float y, float z) {
-          this.LocalPosition.X = x;
-          this.LocalPosition.Y = y;
-          this.LocalPosition.Z = z;
+        public IVertex SetLocalPosition(IPosition localPosition) {
+          this.LocalPosition = localPosition;
           return this;
         }
+
+        public IVertex SetLocalPosition(float x, float y, float z)
+          => this.SetLocalPosition(new PositionImpl {X = x, Y = y, Z = z});
 
 
         public INormal? LocalNormal { get; private set; }
 
-        public IVertex SetLocalNormal(float x, float y, float z) {
-          this.LocalNormal ??= new NormalImpl();
-          this.LocalNormal.X = x;
-          this.LocalNormal.Y = y;
-          this.LocalNormal.Z = z;
+        public IVertex SetLocalNormal(INormal localNormal) {
+          this.LocalNormal = localNormal;
           return this;
         }
+
+        public IVertex SetLocalNormal(float x, float y, float z)
+          => this.SetLocalNormal(new NormalImpl {X = x, Y = y, Z = z});
 
 
         public IColor? Color { get; private set; }
 
-        public IVertex SetColorBytes(byte r, byte g, byte b, byte a) {
-          this.Color = ColorImpl.FromRgbaBytes(r, g, b, a);
+        public IVertex SetColor(IColor? color) {
+          this.Color = color;
           return this;
         }
 
+        public IVertex SetColorBytes(byte r, byte g, byte b, byte a)
+          => this.SetColor(ColorImpl.FromRgbaBytes(r, g, b, a));
 
-        public IReadOnlyList<ITexCoord>? Uvs { get; private set; }
 
+        public IReadOnlyDictionary<int, ITexCoord>? Uvs { get; private set; }
+
+        public IVertex SetUv(ITexCoord uv) => this.SetUv(0, uv);
         public IVertex SetUv(float u, float v) => this.SetUv(0, u, v);
 
-        public IVertex SetUv(int uvIndex, float u, float v) {
-          if (this.uvs_ == null) {
-            this.uvs_ = new List<ITexCoord>();
-            this.Uvs = new ReadOnlyCollection<ITexCoord>(this.uvs_);
-          }
+        public IVertex SetUv(int uvIndex, ITexCoord? uv) {
+          if (uv != null) {
+            if (this.uvs_ == null) {
+              this.uvs_ = new Dictionary<int, ITexCoord>();
+              this.Uvs = new ReadOnlyDictionary<int, ITexCoord>(this.uvs_);
+            }
 
-          // TODO: Optimize this.
-          var index = -1;
-          for (var i = 0; i < this.uvs_.Count; ++i) {
-            if (this.uvs_[i].TexCoordIndex == uvIndex) {
-              index = i;
-              break;
+            this.uvs_[uvIndex] = uv;
+          } else {
+            this.uvs_?.Remove(uvIndex);
+            if (this.uvs_?.Count == 0) {
+              this.uvs_ = null;
             }
           }
 
-          var uv = new TexCoordImpl {TexCoordIndex = uvIndex, U = u, V = v};
-          if (index != -1) {
-            this.uvs_[index] = uv;
-          } else {
-            this.uvs_.Add(uv);
-          }
-
           return this;
         }
 
+        public IVertex SetUv(int uvIndex, float u, float v)
+          => this.SetUv(uvIndex, new TexCoordImpl {U = u, V = v});
+
         public ITexCoord? GetUv() => this.GetUv(0);
 
-        public ITexCoord? GetUv(int uvIndex)
-          => this.uvs_?.FirstOrDefault(uv => uv.TexCoordIndex == uvIndex);
+        public ITexCoord? GetUv(int uvIndex) {
+          ITexCoord? uv = null;
+          this.uvs_?.TryGetValue(uvIndex, out uv); 
+          return uv;
+        }
       }
 
 
@@ -186,14 +201,13 @@ namespace fin.model.impl {
           return this;
         }
       }
+    }
 
-      private class TexCoordImpl : ITexCoord {
-        public int TexCoordIndex { get; init; }
-        public float U { get; init; }
-        public float V { get; init; }
+    public class TexCoordImpl : ITexCoord {
+      public float U { get; init; }
+      public float V { get; init; }
 
-        public override string ToString() => $"{{{this.U}, {this.V}}}";
-      }
+      public override string ToString() => $"{{{this.U}, {this.V}}}";
     }
   }
 }

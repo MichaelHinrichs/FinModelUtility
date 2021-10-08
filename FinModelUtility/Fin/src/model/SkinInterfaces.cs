@@ -5,6 +5,7 @@ using fin.math.matrix;
 namespace fin.model {
   public interface ISkin {
     IReadOnlyList<IVertex> Vertices { get; }
+    IVertex AddVertex(IPosition position);
     IVertex AddVertex(float x, float y, float z);
 
     IReadOnlyList<IPrimitive> Primitives { get; }
@@ -26,11 +27,6 @@ namespace fin.model {
       float Weight);
 
   public interface ITexCoord {
-    /// <summary>
-    ///   Index of the UV, for models with textures stacked on top of each other.
-    /// </summary>
-    int TexCoordIndex { get; }
-
     float U { get; }
     float V { get; }
   }
@@ -47,16 +43,21 @@ namespace fin.model {
     IVertex SetBones(params BoneWeight[] weights);
 
     IPosition LocalPosition { get; }
+    IVertex SetLocalPosition(IPosition localPosition);
     IVertex SetLocalPosition(float x, float y, float z);
 
     INormal? LocalNormal { get; }
+    IVertex SetLocalNormal(INormal? localNormal);
     IVertex SetLocalNormal(float x, float y, float z);
 
     IColor? Color { get; }
+    IVertex SetColor(IColor? color);
     IVertex SetColorBytes(byte r, byte g, byte b, byte a);
 
-    IReadOnlyList<ITexCoord>? Uvs { get; }
+    IReadOnlyDictionary<int, ITexCoord>? Uvs { get; }
+    IVertex SetUv(ITexCoord? uv);
     IVertex SetUv(float u, float v);
+    IVertex SetUv(int uvIndex, ITexCoord? uv);
     IVertex SetUv(int uvIndex, float u, float v);
     ITexCoord? GetUv();
     ITexCoord? GetUv(int uvIndex);
