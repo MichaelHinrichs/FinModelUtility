@@ -20,6 +20,15 @@ namespace fin.model.impl {
       public override string ToString() => $"{{{this.X}, {this.Y}, {this.Z}, {this.W}}}";
     }
 
+    public class TangentImpl : ITangent {
+      public float X { get; set; }
+      public float Y { get; set; }
+      public float Z { get; set; }
+      public float W { get; set; }
+
+      public override string ToString() => $"{{{this.X}, {this.Y}, {this.Z}, {this.W}}}";
+    }
+
     public class ScaleImpl : IScale {
       public float X { get; set; }
       public float Y { get; set; }

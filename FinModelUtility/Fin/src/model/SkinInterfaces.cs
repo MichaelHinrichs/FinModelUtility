@@ -50,6 +50,10 @@ namespace fin.model {
     IVertex SetLocalNormal(INormal? localNormal);
     IVertex SetLocalNormal(float x, float y, float z);
 
+    ITangent? LocalTangent { get; }
+    IVertex SetLocalTangent(ITangent? localNormal);
+    IVertex SetLocalTangent(float x, float y, float z, float w);
+
     IColor? Color { get; }
     IVertex SetColor(IColor? color);
     IVertex SetColorBytes(byte r, byte g, byte b, byte a);

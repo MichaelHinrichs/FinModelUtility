@@ -77,9 +77,18 @@ namespace fin.exporter.gltf {
           }
 
           if (point.LocalNormal != null) {
-            vertexBuilder = vertexBuilder.WithGeometry(
-                position,
-                new Vector3(outNormal.X, outNormal.Y, outNormal.Z));
+            var tangent = point.LocalTangent;
+
+            if (tangent == null) {
+              vertexBuilder = vertexBuilder.WithGeometry(
+                  position,
+                  new Vector3(outNormal.X, outNormal.Y, outNormal.Z));
+            } else {
+              vertexBuilder = vertexBuilder.WithGeometry(
+                  position,
+                  new Vector3(outNormal.X, outNormal.Y, outNormal.Z),
+                  new Vector4(tangent.X, tangent.Y, tangent.Z, tangent.W));
+            }
           }
 
           // TODO: Include color

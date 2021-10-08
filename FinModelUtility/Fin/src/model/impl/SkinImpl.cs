@@ -138,6 +138,17 @@ namespace fin.model.impl {
           => this.SetLocalNormal(new NormalImpl {X = x, Y = y, Z = z});
 
 
+        public ITangent? LocalTangent { get; private set; }
+
+        public IVertex SetLocalTangent(ITangent localTangent) {
+          this.LocalTangent = localTangent;
+          return this;
+        }
+
+        public IVertex SetLocalTangent(float x, float y, float z, float w)
+          => this.SetLocalTangent(new TangentImpl { X = x, Y = y, Z = z, W = w});
+
+
         public IColor? Color { get; private set; }
 
         public IVertex SetColor(IColor? color) {

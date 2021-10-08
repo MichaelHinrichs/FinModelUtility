@@ -10,6 +10,11 @@
 
   public interface INormal : IVector4 {}
 
+  public interface ITangent : IVector4 {
+    new float W { get; set; }
+  }
+
+
   public interface IVector3 {
     float X { get; set; }
     float Y { get; set; }

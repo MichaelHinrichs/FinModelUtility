@@ -371,10 +371,16 @@ namespace mod.cli {
               // types are defined?
               if (normalIndices.Count > 0 && mod.vnormals.Count > 0) {
                 var normalIndex = normalIndices[v];
-                var normal = vertexDescriptor.useNbt
-                                 ? finModCache.NbtNormalsByIndex[normalIndex]
-                                 : finModCache.NormalsByIndex[normalIndex];
-                finVertex.SetLocalNormal(normal);
+
+                if (!vertexDescriptor.useNbt) {
+                  var normal = finModCache.NormalsByIndex[normalIndex];
+                  finVertex.SetLocalNormal(normal);
+                } else {
+                  var normal = finModCache.NbtNormalsByIndex[normalIndex];
+                  var tangent = finModCache.TangentsByIndex[normalIndex];
+                  finVertex.SetLocalNormal(normal);
+                  finVertex.SetLocalTangent(tangent);
+                }
               }
 
               if (color0Indices.Count > 0) {
@@ -410,7 +416,9 @@ namespace mod.cli {
       public IPosition[] PositionsByIndex { get; }
 
       public INormal[] NormalsByIndex { get; }
+      
       public INormal[] NbtNormalsByIndex { get; }
+      public ITangent[] TangentsByIndex { get; }
 
       public IColor[] ColorsByIndex { get; }
 
@@ -443,6 +451,12 @@ namespace mod.cli {
                    Z = vertexnbt.normals.Z,
                })
                .ToArray();
+        this.TangentsByIndex = mod.vertexnbt.Select(vertexnbt => new ModelImpl.TangentImpl {
+            X = vertexnbt.tangent.X,
+            Y = vertexnbt.tangent.Y,
+            Z = vertexnbt.tangent.Z,
+            W = 0,
+        }).ToArray();
         this.ColorsByIndex =
             mod.vcolours.Select(
                    vcolour => ColorImpl.FromRgbaBytes(
