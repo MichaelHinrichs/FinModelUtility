@@ -3,7 +3,7 @@
 ## Credits
 
 - cooliscool, as their [Utility of Time](http://wiki.maco64.com/Tools/Utility_of_Time) program was used as the basis for the OoT exporter.
-- @nico, AKA thakis, as their [szstools/yaz0dec](http://amnoid.de/gc/) CLI is used to extract the contents of GameCube ISOs.
+- @nico, AKA thakis, as their [szstools](http://amnoid.de/gc/) CLI is used to extract the contents of GameCube ISOs.
 - @Gericom, as their [MKDS Course Modifier](https://www.romhacking.net/utilities/1285/) program was used as the basis for the Pikmin 2 exporter.
 - @intns, as their [MODConv](https://github.com/intns/MODConv) tool was ported to add general support for Pikmin 1.
 - @NerduMiner, as their [Pikmin1Toolset](https://github.com/NerduMiner/Pikmin1Toolset) was ported to add texture support for Pikmin 1.
