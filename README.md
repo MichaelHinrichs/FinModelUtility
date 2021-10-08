@@ -1,5 +1,7 @@
 # Fin Model Utility
 
+Command-line tools for extracting models from games en-masse. Separate batch scripts are provided for each supported game in order to simplify the process.
+
 ## Credits
 
 - cooliscool, as their [Utility of Time](http://wiki.maco64.com/Tools/Utility_of_Time) program was used as the basis for the OoT exporter.
@@ -16,12 +18,12 @@ Download this repository via the green "Code" button above and extract it to a d
 
 - Drop a Pikmin 1 rom in the "cli/roms/" directory. Make sure it's named "pikmin_1.gcm"!
 - Double-click "rip_pikmin_1.bat" in the "cli/" directory. This will first rip all of the files from the game, and then the currently supported models. This can take a while on the first execution, but future executions will reuse the exported files.
-- Exported models will appear within the "cli/out/pikmin_1/" directory. Both GLTF (.glb) and FBX are exported, since each format has slightly different compatibility. FBX is generally preferred due to supporting additional UV channels.
+- Extracted models will appear within the "cli/out/pikmin_1/" directory. Both GLTF (.glb) and FBX are exported, since each format has slightly different compatibility. FBX is generally preferred due to supporting additional UV channels.
 - The materials for some models are broken due to the complexity of recreating fixed-function pipeline effects in a standalone model. These will need to be manually recreated in whichever program you import the model into.
 
 ### Pikmin 2
 
 - Drop a Pikmin 2 rom in the "cli/roms/" directory. Make sure it's named "pikmin_2.gcm"!
 - Double-click "rip_pikmin_2.bat" in the "cli/" directory. This will first rip all of the files from the game, and then the currently supported models. This can take a while on the first execution, but future executions will reuse the exported files.
-- Exported models will appear within the "cli/out/pikmin_2/" directory. Both GLTF (.glb) and FBX are exported, since each format has slightly different compatibility. FBX is generally preferred due to supporting additional UV channels.
+- Extracted models will appear within the "cli/out/pikmin_2/" directory. Both GLTF (.glb) and FBX are exported, since each format has slightly different compatibility. FBX is generally preferred due to supporting additional UV channels.
 - The materials for some models are broken due to the complexity of recreating fixed-function pipeline effects in a standalone model. These will need to be manually recreated in whichever program you import the model into. To help with this process, a mat3.txt file is generated in each directory that contains a raw JSON representation of the materials.
