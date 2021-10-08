@@ -371,12 +371,10 @@ namespace mod.cli {
               // types are defined?
               if (normalIndices.Count > 0 && mod.vnormals.Count > 0) {
                 var normalIndex = normalIndices[v];
-                // TODO: What does it mean when the index is past the length
-                // of the normals array??
-                if (normalIndex < mod.vnormals.Count) {
-                  var normal = finModCache.NormalsByIndex[normalIndex];
-                  finVertex.SetLocalNormal(normal);
-                }
+                var normal = vertexDescriptor.useNbt
+                                 ? finModCache.NbtNormalsByIndex[normalIndex]
+                                 : finModCache.NormalsByIndex[normalIndex];
+                finVertex.SetLocalNormal(normal);
               }
 
               if (color0Indices.Count > 0) {
@@ -412,6 +410,7 @@ namespace mod.cli {
       public IPosition[] PositionsByIndex { get; }
 
       public INormal[] NormalsByIndex { get; }
+      public INormal[] NbtNormalsByIndex { get; }
 
       public IColor[] ColorsByIndex { get; }
 
@@ -436,6 +435,13 @@ namespace mod.cli {
                        Y = vnormals.Y,
                        Z = vnormals.Z,
                    })
+               .ToArray();
+        this.NbtNormalsByIndex =
+            mod.vertexnbt.Select(vertexnbt => new ModelImpl.NormalImpl {
+                   X = vertexnbt.normals.X,
+                   Y = vertexnbt.normals.Y,
+                   Z = vertexnbt.normals.Z,
+               })
                .ToArray();
         this.ColorsByIndex =
             mod.vcolours.Select(

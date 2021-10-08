@@ -52,7 +52,10 @@ namespace mod.gcn {
     };
 
     public VtxFmt position = VtxFmt.NOT_PRESENT;
+
     public VtxFmt normal = VtxFmt.NOT_PRESENT;
+    public bool useNbt;
+
     public VtxFmt color0 = VtxFmt.NOT_PRESENT;
     public VtxFmt color1 = VtxFmt.NOT_PRESENT;
 
@@ -79,7 +82,7 @@ namespace mod.gcn {
         if (!this.Exists(attr)) {
           continue;
         }
-        
+
         if (attr is >= Vtx.Position and <= Vtx.Tex7Coord) {
           yield return (attr, this.GetFormat(attr));
         } else {
@@ -189,6 +192,8 @@ namespace mod.gcn {
         }
         val = val >> 1;
       }
+
+      this.useNbt = (val & 0x20) != 0;
 
       if (hasNormals) {
         this.normal = VtxFmt.INDEX16;
