@@ -1,11 +1,6 @@
 ﻿using System.Collections.Generic;
 
-using fin.math;
 using fin.model;
-using fin.model.impl;
-using fin.util.asserts;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using mod.util;
 

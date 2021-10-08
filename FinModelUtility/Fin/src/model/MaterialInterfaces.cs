@@ -154,6 +154,7 @@ namespace fin.model {
     UvType UvType { get; }
 
     Bitmap ImageData { get; }
+    bool IsTransparent { get; }
 
     WrapMode WrapModeU { get; set; }
     WrapMode WrapModeV { get; set; }

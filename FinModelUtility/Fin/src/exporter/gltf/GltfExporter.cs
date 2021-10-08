@@ -112,7 +112,7 @@ namespace fin.exporter.gltf {
               var texture = layer.ColorSource as ITexture;
               var textureImage = texture.ImageData;
 
-              if (BitmapUtil.IsTransparent(textureImage)) {
+              if (texture.IsTransparent) {
                 gltfMaterial.WithAlpha(AlphaMode.BLEND);
               }
 
@@ -139,7 +139,7 @@ namespace fin.exporter.gltf {
             var texture = textureMaterial.Texture;
             var textureImage = texture.ImageData;
 
-            if (BitmapUtil.IsTransparent(textureImage)) {
+            if (texture.IsTransparent) {
               gltfMaterial.WithAlpha(AlphaMode.BLEND);
             }
 

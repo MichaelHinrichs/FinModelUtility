@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 
+using fin.util.image;
+
 namespace fin.model.impl {
   public partial class ModelImpl {
     public IMaterialManager MaterialManager { get; } =
@@ -35,6 +37,7 @@ namespace fin.model.impl {
     private class TextureImpl : ITexture {
       public TextureImpl(Bitmap imageData) {
         this.ImageData = imageData;
+        this.IsTransparent = BitmapUtil.IsTransparent(imageData);
       }
 
       public ColorSourceType Type => ColorSourceType.TEXTURE;
@@ -42,7 +45,9 @@ namespace fin.model.impl {
       public string Name { get; set; }
       public int UvIndex { get; }
       public UvType UvType { get; }
+
       public Bitmap ImageData { get; }
+      public bool IsTransparent { get; }
 
       public WrapMode WrapModeU { get; set; }
       public WrapMode WrapModeV { get; set; }
