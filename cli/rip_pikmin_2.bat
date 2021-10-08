@@ -1,7 +1,7 @@
 @echo off 
 setlocal EnableDelayedExpansion
 
-set outBasePath=%~dp0%out\pkmn2\
+set outBasePath=%~dp0%out\pikmin_2\
 set bmd2fbxBasePath=%~dp0%tools\bmd2fbx\
 set szstoolsBasePath=%~dp0%tools\szstools\
 
@@ -9,11 +9,16 @@ set szstoolsBasePath=%~dp0%tools\szstools\
 set processTreasures=1
 
 :: TODO: Take this as an arg.
-set romPath=roms\pkmn2.gcm
+set romPath=roms\pikmin_2.gcm
 set hierarchyPath=%romPath%_dir\
 set fullHierarchyPath=%~dp0%!hierarchyPath!
+set hierarchyListCmd="dir /b /s /ad *.* | sort"
+
+
 
 :: Extracts file hierarchy from the given ROM
+pushd "%hierarchyPath%"
+
 echo Checking for previously extracted file hierarchy.
 if not exist "%hierarchyPath%" (
   echo|set /p="Extracting file hierarchy... "
@@ -22,9 +27,37 @@ if not exist "%hierarchyPath%" (
   echo.
 )
 
+for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
+  cd "%%d"
+  
+  set localDir=%%d
+  call set localDir=%%localDir:!fullHierarchyPath!=%%
 
-:: Navigates to hierarchy directory
+  :: Extracts archives in the current directory
+  for %%i in (*.szs) do (
+    if not exist "%%i_dir" if not exist "%%i 0.rarc" (
+      echo Extracting contents from %%d\%%i...
+      "%szstoolsBasePath%yaz0dec.exe" "%%i"
+      echo OK!
+      echo.
+    )
+  )
+  for %%i in (*.rarc) do (
+    if not exist "%%i_dir" (
+      echo Extracting contents from %%d\%%i...
+      "%szstoolsBasePath%rarcdump.exe" "%%i"
+      echo OK!
+      echo.
+    )
+  )
+)
+
+
+
+:: Resets current directory
+popd
 pushd "%hierarchyPath%"
+
 
 
 :: Processes the Pikmin/Captain models
@@ -74,37 +107,20 @@ for %%m in (%orimaModelNames%) do (
 )
 
 
+
 :: Resets to hierarchy directory
 popd
 pushd "%hierarchyPath%"
 
 
+
 :: Iterates through all directories in the hierarchy
 echo Checking for previously extracted archives.
-set hierarchyListCmd="dir /b /s /ad *.* | sort"
 for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
   cd "%%d"
   
   set localDir=%%d
   call set localDir=%%localDir:!fullHierarchyPath!=%%
-
-  :: Extracts archives in the current directory
-  for %%i in (*.szs) do (
-    if not exist "%%i_dir" if not exist "%%i 0.rarc" (
-      echo Extracting contents from %%d\%%i...
-      "%szstoolsBasePath%yaz0dec.exe" "%%i"
-      echo OK!
-      echo.
-    )
-  )
-  for %%i in (*.rarc) do (
-    if not exist "%%i_dir" (
-      echo Extracting contents from %%d\%%i...
-      "%szstoolsBasePath%rarcdump.exe" "%%i"
-      echo OK!
-      echo.
-    )
-  )
 
   :: Gets model/animations
   set modelName=
@@ -171,6 +187,8 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
     @echo off
   )
 )
+
+
 
 :: Backs out from hierarchy
 popd

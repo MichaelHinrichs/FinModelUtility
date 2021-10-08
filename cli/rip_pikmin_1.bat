@@ -1,12 +1,12 @@
 @echo off 
 setlocal EnableDelayedExpansion
 
-set outBasePath=%~dp0%out\pkmn1\
+set outBasePath=%~dp0%out\pikmin_1\
 set mod2fbxBasePath=%~dp0%tools\mod2fbx\
 set szstoolsBasePath=%~dp0%tools\szstools\
 
 :: TODO: Take this as an arg.
-set romPath=roms\pkmn1.gcm
+set romPath=roms\pikmin_1.gcm
 set hierarchyPath=%romPath%_dir\
 set fullHierarchyPath=%~dp0%!hierarchyPath!
 
