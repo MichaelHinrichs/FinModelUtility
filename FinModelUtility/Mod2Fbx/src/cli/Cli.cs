@@ -8,8 +8,6 @@ using fin.io;
 using fin.log;
 using fin.util.asserts;
 
-using Microsoft.Extensions.Logging;
-
 using mod.gcn;
 using mod.gcn.animation;
 

@@ -10,8 +10,6 @@ using fin.io;
 using fin.log;
 using fin.util.asserts;
 
-using Microsoft.Extensions.Logging;
-
 using bmd.GCN;
 
 namespace bmd.cli {
