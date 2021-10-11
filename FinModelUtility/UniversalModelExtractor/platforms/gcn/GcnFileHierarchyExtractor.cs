@@ -12,20 +12,15 @@ namespace uni.platforms.gcn {
     private readonly RarcDump rarcDump_ = new();
 
     public IFileHierarchy ExtractFromRom(IFile romFile) {
-      IFileHierarchy fileHierarchy;
-      this.gcmDump_.Run(romFile, out fileHierarchy);
+      this.gcmDump_.Run(romFile, out var fileHierarchy);
 
       var baseRomDirectory = fileHierarchy.Root.Impl;
 
       // Decompresses all of the archives
-      var directoryQueue = new Queue<IFileHierarchyDirectory>();
-      directoryQueue.Enqueue(fileHierarchy.Root);
-      while (directoryQueue.Count > 0) {
-        var directory = directoryQueue.Dequeue();
-
+      foreach (var fileHierarchyDirectory in fileHierarchy) {
         // Converts any SZS files into RARC files.
         var didDecrypt = false;
-        foreach (var file in directory.Files) {
+        foreach (var file in fileHierarchyDirectory.Files) {
           if (file.Extension == ".szs") {
             didDecrypt |= this.yaz0Dec_.Run(file, baseRomDirectory);
           }
@@ -33,12 +28,12 @@ namespace uni.platforms.gcn {
 
         // Updates to see any new RARC files.
         if (didDecrypt) {
-          directory.Refresh();
+          fileHierarchyDirectory.Refresh();
         }
 
         // Extracts contents of any RARC files.
         var didDump = false;
-        foreach (var file in directory.Files) {
+        foreach (var file in fileHierarchyDirectory.Files) {
           if (file.Extension == ".rarc") {
             didDump |= this.rarcDump_.Run(file, baseRomDirectory);
           }
@@ -46,11 +41,7 @@ namespace uni.platforms.gcn {
 
         // Updates to see any new extracted directories.
         if (didDump) {
-          directory.Refresh();
-        }
-
-        foreach (var subdir in directory.Subdirs) {
-          directoryQueue.Enqueue(subdir);
+          fileHierarchyDirectory.Refresh();
         }
       }
 

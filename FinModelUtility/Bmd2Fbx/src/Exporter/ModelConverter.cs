@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
+using bmd.cli;
+
 using fin.math;
 using fin.math.matrix;
 
@@ -82,7 +84,7 @@ namespace bmd.exporter {
         animation.Name = animationName;
 
         animation.FrameCount = bcx.Anx1.FrameCount;
-        animation.Fps = 30;
+        animation.Fps = Args.Framerate;
 
         // Writes translation/rotation/scale for each joint.
         foreach (var (joint, bone) in jointsAndBones) {
@@ -143,8 +145,11 @@ namespace bmd.exporter {
 
           // Material
           case 0x11:
-            currentMaterialEntry = bmd.MAT3.MaterialEntries[entry.Index];
-            currentBmdMaterial = materialManager.Get(entry.Index);
+            var mappedMaterialIndex =
+                bmd.MAT3.MaterialEntryIndieces[entry.Index];
+            currentMaterialEntry =
+                bmd.MAT3.MaterialEntries[mappedMaterialIndex];
+            currentBmdMaterial = materialManager.Get(mappedMaterialIndex);
             break;
 
           // Batch

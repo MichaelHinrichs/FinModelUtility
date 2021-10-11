@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
 using fin.io;
 
 namespace uni.util.io {
-  public interface IFileHierarchy {
+  public interface IFileHierarchy : IEnumerable<IFileHierarchyDirectory> {
     IFileHierarchyDirectory Root { get; }
   }
 
@@ -85,5 +86,21 @@ namespace uni.util.io {
         return didChange;
       }
     }
+
+    public IEnumerator<IFileHierarchyDirectory> GetEnumerator() {
+      var directoryQueue = new Queue<IFileHierarchyDirectory>();
+      directoryQueue.Enqueue(this.Root);
+      while (directoryQueue.Count > 0) {
+        var directory = directoryQueue.Dequeue();
+
+        yield return directory;
+
+        foreach (var subdir in directory.Subdirs) {
+          directoryQueue.Enqueue(subdir);
+        }
+      }
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
   }
 }

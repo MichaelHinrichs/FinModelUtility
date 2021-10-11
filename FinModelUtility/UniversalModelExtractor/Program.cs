@@ -1,5 +1,6 @@
 ﻿using fin.io;
 
+using uni.games.super_mario_sunshine;
 using uni.platforms.gcn;
 
 namespace uni {
@@ -8,7 +9,7 @@ namespace uni {
       var pikmin2Rom =
           new FinFile(
               @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pikmin_2.gcm");
-      new GcnFileHierarchyExtractor().ExtractFromRom(pikmin2Rom);
+      new SuperMarioSunshineExtractor().Main();
     }
   }
 }

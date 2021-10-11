@@ -15,7 +15,16 @@ namespace uni.platforms {
              })
              .Single();
 
+    public static IDirectory CLI_DIRECTORY =
+        DirectoryConstants.BASE_DIRECTORY.TryToGetSubdir("cli");
+
+    public static IDirectory ROMS_DIRECTORY =
+        DirectoryConstants.CLI_DIRECTORY.TryToGetSubdir("roms");
+
     public static IDirectory TOOLS_DIRECTORY =
-        DirectoryConstants.BASE_DIRECTORY.TryToGetSubdir("cli/tools");
+        DirectoryConstants.CLI_DIRECTORY.TryToGetSubdir("tools");
+
+    public static IDirectory OUT_DIRECTORY =
+        DirectoryConstants.CLI_DIRECTORY.TryToGetSubdir("out");
   }
 }

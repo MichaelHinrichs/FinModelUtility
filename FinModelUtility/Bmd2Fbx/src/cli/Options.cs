@@ -14,6 +14,11 @@ namespace bmd.cli {
                 "Whether to extract a model to a static mesh before conversion. Currently a work-in-progress.",
             Required = false)]
     public bool Static { get; set; }
+
+    [Option("framerate",
+            HelpText = "The framerate of the animations. If not provided, assumed to be 30fps.",
+            Required = false)]
+    public float? Framerate { get; set; }
   }
 
   public abstract class BConversionOptions : BBasicOptions {

@@ -27,7 +27,7 @@ namespace uni.platforms.gcn.tools {
             () => {
               ProcessUtil.ExecuteBlockingSilently(
                   GcnToolsConstants.GCMDUMP_EXE,
-                  romFile.FullName);
+                  $"\"{romFile.FullName}\"");
             });
         Asserts.True(directory.Exists,
                      $"Directory was not created: {directory}");

@@ -137,7 +137,7 @@ namespace bmd.exporter {
         var cC = tevStage.color_c;
         var cD = tevStage.color_d;
 
-        BlendMode blendMode;
+        BlendMode blendMode = BlendMode.NONE;
         // Additive: a * (1 - c) + b * c + d
         if (tevStage.color_op == 0) {
           var texC = TevStage.GxCc.GX_CC_TEXC;
@@ -159,7 +159,7 @@ namespace bmd.exporter {
             //throw new NotSupportedException("Unsupported blend mode!");
           }
         } else {
-          throw new NotSupportedException("Unsupported color operation!");
+          //throw new NotSupportedException("Unsupported color operation!");
         }
 
         var layer = new BmdLayer2(texture,

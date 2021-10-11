@@ -32,7 +32,7 @@ namespace uni.platforms.gcn.tools {
             () => {
               ProcessUtil.ExecuteBlockingSilently(
                   GcnToolsConstants.YAZ0DEC_EXE,
-                  szsFile.FullName);
+                  $"\"{szsFile.FullName}\"");
             });
         Asserts.True(File.Exists(rarcPath),
                      $"File was not created: {rarcPath}");

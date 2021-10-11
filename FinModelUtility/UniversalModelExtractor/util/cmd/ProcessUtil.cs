@@ -61,15 +61,11 @@ namespace uni.util.cmd {
       for (var i = 0; i < args.Length; ++i) {
         // TODO: Is this safe?
         var arg = args[i];
-        Asserts.False(
-            arg.Contains("\""),
-            $"While attempting to execute ${exeFile}, received an argument " +
-            $"containing a quote. This is not safe: {arg}");
 
         if (i > 0) {
           argString += " ";
         }
-        argString += $"\"{arg}\"";
+        argString += arg;
       }
 
       var processStartInfo =

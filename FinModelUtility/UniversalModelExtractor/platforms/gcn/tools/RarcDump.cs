@@ -32,7 +32,7 @@ namespace uni.platforms.gcn.tools {
             () => {
               ProcessUtil.ExecuteBlockingSilently(
                   GcnToolsConstants.RARCDUMP_EXE,
-                  rarcFile.FullName);
+                  $"\"{rarcFile.FullName}\"");
             });
         Asserts.True(Directory.Exists(directoryPath),
                      $"Directory was not created: {directoryPath}");

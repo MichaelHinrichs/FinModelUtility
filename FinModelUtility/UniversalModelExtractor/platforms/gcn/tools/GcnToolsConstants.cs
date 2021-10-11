@@ -13,5 +13,12 @@ namespace uni.platforms.gcn.tools {
 
     public static IFile YAZ0DEC_EXE =
         GcnToolsConstants.SZSTOOLS_DIRECTORY.TryToGetFile("yaz0dec.exe");
+
+
+    public static IDirectory BMD2FBX_DIRECTORY =
+        DirectoryConstants.TOOLS_DIRECTORY.TryToGetSubdir("bmd2fbx");
+
+    public static IFile BMD2FBX_EXE =
+        GcnToolsConstants.BMD2FBX_DIRECTORY.TryToGetFile("bmd2fbx.exe");
   }
 }

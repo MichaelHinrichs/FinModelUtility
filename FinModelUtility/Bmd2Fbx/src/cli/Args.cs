@@ -15,6 +15,7 @@ namespace bmd.cli {
   public static class Args {
     public static bool Automatic { get; private set; }
     public static bool Static { get; private set; }
+    public static float Framerate { get; private set; }
     public static bool Verbose { get; private set; }
 
     public static string OutputDirectoryPath { get; private set; } = "";
@@ -48,6 +49,7 @@ namespace bmd.cli {
                 .WithParsed((AutomaticOptions automaticOpts) => {
                   Args.Automatic = true;
                   Args.Static = automaticOpts.Static;
+                  Args.Framerate = automaticOpts.Framerate ?? 30;
                   Args.Verbose = automaticOpts.Verbose;
                   Args.OutputDirectoryPath = automaticOpts.OutputPath;
                   Args.BcxPaths = Arrays.Concat(Files.GetPathsWithExtension(
@@ -62,6 +64,7 @@ namespace bmd.cli {
                 .WithParsed((ManualOptions manualOpts) => {
                   Args.Automatic = false;
                   Args.Static = manualOpts.Static;
+                  Args.Framerate = manualOpts.Framerate ?? 30;
                   Args.Verbose = manualOpts.Verbose;
                   Args.OutputDirectoryPath = manualOpts.OutputPath;
                   Args.BmdPaths = manualOpts.BmdPaths.ToList();
@@ -73,11 +76,30 @@ namespace bmd.cli {
                   Args.Static = debugOpts.Static;
                   Args.Verbose = debugOpts.Verbose;
 
-                  Args.GetForEnemy_("Chappy",
+                  /*Args.GetForEnemy_("Chappy",
                                     out var outputPath,
                                     out var bmdPaths,
                                     out var bcxPaths,
-                                    out var btiPaths);
+                                    out var btiPaths);*/
+
+                  Args.Framerate = 60;
+                  var outputPath =
+                      @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\out\super_mario_sunshine";
+                  var bmdPaths = new String[] {
+                      @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\super_mario_sunshine.gcm_dir\data\scene\bianco1.szs 0.rarc_dir\scene\map\map\map.bmd"
+                      //@"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\super_mario_sunshine.gcm_dir\data\mario.szs 0.rarc_dir\mario\bmd\ma_mdl1.bmd",
+                  };
+                  /*var bcxPaths =
+                      Files.GetFilesWithExtension(
+                               new FinDirectory(
+                                   @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\super_mario_sunshine.gcm_dir\data\mario.szs 0.rarc_dir\mario\bck"),
+                               "bck")
+                           .Where(
+                               file => file.Name.StartsWith("ma_"))
+                           .Select(file => file.FullName)
+                           .ToArray();*/
+                  var bcxPaths = new String[] { };
+                  var btiPaths = new String[] {};
 
                   /*Args.GetFromKando_("Ufo",
                                   out var outputPath,
