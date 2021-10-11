@@ -14,15 +14,30 @@ namespace fin.io {
 
     public FinDirectory(string fullName)
       => this.Info = new DirectoryInfo(fullName);
-    
+
     public DirectoryInfo Info { get; }
 
     public string Name => this.Info.Name;
     public string FullName => this.Info.FullName;
 
-    public IDirectory? GetParent() => new FinDirectory(this.Info.Parent);
+    public bool Exists => Directory.Exists(this.FullName);
 
-    public bool Exists => this.Info.Exists;
+    public IDirectory? GetParent()
+      => this.Info.Parent != null
+             ? new FinDirectory(this.Info.Parent)
+             : null;
+
+    public IDirectory[] GetAncestry() {
+      var parents = new LinkedList<IDirectory>();
+      IDirectory? parent = null;
+      do {
+        parent = parent == null ? this.GetParent() : parent.GetParent();
+        if (parent != null) {
+          parents.AddLast(parent);
+        }
+      } while (parent != null);
+      return parents.ToArray();
+    }
 
     public bool Create() {
       if (this.Exists) {
@@ -87,5 +102,14 @@ namespace fin.io {
     }
 
     public override string ToString() => this.FullName;
+
+    public override bool Equals(object? other) {
+      if (other is not IDirectory otherDirectory) {
+        return false;
+      }
+
+      return Path.GetFullPath(this.FullName) ==
+             Path.GetFullPath(otherDirectory.FullName);
+    }
   }
 }

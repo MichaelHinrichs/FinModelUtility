@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 using fin.util.asserts;
 
@@ -11,6 +13,8 @@ namespace fin.io {
 
     public string Name => this.Info.Name;
     public string FullName => this.Info.FullName;
+
+    public bool Exists => File.Exists(this.FullName);
 
     public string Extension => this.Info.Extension;
 
@@ -29,8 +33,22 @@ namespace fin.io {
       return new FinFile(newFullName);
     }
 
-    public IDirectory? GetParent() => new FinDirectory(this.Info.Directory);
-    public bool Exists => this.Info.Exists;
+    public IDirectory? GetParent()
+      => this.Info.Directory != null
+             ? new FinDirectory(this.Info.Directory)
+             : null;
+
+    public IDirectory[] GetAncestry() {
+      var parents = new LinkedList<IDirectory>();
+      IDirectory? parent = null;
+      do {
+        parent = parent == null ? this.GetParent() : parent.GetParent();
+        if (parent != null) {
+          parents.AddLast(parent);
+        }
+      } while (parent != null);
+      return parents.ToArray();
+    }
 
     public StreamReader ReadAsText() => File.OpenText(this.FullName);
     public byte[] SkimAllBytes() => File.ReadAllBytes(this.FullName);
@@ -39,5 +57,14 @@ namespace fin.io {
     public FileStream OpenWrite() => File.OpenWrite(this.FullName);
 
     public override string ToString() => this.FullName;
+
+    public override bool Equals(object? other) {
+      if (other is not IFile otherFile) {
+        return false;
+      }
+
+      return Path.GetFullPath(this.FullName) ==
+             Path.GetFullPath(otherFile.FullName);
+    }
   }
 }

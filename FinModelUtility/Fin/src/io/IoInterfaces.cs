@@ -6,8 +6,10 @@ namespace fin.io {
     string Name { get; }
     string FullName { get; }
 
-    IDirectory? GetParent();
     bool Exists { get; }
+
+    IDirectory? GetParent();
+    IDirectory[]? GetAncestry();
   }
 
   public interface IDirectory : IIoObject {
