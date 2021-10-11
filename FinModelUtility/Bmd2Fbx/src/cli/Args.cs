@@ -164,7 +164,7 @@ namespace bmd.cli {
       var enemyBasePath =
           $"{basePath}cli/roms/pkmn2.gcm_dir/enemy/data/{name}/";
 
-      Args.GetFromDirectory_(new DirectoryInfo(enemyBasePath),
+      Args.GetFromDirectory_(new FinDirectory(enemyBasePath),
                              out outputPath,
                              out bmdPaths,
                              out bcxPaths,
@@ -210,18 +210,15 @@ namespace bmd.cli {
       var entryDir = kandoDir.TryToGetSubdir(name);
       var modelDir = entryDir.TryToGetSubdir(@"arc.szs 0.rarc_dir\arc");
 
-      var modelDirFullName = modelDir.FullName;
-      var modelDirInfo = new DirectoryInfo(entryDir.FullName);
-
-      bmdPaths = Files.GetPathsWithExtension(modelDirInfo, "bmd", true);
+      bmdPaths = Files.GetPathsWithExtension(modelDir, "bmd", true);
       bcxPaths = Arrays.Concat(
-          Files.GetPathsWithExtension(modelDirInfo, "bca", true),
-          Files.GetPathsWithExtension(modelDirInfo, "bck", true));
-      btiPaths = Files.GetPathsWithExtension(modelDirInfo, "bti", true);
+          Files.GetPathsWithExtension(modelDir, "bca", true),
+          Files.GetPathsWithExtension(modelDir, "bck", true));
+      btiPaths = Files.GetPathsWithExtension(modelDir, "bti", true);
     }
 
     private static void GetFromDirectory_(
-        DirectoryInfo directory,
+        IDirectory directory,
         out string outputPath,
         out IList<string> bmdPaths,
         out IList<string> bcxPaths,

@@ -1,12 +1,30 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 
 using fin.util.asserts;
 
 namespace fin.io {
   public static class Files {
-    public static DirectoryInfo GetCwd()
-      => new(Directory.GetCurrentDirectory());
+    public static IDirectory GetCwd()
+      => new FinDirectory(Directory.GetCurrentDirectory());
+
+    public static void RunInDirectory(IDirectory directory, Action handler) {
+      var cwd = Directory.GetCurrentDirectory();
+
+      Asserts.True(directory.Exists,
+                   $"Attempted to run in nonexistent directory: {directory}");
+      Directory.SetCurrentDirectory(directory.FullName);
+
+      try {
+        handler();
+      } catch {
+        Directory.SetCurrentDirectory(cwd);
+        throw;
+      }
+
+      Directory.SetCurrentDirectory(cwd);
+    }
 
 
     // Getting Files
@@ -16,18 +34,18 @@ namespace fin.io {
       => Files.GetFilesWithExtension(Files.GetCwd(), extension, includeSubdirs);
 
     public static FinFile[] GetFilesWithExtension(
-        DirectoryInfo directory,
+        IDirectory directory,
         string extension,
         bool includeSubdirs = false)
-      => directory.GetFiles($"*.{extension}",
-                            includeSubdirs
-                                ? SearchOption.AllDirectories
-                                : SearchOption.TopDirectoryOnly)
+      => directory.Info.GetFiles($"*.{extension}",
+                                 includeSubdirs
+                                     ? SearchOption.AllDirectories
+                                     : SearchOption.TopDirectoryOnly)
                   .Select(fileInfo => new FinFile(fileInfo))
                   .ToArray();
 
     public static IFile GetFileWithExtension(
-        DirectoryInfo directory,
+        IDirectory directory,
         string extension,
         bool includeSubdirs = false)
       => new FinFile(
@@ -35,7 +53,7 @@ namespace fin.io {
 
 
     public static string[] GetPathsWithExtension(
-        DirectoryInfo directory,
+        IDirectory directory,
         string extension,
         bool includeSubdirs = false)
       => Files.GetFilesWithExtension(directory, extension, includeSubdirs)
@@ -43,7 +61,7 @@ namespace fin.io {
               .ToArray();
 
     public static string GetPathWithExtension(
-        DirectoryInfo directory,
+        IDirectory directory,
         string extension,
         bool includeSubdirs = false) {
       var paths =

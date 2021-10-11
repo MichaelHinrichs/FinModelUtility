@@ -190,9 +190,9 @@ namespace mod.cli {
         out IFile? anmFile) {
       outputDirectory = Args.GetOutputDirectory_(directory.Name);
 
-      modFile = Files.GetFileWithExtension(directory.Info, "mod");
+      modFile = Files.GetFileWithExtension(directory, "mod");
 
-      var anmFiles = Files.GetFilesWithExtension(directory.Info, "anm");
+      var anmFiles = Files.GetFilesWithExtension(directory, "anm");
       Asserts.True(anmFiles.Length <= 1, "Found more than one anm file!");
       anmFile = anmFiles[0];
     }
@@ -204,8 +204,8 @@ namespace mod.cli {
         out IList<IFile> anmFiles) {
       outputDirectory = Args.GetOutputDirectory_(directory.Name);
 
-      modFiles = Files.GetFilesWithExtension(directory.Info, "mod");
-      anmFiles = Files.GetFilesWithExtension(directory.Info, "anm");
+      modFiles = Files.GetFilesWithExtension(directory, "mod");
+      anmFiles = Files.GetFilesWithExtension(directory, "anm");
     }
   }
 }
