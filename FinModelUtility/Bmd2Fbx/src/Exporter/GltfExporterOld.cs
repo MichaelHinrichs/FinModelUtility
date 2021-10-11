@@ -10,8 +10,6 @@ using fin.math;
 
 using MathNet.Numerics.LinearAlgebra.Double;
 
-using Microsoft.Extensions.Logging;
-
 using bmd.G3D_Binary_File_Format;
 
 using SharpGLTF.Geometry;

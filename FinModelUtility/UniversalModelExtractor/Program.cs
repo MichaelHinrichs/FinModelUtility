@@ -8,7 +8,7 @@ namespace uni {
       var pikmin2Rom =
           new FinFile(
               @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pikmin_2.gcm");
-      GcnFileHierarchyExtractor.ExtractFromRom(pikmin2Rom);
+      new GcnFileHierarchyExtractor().ExtractFromRom(pikmin2Rom);
     }
   }
 }

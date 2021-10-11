@@ -39,6 +39,8 @@ namespace fin.log {
 
     public static FinLogger Create<T>()
       => new Logger(Logging.FACTORY_.CreateLogger<T>());
+    public static FinLogger Create(string categoryName)
+      => new Logger(Logging.FACTORY_.CreateLogger(categoryName));
 
 
     private class Logger : ILogger {

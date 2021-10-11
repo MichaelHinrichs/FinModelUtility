@@ -9,9 +9,6 @@ using fin.io;
 using fin.log;
 using fin.model;
 using fin.util.asserts;
-using fin.util.image;
-
-using Microsoft.Extensions.Logging;
 
 using SharpGLTF.Materials;
 using SharpGLTF.Memory;
