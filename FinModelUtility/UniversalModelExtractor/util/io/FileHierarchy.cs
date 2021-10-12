@@ -1,15 +1,19 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
 using fin.io;
+using fin.util.asserts;
 
 using uni.util.data;
 
 namespace uni.util.io {
-  public interface IFileHierarchy : IEnumerable<IFileHierarchyDirectory> {
+  public interface IFileHierarchy {
     IFileHierarchyDirectory Root { get; }
+
+    void ForEach(Action<IFileHierarchyDirectory> action);
   }
 
   public interface IFileHierarchyInstance {
@@ -28,6 +32,8 @@ namespace uni.util.io {
     public IReadOnlyList<IFileHierarchyFile> Files { get; }
 
     public bool Refresh(bool recursive = false);
+
+    public IFileHierarchyDirectory TryToGetSubdir(string localPath);
   }
 
   public interface IFileHierarchyFile : IFileHierarchyInstance {
@@ -86,21 +92,23 @@ namespace uni.util.io {
         var actualSubdirs = this.Impl.GetExistingSubdirs().ToArray();
         didChange |=
             ListUtil.RemoveWhere(this.subdirs_,
-                                 subdir => !actualSubdirs.Contains(subdir.Impl));
+                                 subdir => !actualSubdirs
+                                               .Contains(subdir.Impl));
         foreach (var actualSubdir in actualSubdirs) {
-          if (this.subdirs_.All(subdir => subdir.Impl != actualSubdir)) {
+          if (this.subdirs_.All(subdir => !subdir.Impl.Equals(actualSubdir))) {
             this.subdirs_.Add(
-                new FileHierarchyDirectory(actualSubdir, this.baseDirectory_));
+                new FileHierarchyDirectory(actualSubdir,
+                                           this.baseDirectory_));
             didChange = true;
           }
         }
 
-        var actualFiles = this.Impl.GetExistingFiles().ToArray();
+        var actualFiles = this.Impl.GetExistingFiles().ToList();
         didChange |=
             ListUtil.RemoveWhere(this.files_,
                                  file => !actualFiles.Contains(file.Impl));
         foreach (var actualFile in actualFiles) {
-          if (this.files_.All(file => file.Impl != actualFile)) {
+          if (this.files_.All(file => !file.Impl.Equals(actualFile))) {
             this.files_.Add(
                 new FileHierarchyFile(actualFile, this.baseDirectory_));
             didChange = true;
@@ -115,12 +123,37 @@ namespace uni.util.io {
 
         return didChange;
       }
+
+      public IFileHierarchyDirectory TryToGetSubdir(string relativePath)
+        => this.GetSubdirImpl_(relativePath.Split('/', '\\'));
+
+      private IFileHierarchyDirectory GetSubdirImpl_(
+          IEnumerable<string> subdirs) {
+        IFileHierarchyDirectory current = this;
+
+        foreach (var subdir in subdirs) {
+          if (subdir == "") {
+            continue;
+          }
+
+          if (subdir == "..") {
+            Asserts.Fail();
+            continue;
+          }
+
+          current = current.Subdirs
+                           .Single(dir => dir.Name == subdir);
+        }
+
+        return current;
+      }
     }
 
     private class FileHierarchyFile : IFileHierarchyFile {
       public FileHierarchyFile(IFile file, IDirectory baseDirectory) {
         this.Impl = file;
-        this.LocalPath = file.FullName.Substring(baseDirectory.FullName.Length);
+        this.LocalPath =
+            file.FullName.Substring(baseDirectory.FullName.Length);
       }
 
       public IFile Impl { get; }
@@ -134,20 +167,18 @@ namespace uni.util.io {
       public string LocalPath { get; }
     }
 
-    public IEnumerator<IFileHierarchyDirectory> GetEnumerator() {
+    public void ForEach(Action<IFileHierarchyDirectory> action) {
       var directoryQueue = new Queue<IFileHierarchyDirectory>();
       directoryQueue.Enqueue(this.Root);
       while (directoryQueue.Count > 0) {
         var directory = directoryQueue.Dequeue();
 
-        yield return directory;
+        action(directory);
 
         foreach (var subdir in directory.Subdirs) {
           directoryQueue.Enqueue(subdir);
         }
       }
     }
-
-    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
   }
 }

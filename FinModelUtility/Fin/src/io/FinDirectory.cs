@@ -107,13 +107,28 @@ namespace fin.io {
 
     public override string ToString() => this.FullName;
 
+
     public override bool Equals(object? other) {
+      if (object.ReferenceEquals(this, other)) {
+        return true;
+      }
       if (other is not IDirectory otherDirectory) {
         return false;
       }
-
-      return Path.GetFullPath(this.FullName) ==
-             Path.GetFullPath(otherDirectory.FullName);
+      return this.Equals(otherDirectory);
     }
+
+    public bool Equals(IDirectory other) {
+      return Path.GetFullPath(this.FullName) ==
+             Path.GetFullPath(other.FullName);
+    }
+
+    public override int GetHashCode() => this.FullName.GetHashCode();
+
+    public static bool operator ==(FinDirectory lhs, IDirectory rhs)
+      => lhs.Equals(rhs);
+
+    public static bool operator !=(FinDirectory lhs, IDirectory rhs)
+      => !lhs.Equals(rhs);
   }
 }

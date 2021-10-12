@@ -16,9 +16,9 @@ namespace bmd.cli {
     public bool Static { get; set; }
 
     [Option("framerate",
-            HelpText = "The framerate of the animations. If not provided, assumed to be 30fps.",
+            HelpText = "The frame rate of the animations. If not provided, assumed to be 30fps.",
             Required = false)]
-    public float? Framerate { get; set; }
+    public float? FrameRate { get; set; }
   }
 
   public abstract class BConversionOptions : BBasicOptions {

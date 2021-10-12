@@ -25,14 +25,15 @@ namespace bmd.exporter {
     public IModel Convert(
         BMD bmd,
         IList<(string, IBcx)>? pathsAndBcxs = null,
-        IList<(string, BTI)>? pathsAndBtis = null) {
+        IList<(string, BTI)>? pathsAndBtis = null,
+        float frameRate = 30) {
       var model = new ModelImpl();
 
       var materialManager =
           new BmdMaterialManager(model, bmd, pathsAndBtis);
 
       var jointsAndBones = this.ConvertBones_(model, bmd);
-      this.ConvertAnimations_(model, bmd, pathsAndBcxs, jointsAndBones);
+      this.ConvertAnimations_(model, bmd, pathsAndBcxs, frameRate, jointsAndBones);
       this.ConvertMesh_(model, bmd, jointsAndBones, materialManager);
 
       return model;
@@ -74,6 +75,7 @@ namespace bmd.exporter {
         IModel model,
         BMD bmd,
         IList<(string, IBcx)>? pathsAndBcxs,
+        float frameRate,
         (MkdsNode, IBone)[] jointsAndBones) {
       var bcxCount = pathsAndBcxs?.Count ?? 0;
       for (var a = 0; a < bcxCount; ++a) {
@@ -84,7 +86,7 @@ namespace bmd.exporter {
         animation.Name = animationName;
 
         animation.FrameCount = bcx.Anx1.FrameCount;
-        animation.Fps = Args.Framerate;
+        animation.FrameRate = frameRate;
 
         // Writes translation/rotation/scale for each joint.
         foreach (var (joint, bone) in jointsAndBones) {

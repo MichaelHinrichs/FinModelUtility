@@ -2,18 +2,18 @@
 using System.IO;
 using System.Linq;
 
-using bmd.cli;
 using bmd.GCN;
+
+using fin.io;
 
 using Newtonsoft.Json;
 
 namespace bmd.exporter {
   public static class BmdDebugHelper {
     public static void ExportFilesInBmd(
+        IDirectory outputDirectory,
         BMD bmd,
         IList<(string, BTI)> pathsAndBtis) {
-      var outputDirectory = Args.OutputDirectory;
-
       // Saves JSON representation of MAT3 for debugging materials
       var jsonSerializer = new JsonSerializer();
       jsonSerializer.Formatting = Formatting.Indented;

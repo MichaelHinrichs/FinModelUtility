@@ -12,24 +12,24 @@ using fin.util.array;
 
 namespace bmd.cli {
   // TODO: Hook downstream classes into this for args by system.
-  public static class Args {
-    public static bool Automatic { get; private set; }
-    public static bool Static { get; private set; }
-    public static float Framerate { get; private set; }
-    public static bool Verbose { get; private set; }
+  public class Args {
+    public bool Automatic { get; private set; }
+    public bool Static { get; private set; }
+    public float FrameRate { get; private set; }
+    public bool Verbose { get; private set; }
 
-    public static string OutputDirectoryPath { get; private set; } = "";
+    public string OutputDirectoryPath { get; private set; } = "";
 
-    public static IDirectory OutputDirectory
-      => new FinDirectory(Args.OutputDirectoryPath);
+    public IDirectory OutputDirectory
+      => new FinDirectory(this.OutputDirectoryPath);
 
-    public static IList<string> BmdPaths { get; private set; } =
+    public IList<string> BmdPaths { get; private set; } =
       new List<string>();
 
-    public static IList<string> BcxPaths { get; private set; } =
+    public IList<string> BcxPaths { get; private set; } =
       new List<string>();
 
-    public static IList<string> BtiPaths { get; private set; } =
+    public IList<string> BtiPaths { get; private set; } =
       new List<string>();
 
     /// <summary>
@@ -37,7 +37,7 @@ namespace bmd.cli {
     ///
     ///   Throws an error if parsing failed.
     /// </summary>
-    public static void PopulateFromArgs(string[] args) {
+    public void PopulateFromArgs(string[] args) {
       IEnumerable<Error>? errors = null;
 
       var parserResult =
@@ -47,34 +47,34 @@ namespace bmd.cli {
                     typeof(ManualOptions),
                     typeof(DebugOptions))
                 .WithParsed((AutomaticOptions automaticOpts) => {
-                  Args.Automatic = true;
-                  Args.Static = automaticOpts.Static;
-                  Args.Framerate = automaticOpts.Framerate ?? 30;
-                  Args.Verbose = automaticOpts.Verbose;
-                  Args.OutputDirectoryPath = automaticOpts.OutputPath;
-                  Args.BcxPaths = Arrays.Concat(Files.GetPathsWithExtension(
+                  this.Automatic = true;
+                  this.Static = automaticOpts.Static;
+                  this.FrameRate = automaticOpts.FrameRate ?? 30;
+                  this.Verbose = automaticOpts.Verbose;
+                  this.OutputDirectoryPath = automaticOpts.OutputPath;
+                  this.BcxPaths = Arrays.Concat(Files.GetPathsWithExtension(
                                                     "bca",
                                                     true),
                                                 Files.GetPathsWithExtension(
                                                     "bck",
                                                     true));
-                  Args.BtiPaths = Files.GetPathsWithExtension("bti", true);
-                  Args.BmdPaths = Files.GetPathsWithExtension("bmd", true);
+                  this.BtiPaths = Files.GetPathsWithExtension("bti", true);
+                  this.BmdPaths = Files.GetPathsWithExtension("bmd", true);
                 })
                 .WithParsed((ManualOptions manualOpts) => {
-                  Args.Automatic = false;
-                  Args.Static = manualOpts.Static;
-                  Args.Framerate = manualOpts.Framerate ?? 30;
-                  Args.Verbose = manualOpts.Verbose;
-                  Args.OutputDirectoryPath = manualOpts.OutputPath;
-                  Args.BmdPaths = manualOpts.BmdPaths.ToList();
-                  Args.BcxPaths = manualOpts.BcxPaths.ToList();
-                  Args.BtiPaths = manualOpts.BtiPaths.ToList();
+                  this.Automatic = false;
+                  this.Static = manualOpts.Static;
+                  this.FrameRate = manualOpts.FrameRate ?? 30;
+                  this.Verbose = manualOpts.Verbose;
+                  this.OutputDirectoryPath = manualOpts.OutputPath;
+                  this.BmdPaths = manualOpts.BmdPaths.ToList();
+                  this.BcxPaths = manualOpts.BcxPaths.ToList();
+                  this.BtiPaths = manualOpts.BtiPaths.ToList();
                 })
                 .WithParsed((DebugOptions debugOpts) => {
-                  Args.Automatic = false;
-                  Args.Static = debugOpts.Static;
-                  Args.Verbose = debugOpts.Verbose;
+                  this.Automatic = false;
+                  this.Static = debugOpts.Static;
+                  this.Verbose = debugOpts.Verbose;
 
                   /*Args.GetForEnemy_("Chappy",
                                     out var outputPath,
@@ -82,7 +82,7 @@ namespace bmd.cli {
                                     out var bcxPaths,
                                     out var btiPaths);*/
 
-                  Args.Framerate = 60;
+                  this.FrameRate = 60;
                   var outputPath =
                       @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\out\super_mario_sunshine";
                   var bmdPaths = new String[] {
@@ -139,10 +139,10 @@ namespace bmd.cli {
                   //GetForPikmin(out outputPath, out bmdPath);
                   //GetForTesting(out outputPath, out bmdPath, out bcxPaths);
 
-                  Args.OutputDirectoryPath = outputPath;
-                  Args.BmdPaths = bmdPaths;
-                  Args.BcxPaths = bcxPaths;
-                  Args.BtiPaths = btiPaths;
+                  this.OutputDirectoryPath = outputPath;
+                  this.BmdPaths = bmdPaths;
+                  this.BcxPaths = bcxPaths;
+                  this.BtiPaths = btiPaths;
                 })
                 .WithNotParsed(parseErrors => errors = parseErrors);
 
@@ -153,7 +153,7 @@ namespace bmd.cli {
         throw new Exception();
       }
 
-      Logging.Initialize(Args.Verbose);
+      Logging.Initialize(this.Verbose);
     }
 
     private static void GetForTesting_(

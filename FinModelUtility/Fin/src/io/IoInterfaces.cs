@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace fin.io {
@@ -12,7 +13,7 @@ namespace fin.io {
     IDirectory[]? GetAncestry();
   }
 
-  public interface IDirectory : IIoObject {
+  public interface IDirectory : IIoObject, IEquatable<IDirectory> {
     DirectoryInfo Info { get; }
 
     bool Create();
@@ -29,7 +30,7 @@ namespace fin.io {
     IFile TryToGetFile(string relativePath);
   }
 
-  public interface IFile : IIoObject {
+  public interface IFile : IIoObject, IEquatable<IFile> {
     FileInfo Info { get; }
 
     string Extension { get; }

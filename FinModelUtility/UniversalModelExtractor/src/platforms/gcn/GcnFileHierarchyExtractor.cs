@@ -14,11 +14,15 @@ namespace uni.platforms.gcn {
     private readonly Yaz0Dec yaz0Dec_ = new();
     private readonly RarcDump rarcDump_ = new();
 
-    public IFileHierarchy ExtractFromRom(IFile romFile) {
+    public IFileHierarchy ExtractFromRom(
+        IFile romFile,
+        ISet<string>? junkTerms = null) {
       this.gcmDump_.Run(romFile, out var fileHierarchy);
 
-      // Decompresses all of the archives
-      foreach (var fileHierarchyDirectory in fileHierarchy) {
+      var hasDecompressed = false;
+
+      // Decompresses all of the archives,
+      fileHierarchy.ForEach(fileHierarchyDirectory => {
         // Converts any SZS files into RARC files.
         var szsFiles =
             fileHierarchyDirectory.Files
@@ -31,6 +35,7 @@ namespace uni.platforms.gcn {
 
         // Updates to see any new RARC files.
         if (didDecrypt) {
+          hasDecompressed = true;
           fileHierarchyDirectory.Refresh();
         }
 
@@ -47,6 +52,7 @@ namespace uni.platforms.gcn {
 
         // Updates to see any new extracted directories.
         if (didDump) {
+          hasDecompressed = true;
           fileHierarchyDirectory.Refresh();
         }
 
@@ -84,16 +90,17 @@ namespace uni.platforms.gcn {
 
             // If subdir has same name or is an abbreviation of the parent, 
             // just collapses them with the parent name.
-            if (subdirName.Length <= rarcSubdirName.Length &&
-                subdirName.ToLower() ==
-                rarcSubdirName.Substring(0, subdirName.Length).ToLower()) {
+            if ((subdirName.Length <= rarcSubdirName.Length &&
+                 subdirName.ToLower() ==
+                 rarcSubdirName.Substring(0, subdirName.Length).ToLower()) ||
+                (junkTerms?.Contains(subdirName) ?? false)) {
               Directory.Move(subdir.FullName, rarcSubdirPath);
             }
             // If parent has same name or is an abbreviation of the subdir,
             // just collapses them with the subdir name.
             else if (subdirName.Length >= rarcSubdirName.Length &&
-                subdirName.Substring(0, rarcSubdirName.Length).ToLower() ==
-                rarcSubdirName.ToLower()) {
+                     subdirName.Substring(0, rarcSubdirName.Length).ToLower() ==
+                     rarcSubdirName.ToLower()) {
               Directory.Move(subdir.FullName,
                              Path.Join(rarcSubdir.Impl.GetParent().FullName,
                                        subdirName));
@@ -108,10 +115,16 @@ namespace uni.platforms.gcn {
             File.Delete(szsPath);
             File.Delete(rarcPath);
             Directory.Delete(rarcSubdir.FullName);
+
+            hasDecompressed = true;
           } else {
             Asserts.Fail("Multiple children in RARC!");
           }
         }
+      });
+
+      if (hasDecompressed) {
+        fileHierarchy.Root.Refresh(true);
       }
 
       return fileHierarchy;

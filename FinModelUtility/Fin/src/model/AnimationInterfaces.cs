@@ -15,7 +15,7 @@ namespace fin.model {
     string Name { get; set; }
 
     int FrameCount { get; set; }
-    float Fps { get; set; }
+    float FrameRate { get; set; }
 
     IReadOnlyDictionary<IBone, IBoneTracks> BoneTracks { get; }
     IBoneTracks AddBoneTracks(IBone bone);

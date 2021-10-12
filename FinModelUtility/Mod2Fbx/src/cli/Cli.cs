@@ -9,7 +9,8 @@ namespace mod.cli {
       argsInstance.PopulateFromArgs(args);
 
       var logger = Logging.Create<Cli>();
-      using var _ = logger.BeginScope("Entry");
+      logger.LogInformation(string.Join(" ", args));
+      logger.LogInformation(" ");
 
       new ManualMod2FbxApi().Process(argsInstance.OutputDirectory,
                                      argsInstance.ModFiles,

@@ -58,13 +58,28 @@ namespace fin.io {
 
     public override string ToString() => this.FullName;
 
+
     public override bool Equals(object? other) {
+      if (object.ReferenceEquals(this, other)) {
+        return true;
+      }
       if (other is not IFile otherFile) {
         return false;
       }
-
-      return Path.GetFullPath(this.FullName) ==
-             Path.GetFullPath(otherFile.FullName);
+      return this.Equals(otherFile);
     }
+
+    public bool Equals(IFile other) {
+      return Path.GetFullPath(this.FullName) ==
+             Path.GetFullPath(other.FullName);
+    }
+
+    public override int GetHashCode() => this.FullName.GetHashCode();
+
+    public static bool operator ==(FinFile lhs, IFile rhs)
+      => lhs.Equals(rhs);
+
+    public static bool operator !=(FinFile lhs, IFile rhs)
+      => !lhs.Equals(rhs);
   }
 }

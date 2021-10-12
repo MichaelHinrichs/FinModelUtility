@@ -27,7 +27,7 @@ namespace fin.exporter.assimp.indirect {
         }
 
         var assFps = assAnimation.TicksPerSecond;
-        var finFps = finAnimation.Fps;
+        var finFps = finAnimation.FrameRate;
 
         assAnimation.TicksPerSecond = finFps;
         assAnimation.DurationInTicks *= finFps / assFps;

@@ -34,5 +34,16 @@ namespace uni.games {
       return DirectoryConstants.OUT_DIRECTORY
                                .TryToGetSubdir(localOutPath, true);
     }
+
+    public static IDirectory GetOutputDirectoryForDirectory(
+        IFileHierarchyDirectory fileHierarchyDirectory) {
+      var romName = GameFileHierarchyUtil.GetRomName(fileHierarchyDirectory);
+
+      var localDirectoryPath = fileHierarchyDirectory.LocalPath;
+      var localOutPath = Path.Join(romName, localDirectoryPath);
+
+      return DirectoryConstants.OUT_DIRECTORY
+                               .TryToGetSubdir(localOutPath, true);
+    }
   }
 }

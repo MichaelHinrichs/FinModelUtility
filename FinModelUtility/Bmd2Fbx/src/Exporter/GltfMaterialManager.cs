@@ -4,6 +4,8 @@ using System.Linq;
 using bmd.cli;
 using bmd.GCN;
 
+using fin.io;
+
 namespace bmd.exporter {
   public class GltfMaterialManager {
     private readonly BMD bmd_;
@@ -11,6 +13,7 @@ namespace bmd.exporter {
     private readonly IList<GltfMaterial> materials_;
 
     public GltfMaterialManager(
+        IDirectory outputDirectory,
         BMD bmd,
         IList<(string, BTI)>? pathsAndBtis = null) {
       this.bmd_ = bmd;
@@ -26,7 +29,6 @@ namespace bmd.exporter {
                           })
                           .ToList();
 
-      var outputDirectory = Args.OutputDirectory;
       foreach (var texture in this.textures_) {
         texture.SaveInDirectory(outputDirectory);
       }

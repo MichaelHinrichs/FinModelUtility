@@ -17,7 +17,7 @@ namespace fin.exporter.gltf {
       foreach (var animation in animations) {
         var gltfAnimation = gltfModel.UseAnimation(animation.Name);
 
-        var fps = animation.Fps;
+        var fps = animation.FrameRate;
 
         // Writes translation/rotation/scale for each joint.
         var translationKeyframes = new Dictionary<float, Vector3>();

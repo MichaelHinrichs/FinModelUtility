@@ -207,7 +207,7 @@ namespace mod.cli {
 
         animation.Name = dcx.Name;
         animation.FrameCount = (int) dcx.FrameCount;
-        animation.Fps = 30;
+        animation.FrameRate = 30;
 
         foreach (var jointIndexAndKeyframes in dcx.JointKeyframesMap) {
           var jointIndex = jointIndexAndKeyframes.Key;

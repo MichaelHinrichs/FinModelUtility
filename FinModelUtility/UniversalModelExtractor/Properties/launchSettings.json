@@ -2,7 +2,7 @@
   "profiles": {
     "UniversalModelExtractor": {
       "commandName": "Project",
-      "commandLineArgs": "pikmin_1"
+      "commandLineArgs": "pikmin_2"
     }
   }
 }

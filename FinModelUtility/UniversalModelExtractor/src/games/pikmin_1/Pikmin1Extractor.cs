@@ -9,6 +9,7 @@ using mod.api;
 using uni.platforms;
 using uni.platforms.gcn;
 using uni.platforms.gcn.tools;
+using uni.src.msg;
 
 namespace uni.games.pikmin_1 {
   public class Pikmin1Extractor {
@@ -22,7 +23,7 @@ namespace uni.games.pikmin_1 {
 
       var logger = Logging.Create<Pikmin1Extractor>();
 
-      foreach (var fileHierarchyDirectory in fileHierarchy) {
+      fileHierarchy.ForEach(fileHierarchyDirectory => {
         // TODO: Handle special cases:
         // - olimar
         // - pikmin
@@ -34,7 +35,7 @@ namespace uni.games.pikmin_1 {
                                   .ToArray();
 
         if (modFiles.Length == 0) {
-          continue;
+          return;
         }
 
         var outputDirectory =
@@ -68,7 +69,7 @@ namespace uni.games.pikmin_1 {
         if (matches == modFiles.Length) {
           logger.LogInformation(
               $"Model(s) already processed from {fileHierarchyDirectory.LocalPath}");
-          continue;
+          return;
         }
 
         // TODO: For some reason, the program hangs when trying to export the
@@ -76,8 +77,7 @@ namespace uni.games.pikmin_1 {
         var skipExportingFbx = fileHierarchyDirectory.LocalPath ==
                                @"\dataDir\cinemas\titles";
 
-        logger.LogInformation(
-            $"Extracting model(s) from {fileHierarchyDirectory.LocalPath}");
+        MessageUtil.LogExtracting(logger, fileHierarchyDirectory, modFiles);
 
         var anmFiles =
             fileHierarchyDirectory.Files.Where(
@@ -96,7 +96,7 @@ namespace uni.games.pikmin_1 {
           logger.LogError(e.ToString());
         }
         logger.LogInformation(" ");
-      }
+      });
     }
   }
 }

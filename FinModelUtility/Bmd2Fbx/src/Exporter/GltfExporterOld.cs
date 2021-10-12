@@ -33,7 +33,7 @@ namespace bmd.exporter {
     public const bool IncludeRootNode = false;
 
     public void Export(
-        string outputDirectory,
+        IDirectory outputDirectory,
         (string, BMD) pathAndBmd,
         IList<(string, IBcx)>? pathsAndBcxs = null,
         IList<(string, BTI)>? pathsAndBtis = null) {
@@ -171,7 +171,11 @@ namespace bmd.exporter {
 
       // Gathers up vertex builders.
       var mesh =
-          GltfExporterOld.WriteMesh_(jointNodes, model, bmd, pathsAndBtis);
+          GltfExporterOld.WriteMesh_(outputDirectory,
+                                     jointNodes,
+                                     model,
+                                     bmd,
+                                     pathsAndBtis);
       scene.CreateNode()
            .WithSkinnedMesh(mesh, rootNode.WorldMatrix, jointNodes.ToArray());
 
@@ -180,7 +184,8 @@ namespace bmd.exporter {
       };
 
       var bmdFile = new FileInfo(bmdPath);
-      var outputFile = new FinFile(Path.Join(outputDirectory, bmdFile.Name));
+      var outputFile =
+          new FinFile(Path.Join(outputDirectory.FullName, bmdFile.Name));
       var outputPath = outputFile.CloneWithExtension(".glb").FullName;
 
       this.logger_.LogInformation($"Writing to {outputPath}...");
@@ -191,6 +196,7 @@ namespace bmd.exporter {
         new SoftwareModelViewMatrixTransformer2();
 
     private static Mesh WriteMesh_(
+        IDirectory outputDirectory,
         GltfNode[] jointNodes,
         ModelRoot model,
         BMD bmd,
@@ -210,7 +216,8 @@ namespace bmd.exporter {
 
       var matrixIndices = new Dictionary<int, int>();
 
-      var materialManager = new GltfMaterialManager(bmd, pathsAndBtis);
+      var materialManager =
+          new GltfMaterialManager(outputDirectory, bmd, pathsAndBtis);
 
       // TODO: Need to pre-compute matrices, vertices come w/ matrix index.
       var matrices = new Matrix[joints.Length];
