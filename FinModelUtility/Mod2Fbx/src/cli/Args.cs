@@ -11,16 +11,16 @@ using fin.util.asserts;
 
 namespace mod.cli {
   // TODO: Hook downstream classes into this for args by system.
-  public static class Args {
-    public static bool Automatic { get; private set; }
-    public static bool Verbose { get; private set; }
+  public class Args {
+    public bool Automatic { get; private set; }
+    public bool Verbose { get; private set; }
 
-    public static IDirectory OutputDirectory { get; private set; }
+    public IDirectory OutputDirectory { get; private set; }
 
-    public static IList<IFile> ModFiles { get; private set; } =
+    public IList<IFile> ModFiles { get; private set; } =
       new List<IFile>();
 
-    public static IList<IFile> AnmFiles { get; private set; } =
+    public IList<IFile> AnmFiles { get; private set; } =
       new List<IFile>();
 
     /// <summary>
@@ -28,7 +28,7 @@ namespace mod.cli {
     ///
     ///   Throws an error if parsing failed.
     /// </summary>
-    public static void PopulateFromArgs(string[] args) {
+    public void PopulateFromArgs(string[] args) {
       IEnumerable<Error>? errors = null;
 
       var parserResult =
@@ -38,38 +38,38 @@ namespace mod.cli {
                     typeof(ManualOptions),
                     typeof(DebugOptions))
                 .WithParsed((AutomaticOptions automaticOpts) => {
-                  Args.Automatic = true;
-                  Args.Verbose = automaticOpts.Verbose;
-                  Args.OutputDirectory =
+                  this.Automatic = true;
+                  this.Verbose = automaticOpts.Verbose;
+                  this.OutputDirectory =
                       new FinDirectory(automaticOpts.OutputPath);
-                  Args.ModFiles = Files.GetFilesWithExtension("mod", true);
-                  Args.AnmFiles = Files.GetFilesWithExtension("anm", true);
+                  this.ModFiles = Files.GetFilesWithExtension("mod", true);
+                  this.AnmFiles = Files.GetFilesWithExtension("anm", true);
                 })
                 .WithParsed((ManualOptions manualOpts) => {
-                  Args.Automatic = false;
-                  Args.Verbose = manualOpts.Verbose;
-                  Args.OutputDirectory =
+                  this.Automatic = false;
+                  this.Verbose = manualOpts.Verbose;
+                  this.OutputDirectory =
                       new FinDirectory(manualOpts.OutputPath);
-                  Args.ModFiles =
+                  this.ModFiles =
                       manualOpts.ModPaths
                                 .Select(modPath => new FinFile(modPath))
                                 .ToList<IFile>();
-                  Args.AnmFiles =
+                  this.AnmFiles =
                       manualOpts.AnmPaths
                                 .Select(anmPath => new FinFile(anmPath))
                                 .ToList<IFile>();
                 })
                 .WithParsed((DebugOptions debugOpts) => {
-                  Args.Automatic = false;
-                  Args.Verbose = debugOpts.Verbose;
+                  this.Automatic = false;
+                  this.Verbose = debugOpts.Verbose;
 
-                  Args.GetForTesting(out var outputDirectory,
+                  this.GetForTesting(out var outputDirectory,
                                      out var modFiles,
                                      out var anmFiles);
 
-                  Args.OutputDirectory = outputDirectory;
-                  Args.ModFiles = modFiles;
-                  Args.AnmFiles = anmFiles;
+                  this.OutputDirectory = outputDirectory;
+                  this.ModFiles = modFiles;
+                  this.AnmFiles = anmFiles;
                 })
                 .WithNotParsed(parseErrors => errors = parseErrors);
 
@@ -80,15 +80,15 @@ namespace mod.cli {
         throw new Exception();
       }
 
-      Logging.Initialize(Args.Verbose);
+      Logging.Initialize(this.Verbose);
     }
 
-    private static IDirectory GetOutputDirectory_(string name) {
+    private IDirectory GetOutputDirectory_(string name) {
       var basePath = "R:/Documents/CSharpWorkspace/Pikmin2Utility/";
       return new FinDirectory($"{basePath}cli/out/pkmn1/{name}/");
     }
 
-    public static void GetForTesting(
+    public void GetForTesting(
         out IDirectory outputDirectory,
         out IList<IFile> modFiles,
         out IList<IFile> anmFiles) {
@@ -130,7 +130,7 @@ namespace mod.cli {
       anmFile = new FinFile(
           @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\tekis\frog\frog.anm");*/
 
-      Args.Automatic = true;
+      this.Automatic = true;
       /*Args.GetFromDirectory(
           new FinDirectory(
               @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\tekis\chappy\"),
@@ -143,9 +143,9 @@ namespace mod.cli {
           out outputDirectory,
           out modFiles,
           out anmFiles);*/
-      Args.GetFromDirectory(
+      this.GetFromDirectory(
           new FinDirectory(
-              @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\bosses\king\"),
+              @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pikmin_1.gcm_dir\dataDir\bosses\king\"),
           out outputDirectory,
           out modFiles,
           out anmFiles);
@@ -183,12 +183,12 @@ namespace mod.cli {
           out anmFile);*/
     }
 
-    public static void GetOneFromDirectory(
+    public void GetOneFromDirectory(
         IDirectory directory,
         out IDirectory outputDirectory,
         out IFile modFile,
         out IFile? anmFile) {
-      outputDirectory = Args.GetOutputDirectory_(directory.Name);
+      outputDirectory = this.GetOutputDirectory_(directory.Name);
 
       modFile = Files.GetFileWithExtension(directory, "mod");
 
@@ -197,12 +197,12 @@ namespace mod.cli {
       anmFile = anmFiles[0];
     }
 
-    public static void GetFromDirectory(
+    public void GetFromDirectory(
         IDirectory directory,
         out IDirectory outputDirectory,
         out IList<IFile> modFiles,
         out IList<IFile> anmFiles) {
-      outputDirectory = Args.GetOutputDirectory_(directory.Name);
+      outputDirectory = this.GetOutputDirectory_(directory.Name);
 
       modFiles = Files.GetFilesWithExtension(directory, "mod");
       anmFiles = Files.GetFilesWithExtension(directory, "anm");

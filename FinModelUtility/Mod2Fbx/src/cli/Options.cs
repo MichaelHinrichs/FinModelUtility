@@ -26,13 +26,13 @@ namespace mod.cli {
   [Verb("manual",
         HelpText = "Convert GCN model with manually-specified input files.")]
   public class ManualOptions : BConversionOptions {
-    [Option("bmd",
+    [Option("mod",
             HelpText = "Path(s) to input .mod models.",
             Required = true,
             Min = 1)]
     public IEnumerable<string> ModPaths { get; set; }
 
-    [Option("bcx", HelpText = "Path(s) to input .anm animations.")]
+    [Option("anm", HelpText = "Path(s) to input .anm animations.")]
     public IEnumerable<string> AnmPaths { get; set; }
 
   }

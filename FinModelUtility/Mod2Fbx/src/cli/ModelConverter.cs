@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 using fin.math;
@@ -15,13 +13,13 @@ using mod.util;
 using Endianness = mod.util.Endianness;
 
 namespace mod.cli {
-  public static class ModelConverter {
+  public class ModelConverter {
     /// <summary>
     ///   GX's active matrices. These are deferred to when a vertex matrix is
     ///   -1, which corresponds to using an active matrix from a previous
     ///   display list.
     /// </summary>
-    private static short[] ACTIVE_MATRICES_ = new short[10];
+    private short[] activeMatrices_ = new short[10];
 
     public enum Opcode {
       QUADS = 0x80,
@@ -46,11 +44,11 @@ namespace mod.cli {
           _                        => WrapMode.REPEAT,
       };
 
-    public static IModel Convert(Mod mod, Anm? anm) {
+    public IModel Convert(Mod mod, Anm? anm) {
       // Resets the active matrices to -1. This lets us catch issues when
       // attempting to use an invalid active matrix.
       for (var i = 0; i < 10; ++i) {
-        ModelConverter.ACTIVE_MATRICES_[i] = -1;
+        this.activeMatrices_[i] = -1;
       }
 
       var finModCache = new FinModCache(mod);
@@ -193,12 +191,12 @@ namespace mod.cli {
           var mesh = mod.meshes[meshIndex];
 
           var material = finMaterials[jointMatPoly.matIdx];
-          ModelConverter.AddMesh_(mod,
-                                  mesh,
-                                  material,
-                                  model,
-                                  bones,
-                                  finModCache);
+          this.AddMesh_(mod,
+                        mesh,
+                        material,
+                        model,
+                        bones,
+                        finModCache);
         }
       }
 
@@ -216,19 +214,13 @@ namespace mod.cli {
           var jointKeyframes = jointIndexAndKeyframes.Value;
 
           animation.AddBoneTracks(bones[jointIndex]).Set(jointKeyframes);
-
-          if (dcx is Dck) {
-            ;
-          }
         }
       }
 
       return model;
     }
 
-    public static Dictionary<int, int> ENVELOPE_COUNTS_ = new();
-
-    private static void AddMesh_(
+    private void AddMesh_(
         Mod mod,
         Mesh mesh,
         IMaterial material,
@@ -286,10 +278,10 @@ namespace mod.cli {
                     // defers to whatever the existing matrix is in this slot.
                     if (vertexMatrixIndex == -1) {
                       vertexMatrixIndex =
-                          ModelConverter.ACTIVE_MATRICES_[activeMatrixIndex];
+                          this.activeMatrices_[activeMatrixIndex];
                       Asserts.False(vertexMatrixIndex == -1);
                     }
-                    ACTIVE_MATRICES_[activeMatrixIndex] = vertexMatrixIndex;
+                    this.activeMatrices_[activeMatrixIndex] = vertexMatrixIndex;
 
                     // TODO: Is there a real name for this?
                     // Remaps from vertex matrix to "attachment" index.
@@ -310,11 +302,6 @@ namespace mod.cli {
                     // Negative indices refer to envelopes.
                     else {
                       var envelopeIndex = -1 - attachmentIndex;
-                      ModelConverter.ENVELOPE_COUNTS_.TryGetValue(
-                          envelopeIndex,
-                          out var count);
-                      ModelConverter.ENVELOPE_COUNTS_[envelopeIndex] =
-                          count + 1;
 
                       var vertexWeights = new VertexWeights();
 
@@ -416,7 +403,7 @@ namespace mod.cli {
       public IPosition[] PositionsByIndex { get; }
 
       public INormal[] NormalsByIndex { get; }
-      
+
       public INormal[] NbtNormalsByIndex { get; }
       public ITangent[] TangentsByIndex { get; }
 
@@ -451,12 +438,14 @@ namespace mod.cli {
                    Z = vertexnbt.normals.Z,
                })
                .ToArray();
-        this.TangentsByIndex = mod.vertexnbt.Select(vertexnbt => new ModelImpl.TangentImpl {
-            X = vertexnbt.tangent.X,
-            Y = vertexnbt.tangent.Y,
-            Z = vertexnbt.tangent.Z,
-            W = 0,
-        }).ToArray();
+        this.TangentsByIndex = mod.vertexnbt.Select(
+                                      vertexnbt => new ModelImpl.TangentImpl {
+                                          X = vertexnbt.tangent.X,
+                                          Y = vertexnbt.tangent.Y,
+                                          Z = vertexnbt.tangent.Z,
+                                          W = 0,
+                                      })
+                                  .ToArray();
         this.ColorsByIndex =
             mod.vcolours.Select(
                    vcolour => ColorImpl.FromRgbaBytes(

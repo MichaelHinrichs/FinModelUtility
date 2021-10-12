@@ -4,6 +4,20 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>uni</RootNamespace>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DebugType>embedded</DebugType>
+    <SelfContained>true</SelfContained>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+    <PublishSingleFile>true</PublishSingleFile>
+    <PublishTrimmed>true</PublishTrimmed>
+    <Product>universal_model_extractor</Product>
+    <AssemblyName>universal_model_extractor</AssemblyName>
+    <StartupObject>uni.cli.Cli</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,12 +25,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="games\pikmin_2\" />
-    <Folder Include="games\pikmin_1\" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\Bmd2Fbx\Bmd2Fbx.csproj" />
     <ProjectReference Include="..\Fin\Fin.csproj" />
+    <ProjectReference Include="..\Mod2Fbx\Mod2Fbx.csproj" />
   </ItemGroup>
 
 </Project>

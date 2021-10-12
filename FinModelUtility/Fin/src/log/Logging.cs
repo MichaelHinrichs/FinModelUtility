@@ -19,12 +19,13 @@ namespace fin.log {
 
     private static ILoggerFactory FACTORY_ = LoggerFactory.Create(
         builder =>
-            builder.AddConsole()
-                   .AddDebug()
-                   .AddFilter(
-                       logLevel
-                           => Logging.VERBOSE_ ||
-                              Logging.verboseExceptions_.Contains(logLevel)));
+            builder //.AddConsole()
+                .AddProvider(new CleanConsoleLoggerProvider())
+                .AddDebug()
+                .AddFilter(
+                    logLevel
+                        => Logging.VERBOSE_ ||
+                           Logging.verboseExceptions_.Contains(logLevel)));
 
     private static readonly IList<LogLevel> verboseExceptions_ = new[] {
         LogLevel.Critical,
@@ -39,6 +40,7 @@ namespace fin.log {
 
     public static FinLogger Create<T>()
       => new Logger(Logging.FACTORY_.CreateLogger<T>());
+
     public static FinLogger Create(string categoryName)
       => new Logger(Logging.FACTORY_.CreateLogger(categoryName));
 

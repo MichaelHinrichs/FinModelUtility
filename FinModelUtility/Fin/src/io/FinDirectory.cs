@@ -61,6 +61,10 @@ namespace fin.io {
       var current = this.Info;
 
       foreach (var subdir in subdirs) {
+        if (subdir == "") {
+          continue;
+        }
+
         if (subdir == "..") {
           current = current.Parent;
           continue;

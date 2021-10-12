@@ -20,18 +20,20 @@ namespace bmd.cli {
       var logger = Logging.Create<Cli>();
       using var _ = logger.BeginScope("Entry");
       logger.LogInformation(string.Join(" ", args));
+      logger.LogInformation(" ");
 
       using var _2 = logger.BeginScope("Main");
       logger.LogInformation("Attempting to parse:");
       logger.LogInformation(
           $"- {Args.BmdPaths.Count} model(s):\n" +
-          string.Join('\n', Args.BmdPaths));
+          string.Join('\n', Args.BmdPaths.Select(bmdPath => "    " + bmdPath)));
       logger.LogInformation(
           $"- {Args.BcxPaths.Count} animation(s):\n" +
-          string.Join('\n', Args.BcxPaths));
+          string.Join('\n', Args.BcxPaths.Select(bcxPath => "    " + bcxPath)));
       logger.LogInformation(
           $"- {Args.BtiPaths.Count} external texture(s):\n" +
-          string.Join('\n', Args.BtiPaths));
+          string.Join('\n', Args.BtiPaths.Select(btiPath => "    " + btiPath)));
+      logger.LogInformation(" ");
 
       Asserts.True(
           !Args.Automatic || (Args.BmdPaths.Count == 1 || !Args.BcxPaths.Any()),

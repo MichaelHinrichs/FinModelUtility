@@ -69,7 +69,7 @@ namespace uni.util.cmd {
       }
 
       var processStartInfo =
-          new ProcessStartInfo(exeFile.FullName, argString) {
+          new ProcessStartInfo($"\"{exeFile.FullName}\"", argString) {
               CreateNoWindow = true,
               RedirectStandardOutput = true,
               RedirectStandardError = true,
@@ -81,9 +81,16 @@ namespace uni.util.cmd {
 
       var logger = Logging.Create(exeFile.FullName);
       if (processSetup.WithLogging) {
-        process.OutputDataReceived +=
-            (_, args) => logger!.LogInformation(args.Data);
-        process.ErrorDataReceived += (_, args) => logger!.LogError(args.Data);
+        process.OutputDataReceived += (_, args) => {
+          if (args.Data != null) {
+            logger!.LogInformation("  " + args.Data);
+          }
+        };
+        process.ErrorDataReceived += (_, args) => {
+          if (args.Data != null) {
+            logger!.LogError("  " + args.Data);
+          }
+        };
       } else {
         process.OutputDataReceived += (_, _) => {};
         process.ErrorDataReceived += (_, _) => {};
@@ -101,6 +108,7 @@ namespace uni.util.cmd {
         default:
           throw new NotImplementedException();
       }
+
 
       // TODO: https://stackoverflow.com/questions/139593/processstartinfo-hanging-on-waitforexit-why
       /*
