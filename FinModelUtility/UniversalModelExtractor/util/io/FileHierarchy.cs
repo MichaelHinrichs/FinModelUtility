@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
 using fin.io;
 using fin.util.asserts;
-
-using uni.util.data;
+using fin.util.data;
 
 namespace uni.util.io {
   public interface IFileHierarchy {

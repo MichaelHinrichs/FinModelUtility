@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace fin.util.strings {
   public static class StringUtil {
-
     public static string Repeat(string str, int times) {
       if (times == 0) {
         return "";
@@ -21,7 +21,9 @@ namespace fin.util.strings {
       return builder.ToString();
     }
 
-    public static string Concat(IEnumerable<string> strs, string separator = "") {
+    public static string Concat(
+        IEnumerable<string> strs,
+        string separator = "") {
       if (!strs.Any()) {
         return "";
       }
@@ -37,5 +39,8 @@ namespace fin.util.strings {
 
       return builder.ToString();
     }
+
+    public static string[] SplitNewlines(string text)
+      => Regex.Split(text, "\r\n|\r|\n");
   }
 }
