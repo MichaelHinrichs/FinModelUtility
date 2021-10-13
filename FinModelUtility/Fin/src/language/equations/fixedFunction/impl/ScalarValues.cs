@@ -1,56 +1,46 @@
 ﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 
 using fin.util.asserts;
 using fin.util.data;
 
-namespace fin.language.equations.scalar {
+namespace fin.language.equations.fixedFunction {
   // TODO: Optimize this.
-  public class ScalarEquations<TIdentifier> : IScalarEquations<TIdentifier> {
+  public partial class FixedFunctionEquations<TIdentifier> {
     private readonly Dictionary<TIdentifier, IScalarInput<TIdentifier>>
-        inputs_ = new();
+        scalarInputs_ = new();
 
     private readonly Dictionary<TIdentifier, IScalarOutput<TIdentifier>>
-        outputs_ = new();
-
-    public ScalarEquations() {
-      this.Inputs =
-          new ReadOnlyDictionary<TIdentifier, IScalarInput<TIdentifier>>(
-              this.inputs_);
-      this.Outputs =
-          new ReadOnlyDictionary<TIdentifier, IScalarOutput<TIdentifier>>(
-              this.outputs_);
-    }
+        scalarOutputs_ = new();
 
     public IScalarConstant CreateScalarConstant(double v)
       => new ScalarConstant(v);
 
     public IReadOnlyDictionary<TIdentifier, IScalarInput<TIdentifier>>
-        Inputs { get; }
+        ScalarInputs { get; }
 
     public IScalarInput<TIdentifier> CreateScalarInput(
         TIdentifier identifier,
         IScalarConstant defaultValue) {
-      Asserts.False(this.inputs_.ContainsKey(identifier));
-      Asserts.False(this.outputs_.ContainsKey(identifier));
+      Asserts.False(this.scalarInputs_.ContainsKey(identifier));
+      Asserts.False(this.scalarOutputs_.ContainsKey(identifier));
 
       var input = new ScalarInput(identifier, defaultValue);
-      this.inputs_[identifier] = input;
+      this.scalarInputs_[identifier] = input;
       return input;
     }
 
     public IReadOnlyDictionary<TIdentifier, IScalarOutput<TIdentifier>>
-        Outputs { get; }
+        ScalarOutputs { get; }
 
     public IScalarOutput<TIdentifier> CreateScalarOutput(
         TIdentifier identifier,
         IScalarValue value) {
-      Asserts.False(this.inputs_.ContainsKey(identifier));
-      Asserts.False(this.outputs_.ContainsKey(identifier));
+      Asserts.False(this.scalarInputs_.ContainsKey(identifier));
+      Asserts.False(this.scalarOutputs_.ContainsKey(identifier));
 
       var output = new ScalarOutput(identifier, value);
-      this.outputs_[identifier] = output;
+      this.scalarOutputs_[identifier] = output;
       return output;
     }
 
@@ -66,20 +56,19 @@ namespace fin.language.equations.scalar {
       public IScalarConstant DefaultValue { get; }
       public IScalarConstant? CustomValue { get; set; }
 
-      public IScalarValue Value => this.CustomValue ?? this.DefaultValue;
+      public IScalarValue ScalarValue => this.CustomValue ?? this.DefaultValue;
     }
 
     private class ScalarOutput : BScalarValue, IScalarOutput<TIdentifier> {
       public ScalarOutput(TIdentifier identifier, IScalarValue value) {
         this.Identifier = identifier;
-        this.Value = value;
+        this.ScalarValue = value;
       }
 
       public TIdentifier Identifier { get; }
 
-      public IScalarValue Value { get; }
+      public IScalarValue ScalarValue { get; }
     }
-
 
     private abstract class BScalarValue : IScalarValue {
       public IScalarExpression Add(
