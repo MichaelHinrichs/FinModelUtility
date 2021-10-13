@@ -150,6 +150,36 @@ namespace fin.language.equations.fixedFunction {
       );
     }
 
+
+    [TestMethod]
+    public void TestColorSwizzleIn() {
+      var equations = new FixedFunctionEquations<string>();
+
+      var colRgba =
+          equations.CreateColorInput("colRgba",
+                                     equations.CreateColorConstant(1, 2, 3, 4));
+      var colArgb =
+          equations.CreateColorOutput("colArgb",
+                                      equations.CreateColor(
+                                          colRgba.A,
+                                          colRgba.R,
+                                          colRgba.G,
+                                          colRgba.B));
+
+      this.AssertEquals_(equations,
+                         "Scalar inputs:",
+                         "",
+                         "Color inputs:",
+                         "colRgba: rgba<1,2,3,4>",
+                         "",
+                         "",
+                         "Scalar outputs:",
+                         "",
+                         "Color outputs:",
+                         "colArgb: rgba<<colRgba>.A,<colRgba>.R,<colRgba>.G,<colRgba>.B>"
+      );
+    }
+
     private void AssertEquals_<TIdentifier>(
         IFixedFunctionEquations<TIdentifier> equations,
         params string[] expectedLines) {
