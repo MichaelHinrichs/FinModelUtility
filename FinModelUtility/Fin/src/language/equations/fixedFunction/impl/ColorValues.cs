@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
@@ -80,11 +81,22 @@ namespace fin.language.equations.fixedFunction {
 
       public IColorValue ColorValue => this.CustomValue ?? this.DefaultValue;
 
-      public override IScalarValue? Intensity => this.ColorValue.Intensity;
-      public override IScalarValue R => this.ColorValue.R;
-      public override IScalarValue G => this.ColorValue.G;
-      public override IScalarValue B => this.ColorValue.B;
-      public override IScalarValue? A => this.ColorValue.A;
+      public override IScalarValue? Intensity
+        => throw new NotSupportedException();
+
+      public override IScalarValue R
+        => new ColorNamedValueSwizzle(this, ColorSwizzle.R);
+
+      public override IScalarValue G
+        => new ColorNamedValueSwizzle(this, ColorSwizzle.G);
+
+      public override IScalarValue B
+        => new ColorNamedValueSwizzle(this, ColorSwizzle.B);
+
+      public override IScalarValue A
+        => new ColorNamedValueSwizzle(this, ColorSwizzle.A);
+
+      public override IScalarValue? AOrNull => this.ColorValue.AOrNull;
     }
 
     private class ColorOutput : BColorValue, IColorOutput<TIdentifier> {
@@ -97,12 +109,39 @@ namespace fin.language.equations.fixedFunction {
 
       public IColorValue ColorValue { get; }
 
-      public override IScalarValue? Intensity => this.ColorValue.Intensity;
-      public override IScalarValue R => this.ColorValue.R;
-      public override IScalarValue G => this.ColorValue.G;
-      public override IScalarValue B => this.ColorValue.B;
-      public override IScalarValue? A => this.ColorValue.A;
+      public override IScalarValue? Intensity
+        => throw new NotSupportedException();
+
+      public override IScalarValue R
+        => new ColorNamedValueSwizzle(this, ColorSwizzle.R);
+
+      public override IScalarValue G
+        => new ColorNamedValueSwizzle(this, ColorSwizzle.G);
+
+      public override IScalarValue B
+        => new ColorNamedValueSwizzle(this, ColorSwizzle.B);
+
+      public override IScalarValue A
+        => new ColorNamedValueSwizzle(this, ColorSwizzle.A);
+
+      public override IScalarValue? AOrNull => this.ColorValue.AOrNull;
     }
+
+
+    private class ColorNamedValueSwizzle : BScalarValue,
+                                           IColorNamedValueSwizzle<
+                                               TIdentifier> {
+      public ColorNamedValueSwizzle(
+          IColorNamedValue<TIdentifier> source,
+          ColorSwizzle swizzleType) {
+        this.Source = source;
+        this.SwizzleType = swizzleType;
+      }
+
+      public IColorNamedValue<TIdentifier> Source { get; }
+      public ColorSwizzle SwizzleType { get; }
+    }
+
 
     private abstract class BColorValue : IColorValue {
       public IColorExpression Add(
@@ -199,7 +238,8 @@ namespace fin.language.equations.fixedFunction {
       public abstract IScalarValue R { get; }
       public abstract IScalarValue G { get; }
       public abstract IScalarValue B { get; }
-      public abstract IScalarValue? A { get; }
+      public virtual IScalarValue A => this.AOrNull ?? ScalarConstant.ONE;
+      public abstract IScalarValue? AOrNull { get; }
     }
 
     private class ColorExpression : BColorValue, IColorExpression {
@@ -261,10 +301,10 @@ namespace fin.language.equations.fixedFunction {
         => new ScalarExpression(this.Terms.Select(factor => factor.B)
                                     .ToArray());
 
-      public override IScalarValue? A {
+      public override IScalarValue? AOrNull {
         get {
           var numeratorAs =
-              this.Terms.Select(factor => factor.A)
+              this.Terms.Select(factor => factor.AOrNull)
                   .Where(a => a != null)
                   .ToArray();
 
@@ -328,56 +368,56 @@ namespace fin.language.equations.fixedFunction {
               this.NumeratorFactors.Select(factor => factor.Intensity)
                   .ToArray();
           var denominatorAs =
-              this.DenominatorFactors.Select(factor => factor.Intensity)
+              this.DenominatorFactors?.Select(factor => factor.Intensity)
                   .ToArray();
 
           if (numeratorAs.Any(a => a == null) ||
-              denominatorAs.Any(a => a == null)) {
+              (denominatorAs?.Any(a => a == null) ?? false)) {
             return null;
           }
 
           return new ScalarTerm(
               numeratorAs.Select(a => a!).ToArray(),
-              denominatorAs.Select(a => a!).ToArray());
+              denominatorAs?.Select(a => a!).ToArray());
         }
       }
 
       public override IScalarValue R
         => new ScalarTerm(
             this.NumeratorFactors.Select(factor => factor.R).ToArray(),
-            this.DenominatorFactors.Select(factor => factor.R)
+            this.DenominatorFactors?.Select(factor => factor.R)
                 .ToArray());
 
       public override IScalarValue G
         => new ScalarTerm(
             this.NumeratorFactors.Select(factor => factor.G).ToArray(),
-            this.DenominatorFactors.Select(factor => factor.G)
+            this.DenominatorFactors?.Select(factor => factor.G)
                 .ToArray());
 
       public override IScalarValue B
         => new ScalarTerm(
             this.NumeratorFactors.Select(factor => factor.B).ToArray(),
-            this.DenominatorFactors.Select(factor => factor.B)
+            this.DenominatorFactors?.Select(factor => factor.B)
                 .ToArray());
 
-      public override IScalarValue? A {
+      public override IScalarValue? AOrNull {
         get {
           var numeratorAs =
-              this.NumeratorFactors.Select(factor => factor.A)
+              this.NumeratorFactors.Select(factor => factor.AOrNull)
                   .Where(a => a != null)
                   .ToArray();
           var denominatorAs =
-              this.DenominatorFactors.Select(factor => factor.A)
+              this.DenominatorFactors?.Select(factor => factor.AOrNull)
                   .Where(a => a != null)
                   .ToArray();
 
-          if (numeratorAs.Length == 0 && denominatorAs.Length == 0) {
+          if (numeratorAs.Length == 0 && (denominatorAs?.Length ?? 0) == 0) {
             return null;
           }
 
           return new ScalarTerm(
               numeratorAs.Select(a => a!).ToArray(),
-              denominatorAs.Select(a => a!).ToArray());
+              denominatorAs?.Select(a => a!).ToArray());
         }
       }
     }
@@ -396,7 +436,7 @@ namespace fin.language.equations.fixedFunction {
         this.G = new ScalarConstant(g);
         this.B = new ScalarConstant(b);
         if (a != null) {
-          this.A = new ScalarConstant(a.Value);
+          this.AOrNull = new ScalarConstant(a.Value);
         }
       }
 
@@ -412,7 +452,7 @@ namespace fin.language.equations.fixedFunction {
         this.G = new ScalarConstant(intensity);
         this.B = new ScalarConstant(intensity);
         if (a != null) {
-          this.A = new ScalarConstant(a.Value);
+          this.AOrNull = new ScalarConstant(a.Value);
         }
       }
 
@@ -427,7 +467,7 @@ namespace fin.language.equations.fixedFunction {
       public override IScalarValue R { get; }
       public override IScalarValue G { get; }
       public override IScalarValue B { get; }
-      public override IScalarValue? A { get; }
+      public override IScalarValue? AOrNull { get; }
     }
 
     private class ColorWrapper : BColorValue, IColorFactor {
@@ -439,7 +479,7 @@ namespace fin.language.equations.fixedFunction {
         this.R = r;
         this.G = g;
         this.B = b;
-        this.A = a;
+        this.AOrNull = a;
       }
 
       public ColorWrapper(IScalarValue intensity, IScalarValue? a = null) {
@@ -447,14 +487,14 @@ namespace fin.language.equations.fixedFunction {
         this.R = intensity;
         this.G = intensity;
         this.B = intensity;
-        this.A = a;
+        this.AOrNull = a;
       }
 
       public override IScalarValue? Intensity { get; }
       public override IScalarValue R { get; }
       public override IScalarValue G { get; }
       public override IScalarValue B { get; }
-      public override IScalarValue? A { get; }
+      public override IScalarValue? AOrNull { get; }
     }
   }
 }

@@ -13,6 +13,18 @@ namespace fin.language.equations.fixedFunction {
 
   public interface IColorOutput<TIdentifier> : IColorNamedValue<TIdentifier> {}
 
+  public enum ColorSwizzle {
+    R,
+    G,
+    B,
+    A,
+  }
+
+  public interface IColorNamedValueSwizzle<TIdentifier> : IScalarFactor {
+    IColorNamedValue<TIdentifier> Source { get; }
+    ColorSwizzle SwizzleType { get; }
+  }
+
 
   public interface IColorValue {
     IColorExpression Add(IColorValue term1, params IColorValue[] terms);
@@ -29,7 +41,8 @@ namespace fin.language.equations.fixedFunction {
     IScalarValue R { get; }
     IScalarValue G { get; }
     IScalarValue B { get; }
-    IScalarValue? A { get; }
+    IScalarValue A { get; }
+    IScalarValue? AOrNull { get; }
   }
 
   public interface IColorExpression : IColorValue {

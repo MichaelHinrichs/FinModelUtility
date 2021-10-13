@@ -124,6 +124,8 @@ namespace fin.language.equations.fixedFunction {
         this.PrintScalarNamedValue_(os, namedValue);
       } else if (factor is IScalarConstant constant) {
         this.PrintScalarConstant_(os, constant);
+      } else if (factor is IColorNamedValueSwizzle<TIdentifier> swizzle) {
+        this.PrintColorNamedValueSwizzle_(os, swizzle);
       } else {
         Asserts.Fail("Unsupported factor type!");
       }
@@ -214,7 +216,7 @@ namespace fin.language.equations.fixedFunction {
         this.PrintColorNamedValue_(os, namedValue);
       } else {
         var useIntensity = factor.Intensity != null;
-        var withA = factor.A != null;
+        var withA = factor.AOrNull != null;
 
         if (!useIntensity) {
           os.Write(withA ? "rgba<" : "rgb<");
@@ -225,7 +227,7 @@ namespace fin.language.equations.fixedFunction {
           this.PrintScalarValue_(os, factor.B);
           if (withA) {
             os.Write(",");
-            this.PrintScalarValue_(os, factor.A!);
+            this.PrintScalarValue_(os, factor.AOrNull!);
           }
           os.Write(">");
         } else {
@@ -233,7 +235,7 @@ namespace fin.language.equations.fixedFunction {
           this.PrintScalarValue_(os, factor.Intensity!);
           if (withA) {
             os.Write(",");
-            this.PrintScalarValue_(os, factor.A!);
+            this.PrintScalarValue_(os, factor.AOrNull!);
           }
           os.Write(">");
         }
@@ -244,5 +246,13 @@ namespace fin.language.equations.fixedFunction {
         StringWriter os,
         IColorNamedValue<TIdentifier> namedValue)
       => os.Write("<" + namedValue.Identifier + ">");
+
+    private void PrintColorNamedValueSwizzle_(
+        StringWriter os,
+        IColorNamedValueSwizzle<TIdentifier> swizzle) {
+      this.PrintColorNamedValue_(os, swizzle.Source);
+      os.Write(".");
+      os.Write(swizzle.SwizzleType);
+    }
   }
 }

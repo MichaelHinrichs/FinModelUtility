@@ -100,6 +100,56 @@ namespace fin.language.equations.fixedFunction {
     }
 
 
+    [TestMethod]
+    public void TestColorSwizzleOut() {
+      var equations = new FixedFunctionEquations<string>();
+
+      var colRgb =
+          equations.CreateColorInput("colRgb",
+                                     equations.CreateColorConstant(1, 2, 3));
+      var colRgba =
+          equations.CreateColorInput("colRgba",
+                                     equations.CreateColorConstant(1, 2, 3, 4));
+      var colI =
+          equations.CreateColorInput("colI",
+                                     equations.CreateColorConstant(1));
+      var colIa =
+          equations.CreateColorInput("colIa",
+                                     equations.CreateColorConstant(1, 2));
+
+      var scR = equations.CreateScalarOutput("scR", colI.R);
+      var scA = equations.CreateScalarOutput("scA", colRgb.A);
+
+      var colOutputExp = (colRgb.Add(colRgba)).Divide(
+          colI.Subtract(colIa));
+      var colOutput =
+          equations.CreateColorOutput("colOutput",
+                                      colOutputExp);
+
+      var scBExp = equations.CreateScalarOutput("scBExp", colOutputExp.B);
+      var scBVar = equations.CreateScalarOutput("scBVar", colOutput.B);
+
+      this.AssertEquals_(equations,
+                         "Scalar inputs:",
+                         "",
+                         "Color inputs:",
+                         "colRgb: rgb<1,2,3>",
+                         "colRgba: rgba<1,2,3,4>",
+                         "colI: i<1>",
+                         "colIa: ia<1,2>",
+                         "",
+                         "",
+                         "Scalar outputs:",
+                         "scR: <colI>.R",
+                         "scA: <colRgb>.A",
+                         "scBExp: (<colRgb>.B + <colRgba>.B)/(<colI>.B + -1*<colIa>.B)",
+                         "scBVar: <colOutput>.B",
+                         "",
+                         "Color outputs:",
+                         "colOutput: (<colRgb> + <colRgba>)/(<colI> + ia<-1,-1>*<colIa>)"
+      );
+    }
+
     private void AssertEquals_<TIdentifier>(
         IFixedFunctionEquations<TIdentifier> equations,
         params string[] expectedLines) {

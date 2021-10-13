@@ -131,13 +131,9 @@ namespace fin.language.equations.fixedFunction {
     }
 
     private class ScalarTerm : BScalarValue, IScalarTerm {
-      public ScalarTerm(IReadOnlyList<IScalarValue> numeratorFactors) {
-        this.NumeratorFactors = numeratorFactors;
-      }
-
       public ScalarTerm(
           IReadOnlyList<IScalarValue> numeratorFactors,
-          IReadOnlyList<IScalarValue> denominatorFactors) {
+          IReadOnlyList<IScalarValue>? denominatorFactors = null) {
         this.NumeratorFactors = numeratorFactors;
         this.DenominatorFactors = denominatorFactors;
       }
@@ -162,6 +158,7 @@ namespace fin.language.equations.fixedFunction {
     }
 
     private class ScalarConstant : BScalarValue, IScalarConstant {
+      public static readonly ScalarConstant ONE = new(1);
       public static readonly ScalarConstant NEGATIVE_ONE = new(-1);
 
       public ScalarConstant(double value) {
