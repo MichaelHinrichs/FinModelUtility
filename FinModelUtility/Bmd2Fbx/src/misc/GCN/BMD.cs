@@ -2358,15 +2358,28 @@ label_140:
       {
         public byte TexcoordID;
         public byte TexMap;
-        public byte ChannelID;
+        public ColorChannel ChannelID;
         public byte Unknown;
 
         public TevOrder(EndianBinaryReader er)
         {
           this.TexcoordID = er.ReadByte();
           this.TexMap = er.ReadByte();
-          this.ChannelID = er.ReadByte();
+          this.ChannelID = (ColorChannel) er.ReadByte();
           this.Unknown = er.ReadByte();
+        }
+
+        public enum ColorChannel {
+          GX_COLOR0,
+          GX_COLOR1,
+          GX_ALPHA0,
+          GX_ALPHA1,
+          GX_COLOR0A0,
+          GX_COLOR1A1,
+          GX_COLORZERO,
+          GX_BUMP,
+          GX_BUMPN,
+          GX_COLORNULL,
         }
       }
     }

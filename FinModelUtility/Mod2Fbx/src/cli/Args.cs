@@ -145,7 +145,7 @@ namespace mod.cli {
           out anmFiles);*/
       this.GetFromDirectory(
           new FinDirectory(
-              @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pikmin_1.gcm_dir\dataDir\bosses\king\"),
+              @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pikmin_1.gcm_dir\dataDir\bosses\slime\"),
           out outputDirectory,
           out modFiles,
           out anmFiles);

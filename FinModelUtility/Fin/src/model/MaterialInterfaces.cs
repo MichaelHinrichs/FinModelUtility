@@ -115,16 +115,31 @@ namespace fin.model {
 
 
   public enum FixedFunctionSource {
-    TEXTURE,
+    TEXTURE_0,
+    TEXTURE_1,
+    TEXTURE_2,
+    TEXTURE_3,
+    TEXTURE_4,
+    TEXTURE_5,
+    TEXTURE_6,
+    TEXTURE_7,
 
     COLOR_0,
     COLOR_1,
-    
+    COLOR_2,
+
     ALPHA_0,
     ALPHA_1,
+    ALPHA_2,
 
-    VERTEX_COLOR,
-    VERTEX_ALPHA,
+    VERTEX_COLOR_0,
+    VERTEX_ALPHA_0,
+
+    VERTEX_COLOR_1,
+    VERTEX_ALPHA_1,
+
+    VERTEX_COLOR_ALPHA_0,
+    VERTEX_COLOR_ALPHA_1,
 
     OUTPUT_COLOR,
     OUTPUT_ALPHA,

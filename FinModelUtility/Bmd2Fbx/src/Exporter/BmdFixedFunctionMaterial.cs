@@ -53,7 +53,10 @@ namespace bmd.exporter {
 
       var colorManager = new ColorManager(equations);
 
-      // TODO: Where are colors set inside the materials?
+      // TODO: Where are color constants set inside the materials?
+      // TODO: Need to support registers
+      // TODO: Need to support multiple vertex colors
+      // TODO: Colors should just be RGB in the fixed function library
 
       for (var i = 0; i < materialEntry.TevStageInfo.Length; ++i) {
         var tevStageIndex = materialEntry.TevStageInfo[i];
@@ -66,6 +69,7 @@ namespace bmd.exporter {
         var tevOrderIndex = materialEntry.TevOrderInfo[i];
         var tevOrder = bmd.MAT3.Tevorders[tevOrderIndex];
 
+        // Updates which texture is referred to by TEXC
         var texStageIndex = tevOrder.TexMap;
         if (texStageIndex == 255) {
           colorManager.UpdateTextureColor(null);
@@ -85,11 +89,14 @@ namespace bmd.exporter {
           var texCoordIndex = materialEntry.Unknown1[tevOrder.TexcoordID];
           texture.UvIndex = texCoordIndex;
 
+          colorManager.UpdateTextureColor(texCoordIndex);
           material.SetTextureSource(texCoordIndex, texture);
         }
 
-        // TODO: This seems to update which color RASC is referring to
-        //tevOrder.ChannelID;
+        // Updates which color is referred to by RASC
+        var colorChannel = tevOrder.ChannelID;
+        colorManager.UpdateRascColor(colorChannel);
+
 
         // Set up color logic
         {
@@ -121,7 +128,19 @@ namespace bmd.exporter {
 
               if (ccB != TevStage.GxCc.GX_CC_ZERO &&
                   ccC != TevStage.GxCc.GX_CC_ZERO) {
-                var term = colorB.Multiply(colorC);
+                IColorValue? term = null;
+
+                var isBOne = ccB == TevStage.GxCc.GX_CC_ONE;
+
+                if (!isBOne && isCOne) {
+                  term = colorB;
+                } else if (isBOne && !isCOne) {
+                  term = colorC;
+                } else {
+                  term = colorB.Multiply(colorC);
+                }
+
+                Asserts.Nonnull(term);
                 colorValue = colorValue == null ? term : colorValue.Add(term);
               }
 
@@ -212,13 +231,18 @@ namespace bmd.exporter {
     public IMaterial Material { get; }
 
     private class ColorManager {
+      private readonly IFixedFunctionEquations<FixedFunctionSource> equations_;
+
+      private readonly IColorValue?[] textureColors_ = new IColorValue?[8];
+
+      private readonly Dictionary<TevOrder.ColorChannel, IColorValue>
+          colorChannelsColors_ = new();
+
       private readonly Dictionary<TevStage.GxCc, IColorValue>
           colorValues_ = new();
 
       private readonly Dictionary<TevStage.GxCc, IScalarValue>
           alphaValues_ = new();
-
-      private readonly IFixedFunctionEquations<FixedFunctionSource> equations_;
 
       public ColorManager(
           IFixedFunctionEquations<FixedFunctionSource> equations) {
@@ -227,14 +251,6 @@ namespace bmd.exporter {
         var colorZero = equations.CreateColorConstant(0, 0);
         var colorOne = equations.CreateColorConstant(1);
 
-        this.colorValues_[TevStage.GxCc.GX_CC_TEXC] =
-            equations.CreateColorInput(FixedFunctionSource.TEXTURE, colorZero);
-        this.colorValues_[TevStage.GxCc.GX_CC_RASC] =
-            equations.CreateColorInput(FixedFunctionSource.VERTEX_COLOR,
-                                       colorZero);
-        this.colorValues_[TevStage.GxCc.GX_CC_RASA] =
-            equations.CreateColorInput(FixedFunctionSource.VERTEX_ALPHA,
-                                       colorZero);
         this.colorValues_[TevStage.GxCc.GX_CC_ZERO] = colorZero;
         this.colorValues_[TevStage.GxCc.GX_CC_ONE] = colorOne;
       }
@@ -242,21 +258,96 @@ namespace bmd.exporter {
       public void UpdateColorPrevious(IColorValue colorValue)
         => this.colorValues_[TevStage.GxCc.GX_CC_CPREV] = colorValue;
 
-      public void UpdateTextureColor(
+      /*public void UpdateTextureColor(
           IColorNamedValue<FixedFunctionSource>? colorValue) {
         if (colorValue != null) {
           this.colorValues_[TevStage.GxCc.GX_CC_TEXC] = colorValue;
         } else {
           this.colorValues_.Remove(TevStage.GxCc.GX_CC_TEXC);
         }
+      }*/
+
+      private int? textureIndex_ = null;
+
+      public void UpdateTextureColor(int? index) {
+        if (this.textureIndex_ != index) {
+          this.textureIndex_ = index;
+          this.colorValues_.Remove(TevStage.GxCc.GX_CC_TEXC);
+          this.colorValues_.Remove(TevStage.GxCc.GX_CC_TEXA);
+        }
+
+        if (index != null) {
+          Asserts.True(index >= 0 && index < 8);
+        }
       }
 
+      private TevOrder.ColorChannel? colorChannel_;
 
-      public IColorValue GetColor(TevStage.GxCc colorSource)
-        => this.colorValues_[colorSource];
+      public void UpdateRascColor(TevOrder.ColorChannel? colorChannel) {
+        if (this.colorChannel_ != colorChannel) {
+          this.colorChannel_ = colorChannel;
+          this.colorValues_.Remove(TevStage.GxCc.GX_CC_RASC);
+          this.colorValues_.Remove(TevStage.GxCc.GX_CC_RASA);
+        }
+      }
 
-      public IScalarValue GetAlpha(TevStage.GxCc alphaSource)
-        => this.alphaValues_[alphaSource];
+      private IColorValue GetTextureColorChannel_() {
+        var indexOrNull = this.textureIndex_;
+        Asserts.Nonnull(indexOrNull);
+
+        var index = indexOrNull.Value;
+        Asserts.True(index >= 0 && index < 8);
+
+        var texture = this.textureColors_[index];
+        if (texture == null) {
+          this.textureColors_[index] =
+              texture = this.equations_.CreateColorInput(
+                  (FixedFunctionSource) (FixedFunctionSource.TEXTURE_0 + index),
+                  this.equations_.CreateColorConstant(0));
+        }
+
+        return this.colorValues_[TevStage.GxCc.GX_CC_TEXC] = texture;
+      }
+
+      private IColorValue GetVertexColorChannel_() {
+        var channelOrNull = this.colorChannel_;
+        Asserts.Nonnull(channelOrNull);
+
+        var channel = channelOrNull.Value;
+
+        if (!this.colorChannelsColors_.TryGetValue(channel, out var color)) {
+          var source = channel switch {
+              TevOrder.ColorChannel.GX_COLOR0A0 => FixedFunctionSource
+                  .VERTEX_COLOR_ALPHA_0,
+              TevOrder.ColorChannel.GX_COLOR1A1 => FixedFunctionSource
+                  .VERTEX_COLOR_ALPHA_1,
+              _ => throw new NotImplementedException()
+          };
+
+          this.colorChannelsColors_[channel] =
+              color = this.equations_.CreateColorInput(
+                  source,
+                  this.equations_.CreateColorConstant(0));
+        }
+
+        return this.colorValues_[TevStage.GxCc.GX_CC_RASC] = color;
+      }
+
+      public IColorValue GetColor(TevStage.GxCc colorSource) {
+        if (this.colorValues_.TryGetValue(colorSource, out var colorValue)) {
+          return colorValue;
+        }
+
+        if (colorSource == TevStage.GxCc.GX_CC_TEXC) {
+          return this.GetTextureColorChannel_();
+        }
+
+        if (colorSource == TevStage.GxCc.GX_CC_RASC) {
+          return this.GetVertexColorChannel_();
+        }
+
+        throw new NotImplementedException();
+      }
     }
   }
 }
