@@ -7,20 +7,16 @@ namespace fin.language.equations.fixedFunction {
     IColorConstant CreateColorConstant(
         double r,
         double g,
-        double b,
-        double? a = null);
+        double b);
 
     IColorConstant CreateColorConstant(
-        double intensity,
-        double? a = null);
+        double intensity);
 
     IColorFactor CreateColor(IScalarValue r,
                              IScalarValue g,
-                             IScalarValue b,
-                             IScalarValue? a = null);
+                             IScalarValue b);
 
-    IColorFactor CreateColor(IScalarValue intensity,
-                             IScalarValue? a = null);
+    IColorFactor CreateColor(IScalarValue intensity);
 
 
     IReadOnlyDictionary<TIdentifier, IScalarInput<TIdentifier>>

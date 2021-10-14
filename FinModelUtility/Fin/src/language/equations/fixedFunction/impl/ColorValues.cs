@@ -19,24 +19,20 @@ namespace fin.language.equations.fixedFunction {
     public IColorConstant CreateColorConstant(
         double r,
         double g,
-        double b,
-        double? a = null)
-      => new ColorConstant(r, g, b, a);
+        double b)
+      => new ColorConstant(r, g, b);
 
     public IColorConstant CreateColorConstant(
-        double intensity,
-        double? a = null)
-      => new ColorConstant(intensity, a);
+        double intensity)
+      => new ColorConstant(intensity);
 
     public IColorFactor CreateColor(
         IScalarValue r,
         IScalarValue g,
-        IScalarValue b,
-        IScalarValue? a = null) => new ColorWrapper(r, g, b, a);
+        IScalarValue b) => new ColorWrapper(r, g, b);
 
     public IColorFactor CreateColor(
-        IScalarValue intensity,
-        IScalarValue? a = null) => new ColorWrapper(intensity, a);
+        IScalarValue intensity) => new ColorWrapper(intensity);
 
 
     public IReadOnlyDictionary<TIdentifier, IColorInput<TIdentifier>>
@@ -92,11 +88,6 @@ namespace fin.language.equations.fixedFunction {
 
       public override IScalarValue B
         => new ColorNamedValueSwizzle(this, ColorSwizzle.B);
-
-      public override IScalarValue A
-        => new ColorNamedValueSwizzle(this, ColorSwizzle.A);
-
-      public override IScalarValue? AOrNull => this.ColorValue.AOrNull;
     }
 
     private class ColorOutput : BColorValue, IColorOutput<TIdentifier> {
@@ -120,11 +111,6 @@ namespace fin.language.equations.fixedFunction {
 
       public override IScalarValue B
         => new ColorNamedValueSwizzle(this, ColorSwizzle.B);
-
-      public override IScalarValue A
-        => new ColorNamedValueSwizzle(this, ColorSwizzle.A);
-
-      public override IScalarValue? AOrNull => this.ColorValue.AOrNull;
     }
 
 
@@ -224,9 +210,8 @@ namespace fin.language.equations.fixedFunction {
                             term)))
                 .ToArray();
 
-      // TODO: Is this right, or should alpha be omitted?
       protected IColorValue[] ToColorValues(params IScalarValue[] scalars)
-        => scalars.Select(scalar => new ColorWrapper(scalar, scalar)).ToArray();
+        => scalars.Select(scalar => new ColorWrapper(scalar)).ToArray();
 
       protected IColorValue[] ToColorValues(
           IScalarValue first,
@@ -238,8 +223,6 @@ namespace fin.language.equations.fixedFunction {
       public abstract IScalarValue R { get; }
       public abstract IScalarValue G { get; }
       public abstract IScalarValue B { get; }
-      public virtual IScalarValue A => this.AOrNull ?? ScalarConstant.ONE;
-      public abstract IScalarValue? AOrNull { get; }
     }
 
     private class ColorExpression : BColorValue, IColorExpression {
@@ -300,21 +283,6 @@ namespace fin.language.equations.fixedFunction {
       public override IScalarValue B
         => new ScalarExpression(this.Terms.Select(factor => factor.B)
                                     .ToArray());
-
-      public override IScalarValue? AOrNull {
-        get {
-          var numeratorAs =
-              this.Terms.Select(factor => factor.AOrNull)
-                  .Where(a => a != null)
-                  .ToArray();
-
-          if (numeratorAs.Length == 0) {
-            return null;
-          }
-
-          return new ScalarExpression(numeratorAs.Select(a => a!).ToArray());
-        }
-      }
     }
 
     private class ColorTerm : BColorValue, IColorTerm {
@@ -399,61 +367,31 @@ namespace fin.language.equations.fixedFunction {
             this.NumeratorFactors.Select(factor => factor.B).ToArray(),
             this.DenominatorFactors?.Select(factor => factor.B)
                 .ToArray());
-
-      public override IScalarValue? AOrNull {
-        get {
-          var numeratorAs =
-              this.NumeratorFactors.Select(factor => factor.AOrNull)
-                  .Where(a => a != null)
-                  .ToArray();
-          var denominatorAs =
-              this.DenominatorFactors?.Select(factor => factor.AOrNull)
-                  .Where(a => a != null)
-                  .ToArray();
-
-          if (numeratorAs.Length == 0 && (denominatorAs?.Length ?? 0) == 0) {
-            return null;
-          }
-
-          return new ScalarTerm(
-              numeratorAs.Select(a => a!).ToArray(),
-              denominatorAs?.Select(a => a!).ToArray());
-        }
-      }
     }
 
     private class ColorConstant : BColorValue, IColorConstant {
-      // TODO: Is this right, or should alpha be omitted?
-      public static readonly ColorConstant NEGATIVE_ONE = new(-1, -1);
+      public static readonly ColorConstant NEGATIVE_ONE = new(-1);
 
-      public ColorConstant(double r, double g, double b, double? a = null) {
+      public ColorConstant(double r, double g, double b) {
         this.RValue = r;
         this.GValue = g;
         this.BValue = b;
-        this.AValue = a;
 
         this.R = new ScalarConstant(r);
         this.G = new ScalarConstant(g);
         this.B = new ScalarConstant(b);
-        if (a != null) {
-          this.AOrNull = new ScalarConstant(a.Value);
-        }
       }
 
-      public ColorConstant(double intensity, double? a = null) {
+      public ColorConstant(double intensity) {
         this.IntensityValue = intensity;
         this.RValue = intensity;
         this.GValue = intensity;
         this.BValue = intensity;
-        this.AValue = a;
 
         this.Intensity = new ScalarConstant(intensity);
         this.R = new ScalarConstant(intensity);
         this.G = new ScalarConstant(intensity);
         this.B = new ScalarConstant(intensity);
-        if (a != null) {
-          this.AOrNull = new ScalarConstant(a.Value);
-        }
       }
 
 
@@ -461,40 +399,34 @@ namespace fin.language.equations.fixedFunction {
       public double RValue { get; }
       public double GValue { get; }
       public double BValue { get; }
-      public double? AValue { get; }
 
       public override IScalarValue? Intensity { get; }
       public override IScalarValue R { get; }
       public override IScalarValue G { get; }
       public override IScalarValue B { get; }
-      public override IScalarValue? AOrNull { get; }
     }
 
     private class ColorWrapper : BColorValue, IColorFactor {
       public ColorWrapper(
           IScalarValue r,
           IScalarValue g,
-          IScalarValue b,
-          IScalarValue? a = null) {
+          IScalarValue b) {
         this.R = r;
         this.G = g;
         this.B = b;
-        this.AOrNull = a;
       }
 
-      public ColorWrapper(IScalarValue intensity, IScalarValue? a = null) {
+      public ColorWrapper(IScalarValue intensity) {
         this.Intensity = intensity;
         this.R = intensity;
         this.G = intensity;
         this.B = intensity;
-        this.AOrNull = a;
       }
 
       public override IScalarValue? Intensity { get; }
       public override IScalarValue R { get; }
       public override IScalarValue G { get; }
       public override IScalarValue B { get; }
-      public override IScalarValue? AOrNull { get; }
     }
   }
 }

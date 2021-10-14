@@ -17,7 +17,6 @@ namespace fin.language.equations.fixedFunction {
     R,
     G,
     B,
-    A,
   }
 
   public interface IColorNamedValueSwizzle<TIdentifier> : IScalarFactor {
@@ -41,8 +40,6 @@ namespace fin.language.equations.fixedFunction {
     IScalarValue R { get; }
     IScalarValue G { get; }
     IScalarValue B { get; }
-    IScalarValue A { get; }
-    IScalarValue? AOrNull { get; }
   }
 
   public interface IColorExpression : IColorValue {
@@ -61,6 +58,5 @@ namespace fin.language.equations.fixedFunction {
     double RValue { get; }
     double GValue { get; }
     double BValue { get; }
-    double? AValue { get; }
   }
 }

@@ -7,6 +7,7 @@ using System.Linq;
 using Assimp;
 
 using fin.model;
+using fin.model.util;
 
 namespace fin.exporter.assimp.indirect {
   using WrapMode = fin.model.WrapMode;
@@ -55,78 +56,21 @@ namespace fin.exporter.assimp.indirect {
         
         var assMaterial = new Material {Name = finMaterial.Name};
 
-        if (finMaterial is ILayerMaterial layerMaterial) {
-          var addLayers =
-              layerMaterial
-                  .Layers
-                  .Where(layer => layer.BlendMode == FinBlendMode.ADD)
-                  .ToArray();
-          var multiplyLayers =
-              layerMaterial
-                  .Layers
-                  .Where(layer => layer.BlendMode == FinBlendMode.MULTIPLY)
-                  .ToArray();
+        var finTexture = PrimaryTextureFinder.GetFor(finMaterial);
+        var assTextureSlot = new TextureSlot {
+            FilePath = finTexture.Name + ".png",
+            // TODO: FBX doesn't support mirror. Blegh
+            WrapModeU = this.ConvertWrapMode_(finTexture.WrapModeU),
+            WrapModeV = this.ConvertWrapMode_(finTexture.WrapModeV)
+        };
 
-          if (addLayers.Length == 0) {
-            //throw new NotSupportedException("Expected to find an add layer!");
-          }
-          if (addLayers.Length > 1) {
-            ;
-          }
-          if (addLayers.Length > 2) {
-            //throw new NotSupportedException("Too many add layers for GLTF!");
-          }
+        assTextureSlot.TextureType = TextureType.Diffuse;
+        assTextureSlot.UVIndex = finTexture.UvIndex;
 
-          for (var i = 0; i < addLayers.Length; ++i) {
-            var layer = addLayers[i];
+        assMaterial.AddMaterialTexture(assTextureSlot);
 
-            // TODO: Simplify/cut down on redundant logic
-            // TODO: Support flat color layers by generating a 1x1 clamped texture of that color.
-            if (layer.ColorSource is ITexture finTexture) {
-              var assTextureSlot = new TextureSlot {
-                  FilePath = finTexture.Name + ".png",
-                  WrapModeU = this.ConvertWrapMode_(finTexture.WrapModeU),
-                  WrapModeV = this.ConvertWrapMode_(finTexture.WrapModeV)
-              };
-
-              // TODO: FBX doesn't support mirror. Blegh
-
-              if (i == 0) {
-                assTextureSlot.TextureType = TextureType.Diffuse;
-              } else {
-                assTextureSlot.TextureType = TextureType.Emissive;
-              }
-
-              // TODO: Set blend mode
-              //assTextureSlot.Operation =
-
-              assTextureSlot.UVIndex = layer.TexCoordIndex;
-
-              // TODO: Set texture coord type
-
-              assMaterial.AddMaterialTexture(assTextureSlot);
-            }
-          }
-
-          // Meshes should already have material indices set.
-          sc.Materials[m] = assMaterial;
-        } else if (finMaterial is ITextureMaterial textureMaterial) {
-          var finTexture = textureMaterial.Texture;
-          var assTextureSlot = new TextureSlot {
-              FilePath = finTexture.Name + ".png",
-              WrapModeU = this.ConvertWrapMode_(finTexture.WrapModeU),
-              WrapModeV = this.ConvertWrapMode_(finTexture.WrapModeV)
-          };
-
-          assTextureSlot.TextureType = TextureType.Diffuse;
-
-          assTextureSlot.UVIndex = 0;
-
-          assMaterial.AddMaterialTexture(assTextureSlot);
-
-          // Meshes should already have material indices set.
-          sc.Materials[m] = assMaterial;
-        }
+        // Meshes should already have material indices set.
+        sc.Materials[m] = assMaterial;
       }
     }
 

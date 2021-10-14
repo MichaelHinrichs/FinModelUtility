@@ -1,8 +1,4 @@
-﻿using System.Numerics;
-
-using fin.math.matrix;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace fin.math {
   [TestClass]

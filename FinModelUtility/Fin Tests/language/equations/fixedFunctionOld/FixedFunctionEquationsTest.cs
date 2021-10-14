@@ -1,12 +1,10 @@
-﻿using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 
 using fin.util.strings;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace fin.language.equations.fixedFunction {
+namespace fin.language.equations.fixedFunctionOld {
   [TestClass]
   public class FixedFunctionEquationsTest {
     [TestMethod]
@@ -64,38 +62,38 @@ namespace fin.language.equations.fixedFunction {
     public void TestColorMath() {
       var equations = new FixedFunctionEquations<string>();
 
-      var colRgb1 =
-          equations.CreateColorInput("colRgb1",
+      var colRgb =
+          equations.CreateColorInput("colRgb",
                                      equations.CreateColorConstant(1, 2, 3));
-      var colRgb2 =
-          equations.CreateColorInput("colRgb2",
-                                     equations.CreateColorConstant(2, 3, 4));
-      var colI1 =
-          equations.CreateColorInput("colI1",
+      var colRgba =
+          equations.CreateColorInput("colRgba",
+                                     equations.CreateColorConstant(1, 2, 3, 4));
+      var colI =
+          equations.CreateColorInput("colI",
                                      equations.CreateColorConstant(1));
-      var colI2 =
-          equations.CreateColorInput("colI2",
-                                     equations.CreateColorConstant(2));
+      var colIa =
+          equations.CreateColorInput("colIa",
+                                     equations.CreateColorConstant(1, 2));
 
       var colOutput =
           equations.CreateColorOutput("colOutput",
-                                      (colRgb1.Add(colRgb2)).Divide(
-                                          colI1.Subtract(colI2)));
+                                      (colRgb.Add(colRgba)).Divide(
+                                          colI.Subtract(colIa)));
 
       this.AssertEquals_(equations,
                          "Scalar inputs:",
                          "",
                          "Color inputs:",
-                         "colRgb1: rgb<1,2,3>",
-                         "colRgb2: rgb<2,3,4>",
-                         "colI1: i<1>",
-                         "colI2: i<2>",
+                         "colRgb: rgb<1,2,3>",
+                         "colRgba: rgba<1,2,3,4>",
+                         "colI: i<1>",
+                         "colIa: ia<1,2>",
                          "",
                          "",
                          "Scalar outputs:",
                          "",
                          "Color outputs:",
-                         "colOutput: (<colRgb1> + <colRgb2>)/(<colI1> + i<-1>*<colI2>)"
+                         "colOutput: (<colRgb> + <colRgba>)/(<colI> + ia<-1,-1>*<colIa>)"
       );
     }
 
@@ -104,24 +102,24 @@ namespace fin.language.equations.fixedFunction {
     public void TestColorSwizzleOut() {
       var equations = new FixedFunctionEquations<string>();
 
-      var colRgb1 =
-          equations.CreateColorInput("colRgb1",
+      var colRgb =
+          equations.CreateColorInput("colRgb",
                                      equations.CreateColorConstant(1, 2, 3));
-      var colRgb2 =
-          equations.CreateColorInput("colRgb2",
-                                     equations.CreateColorConstant(2, 3, 4));
-      var colI1 =
-          equations.CreateColorInput("colI1",
+      var colRgba =
+          equations.CreateColorInput("colRgba",
+                                     equations.CreateColorConstant(1, 2, 3, 4));
+      var colI =
+          equations.CreateColorInput("colI",
                                      equations.CreateColorConstant(1));
-      var colI2 =
-          equations.CreateColorInput("colI2",
-                                     equations.CreateColorConstant(2));
+      var colIa =
+          equations.CreateColorInput("colIa",
+                                     equations.CreateColorConstant(1, 2));
 
-      var scR1 = equations.CreateScalarOutput("scR1", colI1.R);
-      var scR2 = equations.CreateScalarOutput("scR2", colRgb1.R);
+      var scR = equations.CreateScalarOutput("scR", colI.R);
+      var scA = equations.CreateScalarOutput("scA", colRgb.A);
 
-      var colOutputExp = (colRgb1.Add(colRgb2)).Divide(
-          colI1.Subtract(colI2));
+      var colOutputExp = (colRgb.Add(colRgba)).Divide(
+          colI.Subtract(colIa));
       var colOutput =
           equations.CreateColorOutput("colOutput",
                                       colOutputExp);
@@ -133,20 +131,20 @@ namespace fin.language.equations.fixedFunction {
                          "Scalar inputs:",
                          "",
                          "Color inputs:",
-                         "colRgb1: rgb<1,2,3>",
-                         "colRgb2: rgb<2,3,4>",
-                         "colI1: i<1>",
-                         "colI2: i<2>",
+                         "colRgb: rgb<1,2,3>",
+                         "colRgba: rgba<1,2,3,4>",
+                         "colI: i<1>",
+                         "colIa: ia<1,2>",
                          "",
                          "",
                          "Scalar outputs:",
-                         "scR1: <colI1>.R",
-                         "scR2: <colRgb1>.R",
-                         "scBExp: (<colRgb1>.B + <colRgb2>.B)/(<colI1>.B + -1*<colI2>.B)",
+                         "scR: <colI>.R",
+                         "scA: <colRgb>.A",
+                         "scBExp: (<colRgb>.B + <colRgba>.B)/(<colI>.B + -1*<colIa>.B)",
                          "scBVar: <colOutput>.B",
                          "",
                          "Color outputs:",
-                         "colOutput: (<colRgb1> + <colRgb2>)/(<colI1> + i<-1>*<colI2>)"
+                         "colOutput: (<colRgb> + <colRgba>)/(<colI> + ia<-1,-1>*<colIa>)"
       );
     }
 
@@ -155,27 +153,28 @@ namespace fin.language.equations.fixedFunction {
     public void TestColorSwizzleIn() {
       var equations = new FixedFunctionEquations<string>();
 
-      var colRgb =
-          equations.CreateColorInput("colRgb",
-                                     equations.CreateColorConstant(1, 2, 3));
-      var colGbr =
-          equations.CreateColorOutput("colGbr",
+      var colRgba =
+          equations.CreateColorInput("colRgba",
+                                     equations.CreateColorConstant(1, 2, 3, 4));
+      var colArgb =
+          equations.CreateColorOutput("colArgb",
                                       equations.CreateColor(
-                                          colRgb.G,
-                                          colRgb.B,
-                                          colRgb.R));
+                                          colRgba.A,
+                                          colRgba.R,
+                                          colRgba.G,
+                                          colRgba.B));
 
       this.AssertEquals_(equations,
                          "Scalar inputs:",
                          "",
                          "Color inputs:",
-                         "colRgb: rgb<1,2,3>",
+                         "colRgba: rgba<1,2,3,4>",
                          "",
                          "",
                          "Scalar outputs:",
                          "",
                          "Color outputs:",
-                         "colGbr: rgb<<colRgb>.G,<colRgb>.B,<colRgb>.R>"
+                         "colArgb: rgba<<colRgba>.A,<colRgba>.R,<colRgba>.G,<colRgba>.B>"
       );
     }
 

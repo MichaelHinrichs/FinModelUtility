@@ -124,22 +124,19 @@ namespace fin.model {
     TEXTURE_6,
     TEXTURE_7,
 
-    COLOR_0,
-    COLOR_1,
-    COLOR_2,
+    CONST_COLOR_0,
+    CONST_COLOR_1,
+    CONST_COLOR_2,
 
-    ALPHA_0,
-    ALPHA_1,
-    ALPHA_2,
+    CONST_ALPHA_0,
+    CONST_ALPHA_1,
+    CONST_ALPHA_2,
 
     VERTEX_COLOR_0,
     VERTEX_ALPHA_0,
 
     VERTEX_COLOR_1,
     VERTEX_ALPHA_1,
-
-    VERTEX_COLOR_ALPHA_0,
-    VERTEX_COLOR_ALPHA_1,
 
     OUTPUT_COLOR,
     OUTPUT_ALPHA,
@@ -196,11 +193,20 @@ namespace fin.model {
     MIRROR_REPEAT,
   }
 
+  public enum ColorType {
+    RGB,
+    RGBA,
+    INTENSITY,
+    INTENSITY_ALPHA,
+  }
+
   public interface ITexture : IColorSource {
     string Name { get; set; }
 
     int UvIndex { get; set; }
     UvType UvType { get; }
+    ColorType ColorType { get; }
+
 
     Bitmap ImageData { get; }
     bool IsTransparent { get; }

@@ -54,6 +54,8 @@ namespace fin.model.impl {
       public int UvIndex { get; set; }
       public UvType UvType { get; }
 
+      public ColorType ColorType { get; }
+
       public Bitmap ImageData { get; }
       public bool IsTransparent { get; }
 
@@ -122,18 +124,17 @@ namespace fin.model.impl {
     }
 
     private class FixedFunctionMaterialImpl : IFixedFunctionMaterial {
-      private readonly ITexture?[] textures_ = new ITexture[8];
+      private readonly List<ITexture> textures_ = new();
+
+      private readonly ITexture?[] texturesSources_ = new ITexture[8];
       private readonly IColor?[] colors_ = new IColor[2];
       private readonly float?[] alphas_ = new float?[2];
 
       public FixedFunctionMaterialImpl() {
-        this.Textures =
-            new ReadOnlyCollection<ITexture>(
-                this.textures_.Where(t => t != null)
-                    .Select(t => t!)
-                    .ToArray());
+        this.Textures = new ReadOnlyCollection<ITexture>(this.textures_);
 
-        this.TextureSources = new ReadOnlyCollection<ITexture?>(this.textures_);
+        this.TextureSources =
+            new ReadOnlyCollection<ITexture?>(this.texturesSources_);
         this.ColorSources = new ReadOnlyCollection<IColor?>(this.colors_);
         this.AlphaSources = new ReadOnlyCollection<float?>(this.alphas_);
       }
@@ -154,22 +155,31 @@ namespace fin.model.impl {
       public IFixedFunctionMaterial SetTextureSource(
           int textureIndex,
           ITexture texture) {
-        this.textures_[textureIndex] = texture;
+        if (!this.texturesSources_.Contains(texture)) {
+          this.textures_.Add(texture);
+        }
+
+        this.texturesSources_[textureIndex] = texture;
+
         return this;
       }
 
-      public IFixedFunctionMaterial SetColorSource(int colorIndex, IColor color) {
+      public IFixedFunctionMaterial SetColorSource(
+          int colorIndex,
+          IColor color) {
         this.colors_[colorIndex] = color;
         return this;
       }
 
-      public IFixedFunctionMaterial SetAlphaSource(int alphaIndex, float alpha) {
+      public IFixedFunctionMaterial SetAlphaSource(
+          int alphaIndex,
+          float alpha) {
         this.alphas_[alphaIndex] = alpha;
         return this;
       }
     }
   }
-  
+
   public class ColorImpl : IColor {
     private static Random RANDOM_ = new();
 

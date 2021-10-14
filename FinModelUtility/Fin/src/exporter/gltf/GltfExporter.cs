@@ -8,6 +8,7 @@ using System.Numerics;
 using fin.io;
 using fin.log;
 using fin.model;
+using fin.model.util;
 using fin.util.asserts;
 
 using SharpGLTF.Materials;
@@ -72,114 +73,29 @@ namespace fin.exporter.gltf {
                              .WithSpecularGlossinessShader()
                              .WithSpecularGlossiness(new Vector3(0), 0);
 
-          // TODO: Simplify/cut down on redundant logic
-          var hasTexture = finMaterial.Textures.Count > 0;
-          if (hasTexture && finMaterial is ILayerMaterial layerMaterial) {
-            var addLayers =
-                layerMaterial
-                    .Layers
-                    .Where(layer => layer.BlendMode == BlendMode.ADD)
-                    .ToArray();
-            var multiplyLayers =
-                layerMaterial
-                    .Layers
-                    .Where(layer => layer.BlendMode == BlendMode.MULTIPLY)
-                    .ToArray();
+          var texture = PrimaryTextureFinder.GetFor(finMaterial);
 
-            if (addLayers.Length == 0) {
-              //throw new NotSupportedException("Expected to find an add layer!");
-            }
-            if (addLayers.Length > 1) {
-              ;
-            }
-            if (addLayers.Length > 2) {
-              //throw new NotSupportedException("Too many add layers for GLTF!");
-            }
+          var textureImage = texture.ImageData;
 
-            /*var lastLayer = addLayers.Any()
-                                ? addLayers.First()
-                                : multiplyLayers.First();*/
-
-            var channels = new[] {KnownChannel.Diffuse, KnownChannel.Emissive};
-
-            var textureCoordIndices = new List<byte>();
-            for (var i = 0; i < Math.Min(addLayers.Length, 2); ++i) {
-              var layer = addLayers[i];
-
-              var texture = layer.ColorSource as ITexture;
-              var textureImage = texture.ImageData;
-
-              if (texture.IsTransparent) {
-                gltfMaterial.WithAlpha(AlphaMode.BLEND);
-              }
-
-              var imageStream = new MemoryStream();
-              textureImage.Save(imageStream, ImageFormat.Png);
-              var imageBytes = imageStream.ToArray();
-              var memoryImage = new MemoryImage(imageBytes);
-
-              gltfMaterial.UseChannel(channels[i])
-                          .UseTexture()
-                          .WithPrimaryImage(memoryImage)
-                          .WithCoordinateSet(0)
-                          .WithSampler(
-                              this.ConvertWrapMode_(texture.WrapModeU),
-                              this.ConvertWrapMode_(texture.WrapModeV));
-
-              textureCoordIndices.Add(layer.TexCoordIndex);
-            }
-
-            finToTexCoordAndGltfMaterial[finMaterial] =
-                (textureCoordIndices, gltfMaterial);
-          } else if (hasTexture &&
-                     finMaterial is ITextureMaterial textureMaterial) {
-            var texture = textureMaterial.Texture;
-            var textureImage = texture.ImageData;
-
-            if (texture.IsTransparent) {
-              gltfMaterial.WithAlpha(AlphaMode.BLEND);
-            }
-
-            var imageStream = new MemoryStream();
-            textureImage.Save(imageStream, ImageFormat.Png);
-            var imageBytes = imageStream.ToArray();
-            var memoryImage = new MemoryImage(imageBytes);
-
-
-            gltfMaterial.UseChannel(KnownChannel.Diffuse)
-                        .UseTexture()
-                        .WithPrimaryImage(memoryImage)
-                        .WithCoordinateSet(0)
-                        .WithSampler(
-                            this.ConvertWrapMode_(texture.WrapModeU),
-                            this.ConvertWrapMode_(texture.WrapModeV));
-
-            finToTexCoordAndGltfMaterial[finMaterial] =
-                (new byte[] {0}, gltfMaterial);
-          } else {
-            finToTexCoordAndGltfMaterial[finMaterial] =
-                (new byte[] {0}, gltfMaterial);
+          if (texture.IsTransparent) {
+            gltfMaterial.WithAlpha(AlphaMode.BLEND);
           }
 
-          /*var hasTexture = finMaterial.Textures.Count > 0;
-          if (hasTexture) {
-            gltfMaterial.WithAlpha(AlphaMode.MASK);
+          using var imageStream = new MemoryStream();
+          textureImage.Save(imageStream, ImageFormat.Png);
+          var imageBytes = imageStream.ToArray();
+          var memoryImage = new MemoryImage(imageBytes);
 
-            var lastTexture = finMaterial.Textures.Last();
-            var textureBuilder = gltfMaterial.UseChannel(KnownChannel.Diffuse)
-                                             .UseTexture();
+          gltfMaterial.UseChannel(KnownChannel.Diffuse)
+                      .UseTexture()
+                      .WithPrimaryImage(memoryImage)
+                      .WithCoordinateSet(0)
+                      .WithSampler(
+                          this.ConvertWrapMode_(texture.WrapModeU),
+                          this.ConvertWrapMode_(texture.WrapModeV));
 
-            var imageStream = new MemoryStream();
-            lastTexture.ImageData.Save(imageStream, ImageFormat.Png);
-            var imageBytes = imageStream.ToArray();
-            var memoryImage = new MemoryImage(imageBytes);
-
-            textureBuilder.WithPrimaryImage(memoryImage)
-                          .WithCoordinateSet(0)
-                          .WithSampler(
-                              this.ConvertWrapMode_(lastTexture.WrapModeU),
-                              this.ConvertWrapMode_(lastTexture.WrapModeV));
-          }*/
+          finToTexCoordAndGltfMaterial[finMaterial] =
+              (new byte[] {0}, gltfMaterial);
         }
       }
 

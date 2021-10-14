@@ -57,6 +57,7 @@ namespace bmd.exporter {
       // TODO: Need to support registers
       // TODO: Need to support multiple vertex colors
       // TODO: Colors should just be RGB in the fixed function library
+      // TODO: Seems like only texture 1 is used, is this accurate?
 
       for (var i = 0; i < materialEntry.TevStageInfo.Length; ++i) {
         var tevStageIndex = materialEntry.TevStageInfo[i];
@@ -248,7 +249,7 @@ namespace bmd.exporter {
           IFixedFunctionEquations<FixedFunctionSource> equations) {
         this.equations_ = equations;
 
-        var colorZero = equations.CreateColorConstant(0, 0);
+        var colorZero = equations.CreateColorConstant(0);
         var colorOne = equations.CreateColorConstant(1);
 
         this.colorValues_[TevStage.GxCc.GX_CC_ZERO] = colorZero;
@@ -309,18 +310,28 @@ namespace bmd.exporter {
         return this.colorValues_[TevStage.GxCc.GX_CC_TEXC] = texture;
       }
 
-      private IColorValue GetVertexColorChannel_() {
+      private IColorValue GetVertexColorChannel_(TevStage.GxCc colorSource) {
         var channelOrNull = this.colorChannel_;
         Asserts.Nonnull(channelOrNull);
 
         var channel = channelOrNull.Value;
 
         if (!this.colorChannelsColors_.TryGetValue(channel, out var color)) {
-          var source = channel switch {
-              TevOrder.ColorChannel.GX_COLOR0A0 => FixedFunctionSource
-                  .VERTEX_COLOR_ALPHA_0,
-              TevOrder.ColorChannel.GX_COLOR1A1 => FixedFunctionSource
-                  .VERTEX_COLOR_ALPHA_1,
+          var source = colorSource switch {
+              TevStage.GxCc.GX_CC_RASC => channel switch {
+                  TevOrder.ColorChannel.GX_COLOR0A0 => FixedFunctionSource
+                      .VERTEX_COLOR_0,
+                  TevOrder.ColorChannel.GX_COLOR1A1 => FixedFunctionSource
+                      .VERTEX_COLOR_1,
+                  _ => throw new NotImplementedException()
+              },
+              TevStage.GxCc.GX_CC_RASA => channel switch {
+                  TevOrder.ColorChannel.GX_COLOR0A0 => FixedFunctionSource
+                      .VERTEX_ALPHA_0,
+                  TevOrder.ColorChannel.GX_COLOR1A1 => FixedFunctionSource
+                      .VERTEX_ALPHA_1,
+                  _ => throw new NotImplementedException()
+              },
               _ => throw new NotImplementedException()
           };
 
@@ -342,8 +353,9 @@ namespace bmd.exporter {
           return this.GetTextureColorChannel_();
         }
 
-        if (colorSource == TevStage.GxCc.GX_CC_RASC) {
-          return this.GetVertexColorChannel_();
+        if (colorSource == TevStage.GxCc.GX_CC_RASC ||
+            colorSource == TevStage.GxCc.GX_CC_RASA) {
+          return this.GetVertexColorChannel_(colorSource);
         }
 
         throw new NotImplementedException();

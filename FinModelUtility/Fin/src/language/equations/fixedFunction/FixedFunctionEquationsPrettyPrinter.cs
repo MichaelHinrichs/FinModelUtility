@@ -226,27 +226,18 @@ namespace fin.language.equations.fixedFunction {
         this.PrintColorNamedValue_(os, namedValue);
       } else {
         var useIntensity = factor.Intensity != null;
-        var withA = factor.AOrNull != null;
 
         if (!useIntensity) {
-          os.Write(withA ? "rgba<" : "rgb<");
+          os.Write("rgb<");
           this.PrintScalarValue_(os, factor.R);
           os.Write(",");
           this.PrintScalarValue_(os, factor.G);
           os.Write(",");
           this.PrintScalarValue_(os, factor.B);
-          if (withA) {
-            os.Write(",");
-            this.PrintScalarValue_(os, factor.AOrNull!);
-          }
           os.Write(">");
         } else {
-          os.Write(withA ? "ia<" : "i<");
+          os.Write("i<");
           this.PrintScalarValue_(os, factor.Intensity!);
-          if (withA) {
-            os.Write(",");
-            this.PrintScalarValue_(os, factor.AOrNull!);
-          }
           os.Write(">");
         }
       }
