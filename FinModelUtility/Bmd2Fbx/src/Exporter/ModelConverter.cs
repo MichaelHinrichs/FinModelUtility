@@ -33,7 +33,11 @@ namespace bmd.exporter {
           new BmdMaterialManager(model, bmd, pathsAndBtis);
 
       var jointsAndBones = this.ConvertBones_(model, bmd);
-      this.ConvertAnimations_(model, bmd, pathsAndBcxs, frameRate, jointsAndBones);
+      this.ConvertAnimations_(model,
+                              bmd,
+                              pathsAndBcxs,
+                              frameRate,
+                              jointsAndBones);
       this.ConvertMesh_(model, bmd, jointsAndBones, materialManager);
 
       return model;
@@ -235,22 +239,12 @@ namespace bmd.exporter {
                     vertex.SetBones(weights);
                   }
 
-                  // TODO: Do the other colors need to be used too?
-                  var indicesWithColor =
-                      batch
-                          .HasColors
-                          .Select((hasColor, index) => (hasColor, index))
-                          .Where(hasColorAndIndex => hasColorAndIndex.hasColor)
-                          .Select(hasColorAndIndex => hasColorAndIndex.index)
-                          .ToList();
-                  Asserts.True(indicesWithColor.Count <= 1,
-                               "More than one color at a vertex, unsupported!");
-                  if (indicesWithColor.Count == 1) {
-                    var indexWithColor = indicesWithColor[0];
-                    var colorIndex = point.ColorIndex[indexWithColor];
-                    var color = vertexColors[indexWithColor][colorIndex];
-
-                    vertex.SetColorBytes(color.R, color.G, color.B, color.A);
+                  for (var c = 0; c < 2; ++c) {
+                    if (batch.HasColors[c]) {
+                      var colorIndex = point.ColorIndex[c];
+                      var color = vertexColors[c][colorIndex];
+                      vertex.SetColorBytes(c, color.R, color.G, color.B, color.A);
+                    }
                   }
 
                   for (var i = 0; i < 8; ++i) {

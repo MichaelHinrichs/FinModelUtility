@@ -45,23 +45,29 @@ namespace fin.exporter.assimp.indirect {
           }
         }
 
-        var assColors = assMesh.VertexColorChannels[0];
-        assColors.Clear();
+        var assColors = assMesh.VertexColorChannels;
+        for (var c = 0; c < 8; ++c) {
+          assColors[c].Clear();
+        }
 
+        var hadColor = new bool[2];
         foreach (var assColorIndexFloat in assColorIndices) {
           var assColorIndex = (int) Math.Round(assColorIndexFloat);
 
           var finVertex =
               assColorIndex != -1 ? finVertices[assColorIndex] : null;
-          var finColor = finVertex?.Color;
-          if (finColor != null) {
-            assColors.Add(new Color4D(finColor.Rf,
-                                      finColor.Gf,
-                                      finColor.Bf,
-                                      finColor.Af));
-          } else {
-            assColors.Add(nullColor);
-          }
+          for (var c = 0; c < 2; ++c) {
+            var finColor = finVertex?.GetColor(c);
+            if (finColor != null) {
+              hadColor[c] = true;
+              assColors[c].Add(new Color4D(finColor.Rf,
+                                           finColor.Gf,
+                                           finColor.Bf,
+                                           finColor.Af));
+            } else {
+              assColors[c].Add(nullColor);
+            }
+          } 
         }
 
 
@@ -73,6 +79,12 @@ namespace fin.exporter.assimp.indirect {
             assMesh.UVComponentCount[t] = 0;
           } else {
             assMesh.UVComponentCount[t] = 2;
+          }
+        }
+
+        for (var c = 0; c < 2; ++c) {
+          if (!hadColor[c]) {
+            assColors[c].Clear();
           }
         }
       }

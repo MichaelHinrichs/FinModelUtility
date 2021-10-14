@@ -16,7 +16,7 @@ using PrimitiveType = fin.model.PrimitiveType;
 
 namespace fin.exporter.gltf {
   using VERTEX =
-      VertexBuilder<VertexPositionNormal, VertexColor1Texture2, VertexJoints4>;
+      VertexBuilder<VertexPositionNormal, VertexColor2Texture2, VertexJoints4>;
 
   public class GltfMeshBuilder {
     public bool UvIndices { get; set; }
@@ -92,14 +92,24 @@ namespace fin.exporter.gltf {
           }
 
           // TODO: Include color
-          var finColor = point.Color;
-          var hasColor = finColor != null;
-          var assColor = hasColor
-                             ? new Vector4(finColor.Rf,
-                                           finColor.Bf,
-                                           finColor.Gf,
-                                           finColor.Af)
-                             : new Vector4(1, 1, 1, 1);
+          var finColor0 = point.GetColor(0);
+          var hasColor0 = finColor0 != null;
+          var assColor0 = hasColor0
+                              ? new Vector4(finColor0.Rf,
+                                            finColor0.Bf,
+                                            finColor0.Gf,
+                                            finColor0.Af)
+                              : new Vector4(1, 1, 1, 1);
+          var finColor1 = point.GetColor(1);
+          var hasColor1 = finColor1 != null;
+          var assColor1 = hasColor1
+                              ? new Vector4(finColor1.Rf,
+                                            finColor1.Bf,
+                                            finColor1.Gf,
+                                            finColor1.Af)
+                              : new Vector4(1, 1, 1, 1);
+
+          var hasColor = hasColor0 || hasColor1;
 
           var uvs = point.Uvs;
           var hasUvs = (uvs?.Count ?? 0) > 0;
@@ -107,10 +117,10 @@ namespace fin.exporter.gltf {
             if (hasUvs) {
               var uv = uvs[0];
               vertexBuilder =
-                  vertexBuilder.WithMaterial(assColor,
+                  vertexBuilder.WithMaterial(assColor0, assColor1,
                                              new Vector2(uv.U, uv.V));
             } else if (hasColor) {
-              vertexBuilder = vertexBuilder.WithMaterial(assColor);
+              vertexBuilder = vertexBuilder.WithMaterial(assColor0, assColor1);
             }
           } else {
             // Importing the color directly via Assimp doesn't work for some

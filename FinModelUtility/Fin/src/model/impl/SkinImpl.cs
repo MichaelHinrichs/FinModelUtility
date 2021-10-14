@@ -90,6 +90,7 @@ namespace fin.model.impl {
 
       private class VertexImpl : IVertex {
         private IDictionary<int, ITexCoord>? uvs_;
+        private IDictionary<int, IColor>? colors_;
 
         public VertexImpl(int index, IPosition position) {
           this.Index = index;
@@ -146,18 +147,50 @@ namespace fin.model.impl {
         }
 
         public IVertex SetLocalTangent(float x, float y, float z, float w)
-          => this.SetLocalTangent(new TangentImpl { X = x, Y = y, Z = z, W = w});
+          => this.SetLocalTangent(new TangentImpl {X = x, Y = y, Z = z, W = w});
 
 
-        public IColor? Color { get; private set; }
+        public IReadOnlyDictionary<int, IColor>? Colors { get; private set; }
 
-        public IVertex SetColor(IColor? color) {
-          this.Color = color;
+        public IVertex SetColor(IColor? color) => this.SetColor(0, color);
+
+        public IVertex SetColor(int colorIndex, IColor? color) {
+          if (color != null) {
+            if (this.colors_ == null) {
+              this.colors_ = new Dictionary<int, IColor>();
+              this.Colors = new ReadOnlyDictionary<int, IColor>(this.colors_);
+            }
+
+            this.colors_[colorIndex] = color;
+          } else {
+            this.colors_?.Remove(colorIndex);
+            if (this.colors_?.Count == 0) {
+              this.colors_ = null;
+              this.Colors = null;
+            }
+          }
+
           return this;
         }
 
         public IVertex SetColorBytes(byte r, byte g, byte b, byte a)
-          => this.SetColor(ColorImpl.FromRgbaBytes(r, g, b, a));
+          => this.SetColorBytes(0, r, g, b, a);
+
+        public IVertex SetColorBytes(
+            int colorIndex,
+            byte r,
+            byte g,
+            byte b,
+            byte a)
+          => this.SetColor(colorIndex, ColorImpl.FromRgbaBytes(r, g, b, a));
+
+        public IColor? GetColor() => this.GetColor(0);
+
+        public IColor? GetColor(int colorIndex) {
+          IColor? color = null;
+          this.colors_?.TryGetValue(colorIndex, out color);
+          return color;
+        }
 
 
         public IReadOnlyDictionary<int, ITexCoord>? Uvs { get; private set; }
@@ -177,6 +210,7 @@ namespace fin.model.impl {
             this.uvs_?.Remove(uvIndex);
             if (this.uvs_?.Count == 0) {
               this.uvs_ = null;
+              this.Uvs = null;
             }
           }
 
@@ -190,7 +224,7 @@ namespace fin.model.impl {
 
         public ITexCoord? GetUv(int uvIndex) {
           ITexCoord? uv = null;
-          this.uvs_?.TryGetValue(uvIndex, out uv); 
+          this.uvs_?.TryGetValue(uvIndex, out uv);
           return uv;
         }
       }

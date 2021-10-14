@@ -2128,6 +2128,7 @@ label_140:
         public ushort[] Unknown2;
         public ushort[] Indices2;
 
+        // https://github.com/LordNed/WindEditor/wiki/BMD-and-BDL-Model-Format#material-entry
         public MaterialEntry(EndianBinaryReader er) {
           this.Unknown1 = er.ReadBytes(8);
           this.Color1 = er.ReadUInt16s(2);
@@ -2254,7 +2255,6 @@ label_140:
 
         public TevStageProps(EndianBinaryReader er)
         {
-          er.ReadByte();
           this.color_a = (GxCc) er.ReadByte();
           this.color_b = (GxCc) er.ReadByte();
           this.color_c = (GxCc) er.ReadByte();
@@ -2273,7 +2273,6 @@ label_140:
           this.alpha_scale = (TevScale) er.ReadByte();
           this.alpha_clamp = er.ReadByte() == (byte) 1;
           this.alpha_regid = er.ReadByte();
-          er.ReadByte();
         }
 
         public enum GxCc {

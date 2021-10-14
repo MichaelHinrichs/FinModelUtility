@@ -54,9 +54,13 @@ namespace fin.model {
     IVertex SetLocalTangent(ITangent? localNormal);
     IVertex SetLocalTangent(float x, float y, float z, float w);
 
-    IColor? Color { get; }
+    IReadOnlyDictionary<int, IColor>? Colors { get; }
     IVertex SetColor(IColor? color);
+    IVertex SetColor(int colorIndex, IColor? color);
     IVertex SetColorBytes(byte r, byte g, byte b, byte a);
+    IVertex SetColorBytes(int colorIndex, byte r, byte g, byte b, byte a);
+    IColor? GetColor();
+    IColor? GetColor(int colorIndex);
 
     IReadOnlyDictionary<int, ITexCoord>? Uvs { get; }
     IVertex SetUv(ITexCoord? uv);
