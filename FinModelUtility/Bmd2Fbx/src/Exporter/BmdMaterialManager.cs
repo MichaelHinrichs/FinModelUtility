@@ -9,7 +9,7 @@ namespace bmd.exporter {
   public class BmdMaterialManager {
     private readonly BMD bmd_;
     private readonly IList<BmdTexture> textures_;
-    private readonly IList<BmdMaterial> materials_;
+    private readonly IList<BmdFixedFunctionMaterial> materials_;
 
     public BmdMaterialManager(
         IModel model,
@@ -31,12 +31,12 @@ namespace bmd.exporter {
       this.materials_ = this.GetMaterials_(model, bmd);
     }
 
-    public BmdMaterial Get(int entryIndex)
+    public BmdFixedFunctionMaterial Get(int entryIndex)
       => this.materials_[this.bmd_.MAT3.MaterialEntryIndieces[entryIndex]];
 
-    private IList<BmdMaterial> GetMaterials_(IModel model, BMD bmd)
+    private IList<BmdFixedFunctionMaterial> GetMaterials_(IModel model, BMD bmd)
       => bmd.MAT3.MaterialEntries.Select(
-                (_, i) => new BmdMaterial(
+                (_, i) => new BmdFixedFunctionMaterial(
                     model.MaterialManager,
                     i,
                     bmd,

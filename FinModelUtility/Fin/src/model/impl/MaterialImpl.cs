@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
+using System.Linq;
 
+using fin.language.equations.fixedFunction;
 using fin.util.image;
 
 namespace fin.model.impl {
@@ -30,6 +32,12 @@ namespace fin.model.impl {
         return material;
       }
 
+      public IFixedFunctionMaterial AddFixedFunctionMaterial() {
+        var material = new FixedFunctionMaterialImpl();
+        this.materials_.Add(material);
+        return material;
+      }
+
       public ITexture CreateTexture(Bitmap imageData)
         => new TextureImpl(imageData);
     }
@@ -43,7 +51,7 @@ namespace fin.model.impl {
       public ColorSourceType Type => ColorSourceType.TEXTURE;
 
       public string Name { get; set; }
-      public int UvIndex { get; }
+      public int UvIndex { get; set; }
       public UvType UvType { get; }
 
       public Bitmap ImageData { get; }
@@ -112,8 +120,56 @@ namespace fin.model.impl {
         public BlendMode BlendMode { get; set; }
       }
     }
-  }
 
+    private class FixedFunctionMaterialImpl : IFixedFunctionMaterial {
+      private readonly ITexture?[] textures_ = new ITexture[8];
+      private readonly IColor?[] colors_ = new IColor[2];
+      private readonly float?[] alphas_ = new float?[2];
+
+      public FixedFunctionMaterialImpl() {
+        this.Textures =
+            new ReadOnlyCollection<ITexture>(
+                this.textures_.Where(t => t != null)
+                    .Select(t => t!)
+                    .ToArray());
+
+        this.TextureSources = new ReadOnlyCollection<ITexture?>(this.textures_);
+        this.ColorSources = new ReadOnlyCollection<IColor?>(this.colors_);
+        this.AlphaSources = new ReadOnlyCollection<float?>(this.alphas_);
+      }
+
+      public string Name { get; set; }
+
+      public IReadOnlyList<ITexture> Textures { get; }
+      public IShader Shader { get; }
+
+      public IFixedFunctionEquations<FixedFunctionSource> Equations { get; } =
+        new FixedFunctionEquations<FixedFunctionSource>();
+
+
+      public IReadOnlyList<ITexture?> TextureSources { get; }
+      public IReadOnlyList<IColor?> ColorSources { get; }
+      public IReadOnlyList<float?> AlphaSources { get; }
+
+      public IFixedFunctionMaterial SetTextureSource(
+          int textureIndex,
+          ITexture texture) {
+        this.textures_[textureIndex] = texture;
+        return this;
+      }
+
+      public IFixedFunctionMaterial SetColorSource(int colorIndex, IColor color) {
+        this.colors_[colorIndex] = color;
+        return this;
+      }
+
+      public IFixedFunctionMaterial SetAlphaSource(int alphaIndex, float alpha) {
+        this.alphas_[alphaIndex] = alpha;
+        return this;
+      }
+    }
+  }
+  
   public class ColorImpl : IColor {
     private static Random RANDOM_ = new();
 

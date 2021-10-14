@@ -111,8 +111,12 @@ namespace bmd.api {
 
       outputDirectory.Create();
 
-      foreach (var (_, bmd) in pathsAndBmds) {
-        BmdDebugHelper.ExportFilesInBmd(outputDirectory, bmd, pathsAndBtis);
+      foreach (var (bmdPath, bmd) in pathsAndBmds) {
+        var bmdFile = new FileInfo(bmdPath);
+        BmdDebugHelper.ExportFilesInBmd(outputDirectory,
+                                        bmd,
+                                        bmdFile.Name.Substring(0, bmdFile.Name.Length - ".bmd".Length),
+                                        pathsAndBtis);
       }
 
       if (useStatic) {

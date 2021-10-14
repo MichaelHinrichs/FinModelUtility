@@ -1,9 +1,19 @@
 ﻿using System.IO;
+using System.Text;
 
 using fin.util.asserts;
 
 namespace fin.language.equations.fixedFunction {
   public class FixedFunctionEquationsPrettyPrinter<TIdentifier> {
+    public string Print(IFixedFunctionEquations<TIdentifier> equations) {
+      var sb = new StringBuilder();
+
+      using var os = new StringWriter(sb);
+      this.Print(os, equations);
+
+      return sb.ToString();
+    }
+
     public void Print(
         StringWriter os,
         IFixedFunctionEquations<TIdentifier> equations) {

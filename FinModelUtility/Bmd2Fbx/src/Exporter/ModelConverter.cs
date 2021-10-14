@@ -136,7 +136,7 @@ namespace bmd.exporter {
       var batches = bmd.SHP1.Batches;
 
       BMD.MAT3Section.MaterialEntry currentMaterialEntry = null;
-      BmdMaterial? currentBmdMaterial = null;
+      BmdFixedFunctionMaterial? currentBmdMaterial = null;
 
       var weightsTable = new BoneWeight[]?[10];
       foreach (var entry in entries) {

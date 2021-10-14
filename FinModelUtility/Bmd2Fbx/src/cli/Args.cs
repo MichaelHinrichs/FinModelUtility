@@ -15,7 +15,7 @@ namespace bmd.cli {
   public class Args {
     public bool Automatic { get; private set; }
     public bool Static { get; private set; }
-    public float FrameRate { get; private set; }
+    public float FrameRate { get; private set; } = 30;
     public bool Verbose { get; private set; }
 
     public string OutputDirectoryPath { get; private set; } = "";
@@ -76,19 +76,25 @@ namespace bmd.cli {
                   this.Static = debugOpts.Static;
                   this.Verbose = debugOpts.Verbose;
 
-                  /*Args.GetForEnemy_("Chappy",
+
+                  Args.GetForEnemy_("Chappy",
                                     out var outputPath,
                                     out var bmdPaths,
                                     out var bcxPaths,
-                                    out var btiPaths);*/
+                                    out var btiPaths);
 
-                  this.FrameRate = 60;
+
+                  /*this.FrameRate = 60;
                   var outputPath =
                       @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\out\super_mario_sunshine";
                   var bmdPaths = new String[] {
                       @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\super_mario_sunshine.gcm_dir\data\scene\bianco1.szs 0.rarc_dir\scene\map\map\map.bmd"
                       //@"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\super_mario_sunshine.gcm_dir\data\mario.szs 0.rarc_dir\mario\bmd\ma_mdl1.bmd",
                   };
+                  var bcxPaths = new String[] {};
+                  var btiPaths = new String[] {};*/
+
+
                   /*var bcxPaths =
                       Files.GetFilesWithExtension(
                                new FinDirectory(
@@ -98,8 +104,6 @@ namespace bmd.cli {
                                file => file.Name.StartsWith("ma_"))
                            .Select(file => file.FullName)
                            .ToArray();*/
-                  var bcxPaths = new String[] { };
-                  var btiPaths = new String[] {};
 
                   /*Args.GetFromKando_("Ufo",
                                   out var outputPath,
@@ -184,7 +188,7 @@ namespace bmd.cli {
 
       var basePath = "R:/Documents/CSharpWorkspace/Pikmin2Utility/";
       var enemyBasePath =
-          $"{basePath}cli/roms/pkmn2.gcm_dir/enemy/data/{name}/";
+          $"{basePath}cli/roms/pikmin_2.gcm_dir/enemy/data/{name}/";
 
       Args.GetFromDirectory_(new FinDirectory(enemyBasePath),
                              out outputPath,

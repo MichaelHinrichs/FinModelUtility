@@ -377,13 +377,15 @@ namespace bmd.GCN
           stringBuilder2.AppendFormat("vec4 c = vec4({0}, {1});\n", (object) strArray2[(int) tevStage.color_c], (object) strArray3[(int) tevStage.alpha_c]);
           stringBuilder2.AppendFormat("vec4 d = vec4({0}, {1});\n", (object) strArray2[(int) tevStage.color_d], (object) strArray3[(int) tevStage.alpha_d]);
           stringBuilder2.AppendLine("vec4 result;");
-          if ((int) tevStage.color_op != (int) tevStage.alpha_op)
-          {
-            this.write_tevop(tevStage.color_op, ".rgb", ref stringBuilder2);
-            this.write_tevop(tevStage.alpha_op, ".a", ref stringBuilder2);
-          }
-          else
-            this.write_tevop(tevStage.color_op, "", ref stringBuilder2);
+          if ((int) tevStage.color_op != (int) tevStage.alpha_op) {
+            this.write_tevop((byte) tevStage.color_op,
+                             ".rgb",
+                             ref stringBuilder2);
+            this.write_tevop((byte) tevStage.alpha_op,
+                             ".a",
+                             ref stringBuilder2);
+          } else
+            this.write_tevop((byte) tevStage.color_op, "", ref stringBuilder2);
           string[] strArray7 = new string[3]
           {
             "+0",
@@ -397,17 +399,17 @@ namespace bmd.GCN
             "*4",
             "*0.5"
           };
-          if (tevStage.color_op < (byte) 2)
+          if ((byte)tevStage.color_op <  2)
             stringBuilder2.AppendFormat("{0}.rgb = (result.rgb{1}){2};\n", (object) strArray4[(int) tevStage.color_regid], (object) strArray7[(int) tevStage.color_bias], (object) strArray8[(int) tevStage.color_scale]);
           else
             stringBuilder2.AppendFormat("{0}.rgb = result.rgb;\n", (object) strArray4[(int) tevStage.color_regid]);
-          if (tevStage.alpha_op < (byte) 2)
+          if ((byte)tevStage.alpha_op < 2)
             stringBuilder2.AppendFormat("{0}.a = (result.a{1}){2};\n", (object) strArray4[(int) tevStage.alpha_regid], (object) strArray7[(int) tevStage.alpha_bias], (object) strArray8[(int) tevStage.alpha_scale]);
           else
             stringBuilder2.AppendFormat("{0}.a = result.a;\n", (object) strArray4[(int) tevStage.alpha_regid]);
-          if (tevStage.color_clamp && tevStage.color_op < (byte) 2)
+          if (tevStage.color_clamp && (byte)tevStage.color_op < 2)
             stringBuilder2.AppendFormat("{0}.rgb = clamp({0}.rgb,vec3(0.0, 0.0, 0.0),vec3(1.0, 1.0, 1.0));\n", (object) strArray4[(int) tevStage.color_regid]);
-          if (tevStage.alpha_clamp && tevStage.alpha_op < (byte) 2)
+          if (tevStage.alpha_clamp && (byte)tevStage.alpha_op <  2)
             stringBuilder2.AppendFormat("{0}.a = clamp({0}.a, 0.0, 1.0);\n", (object) strArray4[(int) tevStage.alpha_regid]);
           stringBuilder2.AppendLine("}");
         }

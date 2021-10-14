@@ -22,7 +22,7 @@ namespace bmd.exporter {
   ///   For more info:
   ///   http://www.amnoid.de/gc/tev.html
   /// </summary>
-  public class BmdMaterial {
+  public class BmdLayerMaterial {
     public record BmdLayerIndices(
         int Index,
         ushort TexStage,
@@ -48,7 +48,7 @@ namespace bmd.exporter {
         byte TexCoordIndex,
         BlendMode BlendMode);
 
-    public BmdMaterial(
+    public BmdLayerMaterial(
         IMaterialManager materialManager,
         int materialEntryIndex,
         BMD bmd,

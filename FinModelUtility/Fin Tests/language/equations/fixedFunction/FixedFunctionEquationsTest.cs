@@ -183,20 +183,15 @@ namespace fin.language.equations.fixedFunction {
     private void AssertEquals_<TIdentifier>(
         IFixedFunctionEquations<TIdentifier> equations,
         params string[] expectedLines) {
-      var sb = new StringBuilder();
+      var actualText =
+          new FixedFunctionEquationsPrettyPrinter<TIdentifier>().Print(
+              equations);
 
-      {
-        using var os = new StringWriter(sb);
-        new FixedFunctionEquationsPrettyPrinter<TIdentifier>().Print(
-            os,
-            equations);
-      }
-
-      var actualLines = StringUtil.SplitNewlines(sb.ToString());
+      var actualLines = StringUtil.SplitNewlines(actualText);
       actualLines = actualLines.Take(actualLines.Length - 1).ToArray();
 
       var expectedText = string.Join('\n', expectedLines);
-      var actualText = string.Join('\n', actualLines);
+      actualText = string.Join('\n', actualLines);
 
       Assert.AreEqual(expectedText, actualText);
     }

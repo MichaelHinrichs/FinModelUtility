@@ -2236,8 +2236,8 @@ label_140:
         public GxCc alpha_b;
         public GxCc alpha_c;
         public GxCc alpha_d;
-        public byte color_op;
-        public byte alpha_op;
+        public TevOp color_op;
+        public TevOp alpha_op;
         public byte color_regid;
         public byte alpha_regid;
         public byte pad;
@@ -2245,10 +2245,10 @@ label_140:
         public byte texmap;
         public byte color_constant_sel;
         public byte alpha_constant_sel;
-        public byte color_bias;
-        public byte color_scale;
-        public byte alpha_bias;
-        public byte alpha_scale;
+        public TevBias color_bias;
+        public TevScale color_scale;
+        public TevBias alpha_bias;
+        public TevScale alpha_scale;
         public bool color_clamp;
         public bool alpha_clamp;
 
@@ -2259,18 +2259,18 @@ label_140:
           this.color_b = (GxCc) er.ReadByte();
           this.color_c = (GxCc) er.ReadByte();
           this.color_d = (GxCc) er.ReadByte();
-          this.color_op = er.ReadByte();
-          this.color_bias = er.ReadByte();
-          this.color_scale = er.ReadByte();
+          this.color_op = (TevOp) er.ReadByte();
+          this.color_bias = (TevBias) er.ReadByte();
+          this.color_scale = (TevScale) er.ReadByte();
           this.color_clamp = er.ReadByte() == (byte) 1;
           this.color_regid = er.ReadByte();
           this.alpha_a = (GxCc) er.ReadByte();
           this.alpha_b = (GxCc) er.ReadByte();
           this.alpha_c = (GxCc) er.ReadByte();
           this.alpha_d = (GxCc) er.ReadByte();
-          this.alpha_op = er.ReadByte();
-          this.alpha_bias = er.ReadByte();
-          this.alpha_scale = er.ReadByte();
+          this.alpha_op = (TevOp) er.ReadByte();
+          this.alpha_bias = (TevBias) er.ReadByte();
+          this.alpha_scale = (TevScale) er.ReadByte();
           this.alpha_clamp = er.ReadByte() == (byte) 1;
           this.alpha_regid = er.ReadByte();
           er.ReadByte();
@@ -2293,6 +2293,32 @@ label_140:
           GX_CC_HALF,
           GX_CC_KONST,
           GX_CC_ZERO,
+        }
+
+        public enum TevOp {
+          GX_TEV_ADD,
+          GX_TEV_SUB,
+          GX_TEV_COMP_R8_GT,
+          GX_TEV_COMP_R8_EQ,
+          GX_TEV_COMP_GR16_GT,
+          GX_TEV_COMP_GR16_EQ,
+          GX_TEV_COMP_BGR24_GT,
+          GX_TEV_COMP_BGR24_EQ,
+          GX_TEV_COMP_RGB8_GT,
+          GX_TEV_COMP_RGB8_EQ
+        }
+
+        public enum TevBias {
+          GX_TB_ZERO,
+          GX_TB_ADDHALF,
+          GX_TB_SUBHALF
+        }
+
+        public enum TevScale {
+          GX_CS_SCALE_1,
+          GX_CS_SCALE_2,
+          GX_CS_SCALE_4,
+          GX_CS_DIVIDE_2
         }
       }
 

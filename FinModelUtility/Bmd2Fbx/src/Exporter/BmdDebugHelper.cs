@@ -13,14 +13,16 @@ namespace bmd.exporter {
     public static void ExportFilesInBmd(
         IDirectory outputDirectory,
         BMD bmd,
+        string bmdName,
         IList<(string, BTI)> pathsAndBtis) {
       // Saves JSON representation of MAT3 for debugging materials
       var jsonSerializer = new JsonSerializer();
       jsonSerializer.Formatting = Formatting.Indented;
       var jsonTextWriter = new StringWriter();
       jsonSerializer.Serialize(jsonTextWriter, bmd.MAT3);
-      File.WriteAllText(Path.Join(outputDirectory.FullName, "mat3.txt"),
-                        jsonTextWriter.ToString());
+      File.WriteAllText(
+          Path.Join(outputDirectory.FullName, bmdName + "_mat3.txt"),
+          jsonTextWriter.ToString());
 
       // Saves textures in directory
       var textures = bmd.TEX1.TextureHeaders.Select((textureHeader, i) => {

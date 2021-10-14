@@ -1,11 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
 
+using fin.language.equations.fixedFunction;
+
 namespace fin.model {
   public interface IMaterialManager {
     IReadOnlyList<IMaterial> All { get; }
     ITextureMaterial AddTextureMaterial(ITexture texture);
     ILayerMaterial AddLayerMaterial();
+    IFixedFunctionMaterial AddFixedFunctionMaterial();
 
     ITexture CreateTexture(Bitmap imageData);
   }
@@ -110,6 +113,37 @@ namespace fin.model {
     BlendMode BlendMode { get; set; }
   }
 
+
+  public enum FixedFunctionSource {
+    TEXTURE,
+
+    COLOR_0,
+    COLOR_1,
+    
+    ALPHA_0,
+    ALPHA_1,
+
+    VERTEX_COLOR,
+    VERTEX_ALPHA,
+
+    OUTPUT_COLOR,
+    OUTPUT_ALPHA,
+  }
+
+  public interface IFixedFunctionMaterial : IMaterial {
+    IFixedFunctionEquations<FixedFunctionSource> Equations { get; }
+
+    IReadOnlyList<ITexture?> TextureSources { get; }
+    IReadOnlyList<IColor?> ColorSources { get; }
+    IReadOnlyList<float?> AlphaSources { get; }
+
+    IFixedFunctionMaterial SetTextureSource(int textureIndex, ITexture texture);
+    // TODO: This should be rgb specifically
+    IFixedFunctionMaterial SetColorSource(int colorIndex, IColor color);
+    IFixedFunctionMaterial SetAlphaSource(int alphaIndex, float alpha);
+  }
+
+
   public enum ColorSourceType {
     COLOR,
     SHADER_PARAM,
@@ -150,7 +184,7 @@ namespace fin.model {
   public interface ITexture : IColorSource {
     string Name { get; set; }
 
-    int UvIndex { get; }
+    int UvIndex { get; set; }
     UvType UvType { get; }
 
     Bitmap ImageData { get; }
