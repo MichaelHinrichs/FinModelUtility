@@ -131,12 +131,12 @@ namespace mod.cli {
           @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\tekis\frog\frog.anm");*/
 
       this.Automatic = true;
-      /*Args.GetFromDirectory(
+      this.GetFromDirectory(
           new FinDirectory(
               @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\tekis\chappy\"),
           out outputDirectory,
           out modFiles,
-          out anmFiles);*/
+          out anmFiles);
       /*Args.GetFromDirectory(
           new FinDirectory(
               @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn1.gcm_dir\dataDir\tekis\chappy\"),

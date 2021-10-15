@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading;
 using System.Threading.Tasks;
 
 using fin.io;
@@ -10,26 +8,27 @@ using fin.util.asserts;
 
 namespace uni.util.cmd {
   public class ProcessUtil {
-    public static int ExecuteBlocking(
+    public static Process ExecuteBlocking(
         IFile exeFile,
         params string[] args) {
       var processSetup = new ProcessSetup(exeFile, args) {
           Method = ProcessExecutionMethod.BLOCK,
       };
-      return ProcessUtil.Execute(processSetup).Result;
+      return ProcessUtil.Execute(processSetup);
     }
 
-    public static int ExecuteBlockingSilently(
+    public static Process ExecuteBlockingSilently(
         IFile exeFile,
         params string[] args) {
       var processSetup = new ProcessSetup(exeFile, args) {
           Method = ProcessExecutionMethod.BLOCK,
           WithLogging = false,
       };
-      return ProcessUtil.Execute(processSetup).Result;
+      return ProcessUtil.Execute(processSetup);
     }
 
     public enum ProcessExecutionMethod {
+      MANUAL,
       BLOCK,
       TIMEOUT,
       ASYNC
@@ -50,7 +49,7 @@ namespace uni.util.cmd {
       }
     }
 
-    public static Task<int> Execute(ProcessSetup processSetup) {
+    public static Process Execute(ProcessSetup processSetup) {
       var exeFile = processSetup.ExeFile;
       Asserts.True(
           exeFile.Exists,
@@ -73,6 +72,7 @@ namespace uni.util.cmd {
               CreateNoWindow = true,
               RedirectStandardOutput = true,
               RedirectStandardError = true,
+              RedirectStandardInput = true,
               UseShellExecute = false,
           };
 
@@ -100,6 +100,10 @@ namespace uni.util.cmd {
       process.BeginErrorReadLine();
 
       switch (processSetup.Method) {
+        case ProcessExecutionMethod.MANUAL: {
+          break;
+        }
+
         case ProcessExecutionMethod.BLOCK: {
           process.WaitForExit();
           break;
@@ -108,7 +112,6 @@ namespace uni.util.cmd {
         default:
           throw new NotImplementedException();
       }
-
 
       // TODO: https://stackoverflow.com/questions/139593/processstartinfo-hanging-on-waitforexit-why
       /*
@@ -146,7 +149,7 @@ namespace uni.util.cmd {
         // Timed out.
       }*/
 
-      return Task.FromResult(process.ExitCode);
+      return process;
     }
   }
 }

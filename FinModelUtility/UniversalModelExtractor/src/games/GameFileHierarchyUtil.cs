@@ -1,6 +1,7 @@
 ﻿using System.IO;
 
 using fin.io;
+using fin.util.asserts;
 
 using uni.platforms;
 using uni.util.io;
@@ -14,9 +15,7 @@ namespace uni.games {
           fileHierarchyInstance.FullName.Length -
           fileHierarchyInstance.LocalPath.Length);
 
-      var baseDirectoryName = Path.GetFileName(baseDirectoryPath);
-
-      return baseDirectoryName.Substring(0, baseDirectoryName.IndexOf('.'));
+      return Path.GetFileName(baseDirectoryPath);
     }
 
     public static IDirectory GetOutputDirectoryForFile(

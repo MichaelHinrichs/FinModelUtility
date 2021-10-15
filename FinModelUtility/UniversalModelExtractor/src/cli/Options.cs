@@ -1,6 +1,10 @@
 ﻿using CommandLine;
 
 namespace uni.cli {
+  [Verb("ocarina_of_time_3d",
+        HelpText = "Extract models from Ocarina of Time 3d.")]
+  public class OcarinaOfTime3dOptions { }
+
   [Verb("pikmin_1", HelpText = "Extract models from Pikmin 1.")]
   public class Pikmin1Options {}
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using CommandLine;
 using CommandLine.Text;
 
+using uni.games.ocarina_of_time_3d;
 using uni.games.pikmin_1;
 using uni.games.pikmin_2;
 using uni.games.super_mario_sunshine;
@@ -16,10 +17,14 @@ namespace uni.cli {
       var parserResult =
           Parser.Default.ParseArguments(
                     args,
+                    typeof(OcarinaOfTime3dOptions),
                     typeof(Pikmin1Options),
                     typeof(Pikmin2Options),
                     typeof(SuperMarioSunshineOptions),
                     typeof(DebugOptions))
+                .WithParsed((OcarinaOfTime3dOptions automaticOpts) => {
+                  new OcarinaOfTime3dExtractor().ExtractAll();
+                })
                 .WithParsed((Pikmin1Options automaticOpts) => {
                   new Pikmin1Extractor().ExtractAll();
                 })
