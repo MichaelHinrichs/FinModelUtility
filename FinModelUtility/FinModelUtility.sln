@@ -57,6 +57,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UniversalModelExtractor", "
 		{2FE7D88B-9241-44B0-BC25-FE293EADCF59} = {2FE7D88B-9241-44B0-BC25-FE293EADCF59}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zar2Fbx", "Zar2Fbx\Zar2Fbx.csproj", "{7F57B864-05CB-4488-A798-0FC08D9F62B2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -199,6 +201,18 @@ Global
 		{C8F325AF-2914-483C-B8A8-CED76E03C31E}.Release|x64.Build.0 = Release|Any CPU
 		{C8F325AF-2914-483C-B8A8-CED76E03C31E}.Release|x86.ActiveCfg = Release|Any CPU
 		{C8F325AF-2914-483C-B8A8-CED76E03C31E}.Release|x86.Build.0 = Release|Any CPU
+		{7F57B864-05CB-4488-A798-0FC08D9F62B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F57B864-05CB-4488-A798-0FC08D9F62B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F57B864-05CB-4488-A798-0FC08D9F62B2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7F57B864-05CB-4488-A798-0FC08D9F62B2}.Debug|x64.Build.0 = Debug|Any CPU
+		{7F57B864-05CB-4488-A798-0FC08D9F62B2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7F57B864-05CB-4488-A798-0FC08D9F62B2}.Debug|x86.Build.0 = Debug|Any CPU
+		{7F57B864-05CB-4488-A798-0FC08D9F62B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F57B864-05CB-4488-A798-0FC08D9F62B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F57B864-05CB-4488-A798-0FC08D9F62B2}.Release|x64.ActiveCfg = Release|Any CPU
+		{7F57B864-05CB-4488-A798-0FC08D9F62B2}.Release|x64.Build.0 = Release|Any CPU
+		{7F57B864-05CB-4488-A798-0FC08D9F62B2}.Release|x86.ActiveCfg = Release|Any CPU
+		{7F57B864-05CB-4488-A798-0FC08D9F62B2}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
