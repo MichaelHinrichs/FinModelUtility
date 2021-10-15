@@ -2,7 +2,7 @@
   "profiles": {
     "UniversalModelExtractor": {
       "commandName": "Project",
-      "commandLineArgs": "pikmin_2"
+      "commandLineArgs": "ocarina_of_time_3d"
     }
   }
 }
