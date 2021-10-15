@@ -12,7 +12,9 @@ Command-line tools for extracting models from games en-masse. Separate batch scr
 
 ## Usage guide
 
-Download this repository via the green "Code" button above and extract it to a directory on your machine. Then, follow the steps below.
+Download a release via the Releases tab (for stability), or via the green "Code" button above (for latest). Extract this somewhere on your machine.
+
+Then, follow the steps below.
 
 ### Pikmin 1
 
