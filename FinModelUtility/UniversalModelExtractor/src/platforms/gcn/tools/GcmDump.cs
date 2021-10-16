@@ -48,7 +48,6 @@ namespace uni.platforms.gcn.tools {
 
     private void DumpRom_(IFile romFile) {
       var logger = Logging.Create<GcmDump>();
-      using var gcmDumpScope = logger.BeginScope("gcmdump");
       logger.LogInformation($"Dumping ROM {romFile}...");
 
       Files.RunInDirectory(
