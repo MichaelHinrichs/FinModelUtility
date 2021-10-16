@@ -28,6 +28,8 @@ namespace bmd.exporter {
   ///   http://www.amnoid.de/gc/tev.html
   /// </summary>
   public class BmdFixedFunctionMaterial {
+    private const bool STRICT = false;
+
     public BmdFixedFunctionMaterial(
         IMaterialManager materialManager,
         int materialEntryIndex,
@@ -45,6 +47,7 @@ namespace bmd.exporter {
 
       var equations = material.Equations;
 
+      var colorZero = equations.CreateColorConstant(0);
       var colorOne = equations.CreateColorConstant(1);
       var scTwo = equations.CreateScalarConstant(2);
       var scFour = equations.CreateScalarConstant(4);
@@ -156,8 +159,14 @@ namespace bmd.exporter {
               break;
             }
 
-            default:
-              throw new NotImplementedException();
+            default: {
+              if (BmdFixedFunctionMaterial.STRICT) {
+                throw new NotImplementedException();
+              } else {
+                colorValue = colorZero;
+              }
+              break;
+            }
           }
 
           if (colorOp == TevStage.TevOp.GX_TEV_ADD ||
@@ -232,6 +241,8 @@ namespace bmd.exporter {
     public IMaterial Material { get; }
 
     private class ColorManager {
+      private readonly IColorValue colorUndefined_;
+
       private readonly IFixedFunctionEquations<FixedFunctionSource> equations_;
 
       private readonly IColorValue?[] textureColors_ = new IColorValue?[8];
@@ -254,6 +265,10 @@ namespace bmd.exporter {
 
         this.colorValues_[TevStage.GxCc.GX_CC_ZERO] = colorZero;
         this.colorValues_[TevStage.GxCc.GX_CC_ONE] = colorOne;
+
+        this.colorUndefined_ =
+            equations.CreateColorInput(FixedFunctionSource.UNDEFINED,
+                                       colorZero);
       }
 
       public void UpdateColorPrevious(IColorValue colorValue)
@@ -356,6 +371,10 @@ namespace bmd.exporter {
         if (colorSource == TevStage.GxCc.GX_CC_RASC ||
             colorSource == TevStage.GxCc.GX_CC_RASA) {
           return this.GetVertexColorChannel_(colorSource);
+        }
+
+        if (!BmdFixedFunctionMaterial.STRICT) {
+          return this.colorUndefined_;
         }
 
         throw new NotImplementedException();

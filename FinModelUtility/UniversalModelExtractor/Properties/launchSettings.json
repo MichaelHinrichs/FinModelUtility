@@ -1,8 +1,16 @@
 {
   "profiles": {
-    "UniversalModelExtractor": {
+    "Pikmin 2": {
+      "commandName": "Project",
+      "commandLineArgs": "pikmin_2"
+    },
+    "Ocarina of Time 3D": {
       "commandName": "Project",
       "commandLineArgs": "ocarina_of_time_3d"
+    },
+    "Super Mario Sunshine": {
+      "commandName": "Project",
+      "commandLineArgs": "super_mario_sunshine"
     }
   }
 }

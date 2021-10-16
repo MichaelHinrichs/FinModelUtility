@@ -74,25 +74,27 @@ namespace fin.exporter.gltf {
                              .WithSpecularGlossiness(new Vector3(0), 0);
 
           var texture = PrimaryTextureFinder.GetFor(finMaterial);
+          if (texture != null) {
+            var textureImage = texture.ImageData;
 
-          var textureImage = texture.ImageData;
+            if (texture.IsTransparent) {
+              gltfMaterial.WithAlpha(AlphaMode.BLEND);
+            }
 
-          if (texture.IsTransparent) {
-            gltfMaterial.WithAlpha(AlphaMode.BLEND);
+            using var imageStream = new MemoryStream();
+            textureImage.Save(imageStream, ImageFormat.Png);
+            var imageBytes = imageStream.ToArray();
+            var memoryImage = new MemoryImage(imageBytes);
+
+            gltfMaterial.UseChannel(KnownChannel.Diffuse)
+                        .UseTexture()
+                        .WithPrimaryImage(memoryImage)
+                        .WithCoordinateSet(0)
+                        .WithSampler(
+                            this.ConvertWrapMode_(texture.WrapModeU),
+                            this.ConvertWrapMode_(texture.WrapModeV));
           }
 
-          using var imageStream = new MemoryStream();
-          textureImage.Save(imageStream, ImageFormat.Png);
-          var imageBytes = imageStream.ToArray();
-          var memoryImage = new MemoryImage(imageBytes);
-
-          gltfMaterial.UseChannel(KnownChannel.Diffuse)
-                      .UseTexture()
-                      .WithPrimaryImage(memoryImage)
-                      .WithCoordinateSet(0)
-                      .WithSampler(
-                          this.ConvertWrapMode_(texture.WrapModeU),
-                          this.ConvertWrapMode_(texture.WrapModeV));
 
           finToTexCoordAndGltfMaterial[finMaterial] =
               (new byte[] {0}, gltfMaterial);

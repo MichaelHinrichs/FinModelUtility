@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace fin.model.util {
   public static class PrimaryTextureFinder {
@@ -27,7 +28,7 @@ namespace fin.model.util {
       //var priorityQueue = new PriorityQueue<ITexture>();
 
       // TODO: If only a const color, create a texture for that
-      return material.Textures.Count > 0 ? material.Textures[0] : null;
+      return material.Textures.Count > 0 ? material.Textures.Last() : null;
 
       // TODO: Prioritize textures w/ color rather than intensity
       // TODO: Prioritize textures w/ standard texture sets

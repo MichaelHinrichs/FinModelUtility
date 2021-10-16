@@ -140,6 +140,8 @@ namespace fin.model {
 
     OUTPUT_COLOR,
     OUTPUT_ALPHA,
+
+    UNDEFINED,
   }
 
   public interface IFixedFunctionMaterial : IMaterial {

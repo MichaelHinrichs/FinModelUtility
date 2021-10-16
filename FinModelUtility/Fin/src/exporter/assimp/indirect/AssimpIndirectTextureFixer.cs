@@ -48,26 +48,30 @@ namespace fin.exporter.assimp.indirect {
         var originalMaterialName = originalMaterialOrder[m];
         var finMaterial =
             model.MaterialManager.All
-                 .FirstOrDefault(finMaterial => finMaterial.Name == originalMaterialName);
+                 .FirstOrDefault(finMaterial
+                                     => finMaterial.Name ==
+                                        originalMaterialName);
 
         if (finMaterial == null) {
           continue;
         }
-        
+
         var assMaterial = new Material {Name = finMaterial.Name};
 
         var finTexture = PrimaryTextureFinder.GetFor(finMaterial);
-        var assTextureSlot = new TextureSlot {
-            FilePath = finTexture.Name + ".png",
-            // TODO: FBX doesn't support mirror. Blegh
-            WrapModeU = this.ConvertWrapMode_(finTexture.WrapModeU),
-            WrapModeV = this.ConvertWrapMode_(finTexture.WrapModeV)
-        };
+        if (finTexture != null) {
+          var assTextureSlot = new TextureSlot {
+              FilePath = finTexture.Name + ".png",
+              // TODO: FBX doesn't support mirror. Blegh
+              WrapModeU = this.ConvertWrapMode_(finTexture.WrapModeU),
+              WrapModeV = this.ConvertWrapMode_(finTexture.WrapModeV)
+          };
 
-        assTextureSlot.TextureType = TextureType.Diffuse;
-        assTextureSlot.UVIndex = finTexture.UvIndex;
+          assTextureSlot.TextureType = TextureType.Diffuse;
+          assTextureSlot.UVIndex = finTexture.UvIndex;
 
-        assMaterial.AddMaterialTexture(assTextureSlot);
+          assMaterial.AddMaterialTexture(assTextureSlot);
+        }
 
         // Meshes should already have material indices set.
         sc.Materials[m] = assMaterial;
