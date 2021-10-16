@@ -33,7 +33,6 @@ namespace bmd.exporter {
         int materialEntryIndex,
         BMD bmd,
         IList<BmdTexture> textures) {
-      materialEntryIndex = bmd.MAT3.MaterialEntryIndieces[materialEntryIndex];
       var materialEntry = bmd.MAT3.MaterialEntries[materialEntryIndex];
       var materialName = bmd.MAT3.StringTable[materialEntryIndex];
 
