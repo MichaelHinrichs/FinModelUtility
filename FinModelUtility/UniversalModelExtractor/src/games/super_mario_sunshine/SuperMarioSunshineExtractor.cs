@@ -20,8 +20,10 @@ namespace uni.games.super_mario_sunshine {
       var fileHierarchy =
           new GcnFileHierarchyExtractor().ExtractFromRom(superMarioSunshineRom);
 
-      this.ExtractMario_(fileHierarchy);
-      this.ExtractScenes_(fileHierarchy);
+      this.Debug_(fileHierarchy);
+
+      //this.ExtractMario_(fileHierarchy);
+      //this.ExtractScenes_(fileHierarchy);
     }
 
     private void ExtractMario_(IFileHierarchy fileHierarchy) {
@@ -44,17 +46,40 @@ namespace uni.games.super_mario_sunshine {
                                      60);
     }
 
+    private void Debug_(IFileHierarchy fileHierarchy) {
+      var sceneSubdir =
+          fileHierarchy.Root.TryToGetSubdir(@"data\scene");
+
+      //var specificSubdir = sceneSubdir.TryToGetSubdir("bianco1_scene");
+      var specificSubdir = sceneSubdir.TryToGetSubdir("dolpic0_scene");
+
+      var bmd = specificSubdir.TryToGetSubdir(@"map\map")
+                              .Files.Single(file => file.Name == "map.bmd");
+
+      var outputDirectory =
+          GameFileHierarchyUtil.GetOutputDirectoryForDirectory(specificSubdir);
+
+      new ManualBmd2FbxApi().Process(outputDirectory,
+                                     new[] {
+                                         bmd.FullName
+                                     },
+                                     new List<string>(),
+                                     new List<string>(),
+                                     true);
+    }
+
     private void ExtractScenes_(IFileHierarchy fileHierarchy) {
       var sceneSubdir =
           fileHierarchy.Root.TryToGetSubdir(@"data\scene");
 
       foreach (var subdir in sceneSubdir.Subdirs) {
-        var sceneName = subdir.Name;
-
         var bmd = subdir.TryToGetSubdir(@"map\map")
                         .Files.Single(file => file.Name == "map.bmd");
 
-        new ManualBmd2FbxApi().Process(subdir.Impl,
+        var outputDirectory =
+            GameFileHierarchyUtil.GetOutputDirectoryForDirectory(subdir);
+
+        new ManualBmd2FbxApi().Process(outputDirectory,
                                        new[] {
                                            bmd.FullName
                                        },

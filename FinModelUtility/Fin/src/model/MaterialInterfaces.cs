@@ -196,10 +196,8 @@ namespace fin.model {
   }
 
   public enum ColorType {
-    RGB,
-    RGBA,
+    COLOR,
     INTENSITY,
-    INTENSITY_ALPHA,
   }
 
   public interface ITexture : IColorSource {
@@ -207,7 +205,7 @@ namespace fin.model {
 
     int UvIndex { get; set; }
     UvType UvType { get; }
-    ColorType ColorType { get; }
+    ColorType ColorType { get; set; }
 
 
     Bitmap ImageData { get; }

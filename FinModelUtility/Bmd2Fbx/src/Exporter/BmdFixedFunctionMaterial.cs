@@ -89,6 +89,7 @@ namespace bmd.exporter {
           texture.Name = bmdTexture.Name;
           texture.WrapModeU = bmdTexture.WrapModeS;
           texture.WrapModeV = bmdTexture.WrapModeT;
+          texture.ColorType = bmdTexture.ColorType;
 
           var texCoordIndex = materialEntry.Unknown1[tevOrder.TexcoordID];
           texture.UvIndex = texCoordIndex;

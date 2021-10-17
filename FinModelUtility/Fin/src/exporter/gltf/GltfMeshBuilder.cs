@@ -95,18 +95,12 @@ namespace fin.exporter.gltf {
           var finColor0 = point.GetColor(0);
           var hasColor0 = finColor0 != null;
           var assColor0 = hasColor0
-                              ? new Vector4(finColor0.Rf,
-                                            finColor0.Bf,
-                                            finColor0.Gf,
-                                            finColor0.Af)
+                              ? GltfMeshBuilder.FinToGltfColor_(finColor0)
                               : new Vector4(1, 1, 1, 1);
           var finColor1 = point.GetColor(1);
           var hasColor1 = finColor1 != null;
           var assColor1 = hasColor1
-                              ? new Vector4(finColor1.Rf,
-                                            finColor1.Bf,
-                                            finColor1.Gf,
-                                            finColor1.Af)
+                              ? GltfMeshBuilder.FinToGltfColor_(finColor1)
                               : new Vector4(1, 1, 1, 1);
 
           var hasColor = hasColor0 || hasColor1;
@@ -117,7 +111,8 @@ namespace fin.exporter.gltf {
             if (hasUvs) {
               var uv = uvs[0];
               vertexBuilder =
-                  vertexBuilder.WithMaterial(assColor0, assColor1,
+                  vertexBuilder.WithMaterial(assColor0,
+                                             assColor1,
                                              new Vector2(uv.U, uv.V));
             } else if (hasColor) {
               vertexBuilder = vertexBuilder.WithMaterial(assColor0, assColor1);
@@ -206,5 +201,8 @@ namespace fin.exporter.gltf {
 
       return gltfModel.CreateMesh(meshBuilder);
     }
+
+    private static Vector4 FinToGltfColor_(IColor color)
+      => new(color.Rf, color.Gf, color.Bf, color.Af);
   }
 }

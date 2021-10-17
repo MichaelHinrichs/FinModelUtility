@@ -54,7 +54,7 @@ namespace fin.model.impl {
       public int UvIndex { get; set; }
       public UvType UvType { get; }
 
-      public ColorType ColorType { get; }
+      public ColorType ColorType { get; set; }
 
       public Bitmap ImageData { get; }
       public bool IsTransparent { get; }

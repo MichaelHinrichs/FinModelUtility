@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-
-using Assimp;
-
+﻿using Assimp;
 using fin.model;
+using System.Collections.Generic;
 
 namespace fin.exporter.assimp.indirect {
+
   public class AssimpIndirectAnimationFixer {
     public void Fix(IModel model, Scene sc) {
       var finAnimations = model.AnimationManager.Animations;
@@ -51,6 +50,5 @@ namespace fin.exporter.assimp.indirect {
         keys[i] = key;
       }
     }
-
   }
 }

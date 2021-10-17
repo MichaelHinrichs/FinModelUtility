@@ -67,7 +67,7 @@ namespace fin.exporter.assimp.indirect {
               WrapModeV = this.ConvertWrapMode_(finTexture.WrapModeV)
           };
 
-          assTextureSlot.TextureType = TextureType.Diffuse;
+          assTextureSlot.TextureType = Assimp.TextureType.Diffuse;
           assTextureSlot.UVIndex = finTexture.UvIndex;
 
           assMaterial.AddMaterialTexture(assTextureSlot);

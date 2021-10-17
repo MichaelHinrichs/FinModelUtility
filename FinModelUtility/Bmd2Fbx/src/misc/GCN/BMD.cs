@@ -23,6 +23,9 @@ using System.Text;
 using Tao.OpenGl;
 using System.Drawing;
 
+using fin.util.asserts;
+using fin.util.color;
+
 namespace bmd.GCN
 {
   public class BMD
@@ -1249,7 +1252,11 @@ label_140:
               BMD.VTX1Section.ArrayFormat arrayFormat = this.ArrayFormats[index1];
               int length2 = this.GetLength(k);
               er.BaseStream.Position = position1 + (long) this.Offsets[k];
-              this.ReadVertexArray(arrayFormat, length2, er);
+              if (arrayFormat.ArrayType >= 11 && arrayFormat.ArrayType <= 12) {
+                this.ReadColorArray(arrayFormat, length2, er);
+              } else {
+                this.ReadVertexArray(arrayFormat, length2, er);
+              }
               ++index1;
             }
           }
@@ -1270,13 +1277,11 @@ label_140:
       }
 
       private void ReadVertexArray(
-        BMD.VTX1Section.ArrayFormat Format,
-        int Length,
-        EndianBinaryReader er)
-      {
+          BMD.VTX1Section.ArrayFormat Format,
+          int Length,
+          EndianBinaryReader er) {
         List<float> floatList = new List<float>();
-        switch (Format.DataType)
-        {
+        switch (Format.DataType) {
           case 3:
             float num1 = (float) Math.Pow(0.5, (double) Format.DecimalPoint);
             for (int index = 0; index < Length / 2; ++index)
@@ -1285,25 +1290,25 @@ label_140:
           case 4:
             floatList.AddRange((IEnumerable<float>) er.ReadSingles(Length / 4));
             break;
-          case 5:
-            for (int index = 0; index < Length; ++index)
-              floatList.Add((float) er.ReadByte());
-            break;
+          default:
+            throw new NotImplementedException();
         }
-        switch (Format.ArrayType)
-        {
+        switch (Format.ArrayType) {
           case 9:
-            switch (Format.ComponentCount)
-            {
+            switch (Format.ComponentCount) {
               case 0:
                 this.Positions = new Vector3[floatList.Count / 2];
                 for (int index = 0; index < floatList.Count - 1; index += 2)
-                  this.Positions[index / 2] = new Vector3(floatList[index], floatList[index + 1], 0.0f);
+                  this.Positions[index / 2] =
+                      new Vector3(floatList[index], floatList[index + 1], 0.0f);
                 return;
               case 1:
                 this.Positions = new Vector3[floatList.Count / 3];
                 for (int index = 0; index < floatList.Count - 2; index += 3)
-                  this.Positions[index / 3] = new Vector3(floatList[index], floatList[index + 1], floatList[index + 2]);
+                  this.Positions[index / 3] = new Vector3(
+                      floatList[index],
+                      floatList[index + 1],
+                      floatList[index + 2]);
                 return;
               default:
                 return;
@@ -1313,26 +1318,11 @@ label_140:
               break;
             this.Normals = new Vector3[floatList.Count / 3];
             for (int index = 0; index < floatList.Count - 2; index += 3)
-              this.Normals[index / 3] = new Vector3(floatList[index], floatList[index + 1], floatList[index + 2]);
+              this.Normals[index / 3] = new Vector3(
+                  floatList[index],
+                  floatList[index + 1],
+                  floatList[index + 2]);
             break;
-          case 11:
-          case 12:
-            uint num2 = Format.ArrayType - 11U;
-            switch (Format.ComponentCount)
-            {
-              case 0:
-                this.Colors[num2] = new BMD.VTX1Section.Color[floatList.Count / 3];
-                for (int index = 0; index < floatList.Count - 2; index += 3)
-                  this.Colors[num2][index / 3] = new BMD.VTX1Section.Color(floatList[index], floatList[index + 1], floatList[index + 2], (float) byte.MaxValue);
-                return;
-              case 1:
-                this.Colors[num2] = new BMD.VTX1Section.Color[floatList.Count / 4];
-                for (int index = 0; index < floatList.Count - 3; index += 4)
-                  this.Colors[num2][index / 4] = new BMD.VTX1Section.Color(floatList[index], floatList[index + 1], floatList[index + 2], floatList[index + 3]);
-                return;
-              default:
-                return;
-            }
           case 13:
           case 14:
           case 15:
@@ -1342,22 +1332,117 @@ label_140:
           case 19:
           case 20:
             uint num3 = Format.ArrayType - 13U;
-            switch (Format.ComponentCount)
-            {
+            switch (Format.ComponentCount) {
               case 0:
-                this.Texcoords[num3] = new BMD.VTX1Section.Texcoord[floatList.Count];
+                this.Texcoords[num3] =
+                    new BMD.VTX1Section.Texcoord[floatList.Count];
                 for (int index = 0; index < floatList.Count; ++index)
-                  this.Texcoords[num3][index] = new BMD.VTX1Section.Texcoord(floatList[index], 0.0f);
+                  this.Texcoords[num3][index] =
+                      new BMD.VTX1Section.Texcoord(floatList[index], 0.0f);
                 return;
               case 1:
-                this.Texcoords[num3] = new BMD.VTX1Section.Texcoord[floatList.Count / 2];
+                this.Texcoords[num3] =
+                    new BMD.VTX1Section.Texcoord[floatList.Count / 2];
                 for (int index = 0; index < floatList.Count - 1; index += 2)
-                  this.Texcoords[num3][index / 2] = new BMD.VTX1Section.Texcoord(floatList[index], floatList[index + 1]);
+                  this.Texcoords[num3][index / 2] =
+                      new BMD.VTX1Section.Texcoord(
+                          floatList[index],
+                          floatList[index + 1]);
                 return;
               default:
                 return;
             }
         }
+      }
+
+      private enum ColorDataType {
+        RGB565 = 0,
+        RGB8 = 1,
+        RGBX8 = 2,
+        RGBA4 = 3,
+        RGBA6 = 4,
+        RGBA8 = 5,
+      }
+
+      /// <summary>
+      ///   Colors are a special case:
+      ///   https://wiki.cloudmodding.com/tww/BMD_and_BDL#Data_Types
+      /// </summary>
+      private void ReadColorArray(
+          BMD.VTX1Section.ArrayFormat Format,
+          int byteLength,
+          EndianBinaryReader er) {
+        uint num2 = Format.ArrayType - 11U;
+
+        var colorDataType = (ColorDataType) Format.DataType;
+        var expectedComponentCount = colorDataType switch {
+            ColorDataType.RGB565 => 3,
+            ColorDataType.RGB8   => 3,
+            ColorDataType.RGBX8  => 4,
+            ColorDataType.RGBA4  => 4,
+            ColorDataType.RGBA6  => 4,
+            ColorDataType.RGBA8  => 4,
+            _                    => throw new ArgumentOutOfRangeException()
+        };
+
+        var actualComponentCount = (int) (3 + Format.ComponentCount);
+        Asserts.Equal(expectedComponentCount, actualComponentCount);
+
+        var colorCount = colorDataType switch {
+            ColorDataType.RGB565 => byteLength / 2,
+            ColorDataType.RGB8   => byteLength / 3,
+            ColorDataType.RGBX8  => byteLength / 4,
+            ColorDataType.RGBA4  => byteLength / 2,
+            ColorDataType.RGBA6  => byteLength / 3,
+            ColorDataType.RGBA8  => byteLength / 4,
+            _                    => throw new ArgumentOutOfRangeException()
+        };
+
+        var colors = new Color[colorCount];
+        for (var i = 0; i < colorCount; ++i) {
+          Color color;
+          switch (colorDataType) {
+            case ColorDataType.RGB565: {
+              ColorUtil.SplitRgb565(er.ReadUInt16(), out var r, out var g, out var b);
+              color = new Color(r, g, b, 255);
+              break;
+            }
+            case ColorDataType.RGB8: {
+              color = new Color(er.ReadByte(),
+                                er.ReadByte(),
+                                er.ReadByte(),
+                                255);
+              break;
+            }
+            case ColorDataType.RGBX8: {
+              color = new Color(er.ReadByte(),
+                                er.ReadByte(),
+                                er.ReadByte(),
+                                er.ReadByte());
+              break;
+            }
+            case ColorDataType.RGBA4: {
+              throw new ArgumentOutOfRangeException();
+            }
+            case ColorDataType.RGBA6: {
+              throw new ArgumentOutOfRangeException();
+            }
+            case ColorDataType.RGBA8: {
+              color = new Color(er.ReadByte(),
+                                er.ReadByte(),
+                                er.ReadByte(),
+                                er.ReadByte());
+              break;
+            }
+            default: throw new ArgumentOutOfRangeException();
+          }
+
+          Asserts.Nonnull(color);
+
+          colors[i] = color;
+        }
+
+        this.Colors[num2] = colors;
       }
 
       public class ArrayFormat
@@ -1387,12 +1472,12 @@ label_140:
         public byte B;
         public byte A;
 
-        public Color(float r, float g, float b, float a)
+        public Color(byte r, byte g, byte b, byte a)
         {
-          this.R = (byte) ((double) r + 0.5);
-          this.G = (byte) ((double) g + 0.5);
-          this.B = (byte) ((double) b + 0.5);
-          this.A = (byte) ((double) a + 0.5);
+          this.R = r;
+          this.G = g;
+          this.B = g;
+          this.A = b;
         }
 
         public static implicit operator System.Drawing.Color(BMD.VTX1Section.Color c)

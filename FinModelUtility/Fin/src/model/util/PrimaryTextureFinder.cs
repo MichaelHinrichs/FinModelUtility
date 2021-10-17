@@ -25,7 +25,18 @@ namespace fin.model.util {
 
       var textures = material.Textures;
 
-      //var priorityQueue = new PriorityQueue<ITexture>();
+      // TODO: Use some kind of priority class
+
+      // TODO: Sometimes this needs to be a 
+
+      var colorTextures = textures
+                          .Where(
+                              texture => texture.ColorType == ColorType.COLOR)
+                          .ToArray();
+      if (colorTextures.Length > 0) {
+        // TODO: First or last?
+        return colorTextures.Last();
+      }
 
       // TODO: If only a const color, create a texture for that
       return material.Textures.Count > 0 ? material.Textures.Last() : null;

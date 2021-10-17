@@ -1,10 +1,12 @@
 ﻿using System;
 
+using Crayon;
+
 using fin.math;
 using fin.model;
 using fin.model.impl;
 
-namespace mod.gcn.image {
+namespace fin.util.color {
   public static class ColorUtil {
     public static byte ExtractScaled(ushort col, int offset, int count) {
       var maxPossible = Math.Pow(2, count);
@@ -21,11 +23,18 @@ namespace mod.gcn.image {
       return (byte) Math.Round(extracted * factor);
     }
 
-    public static IColor ParseRgb565(ushort color) {
-      var r = ColorUtil.ExtractScaled(color, 11, 5);
-      var g = ColorUtil.ExtractScaled(color, 5, 6);
-      var b = ColorUtil.ExtractScaled(color, 0, 5);
+    public static void SplitRgb565(
+        ushort color,
+        out byte r,
+        out byte g,
+        out byte b) {
+      r = ColorUtil.ExtractScaled(color, 11, 5);
+      g = ColorUtil.ExtractScaled(color, 5, 6);
+      b = ColorUtil.ExtractScaled(color, 0, 5);
+    }
 
+    public static IColor ParseRgb565(ushort color) {
+      ColorUtil.SplitRgb565(color, out var r, out var g, out var b);
       return ColorImpl.FromRgbaBytes(r, g, b, 255);
     }
 

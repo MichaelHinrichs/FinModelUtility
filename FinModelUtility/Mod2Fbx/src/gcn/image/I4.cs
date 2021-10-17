@@ -2,6 +2,7 @@
 
 using fin.model;
 using fin.model.impl;
+using fin.util.color;
 
 using mod.util;
 
