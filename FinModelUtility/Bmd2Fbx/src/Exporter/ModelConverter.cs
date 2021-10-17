@@ -155,7 +155,7 @@ namespace bmd.exporter {
                 bmd.MAT3.MaterialEntryIndieces[entry.Index];
             currentMaterialEntry =
                 bmd.MAT3.MaterialEntries[mappedMaterialIndex];
-            currentBmdMaterial = materialManager.Get(mappedMaterialIndex);
+            currentBmdMaterial = materialManager.Get(entry.Index);
             break;
 
           // Batch

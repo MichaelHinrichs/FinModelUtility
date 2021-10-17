@@ -50,8 +50,8 @@ namespace uni.games.super_mario_sunshine {
       var sceneSubdir =
           fileHierarchy.Root.TryToGetSubdir(@"data\scene");
 
-      //var specificSubdir = sceneSubdir.TryToGetSubdir("bianco1_scene");
-      var specificSubdir = sceneSubdir.TryToGetSubdir("dolpic0_scene");
+      var specificSubdir = sceneSubdir.TryToGetSubdir("bianco1_scene");
+      //var specificSubdir = sceneSubdir.TryToGetSubdir("dolpic0_scene");
 
       var bmd = specificSubdir.TryToGetSubdir(@"map\map")
                               .Files.Single(file => file.Name == "map.bmd");

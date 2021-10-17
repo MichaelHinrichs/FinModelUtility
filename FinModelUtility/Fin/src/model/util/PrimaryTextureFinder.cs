@@ -35,7 +35,7 @@ namespace fin.model.util {
                           .ToArray();
       if (colorTextures.Length > 0) {
         // TODO: First or last?
-        return colorTextures.Last();
+        return colorTextures[0];
       }
 
       // TODO: If only a const color, create a texture for that

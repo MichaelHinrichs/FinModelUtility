@@ -10,6 +10,7 @@ using fin.log;
 using fin.model;
 using fin.model.util;
 using fin.util.asserts;
+using fin.util.image;
 
 using SharpGLTF.Materials;
 using SharpGLTF.Memory;
@@ -77,9 +78,13 @@ namespace fin.exporter.gltf {
           if (texture != null) {
             var textureImage = texture.ImageData;
 
-            if (texture.IsTransparent) {
-              gltfMaterial.WithAlpha(AlphaMode.BLEND);
-            }
+            var alphaMode = texture.TransparencyType switch {
+                BitmapTransparencyType.OPAQUE => AlphaMode.OPAQUE,
+                BitmapTransparencyType.MASK => AlphaMode.MASK,
+                BitmapTransparencyType.TRANSPARENT => AlphaMode.BLEND,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+            gltfMaterial.WithAlpha(alphaMode);
 
             using var imageStream = new MemoryStream();
             textureImage.Save(imageStream, ImageFormat.Png);

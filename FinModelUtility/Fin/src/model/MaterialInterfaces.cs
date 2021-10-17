@@ -2,6 +2,7 @@
 using System.Drawing;
 
 using fin.language.equations.fixedFunction;
+using fin.util.image;
 
 namespace fin.model {
   public interface IMaterialManager {
@@ -209,7 +210,7 @@ namespace fin.model {
 
 
     Bitmap ImageData { get; }
-    bool IsTransparent { get; }
+    BitmapTransparencyType TransparencyType { get; }
 
     WrapMode WrapModeU { get; set; }
     WrapMode WrapModeV { get; set; }
