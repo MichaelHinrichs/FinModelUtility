@@ -123,17 +123,21 @@ namespace bmd.api {
         logger.LogInformation("Converting to a static mesh first.");
 
         foreach (var (bmdPath, bmd) in pathsAndBmds) {
-          var model =
-              new ModelConverter().Convert(bmd,
-                                           pathsAndBcxs,
-                                           pathsAndBtis,
-                                           frameRate);
+          try {
+            var model =
+                new ModelConverter().Convert(bmd,
+                                             pathsAndBcxs,
+                                             pathsAndBtis,
+                                             frameRate);
 
-          var bmdFile = new FileInfo(bmdPath);
-          new AssimpIndirectExporter().Export(
-              new FinFile(Path.Join(outputDirectory.FullName, bmdFile.Name))
-                  .CloneWithExtension(".fbx"),
-              model);
+            var bmdFile = new FileInfo(bmdPath);
+            new AssimpIndirectExporter().Export(
+                new FinFile(Path.Join(outputDirectory.FullName, bmdFile.Name))
+                    .CloneWithExtension(".fbx"),
+                model);
+          } catch(Exception e) {
+            logger.LogError(e.ToString());
+          }
         }
       } else {
         logger.LogInformation("Exporting directly.");

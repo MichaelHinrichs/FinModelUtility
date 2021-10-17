@@ -12,8 +12,14 @@ namespace uni.src.msg {
         IFileHierarchyDirectory directory,
         IReadOnlyList<T> rawModels)
       => logger.LogInformation(
-          $"Extracting model" +
+          "Extracting model" +
           (rawModels.Count != 1 ? "s" : "") +
           $" from {directory.LocalPath}");
+
+    public static void LogExtracting(
+        ILogger logger,
+        IFileHierarchyFile rawModel)
+      => logger.LogInformation(
+          $"Extracting model {rawModel.LocalPath}");
   }
 }
