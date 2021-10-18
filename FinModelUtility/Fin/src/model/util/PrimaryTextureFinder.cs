@@ -27,7 +27,10 @@ namespace fin.model.util {
 
       // TODO: Use some kind of priority class
 
-      // TODO: Sometimes this needs to be a 
+      var compiledTexture = material.CompiledTexture;
+      if (compiledTexture != null) {
+        return compiledTexture;
+      }
 
       var colorTextures = textures
                           .Where(
@@ -38,7 +41,6 @@ namespace fin.model.util {
         return colorTextures[0];
       }
 
-      // TODO: If only a const color, create a texture for that
       return material.Textures.Count > 0 ? material.Textures.Last() : null;
 
       // TODO: Prioritize textures w/ color rather than intensity

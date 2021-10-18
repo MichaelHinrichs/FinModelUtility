@@ -32,6 +32,69 @@ namespace uni.games.super_mario_sunshine {
       this.ExtractScenes_(fileHierarchy);
     }
 
+    private void Debug_(IFileHierarchy fileHierarchy) {
+      new ManualBmd2FbxApi().Process(
+                GameFileHierarchyUtil.GetOutputDirectoryForDirectory(
+                    fileHierarchy.Root),
+                new[] {
+                    fileHierarchy.Root
+                                 .TryToGetSubdir(
+                                     @"data\scene\bianco1_scene\mapobj")
+                                 .Files.Single(
+                                     file => file.Name ==
+                                             "coin_blue.bmd")
+                                 .FullName
+                },
+                new List<string>(),
+                new List<string>());
+
+      /*new ManualBmd2FbxApi().Process(
+          GameFileHierarchyUtil.GetOutputDirectoryForDirectory(
+              fileHierarchy.Root),
+          new[] {
+              fileHierarchy.Root
+                           .TryToGetSubdir(
+                               @"data\mario\watergun2\hover_wg")
+                           .Files.Single(file => file.Name == "hover_wg.bmd")
+                           .FullName
+          },
+          new List<string>(),
+          new List<string>());*/
+
+      /*new ManualBmd2FbxApi().Process(
+          GameFileHierarchyUtil.GetOutputDirectoryForDirectory(
+              fileHierarchy.Root),
+          new[] {
+              fileHierarchy.Root
+                           .TryToGetSubdir(
+                               @"data\scene\dolpic0_scene\map\map")
+                           .Files.Single(file => file.Name == "map.bmd")
+                           .FullName
+          },
+          new List<string>(),
+          new List<string>());*/
+
+      /*new ManualBmd2FbxApi().Process(
+          GameFileHierarchyUtil.GetOutputDirectoryForDirectory(
+              fileHierarchy.Root),
+          new[] {
+              fileHierarchy.Root
+                           .TryToGetSubdir(
+                               @"data\scene\bianco1_scene\montew")
+                           .Files.Single(
+                               file => file.Name ==
+                                       "mow_model.bmd")
+                           .FullName
+          },
+          new List<string>(),
+          fileHierarchy.Root
+                       .TryToGetSubdir(
+                           @"data\scene\bianco1_scene\montewcommon")
+                       .Files.Where(file => file.Extension == ".bti")
+                       .Select(file => file.FullName)
+                       .ToArray());*/
+    }
+
     private void ExtractMario_(IFileHierarchy fileHierarchy) {
       var marioSubdir =
           fileHierarchy.Root.TryToGetSubdir(@"data\mario");
@@ -127,6 +190,10 @@ namespace uni.games.super_mario_sunshine {
                                        file.Extension == ".bca")
                            .Select(file => file.Impl)
                            .ToArray();
+      var commonBtiFiles = common
+                           .Files.Where(file => file.Extension == ".bti")
+                           .Select(file => file.Impl)
+                           .ToArray();
 
       var localBcxFiles = directory.Files.Where(
                                        file => file.Extension == ".bck" ||
@@ -136,7 +203,8 @@ namespace uni.games.super_mario_sunshine {
       if (bmdFiles.Length == 1) {
         this.ExtractModels_(directory,
                             bmdFiles,
-                            commonBcxFiles.Concat(localBcxFiles).ToArray());
+                            commonBcxFiles.Concat(localBcxFiles).ToArray(),
+                            commonBtiFiles);
         return;
       }
 
@@ -236,7 +304,7 @@ namespace uni.games.super_mario_sunshine {
 
         bmdAndBcxFiles[bmdFile] = claimedBcxFiles;
       }
-      Asserts.True(unclaimedBcxFiles.Count == 0);
+      //Asserts.True(unclaimedBcxFiles.Count == 0);
       foreach (var (bmdFile, bcxFiles) in bmdAndBcxFiles) {
         this.ExtractModels_(directory, new[] {bmdFile}, bcxFiles);
       }

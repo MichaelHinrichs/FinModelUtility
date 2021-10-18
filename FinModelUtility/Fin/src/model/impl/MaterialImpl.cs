@@ -177,6 +177,8 @@ namespace fin.model.impl {
         this.alphas_[alphaIndex] = alpha;
         return this;
       }
+
+      public ITexture? CompiledTexture { get; set; }
     }
   }
 

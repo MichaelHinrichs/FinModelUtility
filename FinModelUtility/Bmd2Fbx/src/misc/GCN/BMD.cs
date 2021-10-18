@@ -2324,7 +2324,7 @@ label_140:
         public GxCc alpha_d;
         public TevOp color_op;
         public TevOp alpha_op;
-        public byte color_regid;
+        public ColorRegister color_regid;
         public byte alpha_regid;
         public byte pad;
         public byte texcoord;
@@ -2348,7 +2348,7 @@ label_140:
           this.color_bias = (TevBias) er.ReadByte();
           this.color_scale = (TevScale) er.ReadByte();
           this.color_clamp = er.ReadByte() == (byte) 1;
-          this.color_regid = er.ReadByte();
+          this.color_regid = (ColorRegister) er.ReadByte();
           this.alpha_a = (GxCc) er.ReadByte();
           this.alpha_b = (GxCc) er.ReadByte();
           this.alpha_c = (GxCc) er.ReadByte();
@@ -2404,6 +2404,13 @@ label_140:
           GX_CS_SCALE_2,
           GX_CS_SCALE_4,
           GX_CS_DIVIDE_2
+        }
+
+        public enum ColorRegister {
+          GX_TEVPREV,
+          GX_TEVREG0,
+          GX_TEVREG1,
+          GX_TEVREG2,
         }
       }
 

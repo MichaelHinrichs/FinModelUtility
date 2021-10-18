@@ -26,13 +26,14 @@ namespace bmd.exporter {
       var repeatT = false;
 
       // TODO: This doesn't feel right, where can we get the actual name?
-      if (name.Contains("_dummy_")) {
-        var prefix = name.Substring(0, name.IndexOf("_dummy_"));
+      if (name.Contains("_dummy")) {
+        var prefix = name.Substring(0, name.IndexOf("_dummy")).ToLower();
 
         var matchingPathAndBtis = pathsAndBtis
             .SkipWhile(pathAndBti
                            => !new FileInfo(pathAndBti.Item1)
-                               .Name.StartsWith(prefix));
+                               .Name.ToLower()
+                               .StartsWith(prefix));
 
         if (matchingPathAndBtis.Count() > 0) {
           var matchingPathAndBti = matchingPathAndBtis.First();

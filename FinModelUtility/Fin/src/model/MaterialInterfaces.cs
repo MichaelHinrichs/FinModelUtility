@@ -128,6 +128,19 @@ namespace fin.model {
     CONST_COLOR_0,
     CONST_COLOR_1,
     CONST_COLOR_2,
+    CONST_COLOR_3,
+    CONST_COLOR_4,
+    CONST_COLOR_5,
+    CONST_COLOR_6,
+    CONST_COLOR_7,
+    CONST_COLOR_8,
+    CONST_COLOR_9,
+    CONST_COLOR_10,
+    CONST_COLOR_11,
+    CONST_COLOR_12,
+    CONST_COLOR_13,
+    CONST_COLOR_14,
+    CONST_COLOR_15,
 
     CONST_ALPHA_0,
     CONST_ALPHA_1,
@@ -156,6 +169,8 @@ namespace fin.model {
     // TODO: This should be rgb specifically
     IFixedFunctionMaterial SetColorSource(int colorIndex, IColor color);
     IFixedFunctionMaterial SetAlphaSource(int alphaIndex, float alpha);
+
+    ITexture? CompiledTexture { get; set; }
   }
 
 

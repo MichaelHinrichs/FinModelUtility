@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
+using System.Drawing;
+using System.Linq;
 
 using fin.model;
-
-using mkds.gcn.bmd;
 
 using bmd.GCN;
 
@@ -17,6 +16,8 @@ using BlendFactor = fin.model.BlendFactor;
 using LogicOp = fin.model.LogicOp;
 
 namespace bmd.exporter {
+  using static bmd.GCN.BMD.MAT3Section.TevStageProps;
+
   using TevOrder = BMD.MAT3Section.TevOrder;
   using TevStage = BMD.MAT3Section.TevStageProps;
   using TextureMatrixInfo = BMD.MAT3Section.TextureMatrixInfo;
@@ -42,6 +43,8 @@ namespace bmd.exporter {
       material.Name = materialName;
 
       this.Material = material;
+
+      var colorConstants = new List<Color>();
 
       // TODO: Need to use material entry indices
 
@@ -102,6 +105,10 @@ namespace bmd.exporter {
         var colorChannel = tevOrder.ChannelID;
         colorManager.UpdateRascColor(colorChannel);
 
+        var konstIndex = materialEntry.ColorS10[tevStage.color_constant_sel];
+        var konstColor = bmd.MAT3.ColorS10[konstIndex];
+        colorManager.UpdateKonstColor(konstIndex, konstColor);
+        colorConstants.Add(konstColor);
 
         // Set up color logic
         {
@@ -155,7 +162,9 @@ namespace bmd.exporter {
                                  : colorValue.Add(colorD);
               }
 
-              Asserts.Nonnull(colorValue);
+              // TODO: Is this right?
+              colorValue ??= colorZero;
+              //Asserts.Nonnull(colorValue);
 
               break;
             }
@@ -213,7 +222,7 @@ namespace bmd.exporter {
             }
           }
 
-          colorManager.UpdateColorPrevious(colorValue);
+          colorManager.UpdateColorRegister(tevStage.color_regid, colorValue);
         }
 
         // TODO: Implement alpha operations
@@ -222,6 +231,10 @@ namespace bmd.exporter {
       equations.CreateColorOutput(
           FixedFunctionSource.OUTPUT_COLOR,
           colorManager.GetColor(TevStage.GxCc.GX_CC_CPREV));
+
+      // TODO: Set up compiled texture
+      // TODO: If only a const color, create a texture for that
+
 
       var sb = new StringBuilder();
 
@@ -236,7 +249,28 @@ namespace bmd.exporter {
 
       var output = sb.ToString();
 
-      ;
+      var colorTextureCount =
+          material.Textures.Count(
+              texture => texture.ColorType == ColorType.COLOR);
+
+      // TODO: This is a bad assumption!
+      if (colorTextureCount == 0 && colorConstants.Count > 0) {
+        var colorConstant = colorConstants.Last();
+
+        var intensityTexture = material.Textures
+                                       .FirstOrDefault(
+                                           texture => texture.ColorType ==
+                                             ColorType.INTENSITY);
+        if (intensityTexture != null) {
+          return;
+        }
+
+        var colorBitmap = new Bitmap(1, 1);
+        colorBitmap.SetPixel(0, 0, colorConstant);
+
+        var colorTexture = materialManager.CreateTexture(colorBitmap);
+        material.CompiledTexture = colorTexture;
+      }
     }
 
     public IMaterial Material { get; }
@@ -246,7 +280,6 @@ namespace bmd.exporter {
 
       private readonly IFixedFunctionEquations<FixedFunctionSource> equations_;
 
-      private readonly IColorValue?[] textureColors_ = new IColorValue?[8];
 
       private readonly Dictionary<TevOrder.ColorChannel, IColorValue>
           colorChannelsColors_ = new();
@@ -272,8 +305,25 @@ namespace bmd.exporter {
                                        colorZero);
       }
 
-      public void UpdateColorPrevious(IColorValue colorValue)
-        => this.colorValues_[TevStage.GxCc.GX_CC_CPREV] = colorValue;
+      private readonly Dictionary<ColorRegister, IColorValue>
+          colorRegisterColors_ = new();
+
+      public void UpdateColorRegister(
+          ColorRegister colorRegister,
+          IColorValue colorValue) {
+        var source = colorRegister switch {
+            ColorRegister.GX_TEVPREV => TevStage.GxCc.GX_CC_CPREV,
+            ColorRegister.GX_TEVREG0 => TevStage.GxCc.GX_CC_C0,
+            ColorRegister.GX_TEVREG1 => TevStage.GxCc.GX_CC_C1,
+            ColorRegister.GX_TEVREG2 => TevStage.GxCc.GX_CC_C2,
+            _ => throw new ArgumentOutOfRangeException(
+                     nameof(colorRegister),
+                     colorRegister,
+                     null)
+        };
+
+        this.colorValues_[source] = colorValue;
+      }
 
       /*public void UpdateTextureColor(
           IColorNamedValue<FixedFunctionSource>? colorValue) {
@@ -284,6 +334,7 @@ namespace bmd.exporter {
         }
       }*/
 
+      private readonly IColorValue?[] textureColors_ = new IColorValue?[8];
       private int? textureIndex_ = null;
 
       public void UpdateTextureColor(int? index) {
@@ -295,16 +346,6 @@ namespace bmd.exporter {
 
         if (index != null) {
           Asserts.True(index >= 0 && index < 8);
-        }
-      }
-
-      private TevOrder.ColorChannel? colorChannel_;
-
-      public void UpdateRascColor(TevOrder.ColorChannel? colorChannel) {
-        if (this.colorChannel_ != colorChannel) {
-          this.colorChannel_ = colorChannel;
-          this.colorValues_.Remove(TevStage.GxCc.GX_CC_RASC);
-          this.colorValues_.Remove(TevStage.GxCc.GX_CC_RASA);
         }
       }
 
@@ -324,6 +365,17 @@ namespace bmd.exporter {
         }
 
         return this.colorValues_[TevStage.GxCc.GX_CC_TEXC] = texture;
+      }
+
+
+      private TevOrder.ColorChannel? colorChannel_;
+
+      public void UpdateRascColor(TevOrder.ColorChannel? colorChannel) {
+        if (this.colorChannel_ != colorChannel) {
+          this.colorChannel_ = colorChannel;
+          this.colorValues_.Remove(TevStage.GxCc.GX_CC_RASC);
+          this.colorValues_.Remove(TevStage.GxCc.GX_CC_RASA);
+        }
       }
 
       private IColorValue GetVertexColorChannel_(TevStage.GxCc colorSource) {
@@ -360,6 +412,46 @@ namespace bmd.exporter {
         return this.colorValues_[TevStage.GxCc.GX_CC_RASC] = color;
       }
 
+      private int? konstIndex_ = null;
+      private Color? konstColor_ = null;
+
+      // TODO: Is 10 right?
+      private readonly IColorValue?[] konstColors_ = new IColorValue?[16];
+
+      public void UpdateKonstColor(int index, Color color) {
+        if (index != this.konstIndex_) {
+          this.konstIndex_ = index;
+          this.konstColor_ = color;
+          this.colorValues_.Remove(TevStage.GxCc.GX_CC_KONST);
+        }
+      }
+
+      public IColorValue GetKonstColorChannel_() {
+        var indexOrNull = this.konstIndex_;
+        Asserts.Nonnull(indexOrNull);
+
+        var index = indexOrNull.Value;
+        //Asserts.True(index >= 0 && index < 4);
+
+        var colorOrNull = this.konstColor_;
+        Asserts.Nonnull(colorOrNull);
+
+        var color = colorOrNull.Value;
+
+        var konstColor = this.konstColors_[index];
+        if (konstColor == null) {
+          this.konstColors_[index] =
+              konstColor = this.equations_.CreateColorInput(
+                  (FixedFunctionSource.CONST_COLOR_0 + index),
+                  this.equations_.CreateColorConstant(
+                      color.R,
+                      color.G,
+                      color.B));
+        }
+
+        return this.colorValues_[TevStage.GxCc.GX_CC_KONST] = konstColor;
+      }
+
       public IColorValue GetColor(TevStage.GxCc colorSource) {
         if (this.colorValues_.TryGetValue(colorSource, out var colorValue)) {
           return colorValue;
@@ -372,6 +464,10 @@ namespace bmd.exporter {
         if (colorSource == TevStage.GxCc.GX_CC_RASC ||
             colorSource == TevStage.GxCc.GX_CC_RASA) {
           return this.GetVertexColorChannel_(colorSource);
+        }
+
+        if (colorSource == TevStage.GxCc.GX_CC_KONST) {
+          return this.GetKonstColorChannel_();
         }
 
         if (!BmdFixedFunctionMaterial.STRICT) {

@@ -115,7 +115,10 @@ namespace bmd.api {
         var bmdFile = new FileInfo(bmdPath);
         BmdDebugHelper.ExportFilesInBmd(outputDirectory,
                                         bmd,
-                                        bmdFile.Name.Substring(0, bmdFile.Name.Length - ".bmd".Length),
+                                        bmdFile.Name.Substring(
+                                            0,
+                                            bmdFile.Name.Length -
+                                            ".bmd".Length),
                                         pathsAndBtis);
       }
 
@@ -123,21 +126,17 @@ namespace bmd.api {
         logger.LogInformation("Converting to a static mesh first.");
 
         foreach (var (bmdPath, bmd) in pathsAndBmds) {
-          try {
-            var model =
-                new ModelConverter().Convert(bmd,
-                                             pathsAndBcxs,
-                                             pathsAndBtis,
-                                             frameRate);
+          var model =
+              new ModelConverter().Convert(bmd,
+                                           pathsAndBcxs,
+                                           pathsAndBtis,
+                                           frameRate);
 
-            var bmdFile = new FileInfo(bmdPath);
-            new AssimpIndirectExporter().Export(
-                new FinFile(Path.Join(outputDirectory.FullName, bmdFile.Name))
-                    .CloneWithExtension(".fbx"),
-                model);
-          } catch(Exception e) {
-            logger.LogError(e.ToString());
-          }
+          var bmdFile = new FileInfo(bmdPath);
+          new AssimpIndirectExporter().Export(
+              new FinFile(Path.Join(outputDirectory.FullName, bmdFile.Name))
+                  .CloneWithExtension(".fbx"),
+              model);
         }
       } else {
         logger.LogInformation("Exporting directly.");

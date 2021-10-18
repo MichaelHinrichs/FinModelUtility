@@ -88,6 +88,14 @@ namespace uni.games.pikmin_2 {
                           bcxFiles,
                           null,
                           true);
+
+      var pikminSubdir =
+          pikminAndCaptainBaseDirectory.TryToGetSubdir("piki_model");
+      this.ExtractModels_(pikminSubdir,
+                          pikminSubdir.Files,
+                          bcxFiles,
+                          null,
+                          true);
     }
 
     private void ExtractAllTreasures_(IFileHierarchy fileHierarchy) {
