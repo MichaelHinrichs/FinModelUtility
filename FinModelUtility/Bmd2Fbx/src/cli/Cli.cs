@@ -28,8 +28,7 @@ namespace bmd.cli {
                                      argsInstance.BcxPaths,
                                      argsInstance.BtiPaths,
                                      argsInstance.Automatic,
-                                     argsInstance.FrameRate,
-                                     argsInstance.Static);
+                                     argsInstance.FrameRate);
 
       return 0;
     }

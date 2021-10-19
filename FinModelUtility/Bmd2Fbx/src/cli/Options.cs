@@ -9,12 +9,6 @@ namespace bmd.cli {
             Required = false)]
     public bool Verbose { get; set; }
 
-    [Option("static",
-            HelpText =
-                "Whether to extract a model to a static mesh before conversion. Currently a work-in-progress.",
-            Required = false)]
-    public bool Static { get; set; }
-
     [Option("framerate",
             HelpText = "The frame rate of the animations. If not provided, assumed to be 30fps.",
             Required = false)]

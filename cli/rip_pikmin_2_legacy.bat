@@ -80,7 +80,7 @@ for %%m in (%pikminModelNames%) do (
   if not defined isModelProcessed (
     echo Processing !modelName! w/ manual inputs...
     @echo on
-    "%bmd2fbxBasePath%bmd2fbx.exe" manual --out "!modelBasePath!" --bmd "!pikiPikminBasePath!\!modelName!.bmd" --bcx !pikiAnimations! --static --verbose
+    "%bmd2fbxBasePath%bmd2fbx.exe" manual --out "!modelBasePath!" --bmd "!pikiPikminBasePath!\!modelName!.bmd" --bcx !pikiAnimations! --verbose
     @echo off
   )
   if defined isModelProcessed (
@@ -98,7 +98,7 @@ for %%m in (%orimaModelNames%) do (
   if not defined isModelProcessed (
     echo Processing !modelName! w/ manual inputs...
     @echo on
-    "%bmd2fbxBasePath%bmd2fbx.exe" manual --out "!modelBasePath!" --bmd "!pikiOrimaBasePath!\!modelName!.bmd" --bcx !pikiAnimations! --static --verbose
+    "%bmd2fbxBasePath%bmd2fbx.exe" manual --out "!modelBasePath!" --bmd "!pikiOrimaBasePath!\!modelName!.bmd" --bcx !pikiAnimations! --verbose
     @echo off
   )
   if defined isModelProcessed (
@@ -169,7 +169,7 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
     if not defined isModelProcessed (
       echo Processing !modelName! w/ automatic inputs...
       @echo on
-      "%bmd2fbxBasePath%bmd2fbx.exe" automatic --out "!modelBasePath!" --static --verbose
+      "%bmd2fbxBasePath%bmd2fbx.exe" automatic --out "!modelBasePath!" --verbose
       @echo off
     )
     if defined isModelProcessed (
@@ -183,7 +183,7 @@ for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
 
     echo Processing !modelName! w/ manual inputs...
     @echo on
-    "%bmd2fbxBasePath%bmd2fbx.exe" manual --out "!modelBasePath!" --bmd "!modelFile!" --bcx "!animFiles!" --static --verbose
+    "%bmd2fbxBasePath%bmd2fbx.exe" manual --out "!modelBasePath!" --bmd "!modelFile!" --bcx "!animFiles!" --verbose
     @echo off
   )
 )

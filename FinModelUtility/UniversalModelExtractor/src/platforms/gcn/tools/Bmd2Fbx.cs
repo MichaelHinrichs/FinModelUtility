@@ -52,7 +52,6 @@ namespace uni.platforms.gcn.tools {
 
       var args = new List<string> {
           "manual",
-          "--static",
           "--verbose",
           "--out",
           $"\"{outDirectory.FullName}\"",

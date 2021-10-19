@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 using CommandLine;
@@ -14,7 +13,6 @@ namespace bmd.cli {
   // TODO: Hook downstream classes into this for args by system.
   public class Args {
     public bool Automatic { get; private set; }
-    public bool Static { get; private set; }
     public float FrameRate { get; private set; } = 30;
     public bool Verbose { get; private set; }
 
@@ -48,22 +46,20 @@ namespace bmd.cli {
                     typeof(DebugOptions))
                 .WithParsed((AutomaticOptions automaticOpts) => {
                   this.Automatic = true;
-                  this.Static = automaticOpts.Static;
                   this.FrameRate = automaticOpts.FrameRate ?? 30;
                   this.Verbose = automaticOpts.Verbose;
                   this.OutputDirectoryPath = automaticOpts.OutputPath;
                   this.BcxPaths = Arrays.Concat(Files.GetPathsWithExtension(
-                                                    "bca",
+                                                    ".bca",
                                                     true),
                                                 Files.GetPathsWithExtension(
-                                                    "bck",
+                                                    ".bck",
                                                     true));
-                  this.BtiPaths = Files.GetPathsWithExtension("bti", true);
-                  this.BmdPaths = Files.GetPathsWithExtension("bmd", true);
+                  this.BtiPaths = Files.GetPathsWithExtension(".bti", true);
+                  this.BmdPaths = Files.GetPathsWithExtension(".bmd", true);
                 })
                 .WithParsed((ManualOptions manualOpts) => {
                   this.Automatic = false;
-                  this.Static = manualOpts.Static;
                   this.FrameRate = manualOpts.FrameRate ?? 30;
                   this.Verbose = manualOpts.Verbose;
                   this.OutputDirectoryPath = manualOpts.OutputPath;
@@ -73,7 +69,6 @@ namespace bmd.cli {
                 })
                 .WithParsed((DebugOptions debugOpts) => {
                   this.Automatic = false;
-                  this.Static = debugOpts.Static;
                   this.Verbose = debugOpts.Verbose;
 
 
@@ -188,7 +183,7 @@ namespace bmd.cli {
 
       var basePath = "R:/Documents/CSharpWorkspace/Pikmin2Utility/";
       var enemyBasePath =
-          $"{basePath}cli/roms/pikmin_2.gcm_dir/enemy/data/{name}/";
+          $"{basePath}cli/roms/pikmin_2/enemy/data/{name}/";
 
       Args.GetFromDirectory_(new FinDirectory(enemyBasePath),
                              out outputPath,
@@ -220,7 +215,7 @@ namespace bmd.cli {
 
     private static string GetOutputPath_(string name) {
       var basePath = "R:/Documents/CSharpWorkspace/Pikmin2Utility/";
-      return $"{basePath}cli/out/pkmn2/{name}/";
+      return $"{basePath}cli/out/pikmin_2/{name}/";
     }
 
     private static void GetFromKando_(
@@ -232,15 +227,15 @@ namespace bmd.cli {
       outputPath = Args.GetOutputPath_(name);
 
       var kandoDir = new FinDirectory(
-          @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pkmn2.gcm_dir\user\Kando");
+          @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pikmin2\user\Kando");
       var entryDir = kandoDir.TryToGetSubdir(name);
       var modelDir = entryDir.TryToGetSubdir(@"arc.szs 0.rarc_dir\arc");
 
-      bmdPaths = Files.GetPathsWithExtension(modelDir, "bmd", true);
+      bmdPaths = Files.GetPathsWithExtension(modelDir, ".bmd", true);
       bcxPaths = Arrays.Concat(
-          Files.GetPathsWithExtension(modelDir, "bca", true),
-          Files.GetPathsWithExtension(modelDir, "bck", true));
-      btiPaths = Files.GetPathsWithExtension(modelDir, "bti", true);
+          Files.GetPathsWithExtension(modelDir, ".bca", true),
+          Files.GetPathsWithExtension(modelDir, ".bck", true));
+      btiPaths = Files.GetPathsWithExtension(modelDir, ".bti", true);
     }
 
     private static void GetFromDirectory_(
@@ -251,11 +246,11 @@ namespace bmd.cli {
         out IList<string> btiPaths) {
       outputPath = Args.GetOutputPath_(directory.Name);
 
-      bmdPaths = Files.GetPathsWithExtension(directory, "bmd", true);
+      bmdPaths = Files.GetPathsWithExtension(directory, ".bmd", true);
       bcxPaths = Arrays.Concat(
-          Files.GetPathsWithExtension(directory, "bca", true),
-          Files.GetPathsWithExtension(directory, "bck", true));
-      btiPaths = Files.GetPathsWithExtension(directory, "bti", true);
+          Files.GetPathsWithExtension(directory, ".bca", true),
+          Files.GetPathsWithExtension(directory, ".bck", true));
+      btiPaths = Files.GetPathsWithExtension(directory, ".bti", true);
     }
   }
 }

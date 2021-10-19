@@ -19,8 +19,7 @@ namespace bmd.api {
         IList<string> bcxPaths,
         IList<string> btiPaths,
         bool wasSourcedAutomatically = false,
-        float frameRate = 30,
-        bool useStatic = true) {
+        float frameRate = 30) {
       var logger = Logging.Create<ManualBmd2FbxApi>();
       logger.LogInformation("Attempting to parse:");
       logger.LogInformation(
@@ -122,30 +121,18 @@ namespace bmd.api {
                                         pathsAndBtis);
       }
 
-      if (useStatic) {
-        logger.LogInformation("Converting to a static mesh first.");
+      foreach (var (bmdPath, bmd) in pathsAndBmds) {
+        var model =
+            new ModelConverter().Convert(bmd,
+                                         pathsAndBcxs,
+                                         pathsAndBtis,
+                                         frameRate);
 
-        foreach (var (bmdPath, bmd) in pathsAndBmds) {
-          var model =
-              new ModelConverter().Convert(bmd,
-                                           pathsAndBcxs,
-                                           pathsAndBtis,
-                                           frameRate);
-
-          var bmdFile = new FileInfo(bmdPath);
-          new AssimpIndirectExporter().Export(
-              new FinFile(Path.Join(outputDirectory.FullName, bmdFile.Name))
-                  .CloneWithExtension(".fbx"),
-              model);
-        }
-      } else {
-        logger.LogInformation("Exporting directly.");
-        foreach (var pathAndBmd in pathsAndBmds) {
-          new GltfExporterOld().Export(outputDirectory,
-                                       pathAndBmd,
-                                       pathsAndBcxs,
-                                       pathsAndBtis);
-        }
+        var bmdFile = new FileInfo(bmdPath);
+        new AssimpIndirectExporter().Export(
+            new FinFile(Path.Join(outputDirectory.FullName, bmdFile.Name))
+                .CloneWithExtension(".fbx"),
+            model);
       }
     }
   }
