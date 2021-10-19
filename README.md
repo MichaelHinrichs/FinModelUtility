@@ -15,7 +15,7 @@ Command-line tools for extracting models from games en-masse. Separate batch scr
 
 ## Supported games
 
-- Mario Kart: Double Dash (`mario_kart_double_dash`)
+- Mario Kart: Double Dash (`mario_kart_double_dash.gcm`)
 - Pikmin 1 (`pikmin_1.gcm`)
 - Pikmin 2 (`pikmin_2.gcm`)
 - Super Mario Sunshine (`super_mario_sunshine.gcm`)
