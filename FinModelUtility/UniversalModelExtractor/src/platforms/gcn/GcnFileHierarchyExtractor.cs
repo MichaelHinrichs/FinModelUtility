@@ -12,9 +12,10 @@ using uni.util.io;
 namespace uni.platforms.gcn {
   public class GcnFileHierarchyExtractor {
     private readonly GcmDump gcmDump_ = new();
-    private readonly Yaz0Dec yaz0Dec_ = new();
     private readonly RarcDump rarcDump_ = new();
     private readonly RelDump relDump_ = new();
+    private readonly Yay0Dec yay0Dec_ = new();
+    private readonly Yaz0Dec yaz0Dec_ = new();
 
     public IFileHierarchy ExtractFromRom(
         IFile romFile,
@@ -25,17 +26,27 @@ namespace uni.platforms.gcn {
 
       // Decompresses all of the archives,
       fileHierarchy.ForEach(fileHierarchyDirectory => {
-        // Converts any SZS files into RARC files.
+        var didDecrypt = false;
+        // Decrypts any SZS files.
         var szsFiles =
             fileHierarchyDirectory.Files
                                   .Where(file => file.Extension == ".szs")
                                   .ToArray();
-        var didDecrypt = false;
         foreach (var szsFile in szsFiles) {
           didDecrypt |= this.yaz0Dec_.Run(szsFile);
         }
 
-        // Updates to see any new RARC files.
+        // Decrypts any SZP files.
+        var szpFiles =
+            fileHierarchyDirectory.Files
+                                  .Where(file => file.Extension == ".szp")
+                                  .ToArray();
+        foreach (var szpFile in szpFiles) {
+          didDecrypt |= this.yay0Dec_.Run(szpFile);
+        }
+
+
+        // Updates to see any new decrypted files.
         if (didDecrypt) {
           hasDecompressed = true;
           fileHierarchyDirectory.Refresh();

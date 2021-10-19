@@ -3,11 +3,14 @@
 namespace uni.cli {
   [Verb("animal_crossing",
         HelpText = "Extract models from Animal Crossing.")]
-  public class AnimalCrossingOptions { }
+  public class AnimalCrossingOptions {}
+
+  [Verb("luigis_mansion", HelpText = "Extract models from Luigi's Mansion.")]
+  public class LuigisMansionOptions {}
 
   [Verb("ocarina_of_time_3d",
         HelpText = "Extract models from Ocarina of Time 3d.")]
-  public class OcarinaOfTime3dOptions { }
+  public class OcarinaOfTime3dOptions {}
 
   [Verb("pikmin_1", HelpText = "Extract models from Pikmin 1.")]
   public class Pikmin1Options {}

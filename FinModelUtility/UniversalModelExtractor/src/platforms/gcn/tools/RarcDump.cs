@@ -6,7 +6,6 @@ using fin.io;
 using fin.log;
 using fin.util.asserts;
 
-using uni.platforms.gcn.tools;
 using uni.util.cmd;
 using uni.util.io;
 

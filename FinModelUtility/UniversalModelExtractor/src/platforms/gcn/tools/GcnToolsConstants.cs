@@ -15,6 +15,13 @@ namespace uni.platforms.gcn.tools {
         GcnToolsConstants.SZSTOOLS_DIRECTORY.TryToGetFile("yaz0dec.exe");
 
 
+    public static IDirectory YAY0DEC_DIRECTORY =
+        DirectoryConstants.TOOLS_DIRECTORY.TryToGetSubdir("yay0dec");
+
+    public static IFile YAY0DEC_EXE =
+        GcnToolsConstants.YAY0DEC_DIRECTORY.TryToGetFile("yay0dec.exe");
+
+
     public static IDirectory BMD2FBX_DIRECTORY =
         DirectoryConstants.TOOLS_DIRECTORY.TryToGetSubdir("bmd2fbx");
 
@@ -27,6 +34,5 @@ namespace uni.platforms.gcn.tools {
 
     public static IFile MOD2FBX_EXE =
         GcnToolsConstants.MOD2FBX_DIRECTORY.TryToGetFile("mod2fbx.exe");
-
   }
 }

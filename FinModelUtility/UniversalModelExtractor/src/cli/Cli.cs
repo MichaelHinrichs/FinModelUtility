@@ -5,6 +5,7 @@ using CommandLine;
 using CommandLine.Text;
 
 using uni.games.animal_crossing;
+using uni.games.luigis_mansion;
 using uni.games.ocarina_of_time_3d;
 using uni.games.pikmin_1;
 using uni.games.pikmin_2;
@@ -19,6 +20,7 @@ namespace uni.cli {
           Parser.Default.ParseArguments(
                     args,
                     typeof(AnimalCrossingOptions),
+                    typeof(LuigisMansionOptions),
                     typeof(OcarinaOfTime3dOptions),
                     typeof(Pikmin1Options),
                     typeof(Pikmin2Options),
@@ -26,6 +28,9 @@ namespace uni.cli {
                     typeof(DebugOptions))
                 .WithParsed((AnimalCrossingOptions automaticOpts) => {
                   new AnimalCrossingExtractor().ExtractAll();
+                })
+                .WithParsed((LuigisMansionOptions automaticOpts) => {
+                  new LuigisMansionExtractor().ExtractAll();
                 })
                 .WithParsed((OcarinaOfTime3dOptions automaticOpts) => {
                   new OcarinaOfTime3dExtractor().ExtractAll();

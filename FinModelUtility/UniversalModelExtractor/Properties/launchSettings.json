@@ -19,6 +19,10 @@
     "Animal Crossing": {
       "commandName": "Project",
       "commandLineArgs": "animal_crossing"
+    },
+    "Luigi's Mansion": {
+      "commandName": "Project",
+      "commandLineArgs": "luigis_mansion"
     }
   }
 }
