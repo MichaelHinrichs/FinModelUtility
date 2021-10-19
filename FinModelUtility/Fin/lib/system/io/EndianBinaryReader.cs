@@ -208,12 +208,14 @@ namespace System.IO {
       return BitConverter.ToUInt32(this.buffer_, 0);
     }
 
-    public uint[] ReadUInt32s(int count) {
-      uint[] numArray = new uint[count];
+    public uint[] ReadUInt32s(int count)
+      => this.ReadUInt32s(new uint[count], count);
+
+    public uint[] ReadUInt32s(uint[] dst, int count) {
       this.FillBuffer_(4 * count, 4);
       for (int index = 0; index < count; ++index)
-        numArray[index] = BitConverter.ToUInt32(this.buffer_, 4 * index);
-      return numArray;
+        dst[index] = BitConverter.ToUInt32(this.buffer_, 4 * index);
+      return dst;
     }
 
     public ulong ReadUInt64() {

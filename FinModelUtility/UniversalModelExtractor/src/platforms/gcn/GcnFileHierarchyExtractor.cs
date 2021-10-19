@@ -4,6 +4,7 @@ using System.Linq;
 
 using fin.io;
 using fin.util.asserts;
+using fin.util.strings;
 
 using uni.platforms.gcn.tools;
 using uni.util.io;
@@ -13,6 +14,7 @@ namespace uni.platforms.gcn {
     private readonly GcmDump gcmDump_ = new();
     private readonly Yaz0Dec yaz0Dec_ = new();
     private readonly RarcDump rarcDump_ = new();
+    private readonly RelDump relDump_ = new();
 
     public IFileHierarchy ExtractFromRom(
         IFile romFile,
@@ -40,14 +42,31 @@ namespace uni.platforms.gcn {
         }
 
 
-        // Extracts contents of any RARC files.
-        var rarcFiles =
-            fileHierarchyDirectory.Files
-                                  .Where(file => file.Extension == ".rarc")
-                                  .ToArray();
+        // Dumps any REL files
         var didDump = false;
-        foreach (var rarcFile in rarcFiles) {
-          didDump |= this.rarcDump_.Run(rarcFile);
+        var relFiles =
+            fileHierarchyDirectory.Files.Where(
+                                      file => file.Name.Contains(".rel") &&
+                                              file.Extension == ".rarc")
+                                  .ToArray();
+        foreach (var relFile in relFiles) {
+          var prefix = StringUtil.UpTo(relFile.Name, ".rel");
+          var mapFile =
+              fileHierarchyDirectory.Files.Single(
+                  file => file.Name.StartsWith(prefix) &&
+                          file.Extension == ".map");
+          didDump |= this.relDump_.Run(relFile, mapFile);
+        }
+
+        // Dumps any ARC/RARC files.
+        var arcFiles =
+            fileHierarchyDirectory.Files
+                                  .Where(file => !relFiles.Contains(file))
+                                  .Where(file => file.Extension == ".arc" ||
+                                                 file.Extension == ".rarc")
+                                  .ToArray();
+        foreach (var arcFile in arcFiles) {
+          didDump |= this.rarcDump_.Run(arcFile);
         }
 
         // Updates to see any new extracted directories.
@@ -88,6 +107,7 @@ namespace uni.platforms.gcn {
             var rarcSubdirPath =
                 Path.Join(rarcSubdir.Impl.GetParent().FullName, rarcSubdirName);
 
+            // TODO: Pull this logic out somewhere else
             // If subdir has same name or is an abbreviation of the parent, 
             // just collapses them with the parent name.
             if ((subdirName.Length <= rarcSubdirName.Length &&
@@ -118,10 +138,11 @@ namespace uni.platforms.gcn {
 
             hasDecompressed = true;
           } else {
-            Asserts.Fail("Multiple children in RARC!");
+            //Asserts.Fail("Multiple children in RARC!");
           }
         }
       });
+
 
       if (hasDecompressed) {
         fileHierarchy.Root.Refresh(true);
