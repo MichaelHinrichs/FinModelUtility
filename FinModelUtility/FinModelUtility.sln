@@ -57,7 +57,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UniversalModelExtractor", "
 		{2FE7D88B-9241-44B0-BC25-FE293EADCF59} = {2FE7D88B-9241-44B0-BC25-FE293EADCF59}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zar2Fbx", "Zar2Fbx\Zar2Fbx.csproj", "{7F57B864-05CB-4488-A798-0FC08D9F62B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zar2Fbx", "Zar2Fbx\Zar2Fbx.csproj", "{7F57B864-05CB-4488-A798-0FC08D9F62B2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "F3dzex2ToFbx", "F3dzex2ToFbx\F3dzex2ToFbx.csproj", "{439E4AFB-51BD-4F54-B6FA-E20A06E29D6F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -213,6 +215,18 @@ Global
 		{7F57B864-05CB-4488-A798-0FC08D9F62B2}.Release|x64.Build.0 = Release|Any CPU
 		{7F57B864-05CB-4488-A798-0FC08D9F62B2}.Release|x86.ActiveCfg = Release|Any CPU
 		{7F57B864-05CB-4488-A798-0FC08D9F62B2}.Release|x86.Build.0 = Release|Any CPU
+		{439E4AFB-51BD-4F54-B6FA-E20A06E29D6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{439E4AFB-51BD-4F54-B6FA-E20A06E29D6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{439E4AFB-51BD-4F54-B6FA-E20A06E29D6F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{439E4AFB-51BD-4F54-B6FA-E20A06E29D6F}.Debug|x64.Build.0 = Debug|Any CPU
+		{439E4AFB-51BD-4F54-B6FA-E20A06E29D6F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{439E4AFB-51BD-4F54-B6FA-E20A06E29D6F}.Debug|x86.Build.0 = Debug|Any CPU
+		{439E4AFB-51BD-4F54-B6FA-E20A06E29D6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{439E4AFB-51BD-4F54-B6FA-E20A06E29D6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{439E4AFB-51BD-4F54-B6FA-E20A06E29D6F}.Release|x64.ActiveCfg = Release|Any CPU
+		{439E4AFB-51BD-4F54-B6FA-E20A06E29D6F}.Release|x64.Build.0 = Release|Any CPU
+		{439E4AFB-51BD-4F54-B6FA-E20A06E29D6F}.Release|x86.ActiveCfg = Release|Any CPU
+		{439E4AFB-51BD-4F54-B6FA-E20A06E29D6F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -75,7 +75,7 @@ Module GlobalVars
   Public DLParser As New F3DEX2_Parser(ShaderManager)
 
   Public HandleErrors As Boolean = False
-  Public UseStaticDlModel As Boolean = False
+  Public UseStaticDlModel As Boolean = True
   Public DlModel As New StaticDlModel(ShaderManager)
 
   Public CompileDL As New N64DlistAssembler
