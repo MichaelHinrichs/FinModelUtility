@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Linq;
 
-using fin.io;
 using fin.log;
 
 using mod.api;
 
+using uni.msg;
 using uni.platforms;
 using uni.platforms.gcn;
-using uni.platforms.gcn.tools;
-using uni.src.msg;
 
 namespace uni.games.pikmin_1 {
   public class Pikmin1Extractor {
@@ -18,24 +16,22 @@ namespace uni.games.pikmin_1 {
           DirectoryConstants.ROMS_DIRECTORY.TryToGetFile(
               "pikmin_1.gcm");
 
+      var options = GcnFileHierarchyExtractor.Options.Empty();
       var fileHierarchy =
-          new GcnFileHierarchyExtractor().ExtractFromRom(pikmin1Rom);
+          new GcnFileHierarchyExtractor().ExtractFromRom(options, pikmin1Rom);
 
       var logger = Logging.Create<Pikmin1Extractor>();
 
-      fileHierarchy.ForEach(fileHierarchyDirectory => {
+      foreach (var subdir in fileHierarchy) {
         // TODO: Handle special cases:
         // - olimar
         // - pikmin
         // - frog
 
-        var modFiles =
-            fileHierarchyDirectory.Files.Where(
-                                      file => file.Extension == ".mod")
-                                  .ToArray();
+        var modFiles = subdir.FilesWithExtension(".mod").ToArray();
 
         if (modFiles.Length == 0) {
-          return;
+          continue;
         }
 
         var outputDirectory =
@@ -51,13 +47,8 @@ namespace uni.games.pikmin_1 {
         foreach (var modFile in modFiles) {
           if (existingModelFiles.Any(
               existingModelFile => {
-                var existingName = existingModelFile.Name.Substring(
-                    0,
-                    existingModelFile.Name.Length -
-                    existingModelFile.Extension.Length);
-                var modName =
-                    modFile.Name.Substring(0,
-                                           modFile.Name.Length - ".mod".Length);
+                var existingName = existingModelFile.NameWithoutExtension;
+                var modName = modFile.NameWithoutExtension;
 
                 return modName == existingName ||
                        modName + "_gltf" == existingName;
@@ -68,21 +59,21 @@ namespace uni.games.pikmin_1 {
 
         if (matches == modFiles.Length) {
           logger.LogInformation(
-              $"Model(s) already processed from {fileHierarchyDirectory.LocalPath}");
-          return;
+              $"Model(s) already processed from {subdir.LocalPath}");
+          continue;
         }
 
         // TODO: For some reason, the program hangs when trying to export the
         // title screen as FBX.
-        var skipExportingFbx = fileHierarchyDirectory.LocalPath ==
+        var skipExportingFbx = subdir.LocalPath ==
                                @"\dataDir\cinemas\titles";
 
-        MessageUtil.LogExtracting(logger, fileHierarchyDirectory, modFiles);
+        MessageUtil.LogExtracting(logger, subdir, modFiles);
 
         var anmFiles =
-            fileHierarchyDirectory.Files.Where(
-                                      file => file.Extension == ".anm")
-                                  .ToArray();
+            subdir.Files.Where(
+                      file => file.Extension == ".anm")
+                  .ToArray();
 
         try {
           new ManualMod2FbxApi().Process(outputDirectory,
@@ -96,7 +87,7 @@ namespace uni.games.pikmin_1 {
           logger.LogError(e.ToString());
         }
         logger.LogInformation(" ");
-      });
+      }
     }
   }
 }

@@ -36,6 +36,9 @@ namespace fin.io {
     string Extension { get; }
     IFile CloneWithExtension(string newExtension);
 
+    string FullNameWithoutExtension { get; }
+    string NameWithoutExtension { get; }
+
     StreamReader ReadAsText();
     byte[] SkimAllBytes();
 

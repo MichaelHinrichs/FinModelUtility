@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 
 using fin.io;
-using fin.util.asserts;
+using fin.log;
 using fin.util.strings;
 
 using uni.platforms.gcn.tools;
@@ -18,148 +20,155 @@ namespace uni.platforms.gcn {
     private readonly Yaz0Dec yaz0Dec_ = new();
 
     public IFileHierarchy ExtractFromRom(
-        IFile romFile,
-        ISet<string>? junkTerms = null) {
+        Options options,
+        IFile romFile) {
+      var logger = Logging.Create<GcnFileHierarchyExtractor>();
+
       this.gcmDump_.Run(romFile, out var fileHierarchy);
 
-      var hasDecompressed = false;
+      var hasChanged = false;
 
       // Decompresses all of the archives,
-      fileHierarchy.ForEach(fileHierarchyDirectory => {
-        var didDecrypt = false;
-        // Decrypts any SZS files.
-        var szsFiles =
-            fileHierarchyDirectory.Files
-                                  .Where(file => file.Extension == ".szs")
-                                  .ToArray();
-        foreach (var szsFile in szsFiles) {
-          didDecrypt |= this.yaz0Dec_.Run(szsFile);
+      foreach (var subdir in fileHierarchy) {
+        var didDecompress = false;
+
+        // Decompresses files
+        foreach (var file in subdir.FilesWithExtensions(
+            options.Yay0DecExtensions)) {
+          didDecompress |=
+              this.yay0Dec_.Run(file, options.ContainerCleanupEnabled);
+        }
+        foreach (var file in subdir.FilesWithExtensions(
+            options.Yaz0DecExtensions)) {
+          didDecompress |=
+              this.yaz0Dec_.Run(file, options.ContainerCleanupEnabled);
         }
 
-        // Decrypts any SZP files.
-        var szpFiles =
-            fileHierarchyDirectory.Files
-                                  .Where(file => file.Extension == ".szp")
-                                  .ToArray();
-        foreach (var szpFile in szpFiles) {
-          didDecrypt |= this.yay0Dec_.Run(szpFile);
-        }
-
-
-        // Updates to see any new decrypted files.
-        if (didDecrypt) {
-          hasDecompressed = true;
-          fileHierarchyDirectory.Refresh();
+        // Updates to see any new decompressed files.
+        if (didDecompress) {
+          hasChanged = true;
+          subdir.Refresh();
         }
 
 
         // Dumps any REL files
         var didDump = false;
         var relFiles =
-            fileHierarchyDirectory.Files.Where(
-                                      file => file.Name.Contains(".rel") &&
-                                              file.Extension == ".rarc")
-                                  .ToArray();
+            subdir.Files.Where(
+                      file => file.Name.Contains(".rel") &&
+                              file.Extension == ".rarc")
+                  .ToArray();
         foreach (var relFile in relFiles) {
           var prefix = StringUtil.UpTo(relFile.Name, ".rel");
           var mapFile =
-              fileHierarchyDirectory.Files.Single(
+              subdir.Files.Single(
                   file => file.Name.StartsWith(prefix) &&
                           file.Extension == ".map");
-          didDump |= this.relDump_.Run(relFile, mapFile);
+          didDump |=
+              this.relDump_.Run(relFile,
+                                mapFile,
+                                options.ContainerCleanupEnabled);
         }
 
         // Dumps any ARC/RARC files.
         var arcFiles =
-            fileHierarchyDirectory.Files
-                                  .Where(file => !relFiles.Contains(file))
-                                  .Where(file => file.Extension == ".arc" ||
-                                                 file.Extension == ".rarc")
-                                  .ToArray();
+            subdir.Files
+                  .Where(file => !relFiles.Contains(file))
+                  .Where(file => options.RarcDumpExtensions.Contains(
+                             file.Extension))
+                  .ToArray();
         foreach (var arcFile in arcFiles) {
-          didDump |= this.rarcDump_.Run(arcFile);
+          didDump |=
+              this.rarcDump_.Run(arcFile,
+                                 options.ContainerCleanupEnabled,
+                                 options.RarcDumpPruneNames);
         }
 
-        // Updates to see any new extracted directories.
+        // Updates to see any new dumped directories.
         if (didDump) {
-          hasDecompressed = true;
-          fileHierarchyDirectory.Refresh();
+          hasChanged = true;
+          subdir.Refresh();
         }
+      }
 
 
-        // Cleans up any SZSs/RARCs where possible.
-        var rarcSubdirs =
-            fileHierarchyDirectory.Subdirs
-                                  .Where(
-                                      subdir => subdir.Name.EndsWith(
-                                          ".rarc_dir"))
-                                  .ToArray();
-        var didClean = false;
-        foreach (var rarcSubdir in rarcSubdirs) {
-          if (rarcSubdir.Subdirs.Count == 1) {
-            var subdir = rarcSubdir.Subdirs[0];
-
-            var subdirName = subdir.Name;
-
-            var rarcPath =
-                rarcSubdir.FullName.Substring(0,
-                                              rarcSubdir.FullName.Length -
-                                              "_dir".Length);
-            Asserts.True(rarcPath.EndsWith(".rarc"));
-            var szsPath =
-                rarcPath.Substring(0,
-                                   rarcPath.Length - " 0.rarc".Length);
-            Asserts.True(szsPath.EndsWith(".szs"));
-
-            var junkIndex = rarcSubdir.Name.IndexOf(".szs 0.rarc_dir");
-            Asserts.True(junkIndex != -1, "Unsupported rarc directory name!");
-
-            var rarcSubdirName = rarcSubdir.Name.Substring(0, junkIndex);
-            var rarcSubdirPath =
-                Path.Join(rarcSubdir.Impl.GetParent().FullName, rarcSubdirName);
-
-            // TODO: Pull this logic out somewhere else
-            // If subdir has same name or is an abbreviation of the parent, 
-            // just collapses them with the parent name.
-            if ((subdirName.Length <= rarcSubdirName.Length &&
-                 subdirName.ToLower() ==
-                 rarcSubdirName.Substring(0, subdirName.Length).ToLower()) ||
-                (junkTerms?.Contains(subdirName) ?? false)) {
-              Directory.Move(subdir.FullName, rarcSubdirPath);
-            }
-            // If parent has same name or is an abbreviation of the subdir,
-            // just collapses them with the subdir name.
-            else if (subdirName.Length >= rarcSubdirName.Length &&
-                     subdirName.Substring(0, rarcSubdirName.Length).ToLower() ==
-                     rarcSubdirName.ToLower()) {
-              Directory.Move(subdir.FullName,
-                             Path.Join(rarcSubdir.Impl.GetParent().FullName,
-                                       subdirName));
-            }
-            // If subdir has a different name, merges their names together and
-            // collapses them.
-            else {
-              Directory.Move(subdir.FullName, $"{rarcSubdirPath}_{subdirName}");
-            }
-
-            // Gets rid of the unneeded RARC/SZS files/directories.
-            File.Delete(szsPath);
-            File.Delete(rarcPath);
-            Directory.Delete(rarcSubdir.FullName);
-
-            hasDecompressed = true;
-          } else {
-            //Asserts.Fail("Multiple children in RARC!");
-          }
-        }
-      });
-
-
-      if (hasDecompressed) {
+      if (hasChanged) {
         fileHierarchy.Root.Refresh(true);
       }
 
       return fileHierarchy;
+    }
+
+    public class Options {
+      private readonly HashSet<string> rarcDumpExtensions_ = new();
+      private readonly HashSet<string> rarcDumpPruneNames_ = new();
+      private readonly HashSet<string> yay0DecExtensions_ = new();
+      private readonly HashSet<string> yaz0DecExtensions_ = new();
+
+      private Options() {
+        this.RarcDumpExtensions = this.rarcDumpExtensions_;
+        this.RarcDumpPruneNames = this.rarcDumpPruneNames_;
+        this.Yay0DecExtensions = this.yay0DecExtensions_;
+        this.Yaz0DecExtensions = this.yaz0DecExtensions_;
+      }
+
+      public static Options Empty() => new();
+
+      public static Options Standard()
+        => new Options().UseYaz0DecForExtensions(".szs")
+                        .UseRarcDumpForExtensions(".rarc")
+                        .EnableContainerCleanup(true);
+
+      public IReadOnlySet<string> RarcDumpExtensions { get; }
+      public IReadOnlySet<string> RarcDumpPruneNames { get; }
+      public IReadOnlySet<string> Yaz0DecExtensions { get; }
+      public IReadOnlySet<string> Yay0DecExtensions { get; }
+      public bool ContainerCleanupEnabled { get; private set; }
+
+      public Options UseRarcDumpForExtensions(
+          string first,
+          params string[] rest) {
+        this.rarcDumpExtensions_.Add(first);
+        foreach (var o in rest) {
+          this.rarcDumpExtensions_.Add(o);
+        }
+        return this;
+      }
+
+      public Options PruneRarcDumpNames(
+          string first,
+          params string[] rest) {
+        this.rarcDumpPruneNames_.Add(first);
+        foreach (var o in rest) {
+          this.rarcDumpPruneNames_.Add(o);
+        }
+        return this;
+      }
+
+      public Options UseYay0DecForExtensions(
+          string first,
+          params string[] rest) {
+        this.yay0DecExtensions_.Add(first);
+        foreach (var o in rest) {
+          this.yay0DecExtensions_.Add(o);
+        }
+        return this;
+      }
+
+      public Options UseYaz0DecForExtensions(
+          string first,
+          params string[] rest) {
+        this.yaz0DecExtensions_.Add(first);
+        foreach (var o in rest) {
+          this.yaz0DecExtensions_.Add(o);
+        }
+        return this;
+      }
+
+      public Options EnableContainerCleanup(bool enabled) {
+        this.ContainerCleanupEnabled = enabled;
+        return this;
+      }
     }
   }
 }

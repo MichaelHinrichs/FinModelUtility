@@ -1,8 +1,4 @@
-﻿using bmd.api;
-
-using fin.io;
-using fin.log;
-using fin.util.asserts;
+﻿using fin.log;
 
 using uni.platforms;
 using uni.platforms.gcn;
@@ -17,8 +13,18 @@ namespace uni.games.luigis_mansion {
           DirectoryConstants.ROMS_DIRECTORY.TryToGetFile(
               "luigis_mansion.gcm");
 
+      var options =
+          GcnFileHierarchyExtractor.Options.Standard()
+                                   .UseRarcDumpForExtensions(
+                                       // For some reason, some MDL files are compressed as RARC.
+                                       ".mdl");
+
       var fileHierarchy =
-          new GcnFileHierarchyExtractor().ExtractFromRom(luigisMansionRom);
+          new GcnFileHierarchyExtractor().ExtractFromRom(
+              options,
+              luigisMansionRom);
+
+      // TODO: Use Mdl2Fbx
     }
   }
 }

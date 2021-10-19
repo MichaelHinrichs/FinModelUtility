@@ -9,33 +9,40 @@ using uni.util.io;
 
 namespace uni.platforms.gcn.tools {
   public class Yay0Dec {
-    public bool Run(IFileHierarchyFile szpFile) {
+    public bool Run(IFileHierarchyFile file, bool cleanup) {
       Asserts.True(
-          szpFile.Exists,
-          $"Cannot decrypt SZP because it does not exist: {szpFile}");
-      Asserts.Equal(
-          ".szp",
-          szpFile.Extension,
-          $"Cannot decrypt file because it is not an SZP: {szpFile}");
+          file.Exists,
+          $"Cannot decrypt YAY0 because it does not exist: {file}");
 
-      //var rarcPath = szpFile.FullName + " 0.rarc";
-      var didRarcExist = false; //File.Exists(rarcPath);
-      if (!didRarcExist) {
+      var finalRarcPath = file.FullNameWithoutExtension + ".rarc";
+      if (File.Exists(finalRarcPath)) {
+        return false;
+      }
+
+      if (!MagicTextUtil.Verify(file, "Yay0")) {
+        return false;
+      }
+
+      var rarcPath = file.FullName + " 0.rarc";
+      if (!File.Exists(rarcPath)) {
         var logger = Logging.Create<Yay0Dec>();
-        logger.LogInformation($"Decrypting SZP {szpFile.LocalPath}...");
-
         Files.RunInDirectory(
-            szpFile.Impl.GetParent()!,
+            file.Impl.GetParent()!,
             () => {
               ProcessUtil.ExecuteBlockingSilently(
                   GcnToolsConstants.YAY0DEC_EXE,
-                  $"\"{szpFile.FullName}\"");
+                  $"\"{file.FullName}\"");
             });
-        //Asserts.True(File.Exists(rarcPath),
-        //             $"File was not created: {rarcPath}");
+        Asserts.True(File.Exists(rarcPath),
+                     $"File was not created: {rarcPath}");
       }
 
-      return !didRarcExist;
+      File.Move(rarcPath, finalRarcPath);
+      if (cleanup) {
+        file.Impl.Info.Delete();
+      }
+
+      return true;
     }
   }
 }

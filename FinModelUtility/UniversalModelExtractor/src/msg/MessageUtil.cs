@@ -5,7 +5,7 @@ using fin.log;
 
 using uni.util.io;
 
-namespace uni.src.msg {
+namespace uni.msg {
   public static class MessageUtil {
     public static void LogExtracting<T>(
         ILogger logger,

@@ -16,7 +16,7 @@ namespace uni.platforms.threeDs {
       new HackingToolkit9ds().Run(romFile, out var fileHierarchy);
 
       var didDecompress = false;
-      fileHierarchy.ForEach(directory => {
+      foreach (var directory in fileHierarchy) {
         var zarFiles = directory.Files.Where(file => file.Extension == ".zar")
                                 .ToArray();
 
@@ -28,7 +28,7 @@ namespace uni.platforms.threeDs {
         if (didChange) {
           directory.Refresh();
         }
-      });
+      }
 
       if (didDecompress) {
         fileHierarchy.Root.Refresh(true);

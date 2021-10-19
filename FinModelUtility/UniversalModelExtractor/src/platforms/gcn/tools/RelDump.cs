@@ -20,7 +20,10 @@ namespace uni.platforms.gcn.tools {
 
     private Dictionary<string, int> dataSectionMap_;
 
-    public bool Run(IFileHierarchyFile relFile, IFileHierarchyFile mapFile) {
+    public bool Run(
+        IFileHierarchyFile relFile,
+        IFileHierarchyFile mapFile,
+        bool cleanup) {
       Asserts.True(relFile.Exists);
       Asserts.True(mapFile.Exists);
 
@@ -164,6 +167,8 @@ namespace uni.platforms.gcn.tools {
           Console.ReadKey();
         }
       }
+
+      // TODO: Clean up REL/MAP files here
 
       return true;
     }

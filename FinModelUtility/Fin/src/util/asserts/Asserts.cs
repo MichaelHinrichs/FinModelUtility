@@ -95,6 +95,12 @@ namespace fin.util.asserts {
       => Asserts.True(expected?.Equals(actual) ?? false,
                       message ?? $"Expected {actual} to equal {expected}.");
 
+    public static bool Equal(
+        string expected,
+        string actual,
+        string? message = null)
+      => Asserts.Equal<string>(expected, actual, message);
+
     public static bool IsA<TExpected>(object? instance, string? message = null)
       => Asserts.IsA(instance, typeof(TExpected), message);
 

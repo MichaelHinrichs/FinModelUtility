@@ -10,8 +10,12 @@ namespace uni.games.animal_crossing {
           DirectoryConstants.ROMS_DIRECTORY.TryToGetFile(
               "animal_crossing.gcm");
 
+      var options = GcnFileHierarchyExtractor.Options.Standard();
+
       var fileHierarchy =
-          new GcnFileHierarchyExtractor().ExtractFromRom(animalCrossingRom);
+          new GcnFileHierarchyExtractor().ExtractFromRom(
+              options,
+              animalCrossingRom);
 
       var logger = Logging.Create<AnimalCrossingExtractor>();
 

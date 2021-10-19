@@ -33,11 +33,16 @@ namespace fin.io {
         bool includeSubdirs = false)
       => Files.GetFilesWithExtension(Files.GetCwd(), extension, includeSubdirs);
 
+    private static string AssertValidExtension_(string extension) {
+      Asserts.True(extension.StartsWith("."));
+      return extension;
+    }
+
     public static FinFile[] GetFilesWithExtension(
         IDirectory directory,
         string extension,
         bool includeSubdirs = false)
-      => directory.Info.GetFiles($"*.{extension}",
+      => directory.Info.GetFiles($"*{Files.AssertValidExtension_(extension)}",
                                  includeSubdirs
                                      ? SearchOption.AllDirectories
                                      : SearchOption.TopDirectoryOnly)

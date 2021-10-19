@@ -42,8 +42,8 @@ namespace mod.cli {
                   this.Verbose = automaticOpts.Verbose;
                   this.OutputDirectory =
                       new FinDirectory(automaticOpts.OutputPath);
-                  this.ModFiles = Files.GetFilesWithExtension("mod", true);
-                  this.AnmFiles = Files.GetFilesWithExtension("anm", true);
+                  this.ModFiles = Files.GetFilesWithExtension(".mod", true);
+                  this.AnmFiles = Files.GetFilesWithExtension(".anm", true);
                 })
                 .WithParsed((ManualOptions manualOpts) => {
                   this.Automatic = false;
@@ -190,9 +190,9 @@ namespace mod.cli {
         out IFile? anmFile) {
       outputDirectory = this.GetOutputDirectory_(directory.Name);
 
-      modFile = Files.GetFileWithExtension(directory, "mod");
+      modFile = Files.GetFileWithExtension(directory, ".mod");
 
-      var anmFiles = Files.GetFilesWithExtension(directory, "anm");
+      var anmFiles = Files.GetFilesWithExtension(directory, ".anm");
       Asserts.True(anmFiles.Length <= 1, "Found more than one anm file!");
       anmFile = anmFiles[0];
     }
@@ -204,8 +204,8 @@ namespace mod.cli {
         out IList<IFile> anmFiles) {
       outputDirectory = this.GetOutputDirectory_(directory.Name);
 
-      modFiles = Files.GetFilesWithExtension(directory, "mod");
-      anmFiles = Files.GetFilesWithExtension(directory, "anm");
+      modFiles = Files.GetFilesWithExtension(directory, ".mod");
+      anmFiles = Files.GetFilesWithExtension(directory, ".anm");
     }
   }
 }

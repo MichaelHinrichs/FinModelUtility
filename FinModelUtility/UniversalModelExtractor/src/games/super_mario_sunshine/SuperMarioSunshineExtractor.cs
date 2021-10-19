@@ -8,9 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using uni.msg;
 using uni.platforms;
 using uni.platforms.gcn;
-using uni.src.msg;
 using uni.util.io;
 
 namespace uni.games.super_mario_sunshine {
@@ -23,8 +23,11 @@ namespace uni.games.super_mario_sunshine {
           DirectoryConstants.ROMS_DIRECTORY.TryToGetFile(
               "super_mario_sunshine.gcm");
 
+      var options = GcnFileHierarchyExtractor.Options.Standard()
+                                             .PruneRarcDumpNames("scene");
       var fileHierarchy =
-          new GcnFileHierarchyExtractor().ExtractFromRom(superMarioSunshineRom);
+          new GcnFileHierarchyExtractor()
+              .ExtractFromRom(options, superMarioSunshineRom);
 
       this.ExtractMario_(fileHierarchy);
       this.ExtractFludd_(fileHierarchy);
@@ -34,19 +37,19 @@ namespace uni.games.super_mario_sunshine {
 
     private void Debug_(IFileHierarchy fileHierarchy) {
       new ManualBmd2FbxApi().Process(
-                GameFileHierarchyUtil.GetOutputDirectoryForDirectory(
-                    fileHierarchy.Root),
-                new[] {
-                    fileHierarchy.Root
-                                 .TryToGetSubdir(
-                                     @"data\scene\bianco1_scene\mapobj")
-                                 .Files.Single(
-                                     file => file.Name ==
-                                             "coin_blue.bmd")
-                                 .FullName
-                },
-                new List<string>(),
-                new List<string>());
+          GameFileHierarchyUtil.GetOutputDirectoryForDirectory(
+              fileHierarchy.Root),
+          new[] {
+              fileHierarchy.Root
+                           .TryToGetSubdir(
+                               @"data\scene\bianco1\scene\mapobj")
+                           .Files.Single(
+                               file => file.Name ==
+                                       "coin_blue.bmd")
+                           .FullName
+          },
+          new List<string>(),
+          new List<string>());
 
       /*new ManualBmd2FbxApi().Process(
           GameFileHierarchyUtil.GetOutputDirectoryForDirectory(
@@ -182,22 +185,16 @@ namespace uni.games.super_mario_sunshine {
         IFileHierarchyDirectory common) {
       Asserts.Nonnull(common);
 
-      var bmdFiles = directory.Files.Where(file => file.Extension == ".bmd")
+      var bmdFiles = directory.FilesWithExtension(".bmd")
                               .ToArray();
-      var commonBcxFiles = common
-                           .Files.Where(
-                               file => file.Extension == ".bck" ||
-                                       file.Extension == ".bca")
-                           .Select(file => file.Impl)
-                           .ToArray();
-      var commonBtiFiles = common
-                           .Files.Where(file => file.Extension == ".bti")
-                           .Select(file => file.Impl)
-                           .ToArray();
+      var commonBcxFiles = common.FilesWithExtensions(".bca", ".bck")
+                                 .Select(file => file.Impl)
+                                 .ToArray();
+      var commonBtiFiles = common.FilesWithExtension(".bti")
+                                 .Select(file => file.Impl)
+                                 .ToArray();
 
-      var localBcxFiles = directory.Files.Where(
-                                       file => file.Extension == ".bck" ||
-                                               file.Extension == ".bca")
+      var localBcxFiles = directory.FilesWithExtensions(".bca", ".bck")
                                    .Select(file => file.Impl)
                                    .ToArray();
       if (bmdFiles.Length == 1) {

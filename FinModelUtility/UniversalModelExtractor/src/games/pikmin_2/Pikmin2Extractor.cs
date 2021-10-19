@@ -8,9 +8,9 @@ using fin.io;
 using fin.log;
 using fin.util.asserts;
 
+using uni.msg;
 using uni.platforms;
 using uni.platforms.gcn;
-using uni.src.msg;
 using uni.util.io;
 
 namespace uni.games.pikmin_2 {
@@ -22,10 +22,12 @@ namespace uni.games.pikmin_2 {
           DirectoryConstants.ROMS_DIRECTORY.TryToGetFile(
               "pikmin_2.gcm");
 
+      var options = GcnFileHierarchyExtractor.Options.Standard()
+                                             .PruneRarcDumpNames("arc", "data");
       var fileHierarchy =
           new GcnFileHierarchyExtractor().ExtractFromRom(
-              pikmin2Rom,
-              new HashSet<string>(new[] {"arc", "data"}));
+              options,
+              pikmin2Rom);
 
       this.ExtractPikminAndCaptainModels_(fileHierarchy);
       this.ExtractAllFromSeparateDirectories_(fileHierarchy);
@@ -39,7 +41,7 @@ namespace uni.games.pikmin_2 {
     /// </summary>
     private void ExtractAllFromSeparateDirectories_(
         IFileHierarchy fileHierarchy) {
-      fileHierarchy.ForEach(subdir => {
+      foreach (var subdir in fileHierarchy) {
         var modelSubdir =
             subdir.Subdirs.SingleOrDefault(dir => dir.Name == "model");
         var animSubdir =
@@ -48,12 +50,12 @@ namespace uni.games.pikmin_2 {
         if (modelSubdir != null && animSubdir != null) {
           var bmdFiles = modelSubdir.Files;
           var bcxFiles = animSubdir.Impl.GetExistingFiles().ToList();
-          var btiFiles = Files.GetFilesWithExtension(subdir.Impl, "bti", true)
+          var btiFiles = Files.GetFilesWithExtension(subdir.Impl, ".bti", true)
                               .ToList();
 
           this.ExtractModels_(subdir, bmdFiles, bcxFiles, btiFiles, false);
         }
-      });
+      }
     }
 
     /// <summary>
@@ -61,14 +63,14 @@ namespace uni.games.pikmin_2 {
     /// </summary>
     private void ExtractAllFromMergedDirectories_(
         IFileHierarchy fileHierarchy) {
-      fileHierarchy.ForEach(subdir => {
+      foreach (var subdir in fileHierarchy) {
         var arcSubdir =
             subdir.Subdirs.SingleOrDefault(dir => dir.Name == "arc");
 
         if (arcSubdir != null) {
           this.ExtractModelsInDirectoryAutomatically_(arcSubdir);
         }
-      });
+      }
     }
 
     private void ExtractPikminAndCaptainModels_(IFileHierarchy fileHierarchy) {
@@ -129,17 +131,13 @@ namespace uni.games.pikmin_2 {
 
     private void ExtractModelsInDirectoryAutomatically_(
         IFileHierarchyDirectory directory) {
-      var bmdFiles = directory.Files.Where(file => file.Extension == ".bmd")
-                              .ToArray();
+      var bmdFiles = directory.FilesWithExtension(".bmd").ToArray();
       if (bmdFiles.Length > 0) {
-        var bcxFiles =
-            directory.Files
-                     .Where(file => file.Extension == ".bca" ||
-                                    file.Extension == ".bck")
-                     .Select(file => file.Impl)
-                     .ToList();
+        var bcxFiles = directory.FilesWithExtensions(".bca", ".bck")
+                                .Select(file => file.Impl)
+                                .ToList();
         var btiFiles =
-            Files.GetFilesWithExtension(directory.Impl, "bti");
+            Files.GetFilesWithExtension(directory.Impl, ".bti");
         this.ExtractModels_(directory, bmdFiles, bcxFiles, btiFiles, false);
       }
     }

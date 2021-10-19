@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -8,10 +9,8 @@ using fin.util.asserts;
 using fin.util.data;
 
 namespace uni.util.io {
-  public interface IFileHierarchy {
+  public interface IFileHierarchy : IEnumerable<IFileHierarchyDirectory> {
     IFileHierarchyDirectory Root { get; }
-
-    void ForEach(Action<IFileHierarchyDirectory> action);
   }
 
   public interface IFileHierarchyInstance {
@@ -24,19 +23,32 @@ namespace uni.util.io {
   }
 
   public interface IFileHierarchyDirectory : IFileHierarchyInstance {
-    public IDirectory Impl { get; }
+    IDirectory Impl { get; }
 
-    public IReadOnlyList<IFileHierarchyDirectory> Subdirs { get; }
-    public IReadOnlyList<IFileHierarchyFile> Files { get; }
+    IReadOnlyList<IFileHierarchyDirectory> Subdirs { get; }
+    IReadOnlyList<IFileHierarchyFile> Files { get; }
 
-    public bool Refresh(bool recursive = false);
+    bool Refresh(bool recursive = false);
 
-    public IFileHierarchyDirectory TryToGetSubdir(string localPath);
+    IFileHierarchyDirectory TryToGetSubdir(string localPath);
+
+    IEnumerable<IFileHierarchyFile> FilesWithExtension(string extension);
+
+    IEnumerable<IFileHierarchyFile> FilesWithExtensions(
+        IEnumerable<string> extensions);
+
+    IEnumerable<IFileHierarchyFile> FilesWithExtensions(
+        string first,
+        params string[] rest);
   }
 
   public interface IFileHierarchyFile : IFileHierarchyInstance {
-    public IFile Impl { get; }
-    public string Extension { get; }
+    IFile Impl { get; }
+
+    string Extension { get; }
+
+    string FullNameWithoutExtension { get; }
+    string NameWithoutExtension { get; }
   }
 
 
@@ -145,6 +157,20 @@ namespace uni.util.io {
 
         return current;
       }
+
+      public IEnumerable<IFileHierarchyFile> FilesWithExtension(
+          string extension)
+        => this.Files.Where(file => file.Extension == extension);
+
+      public IEnumerable<IFileHierarchyFile> FilesWithExtensions(
+          IEnumerable<string> extensions)
+        => this.Files.Where(file => extensions.Contains(file.Extension));
+
+      public IEnumerable<IFileHierarchyFile> FilesWithExtensions(
+          string first,
+          params string[] rest)
+        => this.Files.Where(file => file.Extension == first ||
+                                    rest.Contains(file.Extension));
     }
 
     private class FileHierarchyFile : IFileHierarchyFile {
@@ -160,23 +186,31 @@ namespace uni.util.io {
 
       public string FullName => this.Impl.FullName;
       public string Name => this.Impl.Name;
+
+      public string FullNameWithoutExtension
+        => this.Impl.FullNameWithoutExtension;
+
+      public string NameWithoutExtension => this.Impl.NameWithoutExtension;
+
       public string Extension => this.Impl.Extension;
 
       public string LocalPath { get; }
     }
 
-    public void ForEach(Action<IFileHierarchyDirectory> action) {
+    public IEnumerator<IFileHierarchyDirectory> GetEnumerator() {
       var directoryQueue = new Queue<IFileHierarchyDirectory>();
       directoryQueue.Enqueue(this.Root);
       while (directoryQueue.Count > 0) {
         var directory = directoryQueue.Dequeue();
 
-        action(directory);
+        yield return directory;
 
         foreach (var subdir in directory.Subdirs) {
           directoryQueue.Enqueue(subdir);
         }
       }
     }
+
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
   }
 }

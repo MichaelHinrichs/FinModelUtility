@@ -18,19 +18,18 @@ namespace fin.io {
 
     public string Extension => this.Info.Extension;
 
+    public string FullNameWithoutExtension
+      => this.FullName.Substring(0,
+                                 this.FullName.Length -
+                                 this.Extension.Length);
+
+    public string NameWithoutExtension
+      => this.Name.Substring(0, this.Name.Length - this.Extension.Length);
+
     public IFile CloneWithExtension(string newExtension) {
       Asserts.True(newExtension.StartsWith("."),
                    $"'{newExtension}' is not a valid extension!");
-
-      var oldExtension = this.Extension;
-
-      var newFullName = this.FullName;
-      var i = newFullName.LastIndexOf(oldExtension);
-      if (i >= 0) {
-        newFullName = newFullName.Substring(0, i) + newExtension;
-      }
-
-      return new FinFile(newFullName);
+      return new FinFile(this.FullNameWithoutExtension + newExtension);
     }
 
     public IDirectory? GetParent()
