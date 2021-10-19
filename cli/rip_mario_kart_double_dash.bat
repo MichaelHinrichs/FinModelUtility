@@ -1,0 +1,3 @@
+tools\universal_model_extractor\universal_model_extractor.exe mario_kart_double_dash
+
+pause

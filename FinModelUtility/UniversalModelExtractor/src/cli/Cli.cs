@@ -6,7 +6,9 @@ using CommandLine.Text;
 
 using uni.games.animal_crossing;
 using uni.games.luigis_mansion;
+using uni.games.mario_kart_double_dash;
 using uni.games.ocarina_of_time_3d;
+using uni.games.paper_mario_the_thousand_year_door;
 using uni.games.pikmin_1;
 using uni.games.pikmin_2;
 using uni.games.super_mario_sunshine;
@@ -21,7 +23,9 @@ namespace uni.cli {
                     args,
                     typeof(AnimalCrossingOptions),
                     typeof(LuigisMansionOptions),
+                    typeof(MarioKartDoubleDashOptions),
                     typeof(OcarinaOfTime3dOptions),
+                    typeof(PaperMarioTheThousandYearDoorOptions),
                     typeof(Pikmin1Options),
                     typeof(Pikmin2Options),
                     typeof(SuperMarioSunshineOptions),
@@ -32,8 +36,14 @@ namespace uni.cli {
                 .WithParsed((LuigisMansionOptions automaticOpts) => {
                   new LuigisMansionExtractor().ExtractAll();
                 })
+                .WithParsed((MarioKartDoubleDashOptions automaticOpts) => {
+                  new MarioKartDoubleDashExtractor().ExtractAll();
+                })
                 .WithParsed((OcarinaOfTime3dOptions automaticOpts) => {
                   new OcarinaOfTime3dExtractor().ExtractAll();
+                })
+                .WithParsed((PaperMarioTheThousandYearDoorOptions automaticOpts) => {
+                  new PaperMarioTheThousandYearDoorExtractor().ExtractAll();
                 })
                 .WithParsed((Pikmin1Options automaticOpts) => {
                   new Pikmin1Extractor().ExtractAll();
