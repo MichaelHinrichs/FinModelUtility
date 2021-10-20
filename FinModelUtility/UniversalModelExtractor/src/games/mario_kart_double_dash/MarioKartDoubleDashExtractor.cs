@@ -63,7 +63,11 @@ namespace uni.games.mario_kart_double_dash {
       }
 
       {
-        var babyNames = new[] {"babymario", "babyluigi"};
+        var babyNames = new[] {
+            "babymario", "babyluigi",
+            // Should the toads actually be included here?
+            "kinipio", "kinopico"
+        };
         var babySubdirs =
             mramSubdir.Subdirs.Where(
                 subdir => babyNames.Contains(subdir.Name));
@@ -212,7 +216,75 @@ namespace uni.games.mario_kart_double_dash {
                             btiFiles,
                             true);
 
-        // TODO: Extract objects
+        var objectsSubdir = subdir.TryToGetSubdir("objects");
+        this.ExtractModelsAndAnimationsFromSceneObject_(objectsSubdir);
+      }
+    }
+
+    private void ExtractModelsAndAnimationsFromSceneObject_(
+        IFileHierarchyDirectory directory) {
+      var bmdFiles = directory.Files.Where(
+                                  file => file.Extension == ".bmd")
+                              .OrderByDescending(file => file.Name.Length)
+                              .ToArray();
+      var allBcxFiles = directory
+                        .Files.Where(
+                            file => file.Extension == ".bck" ||
+                                    file.Extension == ".bca")
+                        .Select(file => file.Impl)
+                        .ToArray();
+      var btiFiles = directory.FilesWithExtension(".bti")
+                              .Select(file => file.Impl)
+                              .ToArray();
+
+      // If there is only one model or 0 animations, it's easy to tell which
+      // animations go with which model.
+      if (bmdFiles.Length == 1 || allBcxFiles.Length == 0) {
+        foreach (var bmdFile in bmdFiles) {
+          this.ExtractModels_(directory,
+                              new[] {
+                                  bmdFile
+                              },
+                              allBcxFiles,
+                              btiFiles);
+        }
+        return;
+      }
+
+      var unclaimedBcxFiles = allBcxFiles.ToHashSet();
+      var bmdAndBcxFiles = new Dictionary<IFileHierarchyFile, IFile[]>();
+      foreach (var bmdFile in bmdFiles) {
+        var prefix = bmdFile.Name;
+        prefix = prefix.Substring(0, prefix.Length - ".bmd".Length);
+
+        // Blegh. These special cases are gross.
+        {
+          var modelIndex = prefix.IndexOf("_model");
+          if (modelIndex != -1) {
+            prefix = prefix.Substring(0, modelIndex);
+          }
+
+          var babyIndex = prefix.IndexOf("_body");
+          if (babyIndex != -1) {
+            prefix = prefix.Substring(0, babyIndex);
+          }
+
+          // TODO: Fix animations shared by piantas
+        }
+
+        var claimedBcxFiles = unclaimedBcxFiles
+                              .Where(bcxFile => bcxFile.Name.StartsWith(prefix))
+                              .ToArray();
+
+        foreach (var claimedBcxFile in claimedBcxFiles) {
+          unclaimedBcxFiles.Remove(claimedBcxFile);
+        }
+
+        bmdAndBcxFiles[bmdFile] = claimedBcxFiles;
+      }
+      Asserts.True(unclaimedBcxFiles.Count == 0);
+      foreach (var (bmdFile, bcxFiles) in bmdAndBcxFiles) {
+        this.ExtractModels_(directory, new[] {bmdFile}, bcxFiles, btiFiles);
       }
     }
 
