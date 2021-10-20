@@ -70,7 +70,15 @@ namespace fin.exporter.gltf {
       {
         foreach (var finMaterial in model.MaterialManager.All) {
           var gltfMaterial = new MaterialBuilder(finMaterial.Name)
-                             .WithDoubleSide(false)
+                             .WithDoubleSide(finMaterial.CullingMode switch {
+                                 CullingMode.SHOW_FRONT_ONLY => false,
+                                 // Darn, guess we can't support this.
+                                 CullingMode.SHOW_BACK_ONLY  => true,
+                                 CullingMode.SHOW_BOTH       => true,
+                                 // Darn, guess we can't support this either.
+                                 CullingMode.SHOW_NEITHER    => false,
+                                 _                           => throw new ArgumentOutOfRangeException()
+                             })
                              .WithSpecularGlossinessShader()
                              .WithSpecularGlossiness(new Vector3(0), 0);
 

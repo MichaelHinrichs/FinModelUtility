@@ -222,7 +222,7 @@ label_7:
               Gl.glActiveTexture(33984 + index);
               Gl.glLoadIdentity();
               if (this.MAT3.MaterialEntries[(int) this.MAT3.MaterialEntryIndieces[(int) entry.Index]].TexStages[index] != ushort.MaxValue)
-                Gl.glBindTexture(3553, (int) this.MAT3.TextureIndieces[(int) this.MAT3.MaterialEntries[(int) this.MAT3.MaterialEntryIndieces[(int) entry.Index]].TexStages[index]] + 1);
+                Gl.glBindTexture(3553, (int) this.MAT3.TextureIndices[(int) this.MAT3.MaterialEntries[(int) this.MAT3.MaterialEntryIndieces[(int) entry.Index]].TexStages[index]] + 1);
               else
                 Gl.glBindTexture(3553, 0);
             }
@@ -1996,6 +1996,13 @@ label_140:
       }
     }
 
+    public enum CullMode {
+      None = 0,  // Do not cull any primitives
+      Front = 1, // Cull front-facing primitives
+      Back = 2,  // Cull back-facing primitives
+      All = 3    // Cull all primitives
+    }
+
     public class MAT3Section
     {
       public const string Signature = "MAT3";
@@ -2005,9 +2012,10 @@ label_140:
       public uint[] Offsets;
       public BMD.MAT3Section.MaterialEntry[] MaterialEntries;
       public ushort[] MaterialEntryIndieces;
-      public ushort[] TextureIndieces;
-      public System.Drawing.Color[] Color1;
-      public System.Drawing.Color[] Color2;
+      public ushort[] TextureIndices;
+      public CullMode[] CullModes;
+      public System.Drawing.Color[] MaterialColor;
+      public System.Drawing.Color[] AmbientColors;
       public System.Drawing.Color[] ColorS10;
       public System.Drawing.Color[] Color3;
       public BMD.MAT3Section.AlphaCompare[] AlphaCompares;
@@ -2034,32 +2042,49 @@ label_140:
           this.Offsets = er.ReadUInt32s(30);
           int[] sectionLengths = this.GetSectionLengths();
           long position2 = er.BaseStream.Position;
+
+          // TODO: There is a bunch more data that isn't even read yet:
+          // https://github.com/RenolY2/SuperBMD/blob/ccc86e21493275bcd9d86f65b516b85d95c83abd/SuperBMDLib/source/Materials/Enums/Mat3OffsetIndex.cs
+
           er.BaseStream.Position = position1 + (long) this.Offsets[0];
           this.MaterialEntries = new BMD.MAT3Section.MaterialEntry[sectionLengths[0] / 332];
           for (int index = 0; index < sectionLengths[0] / 332; ++index)
             this.MaterialEntries[index] = new BMD.MAT3Section.MaterialEntry(er);
+          
           er.BaseStream.Position = position1 + (long) this.Offsets[1];
           this.MaterialEntryIndieces = er.ReadUInt16s((int) this.NrMaterials);
+          
           er.BaseStream.Position = position1 + (long) this.Offsets[2];
           this.StringTable = new BMD.Stringtable(er);
+
+          er.BaseStream.Position = position1 + (long)this.Offsets[4];
+          this.CullModes = new CullMode[sectionLengths[4] / 4];
+          for (var index = 0; index < sectionLengths[4] / 4; ++index)
+            this.CullModes[index] = (CullMode) er.ReadInt32();
+
           er.BaseStream.Position = position1 + (long) this.Offsets[5];
-          this.Color1 = new System.Drawing.Color[sectionLengths[5] / 4];
+          this.MaterialColor = new System.Drawing.Color[sectionLengths[5] / 4];
           for (int index = 0; index < sectionLengths[5] / 4; ++index)
-            this.Color1[index] = er.ReadColor8();
+            this.MaterialColor[index] = er.ReadColor8();
+          
           er.BaseStream.Position = position1 + (long) this.Offsets[8];
-          this.Color2 = new System.Drawing.Color[sectionLengths[8] / 4];
+          this.AmbientColors = new System.Drawing.Color[sectionLengths[8] / 4];
           for (int index = 0; index < sectionLengths[8] / 4; ++index)
-            this.Color2[index] = er.ReadColor8();
+            this.AmbientColors[index] = er.ReadColor8();
+          
           er.BaseStream.Position = position1 + (long) this.Offsets[13];
           this.TextureMatrices = new BMD.MAT3Section.TextureMatrixInfo[sectionLengths[13] / 100];
           for (int index = 0; index < sectionLengths[13] / 100; ++index)
             this.TextureMatrices[index] = new BMD.MAT3Section.TextureMatrixInfo(er);
+          
           er.BaseStream.Position = position1 + (long) this.Offsets[15];
-          this.TextureIndieces = er.ReadUInt16s(sectionLengths[15] / 2);
+          this.TextureIndices = er.ReadUInt16s(sectionLengths[15] / 2);
+
           er.BaseStream.Position = position1 + (long) this.Offsets[16];
           this.Tevorders = new BMD.MAT3Section.TevOrder[sectionLengths[16] / 4];
           for (int index = 0; index < sectionLengths[16] / 4; ++index)
             this.Tevorders[index] = new BMD.MAT3Section.TevOrder(er);
+          
           er.BaseStream.Position = position1 + (long) this.Offsets[17];
           this.ColorS10 = new System.Drawing.Color[sectionLengths[17] / 8];
           for (int index = 0; index < sectionLengths[17] / 8; ++index)
@@ -2108,7 +2133,7 @@ label_140:
         for (int index = 0; index < 8; ++index)
         {
           if (materialEntry.TexStages[index] != ushort.MaxValue)
-            intList.Add((int) this.TextureIndieces[(int) materialEntry.TexStages[index]]);
+            intList.Add((int) this.TextureIndices[(int) materialEntry.TexStages[index]]);
         }
         return new BMDShader(source.ToArray(), intList.ToArray(), new System.Drawing.Color[3]
         {
@@ -2121,7 +2146,7 @@ label_140:
           this.Color3[(int) materialEntry.Color3[1]],
           this.Color3[(int) materialEntry.Color3[2]],
           this.Color3[(int) materialEntry.Color3[3]]
-        }, (byte) 1, (byte) 1, this.Color2[(int) materialEntry.Color2[0]], this.AlphaCompares[(int) materialEntry.Indices2[1]]);
+        }, (byte) 1, (byte) 1, this.AmbientColors[(int) materialEntry.Color2[0]], this.AlphaCompares[(int) materialEntry.Indices2[1]]);
       }
 
       public void glAlphaCompareglBendMode(int idxa, int idxb, int idxd)
@@ -2189,7 +2214,15 @@ label_140:
 
       public class MaterialEntry
       {
-        public byte[] Unknown1;
+        public byte Flag;
+        public byte CullModeIndex;
+        public byte ColorChannelControlsCountIndex;
+        public byte TexGensCountIndex;
+        public byte TevStagesCountIndex;
+        public byte ZCompLocIndex;
+        public byte ZModeIndex;
+        public byte Unknown1;
+
         public ushort[] Color1;
         public ushort[] ChanControls;
         public ushort[] Color2;
@@ -2215,7 +2248,15 @@ label_140:
 
         // https://github.com/LordNed/WindEditor/wiki/BMD-and-BDL-Model-Format#material-entry
         public MaterialEntry(EndianBinaryReader er) {
-          this.Unknown1 = er.ReadBytes(8);
+          this.Flag = er.ReadByte();
+          this.CullModeIndex = er.ReadByte();
+          this.ColorChannelControlsCountIndex = er.ReadByte();
+          this.TexGensCountIndex = er.ReadByte();
+          this.TevStagesCountIndex = er.ReadByte();
+          this.ZCompLocIndex = er.ReadByte();
+          this.ZModeIndex = er.ReadByte();
+          this.Unknown1 = er.ReadByte();
+          
           this.Color1 = er.ReadUInt16s(2);
           this.ChanControls = er.ReadUInt16s(4);
           this.Color2 = er.ReadUInt16s(2);

@@ -129,7 +129,7 @@ namespace bmd.exporter {
         }
 
         var texStage = materialEntry.TexStages[texStageIndex];
-        var textureIndex = bmd.MAT3.TextureIndieces[texStage];
+        var textureIndex = bmd.MAT3.TextureIndices[texStage];
         var texture = textures[textureIndex];
 
         var cA = tevStage.color_a;
@@ -164,7 +164,7 @@ namespace bmd.exporter {
 
         var layer = new BmdLayer2(texture,
                                   //texCoordIndex++,
-                                  materialEntry.Unknown1[tevOrder.TexcoordID],
+                                  tevOrder.TexcoordID,
                                   blendMode);
         layers.Add(layer);
       }

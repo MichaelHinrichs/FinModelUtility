@@ -4,13 +4,14 @@ Command-line tools for extracting models from games en-masse. Separate batch scr
 
 ## Credits
 
-- [@Asia81](https://github.com/Asia81) as their [HackingToolkit9DS](https://github.com/Asia81/HackingToolkit9DS-Deprecated-) is used to extract the contents of 3DS CIAs.
+- [@Asia81](https://github.com/Asia81), as their [HackingToolkit9DS](https://github.com/Asia81/HackingToolkit9DS-Deprecated-) is used to extract the contents of 3DS CIAs.
 - cooliscool, as their [Utility of Time](http://wiki.maco64.com/Tools/Utility_of_Time) program was used as the basis for the F3DZEX2/F3DEX2 exporter.
 - [@Cuyler36](https://github.com/Cuyler36), aka CulyerAC, as their [RELDumper](https://github.com/Cuyler36/RELDumper) is used to extract the contents of REL/MAP files.
 - [@Gericom](https://github.com/Gericom), as their [MKDS Course Modifier](https://www.romhacking.net/utilities/1285/) program was used as the basis for the BMD exporter.
 - [@intns](https://github.com/intns), as their [MODConv](https://github.com/intns/MODConv) tool was ported to add general support for Pikmin 1.
 - [@NerduMiner](https://github.com/NerduMiner), as their [Pikmin1Toolset](https://github.com/NerduMiner/Pikmin1Toolset) was ported to add texture support for Pikmin 1.
 - [@nico](https://github.com/nico), AKA thakis, as their [szstools](http://amnoid.de/gc/) CLI is used to extract the contents of GameCube ISOs.
+- [@RenolY2](https://github.com/RenolY2), as their [SuperBMD](https://github.com/RenolY2/SuperBMD) tool was referenced to clean up the BMD logic.
 - TTEMMA, as their [Gar/Zar UnPacker v0.2](https://gbatemp.net/threads/release-gar-zar-unpacker-v0-1.385264/) tool is used to extract the contents of Ocarina of Time 3D files.
 
 ## Supported games

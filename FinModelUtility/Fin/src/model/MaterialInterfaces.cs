@@ -20,6 +20,13 @@ namespace fin.model {
     LAYER,
   }
 
+  public enum CullingMode {
+    SHOW_FRONT_ONLY,
+    SHOW_BACK_ONLY,
+    SHOW_BOTH,
+    SHOW_NEITHER,
+  }
+
 
   public interface IMaterial {
     string Name { get; set; }
@@ -27,6 +34,7 @@ namespace fin.model {
     IReadOnlyList<ITexture> Textures { get; }
 
     IShader Shader { get; }
+    CullingMode CullingMode { get; set; }
   }
 
 
@@ -166,6 +174,7 @@ namespace fin.model {
     IReadOnlyList<float?> AlphaSources { get; }
 
     IFixedFunctionMaterial SetTextureSource(int textureIndex, ITexture texture);
+
     // TODO: This should be rgb specifically
     IFixedFunctionMaterial SetColorSource(int colorIndex, IColor color);
     IFixedFunctionMaterial SetAlphaSource(int alphaIndex, float alpha);

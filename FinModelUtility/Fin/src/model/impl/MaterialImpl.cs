@@ -75,6 +75,8 @@ namespace fin.model.impl {
       public IReadOnlyList<ITexture> Textures { get; }
 
       public IShader Shader { get; }
+      public CullingMode CullingMode { get; set; }
+
       public bool Unlit { get; set; }
     }
 
@@ -91,6 +93,7 @@ namespace fin.model.impl {
 
       public IReadOnlyList<ITexture> Textures { get; }
       public IShader Shader { get; }
+      public CullingMode CullingMode { get; set; }
 
       public IReadOnlyList<ILayer> Layers { get; }
 
@@ -143,6 +146,7 @@ namespace fin.model.impl {
 
       public IReadOnlyList<ITexture> Textures { get; }
       public IShader Shader { get; }
+      public CullingMode CullingMode { get; set; }
 
       public IFixedFunctionEquations<FixedFunctionSource> Equations { get; } =
         new FixedFunctionEquations<FixedFunctionSource>();

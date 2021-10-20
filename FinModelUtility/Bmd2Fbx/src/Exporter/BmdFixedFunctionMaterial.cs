@@ -41,6 +41,14 @@ namespace bmd.exporter {
 
       var material = materialManager.AddFixedFunctionMaterial();
       material.Name = materialName;
+      material.CullingMode =
+          bmd.MAT3.CullModes[materialEntry.CullModeIndex] switch {
+            BMD.CullMode.None  => CullingMode.SHOW_BOTH,
+            BMD.CullMode.Front => CullingMode.SHOW_BACK_ONLY,
+            BMD.CullMode.Back  => CullingMode.SHOW_FRONT_ONLY,
+            BMD.CullMode.All   => CullingMode.SHOW_NEITHER,
+            _                  => throw new ArgumentOutOfRangeException(),
+          };
 
       this.Material = material;
 
@@ -82,7 +90,7 @@ namespace bmd.exporter {
           colorManager.UpdateTextureColor(null);
         } else {
           var texStage = materialEntry.TexStages[texStageIndex];
-          var textureIndex = bmd.MAT3.TextureIndieces[texStage];
+          var textureIndex = bmd.MAT3.TextureIndices[texStage];
 
           var bmdTexture = textures[textureIndex];
 
@@ -94,7 +102,7 @@ namespace bmd.exporter {
           texture.WrapModeV = bmdTexture.WrapModeT;
           texture.ColorType = bmdTexture.ColorType;
 
-          var texCoordIndex = materialEntry.Unknown1[tevOrder.TexcoordID];
+          var texCoordIndex = tevOrder.TexcoordID;
           texture.UvIndex = texCoordIndex;
 
           colorManager.UpdateTextureColor(texCoordIndex);
