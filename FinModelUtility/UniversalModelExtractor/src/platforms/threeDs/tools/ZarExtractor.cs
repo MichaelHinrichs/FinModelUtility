@@ -17,7 +17,8 @@ namespace uni.platforms.threeDs.tools {
                     $"Could not extract file because it is not a ZAR: {zarFile.FullName}");
 
       var directoryPath =
-          zarFile.FullName.Substring(0, zarFile.FullName.Length - ".zar".Length);
+          zarFile.FullName.Substring(0,
+                                     zarFile.FullName.Length - ".zar".Length);
       var directory = new FinDirectory(directoryPath);
 
       if (directory.Exists) {
@@ -74,10 +75,8 @@ namespace uni.platforms.threeDs.tools {
       public int DataOffset { get; }
 
       public ZarHeader(EndianBinaryReader er) {
-        var magicText = er.ReadString(Encoding.UTF8, 4);
-        Asserts.Equal("ZAR",
-                      magicText.Substring(0, 3),
-                      $"Expected ZAR header to start with \"ZAR\\1\", but started with: {magicText}");
+        var slashOne = Encoding.ASCII.GetChars(new byte[] {1})[0];
+        er.AssertMagicText("ZAR" + slashOne);
 
         this.Size = er.ReadInt32();
 

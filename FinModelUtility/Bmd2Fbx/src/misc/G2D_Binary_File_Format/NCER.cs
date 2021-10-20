@@ -438,7 +438,7 @@ namespace bmd.G2D_Binary_File_Format
           for (int index = 0; index < length; ++index)
           {
             er.BaseStream.Position = position + (long) this.Offsets[index];
-            this.Names[index] = er.ReadStringNT(Encoding.ASCII);
+            this.Names[index] = er.ReadStringNT();
           }
           OK = true;
         }

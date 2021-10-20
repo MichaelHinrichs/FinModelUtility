@@ -3,10 +3,24 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
+    <AssemblyName>zar2fbx</AssemblyName>
+    <RootNamespace>zar</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="api\" />
+    <Compile Remove="api\**" />
+    <EmbeddedResource Remove="api\**" />
+    <None Remove="api\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="NewFolder\" />
+    <Folder Include="src\api\" />
+    <Folder Include="src\format\csab\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Fin\Fin.csproj" />
   </ItemGroup>
 
 </Project>

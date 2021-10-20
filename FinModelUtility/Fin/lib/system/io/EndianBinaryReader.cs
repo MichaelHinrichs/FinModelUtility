@@ -6,6 +6,8 @@
 
 using System.Text;
 
+using fin.util.asserts;
+
 namespace System.IO {
   public sealed class EndianBinaryReader : IDisposable {
     private bool disposed_;
@@ -121,9 +123,20 @@ namespace System.IO {
       return str.Remove(str.Length - 1);
     }
 
-    public string ReadString(Encoding encoding, int count) {
-      return new string(this.ReadChars(encoding, count));
+    public string ReadStringNT() => this.ReadStringNT(Encoding.ASCII);
+
+    public void AssertMagicText(string expectedText) {
+      var actualText = this.ReadString(expectedText.Length);
+      Asserts.Equal(expectedText,
+                    $"Expected to find magic text \"{expectedText}\", but found \"{actualText}\"");
     }
+
+    public string ReadString(Encoding encoding, int count)
+      => new(this.ReadChars(encoding, count));
+
+    public string ReadString(int count)
+      => this.ReadString(Encoding.ASCII, count);
+
 
     public double ReadDouble() {
       this.FillBuffer_(8, 8);
@@ -138,18 +151,26 @@ namespace System.IO {
       return numArray;
     }
 
+
     public float ReadSingle() {
       this.FillBuffer_(4, 4);
       return BitConverter.ToSingle(this.buffer_, 0);
     }
 
-    public float[] ReadSingles(int count) {
-      float[] numArray = new float[count];
+    public float[] ReadSingles(int count)
+      => this.ReadSingles(new float[count], count);
+
+    public float[] ReadSingles(float[] dst, int count) {
       this.FillBuffer_(4 * count, 4);
       for (int index = 0; index < count; ++index)
-        numArray[index] = BitConverter.ToSingle(this.buffer_, 4 * index);
-      return numArray;
+        dst[index] = BitConverter.ToSingle(this.buffer_, 4 * index);
+      return dst;
     }
+
+
+    public float ReadSn16() => this.ReadInt16() / (65535f / 2);
+    public float ReadUn16() => this.ReadUInt16() / 65535f;
+
 
     public int ReadInt32() {
       this.FillBuffer_(4, 4);
@@ -190,6 +211,7 @@ namespace System.IO {
       return numArray;
     }
 
+
     public ushort ReadUInt16() {
       this.FillBuffer_(2, 2);
       return BitConverter.ToUInt16(this.buffer_, 0);
@@ -202,6 +224,7 @@ namespace System.IO {
         numArray[index] = BitConverter.ToUInt16(this.buffer_, 2 * index);
       return numArray;
     }
+
 
     public uint ReadUInt32() {
       this.FillBuffer_(4, 4);
@@ -217,6 +240,7 @@ namespace System.IO {
         dst[index] = BitConverter.ToUInt32(this.buffer_, 4 * index);
       return dst;
     }
+
 
     public ulong ReadUInt64() {
       this.FillBuffer_(8, 8);
