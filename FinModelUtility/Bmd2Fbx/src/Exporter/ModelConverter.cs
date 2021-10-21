@@ -129,6 +129,8 @@ namespace bmd.exporter {
         (MkdsNode, IBone)[] jointsAndBones,
         BmdMaterialManager materialManager) {
       var skin = model.Skin;
+      // TODO: Actually split this up
+      var finMesh = skin.AddMesh();
 
       var joints = bmd.GetJoints();
 
@@ -243,7 +245,11 @@ namespace bmd.exporter {
                     if (batch.HasColors[c]) {
                       var colorIndex = point.ColorIndex[c];
                       var color = vertexColors[c][colorIndex];
-                      vertex.SetColorBytes(c, color.R, color.G, color.B, color.A);
+                      vertex.SetColorBytes(c,
+                                           color.R,
+                                           color.G,
+                                           color.B,
+                                           color.A);
                     }
                   }
 
@@ -260,26 +266,26 @@ namespace bmd.exporter {
                 Asserts.Nonnull(currentBmdMaterial);
                 switch (glPrimitiveType) {
                   case Gl.GL_TRIANGLES: {
-                    skin.AddTriangles(vertices)
-                        .SetMaterial(currentBmdMaterial.Material);
+                    finMesh.AddTriangles(vertices)
+                           .SetMaterial(currentBmdMaterial.Material);
                     break;
                   }
 
                   case Gl.GL_TRIANGLE_STRIP: {
-                    skin.AddTriangleStrip(vertices)
-                        .SetMaterial(currentBmdMaterial.Material);
+                    finMesh.AddTriangleStrip(vertices)
+                           .SetMaterial(currentBmdMaterial.Material);
                     break;
                   }
 
                   case Gl.GL_TRIANGLE_FAN: {
-                    skin.AddTriangleFan(vertices)
-                        .SetMaterial(currentBmdMaterial.Material);
+                    finMesh.AddTriangleFan(vertices)
+                           .SetMaterial(currentBmdMaterial.Material);
                     break;
                   }
 
                   case Gl.GL_QUADS: {
-                    skin.AddQuads(vertices)
-                        .SetMaterial(currentBmdMaterial.Material);
+                    finMesh.AddQuads(vertices)
+                           .SetMaterial(currentBmdMaterial.Material);
                     break;
                   }
 

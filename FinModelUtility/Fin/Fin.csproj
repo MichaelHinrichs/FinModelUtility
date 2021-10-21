@@ -12,6 +12,12 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="src\exporter\assimp\AssimpConverter.cs" />
+    <Compile Remove="src\exporter\assimp\AssimpDirectExporter.cs" />
+    <Compile Remove="src\exporter\assimp\AssimpMeshBuilder.cs" />
+    <Compile Remove="src\exporter\assimp\AssimpSkeletonBuilder.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="AssimpNet" Version="5.0.0-beta1" />
     <PackageReference Include="CommandLineParser" Version="2.9.0-preview1" />
     <PackageReference Include="Crayon" Version="2.0.62" />

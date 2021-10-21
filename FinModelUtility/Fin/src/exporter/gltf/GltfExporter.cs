@@ -114,20 +114,23 @@ namespace fin.exporter.gltf {
         }
       }
 
-      // Builds mesh.
+      // Builds meshes.
       var meshBuilder = new GltfMeshBuilder {UvIndices = this.UvIndices};
-      var mesh = meshBuilder.BuildAndBindMesh(
+      var gltfMeshes = meshBuilder.BuildAndBindMesh(
           modelRoot,
           model,
           finToTexCoordAndGltfMaterial);
 
-      scene.CreateNode()
-           .WithSkinnedMesh(mesh,
-                            rootNode.WorldMatrix,
-                            skinNodeAndBones
-                                .Select(
-                                    skinNodeAndBone => skinNodeAndBone.Item1)
-                                .ToArray());
+      var joints = skinNodeAndBones
+                   .Select(
+                       skinNodeAndBone => skinNodeAndBone.Item1)
+                   .ToArray();
+      foreach (var gltfMesh in gltfMeshes) {
+        scene.CreateNode()
+             .WithSkinnedMesh(gltfMesh,
+                              rootNode.WorldMatrix,
+                              joints);
+      }
 
       var writeSettings = new WriteSettings {
           ImageWriting = this.Embedded

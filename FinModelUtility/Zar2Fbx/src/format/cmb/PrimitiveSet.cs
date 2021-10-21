@@ -12,7 +12,7 @@ namespace zar.format.cmb {
     public uint boneTableOffset;
     public uint primitiveOffset;
     public short[] boneTable;
-    public readonly Primitive primitive = new Primitive();
+    public readonly Primitive primitive = new();
 
     public void Read(EndianBinaryReader r) {
       r.AssertMagicText("prms");

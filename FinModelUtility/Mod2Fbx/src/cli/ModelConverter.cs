@@ -233,6 +233,8 @@ namespace mod.cli {
       var vertexDescriptor = new VertexDescriptor();
       vertexDescriptor.FromPikmin1(mesh.vtxDescriptor, mod.hasNormals);
 
+      var finMesh = model.Skin.AddMesh();
+
       foreach (var meshPacket in mesh.packets) {
         foreach (var dlist in meshPacket.displaylists) {
           var reader = new VectorReader(dlist.dlistData, 0, Endianness.Big);
@@ -390,9 +392,9 @@ namespace mod.cli {
 
             var finVertices = finVertexList.ToArray();
             if (opcode == Opcode.TRIANGLE_FAN) {
-              model.Skin.AddTriangleFan(finVertices).SetMaterial(material);
+              finMesh.AddTriangleFan(finVertices).SetMaterial(material);
             } else if (opcode == Opcode.TRIANGLE_STRIP) {
-              model.Skin.AddTriangleStrip(finVertices).SetMaterial(material);
+              finMesh.AddTriangleStrip(finVertices).SetMaterial(material);
             }
           }
         }

@@ -12,11 +12,11 @@ namespace fin.model.impl {
 
     private class SkinImpl : ISkin {
       private readonly IList<IVertex> vertices_ = new List<IVertex>();
-      private readonly IList<IPrimitive> primitives_ = new List<IPrimitive>();
+      private readonly IList<IMesh> meshes_ = new List<IMesh>();
 
       public SkinImpl() {
         this.Vertices = new ReadOnlyCollection<IVertex>(this.vertices_);
-        this.Primitives = new ReadOnlyCollection<IPrimitive>(this.primitives_);
+        this.Meshes = new ReadOnlyCollection<IMesh>(this.meshes_);
       }
 
       public IReadOnlyList<IVertex> Vertices { get; }
@@ -33,59 +33,78 @@ namespace fin.model.impl {
         return vertex;
       }
 
-      public IReadOnlyList<IPrimitive> Primitives { get; }
 
-      public IPrimitive AddTriangles(
-          params (IVertex, IVertex, IVertex)[] triangles) {
-        var vertices = new IVertex[3 * triangles.Length];
-        for (var i = 0; i < triangles.Length; ++i) {
-          var triangle = triangles[i];
-          vertices[3 * i] = triangle.Item1;
-          vertices[3 * i + 1] = triangle.Item2;
-          vertices[3 * i + 2] = triangle.Item3;
+      public IReadOnlyList<IMesh> Meshes { get; }
+
+      public IMesh AddMesh() {
+        var mesh = new MeshImpl();
+        this.meshes_.Add(mesh);
+        return mesh;
+      }
+
+      private class MeshImpl : IMesh {
+        private readonly IList<IPrimitive> primitives_ = new List<IPrimitive>();
+
+        public MeshImpl() {
+          this.Primitives = new ReadOnlyCollection<IPrimitive>(this.primitives_);
         }
-        return this.AddTriangles(vertices);
-      }
 
-      public IPrimitive AddTriangles(params IVertex[] vertices) {
-        Debug.Assert(vertices.Length % 3 == 0);
-        var primitive = new PrimitiveImpl(PrimitiveType.TRIANGLES, vertices);
-        this.primitives_.Add(primitive);
-        return primitive;
-      }
+        public string Name { get; set; }
 
-      public IPrimitive AddTriangleStrip(params IVertex[] vertices) {
-        var primitive =
-            new PrimitiveImpl(PrimitiveType.TRIANGLE_STRIP, vertices);
-        this.primitives_.Add(primitive);
-        return primitive;
-      }
+        public IReadOnlyList<IPrimitive> Primitives { get; }
 
-      public IPrimitive AddTriangleFan(params IVertex[] vertices) {
-        var primitive =
-            new PrimitiveImpl(PrimitiveType.TRIANGLE_FAN, vertices);
-        this.primitives_.Add(primitive);
-        return primitive;
-      }
-
-      public IPrimitive AddQuads(
-          params (IVertex, IVertex, IVertex, IVertex)[] quads) {
-        var vertices = new IVertex[4 * quads.Length];
-        for (var i = 0; i < quads.Length; ++i) {
-          var quad = quads[i];
-          vertices[4 * i] = quad.Item1;
-          vertices[4 * i + 1] = quad.Item2;
-          vertices[4 * i + 2] = quad.Item3;
-          vertices[4 * i + 3] = quad.Item4;
+        public IPrimitive AddTriangles(
+            params (IVertex, IVertex, IVertex)[] triangles) {
+          var vertices = new IVertex[3 * triangles.Length];
+          for (var i = 0; i < triangles.Length; ++i) {
+            var triangle = triangles[i];
+            vertices[3 * i] = triangle.Item1;
+            vertices[3 * i + 1] = triangle.Item2;
+            vertices[3 * i + 2] = triangle.Item3;
+          }
+          return this.AddTriangles(vertices);
         }
-        return this.AddQuads(vertices);
-      }
 
-      public IPrimitive AddQuads(params IVertex[] vertices) {
-        Debug.Assert(vertices.Length % 4 == 0);
-        var primitive = new PrimitiveImpl(PrimitiveType.QUADS, vertices);
-        this.primitives_.Add(primitive);
-        return primitive;
+        public IPrimitive AddTriangles(params IVertex[] vertices) {
+          Debug.Assert(vertices.Length % 3 == 0);
+          var primitive = new PrimitiveImpl(PrimitiveType.TRIANGLES, vertices);
+          this.primitives_.Add(primitive);
+          return primitive;
+        }
+
+        public IPrimitive AddTriangleStrip(params IVertex[] vertices) {
+          var primitive =
+              new PrimitiveImpl(PrimitiveType.TRIANGLE_STRIP, vertices);
+          this.primitives_.Add(primitive);
+          return primitive;
+        }
+
+        public IPrimitive AddTriangleFan(params IVertex[] vertices) {
+          var primitive =
+              new PrimitiveImpl(PrimitiveType.TRIANGLE_FAN, vertices);
+          this.primitives_.Add(primitive);
+          return primitive;
+        }
+
+        public IPrimitive AddQuads(
+            params (IVertex, IVertex, IVertex, IVertex)[] quads) {
+          var vertices = new IVertex[4 * quads.Length];
+          for (var i = 0; i < quads.Length; ++i) {
+            var quad = quads[i];
+            vertices[4 * i] = quad.Item1;
+            vertices[4 * i + 1] = quad.Item2;
+            vertices[4 * i + 2] = quad.Item3;
+            vertices[4 * i + 3] = quad.Item4;
+          }
+          return this.AddQuads(vertices);
+        }
+
+        public IPrimitive AddQuads(params IVertex[] vertices) {
+          Debug.Assert(vertices.Length % 4 == 0);
+          var primitive = new PrimitiveImpl(PrimitiveType.QUADS, vertices);
+          this.primitives_.Add(primitive);
+          return primitive;
+        }
       }
 
       private class VertexImpl : IVertex {

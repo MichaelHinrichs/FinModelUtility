@@ -8,6 +8,13 @@ namespace fin.model {
     IVertex AddVertex(IPosition position);
     IVertex AddVertex(float x, float y, float z);
 
+    IReadOnlyList<IMesh> Meshes { get; }
+    IMesh AddMesh();
+  }
+
+  public interface IMesh {
+    string Name { get; set; }
+
     IReadOnlyList<IPrimitive> Primitives { get; }
 
     IPrimitive AddTriangles(params (IVertex, IVertex, IVertex)[] triangles);
