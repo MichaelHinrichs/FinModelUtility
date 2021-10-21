@@ -21,7 +21,7 @@ namespace zar.format.cmb {
 
       // Actually an array but more than one is never used
       this.primitiveCount = r.ReadUInt32();
-      Asserts.Equal(1, this.primitiveCount);
+      Asserts.Equal((uint) 1, this.primitiveCount);
 
       this.skinningMode = (SkinningMode) r.ReadUInt16();
       this.boneTableCount = r.ReadUInt16();

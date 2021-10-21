@@ -9,7 +9,7 @@ namespace zar.format.cmb {
     public Texture[] textures { get; private set; }
 
     public void Read(EndianBinaryReader r) {
-      r.AssertMagicText("tex" + AsciiUtil.GetChar(20));
+      r.AssertMagicText("tex" + AsciiUtil.GetChar(0x20));
 
       this.chunkSize = r.ReadUInt32();
 

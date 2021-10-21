@@ -25,14 +25,14 @@ namespace zar.format.cmb {
     public uint unk0 { get; private set; }
 
     public void Read(EndianBinaryReader r) {
-      r.AssertMagicText("cmb" + AsciiUtil.GetChar(20));
+      r.AssertMagicText("cmb" + AsciiUtil.GetChar(0x20));
 
       this.fileSize = r.ReadUInt32();
 
       this.version = CmbHeader.Version = (CmbVersion) r.ReadUInt32();
 
 
-      Asserts.Equal(0, r.ReadUInt32());
+      Asserts.Equal(0, r.ReadInt32());
       this.name = r.ReadString(16);
       this.faceIndicesCount = r.ReadUInt32();
       this.sklOffset = r.ReadUInt32();
@@ -49,7 +49,7 @@ namespace zar.format.cmb {
       this.faceIndicesOffset = r.ReadUInt32();
       this.textureDataOffset = r.ReadUInt32();
 
-      if (this.version != CmbVersion.OCARINA_OF_TIME_3D) {
+      if (this.version > CmbVersion.OCARINA_OF_TIME_3D) {
         this.unk0 = r.ReadUInt32();
       }
     }

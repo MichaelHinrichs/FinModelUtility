@@ -129,6 +129,7 @@ namespace System.IO {
     public void AssertMagicText(string expectedText) {
       var actualText = this.ReadString(expectedText.Length);
       Asserts.Equal(expectedText,
+                    actualText,
                     $"Expected to find magic text \"{expectedText}\", but found \"{actualText}\"");
     }
 

@@ -11,7 +11,7 @@ namespace zar.format.cmb {
     public Bone[] bones;
 
     public void Read(EndianBinaryReader r) {
-      r.AssertMagicText("skl" + AsciiUtil.GetChar(20));
+      r.AssertMagicText("skl" + AsciiUtil.GetChar(0x20));
 
       this.chunkSize = r.ReadUInt32();
       this.bones = new Bone[r.ReadUInt32()];

@@ -10,10 +10,11 @@ namespace zar.format.cmb {
     public PrimitiveMode primitiveMode;
     public DataType dataType;
     public ushort indicesCount;
+    public uint[] indices;
     public ushort offset;
 
     public void Read(EndianBinaryReader r) {
-      r.AssertMagicText("prm" + AsciiUtil.GetChar(20));
+      r.AssertMagicText("prm" + AsciiUtil.GetChar(0x20));
 
       this.chunkSize = r.ReadUInt32();
       this.isVisible = r.ReadUInt32() != 0;
@@ -23,6 +24,7 @@ namespace zar.format.cmb {
       this.dataType = (DataType) r.ReadUInt32();
 
       this.indicesCount = r.ReadUInt16();
+
       this.offset = r.ReadUInt16();
     }
   }
