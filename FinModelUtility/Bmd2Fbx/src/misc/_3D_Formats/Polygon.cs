@@ -5,12 +5,11 @@
 // Assembly location: R:\Documents\CSharpWorkspace\Pikmin2Utility\MKDS Course Modifier\MKDS Course Modifier.exe
 
 using OpenTK;
+
 using System.Drawing;
 
-namespace bmd._3D_Formats
-{
-  public class Polygon
-  {
+namespace bmd._3D_Formats {
+  public class Polygon {
     public PolygonType PolyType;
     public Vector3[] Normals;
     public Vector2[] TexCoords;
@@ -19,17 +18,14 @@ namespace bmd._3D_Formats
     public Vector3[] Vertex;
     public Color[] Colors;
 
-    public Polygon()
-    {
-    }
+    public Polygon() {}
 
     public Polygon(
-      PolygonType PolyType,
-      Vector3[] Normals,
-      Vector2[] TexCoords,
-      Vector3[] Vertex,
-      Color[] Colors = null)
-    {
+        PolygonType PolyType,
+        Vector3[] Normals,
+        Vector2[] TexCoords,
+        Vector3[] Vertex,
+        Color[] Colors = null) {
       this.PolyType = PolyType;
       this.Normals = Normals;
       this.TexCoords = TexCoords;

@@ -79,7 +79,7 @@ namespace uni.platforms.gcn.tools {
       header.size = er.ReadUInt32();
       header.unknown = er.ReadUInt32();
       header.dataStartOffset = er.ReadUInt32();
-      er.ReadUInt32s(header.unknown2, 4);
+      er.ReadUInt32s(header.unknown2);
 
       header.numNodes = er.ReadUInt32();
       header.firstNodeOffset = er.ReadUInt32();
@@ -87,7 +87,7 @@ namespace uni.platforms.gcn.tools {
       header.fileEntriesOffset = er.ReadUInt32();
       header.stringTableLength = er.ReadUInt32();
       header.stringTableOffset = er.ReadUInt32();
-      er.ReadUInt32s(header.unknown5, 2);
+      er.ReadUInt32s(header.unknown5);
 
 
       var cwd = Directory.GetCurrentDirectory();

@@ -4,8 +4,8 @@ using fin.io;
 
 namespace zar.format.cmb {
   public class Qtrs : IDeserializable {
-    public uint chunkSize;
-    public BoundingBox[] boundingBoxes;
+    public uint chunkSize { get; private set; }
+    public BoundingBox[] boundingBoxes { get; private set; }
 
     public void Read(EndianBinaryReader r) {
       r.AssertMagicText("qtrs");

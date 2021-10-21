@@ -4,6 +4,7 @@ using System.Text;
 using fin.io;
 using fin.log;
 using fin.util.asserts;
+using fin.util.strings;
 
 using uni.util.io;
 
@@ -75,8 +76,7 @@ namespace uni.platforms.threeDs.tools {
       public int DataOffset { get; }
 
       public ZarHeader(EndianBinaryReader er) {
-        var slashOne = Encoding.ASCII.GetChars(new byte[] {1})[0];
-        er.AssertMagicText("ZAR" + slashOne);
+        er.AssertMagicText("ZAR" + AsciiUtil.GetChar(1));
 
         this.Size = er.ReadInt32();
 

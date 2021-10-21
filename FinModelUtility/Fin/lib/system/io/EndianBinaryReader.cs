@@ -74,11 +74,12 @@ namespace System.IO {
       return this.buffer_[0];
     }
 
-    public byte[] ReadBytes(int count) {
-      this.FillBuffer_(count, 1);
-      byte[] numArray = new byte[count];
-      Array.Copy((Array) this.buffer_, 0, (Array) numArray, 0, count);
-      return numArray;
+    public byte[] ReadBytes(int count) => this.ReadBytes(new byte[count]);
+
+    public byte[] ReadBytes(byte[] dst) {
+      this.FillBuffer_(dst.Length, 1);
+      Array.Copy((Array) this.buffer_, 0, (Array) dst, 0, dst.Length);
+      return dst;
     }
 
     public sbyte ReadSByte() {
@@ -157,12 +158,11 @@ namespace System.IO {
       return BitConverter.ToSingle(this.buffer_, 0);
     }
 
-    public float[] ReadSingles(int count)
-      => this.ReadSingles(new float[count], count);
+    public float[] ReadSingles(int count) => this.ReadSingles(new float[count]);
 
-    public float[] ReadSingles(float[] dst, int count) {
-      this.FillBuffer_(4 * count, 4);
-      for (int index = 0; index < count; ++index)
+    public float[] ReadSingles(float[] dst) {
+      this.FillBuffer_(4 * dst.Length, 4);
+      for (int index = 0; index < dst.Length; ++index)
         dst[index] = BitConverter.ToSingle(this.buffer_, 4 * index);
       return dst;
     }
@@ -231,12 +231,11 @@ namespace System.IO {
       return BitConverter.ToUInt32(this.buffer_, 0);
     }
 
-    public uint[] ReadUInt32s(int count)
-      => this.ReadUInt32s(new uint[count], count);
+    public uint[] ReadUInt32s(int count) => this.ReadUInt32s(new uint[count]);
 
-    public uint[] ReadUInt32s(uint[] dst, int count) {
-      this.FillBuffer_(4 * count, 4);
-      for (int index = 0; index < count; ++index)
+    public uint[] ReadUInt32s(uint[] dst) {
+      this.FillBuffer_(4 * dst.Length, 4);
+      for (int index = 0; index < dst.Length; ++index)
         dst[index] = BitConverter.ToUInt32(this.buffer_, 4 * index);
       return dst;
     }

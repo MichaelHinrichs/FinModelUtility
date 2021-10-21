@@ -4,15 +4,15 @@ using fin.io;
 
 namespace zar.format.cmb {
   public class Texture : IDeserializable {
-    public uint dataLength;
-    public ushort mimapCount;
-    public bool isEtc1;
-    public bool isCubemap;
-    public ushort width;
-    public ushort height;
-    public GlTextureFormat imageFormat;
-    public uint dataOffset;
-    public string name;
+    public uint dataLength { get; private set; }
+    public ushort mimapCount { get; private set; }
+    public bool isEtc1 { get; private set; }
+    public bool isCubemap { get; private set; }
+    public ushort width { get; private set; }
+    public ushort height { get; private set; }
+    public GlTextureFormat imageFormat { get; private set; }
+    public uint dataOffset { get; private set; }
+    public string name { get; private set; }
 
     public void Read(EndianBinaryReader r) {
       this.dataLength = r.ReadUInt32();
