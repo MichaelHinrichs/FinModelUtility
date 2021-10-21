@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 
+using fin.exporter.assimp.indirect;
 using fin.io;
 
 using zar.format.cmb;
@@ -15,6 +16,15 @@ namespace zar.api {
                                               cmbFile.OpenRead(),
                                               Endianness.LittleEndian))))
                   .ToList();
+
+      foreach (var (cmbFile, cmb) in filesAndCmbs) {
+        var model = new ModelConverter().Convert(cmb);
+
+        new AssimpIndirectExporter().Export(
+            new FinFile(Path.Join(outputDirectory.FullName,
+                                  cmbFile.NameWithoutExtension + ".fbx")),
+            model);
+      }
     }
   }
 }

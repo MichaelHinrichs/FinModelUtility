@@ -72,6 +72,7 @@ namespace zar.format.cmb {
                        this.header.faceIndicesOffset +
                        2 * primitive.offset;
 
+          primitive.indices = new uint[primitive.indicesCount];
           for (var i = 0; i < primitive.indicesCount; ++i) {
             switch (primitive.dataType) {
               case DataType.UShort: {

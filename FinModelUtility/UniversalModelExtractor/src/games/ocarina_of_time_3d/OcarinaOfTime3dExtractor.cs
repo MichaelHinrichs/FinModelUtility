@@ -16,14 +16,14 @@ namespace uni.games.ocarina_of_time_3d {
           new ThreeDsFileHierarchyExtractor()
               .ExtractFromRom(ocarinaOfTime3dRom);
 
+      var cowSubdir = fileHierarchy.Root.TryToGetSubdir(@"actor\zelda_cow");
+
       new ManualZar2FbxApi().Run(
-          null,
-          fileHierarchy.Root
-                       .TryToGetSubdir(
-                           @"actor\zelda_cow\Model")
-                       .FilesWithExtension(".cmb")
-                       .Select(file => file.Impl)
-                       .ToArray());
+          GameFileHierarchyUtil.GetOutputDirectoryForDirectory(cowSubdir),
+          cowSubdir.TryToGetSubdir("Model")
+                   .FilesWithExtension(".cmb")
+                   .Select(file => file.Impl)
+                   .ToArray());
     }
   }
 }
