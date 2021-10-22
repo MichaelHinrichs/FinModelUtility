@@ -23,7 +23,7 @@ namespace zar.format.cmb {
       this.height = r.ReadUInt16();
       this.imageFormat = (GlTextureFormat) r.ReadUInt32();
       this.dataOffset = r.ReadUInt32();
-      this.name = r.ReadString(16);
+      this.name = CmbStringUtil.ReadString(r, 16);
     }
   }
 }

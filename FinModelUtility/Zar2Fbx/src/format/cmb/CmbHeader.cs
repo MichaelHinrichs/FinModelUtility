@@ -33,7 +33,7 @@ namespace zar.format.cmb {
 
 
       Asserts.Equal(0, r.ReadInt32());
-      this.name = r.ReadString(16);
+      this.name = CmbStringUtil.ReadString(r, 16);
       this.faceIndicesCount = r.ReadUInt32();
       this.sklOffset = r.ReadUInt32();
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
+using fin.io;
 using fin.math;
 using fin.model;
 using fin.model.impl;
@@ -14,7 +15,10 @@ namespace zar.api {
   public class ModelConverter {
     // TODO: Split these out into separate classes
     // TODO: Reading from the file here is gross
-    public IModel Convert(EndianBinaryReader r, Cmb cmb) {
+    public IModel Convert(
+        EndianBinaryReader r,
+        Cmb cmb,
+        IDirectory outputDirectory) {
       var model = new ModelImpl();
 
       var finBones = new IBone[cmb.skl.bones.Length];
@@ -71,6 +75,20 @@ namespace zar.api {
         // Create material
         var finMaterial = model.MaterialManager.AddTextureMaterial(finTexture);
         finMaterials.Add(finMaterial);
+      }
+
+      {
+        var nameToTextures = new Dictionary<string, ITexture>();
+        foreach (var finMaterial in finMaterials) {
+          foreach (var finTexture in finMaterial.Textures) {
+            nameToTextures[finTexture.Name] = finTexture;
+          }
+        }
+
+        foreach (var (_, finTexture) in nameToTextures) {
+          finTexture.ImageData.Save(
+              Path.Join(outputDirectory.FullName, finTexture.Name + ".png"));
+        }
       }
 
       // Adds meshes
