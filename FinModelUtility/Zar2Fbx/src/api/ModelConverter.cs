@@ -65,17 +65,18 @@ namespace zar.api {
         ++vertexCount;
 
         // Gets flags
-        var inc = 0;
-        var hasNrm = BitLogic.ExtractFromRight(shape.vertFlags, inc++, 1) != 0;
+        var inc = 1;
+        var hasNrm = BitLogic.GetFlag(shape.vertFlags, inc++);
         if (cmb.header.version > CmbVersion.OCARINA_OF_TIME_3D) {
           // Skip "HasTangents" for now
           inc++;
         }
-        var hasClr = BitLogic.ExtractFromRight(shape.vertFlags, inc++, 1) != 0;
-        var hasUv0 = BitLogic.ExtractFromRight(shape.vertFlags, inc++, 1) != 0;
-        var hasUv1 = BitLogic.ExtractFromRight(shape.vertFlags, inc++, 1) != 0;
-        var hasBi = BitLogic.ExtractFromRight(shape.vertFlags, inc++, 1) != 0;
-        var hasBw = BitLogic.ExtractFromRight(shape.vertFlags, inc++, 1) != 0;
+        var hasClr = BitLogic.GetFlag(shape.vertFlags, inc++);
+        var hasUv0 = BitLogic.GetFlag(shape.vertFlags, inc++);
+        var hasUv1 = BitLogic.GetFlag(shape.vertFlags, inc++);
+        var hasUv2 = BitLogic.GetFlag(shape.vertFlags, inc++);
+        var hasBi = BitLogic.GetFlag(shape.vertFlags, inc++);
+        var hasBw = BitLogic.GetFlag(shape.vertFlags, inc++);
 
         // Gets bone indices
         var bIndices = new List<short>();
@@ -84,14 +85,14 @@ namespace zar.api {
             if (hasBi && pset.skinningMode != SkinningMode.Single) {
               r.Position = cmb.startOffset +
                            cmb.header.vatrOffset +
+                           cmb.vatr.bIndices.startOffset +
                            shape.bIndices.start +
                            i * shape.boneDimensions;
               for (var bi = 0; bi < shape.boneDimensions; ++bi) {
                 var boneTableIndex = shape.bIndices.scale *
-                                     shape.bIndices.dataType switch {
-                                         _ => throw new
-                                                  NotImplementedException()
-                                     };
+                                     DataTypeUtil.Read(
+                                         r,
+                                         shape.bIndices.dataType);
                 bIndices.Add(pset.boneTable[(int) boneTableIndex]);
               }
             } else {
@@ -155,6 +156,46 @@ namespace zar.api {
                                     (byte) (colorValues[3] * 255));
           }
 
+          if (hasUv0) {
+            r.Position = cmb.startOffset +
+                         cmb.header.vatrOffset +
+                         cmb.vatr.uv0.startOffset +
+                         shape.uv0.start +
+                         2 * DataTypeUtil.GetSize(shape.uv0.dataType) * i;
+            var uv0Values =
+                DataTypeUtil.Read(r, 2, shape.uv0.dataType)
+                            .Select(value => value * shape.uv0.scale)
+                            .ToArray();
+
+            finVertex.SetUv(0, uv0Values[0], uv0Values[1]);
+          }
+          if (hasUv1) {
+            r.Position = cmb.startOffset +
+                         cmb.header.vatrOffset +
+                         cmb.vatr.uv1.startOffset +
+                         shape.uv1.start +
+                         2 * DataTypeUtil.GetSize(shape.uv1.dataType) * i;
+            var uv1Values =
+                DataTypeUtil.Read(r, 2, shape.uv1.dataType)
+                            .Select(value => value * shape.uv1.scale)
+                            .ToArray();
+
+            finVertex.SetUv(1, uv1Values[0], uv1Values[1]);
+          }
+          if (hasUv2) {
+            r.Position = cmb.startOffset +
+                         cmb.header.vatrOffset +
+                         cmb.vatr.uv2.startOffset +
+                         shape.uv2.start +
+                         2 * DataTypeUtil.GetSize(shape.uv2.dataType) * i;
+            var uv2Values =
+                DataTypeUtil.Read(r, 2, shape.uv2.dataType)
+                            .Select(value => value * shape.uv2.scale)
+                            .ToArray();
+
+            finVertex.SetUv(2, uv2Values[0], uv2Values[1]);
+          }
+
           if (hasBw) {
             r.Position = cmb.startOffset +
                          cmb.header.vatrOffset +
@@ -183,7 +224,7 @@ namespace zar.api {
             }
 
             Asserts.True(boneWeights.Count > 0);
-            Asserts.Equal(1, totalWeight);
+            Asserts.True(Math.Abs(1 - totalWeight) < .0001);
             finVertex.SetBones(boneWeights.ToArray());
           } else {
             var boneIndex = bIndices[i];
@@ -196,8 +237,12 @@ namespace zar.api {
 
         // Adds faces. Thankfully, it's all just triangles!
         var triangleVertices = new IVertex[meshIndices.Count];
-        for (var i = 0; i < meshIndices.Count; ++i) {
+        for (var i = 0; i < meshIndices.Count; i += 3) {
+          // TODO: Encapsulate this option in the primitive
+          // Have to flip faces to get this to work
           triangleVertices[i] = finVertices[meshIndices[i]];
+          triangleVertices[i + 1] = finVertices[meshIndices[i + 2]];
+          triangleVertices[i + 2] = finVertices[meshIndices[i + 1]];
         }
         finMesh.AddTriangles(triangleVertices);
       }

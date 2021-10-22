@@ -31,5 +31,8 @@ namespace fin.math {
     public static uint ExtractFromRight(uint number, int offset, int count)
         // => (((1 << count) - 1) & (number >> (offset - 1)));
       => (uint) ((number >> offset) & ((1 << count) - 1));
+
+    public static bool GetFlag(uint number, int offset)
+      => ((number >> offset) & 1) != 0;
   }
 }
