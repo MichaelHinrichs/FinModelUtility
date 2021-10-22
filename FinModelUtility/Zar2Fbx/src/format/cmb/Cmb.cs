@@ -6,6 +6,8 @@ using fin.util.strings;
 
 namespace zar.format.cmb {
   public class Cmb : IDeserializable {
+    public long startOffset;
+
     public readonly CmbHeader header = new();
     public readonly Skl skl = new();
     public readonly Qtrs qtrs = new();
@@ -13,7 +15,7 @@ namespace zar.format.cmb {
     public readonly Tex tex = new();
     public readonly Sklm sklm = new();
     public readonly Vatr vatr = new();
-
+    
     public Cmb(EndianBinaryReader r) => this.Read(r);
 
     public void Read(EndianBinaryReader r) {
@@ -46,7 +48,7 @@ namespace zar.format.cmb {
         }
       }
 
-      r.Position = startOff;
+      this.startOffset = r.Position = startOff;
 
       this.header.Read(r);
       this.skl.Read(r);

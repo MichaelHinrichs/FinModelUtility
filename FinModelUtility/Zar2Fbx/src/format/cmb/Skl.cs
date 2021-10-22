@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Linq;
 
 using fin.io;
 using fin.util.strings;
@@ -30,7 +29,7 @@ namespace zar.format.cmb {
         if (parentId != -1) {
           var parent = this.bones[parentId];
           bone.parent = parent;
-          parent.children.Append(bone);
+          parent.children.Add(bone);
         }
       }
     }

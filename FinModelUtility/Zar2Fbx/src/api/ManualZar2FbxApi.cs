@@ -18,7 +18,9 @@ namespace zar.api {
                   .ToList();
 
       foreach (var (cmbFile, cmb) in filesAndCmbs) {
-        var model = new ModelConverter().Convert(cmb);
+        using var r =
+            new EndianBinaryReader(cmbFile.OpenRead(), Endianness.LittleEndian);
+        var model = new ModelConverter().Convert(r, cmb);
 
         new AssimpIndirectExporter().Export(
             new FinFile(Path.Join(outputDirectory.FullName,
