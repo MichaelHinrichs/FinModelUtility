@@ -321,5 +321,7 @@ def DecodeBuffer(Input, width, height, format, isETC1):
                     Output[OOffs + 2] /= 255
                     Output[OOffs + 3] /= 255
 
+                    output[]
+
                     IOffs += Increment
         return Output

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,7 +7,6 @@ using fin.math;
 using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
-using fin.util.data;
 
 using zar.format.cmb;
 
@@ -50,7 +48,32 @@ namespace zar.api {
         }
       }
 
-      // TODO: Keep these separate in the exported model
+      // Creates meshes & textures
+      // TODO: Emulate fixed-function materials
+      var finMaterials = new List<IMaterial>();
+      var ctrTexture = new CtrTexture();
+      foreach (var cmbMaterial in cmb.mat.materials) {
+        // Get associated texture
+        var texMapper = cmbMaterial.texMappers[0];
+        var cmbTexture = cmb.tex.textures[texMapper.textureId];
+
+        r.Position = cmb.startOffset +
+                     cmb.header.textureDataOffset +
+                     cmbTexture.dataOffset;
+        var data = r.ReadBytes((int) cmbTexture.dataLength);
+        var bitmap = ctrTexture.DecodeImage(data, cmbTexture);
+
+        var finTexture = model.MaterialManager.CreateTexture(bitmap);
+        finTexture.Name = cmbTexture.name;
+        finTexture.WrapModeU = this.CmbToFinWrapMode(texMapper.wrapS);
+        finTexture.WrapModeV = this.CmbToFinWrapMode(texMapper.wrapT);
+
+        // Create material
+        var finMaterial = model.MaterialManager.AddTextureMaterial(finTexture);
+        finMaterials.Add(finMaterial);
+      }
+
+      // Adds meshes
       foreach (var cmbMesh in cmb.sklm.meshes.meshes) {
         var shape = cmb.sklm.shapes.shapes[cmbMesh.shapeIndex];
 
@@ -244,48 +267,21 @@ namespace zar.api {
           triangleVertices[i + 1] = finVertices[meshIndices[i + 2]];
           triangleVertices[i + 2] = finVertices[meshIndices[i + 1]];
         }
-        finMesh.AddTriangles(triangleVertices);
+        finMesh.AddTriangles(triangleVertices)
+               .SetMaterial(finMaterials[cmbMesh.materialIndex]);
       }
-
-      /*# UV0
-            if hasUv0:
-            f.seek(cmb.vatrOfs +
-                   vb.uv0.startOfs +
-                   shape.uv0.start +
-                   2 * getDataTypeSize(shape.uv0.dataType) * i +
-                   startOff)
-            v.uv0 =  [e
-            *shape.uv0.scale for e in
-            readArray(f, 2, shape.uv0.dataType)]
-
-      # UV1
-            if hasUv1:
-            f.seek(cmb.vatrOfs +
-                   vb.uv1.startOfs +
-                   shape.uv1.start +
-                   2 * getDataTypeSize(shape.uv1.dataType) * i +
-                   startOff)
-            v.uv1 =  [e
-            *shape.uv1.scale for e in
-            readArray(f, 2, shape.uv1.dataType)]
-
-      # UV2
-            if hasUv2:
-            f.seek(cmb.vatrOfs +
-                   vb.uv2.startOfs +
-                   shape.uv2.start +
-                   2 * getDataTypeSize(shape.uv2.dataType) * i +
-                   startOff)
-            v.uv2 =  [e
-            *shape.uv2.scale for e in
-            readArray(f, 2, shape.uv2.dataType)]
-
-
-            vertices.append(v)
-          }*/
-
 
       return model;
     }
+
+    public WrapMode CmbToFinWrapMode(TextureWrapMode cmbMode)
+      => cmbMode switch {
+          // TODO: Darn, we can't support border colors
+          TextureWrapMode.ClampToBorder => WrapMode.CLAMP,
+          TextureWrapMode.Repeat => WrapMode.REPEAT,
+          TextureWrapMode.ClampToEdge => WrapMode.CLAMP,
+          TextureWrapMode.Mirror => WrapMode.MIRROR_REPEAT,
+          _ => throw new ArgumentOutOfRangeException()
+      };
   }
 }
