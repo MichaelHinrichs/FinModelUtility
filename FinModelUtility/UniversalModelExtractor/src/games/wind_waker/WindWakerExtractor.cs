@@ -7,6 +7,9 @@ using fin.util.asserts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+
+using fin.util.strings;
 
 using uni.msg;
 using uni.platforms;
@@ -93,13 +96,122 @@ namespace uni.games.wind_waker {
     }
 
     private void ExtractObject_(IFileHierarchyDirectory directory) {
+      // TODO: What the heck is the difference between these directories?
+      // Is there any besides the model type within?
+      var bdlSubdir =
+          directory.Subdirs.SingleOrDefault(subdir => subdir.Name == "bdl");
+      var bdlmSubdir =
+          directory.Subdirs.SingleOrDefault(subdir => subdir.Name == "bdlm");
       var bmdmSubdir =
           directory.Subdirs.SingleOrDefault(subdir => subdir.Name == "bmdm");
-      if (bmdmSubdir != null) {
-        var bmdFiles =
-            bmdmSubdir.Files.Single(file => file.Extension == ".bmd");
-        this.ExtractModels_(directory, new[] {bmdFiles});
-        return;
+
+      var bckSubdir =
+          directory.Subdirs.SingleOrDefault(
+              subdir => subdir.Name == "bck" || subdir.Name == "bcks");
+
+      // If bmdm subdir only...
+      if (bmdmSubdir != null && bdlSubdir == null && bdlmSubdir == null) {
+        var bmdFiles = bmdmSubdir.FilesWithExtension(".bmd").ToArray();
+        var bckFiles = bckSubdir?.FilesWithExtension(".bck").ToList();
+
+        if (bmdFiles.Length == 1 || bckFiles == null) {
+          this.ExtractModels_(directory,
+                              bmdFiles,
+                              bckFiles?
+                                  .Select(file => file.Impl)
+                                  .ToArray());
+        } else {
+          IOrganizeMethod organizeMethod;
+          switch (directory.Name) {
+            case "Sh": {
+              organizeMethod = new SuffixOrganizeMethod(1);
+              break;
+            }
+            case "Ylesr00": {
+              organizeMethod = new PrefixOrganizeMethod();
+              break;
+            }
+            default:
+              throw new NotImplementedException();
+          }
+
+          this.ExtractFilesByOrganizing_(directory,
+                                         bmdFiles,
+                                         bckFiles,
+                                         organizeMethod);
+        }
+      }
+
+      // TODO: What to do for multiple directories, how to determine where animations go?
+      // Might just be based on prefix?
+    }
+
+    public interface IOrganizeMethod {
+      IList<IFileHierarchyFile> GetBcksForBmd(
+          IFileHierarchyFile bmdFile,
+          IList<IFileHierarchyFile> bckFiles);
+    }
+
+    public class PrefixOrganizeMethod : IOrganizeMethod {
+      public IList<IFileHierarchyFile> GetBcksForBmd(
+          IFileHierarchyFile bmdFile,
+          IList<IFileHierarchyFile> bckFiles) {
+        var prefix = StringUtil.UpTo(bmdFile.NameWithoutExtension, "_");
+        return bckFiles.Where(file => file.Name.StartsWith(prefix)).ToArray();
+      }
+    }
+
+    public class SuffixOrganizeMethod : IOrganizeMethod {
+      private readonly int suffixLength_;
+
+      public SuffixOrganizeMethod(int suffixLength) {
+        this.suffixLength_ = suffixLength;
+      }
+
+      public IList<IFileHierarchyFile> GetBcksForBmd(
+          IFileHierarchyFile bmdFile,
+          IList<IFileHierarchyFile> bckFiles) {
+        var suffix =
+            bmdFile.NameWithoutExtension.Substring(
+                bmdFile.NameWithoutExtension.Length -
+                this.suffixLength_);
+
+        return bckFiles.Where(file => file.Name.StartsWith(suffix)).ToArray();
+      }
+    }
+
+    private void ExtractFilesByOrganizing_(
+        IFileHierarchyDirectory directory,
+        IList<IFileHierarchyFile> bmdFiles,
+        IList<IFileHierarchyFile> bckFiles,
+        IOrganizeMethod organizeMethod) {
+      if (organizeMethod is PrefixOrganizeMethod) {
+        bmdFiles.OrderByDescending(
+            file => StringUtil
+                    .UpTo(file.NameWithoutExtension, "_")
+                    .Length);
+      }
+
+      var unclaimedBckFiles = new HashSet<IFileHierarchyFile>(bckFiles);
+
+      var bmdFileToBckFiles =
+          new Dictionary<IFileHierarchyFile, IList<IFileHierarchyFile>>();
+      foreach (var bmdFile in bmdFiles) {
+        var claimedBckFiles = organizeMethod.GetBcksForBmd(bmdFile, bckFiles);
+        bmdFileToBckFiles[bmdFile] = claimedBckFiles;
+
+        foreach (var bckFile in claimedBckFiles) {
+          unclaimedBckFiles.Remove(bckFile);
+        }
+      }
+
+      Asserts.Equal(0, unclaimedBckFiles.Count);
+
+      foreach (var (bmdFile, claimedBckFiles) in bmdFileToBckFiles) {
+        this.ExtractModels_(directory,
+                            new[] {bmdFile},
+                            claimedBckFiles.Select(file => file.Impl)
+                                           .ToArray());
       }
     }
 

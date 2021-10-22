@@ -43,7 +43,9 @@ namespace fin.util.strings {
     public static string[] SplitNewlines(string text)
       => Regex.Split(text, "\r\n|\r|\n");
 
-    public static string UpTo(string str, string substr)
-      => str.Substring(0, str.IndexOf(substr));
+    public static string UpTo(string str, string substr) {
+      var indexTo = str.IndexOf(substr);
+      return indexTo >= 0 ? str.Substring(0, indexTo) : str;
+    }
   }
 }

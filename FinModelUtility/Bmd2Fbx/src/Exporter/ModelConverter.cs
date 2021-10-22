@@ -102,12 +102,22 @@ namespace bmd.exporter {
           // TODO: *Just* write keyframes.
           for (var f = 0; f < bcx.Anx1.FrameCount; ++f) {
             var position = JointUtil.GetTranslation(bcx, jointIndex, f);
+            if (!float.IsFinite(position.X) ||
+                !float.IsFinite(position.Y) ||
+                !float.IsFinite(position.Z)) {
+              throw new NotFiniteNumberException();
+            }
             boneTracks.Positions.Set(f, 0, position.X);
             boneTracks.Positions.Set(f, 1, position.Y);
             boneTracks.Positions.Set(f, 2, position.Z);
 
             var (xRadians, yRadians, zRadians) =
                 JointUtil.GetRotation(bcx, jointIndex, f);
+            if (!float.IsFinite(xRadians) ||
+                !float.IsFinite(yRadians) ||
+                !float.IsFinite(zRadians)) {
+              throw new NotFiniteNumberException();
+            }
             var rotation = new ModelImpl.RotationImpl();
             rotation.SetRadians(xRadians, yRadians, zRadians);
             boneTracks.Rotations.Set(f, 0, rotation.XRadians);
@@ -115,6 +125,11 @@ namespace bmd.exporter {
             boneTracks.Rotations.Set(f, 2, rotation.ZRadians);
 
             var scale = JointUtil.GetScale(bcx, jointIndex, f);
+            if (!float.IsFinite(scale.X) ||
+                !float.IsFinite(scale.Y) ||
+                !float.IsFinite(scale.Z)) {
+              throw new NotFiniteNumberException();
+            }
             boneTracks.Scales.Set(f, 0, scale.X);
             boneTracks.Scales.Set(f, 1, scale.Y);
             boneTracks.Scales.Set(f, 2, scale.Z);

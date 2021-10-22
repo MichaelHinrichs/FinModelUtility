@@ -12,6 +12,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
+using fin.util.asserts;
+
 namespace bmd.GCN {
   /// <summary>
   /// https://wiki.cloudmodding.com/tww/BCK
@@ -250,11 +252,22 @@ namespace bmd.GCN {
           if (keys.Length == 1)
             return keys[0].Value;
           int index = 1;
-          while ((double) keys[index].Time < (double) t)
+
+          while ((double) keys[index].Time < (double) t
+                 // Don't shoot past the end of the keys list!
+                 &&
+                 index + 1 < keys.Length)
             ++index;
+
+          if (index + 1 == keys.Length && keys[index].Time < t) {
+            return keys[0].Value;
+          }
+
           float t1 = (float) (((double) t - (double) keys[index - 1].Time) /
                               ((double) keys[index].Time -
                                (double) keys[index - 1].Time));
+
+
           return this.Interpolate(keys[index - 1].Value,
                                   keys[index - 1].OutgoingTangent,
                                   keys[index].Value,
@@ -344,15 +357,33 @@ namespace bmd.GCN {
                       0,
                       0);
             } else {
+              var tangentMode = Component.TangentMode;
+              var hasTwoTangents = tangentMode == 1;
+              Asserts.True(tangentMode == 0 || tangentMode == 1);
+
+              var stride = hasTwoTangents ? 4 : 3;
               for (int index = 0; index < (int) Component.Count; ++index) {
-                // TODO: What to do about incoming/outgoing?
-                var tangent = Source[(int) Component.Index + 3 * index + 2];
+                var i = (int) Component.Index + stride * index;
+
+                var time = Source[i + 0];
+                Asserts.True(time >= 0);
+
+                var value = Source[i + 1];
+
+                float incomingTangent, outgoingTangent;
+                if (hasTwoTangents) {
+                  incomingTangent = Source[i + 2];
+                  outgoingTangent = Source[i + 3];
+                } else {
+                  incomingTangent = outgoingTangent = Source[i + 2];
+                }
+
                 Destination[index] =
                     new Key(
-                        Source[(int) Component.Index + 3 * index],
-                        Source[(int) Component.Index + 3 * index + 1],
-                        tangent,
-                        tangent);
+                        time,
+                        value,
+                        incomingTangent,
+                        outgoingTangent);
               }
             }
           }
@@ -374,19 +405,35 @@ namespace bmd.GCN {
                   0,
                   0);
             } else {
+              var tangentMode = Component.TangentMode;
+              var hasTwoTangents = tangentMode == 1;
+              Asserts.True(tangentMode == 0 || tangentMode == 1);
+
+              var stride = hasTwoTangents ? 4 : 3;
               for (int index = 0; index < (int) Component.Count; ++index) {
-                // TODO: What to do about incoming/outgoing?
-                var tangent =
-                    (float) Source[(int) Component.Index + 3 * index + 2] *
+                var i = (int) Component.Index + stride * index;
+
+                var time = (float) Source[i + 0];
+                Asserts.True(time >= 0);
+
+                var value =
+                    (float) Source[i + 1] *
                     RotScale;
+
+                float incomingTangent, outgoingTangent;
+                if (hasTwoTangents) {
+                  incomingTangent = Source[i + 2] * RotScale;
+                  outgoingTangent = Source[i + 3] * RotScale;
+                } else {
+                  incomingTangent = outgoingTangent = Source[i + 2] * RotScale;
+                }
 
                 Destination[index] =
                     new BCK.ANK1Section.AnimatedJoint.JointAnim.Key(
-                        (float) Source[(int) Component.Index + 3 * index],
-                        (float) Source[(int) Component.Index + 3 * index + 1] *
-                        RotScale,
-                        tangent,
-                        tangent);
+                        time,
+                        value,
+                        incomingTangent,
+                        outgoingTangent);
               }
             }
           }

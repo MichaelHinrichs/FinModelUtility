@@ -23,8 +23,14 @@ using System.Text;
 using Tao.OpenGl;
 using System.Drawing;
 
+using fin.model;
+using fin.model.impl;
 using fin.util.asserts;
 using fin.util.color;
+using fin.util.image;
+
+using BlendFactor = mkds.gcn.bmd.BlendFactor;
+using LogicOp = mkds.gcn.bmd.LogicOp;
 
 namespace bmd.GCN
 {
@@ -2606,6 +2612,7 @@ label_140:
         public BMD.TEX1Section.PaletteFormat PaletteFormat;
         public UInt16 NrPaletteEntries;
         public UInt32 PaletteOffset;
+        public IColor[] palette;
         public UInt32 Unknown3;
         public BMD.TEX1Section.GX_TEXTURE_FILTER MinFilter;
         public BMD.TEX1Section.GX_TEXTURE_FILTER MagFilter;
@@ -2637,17 +2644,98 @@ label_140:
           this.Unknown5 = er.ReadByte();
           this.Unknown6 = er.ReadUInt16();
           this.DataOffset = er.ReadUInt32();
+
           long position = er.BaseStream.Position;
-          er.BaseStream.Position = baseoffset + (long) this.DataOffset + (long) (32 * (idx + 1));
-          this.Data = er.ReadBytes(this.GetCompressedBufferSize());
+          {
+            er.BaseStream.Position = baseoffset + (long)this.DataOffset + (long)(32 * (idx + 1));
+            this.Data = er.ReadBytes(this.GetCompressedBufferSize());
+          }
+
+          this.palette = new IColor[this.NrPaletteEntries];
+          {
+            er.Position = baseoffset + this.PaletteOffset;
+            for (var i = 0; i < this.NrPaletteEntries; ++i) {
+              switch (this.PaletteFormat) {
+                case PaletteFormat.PAL_A8_I8: {
+                  var alpha = er.ReadByte();
+                  var intensity = er.ReadByte();
+                  this.palette[i] =
+                      ColorImpl.FromRgbaBytes(intensity,
+                                              intensity,
+                                              intensity,
+                                              alpha);
+                  break;
+                }
+                case PaletteFormat.PAL_R5_G6_B5: {
+                  this.palette[i] = ColorUtil.ParseRgb565(er.ReadUInt16());
+                  break;
+                }
+                // TODO: There seems to be a bug reading the palette, these colors look weird
+                case PaletteFormat.PAL_A3_RGB5: {
+                  this.palette[i] = ColorUtil.ParseRgb5A3(er.ReadUInt16());
+                  break;
+                }
+                default: 
+                  throw new ArgumentOutOfRangeException();
+              }
+            }
+          }
           er.BaseStream.Position = position;
         }
 
-        public System.Drawing.Bitmap ToBitmap()
-        {
-          ImageDataFormat imageDataFormat = (ImageDataFormat) null;
-          switch (this.Format)
-          {
+        // TODO: Share this implementation w/ BTI
+        public unsafe System.Drawing.Bitmap ToBitmap() {
+          Bitmap bitmap;
+          var isIndex4 = this.Format == TextureFormat.INDEX4;
+          var isIndex8 = this.Format == TextureFormat.INDEX8;
+          if (isIndex4 || isIndex8) {
+            bitmap = new Bitmap(this.Width, this.Height, PixelFormat.Format32bppArgb);
+            BitmapUtil.InvokeAsLocked(
+                bitmap,
+                bitmapData => {
+                  var indices = new byte[this.Width * this.Height];
+                  if (isIndex4) {
+                    for (var i = 0; i < this.Data.Length; ++i) {
+                      var two = this.Data[i];
+
+                      var firstIndex = two & 0x0F;
+                      var secondIndex = two >> 4;
+
+                      indices[2 * i + 0] = (byte) firstIndex;
+                      indices[2 * i + 1] = (byte) secondIndex;
+                    }
+                  } else {
+                    indices = this.Data;
+                  }
+
+                  var blockWidth = 8;
+                  var blockHeight = isIndex4 ? 8 : 4;
+
+                  var index = 0;
+                  var bytes = (byte*)bitmapData.Scan0.ToPointer();
+                  for (var ty = 0; ty < this.Height / blockHeight; ty++) {
+                    for (var tx = 0; tx < this.Width / blockWidth; tx++) {
+
+                      for (var y = 0; y < blockHeight; ++y) {
+                        for (var x = 0; x < blockWidth; ++x) {
+                          var color = this.palette[indices[index++]];
+
+                          var i = (ty * blockHeight + y) * this.Width + tx * blockWidth + x;
+                          bytes[4 * i + 0] = color.Bb;
+                          bytes[4 * i + 1] = color.Gb;
+                          bytes[4 * i + 2] = color.Rb;
+                          bytes[4 * i + 3] = color.Ab;
+                        }
+                      }
+                    }
+                  }
+                });
+
+            return bitmap;
+          } 
+          
+          ImageDataFormat imageDataFormat = (ImageDataFormat)null;
+          switch (this.Format) {
             case TextureFormat.I4:
               imageDataFormat = ImageDataFormat.I4;
               break;
@@ -2675,9 +2763,10 @@ label_140:
             default:
               throw new NotImplementedException();
           }
-          byte[] numArray = imageDataFormat.ConvertFrom(this.Data, (int) this.Width, (int) this.Height, (ProgressChangedEventHandler) null);
-          System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap((int) this.Width, (int) this.Height);
-          BitmapData bitmapdata = bitmap.LockBits(new Rectangle(0, 0, (int) this.Width, (int) this.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+
+          byte[] numArray = imageDataFormat.ConvertFrom(this.Data, (int)this.Width, (int)this.Height, (ProgressChangedEventHandler)null); 
+          bitmap = new System.Drawing.Bitmap((int)this.Width, (int)this.Height);
+          BitmapData bitmapdata = bitmap.LockBits(new Rectangle(0, 0, (int)this.Width, (int)this.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
           for (int ofs = 0; ofs < numArray.Length; ++ofs)
             Marshal.WriteByte(bitmapdata.Scan0, ofs, numArray[ofs]);
           bitmap.UnlockBits(bitmapdata);
