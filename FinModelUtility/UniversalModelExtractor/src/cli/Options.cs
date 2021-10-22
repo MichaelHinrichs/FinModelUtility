@@ -28,6 +28,10 @@ namespace uni.cli {
         HelpText = "Extract models from Super Mario Sunshine.")]
   public class SuperMarioSunshineOptions {}
 
+  [Verb("wind_waker",
+        HelpText = "Extract models from Wind Waker.")]
+  public class WindWakerOptions { }
+
   [Verb("debug",
         HelpText =
             "Extract models with hardcoded input files. Not meant for general use.")]

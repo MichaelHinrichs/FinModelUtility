@@ -12,6 +12,7 @@ using uni.games.paper_mario_the_thousand_year_door;
 using uni.games.pikmin_1;
 using uni.games.pikmin_2;
 using uni.games.super_mario_sunshine;
+using uni.games.wind_waker;
 
 namespace uni.cli {
   public class Cli {
@@ -29,6 +30,7 @@ namespace uni.cli {
                     typeof(Pikmin1Options),
                     typeof(Pikmin2Options),
                     typeof(SuperMarioSunshineOptions),
+                    typeof(WindWakerOptions),
                     typeof(DebugOptions))
                 .WithParsed((AnimalCrossingOptions automaticOpts) => {
                   new AnimalCrossingExtractor().ExtractAll();
@@ -53,6 +55,9 @@ namespace uni.cli {
                 })
                 .WithParsed((SuperMarioSunshineOptions debugOpts) => {
                   new SuperMarioSunshineExtractor().ExtractAll();
+                })
+                .WithParsed((WindWakerOptions debugOpts) => {
+                  new WindWakerExtractor().ExtractAll();
                 })
                 .WithParsed((DebugOptions debugOptions) => {})
                 .WithNotParsed(parseErrors => errors = parseErrors);

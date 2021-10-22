@@ -162,9 +162,6 @@ namespace uni.platforms.gcn.tools {
               }
             }
           }
-          Console.WriteLine(
-              "Finished parsing the relocatable module! Press any key to close this window.");
-          Console.ReadKey();
         }
       }
 

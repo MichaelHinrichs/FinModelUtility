@@ -2646,32 +2646,34 @@ label_140:
         public System.Drawing.Bitmap ToBitmap()
         {
           ImageDataFormat imageDataFormat = (ImageDataFormat) null;
-          switch ((byte) this.Format)
+          switch (this.Format)
           {
-            case 0:
+            case TextureFormat.I4:
               imageDataFormat = ImageDataFormat.I4;
               break;
-            case 1:
+            case TextureFormat.I8:
               imageDataFormat = ImageDataFormat.I8;
               break;
-            case 2:
+            case TextureFormat.A4_I4:
               imageDataFormat = ImageDataFormat.IA4;
               break;
-            case 3:
+            case TextureFormat.A8_I8:
               imageDataFormat = ImageDataFormat.IA8;
               break;
-            case 4:
+            case TextureFormat.R5_G6_B5:
               imageDataFormat = ImageDataFormat.RGB565;
               break;
-            case 5:
+            case TextureFormat.A3_RGB5:
               imageDataFormat = ImageDataFormat.RGB5A3;
               break;
-            case 6:
+            case TextureFormat.ARGB8:
               imageDataFormat = ImageDataFormat.Rgba32;
               break;
-            case 14:
+            case TextureFormat.S3TC1:
               imageDataFormat = ImageDataFormat.Cmpr;
               break;
+            default:
+              throw new NotImplementedException();
           }
           byte[] numArray = imageDataFormat.ConvertFrom(this.Data, (int) this.Width, (int) this.Height, (ProgressChangedEventHandler) null);
           System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap((int) this.Width, (int) this.Height);

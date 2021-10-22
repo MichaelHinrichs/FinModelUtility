@@ -31,6 +31,10 @@
     "Mario Kart: Double Dash": {
       "commandName": "Project",
       "commandLineArgs": "mario_kart_double_dash"
+    },
+    "Wind Waker": {
+      "commandName": "Project",
+      "commandLineArgs": "wind_waker"
     }
   }
 }
