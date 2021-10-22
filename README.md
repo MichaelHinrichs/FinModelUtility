@@ -5,6 +5,7 @@ Command-line tools for extracting models from games en-masse. Separate batch scr
 ## Credits
 
 - [@Asia81](https://github.com/Asia81), as their [HackingToolkit9DS](https://github.com/Asia81/HackingToolkit9DS-Deprecated-) is used to extract the contents of 3DS CIAs.
+- [@Chadderz121](https://github.com/Chadderz121), AKA Chadderz, as their [CTools](https://www.chadsoft.co.uk/wiicoder/) suite was used to read BMD texture formats.
 - cooliscool, as their [Utility of Time](http://wiki.maco64.com/Tools/Utility_of_Time) program was used as the basis for the F3DZEX2/F3DEX2 exporter.
 - [@Cuyler36](https://github.com/Cuyler36), aka CulyerAC, as their [RELDumper](https://github.com/Cuyler36/RELDumper) is used to extract the contents of REL/MAP files.
 - [@Gericom](https://github.com/Gericom), as their [MKDS Course Modifier](https://www.romhacking.net/utilities/1285/) program was used as the basis for the BMD exporter.
