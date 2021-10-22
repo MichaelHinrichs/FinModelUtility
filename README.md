@@ -25,6 +25,8 @@ Command-line tools for extracting models from games en-masse. Separate batch scr
 - Pikmin 2 (`pikmin_2.gcm`)
 - Super Mario Sunshine (`super_mario_sunshine.gcm`)
 
+*Note:* For GameCube ROMs, files with an `.iso` extension should work as long as they are renamed to `[game_name].gcm`.
+
 ## Usage guide
 
 Download a release via the Releases tab (for stability), or via the green "Code" button above (for latest). Extract this somewhere on your machine.
