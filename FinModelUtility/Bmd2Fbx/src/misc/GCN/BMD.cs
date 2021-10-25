@@ -2701,8 +2701,8 @@ label_140:
                     for (var i = 0; i < this.Data.Length; ++i) {
                       var two = this.Data[i];
 
-                      var firstIndex = two & 0x0F;
-                      var secondIndex = two >> 4;
+                      var firstIndex = two >> 4;
+                      var secondIndex = two & 0x0F;
 
                       indices[2 * i + 0] = (byte) firstIndex;
                       indices[2 * i + 1] = (byte) secondIndex;

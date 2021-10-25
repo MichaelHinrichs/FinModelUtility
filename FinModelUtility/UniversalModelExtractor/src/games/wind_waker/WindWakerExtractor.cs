@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 
+using fin.util.data;
 using fin.util.strings;
 
 using uni.msg;
@@ -102,48 +103,56 @@ namespace uni.games.wind_waker {
           directory.Subdirs.SingleOrDefault(subdir => subdir.Name == "bdl");
       var bdlmSubdir =
           directory.Subdirs.SingleOrDefault(subdir => subdir.Name == "bdlm");
+      var bmdSubdir =
+          directory.Subdirs.SingleOrDefault(subdir => subdir.Name == "bmd");
+      var bmdcSubdir =
+          directory.Subdirs.SingleOrDefault(subdir => subdir.Name == "bmdc");
       var bmdmSubdir =
           directory.Subdirs.SingleOrDefault(subdir => subdir.Name == "bmdm");
+
+      var bmdOrBdlFiles = ListUtil.ReadonlyConcat(
+          //bdlSubdir?.FilesWithExtension(".bdl").ToArray(),
+          //bdlmSubdir?.FilesWithExtension(".bdl").ToArray(),
+          bmdSubdir?.FilesWithExtension(".bmd").ToArray(),
+          bmdcSubdir?.FilesWithExtension(".bmd").ToArray(),
+          bmdmSubdir?.FilesWithExtension(".bmd").ToArray());
 
       var bckSubdir =
           directory.Subdirs.SingleOrDefault(
               subdir => subdir.Name == "bck" || subdir.Name == "bcks");
+      var bckFiles = bckSubdir?.FilesWithExtension(".bck").ToList();
 
-      // If bmdm subdir only...
-      if (bmdmSubdir != null && bdlSubdir == null && bdlmSubdir == null) {
-        var bmdFiles = bmdmSubdir.FilesWithExtension(".bmd").ToArray();
-        var bckFiles = bckSubdir?.FilesWithExtension(".bck").ToList();
-
-        if (bmdFiles.Length == 1 || bckFiles == null) {
-          this.ExtractModels_(directory,
-                              bmdFiles,
-                              bckFiles?
-                                  .Select(file => file.Impl)
-                                  .ToArray());
-        } else {
-          IOrganizeMethod organizeMethod;
-          switch (directory.Name) {
-            case "Sh": {
-              organizeMethod = new SuffixOrganizeMethod(1);
-              break;
-            }
-            case "Ylesr00": {
-              organizeMethod = new PrefixOrganizeMethod();
-              break;
-            }
-            default:
-              throw new NotImplementedException();
+      if (bmdOrBdlFiles.Count == 1 ||
+          (bckFiles == null && bmdOrBdlFiles.Count > 0)) {
+        this.ExtractModels_(directory,
+                            bmdOrBdlFiles,
+                            bckFiles?
+                                .Select(file => file.Impl)
+                                .ToArray());
+      } else if (bmdOrBdlFiles.Count > 0) {
+        IOrganizeMethod organizeMethod;
+        switch (directory.Name) {
+          case "Sh": {
+            organizeMethod = new SuffixOrganizeMethod(1);
+            break;
           }
-
-          this.ExtractFilesByOrganizing_(directory,
-                                         bmdFiles,
-                                         bckFiles,
-                                         organizeMethod);
+          case "Oq": {
+            organizeMethod = new NameMatchOrganizeMethod(directory.Name);
+            break;
+          }
+          case "Ylesr00": {
+            organizeMethod = new PrefixOrganizeMethod();
+            break;
+          }
+          default:
+            throw new NotImplementedException();
         }
-      }
 
-      // TODO: What to do for multiple directories, how to determine where animations go?
-      // Might just be based on prefix?
+        this.ExtractFilesByOrganizing_(directory,
+                                       bmdOrBdlFiles.ToArray(),
+                                       bckFiles,
+                                       organizeMethod);
+      }
     }
 
     public interface IOrganizeMethod {
@@ -158,6 +167,24 @@ namespace uni.games.wind_waker {
           IList<IFileHierarchyFile> bckFiles) {
         var prefix = StringUtil.UpTo(bmdFile.NameWithoutExtension, "_");
         return bckFiles.Where(file => file.Name.StartsWith(prefix)).ToArray();
+      }
+    }
+
+    public class NameMatchOrganizeMethod : IOrganizeMethod {
+      private string name_;
+
+      public NameMatchOrganizeMethod(string name) {
+        this.name_ = name.ToLower();
+      }
+
+      public IList<IFileHierarchyFile> GetBcksForBmd(
+          IFileHierarchyFile bmdFile,
+          IList<IFileHierarchyFile> bckFiles) {
+        if (bmdFile.NameWithoutExtension.ToLower().Contains(this.name_)) {
+          return bckFiles;
+        }
+
+        return Array.Empty<IFileHierarchyFile>();
       }
     }
 

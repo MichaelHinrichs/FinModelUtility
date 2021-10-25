@@ -366,8 +366,6 @@ namespace bmd.GCN {
                 var i = (int) Component.Index + stride * index;
 
                 var time = Source[i + 0];
-                Asserts.True(time >= 0);
-
                 var value = Source[i + 1];
 
                 float incomingTangent, outgoingTangent;
@@ -414,8 +412,6 @@ namespace bmd.GCN {
                 var i = (int) Component.Index + stride * index;
 
                 var time = (float) Source[i + 0];
-                Asserts.True(time >= 0);
-
                 var value =
                     (float) Source[i + 1] *
                     RotScale;
