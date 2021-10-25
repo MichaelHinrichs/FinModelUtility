@@ -156,7 +156,7 @@ namespace fin.model.impl {
                                  out var value,
                                  out _,
                                  out _);
-        if (this.keyframesAndValues_[keyframeIndex].Frame == frame) {
+        if (value.Try(out var keyframe) && keyframe.Frame == frame) {
           return value;
         }
         return Optional.None<Keyframe<TValue>>();

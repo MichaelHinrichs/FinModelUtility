@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>zar2fbx</AssemblyName>
     <RootNamespace>zar</RootNamespace>
@@ -19,10 +19,6 @@
     <Compile Remove="api\**" />
     <EmbeddedResource Remove="api\**" />
     <None Remove="api\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="src\format\csab\" />
   </ItemGroup>
 
   <ItemGroup>

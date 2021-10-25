@@ -10,6 +10,7 @@ using fin.model.impl;
 using fin.util.asserts;
 
 using zar.format.cmb;
+using zar.format.csab;
 
 namespace zar.api {
   public class ModelConverter {
@@ -18,9 +19,11 @@ namespace zar.api {
     public IModel Convert(
         EndianBinaryReader r,
         Cmb cmb,
+        IList<(IFile, Csab)> filesAndCsabs,
         IDirectory outputDirectory) {
       var model = new ModelImpl();
 
+      // Adds bones
       var finBones = new IBone[cmb.skl.bones.Length];
       var boneQueue = new Queue<(Bone, IBone?)>();
       boneQueue.Enqueue((cmb.skl.bones[0], null));
@@ -49,6 +52,68 @@ namespace zar.api {
 
         foreach (var child in cmbBone.children) {
           boneQueue.Enqueue((child, finBone));
+        }
+      }
+
+      // Adds animations
+      foreach (var (csabFile, csab) in filesAndCsabs) {
+        var finAnimation = model.AnimationManager.AddAnimation();
+        finAnimation.Name = csabFile.NameWithoutExtension;
+
+        finAnimation.FrameCount = (int) csab.Duration;
+        finAnimation.FrameRate = 30;
+
+        foreach (var (boneIndex, anod) in csab.BoneIndexToAnimationNode) {
+          var boneTracks = finAnimation.AddBoneTracks(finBones[boneIndex]);
+
+          // TODO: Add support for in/out tangents
+          foreach (var translationX in anod.TranslationX.Keyframes) {
+            boneTracks.Positions.Set((int) translationX.Time,
+                                     0,
+                                     translationX.Value);
+          }
+          foreach (var translationY in anod.TranslationY.Keyframes) {
+            boneTracks.Positions.Set((int)translationY.Time,
+                                     1,
+                                     translationY.Value);
+          }
+          foreach (var translationZ in anod.TranslationZ.Keyframes) {
+            boneTracks.Positions.Set((int)translationZ.Time,
+                                     2,
+                                     translationZ.Value);
+          }
+
+          foreach (var scaleX in anod.ScaleX.Keyframes) {
+            boneTracks.Scales.Set((int)scaleX.Time,
+                                     0,
+                                     scaleX.Value);
+          }
+          foreach (var scaleZ in anod.ScaleY.Keyframes) {
+            boneTracks.Scales.Set((int)scaleZ.Time,
+                                  1,
+                                  scaleZ.Value);
+          }
+          foreach (var scaleZ in anod.ScaleZ.Keyframes) {
+            boneTracks.Scales.Set((int)scaleZ.Time,
+                                  2,
+                                  scaleZ.Value);
+          }
+
+          foreach (var rotationX in anod.RotationX.Keyframes) {
+            boneTracks.Rotations.Set((int)rotationX.Time,
+                                     0,
+                                     rotationX.Value);
+          }
+          foreach (var rotationY in anod.RotationY.Keyframes) {
+            boneTracks.Rotations.Set((int)rotationY.Time,
+                                     1,
+                                     rotationY.Value);
+          }
+          foreach (var rotationZ in anod.RotationZ.Keyframes) {
+            boneTracks.Rotations.Set((int)rotationZ.Time,
+                                     2,
+                                     rotationZ.Value);
+          }
         }
       }
 

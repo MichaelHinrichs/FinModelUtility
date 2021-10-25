@@ -69,6 +69,15 @@ namespace System.IO {
         Array.Reverse((Array) this.buffer_, index, stride);
     }
 
+    public void Subread(long position, Action<EndianBinaryReader> subread) {
+      var tempPos = this.Position;
+      {
+        this.Position = position;
+        subread(this);
+      }
+      this.Position = tempPos;
+    }
+
     public byte ReadByte() {
       this.FillBuffer_(1, 1);
       return this.buffer_[0];
@@ -212,6 +221,8 @@ namespace System.IO {
       return numArray;
     }
 
+    public void AssertUInt16(ushort expectedValue)
+      => Asserts.Equal(expectedValue, this.ReadUInt16());
 
     public ushort ReadUInt16() {
       this.FillBuffer_(2, 2);
@@ -226,6 +237,9 @@ namespace System.IO {
       return numArray;
     }
 
+
+    public void AssertUInt32(uint expectedValue)
+      => Asserts.Equal(expectedValue, this.ReadUInt32());
 
     public uint ReadUInt32() {
       this.FillBuffer_(4, 4);
