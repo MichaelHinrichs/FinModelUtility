@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 
+using fin.util.color;
 using fin.util.image;
 
 namespace zar.format.cmb {
@@ -77,18 +78,16 @@ namespace zar.format.cmb {
       var width = texture.width;
       var height = texture.height;
 
-      var Increment = this.GetFmtBpp_(format) / 8;
-      if (Increment == 0) {
-        Increment = 1;
-      }
-
       var output = new Bitmap(width, height, PixelFormat.Format32bppArgb);
-      var iOffs = 0;
 
       BitmapUtil.InvokeAsLocked(
           output,
           bitmapData => {
             var o = (byte*) bitmapData.Scan0.ToPointer();
+
+            using var er =
+                new EndianBinaryReader(new MemoryStream(input),
+                                       Endianness.LittleEndian);
 
             for (var ty = 0; ty < height; ty += 8) {
               for (var tx = 0; tx < width; tx += 8) {
@@ -102,25 +101,28 @@ namespace zar.format.cmb {
 
                   switch (format) {
                     case GlTextureFormat.RGB8: {
-                      r = input[iOffs + 2];
-                      g = input[iOffs + 1];
-                      b = input[iOffs + 0];
                       a = 255;
+                      b = er.ReadByte();
+                      g = er.ReadByte();
+                      r = er.ReadByte();
                       break;
                     }
                     case GlTextureFormat.RGBA8: {
-                      r = input[iOffs + 3];
-                      g = input[iOffs + 2];
-                      b = input[iOffs + 1];
-                      a = input[iOffs + 0];
+                      a = er.ReadByte();
+                      b = er.ReadByte();
+                      g = er.ReadByte();
+                      r = er.ReadByte();
                       break;
                     }
                     case GlTextureFormat.RGBA5551: {
-                      throw new NotImplementedException();
+                      var value = er.ReadUInt16();
+                      ColorUtil.SplitRgb5A1(value, out r, out g, out b, out a);
                       break;
                     }
                     case GlTextureFormat.RGB565: {
-                      throw new NotImplementedException();
+                      var value = er.ReadUInt16();
+                      a = 255;
+                      ColorUtil.SplitRgb565(value, out r, out g, out b);
                       break;
                     }
                     case GlTextureFormat.RGBA4444: {
@@ -128,22 +130,19 @@ namespace zar.format.cmb {
                       break;
                     }
                     case GlTextureFormat.LA8: {
-                      throw new NotImplementedException();
+                      a = er.ReadByte();
+                      b = g = r = er.ReadByte();
                       break;
                     }
                     case GlTextureFormat.HiLo8: {
                       throw new NotImplementedException();
                       break;
                     }
-                    case GlTextureFormat.L8: {
-                      throw new NotImplementedException();
-                      break;
-                    }
                     case GlTextureFormat.A8: {
-                      r = 255;
-                      g = 255;
+                      a = er.ReadByte();
                       b = 255;
-                      a = input[iOffs];
+                      g = 255;
+                      r = 255;
                       break;
                     }
                     case GlTextureFormat.LA4: {
@@ -158,12 +157,11 @@ namespace zar.format.cmb {
                       throw new NotImplementedException();
                       break;
                     }
+                    case GlTextureFormat.L8:
                     case GlTextureFormat.Gas:
                     case GlTextureFormat.Shadow: {
-                      r = input[iOffs];
-                      g = input[iOffs];
-                      b = input[iOffs];
                       a = 255;
+                      b = g = r = er.ReadByte();
                       break;
                     }
                     default: throw new ArgumentOutOfRangeException();
@@ -173,8 +171,6 @@ namespace zar.format.cmb {
                   o[OOffs + 1] = g;
                   o[OOffs + 2] = r;
                   o[OOffs + 3] = a;
-
-                  iOffs += Increment;
                 }
               }
             }

@@ -59,21 +59,29 @@ namespace zar.api {
       foreach (var cmbMaterial in cmb.mat.materials) {
         // Get associated texture
         var texMapper = cmbMaterial.texMappers[0];
-        var cmbTexture = cmb.tex.textures[texMapper.textureId];
+        var textureId = texMapper.textureId;
 
-        r.Position = cmb.startOffset +
-                     cmb.header.textureDataOffset +
-                     cmbTexture.dataOffset;
-        var data = r.ReadBytes((int) cmbTexture.dataLength);
-        var bitmap = ctrTexture.DecodeImage(data, cmbTexture);
+        ITexture? finTexture = null;
+        if (textureId != -1) {
+          var cmbTexture = cmb.tex.textures[texMapper.textureId];
 
-        var finTexture = model.MaterialManager.CreateTexture(bitmap);
-        finTexture.Name = cmbTexture.name;
-        finTexture.WrapModeU = this.CmbToFinWrapMode(texMapper.wrapS);
-        finTexture.WrapModeV = this.CmbToFinWrapMode(texMapper.wrapT);
+          r.Position = cmb.startOffset +
+                       cmb.header.textureDataOffset +
+                       cmbTexture.dataOffset;
+          var data = r.ReadBytes((int) cmbTexture.dataLength);
+          var bitmap = ctrTexture.DecodeImage(data, cmbTexture);
+
+          finTexture = model.MaterialManager.CreateTexture(bitmap);
+          finTexture.Name = cmbTexture.name;
+          finTexture.WrapModeU = this.CmbToFinWrapMode(texMapper.wrapS);
+          finTexture.WrapModeV = this.CmbToFinWrapMode(texMapper.wrapT);
+        }
 
         // Create material
-        var finMaterial = model.MaterialManager.AddTextureMaterial(finTexture);
+        IMaterial finMaterial = finTexture != null
+                                    ? model.MaterialManager.AddTextureMaterial(
+                                        finTexture)
+                                    : model.MaterialManager.AddLayerMaterial();
         finMaterials.Add(finMaterial);
       }
 
@@ -105,6 +113,15 @@ namespace zar.api {
         }
         ++vertexCount;
 
+        var preproject = new bool?[vertexCount];
+        var skinningModes = new SkinningMode?[vertexCount];
+        foreach (var pset in shape.primitiveSets) {
+          foreach (var index in pset.primitive.indices) {
+            skinningModes[index] = pset.skinningMode;
+            preproject[index] = pset.skinningMode != SkinningMode.Smooth;
+          }
+        }
+
         // Gets flags
         var inc = 1;
         var hasNrm = BitLogic.GetFlag(shape.vertFlags, inc++);
@@ -120,7 +137,8 @@ namespace zar.api {
         var hasBw = BitLogic.GetFlag(shape.vertFlags, inc++);
 
         // Gets bone indices
-        var bIndices = new List<short>();
+        var boneCount = shape.boneDimensions;
+        var bIndices = new short[vertexCount * boneCount];
         foreach (var pset in shape.primitiveSets) {
           foreach (var i in pset.primitive.indices) {
             if (hasBi && pset.skinningMode != SkinningMode.Single) {
@@ -128,16 +146,19 @@ namespace zar.api {
                            cmb.header.vatrOffset +
                            cmb.vatr.bIndices.startOffset +
                            shape.bIndices.start +
-                           i * shape.boneDimensions;
+                           i *
+                           DataTypeUtil.GetSize(shape.bIndices.dataType) *
+                           shape.boneDimensions;
               for (var bi = 0; bi < shape.boneDimensions; ++bi) {
                 var boneTableIndex = shape.bIndices.scale *
                                      DataTypeUtil.Read(
                                          r,
                                          shape.bIndices.dataType);
-                bIndices.Add(pset.boneTable[(int) boneTableIndex]);
+                bIndices[i * boneCount + bi] =
+                    pset.boneTable[(int) boneTableIndex];
               }
             } else {
-              bIndices.Add(shape.primitiveSets[0].boneTable[0]);
+              bIndices[i] = shape.primitiveSets[0].boneTable[0];
             }
           }
         }
@@ -190,7 +211,7 @@ namespace zar.api {
                             .Select(value => value * shape.color.scale)
                             .ToArray();
 
-            Asserts.Equal(DataType.Float, shape.color.dataType);
+            //Asserts.Equal(DataType.Float, shape.color.dataType);
             finVertex.SetColorBytes((byte) (colorValues[0] * 255),
                                     (byte) (colorValues[1] * 255),
                                     (byte) (colorValues[2] * 255),
@@ -242,11 +263,13 @@ namespace zar.api {
                          cmb.header.vatrOffset +
                          cmb.vatr.bWeights.startOffset +
                          shape.bWeights.start +
-                         i * shape.boneDimensions;
+                         i *
+                         DataTypeUtil.GetSize(shape.bWeights.dataType) *
+                         boneCount;
 
             var totalWeight = 0f;
             var boneWeights = new List<BoneWeight>();
-            for (var j = 0; j < shape.boneDimensions; ++j) {
+            for (var j = 0; j < boneCount; ++j) {
               // TODO: Looks like this is rounded to the nearest 2 in the original??
               var weight = DataTypeUtil.Read(r, shape.bWeights.dataType) *
                            shape.bWeights.scale;
@@ -254,7 +277,7 @@ namespace zar.api {
 
               if (weight > 0) {
                 var bone =
-                    finBones[bIndices[i * shape.boneDimensions + j]];
+                    finBones[bIndices[i * boneCount + j]];
                 var boneWeight =
                     new BoneWeight(bone,
                                    new FinMatrix4x4().SetIdentity(),
@@ -272,8 +295,13 @@ namespace zar.api {
             finVertex.SetBone(finBones[boneIndex]);
           }
 
-          finVertex.Preproject =
-              shape.primitiveSets[0].skinningMode != SkinningMode.Smooth;
+          finVertex.Preproject = preproject[i].Value;
+
+          if (skinningModes[i].Value == SkinningMode.Single) {
+            finVertex.SetColor(ColorImpl.FromRgbaBytes(255, 0, 0, 255));
+          } else {
+            finVertex.SetColor(ColorImpl.FromRgbaBytes(255, 255, 255, 255));
+          }
         }
 
         // Adds faces. Thankfully, it's all just triangles!

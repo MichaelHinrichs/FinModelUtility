@@ -65,6 +65,27 @@ namespace fin.util.color {
       return ColorImpl.FromRgbaBytes(r, g, b, a);
     }
 
+    public static void SplitRgb5A1(
+        ushort color,
+        out byte r,
+        out byte g,
+        out byte b,
+        out byte a) {
+      var alphaFlag = BitLogic.ExtractFromRight(color, 15, 1);
+
+      if (alphaFlag == 1) {
+        a = 255;
+        r = ColorUtil.ExtractScaled(color, 10, 5);
+        g = ColorUtil.ExtractScaled(color, 5, 5);
+        b = ColorUtil.ExtractScaled(color, 0, 5);
+      } else {
+        a = 0;
+        r = ColorUtil.ExtractScaled(color, 10, 5);
+        g = ColorUtil.ExtractScaled(color, 5, 5);
+        b = ColorUtil.ExtractScaled(color, 0, 5);
+      }
+    }
+
     public static IColor Interpolate(IColor from, IColor to, double amt)
       => ColorImpl.FromRgbaBytes(
           (byte) Math.Round(from.Rb * (1 - amt) + to.Rb * amt),

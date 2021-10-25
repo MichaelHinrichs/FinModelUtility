@@ -16,7 +16,9 @@ namespace uni.games.ocarina_of_time_3d {
           new ThreeDsFileHierarchyExtractor()
               .ExtractFromRom(ocarinaOfTime3dRom);
 
-      var cowSubdir = fileHierarchy.Root.TryToGetSubdir(@"actor\zelda_cow");
+      //var cowSubdir = fileHierarchy.Root.TryToGetSubdir(@"actor\zelda_cow");
+      //var cowSubdir = fileHierarchy.Root.TryToGetSubdir(@"actor\zelda_ganon");
+      var cowSubdir = fileHierarchy.Root.TryToGetSubdir(@"actor\zelda_owl");
 
       new ManualZar2FbxApi().Run(
           GameFileHierarchyUtil.GetOutputDirectoryForDirectory(cowSubdir),
