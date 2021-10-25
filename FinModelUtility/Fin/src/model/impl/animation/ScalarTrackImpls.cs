@@ -29,14 +29,17 @@ namespace fin.model.impl {
       public void Set(IAxesTrack<float, IPosition> other)
         => this.impl_.Set(other);
 
-      public void Set(int frame, int axis, float value)
-        => this.impl_.Set(frame, axis, value);
-
-      public void Set(int frame, int axis, float value, float tangent)
-        => this.impl_.Set(frame, axis, value, tangent);
-
-      public void Set(int frame, int axis, float value, Optional<float> tangent)
-        => this.impl_.Set(frame, axis, value, tangent);
+      public void Set(
+          int frame,
+          int axis,
+          float value,
+          Optional<float> optionalIncomingTangent,
+          Optional<float> optionalOutgoingTangent)
+        => this.impl_.Set(frame,
+                          axis,
+                          value,
+                          optionalIncomingTangent,
+                          optionalOutgoingTangent);
 
       public Optional<Keyframe<float>>[] GetAxisListAtKeyframe(int keyframe)
         => this.impl_.GetAxisListAtKeyframe(keyframe);
@@ -64,14 +67,17 @@ namespace fin.model.impl {
 
       public void Set(IAxesTrack<float, IScale> other) => this.impl_.Set(other);
 
-      public void Set(int frame, int axis, float value)
-        => this.impl_.Set(frame, axis, value);
-
-      public void Set(int frame, int axis, float value, float tangent)
-        => this.impl_.Set(frame, axis, value, tangent);
-
-      public void Set(int frame, int axis, float value, Optional<float> tangent)
-        => this.impl_.Set(frame, axis, value, tangent);
+      public void Set(
+          int frame,
+          int axis,
+          float value,
+          Optional<float> optionalIncomingTangent,
+          Optional<float> optionalOutgoingTangent)
+        => this.impl_.Set(frame,
+                          axis,
+                          value,
+                          optionalIncomingTangent,
+                          optionalOutgoingTangent);
 
       public Optional<Keyframe<float>>[] GetAxisListAtKeyframe(int keyframe)
         => this.impl_.GetAxisListAtKeyframe(keyframe);
@@ -122,25 +128,18 @@ namespace fin.model.impl {
         this.InterpolatorWithTangents = other.InterpolatorWithTangents;
 
         foreach (var keyframe in other.Keyframes) {
-          this.Set(keyframe.Frame, keyframe.Value, keyframe.Tangent);
+          this.Set(keyframe.Frame,
+                   keyframe.Value,
+                   keyframe.IncomingTangent,
+                   keyframe.OutgoingTangent);
         }
       }
 
-      public void Set(int frame, TValue t)
-        => this.SetImpl_(frame, t, Optional.None<float>());
-
-      public void Set(int frame, TValue t, float tangent)
-        => this.SetImpl_(frame, t, Optional.Of(tangent));
-
-      public void Set(int frame, TValue t, Optional<float> optionalTangent) {
-        if (optionalTangent.Try(out var tangent)) {
-          this.Set(frame, t, tangent);
-        } else {
-          this.Set(frame, t);
-        }
-      }
-
-      private void SetImpl_(int frame, TValue t, Optional<float> tangent) {
+      public void Set(
+          int frame,
+          TValue t,
+          Optional<float> optionalIncomingTangent,
+          Optional<float> optionalOutgoingTangent) {
         this.IsDefined = true;
 
         this.FindIndexOfKeyframe(frame,
@@ -148,7 +147,11 @@ namespace fin.model.impl {
                                  out _,
                                  out var keyframeDefined,
                                  out var pastEnd);
-        var keyframeAndValue = new Keyframe<TValue>(frame, t, tangent);
+        var keyframeAndValue =
+            new Keyframe<TValue>(frame,
+                                 t,
+                                 optionalIncomingTangent,
+                                 optionalOutgoingTangent);
         if (pastEnd) {
           this.keyframesAndValues_.Add(keyframeAndValue);
         } else if (keyframeDefined) {
@@ -200,12 +203,13 @@ namespace fin.model.impl {
         var fromKeyframe =
             optionalFromKeyframe.Assert("Keyframe should be defined here!");
         var fromTime = fromKeyframe.Frame;
-        var hasFromTangent = fromKeyframe.Tangent.Try(out var fromTangent);
+        var hasFromTangent =
+            fromKeyframe.OutgoingTangent.Try(out var fromTangent);
 
         var toKeyframe = this.keyframesAndValues_[fromKeyframeIndex + 1];
         var toValue = toKeyframe.Value;
         var toTime = toKeyframe.Frame;
-        var hasToTangent = toKeyframe.Tangent.Try(out var toTangent);
+        var hasToTangent = toKeyframe.IncomingTangent.Try(out var toTangent);
 
         var duration = toTime - fromTime;
         var progress = (frame - fromTime) / duration;
@@ -309,23 +313,17 @@ namespace fin.model.impl {
         }
       }
 
-      public void Set(int frame, int axis, TAxis value)
-        => this.axisTracks_[axis].Set(frame, value);
-
-      public void Set(int frame, int axis, TAxis value, float tangent)
-        => this.axisTracks_[axis].Set(frame, value, tangent);
-
       public void Set(
           int frame,
           int axis,
           TAxis value,
-          Optional<float> optionalTangent) {
-        if (optionalTangent.Try(out var tangent)) {
-          this.Set(frame, axis, value, tangent);
-        } else {
-          this.Set(frame, axis, value);
-        }
-      }
+          Optional<float> optionalIncomingTangent,
+          Optional<float> optionalOutgoingTangent)
+        => this.axisTracks_[axis]
+               .Set(frame,
+                    value,
+                    optionalIncomingTangent,
+                    optionalOutgoingTangent);
 
       public Optional<Keyframe<TAxis>> GetKeyframe(int keyframe, int axis)
         => this.axisTracks_[axis].GetKeyframe(keyframe);

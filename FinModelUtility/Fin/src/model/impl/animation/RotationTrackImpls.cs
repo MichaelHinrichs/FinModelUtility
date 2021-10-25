@@ -35,18 +35,17 @@ namespace fin.model.impl {
         }
       }
 
-      public void Set(int frame, int axis, float radians)
-        => this.axisTracks_[axis].Set(frame, radians);
-
-      public void Set(int frame, int axis, float radians, float tangent)
-        => this.axisTracks_[axis].Set(frame, radians, tangent);
-
       public void Set(
           int frame,
           int axis,
           float radians,
-          Optional<float> tangent)
-        => this.axisTracks_[axis].Set(frame, radians, tangent);
+          Optional<float> optionalIncomingTangent,
+          Optional<float> optionalOutgoingTangent)
+        => this.axisTracks_[axis]
+               .Set(frame,
+                    radians,
+                    optionalIncomingTangent,
+                    optionalOutgoingTangent);
 
       public Optional<Keyframe<float>>[] GetAxisListAtKeyframe(int keyframe)
         => this.axisTracks_.Select(axis => axis.GetKeyframe(keyframe))

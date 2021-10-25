@@ -47,15 +47,6 @@ namespace fin.exporter.gltf {
             scaleKeyframes[time] = new Vector3(scale.X, scale.Y, scale.Z);
           }
 
-          // TODO: Delete this
-          if (boneTracks.Positions.GetAxisListAtKeyframe(0)
-                        .Any(axis => axis.Pluck(keyframe => keyframe.Tangent)
-                                         .HasValue)) {
-
-            var u = boneTracks.Rotations.AxisTracks[0].Keyframes;
-            ;
-          }
-
           if (boneTracks.Positions.IsDefined) {
             gltfAnimation.CreateTranslationChannel(
                 node,

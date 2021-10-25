@@ -33,7 +33,11 @@ namespace fin.model {
   }
 
   // TODO: Add a track for animating params, e.g. textures, UVs, frames.
-  public record Keyframe<T>(int Frame, T Value, Optional<float> Tangent);
+  public record Keyframe<T>(
+      int Frame,
+      T Value,
+      Optional<float> IncomingTangent,
+      Optional<float> OutgoingTangent);
 
 
   public interface ITrack<T> : ITrack<T, T> {}
@@ -49,9 +53,31 @@ namespace fin.model {
     IReadOnlyList<Keyframe<TValue>> Keyframes { get; }
 
     void Set(ITrack<TValue, TInterpolated> other);
-    void Set(int frame, TValue t);
-    void Set(int frame, TValue t, float tangent);
-    void Set(int frame, TValue t, Optional<float> optionalTangent);
+
+    void Set(int frame, TValue value)
+      => this.Set(frame, value, Optional.None<float>());
+
+    void Set(int frame, TValue value, float tangent)
+      => this.Set(frame, value, tangent, tangent);
+
+    void Set(int frame, TValue value, Optional<float> optionalTangent)
+      => this.Set(frame, value, optionalTangent, optionalTangent);
+
+    void Set(
+        int frame,
+        TValue value,
+        float incomingTangent,
+        float outgoingTangent)
+      => this.Set(frame,
+                  value,
+                  Optional.Of(incomingTangent),
+                  Optional.Of(outgoingTangent));
+
+    void Set(
+        int frame,
+        TValue value,
+        Optional<float> optionalIncomingTangent,
+        Optional<float> optionalOutgoingTangent);
 
     Optional<Keyframe<TValue>> GetKeyframe(int frame);
 
@@ -71,9 +97,34 @@ namespace fin.model {
 
     void Set(IAxesTrack<TAxis, TInterpolated> other);
 
-    void Set(int frame, int axis, TAxis value);
-    void Set(int frame, int axis, TAxis value, float tangent);
-    void Set(int frame, int axis, TAxis value, Optional<float> optionalTangent);
+    void Set(int frame, int axis, TAxis value)
+      => this.Set(frame, axis, value, Optional.None<float>());
+
+    void Set(int frame, int axis, TAxis value, float tangent)
+      => this.Set(frame, axis, value, tangent, tangent);
+
+    void Set(int frame, int axis, TAxis value, Optional<float> optionalTangent)
+      => this.Set(frame, axis, value, optionalTangent, optionalTangent);
+
+    void Set(
+        int frame,
+        int axis,
+        TAxis value,
+        float incomingTangent,
+        float outgoingTangent)
+      => this.Set(frame,
+                  axis,
+                  value,
+                  Optional.Of(incomingTangent),
+                  Optional.Of(outgoingTangent));
+
+    void Set(
+        int frame,
+        int axis,
+        TAxis value,
+        Optional<float> optionalIncomingTangent,
+        Optional<float> optionalOutgoingTangent);
+
 
     IReadOnlyList<ITrack<TAxis>> AxisTracks { get; }
     Optional<Keyframe<TAxis>>[] GetAxisListAtKeyframe(int keyframe);

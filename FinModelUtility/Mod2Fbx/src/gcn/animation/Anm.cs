@@ -59,7 +59,10 @@ namespace mod.gcn.animation {
       var keyframes = new Keyframe<float>[count];
       for (var i = 0; i < count; ++i) {
         keyframes[i] =
-            new Keyframe<float>(i, values[offset + i], Optional.None<float>());
+            new Keyframe<float>(i,
+                                values[offset + i],
+                                Optional.None<float>(),
+                                Optional.None<float>());
       }
       return keyframes;
     }
@@ -78,7 +81,9 @@ namespace mod.gcn.animation {
         // The tangents are HUGE, have to be scaled down by the FPS.
         var tangent = values[offset + 3 * i + 2] / 30f;
 
-        keyframes[i] = new Keyframe<float>(index, value, Optional.Of(tangent));
+        var optionalTangent = Optional.Of(tangent);
+        keyframes[i] =
+            new Keyframe<float>(index, value, optionalTangent, optionalTangent);
       }
       return keyframes;
     }
@@ -92,7 +97,8 @@ namespace mod.gcn.animation {
           positionTrack.Set(keyframe.Frame,
                             i,
                             keyframe.Value,
-                            keyframe.Tangent);
+                            keyframe.IncomingTangent,
+                            keyframe.OutgoingTangent);
         }
       }
     }
@@ -105,7 +111,8 @@ namespace mod.gcn.animation {
           rotationTrack.Set(keyframe.Frame,
                             i,
                             keyframe.Value,
-                            keyframe.Tangent);
+                            keyframe.IncomingTangent,
+                            keyframe.OutgoingTangent);
         }
       }
     }
@@ -118,7 +125,8 @@ namespace mod.gcn.animation {
           scaleTrack.Set(keyframe.Frame,
                          i,
                          keyframe.Value,
-                         keyframe.Tangent);
+                         keyframe.IncomingTangent,
+                         keyframe.OutgoingTangent);
         }
       }
     }
