@@ -24,6 +24,8 @@ namespace fin.model.impl {
 
       public IReadOnlyList<ITrack<float>> AxisTracks => this.impl_.AxisTracks;
 
+      public bool IsDefined => this.impl_.IsDefined;
+
       public void Set(IAxesTrack<float, IPosition> other)
         => this.impl_.Set(other);
 
@@ -57,6 +59,8 @@ namespace fin.model.impl {
                   });
 
       public IReadOnlyList<ITrack<float>> AxisTracks => this.impl_.AxisTracks;
+
+      public bool IsDefined => this.impl_.IsDefined;
 
       public void Set(IAxesTrack<float, IScale> other) => this.impl_.Set(other);
 
@@ -111,6 +115,8 @@ namespace fin.model.impl {
 
       public IReadOnlyList<Keyframe<TValue>> Keyframes { get; }
 
+      public bool IsDefined { get; set; }
+
       public void Set(ITrack<TValue, TInterpolated> other) {
         this.Interpolator = other.Interpolator;
         this.InterpolatorWithTangents = other.InterpolatorWithTangents;
@@ -135,6 +141,8 @@ namespace fin.model.impl {
       }
 
       private void SetImpl_(int frame, TValue t, Optional<float> tangent) {
+        this.IsDefined = true;
+
         this.FindIndexOfKeyframe(frame,
                                  out var keyframeIndex,
                                  out _,
@@ -291,6 +299,8 @@ namespace fin.model.impl {
 
         this.mergeAxisListIntoInterpolated_ = mergeAxisListIntoInterpolated;
       }
+
+      public bool IsDefined => this.axisTracks_.Any(axis => axis.IsDefined);
 
       public void Set(IAxesTrack<TAxis, TInterpolated> other) {
         var otherAxisTracks = other.AxisTracks;

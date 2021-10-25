@@ -56,15 +56,21 @@ namespace fin.exporter.gltf {
             ;
           }
 
-          gltfAnimation.CreateTranslationChannel(
-              node,
-              translationKeyframes);
-          gltfAnimation.CreateRotationChannel(
-              node,
-              rotationKeyframes);
-          gltfAnimation.CreateScaleChannel(
-              node,
-              scaleKeyframes);
+          if (boneTracks.Positions.IsDefined) {
+            gltfAnimation.CreateTranslationChannel(
+                node,
+                translationKeyframes);
+          }
+          if (boneTracks.Rotations.IsDefined) {
+            gltfAnimation.CreateRotationChannel(
+                node,
+                rotationKeyframes);
+          }
+          if (boneTracks.Scales.IsDefined) {
+            gltfAnimation.CreateScaleChannel(
+                node,
+                scaleKeyframes);
+          }
         }
       }
     }

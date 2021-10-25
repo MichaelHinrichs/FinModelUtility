@@ -27,6 +27,8 @@ namespace fin.model.impl {
 
       public IReadOnlyList<ITrack<float>> AxisTracks { get; }
 
+      public bool IsDefined => this.axisTracks_.Any(axis => axis.IsDefined);
+
       public void Set(IAxesTrack<float, Quaternion> other) {
         for (var i = 0; i < 3; ++i) {
           this.axisTracks_[i].Set(other.AxisTracks[i]);

@@ -39,6 +39,8 @@ namespace fin.model {
   public interface ITrack<T> : ITrack<T, T> {}
 
   public interface ITrack<TValue, TInterpolated> {
+    bool IsDefined { get; }
+
     public IInterpolator<TValue, TInterpolated> Interpolator { get; }
 
     public IInterpolatorWithTangents<TValue, TInterpolated>
@@ -65,6 +67,8 @@ namespace fin.model {
 
   // TODO: Rethink this, this is getting way too complicated.
   public interface IAxesTrack<TAxis, TInterpolated> {
+    bool IsDefined { get; }
+
     void Set(IAxesTrack<TAxis, TInterpolated> other);
 
     void Set(int frame, int axis, TAxis value);
