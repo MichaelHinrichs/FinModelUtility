@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 
+using fin.util.image;
+
 namespace fin.model.util {
   public static class PrimaryTextureFinder {
     public static ITexture? GetFor(IMaterial material) {
@@ -32,13 +34,15 @@ namespace fin.model.util {
         return compiledTexture;
       }
 
-      var colorTextures = textures
-                          .Where(
-                              texture => texture.ColorType == ColorType.COLOR)
-                          .ToArray();
-      if (colorTextures.Length > 0) {
+      var prioritizedTextures = textures
+                                // Sort by UV type, "normal" first
+                                .OrderByDescending(texture => texture.ColorType == ColorType.COLOR)
+                                .ThenByDescending(texture => BitmapUtil.GetTransparencyType(texture.ImageData) == BitmapTransparencyType.OPAQUE)
+                                .ToArray();
+
+      if (prioritizedTextures.Length > 0) {
         // TODO: First or last?
-        return colorTextures[0];
+        return prioritizedTextures[0];
       }
 
       return material.Textures.Count > 0 ? material.Textures.Last() : null;

@@ -2626,6 +2626,8 @@ label_140:
         public byte[] Data;
 
         public TextureHeader(EndianBinaryReader er, long baseoffset, int idx) {
+          var pos = er.Position;
+
           this.Format = (BMD.TEX1Section.TextureFormat) er.ReadByte();
           this.Unknown1 = er.ReadByte();
           this.Width = er.ReadUInt16();
@@ -2653,8 +2655,9 @@ label_140:
 
           this.palette = new IColor[this.NrPaletteEntries];
           {
-            er.Position = baseoffset + this.PaletteOffset;
+            er.Position = pos + this.PaletteOffset;
             for (var i = 0; i < this.NrPaletteEntries; ++i) {
+
               switch (this.PaletteFormat) {
                 case PaletteFormat.PAL_A8_I8: {
                   var alpha = er.ReadByte();
