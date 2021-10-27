@@ -22,6 +22,7 @@ Command-line tools for extracting models from games en-masse. Separate batch scr
 ## Supported games
 
 - Mario Kart: Double Dash (`mario_kart_double_dash.gcm`)
+- Ocarina of Time 3D (`ocarina_of_time_3d.cia`)
 - Pikmin 1 (`pikmin_1.gcm`)
 - Pikmin 2 (`pikmin_2.gcm`)
 - Super Mario Sunshine (`super_mario_sunshine.gcm`)
@@ -34,6 +35,7 @@ Download a release via the Releases tab (for stability), or via the green "Code"
 
 Then, follow the steps below.
 
+0) For any 3DS titles, you must first install HackingToolkit9DS or else you won't be able to extract the contents of ROMs. This can be done by running `cli\tools\HackingToolkit9DSv12\SetupUS.exe`.
 1) Drop the ROM in the `cli/roms/` directory. Make sure its name matches the corresponding name above!
 2) Double click the corresponding `rip_[game_name].bat` file in the `cli/` directory. This will first rip all of the files from the game, and then the currently supported models. This can take a while on the first execution, but future executions will reuse the exported files.
 3) Extracted models will appear within the corresponding `cli/out/[game_name]/` directory. Both GLTF (.glb) and FBX are exported, since each format has slightly different compatibility. FBX is generally preferred due to supporting additional UV channels, but GLTF is better supported within model viewer programs such as Noesis.

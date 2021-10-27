@@ -1,0 +1,3 @@
+tools\universal_model_extractor\universal_model_extractor.exe ocarina_of_time_3d
+
+pause
