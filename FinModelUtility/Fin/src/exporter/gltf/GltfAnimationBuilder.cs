@@ -3,6 +3,7 @@ using System.Linq;
 using System.Numerics;
 
 using fin.model;
+using fin.util.optional;
 
 using SharpGLTF.Schema2;
 
@@ -32,32 +33,63 @@ namespace fin.exporter.gltf {
           rotationKeyframes.Clear();
           scaleKeyframes.Clear();
 
+          var translationDefined = boneTracks.Positions.IsDefined;
+          var rotationDefined = boneTracks.Rotations.IsDefined;
+          var scaleDefined = boneTracks.Scales.IsDefined;
+
+          // TODO: Pass these in directly, not as lists
+          var defaultPosition = Optional.Of(new[] {
+              bone.LocalPosition.X,
+              bone.LocalPosition.Y,
+              bone.LocalPosition.Z,
+          });
+          var defaultRotation = Optional.Of(new[] {
+              bone.LocalRotation?.XRadians ?? 0,
+              bone.LocalRotation?.YRadians ?? 0,
+              bone.LocalRotation?.ZRadians ?? 0,
+          });
+          var defaultScale = Optional.Of(new[] {
+              bone.LocalScale?.X ?? 1,
+              bone.LocalScale?.Y ?? 1,
+              bone.LocalScale?.Z ?? 1,
+          });
+
           // TODO: How to get keyframes for sparse tracks?
           for (var i = 0; i < animation.FrameCount; ++i) {
             var time = i / fps;
 
-            var position = boneTracks.Positions.GetInterpolatedFrame(i);
-            translationKeyframes[time] =
-                new Vector3(position.X, position.Y, position.Z);
+            if (translationDefined) {
+              var position =
+                  boneTracks.Positions.GetInterpolatedFrame(
+                      i,
+                      defaultPosition);
+              translationKeyframes[time] =
+                  new Vector3(position.X, position.Y, position.Z);
+            }
 
-            var rotation = boneTracks.Rotations.GetInterpolatedFrame(i);
-            rotationKeyframes[time] = rotation;
+            if (rotationDefined) {
+              var rotation =
+                  boneTracks.Rotations.GetInterpolatedFrame(i, defaultRotation);
+              rotationKeyframes[time] = rotation;
+            }
 
-            var scale = boneTracks.Scales.GetInterpolatedFrame(i);
-            scaleKeyframes[time] = new Vector3(scale.X, scale.Y, scale.Z);
+            if (scaleDefined) {
+              var scale = boneTracks.Scales.GetInterpolatedFrame(i, defaultScale);
+              scaleKeyframes[time] = new Vector3(scale.X, scale.Y, scale.Z);
+            }
           }
 
-          if (boneTracks.Positions.IsDefined) {
+          if (translationDefined) {
             gltfAnimation.CreateTranslationChannel(
                 node,
                 translationKeyframes);
           }
-          if (boneTracks.Rotations.IsDefined) {
+          if (rotationDefined) {
             gltfAnimation.CreateRotationChannel(
                 node,
                 rotationKeyframes);
           }
-          if (boneTracks.Scales.IsDefined) {
+          if (scaleDefined) {
             gltfAnimation.CreateScaleChannel(
                 node,
                 scaleKeyframes);

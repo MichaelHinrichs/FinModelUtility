@@ -44,8 +44,10 @@ namespace fin.model.impl {
       public Optional<Keyframe<float>>[] GetAxisListAtKeyframe(int keyframe)
         => this.impl_.GetAxisListAtKeyframe(keyframe);
 
-      public IPosition GetInterpolatedFrame(float frame)
-        => this.impl_.GetInterpolatedFrame(frame);
+      public IPosition GetInterpolatedFrame(
+          float frame,
+          IOptional<float[]>? defaultAxes = null)
+        => this.impl_.GetInterpolatedFrame(frame, defaultAxes);
     }
 
     public class ScaleTrackImpl : IScaleTrack {
@@ -82,8 +84,10 @@ namespace fin.model.impl {
       public Optional<Keyframe<float>>[] GetAxisListAtKeyframe(int keyframe)
         => this.impl_.GetAxisListAtKeyframe(keyframe);
 
-      public IScale GetInterpolatedFrame(float frame)
-        => this.impl_.GetInterpolatedFrame(frame);
+      public IScale GetInterpolatedFrame(
+          float frame,
+          IOptional<float[]>? defaultAxes = null)
+        => this.impl_.GetInterpolatedFrame(frame, defaultAxes);
     }
 
 
@@ -175,7 +179,7 @@ namespace fin.model.impl {
 
       public Optional<TInterpolated> GetInterpolatedFrame(
           float frame,
-          Optional<TValue> defaultValue) {
+          IOptional<TValue> defaultValue) {
         this.FindIndexOfKeyframe((int) frame,
                                  out var fromKeyframeIndex,
                                  out var optionalFromKeyframe,
@@ -335,10 +339,21 @@ namespace fin.model.impl {
         => this.axisTracks_.Select(axis => axis.GetKeyframe(keyframe))
                .ToArray();
 
-      public TInterpolated GetInterpolatedFrame(float frame) {
+      public TInterpolated GetInterpolatedFrame(
+          float frame,
+          IOptional<TAxis[]>? defaultAxes = null) {
         var optionAxisList =
             this.axisTracks_.Select(
-                axis => axis.GetInterpolatedFrame(frame, this.defaultValue_));
+                (axis, i) => {
+                  var defaultValue = defaultAxes == null
+                                         ? this.defaultValue_
+                                         : defaultAxes.Pluck(axes => axes[i])
+                                             .Or(this.defaultValue_);
+
+                  return axis.GetInterpolatedFrame(
+                      frame,
+                      defaultValue);
+                });
         var axisList = optionAxisList
                        .Select(axis => axis.Assert(
                                    "Could not interpolate value for one of the axes!"))

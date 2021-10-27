@@ -63,7 +63,9 @@ namespace fin.model.impl {
                 .GetInterpolatedFrame(frame, this.defaultRotation_)
                 .Assert());
 
-      public Quaternion GetInterpolatedFrame(float frame) {
+      public Quaternion GetInterpolatedFrame(
+          float frame,
+          IOptional<float[]>? defaultAxes = null) {
         var xTrack = this.axisTracks_[0];
         var yTrack = this.axisTracks_[1];
         var zTrack = this.axisTracks_[2];
@@ -102,12 +104,25 @@ namespace fin.model.impl {
 
         }*/
 
+        var defaultX = defaultAxes == null
+                           ? this.defaultRotation_
+                           : defaultAxes.Pluck(axes => axes[0])
+                                        .Or(this.defaultRotation_);
+        var defaultY = defaultAxes == null
+                           ? this.defaultRotation_
+                           : defaultAxes.Pluck(axes => axes[1])
+                                        .Or(this.defaultRotation_);
+        var defaultZ = defaultAxes == null
+                           ? this.defaultRotation_
+                           : defaultAxes.Pluck(axes => axes[2])
+                                        .Or(this.defaultRotation_);
+
         var xRadians =
-            xTrack.GetInterpolatedFrame(frame, this.defaultRotation_).Assert();
+            xTrack.GetInterpolatedFrame(frame, defaultX).Assert();
         var yRadians =
-            yTrack.GetInterpolatedFrame(frame, this.defaultRotation_).Assert();
+            yTrack.GetInterpolatedFrame(frame, defaultY).Assert();
         var zRadians =
-            zTrack.GetInterpolatedFrame(frame, this.defaultRotation_).Assert();
+            zTrack.GetInterpolatedFrame(frame, defaultZ).Assert();
 
         return QuaternionUtil.Create(xRadians, yRadians, zRadians);
       }

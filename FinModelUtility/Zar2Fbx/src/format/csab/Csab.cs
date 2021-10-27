@@ -206,7 +206,7 @@ namespace zar.format.csab {
 
       var anodCount = r.ReadUInt32();
       var boneCount = r.ReadUInt32();
-      Asserts.True(anodCount < boneCount);
+      Asserts.True(anodCount <= boneCount);
 
       // Jasper: This appears to be an inverse of the bone index in each array,
       // probably for fast binding?

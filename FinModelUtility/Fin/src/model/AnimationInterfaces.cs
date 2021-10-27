@@ -83,7 +83,7 @@ namespace fin.model {
 
     Optional<TInterpolated> GetInterpolatedFrame(
         float frame,
-        Optional<TValue> defaultValue);
+        IOptional<TValue> defaultValue);
 
     // TODO: Allow setting tangent(s) at each frame.
     // TODO: Allow setting easing at each frame.
@@ -129,7 +129,9 @@ namespace fin.model {
     IReadOnlyList<ITrack<TAxis>> AxisTracks { get; }
     Optional<Keyframe<TAxis>>[] GetAxisListAtKeyframe(int keyframe);
 
-    TInterpolated GetInterpolatedFrame(float frame);
+    TInterpolated GetInterpolatedFrame(
+        float frame,
+        IOptional<TAxis[]>? defaultValue = null);
   }
 
   public interface IPositionTrack : IAxesTrack<float, IPosition> {}

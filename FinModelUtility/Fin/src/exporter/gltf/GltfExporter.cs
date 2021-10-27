@@ -143,43 +143,6 @@ namespace fin.exporter.gltf {
       modelRoot.Save(outputPath, writeSettings);
     }
 
-    // TODO: Pull this out somewhere else, or make this part of the model creation flow?
-    private void ApplyFirstFrameToSkeleton_(
-        ISkeleton skeleton,
-        IAnimation animation) {
-      var boneQueue = new Queue<IBone>();
-      boneQueue.Enqueue(skeleton.Root);
-
-      while (boneQueue.Count > 0) {
-        var bone = boneQueue.Dequeue();
-
-        animation.BoneTracks.TryGetValue(bone, out var boneTracks);
-
-        var localPosition = boneTracks?.Positions.GetInterpolatedFrame(0);
-        bone.SetLocalPosition(localPosition?.X ?? 0,
-                              localPosition?.Y ?? 0,
-                              localPosition?.Z ?? 0);
-
-        var localRotation = boneTracks?.Rotations.GetAlmostKeyframe(0);
-        bone.SetLocalRotationRadians(localRotation?.XRadians ?? 0,
-                                     localRotation?.YRadians ?? 0,
-                                     localRotation?.ZRadians ?? 0);
-
-        // It seems like some animations shrink a bone to 0 to hide it, but
-        // this prevents us from calculating a determinant to invert the
-        // matrix. As a result, we can't safely include the scale here.
-        IScale?
-            localScale = null; //boneTracks?.Scales.GetInterpolatedAtFrame(0);
-        bone.SetLocalScale(localScale?.X ?? 1,
-                           localScale?.Y ?? 1,
-                           localScale?.Z ?? 1);
-
-        foreach (var child in bone.Children) {
-          boneQueue.Enqueue(child);
-        }
-      }
-    }
-
     private TextureWrapMode ConvertWrapMode_(WrapMode wrapMode)
       => wrapMode switch {
           WrapMode.CLAMP         => TextureWrapMode.CLAMP_TO_EDGE,
