@@ -13,7 +13,8 @@ namespace zar.api {
     public void Run(
         IDirectory outputDirectory,
         IFile[] cmbFiles,
-        IFile[]? csabFiles) {
+        IFile[]? csabFiles,
+        float fps) {
       Asserts.True(cmbFiles.Length == 1 || csabFiles.Length == 0);
 
       var filesAndCmbs =
@@ -37,7 +38,12 @@ namespace zar.api {
       foreach (var (cmbFile, cmb) in filesAndCmbs) {
         using var r =
             new EndianBinaryReader(cmbFile.OpenRead(), Endianness.LittleEndian);
-        var model = new ModelConverter().Convert(r, cmb, filesAndCsabs, outputDirectory);
+        var model =
+            new ModelConverter().Convert(r,
+                                         cmb,
+                                         filesAndCsabs,
+                                         outputDirectory,
+                                         fps);
 
         new AssimpIndirectExporter().Export(
             new FinFile(Path.Join(outputDirectory.FullName,

@@ -20,7 +20,8 @@ namespace zar.api {
         EndianBinaryReader r,
         Cmb cmb,
         IList<(IFile, Csab)> filesAndCsabs,
-        IDirectory outputDirectory) {
+        IDirectory outputDirectory,
+        float fps) {
       var model = new ModelImpl();
 
       // Adds bones
@@ -61,7 +62,7 @@ namespace zar.api {
         finAnimation.Name = csabFile.NameWithoutExtension;
 
         finAnimation.FrameCount = (int) csab.Duration;
-        finAnimation.FrameRate = 30;
+        finAnimation.FrameRate = fps;
 
         foreach (var (boneIndex, anod) in csab.BoneIndexToAnimationNode) {
           var boneTracks = finAnimation.AddBoneTracks(finBones[boneIndex]);

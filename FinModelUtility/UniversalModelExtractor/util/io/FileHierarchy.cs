@@ -171,6 +171,8 @@ namespace uni.util.io {
           params string[] rest)
         => this.Files.Where(file => file.Extension == first ||
                                     rest.Contains(file.Extension));
+
+      public override string ToString() => this.LocalPath;
     }
 
     private class FileHierarchyFile : IFileHierarchyFile {
@@ -195,6 +197,8 @@ namespace uni.util.io {
       public string Extension => this.Impl.Extension;
 
       public string LocalPath { get; }
+
+      public override string ToString() => this.LocalPath;
     }
 
     public IEnumerator<IFileHierarchyDirectory> GetEnumerator() {
