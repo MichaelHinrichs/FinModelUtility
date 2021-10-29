@@ -2,7 +2,6 @@
   public enum AnimationTrackType {
     LINEAR = 0x01,
     HERMITE = 0x02,
-    INTEGER = 0x03,
   }
 
   /*

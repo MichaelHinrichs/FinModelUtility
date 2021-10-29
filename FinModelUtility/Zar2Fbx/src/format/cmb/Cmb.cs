@@ -77,6 +77,10 @@ namespace zar.format.cmb {
           primitive.indices = new uint[primitive.indicesCount];
           for (var i = 0; i < primitive.indicesCount; ++i) {
             switch (primitive.dataType) {
+              case DataType.UByte: {
+                primitive.indices[i] = r.ReadByte();
+                break;
+              }
               case DataType.UShort: {
                 primitive.indices[i] = r.ReadUInt16();
                 break;

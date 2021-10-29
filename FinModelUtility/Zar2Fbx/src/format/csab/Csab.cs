@@ -6,8 +6,6 @@ using fin.io;
 using fin.util.asserts;
 using fin.util.optional;
 
-using zar.format.cmb;
-
 namespace zar.format.csab {
   public class CsabKeyframe {
     public uint Time { get; set; }
@@ -20,44 +18,103 @@ namespace zar.format.csab {
       Optional<float>.None();
   }
 
+  public enum TrackType {
+    POSITION,
+    SCALE,
+    ROTATION
+  }
+
   public class CsabTrack : IDeserializable {
+    private readonly Csab parent_;
+
+    public CsabTrack(Csab parent) {
+      this.parent_ = parent;
+    }
+
+    public TrackType ValueType { get; set; }
+
     public AnimationTrackType Type { get; set; }
 
     public IList<CsabKeyframe> Keyframes { get; set; } =
       new List<CsabKeyframe>();
+
     public uint Duration { get; set; }
 
     public bool AreRotationsShort { get; set; }
 
     public void Read(EndianBinaryReader r) {
-      var basePosition = r.Position;
-
-      if (CmbHeader.Version == CmbVersion.OCARINA_OF_TIME_3D) {
+      bool isConstant = false;
+      if (this.parent_.Version > 4) {
+        isConstant = r.ReadByte() != 0;
+        this.Type = (AnimationTrackType) r.ReadByte();
+        this.Keyframes = new CsabKeyframe[r.ReadUInt16()];
+      } else {
         this.Type = (AnimationTrackType) r.ReadUInt32();
         this.Keyframes = new CsabKeyframe[r.ReadUInt32()];
         var unk1 = r.ReadUInt32();
         this.Duration = r.ReadUInt32();
-      } else {
-        Asserts.Fail("Only OoT3D animations are supported");
       }
 
-      var keyframeTableIdx = 0x10;
-      r.Position = basePosition + keyframeTableIdx;
+      if (isConstant) {
+        var scale = r.ReadSingle();
+        var bias = r.ReadSingle();
+
+        for (var i = 0; i < this.Keyframes.Count; ++i) {
+          var value = r.ReadUInt32();
+
+          ;
+
+          this.Keyframes[i] = new CsabKeyframe {
+              Time = (uint) i,
+              Value = value * scale - bias,
+          };
+        }
+      }
+
+      float trackScale = -1;
+      float trackBias = -1;
+      if (this.parent_.Version > 4 && this.Type == AnimationTrackType.LINEAR) {
+        trackScale = r.ReadSingle();
+        trackBias = r.ReadSingle();
+
+        ;
+      }
 
       switch (this.Type) {
-        case AnimationTrackType.LINEAR:
-        case AnimationTrackType.INTEGER: {
+        case AnimationTrackType.LINEAR: {
           for (var i = 0; i < this.Keyframes.Count; ++i) {
             if (!this.AreRotationsShort) {
-              this.Keyframes[i] = new CsabKeyframe {
-                  Time = r.ReadUInt32(),
-                  Value = r.ReadSingle(),
-              };
+              if (this.parent_.Version > 4) {
+                // TODO: Is this right????
+                var raw = this.ValueType switch {
+                    TrackType.POSITION => (int) r.ReadUInt16(),
+                    TrackType.SCALE    => (int) r.ReadInt16(),
+                    _                  => throw new NotSupportedException(),
+                };
+                var value = raw * trackScale - trackBias;
+                this.Keyframes[i] = new CsabKeyframe {
+                    Time = (uint) i,
+                    Value = value,
+                };
+              } else {
+                this.Keyframes[i] = new CsabKeyframe {
+                    Time = r.ReadUInt32(),
+                    Value = r.ReadSingle(),
+                };
+              }
             } else {
-              this.Keyframes[i] = new CsabKeyframe {
-                  Time = r.ReadUInt16(),
-                  Value = r.ReadSn16(),
-              };
+              if (this.parent_.Version > 4) {
+                var value = r.ReadInt16() * trackScale + trackBias;
+                this.Keyframes[i] = new CsabKeyframe {
+                    Time = (uint) i,
+                    Value = value,
+                };
+              } else {
+                this.Keyframes[i] = new CsabKeyframe {
+                    Time = r.ReadUInt16(),
+                    Value = r.ReadSn16(),
+                };
+              }
             }
           }
           break;
@@ -76,7 +133,7 @@ namespace zar.format.csab {
                   Time = r.ReadUInt16(),
                   Value = r.ReadSn16(),
                   IncomingTangent = Optional<float>.Of(r.ReadSn16()),
-                  OutgoingTangent = Optional<float>.Of(r.ReadSn16()), 
+                  OutgoingTangent = Optional<float>.Of(r.ReadSn16()),
               };
             }
           }
@@ -84,24 +141,43 @@ namespace zar.format.csab {
         }
         default: throw new ArgumentOutOfRangeException();
       }
+      r.Align(4);
     }
   }
 
 
   public class AnimationNode : IDeserializable {
+    private readonly Csab parent_;
+
+    public AnimationNode(Csab parent) {
+      this.parent_ = parent;
+
+      this.ScaleX = new(parent) {ValueType = TrackType.SCALE};
+      this.ScaleY = new(parent) {ValueType = TrackType.SCALE};
+      this.ScaleZ = new(parent) {ValueType = TrackType.SCALE};
+
+      this.TranslationX = new(parent) {ValueType = TrackType.POSITION};
+      this.TranslationY = new(parent) {ValueType = TrackType.POSITION};
+      this.TranslationZ = new(parent) {ValueType = TrackType.POSITION};
+
+      this.RotationX = new(parent) {ValueType = TrackType.ROTATION};
+      this.RotationY = new(parent) {ValueType = TrackType.ROTATION};
+      this.RotationZ = new(parent) {ValueType = TrackType.ROTATION};
+    }
+
     public ushort BoneIndex { get; set; }
 
-    public CsabTrack ScaleX { get; } = new();
-    public CsabTrack ScaleY { get; } = new();
-    public CsabTrack ScaleZ { get; } = new();
+    public CsabTrack ScaleX { get; }
+    public CsabTrack ScaleY { get; }
+    public CsabTrack ScaleZ { get; }
 
-    public CsabTrack TranslationX { get; } = new();
-    public CsabTrack TranslationY { get; } = new();
-    public CsabTrack TranslationZ { get; } = new();
+    public CsabTrack TranslationX { get; }
+    public CsabTrack TranslationY { get; }
+    public CsabTrack TranslationZ { get; }
 
-    public CsabTrack RotationX { get; } = new();
-    public CsabTrack RotationY { get; } = new();
-    public CsabTrack RotationZ { get; } = new();
+    public CsabTrack RotationX { get; }
+    public CsabTrack RotationY { get; }
+    public CsabTrack RotationZ { get; }
 
     public void Read(EndianBinaryReader r) {
       var basePosition = r.Position;
@@ -111,9 +187,10 @@ namespace zar.format.csab {
       this.BoneIndex = r.ReadUInt16();
 
       var isRotationShort = r.ReadUInt16() != 0;
-      this.RotationX.AreRotationsShort = this.RotationY.AreRotationsShort =
-                                             this.RotationZ.AreRotationsShort =
-                                                 isRotationShort;
+      this.RotationX.AreRotationsShort = isRotationShort;
+      this.RotationY.AreRotationsShort = isRotationShort;
+      this.RotationZ.AreRotationsShort = isRotationShort;
+
 
       var translationXOffset = r.ReadUInt16();
       var translationYOffset = r.ReadUInt16();
@@ -171,6 +248,7 @@ namespace zar.format.csab {
   }
 
   public class Csab : IDeserializable {
+    public uint Version { get; set; }
     public uint Duration { get; set; }
 
     public Dictionary<int, AnimationNode>
@@ -183,14 +261,21 @@ namespace zar.format.csab {
       var size = r.ReadUInt32();
 
       // Subversion?
-      r.AssertUInt32(0x03);
+      this.Version = r.ReadUInt32();
 
       r.AssertUInt32(0x00);
+
+      if (this.Version > 4) {
+        // M-1: Min or max?
+        r.ReadSingle();
+        r.ReadSingle();
+        r.ReadSingle();
+      }
 
       // Num animations?
       r.AssertUInt32(0x01);
       // Location?
-      r.AssertUInt32(0x18);
+      var animationOffset = r.ReadUInt32();
 
       r.AssertUInt32(0x00);
       r.AssertUInt32(0x00);
@@ -211,8 +296,8 @@ namespace zar.format.csab {
       // Jasper: This appears to be an inverse of the bone index in each array,
       // probably for fast binding?
       var boneToAnimationTable = new short[boneCount];
-      var boneTableIdx = basePosition + 0x38;
-      r.Position = boneTableIdx;
+      //var boneTableIdx = basePosition + animationOffset + 0x20;
+      //r.Position = boneTableIdx;
       for (var i = 0; i < boneCount; ++i) {
         boneToAnimationTable[i] = r.ReadInt16();
       }
@@ -223,10 +308,10 @@ namespace zar.format.csab {
 
       var animationNodes = new AnimationNode[anodCount];
       for (var i = 0; i < anodCount; ++i) {
-        var anod = new AnimationNode();
+        var anod = new AnimationNode(this);
 
         var offset = r.ReadUInt32();
-        r.Subread(basePosition + 0x18 + offset, sr => anod.Read(sr));
+        r.Subread(basePosition + animationOffset + offset, sr => anod.Read(sr));
 
         animationNodes[i] = anod;
       }

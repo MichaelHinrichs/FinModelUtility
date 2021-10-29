@@ -86,6 +86,18 @@ namespace fin.util.color {
       }
     }
 
+    public static void SplitRgba4444(
+        ushort color,
+        out byte r,
+        out byte g,
+        out byte b,
+        out byte a) {
+      r = ColorUtil.ExtractScaled(color, 12, 4);
+      g = ColorUtil.ExtractScaled(color, 8, 4);
+      b = ColorUtil.ExtractScaled(color, 4, 4);
+      a = ColorUtil.ExtractScaled(color, 0, 4);
+    }
+
     public static IColor Interpolate(IColor from, IColor to, double amt)
       => ColorImpl.FromRgbaBytes(
           (byte) Math.Round(from.Rb * (1 - amt) + to.Rb * amt),

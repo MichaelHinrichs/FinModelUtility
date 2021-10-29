@@ -237,11 +237,24 @@ namespace uni.util.separator {
     public override IList<IFileHierarchyFile> GetAnimationsForModel(
         IFileHierarchyFile modelFile,
         IList<IFileHierarchyFile> animationFiles) {
-      var prefix = StringUtil.UpTo(modelFile.NameWithoutExtension, "_");
+      var prefix = modelFile.NameWithoutExtension;
       return animationFiles.Where(file => file.Name.StartsWith(prefix))
                            .ToArray();
     }
   }
+
+  public class SameNameSeparatorMethod
+      : BUnclaimedMatchModelSeparatorMethod {
+    public override IList<IFileHierarchyFile> GetAnimationsForModel(
+        IFileHierarchyFile modelFile,
+        IList<IFileHierarchyFile> animationFiles) {
+      var prefix = modelFile.NameWithoutExtension;
+      return animationFiles
+             .Where(file => file.NameWithoutExtension.Equals(prefix))
+             .ToArray();
+    }
+  }
+
 
   public class NameModelSeparatorMethod
       : BUnclaimedMatchModelSeparatorMethod {

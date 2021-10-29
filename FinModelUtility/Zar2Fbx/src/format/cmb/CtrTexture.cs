@@ -126,7 +126,8 @@ namespace zar.format.cmb {
                       break;
                     }
                     case GlTextureFormat.RGBA4444: {
-                      throw new NotImplementedException();
+                      var value = er.ReadUInt16();
+                      ColorUtil.SplitRgba4444(value, out r, out g, out b, out a);
                       break;
                     }
                     case GlTextureFormat.LA8: {
