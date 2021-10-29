@@ -108,7 +108,7 @@ namespace uni.games.ocarina_of_time_3d {
 
     public void ExtractAll() {
       var ocarinaOfTime3dRom =
-          DirectoryConstants.ROMS_DIRECTORY.TryToGetFile(
+          DirectoryConstants.ROMS_DIRECTORY.GetExistingFile(
               "ocarina_of_time_3d.cia");
 
       var fileHierarchy =

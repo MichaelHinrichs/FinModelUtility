@@ -20,7 +20,7 @@ namespace uni.games.super_mario_sunshine {
 
     public void ExtractAll() {
       var superMarioSunshineRom =
-          DirectoryConstants.ROMS_DIRECTORY.TryToGetFile(
+          DirectoryConstants.ROMS_DIRECTORY.GetExistingFile(
               "super_mario_sunshine.gcm");
 
       var options = GcnFileHierarchyExtractor.Options.Standard()

@@ -8,11 +8,14 @@ namespace uni.cli {
   [Verb("luigis_mansion", HelpText = "Extract models from Luigi's Mansion.")]
   public class LuigisMansionOptions {}
 
+  [Verb("luigis_mansion_3d", HelpText = "Extract models from Luigi's Mansion 3D.")]
+  public class LuigisMansion3dOptions{}
+
   [Verb("mario_kart_double_dash", HelpText = "Extract models from Mario Kart: Double Dash.")]
   public class MarioKartDoubleDashOptions { }
 
   [Verb("ocarina_of_time_3d",
-        HelpText = "Extract models from Ocarina of Time 3d.")]
+        HelpText = "Extract models from Ocarina of Time 3D.")]
   public class OcarinaOfTime3dOptions {}
 
   [Verb("paper_mario_the_thousand_year_door", HelpText = "Extract models from Paper Mario: The Thousand Year Door.")]

@@ -25,7 +25,7 @@ namespace uni.games.wind_waker {
 
     public void ExtractAll() {
       var windWakerRom =
-          DirectoryConstants.ROMS_DIRECTORY.TryToGetFile(
+          DirectoryConstants.ROMS_DIRECTORY.GetExistingFile(
               "wind_waker.gcm");
 
       var options = GcnFileHierarchyExtractor.Options.Standard();

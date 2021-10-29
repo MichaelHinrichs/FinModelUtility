@@ -52,7 +52,7 @@ namespace fin.io {
       => this.Info.EnumerateDirectories()
              .Select(subdir => new FinDirectory(subdir));
 
-    public IDirectory TryToGetSubdir(string relativePath, bool create = false)
+    public IDirectory GetSubdir(string relativePath, bool create = false)
       => this.GetSubdirImpl_(relativePath.Split('/', '\\'), create);
 
     private FinDirectory GetSubdirImpl_(
@@ -96,7 +96,7 @@ namespace fin.io {
                            : SearchOption.TopDirectoryOnly)
              .Select(file => new FinFile(file));
 
-    public IFile TryToGetFile(string path) {
+    public IFile GetExistingFile(string path) {
       // TODO: Handle subdirectories automatically.
       try {
         return new FinFile(this.Info.GetFiles(path).Single());

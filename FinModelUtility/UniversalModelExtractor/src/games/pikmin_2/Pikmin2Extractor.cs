@@ -19,7 +19,7 @@ namespace uni.games.pikmin_2 {
 
     public void ExtractAll() {
       var pikmin2Rom =
-          DirectoryConstants.ROMS_DIRECTORY.TryToGetFile(
+          DirectoryConstants.ROMS_DIRECTORY.GetExistingFile(
               "pikmin_2.gcm");
 
       var options = GcnFileHierarchyExtractor.Options.Standard()

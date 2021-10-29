@@ -228,8 +228,8 @@ namespace bmd.cli {
 
       var kandoDir = new FinDirectory(
           @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pikmin2\user\Kando");
-      var entryDir = kandoDir.TryToGetSubdir(name);
-      var modelDir = entryDir.TryToGetSubdir(@"arc.szs 0.rarc_dir\arc");
+      var entryDir = kandoDir.GetSubdir(name);
+      var modelDir = entryDir.GetSubdir(@"arc.szs 0.rarc_dir\arc");
 
       bmdPaths = Files.GetPathsWithExtension(modelDir, ".bmd", true);
       bcxPaths = Arrays.Concat(

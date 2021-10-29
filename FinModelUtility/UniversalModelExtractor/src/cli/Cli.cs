@@ -6,6 +6,7 @@ using CommandLine.Text;
 
 using uni.games.animal_crossing;
 using uni.games.luigis_mansion;
+using uni.games.luigis_mansion_3d;
 using uni.games.mario_kart_double_dash;
 using uni.games.ocarina_of_time_3d;
 using uni.games.paper_mario_the_thousand_year_door;
@@ -24,6 +25,7 @@ namespace uni.cli {
                     args,
                     typeof(AnimalCrossingOptions),
                     typeof(LuigisMansionOptions),
+                    typeof(LuigisMansion3dOptions),
                     typeof(MarioKartDoubleDashOptions),
                     typeof(OcarinaOfTime3dOptions),
                     typeof(PaperMarioTheThousandYearDoorOptions),
@@ -32,34 +34,37 @@ namespace uni.cli {
                     typeof(SuperMarioSunshineOptions),
                     typeof(WindWakerOptions),
                     typeof(DebugOptions))
-                .WithParsed((AnimalCrossingOptions automaticOpts) => {
+                .WithParsed((AnimalCrossingOptions _) => {
                   new AnimalCrossingExtractor().ExtractAll();
                 })
-                .WithParsed((LuigisMansionOptions automaticOpts) => {
+                .WithParsed((LuigisMansionOptions _) => {
                   new LuigisMansionExtractor().ExtractAll();
                 })
-                .WithParsed((MarioKartDoubleDashOptions automaticOpts) => {
+                .WithParsed((LuigisMansion3dOptions _) => {
+                  new LuigisMansion3dExtractor().ExtractAll();
+                })
+                .WithParsed((MarioKartDoubleDashOptions _) => {
                   new MarioKartDoubleDashExtractor().ExtractAll();
                 })
-                .WithParsed((OcarinaOfTime3dOptions automaticOpts) => {
+                .WithParsed((OcarinaOfTime3dOptions _) => {
                   new OcarinaOfTime3dExtractor().ExtractAll();
                 })
-                .WithParsed((PaperMarioTheThousandYearDoorOptions automaticOpts) => {
+                .WithParsed((PaperMarioTheThousandYearDoorOptions _) => {
                   new PaperMarioTheThousandYearDoorExtractor().ExtractAll();
                 })
-                .WithParsed((Pikmin1Options automaticOpts) => {
+                .WithParsed((Pikmin1Options _) => {
                   new Pikmin1Extractor().ExtractAll();
                 })
-                .WithParsed((Pikmin2Options manualOpts) => {
+                .WithParsed((Pikmin2Options _) => {
                   new Pikmin2Extractor().ExtractAll();
                 })
-                .WithParsed((SuperMarioSunshineOptions debugOpts) => {
+                .WithParsed((SuperMarioSunshineOptions _) => {
                   new SuperMarioSunshineExtractor().ExtractAll();
                 })
-                .WithParsed((WindWakerOptions debugOpts) => {
+                .WithParsed((WindWakerOptions _) => {
                   new WindWakerExtractor().ExtractAll();
                 })
-                .WithParsed((DebugOptions debugOptions) => {})
+                .WithParsed((DebugOptions _) => {})
                 .WithNotParsed(parseErrors => errors = parseErrors);
 
       if (errors != null) {

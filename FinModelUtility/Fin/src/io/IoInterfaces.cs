@@ -19,7 +19,7 @@ namespace fin.io {
     bool Create();
 
     IEnumerable<IDirectory> GetExistingSubdirs();
-    IDirectory TryToGetSubdir(string relativePath, bool create = false);
+    IDirectory GetSubdir(string relativePath, bool create = false);
 
     IEnumerable<IFile> GetExistingFiles();
 
@@ -27,7 +27,7 @@ namespace fin.io {
         string searchPattern,
         bool includeSubdirs = false);
 
-    IFile TryToGetFile(string relativePath);
+    IFile GetExistingFile(string relativePath);
   }
 
   public interface IFile : IIoObject, IEquatable<IFile> {

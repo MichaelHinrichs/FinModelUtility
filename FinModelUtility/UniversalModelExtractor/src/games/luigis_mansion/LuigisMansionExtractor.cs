@@ -10,7 +10,7 @@ namespace uni.games.luigis_mansion {
 
     public void ExtractAll() {
       var luigisMansionRom =
-          DirectoryConstants.ROMS_DIRECTORY.TryToGetFile(
+          DirectoryConstants.ROMS_DIRECTORY.GetExistingFile(
               "luigis_mansion.gcm");
 
       var options =

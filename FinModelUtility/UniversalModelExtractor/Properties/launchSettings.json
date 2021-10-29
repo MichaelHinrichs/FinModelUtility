@@ -35,6 +35,10 @@
     "Wind Waker": {
       "commandName": "Project",
       "commandLineArgs": "wind_waker"
+    },
+    "Luigi's Mansion 3D": {
+      "commandName": "Project",
+      "commandLineArgs": "luigis_mansion_3d"
     }
   }
 }

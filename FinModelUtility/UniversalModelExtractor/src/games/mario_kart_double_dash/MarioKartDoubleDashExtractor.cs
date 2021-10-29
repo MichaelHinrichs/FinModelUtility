@@ -20,7 +20,7 @@ namespace uni.games.mario_kart_double_dash {
 
     public void ExtractAll() {
       var marioKartDoubleDashExtractorRom =
-          DirectoryConstants.ROMS_DIRECTORY.TryToGetFile(
+          DirectoryConstants.ROMS_DIRECTORY.GetExistingFile(
               "mario_kart_double_dash.gcm");
 
       var options = GcnFileHierarchyExtractor.Options.Standard()

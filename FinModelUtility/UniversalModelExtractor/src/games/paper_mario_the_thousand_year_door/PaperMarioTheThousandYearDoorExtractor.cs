@@ -12,7 +12,7 @@ namespace uni.games.paper_mario_the_thousand_year_door {
 
     public void ExtractAll() {
       var paperMarioTheThousandYearDoorRom =
-          DirectoryConstants.ROMS_DIRECTORY.TryToGetFile(
+          DirectoryConstants.ROMS_DIRECTORY.GetExistingFile(
               "paper_mario_the_thousand_year_door.gcm");
 
       var options = GcnFileHierarchyExtractor.Options.Standard();

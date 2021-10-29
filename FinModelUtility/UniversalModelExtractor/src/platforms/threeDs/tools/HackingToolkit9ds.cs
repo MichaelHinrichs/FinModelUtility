@@ -31,6 +31,9 @@ namespace uni.platforms.threeDs.tools {
       if (!finalDirectory.Exists) {
         didChange = true;
 
+        var originalFiles = ThreeDsToolsConstants.HACKING_TOOLKIT_9DS_DIRECTORY
+                                                 .GetExistingFiles();
+
         var directoryPath = Path.Join(
             ThreeDsToolsConstants.HACKING_TOOLKIT_9DS_DIRECTORY.FullName,
             "ExtractedRomFS");
@@ -110,7 +113,7 @@ namespace uni.platforms.threeDs.tools {
       };
       foreach (var fileToDelete in filesToDelete) {
         ThreeDsToolsConstants.HACKING_TOOLKIT_9DS_DIRECTORY
-                             .TryToGetFile(fileToDelete)
+                             .GetExistingFile(fileToDelete)
                              .Info.Delete();
       }
 
@@ -120,7 +123,7 @@ namespace uni.platforms.threeDs.tools {
       };
       foreach (var subdirToDelete in subdirsToDelete) {
         ThreeDsToolsConstants.HACKING_TOOLKIT_9DS_DIRECTORY
-                             .TryToGetSubdir(subdirToDelete)
+                             .GetSubdir(subdirToDelete)
                              .Info.Delete(true);
       }
     }

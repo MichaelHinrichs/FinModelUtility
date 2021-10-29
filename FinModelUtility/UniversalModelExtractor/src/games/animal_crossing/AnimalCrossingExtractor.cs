@@ -7,7 +7,7 @@ namespace uni.games.animal_crossing {
   public class AnimalCrossingExtractor {
     public void ExtractAll() {
       var animalCrossingRom =
-          DirectoryConstants.ROMS_DIRECTORY.TryToGetFile(
+          DirectoryConstants.ROMS_DIRECTORY.GetExistingFile(
               "animal_crossing.gcm");
 
       var options = GcnFileHierarchyExtractor.Options.Standard();

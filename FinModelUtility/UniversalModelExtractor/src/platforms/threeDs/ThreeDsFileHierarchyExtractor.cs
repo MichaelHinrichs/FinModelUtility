@@ -17,8 +17,9 @@ namespace uni.platforms.threeDs {
 
       var didDecompress = false;
       foreach (var directory in fileHierarchy) {
-        var zarFiles = directory.Files.Where(file => file.Extension == ".zar")
-                                .ToArray();
+        var zarFiles = directory
+                       .Files.Where(file => file.Extension is ".zar" or ".gar")
+                       .ToArray();
 
         var didChange = false;
         foreach (var zarFile in zarFiles) {

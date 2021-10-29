@@ -31,7 +31,7 @@ namespace uni.games {
       var localOutPath = Path.Join(romName, localDirectoryPath);
 
       return DirectoryConstants.OUT_DIRECTORY
-                               .TryToGetSubdir(localOutPath, true);
+                               .GetSubdir(localOutPath, true);
     }
 
     public static IDirectory GetOutputDirectoryForDirectory(
@@ -42,7 +42,7 @@ namespace uni.games {
       var localOutPath = Path.Join(romName, localDirectoryPath);
 
       return DirectoryConstants.OUT_DIRECTORY
-                               .TryToGetSubdir(localOutPath, true);
+                               .GetSubdir(localOutPath, true);
     }
   }
 }

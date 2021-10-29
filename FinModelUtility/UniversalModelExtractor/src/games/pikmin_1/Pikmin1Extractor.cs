@@ -13,7 +13,7 @@ namespace uni.games.pikmin_1 {
   public class Pikmin1Extractor {
     public void ExtractAll() {
       var pikmin1Rom =
-          DirectoryConstants.ROMS_DIRECTORY.TryToGetFile(
+          DirectoryConstants.ROMS_DIRECTORY.GetExistingFile(
               "pikmin_1.gcm");
 
       var options = GcnFileHierarchyExtractor.Options.Empty();
