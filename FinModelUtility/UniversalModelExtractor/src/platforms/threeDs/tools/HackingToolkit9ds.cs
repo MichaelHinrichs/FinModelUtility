@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 using fin.io;
@@ -31,8 +32,12 @@ namespace uni.platforms.threeDs.tools {
       if (!finalDirectory.Exists) {
         didChange = true;
 
-        var originalFiles = ThreeDsToolsConstants.HACKING_TOOLKIT_9DS_DIRECTORY
-                                                 .GetExistingFiles();
+        var beforeFiles = ThreeDsToolsConstants.HACKING_TOOLKIT_9DS_DIRECTORY
+                                               .GetExistingFiles()
+                                               .ToHashSet();
+        var beforeSubdirs = ThreeDsToolsConstants.HACKING_TOOLKIT_9DS_DIRECTORY
+                                               .GetExistingSubdirs()
+                                               .ToHashSet();
 
         var directoryPath = Path.Join(
             ThreeDsToolsConstants.HACKING_TOOLKIT_9DS_DIRECTORY.FullName,
@@ -43,12 +48,31 @@ namespace uni.platforms.threeDs.tools {
           this.DumpRom_(romFile);
           Asserts.True(directory.Exists,
                        $"Directory was not created: {directory}");
-          this.CleanUpUnneededFiles_();
         }
 
         Directory.Move(directoryPath, finalDirectoryPath);
         Asserts.True(finalDirectory.Exists,
                      $"Directory was not created: {finalDirectory}");
+
+        var afterFiles = ThreeDsToolsConstants.HACKING_TOOLKIT_9DS_DIRECTORY
+                                              .GetExistingFiles()
+                                              .ToArray();
+        var afterSubdirs = ThreeDsToolsConstants.HACKING_TOOLKIT_9DS_DIRECTORY
+                                              .GetExistingSubdirs()
+                                              .ToArray();
+
+
+        // Cleans up unneeded files & directories
+        foreach (var afterFile in afterFiles) {
+          if (!beforeFiles.Contains(afterFile)) {
+            afterFile.Info.Delete();
+          }
+        }
+        foreach (var afterSubdir in afterSubdirs) {
+          if (!beforeSubdirs.Contains(afterSubdir)) {
+            afterSubdir.Info.Delete(true);
+          }
+        }
       }
 
       hierarchy = new FileHierarchy(finalDirectory);
@@ -100,32 +124,6 @@ namespace uni.platforms.threeDs.tools {
 
             process.Kill(true);
           });
-    }
-
-    private void CleanUpUnneededFiles_() {
-      var filesToDelete = new string[] {
-          "DecryptedExHeader.bin",
-          "DecryptedExeFS.bin",
-          "DecryptedRomFS.bin",
-          "HeaderExeFS.bin",
-          "HeaderNCCH0.bin",
-          "PlainRGN.bin",
-      };
-      foreach (var fileToDelete in filesToDelete) {
-        ThreeDsToolsConstants.HACKING_TOOLKIT_9DS_DIRECTORY
-                             .GetExistingFile(fileToDelete)
-                             .Info.Delete();
-      }
-
-      var subdirsToDelete = new string[] {
-          "ExtractedBanner",
-          "ExtractedExeFS",
-      };
-      foreach (var subdirToDelete in subdirsToDelete) {
-        ThreeDsToolsConstants.HACKING_TOOLKIT_9DS_DIRECTORY
-                             .GetSubdir(subdirToDelete)
-                             .Info.Delete(true);
-      }
     }
   }
 }

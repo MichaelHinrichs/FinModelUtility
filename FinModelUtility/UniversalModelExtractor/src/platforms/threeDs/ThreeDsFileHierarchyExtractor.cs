@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 using fin.io;
 
@@ -9,6 +8,7 @@ using uni.util.io;
 namespace uni.platforms.threeDs {
   public class ThreeDsFileHierarchyExtractor {
     private readonly ZarExtractor zarExtractor_ = new();
+    private readonly GarExtractor garExtractor_ = new();
 
     public IFileHierarchy ExtractFromRom(
         IFile romFile,
@@ -17,13 +17,12 @@ namespace uni.platforms.threeDs {
 
       var didDecompress = false;
       foreach (var directory in fileHierarchy) {
-        var zarFiles = directory
-                       .Files.Where(file => file.Extension is ".zar" or ".gar")
-                       .ToArray();
-
         var didChange = false;
-        foreach (var zarFile in zarFiles) {
+        foreach (var zarFile in directory.FilesWithExtension(".zar")) {
           didChange |= this.zarExtractor_.Extract(zarFile);
+        }
+        foreach (var garFile in directory.FilesWithExtension(".gar")) {
+          didChange |= this.garExtractor_.Extract(garFile);
         }
 
         if (didChange) {

@@ -108,8 +108,8 @@ namespace uni.platforms.threeDs.tools {
         this.TypeNameOffset = er.ReadInt32();
         er.ReadInt32();
 
-        er.Position = this.TypeNameOffset;
-        this.TypeName = er.ReadStringNT(Encoding.UTF8);
+        /*er.Position = this.TypeNameOffset;
+        this.TypeName = er.ReadStringNT(Encoding.UTF8);*/
 
         this.Files = new ZarSubfile[this.FileCount];
         for (var i = 0; i < this.FileCount; ++i) {
