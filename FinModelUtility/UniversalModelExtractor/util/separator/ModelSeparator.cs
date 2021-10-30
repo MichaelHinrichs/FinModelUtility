@@ -1,6 +1,4 @@
-﻿using fin.util.strings;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -265,7 +263,7 @@ namespace uni.util.separator {
     public override IList<IFileHierarchyFile> GetAnimationsForModel(
         IFileHierarchyFile modelFile,
         IList<IFileHierarchyFile> animationFiles)
-      => modelFile.NameWithoutExtension.ToLower().Contains(this.name_)
+      => modelFile.Name.ToLower().Contains(this.name_)
              ? animationFiles
              : Array.Empty<IFileHierarchyFile>();
   }

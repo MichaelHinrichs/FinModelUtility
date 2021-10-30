@@ -21,9 +21,14 @@ namespace uni.games.luigis_mansion_3d {
     private readonly IModelSeparator separator_ =
         new ModelSeparator(directory => directory.LocalPath)
             .Register(@"\effect\effect_mdl", new PrefixModelSeparatorMethod())
-            .Register(@"\model\dluige01", new PrefixModelSeparatorMethod())
-            .Register(@"\model\dluige02", new PrefixModelSeparatorMethod())
-            .Register(@"\model\dluige03", new PrefixModelSeparatorMethod());
+            .Register(@"\model\dluige01",
+                      new NameModelSeparatorMethod("Luigi.cmb"))
+            .Register(@"\model\dluige02",
+                      new NameModelSeparatorMethod("Luigi.cmb"))
+            .Register(@"\model\dluige03",
+                      new NameModelSeparatorMethod("Luigi.cmb"))
+            .Register(@"\model\luige",
+                      new NameModelSeparatorMethod("Luigi.cmb"));
 
     public void ExtractAll() {
       var luigisMansionRom =
@@ -100,7 +105,7 @@ namespace uni.games.luigis_mansion_3d {
                                            .ToArray(),
                                    csabFiles.Select(file => file.Impl)
                                             .ToArray(),
-                                   20);
+                                   30);
       } catch (Exception e) {
         this.logger_.LogError(e.ToString());
       }
