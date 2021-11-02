@@ -39,6 +39,9 @@ namespace uni.games.luigis_mansion_3d {
           new ThreeDsFileHierarchyExtractor().ExtractFromRom(
               luigisMansionRom);
 
+      this.ExtractModel_(fileHierarchy.Root.TryToGetSubdir(@"\model\luige_head"));
+      return;
+
       foreach (var subdir in fileHierarchy) {
         this.ExtractModel_(subdir);
       }
@@ -51,19 +54,22 @@ namespace uni.games.luigis_mansion_3d {
       }
 
       var csabFiles = subdir.FilesWithExtension(".csab").ToArray();
+      var ctxbFiles = subdir.FilesWithExtension(".ctxb").ToArray();
       var bundles = this.separator_.Separate(subdir, cmbFiles, csabFiles);
 
       foreach (var bundle in bundles) {
         this.ExtractModels_(subdir,
                             new[] {bundle.ModelFile},
-                            bundle.AnimationFiles.ToArray());
+                            bundle.AnimationFiles.ToArray(),
+                            ctxbFiles);
       }
     }
 
     private void ExtractModels_(
         IFileHierarchyDirectory directory,
         IReadOnlyList<IFileHierarchyFile> cmbFiles,
-        IReadOnlyList<IFileHierarchyFile>? csabFiles = null
+        IReadOnlyList<IFileHierarchyFile>? csabFiles = null,
+        IReadOnlyList<IFileHierarchyFile>? ctxbFiles = null
     ) {
       Asserts.True(cmbFiles.Count > 0);
 
@@ -104,6 +110,8 @@ namespace uni.games.luigis_mansion_3d {
                                    cmbFiles.Select(file => file.Impl)
                                            .ToArray(),
                                    csabFiles.Select(file => file.Impl)
+                                            .ToArray(),
+                                   ctxbFiles.Select(file => file.Impl)
                                             .ToArray(),
                                    30);
       } catch (Exception e) {

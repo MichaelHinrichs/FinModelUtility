@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 
@@ -11,6 +12,7 @@ using fin.util.asserts;
 
 using zar.format.cmb;
 using zar.format.csab;
+using zar.format.ctxb;
 
 namespace zar.api {
   public class ModelConverter {
@@ -20,6 +22,7 @@ namespace zar.api {
         EndianBinaryReader r,
         Cmb cmb,
         IList<(IFile, Csab)> filesAndCsabs,
+        IList<(IFile, Ctxb)> filesAndCtxbs,
         IDirectory outputDirectory,
         float fps) {
       var model = new ModelImpl();
@@ -149,11 +152,22 @@ namespace zar.api {
         if (textureId != -1) {
           var cmbTexture = cmb.tex.textures[texMapper.textureId];
 
-          r.Position = cmb.startOffset +
-                       cmb.header.textureDataOffset +
-                       cmbTexture.dataOffset;
-          var data = r.ReadBytes((int) cmbTexture.dataLength);
-          var bitmap = ctrTexture.DecodeImage(data, cmbTexture);
+          // TODO: Move these reads into the model reading logic
+          var position = cmb.startOffset +
+                         cmb.header.textureDataOffset +
+                         cmbTexture.dataOffset;
+          Bitmap bitmap;
+          if (position != 0) {
+            r.Position = position;
+            var data = r.ReadBytes((int) cmbTexture.dataLength);
+            bitmap = ctrTexture.DecodeImage(data, cmbTexture);
+          } else {
+            var ctxb =
+                filesAndCtxbs
+                    .Select(fileAndCtxb => fileAndCtxb.Item2)
+                    .Single(ctxb => ctxb.Chunk.Entry.name == cmbTexture.name);
+            bitmap = ctrTexture.DecodeImage(ctxb.Data, cmbTexture);
+          }
 
           finTexture = model.MaterialManager.CreateTexture(bitmap);
           finTexture.Name = cmbTexture.name;
@@ -313,7 +327,7 @@ namespace zar.api {
                             .Select(value => value * shape.uv0.scale)
                             .ToArray();
 
-            finVertex.SetUv(0, uv0Values[0], uv0Values[1]);
+            finVertex.SetUv(0, uv0Values[0], 1 - uv0Values[1]);
           }
           if (hasUv1) {
             r.Position = cmb.startOffset +
@@ -326,7 +340,7 @@ namespace zar.api {
                             .Select(value => value * shape.uv1.scale)
                             .ToArray();
 
-            finVertex.SetUv(1, uv1Values[0], uv1Values[1]);
+            finVertex.SetUv(1, uv1Values[0], 1 - uv1Values[1]);
           }
           if (hasUv2) {
             r.Position = cmb.startOffset +
@@ -339,7 +353,7 @@ namespace zar.api {
                             .Select(value => value * shape.uv2.scale)
                             .ToArray();
 
-            finVertex.SetUv(2, uv2Values[0], uv2Values[1]);
+            finVertex.SetUv(2, uv2Values[0], 1 - uv2Values[1]);
           }
 
           if (hasBw) {

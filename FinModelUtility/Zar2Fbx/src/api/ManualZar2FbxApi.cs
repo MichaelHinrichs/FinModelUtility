@@ -7,6 +7,7 @@ using fin.util.asserts;
 
 using zar.format.cmb;
 using zar.format.csab;
+using zar.format.ctxb;
 
 namespace zar.api {
   public class ManualZar2FbxApi {
@@ -14,6 +15,7 @@ namespace zar.api {
         IDirectory outputDirectory,
         IFile[] cmbFiles,
         IFile[]? csabFiles,
+        IFile[]? ctxbFiles,
         float fps) {
       Asserts.True(cmbFiles.Length == 1 || csabFiles.Length == 0);
 
@@ -35,6 +37,16 @@ namespace zar.api {
                    })
                    .ToList();
 
+      var filesAndCtxbs =
+          ctxbFiles.Select(ctxbFile => {
+                     var ctxb = new Ctxb();
+                     ctxb.Read(new EndianBinaryReader(
+                                   ctxbFile.OpenRead(),
+                                   Endianness.LittleEndian));
+                     return (ctxbFile, ctxb);
+                   })
+                   .ToList();
+
       foreach (var (cmbFile, cmb) in filesAndCmbs) {
         using var r =
             new EndianBinaryReader(cmbFile.OpenRead(), Endianness.LittleEndian);
@@ -42,6 +54,7 @@ namespace zar.api {
             new ModelConverter().Convert(r,
                                          cmb,
                                          filesAndCsabs,
+                                         filesAndCtxbs,
                                          outputDirectory,
                                          fps);
 

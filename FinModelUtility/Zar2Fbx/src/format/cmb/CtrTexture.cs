@@ -3,8 +3,11 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 
+using fin.util.asserts;
 using fin.util.color;
 using fin.util.image;
+
+using zar.format.cmb.texture;
 
 namespace zar.format.cmb {
   public class CtrTexture {
@@ -67,7 +70,9 @@ namespace zar.format.cmb {
       };
 
 
-    public unsafe Bitmap DecodeImage(byte[] input, Texture texture) {
+    public unsafe Bitmap DecodeImage(
+        byte[] input,
+        Texture texture) {
       // M-1: Note: I don't think HiLo8 exist for .cmb
 
       if (texture.isEtc1) {
@@ -95,7 +100,7 @@ namespace zar.format.cmb {
                   var x = this.swizzleLut_[px] & 7;
                   var y = (this.swizzleLut_[px] - x) >> 3;
 
-                  var OOffs = (tx + x + (height - 1 - (ty + y)) * width) * 4;
+                  var OOffs = (tx + x + (ty + y) * width) * 4;
 
                   byte r, g, b, a;
 
@@ -127,7 +132,11 @@ namespace zar.format.cmb {
                     }
                     case GlTextureFormat.RGBA4444: {
                       var value = er.ReadUInt16();
-                      ColorUtil.SplitRgba4444(value, out r, out g, out b, out a);
+                      ColorUtil.SplitRgba4444(value,
+                                              out r,
+                                              out g,
+                                              out b,
+                                              out a);
                       break;
                     }
                     case GlTextureFormat.LA8: {
@@ -188,11 +197,13 @@ namespace zar.format.cmb {
           new EndianBinaryReader(new MemoryStream(data),
                                  Endianness.LittleEndian);
 
-      var alpha = this.CollapseFormat_(texture.imageFormat) ==
-                  GlTextureFormat.ETC1a4;
-
       var width = texture.width;
       var height = texture.height;
+
+      var bytes =
+          Etc1.Decompress(er, width, height, texture.imageFormat, data.Length);
+
+      Asserts.Equal(width * height * 4, bytes.Length);
 
       var output = new Bitmap(width, height, PixelFormat.Format32bppArgb);
 
@@ -200,200 +211,12 @@ namespace zar.format.cmb {
           output,
           bitmapData => {
             var o = (byte*) bitmapData.Scan0.ToPointer();
-
-            for (var ty = 0; ty < height; ty += 8) {
-              for (var tx = 0; tx < width; tx += 8) {
-                for (var t = 0; t < 4; ++t) {
-                  var alphaBlock = 0xffffffffffffffff;
-
-                  if (alpha) {
-                    // ReSharper disable once AccessToDisposedClosure
-                    alphaBlock = er.ReadUInt64();
-                  }
-
-                  // ReSharper disable once AccessToDisposedClosure
-                  var col = er.ReadUInt64();
-                  var colorBlock = this.Swap64_(col);
-                  var tile = this.Etc1Tile_(colorBlock);
-                  var tileOffset = 0;
-
-                  for (var py = this.yt_[t]; py < this.yt_[t] + 4; ++py) {
-                    for (var px = this.xt_[t]; px < this.xt_[t] + 4; ++px) {
-                      var oOffs = ((height - 1 - (ty + py)) * width + tx + px) *
-                                  4;
-
-                      var r = tile[tileOffset + 0];
-                      var g = tile[tileOffset + 1];
-                      var b = tile[tileOffset + 2];
-
-                      var alphaShift = ((px & 3) * 4 + (py & 3)) << 2;
-                      var a = (alphaBlock >> alphaShift) & 0xf;
-                      a = (a << 4) | a;
-
-                      o[oOffs + 0] = b;
-                      o[oOffs + 1] = g;
-                      o[oOffs + 2] = r;
-                      o[oOffs + 3] = (byte) a;
-
-                      tileOffset += 4;
-                    }
-                  }
-                }
-              }
+            for (var i = 0; i < width * height * 4; ++i) {
+              o[i] = bytes[i];
             }
           });
 
       return output;
     }
-
-    private ulong Swap64_(ulong value) {
-      value = ((value & 0xffffffff00000000) >> 32) |
-              ((value & 0x00000000ffffffff) << 32);
-      value = ((value & 0xffff0000ffff0000) >> 16) |
-              ((value & 0x0000ffff0000ffff) << 16);
-      value = ((value & 0xff00ff00ff00ff00) >> 8) |
-              ((value & 0x00ff00ff00ff00ff) << 8);
-      return value;
-    }
-
-    private byte[] Etc1Tile_(ulong block) {
-      var blockLow = (uint) (block >> 32);
-      var blockHigh = (uint) (block >> 0);
-
-      var flip = (blockHigh & 0x1000000) != 0;
-      var diff = (blockHigh & 0x2000000) != 0;
-
-      var r1 = 0l;
-      var g1 = 0l;
-      var b1 = 0l;
-      var r2 = 0l;
-      var g2 = 0l;
-      var b2 = 0l;
-
-      if (diff) {
-        b1 = (blockHigh & 0x0000f8) >> 0;
-        g1 = (blockHigh & 0x00f800) >> 8;
-        r1 = (blockHigh & 0xf80000) >> 16;
-
-        // CAST AS SBYTE IS THE ISSUE
-        b2 = (this.CastSByte_(b1 >> 3) +
-              (this.CastSByte_((blockHigh & 0x000007) << 5) >> 5));
-        g2 = (this.CastSByte_(g1 >> 3) +
-              (this.CastSByte_((blockHigh & 0x000700) >> 3) >> 5));
-        r2 = (this.CastSByte_(r1 >> 3) +
-              (this.CastSByte_((blockHigh & 0x070000) >> 11) >> 5));
-
-        b1 |= b1 >> 5;
-        g1 |= g1 >> 5;
-        r1 |= r1 >> 5;
-
-        b2 = (b2 << 3) | (b2 >> 2);
-        g2 = (g2 << 3) | (g2 >> 2);
-        r2 = (r2 << 3) | (r2 >> 2);
-      } else {
-        b1 = (blockHigh & 0x0000f0) >> 0;
-        g1 = (blockHigh & 0x00f000) >> 8;
-        r1 = (blockHigh & 0xf00000) >> 16;
-
-        b2 = (blockHigh & 0x00000f) << 4;
-        g2 = (blockHigh & 0x000f00) >> 4;
-        r2 = (blockHigh & 0x0f0000) >> 12;
-
-        b1 |= b1 >> 4;
-        g1 |= g1 >> 4;
-        r1 |= r1 >> 4;
-
-        b2 |= b2 >> 4;
-        g2 |= g2 >> 4;
-        r2 |= r2 >> 4;
-      }
-
-      var table1 = (blockHigh >> 29) & 7;
-      var table2 = (blockHigh >> 26) & 7;
-
-      var output = new byte[4 * 4 * 4];
-
-      if (!flip) {
-        for (var y = 0; y < 4; ++y) {
-          for (var x = 0; x < 2; ++x) {
-            var color1 =
-                this.Etc1Pixel_(r1, g1, b1, x + 0, y, blockLow, table1);
-            var color2 =
-                this.Etc1Pixel_(r2, g2, b2, x + 2, y, blockLow, table2);
-
-            var offset1 = (y * 4 + x) * 4;
-            output[offset1 + 0] = color1[2];
-            output[offset1 + 1] = color1[1];
-            output[offset1 + 2] = color1[0];
-
-            var offset2 = (y * 4 + x + 2) * 4;
-            output[offset2 + 0] = color2[2];
-            output[offset2 + 1] = color2[1];
-            output[offset2 + 2] = color2[0];
-          }
-        }
-      } else {
-        for (var y = 0; y < 2; ++y) {
-          for (var x = 0; x < 4; ++x) {
-            var color1 =
-                this.Etc1Pixel_(r1, g1, b1, x, y + 0, blockLow, table1);
-            var color2 =
-                this.Etc1Pixel_(r2, g2, b2, x, y + 2, blockLow, table2);
-
-            var offset1 = (y * 4 + x) * 4;
-            output[offset1 + 0] = color1[2];
-            output[offset1 + 1] = color1[1];
-            output[offset1 + 2] = color1[0];
-
-            var offset2 = ((y + 2) * 4 + x) * 4;
-            output[offset2 + 0] = color2[2];
-            output[offset2 + 1] = color2[1];
-            output[offset2 + 2] = color2[0];
-          }
-        }
-      }
-
-      return output;
-    }
-
-    private long CastSByte_(long value) {
-      if (value < -127) {
-        return (value + 255);
-      }
-      if (value > 127) {
-        return (value - 255);
-      }
-      return value;
-    }
-
-    private byte[] Etc1Pixel_(
-        long r,
-        long g,
-        long b,
-        int x,
-        int y,
-        ulong block,
-        ulong table) {
-      var Index = x * 4 + y;
-      var MSB = block << 1;
-
-      int pixel;
-      if (Index < 8) {
-        pixel = this.etc1Lut_[table][((block >> (Index + 24)) & 1) +
-                                     ((MSB >> (Index + 8)) & 2)];
-      } else {
-        pixel = this.etc1Lut_[table][((block >> (Index + 8)) & 1) +
-                                     ((MSB >> (Index - 8)) & 2)];
-      }
-
-      return new[] {
-          this.Saturate_(r + pixel),
-          this.Saturate_(g + pixel),
-          this.Saturate_(b + pixel)
-      };
-    }
-
-    private byte Saturate_(long value)
-      => (byte) Math.Max(0, Math.Min(value, 255));
   }
 }
