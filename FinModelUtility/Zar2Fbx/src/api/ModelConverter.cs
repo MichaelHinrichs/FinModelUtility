@@ -13,6 +13,7 @@ using fin.util.asserts;
 using zar.format.cmb;
 using zar.format.csab;
 using zar.format.ctxb;
+using zar.format.shpa;
 
 namespace zar.api {
   public class ModelConverter {
@@ -23,6 +24,7 @@ namespace zar.api {
         Cmb cmb,
         IList<(IFile, Csab)> filesAndCsabs,
         IList<(IFile, Ctxb)> filesAndCtxbs,
+        IList<(IFile, Shpa)> filesAndShpas,
         IDirectory outputDirectory,
         float fps) {
       var model = new ModelImpl();
@@ -197,6 +199,16 @@ namespace zar.api {
         }
       }
 
+      // Gets first SHPA animation.
+      /*var shpa = filesAndShpas
+                 .Select(fileAndShpa => fileAndShpa.Item2)
+                 .Skip(11)
+                 .FirstOrDefault();
+      var shpaIndexToPosi =
+          shpa?.Posi.Values.Select((posi, i) => (shpa.Idxs.Indices[i], posi))
+              .ToDictionary(indexAndPosi => indexAndPosi.Item1,
+                            indexAndPosi => indexAndPosi.posi);*/
+
       // Adds meshes
       foreach (var cmbMesh in cmb.sklm.meshes.meshes) {
         var shape = cmb.sklm.shapes.shapes[cmbMesh.shapeIndex];
@@ -282,6 +294,12 @@ namespace zar.api {
                                                positionValues[1],
                                                positionValues[2]);
           finVertices[i] = finVertex;
+
+          /*var index = (ushort) (shape.position.start / 3 + i);
+          IPosition? posi = null;
+          if (shpaIndexToPosi?.TryGetValue(index, out posi) ?? false) {
+            finVertex.SetLocalPosition(posi);
+          }*/
 
           if (hasNrm) {
             r.Position = cmb.startOffset +

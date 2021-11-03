@@ -201,9 +201,9 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MathNet.Numerics">
-      <Version>4.15.0</Version>
+      <Version>5.0.0-alpha02</Version>
     </PackageReference>
-    <PackageReference Include="System.ComponentModel.Composition" Version="5.0.0" />
+    <PackageReference Include="System.ComponentModel.Composition" Version="6.0.0-rc.2.21480.5" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="AboutBox.Designer.vb" />

@@ -6,6 +6,7 @@ using fin.model;
 using fin.util.optional;
 
 using SharpGLTF.Schema2;
+using SharpGLTF.Transforms;
 
 namespace fin.exporter.gltf {
   using GltfNode = Node;
@@ -74,7 +75,8 @@ namespace fin.exporter.gltf {
             }
 
             if (scaleDefined) {
-              var scale = boneTracks.Scales.GetInterpolatedFrame(i, defaultScale);
+              var scale =
+                  boneTracks.Scales.GetInterpolatedFrame(i, defaultScale);
               scaleKeyframes[time] = new Vector3(scale.X, scale.Y, scale.Z);
             }
           }
