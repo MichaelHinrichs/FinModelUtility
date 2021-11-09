@@ -17,12 +17,13 @@ namespace System.IO {
 
     public Endianness Endianness { get; set; }
 
-    public Endianness SystemEndianness
+    public static Endianness SystemEndianness
       => BitConverter.IsLittleEndian
              ? Endianness.LittleEndian
              : Endianness.BigEndian;
 
-    private bool Reverse => this.SystemEndianness != this.Endianness;
+    public bool Reverse
+      => EndianBinaryReader.SystemEndianness != this.Endianness;
 
     public EndianBinaryReader(Stream baseStream)
         : this(baseStream, Endianness.BigEndian) {}
@@ -128,6 +129,7 @@ namespace System.IO {
      * for each of the following types within the FinGenerated project.
      */
     private byte ConvertByte_(int i) => this.buffer_[i];
+
     private sbyte ConvertSByte_(int i) => (sbyte)this.buffer_[i];
 
     private short ConvertInt16_(int i)
