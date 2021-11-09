@@ -19,6 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MKDS Course Modifier Tests"
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fin", "Fin\Fin.csproj", "{48B6183A-CF51-42A4-889E-A75DA704D71D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{10296677-2D6F-4AB8-936F-AECBFB70EF74} = {10296677-2D6F-4AB8-936F-AECBFB70EF74}
+	EndProjectSection
 EndProject
 Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "Utility of Time", "Utility of Time\Utility of Time.vbproj", "{99CEE4F4-041C-4147-AE4F-5E11988AE392}"
 EndProject
@@ -59,9 +62,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UniversalModelExtractor", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Zar2Fbx", "Zar2Fbx\Zar2Fbx.csproj", "{7F57B864-05CB-4488-A798-0FC08D9F62B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "F3dzex2ToFbx", "F3dzex2ToFbx\F3dzex2ToFbx.csproj", "{439E4AFB-51BD-4F54-B6FA-E20A06E29D6F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "F3dzex2ToFbx", "F3dzex2ToFbx\F3dzex2ToFbx.csproj", "{439E4AFB-51BD-4F54-B6FA-E20A06E29D6F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mdl2Fbx", "Mdl2Fbx\Mdl2Fbx.csproj", "{45228CB1-B212-4779-949E-4B8FCC001F71}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mdl2Fbx", "Mdl2Fbx\Mdl2Fbx.csproj", "{45228CB1-B212-4779-949E-4B8FCC001F71}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinGenerated", "FinGenerated\FinGenerated.csproj", "{10296677-2D6F-4AB8-936F-AECBFB70EF74}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -241,6 +246,18 @@ Global
 		{45228CB1-B212-4779-949E-4B8FCC001F71}.Release|x64.Build.0 = Release|Any CPU
 		{45228CB1-B212-4779-949E-4B8FCC001F71}.Release|x86.ActiveCfg = Release|Any CPU
 		{45228CB1-B212-4779-949E-4B8FCC001F71}.Release|x86.Build.0 = Release|Any CPU
+		{10296677-2D6F-4AB8-936F-AECBFB70EF74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10296677-2D6F-4AB8-936F-AECBFB70EF74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10296677-2D6F-4AB8-936F-AECBFB70EF74}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{10296677-2D6F-4AB8-936F-AECBFB70EF74}.Debug|x64.Build.0 = Debug|Any CPU
+		{10296677-2D6F-4AB8-936F-AECBFB70EF74}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{10296677-2D6F-4AB8-936F-AECBFB70EF74}.Debug|x86.Build.0 = Debug|Any CPU
+		{10296677-2D6F-4AB8-936F-AECBFB70EF74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10296677-2D6F-4AB8-936F-AECBFB70EF74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10296677-2D6F-4AB8-936F-AECBFB70EF74}.Release|x64.ActiveCfg = Release|Any CPU
+		{10296677-2D6F-4AB8-936F-AECBFB70EF74}.Release|x64.Build.0 = Release|Any CPU
+		{10296677-2D6F-4AB8-936F-AECBFB70EF74}.Release|x86.ActiveCfg = Release|Any CPU
+		{10296677-2D6F-4AB8-936F-AECBFB70EF74}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -9,7 +9,7 @@ using System.Text;
 using fin.util.asserts;
 
 namespace System.IO {
-  public sealed class EndianBinaryReader : IDisposable {
+  public sealed partial class EndianBinaryReader : IDisposable {
     private bool disposed_;
     private byte[] buffer_;
 
@@ -17,17 +17,12 @@ namespace System.IO {
 
     public Endianness Endianness { get; set; }
 
-    public Endianness SystemEndianness {
-      get {
-        return BitConverter.IsLittleEndian
-                   ? Endianness.LittleEndian
-                   : Endianness.BigEndian;
-      }
-    }
+    public Endianness SystemEndianness
+      => BitConverter.IsLittleEndian
+             ? Endianness.LittleEndian
+             : Endianness.BigEndian;
 
-    private bool Reverse {
-      get { return this.SystemEndianness != this.Endianness; }
-    }
+    private bool Reverse => this.SystemEndianness != this.Endianness;
 
     public EndianBinaryReader(Stream baseStream)
         : this(baseStream, Endianness.BigEndian) {}
@@ -59,14 +54,19 @@ namespace System.IO {
       }
     }
 
-    private void FillBuffer_(int bytes, int stride) {
-      if (this.buffer_ == null || this.buffer_.Length < bytes)
-        this.buffer_ = new byte[bytes];
-      this.BaseStream.Read(this.buffer_, 0, bytes);
-      if (!this.Reverse)
+    private void FillBuffer_(int count, int? optStride = null) {
+      var stride = optStride ?? count;
+      if (this.buffer_ == null || this.buffer_.Length < count) {
+        this.buffer_ = new byte[count];
+      }
+      this.BaseStream.Read(this.buffer_, 0, count);
+
+      if (!this.Reverse) {
         return;
-      for (int index = 0; index < bytes; index += stride)
-        Array.Reverse((Array) this.buffer_, index, stride);
+      }
+      for (int index = 0; index < count; index += stride) {
+        Array.Reverse(this.buffer_, index, stride);
+      }
     }
 
     public void Subread(long position, Action<EndianBinaryReader> subread) {
@@ -78,31 +78,6 @@ namespace System.IO {
       this.Position = tempPos;
     }
 
-    public byte ReadByte() {
-      this.FillBuffer_(1, 1);
-      return this.buffer_[0];
-    }
-
-    public byte[] ReadBytes(int count) => this.ReadBytes(new byte[count]);
-
-    public byte[] ReadBytes(byte[] dst) {
-      this.FillBuffer_(dst.Length, 1);
-      Array.Copy((Array) this.buffer_, 0, (Array) dst, 0, dst.Length);
-      return dst;
-    }
-
-    public sbyte ReadSByte() {
-      this.FillBuffer_(1, 1);
-      return (sbyte) this.buffer_[0];
-    }
-
-    public sbyte[] ReadSBytes(int count) {
-      sbyte[] numArray = new sbyte[count];
-      this.FillBuffer_(count, 1);
-      for (int index = 0; index < count; ++index)
-        numArray[index] = (sbyte) this.buffer_[index];
-      return numArray;
-    }
 
     public char ReadChar(Encoding encoding) {
       int encodingSize = EndianBinaryReader.GetEncodingSize_(encoding);
@@ -148,126 +123,40 @@ namespace System.IO {
     public string ReadString(int count)
       => this.ReadString(Encoding.ASCII, count);
 
+    /**
+     * Methods for reading individual values and lists of values are generated
+     * for each of the following types within the FinGenerated project.
+     */
+    private byte ConvertByte_(int i) => this.buffer_[i];
+    private sbyte ConvertSByte_(int i) => (sbyte)this.buffer_[i];
 
-    public double ReadDouble() {
-      this.FillBuffer_(8, 8);
-      return BitConverter.ToDouble(this.buffer_, 0);
-    }
+    private short ConvertInt16_(int i)
+      => BitConverter.ToInt16(this.buffer_, sizeof(short) * i);
 
-    public double[] ReadDoubles(int count) {
-      double[] numArray = new double[count];
-      this.FillBuffer_(8 * count, 8);
-      for (int index = 0; index < count; ++index)
-        numArray[index] = BitConverter.ToDouble(this.buffer_, 8 * index);
-      return numArray;
-    }
+    private ushort ConvertUInt16_(int i)
+      => BitConverter.ToUInt16(this.buffer_, sizeof(ushort) * i);
 
+    private int ConvertInt32_(int i)
+      => BitConverter.ToInt32(this.buffer_, sizeof(int) * i);
 
-    public float ReadSingle() {
-      this.FillBuffer_(4, 4);
-      return BitConverter.ToSingle(this.buffer_, 0);
-    }
+    private uint ConvertUInt32_(int i)
+      => BitConverter.ToUInt32(this.buffer_, sizeof(uint) * i);
 
-    public float[] ReadSingles(int count) => this.ReadSingles(new float[count]);
+    private long ConvertInt64_(int i)
+      => BitConverter.ToInt64(this.buffer_, sizeof(long) * i);
 
-    public float[] ReadSingles(float[] dst) {
-      this.FillBuffer_(4 * dst.Length, 4);
-      for (int index = 0; index < dst.Length; ++index)
-        dst[index] = BitConverter.ToSingle(this.buffer_, 4 * index);
-      return dst;
-    }
+    private ulong ConvertUInt64_(int i)
+      => BitConverter.ToUInt64(this.buffer_, sizeof(ulong) * i);
 
+    private float ConvertSingle_(int i)
+      => BitConverter.ToSingle(this.buffer_, sizeof(float) * i);
 
-    public float ReadSn16() => this.ReadInt16() / (65535f / 2);
-    public float ReadUn16() => this.ReadUInt16() / 65535f;
+    private double ConvertDouble_(int i)
+      => BitConverter.ToDouble(this.buffer_, sizeof(double) * i);
 
+    private float ConvertSn16_(int i) => this.ConvertInt16_(i) / (65535f / 2);
+    private float ConvertUn16_(int i) => this.ConvertUInt16_(i) / 65535f;
 
-    public int ReadInt32() {
-      this.FillBuffer_(4, 4);
-      return BitConverter.ToInt32(this.buffer_, 0);
-    }
-
-    public int[] ReadInt32s(int count) {
-      int[] numArray = new int[count];
-      this.FillBuffer_(4 * count, 4);
-      for (int index = 0; index < count; ++index)
-        numArray[index] = BitConverter.ToInt32(this.buffer_, 4 * index);
-      return numArray;
-    }
-
-    public long ReadInt64() {
-      this.FillBuffer_(8, 8);
-      return BitConverter.ToInt64(this.buffer_, 0);
-    }
-
-    public long[] ReadInt64s(int count) {
-      long[] numArray = new long[count];
-      this.FillBuffer_(8 * count, 8);
-      for (int index = 0; index < count; ++index)
-        numArray[index] = BitConverter.ToInt64(this.buffer_, 8 * index);
-      return numArray;
-    }
-
-    public short ReadInt16() {
-      this.FillBuffer_(2, 2);
-      return BitConverter.ToInt16(this.buffer_, 0);
-    }
-
-    public short[] ReadInt16s(int count) {
-      short[] numArray = new short[count];
-      this.FillBuffer_(2 * count, 2);
-      for (int index = 0; index < count; ++index)
-        numArray[index] = BitConverter.ToInt16(this.buffer_, 2 * index);
-      return numArray;
-    }
-
-    public void AssertUInt16(ushort expectedValue)
-      => Asserts.Equal(expectedValue, this.ReadUInt16());
-
-    public ushort ReadUInt16() {
-      this.FillBuffer_(2, 2);
-      return BitConverter.ToUInt16(this.buffer_, 0);
-    }
-
-    public ushort[] ReadUInt16s(int count) {
-      ushort[] numArray = new ushort[count];
-      this.FillBuffer_(2 * count, 2);
-      for (int index = 0; index < count; ++index)
-        numArray[index] = BitConverter.ToUInt16(this.buffer_, 2 * index);
-      return numArray;
-    }
-
-
-    public void AssertUInt32(uint expectedValue)
-      => Asserts.Equal(expectedValue, this.ReadUInt32());
-
-    public uint ReadUInt32() {
-      this.FillBuffer_(4, 4);
-      return BitConverter.ToUInt32(this.buffer_, 0);
-    }
-
-    public uint[] ReadUInt32s(int count) => this.ReadUInt32s(new uint[count]);
-
-    public uint[] ReadUInt32s(uint[] dst) {
-      this.FillBuffer_(4 * dst.Length, 4);
-      for (int index = 0; index < dst.Length; ++index)
-        dst[index] = BitConverter.ToUInt32(this.buffer_, 4 * index);
-      return dst;
-    }
-
-
-    public ulong ReadUInt64() {
-      this.FillBuffer_(8, 8);
-      return BitConverter.ToUInt64(this.buffer_, 0);
-    }
-
-    public ulong[] ReadUInt64s(int count) {
-      ulong[] numArray = new ulong[count];
-      this.FillBuffer_(8 * count, 8);
-      for (int index = 0; index < count; ++index)
-        numArray[index] = BitConverter.ToUInt64(this.buffer_, 8 * index);
-      return numArray;
-    }
 
     public void Close() {
       this.Dispose();
@@ -275,7 +164,7 @@ namespace System.IO {
 
     public void Dispose() {
       this.Dispose(true);
-      GC.SuppressFinalize((object) this);
+      GC.SuppressFinalize((object)this);
     }
 
     private void Dispose(bool disposing) {
@@ -283,7 +172,7 @@ namespace System.IO {
         return;
       if (disposing && this.BaseStream != null)
         this.BaseStream.Close();
-      this.buffer_ = (byte[]) null;
+      this.buffer_ = (byte[])null;
       this.disposed_ = true;
     }
   }

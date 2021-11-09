@@ -4,6 +4,7 @@
     <RootNamespace>fin</RootNamespace>
     <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
+    <OutputType>Library</OutputType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -18,6 +19,10 @@
     <Compile Remove="src\exporter\assimp\AssimpSkeletonBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../FinGenerated/FinGenerated.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AssimpNet" Version="5.0.0-beta1" />
     <PackageReference Include="CommandLineParser" Version="2.9.0-preview1" />
     <PackageReference Include="Crayon" Version="2.0.62" />
@@ -28,6 +33,10 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0-rc.2.21480.5" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="6.0.0-rc.2.21480.5" />
     <PackageReference Include="Microsoft.IdentityModel.Logging" Version="6.14.0" />
+    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.0.0-1.final">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="MSTest.TestFramework" Version="2.2.7" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="ShaderGen" Version="1.2.0-beta3" />
