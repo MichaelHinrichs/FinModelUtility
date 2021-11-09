@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 
+using fin.data;
 using fin.io;
 using fin.math;
 using fin.model;
@@ -199,15 +200,7 @@ namespace zar.api {
         }
       }
 
-      // Gets first SHPA animation.
-      /*var shpa = filesAndShpas
-                 .Select(fileAndShpa => fileAndShpa.Item2)
-                 .Skip(11)
-                 .FirstOrDefault();
-      var shpaIndexToPosi =
-          shpa?.Posi.Values.Select((posi, i) => (shpa.Idxs.Indices[i], posi))
-              .ToDictionary(indexAndPosi => indexAndPosi.Item1,
-                            indexAndPosi => indexAndPosi.posi);*/
+      var verticesByIndex = new ListDictionary<int, IVertex>();
 
       // Adds meshes
       foreach (var cmbMesh in cmb.sklm.meshes.meshes) {
@@ -295,11 +288,8 @@ namespace zar.api {
                                                positionValues[2]);
           finVertices[i] = finVertex;
 
-          /*var index = (ushort) (shape.position.start / 3 + i);
-          IPosition? posi = null;
-          if (shpaIndexToPosi?.TryGetValue(index, out posi) ?? false) {
-            finVertex.SetLocalPosition(posi);
-          }*/
+          var index = (ushort) (shape.position.start / 3 + i);
+          verticesByIndex.Add(index, finVertex);
 
           if (hasNrm) {
             r.Position = cmb.startOffset +
@@ -431,6 +421,27 @@ namespace zar.api {
         }
         finMesh.AddTriangles(triangleVertices)
                .SetMaterial(finMaterials[cmbMesh.materialIndex]);
+      }
+
+      // Adds morph targets
+      foreach (var (shpaFile, shpa) in filesAndShpas) {
+        var shpaIndexToPosi =
+            shpa?.Posi.Values.Select((posi, i) => (shpa.Idxs.Indices[i], posi))
+                .ToDictionary(indexAndPosi => indexAndPosi.Item1,
+                              indexAndPosi => indexAndPosi.posi);
+
+        var morphTarget = model.AnimationManager.AddMorphTarget();
+        morphTarget.Name = shpaFile.NameWithoutExtension;
+
+        foreach (var (index, position) in shpaIndexToPosi) {
+          if (!verticesByIndex.TryGetList(index, out var finVertices)) {
+            continue;
+          }
+
+          foreach (var finVertex in finVertices) {
+            morphTarget.MoveTo(finVertex, position);
+          }
+        }
       }
 
       return model;
