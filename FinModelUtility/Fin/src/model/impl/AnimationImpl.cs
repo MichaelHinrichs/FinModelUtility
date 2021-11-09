@@ -13,9 +13,15 @@ namespace fin.model.impl {
     private class AnimationManagerImpl : IAnimationManager {
       private readonly IList<IAnimation> animations_ = new List<IAnimation>();
 
+      private readonly IList<IMorphTarget> morphTargets_ =
+          new List<IMorphTarget>();
+
       public AnimationManagerImpl() {
         this.Animations = new ReadOnlyCollection<IAnimation>(this.animations_);
+        this.MorphTargets =
+            new ReadOnlyCollection<IMorphTarget>(this.morphTargets_);
       }
+
 
       public IReadOnlyList<IAnimation> Animations { get; }
 
@@ -49,6 +55,32 @@ namespace fin.model.impl {
 
         // TODO: Allow setting fps.
         // TODO: Allow setting looping behavior (once, back and forth, etc.)
+      }
+
+
+      public IReadOnlyList<IMorphTarget> MorphTargets { get; }
+
+      public IMorphTarget AddMorphTarget() {
+        var morphTarget = new MorphTargetImpl();
+        this.morphTargets_.Add(morphTarget);
+        return morphTarget;
+      }
+
+      private class MorphTargetImpl : IMorphTarget {
+        private Dictionary<IVertex, IPosition> morphs_ = new();
+
+        public MorphTargetImpl() {
+          this.Morphs =
+              new ReadOnlyDictionary<IVertex, IPosition>(this.morphs_);
+        }
+
+        public string Name { get; set; }
+        public IReadOnlyDictionary<IVertex, IPosition> Morphs { get; }
+
+        public IMorphTarget MoveTo(IVertex vertex, IPosition position) {
+          this.morphs_[vertex] = position;
+          return this;
+        }
       }
     }
 

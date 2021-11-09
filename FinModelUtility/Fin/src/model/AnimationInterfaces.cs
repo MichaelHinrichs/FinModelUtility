@@ -9,6 +9,16 @@ namespace fin.model {
   public interface IAnimationManager {
     IReadOnlyList<IAnimation> Animations { get; }
     IAnimation AddAnimation();
+
+    IReadOnlyList<IMorphTarget> MorphTargets { get; }
+    IMorphTarget AddMorphTarget();
+  }
+
+  public interface IMorphTarget {
+    string Name { get; set; }
+
+    IReadOnlyDictionary<IVertex, IPosition> Morphs { get; }
+    IMorphTarget MoveTo(IVertex vertex, IPosition position);
   }
 
   public interface IAnimation {
@@ -22,7 +32,7 @@ namespace fin.model {
 
     // TODO: Allow setting looping behavior (once, back and forth, etc.)
   }
-
+  
   public interface IBoneTracks {
     public void Set(IBoneTracks other);
 
