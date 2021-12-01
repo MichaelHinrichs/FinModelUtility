@@ -1,16 +1,17 @@
 ﻿using Assimp;
+
 using fin.model;
+
 using System.Collections.Generic;
 
 namespace fin.exporter.assimp.indirect {
-
   public class AssimpIndirectAnimationFixer {
     public void Fix(IModel model, Scene sc) {
       var finAnimations = model.AnimationManager.Animations;
       var assAnimations = sc.Animations;
       for (var a = 0; a < assAnimations.Count; ++a) {
         var assAnimation = assAnimations[a];
-        var finAnimation = finAnimations[a];
+        var finAnimation = finAnimations.Count > 0 ? finAnimations[a] : null;
 
         // Animations are SUPER slow, we need to speed them way up!
         {
@@ -26,7 +27,7 @@ namespace fin.exporter.assimp.indirect {
         }
 
         var assFps = assAnimation.TicksPerSecond;
-        var finFps = finAnimation.FrameRate;
+        var finFps = finAnimation?.FrameRate ?? 30;
 
         assAnimation.TicksPerSecond = finFps;
         assAnimation.DurationInTicks *= finFps / assFps;
