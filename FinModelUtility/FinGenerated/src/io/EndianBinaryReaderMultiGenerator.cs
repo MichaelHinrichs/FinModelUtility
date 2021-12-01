@@ -2,7 +2,6 @@
 using System.Text;
 
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Text;
 
 namespace System.IO {
   [Generator]
@@ -10,6 +9,10 @@ namespace System.IO {
     public void Initialize(GeneratorInitializationContext context) {}
 
     public void Execute(GeneratorExecutionContext context) {
+      if (!context.Compilation.ContainsSymbolsWithName("EndianBinaryReader")) {
+        return;
+      }
+
       var stringBuilder = new StringBuilder(@"
 using fin.util.asserts;
 
