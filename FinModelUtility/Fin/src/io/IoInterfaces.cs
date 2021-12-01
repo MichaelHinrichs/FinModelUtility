@@ -45,13 +45,4 @@ namespace fin.io {
     FileStream OpenRead();
     FileStream OpenWrite();
   }
-
-
-  public interface ISerializable {
-    public void Write(EndianBinaryWriter w);
-  }
-
-  public interface IDeserializable {
-    public void Read(EndianBinaryReader r);
-  }
 }
