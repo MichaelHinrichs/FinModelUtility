@@ -8,18 +8,24 @@ namespace uni.cli {
   [Verb("luigis_mansion", HelpText = "Extract models from Luigi's Mansion.")]
   public class LuigisMansionOptions {}
 
-  [Verb("luigis_mansion_3d", HelpText = "Extract models from Luigi's Mansion 3D.")]
-  public class LuigisMansion3dOptions{}
+  [Verb("luigis_mansion_3d",
+        HelpText = "Extract models from Luigi's Mansion 3D.")]
+  public class LuigisMansion3dOptions {}
 
-  [Verb("mario_kart_double_dash", HelpText = "Extract models from Mario Kart: Double Dash.")]
-  public class MarioKartDoubleDashOptions { }
+  [Verb("mario_kart_double_dash",
+        HelpText = "Extract models from Mario Kart: Double Dash.")]
+  public class MarioKartDoubleDashOptions {}
 
   [Verb("ocarina_of_time_3d",
         HelpText = "Extract models from Ocarina of Time 3D.")]
   public class OcarinaOfTime3dOptions {}
 
-  [Verb("paper_mario_the_thousand_year_door", HelpText = "Extract models from Paper Mario: The Thousand Year Door.")]
-  public class PaperMarioTheThousandYearDoorOptions { }
+  [Verb("ocarina_of_time", HelpText = "Extract models from Ocarina of Time.")]
+  public class OcarinaOfTimeOptions {}
+
+  [Verb("paper_mario_the_thousand_year_door",
+        HelpText = "Extract models from Paper Mario: The Thousand Year Door.")]
+  public class PaperMarioTheThousandYearDoorOptions {}
 
   [Verb("pikmin_1", HelpText = "Extract models from Pikmin 1.")]
   public class Pikmin1Options {}
@@ -33,7 +39,7 @@ namespace uni.cli {
 
   [Verb("wind_waker",
         HelpText = "Extract models from Wind Waker.")]
-  public class WindWakerOptions { }
+  public class WindWakerOptions {}
 
   [Verb("debug",
         HelpText =

@@ -8,6 +8,7 @@ using uni.games.animal_crossing;
 using uni.games.luigis_mansion;
 using uni.games.luigis_mansion_3d;
 using uni.games.mario_kart_double_dash;
+using uni.games.ocarina_of_time;
 using uni.games.ocarina_of_time_3d;
 using uni.games.paper_mario_the_thousand_year_door;
 using uni.games.pikmin_1;
@@ -28,6 +29,7 @@ namespace uni.cli {
                     typeof(LuigisMansion3dOptions),
                     typeof(MarioKartDoubleDashOptions),
                     typeof(OcarinaOfTime3dOptions),
+                    typeof(OcarinaOfTimeOptions),
                     typeof(PaperMarioTheThousandYearDoorOptions),
                     typeof(Pikmin1Options),
                     typeof(Pikmin2Options),
@@ -48,6 +50,9 @@ namespace uni.cli {
                 })
                 .WithParsed((OcarinaOfTime3dOptions _) => {
                   new OcarinaOfTime3dExtractor().ExtractAll();
+                })
+                .WithParsed((OcarinaOfTimeOptions _) => {
+                  new OcarinaOfTimeExtractor().ExtractAll();
                 })
                 .WithParsed((PaperMarioTheThousandYearDoorOptions _) => {
                   new PaperMarioTheThousandYearDoorExtractor().ExtractAll();

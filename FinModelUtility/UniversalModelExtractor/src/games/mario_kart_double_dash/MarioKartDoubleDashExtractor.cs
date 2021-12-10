@@ -19,7 +19,7 @@ namespace uni.games.mario_kart_double_dash {
         Logging.Create<MarioKartDoubleDashExtractor>();
 
     public void ExtractAll() {
-      var marioKartDoubleDashExtractorRom =
+      var marioKartDoubleDashRom =
           DirectoryConstants.ROMS_DIRECTORY.GetExistingFile(
               "mario_kart_double_dash.gcm");
 
@@ -27,7 +27,7 @@ namespace uni.games.mario_kart_double_dash {
                                              .UseRarcDumpForExtensions(".arc");
       var fileHierarchy =
           new GcnFileHierarchyExtractor()
-              .ExtractFromRom(options, marioKartDoubleDashExtractorRom);
+              .ExtractFromRom(options, marioKartDoubleDashRom);
 
       this.ExtractDrivers_(fileHierarchy);
       this.ExtractKarts_(fileHierarchy);
@@ -50,7 +50,7 @@ namespace uni.games.mario_kart_double_dash {
       var mramSubdir = fileHierarchy.Root.TryToGetSubdir(@"MRAM\driver");
 
       {
-        var plumberNames = new[] {"mario", "luigi",};
+        var plumberNames = new[] { "mario", "luigi", };
         var plumberSubdirs =
             mramSubdir.Subdirs.Where(
                 subdir => plumberNames.Contains(subdir.Name));
@@ -80,7 +80,7 @@ namespace uni.games.mario_kart_double_dash {
       }
 
       {
-        var princessNames = new[] {"daisy", "peach"};
+        var princessNames = new[] { "daisy", "peach" };
         var princessSubdirs =
             mramSubdir.Subdirs.Where(
                 subdir => princessNames.Contains(subdir.Name));
@@ -93,7 +93,7 @@ namespace uni.games.mario_kart_double_dash {
       }
 
       {
-        var lizardNames = new[] {"catherine", "yoshi"};
+        var lizardNames = new[] { "catherine", "yoshi" };
         var lizardSubdirs =
             mramSubdir.Subdirs.Where(
                 subdir => lizardNames.Contains(subdir.Name));
@@ -108,7 +108,7 @@ namespace uni.games.mario_kart_double_dash {
       // TODO: Where are toad's animations?
 
       {
-        var koopaNames = new[] {"patapata", "nokonoko"};
+        var koopaNames = new[] { "patapata", "nokonoko" };
         var koopaSubdirs =
             mramSubdir.Subdirs.Where(
                 subdir => koopaNames.Contains(subdir.Name));
@@ -284,7 +284,7 @@ namespace uni.games.mario_kart_double_dash {
       }
       Asserts.True(unclaimedBcxFiles.Count == 0);
       foreach (var (bmdFile, bcxFiles) in bmdAndBcxFiles) {
-        this.ExtractModels_(directory, new[] {bmdFile}, bcxFiles, btiFiles);
+        this.ExtractModels_(directory, new[] { bmdFile }, bcxFiles, btiFiles);
       }
     }
 
