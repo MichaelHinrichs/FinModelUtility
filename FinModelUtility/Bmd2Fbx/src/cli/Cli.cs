@@ -1,17 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using bmd.api;
 
-using bmd.api;
-using bmd.exporter;
-
-using fin.exporter.assimp.indirect;
-using fin.io;
 using fin.log;
-using fin.util.asserts;
-
-using bmd.GCN;
 
 namespace bmd.cli {
   public class Cli {
