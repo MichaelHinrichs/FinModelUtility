@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 
-using fin.io;
 using fin.util.asserts;
 using fin.util.optional;
+
+using schema;
 
 namespace zar.format.csab {
   public class CsabKeyframe {

@@ -1,9 +1,10 @@
 ﻿using System.IO;
 
-using fin.io;
 using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
+
+using schema;
 
 namespace zar.format.shpa {
   public class Shpa : IDeserializable {

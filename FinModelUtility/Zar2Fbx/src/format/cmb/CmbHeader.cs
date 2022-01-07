@@ -1,8 +1,9 @@
 ﻿using System.IO;
 
-using fin.io;
 using fin.util.asserts;
 using fin.util.strings;
+
+using schema;
 
 namespace zar.format.cmb {
   public class CmbHeader : IDeserializable {
@@ -29,7 +30,7 @@ namespace zar.format.cmb {
 
       this.fileSize = r.ReadUInt32();
 
-      this.version = CmbHeader.Version = (CmbVersion) r.ReadUInt32();
+      this.version = CmbHeader.Version = (CmbVersion)r.ReadUInt32();
 
 
       Asserts.Equal(0, r.ReadInt32());

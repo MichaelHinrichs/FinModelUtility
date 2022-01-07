@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace schema {
   [DiagnosticAnalyzer(LanguageNames.CSharp)]
-  public class SchemaAnalyzer : DiagnosticAnalyzer {
+  internal class SchemaAnalyzer : DiagnosticAnalyzer {
     public override void Initialize(AnalysisContext context) {
       context.RegisterSymbolAction(symbolAnalysisContext => {
         var symbol = symbolAnalysisContext.Symbol;

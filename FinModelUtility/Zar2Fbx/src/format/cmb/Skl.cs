@@ -1,7 +1,8 @@
 ﻿using System.IO;
 
-using fin.io;
 using fin.util.strings;
+
+using schema;
 
 namespace zar.format.cmb {
   public class Skl : IDeserializable {

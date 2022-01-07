@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-using fin.io;
+using schema;
 
 namespace zar.format.cmb {
   public class Bone : IDeserializable {

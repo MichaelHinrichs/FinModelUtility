@@ -1,7 +1,6 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
-using fin.io;
+using schema;
 
 namespace zar.format.cmb {
   public class Sepd : IDeserializable {

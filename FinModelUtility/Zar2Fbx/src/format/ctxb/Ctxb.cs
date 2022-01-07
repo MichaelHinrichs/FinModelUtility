@@ -1,7 +1,8 @@
 ﻿using System.IO;
 
-using fin.io;
 using fin.util.strings;
+
+using schema;
 
 using zar.format.cmb;
 

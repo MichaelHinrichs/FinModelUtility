@@ -1,12 +1,15 @@
 ﻿using System.IO;
 
-namespace fin.io {
+namespace schema {
+  public interface ISchemaGenerated : IBiSerializable {}
+
+
   public interface ISerializable {
-    public void Write(EndianBinaryWriter w);
+    void Write(EndianBinaryWriter ew);
   }
 
   public interface IDeserializable {
-    public void Read(EndianBinaryReader r);
+    void Read(EndianBinaryReader er);
   }
 
   public interface IBiSerializable : ISerializable, IDeserializable {}

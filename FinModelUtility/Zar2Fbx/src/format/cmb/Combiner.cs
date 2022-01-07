@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-using fin.io;
+using schema;
 
 namespace zar.format.cmb {
   public class Combiner : IDeserializable {
