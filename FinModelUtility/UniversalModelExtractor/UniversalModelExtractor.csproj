@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../BinarySchema/BinarySchema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
     <ProjectReference Include="..\Bmd2Fbx\Bmd2Fbx.csproj" />
     <ProjectReference Include="..\F3dzex2ToFbx\F3dzex2ToFbx.csproj" />
     <ProjectReference Include="..\Fin\Fin.csproj" />
