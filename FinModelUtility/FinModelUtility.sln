@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30611.23
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MKDS Course Modifier", "MKDS Course Modifier\MKDS Course Modifier.csproj", "{86022D00-3FF6-4C1C-A0E4-CF0A96BF9897}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -64,6 +64,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mdl2Fbx", "Mdl2Fbx\Mdl2Fbx.csproj", "{45228CB1-B212-4779-949E-4B8FCC001F71}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinarySchema", "BinarySchema\BinarySchema.csproj", "{7E2E1FEE-0A02-4FB6-8C3B-9C4080D3758A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BinarySchema Tests", "BinarySchema Tests\BinarySchema Tests.csproj", "{67444A5C-48C3-4004-8BC5-3947BF323921}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -255,6 +257,18 @@ Global
 		{7E2E1FEE-0A02-4FB6-8C3B-9C4080D3758A}.Release|x64.Build.0 = Release|Any CPU
 		{7E2E1FEE-0A02-4FB6-8C3B-9C4080D3758A}.Release|x86.ActiveCfg = Release|Any CPU
 		{7E2E1FEE-0A02-4FB6-8C3B-9C4080D3758A}.Release|x86.Build.0 = Release|Any CPU
+		{67444A5C-48C3-4004-8BC5-3947BF323921}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67444A5C-48C3-4004-8BC5-3947BF323921}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67444A5C-48C3-4004-8BC5-3947BF323921}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{67444A5C-48C3-4004-8BC5-3947BF323921}.Debug|x64.Build.0 = Debug|Any CPU
+		{67444A5C-48C3-4004-8BC5-3947BF323921}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{67444A5C-48C3-4004-8BC5-3947BF323921}.Debug|x86.Build.0 = Debug|Any CPU
+		{67444A5C-48C3-4004-8BC5-3947BF323921}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67444A5C-48C3-4004-8BC5-3947BF323921}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67444A5C-48C3-4004-8BC5-3947BF323921}.Release|x64.ActiveCfg = Release|Any CPU
+		{67444A5C-48C3-4004-8BC5-3947BF323921}.Release|x64.Build.0 = Release|Any CPU
+		{67444A5C-48C3-4004-8BC5-3947BF323921}.Release|x86.ActiveCfg = Release|Any CPU
+		{67444A5C-48C3-4004-8BC5-3947BF323921}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

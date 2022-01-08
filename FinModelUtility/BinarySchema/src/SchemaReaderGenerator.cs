@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using schema.text;
 
 namespace schema {
-  internal abstract class SchemaReaderGenerator {
+  internal class SchemaReaderGenerator {
     public void Generate(ISchemaStructure structure) {
-      var type = structure.Type;
+      /*var typeSymbol = structure.TypeSymbol;
 
       var declaringTypes =
           SchemaReaderGenerator.GetDeclaringTypesDownward_(type);
@@ -30,8 +30,8 @@ namespace schema {
                             : $"this.{field.Name}";
 
         if (field.IsArray) {
-          if (!field.HasConstArrayLength) {
-            var countField = field.ArrayLengthField;
+          if (!field.HasConstLength) {
+            var countField = field.LengthField;
 
             cbsb.EnterBlock($"if (this.{countField.Name} < 0)");
             cbsb.WriteLine(
@@ -80,6 +80,9 @@ namespace schema {
 
       // namespace
       cbsb.ExitBlock();
+
+      var generatedCode = cbsb.ToString();
+      ;*/
     }
 
     private static Type[] GetDeclaringTypesDownward_(Type type) {
@@ -92,7 +95,7 @@ namespace schema {
       }
       declaringTypes.Reverse();
 
-      return declaringTypes;
+      return declaringTypes.ToArray();
     }
 
     private static string GetSymbolQualifiers_(Type type)

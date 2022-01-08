@@ -146,7 +146,8 @@ namespace System.IO {
       const int size = sizeof(byte);
       this.FillBuffer_(size * dst.Length, size);
       for (var i = 0; i < dst.Length; ++i) {
-        dst[i] = EndianBinaryReader.ConvertByte_(this.BufferedStream_.Buffer, i);
+        dst[i] =
+            EndianBinaryReader.ConvertByte_(this.BufferedStream_.Buffer, i);
       }
       return dst;
     }
@@ -202,7 +203,8 @@ namespace System.IO {
       return EndianBinaryReader.ConvertUInt16_(this.BufferedStream_.Buffer, 0);
     }
 
-    public ushort[] ReadUInt16s(int count) => this.ReadUInt16s(new ushort[count]);
+    public ushort[] ReadUInt16s(int count)
+      => this.ReadUInt16s(new ushort[count]);
 
     public ushort[] ReadUInt16s(ushort[] dst) {
       const int size = sizeof(ushort);
@@ -328,7 +330,8 @@ namespace System.IO {
       return EndianBinaryReader.ConvertDouble_(this.BufferedStream_.Buffer, 0);
     }
 
-    public double[] ReadDoubles(int count) => this.ReadDoubles(new double[count]);
+    public double[] ReadDoubles(int count)
+      => this.ReadDoubles(new double[count]);
 
     public double[] ReadDoubles(double[] dst) {
       const int size = sizeof(double);
@@ -382,6 +385,16 @@ namespace System.IO {
       return dst;
     }
 
+    public void AssertChar(char expectedValue)
+      => this.AssertChar(Encoding.ASCII, expectedValue);
+
+    public char ReadChar() => this.ReadChar(Encoding.ASCII);
+    public char[] ReadChars(int count) => this.ReadChars(Encoding.ASCII, count);
+    public char[] ReadChars(char[] dst) => this.ReadChars(Encoding.ASCII, dst);
+
+
+    public void AssertChar(Encoding encoding, char expectedValue)
+      => EndianBinaryReader.Assert(expectedValue, this.ReadChar(encoding));
 
     public char ReadChar(Encoding encoding) {
       var encodingSize = EndianBinaryReader.GetEncodingSize_(encoding);
@@ -389,12 +402,18 @@ namespace System.IO {
       return encoding.GetChars(this.BufferedStream_.Buffer, 0, encodingSize)[0];
     }
 
-    public char[] ReadChars(Encoding encoding, int count) {
-      int encodingSize = EndianBinaryReader.GetEncodingSize_(encoding);
-      this.BufferedStream_.FillBuffer(encodingSize * count, encodingSize);
-      return encoding.GetChars(this.BufferedStream_.Buffer,
-                               0,
-                               encodingSize * count);
+    public char[] ReadChars(Encoding encoding, int count)
+      => this.ReadChars(encoding, new char[count]);
+
+    public char[] ReadChars(Encoding encoding, char[] dst) {
+      var encodingSize = EndianBinaryReader.GetEncodingSize_(encoding);
+      this.BufferedStream_.FillBuffer(encodingSize * dst.Length, encodingSize);
+      encoding.GetChars(this.BufferedStream_.Buffer,
+                        0,
+                        encodingSize * dst.Length,
+                        dst,
+                        0);
+      return dst;
     }
 
     private static int GetEncodingSize_(Encoding encoding) {
@@ -406,6 +425,34 @@ namespace System.IO {
                  : 2;
     }
 
+
+    public void AssertString(string expectedValue)
+      => this.AssertString(Encoding.ASCII, expectedValue);
+
+    public string ReadString(int count)
+      => this.ReadString(Encoding.ASCII, count);
+
+
+    public void AssertString(Encoding encoding, string expectedValue)
+      => EndianBinaryReader.Assert(
+          expectedValue,
+          this.ReadString(encoding, expectedValue.Length));
+
+    public string ReadString(Encoding encoding, int count)
+      => new(this.ReadChars(encoding, count));
+
+
+    public void AssertStringNT(string expectedValue)
+      => this.AssertStringNT(Encoding.ASCII, expectedValue);
+
+    public string ReadStringNT() => this.ReadStringNT(Encoding.ASCII);
+
+
+    public void AssertStringNT(Encoding encoding, string expectedValue)
+      => EndianBinaryReader.Assert(
+          expectedValue,
+          this.ReadStringNT(encoding));
+
     public string ReadStringNT(Encoding encoding) {
       string str = "";
       do {
@@ -413,8 +460,6 @@ namespace System.IO {
       } while (!str.EndsWith("\0", StringComparison.Ordinal));
       return str.Remove(str.Length - 1);
     }
-
-    public string ReadStringNT() => this.ReadStringNT(Encoding.ASCII);
 
     public void AssertMagicText(string expectedText) {
       var actualText = this.ReadString(expectedText.Length);
@@ -424,11 +469,5 @@ namespace System.IO {
             $"Expected to find magic text \"{expectedText}\", but found \"{actualText}\"");
       }
     }
-
-    public string ReadString(Encoding encoding, int count)
-      => new(this.ReadChars(encoding, count));
-
-    public string ReadString(int count)
-      => this.ReadString(Encoding.ASCII, count);
   }
 }
