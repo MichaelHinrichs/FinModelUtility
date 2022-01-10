@@ -29,6 +29,8 @@ using fin.util.asserts;
 using fin.util.color;
 using fin.util.image;
 
+#pragma warning disable CS8604
+
 using BlendFactor = mkds.gcn.bmd.BlendFactor;
 using LogicOp = mkds.gcn.bmd.LogicOp;
 

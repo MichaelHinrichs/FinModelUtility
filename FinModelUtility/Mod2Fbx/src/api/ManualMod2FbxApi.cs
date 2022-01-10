@@ -93,6 +93,7 @@ namespace mod.api {
 
       outputDirectory.Create();
 
+      // TODO: Move to indirect model exporter
       logger.LogInformation("Exporting textures.");
       foreach (var (_, mod) in filesAndMods) {
         for (var i = 0; i < mod.textures.Count; ++i) {

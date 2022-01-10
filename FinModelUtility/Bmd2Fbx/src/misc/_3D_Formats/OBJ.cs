@@ -12,6 +12,8 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
+#pragma warning disable CS8603
+
 namespace bmd._3D_Formats
 {
   public class OBJ

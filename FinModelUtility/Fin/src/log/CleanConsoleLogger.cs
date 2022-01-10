@@ -14,7 +14,7 @@ namespace fin.log {
   public class CleanConsoleLogger : MicrosoftLogger {
     public LogLevel LogLevel { get; set; } = LogLevel.Information;
 
-    public IDisposable BeginScope<TState>(TState state) => null;
+    public IDisposable? BeginScope<TState>(TState state) => null;
 
     public bool IsEnabled(LogLevel logLevel) => logLevel >= this.LogLevel;
 

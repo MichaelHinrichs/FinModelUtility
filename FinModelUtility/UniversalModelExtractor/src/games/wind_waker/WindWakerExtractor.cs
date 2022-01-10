@@ -17,6 +17,7 @@ using uni.platforms;
 using uni.platforms.gcn;
 using uni.platforms.gcn.tools;
 using uni.util.io;
+#pragma warning disable CS8604
 
 namespace uni.games.wind_waker {
   public class WindWakerExtractor {

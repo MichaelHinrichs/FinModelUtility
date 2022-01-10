@@ -26,7 +26,7 @@ namespace bmd.exporter {
       var repeatT = false;
 
       // TODO: This doesn't feel right, where can we get the actual name?
-      if (name.Contains("_dummy")) {
+      if (pathsAndBtis != null && name.Contains("_dummy")) {
         var prefix = name.Substring(0, name.IndexOf("_dummy")).ToLower();
 
         var matchingPathAndBtis = pathsAndBtis

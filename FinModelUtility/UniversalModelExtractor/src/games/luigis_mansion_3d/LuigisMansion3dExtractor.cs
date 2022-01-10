@@ -62,7 +62,7 @@ namespace uni.games.luigis_mansion_3d {
 
       foreach (var bundle in bundles) {
         this.ExtractModels_(subdir,
-                            new[] {bundle.ModelFile},
+                            new[] { bundle.ModelFile },
                             bundle.AnimationFiles.ToArray(),
                             ctxbFiles,
                             shpaFiles);
@@ -90,13 +90,13 @@ namespace uni.games.luigis_mansion_3d {
 
       foreach (var cmbFile in cmbFiles) {
         if (existingModelFiles.Any(
-            existingModelFile => {
-              var existingName = existingModelFile.NameWithoutExtension;
-              var cmbName = cmbFile.NameWithoutExtension;
+                existingModelFile => {
+                  var existingName = existingModelFile.NameWithoutExtension;
+                  var cmbName = cmbFile.NameWithoutExtension;
 
-              return cmbName == existingName ||
-                     cmbName + "_gltf" == existingName;
-            })) {
+                  return cmbName == existingName ||
+                         cmbName + "_gltf" == existingName;
+                })) {
           ++matches;
         }
       }
@@ -106,21 +106,19 @@ namespace uni.games.luigis_mansion_3d {
         return;
       }*/
 
-      csabFiles ??= new List<IFileHierarchyFile>();
-
       MessageUtil.LogExtracting(this.logger_, directory, cmbFiles);
 
       //try {
-        new ManualZar2FbxApi().Run(outputDirectory,
-                                   cmbFiles.Select(file => file.Impl)
-                                           .ToArray(),
-                                   csabFiles.Select(file => file.Impl)
-                                            .ToArray(),
-                                   ctxbFiles.Select(file => file.Impl)
-                                            .ToArray(),
-                                   shpaFiles.Select(file => file.Impl)
-                                            .ToArray(),
-                                   30);
+      new ManualZar2FbxApi().Run(outputDirectory,
+                                 cmbFiles.Select(file => file.Impl)
+                                         .ToArray(),
+                                 csabFiles?.Select(file => file.Impl)
+                                          .ToArray(),
+                                 ctxbFiles?.Select(file => file.Impl)
+                                          .ToArray(),
+                                 shpaFiles?.Select(file => file.Impl)
+                                          .ToArray(),
+                                 30);
       /*} catch (Exception e) {
         this.logger_.LogError(e.ToString());
       }*/

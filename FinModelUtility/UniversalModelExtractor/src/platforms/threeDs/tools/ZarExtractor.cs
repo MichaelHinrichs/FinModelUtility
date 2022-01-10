@@ -41,7 +41,7 @@ namespace uni.platforms.threeDs.tools {
         foreach (var file in fileType.Files) {
           var filePath = Path.Join(directoryPath, file.FileName);
 
-          Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+          Directory.CreateDirectory(Asserts.CastNonnull(Path.GetDirectoryName(filePath)));
           File.WriteAllBytes(filePath, file.Bytes);
         }
       }

@@ -207,7 +207,7 @@ namespace fin.exporter.gltf {
       return gltfMeshes;
     }
 
-    private static Vector4 FinToGltfColor_(IColor color)
-      => new(color.Rf, color.Gf, color.Bf, color.Af);
+    private static Vector4 FinToGltfColor_(IColor? color)
+      => new(color?.Rf ?? 1, color?.Gf ?? 0, color?.Bf ?? 1, color?.Af ?? 1);
   }
 }

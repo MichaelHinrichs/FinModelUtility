@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 
+using fin.util.asserts;
+
 namespace fin.proto {
   public static class FinMarshal {
     // TODO: Optimize this so it doesn't have to allocate for each object.
@@ -43,7 +45,7 @@ namespace fin.proto {
       unsafe {
         fixed (byte* p = bytes) {
           var ptr = (IntPtr) p + offset;
-          return Marshal.PtrToStructure<T>(ptr);
+          return Asserts.CastNonnull(Marshal.PtrToStructure<T>(ptr));
         }
       }
     }

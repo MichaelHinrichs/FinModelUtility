@@ -12,6 +12,10 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 
+#pragma warning disable CS8604
+#pragma warning disable CS8603
+#pragma warning disable CS8600
+
 namespace bmd.Converters
 {
   public class Graphic

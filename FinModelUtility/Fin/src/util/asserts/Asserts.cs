@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 namespace fin.util.asserts {
   public class Asserts {
     private class AssertionException : Exception {
-      public AssertionException(string message) : base(message) { }
+      public AssertionException(string message) : base(message) {}
 
       public override string StackTrace {
         get {
@@ -37,6 +37,14 @@ namespace fin.util.asserts {
         string? message = null)
       => Asserts.True(instance != null,
                       message ?? "Expected reference to be nonnull.");
+
+    public static T CastNonnull<T>(
+        T? instance,
+        string? message = null) {
+      Asserts.True(instance != null,
+                   message ?? "Expected reference to be nonnull.");
+      return instance!;
+    }
 
     public static void Null(
         object? instance,

@@ -36,6 +36,7 @@ namespace bmd.exporter {
                         })
                         .ToList();
 
+      // TODO: Move to indirect model exporter
       foreach (var texture in textures) {
         texture.SaveInDirectory(outputDirectory);
       }

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 using fin.exporter.assimp.indirect;
@@ -30,34 +31,37 @@ namespace zar.api {
                   .ToList();
 
       var filesAndCsabs =
-          csabFiles.Select(csabFile => {
+          csabFiles?.Select(csabFile => {
                      var csab = new Csab();
                      csab.Read(new EndianBinaryReader(
                                    csabFile.OpenRead(),
                                    Endianness.LittleEndian));
                      return (csabFile, csab);
                    })
-                   .ToList();
+                   .ToList() ??
+          new List<(IFile shpaFile, Csab csab)>();
 
       var filesAndCtxbs =
-          ctxbFiles.Select(ctxbFile => {
+          ctxbFiles?.Select(ctxbFile => {
                      var ctxb = new Ctxb();
                      ctxb.Read(new EndianBinaryReader(
                                    ctxbFile.OpenRead(),
                                    Endianness.LittleEndian));
                      return (ctxbFile, ctxb);
                    })
-                   .ToList();
+                   .ToList() ??
+          new List<(IFile shpaFile, Ctxb ctxb)>();
 
       var filesAndShpas =
-          shpaFiles.Select(shpaFile => {
+          shpaFiles?.Select(shpaFile => {
                      var shpa = new Shpa();
                      shpa.Read(new EndianBinaryReader(
                                    shpaFile.OpenRead(),
                                    Endianness.LittleEndian));
                      return (shpaFile, shpa);
                    })
-                   .ToList();
+                   .ToList() ??
+          new List<(IFile shpaFile, Shpa shpa)>();
 
       foreach (var (cmbFile, cmb) in filesAndCmbs) {
         using var r =
@@ -70,6 +74,14 @@ namespace zar.api {
                                          filesAndShpas,
                                          outputDirectory,
                                          fps);
+
+        // TODO: Move this to the indirect model exporter
+        foreach (var material in model.MaterialManager.All) {
+          foreach (var texture in material.Textures) {
+            //texture.ImageData.Save(Path.Combine(outputDirectory.FullName,$"{texture.Name}.png"));
+            ;
+          }
+        }
 
         new AssimpIndirectExporter().Export(
             new FinFile(Path.Join(outputDirectory.FullName,

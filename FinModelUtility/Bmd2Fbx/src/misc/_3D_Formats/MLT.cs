@@ -11,6 +11,9 @@ using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Text;
+#pragma warning disable CS8604
+#pragma warning disable CS8603
+#pragma warning disable CS8600
 
 namespace bmd._3D_Formats
 {

@@ -96,7 +96,7 @@ namespace uni.platforms.threeDs.tools {
                     UseShellExecute = false,
                 };
 
-            var process = Process.Start(processStartInfo);
+            var process = Asserts.CastNonnull(Process.Start(processStartInfo));
             ChildProcessTracker.AddProcess(process);
 
             var singleChar = new char[1];

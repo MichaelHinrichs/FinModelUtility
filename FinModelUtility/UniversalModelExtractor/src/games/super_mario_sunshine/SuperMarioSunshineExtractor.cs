@@ -164,14 +164,13 @@ namespace uni.games.super_mario_sunshine {
           var objName = objectSubdir.Name;
 
           if (objName.StartsWith("montem") && !objName.Contains("common")) {
-            Asserts.Nonnull(montemcommon);
-            this.ExtractFromSeparateDirectories_(objectSubdir, montemcommon);
+            this.ExtractFromSeparateDirectories_(objectSubdir, Asserts.CastNonnull(montemcommon));
           } else if (objName.StartsWith("montew") &&
                      !objName.Contains("common")) {
-            this.ExtractFromSeparateDirectories_(objectSubdir, montewcommon);
+            this.ExtractFromSeparateDirectories_(objectSubdir, Asserts.CastNonnull(montewcommon));
           } else if (objName.StartsWith("hamukuri")) {
             if (!objName.Contains("anm")) {
-              this.ExtractFromSeparateDirectories_(objectSubdir, hamukurianm);
+              this.ExtractFromSeparateDirectories_(objectSubdir, Asserts.CastNonnull(hamukurianm));
             }
           } else {
             this.ExtractModelsAndAnimationsFromSceneObject_(objectSubdir);

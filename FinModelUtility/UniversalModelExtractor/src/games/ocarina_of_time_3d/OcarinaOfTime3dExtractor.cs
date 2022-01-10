@@ -190,15 +190,13 @@ namespace uni.games.ocarina_of_time_3d {
         return;
       }
 
-      csabFiles ??= new List<IFileHierarchyFile>();
-
       MessageUtil.LogExtracting(this.logger_, directory, cmbFiles);
 
       try {
         new ManualZar2FbxApi().Run(outputDirectory,
                                    cmbFiles.Select(file => file.Impl)
                                            .ToArray(),
-                                   csabFiles.Select(file => file.Impl)
+                                   csabFiles?.Select(file => file.Impl)
                                             .ToArray(),
                                    null,
                                    null,

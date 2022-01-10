@@ -76,7 +76,7 @@ namespace uni.util.cmd {
               UseShellExecute = false,
           };
 
-      var process = Process.Start(processStartInfo);
+      var process = Asserts.CastNonnull(Process.Start(processStartInfo));
       ChildProcessTracker.AddProcess(process);
 
       var logger = Logging.Create(exeFile.FullName);
