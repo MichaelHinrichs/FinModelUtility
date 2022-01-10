@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <RootNamespace>Mod2Fbx_Tests</RootNamespace>
-
+    <RootNamespace>mod2fbx</RootNamespace>
     <IsPackable>false</IsPackable>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
