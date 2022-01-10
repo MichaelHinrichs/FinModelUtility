@@ -146,7 +146,9 @@ namespace zar.api {
       // TODO: Emulate fixed-function materials
       var finMaterials = new List<IMaterial>();
       var ctrTexture = new CtrTexture();
-      foreach (var cmbMaterial in cmb.mat.materials) {
+      for (var i = 0; i < cmb.mat.materials.Length; ++i) {
+        var cmbMaterial = cmb.mat.materials[i];
+
         // Get associated texture
         var texMapper = cmbMaterial.texMappers[0];
         var textureId = texMapper.textureId;
@@ -183,6 +185,7 @@ namespace zar.api {
                                     ? model.MaterialManager.AddTextureMaterial(
                                         finTexture)
                                     : model.MaterialManager.AddLayerMaterial();
+        finMaterial.Name = $"material{i}";
         finMaterials.Add(finMaterial);
       }
 

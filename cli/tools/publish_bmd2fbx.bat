@@ -17,6 +17,6 @@ cd "FinModelUtility\Bmd2Fbx\"
 dotnet publish -c Release
 
 echo Copying new bmd2fbx...
-move "bin\Release\net5.0\win-x86\publish\*" "!bmd2fbxBasePath!"
+move "bin\Release\net6.0\win-x86\publish\*" "!bmd2fbxBasePath!"
 
 pause

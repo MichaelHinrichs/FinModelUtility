@@ -7,6 +7,8 @@
 using System.ComponentModel;
 using System.Globalization;
 
+#pragma warning disable CS8603
+
 namespace System
 {
   public class UInt16HexTypeConverter : TypeConverter

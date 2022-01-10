@@ -7,6 +7,8 @@ using fin.data.fuzzy;
 using UoT.ui.common.component;
 using UoT.util;
 
+#pragma warning disable CS8604
+
 namespace UoT.ui.main.files {
   public interface IUiFile {
     // TODO: Make these nonnull via init setters in C#9.

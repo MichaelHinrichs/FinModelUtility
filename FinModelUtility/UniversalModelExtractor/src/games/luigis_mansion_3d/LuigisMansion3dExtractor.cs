@@ -39,9 +39,9 @@ namespace uni.games.luigis_mansion_3d {
           new ThreeDsFileHierarchyExtractor().ExtractFromRom(
               luigisMansionRom);
 
-      this.ExtractModel_(
+      /*this.ExtractModel_(
           fileHierarchy.Root.TryToGetSubdir(@"\model\luige_head"));
-      return;
+      return;*/
 
       foreach (var subdir in fileHierarchy) {
         this.ExtractModel_(subdir);

@@ -6,6 +6,8 @@ using Microsoft.VisualBasic;
 
 using UoT.util;
 
+#pragma warning disable CS8603
+
 namespace UoT {
   public class AnimationReader {
     /// <summary>

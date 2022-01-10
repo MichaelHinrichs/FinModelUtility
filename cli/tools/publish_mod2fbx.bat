@@ -17,6 +17,6 @@ cd "FinModelUtility\Mod2Fbx\"
 dotnet publish -c Release
 
 echo Copying new mod2fbx...
-move "bin\Release\net5.0\win-x86\publish\*" "!mod2fbxBasePath!"
+move "bin\Release\net6.0\win-x86\publish\*" "!mod2fbxBasePath!"
 
 pause

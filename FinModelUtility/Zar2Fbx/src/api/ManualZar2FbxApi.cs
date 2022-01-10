@@ -75,14 +75,6 @@ namespace zar.api {
                                          outputDirectory,
                                          fps);
 
-        // TODO: Move this to the indirect model exporter
-        foreach (var material in model.MaterialManager.All) {
-          foreach (var texture in material.Textures) {
-            //texture.ImageData.Save(Path.Combine(outputDirectory.FullName,$"{texture.Name}.png"));
-            ;
-          }
-        }
-
         new AssimpIndirectExporter().Export(
             new FinFile(Path.Join(outputDirectory.FullName,
                                   cmbFile.NameWithoutExtension + ".fbx")),

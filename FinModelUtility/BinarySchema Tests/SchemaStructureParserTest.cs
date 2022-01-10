@@ -7,6 +7,8 @@ using Microsoft.CodeAnalysis.CSharp;
 
 using NUnit.Framework;
 
+#pragma warning disable CS8604
+
 namespace schema {
   public class SchemaStructureParserTest {
     [SetUp]

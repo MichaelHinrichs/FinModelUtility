@@ -3,6 +3,8 @@
 using UoT.hacks;
 using UoT.hacks.fields;
 
+#pragma warning disable CS8603
+
 namespace UoT {
   public enum EyeState {
     AUTO = 0,
