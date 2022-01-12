@@ -14,7 +14,7 @@ namespace schema.text {
 
     public ICurlyBracketStringBuilder EnterBlock(string prefix = "") {
       this.PrintIndent_();
-      this.impl_.Append($"{prefix} {{");
+      this.impl_.Append($"{prefix} {{\n");
       ++this.indentLevel_;
       return this;
     }
@@ -29,9 +29,9 @@ namespace schema.text {
     }
 
     public ICurlyBracketStringBuilder ExitBlock() {
-      this.PrintIndent_();
-      this.impl_.Append($"}}");
       --this.indentLevel_;
+      this.PrintIndent_();
+      this.impl_.Append($"}}\n");
 
       if (this.indentLevel_ < 0) {
         throw new Exception("Exited an extra block!");

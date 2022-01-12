@@ -250,16 +250,16 @@ namespace zar.api {
             if (hasBi && pset.skinningMode != SkinningMode.Single) {
               r.Position = cmb.startOffset +
                            cmb.header.vatrOffset +
-                           cmb.vatr.bIndices.startOffset +
-                           shape.bIndices.start +
+                           cmb.vatr.bIndices.StartOffset +
+                           shape.bIndices.Start +
                            i *
-                           DataTypeUtil.GetSize(shape.bIndices.dataType) *
+                           DataTypeUtil.GetSize(shape.bIndices.DataType) *
                            shape.boneDimensions;
               for (var bi = 0; bi < shape.boneDimensions; ++bi) {
-                var boneTableIndex = shape.bIndices.scale *
+                var boneTableIndex = shape.bIndices.Scale *
                                      DataTypeUtil.Read(
                                          r,
-                                         shape.bIndices.dataType);
+                                         shape.bIndices.DataType);
                 bIndices[i * boneCount + bi] =
                     pset.boneTable[(int) boneTableIndex];
               }
@@ -278,12 +278,12 @@ namespace zar.api {
           // Position
           r.Position = cmb.startOffset +
                        cmb.header.vatrOffset +
-                       cmb.vatr.position.startOffset +
-                       shape.position.start +
-                       3 * DataTypeUtil.GetSize(shape.position.dataType) * i;
+                       cmb.vatr.position.StartOffset +
+                       shape.position.Start +
+                       3 * DataTypeUtil.GetSize(shape.position.DataType) * i;
           var positionValues =
-              DataTypeUtil.Read(r, 3, shape.position.dataType)
-                          .Select(value => value * shape.position.scale)
+              DataTypeUtil.Read(r, 3, shape.position.DataType)
+                          .Select(value => value * shape.position.Scale)
                           .ToArray();
 
           var finVertex = model.Skin.AddVertex(positionValues[0],
@@ -291,18 +291,18 @@ namespace zar.api {
                                                positionValues[2]);
           finVertices[i] = finVertex;
 
-          var index = (ushort) (shape.position.start / 3 + i);
+          var index = (ushort) (shape.position.Start / 3 + i);
           verticesByIndex.Add(index, finVertex);
 
           if (hasNrm) {
             r.Position = cmb.startOffset +
                          cmb.header.vatrOffset +
-                         cmb.vatr.normal.startOffset +
-                         shape.normal.start +
-                         3 * DataTypeUtil.GetSize(shape.normal.dataType) * i;
+                         cmb.vatr.normal.StartOffset +
+                         shape.normal.Start +
+                         3 * DataTypeUtil.GetSize(shape.normal.DataType) * i;
             var normalValues =
-                DataTypeUtil.Read(r, 3, shape.normal.dataType)
-                            .Select(value => value * shape.normal.scale)
+                DataTypeUtil.Read(r, 3, shape.normal.DataType)
+                            .Select(value => value * shape.normal.Scale)
                             .ToArray();
             finVertex.SetLocalNormal(normalValues[0],
                                      normalValues[1],
@@ -312,12 +312,12 @@ namespace zar.api {
           if (hasClr) {
             r.Position = cmb.startOffset +
                          cmb.header.vatrOffset +
-                         cmb.vatr.color.startOffset +
-                         shape.color.start +
-                         4 * DataTypeUtil.GetSize(shape.color.dataType) * i;
+                         cmb.vatr.color.StartOffset +
+                         shape.color.Start +
+                         4 * DataTypeUtil.GetSize(shape.color.DataType) * i;
             var colorValues =
-                DataTypeUtil.Read(r, 4, shape.color.dataType)
-                            .Select(value => value * shape.color.scale)
+                DataTypeUtil.Read(r, 4, shape.color.DataType)
+                            .Select(value => value * shape.color.Scale)
                             .ToArray();
 
             //Asserts.Equal(DataType.Float, shape.color.dataType);
@@ -330,12 +330,12 @@ namespace zar.api {
           if (hasUv0) {
             r.Position = cmb.startOffset +
                          cmb.header.vatrOffset +
-                         cmb.vatr.uv0.startOffset +
-                         shape.uv0.start +
-                         2 * DataTypeUtil.GetSize(shape.uv0.dataType) * i;
+                         cmb.vatr.uv0.StartOffset +
+                         shape.uv0.Start +
+                         2 * DataTypeUtil.GetSize(shape.uv0.DataType) * i;
             var uv0Values =
-                DataTypeUtil.Read(r, 2, shape.uv0.dataType)
-                            .Select(value => value * shape.uv0.scale)
+                DataTypeUtil.Read(r, 2, shape.uv0.DataType)
+                            .Select(value => value * shape.uv0.Scale)
                             .ToArray();
 
             finVertex.SetUv(0, uv0Values[0], 1 - uv0Values[1]);
@@ -343,12 +343,12 @@ namespace zar.api {
           if (hasUv1) {
             r.Position = cmb.startOffset +
                          cmb.header.vatrOffset +
-                         cmb.vatr.uv1.startOffset +
-                         shape.uv1.start +
-                         2 * DataTypeUtil.GetSize(shape.uv1.dataType) * i;
+                         cmb.vatr.uv1.StartOffset +
+                         shape.uv1.Start +
+                         2 * DataTypeUtil.GetSize(shape.uv1.DataType) * i;
             var uv1Values =
-                DataTypeUtil.Read(r, 2, shape.uv1.dataType)
-                            .Select(value => value * shape.uv1.scale)
+                DataTypeUtil.Read(r, 2, shape.uv1.DataType)
+                            .Select(value => value * shape.uv1.Scale)
                             .ToArray();
 
             finVertex.SetUv(1, uv1Values[0], 1 - uv1Values[1]);
@@ -356,12 +356,12 @@ namespace zar.api {
           if (hasUv2) {
             r.Position = cmb.startOffset +
                          cmb.header.vatrOffset +
-                         cmb.vatr.uv2.startOffset +
-                         shape.uv2.start +
-                         2 * DataTypeUtil.GetSize(shape.uv2.dataType) * i;
+                         cmb.vatr.uv2.StartOffset +
+                         shape.uv2.Start +
+                         2 * DataTypeUtil.GetSize(shape.uv2.DataType) * i;
             var uv2Values =
-                DataTypeUtil.Read(r, 2, shape.uv2.dataType)
-                            .Select(value => value * shape.uv2.scale)
+                DataTypeUtil.Read(r, 2, shape.uv2.DataType)
+                            .Select(value => value * shape.uv2.Scale)
                             .ToArray();
 
             finVertex.SetUv(2, uv2Values[0], 1 - uv2Values[1]);
@@ -370,18 +370,18 @@ namespace zar.api {
           if (hasBw) {
             r.Position = cmb.startOffset +
                          cmb.header.vatrOffset +
-                         cmb.vatr.bWeights.startOffset +
-                         shape.bWeights.start +
+                         cmb.vatr.bWeights.StartOffset +
+                         shape.bWeights.Start +
                          i *
-                         DataTypeUtil.GetSize(shape.bWeights.dataType) *
+                         DataTypeUtil.GetSize(shape.bWeights.DataType) *
                          boneCount;
 
             var totalWeight = 0f;
             var boneWeights = new List<BoneWeight>();
             for (var j = 0; j < boneCount; ++j) {
               // TODO: Looks like this is rounded to the nearest 2 in the original??
-              var weight = DataTypeUtil.Read(r, shape.bWeights.dataType) *
-                           shape.bWeights.scale;
+              var weight = DataTypeUtil.Read(r, shape.bWeights.DataType) *
+                           shape.bWeights.Scale;
               totalWeight += weight;
 
               if (weight > 0) {

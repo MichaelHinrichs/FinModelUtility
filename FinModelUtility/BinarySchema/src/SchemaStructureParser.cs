@@ -2,15 +2,19 @@
 using System.Collections.Generic;
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace schema {
   public interface ISchemaStructureParser {
-    ISchemaStructure ParseStructure(INamedTypeSymbol symbol);
+    ISchemaStructure ParseStructure(
+        SyntaxNodeAnalysisContext? context,
+        INamedTypeSymbol symbol);
   }
 
   public interface ISchemaStructure {
-    ITypeSymbol TypeSymbol { get; }
-    IReadOnlyList<ISchemaField> Fields { get; }
+    bool Error { get; }
+    INamedTypeSymbol TypeSymbol { get; }
+    IReadOnlyList<ISchemaMember> Fields { get; }
   }
 
   public enum SchemaPrimitiveType {
@@ -34,27 +38,38 @@ namespace schema {
     CHAR,
     STRING,
     STRING_NT,
+
+    ENUM,
   }
 
-  public interface ISchemaField {
+  public interface ISchemaMember {
     string Name { get; }
+    ISymbol Symbol { get; }
+
     ITypeSymbol TypeSymbol { get; }
 
     bool HasConstLength { get; }
-    ISchemaField LengthField { get; }
+    ISchemaMember LengthField { get; }
 
     bool IsArray { get; }
 
     bool IsPrimitive { get; }
     SchemaPrimitiveType PrimitiveType { get; }
     bool IsPrimitiveConst { get; }
+
+    bool UseAltFormat { get; }
+    SchemaNumberType AltFormat { get; }
   }
 
   public class SchemaStructureParser : ISchemaStructureParser {
-    public ISchemaStructure ParseStructure(INamedTypeSymbol structureSymbol) {
+    public ISchemaStructure ParseStructure(
+        SyntaxNodeAnalysisContext? context,
+        INamedTypeSymbol structureSymbol) {
+      var error = false;
+
       var members = structureSymbol.GetMembers();
 
-      var fields = new List<ISchemaField>();
+      var fields = new List<ISchemaMember>();
       foreach (var memberSymbol in members) {
         if (memberSymbol.IsStatic) {
           continue;
@@ -64,17 +79,17 @@ namespace schema {
           continue;
         }
 
-        ITypeSymbol fieldTypeSymbol;
+        ITypeSymbol memberTypeSymbol;
         bool isFieldReadonly;
         switch (memberSymbol) {
           case IPropertySymbol propertySymbol: {
             isFieldReadonly = propertySymbol.SetMethod == null;
-            fieldTypeSymbol = propertySymbol.Type;
+            memberTypeSymbol = propertySymbol.Type;
             break;
           }
           case IFieldSymbol fieldSymbol: {
             isFieldReadonly = fieldSymbol.IsReadOnly;
-            fieldTypeSymbol = fieldSymbol.Type;
+            memberTypeSymbol = fieldSymbol.Type;
             break;
           }
           default: {
@@ -87,46 +102,76 @@ namespace schema {
         var isPrimitiveConst = false;
         var hasConstArrayLength = false;
 
-        var primitiveType = SchemaStructureParser.GetPrimitiveTypeFromType_(fieldTypeSymbol);
+        var primitiveType =
+            SchemaStructureParser.GetPrimitiveTypeFromType_(memberTypeSymbol);
         if (primitiveType != SchemaPrimitiveType.UNDEFINED) {
           isPrimitive = true;
           isPrimitiveConst = isFieldReadonly;
-        } else if (fieldTypeSymbol.TypeKind is TypeKind.Array) {
-          isArray = true;
-          hasConstArrayLength = isFieldReadonly;
-          /*primitiveTypeInfo = fieldTypeInfo.
-              SchemaStructureParser.GetPrimitiveTypeFromType_(
-                  fieldTypeInfo.GetElementType());*/
-        } /*else if (fieldTypeInfo.IsAssignableFrom(typeof(IReadOnlyList<>))) {
-          isArray = true;
+        } else if (memberTypeSymbol.SpecialType is SpecialType
+                       .System_Collections_Generic_IReadOnlyList_T) {
+          /*isArray = true;
           isPrimitiveConst = true;
           hasConstArrayLength = isFieldReadonly;
           primitiveType =
               SchemaStructureParser.GetPrimitiveTypeFromType_(
-                  fieldTypeInfo.GenericTypeArguments[0]);
-        } else if (fieldTypeInfo.IsAssignableFrom(typeof(IList<>))) {
+                  fieldTypeInfo.GenericTypeArguments[0]);*/
+          Rules.ReportDiagnostic(context, memberSymbol, Rules.NotSupported);
+          error = true;
+        } else if (memberTypeSymbol.TypeKind is TypeKind.Array) {
           isArray = true;
+          hasConstArrayLength = isFieldReadonly;
+
+          var arrayTypeSymbol = memberTypeSymbol as IArrayTypeSymbol;
+          primitiveType = SchemaStructureParser.GetPrimitiveTypeFromType_(
+              arrayTypeSymbol.ElementType);
+        } else if (memberTypeSymbol.SpecialType is SpecialType
+                       .System_Collections_Generic_IList_T) {
+          Rules.ReportDiagnostic(context, memberSymbol, Rules.NotSupported);
+          error = true;
+          /*isArray = true;
           primitiveType =
               SchemaStructureParser.GetPrimitiveTypeFromType_(
-                  fieldTypeInfo.GenericTypeArguments[0]);
-        } else if (fieldTypeInfo.IsAssignableFrom(typeof(IDeserializable))) {
+                  fieldTypeInfo.GenericTypeArguments[0]);*/
+        } else if (memberTypeSymbol is INamedTypeSymbol fieldNamedTypeSymbol &&
+                   SymbolTypeUtil.Implements(fieldNamedTypeSymbol,
+                                             typeof(IDeserializable))) {
           // TODO: Handle unsupported types.
-        }*/
+          Rules.ReportDiagnostic(context, memberSymbol, Rules.NotSupported);
+          error = true;
+        } else {
+          Rules.ReportDiagnostic(context, memberSymbol, Rules.NotSupported);
+          error = true;
+        }
 
-        var field = new SchemaField {
+        var formatAttribute =
+            SymbolTypeUtil.GetAttribute<FormatAttribute>(memberSymbol);
+        var formatNumberType =
+            formatAttribute?.NumberType ?? SchemaNumberType.UNDEFINED;
+        var useAltFormat = formatNumberType != SchemaNumberType.UNDEFINED;
+
+        if (primitiveType == SchemaPrimitiveType.ENUM && !useAltFormat) {
+          Rules.ReportDiagnostic(context, memberSymbol, Rules.EnumNeedsFormat);
+          error = true;
+        }
+
+        var field = new SchemaMember {
             Name = memberSymbol.Name,
-            TypeSymbol = fieldTypeSymbol,
+            Symbol = memberSymbol,
+            TypeSymbol = memberTypeSymbol,
             IsArray = isArray,
             HasConstLength = hasConstArrayLength,
             LengthField = null,
             IsPrimitive = isPrimitive,
             PrimitiveType = primitiveType,
             IsPrimitiveConst = isPrimitiveConst,
+            UseAltFormat = useAltFormat,
+            AltFormat = formatNumberType,
         };
         fields.Add(field);
       }
 
       return new SchemaStructure {
+          Error = error,
           TypeSymbol = structureSymbol,
           Fields = fields,
       };
@@ -134,7 +179,10 @@ namespace schema {
 
     private static SchemaPrimitiveType GetPrimitiveTypeFromType_(
         ITypeSymbol typeSymbol) {
-      // TODO: Support SN16/UN16
+      if (typeSymbol.TypeKind == TypeKind.Enum) {
+        return SchemaPrimitiveType.ENUM;
+      }
+
       return typeSymbol.SpecialType switch {
           SpecialType.System_Char   => SchemaPrimitiveType.CHAR,
           SpecialType.System_SByte  => SchemaPrimitiveType.SBYTE,
@@ -191,20 +239,25 @@ namespace schema {
     }
 
     private class SchemaStructure : ISchemaStructure {
-      public ITypeSymbol TypeSymbol { get; set; }
-      public IReadOnlyList<ISchemaField> Fields { get; set; }
+      public bool Error { get; set; }
+      public INamedTypeSymbol TypeSymbol { get; set; }
+      public IReadOnlyList<ISchemaMember> Fields { get; set; }
     }
 
 
-    private class SchemaField : ISchemaField {
+    private class SchemaMember : ISchemaMember {
       public string Name { get; set; }
+      public ISymbol Symbol { get; set; }
+
       public ITypeSymbol TypeSymbol { get; set; }
       public bool IsArray { get; set; }
       public bool HasConstLength { get; set; }
-      public ISchemaField LengthField { get; set; }
+      public ISchemaMember LengthField { get; set; }
       public bool IsPrimitive { get; set; }
       public SchemaPrimitiveType PrimitiveType { get; set; }
       public bool IsPrimitiveConst { get; set; }
+      public bool UseAltFormat { get; set; }
+      public SchemaNumberType AltFormat { get; set; }
     }
   }
 }

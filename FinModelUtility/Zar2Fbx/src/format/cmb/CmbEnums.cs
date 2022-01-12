@@ -20,12 +20,12 @@
     LA4 = 0x67606758,
     L4 = 0x67616757,
     A4 = 0x67616756,
-    ETC1 = 0x0000675A, // or 0x1401675A,
+    ETC1 = 0x0000675A,   // or 0x1401675A,
     ETC1a4 = 0x0000675B, // or 0x1401675B,
     Shadow = 0x00006040
   }
 
-  public enum DataType {
+  public enum DataType : ushort {
     Byte = 0x1400,
     UByte = 0x1401,
     Short = 0x1402,
@@ -228,7 +228,7 @@
     DecrementWrap = 34055
   }
 
-  public enum VertexAttributeMode {
+  public enum VertexAttributeMode : ushort {
     Array = 0,
     Constant = 1,
   }

@@ -1,0 +1,82 @@
+﻿using System.Linq;
+
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Diagnostics;
+
+namespace schema {
+  public static class Rules {
+    private static int diagnosticId_ = 0;
+
+    private static string GetNextDiagnosticId_() {
+      var id = Rules.diagnosticId_++;
+      return "SCH" + id.ToString("D3");
+    }
+
+    private static DiagnosticDescriptor CreateDiagnostic_(
+        string title,
+        string messageFormat)
+      => new(Rules.GetNextDiagnosticId_(),
+             title,
+             messageFormat,
+             "SchemaAnalyzer",
+             DiagnosticSeverity.Error,
+             true);
+
+
+    public static readonly DiagnosticDescriptor SchemaTypeMustBePartial
+        = Rules.CreateDiagnostic_(
+            "Schema type must be partial",
+            "Schema type '{0}' must be partial to accept automatically generated read/write code.");
+
+    public static readonly DiagnosticDescriptor MutableStringNeedsLengthSource
+        = Rules.CreateDiagnostic_(
+            "Schema string must have length source",
+        "Mutable string '{0}' is missing a LengthSource attribute.");
+
+    public static readonly DiagnosticDescriptor MutableArrayNeedsLengthSource
+        = Rules.CreateDiagnostic_(
+            "Mutable array needs length source",
+            "Mutable array '{0}' is missing a LengthSource attribute.");
+
+    public static readonly DiagnosticDescriptor FormatOnNonNumber
+        = Rules.CreateDiagnostic_(
+            "Format attribute on non-numerical field/property",
+            "A Format attribute is applied to the non-numerical property '{0}', which is unsupported.");
+
+    public static readonly DiagnosticDescriptor EnumNeedsFormat
+        = Rules.CreateDiagnostic_(
+            "Enum needs format",
+            "Enum '{0}' is missing a Format attribute. This should be manually specified here for safety.");
+
+    public static readonly DiagnosticDescriptor ConstUninitialized
+        = Rules.CreateDiagnostic_(
+            "Const uninitialized",
+            "Const field/property '{0}' must be initialized.");
+
+    public static readonly DiagnosticDescriptor NotSupported
+        = Rules.CreateDiagnostic_(
+            "Not supported",
+            "This feature is not yet supported.");
+
+    public static readonly DiagnosticDescriptor ReadAlreadyDefined
+        = Rules.CreateDiagnostic_(
+            "Read already defined",
+            "A Read method for '{0}' was already defined.");
+
+    public static readonly DiagnosticDescriptor WriteAlreadyDefined
+        = Rules.CreateDiagnostic_(
+            "Write already defined",
+            "A Write method for '{0}' was already defined.");
+
+
+    public static void ReportDiagnostic(
+        SyntaxNodeAnalysisContext? context,
+        ISymbol symbol,
+        DiagnosticDescriptor descriptor)
+      => context?.ReportDiagnostic(
+          Diagnostic.Create(
+              descriptor,
+              symbol.Locations.First(),
+              symbol.Name));
+  }
+}

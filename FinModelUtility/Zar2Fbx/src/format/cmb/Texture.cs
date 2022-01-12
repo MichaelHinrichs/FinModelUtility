@@ -6,11 +6,19 @@ namespace zar.format.cmb {
   public class Texture : IDeserializable {
     public uint dataLength { get; private set; }
     public ushort mimapCount { get; private set; }
+
+    [Format(SchemaNumberType.BYTE)]
     public bool isEtc1 { get; private set; }
+
+    [Format(SchemaNumberType.BYTE)]
     public bool isCubemap { get; private set; }
+
     public ushort width { get; private set; }
     public ushort height { get; private set; }
+
+    [Format(SchemaNumberType.UINT32)]
     public GlTextureFormat imageFormat { get; private set; }
+
     public uint dataOffset { get; private set; }
     public string name { get; private set; }
 

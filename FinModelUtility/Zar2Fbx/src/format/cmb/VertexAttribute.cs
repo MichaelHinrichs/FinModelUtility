@@ -3,19 +3,17 @@
 using schema;
 
 namespace zar.format.cmb {
-  public class VertexAttribute : IDeserializable {
-    public uint start { get; private set; }
-    public float scale { get; private set; }
-    public DataType dataType { get; private set; }
-    public VertexAttributeMode mode { get; private set; }
-    public float[] constants { get; } = new float[4];
+  [Schema]
+  public partial class VertexAttribute : IDeserializable {
+    public uint Start { get; private set; }
+    public float Scale { get; private set; } 
 
-    public void Read(EndianBinaryReader r) {
-      this.start = r.ReadUInt32();
-      this.scale = r.ReadSingle();
-      this.dataType = (DataType) r.ReadUInt16();
-      this.mode = (VertexAttributeMode) r.ReadUInt16();
-      r.ReadSingles(this.constants);
-    }
+    [Format(SchemaNumberType.UINT16)]
+    public DataType DataType { get; private set; }
+    
+    [Format(SchemaNumberType.UINT16)]
+    public VertexAttributeMode Mode { get; private set; }
+
+    public float[] Constants { get; } = new float[4];
   }
 }

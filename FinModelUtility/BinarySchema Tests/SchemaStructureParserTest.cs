@@ -7,6 +7,8 @@ using Microsoft.CodeAnalysis.CSharp;
 
 using NUnit.Framework;
 
+using schema;
+
 #pragma warning disable CS8604
 
 namespace schema {
@@ -229,7 +231,7 @@ namespace foo.bar {
       var symbol = semanticModel.GetDeclaredSymbol(typeNode);
       var namedTypeSymbol = symbol as INamedTypeSymbol;
 
-      return new SchemaStructureParser().ParseStructure(namedTypeSymbol);
+      return new SchemaStructureParser().ParseStructure(null, namedTypeSymbol);
     }
   }
 

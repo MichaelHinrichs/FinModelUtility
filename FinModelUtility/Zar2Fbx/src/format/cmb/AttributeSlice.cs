@@ -1,15 +1,9 @@
-﻿using System.IO;
-
-using schema;
+﻿using schema;
 
 namespace zar.format.cmb {
-  public class AttributeSlice : IDeserializable {
-    public uint size;
-    public uint startOffset;
-
-    public void Read(EndianBinaryReader r) {
-      this.size = r.ReadUInt32();
-      this.startOffset = r.ReadUInt32();
-    }
+  [Schema]
+  public partial class AttributeSlice : IDeserializable {
+    public uint Size { get; private set; }
+    public uint StartOffset { get; private set; }
   }
 }
