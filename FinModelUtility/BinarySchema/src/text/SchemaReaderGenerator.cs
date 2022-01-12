@@ -1,21 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-using schema;
-using schema.text;
-
-namespace schema {
-  [Generator(LanguageNames.CSharp)]
-  internal class SchemaReaderGenerator : ISourceGenerator {
+namespace schema.text {
+  public class SchemaReaderGenerator {
     private readonly Type schemaAttributeType_ = typeof(SchemaAttribute);
     private readonly SchemaStructureParser parser_ = new();
 
-    private void Generate_(ISchemaStructure structure) {
+    public string Generate(ISchemaStructure structure) {
       var typeSymbol = structure.TypeSymbol;
 
       var typeName = typeSymbol.Name;
@@ -25,7 +17,7 @@ namespace schema {
       var isTypeAbstract = typeSymbol.IsAbstract;
 
       var declaringTypes =
-          SchemaReaderGenerator.GetDeclaringTypesDownward_(typeSymbol);
+          SymbolTypeUtil.GetDeclaringTypesDownward(typeSymbol);
       var symbolType = (isTypeAbstract ? "abstract " : "") +
                        "partial " +
                        (isTypeClass ? "class" : "struct");
@@ -37,10 +29,10 @@ namespace schema {
       cbsb.EnterBlock($"namespace {typeNamespace}");
       foreach (var declaringType in declaringTypes) {
         cbsb.EnterBlock(
-            $"{SchemaReaderGenerator.GetSymbolQualifiers_(declaringType)} {typeName}");
+            $"{SymbolTypeUtil.GetSymbolQualifiers(declaringType)} {typeName}");
       }
       cbsb.EnterBlock(
-          $"{SchemaReaderGenerator.GetSymbolQualifiers_(typeSymbol)} {typeName}");
+          $"{SymbolTypeUtil.GetSymbolQualifiers(typeSymbol)} {typeName}");
 
       cbsb.EnterBlock("public void Read(EndianBinaryReader er)");
       foreach (var field in structure.Fields) {
@@ -93,18 +85,27 @@ namespace schema {
           var label =
               SchemaReaderGenerator.GetPrimitiveLabel_(format);
 
-          var cast = "";
-          if (field.UseAltFormat) {
-            var castTypeName =
-                field.PrimitiveType == SchemaPrimitiveType.ENUM
-                    ? SchemaReaderGenerator.GetQualifiedName_(field.TypeSymbol)
-                    : field.TypeSymbol.Name;
-            cast = $"({castTypeName}) ";
-          }
+          if (!field.IsPrimitiveConst) {
+            var cast = "";
+            if (field.UseAltFormat) {
+              var castTypeName =
+                  field.PrimitiveType == SchemaPrimitiveType.ENUM
+                      ? SymbolTypeUtil.GetQualifiedName(field.TypeSymbol)
+                      : field.TypeSymbol.Name;
+              cast = $"({castTypeName}) ";
+            }
 
-          cbsb.WriteLine(!field.IsPrimitiveConst
-                             ? $"{valueName} = " + cast + $"er.Read{label}();"
-                             : $"er.Assert{label}({valueName});");
+            cbsb.WriteLine($"{valueName} = {cast}er.Read{label}();");
+          } else {
+            var cast = "";
+            if (field.UseAltFormat) {
+              var castTypeName =
+                  SchemaReaderGenerator.GetTypeName(field.AltFormat);
+              cast = $"({castTypeName}) ";
+            }
+
+            cbsb.WriteLine($"er.Assert{label}({cast}{valueName});");
+          }
         }
 
         if (field.IsArray) {
@@ -128,43 +129,13 @@ namespace schema {
       cbsb.ExitBlock();
 
       var generatedCode = cbsb.ToString();
-      this.context_.Value.AddSource(
-          SchemaReaderGenerator.GetQualifiedName_(structure.TypeSymbol),
-          generatedCode);
+      return generatedCode;
     }
 
-    private static INamedTypeSymbol[] GetDeclaringTypesDownward_(
-        INamedTypeSymbol type) {
-      var declaringTypes = new List<INamedTypeSymbol>();
-
-      var declaringType = type.ContainingType;
-      while (declaringType != null) {
-        declaringTypes.Add(declaringType);
-        declaringType = declaringType.ContainingType;
-      }
-      declaringTypes.Reverse();
-
-      return declaringTypes.ToArray();
-    }
-
-    private static string GetSymbolQualifiers_(INamedTypeSymbol typeSymbol)
-      => "public " +
-         (typeSymbol.IsAbstract ? "abstract " : "") +
-         "partial " +
-         (typeSymbol.TypeKind == TypeKind.Class ? "class" : "struct");
-
-    private static string GetQualifiedName_(ITypeSymbol typeSymbol) {
-      var mergedNamespace =
-          SymbolTypeUtil.MergeContainingNamespaces(typeSymbol);
-
-      return mergedNamespace == null
-                 ? typeSymbol.Name
-                 : $"{mergedNamespace}.{typeSymbol.Name}";
-    }
 
     private static string GetPrimitiveLabel_(SchemaPrimitiveType type)
       => type switch {
-          SchemaPrimitiveType.SBYTE => "Sbyte",
+          SchemaPrimitiveType.SBYTE => "SByte",
           SchemaPrimitiveType.BYTE => "Byte",
           SchemaPrimitiveType.INT16 => "Int16",
           SchemaPrimitiveType.UINT16 => "UInt16",
@@ -176,6 +147,21 @@ namespace schema {
           SchemaPrimitiveType.DOUBLE => "Double",
           SchemaPrimitiveType.SN16 => "Sn16",
           SchemaPrimitiveType.UN16 => "Un16",
+          _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+      };
+
+    public static string GetTypeName(SchemaNumberType type)
+      => type switch {
+          SchemaNumberType.SBYTE => "sbyte",
+          SchemaNumberType.BYTE => "byte",
+          SchemaNumberType.INT16 => "short",
+          SchemaNumberType.UINT16 => "ushort",
+          SchemaNumberType.INT32 => "int",
+          SchemaNumberType.UINT32 => "uint",
+          SchemaNumberType.INT64 => "long",
+          SchemaNumberType.UINT64 => "ulong",
+          SchemaNumberType.SINGLE => "float",
+          SchemaNumberType.DOUBLE => "double",
           _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
       };
 
@@ -196,79 +182,5 @@ namespace schema {
           SchemaNumberType.UN16 => SchemaPrimitiveType.UN16,
           _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
       };
-
-    public void Initialize(GeneratorInitializationContext context) {
-      /*if (!Debugger.IsAttached) {
-        Debugger.Launch();
-      }*/
-      context.RegisterForSyntaxNotifications(() => new CustomReceiver(this));
-    }
-
-    private class CustomReceiver : ISyntaxContextReceiver {
-      private readonly SchemaReaderGenerator g_;
-
-      public CustomReceiver(SchemaReaderGenerator g) {
-        this.g_ = g;
-      }
-
-      public void OnVisitSyntaxNode(GeneratorSyntaxContext context) {
-        TypeDeclarationSyntax syntax;
-        ISymbol symbol;
-        if (context.Node is ClassDeclarationSyntax classDeclarationSyntax) {
-          syntax = classDeclarationSyntax;
-        } else if (context.Node is StructDeclarationSyntax
-                   structDeclarationSyntax) {
-          syntax = structDeclarationSyntax;
-        } else {
-          return;
-        }
-
-        symbol = context.SemanticModel.GetDeclaredSymbol(syntax);
-        if (symbol is not INamedTypeSymbol namedTypeSymbol) {
-          return;
-        }
-
-        this.g_.CheckType(context, syntax, namedTypeSymbol);
-      }
-    }
-
-    public void CheckType(
-        GeneratorSyntaxContext context,
-        TypeDeclarationSyntax syntax,
-        INamedTypeSymbol symbol) {
-      if (!SymbolTypeUtil.HasAttribute(symbol, this.schemaAttributeType_)) {
-        return;
-      }
-
-      if (!SymbolTypeUtil.IsPartial(syntax)) {
-        return;
-      }
-
-      var structure = this.parser_.ParseStructure(symbol);
-      if (structure.Diagnostics.Count > 0) {
-        return;
-      }
-
-      this.Enqueue(structure);
-    }
-
-    public void Execute(GeneratorExecutionContext context) {
-      this.context_ = context;
-      foreach (var structure in this.queue_) {
-        this.Generate_(structure);
-      }
-      this.queue_.Clear();
-    }
-
-    private GeneratorExecutionContext? context_;
-    private List<ISchemaStructure> queue_ = new();
-
-    public void Enqueue(ISchemaStructure structure) {
-      if (this.context_ == null) {
-        this.queue_.Add(structure);
-      } else {
-        this.Generate_(structure);
-      }
-    }
   }
 }

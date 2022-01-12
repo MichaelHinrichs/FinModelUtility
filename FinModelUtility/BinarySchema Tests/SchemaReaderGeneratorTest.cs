@@ -2,8 +2,8 @@ using Microsoft.CodeAnalysis;
 
 using NUnit.Framework;
 
-namespace schema {
-  public class SchemaStructureParserTest {
+namespace schema.text {
+  public class SchemaReaderGeneratorTest {
     [SetUp]
     public void Setup() {}
 
@@ -228,38 +228,29 @@ namespace foo.bar {
 
     [Test]
     public void TestProperty() {
-      var structure = SchemaTestUtil.Parse(@"
+      this.AssertGenerated_(@"
 using schema;
 
 namespace foo.bar {
   [Schema]
   public class ByteWrapper {
-    public byte Field { get; set; }
+    public byte field { get; set; }
   }
-}");
-
-      Assert.IsEmpty(structure.Diagnostics);
-
-      Assert.AreEqual("bar", structure.TypeSymbol.ContainingNamespace.Name);
-      Assert.AreEqual("ByteWrapper", structure.TypeSymbol.Name);
-
-      Assert.AreEqual(1, structure.Fields.Count);
-
-      var field = structure.Fields[0];
-      Assert.AreEqual(SpecialType.System_Byte, field.TypeSymbol.SpecialType);
-      Assert.AreEqual(SchemaPrimitiveType.BYTE, field.PrimitiveType);
-      Assert.AreEqual("Field", field.Name);
-
-      Assert.AreEqual(true, field.IsPrimitive);
-      Assert.AreEqual(false, field.IsPrimitiveConst);
-      Assert.AreEqual(false, field.IsArray);
-      Assert.AreEqual(false, field.HasConstLength);
-      Assert.AreEqual(null, field.LengthField);
+}",
+                            @"using System.IO;
+namespace foo.bar {
+  public partial class ByteWrapper {
+    public void Read(EndianBinaryReader er) {
+      this.field = er.ReadByte();
+    }
+  }
+}
+");
     }
 
     [Test]
     public void TestReadonlyPrimitiveField() {
-      var structure = SchemaTestUtil.Parse(@"
+      this.AssertGenerated_(@"
 using schema;
 
 namespace foo.bar {
@@ -267,56 +258,86 @@ namespace foo.bar {
   public class ByteWrapper {
     public readonly byte field;
   }
-}");
-
-      Assert.IsEmpty(structure.Diagnostics);
-
-      Assert.AreEqual("bar", structure.TypeSymbol.ContainingNamespace.Name);
-      Assert.AreEqual("ByteWrapper", structure.TypeSymbol.Name);
-
-      Assert.AreEqual(1, structure.Fields.Count);
-
-      var field = structure.Fields[0];
-      Assert.AreEqual(SpecialType.System_Byte, field.TypeSymbol.SpecialType);
-      Assert.AreEqual(SchemaPrimitiveType.BYTE, field.PrimitiveType);
-      Assert.AreEqual("field", field.Name);
-
-      Assert.AreEqual(true, field.IsPrimitive);
-      Assert.AreEqual(true, field.IsPrimitiveConst);
-      Assert.AreEqual(false, field.IsArray);
-      Assert.AreEqual(false, field.HasConstLength);
-      Assert.AreEqual(null, field.LengthField);
+}",
+                            @"using System.IO;
+namespace foo.bar {
+  public partial class ByteWrapper {
+    public void Read(EndianBinaryReader er) {
+      er.AssertByte(this.field);
+    }
+  }
+}
+");
     }
 
     [Test]
     public void TestReadonlyPrimitiveProperty() {
-      var structure = SchemaTestUtil.Parse(@"
+      this.AssertGenerated_(@"
 using schema;
 
 namespace foo.bar {
   [Schema]
-  public class ByteWrapper {
+  public partial class ByteWrapper {
     public byte Field { get; }
   }
-}");
+}",
+                            @"using System.IO;
+namespace foo.bar {
+  public partial class ByteWrapper {
+    public void Read(EndianBinaryReader er) {
+      er.AssertByte(this.Field);
+    }
+  }
+}
+");
+    }
 
+    [Test]
+    public void TestEverything() {
+      this.AssertGenerated_(@"
+using schema;
+
+namespace foo {
+  namespace bar {
+    public enum IntEnum : int {
+      A, B, C
+    }
+
+    [Schema]
+    public class EverythingWrapper {
+      public byte byteField;
+      public sbyte sbyteProperty { get; set; }
+      public readonly short constShortField;
+      public ushort constUshortProperty { get; }
+      [Format(SchemaNumberType.INT32)]
+      public IntEnum intField;
+      [Format(SchemaNumberType.INT32)]
+      public readonly IntEnum constIntField;
+    }
+  }
+}",
+                            @"using System.IO;
+namespace foo.bar {
+  public partial class EverythingWrapper {
+    public void Read(EndianBinaryReader er) {
+      this.byteField = er.ReadByte();
+      this.sbyteProperty = er.ReadSByte();
+      er.AssertInt16(this.constShortField);
+      er.AssertUInt16(this.constUshortProperty);
+      this.intField = (foo.bar.IntEnum) er.ReadInt32();
+      er.AssertInt32((int) this.constIntField);
+    }
+  }
+}
+");
+    }
+
+    private void AssertGenerated_(string src, string expectedGenerated) {
+      var structure = SchemaTestUtil.Parse(src);
       Assert.IsEmpty(structure.Diagnostics);
 
-      Assert.AreEqual("bar", structure.TypeSymbol.ContainingNamespace.Name);
-      Assert.AreEqual("ByteWrapper", structure.TypeSymbol.Name);
-
-      Assert.AreEqual(1, structure.Fields.Count);
-
-      var field = structure.Fields[0];
-      Assert.AreEqual(SpecialType.System_Byte, field.TypeSymbol.SpecialType);
-      Assert.AreEqual(SchemaPrimitiveType.BYTE, field.PrimitiveType);
-      Assert.AreEqual("Field", field.Name);
-
-      Assert.AreEqual(true, field.IsPrimitive);
-      Assert.AreEqual(true, field.IsPrimitiveConst);
-      Assert.AreEqual(false, field.IsArray);
-      Assert.AreEqual(false, field.HasConstLength);
-      Assert.AreEqual(null, field.LengthField);
+      var actualGenerated = new SchemaReaderGenerator().Generate(structure);
+      Assert.AreEqual(expectedGenerated, actualGenerated);
     }
   }
 }

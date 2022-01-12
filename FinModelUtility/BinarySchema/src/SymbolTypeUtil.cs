@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using Microsoft.CodeAnalysis;
@@ -95,6 +96,36 @@ namespace schema {
       var arguments = attributeData.ConstructorArguments;
       return (TAttribute) constructor.Invoke(
           arguments.Select(a => a.Value).ToArray());
+    }
+
+    
+    public static INamedTypeSymbol[] GetDeclaringTypesDownward(
+        INamedTypeSymbol type) {
+      var declaringTypes = new List<INamedTypeSymbol>();
+
+      var declaringType = type.ContainingType;
+      while (declaringType != null) {
+        declaringTypes.Add(declaringType);
+        declaringType = declaringType.ContainingType;
+      }
+      declaringTypes.Reverse();
+
+      return declaringTypes.ToArray();
+    }
+
+    public static string GetSymbolQualifiers(INamedTypeSymbol typeSymbol)
+      => "public " +
+         (typeSymbol.IsAbstract ? "abstract " : "") +
+         "partial " +
+         (typeSymbol.TypeKind == TypeKind.Class ? "class" : "struct");
+
+    public static string GetQualifiedName(ITypeSymbol typeSymbol) {
+      var mergedNamespace =
+          SymbolTypeUtil.MergeContainingNamespaces(typeSymbol);
+
+      return mergedNamespace == null
+                 ? typeSymbol.Name
+                 : $"{mergedNamespace}.{typeSymbol.Name}";
     }
   }
 }
