@@ -1,8 +1,5 @@
-﻿using System.IO;
+﻿using schema;
 
 namespace mod.gcn {
-  public interface IGcnSerializable {
-    void Read(EndianBinaryReader reader);
-    void Write(EndianBinaryWriter writer);
-  }
+  public interface IGcnSerializable : ISerializable, IDeserializable {}
 }

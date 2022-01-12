@@ -1,5 +1,7 @@
 ﻿using System.IO;
 
+using schema;
+
 namespace mod.gcn {
   public interface IColour<T> : IGcnSerializable {
     T R { get; set; }
@@ -10,18 +12,12 @@ namespace mod.gcn {
     string? ToString() => $"{this.R} {this.G} {this.B} {this.A}";
   }
 
-  public class ColourU8 : IColour<byte> {
+  [Schema]
+  public partial class ColourU8 : IColour<byte> {
     public byte R { get; set; }
     public byte G { get; set; }
     public byte B { get; set; }
     public byte A { get; set; }
-
-    public void Read(EndianBinaryReader reader) {
-      this.R = reader.ReadByte();
-      this.G = reader.ReadByte();
-      this.B = reader.ReadByte();
-      this.A = reader.ReadByte();
-    }
 
     public void Write(EndianBinaryWriter writer) {
       writer.Write(this.R);
@@ -31,18 +27,12 @@ namespace mod.gcn {
     }
   }
 
-  public class ColourU16 : IColour<ushort> {
+  [Schema]
+  public partial class ColourU16 : IColour<ushort> {
     public ushort R { get; set; }
     public ushort G { get; set; }
     public ushort B { get; set; }
     public ushort A { get; set; }
-
-    public void Read(EndianBinaryReader reader) {
-      this.R = reader.ReadUInt16();
-      this.G = reader.ReadUInt16();
-      this.B = reader.ReadUInt16();
-      this.A = reader.ReadUInt16();
-    }
 
     public void Write(EndianBinaryWriter writer) {
       writer.Write(this.R);

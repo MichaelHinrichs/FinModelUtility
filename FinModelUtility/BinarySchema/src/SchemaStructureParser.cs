@@ -6,13 +6,11 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace schema {
   public interface ISchemaStructureParser {
-    ISchemaStructure ParseStructure(
-        SyntaxNodeAnalysisContext? context,
-        INamedTypeSymbol symbol);
+    ISchemaStructure ParseStructure(INamedTypeSymbol symbol);
   }
 
   public interface ISchemaStructure {
-    bool Error { get; }
+    IList<Diagnostic> Diagnostics { get; }
     INamedTypeSymbol TypeSymbol { get; }
     IReadOnlyList<ISchemaMember> Fields { get; }
   }
@@ -63,9 +61,8 @@ namespace schema {
 
   public class SchemaStructureParser : ISchemaStructureParser {
     public ISchemaStructure ParseStructure(
-        SyntaxNodeAnalysisContext? context,
         INamedTypeSymbol structureSymbol) {
-      var error = false;
+      var diagnostics = new List<Diagnostic>();
 
       var members = structureSymbol.GetMembers();
 
@@ -102,6 +99,8 @@ namespace schema {
         var isPrimitiveConst = false;
         var hasConstArrayLength = false;
 
+        // Get attributes
+
         var primitiveType =
             SchemaStructureParser.GetPrimitiveTypeFromType_(memberTypeSymbol);
         if (primitiveType != SchemaPrimitiveType.UNDEFINED) {
@@ -115,8 +114,8 @@ namespace schema {
           primitiveType =
               SchemaStructureParser.GetPrimitiveTypeFromType_(
                   fieldTypeInfo.GenericTypeArguments[0]);*/
-          Rules.ReportDiagnostic(context, memberSymbol, Rules.NotSupported);
-          error = true;
+          diagnostics.Add(
+              Rules.CreateDiagnostic(memberSymbol, Rules.NotSupported));
         } else if (memberTypeSymbol.TypeKind is TypeKind.Array) {
           isArray = true;
           hasConstArrayLength = isFieldReadonly;
@@ -126,8 +125,8 @@ namespace schema {
               arrayTypeSymbol.ElementType);
         } else if (memberTypeSymbol.SpecialType is SpecialType
                        .System_Collections_Generic_IList_T) {
-          Rules.ReportDiagnostic(context, memberSymbol, Rules.NotSupported);
-          error = true;
+          diagnostics.Add(
+              Rules.CreateDiagnostic(memberSymbol, Rules.NotSupported));
           /*isArray = true;
           primitiveType =
               SchemaStructureParser.GetPrimitiveTypeFromType_(
@@ -136,23 +135,48 @@ namespace schema {
                    SymbolTypeUtil.Implements(fieldNamedTypeSymbol,
                                              typeof(IDeserializable))) {
           // TODO: Handle unsupported types.
-          Rules.ReportDiagnostic(context, memberSymbol, Rules.NotSupported);
-          error = true;
+          //Rules.ReportDiagnostic(context, memberSymbol, Rules.NotSupported);
+          //error = true;
         } else {
-          Rules.ReportDiagnostic(context, memberSymbol, Rules.NotSupported);
-          error = true;
+          diagnostics.Add(
+              Rules.CreateDiagnostic(memberSymbol, Rules.NotSupported));
         }
+
+        var isPrimitiveTypeNumeric =
+            SchemaStructureParser.IsPrimitiveTypeNumeric_(primitiveType);
 
         var formatAttribute =
             SymbolTypeUtil.GetAttribute<FormatAttribute>(memberSymbol);
         var formatNumberType =
             formatAttribute?.NumberType ?? SchemaNumberType.UNDEFINED;
         var useAltFormat = formatNumberType != SchemaNumberType.UNDEFINED;
-
-        if (primitiveType == SchemaPrimitiveType.ENUM && !useAltFormat) {
-          Rules.ReportDiagnostic(context, memberSymbol, Rules.EnumNeedsFormat);
-          error = true;
+        {
+          if (formatAttribute != null && !isPrimitiveTypeNumeric) {
+            diagnostics.Add(
+                Rules.CreateDiagnostic(memberSymbol,
+                                       Rules.UnexpectedAttribute));
+          }
+          if (primitiveType == SchemaPrimitiveType.ENUM && !useAltFormat) {
+            diagnostics.Add(
+                Rules.CreateDiagnostic(memberSymbol, Rules.EnumNeedsFormat));
+          }
         }
+
+        {
+          var lengthSourceAttribute =
+              SymbolTypeUtil.GetAttribute<LengthSourceAttribute>(memberSymbol);
+          if (isArray || primitiveType == SchemaPrimitiveType.STRING) {
+            if (!isFieldReadonly) {
+              diagnostics.Add(
+                  Rules.CreateDiagnostic(memberSymbol, Rules.NotSupported));
+            }
+          } else if (lengthSourceAttribute != null) {
+            diagnostics.Add(
+                Rules.CreateDiagnostic(memberSymbol,
+                                       Rules.UnexpectedAttribute));
+          }
+        }
+
 
         var field = new SchemaMember {
             Name = memberSymbol.Name,
@@ -171,7 +195,7 @@ namespace schema {
       }
 
       return new SchemaStructure {
-          Error = error,
+          Diagnostics = diagnostics,
           TypeSymbol = structureSymbol,
           Fields = fields,
       };
@@ -195,9 +219,33 @@ namespace schema {
           SpecialType.System_UInt64 => SchemaPrimitiveType.UINT64,
           SpecialType.System_Single => SchemaPrimitiveType.SINGLE,
           SpecialType.System_Double => SchemaPrimitiveType.DOUBLE,
+          SpecialType.System_String => SchemaPrimitiveType.STRING,
           _                         => SchemaPrimitiveType.UNDEFINED
       };
     }
+
+    private static bool IsPrimitiveTypeNumeric_(SchemaPrimitiveType type)
+      => type switch {
+          SchemaPrimitiveType.SBYTE  => true,
+          SchemaPrimitiveType.BYTE   => true,
+          SchemaPrimitiveType.INT16  => true,
+          SchemaPrimitiveType.UINT16 => true,
+          SchemaPrimitiveType.INT32  => true,
+          SchemaPrimitiveType.UINT32 => true,
+          SchemaPrimitiveType.INT64  => true,
+          SchemaPrimitiveType.UINT64 => true,
+          SchemaPrimitiveType.SINGLE => true,
+          SchemaPrimitiveType.DOUBLE => true,
+          SchemaPrimitiveType.SN16   => true,
+          SchemaPrimitiveType.UN16   => true,
+          SchemaPrimitiveType.ENUM   => true,
+
+          SchemaPrimitiveType.CHAR      => false,
+          SchemaPrimitiveType.STRING    => false,
+          SchemaPrimitiveType.STRING_NT => false,
+          SchemaPrimitiveType.UNDEFINED => false,
+          _                             => throw new NotImplementedException(),
+      };
 
     private static SchemaPrimitiveType GetPrimitiveTypeFromType_(Type type) {
       // TODO: Support SN16/UN16
@@ -239,7 +287,7 @@ namespace schema {
     }
 
     private class SchemaStructure : ISchemaStructure {
-      public bool Error { get; set; }
+      public IList<Diagnostic> Diagnostics { get; set; }
       public INamedTypeSymbol TypeSymbol { get; set; }
       public IReadOnlyList<ISchemaMember> Fields { get; set; }
     }

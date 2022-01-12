@@ -1,5 +1,7 @@
 ﻿using System.IO;
 
+using schema;
+
 namespace mod.gcn {
   public interface IVector2<T> : IGcnSerializable {
     T X { get; set; }
@@ -8,7 +10,8 @@ namespace mod.gcn {
     string? ToString() => $"{this.X} {this.Y}";
   }
 
-  public class Vector2f : IVector2<float> {
+  [Schema]
+  public partial class Vector2f : IVector2<float> {
     public float X { get; set; }
     public float Y { get; set; }
 
@@ -16,11 +19,6 @@ namespace mod.gcn {
     public Vector2f(float x, float y) {
       this.X = x;
       this.Y = y;
-    }
-
-    public void Read(EndianBinaryReader reader) {
-      this.X = reader.ReadSingle();
-      this.Y = reader.ReadSingle();
     }
 
     public void Write(EndianBinaryWriter writer) {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -49,9 +50,7 @@ namespace schema {
         var isValuePrimitive =
             field.PrimitiveType != SchemaPrimitiveType.UNDEFINED;
 
-        var valueName = field.IsArray
-                            ? !isValuePrimitive ? eachName : indexName
-                            : $"this.{field.Name}";
+        var valueName = field.IsArray ? eachName : $"this.{field.Name}";
 
         if (field.IsArray) {
           if (!field.HasConstLength) {
@@ -78,12 +77,9 @@ namespace schema {
             cbsb.ExitBlock();
           }
 
-          if (!isValuePrimitive) {
-            cbsb.EnterBlock($"foreach (var {eachName} in this.{field.Name})");
-          } else {
-            cbsb.EnterBlock(
-                $"for (var i = 0; i < this.{field.Name}.Length; ++i)");
-          }
+          cbsb.EnterBlock(
+              $"for (var i = 0; i < this.{field.Name}.Length; ++i)");
+          cbsb.WriteLine($"var {eachName} = {indexName};");
         }
 
         if (!isValuePrimitive) {
@@ -112,6 +108,7 @@ namespace schema {
         }
 
         if (field.IsArray) {
+          cbsb.WriteLine($"{indexName} = {eachName};");
           cbsb.ExitBlock();
         }
       }
@@ -201,6 +198,9 @@ namespace schema {
       };
 
     public void Initialize(GeneratorInitializationContext context) {
+      /*if (!Debugger.IsAttached) {
+        Debugger.Launch();
+      }*/
       context.RegisterForSyntaxNotifications(() => new CustomReceiver(this));
     }
 
@@ -244,8 +244,8 @@ namespace schema {
         return;
       }
 
-      var structure = this.parser_.ParseStructure(null, symbol);
-      if (structure.Error) {
+      var structure = this.parser_.ParseStructure(symbol);
+      if (structure.Diagnostics.Count > 0) {
         return;
       }
 

@@ -1,39 +1,29 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-namespace mod.gcn.collision {
-  public class BaseRoomInfo : IGcnSerializable {
-    public uint index = 0;
+using schema;
 
-    public void Read(EndianBinaryReader reader) {
-      this.index = reader.ReadUInt32();
-    }
+namespace mod.gcn.collision {
+  [Schema]
+  public partial class BaseRoomInfo : IGcnSerializable {
+    public uint index = 0;
 
     public void Write(EndianBinaryWriter writer) {
       writer.Write(this.index);
     }
   }
 
-  public class BaseCollTriInfo : IGcnSerializable {
+  [Schema]
+  public partial class BaseCollTriInfo : IGcnSerializable {
     public uint mapCode = 0;
     public readonly Vector3i indice = new();
+    
     public ushort unknown2 = 0;
     public ushort unknown3 = 0;
     public ushort unknown4 = 0;
     public ushort unknown5 = 0;
+
     public readonly Plane plane = new();
-
-    public void Read(EndianBinaryReader reader) {
-      this.mapCode = reader.ReadUInt32();
-      this.indice.Read(reader);
-
-      this.unknown2 = reader.ReadUInt16();
-      this.unknown3 = reader.ReadUInt16();
-      this.unknown4 = reader.ReadUInt16();
-      this.unknown5 = reader.ReadUInt16();
-
-      this.plane.Read(reader);
-    }
 
     public void Write(EndianBinaryWriter writer) {
       writer.Write(this.mapCode);

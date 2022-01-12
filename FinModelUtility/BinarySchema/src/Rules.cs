@@ -31,7 +31,7 @@ namespace schema {
     public static readonly DiagnosticDescriptor MutableStringNeedsLengthSource
         = Rules.CreateDiagnostic_(
             "Schema string must have length source",
-        "Mutable string '{0}' is missing a LengthSource attribute.");
+            "Mutable string '{0}' is missing a LengthSource attribute.");
 
     public static readonly DiagnosticDescriptor MutableArrayNeedsLengthSource
         = Rules.CreateDiagnostic_(
@@ -68,15 +68,30 @@ namespace schema {
             "Write already defined",
             "A Write method for '{0}' was already defined.");
 
+    public static readonly DiagnosticDescriptor UnexpectedAttribute
+        = Rules.CreateDiagnostic_(
+            "Unexpected attribute",
+            "Did not expect this attribute on this field.");
+
+
+    public static Diagnostic CreateDiagnostic(
+        ISymbol symbol,
+        DiagnosticDescriptor descriptor)
+      => Diagnostic.Create(
+          descriptor,
+          symbol.Locations.First(),
+          symbol.Name);
+
+    public static void ReportDiagnostic(
+        SyntaxNodeAnalysisContext? context,
+        Diagnostic diagnostic)
+      => context?.ReportDiagnostic(diagnostic);
 
     public static void ReportDiagnostic(
         SyntaxNodeAnalysisContext? context,
         ISymbol symbol,
         DiagnosticDescriptor descriptor)
       => context?.ReportDiagnostic(
-          Diagnostic.Create(
-              descriptor,
-              symbol.Locations.First(),
-              symbol.Name));
+          Rules.CreateDiagnostic(symbol, descriptor));
   }
 }

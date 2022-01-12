@@ -1,15 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
+using schema;
+
 namespace mod.gcn {
-  public class JointMatPoly : IGcnSerializable {
+  [Schema]
+  public partial class JointMatPoly : IGcnSerializable {
     public ushort matIdx = 0;
     public ushort meshIdx = 0;
-
-    public void Read(EndianBinaryReader reader) {
-      this.matIdx = reader.ReadUInt16();
-      this.meshIdx = reader.ReadUInt16();
-    }
 
     public void Write(EndianBinaryWriter writer) {
       writer.Write(this.matIdx);

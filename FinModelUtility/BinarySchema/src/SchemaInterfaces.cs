@@ -1,19 +1,19 @@
 ﻿using System;
 
 namespace schema {
-  [AttributeUsage(AttributeTargets.Class)]
+  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
   public class SchemaAttribute : Attribute {}
 
 
   public enum IntType {
     BYTE,
     SBYTE,
-    SHORT,
-    USHORT,
-    INT,
-    UINT,
-    LONG,
-    ULONG
+    INT16,
+    UINT16,
+    INT32,
+    UINT32,
+    INT64,
+    UINT64
   }
 
 

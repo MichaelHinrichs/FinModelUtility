@@ -1,12 +1,11 @@
 ﻿using System.IO;
 
-namespace mod.gcn {
-  public class VtxMatrix : IGcnSerializable {
-    public short index = 0;
+using schema;
 
-    public void Read(EndianBinaryReader reader) {
-      this.index = reader.ReadInt16();
-    }
+namespace mod.gcn {
+  [Schema]
+  public partial class VtxMatrix : IGcnSerializable {
+    public short index = 0;
 
     public void Write(EndianBinaryWriter writer) {
       writer.Write(this.index);

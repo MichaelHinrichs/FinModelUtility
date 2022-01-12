@@ -23,7 +23,8 @@ namespace schema {
           Rules.MutableArrayNeedsLengthSource,
           Rules.MutableStringNeedsLengthSource,
           Rules.NotSupported,
-          Rules.SchemaTypeMustBePartial
+          Rules.SchemaTypeMustBePartial,
+          Rules.UnexpectedAttribute
       );
 
     public override void Initialize(AnalysisContext context) {
@@ -72,8 +73,12 @@ namespace schema {
         return;
       }
 
-      var structure = this.parser_.ParseStructure(context, symbol);
-      if (structure.Error) {
+      var structure = this.parser_.ParseStructure(symbol);
+      var diagnostics = structure.Diagnostics;
+      if (diagnostics.Count > 0) {
+        foreach (var diagnostic in diagnostics) {
+          Rules.ReportDiagnostic(context, diagnostic);
+        }
         return;
       }
 

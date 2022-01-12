@@ -1,5 +1,9 @@
 ﻿using System.IO;
 
+using schema;
+
+using ShaderGen;
+
 namespace mod.gcn {
   public interface IVector3<T> : IGcnSerializable {
     T X { get; set; }
@@ -12,7 +16,8 @@ namespace mod.gcn {
     string? ToString() => $"{this.X} {this.Y} {this.Z}";
   }
 
-  public class Vector3f : IVector3<float> {
+  [Schema]
+  public partial class Vector3f : IVector3<float> {
     public float X { get; set; }
     public float Y { get; set; }
     public float Z { get; set; }
@@ -28,12 +33,6 @@ namespace mod.gcn {
 
     public void Reset() => this.Set(0, 0, 0);
 
-    public void Read(EndianBinaryReader reader) {
-      this.X = reader.ReadSingle();
-      this.Y = reader.ReadSingle();
-      this.Z = reader.ReadSingle();
-    }
-
     public void Write(EndianBinaryWriter writer) {
       writer.Write(this.X);
       writer.Write(this.Y);
@@ -41,7 +40,8 @@ namespace mod.gcn {
     }
   }
 
-  public class Vector3i : IVector3<uint> {
+  [Schema]
+  public partial class Vector3i : IVector3<uint> {
     public uint X { get; set; }
     public uint Y { get; set; }
     public uint Z { get; set; }
@@ -56,12 +56,6 @@ namespace mod.gcn {
     }
 
     public void Reset() => this.Set(0, 0, 0);
-
-    public void Read(EndianBinaryReader reader) {
-      this.X = reader.ReadUInt32();
-      this.Y = reader.ReadUInt32();
-      this.Z = reader.ReadUInt32();
-    }
 
     public void Write(EndianBinaryWriter writer) {
       writer.Write(this.X);
