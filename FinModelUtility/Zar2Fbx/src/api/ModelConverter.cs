@@ -406,11 +406,11 @@ namespace zar.api {
 
           finVertex.Preproject = preproject[i].Value;
 
-          if (skinningModes[i].Value == SkinningMode.Single) {
+          /*if (skinningModes[i].Value == SkinningMode.Single) {
             finVertex.SetColor(ColorImpl.FromRgbaBytes(255, 0, 0, 255));
           } else {
-            finVertex.SetColor(ColorImpl.FromRgbaBytes(255, 255, 255, 255));
-          }
+          }*/
+          finVertex.SetColor(ColorImpl.FromRgbaBytes(255, 255, 255, 255));
         }
 
         // Adds faces. Thankfully, it's all just triangles!
