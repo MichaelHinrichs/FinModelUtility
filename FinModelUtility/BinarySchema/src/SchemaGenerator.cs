@@ -6,7 +6,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-using schema;
 using schema.text;
 
 namespace schema {
@@ -63,38 +62,64 @@ namespace schema {
         GeneratorSyntaxContext context,
         TypeDeclarationSyntax syntax,
         INamedTypeSymbol symbol) {
-      if (!SymbolTypeUtil.HasAttribute(symbol, this.schemaAttributeType_)) {
-        return;
-      }
+      try {
+        if (!SymbolTypeUtil.HasAttribute(symbol, this.schemaAttributeType_)) {
+          return;
+        }
 
-      if (!SymbolTypeUtil.IsPartial(syntax)) {
-        return;
-      }
+        if (!SymbolTypeUtil.IsPartial(syntax)) {
+          return;
+        }
 
-      var structure = this.parser_.ParseStructure(symbol);
-      if (structure.Diagnostics.Count > 0) {
-        return;
-      }
+        var structure = this.parser_.ParseStructure(symbol);
+        if (structure.Diagnostics.Count > 0) {
+          return;
+        }
 
-      this.Enqueue(structure);
+        this.EnqueueStructure(structure);
+      } catch {
+        if (Debugger.IsAttached) {
+          throw;
+        }
+
+        this.EnqueueError(symbol);
+      }
     }
 
     public void Execute(GeneratorExecutionContext context) {
       this.context_ = context;
+      
       foreach (var structure in this.queue_) {
         this.Generate_(structure);
       }
       this.queue_.Clear();
+
+      foreach (var errorSymbol in this.errorSymbols_) {
+        this.context_.Value.ReportDiagnostic(
+            Rules.CreateDiagnostic(errorSymbol, Rules.Exception));
+      }
+      this.errorSymbols_.Clear();
     }
 
     private GeneratorExecutionContext? context_;
-    private List<ISchemaStructure> queue_ = new();
+    private readonly List<ISchemaStructure> queue_ = new();
 
-    public void Enqueue(ISchemaStructure structure) {
+    public void EnqueueStructure(ISchemaStructure structure) {
       if (this.context_ == null) {
         this.queue_.Add(structure);
       } else {
         this.Generate_(structure);
+      }
+    }
+
+    private readonly List<ISymbol> errorSymbols_ = new();
+
+    public void EnqueueError(ISymbol errorSymbol) {
+      if (this.context_ == null) {
+        this.errorSymbols_.Add(errorSymbol);
+      } else {
+        this.context_.Value.ReportDiagnostic(
+            Rules.CreateDiagnostic(errorSymbol, Rules.Exception));
       }
     }
   }

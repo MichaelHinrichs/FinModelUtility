@@ -18,6 +18,7 @@
     <Product>universal_model_extractor</Product>
     <AssemblyName>universal_model_extractor</AssemblyName>
     <StartupObject>uni.cli.Cli</StartupObject>
+    <UserSecretsId>7016d56f-b424-467d-8b3a-40e5d0483f29</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,6 +28,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis" Version="4.1.0-1.final" />
     <PackageReference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform" Version="3.6.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

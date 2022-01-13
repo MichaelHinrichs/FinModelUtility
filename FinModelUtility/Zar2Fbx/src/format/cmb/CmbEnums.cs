@@ -25,7 +25,7 @@
     Shadow = 0x00006040
   }
 
-  public enum DataType : ushort {
+  public enum DataType {
     Byte = 0x1400,
     UByte = 0x1401,
     Short = 0x1402,
@@ -228,7 +228,7 @@
     DecrementWrap = 34055
   }
 
-  public enum VertexAttributeMode : ushort {
+  public enum VertexAttributeMode {
     Array = 0,
     Constant = 1,
   }

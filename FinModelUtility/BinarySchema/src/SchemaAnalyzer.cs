@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
+using System.Diagnostics;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -19,6 +20,7 @@ namespace schema {
       ImmutableArray.Create(
           Rules.ConstUninitialized,
           Rules.EnumNeedsFormat,
+          Rules.Exception,
           Rules.FormatOnNonNumber,
           Rules.MutableArrayNeedsLengthSource,
           Rules.MutableStringNeedsLengthSource,
@@ -61,28 +63,33 @@ namespace schema {
         SyntaxNodeAnalysisContext context,
         TypeDeclarationSyntax syntax,
         INamedTypeSymbol symbol) {
-      if (!SymbolTypeUtil.HasAttribute(symbol, this.schemaAttributeType_)) {
-        return;
-      }
-
-      if (!SymbolTypeUtil.IsPartial(syntax)) {
-        Rules.ReportDiagnostic(
-            context,
-            symbol,
-            Rules.SchemaTypeMustBePartial);
-        return;
-      }
-
-      var structure = this.parser_.ParseStructure(symbol);
-      var diagnostics = structure.Diagnostics;
-      if (diagnostics.Count > 0) {
-        foreach (var diagnostic in diagnostics) {
-          Rules.ReportDiagnostic(context, diagnostic);
+      try {
+        if (!SymbolTypeUtil.HasAttribute(symbol, this.schemaAttributeType_)) {
+          return;
         }
-        return;
-      }
 
-      //SchemaReaderGenerator.Enqueue(structure);
+        if (!SymbolTypeUtil.IsPartial(syntax)) {
+          Rules.ReportDiagnostic(
+              context,
+              symbol,
+              Rules.SchemaTypeMustBePartial);
+          return;
+        }
+
+        var structure = this.parser_.ParseStructure(symbol);
+        var diagnostics = structure.Diagnostics;
+        if (diagnostics.Count > 0) {
+          foreach (var diagnostic in diagnostics) {
+            Rules.ReportDiagnostic(context, diagnostic);
+          }
+        }
+      } catch {
+        if (Debugger.IsAttached) {
+          throw;
+        }
+        Rules.ReportDiagnostic(context,
+                               Rules.CreateDiagnostic(symbol, Rules.Exception));
+      }
     }
   }
 }

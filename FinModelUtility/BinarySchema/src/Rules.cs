@@ -40,18 +40,18 @@ namespace schema {
 
     public static readonly DiagnosticDescriptor FormatOnNonNumber
         = Rules.CreateDiagnostic_(
-            "Format attribute on non-numerical field/property",
-            "A Format attribute is applied to the non-numerical property '{0}', which is unsupported.");
+            "Format attribute on non-numerical member",
+            "A Format attribute is applied to the non-numerical member '{0}', which is unsupported.");
 
     public static readonly DiagnosticDescriptor EnumNeedsFormat
         = Rules.CreateDiagnostic_(
             "Enum needs format",
-            "Enum '{0}' is missing a Format attribute. This should be manually specified here for safety.");
+            "Enum member '{0}' needs either a valid Format attribute or for its enum type to specify an underlying representation.");
 
     public static readonly DiagnosticDescriptor ConstUninitialized
         = Rules.CreateDiagnostic_(
             "Const uninitialized",
-            "Const field/property '{0}' must be initialized.");
+            "Const member '{0}' must be initialized.");
 
     public static readonly DiagnosticDescriptor NotSupported
         = Rules.CreateDiagnostic_(
@@ -72,6 +72,11 @@ namespace schema {
         = Rules.CreateDiagnostic_(
             "Unexpected attribute",
             "Did not expect this attribute on this field.");
+
+    public static readonly DiagnosticDescriptor Exception
+        = Rules.CreateDiagnostic_(
+            "Exception",
+            "Ran into an exception while parsing.");
 
 
     public static Diagnostic CreateDiagnostic(

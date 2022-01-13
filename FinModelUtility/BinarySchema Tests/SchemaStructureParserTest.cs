@@ -24,18 +24,19 @@ namespace foo.bar {
       Assert.AreEqual("bar", structure.TypeSymbol.ContainingNamespace.Name);
       Assert.AreEqual("ByteWrapper", structure.TypeSymbol.Name);
 
-      Assert.AreEqual(1, structure.Fields.Count);
+      Assert.AreEqual(1, structure.Members.Count);
 
-      var field = structure.Fields[0];
-      Assert.AreEqual(SpecialType.System_Byte, field.TypeSymbol.SpecialType);
-      Assert.AreEqual(SchemaPrimitiveType.BYTE, field.PrimitiveType);
+      var field = structure.Members[0];
       Assert.AreEqual("field", field.Name);
 
-      Assert.AreEqual(true, field.IsPrimitive);
-      Assert.AreEqual(false, field.IsPrimitiveConst);
-      Assert.AreEqual(false, field.IsArray);
-      Assert.AreEqual(false, field.HasConstLength);
-      Assert.AreEqual(null, field.LengthField);
+      var memberType = field.MemberType;
+      Assert.AreEqual(SpecialType.System_Byte, memberType.TypeSymbol.SpecialType);
+
+      var primitiveType = (memberType as IPrimitiveMemberType)!;
+      Assert.AreEqual(SchemaPrimitiveType.BYTE, primitiveType.PrimitiveType);
+      Assert.AreEqual(false, primitiveType.IsConst);
+      Assert.AreEqual(false, primitiveType.UseAltFormat);
+      Assert.AreEqual(SchemaNumberType.UNDEFINED, primitiveType.AltFormat);
     }
 
     [Test]
@@ -55,21 +56,19 @@ namespace foo.bar {
       Assert.AreEqual("bar", structure.TypeSymbol.ContainingNamespace.Name);
       Assert.AreEqual("SByteWrapper", structure.TypeSymbol.Name);
 
-      Assert.AreEqual(1, structure.Fields.Count);
+      Assert.AreEqual(1, structure.Members.Count);
 
-      var field = structure.Fields[0];
-      Assert.AreEqual(SpecialType.System_SByte, field.TypeSymbol.SpecialType);
-      Assert.AreEqual(SchemaPrimitiveType.SBYTE, field.PrimitiveType);
+      var field = structure.Members[0];
       Assert.AreEqual("field", field.Name);
 
-      Assert.AreEqual(true, field.IsPrimitive);
-      Assert.AreEqual(false, field.IsPrimitiveConst);
-      Assert.AreEqual(false, field.IsArray);
-      Assert.AreEqual(false, field.HasConstLength);
-      Assert.AreEqual(null, field.LengthField);
+      var memberType = field.MemberType;
+      Assert.AreEqual(SpecialType.System_SByte, memberType.TypeSymbol.SpecialType);
 
-      Assert.AreEqual(false, field.UseAltFormat);
-      Assert.AreEqual(SchemaNumberType.UNDEFINED, field.AltFormat);
+      var primitiveType = (memberType as IPrimitiveMemberType)!;
+      Assert.AreEqual(SchemaPrimitiveType.SBYTE, primitiveType.PrimitiveType);
+      Assert.AreEqual(false, primitiveType.IsConst);
+      Assert.AreEqual(false, primitiveType.UseAltFormat);
+      Assert.AreEqual(SchemaNumberType.UNDEFINED, primitiveType.AltFormat);
     }
 
     [Test]
@@ -89,21 +88,19 @@ namespace foo.bar {
       Assert.AreEqual("bar", structure.TypeSymbol.ContainingNamespace.Name);
       Assert.AreEqual("Int16Wrapper", structure.TypeSymbol.Name);
 
-      Assert.AreEqual(1, structure.Fields.Count);
+      Assert.AreEqual(1, structure.Members.Count);
 
-      var field = structure.Fields[0];
-      Assert.AreEqual(SpecialType.System_Int16, field.TypeSymbol.SpecialType);
-      Assert.AreEqual(SchemaPrimitiveType.INT16, field.PrimitiveType);
+      var field = structure.Members[0];
       Assert.AreEqual("field", field.Name);
 
-      Assert.AreEqual(true, field.IsPrimitive);
-      Assert.AreEqual(false, field.IsPrimitiveConst);
-      Assert.AreEqual(false, field.IsArray);
-      Assert.AreEqual(false, field.HasConstLength);
-      Assert.AreEqual(null, field.LengthField);
+      var memberType = field.MemberType;
+      Assert.AreEqual(SpecialType.System_Int16, memberType.TypeSymbol.SpecialType);
 
-      Assert.AreEqual(false, field.UseAltFormat);
-      Assert.AreEqual(SchemaNumberType.UNDEFINED, field.AltFormat);
+      var primitiveType = (memberType as IPrimitiveMemberType)!;
+      Assert.AreEqual(SchemaPrimitiveType.INT16, primitiveType.PrimitiveType);
+      Assert.AreEqual(false, primitiveType.IsConst);
+      Assert.AreEqual(false, primitiveType.UseAltFormat);
+      Assert.AreEqual(SchemaNumberType.UNDEFINED, primitiveType.AltFormat);
     }
 
     [Test]
@@ -130,21 +127,19 @@ namespace foo.bar {
       Assert.AreEqual("bar", structure.TypeSymbol.ContainingNamespace.Name);
       Assert.AreEqual("EnumWrapper", structure.TypeSymbol.Name);
 
-      Assert.AreEqual(1, structure.Fields.Count);
+      Assert.AreEqual(1, structure.Members.Count);
 
-      var field = structure.Fields[0];
-      Assert.AreEqual("ValueType", field.TypeSymbol.Name);
-      Assert.AreEqual(SchemaPrimitiveType.ENUM, field.PrimitiveType);
+      var field = structure.Members[0];
       Assert.AreEqual("field", field.Name);
 
-      Assert.AreEqual(true, field.IsPrimitive);
-      Assert.AreEqual(false, field.IsPrimitiveConst);
-      Assert.AreEqual(false, field.IsArray);
-      Assert.AreEqual(false, field.HasConstLength);
-      Assert.AreEqual(null, field.LengthField);
+      var memberType = field.MemberType;
+      Assert.AreEqual(TypeKind.Enum, memberType.TypeSymbol.TypeKind);
 
-      Assert.AreEqual(true, field.UseAltFormat);
-      Assert.AreEqual(SchemaNumberType.UINT16, field.AltFormat);
+      var primitiveType = (memberType as IPrimitiveMemberType)!;
+      Assert.AreEqual(SchemaPrimitiveType.ENUM, primitiveType.PrimitiveType);
+      Assert.AreEqual(false, primitiveType.IsConst);
+      Assert.AreEqual(true, primitiveType.UseAltFormat);
+      Assert.AreEqual(SchemaNumberType.UINT16, primitiveType.AltFormat);
     }
 
     [Test]
@@ -180,19 +175,21 @@ namespace foo.bar {
 
       Assert.IsEmpty(structure.Diagnostics);
 
-      var field = structure.Fields[0];
-      Assert.AreEqual(TypeKind.Array, field.TypeSymbol.TypeKind);
-      Assert.AreEqual(SchemaPrimitiveType.INT32, field.PrimitiveType);
+      var field = structure.Members[0];
       Assert.AreEqual("field", field.Name);
 
-      Assert.AreEqual(false, field.IsPrimitive);
-      Assert.AreEqual(false, field.IsPrimitiveConst);
-      Assert.AreEqual(true, field.IsArray);
-      Assert.AreEqual(true, field.HasConstLength);
-      Assert.AreEqual(null, field.LengthField);
+      var memberType = field.MemberType;
+      Assert.AreEqual(TypeKind.Array, memberType.TypeSymbol.TypeKind);
 
-      Assert.AreEqual(false, field.UseAltFormat);
-      Assert.AreEqual(SchemaNumberType.UNDEFINED, field.AltFormat);
+      var arrayType = (memberType as ISequenceMemberType)!;
+      Assert.AreEqual(SequenceType.ARRAY, arrayType.SequenceType);
+      Assert.AreEqual(SequenceLengthType.CONST, arrayType.LengthType);
+
+      var primitiveType = (arrayType.ElementType as IPrimitiveMemberType)!;
+      Assert.AreEqual(SchemaPrimitiveType.INT32, primitiveType.PrimitiveType);
+      Assert.AreEqual(false, primitiveType.IsConst);
+      Assert.AreEqual(false, primitiveType.UseAltFormat);
+      Assert.AreEqual(SchemaNumberType.UNDEFINED, primitiveType.AltFormat);
     }
 
     [Test]
@@ -212,18 +209,19 @@ namespace foo.bar {
       Assert.AreEqual("bar", structure.TypeSymbol.ContainingNamespace.Name);
       Assert.AreEqual("ByteWrapper", structure.TypeSymbol.Name);
 
-      Assert.AreEqual(1, structure.Fields.Count);
+      Assert.AreEqual(1, structure.Members.Count);
 
-      var field = structure.Fields[0];
-      Assert.AreEqual(SpecialType.System_Byte, field.TypeSymbol.SpecialType);
-      Assert.AreEqual(SchemaPrimitiveType.BYTE, field.PrimitiveType);
+      var field = structure.Members[0];
       Assert.AreEqual("field", field.Name);
 
-      Assert.AreEqual(true, field.IsPrimitive);
-      Assert.AreEqual(false, field.IsPrimitiveConst);
-      Assert.AreEqual(false, field.IsArray);
-      Assert.AreEqual(false, field.HasConstLength);
-      Assert.AreEqual(null, field.LengthField);
+      var memberType = field.MemberType;
+      Assert.AreEqual(SpecialType.System_Byte, memberType.TypeSymbol.SpecialType);
+
+      var primitiveType = (memberType as IPrimitiveMemberType)!;
+      Assert.AreEqual(SchemaPrimitiveType.BYTE, primitiveType.PrimitiveType);
+      Assert.AreEqual(false, primitiveType.IsConst);
+      Assert.AreEqual(false, primitiveType.UseAltFormat);
+      Assert.AreEqual(SchemaNumberType.UNDEFINED, primitiveType.AltFormat);
     }
 
     [Test]
@@ -243,18 +241,19 @@ namespace foo.bar {
       Assert.AreEqual("bar", structure.TypeSymbol.ContainingNamespace.Name);
       Assert.AreEqual("ByteWrapper", structure.TypeSymbol.Name);
 
-      Assert.AreEqual(1, structure.Fields.Count);
+      Assert.AreEqual(1, structure.Members.Count);
 
-      var field = structure.Fields[0];
-      Assert.AreEqual(SpecialType.System_Byte, field.TypeSymbol.SpecialType);
-      Assert.AreEqual(SchemaPrimitiveType.BYTE, field.PrimitiveType);
+      var field = structure.Members[0];
       Assert.AreEqual("Field", field.Name);
 
-      Assert.AreEqual(true, field.IsPrimitive);
-      Assert.AreEqual(false, field.IsPrimitiveConst);
-      Assert.AreEqual(false, field.IsArray);
-      Assert.AreEqual(false, field.HasConstLength);
-      Assert.AreEqual(null, field.LengthField);
+      var memberType = field.MemberType;
+      Assert.AreEqual(SpecialType.System_Byte, memberType.TypeSymbol.SpecialType);
+
+      var primitiveType = (memberType as IPrimitiveMemberType)!;
+      Assert.AreEqual(SchemaPrimitiveType.BYTE, primitiveType.PrimitiveType);
+      Assert.AreEqual(false, primitiveType.IsConst);
+      Assert.AreEqual(false, primitiveType.UseAltFormat);
+      Assert.AreEqual(SchemaNumberType.UNDEFINED, primitiveType.AltFormat);
     }
 
     [Test]
@@ -274,18 +273,19 @@ namespace foo.bar {
       Assert.AreEqual("bar", structure.TypeSymbol.ContainingNamespace.Name);
       Assert.AreEqual("ByteWrapper", structure.TypeSymbol.Name);
 
-      Assert.AreEqual(1, structure.Fields.Count);
+      Assert.AreEqual(1, structure.Members.Count);
 
-      var field = structure.Fields[0];
-      Assert.AreEqual(SpecialType.System_Byte, field.TypeSymbol.SpecialType);
-      Assert.AreEqual(SchemaPrimitiveType.BYTE, field.PrimitiveType);
+      var field = structure.Members[0];
       Assert.AreEqual("field", field.Name);
 
-      Assert.AreEqual(true, field.IsPrimitive);
-      Assert.AreEqual(true, field.IsPrimitiveConst);
-      Assert.AreEqual(false, field.IsArray);
-      Assert.AreEqual(false, field.HasConstLength);
-      Assert.AreEqual(null, field.LengthField);
+      var memberType = field.MemberType;
+      Assert.AreEqual(SpecialType.System_Byte, memberType.TypeSymbol.SpecialType);
+
+      var primitiveType = (memberType as IPrimitiveMemberType)!;
+      Assert.AreEqual(SchemaPrimitiveType.BYTE, primitiveType.PrimitiveType);
+      Assert.AreEqual(true, primitiveType.IsConst);
+      Assert.AreEqual(false, primitiveType.UseAltFormat);
+      Assert.AreEqual(SchemaNumberType.UNDEFINED, primitiveType.AltFormat);
     }
 
     [Test]
@@ -305,18 +305,19 @@ namespace foo.bar {
       Assert.AreEqual("bar", structure.TypeSymbol.ContainingNamespace.Name);
       Assert.AreEqual("ByteWrapper", structure.TypeSymbol.Name);
 
-      Assert.AreEqual(1, structure.Fields.Count);
+      Assert.AreEqual(1, structure.Members.Count);
 
-      var field = structure.Fields[0];
-      Assert.AreEqual(SpecialType.System_Byte, field.TypeSymbol.SpecialType);
-      Assert.AreEqual(SchemaPrimitiveType.BYTE, field.PrimitiveType);
+      var field = structure.Members[0];
       Assert.AreEqual("Field", field.Name);
 
-      Assert.AreEqual(true, field.IsPrimitive);
-      Assert.AreEqual(true, field.IsPrimitiveConst);
-      Assert.AreEqual(false, field.IsArray);
-      Assert.AreEqual(false, field.HasConstLength);
-      Assert.AreEqual(null, field.LengthField);
+      var memberType = field.MemberType;
+      Assert.AreEqual(SpecialType.System_Byte, memberType.TypeSymbol.SpecialType);
+
+      var primitiveType = (memberType as IPrimitiveMemberType)!;
+      Assert.AreEqual(SchemaPrimitiveType.BYTE, primitiveType.PrimitiveType);
+      Assert.AreEqual(true, primitiveType.IsConst);
+      Assert.AreEqual(false, primitiveType.UseAltFormat);
+      Assert.AreEqual(SchemaNumberType.UNDEFINED, primitiveType.AltFormat);
     }
   }
 }
