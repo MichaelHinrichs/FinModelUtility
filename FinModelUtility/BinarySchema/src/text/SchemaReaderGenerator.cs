@@ -23,7 +23,8 @@ namespace schema.text {
                        (isTypeClass ? "class" : "struct");
 
       var cbsb = new CurlyBracketStringBuilder();
-      cbsb.WriteLine("using System.IO;");
+      cbsb.WriteLine("using System;")
+          .WriteLine("using System.IO;");
 
       // TODO: Handle fancier cases here
       cbsb.EnterBlock($"namespace {typeNamespace}");
@@ -157,7 +158,7 @@ namespace schema.text {
           var readType = SchemaReaderGenerator.GetIntLabel_(
               arrayType.ImmediateLengthType);
           cbsb.EnterBlock()
-              .WriteLine($"var {lengthName} = er.Read{readType}()");
+              .WriteLine($"var {lengthName} = er.Read{readType}();");
         }
 
         cbsb.EnterBlock($"if ({lengthName} < 0)")
@@ -190,6 +191,12 @@ namespace schema.text {
         } else {
           cbsb.WriteLine(
               $"this.{member.Name} = new {qualifiedElementName}[{lengthName}];");
+
+          if (hasReferenceElements) {
+            cbsb.EnterBlock($"for (var i = 0; i < {lengthName}; ++i)")
+                .WriteLine($"this.{member.Name}[i] = new {qualifiedElementName}();")
+                .ExitBlock();
+          }
         }
 
         if (isImmediate) {

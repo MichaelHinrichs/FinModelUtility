@@ -18,7 +18,8 @@ namespace foo.bar {
     public byte Field { get; }
   }
 }",
-                            @"using System.IO;
+                            @"using System;
+using System.IO;
 namespace foo.bar {
   public partial class ByteWrapper {
     public void Read(EndianBinaryReader er) {
@@ -40,7 +41,8 @@ namespace foo.bar {
     public sbyte Field { get; }
   }
 }",
-                            @"using System.IO;
+                            @"using System;
+using System.IO;
 namespace foo.bar {
   public partial class SByteWrapper {
     public void Read(EndianBinaryReader er) {
@@ -62,7 +64,8 @@ namespace foo.bar {
     public short Field { get; }
   }
 }",
-                            @"using System.IO;
+                            @"using System;
+using System.IO;
 namespace foo.bar {
   public partial class ShortWrapper {
     public void Read(EndianBinaryReader er) {
@@ -84,7 +87,8 @@ namespace foo.bar {
     public readonly int[] field;
   }
 }",
-                            @"using System.IO;
+                            @"using System;
+using System.IO;
 namespace foo.bar {
   public partial class ArrayWrapper {
     public void Read(EndianBinaryReader er) {
@@ -106,7 +110,8 @@ namespace foo.bar {
     public short Field { get; }
   }
 }",
-                            @"using System.IO;
+                            @"using System;
+using System.IO;
 namespace foo.bar {
   public partial class ShortWrapper {
     public void Read(EndianBinaryReader er) {
@@ -128,7 +133,8 @@ namespace foo.bar {
     public byte field { get; set; }
   }
 }",
-                            @"using System.IO;
+                            @"using System;
+using System.IO;
 namespace foo.bar {
   public partial class ByteWrapper {
     public void Read(EndianBinaryReader er) {
@@ -150,7 +156,8 @@ namespace foo.bar {
     public readonly byte field;
   }
 }",
-                            @"using System.IO;
+                            @"using System;
+using System.IO;
 namespace foo.bar {
   public partial class ByteWrapper {
     public void Read(EndianBinaryReader er) {
@@ -172,7 +179,8 @@ namespace foo.bar {
     public byte Field { get; }
   }
 }",
-                            @"using System.IO;
+                            @"using System;
+using System.IO;
 namespace foo.bar {
   public partial class ByteWrapper {
     public void Read(EndianBinaryReader er) {
@@ -190,12 +198,8 @@ using schema;
 
 namespace foo {
   namespace bar {
-    public enum ShortEnum : short {
-      A, B, C
-    }
-
     [Schema]
-    public class EverythingWrapper {
+    public partial class EverythingWrapper : IDeserializable {
       public readonly string magicText = ""foobar"";
 
       public byte byteField;
@@ -209,10 +213,27 @@ namespace foo {
       public ShortEnum intField;
       [Format(SchemaNumberType.INT32)]
       public readonly ShortEnum constIntField;
+
+      public readonly int[] constLengthIntValues;
+      [ArrayLengthSource(IntType.UINT32)]
+      public int[] intValues;
+
+      public Other other;
+      [ArrayLengthSource(IntType.INT32)]
+      public Other[] others;
+    }
+
+    public enum ShortEnum : short {
+      A, B, C
+    }
+
+    [Schema]
+    public partial class Other : IDeserializable {
     }
   }
 }",
-                            @"using System.IO;
+                            @"using System;
+using System.IO;
 namespace foo.bar {
   public partial class EverythingWrapper {
     public void Read(EndianBinaryReader er) {" +
@@ -227,7 +248,32 @@ namespace foo.bar {
       this.nakedShortField = (foo.bar.ShortEnum) er.ReadInt16();
       er.AssertInt16((short) this.constNakedShortField);
       this.intField = (foo.bar.ShortEnum) er.ReadInt32();
-      er.AssertInt32((int) this.constIntField);
+      er.AssertInt32((int) this.constIntField);" +
+                            @"
+      er.ReadInt32s(this.constLengthIntValues);
+      {
+        var c = er.ReadUInt32();
+        if (c < 0) {
+          throw new Exception(""Expected length to be nonnegative!"");
+        }
+        this.intValues = new System.Int32[c];
+      }
+      er.ReadInt32s(this.intValues);" +
+                            @"
+      this.other.Read(er);
+      {
+        var c = er.ReadInt32();
+        if (c < 0) {
+          throw new Exception(""Expected length to be nonnegative!"");
+        }
+        this.others = new foo.bar.Other[c];
+        for (var i = 0; i < c; ++i) {
+          this.others[i] = new foo.bar.Other();
+        }
+      }
+      foreach (var e in this.others) {
+        e.Read(er);
+      }
     }
   }
 }

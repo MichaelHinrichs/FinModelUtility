@@ -13,8 +13,12 @@ namespace schema.text {
     private int indentLevel_ = 0;
 
     public ICurlyBracketStringBuilder EnterBlock(string prefix = "") {
+      if (prefix.Length > 0) {
+        prefix = $"{prefix} ";
+      }
+
       this.PrintIndent_();
-      this.impl_.Append($"{prefix} {{\n");
+      this.impl_.Append($"{prefix}{{\n");
       ++this.indentLevel_;
       return this;
     }

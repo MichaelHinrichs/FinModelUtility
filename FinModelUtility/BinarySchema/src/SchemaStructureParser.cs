@@ -162,7 +162,8 @@ namespace schema {
                 IsConst = isMemberReadonly,
                 PrimitiveType = primitiveType,
             };
-          } else if (memberTypeSymbol.SpecialType == SpecialType.System_String) {
+          } else if (memberTypeSymbol.SpecialType ==
+                     SpecialType.System_String) {
             memberType = new StringType {
                 TypeSymbol = memberTypeSymbol,
                 IsConst = isMemberReadonly,
@@ -222,7 +223,7 @@ namespace schema {
                 PrimitiveType = elementPrimitiveType,
             };
           } else if
-              (memberTypeSymbol is INamedTypeSymbol elementNamedTypeSymbol &&
+              (elementTypeSymbol is INamedTypeSymbol elementNamedTypeSymbol &&
                SymbolTypeUtil.Implements(elementNamedTypeSymbol,
                                          typeof(IDeserializable))) {
             // TODO: Warn if didn't implement deserializable
@@ -232,7 +233,8 @@ namespace schema {
             };
           } else {
             diagnostics.Add(
-                Rules.CreateDiagnostic(memberSymbol, Rules.NotSupported));
+                Rules.CreateDiagnostic(memberSymbol,
+                                       Rules.UnsupportedArrayType));
           }
 
           if (elementMemberType != null) {
@@ -284,7 +286,7 @@ namespace schema {
                 SchemaStructureParser.IsPrimitiveTypeNumeric_(
                     targetPrimitiveType);
             if (!(targetMemberType is PrimitiveMemberType &&
-                isPrimitiveTypeNumeric)) {
+                  isPrimitiveTypeNumeric)) {
               diagnostics.Add(
                   Rules.CreateDiagnostic(memberSymbol,
                                          Rules.UnexpectedAttribute));
@@ -294,7 +296,7 @@ namespace schema {
             if (formatNumberType != SchemaNumberType.UNDEFINED) {
               primitiveMemberType.UseAltFormat = true;
               primitiveMemberType.AltFormat = formatNumberType;
-            } else if(targetPrimitiveType == SchemaPrimitiveType.ENUM) {
+            } else if (targetPrimitiveType == SchemaPrimitiveType.ENUM) {
               diagnostics.Add(
                   Rules.CreateDiagnostic(memberSymbol, Rules.EnumNeedsFormat));
             }
@@ -323,13 +325,46 @@ namespace schema {
           var lengthSourceAttribute =
               SymbolTypeUtil.GetAttribute<ArrayLengthSourceAttribute>(
                   memberSymbol);
-          if (memberType is ISequenceMemberType) {
-            if (!isMemberReadonly) {
-              diagnostics.Add(
-                  Rules.CreateDiagnostic(memberSymbol, Rules.NotSupported));
+          if (memberType is SequenceMemberType sequenceMemberType) {
+            if (sequenceMemberType.LengthType ==
+                SequenceLengthType.UNSPECIFIED) {
+              if (lengthSourceAttribute != null) {
+                sequenceMemberType.LengthType =
+                    lengthSourceAttribute.Method;
+
+                switch (sequenceMemberType.LengthType) {
+                  case SequenceLengthType.IMMEDIATE_VALUE: {
+                    sequenceMemberType.ImmediateLengthType =
+                        lengthSourceAttribute.LengthType;
+                    break;
+                  }
+                  case SequenceLengthType.OTHER_MEMBER: {
+                    // TODO: Look up variable from name
+                    diagnostics.Add(
+                        Rules.CreateDiagnostic(
+                            memberSymbol,
+                            Rules.NotSupported));
+                    break;
+                  }
+                  default:
+                    throw new NotImplementedException();
+                }
+              } else {
+                diagnostics.Add(
+                    Rules.CreateDiagnostic(
+                        memberSymbol,
+                        Rules.MutableArrayNeedsLengthSource));
+              }
             }
-            // TODO: Use length
-          } else if (lengthSourceAttribute != null) {
+            // Didn't expect attribute b/c length is already specified
+            else if (lengthSourceAttribute != null) {
+              diagnostics.Add(
+                  Rules.CreateDiagnostic(memberSymbol,
+                                         Rules.UnexpectedAttribute));
+            }
+          }
+          // Didn't expect attribute b/c not an array
+          else if (lengthSourceAttribute != null) {
             diagnostics.Add(
                 Rules.CreateDiagnostic(memberSymbol,
                                        Rules.UnexpectedAttribute));

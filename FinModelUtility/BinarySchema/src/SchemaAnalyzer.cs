@@ -7,8 +7,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-using schema;
-
 namespace schema {
   [DiagnosticAnalyzer(LanguageNames.CSharp)]
   public class SchemaAnalyzer : DiagnosticAnalyzer {
@@ -26,7 +24,8 @@ namespace schema {
           Rules.MutableStringNeedsLengthSource,
           Rules.NotSupported,
           Rules.SchemaTypeMustBePartial,
-          Rules.UnexpectedAttribute
+          Rules.UnexpectedAttribute,
+          Rules.UnsupportedArrayType
       );
 
     public override void Initialize(AnalysisContext context) {

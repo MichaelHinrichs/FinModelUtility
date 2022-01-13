@@ -73,6 +73,11 @@ namespace schema {
             "Unexpected attribute",
             "Did not expect this attribute on this field.");
 
+    public static readonly DiagnosticDescriptor UnsupportedArrayType
+        = Rules.CreateDiagnostic_(
+            "Unsupported array type",
+            "Array type '{0}' is not currently supported.");
+
     public static readonly DiagnosticDescriptor Exception
         = Rules.CreateDiagnostic_(
             "Exception",
