@@ -73,14 +73,16 @@ namespace mod.gcn {
       joint.scale.Set(10.1f, 11.1f, 12.1f);
       joint.rotation.Set(13.1f, 14.1f, 15.1f);
       joint.position.Set(16.1f, 17.1f, 18.1f);
-      joint.matpolys.Add(new JointMatPoly {
-          matIdx = 19,
-          meshIdx = 20,
-      });
-      joint.matpolys.Add(new JointMatPoly {
-          matIdx = 20,
-          meshIdx = 21,
-      });
+      joint.matpolys = new[] {
+          new JointMatPoly {
+              matIdx = 19,
+              meshIdx = 20,
+          },
+          new JointMatPoly {
+              matIdx = 20,
+              meshIdx = 21,
+          },
+      };
 
       TestGcnSerializableExisting(joint);
     }
@@ -97,19 +99,16 @@ namespace mod.gcn {
       };
 
       var meshPacket = new MeshPacket();
-      meshPacket.indices.Add(3);
-      meshPacket.indices.Add(4);
+      meshPacket.indices = new short[] { 3, 4 };
 
       var displayList = new DisplayList();
       displayList.flags.intView = 5;
       displayList.cmdCount = 6;
       displayList.dlistData.Add(7);
       displayList.dlistData.Add(8);
-      meshPacket.displaylists.Add(displayList);
-      meshPacket.displaylists.Add(displayList);
+      meshPacket.displaylists = new[] { displayList, displayList };
 
-      mesh.packets.Add(meshPacket);
-      mesh.packets.Add(meshPacket);
+      mesh.packets = new[] { meshPacket, meshPacket };
 
       TestGcnSerializableExisting(mesh);
     }

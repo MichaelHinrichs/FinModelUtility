@@ -3,10 +3,7 @@ using Microsoft.CodeAnalysis;
 using NUnit.Framework;
 
 namespace schema {
-  public class SchemaStructureParserTest {
-    [SetUp]
-    public void Setup() {}
-
+  public partial class SchemaStructureParserTest {
     [Test]
     public void TestByte() {
       var structure = SchemaTestUtil.Parse(@"
@@ -140,27 +137,6 @@ namespace foo.bar {
       Assert.AreEqual(false, primitiveType.IsConst);
       Assert.AreEqual(true, primitiveType.UseAltFormat);
       Assert.AreEqual(SchemaNumberType.UINT16, primitiveType.AltFormat);
-    }
-
-    [Test]
-    public void TestEnumWithoutFormat() {
-      var structure = SchemaTestUtil.Parse(@"
-namespace foo.bar {
-  public enum ValueType {
-    A,
-    B,
-    C
-  }
-
-  [Schema]
-  public class EnumWrapper {
-    public ValueType field;
-  }
-}");
-
-      Assert.AreEqual(1, structure.Diagnostics.Count);
-      Assert.AreEqual(Rules.EnumNeedsFormat,
-                      structure.Diagnostics[0].Descriptor);
     }
 
     [Test]

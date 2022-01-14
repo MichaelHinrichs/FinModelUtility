@@ -268,7 +268,8 @@ namespace schema {
           var formatNumberType = SchemaNumberType.UNDEFINED;
           if (targetPrimitiveType == SchemaPrimitiveType.ENUM) {
             var enumDeclaration =
-                memberTypeSymbol.DeclaringSyntaxReferences[0].GetSyntax() as
+                targetMemberType.TypeSymbol.DeclaringSyntaxReferences[0]
+                                .GetSyntax() as
                     EnumDeclarationSyntax;
             var baseList = enumDeclaration.BaseList;
             if (baseList != null) {

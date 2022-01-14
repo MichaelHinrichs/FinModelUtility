@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+
+using NUnit.Framework;
 
 #pragma warning disable CS8604
 
@@ -42,6 +46,30 @@ namespace schema {
       var namedTypeSymbol = symbol as INamedTypeSymbol;
 
       return new SchemaStructureParser().ParseStructure(namedTypeSymbol);
+    }
+
+    public static void AssertDiagnostics(
+        IList<Diagnostic> actualDiagnostics,
+        params DiagnosticDescriptor[] expectedDiagnostics) {
+      var message = "";
+
+      if (actualDiagnostics.Count != expectedDiagnostics.Length) {
+        message += $"Expected {expectedDiagnostics.Length} diagnostics but got {actualDiagnostics.Count}.\n";
+      }
+
+      var issues = 0;
+      for (var i = 0; i < actualDiagnostics.Count; ++i) {
+        var actualDiagnostic = actualDiagnostics[i];
+        var expectedDiagnostic = expectedDiagnostics[i];
+
+        if (!actualDiagnostic.Descriptor.Equals(expectedDiagnostic)) {
+          message += $"{++issues}) Expected '{expectedDiagnostic.MessageFormat.ToString()}' but was '{actualDiagnostic.GetMessage()}'.\n";
+        }
+      }
+
+      if (message.Length != 0) {
+        Assert.Fail(message);
+      }
     }
   }
 }
