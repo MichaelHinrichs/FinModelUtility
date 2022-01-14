@@ -137,9 +137,11 @@ using schema;
 
 namespace foo.bar {
   internal partial class Parent {
-    [Schema]
-    private partial class Wrapper {
-      public int length;
+    protected partial class Middle {
+      [Schema]
+      private partial class Wrapper {
+        public int length;
+      }
     }
   }
 }",
@@ -147,9 +149,11 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   internal partial class Parent {
-    private partial class Wrapper {
-      public void Read(EndianBinaryReader er) {
-        this.length = er.ReadInt32();
+    protected partial class Middle {
+      private partial class Wrapper {
+        public void Read(EndianBinaryReader er) {
+          this.length = er.ReadInt32();
+        }
       }
     }
   }
