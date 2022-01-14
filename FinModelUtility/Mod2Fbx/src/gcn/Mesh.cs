@@ -4,6 +4,8 @@ using System.IO;
 
 using fin.math;
 
+using schema;
+
 namespace mod.gcn {
   // THANKS:
   // https://github.com/KillzXGaming/010-Templates/blob/816cfc57e2ee998b953cf488e4fed25c54e7861a/Pikmin/MOD.bt#L312
@@ -59,62 +61,39 @@ namespace mod.gcn {
     }
   }
 
-  public class MeshPacket : IGcnSerializable {
-    public readonly List<short> indices = new();
-    public readonly List<DisplayList> displaylists = new();
-
-    public void Read(EndianBinaryReader reader) {
-      this.indices.Clear();
-      var numIndices = reader.ReadUInt32();
-      for (var i = 0; i < numIndices; ++i) {
-        this.indices.Add(reader.ReadInt16());
-      }
-
-      this.displaylists.Clear();
-      var numDisplayLists = reader.ReadUInt32();
-      for (var i = 0; i < numDisplayLists; ++i) {
-        var dlist = new DisplayList();
-        dlist.Read(reader);
-        this.displaylists.Add(dlist);
-      }
-    }
+  [Schema]
+  public partial class MeshPacket : IGcnSerializable {
+    [ArrayLengthSource(IntType.UINT32)]
+    public short[] indices;
+    [ArrayLengthSource(IntType.UINT32)]
+    public DisplayList[] displaylists;
 
     public void Write(EndianBinaryWriter writer) {
-      writer.Write(this.indices.Count);
+      writer.Write(this.indices.Length);
       foreach (var index in this.indices) {
         writer.Write(index);
       }
 
-      writer.Write(this.displaylists.Count);
+      writer.Write(this.displaylists.Length);
       foreach (var dlist in this.displaylists) {
         dlist.Write(writer);
       }
     }
   }
 
-  public class Mesh : IGcnSerializable {
+  [Schema]
+  public partial class Mesh : IGcnSerializable {
     public uint boneIndex = 0;
     public uint vtxDescriptor = 0;
-    public readonly List<MeshPacket> packets = new();
 
-    public void Read(EndianBinaryReader reader) {
-      this.boneIndex = reader.ReadUInt32();
-      this.vtxDescriptor = reader.ReadUInt32();
-
-      this.packets.Clear();
-      var numPackets = reader.ReadUInt32();
-      for (var i = 0; i < numPackets; ++i) {
-        var packet = new MeshPacket();
-        packet.Read(reader);
-        this.packets.Add(packet);
-      }
-    }
+    [ArrayLengthSource(IntType.UINT32)]
+    public MeshPacket[] packets;
 
     public void Write(EndianBinaryWriter writer) {
       writer.Write(this.boneIndex);
       writer.Write(this.vtxDescriptor);
 
-      writer.Write(this.packets.Count);
+      writer.Write(this.packets.Length);
       foreach (var packet in this.packets) {
         packet.Write(writer);
       }

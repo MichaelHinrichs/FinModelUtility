@@ -4,6 +4,7 @@ using System.Linq;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 #pragma warning disable CS8604
 
@@ -30,7 +31,11 @@ namespace schema {
 
       var typeNode = syntaxTree.GetRoot()
                                .DescendantTokens()
-                               .Single(t => t.Text == typeName)
+                               .Single(t =>
+                                           t.Text == typeName &&
+                                           t.Parent is ClassDeclarationSyntax
+                                               or StructDeclarationSyntax
+                               )
                                .Parent;
 
       var symbol = semanticModel.GetDeclaredSymbol(typeNode);

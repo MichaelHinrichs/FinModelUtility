@@ -100,6 +100,37 @@ namespace foo.bar {
     }
 
     [Test]
+    public void TestArrayOtherMemberLength() {
+      this.AssertGenerated_(@"
+using schema;
+
+namespace foo.bar {
+  [Schema]
+  public partial class ArrayWrapper {
+    public int length;
+
+    [ArrayLengthSource(nameof(ArrayWrapper.length))]
+    public int[] field;
+  }
+}",
+                            @"using System;
+using System.IO;
+namespace foo.bar {
+  public partial class ArrayWrapper {
+    public void Read(EndianBinaryReader er) {
+      this.length = er.ReadInt32();
+      if (this.length < 0) {
+        throw new Exception(""Expected length to be nonnegative!"");
+      }
+      this.field = new System.Int32[this.length];
+      er.ReadInt32s(this.field);
+    }
+  }
+}
+");
+    }
+
+    [Test]
     public void TestField() {
       this.AssertGenerated_(@"
 using schema;

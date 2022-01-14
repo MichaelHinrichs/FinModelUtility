@@ -15,35 +15,19 @@ namespace mod.gcn {
     }
   }
 
-  public class Joint : IGcnSerializable {
+  [Schema]
+  public partial class Joint : IGcnSerializable {
     public uint parentIdx = 0;
     public uint flags = 0;
+    public readonly Vector3f boundsMax = new();    
     public readonly Vector3f boundsMin = new();
-    public readonly Vector3f boundsMax = new();
     public float volumeRadius = 0;
     public readonly Vector3f scale = new();
     public readonly Vector3f rotation = new();
     public readonly Vector3f position = new();
-    public readonly List<JointMatPoly> matpolys = new();
 
-    public void Read(EndianBinaryReader reader) {
-      this.parentIdx = reader.ReadUInt32();
-      this.flags = reader.ReadUInt32();
-      this.boundsMax.Read(reader);
-      this.boundsMin.Read(reader);
-      this.volumeRadius = reader.ReadSingle();
-      this.scale.Read(reader);
-      this.rotation.Read(reader);
-      this.position.Read(reader);
-
-      this.matpolys.Clear();
-      var numMatPolys = reader.ReadUInt32();
-      for (var i = 0; i < numMatPolys; ++i) {
-        var matPoly = new JointMatPoly();
-        matPoly.Read(reader);
-        this.matpolys.Add(matPoly);
-      }
-    }
+    [ArrayLengthSource(IntType.UINT32)]
+    public JointMatPoly[] matpolys;
 
     public void Write(EndianBinaryWriter writer) {
       writer.Write(this.parentIdx);
@@ -55,7 +39,7 @@ namespace mod.gcn {
       this.rotation.Write(writer);
       this.position.Write(writer);
 
-      writer.Write(this.matpolys.Count);
+      writer.Write(this.matpolys.Length);
       foreach (var matPoly in this.matpolys) {
         matPoly.Write(writer);
       }

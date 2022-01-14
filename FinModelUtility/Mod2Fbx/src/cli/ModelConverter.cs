@@ -114,7 +114,7 @@ namespace mod.cli {
         ITexture? finTexture = null;
 
         var texturesInMaterial = material.texInfo.unknown4;
-        if (texturesInMaterial.Count > 0) {
+        if (texturesInMaterial.Length > 0) {
           var textureInMaterial = texturesInMaterial[0];
 
           var texAttrIndex = textureInMaterial.unknown1;

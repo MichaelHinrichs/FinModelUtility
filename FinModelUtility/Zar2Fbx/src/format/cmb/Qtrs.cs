@@ -1,23 +1,12 @@
-﻿using System.IO;
-
-using schema;
+﻿using schema;
 
 namespace zar.format.cmb {
-  public class Qtrs : IDeserializable {
+  [Schema]
+  public partial class Qtrs : IDeserializable {
+    public readonly string magic = "qtrs";
     public uint chunkSize { get; private set; }
+
+    [ArrayLengthSource(IntType.UINT32)]
     public BoundingBox[] boundingBoxes { get; private set; }
-
-    public void Read(EndianBinaryReader r) {
-      r.AssertMagicText("qtrs");
-
-      this.chunkSize = r.ReadUInt32();
-
-      this.boundingBoxes = new BoundingBox[r.ReadUInt32()];
-      for (var i = 0; i < this.boundingBoxes.Length; ++i) {
-        var boundingBox = new BoundingBox();
-        boundingBox.Read(r);
-        this.boundingBoxes[i] = boundingBox;
-      }
-    }
   }
 }

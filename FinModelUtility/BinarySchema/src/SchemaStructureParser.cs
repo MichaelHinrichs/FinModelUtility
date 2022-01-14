@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -339,11 +340,53 @@ namespace schema {
                     break;
                   }
                   case SequenceLengthType.OTHER_MEMBER: {
-                    // TODO: Look up variable from name
-                    diagnostics.Add(
-                        Rules.CreateDiagnostic(
-                            memberSymbol,
-                            Rules.NotSupported));
+                    // TODO: Verify whether it exists, type, stuff
+                    var otherLengthMemberSymbol = structureSymbol
+                                                  .GetMembers(
+                                                      lengthSourceAttribute
+                                                          .OtherMemberName)
+                                                  .Single();
+                    ITypeSymbol? otherLengthMemberTypeSymbol = null;
+                    switch (otherLengthMemberSymbol) {
+                      case IPropertySymbol propertySymbol: {
+                        otherLengthMemberTypeSymbol = propertySymbol.Type;
+                        break;
+                      }
+                      case IFieldSymbol fieldSymbol: {
+                        otherLengthMemberTypeSymbol = fieldSymbol.Type;
+                        break;
+                      }
+                    }
+
+                    ISchemaMember? otherLengthMember = null;
+                    if (otherLengthMemberTypeSymbol != null) {
+                      var otherLengthPrimitiveType =
+                          SchemaStructureParser.GetPrimitiveTypeFromType_(
+                              otherLengthMemberTypeSymbol);
+                      var isOtherLengthNumeric =
+                          SchemaStructureParser.IsPrimitiveTypeNumeric_(
+                              otherLengthPrimitiveType);
+
+                      if (otherLengthPrimitiveType !=
+                          SchemaPrimitiveType.UNDEFINED) {
+                        otherLengthMember = new SchemaMember {
+                            Name = otherLengthMemberSymbol.Name,
+                            MemberType = new PrimitiveMemberType {
+                                TypeSymbol = otherLengthMemberTypeSymbol,
+                                PrimitiveType = otherLengthPrimitiveType,
+                            }
+                        };
+                      }
+                    }
+
+                    if (otherLengthMember != null) {
+                      sequenceMemberType.LengthMember = otherLengthMember;
+                    } else {
+                      diagnostics.Add(
+                          Rules.CreateDiagnostic(
+                              memberSymbol,
+                              Rules.NotSupported));
+                    }
                     break;
                   }
                   default:
