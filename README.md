@@ -22,13 +22,13 @@ Command-line tools for extracting models from games en-masse. Separate batch scr
 
 ## Supported formats/games
 
-- CMB (3DS)
+- .cmb (3DS)
   - Ocarina of Time 3D (`ocarina_of_time_3d.cia`)
-- BMD (GCN)
+- .bmd (GCN)
   - Mario Kart: Double Dash (`mario_kart_double_dash.gcm`)
   - Pikmin 2 (`pikmin_2.gcm`)
   - Super Mario Sunshine (`super_mario_sunshine.gcm`)
-- MOD (GCN)
+- .mod (GCN)
   - Pikmin 1 (`pikmin_1.gcm`)
 
 *Note:* For GameCube ROMs, files with an `.iso` extension should work as long as they are renamed to `[game_name].gcm`.
