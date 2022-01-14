@@ -30,7 +30,7 @@ namespace schema.text {
       cbsb.EnterBlock($"namespace {typeNamespace}");
       foreach (var declaringType in declaringTypes) {
         cbsb.EnterBlock(
-            $"{SymbolTypeUtil.GetSymbolQualifiers(declaringType)} {typeName}");
+            $"{SymbolTypeUtil.GetSymbolQualifiers(declaringType)} {declaringType.Name}");
       }
       cbsb.EnterBlock(
           $"{SymbolTypeUtil.GetSymbolQualifiers(typeSymbol)} {typeName}");

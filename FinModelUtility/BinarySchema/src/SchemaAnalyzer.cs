@@ -29,6 +29,9 @@ namespace schema {
       );
 
     public override void Initialize(AnalysisContext context) {
+      /*if (!Debugger.IsAttached) {
+        Debugger.Launch();
+      }*/
       context.RegisterSyntaxNodeAction(
           syntaxNodeContext => {
             var syntax = syntaxNodeContext.Node as ClassDeclarationSyntax;

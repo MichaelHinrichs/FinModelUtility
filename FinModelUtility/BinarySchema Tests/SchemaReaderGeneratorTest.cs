@@ -131,6 +131,33 @@ namespace foo.bar {
     }
 
     [Test]
+    public void TestNestedClass() {
+      this.AssertGenerated_(@"
+using schema;
+
+namespace foo.bar {
+  internal partial class Parent {
+    [Schema]
+    private partial class Wrapper {
+      public int length;
+    }
+  }
+}",
+                            @"using System;
+using System.IO;
+namespace foo.bar {
+  internal partial class Parent {
+    private partial class Wrapper {
+      public void Read(EndianBinaryReader er) {
+        this.length = er.ReadInt32();
+      }
+    }
+  }
+}
+");
+    }
+
+    [Test]
     public void TestField() {
       this.AssertGenerated_(@"
 using schema;

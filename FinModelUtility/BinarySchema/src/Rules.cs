@@ -28,6 +28,11 @@ namespace schema {
             "Schema type must be partial",
             "Schema type '{0}' must be partial to accept automatically generated read/write code.");
 
+    public static readonly DiagnosticDescriptor ContainerTypeMustBePartial
+        = Rules.CreateDiagnostic_(
+            "Container of schema type must be partial",
+            "Type '{0}' contains a schema type, must be partial to accept automatically generated code.");
+
     public static readonly DiagnosticDescriptor MutableStringNeedsLengthSource
         = Rules.CreateDiagnostic_(
             "Schema string must have length source",

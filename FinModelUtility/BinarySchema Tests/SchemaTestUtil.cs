@@ -28,7 +28,18 @@ namespace schema {
                            .AddSyntaxTrees(syntaxTree);
       var semanticModel = compilation.GetSemanticModel(syntaxTree);
 
-      var classIndex = src.IndexOf("class");
+      var attributeSyntax = syntaxTree.GetRoot()
+                               .DescendantTokens()
+                               .First(t => {
+                                 if (t.Text == "Schema" && t.Parent?.Parent is AttributeSyntax) {
+                                   return true;
+                                 }
+                                 return false;
+                               })
+                               .Parent?.Parent as AttributeSyntax;
+      var attributeSpan = attributeSyntax!.FullSpan;
+
+      var classIndex = src.IndexOf("class", attributeSpan.Start + attributeSpan.Length);
       var classNameIndex = src.IndexOf(' ', classIndex) + 1;
       var classNameLength = src.IndexOf(' ', classNameIndex) - classNameIndex;
       var typeName = src.Substring(classNameIndex, classNameLength);

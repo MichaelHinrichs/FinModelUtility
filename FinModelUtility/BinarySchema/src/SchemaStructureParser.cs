@@ -119,6 +119,24 @@ namespace schema {
         INamedTypeSymbol structureSymbol) {
       var diagnostics = new List<Diagnostic>();
 
+      // All of the types that contain the structure need to be partial
+      {
+        var containingType = structureSymbol.ContainingType;
+        while (containingType != null) {
+          var typeDeclarationSyntax =
+              containingType.DeclaringSyntaxReferences[0].GetSyntax() as
+                  TypeDeclarationSyntax;
+
+          if (!SymbolTypeUtil.IsPartial(typeDeclarationSyntax)) {
+            diagnostics.Add(Rules.CreateDiagnostic(
+                                containingType,
+                                Rules.SchemaTypeMustBePartial));
+          }
+
+          containingType = containingType.ContainingType;
+        }
+      }
+
       var members = structureSymbol.GetMembers();
 
       var fields = new List<ISchemaMember>();

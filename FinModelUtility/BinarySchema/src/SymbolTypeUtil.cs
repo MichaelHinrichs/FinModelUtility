@@ -98,7 +98,6 @@ namespace schema {
           arguments.Select(a => a.Value).ToArray());
     }
 
-    
     public static INamedTypeSymbol[] GetDeclaringTypesDownward(
         INamedTypeSymbol type) {
       var declaringTypes = new List<INamedTypeSymbol>();
@@ -114,10 +113,25 @@ namespace schema {
     }
 
     public static string GetSymbolQualifiers(INamedTypeSymbol typeSymbol)
-      => "public " +
+      => SymbolTypeUtil.AccessibilityToModifier(
+             typeSymbol.DeclaredAccessibility) +
+         " " +
          (typeSymbol.IsAbstract ? "abstract " : "") +
          "partial " +
          (typeSymbol.TypeKind == TypeKind.Class ? "class" : "struct");
+
+    public static string AccessibilityToModifier(
+        Accessibility accessibility)
+      => accessibility switch {
+          Accessibility.Private              => "private",
+          Accessibility.Protected            => "protected",
+          Accessibility.Internal             => "internal",
+          Accessibility.Public               => "public",
+          _ => throw new ArgumentOutOfRangeException(
+                   nameof(accessibility),
+                   accessibility,
+                   null)
+      };
 
     public static string GetQualifiedName(ITypeSymbol typeSymbol) {
       var mergedNamespace =
