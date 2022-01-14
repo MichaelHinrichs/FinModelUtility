@@ -17,6 +17,7 @@ namespace schema {
         SupportedDiagnostics { get; } =
       ImmutableArray.Create(
           Rules.ConstUninitialized,
+          Rules.ContainerTypeMustBePartial,
           Rules.EnumNeedsFormat,
           Rules.Exception,
           Rules.FormatOnNonNumber,

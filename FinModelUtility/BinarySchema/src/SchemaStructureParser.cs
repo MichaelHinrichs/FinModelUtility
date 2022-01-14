@@ -130,7 +130,7 @@ namespace schema {
           if (!SymbolTypeUtil.IsPartial(typeDeclarationSyntax)) {
             diagnostics.Add(Rules.CreateDiagnostic(
                                 containingType,
-                                Rules.SchemaTypeMustBePartial));
+                                Rules.ContainerTypeMustBePartial));
           }
 
           containingType = containingType.ContainingType;
