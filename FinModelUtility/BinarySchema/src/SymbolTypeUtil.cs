@@ -113,7 +113,8 @@ namespace schema {
     }
 
     public static string GetSymbolQualifiers(INamedTypeSymbol typeSymbol)
-      => SymbolTypeUtil.AccessibilityToModifier(
+      => (typeSymbol.IsStatic ? "static " : "") +
+         SymbolTypeUtil.AccessibilityToModifier(
              typeSymbol.DeclaredAccessibility) +
          " " +
          (typeSymbol.IsAbstract ? "abstract " : "") +
@@ -123,10 +124,10 @@ namespace schema {
     public static string AccessibilityToModifier(
         Accessibility accessibility)
       => accessibility switch {
-          Accessibility.Private              => "private",
-          Accessibility.Protected            => "protected",
-          Accessibility.Internal             => "internal",
-          Accessibility.Public               => "public",
+          Accessibility.Private   => "private",
+          Accessibility.Protected => "protected",
+          Accessibility.Internal  => "internal",
+          Accessibility.Public    => "public",
           _ => throw new ArgumentOutOfRangeException(
                    nameof(accessibility),
                    accessibility,

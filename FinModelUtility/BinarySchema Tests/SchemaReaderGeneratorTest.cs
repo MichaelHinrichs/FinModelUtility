@@ -136,7 +136,7 @@ namespace foo.bar {
 using schema;
 
 namespace foo.bar {
-  internal partial class Parent {
+  static internal partial class Parent {
     protected partial class Middle {
       [Schema]
       private partial class Wrapper {
@@ -148,7 +148,7 @@ namespace foo.bar {
                             @"using System;
 using System.IO;
 namespace foo.bar {
-  internal partial class Parent {
+  static internal partial class Parent {
     protected partial class Middle {
       private partial class Wrapper {
         public void Read(EndianBinaryReader er) {
