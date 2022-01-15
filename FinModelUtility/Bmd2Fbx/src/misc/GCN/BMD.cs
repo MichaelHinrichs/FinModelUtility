@@ -29,15 +29,15 @@ using fin.util.asserts;
 using fin.util.color;
 using fin.util.image;
 
+using schema;
+
 #pragma warning disable CS8604
 
 using BlendFactor = mkds.gcn.bmd.BlendFactor;
 using LogicOp = mkds.gcn.bmd.LogicOp;
 
-namespace bmd.GCN
-{
-  public class BMD
-  {
+namespace bmd.GCN {
+  public partial class BMD {
     private List<BMDShader> Shaders = new List<BMDShader>();
     public const string Signature = "J3D2bmd3";
     public BMD.BMDHeader Header;
@@ -1216,8 +1216,7 @@ label_140:
       }
     }
 
-    public class VTX1Section
-    {
+    public partial class VTX1Section {
       public BMD.VTX1Section.Color[][] Colors = new BMD.VTX1Section.Color[2][];
       public BMD.VTX1Section.Texcoord[][] Texcoords = new BMD.VTX1Section.Texcoord[8][];
       public const string Signature = "VTX1";
@@ -1250,8 +1249,11 @@ label_140:
           }
           er.BaseStream.Position = position1 + (long) this.ArrayFormatOffset;
           this.ArrayFormats = new BMD.VTX1Section.ArrayFormat[length1];
-          for (int index = 0; index < length1; ++index)
-            this.ArrayFormats[index] = new BMD.VTX1Section.ArrayFormat(er);
+          for (int index = 0; index < length1; ++index) {
+            var entry = new BMD.VTX1Section.ArrayFormat();
+            entry.Read(er);
+            this.ArrayFormats[index] = entry;
+          }
           int index1 = 0;
           for (int k = 0; k < 13; ++k)
           {
@@ -1453,24 +1455,14 @@ label_140:
         this.Colors[num2] = colors;
       }
 
-      public class ArrayFormat
-      {
+      [Schema]
+      public partial class ArrayFormat {
         public uint ArrayType;
         public uint ComponentCount;
         public uint DataType;
         public byte DecimalPoint;
         public byte Unknown1;
         public ushort Unknown2;
-
-        public ArrayFormat(EndianBinaryReader er)
-        {
-          this.ArrayType = er.ReadUInt32();
-          this.ComponentCount = er.ReadUInt32();
-          this.DataType = er.ReadUInt32();
-          this.DecimalPoint = er.ReadByte();
-          this.Unknown1 = er.ReadByte();
-          this.Unknown2 = er.ReadUInt16();
-        }
       }
 
       public class Color
@@ -1620,8 +1612,7 @@ label_140:
       }
     }
 
-    public class JNT1Section
-    {
+    public partial class JNT1Section {
       public const string Signature = "JNT1";
       public DataBlockHeader Header;
       public ushort NrJoints;
@@ -1652,15 +1643,18 @@ label_140:
           this.StringTable = new BMD.Stringtable(er);
           er.BaseStream.Position = position + (long) this.JointEntryOffset;
           this.Joints = new BMD.JNT1Section.JNT1Entry[(int) this.NrJoints];
-          for (int index = 0; index < (int) this.NrJoints; ++index)
-            this.Joints[index] = new BMD.JNT1Section.JNT1Entry(er);
+          for (var index = 0; index < (int) this.NrJoints; ++index) {
+            var entry = new BMD.JNT1Section.JNT1Entry();
+            entry.Read(er);
+            this.Joints[index] = entry;
+          }
           er.BaseStream.Position = position + (long) this.Header.size;
           OK = true;
         }
       }
 
-      public class JNT1Entry
-      {
+      [Schema]
+      public partial class JNT1Entry : IDeserializable {
         public ushort Unknown1;
         public byte Unknown2;
         public byte Padding1;
@@ -1675,33 +1669,12 @@ label_140:
         public float Ty;
         public float Tz;
         public float Unknown3;
-        public float[] BoundingBoxMin;
-        public float[] BoundingBoxMax;
-
-        public JNT1Entry(EndianBinaryReader er)
-        {
-          this.Unknown1 = er.ReadUInt16();
-          this.Unknown2 = er.ReadByte();
-          this.Padding1 = er.ReadByte();
-          this.Sx = er.ReadSingle();
-          this.Sy = er.ReadSingle();
-          this.Sz = er.ReadSingle();
-          this.Rx = er.ReadInt16();
-          this.Ry = er.ReadInt16();
-          this.Rz = er.ReadInt16();
-          this.Padding2 = er.ReadUInt16();
-          this.Tx = er.ReadSingle();
-          this.Ty = er.ReadSingle();
-          this.Tz = er.ReadSingle();
-          this.Unknown3 = er.ReadSingle();
-          this.BoundingBoxMin = er.ReadSingles(3);
-          this.BoundingBoxMax = er.ReadSingles(3);
-        }
+        public readonly float[] BoundingBoxMin = new float[3];
+        public readonly float[] BoundingBoxMax = new float[3];
       }
     }
 
-    public class SHP1Section
-    {
+    public partial class SHP1Section {
       public const string Signature = "SHP1";
       public DataBlockHeader Header;
       public ushort NrBatch;
@@ -1747,8 +1720,7 @@ label_140:
         }
       }
 
-      public class Batch
-      {
+      public partial class Batch {
         public bool[] HasColors = new bool[2];
         public bool[] HasTexCoords = new bool[8];
         public byte MatrixType;
@@ -1768,8 +1740,10 @@ label_140:
         public BMD.SHP1Section.Batch.PacketLocation[] PacketLocations;
         public BMD.SHP1Section.Batch.Packet[] Packets;
 
-        public Batch(EndianBinaryReader er, long baseoffset, BMD.SHP1Section Parent)
-        {
+        public Batch(
+            EndianBinaryReader er,
+            long baseoffset,
+            BMD.SHP1Section Parent) {
           this.MatrixType = er.ReadByte();
           this.Unknown1 = er.ReadByte();
           this.NrPacket = er.ReadUInt16();
@@ -1781,12 +1755,26 @@ label_140:
           this.BoundingBoxMin = er.ReadSingles(3);
           this.BoundingBoxMax = er.ReadSingles(3);
           long position = er.BaseStream.Position;
-          er.BaseStream.Position = baseoffset + (long) Parent.BatchAttribsOffset + (long) this.AttribsOffset;
-          List<BMD.SHP1Section.Batch.BatchAttribute> source = new List<BMD.SHP1Section.Batch.BatchAttribute>();
-          source.Add(new BMD.SHP1Section.Batch.BatchAttribute(er));
-          while (source.Last<BMD.SHP1Section.Batch.BatchAttribute>().Attribute != (uint) byte.MaxValue)
-            source.Add(new BMD.SHP1Section.Batch.BatchAttribute(er));
-          source.Remove(source.Last<BMD.SHP1Section.Batch.BatchAttribute>());
+          er.BaseStream.Position = baseoffset +
+                                   (long) Parent.BatchAttribsOffset +
+                                   (long) this.AttribsOffset;
+          List<BMD.SHP1Section.Batch.BatchAttribute> source =
+              new List<BMD.SHP1Section.Batch.BatchAttribute>();
+          {
+            var entry = new BMD.SHP1Section.Batch.BatchAttribute();
+            entry.Read(er);
+            source.Add(entry);
+
+            while (source.Last<BMD.SHP1Section.Batch.BatchAttribute>()
+                         .Attribute !=
+                   (uint) byte.MaxValue) {
+              entry = new BMD.SHP1Section.Batch.BatchAttribute();
+              entry.Read(er);
+              source.Add(entry);
+            }
+          }
+
+        source.Remove(source.Last<BMD.SHP1Section.Batch.BatchAttribute>());
           this.BatchAttributes = source.ToArray();
           for (int index = 0; index < this.BatchAttributes.Length; ++index)
           {
@@ -1824,7 +1812,10 @@ label_140:
           for (int index = 0; index < (int) this.NrPacket; ++index)
           {
             er.BaseStream.Position = baseoffset + (long) Parent.PacketLocationsOffset + (long) (((int) this.FirstPacketLocation + index) * 8);
-            this.PacketLocations[index] = new BMD.SHP1Section.Batch.PacketLocation(er);
+            var packetLocation = new BMD.SHP1Section.Batch.PacketLocation();
+            packetLocation.Read(er);
+            this.PacketLocations[index] = packetLocation;
+
             er.BaseStream.Position = baseoffset + (long) Parent.DataOffset + (long) this.PacketLocations[index].Offset;
             this.Packets[index] = new BMD.SHP1Section.Batch.Packet(er, (int) this.PacketLocations[index].Size, this.BatchAttributes);
             er.BaseStream.Position = baseoffset + (long) Parent.MatrixDataOffset + (long) (((int) this.FirstMatrixData + index) * 8);
@@ -1835,28 +1826,16 @@ label_140:
           er.BaseStream.Position = position;
         }
 
-        public class BatchAttribute
-        {
+        [Schema]
+        public partial class BatchAttribute : IDeserializable {
           public uint Attribute;
           public uint DataType;
-
-          public BatchAttribute(EndianBinaryReader er)
-          {
-            this.Attribute = er.ReadUInt32();
-            this.DataType = er.ReadUInt32();
-          }
         }
 
-        public class PacketLocation
-        {
+        [Schema]
+        public partial class PacketLocation : IDeserializable {
           public uint Size;
           public uint Offset;
-
-          public PacketLocation(EndianBinaryReader er)
-          {
-            this.Size = er.ReadUInt32();
-            this.Offset = er.ReadUInt32();
-          }
         }
 
         public class Packet
@@ -2011,8 +1990,7 @@ label_140:
       All = 3    // Cull all primitives
     }
 
-    public class MAT3Section
-    {
+    public partial class MAT3Section {
       public const string Signature = "MAT3";
       public DataBlockHeader Header;
       public ushort NrMaterials;
@@ -2090,8 +2068,11 @@ label_140:
 
           er.BaseStream.Position = position1 + (long) this.Offsets[16];
           this.Tevorders = new BMD.MAT3Section.TevOrder[sectionLengths[16] / 4];
-          for (int index = 0; index < sectionLengths[16] / 4; ++index)
-            this.Tevorders[index] = new BMD.MAT3Section.TevOrder(er);
+          for (int index = 0; index < sectionLengths[16] / 4; ++index) {
+            var entry = new BMD.MAT3Section.TevOrder();
+            entry.Read(er);
+            this.Tevorders[index] = entry;
+          }
           
           er.BaseStream.Position = position1 + (long) this.Offsets[17];
           this.ColorS10 = new System.Drawing.Color[sectionLengths[17] / 8];
@@ -2115,8 +2096,11 @@ label_140:
             this.BlendFunctions[index] = new BMD.MAT3Section.BlendFunction(er);
           er.BaseStream.Position = position1 + (long) this.Offsets[26];
           this.DepthFunctions = new BMD.MAT3Section.DepthFunction[sectionLengths[26] / 4];
-          for (int index = 0; index < sectionLengths[26] / 4; ++index)
-            this.DepthFunctions[index] = new BMD.MAT3Section.DepthFunction(er);
+          for (int index = 0; index < sectionLengths[26] / 4; ++index) {
+            var entry = new BMD.MAT3Section.DepthFunction();
+            entry.Read(er);
+            this.DepthFunctions[index] = entry;
+          }
           er.BaseStream.Position = position1 + (long) this.Header.size;
           OK = true;
         }
@@ -2346,20 +2330,12 @@ label_140:
         }
       }
 
-      public class DepthFunction
-      {
+      [Schema]
+      public partial class DepthFunction : IDeserializable {
         public byte Enable;
         public byte Func;
         public byte UpdateEnable;
         public byte Padding;
-
-        public DepthFunction(EndianBinaryReader er)
-        {
-          this.Enable = er.ReadByte();
-          this.Func = er.ReadByte();
-          this.UpdateEnable = er.ReadByte();
-          this.Padding = er.ReadByte();
-        }
       }
 
       public class TevStageProps {
@@ -2495,20 +2471,13 @@ label_140:
         }
       }
 
-      public class TevOrder
-      {
+      [Schema]
+      public partial class TevOrder : IDeserializable {
         public byte TexcoordID;
         public byte TexMap;
+        [Format(SchemaNumberType.BYTE)]
         public ColorChannel ChannelID;
         public byte Unknown;
-
-        public TevOrder(EndianBinaryReader er)
-        {
-          this.TexcoordID = er.ReadByte();
-          this.TexMap = er.ReadByte();
-          this.ChannelID = (ColorChannel) er.ReadByte();
-          this.Unknown = er.ReadByte();
-        }
 
         public enum ColorChannel {
           GX_COLOR0,
