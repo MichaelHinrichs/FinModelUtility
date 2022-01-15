@@ -138,9 +138,15 @@ using schema;
 namespace foo.bar {
   static internal partial class Parent {
     protected partial class Middle {
+      public enum ValueEnum {
+        A, B
+      }
+
       [Schema]
       private partial class Wrapper {
         public int length;
+        [Format(SchemaNumberType.INT32)]
+        public ValueEnum value;
       }
     }
   }
@@ -153,6 +159,7 @@ namespace foo.bar {
       private partial class Wrapper {
         public void Read(EndianBinaryReader er) {
           this.length = er.ReadInt32();
+          this.value = (foo.bar.Parent.Middle.ValueEnum) er.ReadInt32();
         }
       }
     }

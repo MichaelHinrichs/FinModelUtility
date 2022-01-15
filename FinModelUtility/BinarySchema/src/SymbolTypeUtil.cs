@@ -99,7 +99,7 @@ namespace schema {
     }
 
     public static INamedTypeSymbol[] GetDeclaringTypesDownward(
-        INamedTypeSymbol type) {
+        ITypeSymbol type) {
       var declaringTypes = new List<INamedTypeSymbol>();
 
       var declaringType = type.ContainingType;
@@ -137,10 +137,16 @@ namespace schema {
     public static string GetQualifiedName(ITypeSymbol typeSymbol) {
       var mergedNamespace =
           SymbolTypeUtil.MergeContainingNamespaces(typeSymbol);
+      var mergedNamespaceText = mergedNamespace == null
+                                    ? ""
+                                    : $"{mergedNamespace}.";
+      
+      var mergedContainersText = "";
+      foreach (var container in SymbolTypeUtil.GetDeclaringTypesDownward(typeSymbol)) {
+        mergedContainersText += $"{container.Name}.";
+      }
 
-      return mergedNamespace == null
-                 ? typeSymbol.Name
-                 : $"{mergedNamespace}.{typeSymbol.Name}";
+      return $"{mergedNamespaceText}{mergedContainersText}{typeSymbol.Name}";
     }
   }
 }
