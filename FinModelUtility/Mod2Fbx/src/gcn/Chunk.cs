@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
+using schema;
+
 namespace mod.gcn {
   public enum ChunkId {
     HEADER = 0x00,
@@ -69,23 +71,12 @@ namespace mod.gcn {
       };
   }
 
-  public class ChunkData : IGcnSerializable {
+  [Schema]
+  public partial class ChunkData : IGcnSerializable {
+    [Format(SchemaNumberType.UINT32)]
     public ChunkId Id { get; private set; }
-    public string Name => Chunk.GetName(this.Id);
-
-    public long Offset { get; private set; }
-    public int Length { get; private set; }
-
-    public IReadOnlyList<byte> Data { get; private set; }
-
-    public void Read(EndianBinaryReader reader) {
-      this.Offset = reader.Position;
-
-      this.Id = (ChunkId) reader.ReadUInt32();
-      this.Length = reader.ReadInt32();
-
-      this.Data = reader.ReadBytes(this.Length);
-    }
+    [ArrayLengthSource(IntType.INT32)]
+    public byte[] Data { get; private set; }
 
     public void Write(EndianBinaryWriter writer) {
       throw new System.NotImplementedException();

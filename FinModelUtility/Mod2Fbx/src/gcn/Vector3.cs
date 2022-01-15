@@ -2,8 +2,6 @@
 
 using schema;
 
-using ShaderGen;
-
 namespace mod.gcn {
   public interface IVector3<T> : IGcnSerializable {
     T X { get; set; }

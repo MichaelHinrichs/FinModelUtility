@@ -8,6 +8,8 @@ using fin.util.asserts;
 
 using mod.gcn.collision;
 
+using schema;
+
 namespace mod.gcn {
   public class DateTime {
     public ushort year = 2021;
@@ -203,7 +205,7 @@ namespace mod.gcn {
 
     private static void ReadGenericChunk_<T>(
         EndianBinaryReader reader,
-        List<T> vector) where T : IGcnSerializable, new() {
+        List<T> vector) where T : IDeserializable, new() {
       var num = reader.ReadUInt32();
       vector.Clear();
 
@@ -215,7 +217,7 @@ namespace mod.gcn {
     }
 
     private static T ReadGeneric_<T>(EndianBinaryReader reader)
-        where T : IGcnSerializable, new() {
+        where T : IDeserializable, new() {
       var instance = new T();
       instance.Read(reader);
       return instance;

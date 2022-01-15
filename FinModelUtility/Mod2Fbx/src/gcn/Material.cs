@@ -219,7 +219,7 @@ namespace mod.gcn {
 
   public enum MaterialFlags {
     UsePVW = 1
-  };
+  }
 
   public class Material : IGcnSerializable {
     public uint flags = 0;
@@ -249,7 +249,7 @@ namespace mod.gcn {
     public void Write(EndianBinaryWriter writer) {
       throw new System.NotImplementedException();
     }
-  };
+  }
 
   [Schema]
   public partial class TCR_Unk1 : IGcnSerializable {
@@ -282,34 +282,15 @@ namespace mod.gcn {
     }
   };
 
-  public class TEVColReg : IGcnSerializable {
+  [Schema]
+  public partial class TEVColReg : IGcnSerializable {
     public readonly ColourU16 unknown1 = new();
     public int unknown2 = 0;
     public float unknown3 = 0;
-    public readonly List<TCR_Unk1> unknown4 = new();
-    public readonly List<TCR_Unk2> unknown5 = new();
-
-    public void Read(EndianBinaryReader reader) {
-      this.unknown1.Read(reader);
-      this.unknown2 = reader.ReadInt32();
-      this.unknown3 = reader.ReadSingle();
-
-      this.unknown4.Clear();
-      var numUnknown4 = reader.ReadUInt32();
-      for (var i = 0; i < numUnknown4; ++i) {
-        var unk = new TCR_Unk1();
-        unk.Read(reader);
-        this.unknown4.Add(unk);
-      }
-
-      this.unknown5.Clear();
-      var numUnknown5 = reader.ReadUInt32();
-      for (var i = 0; i < numUnknown5; ++i) {
-        var unk = new TCR_Unk2();
-        unk.Read(reader);
-        this.unknown5.Add(unk);
-      }
-    }
+    [ArrayLengthSource(IntType.UINT32)]
+    public TCR_Unk1[] unknown4;
+    [ArrayLengthSource(IntType.UINT32)]
+    public TCR_Unk2[] unknown5;
 
     public void Write(EndianBinaryWriter writer) {
       throw new System.NotImplementedException();

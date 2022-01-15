@@ -58,8 +58,8 @@ namespace mod.gcn {
     [Test]
     public void TestColourU16() => TestGcnSerializableSimple(new ColourU16());
 
-    [Test]
-    public void TestEnvelope() => TestGcnSerializableSimple(new Envelope());
+    /*[Test]
+    public void TestEnvelope() => TestGcnSerializableSimple(new Envelope());*/
 
     [Test]
     public void TestJoint() {

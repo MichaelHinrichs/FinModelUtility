@@ -308,11 +308,11 @@ namespace mod.cli {
                       var vertexWeights = new VertexWeights();
 
                       var envelope = mod.envelopes[envelopeIndex];
-                      for (var w = 0; w < envelope.weights.Count; ++w) {
+                      foreach (var indexAndWeight in envelope.indicesAndWeights) {
                         vertexWeights.boneWeights.Add(
-                            new BoneWeight(bones[envelope.indices[w]],
+                            new BoneWeight(bones[indexAndWeight.index],
                                            new FinMatrix4x4().SetIdentity(),
-                                           envelope.weights[w]));
+                                           indexAndWeight.weight));
                       }
 
                       // TODO: Is this right? There's still some jank in some models
