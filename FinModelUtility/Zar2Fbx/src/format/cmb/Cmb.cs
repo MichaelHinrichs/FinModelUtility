@@ -15,6 +15,7 @@ namespace zar.format.cmb {
     public readonly Mat mat = new();
     public readonly Tex tex = new();
     public readonly Sklm sklm = new();
+    public readonly Luts luts = new();
     public readonly Vatr vatr = new();
     
     public Cmb(EndianBinaryReader r) => this.Read(r);
@@ -62,6 +63,9 @@ namespace zar.format.cmb {
       this.mat.Read(r);
       this.tex.Read(r);
       this.sklm.Read(r);
+
+      r.Position = startOff + this.header.lutsOffset;
+      this.luts.Read(r);
 
       r.Position = startOff + this.header.vatrOffset;
       this.vatr.Read(r);
