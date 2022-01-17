@@ -186,6 +186,14 @@ namespace zar.api {
                                         finTexture)
                                     : model.MaterialManager.AddLayerMaterial();
         finMaterial.Name = $"material{i}";
+        finMaterial.CullingMode = cmbMaterial.faceCulling switch {
+          CullMode.FrontAndBack => CullingMode.SHOW_BOTH,
+          CullMode.Front        => CullingMode.SHOW_FRONT_ONLY,
+          CullMode.BackFace     => CullingMode.SHOW_BACK_ONLY,
+          CullMode.Never        => CullingMode.SHOW_NEITHER,
+          _                     => throw new NotImplementedException(),
+        };
+
         finMaterials.Add(finMaterial);
       }
 
