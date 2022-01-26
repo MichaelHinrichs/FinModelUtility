@@ -43,6 +43,10 @@
     "Ocarina of Time": {
       "commandName": "Project",
       "commandLineArgs": "ocarina_of_time"
+    },
+    "Battalion Wars": {
+      "commandName": "Project",
+      "commandLineArgs": "battalion_wars"
     }
   }
 }

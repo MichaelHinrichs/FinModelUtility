@@ -5,6 +5,7 @@ using CommandLine;
 using CommandLine.Text;
 
 using uni.games.animal_crossing;
+using uni.games.battalion_wars;
 using uni.games.luigis_mansion;
 using uni.games.luigis_mansion_3d;
 using uni.games.mario_kart_double_dash;
@@ -25,6 +26,7 @@ namespace uni.cli {
           Parser.Default.ParseArguments(
                     args,
                     typeof(AnimalCrossingOptions),
+                    typeof(BattalionWarsOptions),
                     typeof(LuigisMansionOptions),
                     typeof(LuigisMansion3dOptions),
                     typeof(MarioKartDoubleDashOptions),
@@ -38,6 +40,9 @@ namespace uni.cli {
                     typeof(DebugOptions))
                 .WithParsed((AnimalCrossingOptions _) => {
                   new AnimalCrossingExtractor().ExtractAll();
+                })
+                .WithParsed((BattalionWarsOptions _) => {
+                  new BattalionWarsExtractor().ExtractAll();
                 })
                 .WithParsed((LuigisMansionOptions _) => {
                   new LuigisMansionExtractor().ExtractAll();

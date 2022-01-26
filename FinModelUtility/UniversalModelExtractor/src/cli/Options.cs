@@ -5,6 +5,10 @@ namespace uni.cli {
         HelpText = "Extract models from Animal Crossing.")]
   public class AnimalCrossingOptions {}
 
+  [Verb("battalion_wars",
+        HelpText = "Extract models from Battalion Wars.")]
+  public class BattalionWarsOptions {}
+
   [Verb("luigis_mansion", HelpText = "Extract models from Luigi's Mansion.")]
   public class LuigisMansionOptions {}
 
