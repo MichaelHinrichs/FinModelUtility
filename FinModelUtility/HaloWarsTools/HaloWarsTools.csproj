@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+    <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="KSoft">
+      <HintPath>..\HaloWarsDocs\PhxTools\_bin\v160\Debug\AnyCPU\Phoenix\KSoft.dll</HintPath>
+    </Reference>
+    <Reference Include="KSoft.Phoenix">
+      <HintPath>..\HaloWarsDocs\PhxTools\_bin\v160\Debug\AnyCPU\Phoenix\KSoft.Phoenix.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

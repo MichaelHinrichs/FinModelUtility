@@ -1,0 +1,427 @@
+//------------------------------------------------
+//--- 010 Editor v3.0 Binary Template
+//
+//      File: UGX.bt
+//    Author: kornman00
+//   Version: 0.4
+//   Purpose: Parse HaloWars UGX files.
+//  Category: HaloWars
+// File Mask: *.ugx, *.UGX
+//
+// More information available at
+//  https://github.com/KornnerStudios/HaloWarsDocs
+//------------------------------------------------
+
+#include "BinaryDataTree.bt"
+#include "Granny.bt"
+
+#define WELL_KNOWN_ECF
+#include "ECF.bt"
+
+local boolean IS_64_BIT = false;
+
+enum
+{
+	cUGX_FileID               = 0xAAC93746,
+
+	cUGX_CachedDataChunk      = 0x00000700,
+	cUGX_IndexBufferChunk     = 0x00000701,
+	cUGX_VertexBufferChunk    = 0x00000702,
+	cUGX_GrxChunk             = 0x00000703, // granny_file_info
+	cUGX_MaterialChunk        = 0x00000704,
+	cUGX_TreeChunk            = 0x00000705,
+
+	cUGX_CachedDataSignatureHW1_BE  = 0xC2340004,
+	cUGX_CachedDataSignatureHW1_LE  = 0x040034C2,
+	cUGX_CachedDataSignatureHW2     = 0x060034C2, // 0xC2340006
+
+	BAABBTreeVersion = 33440002,
+};
+
+struct UnivertPacker
+{
+	// TODO was this changed slightly for HWDE?
+	enum VertexElementType
+	{
+		eIGNORE,
+		eFLOAT1,		// 4 DXGI_FORMAT_R32_FLOAT
+		eFLOAT2,		// 8 DXGI_FORMAT_R32G32_FLOAT
+		eFLOAT3,		// 12 DXGI_FORMAT_R32G32B32_FLOAT
+		eFLOAT4,		// 16 DXGI_FORMAT_R32G32B32A32_FLOAT
+		eD3DCOLOR,		// 4 DXGI_FORMAT_B8G8R8A8_UNORM
+		eUBYTE4,		// 4 DXGI_FORMAT_R8G8B8A8_UINT
+		eSHORT2,		// 4 DXGI_FORMAT_R16G16_SINT
+		eSHORT4,		// 8 DXGI_FORMAT_R16G16B16A16_SINT
+		eUBYTE4N,		// 4 DXGI_FORMAT_R8G8B8A8_UNORM
+		eSHORT2N,		// 4 DXGI_FORMAT_R16G16_SNORM
+		eSHORT4N,		// 8 DXGI_FORMAT_R16G16B16A16_SNORM
+		eUSHORT2N,		// 4 DXGI_FORMAT_R16G16_UNORM
+		eUSHORT4N,		// 8 DXGI_FORMAT_R16G16B16A16_UNORM
+		eUDEC3,			// 4 DXGI_FORMAT_UNKNOWN
+		eDEC3N,			// 4 DXGI_FORMAT_UNKNOWN
+		//4 DXGI_FORMAT_UNKNOWN
+		eHALFFLOAT2,	// 4 DXGI_FORMAT_R16G16_FLOAT
+		eHALFFLOAT4,	// 8 DXGI_FORMAT_R16G16B16A16_FLOAT
+		//4 DXGI_FORMAT_R8G8B8A8_SNORM
+
+		eHALFFLOAT1,
+		eUDEC3N,
+		eDHEN3N,
+	};
+
+	PackedString PackOrder(IS_64_BIT);
+	PackedString DeclOrder(IS_64_BIT);
+	VertexElementType Pos;
+	VertexElementType Basis;
+	VertexElementType BasisScales;
+	VertexElementType Tangent;
+	VertexElementType Norm;
+	VertexElementType UV[8];
+	VertexElementType Indices;
+	VertexElementType Weights;
+	VertexElementType Diffuse;
+	VertexElementType Index;
+};
+
+struct UGX_CachedDataHeaderV4
+{
+	int RigidBoneIndex;
+	Vector3F BoundingSphereCenter;
+	float BoundingSphereRadius;
+	Vector3F Bounds[2];
+	int16 MaxInstances;
+	int16 InstanceIndexMultiplier;
+	int16 LargeGeomBoneIndex; // INT16_MAX == none
+	bool AllSectionsRigid;
+	bool GlobalBones;
+	bool AllSectionsSkinned;
+	bool RigidOnly;
+	int16 : 16;
+};
+struct UGX_CachedDataSectionV4
+{
+	int MaterialIndex;
+	int AccessoryIndex;
+	int MaxBones;
+	int RigidBoneIndex;
+
+	int IndexBufferOffset; // start index of the index buffer
+	int NumberOfTris;
+
+	int VertexBufferOffset; // start index of the vertex buffer
+	int VertexBufferSize; // in bytes
+	int VertexSize;
+	int NumberOfVerts;
+
+	PackedArrayHeader LocalToGlobalBoneRemapArray	(IS_64_BIT) <hidden=true>;
+
+	UnivertPacker BaseVertPacker;
+
+	bool RigidOnly;
+	byte : 8;
+	int16 : 16;
+
+	local uint64 original_pos;
+	if (SeekToPackedArray(LocalToGlobalBoneRemapArray, original_pos))
+	{
+		int LocalToGlobalBoneRemap[LocalToGlobalBoneRemapArray.Length] <optimize=true>;
+
+		UnSeekToPackedArray(original_pos);
+	}
+};
+
+typedef struct 
+{
+	PackedString Name(IS_64_BIT);
+	XMMATRIX Transform;
+	int ParentIndex;
+	if (IS_64_BIT)
+	{
+		int : 32;
+	}
+} UGX_CachedDataBone <name=UGX_CachedDataBoneToString>;
+string UGX_CachedDataBoneToString(UGX_CachedDataBone& bone)
+{
+	return PackedStringToString(bone.Name);
+}
+
+struct UGX_CachedDataAccessory
+{
+	int FirstBone;
+	int NumberOfBones;
+
+	// section indices that use this accessory
+	PackedArrayHeader SectionIndicesHeader	(IS_64_BIT) <hidden=true>;
+
+	local uint64 original_pos;
+	if (SeekToPackedArray(SectionIndicesHeader, original_pos))
+	{
+		int SectionIndices[SectionIndicesHeader.Length] <optimize=true>;
+
+		UnSeekToPackedArray(original_pos);
+	}
+};
+
+struct UGX_CachedDataHeaderV6
+{
+	int RigidBoneIndex;
+	Vector3F BoundingSphereCenter;
+	float BoundingSphereRadius;
+	Vector3F Bounds[2];
+	int16 MaxInstances;
+	int16 InstanceIndexMultiplier;
+	int16 LargeGeomBoneIndex;
+	bool AllSectionsRigid;
+	bool GlobalBones;
+	bool AllSectionsSkinned;
+	bool RigidOnly;
+	int16 : 16;
+	// 8 byte alignment
+	int32 : 32;
+};
+struct UGX_CachedDataSectionV6 // 0x48
+{
+	int MaterialIndex;
+	int AccessoryIndex;
+	int MaxBones;
+	int RigidBoneIndex;
+
+	int IndexBufferOffset; // start index of the index buffer
+	int NumberOfTris;
+
+	int VertexBufferOffset; // start index of the vertex buffer
+	int VertexBufferSize; // in bytes
+	int VertexSize;
+	int NumberOfVerts;
+
+	bool RigidOnly;
+	byte : 8;
+	int16 : 16;
+	float LodMinDistance;
+	float LodMaxDistance;
+	float SortingBias;
+
+	PackedArrayHeader LocalToGlobalBoneRemapArray	(IS_64_BIT) <hidden=true>;
+
+	local uint64 original_pos;
+	if (SeekToPackedArray(LocalToGlobalBoneRemapArray, original_pos))
+	{
+		int LocalToGlobalBoneRemap[LocalToGlobalBoneRemapArray.Length] <optimize=true>;
+
+		UnSeekToPackedArray(original_pos);
+	}
+};
+
+typedef struct 
+{
+	UGX_CachedDataHeaderV4 Header;
+	PackedArrayHeader SectionsHeader			(IS_64_BIT) <hidden=true>; // UGX_CachedDataSectionV4[]
+	PackedArrayHeader BonesHeader				(IS_64_BIT) <hidden=true>; // UGX_CachedDataBone[]
+	PackedArrayHeader AccessoriesHeader			(IS_64_BIT) <hidden=true>; // UGX_CachedDataAccessory[]
+	PackedArrayHeader ValidAccessoriesHeader	(IS_64_BIT) <hidden=true>; // int[]
+	PackedArrayHeader BoneBoundsLowHeader		(IS_64_BIT) <hidden=true>; // Vector3F[]
+	PackedArrayHeader BoneBoundsHighHeader		(IS_64_BIT) <hidden=true>; // Vector3F[]
+
+	local uint64 original_pos;
+	if (SeekToPackedArray(SectionsHeader, original_pos))
+	{
+		UGX_CachedDataSectionV4 Sections[SectionsHeader.Length] <optimize=true>;
+
+		UnSeekToPackedArray(original_pos);
+	}
+	if (SeekToPackedArray(BonesHeader, original_pos))
+	{
+		UGX_CachedDataBone Bones[BonesHeader.Length] <optimize=true>;
+
+		UnSeekToPackedArray(original_pos);
+	}
+	if (SeekToPackedArray(AccessoriesHeader, original_pos))
+	{
+		UGX_CachedDataAccessory Accessories[AccessoriesHeader.Length] <optimize=true>;
+
+		UnSeekToPackedArray(original_pos);
+	}
+	if (SeekToPackedArray(ValidAccessoriesHeader, original_pos))
+	{
+		int ValidAccessories[ValidAccessoriesHeader.Length] <optimize=true>;
+
+		UnSeekToPackedArray(original_pos);
+	}
+	if (SeekToPackedArray(BoneBoundsLowHeader, original_pos))
+	{
+		Vector3F BoneBoundsLow[BoneBoundsLowHeader.Length] <optimize=true>;
+
+		UnSeekToPackedArray(original_pos);
+	}
+	if (SeekToPackedArray(BoneBoundsHighHeader, original_pos))
+	{
+		Vector3F BoneBoundsHigh[BoneBoundsHighHeader.Length] <optimize=true>;
+
+		UnSeekToPackedArray(original_pos);
+	}
+
+} UGX_CachedDataV4 <read=UGX_CachedDataV4ToString>;
+string UGX_CachedDataV4ToString(UGX_CachedDataV4& data)
+{
+	local string s;
+	SPrintf(s, "Base %08Xh", kPackedDataBaseOffset);
+	return s;
+}
+
+typedef struct 
+{
+	UGX_CachedDataHeaderV6 Header;
+	PackedArrayHeader SectionsHeader			(IS_64_BIT) <hidden=true>; // UGX_CachedDataSectionV6[]
+	PackedArrayHeader BonesHeader				(IS_64_BIT) <hidden=true>; // UGX_CachedDataBone[]
+	PackedArrayHeader AccessoriesHeader			(IS_64_BIT) <hidden=true>; // UGX_CachedDataAccessory[]
+	PackedArrayHeader ValidAccessoriesHeader	(IS_64_BIT) <hidden=true>; // int[]
+	PackedArrayHeader BoneBoundsLowHeader		(IS_64_BIT) <hidden=true>; // Vector3F[]
+	PackedArrayHeader BoneBoundsHighHeader		(IS_64_BIT) <hidden=true>; // Vector3F[]
+
+	local uint64 original_pos;
+	if (SeekToPackedArray(SectionsHeader, original_pos))
+	{
+		UGX_CachedDataSectionV6 Sections[SectionsHeader.Length] <optimize=true>;
+
+		UnSeekToPackedArray(original_pos);
+	}
+	if (SeekToPackedArray(BonesHeader, original_pos))
+	{
+		UGX_CachedDataBone Bones[BonesHeader.Length] <optimize=true>;
+
+		UnSeekToPackedArray(original_pos);
+	}
+	if (SeekToPackedArray(AccessoriesHeader, original_pos))
+	{
+		UGX_CachedDataAccessory Accessories[AccessoriesHeader.Length] <optimize=true>;
+
+		UnSeekToPackedArray(original_pos);
+	}
+	if (SeekToPackedArray(ValidAccessoriesHeader, original_pos))
+	{
+		int ValidAccessories[ValidAccessoriesHeader.Length] <optimize=true>;
+
+		UnSeekToPackedArray(original_pos);
+	}
+	if (SeekToPackedArray(BoneBoundsLowHeader, original_pos))
+	{
+		Vector3F BoneBoundsLow[BoneBoundsLowHeader.Length] <optimize=true>;
+
+		UnSeekToPackedArray(original_pos);
+	}
+	if (SeekToPackedArray(BoneBoundsHighHeader, original_pos))
+	{
+		Vector3F BoneBoundsHigh[BoneBoundsHighHeader.Length] <optimize=true>;
+
+		UnSeekToPackedArray(original_pos);
+	}
+} UGX_CachedDataV6 <read=UGX_CachedDataV6ToString>;
+string UGX_CachedDataV6ToString(UGX_CachedDataV6& data)
+{
+	local string s;
+	SPrintf(s, "Base %08Xh", kPackedDataBaseOffset);
+	return s;
+}
+
+struct UGX_VertexBuffer
+{
+	// TODO: figure out the format of this buffer via cUGX_CachedDataChunk
+	local int memSize = ECFChunkIterator_Size / sizeof(float);
+
+	float Buffer[memSize]  <optimize=true>;
+};
+
+struct UGX_IndexBuffer
+{
+	local int memSize = ECFChunkIterator_Size / sizeof(int16);
+
+	int16 Buffer[memSize]  <optimize=true>;
+};
+
+struct BAABBTree
+{
+	uint32 Header;
+	//uint32 Footer;
+};
+
+struct ECF_UGX
+{
+	if (FileStream.FileHeader.ID != cUGX_FileID)
+	{
+		ReadAllChunkBytes(FileStream);
+		return;
+	}
+	if (SeekToChunkById(FileStream, cUGX_CachedDataChunk) < 0)
+	{
+		ReadAllChunkBytes(FileStream);
+		return;
+	}
+
+	// TODO: need to look up and unpack CachedData first, before all other chunks
+	kPackedDataBaseOffset = FTell();
+	uint CachedDataSignatureHack <format=hex>;
+	switch (CachedDataSignatureHack)
+	{
+		case cUGX_CachedDataSignatureHW1_BE:
+			break; // do nothing, we're already in BE
+
+		case cUGX_CachedDataSignatureHW1_LE:
+		case cUGX_CachedDataSignatureHW2:
+			LittleEndian();
+			IS_64_BIT = true;
+			break;
+
+		default:
+			Assert(false,
+				"Unknown CachedDataSignature");
+	}
+
+	switch (CachedDataSignatureHack)
+	{
+		case cUGX_CachedDataSignatureHW1_BE:
+		case cUGX_CachedDataSignatureHW1_LE:
+			UGX_CachedDataV4 CachedData;
+			break;
+
+		case cUGX_CachedDataSignatureHW2:
+			UGX_CachedDataV6 CachedData;
+			break;
+	}
+
+	ECFChunkIteratorNew();
+	local ECFChunkIteratorNextResult iterNextResult;
+	while ((iterNextResult = ECFChunkIteratorNext(FileStream)) != kECFChunkIteratorNextEndOfList)
+	{
+		if (iterNextResult == kECFChunkIteratorNextNoData)
+			continue;
+
+		switch (ECFChunkIterator_ID)
+		{
+			case cUGX_CachedDataChunk:
+				break;
+
+			case cUGX_IndexBufferChunk:
+				UGX_IndexBuffer IndexBuffer;
+				break;
+
+			case cUGX_VertexBufferChunk:
+				UGX_VertexBuffer VertexBuffer;
+				break;
+
+			case cUGX_GrxChunk:
+				GRN_IS_64_BIT = IS_64_BIT;
+				kGrannyDataBaseOffset = FTell();
+				granny_file_info file_info;
+				break;
+
+			case cUGX_MaterialChunk:
+				BBinaryDataTree Materials;
+				break;
+
+			default:
+				ECFChunkIteratorReadCurrentChunkData();
+				break;
+		}
+	}
+};
+ECF_UGX UGX <open=true>;

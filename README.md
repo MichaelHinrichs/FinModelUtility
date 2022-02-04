@@ -17,6 +17,7 @@ Command-line tools for extracting models from games en-masse. Separate batch scr
 - [@nico](https://github.com/nico), AKA thakis, as their [szstools](http://amnoid.de/gc/) CLI is used to extract the contents of GameCube .isos.
 - [@RenolY2](https://github.com/RenolY2), as their [SuperBMD](https://github.com/RenolY2/SuperBMD) tool was referenced to clean up the .bmd logic.
 - [@shravan2x](https://github.com/shravan2x), as their [Gameloop.Vdf](https://github.com/shravan2x/Gameloop.Vdf) library is used to deserialize the contents of Steam's .vdf files.
+- [@srogee](https://github.com/srogee), as his [HaloWarsTools](https://github.com/srogee/HaloWarsTools) library was used as the basis of the Halo Wars converter.
 - TTEMMA, as their [Gar/Zar UnPacker v0.2](https://gbatemp.net/threads/release-gar-zar-unpacker-v0-1.385264/) tool is used to extract the contents of Ocarina of Time 3D files.
 - Twili, for reverse-engineering and documenting the .zar archive format and various additional research.
 - [@vpenades](https://github.com/vpenades), who created the [SharpGLTF](https://github.com/vpenades/SharpGLTF) library used to write GLTF models.

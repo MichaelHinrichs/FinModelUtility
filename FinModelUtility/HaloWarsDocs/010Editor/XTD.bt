@@ -1,0 +1,240 @@
+//------------------------------------------------
+//--- 010 Editor v3.0 Binary Template
+//
+//      File: XTD.bt
+//    Author: kornman00
+//   Version: 1.0
+//   Purpose: Parse HaloWars XTD files.
+//  Category: HaloWars
+// File Mask: *.xtd, *.XTD
+//
+// More information available at
+//  https://github.com/KornnerStudios/HaloWarsDocs
+//------------------------------------------------
+
+#define WELL_KNOWN_ECF
+#include "ECF.bt"
+
+//#define X360DATA
+#ifndef X360DATA
+#define PCDATA
+#endif
+
+enum
+{
+	cXTD_Version               = 0x000C,
+
+	cXTD_XTDHeader             = 0x1111,
+	cXTD_TerrainChunk          = 0x2222,
+	// 0x4444 unused
+	// 0x6666 unused
+	cXTD_AtlasChunk            = 0x8888,
+	cXTD_TessChunk             = 0xAAAA,
+	cXTD_LightingChunk         = 0xBBBB,
+	cXTD_AOChunk               = 0xCCCC, // D3DFMT_LIN_DXT5A
+	cXTD_AlphaChunk            = 0xDDDD, // D3DFMT_LIN_DXT5A
+};
+
+struct XTD_XTDHeader
+{
+	int Version;
+	if (Version != cXTD_Version)
+		return;
+
+	int NumXVerts;
+	int NumXChunks;
+	float TileScale;
+	AABB World;
+};
+
+typedef struct
+{
+	int GridX, GridZ;
+	int MaxVStride;
+	AABB M;
+	UCHAR CanCastShadows;
+} XTD_TerrainChunk <name=XTD_TerrainChunkGetName>;
+string XTD_TerrainChunkGetName(XTD_TerrainChunk& chunk)
+{
+	local string name;
+	SPrintf(name, "TerrainChunk(%d, %d)", chunk.GridX, chunk.GridZ);
+	return name;
+}
+
+local float XTD_AtlasChunk_MinX;
+local float XTD_AtlasChunk_MinY;
+local float XTD_AtlasChunk_MinZ;
+local float XTD_AtlasChunk_RangeX;
+local float XTD_AtlasChunk_RangeY;
+local float XTD_AtlasChunk_RangeZ;
+
+const uint32 kBitMask10 = (1<<10)-1;
+const float kBitMask10Rcp = 1.0 / kBitMask10;
+
+typedef uint XMFLOAT3PK_101010_Position 
+	#ifdef X360DATA
+	<read=XMFLOAT3PK_101010_PositionRead_Xenon>
+	#else
+	<read=XMFLOAT3PK_101010_PositionRead_PC>
+	#endif
+	;
+string XMFLOAT3PK_101010_PositionRead_Xenon(XMFLOAT3PK_101010_Position& v)
+{
+	local string s;
+	local uint32 x = (v >> 22) & kBitMask10;
+	local uint32 y = (v >> 11) & kBitMask10;
+	local uint32 z = (v >>  0) & kBitMask10;
+	local float fx = (((x * kBitMask10Rcp) * XTD_AtlasChunk_RangeX)-XTD_AtlasChunk_MinX);
+	local float fy = (((y * kBitMask10Rcp) * XTD_AtlasChunk_RangeY)-XTD_AtlasChunk_MinY);
+	local float fz = (((z * kBitMask10Rcp) * XTD_AtlasChunk_RangeZ)-XTD_AtlasChunk_MinZ);
+
+	SPrintf(s, "(%g, %g, %g)", fx, fy, fz);
+	return s;
+}
+string XMFLOAT3PK_101010_PositionRead_PC(XMFLOAT3PK_101010_Position& v)
+{
+	local string s;
+	local uint32 x = (v >> 20) & kBitMask10;
+	local uint32 y = (v >> 10) & kBitMask10;
+	local uint32 z = (v >>  0) & kBitMask10;
+	local float fx = (((x * kBitMask10Rcp) * XTD_AtlasChunk_RangeX)-XTD_AtlasChunk_MinX);
+	local float fy = (((y * kBitMask10Rcp) * XTD_AtlasChunk_RangeY)-XTD_AtlasChunk_MinY);
+	local float fz = (((z * kBitMask10Rcp) * XTD_AtlasChunk_RangeZ)-XTD_AtlasChunk_MinZ);
+
+	SPrintf(s, "(%g, %g, %g)", fx, fy, fz);
+	return s;
+}
+
+typedef uint XMFLOAT3PK_101010_Normal 
+	#ifdef X360DATA
+	<read=XMFLOAT3PK_101010_NormalRead_Xenon>
+	#else
+	<read=XMFLOAT3PK_101010_NormalRead_PC>
+	#endif
+	;
+string XMFLOAT3PK_101010_NormalRead_Xenon(XMFLOAT3PK_101010_Normal& v)
+{
+	local string s;
+	local uint32 x = (v >> 22) & kBitMask10;
+	local uint32 y = (v >> 11) & kBitMask10;
+	local uint32 z = (v >>  0) & kBitMask10;
+	local float fx = (((x * kBitMask10Rcp) * 2.0)-1.0);
+	local float fy = (((y * kBitMask10Rcp) * 2.0)-1.0);
+	local float fz = (((z * kBitMask10Rcp) * 2.0)-1.0);
+
+	SPrintf(s, "(%g, %g, %g)", fx, fy, fz);
+	return s;
+}
+string XMFLOAT3PK_101010_NormalRead_PC(XMFLOAT3PK_101010_Normal& v)
+{
+	local string s;
+	local uint32 x = (v >> 20) & kBitMask10;
+	local uint32 y = (v >> 10) & kBitMask10;
+	local uint32 z = (v >>  0) & kBitMask10;
+	local float fx = (((x * kBitMask10Rcp) * 2.0)-1.0);
+	local float fy = (((y * kBitMask10Rcp) * 2.0)-1.0);
+	local float fz = (((z * kBitMask10Rcp) * 2.0)-1.0);
+
+	SPrintf(s, "(%g, %g, %g)", fx, fy, fz);
+	return s;
+}
+
+struct XTD_AtlasChunk(DWORD chunk_total_size)
+{
+	XMVECTOR PosCompMin;
+	XMVECTOR PosCompRange;
+	XTD_AtlasChunk_MinX = PosCompMin.x;
+	XTD_AtlasChunk_MinY = PosCompMin.y;
+	XTD_AtlasChunk_MinZ = PosCompMin.z;
+	XTD_AtlasChunk_RangeX = PosCompRange.x;
+	XTD_AtlasChunk_RangeY = PosCompRange.y;
+	XTD_AtlasChunk_RangeZ = PosCompRange.z;
+
+	local DWORD MemSize = chunk_total_size - (sizeof(XMVECTOR) * 2);
+	if (MemSize > 0)
+	{
+		#ifdef PCDATA
+		LittleEndian();
+		#endif
+		//BYTE Mem[ MemSize ] <optimize=true>;
+		// On X360 these are tiled
+		XMFLOAT3PK_101010_Position Positions[ (MemSize / sizeof(XMFLOAT3PK_101010_Position)) / 2 ] <optimize=true>;
+		XMFLOAT3PK_101010_Normal Normals[ (MemSize / sizeof(XMFLOAT3PK_101010_Normal)) / 2 ] <optimize=true>;
+		#ifdef PCDATA
+		BigEndian();
+		#endif
+	}
+};
+
+struct XTD_TessChunk
+{
+	struct PatchBB
+	{
+		XMVECTOR Min;
+		XMVECTOR Max;
+	};
+
+	int NumXPatches, NumZPatches;
+
+	local int numQuads = NumXPatches * NumZPatches;
+	if (numQuads > 0)
+		BYTE MaxPatchTessallation[ numQuads ] <optimize=true>;
+
+	if (numQuads > 0)
+		PatchBB PatchBBs[ numQuads ] <optimize=true>; 
+};
+
+struct ECF_XTD
+{
+	if (SeekToChunkById(FileStream, cXTD_XTDHeader) < 0)
+	{
+		ReadAllChunkBytes(FileStream);
+		return;
+	}
+	XTD_XTDHeader Header;
+	if (Header.Version != cXTD_Version)
+	{
+		ReadAllChunkBytes(FileStream);
+		return;
+	}
+
+	ECFChunkIteratorNew();
+	local ECFChunkIteratorNextResult iterNextResult;
+	while ((iterNextResult = ECFChunkIteratorNext(FileStream)) != kECFChunkIteratorNextEndOfList)
+	{
+		if (iterNextResult == kECFChunkIteratorNextNoData)
+			continue;
+
+		switch (ECFChunkIterator_ID)
+		{
+			case cXTD_TerrainChunk:
+				XTD_TerrainChunk TerrainChunk;
+				break;
+			case cXTD_AtlasChunk:
+				XTD_AtlasChunk AtlasChunk(ECFChunkIterator_Size);
+				break;
+			case cXTD_TessChunk:
+				XTD_TessChunk TessChunk;
+				break;
+			case cXTD_LightingChunk:
+				int LightingChunkMemSize;
+				if (LightingChunkMemSize > 0)
+					BYTE LightingChunk[ LightingChunkMemSize ] <optimize=true>;
+				break;
+			case cXTD_AOChunk:
+				BYTE AO[ ECFChunkIterator_Size ] <optimize=true>;
+				break;
+			case cXTD_AlphaChunk:
+				BYTE Alpha[ ECFChunkIterator_Size ] <optimize=true>;
+				break;
+
+			case cXTD_XTDHeader:
+				// we've already handled this at the start
+				break;
+			default:
+				ECFChunkIteratorReadCurrentChunkData();
+				break;
+		}
+	}
+};
+ECF_XTD XTD <open=true>;
