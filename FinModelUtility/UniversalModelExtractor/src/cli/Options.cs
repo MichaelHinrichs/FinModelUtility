@@ -9,6 +9,10 @@ namespace uni.cli {
         HelpText = "Extract models from Battalion Wars.")]
   public class BattalionWarsOptions {}
 
+  [Verb("halo_wars",
+        HelpText = "Extract models from Halo Wars.")]
+  public class HaloWarsOptions {}
+
   [Verb("luigis_mansion", HelpText = "Extract models from Luigi's Mansion.")]
   public class LuigisMansionOptions {}
 

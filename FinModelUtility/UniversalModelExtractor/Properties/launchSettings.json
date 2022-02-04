@@ -47,6 +47,10 @@
     "Battalion Wars": {
       "commandName": "Project",
       "commandLineArgs": "battalion_wars"
+    },
+    "Halo Wars": {
+      "commandName": "Project",
+      "commandLineArgs": "halo_wars"
     }
   }
 }
