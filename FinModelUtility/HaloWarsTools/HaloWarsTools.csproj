@@ -1,15 +1,32 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <Platforms>AnyCPU;x86;x64</Platforms>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
@@ -19,12 +36,36 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="ICSharpCode.SharpZipLib">
+      <HintPath>lib\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
     <Reference Include="KSoft">
-      <HintPath>..\HaloWarsDocs\PhxTools\_bin\v160\Debug\AnyCPU\Phoenix\KSoft.dll</HintPath>
+      <HintPath>lib\KSoft.dll</HintPath>
+    </Reference>
+    <Reference Include="KSoft.Compression">
+      <HintPath>lib\KSoft.Compression.dll</HintPath>
+    </Reference>
+    <Reference Include="KSoft.IO.TagElementStreams">
+      <HintPath>lib\KSoft.IO.TagElementStreams.dll</HintPath>
+    </Reference>
+    <Reference Include="KSoft.Math">
+      <HintPath>lib\KSoft.Math.dll</HintPath>
     </Reference>
     <Reference Include="KSoft.Phoenix">
-      <HintPath>..\HaloWarsDocs\PhxTools\_bin\v160\Debug\AnyCPU\Phoenix\KSoft.Phoenix.dll</HintPath>
+      <HintPath>lib\KSoft.Phoenix.dll</HintPath>
     </Reference>
+    <Reference Include="KSoft.Security">
+      <HintPath>lib\KSoft.Security.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="lib\ICSharpCode.SharpZipLib.dll">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="lib\KSoft.Compression.dll">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
