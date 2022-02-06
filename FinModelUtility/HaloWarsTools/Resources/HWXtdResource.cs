@@ -1,14 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Drawing.Imaging;
 using System.Numerics;
 
+using fin.model;
+using fin.model.impl;
+
 namespace HaloWarsTools
 {
     public class HWXtdResource : HWBinaryResource
     {
-        public GenericMesh Mesh => ValueCache.Get(ImportMesh);
+        public IModel Mesh => ValueCache.Get(ImportMesh);
         public Bitmap AmbientOcclusionTexture => ValueCache.Get(() => ExtractEmbeddedDXT5A(GetFirstChunkOfType(HWBinaryResourceChunkType.XTD_AOChunk)));
         public Bitmap OpacityTexture => ValueCache.Get(() => ExtractEmbeddedDXT5A(GetFirstChunkOfType(HWBinaryResourceChunkType.XTD_AlphaChunk)));
 
@@ -80,7 +84,7 @@ namespace HaloWarsTools
             return finalBitmap;
         }
 
-        private GenericMesh ImportMesh() {
+        private IModel ImportMesh() {
             int stride = 1;
             MeshNormalExportMode shadingMode = MeshNormalExportMode.Unchanged;
 
@@ -96,13 +100,14 @@ namespace HaloWarsTools
                 throw new Exception($"Grid size {gridSize} is not evenly divisible by stride {stride} - choose a different stride value.");
             }
 
-            GenericMesh mesh = new GenericMesh(new MeshExportOptions(Matrix4x4.Identity, shadingMode, false, false));
-            GenericMaterial material = new GenericMaterial("mat");
-            GenericMeshSection section = new GenericMeshSection("terrain");
-
             // These are stored as ZYX, 4 bytes per component
             Vector3 PosCompMin = BinaryUtils.ReadVector3BigEndian(RawBytes, (int)atlasChunk.Offset).ReverseComponents();
             Vector3 PosCompRange = BinaryUtils.ReadVector3BigEndian(RawBytes, (int)atlasChunk.Offset + 16).ReverseComponents();
+
+            var finModel = new ModelImpl();
+            var finMesh = finModel.Skin.AddMesh();
+
+            var finVertices = new IVertex[gridSize * gridSize];
 
             // Read vertex offsets/normals and add them to the mesh
             for (int x = 0; x < gridSize; x += stride) {
@@ -110,37 +115,50 @@ namespace HaloWarsTools
                     int index = ConvertGridPositionToIndex(new Tuple<int, int>(x, z), gridSize);
                     int offset = index * 4;
 
+
                     // Get offset position and normal for this vertex
                     Vector3 position = ReadVector3Compressed(positionOffset + offset) * PosCompRange - PosCompMin;
-
+          
                     // Positions are relative to the terrain grid, so shift them by the grid position
                     position += new Vector3(x, 0, z) * tileScale;
-                    mesh.Vertices.Add(ConvertPositionVector(position));
-
+                    
                     Vector3 normal = ConvertDirectionVector(Vector3.Normalize(ReadVector3Compressed(normalOffset + offset) * 2.0f - Vector3.One));
-                    mesh.Normals.Add(normal);
 
                     // Simple UV based on original, non-warped terrain grid
-                    Vector3 texCoord = new Vector3(x / ((float)gridSize - 1), 1 - (z / ((float)gridSize - 1)), 0);
-                    mesh.TexCoords.Add(texCoord);
+                    Vector3 texCoord = new Vector3(x / ((float)gridSize - 1), z / ((float)gridSize - 1), 0);
+
+                    var finVertex =
+                        finModel.Skin
+                                .AddVertex(position.X, position.Y, position.Z)
+                                .SetLocalNormal(normal.X, normal.Y, normal.Z)
+                                .SetUv(texCoord.X, texCoord.Y);
+                    finVertices[GetVertexIndex(x, z, gridSize)] = finVertex;
                 }
             }
 
             // Generate faces based on terrain grid
             for (int x = 0; x < gridSize - stride; x += stride) {
-                for (int z = 0; z < gridSize - stride; z += stride) {
-                    int a = GetVertexID(x, z, gridSize, stride);
-                    int b = GetVertexID(x + stride, z, gridSize, stride);
-                    int c = GetVertexID(x + stride, z + stride, gridSize, stride);
-                    int d = GetVertexID(x, z + stride, gridSize, stride);
+              var triangles = new List<(IVertex, IVertex, IVertex)>();
 
-                    mesh.Faces.Add(GenericFace.ReverseWinding(new GenericFace(a, c, b, material, section)));
-                    mesh.Faces.Add(GenericFace.ReverseWinding(new GenericFace(a, d, c, material, section)));
-                }
+              for (int z = 0; z < gridSize - stride; z += stride) {
+                var a = finVertices[GetVertexIndex(x, z, gridSize)];
+                var b = finVertices[GetVertexIndex(x + stride, z, gridSize)];
+                var c = finVertices[GetVertexIndex(x, z + stride, gridSize)];
+                var d = finVertices[GetVertexIndex(x + stride, z + stride, gridSize)];
+
+                triangles.Add((a, b, c));
+                triangles.Add((d, c, b));
+              }
+
+              finMesh.AddTriangles(triangles.ToArray());
+              triangles.Clear();
             }
 
-            return mesh;
+            return finModel;
         }
+
+        private static int GetVertexIndex(int x, int z, int gridSize)
+          => z * gridSize + x;
 
         private static int GetVertexID(int x, int z, int gridSize, int stride) {
             return ConvertGridPositionToIndex(new Tuple<int, int>(x / stride, z / stride), gridSize / stride);

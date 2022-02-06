@@ -2,6 +2,9 @@
 using System.Drawing.Imaging;
 using System.IO;
 
+using fin.exporter.assimp.indirect;
+using fin.io;
+
 using HaloWarsTools.Helpers;
 
 namespace HaloWarsTools {
@@ -31,15 +34,28 @@ namespace HaloWarsTools {
 
       var xtd = HWXtdResource.FromFile(context,
                                        "scenario\\skirmish\\design\\blood_gulch\\blood_gulch.xtd");
+
+      {
+        var finModel = xtd.Mesh;
+        var xttAlbedoMaterial = finModel.MaterialManager.AddTextureMaterial(
+            finModel.MaterialManager.CreateTexture(
+                xtt.AlbedoTexture));
+
+        foreach (var primitive in finModel.Skin.Meshes[0].Primitives) {
+          primitive.SetMaterial(xttAlbedoMaterial);
+        }
+      }
+
       xtd.AmbientOcclusionTexture.Save(
           Path.Combine(outputDirectory, "blood_gulch_ao.png"),
           ImageFormat.Png);
       xtd.OpacityTexture.Save(
           Path.Combine(outputDirectory, "blood_gulch_opacity.png"),
           ImageFormat.Png);
-      xtd.Mesh.Export(Path.Combine(outputDirectory, "blood_gulch_vismesh.obj"),
-                      GenericMeshExportFormat.Obj);
-      Console.WriteLine($"Processed {xtd}");
+
+      new AssimpIndirectExporter().Export(
+          new FinFile(Path.Combine(outputDirectory, "blood_gulch_vismesh.fbx")),
+          xtd.Mesh);
 
       var gls = HWGlsResource.FromFile(context,
                                        "scenario\\skirmish\\design\\blood_gulch\\blood_gulch.gls");
