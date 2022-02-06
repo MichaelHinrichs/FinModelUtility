@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
@@ -64,6 +65,8 @@ namespace HaloWarsTools
             if (IsEraUnpacked(relativeEraPath)) {
                 return false;
             }
+
+            Console.WriteLine($"Unpacking {relativeEraPath}");
 
             var absoluteEraPath = GetAbsoluteGamePath(relativeEraPath);
             var expander = new KSoft.Phoenix.Resource.EraFileExpander(absoluteEraPath);

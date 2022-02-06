@@ -14,7 +14,7 @@
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
     <RuntimeIdentifier>win-x86</RuntimeIdentifier>
     <PublishSingleFile Condition="'$(Configuration)' == 'Release'">true</PublishSingleFile>
-    <PublishTrimmed>true</PublishTrimmed>
+    <!--<PublishTrimmed>true</PublishTrimmed>-->
     <Product>universal_model_extractor</Product>
     <AssemblyName>universal_model_extractor</AssemblyName>
     <StartupObject>uni.cli.Cli</StartupObject>
@@ -30,6 +30,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis" Version="4.1.0-1.final" />
     <PackageReference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform" Version="3.6.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="5.0.0" />
+    <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,6 +38,7 @@
     <ProjectReference Include="..\Bmd2Fbx\Bmd2Fbx.csproj" />
     <ProjectReference Include="..\F3dzex2ToFbx\F3dzex2ToFbx.csproj" />
     <ProjectReference Include="..\Fin\Fin.csproj" />
+    <ProjectReference Include="..\HaloWarsTools\HaloWarsTools.csproj" />
     <ProjectReference Include="..\Mod2Fbx\Mod2Fbx.csproj" />
     <ProjectReference Include="..\Zar2Fbx\Zar2Fbx.csproj" />
   </ItemGroup>
