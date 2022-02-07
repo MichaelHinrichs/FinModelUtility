@@ -73,49 +73,73 @@ namespace fin.exporter.gltf {
                              .WithDoubleSide(finMaterial.CullingMode switch {
                                  CullingMode.SHOW_FRONT_ONLY => false,
                                  // Darn, guess we can't support this.
-                                 CullingMode.SHOW_BACK_ONLY  => true,
-                                 CullingMode.SHOW_BOTH       => true,
+                                 CullingMode.SHOW_BACK_ONLY => true,
+                                 CullingMode.SHOW_BOTH      => true,
                                  // Darn, guess we can't support this either.
-                                 CullingMode.SHOW_NEITHER    => false,
-                                 _                           => throw new ArgumentOutOfRangeException()
+                                 CullingMode.SHOW_NEITHER => false,
+                                 _ => throw new ArgumentOutOfRangeException()
                              })
                              .WithSpecularGlossinessShader()
                              .WithSpecularGlossiness(new Vector3(0), 0);
 
-          var texture = PrimaryTextureFinder.GetFor(finMaterial);
-          if (texture != null) {
-            var textureImage = texture.ImageData;
+          switch (finMaterial) {
+            case IStandardMaterial standardMaterial: {
+              var diffuseTexture = standardMaterial.DiffuseTexture;
+              if (diffuseTexture != null) {
+                gltfMaterial
+                    .UseChannel(KnownChannel.Diffuse)
+                    .UseTexture()
+                    .WithPrimaryImage(
+                        GltfExporter
+                            .GetGltfImageFromFinTexture_(diffuseTexture));
+              }
 
-            var alphaMode = texture.TransparencyType switch {
-                BitmapTransparencyType.OPAQUE => AlphaMode.OPAQUE,
-                BitmapTransparencyType.MASK => AlphaMode.MASK,
-                BitmapTransparencyType.TRANSPARENT => AlphaMode.BLEND,
-                _ => throw new ArgumentOutOfRangeException()
-            };
-            gltfMaterial.WithAlpha(alphaMode);
+              var ambientOcclusionTexture = standardMaterial.AmbientOcclusionTexture;
+              if (ambientOcclusionTexture != null) {
+                gltfMaterial
+                    .UseChannel(KnownChannel.Occlusion)
+                    .UseTexture()
+                    .WithPrimaryImage(
+                        GltfExporter
+                            .GetGltfImageFromFinTexture_(ambientOcclusionTexture));
+              }
 
-            using var imageStream = new MemoryStream();
-            textureImage.Save(imageStream, ImageFormat.Png);
-            var imageBytes = imageStream.ToArray();
-            var memoryImage = new MemoryImage(imageBytes);
+              break;
+            }
+            default: {
+              var texture = PrimaryTextureFinder.GetFor(finMaterial);
+              if (texture != null) {
+                var textureImage = texture.ImageData;
 
-            gltfMaterial.UseChannel(KnownChannel.Diffuse)
-                        .UseTexture()
-                        .WithPrimaryImage(memoryImage)
-                        .WithCoordinateSet(0)
-                        .WithSampler(
-                            this.ConvertWrapMode_(texture.WrapModeU),
-                            this.ConvertWrapMode_(texture.WrapModeV));
+                var alphaMode = texture.TransparencyType switch {
+                    BitmapTransparencyType.OPAQUE => AlphaMode.OPAQUE,
+                    BitmapTransparencyType.MASK => AlphaMode.MASK,
+                    BitmapTransparencyType.TRANSPARENT => AlphaMode.BLEND,
+                    _ => throw new ArgumentOutOfRangeException()
+                };
+                gltfMaterial.WithAlpha(alphaMode);
+
+                gltfMaterial
+                    .UseChannel(KnownChannel.Diffuse)
+                    .UseTexture()
+                    .WithPrimaryImage(
+                        GltfExporter.GetGltfImageFromFinTexture_(texture))
+                    .WithCoordinateSet(0)
+                    .WithSampler(
+                        this.ConvertWrapMode_(texture.WrapModeU),
+                        this.ConvertWrapMode_(texture.WrapModeV));
+              }
+              break;
+            }
           }
 
-
           finToTexCoordAndGltfMaterial[finMaterial] =
-              (new byte[] {0}, gltfMaterial);
+              (new byte[] { 0 }, gltfMaterial);
         }
       }
 
       // Builds meshes.
-      var meshBuilder = new GltfMeshBuilder {UvIndices = this.UvIndices};
+      var meshBuilder = new GltfMeshBuilder { UvIndices = this.UvIndices };
       var gltfMeshes = meshBuilder.BuildAndBindMesh(
           modelRoot,
           model,
@@ -141,6 +165,14 @@ namespace fin.exporter.gltf {
       var outputPath = outputFile.FullName;
       this.logger_.LogInformation($"Writing to {outputPath}...");
       modelRoot.Save(outputPath, writeSettings);
+    }
+
+    private static MemoryImage
+        GetGltfImageFromFinTexture_(ITexture finTexture) {
+      using var imageStream = new MemoryStream();
+      finTexture.ImageData.Save(imageStream, ImageFormat.Png);
+      var imageBytes = imageStream.ToArray();
+      return new MemoryImage(imageBytes);
     }
 
     private TextureWrapMode ConvertWrapMode_(WrapMode wrapMode)

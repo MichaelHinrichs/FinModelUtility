@@ -7,9 +7,10 @@ using fin.util.image;
 namespace fin.model {
   public interface IMaterialManager {
     IReadOnlyList<IMaterial> All { get; }
-    
+
     // TODO: Name is actually required, should be required in the creation scripts?
     ITextureMaterial AddTextureMaterial(ITexture texture);
+    IStandardMaterial AddStandardMaterial();
     ILayerMaterial AddLayerMaterial();
     IFixedFunctionMaterial AddFixedFunctionMaterial();
 
@@ -55,6 +56,13 @@ namespace fin.model {
 
   public interface ITextureMaterial : IMaterial {
     ITexture Texture { get; }
+
+    bool Unlit { get; set; }
+  }
+
+  public interface IStandardMaterial : IMaterial {
+    ITexture? DiffuseTexture { get; set; }
+    ITexture? AmbientOcclusionTexture { get; set; }
 
     bool Unlit { get; set; }
   }

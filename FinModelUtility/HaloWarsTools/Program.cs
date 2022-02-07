@@ -37,12 +37,15 @@ namespace HaloWarsTools {
 
       {
         var finModel = xtd.Mesh;
-        var xttAlbedoMaterial = finModel.MaterialManager.AddTextureMaterial(
-            finModel.MaterialManager.CreateTexture(
-                xtt.AlbedoTexture));
+        var xttMaterial = finModel.MaterialManager.AddStandardMaterial();
+
+        xttMaterial.DiffuseTexture = finModel.MaterialManager.CreateTexture(
+            xtt.AlbedoTexture);
+        xttMaterial.AmbientOcclusionTexture = finModel.MaterialManager.CreateTexture(
+            xtd.AmbientOcclusionTexture);
 
         foreach (var primitive in finModel.Skin.Meshes[0].Primitives) {
-          primitive.SetMaterial(xttAlbedoMaterial);
+          primitive.SetMaterial(xttMaterial);
         }
       }
 

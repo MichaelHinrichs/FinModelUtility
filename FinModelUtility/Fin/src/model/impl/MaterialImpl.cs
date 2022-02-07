@@ -26,6 +26,12 @@ namespace fin.model.impl {
         return material;
       }
 
+      public IStandardMaterial AddStandardMaterial() {
+        var material = new StandardMaterialImpl();
+        this.materials_.Add(material);
+        return material;
+      }
+
       public ILayerMaterial AddLayerMaterial() {
         var material = new LayerMaterialImpl();
         this.materials_.Add(material);
@@ -77,6 +83,23 @@ namespace fin.model.impl {
       public IShader Shader { get; }
       public CullingMode CullingMode { get; set; }
 
+      public bool Unlit { get; set; }
+    }
+
+    private class StandardMaterialImpl : IStandardMaterial {
+      private readonly IList<ITexture> textures_ = new List<ITexture>();
+
+      public StandardMaterialImpl() {
+        this.Textures = new ReadOnlyCollection<ITexture>(this.textures_);
+      }
+
+      public string Name { get; set; }
+      public IReadOnlyList<ITexture> Textures { get; }
+      public IShader Shader { get; }
+      public CullingMode CullingMode { get; set; }
+      public ITexture DiffuseTexture { get; set; }
+      public ITexture MaskTexture { get; set; }
+      public ITexture AmbientOcclusionTexture { get; set; }
       public bool Unlit { get; set; }
     }
 
