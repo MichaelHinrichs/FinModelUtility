@@ -40,6 +40,8 @@ namespace fin.exporter.gltf {
           new MaterialBuilder("null").WithDoubleSide(false)
                                      .WithSpecularGlossiness();
 
+      var DEFAULT_SKINNING = (0, 1);
+
       var gltfMeshes = new List<Mesh>();
       foreach (var finMesh in skin.Meshes) {
         var gltfMeshBuilder = VERTEX.CreateCompatibleMesh(finMesh.Name);
@@ -75,7 +77,7 @@ namespace fin.exporter.gltf {
                                    boneWeight.Weight))
                        .ToArray());
             } else {
-              vertexBuilder = vertexBuilder.WithSkinning((0, 1));
+              vertexBuilder = vertexBuilder.WithSkinning(DEFAULT_SKINNING);
             }
 
             if (point.LocalNormal != null) {

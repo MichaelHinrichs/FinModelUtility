@@ -83,9 +83,11 @@ namespace fin.math {
         IVertex vertex,
         IPosition outPosition,
         INormal? outNormal = null) {
+      var preproject = vertex.Preproject && vertex.Weights?.Count > 0;
+
       var localPosition = vertex.LocalPosition;
       var localNormal = vertex.LocalNormal;
-      if (!vertex.Preproject) {
+      if (!preproject) {
         outPosition.X = localPosition.X;
         outPosition.Y = localPosition.Y;
         outPosition.Z = localPosition.Z;
@@ -100,18 +102,14 @@ namespace fin.math {
 
       // TODO: Precompute these in a shared way somehow.
       var mergedMatrix = new FinMatrix4x4();
-      if (vertex.Weights?.Count > 0) {
-        foreach (var weight in vertex.Weights) {
-          var skinToBoneMatrix = weight.SkinToBone;
-          var boneMatrix = this.GetWorldMatrix(weight.Bone);
+      foreach (var weight in vertex.Weights) {
+        var skinToBoneMatrix = weight.SkinToBone;
+        var boneMatrix = this.GetWorldMatrix(weight.Bone);
 
-          var skinToWorldMatrix = boneMatrix.CloneAndMultiply(skinToBoneMatrix)
-                                            .MultiplyInPlace(weight.Weight);
+        var skinToWorldMatrix = boneMatrix.CloneAndMultiply(skinToBoneMatrix)
+                                          .MultiplyInPlace(weight.Weight);
 
-          mergedMatrix.AddInPlace(skinToWorldMatrix);
-        }
-      } else {
-        mergedMatrix.SetIdentity();
+        mergedMatrix.AddInPlace(skinToWorldMatrix);
       }
 
       this.transformer_.Push();
