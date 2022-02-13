@@ -27,6 +27,7 @@ namespace HaloWarsTools
             Dxt.DxtDecoder.DecompressDXT1(dxt1CompressedAlbedo, width, height, uncompressedColorData);
             GCHandle m_bitsHandle = GCHandle.Alloc(uncompressedColorData, GCHandleType.Pinned);
             Bitmap bitmap = new Bitmap(width, height, width * 4, PixelFormat.Format32bppArgb, m_bitsHandle.AddrOfPinnedObject());
+            m_bitsHandle.Free();
             return bitmap;
         }
     }

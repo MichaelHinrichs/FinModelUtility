@@ -34,6 +34,15 @@ namespace HaloWarsTools {
 
       var xtd = HWXtdResource.FromFile(context,
                                        "scenario\\skirmish\\design\\blood_gulch\\blood_gulch.xtd");
+      
+      xtd.AmbientOcclusionTexture.Save(
+          Path.Combine(outputDirectory, "blood_gulch_ao.png"),
+          ImageFormat.Png);
+      xtd.OpacityTexture.Save(
+          Path.Combine(outputDirectory, "blood_gulch_opacity.png"),
+          ImageFormat.Png);
+
+      ;
 
       {
         var finModel = xtd.Mesh;
@@ -48,13 +57,6 @@ namespace HaloWarsTools {
           primitive.SetMaterial(xttMaterial);
         }
       }
-
-      xtd.AmbientOcclusionTexture.Save(
-          Path.Combine(outputDirectory, "blood_gulch_ao.png"),
-          ImageFormat.Png);
-      xtd.OpacityTexture.Save(
-          Path.Combine(outputDirectory, "blood_gulch_opacity.png"),
-          ImageFormat.Png);
 
       new AssimpIndirectExporter().Export(
           new FinFile(Path.Combine(outputDirectory, "blood_gulch_vismesh.fbx")),
