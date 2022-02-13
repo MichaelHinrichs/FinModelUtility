@@ -108,8 +108,8 @@ namespace fin.model.impl {
       }
 
       private class VertexImpl : IVertex {
-        private IDictionary<int, ITexCoord>? uvs_;
-        private IDictionary<int, IColor>? colors_;
+        private IVertexAttributeArray<ITexCoord>? uvs_;
+        private IVertexAttributeArray<IColor>? colors_;
 
         public VertexImpl(int index, IPosition position) {
           this.Index = index;
@@ -169,20 +169,16 @@ namespace fin.model.impl {
           => this.SetLocalTangent(new TangentImpl {X = x, Y = y, Z = z, W = w});
 
 
-        public IReadOnlyDictionary<int, IColor>? Colors { get; private set; }
+        public IVertexAttributeArray<IColor>? Colors { get; private set; }
 
         public IVertex SetColor(IColor? color) => this.SetColor(0, color);
 
         public IVertex SetColor(int colorIndex, IColor? color) {
           if (color != null) {
-            if (this.colors_ == null) {
-              this.colors_ = new Dictionary<int, IColor>();
-              this.Colors = new ReadOnlyDictionary<int, IColor>(this.colors_);
-            }
-
+            this.colors_ ??= new SparseVertexAttributeArray<IColor>();
             this.colors_[colorIndex] = color;
           } else {
-            this.colors_?.Remove(colorIndex);
+            this.colors_?.Set(colorIndex, null);
             if (this.colors_?.Count == 0) {
               this.colors_ = null;
               this.Colors = null;
@@ -205,28 +201,20 @@ namespace fin.model.impl {
 
         public IColor? GetColor() => this.GetColor(0);
 
-        public IColor? GetColor(int colorIndex) {
-          IColor? color = null;
-          this.colors_?.TryGetValue(colorIndex, out color);
-          return color;
-        }
+        public IColor? GetColor(int colorIndex) => this.colors_?.Get(colorIndex);
 
 
-        public IReadOnlyDictionary<int, ITexCoord>? Uvs { get; private set; }
+        public IVertexAttributeArray<ITexCoord>? Uvs { get; private set; }
 
         public IVertex SetUv(ITexCoord uv) => this.SetUv(0, uv);
         public IVertex SetUv(float u, float v) => this.SetUv(0, u, v);
 
         public IVertex SetUv(int uvIndex, ITexCoord? uv) {
           if (uv != null) {
-            if (this.uvs_ == null) {
-              this.uvs_ = new Dictionary<int, ITexCoord>();
-              this.Uvs = new ReadOnlyDictionary<int, ITexCoord>(this.uvs_);
-            }
-
+            this.uvs_ ??= new SparseVertexAttributeArray<ITexCoord>();
             this.uvs_[uvIndex] = uv;
           } else {
-            this.uvs_?.Remove(uvIndex);
+            this.uvs_?.Set(uvIndex, null);
             if (this.uvs_?.Count == 0) {
               this.uvs_ = null;
               this.Uvs = null;
@@ -241,11 +229,7 @@ namespace fin.model.impl {
 
         public ITexCoord? GetUv() => this.GetUv(0);
 
-        public ITexCoord? GetUv(int uvIndex) {
-          ITexCoord? uv = null;
-          this.uvs_?.TryGetValue(uvIndex, out uv);
-          return uv;
-        }
+        public ITexCoord? GetUv(int uvIndex) => this.uvs_?.Get(uvIndex);
       }
 
 

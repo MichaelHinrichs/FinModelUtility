@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 
 using fin.math.matrix;
+using fin.model.impl;
 
 namespace fin.model {
   public interface ISkin {
@@ -61,7 +62,7 @@ namespace fin.model {
     IVertex SetLocalTangent(ITangent? localNormal);
     IVertex SetLocalTangent(float x, float y, float z, float w);
 
-    IReadOnlyDictionary<int, IColor>? Colors { get; }
+    IVertexAttributeArray<IColor>? Colors { get; }
     IVertex SetColor(IColor? color);
     IVertex SetColor(int colorIndex, IColor? color);
     IVertex SetColorBytes(byte r, byte g, byte b, byte a);
@@ -69,7 +70,7 @@ namespace fin.model {
     IColor? GetColor();
     IColor? GetColor(int colorIndex);
 
-    IReadOnlyDictionary<int, ITexCoord>? Uvs { get; }
+    IVertexAttributeArray<ITexCoord>? Uvs { get; }
     IVertex SetUv(ITexCoord? uv);
     IVertex SetUv(float u, float v);
     IVertex SetUv(int uvIndex, ITexCoord? uv);
