@@ -11,6 +11,7 @@ using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
 using SharpGLTF.Schema2;
+using SharpGLTF.Transforms;
 
 using PrimitiveType = fin.model.PrimitiveType;
 
@@ -41,7 +42,7 @@ namespace fin.exporter.gltf {
           new MaterialBuilder("null").WithDoubleSide(false)
                                      .WithSpecularGlossiness();
 
-      var DEFAULT_SKINNING = (0, 1);
+      var DEFAULT_SKINNING = SparseWeight8.Create((0, 1));
 
       var gltfMeshes = new List<Mesh>();
       foreach (var finMesh in skin.Meshes) {
@@ -96,7 +97,6 @@ namespace fin.exporter.gltf {
               }
             }
 
-            // TODO: Include color
             var finColor0 = point.GetColor(0);
             var hasColor0 = finColor0 != null;
             var assColor0 = hasColor0
