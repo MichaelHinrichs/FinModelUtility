@@ -17,6 +17,10 @@ namespace fin.util.image {
       => BitmapUtil.InvokeAsLocked(bmp, BitmapUtil.IsTransparentImpl_);
 
     private static BitmapTransparencyType IsTransparentImpl_(BitmapData bmpData) {
+      if ((bmpData.PixelFormat & PixelFormat.Alpha) == 0) {
+        return BitmapTransparencyType.OPAQUE;
+      }
+
       var hasTransparency = false;
       byte[] bytes = new byte[bmpData.Height * bmpData.Stride];
       Marshal.Copy(bmpData.Scan0, bytes, 0, bytes.Length);

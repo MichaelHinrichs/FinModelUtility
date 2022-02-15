@@ -36,12 +36,12 @@ namespace HaloWarsTools {
       int width = (int) Math.Sqrt(data.Length * 2);
       int height = width;
 
-      //Decompress DXT5 texture and turn it into a Bitmap
-      var uncompressedColorData = new byte[4 * width * height];
-      DxtDecoder.DecompressDXT5(data, width, height, uncompressedColorData);
+      //Decompress DXT5A texture and turn it into a Bitmap
+      var decompressedColorData = new byte[3 * width * height];
+      DxtDecoder.DecompressDxt5a(data, width, height, decompressedColorData);
 
-      GCHandle m_bitsHandle = GCHandle.Alloc(uncompressedColorData, GCHandleType.Pinned);
-      Bitmap bitmap = new Bitmap(width, height, width * 4, PixelFormat.Format32bppArgb,
+      GCHandle m_bitsHandle = GCHandle.Alloc(decompressedColorData, GCHandleType.Pinned);
+      Bitmap bitmap = new Bitmap(width, height, 3 * width, PixelFormat.Format24bppRgb,
                                  m_bitsHandle.AddrOfPinnedObject());
       m_bitsHandle.Free();
 

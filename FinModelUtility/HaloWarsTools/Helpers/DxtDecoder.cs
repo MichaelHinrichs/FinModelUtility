@@ -2,7 +2,12 @@
 using System.Linq;
 using System.Runtime.CompilerServices;
 
+using fin.math;
+using fin.util.asserts;
+
+
 // From https://github.com/mafaca/Dxt
+
 
 namespace Dxt {
   public static class DxtDecoder {
@@ -116,78 +121,81 @@ namespace Dxt {
       }
     }
 
-    public static void DecompressDXT5(
+    public static void DecompressDxt5a(
         byte[] input,
         int width,
         int height,
         byte[] output) {
-      var blockSize = 4;
+      const int blockSize = 4;
+      var blockCountX = width / blockSize;
+      var blockCountY = height / blockSize;
 
-      int imageSize = width * height / 2;
+      var imageSize = width * height / 2;
 
-      var nBlockWidth = width / blockSize;
-      var nBlockHeight = height / blockSize;
+      var monoTable = new byte[8];
+      var rIndices = new byte[16];
 
       for (var i = 0; i < imageSize; i += 8) {
-        var mMin = input[i + 1];
-        var mMax = input[i + 0];
+        // Gathers up color palette.
+        monoTable[0] = input[i + 0];
+        monoTable[1] = input[i + 1];
 
-        // Gathers up color indices
-        var rIndices = new byte[16];
-        int temp = ((input[i + 4] << 16) | (input[i + 3] << 8)) | input[i + 2];
+        var first = monoTable[0];
+        var second = monoTable[1];
 
-        int indices = 0;
-        while (indices < 8) {
-          rIndices[indices] = (byte) (temp & 7);
-          temp = temp >> 3;
-          indices++;
-        }
+        var useEightIndexMode = first < second;
+        var min = useEightIndexMode ? first : second;
+        var max = !useEightIndexMode ? first : second;
 
-        temp = ((input[i + 7] << 16) | (input[i + 6] << 8)) | input[i + 5];
-        while (indices < 16) {
-          rIndices[indices] = (byte) (temp & 7);
-          temp = temp >> 3;
-          indices++;
-        }
-
-        // Gathers up colors
-        var monoTable = new byte[8];
-        monoTable[0] = mMin;
-        monoTable[1] = mMax;
-        if (monoTable[0] > monoTable[1]) {
-          monoTable[2] = (byte) ((monoTable[0] * 6 + monoTable[1]) / 7f);
-          monoTable[3] = (byte) ((monoTable[0] * 5 + monoTable[1] * 2) / 7f);
-          monoTable[4] = (byte) ((monoTable[0] * 4 + monoTable[1] * 3) / 7f);
-          monoTable[5] = (byte) ((monoTable[0] * 3 + monoTable[1] * 4) / 7f);
-          monoTable[6] = (byte) ((monoTable[0] * 2 + monoTable[1] * 5) / 7f);
-          monoTable[7] = (byte) ((monoTable[0] + monoTable[1] * 6) / 7f);
+        if (useEightIndexMode) {
+          monoTable[2] = (byte) ((6 * min + 1 * max) / 7f);
+          monoTable[3] = (byte) ((5 * min + 2 * max) / 7f);
+          monoTable[4] = (byte) ((4 * min + 3 * max) / 7f);
+          monoTable[5] = (byte) ((3 * min + 4 * max) / 7f);
+          monoTable[6] = (byte) ((2 * min + 5 * max) / 7f);
+          monoTable[7] = (byte) ((1 * min + 6 * max) / 7f);
         } else {
-          monoTable[2] = (byte) ((monoTable[0] * 4 + monoTable[1]) / 5f);
-          monoTable[3] = (byte) ((monoTable[0] * 3 + monoTable[1] * 2) / 5f);
-          monoTable[4] = (byte) ((monoTable[0] * 2 + monoTable[1] * 3) / 5f);
-          monoTable[5] = (byte) ((monoTable[0] + monoTable[1] * 4) / 5f);
-          // TODO: 0 and 255????
+          monoTable[2] = (byte) ((4 * min + 1 * max) / 5f);
+          monoTable[3] = (byte) ((3 * min + 2 * max) / 5f);
+          monoTable[4] = (byte) ((2 * min + 3 * max) / 5f);
+          monoTable[5] = (byte) ((1 * min + 4 * max) / 5f);
           monoTable[6] = 0;
           monoTable[7] = 255;
         }
 
-        var chunkNum = i / 8;
-        var yPos = chunkNum % nBlockHeight;
-        var xPos = (chunkNum - yPos) / nBlockWidth;
+        // Gathers up color indices.
+        for (var ii = 0; ii < 16; ++ii) {
+          // Picks middle color for low-resolution image.
+          rIndices[ii] = (byte) (useEightIndexMode ? 4 : 3);
+        }
 
-        for (int jj = 0; jj < 4; jj++) {
-          for (int kk = 0; kk < 4; kk++) {
-            var value = monoTable[rIndices[(jj * 4) + kk]];
+        var temp = ((input[i + 4] << 16) | (input[i + 3] << 8)) | input[i + 2];
+        for (var ii = 0; ii < 8; ++ii) {
+          rIndices[ii] = (byte) (temp & 7);
+          temp >>= 3;
+        }
 
-            var j = jj;
-            var k = kk;
+        temp = ((input[i + 7] << 16) | (input[i + 6] << 8)) | input[i + 5];
+        for (var ii = 8; ii < 16; ++ii) {
+          rIndices[ii] = (byte) (temp & 7);
+          temp >>= 3;
+        }
 
-            var outIndex = (((((yPos * 4) + j) * width) + (xPos * 4)) + k) * 4;
+        // Writes pixels to output image.
+        var tileIndex = i / 8;
+        var tileY = tileIndex % blockCountY;
+        var tileX = (tileIndex - tileY) / blockCountX;
 
-            output[outIndex] = value;
-            output[outIndex + 1] = value;
-            output[outIndex + 2] = value;
-            output[outIndex + 3] = 255;
+        for (var j = 0; j < blockSize; j++) {
+          for (var k = 0; k < blockSize; k++) {
+            var value = monoTable[rIndices[(j * blockSize) + k]];
+
+            var outIndex =
+                (((((tileY * blockSize) + j) * width) + (tileX * blockSize)) +
+                 k) * 3;
+
+            output[outIndex] =
+                output[outIndex + 1] = output[outIndex + 2] = value;
           }
         }
       }
