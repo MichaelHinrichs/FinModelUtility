@@ -14,6 +14,7 @@ using SharpGLTF.Schema2;
 
 using PrimitiveType = fin.model.PrimitiveType;
 
+
 namespace fin.exporter.gltf {
   using VERTEX =
       VertexBuilder<VertexPositionNormal, VertexColor2Texture2, VertexJoints4>;
@@ -136,69 +137,69 @@ namespace fin.exporter.gltf {
 
           switch (primitive.Type) {
             case PrimitiveType.TRIANGLES: {
-                var triangles =
-                    gltfMeshBuilder.UsePrimitive(materialBuilder, 3);
-                for (var v = 0; v < pointsCount; v += 3) {
-                  var v1 = vertices[v + 0];
-                  var v2 = vertices[v + 1];
-                  var v3 = vertices[v + 2];
+              var triangles =
+                  gltfMeshBuilder.UsePrimitive(materialBuilder, 3);
+              for (var v = 0; v < pointsCount; v += 3) {
+                var v1 = vertices[v + 0];
+                var v2 = vertices[v + 1];
+                var v3 = vertices[v + 2];
 
-                  // Intentionally flipped to fix bug where faces were backwards.
-                  triangles.AddTriangle(v1, v3, v2);
-                }
-                break;
+                // Intentionally flipped to fix bug where faces were backwards.
+                triangles.AddTriangle(v1, v3, v2);
               }
+              break;
+            }
             case PrimitiveType.TRIANGLE_STRIP: {
-                var triangleStrip =
-                    gltfMeshBuilder.UsePrimitive(materialBuilder, 3);
-                for (var v = 0; v < pointsCount - 2; ++v) {
-                  VERTEX v1, v2, v3;
-                  if (v % 2 == 0) {
-                    v1 = vertices[v + 0];
-                    v2 = vertices[v + 1];
-                    v3 = vertices[v + 2];
-                  } else {
-                    // Switches drawing order to maintain proper winding:
-                    // https://www.khronos.org/opengl/wiki/Primitive
-                    v1 = vertices[v + 1];
-                    v2 = vertices[v + 0];
-                    v3 = vertices[v + 2];
-                  }
-
-                  // Intentionally flipped to fix bug where faces were backwards.
-                  triangleStrip.AddTriangle(v1, v3, v2);
+              var triangleStrip =
+                  gltfMeshBuilder.UsePrimitive(materialBuilder, 3);
+              for (var v = 0; v < pointsCount - 2; ++v) {
+                VERTEX v1, v2, v3;
+                if (v % 2 == 0) {
+                  v1 = vertices[v + 0];
+                  v2 = vertices[v + 1];
+                  v3 = vertices[v + 2];
+                } else {
+                  // Switches drawing order to maintain proper winding:
+                  // https://www.khronos.org/opengl/wiki/Primitive
+                  v1 = vertices[v + 1];
+                  v2 = vertices[v + 0];
+                  v3 = vertices[v + 2];
                 }
-                break;
+
+                // Intentionally flipped to fix bug where faces were backwards.
+                triangleStrip.AddTriangle(v1, v3, v2);
               }
+              break;
+            }
             case PrimitiveType.TRIANGLE_FAN: {
-                var triangleStrip =
-                    gltfMeshBuilder.UsePrimitive(materialBuilder, 3);
+              var triangleStrip =
+                  gltfMeshBuilder.UsePrimitive(materialBuilder, 3);
 
-                // https://stackoverflow.com/a/8044252
-                var firstVertex = vertices[0];
-                for (var v = 2; v < pointsCount; ++v) {
-                  var v1 = firstVertex;
-                  var v2 = vertices[v - 1];
-                  var v3 = vertices[v];
+              // https://stackoverflow.com/a/8044252
+              var firstVertex = vertices[0];
+              for (var v = 2; v < pointsCount; ++v) {
+                var v1 = firstVertex;
+                var v2 = vertices[v - 1];
+                var v3 = vertices[v];
 
-                  // Intentionally flipped to fix bug where faces were backwards.
-                  triangleStrip.AddTriangle(v1, v3, v2);
-                }
-                break;
+                // Intentionally flipped to fix bug where faces were backwards.
+                triangleStrip.AddTriangle(v1, v3, v2);
               }
+              break;
+            }
             case PrimitiveType.QUADS: {
-                var quads =
-                    gltfMeshBuilder.UsePrimitive(
-                        materialBuilder,
-                        4);
-                for (var v = 0; v < pointsCount; v += 4) {
-                  quads.AddQuadrangle(vertices[v + 0],
-                                      vertices[v + 1],
-                                      vertices[v + 2],
-                                      vertices[v + 3]);
-                }
-                break;
+              var quads =
+                  gltfMeshBuilder.UsePrimitive(
+                      materialBuilder,
+                      4);
+              for (var v = 0; v < pointsCount; v += 4) {
+                quads.AddQuadrangle(vertices[v + 0],
+                                    vertices[v + 1],
+                                    vertices[v + 2],
+                                    vertices[v + 3]);
               }
+              break;
+            }
             default: throw new NotSupportedException();
           }
         }
