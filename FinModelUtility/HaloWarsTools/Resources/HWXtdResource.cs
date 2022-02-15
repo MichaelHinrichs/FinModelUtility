@@ -10,7 +10,6 @@ using Dxt;
 using fin.model;
 using fin.model.impl;
 
-using TagTool.Bitmaps;
 
 
 namespace HaloWarsTools {
