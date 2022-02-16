@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 using fin.math;
 using fin.util.asserts;
+using fin.util.image;
 
 
 // From https://github.com/mafaca/Dxt
@@ -121,11 +125,11 @@ namespace Dxt {
       }
     }
 
-    public static void DecompressDxt5a(
-        byte[] input,
+    public static unsafe Bitmap DecompressDxt5a(
+        byte[] src,
+        int srcOffset,
         int width,
-        int height,
-        byte[] output) {
+        int height) {
       const int blockSize = 4;
       var blockCountX = width / blockSize;
       var blockCountY = height / blockSize;
@@ -135,70 +139,81 @@ namespace Dxt {
       var monoTable = new byte[8];
       var rIndices = new byte[16];
 
-      for (var i = 0; i < imageSize; i += 8) {
-        // Gathers up color palette.
-        monoTable[0] = input[i + 0];
-        monoTable[1] = input[i + 1];
+      // TODO: Support grayscale?
+      var bitmap = new Bitmap(width, height, PixelFormat.Format24bppRgb);
+      BitmapUtil.InvokeAsLocked(bitmap, bmpData => {
+        var scan0 = (byte*) bmpData.Scan0.ToPointer();
 
-        var first = monoTable[0];
-        var second = monoTable[1];
+        for (var i = 0; i < imageSize; i += 8) {
+          var iOff = srcOffset + i;
 
-        var useEightIndexMode = first < second;
-        var min = useEightIndexMode ? first : second;
-        var max = !useEightIndexMode ? first : second;
+          // Gathers up color palette.
+          monoTable[0] = src[iOff + 0];
+          monoTable[1] = src[iOff + 1];
 
-        if (useEightIndexMode) {
-          monoTable[2] = (byte) ((6 * min + 1 * max) / 7f);
-          monoTable[3] = (byte) ((5 * min + 2 * max) / 7f);
-          monoTable[4] = (byte) ((4 * min + 3 * max) / 7f);
-          monoTable[5] = (byte) ((3 * min + 4 * max) / 7f);
-          monoTable[6] = (byte) ((2 * min + 5 * max) / 7f);
-          monoTable[7] = (byte) ((1 * min + 6 * max) / 7f);
-        } else {
-          monoTable[2] = (byte) ((4 * min + 1 * max) / 5f);
-          monoTable[3] = (byte) ((3 * min + 2 * max) / 5f);
-          monoTable[4] = (byte) ((2 * min + 3 * max) / 5f);
-          monoTable[5] = (byte) ((1 * min + 4 * max) / 5f);
-          monoTable[6] = 0;
-          monoTable[7] = 255;
-        }
+          var first = monoTable[0];
+          var second = monoTable[1];
 
-        // Gathers up color indices.
-        for (var ii = 0; ii < 16; ++ii) {
-          // Picks middle color for low-resolution image.
-          rIndices[ii] = (byte) (useEightIndexMode ? 4 : 3);
-        }
+          var useEightIndexMode = first < second;
+          var min = useEightIndexMode ? first : second;
+          var max = !useEightIndexMode ? first : second;
 
-        var temp = ((input[i + 4] << 16) | (input[i + 3] << 8)) | input[i + 2];
-        for (var ii = 0; ii < 8; ++ii) {
-          rIndices[ii] = (byte) (temp & 7);
-          temp >>= 3;
-        }
+          if (useEightIndexMode) {
+            monoTable[2] = (byte) ((6 * min + 1 * max) / 7f);
+            monoTable[3] = (byte) ((5 * min + 2 * max) / 7f);
+            monoTable[4] = (byte) ((4 * min + 3 * max) / 7f);
+            monoTable[5] = (byte) ((3 * min + 4 * max) / 7f);
+            monoTable[6] = (byte) ((2 * min + 5 * max) / 7f);
+            monoTable[7] = (byte) ((1 * min + 6 * max) / 7f);
+          } else {
+            monoTable[2] = (byte) ((4 * min + 1 * max) / 5f);
+            monoTable[3] = (byte) ((3 * min + 2 * max) / 5f);
+            monoTable[4] = (byte) ((2 * min + 3 * max) / 5f);
+            monoTable[5] = (byte) ((1 * min + 4 * max) / 5f);
+            monoTable[6] = 0;
+            monoTable[7] = 255;
+          }
 
-        temp = ((input[i + 7] << 16) | (input[i + 6] << 8)) | input[i + 5];
-        for (var ii = 8; ii < 16; ++ii) {
-          rIndices[ii] = (byte) (temp & 7);
-          temp >>= 3;
-        }
+          // Gathers up color indices.
+          for (var ii = 0; ii < 16; ++ii) {
+            // Picks middle color for low-resolution image.
+            rIndices[ii] = (byte) (useEightIndexMode ? 4 : 3);
+          }
 
-        // Writes pixels to output image.
-        var tileIndex = i / 8;
-        var tileY = tileIndex % blockCountY;
-        var tileX = (tileIndex - tileY) / blockCountX;
+          var temp = ((src[iOff + 4] << 16) | (src[iOff + 3] << 8)) |
+                     src[iOff + 2];
+          for (var ii = 0; ii < 8; ++ii) {
+            rIndices[ii] = (byte) (temp & 7);
+            temp >>= 3;
+          }
 
-        for (var j = 0; j < blockSize; j++) {
-          for (var k = 0; k < blockSize; k++) {
-            var value = monoTable[rIndices[(j * blockSize) + k]];
+          temp = ((src[iOff + 7] << 16) | (src[iOff + 6] << 8)) | src[iOff + 5];
+          for (var ii = 8; ii < 16; ++ii) {
+            rIndices[ii] = (byte) (temp & 7);
+            temp >>= 3;
+          }
 
-            var outIndex =
-                (((((tileY * blockSize) + j) * width) + (tileX * blockSize)) +
-                 k) * 3;
+          // Writes pixels to output image.
+          var tileIndex = i / 8;
+          var tileY = tileIndex % blockCountY;
+          var tileX = (tileIndex - tileY) / blockCountX;
 
-            output[outIndex] =
-                output[outIndex + 1] = output[outIndex + 2] = value;
+          for (var j = 0; j < blockSize; j++) {
+            for (var k = 0; k < blockSize; k++) {
+              var value = monoTable[rIndices[(j * blockSize) + k]];
+
+              var outIndex =
+                  (((((tileY * blockSize) + j) * width) + (tileX * blockSize)) +
+                   k) * 3;
+
+              scan0[outIndex] =
+                  scan0[outIndex + 1] = scan0[outIndex + 2] = value;
+            }
           }
         }
-      }
+      });
+
+      return bitmap;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

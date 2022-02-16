@@ -9,6 +9,7 @@ using Dxt;
 
 using fin.model;
 using fin.model.impl;
+using fin.util.image;
 
 
 namespace HaloWarsTools {
@@ -33,26 +34,10 @@ namespace HaloWarsTools {
 
     private Bitmap ExtractEmbeddedDXT5A(HWBinaryResourceChunk chunk) {
       // Get raw embedded DXT5 texture from resource file
-      int size = (int) chunk.Size;
+      var width = (int) Math.Sqrt(chunk.Size * 2);
+      var height = width;
 
-      byte[] data = new byte[size];
-      Buffer.BlockCopy(RawBytes, (int) chunk.Offset, data, 0, size);
-
-      int width = (int) Math.Sqrt(data.Length * 2);
-      int height = width;
-
-      //Decompress DXT5A texture and turn it into a Bitmap
-      var decompressedColorData = new byte[3 * width * height];
-      DxtDecoder.DecompressDxt5a(data, width, height, decompressedColorData);
-
-      GCHandle m_bitsHandle =
-          GCHandle.Alloc(decompressedColorData, GCHandleType.Pinned);
-      Bitmap bitmap = new Bitmap(width, height, 3 * width,
-                                 PixelFormat.Format24bppRgb,
-                                 m_bitsHandle.AddrOfPinnedObject());
-      m_bitsHandle.Free();
-
-      return bitmap;
+      return DxtDecoder.DecompressDxt5a(RawBytes, (int) chunk.Offset, width, height);
     }
 
     private IModel ImportMesh() {
