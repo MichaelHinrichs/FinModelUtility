@@ -15,16 +15,13 @@ using fin.util.image;
 using SharpGLTF.Materials;
 using SharpGLTF.Memory;
 using SharpGLTF.Schema2;
+using SharpGLTF.Validation;
 
 using AlphaMode = SharpGLTF.Materials.AlphaMode;
 
-namespace fin.exporter.gltf {
-  public interface IGltfExporter : IExporter {
-    bool UvIndices { get; set; }
-    bool Embedded { get; set; }
-  }
 
-  public class GltfExporter : IGltfExporter {
+namespace fin.exporter.gltf.lowlevel {
+  public class LowLevelGltfExporter : IGltfExporter {
     private readonly ILogger logger_ = Logging.Create<GltfExporter>();
 
     public bool UvIndices { get; set; }
@@ -71,7 +68,7 @@ namespace fin.exporter.gltf {
       // Builds materials.
       // TODO: Update this if GLTF is ever extended...
       var finToTexCoordAndGltfMaterial =
-          new Dictionary<IMaterial, (IList<byte>, MaterialBuilder)>();
+          new Dictionary<IMaterial, (IList<byte>, Material)>();
       {
         foreach (var finMaterial in model.MaterialManager.All) {
           var gltfMaterial = new MaterialBuilder(finMaterial.Name)
@@ -95,18 +92,20 @@ namespace fin.exporter.gltf {
                     .UseChannel(KnownChannel.Diffuse)
                     .UseTexture()
                     .WithPrimaryImage(
-                        GltfExporter
+                        LowLevelGltfExporter
                             .GetGltfImageFromFinTexture_(diffuseTexture));
               }
 
-              var ambientOcclusionTexture = standardMaterial.AmbientOcclusionTexture;
+              var ambientOcclusionTexture =
+                  standardMaterial.AmbientOcclusionTexture;
               if (ambientOcclusionTexture != null) {
                 gltfMaterial
                     .UseChannel(KnownChannel.Occlusion)
                     .UseTexture()
                     .WithPrimaryImage(
-                        GltfExporter
-                            .GetGltfImageFromFinTexture_(ambientOcclusionTexture));
+                        LowLevelGltfExporter
+                            .GetGltfImageFromFinTexture_(
+                                ambientOcclusionTexture));
               }
 
               break;
@@ -128,7 +127,8 @@ namespace fin.exporter.gltf {
                     .UseChannel(KnownChannel.Diffuse)
                     .UseTexture()
                     .WithPrimaryImage(
-                        GltfExporter.GetGltfImageFromFinTexture_(texture))
+                        LowLevelGltfExporter.GetGltfImageFromFinTexture_(
+                            texture))
                     .WithCoordinateSet(0)
                     .WithSampler(
                         this.ConvertWrapMode_(texture.WrapModeU),
@@ -139,32 +139,36 @@ namespace fin.exporter.gltf {
           }
 
           finToTexCoordAndGltfMaterial[finMaterial] =
-              (new byte[] { 0 }, gltfMaterial);
+              (new byte[] {0}, modelRoot.CreateMaterial(gltfMaterial));
         }
       }
 
       // Builds meshes.
-      var meshBuilder = new GltfMeshBuilder { UvIndices = this.UvIndices };
+      var meshBuilder = new LowLevelGltfMeshBuilder
+          {UvIndices = this.UvIndices};
       var gltfMeshes = meshBuilder.BuildAndBindMesh(
           modelRoot,
           model,
           finToTexCoordAndGltfMaterial);
 
-      var joints = skinNodeAndBones
+      /*var joints = skinNodeAndBones
                    .Select(
                        skinNodeAndBone => skinNodeAndBone.Item1)
-                   .ToArray();
+                   .ToArray();*/
       foreach (var gltfMesh in gltfMeshes) {
-        scene.CreateNode()
+        /*scene.CreateNode()
              .WithSkinnedMesh(gltfMesh,
                               rootNode.WorldMatrix,
-                              joints);
+                              joints);*/
+        scene.CreateNode().WithMesh(gltfMesh);
       }
 
       var writeSettings = new WriteSettings {
           ImageWriting = this.Embedded
                              ? ResourceWriteMode.Embedded
                              : ResourceWriteMode.SatelliteFile,
+          MergeBuffers = false,
+          Validation = ValidationMode.Skip,
       };
 
       var outputPath = outputFile.FullName;
