@@ -142,7 +142,7 @@ namespace Dxt {
       // TODO: Support grayscale?
       var bitmap = new Bitmap(width, height, PixelFormat.Format24bppRgb);
       BitmapUtil.InvokeAsLocked(bitmap, bmpData => {
-        var scan0 = (byte*) bmpData.Scan0.ToPointer();
+        var dst = (byte*) bmpData.Scan0.ToPointer();
 
         for (var i = 0; i < imageSize; i += 8) {
           var iOff = srcOffset + i;
@@ -206,8 +206,8 @@ namespace Dxt {
                   (((((tileY * blockSize) + j) * width) + (tileX * blockSize)) +
                    k) * 3;
 
-              scan0[outIndex] =
-                  scan0[outIndex + 1] = scan0[outIndex + 2] = value;
+              dst[outIndex] =
+                  dst[outIndex + 1] = dst[outIndex + 2] = value;
             }
           }
         }
