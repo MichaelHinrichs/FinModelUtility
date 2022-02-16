@@ -15,54 +15,65 @@ using fin.util.image;
 
 namespace Dxt {
   public static class DxtDecoder {
-    public static void DecompressDXT1(
-        byte[] input,
+    public static unsafe Bitmap DecompressDXT1(
+        byte[] src,
+        int srcOffset,
         int width,
-        int height,
-        byte[] output) {
-      int offset = 0;
+        int height) {
+      int offset = srcOffset;
       int bcw = (width + 3) / 4;
       int bch = (height + 3) / 4;
       int clen_last = (width + 3) % 4 + 1;
-      uint[] buffer = new uint[16];
+      int[] buffer = new int[16];
       int[] colors = new int[4];
-      for (int t = 0; t < bch; t++) {
-        for (int s = 0; s < bcw; s++, offset += 8) {
-          int r0, g0, b0, r1, g1, b1;
-          int q0 = input[offset + 0] | input[offset + 1] << 8;
-          int q1 = input[offset + 2] | input[offset + 3] << 8;
-          Rgb565(q0, out r0, out g0, out b0);
-          Rgb565(q1, out r1, out g1, out b1);
-          colors[0] = Color(r0, g0, b0, 255);
-          colors[1] = Color(r1, g1, b1, 255);
-          if (q0 > q1) {
-            colors[2] = Color((r0 * 2 + r1) / 3,
-                              (g0 * 2 + g1) / 3,
-                              (b0 * 2 + b1) / 3,
-                              255);
-            colors[3] = Color((r0 + r1 * 2) / 3,
-                              (g0 + g1 * 2) / 3,
-                              (b0 + b1 * 2) / 3,
-                              255);
-          } else {
-            colors[2] = Color((r0 + r1) / 2, (g0 + g1) / 2, (b0 + b1) / 2, 255);
-          }
 
-          uint d = BitConverter.ToUInt32(input, offset + 4);
-          for (int i = 0; i < 16; i++, d >>= 2) {
-            buffer[i] = unchecked((uint) colors[d & 3]);
-          }
+      var bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+      BitmapUtil.InvokeAsLocked(bitmap, bmpData => {
+        var dst = (byte*) bmpData.Scan0.ToPointer();
 
-          int clen = (s < bcw - 1 ? 4 : clen_last) * 4;
-          for (int i = 0, y = t * 4; i < 4 && y < height; i++, y++) {
-            Buffer.BlockCopy(buffer,
-                             i * 4 * 4,
-                             output,
-                             (y * width + s * 4) * 4,
-                             clen);
+        for (int t = 0; t < bch; t++) {
+          for (int s = 0; s < bcw; s++, offset += 8) {
+            int r0, g0, b0, r1, g1, b1;
+            int q0 = src[offset + 0] | src[offset + 1] << 8;
+            int q1 = src[offset + 2] | src[offset + 3] << 8;
+            Rgb565(q0, out r0, out g0, out b0);
+            Rgb565(q1, out r1, out g1, out b1);
+            colors[0] = Color(r0, g0, b0, 255);
+            colors[1] = Color(r1, g1, b1, 255);
+            if (q0 > q1) {
+              colors[2] = Color((r0 * 2 + r1) / 3,
+                                (g0 * 2 + g1) / 3,
+                                (b0 * 2 + b1) / 3,
+                                255);
+              colors[3] = Color((r0 + r1 * 2) / 3,
+                                (g0 + g1 * 2) / 3,
+                                (b0 + b1 * 2) / 3,
+                                255);
+            } else {
+              colors[2] = Color((r0 + r1) / 2, (g0 + g1) / 2, (b0 + b1) / 2,
+                                255);
+            }
+
+            uint d = BitConverter.ToUInt32(src, offset + 4);
+            for (int i = 0; i < 16; i++, d >>= 2) {
+              buffer[i] = colors[d & 3];
+            }
+
+            int clen = (s < bcw - 1 ? 4 : clen_last);
+            for (int i = 0, y = t * 4; i < 4 && y < height; i++, y++) {
+              var dstBuffer = dst + (y * width + s * 4) * 4;
+              var dstPtr = (IntPtr) dstBuffer;
+
+              Marshal.Copy(buffer,
+                           i * 4,
+                           dstPtr,
+                           clen);
+            }
           }
         }
-      }
+      });
+
+      return bitmap;
     }
 
 

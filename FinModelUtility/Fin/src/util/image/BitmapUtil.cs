@@ -37,7 +37,7 @@ namespace fin.util.image {
             return BitmapTransparencyType.TRANSPARENT;
           }
         }
-        srcOffset += bmpData.Stride;
+        srcOffset += stride;
       }
 
       return hasTransparency
