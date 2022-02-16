@@ -175,6 +175,8 @@ namespace Dxt {
           }
 
           // Gathers up color indices.
+          // TODO: These are almost certainly incorrect, since the output looks
+          // like noise within each tile. What's wrong with this implementation?
           for (var ii = 0; ii < 16; ++ii) {
             // Picks middle color for low-resolution image.
             rIndices[ii] = (byte) (useEightIndexMode ? 4 : 3);

@@ -16,20 +16,28 @@ namespace fin.util.image {
     public static BitmapTransparencyType GetTransparencyType(Bitmap bmp)
       => BitmapUtil.InvokeAsLocked(bmp, BitmapUtil.IsTransparentImpl_);
 
-    private static BitmapTransparencyType IsTransparentImpl_(BitmapData bmpData) {
+    private static unsafe BitmapTransparencyType IsTransparentImpl_(BitmapData bmpData) {
       if ((bmpData.PixelFormat & PixelFormat.Alpha) == 0) {
         return BitmapTransparencyType.OPAQUE;
       }
 
       var hasTransparency = false;
-      byte[] bytes = new byte[bmpData.Height * bmpData.Stride];
-      Marshal.Copy(bmpData.Scan0, bytes, 0, bytes.Length);
-      for (var p = 3; p < bytes.Length; p += 4) {
-        var alpha = bytes[p];
-        hasTransparency |= alpha < 255;
-        if (alpha > 0 && alpha < 255) {
-          return BitmapTransparencyType.TRANSPARENT;
+
+      var src = (byte*) bmpData.Scan0.ToPointer();
+      var srcOffset = 0;
+
+      var height = bmpData.Height;
+      var stride = bmpData.Stride;
+
+      for (var y = 0; y < height; ++y) {
+        for (var p = 3; p < stride; p += 4) {
+          var alpha = src[srcOffset + p];
+          hasTransparency |= alpha < 255;
+          if (alpha > 0 && alpha < 255) {
+            return BitmapTransparencyType.TRANSPARENT;
+          }
         }
+        srcOffset += bmpData.Stride;
       }
 
       return hasTransparency
