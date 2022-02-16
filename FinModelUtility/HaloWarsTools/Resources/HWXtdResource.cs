@@ -88,7 +88,7 @@ namespace HaloWarsTools {
               .ReadVector3BigEndian(RawBytes, (int) atlasChunk.Offset + 16)
               .ReverseComponents();
 
-      var finModel = new ModelImpl();
+      var finModel = new ModelImpl(gridSize * gridSize);
       var finMesh = finModel.Skin.AddMesh();
 
       var finVertices = new IVertex[gridSize * gridSize];
