@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 
 using fin.exporter.assimp.indirect;
 using fin.io;
 
 using HaloWarsTools.Helpers;
 
+
 namespace HaloWarsTools {
   public class Program {
-    public void Run(string scratchDirectory, string outputDirectory) {
+    public void Run(string scratchDirectoryPath, string outputDirectory) {
       string gameDirectory = null;
 
       if (OperatingSystem.IsWindows()) {
@@ -19,50 +21,56 @@ namespace HaloWarsTools {
       }
 
       // Point the framework to the game install and working directories
-      var context = new HWContext(gameDirectory, scratchDirectory);
+      var context = new HWContext(gameDirectory, scratchDirectoryPath);
 
       // Expand all compressed/encrypted game files. This also handles the .xmb -> .xml conversion
       context.ExpandAllEraFiles();
 
-      // Test importing various game resource types
-      var xtt = HWXttResource.FromFile(context,
-                                       "scenario\\skirmish\\design\\blood_gulch\\blood_gulch.xtt");
-      xtt.AlbedoTexture.Save(
-          Path.Combine(outputDirectory, "blood_gulch_albedo.png"),
-          ImageFormat.Png);
-      Console.WriteLine($"Processed {xtt}");
+      var scratchDirectory = new FinDirectory(scratchDirectoryPath);
+      var mapDirectories = scratchDirectory
+                           .GetSubdir("scenario/skirmish/design")
+                           .GetExistingSubdirs();
 
-      var xtd = HWXtdResource.FromFile(context,
-                                       "scenario\\skirmish\\design\\blood_gulch\\blood_gulch.xtd");
-      
-      xtd.AmbientOcclusionTexture.Save(
-          Path.Combine(outputDirectory, "blood_gulch_ao.png"),
-          ImageFormat.Png);
-      xtd.OpacityTexture.Save(
-          Path.Combine(outputDirectory, "blood_gulch_opacity.png"),
-          ImageFormat.Png);
+      foreach (var mapDirectory in mapDirectories) {
+        var mapName = mapDirectory.Name;
 
-      ;
+        var xttFile = mapDirectory.GetExistingFiles()
+                                  .Single(file => file.Extension == ".xtt");
+        var xtdFile = mapDirectory.GetExistingFiles()
+                                  .Single(file => file.Extension == ".xtd");
 
-      {
+        var xtt = HWXttResource.FromFile(context, xttFile.FullName);
+        var xtd = HWXtdResource.FromFile(context, xtdFile.FullName);
+
         var finModel = xtd.Mesh;
         var xttMaterial = finModel.MaterialManager.AddStandardMaterial();
 
         xttMaterial.DiffuseTexture = finModel.MaterialManager.CreateTexture(
             xtt.AlbedoTexture);
-        xttMaterial.AmbientOcclusionTexture = finModel.MaterialManager.CreateTexture(
-            xtd.AmbientOcclusionTexture);
+        xttMaterial.DiffuseTexture.Name = $"{mapName}_albedo";
+
+        xttMaterial.AmbientOcclusionTexture =
+            finModel.MaterialManager.CreateTexture(
+                xtd.AmbientOcclusionTexture);
+        xttMaterial.AmbientOcclusionTexture.Name = $"{mapName}_ao";
 
         foreach (var primitive in finModel.Skin.Meshes[0].Primitives) {
           primitive.SetMaterial(xttMaterial);
         }
+
+        var exporter = new AssimpIndirectExporter { LowLevel = true };
+        exporter.Export(
+            new FinFile(Path.Combine(outputDirectory, $"{mapName}.fbx")),
+            finModel);
+
+        // Forces an immediate garbage-collection cleanup. This is required to
+        // prevent OOM errors, since Halo Wars maps are just so huge.
+        GC.Collect();
+        GC.WaitForFullGCComplete();
+        GC.WaitForPendingFinalizers();
       }
 
-      new AssimpIndirectExporter().Export(
-          new FinFile(Path.Combine(outputDirectory, "blood_gulch_vismesh.fbx")),
-          xtd.Mesh);
-
-      var gls = HWGlsResource.FromFile(context,
+      /*var gls = HWGlsResource.FromFile(context,
                                        "scenario\\skirmish\\design\\blood_gulch\\blood_gulch.gls");
       Console.WriteLine($"Processed {gls}");
 
@@ -91,7 +99,7 @@ namespace HaloWarsTools {
                          Path.GetFileName(model.Resource.AbsolutePath)),
             GenericMeshExportFormat.Obj);
         Console.WriteLine($"Processed {model.Resource}");
-      }
+      }*/
     }
 
     static void PrintScenarioObjects(HWScnResource scenario) {
