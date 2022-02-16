@@ -2,10 +2,14 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 
+using fin.io;
 using fin.language.equations.fixedFunction;
 using fin.util.image;
+
 
 namespace fin.model.impl {
   public partial class ModelImpl {
@@ -63,6 +67,14 @@ namespace fin.model.impl {
       public ColorType ColorType { get; set; }
 
       public Bitmap ImageData { get; }
+
+      public IFile SaveInDirectory(IDirectory directory) {
+        var outFile =
+            new FinFile(Path.Combine(directory.FullName, this.Name + ".png"));
+        this.ImageData.Save(outFile.FullName, ImageFormat.Png);
+        return outFile;
+      }
+
       public BitmapTransparencyType TransparencyType { get; }
 
       public WrapMode WrapModeU { get; set; }

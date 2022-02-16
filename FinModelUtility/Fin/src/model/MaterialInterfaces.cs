@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
 
+using fin.io;
 using fin.language.equations.fixedFunction;
 using fin.util.image;
 
@@ -244,6 +245,7 @@ namespace fin.model {
 
 
     Bitmap ImageData { get; }
+    IFile SaveInDirectory(IDirectory directory);
     BitmapTransparencyType TransparencyType { get; }
 
     WrapMode WrapModeU { get; set; }
