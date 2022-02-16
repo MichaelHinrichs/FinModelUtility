@@ -8,13 +8,20 @@ using fin.math.matrix;
 
 namespace fin.model.impl {
   public partial class ModelImpl {
-    public ISkin Skin { get; } = new SkinImpl();
+    public ISkin Skin { get; }
 
     private class SkinImpl : ISkin {
-      private readonly IList<IVertex> vertices_ = new List<IVertex>();
+      private readonly IList<IVertex> vertices_;
       private readonly IList<IMesh> meshes_ = new List<IMesh>();
 
       public SkinImpl() {
+        this.vertices_ = new List<IVertex>();
+        this.Vertices = new ReadOnlyCollection<IVertex>(this.vertices_);
+        this.Meshes = new ReadOnlyCollection<IMesh>(this.meshes_);
+      }
+
+      public SkinImpl(int vertexCount) {
+        this.vertices_ = new List<IVertex>(vertexCount);
         this.Vertices = new ReadOnlyCollection<IVertex>(this.vertices_);
         this.Meshes = new ReadOnlyCollection<IMesh>(this.meshes_);
       }
