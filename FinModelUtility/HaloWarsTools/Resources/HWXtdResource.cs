@@ -188,6 +188,7 @@ namespace HaloWarsTools {
       return new Vector3(vector.X, -vector.Z, vector.Y);
     }
 
+    // TODO: This might not be right
     private static Vector3 ConvertDirectionVector(Vector3 vector) {
       return new Vector3(vector.Z, vector.X, vector.Y);
     }

@@ -253,38 +253,18 @@ namespace HaloWarsTools {
             Vector3 texcoord = Vector3.Zero;
             switch (polygonInfo.VertSize) {
               case 0x18:
-                position.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
-                offset += 2;
-                position.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
-                offset += 2;
-                position.Z = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
-                offset += 2;
+                ReadPosition(ref position, bytes, ref offset);
                 offset += 2; // 2 byte reserved
-                normal.X = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
-                offset += 4;
-                normal.Y = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
-                offset += 4;
-                normal.Z = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
-                offset += 4;
+                ReadNormal(ref normal, bytes, ref offset);
                 texcoord.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
                 texcoord.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
                 break;
               case 0x1c:
-                position.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
-                offset += 2;
-                position.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
-                offset += 2;
-                position.Z = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
-                offset += 2;
+                ReadPosition(ref position, bytes, ref offset);
                 offset += 2; // 2 byte reserved
-                normal.X = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
-                offset += 4;
-                normal.Y = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
-                offset += 4;
-                normal.Z = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
-                offset += 4;
+                ReadNormal(ref normal, bytes, ref offset);
                 texcoord.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
                 texcoord.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
@@ -293,19 +273,9 @@ namespace HaloWarsTools {
                 offset += 2; // 2 byte reserved
                 break;
               case 0x20:
-                position.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
-                offset += 2;
-                position.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
-                offset += 2;
-                position.Z = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
-                offset += 2;
+                ReadPosition(ref position, bytes, ref offset);
                 offset += 2; // 2 byte reserved
-                normal.X = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
-                offset += 4;
-                normal.Y = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
-                offset += 4;
-                normal.Z = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
-                offset += 4;
+                ReadNormal(ref normal, bytes, ref offset);
                 offset += 1; // bone1
                 offset += 1; // bone2
                 offset += 1; // bone3
@@ -320,19 +290,9 @@ namespace HaloWarsTools {
                 offset += 2;
                 break;
               case 0x24:
-                position.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
-                offset += 2;
-                position.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
-                offset += 2;
-                position.Z = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
-                offset += 2;
+                ReadPosition(ref position, bytes, ref offset);
                 offset += 2; // 2 byte reserved
-                normal.X = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
-                offset += 4;
-                normal.Y = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
-                offset += 4;
-                normal.Z = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
-                offset += 4;
+                ReadNormal(ref normal, bytes, ref offset);
                 offset += 4; // 4 byte reserved
                 offset += 4; // 4 byte reserved
                 offset += 4; // 4 byte reserved
@@ -342,19 +302,9 @@ namespace HaloWarsTools {
                 offset += 2;
                 break;
               case 0x28:
-                position.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
-                offset += 2;
-                position.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
-                offset += 2;
-                position.Z = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
-                offset += 2;
+                ReadPosition(ref position, bytes, ref offset);
                 offset += 2; // 2 byte reserved
-                normal.X = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
-                offset += 4;
-                normal.Y = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
-                offset += 4;
-                normal.Z = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
-                offset += 4;
+                ReadNormal(ref normal, bytes, ref offset);
                 offset += 4; // 4 byte reserved
                 offset += 4; // 4 byte reserved
                 offset += 4; // 4 byte reserved
@@ -365,19 +315,9 @@ namespace HaloWarsTools {
                 offset += 4; // 4 byte reserved
                 break;
               case 0x2c:
-                position.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
-                offset += 2;
-                position.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
-                offset += 2;
-                position.Z = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
-                offset += 2;
+                ReadPosition(ref position, bytes, ref offset);
                 offset += 2; // 2 byte reserved
-                normal.X = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
-                offset += 4;
-                normal.Y = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
-                offset += 4;
-                normal.Z = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
-                offset += 4;
+                ReadNormal(ref normal, bytes, ref offset);
                 offset += 4; // 4 byte reserved
                 offset += 4; // 4 byte reserved
                 offset += 4; // 4 byte reserved
@@ -395,19 +335,9 @@ namespace HaloWarsTools {
                 offset += 2;
                 break;
               case 0x30:
-                position.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
-                offset += 2;
-                position.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
-                offset += 2;
-                position.Z = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
-                offset += 2;
+                ReadPosition(ref position, bytes, ref offset);
                 offset += 2; // 2 byte reserved
-                normal.X = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
-                offset += 4;
-                normal.Y = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
-                offset += 4;
-                normal.Z = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
-                offset += 4;
+                ReadNormal(ref normal, bytes, ref offset);
                 offset += 4; // 4 byte reserved
                 offset += 4; // 4 byte reserved
                 offset += 4; // 4 byte reserved
@@ -475,6 +405,26 @@ namespace HaloWarsTools {
       mesh.ApplyExportOptions(options);
 
       return mesh;
+    }
+
+    // TODO: This might not be right
+    private void ReadPosition(ref Vector3 position, byte[] bytes, ref int offset) {
+      position.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
+      offset += 2;
+      position.X = -BinaryUtils.ReadHalfLittleEndian(bytes, offset);
+      offset += 2;
+      position.Z = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
+      offset += 2;
+    }
+
+    // TODO: This might not be right
+    private void ReadNormal(ref Vector3 normal, byte[] bytes, ref int offset) {
+      normal.Z = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
+      offset += 4;
+      normal.Y = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
+      offset += 4;
+      normal.X = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
+      offset += 4;
     }
 
     public struct MeshPolygonInfo {
