@@ -11,7 +11,7 @@ using HaloWarsTools.Helpers;
 
 namespace HaloWarsTools {
   public class Program {
-    public void Run(string scratchDirectoryPath, string outputDirectory) {
+    public void Run(string scratchDirectoryPath, string outputDirectoryPath) {
       string gameDirectory = null;
 
       if (OperatingSystem.IsWindows()) {
@@ -31,13 +31,25 @@ namespace HaloWarsTools {
                            .GetSubdir("scenario/skirmish/design")
                            .GetExistingSubdirs();
 
-      foreach (var mapDirectory in mapDirectories) {
-        var mapName = mapDirectory.Name;
+      var outputDirectory = new FinDirectory(outputDirectoryPath);
 
-        var xttFile = mapDirectory.GetExistingFiles()
-                                  .Single(file => file.Extension == ".xtt");
-        var xtdFile = mapDirectory.GetExistingFiles()
-                                  .Single(file => file.Extension == ".xtd");
+      var baseDstMapDirectory =
+          outputDirectory.GetSubdir("scenario/skirmish/design", true);
+      foreach (var srcMapDirectory in mapDirectories) {
+        var mapName = srcMapDirectory.Name;
+
+        var dstMapDirectory = baseDstMapDirectory.GetSubdir(mapName, true);
+
+        var gltfFile = new FinFile(
+            Path.Combine(dstMapDirectory.FullName, $"{mapName}.gltf"));
+        if (gltfFile.Exists) {
+          continue;
+        }
+
+        var xttFile = srcMapDirectory.GetExistingFiles()
+                                     .Single(file => file.Extension == ".xtt");
+        var xtdFile = srcMapDirectory.GetExistingFiles()
+                                     .Single(file => file.Extension == ".xtd");
 
         var xtt = HWXttResource.FromFile(context, xttFile.FullName);
         var xtd = HWXtdResource.FromFile(context, xtdFile.FullName);
@@ -58,10 +70,15 @@ namespace HaloWarsTools {
           primitive.SetMaterial(xttMaterial);
         }
 
-        var exporter = new AssimpIndirectExporter { LowLevel = true };
-        exporter.Export(
-            new FinFile(Path.Combine(outputDirectory, $"{mapName}.fbx")),
-            finModel);
+        var exporter = new AssimpIndirectExporter {LowLevel = true};
+        exporter.Export(gltfFile.CloneWithExtension(".fbx"), finModel);
+
+        // Cleans up any remaining .bin files.
+        var binFiles = dstMapDirectory.GetExistingFiles()
+                                      .Where(file => file.Extension == ".bin");
+        foreach (var binFile in binFiles) {
+          binFile.Info.Delete();
+        }
 
         // Forces an immediate garbage-collection cleanup. This is required to
         // prevent OOM errors, since Halo Wars maps are just so huge.

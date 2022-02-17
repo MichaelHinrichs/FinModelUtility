@@ -1,0 +1,3 @@
+tools\universal_model_extractor\universal_model_extractor.exe halo_wars
+
+pause
