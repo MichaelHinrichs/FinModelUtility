@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-using fin.math;
-using fin.util.asserts;
 using fin.util.image;
-
 
 // From https://github.com/mafaca/Dxt
 
@@ -136,6 +132,58 @@ namespace Dxt {
       }
     }
 
+    /*public static void WriteToStreamFromRawDxt5a(
+        Stream dst,
+        byte[] src,
+        int srcOffset,
+        int width,
+        int height) {
+      var ew = new EndianBinaryWriter(dst, Endianness.LittleEndian);
+
+      var imageSize = width * height / 2;
+
+      ew.Write("DDS ", Encoding.ASCII, false);
+      ew.Write(124);
+      ew.Write(0x000A1007);
+      ew.Write(width);
+      ew.Write(height);
+      ew.Write(imageSize);
+      ew.Write(0);
+      ew.Write(1);
+
+      for (var i = 0; i < 11; ++i) {
+        ew.Write(0);
+      }
+
+      ew.Write(0x20);
+      ew.Write(4);
+      ew.Write("ATI1", Encoding.ASCII, false);
+      ew.Write(0);
+      ew.Write(0);
+      ew.Write(0);
+      ew.Write(0);
+      ew.Write(0);
+      ew.Write(0x401008);
+
+      var fixedBuffer = new byte[imageSize];
+      for (var i = 0; i < imageSize; i += 8) {
+        fixedBuffer[i + 0] = src[srcOffset + i + 1];
+        fixedBuffer[i + 1] = src[srcOffset + i + 0];
+
+        fixedBuffer[i + 2] = src[srcOffset + i + 3];
+        fixedBuffer[i + 3] = src[srcOffset + i + 2];
+        fixedBuffer[i + 4] = src[srcOffset + i + 5];
+
+        fixedBuffer[i + 5] = src[srcOffset + i + 4];
+        fixedBuffer[i + 6] = src[srcOffset + i + 7];
+        fixedBuffer[i + 7] = src[srcOffset + i + 6];
+      }
+
+      ew.Position = 128;
+      ew.Write(fixedBuffer, 0, imageSize);
+      Asserts.Equal(128 + imageSize, ew.Position);
+    }*/
+
     public static unsafe Bitmap DecompressDxt5a(
         byte[] src,
         int srcOffset,
@@ -159,54 +207,42 @@ namespace Dxt {
           var iOff = srcOffset + i;
 
           // Gathers up color palette.
-          monoTable[0] = src[iOff + 0];
-          monoTable[1] = src[iOff + 1];
+          var mono0 = monoTable[0] = src[iOff + 0];
+          var mono1 = monoTable[1] = src[iOff + 1];
 
-          var first = monoTable[0];
-          var second = monoTable[1];
-
-          var useEightIndexMode = first < second;
-          var min = useEightIndexMode ? first : second;
-          var max = !useEightIndexMode ? first : second;
-
+          var useEightIndexMode = mono0 > mono1;
           if (useEightIndexMode) {
-            monoTable[2] = (byte) ((6 * min + 1 * max) / 7f);
-            monoTable[3] = (byte) ((5 * min + 2 * max) / 7f);
-            monoTable[4] = (byte) ((4 * min + 3 * max) / 7f);
-            monoTable[5] = (byte) ((3 * min + 4 * max) / 7f);
-            monoTable[6] = (byte) ((2 * min + 5 * max) / 7f);
-            monoTable[7] = (byte) ((1 * min + 6 * max) / 7f);
+            monoTable[2] = (byte) ((6 * mono0 + 1 * mono1) / 7f);
+            monoTable[3] = (byte) ((5 * mono0 + 2 * mono1) / 7f);
+            monoTable[4] = (byte) ((4 * mono0 + 3 * mono1) / 7f);
+            monoTable[5] = (byte) ((3 * mono0 + 4 * mono1) / 7f);
+            monoTable[6] = (byte) ((2 * mono0 + 5 * mono1) / 7f);
+            monoTable[7] = (byte) ((1 * mono0 + 6 * mono1) / 7f);
           } else {
-            monoTable[2] = (byte) ((4 * min + 1 * max) / 5f);
-            monoTable[3] = (byte) ((3 * min + 2 * max) / 5f);
-            monoTable[4] = (byte) ((2 * min + 3 * max) / 5f);
-            monoTable[5] = (byte) ((1 * min + 4 * max) / 5f);
+            monoTable[2] = (byte) ((4 * mono0 + 1 * mono1) / 5f);
+            monoTable[3] = (byte) ((3 * mono0 + 2 * mono1) / 5f);
+            monoTable[4] = (byte) ((2 * mono0 + 3 * mono1) / 5f);
+            monoTable[5] = (byte) ((1 * mono0 + 4 * mono1) / 5f);
             monoTable[6] = 0;
             monoTable[7] = 255;
           }
 
           // Gathers up color indices.
-          // TODO: These are almost certainly incorrect, since the output looks
-          // like noise within each tile. What's wrong with this implementation?
+          ulong indices = 0;
+          for (var b = 0; b < 6; ++b) {
+            ulong part = src[iOff + 2 + b];
+            part <<= (8 * b);
+            indices |= part;
+          }
+
           for (var ii = 0; ii < 16; ++ii) {
-            // Picks middle color for low-resolution image.
-            rIndices[ii] = (byte) (useEightIndexMode ? 4 : 3);
-          }
-
-          var temp = ((src[iOff + 4] << 16) | (src[iOff + 3] << 8)) |
-                     src[iOff + 2];
-          for (var ii = 0; ii < 8; ++ii) {
-            rIndices[ii] = (byte) (temp & 7);
-            temp >>= 3;
-          }
-
-          temp = ((src[iOff + 7] << 16) | (src[iOff + 6] << 8)) | src[iOff + 5];
-          for (var ii = 8; ii < 16; ++ii) {
-            rIndices[ii] = (byte) (temp & 7);
-            temp >>= 3;
+            rIndices[ii] = (byte) (indices & 7);
+            indices >>= 3;
           }
 
           // Writes pixels to output image.
+          // TODO: This might actually be flipped across the X/Y axis. This is
+          // kept this way to align with the albedo texture for now.
           var tileIndex = i / 8;
           var tileY = tileIndex % blockCountY;
           var tileX = (tileIndex - tileY) / blockCountX;
@@ -215,9 +251,10 @@ namespace Dxt {
             for (var k = 0; k < blockSize; k++) {
               var value = monoTable[rIndices[(j * blockSize) + k]];
 
-              var outIndex =
-                  (((((tileY * blockSize) + j) * width) + (tileX * blockSize)) +
-                   k) * 3;
+              var outX = (tileX * blockSize) + j;
+              var outY = tileY * blockSize + k;
+
+              var outIndex = (outY * width + outX) * 3;
 
               dst[outIndex] =
                   dst[outIndex + 1] = dst[outIndex + 2] = value;

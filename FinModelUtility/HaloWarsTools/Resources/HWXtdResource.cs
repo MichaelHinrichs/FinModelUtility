@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Numerics;
 
 using Dxt;
@@ -37,7 +38,20 @@ namespace HaloWarsTools {
       var width = (int) Math.Sqrt(chunk.Size * 2);
       var height = width;
 
-      return DxtDecoder.DecompressDxt5a(RawBytes, (int) chunk.Offset, width, height);
+      // For some godforsaken reason, every pair of bytes is flipped so we need
+      // to fix it here. This was really annoying to figure out, haha.
+      for (var i = 0; i < chunk.Size; i += 2) {
+        var offset = (int) chunk.Offset + i;
+
+        var byte0 = RawBytes[offset + 0];
+        var byte1 = RawBytes[offset + 1];
+
+        RawBytes[offset + 0] = byte1;
+        RawBytes[offset + 1] = byte0;
+      }
+
+      return DxtDecoder.DecompressDxt5a(RawBytes, (int) chunk.Offset, width,
+                                        height);
     }
 
     private IModel ImportMesh() {
