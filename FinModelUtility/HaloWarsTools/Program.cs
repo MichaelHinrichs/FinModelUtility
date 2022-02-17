@@ -87,15 +87,21 @@ namespace HaloWarsTools {
         GC.WaitForPendingFinalizers();
       }
 
-      var vis = HWVisResource.FromFile(context,
-                                       "art\\covenant\\building\\builder_03\\builder_03.vis");
+      var visFile = new FinFile(Path.Combine(scratchDirectoryPath,
+                                             "art\\covenant\\building\\builder_03\\builder_03.vis"));
+      var vis = HWVisResource.FromFile(context, visFile.FullName);
       Console.WriteLine($"Processed {vis}");
 
       foreach (var model in vis.Models) {
-        model.Resource.Mesh.Export(
-            Path.Combine(outputDirectoryPath,
-                         Path.GetFileName(model.Resource.AbsolutePath)),
-            GenericMeshExportFormat.Obj);
+        var finModel = model.Resource.Mesh;
+        var outFile =
+            new FinFile(Path.Combine(outputDirectoryPath,
+                                     Path.GetFileName(
+                                         model.Resource.AbsolutePath)))
+                .CloneWithExtension(".fbx");
+
+        var exporter = new AssimpIndirectExporter();
+        exporter.Export(outFile, finModel);
         Console.WriteLine($"Processed {model.Resource}");
       }
 
@@ -118,7 +124,7 @@ namespace HaloWarsTools {
       PrintScenarioObjects(sc3);
       Console.WriteLine($"Processed {sc3}");
       }*/
-      }
+    }
 
     /*static void PrintScenarioObjects(HWScnResource scenario) {
       foreach (var obj in scenario.Objects) {

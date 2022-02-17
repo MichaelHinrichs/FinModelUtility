@@ -2,10 +2,13 @@
 using System.Numerics;
 using System.Text;
 
+using fin.model;
+using fin.model.impl;
+
 
 namespace HaloWarsTools {
   public class HWUgxResource : HWBinaryResource {
-    public GenericMesh Mesh { get; private set; }
+    public IModel Mesh { get; private set; }
     public string[] TextureNames { get; private set; }
 
     public static new HWUgxResource
@@ -71,7 +74,7 @@ namespace HaloWarsTools {
       return current.ToString();
     }
 
-    private GenericMesh ImportMesh(byte[] bytes) {
+    private IModel ImportMesh(byte[] bytes) {
       int offset = 0;
 
       offset += 4; // 4 byte magic
@@ -178,7 +181,8 @@ namespace HaloWarsTools {
               int location =
                   BinaryUtils.ReadInt32LittleEndian(
                       bytes, tableData[i].Offset + nameOffset);
-              polyInfo.Name = GetStringAt(bytes, tableData[i].Offset + nameOffset);
+              polyInfo.Name =
+                  GetStringAt(bytes, tableData[i].Offset + nameOffset);
 
               offset += 92; // 92 byte reserved
 
@@ -195,7 +199,8 @@ namespace HaloWarsTools {
               int nameOffset =
                   BinaryUtils.ReadInt32LittleEndian(bytes, offset);
               offset += 4;
-              string boneName = GetStringAt(bytes, tableData[i].Offset + nameOffset);
+              string boneName =
+                  GetStringAt(bytes, tableData[i].Offset + nameOffset);
 
               offset += 4; // 4 byte reserved
 
@@ -238,15 +243,17 @@ namespace HaloWarsTools {
       Dictionary<int, GenericMeshSection> sections =
           new Dictionary<int, GenericMeshSection>();
 
-      var mesh = new GenericMesh();
+      var finModel = new ModelImpl();
 
-      int vertTotal = 0;
       foreach (var entry in meshArr) {
+        var mesh = finModel.Skin.AddMesh();
+        
         var polygonInfoList = entry.Value;
         for (int i = 0; i < polygonInfoList.Count; i++) {
           var polygonInfo = polygonInfoList[i];
           offset = polygonInfo.VertOffset + vertStart;
 
+          var finVertices = new List<IVertex>();
           for (int j = 0; j < polygonInfo.VertCount; j++) {
             Vector3 position = Vector3.Zero;
             Vector3 normal = Vector3.Zero;
@@ -359,26 +366,30 @@ namespace HaloWarsTools {
                 continue;
             }
 
-            mesh.Vertices.Add(position);
-            mesh.Normals.Add(Vector3.Normalize(normal));
-            texcoord.Y = 1 - texcoord.Y;
-            mesh.TexCoords.Add(texcoord);
+            //texcoord.Y = 1 - texcoord.Y;
+
+            var finVertex =
+                finModel.Skin.AddVertex(position.X, position.Y, position.Z)
+                        .SetLocalNormal(normal.X, normal.Y, normal.Z)
+                        .SetUv(texcoord.X, texcoord.Y);
+
+            finVertices.Add(finVertex);
           }
 
+          var triangles = new (IVertex, IVertex, IVertex)[polygonInfo.FaceCount];
+
           offset = ((polygonInfo.FaceOffset * 2) + faceStart);
-          int firstFaceIndex = mesh.Faces.Count;
           for (int j = 0; j < polygonInfo.FaceCount; j++) {
-            int fa = vertTotal +
-                     BinaryUtils.ReadUInt16LittleEndian(bytes, offset);
+            var fa = BinaryUtils.ReadUInt16LittleEndian(bytes, offset);
             offset += 2;
-            int fb = vertTotal +
-                     BinaryUtils.ReadUInt16LittleEndian(bytes, offset);
+            var fb = BinaryUtils.ReadUInt16LittleEndian(bytes, offset);
             offset += 2;
-            int fc = vertTotal +
-                     BinaryUtils.ReadUInt16LittleEndian(bytes, offset);
+            var fc = BinaryUtils.ReadUInt16LittleEndian(bytes, offset);
             offset += 2;
 
-            if (!materials.ContainsKey(polygonInfo.MaterialId)) {
+            triangles[j] = (finVertices[fa], finVertices[fb], finVertices[fc]);
+
+            /*if (!materials.ContainsKey(polygonInfo.MaterialId)) {
               materials.Add(polygonInfo.MaterialId,
                             new GenericMaterial(
                                 "material_" + (polygonInfo.MaterialId + 1)));
@@ -388,42 +399,35 @@ namespace HaloWarsTools {
               sections.Add(polygonInfo.PolygonId,
                            new GenericMeshSection(
                                "object_" + (polygonInfo.PolygonId + 1)));
-            }
-
-            mesh.Faces.Add(new GenericFace(fa, fc, fb,
-                                           materials[polygonInfo.MaterialId],
-                                           sections[polygonInfo.PolygonId]));
+            }*/
           }
-          int lastFaceIndex = mesh.Faces.Count - 1;
-          vertTotal += polygonInfo.VertCount;
+
+          mesh.AddTriangles(triangles);
         }
       }
 
-      var options =
-          new MeshExportOptions(MeshMatrix, MeshNormalExportMode.Unchanged,
-                                false, false);
-      mesh.ApplyExportOptions(options);
-
-      return mesh;
+      return finModel;
     }
 
     // TODO: This might not be right
-    private void ReadPosition(ref Vector3 position, byte[] bytes, ref int offset) {
+    private void ReadPosition(ref Vector3 position,
+                              byte[] bytes,
+                              ref int offset) {
+      position.Z = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
+      offset += 2;
       position.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
       offset += 2;
-      position.X = -BinaryUtils.ReadHalfLittleEndian(bytes, offset);
-      offset += 2;
-      position.Z = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
+      position.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
       offset += 2;
     }
 
     // TODO: This might not be right
     private void ReadNormal(ref Vector3 normal, byte[] bytes, ref int offset) {
-      normal.Z = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
+      normal.X = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
       offset += 4;
       normal.Y = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
       offset += 4;
-      normal.X = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
+      normal.Z = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
       offset += 4;
     }
 
