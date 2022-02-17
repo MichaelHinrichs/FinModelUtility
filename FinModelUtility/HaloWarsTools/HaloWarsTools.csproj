@@ -32,15 +32,11 @@
 
   <ItemGroup>
     <Compile Remove="Resources\HWGlsResource.cs" />
-    <Compile Remove="Resources\HWModel.cs" />
     <Compile Remove="Resources\HWObjectDefinition.cs" />
     <Compile Remove="Resources\HWObjectInstance.cs" />
     <Compile Remove="Resources\HWSc2Resource.cs" />
     <Compile Remove="Resources\HWSc3Resource.cs" />
     <Compile Remove="Resources\HWScnResource.cs" />
-    <Compile Remove="Resources\HWUgxResource.cs" />
-    <Compile Remove="Resources\HWVisResource.cs" />
-    <Compile Remove="Resources\HWXmlResource.cs" />
   </ItemGroup>
 
   <ItemGroup>

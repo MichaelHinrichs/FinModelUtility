@@ -6,10 +6,15 @@ using System.Linq;
 
 namespace HaloWarsTools {
   public class HWVisResource : HWXmlResource {
-    public HWModel[] Models => ValueCache.Get(ImportModels);
+    public HWModel[] Models { get; private set; }
 
     public static new HWVisResource FromFile(HWContext context, string filename) {
       return GetOrCreateFromFile(context, filename, HWResourceType.Vis) as HWVisResource;
+    }
+
+    protected override void Load(byte[] bytes) {
+      base.Load(bytes);
+      this.Models = ImportModels();
     }
 
     private HWModel[] ImportModels() {

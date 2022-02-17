@@ -47,9 +47,9 @@ namespace HaloWarsTools {
                 /*{".scn", new HWResourceTypeDefinition(HWResourceType.Scn, typeof(HWScnResource))},
                 {".sc2", new HWResourceTypeDefinition(HWResourceType.Sc2, typeof(HWSc2Resource))},
                 {".sc3", new HWResourceTypeDefinition(HWResourceType.Sc3, typeof(HWSc3Resource))},
-                {".gls", new HWResourceTypeDefinition(HWResourceType.Gls, typeof(HWGlsResource))},
+                {".gls", new HWResourceTypeDefinition(HWResourceType.Gls, typeof(HWGlsResource))},*/
                 {".ugx", new HWResourceTypeDefinition(HWResourceType.Ugx, typeof(HWUgxResource))},
-                {".vis", new HWResourceTypeDefinition(HWResourceType.Vis, typeof(HWVisResource))},*/
+                {".vis", new HWResourceTypeDefinition(HWResourceType.Vis, typeof(HWVisResource))},
             };
 
     private static Dictionary<HWResourceType, string> TypeExtensions =>

@@ -1,29 +1,40 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Numerics;
 using System.Text;
 
 
 namespace HaloWarsTools {
   public class HWUgxResource : HWBinaryResource {
-    public GenericMesh Mesh => ValueCache.Get(ImportMesh);
-    public string[] TextureNames => ValueCache.Get(GetTextureNames);
+    public GenericMesh Mesh { get; private set; }
+    public string[] TextureNames { get; private set; }
 
-    public static new HWUgxResource FromFile(HWContext context, string filename) {
-      return GetOrCreateFromFile(context, filename, HWResourceType.Ugx) as HWUgxResource;
+    public static new HWUgxResource
+        FromFile(HWContext context, string filename) {
+      return GetOrCreateFromFile(context, filename, HWResourceType.Ugx) as
+                 HWUgxResource;
+    }
+
+    protected override void Load(byte[] bytes) {
+      base.Load(bytes);
+
+      this.Mesh = ImportMesh(bytes);
+      this.TextureNames = GetTextureNames(bytes);
     }
 
     private bool ShouldStopScanning(char value) {
       return value < 46 || value > 122;
     }
 
-    private string[] GetTextureNames() {
-      HWBinaryResourceChunk materialChunk = GetFirstChunkOfType(HWBinaryResourceChunkType.UGX_MaterialChunk);
+    private string[] GetTextureNames(byte[] bytes) {
+      HWBinaryResourceChunk materialChunk =
+          GetFirstChunkOfType(HWBinaryResourceChunkType.UGX_MaterialChunk);
       List<string> textures = new List<string>();
       StringBuilder current = new StringBuilder();
       bool scan = false;
-      for (int i = (int) materialChunk.Offset; i < materialChunk.Offset + materialChunk.Size; i++) {
-        char value = (char) RawBytes[i];
+      for (int i = (int) materialChunk.Offset;
+           i < materialChunk.Offset + materialChunk.Size;
+           i++) {
+        char value = (char) bytes[i];
         if (value == '\\') {
           scan = true;
         } else if (value == 0) {
@@ -46,10 +57,10 @@ namespace HaloWarsTools {
       return textures.ToArray();
     }
 
-    private string GetStringAt(int offset) {
+    private string GetStringAt(byte[] bytes, int offset) {
       StringBuilder current = new StringBuilder();
-      for (int i = offset; i < RawBytes.Length; i++) {
-        char value = (char) RawBytes[i];
+      for (int i = offset; i < bytes.Length; i++) {
+        char value = (char) bytes[i];
         if (value == 0) {
           break;
         } else {
@@ -60,15 +71,15 @@ namespace HaloWarsTools {
       return current.ToString();
     }
 
-    private GenericMesh ImportMesh() {
+    private GenericMesh ImportMesh(byte[] bytes) {
       int offset = 0;
 
       offset += 4; // 4 byte magic
-      int tableOffset = BinaryUtils.ReadInt32BigEndian(RawBytes, offset);
+      int tableOffset = BinaryUtils.ReadInt32BigEndian(bytes, offset);
       offset += 4;
       offset += 4; // 4 byte reserved
       offset += 4; // file size
-      short tableCount = BinaryUtils.ReadInt16BigEndian(RawBytes, offset);
+      short tableCount = BinaryUtils.ReadInt16BigEndian(bytes, offset);
       offset += 2;
       offset += 2; // 2 byte reserved
       offset += 4; // 4 byte reserved
@@ -78,11 +89,11 @@ namespace HaloWarsTools {
       offset = tableOffset;
       for (int i = 0; i < tableCount; i++) {
         offset += 4; // 4 byte reserved
-        int dataType = BinaryUtils.ReadInt32BigEndian(RawBytes, offset);
+        int dataType = BinaryUtils.ReadInt32BigEndian(bytes, offset);
         offset += 4;
-        int dataOffset = BinaryUtils.ReadInt32BigEndian(RawBytes, offset);
+        int dataOffset = BinaryUtils.ReadInt32BigEndian(bytes, offset);
         offset += 4;
-        int dataLength = BinaryUtils.ReadInt32BigEndian(RawBytes, offset);
+        int dataLength = BinaryUtils.ReadInt32BigEndian(bytes, offset);
         offset += 4;
 
         tableData.Add(new MeshTableData(dataType, dataOffset, dataLength));
@@ -96,7 +107,8 @@ namespace HaloWarsTools {
       int vertStart = 0;
       int faceStart = 0;
 
-      Dictionary<int, List<MeshPolygonInfo>> meshArr = new Dictionary<int, List<MeshPolygonInfo>>();
+      Dictionary<int, List<MeshPolygonInfo>> meshArr =
+          new Dictionary<int, List<MeshPolygonInfo>>();
 
       for (int i = 0; i < tableCount; i++) {
         offset = tableData[i].Offset;
@@ -114,9 +126,12 @@ namespace HaloWarsTools {
                 new Dictionary<MeshSubDataType, MeshTableSubData>();
             for (int j = 0; j < 6; j++) {
               // Truncating to int because there's no fucking way we need more than 2 billion bytes, none of the files are that big
-              int dataCount = (int) BinaryUtils.ReadInt64LittleEndian(RawBytes, offset);
+              int dataCount =
+                  (int) BinaryUtils.ReadInt64LittleEndian(bytes, offset);
               offset += 8;
-              int dataOffset = tableData[i].Offset + (int) BinaryUtils.ReadInt64LittleEndian(RawBytes, offset);
+              int dataOffset = tableData[i].Offset +
+                               (int) BinaryUtils.ReadInt64LittleEndian(
+                                   bytes, offset);
               offset += 8;
               var subData = new MeshTableSubData(dataCount, dataOffset);
               subDataList.Add((MeshSubDataType) (j + 1), subData);
@@ -126,32 +141,44 @@ namespace HaloWarsTools {
             offset = data.Offset;
             for (int j = 0; j < data.Count; j++) {
               var polyInfo = new MeshPolygonInfo();
-              polyInfo.MaterialId = BinaryUtils.ReadInt32LittleEndian(RawBytes, offset);
+              polyInfo.MaterialId =
+                  BinaryUtils.ReadInt32LittleEndian(bytes, offset);
               offset += 4;
-              polyInfo.PolygonId = BinaryUtils.ReadInt32LittleEndian(RawBytes, offset);
+              polyInfo.PolygonId =
+                  BinaryUtils.ReadInt32LittleEndian(bytes, offset);
               offset += 4;
               offset += 4; // 4 byte reserved
-              polyInfo.BoneId = BinaryUtils.ReadInt32LittleEndian(RawBytes, offset);
+              polyInfo.BoneId =
+                  BinaryUtils.ReadInt32LittleEndian(bytes, offset);
               offset += 4;
-              polyInfo.FaceOffset = BinaryUtils.ReadInt32LittleEndian(RawBytes, offset);
+              polyInfo.FaceOffset =
+                  BinaryUtils.ReadInt32LittleEndian(bytes, offset);
               offset += 4;
-              polyInfo.FaceCount = BinaryUtils.ReadInt32LittleEndian(RawBytes, offset);
+              polyInfo.FaceCount =
+                  BinaryUtils.ReadInt32LittleEndian(bytes, offset);
               offset += 4;
-              polyInfo.VertOffset = BinaryUtils.ReadInt32LittleEndian(RawBytes, offset);
+              polyInfo.VertOffset =
+                  BinaryUtils.ReadInt32LittleEndian(bytes, offset);
               offset += 4;
-              polyInfo.VertLength = BinaryUtils.ReadInt32LittleEndian(RawBytes, offset);
+              polyInfo.VertLength =
+                  BinaryUtils.ReadInt32LittleEndian(bytes, offset);
               offset += 4;
-              polyInfo.VertSize = BinaryUtils.ReadInt32LittleEndian(RawBytes, offset);
+              polyInfo.VertSize =
+                  BinaryUtils.ReadInt32LittleEndian(bytes, offset);
               offset += 4;
-              polyInfo.VertCount = BinaryUtils.ReadInt32LittleEndian(RawBytes, offset);
+              polyInfo.VertCount =
+                  BinaryUtils.ReadInt32LittleEndian(bytes, offset);
               offset += 4;
 
               offset += 16; // 16 byte reserved
 
-              int nameOffset = BinaryUtils.ReadInt32LittleEndian(RawBytes, offset);
+              int nameOffset =
+                  BinaryUtils.ReadInt32LittleEndian(bytes, offset);
               offset += 4;
-              int location = BinaryUtils.ReadInt32LittleEndian(RawBytes, tableData[i].Offset + nameOffset);
-              polyInfo.Name = GetStringAt(tableData[i].Offset + nameOffset);
+              int location =
+                  BinaryUtils.ReadInt32LittleEndian(
+                      bytes, tableData[i].Offset + nameOffset);
+              polyInfo.Name = GetStringAt(bytes, tableData[i].Offset + nameOffset);
 
               offset += 92; // 92 byte reserved
 
@@ -165,9 +192,10 @@ namespace HaloWarsTools {
             data = subDataList[MeshSubDataType.BoneData];
             offset = data.Offset;
             for (int j = 0; j < data.Count; j++) {
-              int nameOffset = BinaryUtils.ReadInt32LittleEndian(RawBytes, offset);
+              int nameOffset =
+                  BinaryUtils.ReadInt32LittleEndian(bytes, offset);
               offset += 4;
-              string boneName = GetStringAt(tableData[i].Offset + nameOffset);
+              string boneName = GetStringAt(bytes, tableData[i].Offset + nameOffset);
 
               offset += 4; // 4 byte reserved
 
@@ -205,8 +233,10 @@ namespace HaloWarsTools {
         }
       }
 
-      Dictionary<int, GenericMaterial> materials = new Dictionary<int, GenericMaterial>();
-      Dictionary<int, GenericMeshSection> sections = new Dictionary<int, GenericMeshSection>();
+      Dictionary<int, GenericMaterial> materials =
+          new Dictionary<int, GenericMaterial>();
+      Dictionary<int, GenericMeshSection> sections =
+          new Dictionary<int, GenericMeshSection>();
 
       var mesh = new GenericMesh();
 
@@ -223,58 +253,58 @@ namespace HaloWarsTools {
             Vector3 texcoord = Vector3.Zero;
             switch (polygonInfo.VertSize) {
               case 0x18:
-                position.X = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                position.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
-                position.Y = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                position.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
-                position.Z = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                position.Z = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
                 offset += 2; // 2 byte reserved
-                normal.X = BinaryUtils.ReadFloatLittleEndian(RawBytes, offset);
+                normal.X = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
                 offset += 4;
-                normal.Y = BinaryUtils.ReadFloatLittleEndian(RawBytes, offset);
+                normal.Y = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
                 offset += 4;
-                normal.Z = BinaryUtils.ReadFloatLittleEndian(RawBytes, offset);
+                normal.Z = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
                 offset += 4;
-                texcoord.X = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                texcoord.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
-                texcoord.Y = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                texcoord.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
                 break;
               case 0x1c:
-                position.X = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                position.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
-                position.Y = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                position.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
-                position.Z = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                position.Z = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
                 offset += 2; // 2 byte reserved
-                normal.X = BinaryUtils.ReadFloatLittleEndian(RawBytes, offset);
+                normal.X = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
                 offset += 4;
-                normal.Y = BinaryUtils.ReadFloatLittleEndian(RawBytes, offset);
+                normal.Y = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
                 offset += 4;
-                normal.Z = BinaryUtils.ReadFloatLittleEndian(RawBytes, offset);
+                normal.Z = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
                 offset += 4;
-                texcoord.X = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                texcoord.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
-                texcoord.Y = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                texcoord.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
                 offset += 2; // 2 byte reserved
                 offset += 2; // 2 byte reserved
                 break;
               case 0x20:
-                position.X = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                position.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
-                position.Y = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                position.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
-                position.Z = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                position.Z = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
                 offset += 2; // 2 byte reserved
-                normal.X = BinaryUtils.ReadFloatLittleEndian(RawBytes, offset);
+                normal.X = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
                 offset += 4;
-                normal.Y = BinaryUtils.ReadFloatLittleEndian(RawBytes, offset);
+                normal.Y = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
                 offset += 4;
-                normal.Z = BinaryUtils.ReadFloatLittleEndian(RawBytes, offset);
+                normal.Z = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
                 offset += 4;
                 offset += 1; // bone1
                 offset += 1; // bone2
@@ -284,69 +314,69 @@ namespace HaloWarsTools {
                 offset += 1; // weight2
                 offset += 1; // weight3
                 offset += 1; // weight4
-                texcoord.X = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                texcoord.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
-                texcoord.Y = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                texcoord.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
                 break;
               case 0x24:
-                position.X = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                position.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
-                position.Y = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                position.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
-                position.Z = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                position.Z = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
                 offset += 2; // 2 byte reserved
-                normal.X = BinaryUtils.ReadFloatLittleEndian(RawBytes, offset);
+                normal.X = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
                 offset += 4;
-                normal.Y = BinaryUtils.ReadFloatLittleEndian(RawBytes, offset);
+                normal.Y = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
                 offset += 4;
-                normal.Z = BinaryUtils.ReadFloatLittleEndian(RawBytes, offset);
+                normal.Z = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
                 offset += 4;
                 offset += 4; // 4 byte reserved
                 offset += 4; // 4 byte reserved
                 offset += 4; // 4 byte reserved
-                texcoord.X = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                texcoord.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
-                texcoord.Y = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                texcoord.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
                 break;
               case 0x28:
-                position.X = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                position.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
-                position.Y = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                position.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
-                position.Z = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                position.Z = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
                 offset += 2; // 2 byte reserved
-                normal.X = BinaryUtils.ReadFloatLittleEndian(RawBytes, offset);
+                normal.X = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
                 offset += 4;
-                normal.Y = BinaryUtils.ReadFloatLittleEndian(RawBytes, offset);
+                normal.Y = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
                 offset += 4;
-                normal.Z = BinaryUtils.ReadFloatLittleEndian(RawBytes, offset);
+                normal.Z = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
                 offset += 4;
                 offset += 4; // 4 byte reserved
                 offset += 4; // 4 byte reserved
                 offset += 4; // 4 byte reserved
-                texcoord.X = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                texcoord.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
-                texcoord.Y = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                texcoord.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
                 offset += 4; // 4 byte reserved
                 break;
               case 0x2c:
-                position.X = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                position.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
-                position.Y = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                position.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
-                position.Z = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                position.Z = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
                 offset += 2; // 2 byte reserved
-                normal.X = BinaryUtils.ReadFloatLittleEndian(RawBytes, offset);
+                normal.X = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
                 offset += 4;
-                normal.Y = BinaryUtils.ReadFloatLittleEndian(RawBytes, offset);
+                normal.Y = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
                 offset += 4;
-                normal.Z = BinaryUtils.ReadFloatLittleEndian(RawBytes, offset);
+                normal.Z = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
                 offset += 4;
                 offset += 4; // 4 byte reserved
                 offset += 4; // 4 byte reserved
@@ -359,24 +389,24 @@ namespace HaloWarsTools {
                 offset += 1; // weight2
                 offset += 1; // weight3
                 offset += 1; // weight4
-                texcoord.X = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                texcoord.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
-                texcoord.Y = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                texcoord.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
                 break;
               case 0x30:
-                position.X = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                position.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
-                position.Y = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                position.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
-                position.Z = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                position.Z = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
                 offset += 2; // 2 byte reserved
-                normal.X = BinaryUtils.ReadFloatLittleEndian(RawBytes, offset);
+                normal.X = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
                 offset += 4;
-                normal.Y = BinaryUtils.ReadFloatLittleEndian(RawBytes, offset);
+                normal.Y = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
                 offset += 4;
-                normal.Z = BinaryUtils.ReadFloatLittleEndian(RawBytes, offset);
+                normal.Z = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
                 offset += 4;
                 offset += 4; // 4 byte reserved
                 offset += 4; // 4 byte reserved
@@ -390,9 +420,9 @@ namespace HaloWarsTools {
                 offset += 1; // weight3
                 offset += 1; // weight4
                 offset += 4; // 4 byte reserved
-                texcoord.X = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                texcoord.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
-                texcoord.Y = BinaryUtils.ReadHalfLittleEndian(RawBytes, offset);
+                texcoord.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
                 break;
               default:
@@ -408,22 +438,30 @@ namespace HaloWarsTools {
           offset = ((polygonInfo.FaceOffset * 2) + faceStart);
           int firstFaceIndex = mesh.Faces.Count;
           for (int j = 0; j < polygonInfo.FaceCount; j++) {
-            int fa = vertTotal + BinaryUtils.ReadUInt16LittleEndian(RawBytes, offset);
+            int fa = vertTotal +
+                     BinaryUtils.ReadUInt16LittleEndian(bytes, offset);
             offset += 2;
-            int fb = vertTotal + BinaryUtils.ReadUInt16LittleEndian(RawBytes, offset);
+            int fb = vertTotal +
+                     BinaryUtils.ReadUInt16LittleEndian(bytes, offset);
             offset += 2;
-            int fc = vertTotal + BinaryUtils.ReadUInt16LittleEndian(RawBytes, offset);
+            int fc = vertTotal +
+                     BinaryUtils.ReadUInt16LittleEndian(bytes, offset);
             offset += 2;
 
             if (!materials.ContainsKey(polygonInfo.MaterialId)) {
-              materials.Add(polygonInfo.MaterialId, new GenericMaterial("material_" + (polygonInfo.MaterialId + 1)));
+              materials.Add(polygonInfo.MaterialId,
+                            new GenericMaterial(
+                                "material_" + (polygonInfo.MaterialId + 1)));
             }
 
             if (!sections.ContainsKey(polygonInfo.PolygonId)) {
-              sections.Add(polygonInfo.PolygonId, new GenericMeshSection("object_" + (polygonInfo.PolygonId + 1)));
+              sections.Add(polygonInfo.PolygonId,
+                           new GenericMeshSection(
+                               "object_" + (polygonInfo.PolygonId + 1)));
             }
 
-            mesh.Faces.Add(new GenericFace(fa, fc, fb, materials[polygonInfo.MaterialId],
+            mesh.Faces.Add(new GenericFace(fa, fc, fb,
+                                           materials[polygonInfo.MaterialId],
                                            sections[polygonInfo.PolygonId]));
           }
           int lastFaceIndex = mesh.Faces.Count - 1;
@@ -431,7 +469,9 @@ namespace HaloWarsTools {
         }
       }
 
-      var options = new MeshExportOptions(MeshMatrix, MeshNormalExportMode.Unchanged, false, false);
+      var options =
+          new MeshExportOptions(MeshMatrix, MeshNormalExportMode.Unchanged,
+                                false, false);
       mesh.ApplyExportOptions(options);
 
       return mesh;
@@ -455,7 +495,8 @@ namespace HaloWarsTools {
       public int Offset;
       public int Length;
 
-      public MeshTableData(int dataType, int dataOffset, int dataLength) : this() {
+      public MeshTableData(int dataType, int dataOffset, int dataLength) :
+          this() {
         Type = (MeshDataType) dataType;
         Offset = dataOffset;
         Length = dataLength;
