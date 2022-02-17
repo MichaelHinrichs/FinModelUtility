@@ -4,12 +4,12 @@ using System.Linq;
 
 
 namespace HaloWarsTools {
-  public class HWBinaryResource : HWResource {
-    protected byte[] RawBytes => ValueCache.Get(() => File.ReadAllBytes(AbsolutePath));
+  public abstract class HWBinaryResource : HWResource {
+    protected HWBinaryResourceChunk[] Chunks { get; private set; }
 
-    protected HWBinaryResourceChunk[] Chunks => ValueCache.Get(() => {
-      uint headerSize = BinaryUtils.ReadUInt32BigEndian(RawBytes, 4);
-      ushort numChunks = BinaryUtils.ReadUInt16BigEndian(RawBytes, 16);
+    protected override void Load(byte[] bytes) {
+      uint headerSize = BinaryUtils.ReadUInt32BigEndian(bytes, 4);
+      ushort numChunks = BinaryUtils.ReadUInt16BigEndian(bytes, 16);
       int chunkHeaderSize = 24;
 
       var chunks = new HWBinaryResourceChunk[numChunks];
@@ -17,29 +17,31 @@ namespace HaloWarsTools {
         int offset = (int) headerSize + i * chunkHeaderSize;
 
         chunks[i] = new HWBinaryResourceChunk() {
-            Type = ParseChunkType(BinaryUtils.ReadUInt64BigEndian(RawBytes, offset)),
-            Offset = BinaryUtils.ReadUInt32BigEndian(RawBytes, offset + 8),
-            Size = BinaryUtils.ReadUInt32BigEndian(RawBytes, offset + 12)
+            Type = ParseChunkType(
+                BinaryUtils.ReadUInt64BigEndian(bytes, offset)),
+            Offset = BinaryUtils.ReadUInt32BigEndian(bytes, offset + 8),
+            Size = BinaryUtils.ReadUInt32BigEndian(bytes, offset + 12)
         };
       }
 
-      return chunks;
-    });
+      this.Chunks = chunks;
+    }
 
     protected static HWBinaryResourceChunkType ParseChunkType(ulong type) {
-      if (Enum.TryParse(type.ToString(), out HWBinaryResourceChunkType result)) {
+      if (Enum.TryParse(type.ToString(),
+                        out HWBinaryResourceChunkType result)) {
         return result;
       }
 
       return HWBinaryResourceChunkType.Unknown;
     }
 
-    protected HWBinaryResourceChunk[] GetAllChunksOfType(HWBinaryResourceChunkType type) {
-      return Chunks.Where(chunk => chunk.Type == type).ToArray();
-    }
+    protected HWBinaryResourceChunk[] GetAllChunksOfType(
+        HWBinaryResourceChunkType type)
+      => Chunks.Where(chunk => chunk.Type == type).ToArray();
 
-    protected HWBinaryResourceChunk GetFirstChunkOfType(HWBinaryResourceChunkType type) {
-      return Chunks.FirstOrDefault(chunk => chunk.Type == type);
-    }
+    protected HWBinaryResourceChunk GetFirstChunkOfType(
+        HWBinaryResourceChunkType type)
+      => Chunks.FirstOrDefault(chunk => chunk.Type == type);
   }
 }

@@ -102,10 +102,10 @@ namespace HaloWarsTools {
       }*/
     }
 
-    static void PrintScenarioObjects(HWScnResource scenario) {
+    /*static void PrintScenarioObjects(HWScnResource scenario) {
       foreach (var obj in scenario.Objects) {
         Console.WriteLine($"\t{obj}");
       }
-    }
+    }*/
   }
 }

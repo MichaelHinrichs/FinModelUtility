@@ -10,10 +10,7 @@ namespace HaloWarsTools {
     public string GameInstallDirectory;
     public string ScratchDirectory;
 
-    private LazyValueCache ValueCache;
-
-    public Dictionary<string, HWObjectDefinition> ObjectDefinitions => ValueCache.Get(LoadObjectDefinitions);
-    public LazyValueCache ResourceCache;
+    /*public Dictionary<string, HWObjectDefinition> ObjectDefinitions => ValueCache.Get(LoadObjectDefinitions);
 
     private Dictionary<string, HWObjectDefinition> LoadObjectDefinitions() {
       var manifest = new Dictionary<string, HWObjectDefinition>();
@@ -35,13 +32,11 @@ namespace HaloWarsTools {
       }
 
       return manifest;
-    }
+    }*/
 
     public HWContext(string gameInstallDirectory, string scratchDirectory) {
       GameInstallDirectory = gameInstallDirectory;
       ScratchDirectory = scratchDirectory;
-      ValueCache = new LazyValueCache();
-      ResourceCache = new LazyValueCache();
     }
 
     public string GetAbsoluteGamePath(string relativePath) {
@@ -68,21 +63,29 @@ namespace HaloWarsTools {
       Console.WriteLine($"Unpacking {relativeEraPath}");
 
       var absoluteEraPath = GetAbsoluteGamePath(relativeEraPath);
-      var expander = new KSoft.Phoenix.Resource.EraFileExpander(absoluteEraPath);
+      var expander =
+          new KSoft.Phoenix.Resource.EraFileExpander(absoluteEraPath);
 
       expander.Options.Set(KSoft.Phoenix.Resource.EraFileUtilOptions.x64);
-      expander.Options.Set(KSoft.Phoenix.Resource.EraFileUtilOptions.SkipVerification);
+      expander.Options.Set(KSoft.Phoenix.Resource.EraFileUtilOptions
+                                .SkipVerification);
 
-      expander.ExpanderOptions.Set(KSoft.Phoenix.Resource.EraFileExpanderOptions.Decrypt);
-      expander.ExpanderOptions.Set(KSoft.Phoenix.Resource.EraFileExpanderOptions.DontOverwriteExistingFiles);
-      expander.ExpanderOptions.Set(KSoft.Phoenix.Resource.EraFileExpanderOptions.DecompressUIFiles);
-      expander.ExpanderOptions.Set(KSoft.Phoenix.Resource.EraFileExpanderOptions.TranslateGfxFiles);
+      expander.ExpanderOptions.Set(KSoft.Phoenix.Resource.EraFileExpanderOptions
+                                        .Decrypt);
+      expander.ExpanderOptions.Set(KSoft.Phoenix.Resource.EraFileExpanderOptions
+                                        .DontOverwriteExistingFiles);
+      expander.ExpanderOptions.Set(KSoft.Phoenix.Resource.EraFileExpanderOptions
+                                        .DecompressUIFiles);
+      expander.ExpanderOptions.Set(KSoft.Phoenix.Resource.EraFileExpanderOptions
+                                        .TranslateGfxFiles);
 
       if (!expander.Read()) {
         return false;
       }
 
-      if (!expander.ExpandTo(ScratchDirectory, Path.GetFileNameWithoutExtension(absoluteEraPath))) {
+      if (!expander.ExpandTo(ScratchDirectory,
+                             Path.GetFileNameWithoutExtension(
+                                 absoluteEraPath))) {
         return false;
       }
 
@@ -91,7 +94,9 @@ namespace HaloWarsTools {
 
     public bool IsEraUnpacked(string relativeEraPath) {
       return File.Exists(Path.Combine(ScratchDirectory,
-                                      Path.ChangeExtension(Path.GetFileName(relativeEraPath), ".eradef")));
+                                      Path.ChangeExtension(
+                                          Path.GetFileName(relativeEraPath),
+                                          ".eradef")));
     }
 
     public void ExpandAllEraFiles() {

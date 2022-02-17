@@ -1,39 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Runtime.InteropServices;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Numerics;
 
 using Dxt;
 
 using fin.model;
 using fin.model.impl;
-using fin.util.image;
 
 
 namespace HaloWarsTools {
   public class HWXtdResource : HWBinaryResource {
-    public IModel Mesh => ValueCache.Get(ImportMesh);
+    public IModel Mesh { get; private set; }
 
-    public Bitmap AmbientOcclusionTexture =>
-        ValueCache.Get(() => ExtractEmbeddedDXT5A(
-                           GetFirstChunkOfType(
-                               HWBinaryResourceChunkType.XTD_AOChunk)));
+    public Bitmap AmbientOcclusionTexture { get; private set; }
+    public Bitmap OpacityTexture { get; private set; }
 
-    public Bitmap OpacityTexture =>
-        ValueCache.Get(() => ExtractEmbeddedDXT5A(
-                           GetFirstChunkOfType(
-                               HWBinaryResourceChunkType.XTD_AlphaChunk)));
+    public static new HWXtdResource FromFile(HWContext context, string filename)
+      => GetOrCreateFromFile(context, filename, HWResourceType.Xtd) as
+             HWXtdResource;
 
-    public static new HWXtdResource
-        FromFile(HWContext context, string filename) {
-      return GetOrCreateFromFile(context, filename, HWResourceType.Xtd) as
-                 HWXtdResource;
+    protected override void Load(byte[] bytes) {
+      base.Load(bytes);
+
+      this.Mesh = this.ImportMesh(bytes);
+
+      this.AmbientOcclusionTexture = ExtractEmbeddedDXT5A(bytes,
+        GetFirstChunkOfType(HWBinaryResourceChunkType.XTD_AOChunk));
+      this.OpacityTexture = ExtractEmbeddedDXT5A(bytes,
+                                                 GetFirstChunkOfType(
+                                                     HWBinaryResourceChunkType
+                                                         .XTD_AlphaChunk));
     }
 
-    private Bitmap ExtractEmbeddedDXT5A(HWBinaryResourceChunk chunk) {
+    private Bitmap ExtractEmbeddedDXT5A(byte[] bytes,
+                                        HWBinaryResourceChunk chunk) {
       // Get raw embedded DXT5 texture from resource file
       var width = (int) Math.Sqrt(chunk.Size * 2);
       var height = width;
@@ -43,25 +44,27 @@ namespace HaloWarsTools {
       for (var i = 0; i < chunk.Size; i += 2) {
         var offset = (int) chunk.Offset + i;
 
-        var byte0 = RawBytes[offset + 0];
-        var byte1 = RawBytes[offset + 1];
+        var byte0 = bytes[offset + 0];
+        var byte1 = bytes[offset + 1];
 
-        RawBytes[offset + 0] = byte1;
-        RawBytes[offset + 1] = byte0;
+        bytes[offset + 0] = byte1;
+        bytes[offset + 1] = byte0;
       }
 
-      return DxtDecoder.DecompressDxt5a(RawBytes, (int) chunk.Offset, width,
+      return DxtDecoder.DecompressDxt5a(bytes,
+                                        (int) chunk.Offset,
+                                        width,
                                         height);
     }
 
-    private IModel ImportMesh() {
+    private IModel ImportMesh(byte[] bytes) {
       int stride = 1;
       MeshNormalExportMode shadingMode = MeshNormalExportMode.Unchanged;
 
       HWBinaryResourceChunk headerChunk =
           GetFirstChunkOfType(HWBinaryResourceChunkType.XTD_XTDHeader);
       float tileScale =
-          BinaryUtils.ReadFloatBigEndian(RawBytes,
+          BinaryUtils.ReadFloatBigEndian(bytes,
                                          (int) headerChunk.Offset + 12);
       HWBinaryResourceChunk atlasChunk =
           GetFirstChunkOfType(HWBinaryResourceChunkType.XTD_AtlasChunk);
@@ -80,11 +83,11 @@ namespace HaloWarsTools {
       // These are stored as ZYX, 4 bytes per component
       Vector3 PosCompMin = BinaryUtils
                            .ReadVector3BigEndian(
-                               RawBytes, (int) atlasChunk.Offset)
+                               bytes, (int) atlasChunk.Offset)
                            .ReverseComponents();
       Vector3 PosCompRange =
           BinaryUtils
-              .ReadVector3BigEndian(RawBytes, (int) atlasChunk.Offset + 16)
+              .ReadVector3BigEndian(bytes, (int) atlasChunk.Offset + 16)
               .ReverseComponents();
 
       var finModel = new ModelImpl(gridSize * gridSize);
@@ -102,7 +105,8 @@ namespace HaloWarsTools {
 
           // Get offset position and normal for this vertex
           Vector3 position =
-              ReadVector3Compressed(positionOffset + offset) * PosCompRange -
+              ReadVector3Compressed(bytes, positionOffset + offset) *
+              PosCompRange -
               PosCompMin;
 
           // Positions are relative to the terrain grid, so shift them by the grid position
@@ -111,7 +115,8 @@ namespace HaloWarsTools {
           Vector3 normal =
               ConvertDirectionVector(
                   Vector3.Normalize(
-                      ReadVector3Compressed(normalOffset + offset) * 2.0f -
+                      ReadVector3Compressed(bytes, normalOffset + offset) *
+                      2.0f -
                       Vector3.One));
 
           // Simple UV based on original, non-warped terrain grid
@@ -168,11 +173,11 @@ namespace HaloWarsTools {
       return gridPosition.Item2 * gridSize + gridPosition.Item1;
     }
 
-    private Vector3 ReadVector3Compressed(int offset) {
+    private Vector3 ReadVector3Compressed(byte[] bytes, int offset) {
       // Inexplicably, position and normal vectors are encoded inside 4 bytes. ~10 bits per component
       // This seems okay for directions, but positions suffer from stairstepping artifacts
       uint kBitMask10 = (1 << 10) - 1;
-      uint v = BinaryUtils.ReadUInt32LittleEndian(RawBytes, offset);
+      uint v = BinaryUtils.ReadUInt32LittleEndian(bytes, offset);
       uint x = (v >> 0) & kBitMask10;
       uint y = (v >> 10) & kBitMask10;
       uint z = (v >> 20) & kBitMask10;

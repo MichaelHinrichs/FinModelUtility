@@ -9,26 +9,32 @@ using Dxt;
 
 namespace HaloWarsTools {
   public class HWXttResource : HWBinaryResource {
-    public Bitmap AlbedoTexture =>
-        ValueCache.Get(() => ExtractEmbeddedDXT1(
-                           GetFirstChunkOfType(
-                               HWBinaryResourceChunkType
-                                   .XTT_AtlasChunkAlbedo)));
+    public Bitmap AlbedoTexture { get; private set; }
 
     public static new HWXttResource
-        FromFile(HWContext context, string filename) {
-      return GetOrCreateFromFile(context, filename, HWResourceType.Xtt) as
-                 HWXttResource;
+        FromFile(HWContext context, string filename)
+      => GetOrCreateFromFile(context, filename, HWResourceType.Xtt) as
+             HWXttResource;
+
+    protected override void Load(byte[] bytes) {
+      base.Load(bytes);
+
+      this.AlbedoTexture = ExtractEmbeddedDXT1(
+          bytes,
+          GetFirstChunkOfType(
+              HWBinaryResourceChunkType
+                  .XTT_AtlasChunkAlbedo));
     }
 
-    private Bitmap ExtractEmbeddedDXT1(HWBinaryResourceChunk chunk) {
+    private Bitmap ExtractEmbeddedDXT1(byte[] bytes,
+                                       HWBinaryResourceChunk chunk) {
       // Decompress DXT1 texture and turn it into a Bitmap
       var width =
-          BinaryUtils.ReadInt32BigEndian(RawBytes, (int) chunk.Offset + 4);
+          BinaryUtils.ReadInt32BigEndian(bytes, (int) chunk.Offset + 4);
       var height =
-          BinaryUtils.ReadInt32BigEndian(RawBytes, (int) chunk.Offset + 8);
-      return DxtDecoder.DecompressDXT1(RawBytes, 
-                                       (int) chunk.Offset + 16, 
+          BinaryUtils.ReadInt32BigEndian(bytes, (int) chunk.Offset + 8);
+      return DxtDecoder.DecompressDXT1(bytes,
+                                       (int) chunk.Offset + 16,
                                        width,
                                        height);
     }
