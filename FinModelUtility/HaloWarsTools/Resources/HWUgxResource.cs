@@ -1,7 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 
+using Dxt;
+
+using fin.io;
 using fin.model;
 using fin.model.impl;
 
@@ -9,7 +14,6 @@ using fin.model.impl;
 namespace HaloWarsTools {
   public class HWUgxResource : HWBinaryResource {
     public IModel Mesh { get; private set; }
-    public string[] TextureNames { get; private set; }
 
     public static new HWUgxResource
         FromFile(HWContext context, string filename) {
@@ -21,17 +25,17 @@ namespace HaloWarsTools {
       base.Load(bytes);
 
       this.Mesh = ImportMesh(bytes);
-      this.TextureNames = GetTextureNames(bytes);
     }
 
     private bool ShouldStopScanning(char value) {
       return value < 46 || value > 122;
     }
 
-    private string[] GetTextureNames(byte[] bytes) {
+    private IList<IMaterial> GetMaterials(IMaterialManager materialManager,
+                                          byte[] bytes) {
+      var textureFiles = new List<IFile>();
       HWBinaryResourceChunk materialChunk =
           GetFirstChunkOfType(HWBinaryResourceChunkType.UGX_MaterialChunk);
-      List<string> textures = new List<string>();
       StringBuilder current = new StringBuilder();
       bool scan = false;
       for (int i = (int) materialChunk.Offset;
@@ -42,7 +46,12 @@ namespace HaloWarsTools {
           scan = true;
         } else if (value == 0) {
           if (current.Length > 1) {
-            textures.Add(current.ToString());
+            var localTexturePath = $"art{current.ToString()}.ddx";
+            var absoluteTexturePath =
+                Path.Combine(this.Context.ScratchDirectory, localTexturePath);
+
+            var textureFile = new FinFile(absoluteTexturePath);
+            textureFiles.Add(textureFile);
           }
 
           scan = false;
@@ -57,7 +66,42 @@ namespace HaloWarsTools {
         }
       }
 
-      return textures.ToArray();
+      var materials = new List<IMaterial>();
+      foreach (var textureFile in new FinDirectory(
+                                      @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\halo_wars\art\environment\sky")
+                                  .GetExistingFiles()
+                                  .Where(f => f.Extension == ".ddx")) {
+        try {
+          var (textureType, dxt) = DxtDecoder.ReadDds(textureFile);
+
+          var mipMaps = dxt.ToList();
+          for (var m = 0; m < mipMaps.Count; ++m) {
+            var mipMap = mipMaps[m];
+            var levels = mipMap.ToList();
+            for (var l = 0; l < levels.Count; ++l) {
+              var textureImage = levels[l].Impl;
+              textureImage.Save(
+                  $"R:\\Documents\\CSharpWorkspace\\Pikmin2Utility\\cli\\out\\halo_wars\\{textureType}_{textureFile.NameWithoutExtension}_{m}_{l}.png");
+            }
+          }
+
+          var finTexture =
+              materialManager.CreateTexture(dxt.First().First().Impl);
+
+          var finMaterial = materialManager.AddStandardMaterial();
+          finMaterial.DiffuseTexture = finTexture;
+
+          finMaterial.Name =
+              finTexture.Name = textureFile.NameWithoutExtension;
+
+          materials.Add(finMaterial);
+        } catch {
+          ;
+        }
+      }
+
+
+      return materials;
     }
 
     private string GetStringAt(byte[] bytes, int offset) {
@@ -75,6 +119,9 @@ namespace HaloWarsTools {
     }
 
     private IModel ImportMesh(byte[] bytes) {
+      var finModel = new ModelImpl();
+      GetMaterials(finModel.MaterialManager, bytes);
+
       int offset = 0;
 
       offset += 4; // 4 byte magic
@@ -243,11 +290,9 @@ namespace HaloWarsTools {
       Dictionary<int, GenericMeshSection> sections =
           new Dictionary<int, GenericMeshSection>();
 
-      var finModel = new ModelImpl();
-
       foreach (var entry in meshArr) {
         var mesh = finModel.Skin.AddMesh();
-        
+
         var polygonInfoList = entry.Value;
         for (int i = 0; i < polygonInfoList.Count; i++) {
           var polygonInfo = polygonInfoList[i];
@@ -376,7 +421,8 @@ namespace HaloWarsTools {
             finVertices.Add(finVertex);
           }
 
-          var triangles = new (IVertex, IVertex, IVertex)[polygonInfo.FaceCount];
+          var triangles =
+              new (IVertex, IVertex, IVertex)[polygonInfo.FaceCount];
 
           offset = ((polygonInfo.FaceOffset * 2) + faceStart);
           for (int j = 0; j < polygonInfo.FaceCount; j++) {

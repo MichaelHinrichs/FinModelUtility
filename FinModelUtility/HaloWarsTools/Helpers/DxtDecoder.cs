@@ -1,16 +1,312 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
+using fin.io;
 using fin.util.image;
+
+using texture;
 
 // From https://github.com/mafaca/Dxt
 
 
 namespace Dxt {
   public static class DxtDecoder {
+    public enum CubeMapSide {
+      POSITIVE_X,
+      NEGATIVE_X,
+      POSITIVE_Y,
+      NEGATIVE_Y,
+      POSITIVE_Z,
+      NEGATIVE_Z,
+    }
+
+    public static (string, IDxt<Bitmap>) ReadDds(IFile ddsFile) {
+      using var er =
+          new EndianBinaryReader(ddsFile.OpenRead(), Endianness.LittleEndian);
+      er.AssertString("DDS ");
+      er.AssertInt32(124); // size
+      var flags = er.ReadInt32();
+
+      var width = er.ReadInt32();
+      var height = er.ReadInt32();
+
+      var pitchOrLinearSize = er.ReadInt32();
+      var depth = er.ReadInt32();
+      // TODO: Read others
+      var mipmapCount = er.ReadInt32();
+      var reserved1 = er.ReadInt32s(11);
+
+      // DDS_PIXELFORMAT
+      er.AssertInt32(32); // size
+      var pfFlags = er.ReadInt32();
+      var pfFourCc = er.ReadString(4);
+      var pfRgbBitCount = er.ReadInt32();
+      var pfRBitMask = er.ReadInt32();
+      var pfGBitMask = er.ReadInt32();
+      var pfBBitMask = er.ReadInt32();
+      var pfABitMask = er.ReadInt32();
+
+      var caps1 = er.ReadInt32();
+
+      var caps2 = er.ReadInt32();
+      var isCubeMap = (caps2 & 0x200) != 0;
+      var hasPositiveX = (caps2 & 0x400) != 0;
+      var hasNegativeX = (caps2 & 0x800) != 0;
+      var hasPositiveY = (caps2 & 0x1000) != 0;
+      var hasNegativeY = (caps2 & 0x2000) != 0;
+      var hasPositiveZ = (caps2 & 0x4000) != 0;
+      var hasNegativeZ = (caps2 & 0x8000) != 0;
+      var hasVolume = (caps2 & 0x200000) != 0;
+
+      var sideCount = new[] {
+          hasPositiveX, hasNegativeX,
+          hasPositiveY, hasNegativeY,
+          hasPositiveZ, hasNegativeZ
+      }.Count(b => b);
+
+      var queue = new Queue<CubeMapSide>();
+      if (hasPositiveX) {
+        queue.Enqueue(CubeMapSide.POSITIVE_X);
+      }
+      if (hasNegativeX) {
+        queue.Enqueue(CubeMapSide.NEGATIVE_X);
+      }
+      if (hasPositiveY) {
+        queue.Enqueue(CubeMapSide.POSITIVE_Y);
+      }
+      if (hasNegativeY) {
+        queue.Enqueue(CubeMapSide.NEGATIVE_Y);
+      }
+      if (hasPositiveZ) {
+        queue.Enqueue(CubeMapSide.POSITIVE_Z);
+      }
+      if (hasNegativeZ) {
+        queue.Enqueue(CubeMapSide.NEGATIVE_Z);
+      }
+
+      er.Position = 128;
+
+      switch (pfFourCc) {
+        case "q\0\0\0": {
+          var q000Text = "a16b16g16r16";
+
+          var hdrCubeMap = new CubeMapImpl<IList<float>>();
+
+          for (var s = 0; s < sideCount; s++) {
+            var hdrMipMap = new MipMapImpl<IList<float>>();
+
+            for (var i = 0; i < mipmapCount; ++i) {
+              var mmWidth = width >> i;
+              var mmHeight = height >> i;
+
+              var hdr = DecompressA16B16G16R16F(er, mmWidth, mmHeight);
+              hdrMipMap.AddLevel(
+                  new MipMapLevelImpl<IList<float>>(hdr, mmWidth, mmHeight));
+            }
+
+            if (!isCubeMap) {
+              return (
+                       q000Text,
+                       new DxtImpl<Bitmap>(
+                           ToneMapAndConvertHdrMipMapsToBitmap(hdrMipMap)));
+            }
+
+            var side = queue.Dequeue();
+            switch (side) {
+              case CubeMapSide.POSITIVE_X: {
+                hdrCubeMap.PositiveX = hdrMipMap;
+                break;
+              }
+              case CubeMapSide.NEGATIVE_X: {
+                hdrCubeMap.NegativeX = hdrMipMap;
+                break;
+              }
+              case CubeMapSide.POSITIVE_Y: {
+                hdrCubeMap.PositiveY = hdrMipMap;
+                break;
+              }
+              case CubeMapSide.NEGATIVE_Y: {
+                hdrCubeMap.NegativeY = hdrMipMap;
+                break;
+              }
+              case CubeMapSide.POSITIVE_Z: {
+                hdrCubeMap.PositiveZ = hdrMipMap;
+                break;
+              }
+              case CubeMapSide.NEGATIVE_Z: {
+                hdrCubeMap.NegativeZ = hdrMipMap;
+                break;
+              }
+              default: throw new ArgumentOutOfRangeException();
+            }
+          }
+
+          return (q000Text,
+                  new DxtImpl<Bitmap>(
+                      ToneMapAndConvertHdrCubemapToBitmap(hdrCubeMap)));
+        }
+        default: throw new NotImplementedException();
+      }
+    }
+
+    public static unsafe IList<float> DecompressA16B16G16R16F(
+        EndianBinaryReader er,
+        int width,
+        int height) {
+      // Reads in the original HDR image. This IS NOT normalized to [0, 1].
+      var hdr = new float[width * height * 4];
+
+      var offset = 0;
+      for (var y = 0; y < height; ++y) {
+        for (var x = 0; x < width; ++x) {
+          var r = ReadHalf(er);
+          var g = ReadHalf(er);
+          var b = ReadHalf(er);
+          var a = ReadHalf(er);
+
+          // TODO: This may be right, it sounds like this is what folks suggest online?
+          r /= a;
+          g /= a;
+          b /= a;
+          a /= a;
+
+          // Processes gamma before tone-mapping below.
+          hdr[offset++] = GammaToLinear(r);
+          hdr[offset++] = GammaToLinear(g);
+          hdr[offset++] = GammaToLinear(b);
+          hdr[offset++] = GammaToLinear(a);
+        }
+      }
+
+      return hdr;
+    }
+
+    public static IMipMap<Bitmap> ToneMapAndConvertHdrMipMapsToBitmap(
+        IMipMap<IList<float>> hdrMipMap) {
+      var max = -1f;
+      foreach (var hdr in hdrMipMap) {
+        max = MathF.Max(max, hdr.Impl.Max());
+      }
+
+      return ConvertHdrMipmapsToBitmap(hdrMipMap, max);
+    }
+
+
+    public static ICubeMap<Bitmap> ToneMapAndConvertHdrCubemapToBitmap(
+        ICubeMap<IList<float>> hdrCubeMap) {
+      // Tone-maps the HDR image so that it within [0, 1].
+      // TODO: Is there a better algorithm than just the max?
+      // TODO: Is this range available somewhere else, i.e. in the UGX file?
+      var max = -1f;
+      foreach (var hdrMipMap in hdrCubeMap) {
+        foreach (var hdr in hdrMipMap) {
+          max = MathF.Max(max, hdr.Impl.Max());
+        }
+      }
+
+      var positiveX = hdrCubeMap.PositiveX != null
+                          ? ConvertHdrMipmapsToBitmap(
+                              hdrCubeMap.PositiveX, max)
+                          : null;
+      var negativeX = hdrCubeMap.NegativeX != null
+                          ? ConvertHdrMipmapsToBitmap(
+                              hdrCubeMap.NegativeX, max)
+                          : null;
+
+      var positiveY = hdrCubeMap.PositiveY != null
+                          ? ConvertHdrMipmapsToBitmap(
+                              hdrCubeMap.PositiveY, max)
+                          : null;
+      var negativeY = hdrCubeMap.NegativeY != null
+                          ? ConvertHdrMipmapsToBitmap(
+                              hdrCubeMap.NegativeY, max)
+                          : null;
+
+      var positiveZ = hdrCubeMap.PositiveZ != null
+                          ? ConvertHdrMipmapsToBitmap(
+                              hdrCubeMap.PositiveZ, max)
+                          : null;
+      var negativeZ = hdrCubeMap.NegativeZ != null
+                          ? ConvertHdrMipmapsToBitmap(
+                              hdrCubeMap.NegativeZ, max)
+                          : null;
+
+      return new CubeMapImpl<Bitmap> {
+          PositiveX = positiveX,
+          NegativeX = negativeX,
+          PositiveY = positiveY,
+          NegativeY = negativeY,
+          PositiveZ = positiveZ,
+          NegativeZ = negativeZ,
+      };
+    }
+
+    private static IMipMap<Bitmap> ConvertHdrMipmapsToBitmap(
+        IMipMap<IList<float>> hdrMipMap,
+        float max)
+      => new MipMapImpl<Bitmap>(
+          hdrMipMap.Select(
+                        hdr => {
+                          var width = hdr.Width;
+                          var height = hdr.Height;
+                          return (IMipMapLevel<Bitmap>) new
+                              MipMapLevelImpl<Bitmap>(
+                                  DxtDecoder.ConvertHdrToBitmap(hdr.Impl, width,
+                                    height, max),
+                                  width,
+                                  height);
+                        })
+                    .ToList());
+
+    private static unsafe Bitmap ConvertHdrToBitmap(
+        IList<float> hdr,
+        int width,
+        int height,
+        float max) {
+      var bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+      BitmapUtil.InvokeAsLocked(bitmap, bmpData => {
+        var ptr = (byte*) bmpData.Scan0.ToPointer();
+
+        var offset = 0;
+        for (var y = 0; y < height; ++y) {
+          for (var x = 0; x < width; ++x) {
+            var r = hdr[offset + 0] / max * 255;
+            var g = hdr[offset + 1] / max * 255;
+            var b = hdr[offset + 2] / max * 255;
+
+            // For some reason, alpha isn't used?
+            // TODO: How is this factored in?
+            var a = 255f; //hdrImage[offset + 3] / max * 255;
+
+            ptr[offset + 0] = (byte) b;
+            ptr[offset + 1] = (byte) g;
+            ptr[offset + 2] = (byte) r;
+            ptr[offset + 3] = (byte) a;
+
+            offset += 4;
+          }
+        }
+      });
+
+      return bitmap;
+    }
+
+
+// TODO: Move this directly into EndianBinaryReader
+    private static float ReadHalf(EndianBinaryReader er)
+      => (float) BitConverter.UInt16BitsToHalf(er.ReadUInt16());
+
+    private static float GammaToLinear(float gamma)
+      => MathF.Pow(gamma, 1 / 2.2f);
+
     public static unsafe Bitmap DecompressDXT1(
         byte[] src,
         int srcOffset,
@@ -132,57 +428,57 @@ namespace Dxt {
       }
     }
 
-    /*public static void WriteToStreamFromRawDxt5a(
-        Stream dst,
-        byte[] src,
-        int srcOffset,
-        int width,
-        int height) {
-      var ew = new EndianBinaryWriter(dst, Endianness.LittleEndian);
+/*public static void WriteToStreamFromRawDxt5a(
+    Stream dst,
+    byte[] src,
+    int srcOffset,
+    int width,
+    int height) {
+  var ew = new EndianBinaryWriter(dst, Endianness.LittleEndian);
 
-      var imageSize = width * height / 2;
+  var imageSize = width * height / 2;
 
-      ew.Write("DDS ", Encoding.ASCII, false);
-      ew.Write(124);
-      ew.Write(0x000A1007);
-      ew.Write(width);
-      ew.Write(height);
-      ew.Write(imageSize);
-      ew.Write(0);
-      ew.Write(1);
+  ew.Write("DDS ", Encoding.ASCII, false);
+  ew.Write(124);
+  ew.Write(0x000A1007);
+  ew.Write(width);
+  ew.Write(height);
+  ew.Write(imageSize);
+  ew.Write(0);
+  ew.Write(1);
 
-      for (var i = 0; i < 11; ++i) {
-        ew.Write(0);
-      }
+  for (var i = 0; i < 11; ++i) {
+    ew.Write(0);
+  }
 
-      ew.Write(0x20);
-      ew.Write(4);
-      ew.Write("ATI1", Encoding.ASCII, false);
-      ew.Write(0);
-      ew.Write(0);
-      ew.Write(0);
-      ew.Write(0);
-      ew.Write(0);
-      ew.Write(0x401008);
+  ew.Write(0x20);
+  ew.Write(4);
+  ew.Write("ATI1", Encoding.ASCII, false);
+  ew.Write(0);
+  ew.Write(0);
+  ew.Write(0);
+  ew.Write(0);
+  ew.Write(0);
+  ew.Write(0x401008);
 
-      var fixedBuffer = new byte[imageSize];
-      for (var i = 0; i < imageSize; i += 8) {
-        fixedBuffer[i + 0] = src[srcOffset + i + 1];
-        fixedBuffer[i + 1] = src[srcOffset + i + 0];
+  var fixedBuffer = new byte[imageSize];
+  for (var i = 0; i < imageSize; i += 8) {
+    fixedBuffer[i + 0] = src[srcOffset + i + 1];
+    fixedBuffer[i + 1] = src[srcOffset + i + 0];
 
-        fixedBuffer[i + 2] = src[srcOffset + i + 3];
-        fixedBuffer[i + 3] = src[srcOffset + i + 2];
-        fixedBuffer[i + 4] = src[srcOffset + i + 5];
+    fixedBuffer[i + 2] = src[srcOffset + i + 3];
+    fixedBuffer[i + 3] = src[srcOffset + i + 2];
+    fixedBuffer[i + 4] = src[srcOffset + i + 5];
 
-        fixedBuffer[i + 5] = src[srcOffset + i + 4];
-        fixedBuffer[i + 6] = src[srcOffset + i + 7];
-        fixedBuffer[i + 7] = src[srcOffset + i + 6];
-      }
+    fixedBuffer[i + 5] = src[srcOffset + i + 4];
+    fixedBuffer[i + 6] = src[srcOffset + i + 7];
+    fixedBuffer[i + 7] = src[srcOffset + i + 6];
+  }
 
-      ew.Position = 128;
-      ew.Write(fixedBuffer, 0, imageSize);
-      Asserts.Equal(128 + imageSize, ew.Position);
-    }*/
+  ew.Position = 128;
+  ew.Write(fixedBuffer, 0, imageSize);
+  Asserts.Equal(128 + imageSize, ew.Position);
+}*/
 
     public static unsafe Bitmap DecompressDxt5a(
         byte[] src,

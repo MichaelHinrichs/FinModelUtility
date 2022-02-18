@@ -27,10 +27,10 @@ namespace HaloWarsTools {
 
       this.AmbientOcclusionTexture = ExtractEmbeddedDXT5A(bytes,
         GetFirstChunkOfType(HWBinaryResourceChunkType.XTD_AOChunk));
-      this.OpacityTexture = ExtractEmbeddedDXT5A(bytes,
-                                                 GetFirstChunkOfType(
-                                                     HWBinaryResourceChunkType
-                                                         .XTD_AlphaChunk));
+      this.OpacityTexture =
+          ExtractEmbeddedDXT5A(
+              bytes,
+              GetFirstChunkOfType(HWBinaryResourceChunkType.XTD_AlphaChunk));
     }
 
     private Bitmap ExtractEmbeddedDXT5A(byte[] bytes,
