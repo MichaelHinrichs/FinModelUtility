@@ -115,9 +115,6 @@ namespace fin.model.impl {
       }
 
       private class VertexImpl : IVertex {
-        private IVertexAttributeArray<ITexCoord>? uvs_;
-        private IVertexAttributeArray<IColor>? colors_;
-
         public VertexImpl(int index, IPosition position) {
           this.Index = index;
           this.SetLocalPosition(position);
@@ -182,12 +179,11 @@ namespace fin.model.impl {
 
         public IVertex SetColor(int colorIndex, IColor? color) {
           if (color != null) {
-            this.colors_ ??= new SparseVertexAttributeArray<IColor>();
-            this.colors_[colorIndex] = color;
+            this.Colors ??= new SparseVertexAttributeArray<IColor>();
+            this.Colors[colorIndex] = color;
           } else {
-            this.colors_?.Set(colorIndex, null);
-            if (this.colors_?.Count == 0) {
-              this.colors_ = null;
+            this.Colors?.Set(colorIndex, null);
+            if (this.Colors?.Count == 0) {
               this.Colors = null;
             }
           }
@@ -208,22 +204,21 @@ namespace fin.model.impl {
 
         public IColor? GetColor() => this.GetColor(0);
 
-        public IColor? GetColor(int colorIndex) => this.colors_?.Get(colorIndex);
+        public IColor? GetColor(int colorIndex) => this.Colors?.Get(colorIndex);
 
 
         public IVertexAttributeArray<ITexCoord>? Uvs { get; private set; }
 
-        public IVertex SetUv(ITexCoord uv) => this.SetUv(0, uv);
+        public IVertex SetUv(ITexCoord? uv) => this.SetUv(0, uv);
         public IVertex SetUv(float u, float v) => this.SetUv(0, u, v);
 
         public IVertex SetUv(int uvIndex, ITexCoord? uv) {
           if (uv != null) {
-            this.uvs_ ??= new SparseVertexAttributeArray<ITexCoord>();
-            this.uvs_[uvIndex] = uv;
+            this.Uvs ??= new SparseVertexAttributeArray<ITexCoord>();
+            this.Uvs[uvIndex] = uv;
           } else {
-            this.uvs_?.Set(uvIndex, null);
-            if (this.uvs_?.Count == 0) {
-              this.uvs_ = null;
+            this.Uvs?.Set(uvIndex, null);
+            if (this.Uvs?.Count == 0) {
               this.Uvs = null;
             }
           }
@@ -236,7 +231,7 @@ namespace fin.model.impl {
 
         public ITexCoord? GetUv() => this.GetUv(0);
 
-        public ITexCoord? GetUv(int uvIndex) => this.uvs_?.Get(uvIndex);
+        public ITexCoord? GetUv(int uvIndex) => this.Uvs?.Get(uvIndex);
       }
 
 
