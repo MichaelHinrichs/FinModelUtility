@@ -66,11 +66,13 @@ namespace HaloWarsTools {
         }
       }
 
+      var skyTextures = new FinDirectory(
+                            @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\halo_wars\art\environment\sky")
+                        .GetExistingFiles()
+                        .Where(f => f.Extension == ".ddx");
+
       var materials = new List<IMaterial>();
-      foreach (var textureFile in new FinDirectory(
-                                      @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\halo_wars\art\environment\sky")
-                                  .GetExistingFiles()
-                                  .Where(f => f.Extension == ".ddx")) {
+      foreach (var textureFile in textureFiles) {
         try {
           var (textureType, dxt) = DxtDecoder.ReadDds(textureFile);
 

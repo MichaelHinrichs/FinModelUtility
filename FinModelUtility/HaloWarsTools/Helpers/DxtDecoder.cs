@@ -72,6 +72,8 @@ namespace Dxt {
           hasPositiveZ, hasNegativeZ
       }.Count(b => b);
 
+      sideCount = Math.Max(1, sideCount);
+
       var queue = new Queue<CubeMapSide>();
       if (hasPositiveX) {
         queue.Enqueue(CubeMapSide.POSITIVE_X);
