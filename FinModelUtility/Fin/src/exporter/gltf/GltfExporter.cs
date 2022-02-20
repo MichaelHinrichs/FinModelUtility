@@ -18,6 +18,7 @@ using SharpGLTF.Schema2;
 
 using AlphaMode = SharpGLTF.Materials.AlphaMode;
 
+
 namespace fin.exporter.gltf {
   public interface IGltfExporter : IExporter {
     bool UvIndices { get; set; }
@@ -99,14 +100,43 @@ namespace fin.exporter.gltf {
                             .GetGltfImageFromFinTexture_(diffuseTexture));
               }
 
-              var ambientOcclusionTexture = standardMaterial.AmbientOcclusionTexture;
+              var normalTexture = standardMaterial.NormalTexture;
+              if (normalTexture != null) {
+                gltfMaterial.UseChannel(KnownChannel.Normal)
+                            .UseTexture()
+                            .WithPrimaryImage(
+                                GltfExporter.GetGltfImageFromFinTexture_(
+                                    normalTexture));
+              }
+
+              var emissiveTexture = standardMaterial.EmissiveTexture;
+              if (emissiveTexture != null) {
+                gltfMaterial.UseChannel(KnownChannel.Emissive)
+                            .UseTexture()
+                            .WithPrimaryImage(
+                                GltfExporter.GetGltfImageFromFinTexture_(
+                                    emissiveTexture));
+              }
+
+              var specularTexture = standardMaterial.SpecularTexture;
+              if (specularTexture != null) {
+                gltfMaterial.UseChannel(KnownChannel.SpecularGlossiness)
+                            .UseTexture()
+                            .WithPrimaryImage(
+                                GltfExporter.GetGltfImageFromFinTexture_(
+                                    specularTexture));
+              }
+
+              var ambientOcclusionTexture =
+                  standardMaterial.AmbientOcclusionTexture;
               if (ambientOcclusionTexture != null) {
                 gltfMaterial
                     .UseChannel(KnownChannel.Occlusion)
                     .UseTexture()
                     .WithPrimaryImage(
                         GltfExporter
-                            .GetGltfImageFromFinTexture_(ambientOcclusionTexture));
+                            .GetGltfImageFromFinTexture_(
+                                ambientOcclusionTexture));
               }
 
               break;
@@ -139,12 +169,12 @@ namespace fin.exporter.gltf {
           }
 
           finToTexCoordAndGltfMaterial[finMaterial] =
-              (new byte[] { 0 }, gltfMaterial);
+              (new byte[] {0}, gltfMaterial);
         }
       }
 
       // Builds meshes.
-      var meshBuilder = new GltfMeshBuilder { UvIndices = this.UvIndices };
+      var meshBuilder = new GltfMeshBuilder {UvIndices = this.UvIndices};
       var gltfMeshes = meshBuilder.BuildAndBindMesh(
           modelRoot,
           model,

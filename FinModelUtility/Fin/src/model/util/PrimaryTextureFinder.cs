@@ -15,6 +15,9 @@ namespace fin.model.util {
       if (material is ILayerMaterial layerMaterial) {
         return PrimaryTextureFinder.GetFor(layerMaterial);
       }
+      if (material is IStandardMaterial standardMaterial) {
+        return PrimaryTextureFinder.GetFor(standardMaterial);
+      }
 
       throw new NotImplementedException();
     }
@@ -53,5 +56,8 @@ namespace fin.model.util {
 
     public static ITexture? GetFor(ILayerMaterial material)
       => material.Textures.Count > 0 ? material.Textures[0] : null;
+
+    public static ITexture? GetFor(IStandardMaterial material)
+      => material.DiffuseTexture ?? material.AmbientOcclusionTexture;
   }
 }

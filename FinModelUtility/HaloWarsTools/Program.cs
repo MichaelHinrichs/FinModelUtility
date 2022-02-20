@@ -89,6 +89,8 @@ namespace HaloWarsTools {
 
       var visFile = new FinFile(Path.Combine(scratchDirectoryPath,
                                              "art\\covenant\\building\\builder_03\\builder_03.vis"));
+      /*var visFile = new FinFile(Path.Combine(scratchDirectoryPath,
+                                             "art\\covenant\\building\\socket_01\\socket_01.vis"));*/
       var vis = HWVisResource.FromFile(context, visFile.FullName);
       Console.WriteLine($"Processed {vis}");
 

@@ -3,12 +3,17 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using System.Xml;
 
 using Dxt;
 
 using fin.io;
 using fin.model;
 using fin.model.impl;
+
+using KSoft.IO;
+using KSoft.Phoenix.Xmb;
+using KSoft.Shell;
 
 
 namespace HaloWarsTools {
@@ -36,74 +41,109 @@ namespace HaloWarsTools {
       var textureFiles = new List<IFile>();
       HWBinaryResourceChunk materialChunk =
           GetFirstChunkOfType(HWBinaryResourceChunkType.UGX_MaterialChunk);
-      StringBuilder current = new StringBuilder();
-      bool scan = false;
-      for (int i = (int) materialChunk.Offset;
-           i < materialChunk.Offset + materialChunk.Size;
-           i++) {
-        char value = (char) bytes[i];
-        if (value == '\\') {
-          scan = true;
-        } else if (value == 0) {
-          if (current.Length > 1) {
-            var localTexturePath = $"art{current.ToString()}.ddx";
-            var absoluteTexturePath =
-                Path.Combine(this.Context.ScratchDirectory, localTexturePath);
 
-            var textureFile = new FinFile(absoluteTexturePath);
-            textureFiles.Add(textureFile);
-          }
+      var bdt = new BinaryDataTree();
+      bdt.ValidateData = false;
 
-          scan = false;
-          current.Clear();
-        } else if (ShouldStopScanning(value)) {
-          scan = false;
-          current.Clear();
-        }
-
-        if (scan) {
-          current.Append(value);
-        }
+      var chunkStream = new MemoryStream(
+          bytes,
+          (int) materialChunk.Offset,
+          (int) materialChunk.Size,
+          false);
+      using (chunkStream) {
+        var es = new EndianStream(chunkStream, EndianFormat.Little,
+                                  permissions: FileAccess.Read);
+        es.StreamMode = FileAccess.Read;
+        bdt.Serialize(es);
       }
 
-      var skyTextures = new FinDirectory(
-                            @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\halo_wars\art\environment\sky")
-                        .GetExistingFiles()
-                        .Where(f => f.Extension == ".ddx");
-
       var materials = new List<IMaterial>();
-      foreach (var textureFile in textureFiles) {
-        try {
-          var (textureType, dxt) = DxtDecoder.ReadDds(textureFile);
 
-          var mipMaps = dxt.ToList();
-          for (var m = 0; m < mipMaps.Count; ++m) {
-            var mipMap = mipMaps[m];
-            var levels = mipMap.ToList();
-            for (var l = 0; l < levels.Count; ++l) {
-              var textureImage = levels[l].Impl;
-              textureImage.Save(
-                  $"R:\\Documents\\CSharpWorkspace\\Pikmin2Utility\\cli\\out\\halo_wars\\{textureType}_{textureFile.NameWithoutExtension}_{m}_{l}.png");
+      var xml = bdt.ToXmlDocument();
+      foreach (XmlElement ugxMaterials in xml.ChildNodes) {
+        foreach (XmlElement ugxMaterial in ugxMaterials) {
+          var type = ugxMaterial.GetType();
+
+          var finMaterial = materialManager.AddStandardMaterial();
+          finMaterial.Name = $"material_{materials.Count}";
+
+          var maps = ugxMaterial["Maps"];
+          if (maps != null) {
+            var diffuse = maps["diffuse"];
+            if (diffuse != null) {
+              var diffuseMap = diffuse["Map"];
+              if (diffuseMap != null) {
+                var diffuseMapName = diffuseMap.GetAttribute("Name");
+
+                finMaterial.DiffuseTexture =
+                    LoadTexture(materialManager, diffuseMapName);
+              }
+            }
+
+            var normal = maps["normal"];
+            if (normal != null) {
+              var normalMap = normal["Map"];
+              if (normalMap != null) {
+                var normalMapName = normalMap.GetAttribute("Name");
+
+                finMaterial.NormalTexture =
+                    LoadTexture(materialManager, normalMapName);
+              }
+            }
+
+            var emissive = maps["emissive"];
+            if (emissive != null) {
+              var emissiveMap = emissive["Map"];
+              if (emissiveMap != null) {
+                var emissiveMapName = emissiveMap.GetAttribute("Name");
+                finMaterial.EmissiveTexture =
+                    LoadTexture(materialManager, emissiveMapName);
+              }
+            }
+
+            var specular = maps["gloss"];
+            if (specular != null) {
+              var specularMap = specular["Map"];
+              if (specularMap != null) {
+                var specularMapName = specularMap.GetAttribute("Name");
+                finMaterial.SpecularTexture =
+                    LoadTexture(materialManager, specularMapName);
+              }
             }
           }
 
-          var finTexture =
-              materialManager.CreateTexture(dxt.First().First().Impl);
-
-          var finMaterial = materialManager.AddStandardMaterial();
-          finMaterial.DiffuseTexture = finTexture;
-
-          finMaterial.Name =
-              finTexture.Name = textureFile.NameWithoutExtension;
-
           materials.Add(finMaterial);
-        } catch {
-          ;
         }
       }
 
-
+      /*var skyTextures = new FinDirectory(
+                            @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\halo_wars\art\environment\sky")
+                        .GetExistingFiles()
+                        .Where(f => f.Extension == ".ddx");*/
       return materials;
+    }
+
+    private ITexture LoadTexture(IMaterialManager materialManager,
+                                 string name) {
+      var localTexturePath = $"art{name}.ddx";
+      var absoluteTexturePath =
+          Path.Combine(this.Context.ScratchDirectory, localTexturePath);
+
+      var textureFile = new FinFile(absoluteTexturePath);
+      var (textureType, dxt) = DxtDecoder.ReadDds(textureFile);
+
+      var mipMaps = dxt.ToList();
+      for (var m = 0; m < mipMaps.Count; ++m) {
+        var mipMap = mipMaps[m];
+        var levels = mipMap.ToList();
+        for (var l = 0; l < levels.Count; ++l) {
+          var textureImage = levels[l].Impl;
+          /*textureImage.Save(
+              $"R:\\Documents\\CSharpWorkspace\\Pikmin2Utility\\cli\\out\\halo_wars\\{textureType}_{textureFile.NameWithoutExtension}_{m}_{l}.png");*/
+        }
+      }
+
+      return materialManager.CreateTexture(dxt.First().First().Impl);
     }
 
     private string GetStringAt(byte[] bytes, int offset) {
@@ -122,7 +162,9 @@ namespace HaloWarsTools {
 
     private IModel ImportMesh(byte[] bytes) {
       var finModel = new ModelImpl();
-      GetMaterials(finModel.MaterialManager, bytes);
+
+      var finMaterials = GetMaterials(finModel.MaterialManager, bytes);
+      var nullMaterial = finModel.MaterialManager.AddStandardMaterial();
 
       int offset = 0;
 
@@ -287,11 +329,6 @@ namespace HaloWarsTools {
         }
       }
 
-      Dictionary<int, GenericMaterial> materials =
-          new Dictionary<int, GenericMaterial>();
-      Dictionary<int, GenericMeshSection> sections =
-          new Dictionary<int, GenericMeshSection>();
-
       foreach (var entry in meshArr) {
         var mesh = finModel.Skin.AddMesh();
 
@@ -427,7 +464,7 @@ namespace HaloWarsTools {
               new (IVertex, IVertex, IVertex)[polygonInfo.FaceCount];
 
           offset = ((polygonInfo.FaceOffset * 2) + faceStart);
-          for (int j = 0; j < polygonInfo.FaceCount; j++) {
+          for (var j = 0; j < polygonInfo.FaceCount; j++) {
             var fa = BinaryUtils.ReadUInt16LittleEndian(bytes, offset);
             offset += 2;
             var fb = BinaryUtils.ReadUInt16LittleEndian(bytes, offset);
@@ -435,7 +472,8 @@ namespace HaloWarsTools {
             var fc = BinaryUtils.ReadUInt16LittleEndian(bytes, offset);
             offset += 2;
 
-            triangles[j] = (finVertices[fa], finVertices[fb], finVertices[fc]);
+            triangles[j] = (finVertices[fa], finVertices[fb],
+                            finVertices[fc]);
 
             /*if (!materials.ContainsKey(polygonInfo.MaterialId)) {
               materials.Add(polygonInfo.MaterialId,
@@ -450,7 +488,14 @@ namespace HaloWarsTools {
             }*/
           }
 
-          mesh.AddTriangles(triangles);
+          var finPrimitive = mesh.AddTriangles(triangles);
+
+          var materialId = polygonInfo.MaterialId;
+          if (materialId < finMaterials.Count) {
+            finPrimitive.SetMaterial(finMaterials[materialId]);
+          } else {
+            finPrimitive.SetMaterial(nullMaterial);
+          }
         }
       }
 
@@ -470,7 +515,9 @@ namespace HaloWarsTools {
     }
 
     // TODO: This might not be right
-    private void ReadNormal(ref Vector3 normal, byte[] bytes, ref int offset) {
+    private void ReadNormal(ref Vector3 normal,
+                            byte[] bytes,
+                            ref int offset) {
       normal.X = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
       offset += 4;
       normal.Y = BinaryUtils.ReadFloatLittleEndian(bytes, offset);

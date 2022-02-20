@@ -64,6 +64,9 @@ namespace fin.model {
   public interface IStandardMaterial : IMaterial {
     ITexture? DiffuseTexture { get; set; }
     ITexture? AmbientOcclusionTexture { get; set; }
+    ITexture? NormalTexture { get; set; }
+    ITexture? EmissiveTexture { get; set; }
+    ITexture? SpecularTexture { get; set; }
 
     bool Unlit { get; set; }
   }

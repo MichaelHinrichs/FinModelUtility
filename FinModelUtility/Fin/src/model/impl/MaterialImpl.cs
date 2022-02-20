@@ -112,6 +112,9 @@ namespace fin.model.impl {
       public ITexture DiffuseTexture { get; set; }
       public ITexture MaskTexture { get; set; }
       public ITexture AmbientOcclusionTexture { get; set; }
+      public ITexture? NormalTexture { get; set; }
+      public ITexture? EmissiveTexture { get; set; }
+      public ITexture? SpecularTexture { get; set; }
       public bool Unlit { get; set; }
     }
 

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
+using fin.image;
 using fin.io;
 using fin.util.image;
 
@@ -29,8 +30,8 @@ namespace Dxt {
     }
 
     public static (string, IDxt<Bitmap>) ReadDds(IFile ddsFile) {
-      using var er =
-          new EndianBinaryReader(ddsFile.OpenRead(), Endianness.LittleEndian);
+      using var ddsStream = ddsFile.OpenRead();
+      var er = new EndianBinaryReader(ddsStream, Endianness.LittleEndian);
       er.AssertString("DDS ");
       er.AssertInt32(124); // size
       var flags = er.ReadInt32();
@@ -103,7 +104,7 @@ namespace Dxt {
           var hdrCubeMap = new CubeMapImpl<IList<float>>();
 
           for (var s = 0; s < sideCount; s++) {
-            var hdrMipMap = new MipMapImpl<IList<float>>();
+            var hdrMipMap = new MipMap<IList<float>>();
 
             for (var i = 0; i < mipmapCount; ++i) {
               var mmWidth = width >> i;
@@ -111,7 +112,7 @@ namespace Dxt {
 
               var hdr = DecompressA16B16G16R16F(er, mmWidth, mmHeight);
               hdrMipMap.AddLevel(
-                  new MipMapLevelImpl<IList<float>>(hdr, mmWidth, mmHeight));
+                  new MipMapLevel<IList<float>>(hdr, mmWidth, mmHeight));
             }
 
             if (!isCubeMap) {
@@ -155,6 +156,14 @@ namespace Dxt {
                   new DxtImpl<Bitmap>(
                       ToneMapAndConvertHdrCubemapToBitmap(hdrCubeMap)));
         }
+
+        case "BC5U":
+        case "DXT1":
+        case "DX10": {
+          ddsStream.Position = 0;
+          return (pfFourCc, new DxtImpl<Bitmap>(new DdsReader().Read(ddsStream)));
+        }
+
         default: throw new NotImplementedException();
       }
     }
@@ -254,19 +263,19 @@ namespace Dxt {
     private static IMipMap<Bitmap> ConvertHdrMipmapsToBitmap(
         IMipMap<IList<float>> hdrMipMap,
         float max)
-      => new MipMapImpl<Bitmap>(
+      => new MipMap<Bitmap>(
           hdrMipMap.Select(
-                        hdr => {
-                          var width = hdr.Width;
-                          var height = hdr.Height;
-                          return (IMipMapLevel<Bitmap>) new
-                              MipMapLevelImpl<Bitmap>(
-                                  DxtDecoder.ConvertHdrToBitmap(hdr.Impl, width,
-                                    height, max),
-                                  width,
-                                  height);
-                        })
-                    .ToList());
+                       hdr => {
+                         var width = hdr.Width;
+                         var height = hdr.Height;
+                         return (IMipMapLevel<Bitmap>) new
+                             MipMapLevel<Bitmap>(
+                                 DxtDecoder.ConvertHdrToBitmap(hdr.Impl, width,
+                                   height, max),
+                                 width,
+                                 height);
+                       })
+                   .ToList());
 
     private static unsafe Bitmap ConvertHdrToBitmap(
         IList<float> hdr,
