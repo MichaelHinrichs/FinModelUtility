@@ -93,7 +93,7 @@ namespace HaloWarsTools {
       }
 
       var resource = CreateResource(context, filename);
-      resource.Load(File.ReadAllBytes(resource.AbsolutePath));
+      resource?.Load(File.ReadAllBytes(resource.AbsolutePath));
 
       return resource;
     }

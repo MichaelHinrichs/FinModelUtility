@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -87,25 +89,42 @@ namespace HaloWarsTools {
         GC.WaitForPendingFinalizers();
       }
 
-      var visFile = new FinFile(Path.Combine(scratchDirectoryPath,
-                                             "art\\covenant\\building\\builder_03\\builder_03.vis"));
-      /*var visFile = new FinFile(Path.Combine(scratchDirectoryPath,
-                                             "art\\covenant\\building\\socket_01\\socket_01.vis"));*/
-      var vis = HWVisResource.FromFile(context, visFile.FullName);
-      Console.WriteLine($"Processed {vis}");
+      var artDirectory = scratchDirectory.GetSubdir("art");
 
-      foreach (var model in vis.Models) {
-        var finModel = model.Resource.Mesh;
-        var outFile =
-            new FinFile(Path.Combine(outputDirectoryPath,
-                                     Path.GetFileName(
-                                         model.Resource.AbsolutePath)))
-                .CloneWithExtension(".fbx");
+      var artSubdirQueue = new Queue<IDirectory>();
+      artSubdirQueue.Enqueue(artDirectory);
 
-        var exporter = new AssimpIndirectExporter();
-        exporter.Export(outFile, finModel);
-        Console.WriteLine($"Processed {model.Resource}");
+      // TODO: Switch to DFS instead, it's more intuitive as a user
+      while (artSubdirQueue.Count > 0) {
+        var artSubdir = artSubdirQueue.Dequeue();
+
+        // TODO: Skip a file if it's already been extracted
+        // TODO: Parse UGX files instead, as long as they specify their own animations
+        var visFiles =
+            artSubdir.GetExistingFiles()
+                     .Where(f => f.Extension == ".vis")
+                     .ToList();
+        foreach (var visFile in visFiles) {
+          var vis = HWVisResource.FromFile(context, visFile.FullName);
+          foreach (var model in vis.Models) {
+            var finModel = model.Resource.Mesh;
+
+            var outFilePath =
+                Path.Combine(outputDirectoryPath, model.Resource.RelativePath);
+            var outFile = new FinFile(outFilePath).CloneWithExtension(".fbx");
+            outFile.GetParent().Create();
+
+            var exporter = new AssimpIndirectExporter();
+            exporter.Export(outFile, finModel);
+            Console.WriteLine($"Processed {model.Resource}");
+          }
+        }
+
+        foreach (var child in artSubdir.GetExistingSubdirs()) {
+          artSubdirQueue.Enqueue(child);
+        }
       }
+
 
       /*var gls = HWGlsResource.FromFile(context,
                                        "scenario\\skirmish\\design\\blood_gulch\\blood_gulch.gls");

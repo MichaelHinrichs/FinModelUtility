@@ -157,14 +157,10 @@ namespace Dxt {
                       ToneMapAndConvertHdrCubemapToBitmap(hdrCubeMap)));
         }
 
-        case "BC5U":
-        case "DXT1":
-        case "DX10": {
+        default: {
           ddsStream.Position = 0;
           return (pfFourCc, new DxtImpl<Bitmap>(new DdsReader().Read(ddsStream)));
         }
-
-        default: throw new NotImplementedException();
       }
     }
 

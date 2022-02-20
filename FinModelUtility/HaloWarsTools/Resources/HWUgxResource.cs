@@ -67,48 +67,44 @@ namespace HaloWarsTools {
           var finMaterial = materialManager.AddStandardMaterial();
           finMaterial.Name = $"material_{materials.Count}";
 
+          // TODO: Some textures are still not processed here:
+          // - "_op_" seems to be opacity?
+          // - "_xf_" is what?
+
           var maps = ugxMaterial["Maps"];
           if (maps != null) {
             var diffuse = maps["diffuse"];
-            if (diffuse != null) {
-              var diffuseMap = diffuse["Map"];
-              if (diffuseMap != null) {
-                var diffuseMapName = diffuseMap.GetAttribute("Name");
+            var diffuseMap = diffuse?["Map"];
+            if (diffuseMap != null) {
+              var diffuseMapName = diffuseMap.GetAttribute("Name");
 
-                finMaterial.DiffuseTexture =
-                    LoadTexture(materialManager, diffuseMapName);
-              }
+              finMaterial.DiffuseTexture =
+                  LoadTexture(materialManager, diffuseMapName);
             }
 
             var normal = maps["normal"];
-            if (normal != null) {
-              var normalMap = normal["Map"];
-              if (normalMap != null) {
-                var normalMapName = normalMap.GetAttribute("Name");
+            var normalMap = normal?["Map"];
+            if (normalMap != null) {
+              var normalMapName = normalMap.GetAttribute("Name");
 
-                finMaterial.NormalTexture =
-                    LoadTexture(materialManager, normalMapName);
-              }
+              finMaterial.NormalTexture =
+                  LoadTexture(materialManager, normalMapName);
             }
 
             var emissive = maps["emissive"];
-            if (emissive != null) {
-              var emissiveMap = emissive["Map"];
-              if (emissiveMap != null) {
-                var emissiveMapName = emissiveMap.GetAttribute("Name");
-                finMaterial.EmissiveTexture =
-                    LoadTexture(materialManager, emissiveMapName);
-              }
+            var emissiveMap = emissive?["Map"];
+            if (emissiveMap != null) {
+              var emissiveMapName = emissiveMap.GetAttribute("Name");
+              finMaterial.EmissiveTexture =
+                  LoadTexture(materialManager, emissiveMapName);
             }
 
             var specular = maps["gloss"];
-            if (specular != null) {
-              var specularMap = specular["Map"];
-              if (specularMap != null) {
-                var specularMapName = specularMap.GetAttribute("Name");
-                finMaterial.SpecularTexture =
-                    LoadTexture(materialManager, specularMapName);
-              }
+            var specularMap = specular?["Map"];
+            if (specularMap != null) {
+              var specularMapName = specularMap.GetAttribute("Name");
+              finMaterial.SpecularTexture =
+                  LoadTexture(materialManager, specularMapName);
             }
           }
 
@@ -518,11 +514,11 @@ namespace HaloWarsTools {
     private void ReadNormal(ref Vector3 normal,
                             byte[] bytes,
                             ref int offset) {
-      normal.X = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
+      normal.Z = -BinaryUtils.ReadFloatLittleEndian(bytes, offset);
       offset += 4;
-      normal.Y = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
+      normal.Y = -BinaryUtils.ReadFloatLittleEndian(bytes, offset);
       offset += 4;
-      normal.Z = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
+      normal.X = -BinaryUtils.ReadFloatLittleEndian(bytes, offset);
       offset += 4;
     }
 

@@ -118,14 +118,12 @@ namespace fin.exporter.gltf {
                                     emissiveTexture));
               }
 
-              var specularTexture = standardMaterial.SpecularTexture;
+              /*var specularTexture = standardMaterial.SpecularTexture;
               if (specularTexture != null) {
-                gltfMaterial.UseChannel(KnownChannel.SpecularGlossiness)
-                            .UseTexture()
-                            .WithPrimaryImage(
-                                GltfExporter.GetGltfImageFromFinTexture_(
-                                    specularTexture));
-              }
+                gltfMaterial.WithSpecularGlossiness(
+                    GltfExporter.GetGltfImageFromFinTexture_(
+                        specularTexture), new Vector3(.1f), .1f);
+              }*/
 
               var ambientOcclusionTexture =
                   standardMaterial.AmbientOcclusionTexture;
@@ -185,6 +183,11 @@ namespace fin.exporter.gltf {
                        skinNodeAndBone => skinNodeAndBone.Item1)
                    .ToArray();
       foreach (var gltfMesh in gltfMeshes) {
+        // TODO: What causes this to happen???
+        if (gltfMesh == null) {
+          continue;
+        }
+
         scene.CreateNode()
              .WithSkinnedMesh(gltfMesh,
                               rootNode.WorldMatrix,
