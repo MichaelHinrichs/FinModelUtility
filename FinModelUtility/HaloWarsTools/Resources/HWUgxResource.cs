@@ -21,15 +21,25 @@ namespace HaloWarsTools {
     public IModel Mesh { get; private set; }
 
     public static new HWUgxResource
-        FromFile(HWContext context, string filename) {
-      return GetOrCreateFromFile(context, filename, HWResourceType.Ugx) as
-                 HWUgxResource;
+        FromFile(HWContext context, string filename, IModel mesh = null) {
+      // Set the extension based on the resource type if the filename doesn't have one
+      if (string.IsNullOrEmpty(Path.GetExtension(filename)) &&
+          TypeExtensions.TryGetValue(HWResourceType.Ugx,
+                                     out string defaultExtension)) {
+        filename = Path.ChangeExtension(filename, defaultExtension);
+      }
+
+      var resource = (HWUgxResource) CreateResource(context, filename);
+      resource.Mesh = mesh ?? new ModelImpl();
+      resource?.Load(File.ReadAllBytes(resource.AbsolutePath));
+
+      return resource;
     }
 
     protected override void Load(byte[] bytes) {
       base.Load(bytes);
 
-      this.Mesh = ImportMesh(bytes);
+      ImportMesh(bytes, this.Mesh);
     }
 
     private bool ShouldStopScanning(char value) {
@@ -156,9 +166,7 @@ namespace HaloWarsTools {
       return current.ToString();
     }
 
-    private IModel ImportMesh(byte[] bytes) {
-      var finModel = new ModelImpl();
-
+    private void ImportMesh(byte[] bytes, IModel finModel) {
       var finMaterials = GetMaterials(finModel.MaterialManager, bytes);
       var nullMaterial = finModel.MaterialManager.AddStandardMaterial();
 
@@ -494,8 +502,6 @@ namespace HaloWarsTools {
           }
         }
       }
-
-      return finModel;
     }
 
     // TODO: This might not be right

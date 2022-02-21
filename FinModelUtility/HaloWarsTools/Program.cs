@@ -106,18 +106,18 @@ namespace HaloWarsTools {
                      .ToList();
         foreach (var visFile in visFiles) {
           var vis = HWVisResource.FromFile(context, visFile.FullName);
-          foreach (var model in vis.Models) {
-            var finModel = model.Resource.Mesh;
 
-            var outFilePath =
-                Path.Combine(outputDirectoryPath, model.Resource.RelativePath);
-            var outFile = new FinFile(outFilePath).CloneWithExtension(".fbx");
-            outFile.GetParent().Create();
+          var finModel = vis.Model;
 
-            var exporter = new AssimpIndirectExporter();
-            exporter.Export(outFile, finModel);
-            Console.WriteLine($"Processed {model.Resource}");
-          }
+          var outFilePath =
+              visFile.FullName.Replace(scratchDirectoryPath,
+                                       outputDirectoryPath);
+          var outFile = new FinFile(outFilePath).CloneWithExtension(".fbx");
+          outFile.GetParent().Create();
+
+          var exporter = new AssimpIndirectExporter();
+          exporter.Export(outFile, finModel);
+          Console.WriteLine($"Processed {visFile.FullName}");
         }
 
         foreach (var child in artSubdir.GetExistingSubdirs()) {

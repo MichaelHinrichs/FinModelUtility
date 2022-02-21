@@ -52,7 +52,7 @@ namespace HaloWarsTools {
                 {".vis", new HWResourceTypeDefinition(HWResourceType.Vis, typeof(HWVisResource))},
             };
 
-    private static Dictionary<HWResourceType, string> TypeExtensions =>
+    protected static Dictionary<HWResourceType, string> TypeExtensions =>
         StaticValuesCache.Get(() => {
           var dictionary = new Dictionary<HWResourceType, string>();
           foreach (var kvp in TypeDefinitions) {
@@ -98,7 +98,7 @@ namespace HaloWarsTools {
       return resource;
     }
 
-    private static HWResource
+    protected static HWResource
         CreateResource(HWContext context, string filename) {
       string extension = Path.GetExtension(filename).ToLowerInvariant();
 
