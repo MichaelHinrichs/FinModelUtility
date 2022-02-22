@@ -1,27 +1,43 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml;
 
 using Dxt;
 
 using fin.io;
+using fin.math;
+using fin.math.matrix;
 using fin.model;
 using fin.model.impl;
+using fin.util.asserts;
 
+using hw.granny3d;
+
+using KSoft.Granny3D;
 using KSoft.IO;
 using KSoft.Phoenix.Xmb;
 using KSoft.Shell;
 
+#nullable enable
+
 
 namespace HaloWarsTools {
   public class HWUgxResource : HWBinaryResource {
+    private IDictionary<string, IBone>? boneMap_;
     public IModel Mesh { get; private set; }
+    public HWVisResource.VisSubModelRef? VisSubModelRef { get; private set; }
 
-    public static new HWUgxResource
-        FromFile(HWContext context, string filename, IModel mesh = null) {
+    public static HWUgxResource? FromFile(
+        HWContext context,
+        string filename,
+        (IModel mesh, HWVisResource.VisSubModelRef? subModelRef,
+            IDictionary<string, IBone> boneMap)?
+            meshAndBoneMap = null) {
       // Set the extension based on the resource type if the filename doesn't have one
       if (string.IsNullOrEmpty(Path.GetExtension(filename)) &&
           TypeExtensions.TryGetValue(HWResourceType.Ugx,
@@ -30,7 +46,9 @@ namespace HaloWarsTools {
       }
 
       var resource = (HWUgxResource) CreateResource(context, filename);
-      resource.Mesh = mesh ?? new ModelImpl();
+      resource.Mesh = meshAndBoneMap?.mesh ?? new ModelImpl();
+      resource.VisSubModelRef = meshAndBoneMap?.subModelRef;
+      resource.boneMap_ = meshAndBoneMap?.boneMap;
       resource?.Load(File.ReadAllBytes(resource.AbsolutePath));
 
       return resource;
@@ -183,6 +201,9 @@ namespace HaloWarsTools {
       offset += 4; // 4 byte reserved
       offset += 8; // 8 byte reserved
 
+      var boneIds = new byte[4];
+      var boneWeights = new byte[4];
+
       List<MeshTableData> tableData = new List<MeshTableData>();
       offset = tableOffset;
       for (int i = 0; i < tableCount; i++) {
@@ -208,10 +229,66 @@ namespace HaloWarsTools {
       Dictionary<int, List<MeshPolygonInfo>> meshArr =
           new Dictionary<int, List<MeshPolygonInfo>>();
 
-      for (int i = 0; i < tableCount; i++) {
-        offset = tableData[i].Offset;
+      var localFinBones = new List<(IBone, IGrannyBone)>();
 
-        switch (tableData[i].Type) {
+      for (int i = 0; i < tableCount; i++) {
+        var tableChunk = tableData[i];
+        offset = tableChunk.Offset;
+
+        switch (tableChunk.Type) {
+          case MeshDataType.GrxChunk: {
+            var grxStream =
+                new MemoryStream(bytes, tableChunk.Offset, tableChunk.Length);
+
+            using var grxEr =
+                new EndianBinaryReader(grxStream, Endianness.LittleEndian);
+
+            var grannyFileInfo = new GrannyFileInfo();
+            grannyFileInfo.Read(grxEr);
+
+            Asserts.Equal(1, grannyFileInfo.SkeletonHeaderList.Count);
+
+            var skeletonHeader = grannyFileInfo.SkeletonHeaderList[0];
+
+            var fromBone = this.VisSubModelRef?.FromBone;
+            if (fromBone != null) {
+              Asserts.Equal(fromBone, skeletonHeader.Bones[0].Name);
+            }
+
+            var rootBone = finModel.Skeleton.Root;
+            var toBone = this.VisSubModelRef?.ToBone;
+            if (toBone != null) {
+              rootBone = boneMap_[toBone];
+            }
+
+            foreach (var grannyBone in skeletonHeader.Bones) {
+              var parentIndex = grannyBone.ParentIndex;
+
+              var isRoot = parentIndex == -1;
+              var parentFinBone = isRoot
+                                      ? rootBone
+                                      : localFinBones[parentIndex].Item1;
+
+              var position = grannyBone.LocalTransform.Position;
+              var rotation =
+                  QuaternionUtil.ToEulerRadians(
+                      grannyBone.LocalTransform.Orientation);
+
+              var finBone = parentFinBone.AddChild(
+                                    position.X, position.Y, position.Z);
+              finBone.SetLocalRotationRadians(
+                  rotation.X, rotation.Y, rotation.Z);
+
+              finBone.Name = grannyBone.Name;
+
+              boneMap_[finBone.Name] = finBone;
+              localFinBones.Add((finBone, grannyBone));
+            }
+
+
+            break;
+          }
+
           case MeshDataType.MeshInfo:
             offset += 2; // 2 byte reserved
             offset += 2; // 2 byte reserved
@@ -234,6 +311,8 @@ namespace HaloWarsTools {
               var subData = new MeshTableSubData(dataCount, dataOffset);
               subDataList.Add((MeshSubDataType) (j + 1), subData);
             }
+
+            var boneData = subDataList[MeshSubDataType.BoneData];
 
             var data = subDataList[MeshSubDataType.MeshData];
             offset = data.Offset;
@@ -346,6 +425,9 @@ namespace HaloWarsTools {
             Vector3 position = Vector3.Zero;
             Vector3 normal = Vector3.Zero;
             Vector3 texcoord = Vector3.Zero;
+
+            bool hasBones = false;
+
             switch (polygonInfo.VertSize) {
               case 0x18:
                 ReadPosition(ref position, bytes, ref offset);
@@ -371,14 +453,17 @@ namespace HaloWarsTools {
                 ReadPosition(ref position, bytes, ref offset);
                 offset += 2; // 2 byte reserved
                 ReadNormal(ref normal, bytes, ref offset);
-                offset += 1; // bone1
-                offset += 1; // bone2
-                offset += 1; // bone3
-                offset += 1; // bone4
-                offset += 1; // weight1
-                offset += 1; // weight2
-                offset += 1; // weight3
-                offset += 1; // weight4
+
+                hasBones = true;
+                for (var b = 0; b < 4; ++b) {
+                  boneIds[b] = BinaryUtils.ReadByteLittleEndian(bytes, offset);
+                  offset += 1;
+                }
+                for (var b = 0; b < 4; ++b) {
+                  boneWeights[b] =
+                      BinaryUtils.ReadByteLittleEndian(bytes, offset);
+                  offset += 1;
+                }
                 texcoord.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
                 texcoord.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
@@ -416,14 +501,18 @@ namespace HaloWarsTools {
                 offset += 4; // 4 byte reserved
                 offset += 4; // 4 byte reserved
                 offset += 4; // 4 byte reserved
-                offset += 1; // bone1
-                offset += 1; // bone2
-                offset += 1; // bone3
-                offset += 1; // bone4
-                offset += 1; // weight1
-                offset += 1; // weight2
-                offset += 1; // weight3
-                offset += 1; // weight4
+
+                hasBones = true;
+                for (var b = 0; b < 4; ++b) {
+                  boneIds[b] = BinaryUtils.ReadByteLittleEndian(bytes, offset);
+                  offset += 1;
+                }
+                for (var b = 0; b < 4; ++b) {
+                  boneWeights[b] =
+                      BinaryUtils.ReadByteLittleEndian(bytes, offset);
+                  offset += 1;
+                }
+
                 texcoord.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
                 texcoord.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
@@ -436,14 +525,18 @@ namespace HaloWarsTools {
                 offset += 4; // 4 byte reserved
                 offset += 4; // 4 byte reserved
                 offset += 4; // 4 byte reserved
-                offset += 1; // bone1
-                offset += 1; // bone2
-                offset += 1; // bone3
-                offset += 1; // bone4
-                offset += 1; // weight1
-                offset += 1; // weight2
-                offset += 1; // weight3
-                offset += 1; // weight4
+
+                hasBones = true;
+                for (var b = 0; b < 4; ++b) {
+                  boneIds[b] = BinaryUtils.ReadByteLittleEndian(bytes, offset);
+                  offset += 1;
+                }
+                for (var b = 0; b < 4; ++b) {
+                  boneWeights[b] =
+                      BinaryUtils.ReadByteLittleEndian(bytes, offset);
+                  offset += 1;
+                }
+
                 offset += 4; // 4 byte reserved
                 texcoord.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
                 offset += 2;
@@ -454,15 +547,35 @@ namespace HaloWarsTools {
                 continue;
             }
 
-            //texcoord.Y = 1 - texcoord.Y;
-
             var finVertex =
                 finModel.Skin.AddVertex(position.X, position.Y, position.Z)
                         .SetLocalNormal(normal.X, normal.Y, normal.Z)
                         .SetUv(texcoord.X, texcoord.Y);
 
+            if (hasBones) {
+              var finBoneWeights =
+                  boneWeights
+                      .Select((weight, index) => (weight, index))
+                      .Where(weightAndIndex => weightAndIndex.weight > 0)
+                      .Select(weightAndIndex => {
+                        var weight = weightAndIndex.weight / 255f;
+                        var index = weightAndIndex.index;
+
+                        var (finBone, grannyBone) = localFinBones[index];
+                        var mat =
+                            grannyBone
+                                .InverseWorld4x4; // MatrixTransformUtil.IDENTITY;
+                        return new BoneWeight(finBone,
+                                              mat,
+                                              weight);
+                      })
+                      .ToArray();
+
+              finVertex.SetBones(finBoneWeights);
+            }
+
             finVertices.Add(finVertex);
-          }
+          } 
 
           var triangles =
               new (IVertex, IVertex, IVertex)[polygonInfo.FaceCount];
@@ -476,8 +589,8 @@ namespace HaloWarsTools {
             var fc = BinaryUtils.ReadUInt16LittleEndian(bytes, offset);
             offset += 2;
 
-            triangles[j] = (finVertices[fa], finVertices[fb],
-                            finVertices[fc]);
+            triangles[j] = (finVertices[fa], finVertices[fc],
+                            finVertices[fb]);
 
             /*if (!materials.ContainsKey(polygonInfo.MaterialId)) {
               materials.Add(polygonInfo.MaterialId,
@@ -508,11 +621,11 @@ namespace HaloWarsTools {
     private void ReadPosition(ref Vector3 position,
                               byte[] bytes,
                               ref int offset) {
-      position.Z = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
+      position.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
       offset += 2;
       position.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
       offset += 2;
-      position.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
+      position.Z = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
       offset += 2;
     }
 
@@ -520,11 +633,11 @@ namespace HaloWarsTools {
     private void ReadNormal(ref Vector3 normal,
                             byte[] bytes,
                             ref int offset) {
-      normal.Z = -BinaryUtils.ReadFloatLittleEndian(bytes, offset);
+      normal.X = -BinaryUtils.ReadFloatLittleEndian(bytes, offset);
       offset += 4;
       normal.Y = -BinaryUtils.ReadFloatLittleEndian(bytes, offset);
       offset += 4;
-      normal.X = -BinaryUtils.ReadFloatLittleEndian(bytes, offset);
+      normal.Z = -BinaryUtils.ReadFloatLittleEndian(bytes, offset);
       offset += 4;
     }
 
@@ -567,7 +680,8 @@ namespace HaloWarsTools {
     public enum MeshDataType {
       MeshInfo = 0x700,
       IndexData = 0x701,
-      VertexData = 0x702
+      VertexData = 0x702,
+      GrxChunk = 0x703,
     }
 
     public enum MeshSubDataType {
