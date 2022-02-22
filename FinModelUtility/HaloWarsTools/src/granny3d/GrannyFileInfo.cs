@@ -21,8 +21,12 @@ namespace hw.granny3d {
       new List<IGrannyMesh>();
 
     public IList<IGrannyModel> ModelHeaderList { get; private set; }
-    public IList<IGrannyTrackGroup> TrackGroupHeaderList { get; private set; }
-    public IList<IGrannyAnimation> AnimationHeaderList { get; private set; }
+
+    public IList<IGrannyTrackGroup> TrackGroupHeaderList { get; } =
+      new List<IGrannyTrackGroup>();
+
+    public IList<IGrannyAnimation> AnimationHeaderList { get; } =
+      new List<IGrannyAnimation>();
 
     public void Read(EndianBinaryReader er) {
       // TODO: Make this offset-agnostic.
@@ -62,10 +66,30 @@ namespace hw.granny3d {
       GrannyUtils.SubreadUInt64Pointer(er, ser => { });
 
       var trackGroupHeaderCount = er.ReadUInt32();
-      GrannyUtils.SubreadUInt64Pointer(er, ser => { });
+      GrannyUtils.SubreadUInt64Pointer(
+          er,
+          ser => {
+            for (var i = 0; i < trackGroupHeaderCount; ++i) {
+              GrannyUtils.SubreadUInt64Pointer(ser, sser => {
+                var trackGroup = new GrannyTrackGroup();
+                trackGroup.Read(ser);
+                this.TrackGroupHeaderList.Add(trackGroup);
+              });
+            }
+          });
 
       var animationHeaderCount = er.ReadUInt32();
-      GrannyUtils.SubreadUInt64Pointer(er, ser => { });
+      GrannyUtils.SubreadUInt64Pointer(
+          er,
+          ser => {
+            for (var i = 0; i < animationHeaderCount; ++i) {
+              GrannyUtils.SubreadUInt64Pointer(ser, sser => {
+                var animation = new GrannyAnimation();
+                animation.Read(sser);
+                this.AnimationHeaderList.Add(animation);
+              });
+            }
+          });
     }
   }
 }

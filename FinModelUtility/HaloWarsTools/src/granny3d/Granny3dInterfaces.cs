@@ -38,7 +38,15 @@ namespace hw.granny3d {
 
   public interface IGrannyTrackGroup { }
 
-  public interface IGrannyAnimation { }
+  public interface IGrannyAnimation {
+    string Name { get; }
+
+    float Duration { get; }
+    float TimeStep { get; }
+    float Oversampling { get; }
+
+    IList<IGrannyTrackGroup> TrackGroups { get; }
+  }
 
 
   public interface IGrannyTransform {
