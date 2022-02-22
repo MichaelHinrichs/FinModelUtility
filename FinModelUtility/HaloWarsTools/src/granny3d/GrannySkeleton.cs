@@ -4,11 +4,6 @@ using System.Numerics;
 
 using fin.math;
 using fin.math.matrix;
-using fin.model;
-using fin.model.impl;
-using fin.src.math.matrix;
-
-using hw.granny3d;
 
 using schema;
 
@@ -55,7 +50,7 @@ namespace hw.granny3d {
       // inverse_world_4x4
       for (var y = 0; y < 4; ++y) {
         for (var x = 0; x < 4; x++) {
-          this.InverseWorld4x4[y, x] = er.ReadSingle();
+          this.InverseWorld4x4[x, y] = er.ReadSingle();
         }
       }
 
