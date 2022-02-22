@@ -6,6 +6,7 @@ using System.Linq;
 
 using fin.math.matrix;
 
+
 namespace fin.model.impl {
   public partial class ModelImpl {
     public ISkin Skin { get; }
@@ -53,7 +54,8 @@ namespace fin.model.impl {
         private readonly IList<IPrimitive> primitives_ = new List<IPrimitive>();
 
         public MeshImpl() {
-          this.Primitives = new ReadOnlyCollection<IPrimitive>(this.primitives_);
+          this.Primitives =
+              new ReadOnlyCollection<IPrimitive>(this.primitives_);
         }
 
         public string Name { get; set; }
@@ -128,7 +130,9 @@ namespace fin.model.impl {
         public int Index { get; }
 
         public IReadOnlyList<BoneWeight>? Weights { get; private set; }
-        public bool Preproject { get; set; } = true;
+
+        public PreprojectMode PreprojectMode { get; set; } =
+          PreprojectMode.BONE;
 
         public IVertex SetBone(IBone bone)
           => this.SetBones(

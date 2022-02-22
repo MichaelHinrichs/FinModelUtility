@@ -10,8 +10,10 @@ namespace fin.model {
 
     string Name { get; set; }
 
+    IBone Root { get; }
     IBone? Parent { get; }
     IReadOnlyList<IBone> Children { get; }
+    IBone AddRoot(float x, float y, float z);
     IBone AddChild(float x, float y, float z);
 
     IPosition LocalPosition { get; }

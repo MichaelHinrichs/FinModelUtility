@@ -39,13 +39,19 @@ namespace fin.model {
     float V { get; }
   }
 
+  public enum PreprojectMode {
+    NONE,
+    ROOT,
+    BONE,
+  }
+
   public interface IVertex {
     // TODO: Allow caching vertex builders directly on this type.
 
     int Index { get; }
 
     IReadOnlyList<BoneWeight>? Weights { get; }
-    bool Preproject { get; set; }
+    PreprojectMode PreprojectMode { get; set; }
 
     IVertex SetBone(IBone bone);
     IVertex SetBones(params BoneWeight[] weights);

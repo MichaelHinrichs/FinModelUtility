@@ -12,6 +12,7 @@ using mod.util;
 
 using Endianness = mod.util.Endianness;
 
+
 namespace mod.cli {
   public class ModelConverter {
     /// <summary>
@@ -308,7 +309,8 @@ namespace mod.cli {
                       var vertexWeights = new VertexWeights();
 
                       var envelope = mod.envelopes[envelopeIndex];
-                      foreach (var indexAndWeight in envelope.indicesAndWeights) {
+                      foreach (var indexAndWeight in
+                               envelope.indicesAndWeights) {
                         vertexWeights.boneWeights.Add(
                             new BoneWeight(bones[indexAndWeight.index],
                                            new FinMatrix4x4().SetIdentity(),
@@ -352,7 +354,10 @@ namespace mod.cli {
 
               if (allVertexWeights.Count > 0) {
                 finVertex.SetBones(allVertexWeights[v].boneWeights.ToArray());
-                finVertex.Preproject = allVertexWeights[v].Preproject;
+                finVertex.PreprojectMode =
+                    allVertexWeights[v].Preproject
+                        ? PreprojectMode.BONE
+                        : PreprojectMode.NONE;
               }
 
               // TODO: For collision models, there can be normal indices when

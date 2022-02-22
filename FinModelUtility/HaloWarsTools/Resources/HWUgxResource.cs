@@ -247,7 +247,6 @@ namespace HaloWarsTools {
             grannyFileInfo.Read(grxEr);
 
             Asserts.Equal(1, grannyFileInfo.SkeletonHeaderList.Count);
-
             var skeletonHeader = grannyFileInfo.SkeletonHeaderList[0];
 
             var fromBone = this.VisSubModelRef?.FromBone;
@@ -274,8 +273,12 @@ namespace HaloWarsTools {
                   QuaternionUtil.ToEulerRadians(
                       grannyBone.LocalTransform.Orientation);
 
-              var finBone = parentFinBone.AddChild(
-                                    position.X, position.Y, position.Z);
+              var finBone =
+                  isRoot
+                      ? parentFinBone.AddRoot(
+                          position.X, position.Y, position.Z)
+                      : parentFinBone.AddChild(
+                          position.X, position.Y, position.Z);
               finBone.SetLocalRotationRadians(
                   rotation.X, rotation.Y, rotation.Z);
 
@@ -561,7 +564,8 @@ namespace HaloWarsTools {
                         var weight = weightAndIndex.weight / 255f;
                         var index = weightAndIndex.index;
 
-                        var (finBone, grannyBone) = localFinBones[index];
+                        var (finBone, grannyBone) =
+                            localFinBones[boneIds[index] - 1];
                         var mat =
                             grannyBone
                                 .InverseWorld4x4; // MatrixTransformUtil.IDENTITY;
@@ -572,10 +576,13 @@ namespace HaloWarsTools {
                       .ToArray();
 
               finVertex.SetBones(finBoneWeights);
+            } else {
+              finVertex.SetBone(localFinBones[0].Item1);
             }
 
             finVertices.Add(finVertex);
-          } 
+            finVertex.PreprojectMode = PreprojectMode.ROOT;
+          }
 
           var triangles =
               new (IVertex, IVertex, IVertex)[polygonInfo.FaceCount];
@@ -589,8 +596,8 @@ namespace HaloWarsTools {
             var fc = BinaryUtils.ReadUInt16LittleEndian(bytes, offset);
             offset += 2;
 
-            triangles[j] = (finVertices[fa], finVertices[fc],
-                            finVertices[fb]);
+            triangles[j] = (finVertices[fa], finVertices[fb],
+                            finVertices[fc]);
 
             /*if (!materials.ContainsKey(polygonInfo.MaterialId)) {
               materials.Add(polygonInfo.MaterialId,
@@ -617,11 +624,11 @@ namespace HaloWarsTools {
       }
     }
 
-    // TODO: This might not be right
     private void ReadPosition(ref Vector3 position,
                               byte[] bytes,
                               ref int offset) {
-      position.X = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
+      // For *some* reason this only fully works when negative.
+      position.X = -BinaryUtils.ReadHalfLittleEndian(bytes, offset);
       offset += 2;
       position.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
       offset += 2;
@@ -629,15 +636,15 @@ namespace HaloWarsTools {
       offset += 2;
     }
 
-    // TODO: This might not be right
     private void ReadNormal(ref Vector3 normal,
                             byte[] bytes,
                             ref int offset) {
+      // For *some* reason this only fully works when negative.
       normal.X = -BinaryUtils.ReadFloatLittleEndian(bytes, offset);
       offset += 4;
-      normal.Y = -BinaryUtils.ReadFloatLittleEndian(bytes, offset);
+      normal.Y = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
       offset += 4;
-      normal.Z = -BinaryUtils.ReadFloatLittleEndian(bytes, offset);
+      normal.Z = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
       offset += 4;
     }
 

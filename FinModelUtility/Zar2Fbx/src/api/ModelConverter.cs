@@ -16,6 +16,7 @@ using zar.format.csab;
 using zar.format.ctxb;
 using zar.format.shpa;
 
+
 namespace zar.api {
   public class ModelConverter {
     // TODO: Split these out into separate classes
@@ -187,11 +188,11 @@ namespace zar.api {
                                     : model.MaterialManager.AddLayerMaterial();
         finMaterial.Name = $"material{i}";
         finMaterial.CullingMode = cmbMaterial.faceCulling switch {
-          CullMode.FrontAndBack => CullingMode.SHOW_BOTH,
-          CullMode.Front        => CullingMode.SHOW_FRONT_ONLY,
-          CullMode.BackFace     => CullingMode.SHOW_BACK_ONLY,
-          CullMode.Never        => CullingMode.SHOW_NEITHER,
-          _                     => throw new NotImplementedException(),
+            CullMode.FrontAndBack => CullingMode.SHOW_BOTH,
+            CullMode.Front        => CullingMode.SHOW_FRONT_ONLY,
+            CullMode.BackFace     => CullingMode.SHOW_BACK_ONLY,
+            CullMode.Never        => CullingMode.SHOW_NEITHER,
+            _                     => throw new NotImplementedException(),
         };
 
         finMaterials.Add(finMaterial);
@@ -412,7 +413,10 @@ namespace zar.api {
             finVertex.SetBone(finBones[boneIndex]);
           }
 
-          finVertex.Preproject = preproject[i].Value;
+          finVertex.PreprojectMode =
+              preproject[i].Value
+                  ? PreprojectMode.BONE
+                  : PreprojectMode.NONE;
 
           /*if (skinningModes[i].Value == SkinningMode.Single) {
             finVertex.SetColor(ColorImpl.FromRgbaBytes(255, 0, 0, 255));

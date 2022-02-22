@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using fin.math.matrix;
 using fin.model;
+
 
 namespace fin.math {
   public class BoneTransformManager {
@@ -83,7 +85,8 @@ namespace fin.math {
         IVertex vertex,
         IPosition outPosition,
         INormal? outNormal = null) {
-      var preproject = vertex.Preproject && vertex.Weights?.Count > 0;
+      var preproject = vertex.PreprojectMode != PreprojectMode.NONE &&
+                       vertex.Weights?.Count > 0;
 
       var localPosition = vertex.LocalPosition;
       var localNormal = vertex.LocalNormal;
@@ -102,14 +105,26 @@ namespace fin.math {
 
       // TODO: Precompute these in a shared way somehow.
       var mergedMatrix = new FinMatrix4x4();
-      foreach (var weight in vertex.Weights) {
-        var skinToBoneMatrix = weight.SkinToBone;
-        var boneMatrix = this.GetWorldMatrix(weight.Bone);
+      switch (vertex.PreprojectMode) {
+        case PreprojectMode.BONE: {
+          foreach (var weight in vertex.Weights) {
+            var skinToBoneMatrix = weight.SkinToBone;
+            var boneMatrix = this.GetWorldMatrix(weight.Bone);
 
-        var skinToWorldMatrix = boneMatrix.CloneAndMultiply(skinToBoneMatrix)
-                                          .MultiplyInPlace(weight.Weight);
+            var skinToWorldMatrix = boneMatrix
+                                    .CloneAndMultiply(skinToBoneMatrix)
+                                    .MultiplyInPlace(weight.Weight);
 
-        mergedMatrix.AddInPlace(skinToWorldMatrix);
+            mergedMatrix.AddInPlace(skinToWorldMatrix);
+          }
+          break;
+        }
+        case PreprojectMode.ROOT: {
+          mergedMatrix.AddInPlace(
+              this.GetWorldMatrix(vertex.Weights[0].Bone.Root));
+          break;
+        }
+        default: throw new ArgumentOutOfRangeException();
       }
 
       this.transformer_.Push();
