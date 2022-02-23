@@ -31,11 +31,14 @@ namespace HaloWarsTools {
     private IDictionary<string, IBone>? boneMap_;
     public IModel Mesh { get; private set; }
     public HWVisResource.VisSubModelRef? VisSubModelRef { get; private set; }
+    private bool FlipFaces_ { get; set; }
 
     public static HWUgxResource? FromFile(
         HWContext context,
         string filename,
-        (IModel mesh, HWVisResource.VisSubModelRef? subModelRef,
+        (IModel mesh,
+            HWVisResource.VisSubModelRef? subModelRef,
+            bool flipFaces,
             IDictionary<string, IBone> boneMap)?
             meshAndBoneMap = null) {
       // Set the extension based on the resource type if the filename doesn't have one
@@ -48,6 +51,7 @@ namespace HaloWarsTools {
       var resource = (HWUgxResource) CreateResource(context, filename);
       resource.Mesh = meshAndBoneMap?.mesh ?? new ModelImpl();
       resource.VisSubModelRef = meshAndBoneMap?.subModelRef;
+      resource.FlipFaces_ = meshAndBoneMap?.flipFaces ?? true;
       resource.boneMap_ = meshAndBoneMap?.boneMap;
       resource?.Load(File.ReadAllBytes(resource.AbsolutePath));
 
@@ -272,15 +276,26 @@ namespace HaloWarsTools {
               var rotation =
                   QuaternionUtil.ToEulerRadians(
                       grannyBone.LocalTransform.Orientation);
+              var scaleShear = grannyBone.LocalTransform.ScaleShear;
+
+              // Halo Wars coordinates have opposite handedness, so we must flip
+              // X depending on how many submodels down we are.
+              var xSign = this.FlipFaces_ ? -1 : 1;
 
               var finBone =
                   isRoot
                       ? parentFinBone.AddRoot(
-                          position.X, position.Y, position.Z)
+                          xSign * position.X, position.Y, position.Z)
                       : parentFinBone.AddChild(
-                          position.X, position.Y, position.Z);
-              finBone.SetLocalRotationRadians(
-                  rotation.X, rotation.Y, rotation.Z);
+                          xSign * position.X, position.Y, position.Z);
+
+              finBone.SetLocalRotationRadians(rotation.X,
+                                              xSign * rotation.Y
+                                              , xSign * rotation.Z)
+                     .SetLocalScale(scaleShear[0].X,
+                                    scaleShear[1].Y,
+                                    scaleShear[2].Z);
+
 
               finBone.Name = grannyBone.Name;
 
@@ -596,8 +611,17 @@ namespace HaloWarsTools {
             var fc = BinaryUtils.ReadUInt16LittleEndian(bytes, offset);
             offset += 2;
 
-            triangles[j] = (finVertices[fa], finVertices[fb],
-                            finVertices[fc]);
+            // Halo Wars coordinates have opposite handedness, so we must flip
+            // the faces depending on how many submodels down we are.
+            if (FlipFaces_) {
+              triangles[j] = (finVertices[fa],
+                              finVertices[fb],
+                              finVertices[fc]);
+            } else {
+              triangles[j] = (finVertices[fa], 
+                              finVertices[fc],
+                              finVertices[fb]);
+            }
 
             /*if (!materials.ContainsKey(polygonInfo.MaterialId)) {
               materials.Add(polygonInfo.MaterialId,
@@ -627,8 +651,10 @@ namespace HaloWarsTools {
     private void ReadPosition(ref Vector3 position,
                               byte[] bytes,
                               ref int offset) {
-      // For *some* reason this only fully works when negative.
-      position.X = -BinaryUtils.ReadHalfLittleEndian(bytes, offset);
+      // Halo Wars coordinates have opposite handedness, so we must flip X
+      // depending on how many submodels down we are.
+      var xSign = this.FlipFaces_ ? -1 : 1;
+      position.X = xSign * BinaryUtils.ReadHalfLittleEndian(bytes, offset);
       offset += 2;
       position.Y = BinaryUtils.ReadHalfLittleEndian(bytes, offset);
       offset += 2;
@@ -639,8 +665,10 @@ namespace HaloWarsTools {
     private void ReadNormal(ref Vector3 normal,
                             byte[] bytes,
                             ref int offset) {
-      // For *some* reason this only fully works when negative.
-      normal.X = -BinaryUtils.ReadFloatLittleEndian(bytes, offset);
+      // Halo Wars coordinates have opposite handedness, so we must flip X
+      // depending on how many submodels down we are.
+      var xSign = this.FlipFaces_ ? -1 : 1;
+      normal.X = xSign * BinaryUtils.ReadFloatLittleEndian(bytes, offset);
       offset += 4;
       normal.Y = BinaryUtils.ReadFloatLittleEndian(bytes, offset);
       offset += 4;

@@ -103,13 +103,13 @@ namespace HaloWarsTools {
 
       var firstModel = visModels[0];
 
-      var modelQueue = new Queue<(VisModel, VisSubModelRef?)>();
-      modelQueue.Enqueue((firstModel, null));
+      var modelQueue = new Queue<(VisModel, VisSubModelRef?, bool)>();
+      modelQueue.Enqueue((firstModel, null, true));
 
       var boneMap = new Dictionary<string, IBone>();
 
       while (modelQueue.Count > 0) {
-        var (visModel, subModelRef) = modelQueue.Dequeue();
+        var (visModel, subModelRef, flipFaces) = modelQueue.Dequeue();
 
         foreach (var modelPath in visModel.ModelPaths) {
           var file = Path.Combine("art", modelPath);
@@ -121,7 +121,8 @@ namespace HaloWarsTools {
 
           // TODO: Sometimes models are missing, why is this??
           try {
-            var resource = HWUgxResource.FromFile(Context, file, (this.Model, subModelRef, boneMap));
+            var resource = HWUgxResource.FromFile(
+                Context, file, (this.Model, subModelRef, flipFaces, boneMap));
           } catch { }
           /*if (resource != null) {
             models.Add(
@@ -132,7 +133,7 @@ namespace HaloWarsTools {
         foreach (var child in visModel.SubModelRefs) {
           // Sometimes model references are missing--just ignore em.
           if (visModelMap.TryGetValue(child.ModelName, out var childModel)) {
-            modelQueue.Enqueue((childModel, child));
+            modelQueue.Enqueue((childModel, child, !flipFaces));
           }
         }
       }
