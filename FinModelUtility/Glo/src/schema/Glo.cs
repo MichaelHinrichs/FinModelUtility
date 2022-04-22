@@ -2,30 +2,29 @@
 
 namespace glo.schema {
   [Schema]
-  public sealed partial class Glo : IBiSerializable {
+  public sealed partial class Glo : IDeserializable {
     private readonly string magic_ = "GLO\0";
 
     public ushort Version { get; set; }
 
     [ArrayLengthSource(IntType.UINT16)]
-    public List<GloObject> Objects { get; set; }
+    public GloObject[] Objects { get; set; }
 
     [ArrayLengthSource(IntType.UINT16)]
-    public List<GloMesh> Meshes { get; set; }
+    public GloMesh[] Meshes { get; set; }
   }
 
 
   [Schema]
-  public sealed partial class GloObject : IBiSerializable {
+  public sealed partial class GloObject : IDeserializable {
 
     [ArrayLengthSource(IntType.UINT16)]
-    public List<GloAnimSeg> AnimSegs { get; set; }
+    public GloAnimSeg[] AnimSegs { get; set; }
   }
 
   [Schema]
-  public sealed partial class GloAnimSeg : IBiSerializable {
-    [StringLengthSource(24)]
-    public string Name { get; set; }
+  public sealed partial class GloAnimSeg : IDeserializable {
+    public char[] Name { get; } = new char[24];
     public uint StartFrame { get; set; }
     public uint EndFrame { get; set; }
     public uint Flags { get; set; }
@@ -34,35 +33,34 @@ namespace glo.schema {
 
 
   [Schema]
-  public sealed partial class GloMesh : IBiSerializable {
-    [StringLengthSource(24)]
-    public string Name { get; set; }
+  public sealed partial class GloMesh : IDeserializable {
+    public char[] Name { get; } = new char[24];
 
     [ArrayLengthSource(IntType.UINT16)]
-    public List<GloXyzKey> MoveKeys { get; set; }
+    public GloXyzKey[] MoveKeys { get; set; }
 
     [ArrayLengthSource(IntType.UINT16)]
-    public List<GloXyzKey> ScaleKeys { get; set; }
+    public GloXyzKey[] ScaleKeys { get; set; }
 
     [ArrayLengthSource(IntType.UINT16)]
-    public List<GloQuaternionKey> RotateKeys { get; set; }
+    public GloQuaternionKey[] RotateKeys { get; set; }
 
     [ArrayLengthSource(IntType.UINT16)]
-    public List<GloVertex> Vertices { get; set; }
+    public GloVertex[] Vertices { get; set; }
 
     [ArrayLengthSource(IntType.UINT16)]
-    public List<GloFace> Faces { get; set; }
+    public GloFace[] Faces { get; set; }
 
     [ArrayLengthSource(IntType.UINT16)]
-    public List<GloSprite> Sprites { get; set; }
+    public GloSprite[] Sprites { get; set; }
 
     public ushort MeshTranslucency { get; set; }
     public ushort MeshFlags { get; set; }
 
-    public GloMeshPointers Pointers { get; set; }
+    public GloMeshPointers Pointers { get; } = new();
   }
 
-  public sealed class GloMeshPointers : IBiSerializable {
+  public sealed class GloMeshPointers : IDeserializable {
     public GloMesh? Child { get; set; }
     public GloMesh? Next { get; set; }
 
@@ -83,14 +81,10 @@ namespace glo.schema {
         this.Next = null;
       }
     }
-
-    public void Write(EndianBinaryWriter ew) {
-      throw new NotImplementedException();
-    }
   }
 
   [Schema]
-  public sealed partial class GloXyzKey : IBiSerializable {
+  public sealed partial class GloXyzKey : IDeserializable {
     public uint Time { get; set; }
 
     public float X { get; set; }
@@ -99,7 +93,7 @@ namespace glo.schema {
   }
 
   [Schema]
-  public sealed partial class GloQuaternionKey : IBiSerializable {
+  public sealed partial class GloQuaternionKey : IDeserializable {
     public uint Time { get; set; }
 
     public float X { get; set; }
@@ -109,16 +103,15 @@ namespace glo.schema {
   }
 
   [Schema]
-  public sealed partial class GloVertex : IBiSerializable {
+  public sealed partial class GloVertex : IDeserializable {
     public float X { get; set; }
     public float Y { get; set; }
     public float Z { get; set; }
   }
 
   [Schema]
-  public sealed partial class GloFace : IBiSerializable {
-    [StringLengthSource(16)]
-    public string TextureFilename { get; set; }
+  public sealed partial class GloFace : IDeserializable {
+    public char[] TextureFilename { get; } = new char[16];
 
     public GloColor Color { get; } = new();
     public ushort Flags { get; set; }
@@ -131,16 +124,15 @@ namespace glo.schema {
   }
 
   [Schema]
-  public sealed partial class GloVertexRef : IBiSerializable {
+  public sealed partial class GloVertexRef : IDeserializable {
     public ushort Index { get; set; }
     public float U { get; set; }
     public float V { get; set; }
   }
 
   [Schema]
-  public sealed partial class GloSprite : IBiSerializable {
-    [StringLengthSource(16)]
-    public string TextureFilename { get; set; }
+  public sealed partial class GloSprite : IDeserializable {
+    public char[] TextureFilename { get; } = new char[16];
 
     public GloColor Color { get; } = new();
 
@@ -151,20 +143,20 @@ namespace glo.schema {
 
 
   [Schema]
-  public sealed partial class GloXy : IBiSerializable {
+  public sealed partial class GloXy : IDeserializable {
     public float X { get; set; }
     public float Y { get; set; }
   }
 
   [Schema]
-  public sealed partial class GloXyz : IBiSerializable {
+  public sealed partial class GloXyz : IDeserializable {
     public float X { get; set; }
     public float Y { get; set; }
     public float Z { get; set; }
   }
 
   [Schema]
-  public sealed partial class GloColor : IBiSerializable {
+  public sealed partial class GloColor : IDeserializable {
     public byte R { get; set; }
     public byte G { get; set; }
     public byte B { get; set; }

@@ -51,6 +51,10 @@
     "Halo Wars": {
       "commandName": "Project",
       "commandLineArgs": "halo_wars"
+    },
+    "Glover": {
+      "commandName": "Project",
+      "commandLineArgs": "glover"
     }
   }
 }

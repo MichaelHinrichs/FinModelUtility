@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <OutputType>Library</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -8,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BinarySchema\BinarySchema.csproj" />
+    <ProjectReference Include="../BinarySchema/BinarySchema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
     <ProjectReference Include="..\Fin\Fin.csproj" />
   </ItemGroup>
 

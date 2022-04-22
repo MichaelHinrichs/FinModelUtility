@@ -284,6 +284,7 @@ namespace schema.text {
 
     private static string GetPrimitiveLabel_(SchemaPrimitiveType type)
       => type switch {
+          SchemaPrimitiveType.CHAR => "Char",
           SchemaPrimitiveType.SBYTE => "SByte",
           SchemaPrimitiveType.BYTE => "Byte",
           SchemaPrimitiveType.INT16 => "Int16",

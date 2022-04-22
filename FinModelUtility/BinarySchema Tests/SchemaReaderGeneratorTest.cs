@@ -169,6 +169,29 @@ namespace foo.bar {
     }
 
     [Test]
+    public void TestConstCharArray() {
+      this.AssertGenerated_(@"
+using schema;
+
+namespace foo.bar {
+  [Schema]
+  public partial class CharWrapper {
+    public char[] Array { get; }
+  }
+}",
+                            @"using System;
+using System.IO;
+namespace foo.bar {
+  public partial class CharWrapper {
+    public void Read(EndianBinaryReader er) {
+      er.ReadChars(this.Array);
+    }
+  }
+}
+");
+    }
+
+    [Test]
     public void TestField() {
       this.AssertGenerated_(@"
 using schema;

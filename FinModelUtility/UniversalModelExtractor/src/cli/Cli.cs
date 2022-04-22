@@ -6,6 +6,7 @@ using CommandLine.Text;
 
 using uni.games.animal_crossing;
 using uni.games.battalion_wars;
+using uni.games.glover;
 using uni.games.halo_wars;
 using uni.games.luigis_mansion;
 using uni.games.luigis_mansion_3d;
@@ -29,6 +30,7 @@ namespace uni.cli {
                     typeof(AnimalCrossingOptions),
                     typeof(BattalionWarsOptions),
                     typeof(HaloWarsOptions),
+                    typeof(GloverOptions),
                     typeof(LuigisMansionOptions),
                     typeof(LuigisMansion3dOptions),
                     typeof(MarioKartDoubleDashOptions),
@@ -48,6 +50,9 @@ namespace uni.cli {
                 })
                 .WithParsed((HaloWarsOptions _) => {
                   new HaloWarsExtractor().ExtractAll();
+                })
+                .WithParsed((GloverOptions _) => {
+                  new GloverExtractor().ExtractAll();
                 })
                 .WithParsed((LuigisMansionOptions _) => {
                   new LuigisMansionExtractor().ExtractAll();

@@ -33,8 +33,8 @@ namespace glo.api {
         var gloVertices = gloMesh.Vertices;
 
         var gloFaces = gloMesh.Faces;
-        var finTriangles = new (IVertex, IVertex, IVertex)[gloFaces.Count];
-        for (var i = 0; i < gloFaces.Count; ++i) {
+        var finTriangles = new (IVertex, IVertex, IVertex)[gloFaces.Length];
+        for (var i = 0; i < gloFaces.Length; ++i) {
           var gloFace = gloFaces[i];
 
           var gloFaceVertices = new IVertex[3];

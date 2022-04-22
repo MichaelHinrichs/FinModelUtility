@@ -169,6 +169,35 @@ namespace foo.bar {
     }
 
     [Test]
+    public void TestConstCharArray() {
+      var structure = SchemaTestUtil.Parse(@"
+namespace foo.bar {
+  [Schema]
+  public class CharWrapper {
+    public readonly char[] field;
+  }
+}");
+
+      Assert.IsEmpty(structure.Diagnostics);
+
+      var field = structure.Members[0];
+      Assert.AreEqual("field", field.Name);
+
+      var memberType = field.MemberType;
+      Assert.AreEqual(TypeKind.Array, memberType.TypeSymbol.TypeKind);
+
+      var arrayType = (memberType as ISequenceMemberType)!;
+      Assert.AreEqual(SequenceType.ARRAY, arrayType.SequenceType);
+      Assert.AreEqual(SequenceLengthType.CONST, arrayType.LengthType);
+
+      var primitiveType = (arrayType.ElementType as IPrimitiveMemberType)!;
+      Assert.AreEqual(SchemaPrimitiveType.CHAR, primitiveType.PrimitiveType);
+      Assert.AreEqual(false, primitiveType.IsConst);
+      Assert.AreEqual(false, primitiveType.UseAltFormat);
+      Assert.AreEqual(SchemaNumberType.UNDEFINED, primitiveType.AltFormat);
+    }
+
+    [Test]
     public void TestField() {
       var structure = SchemaTestUtil.Parse(@"
 using schema;

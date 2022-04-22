@@ -38,6 +38,7 @@
     <ProjectReference Include="..\Bmd2Fbx\Bmd2Fbx.csproj" />
     <ProjectReference Include="..\F3dzex2ToFbx\F3dzex2ToFbx.csproj" />
     <ProjectReference Include="..\Fin\Fin.csproj" />
+    <ProjectReference Include="..\Glo\Glo.csproj" />
     <ProjectReference Include="..\HaloWarsTools\HaloWarsTools.csproj" />
     <ProjectReference Include="..\Mod2Fbx\Mod2Fbx.csproj" />
     <ProjectReference Include="..\Zar2Fbx\Zar2Fbx.csproj" />
