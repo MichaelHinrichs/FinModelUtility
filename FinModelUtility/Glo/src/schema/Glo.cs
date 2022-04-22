@@ -58,6 +58,8 @@ namespace glo.schema {
 
     public ushort MeshTranslucency { get; set; }
     public ushort MeshFlags { get; set; }
+
+    public GloMeshPointers Pointers { get; set; }
   }
 
   public sealed class GloMeshPointers : IBiSerializable {
