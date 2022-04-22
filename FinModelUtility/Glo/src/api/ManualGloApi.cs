@@ -6,6 +6,7 @@ namespace glo.api {
   public class ManualGloApi {
     public void Run(
         IDirectory outputDirectory,
+        IList<IDirectory> textureDirectories,
         IFile gloFile,
         float fps) {
       using var er =
@@ -16,6 +17,7 @@ namespace glo.api {
 
       var model = new ModelConverter().Convert(glo,
                                                outputDirectory,
+                                               textureDirectories,
                                                fps);
 
       new AssimpIndirectExporter().Export(

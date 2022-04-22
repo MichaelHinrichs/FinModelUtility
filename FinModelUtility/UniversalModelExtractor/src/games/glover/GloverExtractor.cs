@@ -2,6 +2,8 @@
 using glo.api;
 using uni.util.io;
 using fin.util.asserts;
+using System.Collections.Generic;
+using fin.io;
 
 namespace uni.games.glover {
   internal class GloverExtractor {
@@ -15,9 +17,22 @@ namespace uni.games.glover {
       if (topLevelObjectDirectory != null) {
         foreach (var objectDirectory in topLevelObjectDirectory.Subdirs) {
           var objectFiles = objectDirectory.FilesWithExtension(".glo");
+
+          var parentOutputDirectory = GameFileHierarchyUtil.GetOutputDirectoryForDirectory(objectDirectory);
+          var textureDirectories = new List<IDirectory>();
+          foreach (var genericTextureDirectory in gloverSteamDirectory.GetSubdir("data/textures/generic").GetExistingSubdirs()) {
+            textureDirectories.Add(genericTextureDirectory);
+          }
+          
+          var levelTextureDirectory = gloverSteamDirectory.GetSubdir(objectDirectory.LocalPath.Replace("data\\objects", "data\\textures"));
+          textureDirectories.Add(levelTextureDirectory);
+          foreach (var subdir in levelTextureDirectory.GetExistingSubdirs()) {
+            textureDirectories.Add(subdir);
+          }
+
           foreach (var objectFile in objectFiles) {
-            var outputDirectory = GameFileHierarchyUtil.GetOutputDirectoryForDirectory(objectDirectory).GetSubdir(objectFile.NameWithoutExtension, true);
-            new ManualGloApi().Run(outputDirectory, objectFile.Impl, 30);
+            var outputDirectory = parentOutputDirectory.GetSubdir(objectFile.NameWithoutExtension, true);
+            new ManualGloApi().Run(outputDirectory, textureDirectories, objectFile.Impl, 30);
           }
         }
       }
