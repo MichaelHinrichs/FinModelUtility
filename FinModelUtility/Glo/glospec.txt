@@ -1,0 +1,59 @@
+
+/*******************************************************************************
+ * Convert OBE file to GLO
+********************************************************************************
+ * GLO (Glover Object) spec
+ * Little endian
+ * 
+ * "GLO" Magic - 4 bytes
+ * Version - 2 bytes
+ * Number of Objects - 2 bytes
+ * List of objects:
+ * 
+ * * Number of anim segs - 2 bytes
+ * * Anim seg list:
+ * * * Name - 24 bytes
+ * * * start frame - 4 bytes
+ * * * end frame - 4 bytes
+ * * * flags - 4 bytes
+ * * * speed - 4 bytes
+ * Number of (top level) meshes - 2 bytes
+ * Mesh:
+ * * Name - 24 bytes
+ * * Number of moveKeys - 2 bytes
+ * * moveKeys list:
+ * * * Time - 4 bytes
+ * * * Vector - 12 bytes
+ * * Number of scaleKeys - 2 bytes
+ * * scaleKeys list:
+ * * * Time - 4 bytes
+ * * * Vector - 12 bytes
+ * * Number of rotateKeys - 2 bytes
+ * * rotateKeys list:
+ * * * Time - 4 bytes
+ * * * Quaternion - 16 bytes
+ * * Number of vertices - 2 bytes
+ * * Vertex list:
+ * * * Vector - 12 bytes
+ * * Number of faces - 2 bytes
+ * * Face list:
+ * * * Texture filename - 16 bytes
+ * * * Color - 4 bytes
+ * * * Flags - 2 bytes
+ * * * Vertex ref list (always 3):
+ * * * * Index in vertex list - 2 bytes
+ * * * * Texture UV - 8 bytes
+ * * Number of sprites - 2 bytes
+ * * Sprite list:
+ * * * Texture filename - 16 bytes
+ * * * Color - 4 bytes
+ * * * Sprite pos - 12 bytes
+ * * * Sprite size - 8 bytes
+ * * * Sprite flags - 2 bytes
+ * * Mesh Translucency - 2 bytes
+ * * Mesh flags - 2 bytes
+ * * Has child? - 2 bytes
+ * * * (Child mesh, recursive)
+ * * Has next? - 2 bytes
+ * * * (Next mesh, recursive)
+*******************************************************************************/
