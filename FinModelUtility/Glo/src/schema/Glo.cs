@@ -9,9 +9,6 @@ namespace glo.schema {
 
     [ArrayLengthSource(IntType.UINT16)]
     public GloObject[] Objects { get; set; }
-
-    [ArrayLengthSource(IntType.UINT16)]
-    public GloMesh[] Meshes { get; set; }
   }
 
 
@@ -20,6 +17,9 @@ namespace glo.schema {
 
     [ArrayLengthSource(IntType.UINT16)]
     public GloAnimSeg[] AnimSegs { get; set; }
+
+    [ArrayLengthSource(IntType.UINT16)]
+    public GloMesh[] Meshes { get; set; }
   }
 
   [Schema]

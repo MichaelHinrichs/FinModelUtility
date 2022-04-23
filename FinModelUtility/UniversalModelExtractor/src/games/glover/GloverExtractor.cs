@@ -24,11 +24,13 @@ namespace uni.games.glover {
             textureDirectories.Add(genericTextureDirectory);
           }
           
-          var levelTextureDirectory = gloverSteamDirectory.GetSubdir(objectDirectory.LocalPath.Replace("data\\objects", "data\\textures"));
-          textureDirectories.Add(levelTextureDirectory);
-          foreach (var subdir in levelTextureDirectory.GetExistingSubdirs()) {
-            textureDirectories.Add(subdir);
-          }
+          try {
+            var levelTextureDirectory = gloverSteamDirectory.GetSubdir(objectDirectory.LocalPath.Replace("data\\objects", "data\\textures"));
+            textureDirectories.Add(levelTextureDirectory);
+            foreach (var subdir in levelTextureDirectory.GetExistingSubdirs()) {
+              textureDirectories.Add(subdir);
+            }
+          } catch { }
 
           foreach (var objectFile in objectFiles) {
             var outputDirectory = parentOutputDirectory.GetSubdir(objectFile.NameWithoutExtension, true);
