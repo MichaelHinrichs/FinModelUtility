@@ -8,12 +8,14 @@ using fin.io;
 using fin.util.asserts;
 using fin.util.data;
 
+
 namespace uni.util.io {
   public interface IFileHierarchy : IEnumerable<IFileHierarchyDirectory> {
     IFileHierarchyDirectory Root { get; }
   }
 
   public interface IFileHierarchyInstance {
+    IFileHierarchyDirectory? Parent { get; }
     bool Exists { get; }
 
     string FullName { get; }
@@ -54,7 +56,7 @@ namespace uni.util.io {
 
   public class FileHierarchy : IFileHierarchy {
     public FileHierarchy(IDirectory directory) {
-      this.Root = new FileHierarchyDirectory(directory, directory);
+      this.Root = new FileHierarchyDirectory(null, directory, directory);
     }
 
     public IFileHierarchyDirectory Root { get; }
@@ -66,10 +68,12 @@ namespace uni.util.io {
       private List<IFileHierarchyFile> files_ = new();
 
       public FileHierarchyDirectory(
+          IFileHierarchyDirectory? parent,
           IDirectory directory,
           IDirectory baseDirectory) {
         this.baseDirectory_ = baseDirectory;
 
+        this.Parent = parent;
         this.Impl = directory;
         this.LocalPath =
             directory.FullName.Substring(baseDirectory.FullName.Length);
@@ -81,6 +85,8 @@ namespace uni.util.io {
 
         this.Refresh();
       }
+
+      public IFileHierarchyDirectory? Parent { get; }
 
       public IDirectory Impl { get; }
 
@@ -107,7 +113,7 @@ namespace uni.util.io {
         foreach (var actualSubdir in actualSubdirs) {
           if (this.subdirs_.All(subdir => !subdir.Impl.Equals(actualSubdir))) {
             this.subdirs_.Add(
-                new FileHierarchyDirectory(actualSubdir,
+                new FileHierarchyDirectory(this, actualSubdir,
                                            this.baseDirectory_));
             didChange = true;
           }
@@ -120,7 +126,7 @@ namespace uni.util.io {
         foreach (var actualFile in actualFiles) {
           if (this.files_.All(file => !file.Impl.Equals(actualFile))) {
             this.files_.Add(
-                new FileHierarchyFile(actualFile, this.baseDirectory_));
+                new FileHierarchyFile(this, actualFile, this.baseDirectory_));
             didChange = true;
           }
         }
@@ -176,11 +182,16 @@ namespace uni.util.io {
     }
 
     private class FileHierarchyFile : IFileHierarchyFile {
-      public FileHierarchyFile(IFile file, IDirectory baseDirectory) {
+      public FileHierarchyFile(IFileHierarchyDirectory? parent,
+                               IFile? file,
+                               IDirectory baseDirectory) {
+        this.Parent = parent;
         this.Impl = file;
         this.LocalPath =
             file.FullName.Substring(baseDirectory.FullName.Length);
       }
+
+      public IFileHierarchyDirectory? Parent { get; }
 
       public IFile Impl { get; }
 

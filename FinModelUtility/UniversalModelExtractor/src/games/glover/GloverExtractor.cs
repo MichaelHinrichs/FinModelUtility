@@ -1,42 +1,96 @@
 ﻿using uni.platforms.desktop;
+
 using glo.api;
+
 using uni.util.io;
+
 using fin.util.asserts;
+
 using System.Collections.Generic;
+using System.Linq;
+
 using fin.io;
+
 
 namespace uni.games.glover {
   internal class GloverExtractor {
     public void ExtractAll() {
       var gloverSteamDirectory = SteamUtils.GetGameDirectory("Glover");
-      Asserts.Nonnull(gloverSteamDirectory, "Could not find Glover installed in Steam.");
+      Asserts.Nonnull(gloverSteamDirectory,
+                      "Could not find Glover installed in Steam.");
 
       var gloverFileHierarchy = new FileHierarchy(gloverSteamDirectory!);
 
-      var topLevelObjectDirectory = gloverFileHierarchy.Root.TryToGetSubdir("data/objects");
-      if (topLevelObjectDirectory != null) {
-        foreach (var objectDirectory in topLevelObjectDirectory.Subdirs) {
-          var objectFiles = objectDirectory.FilesWithExtension(".glo");
+      var topLevelObjectDirectory =
+          gloverFileHierarchy.Root.TryToGetSubdir("data/objects");
+      if (topLevelObjectDirectory == null) {
+        return;
+      }
 
-          var parentOutputDirectory = GameFileHierarchyUtil.GetOutputDirectoryForDirectory(objectDirectory);
-          var textureDirectories = new List<IDirectory>();
-          foreach (var genericTextureDirectory in gloverSteamDirectory.GetSubdir("data/textures/generic").GetExistingSubdirs()) {
-            textureDirectories.Add(genericTextureDirectory);
-          }
-          
-          try {
-            var levelTextureDirectory = gloverSteamDirectory.GetSubdir(objectDirectory.LocalPath.Replace("data\\objects", "data\\textures"));
-            textureDirectories.Add(levelTextureDirectory);
-            foreach (var subdir in levelTextureDirectory.GetExistingSubdirs()) {
-              textureDirectories.Add(subdir);
-            }
-          } catch { }
+      if (false) {
+        var genericDirectory =
+            topLevelObjectDirectory.TryToGetSubdir("generic")!;
+        var objectFile =
+            genericDirectory.FilesWithExtension(".glo")
+                            .Single(file => file.Name == "evilglove.glo");
 
-          foreach (var objectFile in objectFiles) {
-            var outputDirectory = parentOutputDirectory.GetSubdir(objectFile.NameWithoutExtension, true);
-            new ManualGloApi().Run(outputDirectory, textureDirectories, objectFile.Impl, 30);
-          }
-        }
+        var objectDirectory = objectFile.Parent!;
+        var parentOutputDirectory =
+            GameFileHierarchyUtil.GetOutputDirectoryForDirectory(
+                objectDirectory);
+        var textureDirectories = gloverSteamDirectory
+                                 .GetSubdir("data/textures/generic")
+                                 .GetExistingSubdirs()
+                                 .ToList();
+
+        try {
+          var levelTextureDirectory = gloverSteamDirectory.GetSubdir(
+              objectDirectory.LocalPath.Replace("data\\objects",
+                                                "data\\textures"));
+          textureDirectories.Add(levelTextureDirectory);
+          textureDirectories.AddRange(
+              levelTextureDirectory.GetExistingSubdirs());
+        } catch { }
+
+        var outputDirectory =
+            parentOutputDirectory.GetSubdir(objectFile.NameWithoutExtension,
+                                            true);
+        new ManualGloApi().Run(outputDirectory, textureDirectories,
+                               objectFile.Impl, 30);
+
+        return;
+      }
+
+      foreach (var objectDirectory in topLevelObjectDirectory.Subdirs) {
+        this.ExtractFromDirectory(gloverSteamDirectory!, objectDirectory);
+      }
+    }
+
+    private void ExtractFromDirectory(IDirectory gloverSteamDirectory,
+                                      IFileHierarchyDirectory objectDirectory) {
+      var objectFiles = objectDirectory.FilesWithExtension(".glo");
+
+      var parentOutputDirectory =
+          GameFileHierarchyUtil.GetOutputDirectoryForDirectory(objectDirectory);
+      var textureDirectories = gloverSteamDirectory
+                               .GetSubdir("data/textures/generic")
+                               .GetExistingSubdirs()
+                               .ToList();
+
+      try {
+        var levelTextureDirectory = gloverSteamDirectory.GetSubdir(
+            objectDirectory.LocalPath.Replace("data\\objects",
+                                              "data\\textures"));
+        textureDirectories.Add(levelTextureDirectory);
+        textureDirectories.AddRange(levelTextureDirectory.GetExistingSubdirs());
+      } catch { }
+
+      foreach (var objectFile in objectFiles) {
+        var outputDirectory =
+            parentOutputDirectory.GetSubdir(objectFile.NameWithoutExtension,
+                                            true);
+        new ManualGloApi().Run(outputDirectory, textureDirectories,
+                               objectFile.Impl, 30);
       }
     }
   }

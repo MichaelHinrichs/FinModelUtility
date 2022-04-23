@@ -1,5 +1,6 @@
 ﻿using schema;
 
+
 namespace glo.schema {
   [Schema]
   public sealed partial class Glo : IDeserializable {
@@ -7,19 +8,16 @@ namespace glo.schema {
 
     public ushort Version { get; set; }
 
-    [ArrayLengthSource(IntType.UINT16)]
-    public GloObject[] Objects { get; set; }
+    [ArrayLengthSource(IntType.UINT16)] public GloObject[] Objects { get; set; }
   }
 
 
   [Schema]
   public sealed partial class GloObject : IDeserializable {
-
     [ArrayLengthSource(IntType.UINT16)]
     public GloAnimSeg[] AnimSegs { get; set; }
 
-    [ArrayLengthSource(IntType.UINT16)]
-    public GloMesh[] Meshes { get; set; }
+    [ArrayLengthSource(IntType.UINT16)] public GloMesh[] Meshes { get; set; }
   }
 
   [Schema]
@@ -48,11 +46,9 @@ namespace glo.schema {
     [ArrayLengthSource(IntType.UINT16)]
     public GloVertex[] Vertices { get; set; }
 
-    [ArrayLengthSource(IntType.UINT16)]
-    public GloFace[] Faces { get; set; }
+    [ArrayLengthSource(IntType.UINT16)] public GloFace[] Faces { get; set; }
 
-    [ArrayLengthSource(IntType.UINT16)]
-    public GloSprite[] Sprites { get; set; }
+    [ArrayLengthSource(IntType.UINT16)] public GloSprite[] Sprites { get; set; }
 
     public ushort MeshTranslucency { get; set; }
     public ushort MeshFlags { get; set; }
@@ -117,9 +113,9 @@ namespace glo.schema {
     public ushort Flags { get; set; }
 
     public GloVertexRef[] VertexRefs { get; } = new GloVertexRef[3] {
-      new GloVertexRef(),
-      new GloVertexRef(),
-      new GloVertexRef(),
+        new GloVertexRef(),
+        new GloVertexRef(),
+        new GloVertexRef(),
     };
   }
 
