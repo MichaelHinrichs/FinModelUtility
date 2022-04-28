@@ -37,6 +37,7 @@ namespace glo.api {
 
       var finTextureMap = new LazyDictionary<string, ITexture?>(
           textureFilename => {
+            // TODO: Use bank files for quick lookup instead of searching like this
             foreach (var textureDirectory in textureDirectories) {
               try {
                 var textureFile =
@@ -210,8 +211,8 @@ namespace glo.api {
           var gloVertices = gloMesh.Vertices;
 
           var gloFaces = gloMesh.Faces;
-          for (var i = 0; i < gloFaces.Length; ++i) {
-            var gloFace = gloFaces[i];
+          foreach (var gloFace in gloFaces) {
+            // TODO: What can we do if texture filename is empty?
             var textureFilename =
                 new string(gloFace.TextureFilename).Replace("\0", "");
 
