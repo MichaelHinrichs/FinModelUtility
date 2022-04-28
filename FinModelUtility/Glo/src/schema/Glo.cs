@@ -38,7 +38,7 @@ namespace glo.schema {
     public GloXyzKey[] MoveKeys { get; set; }
 
     [ArrayLengthSource(IntType.UINT16)]
-    public GloXyzKey[] ScaleKeys { get; set; }
+    public GloScaleKey[] ScaleKeys { get; set; }
 
     [ArrayLengthSource(IntType.UINT16)]
     public GloQuaternionKey[] RotateKeys { get; set; }
@@ -50,7 +50,9 @@ namespace glo.schema {
 
     [ArrayLengthSource(IntType.UINT16)] public GloSprite[] Sprites { get; set; }
 
-    public ushort MeshTranslucency { get; set; }
+    [Format(SchemaNumberType.UN8)] public float MeshTranslucency { get; set; }
+    private readonly byte padding_ = 0;
+
     public ushort MeshFlags { get; set; }
 
     public GloMeshPointers Pointers { get; } = new();
@@ -82,10 +84,7 @@ namespace glo.schema {
   [Schema]
   public sealed partial class GloXyzKey : IDeserializable {
     public uint Time { get; set; }
-
-    public float X { get; set; }
-    public float Y { get; set; }
-    public float Z { get; set; }
+    public GloXyz Xyz { get; } = new();
   }
 
   [Schema]
@@ -96,6 +95,12 @@ namespace glo.schema {
     public float Y { get; set; }
     public float Z { get; set; }
     public float W { get; set; }
+  }
+
+  [Schema]
+  public sealed partial class GloScaleKey : IDeserializable {
+    public uint Time { get; set; }
+    public GloScale Scale { get; } = new();
   }
 
   [Schema]
@@ -148,6 +153,13 @@ namespace glo.schema {
   public sealed partial class GloXyz : IDeserializable {
     public float X { get; set; }
     public float Y { get; set; }
+    public float Z { get; set; }
+  }
+
+  [Schema]
+  public sealed partial class GloScale : IDeserializable {
+    public float Y { get; set; }
+    public float X { get; set; }
     public float Z { get; set; }
   }
 

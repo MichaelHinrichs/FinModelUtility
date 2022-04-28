@@ -17,6 +17,14 @@ using fin.util.image;
 
 namespace glo.api {
   public class ModelConverter {
+    private readonly string[] hiddenNames_ = new[] {
+        "Box01", "puzzle"
+    };
+
+    private readonly string[] mirrorTextures_ = new[] {
+        "Badg2.bmp"
+    };
+
     public unsafe IModel Convert(
         Glo glo,
         IDirectory outputDirectory,
@@ -52,7 +60,7 @@ namespace glo.api {
 
                             // TODO: Slow as heck
                             var pixel = rawTextureImage.GetPixel(x, y);
-                            
+
                             var r = pixel.R;
                             var g = pixel.G;
                             var b = pixel.B;
@@ -72,8 +80,14 @@ namespace glo.api {
 
                   var finTexture = finModel.MaterialManager.CreateTexture(
                       textureImageWithAlpha);
-                  finTexture.WrapModeU = WrapMode.MIRROR_REPEAT;
-                  finTexture.WrapModeV = WrapMode.MIRROR_REPEAT;
+
+                  if (this.mirrorTextures_.Contains(textureFilename)) {
+                    finTexture.WrapModeU = WrapMode.MIRROR_REPEAT;
+                    finTexture.WrapModeV = WrapMode.MIRROR_REPEAT;
+                  } else {
+                    finTexture.WrapModeU = WrapMode.REPEAT;
+                    finTexture.WrapModeV = WrapMode.REPEAT;
+                  }
 
                   return finTexture;
                 }
@@ -106,65 +120,92 @@ namespace glo.api {
       foreach (var gloObject in glo.Objects) {
         var finObjectRootBone = finRootBone.AddRoot(0, 0, 0);
         var meshQueue = new Queue<(GloMesh, IBone)>();
-        meshQueue.Enqueue((gloObject.Meshes[0], finObjectRootBone));
+        foreach (var topLevelGloMesh in gloObject.Meshes) {
+          meshQueue.Enqueue((topLevelGloMesh, finObjectRootBone));
+        }
 
-        var finAnimation = finModel.AnimationManager.AddAnimation();
-        finAnimation.FrameRate = fps;
+        IAnimation? finAnimation = null;
+        if (gloObject.AnimSegs.Length > 0) {
+          finAnimation = finModel.AnimationManager.AddAnimation();
+          finAnimation.FrameRate = fps;
+        }
 
         while (meshQueue.Count > 0) {
           var (gloMesh, parentFinBone) = meshQueue.Dequeue();
 
-          var finMesh = finSkin.AddMesh();
-          finMesh.Name = new string(gloMesh.Name).Replace("\0", "");
+          var name = new string(gloMesh.Name).Replace("\0", "");
 
-          var position = gloMesh.MoveKeys[0];
+          var position = gloMesh.MoveKeys[0].Xyz;
 
           var rotation = gloMesh.RotateKeys[0];
           var quaternion =
               new Quaternion(rotation.X, rotation.Y, rotation.Z, rotation.W);
           var xyzRadians = QuaternionUtil.ToEulerRadians(quaternion);
 
-          var scale = gloMesh.ScaleKeys[0];
+          var scale = gloMesh.ScaleKeys[0].Scale;
 
           var finBone = parentFinBone
                         .AddChild(position.X, position.Y, position.Z)
                         .SetLocalRotationRadians(
                             xyzRadians.X, xyzRadians.Y, xyzRadians.Z)
                         .SetLocalScale(scale.X, scale.Y, scale.Z);
+          finBone.Name = name + "_bone";
 
-          var finBoneTracks = finAnimation.AddBoneTracks(finBone);
-          foreach (var moveKey in gloMesh.MoveKeys) {
-            finAnimation.FrameCount =
-                Math.Max(finAnimation.FrameCount, (int) moveKey.Time + 1);
-
-            finBoneTracks.Positions.Set((int) moveKey.Time, 0, moveKey.X);
-            finBoneTracks.Positions.Set((int) moveKey.Time, 1, moveKey.Y);
-            finBoneTracks.Positions.Set((int) moveKey.Time, 2, moveKey.Z);
+          var child = gloMesh.Pointers.Child;
+          if (child != null) {
+            meshQueue.Enqueue((child, finBone));
           }
-          foreach (var rotateKey in gloMesh.RotateKeys) {
-            finAnimation.FrameCount =
-                Math.Max(finAnimation.FrameCount, (int) rotateKey.Time + 1);
 
-            var quaternionKey =
-                new Quaternion(rotateKey.X, rotateKey.Y, rotateKey.Z,
-                               rotateKey.W);
-            var xyzRadiansKey = QuaternionUtil.ToEulerRadians(quaternionKey);
-
-            finBoneTracks.Rotations.Set((int) rotateKey.Time, 0,
-                                        xyzRadiansKey.X);
-            finBoneTracks.Rotations.Set((int) rotateKey.Time, 1,
-                                        xyzRadiansKey.Y);
-            finBoneTracks.Rotations.Set((int) rotateKey.Time, 2,
-                                        xyzRadiansKey.Z);
+          var next = gloMesh.Pointers.Next;
+          if (next != null) {
+            meshQueue.Enqueue((next, parentFinBone));
           }
-          foreach (var scaleKey in gloMesh.ScaleKeys) {
-            finAnimation.FrameCount =
-                Math.Max(finAnimation.FrameCount, (int) scaleKey.Time + 1);
 
-            finBoneTracks.Scales.Set((int) scaleKey.Time, 0, scaleKey.X);
-            finBoneTracks.Scales.Set((int) scaleKey.Time, 1, scaleKey.Y);
-            finBoneTracks.Scales.Set((int) scaleKey.Time, 2, scaleKey.Z);
+          if (finAnimation != null) {
+            var finBoneTracks = finAnimation.AddBoneTracks(finBone);
+            foreach (var moveKey in gloMesh.MoveKeys) {
+              finAnimation.FrameCount =
+                  Math.Max(finAnimation.FrameCount, (int) moveKey.Time + 1);
+
+              var moveValue = moveKey.Xyz;
+              finBoneTracks.Positions.Set((int) moveKey.Time, 0, moveValue.X);
+              finBoneTracks.Positions.Set((int) moveKey.Time, 1, moveValue.Y);
+              finBoneTracks.Positions.Set((int) moveKey.Time, 2, moveValue.Z);
+            }
+            foreach (var rotateKey in gloMesh.RotateKeys) {
+              finAnimation.FrameCount =
+                  Math.Max(finAnimation.FrameCount, (int) rotateKey.Time + 1);
+
+              var quaternionKey =
+                  new Quaternion(rotateKey.X, rotateKey.Y, rotateKey.Z,
+                                 rotateKey.W);
+              var xyzRadiansKey = QuaternionUtil.ToEulerRadians(quaternionKey);
+
+              finBoneTracks.Rotations.Set((int) rotateKey.Time, 0,
+                                          xyzRadiansKey.X);
+              finBoneTracks.Rotations.Set((int) rotateKey.Time, 1,
+                                          xyzRadiansKey.Y);
+              finBoneTracks.Rotations.Set((int) rotateKey.Time, 2,
+                                          xyzRadiansKey.Z);
+            }
+            foreach (var scaleKey in gloMesh.ScaleKeys) {
+              finAnimation.FrameCount =
+                  Math.Max(finAnimation.FrameCount, (int) scaleKey.Time + 1);
+
+              var scaleValue = scaleKey.Scale;
+              finBoneTracks.Scales.Set((int) scaleKey.Time, 0, scaleValue.X);
+              finBoneTracks.Scales.Set((int) scaleKey.Time, 1, scaleValue.Y);
+              finBoneTracks.Scales.Set((int) scaleKey.Time, 2, scaleValue.Z);
+            }
           }
+
+          // Anything with these names are debug objects and can be ignored.
+          if (this.hiddenNames_.Contains(name)) {
+            continue;
+          }
+
+          var finMesh = finSkin.AddMesh();
+          finMesh.Name = name;
 
           var gloVertices = gloMesh.Vertices;
 
@@ -187,6 +228,10 @@ namespace glo.api {
             // Face flag:
             // 0: potentially some kind of repeat mode??
 
+            var color = (gloFace.Flags & 1 << 6) != 0
+                            ? ColorImpl.FromRgbaBytes(255, 0, 0, 255)
+                            : ColorImpl.FromRgbaBytes(0, 255, 0, 255);
+
             var finFaceVertices = new IVertex[3];
             for (var v = 0; v < 3; ++v) {
               var gloVertexRef = gloFace.VertexRefs[v];
@@ -195,6 +240,7 @@ namespace glo.api {
               var finVertex = finSkin
                               .AddVertex(gloVertex.X, gloVertex.Y, gloVertex.Z)
                               .SetUv(gloVertexRef.U, gloVertexRef.V);
+              //.SetColor(color);
               finVertex.SetBone(finBone);
               finFaceVertices[v] = finVertex;
             }
@@ -204,16 +250,6 @@ namespace glo.api {
             finTriangles[0] = (finFaceVertices[0], finFaceVertices[2],
                                finFaceVertices[1]);
             finMesh.AddTriangles(finTriangles).SetMaterial(finMaterial!);
-          }
-
-          var child = gloMesh.Pointers.Child;
-          if (child != null) {
-            meshQueue.Enqueue((child, finBone));
-          }
-
-          var next = gloMesh.Pointers.Next;
-          if (next != null) {
-            meshQueue.Enqueue((next, parentFinBone));
           }
         }
 

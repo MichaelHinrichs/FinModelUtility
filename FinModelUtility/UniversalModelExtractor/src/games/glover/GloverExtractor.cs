@@ -6,7 +6,6 @@ using uni.util.io;
 
 using fin.util.asserts;
 
-using System.Collections.Generic;
 using System.Linq;
 
 using fin.io;
@@ -24,40 +23,6 @@ namespace uni.games.glover {
       var topLevelObjectDirectory =
           gloverFileHierarchy.Root.TryToGetSubdir("data/objects");
       if (topLevelObjectDirectory == null) {
-        return;
-      }
-
-      if (false) {
-        var genericDirectory =
-            topLevelObjectDirectory.TryToGetSubdir("generic")!;
-        var objectFile =
-            genericDirectory.FilesWithExtension(".glo")
-                            .Single(file => file.Name == "evilglove.glo");
-
-        var objectDirectory = objectFile.Parent!;
-        var parentOutputDirectory =
-            GameFileHierarchyUtil.GetOutputDirectoryForDirectory(
-                objectDirectory);
-        var textureDirectories = gloverSteamDirectory
-                                 .GetSubdir("data/textures/generic")
-                                 .GetExistingSubdirs()
-                                 .ToList();
-
-        try {
-          var levelTextureDirectory = gloverSteamDirectory.GetSubdir(
-              objectDirectory.LocalPath.Replace("data\\objects",
-                                                "data\\textures"));
-          textureDirectories.Add(levelTextureDirectory);
-          textureDirectories.AddRange(
-              levelTextureDirectory.GetExistingSubdirs());
-        } catch { }
-
-        var outputDirectory =
-            parentOutputDirectory.GetSubdir(objectFile.NameWithoutExtension,
-                                            true);
-        new ManualGloApi().Run(outputDirectory, textureDirectories,
-                               objectFile.Impl, 30);
-
         return;
       }
 
