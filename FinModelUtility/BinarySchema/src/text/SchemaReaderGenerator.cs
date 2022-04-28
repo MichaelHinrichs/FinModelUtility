@@ -295,6 +295,7 @@ namespace schema.text {
           SchemaPrimitiveType.UINT64 => "UInt64",
           SchemaPrimitiveType.SINGLE => "Single",
           SchemaPrimitiveType.DOUBLE => "Double",
+          SchemaPrimitiveType.UN8 => "Un8",
           SchemaPrimitiveType.SN16 => "Sn16",
           SchemaPrimitiveType.UN16 => "Un16",
           _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
@@ -341,6 +342,7 @@ namespace schema.text {
           SchemaNumberType.UINT64 => SchemaPrimitiveType.UINT64,
           SchemaNumberType.SINGLE => SchemaPrimitiveType.SINGLE,
           SchemaNumberType.DOUBLE => SchemaPrimitiveType.DOUBLE,
+          SchemaNumberType.UN8 => SchemaPrimitiveType.UN8,
           SchemaNumberType.SN16 => SchemaPrimitiveType.SN16,
           SchemaNumberType.UN16 => SchemaPrimitiveType.UN16,
           _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)

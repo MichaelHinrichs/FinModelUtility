@@ -33,6 +33,8 @@ namespace schema {
     SINGLE,
     DOUBLE,
 
+    UN8,
+
     SN16,
     UN16,
 
@@ -482,6 +484,7 @@ namespace schema {
           SchemaPrimitiveType.UINT64 => true,
           SchemaPrimitiveType.SINGLE => true,
           SchemaPrimitiveType.DOUBLE => true,
+          SchemaPrimitiveType.UN8   => true,
           SchemaPrimitiveType.SN16   => true,
           SchemaPrimitiveType.UN16   => true,
           SchemaPrimitiveType.ENUM   => true,

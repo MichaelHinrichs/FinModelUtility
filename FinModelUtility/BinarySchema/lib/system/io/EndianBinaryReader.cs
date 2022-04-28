@@ -6,6 +6,7 @@
 
 using System.Text;
 
+
 namespace System.IO {
   public sealed class EndianBinaryReader : IDisposable {
     private bool disposed_;
@@ -21,7 +22,7 @@ namespace System.IO {
     }
 
     public EndianBinaryReader(Stream baseStream)
-        : this(baseStream, Endianness.BigEndian) {}
+        : this(baseStream, Endianness.BigEndian) { }
 
     public EndianBinaryReader(Stream baseStream, Endianness endianness) {
       if (baseStream == null) {
@@ -45,7 +46,7 @@ namespace System.IO {
 
     public void Dispose() {
       this.Dispose(true);
-      GC.SuppressFinalize((object)this);
+      GC.SuppressFinalize((object) this);
     }
 
     private void Dispose(bool disposing) {
@@ -89,7 +90,7 @@ namespace System.IO {
     private static byte ConvertByte_(byte[] buffer, int i) => buffer[i];
 
     private static sbyte ConvertSByte_(byte[] buffer, int i)
-      => (sbyte)buffer[i];
+      => (sbyte) buffer[i];
 
     private static short ConvertInt16_(byte[] buffer, int i)
       => BitConverter.ToInt16(buffer, sizeof(short) * i);
@@ -114,6 +115,9 @@ namespace System.IO {
 
     private static double ConvertDouble_(byte[] buffer, int i)
       => BitConverter.ToDouble(buffer, sizeof(double) * i);
+
+    private static float ConvertUn8_(byte[] buffer, int i)
+      => EndianBinaryReader.ConvertByte_(buffer, i) / 255f;
 
     private static float ConvertSn16_(byte[] buffer, int i)
       => EndianBinaryReader.ConvertInt16_(buffer, i) / (65535f / 2);
@@ -344,6 +348,27 @@ namespace System.IO {
     }
 
 
+    public void AssertUn8(float expectedValue)
+      => EndianBinaryReader.Assert(expectedValue, this.ReadUn8());
+
+    public float ReadUn8() {
+      this.FillBuffer_(sizeof(byte));
+      return EndianBinaryReader.ConvertUn8_(this.BufferedStream_.Buffer, 0);
+    }
+
+    public float[] ReadUn8s(int count) => this.ReadUn8s(new float[count]);
+
+    public float[] ReadUn8s(float[] dst) {
+      const int size = sizeof(byte);
+      this.FillBuffer_(size * dst.Length, size);
+      for (var i = 0; i < dst.Length; ++i) {
+        dst[i] =
+            EndianBinaryReader.ConvertUn8_(this.BufferedStream_.Buffer, i);
+      }
+      return dst;
+    }
+
+
     public void AssertSn16(float expectedValue)
       => EndianBinaryReader.Assert(expectedValue, this.ReadSn16());
 
@@ -369,14 +394,14 @@ namespace System.IO {
       => EndianBinaryReader.Assert(expectedValue, this.ReadUn16());
 
     public float ReadUn16() {
-      this.FillBuffer_(sizeof(short));
+      this.FillBuffer_(sizeof(ushort));
       return EndianBinaryReader.ConvertUn16_(this.BufferedStream_.Buffer, 0);
     }
 
     public float[] ReadUn16s(int count) => this.ReadUn16s(new float[count]);
 
     public float[] ReadUn16s(float[] dst) {
-      const int size = sizeof(short);
+      const int size = sizeof(ushort);
       this.FillBuffer_(size * dst.Length, size);
       for (var i = 0; i < dst.Length; ++i) {
         dst[i] =
