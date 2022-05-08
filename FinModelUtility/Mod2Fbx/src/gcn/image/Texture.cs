@@ -6,6 +6,9 @@ using fin.util.asserts;
 
 using mod.gcn.image;
 
+using schema;
+
+
 namespace mod.gcn {
   public class Texture : IGcnSerializable {
     public int index;
@@ -47,18 +50,18 @@ namespace mod.gcn {
     }
 
     public void Write(EndianBinaryWriter writer) {
-      writer.Write(this.width);
-      writer.Write(this.height);
-      writer.Write((uint) this.format);
-      writer.Write(this.unknown);
+      writer.WriteUInt16(this.width);
+      writer.WriteUInt16(this.height);
+      writer.WriteUInt32((uint) this.format);
+      writer.WriteUInt32(this.unknown);
 
       for (var i = 0; i < 4; i++) {
-        writer.Write((uint) 0);
+        writer.WriteUInt32((uint) 0);
       }
 
-      writer.Write(this.imageData.Count);
+      writer.WriteInt32(this.imageData.Count);
       foreach (var b in this.imageData) {
-        writer.Write(b);
+        writer.WriteByte(b);
       }
     }
 
@@ -88,26 +91,12 @@ namespace mod.gcn {
     }
   }
 
-  public class TextureAttributes : IGcnSerializable {
+  [Schema]
+  public partial class TextureAttributes : IGcnSerializable {
     public ushort index = 0;
+    private readonly ushort padding_ = 0;
     public ushort tilingMode = 0;
     public ushort unknown1 = 0;
     public float unknown2 = 0;
-
-    public void Read(EndianBinaryReader reader) {
-      this.index = reader.ReadUInt16();
-      reader.ReadUInt16();
-      this.tilingMode = reader.ReadUInt16();
-      this.unknown1 = reader.ReadUInt16();
-      this.unknown2 = reader.ReadSingle();
-    }
-
-    public void Write(EndianBinaryWriter writer) {
-      writer.Write(this.index);
-      writer.Write((ushort) 0);
-      writer.Write(this.tilingMode);
-      writer.Write(this.unknown1);
-      writer.Write(this.unknown2);
-    }
   }
 }

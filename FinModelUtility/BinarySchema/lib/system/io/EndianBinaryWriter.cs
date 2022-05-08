@@ -6,6 +6,7 @@
 
 using System.Text;
 
+
 namespace System.IO {
   public sealed class EndianBinaryWriter : IDisposable {
     private bool disposed_;
@@ -28,7 +29,7 @@ namespace System.IO {
     }
 
     public EndianBinaryWriter(Stream baseStream)
-        : this(baseStream, Endianness.BigEndian) {}
+        : this(baseStream, Endianness.BigEndian) { }
 
     public EndianBinaryWriter(Stream baseStream, Endianness endianness) {
       if (baseStream == null)
@@ -52,14 +53,14 @@ namespace System.IO {
       var pos = this.BaseStream.Position;
       for (var i = 0; i < ((~(amt - 1) & (pos + amt - 1)) - pos); ++i) {
         byte padding = 0;
-        this.Write(padding);
+        this.WriteByte(padding);
       }
     }
 
     public long StartChunk(uint chunk) {
-      this.Write(chunk);
+      this.WriteUInt32(chunk);
       var position = this.Position;
-      this.Write((uint) 0);
+      this.WriteUInt32((uint) 0);
       return position;
     }
 
@@ -67,7 +68,7 @@ namespace System.IO {
       this.Align(0x20);
       var position = this.Position;
       this.Position = chunkStart;
-      this.Write((uint) (position - chunkStart - 4));
+      this.WriteUInt32((uint) (position - chunkStart - 4));
       this.Position = position;
     }
 
@@ -85,32 +86,40 @@ namespace System.IO {
       this.buffer_ = new byte[size];
     }
 
-    public void Write(byte value) {
+    public void WriteByte(byte value) {
       this.CreateBuffer_(1);
       this.buffer_[0] = value;
       this.WriteBuffer_(1, 1);
     }
 
-    public void Write(byte[] value, int offset, int count) {
+    public void WriteBytes(byte[] value) =>
+        this.WriteBytes(value, 0, value.Length);
+
+    public void WriteBytes(byte[] value, int offset, int count) {
       this.CreateBuffer_(count);
       Array.Copy((Array) value, offset, (Array) this.buffer_, 0, count);
       this.WriteBuffer_(count, 1);
     }
 
-    public void Write(sbyte value) {
+    public void WriteSByte(sbyte value) {
       this.CreateBuffer_(1);
       this.buffer_[0] = (byte) value;
       this.WriteBuffer_(1, 1);
     }
 
-    public void Write(sbyte[] value, int offset, int count) {
+    public void WriteSBytes(sbyte[] value) =>
+        this.WriteSBytes(value, 0, value.Length);
+
+    public void WriteSBytes(sbyte[] value, int offset, int count) {
       this.CreateBuffer_(count);
       for (int index = 0; index < count; ++index)
         this.buffer_[index] = (byte) value[index + offset];
       this.WriteBuffer_(count, 1);
     }
 
-    public void Write(char value, Encoding encoding) {
+    public void WriteChar(char value) => this.WriteChar(value, Encoding.ASCII);
+
+    public void WriteChar(char value, Encoding encoding) {
       int encodingSize = EndianBinaryWriter.GetEncodingSize_(encoding);
       this.CreateBuffer_(encodingSize);
       Array.Copy((Array) encoding.GetBytes(new string(value, 1)),
@@ -121,7 +130,13 @@ namespace System.IO {
       this.WriteBuffer_(encodingSize, encodingSize);
     }
 
-    public void Write(char[] value, int offset, int count, Encoding encoding) {
+    public void WriteChars(char[] value) =>
+        this.WriteChars(value, 0, value.Length, Encoding.ASCII);
+
+    public void WriteChars(char[] value,
+                           int offset,
+                           int count,
+                           Encoding encoding) {
       int encodingSize = EndianBinaryWriter.GetEncodingSize_(encoding);
       this.CreateBuffer_(encodingSize * count);
       Array.Copy((Array) encoding.GetBytes(value, offset, count),
@@ -141,14 +156,22 @@ namespace System.IO {
                  : 2;
     }
 
-    public void Write(string value, Encoding encoding, bool nullTerminated) {
-      this.Write(value.ToCharArray(), 0, value.Length, encoding);
+    public void WriteString(string value)
+      => this.WriteString(value, Encoding.ASCII, false);
+
+    public void WriteStringNT(string value)
+      => this.WriteString(value, Encoding.ASCII, true);
+
+    public void WriteString(string value,
+                            Encoding encoding,
+                            bool nullTerminated) {
+      this.WriteChars(value.ToCharArray(), 0, value.Length, encoding);
       if (!nullTerminated)
         return;
-      this.Write(char.MinValue, encoding);
+      this.WriteChar(char.MinValue, encoding);
     }
 
-    public void Write(double value) {
+    public void WriteDouble(double value) {
       this.CreateBuffer_(8);
       Array.Copy((Array) BitConverter.GetBytes(value),
                  0,
@@ -158,7 +181,10 @@ namespace System.IO {
       this.WriteBuffer_(8, 8);
     }
 
-    public void Write(double[] value, int offset, int count) {
+    public void WriteDoubles(double[] value) =>
+        this.WriteDoubles(value, 0, value.Length);
+
+    public void WriteDoubles(double[] value, int offset, int count) {
       this.CreateBuffer_(8 * count);
       for (int index = 0; index < count; ++index)
         Array.Copy((Array) BitConverter.GetBytes(value[index + offset]),
@@ -169,7 +195,7 @@ namespace System.IO {
       this.WriteBuffer_(8 * count, 8);
     }
 
-    public void Write(float value) {
+    public void WriteSingle(float value) {
       this.CreateBuffer_(4);
       Array.Copy((Array) BitConverter.GetBytes(value),
                  0,
@@ -179,7 +205,10 @@ namespace System.IO {
       this.WriteBuffer_(4, 4);
     }
 
-    public void Write(float[] value, int offset, int count) {
+    public void WriteSingles(float[] value) =>
+        this.WriteSingles(value, 0, value.Length);
+
+    public void WriteSingles(float[] value, int offset, int count) {
       this.CreateBuffer_(4 * count);
       for (int index = 0; index < count; ++index)
         Array.Copy((Array) BitConverter.GetBytes(value[index + offset]),
@@ -190,7 +219,7 @@ namespace System.IO {
       this.WriteBuffer_(4 * count, 4);
     }
 
-    public void Write(int value) {
+    public void WriteInt32(int value) {
       this.CreateBuffer_(4);
       Array.Copy((Array) BitConverter.GetBytes(value),
                  0,
@@ -200,7 +229,10 @@ namespace System.IO {
       this.WriteBuffer_(4, 4);
     }
 
-    public void Write(int[] value, int offset, int count) {
+    public void WriteInt32s(int[] value) =>
+        this.WriteInt32s(value, 0, value.Length);
+
+    public void WriteInt32s(int[] value, int offset, int count) {
       this.CreateBuffer_(4 * count);
       for (int index = 0; index < count; ++index)
         Array.Copy((Array) BitConverter.GetBytes(value[index + offset]),
@@ -211,7 +243,7 @@ namespace System.IO {
       this.WriteBuffer_(4 * count, 4);
     }
 
-    public void Write(long value) {
+    public void WriteInt64(long value) {
       this.CreateBuffer_(8);
       Array.Copy((Array) BitConverter.GetBytes(value),
                  0,
@@ -221,7 +253,10 @@ namespace System.IO {
       this.WriteBuffer_(8, 8);
     }
 
-    public void Write(long[] value, int offset, int count) {
+    public void WriteInt64s(long[] value) =>
+        this.WriteInt64s(value, 0, value.Length);
+
+    public void WriteInt64s(long[] value, int offset, int count) {
       this.CreateBuffer_(8 * count);
       for (int index = 0; index < count; ++index)
         Array.Copy((Array) BitConverter.GetBytes(value[index + offset]),
@@ -232,7 +267,7 @@ namespace System.IO {
       this.WriteBuffer_(8 * count, 8);
     }
 
-    public void Write(short value) {
+    public void WriteInt16(short value) {
       this.CreateBuffer_(2);
       Array.Copy((Array) BitConverter.GetBytes(value),
                  0,
@@ -242,7 +277,10 @@ namespace System.IO {
       this.WriteBuffer_(2, 2);
     }
 
-    public void Write(short[] value, int offset, int count) {
+    public void WriteInt16s(short[] value) =>
+        this.WriteInt16s(value, 0, value.Length);
+
+    public void WriteInt16s(short[] value, int offset, int count) {
       this.CreateBuffer_(2 * count);
       for (int index = 0; index < count; ++index)
         Array.Copy((Array) BitConverter.GetBytes(value[index + offset]),
@@ -253,7 +291,7 @@ namespace System.IO {
       this.WriteBuffer_(2 * count, 2);
     }
 
-    public void Write(ushort value) {
+    public void WriteUInt16(ushort value) {
       this.CreateBuffer_(2);
       Array.Copy((Array) BitConverter.GetBytes(value),
                  0,
@@ -263,7 +301,10 @@ namespace System.IO {
       this.WriteBuffer_(2, 2);
     }
 
-    public void Write(ushort[] value, int offset, int count) {
+    public void WriteUInt16s(ushort[] value) =>
+        this.WriteUInt16s(value, 0, value.Length);
+
+    public void WriteUInt16s(ushort[] value, int offset, int count) {
       this.CreateBuffer_(2 * count);
       for (int index = 0; index < count; ++index)
         Array.Copy((Array) BitConverter.GetBytes(value[index + offset]),
@@ -274,7 +315,7 @@ namespace System.IO {
       this.WriteBuffer_(2 * count, 2);
     }
 
-    public void Write(uint value) {
+    public void WriteUInt32(uint value) {
       this.CreateBuffer_(4);
       Array.Copy((Array) BitConverter.GetBytes(value),
                  0,
@@ -284,7 +325,10 @@ namespace System.IO {
       this.WriteBuffer_(4, 4);
     }
 
-    public void Write(uint[] value, int offset, int count) {
+    public void WriteUInt32s(uint[] value) =>
+        this.WriteUInt32s(value, 0, value.Length);
+
+    public void WriteUInt32s(uint[] value, int offset, int count) {
       this.CreateBuffer_(4 * count);
       for (int index = 0; index < count; ++index)
         Array.Copy((Array) BitConverter.GetBytes(value[index + offset]),
@@ -295,7 +339,7 @@ namespace System.IO {
       this.WriteBuffer_(4 * count, 4);
     }
 
-    public void Write(ulong value) {
+    public void WriteUInt64(ulong value) {
       this.CreateBuffer_(8);
       Array.Copy((Array) BitConverter.GetBytes(value),
                  0,
@@ -305,7 +349,10 @@ namespace System.IO {
       this.WriteBuffer_(8, 8);
     }
 
-    public void Write(ulong[] value, int offset, int count) {
+    public void WriteUInt64s(ulong[] value) =>
+        this.WriteUInt64s(value, 0, value.Length);
+
+    public void WriteUInt64s(ulong[] value, int offset, int count) {
       this.CreateBuffer_(8 * count);
       for (int index = 0; index < count; ++index)
         Array.Copy((Array) BitConverter.GetBytes(value[index + offset]),
@@ -315,6 +362,52 @@ namespace System.IO {
                    8);
       this.WriteBuffer_(8 * count, 8);
     }
+
+
+    public void WriteUn8(float value) {
+      var un8 = (byte)(value * 255f);
+      this.WriteByte(un8);
+    }
+
+    public void WriteUn8s(float[] value) =>
+        this.WriteUn8s(value, 0, value.Length);
+
+    public void WriteUn8s(float[] value, int offset, int count) {
+      for (var i = 0; i < count; ++i) {
+        this.WriteUn8(value[offset + i]);
+      }
+    }
+
+
+    public void WriteUn16(float value) {
+      var un16 = (ushort) (value * 65535f);
+      this.WriteUInt16(un16);
+    }
+
+    public void WriteUn16s(float[] value) =>
+        this.WriteUn16s(value, 0, value.Length);
+
+    public void WriteUn16s(float[] value, int offset, int count) {
+      for (var i = 0; i < count; ++i) {
+        this.WriteUn16(value[offset + i]);
+      }
+    }
+
+
+    public void WriteSn16(float value) {
+      var sn16 = (short) (value * (65535f / 2));
+      this.WriteInt16(sn16);
+    }
+
+    public void WriteSn16s(float[] value) =>
+        this.WriteSn16s(value, 0, value.Length);
+
+    public void WriteSn16s(float[] value, int offset, int count) {
+      for (var i = 0; i < count; ++i) {
+        this.WriteSn16(value[offset + i]);
+      }
+    }
+
 
     public void WritePadding(int multiple, byte padding) {
       int num = (int) (this.BaseStream.Position % (long) multiple);

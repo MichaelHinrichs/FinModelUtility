@@ -26,16 +26,6 @@ namespace mod.gcn {
     public float unknown2 = 0;
     public float unknown3 = 0;
 
-    public void Write(EndianBinaryWriter writer) {
-      writer.Write(this.unknown1);
-      writer.Write((byte) 0);
-      writer.Write((byte) 0);
-      writer.Write((byte) 0);
-
-      writer.Write(this.unknown2);
-      writer.Write(this.unknown3);
-    }
-
     public string? ToString()
       => $"{this.unknown1} {this.unknown2} {this.unknown3}";
   }
@@ -45,12 +35,6 @@ namespace mod.gcn {
     public float unknown1 = 0;
     public float unknown2 = 0;
     public float unknown3 = 0;
-
-    public void Write(EndianBinaryWriter writer) {
-      writer.Write(this.unknown1);
-      writer.Write(this.unknown2);
-      writer.Write(this.unknown3);
-    }
 
     public string? ToString()
       => $"{this.unknown1} {this.unknown2} {this.unknown3}";
@@ -63,13 +47,6 @@ namespace mod.gcn {
     public float unknown2 = 0;
     public float unknown3 = 0;
 
-    public void Write(EndianBinaryWriter writer) {
-      writer.Write(this.unknown1);
-      writer.Write((short) 0);
-      writer.Write(this.unknown2);
-      writer.Write(this.unknown3);
-    }
-
     public string? ToString()
       => $"{this.unknown1} {this.unknown2} {this.unknown3}";
   };
@@ -80,20 +57,12 @@ namespace mod.gcn {
     public readonly KeyInfoU8 unknown2 = new();
     public readonly KeyInfoU8 unknown3 = new();
     public readonly KeyInfoU8 unknown4 = new();
-
-    public void Write(EndianBinaryWriter writer) {
-      throw new System.NotImplementedException();
-    }
   }
 
   [Schema]
   public partial class PCI_Unk2 : IGcnSerializable {
     public int unknown1 = 0;
     public readonly KeyInfoU8 unknown2 = new();
-
-    public void Write(EndianBinaryWriter writer) {
-      throw new System.NotImplementedException();
-    }
   }
 
   [Schema]
@@ -106,10 +75,6 @@ namespace mod.gcn {
     public PCI_Unk1[] unknown4;
     [ArrayLengthSource(IntType.UINT32)]
     public PCI_Unk2[] unknown5;
-
-    public void Write(EndianBinaryWriter writer) {
-      throw new System.NotImplementedException();
-    }
   }
 
   public enum LightingInfoFlags {
@@ -120,10 +85,6 @@ namespace mod.gcn {
   public partial class LightingInfo : IGcnSerializable {
     public uint typeFlags = 0; // see LightingInfoFlags
     public float unknown2 = 0;
-
-    public void Write(EndianBinaryWriter writer) {
-      throw new System.NotImplementedException();
-    }
   }
 
   [Schema]
@@ -132,10 +93,6 @@ namespace mod.gcn {
     public int unknown2 = 0;
     public int unknown3 = 0;
     public int unknown4 = 0;
-
-    public void Write(EndianBinaryWriter writer) {
-      throw new System.NotImplementedException();
-    }
   };
 
   [Schema]
@@ -144,10 +101,6 @@ namespace mod.gcn {
     public byte unknown2 = 0;
     public byte unknown3 = 0;
     public byte unknown4 = 0;
-
-    public void Write(EndianBinaryWriter writer) {
-      throw new System.NotImplementedException();
-    }
   }
 
   [Schema]
@@ -156,13 +109,6 @@ namespace mod.gcn {
     public readonly KeyInfoF32 unknown2 = new();
     public readonly KeyInfoF32 unknown3 = new();
     public readonly KeyInfoF32 unknown4 = new();
-
-    public void Write(EndianBinaryWriter writer) {
-      writer.Write(this.unknown1);
-      this.unknown2.Write(writer);
-      this.unknown3.Write(writer);
-      this.unknown4.Write(writer);
-    }
   }
 
   [Schema]
@@ -195,10 +141,6 @@ namespace mod.gcn {
     public TXD_Unk1[] unknown19;
     [ArrayLengthSource(IntType.UINT32)]
     public TXD_Unk1[] unknown20;
-
-    public void Write(EndianBinaryWriter writer) {
-      throw new System.NotImplementedException();
-    }
   };
 
   [Schema]
@@ -211,10 +153,6 @@ namespace mod.gcn {
     public TexGenData[] unknown3 = {};
     [ArrayLengthSource(IntType.UINT32)]
     public TextureData[] unknown4 = {};
-
-    public void Write(EndianBinaryWriter writer) {
-      throw new System.NotImplementedException();
-    }
   }
 
   public enum MaterialFlags {
@@ -258,13 +196,6 @@ namespace mod.gcn {
     public readonly KeyInfoS10 unknown3 = new();
     public readonly KeyInfoS10 unknown4 = new();
 
-    public void Write(EndianBinaryWriter writer) {
-      writer.Write(this.unknown1);
-      this.unknown2.Write(writer);
-      this.unknown3.Write(writer);
-      this.unknown4.Write(writer);
-    }
-
     public string? ToString()
       => $"\t\t\tUNK1: {this.unknown1}\n" +
          $"\t\t\tUNK2: {this.unknown2}\n" +
@@ -276,11 +207,7 @@ namespace mod.gcn {
   public partial class TCR_Unk2 : IGcnSerializable {
     public int unknown1 = 0;
     public readonly KeyInfoS10 unknown2 = new();
-
-    public void Write(EndianBinaryWriter writer) {
-      throw new System.NotImplementedException();
-    }
-  };
+  }
 
   [Schema]
   public partial class TEVColReg : IGcnSerializable {
@@ -291,11 +218,7 @@ namespace mod.gcn {
     public TCR_Unk1[] unknown4;
     [ArrayLengthSource(IntType.UINT32)]
     public TCR_Unk2[] unknown5;
-
-    public void Write(EndianBinaryWriter writer) {
-      throw new System.NotImplementedException();
-    }
-  };
+  }
 
   [Schema]
   public partial class PVWCombiner : IGcnSerializable {
@@ -311,10 +234,6 @@ namespace mod.gcn {
     public byte unknown10 = 0;
     public byte unknown11 = 0;
     public byte unknown12 = 0;
-
-    public void Write(EndianBinaryWriter writer) {
-      throw new System.NotImplementedException();
-    }
   };
 
   [Schema]
@@ -330,10 +249,6 @@ namespace mod.gcn {
 
     public readonly PVWCombiner unknown7 = new();
     public readonly PVWCombiner unknown8 = new();
-
-    public void Write(EndianBinaryWriter writer) {
-      throw new System.NotImplementedException();
-    }
   }
 
   [Schema]
@@ -350,10 +265,6 @@ namespace mod.gcn {
 
     [ArrayLengthSource(IntType.UINT32)]
     public TEVStage[] unknown8;
-
-    public void Write(EndianBinaryWriter writer) {
-      throw new System.NotImplementedException();
-    }
   }
 
   public class MaterialContainer {

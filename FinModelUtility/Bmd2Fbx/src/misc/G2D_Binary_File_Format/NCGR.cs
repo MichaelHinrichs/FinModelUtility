@@ -63,9 +63,9 @@ namespace bmd.G2D_Binary_File_Format
       this.Header.Write(er);
       this.CharacterData.Write(er);
       er.BaseStream.Position = 8L;
-      er.Write((uint) er.BaseStream.Length);
+      er.WriteUInt32((uint) er.BaseStream.Length);
       er.BaseStream.Position = 20L;
-      er.Write((uint) ((ulong) er.BaseStream.Length - 16UL));
+      er.WriteUInt32((uint) ((ulong) er.BaseStream.Length - 16UL));
       byte[] array = memoryStream.ToArray();
       er.Close();
       return array;
@@ -182,14 +182,14 @@ namespace bmd.G2D_Binary_File_Format
       public void Write(EndianBinaryWriter er)
       {
         this.Header.Write(er, 0);
-        er.Write(this.H);
-        er.Write(this.W);
-        er.Write((uint) this.pixelFmt);
-        er.Write((uint) this.mapingType);
-        er.Write((uint) this.characterFmt);
-        er.Write((uint) this.Data.Length);
-        er.Write(this.pRawData);
-        er.Write(this.Data, 0, this.Data.Length);
+        er.WriteUInt16(this.H);
+        er.WriteUInt16(this.W);
+        er.WriteUInt32((uint) this.pixelFmt);
+        er.WriteUInt32((uint) this.mapingType);
+        er.WriteUInt32((uint) this.characterFmt);
+        er.WriteUInt32((uint) this.Data.Length);
+        er.WriteUInt32(this.pRawData);
+        er.WriteBytes(this.Data, 0, this.Data.Length);
       }
     }
 

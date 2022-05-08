@@ -8,11 +8,6 @@ namespace mod.gcn {
   public partial class JointMatPoly : IGcnSerializable {
     public ushort matIdx = 0;
     public ushort meshIdx = 0;
-
-    public void Write(EndianBinaryWriter writer) {
-      writer.Write(this.matIdx);
-      writer.Write(this.meshIdx);
-    }
   }
 
   [Schema]
@@ -28,21 +23,5 @@ namespace mod.gcn {
 
     [ArrayLengthSource(IntType.UINT32)]
     public JointMatPoly[] matpolys;
-
-    public void Write(EndianBinaryWriter writer) {
-      writer.Write(this.parentIdx);
-      writer.Write(this.flags);
-      this.boundsMax.Write(writer);
-      this.boundsMin.Write(writer);
-      writer.Write(this.volumeRadius);
-      this.scale.Write(writer);
-      this.rotation.Write(writer);
-      this.position.Write(writer);
-
-      writer.Write(this.matpolys.Length);
-      foreach (var matPoly in this.matpolys) {
-        matPoly.Write(writer);
-      }
-    }
   }
 }

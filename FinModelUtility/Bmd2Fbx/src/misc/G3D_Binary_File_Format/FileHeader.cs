@@ -41,7 +41,7 @@ namespace bmd.G3D_Binary_File_Format
     public void Write(EndianBinaryWriter er)
     {
       this.info.Write(er);
-      er.Write(new uint[(int) this.info.dataBlocks], 0, (int) this.info.dataBlocks);
+      er.WriteUInt32s(new uint[(int) this.info.dataBlocks], 0, (int) this.info.dataBlocks);
     }
 
     public uint this[int i]
@@ -91,12 +91,12 @@ namespace bmd.G3D_Binary_File_Format
 
       public void Write(EndianBinaryWriter er)
       {
-        er.Write(this.signature, Encoding.ASCII, false);
-        er.Write(this.byteOrder);
-        er.Write(this.version);
-        er.Write(0);
-        er.Write(this.headerSize);
-        er.Write(this.dataBlocks);
+        er.WriteString(this.signature);
+        er.WriteUInt16(this.byteOrder);
+        er.WriteUInt16(this.version);
+        er.WriteInt32(0);
+        er.WriteUInt16(this.headerSize);
+        er.WriteUInt16(this.dataBlocks);
       }
     }
   }

@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 using schema.text;
 
+
 namespace schema {
   [Generator(LanguageNames.CSharp)]
   internal class SchemaGenerator : ISourceGenerator {
@@ -15,18 +16,27 @@ namespace schema {
     private readonly SchemaStructureParser parser_ = new();
 
     private readonly SchemaReaderGenerator readerImpl_ = new();
+    private readonly SchemaWriterGenerator writerImpl_ = new();
 
     private void Generate_(ISchemaStructure structure) {
-      var generatedCode = this.readerImpl_.Generate(structure);
+      var readerCode = this.readerImpl_.Generate(structure);
       this.context_.Value.AddSource(
-          SymbolTypeUtil.GetQualifiedName(structure.TypeSymbol),
-          generatedCode);
+          SymbolTypeUtil.GetQualifiedName(structure.TypeSymbol) + "_reader",
+          readerCode);
+
+      var writerCode = this.writerImpl_.Generate(structure);
+      this.context_.Value.AddSource(
+          SymbolTypeUtil.GetQualifiedName(structure.TypeSymbol) + "_writer",
+          writerCode);
     }
 
     public void Initialize(GeneratorInitializationContext context) {
+#if DEBUG
       /*if (!Debugger.IsAttached) {
         Debugger.Launch();
       }*/
+#endif
+
       context.RegisterForSyntaxNotifications(() => new CustomReceiver(this));
     }
 
@@ -88,9 +98,13 @@ namespace schema {
 
     public void Execute(GeneratorExecutionContext context) {
       this.context_ = context;
-      
+
       foreach (var structure in this.queue_) {
-        this.Generate_(structure);
+        try {
+          this.Generate_(structure);
+        } catch (Exception e) {
+          ;
+        }
       }
       this.queue_.Clear();
 

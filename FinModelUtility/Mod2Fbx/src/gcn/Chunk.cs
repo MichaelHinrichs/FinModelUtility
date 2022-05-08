@@ -77,10 +77,6 @@ namespace mod.gcn {
     public ChunkId Id { get; private set; }
     [ArrayLengthSource(IntType.INT32)]
     public byte[] Data { get; private set; }
-
-    public void Write(EndianBinaryWriter writer) {
-      throw new System.NotImplementedException();
-    }
   }
 
   public class ModSectionData : IGcnSerializable {

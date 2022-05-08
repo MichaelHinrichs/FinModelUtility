@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis;
 
 
 namespace schema.text {
-  public class SchemaReaderGenerator {
+  public class SchemaWriterGenerator {
     public string Generate(ISchemaStructure structure) {
       var typeSymbol = structure.TypeSymbol;
 
@@ -33,9 +33,9 @@ namespace schema.text {
       cbsb.EnterBlock(
           $"{SymbolTypeUtil.GetSymbolQualifiers(typeSymbol)} {typeName}");
 
-      cbsb.EnterBlock("public void Read(EndianBinaryReader er)");
+      cbsb.EnterBlock("public void Write(EndianBinaryWriter ew)");
       foreach (var member in structure.Members) {
-        SchemaReaderGenerator.ReadMember_(cbsb, member);
+        SchemaWriterGenerator.WriteMember_(cbsb, member);
       }
       cbsb.ExitBlock();
 
@@ -56,25 +56,25 @@ namespace schema.text {
       return generatedCode;
     }
 
-    private static void ReadMember_(
+    private static void WriteMember_(
         ICurlyBracketStringBuilder cbsb,
         ISchemaMember member) {
       var memberType = member.MemberType;
       switch (memberType) {
         case IPrimitiveMemberType: {
-          SchemaReaderGenerator.ReadPrimitive_(cbsb, member);
+          SchemaWriterGenerator.WritePrimitive_(cbsb, member);
           return;
         }
         case IStringType: {
-          SchemaReaderGenerator.ReadString_(cbsb, member);
+          SchemaWriterGenerator.WriteString_(cbsb, member);
           return;
         }
         case IStructureMemberType: {
-          SchemaReaderGenerator.ReadStructure_(cbsb, member);
+          SchemaWriterGenerator.WriteStructure_(cbsb, member);
           return;
         }
         case ISequenceMemberType: {
-          SchemaReaderGenerator.ReadArray_(cbsb, member);
+          SchemaWriterGenerator.WriteArray_(cbsb, member);
           return;
         }
       }
@@ -83,7 +83,7 @@ namespace schema.text {
       throw new NotImplementedException();
     }
 
-    private static void ReadPrimitive_(
+    private static void WritePrimitive_(
         ICurlyBracketStringBuilder cbsb,
         ISchemaMember member) {
       var primitiveType = member.MemberType as IPrimitiveMemberType;
@@ -100,55 +100,41 @@ namespace schema.text {
                            SchemaGeneratorUtil.ConvertNumberToPrimitive(
                                primitiveType.AltFormat));
 
-      if (!primitiveType.IsConst) {
-        var castText = "";
-        if (needToCast) {
-          var castType =
-              primitiveType.PrimitiveType == SchemaPrimitiveType.ENUM
-                  ? SymbolTypeUtil.GetQualifiedName(
-                      primitiveType.TypeSymbol)
-                  : primitiveType.TypeSymbol.Name;
-          castText = $"({castType}) ";
-        }
-        cbsb.WriteLine(
-            $"this.{member.Name} = {castText}er.Read{readType}();");
-      } else {
-        var castText = "";
-        if (needToCast) {
-          var castType =
-              SchemaGeneratorUtil.GetTypeName(primitiveType.AltFormat);
-          castText = $"({castType}) ";
-        }
-        cbsb.WriteLine($"er.Assert{readType}({castText}this.{member.Name});");
+      var castText = "";
+      if (needToCast) {
+        var castType =
+            SchemaGeneratorUtil.GetTypeName(primitiveType.AltFormat);
+        castText = $"({castType}) ";
       }
+
+      cbsb.WriteLine(
+          $"ew.Write{readType}({castText}this.{member.Name});");
     }
 
-    private static void ReadString_(
+    private static void WriteString_(
         ICurlyBracketStringBuilder cbsb,
         ISchemaMember member) {
       var stringType = member.MemberType as IStringType;
 
-      if (stringType.IsConst) {
-        if (!stringType.IsNullTerminated) {
-          cbsb.WriteLine($"er.AssertString(this.{member.Name});");
-        } else {
-          cbsb.WriteLine($"er.AssertStringNT(this.{member.Name});");
-        }
-        return;
+      if (!stringType.IsNullTerminated) {
+        cbsb.WriteLine($"ew.WriteString(this.{member.Name});");
+      } else {
+        cbsb.WriteLine($"ew.WriteStringNT(this.{member.Name});");
       }
+      return;
 
       // TODO: Handle more cases
       throw new NotImplementedException();
     }
 
-    private static void ReadStructure_(
+    private static void WriteStructure_(
         ICurlyBracketStringBuilder cbsb,
         ISchemaMember member) {
       // TODO: Do value types need to be handled differently?
-      cbsb.WriteLine($"this.{member.Name}.Read(er);");
+      cbsb.WriteLine($"this.{member.Name}.Write(ew);");
     }
 
-    private static void ReadArray_(
+    private static void WriteArray_(
         ICurlyBracketStringBuilder cbsb,
         ISchemaMember member) {
       var arrayType = member.MemberType as ISequenceMemberType;
@@ -156,115 +142,67 @@ namespace schema.text {
         var isImmediate =
             arrayType.LengthType == SequenceLengthType.IMMEDIATE_VALUE;
 
-        var lengthName =
-            isImmediate ? "c" : $"this.{arrayType.LengthMember!.Name}";
-
         if (isImmediate) {
-          var readType = SchemaGeneratorUtil.GetIntLabel(
+          var writeType = SchemaGeneratorUtil.GetIntLabel(
               arrayType.ImmediateLengthType);
-          cbsb.EnterBlock()
-              .WriteLine($"var {lengthName} = er.Read{readType}();");
-        }
 
-        cbsb.EnterBlock($"if ({lengthName} < 0)")
-            .WriteLine(
-                $"throw new Exception(\"Expected length to be nonnegative!\");")
-            .ExitBlock();
+          var castType = SchemaGeneratorUtil.GetTypeName(
+              SchemaGeneratorUtil.ConvertIntToNumber(
+                  arrayType.ImmediateLengthType));
 
-        var qualifiedElementName =
-            SymbolTypeUtil.GetQualifiedName(arrayType.ElementType.TypeSymbol);
-        var hasReferenceElements =
-            arrayType.ElementType is IStructureMemberType {
-                IsReferenceType: true
-            };
+          var arrayLengthName = arrayType.SequenceType == SequenceType.ARRAY
+                                    ? "Length"
+                                    : "Count";
+          var arrayLengthAccessor = $"this.{member.Name}.{arrayLengthName}";
 
-        // TODO: Handle readonly lists, can't be expanded like this!
-        if (arrayType.SequenceType == SequenceType.LIST) {
-          cbsb.EnterBlock($"if (this.{member.Name}.Count < {lengthName})");
-          if (hasReferenceElements) {
-            cbsb.WriteLine(
-                $"this.{member.Name}.Add(new {qualifiedElementName}());");
-          } else {
-            cbsb.WriteLine($"this.{member.Name}.Add(default);");
-          }
-          cbsb.ExitBlock();
-
-          cbsb.EnterBlock(
-                  $"while (this.{member.Name}.Count > {lengthName})")
-              .WriteLine($"this.{member.Name}.RemoveAt(0);")
-              .ExitBlock();
-        } else {
           cbsb.WriteLine(
-              $"this.{member.Name} = new {qualifiedElementName}[{lengthName}];");
-
-          if (hasReferenceElements) {
-            cbsb.EnterBlock($"for (var i = 0; i < {lengthName}; ++i)")
-                .WriteLine(
-                    $"this.{member.Name}[i] = new {qualifiedElementName}();")
-                .ExitBlock();
-          }
-        }
-
-        if (isImmediate) {
-          cbsb.ExitBlock();
+              $"ew.Write{writeType}(({castType}) {arrayLengthAccessor});");
         }
       }
 
-      SchemaReaderGenerator.ReadIntoArray_(cbsb, member);
+      SchemaWriterGenerator.WriteIntoArray_(cbsb, member);
     }
 
-    private static void ReadIntoArray_(
+    private static void WriteIntoArray_(
         ICurlyBracketStringBuilder cbsb,
         ISchemaMember member) {
       var arrayType = member.MemberType as ISequenceMemberType;
 
       var elementType = arrayType.ElementType;
       if (elementType is IPrimitiveMemberType primitiveElementType) {
-        // Primitives that don't need to be cast are the easiest to read.
+        // Primitives that don't need to be cast are the easiest to write.
         if (!primitiveElementType.UseAltFormat) {
           var label =
               SchemaGeneratorUtil.GetPrimitiveLabel(
                   primitiveElementType.PrimitiveType);
-          if (!primitiveElementType.IsConst) {
-            cbsb.WriteLine($"er.Read{label}s(this.{member.Name});");
-          } else {
-            cbsb.WriteLine($"er.Assert{label}s(this.{member.Name});");
-          }
+          cbsb.WriteLine($"ew.Write{label}s(this.{member.Name});");
           return;
         }
 
-        // Primitives that *do* need to be cast have to be read individually.
-        var readType = SchemaGeneratorUtil.GetPrimitiveLabel(
+        // Primitives that *do* need to be cast have to be written individually.
+        var writeType = SchemaGeneratorUtil.GetPrimitiveLabel(
             SchemaGeneratorUtil.ConvertNumberToPrimitive(
                 primitiveElementType.AltFormat));
-        if (!primitiveElementType.IsConst) {
-          var arrayLengthName = arrayType.SequenceType == SequenceType.ARRAY
-                                    ? "Length"
-                                    : "Count";
-          var castType =
-              primitiveElementType.PrimitiveType == SchemaPrimitiveType.ENUM
-                  ? SymbolTypeUtil.GetQualifiedName(
-                      primitiveElementType.TypeSymbol)
-                  : primitiveElementType.TypeSymbol.Name;
-          cbsb.EnterBlock(
-                  $"for (var i = 0; i < this.{member.Name}.{arrayLengthName}; ++i)")
-              .WriteLine(
-                  $"this.{member.Name}[i] = ({castType}) er.Read{readType}();")
-              .ExitBlock();
-        } else {
-          var castType =
-              SchemaGeneratorUtil.GetTypeName(primitiveElementType.AltFormat);
-          cbsb.EnterBlock($"foreach (var e in this.{member.Name})")
-              .WriteLine($"er.Assert{readType}(({castType}) e);")
-              .ExitBlock();
-        }
+        var arrayLengthName = arrayType.SequenceType == SequenceType.ARRAY
+                                  ? "Length"
+                                  : "Count";
+        var castType =
+            primitiveElementType.PrimitiveType == SchemaPrimitiveType.ENUM
+                ? SymbolTypeUtil.GetQualifiedName(
+                    primitiveElementType.TypeSymbol)
+                : primitiveElementType.TypeSymbol.Name;
+        cbsb.EnterBlock(
+                $"for (var i = 0; i < this.{member.Name}.{arrayLengthName}; ++i)")
+            .WriteLine(
+                $"ew.Write{writeType}(({castType}) this.{member.Name}[i]);")
+            .ExitBlock();
         return;
       }
 
       if (elementType is IStructureMemberType structureElementType) {
         //if (structureElementType.IsReferenceType) {
         cbsb.EnterBlock($"foreach (var e in this.{member.Name})")
-            .WriteLine("e.Read(er);")
+            .WriteLine("e.Write(ew);")
             .ExitBlock();
         // TODO: Do value types need to be read like below?
         /*}
@@ -277,7 +215,7 @@ namespace schema.text {
           cbsb.EnterBlock(
                   $"for (var i = 0; i < this.{member.Name}.{arrayLengthName}; ++i)")
               .WriteLine($"var e = this.{member.Name}[i];")
-              .WriteLine("e.Read(er);")
+              .WriteLine("e.Read(ew);")
               .WriteLine($"this.{member.Name}[i] = e;")
               .ExitBlock();
         }*/

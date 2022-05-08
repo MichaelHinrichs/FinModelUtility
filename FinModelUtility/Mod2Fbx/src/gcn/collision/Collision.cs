@@ -7,10 +7,6 @@ namespace mod.gcn.collision {
   [Schema]
   public partial class BaseRoomInfo : IGcnSerializable {
     public uint index = 0;
-
-    public void Write(EndianBinaryWriter writer) {
-      writer.Write(this.index);
-    }
   }
 
   [Schema]
@@ -24,18 +20,6 @@ namespace mod.gcn.collision {
     public ushort unknown5 = 0;
 
     public readonly Plane plane = new();
-
-    public void Write(EndianBinaryWriter writer) {
-      writer.Write(this.mapCode);
-      this.indice.Write(writer);
-
-      writer.Write(this.unknown2);
-      writer.Write(this.unknown3);
-      writer.Write(this.unknown4);
-      writer.Write(this.unknown5);
-
-      this.plane.Write(writer);
-    }
   }
 
   public class CollTriInfo : IGcnSerializable {
@@ -68,8 +52,8 @@ namespace mod.gcn.collision {
 
     public void Write(EndianBinaryWriter writer) {
       var start = writer.StartChunk(0x100);
-      writer.Write(this.collinfo.Count);
-      writer.Write(this.roominfo.Count);
+      writer.WriteInt32(this.collinfo.Count);
+      writer.WriteInt32(this.roominfo.Count);
 
       writer.Align(0x20);
       foreach (var info in this.roominfo) {
@@ -105,15 +89,15 @@ namespace mod.gcn.collision {
     }
 
     public void Write(EndianBinaryWriter writer) {
-      writer.Write((ushort) this.unknown1.Count);
-      writer.Write((ushort) this.unknown2.Count);
+      writer.WriteUInt16((ushort) this.unknown1.Count);
+      writer.WriteUInt16((ushort) this.unknown2.Count);
 
       foreach (var i in this.unknown2) {
-        writer.Write(i);
+        writer.WriteUInt32(i);
       }
 
       foreach (var i in this.unknown1) {
-        writer.Write(i);
+        writer.WriteByte(i);
       }
     }
   }
@@ -155,17 +139,17 @@ namespace mod.gcn.collision {
       writer.Align(0x20);
       this.boundsMin.Write(writer);
       this.boundsMax.Write(writer);
-      writer.Write(this.unknown1);
-      writer.Write(this.gridX);
-      writer.Write(this.gridY);
+      writer.WriteSingle(this.unknown1);
+      writer.WriteUInt32(this.gridX);
+      writer.WriteUInt32(this.gridY);
 
-      writer.Write(this.groups.Count);
+      writer.WriteInt32(this.groups.Count);
       foreach (var group in this.groups) {
         group.Write(writer);
       }
 
       foreach (var i in this.unknown2) {
-        writer.Write(i);
+        writer.WriteInt32(i);
       }
       writer.Align(0x20);
       writer.FinishChunk(start);

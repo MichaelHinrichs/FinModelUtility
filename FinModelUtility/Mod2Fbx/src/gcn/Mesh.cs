@@ -50,13 +50,13 @@ namespace mod.gcn {
     }
 
     public void Write(EndianBinaryWriter writer) {
-      writer.Write(this.flags.intView);
-      writer.Write(this.cmdCount);
+      writer.WriteUInt32(this.flags.intView);
+      writer.WriteUInt32(this.cmdCount);
 
-      writer.Write(this.dlistData.Count);
+      writer.WriteInt32(this.dlistData.Count);
       writer.Align(0x20);
       foreach (var b in this.dlistData) {
-        writer.Write(b);
+        writer.WriteByte(b);
       }
     }
   }
@@ -67,18 +67,6 @@ namespace mod.gcn {
     public short[] indices;
     [ArrayLengthSource(IntType.UINT32)]
     public DisplayList[] displaylists;
-
-    public void Write(EndianBinaryWriter writer) {
-      writer.Write(this.indices.Length);
-      foreach (var index in this.indices) {
-        writer.Write(index);
-      }
-
-      writer.Write(this.displaylists.Length);
-      foreach (var dlist in this.displaylists) {
-        dlist.Write(writer);
-      }
-    }
   }
 
   [Schema]
@@ -88,15 +76,5 @@ namespace mod.gcn {
 
     [ArrayLengthSource(IntType.UINT32)]
     public MeshPacket[] packets;
-
-    public void Write(EndianBinaryWriter writer) {
-      writer.Write(this.boneIndex);
-      writer.Write(this.vtxDescriptor);
-
-      writer.Write(this.packets.Length);
-      foreach (var packet in this.packets) {
-        packet.Write(writer);
-      }
-    }
   }
 }

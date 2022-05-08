@@ -1,9 +1,10 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 using schema;
 
 namespace zar.format.cmb {
-  public class Texture : IDeserializable {
+  public class Texture : IBiSerializable {
     public uint dataLength { get; private set; }
     public ushort mimapCount { get; private set; }
 
@@ -32,6 +33,10 @@ namespace zar.format.cmb {
       this.imageFormat = (GlTextureFormat) r.ReadUInt32();
       this.dataOffset = r.ReadUInt32();
       this.name = CmbStringUtil.ReadString(r, 16);
+    }
+
+    public void Write(EndianBinaryWriter w) {
+      throw new NotImplementedException();
     }
   }
 }

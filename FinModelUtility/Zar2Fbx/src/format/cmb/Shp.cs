@@ -1,11 +1,12 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 using fin.util.strings;
 
 using schema;
 
 namespace zar.format.cmb {
-  public class Shp : IDeserializable {
+  public class Shp : IBiSerializable {
     public uint chunkSize;
     public Sepd[] shapes;
 
@@ -32,6 +33,10 @@ namespace zar.format.cmb {
         shape.Read(r);
         this.shapes[i] = shape;
       }
+    }
+
+    public void Write(EndianBinaryWriter w) {
+      throw new NotImplementedException();
     }
   }
 }

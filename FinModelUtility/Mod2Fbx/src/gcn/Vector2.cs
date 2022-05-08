@@ -20,14 +20,10 @@ namespace mod.gcn {
       this.X = x;
       this.Y = y;
     }
-
-    public void Write(EndianBinaryWriter writer) {
-      writer.Write(this.X);
-      writer.Write(this.Y);
-    }
   }
 
-  public class Vector2i : IVector2<uint> {
+  [Schema]
+  public partial class Vector2i : IVector2<uint> {
     public uint X { get; set; }
     public uint Y { get; set; }
 
@@ -35,16 +31,6 @@ namespace mod.gcn {
     public Vector2i(uint x, uint y) {
       this.X = x;
       this.Y = y;
-    }
-
-    public void Read(EndianBinaryReader reader) {
-      this.X = reader.ReadUInt32();
-      this.Y = reader.ReadUInt32();
-    }
-
-    public void Write(EndianBinaryWriter writer) {
-      writer.Write(this.X);
-      writer.Write(this.Y);
     }
   }
 }

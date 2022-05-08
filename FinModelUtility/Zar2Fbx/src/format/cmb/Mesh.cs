@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 using schema;
 
@@ -28,6 +29,10 @@ namespace zar.format.cmb {
           break;
         }
       }
+    }
+
+    public void Write(EndianBinaryWriter w) {
+      throw new NotImplementedException();
     }
   }
 }

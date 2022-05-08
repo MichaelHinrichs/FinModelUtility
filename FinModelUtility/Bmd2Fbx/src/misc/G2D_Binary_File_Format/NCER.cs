@@ -56,9 +56,9 @@ namespace bmd.G2D_Binary_File_Format
       this.Header.Write(er);
       this.CellBankBlock.Write(er);
       er.BaseStream.Position = 8L;
-      er.Write((uint) er.BaseStream.Length);
+      er.WriteUInt32((uint) er.BaseStream.Length);
       er.BaseStream.Position = 20L;
-      er.Write((uint) ((ulong) er.BaseStream.Length - 16UL));
+      er.WriteUInt32((uint) ((ulong) er.BaseStream.Length - 16UL));
       byte[] array = memoryStream.ToArray();
       er.Close();
       return array;
@@ -92,7 +92,7 @@ namespace bmd.G2D_Binary_File_Format
         this.CellDataBank.Write(er);
         long position = er.BaseStream.Position;
         er.BaseStream.Position = num;
-        er.Write((uint) (position - num));
+        er.WriteUInt32((uint) (position - num));
         er.BaseStream.Position = position;
       }
 
@@ -123,13 +123,13 @@ namespace bmd.G2D_Binary_File_Format
 
         public void Write(EndianBinaryWriter er)
         {
-          er.Write(this.numCells);
-          er.Write(this.cellBankAttr);
-          er.Write(24U);
-          er.Write((uint) this.mappingMode);
-          er.Write(this.pVramTransferData);
-          er.Write(this.pStringBank);
-          er.Write(this.pExtendedData);
+          er.WriteUInt16(this.numCells);
+          er.WriteUInt16(this.cellBankAttr);
+          er.WriteUInt32(24U);
+          er.WriteUInt32((uint) this.mappingMode);
+          er.WriteUInt32(this.pVramTransferData);
+          er.WriteUInt32(this.pStringBank);
+          er.WriteUInt32(this.pExtendedData);
           int Offset = 0;
           for (int index = 0; index < (int) this.numCells; ++index)
             this.CellData[index].Write(er, ref Offset);
@@ -209,9 +209,9 @@ namespace bmd.G2D_Binary_File_Format
 
           public void Write(EndianBinaryWriter er, ref int Offset)
           {
-            er.Write(this.numOAMAttrs);
-            er.Write(this.cellAttr);
-            er.Write((uint) Offset);
+            er.WriteUInt16(this.numOAMAttrs);
+            er.WriteUInt16(this.cellAttr);
+            er.WriteUInt32((uint) Offset);
             Offset += 6 * (int) this.numOAMAttrs;
             if (this.boundingRect == null)
               return;
@@ -243,10 +243,10 @@ namespace bmd.G2D_Binary_File_Format
 
             public void Write(EndianBinaryWriter er)
             {
-              er.Write(this.maxX);
-              er.Write(this.maxY);
-              er.Write(this.minX);
-              er.Write(this.minY);
+              er.WriteInt16(this.maxX);
+              er.WriteInt16(this.maxY);
+              er.WriteInt16(this.minX);
+              er.WriteInt16(this.minY);
             }
           }
 
@@ -331,7 +331,7 @@ namespace bmd.G2D_Binary_File_Format
               this.attr0 |= (ushort) ((this.DoubleSizeAffineTransformation ? 1 : 0) << 9);
               this.attr0 |= (ushort) ((this.AffineTransformation ? 1 : 0) << 8);
               this.attr0 |= (ushort) this.YCoord;
-              er.Write(this.attr0);
+              er.WriteUInt16(this.attr0);
               this.attr1 = (ushort) 0;
               this.attr1 |= (ushort) ((uint) this.OBJSize << 14);
               if (!this.AffineTransformation)
@@ -342,12 +342,12 @@ namespace bmd.G2D_Binary_File_Format
               }
               this.attr1 |= (ushort) ((uint) this.AffineTransformationParameterSelection << 9);
               this.attr1 |= (ushort) ((uint) this.XCoord & 511U);
-              er.Write(this.attr1);
+              er.WriteUInt16(this.attr1);
               this.attr2 = (ushort) 0;
               this.attr2 |= (ushort) ((uint) this.ColorParameter << 12);
               this.attr2 |= (ushort) ((uint) this.DisplayPriority << 10);
               this.attr2 |= (ushort) this.StartingCharacterName;
-              er.Write(this.attr2);
+              er.WriteUInt16(this.attr2);
             }
 
             public Size GetSize()

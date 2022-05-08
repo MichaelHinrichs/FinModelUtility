@@ -18,13 +18,6 @@ namespace mod.gcn {
     public byte G { get; set; }
     public byte B { get; set; }
     public byte A { get; set; }
-
-    public void Write(EndianBinaryWriter writer) {
-      writer.Write(this.R);
-      writer.Write(this.G);
-      writer.Write(this.B);
-      writer.Write(this.A);
-    }
   }
 
   [Schema]
@@ -33,12 +26,5 @@ namespace mod.gcn {
     public ushort G { get; set; }
     public ushort B { get; set; }
     public ushort A { get; set; }
-
-    public void Write(EndianBinaryWriter writer) {
-      writer.Write(this.R);
-      writer.Write(this.G);
-      writer.Write(this.B);
-      writer.Write(this.A);
-    }
   }
 }

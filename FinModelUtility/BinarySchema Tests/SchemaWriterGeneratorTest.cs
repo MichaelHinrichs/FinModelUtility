@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 using NUnit.Framework;
 
 namespace schema.text {
-  public class SchemaReaderGeneratorTest {
+  public class SchemaWriterGeneratorTest {
     [SetUp]
     public void Setup() {}
 
@@ -22,8 +22,8 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ByteWrapper {
-    public void Read(EndianBinaryReader er) {
-      er.AssertByte(this.Field);
+    public void Write(EndianBinaryWriter ew) {
+      ew.WriteByte(this.Field);
     }
   }
 }
@@ -45,8 +45,8 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class SByteWrapper {
-    public void Read(EndianBinaryReader er) {
-      er.AssertSByte(this.Field);
+    public void Write(EndianBinaryWriter ew) {
+      ew.WriteSByte(this.Field);
     }
   }
 }
@@ -68,8 +68,8 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ShortWrapper {
-    public void Read(EndianBinaryReader er) {
-      er.AssertInt16(this.Field);
+    public void Write(EndianBinaryWriter ew) {
+      ew.WriteInt16(this.Field);
     }
   }
 }
@@ -91,8 +91,8 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ArrayWrapper {
-    public void Read(EndianBinaryReader er) {
-      er.ReadInt32s(this.field);
+    public void Write(EndianBinaryWriter ew) {
+      ew.WriteInt32s(this.field);
     }
   }
 }
@@ -109,7 +109,7 @@ namespace foo.bar {
   public partial class ArrayWrapper {
     public int length;
 
-    [ArrayLengthSource(nameof(ArrayWrapper.length))]
+    [ArrayLengthSource(nameof(ArrayWrappew.length))]
     public int[] field;
   }
 }",
@@ -117,13 +117,9 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ArrayWrapper {
-    public void Read(EndianBinaryReader er) {
-      this.length = er.ReadInt32();
-      if (this.length < 0) {
-        throw new Exception(""Expected length to be nonnegative!"");
-      }
-      this.field = new System.Int32[this.length];
-      er.ReadInt32s(this.field);
+    public void Write(EndianBinaryWriter ew) {
+      ew.WriteInt32(this.length);
+      ew.WriteInt32s(this.field);
     }
   }
 }
@@ -157,9 +153,9 @@ namespace foo.bar {
   static internal partial class Parent {
     protected partial class Middle {
       private partial class Wrapper {
-        public void Read(EndianBinaryReader er) {
-          this.length = er.ReadInt32();
-          this.value = (foo.bar.Parent.Middle.ValueEnum) er.ReadInt32();
+        public void Write(EndianBinaryWriter ew) {
+          ew.WriteInt32(this.length);
+          ew.WriteInt32((int) this.value);
         }
       }
     }
@@ -183,8 +179,8 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class CharWrapper {
-    public void Read(EndianBinaryReader er) {
-      er.ReadChars(this.Array);
+    public void Write(EndianBinaryWriter ew) {
+      ew.WriteChars(this.Array);
     }
   }
 }
@@ -206,8 +202,8 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ShortWrapper {
-    public void Read(EndianBinaryReader er) {
-      er.AssertInt16(this.Field);
+    public void Write(EndianBinaryWriter ew) {
+      ew.WriteInt16(this.Field);
     }
   }
 }
@@ -229,8 +225,8 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ByteWrapper {
-    public void Read(EndianBinaryReader er) {
-      this.field = er.ReadByte();
+    public void Write(EndianBinaryWriter ew) {
+      ew.WriteByte(this.field);
     }
   }
 }
@@ -252,8 +248,8 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ByteWrapper {
-    public void Read(EndianBinaryReader er) {
-      er.AssertByte(this.field);
+    public void Write(EndianBinaryWriter ew) {
+      ew.WriteByte(this.field);
     }
   }
 }
@@ -275,8 +271,8 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ByteWrapper {
-    public void Read(EndianBinaryReader er) {
-      er.AssertByte(this.Field);
+    public void Write(EndianBinaryWriter ew) {
+      ew.WriteByte(this.Field);
     }
   }
 }
@@ -333,46 +329,31 @@ namespace foo {
 using System.IO;
 namespace foo.bar {
   public partial class EverythingWrapper {
-    public void Read(EndianBinaryReader er) {" +
+    public void Write(EndianBinaryWriter ew) {" +
                             @"
-      er.AssertString(this.magicText);" +
+      ew.WriteString(this.magicText);" +
                             @"
-      this.byteField = er.ReadByte();
-      this.sbyteProperty = er.ReadSByte();
-      er.AssertInt16(this.constShortField);
-      er.AssertUInt16(this.constUshortProperty);" +
+      ew.WriteByte(this.byteField);
+      ew.WriteSByte(this.sbyteProperty);
+      ew.WriteInt16(this.constShortField);
+      ew.WriteUInt16(this.constUshortProperty);" +
                             @"
-      this.nakedShortField = (foo.bar.ShortEnum) er.ReadInt16();
-      er.AssertInt16((short) this.constNakedShortField);
-      this.intField = (foo.bar.ShortEnum) er.ReadInt32();
-      er.AssertInt32((int) this.constIntField);" +
+      ew.WriteInt16((short) this.nakedShortField);
+      ew.WriteInt16((short) this.constNakedShortField);
+      ew.WriteInt32((int) this.intField);
+      ew.WriteInt32((int) this.constIntField);" +
                             @"
-      er.ReadInt32s(this.constLengthIntValues);
-      {
-        var c = er.ReadUInt32();
-        if (c < 0) {
-          throw new Exception(""Expected length to be nonnegative!"");
-        }
-        this.intValues = new System.Int32[c];
-      }
-      er.ReadInt32s(this.intValues);" +
+      ew.WriteInt32s(this.constLengthIntValues);
+      ew.WriteUInt32((uint) this.intValues.Length);
+      ew.WriteInt32s(this.intValues);" +
                             @"
-      this.other.Read(er);
-      {
-        var c = er.ReadInt32();
-        if (c < 0) {
-          throw new Exception(""Expected length to be nonnegative!"");
-        }
-        this.others = new foo.bar.Other[c];
-        for (var i = 0; i < c; ++i) {
-          this.others[i] = new foo.bar.Other();
-        }
-      }
+      this.other.Write(ew);
+      ew.WriteInt32((int) this.others.Length);
       foreach (var e in this.others) {
-        e.Read(er);
+        e.Write(ew);
       }
-      this.normalized = er.ReadUn16();
-      er.AssertUn16(this.constNormalized);
+      ew.WriteUn16(this.normalized);
+      ew.WriteUn16(this.constNormalized);
     }
   }
 }
@@ -383,7 +364,7 @@ namespace foo.bar {
       var structure = SchemaTestUtil.Parse(src);
       Assert.IsEmpty(structure.Diagnostics);
 
-      var actualGenerated = new SchemaReaderGenerator().Generate(structure);
+      var actualGenerated = new SchemaWriterGenerator().Generate(structure);
       Assert.AreEqual(expectedGenerated, actualGenerated);
     }
   }

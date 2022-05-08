@@ -36,8 +36,8 @@ namespace bmd.G3D_Binary_File_Format
 
     public void Write(EndianBinaryWriter er, int Size)
     {
-      er.Write(this.kind, Encoding.ASCII, false);
-      er.Write(Size);
+      er.WriteString(this.kind);
+      er.WriteInt32(Size);
     }
   }
 }

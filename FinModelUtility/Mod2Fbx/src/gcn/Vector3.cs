@@ -30,12 +30,6 @@ namespace mod.gcn {
     }
 
     public void Reset() => this.Set(0, 0, 0);
-
-    public void Write(EndianBinaryWriter writer) {
-      writer.Write(this.X);
-      writer.Write(this.Y);
-      writer.Write(this.Z);
-    }
   }
 
   [Schema]
@@ -54,11 +48,5 @@ namespace mod.gcn {
     }
 
     public void Reset() => this.Set(0, 0, 0);
-
-    public void Write(EndianBinaryWriter writer) {
-      writer.Write(this.X);
-      writer.Write(this.Y);
-      writer.Write(this.Z);
-    }
   }
 }

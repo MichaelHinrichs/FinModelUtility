@@ -59,7 +59,7 @@ namespace bmd.G2D_Binary_File_Format
       this.Header.Write(er);
       this.PaletteData.Write(er);
       er.BaseStream.Position = 8L;
-      er.Write((uint) er.BaseStream.Length);
+      er.WriteUInt32((uint) er.BaseStream.Length);
       byte[] array = memoryStream.ToArray();
       er.Close();
       return array;
@@ -107,11 +107,11 @@ namespace bmd.G2D_Binary_File_Format
       public void Write(EndianBinaryWriter er)
       {
         this.Header.Write(er, 24 + this.Data.Length);
-        er.Write((int) this.fmt);
-        er.Write(0);
-        er.Write(this.Data.Length);
-        er.Write(16);
-        er.Write(this.Data, 0, this.Data.Length);
+        er.WriteInt32((int) this.fmt);
+        er.WriteInt32(0);
+        er.WriteInt32(this.Data.Length);
+        er.WriteInt32(16);
+        er.WriteBytes(this.Data, 0, this.Data.Length);
       }
 
       public Color[] ToColorArray()

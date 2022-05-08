@@ -158,7 +158,7 @@ namespace zar.format.cmb.texture {
 
     private static void WriteClampedByte_(EndianBinaryWriter w, int value) {
       value = Math.Clamp(value, byte.MinValue, byte.MaxValue);
-      w.Write((byte) value);
+      w.WriteByte((byte) value);
     }
   }
 }
