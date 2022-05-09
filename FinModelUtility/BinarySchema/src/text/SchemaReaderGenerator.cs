@@ -88,6 +88,11 @@ namespace schema.text {
         ISchemaMember member) {
       var primitiveType = member.MemberType as IPrimitiveMemberType;
 
+      if (primitiveType.PrimitiveType == SchemaPrimitiveType.BOOLEAN) {
+        SchemaReaderGenerator.ReadBoolean_(cbsb, member);
+        return;
+      }
+
       var readType = SchemaGeneratorUtil.GetPrimitiveLabel(
           primitiveType.UseAltFormat
               ? SchemaGeneratorUtil.ConvertNumberToPrimitive(
@@ -120,6 +125,24 @@ namespace schema.text {
           castText = $"({castType}) ";
         }
         cbsb.WriteLine($"er.Assert{readType}({castText}this.{member.Name});");
+      }
+    }
+
+    private static void ReadBoolean_(
+        ICurlyBracketStringBuilder cbsb,
+        ISchemaMember member) {
+      var primitiveType = member.MemberType as IPrimitiveMemberType;
+
+      var readType = SchemaGeneratorUtil.GetPrimitiveLabel(
+          SchemaGeneratorUtil.ConvertNumberToPrimitive(
+              primitiveType.AltFormat));
+
+      if (!primitiveType.IsConst) {
+        cbsb.WriteLine(
+            $"this.{member.Name} = er.Read{readType}() != 0;");
+      } else {
+        cbsb.WriteLine(
+            $"er.Assert{readType}(this.{member.Name} ? 1 : 0);");
       }
     }
 

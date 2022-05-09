@@ -48,10 +48,15 @@ namespace schema {
             "Format attribute on non-numerical member",
             "A Format attribute is applied to the non-numerical member '{0}', which is unsupported.");
 
-    public static readonly DiagnosticDescriptor EnumNeedsFormat
+    public static DiagnosticDescriptor EnumNeedsFormat { get; }
         = Rules.CreateDiagnostic_(
             "Enum needs format",
             "Enum member '{0}' needs either a valid Format attribute or for its enum type to specify an underlying representation.");
+
+    public static DiagnosticDescriptor BooleanNeedsFormat { get; }
+        = Rules.CreateDiagnostic_(
+            "Boolean needs format",
+            "Boolean member '{0}' needs a valid Format attribute.");
 
     public static readonly DiagnosticDescriptor ConstUninitialized
         = Rules.CreateDiagnostic_(
@@ -73,7 +78,7 @@ namespace schema {
             "Write already defined",
             "A Write method for '{0}' was already defined.");
 
-    public static readonly DiagnosticDescriptor UnexpectedAttribute
+    public static DiagnosticDescriptor UnexpectedAttribute { get; }
         = Rules.CreateDiagnostic_(
             "Unexpected attribute",
             "Did not expect this attribute on this field.");

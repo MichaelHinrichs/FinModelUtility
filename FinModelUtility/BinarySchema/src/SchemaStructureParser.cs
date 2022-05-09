@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
+
 namespace schema {
   public interface ISchemaStructureParser {
     ISchemaStructure ParseStructure(INamedTypeSymbol symbol);
@@ -20,6 +21,8 @@ namespace schema {
 
   public enum SchemaPrimitiveType {
     UNDEFINED,
+
+    BOOLEAN,
 
     SBYTE,
     BYTE,
@@ -183,8 +186,9 @@ namespace schema {
                 IsConst = isMemberReadonly,
                 PrimitiveType = primitiveType,
             };
-          } else if (memberTypeSymbol.SpecialType ==
-                     SpecialType.System_String) {
+          } else if
+              (memberTypeSymbol.SpecialType ==
+               SpecialType.System_String) {
             memberType = new StringType {
                 TypeSymbol = memberTypeSymbol,
                 IsConst = isMemberReadonly,
@@ -321,6 +325,10 @@ namespace schema {
             } else if (targetPrimitiveType == SchemaPrimitiveType.ENUM) {
               diagnostics.Add(
                   Rules.CreateDiagnostic(memberSymbol, Rules.EnumNeedsFormat));
+            } else if (targetPrimitiveType == SchemaPrimitiveType.BOOLEAN) {
+              diagnostics.Add(
+                  Rules.CreateDiagnostic(memberSymbol,
+                                         Rules.BooleanNeedsFormat));
             }
           }
         }
@@ -457,37 +465,39 @@ namespace schema {
       }
 
       return typeSymbol.SpecialType switch {
-          SpecialType.System_Char   => SchemaPrimitiveType.CHAR,
-          SpecialType.System_SByte  => SchemaPrimitiveType.SBYTE,
-          SpecialType.System_Byte   => SchemaPrimitiveType.BYTE,
-          SpecialType.System_Int16  => SchemaPrimitiveType.INT16,
-          SpecialType.System_UInt16 => SchemaPrimitiveType.UINT16,
-          SpecialType.System_Int32  => SchemaPrimitiveType.INT32,
-          SpecialType.System_UInt32 => SchemaPrimitiveType.UINT32,
-          SpecialType.System_Int64  => SchemaPrimitiveType.INT64,
-          SpecialType.System_UInt64 => SchemaPrimitiveType.UINT64,
-          SpecialType.System_Single => SchemaPrimitiveType.SINGLE,
-          SpecialType.System_Double => SchemaPrimitiveType.DOUBLE,
-          _                         => SchemaPrimitiveType.UNDEFINED
+          SpecialType.System_Boolean => SchemaPrimitiveType.BOOLEAN,
+          SpecialType.System_Char    => SchemaPrimitiveType.CHAR,
+          SpecialType.System_SByte   => SchemaPrimitiveType.SBYTE,
+          SpecialType.System_Byte    => SchemaPrimitiveType.BYTE,
+          SpecialType.System_Int16   => SchemaPrimitiveType.INT16,
+          SpecialType.System_UInt16  => SchemaPrimitiveType.UINT16,
+          SpecialType.System_Int32   => SchemaPrimitiveType.INT32,
+          SpecialType.System_UInt32  => SchemaPrimitiveType.UINT32,
+          SpecialType.System_Int64   => SchemaPrimitiveType.INT64,
+          SpecialType.System_UInt64  => SchemaPrimitiveType.UINT64,
+          SpecialType.System_Single  => SchemaPrimitiveType.SINGLE,
+          SpecialType.System_Double  => SchemaPrimitiveType.DOUBLE,
+          _                          => SchemaPrimitiveType.UNDEFINED
       };
     }
 
     private static bool IsPrimitiveTypeNumeric_(SchemaPrimitiveType type)
       => type switch {
-          SchemaPrimitiveType.SBYTE  => true,
-          SchemaPrimitiveType.BYTE   => true,
-          SchemaPrimitiveType.INT16  => true,
-          SchemaPrimitiveType.UINT16 => true,
-          SchemaPrimitiveType.INT32  => true,
-          SchemaPrimitiveType.UINT32 => true,
-          SchemaPrimitiveType.INT64  => true,
-          SchemaPrimitiveType.UINT64 => true,
-          SchemaPrimitiveType.SINGLE => true,
-          SchemaPrimitiveType.DOUBLE => true,
-          SchemaPrimitiveType.UN8   => true,
-          SchemaPrimitiveType.SN16   => true,
-          SchemaPrimitiveType.UN16   => true,
-          SchemaPrimitiveType.ENUM   => true,
+          SchemaPrimitiveType.BOOLEAN => true,
+          SchemaPrimitiveType.SBYTE   => true,
+          SchemaPrimitiveType.BYTE    => true,
+          SchemaPrimitiveType.INT16   => true,
+          SchemaPrimitiveType.UINT16  => true,
+          SchemaPrimitiveType.INT32   => true,
+          SchemaPrimitiveType.UINT32  => true,
+          SchemaPrimitiveType.INT64   => true,
+          SchemaPrimitiveType.UINT64  => true,
+          SchemaPrimitiveType.SINGLE  => true,
+          SchemaPrimitiveType.DOUBLE  => true,
+          SchemaPrimitiveType.UN8     => true,
+          SchemaPrimitiveType.SN16    => true,
+          SchemaPrimitiveType.UN16    => true,
+          SchemaPrimitiveType.ENUM    => true,
 
           SchemaPrimitiveType.CHAR      => false,
           SchemaPrimitiveType.UNDEFINED => false,

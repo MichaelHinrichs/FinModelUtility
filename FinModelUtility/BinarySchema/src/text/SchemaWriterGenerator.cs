@@ -88,6 +88,11 @@ namespace schema.text {
         ISchemaMember member) {
       var primitiveType = member.MemberType as IPrimitiveMemberType;
 
+      if (primitiveType.PrimitiveType == SchemaPrimitiveType.BOOLEAN) {
+        SchemaWriterGenerator.WriteBoolean_(cbsb, member);
+        return;
+      }
+
       var readType = SchemaGeneratorUtil.GetPrimitiveLabel(
           primitiveType.UseAltFormat
               ? SchemaGeneratorUtil.ConvertNumberToPrimitive(
@@ -109,6 +114,19 @@ namespace schema.text {
 
       cbsb.WriteLine(
           $"ew.Write{readType}({castText}this.{member.Name});");
+    }
+
+    private static void WriteBoolean_(
+        ICurlyBracketStringBuilder cbsb,
+        ISchemaMember member) {
+      var primitiveType = member.MemberType as IPrimitiveMemberType;
+
+      var writeType = SchemaGeneratorUtil.GetPrimitiveLabel(
+          SchemaGeneratorUtil.ConvertNumberToPrimitive(
+              primitiveType.AltFormat));
+
+      cbsb.WriteLine(
+          $"ew.Write{writeType}(this.{member.Name} ? 1 : 0);");
     }
 
     private static void WriteString_(
