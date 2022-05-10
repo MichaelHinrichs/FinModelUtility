@@ -58,35 +58,13 @@ namespace glo.schema {
     public GloMeshPointers Pointers { get; } = new();
   }
 
-  public sealed class GloMeshPointers : IBiSerializable {
+  [Schema]
+  public sealed partial class GloMeshPointers : IBiSerializable {
+    [IfBoolean(IntType.UINT16)]
     public GloMesh? Child { get; set; }
+
+    [IfBoolean(IntType.UINT16)]
     public GloMesh? Next { get; set; }
-
-    public void Read(EndianBinaryReader er) {
-      var hasChild = er.ReadUInt16() != 0;
-      if (hasChild) {
-        this.Child = new GloMesh();
-        this.Child.Read(er);
-      } else {
-        this.Child = null;
-      }
-
-      var hasNext = er.ReadUInt16() != 0;
-      if (hasNext) {
-        this.Next = new GloMesh();
-        this.Next.Read(er);
-      } else {
-        this.Next = null;
-      }
-    }
-
-    public void Write(EndianBinaryWriter ew) {
-      ew.WriteUInt16((ushort) (this.Child != null ? 1 : 0));
-      this.Child?.Write(ew);
-
-      ew.WriteUInt16((ushort) (this.Next != null ? 1 : 0));
-      this.Next?.Write(ew);
-    }
   }
 
   [Schema]

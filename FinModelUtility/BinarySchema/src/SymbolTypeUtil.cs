@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
+
 namespace schema {
   internal static class SymbolTypeUtil {
     public static Type GetTypeFromSymbol(ISymbol symbol) {
@@ -19,7 +20,7 @@ namespace schema {
     public static bool Implements(INamedTypeSymbol symbol, Type type)
       => symbol.AllInterfaces.Any(i => SymbolTypeUtil.IsExactlyType(i, type));
 
-    public static string MergeContainingNamespaces(ISymbol symbol) {
+    public static string? MergeContainingNamespaces(ISymbol symbol) {
       var namespaceSymbol = symbol.ContainingNamespace;
       if (namespaceSymbol == null) {
         return null;
@@ -53,7 +54,7 @@ namespace schema {
       => symbol.GetAttributes()
                .Any(attributeData
                         => SymbolTypeUtil.IsExactlyType(
-                            attributeData.AttributeClass,
+                            attributeData.AttributeClass!,
                             expectedType));
 
     internal static TAttribute? GetAttribute<TAttribute>(ISymbol symbol)
@@ -140,13 +141,25 @@ namespace schema {
       var mergedNamespaceText = mergedNamespace == null
                                     ? ""
                                     : $"{mergedNamespace}.";
-      
+
       var mergedContainersText = "";
-      foreach (var container in SymbolTypeUtil.GetDeclaringTypesDownward(typeSymbol)) {
+      foreach (var container in SymbolTypeUtil.GetDeclaringTypesDownward(
+                   typeSymbol)) {
         mergedContainersText += $"{container.Name}.";
       }
 
       return $"{mergedNamespaceText}{mergedContainersText}{typeSymbol.Name}";
     }
+
+    public static ITypeSymbol GetTypeFromMember(
+        INamedTypeSymbol structureSymbol,
+        string memberName) =>
+        structureSymbol
+            .GetMembers(memberName)
+            .Single() switch {
+            IPropertySymbol propertySymbol => propertySymbol.Type,
+            IFieldSymbol fieldSymbol       => fieldSymbol.Type,
+            _                              => throw new NotSupportedException()
+        };
   }
 }

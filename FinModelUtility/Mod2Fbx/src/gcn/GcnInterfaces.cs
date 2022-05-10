@@ -1,5 +1,5 @@
 ﻿using schema;
 
 namespace mod.gcn {
-  public interface IGcnSerializable : ISerializable, IDeserializable {}
+  public interface IGcnSerializable : IBiSerializable {}
 }

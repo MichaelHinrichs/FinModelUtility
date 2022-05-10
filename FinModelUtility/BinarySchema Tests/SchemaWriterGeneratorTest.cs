@@ -109,7 +109,7 @@ namespace foo.bar {
   public partial class ArrayWrapper {
     public int length;
 
-    [ArrayLengthSource(nameof(ArrayWrappew.length))]
+    [ArrayLengthSource(nameof(ArrayWrapper.length))]
     public int[] field;
   }
 }",
@@ -287,7 +287,7 @@ using schema;
 namespace foo {
   namespace bar {
     [Schema]
-    public partial class EverythingWrapper : IDeserializable {
+    public partial class EverythingWrapper : IBiSerializable {
       public readonly string magicText = ""foobar"";
 
       public byte byteField;
@@ -321,7 +321,7 @@ namespace foo {
     }
 
     [Schema]
-    public partial class Other : IDeserializable {
+    public partial class Other : IBiSerializable {
     }
   }
 }",

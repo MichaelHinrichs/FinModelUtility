@@ -59,28 +59,77 @@ namespace schema.text {
     private static void ReadMember_(
         ICurlyBracketStringBuilder cbsb,
         ISchemaMember member) {
+      SchemaReaderGenerator.Align_(cbsb, member);
+
+      var ifBoolean = member.IfBoolean;
+      var immediateIfBoolean =
+          ifBoolean?.SourceType == IfBooleanSourceType.IMMEDIATE_VALUE;
+      if (immediateIfBoolean) {
+        cbsb.EnterBlock();
+      }
+      if (ifBoolean != null) {
+        if (ifBoolean.SourceType == IfBooleanSourceType.IMMEDIATE_VALUE) {
+          var booleanNumberType =
+              SchemaGeneratorUtil.ConvertIntToNumber(
+                  ifBoolean.ImmediateBooleanType);
+          var booleanPrimitiveType =
+              SchemaGeneratorUtil.ConvertNumberToPrimitive(booleanNumberType);
+          var booleanPrimitiveLabel =
+              SchemaGeneratorUtil.GetPrimitiveLabel(booleanPrimitiveType);
+          cbsb.WriteLine($"var b = er.Read{booleanPrimitiveLabel}() != 0;")
+              .EnterBlock("if (b)");
+        } else {
+          cbsb.EnterBlock($"if (this.{ifBoolean.BooleanMember.Name})");
+        }
+
+        if (member.MemberType is not IPrimitiveMemberType) {
+          cbsb.WriteLine(
+              $"this.{member.Name} = new {SymbolTypeUtil.GetQualifiedName(member.MemberType.TypeSymbol)}();");
+        }
+      }
+
       var memberType = member.MemberType;
       switch (memberType) {
         case IPrimitiveMemberType: {
           SchemaReaderGenerator.ReadPrimitive_(cbsb, member);
-          return;
+          break;
         }
         case IStringType: {
           SchemaReaderGenerator.ReadString_(cbsb, member);
-          return;
+          break;
         }
         case IStructureMemberType: {
           SchemaReaderGenerator.ReadStructure_(cbsb, member);
-          return;
+          break;
         }
         case ISequenceMemberType: {
           SchemaReaderGenerator.ReadArray_(cbsb, member);
-          return;
+          break;
+        }
+        default: {
+          // Anything that makes it down here probably isn't meant to be read.
+          throw new NotImplementedException();
         }
       }
 
-      // Anything that makes it down here probably isn't meant to be read.
-      throw new NotImplementedException();
+      if (ifBoolean != null) {
+        cbsb.ExitBlock()
+            .EnterBlock("else")
+            .WriteLine($"this.{member.Name} = null;")
+            .ExitBlock();
+        if (immediateIfBoolean) {
+          cbsb.ExitBlock();
+        }
+      }
+    }
+
+    private static void Align_(
+        ICurlyBracketStringBuilder cbsb,
+        ISchemaMember member) {
+      var align = member.Align;
+      if (align != 0) {
+        cbsb.WriteLine($"er.Align({align});");
+      }
     }
 
     private static void ReadPrimitive_(
@@ -175,9 +224,10 @@ namespace schema.text {
         ICurlyBracketStringBuilder cbsb,
         ISchemaMember member) {
       var arrayType = member.MemberType as ISequenceMemberType;
-      if (arrayType.LengthType != SequenceLengthType.CONST) {
+      if (arrayType.LengthSourceType != SequenceLengthSourceType.CONST) {
         var isImmediate =
-            arrayType.LengthType == SequenceLengthType.IMMEDIATE_VALUE;
+            arrayType.LengthSourceType ==
+            SequenceLengthSourceType.IMMEDIATE_VALUE;
 
         var lengthName =
             isImmediate ? "c" : $"this.{arrayType.LengthMember!.Name}";

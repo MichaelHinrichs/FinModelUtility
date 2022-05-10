@@ -59,28 +59,63 @@ namespace schema.text {
     private static void WriteMember_(
         ICurlyBracketStringBuilder cbsb,
         ISchemaMember member) {
+      SchemaWriterGenerator.Align_(cbsb, member);
+
+      var ifBoolean = member.IfBoolean;
+      if (ifBoolean != null) {
+        if (ifBoolean.SourceType == IfBooleanSourceType.IMMEDIATE_VALUE) {
+          var booleanNumberType =
+              SchemaGeneratorUtil.ConvertIntToNumber(
+                  ifBoolean.ImmediateBooleanType);
+          var booleanPrimitiveType =
+              SchemaGeneratorUtil.ConvertNumberToPrimitive(booleanNumberType);
+          var booleanNumberLabel =
+              SchemaGeneratorUtil.GetTypeName(booleanNumberType);
+          var booleanPrimitiveLabel =
+              SchemaGeneratorUtil.GetPrimitiveLabel(booleanPrimitiveType);
+          cbsb.WriteLine(
+                  $"ew.Write{booleanPrimitiveLabel}(({booleanNumberLabel}) (this.{member.Name} != null ? 1 : 0));")
+              .EnterBlock($"if (this.{member.Name} != null)");
+        } else {
+          cbsb.EnterBlock($"if (this.{ifBoolean.BooleanMember.Name})");
+        }
+      }
+
       var memberType = member.MemberType;
       switch (memberType) {
         case IPrimitiveMemberType: {
           SchemaWriterGenerator.WritePrimitive_(cbsb, member);
-          return;
+          break;
         }
         case IStringType: {
           SchemaWriterGenerator.WriteString_(cbsb, member);
-          return;
+          break;
         }
         case IStructureMemberType: {
           SchemaWriterGenerator.WriteStructure_(cbsb, member);
-          return;
+          break;
         }
         case ISequenceMemberType: {
           SchemaWriterGenerator.WriteArray_(cbsb, member);
-          return;
+          break;
         }
+        default:
+          // Anything that makes it down here probably isn't meant to be read.
+          throw new NotImplementedException();
       }
 
-      // Anything that makes it down here probably isn't meant to be read.
-      throw new NotImplementedException();
+      if (ifBoolean != null) {
+        cbsb.ExitBlock();
+      }
+    }
+
+    private static void Align_(
+        ICurlyBracketStringBuilder cbsb,
+        ISchemaMember member) {
+      var align = member.Align;
+      if (align != 0) {
+        cbsb.WriteLine($"ew.Align({align});");
+      }
     }
 
     private static void WritePrimitive_(
@@ -156,9 +191,10 @@ namespace schema.text {
         ICurlyBracketStringBuilder cbsb,
         ISchemaMember member) {
       var arrayType = member.MemberType as ISequenceMemberType;
-      if (arrayType.LengthType != SequenceLengthType.CONST) {
+      if (arrayType.LengthSourceType != SequenceLengthSourceType.CONST) {
         var isImmediate =
-            arrayType.LengthType == SequenceLengthType.IMMEDIATE_VALUE;
+            arrayType.LengthSourceType ==
+            SequenceLengthSourceType.IMMEDIATE_VALUE;
 
         if (isImmediate) {
           var writeType = SchemaGeneratorUtil.GetIntLabel(

@@ -2,7 +2,7 @@
 
 namespace zar.format.cmb {
   [Schema]
-  public partial class Qtrs : IDeserializable {
+  public partial class Qtrs : IBiSerializable {
     public readonly string magic = "qtrs";
     public uint chunkSize { get; private set; }
 

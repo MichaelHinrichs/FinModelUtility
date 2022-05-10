@@ -45,7 +45,7 @@ namespace schema {
     ///   Parses a length with the given format immediately before the array.
     /// </summary>
     public ArrayLengthSourceAttribute(IntType lengthType) {
-      this.Method = SequenceLengthType.IMMEDIATE_VALUE;
+      this.Method = SequenceLengthSourceType.IMMEDIATE_VALUE;
       this.LengthType = lengthType;
     }
 
@@ -54,11 +54,11 @@ namespace schema {
     ///   reading/writing.
     /// </summary>
     public ArrayLengthSourceAttribute(string otherMemberName) {
-      this.Method = SequenceLengthType.OTHER_MEMBER;
+      this.Method = SequenceLengthSourceType.OTHER_MEMBER;
       this.OtherMemberName = otherMemberName;
     }
 
-    public SequenceLengthType Method { get; }
+    public SequenceLengthSourceType Method { get; }
 
     public IntType LengthType { get; }
     public string OtherMemberName { get; }
@@ -70,7 +70,7 @@ namespace schema {
     ///   Parses a length with the given format immediately before the string.
     /// </summary>
     public StringLengthSourceAttribute(IntType lengthType) {
-      this.Method = StringLengthType.IMMEDIATE_VALUE;
+      this.Method = StringLengthSourceType.IMMEDIATE_VALUE;
       this.LengthType = lengthType;
     }
 
@@ -79,19 +79,19 @@ namespace schema {
     ///   reading/writing.
     /// </summary>
     public StringLengthSourceAttribute(string otherMemberName) {
-      this.Method = StringLengthType.OTHER_MEMBER;
+      this.Method = StringLengthSourceType.OTHER_MEMBER;
       this.OtherMemberName = otherMemberName;
     }
 
     public StringLengthSourceAttribute(int constLength) {
-      this.Method = StringLengthType.CONST;
+      this.Method = StringLengthSourceType.CONST;
       this.ConstLength = constLength;
     }
 
-    public StringLengthType Method { get; }
+    public StringLengthSourceType Method { get; }
 
     public IntType LengthType { get; }
-    public string OtherMemberName { get; }
+    public string? OtherMemberName { get; }
     public int ConstLength { get; }
   }
 
@@ -125,5 +125,34 @@ namespace schema {
     }
 
     public SchemaNumberType NumberType { get; }
+  }
+
+
+  [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+  public class IfBooleanAttribute : Attribute {
+    public IfBooleanAttribute(IntType lengthType) {
+      this.Method = IfBooleanSourceType.IMMEDIATE_VALUE;
+      this.BooleanType = lengthType;
+    }
+
+    public IfBooleanAttribute(string otherMemberName) {
+      this.Method = IfBooleanSourceType.OTHER_MEMBER;
+      this.OtherMemberName = otherMemberName;
+    }
+
+    public IfBooleanSourceType Method { get; }
+
+    public IntType BooleanType { get; }
+    public string? OtherMemberName { get; }
+  }
+
+
+  [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+  public class AlignAttribute : Attribute {
+    public AlignAttribute(int align) {
+      this.Align = align;
+    }
+
+    public int Align { get; }
   }
 }

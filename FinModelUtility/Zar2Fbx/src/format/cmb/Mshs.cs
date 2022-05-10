@@ -1,10 +1,8 @@
-﻿using System.IO;
-
-using schema;
+﻿using schema;
 
 namespace zar.format.cmb {
   [Schema]
-  public partial class Mshs : IDeserializable {
+  public partial class Mshs : IBiSerializable {
     public readonly string magic = "mshs";
     public uint chunkSize;
     

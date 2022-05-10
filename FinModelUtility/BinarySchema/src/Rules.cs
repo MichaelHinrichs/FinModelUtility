@@ -3,6 +3,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
+
 namespace schema {
   public static class Rules {
     private static int diagnosticId_ = 0;
@@ -49,14 +50,25 @@ namespace schema {
             "A Format attribute is applied to the non-numerical member '{0}', which is unsupported.");
 
     public static DiagnosticDescriptor EnumNeedsFormat { get; }
-        = Rules.CreateDiagnostic_(
-            "Enum needs format",
-            "Enum member '{0}' needs either a valid Format attribute or for its enum type to specify an underlying representation.");
+      = Rules.CreateDiagnostic_(
+          "Enum needs format",
+          "Enum member '{0}' needs either a valid Format attribute or for its enum type to specify an underlying representation.");
 
     public static DiagnosticDescriptor BooleanNeedsFormat { get; }
-        = Rules.CreateDiagnostic_(
-            "Boolean needs format",
-            "Boolean member '{0}' needs a valid Format attribute.");
+      = Rules.CreateDiagnostic_(
+          "Boolean needs format",
+          "Boolean member '{0}' needs a valid Format attribute.");
+
+    public static DiagnosticDescriptor IfBooleanNeedsNullable { get; }
+      = Rules.CreateDiagnostic_(
+          "IfBoolean Attribute needs nullable type",
+          "Member '{0}' must be a nullable type to use IfBoolean.");
+
+    public static DiagnosticDescriptor
+        StructureMemberNeedsToImplementIBiSerializable { get; } =
+      Rules.CreateDiagnostic_(
+          "Structure member needs to implement IBiSerializable",
+          "Structure member '{0}' must implement IBiSerializable.");
 
     public static readonly DiagnosticDescriptor ConstUninitialized
         = Rules.CreateDiagnostic_(
@@ -79,9 +91,9 @@ namespace schema {
             "A Write method for '{0}' was already defined.");
 
     public static DiagnosticDescriptor UnexpectedAttribute { get; }
-        = Rules.CreateDiagnostic_(
-            "Unexpected attribute",
-            "Did not expect this attribute on this field.");
+      = Rules.CreateDiagnostic_(
+          "Unexpected attribute",
+          "Did not expect this attribute on this field.");
 
     public static readonly DiagnosticDescriptor UnsupportedArrayType
         = Rules.CreateDiagnostic_(

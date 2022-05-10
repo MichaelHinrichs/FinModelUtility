@@ -5,7 +5,7 @@ namespace zar.format.cmb {
   ///   "LUT" stands for "lookup table". (But where is this actually used...?)
   /// </summary>
   [Schema]
-  public partial class Luts : IDeserializable {
+  public partial class Luts : IBiSerializable {
     public readonly string magic = "luts";
     public uint dataLength;
     public uint LutSetCount;
@@ -20,7 +20,7 @@ namespace zar.format.cmb {
   }
 
   [Schema]
-  public partial class LutSet : IDeserializable {
+  public partial class LutSet : IBiSerializable {
     public ushort BitFlags; //Not sure
     public ushort KeyCount; //Keyframes
     public short Start;
@@ -32,7 +32,7 @@ namespace zar.format.cmb {
   }
 
   [Schema]
-  public partial class LutKeyframe : IDeserializable {
+  public partial class LutKeyframe : IBiSerializable {
     public float InSlope;
     public float OutSlope;
     public int Frame;

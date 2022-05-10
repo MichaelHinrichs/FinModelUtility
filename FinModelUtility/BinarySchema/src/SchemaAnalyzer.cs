@@ -38,12 +38,12 @@ namespace schema {
             var syntax = syntaxNodeContext.Node as ClassDeclarationSyntax;
 
             var symbol =
-                syntaxNodeContext.SemanticModel.GetDeclaredSymbol(syntax);
+                syntaxNodeContext.SemanticModel.GetDeclaredSymbol(syntax!);
             if (symbol is not INamedTypeSymbol namedTypeSymbol) {
               return;
             }
 
-            this.CheckType(syntaxNodeContext, syntax, namedTypeSymbol);
+            this.CheckType(syntaxNodeContext, syntax!, namedTypeSymbol);
           },
           SyntaxKind.ClassDeclaration);
 
@@ -52,12 +52,12 @@ namespace schema {
             var syntax = syntaxNodeContext.Node as StructDeclarationSyntax;
 
             var symbol =
-                syntaxNodeContext.SemanticModel.GetDeclaredSymbol(syntax);
+                syntaxNodeContext.SemanticModel.GetDeclaredSymbol(syntax!);
             if (symbol is not INamedTypeSymbol namedTypeSymbol) {
               return;
             }
 
-            this.CheckType(syntaxNodeContext, syntax, namedTypeSymbol);
+            this.CheckType(syntaxNodeContext, syntax!, namedTypeSymbol);
           },
           SyntaxKind.StructDeclaration);
     }

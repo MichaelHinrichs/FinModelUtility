@@ -4,7 +4,7 @@ using System.IO;
 using schema;
 
 namespace zar.format.cmb {
-  public class Mesh : IDeserializable {
+  public class Mesh : IBiSerializable {
     public ushort shapeIndex;
     public byte materialIndex;
     public byte id;
