@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 using schema;
@@ -69,37 +70,16 @@ namespace mod.gcn.collision {
     }
   }
 
-  public class CollGroup : IGcnSerializable {
-    public readonly List<byte> unknown1 = new();
-    public readonly List<uint> unknown2 = new();
+  [Schema]
+  public partial class CollGroup : IGcnSerializable {
+    public ushort NumUnknown1 { get; set; }
+    public ushort NumUnknown2 { get; set; }
 
-    public void Read(EndianBinaryReader reader) {
-      var numUnknown1 = reader.ReadUInt16();
-      var numUnknown2 = reader.ReadUInt16();
+    [ArrayLengthSource(nameof(NumUnknown2))]
+    public uint[] unknown2 = Array.Empty<uint>();
 
-      this.unknown2.Clear();
-      for (var i = 0; i < numUnknown2; ++i) {
-        this.unknown2.Add(reader.ReadUInt32());
-      }
-
-      this.unknown1.Clear();
-      for (var i = 0; i < numUnknown1; ++i) {
-        this.unknown1.Add(reader.ReadByte());
-      }
-    }
-
-    public void Write(EndianBinaryWriter writer) {
-      writer.WriteUInt16((ushort) this.unknown1.Count);
-      writer.WriteUInt16((ushort) this.unknown2.Count);
-
-      foreach (var i in this.unknown2) {
-        writer.WriteUInt32(i);
-      }
-
-      foreach (var i in this.unknown1) {
-        writer.WriteByte(i);
-      }
-    }
+    [ArrayLengthSource(nameof(NumUnknown1))]
+    public byte[] unknown1 = Array.Empty<byte>();
   }
 
   public class CollGrid : IGcnSerializable {
