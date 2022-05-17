@@ -1,11 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <RootNamespace>uni</RootNamespace>
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -44,4 +46,9 @@
     <ProjectReference Include="..\Zar2Fbx\Zar2Fbx.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="Tao.Platform.Windows">
+      <HintPath>..\Utility of Time\Tao GL Libs\Tao.Platform.Windows.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

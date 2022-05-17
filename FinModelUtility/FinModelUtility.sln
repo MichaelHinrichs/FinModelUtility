@@ -71,7 +71,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Modl2Fbx", "Modl2Fbx\Modl2F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HaloWarsTools", "HaloWarsTools\HaloWarsTools.csproj", "{4B38BE06-C129-4406-AAA8-8185249F32C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glo", "Glo\Glo.csproj", "{A5EB1658-A4ED-4AD0-BAEB-917A74D9D180}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Glo", "Glo\Glo.csproj", "{A5EB1658-A4ED-4AD0-BAEB-917A74D9D180}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
