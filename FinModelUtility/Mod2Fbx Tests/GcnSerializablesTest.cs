@@ -19,10 +19,7 @@ namespace mod.gcn {
     [Test]
     public void TestCollGroup() {
       var collGroup = new CollGroup();
-      collGroup.unknown1.Add(1);
-      collGroup.unknown1.Add(2);
-      collGroup.unknown2.Add(3);
-      collGroup.unknown2.Add(4);
+      collGroup.unknown1 = new byte[] { 1, 2, 3, 4 };
 
       TestGcnSerializableExisting(collGroup);
     }
@@ -41,10 +38,7 @@ namespace mod.gcn {
       }
 
       var collGroup = new CollGroup();
-      collGroup.unknown1.Add(1);
-      collGroup.unknown1.Add(2);
-      collGroup.unknown2.Add(3);
-      collGroup.unknown2.Add(4);
+      collGroup.unknown1 = new byte[] {1 ,2, 3, 4};
 
       collGrid.groups.Add(collGroup);
       collGrid.groups.Add(collGroup);
