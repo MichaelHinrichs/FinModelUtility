@@ -1,6 +1,9 @@
 ﻿using CommandLine;
 
 namespace uni.cli {
+  [Verb("ui", HelpText = "Open UI")]
+  public class UiOptions { }
+
   [Verb("animal_crossing",
         HelpText = "Extract models from Animal Crossing.")]
   public class AnimalCrossingOptions {}
