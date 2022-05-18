@@ -3,5 +3,9 @@ namespace uni.ui {
     public UniversalModelExtractorForm() {
       InitializeComponent();
     }
+
+    private void UniversalModelExtractorForm_Load(object sender, EventArgs e) {
+
+    }
   }
 }

@@ -28,6 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="freeglut" Version="2.8.1.15" />
     <PackageReference Include="Gameloop.Vdf" Version="0.6.1" />
     <PackageReference Include="Microsoft.CodeAnalysis" Version="4.1.0-1.final" />
     <PackageReference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform" Version="3.6.0" />
@@ -43,10 +44,20 @@
     <ProjectReference Include="..\Glo\Glo.csproj" />
     <ProjectReference Include="..\HaloWarsTools\HaloWarsTools.csproj" />
     <ProjectReference Include="..\Mod2Fbx\Mod2Fbx.csproj" />
+    <ProjectReference Include="..\Utility of Time CSharp\Utility of Time CSharp.csproj" />
     <ProjectReference Include="..\Zar2Fbx\Zar2Fbx.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Tao.DevIl">
+      <HintPath>..\Utility of Time\Tao GL Libs\Tao.DevIl.dll</HintPath>
+    </Reference>
+    <Reference Include="Tao.FreeGlut">
+      <HintPath>..\Utility of Time\Tao GL Libs\Tao.FreeGlut.dll</HintPath>
+    </Reference>
+    <Reference Include="Tao.OpenGl">
+      <HintPath>..\Utility of Time\Tao GL Libs\Tao.OpenGl.dll</HintPath>
+    </Reference>
     <Reference Include="Tao.Platform.Windows">
       <HintPath>..\Utility of Time\Tao GL Libs\Tao.Platform.Windows.dll</HintPath>
     </Reference>
