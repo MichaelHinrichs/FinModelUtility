@@ -70,5 +70,12 @@
     <Compile Update="src\ui\common\BGlPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="src\ui\common\FileTreeView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="src\ui\common\WaterMarkTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="src\ui\common\ModelFileTreeView.cs" />
   </ItemGroup>
 </Project>
