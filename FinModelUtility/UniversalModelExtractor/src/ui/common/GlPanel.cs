@@ -21,25 +21,10 @@ namespace uni.ui.common {
 
       this.impl_.InitializeContexts();
 
-      if (!IsInDesignMode) {
+      if (!DesignModeUtil.InDesignMode) {
         this.InitGl();
         this.timedCallback =
             TimedCallback.WithFrequency(this.Invalidate, this.fps_);
-      }
-    }
-
-    public static bool IsInDesignMode {
-      get {
-        var isInDesignMode =
-            LicenseManager.UsageMode == LicenseUsageMode.Designtime;
-
-        if (!isInDesignMode) {
-          using (var process = Process.GetCurrentProcess()) {
-            return process.ProcessName.ToLowerInvariant().Contains("devenv");
-          }
-        }
-
-        return isInDesignMode;
       }
     }
 
@@ -154,7 +139,7 @@ void main() {
     protected override void OnPaint(PaintEventArgs pe) {
       base.OnPaint(pe);
 
-      if (!IsInDesignMode) {
+      if (!DesignModeUtil.InDesignMode) {
         this.MainLoop();
       }
     }

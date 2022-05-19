@@ -25,6 +25,7 @@ namespace uni.cli {
       ParserResult<Object> parserResult;
       parserResult = Parser.Default.ParseArguments(args, typeof(UiOptions))
         .WithParsed((UiOptions _) => {
+          DesignModeUtil.InDesignMode = false;
           ApplicationConfiguration.Initialize();
           Application.Run(new UniversalModelExtractorForm());
         });
