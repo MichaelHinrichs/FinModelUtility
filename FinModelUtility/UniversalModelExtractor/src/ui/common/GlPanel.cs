@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using System.Text;
 
+using fin.gl;
+
 using Tao.FreeGlut;
 using Tao.OpenGl;
 using Tao.Platform.Windows;
@@ -34,24 +36,9 @@ namespace uni.ui.common {
       }
     }
 
-    private static bool IsGlInitted_ = false;
-
-    private static void InitGl_() {
-      if (IsGlInitted_) {
-        return;
-      }
-
-      IsGlInitted_ = true;
-
-      Glut.glutInit();
-      Glut.glutInitDisplayMode(Glut.GLUT_SINGLE | Glut.GLUT_RGB);
-
-      Wgl.ReloadFunctions();
-      Gl.ReloadFunctions();
-    }
-
     private void InitGl() {
-      InitGl_();
+      GlUtil.Init();
+
       this.impl_.CreateGraphics();
 
       var vertexShaderSrc = @"
