@@ -1,5 +1,5 @@
 ﻿namespace uni.ui.common {
-  partial class GlPanel {
+  abstract partial class BGlPanel {
     /// <summary> 
     /// Required designer variable.
     /// </summary>

@@ -65,4 +65,10 @@
       <HintPath>..\Utility of Time\Tao GL Libs\Tao.Platform.Windows.dll</HintPath>
     </Reference>
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="src\ui\common\BGlPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+  </ItemGroup>
 </Project>

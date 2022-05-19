@@ -1,37 +1,20 @@
-﻿using System.ComponentModel;
-using System.Diagnostics;
-using System.Text;
+﻿using System.Diagnostics;
 
 using fin.gl;
 using fin.util.time;
 
-using Tao.FreeGlut;
 using Tao.OpenGl;
 using Tao.Platform.Windows;
 
 
 namespace uni.ui.common {
-  public partial class GlPanel : UserControl {
+  public partial class GlPanel : BGlPanel {
     private readonly TimedCallback timedCallback;
     private readonly Stopwatch stopwatch_ = Stopwatch.StartNew();
     private readonly float fps_ = 30;
 
-    public GlPanel() {
-      InitializeComponent();
-
-      this.impl_.InitializeContexts();
-
-      if (!DesignModeUtil.InDesignMode) {
-        this.InitGl();
-        this.timedCallback =
-            TimedCallback.WithFrequency(this.Invalidate, this.fps_);
-      }
-    }
-
-    private void InitGl() {
+    protected override void InitGl() {
       GlUtil.Init();
-
-      this.impl_.CreateGraphics();
 
       var vertexShaderSrc = @"
 # version 120 
@@ -56,13 +39,11 @@ void main() {
           GlShaderProgram.FromShaders(vertexShaderSrc, fragmentShaderSrc);
       shaderProgram.Use();
 
-      Glut.glutDisplayFunc(Update);
-
-      ResetGl();
+      ResetGl_();
       Wgl.wglSwapIntervalEXT(1);
     }
 
-    public static void ResetGl() {
+    private void ResetGl_() {
       Gl.glShadeModel(Gl.GL_SMOOTH);
       Gl.glEnable(Gl.GL_POINT_SMOOTH);
       Gl.glHint(Gl.GL_POINT_SMOOTH_HINT, Gl.GL_NICEST);
@@ -91,7 +72,7 @@ void main() {
       Gl.glClearColor(0.2f, 0.5f, 0.7f, 1);
     }
 
-    public void MainLoop() {
+    protected override void RenderGl() {
       var width = this.Width;
       var height = this.Height;
 
@@ -132,16 +113,6 @@ void main() {
       Gl.glEnd();
 
       Gl.glFlush();
-
-      this.impl_.Invalidate();
-    }
-
-    protected override void OnPaint(PaintEventArgs pe) {
-      base.OnPaint(pe);
-
-      if (!DesignModeUtil.InDesignMode) {
-        this.MainLoop();
-      }
     }
   }
 }
