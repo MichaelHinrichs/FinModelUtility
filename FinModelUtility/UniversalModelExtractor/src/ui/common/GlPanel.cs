@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Text;
 
 using fin.gl;
+using fin.util.time;
 
 using Tao.FreeGlut;
 using Tao.OpenGl;
@@ -11,6 +12,10 @@ using Tao.Platform.Windows;
 
 namespace uni.ui.common {
   public partial class GlPanel : UserControl {
+    private readonly TimedCallback timedCallback;
+    private readonly Stopwatch stopwatch_ = Stopwatch.StartNew();
+    private readonly float fps_ = 30;
+
     public GlPanel() {
       InitializeComponent();
 
@@ -18,6 +23,8 @@ namespace uni.ui.common {
 
       if (!IsInDesignMode) {
         this.InitGl();
+        this.timedCallback =
+            TimedCallback.WithFrequency(this.Invalidate, this.fps_);
       }
     }
 
@@ -64,7 +71,7 @@ void main() {
           GlShaderProgram.FromShaders(vertexShaderSrc, fragmentShaderSrc);
       shaderProgram.Use();
 
-      Glut.glutDisplayFunc(MainLoop);
+      Glut.glutDisplayFunc(Update);
 
       ResetGl();
       Wgl.wglSwapIntervalEXT(1);
@@ -112,23 +119,30 @@ void main() {
 
         Gl.glMatrixMode(Gl.GL_MODELVIEW);
         Gl.glLoadIdentity();
+
+        var t = this.stopwatch_.Elapsed.TotalSeconds;
+        var angle = t * 45;
+        Gl.glTranslated(width / 2, height / 2, 0);
+        Gl.glRotated(angle, 0, 0, 1);
       }
+
+      var size = MathF.Max(width, height) * MathF.Sqrt(2);
 
       Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
 
       Gl.glBegin(Gl.GL_QUADS);
 
       Gl.glColor3f(1, 0, 0);
-      Gl.glVertex2f(0, 0);
+      Gl.glVertex2f(-size / 2, -size / 2);
 
       Gl.glColor3f(0, 1, 0);
-      Gl.glVertex2f(0, height);
+      Gl.glVertex2f(-size / 2, size / 2);
 
       Gl.glColor3f(1, 1, 1);
-      Gl.glVertex2f(width, height);
+      Gl.glVertex2f(size / 2, size / 2);
 
       Gl.glColor3f(0, 0, 1);
-      Gl.glVertex2f(width, 0);
+      Gl.glVertex2f(size / 2, -size / 2);
 
       Gl.glEnd();
 
