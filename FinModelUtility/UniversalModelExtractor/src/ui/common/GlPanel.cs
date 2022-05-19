@@ -60,34 +60,9 @@ void main() {
     gl_FragColor = vertexColor;
 }";
 
-      var vertexShader = Gl.glCreateShader(Gl.GL_VERTEX_SHADER);
-      Gl.glShaderSource(vertexShader, 1, new[] {vertexShaderSrc}, null);
-      Gl.glCompileShader(vertexShader);
-
-      var fragmentShader = Gl.glCreateShader(Gl.GL_FRAGMENT_SHADER);
-      Gl.glShaderSource(fragmentShader, 1, new[] {fragmentShaderSrc}, null);
-      Gl.glCompileShader(fragmentShader);
-
-      var bufferSize = 10000;
-
-      var vertexShaderErrorBuilder = new StringBuilder(bufferSize);
-      Gl.glGetShaderInfoLog(vertexShader, bufferSize, out var
-                                vertexShaderErrorLength,
-                            vertexShaderErrorBuilder);
-      var vertexShaderError = vertexShaderErrorBuilder.ToString();
-
-      var fragmentShaderErrorBuilder = new StringBuilder(bufferSize);
-      Gl.glGetShaderInfoLog(fragmentShader, bufferSize, out  var fragmentShaderErrorLength,
-                            fragmentShaderErrorBuilder);
-      var fragmentShaderError = fragmentShaderErrorBuilder.ToString();
-
-      var shaderProgram = Gl.glCreateProgram();
-
-      Gl.glAttachShader(shaderProgram, vertexShader);
-      Gl.glAttachShader(shaderProgram, fragmentShader);
-      Gl.glLinkProgram(shaderProgram);
-
-      Gl.glUseProgram(shaderProgram);
+      var shaderProgram =
+          GlShaderProgram.FromShaders(vertexShaderSrc, fragmentShaderSrc);
+      shaderProgram.Use();
 
       Glut.glutDisplayFunc(MainLoop);
 
