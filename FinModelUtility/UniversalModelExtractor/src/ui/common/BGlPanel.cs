@@ -4,10 +4,9 @@ using fin.util.time;
 namespace uni.ui.common {
   public abstract partial class BGlPanel : UserControl {
     private readonly TimedCallback timedCallback;
-    private readonly Stopwatch stopwatch_ = Stopwatch.StartNew();
     private const float DEFAULT_FRAMERATE_ = 30;
 
-    public BGlPanel() {
+    protected BGlPanel() {
       InitializeComponent();
 
       this.impl_.InitializeContexts();

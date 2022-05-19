@@ -1,17 +1,16 @@
 ﻿using System.Diagnostics;
 
 using fin.gl;
-using fin.util.time;
 
 using Tao.OpenGl;
 using Tao.Platform.Windows;
+using System.Drawing;
 
 
 namespace uni.ui.common {
-  public partial class GlPanel : BGlPanel {
-    private readonly TimedCallback timedCallback;
+  public partial class ModelViewerGlPanel : BGlPanel {
     private readonly Stopwatch stopwatch_ = Stopwatch.StartNew();
-    private readonly float fps_ = 30;
+    private readonly Color backgroundColor_ = Color.FromArgb(51, 128, 179);
 
     protected override void InitGl() {
       GlUtil.Init();
@@ -69,7 +68,7 @@ void main() {
       Gl.glEnable(Gl.GL_BLEND);
       Gl.glBlendFunc(Gl.GL_SRC_ALPHA, Gl.GL_ONE_MINUS_SRC_ALPHA);
 
-      Gl.glClearColor(0.2f, 0.5f, 0.7f, 1);
+      Gl.glClearColor(backgroundColor_.R / 255f, backgroundColor_.G / 255f, backgroundColor_.B / 255f, 1);
     }
 
     protected override void RenderGl() {

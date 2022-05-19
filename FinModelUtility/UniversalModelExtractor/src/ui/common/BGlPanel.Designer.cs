@@ -51,7 +51,7 @@
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.BackColor = System.Drawing.Color.Fuchsia;
       this.Controls.Add(this.impl_);
-      this.Name = "GlPanel";
+      this.Name = "ModelViewerGlPanel";
       this.Size = new System.Drawing.Size(511, 331);
       this.ResumeLayout(false);
     }

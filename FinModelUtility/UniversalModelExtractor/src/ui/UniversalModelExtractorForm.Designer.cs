@@ -29,7 +29,7 @@ namespace uni.ui {
       System.Windows.Forms.SplitContainer splitContainer1;
       System.Windows.Forms.SplitContainer splitContainer2;
       System.Windows.Forms.MenuStrip menuStrip;
-      this.glPanel_ = new uni.ui.common.GlPanel();
+      this.modelViewerGlPanel_ = new uni.ui.common.ModelViewerGlPanel();
       this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       splitContainer1 = new System.Windows.Forms.SplitContainer();
@@ -65,19 +65,19 @@ namespace uni.ui {
       // 
       // splitContainer2.Panel1
       // 
-      splitContainer2.Panel1.Controls.Add(this.glPanel_);
+      splitContainer2.Panel1.Controls.Add(this.modelViewerGlPanel_);
       splitContainer2.Size = new System.Drawing.Size(784, 520);
       splitContainer2.SplitterDistance = 573;
       splitContainer2.TabIndex = 1;
       // 
       // glPanel_
       // 
-      this.glPanel_.BackColor = System.Drawing.Color.Fuchsia;
-      this.glPanel_.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.glPanel_.Location = new System.Drawing.Point(0, 0);
-      this.glPanel_.Name = "glPanel_";
-      this.glPanel_.Size = new System.Drawing.Size(573, 520);
-      this.glPanel_.TabIndex = 0;
+      this.modelViewerGlPanel_.BackColor = System.Drawing.Color.Fuchsia;
+      this.modelViewerGlPanel_.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.modelViewerGlPanel_.Location = new System.Drawing.Point(0, 0);
+      this.modelViewerGlPanel_.Name = "modelViewerGlPanel_";
+      this.modelViewerGlPanel_.Size = new System.Drawing.Size(573, 520);
+      this.modelViewerGlPanel_.TabIndex = 0;
       // 
       // menuStrip
       // 
@@ -128,7 +128,7 @@ namespace uni.ui {
 
     #endregion
 
-    private GlPanel glPanel_;
+    private ModelViewerGlPanel modelViewerGlPanel_;
     private MenuStrip menuStrip;
     private ToolStripMenuItem fileToolStripMenuItem;
     private ToolStripMenuItem helpToolStripMenuItem;
