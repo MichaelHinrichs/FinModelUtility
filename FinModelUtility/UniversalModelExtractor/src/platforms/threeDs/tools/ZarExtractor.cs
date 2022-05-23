@@ -1,12 +1,10 @@
-﻿using System.IO;
-using System.Text;
+﻿using System.Text;
 
 using fin.io;
 using fin.log;
 using fin.util.asserts;
 using fin.util.strings;
 
-using uni.util.io;
 
 namespace uni.platforms.threeDs.tools {
   public class ZarExtractor {
@@ -41,7 +39,8 @@ namespace uni.platforms.threeDs.tools {
         foreach (var file in fileType.Files) {
           var filePath = Path.Join(directoryPath, file.FileName);
 
-          Directory.CreateDirectory(Asserts.CastNonnull(Path.GetDirectoryName(filePath)));
+          Directory.CreateDirectory(
+              Asserts.CastNonnull(Path.GetDirectoryName(filePath)));
           File.WriteAllBytes(filePath, file.Bytes);
         }
       }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using bmd.api;
+﻿using bmd.api;
 
 using fin.io;
 using fin.log;
@@ -11,7 +7,7 @@ using fin.util.asserts;
 using uni.msg;
 using uni.platforms;
 using uni.platforms.gcn;
-using uni.util.io;
+
 
 namespace uni.games.pikmin_2 {
   public class Pikmin2Extractor {
@@ -163,18 +159,19 @@ namespace uni.games.pikmin_2 {
 
       foreach (var bmdFile in bmdFiles) {
         if (existingModelFiles.Any(
-            existingModelFile => {
-              var existingName = existingModelFile.Name.Substring(
-                  0,
-                  existingModelFile.Name.Length -
-                  existingModelFile.Extension.Length);
-              var bmdName =
-                  bmdFile.Name.Substring(0,
-                                         bmdFile.Name.Length - ".mod".Length);
+                existingModelFile => {
+                  var existingName = existingModelFile.Name.Substring(
+                      0,
+                      existingModelFile.Name.Length -
+                      existingModelFile.Extension.Length);
+                  var bmdName =
+                      bmdFile.Name.Substring(0,
+                                             bmdFile.Name.Length -
+                                             ".mod".Length);
 
-              return bmdName == existingName ||
-                     bmdName + "_gltf" == existingName;
-            })) {
+                  return bmdName == existingName ||
+                         bmdName + "_gltf" == existingName;
+                })) {
           ++matches;
         }
       }

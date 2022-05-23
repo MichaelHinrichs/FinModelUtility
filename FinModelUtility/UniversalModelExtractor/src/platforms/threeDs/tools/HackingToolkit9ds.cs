@@ -1,15 +1,10 @@
 ﻿using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 using fin.io;
 using fin.log;
 using fin.util.asserts;
 
 using uni.platforms.gcn.tools;
-using uni.util.cmd;
-using uni.util.io;
 
 
 namespace uni.platforms.threeDs.tools {

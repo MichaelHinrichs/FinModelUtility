@@ -1,12 +1,9 @@
-﻿using System.IO;
-using System.Runtime.CompilerServices;
-
-using fin.io;
+﻿using fin.io;
 using fin.log;
 using fin.util.asserts;
 
 using uni.util.cmd;
-using uni.util.io;
+
 
 namespace uni.platforms.gcn.tools {
   public class Yaz0Dec {

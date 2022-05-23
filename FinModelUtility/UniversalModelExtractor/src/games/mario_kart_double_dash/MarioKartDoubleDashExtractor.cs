@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using bmd.api;
+﻿using bmd.api;
 
 using fin.io;
 using fin.log;
@@ -11,7 +7,7 @@ using fin.util.asserts;
 using uni.msg;
 using uni.platforms;
 using uni.platforms.gcn;
-using uni.util.io;
+
 
 namespace uni.games.mario_kart_double_dash {
   public class MarioKartDoubleDashExtractor {
@@ -50,7 +46,7 @@ namespace uni.games.mario_kart_double_dash {
       var mramSubdir = fileHierarchy.Root.TryToGetSubdir(@"MRAM\driver");
 
       {
-        var plumberNames = new[] { "mario", "luigi", };
+        var plumberNames = new[] {"mario", "luigi",};
         var plumberSubdirs =
             mramSubdir.Subdirs.Where(
                 subdir => plumberNames.Contains(subdir.Name));
@@ -80,7 +76,7 @@ namespace uni.games.mario_kart_double_dash {
       }
 
       {
-        var princessNames = new[] { "daisy", "peach" };
+        var princessNames = new[] {"daisy", "peach"};
         var princessSubdirs =
             mramSubdir.Subdirs.Where(
                 subdir => princessNames.Contains(subdir.Name));
@@ -93,7 +89,7 @@ namespace uni.games.mario_kart_double_dash {
       }
 
       {
-        var lizardNames = new[] { "catherine", "yoshi" };
+        var lizardNames = new[] {"catherine", "yoshi"};
         var lizardSubdirs =
             mramSubdir.Subdirs.Where(
                 subdir => lizardNames.Contains(subdir.Name));
@@ -108,7 +104,7 @@ namespace uni.games.mario_kart_double_dash {
       // TODO: Where are toad's animations?
 
       {
-        var koopaNames = new[] { "patapata", "nokonoko" };
+        var koopaNames = new[] {"patapata", "nokonoko"};
         var koopaSubdirs =
             mramSubdir.Subdirs.Where(
                 subdir => koopaNames.Contains(subdir.Name));
@@ -284,7 +280,7 @@ namespace uni.games.mario_kart_double_dash {
       }
       Asserts.True(unclaimedBcxFiles.Count == 0);
       foreach (var (bmdFile, bcxFiles) in bmdAndBcxFiles) {
-        this.ExtractModels_(directory, new[] { bmdFile }, bcxFiles, btiFiles);
+        this.ExtractModels_(directory, new[] {bmdFile}, bcxFiles, btiFiles);
       }
     }
 
@@ -309,18 +305,19 @@ namespace uni.games.mario_kart_double_dash {
 
       foreach (var bmdFile in bmdFiles) {
         if (existingModelFiles.Any(
-            existingModelFile => {
-              var existingName = existingModelFile.Name.Substring(
-                  0,
-                  existingModelFile.Name.Length -
-                  existingModelFile.Extension.Length);
-              var bmdName =
-                  bmdFile.Name.Substring(0,
-                                         bmdFile.Name.Length - ".mod".Length);
+                existingModelFile => {
+                  var existingName = existingModelFile.Name.Substring(
+                      0,
+                      existingModelFile.Name.Length -
+                      existingModelFile.Extension.Length);
+                  var bmdName =
+                      bmdFile.Name.Substring(0,
+                                             bmdFile.Name.Length -
+                                             ".mod".Length);
 
-              return bmdName == existingName ||
-                     bmdName + "_gltf" == existingName;
-            })) {
+                  return bmdName == existingName ||
+                         bmdName + "_gltf" == existingName;
+                })) {
           ++matches;
         }
       }

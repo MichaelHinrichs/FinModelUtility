@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.Text;
 
 using fin.io;
 using fin.log;
 using fin.util.asserts;
 
 using uni.util.cmd;
-using uni.util.io;
+
 
 namespace uni.platforms.gcn.tools {
   public class RarcDump2 {
@@ -136,7 +134,7 @@ namespace uni.platforms.gcn.tools {
                       actualFileNameHash,
                       "Node did not have the correct hash!");
       }
-      {}
+      { }
       er.Position = position;
 
       return node;
@@ -204,7 +202,7 @@ string nodeName = getString(0x20 + n.filenameOffset + h.stringTableOffset, f);
 
     public class RarcHeader {
       public string type; //'RARC'
-      public uint size;   //size of the file
+      public uint size; //size of the file
       public uint unknown;
       public uint dataStartOffset; //where does the actual data start?
       public uint[] unknown2 = new uint[4];
@@ -239,7 +237,7 @@ string nodeName = getString(0x20 + n.filenameOffset + h.stringTableOffset, f);
           dataOffset; //offset to file data (for subdirs: index of Node representing the subdir)
 
       public uint dataSize; //size of data
-      public uint zero;     //seems to be always '0'
+      public uint zero; //seems to be always '0'
     };
   }
 }

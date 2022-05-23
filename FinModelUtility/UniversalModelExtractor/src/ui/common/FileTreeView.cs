@@ -1,16 +1,11 @@
 ﻿using fin.data.fuzzy;
+using fin.io;
 
 using UoT.util;
 
 #pragma warning disable CS8604
 
 namespace uni.ui.common {
-  public interface IUiFile {
-    // TODO: Make these nonnull via init setters in C#9.
-    string? FileName { get; set; }
-    string? BetterFileName { get; set; }
-  }
-
   public abstract partial class FileTreeView<TFile, TFiles> : UserControl
       where TFile : notnull, IUiFile where TFiles : notnull {
     // TODO: Add tests.

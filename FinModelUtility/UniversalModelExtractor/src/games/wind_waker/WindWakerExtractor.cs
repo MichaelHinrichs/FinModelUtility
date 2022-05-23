@@ -3,12 +3,6 @@
 using fin.io;
 using fin.log;
 using fin.util.asserts;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-
 using fin.util.data;
 using fin.util.strings;
 
@@ -16,8 +10,9 @@ using uni.msg;
 using uni.platforms;
 using uni.platforms.gcn;
 using uni.platforms.gcn.tools;
-using uni.util.io;
+
 #pragma warning disable CS8604
+
 
 namespace uni.games.wind_waker {
   public class WindWakerExtractor {
@@ -264,18 +259,19 @@ namespace uni.games.wind_waker {
 
       foreach (var bmdFile in bmdFiles) {
         if (existingModelFiles.Any(
-            existingModelFile => {
-              var existingName = existingModelFile.Name.Substring(
-                  0,
-                  existingModelFile.Name.Length -
-                  existingModelFile.Extension.Length);
-              var bmdName =
-                  bmdFile.Name.Substring(0,
-                                         bmdFile.Name.Length - ".mod".Length);
+                existingModelFile => {
+                  var existingName = existingModelFile.Name.Substring(
+                      0,
+                      existingModelFile.Name.Length -
+                      existingModelFile.Extension.Length);
+                  var bmdName =
+                      bmdFile.Name.Substring(0,
+                                             bmdFile.Name.Length -
+                                             ".mod".Length);
 
-              return bmdName == existingName ||
-                     bmdName + "_gltf" == existingName;
-            })) {
+                  return bmdName == existingName ||
+                         bmdName + "_gltf" == existingName;
+                })) {
           ++matches;
         }
       }

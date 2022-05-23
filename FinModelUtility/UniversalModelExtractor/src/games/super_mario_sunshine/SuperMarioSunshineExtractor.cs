@@ -4,14 +4,9 @@ using fin.io;
 using fin.log;
 using fin.util.asserts;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 using uni.msg;
 using uni.platforms;
 using uni.platforms.gcn;
-using uni.util.io;
 
 namespace uni.games.super_mario_sunshine {
   public class SuperMarioSunshineExtractor {

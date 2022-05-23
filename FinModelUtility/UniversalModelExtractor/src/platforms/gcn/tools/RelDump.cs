@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Globalization;
 
 using fin.util.asserts;
+using fin.io;
 
-using uni.util.io;
 
 namespace uni.platforms.gcn.tools {
   /// <summary>
@@ -144,7 +140,7 @@ namespace uni.platforms.gcn.tools {
                 if (!IsObject) {
                   try {
                     using (FileStream Data_File =
-                        File.Create(Dir + "\\" + Method_Name + ".bin")) {
+                           File.Create(Dir + "\\" + Method_Name + ".bin")) {
                       Data_File.Write(REL_Data, Offset, Size);
                       Data_File.Flush();
                     }

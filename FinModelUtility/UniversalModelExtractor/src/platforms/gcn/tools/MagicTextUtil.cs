@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-using uni.util.io;
+﻿using fin.io;
 
 namespace uni.platforms.gcn.tools {
   public static class MagicTextUtil {

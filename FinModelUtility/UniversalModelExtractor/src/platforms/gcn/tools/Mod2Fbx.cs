@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-
+﻿using fin.io;
 using fin.util.asserts;
 
 using uni.games;
 using uni.util.cmd;
-using uni.util.io;
+
 
 namespace uni.platforms.gcn.tools {
   public class Mod2Fbx {
@@ -22,7 +21,7 @@ namespace uni.platforms.gcn.tools {
             $"Cannot extract model because it is not a MOD: {modFile}");
       }
 
-      anmFiles ??= new IFileHierarchyFile[] {};
+      anmFiles ??= new IFileHierarchyFile[] { };
       foreach (var anmFile in anmFiles) {
         Asserts.True(
             anmFile.Exists,

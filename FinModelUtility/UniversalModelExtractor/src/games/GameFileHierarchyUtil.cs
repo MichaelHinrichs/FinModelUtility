@@ -1,10 +1,6 @@
-﻿using System.IO;
-
-using fin.io;
-using fin.util.asserts;
+﻿using fin.io;
 
 using uni.platforms;
-using uni.util.io;
 
 namespace uni.games {
   public static class GameFileHierarchyUtil {

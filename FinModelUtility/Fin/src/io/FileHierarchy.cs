@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-using fin.io;
 using fin.util.asserts;
 using fin.util.data;
 
 
-namespace uni.util.io {
+namespace fin.io {
   public interface IFileHierarchy : IEnumerable<IFileHierarchyDirectory> {
     IFileHierarchyDirectory Root { get; }
   }

@@ -1,13 +1,8 @@
-﻿using System.Collections.Generic;
-using System.IO;
-
-using fin.io;
-using fin.log;
+﻿using fin.io;
 using fin.util.asserts;
 
 using uni.games;
 using uni.util.cmd;
-using uni.util.io;
 
 namespace uni.platforms.gcn.tools {
   public class Bmd2Fbx {
