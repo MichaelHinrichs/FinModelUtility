@@ -29,10 +29,10 @@ namespace uni.ui {
       System.Windows.Forms.SplitContainer splitContainer1;
       System.Windows.Forms.SplitContainer splitContainer2;
       System.Windows.Forms.MenuStrip menuStrip;
+      this.modelFileTreeView_ = new uni.ui.common.ModelFileTreeView();
       this.modelViewerGlPanel_ = new uni.ui.common.ModelViewerGlPanel();
       this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.modelFileTreeView1 = new uni.ui.common.ModelFileTreeView();
       splitContainer1 = new System.Windows.Forms.SplitContainer();
       splitContainer2 = new System.Windows.Forms.SplitContainer();
       menuStrip = new System.Windows.Forms.MenuStrip();
@@ -54,7 +54,7 @@ namespace uni.ui {
       // 
       // splitContainer1.Panel1
       // 
-      splitContainer1.Panel1.Controls.Add(this.modelFileTreeView1);
+      splitContainer1.Panel1.Controls.Add(this.modelFileTreeView_);
       // 
       // splitContainer1.Panel2
       // 
@@ -62,6 +62,15 @@ namespace uni.ui {
       splitContainer1.Size = new System.Drawing.Size(1013, 520);
       splitContainer1.SplitterDistance = 224;
       splitContainer1.TabIndex = 2;
+      // 
+      // modelFileTreeView_
+      // 
+      this.modelFileTreeView_.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.modelFileTreeView_.Location = new System.Drawing.Point(0, 0);
+      this.modelFileTreeView_.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+      this.modelFileTreeView_.Name = "modelFileTreeView_";
+      this.modelFileTreeView_.Size = new System.Drawing.Size(224, 520);
+      this.modelFileTreeView_.TabIndex = 0;
       // 
       // splitContainer2
       // 
@@ -108,15 +117,6 @@ namespace uni.ui {
       this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
       this.helpToolStripMenuItem.Text = "Help";
       // 
-      // modelFileTreeView1
-      // 
-      this.modelFileTreeView1.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.modelFileTreeView1.Location = new System.Drawing.Point(0, 0);
-      this.modelFileTreeView1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-      this.modelFileTreeView1.Name = "modelFileTreeView1";
-      this.modelFileTreeView1.Size = new System.Drawing.Size(224, 520);
-      this.modelFileTreeView1.TabIndex = 0;
-      // 
       // UniversalModelExtractorForm
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -149,6 +149,6 @@ namespace uni.ui {
     private ToolStripMenuItem fileToolStripMenuItem;
     private ToolStripMenuItem helpToolStripMenuItem;
     private SplitContainer splitContainer1;
-    private ModelFileTreeView modelFileTreeView1;
+    private ModelFileTreeView modelFileTreeView_;
   }
 }

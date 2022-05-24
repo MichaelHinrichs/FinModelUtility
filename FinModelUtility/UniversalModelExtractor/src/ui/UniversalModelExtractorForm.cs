@@ -1,15 +1,34 @@
+using fin.model;
+
+using glo.api;
+
 using uni.games;
 
 
 namespace uni.ui {
   public partial class UniversalModelExtractorForm : Form {
+    private IModel? model_ = null;
+
     public UniversalModelExtractorForm() {
       InitializeComponent();
     }
 
     private void UniversalModelExtractorForm_Load(object sender, EventArgs e) {
-      this.modelFileTreeView1.Populate(
+      this.modelFileTreeView_.Populate(
           new RootModelFileGatherer().GatherAllModelFiles());
+
+      this.modelFileTreeView_.FileSelected += this.OnFileSelect_;
     }
+
+    private void OnFileSelect_(IModelFileBundle modelFileBundle) {
+      this.model_ = this.LoadModel_(modelFileBundle);
+    }
+
+    private IModel LoadModel_(IModelFileBundle modelFileBundle)
+      => modelFileBundle switch {
+          GloModelFileBundle gloModelFileBundle => new GloModelLoader()
+              .LoadModel(gloModelFileBundle),
+          _ => throw new ArgumentOutOfRangeException(nameof(modelFileBundle))
+      };
   }
 }
