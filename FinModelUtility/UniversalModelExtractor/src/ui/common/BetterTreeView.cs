@@ -36,6 +36,9 @@ namespace uni.ui.common {
       childBetterTreeNode.Parent = this;
 
       this.absoluteChildren_.Add(childBetterTreeNode);
+
+      this.ExpandRecursively();
+
       return childBetterTreeNode;
     }
 
@@ -45,6 +48,17 @@ namespace uni.ui.common {
         Func<BetterTreeNode<T>, bool>? filter = null) {
       this.ClearRecursively_();
       this.ReaddChildrenRecursively(filter);
+      this.ExpandRecursively();
+    }
+
+    public void ExpandRecursively() {
+      this.impl_?.Expand();
+      foreach (var childTreeNodeObj in this.collection_) {
+        var childTreeNode = (TreeNode)childTreeNodeObj;
+        var childBetterTreeNode = (BetterTreeNode<T>)childTreeNode.Tag;
+
+        childBetterTreeNode.ExpandRecursively();
+      }
     }
 
     private void ClearRecursively_() {
