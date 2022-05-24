@@ -4,42 +4,42 @@ using System.Linq;
 
 
 namespace fin.io {
-  public interface ILazyFileReader {
+  public interface ILazy {
     string Name { get; }
   }
 
-  public interface ILazyFileReader<out T> : ILazyFileReader {
-    T Read();
+  public interface ILazy<out T> : ILazy {
+    T Get();
   }
 
 
-  public class FuncLazyFileReader<T> : ILazyFileReader<T> {
+  public class FuncLazy<T> : ILazy<T> {
     private readonly Func<T> callback_;
 
-    public FuncLazyFileReader(string name, Func<T> callback) {
+    public FuncLazy(string name, Func<T> callback) {
       this.Name = name;
       this.callback_ = callback;
     }
 
     public string Name { get; }
 
-    public T Read() => this.callback_();
+    public T Get() => this.callback_();
   }
 
 
-  public interface ILazyFileReaderMap {
-    void Add<T>(ILazyFileReader<T> reader);
+  public interface ILazyMap {
+    void Add<T>(ILazy<T> lazy);
 
-    bool TryGet<T>(out IEnumerable<ILazyFileReader<T>>? typedFileReaders);
+    bool TryGet<T>(out IEnumerable<ILazy<T>>? typedLazies);
   }
 
-  public class LazyFileReaderMap : ILazyFileReaderMap {
-    private IDictionary<Type, IList<ILazyFileReader>> impl_;
+  public class LazyMap : ILazyMap {
+    private IDictionary<Type, IList<ILazy>> impl_;
 
-    public void Add<T>(ILazyFileReader<T> reader) {
+    public void Add<T>(ILazy<T> reader) {
       var type = typeof(T);
       if (!this.impl_.TryGetValue(type, out var fileReaders)) {
-        fileReaders = new List<ILazyFileReader>();
+        fileReaders = new List<ILazy>();
         this.impl_[type] = fileReaders;
       }
 
@@ -47,14 +47,14 @@ namespace fin.io {
     }
 
     public bool
-        TryGet<T>(out IEnumerable<ILazyFileReader<T>>? typedFileReaders) {
+        TryGet<T>(out IEnumerable<ILazy<T>>? typedLazies) {
       var type = typeof(T);
       if (!this.impl_.TryGetValue(type, out var fileReaders)) {
-        typedFileReaders = null;
+        typedLazies = null;
         return false;
       }
 
-      typedFileReaders = fileReaders.Cast<ILazyFileReader<T>>();
+      typedLazies = fileReaders.Cast<ILazy<T>>();
       return true;
     }
   }

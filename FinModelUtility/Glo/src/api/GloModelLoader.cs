@@ -16,7 +16,20 @@ using fin.util.image;
 
 
 namespace glo.api {
-  public class ModelConverter {
+  public class GloModelFileBundle : IModelFileBundle {
+    public GloModelFileBundle(IFileHierarchyFile gloFile,
+                              IReadOnlyList<IDirectory> textureDirectories) {
+      this.GloFile = gloFile;
+      this.TextureDirectories = textureDirectories;
+    }
+
+    public string FileName => this.GloFile.NameWithoutExtension;
+
+    public IFileHierarchyFile GloFile { get; }
+    public IReadOnlyList<IDirectory> TextureDirectories { get; }
+  }
+
+  public class GloModelLoader : IModelLoader<GloModelFileBundle> {
     private readonly string[] hiddenNames_ = new[] {
         "Box01", "puzzle"
     };
@@ -25,11 +38,25 @@ namespace glo.api {
         "Badg2.bmp"
     };
 
-    public unsafe IModel Convert(
-        Glo glo,
-        IDirectory outputDirectory,
-        IList<IDirectory> textureDirectories,
-        float fps) {
+    public unsafe IModel LoadModel(GloModelFileBundle gloModelFileBundle) {
+      var gloFile = gloModelFileBundle.GloFile;
+      var textureDirectories = gloModelFileBundle.TextureDirectories;
+      var fps = 20;
+
+      var glo = new Glo();
+      using (var er =
+             new EndianBinaryReader(
+                 gloFile.Impl.OpenRead(), Endianness.LittleEndian)) {
+        glo.Read(er);
+      }
+
+      /*new MeshCsvWriter().WriteToFile(
+          glo, new FinFile(Path.Join(outputDirectory.FullName, "mesh.csv")));
+      new FaceCsvWriter().WriteToFile(
+          glo, new FinFile(Path.Join(outputDirectory.FullName, "face.csv")));
+      new VertexCsvWriter().WriteToFile(
+          glo, new FinFile(Path.Join(outputDirectory.FullName, "vertex.csv")));*/
+
       var finModel = new ModelImpl();
       var finSkin = finModel.Skin;
 

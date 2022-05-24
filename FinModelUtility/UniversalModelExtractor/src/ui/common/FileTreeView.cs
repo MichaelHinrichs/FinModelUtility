@@ -23,11 +23,11 @@ namespace uni.ui.common {
           var file = fileNode.File;
           if (file != null) {
             var fileName = file.FileName;
-            keywords.Add(fileName!);
+            keywords.Add(fileName);
 
             var betterFileName = file.BetterFileName;
             if (!string.IsNullOrEmpty(betterFileName)) {
-              keywords.Add(betterFileName!);
+              keywords.Add(betterFileName);
             }
           }
 
@@ -53,7 +53,7 @@ namespace uni.ui.common {
       private FileNode(FileNode parent, TFile file) {
         this.File = file;
 
-        this.treeNode_ = parent.treeNode_.Add(file.BetterFileName);
+        this.treeNode_ = parent.treeNode_.Add(file.BetterFileName ?? file.FileName);
         this.treeNode_.Data = this;
 
         this.filterNode_ = parent.filterNode_.AddChild(this);

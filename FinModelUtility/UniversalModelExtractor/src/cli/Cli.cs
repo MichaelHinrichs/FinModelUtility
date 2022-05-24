@@ -19,6 +19,7 @@ using uni.ui;
 
 namespace uni.cli {
   public class Cli {
+    [STAThread]
     public static int Main(string[] args) {
       IEnumerable<Error>? errors = null;
 

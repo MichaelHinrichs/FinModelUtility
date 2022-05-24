@@ -12,6 +12,8 @@ namespace uni.ui.common {
     private readonly Stopwatch stopwatch_ = Stopwatch.StartNew();
     private readonly Color backgroundColor_ = Color.FromArgb(51, 128, 179);
 
+    private GlShaderProgram shaderProgram_;
+
     protected override void InitGl() {
       GlUtil.Init();
 
@@ -34,9 +36,9 @@ void main() {
     gl_FragColor = vertexColor;
 }";
 
-      var shaderProgram =
+      this.shaderProgram_ =
           GlShaderProgram.FromShaders(vertexShaderSrc, fragmentShaderSrc);
-      shaderProgram.Use();
+      this.shaderProgram_.Use();
 
       ResetGl_();
       Wgl.wglSwapIntervalEXT(1);
