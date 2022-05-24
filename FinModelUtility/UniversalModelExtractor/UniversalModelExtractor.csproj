@@ -25,6 +25,9 @@
 
   <ItemGroup>
     <None Remove=".editorconfig" />
+    <None Remove="img\file.png" />
+    <None Remove="img\folder_closed.png" />
+    <None Remove="img\folder_open.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -64,6 +67,12 @@
     <Reference Include="Tao.Platform.Windows">
       <HintPath>..\Utility of Time\Tao GL Libs\Tao.Platform.Windows.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="img\file.png" />
+    <EmbeddedResource Include="img\folder_closed.png" />
+    <EmbeddedResource Include="img\folder_open.png" />
   </ItemGroup>
 
   <ItemGroup>

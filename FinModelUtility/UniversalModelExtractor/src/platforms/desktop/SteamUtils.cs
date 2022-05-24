@@ -1,12 +1,11 @@
-﻿using System.Linq;
-
-using fin.io;
+﻿using fin.io;
 using fin.util.asserts;
 
 using Gameloop.Vdf;
 using Gameloop.Vdf.Linq;
 
 using Microsoft.Win32;
+
 
 namespace uni.platforms.desktop {
   internal static class SteamUtils {
@@ -43,10 +42,15 @@ namespace uni.platforms.desktop {
           .Select(steamApps => steamApps.GetSubdir("common"))
           .ToArray();
 
-    public static IDirectory? GetGameDirectory(string name)
-      => SteamUtils.CommonDirectories
+    public static IDirectory?
+        GetGameDirectory(string name, bool assert = false) {
+      var gameDir = CommonDirectories
                    .SelectMany(common => common.GetExistingSubdirs())
-                   .Where(game => game.Name == name)
-                   .FirstOrDefault();
+                   .FirstOrDefault(game => game.Name == name);
+      return !assert
+                 ? gameDir
+                 : Asserts.CastNonnull(
+                     gameDir, $"Could not find \"{name}\" installed in Steam.");
+    }
   }
 }

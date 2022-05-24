@@ -1,9 +1,31 @@
 ﻿using System.Collections;
 
+
 namespace uni.ui.common {
+  public static class BetterTreeUtil {
+    public static void ForEach<S>(TreeNodeCollection collection,
+                                  Action<BetterTreeNode<S>> callback)
+        where S : class {
+      // TODO: Remove unboxing?
+      foreach (var childTreeNodeObj in collection) {
+        var childTreeNode = (TreeNode) childTreeNodeObj;
+        var childBetterTreeNode =
+            BetterTreeUtil.GetBetterFrom<S>(childTreeNode);
+
+        callback(childBetterTreeNode);
+      }
+    }
+
+    public static BetterTreeNode<S> GetBetterFrom<S>(TreeNode node)
+        where S : class
+      => (BetterTreeNode<S>) node.Tag;
+  }
+
   public class BetterTreeNode<T> where T : class {
     private readonly TreeNode? impl_;
     private readonly TreeNodeCollection collection_;
+    private int openImageIndex_;
+    private int closedImageIndex_;
 
     public BetterTreeNode<T>? Parent { get; private set; }
 
@@ -26,6 +48,26 @@ namespace uni.ui.common {
       this.collection_ = collection;
 
       this.AbsoluteIndex = impl?.Index ?? 0;
+    }
+
+    public int OpenImageIndex {
+      get => this.openImageIndex_;
+      set {
+        this.openImageIndex_ = value;
+        if (this.impl_?.IsExpanded ?? false) {
+          this.impl_.ImageIndex = this.impl_.SelectedImageIndex = value;
+        }
+      }
+    }
+
+    public int ClosedImageIndex {
+      get => this.closedImageIndex_;
+      set {
+        this.closedImageIndex_ = value;
+        if (!(this.impl_?.IsExpanded ?? true)) {
+          this.impl_.ImageIndex = this.impl_.SelectedImageIndex = value;
+        }
+      }
     }
 
     public BetterTreeNode<T> Add(string text) {
@@ -53,22 +95,17 @@ namespace uni.ui.common {
 
     public void ExpandRecursively() {
       this.impl_?.Expand();
-      foreach (var childTreeNodeObj in this.collection_) {
-        var childTreeNode = (TreeNode)childTreeNodeObj;
-        var childBetterTreeNode = (BetterTreeNode<T>)childTreeNode.Tag;
-
-        childBetterTreeNode.ExpandRecursively();
-      }
+      BetterTreeUtil.ForEach<T>(
+          this.collection_,
+          childBetterTreeNode =>
+              childBetterTreeNode.ExpandRecursively());
     }
 
     private void ClearRecursively_() {
-      // TODO: Remove unboxing?
-      foreach (var childTreeNodeObj in this.collection_) {
-        var childTreeNode = (TreeNode) childTreeNodeObj;
-        var childBetterTreeNode = (BetterTreeNode<T>) childTreeNode.Tag;
-
-        childBetterTreeNode.ClearRecursively_();
-      }
+      BetterTreeUtil.ForEach<T>(
+          this.collection_,
+          childBetterTreeNode =>
+              childBetterTreeNode.ClearRecursively_());
 
       this.collection_.Clear();
     }
@@ -100,7 +137,7 @@ namespace uni.ui.common {
 
     public delegate void SelectedHandler(BetterTreeNode<T> betterTreeNode);
 
-    public event SelectedHandler Selected = delegate {};
+    public event SelectedHandler Selected = delegate { };
 
     public IComparer<BetterTreeNode<T>>? Comparer {
       get => this.comparer_.Comparer;
@@ -116,6 +153,17 @@ namespace uni.ui.common {
               (BetterTreeNode<T>) this.impl_.SelectedNode!.Tag);
 
       this.impl_.TreeViewNodeSorter = this.comparer_;
+
+      this.impl_.AfterExpand += (sender, args) => {
+        var node = args.Node!;
+        var betterNode = BetterTreeUtil.GetBetterFrom<T>(node);
+        node.ImageIndex = node.SelectedImageIndex = betterNode.OpenImageIndex;
+      };
+      this.impl_.AfterCollapse += (sender, args) => {
+        var node = args.Node!;
+        var betterNode = BetterTreeUtil.GetBetterFrom<T>(node);
+        node.ImageIndex = node.SelectedImageIndex = betterNode.ClosedImageIndex;
+      };
     }
 
     public void BeginUpdate() {

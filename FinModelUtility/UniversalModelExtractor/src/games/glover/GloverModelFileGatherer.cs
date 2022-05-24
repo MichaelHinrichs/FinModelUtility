@@ -9,24 +9,20 @@ using uni.platforms.desktop;
 namespace uni.games.glover {
   internal class
       GloverModelFileGatherer : IModelFileGatherer<GloModelFileBundle> {
-    public IModelDirectory<GloModelFileBundle>? GatherModelFileBundles() {
-      var gloverSteamDirectory = SteamUtils.GetGameDirectory("Glover");
+    public IModelDirectory<GloModelFileBundle>? GatherModelFileBundles(
+        bool assert) {
+      var gloverSteamDirectory = SteamUtils.GetGameDirectory("Glover", assert);
       if (gloverSteamDirectory == null) {
         return null;
       }
 
-      var gloverFileHierarchy = new FileHierarchy(gloverSteamDirectory);
-
-      var topLevelObjectDirectory =
-          gloverFileHierarchy.Root.TryToGetSubdir("data/objects");
-      if (topLevelObjectDirectory == null) {
-        return null;
-      }
-
       var rootModelDirectory = new ModelDirectory<GloModelFileBundle>("glover");
-
       var parentObjectDirectory = rootModelDirectory.AddSubdir("data")
                                                     .AddSubdir("objects");
+
+      var gloverFileHierarchy = new FileHierarchy(gloverSteamDirectory);
+      var topLevelObjectDirectory =
+          gloverFileHierarchy.Root.TryToGetSubdir("data/objects");
       foreach (var objectDirectory in topLevelObjectDirectory.Subdirs) {
         this.AddObjectDirectory(
             parentObjectDirectory.AddSubdir(objectDirectory.Name),

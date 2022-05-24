@@ -1,18 +1,13 @@
-﻿using fin.util.asserts;
-
-using glo.api;
+﻿using glo.api;
 
 
 namespace uni.games.glover {
   internal class GloverExtractor {
     public void ExtractAll() {
       var rootModelDirectory =
-          new GloverModelFileGatherer().GatherModelFileBundles();
+          new GloverModelFileGatherer().GatherModelFileBundles(true)!;
 
-      Asserts.Nonnull(rootModelDirectory,
-                      "Could not find Glover installed in Steam.");
-
-      rootModelDirectory!.ForEachTyped(fileBundle => {
+      rootModelDirectory.ForEachTyped(fileBundle => {
         var gloFile = fileBundle.GloFile;
 
         var parentOutputDirectory =

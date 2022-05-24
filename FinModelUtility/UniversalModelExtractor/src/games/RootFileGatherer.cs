@@ -9,7 +9,7 @@ namespace uni.games {
       var rootModelDirectory = new RootModelDirectory();
 
       rootModelDirectory.AddSubdirIfNotNull(
-          new GloverModelFileGatherer().GatherModelFileBundles());
+          new GloverModelFileGatherer().GatherModelFileBundles(false));
 
       return rootModelDirectory;
     }

@@ -97,7 +97,7 @@ namespace fin.model {
 
   public interface IModelFileGatherer<TModelFileBundle>
       where TModelFileBundle : IModelFileBundle {
-    IModelDirectory<TModelFileBundle>? GatherModelFileBundles();
+    IModelDirectory<TModelFileBundle>? GatherModelFileBundles(bool assert);
   }
 
   public interface IModelLoader<in TModelFileBundle>

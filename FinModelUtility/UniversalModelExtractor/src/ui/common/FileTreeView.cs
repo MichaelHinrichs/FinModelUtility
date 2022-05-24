@@ -1,13 +1,20 @@
-﻿using fin.data.fuzzy;
+﻿using System.Reflection;
+
+using fin.data.fuzzy;
 using fin.io;
 
 using UoT.util;
 
 #pragma warning disable CS8604
 
+
 namespace uni.ui.common {
   public abstract partial class FileTreeView<TFile, TFiles> : UserControl
       where TFile : notnull, IUiFile where TFiles : notnull {
+    public const int FOLDER_CLOSED_ICON_INDEX = 0;
+    public const int FOLDER_OPEN_ICON_INDEX = 1;
+    public const int FILE_ICON_INDEX = 2;
+
     // TODO: Add tests.
     // TODO: Move the fuzzy logic to a separate reusable component.
     // TODO: Add support for different sorting systems.
@@ -36,7 +43,7 @@ namespace uni.ui.common {
 
     public delegate void FileSelectedHandler(TFile file);
 
-    public event FileSelectedHandler FileSelected = delegate {};
+    public event FileSelectedHandler FileSelected = delegate { };
 
     // TODO: Clean this up.
     protected class FileNode {
@@ -48,15 +55,20 @@ namespace uni.ui.common {
         this.treeNode_.Data = this;
 
         this.filterNode_ = treeView.filterImpl_.Root.AddChild(this);
+
+        this.InitDirectory_();
       }
 
       private FileNode(FileNode parent, TFile file) {
         this.File = file;
 
-        this.treeNode_ = parent.treeNode_.Add(file.BetterFileName ?? file.FileName);
+        this.treeNode_ =
+            parent.treeNode_.Add(file.BetterFileName ?? file.FileName);
         this.treeNode_.Data = this;
 
         this.filterNode_ = parent.filterNode_.AddChild(this);
+
+        this.InitFile_();
       }
 
       private FileNode(FileNode parent, string text) {
@@ -64,6 +76,18 @@ namespace uni.ui.common {
         this.treeNode_.Data = this;
 
         this.filterNode_ = parent.filterNode_.AddChild(this);
+
+        this.InitDirectory_();
+      }
+
+      private void InitDirectory_() {
+        this.treeNode_.ClosedImageIndex = FOLDER_CLOSED_ICON_INDEX;
+        this.treeNode_.OpenImageIndex = FOLDER_OPEN_ICON_INDEX;
+      }
+
+      private void InitFile_() {
+        this.treeNode_.ClosedImageIndex = FILE_ICON_INDEX;
+        this.treeNode_.OpenImageIndex = FILE_ICON_INDEX;
       }
 
 
@@ -79,6 +103,23 @@ namespace uni.ui.common {
 
     public FileTreeView() {
       this.InitializeComponent();
+      
+      var assembly = Assembly.GetExecutingAssembly();
+
+      var folderClosedImage =
+          EmbeddedResourceUtil.Load(assembly, "uni.img.folder_closed.png");
+      var folderOpenImage =
+          EmbeddedResourceUtil.Load(assembly, "uni.img.folder_open.png");
+      var fileImage =
+          EmbeddedResourceUtil.Load(assembly, "uni.img.file.png");
+
+      var imageList = new ImageList();
+      var images = imageList.Images;
+      images.Add(folderClosedImage);
+      images.Add(folderOpenImage);
+      images.Add(fileImage);
+      
+      this.fileTreeView_.ImageList = imageList;
 
       this.filterTextBox_.TextChanged += (_, _) => this.Filter_();
 
