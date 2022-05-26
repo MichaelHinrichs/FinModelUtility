@@ -99,10 +99,10 @@ namespace uni.ui.gl {
     }
 
     public void Render() {
+      GlUtil.SetCulling(this.material_.CullingMode);
       this.texture_?.Bind();
 
       Gl.glBegin(Gl.GL_TRIANGLES);
-
 
       foreach (var primitive in this.primitives_) {
         var vertices = primitive.Vertices;

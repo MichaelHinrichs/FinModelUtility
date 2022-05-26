@@ -60,11 +60,9 @@ namespace glo.schema {
 
   [Schema]
   public sealed partial class GloMeshPointers : IBiSerializable {
-    [IfBoolean(IntType.UINT16)]
-    public GloMesh? Child { get; set; }
+    [IfBoolean(IntType.UINT16)] public GloMesh? Child { get; set; }
 
-    [IfBoolean(IntType.UINT16)]
-    public GloMesh? Next { get; set; }
+    [IfBoolean(IntType.UINT16)] public GloMesh? Next { get; set; }
   }
 
   [Schema]
@@ -103,10 +101,10 @@ namespace glo.schema {
     public GloColor Color { get; } = new();
     public ushort Flags { get; set; }
 
-    public GloVertexRef[] VertexRefs { get; } = new GloVertexRef[3] {
-        new GloVertexRef(),
-        new GloVertexRef(),
-        new GloVertexRef(),
+    public GloVertexRef[] VertexRefs { get; } = {
+        new(),
+        new(),
+        new(),
     };
   }
 
