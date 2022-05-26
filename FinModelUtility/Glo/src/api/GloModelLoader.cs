@@ -144,6 +144,8 @@ namespace glo.api {
             return finMaterial;
           });
 
+      var firstMeshMap = new Dictionary<string, GloMesh>();
+
       // TODO: Consider separating these out as separate models
       foreach (var gloObject in glo.Objects) {
         var finObjectRootBone = finRootBone.AddRoot(0, 0, 0);
@@ -162,6 +164,11 @@ namespace glo.api {
           var (gloMesh, parentFinBone) = meshQueue.Dequeue();
 
           var name = new string(gloMesh.Name).Replace("\0", "");
+
+          GloMesh idealMesh;
+          if (!firstMeshMap.TryGetValue(name, out idealMesh)) {
+            firstMeshMap[name] = idealMesh = gloMesh;
+          }
 
           var position = gloMesh.MoveKeys[0].Xyz;
 
@@ -235,10 +242,8 @@ namespace glo.api {
           var finMesh = finSkin.AddMesh();
           finMesh.Name = name;
 
-          var gloVertices = gloMesh.Vertices;
-
-          var gloFaces = gloMesh.Faces;
-          foreach (var gloFace in gloFaces) {
+          var gloVertices = idealMesh.Vertices;
+          foreach (var gloFace in idealMesh.Faces) {
             // TODO: What can we do if texture filename is empty?
             var textureFilename =
                 new string(gloFace.TextureFilename).Replace("\0", "");
