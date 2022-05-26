@@ -4,7 +4,10 @@ using fin.gl;
 
 using Tao.OpenGl;
 using Tao.Platform.Windows;
-using System.Drawing;
+
+using fin.model;
+
+using uni.ui.gl;
 
 
 namespace uni.ui.common {
@@ -13,6 +16,13 @@ namespace uni.ui.common {
     private readonly Color backgroundColor_ = Color.FromArgb(51, 128, 179);
 
     private GlShaderProgram shaderProgram_;
+
+    public IModel? Model {
+      get => this.modelRenderer_?.Model;
+      set => this.modelRenderer_ = value != null ? new ModelRenderer(value) : null;
+    }
+
+    private ModelRenderer? modelRenderer_;
 
     protected override void InitGl() {
       GlUtil.Init();
@@ -76,10 +86,37 @@ void main() {
     protected override void RenderGl() {
       var width = this.Width;
       var height = this.Height;
+      Gl.glViewport(0, 0, width, height);
+
+      Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
+
+      this.RenderPerspective_();
+      //this.RenderOrtho_();
+
+      Gl.glFlush();
+    }
+
+    private void RenderPerspective_() {
+      var width = this.Width;
+      var height = this.Height;
 
       {
-        Gl.glViewport(0, 0, width, height);
+        Gl.glMatrixMode(Gl.GL_PROJECTION);
+        Gl.glLoadIdentity();
+        Glu.gluPerspective(30, 1f * width / height, .1, 1000);
 
+        Gl.glMatrixMode(Gl.GL_MODELVIEW);
+        Gl.glLoadIdentity();
+      }
+
+      this.modelRenderer_?.Render();
+    }
+
+    private void RenderOrtho_() {
+      var width = this.Width;
+      var height = this.Height;
+
+      {
         Gl.glMatrixMode(Gl.GL_PROJECTION);
         Gl.glLoadIdentity();
         Glu.gluOrtho2D(0, width, height, 0);
@@ -94,8 +131,6 @@ void main() {
       }
 
       var size = MathF.Max(width, height) * MathF.Sqrt(2);
-
-      Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
 
       Gl.glBegin(Gl.GL_QUADS);
 
@@ -112,8 +147,6 @@ void main() {
       Gl.glVertex2f(size / 2, -size / 2);
 
       Gl.glEnd();
-
-      Gl.glFlush();
     }
   }
 }

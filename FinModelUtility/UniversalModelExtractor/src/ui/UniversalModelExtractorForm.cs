@@ -7,8 +7,6 @@ using uni.games;
 
 namespace uni.ui {
   public partial class UniversalModelExtractorForm : Form {
-    private IModel? model_ = null;
-
     public UniversalModelExtractorForm() {
       InitializeComponent();
     }
@@ -21,7 +19,7 @@ namespace uni.ui {
     }
 
     private void OnFileSelect_(IModelFileBundle modelFileBundle) {
-      this.model_ = this.LoadModel_(modelFileBundle);
+      this.modelViewerGlPanel_.Model = this.LoadModel_(modelFileBundle);
     }
 
     private IModel LoadModel_(IModelFileBundle modelFileBundle)
