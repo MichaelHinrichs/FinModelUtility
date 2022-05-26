@@ -25,7 +25,6 @@
     private void InitializeComponent() {
       this.impl_ = new UoT.Tao.Platform.Windows.SimpleOpenGlControl();
       this.SuspendLayout();
-
       // 
       // impl_
       // 
@@ -43,21 +42,21 @@
       this.impl_.Size = new System.Drawing.Size(511, 331);
       this.impl_.StencilBits = ((byte)(0));
       this.impl_.TabIndex = 0;
-
       // 
-      // GlPanel
+      // BGlPanel
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.BackColor = System.Drawing.Color.Fuchsia;
       this.Controls.Add(this.impl_);
-      this.Name = "ModelViewerGlPanel";
+      this.Name = "BGlPanel";
       this.Size = new System.Drawing.Size(511, 331);
       this.ResumeLayout(false);
+
     }
 
     #endregion
 
-    private UoT.Tao.Platform.Windows.SimpleOpenGlControl impl_;
+    protected UoT.Tao.Platform.Windows.SimpleOpenGlControl impl_;
   }
 }
