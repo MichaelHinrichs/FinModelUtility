@@ -44,12 +44,12 @@
       this.X += speed *
                 this.HorizontalNormal *
                 (forwardVector * MathF.Cos(forwardYawRads) +
-                 -rightVector * MathF.Cos(rightYawRads));
+                 rightVector * MathF.Cos(rightYawRads));
 
       this.Y += speed *
                 this.HorizontalNormal *
                 (forwardVector * MathF.Sin(forwardYawRads) +
-                 -rightVector * MathF.Sin(rightYawRads));
+                 rightVector * MathF.Sin(rightYawRads));
     }
   }
 }

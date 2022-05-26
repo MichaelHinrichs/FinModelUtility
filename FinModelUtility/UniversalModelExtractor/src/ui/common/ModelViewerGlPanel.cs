@@ -34,8 +34,11 @@ namespace uni.ui.common {
 
     private bool isMouseDown_ = false;
     private (int, int)? prevMousePosition_ = null;
+
     private bool isForwardDown_ = false;
     private bool isBackwardDown_ = false;
+    private bool isLeftwardDown_ = false;
+    private bool isRightwardDown_ = false;
 
     public ModelViewerGlPanel() {
       this.impl_.MouseDown += (sender, args) => {
@@ -66,8 +69,10 @@ namespace uni.ui.common {
             var deltaXFrac = 1f * deltaMouseX / this.Width;
             var deltaYFrac = 1f * deltaMouseY / this.Height;
 
-            this.camera_.Pitch += deltaYFrac * fovY * 2;
-            this.camera_.Yaw += deltaXFrac * fovX * 2;
+            var mouseSpeed = 3;
+
+            this.camera_.Pitch -= deltaYFrac * fovY * mouseSpeed;
+            this.camera_.Yaw -= deltaXFrac * fovX * mouseSpeed;
           }
 
           this.prevMousePosition_ = mouseLocation;
@@ -84,6 +89,14 @@ namespace uni.ui.common {
             this.isBackwardDown_ = true;
             break;
           }
+          case Keys.A: {
+            this.isLeftwardDown_ = true;
+            break;
+          }
+          case Keys.D: {
+            this.isRightwardDown_ = true;
+            break;
+          }
         }
       };
 
@@ -95,6 +108,14 @@ namespace uni.ui.common {
           }
           case Keys.S: {
             this.isBackwardDown_ = false;
+            break;
+          }
+          case Keys.A: {
+            this.isLeftwardDown_ = false;
+            break;
+          }
+          case Keys.D: {
+            this.isRightwardDown_ = false;
             break;
           }
         }
@@ -177,10 +198,11 @@ void main() {
     }
 
     protected override void RenderGl() {
-      var moveAmount =
+      var forwardVector =
           (this.isForwardDown_ ? 1 : 0) - (this.isBackwardDown_ ? 1 : 0);
-
-      this.camera_.Move(moveAmount, 0, 15);
+      var rightwardVector =
+          (this.isRightwardDown_ ? 1 : 0) - (this.isLeftwardDown_ ? 1 : 0);
+      this.camera_.Move(forwardVector, rightwardVector, 15);
 
       var width = this.Width;
       var height = this.Height;
