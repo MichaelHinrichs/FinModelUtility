@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 
+using fin.animation.playback;
 using fin.gl;
 
 using Tao.OpenGl;
@@ -21,16 +22,27 @@ namespace uni.ui.common {
     private GlShaderProgram shaderProgram_;
     private int texture0Location_;
 
+    private ModelRenderer? modelRenderer_;
+
+    private readonly FrameAdvancer frameAdvancer_ = new() {
+        IsPlaying = true,
+        ShouldLoop = true,
+    };
+
     public IModel? Model {
       get => this.modelRenderer_?.Model;
       set {
         this.modelRenderer_?.Dispose();
         this.modelRenderer_ =
             value != null ? new ModelRenderer(value) : null;
+        this.Animation = value?.AnimationManager.Animations.FirstOrDefault();
+
+        this.frameAdvancer_.FrameRate = (int) (this.Animation?.FrameRate ?? 20);
+        this.frameAdvancer_.TotalFrames = this.Animation?.FrameCount ?? 0;
       }
     }
 
-    private ModelRenderer? modelRenderer_;
+    public IAnimation? Animation { get; set; }
 
     private bool isMouseDown_ = false;
     private (int, int)? prevMousePosition_ = null;
@@ -236,6 +248,12 @@ void main() {
         Gl.glRotated(90, 1, 0, 0);
       }
 
+      if (this.Animation != null) {
+        this.frameAdvancer_.Tick();
+        this.modelRenderer_?.CalculateAnimationMatrices(
+            this.Animation, (float) this.frameAdvancer_.Frame);
+      }
+      // TODO: Normalize the model scale somehow
       this.modelRenderer_?.Render();
     }
 

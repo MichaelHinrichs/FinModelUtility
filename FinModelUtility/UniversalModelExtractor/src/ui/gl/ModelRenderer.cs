@@ -13,7 +13,7 @@ namespace uni.ui.gl {
   /// </summary>
   public class ModelRenderer : IDisposable {
     private readonly BoneTransformManager boneTransformManager_ = new();
-    public readonly List<MaterialMeshRenderer> materialMeshRenderers_ = new();
+    private readonly List<MaterialMeshRenderer> materialMeshRenderers_ = new();
 
     public ModelRenderer(IModel model) {
       this.Model = model;
@@ -52,6 +52,11 @@ namespace uni.ui.gl {
     }
 
     public IModel Model { get; }
+
+    public void CalculateAnimationMatrices(IAnimation animation, float frame) {
+      this.boneTransformManager_.CalculateMatrices(
+          this.Model.Skeleton.Root, (animation, frame));
+    }
 
     public void Render() {
       foreach (var materialMeshRenderer in this.materialMeshRenderers_) {

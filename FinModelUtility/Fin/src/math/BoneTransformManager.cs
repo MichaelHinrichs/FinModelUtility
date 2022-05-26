@@ -42,16 +42,19 @@ namespace fin.math {
         IBoneTracks? boneTracks = null;
         animation?.BoneTracks.TryGetValue(bone, out boneTracks);
 
-        var localPosition = boneTracks?.Positions.GetInterpolatedFrame(0) ??
-                            bone.LocalPosition;
+        var localPosition =
+            boneTracks?.Positions.GetInterpolatedFrame((float) frame) ??
+            bone.LocalPosition;
 
-        var localRotation = boneTracks?.Rotations.GetInterpolatedFrame(0) ??
-                            (bone.LocalRotation != null
-                                 ? QuaternionUtil.Create(bone.LocalRotation)
-                                 : null);
+        var localRotation =
+            boneTracks?.Rotations.GetInterpolatedFrame((float) frame) ??
+            (bone.LocalRotation != null
+                 ? QuaternionUtil.Create(bone.LocalRotation)
+                 : null);
 
-        var localScale = boneTracks?.Scales.GetInterpolatedFrame(0) ??
-                         bone.LocalScale;
+        var localScale =
+            boneTracks?.Scales.GetInterpolatedFrame((float) frame) ??
+            bone.LocalScale;
 
         var localMatrix =
             MatrixTransformUtil.FromTrs(localPosition,
