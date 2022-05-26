@@ -180,7 +180,7 @@ void main() {
       var moveAmount =
           (this.isForwardDown_ ? 1 : 0) - (this.isBackwardDown_ ? 1 : 0);
 
-      this.camera_.Move(moveAmount, 0, 5);
+      this.camera_.Move(moveAmount, 0, 15);
 
       var width = this.Width;
       var height = this.Height;
@@ -211,6 +211,7 @@ void main() {
 
         Gl.glMatrixMode(Gl.GL_MODELVIEW);
         Gl.glLoadIdentity();
+        Gl.glRotated(90, 1, 0, 0);
       }
 
       this.modelRenderer_?.Render();

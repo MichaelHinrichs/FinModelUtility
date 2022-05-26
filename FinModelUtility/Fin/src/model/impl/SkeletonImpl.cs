@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
+using fin.data;
+
+
 namespace fin.model.impl {
   public partial class ModelImpl {
     public ISkeleton Skeleton { get; } = new SkeletonImpl();
@@ -10,6 +13,7 @@ namespace fin.model.impl {
 
       private class BoneImpl : IBone {
         private readonly IList<IBone> children_ = new List<IBone>();
+        private readonly Counter counter_;
 
         public BoneImpl(IBone? parent, float x, float y, float z) {
           this.Root = this;
@@ -17,6 +21,9 @@ namespace fin.model.impl {
           this.SetLocalPosition(x, y, z);
 
           this.Children = new ReadOnlyCollection<IBone>(this.children_);
+
+          this.counter_ = (parent as BoneImpl)?.counter_ ?? new Counter();
+          this.Id = this.counter_.GetAndIncrement();
         }
 
         public BoneImpl(IBone root, IBone? parent, float x, float y, float z) {
@@ -25,10 +32,13 @@ namespace fin.model.impl {
           this.SetLocalPosition(x, y, z);
 
           this.Children = new ReadOnlyCollection<IBone>(this.children_);
+
+          this.counter_ = (parent as BoneImpl ?? root as BoneImpl)!.counter_;
+          this.Id = this.counter_.GetAndIncrement();
         }
 
         public string Name { get; set; }
-
+        public int Id { get; set; }
 
         public IBone Root { get; }
         public IBone? Parent { get; }

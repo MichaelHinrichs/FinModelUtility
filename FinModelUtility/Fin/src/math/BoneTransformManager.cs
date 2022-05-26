@@ -10,10 +10,10 @@ namespace fin.math {
     private readonly SoftwareModelViewMatrixTransformer transformer_ = new();
 
     // TODO: This is going to be slow, can we put this somewhere else for O(1) access?
-    private readonly Dictionary<IBone, IReadOnlyFinMatrix4x4>
+    private readonly BoneDictionary<IReadOnlyFinMatrix4x4>
         bonesToLocalMatrices_ = new();
 
-    private readonly Dictionary<IBone, IReadOnlyFinMatrix4x4>
+    private readonly BoneDictionary<IReadOnlyFinMatrix4x4>
         bonesToWorldMatrices_ = new();
 
     public IDictionary<IBone, int> CalculateMatrices(
@@ -22,7 +22,6 @@ namespace fin.math {
       var animation = animationAndFrame?.Item1;
       var frame = animationAndFrame?.Item2;
 
-      this.transformer_.Push();
       this.transformer_.Identity();
 
       // TODO: Use a pool of matrices to prevent unneeded instantiations.
@@ -70,8 +69,6 @@ namespace fin.math {
         }
       }
 
-      this.transformer_.Pop();
-
       return bonesToIndex;
     }
 
@@ -103,32 +100,37 @@ namespace fin.math {
         return;
       }
 
-      // TODO: Precompute these in a shared way somehow.
-      var mergedMatrix = new FinMatrix4x4();
+      IReadOnlyFinMatrix4x4 transformMatrix;
       switch (vertex.PreprojectMode) {
         case PreprojectMode.BONE: {
-          foreach (var weight in vertex.Weights) {
-            var skinToBoneMatrix = weight.SkinToBone;
-            var boneMatrix = this.GetWorldMatrix(weight.Bone);
+          var weights = vertex.Weights;
+          if (weights.Count == 1) {
+            transformMatrix = this.GetWorldMatrix(weights[0].Bone);
+          } else {
+            // TODO: Precompute these in a shared way somehow.
+            var mergedMatrix = new FinMatrix4x4();
+            foreach (var weight in vertex.Weights) {
+              var skinToBoneMatrix = weight.SkinToBone;
+              var boneMatrix = this.GetWorldMatrix(weight.Bone);
 
-            var skinToWorldMatrix = boneMatrix
-                                    .CloneAndMultiply(skinToBoneMatrix)
-                                    .MultiplyInPlace(weight.Weight);
+              var skinToWorldMatrix = boneMatrix
+                                      .CloneAndMultiply(skinToBoneMatrix)
+                                      .MultiplyInPlace(weight.Weight);
 
-            mergedMatrix.AddInPlace(skinToWorldMatrix);
+              mergedMatrix.AddInPlace(skinToWorldMatrix);
+            }
+            transformMatrix = mergedMatrix;
           }
           break;
         }
         case PreprojectMode.ROOT: {
-          mergedMatrix.AddInPlace(
-              this.GetWorldMatrix(vertex.Weights[0].Bone.Root));
+          transformMatrix = this.GetWorldMatrix(vertex.Weights[0].Bone.Root);
           break;
         }
         default: throw new ArgumentOutOfRangeException();
       }
 
-      this.transformer_.Push();
-      this.transformer_.Set(mergedMatrix);
+      this.transformer_.Set(transformMatrix);
 
       double x = localPosition.X;
       double y = localPosition.Y;
@@ -150,8 +152,6 @@ namespace fin.math {
         outNormal.Y = (float) nY;
         outNormal.Z = (float) nZ;
       }
-
-      this.transformer_.Pop();
     }
   }
 }

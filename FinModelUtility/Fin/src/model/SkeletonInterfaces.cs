@@ -9,6 +9,7 @@ namespace fin.model {
     // TODO: Allow caching matrices directly on this type.
 
     string Name { get; set; }
+    int Id { get; set; }
 
     IBone Root { get; }
     IBone? Parent { get; }

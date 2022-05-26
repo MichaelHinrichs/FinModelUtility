@@ -5,6 +5,11 @@ using System.Text.RegularExpressions;
 
 namespace fin.util.asserts {
   public class Asserts {
+    /**
+     * NOTE: Using $"" to define messages allocates strings, and can be expensive!
+     * Try to avoid allocating strings unless an assertion actually fails.
+     */
+
     private class AssertionException : Exception {
       public AssertionException(string message) : base(message) {}
 
@@ -67,9 +72,13 @@ namespace fin.util.asserts {
     public static bool Equal(
         object? expected,
         object? actual,
-        string? message = null)
-      => Asserts.True(expected?.Equals(actual) ?? false,
-                      message ?? $"Expected {actual} to equal {expected}.");
+        string? message = null) {
+      if (expected?.Equals(actual) ?? false) {
+        return true;
+      }
+      Asserts.Fail(message ?? $"Expected {actual} to equal {expected}.");
+      return false;
+    }
 
     public static void Equal<TEnumerable>(
         TEnumerable enumerableA,
@@ -84,8 +93,10 @@ namespace fin.util.asserts {
       while (hasA && hasB) {
         var currentA = enumeratorA.Current;
         var currentB = enumeratorB.Current;
-        Asserts.True(object.Equals(currentA, currentB),
-                     $"Expected {currentA} to equal {currentB} at index ${index}.");
+
+        if (!object.Equals(currentA, currentB)) {
+          Asserts.Fail($"Expected {currentA} to equal {currentB} at index ${index}.");
+        }
         index++;
 
         hasA = enumeratorA.MoveNext();
@@ -99,9 +110,13 @@ namespace fin.util.asserts {
     public static bool Equal<T>(
         T expected,
         T actual,
-        string? message = null)
-      => Asserts.True(expected?.Equals(actual) ?? false,
-                      message ?? $"Expected {actual} to equal {expected}.");
+        string? message = null) {
+      if (expected?.Equals(actual) ?? false) {
+        return true;
+      }
+      Asserts.Fail(message ?? $"Expected {actual} to equal {expected}.");
+      return false;
+    }
 
     public static bool Equal(
         string expected,
