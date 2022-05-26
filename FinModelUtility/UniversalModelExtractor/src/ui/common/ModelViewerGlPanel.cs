@@ -19,11 +19,15 @@ namespace uni.ui.common {
     private readonly Color backgroundColor_ = Color.FromArgb(51, 128, 179);
 
     private GlShaderProgram shaderProgram_;
+    private int texture0Location_;
 
     public IModel? Model {
       get => this.modelRenderer_?.Model;
-      set => this.modelRenderer_ =
-                 value != null ? new ModelRenderer(value) : null;
+      set {
+        this.modelRenderer_?.Dispose();
+        this.modelRenderer_ =
+            value != null ? new ModelRenderer(value) : null;
+      }
     }
 
     private ModelRenderer? modelRenderer_;
@@ -101,27 +105,41 @@ namespace uni.ui.common {
       GlUtil.Init();
 
       var vertexShaderSrc = @"
-# version 120 
-  
+# version 120
+
+in vec2 in_uv0;
+
 varying vec4 vertexColor;
+varying vec2 uv0;
 
 void main() {
     gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex; 
     vertexColor = gl_Color;
+    uv0 = gl_MultiTexCoord0.st;
 }";
 
       var fragmentShaderSrc = @"
-# version 120 
+# version 130 
+
+uniform sampler2D texture0;
+
+out vec4 fragColor;
 
 in vec4 vertexColor;
+in vec2 uv0;
 
 void main() {
-    gl_FragColor = vertexColor;
+    vec4 texColor = texture(texture0, uv0);
+
+    fragColor = texColor * vertexColor;
 }";
 
       this.shaderProgram_ =
           GlShaderProgram.FromShaders(vertexShaderSrc, fragmentShaderSrc);
       this.shaderProgram_.Use();
+
+      this.texture0Location_ =
+          Gl.glGetUniformLocation(this.shaderProgram_.ProgramId, "texture0");
 
       ResetGl_();
       Wgl.wglSwapIntervalEXT(1);
@@ -143,6 +161,7 @@ void main() {
       Gl.glHint(Gl.GL_PERSPECTIVE_CORRECTION_HINT, Gl.GL_NICEST);
 
       Gl.glEnable(Gl.GL_LIGHT0);
+      Gl.glEnable(Gl.GL_TEXTURE_2D);
 
       Gl.glEnable(Gl.GL_LIGHTING);
       Gl.glEnable(Gl.GL_NORMALIZE);
@@ -168,6 +187,8 @@ void main() {
       Gl.glViewport(0, 0, width, height);
 
       Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
+
+      Gl.glUniform1i(this.texture0Location_, 0);
 
       this.RenderPerspective_();
       //this.RenderOrtho_();

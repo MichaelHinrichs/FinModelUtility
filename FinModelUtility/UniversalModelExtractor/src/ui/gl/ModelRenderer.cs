@@ -1,4 +1,5 @@
 ﻿using fin.data;
+using fin.gl;
 using fin.math;
 using fin.model;
 using fin.model.impl;
@@ -10,7 +11,7 @@ namespace uni.ui.gl {
   /// <summary>
   ///   A renderer for a Fin model.
   /// </summary>
-  public class ModelRenderer {
+  public class ModelRenderer : IDisposable {
     private readonly BoneTransformManager boneTransformManager_ = new();
     public readonly List<MaterialMeshRenderer> materialMeshRenderers_ = new();
 
@@ -36,6 +37,20 @@ namespace uni.ui.gl {
           this.Model.Skeleton.Root, null);
     }
 
+    ~ModelRenderer() => ReleaseUnmanagedResources_();
+
+    public void Dispose() {
+      ReleaseUnmanagedResources_();
+      GC.SuppressFinalize(this);
+    }
+
+    private void ReleaseUnmanagedResources_() {
+      foreach (var materialMeshRenderer in this.materialMeshRenderers_) {
+        materialMeshRenderer.Dispose();
+      }
+      materialMeshRenderers_.Clear();
+    }
+
     public IModel Model { get; }
 
     public void Render() {
@@ -48,43 +63,84 @@ namespace uni.ui.gl {
   /// <summary>
   ///   A renderer for all of the primitives of a Fin model with a common material.
   /// </summary>
-  public class MaterialMeshRenderer {
+  public class MaterialMeshRenderer : IDisposable {
     // TODO: Set up shader for material
     // TODO: Use material's textures
 
     private readonly BoneTransformManager boneTransformManager_;
+
     private readonly IMaterial material_;
+    private readonly GlTexture? texture_;
+
     private readonly IList<IPrimitive> primitives_;
 
     public MaterialMeshRenderer(BoneTransformManager boneTransformManager,
                                 IMaterial material,
                                 IList<IPrimitive> primitives) {
       this.boneTransformManager_ = boneTransformManager;
+
       this.material_ = material;
+
+      var finTexture = material.Textures.FirstOrDefault();
+      this.texture_ = finTexture != null ? new GlTexture(finTexture) : null;
+
       this.primitives_ = primitives;
     }
 
+    ~MaterialMeshRenderer() => ReleaseUnmanagedResources_();
+
+    public void Dispose() {
+      ReleaseUnmanagedResources_();
+      GC.SuppressFinalize(this);
+    }
+
+    private void ReleaseUnmanagedResources_() {
+      this.texture_?.Dispose();
+    }
+
     public void Render() {
+      this.texture_?.Bind();
+
       Gl.glBegin(Gl.GL_TRIANGLES);
 
-      IPosition position = new ModelImpl.PositionImpl();
-      INormal normal = new ModelImpl.NormalImpl();
 
       foreach (var primitive in this.primitives_) {
+        var vertices = primitive.Vertices;
+
         switch (primitive.Type) {
           case PrimitiveType.TRIANGLES: {
-            foreach (var vertex in primitive.Vertices) {
-              this.boneTransformManager_.ProjectVertex(
-                  vertex, position, normal);
-
-              Gl.glNormal3f(normal.X, normal.Y, normal.Z);
-              Gl.glVertex3f(position.X, position.Y, position.Z);
-            }
+            this.RenderVertex_(vertices[0]);
+            this.RenderVertex_(vertices[2]);
+            this.RenderVertex_(vertices[1]);
             break;
           }
         }
       }
+
       Gl.glEnd();
+
+      this.texture_?.Unbind();
+    }
+
+    private readonly IPosition position_ = new ModelImpl.PositionImpl();
+    private readonly INormal normal_ = new ModelImpl.NormalImpl();
+
+    private void RenderVertex_(IVertex vertex) {
+      this.boneTransformManager_.ProjectVertex(
+          vertex, position_, normal_);
+
+      var color = vertex.GetColor();
+      if (color != null) {
+        Gl.glColor4f(color.Rf, color.Gf, color.Bf, color.Af);
+      }
+
+      var uv = vertex.GetUv();
+      if (uv != null) {
+        Gl.glTexCoord2f(uv.U, uv.V);
+      }
+
+      Gl.glNormal3f(normal_.X, normal_.Y, normal_.Z);
+      Gl.glVertex3f(position_.X, position_.Y, position_.Z);
     }
   }
 }
