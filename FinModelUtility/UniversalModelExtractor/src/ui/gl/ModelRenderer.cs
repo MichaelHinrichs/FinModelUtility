@@ -177,7 +177,7 @@ namespace uni.ui.gl {
     private void RenderVertex_(IVertex vertex) {
       // TODO: Load in the matrix instead, so we can perform projection on the GPU.
       this.boneTransformManager_.ProjectVertex(
-          vertex, position_, normal_);
+          vertex, position_, normal_, true);
 
       var color = vertex.GetColor();
       if (color != null) {

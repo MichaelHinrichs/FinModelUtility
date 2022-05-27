@@ -292,9 +292,11 @@ void main() {
 
       if (this.Animation != null) {
         this.frameAdvancer_.Tick();
+
+        // TODO: Add animation depending on the game.
         this.boneTransformManager_.CalculateMatrices(
             this.Model.Skeleton.Root,
-            (this.Animation, (float) this.frameAdvancer_.Frame));
+            (this.Animation, (float) this.frameAdvancer_.Frame), false);
       }
 
       this.texturedShaderProgram_.Use();
