@@ -18,6 +18,25 @@ using zar.format.shpa;
 
 
 namespace zar.api {
+  public class ZarModelFileBundle : IModelFileBundle {
+    public ZarModelFileBundle(IFileHierarchyFile cmbFile,
+                              IFileHierarchyFile[]? csabFiles,
+                              IFileHierarchyFile[]? ctxbFiles,
+                              IFileHierarchyFile[]? shpaFiles) {
+      this.CmbFile = cmbFile;
+      this.CsabFiles = csabFiles;
+      this.CtxbFiles = ctxbFiles;
+      this.ShpaFiles = shpaFiles;
+    }
+
+    public string FileName => this.CmbFile.NameWithoutExtension;
+
+    public IFileHierarchyFile CmbFile { get; }
+    public IFileHierarchyFile[]? CsabFiles { get; }
+    public IFileHierarchyFile[]? CtxbFiles { get; }
+    public IFileHierarchyFile[]? ShpaFiles { get; }
+  }
+
   public class ModelConverter {
     // TODO: Split these out into separate classes
     // TODO: Reading from the file here is gross

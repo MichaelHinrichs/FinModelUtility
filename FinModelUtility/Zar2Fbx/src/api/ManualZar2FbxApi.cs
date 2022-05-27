@@ -4,12 +4,14 @@ using System.Linq;
 
 using fin.exporter.assimp.indirect;
 using fin.io;
+using fin.model;
 using fin.util.asserts;
 
 using zar.format.cmb;
 using zar.format.csab;
 using zar.format.ctxb;
 using zar.format.shpa;
+
 
 namespace zar.api {
   public class ManualZar2FbxApi {
