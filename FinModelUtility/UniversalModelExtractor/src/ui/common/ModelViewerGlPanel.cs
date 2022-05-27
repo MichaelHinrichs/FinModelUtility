@@ -21,10 +21,13 @@ namespace uni.ui.common {
     private readonly Stopwatch stopwatch_ = Stopwatch.StartNew();
     private readonly Color backgroundColor_ = Color.FromArgb(51, 128, 179);
 
-    private GlShaderProgram shaderProgram_;
+    private GlShaderProgram texturedShaderProgram_;
     private int texture0Location_;
 
+    private GlShaderProgram texturelessShaderProgram_;
+
     private ModelRenderer? modelRenderer_;
+    private SkeletonRenderer? skeletonRenderer_;
     private readonly BoneTransformManager boneTransformManager_ = new();
 
     private float scale_ = 1;
@@ -42,19 +45,21 @@ namespace uni.ui.common {
         if (value != null) {
           this.modelRenderer_ =
               new ModelRenderer(value, this.boneTransformManager_);
+          this.skeletonRenderer_ =
+              new SkeletonRenderer(value.Skeleton, this.boneTransformManager_);
           this.boneTransformManager_.CalculateMatrices(
               value.Skeleton.Root, null);
           this.scale_ = 1000 / ModelScaleCalculator.CalculateScale(
-              value, this.boneTransformManager_);
+                            value, this.boneTransformManager_);
         } else {
           this.modelRenderer_ = null;
+          this.skeletonRenderer_ = null;
           this.scale_ = 1;
         }
 
         this.Animation = value?.AnimationManager.Animations.FirstOrDefault();
         this.frameAdvancer_.FrameRate = (int) (this.Animation?.FrameRate ?? 20);
         this.frameAdvancer_.TotalFrames = this.Animation?.FrameCount ?? 0;
-
       }
     }
 
@@ -183,12 +188,32 @@ void main() {
     fragColor = texColor * vertexColor;
 }";
 
-      this.shaderProgram_ =
+      this.texturedShaderProgram_ =
           GlShaderProgram.FromShaders(vertexShaderSrc, fragmentShaderSrc);
-      this.shaderProgram_.Use();
 
       this.texture0Location_ =
-          Gl.glGetUniformLocation(this.shaderProgram_.ProgramId, "texture0");
+          Gl.glGetUniformLocation(this.texturedShaderProgram_.ProgramId,
+                                  "texture0");
+
+      this.texturelessShaderProgram_ =
+          GlShaderProgram.FromShaders(@"
+# version 120
+
+varying vec4 vertexColor;
+
+void main() {
+    gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex; 
+    vertexColor = gl_Color;
+}", @"
+# version 130 
+
+out vec4 fragColor;
+
+in vec4 vertexColor;
+
+void main() {
+    fragColor = vertexColor;
+}");
 
       ResetGl_();
       Wgl.wglSwapIntervalEXT(1);
@@ -271,8 +296,12 @@ void main() {
             this.Model.Skeleton.Root,
             (this.Animation, (float) this.frameAdvancer_.Frame));
       }
-      // TODO: Normalize the model scale somehow
+
+      this.texturedShaderProgram_.Use();
       this.modelRenderer_?.Render();
+
+      this.texturelessShaderProgram_.Use();
+      this.skeletonRenderer_?.Render();
     }
 
     private void RenderOrtho_() {
