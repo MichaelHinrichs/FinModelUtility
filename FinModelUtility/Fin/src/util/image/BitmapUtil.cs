@@ -120,11 +120,14 @@ namespace fin.util.image {
         var width = src.Width;
         var height = src.Height;
 
+        var colorPalette = src.Palette.Entries;
+
         for (var y = 0; y < height; ++y) {
           for (var x = 0; x < width; ++x) {
             var i = y * width + x;
             BitmapUtil.GetPixel(src,
-                                srcData, 
+                                srcData,
+                                colorPalette,
                                 i, 
                                 out var inR, 
                                 out var inG,
@@ -134,7 +137,7 @@ namespace fin.util.image {
             converter(inR, inG, inB, inA, out var outR, out var outG,
                       out var outB, out var outA);
 
-            BitmapUtil.SetPixel(dstData, x, y, outR, outG, outB, outA);
+            BitmapUtil.SetPixel(dstData, i, outR, outG, outB, outA);
           }
         }
       });
@@ -152,6 +155,7 @@ namespace fin.util.image {
     public static unsafe void GetPixel(
         Bitmap bmp,
         BitmapData bmpData,
+        Color[] colorPalette,
         int index,
         out byte r,
         out byte g,
@@ -182,7 +186,7 @@ namespace fin.util.image {
 
           var colorIndex =
               isUpper ? fullColorIndex & 0xF : fullColorIndex >> 4;
-          var color = bmp.Palette.Entries[colorIndex];
+          var color = colorPalette[colorIndex];
 
           r = color.R;
           g = color.G;
@@ -194,7 +198,7 @@ namespace fin.util.image {
           var i = index;
 
           var colorIndex = ptr[i];
-          var color = bmp.Palette.Entries[colorIndex];
+          var color = colorPalette[colorIndex];
 
           r = color.R;
           g = color.G;
@@ -207,8 +211,7 @@ namespace fin.util.image {
     }
 
     public static unsafe void SetPixel(BitmapData bmpData,
-                                       int x,
-                                       int y,
+                                       int index,
                                        byte r,
                                        byte g,
                                        byte b,
@@ -216,14 +219,14 @@ namespace fin.util.image {
       var ptr = (byte*) bmpData.Scan0;
       switch (bmpData.PixelFormat) {
         case PixelFormat.Format24bppRgb: {
-          var i = 3 * (y * bmpData.Width + x);
+          var i = 3 * index;
           ptr[i] = b;
           ptr[i + 1] = g;
           ptr[i + 2] = r;
           break;
         }
         case PixelFormat.Format32bppArgb: {
-          var i = 4 * (y * bmpData.Width + x);
+          var i = 4 * index;
           ptr[i] = b;
           ptr[i + 1] = g;
           ptr[i + 2] = r;
