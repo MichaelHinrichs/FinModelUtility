@@ -98,5 +98,33 @@ namespace fin.math.matrix {
 
       return matrix;
     }
+
+    public static IFinMatrix4x4 FromTrs(
+        IPosition?[] positions,
+        Quaternion?[] rotations,
+        IScale?[] scales) {
+      var matrix = MatrixTransformUtil.FromIdentity();
+
+      foreach (var position in positions) {
+        if (position != null) {
+          matrix.MultiplyInPlace(MatrixTransformUtil.FromTranslation(position));
+        }
+      }
+
+      foreach (var rotation in rotations) {
+        if (rotation != null) {
+          matrix.MultiplyInPlace(
+              MatrixTransformUtil.FromRotation(rotation.Value));
+        }
+      }
+
+      foreach (var scale in scales) {
+        if (scale != null) {
+          matrix.MultiplyInPlace(MatrixTransformUtil.FromScale(scale));
+        }
+      }
+
+      return matrix;
+    }
   }
 }
