@@ -117,12 +117,61 @@ namespace uni.ui.gl {
 
       foreach (var primitive in this.primitives_) {
         var vertices = primitive.Vertices;
+        var pointsCount = vertices.Count;
 
         switch (primitive.Type) {
           case PrimitiveType.TRIANGLES: {
-            this.RenderVertex_(vertices[0]);
-            this.RenderVertex_(vertices[2]);
-            this.RenderVertex_(vertices[1]);
+            for (var v = 0; v < pointsCount; v += 3) {
+              this.RenderVertex_(vertices[v + 0]);
+              this.RenderVertex_(vertices[v + 2]);
+              this.RenderVertex_(vertices[v + 1]);
+            }
+            break;
+          }
+          case PrimitiveType.TRIANGLE_STRIP: {
+            for (var v = 0; v < pointsCount - 2; ++v) {
+              IVertex v1, v2, v3;
+              if (v % 2 == 0) {
+                v1 = vertices[v + 0];
+                v2 = vertices[v + 1];
+                v3 = vertices[v + 2];
+              } else {
+                // Switches drawing order to maintain proper winding:
+                // https://www.khronos.org/opengl/wiki/Primitive
+                v1 = vertices[v + 1];
+                v2 = vertices[v + 0];
+                v3 = vertices[v + 2];
+              }
+
+              // Intentionally flipped to fix bug where faces were backwards.
+              this.RenderVertex_(v1);
+              this.RenderVertex_(v3);
+              this.RenderVertex_(v2);
+            }
+            break;
+          }
+          case PrimitiveType.TRIANGLE_FAN: {
+            // https://stackoverflow.com/a/8044252
+            var firstVertex = vertices[0];
+            for (var v = 2; v < pointsCount; ++v) {
+              var v1 = firstVertex;
+              var v2 = vertices[v - 1];
+              var v3 = vertices[v];
+
+              // Intentionally flipped to fix bug where faces were backwards.
+              this.RenderVertex_(v1);
+              this.RenderVertex_(v3);
+              this.RenderVertex_(v2);
+            }
+            break;
+          }
+          case PrimitiveType.QUADS: {
+            for (var v = 0; v < pointsCount; v += 4) {
+              this.RenderVertex_(vertices[v + 0]);
+              this.RenderVertex_(vertices[v + 1]);
+              this.RenderVertex_(vertices[v + 2]);
+              this.RenderVertex_(vertices[v + 3]);
+            }
             break;
           }
         }
