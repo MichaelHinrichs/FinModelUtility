@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 
+using fin.data;
 using fin.math.matrix;
 using fin.model;
 
@@ -11,13 +12,13 @@ namespace fin.math {
     private readonly SoftwareModelViewMatrixTransformer transformer_ = new();
 
     // TODO: This is going to be slow, can we put this somewhere else for O(1) access?
-    private readonly BoneDictionary<IReadOnlyFinMatrix4x4>
+    private readonly IndexableDictionary<IBone, IReadOnlyFinMatrix4x4>
         bonesToLocalMatrices_ = new();
 
-    private readonly BoneDictionary<IReadOnlyFinMatrix4x4>
+    private readonly IndexableDictionary<IBone, IReadOnlyFinMatrix4x4>
         bonesToWorldMatrices_ = new();
 
-    private readonly BoneDictionary<IReadOnlyFinMatrix4x4>
+    private readonly IndexableDictionary<IBone, IReadOnlyFinMatrix4x4>
         bonesToInverseNeutralWorldMatrices_ = new();
 
     public IDictionary<IBone, int> CalculateMatrices(

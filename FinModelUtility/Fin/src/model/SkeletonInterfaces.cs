@@ -1,15 +1,17 @@
 ﻿using System.Collections.Generic;
 
+using fin.data;
+
+
 namespace fin.model {
   public interface ISkeleton {
     IBone Root { get; }
   }
 
-  public interface IBone {
+  public interface IBone : IIndexable {
     // TODO: Allow caching matrices directly on this type.
 
     string Name { get; set; }
-    int Id { get; set; }
 
     IBone Root { get; }
     IBone? Parent { get; }

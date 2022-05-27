@@ -23,7 +23,7 @@ namespace fin.model.impl {
           this.Children = new ReadOnlyCollection<IBone>(this.children_);
 
           this.counter_ = (parent as BoneImpl)?.counter_ ?? new Counter();
-          this.Id = this.counter_.GetAndIncrement();
+          this.Index = this.counter_.GetAndIncrement();
         }
 
         public BoneImpl(IBone root, IBone? parent, float x, float y, float z) {
@@ -34,11 +34,11 @@ namespace fin.model.impl {
           this.Children = new ReadOnlyCollection<IBone>(this.children_);
 
           this.counter_ = (parent as BoneImpl ?? root as BoneImpl)!.counter_;
-          this.Id = this.counter_.GetAndIncrement();
+          this.Index = this.counter_.GetAndIncrement();
         }
 
         public string Name { get; set; }
-        public int Id { get; set; }
+        public int Index { get; set; }
 
         public IBone Root { get; }
         public IBone? Parent { get; }
