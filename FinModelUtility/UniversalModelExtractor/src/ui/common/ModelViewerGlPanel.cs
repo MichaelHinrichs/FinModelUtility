@@ -41,6 +41,7 @@ namespace uni.ui.common {
       get => this.modelRenderer_?.Model;
       set {
         this.modelRenderer_?.Dispose();
+        this.boneTransformManager_.Clear();
 
         if (value != null) {
           this.modelRenderer_ =
@@ -48,7 +49,9 @@ namespace uni.ui.common {
           this.skeletonRenderer_ =
               new SkeletonRenderer(value.Skeleton, this.boneTransformManager_);
           this.boneTransformManager_.CalculateMatrices(
-              value.Skeleton.Root, null);
+              value.Skeleton.Root,
+              value.Skin.BoneWeights,
+              null);
           this.scale_ = 1000 / ModelScaleCalculator.CalculateScale(
                             value, this.boneTransformManager_);
         } else {
@@ -296,6 +299,7 @@ void main() {
         // TODO: Add animation depending on the game.
         this.boneTransformManager_.CalculateMatrices(
             this.Model.Skeleton.Root,
+            this.Model.Skin.BoneWeights,
             (this.Animation, (float) this.frameAdvancer_.Frame), false);
       }
 

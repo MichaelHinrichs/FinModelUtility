@@ -24,6 +24,7 @@ namespace fin.data {
       IIndexableDictionary<TIndexable, TValue> : IReadOnlyIndexableDictionary<
           TIndexable, TValue>
       where TIndexable : IIndexable {
+    void Clear();
     new TValue this[TIndexable key] { get; set; }
   }
 
@@ -31,6 +32,8 @@ namespace fin.data {
       IndexableDictionary<TIndexable, TValue> : IIndexableDictionary<TIndexable,
           TValue> where TIndexable : IIndexable {
     private readonly List<IndexableDictionaryValue> impl_ = new();
+
+    public void Clear() => this.impl_.Clear();
 
     public TValue this[TIndexable key] {
       get => this.impl_[key.Index].Value.Assert();

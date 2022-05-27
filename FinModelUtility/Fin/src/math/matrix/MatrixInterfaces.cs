@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace fin.math.matrix {
   public interface IFinMatrix4x4 : IReadOnlyFinMatrix4x4 {

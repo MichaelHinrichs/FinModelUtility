@@ -33,6 +33,7 @@ namespace fin.exporter.gltf {
       var boneTransformManager = new BoneTransformManager();
       var boneToIndex = boneTransformManager.CalculateMatrices(
           model.Skeleton.Root,
+          model.Skin.BoneWeights,
           null);
 
       var outPosition = new ModelImpl.PositionImpl();
@@ -71,13 +72,14 @@ namespace fin.exporter.gltf {
             // TODO: Don't regenerate the skinning for each vertex, cache this somehow!
             var vertexBuilder = VERTEX.Create(position);
 
-            if (point.Weights != null) {
+            var boneWeights = point.BoneWeights;
+            if (boneWeights != null) {
               vertexBuilder = vertexBuilder.WithSkinning(
-                  point.Weights.Select(
-                           boneWeight
-                               => (boneToIndex[boneWeight.Bone],
-                                   boneWeight.Weight))
-                       .ToArray());
+                  boneWeights.Weights.Select(
+                                 boneWeight
+                                     => (boneToIndex[boneWeight.Bone],
+                                         boneWeight.Weight))
+                             .ToArray());
             } else {
               vertexBuilder = vertexBuilder.WithSkinning(DEFAULT_SKINNING);
             }
@@ -120,7 +122,8 @@ namespace fin.exporter.gltf {
                                                assColor1,
                                                new Vector2(uv.U, uv.V));
               } else if (hasColor) {
-                vertexBuilder = vertexBuilder.WithMaterial(assColor0, assColor1);
+                vertexBuilder =
+                    vertexBuilder.WithMaterial(assColor0, assColor1);
               }
             } else {
               // Importing the color directly via Assimp doesn't work for some

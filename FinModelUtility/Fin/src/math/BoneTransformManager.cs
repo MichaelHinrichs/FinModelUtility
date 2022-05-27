@@ -18,11 +18,26 @@ namespace fin.math {
     private readonly IndexableDictionary<IBone, IReadOnlyFinMatrix4x4>
         bonesToWorldMatrices_ = new();
 
-    private readonly IndexableDictionary<IBone, IReadOnlyFinMatrix4x4>
-        bonesToInverseNeutralWorldMatrices_ = new();
+    private readonly IndexableDictionary<IBoneWeights, IReadOnlyFinMatrix4x4>
+        boneWeightsToWorldMatrices_ = new();
+
+    private readonly IndexableDictionary<IBoneWeights, IReadOnlyFinMatrix4x4>
+        boneWeightsToNeutralInverseWorldMatrices_ = new();
+
+    private readonly IndexableDictionary<IBoneWeights, IReadOnlyFinMatrix4x4>
+        boneWeightsToAdditiveWorldMatrices_ = new();
+
+    public void Clear() {
+      this.bonesToLocalMatrices_.Clear();
+      this.bonesToWorldMatrices_.Clear();
+      this.boneWeightsToWorldMatrices_.Clear();
+      this.boneWeightsToNeutralInverseWorldMatrices_.Clear();
+      this.boneWeightsToAdditiveWorldMatrices_.Clear();
+    }
 
     public IDictionary<IBone, int> CalculateMatrices(
         IBone rootBone,
+        IReadOnlyList<IBoneWeights> boneWeightsList,
         (IAnimation, float)? animationAndFrame,
         bool addAnimationToRootPose = false) {
       var animation = animationAndFrame?.Item1;
@@ -74,7 +89,7 @@ namespace fin.math {
               MatrixTransformUtil.FromTrs(localPosition,
                                           localRotation,
                                           localScale);
-        } 
+        }
         // Adds the animation pose on top of the root pose.
         else {
           // TODO: This isn't currently working...
@@ -88,15 +103,47 @@ namespace fin.math {
 
         this.bonesToLocalMatrices_[bone] = localMatrix;
         this.bonesToWorldMatrices_[bone] = matrix;
-        if (animation == null) {
-          this.bonesToInverseNeutralWorldMatrices_[bone] =
-              matrix.CloneAndInvert();
-        }
         bonesToIndex[bone] = boneIndex++;
 
         foreach (var child in bone.Children) {
           // TODO: Use a pool of matrices to prevent unneeded instantiations.
           boneQueue.Enqueue((child, matrix.Clone()));
+        }
+      }
+
+      foreach (var boneWeights in boneWeightsList) {
+        IReadOnlyFinMatrix4x4 boneWeightMatrix;
+
+        var weights = boneWeights.Weights;
+        if (weights.Count == 1) {
+          boneWeightMatrix = this.GetWorldMatrix(weights[0].Bone);
+        } else {
+          var mergedMatrix = new FinMatrix4x4();
+          foreach (var weight in weights) {
+            var skinToBoneMatrix = weight.SkinToBone;
+            var boneMatrix = this.GetWorldMatrix(weight.Bone);
+
+            var skinToWorldMatrix = boneMatrix
+                                    .CloneAndMultiply(skinToBoneMatrix)
+                                    .MultiplyInPlace(weight.Weight);
+
+            mergedMatrix.AddInPlace(skinToWorldMatrix);
+          }
+          boneWeightMatrix = mergedMatrix;
+        }
+
+        this.boneWeightsToWorldMatrices_[boneWeights] = boneWeightMatrix;
+        if (animation == null) {
+          this.boneWeightsToNeutralInverseWorldMatrices_[boneWeights] =
+              boneWeightMatrix.CloneAndInvert();
+          this.boneWeightsToAdditiveWorldMatrices_[boneWeights] =
+              boneWeightMatrix;
+        } else {
+          var mergedMatrix = this.boneWeightsToWorldMatrices_[boneWeights];
+          var mergedNeutralInverseMatrix =
+              this.boneWeightsToNeutralInverseWorldMatrices_[boneWeights];
+          this.boneWeightsToAdditiveWorldMatrices_[boneWeights] =
+              mergedMatrix.CloneAndMultiply(mergedNeutralInverseMatrix);
         }
       }
 
@@ -116,7 +163,7 @@ namespace fin.math {
         IPosition outPosition,
         INormal? outNormal = null,
         bool forcePreproject = false) {
-      var weights = vertex.Weights;
+      var weights = vertex.BoneWeights?.Weights;
       var preproject =
           (vertex.PreprojectMode != PreprojectMode.NONE || forcePreproject) &&
           weights?.Count > 0;
@@ -141,49 +188,14 @@ namespace fin.math {
         // If preproject mode is none, then the vertices are already in the same position as the bones.
         // To calculate the animation, we have to first "undo" the root pose via an inverted matrix. 
         case PreprojectMode.NONE: {
-          // TODO: Precompute these in a shared way somehow.
-          var mergedMatrix = new FinMatrix4x4();
-          var mergedNeutralMatrix = new FinMatrix4x4();
-          foreach (var weight in weights) {
-            var boneMatrix = this.GetWorldMatrix(weight.Bone);
-
-            var skinToWorldMatrix = buffer_;
-            boneMatrix.CopyInto(this.buffer_);
-            buffer_.MultiplyInPlace(weight.Weight);
-            mergedMatrix.AddInPlace(skinToWorldMatrix);
-
-            var inverseNeutralMatrix =
-                this.bonesToInverseNeutralWorldMatrices_[weight.Bone];
-            var inverseSkinToNeutralWorldMatrix = buffer_;
-            inverseNeutralMatrix.CopyInto(this.buffer_);
-            buffer_.MultiplyInPlace(weight.Weight);
-            mergedNeutralMatrix.AddInPlace(
-                inverseSkinToNeutralWorldMatrix);
-          }
-
-          transformMatrix = mergedMatrix.MultiplyInPlace(mergedNeutralMatrix);
-
+          transformMatrix =
+              this.boneWeightsToAdditiveWorldMatrices_[vertex.BoneWeights!];
           break;
         }
         // If preproject mode is bone, then we need to transform the vertex by one or more bones.
         case PreprojectMode.BONE: {
-          if (weights.Count == 1) {
-            transformMatrix = this.GetWorldMatrix(weights[0].Bone);
-          } else {
-            // TODO: Precompute these in a shared way somehow.
-            var mergedMatrix = new FinMatrix4x4();
-            foreach (var weight in weights) {
-              var skinToBoneMatrix = weight.SkinToBone;
-              var boneMatrix = this.GetWorldMatrix(weight.Bone);
-
-              var skinToWorldMatrix = boneMatrix
-                                      .CloneAndMultiply(skinToBoneMatrix)
-                                      .MultiplyInPlace(weight.Weight);
-
-              mergedMatrix.AddInPlace(skinToWorldMatrix);
-            }
-            transformMatrix = mergedMatrix;
-          }
+          transformMatrix =
+              this.boneWeightsToWorldMatrices_[vertex.BoneWeights!];
           break;
         }
         // If preproject mode is root, then the vertex needs to be transformed relative to

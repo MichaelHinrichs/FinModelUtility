@@ -143,9 +143,9 @@ namespace bmd.exporter {
         BMD bmd,
         (MkdsNode, IBone)[] jointsAndBones,
         BmdMaterialManager materialManager) {
-      var skin = model.Skin;
+      var finSkin = model.Skin;
       // TODO: Actually split this up
-      var finMesh = skin.AddMesh();
+      var finMesh = finSkin.AddMesh();
 
       var joints = bmd.GetJoints();
 
@@ -159,7 +159,7 @@ namespace bmd.exporter {
       BMD.MAT3Section.MaterialEntry currentMaterialEntry = null;
       BmdFixedFunctionMaterial? currentBmdMaterial = null;
 
-      var weightsTable = new BoneWeight[]?[10];
+      var weightsTable = new IBoneWeights?[10];
       foreach (var entry in entries) {
         switch (entry.Type) {
           // Terminator
@@ -223,7 +223,7 @@ namespace bmd.exporter {
                   weights = new[]
                       {new BoneWeight(bone, MatrixTransformUtil.IDENTITY, 1)};
                 }
-                weightsTable[i] = weights;
+                weightsTable[i] = finSkin.GetOrCreateBoneWeights(weights);
               }
 
               // TODO: Encapsulate this projection logic?
@@ -242,7 +242,7 @@ namespace bmd.exporter {
                   }
                   var position = vertexPositions[point.PosIndex];
                   var vertex =
-                      skin.AddVertex(position.X, position.Y, position.Z);
+                      finSkin.AddVertex(position.X, position.Y, position.Z);
                   vertices[p] = vertex;
 
                   if (batch.HasNormals) {
@@ -253,7 +253,7 @@ namespace bmd.exporter {
                   var matrixIndex = point.MatrixIndex / 3;
                   var weights = weightsTable[matrixIndex];
                   if (weights != null) {
-                    vertex.SetBones(weights);
+                    vertex.SetBoneWeights(weights);
                   }
 
                   for (var c = 0; c < 2; ++c) {

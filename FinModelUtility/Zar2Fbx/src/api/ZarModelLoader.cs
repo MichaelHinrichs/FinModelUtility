@@ -88,7 +88,8 @@ namespace zar.api {
                    .ToList() ??
           new List<(IFileHierarchyFile shpaFile, Shpa shpa)>();
 
-      var model = new ModelImpl();
+      var finModel = new ModelImpl();
+      var finSkin = finModel.Skin;
 
       // Adds bones
       var finBones = new IBone[cmb.skl.bones.Length];
@@ -102,7 +103,7 @@ namespace zar.api {
         var scale = cmbBone.scale;
 
         var finBone =
-            (finBoneParent ?? model.Skeleton.Root)
+            (finBoneParent ?? finModel.Skeleton.Root)
             .AddChild(
                 translation[0],
                 translation[1],
@@ -124,7 +125,7 @@ namespace zar.api {
 
       // Adds animations
       foreach (var (csabFile, csab) in filesAndCsabs) {
-        var finAnimation = model.AnimationManager.AddAnimation();
+        var finAnimation = finModel.AnimationManager.AddAnimation();
         finAnimation.Name = csabFile.NameWithoutExtension;
 
         finAnimation.FrameCount = (int) csab.Duration;
@@ -234,7 +235,7 @@ namespace zar.api {
             bitmap = ctrTexture.DecodeImage(ctxb.Data, cmbTexture);
           }
 
-          finTexture = model.MaterialManager.CreateTexture(bitmap);
+          finTexture = finModel.MaterialManager.CreateTexture(bitmap);
           finTexture.Name = cmbTexture.name;
           finTexture.WrapModeU = this.CmbToFinWrapMode(texMapper.wrapS);
           finTexture.WrapModeV = this.CmbToFinWrapMode(texMapper.wrapT);
@@ -242,9 +243,9 @@ namespace zar.api {
 
         // Create material
         IMaterial finMaterial = finTexture != null
-                                    ? model.MaterialManager.AddTextureMaterial(
+                                    ? finModel.MaterialManager.AddTextureMaterial(
                                         finTexture)
-                                    : model.MaterialManager.AddLayerMaterial();
+                                    : finModel.MaterialManager.AddLayerMaterial();
         finMaterial.Name = $"material{i}";
         finMaterial.CullingMode = cmbMaterial.faceCulling switch {
             CullMode.FrontAndBack => CullingMode.SHOW_BOTH,
@@ -337,7 +338,7 @@ namespace zar.api {
           }
         }
 
-        var finMesh = model.Skin.AddMesh();
+        var finMesh = finSkin.AddMesh();
 
         // TODO: Encapsulate these reads somewhere else
         // Get vertices
@@ -354,7 +355,7 @@ namespace zar.api {
                           .Select(value => value * shape.position.Scale)
                           .ToArray();
 
-          var finVertex = model.Skin.AddVertex(positionValues[0],
+          var finVertex = finSkin.AddVertex(positionValues[0],
                                                positionValues[1],
                                                positionValues[2]);
           finVertices[i] = finVertex;
@@ -466,10 +467,10 @@ namespace zar.api {
 
             Asserts.True(boneWeights.Count > 0);
             Asserts.True(Math.Abs(1 - totalWeight) < .0001);
-            finVertex.SetBones(boneWeights.ToArray());
+            finVertex.SetBoneWeights(finSkin.GetOrCreateBoneWeights(boneWeights.ToArray()));
           } else {
             var boneIndex = bIndices[i];
-            finVertex.SetBone(finBones[boneIndex]);
+            finVertex.SetBoneWeights(finSkin.GetOrCreateBoneWeights(finBones[boneIndex]));
           }
 
           finVertex.PreprojectMode =
@@ -504,7 +505,7 @@ namespace zar.api {
                 .ToDictionary(indexAndPosi => indexAndPosi.Item1,
                               indexAndPosi => indexAndPosi.posi);
 
-        var morphTarget = model.AnimationManager.AddMorphTarget();
+        var morphTarget = finModel.AnimationManager.AddMorphTarget();
         morphTarget.Name = shpaFile.NameWithoutExtension;
 
         foreach (var (index, position) in shpaIndexToPosi) {
@@ -518,7 +519,7 @@ namespace zar.api {
         }
       }
 
-      return model;
+      return finModel;
     }
 
     public WrapMode CmbToFinWrapMode(TextureWrapMode cmbMode)

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
 
-using fin.math.matrix;
+using fin.data;
+using fin.math;
 
 
 namespace fin.model.impl {
@@ -15,16 +15,26 @@ namespace fin.model.impl {
       private readonly IList<IVertex> vertices_;
       private readonly IList<IMesh> meshes_ = new List<IMesh>();
 
+      private readonly IList<IBoneWeights> boneWeights_ =
+          new List<IBoneWeights>();
+
+      private readonly IndexableDictionary<IBone, IBoneWeights>
+          boneWeightsByBone_ = new();
+
       public SkinImpl() {
         this.vertices_ = new List<IVertex>();
         this.Vertices = new ReadOnlyCollection<IVertex>(this.vertices_);
         this.Meshes = new ReadOnlyCollection<IMesh>(this.meshes_);
+        this.BoneWeights =
+            new ReadOnlyCollection<IBoneWeights>(this.boneWeights_);
       }
 
       public SkinImpl(int vertexCount) {
         this.vertices_ = new List<IVertex>(vertexCount);
         this.Vertices = new ReadOnlyCollection<IVertex>(this.vertices_);
         this.Meshes = new ReadOnlyCollection<IMesh>(this.meshes_);
+        this.BoneWeights =
+            new ReadOnlyCollection<IBoneWeights>(this.boneWeights_);
       }
 
       public IReadOnlyList<IVertex> Vertices { get; }
@@ -49,6 +59,59 @@ namespace fin.model.impl {
         this.meshes_.Add(mesh);
         return mesh;
       }
+
+      public IReadOnlyList<IBoneWeights> BoneWeights { get; }
+
+      public IBoneWeights GetOrCreateBoneWeights(IBone bone) {
+        if (!this.boneWeightsByBone_.TryGetValue(bone, out var boneWeights)) {
+          boneWeights = this.CreateBoneWeights(
+              new BoneWeight(bone, new FinMatrix4x4().SetIdentity(), 1));
+          this.boneWeightsByBone_[bone] = boneWeights;
+        }
+        return boneWeights;
+      }
+
+      public IBoneWeights GetOrCreateBoneWeights(params IBoneWeight[] weights) {
+        foreach (var boneWeights in this.boneWeights_) {
+          var existingWeights = boneWeights.Weights;
+          if (weights.Length != existingWeights.Count) {
+            continue;
+          }
+
+          for (var w = 0; w < weights.Length; ++w) {
+            var weight = weights[w];
+            var existingWeight = existingWeights[w];
+
+            if (Math.Abs(weight.Weight - existingWeight.Weight) > .0001) {
+              goto Skip;
+            }
+
+            if (weight.Bone != existingWeight.Bone) {
+              goto Skip;
+            }
+
+            if (!weight.SkinToBone.Equals(existingWeight.SkinToBone)) {
+              goto Skip;
+            }
+          }
+
+          return boneWeights;
+
+          Skip: ;
+        }
+
+        return CreateBoneWeights(weights);
+      }
+
+      public IBoneWeights CreateBoneWeights(params IBoneWeight[] weights) {
+        var boneWeights = new BoneWeightsImpl {
+            Index = boneWeights_.Count,
+            Weights = weights,
+        };
+        this.boneWeights_.Add(boneWeights);
+        return boneWeights;
+      }
+
 
       private class MeshImpl : IMesh {
         private readonly IList<IPrimitive> primitives_ = new List<IPrimitive>();
@@ -129,17 +192,14 @@ namespace fin.model.impl {
 
         public int Index { get; }
 
-        public IReadOnlyList<BoneWeight>? Weights { get; private set; }
-
         public PreprojectMode PreprojectMode { get; set; } =
           PreprojectMode.BONE;
 
-        public IVertex SetBone(IBone bone)
-          => this.SetBones(
-              new BoneWeight(bone, MatrixTransformUtil.IDENTITY, 1));
 
-        public IVertex SetBones(params BoneWeight[] weights) {
-          this.Weights = new ReadOnlyCollection<BoneWeight>(weights);
+        public IBoneWeights? BoneWeights { get; private set; }
+
+        public IVertex SetBoneWeights(IBoneWeights boneWeights) {
+          this.BoneWeights = boneWeights;
           return this;
         }
 
@@ -254,6 +314,11 @@ namespace fin.model.impl {
           this.Material = material;
           return this;
         }
+      }
+
+      private class BoneWeightsImpl : IBoneWeights {
+        public int Index { get; set; }
+        public IReadOnlyList<IBoneWeight> Weights { get; set; }
       }
     }
 

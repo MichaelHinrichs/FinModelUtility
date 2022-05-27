@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace fin.src.data {
+namespace fin.data {
   public class ReadOnlyListDictionary<TKey, TValue>
       : IEnumerable<KeyValuePair<TKey, IReadOnlyList<TValue>>>
       where TKey : notnull {

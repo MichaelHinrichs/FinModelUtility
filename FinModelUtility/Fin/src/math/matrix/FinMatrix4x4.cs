@@ -1,7 +1,7 @@
-﻿using fin.math.matrix;
-using fin.util.asserts;
+﻿using System;
 
-using MathNet.Numerics.LinearAlgebra.Complex;
+using fin.math.matrix;
+using fin.util.asserts;
 
 
 namespace fin.math {
@@ -10,7 +10,7 @@ namespace fin.math {
   public class FinMatrix4x4 : IFinMatrix4x4 {
     private readonly double[] impl_ = new double[16];
 
-    public FinMatrix4x4() {}
+    public FinMatrix4x4() { }
 
     public FinMatrix4x4(IReadOnlyFinMatrix4x4 other) => other.CopyInto(this);
 
@@ -124,6 +124,28 @@ namespace fin.math {
       SystemMatrix.Invert(systemMatrix, out var invertedSystemMatrix);
 
       MatrixConversionUtil.CopySystemIntoFin(invertedSystemMatrix, buffer);
+    }
+
+
+    protected bool Equals(IReadOnlyFinMatrix4x4 other) {
+      for (var r = 0; r < 4; ++r) {
+        for (var c = 0; c < 4; ++c) {
+          if (Math.Abs(this[r, c] - other[r, c]) > .0001) {
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    public override bool Equals(object? obj) {
+      if (ReferenceEquals(null, obj)) {
+        return false;
+      }
+      if (ReferenceEquals(this, obj)) {
+        return true;
+      }
+      return Equals((IReadOnlyFinMatrix4x4)obj);
     }
   }
 }

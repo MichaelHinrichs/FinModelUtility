@@ -189,6 +189,8 @@ namespace HaloWarsTools {
     }
 
     private void ImportMesh(byte[] bytes, IModel finModel) {
+      var finSkin = finModel.Skin;
+
       var finMaterials = GetMaterials(finModel.MaterialManager, bytes);
       var nullMaterial = finModel.MaterialManager.AddStandardMaterial();
 
@@ -431,7 +433,7 @@ namespace HaloWarsTools {
       }
 
       foreach (var entry in meshArr) {
-        var mesh = finModel.Skin.AddMesh();
+        var mesh = finSkin.AddMesh();
 
         var polygonInfoList = entry.Value;
         for (int i = 0; i < polygonInfoList.Count; i++) {
@@ -566,9 +568,9 @@ namespace HaloWarsTools {
             }
 
             var finVertex =
-                finModel.Skin.AddVertex(position.X, position.Y, position.Z)
-                        .SetLocalNormal(normal.X, normal.Y, normal.Z)
-                        .SetUv(texcoord.X, texcoord.Y);
+                finSkin.AddVertex(position.X, position.Y, position.Z)
+                       .SetLocalNormal(normal.X, normal.Y, normal.Z)
+                       .SetUv(texcoord.X, texcoord.Y);
 
             if (hasBones) {
               var finBoneWeights =
@@ -590,9 +592,10 @@ namespace HaloWarsTools {
                       })
                       .ToArray();
 
-              finVertex.SetBones(finBoneWeights);
+              finVertex.SetBoneWeights(finSkin.GetOrCreateBoneWeights(finBoneWeights));
             } else {
-              finVertex.SetBone(localFinBones[0].Item1);
+              finVertex.SetBoneWeights(
+                  finSkin.GetOrCreateBoneWeights(localFinBones[0].Item1));
             }
 
             finVertices.Add(finVertex);
@@ -618,7 +621,7 @@ namespace HaloWarsTools {
                               finVertices[fb],
                               finVertices[fc]);
             } else {
-              triangles[j] = (finVertices[fa], 
+              triangles[j] = (finVertices[fa],
                               finVertices[fc],
                               finVertices[fb]);
             }

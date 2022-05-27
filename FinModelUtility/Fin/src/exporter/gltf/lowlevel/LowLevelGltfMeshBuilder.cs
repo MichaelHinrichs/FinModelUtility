@@ -31,6 +31,7 @@ namespace fin.exporter.gltf.lowlevel {
       var boneTransformManager = new BoneTransformManager();
       var boneToIndex = boneTransformManager.CalculateMatrices(
           model.Skeleton.Root,
+          model.Skin.BoneWeights,
           null);
 
       var outPosition = new ModelImpl.PositionImpl();

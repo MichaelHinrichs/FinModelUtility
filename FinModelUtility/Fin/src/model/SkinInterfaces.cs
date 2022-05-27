@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 
+using fin.data;
 using fin.math.matrix;
 using fin.model.impl;
+
 
 namespace fin.model {
   public interface ISkin {
@@ -11,6 +13,11 @@ namespace fin.model {
 
     IReadOnlyList<IMesh> Meshes { get; }
     IMesh AddMesh();
+
+    IReadOnlyList<IBoneWeights> BoneWeights { get; }
+    IBoneWeights GetOrCreateBoneWeights(IBone bone);
+    IBoneWeights GetOrCreateBoneWeights(params IBoneWeight[] weights);
+    IBoneWeights CreateBoneWeights(params IBoneWeight[] weights);
   }
 
   public interface IMesh {
@@ -28,11 +35,22 @@ namespace fin.model {
     IPrimitive AddQuads(params IVertex[] vertices);
   }
 
+
+  public interface IBoneWeights : IIndexable {
+    IReadOnlyList<IBoneWeight> Weights { get; }
+  }
+
+  public interface IBoneWeight {
+    IBone Bone { get; }
+    IReadOnlyFinMatrix4x4 SkinToBone { get; }
+    float Weight { get; }
+  }
+
   public record BoneWeight(
       IBone Bone,
       // TODO: This should be moved to the bone interface instead.
       IReadOnlyFinMatrix4x4 SkinToBone,
-      float Weight);
+      float Weight) : IBoneWeight;
 
   public interface ITexCoord {
     float U { get; }
@@ -50,11 +68,10 @@ namespace fin.model {
 
     int Index { get; }
 
-    IReadOnlyList<BoneWeight>? Weights { get; }
     PreprojectMode PreprojectMode { get; set; }
 
-    IVertex SetBone(IBone bone);
-    IVertex SetBones(params BoneWeight[] weights);
+    IBoneWeights? BoneWeights { get; }
+    IVertex SetBoneWeights(IBoneWeights boneWeights);
 
     IPosition LocalPosition { get; }
     IVertex SetLocalPosition(IPosition localPosition);

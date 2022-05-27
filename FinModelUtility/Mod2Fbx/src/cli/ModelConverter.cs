@@ -186,6 +186,18 @@ namespace mod.cli {
       }
 
       // Pass 4: Writes each bone's meshes as skin
+      var envelopeBoneWeights = mod.envelopes.Select(
+          envelope =>
+              model.Skin.CreateBoneWeights(
+                       envelope.indicesAndWeights.Select(
+                           indexAndWeight =>
+                               new BoneWeight(
+                                   bones[indexAndWeight.index],
+                                   new FinMatrix4x4().SetIdentity(),
+                                   indexAndWeight.weight)
+                       ).ToArray()))
+                   .ToArray();
+
       foreach (var joint in mod.joints) {
         foreach (var jointMatPoly in joint.matpolys) {
           var meshIndex = jointMatPoly.meshIdx;
@@ -197,6 +209,7 @@ namespace mod.cli {
                         material,
                         model,
                         bones,
+                        envelopeBoneWeights,
                         finModCache);
         }
       }
@@ -227,6 +240,7 @@ namespace mod.cli {
         IMaterial material,
         IModel model,
         IBone[] bones,
+        IBoneWeights[] envelopeBoneWeights,
         FinModCache finModCache) {
       //var currentBone = bones[mesh.boneIndex];
       var currentColor = ColorImpl.FromRgbaBytes(255, 255, 255, 255);
@@ -234,7 +248,8 @@ namespace mod.cli {
       var vertexDescriptor = new VertexDescriptor();
       vertexDescriptor.FromPikmin1(mesh.vtxDescriptor, mod.hasNormals);
 
-      var finMesh = model.Skin.AddMesh();
+      var finSkin = model.Skin;
+      var finMesh = finSkin.AddMesh();
 
       foreach (var meshPacket in mesh.packets) {
         foreach (var dlist in meshPacket.displaylists) {
@@ -295,31 +310,21 @@ namespace mod.cli {
                     if (attachmentIndex >= 0) {
                       var boneIndex = attachmentIndex;
 
-                      var vertexWeights = new VertexWeights();
-                      vertexWeights.boneWeights.Add(
-                          new BoneWeight(bones[boneIndex],
-                                         new FinMatrix4x4().SetIdentity(),
-                                         1));
+                      var vertexWeights = new VertexWeights {
+                          BoneWeights = finSkin.GetOrCreateBoneWeights(bones[boneIndex])
+                      };
                       allVertexWeights.Add(vertexWeights);
                     }
                     // Negative indices refer to envelopes.
                     else {
                       var envelopeIndex = -1 - attachmentIndex;
 
-                      var vertexWeights = new VertexWeights();
-
-                      var envelope = mod.envelopes[envelopeIndex];
-                      foreach (var indexAndWeight in
-                               envelope.indicesAndWeights) {
-                        vertexWeights.boneWeights.Add(
-                            new BoneWeight(bones[indexAndWeight.index],
-                                           new FinMatrix4x4().SetIdentity(),
-                                           indexAndWeight.weight));
-                      }
-
-                      // TODO: Is this right? There's still some jank in some models
-                      // Seems that these need to NOT be projected
-                      vertexWeights.Preproject = false;
+                      var vertexWeights = new VertexWeights {
+                          BoneWeights = envelopeBoneWeights[envelopeIndex],
+                          // Seems that these need to NOT be projected
+                          // TODO: Is this right? There's still some jank in some models
+                          Preproject = false
+                      };
 
                       allVertexWeights.Add(vertexWeights);
                     }
@@ -353,7 +358,7 @@ namespace mod.cli {
                   model.Skin.AddVertex(position);
 
               if (allVertexWeights.Count > 0) {
-                finVertex.SetBones(allVertexWeights[v].boneWeights.ToArray());
+                finVertex.SetBoneWeights(allVertexWeights[v].BoneWeights);
                 finVertex.PreprojectMode =
                     allVertexWeights[v].Preproject
                         ? PreprojectMode.BONE
@@ -485,7 +490,7 @@ namespace mod.cli {
     }
 
     private class VertexWeights {
-      public readonly List<BoneWeight> boneWeights = new();
+      public IBoneWeights BoneWeights { get; set; }
       public bool Preproject { get; set; } = true;
     }
   }
