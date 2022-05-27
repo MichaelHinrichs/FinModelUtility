@@ -42,7 +42,9 @@ namespace uni.ui.common {
         this.frameAdvancer_.FrameRate = (int) (this.Animation?.FrameRate ?? 20);
         this.frameAdvancer_.TotalFrames = this.Animation?.FrameCount ?? 0;
 
-        this.scale_ = 1000 / this.modelRenderer_.CalculateScale();
+        this.scale_ = this.modelRenderer_ != null
+                          ? 1000 / this.modelRenderer_.CalculateScale()
+                          : 1;
         ;
       }
     }
