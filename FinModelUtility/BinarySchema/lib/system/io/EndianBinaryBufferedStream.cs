@@ -5,10 +5,18 @@
               ? Endianness.LittleEndian
               : Endianness.BigEndian;
 
-    public Endianness Endianness { get; set; }
+    private Endianness endianness_;
 
-    private bool ShouldReverseBytes_
-      => EndianBinaryBufferedStream.SystemEndianness_ != this.Endianness;
+    public Endianness Endianness {
+      get => this.endianness_;
+      set {
+        this.endianness_ = value;
+        this.ShouldReverseBytes_ =
+            EndianBinaryBufferedStream.SystemEndianness_ != this.Endianness;
+      }
+    }
+
+    private bool ShouldReverseBytes_ { get; set; }
 
     public Stream BaseStream { get; set; }
     public byte[] Buffer { get; private set; }
