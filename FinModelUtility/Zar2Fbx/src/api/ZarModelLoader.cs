@@ -20,9 +20,9 @@ using zar.format.shpa;
 namespace zar.api {
   public class ZarModelFileBundle : IModelFileBundle {
     public ZarModelFileBundle(IFileHierarchyFile cmbFile,
-                              IFileHierarchyFile[]? csabFiles,
-                              IFileHierarchyFile[]? ctxbFiles,
-                              IFileHierarchyFile[]? shpaFiles) {
+                              IReadOnlyList<IFileHierarchyFile>? csabFiles,
+                              IReadOnlyList<IFileHierarchyFile>? ctxbFiles,
+                              IReadOnlyList<IFileHierarchyFile>? shpaFiles) {
       this.CmbFile = cmbFile;
       this.CsabFiles = csabFiles;
       this.CtxbFiles = ctxbFiles;
@@ -32,22 +32,62 @@ namespace zar.api {
     public string FileName => this.CmbFile.NameWithoutExtension;
 
     public IFileHierarchyFile CmbFile { get; }
-    public IFileHierarchyFile[]? CsabFiles { get; }
-    public IFileHierarchyFile[]? CtxbFiles { get; }
-    public IFileHierarchyFile[]? ShpaFiles { get; }
+    public IReadOnlyList<IFileHierarchyFile>? CsabFiles { get; }
+    public IReadOnlyList<IFileHierarchyFile>? CtxbFiles { get; }
+    public IReadOnlyList<IFileHierarchyFile>? ShpaFiles { get; }
   }
 
-  public class ModelConverter {
+  public class ZarModelLoader : IModelLoader<ZarModelFileBundle> {
     // TODO: Split these out into separate classes
     // TODO: Reading from the file here is gross
-    public IModel Convert(
-        EndianBinaryReader r,
-        Cmb cmb,
-        IList<(IFile, Csab)> filesAndCsabs,
-        IList<(IFile, Ctxb)> filesAndCtxbs,
-        IList<(IFile, Shpa)> filesAndShpas,
-        IDirectory outputDirectory,
-        float fps) {
+    public IModel LoadModel(ZarModelFileBundle modelFileBundle) {
+      var cmbFile = modelFileBundle.CmbFile;
+      var csabFiles = modelFileBundle.CsabFiles;
+      var ctxbFiles = modelFileBundle.CtxbFiles;
+      var shpaFiles = modelFileBundle.ShpaFiles;
+
+      var fps = 30;
+
+      using var r =
+          new EndianBinaryReader(cmbFile.Impl.OpenRead(),
+                                 Endianness.LittleEndian);
+
+      var cmb = new Cmb(r);
+      r.Position = 0;
+
+      var filesAndCsabs =
+          csabFiles?.Select(csabFile => {
+                     var csab = new Csab();
+                     csab.Read(new EndianBinaryReader(
+                                   csabFile.Impl.OpenRead(),
+                                   Endianness.LittleEndian));
+                     return (csabFile, csab);
+                   })
+                   .ToList() ??
+          new List<(IFileHierarchyFile shpaFile, Csab csab)>();
+
+      var filesAndCtxbs =
+          ctxbFiles?.Select(ctxbFile => {
+                     var ctxb = new Ctxb();
+                     ctxb.Read(new EndianBinaryReader(
+                                   ctxbFile.Impl.OpenRead(),
+                                   Endianness.LittleEndian));
+                     return (ctxbFile, ctxb);
+                   })
+                   .ToList() ??
+          new List<(IFileHierarchyFile shpaFile, Ctxb ctxb)>();
+
+      var filesAndShpas =
+          shpaFiles?.Select(shpaFile => {
+                     var shpa = new Shpa();
+                     shpa.Read(new EndianBinaryReader(
+                                   shpaFile.Impl.OpenRead(),
+                                   Endianness.LittleEndian));
+                     return (shpaFile, shpa);
+                   })
+                   .ToList() ??
+          new List<(IFileHierarchyFile shpaFile, Shpa shpa)>();
+
       var model = new ModelImpl();
 
       // Adds bones
@@ -217,7 +257,7 @@ namespace zar.api {
         finMaterials.Add(finMaterial);
       }
 
-      {
+      /*{
         var nameToTextures = new Dictionary<string, ITexture>();
         foreach (var finMaterial in finMaterials) {
           foreach (var finTexture in finMaterial.Textures) {
@@ -229,7 +269,7 @@ namespace zar.api {
           finTexture.ImageData.Save(
               Path.Join(outputDirectory.FullName, finTexture.Name + ".png"));
         }
-      }
+      }*/
 
       var verticesByIndex = new ListDictionary<int, IVertex>();
 

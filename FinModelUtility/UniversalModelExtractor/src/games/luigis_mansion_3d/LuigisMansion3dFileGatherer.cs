@@ -1,8 +1,6 @@
 ﻿using fin.io;
 using fin.model;
-using fin.util.asserts;
 
-using uni.msg;
 using uni.platforms;
 using uni.platforms.threeDs;
 using uni.util.separator;
@@ -35,17 +33,27 @@ namespace uni.games.luigis_mansion_3d {
           new ThreeDsFileHierarchyExtractor().ExtractFromRom(
               luigisMansionRom);
 
-      return null;
-
       var rootModelDirectory =
           new ModelDirectory<ZarModelFileBundle>("luigis_mansion_3d");
-      foreach (var subdir in fileHierarchy) {
-        this.ExtractModel_(subdir);
+      var queue =
+          new Queue<(IFileHierarchyDirectory,
+              IModelDirectory<ZarModelFileBundle>)>();
+      queue.Enqueue((fileHierarchy.Root, rootModelDirectory));
+      while (queue.Any()) {
+        var (directory, node) = queue.Dequeue();
+
+        this.ExtractModel_(node, directory);
+
+        foreach (var subdir in directory.Subdirs) {
+          queue.Enqueue((subdir, node.AddSubdir(subdir.Name)));
+        }
       }
       return rootModelDirectory;
     }
 
-    public void ExtractModel_(IFileHierarchyDirectory subdir) {
+    public void ExtractModel_(
+        IModelDirectory<ZarModelFileBundle> parentNode,
+        IFileHierarchyDirectory subdir) {
       var cmbFiles = subdir.FilesWithExtension(".cmb").ToArray();
       if (cmbFiles.Length == 0) {
         return;
@@ -54,69 +62,20 @@ namespace uni.games.luigis_mansion_3d {
       var csabFiles = subdir.FilesWithExtension(".csab").ToArray();
       var ctxbFiles = subdir.FilesWithExtension(".ctxb").ToArray();
       var shpaFiles = subdir.FilesWithExtension(".shpa").ToArray();
-      var bundles =
-          this.separator_.Separate(subdir, cmbFiles, csabFiles);
 
-      foreach (var bundle in bundles) {
-        this.ExtractModels_(subdir,
-                            new[] {bundle.ModelFile},
-                            bundle.AnimationFiles.ToArray(),
-                            ctxbFiles,
-                            shpaFiles);
-      }
-    }
+      try {
+        var bundles =
+            this.separator_.Separate(subdir, cmbFiles, csabFiles);
 
-    private void ExtractModels_(
-        IFileHierarchyDirectory directory,
-        IReadOnlyList<IFileHierarchyFile> cmbFiles,
-        IReadOnlyList<IFileHierarchyFile>? csabFiles = null,
-        IReadOnlyList<IFileHierarchyFile>? ctxbFiles = null,
-        IReadOnlyList<IFileHierarchyFile>? shpaFiles = null
-    ) {
-      Asserts.True(cmbFiles.Count > 0);
-
-      var outputDirectory =
-          GameFileHierarchyUtil.GetOutputDirectoryForDirectory(directory);
-
-      var matches = 0;
-      var existingModelFiles =
-          outputDirectory.GetExistingFiles()
-                         .Where(file => file.Extension == ".fbx" ||
-                                        file.Extension == ".glb")
-                         .ToArray();
-
-      foreach (var cmbFile in cmbFiles) {
-        if (existingModelFiles.Any(
-                existingModelFile => {
-                  var existingName = existingModelFile.NameWithoutExtension;
-                  var cmbName = cmbFile.NameWithoutExtension;
-
-                  return cmbName == existingName ||
-                         cmbName + "_gltf" == existingName;
-                })) {
-          ++matches;
+        foreach (var bundle in bundles) {
+          parentNode.AddFileBundle(new ZarModelFileBundle(
+                                       bundle.ModelFile,
+                                       bundle.AnimationFiles.ToArray(),
+                                       ctxbFiles,
+                                       shpaFiles
+                                   ));
         }
-      }
-
-      /*if (matches == cmbFiles.Count) {
-        MessageUtil.LogAlreadyProcessed(this.logger_, directory, cmbFiles);
-        return;
-      }*/
-
-      //try {
-      new ManualZar2FbxApi().Run(outputDirectory,
-                                 cmbFiles.Select(file => file.Impl)
-                                         .ToArray(),
-                                 csabFiles?.Select(file => file.Impl)
-                                          .ToArray(),
-                                 ctxbFiles?.Select(file => file.Impl)
-                                          .ToArray(),
-                                 shpaFiles?.Select(file => file.Impl)
-                                          .ToArray(),
-                                 30);
-      /*} catch (Exception e) {
-        this.logger_.LogError(e.ToString());
-      }*/
+      } catch { }
     }
   }
 }

@@ -9,6 +9,7 @@ using uni.util.separator;
 
 using zar.api;
 
+
 namespace uni.games.ocarina_of_time_3d {
   public class OcarinaOfTime3dExtractor {
     private readonly ILogger logger_ =
@@ -121,7 +122,7 @@ namespace uni.games.ocarina_of_time_3d {
 
     private void ExtractActors_(IFileHierarchy fileHierarchy) {
       foreach (var subdir in
-          fileHierarchy.Root.TryToGetSubdir("actor").Subdirs) {
+               fileHierarchy.Root.TryToGetSubdir("actor").Subdirs) {
         this.ExtractActor_(subdir);
       }
     }
@@ -170,13 +171,13 @@ namespace uni.games.ocarina_of_time_3d {
 
       foreach (var cmbFile in cmbFiles) {
         if (existingModelFiles.Any(
-            existingModelFile => {
-              var existingName = existingModelFile.NameWithoutExtension;
-              var cmbName = cmbFile.NameWithoutExtension;
+                existingModelFile => {
+                  var existingName = existingModelFile.NameWithoutExtension;
+                  var cmbName = cmbFile.NameWithoutExtension;
 
-              return cmbName == existingName ||
-                     cmbName + "_gltf" == existingName;
-            })) {
+                  return cmbName == existingName ||
+                         cmbName + "_gltf" == existingName;
+                })) {
           ++matches;
         }
       }
@@ -188,18 +189,16 @@ namespace uni.games.ocarina_of_time_3d {
 
       MessageUtil.LogExtracting(this.logger_, directory, cmbFiles);
 
-      try {
-        new ManualZar2FbxApi().Run(outputDirectory,
-                                   cmbFiles.Select(file => file.Impl)
-                                           .ToArray(),
-                                   csabFiles?.Select(file => file.Impl)
-                                            .ToArray(),
-                                   null,
-                                   null,
-                                   // TODO: Is this 20 or 30?
-                                   30);
-      } catch (Exception e) {
-        this.logger_.LogError(e.ToString());
+      foreach (var cmbFile in cmbFiles) {
+        try {
+          new ManualZar2FbxApi().Run(outputDirectory,
+                                     cmbFile,
+                                     csabFiles,
+                                     null,
+                                     null);
+        } catch (Exception e) {
+          this.logger_.LogError(e.ToString());
+        }
       }
       this.logger_.LogInformation(" ");
     }

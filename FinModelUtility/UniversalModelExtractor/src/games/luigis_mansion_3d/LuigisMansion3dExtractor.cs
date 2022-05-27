@@ -9,6 +9,7 @@ using uni.util.separator;
 
 using zar.api;
 
+
 namespace uni.games.luigis_mansion_3d {
   public class LuigisMansion3dExtractor {
     private readonly ILogger logger_ =
@@ -58,7 +59,7 @@ namespace uni.games.luigis_mansion_3d {
 
       foreach (var bundle in bundles) {
         this.ExtractModels_(subdir,
-                            new[] { bundle.ModelFile },
+                            new[] {bundle.ModelFile},
                             bundle.AnimationFiles.ToArray(),
                             ctxbFiles,
                             shpaFiles);
@@ -105,16 +106,13 @@ namespace uni.games.luigis_mansion_3d {
       MessageUtil.LogExtracting(this.logger_, directory, cmbFiles);
 
       //try {
-      new ManualZar2FbxApi().Run(outputDirectory,
-                                 cmbFiles.Select(file => file.Impl)
-                                         .ToArray(),
-                                 csabFiles?.Select(file => file.Impl)
-                                          .ToArray(),
-                                 ctxbFiles?.Select(file => file.Impl)
-                                          .ToArray(),
-                                 shpaFiles?.Select(file => file.Impl)
-                                          .ToArray(),
-                                 30);
+      foreach (var cmbFile in cmbFiles) {
+        new ManualZar2FbxApi().Run(outputDirectory,
+                                   cmbFile,
+                                   csabFiles,
+                                   ctxbFiles,
+                                   shpaFiles);
+      }
       /*} catch (Exception e) {
         this.logger_.LogError(e.ToString());
       }*/

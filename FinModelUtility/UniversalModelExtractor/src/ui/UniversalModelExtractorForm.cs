@@ -4,6 +4,8 @@ using glo.api;
 
 using uni.games;
 
+using zar.api;
+
 
 namespace uni.ui {
   public partial class UniversalModelExtractorForm : Form {
@@ -26,6 +28,8 @@ namespace uni.ui {
       => modelFileBundle switch {
           GloModelFileBundle gloModelFileBundle => new GloModelLoader()
               .LoadModel(gloModelFileBundle),
+          ZarModelFileBundle zarModelFileBundle => new ZarModelLoader()
+              .LoadModel(zarModelFileBundle),
           _ => throw new ArgumentOutOfRangeException(nameof(modelFileBundle))
       };
   }
