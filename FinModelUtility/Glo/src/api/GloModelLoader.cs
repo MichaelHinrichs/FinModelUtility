@@ -18,7 +18,8 @@ using fin.util.image;
 namespace glo.api {
   public class GloModelFileBundle : IModelFileBundle {
     public GloModelFileBundle(IFileHierarchyFile gloFile,
-                              IReadOnlyList<IDirectory> textureDirectories) {
+                              IReadOnlyList<IFileHierarchyDirectory>
+                                  textureDirectories) {
       this.GloFile = gloFile;
       this.TextureDirectories = textureDirectories;
     }
@@ -26,7 +27,7 @@ namespace glo.api {
     public string FileName => this.GloFile.NameWithoutExtension;
 
     public IFileHierarchyFile GloFile { get; }
-    public IReadOnlyList<IDirectory> TextureDirectories { get; }
+    public IReadOnlyList<IFileHierarchyDirectory> TextureDirectories { get; }
   }
 
   public class GloModelLoader : IModelLoader<GloModelFileBundle> {
@@ -50,6 +51,13 @@ namespace glo.api {
         glo.Read(er);
       }
 
+      var textureFilesByName = new Dictionary<string, IFileHierarchyFile>();
+      foreach (var textureDirectory in textureDirectories) {
+        foreach (var textureFile in textureDirectory.Files) {
+          textureFilesByName[textureFile.Name.ToLower()] = textureFile;
+        }
+      }
+
       /*new MeshCsvWriter().WriteToFile(
           glo, new FinFile(Path.Join(outputDirectory.FullName, "mesh.csv")));
       new FaceCsvWriter().WriteToFile(
@@ -64,37 +72,30 @@ namespace glo.api {
 
       var finTextureMap = new LazyDictionary<string, ITexture?>(
           textureFilename => {
-            // TODO: Use bank files for quick lookup instead of searching like this
-            foreach (var textureDirectory in textureDirectories) {
-              try {
-                var textureFile =
-                    textureDirectory.GetExistingFile(textureFilename);
-                if (textureFile != null) {
-                  using var rawTextureImage =
-                      (Bitmap.FromFile(textureFile.FullName) as Bitmap)!;
-
-                  var textureImageWithAlpha =
-                      GloModelLoader
-                          .AddTransparencyToGloImage_(rawTextureImage);
-
-                  var finTexture = finModel.MaterialManager.CreateTexture(
-                      textureImageWithAlpha);
-
-                  if (this.mirrorTextures_.Contains(textureFilename)) {
-                    finTexture.WrapModeU = WrapMode.MIRROR_REPEAT;
-                    finTexture.WrapModeV = WrapMode.MIRROR_REPEAT;
-                  } else {
-                    finTexture.WrapModeU = WrapMode.REPEAT;
-                    finTexture.WrapModeV = WrapMode.REPEAT;
-                  }
-
-                  return finTexture;
-                }
-              } catch(Exception e) {
-                ;
-              }
+            if (!textureFilesByName.TryGetValue(textureFilename.ToLower(),
+                                                out var textureFile)) {
+              return null;
             }
-            return null;
+
+            using var rawTextureImage =
+                (Bitmap.FromFile(textureFile.FullName) as Bitmap)!;
+
+            var textureImageWithAlpha =
+                GloModelLoader
+                    .AddTransparencyToGloImage_(rawTextureImage);
+
+            var finTexture = finModel.MaterialManager.CreateTexture(
+                textureImageWithAlpha);
+
+            if (this.mirrorTextures_.Contains(textureFilename)) {
+              finTexture.WrapModeU = WrapMode.MIRROR_REPEAT;
+              finTexture.WrapModeV = WrapMode.MIRROR_REPEAT;
+            } else {
+              finTexture.WrapModeU = WrapMode.REPEAT;
+              finTexture.WrapModeV = WrapMode.REPEAT;
+            }
+
+            return finTexture;
           });
       var withCullingMap =
           new LazyDictionary<string, IMaterial>(textureFilename => {
@@ -216,6 +217,10 @@ namespace glo.api {
           finMesh.Name = name;
 
           var gloVertices = idealMesh.Vertices;
+
+          string previousTextureName = null;
+          IMaterial? previousMaterial = null;
+
           foreach (var gloFace in idealMesh.Faces) {
             // TODO: What can we do if texture filename is empty?
             var textureFilename =
@@ -227,9 +232,16 @@ namespace glo.api {
 
             var enableBackfaceCulling = (gloFace.Flags & 1 << 2) != 0;
 
-            var finMaterial = enableBackfaceCulling
-                                  ? withCullingMap[textureFilename]
-                                  : withoutCullingMap[textureFilename];
+            IMaterial? finMaterial;
+            if (textureFilename == previousTextureName) {
+              finMaterial = previousMaterial;
+            } else {
+              previousTextureName = textureFilename;
+              finMaterial = enableBackfaceCulling
+                                ? withCullingMap[textureFilename]
+                                : withoutCullingMap[textureFilename];
+              previousMaterial = finMaterial;
+            }
 
             // Face flag:
             // 0: potentially some kind of repeat mode??

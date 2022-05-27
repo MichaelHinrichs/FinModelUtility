@@ -26,29 +26,31 @@ namespace uni.games.glover {
       foreach (var objectDirectory in topLevelObjectDirectory.Subdirs) {
         this.AddObjectDirectory(
             parentObjectDirectory.AddSubdir(objectDirectory.Name),
-            gloverSteamDirectory, objectDirectory);
+            gloverFileHierarchy, objectDirectory);
       }
       return rootModelDirectory;
     }
 
     private void AddObjectDirectory(
         IModelDirectory<GloModelFileBundle> parentNode,
-        IDirectory gloverSteamDirectory,
+        IFileHierarchy gloverFileHierarchy,
         IFileHierarchyDirectory objectDirectory) {
       var objectFiles = objectDirectory.FilesWithExtension(".glo");
 
+      var gloverSteamDirectory = gloverFileHierarchy.Root;
       var textureDirectories = gloverSteamDirectory
-                               .GetSubdir("data/textures/generic")
-                               .GetExistingSubdirs()
-                               .ToList();
+                               .TryToGetSubdir("data/textures/generic")
+                               .Subdirs.ToList();
 
       try {
-        var levelTextureDirectory = gloverSteamDirectory.GetSubdir(
+        var levelTextureDirectory = gloverSteamDirectory.TryToGetSubdir(
             objectDirectory.LocalPath.Replace("data\\objects",
                                               "data\\textures"));
         textureDirectories.Add(levelTextureDirectory);
-        textureDirectories.AddRange(levelTextureDirectory.GetExistingSubdirs());
-      } catch { }
+        textureDirectories.AddRange(levelTextureDirectory.Subdirs);
+      } catch(Exception e) {
+        ;
+      }
 
       foreach (var objectFile in objectFiles) {
         parentNode.AddFileBundle(
