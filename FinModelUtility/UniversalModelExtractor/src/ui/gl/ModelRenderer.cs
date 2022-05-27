@@ -3,6 +3,7 @@ using fin.gl;
 using fin.math;
 using fin.model;
 using fin.model.impl;
+using fin.model.util;
 
 using Tao.OpenGl;
 
@@ -62,6 +63,11 @@ namespace uni.ui.gl {
       foreach (var materialMeshRenderer in this.materialMeshRenderers_) {
         materialMeshRenderer.Render();
       }
+    }
+
+    public float CalculateScale() {
+      return ModelScaleCalculator.CalculateScale(
+          this.Model, this.boneTransformManager_);
     }
   }
 

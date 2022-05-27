@@ -24,6 +24,8 @@ namespace uni.ui.common {
 
     private ModelRenderer? modelRenderer_;
 
+    private float scale_ = 1;
+
     private readonly FrameAdvancer frameAdvancer_ = new() {
         IsPlaying = true,
         ShouldLoop = true,
@@ -39,6 +41,9 @@ namespace uni.ui.common {
 
         this.frameAdvancer_.FrameRate = (int) (this.Animation?.FrameRate ?? 20);
         this.frameAdvancer_.TotalFrames = this.Animation?.FrameCount ?? 0;
+
+        this.scale_ = 1000 / this.modelRenderer_.CalculateScale();
+        ;
       }
     }
 
@@ -246,6 +251,7 @@ void main() {
         Gl.glMatrixMode(Gl.GL_MODELVIEW);
         Gl.glLoadIdentity();
         Gl.glRotated(90, 1, 0, 0);
+        Gl.glScalef(this.scale_, this.scale_, this.scale_);
       }
 
       if (this.Animation != null) {
