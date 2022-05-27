@@ -56,5 +56,37 @@ namespace fin.math {
         }
       }
     }
+
+    [TestMethod]
+    public void TestMultiplyByInverse() {
+      var inputMatrix = new FinMatrix4x4();
+      inputMatrix[0, 0] = 2;
+      inputMatrix[0, 1] = 5;
+      inputMatrix[0, 2] = 0;
+      inputMatrix[0, 3] = 8;
+      inputMatrix[1, 0] = 1;
+      inputMatrix[1, 1] = 4;
+      inputMatrix[1, 2] = 2;
+      inputMatrix[1, 3] = 6;
+      inputMatrix[2, 0] = 7;
+      inputMatrix[2, 1] = 8;
+      inputMatrix[2, 2] = 9;
+      inputMatrix[2, 3] = 3;
+      inputMatrix[3, 0] = 1;
+      inputMatrix[3, 1] = 5;
+      inputMatrix[3, 2] = 7;
+      inputMatrix[3, 3] = 8;
+
+      var inverseMatrix = inputMatrix.CloneAndInvert();
+
+      var actualMatrix = inputMatrix.CloneAndMultiply(inverseMatrix);
+      var expectedMatrix = new FinMatrix4x4().SetIdentity();
+
+      for (var r = 0; r < 4; r++) {
+        for (var c = 0; c < 4; c++) {
+          Assert.AreEqual(expectedMatrix[r, c], actualMatrix[r, c], .0001f);
+        }
+      }
+    }
   }
 }

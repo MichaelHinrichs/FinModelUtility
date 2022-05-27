@@ -2,11 +2,13 @@
 
 using fin.animation.playback;
 using fin.gl;
+using fin.math;
 
 using Tao.OpenGl;
 using Tao.Platform.Windows;
 
 using fin.model;
+using fin.model.util;
 
 using uni.ui.gl;
 
@@ -23,6 +25,7 @@ namespace uni.ui.common {
     private int texture0Location_;
 
     private ModelRenderer? modelRenderer_;
+    private readonly BoneTransformManager boneTransformManager_ = new();
 
     private float scale_ = 1;
 
@@ -35,17 +38,23 @@ namespace uni.ui.common {
       get => this.modelRenderer_?.Model;
       set {
         this.modelRenderer_?.Dispose();
-        this.modelRenderer_ =
-            value != null ? new ModelRenderer(value) : null;
-        this.Animation = value?.AnimationManager.Animations.FirstOrDefault();
 
+        if (value != null) {
+          this.modelRenderer_ =
+              new ModelRenderer(value, this.boneTransformManager_);
+          this.boneTransformManager_.CalculateMatrices(
+              value.Skeleton.Root, null);
+          this.scale_ = 1000 / ModelScaleCalculator.CalculateScale(
+              value, this.boneTransformManager_);
+        } else {
+          this.modelRenderer_ = null;
+          this.scale_ = 1;
+        }
+
+        this.Animation = value?.AnimationManager.Animations.FirstOrDefault();
         this.frameAdvancer_.FrameRate = (int) (this.Animation?.FrameRate ?? 20);
         this.frameAdvancer_.TotalFrames = this.Animation?.FrameCount ?? 0;
 
-        this.scale_ = this.modelRenderer_ != null
-                          ? 1000 / this.modelRenderer_.CalculateScale()
-                          : 1;
-        ;
       }
     }
 
@@ -258,8 +267,9 @@ void main() {
 
       if (this.Animation != null) {
         this.frameAdvancer_.Tick();
-        this.modelRenderer_?.CalculateAnimationMatrices(
-            this.Animation, (float) this.frameAdvancer_.Frame);
+        this.boneTransformManager_.CalculateMatrices(
+            this.Model.Skeleton.Root,
+            (this.Animation, (float) this.frameAdvancer_.Frame));
       }
       // TODO: Normalize the model scale somehow
       this.modelRenderer_?.Render();

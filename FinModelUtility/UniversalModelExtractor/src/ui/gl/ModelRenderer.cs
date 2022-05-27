@@ -13,11 +13,13 @@ namespace uni.ui.gl {
   ///   A renderer for a Fin model.
   /// </summary>
   public class ModelRenderer : IDisposable {
-    private readonly BoneTransformManager boneTransformManager_ = new();
+    private readonly BoneTransformManager boneTransformManager_;
     private readonly List<MaterialMeshRenderer> materialMeshRenderers_ = new();
 
-    public ModelRenderer(IModel model) {
+    public ModelRenderer(IModel model,
+                         BoneTransformManager boneTransformManager) {
       this.Model = model;
+      this.boneTransformManager_ = boneTransformManager;
 
       var primitivesByMaterial = new ListDictionary<IMaterial, IPrimitive>();
       foreach (var mesh in model.Skin.Meshes) {
@@ -33,9 +35,6 @@ namespace uni.ui.gl {
                 material,
                 primitives));
       }
-
-      this.boneTransformManager_.CalculateMatrices(
-          this.Model.Skeleton.Root, null);
     }
 
     ~ModelRenderer() => ReleaseUnmanagedResources_();
@@ -54,20 +53,10 @@ namespace uni.ui.gl {
 
     public IModel Model { get; }
 
-    public void CalculateAnimationMatrices(IAnimation animation, float frame) {
-      this.boneTransformManager_.CalculateMatrices(
-          this.Model.Skeleton.Root, (animation, frame));
-    }
-
     public void Render() {
       foreach (var materialMeshRenderer in this.materialMeshRenderers_) {
         materialMeshRenderer.Render();
       }
-    }
-
-    public float CalculateScale() {
-      return ModelScaleCalculator.CalculateScale(
-          this.Model, this.boneTransformManager_);
     }
   }
 
