@@ -7,7 +7,7 @@ using uni.platforms.desktop;
 
 
 namespace uni.games.glover {
-  internal class
+  public class
       GloverModelFileGatherer : IModelFileGatherer<GloModelFileBundle> {
     public IModelDirectory<GloModelFileBundle>? GatherModelFileBundles(
         bool assert) {

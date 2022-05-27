@@ -70,41 +70,12 @@ namespace glo.api {
                 var textureFile =
                     textureDirectory.GetExistingFile(textureFilename);
                 if (textureFile != null) {
-                  var rawTextureImage =
+                  using var rawTextureImage =
                       (Bitmap.FromFile(textureFile.FullName) as Bitmap)!;
 
-                  var textureWidth = rawTextureImage.Width;
-                  var textureHeight = rawTextureImage.Height;
-
-                  var textureImageWithAlpha = new Bitmap(
-                      textureWidth, textureHeight, PixelFormat.Format32bppArgb);
-                  BitmapUtil.InvokeAsLocked(
-                      textureImageWithAlpha,
-                      bmpData => {
-                        var ptr = (byte*) bmpData.Scan0;
-                        for (var y = 0; y < textureHeight; ++y) {
-                          for (var x = 0; x < textureWidth; ++x) {
-                            var i = 4 * (y * textureWidth + x);
-
-                            // TODO: Slow as heck
-                            var pixel = rawTextureImage.GetPixel(x, y);
-
-                            var r = pixel.R;
-                            var g = pixel.G;
-                            var b = pixel.B;
-                            var a = pixel.A;
-
-                            if (r == 255 && g == 0 && b == 255) {
-                              ptr[i] = 0;
-                            } else {
-                              ptr[i] = b;
-                              ptr[i + 1] = g;
-                              ptr[i + 2] = r;
-                              ptr[i + 3] = a;
-                            }
-                          }
-                        }
-                      });
+                  var textureImageWithAlpha =
+                      GloModelLoader
+                          .AddTransparencyToGloImage_(rawTextureImage);
 
                   var finTexture = finModel.MaterialManager.CreateTexture(
                       textureImageWithAlpha);
@@ -119,7 +90,9 @@ namespace glo.api {
 
                   return finTexture;
                 }
-              } catch { }
+              } catch(Exception e) {
+                ;
+              }
             }
             return null;
           });
@@ -290,6 +263,38 @@ namespace glo.api {
       }
 
       return finModel;
+    }
+
+    private static Bitmap AddTransparencyToGloImage_(Bitmap rawImage) {
+      var textureWidth = rawImage.Width;
+      var textureHeight = rawImage.Height;
+
+      var textureImageWithAlpha = new Bitmap(
+          textureWidth, textureHeight, PixelFormat.Format32bppArgb);
+      BitmapUtil.ProcessImage(
+          rawImage, textureImageWithAlpha, ConvertGloPixel_);
+      return textureImageWithAlpha;
+    }
+
+    private static void ConvertGloPixel_(byte inR,
+                                         byte inG,
+                                         byte inB,
+                                         byte inA,
+                                         out byte outR,
+                                         out byte outG,
+                                         out byte outB,
+                                         out byte outA) {
+      outR = inR;
+      outG = inG;
+      outB = inB;
+
+      if (inR == 255 &&
+          inG == 0 &&
+          inB == 255) {
+        outA = 0;
+      } else {
+        outA = inA;
+      }
     }
   }
 }
