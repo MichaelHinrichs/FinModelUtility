@@ -29,5 +29,9 @@ namespace fin.math.matrix {
 
     IFinMatrix4x4 CloneAndMultiply(double other);
     void MultiplyIntoBuffer(double other, IFinMatrix4x4 buffer);
+
+    IFinMatrix4x4 CloneAndInvert();
+    IFinMatrix4x4 InvertInPlace();
+    void InvertIntoBuffer(IFinMatrix4x4 buffer);
   }
 }

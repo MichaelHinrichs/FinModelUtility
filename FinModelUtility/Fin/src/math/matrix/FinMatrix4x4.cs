@@ -1,6 +1,9 @@
 ﻿using fin.math.matrix;
 using fin.util.asserts;
 
+using MathNet.Numerics.LinearAlgebra.Complex;
+
+
 namespace fin.math {
   using SystemMatrix = System.Numerics.Matrix4x4;
 
@@ -102,6 +105,25 @@ namespace fin.math {
           this[r, c] *= other;
         }
       }
+    }
+
+    public IFinMatrix4x4 CloneAndInvert()
+      => this.Clone().InvertInPlace();
+
+    public IFinMatrix4x4 InvertInPlace() {
+      this.InvertIntoBuffer(this);
+      return this;
+    }
+
+    public void InvertIntoBuffer(IFinMatrix4x4 buffer) {
+      // TODO: calculate this here
+
+      var systemMatrix = new SystemMatrix();
+      MatrixConversionUtil.CopyFinIntoSystem(this, ref systemMatrix);
+
+      SystemMatrix.Invert(systemMatrix, out var invertedSystemMatrix);
+
+      MatrixConversionUtil.CopySystemIntoFin(invertedSystemMatrix, buffer);
     }
   }
 }
