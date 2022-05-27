@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Numerics;
 
+using fin.data;
 using fin.math;
+
 
 namespace fin.model.impl {
   public partial class ModelImpl {
@@ -32,12 +34,11 @@ namespace fin.model.impl {
       }
 
       private class AnimationImpl : IAnimation {
-        private readonly IDictionary<IBone, IBoneTracks> boneTracks_ =
-            new Dictionary<IBone, IBoneTracks>();
+        private readonly IndexableDictionary<IBone, IBoneTracks> boneTracks_ =
+            new();
 
         public AnimationImpl() {
-          this.BoneTracks =
-              new ReadOnlyDictionary<IBone, IBoneTracks>(this.boneTracks_);
+          this.BoneTracks = this.boneTracks_;
         }
 
         public string Name { get; set; }
@@ -45,7 +46,7 @@ namespace fin.model.impl {
         public int FrameCount { get; set; }
         public float FrameRate { get; set; }
 
-        public IReadOnlyDictionary<IBone, IBoneTracks> BoneTracks { get; }
+        public IReadOnlyIndexableDictionary<IBone, IBoneTracks> BoneTracks { get; }
 
         public IBoneTracks AddBoneTracks(IBone bone) {
           var boneTracks = new BoneTracksImpl();

@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 
+using fin.data;
 using fin.math.interpolation;
 
 namespace fin.model {
@@ -27,7 +28,7 @@ namespace fin.model {
     int FrameCount { get; set; }
     float FrameRate { get; set; }
 
-    IReadOnlyDictionary<IBone, IBoneTracks> BoneTracks { get; }
+    IReadOnlyIndexableDictionary<IBone, IBoneTracks> BoneTracks { get; }
     IBoneTracks AddBoneTracks(IBone bone);
 
     // TODO: Allow setting looping behavior (once, back and forth, etc.)

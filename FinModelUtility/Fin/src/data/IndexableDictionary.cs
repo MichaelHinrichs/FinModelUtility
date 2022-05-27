@@ -14,10 +14,17 @@ namespace fin.data {
     Optional<TValue> Value { get; }
   }
 
-  public interface IIndexableDictionary<TIndexable, TValue>
+  public interface IReadOnlyIndexableDictionary<TIndexable, TValue>
       where TIndexable : IIndexable {
-    TValue this[TIndexable key] { get; set; }
-    bool TryGet(TIndexable key, out TValue value);
+    TValue this[TIndexable key] { get; }
+    bool TryGetValue(TIndexable key, out TValue value);
+  }
+
+  public interface
+      IIndexableDictionary<TIndexable, TValue> : IReadOnlyIndexableDictionary<
+          TIndexable, TValue>
+      where TIndexable : IIndexable {
+    new TValue this[TIndexable key] { get; set; }
   }
 
   public class
@@ -43,7 +50,7 @@ namespace fin.data {
       }
     }
 
-    public bool TryGet(TIndexable key, out TValue value) {
+    public bool TryGetValue(TIndexable key, out TValue value) {
       var index = key.Index;
 
       if (this.impl_.Count < index + 1) {
