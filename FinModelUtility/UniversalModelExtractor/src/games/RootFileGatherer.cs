@@ -14,6 +14,8 @@ namespace uni.games {
       rootModelDirectory.AddSubdirIfNotNull(
           new LuigisMansion3dModelFileGatherer().GatherModelFileBundles(false));
 
+      rootModelDirectory.RemoveEmptyChildren();
+
       return rootModelDirectory;
     }
   }

@@ -11,6 +11,8 @@ namespace fin.model {
 
     IEnumerable<IModelDirectory> Subdirs { get; }
     IEnumerable<IModelFileBundle> FileBundles { get; }
+
+    void RemoveEmptyChildren();
   }
 
   public interface IModelDirectory<TModelFileBundle> : IModelDirectory
@@ -40,6 +42,20 @@ namespace fin.model {
     public void AddSubdirIfNotNull(IModelDirectory? subdir) {
       if (subdir != null) {
         this.subdirs_.Add(subdir);
+      }
+    }
+
+    public void RemoveEmptyChildren() {
+      var subdirsToRemove = new List<IModelDirectory>();
+      foreach (var subdir in this.subdirs_) {
+        subdir.RemoveEmptyChildren();
+        if (!subdir.Subdirs.Any() && !subdir.FileBundles.Any()) {
+          subdirsToRemove.Add(subdir);
+        }
+      }
+
+      foreach (var subdir in subdirsToRemove) {
+        this.subdirs_.Remove(subdir);
       }
     }
   }
@@ -88,6 +104,20 @@ namespace fin.model {
 
       foreach (var subdir in this.TypedSubdirs) {
         subdir.ForEachTyped(callback);
+      }
+    }
+
+    public void RemoveEmptyChildren() {
+      var subdirsToRemove = new List<IModelDirectory<TModelFileBundle>>();
+      foreach (var subdir in this.subdirs_) {
+        subdir.RemoveEmptyChildren();
+        if (!subdir.Subdirs.Any() && !subdir.FileBundles.Any()) {
+          subdirsToRemove.Add(subdir);
+        }
+      }
+
+      foreach (var subdir in subdirsToRemove) {
+        this.subdirs_.Remove(subdir);
       }
     }
   }
