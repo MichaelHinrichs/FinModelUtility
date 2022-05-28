@@ -2,6 +2,8 @@ using fin.model;
 
 using glo.api;
 
+using mod.cli;
+
 using uni.games;
 
 using zar.api;
@@ -28,6 +30,8 @@ namespace uni.ui {
       => modelFileBundle switch {
           GloModelFileBundle gloModelFileBundle => new GloModelLoader()
               .LoadModel(gloModelFileBundle),
+          ModModelFileBundle modModelFileBundle => new ModModelLoader()
+              .LoadModel(modModelFileBundle),
           ZarModelFileBundle zarModelFileBundle => new ZarModelLoader()
               .LoadModel(zarModelFileBundle),
           _ => throw new ArgumentOutOfRangeException(nameof(modelFileBundle))

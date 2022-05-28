@@ -10,8 +10,7 @@ using fin.log;
 using fin.util.asserts;
 
 using mod.cli;
-using mod.gcn;
-using mod.gcn.animation;
+
 
 namespace mod.api {
   public class ManualMod2FbxApi {
@@ -59,42 +58,10 @@ namespace mod.api {
                                     string.Join(' ', nonexistentAnms));
       }
 
-      List<(IFile, Mod)> filesAndMods;
-      try {
-        filesAndMods = modFiles.Select(
-                               modFile => {
-                                 var mod = new Mod();
-                                 mod.Read(
-                                     new EndianBinaryReader(
-                                         modFile.OpenRead()));
-                                 return (modFile, mod);
-                               })
-                           .ToList();
-      } catch {
-        logger.LogError("Failed to load MOD!");
-        throw;
-      }
-
-      List<(IFile, Anm)> filesAndAnms;
-      try {
-        filesAndAnms = anmFiles.Select(
-                               anmFile => {
-                                 var anm = new Anm();
-                                 anm.Read(
-                                     new EndianBinaryReader(
-                                         anmFile.OpenRead()));
-                                 return (anmFile, anm);
-                               })
-                           .ToList();
-      } catch {
-        logger.LogError("Failed to load ANM!");
-        throw;
-      }
-
       outputDirectory.Create();
 
       // TODO: Move to indirect model exporter
-      logger.LogInformation("Exporting textures.");
+      /*logger.LogInformation("Exporting textures.");
       foreach (var (_, mod) in filesAndMods) {
         for (var i = 0; i < mod.textures.Count; ++i) {
           var texture = mod.textures[i];
@@ -102,34 +69,37 @@ namespace mod.api {
                  .Save(Path.Combine(outputDirectory.FullName,
                                     $"{texture.Name}.png"));
         }
-      }
+      }*/
 
       logger.LogInformation(
-          "Exporting model" + (filesAndMods.Count != 1 ? "s" : "") + ".");
-      foreach (var (modFile, mod) in filesAndMods) {
-        IList<(IFile, Anm)> modFilesAndAnms;
+          "Exporting model" + (modFiles.Count != 1 ? "s" : "") + ".");
+      foreach (var modFile in modFiles) {
+        IList<IFile> associatedAnmFiles;
         if (multipleModelsWithAnimationInAutomatic) {
-          modFilesAndAnms = filesAndAnms.Where(fileAndAnm => {
-            var expectedModFile =
-                fileAndAnm.Item1
-                    .CloneWithExtension(".mod");
-            return expectedModFile.FullName ==
-                   modFile.FullName;
-          })
-                                        .ToList();
+          associatedAnmFiles =
+              anmFiles.Where(anmFile => {
+                        var expectedModFile =
+                            anmFile.CloneWithExtension(".mod");
+                        return expectedModFile.FullName ==
+                               modFile.FullName;
+                      })
+                      .ToList();
         } else {
-          modFilesAndAnms = filesAndAnms;
+          associatedAnmFiles = anmFiles;
         }
 
-        Asserts.True(modFilesAndAnms.Count <= 1,
+        Asserts.True(associatedAnmFiles.Count <= 1,
                      "Mod2fbx doesn't support multiple animation files yet!");
 
-        Anm? anm = null;
-        if (modFilesAndAnms.Count > 0) {
-          anm = modFilesAndAnms[0].Item2;
+        IFile? anmFile = null;
+        if (associatedAnmFiles.Count > 0) {
+          anmFile = associatedAnmFiles[0];
         }
 
-        var model = new ModelConverter().Convert(mod, anm);
+        var model = new ModModelLoader().LoadModel(new ModModelFileBundle {
+            ModFile = modFile,
+            AnmFile = anmFile
+        });
 
         if (!skipExportingFbx) {
           new AssimpIndirectExporter().Export(

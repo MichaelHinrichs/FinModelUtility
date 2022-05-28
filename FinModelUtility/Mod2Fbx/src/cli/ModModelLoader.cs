@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
+using fin.io;
 using fin.math;
 using fin.model;
 using fin.model.impl;
@@ -14,7 +16,13 @@ using Endianness = mod.util.Endianness;
 
 
 namespace mod.cli {
-  public class ModelConverter {
+  public class ModModelFileBundle : IModelFileBundle {
+    public IFile ModFile { get; set; }
+    public IFile? AnmFile { get; set; }
+    public string FileName => this.ModFile.NameWithoutExtension;
+  }
+
+  public class ModModelLoader : IModelLoader<ModModelFileBundle> {
     /// <summary>
     ///   GX's active matrices. These are deferred to when a vertex matrix is
     ///   -1, which corresponds to using an active matrix from a previous
@@ -45,7 +53,22 @@ namespace mod.cli {
           _                        => WrapMode.REPEAT,
       };
 
-    public IModel Convert(Mod mod, Anm? anm) {
+    public IModel LoadModel(ModModelFileBundle modelFileBundle) {
+      var mod = new Mod();
+      {
+        using var r = new EndianBinaryReader(
+            modelFileBundle.ModFile.OpenRead());
+        mod.Read(r);
+      }
+
+      Anm? anm = null;
+      if (modelFileBundle.AnmFile != null) {
+        anm = new Anm();
+        using var r = new EndianBinaryReader(
+            modelFileBundle.AnmFile.OpenRead());
+        anm.Read(r);
+      }
+
       // Resets the active matrices to -1. This lets us catch issues when
       // attempting to use an invalid active matrix.
       for (var i = 0; i < 10; ++i) {
@@ -100,8 +123,8 @@ namespace mod.cli {
                 8,
                 8);
 
-        finTexture.WrapModeU = ModelConverter.ConvertGcnToFin(tilingS);
-        finTexture.WrapModeV = ModelConverter.ConvertGcnToFin(tilingT);
+        finTexture.WrapModeU = ModModelLoader.ConvertGcnToFin(tilingS);
+        finTexture.WrapModeV = ModModelLoader.ConvertGcnToFin(tilingT);
         // TODO: Set attributes
 
         finTexturesAndAttrs[i] = (finTexture, textureAttr);
@@ -187,16 +210,23 @@ namespace mod.cli {
 
       // Pass 4: Writes each bone's meshes as skin
       var envelopeBoneWeights = mod.envelopes.Select(
-          envelope =>
-              model.Skin.CreateBoneWeights(
-                       envelope.indicesAndWeights.Select(
-                           indexAndWeight =>
-                               new BoneWeight(
-                                   bones[indexAndWeight.index],
-                                   new FinMatrix4x4().SetIdentity(),
-                                   indexAndWeight.weight)
-                       ).ToArray()))
-                   .ToArray();
+                                       envelope =>
+                                           model.Skin.CreateBoneWeights(
+                                               envelope.indicesAndWeights
+                                                   .Select(
+                                                       indexAndWeight =>
+                                                           new BoneWeight(
+                                                               bones[
+                                                                   indexAndWeight
+                                                                       .index],
+                                                               new
+                                                                       FinMatrix4x4()
+                                                                   .SetIdentity(),
+                                                               indexAndWeight
+                                                                   .weight)
+                                                   )
+                                                   .ToArray()))
+                                   .ToArray();
 
       foreach (var joint in mod.joints) {
         foreach (var jointMatPoly in joint.matpolys) {
@@ -311,7 +341,8 @@ namespace mod.cli {
                       var boneIndex = attachmentIndex;
 
                       var vertexWeights = new VertexWeights {
-                          BoneWeights = finSkin.GetOrCreateBoneWeights(bones[boneIndex])
+                          BoneWeights =
+                              finSkin.GetOrCreateBoneWeights(bones[boneIndex])
                       };
                       allVertexWeights.Add(vertexWeights);
                     }
@@ -334,14 +365,14 @@ namespace mod.cli {
                 }
 
                 if (attr == Vtx.Position) {
-                  positionIndices.Add(ModelConverter.Read_(reader, format));
+                  positionIndices.Add(ModModelLoader.Read_(reader, format));
                 } else if (attr == Vtx.Normal) {
-                  normalIndices.Add(ModelConverter.Read_(reader, format));
+                  normalIndices.Add(ModModelLoader.Read_(reader, format));
                 } else if (attr == Vtx.Color0) {
-                  color0Indices.Add(ModelConverter.Read_(reader, format));
+                  color0Indices.Add(ModModelLoader.Read_(reader, format));
                 } else if (attr is >= Vtx.Tex0Coord and <= Vtx.Tex7Coord) {
                   texCoordIndices[attr - Vtx.Tex0Coord]
-                      .Add(ModelConverter.Read_(reader, format));
+                      .Add(ModModelLoader.Read_(reader, format));
                 } else if (format == VtxFmt.INDEX16) {
                   reader.ReadU16();
                 } else {
