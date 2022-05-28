@@ -4,6 +4,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 
+using fin.model;
 using fin.util.asserts;
 
 
@@ -48,6 +49,12 @@ namespace fin.util.image {
       return hasTransparency
                  ? BitmapTransparencyType.MASK
                  : BitmapTransparencyType.OPAQUE;
+    }
+
+    public static Bitmap Create1x1WithColor(Color color) {
+      var bmp = new Bitmap(1, 1, PixelFormat.Format32bppArgb);
+      bmp.SetPixel(0, 0, color);
+      return bmp;
     }
 
     public static T InvokeAsLocked<T>(Bitmap bmp, Func<BitmapData, T> handler) {

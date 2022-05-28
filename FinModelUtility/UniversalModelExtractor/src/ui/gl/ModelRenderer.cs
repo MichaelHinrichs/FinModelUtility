@@ -4,6 +4,7 @@ using fin.math;
 using fin.model;
 using fin.model.impl;
 using fin.model.util;
+using fin.util.image;
 
 using Tao.OpenGl;
 
@@ -67,6 +68,8 @@ namespace uni.ui.gl {
     // TODO: Set up shader for material
     // TODO: Use material's textures
 
+    private static GlTexture? NULL_TEXTURE_;
+
     private readonly BoneTransformManager boneTransformManager_;
 
     private readonly IMaterial material_;
@@ -81,8 +84,15 @@ namespace uni.ui.gl {
 
       this.material_ = material;
 
+      if (MaterialMeshRenderer.NULL_TEXTURE_ == null) {
+        MaterialMeshRenderer.NULL_TEXTURE_ =
+            new GlTexture(BitmapUtil.Create1x1WithColor(Color.White));
+      }
+
       var finTexture = material.Textures.FirstOrDefault();
-      this.texture_ = finTexture != null ? new GlTexture(finTexture) : null;
+      this.texture_ = finTexture != null
+                          ? new GlTexture(finTexture)
+                          : MaterialMeshRenderer.NULL_TEXTURE_;
 
       this.primitives_ = primitives;
     }
