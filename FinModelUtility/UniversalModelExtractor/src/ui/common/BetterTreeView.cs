@@ -79,8 +79,6 @@ namespace uni.ui.common {
 
       this.absoluteChildren_.Add(childBetterTreeNode);
 
-      this.ExpandRecursively();
-
       return childBetterTreeNode;
     }
 
@@ -175,6 +173,8 @@ namespace uni.ui.common {
       this.impl_.EndUpdate();
       this.comparer_.Enabled = true;
     }
+
+    public void ScrollToTop() => this.impl_.Nodes[0].EnsureVisible();
 
     private class BetterTreeViewComparer : IComparer {
       private readonly IComparer<BetterTreeNode<T>> defaultComparer_ =

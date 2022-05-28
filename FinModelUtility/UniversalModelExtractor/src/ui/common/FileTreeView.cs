@@ -103,7 +103,7 @@ namespace uni.ui.common {
 
     public FileTreeView() {
       this.InitializeComponent();
-      
+
       var assembly = Assembly.GetExecutingAssembly();
 
       var folderClosedImage =
@@ -118,7 +118,7 @@ namespace uni.ui.common {
       images.Add(folderClosedImage);
       images.Add(folderOpenImage);
       images.Add(fileImage);
-      
+
       this.fileTreeView_.ImageList = imageList;
 
       this.filterTextBox_.TextChanged += (_, _) => this.Filter_();
@@ -141,6 +141,10 @@ namespace uni.ui.common {
       this.betterTreeView_.BeginUpdate();
 
       this.PopulateImpl(files, new FileNode(this));
+
+      this.betterTreeView_.Root.ExpandRecursively();
+      this.betterTreeView_.ScrollToTop();
+
       this.InitializeAutocomplete_();
 
       this.betterTreeView_.EndUpdate();
