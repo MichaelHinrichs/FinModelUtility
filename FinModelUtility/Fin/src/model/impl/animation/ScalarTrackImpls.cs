@@ -6,6 +6,7 @@ using System.Linq;
 using fin.math.interpolation;
 using fin.util.optional;
 
+
 namespace fin.model.impl {
   public partial class ModelImpl {
     // TODO: Rethink this, this is all getting way too complicated.
@@ -95,7 +96,7 @@ namespace fin.model.impl {
       public TrackImpl(
           IInterpolator<T> interpolator,
           IInterpolatorWithTangents<T> interpolatorWithTangent) :
-          base(interpolator, interpolatorWithTangent) {}
+          base(interpolator, interpolatorWithTangent) { }
     }
 
     public class TrackImpl<TValue, TInterpolated> :
@@ -232,6 +233,50 @@ namespace fin.model.impl {
                     frame));
       }
 
+      public bool GetInterpolationData(
+          float frame,
+          IOptional<TValue> defaultValue,
+          out (float frame, TValue value, IOptional<float> tangent)? fromData,
+          out (float frame, TValue value, IOptional<float> tangent)? toData
+      ) {
+        this.FindIndexOfKeyframe((int) frame,
+                                 out var fromKeyframeIndex,
+                                 out var optionalFromKeyframe,
+                                 out var keyframeDefined,
+                                 out var pastEnd);
+        fromData = toData = null;
+
+        var hasFromValue = optionalFromKeyframe
+                           .Pluck(keyframe => keyframe.Value)
+                           .Or(defaultValue)
+                           .Try(out var fromValue);
+
+        if (!hasFromValue) {
+          return false;
+        }
+
+        var isLastKeyframe =
+            fromKeyframeIndex == this.keyframesAndValues_.Count - 1;
+
+        var fromKeyframe =
+            optionalFromKeyframe.Assert("Keyframe should be defined here!");
+        var fromTime = fromKeyframe.Frame;
+
+        fromData = (fromTime, fromValue, fromKeyframe.OutgoingTangent);
+
+        // TODO: Make this an option?
+        if (!keyframeDefined || pastEnd || isLastKeyframe) {
+          return true;
+        }
+
+        var toKeyframe = this.keyframesAndValues_[fromKeyframeIndex + 1];
+        var toTime = toKeyframe.Frame;
+        var toValue = toKeyframe.Value;
+
+        toData = (toTime, toValue, toKeyframe.IncomingTangent);
+        return true;
+      }
+
       // TODO: Use a more efficient approach here, e.g. binary search.
       public void FindIndexOfKeyframe(
           int frame,
@@ -272,7 +317,7 @@ namespace fin.model.impl {
                  defaultValue,
                  axisInterpolator,
                  axisInterpolatorWithTangent,
-                 mergeAxisListIntoInterpolated) {}
+                 mergeAxisListIntoInterpolated) { }
     }
 
     public class ScalarAxesTrack<TAxes, TAxis, TInterpolated> :

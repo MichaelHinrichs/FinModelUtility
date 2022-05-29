@@ -6,6 +6,7 @@ using System.Numerics;
 using fin.data;
 using fin.math.interpolation;
 
+
 namespace fin.model {
   public interface IAnimationManager {
     IReadOnlyList<IAnimation> Animations { get; }
@@ -33,7 +34,7 @@ namespace fin.model {
 
     // TODO: Allow setting looping behavior (once, back and forth, etc.)
   }
-  
+
   public interface IBoneTracks {
     public void Set(IBoneTracks other);
 
@@ -51,7 +52,7 @@ namespace fin.model {
       Optional<float> OutgoingTangent);
 
 
-  public interface ITrack<T> : ITrack<T, T> {}
+  public interface ITrack<T> : ITrack<T, T> { }
 
   public interface ITrack<TValue, TInterpolated> {
     bool IsDefined { get; }
@@ -95,6 +96,13 @@ namespace fin.model {
     Optional<TInterpolated> GetInterpolatedFrame(
         float frame,
         IOptional<TValue> defaultValue);
+
+    bool GetInterpolationData(
+        float frame,
+        IOptional<TValue> defaultValue,
+        out (float frame, TValue value, IOptional<float> tangent)? fromData,
+        out (float frame, TValue value, IOptional<float> tangent)? toData
+    );
 
     // TODO: Allow setting tangent(s) at each frame.
     // TODO: Allow setting easing at each frame.
@@ -145,12 +153,12 @@ namespace fin.model {
         IOptional<TAxis[]>? defaultValue = null);
   }
 
-  public interface IPositionTrack : IAxesTrack<float, IPosition> {}
+  public interface IPositionTrack : IAxesTrack<float, IPosition> { }
 
   public interface IRadiansRotationTrack : IAxesTrack<float, Quaternion> {
     // TODO: Document this, better name
     public IRotation GetAlmostKeyframe(float frame);
   }
 
-  public interface IScaleTrack : IAxesTrack<float, IScale> {}
+  public interface IScaleTrack : IAxesTrack<float, IScale> { }
 }

@@ -73,6 +73,7 @@ namespace fin.model.impl {
         var keyframe = (int) frame;
 
         // TODO: Properly interpolate between first and final keyframe
+        // TODO: Fix gimbal lock
         /*xTrack.FindIndexOfKeyframe(keyframe,
                                    out var xKeyframeIndex,
                                    out var xRadiansKeyframe,

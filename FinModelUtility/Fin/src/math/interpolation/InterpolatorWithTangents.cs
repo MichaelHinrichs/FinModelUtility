@@ -1,10 +1,11 @@
-﻿using System.Runtime.InteropServices.ComTypes;
+﻿using System.Numerics;
 
 using MathNet.Numerics.Interpolation;
 
+
 namespace fin.math.interpolation {
   public interface IInterpolatorWithTangents<T>
-      : IInterpolatorWithTangents<T, T> {}
+      : IInterpolatorWithTangents<T, T> { }
 
   public interface IInterpolatorWithTangents<in TIn, out TOut> {
     public TOut Interpolate(
@@ -21,7 +22,7 @@ namespace fin.math.interpolation {
       : WrappedInterpolatorWithTangents<T, T>, IInterpolatorWithTangents<T> {
     public WrappedInterpolatorWithTangents(
         InterpolateValuesWithTangents impl) :
-        base(impl) {}
+        base(impl) { }
   }
 
   public class WrappedInterpolatorWithTangents<TIn, TOut>
@@ -61,17 +62,7 @@ namespace fin.math.interpolation {
   public static class InterpolatorWithTangents {
     public static IInterpolatorWithTangents<float> Float { get; } =
       new WrappedInterpolatorWithTangents<float>(
-          (fromTime, fromValue, fromTangent, toTime, toValue, toTangent, time)
-              => {
-            return InterpolatorWithTangents.InterpolateFloatsWithMkds(
-                fromTime,
-                fromValue,
-                fromTangent,
-                toTime,
-                toValue,
-                toTangent,
-                time);
-          });
+          InterpolatorWithTangents.InterpolateFloats);
 
     public static IInterpolatorWithTangents<float> Radians { get; } =
       new WrappedInterpolatorWithTangents<float>(
@@ -80,15 +71,50 @@ namespace fin.math.interpolation {
             toValue = fromValue +
                       RadiansUtil.angleDifference(toValue, fromValue);
 
-            return InterpolatorWithTangents.InterpolateFloatsWithMkds(
-                fromTime,
-                fromValue,
-                fromTangent,
-                toTime,
-                toValue,
-                toTangent,
+            return InterpolatorWithTangents.InterpolateFloats(
+                fromTime, fromValue, fromTangent,
+                toTime, toValue, toTangent,
                 time);
           });
+
+    public static float InterpolateFloats(
+        float fromTime,
+        float fromValue,
+        float fromTangent,
+        float toTime,
+        float toValue,
+        float toTangent,
+        float time)
+      => InterpolateFloatsGithub(
+          fromTime, fromValue, fromTangent,
+          toTime, toValue, toTangent,
+          time);
+
+    public static float InterpolateFloatsGithub(
+        float fromTime,
+        float fromValue,
+        float fromTangent,
+        float toTime,
+        float toValue,
+        float toTangent,
+        float time) {
+      // https://answers.unity.com/questions/464782/t-is-the-math-behind-animationcurveevaluate.html
+      var dt = toTime - fromTime;
+
+      var m0 = fromTangent * dt;
+      var m1 = toTangent * dt;
+
+      var t1 = (time - fromTime) / (toTime - fromTime);
+      var t2 = t1 * t1;
+      var t3 = t2 * t1;
+
+      var a = 2 * t3 - 3 * t2 + 1;
+      var b = t3 - 2 * t2 + t1;
+      var c = t3 - t2;
+      var d = -2 * t3 + 3 * t2;
+
+      return a * fromValue + b * m0 + c * m1 + d * toValue;
+    }
 
     public static float InterpolateFloatsWithMathNet(
         float fromTime,
@@ -123,10 +149,7 @@ namespace fin.math.interpolation {
       var t = progress;
 
       var num1 = 2.0 * (v1 - v2) + d1 + d2;
-      var num2 = -3.0 * v1 +
-                   3.0 * v2 -
-                   2.0 * d1 -
-                   d2;
+      var num2 = -3.0 * v1 + 3.0 * v2 - 2.0 * d1 - d2;
       var num3 = d1;
       var num4 = v1;
       return (float) (((num1 * t + num2) * t + num3) * t + num4);
@@ -157,7 +180,32 @@ namespace fin.math.interpolation {
           (ttt - 2.0f * tt + t) * m0 +
           (-2.0f * ttt + 3.0f * tt) * p1 +
           (ttt - tt) * m1;
+    }
 
+    private static Matrix4x4 m_hermiteMatrix =
+        new(2, -2, 1, 1, -3, 3, -2, -1, 0, 0, 1, 0, 1, 0, 0, 0);
+
+    public static float InterpolateFloatsWithJ3dHermite(
+        float fromTime,
+        float fromValue,
+        float fromTangent,
+        float toTime,
+        float toValue,
+        float toTangent,
+        float time) {
+      // https://github.com/LordNed/JStudio/blob/93c5c4479ffb1babefe829cfc9794694a1cb93e6/JStudio/J3D/Animation/BaseJ3DAnimation.cs
+      float numFramesBetweenKeys = toTime - fromTime;
+
+      var t = (time - fromTime) / (toTime - fromTime);
+
+      Vector4 s = new Vector4(t * t * t, t * t, t, 1);
+      Vector4 c = new Vector4(fromValue, toValue,
+                              fromTangent * numFramesBetweenKeys,
+                              toTangent * numFramesBetweenKeys);
+      Vector4 result = Vector4.Transform(s, m_hermiteMatrix);
+      result = Vector4.Multiply(result, c);
+
+      return result.X + result.Y + result.Z + result.W;
     }
 
     public static float InterpolateFloatsWithNoclipHermite(
