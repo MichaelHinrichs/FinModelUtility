@@ -3,7 +3,6 @@ using fin.gl;
 using fin.math;
 using fin.model;
 using fin.model.impl;
-using fin.model.util;
 using fin.util.image;
 
 using Tao.OpenGl;
@@ -68,8 +67,6 @@ namespace uni.ui.gl {
     // TODO: Set up shader for material
     // TODO: Use material's textures
     
-    private const bool DEBUG_WEIGHTS_ = false;
-
     private static GlTexture? NULL_TEXTURE_;
 
     private readonly BoneTransformManager boneTransformManager_;
@@ -93,7 +90,7 @@ namespace uni.ui.gl {
 
       ITexture? finTexture = material.Textures.FirstOrDefault();
 
-      if (DEBUG_WEIGHTS_) {
+      if (DebugFlags.ENABLE_WEIGHT_COLORS) {
         finTexture = null;
       }
 
@@ -203,7 +200,7 @@ namespace uni.ui.gl {
         Gl.glColor4f(color.Rf, color.Gf, color.Bf, color.Af);
       }
 
-      if (DEBUG_WEIGHTS_) {
+      if (DebugFlags.ENABLE_WEIGHT_COLORS) {
         float r = 0, g = 0, b = 0;
 
         if (vertex.BoneWeights == null) {

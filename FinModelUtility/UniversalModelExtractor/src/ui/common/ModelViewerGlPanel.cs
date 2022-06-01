@@ -296,18 +296,20 @@ void main() {
       if (this.Animation != null) {
         this.frameAdvancer_.Tick();
 
-        // TODO: Add animation depending on the game.
+        // TODO: Fix gimbal lock issues
         this.boneTransformManager_.CalculateMatrices(
             this.Model.Skeleton.Root,
             this.Model.Skin.BoneWeights,
-            (this.Animation, (float) this.frameAdvancer_.Frame));
+            (this.Animation, (int) this.frameAdvancer_.Frame));
       }
 
       this.texturedShaderProgram_.Use();
       this.modelRenderer_?.Render();
 
-      this.texturelessShaderProgram_.Use();
-      this.skeletonRenderer_?.Render();
+      if (DebugFlags.ENABLE_SKELETON) {
+        this.texturelessShaderProgram_.Use();
+        this.skeletonRenderer_?.Render();
+      }
     }
 
     private void RenderOrtho_() {
