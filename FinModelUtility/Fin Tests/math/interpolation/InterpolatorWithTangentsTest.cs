@@ -18,21 +18,11 @@ namespace fin.math.interpolation {
                           fromTime, fromValue, fromTangent,
                           toTime, toValue, toTangent,
                           fromTime));
-      Assert.AreEqual(0,
-                      InterpolatorWithTangents.GetInterpolationFraction(
-                          fromTime, fromTangent,
-                          toTime, toTangent,
-                          fromTime));
 
       Assert.AreEqual(toValue,
                       InterpolatorWithTangents.InterpolateFloats(
                           fromTime, fromValue, fromTangent,
                           toTime, toValue, toTangent,
-                          toTime));
-      Assert.AreEqual(1,
-                      InterpolatorWithTangents.GetInterpolationFraction(
-                          fromTime, fromTangent,
-                          toTime, toTangent,
                           toTime));
     }
 
