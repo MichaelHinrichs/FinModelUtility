@@ -300,7 +300,7 @@ void main() {
         this.boneTransformManager_.CalculateMatrices(
             this.Model.Skeleton.Root,
             this.Model.Skin.BoneWeights,
-            (this.Animation, (float) this.frameAdvancer_.Frame), false);
+            (this.Animation, (float) this.frameAdvancer_.Frame));
       }
 
       this.texturedShaderProgram_.Use();
