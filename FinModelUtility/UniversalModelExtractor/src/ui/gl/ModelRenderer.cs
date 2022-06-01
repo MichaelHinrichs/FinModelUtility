@@ -67,6 +67,8 @@ namespace uni.ui.gl {
   public class MaterialMeshRenderer : IDisposable {
     // TODO: Set up shader for material
     // TODO: Use material's textures
+    
+    private const bool DEBUG_WEIGHTS_ = false;
 
     private static GlTexture? NULL_TEXTURE_;
 
@@ -89,7 +91,12 @@ namespace uni.ui.gl {
             new GlTexture(BitmapUtil.Create1x1WithColor(Color.White));
       }
 
-      var finTexture = material.Textures.FirstOrDefault();
+      ITexture? finTexture = material.Textures.FirstOrDefault();
+
+      if (DEBUG_WEIGHTS_) {
+        finTexture = null;
+      }
+
       this.texture_ = finTexture != null
                           ? new GlTexture(finTexture)
                           : MaterialMeshRenderer.NULL_TEXTURE_;
@@ -105,7 +112,9 @@ namespace uni.ui.gl {
     }
 
     private void ReleaseUnmanagedResources_() {
-      this.texture_?.Dispose();
+      if (this.texture_ != MaterialMeshRenderer.NULL_TEXTURE_) {
+        this.texture_?.Dispose();
+      }
     }
 
     public void Render() {
@@ -192,6 +201,26 @@ namespace uni.ui.gl {
       var color = vertex.GetColor();
       if (color != null) {
         Gl.glColor4f(color.Rf, color.Gf, color.Bf, color.Af);
+      }
+
+      if (DEBUG_WEIGHTS_) {
+        float r = 0, g = 0, b = 0;
+
+        if (vertex.BoneWeights == null) {
+        } else if (vertex.BoneWeights.Weights.Count == 0) {
+          r = 1;
+          g = 1;
+        } else if (vertex.BoneWeights.Weights.Count == 1) {
+          g = 1;
+        } else {
+          r = 1;
+        }
+
+        if (vertex.PreprojectMode == PreprojectMode.NONE) {
+          b = 1;
+        }
+
+        Gl.glColor4f(r, g, b, 1);
       }
 
       var uv = vertex.GetUv();

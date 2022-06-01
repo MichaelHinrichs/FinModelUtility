@@ -38,8 +38,7 @@ namespace fin.math {
     public IDictionary<IBone, int> CalculateMatrices(
         IBone rootBone,
         IReadOnlyList<IBoneWeights> boneWeightsList,
-        (IAnimation, float)? animationAndFrame,
-        bool addAnimationToRootPose = false) {
+        (IAnimation, float)? animationAndFrame) {
       var animation = animationAndFrame?.Item1;
       var frame = animationAndFrame?.Item2;
 
@@ -72,32 +71,27 @@ namespace fin.math {
 
         // The pose of the animation, if available.
         var animationLocalPosition =
-            boneTracks?.Positions.GetInterpolatedFrame((float) frame);
+            boneTracks?.Positions.IsDefined ?? false
+                ? boneTracks?.Positions.GetInterpolatedFrame((float) frame)
+                : null;
         var animationLocalRotation =
-            boneTracks?.Rotations.GetInterpolatedFrame((float) frame);
+            boneTracks?.Rotations.IsDefined ?? false
+                ? boneTracks?.Rotations.GetInterpolatedFrame((float) frame)
+                : null;
         var animationLocalScale =
-            boneTracks?.Scales.GetInterpolatedFrame((float) frame);
+            boneTracks?.Scales.IsDefined ?? false
+                ? boneTracks?.Scales.GetInterpolatedFrame((float) frame)
+                : null;
 
-        IFinMatrix4x4 localMatrix;
         // Uses the animation pose instead of the root pose when available.
-        if (!addAnimationToRootPose) {
-          var localPosition = animationLocalPosition ?? boneLocalPosition;
-          var localRotation = animationLocalRotation ?? boneLocalRotation;
-          var localScale = animationLocalScale ?? boneLocalScale;
+        var localPosition = animationLocalPosition ?? boneLocalPosition;
+        var localRotation = animationLocalRotation ?? boneLocalRotation;
+        var localScale = animationLocalScale ?? boneLocalScale;
 
-          localMatrix =
-              MatrixTransformUtil.FromTrs(localPosition,
-                                          localRotation,
-                                          localScale);
-        }
-        // Adds the animation pose on top of the root pose.
-        else {
-          // TODO: This isn't currently working...
-          localMatrix = MatrixTransformUtil.FromTrs(
-              new[] {boneLocalPosition, animationLocalPosition},
-              new[] {boneLocalRotation, animationLocalRotation},
-              new[] {boneLocalScale, animationLocalScale});
-        }
+        var localMatrix =
+            MatrixTransformUtil.FromTrs(localPosition,
+                                        localRotation,
+                                        localScale);
 
         matrix.MultiplyInPlace(localMatrix);
 
@@ -116,12 +110,16 @@ namespace fin.math {
 
         var weights = boneWeights.Weights;
         if (weights.Count == 1) {
-          boneWeightMatrix = this.GetWorldMatrix(weights[0].Bone);
+          var bone = weights[0].Bone;
+          boneWeightMatrix = this.GetWorldMatrix(bone);
         } else {
           var mergedMatrix = new FinMatrix4x4();
+
           foreach (var weight in weights) {
+            var bone = weight.Bone;
+
             var skinToBoneMatrix = weight.SkinToBone;
-            var boneMatrix = this.GetWorldMatrix(weight.Bone);
+            var boneMatrix = this.GetWorldMatrix(bone);
 
             var skinToWorldMatrix = boneMatrix
                                     .CloneAndMultiply(skinToBoneMatrix)
@@ -129,6 +127,7 @@ namespace fin.math {
 
             mergedMatrix.AddInPlace(skinToWorldMatrix);
           }
+
           boneWeightMatrix = mergedMatrix;
         }
 
@@ -155,8 +154,6 @@ namespace fin.math {
 
     public IReadOnlyFinMatrix4x4 GetWorldMatrix(IBone bone)
       => this.bonesToWorldMatrices_[bone];
-
-    private IFinMatrix4x4 buffer_ = new FinMatrix4x4();
 
     public void ProjectVertex(
         IVertex vertex,
