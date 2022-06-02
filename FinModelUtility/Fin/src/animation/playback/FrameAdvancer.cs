@@ -4,6 +4,7 @@ namespace fin.animation.playback {
   public class FrameAdvancer : IAnimationPlaybackManager {
     private readonly Stopwatch impl_ = new Stopwatch();
 
+    public double SpeedMultiplier { get; set; } = 1;
     public double Frame { get; set; }
 
     public int TotalFrames { get; set; }
@@ -44,7 +45,7 @@ namespace fin.animation.playback {
       }
 
       var elapsedSeconds = this.impl_.Elapsed.TotalSeconds;
-      var elapsedFrames = elapsedSeconds * this.FrameRate;
+      var elapsedFrames = elapsedSeconds * this.FrameRate * this.SpeedMultiplier;
 
       this.Frame += elapsedFrames;
 

@@ -296,11 +296,10 @@ void main() {
       if (this.Animation != null) {
         this.frameAdvancer_.Tick();
 
-        // TODO: Fix gimbal lock issues
         this.boneTransformManager_.CalculateMatrices(
             this.Model.Skeleton.Root,
             this.Model.Skin.BoneWeights,
-            (this.Animation, (int) this.frameAdvancer_.Frame));
+            (this.Animation, (float) this.frameAdvancer_.Frame));
       }
 
       this.texturedShaderProgram_.Use();

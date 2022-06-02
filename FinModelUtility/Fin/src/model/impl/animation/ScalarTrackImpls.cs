@@ -248,7 +248,6 @@ namespace fin.model.impl {
 
         var hasFromValue = optionalFromKeyframe
                            .Pluck(keyframe => keyframe.Value)
-                           .Or(defaultValue)
                            .Try(out var fromValue);
 
         if (!hasFromValue) {

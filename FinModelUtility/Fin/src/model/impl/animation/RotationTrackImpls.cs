@@ -7,6 +7,7 @@ using fin.math;
 using fin.math.interpolation;
 using fin.util.optional;
 
+
 namespace fin.model.impl {
   public partial class ModelImpl {
     public class RadiansRotationTrackImpl : IRadiansRotationTrack {
@@ -118,14 +119,83 @@ namespace fin.model.impl {
                            : defaultAxes.Pluck(axes => axes[2])
                                         .Or(this.defaultRotation_);
 
-        var xRadians =
-            xTrack.GetInterpolatedFrame(frame, defaultX).Assert();
-        var yRadians =
-            yTrack.GetInterpolatedFrame(frame, defaultY).Assert();
-        var zRadians =
-            zTrack.GetInterpolatedFrame(frame, defaultZ).Assert();
+        xTrack.GetInterpolationData(
+            frame, defaultX,
+            out var fromXFrame, out var toXFrame);
+        yTrack.GetInterpolationData(
+            frame, defaultY,
+            out var fromYFrame, out var toYFrame);
+        zTrack.GetInterpolationData(
+            frame, defaultZ,
+            out var fromZFrame, out var toZFrame);
 
-        return QuaternionUtil.Create(xRadians, yRadians, zRadians);
+        if (!RadiansRotationTrackImpl.CanInterpolateWithQuaternions_(
+                fromXFrame, fromYFrame, fromZFrame,
+                toXFrame, toYFrame, toZFrame)) {
+          var xRadians =
+              xTrack.GetInterpolatedFrame(frame, defaultX).Assert();
+          var yRadians =
+              yTrack.GetInterpolatedFrame(frame, defaultY).Assert();
+          var zRadians =
+              zTrack.GetInterpolatedFrame(frame, defaultZ).Assert();
+
+          return QuaternionUtil.Create(xRadians, yRadians, zRadians);
+        }
+
+        var fromFrame = fromXFrame.Value.frame;
+        var toFrame = toXFrame.Value.frame;
+        var frameDelta = (frame - fromFrame) / (toFrame - fromFrame);
+
+        var q1 = QuaternionUtil.Create(
+            fromXFrame.Value.value,
+            fromYFrame.Value.value,
+            fromZFrame.Value.value);
+        var q2 = QuaternionUtil.Create(
+            toXFrame.Value.value,
+            toYFrame.Value.value,
+            toZFrame.Value.value);
+
+        if (Quaternion.Dot(q1, q2) < 0) {
+          q2 = -q2;
+        }
+
+        var interp = Quaternion.Slerp(q1, q2, frameDelta);
+        return Quaternion.Normalize(interp);
+      }
+
+      // TODO: Might be able to use this for euler-interpolated keyframe i and i+1
+      private static bool CanInterpolateWithQuaternions_(
+          params (float frame, float value, IOptional<float> tangent)?[]
+              fromsAndTos) {
+        if (fromsAndTos.Any(frameData => {
+              if (frameData == null) {
+                return true;
+              }
+
+              // TODO: Use tangents if all fromFrames have the same tangent and all
+              // toFrames have the same tangent.
+          return frameData.Value.tangent.Or(0) != 0;
+            })) {
+          return false;
+        }
+
+        var firstFromFrame = fromsAndTos[0].Value.frame;
+        if (fromsAndTos.Skip(1)
+                       .Take(2)
+                       .Any(frame => frame.Value.frame != firstFromFrame)) {
+          return false;
+        }
+
+        var firstToFrame = fromsAndTos[3].Value.frame;
+        if (fromsAndTos.Skip(3)
+                       .Skip(1)
+                       .Take(2)
+                       .Any(frame =>
+                                frame.Value.frame != firstToFrame)) {
+          return false;
+        }
+
+        return true;
       }
     }
   }
