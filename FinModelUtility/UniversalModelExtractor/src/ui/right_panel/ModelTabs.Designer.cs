@@ -1,4 +1,4 @@
-﻿namespace uni.ui.common {
+﻿namespace uni.ui.right_panel {
   partial class ModelTabs {
     /// <summary> 
     /// Required designer variable.
@@ -26,20 +26,24 @@
       System.Windows.Forms.TabControl tabControl;
       System.Windows.Forms.TabPage infoTabPage;
       System.Windows.Forms.TabPage texturesTabPage;
-      this.animationsTabPage = new System.Windows.Forms.TabPage();
-      this.shaderTabPage = new System.Windows.Forms.TabPage();
+      System.Windows.Forms.TabPage animationsTabPage;
+      System.Windows.Forms.TabPage shaderTabPage;
+      this.animationsTab1 = new uni.ui.right_panel.AnimationsTab();
       tabControl = new System.Windows.Forms.TabControl();
       infoTabPage = new System.Windows.Forms.TabPage();
       texturesTabPage = new System.Windows.Forms.TabPage();
+      animationsTabPage = new System.Windows.Forms.TabPage();
+      shaderTabPage = new System.Windows.Forms.TabPage();
       tabControl.SuspendLayout();
+      animationsTabPage.SuspendLayout();
       this.SuspendLayout();
       // 
       // tabControl
       // 
       tabControl.Controls.Add(infoTabPage);
       tabControl.Controls.Add(texturesTabPage);
-      tabControl.Controls.Add(this.animationsTabPage);
-      tabControl.Controls.Add(this.shaderTabPage);
+      tabControl.Controls.Add(animationsTabPage);
+      tabControl.Controls.Add(shaderTabPage);
       tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
       tabControl.Location = new System.Drawing.Point(0, 0);
       tabControl.Multiline = true;
@@ -70,21 +74,30 @@
       // 
       // animationsTabPage
       // 
-      this.animationsTabPage.Location = new System.Drawing.Point(4, 44);
-      this.animationsTabPage.Name = "animationsTabPage";
-      this.animationsTabPage.Size = new System.Drawing.Size(208, 387);
-      this.animationsTabPage.TabIndex = 2;
-      this.animationsTabPage.Text = "Animations";
-      this.animationsTabPage.UseVisualStyleBackColor = true;
+      animationsTabPage.Controls.Add(this.animationsTab1);
+      animationsTabPage.Location = new System.Drawing.Point(4, 44);
+      animationsTabPage.Name = "animationsTabPage";
+      animationsTabPage.Size = new System.Drawing.Size(208, 387);
+      animationsTabPage.TabIndex = 2;
+      animationsTabPage.Text = "Animations";
+      animationsTabPage.UseVisualStyleBackColor = true;
       // 
       // shaderTabPage
       // 
-      this.shaderTabPage.Location = new System.Drawing.Point(4, 44);
-      this.shaderTabPage.Name = "shaderTabPage";
-      this.shaderTabPage.Size = new System.Drawing.Size(208, 387);
-      this.shaderTabPage.TabIndex = 3;
-      this.shaderTabPage.Text = "Shader";
-      this.shaderTabPage.UseVisualStyleBackColor = true;
+      shaderTabPage.Location = new System.Drawing.Point(4, 44);
+      shaderTabPage.Name = "shaderTabPage";
+      shaderTabPage.Size = new System.Drawing.Size(208, 387);
+      shaderTabPage.TabIndex = 3;
+      shaderTabPage.Text = "Shader";
+      shaderTabPage.UseVisualStyleBackColor = true;
+      // 
+      // animationsTab1
+      // 
+      this.animationsTab1.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.animationsTab1.Location = new System.Drawing.Point(0, 0);
+      this.animationsTab1.Name = "animationsTab1";
+      this.animationsTab1.Size = new System.Drawing.Size(208, 387);
+      this.animationsTab1.TabIndex = 0;
       // 
       // ModelTabs
       // 
@@ -94,6 +107,7 @@
       this.Name = "ModelTabs";
       this.Size = new System.Drawing.Size(216, 435);
       tabControl.ResumeLayout(false);
+      animationsTabPage.ResumeLayout(false);
       this.ResumeLayout(false);
 
     }
@@ -105,5 +119,6 @@
     private TabPage texturesTabPage;
     private TabPage animationsTabPage;
     private TabPage shaderTabPage;
+    private AnimationsTab animationsTab1;
   }
 }

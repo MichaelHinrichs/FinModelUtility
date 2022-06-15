@@ -1,4 +1,5 @@
 ﻿using uni.ui.common;
+using uni.ui.right_panel;
 
 
 namespace uni.ui {
@@ -33,7 +34,7 @@ namespace uni.ui {
       this.modelViewerGlPanel_ = new uni.ui.common.ModelViewerGlPanel();
       this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.modelTabs_ = new uni.ui.common.ModelTabs();
+      this.modelTabs_ = new uni.ui.right_panel.ModelTabs();
       splitContainer1 = new System.Windows.Forms.SplitContainer();
       splitContainer2 = new System.Windows.Forms.SplitContainer();
       menuStrip = new System.Windows.Forms.MenuStrip();

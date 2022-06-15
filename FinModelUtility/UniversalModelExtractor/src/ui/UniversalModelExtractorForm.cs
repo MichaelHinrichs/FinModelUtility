@@ -23,7 +23,9 @@ namespace uni.ui {
     }
 
     private void OnFileSelect_(IModelFileBundle modelFileBundle) {
-      this.modelViewerGlPanel_.Model = this.LoadModel_(modelFileBundle);
+      var model = this.LoadModel_(modelFileBundle);
+      this.modelViewerGlPanel_.Model = model;
+      this.modelTabs_.Model = model;
     }
 
     private IModel LoadModel_(IModelFileBundle modelFileBundle)
