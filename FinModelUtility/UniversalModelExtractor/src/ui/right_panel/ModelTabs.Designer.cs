@@ -28,7 +28,7 @@
       System.Windows.Forms.TabPage texturesTabPage;
       System.Windows.Forms.TabPage animationsTabPage;
       System.Windows.Forms.TabPage shaderTabPage;
-      this.animationsTab1 = new uni.ui.right_panel.AnimationsTab();
+      this.animationsTab_ = new uni.ui.right_panel.AnimationsTab();
       tabControl = new System.Windows.Forms.TabControl();
       infoTabPage = new System.Windows.Forms.TabPage();
       texturesTabPage = new System.Windows.Forms.TabPage();
@@ -74,13 +74,21 @@
       // 
       // animationsTabPage
       // 
-      animationsTabPage.Controls.Add(this.animationsTab1);
+      animationsTabPage.Controls.Add(this.animationsTab_);
       animationsTabPage.Location = new System.Drawing.Point(4, 44);
       animationsTabPage.Name = "animationsTabPage";
       animationsTabPage.Size = new System.Drawing.Size(208, 387);
       animationsTabPage.TabIndex = 2;
       animationsTabPage.Text = "Animations";
       animationsTabPage.UseVisualStyleBackColor = true;
+      // 
+      // animationsTab_
+      // 
+      this.animationsTab_.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.animationsTab_.Location = new System.Drawing.Point(0, 0);
+      this.animationsTab_.Name = "animationsTab_";
+      this.animationsTab_.Size = new System.Drawing.Size(208, 387);
+      this.animationsTab_.TabIndex = 0;
       // 
       // shaderTabPage
       // 
@@ -90,14 +98,6 @@
       shaderTabPage.TabIndex = 3;
       shaderTabPage.Text = "Shader";
       shaderTabPage.UseVisualStyleBackColor = true;
-      // 
-      // animationsTab1
-      // 
-      this.animationsTab1.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.animationsTab1.Location = new System.Drawing.Point(0, 0);
-      this.animationsTab1.Name = "animationsTab1";
-      this.animationsTab1.Size = new System.Drawing.Size(208, 387);
-      this.animationsTab1.TabIndex = 0;
       // 
       // ModelTabs
       // 
@@ -119,6 +119,6 @@
     private TabPage texturesTabPage;
     private TabPage animationsTabPage;
     private TabPage shaderTabPage;
-    private AnimationsTab animationsTab1;
+    private AnimationsTab animationsTab_;
   }
 }

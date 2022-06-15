@@ -34,11 +34,6 @@ namespace uni.ui.common {
 
     private float scale_ = 1;
 
-    private readonly FrameAdvancer frameAdvancer_ = new() {
-        IsPlaying = true,
-        ShouldLoop = true,
-    };
-
     public IModel? Model {
       get => this.modelRenderer_?.Model;
       set {
@@ -63,10 +58,15 @@ namespace uni.ui.common {
         }
 
         this.Animation = value?.AnimationManager.Animations.FirstOrDefault();
-        this.frameAdvancer_.FrameRate = (int) (this.Animation?.FrameRate ?? 20);
-        this.frameAdvancer_.TotalFrames = this.Animation?.FrameCount ?? 0;
+
+        if (this.AnimationPlaybackManager != null) {
+          this.AnimationPlaybackManager.FrameRate = (int)(this.Animation?.FrameRate ?? 20);
+          this.AnimationPlaybackManager.TotalFrames = this.Animation?.FrameCount ?? 0;
+        }
       }
     }
+
+    public IAnimationPlaybackManager AnimationPlaybackManager { get; set; }
 
     public IAnimation? Animation { get; set; }
 
@@ -304,12 +304,12 @@ void main() {
       }
 
       if (this.Animation != null) {
-        this.frameAdvancer_.Tick();
+        this.AnimationPlaybackManager.Tick();
 
         this.boneTransformManager_.CalculateMatrices(
             this.Model.Skeleton.Root,
             this.Model.Skin.BoneWeights,
-            (this.Animation, (float) this.frameAdvancer_.Frame));
+            (this.Animation, (float) this.AnimationPlaybackManager.Frame));
       }
 
       this.texturedShaderProgram_.Use();

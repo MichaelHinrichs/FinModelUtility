@@ -13,6 +13,9 @@ namespace uni.ui {
   public partial class UniversalModelExtractorForm : Form {
     public UniversalModelExtractorForm() {
       InitializeComponent();
+
+      this.modelViewerGlPanel_.AnimationPlaybackManager =
+          this.modelTabs_.AnimationPlaybackManager;
     }
 
     private void UniversalModelExtractorForm_Load(object sender, EventArgs e) {
