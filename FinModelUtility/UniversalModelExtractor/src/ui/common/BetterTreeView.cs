@@ -24,9 +24,10 @@ namespace uni.ui.common {
   public class BetterTreeNode<T> where T : class {
     private readonly TreeNode? impl_;
     private readonly TreeNodeCollection collection_;
-    private int openImageIndex_;
-    private int closedImageIndex_;
+    private int openImageIndex_ = -1;
+    private int closedImageIndex_ = -1;
 
+    public BetterTreeView<T> Tree { get; }
     public BetterTreeNode<T>? Parent { get; private set; }
 
     public int AbsoluteIndex { get; }
@@ -38,7 +39,10 @@ namespace uni.ui.common {
     public T? Data { get; set; }
     public string? Text => this.impl_?.Text;
 
-    public BetterTreeNode(TreeNode? impl, TreeNodeCollection collection) {
+    public BetterTreeNode(BetterTreeView<T> tree,
+                          TreeNode? impl,
+                          TreeNodeCollection collection) {
+      this.Tree = tree;
       this.impl_ = impl;
 
       if (impl != null) {
@@ -48,6 +52,14 @@ namespace uni.ui.common {
       this.collection_ = collection;
 
       this.AbsoluteIndex = impl?.Index ?? 0;
+    }
+
+    public Image? OpenImage {
+      set => this.OpenImageIndex = this.Tree.GetOrAddIndexOfImage(value);
+    }
+
+    public Image? ClosedImage {
+      set => this.ClosedImageIndex = this.Tree.GetOrAddIndexOfImage(value);
     }
 
     public int OpenImageIndex {
@@ -74,8 +86,9 @@ namespace uni.ui.common {
       var childTreeNode = this.collection_.Add(text);
 
       var childBetterTreeNode =
-          new BetterTreeNode<T>(childTreeNode, childTreeNode.Nodes);
-      childBetterTreeNode.Parent = this;
+          new BetterTreeNode<T>(this.Tree, childTreeNode, childTreeNode.Nodes) {
+              Parent = this
+          };
 
       this.absoluteChildren_.Add(childBetterTreeNode);
 
@@ -127,9 +140,9 @@ namespace uni.ui.common {
     // TODO: Add support for different hierarchies.
 
     private readonly TreeView impl_;
+    private readonly Dictionary<Image, int> imageToIndex_ = new();
 
-    private BetterTreeViewComparer comparer_ =
-        new BetterTreeViewComparer();
+    private BetterTreeViewComparer comparer_ = new();
 
     public BetterTreeNode<T> Root { get; }
 
@@ -144,7 +157,7 @@ namespace uni.ui.common {
 
     public BetterTreeView(TreeView impl) {
       this.impl_ = impl;
-      this.Root = new BetterTreeNode<T>(null, impl.Nodes);
+      this.Root = new BetterTreeNode<T>(this, null, impl.Nodes);
 
       this.impl_.AfterSelect += (sender, args) =>
           this.Selected.Invoke(
@@ -162,6 +175,8 @@ namespace uni.ui.common {
         var betterNode = BetterTreeUtil.GetBetterFrom<T>(node);
         node.ImageIndex = node.SelectedImageIndex = betterNode.ClosedImageIndex;
       };
+
+      this.impl_.ImageList ??= new ImageList();
     }
 
     public void BeginUpdate() {
@@ -175,6 +190,25 @@ namespace uni.ui.common {
     }
 
     public void ScrollToTop() => this.impl_.Nodes[0].EnsureVisible();
+
+    public int GetOrAddIndexOfImage(Image? image) {
+      if (image == null) {
+        return -1;
+      }
+
+      if (this.imageToIndex_.TryGetValue(image, out var index)) {
+        return index;
+      }
+
+      var imageList = this.impl_.ImageList.Images;
+
+      index = imageList.Count;
+      imageList.Add(image);
+      
+      this.imageToIndex_[image] = index;
+
+      return index;
+    }
 
     private class BetterTreeViewComparer : IComparer {
       private readonly IComparer<BetterTreeNode<T>> defaultComparer_ =

@@ -11,10 +11,6 @@ using UoT.util;
 namespace uni.ui.common {
   public abstract partial class FileTreeView<TFile, TFiles> : UserControl
       where TFile : notnull, IUiFile where TFiles : notnull {
-    public const int FOLDER_CLOSED_ICON_INDEX = 0;
-    public const int FOLDER_OPEN_ICON_INDEX = 1;
-    public const int FILE_ICON_INDEX = 2;
-
     // TODO: Add tests.
     // TODO: Move the fuzzy logic to a separate reusable component.
     // TODO: Add support for different sorting systems.
@@ -47,6 +43,20 @@ namespace uni.ui.common {
 
     // TODO: Clean this up.
     protected class FileNode {
+      private static readonly Assembly assembly_ =
+          Assembly.GetExecutingAssembly();
+
+      private static readonly Image folderClosedImage =
+          EmbeddedResourceUtil.Load(FileNode.assembly_,
+                                    "uni.img.folder_closed.png");
+
+      private static readonly Image folderOpenImage =
+          EmbeddedResourceUtil.Load(FileNode.assembly_,
+                                    "uni.img.folder_open.png");
+
+      private static readonly Image fileImage =
+          EmbeddedResourceUtil.Load(FileNode.assembly_, "uni.img.file.png");
+
       private readonly BetterTreeNode<FileNode> treeNode_;
       private readonly IFuzzyNode<FileNode> filterNode_;
 
@@ -81,13 +91,13 @@ namespace uni.ui.common {
       }
 
       private void InitDirectory_() {
-        this.treeNode_.ClosedImageIndex = FOLDER_CLOSED_ICON_INDEX;
-        this.treeNode_.OpenImageIndex = FOLDER_OPEN_ICON_INDEX;
+        this.treeNode_.ClosedImage = FileNode.folderClosedImage;
+        this.treeNode_.OpenImage = FileNode.folderOpenImage;
       }
 
       private void InitFile_() {
-        this.treeNode_.ClosedImageIndex = FILE_ICON_INDEX;
-        this.treeNode_.OpenImageIndex = FILE_ICON_INDEX;
+        this.treeNode_.ClosedImage = FileNode.fileImage;
+        this.treeNode_.OpenImage = FileNode.fileImage;
       }
 
 
@@ -103,23 +113,6 @@ namespace uni.ui.common {
 
     public FileTreeView() {
       this.InitializeComponent();
-
-      var assembly = Assembly.GetExecutingAssembly();
-
-      var folderClosedImage =
-          EmbeddedResourceUtil.Load(assembly, "uni.img.folder_closed.png");
-      var folderOpenImage =
-          EmbeddedResourceUtil.Load(assembly, "uni.img.folder_open.png");
-      var fileImage =
-          EmbeddedResourceUtil.Load(assembly, "uni.img.file.png");
-
-      var imageList = new ImageList();
-      var images = imageList.Images;
-      images.Add(folderClosedImage);
-      images.Add(folderOpenImage);
-      images.Add(fileImage);
-
-      this.fileTreeView_.ImageList = imageList;
 
       this.filterTextBox_.TextChanged += (_, _) => this.Filter_();
 
