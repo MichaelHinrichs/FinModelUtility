@@ -86,6 +86,7 @@ namespace glo.api {
 
             var finTexture = finModel.MaterialManager.CreateTexture(
                 textureImageWithAlpha);
+            finTexture.Name = textureFilename;
 
             if (this.mirrorTextures_.Contains(textureFilename)) {
               finTexture.WrapModeU = WrapMode.MIRROR_REPEAT;

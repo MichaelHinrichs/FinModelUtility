@@ -29,12 +29,14 @@
       System.Windows.Forms.TabPage animationsTabPage;
       System.Windows.Forms.TabPage shaderTabPage;
       this.animationsTab_ = new uni.ui.right_panel.AnimationsTab();
+      this.texturesTab_ = new uni.ui.right_panel.textures.TexturesTab();
       tabControl = new System.Windows.Forms.TabControl();
       infoTabPage = new System.Windows.Forms.TabPage();
       texturesTabPage = new System.Windows.Forms.TabPage();
       animationsTabPage = new System.Windows.Forms.TabPage();
       shaderTabPage = new System.Windows.Forms.TabPage();
       tabControl.SuspendLayout();
+      texturesTabPage.SuspendLayout();
       animationsTabPage.SuspendLayout();
       this.SuspendLayout();
       // 
@@ -64,6 +66,7 @@
       // 
       // texturesTabPage
       // 
+      texturesTabPage.Controls.Add(this.texturesTab_);
       texturesTabPage.Location = new System.Drawing.Point(4, 44);
       texturesTabPage.Name = "texturesTabPage";
       texturesTabPage.Padding = new System.Windows.Forms.Padding(3);
@@ -99,6 +102,14 @@
       shaderTabPage.Text = "Shader";
       shaderTabPage.UseVisualStyleBackColor = true;
       // 
+      // texturesTab_
+      // 
+      this.texturesTab_.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.texturesTab_.Location = new System.Drawing.Point(3, 3);
+      this.texturesTab_.Name = "texturesTab_";
+      this.texturesTab_.Size = new System.Drawing.Size(202, 381);
+      this.texturesTab_.TabIndex = 0;
+      // 
       // ModelTabs
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -107,6 +118,7 @@
       this.Name = "ModelTabs";
       this.Size = new System.Drawing.Size(216, 435);
       tabControl.ResumeLayout(false);
+      texturesTabPage.ResumeLayout(false);
       animationsTabPage.ResumeLayout(false);
       this.ResumeLayout(false);
 
@@ -120,5 +132,6 @@
     private TabPage animationsTabPage;
     private TabPage shaderTabPage;
     private AnimationsTab animationsTab_;
+    private textures.TexturesTab texturesTab_;
   }
 }

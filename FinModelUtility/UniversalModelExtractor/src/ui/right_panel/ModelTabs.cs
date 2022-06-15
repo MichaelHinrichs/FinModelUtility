@@ -8,7 +8,11 @@ namespace uni.ui.right_panel {
       InitializeComponent();
     }
 
-    public IModel Model { get; set; }
+    public IModel Model {
+      set {
+        this.texturesTab_.Model = value;
+      }
+    }
 
     public IAnimationPlaybackManager AnimationPlaybackManager =>
         this.animationsTab_.AnimationPlaybackManager;
