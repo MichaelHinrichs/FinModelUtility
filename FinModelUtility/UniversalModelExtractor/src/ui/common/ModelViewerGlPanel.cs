@@ -293,7 +293,10 @@ void main() {
         Gl.glLoadIdentity();
       }
 
-      this.gridRenderer_.Render();
+      if (DebugFlags.ENABLE_GRID) {
+        this.texturelessShaderProgram_.Use();
+        this.gridRenderer_.Render();
+      }
 
       {
         Gl.glRotated(90, 1, 0, 0);

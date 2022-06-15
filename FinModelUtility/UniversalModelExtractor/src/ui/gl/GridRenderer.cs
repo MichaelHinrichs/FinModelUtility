@@ -4,7 +4,7 @@
 namespace uni.ui.gl {
   public class GridRenderer {
     public float Spacing { get; } = 32;
-    public float Size = 1028;
+    public float Size = 1024;
 
     public void Render() {
       var size = this.Size;
@@ -13,14 +13,31 @@ namespace uni.ui.gl {
       Gl.glLineWidth(1);
 
       Gl.glBegin(Gl.GL_LINES);
-      Gl.glColor4f(1, 1, 1, 1);
 
-      for (var y = -size / 2; y <= size / 2; y += spacing) {
+      for (var y = 0f; y <= size / 2; y += spacing) {
+        if (y == 0) {
+          Gl.glColor4f(1, 0, 0, 1);
+        } else {
+          Gl.glColor4f(1, 1, 1, 1);
+
+          Gl.glVertex3f(-size / 2, -y, 0);
+          Gl.glVertex3f(size / 2, -y, 0);
+        }
+
         Gl.glVertex3f(-size / 2, y, 0);
         Gl.glVertex3f(size / 2, y, 0);
       }
 
-      for (var x = -size / 2; x <= size / 2; x += spacing) {
+      for (var x = 0f; x <= size / 2; x += spacing) {
+        if (x == 0) {
+          Gl.glColor4f(0, 1, 0, 1);
+        } else {
+          Gl.glColor4f(1, 1, 1, 1);
+
+          Gl.glVertex3f(-x, -size / 2, 0);
+          Gl.glVertex3f(-x, size / 2, 0);
+        }
+
         Gl.glVertex3f(x, -size / 2, 0);
         Gl.glVertex3f(x, size / 2, 0);
       }
