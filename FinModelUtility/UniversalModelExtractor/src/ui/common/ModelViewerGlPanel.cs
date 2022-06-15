@@ -30,6 +30,8 @@ namespace uni.ui.common {
     private SkeletonRenderer? skeletonRenderer_;
     private readonly BoneTransformManager boneTransformManager_ = new();
 
+    private GridRenderer gridRenderer_ = new();
+
     private float scale_ = 1;
 
     private readonly FrameAdvancer frameAdvancer_ = new() {
@@ -289,6 +291,11 @@ void main() {
 
         Gl.glMatrixMode(Gl.GL_MODELVIEW);
         Gl.glLoadIdentity();
+      }
+
+      this.gridRenderer_.Render();
+
+      {
         Gl.glRotated(90, 1, 0, 0);
         Gl.glScalef(this.scale_, this.scale_, this.scale_);
       }
