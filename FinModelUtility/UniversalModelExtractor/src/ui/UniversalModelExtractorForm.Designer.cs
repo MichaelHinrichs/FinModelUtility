@@ -33,6 +33,7 @@ namespace uni.ui {
       this.modelViewerGlPanel_ = new uni.ui.common.ModelViewerGlPanel();
       this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.modelTabs_ = new uni.ui.common.ModelTabs();
       splitContainer1 = new System.Windows.Forms.SplitContainer();
       splitContainer2 = new System.Windows.Forms.SplitContainer();
       menuStrip = new System.Windows.Forms.MenuStrip();
@@ -42,6 +43,7 @@ namespace uni.ui {
       splitContainer1.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(splitContainer2)).BeginInit();
       splitContainer2.Panel1.SuspendLayout();
+      splitContainer2.Panel2.SuspendLayout();
       splitContainer2.SuspendLayout();
       menuStrip.SuspendLayout();
       this.SuspendLayout();
@@ -81,15 +83,21 @@ namespace uni.ui {
       // splitContainer2.Panel1
       // 
       splitContainer2.Panel1.Controls.Add(this.modelViewerGlPanel_);
+      // 
+      // splitContainer2.Panel2
+      // 
+      splitContainer2.Panel2.Controls.Add(this.modelTabs_);
       splitContainer2.Size = new System.Drawing.Size(785, 520);
       splitContainer2.SplitterDistance = 573;
       splitContainer2.TabIndex = 1;
       // 
       // modelViewerGlPanel_
       // 
+      this.modelViewerGlPanel_.Animation = null;
       this.modelViewerGlPanel_.BackColor = System.Drawing.Color.Fuchsia;
       this.modelViewerGlPanel_.Dock = System.Windows.Forms.DockStyle.Fill;
       this.modelViewerGlPanel_.Location = new System.Drawing.Point(0, 0);
+      this.modelViewerGlPanel_.Model = null;
       this.modelViewerGlPanel_.Name = "modelViewerGlPanel_";
       this.modelViewerGlPanel_.Size = new System.Drawing.Size(573, 520);
       this.modelViewerGlPanel_.TabIndex = 0;
@@ -117,6 +125,14 @@ namespace uni.ui {
       this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
       this.helpToolStripMenuItem.Text = "Help";
       // 
+      // modelTabs_
+      // 
+      this.modelTabs_.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.modelTabs_.Location = new System.Drawing.Point(0, 0);
+      this.modelTabs_.Name = "modelTabs_";
+      this.modelTabs_.Size = new System.Drawing.Size(208, 520);
+      this.modelTabs_.TabIndex = 0;
+      // 
       // UniversalModelExtractorForm
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -133,6 +149,7 @@ namespace uni.ui {
       ((System.ComponentModel.ISupportInitialize)(splitContainer1)).EndInit();
       splitContainer1.ResumeLayout(false);
       splitContainer2.Panel1.ResumeLayout(false);
+      splitContainer2.Panel2.ResumeLayout(false);
       ((System.ComponentModel.ISupportInitialize)(splitContainer2)).EndInit();
       splitContainer2.ResumeLayout(false);
       menuStrip.ResumeLayout(false);
@@ -150,5 +167,6 @@ namespace uni.ui {
     private ToolStripMenuItem helpToolStripMenuItem;
     private SplitContainer splitContainer1;
     private ModelFileTreeView modelFileTreeView_;
+    private ModelTabs modelTabs_;
   }
 }
