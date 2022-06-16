@@ -136,7 +136,7 @@ namespace fin.math {
           this.boneWeightsToNeutralInverseWorldMatrices_[boneWeights] =
               boneWeightMatrix.CloneAndInvert();
           this.boneWeightsToAdditiveWorldMatrices_[boneWeights] =
-              boneWeightMatrix;
+              new FinMatrix4x4().SetIdentity();
         } else {
           var mergedMatrix = this.boneWeightsToWorldMatrices_[boneWeights];
           var mergedNeutralInverseMatrix =
