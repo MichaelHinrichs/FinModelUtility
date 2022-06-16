@@ -231,7 +231,7 @@ namespace glo.api {
             var finFaceColor = ColorImpl.FromRgbaBytes(
                 gloFaceColor.R, gloFaceColor.G, gloFaceColor.B, gloFaceColor.A);
 
-            var enableBackfaceCulling = (gloFace.Flags & 1 << 2) != 0;
+            var enableBackfaceCulling = (gloFace.Flags & 1 << 2) == 0;
 
             IMaterial? finMaterial;
             if (textureFilename == previousTextureName) {
