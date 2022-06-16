@@ -204,6 +204,10 @@ void main() {
     vec4 texColor = texture(texture0, uv0);
 
     fragColor = texColor * vertexColor;
+
+    if (fragColor.a < .95) {
+      discard;
+    }
 }";
 
       this.texturedShaderProgram_ =
