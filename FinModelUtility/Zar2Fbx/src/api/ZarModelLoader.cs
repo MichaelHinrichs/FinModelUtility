@@ -203,10 +203,39 @@ namespace zar.api {
         }
       }
 
+      // TODO: Move these reads into the model reading logic
+      var ctrTexture = new CtrTexture();
+      var textureImages =
+          cmb.tex.textures.Select(cmbTexture => {
+               var position = cmb.startOffset +
+                              cmb.header.textureDataOffset +
+                              cmbTexture.dataOffset;
+               Bitmap bitmap;
+               if (position != 0) {
+                 r.Position = position;
+                 var data =
+                     r.ReadBytes((int) cmbTexture.dataLength);
+                 bitmap =
+                     ctrTexture.DecodeImage(data, cmbTexture);
+               } else {
+                 var ctxb =
+                     filesAndCtxbs
+                         .Select(
+                             fileAndCtxb => fileAndCtxb.Item2)
+                         .Single(
+                             ctxb => ctxb.Chunk.Entry.name ==
+                                     cmbTexture.name);
+                 bitmap =
+                     ctrTexture.DecodeImage(ctxb.Data,
+                                            cmbTexture);
+               }
+               return bitmap;
+             })
+             .ToArray();
+
       // Creates meshes & textures
       // TODO: Emulate fixed-function materials
       var finMaterials = new List<IMaterial>();
-      var ctrTexture = new CtrTexture();
       for (var i = 0; i < cmb.mat.materials.Length; ++i) {
         var cmbMaterial = cmb.mat.materials[i];
 
@@ -216,26 +245,10 @@ namespace zar.api {
 
         ITexture? finTexture = null;
         if (textureId != -1) {
-          var cmbTexture = cmb.tex.textures[texMapper.textureId];
+          var cmbTexture = cmb.tex.textures[textureId];
+          var textureImage = textureImages[textureId];
 
-          // TODO: Move these reads into the model reading logic
-          var position = cmb.startOffset +
-                         cmb.header.textureDataOffset +
-                         cmbTexture.dataOffset;
-          Bitmap bitmap;
-          if (position != 0) {
-            r.Position = position;
-            var data = r.ReadBytes((int) cmbTexture.dataLength);
-            bitmap = ctrTexture.DecodeImage(data, cmbTexture);
-          } else {
-            var ctxb =
-                filesAndCtxbs
-                    .Select(fileAndCtxb => fileAndCtxb.Item2)
-                    .Single(ctxb => ctxb.Chunk.Entry.name == cmbTexture.name);
-            bitmap = ctrTexture.DecodeImage(ctxb.Data, cmbTexture);
-          }
-
-          finTexture = finModel.MaterialManager.CreateTexture(bitmap);
+          finTexture = finModel.MaterialManager.CreateTexture(textureImage);
           finTexture.Name = cmbTexture.name;
           finTexture.WrapModeU = this.CmbToFinWrapMode(texMapper.wrapS);
           finTexture.WrapModeV = this.CmbToFinWrapMode(texMapper.wrapT);
@@ -243,9 +256,11 @@ namespace zar.api {
 
         // Create material
         IMaterial finMaterial = finTexture != null
-                                    ? finModel.MaterialManager.AddTextureMaterial(
-                                        finTexture)
-                                    : finModel.MaterialManager.AddLayerMaterial();
+                                    ? finModel.MaterialManager
+                                              .AddTextureMaterial(
+                                                  finTexture)
+                                    : finModel.MaterialManager
+                                              .AddLayerMaterial();
         finMaterial.Name = $"material{i}";
         finMaterial.CullingMode = cmbMaterial.faceCulling switch {
             CullMode.FrontAndBack => CullingMode.SHOW_BOTH,
@@ -356,8 +371,8 @@ namespace zar.api {
                           .ToArray();
 
           var finVertex = finSkin.AddVertex(positionValues[0],
-                                               positionValues[1],
-                                               positionValues[2]);
+                                            positionValues[1],
+                                            positionValues[2]);
           finVertices[i] = finVertex;
 
           var index = (ushort) (shape.position.Start / 3 + i);
@@ -467,10 +482,12 @@ namespace zar.api {
 
             Asserts.True(boneWeights.Count > 0);
             Asserts.True(Math.Abs(1 - totalWeight) < .0001);
-            finVertex.SetBoneWeights(finSkin.GetOrCreateBoneWeights(boneWeights.ToArray()));
+            finVertex.SetBoneWeights(
+                finSkin.GetOrCreateBoneWeights(boneWeights.ToArray()));
           } else {
             var boneIndex = bIndices[i];
-            finVertex.SetBoneWeights(finSkin.GetOrCreateBoneWeights(finBones[boneIndex]));
+            finVertex.SetBoneWeights(
+                finSkin.GetOrCreateBoneWeights(finBones[boneIndex]));
           }
 
           finVertex.PreprojectMode =

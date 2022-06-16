@@ -203,7 +203,8 @@ namespace zar.format.cmb {
       var bytes =
           Etc1.Decompress(er, width, height, texture.imageFormat, data.Length);
 
-      Asserts.Equal(width * height * 4, bytes.Length);
+      // The expected size will not be exactly the same as the number of decompressed bytes if there are mipmaps.
+      Asserts.True(width * height * 4 <= bytes.Length);
 
       var output = new Bitmap(width, height, PixelFormat.Format32bppArgb);
 
