@@ -54,11 +54,14 @@
       // listView_
       // 
       this.listView_.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.listView_.GridLines = true;
       this.listView_.Location = new System.Drawing.Point(0, 0);
+      this.listView_.MultiSelect = false;
       this.listView_.Name = "listView_";
       this.listView_.Size = new System.Drawing.Size(218, 203);
       this.listView_.TabIndex = 1;
       this.listView_.UseCompatibleStateImageBehavior = false;
+      this.listView_.View = System.Windows.Forms.View.SmallIcon;
       // 
       // texturePanel_
       // 

@@ -19,7 +19,7 @@ namespace uni.ui.right_panel.textures {
         this.listView_.Clear();
         this.texturePanel_.Texture = null;
 
-        var imageList = this.listView_.LargeImageList = new ImageList();
+        var imageList = this.listView_.SmallImageList = new ImageList();
 
         this.textures_ =
             value.MaterialManager.All.SelectMany(material => material.Textures)
