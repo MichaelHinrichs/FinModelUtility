@@ -58,17 +58,30 @@ namespace uni.ui.common {
         }
 
         this.Animation = value?.AnimationManager.Animations.FirstOrDefault();
-
-        if (this.AnimationPlaybackManager != null) {
-          this.AnimationPlaybackManager.FrameRate = (int)(this.Animation?.FrameRate ?? 20);
-          this.AnimationPlaybackManager.TotalFrames = this.Animation?.FrameCount ?? 0;
-        }
       }
     }
 
     public IAnimationPlaybackManager AnimationPlaybackManager { get; set; }
 
-    public IAnimation? Animation { get; set; }
+    private IAnimation? animation_;
+
+    public IAnimation? Animation {
+      get => this.animation_;
+      set {
+        if (this.animation_ == value) {
+          return;
+        }
+
+        this.animation_ = value;
+        if (this.AnimationPlaybackManager != null) {
+          this.AnimationPlaybackManager.Frame = 0;
+          this.AnimationPlaybackManager.FrameRate =
+              (int)(value?.FrameRate ?? 20);
+          this.AnimationPlaybackManager.TotalFrames =
+              value?.FrameCount ?? 0;
+        }
+      }
+    }
 
     private bool isMouseDown_ = false;
     private (int, int)? prevMousePosition_ = null;

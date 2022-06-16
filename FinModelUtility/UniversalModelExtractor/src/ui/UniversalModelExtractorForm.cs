@@ -16,6 +16,8 @@ namespace uni.ui {
 
       this.modelViewerGlPanel_.AnimationPlaybackManager =
           this.modelTabs_.AnimationPlaybackManager;
+      this.modelTabs_.OnAnimationSelected += animation =>
+          this.modelViewerGlPanel_.Animation = animation;
     }
 
     private void UniversalModelExtractorForm_Load(object sender, EventArgs e) {
