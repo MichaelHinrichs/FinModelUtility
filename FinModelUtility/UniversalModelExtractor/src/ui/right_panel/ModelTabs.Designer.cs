@@ -27,14 +27,14 @@
       System.Windows.Forms.TabPage infoTabPage;
       System.Windows.Forms.TabPage texturesTabPage;
       System.Windows.Forms.TabPage animationsTabPage;
-      System.Windows.Forms.TabPage shaderTabPage;
-      this.animationsTab_ = new uni.ui.right_panel.AnimationsTab();
+      System.Windows.Forms.TabPage materialsTabPage;
       this.texturesTab_ = new uni.ui.right_panel.textures.TexturesTab();
+      this.animationsTab_ = new uni.ui.right_panel.AnimationsTab();
       tabControl = new System.Windows.Forms.TabControl();
       infoTabPage = new System.Windows.Forms.TabPage();
       texturesTabPage = new System.Windows.Forms.TabPage();
       animationsTabPage = new System.Windows.Forms.TabPage();
-      shaderTabPage = new System.Windows.Forms.TabPage();
+      materialsTabPage = new System.Windows.Forms.TabPage();
       tabControl.SuspendLayout();
       texturesTabPage.SuspendLayout();
       animationsTabPage.SuspendLayout();
@@ -45,7 +45,7 @@
       tabControl.Controls.Add(infoTabPage);
       tabControl.Controls.Add(texturesTabPage);
       tabControl.Controls.Add(animationsTabPage);
-      tabControl.Controls.Add(shaderTabPage);
+      tabControl.Controls.Add(materialsTabPage);
       tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
       tabControl.Location = new System.Drawing.Point(0, 0);
       tabControl.Multiline = true;
@@ -75,6 +75,14 @@
       texturesTabPage.Text = "Textures";
       texturesTabPage.UseVisualStyleBackColor = true;
       // 
+      // texturesTab_
+      // 
+      this.texturesTab_.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.texturesTab_.Location = new System.Drawing.Point(3, 3);
+      this.texturesTab_.Name = "texturesTab_";
+      this.texturesTab_.Size = new System.Drawing.Size(202, 381);
+      this.texturesTab_.TabIndex = 0;
+      // 
       // animationsTabPage
       // 
       animationsTabPage.Controls.Add(this.animationsTab_);
@@ -93,22 +101,14 @@
       this.animationsTab_.Size = new System.Drawing.Size(208, 387);
       this.animationsTab_.TabIndex = 0;
       // 
-      // shaderTabPage
+      // materialsTabPage
       // 
-      shaderTabPage.Location = new System.Drawing.Point(4, 44);
-      shaderTabPage.Name = "shaderTabPage";
-      shaderTabPage.Size = new System.Drawing.Size(208, 387);
-      shaderTabPage.TabIndex = 3;
-      shaderTabPage.Text = "Shader";
-      shaderTabPage.UseVisualStyleBackColor = true;
-      // 
-      // texturesTab_
-      // 
-      this.texturesTab_.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.texturesTab_.Location = new System.Drawing.Point(3, 3);
-      this.texturesTab_.Name = "texturesTab_";
-      this.texturesTab_.Size = new System.Drawing.Size(202, 381);
-      this.texturesTab_.TabIndex = 0;
+      materialsTabPage.Location = new System.Drawing.Point(4, 44);
+      materialsTabPage.Name = "materialsTabPage";
+      materialsTabPage.Size = new System.Drawing.Size(208, 387);
+      materialsTabPage.TabIndex = 3;
+      materialsTabPage.Text = "Materials";
+      materialsTabPage.UseVisualStyleBackColor = true;
       // 
       // ModelTabs
       // 
@@ -130,7 +130,7 @@
     private TabPage infoTabPage;
     private TabPage texturesTabPage;
     private TabPage animationsTabPage;
-    private TabPage shaderTabPage;
+    private TabPage materialsTabPage;
     private AnimationsTab animationsTab_;
     private textures.TexturesTab texturesTab_;
   }
