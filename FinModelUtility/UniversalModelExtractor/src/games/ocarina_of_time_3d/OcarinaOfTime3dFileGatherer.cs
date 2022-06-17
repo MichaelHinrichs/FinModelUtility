@@ -11,7 +11,6 @@ using zar.api;
 namespace uni.games.ocarina_of_time_3d {
   public class OcarinaOfTime3dFileGatherer : IModelFileGatherer<
       ZarModelFileBundle> {
-
     // TODO: Add support for Link
     // TODO: Add support for faceb
     // TODO: Add support for cmab
@@ -24,23 +23,23 @@ namespace uni.games.ocarina_of_time_3d {
           // TODO: This is probably wrong
           .Register("zelda_box",
                     new NoAnimationsModelSeparatorMethod()
-                        /*new ExactCasesMethod()
-                            .Case("demo_tre_lgt_mdl_info.cmb",
-                                  "demo_tre_lgt_c_fcurve_data.csab",
-                                  "demo_tre_lgt_fcurve_data.csab")
-                            .Case("tr_box.cmb",
-                                  "cdemo_box_boxA.csab",
-                                  "demo_box_boxA.csab",
-                                  "demo_box_boxB.csab")*/)
+              /*new ExactCasesMethod()
+                  .Case("demo_tre_lgt_mdl_info.cmb",
+                        "demo_tre_lgt_c_fcurve_data.csab",
+                        "demo_tre_lgt_fcurve_data.csab")
+                  .Case("tr_box.cmb",
+                        "cdemo_box_boxA.csab",
+                        "demo_box_boxA.csab",
+                        "demo_box_boxB.csab")*/)
           // TODO: This is *definitely* wrong
           .Register("zelda_bv",
                     new NoAnimationsModelSeparatorMethod()
-                  /*new PrefixCasesMethod()
-                      .Case("balinadearm", "bva_", "bv_arm_")
-                      .Case("bve_model", "bve_")
-                      .Case("balinadecore", "bvc_")
-                      .Case("efc_bari_model", "bvb_")
-                      .Case("bv_inazumaMINI2_modelT", "bl2")*/)
+              /*new PrefixCasesMethod()
+                  .Case("balinadearm", "bva_", "bv_arm_")
+                  .Case("bve_model", "bve_")
+                  .Case("balinadecore", "bvc_")
+                  .Case("efc_bari_model", "bvb_")
+                  .Case("bv_inazumaMINI2_modelT", "bl2")*/)
           .Register("zelda_bxa",
                     new ExactCasesMethod()
                         .Case("balinadearm.cmb",
@@ -124,7 +123,9 @@ namespace uni.games.ocarina_of_time_3d {
       while (queue.Any()) {
         var (directory, node) = queue.Dequeue();
 
-        this.ExtractModel_(node, directory);
+        if (this.separator_.Contains(directory)) {
+          this.ExtractModel_(node, directory);
+        }
 
         foreach (var subdir in directory.Subdirs) {
           queue.Enqueue((subdir, node.AddSubdir(subdir.Name)));
@@ -136,14 +137,14 @@ namespace uni.games.ocarina_of_time_3d {
     public void ExtractModel_(
         IModelDirectory<ZarModelFileBundle> parentNode,
         IFileHierarchyDirectory subdir) {
-      var cmbFiles = subdir.FilesWithExtension(".cmb").ToArray();
+      var cmbFiles = subdir.FilesWithExtensionsRecursive(".cmb").ToArray();
       if (cmbFiles.Length == 0) {
         return;
       }
 
-      var csabFiles = subdir.FilesWithExtension(".csab").ToArray();
-      var ctxbFiles = subdir.FilesWithExtension(".ctxb").ToArray();
-      var shpaFiles = subdir.FilesWithExtension(".shpa").ToArray();
+      var csabFiles = subdir.FilesWithExtensionsRecursive(".csab").ToArray();
+      var ctxbFiles = subdir.FilesWithExtensionsRecursive(".ctxb").ToArray();
+      var shpaFiles = subdir.FilesWithExtensionsRecursive(".shpa").ToArray();
 
       try {
         var bundles =

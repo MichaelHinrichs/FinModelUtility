@@ -40,6 +40,16 @@ namespace fin.io {
     IEnumerable<IFileHierarchyFile> FilesWithExtensions(
         string first,
         params string[] rest);
+
+    IEnumerable<IFileHierarchyFile> FilesWithExtensionRecursive(
+        string extension);
+
+    IEnumerable<IFileHierarchyFile> FilesWithExtensionsRecursive(
+        IEnumerable<string> extensions);
+
+    IEnumerable<IFileHierarchyFile> FilesWithExtensionsRecursive(
+        string first,
+        params string[] rest);
   }
 
   public interface IFileHierarchyFile : IFileHierarchyInstance {
@@ -175,6 +185,31 @@ namespace fin.io {
           params string[] rest)
         => this.Files.Where(file => file.Extension == first ||
                                     rest.Contains(file.Extension));
+
+      public IEnumerable<IFileHierarchyFile> FilesWithExtensionRecursive(
+          string extension)
+        => this.FilesWithExtension(extension)
+               .Concat(
+                   this.Subdirs.SelectMany(
+                       subdir
+                           => subdir.FilesWithExtensionRecursive(extension)));
+
+      public IEnumerable<IFileHierarchyFile> FilesWithExtensionsRecursive(
+          IEnumerable<string> extensions)
+        => this.FilesWithExtensions(extensions)
+               .Concat(
+                   this.Subdirs.SelectMany(
+                       subdir
+                           => subdir.FilesWithExtensionsRecursive(extensions)));
+
+      public IEnumerable<IFileHierarchyFile> FilesWithExtensionsRecursive(
+          string first,
+          params string[] rest)
+        => this.FilesWithExtensions(first, rest)
+               .Concat(
+                   this.Subdirs.SelectMany(
+                       subdir
+                           => subdir.FilesWithExtensionsRecursive(first, rest)));
 
       public override string ToString() => this.LocalPath;
     }

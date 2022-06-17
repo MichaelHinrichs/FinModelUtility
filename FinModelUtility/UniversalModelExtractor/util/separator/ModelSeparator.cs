@@ -19,6 +19,8 @@ namespace uni.util.separator {
         string directoryId,
         IModelSeparatorMethod method);
 
+    bool Contains(IFileHierarchyDirectory directory);
+
     IList<IModelBundle> Separate(
         IFileHierarchyDirectory directory,
         IList<IFileHierarchyFile> modelFiles,
@@ -38,6 +40,9 @@ namespace uni.util.separator {
       this.impl_[directoryId] = method;
       return this;
     }
+
+    public bool Contains(IFileHierarchyDirectory directory)
+      => this.impl_.ContainsKey(this.directoryToId_(directory));
 
     public IList<IModelBundle> Separate(
         IFileHierarchyDirectory directory,
