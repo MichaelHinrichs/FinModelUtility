@@ -1,17 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using fin.model;
+
 
 namespace uni.src.ui.top {
   public partial class ModelToolStrip : UserControl {
     public ModelToolStrip() {
       InitializeComponent();
+    }
+
+    public IModel? Model {
+      set {
+        var hasModel = value != null;
+        this.exportSelectedModelButton_.Enabled = hasModel;
+        this.exportAllModelsButton_.Enabled = hasModel;
+      }
     }
   }
 }
