@@ -43,5 +43,9 @@ namespace uni.ui {
               .LoadModel(zarModelFileBundle),
           _ => throw new ArgumentOutOfRangeException(nameof(modelFileBundle))
       };
+
+    private void modelViewerGlPanel__Load(object sender, EventArgs e) {
+
+    }
   }
 }
