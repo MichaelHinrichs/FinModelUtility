@@ -5,6 +5,7 @@ using System.Numerics;
 using fin.math.matrix;
 using fin.model;
 
+
 namespace fin.math {
   public class SoftwareModelViewMatrixTransformer {
     private IFinMatrix4x4 current_;
@@ -83,7 +84,10 @@ namespace fin.math {
     public SoftwareModelViewMatrixTransformer Translate(IPosition position)
       => this.MultMatrix(MatrixTransformUtil.FromTranslation(position));
 
-    public SoftwareModelViewMatrixTransformer Translate(float x, float y, float z)
+    public SoftwareModelViewMatrixTransformer Translate(
+        float x,
+        float y,
+        float z)
       => this.MultMatrix(MatrixTransformUtil.FromTranslation(x, y, z));
 
 
@@ -118,17 +122,43 @@ namespace fin.math {
       return this;
     }
 
-    public void Get(IFinMatrix4x4 m) => this.current_.CopyInto(m);
+    public void Get(IFinMatrix4x4 m) => m.CopyFrom(current_);
     public IFinMatrix4x4 Get() => this.current_.Clone();
 
-    public void Set(IReadOnlyFinMatrix4x4 m) {
-      m.CopyInto(this.current_);
-    }
+    public void Set(IReadOnlyFinMatrix4x4 m) => this.current_.CopyFrom(m);
   }
 
   // TODO: Move this somewhere else.
   public class GlMatrixUtil {
     private static readonly FinVector4 SHARED_VECTOR = new();
+
+
+    public static void ProjectVertex(
+        IReadOnlyFinMatrix4x4 matrix,
+        ref double x,
+        ref double y,
+        ref double z)
+      => GlMatrixUtil.Project(matrix,
+                              ref x,
+                              ref y,
+                              ref z,
+                              1,
+                              true,
+                              false);
+
+    public static void ProjectNormal(
+        IReadOnlyFinMatrix4x4 matrix,
+        ref double x,
+        ref double y,
+        ref double z,
+        bool normalize = true)
+      => GlMatrixUtil.Project(matrix,
+                              ref x,
+                              ref y,
+                              ref z,
+                              0,
+                              false,
+                              normalize);
 
     public static void Project(
         IReadOnlyFinMatrix4x4 matrix,

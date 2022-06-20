@@ -23,6 +23,8 @@ namespace fin.math.matrix {
       matrix[1, 3] = y;
       matrix[2, 3] = z;
 
+      matrix.UpdateIsIdentity();
+
       return matrix;
     }
 
@@ -57,16 +59,21 @@ namespace fin.math.matrix {
       matrix[3, 2] = 0;
       matrix[3, 3] = 1;
 
+      matrix.UpdateIsIdentity();
+
       return matrix;
     }
 
-    public static IFinMatrix4x4 FromScale(IScale scale)
-      => new FinMatrix4x4 {
+    public static IFinMatrix4x4 FromScale(IScale scale) {
+      var matrix = new FinMatrix4x4 {
           [0, 0] = scale.X,
           [1, 1] = scale.Y,
           [2, 2] = scale.Z,
           [3, 3] = 1,
       };
+      matrix.UpdateIsIdentity();
+      return matrix;
+    }
 
     public static IFinMatrix4x4 FromTrs(
         IPosition? position,

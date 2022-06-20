@@ -12,18 +12,32 @@ namespace fin.math {
 
     public FinMatrix4x4() { }
 
-    public FinMatrix4x4(IReadOnlyFinMatrix4x4 other) => other.CopyInto(this);
+    public FinMatrix4x4(IReadOnlyFinMatrix4x4 other) => this.CopyFrom(other);
 
     public IFinMatrix4x4 Clone() => new FinMatrix4x4(this);
 
-    public void CopyInto(IFinMatrix4x4 other) {
+    public void CopyFrom(IReadOnlyFinMatrix4x4 other) {
       Asserts.Different(this, other, "Copying into same matrix!");
 
       for (var r = 0; r < 4; ++r) {
         for (var c = 0; c < 4; ++c) {
-          other[r, c] = this[r, c];
+          this[r, c] = other[r, c];
         }
       }
+      this.IsIdentity = other.IsIdentity;
+    }
+
+    public bool IsIdentity { get; private set; }
+
+    public void UpdateIsIdentity() {
+      var isIdentity = true;
+      for (var r = 0; r < 4; ++r) {
+        for (var c = 0; c < 4; ++c) {
+          var isValueCorrect = Math.Abs(this[r, c] - ((r == c) ? 1 : 0)) < .0001;
+          isIdentity &= isValueCorrect;
+        }
+      }
+      this.IsIdentity = isIdentity;
     }
 
     public IFinMatrix4x4 SetIdentity() {
@@ -32,12 +46,16 @@ namespace fin.math {
           this[r, c] = (r == c) ? 1 : 0;
         }
       }
+      this.IsIdentity = true;
       return this;
     }
 
     public double this[int row, int column] {
       get => this.impl_[FinMatrix4x4.GetIndex_(row, column)];
-      set => this.impl_[FinMatrix4x4.GetIndex_(row, column)] = value;
+      set {
+        this.impl_[FinMatrix4x4.GetIndex_(row, column)] = value;
+        this.IsIdentity = false;
+      }
     }
 
     private static int GetIndex_(int row, int column) => 4 * row + column;
@@ -49,6 +67,7 @@ namespace fin.math {
 
     public IFinMatrix4x4 AddInPlace(IReadOnlyFinMatrix4x4 other) {
       this.AddIntoBuffer(other, this);
+      this.IsIdentity = false;
       return this;
     }
 
@@ -70,8 +89,10 @@ namespace fin.math {
       => this.Clone().MultiplyInPlace(other);
 
     public IFinMatrix4x4 MultiplyInPlace(IReadOnlyFinMatrix4x4 other) {
-      this.MultiplyIntoBuffer(other, FinMatrix4x4.SHARED_BUFFER);
-      FinMatrix4x4.SHARED_BUFFER.CopyInto(this);
+      if (!other.IsIdentity) {
+        this.MultiplyIntoBuffer(other, FinMatrix4x4.SHARED_BUFFER);
+        this.CopyFrom(FinMatrix4x4.SHARED_BUFFER);
+      }
       return this;
     }
 
@@ -95,7 +116,9 @@ namespace fin.math {
       => this.Clone().MultiplyInPlace(other);
 
     public IFinMatrix4x4 MultiplyInPlace(double other) {
-      this.MultiplyIntoBuffer(other, this);
+      if (Math.Abs(other - 1) > .0001) {
+        this.MultiplyIntoBuffer(other, this);
+      }
       return this;
     }
 
@@ -111,7 +134,9 @@ namespace fin.math {
       => this.Clone().InvertInPlace();
 
     public IFinMatrix4x4 InvertInPlace() {
-      this.InvertIntoBuffer(this);
+      if (!this.IsIdentity) {
+        this.InvertIntoBuffer(this);
+      }
       return this;
     }
 
@@ -128,6 +153,10 @@ namespace fin.math {
 
 
     protected bool Equals(IReadOnlyFinMatrix4x4 other) {
+      if (this.IsIdentity && other.IsIdentity) {
+        return true;
+      }
+
       for (var r = 0; r < 4; ++r) {
         for (var c = 0; c < 4; ++c) {
           if (Math.Abs(this[r, c] - other[r, c]) > .0001) {
@@ -145,7 +174,7 @@ namespace fin.math {
       if (ReferenceEquals(this, obj)) {
         return true;
       }
-      return Equals((IReadOnlyFinMatrix4x4)obj);
+      return Equals((IReadOnlyFinMatrix4x4) obj);
     }
   }
 }

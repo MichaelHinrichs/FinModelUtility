@@ -209,24 +209,21 @@ namespace mod.cli {
       }
 
       // Pass 4: Writes each bone's meshes as skin
-      var envelopeBoneWeights = mod.envelopes.Select(
-                                       envelope =>
-                                           model.Skin.CreateBoneWeights(
-                                               envelope.indicesAndWeights
-                                                   .Select(
-                                                       indexAndWeight =>
-                                                           new BoneWeight(
-                                                               bones[
-                                                                   indexAndWeight
-                                                                       .index],
-                                                               new
-                                                                       FinMatrix4x4()
-                                                                   .SetIdentity(),
-                                                               indexAndWeight
-                                                                   .weight)
-                                                   )
-                                                   .ToArray()))
-                                   .ToArray();
+      var envelopeBoneWeights =
+          mod.envelopes.Select(
+                 envelope =>
+                     model.Skin.CreateBoneWeights(
+                         envelope.indicesAndWeights
+                                 .Select(
+                                     indexAndWeight =>
+                                         new BoneWeight(
+                                             bones[indexAndWeight.index],
+                                             new FinMatrix4x4()
+                                                 .SetIdentity(),
+                                             indexAndWeight.weight)
+                                 )
+                                 .ToArray()))
+             .ToArray();
 
       foreach (var joint in mod.joints) {
         foreach (var jointMatPoly in joint.matpolys) {

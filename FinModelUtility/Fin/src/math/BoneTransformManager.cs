@@ -9,8 +9,6 @@ using fin.model;
 
 namespace fin.math {
   public class BoneTransformManager {
-    private readonly SoftwareModelViewMatrixTransformer transformer_ = new();
-
     // TODO: This is going to be slow, can we put this somewhere else for O(1) access?
     private readonly IndexableDictionary<IBone, IReadOnlyFinMatrix4x4>
         bonesToLocalMatrices_ = new();
@@ -44,11 +42,11 @@ namespace fin.math {
       var animation = animationAndFrame?.Item1;
       var frame = animationAndFrame?.Item2;
 
-      this.transformer_.Identity();
+      var transformer = new SoftwareModelViewMatrixTransformer();
 
       // TODO: Use a pool of matrices to prevent unneeded instantiations.
       var rootMatrix = new FinMatrix4x4();
-      this.transformer_.Get(rootMatrix);
+      transformer.Get(rootMatrix);
 
       // TODO: Cache this directly on the bone itself instead.
       var bonesToIndex = new Dictionary<IBone, int>();
@@ -59,7 +57,7 @@ namespace fin.math {
       while (boneQueue.Count > 0) {
         var (bone, matrix) = boneQueue.Dequeue();
 
-        this.transformer_.Set(matrix);
+        transformer.Set(matrix);
 
         IBoneTracks? boneTracks = null;
         animation?.BoneTracks.TryGetValue(bone, out boneTracks);
@@ -171,7 +169,7 @@ namespace fin.math {
         return null;
       }
 
-      return vertex.PreprojectMode switch {
+      var transformMatrix = vertex.PreprojectMode switch {
           // If preproject mode is none, then the vertices are already in the same position as the bones.
           // To calculate the animation, we have to first "undo" the root pose via an inverted matrix. 
           PreprojectMode.NONE => this.boneWeightsToAdditiveWorldMatrices_[
@@ -184,6 +182,8 @@ namespace fin.math {
           PreprojectMode.ROOT => this.GetWorldMatrix(weights[0].Bone.Root),
           _                   => throw new ArgumentOutOfRangeException()
       };
+
+      return !transformMatrix.IsIdentity ? transformMatrix : null;
     }
 
     public void ProjectVertex(
@@ -208,12 +208,13 @@ namespace fin.math {
         return;
       }
 
-      this.transformer_.Set(transformMatrix);
-
       double x = localPosition.X;
       double y = localPosition.Y;
       double z = localPosition.Z;
-      this.transformer_.ProjectVertex(ref x, ref y, ref z);
+      GlMatrixUtil.ProjectVertex(transformMatrix,
+                                 ref x,
+                                 ref y,
+                                 ref z);
       outPosition.X = (float) x;
       outPosition.Y = (float) y;
       outPosition.Z = (float) z;
@@ -222,7 +223,10 @@ namespace fin.math {
         double nX = localNormal.X;
         double nY = localNormal.Y;
         double nZ = localNormal.Z;
-        this.transformer_.ProjectNormal(ref nX, ref nY, ref nZ);
+        GlMatrixUtil.ProjectNormal(transformMatrix,
+                                   ref x,
+                                   ref y,
+                                   ref z);
 
         // All of the normals are inside-out for some reason, we have to flip
         // them manually.
@@ -236,8 +240,9 @@ namespace fin.math {
                               ref double x,
                               ref double y,
                               ref double z) {
-      this.transformer_.Set(this.GetWorldMatrix(bone));
-      this.transformer_.ProjectVertex(ref x, ref y, ref z);
+      GlMatrixUtil.ProjectVertex(
+          this.GetWorldMatrix(bone),
+          ref x, ref y, ref z);
     }
   }
 }

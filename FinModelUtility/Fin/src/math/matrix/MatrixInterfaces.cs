@@ -3,7 +3,10 @@
 
 namespace fin.math.matrix {
   public interface IFinMatrix4x4 : IReadOnlyFinMatrix4x4 {
+    void CopyFrom(IReadOnlyFinMatrix4x4 other);
+    
     IFinMatrix4x4 SetIdentity();
+    void UpdateIsIdentity();
 
     new double this[int row, int column] { get; set; }
 
@@ -13,7 +16,8 @@ namespace fin.math.matrix {
   }
 
   public interface IReadOnlyFinMatrix4x4 {
-    void CopyInto(IFinMatrix4x4 other);
+    bool IsIdentity { get; }
+
     IFinMatrix4x4 Clone();
 
     double this[int row, int column] { get; }
