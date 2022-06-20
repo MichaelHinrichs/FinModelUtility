@@ -12,6 +12,7 @@ using glo.schema;
 using System.Numerics;
 
 using fin.data;
+using fin.util.asserts;
 using fin.util.image;
 
 
@@ -129,10 +130,19 @@ namespace glo.api {
           meshQueue.Enqueue((topLevelGloMesh, finObjectRootBone));
         }
 
-        IAnimation? finAnimation = null;
-        if (gloObject.AnimSegs.Length > 0) {
-          finAnimation = finModel.AnimationManager.AddAnimation();
-          finAnimation.FrameRate = fps;
+        List<(IAnimation, int, int)> finAndGloAnimations = new();
+        foreach (var animSeg in gloObject.AnimSegs) {
+          var startFrame = (int) animSeg.StartFrame;
+          var endFrame = (int) animSeg.EndFrame;
+
+          var finAnimation = finModel.AnimationManager.AddAnimation();
+          finAnimation.Name = new string(animSeg.Name).Replace("\0", "");
+          finAnimation.FrameCount =
+              (int) (animSeg.EndFrame - animSeg.StartFrame + 1);
+
+          finAnimation.FrameRate = fps * animSeg.Speed;
+
+          finAndGloAnimations.Add((finAnimation, startFrame, endFrame));
         }
 
         while (meshQueue.Count > 0) {
@@ -171,41 +181,69 @@ namespace glo.api {
             meshQueue.Enqueue((next, parentFinBone));
           }
 
-          if (finAnimation != null) {
+          foreach (var (finAnimation, startFrame, endFrame) in
+                   finAndGloAnimations) {
             var finBoneTracks = finAnimation.AddBoneTracks(finBone);
+
+            long prevTime = -1;
             foreach (var moveKey in gloMesh.MoveKeys) {
-              finAnimation.FrameCount =
-                  Math.Max(finAnimation.FrameCount, (int) moveKey.Time + 1);
+              Asserts.True(moveKey.Time > prevTime);
+              prevTime = moveKey.Time;
+
+              if (!(moveKey.Time >= startFrame && moveKey.Time <= endFrame)) {
+                continue;
+              }
+
+              var time = (int) (moveKey.Time - startFrame);
+              Asserts.True(time >= 0 && time < finAnimation.FrameCount);
 
               var moveValue = moveKey.Xyz;
-              finBoneTracks.Positions.Set((int) moveKey.Time, 0, moveValue.X);
-              finBoneTracks.Positions.Set((int) moveKey.Time, 1, moveValue.Y);
-              finBoneTracks.Positions.Set((int) moveKey.Time, 2, moveValue.Z);
+              finBoneTracks.Positions.Set(time, 0, moveValue.X);
+              finBoneTracks.Positions.Set(time, 1, moveValue.Y);
+              finBoneTracks.Positions.Set(time, 2, moveValue.Z);
             }
+
+            prevTime = -1;
             foreach (var rotateKey in gloMesh.RotateKeys) {
-              finAnimation.FrameCount =
-                  Math.Max(finAnimation.FrameCount, (int) rotateKey.Time + 1);
+              Asserts.True(rotateKey.Time > prevTime);
+              prevTime = rotateKey.Time;
+
+              if (!(rotateKey.Time >= startFrame && rotateKey.Time <= endFrame)) {
+                continue;
+              }
+
+              var time = (int) (rotateKey.Time - startFrame);
+              Asserts.True(time >= 0 && time < finAnimation.FrameCount);
 
               var quaternionKey =
                   new Quaternion(rotateKey.X, rotateKey.Y, rotateKey.Z,
                                  rotateKey.W);
               var xyzRadiansKey = QuaternionUtil.ToEulerRadians(quaternionKey);
 
-              finBoneTracks.Rotations.Set((int) rotateKey.Time, 0,
+              finBoneTracks.Rotations.Set(time, 0,
                                           xyzRadiansKey.X);
-              finBoneTracks.Rotations.Set((int) rotateKey.Time, 1,
+              finBoneTracks.Rotations.Set(time, 1,
                                           xyzRadiansKey.Y);
-              finBoneTracks.Rotations.Set((int) rotateKey.Time, 2,
+              finBoneTracks.Rotations.Set(time, 2,
                                           xyzRadiansKey.Z);
             }
+
+            prevTime = -1;
             foreach (var scaleKey in gloMesh.ScaleKeys) {
-              finAnimation.FrameCount =
-                  Math.Max(finAnimation.FrameCount, (int) scaleKey.Time + 1);
+              Asserts.True(scaleKey.Time > prevTime);
+              prevTime = scaleKey.Time;
+
+              if (!(scaleKey.Time >= startFrame && scaleKey.Time <= endFrame)) {
+                continue;
+              }
+
+              var time = (int) (scaleKey.Time - startFrame);
+              Asserts.True(time >= 0 && time < finAnimation.FrameCount);
 
               var scaleValue = scaleKey.Scale;
-              finBoneTracks.Scales.Set((int) scaleKey.Time, 0, scaleValue.X);
-              finBoneTracks.Scales.Set((int) scaleKey.Time, 1, scaleValue.Y);
-              finBoneTracks.Scales.Set((int) scaleKey.Time, 2, scaleValue.Z);
+              finBoneTracks.Scales.Set(time, 0, scaleValue.X);
+              finBoneTracks.Scales.Set(time, 1, scaleValue.Y);
+              finBoneTracks.Scales.Set(time, 2, scaleValue.Z);
             }
           }
 
