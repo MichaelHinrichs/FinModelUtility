@@ -63,10 +63,8 @@ namespace fin.model {
     BONE,
   }
 
-  public interface IVertex {
+  public interface IVertex : IIndexable {
     // TODO: Allow caching vertex builders directly on this type.
-
-    int Index { get; }
 
     PreprojectMode PreprojectMode { get; set; }
 
