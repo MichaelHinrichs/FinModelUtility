@@ -30,6 +30,14 @@ namespace fin.model.impl {
 
       public bool IsDefined => this.axisTracks_.Any(axis => axis.IsDefined);
 
+      public int FrameCount {
+        set {
+          foreach (var axis in this.axisTracks_) {
+            axis.FrameCount = value;
+          }
+        }
+      }
+
       public void Set(IAxesTrack<float, Quaternion> other) {
         for (var i = 0; i < 3; ++i) {
           this.axisTracks_[i].Set(other.AxisTracks[i]);
@@ -66,7 +74,8 @@ namespace fin.model.impl {
 
       public Quaternion GetInterpolatedFrame(
           float frame,
-          IOptional<float[]>? defaultAxes = null) {
+          IOptional<float[]>? defaultAxes = null,
+          bool useLoopingInterpolation = false) {
         var xTrack = this.axisTracks_[0];
         var yTrack = this.axisTracks_[1];
         var zTrack = this.axisTracks_[2];
@@ -120,24 +129,39 @@ namespace fin.model.impl {
                                         .Or(this.defaultRotation_);
 
         xTrack.GetInterpolationData(
-            frame, defaultX,
-            out var fromXFrame, out var toXFrame);
+            frame,
+            defaultX,
+            out var fromXFrame,
+            out var toXFrame,
+            useLoopingInterpolation);
         yTrack.GetInterpolationData(
-            frame, defaultY,
-            out var fromYFrame, out var toYFrame);
+            frame,
+            defaultY,
+            out var fromYFrame,
+            out var toYFrame,
+            useLoopingInterpolation);
         zTrack.GetInterpolationData(
-            frame, defaultZ,
-            out var fromZFrame, out var toZFrame);
+            frame,
+            defaultZ,
+            out var fromZFrame,
+            out var toZFrame,
+            useLoopingInterpolation);
 
         if (!RadiansRotationTrackImpl.CanInterpolateWithQuaternions_(
                 fromXFrame, fromYFrame, fromZFrame,
                 toXFrame, toYFrame, toZFrame)) {
           var xRadians =
-              xTrack.GetInterpolatedFrame(frame, defaultX).Assert();
+              xTrack.GetInterpolatedFrame(frame, defaultX,
+                                          useLoopingInterpolation)
+                    .Assert();
           var yRadians =
-              yTrack.GetInterpolatedFrame(frame, defaultY).Assert();
+              yTrack.GetInterpolatedFrame(frame, defaultY,
+                                          useLoopingInterpolation)
+                    .Assert();
           var zRadians =
-              zTrack.GetInterpolatedFrame(frame, defaultZ).Assert();
+              zTrack.GetInterpolatedFrame(frame, defaultZ,
+                                          useLoopingInterpolation)
+                    .Assert();
 
           return QuaternionUtil.Create(xRadians, yRadians, zRadians);
         }
@@ -174,7 +198,7 @@ namespace fin.model.impl {
 
               // TODO: Use tangents if all fromFrames have the same tangent and all
               // toFrames have the same tangent.
-          return frameData.Value.tangent.Or(0) != 0;
+              return frameData.Value.tangent.Or(0) != 0;
             })) {
           return false;
         }

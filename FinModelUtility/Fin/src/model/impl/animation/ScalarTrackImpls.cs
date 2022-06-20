@@ -27,6 +27,10 @@ namespace fin.model.impl {
 
       public bool IsDefined => this.impl_.IsDefined;
 
+      public int FrameCount {
+        set => this.impl_.FrameCount = value;
+      }
+
       public void Set(IAxesTrack<float, IPosition> other)
         => this.impl_.Set(other);
 
@@ -47,8 +51,12 @@ namespace fin.model.impl {
 
       public IPosition GetInterpolatedFrame(
           float frame,
-          IOptional<float[]>? defaultAxes = null)
-        => this.impl_.GetInterpolatedFrame(frame, defaultAxes);
+          IOptional<float[]>? defaultAxes = null,
+          bool useLoopingInterpolation = false)
+        => this.impl_.GetInterpolatedFrame(
+            frame,
+            defaultAxes,
+            useLoopingInterpolation);
     }
 
     public class ScaleTrackImpl : IScaleTrack {
@@ -67,6 +75,10 @@ namespace fin.model.impl {
       public IReadOnlyList<ITrack<float>> AxisTracks => this.impl_.AxisTracks;
 
       public bool IsDefined => this.impl_.IsDefined;
+
+      public int FrameCount {
+        set => this.impl_.FrameCount = value;
+      }
 
       public void Set(IAxesTrack<float, IScale> other) => this.impl_.Set(other);
 
@@ -87,8 +99,11 @@ namespace fin.model.impl {
 
       public IScale GetInterpolatedFrame(
           float frame,
-          IOptional<float[]>? defaultAxes = null)
-        => this.impl_.GetInterpolatedFrame(frame, defaultAxes);
+          IOptional<float[]>? defaultAxes = null,
+          bool useLoopingInterpolation = false
+      )
+        => this.impl_.GetInterpolatedFrame(frame, defaultAxes,
+                                           useLoopingInterpolation);
     }
 
 
@@ -123,7 +138,7 @@ namespace fin.model.impl {
       public IInterpolatorWithTangents<TValue, TInterpolated>
           InterpolatorWithTangents { get; private set; }
 
-
+      public int FrameCount { get; set; }
       public IReadOnlyList<Keyframe<TValue>> Keyframes { get; }
 
       public bool IsDefined { get; set; }
@@ -151,13 +166,13 @@ namespace fin.model.impl {
                                  out var keyframeIndex,
                                  out _,
                                  out var keyframeDefined,
-                                 out var pastEnd);
+                                 out var isLastKeyframe);
         var keyframeAndValue =
             new Keyframe<TValue>(frame,
                                  t,
                                  optionalIncomingTangent,
                                  optionalOutgoingTangent);
-        if (pastEnd) {
+        if (isLastKeyframe) {
           this.keyframesAndValues_.Add(keyframeAndValue);
         } else if (keyframeDefined) {
           this.keyframesAndValues_[keyframeIndex] = keyframeAndValue;
@@ -180,12 +195,13 @@ namespace fin.model.impl {
 
       public Optional<TInterpolated> GetInterpolatedFrame(
           float frame,
-          IOptional<TValue> defaultValue) {
+          IOptional<TValue> defaultValue,
+          bool useLoopingInterpolation = false) {
         this.FindIndexOfKeyframe((int) frame,
                                  out var fromKeyframeIndex,
                                  out var optionalFromKeyframe,
                                  out var keyframeDefined,
-                                 out var pastEnd);
+                                 out var isLastKeyframe);
 
         var hasFromValue = optionalFromKeyframe
                            .Pluck(keyframe => keyframe.Value)
@@ -196,11 +212,8 @@ namespace fin.model.impl {
           return Optional.None<TInterpolated>();
         }
 
-        var isLastKeyframe =
-            fromKeyframeIndex == this.keyframesAndValues_.Count - 1;
-
         // TODO: Make this an option?
-        if (!keyframeDefined || pastEnd || isLastKeyframe) {
+        if (!keyframeDefined || (isLastKeyframe && !useLoopingInterpolation)) {
           return Optional.Of(
               this.Interpolator.Interpolate(fromValue, fromValue, 0));
         }
@@ -211,9 +224,22 @@ namespace fin.model.impl {
         var hasFromTangent =
             fromKeyframe.OutgoingTangent.Try(out var fromTangent);
 
-        var toKeyframe = this.keyframesAndValues_[fromKeyframeIndex + 1];
+        var wrapsAround = isLastKeyframe && useLoopingInterpolation;
+
+        var toKeyframe = !wrapsAround
+                             ? this.keyframesAndValues_[fromKeyframeIndex + 1]
+                             : this.keyframesAndValues_[0];
         var toValue = toKeyframe.Value;
         var toTime = toKeyframe.Frame;
+
+        if (wrapsAround) {
+          if (frame >= fromTime) {
+            toTime += this.FrameCount;
+          } else {
+            fromTime -= this.FrameCount;
+          }
+        }
+
         var hasToTangent = toKeyframe.IncomingTangent.Try(out var toTangent);
 
         var duration = toTime - fromTime;
@@ -237,13 +263,14 @@ namespace fin.model.impl {
           float frame,
           IOptional<TValue> defaultValue,
           out (float frame, TValue value, IOptional<float> tangent)? fromData,
-          out (float frame, TValue value, IOptional<float> tangent)? toData
+          out (float frame, TValue value, IOptional<float> tangent)? toData,
+          bool useLoopingInterpolation = false
       ) {
         this.FindIndexOfKeyframe((int) frame,
                                  out var fromKeyframeIndex,
                                  out var optionalFromKeyframe,
                                  out var keyframeDefined,
-                                 out var pastEnd);
+                                 out var isLastKeyframe);
         fromData = toData = null;
 
         var hasFromValue = optionalFromKeyframe
@@ -254,9 +281,6 @@ namespace fin.model.impl {
           return false;
         }
 
-        var isLastKeyframe =
-            fromKeyframeIndex == this.keyframesAndValues_.Count - 1;
-
         var fromKeyframe =
             optionalFromKeyframe.Assert("Keyframe should be defined here!");
         var fromTime = fromKeyframe.Frame;
@@ -264,13 +288,27 @@ namespace fin.model.impl {
         fromData = (fromTime, fromValue, fromKeyframe.OutgoingTangent);
 
         // TODO: Make this an option?
-        if (!keyframeDefined || pastEnd || isLastKeyframe) {
+        if (!keyframeDefined || (isLastKeyframe && !useLoopingInterpolation)) {
           return true;
         }
 
-        var toKeyframe = this.keyframesAndValues_[fromKeyframeIndex + 1];
+        var wrapsAround = isLastKeyframe && useLoopingInterpolation;
+
+        var toKeyframe =
+            !wrapsAround
+                ? this.keyframesAndValues_[fromKeyframeIndex + 1]
+                : this.keyframesAndValues_[0];
         var toTime = toKeyframe.Frame;
         var toValue = toKeyframe.Value;
+
+        if (wrapsAround) {
+          if (frame >= fromTime) {
+            toTime += this.FrameCount;
+          } else {
+            fromTime -= this.FrameCount;
+            fromData = (fromTime, fromValue, fromKeyframe.OutgoingTangent);
+          }
+        }
 
         toData = (toTime, toValue, toKeyframe.IncomingTangent);
         return true;
@@ -282,7 +320,7 @@ namespace fin.model.impl {
           out int keyframeIndex,
           out Optional<Keyframe<TValue>> keyframe,
           out bool keyframeDefined,
-          out bool pastEnd) {
+          out bool isLastKeyframe) {
         var keyframeCount = this.keyframesAndValues_.Count;
         for (var i = keyframeCount - 1; i >= 0; --i) {
           var currentKeyframe = this.keyframesAndValues_[i];
@@ -291,7 +329,7 @@ namespace fin.model.impl {
             keyframeIndex = i;
             keyframe = Optional.Of(currentKeyframe);
             keyframeDefined = true;
-            pastEnd = i == keyframeCount - 1;
+            isLastKeyframe = i == keyframeCount - 1;
             return;
           }
         }
@@ -299,7 +337,7 @@ namespace fin.model.impl {
         keyframeIndex = keyframeCount;
         keyframe = Optional.None<Keyframe<TValue>>();
         keyframeDefined = false;
-        pastEnd = true;
+        isLastKeyframe = true;
       }
     }
 
@@ -354,6 +392,14 @@ namespace fin.model.impl {
 
       public bool IsDefined => this.axisTracks_.Any(axis => axis.IsDefined);
 
+      public int FrameCount {
+        set {
+          foreach (var axis in this.axisTracks_) {
+            axis.FrameCount = value;
+          }
+        }
+      }
+
       public void Set(IAxesTrack<TAxis, TInterpolated> other) {
         var otherAxisTracks = other.AxisTracks;
         for (var i = 0; i < otherAxisTracks.Count; ++i) {
@@ -385,7 +431,9 @@ namespace fin.model.impl {
 
       public TInterpolated GetInterpolatedFrame(
           float frame,
-          IOptional<TAxis[]>? defaultAxes = null) {
+          IOptional<TAxis[]>? defaultAxes = null,
+          bool useLoopingInterpolation = false
+      ) {
         var optionAxisList =
             this.axisTracks_.Select(
                 (axis, i) => {
@@ -396,7 +444,8 @@ namespace fin.model.impl {
 
                   return axis.GetInterpolatedFrame(
                       frame,
-                      defaultValue);
+                      defaultValue,
+                      useLoopingInterpolation);
                 });
         var axisList = optionAxisList
                        .Select(axis => axis.Assert(

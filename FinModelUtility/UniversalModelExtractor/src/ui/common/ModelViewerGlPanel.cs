@@ -76,7 +76,7 @@ namespace uni.ui.common {
         if (this.AnimationPlaybackManager != null) {
           this.AnimationPlaybackManager.Frame = 0;
           this.AnimationPlaybackManager.FrameRate =
-              (int)(value?.FrameRate ?? 20);
+              (int) (value?.FrameRate ?? 20);
           this.AnimationPlaybackManager.TotalFrames =
               value?.FrameCount ?? 0;
         }
@@ -326,7 +326,8 @@ void main() {
         this.boneTransformManager_.CalculateMatrices(
             this.Model.Skeleton.Root,
             this.Model.Skin.BoneWeights,
-            (this.Animation, (float) this.AnimationPlaybackManager.Frame));
+            (this.Animation, (float) this.AnimationPlaybackManager.Frame),
+            this.AnimationPlaybackManager.ShouldLoop);
       }
 
       this.texturedShaderProgram_.Use();

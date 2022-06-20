@@ -38,7 +38,9 @@ namespace fin.math {
     public IDictionary<IBone, int> CalculateMatrices(
         IBone rootBone,
         IReadOnlyList<IBoneWeights> boneWeightsList,
-        (IAnimation, float)? animationAndFrame) {
+        (IAnimation, float)? animationAndFrame,
+        bool useLoopingInterpolation = false
+    ) {
       var animation = animationAndFrame?.Item1;
       var frame = animationAndFrame?.Item2;
 
@@ -72,15 +74,18 @@ namespace fin.math {
         // The pose of the animation, if available.
         var animationLocalPosition =
             boneTracks?.Positions.IsDefined ?? false
-                ? boneTracks?.Positions.GetInterpolatedFrame((float) frame)
+                ? boneTracks?.Positions.GetInterpolatedFrame(
+                    (float) frame, null, useLoopingInterpolation)
                 : null;
         var animationLocalRotation =
             boneTracks?.Rotations.IsDefined ?? false
-                ? boneTracks?.Rotations.GetInterpolatedFrame((float) frame)
+                ? boneTracks?.Rotations.GetInterpolatedFrame(
+                    (float) frame, null, useLoopingInterpolation)
                 : null;
         var animationLocalScale =
             boneTracks?.Scales.IsDefined ?? false
-                ? boneTracks?.Scales.GetInterpolatedFrame((float) frame)
+                ? boneTracks?.Scales.GetInterpolatedFrame(
+                    (float) frame, null, useLoopingInterpolation)
                 : null;
 
         // Uses the animation pose instead of the root pose when available.
@@ -155,19 +160,42 @@ namespace fin.math {
     public IReadOnlyFinMatrix4x4 GetWorldMatrix(IBone bone)
       => this.bonesToWorldMatrices_[bone];
 
-    public void ProjectVertex(
-        IVertex vertex,
-        IPosition outPosition,
-        INormal? outNormal = null,
-        bool forcePreproject = false) {
+    public IReadOnlyFinMatrix4x4? GetTransformMatrix(IVertex vertex,
+      bool forcePreproject = false) {
       var weights = vertex.BoneWeights?.Weights;
       var preproject =
           (vertex.PreprojectMode != PreprojectMode.NONE || forcePreproject) &&
           weights?.Count > 0;
 
+      if (!preproject) {
+        return null;
+      }
+
+      return vertex.PreprojectMode switch {
+          // If preproject mode is none, then the vertices are already in the same position as the bones.
+          // To calculate the animation, we have to first "undo" the root pose via an inverted matrix. 
+          PreprojectMode.NONE => this.boneWeightsToAdditiveWorldMatrices_[
+              vertex.BoneWeights!],
+          // If preproject mode is bone, then we need to transform the vertex by one or more bones.
+          PreprojectMode.BONE => this.boneWeightsToWorldMatrices_[
+              vertex.BoneWeights!],
+          // If preproject mode is root, then the vertex needs to be transformed relative to
+          // some root bone.
+          PreprojectMode.ROOT => this.GetWorldMatrix(weights[0].Bone.Root),
+          _                   => throw new ArgumentOutOfRangeException()
+      };
+    }
+
+    public void ProjectVertex(
+        IVertex vertex,
+        IPosition outPosition,
+        INormal? outNormal = null,
+        bool forcePreproject = false) {
+      var transformMatrix = this.GetTransformMatrix(vertex, forcePreproject);
+
       var localPosition = vertex.LocalPosition;
       var localNormal = vertex.LocalNormal;
-      if (!preproject) {
+      if (transformMatrix == null) {
         outPosition.X = localPosition.X;
         outPosition.Y = localPosition.Y;
         outPosition.Z = localPosition.Z;
@@ -180,29 +208,6 @@ namespace fin.math {
         return;
       }
 
-      IReadOnlyFinMatrix4x4 transformMatrix;
-      switch (vertex.PreprojectMode) {
-        // If preproject mode is none, then the vertices are already in the same position as the bones.
-        // To calculate the animation, we have to first "undo" the root pose via an inverted matrix. 
-        case PreprojectMode.NONE: {
-          transformMatrix =
-              this.boneWeightsToAdditiveWorldMatrices_[vertex.BoneWeights!];
-          break;
-        }
-        // If preproject mode is bone, then we need to transform the vertex by one or more bones.
-        case PreprojectMode.BONE: {
-          transformMatrix =
-              this.boneWeightsToWorldMatrices_[vertex.BoneWeights!];
-          break;
-        }
-        // If preproject mode is root, then the vertex needs to be transformed relative to
-        // some root bone.
-        case PreprojectMode.ROOT: {
-          transformMatrix = this.GetWorldMatrix(weights[0].Bone.Root);
-          break;
-        }
-        default: throw new ArgumentOutOfRangeException();
-      }
       this.transformer_.Set(transformMatrix);
 
       double x = localPosition.X;

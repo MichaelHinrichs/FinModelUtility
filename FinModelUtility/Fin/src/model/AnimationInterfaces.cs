@@ -57,6 +57,8 @@ namespace fin.model {
   public interface ITrack<TValue, TInterpolated> {
     bool IsDefined { get; }
 
+    int FrameCount { get; set; }
+
     public IInterpolator<TValue, TInterpolated> Interpolator { get; }
 
     public IInterpolatorWithTangents<TValue, TInterpolated>
@@ -95,13 +97,16 @@ namespace fin.model {
 
     Optional<TInterpolated> GetInterpolatedFrame(
         float frame,
-        IOptional<TValue> defaultValue);
+        IOptional<TValue> defaultValue,
+        bool useLoopingInterpolation = false
+    );
 
     bool GetInterpolationData(
         float frame,
         IOptional<TValue> defaultValue,
         out (float frame, TValue value, IOptional<float> tangent)? fromData,
-        out (float frame, TValue value, IOptional<float> tangent)? toData
+        out (float frame, TValue value, IOptional<float> tangent)? toData,
+        bool useLoopingInterpolation = false
     );
 
     // TODO: Allow setting tangent(s) at each frame.
@@ -113,6 +118,8 @@ namespace fin.model {
   // TODO: Rethink this, this is getting way too complicated.
   public interface IAxesTrack<TAxis, TInterpolated> {
     bool IsDefined { get; }
+
+    int FrameCount { set; }
 
     void Set(IAxesTrack<TAxis, TInterpolated> other);
 
@@ -150,7 +157,9 @@ namespace fin.model {
 
     TInterpolated GetInterpolatedFrame(
         float frame,
-        IOptional<TAxis[]>? defaultValue = null);
+        IOptional<TAxis[]>? defaultValue = null,
+        bool useLoopingInterpolation = false
+        );
   }
 
   public interface IPositionTrack : IAxesTrack<float, IPosition> { }

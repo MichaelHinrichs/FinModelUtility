@@ -34,6 +34,8 @@ namespace fin.model.impl {
       }
 
       private class AnimationImpl : IAnimation {
+        private int frameCount_;
+
         private readonly IndexableDictionary<IBone, IBoneTracks> boneTracks_ =
             new();
 
@@ -43,13 +45,26 @@ namespace fin.model.impl {
 
         public string Name { get; set; }
 
-        public int FrameCount { get; set; }
+        public int FrameCount {
+          get => this.frameCount_;
+          set {
+            this.frameCount_ = value;
+            foreach (var (_, boneTracks) in this.boneTracks_) {
+              (boneTracks as BoneTracksImpl).FrameCount = value;
+            }
+          }
+        }
+
         public float FrameRate { get; set; }
 
-        public IReadOnlyIndexableDictionary<IBone, IBoneTracks> BoneTracks { get; }
+        public IReadOnlyIndexableDictionary<IBone, IBoneTracks> BoneTracks {
+          get;
+        }
 
         public IBoneTracks AddBoneTracks(IBone bone) {
-          var boneTracks = new BoneTracksImpl();
+          var boneTracks = new BoneTracksImpl {
+              FrameCount = this.FrameCount,
+          };
           this.boneTracks_[bone] = boneTracks;
           return boneTracks;
         }
@@ -86,6 +101,13 @@ namespace fin.model.impl {
     }
 
     public class BoneTracksImpl : IBoneTracks {
+      public int FrameCount {
+        set {
+          this.Positions.FrameCount =
+              this.Rotations.FrameCount = this.Scales.FrameCount = value;
+        }
+      }
+
       public void Set(IBoneTracks other) {
         this.Positions.Set(other.Positions);
         this.Rotations.Set(other.Rotations);
