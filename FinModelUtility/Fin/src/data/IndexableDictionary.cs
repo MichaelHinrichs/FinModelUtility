@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 using fin.util.optional;
 
@@ -14,7 +16,9 @@ namespace fin.data {
     Optional<TValue> Value { get; }
   }
 
-  public interface IReadOnlyIndexableDictionary<TIndexable, TValue>
+  public interface
+      IReadOnlyIndexableDictionary<TIndexable, TValue> : IEnumerable<(TIndexable
+          , TValue)>
       where TIndexable : IIndexable {
     TValue this[TIndexable key] { get; }
     bool TryGetValue(TIndexable key, out TValue value);
@@ -71,5 +75,12 @@ namespace fin.data {
       public TIndexable Key { get; set; }
       public Optional<TValue> Value { get; set; }
     }
+
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+
+    public IEnumerator<(TIndexable, TValue)> GetEnumerator()
+      => (from value in this.impl_
+          where value.Value.HasValue
+          select (value.Key, value.Value.Assert())).GetEnumerator();
   }
 }
