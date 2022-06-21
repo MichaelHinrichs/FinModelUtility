@@ -1,3 +1,5 @@
+using bmd.exporter;
+
 using fin.model;
 
 using glo.api;
@@ -36,17 +38,17 @@ namespace uni.ui {
 
     private IModel LoadModel_(IModelFileBundle modelFileBundle)
       => modelFileBundle switch {
-          GloModelFileBundle gloModelFileBundle => new GloModelLoader()
-              .LoadModel(gloModelFileBundle),
-          ModModelFileBundle modModelFileBundle => new ModModelLoader()
-              .LoadModel(modModelFileBundle),
-          ZarModelFileBundle zarModelFileBundle => new ZarModelLoader()
-              .LoadModel(zarModelFileBundle),
+          BmdModelFileBundle bmdModelFileBundle
+              => new BmdModelLoader().LoadModel(bmdModelFileBundle),
+          GloModelFileBundle gloModelFileBundle
+              => new GloModelLoader().LoadModel(gloModelFileBundle),
+          ModModelFileBundle modModelFileBundle
+              => new ModModelLoader().LoadModel(modModelFileBundle),
+          ZarModelFileBundle zarModelFileBundle
+              => new ZarModelLoader().LoadModel(zarModelFileBundle),
           _ => throw new ArgumentOutOfRangeException(nameof(modelFileBundle))
       };
 
-    private void modelViewerGlPanel__Load(object sender, EventArgs e) {
-
-    }
+    private void modelViewerGlPanel__Load(object sender, EventArgs e) { }
   }
 }

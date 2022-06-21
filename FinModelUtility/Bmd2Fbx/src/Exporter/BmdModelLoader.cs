@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-using bmd.cli;
-
 using fin.math;
 using fin.math.matrix;
 
@@ -16,17 +14,65 @@ using fin.util.asserts;
 
 using bmd.G3D_Binary_File_Format;
 
+using fin.io;
+using fin.log;
+
 using Tao.OpenGl;
+
 
 namespace bmd.exporter {
   using MkdsNode = bmd._3D_Formats.MA.Node;
 
-  public class ModelConverter {
-    public IModel Convert(
-        BMD bmd,
-        IList<(string, IBcx)>? pathsAndBcxs = null,
-        IList<(string, BTI)>? pathsAndBtis = null,
-        float frameRate = 30) {
+  public class BmdModelFileBundle : IModelFileBundle {
+    public IFile BmdFile { get; set; }
+    public IReadOnlyList<IFile>? BcxFiles { get; set; }
+    public IReadOnlyList<IFile>? BtiFiles { get; set; }
+    public float FrameRate { get; set; } = 30;
+    public string FileName => this.BmdFile.NameWithoutExtension;
+  }
+
+  public class BmdModelLoader : IModelLoader<BmdModelFileBundle> {
+    public IModel LoadModel(BmdModelFileBundle modelFileBundle) {
+      var logger = Logging.Create<BmdModelLoader>();
+
+      var bmd = new BMD(modelFileBundle.BmdFile.SkimAllBytes());
+
+      List<(string, IBcx)>? pathsAndBcxs;
+      try {
+        pathsAndBcxs =
+            modelFileBundle
+                .BcxFiles?
+                .Select(bcxFile => {
+                  var extension = bcxFile.Extension.ToLower();
+                  IBcx bcx = extension switch {
+                      ".bca" =>
+                          new BCA(bcxFile.SkimAllBytes()),
+                      ".bck" =>
+                          new BCK(bcxFile.SkimAllBytes()),
+                      _ => throw new NotSupportedException(),
+                  };
+                  return (bcxFile.FullName, bcx);
+                })
+                .ToList();
+      } catch {
+        logger.LogError("Failed to load BCX!");
+        throw;
+      }
+
+      List<(string, BTI)>? pathsAndBtis;
+      try {
+        pathsAndBtis =
+            modelFileBundle
+                .BtiFiles?
+                .Select(btiFile
+                            => (btiFile.FullName,
+                                new BTI(btiFile.SkimAllBytes())))
+                .ToList();
+      } catch {
+        logger.LogError("Failed to load BTI!");
+        throw;
+      }
+
       var model = new ModelImpl();
 
       var materialManager =
@@ -36,7 +82,7 @@ namespace bmd.exporter {
       this.ConvertAnimations_(model,
                               bmd,
                               pathsAndBcxs,
-                              frameRate,
+                              modelFileBundle.FrameRate,
                               jointsAndBones);
       this.ConvertMesh_(model, bmd, jointsAndBones, materialManager);
 
@@ -204,7 +250,7 @@ namespace bmd.exporter {
                     }
 
                     var skinToBoneMatrix =
-                        ModelConverter.ConvertMkdsToFin_(
+                        BmdModelLoader.ConvertMkdsToFin_(
                             bmd.EVP1.InverseBindMatrices[jointIndex]);
 
                     var bone = jointsAndBones[jointIndex].Item2;

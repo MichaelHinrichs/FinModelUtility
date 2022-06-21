@@ -4,6 +4,7 @@ using uni.games.glover;
 using uni.games.luigis_mansion_3d;
 using uni.games.ocarina_of_time_3d;
 using uni.games.pikmin_1;
+using uni.games.pikmin_2;
 
 
 namespace uni.games {
@@ -19,6 +20,8 @@ namespace uni.games {
           new OcarinaOfTime3dFileGatherer().GatherModelFileBundles(false));
       rootModelDirectory.AddSubdirIfNotNull(
           new Pikmin1ModelFileGatherer().GatherModelFileBundles(false));
+      rootModelDirectory.AddSubdirIfNotNull(
+          new Pikmin2FileGatherer().GatherModelFileBundles(false));
 
       rootModelDirectory.RemoveEmptyChildren();
 

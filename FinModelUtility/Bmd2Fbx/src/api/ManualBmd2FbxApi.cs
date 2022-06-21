@@ -4,12 +4,12 @@ using System.IO;
 using System.Linq;
 
 using bmd.exporter;
-using bmd.GCN;
 
 using fin.exporter.assimp.indirect;
 using fin.io;
 using fin.log;
 using fin.util.asserts;
+
 
 namespace bmd.api {
   public class ManualBmd2FbxApi {
@@ -63,54 +63,9 @@ namespace bmd.api {
                                     string.Join(' ', nonexistentBtis));
       }
 
-      List<(string, BMD)> pathsAndBmds;
-      try {
-        pathsAndBmds = bmdPaths.Select(
-                                   bmdPath => (bmdPath,
-                                               new BMD(
-                                                   File.ReadAllBytes(bmdPath))))
-                               .ToList();
-      } catch {
-        logger.LogError("Failed to load BMD!");
-        throw;
-      }
-
-      List<(string, IBcx)> pathsAndBcxs;
-      try {
-        pathsAndBcxs = bcxPaths
-                       .Select(bcxPath => {
-                         var extension =
-                             new FileInfo(bcxPath).Extension.ToLower();
-                         IBcx bcx = extension switch {
-                             ".bca" =>
-                                 new BCA(File.ReadAllBytes(bcxPath)),
-                             ".bck" =>
-                                 new BCK(File.ReadAllBytes(bcxPath)),
-                             _ => throw new NotSupportedException(),
-                         };
-                         return (bcxPath, bcx);
-                       })
-                       .ToList();
-      } catch {
-        logger.LogError("Failed to load BCX!");
-        throw;
-      }
-
-      List<(string, BTI)> pathsAndBtis;
-      try {
-        pathsAndBtis =
-            btiPaths.Select(btiPath => (btiPath,
-                                        new BTI(
-                                            File.ReadAllBytes(btiPath))))
-                    .ToList();
-      } catch {
-        logger.LogError("Failed to load BTI!");
-        throw;
-      }
-
       outputDirectory.Create();
 
-      foreach (var (bmdPath, bmd) in pathsAndBmds) {
+      /*foreach (var bmdPath in bmdPaths) {
         var bmdFile = new FileInfo(bmdPath);
         BmdDebugHelper.ExportFilesInBmd(outputDirectory,
                                         bmd,
@@ -119,16 +74,26 @@ namespace bmd.api {
                                             bmdFile.Name.Length -
                                             ".bmd".Length),
                                         pathsAndBtis);
-      }
+      }*/
 
-      foreach (var (bmdPath, bmd) in pathsAndBmds) {
+      foreach (var bmdPath in bmdPaths) {
+        var bmdFile = new FinFile(bmdPath);
+
         var model =
-            new ModelConverter().Convert(bmd,
-                                         pathsAndBcxs,
-                                         pathsAndBtis,
-                                         frameRate);
+            new BmdModelLoader()
+                .LoadModel(new BmdModelFileBundle {
+                    BmdFile = bmdFile,
+                    BcxFiles =
+                        bcxPaths
+                            .Select(bcxPath => new FinFile(bcxPath))
+                            .ToArray(),
+                    BtiFiles =
+                        btiPaths
+                            .Select(btiPath => new FinFile(btiPath))
+                            .ToArray(),
+                    FrameRate = frameRate
+                });
 
-        var bmdFile = new FileInfo(bmdPath);
         new AssimpIndirectExporter().Export(
             new FinFile(Path.Join(outputDirectory.FullName, bmdFile.Name))
                 .CloneWithExtension(".fbx"),
