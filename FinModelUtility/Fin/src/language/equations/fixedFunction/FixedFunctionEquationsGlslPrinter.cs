@@ -33,9 +33,16 @@ namespace fin.language.equations.fixedFunction {
       // TODO: Get tree of all values that this depends on, in case there needs to be other variables defined before.
       var outputColor = equations.ColorOutputs[FixedFunctionSource.OUTPUT_COLOR];
       
-      os.Write("  fragColor = ");
+      os.Write("  vec3 colorComponent = ");
       this.PrintColorValue_(os, outputColor.ColorValue);
       os.WriteLine(";");
+      os.WriteLine();
+
+      os.Write("  float alphaComponent = 1;");
+      os.WriteLine();
+
+      os.Write("  fragColor = vec4(colorComponent, alphaComponent);");
+      os.WriteLine();
 
       os.WriteLine(@"
   if (fragColor.a < .95) {
@@ -234,13 +241,12 @@ namespace fin.language.equations.fixedFunction {
           r = g = b = factor.Intensity!;
         }
 
-        os.Write("vec4(");
+        os.Write("vec3(");
         this.PrintScalarValue_(os, r);
         os.Write(",");
         this.PrintScalarValue_(os, g);
         os.Write(",");
         this.PrintScalarValue_(os, b);
-        os.Write(",1");
         os.Write(")");
       }
     }
@@ -249,11 +255,12 @@ namespace fin.language.equations.fixedFunction {
         StringWriter os,
         IColorNamedValue<FixedFunctionSource> namedValue)
       => os.Write(namedValue.Identifier switch {
-          FixedFunctionSource.TEXTURE_COLOR_0 => "vec4(texture(texture0, uv0).rgb, 1)",
-          FixedFunctionSource.TEXTURE_ALPHA_0 => "vec4(1, 1, 1, texture(texture0, uv0).a)",
-          FixedFunctionSource.VERTEX_COLOR_0  => "vec4(vertexColor0.rgb, 1)",
-          FixedFunctionSource.VERTEX_COLOR_1  => "vec4(vertexColor1.rgb, 1)",
-          FixedFunctionSource.UNDEFINED       => "vec4(1,1,1,1)"
+          // TODO: Support other UV sources.
+          FixedFunctionSource.TEXTURE_COLOR_0 => "texture(texture0, uv0).rgb",
+          FixedFunctionSource.TEXTURE_ALPHA_0 => "vec3(texture(texture0, uv0).a)",
+          FixedFunctionSource.VERTEX_COLOR_0  => "vertexColor0.rgb",
+          FixedFunctionSource.VERTEX_COLOR_1  => "vertexColor1.rgb",
+          FixedFunctionSource.UNDEFINED       => "vec3(1)"
       });
 
     private void PrintColorNamedValueSwizzle_(

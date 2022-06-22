@@ -64,10 +64,8 @@ namespace bmd.exporter {
       var scTwo = equations.CreateScalarConstant(2);
       var scFour = equations.CreateScalarConstant(4);
       var scHalf = equations.CreateScalarConstant(.5);
-      var scMinusHalf = equations.CreateScalarConstant(-.5);
-
-      var minusOne = equations.CreateColorConstant(-1);
-
+      var scMinusOne = equations.CreateScalarConstant(-1);
+      
       var isZero = (IColorValue? color) => color == null || color == colorZero;
 
       var addColorValues = (IColorValue? lhs, IColorValue? rhs) => {
@@ -95,7 +93,7 @@ namespace bmd.exporter {
           return null;
         }
         if (lhsIsZero) {
-          return rhs?.Multiply(minusOne);
+          return rhs?.Multiply(scMinusOne);
         }
         if (rhsIsZero) {
           return lhs;
@@ -238,7 +236,7 @@ namespace bmd.exporter {
                   break;
                 }
                 case TevStage.TevBias.GX_TB_SUBHALF: {
-                  colorValue = colorValue.Add(scMinusHalf);
+                  colorValue = colorValue.Subtract(scHalf);
                   break;
                 }
                 default: {
@@ -531,12 +529,10 @@ namespace bmd.exporter {
         var konstColor = this.konstColors_[index];
         if (konstColor == null) {
           this.konstColors_[index] =
-              konstColor = this.equations_.CreateColorInput(
-                  (FixedFunctionSource.CONST_COLOR_0 + index),
-                  this.equations_.CreateColorConstant(
+              konstColor = this.equations_.CreateColorConstant(
                       color.R / 255f,
                       color.G / 255f,
-                      color.B / 255f));
+                      color.B / 255f);
         }
 
         return this.colorValues_[TevStage.GxCc.GX_CC_KONST] = konstColor;
