@@ -108,6 +108,8 @@ namespace fin.language.equations.fixedFunction {
                             ScalarConstant.NEGATIVE_ONE,
                             term)))
                 .ToArray();
+
+      public bool Clamp { get; set; }
     }
 
     private class ScalarExpression : BScalarValue, IScalarExpression {

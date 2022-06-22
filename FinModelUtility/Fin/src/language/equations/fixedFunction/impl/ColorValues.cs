@@ -223,6 +223,8 @@ namespace fin.language.equations.fixedFunction {
       public abstract IScalarValue R { get; }
       public abstract IScalarValue G { get; }
       public abstract IScalarValue B { get; }
+
+      public bool Clamp { get; set; }
     }
 
     private class ColorExpression : BColorValue, IColorExpression {

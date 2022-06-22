@@ -40,6 +40,8 @@ namespace fin.language.equations.fixedFunction {
     IScalarValue R { get; }
     IScalarValue G { get; }
     IScalarValue B { get; }
+
+    bool Clamp { get; set; }
   }
 
   public interface IColorExpression : IColorValue {

@@ -20,6 +20,8 @@ namespace fin.language.equations.fixedFunction {
     IScalarExpression Subtract(IScalarValue term1, params IScalarValue[] terms);
     IScalarTerm Multiply(IScalarValue factor1, params IScalarValue[] factors);
     IScalarTerm Divide(IScalarValue factor1, params IScalarValue[] factors);
+
+    bool Clamp { get; }
   }
 
   public interface IScalarExpression : IScalarValue {

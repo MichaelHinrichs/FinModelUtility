@@ -1,5 +1,6 @@
 ﻿using fin.data;
 using fin.gl;
+using fin.language.equations.fixedFunction;
 using fin.math;
 using fin.model;
 using fin.model.impl;
@@ -66,7 +67,9 @@ namespace uni.ui.gl {
   public class MaterialMeshRenderer : IDisposable {
     // TODO: Set up shader for material
     // TODO: Use material's textures
-    
+
+    private readonly GlShaderProgram? shaderProgram_;
+
     private static GlTexture? NULL_TEXTURE_;
 
     private readonly BoneTransformManager boneTransformManager_;
@@ -76,12 +79,44 @@ namespace uni.ui.gl {
 
     private readonly IList<IPrimitive> primitives_;
 
+
     public MaterialMeshRenderer(BoneTransformManager boneTransformManager,
                                 IMaterial material,
                                 IList<IPrimitive> primitives) {
       this.boneTransformManager_ = boneTransformManager;
 
       this.material_ = material;
+
+      var fixedFunctionMaterial = material as IFixedFunctionMaterial;
+      if (fixedFunctionMaterial != null) {
+        var vertexShaderSrc = @"
+# version 120
+
+in vec2 in_uv0;
+
+varying vec4 vertexColor0;
+varying vec4 vertexColor1;
+varying vec2 uv0;
+
+void main() {
+    gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex; 
+    vertexColor0 = vec4(0.5, 0.5, 0.5, 1);
+    vertexColor1 = vec4(0, 0, 0, 1);
+    uv0 = gl_MultiTexCoord0.st;
+}";
+
+        // gl_Color
+
+        var pretty =
+            new FixedFunctionEquationsPrettyPrinter<FixedFunctionSource>()
+                .Print(fixedFunctionMaterial.Equations);
+
+        var fragmentShaderSrc = new FixedFunctionEquationsGlslPrinter()
+            .Print(fixedFunctionMaterial.Equations);
+
+        this.shaderProgram_ =
+            GlShaderProgram.FromShaders(vertexShaderSrc, fragmentShaderSrc);
+      }
 
       if (MaterialMeshRenderer.NULL_TEXTURE_ == null) {
         MaterialMeshRenderer.NULL_TEXTURE_ =
@@ -112,9 +147,19 @@ namespace uni.ui.gl {
       if (this.texture_ != MaterialMeshRenderer.NULL_TEXTURE_) {
         this.texture_?.Dispose();
       }
+      this.shaderProgram_?.Dispose();
     }
 
     public void Render() {
+      if (this.shaderProgram_ != null) {
+        this.shaderProgram_.Use();
+
+        var texture0Location = Gl.glGetUniformLocation(
+            this.shaderProgram_.ProgramId,
+            "texture0");
+        Gl.glUniform1i(texture0Location, 0);
+      }
+
       GlUtil.SetCulling(this.material_.CullingMode);
       this.texture_?.Bind();
 
@@ -203,8 +248,8 @@ namespace uni.ui.gl {
       if (DebugFlags.ENABLE_WEIGHT_COLORS) {
         float r = 0, g = 0, b = 0;
 
-        if (vertex.BoneWeights == null) {
-        } else if (vertex.BoneWeights.Weights.Count == 0) {
+        if (vertex.BoneWeights == null) { } else if (vertex.BoneWeights.Weights
+                                                         .Count == 0) {
           r = 1;
           g = 1;
         } else if (vertex.BoneWeights.Weights.Count == 1) {

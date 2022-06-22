@@ -15,6 +15,7 @@ using fin.util.asserts;
 using BlendFactor = fin.model.BlendFactor;
 using LogicOp = fin.model.LogicOp;
 
+
 namespace bmd.exporter {
   using static bmd.GCN.BMD.MAT3Section.TevStageProps;
 
@@ -43,11 +44,11 @@ namespace bmd.exporter {
       material.Name = materialName;
       material.CullingMode =
           bmd.MAT3.CullModes[materialEntry.CullModeIndex] switch {
-            BMD.CullMode.None  => CullingMode.SHOW_BOTH,
-            BMD.CullMode.Front => CullingMode.SHOW_BACK_ONLY,
-            BMD.CullMode.Back  => CullingMode.SHOW_FRONT_ONLY,
-            BMD.CullMode.All   => CullingMode.SHOW_NEITHER,
-            _                  => throw new ArgumentOutOfRangeException(),
+              BMD.CullMode.None  => CullingMode.SHOW_BOTH,
+              BMD.CullMode.Front => CullingMode.SHOW_BACK_ONLY,
+              BMD.CullMode.Back  => CullingMode.SHOW_FRONT_ONLY,
+              BMD.CullMode.All   => CullingMode.SHOW_NEITHER,
+              _                  => throw new ArgumentOutOfRangeException(),
           };
 
       this.Material = material;
@@ -65,6 +66,8 @@ namespace bmd.exporter {
       var scHalf = equations.CreateScalarConstant(.5);
       var scMinusHalf = equations.CreateScalarConstant(-.5);
 
+      var minusOne = equations.CreateColorConstant(-1);
+
       var colorManager = new ColorManager(equations);
 
       // TODO: Where are color constants set inside the materials?
@@ -72,6 +75,8 @@ namespace bmd.exporter {
       // TODO: Need to support multiple vertex colors
       // TODO: Colors should just be RGB in the fixed function library
       // TODO: Seems like only texture 1 is used, is this accurate?
+
+      colorManager.SetConstColors(bmd.MAT3.ColorS10);
 
       for (var i = 0; i < materialEntry.TevStageInfo.Length; ++i) {
         var tevStageIndex = materialEntry.TevStageInfo[i];
@@ -139,7 +144,8 @@ namespace bmd.exporter {
           var colorOp = tevStage.color_op;
           switch (colorOp) {
             // ADD: out = a*(1 - c) + b*c + d
-            case 0: {
+            case TevOp.GX_TEV_ADD:
+            case TevOp.GX_TEV_SUB: {
               var isCOne = ccC == TevStage.GxCc.GX_CC_ONE;
 
               if (ccA != TevStage.GxCc.GX_CC_ZERO && !isCOne) {
@@ -228,6 +234,8 @@ namespace bmd.exporter {
                 break;
               }
             }
+
+            colorValue.Clamp = tevStage.color_clamp;
           }
 
           colorManager.UpdateColorRegister(tevStage.color_regid, colorValue);
@@ -343,6 +351,7 @@ namespace bmd.exporter {
       }*/
 
       private readonly IColorValue?[] textureColors_ = new IColorValue?[8];
+      private readonly IColorValue?[] textureAlphas_ = new IColorValue?[8];
       private int? textureIndex_ = null;
 
       public void UpdateTextureColor(int? index) {
@@ -368,11 +377,31 @@ namespace bmd.exporter {
         if (texture == null) {
           this.textureColors_[index] =
               texture = this.equations_.CreateColorInput(
-                  (FixedFunctionSource) (FixedFunctionSource.TEXTURE_0 + index),
+                  (FixedFunctionSource) (FixedFunctionSource.TEXTURE_COLOR_0 +
+                                         index),
                   this.equations_.CreateColorConstant(0));
         }
 
         return this.colorValues_[TevStage.GxCc.GX_CC_TEXC] = texture;
+      }
+
+      private IColorValue GetTextureAlphaChannel_() {
+        var indexOrNull = this.textureIndex_;
+        Asserts.Nonnull(indexOrNull);
+
+        var index = indexOrNull.Value;
+        Asserts.True(index >= 0 && index < 8);
+
+        var texture = this.textureAlphas_[index];
+        if (texture == null) {
+          this.textureAlphas_[index] =
+              texture = this.equations_.CreateColorInput(
+                  (FixedFunctionSource) (FixedFunctionSource.TEXTURE_ALPHA_0 +
+                                         index),
+                  this.equations_.CreateColorConstant(0));
+        }
+
+        return this.colorValues_[TevStage.GxCc.GX_CC_TEXA] = texture;
       }
 
 
@@ -423,8 +452,15 @@ namespace bmd.exporter {
       private int? konstIndex_ = null;
       private Color? konstColor_ = null;
 
+      private IList<Color> constColorImpls_;
+      private readonly IColorValue?[] constColors_ = new IColorValue?[3];
+
       // TODO: Is 10 right?
       private readonly IColorValue?[] konstColors_ = new IColorValue?[16];
+
+      public void SetConstColors(IList<Color> constColorImpls) {
+        this.constColorImpls_ = constColorImpls;
+      }
 
       public void UpdateKonstColor(int index, Color color) {
         if (index != this.konstIndex_) {
@@ -469,6 +505,10 @@ namespace bmd.exporter {
           return this.GetTextureColorChannel_();
         }
 
+        if (colorSource == TevStage.GxCc.GX_CC_TEXA) {
+          return this.GetTextureAlphaChannel_();
+        }
+
         if (colorSource == TevStage.GxCc.GX_CC_RASC ||
             colorSource == TevStage.GxCc.GX_CC_RASA) {
           return this.GetVertexColorChannel_(colorSource);
@@ -476,6 +516,30 @@ namespace bmd.exporter {
 
         if (colorSource == TevStage.GxCc.GX_CC_KONST) {
           return this.GetKonstColorChannel_();
+        }
+
+        if (colorSource >= TevStage.GxCc.GX_CC_C0 &&
+            colorSource <= TevStage.GxCc.GX_CC_A2) {
+          var index = (int) colorSource - (int) TevStage.GxCc.GX_CC_C0;
+
+          if (index % 2 == 0) {
+            var ccIndex = index / 2;
+
+            var constColor = this.constColors_[ccIndex];
+            if (constColor == null) {
+              var constColorImpl = this.constColorImpls_[ccIndex];
+
+              constColor = this.equations_.CreateColorConstant(
+                  constColorImpl.R, constColorImpl.G, constColorImpl.B);
+              this.constColors_[ccIndex] = constColor;
+              this.colorValues_.Add(colorSource, constColor);
+            }
+
+            //var constColor = this.colorRegisterColors_[ColorRegister.GX_TEVREG0 + ccIndex];
+            return constColor;
+          }
+
+          // TODO: Handle alphas
         }
 
         if (!BmdFixedFunctionMaterial.STRICT) {
