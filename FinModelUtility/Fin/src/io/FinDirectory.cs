@@ -20,6 +20,16 @@ namespace fin.io {
     public string Name => this.Info.Name;
     public string FullName => this.Info.FullName;
 
+    private string? absolutePath_ = null;
+
+    public string GetAbsolutePath() {
+      if (this.absolutePath_ == null) {
+        this.absolutePath_ = Path.GetFullPath(this.FullName);
+      }
+
+      return this.absolutePath_;
+    }
+
     public bool Exists => Directory.Exists(this.FullName);
 
     public IDirectory? GetParent()
@@ -118,10 +128,8 @@ namespace fin.io {
       return this.Equals(otherDirectory);
     }
 
-    public bool Equals(IDirectory other) {
-      return Path.GetFullPath(this.FullName) ==
-             Path.GetFullPath(other.FullName);
-    }
+    public bool Equals(IDirectory other)
+      => this.GetAbsolutePath() == other.GetAbsolutePath();
 
     public override int GetHashCode() => this.FullName.GetHashCode();
 

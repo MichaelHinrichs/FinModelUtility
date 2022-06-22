@@ -4,6 +4,7 @@ using System.Linq;
 
 using fin.util.asserts;
 
+
 namespace fin.io {
   public class FinFile : IFile {
     public FinFile(FileInfo fileInfo) => this.Info = fileInfo;
@@ -13,6 +14,16 @@ namespace fin.io {
 
     public string Name => this.Info.Name;
     public string FullName => this.Info.FullName;
+
+    private string? absolutePath_ = null;
+
+    public string GetAbsolutePath() {
+      if (this.absolutePath_ == null) {
+        this.absolutePath_ = Path.GetFullPath(this.FullName);
+      }
+
+      return this.absolutePath_;
+    }
 
     public bool Exists => File.Exists(this.FullName);
 
@@ -68,10 +79,8 @@ namespace fin.io {
       return this.Equals(otherFile);
     }
 
-    public bool Equals(IFile other) {
-      return Path.GetFullPath(this.FullName) ==
-             Path.GetFullPath(other.FullName);
-    }
+    public bool Equals(IFile other)
+      => this.GetAbsolutePath() == other.GetAbsolutePath();
 
     public override int GetHashCode() => this.FullName.GetHashCode();
 

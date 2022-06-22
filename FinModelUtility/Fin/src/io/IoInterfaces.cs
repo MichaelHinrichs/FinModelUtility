@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 
+
 namespace fin.io {
   public interface IIoObject {
     string Name { get; }
     string FullName { get; }
+    string GetAbsolutePath();
 
     bool Exists { get; }
 
