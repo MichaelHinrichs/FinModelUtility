@@ -149,13 +149,21 @@
   <ItemGroup>
     <Content Include="Main window\uoticon64.ico" />
     <Content Include="Tao GL Libs\freeglut.dll" />
-    <Content Include="Tao GL Libs\Tao.DevIl.dll" />
+    <Content Include="Tao GL Libs\Tao.DevIl.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Tao GL Libs\Tao.DevIl.xml" />
-    <Content Include="Tao GL Libs\Tao.FreeGlut.dll" />
+    <Content Include="Tao GL Libs\Tao.FreeGlut.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Tao GL Libs\Tao.FreeGlut.xml" />
-    <Content Include="Tao GL Libs\Tao.OpenGl.dll" />
+    <Content Include="Tao GL Libs\Tao.OpenGl.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Tao GL Libs\Tao.OpenGl.xml" />
-    <Content Include="Tao GL Libs\Tao.Platform.Windows.dll" />
+    <Content Include="Tao GL Libs\Tao.Platform.Windows.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Tao GL Libs\Tao.Platform.Windows.xml" />
     <Compile Update="DL Command Editors\CombinerEditor.Designer.vb">
       <DependentUpon>CombinerEditor.vb</DependentUpon>
