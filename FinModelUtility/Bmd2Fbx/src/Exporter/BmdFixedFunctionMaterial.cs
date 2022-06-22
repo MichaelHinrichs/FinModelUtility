@@ -68,6 +68,63 @@ namespace bmd.exporter {
 
       var minusOne = equations.CreateColorConstant(-1);
 
+      var isZero = (IColorValue? color) => color == null || color == colorZero;
+
+      var addColorValues = (IColorValue? lhs, IColorValue? rhs) => {
+        var lhsIsZero = isZero(lhs);
+        var rhsIsZero = isZero(rhs);
+
+        if (lhsIsZero && rhsIsZero) {
+          return null;
+        }
+        if (lhsIsZero) {
+          return rhs;
+        }
+        if (rhsIsZero) {
+          return lhs;
+        }
+
+        return lhs!.Add(rhs!);
+      };
+
+      var subtractColorValues = (IColorValue? lhs, IColorValue? rhs) => {
+        var lhsIsZero = isZero(lhs);
+        var rhsIsZero = isZero(rhs);
+
+        if (lhsIsZero && rhsIsZero) {
+          return null;
+        }
+        if (lhsIsZero) {
+          return rhs?.Multiply(minusOne);
+        }
+        if (rhsIsZero) {
+          return lhs;
+        }
+
+        return lhs!.Subtract(rhs!);
+      };
+
+      var multiplyColorValues = (IColorValue? lhs, IColorValue? rhs) => {
+        if (isZero(lhs) || isZero(rhs)) {
+          return null;
+        }
+
+        var lhsIsOne = lhs == colorOne;
+        var rhsIsOne = rhs == colorOne;
+
+        if (lhsIsOne && rhsIsOne) {
+          return colorOne;
+        }
+        if (lhsIsOne) {
+          return rhs;
+        }
+        if (rhsIsOne) {
+          return lhs;
+        }
+
+        return lhs!.Multiply(rhs!);
+      };
+
       var colorManager = new ColorManager(equations);
 
       // TODO: Where are color constants set inside the materials?
@@ -148,37 +205,71 @@ namespace bmd.exporter {
             case TevOp.GX_TEV_SUB: {
               var isCOne = ccC == TevStage.GxCc.GX_CC_ONE;
 
+              colorValue = ccD != TevStage.GxCc.GX_CC_ZERO ? colorD : null;
+
+              IColorValue? rest = null;
+
               if (ccA != TevStage.GxCc.GX_CC_ZERO && !isCOne) {
-                colorValue = colorA.Multiply(colorOne.Subtract(colorC));
+                rest = multiplyColorValues(
+                    colorA, subtractColorValues(colorOne, colorC));
               }
 
               if (ccB != TevStage.GxCc.GX_CC_ZERO &&
                   ccC != TevStage.GxCc.GX_CC_ZERO) {
-                IColorValue? term = null;
+                var term = multiplyColorValues(colorC, colorB);
 
-                var isBOne = ccB == TevStage.GxCc.GX_CC_ONE;
-
-                if (!isBOne && isCOne) {
-                  term = colorB;
-                } else if (isBOne && !isCOne) {
-                  term = colorC;
-                } else {
-                  term = colorB.Multiply(colorC);
-                }
-
-                Asserts.Nonnull(term);
-                colorValue = colorValue == null ? term : colorValue.Add(term);
+                rest = addColorValues(rest, term);
               }
 
-              if (ccD != TevStage.GxCc.GX_CC_ZERO) {
-                colorValue = colorValue == null
-                                 ? colorD
-                                 : colorValue.Add(colorD);
-              }
+              colorValue = colorOp == TevOp.GX_TEV_ADD
+                               ? addColorValues(colorValue, rest)
+                               : subtractColorValues(colorValue, rest);
 
               // TODO: Is this right?
               colorValue ??= colorZero;
               //Asserts.Nonnull(colorValue);
+
+              switch (colorBias) {
+                case TevStage.TevBias.GX_TB_ZERO: {
+                  break;
+                }
+                case TevStage.TevBias.GX_TB_ADDHALF: {
+                  colorValue = colorValue.Add(scHalf);
+                  break;
+                }
+                case TevStage.TevBias.GX_TB_SUBHALF: {
+                  colorValue = colorValue.Add(scMinusHalf);
+                  break;
+                }
+                default: {
+                  Asserts.Fail("Unsupported color bias!");
+                  break;
+                }
+              }
+
+              switch (colorScale) {
+                case TevStage.TevScale.GX_CS_SCALE_1: {
+                  break;
+                }
+                case TevStage.TevScale.GX_CS_SCALE_2: {
+                  colorValue = colorValue.Multiply(scTwo);
+                  break;
+                }
+                case TevStage.TevScale.GX_CS_SCALE_4: {
+                  colorValue = colorValue.Multiply(scFour);
+                  break;
+                }
+                case TevStage.TevScale.GX_CS_DIVIDE_2: {
+                  colorValue = colorValue.Divide(scTwo);
+                  break;
+                }
+                default: {
+                  Asserts.Fail("Unsupported color scale!");
+                  break;
+                }
+              }
+
+              colorValue.Clamp = tevStage.color_clamp;
 
               break;
             }
@@ -191,51 +282,6 @@ namespace bmd.exporter {
               }
               break;
             }
-          }
-
-          if (colorOp == TevStage.TevOp.GX_TEV_ADD ||
-              colorOp == TevStage.TevOp.GX_TEV_SUB) {
-            switch (colorBias) {
-              case TevStage.TevBias.GX_TB_ZERO: {
-                break;
-              }
-              case TevStage.TevBias.GX_TB_ADDHALF: {
-                colorValue = colorValue.Add(scHalf);
-                break;
-              }
-              case TevStage.TevBias.GX_TB_SUBHALF: {
-                colorValue = colorValue.Add(scMinusHalf);
-                break;
-              }
-              default: {
-                Asserts.Fail("Unsupported color bias!");
-                break;
-              }
-            }
-
-            switch (colorScale) {
-              case TevStage.TevScale.GX_CS_SCALE_1: {
-                break;
-              }
-              case TevStage.TevScale.GX_CS_SCALE_2: {
-                colorValue = colorValue.Multiply(scTwo);
-                break;
-              }
-              case TevStage.TevScale.GX_CS_SCALE_4: {
-                colorValue = colorValue.Multiply(scFour);
-                break;
-              }
-              case TevStage.TevScale.GX_CS_DIVIDE_2: {
-                colorValue = colorValue.Divide(scTwo);
-                break;
-              }
-              default: {
-                Asserts.Fail("Unsupported color scale!");
-                break;
-              }
-            }
-
-            colorValue.Clamp = tevStage.color_clamp;
           }
 
           colorManager.UpdateColorRegister(tevStage.color_regid, colorValue);
@@ -488,9 +534,9 @@ namespace bmd.exporter {
               konstColor = this.equations_.CreateColorInput(
                   (FixedFunctionSource.CONST_COLOR_0 + index),
                   this.equations_.CreateColorConstant(
-                      color.R,
-                      color.G,
-                      color.B));
+                      color.R / 255f,
+                      color.G / 255f,
+                      color.B / 255f));
         }
 
         return this.colorValues_[TevStage.GxCc.GX_CC_KONST] = konstColor;
@@ -530,7 +576,9 @@ namespace bmd.exporter {
               var constColorImpl = this.constColorImpls_[ccIndex];
 
               constColor = this.equations_.CreateColorConstant(
-                  constColorImpl.R, constColorImpl.G, constColorImpl.B);
+                  constColorImpl.R / 255f,
+                  constColorImpl.G / 255f,
+                  constColorImpl.B / 255f);
               this.constColors_[ccIndex] = constColor;
               this.colorValues_.Add(colorSource, constColor);
             }

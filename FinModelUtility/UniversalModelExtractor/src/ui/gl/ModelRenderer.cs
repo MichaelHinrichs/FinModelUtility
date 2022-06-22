@@ -87,8 +87,11 @@ namespace uni.ui.gl {
 
       this.material_ = material;
 
-      var fixedFunctionMaterial = material as IFixedFunctionMaterial;
-      if (fixedFunctionMaterial != null) {
+      if (DebugFlags.ENABLE_FIXED_FUNCTION_SHADER &&
+          material is IFixedFunctionMaterial fixedFunctionMaterial) {
+        // TODO: Sometimes vertex colors are passed in from model, and sometimes they
+        // represent lighting. How to tell the difference??
+
         var vertexShaderSrc = @"
 # version 120
 
@@ -104,8 +107,6 @@ void main() {
     vertexColor1 = vec4(0, 0, 0, 1);
     uv0 = gl_MultiTexCoord0.st;
 }";
-
-        // gl_Color
 
         var pretty =
             new FixedFunctionEquationsPrettyPrinter<FixedFunctionSource>()
