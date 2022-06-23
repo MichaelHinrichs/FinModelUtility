@@ -65,7 +65,7 @@ namespace bmd.exporter {
       var scFour = equations.CreateScalarConstant(4);
       var scHalf = equations.CreateScalarConstant(.5);
       var scMinusOne = equations.CreateScalarConstant(-1);
-      
+
       var isZero = (IColorValue? color) => color == null || color == colorZero;
 
       var addColorValues = (IColorValue? lhs, IColorValue? rhs) => {
@@ -89,7 +89,7 @@ namespace bmd.exporter {
         var lhsIsZero = isZero(lhs);
         var rhsIsZero = isZero(rhs);
 
-        if (lhsIsZero && rhsIsZero) {
+        if ((lhsIsZero && rhsIsZero) || lhs == rhs) {
           return null;
         }
         if (lhsIsZero) {
@@ -122,6 +122,28 @@ namespace bmd.exporter {
 
         return lhs!.Multiply(rhs!);
       };
+
+      Func<IColorValue?, IScalarValue, IColorValue?> addColorAndScalar =
+          (IColorValue? lhs, IScalarValue rhs) => {
+            var lhsIsZero = isZero(lhs);
+
+            if (lhsIsZero) {
+              return equations.CreateColor(rhs);
+            }
+
+            return lhs!.Add(rhs);
+          };
+
+      Func<IColorValue?, IScalarValue, IColorValue?> subtractColorAndScalar =
+          (IColorValue? lhs, IScalarValue rhs) => {
+            var lhsIsZero = isZero(lhs);
+
+            if (lhsIsZero) {
+              return equations.CreateColor(rhs.Multiply(scMinusOne));
+            }
+
+            return lhs!.Subtract(rhs);
+          };
 
       var colorManager = new ColorManager(equations);
 
@@ -201,23 +223,14 @@ namespace bmd.exporter {
             // ADD: out = a*(1 - c) + b*c + d
             case TevOp.GX_TEV_ADD:
             case TevOp.GX_TEV_SUB: {
-              var isCOne = ccC == TevStage.GxCc.GX_CC_ONE;
-
               colorValue = ccD != TevStage.GxCc.GX_CC_ZERO ? colorD : null;
 
-              IColorValue? rest = null;
+              var aTimesOneMinusC = multiplyColorValues(
+                  colorA, subtractColorValues(colorOne, colorC));
 
-              if (ccA != TevStage.GxCc.GX_CC_ZERO && !isCOne) {
-                rest = multiplyColorValues(
-                    colorA, subtractColorValues(colorOne, colorC));
-              }
+              var bTimesC = multiplyColorValues(colorC, colorB);
 
-              if (ccB != TevStage.GxCc.GX_CC_ZERO &&
-                  ccC != TevStage.GxCc.GX_CC_ZERO) {
-                var term = multiplyColorValues(colorC, colorB);
-
-                rest = addColorValues(rest, term);
-              }
+              var rest = addColorValues(aTimesOneMinusC, bTimesC);
 
               colorValue = colorOp == TevOp.GX_TEV_ADD
                                ? addColorValues(colorValue, rest)
@@ -232,11 +245,11 @@ namespace bmd.exporter {
                   break;
                 }
                 case TevStage.TevBias.GX_TB_ADDHALF: {
-                  colorValue = colorValue.Add(scHalf);
+                  colorValue = addColorAndScalar(colorValue, scHalf);
                   break;
                 }
                 case TevStage.TevBias.GX_TB_SUBHALF: {
-                  colorValue = colorValue.Subtract(scHalf);
+                  colorValue = subtractColorAndScalar(colorValue, scHalf);
                   break;
                 }
                 default: {
@@ -530,9 +543,9 @@ namespace bmd.exporter {
         if (konstColor == null) {
           this.konstColors_[index] =
               konstColor = this.equations_.CreateColorConstant(
-                      color.R / 255f,
-                      color.G / 255f,
-                      color.B / 255f);
+                  color.R / 255f,
+                  color.G / 255f,
+                  color.B / 255f);
         }
 
         return this.colorValues_[TevStage.GxCc.GX_CC_KONST] = konstColor;

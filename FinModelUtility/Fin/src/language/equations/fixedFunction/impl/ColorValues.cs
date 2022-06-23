@@ -7,9 +7,17 @@ using System.Linq;
 using fin.util.asserts;
 using fin.util.data;
 
+
 namespace fin.language.equations.fixedFunction {
   // TODO: Optimize this.
   public partial class FixedFunctionEquations<TIdentifier> {
+    private readonly Dictionary<(IScalarValue, IScalarValue, IScalarValue),
+            ColorWrapper>
+        scalarValueColorConstants_ = new();
+
+    private readonly Dictionary<(double, double, double), IColorConstant>
+        doubleColorConstants_ = new();
+
     private readonly Dictionary<TIdentifier, IColorInput<TIdentifier>>
         colorInputs_ = new();
 
@@ -19,20 +27,50 @@ namespace fin.language.equations.fixedFunction {
     public IColorConstant CreateColorConstant(
         double r,
         double g,
-        double b)
-      => new ColorConstant(r, g, b);
+        double b) {
+      var key = (r, g, b);
+      if (this.doubleColorConstants_.TryGetValue(
+              key, out var colorConstant)) {
+        return colorConstant;
+      }
+
+      return this.doubleColorConstants_[key] = new ColorConstant(r, g, b);
+    }
 
     public IColorConstant CreateColorConstant(
-        double intensity)
-      => new ColorConstant(intensity);
+        double intensity) {
+      var key = (intensity, intensity, intensity);
+      if (this.doubleColorConstants_.TryGetValue(
+              key, out var colorConstant)) {
+        return colorConstant;
+      }
+
+      return this.doubleColorConstants_[key] = new ColorConstant(intensity);
+    }
 
     public IColorFactor CreateColor(
         IScalarValue r,
         IScalarValue g,
-        IScalarValue b) => new ColorWrapper(r, g, b);
+        IScalarValue b) {
+      var key = (r, g, b);
+      if (this.scalarValueColorConstants_.TryGetValue(
+              key, out var colorConstant)) {
+        return colorConstant;
+      }
+
+      return this.scalarValueColorConstants_[key] = new ColorWrapper(r, g, b);
+    }
 
     public IColorFactor CreateColor(
-        IScalarValue intensity) => new ColorWrapper(intensity);
+        IScalarValue intensity) {
+      var key = (intensity, intensity, intensity);
+      if (this.scalarValueColorConstants_.TryGetValue(
+              key, out var colorConstant)) {
+        return colorConstant;
+      }
+
+      return this.scalarValueColorConstants_[key] = new ColorWrapper(intensity);
+    }
 
 
     public IReadOnlyDictionary<TIdentifier, IColorInput<TIdentifier>>
@@ -115,8 +153,8 @@ namespace fin.language.equations.fixedFunction {
 
 
     private class ColorNamedValueSwizzle : BScalarValue,
-                                           IColorNamedValueSwizzle<
-                                               TIdentifier> {
+        IColorNamedValueSwizzle<
+            TIdentifier> {
       public ColorNamedValueSwizzle(
           IColorNamedValue<TIdentifier> source,
           ColorSwizzle swizzleType) {
