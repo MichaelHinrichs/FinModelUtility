@@ -195,7 +195,8 @@ namespace bmd.exporter {
         var colorChannel = tevOrder.ChannelID;
         colorManager.UpdateRascColor(colorChannel);
 
-        var konstIndex = materialEntry.TevColorIndexes[tevStage.color_constant_sel];
+        var konstIndex =
+            materialEntry.TevColorIndexes[tevStage.color_constant_sel];
         var konstColor = bmd.MAT3.ColorS10[konstIndex];
         colorManager.UpdateKonstColor(konstIndex, konstColor);
         colorConstants.Add(konstColor);
@@ -597,25 +598,35 @@ namespace bmd.exporter {
           var index = (int) colorSource - (int) TevStage.GxCc.GX_CC_C0;
 
           if (index % 2 == 0) {
-            var ccIndex = index / 2;
+            var cIndex = index / 2;
 
-            var constColor = this.constColors_[ccIndex];
+            var constColor = this.constColors_[cIndex];
             if (constColor == null) {
-              var constColorImpl = this.constColorImpls_[ccIndex];
+              var constColorImpl = this.constColorImpls_[cIndex];
 
               constColor = this.equations_.CreateColorConstant(
                   constColorImpl.R / 255f,
                   constColorImpl.G / 255f,
                   constColorImpl.B / 255f);
-              this.constColors_[ccIndex] = constColor;
+              this.constColors_[cIndex] = constColor;
               this.colorValues_.Add(colorSource, constColor);
             }
 
             //var constColor = this.colorRegisterColors_[ColorRegister.GX_TEVREG0 + ccIndex];
             return constColor;
-          }
+          } else {
+            var aIndex = (index - 1) / 2;
 
-          // TODO: Handle alphas
+            var constColor = this.constColors_[aIndex];
+            if (constColor == null) {
+              var constColorImpl = this.constColorImpls_[aIndex];
+
+              constColor = this.equations_.CreateColorConstant(
+                  constColorImpl.A / 255f);
+              this.constColors_[aIndex] = constColor;
+              this.colorValues_.Add(colorSource, constColor);
+            }
+          }
         }
 
         if (!BmdFixedFunctionMaterial.STRICT) {
