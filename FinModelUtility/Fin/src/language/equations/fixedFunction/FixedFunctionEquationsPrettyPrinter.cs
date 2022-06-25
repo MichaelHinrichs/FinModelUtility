@@ -14,6 +14,15 @@ namespace fin.language.equations.fixedFunction {
       return sb.ToString();
     }
 
+    public string Print(IColorValue colorValue) {
+      var sb = new StringBuilder();
+
+      using var os = new StringWriter(sb);
+      this.PrintColorValue_(os, colorValue);
+
+      return sb.ToString();
+    }
+
     public void Print(
         StringWriter os,
         IFixedFunctionEquations<TIdentifier> equations) {

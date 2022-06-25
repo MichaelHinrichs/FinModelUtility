@@ -1,12 +1,15 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 
 using fin.model;
 using fin.util.asserts;
 
+
 namespace fin.language.equations.fixedFunction {
   public class FixedFunctionEquationsGlslPrinter {
-    public string Print(IFixedFunctionEquations<FixedFunctionSource> equations) {
+    public string
+        Print(IFixedFunctionEquations<FixedFunctionSource> equations) {
       var sb = new StringBuilder();
 
       using var os = new StringWriter(sb);
@@ -20,7 +23,9 @@ namespace fin.language.equations.fixedFunction {
         IFixedFunctionEquations<FixedFunctionSource> equations) {
       os.WriteLine("# version 130");
       os.WriteLine();
-      os.WriteLine("uniform sampler2D texture0;");
+      for (var t = 0; t < 8; ++t) {
+        os.WriteLine($"uniform sampler2D texture{t};");
+      }
       os.WriteLine();
       os.WriteLine("in vec4 vertexColor0;");
       os.WriteLine("in vec4 vertexColor1;");
@@ -31,8 +36,9 @@ namespace fin.language.equations.fixedFunction {
       os.WriteLine("void main() {");
 
       // TODO: Get tree of all values that this depends on, in case there needs to be other variables defined before.
-      var outputColor = equations.ColorOutputs[FixedFunctionSource.OUTPUT_COLOR];
-      
+      var outputColor =
+          equations.ColorOutputs[FixedFunctionSource.OUTPUT_COLOR];
+
       os.Write("  vec3 colorComponent = ");
       this.PrintColorValue_(os, outputColor.ColorValue);
       os.WriteLine(";");
@@ -126,7 +132,8 @@ namespace fin.language.equations.fixedFunction {
         this.PrintScalarNamedValue_(os, namedValue);
       } else if (factor is IScalarConstant constant) {
         this.PrintScalarConstant_(os, constant);
-      } else if (factor is IColorNamedValueSwizzle<FixedFunctionSource> swizzle) {
+      } else if
+          (factor is IColorNamedValueSwizzle<FixedFunctionSource> swizzle) {
         this.PrintColorNamedValueSwizzle_(os, swizzle);
       } else {
         Asserts.Fail("Unsupported factor type!");
@@ -254,14 +261,40 @@ namespace fin.language.equations.fixedFunction {
     private void PrintColorNamedValue_(
         StringWriter os,
         IColorNamedValue<FixedFunctionSource> namedValue)
-      => os.Write(namedValue.Identifier switch {
-          // TODO: Support other UV sources.
-          FixedFunctionSource.TEXTURE_COLOR_0 => "texture(texture0, uv0).rgb",
-          FixedFunctionSource.TEXTURE_ALPHA_0 => "vec3(texture(texture0, uv0).a)",
-          FixedFunctionSource.VERTEX_COLOR_0  => "vertexColor0.rgb",
-          FixedFunctionSource.VERTEX_COLOR_1  => "vertexColor1.rgb",
-          FixedFunctionSource.UNDEFINED       => "vec3(1)"
-      });
+      => os.Write(this.GetColorNamedValue_(namedValue));
+
+    private string GetColorNamedValue_(
+        IColorNamedValue<FixedFunctionSource> namedValue) {
+      var id = namedValue.Identifier;
+      var isTextureColor = id is >= FixedFunctionSource.TEXTURE_COLOR_0
+                                 and <= FixedFunctionSource.TEXTURE_COLOR_7;
+      var isTextureAlpha = id is >= FixedFunctionSource.TEXTURE_ALPHA_0
+                                 and <= FixedFunctionSource.TEXTURE_ALPHA_7;
+
+      if (isTextureColor || isTextureAlpha) {
+        var textureIndex =
+            isTextureColor
+                ? (int) id - (int) FixedFunctionSource.TEXTURE_COLOR_0
+                : (int) id - (int) FixedFunctionSource.TEXTURE_ALPHA_0;
+
+        // TODO: Get proper UVs
+        var uvText = "uv0";
+
+        var textureText = $"texture(texture{textureIndex}, {uvText})";
+        var textureValueText = isTextureColor
+                                   ? $"{textureText}.rgb"
+                                   : $"vec3({textureText}.a)";
+
+        return textureValueText;
+      }
+
+      return namedValue.Identifier switch {
+          FixedFunctionSource.VERTEX_COLOR_0 => "vertexColor0.rgb",
+          FixedFunctionSource.VERTEX_COLOR_1 => "vertexColor1.rgb",
+          FixedFunctionSource.UNDEFINED => "vec3(1)",
+          _ => throw new ArgumentOutOfRangeException()
+      };
+    }
 
     private void PrintColorNamedValueSwizzle_(
         StringWriter os,

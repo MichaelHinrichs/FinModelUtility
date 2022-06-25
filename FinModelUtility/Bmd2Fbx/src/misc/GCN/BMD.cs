@@ -229,13 +229,13 @@ label_7:
             {
               Gl.glActiveTexture(33984 + index);
               Gl.glLoadIdentity();
-              if (this.MAT3.MaterialEntries[(int) this.MAT3.MaterialEntryIndieces[(int) entry.Index]].TexStages[index] != ushort.MaxValue)
-                Gl.glBindTexture(3553, (int) this.MAT3.TextureIndices[(int) this.MAT3.MaterialEntries[(int) this.MAT3.MaterialEntryIndieces[(int) entry.Index]].TexStages[index]] + 1);
+              if (this.MAT3.MaterialEntries[(int) this.MAT3.MaterialEntryIndieces[(int) entry.Index]].TextureIndexes[index] != ushort.MaxValue)
+                Gl.glBindTexture(3553, (int) this.MAT3.TextureIndices[(int) this.MAT3.MaterialEntries[(int) this.MAT3.MaterialEntryIndieces[(int) entry.Index]].TextureIndexes[index]] + 1);
               else
                 Gl.glBindTexture(3553, 0);
             }
             Gl.glMatrixMode(5888);
-            this.MAT3.glAlphaCompareglBendMode((int) this.MAT3.MaterialEntries[(int) this.MAT3.MaterialEntryIndieces[(int) entry.Index]].Indices2[1], (int) this.MAT3.MaterialEntries[(int) this.MAT3.MaterialEntryIndieces[(int) entry.Index]].Indices2[2], (int) this.MAT3.MaterialEntries[(int) this.MAT3.MaterialEntryIndieces[(int) entry.Index]].Indices2[3]);
+            this.MAT3.glAlphaCompareglBendMode((int) this.MAT3.MaterialEntries[(int) this.MAT3.MaterialEntryIndieces[(int) entry.Index]].AlphaCompareIndex, (int) this.MAT3.MaterialEntries[(int) this.MAT3.MaterialEntryIndieces[(int) entry.Index]].BlendModeIndex, (int) this.MAT3.MaterialEntries[(int) this.MAT3.MaterialEntryIndieces[(int) entry.Index]].UnknownIndex);
             this.Shaders[(int) this.MAT3.MaterialEntryIndieces[(int) entry.Index]].Enable();
             break;
           case 18:
@@ -2112,33 +2112,33 @@ label_140:
         BMD.MAT3Section.MaterialEntry materialEntry = this.MaterialEntries[MatIdx];
         for (int index = 0; index < 16; ++index)
         {
-          if (materialEntry.TevStageInfo[index] != ushort.MaxValue)
+          if (materialEntry.TevStageInfoIndexes[index] != ushort.MaxValue)
           {
-            source.Add(this.TevStages[(int) materialEntry.TevStageInfo[index]]);
+            source.Add(this.TevStages[(int) materialEntry.TevStageInfoIndexes[index]]);
             source.Last<BMD.MAT3Section.TevStageProps>().alpha_constant_sel = materialEntry.ConstAlphaSel[index];
             source.Last<BMD.MAT3Section.TevStageProps>().color_constant_sel = materialEntry.ConstColorSel[index];
-            source.Last<BMD.MAT3Section.TevStageProps>().texcoord = this.Tevorders[(int) materialEntry.TevOrderInfo[index]].TexcoordID;
-            source.Last<BMD.MAT3Section.TevStageProps>().texmap = this.Tevorders[(int) materialEntry.TevOrderInfo[index]].TexMap;
+            source.Last<BMD.MAT3Section.TevStageProps>().texcoord = this.Tevorders[(int) materialEntry.TevOrderInfoIndexes[index]].TexcoordID;
+            source.Last<BMD.MAT3Section.TevStageProps>().texmap = this.Tevorders[(int) materialEntry.TevOrderInfoIndexes[index]].TexMap;
           }
         }
         List<int> intList = new List<int>();
         for (int index = 0; index < 8; ++index)
         {
-          if (materialEntry.TexStages[index] != ushort.MaxValue)
-            intList.Add((int) this.TextureIndices[(int) materialEntry.TexStages[index]]);
+          if (materialEntry.TextureIndexes[index] != ushort.MaxValue)
+            intList.Add((int) this.TextureIndices[(int) materialEntry.TextureIndexes[index]]);
         }
         return new BMDShader(source.ToArray(), intList.ToArray(), new System.Drawing.Color[3]
         {
-          this.ColorS10[(int) materialEntry.ColorS10[1]],
-          this.ColorS10[(int) materialEntry.ColorS10[2]],
-          this.ColorS10[(int) materialEntry.ColorS10[3]]
+          this.ColorS10[(int) materialEntry.TevColorIndexes[1]],
+          this.ColorS10[(int) materialEntry.TevColorIndexes[2]],
+          this.ColorS10[(int) materialEntry.TevColorIndexes[3]]
         }, new System.Drawing.Color[4]
         {
-          this.Color3[(int) materialEntry.Color3[0]],
-          this.Color3[(int) materialEntry.Color3[1]],
-          this.Color3[(int) materialEntry.Color3[2]],
-          this.Color3[(int) materialEntry.Color3[3]]
-        }, (byte) 1, (byte) 1, this.AmbientColors[(int) materialEntry.Color2[0]], this.AlphaCompares[(int) materialEntry.Indices2[1]]);
+          this.Color3[(int) materialEntry.TevKonstColorIndexes[0]],
+          this.Color3[(int) materialEntry.TevKonstColorIndexes[1]],
+          this.Color3[(int) materialEntry.TevKonstColorIndexes[2]],
+          this.Color3[(int) materialEntry.TevKonstColorIndexes[3]]
+        }, (byte) 1, (byte) 1, this.AmbientColors[(int) materialEntry.AmbientColorIndexes[0]], this.AlphaCompares[(int) materialEntry.AlphaCompareIndex]);
       }
 
       public void glAlphaCompareglBendMode(int idxa, int idxb, int idxd)
@@ -2213,12 +2213,12 @@ label_140:
         public byte TevStagesCountIndex;
         public byte ZCompLocIndex;
         public byte ZModeIndex;
-        public byte Unknown1;
+        public byte DitherIndex;
 
-        public ushort[] Color1;
-        public ushort[] ChanControls;
-        public ushort[] Color2;
-        public ushort[] Lights;
+        public ushort[] MaterialColorIndexes;
+        public ushort[] ColorChannelControlIndexes;
+        public ushort[] AmbientColorIndexes;
+        public ushort[] LightColorIndexes;
 
         public ushort[] TexGenInfo;
         public TexGenType[] TexGenTypes;
@@ -2226,17 +2226,20 @@ label_140:
         public ushort[] TexGenInfo2;
         public ushort[] TexMatrices;
         public ushort[] DttMatrices;
-        public ushort[] TexStages;
-        public ushort[] Color3;
+        public ushort[] TextureIndexes;
+        public ushort[] TevKonstColorIndexes;
         public byte[] ConstColorSel;
         public byte[] ConstAlphaSel;
-        public ushort[] TevOrderInfo;
-        public ushort[] ColorS10;
-        public ushort[] TevStageInfo;
+        public ushort[] TevOrderInfoIndexes;
+        public ushort[] TevColorIndexes;
+        public short[] TevStageInfoIndexes;
         public ushort[] TevSwapModeInfo;
         public ushort[] TevSwapModeTable;
         public ushort[] Unknown2;
-        public ushort[] Indices2;
+        public short FogInfoIndex;
+        public short AlphaCompareIndex;
+        public short BlendModeIndex;
+        public short UnknownIndex;
 
         // https://github.com/LordNed/WindEditor/wiki/BMD-and-BDL-Model-Format#material-entry
         public MaterialEntry(EndianBinaryReader er) {
@@ -2247,12 +2250,12 @@ label_140:
           this.TevStagesCountIndex = er.ReadByte();
           this.ZCompLocIndex = er.ReadByte();
           this.ZModeIndex = er.ReadByte();
-          this.Unknown1 = er.ReadByte();
+          this.DitherIndex = er.ReadByte();
           
-          this.Color1 = er.ReadUInt16s(2);
-          this.ChanControls = er.ReadUInt16s(4);
-          this.Color2 = er.ReadUInt16s(2);
-          this.Lights = er.ReadUInt16s(8);
+          this.MaterialColorIndexes = er.ReadUInt16s(2);
+          this.ColorChannelControlIndexes = er.ReadUInt16s(4);
+          this.AmbientColorIndexes = er.ReadUInt16s(2);
+          this.LightColorIndexes = er.ReadUInt16s(8);
           
           this.TexGenInfo = er.ReadUInt16s(8);
           this.TexGenTypes =
@@ -2266,17 +2269,20 @@ label_140:
           this.TexGenInfo2 = er.ReadUInt16s(8);
           this.TexMatrices = er.ReadUInt16s(10);
           this.DttMatrices = er.ReadUInt16s(20);
-          this.TexStages = er.ReadUInt16s(8);
-          this.Color3 = er.ReadUInt16s(4);
+          this.TextureIndexes = er.ReadUInt16s(8);
+          this.TevKonstColorIndexes = er.ReadUInt16s(4);
           this.ConstColorSel = er.ReadBytes(16);
           this.ConstAlphaSel = er.ReadBytes(16);
-          this.TevOrderInfo = er.ReadUInt16s(16);
-          this.ColorS10 = er.ReadUInt16s(4);
-          this.TevStageInfo = er.ReadUInt16s(16);
+          this.TevOrderInfoIndexes = er.ReadUInt16s(16);
+          this.TevColorIndexes = er.ReadUInt16s(4);
+          this.TevStageInfoIndexes = er.ReadInt16s(16);
           this.TevSwapModeInfo = er.ReadUInt16s(16);
           this.TevSwapModeTable = er.ReadUInt16s(4);
           this.Unknown2 = er.ReadUInt16s(12);
-          this.Indices2 = er.ReadUInt16s(4);
+          this.FogInfoIndex = er.ReadInt16();
+          this.AlphaCompareIndex = er.ReadInt16();
+          this.BlendModeIndex = er.ReadInt16();
+          this.UnknownIndex = er.ReadInt16();
         }
 
         public enum TexGenType {
@@ -2353,7 +2359,7 @@ label_140:
         public byte alpha_regid;
         public byte pad;
         public byte texcoord;
-        public byte texmap;
+        public sbyte texmap;
         public byte color_constant_sel;
         public byte alpha_constant_sel;
         public TevBias color_bias;
@@ -2474,7 +2480,7 @@ label_140:
       [Schema]
       public partial class TevOrder : IDeserializable {
         public byte TexcoordID;
-        public byte TexMap;
+        public sbyte TexMap;
         [Format(SchemaNumberType.BYTE)]
         public ColorChannel ChannelID;
         public byte Unknown;

@@ -62,7 +62,7 @@ namespace bmd.exporter {
       this.Material = material;
 
       // Tev Stages: These seem to be the layers of the material.
-      var tevStageIndices = materialEntry.TevStageInfo;
+      var tevStageIndices = materialEntry.TevStageInfoIndexes;
       var tevStages =
           tevStageIndices
               .Select(tevStageIndex
@@ -72,7 +72,7 @@ namespace bmd.exporter {
               .ToArray();
 
       // Tev Orders: These seem to be the textures inputs for each tev stage.
-      var tevOrderIndices = materialEntry.TevOrderInfo;
+      var tevOrderIndices = materialEntry.TevOrderInfoIndexes;
       var tevOrders =
           tevOrderIndices
               .Select(tevOrderIndex
@@ -128,7 +128,7 @@ namespace bmd.exporter {
           continue;
         }
 
-        var texStage = materialEntry.TexStages[texStageIndex];
+        var texStage = materialEntry.TextureIndexes[texStageIndex];
         var textureIndex = bmd.MAT3.TextureIndices[texStage];
         var texture = textures[textureIndex];
 

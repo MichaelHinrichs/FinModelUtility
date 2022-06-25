@@ -155,10 +155,12 @@ void main() {
       if (this.shaderProgram_ != null) {
         this.shaderProgram_.Use();
 
-        var texture0Location = Gl.glGetUniformLocation(
-            this.shaderProgram_.ProgramId,
-            "texture0");
-        Gl.glUniform1i(texture0Location, 0);
+        for (var t = 0; t < 8; ++t) {
+          var textureLocation = Gl.glGetUniformLocation(
+              this.shaderProgram_.ProgramId,
+              $"texture{t}");
+          Gl.glUniform1i(textureLocation, t);
+        }
       }
 
       GlUtil.SetCulling(this.material_.CullingMode);

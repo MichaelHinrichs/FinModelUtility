@@ -155,23 +155,23 @@ namespace bmd.exporter {
 
       colorManager.SetConstColors(bmd.MAT3.ColorS10);
 
-      for (var i = 0; i < materialEntry.TevStageInfo.Length; ++i) {
-        var tevStageIndex = materialEntry.TevStageInfo[i];
-        if (tevStageIndex == 65535) {
+      for (var i = 0; i < materialEntry.TevStageInfoIndexes.Length; ++i) {
+        var tevStageIndex = materialEntry.TevStageInfoIndexes[i];
+        if (tevStageIndex == -1) {
           continue;
         }
 
         var tevStage = bmd.MAT3.TevStages[tevStageIndex];
 
-        var tevOrderIndex = materialEntry.TevOrderInfo[i];
+        var tevOrderIndex = materialEntry.TevOrderInfoIndexes[i];
         var tevOrder = bmd.MAT3.Tevorders[tevOrderIndex];
 
         // Updates which texture is referred to by TEXC
         var texStageIndex = tevOrder.TexMap;
-        if (texStageIndex == 255) {
+        if (texStageIndex == -1) {
           colorManager.UpdateTextureColor(null);
         } else {
-          var texStage = materialEntry.TexStages[texStageIndex];
+          var texStage = materialEntry.TextureIndexes[texStageIndex];
           var textureIndex = bmd.MAT3.TextureIndices[texStage];
 
           var bmdTexture = textures[textureIndex];
@@ -195,7 +195,7 @@ namespace bmd.exporter {
         var colorChannel = tevOrder.ChannelID;
         colorManager.UpdateRascColor(colorChannel);
 
-        var konstIndex = materialEntry.ColorS10[tevStage.color_constant_sel];
+        var konstIndex = materialEntry.TevColorIndexes[tevStage.color_constant_sel];
         var konstColor = bmd.MAT3.ColorS10[konstIndex];
         colorManager.UpdateKonstColor(konstIndex, konstColor);
         colorConstants.Add(konstColor);
@@ -296,6 +296,25 @@ namespace bmd.exporter {
           }
 
           colorManager.UpdateColorRegister(tevStage.color_regid, colorValue);
+
+          var colorAText =
+              new FixedFunctionEquationsPrettyPrinter<FixedFunctionSource>()
+                  .Print(colorA);
+          var colorBText =
+              new FixedFunctionEquationsPrettyPrinter<FixedFunctionSource>()
+                  .Print(colorB);
+          var colorCText =
+              new FixedFunctionEquationsPrettyPrinter<FixedFunctionSource>()
+                  .Print(colorC);
+          var colorDText =
+              new FixedFunctionEquationsPrettyPrinter<FixedFunctionSource>()
+                  .Print(colorD);
+
+          var colorValueText =
+              new FixedFunctionEquationsPrettyPrinter<FixedFunctionSource>()
+                  .Print(colorValue);
+
+          ;
         }
 
         // TODO: Implement alpha operations
