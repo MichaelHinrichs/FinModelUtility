@@ -44,7 +44,12 @@ namespace fin.language.equations.fixedFunction {
       os.WriteLine(";");
       os.WriteLine();
 
-      os.Write("  float alphaComponent = 1;");
+      var outputAlpha =
+          equations.ScalarOutputs[FixedFunctionSource.OUTPUT_ALPHA];
+
+      os.Write("  float alphaComponent = ");
+      this.PrintScalarValue_(os, outputAlpha.ScalarValue);
+      os.WriteLine(";");
       os.WriteLine();
 
       os.Write("  fragColor = vec4(colorComponent, alphaComponent);");
@@ -301,7 +306,11 @@ namespace fin.language.equations.fixedFunction {
         IColorNamedValueSwizzle<FixedFunctionSource> swizzle) {
       this.PrintColorNamedValue_(os, swizzle.Source);
       os.Write(".");
-      os.Write(swizzle.SwizzleType);
+      os.Write(swizzle.SwizzleType switch {
+          ColorSwizzle.R => 'r',
+          ColorSwizzle.G => 'g',
+          ColorSwizzle.B => 'b',
+      });
     }
   }
 }

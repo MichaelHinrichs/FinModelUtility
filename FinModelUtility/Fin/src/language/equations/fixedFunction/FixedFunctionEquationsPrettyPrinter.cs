@@ -23,6 +23,15 @@ namespace fin.language.equations.fixedFunction {
       return sb.ToString();
     }
 
+    public string Print(IScalarValue scalarValue) {
+      var sb = new StringBuilder();
+
+      using var os = new StringWriter(sb);
+      this.PrintScalarValue_(os, scalarValue);
+
+      return sb.ToString();
+    }
+
     public void Print(
         StringWriter os,
         IFixedFunctionEquations<TIdentifier> equations) {

@@ -10,7 +10,10 @@ using fin.model;
 using bmd.GCN;
 
 using fin.language.equations.fixedFunction;
+using fin.language.equations.fixedFunction.impl;
 using fin.util.asserts;
+
+using Microsoft.Xna.Framework.Graphics.PackedVector;
 
 using BlendFactor = fin.model.BlendFactor;
 using LogicOp = fin.model.LogicOp;
@@ -60,92 +63,18 @@ namespace bmd.exporter {
       var equations = material.Equations;
 
       var colorZero = equations.CreateColorConstant(0);
-      var colorOne = equations.CreateColorConstant(1);
+
+      var scZero = equations.CreateScalarConstant(0);
+      var scOne = equations.CreateScalarConstant(1);
       var scTwo = equations.CreateScalarConstant(2);
       var scFour = equations.CreateScalarConstant(4);
       var scHalf = equations.CreateScalarConstant(.5);
-      var scMinusOne = equations.CreateScalarConstant(-1);
+      var scMinusHalf = equations.CreateScalarConstant(-.5);
 
-      var isZero = (IColorValue? color) => color == null || color == colorZero;
+      var colorFixedFunctionOps = new ColorFixedFunctionOps(equations);
+      var scalarFixedFunctionOps = new ScalarFixedFunctionOps(equations);
 
-      var addColorValues = (IColorValue? lhs, IColorValue? rhs) => {
-        var lhsIsZero = isZero(lhs);
-        var rhsIsZero = isZero(rhs);
-
-        if (lhsIsZero && rhsIsZero) {
-          return null;
-        }
-        if (lhsIsZero) {
-          return rhs;
-        }
-        if (rhsIsZero) {
-          return lhs;
-        }
-
-        return lhs!.Add(rhs!);
-      };
-
-      var subtractColorValues = (IColorValue? lhs, IColorValue? rhs) => {
-        var lhsIsZero = isZero(lhs);
-        var rhsIsZero = isZero(rhs);
-
-        if ((lhsIsZero && rhsIsZero) || lhs == rhs) {
-          return null;
-        }
-        if (lhsIsZero) {
-          return rhs?.Multiply(scMinusOne);
-        }
-        if (rhsIsZero) {
-          return lhs;
-        }
-
-        return lhs!.Subtract(rhs!);
-      };
-
-      var multiplyColorValues = (IColorValue? lhs, IColorValue? rhs) => {
-        if (isZero(lhs) || isZero(rhs)) {
-          return null;
-        }
-
-        var lhsIsOne = lhs == colorOne;
-        var rhsIsOne = rhs == colorOne;
-
-        if (lhsIsOne && rhsIsOne) {
-          return colorOne;
-        }
-        if (lhsIsOne) {
-          return rhs;
-        }
-        if (rhsIsOne) {
-          return lhs;
-        }
-
-        return lhs!.Multiply(rhs!);
-      };
-
-      Func<IColorValue?, IScalarValue, IColorValue?> addColorAndScalar =
-          (IColorValue? lhs, IScalarValue rhs) => {
-            var lhsIsZero = isZero(lhs);
-
-            if (lhsIsZero) {
-              return equations.CreateColor(rhs);
-            }
-
-            return lhs!.Add(rhs);
-          };
-
-      Func<IColorValue?, IScalarValue, IColorValue?> subtractColorAndScalar =
-          (IColorValue? lhs, IScalarValue rhs) => {
-            var lhsIsZero = isZero(lhs);
-
-            if (lhsIsZero) {
-              return equations.CreateColor(rhs.Multiply(scMinusOne));
-            }
-
-            return lhs!.Subtract(rhs);
-          };
-
-      var colorManager = new ColorManager(equations);
+      var valueManager = new ValueManager(equations);
 
       // TODO: Where are color constants set inside the materials?
       // TODO: Need to support registers
@@ -153,7 +82,11 @@ namespace bmd.exporter {
       // TODO: Colors should just be RGB in the fixed function library
       // TODO: Seems like only texture 1 is used, is this accurate?
 
-      colorManager.SetConstColors(bmd.MAT3.ColorS10);
+      // TODO: This might need to be TevKonstColorIndexes
+      valueManager.SetConstColors(
+          materialEntry.TevColorIndexes.Select(
+                           tevColorIndex => bmd.MAT3.ColorS10[tevColorIndex])
+                       .ToArray());
 
       for (var i = 0; i < materialEntry.TevStageInfoIndexes.Length; ++i) {
         var tevStageIndex = materialEntry.TevStageInfoIndexes[i];
@@ -169,7 +102,7 @@ namespace bmd.exporter {
         // Updates which texture is referred to by TEXC
         var texStageIndex = tevOrder.TexMap;
         if (texStageIndex == -1) {
-          colorManager.UpdateTextureColor(null);
+          valueManager.UpdateTextureColor(null);
         } else {
           var texStage = materialEntry.TextureIndexes[texStageIndex];
           var textureIndex = bmd.MAT3.TextureIndices[texStage];
@@ -187,34 +120,27 @@ namespace bmd.exporter {
           var texCoordIndex = tevOrder.TexcoordID;
           texture.UvIndex = texCoordIndex;
 
-          colorManager.UpdateTextureColor(texCoordIndex);
+          valueManager.UpdateTextureColor(texCoordIndex);
           material.SetTextureSource(texCoordIndex, texture);
         }
 
         // Updates which color is referred to by RASC
         var colorChannel = tevOrder.ChannelID;
-        colorManager.UpdateRascColor(colorChannel);
+        valueManager.UpdateRascColor(colorChannel);
 
+        // TODO: This might need to be TevKonstColorIndexes
         var konstIndex =
             materialEntry.TevColorIndexes[tevStage.color_constant_sel];
         var konstColor = bmd.MAT3.ColorS10[konstIndex];
-        colorManager.UpdateKonstColor(konstIndex, konstColor);
+        valueManager.UpdateKonstColor(konstIndex, konstColor);
         colorConstants.Add(konstColor);
 
         // Set up color logic
         {
-          var ccA = tevStage.color_a;
-          var ccB = tevStage.color_b;
-          var ccC = tevStage.color_c;
-          var ccD = tevStage.color_d;
-
-          var colorBias = tevStage.color_bias;
-          var colorScale = tevStage.color_scale;
-
-          var colorA = colorManager.GetColor(tevStage.color_a);
-          var colorB = colorManager.GetColor(tevStage.color_b);
-          var colorC = colorManager.GetColor(tevStage.color_c);
-          var colorD = colorManager.GetColor(tevStage.color_d);
+          var colorA = valueManager.GetColor(tevStage.color_a);
+          var colorB = valueManager.GetColor(tevStage.color_b);
+          var colorC = valueManager.GetColor(tevStage.color_c);
+          var colorD = valueManager.GetColor(tevStage.color_d);
 
           IColorValue? colorValue = null;
 
@@ -224,63 +150,35 @@ namespace bmd.exporter {
             // ADD: out = a*(1 - c) + b*c + d
             case TevOp.GX_TEV_ADD:
             case TevOp.GX_TEV_SUB: {
-              colorValue = ccD != TevStage.GxCc.GX_CC_ZERO ? colorD : null;
+              var bias = tevStage.color_bias switch {
+                  TevBias.GX_TB_ZERO    => null,
+                  TevBias.GX_TB_ADDHALF => scHalf,
+                  TevBias.GX_TB_SUBHALF => scMinusHalf,
+                  _ => throw new ArgumentOutOfRangeException(
+                           "Unsupported color bias!")
+              };
 
-              var aTimesOneMinusC = multiplyColorValues(
-                  colorA, subtractColorValues(colorOne, colorC));
+              var scale = tevStage.color_scale switch {
+                  TevScale.GX_CS_SCALE_1  => scOne,
+                  TevScale.GX_CS_SCALE_2  => scTwo,
+                  TevScale.GX_CS_SCALE_4  => scFour,
+                  TevScale.GX_CS_DIVIDE_2 => scHalf,
+                  _ => throw new ArgumentOutOfRangeException(
+                           "Unsupported color scale!")
+              };
 
-              var bTimesC = multiplyColorValues(colorC, colorB);
+              colorValue =
+                  colorFixedFunctionOps.AddOrSubtractOp(
+                      colorOp == TevOp.GX_TEV_ADD,
+                      colorA,
+                      colorB,
+                      colorC,
+                      colorD,
+                      bias,
+                      scale
+                  );
 
-              var rest = addColorValues(aTimesOneMinusC, bTimesC);
-
-              colorValue = colorOp == TevOp.GX_TEV_ADD
-                               ? addColorValues(colorValue, rest)
-                               : subtractColorValues(colorValue, rest);
-
-              // TODO: Is this right?
               colorValue ??= colorZero;
-              //Asserts.Nonnull(colorValue);
-
-              switch (colorBias) {
-                case TevStage.TevBias.GX_TB_ZERO: {
-                  break;
-                }
-                case TevStage.TevBias.GX_TB_ADDHALF: {
-                  colorValue = addColorAndScalar(colorValue, scHalf);
-                  break;
-                }
-                case TevStage.TevBias.GX_TB_SUBHALF: {
-                  colorValue = subtractColorAndScalar(colorValue, scHalf);
-                  break;
-                }
-                default: {
-                  Asserts.Fail("Unsupported color bias!");
-                  break;
-                }
-              }
-
-              switch (colorScale) {
-                case TevStage.TevScale.GX_CS_SCALE_1: {
-                  break;
-                }
-                case TevStage.TevScale.GX_CS_SCALE_2: {
-                  colorValue = colorValue.Multiply(scTwo);
-                  break;
-                }
-                case TevStage.TevScale.GX_CS_SCALE_4: {
-                  colorValue = colorValue.Multiply(scFour);
-                  break;
-                }
-                case TevStage.TevScale.GX_CS_DIVIDE_2: {
-                  colorValue = colorValue.Divide(scTwo);
-                  break;
-                }
-                default: {
-                  Asserts.Fail("Unsupported color scale!");
-                  break;
-                }
-              }
-
               colorValue.Clamp = tevStage.color_clamp;
 
               break;
@@ -296,7 +194,7 @@ namespace bmd.exporter {
             }
           }
 
-          colorManager.UpdateColorRegister(tevStage.color_regid, colorValue);
+          valueManager.UpdateColorRegister(tevStage.color_regid, colorValue);
 
           var colorAText =
               new FixedFunctionEquationsPrettyPrinter<FixedFunctionSource>()
@@ -318,12 +216,95 @@ namespace bmd.exporter {
           ;
         }
 
-        // TODO: Implement alpha operations
+        // Set up alpha logic
+        {
+          var alphaA = valueManager.GetAlpha(tevStage.alpha_a);
+          var alphaB = valueManager.GetAlpha(tevStage.alpha_b);
+          var alphaC = valueManager.GetAlpha(tevStage.alpha_c);
+          var alphaD = valueManager.GetAlpha(tevStage.alpha_d);
+
+          IScalarValue? alphaValue = null;
+
+          // TODO: Switch this to an enum
+          var alphaOp = tevStage.alpha_op;
+          switch (alphaOp) {
+            // ADD: out = a*(1 - c) + b*c + d
+            case TevOp.GX_TEV_ADD:
+            case TevOp.GX_TEV_SUB: {
+              var bias = tevStage.alpha_bias switch {
+                  TevBias.GX_TB_ZERO    => null,
+                  TevBias.GX_TB_ADDHALF => scHalf,
+                  TevBias.GX_TB_SUBHALF => scMinusHalf,
+                  _ => throw new ArgumentOutOfRangeException(
+                           "Unsupported alpha bias!")
+              };
+
+              var scale = tevStage.alpha_scale switch {
+                  TevScale.GX_CS_SCALE_1  => scOne,
+                  TevScale.GX_CS_SCALE_2  => scTwo,
+                  TevScale.GX_CS_SCALE_4  => scFour,
+                  TevScale.GX_CS_DIVIDE_2 => scHalf,
+                  _ => throw new ArgumentOutOfRangeException(
+                           "Unsupported alpha scale!")
+              };
+
+              alphaValue =
+                  scalarFixedFunctionOps.AddOrSubtractOp(
+                      alphaOp == TevOp.GX_TEV_ADD,
+                      alphaA,
+                      alphaB,
+                      alphaC,
+                      alphaD,
+                      bias,
+                      scale
+                  );
+
+              alphaValue ??= scZero;
+              //alphaValue.Clamp = tevStage.alpha_clamp;
+
+              break;
+            }
+
+            default: {
+              if (BmdFixedFunctionMaterial.STRICT) {
+                throw new NotImplementedException();
+              } else {
+                alphaValue = scZero;
+              }
+              break;
+            }
+          }
+
+          valueManager.UpdateAlphaRegister(tevStage.alpha_regid, alphaValue);
+
+          var alphaAText =
+              new FixedFunctionEquationsPrettyPrinter<FixedFunctionSource>()
+                  .Print(alphaA);
+          var alphaBText =
+              new FixedFunctionEquationsPrettyPrinter<FixedFunctionSource>()
+                  .Print(alphaB);
+          var alphaCText =
+              new FixedFunctionEquationsPrettyPrinter<FixedFunctionSource>()
+                  .Print(alphaC);
+          var alphaDText =
+              new FixedFunctionEquationsPrettyPrinter<FixedFunctionSource>()
+                  .Print(alphaD);
+
+          var alphaValueText =
+              new FixedFunctionEquationsPrettyPrinter<FixedFunctionSource>()
+                  .Print(alphaValue);
+
+          ;
+        }
       }
 
       equations.CreateColorOutput(
           FixedFunctionSource.OUTPUT_COLOR,
-          colorManager.GetColor(TevStage.GxCc.GX_CC_CPREV));
+          valueManager.GetColor(GxCc.GX_CC_CPREV));
+
+      equations.CreateScalarOutput(
+          FixedFunctionSource.OUTPUT_ALPHA,
+          valueManager.GetAlpha(GxCc.GX_CC_APREV));
 
       // TODO: Set up compiled texture
       // TODO: If only a const color, create a texture for that
@@ -368,8 +349,9 @@ namespace bmd.exporter {
 
     public IMaterial Material { get; }
 
-    private class ColorManager {
+    private class ValueManager {
       private readonly IColorValue colorUndefined_;
+      private readonly IScalarValue alphaUndefined_;
 
       private readonly IFixedFunctionEquations<FixedFunctionSource> equations_;
 
@@ -383,7 +365,7 @@ namespace bmd.exporter {
       private readonly Dictionary<TevStage.GxCc, IScalarValue>
           alphaValues_ = new();
 
-      public ColorManager(
+      public ValueManager(
           IFixedFunctionEquations<FixedFunctionSource> equations) {
         this.equations_ = equations;
 
@@ -396,6 +378,9 @@ namespace bmd.exporter {
         this.colorUndefined_ =
             equations.CreateColorInput(FixedFunctionSource.UNDEFINED,
                                        colorZero);
+        this.alphaUndefined_ =
+            equations.CreateScalarInput(FixedFunctionSource.UNDEFINED,
+                                        equations.CreateScalarConstant(0));
       }
 
       private readonly Dictionary<ColorRegister, IColorValue>
@@ -416,6 +401,23 @@ namespace bmd.exporter {
         };
 
         this.colorValues_[source] = colorValue;
+      }
+
+      public void UpdateAlphaRegister(
+          ColorRegister alphaRegister,
+          IScalarValue alphaValue) {
+        var source = alphaRegister switch {
+            ColorRegister.GX_TEVPREV => TevStage.GxCc.GX_CC_APREV,
+            ColorRegister.GX_TEVREG0 => TevStage.GxCc.GX_CC_A0,
+            ColorRegister.GX_TEVREG1 => TevStage.GxCc.GX_CC_A1,
+            ColorRegister.GX_TEVREG2 => TevStage.GxCc.GX_CC_A2,
+            _ => throw new ArgumentOutOfRangeException(
+                     nameof(alphaRegister),
+                     alphaRegister,
+                     null)
+        };
+
+        this.alphaValues_[source] = alphaValue;
       }
 
       /*public void UpdateTextureColor(
@@ -530,7 +532,6 @@ namespace bmd.exporter {
       private Color? konstColor_ = null;
 
       private IList<Color> constColorImpls_;
-      private readonly IColorValue?[] constColors_ = new IColorValue?[3];
 
       // TODO: Is 10 right?
       private readonly IColorValue?[] konstColors_ = new IColorValue?[16];
@@ -595,38 +596,21 @@ namespace bmd.exporter {
 
         if (colorSource >= TevStage.GxCc.GX_CC_C0 &&
             colorSource <= TevStage.GxCc.GX_CC_A2) {
-          var index = (int) colorSource - (int) TevStage.GxCc.GX_CC_C0;
+          var (constColorImpl, isColor) = this.GetCCColor_(colorSource);
 
-          if (index % 2 == 0) {
-            var cIndex = index / 2;
+          var rByte = isColor
+                          ? (constColorImpl?.R ?? 255)
+                          : (constColorImpl?.A ?? 255);
+          var gByte = isColor
+                          ? (constColorImpl?.G ?? 255)
+                          : (constColorImpl?.A ?? 255);
+          var bByte = isColor
+                          ? (constColorImpl?.B ?? 255)
+                          : (constColorImpl?.A ?? 255);
+          var constColor = this.equations_.CreateColorConstant(
+              rByte / 255f, gByte / 255f, bByte / 255f);
 
-            var constColor = this.constColors_[cIndex];
-            if (constColor == null) {
-              var constColorImpl = this.constColorImpls_[cIndex];
-
-              constColor = this.equations_.CreateColorConstant(
-                  constColorImpl.R / 255f,
-                  constColorImpl.G / 255f,
-                  constColorImpl.B / 255f);
-              this.constColors_[cIndex] = constColor;
-              this.colorValues_.Add(colorSource, constColor);
-            }
-
-            //var constColor = this.colorRegisterColors_[ColorRegister.GX_TEVREG0 + ccIndex];
-            return constColor;
-          } else {
-            var aIndex = (index - 1) / 2;
-
-            var constColor = this.constColors_[aIndex];
-            if (constColor == null) {
-              var constColorImpl = this.constColorImpls_[aIndex];
-
-              constColor = this.equations_.CreateColorConstant(
-                  constColorImpl.A / 255f);
-              this.constColors_[aIndex] = constColor;
-              this.colorValues_.Add(colorSource, constColor);
-            }
-          }
+          return constColor;
         }
 
         if (!BmdFixedFunctionMaterial.STRICT) {
@@ -634,6 +618,53 @@ namespace bmd.exporter {
         }
 
         throw new NotImplementedException();
+      }
+
+      public IScalarValue GetAlpha(GxCc alphaSource) {
+        if (this.alphaValues_.TryGetValue(alphaSource, out var alphaValue)) {
+          return alphaValue;
+        }
+
+        // TODO: Is this right?
+        if (this.colorValues_.TryGetValue(alphaSource, out var colorValue)) {
+          return colorValue.R;
+        }
+
+        if (alphaSource >= TevStage.GxCc.GX_CC_C0 &&
+            alphaSource <= TevStage.GxCc.GX_CC_A2) {
+          var (constColorImpl, isColor) = this.GetCCColor_(alphaSource);
+
+          var constColorByte = isColor
+                                   ? (constColorImpl?.R ?? 255)
+                                   : (constColorImpl?.A ?? 255);
+          var constColor = this.equations_.CreateScalarConstant(
+              constColorByte / 255f);
+
+          this.alphaValues_.Add(alphaSource, constColor);
+          return constColor;
+        }
+
+        if (!BmdFixedFunctionMaterial.STRICT) {
+          return this.alphaUndefined_;
+        }
+
+        throw new NotImplementedException();
+      }
+
+      private (Color? color, bool isAlpha) GetCCColor_(GxCc source) {
+        var ccIndex = (int) source - (int) TevStage.GxCc.GX_CC_C0;
+
+        var isColor = ccIndex % 2 == 0;
+        var index = isColor ? ccIndex / 2 : (ccIndex - 1) / 2;
+
+        return (this.GetCCColor_(index), isColor);
+      }
+
+      private Color? GetCCColor_(int index) {
+        if (this.constColorImpls_.Count > index) {
+          return this.constColorImpls_[index];
+        }
+        return null;
       }
     }
   }

@@ -2356,7 +2356,7 @@ label_140:
         public TevOp color_op;
         public TevOp alpha_op;
         public ColorRegister color_regid;
-        public byte alpha_regid;
+        public ColorRegister alpha_regid;
         public byte pad;
         public byte texcoord;
         public sbyte texmap;
@@ -2388,7 +2388,7 @@ label_140:
           this.alpha_bias = (TevBias) er.ReadByte();
           this.alpha_scale = (TevScale) er.ReadByte();
           this.alpha_clamp = er.ReadByte() == (byte) 1;
-          this.alpha_regid = er.ReadByte();
+          this.alpha_regid = (ColorRegister) er.ReadByte();
           er.ReadByte();
         }
 

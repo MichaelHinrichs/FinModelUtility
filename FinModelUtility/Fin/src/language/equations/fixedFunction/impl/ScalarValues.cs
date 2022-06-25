@@ -4,17 +4,27 @@ using System.Linq;
 using fin.util.asserts;
 using fin.util.data;
 
+
 namespace fin.language.equations.fixedFunction {
   // TODO: Optimize this.
   public partial class FixedFunctionEquations<TIdentifier> {
+    private readonly Dictionary<double, IScalarConstant> scalarConstants_ =
+        new();
+
     private readonly Dictionary<TIdentifier, IScalarInput<TIdentifier>>
         scalarInputs_ = new();
 
     private readonly Dictionary<TIdentifier, IScalarOutput<TIdentifier>>
         scalarOutputs_ = new();
 
-    public IScalarConstant CreateScalarConstant(double v)
-      => new ScalarConstant(v);
+    public IScalarConstant CreateScalarConstant(double v) {
+      if (this.scalarConstants_.TryGetValue(
+              v, out var scalarConstant)) {
+        return scalarConstant;
+      }
+
+      return this.scalarConstants_[v] = new ScalarConstant(v);
+    }
 
     public IReadOnlyDictionary<TIdentifier, IScalarInput<TIdentifier>>
         ScalarInputs { get; }
