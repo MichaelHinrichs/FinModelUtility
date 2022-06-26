@@ -148,7 +148,31 @@ namespace fin.language.equations.fixedFunction {
     private void PrintScalarNamedValue_(
         StringWriter os,
         IScalarNamedValue<FixedFunctionSource> namedValue)
-      => os.Write("{" + namedValue.Identifier + "}");
+      => os.Write(this.GetScalarNamedValue_(namedValue));
+
+    private string GetScalarNamedValue_(
+        IScalarNamedValue<FixedFunctionSource> namedValue) {
+      var id = namedValue.Identifier;
+      var isTextureAlpha = id is >= FixedFunctionSource.TEXTURE_ALPHA_0
+                                 and <= FixedFunctionSource.TEXTURE_ALPHA_7;
+
+      if (isTextureAlpha) {
+        var textureIndex =
+            (int) id - (int) FixedFunctionSource.TEXTURE_ALPHA_0;
+
+        var textureText = this.GetTextureValue_(textureIndex);
+        var textureValueText = $"{textureText}.a";
+
+        return textureValueText;
+      }
+
+      return namedValue.Identifier switch {
+          FixedFunctionSource.VERTEX_ALPHA_0 => "vertexColor0.a",
+          FixedFunctionSource.VERTEX_ALPHA_1 => "vertexColor1.a",
+          FixedFunctionSource.UNDEFINED => "1",
+          _ => throw new ArgumentOutOfRangeException()
+      };
+    }
 
     private void PrintScalarConstant_(
         StringWriter os,
@@ -282,10 +306,7 @@ namespace fin.language.equations.fixedFunction {
                 ? (int) id - (int) FixedFunctionSource.TEXTURE_COLOR_0
                 : (int) id - (int) FixedFunctionSource.TEXTURE_ALPHA_0;
 
-        // TODO: Get proper UVs
-        var uvText = "uv0";
-
-        var textureText = $"texture(texture{textureIndex}, {uvText})";
+        var textureText = this.GetTextureValue_(textureIndex);
         var textureValueText = isTextureColor
                                    ? $"{textureText}.rgb"
                                    : $"vec3({textureText}.a)";
@@ -299,6 +320,14 @@ namespace fin.language.equations.fixedFunction {
           FixedFunctionSource.UNDEFINED => "vec3(1)",
           _ => throw new ArgumentOutOfRangeException()
       };
+    }
+
+    private string GetTextureValue_(int textureIndex) {
+      // TODO: Get proper UVs
+      var uvText = "uv0";
+
+      var textureText = $"texture(texture{textureIndex}, {uvText})";
+      return textureText;
     }
 
     private void PrintColorNamedValueSwizzle_(

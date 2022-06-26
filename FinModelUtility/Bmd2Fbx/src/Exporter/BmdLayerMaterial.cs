@@ -54,7 +54,7 @@ namespace bmd.exporter {
         BMD bmd,
         IList<BmdTexture> textures) {
       var materialEntry = bmd.MAT3.MaterialEntries[materialEntryIndex];
-      var materialName = bmd.MAT3.StringTable[materialEntryIndex];
+      var materialName = bmd.MAT3.MaterialNameTable[materialEntryIndex];
 
       var material = materialManager.AddLayerMaterial();
       material.Name = materialName;
@@ -77,7 +77,7 @@ namespace bmd.exporter {
           tevOrderIndices
               .Select(tevOrderIndex
                           => tevOrderIndex != 65535
-                                 ? bmd.MAT3.Tevorders[tevOrderIndex]
+                                 ? bmd.MAT3.TevOrders[tevOrderIndex]
                                  : null)
               .ToArray();
 

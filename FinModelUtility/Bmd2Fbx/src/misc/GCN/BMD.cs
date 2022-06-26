@@ -307,7 +307,7 @@ label_35:
             mtX44Stack.Peek().Scale(this.JNT1.Joints[(int) entry.Index].Sx, this.JNT1.Joints[(int) entry.Index].Sy, this.JNT1.Joints[(int) entry.Index].Sz);
             break;
           case 17:
-            str = this.MAT3.StringTable[(int) this.MAT3.MaterialEntryIndieces[(int) entry.Index]];
+            str = this.MAT3.MaterialNameTable[(int) this.MAT3.MaterialEntryIndieces[(int) entry.Index]];
             break;
           case 18:
             foreach (BMD.SHP1Section.Batch.Packet packet in this.SHP1.Batches[(int) entry.Index].Packets)
@@ -397,7 +397,7 @@ label_35:
 label_50:
       mtX44Stack.Pop();
       MA.MAWriter maWriter = new MA.MAWriter();
-      foreach (BMD.Stringtable.StringTableEntry entry in this.MAT3.StringTable.Entries)
+      foreach (BMD.Stringtable.StringTableEntry entry in this.MAT3.MaterialNameTable.Entries)
       {
         string Name = (string) entry;
         maWriter.AddPhong(Name);
@@ -442,7 +442,7 @@ label_50:
             mtX44Stack.Peek().Scale(this.JNT1.Joints[(int) entry.Index].Sx, this.JNT1.Joints[(int) entry.Index].Sy, this.JNT1.Joints[(int) entry.Index].Sz);
             break;
           case 17:
-            str = this.MAT3.StringTable[(int) this.MAT3.MaterialEntryIndieces[(int) entry.Index]];
+            str = this.MAT3.MaterialNameTable[(int) this.MAT3.MaterialEntryIndieces[(int) entry.Index]];
             break;
           case 18:
             foreach (BMD.SHP1Section.Batch.Packet packet in this.SHP1.Batches[(int) entry.Index].Packets)
@@ -1994,9 +1994,9 @@ label_140:
       public const string Signature = "MAT3";
       public DataBlockHeader Header;
       public ushort NrMaterials;
-      public ushort Padding;
       public uint[] Offsets;
       public BMD.MAT3Section.MaterialEntry[] MaterialEntries;
+      public BMD.MAT3Section.PopulatedMaterial[] PopulatedMaterials;
       public ushort[] MaterialEntryIndieces;
       public ushort[] TextureIndices;
       public CullMode[] CullModes;
@@ -2009,8 +2009,8 @@ label_140:
       public BMD.MAT3Section.DepthFunction[] DepthFunctions;
       public BMD.MAT3Section.TevStageProps[] TevStages;
       public BMD.MAT3Section.TextureMatrixInfo[] TextureMatrices;
-      public BMD.MAT3Section.TevOrder[] Tevorders;
-      public BMD.Stringtable StringTable;
+      public BMD.MAT3Section.TevOrder[] TevOrders;
+      public BMD.Stringtable MaterialNameTable;
 
       public MAT3Section(EndianBinaryReader er, out bool OK)
       {
@@ -2024,7 +2024,9 @@ label_140:
         else
         {
           this.NrMaterials = er.ReadUInt16();
-          this.Padding = er.ReadUInt16();
+
+          er.AssertUInt16(0xffff); // padding
+
           this.Offsets = er.ReadUInt32s(30);
           int[] sectionLengths = this.GetSectionLengths();
           long position2 = er.BaseStream.Position;
@@ -2041,7 +2043,7 @@ label_140:
           this.MaterialEntryIndieces = er.ReadUInt16s((int) this.NrMaterials);
           
           er.BaseStream.Position = position1 + (long) this.Offsets[2];
-          this.StringTable = new BMD.Stringtable(er);
+          this.MaterialNameTable = new BMD.Stringtable(er);
 
           er.BaseStream.Position = position1 + (long)this.Offsets[4];
           this.CullModes = new CullMode[sectionLengths[4] / 4];
@@ -2067,11 +2069,11 @@ label_140:
           this.TextureIndices = er.ReadUInt16s(sectionLengths[15] / 2);
 
           er.BaseStream.Position = position1 + (long) this.Offsets[16];
-          this.Tevorders = new BMD.MAT3Section.TevOrder[sectionLengths[16] / 4];
+          this.TevOrders = new BMD.MAT3Section.TevOrder[sectionLengths[16] / 4];
           for (int index = 0; index < sectionLengths[16] / 4; ++index) {
             var entry = new BMD.MAT3Section.TevOrder();
             entry.Read(er);
-            this.Tevorders[index] = entry;
+            this.TevOrders[index] = entry;
           }
           
           er.BaseStream.Position = position1 + (long) this.Offsets[17];
@@ -2103,6 +2105,8 @@ label_140:
           }
           er.BaseStream.Position = position1 + (long) this.Header.size;
           OK = true;
+
+          this.PopulatedMaterials = this.MaterialEntries.Select((entry, index) => new PopulatedMaterial(this, index, entry)).ToArray();
         }
       }
 
@@ -2117,8 +2121,8 @@ label_140:
             source.Add(this.TevStages[(int) materialEntry.TevStageInfoIndexes[index]]);
             source.Last<BMD.MAT3Section.TevStageProps>().alpha_constant_sel = materialEntry.ConstAlphaSel[index];
             source.Last<BMD.MAT3Section.TevStageProps>().color_constant_sel = materialEntry.ConstColorSel[index];
-            source.Last<BMD.MAT3Section.TevStageProps>().texcoord = this.Tevorders[(int) materialEntry.TevOrderInfoIndexes[index]].TexcoordID;
-            source.Last<BMD.MAT3Section.TevStageProps>().texmap = this.Tevorders[(int) materialEntry.TevOrderInfoIndexes[index]].TexMap;
+            source.Last<BMD.MAT3Section.TevStageProps>().texcoord = this.TevOrders[(int) materialEntry.TevOrderInfoIndexes[index]].TexcoordID;
+            source.Last<BMD.MAT3Section.TevStageProps>().texmap = this.TevOrders[(int) materialEntry.TevOrderInfoIndexes[index]].TexMap;
           }
         }
         List<int> intList = new List<int>();
@@ -2230,7 +2234,7 @@ label_140:
         public ushort[] TevKonstColorIndexes;
         public byte[] ConstColorSel;
         public byte[] ConstAlphaSel;
-        public ushort[] TevOrderInfoIndexes;
+        public short[] TevOrderInfoIndexes;
         public ushort[] TevColorIndexes;
         public short[] TevStageInfoIndexes;
         public ushort[] TevSwapModeInfo;
@@ -2273,7 +2277,7 @@ label_140:
           this.TevKonstColorIndexes = er.ReadUInt16s(4);
           this.ConstColorSel = er.ReadBytes(16);
           this.ConstAlphaSel = er.ReadBytes(16);
-          this.TevOrderInfoIndexes = er.ReadUInt16s(16);
+          this.TevOrderInfoIndexes = er.ReadInt16s(16);
           this.TevColorIndexes = er.ReadUInt16s(4);
           this.TevStageInfoIndexes = er.ReadInt16s(16);
           this.TevSwapModeInfo = er.ReadUInt16s(16);
@@ -2299,6 +2303,83 @@ label_140:
           GX_TG_SRTG,
           UNDEFINED,
       }
+      }
+
+      public class PopulatedMaterial {
+        public string Name;
+        public byte Flag;
+        public CullMode CullMode;
+        public byte ColorChannelControlsCountIndex;
+        public byte TexGensCountIndex;
+        public byte TevStagesCountIndex;
+        public byte ZCompLocIndex;
+        public byte ZModeIndex;
+        public byte DitherIndex;
+
+        public Color[] MaterialColors;
+        public ushort[] ColorChannelControlIndexes;
+        public Color[] AmbientColors;
+        public ushort[] LightColorIndexes;
+
+        public ushort[] TexGenInfo;
+        public MaterialEntry.TexGenType[] TexGenTypes;
+
+        public ushort[] TexGenInfo2;
+        public ushort[] TexMatrices;
+        public ushort[] DttMatrices;
+        public ushort[] TextureIndexes;
+        public ushort[] TevKonstColorIndexes;
+        public byte[] ConstColorSel;
+        public byte[] ConstAlphaSel;
+
+        public TevOrder[] TevOrderInfos;
+
+        public ushort[] TevOrderInfoIndexes;
+        public ushort[] TevColorIndexes;
+        public TevStageProps[] TevStageInfos;
+        public ushort[] TevSwapModeInfo;
+        public ushort[] TevSwapModeTable;
+        public ushort[] Unknown2;
+        public short FogInfoIndex;
+        public short AlphaCompareIndex;
+        public BlendFunction BlendMode;
+        public short UnknownIndex;
+
+        public PopulatedMaterial(MAT3Section mat3, int index, MaterialEntry entry) {
+          this.Name = mat3.MaterialNameTable[index];
+          this.Flag = entry.Flag;
+
+          this.CullMode = mat3.CullModes[entry.CullModeIndex];
+
+          this.MaterialColors =
+              entry.MaterialColorIndexes
+                   .Select(i => GetOrNull(mat3.MaterialColor, i))
+                   .ToArray();
+          this.AmbientColors =
+              entry.AmbientColorIndexes
+                   .Select(i => GetOrNull(mat3.AmbientColors, i))
+                   .ToArray();
+
+          this.TevOrderInfos =
+              entry.TevOrderInfoIndexes
+                   .Select(i => GetOrNull(mat3.TevOrders, i))
+                   .ToArray();
+
+          this.TevStageInfos = 
+              entry.TevStageInfoIndexes
+                   .Select(i => GetOrNull(mat3.TevStages, i))
+                   .ToArray();
+
+          this.BlendMode = mat3.BlendFunctions[entry.BlendModeIndex];
+
+          if (this.Name == "eye1") {
+            ;
+          }
+        }
+
+        private static T? GetOrNull<T>(IList<T> array, int i)
+            where T : notnull
+          => i != -1 ? array[i] : default;
       }
 
       public class AlphaCompare
@@ -2349,10 +2430,10 @@ label_140:
         public GxCc color_b;
         public GxCc color_c;
         public GxCc color_d;
-        public GxCc alpha_a;
-        public GxCc alpha_b;
-        public GxCc alpha_c;
-        public GxCc alpha_d;
+        public GxCa alpha_a;
+        public GxCa alpha_b;
+        public GxCa alpha_c;
+        public GxCa alpha_d;
         public TevOp color_op;
         public TevOp alpha_op;
         public ColorRegister color_regid;
@@ -2380,10 +2461,10 @@ label_140:
           this.color_scale = (TevScale) er.ReadByte();
           this.color_clamp = er.ReadByte() == (byte) 1;
           this.color_regid = (ColorRegister) er.ReadByte();
-          this.alpha_a = (GxCc) er.ReadByte();
-          this.alpha_b = (GxCc) er.ReadByte();
-          this.alpha_c = (GxCc) er.ReadByte();
-          this.alpha_d = (GxCc) er.ReadByte();
+          this.alpha_a = (GxCa) er.ReadByte();
+          this.alpha_b = (GxCa) er.ReadByte();
+          this.alpha_c = (GxCa) er.ReadByte();
+          this.alpha_d = (GxCa) er.ReadByte();
           this.alpha_op = (TevOp) er.ReadByte();
           this.alpha_bias = (TevBias) er.ReadByte();
           this.alpha_scale = (TevScale) er.ReadByte();
@@ -2409,6 +2490,17 @@ label_140:
           GX_CC_HALF,
           GX_CC_KONST,
           GX_CC_ZERO,
+        }
+
+        public enum GxCa {
+          GX_CA_APREV,
+          GX_CA_A0,
+          GX_CA_A1,
+          GX_CA_A2,
+          GX_CA_TEXA,
+          GX_CA_RASA,
+          GX_CA_KONST,
+          GX_CA_ZERO,
         }
 
         public enum TevOp {

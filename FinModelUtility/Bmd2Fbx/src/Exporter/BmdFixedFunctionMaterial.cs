@@ -12,8 +12,11 @@ using bmd.GCN;
 using fin.language.equations.fixedFunction;
 using fin.language.equations.fixedFunction.impl;
 using fin.util.asserts;
+using fin.util.json;
 
 using Microsoft.Xna.Framework.Graphics.PackedVector;
+
+using Newtonsoft.Json;
 
 using BlendFactor = fin.model.BlendFactor;
 using LogicOp = fin.model.LogicOp;
@@ -41,7 +44,11 @@ namespace bmd.exporter {
         BMD bmd,
         IList<BmdTexture> textures) {
       var materialEntry = bmd.MAT3.MaterialEntries[materialEntryIndex];
-      var materialName = bmd.MAT3.StringTable[materialEntryIndex];
+      var materialName = bmd.MAT3.MaterialNameTable[materialEntryIndex];
+
+      var populatedMaterial = bmd.MAT3.PopulatedMaterials[materialEntryIndex];
+      var json = JsonUtil.Serialize(populatedMaterial);
+      ;
 
       var material = materialManager.AddFixedFunctionMaterial();
       material.Name = materialName;
@@ -84,7 +91,8 @@ namespace bmd.exporter {
 
       // TODO: This might need to be TevKonstColorIndexes
       valueManager.SetConstColors(
-          materialEntry.TevColorIndexes.Select(
+          materialEntry.TevKonstColorIndexes.Take(4)
+                       .Select(
                            tevColorIndex => bmd.MAT3.ColorS10[tevColorIndex])
                        .ToArray());
 
@@ -97,7 +105,7 @@ namespace bmd.exporter {
         var tevStage = bmd.MAT3.TevStages[tevStageIndex];
 
         var tevOrderIndex = materialEntry.TevOrderInfoIndexes[i];
-        var tevOrder = bmd.MAT3.Tevorders[tevOrderIndex];
+        var tevOrder = bmd.MAT3.TevOrders[tevOrderIndex];
 
         // Updates which texture is referred to by TEXC
         var texStageIndex = tevOrder.TexMap;
@@ -128,7 +136,7 @@ namespace bmd.exporter {
         var colorChannel = tevOrder.ChannelID;
         valueManager.UpdateRascColor(colorChannel);
 
-        // TODO: This might need to be TevKonstColorIndexes
+        // TODO: This is 100% wrong, also needs to pull from Color3 instead
         var konstIndex =
             materialEntry.TevColorIndexes[tevStage.color_constant_sel];
         var konstColor = bmd.MAT3.ColorS10[konstIndex];
@@ -304,7 +312,7 @@ namespace bmd.exporter {
 
       equations.CreateScalarOutput(
           FixedFunctionSource.OUTPUT_ALPHA,
-          valueManager.GetAlpha(GxCc.GX_CC_APREV));
+          valueManager.GetAlpha(GxCa.GX_CA_APREV));
 
       // TODO: Set up compiled texture
       // TODO: If only a const color, create a texture for that
@@ -362,7 +370,7 @@ namespace bmd.exporter {
       private readonly Dictionary<TevStage.GxCc, IColorValue>
           colorValues_ = new();
 
-      private readonly Dictionary<TevStage.GxCc, IScalarValue>
+      private readonly Dictionary<TevStage.GxCa, IScalarValue>
           alphaValues_ = new();
 
       public ValueManager(
@@ -374,6 +382,9 @@ namespace bmd.exporter {
 
         this.colorValues_[TevStage.GxCc.GX_CC_ZERO] = colorZero;
         this.colorValues_[TevStage.GxCc.GX_CC_ONE] = colorOne;
+
+        this.alphaValues_[TevStage.GxCa.GX_CA_ZERO] =
+            equations.CreateScalarConstant(0);
 
         this.colorUndefined_ =
             equations.CreateColorInput(FixedFunctionSource.UNDEFINED,
@@ -407,10 +418,10 @@ namespace bmd.exporter {
           ColorRegister alphaRegister,
           IScalarValue alphaValue) {
         var source = alphaRegister switch {
-            ColorRegister.GX_TEVPREV => TevStage.GxCc.GX_CC_APREV,
-            ColorRegister.GX_TEVREG0 => TevStage.GxCc.GX_CC_A0,
-            ColorRegister.GX_TEVREG1 => TevStage.GxCc.GX_CC_A1,
-            ColorRegister.GX_TEVREG2 => TevStage.GxCc.GX_CC_A2,
+            ColorRegister.GX_TEVPREV => TevStage.GxCa.GX_CA_APREV,
+            ColorRegister.GX_TEVREG0 => TevStage.GxCa.GX_CA_A0,
+            ColorRegister.GX_TEVREG1 => TevStage.GxCa.GX_CA_A1,
+            ColorRegister.GX_TEVREG2 => TevStage.GxCa.GX_CA_A2,
             _ => throw new ArgumentOutOfRangeException(
                      nameof(alphaRegister),
                      alphaRegister,
@@ -483,6 +494,22 @@ namespace bmd.exporter {
         return this.colorValues_[TevStage.GxCc.GX_CC_TEXA] = texture;
       }
 
+      private IScalarValue GetTextureAlphaChannelAsAlpha_() {
+        var indexOrNull = this.textureIndex_;
+        Asserts.Nonnull(indexOrNull);
+
+        var index = indexOrNull.Value;
+        Asserts.True(index >= 0 && index < 8);
+
+        var texture =
+            this.equations_.CreateScalarInput(
+                (FixedFunctionSource) (FixedFunctionSource.TEXTURE_ALPHA_0 +
+                                       index),
+                this.equations_.CreateScalarConstant(0));
+
+        return this.alphaValues_[TevStage.GxCa.GX_CA_TEXA] = texture;
+      }
+
 
       private TevOrder.ColorChannel? colorChannel_;
 
@@ -491,6 +518,7 @@ namespace bmd.exporter {
           this.colorChannel_ = colorChannel;
           this.colorValues_.Remove(TevStage.GxCc.GX_CC_RASC);
           this.colorValues_.Remove(TevStage.GxCc.GX_CC_RASA);
+          this.alphaValues_.Remove(GxCa.GX_CA_RASA);
         }
       }
 
@@ -525,7 +553,28 @@ namespace bmd.exporter {
                   this.equations_.CreateColorConstant(0));
         }
 
-        return this.colorValues_[TevStage.GxCc.GX_CC_RASC] = color;
+        return this.colorValues_[colorSource] = color;
+      }
+
+      private IScalarValue GetVertexAlphaChannel_() {
+        var channelOrNull = this.colorChannel_;
+        Asserts.Nonnull(channelOrNull);
+
+        var channel = channelOrNull.Value;
+
+        var source = channel switch {
+            TevOrder.ColorChannel.GX_COLOR0A0 => FixedFunctionSource
+                .VERTEX_ALPHA_0,
+            TevOrder.ColorChannel.GX_COLOR1A1 => FixedFunctionSource
+                .VERTEX_ALPHA_1,
+            _ => throw new NotImplementedException()
+        };
+
+        var alpha = this.equations_.CreateScalarInput(
+            source,
+            this.equations_.CreateScalarConstant(0));
+
+        return this.alphaValues_[GxCa.GX_CA_RASA] = alpha;
       }
 
       private int? konstIndex_ = null;
@@ -548,6 +597,8 @@ namespace bmd.exporter {
         }
       }
 
+      // TODO: This is 100% wrong, need to do this instead:
+      // https://github.com/magcius/bmdview/blob/master/tev.markdown#gx_settevkcolorsel
       public IColorValue GetKonstColorChannel_() {
         var indexOrNull = this.konstIndex_;
         Asserts.Nonnull(indexOrNull);
@@ -620,23 +671,26 @@ namespace bmd.exporter {
         throw new NotImplementedException();
       }
 
-      public IScalarValue GetAlpha(GxCc alphaSource) {
+      public IScalarValue GetAlpha(GxCa alphaSource) {
         if (this.alphaValues_.TryGetValue(alphaSource, out var alphaValue)) {
           return alphaValue;
         }
 
-        // TODO: Is this right?
-        if (this.colorValues_.TryGetValue(alphaSource, out var colorValue)) {
-          return colorValue.R;
+        if (alphaSource == TevStage.GxCa.GX_CA_TEXA) {
+          return this.GetTextureAlphaChannelAsAlpha_();
         }
 
-        if (alphaSource >= TevStage.GxCc.GX_CC_C0 &&
-            alphaSource <= TevStage.GxCc.GX_CC_A2) {
-          var (constColorImpl, isColor) = this.GetCCColor_(alphaSource);
+        if (alphaSource == GxCa.GX_CA_RASA) {
+          return this.GetVertexAlphaChannel_();
+        }
 
-          var constColorByte = isColor
-                                   ? (constColorImpl?.R ?? 255)
-                                   : (constColorImpl?.A ?? 255);
+        if (alphaSource >= TevStage.GxCa.GX_CA_A0 &&
+            alphaSource <= TevStage.GxCa.GX_CA_A2) {
+          var caIndex = (int) alphaSource - (int) TevStage.GxCa.GX_CA_A0;
+          var index = 1 + caIndex;
+          var constColorImpl = this.GetCCColor_(index);
+
+          var constColorByte = constColorImpl?.A ?? 255;
           var constColor = this.equations_.CreateScalarConstant(
               constColorByte / 255f);
 
