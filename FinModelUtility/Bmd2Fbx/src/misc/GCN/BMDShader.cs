@@ -264,9 +264,9 @@ namespace bmd.GCN
           if ((uint) tevStage.texcoord < length)
             stringBuilder2.AppendFormat("color_texture = texture2D(textures{0}, gl_TexCoord[{1}].st);\n", (object) ((int) tevStage.texmap + 1), (object) (int) tevStage.texcoord);
           string str2 = "";
-          if (tevStage.color_constant_sel <= (byte) 7)
+          if ((byte)tevStage.color_constant_sel <= (byte) 7)
           {
-            switch (tevStage.color_constant_sel)
+            switch ((byte)tevStage.color_constant_sel)
             {
               case 0:
                 str2 = "vec3(1.0)";
@@ -294,7 +294,7 @@ namespace bmd.GCN
                 break;
             }
           }
-          else if (tevStage.color_constant_sel < (byte) 12)
+          else if ((byte)tevStage.color_constant_sel < (byte) 12)
           {
             str2 = "vec3(1.0)";
           }
@@ -318,9 +318,9 @@ namespace bmd.GCN
             str2 = strArray5[((int) tevStage.color_constant_sel - 12) % 4] + strArray6[((int) tevStage.color_constant_sel - 12) / 4];
           }
           string str3 = "";
-          if (tevStage.alpha_constant_sel <= (byte) 7)
+          if ((byte) tevStage.alpha_constant_sel <= (byte) 7)
           {
-            switch (tevStage.alpha_constant_sel)
+            switch ((byte)tevStage.alpha_constant_sel)
             {
               case 0:
                 str3 = "vec3(1.0)";
@@ -348,7 +348,7 @@ namespace bmd.GCN
                 break;
             }
           }
-          else if (tevStage.alpha_constant_sel < (byte) 16)
+          else if ((byte)tevStage.alpha_constant_sel < (byte) 16)
           {
             str2 = "1.0";
           }

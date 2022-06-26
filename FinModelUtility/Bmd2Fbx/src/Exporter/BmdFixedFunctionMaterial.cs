@@ -90,11 +90,18 @@ namespace bmd.exporter {
       // TODO: Seems like only texture 1 is used, is this accurate?
 
       // TODO: This might need to be TevKonstColorIndexes
-      valueManager.SetConstColors(
-          materialEntry.TevKonstColorIndexes.Take(4)
+      valueManager.SetColorRegisters(
+          materialEntry.TevColorIndexes.Take(4)
                        .Select(
                            tevColorIndex => bmd.MAT3.ColorS10[tevColorIndex])
                        .ToArray());
+
+      var konstColors =
+          materialEntry.TevKonstColorIndexes
+                       .Take(4)
+                       .Select(konstIndex => bmd.MAT3.Color3[konstIndex])
+                       .ToArray();
+      valueManager.SetKonstColors(konstColors);
 
       for (var i = 0; i < materialEntry.TevStageInfoIndexes.Length; ++i) {
         var tevStageIndex = materialEntry.TevStageInfoIndexes[i];
@@ -136,12 +143,8 @@ namespace bmd.exporter {
         var colorChannel = tevOrder.ChannelID;
         valueManager.UpdateRascColor(colorChannel);
 
-        // TODO: This is 100% wrong, also needs to pull from Color3 instead
-        var konstIndex =
-            materialEntry.TevColorIndexes[tevStage.color_constant_sel];
-        var konstColor = bmd.MAT3.ColorS10[konstIndex];
-        valueManager.UpdateKonstColor(konstIndex, konstColor);
-        colorConstants.Add(konstColor);
+        // Updates which values are referred to by konst
+        valueManager.UpdateKonst(tevStage.color_constant_sel, tevStage.alpha_constant_sel);
 
         // Set up color logic
         {
@@ -581,29 +584,39 @@ namespace bmd.exporter {
       private Color? konstColor_ = null;
 
       private IList<Color> constColorImpls_;
+      private IList<Color> konstColorImpls_;
 
       // TODO: Is 10 right?
       private readonly IColorValue?[] konstColors_ = new IColorValue?[16];
 
-      public void SetConstColors(IList<Color> constColorImpls) {
+      public void SetColorRegisters(IList<Color> constColorImpls) {
         this.constColorImpls_ = constColorImpls;
       }
 
-      public void UpdateKonstColor(int index, Color color) {
-        if (index != this.konstIndex_) {
-          this.konstIndex_ = index;
-          this.konstColor_ = color;
-          this.colorValues_.Remove(TevStage.GxCc.GX_CC_KONST);
-        }
+      public void SetKonstColors(IList<Color> konstColors) {
+        this.konstColorImpls_ = konstColors;
       }
 
-      // TODO: This is 100% wrong, need to do this instead:
-      // https://github.com/magcius/bmdview/blob/master/tev.markdown#gx_settevkcolorsel
-      public IColorValue GetKonstColorChannel_() {
-        var indexOrNull = this.konstIndex_;
-        Asserts.Nonnull(indexOrNull);
+      private BMD.GxKonstColorSel tevStageColorConstantSel_;
+      private BMD.GxKonstAlphaSel tevStageAlphaConstantSel_;
 
-        var index = indexOrNull.Value;
+      public void UpdateKonst(BMD.GxKonstColorSel tevStageColorConstantSel, BMD.GxKonstAlphaSel tevStageAlphaConstantSel) {
+        this.tevStageColorConstantSel_ = tevStageColorConstantSel;
+        this.tevStageAlphaConstantSel_ = tevStageAlphaConstantSel;
+      }
+
+      // https://github.com/magcius/bmdview/blob/master/tev.markdown#gx_settevkcolorsel
+      public IColorValue GetKonstColor_(BMD.GxKonstColorSel sel) {
+        if (sel is >= BMD.GxKonstColorSel.KCSel_1 and <= BMD.GxKonstColorSel.KCSel_1_8) {
+          var index = (sel - BMD.GxKonstColorSel.KCSel_1);
+          var numerator = 8 - index;
+
+          var intensity = numerator / 8f;
+
+          return this.equations_.CreateColorConstant(intensity);
+        }
+
+        /*var index = indexOrNull.Value;
         //Asserts.True(index >= 0 && index < 4);
 
         var colorOrNull = this.konstColor_;
@@ -620,7 +633,22 @@ namespace bmd.exporter {
                   color.B / 255f);
         }
 
-        return this.colorValues_[TevStage.GxCc.GX_CC_KONST] = konstColor;
+        return this.colorValues_[TevStage.GxCc.GX_CC_KONST] = konstColor;*/
+
+        throw new NotImplementedException();
+      }
+
+      public IScalarValue GetKonstAlpha_(BMD.GxKonstAlphaSel sel) {
+        if (sel is >= BMD.GxKonstAlphaSel.KASel_1 and <= BMD.GxKonstAlphaSel.KASel_1_8) {
+          var index = (sel - BMD.GxKonstAlphaSel.KASel_1);
+          var numerator = 8 - index;
+
+          var intensity = numerator / 8f;
+
+          return this.equations_.CreateScalarConstant(intensity);
+        }
+
+        throw new NotImplementedException();
       }
 
       public IColorValue GetColor(TevStage.GxCc colorSource) {
@@ -642,7 +670,7 @@ namespace bmd.exporter {
         }
 
         if (colorSource == TevStage.GxCc.GX_CC_KONST) {
-          return this.GetKonstColorChannel_();
+          return this.GetKonstColor_(this.tevStageColorConstantSel_);
         }
 
         if (colorSource >= TevStage.GxCc.GX_CC_C0 &&
@@ -682,6 +710,10 @@ namespace bmd.exporter {
 
         if (alphaSource == GxCa.GX_CA_RASA) {
           return this.GetVertexAlphaChannel_();
+        }
+
+        if (alphaSource == TevStage.GxCa.GX_CA_KONST) {
+          return this.GetKonstAlpha_(this.tevStageAlphaConstantSel_);
         }
 
         if (alphaSource >= TevStage.GxCa.GX_CA_A0 &&
