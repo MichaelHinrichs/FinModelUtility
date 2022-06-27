@@ -27,13 +27,24 @@ namespace fin.language.equations.fixedFunction {
         os.WriteLine($"uniform sampler2D texture{t};");
       }
       os.WriteLine();
-      os.WriteLine("in vec4 vertexColor0;");
-      os.WriteLine("in vec4 vertexColor1;");
+      os.WriteLine("in vec3 vertexNormal;");
+      os.WriteLine("in vec4 vertexColor0_;");
+      os.WriteLine("in vec4 vertexColor1_;");
       os.WriteLine("in vec2 uv0;");
       os.WriteLine();
       os.WriteLine("out vec4 fragColor;");
       os.WriteLine();
       os.WriteLine("void main() {");
+
+      os.WriteLine("vec3 diffuseLightNormal = normalize(vec3(.5, .5, -1));");
+      os.WriteLine("float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);");
+      os.WriteLine("vec3 diffuseLightColor = vec3(.5, .5, .5);");
+      os.WriteLine("vec3 diffuseColor = diffuseLightAmount * diffuseLightColor;");
+      os.WriteLine("vec4 vertexColor0 = vec4(diffuseColor, 1);");
+      os.WriteLine();
+      os.WriteLine("vec3 ambientLightColor = vec3(0, 0, 0);");
+      os.WriteLine("vec4 vertexColor1 = vec4(ambientLightColor, 1);");
+      os.WriteLine();
 
       // TODO: Get tree of all values that this depends on, in case there needs to be other variables defined before.
       var outputColor =

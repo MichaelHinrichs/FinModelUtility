@@ -525,6 +525,7 @@ namespace bmd.exporter {
         }
       }
 
+      // TODO: Switch from vertex color to ambient/diffuse lights when applicable
       private IColorValue GetVertexColorChannel_(TevStage.GxCc colorSource) {
         var channelOrNull = this.colorChannel_;
         Asserts.Nonnull(channelOrNull);
@@ -559,6 +560,7 @@ namespace bmd.exporter {
         return this.colorValues_[colorSource] = color;
       }
 
+      // TODO: Switch from vertex alpha to ambient/diffuse lights when applicable
       private IScalarValue GetVertexAlphaChannel_() {
         var channelOrNull = this.colorChannel_;
         Asserts.Nonnull(channelOrNull);
