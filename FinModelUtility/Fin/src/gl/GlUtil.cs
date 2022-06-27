@@ -57,13 +57,13 @@ namespace fin.gl {
       } else {
         Gl.glEnable(Gl.GL_BLEND);
         Gl.glBlendEquation(GlUtil.ConvertFinBlendModeToGl_(blendMode));
+        Gl.glBlendFunc(GlUtil.ConvertFinBlendFactorToGl_(srcFactor),
+                       GlUtil.ConvertFinBlendFactorToGl_(dstFactor));
       }
 
-      Gl.glBlendFunc(GlUtil.ConvertFinBlendFactorToGl_(srcFactor),
-                     GlUtil.ConvertFinBlendFactorToGl_(dstFactor));
-
-      Gl.glEnable(Gl.GL_COLOR_LOGIC_OP);
-      Gl.glLogicOp(GlUtil.ConvertFinLogicOpToGl_(logicOp));
+      // TODO: Doesn't seem to work??
+      /*Gl.glEnable(Gl.GL_COLOR_LOGIC_OP);
+      Gl.glLogicOp(GlUtil.ConvertFinLogicOpToGl_(logicOp));*/
     }
 
     private static int ConvertFinBlendModeToGl_(BlendMode finBlendMode)
