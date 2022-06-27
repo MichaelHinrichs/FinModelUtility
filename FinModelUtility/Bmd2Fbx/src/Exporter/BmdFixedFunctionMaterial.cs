@@ -43,6 +43,8 @@ namespace bmd.exporter {
         int materialEntryIndex,
         BMD bmd,
         IList<BmdTexture> textures) {
+      // TODO: materialEntry.Flag determines draw order
+
       var materialEntry = bmd.MAT3.MaterialEntries[materialEntryIndex];
       var materialName = bmd.MAT3.MaterialNameTable[materialEntryIndex];
 

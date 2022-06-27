@@ -2738,23 +2738,23 @@ label_140:
       public class TextureHeader {
         // Do not modify any of these types or the order!
         public BMD.TEX1Section.TextureFormat Format;
-        public Byte Unknown1;
+        public Byte AlphaSetting;
         public UInt16 Width;
         public UInt16 Height;
         public BMD.TEX1Section.GX_WRAP_TAG WrapS;
         public BMD.TEX1Section.GX_WRAP_TAG WrapT;
-        public Byte Unknown2;
+        public Byte PalettesEnabled;
         public BMD.TEX1Section.PaletteFormat PaletteFormat;
         public UInt16 NrPaletteEntries;
         public UInt32 PaletteOffset;
         public IColor[] palette;
-        public UInt32 Unknown3;
+        public UInt32 BorderColor;
         public BMD.TEX1Section.GX_TEXTURE_FILTER MinFilter;
         public BMD.TEX1Section.GX_TEXTURE_FILTER MagFilter;
         public UInt16 Unknown4;
         public Byte NrMipMap;
         public Byte Unknown5;
-        public UInt16 Unknown6;
+        public UInt16 LodBias;
         public UInt32 DataOffset;
 
         [NonSerialized]
@@ -2764,22 +2764,22 @@ label_140:
           var pos = er.Position;
 
           this.Format = (BMD.TEX1Section.TextureFormat) er.ReadByte();
-          this.Unknown1 = er.ReadByte();
+          this.AlphaSetting = er.ReadByte();
           this.Width = er.ReadUInt16();
           this.Height = er.ReadUInt16();
           this.WrapS = (BMD.TEX1Section.GX_WRAP_TAG) er.ReadByte();
           this.WrapT = (BMD.TEX1Section.GX_WRAP_TAG) er.ReadByte();
-          this.Unknown2 = er.ReadByte();
+          this.PalettesEnabled = er.ReadByte();
           this.PaletteFormat = (BMD.TEX1Section.PaletteFormat) er.ReadByte();
           this.NrPaletteEntries = er.ReadUInt16();
           this.PaletteOffset = er.ReadUInt32();
-          this.Unknown3 = er.ReadUInt32();
+          this.BorderColor = er.ReadUInt32();
           this.MinFilter = (BMD.TEX1Section.GX_TEXTURE_FILTER) er.ReadByte();
           this.MagFilter = (BMD.TEX1Section.GX_TEXTURE_FILTER) er.ReadByte();
           this.Unknown4 = er.ReadUInt16();
           this.NrMipMap = er.ReadByte();
           this.Unknown5 = er.ReadByte();
-          this.Unknown6 = er.ReadUInt16();
+          this.LodBias = er.ReadUInt16();
           this.DataOffset = er.ReadUInt32();
 
           long position = er.BaseStream.Position;
