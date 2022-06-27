@@ -75,7 +75,7 @@ namespace uni.ui.gl {
     private readonly BoneTransformManager boneTransformManager_;
 
     private readonly IMaterial material_;
-    private readonly GlTexture? texture_;
+    private readonly IList<GlTexture> textures_;
 
     private readonly IList<IPrimitive> primitives_;
 
@@ -87,8 +87,10 @@ namespace uni.ui.gl {
 
       this.material_ = material;
 
+      var fixedFunctionMaterial = material as IFixedFunctionMaterial;
+
       if (DebugFlags.ENABLE_FIXED_FUNCTION_SHADER &&
-          material is IFixedFunctionMaterial fixedFunctionMaterial) {
+          fixedFunctionMaterial != null) {
         // TODO: Sometimes vertex colors are passed in from model, and sometimes they
         // represent lighting. How to tell the difference??
 
@@ -126,15 +128,24 @@ void main() {
             new GlTexture(BitmapUtil.Create1x1WithColor(Color.White));
       }
 
-      ITexture? finTexture = material.Textures.FirstOrDefault();
-
+      IReadOnlyList<ITexture?> finTextures =
+          fixedFunctionMaterial?.TextureSources ?? material.Textures;
       if (DebugFlags.ENABLE_WEIGHT_COLORS) {
-        finTexture = null;
+        finTextures = Array.Empty<ITexture?>();
       }
 
-      this.texture_ = finTexture != null
-                          ? new GlTexture(finTexture)
-                          : MaterialMeshRenderer.NULL_TEXTURE_;
+      var nSupportedTextures = 8;
+      this.textures_ = new List<GlTexture>();
+      for (var i = 0; i < nSupportedTextures; ++i) {
+        var finTexture =
+            !DebugFlags.ENABLE_WEIGHT_COLORS && i < finTextures.Count
+                ? finTextures[i]
+                : null;
+
+        this.textures_.Add(finTexture != null
+                               ? new GlTexture(finTexture)
+                               : MaterialMeshRenderer.NULL_TEXTURE_);
+      }
 
       this.primitives_ = primitives;
     }
@@ -147,9 +158,12 @@ void main() {
     }
 
     private void ReleaseUnmanagedResources_() {
-      if (this.texture_ != MaterialMeshRenderer.NULL_TEXTURE_) {
-        this.texture_?.Dispose();
+      foreach (var texture in this.textures_) {
+        if (texture != MaterialMeshRenderer.NULL_TEXTURE_) {
+          texture.Dispose();
+        }
       }
+      this.textures_.Clear();
       this.shaderProgram_?.Dispose();
     }
 
@@ -174,7 +188,9 @@ void main() {
       }
 
       GlUtil.SetCulling(this.material_.CullingMode);
-      this.texture_?.Bind();
+      for (var i = 0; i < this.textures_.Count; ++i) {
+        this.textures_[i].Bind(i);
+      }
 
       Gl.glBegin(Gl.GL_TRIANGLES);
 
@@ -242,7 +258,9 @@ void main() {
 
       Gl.glEnd();
 
-      this.texture_?.Unbind();
+      for (var i = 0; i < this.textures_.Count; ++i) {
+        this.textures_[i].Unbind(i);
+      }
 
       if (fixedFunctionMaterial != null) {
         GlUtil.ResetBlending();
