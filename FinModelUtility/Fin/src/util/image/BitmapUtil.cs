@@ -115,6 +115,37 @@ namespace fin.util.image {
     }
 
     public static unsafe void ProcessImage(Bitmap src,
+                                           ProcessPixel processor) {
+      BitmapUtil.InvokeAsLocked(src, bmpData => {
+        var width = src.Width;
+        var height = src.Height;
+
+        var colorPalette = src.Palette.Entries;
+
+        for (var y = 0; y < height; ++y) {
+          for (var x = 0; x < width; ++x) {
+            var i = y * width + x;
+            BitmapUtil.GetPixel(src,
+                                bmpData,
+                                colorPalette,
+                                i,
+                                out var r,
+                                out var g,
+                                out var b,
+                                out var a);
+
+            processor(r, g, b, a);
+          }
+        }
+      });
+    }
+
+    public delegate void ProcessPixel(byte r,
+                                      byte g,
+                                      byte b,
+                                      byte a);
+
+    public static unsafe void ProcessImage(Bitmap src,
                                            Bitmap dst,
                                            ConvertPixel converter) {
       Asserts.Equal(src.Width, dst.Width);
@@ -135,8 +166,8 @@ namespace fin.util.image {
             BitmapUtil.GetPixel(src,
                                 srcData,
                                 colorPalette,
-                                i, 
-                                out var inR, 
+                                i,
+                                out var inR,
                                 out var inG,
                                 out var inB,
                                 out var inA);
