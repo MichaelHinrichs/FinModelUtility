@@ -5,6 +5,7 @@ using fin.io;
 using fin.language.equations.fixedFunction;
 using fin.util.image;
 
+
 namespace fin.model {
   public interface IMaterialManager {
     IReadOnlyList<IMaterial> All { get; }
@@ -203,6 +204,17 @@ namespace fin.model {
     IFixedFunctionMaterial SetAlphaSource(int alphaIndex, float alpha);
 
     ITexture? CompiledTexture { get; set; }
+
+    IFixedFunctionMaterial SetBlending(
+        BlendMode blendMode,
+        BlendFactor srcFactor,
+        BlendFactor dstFactor,
+        LogicOp logicOp);
+
+    BlendMode BlendMode { get; }
+    BlendFactor SrcFactor { get; }
+    BlendFactor DstFactor { get; }
+    LogicOp LogicOp { get; }
   }
 
 
@@ -230,7 +242,7 @@ namespace fin.model {
     byte Ab { get; }
   }
 
-  public interface IColorShaderParam : IColorSource, IShaderParam<IColor> {}
+  public interface IColorShaderParam : IColorSource, IShaderParam<IColor> { }
 
   public enum UvType {
     NORMAL,

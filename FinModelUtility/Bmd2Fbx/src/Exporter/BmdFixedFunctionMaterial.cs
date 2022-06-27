@@ -16,6 +16,8 @@ using fin.util.json;
 
 using Microsoft.Xna.Framework.Graphics.PackedVector;
 
+using mkds.gcn.bmd;
+
 using Newtonsoft.Json;
 
 using BlendFactor = fin.model.BlendFactor;
@@ -62,6 +64,12 @@ namespace bmd.exporter {
               BMD.CullMode.All   => CullingMode.SHOW_NEITHER,
               _                  => throw new ArgumentOutOfRangeException(),
           };
+
+      material.SetBlending(
+          ConvertBmdBlendModeToFin(populatedMaterial.BlendMode.BlendMode),
+          ConvertBmdBlendFactorToFin(populatedMaterial.BlendMode.SrcFactor),
+          ConvertBmdBlendFactorToFin(populatedMaterial.BlendMode.DstFactor),
+          ConvertBmdLogicOpToFin(populatedMaterial.BlendMode.LogicOp));
 
       this.Material = material;
 
@@ -146,7 +154,8 @@ namespace bmd.exporter {
         valueManager.UpdateRascColor(colorChannel);
 
         // Updates which values are referred to by konst
-        valueManager.UpdateKonst(tevStage.color_constant_sel, tevStage.alpha_constant_sel);
+        valueManager.UpdateKonst(tevStage.color_constant_sel,
+                                 tevStage.alpha_constant_sel);
 
         // Set up color logic
         {
@@ -604,14 +613,16 @@ namespace bmd.exporter {
       private BMD.GxKonstColorSel tevStageColorConstantSel_;
       private BMD.GxKonstAlphaSel tevStageAlphaConstantSel_;
 
-      public void UpdateKonst(BMD.GxKonstColorSel tevStageColorConstantSel, BMD.GxKonstAlphaSel tevStageAlphaConstantSel) {
+      public void UpdateKonst(BMD.GxKonstColorSel tevStageColorConstantSel,
+                              BMD.GxKonstAlphaSel tevStageAlphaConstantSel) {
         this.tevStageColorConstantSel_ = tevStageColorConstantSel;
         this.tevStageAlphaConstantSel_ = tevStageAlphaConstantSel;
       }
 
       // https://github.com/magcius/bmdview/blob/master/tev.markdown#gx_settevkcolorsel
       public IColorValue GetKonstColor_(BMD.GxKonstColorSel sel) {
-        if (sel is >= BMD.GxKonstColorSel.KCSel_1 and <= BMD.GxKonstColorSel.KCSel_1_8) {
+        if (sel is >= BMD.GxKonstColorSel.KCSel_1
+                   and <= BMD.GxKonstColorSel.KCSel_1_8) {
           var index = (sel - BMD.GxKonstColorSel.KCSel_1);
           var numerator = 8 - index;
 
@@ -643,7 +654,8 @@ namespace bmd.exporter {
       }
 
       public IScalarValue GetKonstAlpha_(BMD.GxKonstAlphaSel sel) {
-        if (sel is >= BMD.GxKonstAlphaSel.KASel_1 and <= BMD.GxKonstAlphaSel.KASel_1_8) {
+        if (sel is >= BMD.GxKonstAlphaSel.KASel_1
+                   and <= BMD.GxKonstAlphaSel.KASel_1_8) {
           var index = (sel - BMD.GxKonstAlphaSel.KASel_1);
           var numerator = 8 - index;
 
@@ -757,5 +769,52 @@ namespace bmd.exporter {
         return null;
       }
     }
+
+    private BlendMode ConvertBmdBlendModeToFin(BmdBlendMode bmdBlendMode)
+      => bmdBlendMode switch {
+          BmdBlendMode.NONE             => BlendMode.NONE,
+          BmdBlendMode.ADD              => BlendMode.ADD,
+          BmdBlendMode.REVERSE_SUBTRACT => BlendMode.REVERSE_SUBTRACT,
+          BmdBlendMode.SUBTRACT         => BlendMode.SUBTRACT,
+          _ => throw new ArgumentOutOfRangeException(
+                   nameof(bmdBlendMode), bmdBlendMode, null)
+      };
+
+    private BlendFactor ConvertBmdBlendFactorToFin(
+        BmdBlendFactor bmdBlendFactor)
+      => bmdBlendFactor switch {
+          BmdBlendFactor.ZERO                => BlendFactor.ZERO,
+          BmdBlendFactor.ONE                 => BlendFactor.ONE,
+          BmdBlendFactor.SRC_COLOR           => BlendFactor.SRC_COLOR,
+          BmdBlendFactor.ONE_MINUS_SRC_COLOR => BlendFactor.ONE_MINUS_SRC_COLOR,
+          BmdBlendFactor.SRC_ALPHA           => BlendFactor.SRC_ALPHA,
+          BmdBlendFactor.ONE_MINUS_SRC_ALPHA => BlendFactor.ONE_MINUS_SRC_ALPHA,
+          BmdBlendFactor.DST_ALPHA           => BlendFactor.DST_ALPHA,
+          BmdBlendFactor.ONE_MINUS_DST_ALPHA => BlendFactor.ONE_MINUS_DST_ALPHA,
+          _ => throw new ArgumentOutOfRangeException(
+                   nameof(bmdBlendFactor), bmdBlendFactor, null)
+      };
+
+    private LogicOp ConvertBmdLogicOpToFin(BmdLogicOp bmdLogicOp)
+      => bmdLogicOp switch {
+          BmdLogicOp.CLEAR         => LogicOp.CLEAR,
+          BmdLogicOp.AND           => LogicOp.AND,
+          BmdLogicOp.AND_REVERSE   => LogicOp.AND_REVERSE,
+          BmdLogicOp.COPY          => LogicOp.COPY,
+          BmdLogicOp.AND_INVERTED  => LogicOp.AND_INVERTED,
+          BmdLogicOp.NOOP          => LogicOp.NOOP,
+          BmdLogicOp.XOR           => LogicOp.XOR,
+          BmdLogicOp.OR            => LogicOp.OR,
+          BmdLogicOp.NOR           => LogicOp.NOR,
+          BmdLogicOp.EQUIV         => LogicOp.EQUIV,
+          BmdLogicOp.INVERT        => LogicOp.INVERT,
+          BmdLogicOp.OR_REVERSE    => LogicOp.OR_REVERSE,
+          BmdLogicOp.COPY_INVERTED => LogicOp.COPY_INVERTED,
+          BmdLogicOp.OR_INVERTED   => LogicOp.OR_INVERTED,
+          BmdLogicOp.NAND          => LogicOp.NAND,
+          BmdLogicOp.SET           => LogicOp.SET,
+          _ => throw new ArgumentOutOfRangeException(
+                   nameof(bmdLogicOp), bmdLogicOp, null)
+      };
   }
 }

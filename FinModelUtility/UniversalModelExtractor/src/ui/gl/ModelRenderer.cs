@@ -165,6 +165,14 @@ void main() {
         }
       }
 
+      var fixedFunctionMaterial = this.material_ as IFixedFunctionMaterial;
+      if (fixedFunctionMaterial != null) {
+        GlUtil.SetBlending(fixedFunctionMaterial.BlendMode,
+                           fixedFunctionMaterial.SrcFactor,
+                           fixedFunctionMaterial.DstFactor,
+                           fixedFunctionMaterial.LogicOp);
+      }
+
       GlUtil.SetCulling(this.material_.CullingMode);
       this.texture_?.Bind();
 
@@ -235,6 +243,10 @@ void main() {
       Gl.glEnd();
 
       this.texture_?.Unbind();
+
+      if (fixedFunctionMaterial != null) {
+        GlUtil.ResetBlending();
+      }
     }
 
     private readonly IPosition position_ = new ModelImpl.PositionImpl();

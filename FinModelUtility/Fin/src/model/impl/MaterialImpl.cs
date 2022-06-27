@@ -221,6 +221,23 @@ namespace fin.model.impl {
       }
 
       public ITexture? CompiledTexture { get; set; }
+
+      public IFixedFunctionMaterial SetBlending(
+          BlendMode blendMode,
+          BlendFactor srcFactor,
+          BlendFactor dstFactor,
+          LogicOp logicOp) {
+        this.BlendMode = blendMode;
+        this.SrcFactor = srcFactor;
+        this.DstFactor = dstFactor;
+        this.LogicOp = logicOp;
+        return this;
+      }
+
+      public BlendMode BlendMode { get; private set; }
+      public BlendFactor SrcFactor { get; private set; }
+      public BlendFactor DstFactor { get; private set; }
+      public LogicOp LogicOp { get; private set; }
     }
   }
 
