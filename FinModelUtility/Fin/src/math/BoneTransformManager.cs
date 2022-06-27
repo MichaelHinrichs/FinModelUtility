@@ -224,12 +224,10 @@ namespace fin.math {
         double nY = localNormal.Y;
         double nZ = localNormal.Z;
         GlMatrixUtil.ProjectNormal(transformMatrix,
-                                   ref x,
-                                   ref y,
-                                   ref z);
+                                   ref nX,
+                                   ref nY,
+                                   ref nZ);
 
-        // All of the normals are inside-out for some reason, we have to flip
-        // them manually.
         outNormal.X = (float) nX;
         outNormal.Y = (float) nY;
         outNormal.Z = (float) nZ;
