@@ -394,6 +394,9 @@ namespace bmd.exporter {
       private readonly Dictionary<TevOrder.ColorChannel, IColorValue>
           colorChannelsColors_ = new();
 
+      private readonly Dictionary<TevOrder.ColorChannel, IScalarValue>
+          alphaChannelsColors_ = new();
+
       private readonly Dictionary<TevStage.GxCc, IColorValue>
           colorValues_ = new();
 
@@ -591,17 +594,21 @@ namespace bmd.exporter {
 
         var channel = channelOrNull.Value;
 
-        var source = channel switch {
-            TevOrder.ColorChannel.GX_COLOR0A0 => FixedFunctionSource
-                .VERTEX_ALPHA_0,
-            TevOrder.ColorChannel.GX_COLOR1A1 => FixedFunctionSource
-                .VERTEX_ALPHA_1,
-            _ => throw new NotImplementedException()
-        };
 
-        var alpha = this.equations_.CreateScalarInput(
-            source,
-            this.equations_.CreateScalarConstant(0));
+        if (!this.alphaChannelsColors_.TryGetValue(channel, out var alpha)) {
+          var source = channel switch {
+              TevOrder.ColorChannel.GX_COLOR0A0 => FixedFunctionSource
+                  .VERTEX_ALPHA_0,
+              TevOrder.ColorChannel.GX_COLOR1A1 => FixedFunctionSource
+                  .VERTEX_ALPHA_1,
+              _ => throw new NotImplementedException()
+          };
+
+          this.alphaChannelsColors_[channel] =
+              alpha = this.equations_.CreateScalarInput(
+                  source,
+                  this.equations_.CreateScalarConstant(0));
+        }
 
         return this.alphaValues_[GxCa.GX_CA_RASA] = alpha;
       }

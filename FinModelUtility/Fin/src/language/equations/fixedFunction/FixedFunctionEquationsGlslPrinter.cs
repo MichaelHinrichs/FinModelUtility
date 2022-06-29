@@ -347,6 +347,8 @@ namespace fin.language.equations.fixedFunction {
       return namedValue.Identifier switch {
           FixedFunctionSource.VERTEX_COLOR_0 => "vertexColor0.rgb",
           FixedFunctionSource.VERTEX_COLOR_1 => "vertexColor1.rgb",
+          FixedFunctionSource.VERTEX_ALPHA_0 => "vertexColor0.aaa",
+          FixedFunctionSource.VERTEX_ALPHA_1 => "vertexColor1.aaa",
           FixedFunctionSource.UNDEFINED => "vec3(1)",
           _ => throw new ArgumentOutOfRangeException()
       };
