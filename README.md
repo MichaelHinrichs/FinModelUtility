@@ -28,6 +28,8 @@ Command-line tools for extracting models from games en-masse. Separate batch scr
 
 ## Supported formats/games
 
+*Not all of the models for each game are currently supported, and not every feature of each model will be accurately recreated in the output GLTF/FBX files. To flag any broken/missing models that you'd like to see fixed, please feel free to file feedback via the Issues tab above.*
+
 - .cmb (3DS)
   - Ocarina of Time 3D (`ocarina_of_time_3d.cia`)
 - .bmd (GCN)
