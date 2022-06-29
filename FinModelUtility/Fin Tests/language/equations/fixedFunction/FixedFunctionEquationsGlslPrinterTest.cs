@@ -157,7 +157,7 @@ void main() {
         IFixedFunctionEquations<FixedFunctionSource> equations,
         params string[] expectedLines) {
       var actualText =
-          new FixedFunctionEquationsGlslPrinter().Print(
+          new FixedFunctionEquationsGlslPrinter(null).Print(
               equations);
 
       var actualLines = StringUtil.SplitNewlines(actualText);

@@ -103,6 +103,9 @@ varying vec3 vertexNormal;
 varying vec4 vertexColor0_;
 varying vec4 vertexColor1_;
 varying vec2 uv0;
+varying vec2 uv1;
+varying vec2 uv2;
+varying vec2 uv3;
 
 void main() {
     gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex;
@@ -110,14 +113,19 @@ void main() {
     vertexColor0_ = vec4(0.5, 0.5, 0.5, 1);
     vertexColor1_ = vec4(0, 0, 0, 1);
     uv0 = gl_MultiTexCoord0.st;
+    uv1 = gl_MultiTexCoord1.st;
+    uv2 = gl_MultiTexCoord2.st;
+    uv3 = gl_MultiTexCoord3.st;
 }";
 
         var pretty =
             new FixedFunctionEquationsPrettyPrinter<FixedFunctionSource>()
                 .Print(fixedFunctionMaterial.Equations);
 
-        var fragmentShaderSrc = new FixedFunctionEquationsGlslPrinter()
-            .Print(fixedFunctionMaterial.Equations);
+        var fragmentShaderSrc =
+            new FixedFunctionEquationsGlslPrinter(
+                    fixedFunctionMaterial.TextureSources)
+                .Print(fixedFunctionMaterial.Equations);
 
         this.shaderProgram_ =
             GlShaderProgram.FromShaders(vertexShaderSrc, fragmentShaderSrc);
@@ -270,6 +278,8 @@ void main() {
     private readonly IPosition position_ = new ModelImpl.PositionImpl();
     private readonly INormal normal_ = new ModelImpl.NormalImpl();
 
+    private readonly float[] uvs_ = new float[2 * 4];
+
     private void RenderVertex_(IVertex vertex) {
       // TODO: Load in the matrix instead, so we can perform projection on the GPU.
       this.boneTransformManager_.ProjectVertex(
@@ -300,9 +310,9 @@ void main() {
         Gl.glColor4f(r, g, b, 1);
       }
 
-      var uv = vertex.GetUv();
-      if (uv != null) {
-        Gl.glTexCoord2f(uv.U, uv.V);
+      for (var i = 0; i < 4; ++i) {
+        var uvi = vertex.GetUv(i);
+        Gl.glMultiTexCoord2f(i, uvi?.U ?? 0, uvi?.V ?? 0);
       }
 
       Gl.glNormal3f(normal_.X, normal_.Y, normal_.Z);

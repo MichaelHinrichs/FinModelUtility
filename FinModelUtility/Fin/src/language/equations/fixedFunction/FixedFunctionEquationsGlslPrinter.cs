@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -8,8 +9,14 @@ using fin.util.asserts;
 
 namespace fin.language.equations.fixedFunction {
   public class FixedFunctionEquationsGlslPrinter {
-    public string
-        Print(IFixedFunctionEquations<FixedFunctionSource> equations) {
+    private readonly IReadOnlyList<ITexture?> textures_;
+
+    public FixedFunctionEquationsGlslPrinter(IReadOnlyList<ITexture> textures) {
+      this.textures_ = textures;
+    }
+
+    public string Print(
+        IFixedFunctionEquations<FixedFunctionSource> equations) {
       var sb = new StringBuilder();
 
       using var os = new StringWriter(sb);
@@ -24,22 +31,34 @@ namespace fin.language.equations.fixedFunction {
       os.WriteLine("# version 130");
       os.WriteLine();
       for (var t = 0; t < 8; ++t) {
-        os.WriteLine($"uniform sampler2D texture{t};");
+        if (equations.ColorInputs.ContainsKey(
+                FixedFunctionSource.TEXTURE_COLOR_0 + t) ||
+            equations.ColorInputs.ContainsKey(
+                FixedFunctionSource.TEXTURE_ALPHA_0 + t) ||
+            equations.ScalarInputs.ContainsKey(
+                FixedFunctionSource.TEXTURE_ALPHA_0 + t)) {
+          os.WriteLine($"uniform sampler2D texture{t};");
+        }
       }
       os.WriteLine();
       os.WriteLine("in vec3 vertexNormal;");
       os.WriteLine("in vec4 vertexColor0_;");
       os.WriteLine("in vec4 vertexColor1_;");
-      os.WriteLine("in vec2 uv0;");
+      for (var i = 0; i < 4; ++i) {
+        os.WriteLine($"in vec2 uv{i};");
+      }
       os.WriteLine();
       os.WriteLine("out vec4 fragColor;");
       os.WriteLine();
       os.WriteLine("void main() {");
 
+      // TODO: Define inputs once as needed up here.
       os.WriteLine("vec3 diffuseLightNormal = normalize(vec3(.5, .5, -1));");
-      os.WriteLine("float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);");
+      os.WriteLine(
+          "float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);");
       os.WriteLine("vec3 diffuseLightColor = vec3(.5, .5, .5);");
-      os.WriteLine("vec3 diffuseColor = diffuseLightAmount * diffuseLightColor;");
+      os.WriteLine(
+          "vec3 diffuseColor = diffuseLightAmount * diffuseLightColor;");
       os.WriteLine("vec4 vertexColor0 = vec4(diffuseColor, 1);");
       os.WriteLine();
       os.WriteLine("vec3 ambientLightColor = vec3(0, 0, 0);");
@@ -66,10 +85,10 @@ namespace fin.language.equations.fixedFunction {
       os.Write("  fragColor = vec4(colorComponent, alphaComponent);");
       os.WriteLine();
 
-      os.WriteLine(@"
+      /*os.WriteLine(@"
   if (fragColor.a < .95) {
     discard;
-  }");
+  }");*/
 
       os.WriteLine("}");
     }
@@ -334,8 +353,10 @@ namespace fin.language.equations.fixedFunction {
     }
 
     private string GetTextureValue_(int textureIndex) {
-      // TODO: Get proper UVs
-      var uvText = "uv0";
+      var texture = this.textures_[textureIndex];
+
+      // TODO: Handle special UV types
+      var uvText = $"uv{texture.UvIndex}";
 
       var textureText = $"texture(texture{textureIndex}, {uvText})";
       return textureText;
