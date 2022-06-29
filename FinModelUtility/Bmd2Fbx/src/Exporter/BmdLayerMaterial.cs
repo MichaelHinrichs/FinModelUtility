@@ -164,7 +164,7 @@ namespace bmd.exporter {
 
         var layer = new BmdLayer2(texture,
                                   //texCoordIndex++,
-                                  tevOrder.TexcoordID,
+                                  tevOrder.TexCoordId,
                                   blendMode);
         layers.Add(layer);
       }

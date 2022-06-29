@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Drawing;
@@ -44,7 +45,7 @@ namespace bmd.exporter {
         IMaterialManager materialManager,
         int materialEntryIndex,
         BMD bmd,
-        IList<BmdTexture> textures) {
+        IList<BmdTexture> tex1Textures) {
       // TODO: materialEntry.Flag determines draw order
 
       var materialEntry = bmd.MAT3.MaterialEntries[materialEntryIndex];
@@ -53,6 +54,11 @@ namespace bmd.exporter {
       var populatedMaterial = bmd.MAT3.PopulatedMaterials[materialEntryIndex];
       var json = JsonUtil.Serialize(populatedMaterial);
       ;
+
+      var textures =
+          populatedMaterial.TextureIndices
+                           .Select(i => i != -1 ? tex1Textures[i] : null)
+                           .ToArray();
 
       var material = materialManager.AddFixedFunctionMaterial();
       material.Name = materialName;
@@ -125,13 +131,10 @@ namespace bmd.exporter {
         var tevOrder = bmd.MAT3.TevOrders[tevOrderIndex];
 
         // Updates which texture is referred to by TEXC
-        var texStageIndex = tevOrder.TexMap;
-        if (texStageIndex == -1) {
+        var textureIndex = tevOrder.TexMap;
+        if (textureIndex == -1) {
           valueManager.UpdateTextureColor(null);
         } else {
-          var texStage = materialEntry.TextureIndexes[texStageIndex];
-          var textureIndex = bmd.MAT3.TextureIndices[texStage];
-
           var bmdTexture = textures[textureIndex];
 
           // TODO: Share texture definitions between materials?
@@ -142,15 +145,25 @@ namespace bmd.exporter {
           texture.WrapModeV = bmdTexture.WrapModeT;
           texture.ColorType = bmdTexture.ColorType;
 
-          var texCoordIndex = tevOrder.TexcoordID;
-          texture.UvIndex = texCoordIndex;
+          var texCoordGen = bmd.MAT3.TexCoordGens[tevOrder.TexCoordId];
 
-          valueManager.UpdateTextureColor(texCoordIndex);
-          material.SetTextureSource(texCoordIndex, texture);
+          var texGenSrc = texCoordGen.TexGenSrc;
+          if (texGenSrc > BMD.MAT3Section.GxTexGenSrc.Tex0 &&
+              texGenSrc <= BMD.MAT3Section.GxTexGenSrc.Tex7) {
+            var texCoordIndex = texGenSrc - BMD.MAT3Section.GxTexGenSrc.Tex0;
+            texture.UvIndex = texCoordIndex;
+          }
+          else {
+            //Asserts.Fail($"Unsupported texGenSrc type: {texGenSrc}");
+            texture.UvIndex = 0;
+          }
+
+          valueManager.UpdateTextureColor(textureIndex);
+          material.SetTextureSource(textureIndex, texture);
         }
 
         // Updates which color is referred to by RASC
-        var colorChannel = tevOrder.ChannelID;
+        var colorChannel = tevOrder.ColorChannelId;
         valueManager.UpdateRascColor(colorChannel);
 
         // Updates which values are referred to by konst

@@ -43,8 +43,9 @@ namespace fin.gl {
 
     public static void ResetBlending() {
       Gl.glDisable(Gl.GL_BLEND);
+      Gl.glBlendEquation(Gl.GL_FUNC_ADD);
       Gl.glBlendFunc(Gl.GL_SRC_ALPHA, Gl.GL_ONE_MINUS_SRC_ALPHA);
-      Gl.glDisable(Gl.GL_COLOR_LOGIC_OP);
+      Gl.glDisable(Gl.GL_LOGIC_OP);
     }
 
     public static void SetBlending(
@@ -54,22 +55,23 @@ namespace fin.gl {
         LogicOp logicOp) {
       if (blendMode is BlendMode.NONE) {
         Gl.glDisable(Gl.GL_BLEND);
+        Gl.glBlendEquation(Gl.GL_FUNC_ADD);
       } else {
         Gl.glEnable(Gl.GL_BLEND);
         Gl.glBlendEquation(GlUtil.ConvertFinBlendModeToGl_(blendMode));
-        Gl.glBlendFunc(GlUtil.ConvertFinBlendFactorToGl_(srcFactor),
-                       GlUtil.ConvertFinBlendFactorToGl_(dstFactor));
       }
+      Gl.glBlendFunc(GlUtil.ConvertFinBlendFactorToGl_(srcFactor),
+                     GlUtil.ConvertFinBlendFactorToGl_(dstFactor));
 
       // TODO: Doesn't seem to work??
-      /*Gl.glEnable(Gl.GL_COLOR_LOGIC_OP);
-      Gl.glLogicOp(GlUtil.ConvertFinLogicOpToGl_(logicOp));*/
+      Gl.glEnable(Gl.GL_LOGIC_OP);
+      Gl.glLogicOp(GlUtil.ConvertFinLogicOpToGl_(logicOp));
     }
 
     private static int ConvertFinBlendModeToGl_(BlendMode finBlendMode)
       => finBlendMode switch {
-          BlendMode.ADD      => Gl.GL_FUNC_ADD,
-          BlendMode.SUBTRACT => Gl.GL_FUNC_SUBTRACT,
+          BlendMode.ADD              => Gl.GL_FUNC_ADD,
+          BlendMode.SUBTRACT         => Gl.GL_FUNC_SUBTRACT,
           BlendMode.REVERSE_SUBTRACT => Gl.GL_FUNC_REVERSE_SUBTRACT,
           _ => throw new ArgumentOutOfRangeException(
                    nameof(finBlendMode), finBlendMode, null)

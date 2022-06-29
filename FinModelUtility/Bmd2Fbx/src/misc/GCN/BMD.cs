@@ -23,6 +23,8 @@ using System.Text;
 using Tao.OpenGl;
 using System.Drawing;
 
+using bmd.exporter;
+
 using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
@@ -2058,7 +2060,7 @@ label_140:
       public BMD.MAT3Section.MaterialEntry[] MaterialEntries;
       public BMD.MAT3Section.PopulatedMaterial[] PopulatedMaterials;
       public ushort[] MaterialEntryIndieces;
-      public ushort[] TextureIndices;
+      public short[] TextureIndices;
       public CullMode[] CullModes;
       public System.Drawing.Color[] MaterialColor;
       public System.Drawing.Color[] AmbientColors;
@@ -2068,6 +2070,7 @@ label_140:
       public BMD.MAT3Section.BlendFunction[] BlendFunctions;
       public BMD.MAT3Section.DepthFunction[] DepthFunctions;
       public BMD.MAT3Section.TevStageProps[] TevStages;
+      public IList<TexCoordGen> TexCoordGens;
       public BMD.MAT3Section.TextureMatrixInfo[] TextureMatrices;
       public BMD.MAT3Section.TevOrder[] TevOrders;
       public BMD.Stringtable MaterialNameTable;
@@ -2119,14 +2122,22 @@ label_140:
           this.AmbientColors = new System.Drawing.Color[sectionLengths[8] / 4];
           for (int index = 0; index < sectionLengths[8] / 4; ++index)
             this.AmbientColors[index] = er.ReadColor8();
-          
+
+          er.BaseStream.Position = position1 + this.Offsets[11];
+          this.TexCoordGens = new List<TexCoordGen>();
+          for (int index = 0; index < sectionLengths[11] / 4; ++index) {
+            var texCoordGen = new TexCoordGen();
+            texCoordGen.Read(er);
+            this.TexCoordGens.Add(texCoordGen);
+          }
+
           er.BaseStream.Position = position1 + (long) this.Offsets[13];
           this.TextureMatrices = new BMD.MAT3Section.TextureMatrixInfo[sectionLengths[13] / 100];
           for (int index = 0; index < sectionLengths[13] / 100; ++index)
             this.TextureMatrices[index] = new BMD.MAT3Section.TextureMatrixInfo(er);
           
           er.BaseStream.Position = position1 + (long) this.Offsets[15];
-          this.TextureIndices = er.ReadUInt16s(sectionLengths[15] / 2);
+          this.TextureIndices = er.ReadInt16s(sectionLengths[15] / 2);
 
           er.BaseStream.Position = position1 + (long) this.Offsets[16];
           this.TevOrders = new BMD.MAT3Section.TevOrder[sectionLengths[16] / 4];
@@ -2181,7 +2192,7 @@ label_140:
             source.Add(this.TevStages[(int) materialEntry.TevStageInfoIndexes[index]]);
             source.Last<BMD.MAT3Section.TevStageProps>().alpha_constant_sel = materialEntry.KonstAlphaSel[index];
             source.Last<BMD.MAT3Section.TevStageProps>().color_constant_sel = materialEntry.KonstColorSel[index];
-            source.Last<BMD.MAT3Section.TevStageProps>().texcoord = this.TevOrders[(int) materialEntry.TevOrderInfoIndexes[index]].TexcoordID;
+            source.Last<BMD.MAT3Section.TevStageProps>().texcoord = this.TevOrders[(int) materialEntry.TevOrderInfoIndexes[index]].TexCoordId;
             source.Last<BMD.MAT3Section.TevStageProps>().texmap = this.TevOrders[(int) materialEntry.TevOrderInfoIndexes[index]].TexMap;
           }
         }
@@ -2290,7 +2301,7 @@ label_140:
         public ushort[] TexGenInfo2;
         public ushort[] TexMatrices;
         public ushort[] DttMatrices;
-        public ushort[] TextureIndexes;
+        public short[] TextureIndexes;
         public ushort[] TevKonstColorIndexes;
         public GxKonstColorSel[] KonstColorSel;
         public GxKonstAlphaSel[] KonstAlphaSel;
@@ -2333,7 +2344,7 @@ label_140:
           this.TexGenInfo2 = er.ReadUInt16s(8);
           this.TexMatrices = er.ReadUInt16s(10);
           this.DttMatrices = er.ReadUInt16s(20);
-          this.TextureIndexes = er.ReadUInt16s(8);
+          this.TextureIndexes = er.ReadInt16s(8);
           this.TevKonstColorIndexes = er.ReadUInt16s(4);
           this.KonstColorSel =
               er.ReadBytes(16)
@@ -2393,7 +2404,7 @@ label_140:
         public ushort[] TexGenInfo2;
         public ushort[] TexMatrices;
         public ushort[] DttMatrices;
-        public ushort[] TextureIndexes;
+        public short[] TextureIndices;
         public ushort[] TevKonstColorIndexes;
         public byte[] ConstColorSel;
         public byte[] ConstAlphaSel;
@@ -2436,6 +2447,11 @@ label_140:
                    .Select(i => GetOrNull(mat3.TevStages, i))
                    .ToArray();
 
+          this.TextureIndices =
+              entry.TextureIndexes
+                   .Select(t => (short) (t != -1 ? mat3.TextureIndices[t] : -1))
+                   .ToArray();
+
           this.BlendMode = mat3.BlendFunctions[entry.BlendModeIndex];
 
           if (this.Name == "eye1") {
@@ -2446,6 +2462,66 @@ label_140:
         private static T? GetOrNull<T>(IList<T> array, int i)
             where T : notnull
           => i != -1 ? array[i] : default;
+      }
+
+      public enum GxTexGenType : byte {
+        Matrix3x4 = 0,
+        Matrix2x4 = 1,
+        Bump0 = 2,
+        Bump1 = 3,
+        Bump2 = 4,
+        Bump3 = 5,
+        Bump4 = 6,
+        Bump5 = 7,
+        Bump6 = 8,
+        Bump7 = 9,
+        SRTG = 10
+      }
+
+      public enum GxTexGenSrc : byte {
+        Position = 0,
+        Normal = 1,
+        Binormal = 2,
+        Tangent = 3,
+        Tex0 = 4,
+        Tex1 = 5,
+        Tex2 = 6,
+        Tex3 = 7,
+        Tex4 = 8,
+        Tex5 = 9,
+        Tex6 = 10,
+        Tex7 = 11,
+        TexCoord0 = 12,
+        TexCoord1 = 13,
+        TexCoord2 = 14,
+        TexCoord3 = 15,
+        TexCoord4 = 16,
+        TexCoord5 = 17,
+        TexCoord6 = 18,
+        Color0 = 19,
+        Color1 = 20,
+      }
+
+      public enum GxTexMatrix : byte {
+        TexMtx0 = 30,
+        TexMtx1 = 33,
+        TexMtx2 = 36,
+        TexMtx3 = 39,
+        TexMtx4 = 42,
+        TexMtx5 = 45,
+        TexMtx6 = 48,
+        TexMtx7 = 51,
+        TexMtx8 = 54,
+        TexMtx9 = 57,
+        Identity = 60,
+      }
+
+      [Schema]
+      public partial class TexCoordGen : IDeserializable {
+        public GxTexGenType TexGenType { get; set; }
+        public GxTexGenSrc TexGenSrc { get; set; }
+        public GxTexMatrix TexMatrix { get; set; }
+        private readonly byte padding_ = 0xff;
       }
 
       public class AlphaCompare
@@ -2637,11 +2713,11 @@ label_140:
 
       [Schema]
       public partial class TevOrder : IDeserializable {
-        public byte TexcoordID;
+        public byte TexCoordId;
         public sbyte TexMap;
         [Format(SchemaNumberType.BYTE)]
-        public ColorChannel ChannelID;
-        public byte Unknown;
+        public ColorChannel ColorChannelId;
+        private readonly byte padding_ = 0xff;
 
         public enum ColorChannel {
           GX_COLOR0,

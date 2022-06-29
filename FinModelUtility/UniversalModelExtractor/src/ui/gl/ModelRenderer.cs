@@ -278,8 +278,6 @@ void main() {
     private readonly IPosition position_ = new ModelImpl.PositionImpl();
     private readonly INormal normal_ = new ModelImpl.NormalImpl();
 
-    private readonly float[] uvs_ = new float[2 * 4];
-
     private void RenderVertex_(IVertex vertex) {
       // TODO: Load in the matrix instead, so we can perform projection on the GPU.
       this.boneTransformManager_.ProjectVertex(
@@ -310,7 +308,7 @@ void main() {
         Gl.glColor4f(r, g, b, 1);
       }
 
-      for (var i = 0; i < 4; ++i) {
+      for (var i = 0; i < 8; ++i) {
         var uvi = vertex.GetUv(i);
         Gl.glMultiTexCoord2f(i, uvi?.U ?? 0, uvi?.V ?? 0);
       }
