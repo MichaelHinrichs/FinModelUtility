@@ -12,6 +12,7 @@ Command-line tools for extracting models from games en-masse. Separate batch scr
 - [@intns](https://github.com/intns), as their [MODConv](https://github.com/intns/MODConv) tool was ported to add general support for Pikmin 1.
 - [@jefffhaynes](https://github.com/jefffhaynes), as their [BinarySerializer](https://github.com/jefffhaynes/BinarySerializer) attribute library inspired the schema source generator library used to generate read/write methods for arbitrary classes/structs.
 - [@kornman00](https://github.com/kornman00), AKA [@KornnerStudios](https://github.com/KornnerStudios), for documenting the Halo Wars formats in [HaloWarsDocs](https://github.com/HaloMods/HaloWarsDocs) and providing the [KSoft suite](https://github.com/KornnerStudios/KSoft) to extract the contents of the game.
+- [@LordNed](https://github.com/LordNed), whose [J3D-Model-Viewer](https://github.com/LordNed/J3D-Model-Viewer) tool and [JStudio](https://github.com/LordNed/JStudio) library were referenced to fix bugs in the .bmd importer.
 - [@M-1-RLG](https://github.com/M-1-RLG), AKA M-1, as his [io_scene_cmb](https://github.com/M-1-RLG/io_scene_cmb) Blender plugin was used as the basis for the .cmb importer. He also provided [thorough documentation](https://github.com/M-1-RLG/010-Editor-Templates/tree/master/Grezzo) on each of Grezzo's formats.
 - [@magcius](https://github.com/magcius), AKA Jasper, as their animated model viewer was ported to add .csab support.
 - [@NerduMiner](https://github.com/NerduMiner), as their [Pikmin1Toolset](https://github.com/NerduMiner/Pikmin1Toolset) was ported to add texture support for Pikmin 1.
@@ -26,6 +27,8 @@ Command-line tools for extracting models from games en-masse. Separate batch scr
 - [@xdanieldzd](https://github.com/xdanieldzd), for reverse-engineering and documenting the .cmb and .csab formats. In addition, their [Scarlet](https://github.com/xdanieldzd/Scarlet) tool was referenced for dumping .gar files.
 
 ## Supported formats/games
+
+*Not all of the models for each game are currently supported, and not every feature of each model will be accurately recreated in the output GLTF/FBX files. To flag any broken/missing models that you'd like to see fixed, please feel free to file feedback via the Issues tab above.*
 
 - .cmb (3DS)
   - Ocarina of Time 3D (`ocarina_of_time_3d.cia`)
