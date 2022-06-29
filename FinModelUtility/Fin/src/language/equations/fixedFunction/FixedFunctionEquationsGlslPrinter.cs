@@ -41,6 +41,7 @@ namespace fin.language.equations.fixedFunction {
         }
       }
       os.WriteLine();
+      os.WriteLine("in vec2 normalUv;");
       os.WriteLine("in vec3 vertexNormal;");
       os.WriteLine("in vec4 vertexColor0_;");
       os.WriteLine("in vec4 vertexColor1_;");
@@ -357,8 +358,12 @@ namespace fin.language.equations.fixedFunction {
     private string GetTextureValue_(int textureIndex) {
       var texture = this.textures_[textureIndex];
 
-      // TODO: Handle special UV types
-      var uvText = $"uv{texture.UvIndex}";
+      var uvText = texture?.UvType switch {
+          UvType.NORMAL    => $"uv{texture.UvIndex}",
+          UvType.SPHERICAL => "asin(normalUv) / 3.14159 + 0.5",
+          UvType.LINEAR    => "acos(normalUv) / 3.14159",
+          _                => throw new ArgumentOutOfRangeException()
+      };
 
       var textureText = $"texture(texture{textureIndex}, {uvText})";
       return textureText;

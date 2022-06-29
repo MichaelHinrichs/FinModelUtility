@@ -247,6 +247,7 @@ namespace fin.model {
   public enum UvType {
     NORMAL,
     SPHERICAL,
+    LINEAR,
   }
 
   public enum WrapMode {
@@ -264,7 +265,7 @@ namespace fin.model {
     string Name { get; set; }
 
     int UvIndex { get; set; }
-    UvType UvType { get; }
+    UvType UvType { get; set; }
     ColorType ColorType { get; set; }
 
 

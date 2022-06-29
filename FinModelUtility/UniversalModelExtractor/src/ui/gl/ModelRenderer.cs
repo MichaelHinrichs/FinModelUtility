@@ -100,6 +100,7 @@ namespace uni.ui.gl {
 in vec2 in_uv0;
 
 varying vec3 vertexNormal;
+varying vec2 normalUv;
 varying vec4 vertexColor0_;
 varying vec4 vertexColor1_;
 varying vec2 uv0;
@@ -110,6 +111,7 @@ varying vec2 uv3;
 void main() {
     gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex;
     vertexNormal = normalize(gl_ModelViewMatrix * vec4(gl_Normal, 0)).xyz;
+    normalUv = normalize(gl_ProjectionMatrix * gl_ModelViewMatrix * vec4(gl_Normal, 0)).xy;
     vertexColor0_ = vec4(0.5, 0.5, 0.5, 1);
     vertexColor1_ = vec4(0, 0, 0, 1);
     uv0 = gl_MultiTexCoord0.st;

@@ -62,7 +62,7 @@ namespace fin.model.impl {
 
       public string Name { get; set; }
       public int UvIndex { get; set; }
-      public UvType UvType { get; }
+      public UvType UvType { get; set; }
 
       public ColorType ColorType { get; set; }
 
