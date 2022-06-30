@@ -15,8 +15,11 @@ namespace uni.games.pikmin_1 {
     public IModelDirectory<ModModelFileBundle>? GatherModelFileBundles(
         bool assert) {
       var pikmin1Rom =
-          DirectoryConstants.ROMS_DIRECTORY.GetExistingFile(
+          DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
               "pikmin_1.gcm");
+      if (pikmin1Rom == null) {
+        return null;
+      }
 
       var options = GcnFileHierarchyExtractor.Options.Empty();
       var fileHierarchy =

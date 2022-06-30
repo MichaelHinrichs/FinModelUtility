@@ -107,8 +107,11 @@ namespace uni.games.ocarina_of_time_3d {
     public IModelDirectory<ZarModelFileBundle>? GatherModelFileBundles(
         bool assert) {
       var ocarinaOfTime3dRom =
-          DirectoryConstants.ROMS_DIRECTORY.GetExistingFile(
+          DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
               "ocarina_of_time_3d.cia");
+      if (ocarinaOfTime3dRom == null) {
+        return null;
+      }
 
       var fileHierarchy =
           new ThreeDsFileHierarchyExtractor()

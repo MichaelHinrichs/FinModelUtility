@@ -18,8 +18,11 @@ namespace uni.games.pikmin_2 {
     public IModelDirectory<BmdModelFileBundle>? GatherModelFileBundles(
         bool assert) {
       var pikmin2Rom =
-          DirectoryConstants.ROMS_DIRECTORY.GetExistingFile(
+          DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
               "pikmin_2.gcm");
+      if (pikmin2Rom == null) {
+        return null;
+      }
 
       var options = GcnFileHierarchyExtractor.Options.Standard()
                                              .PruneRarcDumpNames("arc", "data");

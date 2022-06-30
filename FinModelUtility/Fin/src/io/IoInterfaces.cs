@@ -29,6 +29,7 @@ namespace fin.io {
         string searchPattern,
         bool includeSubdirs = false);
 
+    IFile? TryToGetExistingFile(string relativePath);
     IFile GetExistingFile(string relativePath);
   }
 

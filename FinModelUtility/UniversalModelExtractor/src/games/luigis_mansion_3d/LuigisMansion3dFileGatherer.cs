@@ -27,8 +27,12 @@ namespace uni.games.luigis_mansion_3d {
     public IModelDirectory<ZarModelFileBundle>? GatherModelFileBundles(
         bool assert) {
       var luigisMansionRom =
-          DirectoryConstants.ROMS_DIRECTORY.GetExistingFile(
+          DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
               "luigis_mansion_3d.cia");
+      if (luigisMansionRom == null) {
+        return null;
+      }
+
       var fileHierarchy =
           new ThreeDsFileHierarchyExtractor().ExtractFromRom(
               luigisMansionRom);

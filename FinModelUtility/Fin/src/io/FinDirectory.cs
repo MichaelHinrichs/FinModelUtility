@@ -106,6 +106,11 @@ namespace fin.io {
                            : SearchOption.TopDirectoryOnly)
              .Select(file => new FinFile(file));
 
+    public IFile? TryToGetExistingFile(string path) {
+      var file = this.Info.GetFiles(path).SingleOrDefault();
+      return file != null ? new FinFile(file) : null;
+    }
+
     public IFile GetExistingFile(string path) {
       // TODO: Handle subdirectories automatically.
       try {
