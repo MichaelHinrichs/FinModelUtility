@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using bmd.formats;
+
 using fin.model;
 
 using mkds.gcn.bmd;

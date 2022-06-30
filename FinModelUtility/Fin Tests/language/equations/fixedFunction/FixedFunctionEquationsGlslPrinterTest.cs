@@ -158,7 +158,7 @@ void main() {
         params string[] expectedLines) {
       var actualText =
           new FixedFunctionEquationsGlslPrinter(null).Print(
-              equations);
+              null);
 
       var actualLines = StringUtil.SplitNewlines(actualText);
       actualLines = actualLines.Take(actualLines.Length - 1).ToArray();

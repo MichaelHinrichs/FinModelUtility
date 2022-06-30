@@ -23,7 +23,7 @@ using System.Text;
 using Tao.OpenGl;
 using System.Drawing;
 
-using bmd.exporter;
+using bmd.formats;
 
 using fin.model;
 using fin.model.impl;
@@ -2066,9 +2066,9 @@ label_140:
       public System.Drawing.Color[] AmbientColors;
       public System.Drawing.Color[] ColorS10;
       public System.Drawing.Color[] Color3;
-      public BMD.MAT3Section.AlphaCompare[] AlphaCompares;
-      public BMD.MAT3Section.BlendFunction[] BlendFunctions;
-      public BMD.MAT3Section.DepthFunction[] DepthFunctions;
+      public AlphaCompare[] AlphaCompares;
+      public BlendFunction[] BlendFunctions;
+      public DepthFunction[] DepthFunctions;
       public BMD.MAT3Section.TevStageProps[] TevStages;
       public IList<TexCoordGen> TexCoordGens;
       public BMD.MAT3Section.TextureMatrixInfo[] TextureMatrices;
@@ -2180,7 +2180,7 @@ label_140:
           // TODO: Add support for fog modes (23)
 
           er.BaseStream.Position = position1 + (long) this.Offsets[24];
-          this.AlphaCompares = new BMD.MAT3Section.AlphaCompare[sectionLengths[24] / 8];
+          this.AlphaCompares = new AlphaCompare[sectionLengths[24] / 8];
           for (int index = 0; index < sectionLengths[24] / 8; ++index) {
             var alphaCompare = new AlphaCompare();
             alphaCompare.Read(er);
@@ -2188,13 +2188,16 @@ label_140:
           }
 
           er.BaseStream.Position = position1 + (long) this.Offsets[25];
-          this.BlendFunctions = new BMD.MAT3Section.BlendFunction[sectionLengths[25] / 4];
-          for (int index = 0; index < sectionLengths[25] / 4; ++index)
-            this.BlendFunctions[index] = new BMD.MAT3Section.BlendFunction(er);
+          this.BlendFunctions = new BlendFunction[sectionLengths[25] / 4];
+          for (int index = 0; index < sectionLengths[25] / 4; ++index) {
+            var blendFunction = new BlendFunction();
+            blendFunction.Read(er);
+            this.BlendFunctions[index] = blendFunction;
+          }
           er.BaseStream.Position = position1 + (long) this.Offsets[26];
-          this.DepthFunctions = new BMD.MAT3Section.DepthFunction[sectionLengths[26] / 4];
+          this.DepthFunctions = new DepthFunction[sectionLengths[26] / 4];
           for (int index = 0; index < sectionLengths[26] / 4; ++index) {
-            var entry = new BMD.MAT3Section.DepthFunction();
+            var entry = new DepthFunction();
             entry.Read(er);
             this.DepthFunctions[index] = entry;
           }
@@ -2489,120 +2492,6 @@ label_140:
         private static T? GetOrNull<T>(IList<T> array, int i)
             where T : notnull
           => i != -1 ? array[i] : default;
-      }
-
-      public enum GxTexGenType : byte {
-        Matrix3x4 = 0,
-        Matrix2x4 = 1,
-        Bump0 = 2,
-        Bump1 = 3,
-        Bump2 = 4,
-        Bump3 = 5,
-        Bump4 = 6,
-        Bump5 = 7,
-        Bump6 = 8,
-        Bump7 = 9,
-        SRTG = 10
-      }
-
-      public enum GxTexGenSrc : byte {
-        Position = 0,
-        Normal = 1,
-        Binormal = 2,
-        Tangent = 3,
-        Tex0 = 4,
-        Tex1 = 5,
-        Tex2 = 6,
-        Tex3 = 7,
-        Tex4 = 8,
-        Tex5 = 9,
-        Tex6 = 10,
-        Tex7 = 11,
-        TexCoord0 = 12,
-        TexCoord1 = 13,
-        TexCoord2 = 14,
-        TexCoord3 = 15,
-        TexCoord4 = 16,
-        TexCoord5 = 17,
-        TexCoord6 = 18,
-        Color0 = 19,
-        Color1 = 20,
-      }
-
-      public enum GxTexMatrix : byte {
-        TexMtx0 = 30,
-        TexMtx1 = 33,
-        TexMtx2 = 36,
-        TexMtx3 = 39,
-        TexMtx4 = 42,
-        TexMtx5 = 45,
-        TexMtx6 = 48,
-        TexMtx7 = 51,
-        TexMtx8 = 54,
-        TexMtx9 = 57,
-        Identity = 60,
-      }
-
-      [Schema]
-      public partial class TexCoordGen : IDeserializable {
-        public GxTexGenType TexGenType { get; set; }
-        public GxTexGenSrc TexGenSrc { get; set; }
-        public GxTexMatrix TexMatrix { get; set; }
-        private readonly byte padding_ = 0xff;
-      }
-
-      public enum GxCompareType : byte {
-        Never = 0,
-        Less = 1,
-        Equal = 2,
-        LEqual = 3,
-        Greater = 4,
-        NEqual = 5,
-        GEqual = 6,
-        Always = 7
-      }
-
-      public enum GXAlphaOp : byte {
-        And = 0,
-        Or = 1,
-        XOR = 2,
-        XNOR = 3
-      }
-
-      [Schema]
-      public partial class AlphaCompare : IDeserializable {
-        public GxCompareType Func0;
-        public byte Reference0;
-        public GXAlphaOp MergeFunc;
-        public GxCompareType Func1;
-        public byte Reference1;
-        public readonly byte padding1_ = 0xff;
-        public readonly byte padding2_ = 0xff;
-        public readonly byte padding3_ = 0xff;
-      }
-
-      public class BlendFunction
-      {
-        public BmdBlendMode BlendMode;
-        public BmdBlendFactor SrcFactor;
-        public BmdBlendFactor DstFactor;
-        public BmdLogicOp LogicOp;
-
-        public BlendFunction(EndianBinaryReader er)
-        {
-          this.BlendMode = (BmdBlendMode) er.ReadByte();
-          this.SrcFactor = (BmdBlendFactor) er.ReadByte();
-          this.DstFactor = (BmdBlendFactor) er.ReadByte();
-          this.LogicOp = (BmdLogicOp) er.ReadByte();
-        }
-      }
-
-      [Schema]
-      public partial class DepthFunction : IDeserializable {
-        public byte Enable;
-        public byte Func;
-        public byte UpdateEnable;
-        public byte Padding;
       }
 
       public class TevStageProps {

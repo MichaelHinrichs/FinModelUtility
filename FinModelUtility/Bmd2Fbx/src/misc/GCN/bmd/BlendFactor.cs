@@ -1,5 +1,7 @@
 ﻿using System.IO;
 
+using bmd.formats;
+
 using Tao.OpenGl;
 
 namespace mkds.gcn.bmd {
@@ -12,17 +14,6 @@ namespace mkds.gcn.bmd {
     ONE_MINUS_SRC_ALPHA = 771,
     DST_ALPHA = 772,
     ONE_MINUS_DST_ALPHA = 773,
-  }
-
-  public enum BmdBlendFactor {
-    ZERO = 0,
-    ONE = 1,
-    SRC_COLOR = 2,
-    ONE_MINUS_SRC_COLOR = 3,
-    SRC_ALPHA = 4,
-    ONE_MINUS_SRC_ALPHA = 5,
-    DST_ALPHA = 6,
-    ONE_MINUS_DST_ALPHA = 7,
   }
 
   public static class BlendFactor {

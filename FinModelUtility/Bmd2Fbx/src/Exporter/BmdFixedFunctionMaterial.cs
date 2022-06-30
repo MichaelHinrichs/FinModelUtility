@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Drawing;
@@ -9,23 +8,20 @@ using System.Linq;
 using fin.model;
 
 using bmd.GCN;
+using bmd.formats;
 
 using fin.language.equations.fixedFunction;
 using fin.language.equations.fixedFunction.impl;
 using fin.util.asserts;
 using fin.util.json;
 
-using Microsoft.Xna.Framework.Graphics.PackedVector;
-
 using mkds.gcn.bmd;
 
-using Newtonsoft.Json;
-
-using BlendFactor = fin.model.BlendFactor;
-using LogicOp = fin.model.LogicOp;
-using BmdAlphaOp = bmd.GCN.BMD.MAT3Section.GXAlphaOp;
+using FinBlendFactor = fin.model.BlendFactor;
+using FinLogicOp = fin.model.LogicOp;
+using BmdAlphaOp = bmd.formats.GXAlphaOp;
 using FinAlphaOp = fin.model.AlphaOp;
-using BmdAlphaCompareType = bmd.GCN.BMD.MAT3Section.GxCompareType;
+using BmdAlphaCompareType = bmd.formats.GxCompareType;
 using FinAlphaCompareType = fin.model.AlphaCompareType;
 
 
@@ -161,11 +157,11 @@ namespace bmd.exporter {
                   materialEntry.TexGenInfo[tevOrder.TexCoordId]];
 
           var texGenSrc = texCoordGen.TexGenSrc;
-          if (texGenSrc >= BMD.MAT3Section.GxTexGenSrc.Tex0 &&
-              texGenSrc <= BMD.MAT3Section.GxTexGenSrc.Tex7) {
-            var texCoordIndex = texGenSrc - BMD.MAT3Section.GxTexGenSrc.Tex0;
+          if (texGenSrc >= GxTexGenSrc.Tex0 &&
+              texGenSrc <= GxTexGenSrc.Tex7) {
+            var texCoordIndex = texGenSrc - GxTexGenSrc.Tex0;
             texture.UvIndex = texCoordIndex;
-          } else if (texGenSrc == BMD.MAT3Section.GxTexGenSrc.Normal) {
+          } else if (texGenSrc == GxTexGenSrc.Normal) {
             texture.UvType = UvType.LINEAR;
           } else {
             //Asserts.Fail($"Unsupported texGenSrc type: {texGenSrc}");
@@ -814,39 +810,39 @@ namespace bmd.exporter {
                    nameof(bmdBlendMode), bmdBlendMode, null)
       };
 
-    private BlendFactor ConvertBmdBlendFactorToFin(
+    private FinBlendFactor ConvertBmdBlendFactorToFin(
         BmdBlendFactor bmdBlendFactor)
       => bmdBlendFactor switch {
-          BmdBlendFactor.ZERO                => BlendFactor.ZERO,
-          BmdBlendFactor.ONE                 => BlendFactor.ONE,
-          BmdBlendFactor.SRC_COLOR           => BlendFactor.SRC_COLOR,
-          BmdBlendFactor.ONE_MINUS_SRC_COLOR => BlendFactor.ONE_MINUS_SRC_COLOR,
-          BmdBlendFactor.SRC_ALPHA           => BlendFactor.SRC_ALPHA,
-          BmdBlendFactor.ONE_MINUS_SRC_ALPHA => BlendFactor.ONE_MINUS_SRC_ALPHA,
-          BmdBlendFactor.DST_ALPHA           => BlendFactor.DST_ALPHA,
-          BmdBlendFactor.ONE_MINUS_DST_ALPHA => BlendFactor.ONE_MINUS_DST_ALPHA,
+          BmdBlendFactor.ZERO                => FinBlendFactor.ZERO,
+          BmdBlendFactor.ONE                 => FinBlendFactor.ONE,
+          BmdBlendFactor.SRC_COLOR           => FinBlendFactor.SRC_COLOR,
+          BmdBlendFactor.ONE_MINUS_SRC_COLOR => FinBlendFactor.ONE_MINUS_SRC_COLOR,
+          BmdBlendFactor.SRC_ALPHA           => FinBlendFactor.SRC_ALPHA,
+          BmdBlendFactor.ONE_MINUS_SRC_ALPHA => FinBlendFactor.ONE_MINUS_SRC_ALPHA,
+          BmdBlendFactor.DST_ALPHA           => FinBlendFactor.DST_ALPHA,
+          BmdBlendFactor.ONE_MINUS_DST_ALPHA => FinBlendFactor.ONE_MINUS_DST_ALPHA,
           _ => throw new ArgumentOutOfRangeException(
                    nameof(bmdBlendFactor), bmdBlendFactor, null)
       };
 
-    private LogicOp ConvertBmdLogicOpToFin(BmdLogicOp bmdLogicOp)
+    private FinLogicOp ConvertBmdLogicOpToFin(BmdLogicOp bmdLogicOp)
       => bmdLogicOp switch {
-          BmdLogicOp.CLEAR         => LogicOp.CLEAR,
-          BmdLogicOp.AND           => LogicOp.AND,
-          BmdLogicOp.AND_REVERSE   => LogicOp.AND_REVERSE,
-          BmdLogicOp.COPY          => LogicOp.COPY,
-          BmdLogicOp.AND_INVERTED  => LogicOp.AND_INVERTED,
-          BmdLogicOp.NOOP          => LogicOp.NOOP,
-          BmdLogicOp.XOR           => LogicOp.XOR,
-          BmdLogicOp.OR            => LogicOp.OR,
-          BmdLogicOp.NOR           => LogicOp.NOR,
-          BmdLogicOp.EQUIV         => LogicOp.EQUIV,
-          BmdLogicOp.INVERT        => LogicOp.INVERT,
-          BmdLogicOp.OR_REVERSE    => LogicOp.OR_REVERSE,
-          BmdLogicOp.COPY_INVERTED => LogicOp.COPY_INVERTED,
-          BmdLogicOp.OR_INVERTED   => LogicOp.OR_INVERTED,
-          BmdLogicOp.NAND          => LogicOp.NAND,
-          BmdLogicOp.SET           => LogicOp.SET,
+          BmdLogicOp.CLEAR         => FinLogicOp.CLEAR,
+          BmdLogicOp.AND           => FinLogicOp.AND,
+          BmdLogicOp.AND_REVERSE   => FinLogicOp.AND_REVERSE,
+          BmdLogicOp.COPY          => FinLogicOp.COPY,
+          BmdLogicOp.AND_INVERTED  => FinLogicOp.AND_INVERTED,
+          BmdLogicOp.NOOP          => FinLogicOp.NOOP,
+          BmdLogicOp.XOR           => FinLogicOp.XOR,
+          BmdLogicOp.OR            => FinLogicOp.OR,
+          BmdLogicOp.NOR           => FinLogicOp.NOR,
+          BmdLogicOp.EQUIV         => FinLogicOp.EQUIV,
+          BmdLogicOp.INVERT        => FinLogicOp.INVERT,
+          BmdLogicOp.OR_REVERSE    => FinLogicOp.OR_REVERSE,
+          BmdLogicOp.COPY_INVERTED => FinLogicOp.COPY_INVERTED,
+          BmdLogicOp.OR_INVERTED   => FinLogicOp.OR_INVERTED,
+          BmdLogicOp.NAND          => FinLogicOp.NAND,
+          BmdLogicOp.SET           => FinLogicOp.SET,
           _ => throw new ArgumentOutOfRangeException(
                    nameof(bmdLogicOp), bmdLogicOp, null)
       };

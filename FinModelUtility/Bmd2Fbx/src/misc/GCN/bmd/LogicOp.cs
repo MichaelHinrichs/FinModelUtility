@@ -1,5 +1,8 @@
 ﻿using System.IO;
 
+using bmd.formats;
+
+
 namespace mkds.gcn.bmd {
   public enum SupportedGlLogicOp {
     CLEAR = 5376,
@@ -18,25 +21,6 @@ namespace mkds.gcn.bmd {
     OR_INVERTED = 5389,
     NAND = 5390,
     SET = 5391,
-  }
-
-  public enum BmdLogicOp {
-    CLEAR = 0,
-    AND = 1,
-    AND_REVERSE = 2,
-    COPY = 3,
-    AND_INVERTED = 4,
-    NOOP = 5,
-    XOR = 6,
-    OR = 7,
-    NOR = 8,
-    EQUIV = 9,
-    INVERT = 10,
-    OR_REVERSE = 11,
-    COPY_INVERTED = 12,
-    OR_INVERTED = 13,
-    NAND = 14,
-    SET = 15,
   }
 
   public static class LogicOp {

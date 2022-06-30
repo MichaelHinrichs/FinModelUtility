@@ -1,18 +1,14 @@
 ﻿using System.IO;
 
+using bmd.formats;
+
+
 namespace mkds.gcn.bmd {
   public enum SupportedGlBlendMode {
     NONE = 0,
     ADD = 32774,
     REVERSE_SUBTRACT = 32779,
     SUBTRACT = 32778,
-  }
-
-  public enum BmdBlendMode {
-    NONE = 0,
-    ADD = 1,
-    REVERSE_SUBTRACT = 2,
-    SUBTRACT = 3,
   }
 
   public static class Blending {
