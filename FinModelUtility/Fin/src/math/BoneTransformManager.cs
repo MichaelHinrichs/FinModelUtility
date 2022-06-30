@@ -158,7 +158,7 @@ namespace fin.math {
       var boneWeights = vertex.BoneWeights;
       var weights = vertex.BoneWeights?.Weights;
       var preproject =
-          (boneWeights.PreprojectMode != PreprojectMode.NONE || forcePreproject) &&
+          (boneWeights?.PreprojectMode != PreprojectMode.NONE || forcePreproject) &&
           weights?.Count > 0;
 
       if (!preproject) {
