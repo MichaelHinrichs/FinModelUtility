@@ -1702,50 +1702,6 @@ label_7:
           return bitmap;
         }
 
-        public int GetGlWrapModeS() => this.GetGlWrapMode(this.WrapS);
-        public int GetGlWrapModeT() => this.GetGlWrapMode(this.WrapT);
-
-        private int GetGlWrapMode(BMD.TEX1Section.GX_WRAP_TAG id) {
-          switch (id)
-          {
-            case BMD.TEX1Section.GX_WRAP_TAG.GX_CLAMP:
-              return 33071;
-            case BMD.TEX1Section.GX_WRAP_TAG.GX_REPEAT:
-              return 10497;
-            case BMD.TEX1Section.GX_WRAP_TAG.GX_MIRROR:
-              return 33648;
-            case BMD.TEX1Section.GX_WRAP_TAG.GX_MAXTEXWRAPMODE:
-              return 10496;
-            default:
-              return -1;
-          }
-        }
-
-        public int GetGlFilterModeMin() => this.GetGlFilterMode(this.MinFilter);
-        public int GetGlFilterModeMag() => this.GetGlFilterMode(this.MagFilter);
-
-        private int GetGlFilterMode(BMD.TEX1Section.GX_TEXTURE_FILTER id) {
-          switch (id)
-          {
-            case BMD.TEX1Section.GX_TEXTURE_FILTER.GX_NEAR:
-            case BMD.TEX1Section.GX_TEXTURE_FILTER.GX_NEAR2:
-            case BMD.TEX1Section.GX_TEXTURE_FILTER.GX_NEAR3:
-              return 9728;
-            case BMD.TEX1Section.GX_TEXTURE_FILTER.GX_LINEAR:
-              return 9729;
-            case BMD.TEX1Section.GX_TEXTURE_FILTER.GX_NEAR_MIP_NEAR:
-              return 9984;
-            case BMD.TEX1Section.GX_TEXTURE_FILTER.GX_LIN_MIP_NEAR:
-              return 9985;
-            case BMD.TEX1Section.GX_TEXTURE_FILTER.GX_NEAR_MIP_LIN:
-              return 9986;
-            case BMD.TEX1Section.GX_TEXTURE_FILTER.GX_LIN_MIP_LIN:
-              return 9987;
-            default:
-              return -1;
-          }
-        }
-
         private int GetCompressedBufferSize() {
           int num1 = (int) this.Width + (8 - (int) this.Width % 8) % 8;
           int num2 = (int) this.Width + (4 - (int) this.Width % 4) % 4;
@@ -1798,13 +1754,7 @@ label_7:
           this.Entries[index] = new BMD.Stringtable.StringTableEntry(er, position);
       }
 
-      public string this[int index]
-      {
-        get
-        {
-          return (string) this.Entries[index];
-        }
-      }
+      public string this[int index] => (string) this.Entries[index];
 
       public int this[string index]
       {
@@ -1835,15 +1785,11 @@ label_7:
           er.BaseStream.Position = position;
         }
 
-        public override string ToString()
-        {
-          return this.Entry;
-        }
+        public override string ToString() => this.Entry;
 
-        public static implicit operator string(BMD.Stringtable.StringTableEntry e)
-        {
-          return e.Entry;
-        }
+        public static implicit operator string(
+            BMD.Stringtable.StringTableEntry e)
+          => e.Entry;
       }
     }
 
