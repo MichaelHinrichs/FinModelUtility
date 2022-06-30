@@ -451,6 +451,10 @@ namespace zar.api {
             finVertex.SetUv(2, uv2Values[0], 1 - uv2Values[1]);
           }
 
+          var preprojectMode = preproject[i].Value
+                                   ? PreprojectMode.BONE
+                                   : PreprojectMode.NONE;
+
           if (hasBw) {
             r.Position = cmb.startOffset +
                          cmb.header.vatrOffset +
@@ -471,10 +475,7 @@ namespace zar.api {
               if (weight > 0) {
                 var bone =
                     finBones[bIndices[i * boneCount + j]];
-                var boneWeight =
-                    new BoneWeight(bone,
-                                   new FinMatrix4x4().SetIdentity(),
-                                   weight);
+                var boneWeight = new BoneWeight(bone, null, weight);
 
                 boneWeights.Add(boneWeight);
               }
@@ -483,17 +484,14 @@ namespace zar.api {
             Asserts.True(boneWeights.Count > 0);
             Asserts.True(Math.Abs(1 - totalWeight) < .0001);
             finVertex.SetBoneWeights(
-                finSkin.GetOrCreateBoneWeights(boneWeights.ToArray()));
+                finSkin.GetOrCreateBoneWeights(preprojectMode,
+                                               boneWeights.ToArray()));
           } else {
             var boneIndex = bIndices[i];
             finVertex.SetBoneWeights(
-                finSkin.GetOrCreateBoneWeights(finBones[boneIndex]));
+                finSkin.GetOrCreateBoneWeights(preprojectMode,
+                                               finBones[boneIndex]));
           }
-
-          finVertex.PreprojectMode =
-              preproject[i].Value
-                  ? PreprojectMode.BONE
-                  : PreprojectMode.NONE;
 
           /*if (skinningModes[i].Value == SkinningMode.Single) {
             finVertex.SetColor(ColorImpl.FromRgbaBytes(255, 0, 0, 255));

@@ -269,7 +269,7 @@ namespace bmd.exporter {
                   weights = new[]
                       {new BoneWeight(bone, MatrixTransformUtil.IDENTITY, 1)};
                 }
-                weightsTable[i] = finSkin.GetOrCreateBoneWeights(weights);
+                weightsTable[i] = finSkin.GetOrCreateBoneWeights(PreprojectMode.BONE, weights);
               }
 
               // TODO: Encapsulate this projection logic?

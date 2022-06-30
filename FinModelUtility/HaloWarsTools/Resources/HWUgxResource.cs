@@ -592,14 +592,13 @@ namespace HaloWarsTools {
                       })
                       .ToArray();
 
-              finVertex.SetBoneWeights(finSkin.GetOrCreateBoneWeights(finBoneWeights));
+              finVertex.SetBoneWeights(finSkin.GetOrCreateBoneWeights(PreprojectMode.ROOT, finBoneWeights));
             } else {
               finVertex.SetBoneWeights(
-                  finSkin.GetOrCreateBoneWeights(localFinBones[0].Item1));
+                  finSkin.GetOrCreateBoneWeights(PreprojectMode.ROOT, localFinBones[0].Item1));
             }
 
             finVertices.Add(finVertex);
-            finVertex.PreprojectMode = PreprojectMode.ROOT;
           }
 
           var triangles =

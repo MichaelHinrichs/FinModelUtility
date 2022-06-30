@@ -155,15 +155,21 @@ namespace bmd.exporter {
                   materialEntry.TexGenInfo[tevOrder.TexCoordId]];
 
           var texGenSrc = texCoordGen.TexGenSrc;
-          if (texGenSrc >= GxTexGenSrc.Tex0 &&
-              texGenSrc <= GxTexGenSrc.Tex7) {
-            var texCoordIndex = texGenSrc - GxTexGenSrc.Tex0;
-            texture.UvIndex = texCoordIndex;
-          } else if (texGenSrc == GxTexGenSrc.Normal) {
-            texture.UvType = UvType.LINEAR;
-          } else {
-            //Asserts.Fail($"Unsupported texGenSrc type: {texGenSrc}");
-            texture.UvIndex = 0;
+          switch (texGenSrc) {
+            case >= GxTexGenSrc.Tex0 and <= GxTexGenSrc.Tex7: {
+              var texCoordIndex = texGenSrc - GxTexGenSrc.Tex0;
+              texture.UvIndex = texCoordIndex;
+              break;
+            }
+            case GxTexGenSrc.Normal: {
+              texture.UvType = UvType.LINEAR;
+              break;
+            }
+            default: {
+              //Asserts.Fail($"Unsupported texGenSrc type: {texGenSrc}");
+              texture.UvIndex = 0;
+              break;
+            }
           }
 
           valueManager.UpdateTextureColor(textureIndex);

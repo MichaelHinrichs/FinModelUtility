@@ -5,6 +5,7 @@ using System.Numerics;
 using fin.data;
 using fin.math.matrix;
 using fin.model;
+using fin.util.asserts;
 
 
 namespace fin.math {
@@ -16,21 +17,17 @@ namespace fin.math {
     private readonly IndexableDictionary<IBone, IReadOnlyFinMatrix4x4>
         bonesToWorldMatrices_ = new();
 
+    private readonly IndexableDictionary<IBone, IReadOnlyFinMatrix4x4>
+        bonesToInverseBindMatrices_ = new();
+
     private readonly IndexableDictionary<IBoneWeights, IReadOnlyFinMatrix4x4>
         boneWeightsToWorldMatrices_ = new();
-
-    private readonly IndexableDictionary<IBoneWeights, IReadOnlyFinMatrix4x4>
-        boneWeightsToNeutralInverseWorldMatrices_ = new();
-
-    private readonly IndexableDictionary<IBoneWeights, IReadOnlyFinMatrix4x4>
-        boneWeightsToAdditiveWorldMatrices_ = new();
 
     public void Clear() {
       this.bonesToLocalMatrices_.Clear();
       this.bonesToWorldMatrices_.Clear();
+      this.bonesToInverseBindMatrices_.Clear();
       this.boneWeightsToWorldMatrices_.Clear();
-      this.boneWeightsToNeutralInverseWorldMatrices_.Clear();
-      this.boneWeightsToAdditiveWorldMatrices_.Clear();
     }
 
     public IDictionary<IBone, int> CalculateMatrices(
@@ -39,6 +36,8 @@ namespace fin.math {
         (IAnimation, float)? animationAndFrame,
         bool useLoopingInterpolation = false
     ) {
+      var isFirstPass = animationAndFrame == null;
+
       var animation = animationAndFrame?.Item1;
       var frame = animationAndFrame?.Item2;
 
@@ -59,9 +58,6 @@ namespace fin.math {
 
         transformer.Set(matrix);
 
-        IBoneTracks? boneTracks = null;
-        animation?.BoneTracks.TryGetValue(bone, out boneTracks);
-
         // The root pose of the bone.
         var boneLocalPosition = bone.LocalPosition;
         var boneLocalRotation = bone.LocalRotation != null
@@ -70,6 +66,8 @@ namespace fin.math {
         var boneLocalScale = bone.LocalScale;
 
         // The pose of the animation, if available.
+        IBoneTracks? boneTracks = null;
+        animation?.BoneTracks.TryGetValue(bone, out boneTracks);
         var animationLocalPosition =
             boneTracks?.Positions.IsDefined ?? false
                 ? boneTracks?.Positions.GetInterpolatedFrame(
@@ -100,6 +98,9 @@ namespace fin.math {
 
         this.bonesToLocalMatrices_[bone] = localMatrix;
         this.bonesToWorldMatrices_[bone] = matrix;
+        if (isFirstPass) {
+          this.bonesToInverseBindMatrices_[bone] = matrix.CloneAndInvert();
+        }
         bonesToIndex[bone] = boneIndex++;
 
         foreach (var child in bone.Children) {
@@ -113,15 +114,20 @@ namespace fin.math {
 
         var weights = boneWeights.Weights;
         if (weights.Count == 1) {
-          var bone = weights[0].Bone;
-          boneWeightMatrix = this.GetWorldMatrix(bone);
+          var weight = weights[0];
+          var bone = weight.Bone;
+          
+          var skinToBoneMatrix = weight.SkinToBone ?? this.bonesToInverseBindMatrices_[bone];
+          var boneMatrix = this.GetWorldMatrix(bone);
+
+          boneWeightMatrix = boneMatrix.CloneAndMultiply(skinToBoneMatrix);
         } else {
           var mergedMatrix = new FinMatrix4x4();
 
           foreach (var weight in weights) {
             var bone = weight.Bone;
 
-            var skinToBoneMatrix = weight.SkinToBone;
+            var skinToBoneMatrix = weight.SkinToBone ?? this.bonesToInverseBindMatrices_[bone];
             var boneMatrix = this.GetWorldMatrix(bone);
 
             var skinToWorldMatrix = boneMatrix
@@ -135,18 +141,6 @@ namespace fin.math {
         }
 
         this.boneWeightsToWorldMatrices_[boneWeights] = boneWeightMatrix;
-        if (animation == null) {
-          this.boneWeightsToNeutralInverseWorldMatrices_[boneWeights] =
-              boneWeightMatrix.CloneAndInvert();
-          this.boneWeightsToAdditiveWorldMatrices_[boneWeights] =
-              new FinMatrix4x4().SetIdentity();
-        } else {
-          var mergedMatrix = this.boneWeightsToWorldMatrices_[boneWeights];
-          var mergedNeutralInverseMatrix =
-              this.boneWeightsToNeutralInverseWorldMatrices_[boneWeights];
-          this.boneWeightsToAdditiveWorldMatrices_[boneWeights] =
-              mergedMatrix.CloneAndMultiply(mergedNeutralInverseMatrix);
-        }
       }
 
       return bonesToIndex;
@@ -160,19 +154,21 @@ namespace fin.math {
 
     public IReadOnlyFinMatrix4x4? GetTransformMatrix(IVertex vertex,
       bool forcePreproject = false) {
+
+      var boneWeights = vertex.BoneWeights;
       var weights = vertex.BoneWeights?.Weights;
       var preproject =
-          (vertex.PreprojectMode != PreprojectMode.NONE || forcePreproject) &&
+          (boneWeights.PreprojectMode != PreprojectMode.NONE || forcePreproject) &&
           weights?.Count > 0;
 
       if (!preproject) {
         return null;
       }
 
-      var transformMatrix = vertex.PreprojectMode switch {
+      var transformMatrix = boneWeights.PreprojectMode switch {
           // If preproject mode is none, then the vertices are already in the same position as the bones.
           // To calculate the animation, we have to first "undo" the root pose via an inverted matrix. 
-          PreprojectMode.NONE => this.boneWeightsToAdditiveWorldMatrices_[
+          PreprojectMode.NONE => this.boneWeightsToWorldMatrices_[
               vertex.BoneWeights!],
           // If preproject mode is bone, then we need to transform the vertex by one or more bones.
           PreprojectMode.BONE => this.boneWeightsToWorldMatrices_[

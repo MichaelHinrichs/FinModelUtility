@@ -303,7 +303,7 @@ void main() {
           r = 1;
         }
 
-        if (vertex.PreprojectMode == PreprojectMode.NONE) {
+        if (vertex.BoneWeights?.PreprojectMode == PreprojectMode.NONE) {
           b = 1;
         }
 

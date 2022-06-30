@@ -15,9 +15,18 @@ namespace fin.model {
     IMesh AddMesh();
 
     IReadOnlyList<IBoneWeights> BoneWeights { get; }
-    IBoneWeights GetOrCreateBoneWeights(IBone bone);
-    IBoneWeights GetOrCreateBoneWeights(params IBoneWeight[] weights);
-    IBoneWeights CreateBoneWeights(params IBoneWeight[] weights);
+
+    IBoneWeights GetOrCreateBoneWeights(
+        PreprojectMode preprojectMode,
+        IBone bone);
+
+    IBoneWeights GetOrCreateBoneWeights(
+        PreprojectMode preprojectMode,
+        params IBoneWeight[] weights);
+
+    IBoneWeights CreateBoneWeights(
+        PreprojectMode preprojectMode,
+        params IBoneWeight[] weights);
   }
 
   public interface IMesh {
@@ -37,19 +46,20 @@ namespace fin.model {
 
 
   public interface IBoneWeights : IIndexable {
+    PreprojectMode PreprojectMode { get; }
     IReadOnlyList<IBoneWeight> Weights { get; }
   }
 
   public interface IBoneWeight {
     IBone Bone { get; }
-    IReadOnlyFinMatrix4x4 SkinToBone { get; }
+    IReadOnlyFinMatrix4x4? SkinToBone { get; }
     float Weight { get; }
   }
 
   public record BoneWeight(
       IBone Bone,
       // TODO: This should be moved to the bone interface instead.
-      IReadOnlyFinMatrix4x4 SkinToBone,
+      IReadOnlyFinMatrix4x4? SkinToBone,
       float Weight) : IBoneWeight;
 
   public interface ITexCoord {
@@ -65,8 +75,6 @@ namespace fin.model {
 
   public interface IVertex : IIndexable {
     // TODO: Allow caching vertex builders directly on this type.
-
-    PreprojectMode PreprojectMode { get; set; }
 
     IBoneWeights? BoneWeights { get; }
     IVertex SetBoneWeights(IBoneWeights boneWeights);

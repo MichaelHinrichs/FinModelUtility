@@ -62,17 +62,25 @@ namespace fin.model.impl {
 
       public IReadOnlyList<IBoneWeights> BoneWeights { get; }
 
-      public IBoneWeights GetOrCreateBoneWeights(IBone bone) {
+      public IBoneWeights GetOrCreateBoneWeights(
+          PreprojectMode preprojectMode,
+          IBone bone) {
         if (!this.boneWeightsByBone_.TryGetValue(bone, out var boneWeights)) {
           boneWeights = this.CreateBoneWeights(
+              preprojectMode,
               new BoneWeight(bone, new FinMatrix4x4().SetIdentity(), 1));
           this.boneWeightsByBone_[bone] = boneWeights;
         }
         return boneWeights;
       }
 
-      public IBoneWeights GetOrCreateBoneWeights(params IBoneWeight[] weights) {
+      public IBoneWeights GetOrCreateBoneWeights(PreprojectMode preprojectMode,
+                                                 params IBoneWeight[] weights) {
         foreach (var boneWeights in this.boneWeights_) {
+          if (boneWeights.PreprojectMode != preprojectMode) {
+            continue;
+          }
+
           var existingWeights = boneWeights.Weights;
           if (weights.Length != existingWeights.Count) {
             continue;
@@ -90,7 +98,8 @@ namespace fin.model.impl {
               goto Skip;
             }
 
-            if (!weight.SkinToBone.Equals(existingWeight.SkinToBone)) {
+            if (!(weight.SkinToBone?.Equals(existingWeight.SkinToBone) ??
+                  false)) {
               goto Skip;
             }
           }
@@ -100,12 +109,14 @@ namespace fin.model.impl {
           Skip: ;
         }
 
-        return CreateBoneWeights(weights);
+        return CreateBoneWeights(preprojectMode, weights);
       }
 
-      public IBoneWeights CreateBoneWeights(params IBoneWeight[] weights) {
+      public IBoneWeights CreateBoneWeights(PreprojectMode preprojectMode,
+                                            params IBoneWeight[] weights) {
         var boneWeights = new BoneWeightsImpl {
             Index = boneWeights_.Count,
+            PreprojectMode = preprojectMode,
             Weights = weights,
         };
         this.boneWeights_.Add(boneWeights);
@@ -191,10 +202,6 @@ namespace fin.model.impl {
         }
 
         public int Index { get; }
-
-        public PreprojectMode PreprojectMode { get; set; } =
-          PreprojectMode.BONE;
-
 
         public IBoneWeights? BoneWeights { get; private set; }
 
@@ -317,8 +324,9 @@ namespace fin.model.impl {
       }
 
       private class BoneWeightsImpl : IBoneWeights {
-        public int Index { get; set; }
-        public IReadOnlyList<IBoneWeight> Weights { get; set; }
+        public int Index { get; init; }
+        public PreprojectMode PreprojectMode { get; init; }
+        public IReadOnlyList<IBoneWeight> Weights { get; init; }
       }
     }
 

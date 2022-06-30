@@ -213,13 +213,13 @@ namespace mod.cli {
           mod.envelopes.Select(
                  envelope =>
                      model.Skin.CreateBoneWeights(
+                         PreprojectMode.NONE,
                          envelope.indicesAndWeights
                                  .Select(
                                      indexAndWeight =>
                                          new BoneWeight(
                                              bones[indexAndWeight.index],
-                                             new FinMatrix4x4()
-                                                 .SetIdentity(),
+                                             null,
                                              indexAndWeight.weight)
                                  )
                                  .ToArray()))
@@ -339,7 +339,8 @@ namespace mod.cli {
 
                       var vertexWeights = new VertexWeights {
                           BoneWeights =
-                              finSkin.GetOrCreateBoneWeights(bones[boneIndex])
+                              finSkin.GetOrCreateBoneWeights(
+                                  PreprojectMode.BONE, bones[boneIndex])
                       };
                       allVertexWeights.Add(vertexWeights);
                     }
@@ -349,9 +350,6 @@ namespace mod.cli {
 
                       var vertexWeights = new VertexWeights {
                           BoneWeights = envelopeBoneWeights[envelopeIndex],
-                          // Seems that these need to NOT be projected
-                          // TODO: Is this right? There's still some jank in some models
-                          Preproject = false
                       };
 
                       allVertexWeights.Add(vertexWeights);
@@ -387,10 +385,6 @@ namespace mod.cli {
 
               if (allVertexWeights.Count > 0) {
                 finVertex.SetBoneWeights(allVertexWeights[v].BoneWeights);
-                finVertex.PreprojectMode =
-                    allVertexWeights[v].Preproject
-                        ? PreprojectMode.BONE
-                        : PreprojectMode.NONE;
               }
 
               // TODO: For collision models, there can be normal indices when
@@ -519,7 +513,6 @@ namespace mod.cli {
 
     private class VertexWeights {
       public IBoneWeights BoneWeights { get; set; }
-      public bool Preproject { get; set; } = true;
     }
   }
 }

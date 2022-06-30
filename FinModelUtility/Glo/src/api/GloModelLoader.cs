@@ -298,7 +298,8 @@ namespace glo.api {
                               .AddVertex(gloVertex.X, gloVertex.Y, gloVertex.Z)
                               .SetUv(gloVertexRef.U, gloVertexRef.V);
               //.SetColor(color);
-              finVertex.SetBoneWeights(finSkin.GetOrCreateBoneWeights(finBone));
+              finVertex.SetBoneWeights(finSkin.GetOrCreateBoneWeights(
+                                           PreprojectMode.BONE, finBone));
               finFaceVertices[v] = finVertex;
             }
 
