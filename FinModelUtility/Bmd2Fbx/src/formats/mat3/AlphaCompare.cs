@@ -1,7 +1,7 @@
 ﻿using schema;
 
 
-namespace bmd.formats {
+namespace bmd.formats.mat3 {
   public enum GxCompareType : byte {
     Never = 0,
     Less = 1,

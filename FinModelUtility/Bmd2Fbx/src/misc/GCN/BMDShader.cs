@@ -6,7 +6,7 @@
 
 using System.Text;
 
-using bmd.formats;
+using bmd.formats.mat3;
 
 using Tao.OpenGl;
 

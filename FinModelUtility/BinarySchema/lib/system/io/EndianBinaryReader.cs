@@ -6,6 +6,8 @@
 
 using System.Text;
 
+using schema;
+
 
 namespace System.IO {
   public sealed class EndianBinaryReader : IDisposable {
@@ -493,6 +495,12 @@ namespace System.IO {
         throw new Exception(
             $"Expected to find magic text \"{expectedText}\", but found \"{actualText}\"");
       }
+    }
+
+    public T ReadNew<T>() where T : IDeserializable, new() {
+      var value = new T();
+      value.Read(this);
+      return value;
     }
   }
 }

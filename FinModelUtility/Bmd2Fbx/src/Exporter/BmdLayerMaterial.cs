@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using bmd.formats;
+using bmd.formats.mat3;
 
 using fin.model;
-
-using mkds.gcn.bmd;
 
 using bmd.GCN;
 
@@ -16,7 +14,6 @@ using LogicOp = fin.model.LogicOp;
 namespace bmd.exporter {
   using TevOrder = BMD.MAT3Section.TevOrder;
   using TevStage = BMD.MAT3Section.TevStageProps;
-  using TextureMatrixInfo = BMD.MAT3Section.TextureMatrixInfo;
 
   /// <summary>
   ///   BMD material, one of the common formats for the GameCube.

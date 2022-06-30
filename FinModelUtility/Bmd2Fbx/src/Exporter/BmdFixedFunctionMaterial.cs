@@ -8,7 +8,7 @@ using System.Linq;
 using fin.model;
 
 using bmd.GCN;
-using bmd.formats;
+using bmd.formats.mat3;
 
 using fin.language.equations.fixedFunction;
 using fin.language.equations.fixedFunction.impl;
@@ -19,9 +19,9 @@ using mkds.gcn.bmd;
 
 using FinBlendFactor = fin.model.BlendFactor;
 using FinLogicOp = fin.model.LogicOp;
-using BmdAlphaOp = bmd.formats.GXAlphaOp;
+using BmdAlphaOp = bmd.formats.mat3.GXAlphaOp;
 using FinAlphaOp = fin.model.AlphaOp;
-using BmdAlphaCompareType = bmd.formats.GxCompareType;
+using BmdAlphaCompareType = bmd.formats.mat3.GxCompareType;
 using FinAlphaCompareType = fin.model.AlphaCompareType;
 
 
@@ -30,7 +30,6 @@ namespace bmd.exporter {
 
   using TevOrder = BMD.MAT3Section.TevOrder;
   using TevStage = BMD.MAT3Section.TevStageProps;
-  using TextureMatrixInfo = BMD.MAT3Section.TextureMatrixInfo;
 
   /// <summary>
   ///   BMD material, one of the common formats for the GameCube.

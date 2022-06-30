@@ -23,7 +23,10 @@ using System.Text;
 using Tao.OpenGl;
 using System.Drawing;
 
-using bmd.formats;
+using bmd.formats.inf1;
+using bmd.formats.mat3;
+using bmd.formats.shp1;
+using bmd.formats.vtx1;
 
 using fin.model;
 using fin.model.impl;
@@ -173,7 +176,7 @@ label_21:
       nodeStack.Push((BMD.Node) null);
       List<MA.Node> nodeList = new List<MA.Node>();
       BMD.Node node = (BMD.Node) null;
-      foreach (BMD.INF1Section.INF1Entry entry in this.INF1.Entries)
+      foreach (Inf1Entry entry in this.INF1.Entries)
       {
         switch (entry.Type)
         {
@@ -211,7 +214,7 @@ label_7:
       Gl.glScalef(1f / 1000f, 1f / 1000f, 1f / 1000f);
       Gl.glColor4f(1f, 1f, 1f, 1f);
       Gl.glPushMatrix();
-      foreach (BMD.INF1Section.INF1Entry entry in this.INF1.Entries)
+      foreach (Inf1Entry entry in this.INF1.Entries)
       {
         switch (entry.Type)
         {
@@ -291,7 +294,7 @@ label_35:
       Stack<MTX44> mtX44Stack = new Stack<MTX44>();
       mtX44Stack.Push(new MTX44());
       string str = (string) null;
-      foreach (BMD.INF1Section.INF1Entry entry in this.INF1.Entries)
+      foreach (Inf1Entry entry in this.INF1.Entries)
       {
         switch (entry.Type)
         {
@@ -426,7 +429,7 @@ label_50:
       Stack<MTX44> mtX44Stack = new Stack<MTX44>();
       mtX44Stack.Push(new MTX44());
       string str = (string) null;
-      foreach (BMD.INF1Section.INF1Entry entry in this.INF1.Entries)
+      foreach (Inf1Entry entry in this.INF1.Entries)
       {
         switch (entry.Type)
         {
@@ -811,7 +814,7 @@ label_46:
       Stack<int> intStack = new Stack<int>();
       int num12 = 0;
       int num13 = 0;
-      foreach (BMD.INF1Section.INF1Entry entry in this.INF1.Entries)
+      foreach (Inf1Entry entry in this.INF1.Entries)
       {
         switch (entry.Type)
         {
@@ -1154,7 +1157,7 @@ label_140:
       public uint Unknown2;
       public uint NrVertex;
       public uint EntryOffset;
-      public BMD.INF1Section.INF1Entry[] Entries;
+      public Inf1Entry[] Entries;
 
       public INF1Section(EndianBinaryReader er, out bool OK)
       {
@@ -1174,46 +1177,13 @@ label_140:
           this.EntryOffset = er.ReadUInt32();
           long position2 = er.BaseStream.Position;
           er.BaseStream.Position = position1 + (long) this.EntryOffset;
-          List<BMD.INF1Section.INF1Entry> source = new List<BMD.INF1Section.INF1Entry>();
-          source.Add(new BMD.INF1Section.INF1Entry(er));
-          while (source.Last<BMD.INF1Section.INF1Entry>().Type != (ushort) 0)
-            source.Add(new BMD.INF1Section.INF1Entry(er));
+          List<Inf1Entry> source = new List<Inf1Entry>();
+          source.Add(er.ReadNew<Inf1Entry>());
+          while (source.Last<Inf1Entry>().Type != (ushort) 0)
+            source.Add(er.ReadNew<Inf1Entry>());
           er.BaseStream.Position = position1 + (long) this.Header.size;
           this.Entries = source.ToArray();
           OK = true;
-        }
-      }
-
-      public class INF1Entry
-      {
-        public ushort Type;
-        public ushort Index;
-
-        public INF1Entry(EndianBinaryReader er)
-        {
-          this.Type = er.ReadUInt16();
-          this.Index = er.ReadUInt16();
-        }
-
-        public override string ToString()
-        {
-          switch (this.Type)
-          {
-            case 0:
-              return "Terminator";
-            case 1:
-              return "Hierarchy Down";
-            case 2:
-              return "Hierarchy Up";
-            case 16:
-              return "Joint (" + (object) this.Index + ")";
-            case 17:
-              return "Material (" + (object) this.Index + ")";
-            case 18:
-              return "Shape (" + (object) this.Index + ")";
-            default:
-              return "Unknown";
-          }
         }
       }
     }
@@ -1225,7 +1195,7 @@ label_140:
       public DataBlockHeader Header;
       public uint ArrayFormatOffset;
       public uint[] Offsets;
-      public BMD.VTX1Section.ArrayFormat[] ArrayFormats;
+      public ArrayFormat[] ArrayFormats;
       public Vector3[] Positions;
       public Vector3[] Normals;
 
@@ -1250,18 +1220,16 @@ label_140:
               ++length1;
           }
           er.BaseStream.Position = position1 + (long) this.ArrayFormatOffset;
-          this.ArrayFormats = new BMD.VTX1Section.ArrayFormat[length1];
+          this.ArrayFormats = new ArrayFormat[length1];
           for (int index = 0; index < length1; ++index) {
-            var entry = new BMD.VTX1Section.ArrayFormat();
-            entry.Read(er);
-            this.ArrayFormats[index] = entry;
+            this.ArrayFormats[index] = er.ReadNew<ArrayFormat>();
           }
           int index1 = 0;
           for (int k = 0; k < 13; ++k)
           {
             if (this.Offsets[k] != 0U)
             {
-              BMD.VTX1Section.ArrayFormat arrayFormat = this.ArrayFormats[index1];
+              ArrayFormat arrayFormat = this.ArrayFormats[index1];
               int length2 = this.GetLength(k);
               er.BaseStream.Position = position1 + (long) this.Offsets[k];
               if (arrayFormat.ArrayType >= 11 && arrayFormat.ArrayType <= 12) {
@@ -1289,7 +1257,7 @@ label_140:
       }
 
       private void ReadVertexArray(
-          BMD.VTX1Section.ArrayFormat Format,
+          ArrayFormat Format,
           int Length,
           EndianBinaryReader er) {
         List<float> floatList = new List<float>();
@@ -1381,7 +1349,7 @@ label_140:
       ///   https://wiki.cloudmodding.com/tww/BMD_and_BDL#Data_Types
       /// </summary>
       private void ReadColorArray(
-          BMD.VTX1Section.ArrayFormat Format,
+          ArrayFormat Format,
           int byteLength,
           EndianBinaryReader er) {
         uint num2 = Format.ArrayType - 11U;
@@ -1455,16 +1423,6 @@ label_140:
         }
 
         this.Colors[num2] = colors;
-      }
-
-      [Schema]
-      public partial class ArrayFormat {
-        public uint ArrayType;
-        public uint ComponentCount;
-        public uint DataType;
-        public byte DecimalPoint;
-        public byte Unknown1;
-        public ushort Unknown2;
       }
 
       public class Color
@@ -1646,9 +1604,7 @@ label_140:
           er.BaseStream.Position = position + (long) this.JointEntryOffset;
           this.Joints = new BMD.JNT1Section.JNT1Entry[(int) this.NrJoints];
           for (var index = 0; index < (int) this.NrJoints; ++index) {
-            var entry = new BMD.JNT1Section.JNT1Entry();
-            entry.Read(er);
-            this.Joints[index] = entry;
+            this.Joints[index] = er.ReadNew<JNT1Entry>();
           }
           er.BaseStream.Position = position + (long) this.Header.size;
           OK = true;
@@ -1735,11 +1691,11 @@ label_140:
         public float Unknown3;
         public float[] BoundingBoxMin;
         public float[] BoundingBoxMax;
-        public BMD.SHP1Section.Batch.BatchAttribute[] BatchAttributes;
+        public BatchAttribute[] BatchAttributes;
         public bool HasMatrixIndices;
         public bool HasPositions;
         public bool HasNormals;
-        public BMD.SHP1Section.Batch.PacketLocation[] PacketLocations;
+        public PacketLocation[] PacketLocations;
         public BMD.SHP1Section.Batch.Packet[] Packets;
 
         public Batch(
@@ -1760,23 +1716,21 @@ label_140:
           er.BaseStream.Position = baseoffset +
                                    (long) Parent.BatchAttribsOffset +
                                    (long) this.AttribsOffset;
-          List<BMD.SHP1Section.Batch.BatchAttribute> source =
-              new List<BMD.SHP1Section.Batch.BatchAttribute>();
+          List<BatchAttribute> source = new List<BatchAttribute>();
           {
-            var entry = new BMD.SHP1Section.Batch.BatchAttribute();
-            entry.Read(er);
+            var entry = er.ReadNew<BatchAttribute>();
             source.Add(entry);
 
-            while (source.Last<BMD.SHP1Section.Batch.BatchAttribute>()
+            while (source.Last<BatchAttribute>()
                          .Attribute !=
                    (uint) byte.MaxValue) {
-              entry = new BMD.SHP1Section.Batch.BatchAttribute();
+              entry = new BatchAttribute();
               entry.Read(er);
               source.Add(entry);
             }
           }
 
-        source.Remove(source.Last<BMD.SHP1Section.Batch.BatchAttribute>());
+        source.Remove(source.Last<BatchAttribute>());
           this.BatchAttributes = source.ToArray();
           for (int index = 0; index < this.BatchAttributes.Length; ++index)
           {
@@ -1810,11 +1764,11 @@ label_140:
             }
           }
           this.Packets = new BMD.SHP1Section.Batch.Packet[(int) this.NrPacket];
-          this.PacketLocations = new BMD.SHP1Section.Batch.PacketLocation[(int) this.NrPacket];
+          this.PacketLocations = new PacketLocation[(int) this.NrPacket];
           for (int index = 0; index < (int) this.NrPacket; ++index)
           {
             er.BaseStream.Position = baseoffset + (long) Parent.PacketLocationsOffset + (long) (((int) this.FirstPacketLocation + index) * 8);
-            var packetLocation = new BMD.SHP1Section.Batch.PacketLocation();
+            var packetLocation = new PacketLocation();
             packetLocation.Read(er);
             this.PacketLocations[index] = packetLocation;
 
@@ -1828,18 +1782,6 @@ label_140:
           er.BaseStream.Position = position;
         }
 
-        [Schema]
-        public partial class BatchAttribute : IDeserializable {
-          public uint Attribute;
-          public uint DataType;
-        }
-
-        [Schema]
-        public partial class PacketLocation : IDeserializable {
-          public uint Size;
-          public uint Offset;
-        }
-
         public class Packet
         {
           public BMD.SHP1Section.Batch.Packet.Primitive[] Primitives;
@@ -1849,7 +1791,7 @@ label_140:
           public Packet(
             EndianBinaryReader er,
             int Length,
-            BMD.SHP1Section.Batch.BatchAttribute[] Attributes)
+            BatchAttribute[] Attributes)
           {
             List<BMD.SHP1Section.Batch.Packet.Primitive> primitiveList = new List<BMD.SHP1Section.Batch.Packet.Primitive>();
             bool flag = false;
@@ -2071,7 +2013,7 @@ label_140:
       public DepthFunction[] DepthFunctions;
       public BMD.MAT3Section.TevStageProps[] TevStages;
       public IList<TexCoordGen> TexCoordGens;
-      public BMD.MAT3Section.TextureMatrixInfo[] TextureMatrices;
+      public TextureMatrixInfo[] TextureMatrices;
       public BMD.MAT3Section.TevOrder[] TevOrders;
       public BMD.Stringtable MaterialNameTable;
 
@@ -2133,18 +2075,17 @@ label_140:
           er.BaseStream.Position = position1 + this.Offsets[11];
           this.TexCoordGens = new List<TexCoordGen>();
           for (int index = 0; index < sectionLengths[11] / 4; ++index) {
-            var texCoordGen = new TexCoordGen();
-            texCoordGen.Read(er);
-            this.TexCoordGens.Add(texCoordGen);
+            this.TexCoordGens.Add(er.ReadNew<TexCoordGen>());
           }
  
           // TODO: Add support for post tex coord gens (12)
 
           er.BaseStream.Position = position1 + (long) this.Offsets[13];
-          this.TextureMatrices = new BMD.MAT3Section.TextureMatrixInfo[sectionLengths[13] / 100];
-          for (int index = 0; index < sectionLengths[13] / 100; ++index)
-            this.TextureMatrices[index] = new BMD.MAT3Section.TextureMatrixInfo(er);
-          
+          this.TextureMatrices = new TextureMatrixInfo[sectionLengths[13] / 100];
+          for (int index = 0; index < sectionLengths[13] / 100; ++index) {
+            this.TextureMatrices[index] = er.ReadNew<TextureMatrixInfo>();
+          }
+
           // TODO: Add support for post tex matrices (14)
 
           er.BaseStream.Position = position1 + (long) this.Offsets[15];
@@ -2153,9 +2094,7 @@ label_140:
           er.BaseStream.Position = position1 + (long) this.Offsets[16];
           this.TevOrders = new BMD.MAT3Section.TevOrder[sectionLengths[16] / 4];
           for (int index = 0; index < sectionLengths[16] / 4; ++index) {
-            var entry = new BMD.MAT3Section.TevOrder();
-            entry.Read(er);
-            this.TevOrders[index] = entry;
+            this.TevOrders[index] = er.ReadNew<TevOrder>();
           }
           
           er.BaseStream.Position = position1 + (long) this.Offsets[17];
@@ -2182,24 +2121,18 @@ label_140:
           er.BaseStream.Position = position1 + (long) this.Offsets[24];
           this.AlphaCompares = new AlphaCompare[sectionLengths[24] / 8];
           for (int index = 0; index < sectionLengths[24] / 8; ++index) {
-            var alphaCompare = new AlphaCompare();
-            alphaCompare.Read(er);
-            this.AlphaCompares[index] = alphaCompare;
+            this.AlphaCompares[index] = er.ReadNew<AlphaCompare>();
           }
 
           er.BaseStream.Position = position1 + (long) this.Offsets[25];
           this.BlendFunctions = new BlendFunction[sectionLengths[25] / 4];
           for (int index = 0; index < sectionLengths[25] / 4; ++index) {
-            var blendFunction = new BlendFunction();
-            blendFunction.Read(er);
-            this.BlendFunctions[index] = blendFunction;
+            this.BlendFunctions[index] = er.ReadNew<BlendFunction>();
           }
           er.BaseStream.Position = position1 + (long) this.Offsets[26];
           this.DepthFunctions = new DepthFunction[sectionLengths[26] / 4];
           for (int index = 0; index < sectionLengths[26] / 4; ++index) {
-            var entry = new DepthFunction();
-            entry.Read(er);
-            this.DepthFunctions[index] = entry;
+            this.DepthFunctions[index] = er.ReadNew<DepthFunction>();
           }
           er.BaseStream.Position = position1 + (long) this.Header.size;
           OK = true;
@@ -2603,38 +2536,6 @@ label_140:
           GX_TEVREG0,
           GX_TEVREG1,
           GX_TEVREG2,
-        }
-      }
-
-      public class TextureMatrixInfo
-      {
-        public ushort Unknown1;
-        public ushort Padding1;
-        public float Unknown2;
-        public float Unknown3;
-        public float Unknown4;
-        public float Unknown5;
-        public float Unknown6;
-        public ushort Unknown7;
-        public ushort Padding2;
-        public float Unknown8;
-        public float Unknown9;
-        public float[] Matrix;
-
-        public TextureMatrixInfo(EndianBinaryReader er)
-        {
-          this.Unknown1 = er.ReadUInt16();
-          this.Padding1 = er.ReadUInt16();
-          this.Unknown2 = er.ReadSingle();
-          this.Unknown3 = er.ReadSingle();
-          this.Unknown4 = er.ReadSingle();
-          this.Unknown5 = er.ReadSingle();
-          this.Unknown6 = er.ReadSingle();
-          this.Unknown7 = er.ReadUInt16();
-          this.Padding2 = er.ReadUInt16();
-          this.Unknown8 = er.ReadSingle();
-          this.Unknown9 = er.ReadSingle();
-          this.Matrix = er.ReadSingles(16);
         }
       }
 

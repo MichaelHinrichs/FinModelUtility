@@ -1,7 +1,7 @@
 ﻿using schema;
 
 
-namespace bmd.formats {
+namespace bmd.formats.mat3 {
   public enum GxTexGenType : byte {
     Matrix3x4 = 0,
     Matrix2x4 = 1,

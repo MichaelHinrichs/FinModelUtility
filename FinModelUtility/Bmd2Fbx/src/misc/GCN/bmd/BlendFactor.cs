@@ -1,8 +1,6 @@
 ﻿using System.IO;
 
-using bmd.formats;
-
-using Tao.OpenGl;
+using bmd.formats.mat3;
 
 namespace mkds.gcn.bmd {
   public enum SupportedGlBlendFactor {

@@ -1,7 +1,7 @@
 ﻿using schema;
 
 
-namespace bmd.formats {
+namespace bmd.formats.mat3 {
   public enum BmdBlendMode : byte {
     NONE = 0,
     ADD = 1,

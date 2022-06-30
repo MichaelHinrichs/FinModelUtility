@@ -1,12 +1,12 @@
 ﻿using schema;
 
 
-namespace bmd.formats {
+namespace bmd.formats.mat3 {
   [Schema]
   public partial class DepthFunction : IDeserializable {
     public byte Enable;
     public byte Func;
     public byte UpdateEnable;
-    public byte Padding;
+    private readonly byte padding_ = 0xff;
   }
 }
