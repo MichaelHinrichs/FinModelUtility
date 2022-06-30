@@ -56,14 +56,14 @@ namespace fin.gl {
       if (blendMode is BlendMode.NONE) {
         Gl.glDisable(Gl.GL_BLEND);
         Gl.glBlendEquation(Gl.GL_FUNC_ADD);
+        Gl.glBlendFunc(Gl.GL_SRC_ALPHA, Gl.GL_ONE_MINUS_SRC_ALPHA);
       } else {
         Gl.glEnable(Gl.GL_BLEND);
         Gl.glBlendEquation(GlUtil.ConvertFinBlendModeToGl_(blendMode));
+        Gl.glBlendFunc(GlUtil.ConvertFinBlendFactorToGl_(srcFactor),
+                       GlUtil.ConvertFinBlendFactorToGl_(dstFactor));
       }
-      Gl.glBlendFunc(GlUtil.ConvertFinBlendFactorToGl_(srcFactor),
-                     GlUtil.ConvertFinBlendFactorToGl_(dstFactor));
 
-      // TODO: Doesn't seem to work??
       Gl.glEnable(Gl.GL_LOGIC_OP);
       Gl.glLogicOp(GlUtil.ConvertFinLogicOpToGl_(logicOp));
     }

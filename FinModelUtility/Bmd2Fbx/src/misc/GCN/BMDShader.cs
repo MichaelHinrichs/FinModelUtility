@@ -446,24 +446,24 @@ namespace bmd.GCN
       }
       stringBuilder2.AppendLine("gl_FragColor = color_previous;");
       stringBuilder2.Append("bool a = ");
-      this.Alpha_Compare((int) this.AlphaCompare.Ref0, (int) this.AlphaCompare.Func0, ref stringBuilder2);
+      this.Alpha_Compare((int) this.AlphaCompare.Reference0, this.AlphaCompare.Func0, ref stringBuilder2);
       stringBuilder2.Append(";\n");
       stringBuilder2.Append("bool b = ");
-      this.Alpha_Compare((int) this.AlphaCompare.Ref1, (int) this.AlphaCompare.Func1, ref stringBuilder2);
+      this.Alpha_Compare((int) this.AlphaCompare.Reference1, this.AlphaCompare.Func1, ref stringBuilder2);
       stringBuilder2.Append(";\n");
       stringBuilder2.Append("  if(!(");
       switch (this.AlphaCompare.MergeFunc)
       {
-        case 0:
+        case BMD.MAT3Section.GXAlphaOp.And:
           stringBuilder2.Append("all(bvec2(a, b))");
           break;
-        case 1:
+        case BMD.MAT3Section.GXAlphaOp.Or:
           stringBuilder2.Append("any(bvec2(a, b))");
           break;
-        case 2:
+        case BMD.MAT3Section.GXAlphaOp.XOR:
           stringBuilder2.Append("any(bvec2(all(bvec2(!a, b)), all(bvec2(a, !b))))");
           break;
-        case 3:
+        case BMD.MAT3Section.GXAlphaOp.XNOR:
           stringBuilder2.Append("any(bvec2(all(bvec2(!a, !b)), all(bvec2(a, b))))");
           break;
       }
@@ -505,33 +505,33 @@ namespace bmd.GCN
       Gl.glGetProgramInfoLog(this.program, 10240, (int[]) null, new StringBuilder());
     }
 
-    private void Alpha_Compare(int reference, int id, ref StringBuilder b)
+    private void Alpha_Compare(int reference, BMD.MAT3Section.GxCompareType id, ref StringBuilder b)
     {
       string str = ((float) reference / (float) byte.MaxValue).ToString().Replace(",", ".");
       switch (id)
       {
-        case 0:
+        case BMD.MAT3Section.GxCompareType.Never:
           b.Append("gl_FragColor.a <= -10.0");
           break;
-        case 1:
+        case BMD.MAT3Section.GxCompareType.Less:
           b.Append("gl_FragColor.a < " + str);
           break;
-        case 2:
+        case BMD.MAT3Section.GxCompareType.Equal:
           b.Append("gl_FragColor.a == " + str);
           break;
-        case 3:
+        case BMD.MAT3Section.GxCompareType.LEqual:
           b.Append("gl_FragColor.a <= " + str);
           break;
-        case 4:
+        case BMD.MAT3Section.GxCompareType.Greater:
           b.Append("gl_FragColor.a > " + str);
           break;
-        case 5:
+        case BMD.MAT3Section.GxCompareType.NEqual:
           b.Append("gl_FragColor.a != " + str);
           break;
-        case 6:
+        case BMD.MAT3Section.GxCompareType.GEqual:
           b.Append("gl_FragColor.a >= " + str);
           break;
-        case 7:
+        case BMD.MAT3Section.GxCompareType.Always:
           b.Append("gl_FragColor.a <= 10.0");
           break;
       }

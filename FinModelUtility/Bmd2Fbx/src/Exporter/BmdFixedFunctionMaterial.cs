@@ -23,6 +23,10 @@ using Newtonsoft.Json;
 
 using BlendFactor = fin.model.BlendFactor;
 using LogicOp = fin.model.LogicOp;
+using BmdAlphaOp = bmd.GCN.BMD.MAT3Section.GXAlphaOp;
+using FinAlphaOp = fin.model.AlphaOp;
+using BmdAlphaCompareType = bmd.GCN.BMD.MAT3Section.GxCompareType;
+using FinAlphaCompareType = fin.model.AlphaCompareType;
 
 
 namespace bmd.exporter {
@@ -76,6 +80,13 @@ namespace bmd.exporter {
           ConvertBmdBlendFactorToFin(populatedMaterial.BlendMode.SrcFactor),
           ConvertBmdBlendFactorToFin(populatedMaterial.BlendMode.DstFactor),
           ConvertBmdLogicOpToFin(populatedMaterial.BlendMode.LogicOp));
+
+      material.SetAlphaCompare(
+          ConvertBmdAlphaOpToFin(populatedMaterial.AlphaCompare.MergeFunc),
+          ConvertBmdAlphaCompareTypeToFin(populatedMaterial.AlphaCompare.Func0),
+          populatedMaterial.AlphaCompare.Reference0 / 255f,
+          ConvertBmdAlphaCompareTypeToFin(populatedMaterial.AlphaCompare.Func1),
+          populatedMaterial.AlphaCompare.Reference1 / 255f);
 
       this.Material = material;
 
@@ -145,7 +156,9 @@ namespace bmd.exporter {
           texture.WrapModeV = bmdTexture.WrapModeT;
           texture.ColorType = bmdTexture.ColorType;
 
-          var texCoordGen = bmd.MAT3.TexCoordGens[materialEntry.TexGenInfo[tevOrder.TexCoordId]];
+          var texCoordGen =
+              bmd.MAT3.TexCoordGens[
+                  materialEntry.TexGenInfo[tevOrder.TexCoordId]];
 
           var texGenSrc = texCoordGen.TexGenSrc;
           if (texGenSrc >= BMD.MAT3Section.GxTexGenSrc.Tex0 &&
@@ -154,8 +167,7 @@ namespace bmd.exporter {
             texture.UvIndex = texCoordIndex;
           } else if (texGenSrc == BMD.MAT3Section.GxTexGenSrc.Normal) {
             texture.UvType = UvType.LINEAR;
-          }
-          else {
+          } else {
             //Asserts.Fail($"Unsupported texGenSrc type: {texGenSrc}");
             texture.UvIndex = 0;
           }
@@ -837,6 +849,31 @@ namespace bmd.exporter {
           BmdLogicOp.SET           => LogicOp.SET,
           _ => throw new ArgumentOutOfRangeException(
                    nameof(bmdLogicOp), bmdLogicOp, null)
+      };
+
+    private FinAlphaOp ConvertBmdAlphaOpToFin(BmdAlphaOp bmdAlphaOp)
+      => bmdAlphaOp switch {
+          BmdAlphaOp.And  => FinAlphaOp.And,
+          BmdAlphaOp.Or   => FinAlphaOp.Or,
+          BmdAlphaOp.XOR  => FinAlphaOp.XOR,
+          BmdAlphaOp.XNOR => FinAlphaOp.XNOR,
+          _ => throw new ArgumentOutOfRangeException(
+                   nameof(bmdAlphaOp), bmdAlphaOp, null)
+      };
+
+    private FinAlphaCompareType ConvertBmdAlphaCompareTypeToFin(
+        BmdAlphaCompareType bmdAlphaCompareType)
+      => bmdAlphaCompareType switch {
+          BmdAlphaCompareType.Never   => FinAlphaCompareType.Never,
+          BmdAlphaCompareType.Less    => FinAlphaCompareType.Less,
+          BmdAlphaCompareType.Equal   => FinAlphaCompareType.Equal,
+          BmdAlphaCompareType.LEqual  => FinAlphaCompareType.LEqual,
+          BmdAlphaCompareType.Greater => FinAlphaCompareType.Greater,
+          BmdAlphaCompareType.NEqual  => FinAlphaCompareType.NEqual,
+          BmdAlphaCompareType.GEqual  => FinAlphaCompareType.GEqual,
+          BmdAlphaCompareType.Always  => FinAlphaCompareType.Always,
+          _ => throw new ArgumentOutOfRangeException(
+                   nameof(bmdAlphaCompareType), bmdAlphaCompareType, null)
       };
   }
 }

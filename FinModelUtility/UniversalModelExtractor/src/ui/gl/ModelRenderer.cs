@@ -127,7 +127,7 @@ void main() {
         var fragmentShaderSrc =
             new FixedFunctionEquationsGlslPrinter(
                     fixedFunctionMaterial.TextureSources)
-                .Print(fixedFunctionMaterial.Equations);
+                .Print(fixedFunctionMaterial);
 
         this.shaderProgram_ =
             GlShaderProgram.FromShaders(vertexShaderSrc, fragmentShaderSrc);

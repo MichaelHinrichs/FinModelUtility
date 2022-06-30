@@ -2108,6 +2108,8 @@ label_140:
           er.BaseStream.Position = position1 + (long) this.Offsets[2];
           this.MaterialNameTable = new BMD.Stringtable(er);
 
+          // TODO: Add support for indirect textures (3)
+
           er.BaseStream.Position = position1 + (long)this.Offsets[4];
           this.CullModes = new CullMode[sectionLengths[4] / 4];
           for (var index = 0; index < sectionLengths[4] / 4; ++index)
@@ -2117,11 +2119,16 @@ label_140:
           this.MaterialColor = new System.Drawing.Color[sectionLengths[5] / 4];
           for (int index = 0; index < sectionLengths[5] / 4; ++index)
             this.MaterialColor[index] = er.ReadColor8();
-          
+
+          // TODO: Add support for color channel info (7)
+
           er.BaseStream.Position = position1 + (long) this.Offsets[8];
           this.AmbientColors = new System.Drawing.Color[sectionLengths[8] / 4];
           for (int index = 0; index < sectionLengths[8] / 4; ++index)
             this.AmbientColors[index] = er.ReadColor8();
+
+          // TODO: Add support for light colors (9)
+          // TODO: Add support for texgen counts (10)
 
           er.BaseStream.Position = position1 + this.Offsets[11];
           this.TexCoordGens = new List<TexCoordGen>();
@@ -2130,12 +2137,16 @@ label_140:
             texCoordGen.Read(er);
             this.TexCoordGens.Add(texCoordGen);
           }
+ 
+          // TODO: Add support for post tex coord gens (12)
 
           er.BaseStream.Position = position1 + (long) this.Offsets[13];
           this.TextureMatrices = new BMD.MAT3Section.TextureMatrixInfo[sectionLengths[13] / 100];
           for (int index = 0; index < sectionLengths[13] / 100; ++index)
             this.TextureMatrices[index] = new BMD.MAT3Section.TextureMatrixInfo(er);
           
+          // TODO: Add support for post tex matrices (14)
+
           er.BaseStream.Position = position1 + (long) this.Offsets[15];
           this.TextureIndices = er.ReadInt16s(sectionLengths[15] / 2);
 
@@ -2151,18 +2162,31 @@ label_140:
           this.ColorS10 = new System.Drawing.Color[sectionLengths[17] / 8];
           for (int index = 0; index < sectionLengths[17] / 8; ++index)
             this.ColorS10[index] = er.ReadColor16();
+          
           er.BaseStream.Position = position1 + (long) this.Offsets[18];
           this.Color3 = new System.Drawing.Color[sectionLengths[18] / 4];
           for (int index = 0; index < sectionLengths[18] / 4; ++index)
             this.Color3[index] = er.ReadColor8();
+
+          // TODO: Add support for tev counts (19)
+
           er.BaseStream.Position = position1 + (long) this.Offsets[20];
           this.TevStages = new BMD.MAT3Section.TevStageProps[sectionLengths[20] / 20];
           for (int index = 0; index < sectionLengths[20] / 20; ++index)
             this.TevStages[index] = new BMD.MAT3Section.TevStageProps(er);
+
+          // TODO: Add support for tev swap modes (21)
+          // TODO: Add support for tev swap mode table (22)
+          // TODO: Add support for fog modes (23)
+
           er.BaseStream.Position = position1 + (long) this.Offsets[24];
           this.AlphaCompares = new BMD.MAT3Section.AlphaCompare[sectionLengths[24] / 8];
-          for (int index = 0; index < sectionLengths[24] / 8; ++index)
-            this.AlphaCompares[index] = new BMD.MAT3Section.AlphaCompare(er);
+          for (int index = 0; index < sectionLengths[24] / 8; ++index) {
+            var alphaCompare = new AlphaCompare();
+            alphaCompare.Read(er);
+            this.AlphaCompares[index] = alphaCompare;
+          }
+
           er.BaseStream.Position = position1 + (long) this.Offsets[25];
           this.BlendFunctions = new BMD.MAT3Section.BlendFunction[sectionLengths[25] / 4];
           for (int index = 0; index < sectionLengths[25] / 4; ++index)
@@ -2176,6 +2200,8 @@ label_140:
           }
           er.BaseStream.Position = position1 + (long) this.Header.size;
           OK = true;
+
+          // TODO: Add support for nbt scale (29)
 
           this.PopulatedMaterials = this.MaterialEntries.Select((entry, index) => new PopulatedMaterial(this, index, entry)).ToArray();
         }
@@ -2418,7 +2444,7 @@ label_140:
         public ushort[] TevSwapModeTable;
         public ushort[] Unknown2;
         public short FogInfoIndex;
-        public short AlphaCompareIndex;
+        public AlphaCompare AlphaCompare;
         public BlendFunction BlendMode;
         public short UnknownIndex;
 
@@ -2452,6 +2478,7 @@ label_140:
                    .Select(t => (short) (t != -1 ? mat3.TextureIndices[t] : -1))
                    .ToArray();
 
+          this.AlphaCompare = mat3.AlphaCompares[entry.AlphaCompareIndex];
           this.BlendMode = mat3.BlendFunctions[entry.BlendModeIndex];
 
           if (this.Name == "eye1") {
@@ -2524,23 +2551,34 @@ label_140:
         private readonly byte padding_ = 0xff;
       }
 
-      public class AlphaCompare
-      {
-        public byte Func0;
-        public byte Ref0;
-        public byte MergeFunc;
-        public byte Func1;
-        public byte Ref1;
+      public enum GxCompareType : byte {
+        Never = 0,
+        Less = 1,
+        Equal = 2,
+        LEqual = 3,
+        Greater = 4,
+        NEqual = 5,
+        GEqual = 6,
+        Always = 7
+      }
 
-        public AlphaCompare(EndianBinaryReader er)
-        {
-          this.Func0 = er.ReadByte();
-          this.Ref0 = er.ReadByte();
-          this.MergeFunc = er.ReadByte();
-          this.Func1 = er.ReadByte();
-          this.Ref1 = er.ReadByte();
-          er.ReadBytes(3);
-        }
+      public enum GXAlphaOp : byte {
+        And = 0,
+        Or = 1,
+        XOR = 2,
+        XNOR = 3
+      }
+
+      [Schema]
+      public partial class AlphaCompare : IDeserializable {
+        public GxCompareType Func0;
+        public byte Reference0;
+        public GXAlphaOp MergeFunc;
+        public GxCompareType Func1;
+        public byte Reference1;
+        public readonly byte padding1_ = 0xff;
+        public readonly byte padding2_ = 0xff;
+        public readonly byte padding3_ = 0xff;
       }
 
       public class BlendFunction

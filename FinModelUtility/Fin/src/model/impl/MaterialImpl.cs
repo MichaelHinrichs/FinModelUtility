@@ -238,6 +238,26 @@ namespace fin.model.impl {
       public BlendFactor SrcFactor { get; private set; }
       public BlendFactor DstFactor { get; private set; }
       public LogicOp LogicOp { get; private set; }
+
+      public IFixedFunctionMaterial SetAlphaCompare(
+          AlphaOp alphaOp,
+          AlphaCompareType alphaCompareType0,
+          float reference0,
+          AlphaCompareType alphaCompareType1,
+          float reference1) {
+        this.AlphaOp = alphaOp;
+        this.AlphaCompareType0 = alphaCompareType0;
+        this.AlphaReference0 = reference0;
+        this.AlphaCompareType1 = alphaCompareType1;
+        this.AlphaReference1 = reference1;
+        return this;
+      }
+
+      public AlphaOp AlphaOp { get; private set; }
+      public AlphaCompareType AlphaCompareType0 { get; private set; }
+      public float AlphaReference0 { get; private set; }
+      public AlphaCompareType AlphaCompareType1 { get; private set; }
+      public float AlphaReference1 { get; private set; }
     }
   }
 

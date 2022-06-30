@@ -15,19 +15,20 @@ namespace fin.language.equations.fixedFunction {
       this.textures_ = textures;
     }
 
-    public string Print(
-        IFixedFunctionEquations<FixedFunctionSource> equations) {
+    public string Print(IFixedFunctionMaterial material) {
       var sb = new StringBuilder();
 
       using var os = new StringWriter(sb);
-      this.Print(os, equations);
+      this.Print(os, material);
 
       return sb.ToString();
     }
 
     public void Print(
         StringWriter os,
-        IFixedFunctionEquations<FixedFunctionSource> equations) {
+        IFixedFunctionMaterial material) {
+      var equations = material.Equations;
+
       os.WriteLine("# version 130");
       os.WriteLine();
       for (var t = 0; t < 8; ++t) {
@@ -54,16 +55,16 @@ namespace fin.language.equations.fixedFunction {
       os.WriteLine("void main() {");
 
       // TODO: Define inputs once as needed up here.
-      os.WriteLine("vec3 diffuseLightNormal = normalize(vec3(.5, .5, -1));");
+      os.WriteLine("  vec3 diffuseLightNormal = normalize(vec3(.5, .5, -1));");
       os.WriteLine(
-          "float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);");
-      os.WriteLine("vec3 diffuseLightColor = vec3(.5, .5, .5);");
+          "  float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);");
+      os.WriteLine("  vec3 diffuseLightColor = vec3(.5, .5, .5);");
       os.WriteLine(
-          "vec3 diffuseColor = diffuseLightAmount * diffuseLightColor;");
-      os.WriteLine("vec4 vertexColor0 = vec4(diffuseColor, 1);");
+          "  vec3 diffuseColor = diffuseLightAmount * diffuseLightColor;");
+      os.WriteLine("  vec4 vertexColor0 = vec4(diffuseColor, 1);");
       os.WriteLine();
-      os.WriteLine("vec3 ambientLightColor = vec3(0, 0, 0);");
-      os.WriteLine("vec4 vertexColor1 = vec4(ambientLightColor, 1);");
+      os.WriteLine("  vec3 ambientLightColor = vec3(0, 0, 0);");
+      os.WriteLine("  vec4 vertexColor1 = vec4(ambientLightColor, 1);");
       os.WriteLine();
 
       // TODO: Get tree of all values that this depends on, in case there needs to be other variables defined before.
@@ -83,15 +84,174 @@ namespace fin.language.equations.fixedFunction {
       os.WriteLine(";");
       os.WriteLine();
 
-      os.Write("  fragColor = vec4(colorComponent, alphaComponent);");
+      os.WriteLine("  fragColor = vec4(colorComponent, alphaComponent);");
       os.WriteLine();
 
-      /*os.WriteLine(@"
-  if (fragColor.a < .95) {
+      var alphaOpValue =
+          DetermineAlphaOpValue(
+              material.AlphaOp,
+              DetermineAlphaCompareType(
+                  material.AlphaCompareType0,
+                  material.AlphaReference0),
+              DetermineAlphaCompareType(
+                  material.AlphaCompareType1,
+                  material.AlphaReference1));
+
+      var alphaCompareText0 =
+          GetAlphaCompareText_(material.AlphaCompareType0,
+                               material.AlphaReference0);
+      var alphaCompareText1 =
+          GetAlphaCompareText_(material.AlphaCompareType1,
+                               material.AlphaReference1);
+
+      switch (alphaOpValue) {
+        case AlphaOpValue.ONLY_0_REQUIRED: {
+          os.WriteLine($@"  if (!({alphaCompareText0})) {{
     discard;
-  }");*/
+  }}");
+          break;
+        }
+        case AlphaOpValue.ONLY_1_REQUIRED: {
+          os.WriteLine($@"  if (!({alphaCompareText1})) {{
+    discard;
+  }}");
+          break;
+        }
+        case AlphaOpValue.BOTH_REQUIRED: {
+          switch (material.AlphaOp) {
+            case AlphaOp.And: {
+              os.Write($"  if (!({alphaCompareText0} && {alphaCompareText1})");
+              break;
+            }
+            case AlphaOp.Or: {
+              os.Write($"  if (!({alphaCompareText0} || {alphaCompareText1})");
+              break;
+            }
+            case AlphaOp.XOR: {
+              os.WriteLine($"  bool a = {alphaCompareText0};");
+              os.WriteLine($"  bool b = {alphaCompareText1};");
+              os.Write($"  if (!(any(bvec2(all(bvec2(!a, b)), all(bvec2(a, !b)))))");
+              break;
+            }
+            case AlphaOp.XNOR: {
+              os.WriteLine($"  bool a = {alphaCompareText0};");
+              os.WriteLine($"  bool b = {alphaCompareText1};");
+              os.Write("  if (!(any(bvec2(all(bvec2(!a, !b)), all(bvec2(a, b)))))"); 
+              break;
+            }
+            default:           throw new ArgumentOutOfRangeException();
+          }
+          os.WriteLine(@") {
+    discard;
+  }");
+          break;
+        }
+        case AlphaOpValue.ALWAYS_TRUE: break;
+        case AlphaOpValue.ALWAYS_FALSE: {
+          os.WriteLine("  discard;");
+          break;
+        }
+        default: throw new ArgumentOutOfRangeException();
+      }
 
       os.WriteLine("}");
+    }
+
+    private string GetAlphaCompareText_(
+        AlphaCompareType alphaCompareType,
+        float reference)
+      => alphaCompareType switch {
+          AlphaCompareType.Never   => "false",
+          AlphaCompareType.Less    => $"fragColor.a < {reference}",
+          AlphaCompareType.Equal   => $"fragColor.a == {reference}",
+          AlphaCompareType.LEqual  => $"fragColor.a <= {reference}",
+          AlphaCompareType.Greater => $"fragColor.a > {reference}",
+          AlphaCompareType.NEqual  => $"fragColor.a != {reference}",
+          AlphaCompareType.GEqual  => $"fragColor.a >= {reference}",
+          AlphaCompareType.Always  => "true",
+          _ => throw new ArgumentOutOfRangeException(
+                   nameof(alphaCompareType), alphaCompareType, null)
+      };
+
+    private enum AlphaOpValue {
+      ONLY_0_REQUIRED,
+      ONLY_1_REQUIRED,
+      BOTH_REQUIRED,
+      ALWAYS_TRUE,
+      ALWAYS_FALSE,
+    }
+
+    private AlphaOpValue DetermineAlphaOpValue(
+        AlphaOp alphaOp,
+        AlphaCompareValue compareValue0,
+        AlphaCompareValue compareValue1) {
+      var is0False = compareValue0 == AlphaCompareValue.ALWAYS_FALSE;
+      var is0True = compareValue0 == AlphaCompareValue.ALWAYS_TRUE;
+      var is1False = compareValue1 == AlphaCompareValue.ALWAYS_FALSE;
+      var is1True = compareValue1 == AlphaCompareValue.ALWAYS_TRUE;
+
+      if (alphaOp == AlphaOp.And) {
+        if (is0False || is1False) {
+          return AlphaOpValue.ALWAYS_FALSE;
+        }
+
+        if (is0True && is1True) {
+          return AlphaOpValue.ALWAYS_TRUE;
+        }
+        if (is0True) {
+          return AlphaOpValue.ONLY_1_REQUIRED;
+        }
+        if (is1True) {
+          return AlphaOpValue.ONLY_0_REQUIRED;
+        }
+        return AlphaOpValue.BOTH_REQUIRED;
+      }
+
+      if (alphaOp == AlphaOp.Or) {
+        if (is0True || is1True) {
+          return AlphaOpValue.ALWAYS_TRUE;
+        }
+
+        if (is0False && is1False) {
+          return AlphaOpValue.ALWAYS_FALSE;
+        }
+        if (is0False) {
+          return AlphaOpValue.ONLY_1_REQUIRED;
+        }
+        if (is1False) {
+          return AlphaOpValue.ONLY_0_REQUIRED;
+        }
+        return AlphaOpValue.BOTH_REQUIRED;
+      }
+
+      return AlphaOpValue.BOTH_REQUIRED;
+    }
+
+    private enum AlphaCompareValue {
+      INDETERMINATE,
+      ALWAYS_TRUE,
+      ALWAYS_FALSE,
+    }
+
+    private AlphaCompareValue DetermineAlphaCompareType(
+        AlphaCompareType compareType,
+        float reference) {
+      var isReference0 = Math.Abs(reference - 0) < .001;
+      var isReference1 = Math.Abs(reference - 1) < .001;
+
+      if (compareType == AlphaCompareType.Always ||
+          (compareType == AlphaCompareType.GEqual && isReference0) ||
+          (compareType == AlphaCompareType.LEqual && isReference1)) {
+        return AlphaCompareValue.ALWAYS_TRUE;
+      }
+
+      if (compareType == AlphaCompareType.Never ||
+          (compareType == AlphaCompareType.Greater && isReference1) ||
+          (compareType == AlphaCompareType.Less && isReference0)) {
+        return AlphaCompareValue.ALWAYS_FALSE;
+      }
+
+      return AlphaCompareValue.INDETERMINATE;
     }
 
     private void PrintScalarValue_(

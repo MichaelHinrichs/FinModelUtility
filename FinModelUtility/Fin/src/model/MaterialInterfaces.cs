@@ -130,6 +130,25 @@ namespace fin.model {
     SET,
   }
 
+
+  public enum AlphaCompareType : byte {
+    Never = 0,
+    Less = 1,
+    Equal = 2,
+    LEqual = 3,
+    Greater = 4,
+    NEqual = 5,
+    GEqual = 6,
+    Always = 7
+  }
+
+  public enum AlphaOp : byte {
+    And = 0,
+    Or = 1,
+    XOR = 2,
+    XNOR = 3
+  }
+
   public interface ILayer {
     IColorSource ColorSource { get; }
 
@@ -205,6 +224,7 @@ namespace fin.model {
 
     ITexture? CompiledTexture { get; set; }
 
+    // TODO: Merge this into a single type
     IFixedFunctionMaterial SetBlending(
         BlendMode blendMode,
         BlendFactor srcFactor,
@@ -215,6 +235,20 @@ namespace fin.model {
     BlendFactor SrcFactor { get; }
     BlendFactor DstFactor { get; }
     LogicOp LogicOp { get; }
+
+    // TODO: Merge this into a single type
+    IFixedFunctionMaterial SetAlphaCompare(
+        AlphaOp alphaOp,
+        AlphaCompareType alphaCompareType0,
+        float reference0,
+        AlphaCompareType alphaCompareType1,
+        float reference1);
+
+    AlphaOp AlphaOp { get; }
+    AlphaCompareType AlphaCompareType0 { get; }
+    float AlphaReference0 { get; }
+    AlphaCompareType AlphaCompareType1 { get; }
+    float AlphaReference1 { get; }
   }
 
 
