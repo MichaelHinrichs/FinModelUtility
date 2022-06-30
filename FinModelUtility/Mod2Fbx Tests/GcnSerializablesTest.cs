@@ -4,6 +4,8 @@ using mod.gcn.collision;
 
 using NUnit.Framework;
 
+using schema;
+
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace mod.gcn {
