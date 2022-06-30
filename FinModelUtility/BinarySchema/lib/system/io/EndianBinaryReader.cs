@@ -4,6 +4,7 @@
 // MVID: DAEF8B62-698B-42D0-BEDD-3770EB8C9FE8
 // Assembly location: R:\Documents\CSharpWorkspace\Pikmin2Utility\MKDS Course Modifier\MKDS Course Modifier.exe
 
+using System.Collections.Generic;
 using System.Text;
 
 using schema;
@@ -501,6 +502,14 @@ namespace System.IO {
       var value = new T();
       value.Read(this);
       return value;
+    }
+
+    public void ReadNewArray<T>(out T[] array, int length)
+        where T : IDeserializable, new() {
+      array = new T[length];
+      for (var i = 0; i < length; ++i) {
+        array[i] = this.ReadNew<T>();
+      }
     }
   }
 }

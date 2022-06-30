@@ -28,7 +28,6 @@ using FinAlphaCompareType = fin.model.AlphaCompareType;
 namespace bmd.exporter {
   using static bmd.GCN.BMD.MAT3Section.TevStageProps;
 
-  using TevOrder = BMD.MAT3Section.TevOrder;
   using TevStage = BMD.MAT3Section.TevStageProps;
 
   /// <summary>
@@ -400,10 +399,10 @@ namespace bmd.exporter {
       private readonly IFixedFunctionEquations<FixedFunctionSource> equations_;
 
 
-      private readonly Dictionary<TevOrder.ColorChannel, IColorValue>
+      private readonly Dictionary<ColorChannel, IColorValue>
           colorChannelsColors_ = new();
 
-      private readonly Dictionary<TevOrder.ColorChannel, IScalarValue>
+      private readonly Dictionary<ColorChannel, IScalarValue>
           alphaChannelsColors_ = new();
 
       private readonly Dictionary<TevStage.GxCc, IColorValue>
@@ -550,9 +549,9 @@ namespace bmd.exporter {
       }
 
 
-      private TevOrder.ColorChannel? colorChannel_;
+      private ColorChannel? colorChannel_;
 
-      public void UpdateRascColor(TevOrder.ColorChannel? colorChannel) {
+      public void UpdateRascColor(ColorChannel? colorChannel) {
         if (this.colorChannel_ != colorChannel) {
           this.colorChannel_ = colorChannel;
           this.colorValues_.Remove(TevStage.GxCc.GX_CC_RASC);
@@ -571,17 +570,17 @@ namespace bmd.exporter {
         if (!this.colorChannelsColors_.TryGetValue(channel, out var color)) {
           var source = colorSource switch {
               TevStage.GxCc.GX_CC_RASC => channel switch {
-                  TevOrder.ColorChannel.GX_COLOR0A0 => FixedFunctionSource
-                      .VERTEX_COLOR_0,
-                  TevOrder.ColorChannel.GX_COLOR1A1 => FixedFunctionSource
-                      .VERTEX_COLOR_1,
+                  ColorChannel.GX_COLOR0A0 =>
+                      FixedFunctionSource.VERTEX_COLOR_0,
+                  ColorChannel.GX_COLOR1A1 =>
+                      FixedFunctionSource.VERTEX_COLOR_1,
                   _ => throw new NotImplementedException()
               },
               TevStage.GxCc.GX_CC_RASA => channel switch {
-                  TevOrder.ColorChannel.GX_COLOR0A0 => FixedFunctionSource
-                      .VERTEX_ALPHA_0,
-                  TevOrder.ColorChannel.GX_COLOR1A1 => FixedFunctionSource
-                      .VERTEX_ALPHA_1,
+                  ColorChannel.GX_COLOR0A0 =>
+                      FixedFunctionSource.VERTEX_ALPHA_0,
+                  ColorChannel.GX_COLOR1A1 =>
+                      FixedFunctionSource.VERTEX_ALPHA_1,
                   _ => throw new NotImplementedException()
               },
               _ => throw new NotImplementedException()
@@ -606,9 +605,9 @@ namespace bmd.exporter {
 
         if (!this.alphaChannelsColors_.TryGetValue(channel, out var alpha)) {
           var source = channel switch {
-              TevOrder.ColorChannel.GX_COLOR0A0 => FixedFunctionSource
+              ColorChannel.GX_COLOR0A0 => FixedFunctionSource
                   .VERTEX_ALPHA_0,
-              TevOrder.ColorChannel.GX_COLOR1A1 => FixedFunctionSource
+              ColorChannel.GX_COLOR1A1 => FixedFunctionSource
                   .VERTEX_ALPHA_1,
               _ => throw new NotImplementedException()
           };
@@ -812,14 +811,17 @@ namespace bmd.exporter {
     private FinBlendFactor ConvertBmdBlendFactorToFin(
         BmdBlendFactor bmdBlendFactor)
       => bmdBlendFactor switch {
-          BmdBlendFactor.ZERO                => FinBlendFactor.ZERO,
-          BmdBlendFactor.ONE                 => FinBlendFactor.ONE,
-          BmdBlendFactor.SRC_COLOR           => FinBlendFactor.SRC_COLOR,
-          BmdBlendFactor.ONE_MINUS_SRC_COLOR => FinBlendFactor.ONE_MINUS_SRC_COLOR,
-          BmdBlendFactor.SRC_ALPHA           => FinBlendFactor.SRC_ALPHA,
-          BmdBlendFactor.ONE_MINUS_SRC_ALPHA => FinBlendFactor.ONE_MINUS_SRC_ALPHA,
-          BmdBlendFactor.DST_ALPHA           => FinBlendFactor.DST_ALPHA,
-          BmdBlendFactor.ONE_MINUS_DST_ALPHA => FinBlendFactor.ONE_MINUS_DST_ALPHA,
+          BmdBlendFactor.ZERO      => FinBlendFactor.ZERO,
+          BmdBlendFactor.ONE       => FinBlendFactor.ONE,
+          BmdBlendFactor.SRC_COLOR => FinBlendFactor.SRC_COLOR,
+          BmdBlendFactor.ONE_MINUS_SRC_COLOR => FinBlendFactor
+              .ONE_MINUS_SRC_COLOR,
+          BmdBlendFactor.SRC_ALPHA => FinBlendFactor.SRC_ALPHA,
+          BmdBlendFactor.ONE_MINUS_SRC_ALPHA => FinBlendFactor
+              .ONE_MINUS_SRC_ALPHA,
+          BmdBlendFactor.DST_ALPHA => FinBlendFactor.DST_ALPHA,
+          BmdBlendFactor.ONE_MINUS_DST_ALPHA => FinBlendFactor
+              .ONE_MINUS_DST_ALPHA,
           _ => throw new ArgumentOutOfRangeException(
                    nameof(bmdBlendFactor), bmdBlendFactor, null)
       };

@@ -12,7 +12,6 @@ using BlendFactor = fin.model.BlendFactor;
 using LogicOp = fin.model.LogicOp;
 
 namespace bmd.exporter {
-  using TevOrder = BMD.MAT3Section.TevOrder;
   using TevStage = BMD.MAT3Section.TevStageProps;
 
   /// <summary>

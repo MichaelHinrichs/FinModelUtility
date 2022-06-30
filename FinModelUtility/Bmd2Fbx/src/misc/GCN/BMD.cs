@@ -23,7 +23,9 @@ using System.Text;
 using Tao.OpenGl;
 using System.Drawing;
 
+using bmd.formats;
 using bmd.formats.inf1;
+using bmd.formats.jnt1;
 using bmd.formats.mat3;
 using bmd.formats.shp1;
 using bmd.formats.vtx1;
@@ -45,7 +47,7 @@ namespace bmd.GCN {
   public partial class BMD {
     private List<BMDShader> Shaders = new List<BMDShader>();
     public const string Signature = "J3D2bmd3";
-    public BMD.BMDHeader Header;
+    public BmdHeader Header;
     public BMD.INF1Section INF1;
     public BMD.VTX1Section VTX1;
     public BMD.EVP1Section EVP1;
@@ -57,117 +59,101 @@ namespace bmd.GCN {
 
     public BMD(byte[] file)
     {
-      EndianBinaryReader er = new EndianBinaryReader((Stream) new MemoryStream(file), Endianness.BigEndian);
+      using EndianBinaryReader er = new EndianBinaryReader((Stream) new MemoryStream(file), Endianness.BigEndian);
+      this.Header = er.ReadNew<BmdHeader>();
+
       bool OK;
-      this.Header = new BMD.BMDHeader(er, "J3D2bmd3", out OK);
-      if (!OK)
+      while (er.BaseStream.Position != er.BaseStream.Length)
       {
-        // TODO: Message box
-        //int num1 = (int) System.Windows.Forms.MessageBox.Show("Error 1");
-      }
-      else
-      {
-        while (er.BaseStream.Position != er.BaseStream.Length)
+        switch (er.ReadString(Encoding.ASCII, 4))
         {
-          switch (er.ReadString(Encoding.ASCII, 4))
-          {
-            case nameof (INF1):
-              er.BaseStream.Position -= 4L;
-              this.INF1 = new BMD.INF1Section(er, out OK);
-              if (!OK)
-              {
-                // TODO: Message box
-                //int num2 = (int) System.Windows.Forms.MessageBox.Show("Error 2");
-                goto label_21;
-              }
-              else
-                break;
-            case nameof (VTX1):
-              er.BaseStream.Position -= 4L;
-              this.VTX1 = new BMD.VTX1Section(er, out OK);
-              if (!OK)
-              {
-                // TODO: Message box
-                //int num2 = (int) System.Windows.Forms.MessageBox.Show("Error 4");
-                goto label_21;
-              }
-              else
-                break;
-            case nameof (EVP1):
-              er.BaseStream.Position -= 4L;
-              this.EVP1 = new BMD.EVP1Section(er, out OK);
-              if (!OK)
-              {
-                // TODO: Message box
-                //int num2 = (int) System.Windows.Forms.MessageBox.Show("Error 4");
-                goto label_21;
-              }
-              else
-                break;
-            case nameof (DRW1):
-              er.BaseStream.Position -= 4L;
-              this.DRW1 = new BMD.DRW1Section(er, out OK);
-              if (!OK)
-              {
-                // TODO: Message box
-                //int num2 = (int) System.Windows.Forms.MessageBox.Show("Error 5");
-                goto label_21;
-              }
-              else
-                break;
-            case nameof (JNT1):
-              er.BaseStream.Position -= 4L;
-              this.JNT1 = new BMD.JNT1Section(er, out OK);
-              if (!OK)
-              {
-                // TODO: Message box
-                //int num2 = (int) System.Windows.Forms.MessageBox.Show("Error 6");
-                goto label_21;
-              }
-              else
-                break;
-            case nameof (SHP1):
-              er.BaseStream.Position -= 4L;
-              this.SHP1 = new BMD.SHP1Section(er, out OK);
-              if (!OK)
-              {
-                // TODO: Message box
-                //int num2 = (int) System.Windows.Forms.MessageBox.Show("Error 7");
-                goto label_21;
-              }
-              else
-                break;
-            case "MAT1":
-            case "MAT2":
-            case nameof (MAT3):
-              er.BaseStream.Position -= 4L;
-              this.MAT3 = new BMD.MAT3Section(er, out OK);
-              if (!OK)
-              {
-                // TODO: Message box
-                //int num2 = (int) System.Windows.Forms.MessageBox.Show("Error 8");
-                goto label_21;
-              }
-              else
-                break;
-            case nameof (TEX1):
-              er.BaseStream.Position -= 4L;
-              this.TEX1 = new BMD.TEX1Section(er, out OK);
-              if (!OK)
-              {
-                // TODO: Message box
-                //int num2 = (int) System.Windows.Forms.MessageBox.Show("Error 9");
-                goto label_21;
-              }
-              else
-                break;
-            default:
-              goto label_21;
-          }
+          case nameof (INF1):
+            er.BaseStream.Position -= 4L;
+            this.INF1 = new BMD.INF1Section(er, out OK);
+            if (!OK)
+            {
+              // TODO: Message box
+              //int num2 = (int) System.Windows.Forms.MessageBox.Show("Error 2");
+              return;
+            }
+            else
+              break;
+          case nameof (VTX1):
+            er.BaseStream.Position -= 4L;
+            this.VTX1 = new BMD.VTX1Section(er, out OK);
+            if (!OK)
+            {
+              // TODO: Message box
+              //int num2 = (int) System.Windows.Forms.MessageBox.Show("Error 4");
+              return;
+            } else
+              break;
+          case nameof (EVP1):
+            er.BaseStream.Position -= 4L;
+            this.EVP1 = new BMD.EVP1Section(er, out OK);
+            if (!OK)
+            {
+              // TODO: Message box
+              //int num2 = (int) System.Windows.Forms.MessageBox.Show("Error 4");
+              return;
+            } else
+              break;
+          case nameof (DRW1):
+            er.BaseStream.Position -= 4L;
+            this.DRW1 = new BMD.DRW1Section(er, out OK);
+            if (!OK)
+            {
+              // TODO: Message box
+              //int num2 = (int) System.Windows.Forms.MessageBox.Show("Error 5");
+              return;
+            } else
+              break;
+          case nameof (JNT1):
+            er.BaseStream.Position -= 4L;
+            this.JNT1 = new BMD.JNT1Section(er, out OK);
+            if (!OK)
+            {
+              // TODO: Message box
+              //int num2 = (int) System.Windows.Forms.MessageBox.Show("Error 6");
+              return;
+            } else
+              break;
+          case nameof (SHP1):
+            er.BaseStream.Position -= 4L;
+            this.SHP1 = new BMD.SHP1Section(er, out OK);
+            if (!OK)
+            {
+              // TODO: Message box
+              //int num2 = (int) System.Windows.Forms.MessageBox.Show("Error 7");
+              return;
+            } else
+              break;
+          case "MAT1":
+          case "MAT2":
+          case nameof (MAT3):
+            er.BaseStream.Position -= 4L;
+            this.MAT3 = new BMD.MAT3Section(er, out OK);
+            if (!OK)
+            {
+              // TODO: Message box
+              //int num2 = (int) System.Windows.Forms.MessageBox.Show("Error 8");
+              return;
+            } else
+              break;
+          case nameof (TEX1):
+            er.BaseStream.Position -= 4L;
+            this.TEX1 = new BMD.TEX1Section(er, out OK);
+            if (!OK)
+            {
+              // TODO: Message box
+              //int num2 = (int) System.Windows.Forms.MessageBox.Show("Error 9");
+              return;
+            } else
+              break;
+          default:
+            return;
         }
       }
-label_21:
-      er.Close();
     }
 
     public MA.Node[] GetJoints()
@@ -1124,30 +1110,6 @@ label_140:
       return true;
     }
 
-    public class BMDHeader
-    {
-      public string Type;
-      public uint FileSize;
-      public uint NrSections;
-      public byte[] Padding;
-
-      public BMDHeader(EndianBinaryReader er, string Signature, out bool OK)
-      {
-        this.Type = er.ReadString(Encoding.ASCII, 8);
-        if (this.Type != Signature)
-        {
-          OK = false;
-        }
-        else
-        {
-          this.FileSize = er.ReadUInt32();
-          this.NrSections = er.ReadUInt32();
-          this.Padding = er.ReadBytes(16);
-          OK = true;
-        }
-      }
-    }
-
     public class INF1Section
     {
       public const string Signature = "INF1";
@@ -1219,11 +1181,10 @@ label_140:
             if (offset != 0U)
               ++length1;
           }
+
           er.BaseStream.Position = position1 + (long) this.ArrayFormatOffset;
-          this.ArrayFormats = new ArrayFormat[length1];
-          for (int index = 0; index < length1; ++index) {
-            this.ArrayFormats[index] = er.ReadNew<ArrayFormat>();
-          }
+          er.ReadNewArray(out this.ArrayFormats, length1);
+
           int index1 = 0;
           for (int k = 0; k < 13; ++k)
           {
@@ -1580,7 +1541,7 @@ label_140:
       public uint JointEntryOffset;
       public uint UnknownOffset;
       public uint StringTableOffset;
-      public BMD.JNT1Section.JNT1Entry[] Joints;
+      public Jnt1Entry[] Joints;
       public BMD.Stringtable StringTable;
 
       public JNT1Section(EndianBinaryReader er, out bool OK)
@@ -1602,33 +1563,10 @@ label_140:
           er.BaseStream.Position = position + (long) this.StringTableOffset;
           this.StringTable = new BMD.Stringtable(er);
           er.BaseStream.Position = position + (long) this.JointEntryOffset;
-          this.Joints = new BMD.JNT1Section.JNT1Entry[(int) this.NrJoints];
-          for (var index = 0; index < (int) this.NrJoints; ++index) {
-            this.Joints[index] = er.ReadNew<JNT1Entry>();
-          }
+          er.ReadNewArray(out this.Joints, this.NrJoints);
           er.BaseStream.Position = position + (long) this.Header.size;
           OK = true;
         }
-      }
-
-      [Schema]
-      public partial class JNT1Entry : IDeserializable {
-        public ushort Unknown1;
-        public byte Unknown2;
-        public byte Padding1;
-        public float Sx;
-        public float Sy;
-        public float Sz;
-        public short Rx;
-        public short Ry;
-        public short Rz;
-        public ushort Padding2;
-        public float Tx;
-        public float Ty;
-        public float Tz;
-        public float Unknown3;
-        public readonly float[] BoundingBoxMin = new float[3];
-        public readonly float[] BoundingBoxMax = new float[3];
       }
     }
 
@@ -2012,9 +1950,9 @@ label_140:
       public BlendFunction[] BlendFunctions;
       public DepthFunction[] DepthFunctions;
       public BMD.MAT3Section.TevStageProps[] TevStages;
-      public IList<TexCoordGen> TexCoordGens;
+      public TexCoordGen[] TexCoordGens;
       public TextureMatrixInfo[] TextureMatrices;
-      public BMD.MAT3Section.TevOrder[] TevOrders;
+      public TevOrder[] TevOrders;
       public BMD.Stringtable MaterialNameTable;
 
       public MAT3Section(EndianBinaryReader er, out bool OK)
@@ -2073,18 +2011,12 @@ label_140:
           // TODO: Add support for texgen counts (10)
 
           er.BaseStream.Position = position1 + this.Offsets[11];
-          this.TexCoordGens = new List<TexCoordGen>();
-          for (int index = 0; index < sectionLengths[11] / 4; ++index) {
-            this.TexCoordGens.Add(er.ReadNew<TexCoordGen>());
-          }
- 
+          er.ReadNewArray(out this.TexCoordGens, sectionLengths[11] / 4);
+
           // TODO: Add support for post tex coord gens (12)
 
           er.BaseStream.Position = position1 + (long) this.Offsets[13];
-          this.TextureMatrices = new TextureMatrixInfo[sectionLengths[13] / 100];
-          for (int index = 0; index < sectionLengths[13] / 100; ++index) {
-            this.TextureMatrices[index] = er.ReadNew<TextureMatrixInfo>();
-          }
+          er.ReadNewArray(out this.TextureMatrices, sectionLengths[13] / 100);
 
           // TODO: Add support for post tex matrices (14)
 
@@ -2092,11 +2024,8 @@ label_140:
           this.TextureIndices = er.ReadInt16s(sectionLengths[15] / 2);
 
           er.BaseStream.Position = position1 + (long) this.Offsets[16];
-          this.TevOrders = new BMD.MAT3Section.TevOrder[sectionLengths[16] / 4];
-          for (int index = 0; index < sectionLengths[16] / 4; ++index) {
-            this.TevOrders[index] = er.ReadNew<TevOrder>();
-          }
-          
+          er.ReadNewArray(out this.TevOrders, sectionLengths[16] / 4);
+
           er.BaseStream.Position = position1 + (long) this.Offsets[17];
           this.ColorS10 = new System.Drawing.Color[sectionLengths[17] / 8];
           for (int index = 0; index < sectionLengths[17] / 8; ++index)
@@ -2119,21 +2048,14 @@ label_140:
           // TODO: Add support for fog modes (23)
 
           er.BaseStream.Position = position1 + (long) this.Offsets[24];
-          this.AlphaCompares = new AlphaCompare[sectionLengths[24] / 8];
-          for (int index = 0; index < sectionLengths[24] / 8; ++index) {
-            this.AlphaCompares[index] = er.ReadNew<AlphaCompare>();
-          }
+          er.ReadNewArray(out this.AlphaCompares, sectionLengths[24] / 8);
 
           er.BaseStream.Position = position1 + (long) this.Offsets[25];
-          this.BlendFunctions = new BlendFunction[sectionLengths[25] / 4];
-          for (int index = 0; index < sectionLengths[25] / 4; ++index) {
-            this.BlendFunctions[index] = er.ReadNew<BlendFunction>();
-          }
+          er.ReadNewArray(out this.BlendFunctions, sectionLengths[25] / 4);
+          
           er.BaseStream.Position = position1 + (long) this.Offsets[26];
-          this.DepthFunctions = new DepthFunction[sectionLengths[26] / 4];
-          for (int index = 0; index < sectionLengths[26] / 4; ++index) {
-            this.DepthFunctions[index] = er.ReadNew<DepthFunction>();
-          }
+          er.ReadNewArray(out this.DepthFunctions, sectionLengths[26] / 4);
+
           er.BaseStream.Position = position1 + (long) this.Header.size;
           OK = true;
 
@@ -2416,10 +2338,6 @@ label_140:
 
           this.AlphaCompare = mat3.AlphaCompares[entry.AlphaCompareIndex];
           this.BlendMode = mat3.BlendFunctions[entry.BlendModeIndex];
-
-          if (this.Name == "eye1") {
-            ;
-          }
         }
 
         private static T? GetOrNull<T>(IList<T> array, int i)
@@ -2536,28 +2454,6 @@ label_140:
           GX_TEVREG0,
           GX_TEVREG1,
           GX_TEVREG2,
-        }
-      }
-
-      [Schema]
-      public partial class TevOrder : IDeserializable {
-        public byte TexCoordId;
-        public sbyte TexMap;
-        [Format(SchemaNumberType.BYTE)]
-        public ColorChannel ColorChannelId;
-        private readonly byte padding_ = 0xff;
-
-        public enum ColorChannel {
-          GX_COLOR0,
-          GX_COLOR1,
-          GX_ALPHA0,
-          GX_ALPHA1,
-          GX_COLOR0A0,
-          GX_COLOR1A1,
-          GX_COLORZERO,
-          GX_BUMP,
-          GX_BUMPN,
-          GX_COLORNULL,
         }
       }
     }
