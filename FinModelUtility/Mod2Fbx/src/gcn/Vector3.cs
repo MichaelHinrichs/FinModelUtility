@@ -3,7 +3,7 @@
 using schema;
 
 namespace mod.gcn {
-  public interface IVector3<T> : IGcnSerializable {
+  public interface IVector3<T> : IBiSerializable {
     T X { get; set; }
     T Y { get; set; }
     T Z { get; set; }

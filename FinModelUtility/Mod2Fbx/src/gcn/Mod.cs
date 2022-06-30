@@ -27,7 +27,7 @@ namespace mod.gcn {
     UseNBT = 0x01
   }
 
-  public class Mod : IGcnSerializable {
+  public class Mod : IBiSerializable {
     public readonly ModHeader header = new();
     public readonly List<Vector3f> vertices = new();
     public readonly List<Vector3f> vnormals = new();

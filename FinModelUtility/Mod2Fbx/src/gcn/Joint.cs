@@ -5,13 +5,13 @@ using schema;
 
 namespace mod.gcn {
   [Schema]
-  public partial class JointMatPoly : IGcnSerializable {
+  public partial class JointMatPoly : IBiSerializable {
     public ushort matIdx = 0;
     public ushort meshIdx = 0;
   }
 
   [Schema]
-  public partial class Joint : IGcnSerializable {
+  public partial class Joint : IBiSerializable {
     public uint parentIdx = 0;
     public uint flags = 0;
     public readonly Vector3f boundsMax = new();    

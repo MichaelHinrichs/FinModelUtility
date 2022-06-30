@@ -31,7 +31,7 @@ namespace mod.gcn {
     }
   }
 
-  public class DisplayList : IGcnSerializable {
+  public class DisplayList : IBiSerializable {
     public DisplayListFlags flags = new();
 
     // THANKS: Yoshi2's mod2obj
@@ -62,7 +62,7 @@ namespace mod.gcn {
   }
 
   [Schema]
-  public partial class MeshPacket : IGcnSerializable {
+  public partial class MeshPacket : IBiSerializable {
     [ArrayLengthSource(IntType.UINT32)]
     public short[] indices;
     [ArrayLengthSource(IntType.UINT32)]
@@ -70,7 +70,7 @@ namespace mod.gcn {
   }
 
   [Schema]
-  public partial class Mesh : IGcnSerializable {
+  public partial class Mesh : IBiSerializable {
     public uint boneIndex = 0;
     public uint vtxDescriptor = 0;
 

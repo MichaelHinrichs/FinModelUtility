@@ -3,7 +3,7 @@
 using schema;
 
 namespace mod.gcn {
-  public interface IColour<T> : IGcnSerializable {
+  public interface IColour<T> : IBiSerializable {
     T R { get; set; }
     T G { get; set; }
     T B { get; set; }

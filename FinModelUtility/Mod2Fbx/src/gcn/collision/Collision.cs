@@ -6,12 +6,12 @@ using schema;
 
 namespace mod.gcn.collision {
   [Schema]
-  public partial class BaseRoomInfo : IGcnSerializable {
+  public partial class BaseRoomInfo : IBiSerializable {
     public uint index = 0;
   }
 
   [Schema]
-  public partial class BaseCollTriInfo : IGcnSerializable {
+  public partial class BaseCollTriInfo : IBiSerializable {
     public uint mapCode = 0;
     public readonly Vector3i indice = new();
     
@@ -23,7 +23,7 @@ namespace mod.gcn.collision {
     public readonly Plane plane = new();
   }
 
-  public class CollTriInfo : IGcnSerializable {
+  public class CollTriInfo : IBiSerializable {
     public readonly List<BaseRoomInfo> roominfo = new();
     public readonly List<BaseCollTriInfo> collinfo = new();
 
@@ -71,7 +71,7 @@ namespace mod.gcn.collision {
   }
 
   [Schema]
-  public partial class CollGroup : IGcnSerializable {
+  public partial class CollGroup : IBiSerializable {
     public ushort NumUnknown1 { get; set; }
     public ushort NumUnknown2 { get; set; }
 
@@ -82,7 +82,7 @@ namespace mod.gcn.collision {
     public byte[] unknown1 = Array.Empty<byte>();
   }
 
-  public class CollGrid : IGcnSerializable {
+  public class CollGrid : IBiSerializable {
     public readonly Vector3f boundsMin = new();
     public readonly Vector3f boundsMax = new();
     public float unknown1 = 0;

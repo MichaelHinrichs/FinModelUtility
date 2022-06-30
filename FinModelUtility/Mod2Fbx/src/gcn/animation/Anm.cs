@@ -8,8 +8,11 @@ using fin.model.impl;
 using fin.util.asserts;
 using fin.util.optional;
 
+using schema;
+
+
 namespace mod.gcn.animation {
-  public class Anm : IGcnSerializable {
+  public class Anm : IBiSerializable {
     public List<IDcx> Dcxes { get; } = new();
 
     public void Read(EndianBinaryReader reader) {
@@ -132,7 +135,7 @@ namespace mod.gcn.animation {
     }
   }
 
-  public class Dca : IDcx, IGcnSerializable {
+  public class Dca : IDcx, IBiSerializable {
     public string Name { get; private set; }
 
     public uint FrameCount { get; private set; }
@@ -219,7 +222,7 @@ namespace mod.gcn.animation {
     }
   }
 
-  public class Dck : IDcx, IGcnSerializable {
+  public class Dck : IDcx, IBiSerializable {
     public string Name { get; private set; }
 
     public uint FrameCount { get; private set; }

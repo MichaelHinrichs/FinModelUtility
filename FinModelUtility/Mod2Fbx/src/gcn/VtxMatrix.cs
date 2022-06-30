@@ -4,7 +4,7 @@ using schema;
 
 namespace mod.gcn {
   [Schema]
-  public partial class VtxMatrix : IGcnSerializable {
+  public partial class VtxMatrix : IBiSerializable {
     public short index = 0;
   }
 }

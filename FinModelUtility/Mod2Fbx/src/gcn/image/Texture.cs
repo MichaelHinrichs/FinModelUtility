@@ -10,7 +10,7 @@ using schema;
 
 
 namespace mod.gcn {
-  public class Texture : IGcnSerializable {
+  public class Texture : IBiSerializable {
     public int index;
 
     public ushort width = 0;
@@ -92,7 +92,7 @@ namespace mod.gcn {
   }
 
   [Schema]
-  public partial class TextureAttributes : IGcnSerializable {
+  public partial class TextureAttributes : IBiSerializable {
     public ushort index = 0;
     private readonly ushort padding_ = 0;
     public ushort tilingMode = 0;

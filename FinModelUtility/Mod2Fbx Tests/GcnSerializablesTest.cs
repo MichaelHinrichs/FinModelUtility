@@ -156,7 +156,7 @@ namespace mod.gcn {
     public void TestVtxMatrix() => TestGcnSerializableSimple(new VtxMatrix());
 
     public static void TestGcnSerializableSimple(
-        IGcnSerializable gcnSerializable) {
+        IBiSerializable gcnSerializable) {
       var dataLen = 100;
       var inData = new byte[dataLen];
       for (var i = 0; i < dataLen; ++i) {
@@ -181,7 +181,7 @@ namespace mod.gcn {
     }
 
     public static void TestGcnSerializableExisting(
-        IGcnSerializable gcnSerializable) {
+        IBiSerializable gcnSerializable) {
       var dataLen = 300;
       var firstOutData = new byte[dataLen];
       var firstWriter = new EndianBinaryWriter(new MemoryStream(firstOutData));

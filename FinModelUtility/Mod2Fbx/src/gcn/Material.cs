@@ -18,7 +18,7 @@ namespace mod.gcn {
   ////////////////////////////////////////////////////////////////////
 
   [Schema]
-  public partial class KeyInfoU8 : IGcnSerializable {
+  public partial class KeyInfoU8 : IBiSerializable {
     public byte unknown1 = 0;
     public byte unknownA = 0;
     public ushort unknownB = 0;
@@ -31,7 +31,7 @@ namespace mod.gcn {
   }
 
   [Schema]
-  public partial class KeyInfoF32 : IGcnSerializable {
+  public partial class KeyInfoF32 : IBiSerializable {
     public float unknown1 = 0;
     public float unknown2 = 0;
     public float unknown3 = 0;
@@ -41,7 +41,7 @@ namespace mod.gcn {
   }
 
   [Schema]
-  public partial class KeyInfoS10 : IGcnSerializable {
+  public partial class KeyInfoS10 : IBiSerializable {
     public short unknown1 = 0;
     public readonly short padding = 0; // TODO: Is this right?
     public float unknown2 = 0;
@@ -52,7 +52,7 @@ namespace mod.gcn {
   };
 
   [Schema]
-  public partial class PCI_Unk1 : IGcnSerializable {
+  public partial class PCI_Unk1 : IBiSerializable {
     public int unknown1 = 0;
     public readonly KeyInfoU8 unknown2 = new();
     public readonly KeyInfoU8 unknown3 = new();
@@ -60,13 +60,13 @@ namespace mod.gcn {
   }
 
   [Schema]
-  public partial class PCI_Unk2 : IGcnSerializable {
+  public partial class PCI_Unk2 : IBiSerializable {
     public int unknown1 = 0;
     public readonly KeyInfoU8 unknown2 = new();
   }
 
   [Schema]
-  public partial class PolygonColourInfo : IGcnSerializable {
+  public partial class PolygonColourInfo : IBiSerializable {
     public readonly ColourU8 diffuseColour = new();
     public int unknown2 = 0;
     public float unknown3 = 0;
@@ -82,13 +82,13 @@ namespace mod.gcn {
   }
 
   [Schema]
-  public partial class LightingInfo : IGcnSerializable {
+  public partial class LightingInfo : IBiSerializable {
     public uint typeFlags = 0; // see LightingInfoFlags
     public float unknown2 = 0;
   }
 
   [Schema]
-  public partial class PeInfo : IGcnSerializable {
+  public partial class PeInfo : IBiSerializable {
     public int unknown1 = 0;
     public int unknown2 = 0;
     public int unknown3 = 0;
@@ -96,7 +96,7 @@ namespace mod.gcn {
   };
 
   [Schema]
-  public partial class TexGenData : IGcnSerializable {
+  public partial class TexGenData : IBiSerializable {
     public byte unknown1 = 0;
     public byte unknown2 = 0;
     public byte unknown3 = 0;
@@ -104,7 +104,7 @@ namespace mod.gcn {
   }
 
   [Schema]
-  public partial class TXD_Unk1 : IGcnSerializable {
+  public partial class TXD_Unk1 : IBiSerializable {
     public int unknown1 = 0;
     public readonly KeyInfoF32 unknown2 = new();
     public readonly KeyInfoF32 unknown3 = new();
@@ -112,7 +112,7 @@ namespace mod.gcn {
   }
 
   [Schema]
-  public partial class TextureData : IGcnSerializable {
+  public partial class TextureData : IBiSerializable {
     public int unknown1 = 0;
 
     public short unknown2 = 0;
@@ -144,7 +144,7 @@ namespace mod.gcn {
   };
 
   [Schema]
-  public partial class TextureInfo : IGcnSerializable {
+  public partial class TextureInfo : IBiSerializable {
     public int unknown1 = 0;
     public readonly Vector3f unknown2 = new();
 
@@ -159,7 +159,7 @@ namespace mod.gcn {
     UsePVW = 1
   }
 
-  public class Material : IGcnSerializable {
+  public class Material : IBiSerializable {
     public uint flags = 0;
     public uint unknown1 = 0;
     public readonly ColourU8 colour = new();
@@ -190,7 +190,7 @@ namespace mod.gcn {
   }
 
   [Schema]
-  public partial class TCR_Unk1 : IGcnSerializable {
+  public partial class TCR_Unk1 : IBiSerializable {
     public int unknown1 = 0;
     public readonly KeyInfoS10 unknown2 = new();
     public readonly KeyInfoS10 unknown3 = new();
@@ -204,13 +204,13 @@ namespace mod.gcn {
   }
 
   [Schema]
-  public partial class TCR_Unk2 : IGcnSerializable {
+  public partial class TCR_Unk2 : IBiSerializable {
     public int unknown1 = 0;
     public readonly KeyInfoS10 unknown2 = new();
   }
 
   [Schema]
-  public partial class TEVColReg : IGcnSerializable {
+  public partial class TEVColReg : IBiSerializable {
     public readonly ColourU16 unknown1 = new();
     public int unknown2 = 0;
     public float unknown3 = 0;
@@ -221,7 +221,7 @@ namespace mod.gcn {
   }
 
   [Schema]
-  public partial class PVWCombiner : IGcnSerializable {
+  public partial class PVWCombiner : IBiSerializable {
     public byte unknown1 = 0;
     public byte unknown2 = 0;
     public byte unknown3 = 0;
@@ -237,7 +237,7 @@ namespace mod.gcn {
   };
 
   [Schema]
-  public partial class TEVStage : IGcnSerializable {
+  public partial class TEVStage : IBiSerializable {
     public byte unknown1 = 0;
     public byte unknown2 = 0;
     public byte unknown3 = 0;
@@ -252,7 +252,7 @@ namespace mod.gcn {
   }
 
   [Schema]
-  public partial class TEVInfo : IGcnSerializable {
+  public partial class TEVInfo : IBiSerializable {
     // Probably RGB
     public readonly TEVColReg unknown1 = new();
     public readonly TEVColReg unknown2 = new();

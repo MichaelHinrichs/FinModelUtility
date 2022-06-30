@@ -72,14 +72,14 @@ namespace mod.gcn {
   }
 
   [Schema]
-  public partial class ChunkData : IGcnSerializable {
+  public partial class ChunkData : IBiSerializable {
     [Format(SchemaNumberType.UINT32)]
     public ChunkId Id { get; private set; }
     [ArrayLengthSource(IntType.INT32)]
     public byte[] Data { get; private set; }
   }
 
-  public class ModSectionData : IGcnSerializable {
+  public class ModSectionData : IBiSerializable {
     public List<ChunkData> Chunks { get; } = new();
     public List<byte> EofBytes { get; } = new();
 
