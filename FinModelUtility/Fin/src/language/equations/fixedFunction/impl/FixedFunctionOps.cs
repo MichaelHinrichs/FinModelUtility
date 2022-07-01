@@ -149,7 +149,7 @@ namespace fin.language.equations.fixedFunction.impl {
       }
 
       var lhsIsOne = lhs == this.One;
-      var rhsIsOne = rhs == this.One;
+      var rhsIsOne = rhs == this.scOne_;
 
       if (lhsIsOne && rhsIsOne) {
         return this.One;
