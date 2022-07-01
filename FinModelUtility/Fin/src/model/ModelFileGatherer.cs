@@ -125,9 +125,16 @@ namespace fin.model {
 
   public interface IModelFileBundle : IUiFile { }
 
-  public interface IModelFileGatherer<TModelFileBundle>
+  public interface IModelFileGatherer {
+    IModelDirectory? GatherModelFileBundles(bool assert);
+  }
+
+  public interface IModelFileGatherer<TModelFileBundle>: IModelFileGatherer
       where TModelFileBundle : IModelFileBundle {
-    IModelDirectory<TModelFileBundle>? GatherModelFileBundles(bool assert);
+    new IModelDirectory<TModelFileBundle>? GatherModelFileBundles(bool assert);
+
+    IModelDirectory? IModelFileGatherer.GatherModelFileBundles(bool assert) 
+      => this.GatherModelFileBundles(assert);
   }
 
   public interface IModelLoader<in TModelFileBundle>
