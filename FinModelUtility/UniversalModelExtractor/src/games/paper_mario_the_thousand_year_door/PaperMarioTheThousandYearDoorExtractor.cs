@@ -1,6 +1,4 @@
-﻿using bmd.api;
-
-using fin.log;
+﻿using fin.log;
 
 using uni.platforms;
 using uni.platforms.gcn;

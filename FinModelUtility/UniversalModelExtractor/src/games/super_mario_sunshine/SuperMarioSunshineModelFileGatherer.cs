@@ -46,7 +46,6 @@ namespace uni.games.super_mario_sunshine {
       var bcxFiles = marioSubdir.TryToGetSubdir("bck")
                                 .Files.Where(
                                     file => file.Name.StartsWith("ma_"))
-                                .Select(file => file.Impl)
                                 .ToArray();
       var bmdFile = marioSubdir.TryToGetSubdir("bmd")
                                .Files.Single(
@@ -79,7 +78,6 @@ namespace uni.games.super_mario_sunshine {
                          file => file.Extension == ".bck")
                      // TODO: Look into this, this animation seems to need extra bone(s)?
                      .Where(file => !file.Name.StartsWith("yoshi_tongue"))
-                     .Select(file => file.Impl)
                      .ToArray();
       var bmdFile = yoshiSubdir.Files.Single(
           file => file.Name == "yoshi_model.bmd");
@@ -146,14 +144,11 @@ namespace uni.games.super_mario_sunshine {
       var bmdFiles = directory.FilesWithExtension(".bmd")
                               .ToArray();
       var commonBcxFiles = common.FilesWithExtensions(".bca", ".bck")
-                                 .Select(file => file.Impl)
                                  .ToArray();
       var commonBtiFiles = common.FilesWithExtension(".bti")
-                                 .Select(file => file.Impl)
                                  .ToArray();
 
       var localBcxFiles = directory.FilesWithExtensions(".bca", ".bck")
-                                   .Select(file => file.Impl)
                                    .ToArray();
       if (bmdFiles.Length == 1) {
         this.ExtractModels_(node,
@@ -189,7 +184,6 @@ namespace uni.games.super_mario_sunshine {
                         .Files.Where(
                             file => file.Extension == ".bck" ||
                                     file.Extension == ".bca")
-                        .Select(file => file.Impl)
                         .ToArray();
 
       var specialCase = false;
@@ -233,7 +227,7 @@ namespace uni.games.super_mario_sunshine {
       }
 
       var unclaimedBcxFiles = allBcxFiles.ToHashSet();
-      var bmdAndBcxFiles = new Dictionary<IFileHierarchyFile, IFile[]>();
+      var bmdAndBcxFiles = new Dictionary<IFileHierarchyFile, IFileHierarchyFile[]>();
       foreach (var bmdFile in bmdFiles) {
         var prefix = bmdFile.Name;
         prefix = prefix.Substring(0, prefix.Length - ".bmd".Length);
@@ -282,7 +276,6 @@ namespace uni.games.super_mario_sunshine {
                      .Files.Where(
                          file => file.Extension == ".bck" ||
                                  file.Extension == ".bca")
-                     .Select(file => file.Impl)
                      .ToArray();
 
       this.ExtractPrimaryAndSecondaryModels_(node,
@@ -295,7 +288,7 @@ namespace uni.games.super_mario_sunshine {
         IModelDirectory<BmdModelFileBundle> node,
         Func<IFileHierarchyFile, bool> primaryIdentifier,
         IReadOnlyList<IFileHierarchyFile> bmdFiles,
-        IReadOnlyList<IFile>? bcxFiles = null
+        IReadOnlyList<IFileHierarchyFile>? bcxFiles = null
     ) {
       var primaryBmdFile =
           bmdFiles.Single(bmdFile => primaryIdentifier(bmdFile));
@@ -312,14 +305,14 @@ namespace uni.games.super_mario_sunshine {
     private void ExtractModels_(
         IModelDirectory<BmdModelFileBundle> node,
         IReadOnlyList<IFileHierarchyFile> bmdFiles,
-        IReadOnlyList<IFile>? bcxFiles = null,
-        IReadOnlyList<IFile>? btiFiles = null
+        IReadOnlyList<IFileHierarchyFile>? bcxFiles = null,
+        IReadOnlyList<IFileHierarchyFile>? btiFiles = null
     ) {
       Asserts.True(bmdFiles.Count > 0);
 
       foreach (var bmdFile in bmdFiles) {
         node.AddFileBundle(new BmdModelFileBundle {
-            BmdFile = bmdFile.Impl,
+            BmdFile = bmdFile,
             BcxFiles = bcxFiles,
             BtiFiles = btiFiles,
             FrameRate = 60

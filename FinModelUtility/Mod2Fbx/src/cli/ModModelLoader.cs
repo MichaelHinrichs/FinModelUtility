@@ -17,9 +17,10 @@ using Endianness = mod.util.Endianness;
 
 namespace mod.cli {
   public class ModModelFileBundle : IModelFileBundle {
-    public IFile ModFile { get; set; }
-    public IFile? AnmFile { get; set; }
-    public string FileName => this.ModFile.NameWithoutExtension;
+    public IFileHierarchyFile MainFile => this.ModFile;
+
+    public IFileHierarchyFile ModFile { get; set; }
+    public IFileHierarchyFile? AnmFile { get; set; }
   }
 
   public class ModModelLoader : IModelLoader<ModModelFileBundle> {
@@ -57,7 +58,7 @@ namespace mod.cli {
       var mod = new Mod();
       {
         using var r = new EndianBinaryReader(
-            modelFileBundle.ModFile.OpenRead());
+            modelFileBundle.ModFile.Impl.OpenRead());
         mod.Read(r);
       }
 
@@ -65,7 +66,7 @@ namespace mod.cli {
       if (modelFileBundle.AnmFile != null) {
         anm = new Anm();
         using var r = new EndianBinaryReader(
-            modelFileBundle.AnmFile.OpenRead());
+            modelFileBundle.AnmFile.Impl.OpenRead());
         anm.Read(r);
       }
 

@@ -15,20 +15,8 @@ namespace uni.games {
     }
 
     public static IDirectory GetOutputDirectoryForFile(
-        IFileHierarchyFile fileHierarchyFile) {
-      var romName = GameFileHierarchyUtil.GetRomName(fileHierarchyFile);
-
-      var localFilePath = fileHierarchyFile.LocalPath;
-      var localDirectoryPath =
-          localFilePath.Substring(0,
-                                  localFilePath.Length -
-                                  fileHierarchyFile.Name.Length);
-
-      var localOutPath = Path.Join(romName, localDirectoryPath);
-
-      return DirectoryConstants.OUT_DIRECTORY
-                               .GetSubdir(localOutPath, true);
-    }
+        IFileHierarchyFile fileHierarchyFile)
+      => GetOutputDirectoryForDirectory(fileHierarchyFile.Parent!);
 
     public static IDirectory GetOutputDirectoryForDirectory(
         IFileHierarchyDirectory fileHierarchyDirectory) {

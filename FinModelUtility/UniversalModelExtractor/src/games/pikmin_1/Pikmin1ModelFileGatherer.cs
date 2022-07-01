@@ -49,8 +49,8 @@ namespace uni.games.pikmin_1 {
                                              modFile.NameWithoutExtension);
 
           node.AddFileBundle(new ModModelFileBundle {
-              ModFile = modFile.Impl,
-              AnmFile = anmFile?.Impl,
+              ModFile = modFile,
+              AnmFile = anmFile,
           });
         }
 

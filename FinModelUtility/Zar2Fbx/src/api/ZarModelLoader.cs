@@ -29,7 +29,7 @@ namespace zar.api {
       this.ShpaFiles = shpaFiles;
     }
 
-    public string FileName => this.CmbFile.NameWithoutExtension;
+    public IFileHierarchyFile MainFile => this.CmbFile;
 
     public IFileHierarchyFile CmbFile { get; }
     public IReadOnlyList<IFileHierarchyFile>? CsabFiles { get; }

@@ -24,18 +24,19 @@ namespace bmd.exporter {
   using MkdsNode = bmd._3D_Formats.MA.Node;
 
   public class BmdModelFileBundle : IModelFileBundle {
-    public IFile BmdFile { get; set; }
-    public IReadOnlyList<IFile>? BcxFiles { get; set; }
-    public IReadOnlyList<IFile>? BtiFiles { get; set; }
+    public IFileHierarchyFile MainFile => this.BmdFile;
+
+    public IFileHierarchyFile BmdFile { get; set; }
+    public IReadOnlyList<IFileHierarchyFile>? BcxFiles { get; set; }
+    public IReadOnlyList<IFileHierarchyFile>? BtiFiles { get; set; }
     public float FrameRate { get; set; } = 30;
-    public string FileName => this.BmdFile.NameWithoutExtension;
   }
 
   public class BmdModelLoader : IModelLoader<BmdModelFileBundle> {
     public IModel LoadModel(BmdModelFileBundle modelFileBundle) {
       var logger = Logging.Create<BmdModelLoader>();
 
-      var bmd = new BMD(modelFileBundle.BmdFile.SkimAllBytes());
+      var bmd = new BMD(modelFileBundle.BmdFile.Impl.SkimAllBytes());
 
       List<(string, IBcx)>? pathsAndBcxs;
       try {
@@ -46,9 +47,9 @@ namespace bmd.exporter {
                   var extension = bcxFile.Extension.ToLower();
                   IBcx bcx = extension switch {
                       ".bca" =>
-                          new BCA(bcxFile.SkimAllBytes()),
+                          new BCA(bcxFile.Impl.SkimAllBytes()),
                       ".bck" =>
-                          new BCK(bcxFile.SkimAllBytes()),
+                          new BCK(bcxFile.Impl.SkimAllBytes()),
                       _ => throw new NotSupportedException(),
                   };
                   return (bcxFile.FullName, bcx);
@@ -66,7 +67,7 @@ namespace bmd.exporter {
                 .BtiFiles?
                 .Select(btiFile
                             => (btiFile.FullName,
-                                new BTI(btiFile.SkimAllBytes())))
+                                new BTI(btiFile.Impl.SkimAllBytes())))
                 .ToList();
       } catch {
         logger.LogError("Failed to load BTI!");

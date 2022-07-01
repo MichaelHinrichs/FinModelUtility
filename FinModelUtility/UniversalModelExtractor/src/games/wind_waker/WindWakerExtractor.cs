@@ -1,6 +1,4 @@
-﻿using bmd.api;
-
-using fin.io;
+﻿using fin.io;
 using fin.log;
 using fin.util.asserts;
 using fin.util.data;
@@ -292,7 +290,7 @@ namespace uni.games.wind_waker {
       }
 
       try {
-        new ManualBmd2FbxApi().Process(outputDirectory,
+        /*new ManualBmd2FbxApi().Process(outputDirectory,
                                        bmdFiles.Select(file => file.FullName)
                                                .ToArray(),
                                        bcxFiles.Select(file => file.FullName)
@@ -300,7 +298,7 @@ namespace uni.games.wind_waker {
                                        btiFiles.Select(file => file.FullName)
                                                .ToArray(),
                                        !allowMultipleAnimatedModels,
-                                       60);
+                                       60);*/
       } catch (Exception e) {
         this.logger_.LogError(e.ToString());
       }

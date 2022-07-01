@@ -1,5 +1,4 @@
-﻿using bmd.api;
-using bmd.exporter;
+﻿using bmd.exporter;
 
 using fin.io;
 using fin.log;
@@ -56,9 +55,8 @@ namespace uni.games.pikmin_2 {
 
         if (modelSubdir != null && animSubdir != null) {
           var bmdFiles = modelSubdir.Files;
-          var bcxFiles = animSubdir.Impl.GetExistingFiles().ToList();
-          var btiFiles = Files.GetFilesWithExtension(subdir.Impl, ".bti", true)
-                              .ToList();
+          var bcxFiles = animSubdir.Files;
+          var btiFiles = subdir.FilesWithExtensionRecursive(".bti").ToArray();
 
           this.ExtractModels_(parentNode.AddSubdir(subdir.Name), bmdFiles,
                               bcxFiles, btiFiles);
@@ -93,8 +91,7 @@ namespace uni.games.pikmin_2 {
 
       var bcxFiles =
           pikminAndCaptainBaseDirectory.TryToGetSubdir("motion")
-                                       .Impl.GetExistingFiles()
-                                       .ToList();
+                                       .Files;
 
       var captainSubdir =
           pikminAndCaptainBaseDirectory.TryToGetSubdir("orima_model");
@@ -130,7 +127,6 @@ namespace uni.games.pikmin_2 {
                 treasure.Files
                         .Where(file => file.Extension == ".bca" ||
                                        file.Extension == ".bck")
-                        .Select(file => file.Impl)
                         .ToList();
             this.ExtractModels_(treasureNode, bmdFiles, bcxFiles);
           }
@@ -154,10 +150,8 @@ namespace uni.games.pikmin_2 {
       var bmdFiles = directory.FilesWithExtension(".bmd").ToArray();
       if (bmdFiles.Length > 0) {
         var bcxFiles = directory.FilesWithExtensions(".bca", ".bck")
-                                .Select(file => file.Impl)
                                 .ToList();
-        var btiFiles =
-            Files.GetFilesWithExtension(directory.Impl, ".bti");
+        var btiFiles = directory.FilesWithExtension(".bti").ToList();
         this.ExtractModels_(parentNode, bmdFiles, bcxFiles, btiFiles);
       }
     }
@@ -165,15 +159,15 @@ namespace uni.games.pikmin_2 {
     private void ExtractModels_(
         IModelDirectory<BmdModelFileBundle> parentNode,
         IReadOnlyList<IFileHierarchyFile> bmdFiles,
-        IReadOnlyList<IFile>? bcxFiles = null,
-        IReadOnlyList<IFile>? btiFiles = null
+        IReadOnlyList<IFileHierarchyFile>? bcxFiles = null,
+        IReadOnlyList<IFileHierarchyFile>? btiFiles = null
     ) {
       Asserts.True(bmdFiles.Count > 0);
 
       foreach (var bmdFile in bmdFiles) {
         parentNode.AddFileBundle(
             new BmdModelFileBundle {
-                BmdFile = bmdFile.Impl,
+                BmdFile = bmdFile,
                 BcxFiles = bcxFiles,
                 BtiFiles = btiFiles,
             });

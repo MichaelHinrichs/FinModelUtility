@@ -161,7 +161,6 @@ namespace uni.games.mario_kart_double_dash {
       var bmdFiles = directory.FilesWithExtension(".bmd")
                               .ToArray();
       var bcxFiles = directory.FilesWithExtensions(".bca", ".bck")
-                              .Select(file => file.Impl)
                               .ToArray();
 
       var driverBmdFiles = bmdFiles
@@ -197,10 +196,8 @@ namespace uni.games.mario_kart_double_dash {
       var bmdFiles = directory.FilesWithExtension(".bmd")
                               .ToArray();
       var commonBcxFiles = common.FilesWithExtensions(".bca", ".bck")
-                                 .Select(file => file.Impl)
                                  .ToArray();
       var localBcxFiles = directory.FilesWithExtensions(".bca", ".bck")
-                                   .Select(file => file.Impl)
                                    .ToArray();
 
       this.ExtractModels_(node,
@@ -222,7 +219,6 @@ namespace uni.games.mario_kart_double_dash {
         }
 
         var btiFiles = subdir.FilesWithExtension(".bti")
-                             .Select(file => file.Impl)
                              .ToArray();
 
         var courseNode = coursesNode.AddSubdir(subdir.Name);
@@ -249,10 +245,8 @@ namespace uni.games.mario_kart_double_dash {
                         .Files.Where(
                             file => file.Extension == ".bck" ||
                                     file.Extension == ".bca")
-                        .Select(file => file.Impl)
                         .ToArray();
       var btiFiles = directory.FilesWithExtension(".bti")
-                              .Select(file => file.Impl)
                               .ToArray();
 
       // If there is only one model or 0 animations, it's easy to tell which
@@ -270,7 +264,7 @@ namespace uni.games.mario_kart_double_dash {
       }
 
       var unclaimedBcxFiles = allBcxFiles.ToHashSet();
-      var bmdAndBcxFiles = new Dictionary<IFileHierarchyFile, IFile[]>();
+      var bmdAndBcxFiles = new Dictionary<IFileHierarchyFile, IFileHierarchyFile[]>();
       foreach (var bmdFile in bmdFiles) {
         var prefix = bmdFile.Name;
         prefix = prefix.Substring(0, prefix.Length - ".bmd".Length);
@@ -309,14 +303,14 @@ namespace uni.games.mario_kart_double_dash {
     private void ExtractModels_(
         IModelDirectory<BmdModelFileBundle> node,
         IReadOnlyList<IFileHierarchyFile> bmdFiles,
-        IReadOnlyList<IFile>? bcxFiles = null,
-        IReadOnlyList<IFile>? btiFiles = null
+        IReadOnlyList<IFileHierarchyFile>? bcxFiles = null,
+        IReadOnlyList<IFileHierarchyFile>? btiFiles = null
     ) {
       Asserts.True(bmdFiles.Count > 0);
 
       foreach (var bmdFile in bmdFiles) {
         node.AddFileBundle(new BmdModelFileBundle {
-            BmdFile = bmdFile.Impl,
+            BmdFile = bmdFile,
             BcxFiles = bcxFiles,
             BtiFiles = btiFiles,
             FrameRate = 60

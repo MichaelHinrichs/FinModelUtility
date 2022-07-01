@@ -25,7 +25,7 @@ namespace glo.api {
       this.TextureDirectories = textureDirectories;
     }
 
-    public string FileName => this.GloFile.NameWithoutExtension;
+    public IFileHierarchyFile MainFile => this.GloFile;
 
     public IFileHierarchyFile GloFile { get; }
     public IReadOnlyList<IFileHierarchyDirectory> TextureDirectories { get; }

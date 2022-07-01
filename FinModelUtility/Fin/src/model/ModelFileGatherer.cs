@@ -123,17 +123,20 @@ namespace fin.model {
   }
 
 
-  public interface IModelFileBundle : IUiFile { }
+  public interface IModelFileBundle : IUiFile {
+    IFileHierarchyFile MainFile { get; }
+    string IUiFile.FileName => this.MainFile.NameWithoutExtension;
+  }
 
   public interface IModelFileGatherer {
     IModelDirectory? GatherModelFileBundles(bool assert);
   }
 
-  public interface IModelFileGatherer<TModelFileBundle>: IModelFileGatherer
+  public interface IModelFileGatherer<TModelFileBundle> : IModelFileGatherer
       where TModelFileBundle : IModelFileBundle {
     new IModelDirectory<TModelFileBundle>? GatherModelFileBundles(bool assert);
 
-    IModelDirectory? IModelFileGatherer.GatherModelFileBundles(bool assert) 
+    IModelDirectory? IModelFileGatherer.GatherModelFileBundles(bool assert)
       => this.GatherModelFileBundles(assert);
   }
 
