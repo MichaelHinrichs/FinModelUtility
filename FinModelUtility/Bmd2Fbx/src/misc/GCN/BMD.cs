@@ -1097,8 +1097,8 @@ label_7:
             this.ColorS10[index] = er.ReadColor16();
           
           er.BaseStream.Position = position1 + (long) this.Offsets[18];
-          this.Color3 = new System.Drawing.Color[sectionLengths[18] / 4];
-          for (int index = 0; index < sectionLengths[18] / 4; ++index)
+          this.Color3 = new System.Drawing.Color[4];
+          for (int index = 0; index < 4; ++index)
             this.Color3[index] = er.ReadColor8();
 
           // TODO: Add support for tev counts (19)
@@ -1165,7 +1165,7 @@ label_7:
         public byte ZModeIndex;
         public byte DitherIndex;
 
-        public ushort[] MaterialColorIndexes;
+        public short[] MaterialColorIndexes;
         public ushort[] ColorChannelControlIndexes;
         public ushort[] AmbientColorIndexes;
         public ushort[] LightColorIndexes;
@@ -1202,7 +1202,7 @@ label_7:
           this.ZModeIndex = er.ReadByte();
           this.DitherIndex = er.ReadByte();
           
-          this.MaterialColorIndexes = er.ReadUInt16s(2);
+          this.MaterialColorIndexes = er.ReadInt16s(2);
           this.ColorChannelControlIndexes = er.ReadUInt16s(4);
           this.AmbientColorIndexes = er.ReadUInt16s(2);
           this.LightColorIndexes = er.ReadUInt16s(8);
@@ -1352,8 +1352,6 @@ label_7:
         public byte pad;
         public byte texcoord;
         public sbyte texmap;
-        public GxKonstColorSel color_constant_sel;
-        public GxKonstAlphaSel alpha_constant_sel;
         public TevBias color_bias;
         public TevScale color_scale;
         public TevBias alpha_bias;
@@ -1415,16 +1413,16 @@ label_7:
         }
 
         public enum TevOp {
-          GX_TEV_ADD,
-          GX_TEV_SUB,
-          GX_TEV_COMP_R8_GT,
-          GX_TEV_COMP_R8_EQ,
-          GX_TEV_COMP_GR16_GT,
-          GX_TEV_COMP_GR16_EQ,
-          GX_TEV_COMP_BGR24_GT,
-          GX_TEV_COMP_BGR24_EQ,
-          GX_TEV_COMP_RGB8_GT,
-          GX_TEV_COMP_RGB8_EQ
+          GX_TEV_ADD = 0,
+          GX_TEV_SUB = 1,
+          GX_TEV_COMP_R8_GT = 8,
+          GX_TEV_COMP_R8_EQ = 9,
+          GX_TEV_COMP_GR16_GT = 10,
+          GX_TEV_COMP_GR16_EQ = 11,
+          GX_TEV_COMP_BGR24_GT = 12,
+          GX_TEV_COMP_BGR24_EQ = 13,
+          GX_TEV_COMP_RGB8_GT = 14,
+          GX_TEV_COMP_RGB8_EQ = 15
         }
 
         public enum TevBias {

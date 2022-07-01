@@ -56,6 +56,7 @@
     <Compile Remove="src\misc\G3D_Binary_File_Format\Shaders.cs" />
     <Compile Remove="src\misc\GCN\BLO.cs" />
     <Compile Remove="src\misc\GCN\BLOShader.cs" />
+    <Compile Remove="src\misc\GCN\BMDShader.cs" />
     <Compile Remove="src\misc\System\ControlHelper.cs" />
     <Compile Remove="src\misc\System\ObjectIDTypeConverter.cs" />
     <Compile Remove="src\misc\System\ObjectSelector.cs" />
