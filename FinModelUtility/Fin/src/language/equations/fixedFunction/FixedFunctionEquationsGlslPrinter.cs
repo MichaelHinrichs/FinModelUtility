@@ -55,13 +55,15 @@ namespace fin.language.equations.fixedFunction {
       os.WriteLine("void main() {");
 
       // TODO: Define inputs once as needed up here.
-      os.WriteLine("  vec3 diffuseLightNormal = normalize(vec3(.5, .5, -1));");
-      os.WriteLine(
-          "  float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);");
-      os.WriteLine("  vec3 diffuseLightColor = vec3(.5, .5, .5);");
-      os.WriteLine(
-          "  vec3 diffuseColor = diffuseLightAmount * diffuseLightColor;");
-      os.WriteLine("  vec4 vertexColor0 = vec4(diffuseColor, 1);");
+      os.WriteLine(@"  vec3 diffuseLightNormal = normalize(vec3(.5, .5, -1));
+  float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);
+
+  float ambientLightAmount = .3;
+  
+  float lightAmount = min(ambientLightAmount + diffuseLightAmount, 1);
+  vec3 lightColor = vec3(.5, .5, .5);
+  
+  vec4 vertexColor0 = vec4(lightAmount * lightColor, 1);");
       os.WriteLine();
       os.WriteLine("  vec3 ambientLightColor = vec3(0, 0, 0);");
       os.WriteLine("  vec4 vertexColor1 = vec4(ambientLightColor, 1);");

@@ -182,10 +182,12 @@ namespace uni.ui.common {
 in vec2 in_uv0;
 
 varying vec4 vertexColor;
+varying vec3 vertexNormal;
 varying vec2 uv0;
 
 void main() {
     gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex; 
+    vertexNormal = normalize(gl_ModelViewMatrix * vec4(gl_Normal, 0)).xyz;
     vertexColor = gl_Color;
     uv0 = gl_MultiTexCoord0.st;
 }";
@@ -198,12 +200,22 @@ uniform sampler2D texture0;
 out vec4 fragColor;
 
 in vec4 vertexColor;
+in vec3 vertexNormal;
 in vec2 uv0;
 
 void main() {
     vec4 texColor = texture(texture0, uv0);
 
     fragColor = texColor * vertexColor;
+
+    vec3 diffuseLightNormal = normalize(vec3(.5, .5, -1));
+    float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);
+
+    float ambientLightAmount = .3;
+
+    float lightAmount = min(ambientLightAmount + diffuseLightAmount, 1);
+
+    fragColor.rgb *= lightAmount;
 
     if (fragColor.a < .95) {
       discard;
