@@ -840,9 +840,11 @@ namespace bmd.exporter {
           return this.GetKonstAlpha_(this.tevStageAlphaConstantSel_);
         }
 
-        if (alphaSource >= TevStage.GxCa.GX_CA_A0 &&
-            alphaSource <= TevStage.GxCa.GX_CA_A2) {
-          var caIndex = (int) alphaSource - (int) TevStage.GxCa.GX_CA_A0;
+        if (TryGetEnumIndex_(
+                alphaSource,
+                TevStage.GxCa.GX_CA_A0,
+                TevStage.GxCa.GX_CA_A2, 
+                out var caIndex)) {
           var index = 1 + caIndex;
           var constColorImpl = this.GetCCColor_(index);
 
