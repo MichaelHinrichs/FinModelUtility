@@ -89,8 +89,9 @@ namespace uni.ui.gl {
 
       var fixedFunctionMaterial = material as IFixedFunctionMaterial;
 
-      if (DebugFlags.ENABLE_FIXED_FUNCTION_SHADER &&
-          fixedFunctionMaterial != null) {
+      if (DebugFlags.ENABLE_FIXED_FUNCTION_SHADER
+          && !DebugFlags.ENABLE_WEIGHT_COLORS
+          && fixedFunctionMaterial != null) {
         // TODO: Sometimes vertex colors are passed in from model, and sometimes they
         // represent lighting. How to tell the difference??
 

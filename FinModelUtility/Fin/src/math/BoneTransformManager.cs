@@ -5,7 +5,6 @@ using System.Numerics;
 using fin.data;
 using fin.math.matrix;
 using fin.model;
-using fin.util.asserts;
 using fin.util.optional;
 
 
