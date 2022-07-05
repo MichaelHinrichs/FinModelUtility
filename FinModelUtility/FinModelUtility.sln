@@ -67,7 +67,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinarySchema", "BinarySchem
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinarySchema Tests", "BinarySchema Tests\BinarySchema Tests.csproj", "{67444A5C-48C3-4004-8BC5-3947BF323921}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Modl2Fbx", "Modl2Fbx\Modl2Fbx.csproj", "{0077C934-E53D-4881-83B6-011D2F080FB9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Modl", "Modl\Modl.csproj", "{0077C934-E53D-4881-83B6-011D2F080FB9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HaloWarsTools", "HaloWarsTools\HaloWarsTools.csproj", "{4B38BE06-C129-4406-AAA8-8185249F32C3}"
 EndProject
