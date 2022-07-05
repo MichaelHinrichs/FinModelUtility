@@ -6,6 +6,7 @@ using fin.data;
 using fin.math.matrix;
 using fin.model;
 using fin.util.asserts;
+using fin.util.optional;
 
 
 namespace fin.math {
@@ -65,24 +66,48 @@ namespace fin.math {
                                     : (Quaternion?) null;
         var boneLocalScale = bone.LocalScale;
 
+        IPosition? animationLocalPosition = null;
+        Quaternion? animationLocalRotation = null;
+        IScale? animationLocalScale = null;
+
         // The pose of the animation, if available.
         IBoneTracks? boneTracks = null;
         animation?.BoneTracks.TryGetValue(bone, out boneTracks);
-        var animationLocalPosition =
-            boneTracks?.Positions.IsDefined ?? false
-                ? boneTracks?.Positions.GetInterpolatedFrame(
-                    (float) frame, null, useLoopingInterpolation)
-                : null;
-        var animationLocalRotation =
-            boneTracks?.Rotations.IsDefined ?? false
-                ? boneTracks?.Rotations.GetInterpolatedFrame(
-                    (float) frame, null, useLoopingInterpolation)
-                : null;
-        var animationLocalScale =
-            boneTracks?.Scales.IsDefined ?? false
-                ? boneTracks?.Scales.GetInterpolatedFrame(
-                    (float) frame, null, useLoopingInterpolation)
-                : null;
+        if (boneTracks != null) {
+          // Need to pass in default pose of the bone to fill in for any axes that may be undefined.
+          var defaultPosition = Optional.Of(new[] {
+              boneLocalPosition.X,
+              boneLocalPosition.Y,
+              boneLocalPosition.Z,
+          });
+          var defaultRotation = Optional.Of(new[] {
+              bone.LocalRotation?.XRadians ?? 0,
+              bone.LocalRotation?.YRadians ?? 0,
+              bone.LocalRotation?.ZRadians ?? 0,
+          });
+          var defaultScale = Optional.Of(new[] {
+              boneLocalScale?.X ?? 0,
+              boneLocalScale?.Y ?? 0,
+              boneLocalScale?.Z ?? 0,
+          });
+
+          // Only gets the values from the animation if the frame is at least partially defined.
+          animationLocalPosition =
+              boneTracks?.Positions.IsDefined ?? false
+                  ? boneTracks?.Positions.GetInterpolatedFrame(
+                      (float) frame, defaultPosition, useLoopingInterpolation)
+                  : null;
+          animationLocalRotation =
+              boneTracks?.Rotations.IsDefined ?? false
+                  ? boneTracks?.Rotations.GetInterpolatedFrame(
+                      (float) frame, defaultRotation, useLoopingInterpolation)
+                  : null;
+          animationLocalScale =
+              boneTracks?.Scales.IsDefined ?? false
+                  ? boneTracks?.Scales.GetInterpolatedFrame(
+                      (float) frame, defaultScale, useLoopingInterpolation)
+                  : null;
+        }
 
         // Uses the animation pose instead of the root pose when available.
         var localPosition = animationLocalPosition ?? boneLocalPosition;
@@ -116,8 +141,9 @@ namespace fin.math {
         if (weights.Count == 1) {
           var weight = weights[0];
           var bone = weight.Bone;
-          
-          var skinToBoneMatrix = weight.SkinToBone ?? this.bonesToInverseBindMatrices_[bone];
+
+          var skinToBoneMatrix = weight.SkinToBone ??
+                                 this.bonesToInverseBindMatrices_[bone];
           var boneMatrix = this.GetWorldMatrix(bone);
 
           boneWeightMatrix = boneMatrix.CloneAndMultiply(skinToBoneMatrix);
@@ -127,7 +153,8 @@ namespace fin.math {
           foreach (var weight in weights) {
             var bone = weight.Bone;
 
-            var skinToBoneMatrix = weight.SkinToBone ?? this.bonesToInverseBindMatrices_[bone];
+            var skinToBoneMatrix = weight.SkinToBone ??
+                                   this.bonesToInverseBindMatrices_[bone];
             var boneMatrix = this.GetWorldMatrix(bone);
 
             var skinToWorldMatrix = boneMatrix
@@ -154,11 +181,11 @@ namespace fin.math {
 
     public IReadOnlyFinMatrix4x4? GetTransformMatrix(IVertex vertex,
       bool forcePreproject = false) {
-
       var boneWeights = vertex.BoneWeights;
       var weights = vertex.BoneWeights?.Weights;
       var preproject =
-          (boneWeights?.PreprojectMode != PreprojectMode.NONE || forcePreproject) &&
+          (boneWeights?.PreprojectMode != PreprojectMode.NONE ||
+           forcePreproject) &&
           weights?.Count > 0;
 
       if (!preproject) {
