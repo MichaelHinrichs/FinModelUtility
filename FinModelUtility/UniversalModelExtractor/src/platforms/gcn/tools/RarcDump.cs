@@ -77,7 +77,7 @@ namespace uni.platforms.gcn.tools {
           Path.Join(Path.GetDirectoryName(directoryPath), finalDirectoryName);
 
       Asserts.True(!Directory.Exists(finalDirectoryPath));
-      Directory.Move(subdir.FullName, finalDirectoryPath);
+      subdir.MoveTo(finalDirectoryPath);
       Directory.Delete(directoryPath);
 
       if (cleanup) {

@@ -35,7 +35,7 @@ namespace uni.platforms.gcn.tools {
                        $"Directory was not created: {directory}");
         }
 
-        Directory.Move(directoryPath, finalDirectoryPath);
+        directory.MoveTo(finalDirectoryPath);
         Asserts.True(finalDirectory.Exists,
                      $"Directory was not created: {finalDirectory}");
       }

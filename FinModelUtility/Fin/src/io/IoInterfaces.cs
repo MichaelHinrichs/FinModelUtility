@@ -19,6 +19,7 @@ namespace fin.io {
     DirectoryInfo Info { get; }
 
     bool Create();
+    void MoveTo(string path);
 
     IEnumerable<IDirectory> GetExistingSubdirs();
     IDirectory GetSubdir(string relativePath, bool create = false);

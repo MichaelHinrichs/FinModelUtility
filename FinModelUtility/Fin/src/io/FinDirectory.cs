@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
+
 namespace fin.io {
   public class FinDirectory : IDirectory {
     public static IDirectory GetCwd()
@@ -56,6 +57,16 @@ namespace fin.io {
 
       this.Info.Create();
       return true;
+    }
+
+    public void MoveTo(string path) {
+      try {
+        this.Info.MoveTo(path);
+      } 
+      // Sometimes the first move throws a permission denied error, so we just need to try again.
+      catch {
+        this.Info.MoveTo(path);
+      }
     }
 
     public IEnumerable<IDirectory> GetExistingSubdirs()
