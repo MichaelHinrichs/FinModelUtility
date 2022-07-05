@@ -20,12 +20,12 @@
     LA4 = 0x67606758,
     L4 = 0x67616757,
     A4 = 0x67616756,
-    ETC1 = 0x0000675A,   // or 0x1401675A,
+    ETC1 = 0x0000675A, // or 0x1401675A,
     ETC1a4 = 0x0000675B, // or 0x1401675B,
     Shadow = 0x00006040
   }
 
-  public enum DataType {
+  public enum DataType : uint {
     Byte = 0x1400,
     UByte = 0x1401,
     Short = 0x1402,
@@ -155,7 +155,7 @@
     OneMinusBlue = 0x8585
   }
 
-  public enum TextureMinFilter {
+  public enum TextureMinFilter : ushort {
     Nearest = 0x2600,
     Linear = 0x2601,
     NearestMipmapNearest = 0x2700,
@@ -164,12 +164,12 @@
     LinearMipmapLinear = 0x2703
   }
 
-  public enum TextureMagFilter {
+  public enum TextureMagFilter : ushort {
     Nearest = 0x2600,
     Linear = 0x2601,
   }
 
-  public enum TextureWrapMode {
+  public enum TextureWrapMode : ushort {
     ClampToBorder = 0x2900,
     Repeat = 0x2901,
     ClampToEdge = 0x812F,
@@ -233,13 +233,13 @@
     Constant = 1,
   }
 
-  public enum SkinningMode {
+  public enum SkinningMode : ushort {
     Single = 0,
     Rigid = 1,
     Smooth = 2,
   }
 
-  public enum PrimitiveMode {
+  public enum PrimitiveMode : uint {
     Triangles = 0,
     TriangleStrip = 1,
     TriangleFan = 2,

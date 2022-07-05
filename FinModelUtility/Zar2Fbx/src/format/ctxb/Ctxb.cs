@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 using fin.util.strings;
 
@@ -21,36 +22,25 @@ namespace zar.format.ctxb {
     }
   }
 
-  public class CtxbHeader : IDeserializable {
+  [Schema]
+  public partial class CtxbHeader : IBiSerializable {
+    private readonly string magic_ = "ctxb";
     public int ChunkSize { get; private set; }
+    private readonly uint texCount_ = 1;
+    private readonly uint padding_ = 0;
     public int ChunkOffset { get; private set; }
     public int DataOffset { get; private set; }
-
-    public void Read(EndianBinaryReader r) {
-      r.AssertMagicText("ctxb");
-
-      this.ChunkSize = r.ReadInt32();
-      r.AssertUInt32(1); // Tex count
-      r.AssertUInt32(0);
-      this.ChunkOffset = r.ReadInt32();
-      this.DataOffset = r.ReadInt32();
-    }
   }
 
-  public class CtxbTexChunk : IDeserializable {
+  [Schema]
+  public partial class CtxbTexChunk : IBiSerializable {
+    private readonly string magic_ = "tex" + AsciiUtil.GetChar(0x20);
     public int ChunkSize { get; private set; }
+    private readonly uint texCount_ = 1;
     public CtxbTexEntry Entry { get; } = new();
-
-    public void Read(EndianBinaryReader r) {
-      r.AssertMagicText("tex" + AsciiUtil.GetChar(0x20));
-
-      this.ChunkSize = r.ReadInt32();
-      r.AssertUInt32(1); // Tex count
-      this.Entry.Read(r);
-    }
   }
 
-  public class CtxbTexEntry : IDeserializable {
+  public class CtxbTexEntry : IBiSerializable {
     public uint dataLength { get; private set; }
     public ushort mimapCount { get; private set; }
     public bool isEtc1 { get; private set; }
@@ -72,5 +62,8 @@ namespace zar.format.ctxb {
       this.dataOffset = r.ReadUInt32();
       this.name = CmbStringUtil.ReadString(r, 16);
     }
+
+    public void Write(EndianBinaryWriter w)
+      => throw new NotImplementedException();
   }
 }

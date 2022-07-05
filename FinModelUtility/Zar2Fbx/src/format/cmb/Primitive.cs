@@ -1,11 +1,12 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 using fin.util.strings;
 
 using schema;
 
 namespace zar.format.cmb {
-  public class Primitive : IDeserializable {
+  public class Primitive : IBiSerializable {
     public uint chunkSize;
     public bool isVisible;
     public PrimitiveMode primitiveMode;
@@ -28,5 +29,8 @@ namespace zar.format.cmb {
 
       this.offset = r.ReadUInt16();
     }
+
+    public void Write(EndianBinaryWriter w)
+      => throw new NotImplementedException();
   }
 }
