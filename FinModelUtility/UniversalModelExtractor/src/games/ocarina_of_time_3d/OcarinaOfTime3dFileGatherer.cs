@@ -20,6 +20,32 @@ namespace uni.games.ocarina_of_time_3d {
     // Why tf did they have to name things so randomly????
     private readonly IModelSeparator separator_
         = new ModelSeparator(directory => directory.Name)
+          .Register("zelda_am", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_aob", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_av", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_bb", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_bdan_objects", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_bji", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_bob", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_bombf", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_bowl", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_brob", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_bw", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_cow", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_dodojr", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_dodongo", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_dog", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_ds", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_ei", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_ff", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_fu", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_gi_bottle", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_gi_coin", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_gi_compass", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_gi_dekupouch", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_gi_egg", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_jj", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_ka", new AllAnimationsModelSeparatorMethod())
           // TODO: This is probably wrong
           .Register("zelda_box",
                     new NoAnimationsModelSeparatorMethod()
@@ -46,7 +72,6 @@ namespace uni.games.ocarina_of_time_3d {
                               "tentacle_motion_test01.csab",
                               "baarm_death.csab")
                         .Case("balinadetrap.cmb", "balinadetrap.csab"))
-          .Register("zelda_cow", new AllAnimationsModelSeparatorMethod())
           // TODO: Figure these all out
           .Register("zelda_dekubaba", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_dekunuts", new NoAnimationsModelSeparatorMethod())
