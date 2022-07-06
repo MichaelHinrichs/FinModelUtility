@@ -4,10 +4,15 @@ using System.Collections.Generic;
 namespace fin.data {
   public class LazyDictionary<TKey, TValue> {
     private readonly Dictionary<TKey, TValue> impl_ = new();
+
     private Func<TKey, TValue> handler_;
 
     public LazyDictionary(Func<TKey, TValue> handler) {
       this.handler_ = handler;
+    }
+
+    public LazyDictionary(Func<LazyDictionary<TKey, TValue>, TKey, TValue> handler) {
+      this.handler_ = (TKey key) => handler(this, key);
     }
 
     public void Clear() => this.impl_.Clear();
@@ -16,7 +21,10 @@ namespace fin.data {
 
     public bool ContainsKey(TKey key) => this.impl_.ContainsKey(key);
 
-    public TValue this[TKey key] => this.Get(key);
+    public TValue this[TKey key] {
+      get => this.Get(key);
+      set => this.impl_[key] = value;
+    }
 
     public TValue Get(TKey key) {
       if (this.impl_.TryGetValue(key, out var value)) {

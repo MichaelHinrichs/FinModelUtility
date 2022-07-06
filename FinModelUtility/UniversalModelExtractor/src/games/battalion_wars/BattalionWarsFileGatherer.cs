@@ -5,6 +5,7 @@ using modl.api;
 
 using uni.platforms;
 using uni.platforms.gcn;
+using uni.util.io;
 
 
 namespace uni.games.battalion_wars {
@@ -13,7 +14,8 @@ namespace uni.games.battalion_wars {
     private readonly ILogger logger_ =
         Logging.Create<BattalionWarsFileGatherer>();
 
-    public IModelDirectory<ModlModelFileBundle>? GatherModelFileBundles(bool assert) {
+    public IModelDirectory<ModlModelFileBundle>? GatherModelFileBundles(
+        bool assert) {
       var battalionWarsRom =
           DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
               "battalion_wars.gcm");
@@ -29,9 +31,6 @@ namespace uni.games.battalion_wars {
               options,
               battalionWarsRom);
 
-      var rootModelDirectory =
-          new ModelDirectory<ModlModelFileBundle>("battalion_wars");
-
       foreach (var directory in fileHierarchy) {
         var didUpdate = false;
         var resFiles = directory.FilesWithExtension(".res");
@@ -42,16 +41,15 @@ namespace uni.games.battalion_wars {
         if (didUpdate) {
           directory.Refresh();
         }
-
-        var modlFiles = directory.FilesWithExtension(".modl");
-        foreach (var modlFile in modlFiles) {
-          rootModelDirectory.AddFileBundle(new ModlModelFileBundle {
-              ModlFile = modlFile
-          });
-        }
       }
 
-      return rootModelDirectory;
+      return new FileHierarchyBundler<ModlModelFileBundle>(
+          directory =>
+              directory.FilesWithExtension(".modl")
+                       .Select(modlFile => new ModlModelFileBundle {
+                           ModlFile = modlFile
+                       })
+      ).GatherBundles(fileHierarchy);
     }
   }
 }

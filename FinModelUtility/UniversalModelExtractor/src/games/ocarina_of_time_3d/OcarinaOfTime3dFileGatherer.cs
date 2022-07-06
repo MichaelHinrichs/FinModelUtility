@@ -3,6 +3,7 @@ using fin.model;
 
 using uni.platforms;
 using uni.platforms.threeDs;
+using uni.util.io;
 using uni.util.separator;
 
 using zar.api;
@@ -24,7 +25,8 @@ namespace uni.games.ocarina_of_time_3d {
           .Register("zelda_aob", new AllAnimationsModelSeparatorMethod())
           .Register("zelda_av", new AllAnimationsModelSeparatorMethod())
           .Register("zelda_bb", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_bdan_objects", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_bdan_objects",
+                    new AllAnimationsModelSeparatorMethod())
           .Register("zelda_bji", new AllAnimationsModelSeparatorMethod())
           .Register("zelda_bob", new AllAnimationsModelSeparatorMethod())
           .Register("zelda_bombf", new AllAnimationsModelSeparatorMethod())
@@ -42,23 +44,29 @@ namespace uni.games.ocarina_of_time_3d {
           .Register("zelda_gi_bottle", new AllAnimationsModelSeparatorMethod())
           .Register("zelda_gi_coin", new AllAnimationsModelSeparatorMethod())
           .Register("zelda_gi_compass", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_gi_dekupouch", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_gi_dekupouch",
+                    new AllAnimationsModelSeparatorMethod())
           .Register("zelda_gi_egg", new AllAnimationsModelSeparatorMethod())
           .Register("zelda_horse", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_horse_ganon", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_horse_normal", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_horse_zelda", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_horse_ganon",
+                    new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_horse_normal",
+                    new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_horse_zelda",
+                    new AllAnimationsModelSeparatorMethod())
           .Register("zelda_hs", new AllAnimationsModelSeparatorMethod())
           .Register("zelda_jj", new AllAnimationsModelSeparatorMethod())
           .Register("zelda_ka", new AllAnimationsModelSeparatorMethod())
           .Register("zelda_kanban", new AllAnimationsModelSeparatorMethod())
           .Register("zelda_kibako2", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_killer_door", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_killer_door",
+                    new AllAnimationsModelSeparatorMethod())
           .Register("zelda_km1", new AllAnimationsModelSeparatorMethod())
           .Register("zelda_kogoma", new AllAnimationsModelSeparatorMethod())
           .Register("zelda_kusa", new AllAnimationsModelSeparatorMethod())
           .Register("zelda_kz", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_lightswitch", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_lightswitch",
+                    new AllAnimationsModelSeparatorMethod())
           .Register("zelda_ma2", new AllAnimationsModelSeparatorMethod())
           .Register("zelda_mjin", new AllAnimationsModelSeparatorMethod())
           .Register("zelda_rd", new AllAnimationsModelSeparatorMethod())
@@ -66,7 +74,8 @@ namespace uni.games.ocarina_of_time_3d {
           .Register("zelda_ru2", new AllAnimationsModelSeparatorMethod())
           .Register("zelda_sa", new AllAnimationsModelSeparatorMethod())
           .Register("zelda_tk", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_ydan_objects", new AllAnimationsModelSeparatorMethod())
+          .Register("zelda_ydan_objects",
+                    new AllAnimationsModelSeparatorMethod())
           .Register("zelda_yukabyun", new AllAnimationsModelSeparatorMethod())
           .Register("zelda_zf", new AllAnimationsModelSeparatorMethod())
           .Register("zelda_zl1", new AllAnimationsModelSeparatorMethod())
@@ -167,51 +176,40 @@ namespace uni.games.ocarina_of_time_3d {
           new ThreeDsFileHierarchyExtractor()
               .ExtractFromRom(ocarinaOfTime3dRom);
 
-      var rootModelDirectory =
-          new ModelDirectory<ZarModelFileBundle>("ocarina_of_time_3d");
-      var queue =
-          new Queue<(IFileHierarchyDirectory,
-              IModelDirectory<ZarModelFileBundle>)>();
-      queue.Enqueue((fileHierarchy.Root, rootModelDirectory));
-      while (queue.Any()) {
-        var (directory, node) = queue.Dequeue();
+      return new FileHierarchyBundler<ZarModelFileBundle>(
+          subdir => {
+            if (!separator_.Contains(subdir)) {
+              return null;
+            }
 
-        if (this.separator_.Contains(directory)) {
-          this.ExtractModel_(node, directory);
-        }
+            var cmbFiles =
+                subdir.FilesWithExtensionsRecursive(".cmb").ToArray();
+            if (cmbFiles.Length == 0) {
+              return null;
+            }
 
-        foreach (var subdir in directory.Subdirs) {
-          queue.Enqueue((subdir, node.AddSubdir(subdir.Name)));
-        }
-      }
-      return rootModelDirectory;
-    }
+            var csabFiles =
+                subdir.FilesWithExtensionsRecursive(".csab").ToArray();
+            var ctxbFiles =
+                subdir.FilesWithExtensionsRecursive(".ctxb").ToArray();
+            var shpaFiles =
+                subdir.FilesWithExtensionsRecursive(".shpa").ToArray();
 
-    public void ExtractModel_(
-        IModelDirectory<ZarModelFileBundle> parentNode,
-        IFileHierarchyDirectory subdir) {
-      var cmbFiles = subdir.FilesWithExtensionsRecursive(".cmb").ToArray();
-      if (cmbFiles.Length == 0) {
-        return;
-      }
+            try {
+              var bundles =
+                  this.separator_.Separate(subdir, cmbFiles, csabFiles);
 
-      var csabFiles = subdir.FilesWithExtensionsRecursive(".csab").ToArray();
-      var ctxbFiles = subdir.FilesWithExtensionsRecursive(".ctxb").ToArray();
-      var shpaFiles = subdir.FilesWithExtensionsRecursive(".shpa").ToArray();
-
-      try {
-        var bundles =
-            this.separator_.Separate(subdir, cmbFiles, csabFiles);
-
-        foreach (var bundle in bundles) {
-          parentNode.AddFileBundle(new ZarModelFileBundle(
-                                       bundle.ModelFile,
-                                       bundle.AnimationFiles.ToArray(),
-                                       ctxbFiles,
-                                       shpaFiles
-                                   ));
-        }
-      } catch { }
+              return bundles.Select(bundle => new ZarModelFileBundle(
+                                        bundle.ModelFile,
+                                        bundle.AnimationFiles.ToArray(),
+                                        ctxbFiles,
+                                        shpaFiles
+                                    ));
+            } catch {
+              return null;
+            }
+          }
+      ).GatherBundles(fileHierarchy);
     }
   }
 }
