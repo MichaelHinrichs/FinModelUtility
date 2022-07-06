@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Linq;
 
 
 namespace uni.ui.common {
@@ -104,8 +105,10 @@ namespace uni.ui.common {
       this.ExpandRecursively();
     }
 
+    public void Expand() => this.impl_?.Expand();
+
     public void ExpandRecursively() {
-      this.impl_?.Expand();
+      this.Expand();
       BetterTreeUtil.ForEach<T>(
           this.collection_,
           childBetterTreeNode =>
@@ -181,16 +184,24 @@ namespace uni.ui.common {
 
     public void BeginUpdate() {
       this.impl_.BeginUpdate();
+      this.impl_.SuspendLayout();
       this.comparer_.Enabled = false;
     }
 
     public void EndUpdate() {
       this.impl_.EndUpdate();
+      this.impl_.ResumeLayout();
       this.comparer_.Enabled = true;
     }
 
-    public void ScrollToTop() => this.impl_.Nodes[0].EnsureVisible();
+    public void ScrollToTop() {
+      var nodes = this.impl_.Nodes;
+      if (nodes.Count > 0) {
+        nodes[0].EnsureVisible();
+      }
+    }
 
+    // TODO: Slow
     public int GetOrAddIndexOfImage(Image? image) {
       if (image == null) {
         return -1;
@@ -204,7 +215,7 @@ namespace uni.ui.common {
 
       index = imageList.Count;
       imageList.Add(image);
-      
+
       this.imageToIndex_[image] = index;
 
       return index;

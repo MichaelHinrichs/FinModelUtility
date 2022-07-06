@@ -23,6 +23,8 @@ namespace uni.ui.common {
         uiNode.AddChild(fileBundle);
       }
 
+      uiNode.Expand();
+
       return uiNode;
     }
   }

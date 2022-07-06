@@ -109,6 +109,8 @@ namespace uni.ui.common {
 
       public FileNode AddChild(TFile file) => new(this, file);
       public FileNode AddChild(string text) => new(this, text);
+
+      public void Expand() => this.treeNode_.Expand();
     }
 
     public FileTreeView() {
@@ -135,7 +137,6 @@ namespace uni.ui.common {
 
       this.PopulateImpl(files, new FileNode(this));
 
-      this.betterTreeView_.Root.ExpandRecursively();
       this.betterTreeView_.ScrollToTop();
 
       this.InitializeAutocomplete_();
