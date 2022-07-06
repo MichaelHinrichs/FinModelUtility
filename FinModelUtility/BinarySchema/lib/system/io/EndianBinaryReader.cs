@@ -5,6 +5,7 @@
 // Assembly location: R:\Documents\CSharpWorkspace\Pikmin2Utility\MKDS Course Modifier\MKDS Course Modifier.exe
 
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Text;
 
 using schema;
@@ -150,12 +151,7 @@ namespace System.IO {
     public byte[] ReadBytes(int count) => this.ReadBytes(new byte[count]);
 
     public byte[] ReadBytes(byte[] dst) {
-      const int size = sizeof(byte);
-      this.FillBuffer_(size * dst.Length, size);
-      for (var i = 0; i < dst.Length; ++i) {
-        dst[i] =
-            EndianBinaryReader.ConvertByte_(this.BufferedStream_.Buffer, i);
-      }
+      this.BufferedStream_.BaseStream.Read(dst, 0, dst.Length);
       return dst;
     }
 
