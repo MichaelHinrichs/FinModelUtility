@@ -5,6 +5,7 @@
 // Assembly location: R:\Documents\CSharpWorkspace\Pikmin2Utility\MKDS Course Modifier\MKDS Course Modifier.exe
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -488,6 +489,19 @@ namespace System.IO {
     public void AssertMagicText(string expectedText) {
       var actualText = this.ReadString(expectedText.Length);
 
+      if (expectedText != actualText) {
+        throw new Exception(
+            $"Expected to find magic text \"{expectedText}\", but found \"{actualText}\"");
+      }
+    }
+
+    public void AssertMagicTextEndian(string expectedText) {
+      var chars = this.ReadChars(expectedText.Length);
+      var endianChars = this.BufferedStream_.ShouldReverseBytes
+                            ? chars
+                            : chars.Reverse().ToArray();
+
+      var actualText = new string(endianChars);
       if (expectedText != actualText) {
         throw new Exception(
             $"Expected to find magic text \"{expectedText}\", but found \"{actualText}\"");

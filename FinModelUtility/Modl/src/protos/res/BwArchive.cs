@@ -3,16 +3,16 @@
 using schema;
 
 
-namespace modl.protos {
+namespace modl.protos.res {
   public class BwArchive : IDeserializable {
-    public Rxet Rxet { get; } = new();
-    public Dnos Dnos { get; } = new();
+    public Texr Texr { get; } = new();
+    public Sond Sond { get; } = new();
 
     public ListDictionary<string, BwFile> Files { get; } = new();
 
     public void Read(EndianBinaryReader er) {
-      this.Rxet.Read(er);
-      this.Dnos.Read(er);
+      this.Texr.Read(er);
+      this.Sond.Read(er);
 
       this.Files.Clear();
 
@@ -23,11 +23,11 @@ namespace modl.protos {
     }
   }
 
-  public class Rxet : IBiSerializable {
+  public class Texr : IBiSerializable {
     public string FileName { get; private set; }
 
     public void Read(EndianBinaryReader er) {
-      er.AssertMagicText("RXET");
+      er.AssertMagicTextEndian("TEXR");
 
       var dataLength = er.ReadUInt32();
       var dataOffset = er.Position;
@@ -44,32 +44,12 @@ namespace modl.protos {
   }
 
   [Schema]
-  public partial class Dnos : IBiSerializable {
+  public partial class Sond : IBiSerializable {
     private readonly string magic_ = "DNOS";
 
     public uint Length { get; private set; }
 
     [ArrayLengthSource(nameof(Length))] public byte[] Data { get; private set; }
-  }
-
-  public class Ldom : IDeserializable {
-    public string FileName { get; private set; }
-
-    public void Read(EndianBinaryReader er) {
-      er.AssertMagicText("LDOM");
-
-      var dataLength = er.ReadUInt32();
-      var dataOffset = er.Position;
-
-      this.FileName = er.ReadString(er.ReadInt32());
-
-      // TODO: What is the rest of this data?
-
-      er.Position = dataOffset + dataLength;
-    }
-
-    public void Write(EndianBinaryWriter ew) =>
-        throw new NotImplementedException();
   }
 
   public class BwFile : IDeserializable {
@@ -78,7 +58,7 @@ namespace modl.protos {
     public byte[] Data { get; private set; }
 
     public void Read(EndianBinaryReader er) {
-      this.Type = er.ReadString(4);
+      this.Type = new string(er.ReadChars(4).Reverse().ToArray());
 
       var dataLength = er.ReadUInt32();
       var dataOffset = er.Position;

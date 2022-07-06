@@ -2,10 +2,9 @@
 using fin.log;
 using fin.util.asserts;
 
-using modl.protos;
+using modl.protos.res;
 
 using uni.platforms.gcn.tools;
-using uni.util.cmd;
 
 
 namespace uni.games.battalion_wars {

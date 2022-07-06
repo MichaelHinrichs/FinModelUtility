@@ -11,12 +11,12 @@
       get => this.endianness_;
       set {
         this.endianness_ = value;
-        this.ShouldReverseBytes_ =
+        this.ShouldReverseBytes =
             EndianBinaryBufferedStream.SystemEndianness_ != this.Endianness;
       }
     }
 
-    private bool ShouldReverseBytes_ { get; set; }
+    public bool ShouldReverseBytes { get; private set; }
 
     public Stream BaseStream { get; set; }
     public byte[] Buffer { get; private set; }
@@ -28,7 +28,7 @@
       }
       this.BaseStream.Read(this.Buffer, 0, count);
 
-      if (!this.ShouldReverseBytes_) {
+      if (!this.ShouldReverseBytes) {
         return;
       }
       for (var i = 0; i < count; i += stride) {
