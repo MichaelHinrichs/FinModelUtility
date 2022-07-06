@@ -1,10 +1,16 @@
-﻿using fin.util.asserts;
+﻿using fin.data;
+using fin.util.asserts;
+
+using modl.protos.bw1.node;
 
 using schema;
 
 
 namespace modl.protos.bw1 {
   public class Bw1Model : IDeserializable {
+    public List<NodeBw1> Nodes { get; } = new();
+    public ListDictionary<ushort, ushort> CnctParentToChildren { get; } = new();
+
     public void Read(EndianBinaryReader er) {
       var filenameLength = er.ReadUInt32();
       er.Position += filenameLength;
@@ -26,17 +32,33 @@ namespace modl.protos.bw1 {
         additionalData[i] = er.ReadUInt32();
       }
 
-      var pos = er.Position;
-
       this.SkipSection_(er, "XMEM");
 
-
-      for (var i = 0; i < nodeCount; ++i) {
-        var node = new NodeBw1(additionalDataCount);
-        node.Read(er);
+      // Reads in nodes (bones)
+      {
+        this.Nodes.Clear();
+        for (var i = 0; i < nodeCount; ++i) {
+          var node = new NodeBw1(additionalDataCount);
+          node.Read(er);
+          this.Nodes.Add(node);
+        }
       }
 
-      ;
+      // Reads in hierarchy, how nodes are "CoNneCTed" or "CoNCaTenated?"?
+      {
+        er.AssertMagicTextEndian("CNCT");
+
+        var cnctSize = er.ReadUInt32();
+        var cnctCount = cnctSize / 4;
+
+        this.CnctParentToChildren.Clear();
+        for (var i = 0; i < cnctCount; ++i) {
+          var parent = er.ReadUInt16();
+          var child = er.ReadUInt16();
+
+          this.CnctParentToChildren.Add(parent, child);
+        }
+      }
     }
 
     private void SkipSection_(EndianBinaryReader er, string sectionName) {
@@ -48,6 +70,8 @@ namespace modl.protos.bw1 {
 
   public class NodeBw1 : IDeserializable {
     private int additionalDataCount_;
+
+    public BwTransform Transform { get; } = new();
 
     public NodeBw1(int additionalDataCount) {
       this.additionalDataCount_ = additionalDataCount;
@@ -66,8 +90,10 @@ namespace modl.protos.bw1 {
         // TODO: unknown
         er.Position += 12;
 
-        // TODO: transform
-        er.Position += 4 * 11;
+        this.Transform.Read(er);
+
+        // TODO: unknown, also transform??
+        er.Position += 4 * 4;
       }
       Asserts.Equal(er.Position, expectedHeaderEnd);
 
@@ -111,6 +137,6 @@ namespace modl.protos.bw1 {
     }
 
     private string ReadMagic_(EndianBinaryReader er)
-      => new (er.ReadChars(4).Reverse().ToArray());
+      => new(er.ReadChars(4).Reverse().ToArray());
   }
 }

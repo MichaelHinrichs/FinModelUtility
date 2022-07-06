@@ -6,6 +6,8 @@ using glo.api;
 
 using mod.cli;
 
+using modl.api;
+
 using uni.games;
 
 using zar.api;
@@ -44,6 +46,8 @@ namespace uni.ui {
               => new GloModelLoader().LoadModel(gloModelFileBundle),
           ModModelFileBundle modModelFileBundle
               => new ModModelLoader().LoadModel(modModelFileBundle),
+          ModlModelFileBundle modlModelFileBundle
+              => new ModlModelLoader().LoadModel(modlModelFileBundle),
           ZarModelFileBundle zarModelFileBundle
               => new ZarModelLoader().LoadModel(zarModelFileBundle),
           _ => throw new ArgumentOutOfRangeException(nameof(modelFileBundle))
