@@ -1,5 +1,6 @@
 ﻿using fin.model;
 
+using uni.games.battalion_wars;
 using uni.games.glover;
 using uni.games.luigis_mansion_3d;
 using uni.games.mario_kart_double_dash;
@@ -15,6 +16,7 @@ namespace uni.games {
       var rootModelDirectory = new RootModelDirectory();
 
       var gatherers = new IModelFileGatherer[] {
+          new BattalionWarsFileGatherer(),
           new GloverModelFileGatherer(),
           new LuigisMansion3dModelFileGatherer(),
           new MarioKartDoubleDashFileGatherer(),
