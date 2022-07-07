@@ -110,6 +110,8 @@ namespace schema {
     IntType ImmediateLengthType { get; }
     ISchemaMember? LengthMember { get; }
     int ConstLength { get; }
+   
+    bool IsEndianOrdered { get; }
   }
 
   public enum SequenceType {
@@ -417,6 +419,22 @@ namespace schema {
         }
 
         {
+          var endianOrderedAttribute =
+              SymbolTypeUtil.GetAttribute<EndianOrderedAttribute>(memberSymbol);
+          if (endianOrderedAttribute != null) {
+            if (memberType is StringType stringMemberType) {
+              stringMemberType.IsEndianOrdered = true;
+
+              if (stringMemberType.IsNullTerminated) {
+                diagnostics.Add(Rules.CreateDiagnostic(memberSymbol, Rules.UnexpectedAttribute));
+              }
+            } else {
+              diagnostics.Add(Rules.CreateDiagnostic(memberSymbol, Rules.UnexpectedAttribute));
+            }
+          }
+        }
+
+        {
           // TODO: Implement this, support strings in arrays?
           var lengthSourceAttribute =
               SymbolTypeUtil.GetAttribute<StringLengthSourceAttribute>(
@@ -653,6 +671,8 @@ namespace schema {
       public IntType ImmediateLengthType { get; set; }
       public ISchemaMember? LengthMember { get; set; }
       public int ConstLength { get; set; }
+
+      public bool IsEndianOrdered { get; set; }
     }
 
     private class SequenceBundle {

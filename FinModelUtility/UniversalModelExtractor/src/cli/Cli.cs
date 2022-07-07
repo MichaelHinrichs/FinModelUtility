@@ -53,8 +53,7 @@ namespace uni.cli {
                   new AnimalCrossingExtractor().ExtractAll();
                 })
                 .WithParsed((BattalionWarsOptions _) => {
-                  new DebugBatallionWars().Main();
-                  //new BattalionWarsExtractor().ExtractAll();
+                  new BattalionWarsExtractor().ExtractAll();
                 })
                 .WithParsed((HaloWarsOptions _) => {
                   new HaloWarsExtractor().ExtractAll();

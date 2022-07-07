@@ -201,10 +201,21 @@ namespace schema.text {
       var stringType = member.MemberType as IStringType;
 
       if (stringType.IsConst) {
-        if (!stringType.IsNullTerminated) {
-          cbsb.WriteLine($"er.AssertString(this.{member.Name});");
-        } else {
+        if (stringType.IsNullTerminated) {
           cbsb.WriteLine($"er.AssertStringNT(this.{member.Name});");
+        } else if (stringType.IsEndianOrdered) {
+          cbsb.WriteLine($"er.AssertStringEndian(this.{member.Name});");
+        } else {
+          cbsb.WriteLine($"er.AssertString(this.{member.Name});");
+        }
+        return;
+      }
+
+      if (stringType.LengthSourceType == StringLengthSourceType.CONST) {
+        if (stringType.IsEndianOrdered) {
+          cbsb.WriteLine($"this.{member.Name} = er.ReadStringEndian({stringType.ConstLength});");
+        } else {
+          cbsb.WriteLine($"this.{member.Name} = er.ReadString({stringType.ConstLength});");
         }
         return;
       }

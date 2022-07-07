@@ -72,6 +72,7 @@ namespace modl.protos.bw1 {
     private int additionalDataCount_;
 
     public BwTransform Transform { get; } = new();
+    public Bw1BoundingBox BoundingBox { get; } = new();
 
     public NodeBw1(int additionalDataCount) {
       this.additionalDataCount_ = additionalDataCount;
@@ -100,12 +101,7 @@ namespace modl.protos.bw1 {
       // TODO: additional data
       er.Position += 4 * this.additionalDataCount_;
 
-      er.AssertMagicTextEndian("BBOX");
-      er.AssertUInt32(4 * 6);
-
-      // TODO: Handle bounding box
-
-      er.Position += 4 * 6;
+      this.BoundingBox.Read(er);
 
       var sectionName = this.ReadMagic_(er);
       var sectionSize = er.ReadInt32();

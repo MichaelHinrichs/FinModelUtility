@@ -467,6 +467,30 @@ namespace System.IO {
       => new(this.ReadChars(encoding, count));
 
 
+    public void AssertStringEndian(string expectedValue)
+      => this.AssertStringEndian(Encoding.ASCII, expectedValue);
+
+    public string ReadStringEndian(int count)
+      => this.ReadStringEndian(Encoding.ASCII, count);
+
+    public void AssertStringEndian(Encoding encoding, string expectedValue) {
+      var endianExpectedValue =
+          this.BufferedStream_.ShouldReverseBytes
+              ? expectedValue
+              : new string(expectedValue.Reverse().ToArray());
+      this.AssertString(encoding, endianExpectedValue);
+    }
+
+    public string ReadStringEndian(Encoding encoding, int count) {
+      var value = this.ReadString(encoding, count);
+      var endianValue =
+          this.BufferedStream_.ShouldReverseBytes
+              ? value
+              : new string(value.Reverse().ToArray());
+      return endianValue;
+    }
+
+
     public void AssertStringNT(string expectedValue)
       => this.AssertStringNT(Encoding.ASCII, expectedValue);
 

@@ -4,6 +4,7 @@
 // MVID: DAEF8B62-698B-42D0-BEDD-3770EB8C9FE8
 // Assembly location: R:\Documents\CSharpWorkspace\Pikmin2Utility\MKDS Course Modifier\MKDS Course Modifier.exe
 
+using System.Linq;
 using System.Text;
 
 
@@ -170,6 +171,19 @@ namespace System.IO {
         return;
       this.WriteChar(char.MinValue, encoding);
     }
+
+
+    public void WriteStringEndian(string value)
+      => this.WriteStringEndian(
+          value,
+          Encoding.ASCII);
+
+    public void WriteStringEndian(string value, Encoding encoding)
+      => this.WriteString(
+          this.Reverse ? new string(value.Reverse().ToArray()) : value,
+          encoding,
+          false);
+
 
     public void WriteDouble(double value) {
       this.CreateBuffer_(8);
@@ -365,7 +379,7 @@ namespace System.IO {
 
 
     public void WriteUn8(float value) {
-      var un8 = (byte)(value * 255f);
+      var un8 = (byte) (value * 255f);
       this.WriteByte(un8);
     }
 

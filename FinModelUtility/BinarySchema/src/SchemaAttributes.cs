@@ -1,5 +1,6 @@
 ﻿using System;
 
+
 namespace schema {
   /// <summary>
   ///   Attribute for automatically generating Read/Write methods on
@@ -11,7 +12,7 @@ namespace schema {
   ///   the fields unless you know what you're doing!
   /// </summary>
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-  public class SchemaAttribute : Attribute {}
+  public class SchemaAttribute : Attribute { }
 
 
   public enum IntType {
@@ -155,4 +156,7 @@ namespace schema {
 
     public int Align { get; }
   }
+
+  [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+  public class EndianOrderedAttribute : Attribute { }
 }
