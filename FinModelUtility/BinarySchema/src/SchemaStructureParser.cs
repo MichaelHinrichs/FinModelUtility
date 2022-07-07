@@ -110,7 +110,7 @@ namespace schema {
     IntType ImmediateLengthType { get; }
     ISchemaMember? LengthMember { get; }
     int ConstLength { get; }
-   
+
     bool IsEndianOrdered { get; }
   }
 
@@ -426,10 +426,14 @@ namespace schema {
               stringMemberType.IsEndianOrdered = true;
 
               if (stringMemberType.IsNullTerminated) {
-                diagnostics.Add(Rules.CreateDiagnostic(memberSymbol, Rules.UnexpectedAttribute));
+                diagnostics.Add(
+                    Rules.CreateDiagnostic(memberSymbol,
+                                           Rules.UnexpectedAttribute));
               }
             } else {
-              diagnostics.Add(Rules.CreateDiagnostic(memberSymbol, Rules.UnexpectedAttribute));
+              diagnostics.Add(
+                  Rules.CreateDiagnostic(memberSymbol,
+                                         Rules.UnexpectedAttribute));
             }
           }
         }
@@ -439,16 +443,32 @@ namespace schema {
           var lengthSourceAttribute =
               SymbolTypeUtil.GetAttribute<StringLengthSourceAttribute>(
                   memberSymbol);
-          if (memberType is IStringType) {
-            if (!isMemberReadonly) {
+          if (lengthSourceAttribute != null) {
+            if (memberType is StringType stringType) {
+              if (isMemberReadonly) {
+                diagnostics.Add(
+                    Rules.CreateDiagnostic(memberSymbol,
+                                           Rules.UnexpectedAttribute));
+              }
+
+              switch (lengthSourceAttribute.Method) {
+                case StringLengthSourceType.CONST: {
+                  stringType.LengthSourceType = StringLengthSourceType.CONST;
+                  stringType.ConstLength = lengthSourceAttribute.ConstLength;
+                  break;
+                }
+                default: {
+                  diagnostics.Add(
+                      Rules.CreateDiagnostic(memberSymbol,
+                                             Rules.NotSupported));
+                  break;
+                }
+              }
+            } else {
               diagnostics.Add(
-                  Rules.CreateDiagnostic(memberSymbol, Rules.NotSupported));
+                  Rules.CreateDiagnostic(memberSymbol,
+                                         Rules.UnexpectedAttribute));
             }
-            // TODO: Use length
-          } else if (lengthSourceAttribute != null) {
-            diagnostics.Add(
-                Rules.CreateDiagnostic(memberSymbol,
-                                       Rules.UnexpectedAttribute));
           }
         }
 

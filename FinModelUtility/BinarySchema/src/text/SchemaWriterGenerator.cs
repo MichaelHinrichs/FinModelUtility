@@ -176,10 +176,6 @@ namespace schema.text {
       } else {
         cbsb.WriteLine($"ew.WriteString(this.{member.Name});");
       }
-      return;
-
-      // TODO: Handle more cases
-      throw new NotImplementedException();
     }
 
     private static void WriteStructure_(
