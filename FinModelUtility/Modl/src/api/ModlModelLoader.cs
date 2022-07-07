@@ -24,11 +24,11 @@ namespace modl.api {
       var bw1Model = er.ReadNew<Bw1Model>();
 
       var model = new ModelImpl();
+      var mesh = model.Skin.AddMesh();
 
       {
         var nodeQueue = new Queue<(IBone, ushort)>();
         nodeQueue.Enqueue((model.Skeleton.Root, 0));
-
         while (nodeQueue.Count > 0) {
           var (parentFinBone, modlNodeId) = nodeQueue.Dequeue();
 
@@ -50,6 +50,26 @@ namespace modl.api {
                            .SetLocalRotationRadians(
                                eulerRadians.X, eulerRadians.Y, eulerRadians.Z);
           finBone.Name = $"Node {modlNodeId}";
+
+          foreach (var triangleStrip in modlNode.TriangleStrips) {
+            var vertices =
+                triangleStrip.Positions
+                             .Select(positionIndex => {
+                               var position = modlNode.Positions[positionIndex];
+                               return model.Skin.AddVertex(
+                                               position.X * modlNode.Scale,
+                                               position.Y * modlNode.Scale,
+                                               position.Z * modlNode.Scale)
+                                           .SetBoneWeights(
+                                               model.Skin
+                                                    .GetOrCreateBoneWeights(
+                                                        PreprojectMode.BONE,
+                                                        finBone));
+                             })
+                             .ToArray();
+
+            mesh.AddTriangleStrip(vertices);
+          }
 
           if (bw1Model.CnctParentToChildren.TryGetList(
                   modlNodeId, out var modlChildIds)) {

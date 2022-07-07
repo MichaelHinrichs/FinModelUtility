@@ -27,7 +27,7 @@ namespace modl.protos.res {
     public string FileName { get; private set; }
 
     public void Read(EndianBinaryReader er) {
-      er.AssertMagicTextEndian("TEXR");
+      er.AssertStringEndian("TEXR");
 
       var dataLength = er.ReadUInt32();
       var dataOffset = er.Position;
@@ -45,11 +45,8 @@ namespace modl.protos.res {
 
   [Schema]
   public partial class Sond : IBiSerializable {
-    private readonly string magic_ = "DNOS";
-
-    public uint Length { get; private set; }
-
-    [ArrayLengthSource(nameof(Length))] public byte[] Data { get; private set; }
+    [EndianOrdered] private readonly string magic_ = "SOND";
+    [ArrayLengthSource(IntType.UINT32)] public byte[] Data { get; private set; }
   }
 
   public class BwFile : IDeserializable {

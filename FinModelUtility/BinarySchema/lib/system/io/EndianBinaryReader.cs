@@ -519,19 +519,6 @@ namespace System.IO {
       }
     }
 
-    public void AssertMagicTextEndian(string expectedText) {
-      var chars = this.ReadChars(expectedText.Length);
-      var endianChars = this.BufferedStream_.ShouldReverseBytes
-                            ? chars
-                            : chars.Reverse().ToArray();
-
-      var actualText = new string(endianChars);
-      if (expectedText != actualText) {
-        throw new Exception(
-            $"Expected to find magic text \"{expectedText}\", but found \"{actualText}\"");
-      }
-    }
-
     public T ReadNew<T>() where T : IDeserializable, new() {
       var value = new T();
       value.Read(this);
