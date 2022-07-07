@@ -22,7 +22,7 @@ namespace uni.ui.gl {
       this.Model = model;
       this.boneTransformManager_ = boneTransformManager;
 
-      var primitivesByMaterial = new ListDictionary<IMaterial, IPrimitive>();
+      var primitivesByMaterial = new ListDictionary<IMaterial?, IPrimitive>();
       foreach (var mesh in model.Skin.Meshes) {
         foreach (var primitive in mesh.Primitives) {
           primitivesByMaterial.Add(primitive.Material, primitive);
@@ -74,14 +74,14 @@ namespace uni.ui.gl {
 
     private readonly BoneTransformManager boneTransformManager_;
 
-    private readonly IMaterial material_;
+    private readonly IMaterial? material_;
     private readonly IList<GlTexture> textures_;
 
     private readonly IList<IPrimitive> primitives_;
 
 
     public MaterialMeshRenderer(BoneTransformManager boneTransformManager,
-                                IMaterial material,
+                                IMaterial? material,
                                 IList<IPrimitive> primitives) {
       this.boneTransformManager_ = boneTransformManager;
 
@@ -139,8 +139,8 @@ void main() {
             new GlTexture(BitmapUtil.Create1x1WithColor(Color.White));
       }
 
-      IReadOnlyList<ITexture?> finTextures =
-          fixedFunctionMaterial?.TextureSources ?? material.Textures;
+      IReadOnlyList<ITexture?>? finTextures =
+          fixedFunctionMaterial?.TextureSources ?? material?.Textures;
       if (DebugFlags.ENABLE_WEIGHT_COLORS) {
         finTextures = Array.Empty<ITexture?>();
       }
@@ -149,7 +149,7 @@ void main() {
       this.textures_ = new List<GlTexture>();
       for (var i = 0; i < nSupportedTextures; ++i) {
         var finTexture =
-            !DebugFlags.ENABLE_WEIGHT_COLORS && i < finTextures.Count
+            !DebugFlags.ENABLE_WEIGHT_COLORS && i < (finTextures?.Count ?? 0)
                 ? finTextures[i]
                 : null;
 
@@ -198,7 +198,7 @@ void main() {
                            fixedFunctionMaterial.LogicOp);
       }
 
-      GlUtil.SetCulling(this.material_.CullingMode);
+      GlUtil.SetCulling(this.material_?.CullingMode ?? CullingMode.SHOW_BOTH);
       for (var i = 0; i < this.textures_.Count; ++i) {
         this.textures_[i].Bind(i);
       }
