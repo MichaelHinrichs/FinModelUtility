@@ -41,6 +41,15 @@ namespace uni.util.separator {
       return this;
     }
 
+    public IModelSeparator Register(
+        IModelSeparatorMethod method,
+        params string[] directoryIds) {
+      foreach (var directoryId in directoryIds) {
+        this.Register(directoryId, method);
+      }
+      return this;
+    }
+
     public bool Contains(IFileHierarchyDirectory directory)
       => this.impl_.ContainsKey(this.directoryToId_(directory));
 

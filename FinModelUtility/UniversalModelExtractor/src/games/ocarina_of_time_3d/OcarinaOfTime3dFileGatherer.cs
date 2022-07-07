@@ -21,67 +21,64 @@ namespace uni.games.ocarina_of_time_3d {
     // Why tf did they have to name things so randomly????
     private readonly IModelSeparator separator_
         = new ModelSeparator(directory => directory.Name)
-          .Register("zelda_am", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_aob", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_av", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_bb", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_bdan_objects",
-                    new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_bji", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_bob", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_bombf", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_bowl", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_brob", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_bw", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_cow", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_dodojr", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_dodongo", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_dog", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_ds", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_ei", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_ff", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_fu", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_gi_bottle", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_gi_coin", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_gi_compass", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_gi_dekupouch",
-                    new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_gi_egg", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_horse", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_horse_ganon",
-                    new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_horse_normal",
-                    new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_horse_zelda",
-                    new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_hs", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_jj", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_ka", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_kanban", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_kibako2", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_killer_door",
-                    new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_km1", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_kogoma", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_kusa", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_kz", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_lightswitch",
-                    new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_ma2", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_mjin", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_rd", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_ru1", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_ru2", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_sa", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_tk", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_ydan_objects",
-                    new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_yukabyun", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_zf", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_zl1", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_zl2", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_zl4", new AllAnimationsModelSeparatorMethod())
-          .Register("zelda_zo", new AllAnimationsModelSeparatorMethod())
+          .Register(new AllAnimationsModelSeparatorMethod(),
+              "zelda_am",
+              "zelda_aob",
+              "zelda_av",
+              "zelda_bb",
+              "zelda_bdan_objects",
+              "zelda_bji",
+              "zelda_bob",
+              "zelda_bombf",
+              "zelda_bowl",
+              "zelda_brob",
+              "zelda_bw",
+              "zelda_cne",
+              "zelda_cow",
+              "zelda_crow",
+              "zelda_cs",
+              "zelda_dodojr",
+              "zelda_dodongo",
+              "zelda_dog",
+              "zelda_ds",
+              "zelda_ei",
+              "zelda_ff",
+              "zelda_fu",
+              "zelda_gi_bottle",
+              "zelda_gi_coin",
+              "zelda_gi_compass",
+              "zelda_gi_dekupouch",
+              "zelda_gi_egg",
+              "zelda_horse",
+              "zelda_horse_ganon",
+              "zelda_horse_normal",
+              "zelda_horse_zelda",
+              "zelda_hs",
+              "zelda_jj",
+              "zelda_ka",
+              "zelda_kanban",
+              "zelda_kibako2",
+              "zelda_killer_door",
+              "zelda_km1",
+              "zelda_kogoma",
+              "zelda_kusa",
+              "zelda_kz",
+              "zelda_lightswitch",
+              "zelda_ma2",
+              "zelda_mjin",
+              "zelda_rd",
+              "zelda_ru1",
+              "zelda_ru2",
+              "zelda_sa",
+              "zelda_tk",
+              "zelda_ydan_objects",
+              "zelda_yukabyun",
+              "zelda_zf",
+              "zelda_zl1",
+              "zelda_zl2",
+              "zelda_zl4",
+              "zelda_zo"
+          )
           // TODO: This is probably wrong
           .Register("zelda_box",
                     new NoAnimationsModelSeparatorMethod()
@@ -192,8 +189,6 @@ namespace uni.games.ocarina_of_time_3d {
                 subdir.FilesWithExtensionsRecursive(".csab").ToArray();
             var ctxbFiles =
                 subdir.FilesWithExtensionsRecursive(".ctxb").ToArray();
-            var shpaFiles =
-                subdir.FilesWithExtensionsRecursive(".shpa").ToArray();
 
             try {
               var bundles =
@@ -203,7 +198,7 @@ namespace uni.games.ocarina_of_time_3d {
                                         bundle.ModelFile,
                                         bundle.AnimationFiles.ToArray(),
                                         ctxbFiles,
-                                        shpaFiles
+                                        null
                                     ));
             } catch {
               return null;
