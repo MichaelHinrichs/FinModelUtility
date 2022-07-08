@@ -393,6 +393,21 @@ namespace System.IO {
     }
 
 
+    public void WriteSn8(float value) {
+      var sn8 = (byte)(value * (255f / 2));
+      this.WriteByte(sn8);
+    }
+
+    public void WriteSn8s(float[] value) =>
+        this.WriteSn8s(value, 0, value.Length);
+
+    public void WriteSn8s(float[] value, int offset, int count) {
+      for (var i = 0; i < count; ++i) {
+        this.WriteSn8(value[offset + i]);
+      }
+    }
+
+
     public void WriteUn16(float value) {
       var un16 = (ushort) (value * 65535f);
       this.WriteUInt16(un16);

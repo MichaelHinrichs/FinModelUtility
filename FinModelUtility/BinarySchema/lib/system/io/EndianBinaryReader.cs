@@ -121,6 +121,9 @@ namespace System.IO {
     private static double ConvertDouble_(byte[] buffer, int i)
       => BitConverter.ToDouble(buffer, sizeof(double) * i);
 
+    private static float ConvertSn8_(byte[] buffer, int i)
+      => EndianBinaryReader.ConvertSByte_(buffer, i) / (255f / 2);
+
     private static float ConvertUn8_(byte[] buffer, int i)
       => EndianBinaryReader.ConvertByte_(buffer, i) / 255f;
 
@@ -343,6 +346,27 @@ namespace System.IO {
       for (var i = 0; i < dst.Length; ++i) {
         dst[i] =
             EndianBinaryReader.ConvertDouble_(this.BufferedStream_.Buffer, i);
+      }
+      return dst;
+    }
+
+
+    public void AssertSn8(float expectedValue)
+      => EndianBinaryReader.Assert(expectedValue, this.ReadSn8());
+
+    public float ReadSn8() {
+      this.FillBuffer_(sizeof(byte));
+      return EndianBinaryReader.ConvertSn8_(this.BufferedStream_.Buffer, 0);
+    }
+
+    public float[] ReadSn8s(int count) => this.ReadSn8s(new float[count]);
+
+    public float[] ReadSn8s(float[] dst) {
+      const int size = sizeof(byte);
+      this.FillBuffer_(size * dst.Length, size);
+      for (var i = 0; i < dst.Length; ++i) {
+        dst[i] =
+            EndianBinaryReader.ConvertSn8_(this.BufferedStream_.Buffer, i);
       }
       return dst;
     }

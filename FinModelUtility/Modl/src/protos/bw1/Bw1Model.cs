@@ -155,12 +155,32 @@ namespace modl.protos.bw1 {
             this.ReadPositions_(er, sectionSize / vertexPositionSize);
             break;
           }
+          case "VNRM": {
+            var normalSize = 3;
+            Asserts.Equal(0, sectionSize % normalSize);
+            this.ReadNormals_(er, sectionSize / normalSize);
+            break;
+          }
+          case "VNBT": {
+            var nbtSize = 4 * 9;
+            Asserts.Equal(0, sectionSize % nbtSize);
+            var nbtCount = sectionSize / nbtSize;
+            for (var i = 0; i < nbtCount; ++i) {
+              this.Normals.Add(new VertexNormal {
+                  X = er.ReadSingle(),
+                  Y = er.ReadSingle(),
+                  Z = er.ReadSingle(),
+              });
+              er.Position += 24;
+            }
+            break;
+          }
           case "XBST": {
             this.ReadOpcodes_(er, sectionSize, ref vertexDescriptorValue);
             break;
           }
           default: {
-            if (!(sectionName is "VNRM" or "SCNT" or "VCOL" or "VNBT")) {
+            if (!(sectionName is "SCNT" or "VCOL")) {
               ;
             }
             er.Position += sectionSize;
@@ -206,6 +226,15 @@ namespace modl.protos.bw1 {
     }
 
 
+    public List<VertexNormal> Normals { get; } = new();
+
+    private void ReadNormals_(EndianBinaryReader er, int vertexCount) {
+      for (var i = 0; i < vertexCount; ++i) {
+        this.Normals.Add(er.ReadNew<VertexNormal>());
+      }
+    }
+
+
     public List<BwTriangleStrip> TriangleStrips { get; } = new();
 
     private void ReadOpcodes_(EndianBinaryReader er,
@@ -225,8 +254,10 @@ namespace modl.protos.bw1 {
       Asserts.Equal(expectedEnd, er.Position + gxDataSize);
 
       var positions = new List<ushort>();
+      var normals = new List<ushort>();
       var triangleStrip = new BwTriangleStrip {
           Positions = positions,
+          Normals = normals,
       };
       this.TriangleStrips.Add(triangleStrip);
 
@@ -271,6 +302,22 @@ namespace modl.protos.bw1 {
                     }
                     case VertexFormat.INDEX_16: {
                       positions.Add(er.ReadUInt16());
+                      break;
+                    }
+                    default: {
+                      break;
+                    }
+                  }
+                  break;
+                }
+                case VertexAttribute.Normal: {
+                  switch (vertexFormat) {
+                    case VertexFormat.INDEX_8: {
+                      normals.Add(er.ReadByte());
+                      break;
+                    }
+                    case VertexFormat.INDEX_16: {
+                      normals.Add(er.ReadUInt16());
                       break;
                     }
                     default: {
@@ -432,6 +479,7 @@ namespace modl.protos.bw1 {
 
     public class BwTriangleStrip {
       public List<ushort> Positions { get; set; }
+      public List<ushort> Normals { get; set; }
     }
   }
 }

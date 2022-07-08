@@ -112,6 +112,7 @@ namespace schema {
     SINGLE,
     DOUBLE,
 
+    SN8,
     UN8,
 
     SN16,

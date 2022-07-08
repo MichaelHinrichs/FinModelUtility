@@ -17,6 +17,7 @@ namespace schema.text {
           SchemaPrimitiveType.UINT64 => "UInt64",
           SchemaPrimitiveType.SINGLE => "Single",
           SchemaPrimitiveType.DOUBLE => "Double",
+          SchemaPrimitiveType.SN8 => "Sn8",
           SchemaPrimitiveType.UN8 => "Un8",
           SchemaPrimitiveType.SN16 => "Sn16",
           SchemaPrimitiveType.UN16 => "Un16",
@@ -66,6 +67,7 @@ namespace schema.text {
 
     public static SchemaPrimitiveType GetUnderlyingPrimitiveType(SchemaPrimitiveType type)
       => type switch {
+          SchemaPrimitiveType.SN8  => SchemaPrimitiveType.SINGLE,
           SchemaPrimitiveType.UN8  => SchemaPrimitiveType.SINGLE,
           SchemaPrimitiveType.UN16 => SchemaPrimitiveType.SINGLE,
           SchemaPrimitiveType.SN16 => SchemaPrimitiveType.SINGLE,
@@ -85,6 +87,7 @@ namespace schema.text {
           SchemaNumberType.UINT64 => SchemaPrimitiveType.UINT64,
           SchemaNumberType.SINGLE => SchemaPrimitiveType.SINGLE,
           SchemaNumberType.DOUBLE => SchemaPrimitiveType.DOUBLE,
+          SchemaNumberType.SN8 => SchemaPrimitiveType.SN8,
           SchemaNumberType.UN8 => SchemaPrimitiveType.UN8,
           SchemaNumberType.SN16 => SchemaPrimitiveType.SN16,
           SchemaNumberType.UN16 => SchemaPrimitiveType.UN16,

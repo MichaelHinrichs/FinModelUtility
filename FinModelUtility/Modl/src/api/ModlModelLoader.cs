@@ -35,7 +35,7 @@ namespace modl.api {
           var modlNode = bw1Model.Nodes[modlNodeId];
 
           var transform = modlNode.Transform;
-          var position = transform.Position;
+          var bonePosition = transform.Position;
 
           var modlRotation = transform.Rotation;
           var rotation = new Quaternion(
@@ -46,27 +46,33 @@ namespace modl.api {
           var eulerRadians = QuaternionUtil.ToEulerRadians(rotation);
 
           var finBone =
-              parentFinBone.AddChild(position.X, position.Y, position.Z)
-                           .SetLocalRotationRadians(
-                               eulerRadians.X, eulerRadians.Y, eulerRadians.Z);
+              parentFinBone
+                  .AddChild(bonePosition.X, bonePosition.Y, bonePosition.Z)
+                  .SetLocalRotationRadians(
+                      eulerRadians.X, eulerRadians.Y, eulerRadians.Z);
           finBone.Name = $"Node {modlNodeId}";
 
           foreach (var triangleStrip in modlNode.TriangleStrips) {
-            var vertices =
-                triangleStrip.Positions
-                             .Select(positionIndex => {
-                               var position = modlNode.Positions[positionIndex];
-                               return model.Skin.AddVertex(
-                                               position.X * modlNode.Scale,
-                                               position.Y * modlNode.Scale,
-                                               position.Z * modlNode.Scale)
-                                           .SetBoneWeights(
-                                               model.Skin
-                                                    .GetOrCreateBoneWeights(
-                                                        PreprojectMode.BONE,
-                                                        finBone));
-                             })
-                             .ToArray();
+            var vertices = new IVertex[triangleStrip.Positions.Count];
+
+            for (var i = 0; i < vertices.Length; i++) {
+              var position = modlNode.Positions[triangleStrip.Positions[i]];
+
+              var vertex = vertices[i] = model.Skin.AddVertex(
+                                                  position.X * modlNode.Scale,
+                                                  position.Y * modlNode.Scale,
+                                                  position.Z * modlNode.Scale)
+                                              .SetBoneWeights(
+                                                  model.Skin
+                                                      .GetOrCreateBoneWeights(
+                                                          PreprojectMode.BONE,
+                                                          finBone));
+
+              if (modlNode.Normals.Count > 0) {
+                var normal = modlNode.Normals[triangleStrip.Normals[i]];
+                vertex.SetLocalNormal(normal.X, normal.Y, normal.Z);
+              }
+            }
 
             mesh.AddTriangleStrip(vertices);
           }
