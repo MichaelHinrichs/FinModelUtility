@@ -1,6 +1,6 @@
 ﻿using fin.io;
 
-using modl.protos.bw1;
+using modl.schema.modl.bw1;
 
 
 namespace uni.games.battalion_wars {

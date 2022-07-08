@@ -5,7 +5,7 @@ using fin.math;
 using fin.model;
 using fin.model.impl;
 
-using modl.protos.bw1;
+using modl.schema.modl.bw1;
 
 
 namespace modl.api {

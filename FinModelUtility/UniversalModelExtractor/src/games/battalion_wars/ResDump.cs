@@ -2,7 +2,7 @@
 using fin.log;
 using fin.util.asserts;
 
-using modl.protos.res;
+using modl.schema.res;
 
 using uni.platforms.gcn.tools;
 

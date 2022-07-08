@@ -7,10 +7,10 @@ using fin.io;
 using fin.model;
 using fin.util.asserts;
 
-using zar.format.cmb;
-using zar.format.csab;
-using zar.format.ctxb;
-using zar.format.shpa;
+using zar.schema.cmb;
+using zar.schema.csab;
+using zar.schema.ctxb;
+using zar.schema.shpa;
 
 
 namespace zar.api {
