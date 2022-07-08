@@ -10,7 +10,7 @@ using modl.api;
 
 using uni.games;
 
-using zar.api;
+using cmb.api;
 
 
 namespace uni.ui {
@@ -48,8 +48,8 @@ namespace uni.ui {
               => new ModModelLoader().LoadModel(modModelFileBundle),
           ModlModelFileBundle modlModelFileBundle
               => new ModlModelLoader().LoadModel(modlModelFileBundle),
-          ZarModelFileBundle zarModelFileBundle
-              => new ZarModelLoader().LoadModel(zarModelFileBundle),
+          CmbModelFileBundle zarModelFileBundle
+              => new CmbModelLoader().LoadModel(zarModelFileBundle),
           _ => throw new ArgumentOutOfRangeException(nameof(modelFileBundle))
       };
 

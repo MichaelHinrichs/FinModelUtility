@@ -5,13 +5,13 @@ using uni.platforms;
 using uni.platforms.threeDs;
 using uni.util.separator;
 
-using zar.api;
+using cmb.api;
 
 
 namespace uni.games.luigis_mansion_3d {
   public class
       LuigisMansion3dModelFileGatherer : IModelFileGatherer<
-          ZarModelFileBundle> {
+          CmbModelFileBundle> {
     private readonly IModelSeparator separator_ =
         new ModelSeparator(directory => directory.LocalPath)
             .Register(@"\effect\effect_mdl", new PrefixModelSeparatorMethod())
@@ -24,7 +24,7 @@ namespace uni.games.luigis_mansion_3d {
             .Register(@"\model\luige",
                       new NameModelSeparatorMethod("Luigi.cmb"));
 
-    public IModelDirectory<ZarModelFileBundle>? GatherModelFileBundles(
+    public IModelDirectory<CmbModelFileBundle>? GatherModelFileBundles(
         bool assert) {
       var luigisMansionRom =
           DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
@@ -38,10 +38,10 @@ namespace uni.games.luigis_mansion_3d {
               luigisMansionRom);
 
       var rootModelDirectory =
-          new ModelDirectory<ZarModelFileBundle>("luigis_mansion_3d");
+          new ModelDirectory<CmbModelFileBundle>("luigis_mansion_3d");
       var queue =
           new Queue<(IFileHierarchyDirectory,
-              IModelDirectory<ZarModelFileBundle>)>();
+              IModelDirectory<CmbModelFileBundle>)>();
       queue.Enqueue((fileHierarchy.Root, rootModelDirectory));
       while (queue.Any()) {
         var (directory, node) = queue.Dequeue();
@@ -56,7 +56,7 @@ namespace uni.games.luigis_mansion_3d {
     }
 
     public void ExtractModel_(
-        IModelDirectory<ZarModelFileBundle> parentNode,
+        IModelDirectory<CmbModelFileBundle> parentNode,
         IFileHierarchyDirectory subdir) {
       var cmbFiles = subdir.FilesWithExtension(".cmb").ToArray();
       if (cmbFiles.Length == 0) {
@@ -72,7 +72,7 @@ namespace uni.games.luigis_mansion_3d {
             this.separator_.Separate(subdir, cmbFiles, csabFiles);
 
         foreach (var bundle in bundles) {
-          parentNode.AddFileBundle(new ZarModelFileBundle(
+          parentNode.AddFileBundle(new CmbModelFileBundle(
                                        bundle.ModelFile,
                                        bundle.AnimationFiles.ToArray(),
                                        ctxbFiles,

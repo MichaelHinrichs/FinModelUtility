@@ -6,12 +6,12 @@ using uni.platforms.threeDs;
 using uni.util.io;
 using uni.util.separator;
 
-using zar.api;
+using cmb.api;
 
 
 namespace uni.games.ocarina_of_time_3d {
   public class OcarinaOfTime3dFileGatherer : IModelFileGatherer<
-      ZarModelFileBundle> {
+      CmbModelFileBundle> {
     // TODO: Add support for Link
     // TODO: Add support for faceb
     // TODO: Add support for cmab
@@ -160,7 +160,7 @@ namespace uni.games.ocarina_of_time_3d {
           .Register("zelda_wm2", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_xc", new NoAnimationsModelSeparatorMethod());
 
-    public IModelDirectory<ZarModelFileBundle>? GatherModelFileBundles(
+    public IModelDirectory<CmbModelFileBundle>? GatherModelFileBundles(
         bool assert) {
       var ocarinaOfTime3dRom =
           DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
@@ -173,7 +173,7 @@ namespace uni.games.ocarina_of_time_3d {
           new ThreeDsFileHierarchyExtractor()
               .ExtractFromRom(ocarinaOfTime3dRom);
 
-      return new FileHierarchyBundler<ZarModelFileBundle>(
+      return new FileHierarchyBundler<CmbModelFileBundle>(
           subdir => {
             if (!separator_.Contains(subdir)) {
               return null;
@@ -194,7 +194,7 @@ namespace uni.games.ocarina_of_time_3d {
               var bundles =
                   this.separator_.Separate(subdir, cmbFiles, csabFiles);
 
-              return bundles.Select(bundle => new ZarModelFileBundle(
+              return bundles.Select(bundle => new CmbModelFileBundle(
                                         bundle.ModelFile,
                                         bundle.AnimationFiles.ToArray(),
                                         ctxbFiles,

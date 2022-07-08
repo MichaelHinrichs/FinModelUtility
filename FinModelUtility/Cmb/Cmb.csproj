@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <AssemblyName>cmb</AssemblyName>
+    <RootNamespace>cmb</RootNamespace>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <!--
+  <PropertyGroup>
+    <IncludePackageReferencesDuringMarkupCompilation>true</IncludePackageReferencesDuringMarkupCompilation>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>gen</CompilerGeneratedFilesOutputPath>
+  </PropertyGroup>
+  <Target Name="AddSourceGeneratedFiles" AfterTargets="CoreCompile">
+    <ItemGroup>
+      <Compile Include="gen\**" />
+    </ItemGroup>
+  </Target>
+  <Target Name="RemoveSourceGeneratedFiles" BeforeTargets="CoreCompile">
+    <ItemGroup>
+      <Compile Remove="gen\**" />
+    </ItemGroup>
+  </Target>
+  -->
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="api\**" />
+    <EmbeddedResource Remove="api\**" />
+    <None Remove="api\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../BinarySchema/BinarySchema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\Fin\Fin.csproj" />
+  </ItemGroup>
+</Project>
