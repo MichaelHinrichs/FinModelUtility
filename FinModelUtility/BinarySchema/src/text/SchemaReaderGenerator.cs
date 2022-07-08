@@ -35,7 +35,7 @@ namespace schema.text {
 
       cbsb.EnterBlock("public void Read(EndianBinaryReader er)");
       foreach (var member in structure.Members) {
-        SchemaReaderGenerator.ReadMember_(cbsb, member);
+        SchemaReaderGenerator.ReadMember_(cbsb, typeSymbol, member);
       }
       cbsb.ExitBlock();
 
@@ -58,6 +58,7 @@ namespace schema.text {
 
     private static void ReadMember_(
         ICurlyBracketStringBuilder cbsb,
+        ITypeSymbol sourceSymbol,
         ISchemaMember member) {
       SchemaReaderGenerator.Align_(cbsb, member);
 
@@ -84,14 +85,14 @@ namespace schema.text {
 
         if (member.MemberType is not IPrimitiveMemberType) {
           cbsb.WriteLine(
-              $"this.{member.Name} = new {SymbolTypeUtil.GetQualifiedName(member.MemberType.TypeSymbol)}();");
+              $"this.{member.Name} = new {SymbolTypeUtil.GetQualifiedNameFromCurrentSymbol(sourceSymbol, member.MemberType.TypeSymbol)}();");
         }
       }
 
       var memberType = member.MemberType;
       switch (memberType) {
         case IPrimitiveMemberType: {
-          SchemaReaderGenerator.ReadPrimitive_(cbsb, member);
+          SchemaReaderGenerator.ReadPrimitive_(cbsb, sourceSymbol, member);
           break;
         }
         case IStringType: {
@@ -103,7 +104,7 @@ namespace schema.text {
           break;
         }
         case ISequenceMemberType: {
-          SchemaReaderGenerator.ReadArray_(cbsb, member);
+          SchemaReaderGenerator.ReadArray_(cbsb, sourceSymbol, member);
           break;
         }
         default: {
@@ -134,6 +135,7 @@ namespace schema.text {
 
     private static void ReadPrimitive_(
         ICurlyBracketStringBuilder cbsb,
+        ITypeSymbol sourceSymbol,
         ISchemaMember member) {
       var primitiveType = member.MemberType as IPrimitiveMemberType;
 
@@ -159,7 +161,8 @@ namespace schema.text {
         if (needToCast) {
           var castType =
               primitiveType.PrimitiveType == SchemaPrimitiveType.ENUM
-                  ? SymbolTypeUtil.GetQualifiedName(
+                  ? SymbolTypeUtil.GetQualifiedNameFromCurrentSymbol(
+                      sourceSymbol,
                       primitiveType.TypeSymbol)
                   : primitiveType.TypeSymbol.Name;
           castText = $"({castType}) ";
@@ -213,9 +216,11 @@ namespace schema.text {
 
       if (stringType.LengthSourceType == StringLengthSourceType.CONST) {
         if (stringType.IsEndianOrdered) {
-          cbsb.WriteLine($"this.{member.Name} = er.ReadStringEndian({stringType.ConstLength});");
+          cbsb.WriteLine(
+              $"this.{member.Name} = er.ReadStringEndian({stringType.ConstLength});");
         } else {
-          cbsb.WriteLine($"this.{member.Name} = er.ReadString({stringType.ConstLength});");
+          cbsb.WriteLine(
+              $"this.{member.Name} = er.ReadString({stringType.ConstLength});");
         }
         return;
       }
@@ -233,6 +238,7 @@ namespace schema.text {
 
     private static void ReadArray_(
         ICurlyBracketStringBuilder cbsb,
+        ITypeSymbol sourceSymbol,
         ISchemaMember member) {
       var arrayType = member.MemberType as ISequenceMemberType;
       if (arrayType.LengthSourceType != SequenceLengthSourceType.CONST) {
@@ -256,7 +262,9 @@ namespace schema.text {
             .ExitBlock();
 
         var qualifiedElementName =
-            SymbolTypeUtil.GetQualifiedName(arrayType.ElementType.TypeSymbol);
+            SymbolTypeUtil.GetQualifiedNameFromCurrentSymbol(
+                sourceSymbol,
+                arrayType.ElementType.TypeSymbol);
         var hasReferenceElements =
             arrayType.ElementType is IStructureMemberType {
                 IsReferenceType: true
@@ -294,11 +302,12 @@ namespace schema.text {
         }
       }
 
-      SchemaReaderGenerator.ReadIntoArray_(cbsb, member);
+      SchemaReaderGenerator.ReadIntoArray_(cbsb, sourceSymbol, member);
     }
 
     private static void ReadIntoArray_(
         ICurlyBracketStringBuilder cbsb,
+        ITypeSymbol sourceSymbol,
         ISchemaMember member) {
       var arrayType = member.MemberType as ISequenceMemberType;
 
@@ -327,7 +336,8 @@ namespace schema.text {
                                     : "Count";
           var castType =
               primitiveElementType.PrimitiveType == SchemaPrimitiveType.ENUM
-                  ? SymbolTypeUtil.GetQualifiedName(
+                  ? SymbolTypeUtil.GetQualifiedNameFromCurrentSymbol(
+                      sourceSymbol,
                       primitiveElementType.TypeSymbol)
                   : primitiveElementType.TypeSymbol.Name;
           cbsb.EnterBlock(

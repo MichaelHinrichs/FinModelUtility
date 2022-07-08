@@ -30,7 +30,7 @@ namespace foo.bar {
       {
         var b = er.ReadByte() != 0;
         if (b) {
-          this.ImmediateValue = new foo.bar.A();
+          this.ImmediateValue = new A();
           this.ImmediateValue.Read(er);
         }
         else {

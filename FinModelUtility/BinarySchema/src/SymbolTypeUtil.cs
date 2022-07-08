@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -149,6 +150,56 @@ namespace schema {
       }
 
       return $"{mergedNamespaceText}{mergedContainersText}{typeSymbol.Name}";
+    }
+
+    public static string GetQualifiedNameFromCurrentSymbol(
+        ITypeSymbol sourceSymbol,
+        ITypeSymbol referencedSymbol) {
+      var currentNamespace =
+          SymbolTypeUtil.MergeContainingNamespaces(sourceSymbol);
+      var referencedNamespace =
+          SymbolTypeUtil.MergeContainingNamespaces(referencedSymbol);
+
+      string mergedNamespaceText;
+      if (currentNamespace == null && referencedNamespace == null) {
+        mergedNamespaceText = "";
+      } else if (currentNamespace == null) {
+        mergedNamespaceText = $"{referencedNamespace!}.";
+      } else if (referencedNamespace == null) {
+        mergedNamespaceText = $"{currentNamespace}.";
+      } else {
+        var mergedNamespaceBuilder = new StringBuilder();
+        var matching = true;
+        for (var i = 0; i < referencedNamespace.Length; ++i) {
+          var prevMatching = matching;
+
+          var referencedC = referencedNamespace[i];
+          if (i >= currentNamespace.Length) {
+            matching = false;
+          } else if (currentNamespace[i] != referencedC) {
+            matching = false;
+          }
+
+          var newlyDifferent = prevMatching && !matching;
+          if (!(newlyDifferent && referencedC == '.') && !matching) {
+            mergedNamespaceBuilder.Append(referencedC);
+          }
+        }
+
+        mergedNamespaceText =
+            mergedNamespaceBuilder.Length > 0
+                ? $"{mergedNamespaceBuilder}."
+                : "";
+      }
+
+      var mergedContainersText = "";
+      foreach (var container in SymbolTypeUtil.GetDeclaringTypesDownward(
+                   referencedSymbol)) {
+        mergedContainersText += $"{container.Name}.";
+      }
+
+      return
+          $"{mergedNamespaceText}{mergedContainersText}{referencedSymbol.Name}";
     }
 
     public static ITypeSymbol GetTypeFromMember(

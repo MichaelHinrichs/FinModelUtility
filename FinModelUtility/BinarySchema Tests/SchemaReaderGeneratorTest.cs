@@ -159,7 +159,7 @@ namespace foo.bar {
       private partial class Wrapper {
         public void Read(EndianBinaryReader er) {
           this.length = er.ReadInt32();
-          this.value = (foo.bar.Parent.Middle.ValueEnum) er.ReadInt32();
+          this.value = (Parent.Middle.ValueEnum) er.ReadInt32();
         }
       }
     }
@@ -342,9 +342,9 @@ namespace foo.bar {
       er.AssertInt16(this.constShortField);
       er.AssertUInt16(this.constUshortProperty);" +
                             @"
-      this.nakedShortField = (foo.bar.ShortEnum) er.ReadInt16();
+      this.nakedShortField = (ShortEnum) er.ReadInt16();
       er.AssertInt16((short) this.constNakedShortField);
-      this.intField = (foo.bar.ShortEnum) er.ReadInt32();
+      this.intField = (ShortEnum) er.ReadInt32();
       er.AssertInt32((int) this.constIntField);" +
                             @"
       er.ReadInt32s(this.constLengthIntValues);
@@ -363,9 +363,9 @@ namespace foo.bar {
         if (c < 0) {
           throw new Exception(""Expected length to be nonnegative!"");
         }
-        this.others = new foo.bar.Other[c];
+        this.others = new Other[c];
         for (var i = 0; i < c; ++i) {
-          this.others[i] = new foo.bar.Other();
+          this.others[i] = new Other();
         }
       }
       foreach (var e in this.others) {
@@ -384,7 +384,7 @@ namespace foo.bar {
       Assert.IsEmpty(structure.Diagnostics);
 
       var actualGenerated = new SchemaReaderGenerator().Generate(structure);
-      Assert.AreEqual(expectedGenerated, actualGenerated);
+      Assert.AreEqual(expectedGenerated, actualGenerated.ReplaceLineEndings());
     }
   }
 }

@@ -365,7 +365,7 @@ namespace foo.bar {
       Assert.IsEmpty(structure.Diagnostics);
 
       var actualGenerated = new SchemaWriterGenerator().Generate(structure);
-      Assert.AreEqual(expectedGenerated, actualGenerated);
+      Assert.AreEqual(expectedGenerated, actualGenerated.ReplaceLineEndings());
     }
   }
 }

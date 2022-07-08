@@ -35,7 +35,7 @@ namespace schema.text {
 
       cbsb.EnterBlock("public void Write(EndianBinaryWriter ew)");
       foreach (var member in structure.Members) {
-        SchemaWriterGenerator.WriteMember_(cbsb, member);
+        SchemaWriterGenerator.WriteMember_(cbsb, typeSymbol, member);
       }
       cbsb.ExitBlock();
 
@@ -58,6 +58,7 @@ namespace schema.text {
 
     private static void WriteMember_(
         ICurlyBracketStringBuilder cbsb,
+        ITypeSymbol sourceSymbol,
         ISchemaMember member) {
       SchemaWriterGenerator.Align_(cbsb, member);
 
@@ -96,7 +97,7 @@ namespace schema.text {
           break;
         }
         case ISequenceMemberType: {
-          SchemaWriterGenerator.WriteArray_(cbsb, member);
+          SchemaWriterGenerator.WriteArray_(cbsb, sourceSymbol, member);
           break;
         }
         default:
@@ -187,6 +188,7 @@ namespace schema.text {
 
     private static void WriteArray_(
         ICurlyBracketStringBuilder cbsb,
+        ITypeSymbol sourceSymbol,
         ISchemaMember member) {
       var arrayType = member.MemberType as ISequenceMemberType;
       if (arrayType.LengthSourceType != SequenceLengthSourceType.CONST) {
@@ -212,11 +214,12 @@ namespace schema.text {
         }
       }
 
-      SchemaWriterGenerator.WriteIntoArray_(cbsb, member);
+      SchemaWriterGenerator.WriteIntoArray_(cbsb, sourceSymbol, member);
     }
 
     private static void WriteIntoArray_(
         ICurlyBracketStringBuilder cbsb,
+        ITypeSymbol sourceSymbol,
         ISchemaMember member) {
       var arrayType = member.MemberType as ISequenceMemberType;
 
@@ -240,7 +243,8 @@ namespace schema.text {
                                   : "Count";
         var castType =
             primitiveElementType.PrimitiveType == SchemaPrimitiveType.ENUM
-                ? SymbolTypeUtil.GetQualifiedName(
+                ? SymbolTypeUtil.GetQualifiedNameFromCurrentSymbol(
+                    sourceSymbol,
                     primitiveElementType.TypeSymbol)
                 : primitiveElementType.TypeSymbol.Name;
         cbsb.EnterBlock(
