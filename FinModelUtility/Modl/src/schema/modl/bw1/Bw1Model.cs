@@ -140,6 +140,8 @@ namespace modl.schema.modl.bw1 {
         sectionName = er.ReadStringEndian(4);
         sectionSize = er.ReadInt32();
 
+        var expectedSectionEnd = er.Position + sectionSize;
+
         switch (sectionName) {
           case "VUV1":
           case "VUV2":
@@ -162,6 +164,9 @@ namespace modl.schema.modl.bw1 {
             break;
           }
           case "VNBT": {
+            var endianness = er.Endianness;
+            er.Endianness = Endianness.BigEndian;
+
             var nbtSize = 4 * 9;
             Asserts.Equal(0, sectionSize % nbtSize);
             var nbtCount = sectionSize / nbtSize;
@@ -173,6 +178,8 @@ namespace modl.schema.modl.bw1 {
               });
               er.Position += 24;
             }
+
+            er.Endianness = endianness;
             break;
           }
           case "XBST": {
@@ -187,6 +194,8 @@ namespace modl.schema.modl.bw1 {
             break;
           }
         }
+
+        Asserts.Equal(er.Position, expectedSectionEnd);
       }
 
       Asserts.Equal(er.Position, expectedNodeEnd);
@@ -253,14 +262,6 @@ namespace modl.schema.modl.bw1 {
 
       Asserts.Equal(expectedEnd, er.Position + gxDataSize);
 
-      var positions = new List<ushort>();
-      var normals = new List<ushort>();
-      var triangleStrip = new BwTriangleStrip {
-          Positions = positions,
-          Normals = normals,
-      };
-      this.TriangleStrips.Add(triangleStrip);
-
       while (er.Position < expectedEnd) {
         var opcode = er.ReadByte();
         var opcodeEnum = (BwOpcode) opcode;
@@ -286,6 +287,14 @@ namespace modl.schema.modl.bw1 {
           // TODO: Complete
           break;
         } else if ((opcode & 0xFA) == 0x98) {
+          var positions = new List<ushort>();
+          var normals = new List<ushort>();
+          var triangleStrip = new BwTriangleStrip {
+              Positions = positions,
+              Normals = normals,
+          };
+          this.TriangleStrips.Add(triangleStrip);
+
           var vertexDescriptor = new VertexDescriptor();
           vertexDescriptor.FromValue(vertexDescriptorValue);
 
@@ -332,11 +341,11 @@ namespace modl.schema.modl.bw1 {
                   } else {
                     switch (vertexFormat) {
                       case VertexFormat.INDEX_8: {
-                        positions.Add(er.ReadByte());
+                        er.ReadByte();
                         break;
                       }
                       case VertexFormat.INDEX_16: {
-                        positions.Add(er.ReadUInt16());
+                        er.ReadUInt16();
                         break;
                       }
                       default: {
