@@ -45,7 +45,7 @@
   <ItemGroup>
     <Compile Remove="src\cli\Args.cs" />
     <Compile Remove="src\cli\Cli.cs" />
-    <Compile Remove="src\gcn\MaterialLeft.cs" />
+    <Compile Remove="src\schema\MaterialLeft.cs" />
   </ItemGroup>
 
   <ItemGroup>

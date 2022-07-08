@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using bmd.formats.mat3;
+using bmd.schema.bmd.mat3;
 
 using fin.model;
 

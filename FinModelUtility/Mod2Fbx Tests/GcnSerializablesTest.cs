@@ -1,6 +1,6 @@
 using System.IO;
 
-using mod.gcn.collision;
+using mod.schema.collision;
 
 using NUnit.Framework;
 
@@ -8,7 +8,7 @@ using schema;
 
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
-namespace mod.gcn {
+namespace mod.schema {
   public class Tests {
     [Test]
     public void TestBaseCollTriInfo()

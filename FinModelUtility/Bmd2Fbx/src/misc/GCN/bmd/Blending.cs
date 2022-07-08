@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-using bmd.formats.mat3;
+using bmd.schema.bmd.mat3;
 
 
 namespace mkds.gcn.bmd {

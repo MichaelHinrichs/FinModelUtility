@@ -21,12 +21,12 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Drawing;
 
-using bmd.formats;
-using bmd.formats.inf1;
-using bmd.formats.jnt1;
-using bmd.formats.mat3;
-using bmd.formats.shp1;
-using bmd.formats.vtx1;
+using bmd.schema.bmd;
+using bmd.schema.bmd.inf1;
+using bmd.schema.bmd.jnt1;
+using bmd.schema.bmd.mat3;
+using bmd.schema.bmd.shp1;
+using bmd.schema.bmd.vtx1;
 
 using fin.model;
 using fin.model.impl;

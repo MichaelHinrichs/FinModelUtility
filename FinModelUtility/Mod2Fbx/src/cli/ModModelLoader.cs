@@ -8,8 +8,8 @@ using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
 
-using mod.gcn;
-using mod.gcn.animation;
+using mod.schema;
+using mod.schema.animation;
 using mod.util;
 
 using Endianness = mod.util.Endianness;

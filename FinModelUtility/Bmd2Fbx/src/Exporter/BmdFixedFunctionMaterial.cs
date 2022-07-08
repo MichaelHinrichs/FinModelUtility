@@ -8,7 +8,7 @@ using System.Linq;
 using fin.model;
 
 using bmd.GCN;
-using bmd.formats.mat3;
+using bmd.schema.bmd.mat3;
 
 using fin.language.equations.fixedFunction;
 using fin.language.equations.fixedFunction.impl;
@@ -19,9 +19,9 @@ using mkds.gcn.bmd;
 
 using FinBlendFactor = fin.model.BlendFactor;
 using FinLogicOp = fin.model.LogicOp;
-using BmdAlphaOp = bmd.formats.mat3.GXAlphaOp;
+using BmdAlphaOp = bmd.schema.bmd.mat3.GXAlphaOp;
 using FinAlphaOp = fin.model.AlphaOp;
-using BmdAlphaCompareType = bmd.formats.mat3.GxCompareType;
+using BmdAlphaCompareType = bmd.schema.bmd.mat3.GxCompareType;
 using FinAlphaCompareType = fin.model.AlphaCompareType;
 
 
