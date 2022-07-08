@@ -152,6 +152,12 @@ namespace modl.schema.modl.bw1 {
             break;
           }
           case "VPOS": {
+            // Why on earth does this work??????
+            if (Positions.Count > 0) {
+              er.Position = expectedNodeEnd;
+              goto BreakEarly;
+            }
+
             var vertexPositionSize = 2 * 3;
             Asserts.Equal(0, sectionSize % vertexPositionSize);
             this.ReadPositions_(er, sectionSize / vertexPositionSize);
@@ -198,6 +204,7 @@ namespace modl.schema.modl.bw1 {
         Asserts.Equal(er.Position, expectedSectionEnd);
       }
 
+      BreakEarly: ;
       Asserts.Equal(er.Position, expectedNodeEnd);
     }
 
@@ -244,7 +251,7 @@ namespace modl.schema.modl.bw1 {
     }
 
 
-    public List<BwTriangleStrip> TriangleStrips { get; } = new();
+    public List<BwMesh> Meshes { get; } = new();
 
     private void ReadOpcodes_(EndianBinaryReader er,
                               int sectionSize,
@@ -261,6 +268,12 @@ namespace modl.schema.modl.bw1 {
       var gxDataSize = er.ReadUInt32();
 
       Asserts.Equal(expectedEnd, er.Position + gxDataSize);
+
+      var triangleStrips = new List<BwTriangleStrip>();
+      var mesh = new BwMesh {
+          TriangleStrips = triangleStrips
+      };
+      this.Meshes.Add(mesh);
 
       while (er.Position < expectedEnd) {
         var opcode = er.ReadByte();
@@ -285,93 +298,60 @@ namespace modl.schema.modl.bw1 {
           var y = er.ReadUInt32();
 
           // TODO: Complete
-          break;
         } else if ((opcode & 0xFA) == 0x98) {
+          var attributes = new List<List<ushort>>();
           var positions = new List<ushort>();
           var normals = new List<ushort>();
-          var triangleStrip = new BwTriangleStrip {
-              Positions = positions,
-              Normals = normals,
-          };
-          this.TriangleStrips.Add(triangleStrip);
 
           var vertexDescriptor = new VertexDescriptor();
           vertexDescriptor.FromValue(vertexDescriptorValue);
 
+          var triangleStrip = new BwTriangleStrip {
+              Positions = positions,
+              Normals = normals,
+          };
+          triangleStrips.Add(triangleStrip);
+
           var vertexCount = er.ReadUInt16();
           for (var i = 0; i < vertexCount; ++i) {
+            var attr = new List<ushort>();
+            attributes.Add(attr);
+
             foreach (var (vertexAttribute, vertexFormat) in
                      vertexDescriptor) {
+              var value = vertexFormat switch {
+                  null                  => er.ReadByte(),
+                  VertexFormat.INDEX_8  => er.ReadByte(),
+                  VertexFormat.INDEX_16 => er.ReadUInt16(),
+                  _                     => throw new NotImplementedException(),
+              };
+
+              attr.Add(value);
+
               switch (vertexAttribute) {
                 case VertexAttribute.Position: {
-                  switch (vertexFormat) {
-                    case VertexFormat.INDEX_8: {
-                      positions.Add(er.ReadByte());
-                      break;
-                    }
-                    case VertexFormat.INDEX_16: {
-                      positions.Add(er.ReadUInt16());
-                      break;
-                    }
-                    default: {
-                      break;
-                    }
-                  }
+                  positions.Add(value);
                   break;
                 }
                 case VertexAttribute.Normal: {
-                  switch (vertexFormat) {
-                    case VertexFormat.INDEX_8: {
-                      normals.Add(er.ReadByte());
-                      break;
-                    }
-                    case VertexFormat.INDEX_16: {
-                      normals.Add(er.ReadUInt16());
-                      break;
-                    }
-                    default: {
-                      break;
-                    }
-                  }
-                  break;
-                }
-                default: {
-                  if (vertexFormat == null) {
-                    er.ReadByte();
-                  } else {
-                    switch (vertexFormat) {
-                      case VertexFormat.INDEX_8: {
-                        er.ReadByte();
-                        break;
-                      }
-                      case VertexFormat.INDEX_16: {
-                        er.ReadUInt16();
-                        break;
-                      }
-                      default: {
-                        break;
-                      }
-                    }
-                  }
+                  normals.Add(value);
                   break;
                 }
               }
             }
           }
-        } else if (opcodeEnum == BwOpcode.STOP) {
-          goto EndOfOpcodes;
+        } else if (opcodeEnum == BwOpcode.NOP) {
         } else {
           ;
         }
       }
 
-      EndOfOpcodes:
       er.Endianness = endianness;
       er.Position = expectedEnd;
     }
 
     public enum BwOpcode : byte {
-      STOP = 0x0,
+      NOP = 0x0,
       LOAD_CP_REG = 0x8,
       LOAD_XF_REG = 0x10,
       TRIANGLE_STRIP = 0x98,
@@ -485,6 +465,9 @@ namespace modl.schema.modl.bw1 {
       INDEX_16 = 3
     }
 
+    public class BwMesh {
+      public List<BwTriangleStrip> TriangleStrips { get; set; }
+    }
 
     public class BwTriangleStrip {
       public List<ushort> Positions { get; set; }

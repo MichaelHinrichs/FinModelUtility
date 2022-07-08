@@ -4,6 +4,7 @@ using fin.io;
 using fin.math;
 using fin.model;
 using fin.model.impl;
+using fin.util.json;
 
 using modl.schema.modl.bw1;
 
@@ -24,7 +25,7 @@ namespace modl.api {
       var bw1Model = er.ReadNew<Bw1Model>();
 
       var model = new ModelImpl();
-      var mesh = model.Skin.AddMesh();
+      var finMesh = model.Skin.AddMesh();
 
       {
         var nodeQueue = new Queue<(IBone, ushort)>();
@@ -52,29 +53,31 @@ namespace modl.api {
                       eulerRadians.X, eulerRadians.Y, eulerRadians.Z);
           finBone.Name = $"Node {modlNodeId}";
 
-          foreach (var triangleStrip in modlNode.TriangleStrips) {
-            var vertices = new IVertex[triangleStrip.Positions.Count];
+          foreach (var modlMesh in modlNode.Meshes) {
+            foreach (var triangleStrip in modlMesh.TriangleStrips) {
+              var vertices = new IVertex[triangleStrip.Positions.Count];
 
-            for (var i = 0; i < vertices.Length; i++) {
-              var position = modlNode.Positions[triangleStrip.Positions[i]];
+              for (var i = 0; i < vertices.Length; i++) {
+                var position = modlNode.Positions[triangleStrip.Positions[i]];
 
-              var vertex = vertices[i] = model.Skin.AddVertex(
-                                                  position.X * modlNode.Scale,
-                                                  position.Y * modlNode.Scale,
-                                                  position.Z * modlNode.Scale)
-                                              .SetBoneWeights(
-                                                  model.Skin
-                                                      .GetOrCreateBoneWeights(
-                                                          PreprojectMode.BONE,
-                                                          finBone));
+                var vertex = vertices[i] = model.Skin.AddVertex(
+                                                    position.X * modlNode.Scale,
+                                                    position.Y * modlNode.Scale,
+                                                    position.Z * modlNode.Scale)
+                                                .SetBoneWeights(
+                                                    model.Skin
+                                                        .GetOrCreateBoneWeights(
+                                                            PreprojectMode.BONE,
+                                                            finBone));
 
-              if (modlNode.Normals.Count > 0) {
-                var normal = modlNode.Normals[triangleStrip.Normals[i]];
-                vertex.SetLocalNormal(normal.X, normal.Y, normal.Z);
+                if (modlNode.Normals.Count > 0) {
+                  var normal = modlNode.Normals[triangleStrip.Normals[i]];
+                  vertex.SetLocalNormal(normal.X, normal.Y, normal.Z);
+                }
               }
-            }
 
-            mesh.AddTriangleStrip(vertices);
+              finMesh.AddTriangleStrip(vertices);
+            }
           }
 
           if (bw1Model.CnctParentToChildren.TryGetList(
