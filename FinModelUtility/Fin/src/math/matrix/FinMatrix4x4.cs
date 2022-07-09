@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using fin.math.matrix;
 using fin.util.asserts;
@@ -11,6 +12,14 @@ namespace fin.math {
     private readonly double[] impl_ = new double[16];
 
     public FinMatrix4x4() { }
+
+    public FinMatrix4x4(IReadOnlyList<float> data) {
+      Asserts.Equal(4 * 4, data.Count);
+      for (var i = 0; i < 4 * 4; ++i) {
+        this.impl_[i] = data[i];
+      }
+      this.UpdateIsIdentity();
+    }
 
     public FinMatrix4x4(IReadOnlyFinMatrix4x4 other) => this.CopyFrom(other);
 
@@ -33,7 +42,8 @@ namespace fin.math {
       var isIdentity = true;
       for (var r = 0; r < 4; ++r) {
         for (var c = 0; c < 4; ++c) {
-          var isValueCorrect = Math.Abs(this[r, c] - ((r == c) ? 1 : 0)) < .0001;
+          var isValueCorrect =
+              Math.Abs(this[r, c] - ((r == c) ? 1 : 0)) < .0001;
           isIdentity &= isValueCorrect;
         }
       }
@@ -149,6 +159,27 @@ namespace fin.math {
       SystemMatrix.Invert(systemMatrix, out var invertedSystemMatrix);
 
       MatrixConversionUtil.CopySystemIntoFin(invertedSystemMatrix, buffer);
+    }
+
+
+    public IFinMatrix4x4 CloneAndTranspose()
+      => this.Clone().TransposeInPlace();
+
+    public IFinMatrix4x4 TransposeInPlace() {
+      if (!this.IsIdentity) {
+        this.TransposeIntoBuffer(FinMatrix4x4.SHARED_BUFFER);
+        this.CopyFrom(FinMatrix4x4.SHARED_BUFFER);
+      }
+      return this;
+    }
+
+    public void TransposeIntoBuffer(IFinMatrix4x4 buffer) {
+      Asserts.Different(this, buffer);
+      for (var r = 0; r < 4; ++r) {
+        for (var c = 0; c < 4; ++c) {
+          buffer[r, c] = this[c, r];
+        }
+      }
     }
 
 
