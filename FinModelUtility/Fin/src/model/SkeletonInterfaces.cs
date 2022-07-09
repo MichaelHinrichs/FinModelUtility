@@ -4,7 +4,7 @@ using fin.data;
 
 
 namespace fin.model {
-  public interface ISkeleton {
+  public interface ISkeleton : IEnumerable<IBone> {
     IBone Root { get; }
   }
 

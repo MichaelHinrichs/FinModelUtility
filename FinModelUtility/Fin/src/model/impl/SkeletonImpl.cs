@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 using fin.data;
@@ -87,6 +88,20 @@ namespace fin.model.impl {
         public IBone SetLocalScale(float x, float y, float z) {
           this.LocalScale ??= new ScaleImpl {X = x, Y = y, Z = z};
           return this;
+        }
+      }
+
+      IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+      public IEnumerator<IBone> GetEnumerator() {
+        var queue = new Queue<IBone>();
+        queue.Enqueue(this.Root);
+        while (queue.Count > 0) {
+          var bone = queue.Dequeue();
+          yield return bone;
+
+          foreach (var child in bone.Children) {
+            queue.Enqueue(child);
+          }
         }
       }
     }
