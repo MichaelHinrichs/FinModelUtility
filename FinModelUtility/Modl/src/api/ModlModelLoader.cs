@@ -4,7 +4,6 @@ using fin.io;
 using fin.math;
 using fin.model;
 using fin.model.impl;
-using fin.util.json;
 
 using modl.schema.modl.bw1;
 
@@ -26,6 +25,8 @@ namespace modl.api {
 
       var model = new ModelImpl();
       var finMesh = model.Skin.AddMesh();
+
+      var finBones = new IBone[bw1Model.Nodes.Count];
 
       {
         var nodeQueue = new Queue<(IBone, ushort)>();
@@ -52,38 +53,51 @@ namespace modl.api {
                   .SetLocalRotationRadians(
                       eulerRadians.X, eulerRadians.Y, eulerRadians.Z);
           finBone.Name = $"Node {modlNodeId}";
-
-          foreach (var modlMesh in modlNode.Meshes) {
-            foreach (var triangleStrip in modlMesh.TriangleStrips) {
-              var vertices = new IVertex[triangleStrip.Positions.Count];
-
-              for (var i = 0; i < vertices.Length; i++) {
-                var position = modlNode.Positions[triangleStrip.Positions[i]];
-
-                var vertex = vertices[i] = model.Skin.AddVertex(
-                                                    position.X * modlNode.Scale,
-                                                    position.Y * modlNode.Scale,
-                                                    position.Z * modlNode.Scale)
-                                                .SetBoneWeights(
-                                                    model.Skin
-                                                        .GetOrCreateBoneWeights(
-                                                            PreprojectMode.BONE,
-                                                            finBone));
-
-                if (modlNode.Normals.Count > 0) {
-                  var normal = modlNode.Normals[triangleStrip.Normals[i]];
-                  vertex.SetLocalNormal(normal.X, normal.Y, normal.Z);
-                }
-              }
-
-              finMesh.AddTriangleStrip(vertices);
-            }
-          }
+          finBones[modlNodeId] = finBone;
 
           if (bw1Model.CnctParentToChildren.TryGetList(
                   modlNodeId, out var modlChildIds)) {
             foreach (var modlChildId in modlChildIds) {
               nodeQueue.Enqueue((finBone, modlChildId));
+            }
+          }
+        }
+
+        foreach (var modlNode in bw1Model.Nodes) {
+          foreach (var modlMesh in modlNode.Meshes) {
+            foreach (var triangleStrip in modlMesh.TriangleStrips) {
+              var vertices =
+                  new IVertex[triangleStrip.VertexAttributeIndicesList.Count];
+              for (var i = 0; i < vertices.Length; i++) {
+                var vertexAttributeIndices =
+                    triangleStrip.VertexAttributeIndicesList[i];
+
+                var position =
+                    modlNode.Positions[vertexAttributeIndices.PositionIndex];
+                var vertex = vertices[i] = model.Skin.AddVertex(
+                                 position.X * modlNode.Scale,
+                                 position.Y * modlNode.Scale,
+                                 position.Z * modlNode.Scale);
+
+                if (vertexAttributeIndices.NormalIndex != null) {
+                  var normal =
+                      modlNode.Normals[
+                          vertexAttributeIndices.NormalIndex.Value];
+                  vertex.SetLocalNormal(normal.X, normal.Y, normal.Z);
+                }
+
+                if (vertexAttributeIndices.NodeIndex != null) {
+                  var finBone =
+                      finBones[vertexAttributeIndices.NodeIndex.Value];
+                  vertex.SetBoneWeights(
+                            model.Skin
+                                 .GetOrCreateBoneWeights(
+                                     PreprojectMode.ROOT,
+                                     finBone));
+                }
+              }
+
+              finMesh.AddTriangleStrip(vertices);
             }
           }
         }

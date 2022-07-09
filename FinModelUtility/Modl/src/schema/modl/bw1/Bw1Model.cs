@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Drawing.Text;
 
 using fin.data;
 using fin.util.asserts;
@@ -117,8 +118,10 @@ namespace modl.schema.modl.bw1 {
         if (sectionName == "VSCL") {
           Asserts.Equal(4, sectionSize);
           this.Scale = er.ReadSingle();
+        } else if (sectionName == "RNOD") {
+          this.ReadRnod_(er);
         } else {
-          er.Position += sectionSize;
+          throw new NotImplementedException();
         }
 
         sectionName = er.ReadStringEndian(4);
@@ -153,6 +156,7 @@ namespace modl.schema.modl.bw1 {
           }
           case "VPOS": {
             // Why on earth does this work??????
+            // TODO: This may mean to throw out the old position data???
             if (Positions.Count > 0) {
               er.Position = expectedNodeEnd;
               goto BreakEarly;
@@ -206,6 +210,18 @@ namespace modl.schema.modl.bw1 {
 
       BreakEarly: ;
       Asserts.Equal(er.Position, expectedNodeEnd);
+    }
+
+
+    public Bw1RnodMatrix[] Matrices { get; set; }
+
+    private void ReadRnod_(EndianBinaryReader er) {
+      var size = er.ReadUInt32();
+      this.Matrices = new Bw1RnodMatrix[size];
+
+      for (var i = 0; i < this.Matrices.Length; ++i) {
+        this.Matrices[i] = er.ReadNew<Bw1RnodMatrix>();
+      }
     }
 
 
@@ -299,23 +315,20 @@ namespace modl.schema.modl.bw1 {
 
           // TODO: Complete
         } else if ((opcode & 0xFA) == 0x98) {
-          var attributes = new List<List<ushort>>();
-          var positions = new List<ushort>();
-          var normals = new List<ushort>();
+          var vertexAttributeIndicesList = new List<BwVertexAttributeIndices>();
 
           var vertexDescriptor = new VertexDescriptor();
           vertexDescriptor.FromValue(vertexDescriptorValue);
 
           var triangleStrip = new BwTriangleStrip {
-              Positions = positions,
-              Normals = normals,
+              VertexAttributeIndicesList = vertexAttributeIndicesList,
           };
           triangleStrips.Add(triangleStrip);
 
           var vertexCount = er.ReadUInt16();
           for (var i = 0; i < vertexCount; ++i) {
-            var attr = new List<ushort>();
-            attributes.Add(attr);
+            var vertexAttributeIndices = new BwVertexAttributeIndices();
+            vertexAttributeIndicesList.Add(vertexAttributeIndices);
 
             foreach (var (vertexAttribute, vertexFormat) in
                      vertexDescriptor) {
@@ -326,22 +339,23 @@ namespace modl.schema.modl.bw1 {
                   _                     => throw new NotImplementedException(),
               };
 
-              attr.Add(value);
-
               switch (vertexAttribute) {
+                case VertexAttribute.PosMatIdx: {
+                  vertexAttributeIndices.NodeIndex = value;
+                  break;
+                }
                 case VertexAttribute.Position: {
-                  positions.Add(value);
+                  vertexAttributeIndices.PositionIndex = value;
                   break;
                 }
                 case VertexAttribute.Normal: {
-                  normals.Add(value);
+                  vertexAttributeIndices.NormalIndex = value;
                   break;
                 }
               }
             }
           }
-        } else if (opcodeEnum == BwOpcode.NOP) {
-        } else {
+        } else if (opcodeEnum == BwOpcode.NOP) { } else {
           ;
         }
       }
@@ -470,8 +484,16 @@ namespace modl.schema.modl.bw1 {
     }
 
     public class BwTriangleStrip {
-      public List<ushort> Positions { get; set; }
-      public List<ushort> Normals { get; set; }
+      public List<BwVertexAttributeIndices> VertexAttributeIndicesList {
+        get;
+        set;
+      }
+    }
+
+    public class BwVertexAttributeIndices {
+      public ushort PositionIndex { get; set; }
+      public ushort? NormalIndex { get; set; }
+      public ushort? NodeIndex { get; set; }
     }
   }
 }
