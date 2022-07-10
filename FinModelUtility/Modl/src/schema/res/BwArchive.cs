@@ -1,5 +1,7 @@
 ﻿using fin.data;
 
+using modl.schema.res.texr;
+
 using schema;
 
 
@@ -21,26 +23,6 @@ namespace modl.schema.res {
         this.Files.Add(bwFile.Type, bwFile);
       }
     }
-  }
-
-  public class Texr : IBiSerializable {
-    public string FileName { get; private set; }
-
-    public void Read(EndianBinaryReader er) {
-      er.AssertStringEndian("TEXR");
-
-      var dataLength = er.ReadUInt32();
-      var dataOffset = er.Position;
-
-      this.FileName = er.ReadString(er.ReadInt32());
-
-      // TODO: What is the rest of this data?
-
-      er.Position = dataOffset + dataLength;
-    }
-
-    public void Write(EndianBinaryWriter ew) =>
-        throw new NotImplementedException();
   }
 
   [Schema]
