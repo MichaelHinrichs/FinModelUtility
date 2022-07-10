@@ -224,7 +224,7 @@ namespace cmb.api {
                              fileAndCtxb => fileAndCtxb.Item2)
                          .Single(
                              ctxb => ctxb.Chunk.Entry.name ==
-                                     cmbTexture.name);
+                                     cmbTexture.GetNameWithoutTerminators());
                  bitmap =
                      ctrTexture.DecodeImage(ctxb.Data,
                                             cmbTexture);
@@ -249,7 +249,7 @@ namespace cmb.api {
           var textureImage = textureImages[textureId];
 
           finTexture = finModel.MaterialManager.CreateTexture(textureImage);
-          finTexture.Name = cmbTexture.name;
+          finTexture.Name = cmbTexture.GetNameWithoutTerminators();
           finTexture.WrapModeU = this.CmbToFinWrapMode(texMapper.wrapS);
           finTexture.WrapModeV = this.CmbToFinWrapMode(texMapper.wrapT);
         }

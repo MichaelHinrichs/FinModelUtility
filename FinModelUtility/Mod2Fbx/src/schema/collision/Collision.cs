@@ -27,46 +27,42 @@ namespace mod.schema.collision {
     public readonly List<BaseRoomInfo> roominfo = new();
     public readonly List<BaseCollTriInfo> collinfo = new();
 
-    public void Read(EndianBinaryReader reader) {
-      var numColInfos = reader.ReadUInt32();
-      var numRoomInfos = reader.ReadUInt32();
+    public void Read(EndianBinaryReader er) {
+      var numColInfos = er.ReadUInt32();
+      var numRoomInfos = er.ReadUInt32();
 
       this.collinfo.Clear();
       this.roominfo.Clear();
 
-      reader.Align(0x20);
+      er.Align(0x20);
       for (var i = 0; i < numRoomInfos; ++i) {
-        var roomInfo = new BaseRoomInfo();
-        roomInfo.Read(reader);
-        this.roominfo.Add(roomInfo);
+        this.roominfo.Add(er.ReadNew<BaseRoomInfo>());
       }
 
-      reader.Align(0x20);
+      er.Align(0x20);
       for (var i = 0; i < numColInfos; ++i) {
-        var colInfo = new BaseCollTriInfo();
-        colInfo.Read(reader);
-        this.collinfo.Add(colInfo);
+        this.collinfo.Add(er.ReadNew<BaseCollTriInfo>());
       }
 
-      reader.Align(0x20);
+      er.Align(0x20);
     }
 
-    public void Write(EndianBinaryWriter writer) {
-      var start = writer.StartChunk(0x100);
-      writer.WriteInt32(this.collinfo.Count);
-      writer.WriteInt32(this.roominfo.Count);
+    public void Write(EndianBinaryWriter ew) {
+      var start = ew.StartChunk(0x100);
+      ew.WriteInt32(this.collinfo.Count);
+      ew.WriteInt32(this.roominfo.Count);
 
-      writer.Align(0x20);
+      ew.Align(0x20);
       foreach (var info in this.roominfo) {
-        info.Write(writer);
+        info.Write(ew);
       }
 
-      writer.Align(0x20);
+      ew.Align(0x20);
       foreach (var info in this.collinfo) {
-        info.Write(writer);
+        info.Write(ew);
       }
 
-      writer.FinishChunk(start);
+      ew.FinishChunk(start);
     }
   }
 

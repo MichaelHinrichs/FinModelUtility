@@ -63,8 +63,6 @@ namespace cmb.schema.csab {
         for (var i = 0; i < this.Keyframes.Count; ++i) {
           var value = r.ReadUInt32();
 
-          ;
-
           this.Keyframes[i] = new CsabKeyframe {
               Time = (uint) i,
               Value = value * scale - bias,
@@ -77,8 +75,6 @@ namespace cmb.schema.csab {
       if (this.parent_.Version > 4 && this.Type == AnimationTrackType.LINEAR) {
         trackScale = r.ReadSingle();
         trackBias = r.ReadSingle();
-
-        ;
       }
 
       switch (this.Type) {

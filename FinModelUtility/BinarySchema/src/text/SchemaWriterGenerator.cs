@@ -160,9 +160,11 @@ namespace schema.text {
       var writeType = SchemaGeneratorUtil.GetPrimitiveLabel(
           SchemaGeneratorUtil.ConvertNumberToPrimitive(
               primitiveType.AltFormat));
+      var castType = SchemaGeneratorUtil.GetTypeName(
+          primitiveType.AltFormat);
 
       cbsb.WriteLine(
-          $"ew.Write{writeType}(this.{member.Name} ? 1 : 0);");
+          $"ew.Write{writeType}(({castType}) (this.{member.Name} ? 1 : 0));");
     }
 
     private static void WriteString_(
