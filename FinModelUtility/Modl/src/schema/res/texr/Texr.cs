@@ -49,6 +49,7 @@ namespace modl.schema.res.texr {
         var unknowns2 = er.ReadUInt32s(1);
 
         var image = textureType switch {
+            "A8R8G8B8" => this.ReadA8R8G8B8_(er, width, height),
             "DXT1" => this.ReadDxt1_(er, width, height),
             "P8"   => this.ReadP8_(er, width, height),
             _      => null,
@@ -68,6 +69,65 @@ namespace modl.schema.res.texr {
 
     public void Write(EndianBinaryWriter ew) =>
         throw new NotImplementedException();
+
+    private Image ReadA8R8G8B8_(EndianBinaryReader er, uint width, uint height) {
+      er.AssertStringEndian("MIP ");
+
+      var mipSize = width * height * 4;
+      er.AssertUInt32(mipSize);
+
+      var endianness = er.Endianness;
+      er.Endianness = Endianness.BigEndian;
+
+      var image = new Bitmap((int)width, (int)height);
+      BitmapUtil.InvokeAsLocked(image, bmpData => {
+        unsafe {
+          var x = 0;
+          var y = 0;
+
+          var ptr = (byte*)bmpData.Scan0;
+          for (var i = 0; i < mipSize / 64; ++i) {
+            for (var iy = 0; iy < 4; ++iy) {
+              var imgY = y + iy;
+              for (var ix = 0; ix < 4; ++ix) {
+                var imgX = x + ix;
+
+                var a = er.ReadByte();
+                var r = er.ReadByte();
+
+                var index = 4 * (imgY * width + imgX);
+                ptr[index + 2] = r;
+                ptr[index + 3] = a;
+              }
+            }
+
+            for (var iy = 0; iy < 4; ++iy) {
+              var imgY = y + iy;
+              for (var ix = 0; ix < 4; ++ix) {
+                var imgX = x + ix;
+
+                var g = er.ReadByte();
+                var b = er.ReadByte();
+
+                var index = 4 * (imgY * width + imgX);
+                ptr[index + 0] = b;
+                ptr[index + 1] = g;
+              }
+            }
+
+            x += 4;
+            if (x >= width) {
+              x = 0;
+              y += 4;
+            }
+          }
+        }
+      });
+
+      er.Endianness = endianness;
+
+      return image;
+    }
 
     private Image ReadDxt1_(EndianBinaryReader er, uint width, uint height) {
       er.AssertStringEndian("MIP ");
