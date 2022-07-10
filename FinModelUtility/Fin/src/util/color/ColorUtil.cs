@@ -35,7 +35,7 @@ namespace fin.util.color {
 
     public static IColor ParseRgb565(ushort color) {
       ColorUtil.SplitRgb565(color, out var r, out var g, out var b);
-      return ColorImpl.FromRgbaBytes(r, g, b, 255);
+      return ColorImpl.FromRgbBytes(r, g, b);
     }
 
     public static void SplitRgb5A3(

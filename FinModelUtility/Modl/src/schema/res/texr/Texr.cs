@@ -163,22 +163,19 @@ namespace modl.schema.res.texr {
             var color1 = colors[1] = ColorUtil.ParseRgb565(color1Value);
 
             if (color0Value > color1Value) {
-              colors[2] = ColorImpl.FromRgbaBytes(
+              colors[2] = ColorImpl.FromRgbBytes(
                   (byte) ((2 * color0.Rb + color1.Rb) / 3f),
                   (byte) ((2 * color0.Gb + color1.Gb) / 3f),
-                  (byte) ((2 * color0.Bb + color1.Bb) / 3f),
-                  255);
-              colors[3] = ColorImpl.FromRgbaBytes(
+                  (byte) ((2 * color0.Bb + color1.Bb) / 3f));
+              colors[3] = ColorImpl.FromRgbBytes(
                   (byte) ((2 * color1.Rb + color0.Rb) / 3f),
                   (byte) ((2 * color1.Gb + color0.Gb) / 3f),
-                  (byte) ((2 * color1.Bb + color0.Bb) / 3f),
-                  255);
+                  (byte) ((2 * color1.Bb + color0.Bb) / 3f));
             } else {
-              colors[2] = ColorImpl.FromRgbaBytes(
+              colors[2] = ColorImpl.FromRgbBytes(
                   (byte) ((color0.Rb + color1.Rb) / 2f),
                   (byte) ((color0.Gb + color1.Gb) / 2f),
-                  (byte) ((color0.Bb + color1.Bb) / 2f),
-                  255);
+                  (byte) ((color0.Bb + color1.Bb) / 2f));
               colors[3] = ColorImpl.FromRgbaBytes(
                   0, 0, 0, 0);
             }

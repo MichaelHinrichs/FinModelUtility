@@ -273,8 +273,33 @@ namespace fin.model.impl {
       this.Ab = ab;
     }
 
+    public static IColor FromRgbBytes(byte rb, byte gb, byte bb)
+      => FromRgbaBytes(rb, gb, bb, 255);
+
     public static IColor FromRgbaBytes(byte rb, byte gb, byte bb, byte ab)
       => new ColorImpl(rb, gb, bb, ab);
+
+
+    public static IColor FromRgbFloats(float rf, float gf, float bf)
+      => FromRgbaFloats(rf, gf, bf, 1);
+
+    public static IColor FromRgbaFloats(float rf, float gf, float bf, float af)
+      => FromRgbaBytes((byte) (rf * 255),
+                       (byte) (gf * 255),
+                       (byte) (bf * 255),
+                       (byte) (af * 255));
+
+
+    public static IColor FromIntensityByte(byte ib)
+      => FromRgbBytes(ib, ib, ib);
+
+    public static IColor FromIntensityFloat(float iF)
+      => FromIntensityByte((byte) (iF * 255));
+
+
+    public static IColor FromSystemColor(Color color)
+      => FromRgbaBytes(color.R, color.G, color.B, color.A);
+
 
     public static IColor FromHsv(
         double hDegrees,

@@ -24,11 +24,11 @@ namespace mod.schema.image {
         for (var i = 0; i < 4; ++i) {
           var pixes = s.ReadU8();
 
-          var pix1 = ColorUtil.ExtractScaled(pixes, 4, 4, 17);
-          var pix2 = ColorUtil.ExtractScaled(pixes, 0, 4, 17);
+          var intensity1 = ColorUtil.ExtractScaled(pixes, 4, 4, 17);
+          var intensity2 = ColorUtil.ExtractScaled(pixes, 0, 4, 17);
 
-          bl[j * 8 + 2 * i] = ColorImpl.FromRgbaBytes(pix1, pix1, pix1, 255);
-          bl[j * 8 + 2 * i + 1] = ColorImpl.FromRgbaBytes(pix2, pix2, pix2, 255);
+          bl[j * 8 + 2 * i] = ColorImpl.FromIntensityByte(intensity1);
+          bl[j * 8 + 2 * i + 1] = ColorImpl.FromIntensityByte(intensity2);
         }
       }
       

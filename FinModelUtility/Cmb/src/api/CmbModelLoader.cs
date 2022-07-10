@@ -497,7 +497,7 @@ namespace cmb.api {
             finVertex.SetColor(ColorImpl.FromRgbaBytes(255, 0, 0, 255));
           } else {
           }*/
-          finVertex.SetColor(ColorImpl.FromRgbaBytes(255, 255, 255, 255));
+          finVertex.SetColor(ColorImpl.FromSystemColor(Color.White));
         }
 
         // Adds faces. Thankfully, it's all just triangles!
