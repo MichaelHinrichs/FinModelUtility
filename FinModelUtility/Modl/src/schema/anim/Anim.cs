@@ -5,7 +5,7 @@ namespace modl.schema.anim {
   public class Anim : IDeserializable {
     public void Read(EndianBinaryReader er) {
       var name0Length = er.ReadUInt32();
-      var name0 = er.ReadString(name0Length);
+      var name0 = er.ReadString((int) name0Length);
 
       var unknown = er.ReadUInt32();
       er.AssertUInt32(0);

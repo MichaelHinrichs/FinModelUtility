@@ -354,6 +354,8 @@ namespace modl.schema.modl.bw1 {
 
               switch (vertexAttribute) {
                 case VertexAttribute.PosMatIdx: {
+                  Asserts.Equal(0, value % 3);
+                  value /= 3;
                   vertexAttributeIndices.NodeIndex = value;
                   break;
                 }
