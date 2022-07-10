@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Drawing;
+using System.Numerics;
 
 using fin.io;
 using fin.math;
@@ -64,7 +65,35 @@ namespace modl.api {
         }
 
         foreach (var modlNode in bw1Model.Nodes) {
+          var finMaterials =
+              modlNode.Materials.Select(modlMaterial => {
+                        var textureName =
+                            modlMaterial.Texture1.Replace("\0", "");
+                        if (textureName == "") {
+                          return null;
+                        }
+
+                        var textureFile =
+                            modlFile.Parent.Files.Single(
+                                file => file.Name == $"{textureName}.png");
+                        var image =
+                            (Bitmap) Image.FromFile(textureFile.FullName);
+
+                        var finTexture =
+                            model.MaterialManager.CreateTexture(image);
+                        // TODO: Need to handle wrapping
+
+                        var finMaterial =
+                            model.MaterialManager
+                                 .AddTextureMaterial(finTexture);
+
+                        return finMaterial;
+                      })
+                      .ToArray();
+
           foreach (var modlMesh in modlNode.Meshes) {
+            var finMaterial = finMaterials[modlMesh.MaterialIndex];
+
             foreach (var triangleStrip in modlMesh.TriangleStrips) {
               var vertices =
                   new IVertex[triangleStrip.VertexAttributeIndicesList.Count];
@@ -90,14 +119,31 @@ namespace modl.api {
                   var finBone =
                       finBones[vertexAttributeIndices.NodeIndex.Value];
                   vertex.SetBoneWeights(
-                            model.Skin
-                                 .GetOrCreateBoneWeights(
-                                     PreprojectMode.ROOT,
-                                     finBone));
+                      model.Skin
+                           .GetOrCreateBoneWeights(
+                               PreprojectMode.ROOT,
+                               finBone));
+                }
+
+                var texCoordIndex0 = vertexAttributeIndices.TexCoordIndices[0];
+                var texCoordIndex1 = vertexAttributeIndices.TexCoordIndices[1];
+                if (texCoordIndex1 != null) {
+                  int texCoordIndex;
+                  if (texCoordIndex0 != null) {
+                    texCoordIndex =
+                        (texCoordIndex0.Value << 8) | texCoordIndex1.Value;
+                  } else {
+                    texCoordIndex = texCoordIndex1.Value;
+                  }
+
+                  var uv = modlNode.UvMaps[0][texCoordIndex];
+                  vertex.SetUv(uv.U, uv.V);
                 }
               }
 
-              finMesh.AddTriangleStrip(vertices);
+              finMesh.AddTriangleStrip(vertices)
+                     .SetMaterial(finMaterial)
+                     .SetVertexOrder(VertexOrder.NORMAL);
             }
           }
         }

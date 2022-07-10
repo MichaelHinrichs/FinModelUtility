@@ -488,7 +488,7 @@ namespace System.IO {
           this.ReadString(encoding, expectedValue.Length));
 
     public string ReadString(Encoding encoding, int count)
-      => new string(this.ReadChars(encoding, count)).Replace("\0", "");
+      => new string(this.ReadChars(encoding, count));
 
 
     public void AssertStringEndian(string expectedValue)

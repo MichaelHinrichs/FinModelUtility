@@ -321,6 +321,13 @@ namespace fin.model.impl {
           this.Material = material;
           return this;
         }
+
+        public VertexOrder VertexOrder { get; private set; } = VertexOrder.FLIP;
+
+        public IPrimitive SetVertexOrder(VertexOrder vertexOrder) {
+          this.VertexOrder = vertexOrder;
+          return this;
+        }
       }
 
       private class BoneWeightsImpl : IBoneWeights {

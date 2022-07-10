@@ -230,6 +230,9 @@ namespace modl.schema.modl.bw1 {
     private void ReadUvMap_(EndianBinaryReader er,
                             int uvMapIndex,
                             int uvCount) {
+      var endianness = er.Endianness;
+      er.Endianness = Endianness.BigEndian;
+
       var scale = MathF.Pow(2, 11);
       var uvMap = this.UvMaps[uvMapIndex] = new Uv[uvCount];
       for (var i = 0; i < uvCount; ++i) {
@@ -238,6 +241,8 @@ namespace modl.schema.modl.bw1 {
             V = er.ReadInt16() / scale,
         };
       }
+
+      er.Endianness = endianness;
     }
 
     public class Uv {
@@ -251,9 +256,11 @@ namespace modl.schema.modl.bw1 {
     private void ReadPositions_(EndianBinaryReader er, int vertexCount) {
       var endianness = er.Endianness;
       er.Endianness = Endianness.BigEndian;
+      
       for (var i = 0; i < vertexCount; ++i) {
         this.Positions.Add(er.ReadNew<VertexPosition>());
       }
+
       er.Endianness = endianness;
     }
 
@@ -261,9 +268,14 @@ namespace modl.schema.modl.bw1 {
     public List<VertexNormal> Normals { get; } = new();
 
     private void ReadNormals_(EndianBinaryReader er, int vertexCount) {
+      var endianness = er.Endianness;
+      er.Endianness = Endianness.BigEndian;
+      
       for (var i = 0; i < vertexCount; ++i) {
         this.Normals.Add(er.ReadNew<VertexNormal>());
       }
+
+      er.Endianness = endianness;
     }
 
 
@@ -287,6 +299,7 @@ namespace modl.schema.modl.bw1 {
 
       var triangleStrips = new List<BwTriangleStrip>();
       var mesh = new BwMesh {
+          MaterialIndex = materialIndex,
           TriangleStrips = triangleStrips
       };
       this.Meshes.Add(mesh);
@@ -350,6 +363,18 @@ namespace modl.schema.modl.bw1 {
                 }
                 case VertexAttribute.Normal: {
                   vertexAttributeIndices.NormalIndex = value;
+                  break;
+                }
+                case VertexAttribute.Tex0Coord:
+                case VertexAttribute.Tex1Coord:
+                case VertexAttribute.Tex2Coord:
+                case VertexAttribute.Tex3Coord:
+                case VertexAttribute.Tex4Coord:
+                case VertexAttribute.Tex5Coord:
+                case VertexAttribute.Tex6Coord:
+                case VertexAttribute.Tex7Coord: {
+                  var index = vertexAttribute - VertexAttribute.Tex0Coord;
+                  vertexAttributeIndices.TexCoordIndices[index] = value;
                   break;
                 }
               }
@@ -480,6 +505,7 @@ namespace modl.schema.modl.bw1 {
     }
 
     public class BwMesh {
+      public uint MaterialIndex { get; set; }
       public List<BwTriangleStrip> TriangleStrips { get; set; }
     }
 
@@ -494,6 +520,7 @@ namespace modl.schema.modl.bw1 {
       public ushort PositionIndex { get; set; }
       public ushort? NormalIndex { get; set; }
       public ushort? NodeIndex { get; set; }
+      public ushort?[] TexCoordIndices { get; } = new ushort?[8];
     }
   }
 }

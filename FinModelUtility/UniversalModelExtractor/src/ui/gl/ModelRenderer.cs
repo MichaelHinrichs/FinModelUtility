@@ -212,9 +212,15 @@ void main() {
         switch (primitive.Type) {
           case PrimitiveType.TRIANGLES: {
             for (var v = 0; v < pointsCount; v += 3) {
-              this.RenderVertex_(vertices[v + 0]);
-              this.RenderVertex_(vertices[v + 2]);
-              this.RenderVertex_(vertices[v + 1]);
+              if (primitive.VertexOrder == VertexOrder.FLIP) {
+                this.RenderVertex_(vertices[v + 0]);
+                this.RenderVertex_(vertices[v + 2]);
+                this.RenderVertex_(vertices[v + 1]);
+              } else {
+                this.RenderVertex_(vertices[v + 0]);
+                this.RenderVertex_(vertices[v + 1]);
+                this.RenderVertex_(vertices[v + 2]);
+              }
             }
             break;
           }
@@ -233,10 +239,15 @@ void main() {
                 v3 = vertices[v + 2];
               }
 
-              // Intentionally flipped to fix bug where faces were backwards.
-              this.RenderVertex_(v1);
-              this.RenderVertex_(v3);
-              this.RenderVertex_(v2);
+              if (primitive.VertexOrder == VertexOrder.FLIP) {
+                this.RenderVertex_(v1);
+                this.RenderVertex_(v3);
+                this.RenderVertex_(v2);
+              } else {
+                this.RenderVertex_(v1);
+                this.RenderVertex_(v2);
+                this.RenderVertex_(v3);
+              }
             }
             break;
           }

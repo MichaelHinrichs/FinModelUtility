@@ -116,11 +116,19 @@ namespace fin.model {
     // TODO: Other types.
   }
 
+  public enum VertexOrder {
+    NORMAL,
+    FLIP,
+  }
+
   public interface IPrimitive {
     PrimitiveType Type { get; }
     IReadOnlyList<IVertex> Vertices { get; }
 
     IMaterial Material { get; }
     IPrimitive SetMaterial(IMaterial material);
+
+    VertexOrder VertexOrder { get; }
+    IPrimitive SetVertexOrder(VertexOrder vertexOrder);
   }
 }
