@@ -259,10 +259,15 @@ void main() {
               var v2 = vertices[v - 1];
               var v3 = vertices[v];
 
-              // Intentionally flipped to fix bug where faces were backwards.
-              this.RenderVertex_(v1);
-              this.RenderVertex_(v3);
-              this.RenderVertex_(v2);
+              if (primitive.VertexOrder == VertexOrder.FLIP) {
+                this.RenderVertex_(v1);
+                this.RenderVertex_(v3);
+                this.RenderVertex_(v2);
+              } else {
+                this.RenderVertex_(v1);
+                this.RenderVertex_(v2);
+                this.RenderVertex_(v3);
+              }
             }
             break;
           }

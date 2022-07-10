@@ -501,16 +501,12 @@ namespace cmb.api {
         }
 
         // Adds faces. Thankfully, it's all just triangles!
-        var triangleVertices = new IVertex[meshIndices.Count];
-        for (var i = 0; i < meshIndices.Count; i += 3) {
-          // TODO: Encapsulate this option in the primitive
-          // Have to flip faces to get this to work
-          triangleVertices[i] = finVertices[meshIndices[i]];
-          triangleVertices[i + 1] = finVertices[meshIndices[i + 2]];
-          triangleVertices[i + 2] = finVertices[meshIndices[i + 1]];
-        }
+        var triangleVertices = meshIndices
+                               .Select(meshIndex => finVertices[meshIndex])
+                               .ToArray();
         finMesh.AddTriangles(triangleVertices)
-               .SetMaterial(finMaterials[cmbMesh.materialIndex]);
+               .SetMaterial(finMaterials[cmbMesh.materialIndex])
+               .SetVertexOrder(VertexOrder.NORMAL);
       }
 
       // Adds morph targets

@@ -147,8 +147,11 @@ namespace fin.exporter.gltf {
                 var v2 = vertices[v + 1];
                 var v3 = vertices[v + 2];
 
-                // Intentionally flipped to fix bug where faces were backwards.
-                triangles.AddTriangle(v1, v3, v2);
+                if (primitive.VertexOrder == VertexOrder.FLIP) {
+                  triangles.AddTriangle(v1, v3, v2);
+                } else {
+                  triangles.AddTriangle(v1, v2, v3);
+                }
               }
               break;
             }
@@ -169,13 +172,16 @@ namespace fin.exporter.gltf {
                   v3 = vertices[v + 2];
                 }
 
-                // Intentionally flipped to fix bug where faces were backwards.
-                triangleStrip.AddTriangle(v1, v3, v2);
+                if (primitive.VertexOrder == VertexOrder.FLIP) {
+                  triangleStrip.AddTriangle(v1, v3, v2);
+                } else {
+                  triangleStrip.AddTriangle(v1, v2, v3);
+                }
               }
               break;
             }
             case PrimitiveType.TRIANGLE_FAN: {
-              var triangleStrip =
+              var triangleFan =
                   gltfMeshBuilder.UsePrimitive(materialBuilder, 3);
 
               // https://stackoverflow.com/a/8044252
@@ -185,8 +191,11 @@ namespace fin.exporter.gltf {
                 var v2 = vertices[v - 1];
                 var v3 = vertices[v];
 
-                // Intentionally flipped to fix bug where faces were backwards.
-                triangleStrip.AddTriangle(v1, v3, v2);
+                if (primitive.VertexOrder == VertexOrder.FLIP) {
+                  triangleFan.AddTriangle(v1, v3, v2);
+                } else {
+                  triangleFan.AddTriangle(v1, v2, v3);
+                }
               }
               break;
             }

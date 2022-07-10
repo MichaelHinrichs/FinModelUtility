@@ -273,8 +273,6 @@ namespace bmd.exporter {
                 weightsTable[i] = finSkin.GetOrCreateBoneWeights(PreprojectMode.BONE, weights);
               }
 
-              // TODO: Encapsulate this projection logic?
-              // Adds primitives
               foreach (var primitive in packet.Primitives) {
                 var points = primitive.Points;
                 var pointsCount = points.Length;

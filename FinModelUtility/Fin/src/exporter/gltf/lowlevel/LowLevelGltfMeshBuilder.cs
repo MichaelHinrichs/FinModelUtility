@@ -105,10 +105,10 @@ namespace fin.exporter.gltf.lowlevel {
                                     finColor0)
                                 : new Vector4(1, 1, 1, 1);
             var col = colorArray[p];
-            col.X = assColor0.X ;
-            col.Y = assColor0.Y ;
-            col.Z = assColor0.Z ;
-            col.W = assColor0.W ;
+            col.X = assColor0.X;
+            col.Y = assColor0.Y;
+            col.Z = assColor0.Z;
+            col.W = assColor0.W;
             colorArray[p] = col;
 
             var finUv = point.GetUv(0);
@@ -222,10 +222,15 @@ namespace fin.exporter.gltf.lowlevel {
                 var v2 = v + 1;
                 var v3 = v + 2;
 
-                // Intentionally flipped to fix bug where faces were backwards.
-                indexArray[v + 0] = (uint) v1;
-                indexArray[v + 1] = (uint) v3;
-                indexArray[v + 2] = (uint) v2;
+                if (primitive.VertexOrder == VertexOrder.FLIP) {
+                  indexArray[v + 0] = (uint) v1;
+                  indexArray[v + 1] = (uint) v3;
+                  indexArray[v + 2] = (uint) v2;
+                } else {
+                  indexArray[v + 0] = (uint) v1;
+                  indexArray[v + 1] = (uint) v2;
+                  indexArray[v + 2] = (uint) v3;
+                }
               }
 
               var indexAccessor = gltfModel.CreateAccessor();
