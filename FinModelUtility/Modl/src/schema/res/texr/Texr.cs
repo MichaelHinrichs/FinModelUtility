@@ -13,6 +13,8 @@ namespace modl.schema.res.texr {
   public class Texr : IBiSerializable {
     public string FileName { get; private set; }
 
+    public List<Bw1Texture> Textures { get; } = new();
+
     public void Read(EndianBinaryReader er) {
       er.AssertStringEndian("TEXR");
 
@@ -28,6 +30,7 @@ namespace modl.schema.res.texr {
 
       Asserts.Equal(expectedTexrEnd, expectedXbtfEnd);
 
+      this.Textures.Clear();
       var textureCount = er.ReadUInt32();
       for (var i = 0; i < textureCount; ++i) {
         er.AssertStringEndian("TEXT");
@@ -50,15 +53,12 @@ namespace modl.schema.res.texr {
 
         var image = textureType switch {
             "A8R8G8B8" => this.ReadA8R8G8B8_(er, width, height),
-            "DXT1" => this.ReadDxt1_(er, width, height),
-            "P8"   => this.ReadP8_(er, width, height),
-            _      => null,
+            "DXT1"     => this.ReadDxt1_(er, width, height),
+            "P8"       => this.ReadP8_(er, width, height),
+            _          => throw new NotImplementedException(),
         };
 
-        image?.Save(
-            $@"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\battalion_wars\Data\CompoundFiles\debug\{textureType}_{textureName}.png");
-
-        ;
+        this.Textures.Add(new Bw1Texture(textureName, image));
 
         er.Position = expectedTextureEnd;
         Asserts.Equal(expectedTextureEnd, er.Position);
@@ -70,7 +70,8 @@ namespace modl.schema.res.texr {
     public void Write(EndianBinaryWriter ew) =>
         throw new NotImplementedException();
 
-    private Image ReadA8R8G8B8_(EndianBinaryReader er, uint width, uint height) {
+    private Image
+        ReadA8R8G8B8_(EndianBinaryReader er, uint width, uint height) {
       er.AssertStringEndian("MIP ");
 
       var mipSize = width * height * 4;
@@ -79,13 +80,13 @@ namespace modl.schema.res.texr {
       var endianness = er.Endianness;
       er.Endianness = Endianness.BigEndian;
 
-      var image = new Bitmap((int)width, (int)height);
+      var image = new Bitmap((int) width, (int) height);
       BitmapUtil.InvokeAsLocked(image, bmpData => {
         unsafe {
           var x = 0;
           var y = 0;
 
-          var ptr = (byte*)bmpData.Scan0;
+          var ptr = (byte*) bmpData.Scan0;
           for (var i = 0; i < mipSize / 64; ++i) {
             for (var iy = 0; iy < 4; ++iy) {
               var imgY = y + iy;
@@ -132,6 +133,9 @@ namespace modl.schema.res.texr {
     private Image ReadDxt1_(EndianBinaryReader er, uint width, uint height) {
       er.AssertStringEndian("MIP ");
 
+      // TODO: Trim this little bit off?
+      height = (uint) (MathF.Ceiling(height / 8f) * 8);
+
       var mipSize = width * height / 2;
       er.AssertUInt32(mipSize);
 
@@ -140,9 +144,6 @@ namespace modl.schema.res.texr {
 
       var tileWidth = 4;
       var tileHeight = 4;
-
-      var tileCountX = width / tileWidth;
-      var tileCountY = height / tileHeight;
 
       IColor[] colors = new IColor[4];
 
@@ -278,4 +279,6 @@ namespace modl.schema.res.texr {
       return image;
     }
   }
+
+  public record Bw1Texture(string Name, Image Image);
 }

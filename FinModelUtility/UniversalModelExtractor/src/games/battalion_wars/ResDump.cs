@@ -38,6 +38,11 @@ namespace uni.games.battalion_wars {
           }
         }
 
+        foreach (var texture in bwArchive.Texr.Textures) {
+          texture.Image.Save(Path.Join(directory.FullName,
+                                       $"{texture.Name}.png"));
+        }
+
         return true;
       }
 
