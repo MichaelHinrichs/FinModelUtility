@@ -50,6 +50,7 @@ namespace modl.schema.res.texr {
 
         var image = textureType switch {
             "DXT1" => this.ReadDxt1_(er, width, height),
+            "P8"   => this.ReadP8_(er, width, height),
             _      => null,
         };
 
@@ -63,8 +64,6 @@ namespace modl.schema.res.texr {
       }
 
       Asserts.Equal(expectedTexrEnd, er.Position);
-
-      ;
     }
 
     public void Write(EndianBinaryWriter ew) =>
@@ -72,7 +71,9 @@ namespace modl.schema.res.texr {
 
     private Image ReadDxt1_(EndianBinaryReader er, uint width, uint height) {
       er.AssertStringEndian("MIP ");
-      var mipSize = er.ReadUInt32();
+
+      var mipSize = width * height / 2;
+      er.AssertUInt32(mipSize);
 
       var endianness = er.Endianness;
       er.Endianness = Endianness.BigEndian;
@@ -148,6 +149,64 @@ namespace modl.schema.res.texr {
               if (x >= width) {
                 x = 0;
                 y += 8;
+              }
+            }
+          }
+        }
+      });
+
+      er.Endianness = endianness;
+
+      return image;
+    }
+
+    private Image ReadP8_(EndianBinaryReader er, uint width, uint height) {
+      er.AssertStringEndian("PAL ");
+      er.AssertUInt32(512);
+
+      var endianness = er.Endianness;
+      er.Endianness = Endianness.BigEndian;
+
+      var palette = er.ReadUInt16s(256)
+                      .Select(value => ColorUtil.ParseRgb5A3(value))
+                      .ToArray();
+
+      er.Endianness = endianness;
+
+      er.AssertStringEndian("MIP ");
+      var mipSize = width * height;
+      er.AssertUInt32(mipSize);
+
+      er.Endianness = Endianness.BigEndian;
+
+      IColor[] colors = new IColor[4];
+
+      var image = new Bitmap((int) width, (int) height);
+      BitmapUtil.InvokeAsLocked(image, bmpData => {
+        var blockWidth = 8;
+        var blockHeight = 4;
+
+        var blockCountX = width / blockWidth;
+        var blockCountY = height / blockHeight;
+
+        unsafe {
+          var ptr = (byte*) bmpData.Scan0;
+          for (var blockY = 0; blockY < blockCountY; ++blockY) {
+            for (var blockX = 0; blockX < blockCountX; ++blockX) {
+              for (var yInBlock = 0; yInBlock < blockHeight; ++yInBlock) {
+                var y = blockY * blockHeight + yInBlock;
+                for (var xInBlock = 0; xInBlock < blockWidth; ++xInBlock) {
+                  var x = blockX * blockWidth + xInBlock;
+
+                  var paletteIndex = er.ReadByte();
+                  var color = palette[paletteIndex];
+
+                  var imageIndex = 4 * (y * width + x);
+                  ptr[imageIndex + 0] = color.Bb;
+                  ptr[imageIndex + 1] = color.Gb;
+                  ptr[imageIndex + 2] = color.Rb;
+                  ptr[imageIndex + 3] = color.Ab;
+                }
               }
             }
           }
