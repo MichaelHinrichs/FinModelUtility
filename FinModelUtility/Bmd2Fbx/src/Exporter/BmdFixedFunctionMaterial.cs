@@ -15,8 +15,6 @@ using fin.language.equations.fixedFunction.impl;
 using fin.util.asserts;
 using fin.util.json;
 
-using mkds.gcn.bmd;
-
 using FinBlendFactor = fin.model.BlendFactor;
 using FinLogicOp = fin.model.LogicOp;
 using BmdAlphaOp = bmd.schema.bmd.mat3.GXAlphaOp;
@@ -50,8 +48,6 @@ namespace bmd.exporter {
       var materialName = bmd.MAT3.MaterialNameTable[materialEntryIndex];
 
       var populatedMaterial = bmd.MAT3.PopulatedMaterials[materialEntryIndex];
-      var json = JsonUtil.Serialize(populatedMaterial);
-      ;
 
       var textures =
           populatedMaterial.TextureIndices

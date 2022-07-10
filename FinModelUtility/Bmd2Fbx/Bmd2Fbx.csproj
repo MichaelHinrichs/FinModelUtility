@@ -48,6 +48,7 @@
     <Compile Remove="src\misc\Converters\Compression.cs" />
     <Compile Remove="src\misc\Converters\Sound.cs" />
     <Compile Remove="src\misc\G2D_Binary_File_Format\NSCR.cs" />
+    <Compile Remove="src\misc\G3D_Binary_File_Format\AnmHeader.cs" />
     <Compile Remove="src\misc\G3D_Binary_File_Format\DictionaryData.cs" />
     <Compile Remove="src\misc\G3D_Binary_File_Format\Dictionary`1.cs" />
     <Compile Remove="src\misc\G3D_Binary_File_Format\NSBCA.cs" />

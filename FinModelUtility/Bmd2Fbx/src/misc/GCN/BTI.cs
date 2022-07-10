@@ -5,33 +5,33 @@
 // Assembly location: R:\Documents\CSharpWorkspace\Pikmin2Utility\MKDS Course Modifier\MKDS Course Modifier.exe
 
 using Chadsoft.CTools.Image;
+
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace bmd.GCN
-{
-  public class BTI
-  {
+using schema;
+
+
+namespace bmd.GCN {
+  public partial class BTI {
     public BTI.BTIHeader Header;
     public byte[] Data;
 
-    public BTI(byte[] data)
-    {
-      EndianBinaryReader er = new EndianBinaryReader((Stream) new MemoryStream(data), Endianness.BigEndian);
-      this.Header = new BTI.BTIHeader(er);
+    public BTI(byte[] data) {
+      using var er =
+          new EndianBinaryReader(new MemoryStream(data),
+                                 Endianness.BigEndian);
+      this.Header = er.ReadNew<BTIHeader>();
       er.BaseStream.Position = (long) this.Header.DataOffset;
       this.Data = er.ReadBytes(this.Header.GetCompressedBufferSize());
-      er.Close();
     }
 
-    public Bitmap ToBitmap()
-    {
+    public Bitmap ToBitmap() {
       ImageDataFormat imageDataFormat = (ImageDataFormat) null;
-      switch ((byte) this.Header.Format)
-      {
+      switch ((byte) this.Header.Format) {
         case 0:
           imageDataFormat = ImageDataFormat.I4;
           break;
@@ -57,17 +57,22 @@ namespace bmd.GCN
           imageDataFormat = ImageDataFormat.Cmpr;
           break;
       }
-      byte[] numArray = imageDataFormat.ConvertFrom(this.Data, (int) this.Header.Width, (int) this.Header.Height, (ProgressChangedEventHandler) null);
-      Bitmap bitmap = new Bitmap((int) this.Header.Width, (int) this.Header.Height);
-      BitmapData bitmapdata = bitmap.LockBits(new Rectangle(0, 0, (int) this.Header.Width, (int) this.Header.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+      byte[] numArray = imageDataFormat.ConvertFrom(
+          this.Data, (int) this.Header.Width, (int) this.Header.Height,
+          (ProgressChangedEventHandler) null);
+      Bitmap bitmap =
+          new Bitmap((int) this.Header.Width, (int) this.Header.Height);
+      BitmapData bitmapdata = bitmap.LockBits(
+          new Rectangle(0, 0, (int) this.Header.Width,
+                        (int) this.Header.Height), ImageLockMode.WriteOnly,
+          PixelFormat.Format32bppArgb);
       for (int ofs = 0; ofs < numArray.Length; ++ofs)
         Marshal.WriteByte(bitmapdata.Scan0, ofs, numArray[ofs]);
       bitmap.UnlockBits(bitmapdata);
       return bitmap;
     }
 
-    public enum TextureFormat
-    {
+    public enum TextureFormat : byte {
       I4 = 0,
       I8 = 1,
       A4_I4 = 2,
@@ -81,23 +86,20 @@ namespace bmd.GCN
       S3TC1 = 14, // 0x0000000E
     }
 
-    public enum PaletteFormat
-    {
+    public enum PaletteFormat : byte {
       PAL_A8_I8,
       PAL_R5_G6_B5,
       PAL_A3_RGB5,
     }
 
-    public enum GX_WRAP_TAG
-    {
+    public enum GX_WRAP_TAG : byte {
       GX_CLAMP,
       GX_REPEAT,
       GX_MIRROR,
       GX_MAXTEXWRAPMODE,
     }
 
-    public enum GX_TEXTURE_FILTER
-    {
+    public enum GX_TEXTURE_FILTER : byte {
       GX_NEAR,
       GX_LINEAR,
       GX_NEAR_MIP_NEAR,
@@ -108,8 +110,8 @@ namespace bmd.GCN
       GX_NEAR3,
     }
 
-    public class BTIHeader
-    {
+    [Schema]
+    public partial class BTIHeader : IBiSerializable {
       public BTI.TextureFormat Format;
       public byte Unknown1;
       public ushort Width;
@@ -129,96 +131,12 @@ namespace bmd.GCN
       public ushort Unknown6;
       public uint DataOffset;
 
-      public BTIHeader(EndianBinaryReader er)
-      {
-        this.Format = (BTI.TextureFormat) er.ReadByte();
-        this.Unknown1 = er.ReadByte();
-        this.Width = er.ReadUInt16();
-        this.Height = er.ReadUInt16();
-        this.WrapS = (BTI.GX_WRAP_TAG) er.ReadByte();
-        this.WrapT = (BTI.GX_WRAP_TAG) er.ReadByte();
-        this.Unknown2 = er.ReadByte();
-        this.PaletteFormat = (BTI.PaletteFormat) er.ReadByte();
-        this.NrPaletteEntries = er.ReadUInt16();
-        this.PaletteOffset = er.ReadUInt32();
-        this.Unknown3 = er.ReadUInt32();
-        this.MinFilter = (BTI.GX_TEXTURE_FILTER) er.ReadByte();
-        this.MagFilter = (BTI.GX_TEXTURE_FILTER) er.ReadByte();
-        this.Unknown4 = er.ReadUInt16();
-        this.NrMipMap = er.ReadByte();
-        this.Unknown5 = er.ReadByte();
-        this.Unknown6 = er.ReadUInt16();
-        this.DataOffset = er.ReadUInt32();
-      }
-
-      public int GetGlWrapModeS()
-      {
-        return this.GetGlWrapMode(this.WrapS);
-      }
-
-      public int GetGlWrapModeT()
-      {
-        return this.GetGlWrapMode(this.WrapT);
-      }
-
-      private int GetGlWrapMode(BTI.GX_WRAP_TAG id)
-      {
-        switch (id)
-        {
-          case BTI.GX_WRAP_TAG.GX_CLAMP:
-            return 33071;
-          case BTI.GX_WRAP_TAG.GX_REPEAT:
-            return 10497;
-          case BTI.GX_WRAP_TAG.GX_MIRROR:
-            return 33648;
-          case BTI.GX_WRAP_TAG.GX_MAXTEXWRAPMODE:
-            return 10496;
-          default:
-            return -1;
-        }
-      }
-
-      public int GetGlFilterModeMin()
-      {
-        return this.GetGlFilterMode(this.MinFilter);
-      }
-
-      public int GetGlFilterModeMag()
-      {
-        return this.GetGlFilterMode(this.MagFilter);
-      }
-
-      private int GetGlFilterMode(BTI.GX_TEXTURE_FILTER id)
-      {
-        switch (id)
-        {
-          case BTI.GX_TEXTURE_FILTER.GX_NEAR:
-          case BTI.GX_TEXTURE_FILTER.GX_NEAR2:
-          case BTI.GX_TEXTURE_FILTER.GX_NEAR3:
-            return 9728;
-          case BTI.GX_TEXTURE_FILTER.GX_LINEAR:
-            return 9729;
-          case BTI.GX_TEXTURE_FILTER.GX_NEAR_MIP_NEAR:
-            return 9984;
-          case BTI.GX_TEXTURE_FILTER.GX_LIN_MIP_NEAR:
-            return 9985;
-          case BTI.GX_TEXTURE_FILTER.GX_NEAR_MIP_LIN:
-            return 9986;
-          case BTI.GX_TEXTURE_FILTER.GX_LIN_MIP_LIN:
-            return 9987;
-          default:
-            return -1;
-        }
-      }
-
-      public int GetCompressedBufferSize()
-      {
+      public int GetCompressedBufferSize() {
         int num1 = (int) this.Width + (8 - (int) this.Width % 8) % 8;
         int num2 = (int) this.Width + (4 - (int) this.Width % 4) % 4;
         int num3 = (int) this.Height + (8 - (int) this.Height % 8) % 8;
         int num4 = (int) this.Height + (4 - (int) this.Height % 4) % 4;
-        switch (this.Format)
-        {
+        switch (this.Format) {
           case BTI.TextureFormat.I4:
             return num1 * num3 / 2;
           case BTI.TextureFormat.I8:
