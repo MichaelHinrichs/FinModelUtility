@@ -1,6 +1,6 @@
 ﻿using fin.util.optional;
 
-namespace f3dzex.displaylist {
+namespace f3dzex2.displaylist {
   public interface IDisplayList {
     public IDisplayListInstruction Root { get; set; }
   }

@@ -1,8 +1,8 @@
-﻿using f3dzex.io;
+﻿using f3dzex2.io;
 
 using fin.util.optional;
 
-namespace f3dzex.displaylist {
+namespace f3dzex2.displaylist {
   public class DisplayListReader {
     public IDisplayList ReadDisplayList(
         IBankManager bankManager,

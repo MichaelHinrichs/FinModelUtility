@@ -46,14 +46,13 @@
     <ProjectReference Include="../BinarySchema/BinarySchema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
     <ProjectReference Include="..\Bmd2Fbx\Bmd2Fbx.csproj" />
     <ProjectReference Include="..\Cmb\Cmb.csproj" />
-    <ProjectReference Include="..\F3dzex2ToFbx\F3dzex2ToFbx.csproj" />
+    <ProjectReference Include="..\F3dzex2\F3dzex2.csproj" />
     <ProjectReference Include="..\Fin\Fin.csproj" />
     <ProjectReference Include="..\Glo\Glo.csproj" />
     <ProjectReference Include="..\HaloWarsTools\HaloWarsTools.csproj" />
     <ProjectReference Include="..\Mod2Fbx\Mod2Fbx.csproj" />
     <ProjectReference Include="..\Modl\Modl.csproj" />
     <ProjectReference Include="..\Utility of Time CSharp\Utility of Time CSharp.csproj" />
-    <ProjectReference Include="..\Zar2Fbx\Cmb.csproj" />
   </ItemGroup>
 
   <ItemGroup>

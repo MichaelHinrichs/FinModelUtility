@@ -1,4 +1,4 @@
-﻿namespace f3dzex.io {
+﻿namespace f3dzex2.io {
   public static class IoUtil {
     public static void SplitAddress(
         uint address,

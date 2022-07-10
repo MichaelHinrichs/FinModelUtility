@@ -1,4 +1,4 @@
-﻿namespace f3dzex.displaylist {
+﻿namespace f3dzex2.displaylist {
   public enum F3dzexOpcode : byte {
     G_SETCIMG = 0xFF,
     G_SETZIMG = 0xFE,
