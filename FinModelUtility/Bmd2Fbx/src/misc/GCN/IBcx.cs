@@ -1,17 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using bmd._3D_Formats;
-
-namespace bmd.GCN {
-  public static class BcxConstants {
-    // TODO: Pass this in via a flag?
-    public static float MIN_TIME_UNIT = 1 / 30f;
-  }
-
+﻿namespace bmd.GCN {
   public interface IBcx {
     IAnx1 Anx1 { get; }
   }
