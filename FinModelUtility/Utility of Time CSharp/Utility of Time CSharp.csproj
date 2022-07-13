@@ -40,12 +40,6 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Tao.DevIl">
-      <HintPath>..\Utility of Time\Tao GL Libs\Tao.DevIl.dll</HintPath>
-    </Reference>
-    <Reference Include="Tao.FreeGlut">
-      <HintPath>..\Utility of Time\Tao GL Libs\Tao.FreeGlut.dll</HintPath>
-    </Reference>
     <Reference Include="Tao.OpenGl">
       <HintPath>..\Utility of Time\Tao GL Libs\Tao.OpenGl.dll</HintPath>
     </Reference>

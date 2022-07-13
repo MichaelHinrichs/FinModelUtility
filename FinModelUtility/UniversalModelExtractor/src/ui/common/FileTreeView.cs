@@ -2,8 +2,7 @@
 
 using fin.data.fuzzy;
 using fin.io;
-
-using UoT.util;
+using fin.util.asserts;
 
 #pragma warning disable CS8604
 

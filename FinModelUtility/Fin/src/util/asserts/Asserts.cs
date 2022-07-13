@@ -140,5 +140,10 @@ namespace fin.util.asserts {
       Asserts.IsA<TExpected>(instance, message);
       return (TExpected)instance!;
     }
+
+    public static T Assert<T>(T? value) where T : notnull {
+      Asserts.Nonnull(value);
+      return value!;
+    }
   }
 }

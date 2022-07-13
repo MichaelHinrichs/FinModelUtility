@@ -51,26 +51,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="ICSharpCode.SharpZipLib">
-      <HintPath>lib\ICSharpCode.SharpZipLib.dll</HintPath>
-    </Reference>
     <Reference Include="KSoft">
       <HintPath>lib\KSoft.dll</HintPath>
     </Reference>
-    <Reference Include="KSoft.Compression">
-      <HintPath>lib\KSoft.Compression.dll</HintPath>
-    </Reference>
-    <Reference Include="KSoft.IO.TagElementStreams">
-      <HintPath>lib\KSoft.IO.TagElementStreams.dll</HintPath>
-    </Reference>
-    <Reference Include="KSoft.Math">
-      <HintPath>lib\KSoft.Math.dll</HintPath>
-    </Reference>
     <Reference Include="KSoft.Phoenix">
       <HintPath>lib\KSoft.Phoenix.dll</HintPath>
-    </Reference>
-    <Reference Include="KSoft.Security">
-      <HintPath>lib\KSoft.Security.dll</HintPath>
     </Reference>
   </ItemGroup>
 
