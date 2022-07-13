@@ -8,6 +8,7 @@ using Tao.OpenGl;
 using Tao.Platform.Windows;
 
 using fin.model;
+using fin.model.impl;
 using fin.model.util;
 
 using uni.ui.gl;
@@ -192,7 +193,7 @@ void main() {
     uv0 = gl_MultiTexCoord0.st;
 }";
 
-      var fragmentShaderSrc = @"
+      var fragmentShaderSrc = @$"
 # version 130 
 
 uniform sampler2D texture0;
@@ -203,13 +204,13 @@ in vec4 vertexColor;
 in vec3 vertexNormal;
 in vec2 uv0;
 
-void main() {
+void main() {{
     vec4 texColor = texture(texture0, uv0);
 
     fragColor = texColor * vertexColor;
 
     vec3 diffuseLightNormal = normalize(vec3(.5, .5, -1));
-    float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);
+    float diffuseLightAmount = {(DebugFlags.ENABLE_LIGHTING ? "max(-dot(vertexNormal, diffuseLightNormal), 0)" : "1")};
 
     float ambientLightAmount = .3;
 
@@ -217,10 +218,10 @@ void main() {
 
     fragColor.rgb *= lightAmount;
 
-    if (fragColor.a < .95) {
+    if (fragColor.a < .95) {{
       discard;
-    }
-}";
+    }}
+}}";
 
       this.texturedShaderProgram_ =
           GlShaderProgram.FromShaders(vertexShaderSrc, fragmentShaderSrc);
@@ -363,26 +364,25 @@ void main() {
         Gl.glMatrixMode(Gl.GL_MODELVIEW);
         Gl.glLoadIdentity();
 
-        var t = this.stopwatch_.Elapsed.TotalSeconds;
-        var angle = t * 45;
         Gl.glTranslated(width / 2, height / 2, 0);
-        Gl.glRotated(angle, 0, 0, 1);
       }
 
       var size = MathF.Max(width, height) * MathF.Sqrt(2);
 
       Gl.glBegin(Gl.GL_QUADS);
 
-      Gl.glColor3f(1, 0, 0);
+      var t = this.stopwatch_.Elapsed.TotalSeconds;
+      var angle = t * 45;
+
+      var color = ColorImpl.FromHsv(angle, 1, 1);
+      Gl.glColor3f(color.Rf, color.Gf, color.Bf);
+
       Gl.glVertex2f(-size / 2, -size / 2);
 
-      Gl.glColor3f(0, 1, 0);
       Gl.glVertex2f(-size / 2, size / 2);
 
-      Gl.glColor3f(1, 1, 1);
       Gl.glVertex2f(size / 2, size / 2);
 
-      Gl.glColor3f(0, 0, 1);
       Gl.glVertex2f(size / 2, -size / 2);
 
       Gl.glEnd();
