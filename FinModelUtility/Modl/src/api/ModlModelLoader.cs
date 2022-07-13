@@ -82,7 +82,10 @@ namespace modl.api {
                         var finTexture =
                             model.MaterialManager.CreateTexture(image);
                         finTexture.Name = textureName;
+
                         // TODO: Need to handle wrapping
+                        finTexture.WrapModeU = WrapMode.REPEAT;
+                        finTexture.WrapModeV = WrapMode.REPEAT;
 
                         var finMaterial =
                             model.MaterialManager
@@ -143,7 +146,8 @@ namespace modl.api {
               }
 
               var triangleStripPrimitive = finMesh.AddTriangleStrip(vertices)
-                     .SetVertexOrder(VertexOrder.NORMAL);
+                                                  .SetVertexOrder(
+                                                      VertexOrder.NORMAL);
               if (finMaterial != null) {
                 triangleStripPrimitive.SetMaterial(finMaterial);
               }
