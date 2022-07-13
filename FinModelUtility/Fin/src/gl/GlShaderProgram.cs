@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Text;
 
-using Tao.OpenGl;
+using OpenTK.Graphics.OpenGL;
 
 
 namespace fin.gl {
@@ -18,15 +17,15 @@ namespace fin.gl {
     private GlShaderProgram(string vertexShaderSrc,
                             string fragmentShaderSrc) {
       this.vertexShaderId_ =
-          CreateAndCompileShader_(vertexShaderSrc, Gl.GL_VERTEX_SHADER);
+          CreateAndCompileShader_(vertexShaderSrc, ShaderType.VertexShader);
       this.fragmentShaderId_ =
-          CreateAndCompileShader_(fragmentShaderSrc, Gl.GL_FRAGMENT_SHADER);
+          CreateAndCompileShader_(fragmentShaderSrc, ShaderType.FragmentShader);
 
-      this.ProgramId = Gl.glCreateProgram();
+      this.ProgramId = GL.CreateProgram();
 
-      Gl.glAttachShader(this.ProgramId, this.vertexShaderId_);
-      Gl.glAttachShader(this.ProgramId, this.fragmentShaderId_);
-      Gl.glLinkProgram(this.ProgramId);
+      GL.AttachShader(this.ProgramId, this.vertexShaderId_);
+      GL.AttachShader(this.ProgramId, this.fragmentShaderId_);
+      GL.LinkProgram(this.ProgramId);
     }
 
     ~GlShaderProgram() => this.ReleaseUnmanagedResources_();
@@ -35,33 +34,35 @@ namespace fin.gl {
       this.ReleaseUnmanagedResources_();
       GC.SuppressFinalize(this);
     }
-    
+
     private void ReleaseUnmanagedResources_() {
-      Gl.glDeleteProgram(this.ProgramId);
+      GL.DeleteProgram(this.ProgramId);
       if (this.vertexShaderId_ != UNDEFINED_ID) {
-        Gl.glDeleteShader(this.vertexShaderId_);
+        GL.DeleteShader(this.vertexShaderId_);
       }
       if (this.fragmentShaderId_ != UNDEFINED_ID) {
-        Gl.glDeleteShader(this.fragmentShaderId_);
+        GL.DeleteShader(this.fragmentShaderId_);
       }
 
       this.ProgramId =
           this.vertexShaderId_ = this.fragmentShaderId_ = UNDEFINED_ID;
     }
 
-    private static int CreateAndCompileShader_(string src, int shaderType) {
-      var shaderId = Gl.glCreateShader(shaderType);
-      Gl.glShaderSource(shaderId, 1, new[] {src}, null);
-      Gl.glCompileShader(shaderId);
+    private static int CreateAndCompileShader_(string src,
+                                               ShaderType shaderType) {
+      var shaderId = GL.CreateShader(shaderType);
+      GL.ShaderSource(shaderId, 1, new[] {src}, (int[]) null);
+      GL.CompileShader(shaderId);
 
       // TODO: Throw/return this error
       var bufferSize = 10000;
-      var shaderErrorBuilder = new StringBuilder(bufferSize);
-      Gl.glGetShaderInfoLog(shaderId, bufferSize, out var shaderErrorLength,
-                            shaderErrorBuilder);
-      var shaderError = shaderErrorBuilder.ToString();
+      GL.GetShaderInfoLog(
+          shaderId,
+          bufferSize,
+          out var shaderErrorLength,
+          out var shaderError);
 
-      if (shaderError.Length > 0) {
+      if (shaderError?.Length > 0) {
         ;
       }
 
@@ -70,6 +71,9 @@ namespace fin.gl {
 
     public int ProgramId { get; private set; } = UNDEFINED_ID;
 
-    public void Use() => Gl.glUseProgram(this.ProgramId);
+    public void Use() => GL.UseProgram(this.ProgramId);
+
+    public int GetUniformLocation(string name) =>
+        GL.GetUniformLocation(this.ProgramId, name);
   }
 }

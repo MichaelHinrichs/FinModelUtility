@@ -1,10 +1,6 @@
 ﻿using fin.gl;
-using fin.math;
 using fin.model;
-using fin.model.impl;
 using fin.util.image;
-
-using Tao.OpenGl;
 
 
 namespace uni.ui.gl {

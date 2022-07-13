@@ -3,8 +3,6 @@ using fin.math;
 using fin.model;
 using fin.model.impl;
 
-using Tao.OpenGl;
-
 
 namespace uni.ui.gl {
   public class GlBufferManager : IDisposable {
@@ -18,8 +16,8 @@ namespace uni.ui.gl {
       this.vertices_ = model.Skin.Vertices;
       this.vertexData_ = new float[this.vertices_.Count];
 
-      Gl.glGenVertexArraysAPPLE(1, out this.vaoId_);
-      Gl.glGenBuffers(1, out this.vboId_);
+      /*GL.GenVertexArraysAPPLE(1, out this.vaoId_);
+      Gl.glGenBuffers(1, out this.vboId_);*/
     }
 
     ~GlBufferManager() => ReleaseUnmanagedResources_();
@@ -30,8 +28,8 @@ namespace uni.ui.gl {
     }
 
     private void ReleaseUnmanagedResources_() {
-      Gl.glDeleteVertexArraysAPPLE(1, ref this.vaoId_);
-      Gl.glDeleteBuffers(1, ref this.vboId_);
+      /*Gl.glDeleteVertexArraysAPPLE(1, ref this.vaoId_);
+      Gl.glDeleteBuffers(1, ref this.vboId_);*/
     }
 
     private readonly IPosition position_ = new ModelImpl.PositionImpl();
@@ -48,7 +46,7 @@ namespace uni.ui.gl {
         this.vertexData_[offset + 2] = this.position_.Z;
       }
 
-      Gl.glBindVertexArrayAPPLE(this.vaoId_);
+      /*Gl.glBindVertexArrayAPPLE(this.vaoId_);
 
       Gl.glBindBuffer(Gl.GL_ARRAY_BUFFER, this.vboId_);
       Gl.glBufferData(Gl.GL_ARRAY_BUFFER,
@@ -58,7 +56,7 @@ namespace uni.ui.gl {
 
       Gl.glVertexAttribPointer(0, 3, Gl.GL_FLOAT, Gl.GL_FALSE,
                                3 * sizeof(float), new IntPtr(0));
-      Gl.glEnableVertexAttribArray(0);
+      Gl.glEnableVertexAttribArray(0);*/
     }
 
     public GlBufferRenderer CreateRenderer(
@@ -77,7 +75,7 @@ namespace uni.ui.gl {
           int vaoId,
           IEnumerable<(IVertex, IVertex, IVertex)>
               triangles) {
-        this.vaoId_ = vaoId;
+        /*this.vaoId_ = vaoId;
         Gl.glGenBuffers(1, out this.eboId_);
 
         this.indices_ = triangles.SelectMany(triangle => new int[] {
@@ -134,7 +132,7 @@ void main() {
 
         var texture0Location_ =
             Gl.glGetUniformLocation(this.shaderProgram_.ProgramId,
-                                    "texture0");
+                                    "texture0");*/
       }
 
       ~GlBufferRenderer() => ReleaseUnmanagedResources_();
@@ -145,18 +143,18 @@ void main() {
       }
 
       private void ReleaseUnmanagedResources_() {
-        Gl.glDeleteBuffers(1, ref this.eboId_);
+        //Gl.glDeleteBuffers(1, ref this.eboId_);
       }
 
       public void Render() {
-        this.shaderProgram_.Use();
+        /*this.shaderProgram_.Use();
         Gl.glBindBuffer(Gl.GL_ELEMENT_ARRAY_BUFFER, this.eboId_);
         Gl.glBindVertexArrayAPPLE(this.vaoId_);
         Gl.glDrawElements(Gl.GL_TRIANGLES,
                           this.indices_.Length,
                           Gl.GL_INT,
                           0);
-        Gl.glBindVertexArrayAPPLE(0);
+        Gl.glBindVertexArrayAPPLE(0);*/
       }
     }
   }

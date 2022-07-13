@@ -58,6 +58,7 @@
     </PackageReference>
     <PackageReference Include="MSTest.TestFramework" Version="2.2.8" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="OpenTK" Version="3.3.2" />
     <PackageReference Include="Pfim" Version="0.10.3" />
     <PackageReference Include="ShaderGen" Version="1.2.0-beta3" />
     <PackageReference Include="ShaderGen.Primitives" Version="1.2.0-beta3" />
@@ -72,19 +73,5 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Tao.DevIl">
-      <HintPath>lib\Tao.DevIl.dll</HintPath>
-    </Reference>
-    <Reference Include="Tao.FreeGlut">
-      <HintPath>lib\Tao.FreeGlut.dll</HintPath>
-    </Reference>
-    <Reference Include="Tao.OpenGl">
-      <HintPath>lib\Tao.OpenGl.dll</HintPath>
-    </Reference>
-    <Reference Include="Tao.Platform.Windows">
-      <HintPath>lib\Tao.Platform.Windows.dll</HintPath>
-    </Reference>
   </ItemGroup>
 </Project>

@@ -1,4 +1,4 @@
-﻿using Tao.OpenGl;
+﻿using OpenTK.Graphics.OpenGL;
 
 
 namespace uni.ui.gl {
@@ -10,39 +10,39 @@ namespace uni.ui.gl {
       var size = this.Size;
       var spacing = this.Spacing;
 
-      Gl.glLineWidth(1);
+      GL.LineWidth(1);
 
-      Gl.glBegin(Gl.GL_LINES);
+      GL.Begin(PrimitiveType.Lines);
 
       for (var y = 0f; y <= size / 2; y += spacing) {
         if (y == 0) {
-          Gl.glColor4f(1, 0, 0, 1);
+          GL.Color3(1f, 0, 0);
         } else {
-          Gl.glColor4f(1, 1, 1, 1);
+          GL.Color3(1f, 1, 1);
 
-          Gl.glVertex3f(-size / 2, -y, 0);
-          Gl.glVertex3f(size / 2, -y, 0);
+          GL.Vertex3(-size / 2, -y, 0);
+          GL.Vertex3(size / 2, -y, 0);
         }
 
-        Gl.glVertex3f(-size / 2, y, 0);
-        Gl.glVertex3f(size / 2, y, 0);
+        GL.Vertex3(-size / 2, y, 0);
+        GL.Vertex3(size / 2, y, 0);
       }
 
       for (var x = 0f; x <= size / 2; x += spacing) {
         if (x == 0) {
-          Gl.glColor4f(0, 1, 0, 1);
+          GL.Color3(0f, 1, 0);
         } else {
-          Gl.glColor4f(1, 1, 1, 1);
-
-          Gl.glVertex3f(-x, -size / 2, 0);
-          Gl.glVertex3f(-x, size / 2, 0);
+          GL.Color3(1f, 1, 1);
+          
+          GL.Vertex3(-x, -size / 2, 0);
+          GL.Vertex3(-x, size / 2, 0);
         }
 
-        Gl.glVertex3f(x, -size / 2, 0);
-        Gl.glVertex3f(x, size / 2, 0);
+        GL.Vertex3(x, -size / 2, 0);
+        GL.Vertex3(x, size / 2, 0);
       }
 
-      Gl.glEnd();
+      GL.End();
     }
   }
 }

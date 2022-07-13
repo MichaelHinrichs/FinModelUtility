@@ -1,5 +1,6 @@
-﻿using System.Diagnostics;
+﻿using fin.gl;
 using fin.util.time;
+
 
 namespace uni.ui.common {
   public abstract partial class BGlPanel : UserControl {
@@ -9,11 +10,13 @@ namespace uni.ui.common {
     protected BGlPanel() {
       InitializeComponent();
 
-      this.impl_.InitializeContexts();
-
       if (!DesignModeUtil.InDesignMode) {
-        this.InitGl();
+        GlUtil.Init();
         this.impl_.CreateGraphics();
+        this.impl_.MakeCurrent();
+
+        this.InitGl();
+
         this.timedCallback =
             TimedCallback.WithFrequency(this.Invalidate, DEFAULT_FRAMERATE_);
       }
@@ -31,8 +34,11 @@ namespace uni.ui.common {
     protected override void OnPaint(PaintEventArgs pe) {
       base.OnPaint(pe);
       if (!DesignModeUtil.InDesignMode) {
+        this.impl_.MakeCurrent();
+
         this.RenderGl();
-        this.impl_.Invalidate();
+        this.impl_.SwapBuffers();
+        //this.impl_.Invalidate();
       }
     }
   }

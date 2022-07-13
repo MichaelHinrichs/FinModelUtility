@@ -3,15 +3,16 @@
 using fin.animation.playback;
 using fin.gl;
 using fin.math;
-
-using Tao.OpenGl;
-using Tao.Platform.Windows;
-
 using fin.model;
 using fin.model.impl;
 using fin.model.util;
 
+using OpenTK.Graphics.OpenGL;
+
 using uni.ui.gl;
+
+using PrimitiveType = fin.model.PrimitiveType;
+using GlPrimitiveType = OpenTK.Graphics.OpenGL.PrimitiveType;
 
 
 namespace uni.ui.common {
@@ -175,8 +176,6 @@ namespace uni.ui.common {
     }
 
     protected override void InitGl() {
-      GlUtil.Init();
-
       var vertexShaderSrc = @"
 # version 120
 
@@ -227,8 +226,7 @@ void main() {{
           GlShaderProgram.FromShaders(vertexShaderSrc, fragmentShaderSrc);
 
       this.texture0Location_ =
-          Gl.glGetUniformLocation(this.texturedShaderProgram_.ProgramId,
-                                  "texture0");
+          this.texturedShaderProgram_.GetUniformLocation("texture0");
 
       this.texturelessShaderProgram_ =
           GlShaderProgram.FromShaders(@"
@@ -251,37 +249,33 @@ void main() {
 }");
 
       ResetGl_();
-      Wgl.wglSwapIntervalEXT(1);
     }
 
     private void ResetGl_() {
-      Gl.glShadeModel(Gl.GL_SMOOTH);
-      Gl.glEnable(Gl.GL_POINT_SMOOTH);
-      Gl.glHint(Gl.GL_POINT_SMOOTH_HINT, Gl.GL_NICEST);
+      GL.ShadeModel(ShadingModel.Smooth);
+      GL.Enable(EnableCap.PointSmooth);
+      GL.Hint(HintTarget.PointSmoothHint, HintMode.Nicest);
 
-      Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_FILL);
+      GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
-      Gl.glClearDepth(5.0F);
+      GL.ClearDepth(5.0F);
 
-      Gl.glDepthFunc(Gl.GL_LEQUAL);
-      Gl.glEnable(Gl.GL_DEPTH_TEST);
-      Gl.glDepthMask(Gl.GL_TRUE);
+      GL.DepthFunc(DepthFunction.Lequal);
+      GL.Enable(EnableCap.DepthTest);
+      GL.DepthMask(true);
 
-      Gl.glHint(Gl.GL_PERSPECTIVE_CORRECTION_HINT, Gl.GL_NICEST);
+      GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
 
-      Gl.glEnable(Gl.GL_LIGHT0);
-      Gl.glEnable(Gl.GL_TEXTURE_2D);
+      GL.Enable(EnableCap.Texture2D);
+      GL.Enable(EnableCap.Normalize);
 
-      Gl.glEnable(Gl.GL_LIGHTING);
-      Gl.glEnable(Gl.GL_NORMALIZE);
+      GL.Enable(EnableCap.CullFace);
+      GL.CullFace(CullFaceMode.Back);
 
-      Gl.glEnable(Gl.GL_CULL_FACE);
-      Gl.glCullFace(Gl.GL_BACK);
+      GL.Enable(EnableCap.Blend);
+      GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
-      Gl.glEnable(Gl.GL_BLEND);
-      Gl.glBlendFunc(Gl.GL_SRC_ALPHA, Gl.GL_ONE_MINUS_SRC_ALPHA);
-
-      Gl.glClearColor(backgroundColor_.R / 255f, backgroundColor_.G / 255f,
+      GL.ClearColor(backgroundColor_.R / 255f, backgroundColor_.G / 255f,
                       backgroundColor_.B / 255f, 1);
     }
 
@@ -294,16 +288,14 @@ void main() {
 
       var width = this.Width;
       var height = this.Height;
-      Gl.glViewport(0, 0, width, height);
+      GL.Viewport(0, 0, width, height);
 
-      Gl.glClear(Gl.GL_COLOR_BUFFER_BIT | Gl.GL_DEPTH_BUFFER_BIT);
-
-      Gl.glUniform1i(this.texture0Location_, 0);
+      GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
       this.RenderPerspective_();
       //this.RenderOrtho_();
 
-      Gl.glFlush();
+      GL.Flush();
     }
 
     private void RenderPerspective_() {
@@ -311,17 +303,17 @@ void main() {
       var height = this.Height;
 
       {
-        Gl.glMatrixMode(Gl.GL_PROJECTION);
-        Gl.glLoadIdentity();
+        GL.MatrixMode(MatrixMode.Projection);
+        GL.LoadIdentity();
         GlUtil.Perspective(this.fovY_, 1.0 * width / height, .1, 10000);
         GlUtil.LookAt(this.camera_.X, this.camera_.Y, this.camera_.Z,
                       this.camera_.X + this.camera_.XNormal,
                       this.camera_.Y + this.camera_.YNormal,
-                      this.camera_.Z + this.camera_.ZNormal, 
+                      this.camera_.Z + this.camera_.ZNormal,
                       0, 0, 1);
 
-        Gl.glMatrixMode(Gl.GL_MODELVIEW);
-        Gl.glLoadIdentity();
+        GL.MatrixMode(MatrixMode.Modelview);
+        GL.LoadIdentity();
       }
 
       if (DebugFlags.ENABLE_GRID) {
@@ -330,8 +322,8 @@ void main() {
       }
 
       {
-        Gl.glRotated(90, 1, 0, 0);
-        Gl.glScalef(this.scale_, this.scale_, this.scale_);
+        GL.Rotate(90, 1, 0, 0);
+        GL.Scale(this.scale_, this.scale_, this.scale_);
       }
 
       if (this.Animation != null) {
@@ -345,6 +337,8 @@ void main() {
       }
 
       this.texturedShaderProgram_.Use();
+      GL.Uniform1(this.texture0Location_, 0);
+      
       this.modelRenderer_?.Render();
 
       if (DebugFlags.ENABLE_SKELETON) {
@@ -358,35 +352,35 @@ void main() {
       var height = this.Height;
 
       {
-        Gl.glMatrixMode(Gl.GL_PROJECTION);
-        Gl.glLoadIdentity();
+        GL.MatrixMode(MatrixMode.Projection);
+        GL.LoadIdentity();
         GlUtil.Ortho2d(0, width, height, 0);
 
-        Gl.glMatrixMode(Gl.GL_MODELVIEW);
-        Gl.glLoadIdentity();
+        GL.MatrixMode(MatrixMode.Modelview);
+        GL.LoadIdentity();
 
-        Gl.glTranslated(width / 2, height / 2, 0);
+        GL.Translate(width / 2f, height / 2f, 0);
       }
 
       var size = MathF.Max(width, height) * MathF.Sqrt(2);
 
-      Gl.glBegin(Gl.GL_QUADS);
+      GL.Begin(GlPrimitiveType.Quads);
 
       var t = this.stopwatch_.Elapsed.TotalSeconds;
       var angle = t * 45;
 
       var color = ColorImpl.FromHsv(angle, 1, 1);
-      Gl.glColor3f(color.Rf, color.Gf, color.Bf);
+      GL.Color3(color.Rf, color.Gf, color.Bf);
 
-      Gl.glVertex2f(-size / 2, -size / 2);
+      GL.Vertex2(-size / 2, -size / 2);
 
-      Gl.glVertex2f(-size / 2, size / 2);
+      GL.Vertex2(-size / 2, size / 2);
 
-      Gl.glVertex2f(size / 2, size / 2);
+      GL.Vertex2(size / 2, size / 2);
 
-      Gl.glVertex2f(size / 2, -size / 2);
+      GL.Vertex2(size / 2, -size / 2);
 
-      Gl.glEnd();
+      GL.End();
     }
   }
 }

@@ -59,6 +59,10 @@
     "Wind Waker": {
       "commandName": "Project",
       "commandLineArgs": "wind_waker"
+    },
+    "Debug": {
+      "commandName": "Project",
+      "commandLineArgs": "debug"
     }
   }
 }

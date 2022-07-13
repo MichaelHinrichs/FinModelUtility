@@ -91,7 +91,10 @@ namespace uni.cli {
                 .WithParsed((WindWakerOptions _) => {
                   new WindWakerExtractor().ExtractAll();
                 })
-                .WithParsed((DebugOptions _) => { })
+                .WithParsed((DebugOptions _) => {
+                  var window = new DebugWindow();
+                  window.Run();
+                })
                 .WithNotParsed(parseErrors => errors = parseErrors);
 
       if (errors != null) {

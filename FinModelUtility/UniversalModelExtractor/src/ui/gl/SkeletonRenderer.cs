@@ -1,7 +1,9 @@
 ﻿using fin.math;
 using fin.model;
 
-using Tao.OpenGl;
+using OpenTK.Graphics.OpenGL;
+
+using PrimitiveType = OpenTK.Graphics.OpenGL.PrimitiveType;
 
 
 namespace uni.ui.gl {
@@ -20,12 +22,12 @@ namespace uni.ui.gl {
     public ISkeleton Skeleton { get; }
 
     public void Render() {
-      Gl.glDisable(Gl.GL_DEPTH_TEST);
+      GL.Disable(EnableCap.DepthTest);
 
-      Gl.glLineWidth(5);
+      GL.LineWidth(5);
 
-      Gl.glBegin(Gl.GL_LINES);
-      Gl.glColor4f(1, 0, 0, 1);
+      GL.Begin(PrimitiveType.Lines);
+      GL.Color4(1f, 0, 0, 1);
 
       var boneQueue = new Queue<(IBone, (double, double, double)?)>();
       boneQueue.Enqueue((this.Skeleton.Root, null));
@@ -41,8 +43,8 @@ namespace uni.ui.gl {
 
         if (parentLocation != null) {
           var (parentX, parentY, parentZ) = parentLocation.Value;
-          Gl.glVertex3d(parentX, parentY, parentZ);
-          Gl.glVertex3d(x, y, z);
+          GL.Vertex3(parentX, parentY, parentZ);
+          GL.Vertex3(x, y, z);
         }
 
         var location = (x, y, z);
@@ -51,10 +53,10 @@ namespace uni.ui.gl {
         }
       }
 
-      Gl.glEnd();
+      GL.End();
 
-      Gl.glColor4f(1, 1, 1, 1);
-      Gl.glEnable(Gl.GL_DEPTH_TEST);
+      GL.Color4(1f, 1, 1, 1);
+      GL.Enable(EnableCap.DepthTest);
     }
   }
 }

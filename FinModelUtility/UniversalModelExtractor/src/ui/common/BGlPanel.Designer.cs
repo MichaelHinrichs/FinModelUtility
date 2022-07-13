@@ -23,24 +23,16 @@
     /// the contents of this method with the code editor.
     /// </summary>
     private void InitializeComponent() {
-      this.impl_ = new UoT.Tao.Platform.Windows.SimpleOpenGlControl();
+      this.impl_ = new OpenTK.GLControl();
       this.SuspendLayout();
       // 
       // impl_
       // 
-      this.impl_.AccumBits = ((byte)(0));
-      this.impl_.AutoCheckErrors = false;
-      this.impl_.AutoFinish = false;
-      this.impl_.AutoMakeCurrent = true;
-      this.impl_.AutoSwapBuffers = true;
       this.impl_.BackColor = System.Drawing.Color.Black;
-      this.impl_.ColorBits = ((byte)(32));
-      this.impl_.DepthBits = ((byte)(16));
       this.impl_.Dock = System.Windows.Forms.DockStyle.Fill;
       this.impl_.Location = new System.Drawing.Point(0, 0);
       this.impl_.Name = "impl_";
       this.impl_.Size = new System.Drawing.Size(511, 331);
-      this.impl_.StencilBits = ((byte)(0));
       this.impl_.TabIndex = 0;
       // 
       // BGlPanel
@@ -57,6 +49,6 @@
 
     #endregion
 
-    protected UoT.Tao.Platform.Windows.SimpleOpenGlControl impl_;
+    protected OpenTK.GLControl impl_;
   }
 }

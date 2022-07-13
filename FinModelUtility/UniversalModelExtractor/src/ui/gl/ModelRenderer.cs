@@ -6,7 +6,10 @@ using fin.model;
 using fin.model.impl;
 using fin.util.image;
 
-using Tao.OpenGl;
+using OpenTK.Graphics.OpenGL;
+
+using PrimitiveType = fin.model.PrimitiveType;
+using GlPrimitiveType = OpenTK.Graphics.OpenGL.PrimitiveType;
 
 
 namespace uni.ui.gl {
@@ -183,10 +186,9 @@ void main() {
         this.shaderProgram_.Use();
 
         for (var t = 0; t < 8; ++t) {
-          var textureLocation = Gl.glGetUniformLocation(
-              this.shaderProgram_.ProgramId,
-              $"texture{t}");
-          Gl.glUniform1i(textureLocation, t);
+          var textureLocation =
+              this.shaderProgram_.GetUniformLocation($"texture{t}");
+          GL.Uniform1(textureLocation, t);
         }
       }
 
@@ -203,7 +205,7 @@ void main() {
         this.textures_[i].Bind(i);
       }
 
-      Gl.glBegin(Gl.GL_TRIANGLES);
+      GL.Begin(GlPrimitiveType.Triangles);
 
       foreach (var primitive in this.primitives_) {
         var vertices = primitive.Vertices;
@@ -283,7 +285,7 @@ void main() {
         }
       }
 
-      Gl.glEnd();
+      GL.End();
 
       for (var i = 0; i < this.textures_.Count; ++i) {
         this.textures_[i].Unbind(i);
@@ -304,7 +306,7 @@ void main() {
 
       var color = vertex.GetColor();
       if (color != null) {
-        Gl.glColor4f(color.Rf, color.Gf, color.Bf, color.Af);
+        GL.Color4(color.Rf, color.Gf, color.Bf, color.Af);
       }
 
       if (DebugFlags.ENABLE_WEIGHT_COLORS) {
@@ -324,16 +326,18 @@ void main() {
           b = 1;
         }
 
-        Gl.glColor4f(r, g, b, 1);
+        GL.Color4(r, g, b, 1);
       }
 
       for (var i = 0; i < 8; ++i) {
+        var textureUnit = TextureUnit.Texture0 + i;
+
         var uvi = vertex.GetUv(i);
-        Gl.glMultiTexCoord2f(i, uvi?.U ?? 0, uvi?.V ?? 0);
+        GL.MultiTexCoord2(textureUnit, uvi?.U ?? 0, uvi?.V ?? 0);
       }
 
-      Gl.glNormal3f(normal_.X, normal_.Y, normal_.Z);
-      Gl.glVertex3f(position_.X, position_.Y, position_.Z);
+      GL.Normal3(normal_.X, normal_.Y, normal_.Z);
+      GL.Vertex3(position_.X, position_.Y, position_.Z);
     }
   }
 }

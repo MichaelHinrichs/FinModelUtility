@@ -4,7 +4,7 @@ using System.Drawing;
 using fin.model;
 using fin.util.image;
 
-using Tao.OpenGl;
+using OpenTK.Graphics.OpenGL;
 
 
 namespace fin.gl {
@@ -14,39 +14,43 @@ namespace fin.gl {
     private int id_ = UNDEFINED_ID;
 
     public GlTexture(Bitmap bitmap) {
-      Gl.glGenTextures(1, out int id);
+      GL.GenTextures(1, out int id);
       this.id_ = id;
 
-      var target = Gl.GL_TEXTURE_2D;
-      Gl.glBindTexture(target, this.id_);
+      var target = TextureTarget.Texture2D;
+      GL.BindTexture(target, this.id_);
       {
         this.LoadBitmapIntoTexture_(bitmap);
       }
-      Gl.glBindTexture(target, UNDEFINED_ID);
+      GL.BindTexture(target, UNDEFINED_ID);
     }
 
     public GlTexture(ITexture texture) {
-      Gl.glGenTextures(1, out int id);
+      GL.GenTextures(1, out int id);
       this.id_ = id;
 
-      var target = Gl.GL_TEXTURE_2D;
-      Gl.glBindTexture(target, this.id_);
+      var target = TextureTarget.Texture2D;
+      GL.BindTexture(target, this.id_);
       {
         this.LoadBitmapIntoTexture_(texture.ImageData);
 
         // Gl.glGenerateMipmap(target);
 
-        Gl.glTexParameteri(target, Gl.GL_TEXTURE_WRAP_S,
-                           GlTexture.ConvertFinWrapToGlWrap_(
-                               texture.WrapModeU));
-        Gl.glTexParameteri(target, Gl.GL_TEXTURE_WRAP_T,
-                           GlTexture.ConvertFinWrapToGlWrap_(
-                               texture.WrapModeV));
+        GL.TexParameter(target,
+                        TextureParameterName.TextureWrapS,
+                        (int) GlTexture.ConvertFinWrapToGlWrap_(
+                            texture.WrapModeU));
+        GL.TexParameter(target,
+                        TextureParameterName.TextureWrapT,
+                        (int) GlTexture.ConvertFinWrapToGlWrap_(
+                            texture.WrapModeV));
 
-        Gl.glTexParameteri(target, Gl.GL_TEXTURE_MIN_FILTER, Gl.GL_NEAREST);
-        Gl.glTexParameteri(target, Gl.GL_TEXTURE_MAG_FILTER, Gl.GL_LINEAR);
+        GL.TexParameter(target, TextureParameterName.TextureMinFilter,
+                        (int) TextureMinFilter.Nearest);
+        GL.TexParameter(target, TextureParameterName.TextureMagFilter,
+                        (int) TextureMagFilter.Linear);
       }
-      Gl.glBindTexture(target, UNDEFINED_ID);
+      GL.BindTexture(target, UNDEFINED_ID);
     }
 
     private void LoadBitmapIntoTexture_(Bitmap imageData) {
@@ -75,9 +79,14 @@ namespace fin.gl {
             }
           }
 
-          Gl.glTexImage2D(Gl.GL_TEXTURE_2D, 0, Gl.GL_RGBA, imageWidth,
-                          imageHeight, 0, Gl.GL_RGBA, Gl.GL_UNSIGNED_BYTE,
-                          rgba);
+          GL.TexImage2D(TextureTarget.Texture2D,
+                        0,
+                        PixelInternalFormat.Rgba,
+                        imageWidth, imageHeight,
+                        0,
+                        PixelFormat.Rgba,
+                        PixelType.UnsignedByte,
+                        rgba);
         }
       });
     }
@@ -91,26 +100,26 @@ namespace fin.gl {
 
     private void ReleaseUnmanagedResources_() {
       var id = this.id_;
-      Gl.glDeleteTextures(1, ref id);
+      GL.DeleteTextures(1, ref id);
 
       this.id_ = UNDEFINED_ID;
     }
 
     public void Bind(int textureIndex = 0) {
-      Gl.glActiveTexture(Gl.GL_TEXTURE0 + textureIndex);
-      Gl.glBindTexture(Gl.GL_TEXTURE_2D, this.id_);
+      GL.ActiveTexture(TextureUnit.Texture0 + textureIndex);
+      GL.BindTexture(TextureTarget.Texture2D, this.id_);
     }
 
     public void Unbind(int textureIndex = 0) {
-      Gl.glActiveTexture(Gl.GL_TEXTURE0 + textureIndex);
-      Gl.glBindTexture(Gl.GL_TEXTURE_2D, UNDEFINED_ID);
+      GL.ActiveTexture(TextureUnit.Texture0 + textureIndex);
+      GL.BindTexture(TextureTarget.Texture2D, UNDEFINED_ID);
     }
 
-    private static int ConvertFinWrapToGlWrap_(WrapMode wrapMode) =>
+    private static TextureWrapMode ConvertFinWrapToGlWrap_(WrapMode wrapMode) =>
         wrapMode switch {
-            WrapMode.CLAMP         => Gl.GL_CLAMP_TO_EDGE,
-            WrapMode.REPEAT        => Gl.GL_REPEAT,
-            WrapMode.MIRROR_REPEAT => Gl.GL_MIRRORED_REPEAT,
+            WrapMode.CLAMP         => TextureWrapMode.ClampToEdge,
+            WrapMode.REPEAT        => TextureWrapMode.Repeat,
+            WrapMode.MIRROR_REPEAT => TextureWrapMode.MirroredRepeat,
             _ => throw new ArgumentOutOfRangeException(
                      nameof(wrapMode), wrapMode, null)
         };
