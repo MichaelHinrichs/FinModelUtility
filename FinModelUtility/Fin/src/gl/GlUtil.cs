@@ -113,5 +113,27 @@ namespace fin.gl {
           _ => throw new ArgumentOutOfRangeException(
                    nameof(finLogicOp), finLogicOp, null)
       };
+
+    public static void Perspective(double fovYDegrees,
+                                   double aspectRatio,
+                                   double zNear,
+                                   double zFar) {
+      var matrix = new double[16];
+
+      var f = 1.0 / Math.Tan(fovYDegrees / 180 * Math.PI / 2);
+
+      SetInMatrix(matrix, 0, 0, f / aspectRatio);
+      SetInMatrix(matrix, 1, 1, f);
+      SetInMatrix(matrix, 2, 2, (zNear + zFar) / (zNear - zFar));
+      SetInMatrix(matrix, 3, 2, 2 * zNear * zFar / (zNear - zFar));
+      SetInMatrix(matrix, 2, 3, -1);
+
+      Gl.glMultMatrixd(matrix);
+    }
+
+    public static int ConvertMatrixCoordToIndex(int r, int c) => 4 * r + c;
+
+    public static void SetInMatrix(double[] matrix, int r, int c, double value)
+      => matrix[ConvertMatrixCoordToIndex(r, c)] = value;
   }
 }

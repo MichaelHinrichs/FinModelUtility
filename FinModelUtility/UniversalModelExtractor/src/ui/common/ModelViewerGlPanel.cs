@@ -313,7 +313,7 @@ void main() {
       {
         Gl.glMatrixMode(Gl.GL_PROJECTION);
         Gl.glLoadIdentity();
-        Glu.gluPerspective(this.fovY_, 1f * width / height, .1, 10000);
+        GlUtil.Perspective(this.fovY_, 1.0 * width / height, .1, 10000);
         Glu.gluLookAt(this.camera_.X, this.camera_.Y, this.camera_.Z,
                       this.camera_.X + this.camera_.XNormal,
                       this.camera_.Y + this.camera_.YNormal,
