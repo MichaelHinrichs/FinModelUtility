@@ -359,7 +359,7 @@ void main() {
       {
         Gl.glMatrixMode(Gl.GL_PROJECTION);
         Gl.glLoadIdentity();
-        Glu.gluOrtho2D(0, width, height, 0);
+        GlUtil.Ortho2d(0, width, height, 0);
 
         Gl.glMatrixMode(Gl.GL_MODELVIEW);
         Gl.glLoadIdentity();

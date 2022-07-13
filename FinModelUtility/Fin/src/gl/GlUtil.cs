@@ -131,6 +131,9 @@ namespace fin.gl {
       Gl.glMultMatrixd(matrix);
     }
 
+    public static void Ortho2d(int left, int right, int bottom, int top)
+      => Gl.glOrtho(left, right, bottom, top, -1, 1);
+
     public static int ConvertMatrixCoordToIndex(int r, int c) => 4 * r + c;
 
     public static void SetInMatrix(double[] matrix, int r, int c, double value)
