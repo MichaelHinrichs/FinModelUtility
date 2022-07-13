@@ -21,6 +21,14 @@ namespace fin.math {
       this.UpdateIsIdentity();
     }
 
+    public FinMatrix4x4(IReadOnlyList<double> data) {
+      Asserts.Equal(4 * 4, data.Count);
+      for (var i = 0; i < 4 * 4; ++i) {
+        this.impl_[i] = data[i];
+      }
+      this.UpdateIsIdentity();
+    }
+
     public FinMatrix4x4(IReadOnlyFinMatrix4x4 other) => this.CopyFrom(other);
 
     public IFinMatrix4x4 Clone() => new FinMatrix4x4(this);
