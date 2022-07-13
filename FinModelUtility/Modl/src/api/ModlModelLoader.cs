@@ -142,9 +142,11 @@ namespace modl.api {
                 }
               }
 
-              finMesh.AddTriangleStrip(vertices)
-                     .SetMaterial(finMaterial)
+              var triangleStripPrimitive = finMesh.AddTriangleStrip(vertices)
                      .SetVertexOrder(VertexOrder.NORMAL);
+              if (finMaterial != null) {
+                triangleStripPrimitive.SetMaterial(finMaterial);
+              }
             }
           }
         }
