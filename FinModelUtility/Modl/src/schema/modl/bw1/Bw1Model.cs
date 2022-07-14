@@ -22,19 +22,17 @@ namespace modl.schema.modl.bw1 {
       er.AssertStringEndian("MODL");
 
       var size = er.ReadUInt32();
+      var expectedEnd = er.Position + size;
 
       var nodeCount = er.ReadUInt16();
       var additionalDataCount = er.ReadByte();
 
       var padding = er.ReadByte();
 
-      var unk0 = er.ReadUInt32();
-      var floatTuple = er.ReadSingles(4);
+      var someCount = er.ReadUInt32();
+      var unknown0 = er.ReadSingles(4);
 
-      var additionalData = new uint[additionalDataCount];
-      for (var i = 0; i < additionalDataCount; ++i) {
-        additionalData[i] = er.ReadUInt32();
-      }
+      var additionalData = er.ReadUInt32s(additionalDataCount);
 
       this.SkipSection_(er, "XMEM");
 
@@ -63,12 +61,15 @@ namespace modl.schema.modl.bw1 {
           this.CnctParentToChildren.Add(parent, child);
         }
       }
+
+      Asserts.Equal(expectedEnd, er.Position);
     }
 
     private void SkipSection_(EndianBinaryReader er, string sectionName) {
       er.AssertStringEndian(sectionName);
       var size = er.ReadUInt32();
-      er.Position += size;
+      var data = er.ReadBytes((int) size);
+      ;
     }
   }
 
@@ -96,18 +97,26 @@ namespace modl.schema.modl.bw1 {
       var headerStart = er.Position;
       var expectedHeaderEnd = headerStart + 0x38;
       {
-        // TODO: unknown
-        er.Position += 12;
+        // TODO: What are these used for?
+        var someMin = er.ReadUInt16();
+        var someMax = er.ReadUInt16();
+
+        // TODO: unknown, probably enum values
+        var unknowns0 = er.ReadUInt32s(2);
 
         this.Transform.Read(er);
 
         // TODO: unknown, also transform??
-        er.Position += 4 * 4;
+        // These look very similar to the values defined in the constructor
+        var unknowns1 = er.ReadSingles(4);
+
+        ;
       }
       Asserts.Equal(er.Position, expectedHeaderEnd);
 
       // TODO: additional data
-      er.Position += 4 * this.additionalDataCount_;
+      var additionalData = er.ReadUInt32s(this.additionalDataCount_);
+      ;
 
       this.BoundingBox.Read(er);
 
@@ -150,6 +159,7 @@ namespace modl.schema.modl.bw1 {
           case "VUV2":
           case "VUV3":
           case "VUV4": {
+            // TODO: Need to keep track of section order
             var uvMapIndex = sectionName[3] - '1';
             this.ReadUvMap_(er, uvMapIndex, sectionSize / (2 * 2));
             break;
@@ -158,8 +168,8 @@ namespace modl.schema.modl.bw1 {
             // Why on earth does this work??????
             // TODO: This may mean to throw out the old position data???
             if (Positions.Count > 0) {
-              er.Position = expectedNodeEnd;
-              goto BreakEarly;
+              //er.Position = expectedNodeEnd;
+              //goto BreakEarly;
             }
 
             var vertexPositionSize = 2 * 3;
@@ -222,6 +232,8 @@ namespace modl.schema.modl.bw1 {
       for (var i = 0; i < this.Matrices.Length; ++i) {
         this.Matrices[i] = er.ReadNew<Bw1RnodMatrix>();
       }
+
+      ;
     }
 
 
@@ -256,7 +268,7 @@ namespace modl.schema.modl.bw1 {
     private void ReadPositions_(EndianBinaryReader er, int vertexCount) {
       var endianness = er.Endianness;
       er.Endianness = Endianness.BigEndian;
-      
+
       for (var i = 0; i < vertexCount; ++i) {
         this.Positions.Add(er.ReadNew<VertexPosition>());
       }
@@ -270,14 +282,13 @@ namespace modl.schema.modl.bw1 {
     private void ReadNormals_(EndianBinaryReader er, int vertexCount) {
       var endianness = er.Endianness;
       er.Endianness = Endianness.BigEndian;
-      
+
       for (var i = 0; i < vertexCount; ++i) {
         this.Normals.Add(er.ReadNew<VertexNormal>());
       }
 
       er.Endianness = endianness;
     }
-
 
     public List<BwMesh> Meshes { get; } = new();
 
@@ -292,16 +303,18 @@ namespace modl.schema.modl.bw1 {
 
       var materialIndex = er.ReadUInt32();
 
-      var unknown = er.ReadUInt32();
+      var flags = er.ReadUInt32();
       var gxDataSize = er.ReadUInt32();
 
       Asserts.Equal(expectedEnd, er.Position + gxDataSize);
 
       var triangleStrips = new List<BwTriangleStrip>();
       var mesh = new BwMesh {
+          Flags = flags,
           MaterialIndex = materialIndex,
           TriangleStrips = triangleStrips
       };
+      var meshIndex = this.Meshes.Count;
       this.Meshes.Add(mesh);
 
       while (er.Position < expectedEnd) {
@@ -323,11 +336,14 @@ namespace modl.schema.modl.bw1 {
             throw new NotImplementedException();
           }
         } else if (opcodeEnum == BwOpcode.LOAD_XF_REG) {
-          var x = er.ReadUInt32();
-          var y = er.ReadUInt32();
+          var lengthMinusOne = er.ReadUInt16();
+          var length = lengthMinusOne + 1;
 
+          var firstAddress = er.ReadUInt16();
+
+          var values = er.ReadUInt32s(length);
           // TODO: Complete
-        } else if ((opcode & 0xFA) == 0x98) {
+        } else if (opcodeEnum == BwOpcode.TRIANGLE_STRIP) {
           var vertexAttributeIndicesList = new List<BwVertexAttributeIndices>();
 
           var vertexDescriptor = new VertexDescriptor();
@@ -340,7 +356,9 @@ namespace modl.schema.modl.bw1 {
 
           var vertexCount = er.ReadUInt16();
           for (var i = 0; i < vertexCount; ++i) {
-            var vertexAttributeIndices = new BwVertexAttributeIndices();
+            var vertexAttributeIndices = new BwVertexAttributeIndices {
+                Fraction = 1d * i / vertexCount
+            };
             vertexAttributeIndicesList.Add(vertexAttributeIndices);
 
             foreach (var (vertexAttribute, vertexFormat) in
@@ -379,16 +397,19 @@ namespace modl.schema.modl.bw1 {
                   vertexAttributeIndices.TexCoordIndices[index] = value;
                   break;
                 }
+                default: {
+                  throw new NotImplementedException();
+                }
               }
             }
           }
         } else if (opcodeEnum == BwOpcode.NOP) { } else {
-          ;
+          throw new NotImplementedException();
         }
       }
 
       er.Endianness = endianness;
-      er.Position = expectedEnd;
+      Asserts.Equal(expectedEnd, er.Position);
     }
 
     public enum BwOpcode : byte {
@@ -434,6 +455,10 @@ namespace modl.schema.modl.bw1 {
         for (var i = 0; i < 8; ++i) {
           this.HasTexCoord[i] = (value & 1) == 1;
           value >>= 1;
+        }
+
+        if (value != 0) {
+          throw new NotImplementedException();
         }
       }
 
@@ -507,6 +532,7 @@ namespace modl.schema.modl.bw1 {
     }
 
     public class BwMesh {
+      public uint Flags { get; set; }
       public uint MaterialIndex { get; set; }
       public List<BwTriangleStrip> TriangleStrips { get; set; }
     }
@@ -519,6 +545,7 @@ namespace modl.schema.modl.bw1 {
     }
 
     public class BwVertexAttributeIndices {
+      public double Fraction { get; set; }
       public ushort PositionIndex { get; set; }
       public ushort? NormalIndex { get; set; }
       public ushort? NodeIndex { get; set; }
