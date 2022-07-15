@@ -1,6 +1,7 @@
 ﻿using CommandLine;
 using CommandLine.Text;
 
+using uni.debug;
 using uni.games.animal_crossing;
 using uni.games.battalion_wars;
 using uni.games.glover;
@@ -92,8 +93,10 @@ namespace uni.cli {
                   new WindWakerExtractor().ExtractAll();
                 })
                 .WithParsed((DebugOptions _) => {
-                  var window = new DebugWindow();
-                  window.Run();
+                  /*var window = new DebugWindow();
+                  window.Run();*/
+
+                  new DebugProgram().Run();
                 })
                 .WithNotParsed(parseErrors => errors = parseErrors);
 
