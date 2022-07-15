@@ -28,6 +28,10 @@
       "commandName": "Project",
       "commandLineArgs": "luigis_mansion_3d"
     },
+    "Majora's Mask 3D": {
+      "commandName": "Project",
+      "commandLineArgs": "majoras_mask_3d"
+    },
     "Mario Kart: Double Dash": {
       "commandName": "Project",
       "commandLineArgs": "mario_kart_double_dash"
