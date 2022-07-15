@@ -2,6 +2,7 @@
 using System.Drawing.Text;
 
 using fin.data;
+using fin.math;
 using fin.util.asserts;
 
 using modl.schema.modl.bw1.node;
@@ -165,11 +166,11 @@ namespace modl.schema.modl.bw1 {
             break;
           }
           case "VPOS": {
-            // Why on earth does this work??????
-            // TODO: This may mean to throw out the old position data???
+            // TODO: Handle this properly
+            // Each new VPOS section seems to correspond to a new LOD mesh, but we only need the first one.
             if (Positions.Count > 0) {
-              //er.Position = expectedNodeEnd;
-              //goto BreakEarly;
+              er.Position = expectedNodeEnd;
+              goto BreakEarly;
             }
 
             var vertexPositionSize = 2 * 3;
@@ -206,13 +207,22 @@ namespace modl.schema.modl.bw1 {
             this.ReadOpcodes_(er, sectionSize, ref vertexDescriptorValue);
             break;
           }
-          default: {
-            if (!(sectionName is "SCNT" or "VCOL")) {
-              ;
-            }
+          case "SCNT": {
+            // TODO: Support this
+            // This explains why multiple VPOS sections are included.
+            Asserts.Equal(4, sectionSize);
+            var lodCount = er.ReadUInt32();
+            break;
+          }
+          case "VCOL": {
             er.Position += sectionSize;
             break;
           }
+          case "ANIM": {
+            er.Position += sectionSize;
+            break;
+          }
+          default: throw new NotImplementedException();
         }
 
         Asserts.Equal(er.Position, expectedSectionEnd);
@@ -232,8 +242,6 @@ namespace modl.schema.modl.bw1 {
       for (var i = 0; i < this.Matrices.Length; ++i) {
         this.Matrices[i] = er.ReadNew<Bw1RnodMatrix>();
       }
-
-      ;
     }
 
 
@@ -314,7 +322,6 @@ namespace modl.schema.modl.bw1 {
           MaterialIndex = materialIndex,
           TriangleStrips = triangleStrips
       };
-      var meshIndex = this.Meshes.Count;
       this.Meshes.Add(mesh);
 
       while (er.Position < expectedEnd) {
@@ -339,7 +346,8 @@ namespace modl.schema.modl.bw1 {
           var lengthMinusOne = er.ReadUInt16();
           var length = lengthMinusOne + 1;
 
-          var firstAddress = er.ReadUInt16();
+          // http://hitmen.c02.at/files/yagcd/yagcd/chap5.html#sec5.11.4
+          var firstXfRegisterAddress = er.ReadUInt16();
 
           var values = er.ReadUInt32s(length);
           // TODO: Complete
@@ -395,6 +403,10 @@ namespace modl.schema.modl.bw1 {
                 case VertexAttribute.Tex7Coord: {
                   var index = vertexAttribute - VertexAttribute.Tex0Coord;
                   vertexAttributeIndices.TexCoordIndices[index] = value;
+                  break;
+                }
+                case VertexAttribute.Color0:
+                case VertexAttribute.Color1: {
                   break;
                 }
                 default: {
