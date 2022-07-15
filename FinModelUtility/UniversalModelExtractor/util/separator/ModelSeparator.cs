@@ -19,6 +19,10 @@ namespace uni.util.separator {
         string directoryId,
         IModelSeparatorMethod method);
 
+    IModelSeparator Register(
+        IModelSeparatorMethod method,
+        params string[] directoryIds);
+
     bool Contains(IFileHierarchyDirectory directory);
 
     IList<IModelBundle> Separate(

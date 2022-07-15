@@ -1,5 +1,4 @@
-﻿using fin.io;
-using fin.model;
+﻿using fin.model;
 
 using uni.platforms;
 using uni.platforms.threeDs;
