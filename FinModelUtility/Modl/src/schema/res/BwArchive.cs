@@ -18,7 +18,7 @@ namespace modl.schema.res {
 
       this.Files.Clear();
 
-      while (er.Position < er.BaseStream.Length) {
+      while (!er.Eof) {
         var bwFile = er.ReadNew<BwFile>();
         this.Files.Add(bwFile.Type, bwFile);
       }

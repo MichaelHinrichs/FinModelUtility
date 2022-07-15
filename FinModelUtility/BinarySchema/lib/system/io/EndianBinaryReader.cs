@@ -69,10 +69,12 @@ namespace System.IO {
       set => this.BaseStream.Position = value;
     }
 
-    public bool Eof => this.BaseStream.Position == this.BaseStream.Length;
+    public long Length => this.BaseStream.Length;
+
+    public bool Eof => this.Position == this.Length;
 
     public void Align(uint amt) {
-      var offs = amt - (this.BaseStream.Position % amt);
+      var offs = amt - (this.Position % amt);
       if (offs != amt) {
         this.BaseStream.Position += offs;
       }
@@ -547,6 +549,18 @@ namespace System.IO {
       var value = new T();
       value.Read(this);
       return value;
+    }
+
+    public bool TryReadNew<T>(out T? value) where T : IDeserializable, new() {
+      var originalPosition = this.Position;
+      try {
+        value = this.ReadNew<T>();
+        return true;
+      } catch {
+        this.Position = originalPosition;
+        value = default;
+        return false;
+      }
     }
 
     public void ReadNewArray<T>(out T[] array, int length)

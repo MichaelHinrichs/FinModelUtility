@@ -54,12 +54,12 @@ namespace bmd.GCN {
       this.Header = er.ReadNew<BmdHeader>();
 
       bool OK;
-      while (er.BaseStream.Position != er.BaseStream.Length)
+      while (er.Position != er.Length)
       {
         switch (er.ReadString(Encoding.ASCII, 4))
         {
           case nameof (INF1):
-            er.BaseStream.Position -= 4L;
+            er.Position -= 4L;
             this.INF1 = new BMD.INF1Section(er, out OK);
             if (!OK)
             {
@@ -70,7 +70,7 @@ namespace bmd.GCN {
             else
               break;
           case nameof (VTX1):
-            er.BaseStream.Position -= 4L;
+            er.Position -= 4L;
             this.VTX1 = new BMD.VTX1Section(er, out OK);
             if (!OK)
             {
@@ -80,7 +80,7 @@ namespace bmd.GCN {
             } else
               break;
           case nameof (EVP1):
-            er.BaseStream.Position -= 4L;
+            er.Position -= 4L;
             this.EVP1 = new BMD.EVP1Section(er, out OK);
             if (!OK)
             {
@@ -90,7 +90,7 @@ namespace bmd.GCN {
             } else
               break;
           case nameof (DRW1):
-            er.BaseStream.Position -= 4L;
+            er.Position -= 4L;
             this.DRW1 = new BMD.DRW1Section(er, out OK);
             if (!OK)
             {
@@ -100,7 +100,7 @@ namespace bmd.GCN {
             } else
               break;
           case nameof (JNT1):
-            er.BaseStream.Position -= 4L;
+            er.Position -= 4L;
             this.JNT1 = new BMD.JNT1Section(er, out OK);
             if (!OK)
             {
@@ -110,7 +110,7 @@ namespace bmd.GCN {
             } else
               break;
           case nameof (SHP1):
-            er.BaseStream.Position -= 4L;
+            er.Position -= 4L;
             this.SHP1 = new BMD.SHP1Section(er, out OK);
             if (!OK)
             {
@@ -122,7 +122,7 @@ namespace bmd.GCN {
           case "MAT1":
           case "MAT2":
           case nameof (MAT3):
-            er.BaseStream.Position -= 4L;
+            er.Position -= 4L;
             this.MAT3 = new BMD.MAT3Section(er, out OK);
             if (!OK)
             {
@@ -132,7 +132,7 @@ namespace bmd.GCN {
             } else
               break;
           case nameof (TEX1):
-            er.BaseStream.Position -= 4L;
+            er.Position -= 4L;
             this.TEX1 = new BMD.TEX1Section(er, out OK);
             if (!OK)
             {
@@ -188,7 +188,7 @@ label_7:
 
       public INF1Section(EndianBinaryReader er, out bool OK)
       {
-        long position1 = er.BaseStream.Position;
+        long position1 = er.Position;
         bool OK1;
         this.Header = new DataBlockHeader(er, "INF1", out OK1);
         if (!OK1)
@@ -202,13 +202,13 @@ label_7:
           this.Unknown2 = er.ReadUInt32();
           this.NrVertex = er.ReadUInt32();
           this.EntryOffset = er.ReadUInt32();
-          long position2 = er.BaseStream.Position;
-          er.BaseStream.Position = position1 + (long) this.EntryOffset;
+          long position2 = er.Position;
+          er.Position = position1 + (long) this.EntryOffset;
           List<Inf1Entry> source = new List<Inf1Entry>();
           source.Add(er.ReadNew<Inf1Entry>());
           while (source.Last<Inf1Entry>().Type != (ushort) 0)
             source.Add(er.ReadNew<Inf1Entry>());
-          er.BaseStream.Position = position1 + (long) this.Header.size;
+          er.Position = position1 + (long) this.Header.size;
           this.Entries = source.ToArray();
           OK = true;
         }
@@ -228,7 +228,7 @@ label_7:
 
       public VTX1Section(EndianBinaryReader er, out bool OK)
       {
-        long position1 = er.BaseStream.Position;
+        long position1 = er.Position;
         bool OK1;
         this.Header = new DataBlockHeader(er, "VTX1", out OK1);
         if (!OK1)
@@ -239,7 +239,7 @@ label_7:
         {
           this.ArrayFormatOffset = er.ReadUInt32();
           this.Offsets = er.ReadUInt32s(13);
-          long position2 = er.BaseStream.Position;
+          long position2 = er.Position;
           int length1 = 0;
           foreach (uint offset in this.Offsets)
           {
@@ -247,7 +247,7 @@ label_7:
               ++length1;
           }
 
-          er.BaseStream.Position = position1 + (long) this.ArrayFormatOffset;
+          er.Position = position1 + (long) this.ArrayFormatOffset;
           er.ReadNewArray(out this.ArrayFormats, length1);
 
           int index1 = 0;
@@ -257,7 +257,7 @@ label_7:
             {
               ArrayFormat arrayFormat = this.ArrayFormats[index1];
               int length2 = this.GetLength(k);
-              er.BaseStream.Position = position1 + (long) this.Offsets[k];
+              er.Position = position1 + (long) this.Offsets[k];
               if (arrayFormat.ArrayType >= 11 && arrayFormat.ArrayType <= 12) {
                 this.ReadColorArray(arrayFormat, length2, er);
               } else {
@@ -266,7 +266,7 @@ label_7:
               ++index1;
             }
           }
-          er.BaseStream.Position = position1 + (long) this.Header.size;
+          er.Position = position1 + (long) this.Header.size;
           OK = true;
         }
       }
@@ -498,7 +498,7 @@ label_7:
 
       public EVP1Section(EndianBinaryReader er, out bool OK)
       {
-        long position1 = er.BaseStream.Position;
+        long position1 = er.Position;
         bool OK1;
         this.Header = new DataBlockHeader(er, "EVP1", out OK1);
         if (!OK1)
@@ -510,11 +510,11 @@ label_7:
           this.Count = er.ReadUInt16();
           this.Padding = er.ReadUInt16();
           this.Offsets = er.ReadUInt32s(4);
-          long position2 = er.BaseStream.Position;
-          er.BaseStream.Position = position1 + (long) this.Offsets[0];
+          long position2 = er.Position;
+          er.Position = position1 + (long) this.Offsets[0];
           this.Counts = er.ReadBytes((int) this.Count);
 
-          er.BaseStream.Position = position1 + (long) this.Offsets[1];
+          er.Position = position1 + (long) this.Offsets[1];
           this.WeightedIndices = new BMD.EVP1Section.MultiMatrix[(int) this.Count];
           int val1 = 0;
           for (int index1 = 0; index1 < (int) this.Count; ++index1)
@@ -528,7 +528,7 @@ label_7:
             }
           }
           
-          er.BaseStream.Position = position1 + (long) this.Offsets[2];
+          er.Position = position1 + (long) this.Offsets[2];
           for (int index1 = 0; index1 < (int) this.Count; ++index1)
           {
             this.WeightedIndices[index1].Weights = new float[(int) this.Counts[index1]];
@@ -536,7 +536,7 @@ label_7:
               this.WeightedIndices[index1].Weights[index2] = er.ReadSingle();
           }
 
-          er.BaseStream.Position = position1 + (long) this.Offsets[3];
+          er.Position = position1 + (long) this.Offsets[3];
           this.InverseBindMatrices = new MTX44[val1];
           for (int index = 0; index < val1; ++index)
           {
@@ -545,7 +545,7 @@ label_7:
             array[15] = 1f;
             this.InverseBindMatrices[index] = (MTX44) array;
           }
-          er.BaseStream.Position = position1 + (long) this.Header.size;
+          er.Position = position1 + (long) this.Header.size;
           OK = true;
         }
       }
@@ -570,7 +570,7 @@ label_7:
 
       public DRW1Section(EndianBinaryReader er, out bool OK)
       {
-        long position1 = er.BaseStream.Position;
+        long position1 = er.Position;
         bool OK1;
         this.Header = new DataBlockHeader(er, "DRW1", out OK1);
         if (!OK1)
@@ -584,15 +584,15 @@ label_7:
           this.IsWeightedOffset = er.ReadUInt32();
           this.DataOffset = er.ReadUInt32();
 
-          er.BaseStream.Position = position1 + (long) this.IsWeightedOffset;
+          er.Position = position1 + (long) this.IsWeightedOffset;
           this.IsWeighted = new bool[(int) this.Count];
           for (int index = 0; index < (int) this.Count; ++index)
             this.IsWeighted[index] = er.ReadByte() == (byte) 1;
           
-          er.BaseStream.Position = position1 + (long) this.DataOffset;
+          er.Position = position1 + (long) this.DataOffset;
           this.Data = er.ReadUInt16s((int) this.Count);
 
-          er.BaseStream.Position = position1 + (long) this.Header.size;
+          er.Position = position1 + (long) this.Header.size;
           OK = true;
         }
       }
@@ -611,7 +611,7 @@ label_7:
 
       public JNT1Section(EndianBinaryReader er, out bool OK)
       {
-        long position = er.BaseStream.Position;
+        long position = er.Position;
         bool OK1;
         this.Header = new DataBlockHeader(er, "JNT1", out OK1);
         if (!OK1)
@@ -625,11 +625,11 @@ label_7:
           this.JointEntryOffset = er.ReadUInt32();
           this.UnknownOffset = er.ReadUInt32();
           this.StringTableOffset = er.ReadUInt32();
-          er.BaseStream.Position = position + (long) this.StringTableOffset;
+          er.Position = position + (long) this.StringTableOffset;
           this.StringTable = new BMD.Stringtable(er);
-          er.BaseStream.Position = position + (long) this.JointEntryOffset;
+          er.Position = position + (long) this.JointEntryOffset;
           er.ReadNewArray(out this.Joints, this.NrJoints);
-          er.BaseStream.Position = position + (long) this.Header.size;
+          er.Position = position + (long) this.Header.size;
           OK = true;
         }
       }
@@ -652,7 +652,7 @@ label_7:
 
       public SHP1Section(EndianBinaryReader er, out bool OK)
       {
-        long position1 = er.BaseStream.Position;
+        long position1 = er.Position;
         bool OK1;
         this.Header = new DataBlockHeader(er, "SHP1", out OK1);
         if (!OK1)
@@ -671,12 +671,12 @@ label_7:
           this.DataOffset = er.ReadUInt32();
           this.MatrixDataOffset = er.ReadUInt32();
           this.PacketLocationsOffset = er.ReadUInt32();
-          long position2 = er.BaseStream.Position;
-          er.BaseStream.Position = position1 + (long) this.BatchesOffset;
+          long position2 = er.Position;
+          er.Position = position1 + (long) this.BatchesOffset;
           this.Batches = new BMD.SHP1Section.Batch[(int) this.NrBatch];
           for (int index = 0; index < (int) this.NrBatch; ++index)
             this.Batches[index] = new BMD.SHP1Section.Batch(er, position1, this);
-          er.BaseStream.Position = position1 + (long) this.Header.size;
+          er.Position = position1 + (long) this.Header.size;
           OK = true;
         }
       }
@@ -715,8 +715,8 @@ label_7:
           this.Unknown3 = er.ReadSingle();
           this.BoundingBoxMin = er.ReadSingles(3);
           this.BoundingBoxMax = er.ReadSingles(3);
-          long position = er.BaseStream.Position;
-          er.BaseStream.Position = baseoffset +
+          long position = er.Position;
+          er.Position = baseoffset +
                                    (long) Parent.BatchAttribsOffset +
                                    (long) this.AttribsOffset;
           List<BatchAttribute> source = new List<BatchAttribute>();
@@ -770,19 +770,19 @@ label_7:
           this.PacketLocations = new PacketLocation[(int) this.NrPacket];
           for (int index = 0; index < (int) this.NrPacket; ++index)
           {
-            er.BaseStream.Position = baseoffset + (long) Parent.PacketLocationsOffset + (long) (((int) this.FirstPacketLocation + index) * 8);
+            er.Position = baseoffset + (long) Parent.PacketLocationsOffset + (long) (((int) this.FirstPacketLocation + index) * 8);
             var packetLocation = new PacketLocation();
             packetLocation.Read(er);
             this.PacketLocations[index] = packetLocation;
 
-            er.BaseStream.Position = baseoffset + (long) Parent.DataOffset + (long) this.PacketLocations[index].Offset;
+            er.Position = baseoffset + (long) Parent.DataOffset + (long) this.PacketLocations[index].Offset;
             this.Packets[index] = new BMD.SHP1Section.Batch.Packet(er, (int) this.PacketLocations[index].Size, this.BatchAttributes);
-            er.BaseStream.Position = baseoffset + (long) Parent.MatrixDataOffset + (long) (((int) this.FirstMatrixData + index) * 8);
+            er.Position = baseoffset + (long) Parent.MatrixDataOffset + (long) (((int) this.FirstMatrixData + index) * 8);
             this.Packets[index].MatrixData = new BMD.SHP1Section.Batch.Packet.Matrixdata(er);
-            er.BaseStream.Position = baseoffset + (long) Parent.MatrixTableOffset + (long) (2U * this.Packets[index].MatrixData.FirstIndex);
+            er.Position = baseoffset + (long) Parent.MatrixTableOffset + (long) (2U * this.Packets[index].MatrixData.FirstIndex);
             this.Packets[index].MatrixTable = er.ReadUInt16s((int) this.Packets[index].MatrixData.Count);
           }
-          er.BaseStream.Position = position;
+          er.Position = position;
         }
 
         public class Packet
@@ -1022,7 +1022,7 @@ label_7:
 
       public MAT3Section(EndianBinaryReader er, out bool OK)
       {
-        long position1 = er.BaseStream.Position;
+        long position1 = er.Position;
         bool OK1;
         this.Header = new DataBlockHeader(er, "MAT3", out OK1);
         if (!OK1)
@@ -1037,37 +1037,37 @@ label_7:
 
           this.Offsets = er.ReadUInt32s(30);
           int[] sectionLengths = this.GetSectionLengths();
-          long position2 = er.BaseStream.Position;
+          long position2 = er.Position;
 
           // TODO: There is a bunch more data that isn't even read yet:
           // https://github.com/RenolY2/SuperBMD/blob/ccc86e21493275bcd9d86f65b516b85d95c83abd/SuperBMDLib/source/Materials/Enums/Mat3OffsetIndex.cs
 
-          er.BaseStream.Position = position1 + (long) this.Offsets[0];
+          er.Position = position1 + (long) this.Offsets[0];
           this.MaterialEntries = new BMD.MAT3Section.MaterialEntry[sectionLengths[0] / 332];
           for (int index = 0; index < sectionLengths[0] / 332; ++index)
             this.MaterialEntries[index] = new BMD.MAT3Section.MaterialEntry(er);
           
-          er.BaseStream.Position = position1 + (long) this.Offsets[1];
+          er.Position = position1 + (long) this.Offsets[1];
           this.MaterialEntryIndieces = er.ReadUInt16s((int) this.NrMaterials);
           
-          er.BaseStream.Position = position1 + (long) this.Offsets[2];
+          er.Position = position1 + (long) this.Offsets[2];
           this.MaterialNameTable = new BMD.Stringtable(er);
 
           // TODO: Add support for indirect textures (3)
 
-          er.BaseStream.Position = position1 + (long)this.Offsets[4];
+          er.Position = position1 + (long)this.Offsets[4];
           this.CullModes = new CullMode[sectionLengths[4] / 4];
           for (var index = 0; index < sectionLengths[4] / 4; ++index)
             this.CullModes[index] = (CullMode) er.ReadInt32();
 
-          er.BaseStream.Position = position1 + (long) this.Offsets[5];
+          er.Position = position1 + (long) this.Offsets[5];
           this.MaterialColor = new System.Drawing.Color[sectionLengths[5] / 4];
           for (int index = 0; index < sectionLengths[5] / 4; ++index)
             this.MaterialColor[index] = er.ReadColor8();
 
           // TODO: Add support for color channel info (7)
 
-          er.BaseStream.Position = position1 + (long) this.Offsets[8];
+          er.Position = position1 + (long) this.Offsets[8];
           this.AmbientColors = new System.Drawing.Color[sectionLengths[8] / 4];
           for (int index = 0; index < sectionLengths[8] / 4; ++index)
             this.AmbientColors[index] = er.ReadColor8();
@@ -1075,35 +1075,35 @@ label_7:
           // TODO: Add support for light colors (9)
           // TODO: Add support for texgen counts (10)
 
-          er.BaseStream.Position = position1 + this.Offsets[11];
+          er.Position = position1 + this.Offsets[11];
           er.ReadNewArray(out this.TexCoordGens, sectionLengths[11] / 4);
 
           // TODO: Add support for post tex coord gens (12)
 
-          er.BaseStream.Position = position1 + (long) this.Offsets[13];
+          er.Position = position1 + (long) this.Offsets[13];
           er.ReadNewArray(out this.TextureMatrices, sectionLengths[13] / 100);
 
           // TODO: Add support for post tex matrices (14)
 
-          er.BaseStream.Position = position1 + (long) this.Offsets[15];
+          er.Position = position1 + (long) this.Offsets[15];
           this.TextureIndices = er.ReadInt16s(sectionLengths[15] / 2);
 
-          er.BaseStream.Position = position1 + (long) this.Offsets[16];
+          er.Position = position1 + (long) this.Offsets[16];
           er.ReadNewArray(out this.TevOrders, sectionLengths[16] / 4);
 
-          er.BaseStream.Position = position1 + (long) this.Offsets[17];
+          er.Position = position1 + (long) this.Offsets[17];
           this.ColorS10 = new System.Drawing.Color[sectionLengths[17] / 8];
           for (int index = 0; index < sectionLengths[17] / 8; ++index)
             this.ColorS10[index] = er.ReadColor16();
           
-          er.BaseStream.Position = position1 + (long) this.Offsets[18];
+          er.Position = position1 + (long) this.Offsets[18];
           this.Color3 = new System.Drawing.Color[4];
           for (int index = 0; index < 4; ++index)
             this.Color3[index] = er.ReadColor8();
 
           // TODO: Add support for tev counts (19)
 
-          er.BaseStream.Position = position1 + (long) this.Offsets[20];
+          er.Position = position1 + (long) this.Offsets[20];
           this.TevStages = new BMD.MAT3Section.TevStageProps[sectionLengths[20] / 20];
           for (int index = 0; index < sectionLengths[20] / 20; ++index)
             this.TevStages[index] = new BMD.MAT3Section.TevStageProps(er);
@@ -1112,16 +1112,16 @@ label_7:
           // TODO: Add support for tev swap mode table (22)
           // TODO: Add support for fog modes (23)
 
-          er.BaseStream.Position = position1 + (long) this.Offsets[24];
+          er.Position = position1 + (long) this.Offsets[24];
           er.ReadNewArray(out this.AlphaCompares, sectionLengths[24] / 8);
 
-          er.BaseStream.Position = position1 + (long) this.Offsets[25];
+          er.Position = position1 + (long) this.Offsets[25];
           er.ReadNewArray(out this.BlendFunctions, sectionLengths[25] / 4);
           
-          er.BaseStream.Position = position1 + (long) this.Offsets[26];
+          er.Position = position1 + (long) this.Offsets[26];
           er.ReadNewArray(out this.DepthFunctions, sectionLengths[26] / 4);
 
-          er.BaseStream.Position = position1 + (long) this.Header.size;
+          er.Position = position1 + (long) this.Header.size;
           OK = true;
 
           // TODO: Add support for nbt scale (29)
@@ -1460,7 +1460,7 @@ label_7:
 
       public TEX1Section(EndianBinaryReader er, out bool OK)
       {
-        long position1 = er.BaseStream.Position;
+        long position1 = er.Position;
         bool OK1;
         this.Header = new DataBlockHeader(er, "TEX1", out OK1);
         if (!OK1)
@@ -1473,14 +1473,14 @@ label_7:
           this.Padding = er.ReadUInt16();
           this.TextureHeaderOffset = er.ReadUInt32();
           this.StringTableOffset = er.ReadUInt32();
-          long position2 = er.BaseStream.Position;
-          er.BaseStream.Position = position1 + (long) this.StringTableOffset;
+          long position2 = er.Position;
+          er.Position = position1 + (long) this.StringTableOffset;
           this.StringTable = new BMD.Stringtable(er);
-          er.BaseStream.Position = position1 + (long) this.TextureHeaderOffset;
+          er.Position = position1 + (long) this.TextureHeaderOffset;
           this.TextureHeaders = new BMD.TEX1Section.TextureHeader[(int) this.NrTextures];
           for (int idx = 0; idx < (int) this.NrTextures; ++idx)
             this.TextureHeaders[idx] = new BMD.TEX1Section.TextureHeader(er, position1, idx);
-          er.BaseStream.Position = position1 + (long) this.Header.size;
+          er.Position = position1 + (long) this.Header.size;
           OK = true;
         }
       }
@@ -1571,9 +1571,9 @@ label_7:
           this.LodBias = er.ReadUInt16();
           this.DataOffset = er.ReadUInt32();
 
-          long position = er.BaseStream.Position;
+          long position = er.Position;
           {
-            er.BaseStream.Position = baseoffset + (long)this.DataOffset + (long)(32 * (idx + 1));
+            er.Position = baseoffset + (long)this.DataOffset + (long)(32 * (idx + 1));
             this.Data = er.ReadBytes(this.GetCompressedBufferSize());
           }
 
@@ -1607,7 +1607,7 @@ label_7:
               }
             }
           }
-          er.BaseStream.Position = position;
+          er.Position = position;
         }
 
         // TODO: Share this implementation w/ BTI
@@ -1744,7 +1744,7 @@ label_7:
 
       public Stringtable(EndianBinaryReader er)
       {
-        long position = er.BaseStream.Position;
+        long position = er.Position;
         this.NrStrings = er.ReadUInt16();
         this.Padding = er.ReadUInt16();
         this.Entries = new BMD.Stringtable.StringTableEntry[(int) this.NrStrings];
@@ -1777,10 +1777,10 @@ label_7:
         {
           this.Unknown = er.ReadUInt16();
           this.Offset = er.ReadUInt16();
-          long position = er.BaseStream.Position;
-          er.BaseStream.Position = baseoffset + (long) this.Offset;
+          long position = er.Position;
+          er.Position = baseoffset + (long) this.Offset;
           this.Entry = er.ReadStringNT(Encoding.ASCII);
-          er.BaseStream.Position = position;
+          er.Position = position;
         }
 
         public override string ToString() => this.Entry;

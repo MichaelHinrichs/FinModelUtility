@@ -429,15 +429,15 @@ namespace bmd.G2D_Binary_File_Format
             {
               length = newSize;
               Array.Resize<uint>(ref this.Offsets, newSize);
-              er.BaseStream.Position -= 4L;
+              er.Position -= 4L;
               break;
             }
           }
           this.Names = new string[length];
-          long position = er.BaseStream.Position;
+          long position = er.Position;
           for (int index = 0; index < length; ++index)
           {
-            er.BaseStream.Position = position + (long) this.Offsets[index];
+            er.Position = position + (long) this.Offsets[index];
             this.Names[index] = er.ReadStringNT();
           }
           OK = true;
