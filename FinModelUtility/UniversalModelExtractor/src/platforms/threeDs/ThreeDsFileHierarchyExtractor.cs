@@ -22,6 +22,9 @@ namespace uni.platforms.threeDs {
         foreach (var garFile in directory.FilesWithExtension(".gar")) {
           didChange |= this.garExtractor_.Extract(garFile);
         }
+        foreach (var garFile in directory.Files.Where(file => file.Name.EndsWith(".gar.lzs"))) {
+          didChange |= this.garExtractor_.Extract(garFile);
+        }
 
         if (didChange) {
           directory.Refresh();

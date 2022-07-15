@@ -1,6 +1,7 @@
 ﻿using fin.io;
 using fin.log;
 using fin.util.asserts;
+using fin.util.strings;
 
 
 namespace uni.platforms.threeDs.tools {
@@ -8,13 +9,8 @@ namespace uni.platforms.threeDs.tools {
     public bool Extract(IFileHierarchyFile garFile) {
       Asserts.True(garFile.Exists,
                    $"Could not extract GAR because it does not exist: {garFile.FullName}");
-      Asserts.Equal(".gar",
-                    garFile.Extension,
-                    $"Could not extract file because it is not a GAR: {garFile.FullName}");
 
-      var directoryPath =
-          garFile.FullName.Substring(0,
-                                     garFile.FullName.Length - ".gar".Length);
+      var directoryPath = StringUtil.UpTo(garFile.FullName, ".gar");
       var directory = new FinDirectory(directoryPath);
 
       if (directory.Exists) {
@@ -34,8 +30,13 @@ namespace uni.platforms.threeDs.tools {
 
       foreach (var fileType in gar.FileTypes) {
         foreach (var file in fileType.Files) {
-          var filePath = Path.Join(directoryPath, file.FileName);
+          var fileName = file.FileName;
 
+          if (!fileName.EndsWith($".{fileType.TypeName}")) {
+            fileName = $"{fileName}.{fileType.TypeName}";
+          }
+
+          var filePath = Path.Join(directoryPath, fileName);
           Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
           File.WriteAllBytes(filePath, file.Bytes);
         }
@@ -56,6 +57,12 @@ namespace uni.platforms.threeDs.tools {
       public IGarFileType[] FileTypes { get; }
 
       public Gar(EndianBinaryReader er) {
+        var isCompressed =
+            new LzssDecompressor().TryToDecompress(er, out var decompressedGar);
+        if (isCompressed) {
+          er = new EndianBinaryReader(new MemoryStream(decompressedGar!), er.Endianness);
+        }
+
         this.Header = new GarHeader(er);
 
         this.FileTypes = new IGarFileType[this.Header.FileTypeCount];
@@ -65,6 +72,10 @@ namespace uni.platforms.threeDs.tools {
               5 => new Gar5FileType(er, this.Header, i),
               _ => throw new NotImplementedException()
           };
+        }
+
+        if (isCompressed) {
+          er.Close();
         }
       }
     }
@@ -99,6 +110,7 @@ namespace uni.platforms.threeDs.tools {
     }
 
     public interface IGarFileType {
+      string TypeName { get; }
       IGarSubfile[] Files { get; }
     }
 
