@@ -44,6 +44,7 @@
     <ProjectReference Include="../BinarySchema/BinarySchema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
     <ProjectReference Include="..\Bmd2Fbx\Bmd2Fbx.csproj" />
     <ProjectReference Include="..\Cmb\Cmb.csproj" />
+    <ProjectReference Include="..\Dat\Dat.csproj" />
     <ProjectReference Include="..\F3dzex2\F3dzex2.csproj" />
     <ProjectReference Include="..\Fin\Fin.csproj" />
     <ProjectReference Include="..\Glo\Glo.csproj" />

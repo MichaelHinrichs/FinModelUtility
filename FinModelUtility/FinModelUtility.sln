@@ -73,6 +73,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HaloWarsTools", "HaloWarsTo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Glo", "Glo\Glo.csproj", "{A5EB1658-A4ED-4AD0-BAEB-917A74D9D180}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dat", "Dat\Dat.csproj", "{E97647AB-CDFF-4DDA-A516-79AF2CAEEB59}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -311,6 +313,18 @@ Global
 		{A5EB1658-A4ED-4AD0-BAEB-917A74D9D180}.Release|x64.Build.0 = Release|Any CPU
 		{A5EB1658-A4ED-4AD0-BAEB-917A74D9D180}.Release|x86.ActiveCfg = Release|Any CPU
 		{A5EB1658-A4ED-4AD0-BAEB-917A74D9D180}.Release|x86.Build.0 = Release|Any CPU
+		{E97647AB-CDFF-4DDA-A516-79AF2CAEEB59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E97647AB-CDFF-4DDA-A516-79AF2CAEEB59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E97647AB-CDFF-4DDA-A516-79AF2CAEEB59}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E97647AB-CDFF-4DDA-A516-79AF2CAEEB59}.Debug|x64.Build.0 = Debug|Any CPU
+		{E97647AB-CDFF-4DDA-A516-79AF2CAEEB59}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E97647AB-CDFF-4DDA-A516-79AF2CAEEB59}.Debug|x86.Build.0 = Debug|Any CPU
+		{E97647AB-CDFF-4DDA-A516-79AF2CAEEB59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E97647AB-CDFF-4DDA-A516-79AF2CAEEB59}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E97647AB-CDFF-4DDA-A516-79AF2CAEEB59}.Release|x64.ActiveCfg = Release|Any CPU
+		{E97647AB-CDFF-4DDA-A516-79AF2CAEEB59}.Release|x64.Build.0 = Release|Any CPU
+		{E97647AB-CDFF-4DDA-A516-79AF2CAEEB59}.Release|x86.ActiveCfg = Release|Any CPU
+		{E97647AB-CDFF-4DDA-A516-79AF2CAEEB59}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
