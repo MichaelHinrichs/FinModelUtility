@@ -68,14 +68,14 @@ namespace modl.api {
           var finMaterials =
               modlNode.Materials.Select(modlMaterial => {
                         var textureName =
-                            modlMaterial.Texture1.Replace("\0", "");
+                            modlMaterial.Texture1.Replace("\0", "").ToLower();
                         if (textureName == "") {
                           return null;
                         }
 
                         var textureFile =
                             modlFile.Parent.Files.Single(
-                                file => file.Name == $"{textureName}.png");
+                                file => file.Name.ToLower() == $"{textureName}.png");
                         var image =
                             (Bitmap) Image.FromFile(textureFile.FullName);
 
