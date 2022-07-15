@@ -45,7 +45,7 @@ namespace fin.util.strings {
 
     public static string UpTo(string str, string substr) {
       var indexTo = str.IndexOf(substr);
-      return indexTo >= 0 ? str.Substring(0, indexTo) : str;
+      return indexTo >= 0 ? str[..indexTo] : str;
     }
   }
 }
