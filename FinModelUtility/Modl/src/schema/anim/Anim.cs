@@ -14,7 +14,7 @@ namespace modl.schema.anim {
       var name1 = er.ReadStringNT();
 
       // Next is a series of many "0xcd" values. Why??
-      while (er.ReadChar() == 0xcd) {
+      while (er.ReadChar() == 0xcd) { }
       --er.Position;
 
       var something = er.ReadUInt32();
