@@ -13,13 +13,12 @@ namespace modl.schema.anim {
       // The name is repeated once more, excepted null-terminated.
       var name1 = er.ReadStringNT();
 
-      // Next is a series of "0xcd" values--one for each node in the mesh.
-      var boneCount = 0;
-      char c;
-      while ((c = er.ReadChar()) == 0xcd) {
-        ++boneCount;
-      }
+      // Next is a series of many "0xcd" values. Why??
+      while (er.ReadChar() == 0xcd) {
       --er.Position;
+
+      var something = er.ReadUInt32();
+      var boneCount = er.ReadUInt32();
 
       // Next is a series of bone definitions. Each one has a length of 64.
       for (var i = 0; i < boneCount; ++i) {
