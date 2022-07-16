@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using System.Numerics;
 
+using fin.data;
 using fin.io;
 using fin.math;
 using fin.model;
@@ -64,6 +65,25 @@ namespace modl.api {
           }
         }
 
+        var textureDictionary = new LazyDictionary<string, ITexture>(
+            textureName => {
+              var textureFile =
+                  modlFile.Parent.Files.Single(
+                      file => file.Name.ToLower() == $"{textureName}.png");
+              var image =
+                  (Bitmap)Image.FromFile(textureFile.FullName);
+
+              var finTexture =
+                  model.MaterialManager.CreateTexture(image);
+              finTexture.Name = textureName;
+
+              // TODO: Need to handle wrapping
+              finTexture.WrapModeU = WrapMode.REPEAT;
+              finTexture.WrapModeV = WrapMode.REPEAT;
+
+              return finTexture;
+            });
+
         foreach (var modlNode in bw1Model.Nodes) {
           var finMaterials =
               modlNode.Materials.Select(modlMaterial => {
@@ -73,19 +93,7 @@ namespace modl.api {
                           return null;
                         }
 
-                        var textureFile =
-                            modlFile.Parent.Files.Single(
-                                file => file.Name.ToLower() == $"{textureName}.png");
-                        var image =
-                            (Bitmap) Image.FromFile(textureFile.FullName);
-
-                        var finTexture =
-                            model.MaterialManager.CreateTexture(image);
-                        finTexture.Name = textureName;
-
-                        // TODO: Need to handle wrapping
-                        finTexture.WrapModeU = WrapMode.REPEAT;
-                        finTexture.WrapModeV = WrapMode.REPEAT;
+                        var finTexture = textureDictionary[textureName];
 
                         var finMaterial =
                             model.MaterialManager
