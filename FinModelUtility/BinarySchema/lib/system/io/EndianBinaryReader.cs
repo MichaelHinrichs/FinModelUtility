@@ -71,12 +71,19 @@ namespace System.IO {
 
     public long Length => this.BaseStream.Length;
 
-    public bool Eof => this.Position == this.Length;
+    public bool Eof => this.Position >= this.Length;
+
+    public void AssertNotEof() {
+      if (this.Eof) {
+        throw new Exception(
+            $"Attempted to read past the end of the stream: position '{this.Position}' of stream length '{this.Length}'");
+      }
+    }
 
     public void Align(uint amt) {
       var offs = amt - (this.Position % amt);
       if (offs != amt) {
-        this.BaseStream.Position += offs;
+        this.Position += offs;
       }
     }
 
@@ -142,8 +149,10 @@ namespace System.IO {
       }
     }
 
-    private void FillBuffer_(int count, int? optStride = null)
-      => this.BufferedStream_.FillBuffer(count, optStride);
+    private void FillBuffer_(int count, int? optStride = null) {
+      this.AssertNotEof();
+      this.BufferedStream_.FillBuffer(count, optStride);
+    }
 
 
     public void AssertByte(byte expectedValue)
@@ -448,6 +457,7 @@ namespace System.IO {
       => EndianBinaryReader.Assert(expectedValue, this.ReadChar(encoding));
 
     public char ReadChar(Encoding encoding) {
+      this.AssertNotEof();
       var encodingSize = EndianBinaryReader.GetEncodingSize_(encoding);
       this.BufferedStream_.FillBuffer(encodingSize, encodingSize);
       return encoding.GetChars(this.BufferedStream_.Buffer, 0, encodingSize)[0];
@@ -489,8 +499,10 @@ namespace System.IO {
           expectedValue,
           this.ReadString(encoding, expectedValue.Length));
 
-    public string ReadString(Encoding encoding, int count)
-      => new string(this.ReadChars(encoding, count));
+    public string ReadString(Encoding encoding, int count) {
+      this.AssertNotEof();
+      return new string(this.ReadChars(encoding, count));
+    }
 
 
     public void AssertStringEndian(string expectedValue)
@@ -529,11 +541,16 @@ namespace System.IO {
           this.ReadStringNT(encoding));
 
     public string ReadStringNT(Encoding encoding) {
-      string str = "";
-      do {
-        str += this.ReadChar(encoding);
-      } while (!str.EndsWith("\0", StringComparison.Ordinal));
-      return str.Remove(str.Length - 1);
+      var strBuilder = new StringBuilder();
+      while (true) {
+        var c = this.ReadChar(encoding);
+        if (c == '\0') {
+          break;
+        }
+
+        strBuilder.Append(c);
+      }
+      return strBuilder.ToString();
     }
 
     public void AssertMagicText(string expectedText) {
@@ -546,6 +563,7 @@ namespace System.IO {
     }
 
     public T ReadNew<T>() where T : IDeserializable, new() {
+      this.AssertNotEof();
       var value = new T();
       value.Read(this);
       return value;
@@ -567,6 +585,7 @@ namespace System.IO {
         where T : IDeserializable, new() {
       array = new T[length];
       for (var i = 0; i < length; ++i) {
+        this.AssertNotEof();
         array[i] = this.ReadNew<T>();
       }
     }
