@@ -12,6 +12,8 @@ using uni.games;
 
 using cmb.api;
 
+using dat.api;
+
 
 namespace uni.ui {
   public partial class UniversalModelExtractorForm : Form {
@@ -42,14 +44,16 @@ namespace uni.ui {
       => modelFileBundle switch {
           BmdModelFileBundle bmdModelFileBundle
               => new BmdModelLoader().LoadModel(bmdModelFileBundle),
+          CmbModelFileBundle cmbModelFileBundle
+              => new CmbModelLoader().LoadModel(cmbModelFileBundle),
+          DatModelFileBundle datModelFileBundle
+              => new DatModelLoader().LoadModel(datModelFileBundle),
           GloModelFileBundle gloModelFileBundle
               => new GloModelLoader().LoadModel(gloModelFileBundle),
           ModModelFileBundle modModelFileBundle
               => new ModModelLoader().LoadModel(modModelFileBundle),
           ModlModelFileBundle modlModelFileBundle
               => new ModlModelLoader().LoadModel(modlModelFileBundle),
-          CmbModelFileBundle zarModelFileBundle
-              => new CmbModelLoader().LoadModel(zarModelFileBundle),
           _ => throw new ArgumentOutOfRangeException(nameof(modelFileBundle))
       };
 

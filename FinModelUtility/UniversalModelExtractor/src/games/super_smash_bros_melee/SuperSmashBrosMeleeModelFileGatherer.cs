@@ -1,4 +1,4 @@
-﻿using bmd.exporter;
+﻿using dat.api;
 
 using fin.model;
 
@@ -9,8 +9,8 @@ using uni.platforms.gcn;
 namespace uni.games.super_smash_bros_melee {
   public class
       SuperSmashBrosMeleeModelFileGatherer : IModelFileGatherer<
-          BmdModelFileBundle> {
-    public IModelDirectory<BmdModelFileBundle>? GatherModelFileBundles(
+          DatModelFileBundle> {
+    public IModelDirectory<DatModelFileBundle>? GatherModelFileBundles(
         bool assert) {
       var superSmashBrosMeleeRom =
           DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
@@ -24,7 +24,14 @@ namespace uni.games.super_smash_bros_melee {
           new GcnFileHierarchyExtractor()
               .ExtractFromRom(options, superSmashBrosMeleeRom);
 
-      return null;
+      var rootModelDirectory =
+          new ModelDirectory<DatModelFileBundle>("super_smash_bros_melee");
+
+      foreach (var datFile in fileHierarchy.Root.FilesWithExtension(".dat")) {
+        rootModelDirectory.AddFileBundle(new DatModelFileBundle(datFile));
+      }
+
+      return rootModelDirectory;
     }
   }
 }
