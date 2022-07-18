@@ -23,7 +23,9 @@ namespace uni.ui.common {
         uiNode.AddChild(fileBundle);
       }
 
-      uiNode.Expand();
+      if (DebugFlags.OPEN_DIRECTORIES_BY_DEFAULT) {
+        uiNode.Expand();
+      }
 
       return uiNode;
     }
