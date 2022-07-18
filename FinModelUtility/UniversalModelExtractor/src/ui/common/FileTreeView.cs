@@ -57,7 +57,7 @@ namespace uni.ui.common {
       private static readonly Image fileImage =
           EmbeddedResourceUtil.Load(FileNode.assembly_, "uni.img.file.png");
 
-      private readonly BetterTreeNode<FileNode> treeNode_;
+      private readonly IBetterTreeNode<FileNode> treeNode_;
       private readonly IFuzzyNode<FileNode> filterNode_;
 
       public FileNode(FileTreeView<TFile, TFiles> treeView) {
@@ -190,10 +190,10 @@ namespace uni.ui.common {
       this.betterTreeView_.EndUpdate();
     }
 
-    private class FuzzyTreeComparer : IComparer<BetterTreeNode<FileNode>> {
+    private class FuzzyTreeComparer : IComparer<IBetterTreeNode<FileNode>> {
       public int Compare(
-          BetterTreeNode<FileNode> lhs,
-          BetterTreeNode<FileNode> rhs)
+          IBetterTreeNode<FileNode> lhs,
+          IBetterTreeNode<FileNode> rhs)
         => -Asserts.Assert(lhs.Data)
                    .MatchPercentage.CompareTo(
                        Asserts.Assert(rhs.Data).MatchPercentage);
