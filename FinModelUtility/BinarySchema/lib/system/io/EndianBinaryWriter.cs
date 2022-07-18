@@ -17,17 +17,7 @@ namespace System.IO {
 
     public Endianness Endianness { get; set; }
 
-    public Endianness SystemEndianness {
-      get {
-        return BitConverter.IsLittleEndian
-                   ? Endianness.LittleEndian
-                   : Endianness.BigEndian;
-      }
-    }
-
-    private bool Reverse {
-      get { return this.SystemEndianness != this.Endianness; }
-    }
+    private bool Reverse => EndiannessUtil.SystemEndianness != this.Endianness;
 
     public EndianBinaryWriter(Stream baseStream)
         : this(baseStream, Endianness.BigEndian) { }
@@ -394,7 +384,7 @@ namespace System.IO {
 
 
     public void WriteSn8(float value) {
-      var sn8 = (byte)(value * (255f / 2));
+      var sn8 = (byte) (value * (255f / 2));
       this.WriteByte(sn8);
     }
 

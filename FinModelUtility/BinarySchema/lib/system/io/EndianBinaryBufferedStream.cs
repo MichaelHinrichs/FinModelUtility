@@ -1,10 +1,5 @@
 ﻿namespace System.IO {
   public class EndianBinaryBufferedStream {
-    private static readonly Endianness SystemEndianness_
-        = BitConverter.IsLittleEndian
-              ? Endianness.LittleEndian
-              : Endianness.BigEndian;
-
     private Endianness endianness_;
 
     public Endianness Endianness {
@@ -12,7 +7,7 @@
       set {
         this.endianness_ = value;
         this.ShouldReverseBytes =
-            EndianBinaryBufferedStream.SystemEndianness_ != this.Endianness;
+            EndiannessUtil.SystemEndianness != this.Endianness;
       }
     }
 

@@ -9,4 +9,11 @@ namespace System.IO {
     BigEndian,
     LittleEndian,
   }
+
+  public static class EndiannessUtil {
+    public static Endianness SystemEndianness
+      => BitConverter.IsLittleEndian
+             ? Endianness.LittleEndian
+             : Endianness.BigEndian;
+  }
 }
