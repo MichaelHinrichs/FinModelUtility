@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 
 using fin.data.fuzzy;
+using fin.data.queue;
 
 using UoT.ui.common.component;
 using UoT.util;
 
 #pragma warning disable CS8604
+
 
 namespace UoT.ui.main.files {
   public interface IUiFile {
@@ -46,7 +48,7 @@ namespace UoT.ui.main.files {
 
     public delegate void FileSelectedHandler(TFile file);
 
-    public event FileSelectedHandler FileSelected = delegate {};
+    public event FileSelectedHandler FileSelected = delegate { };
 
     // TODO: Clean this up.
     protected class FileNode {
@@ -122,18 +124,13 @@ namespace UoT.ui.main.files {
     private void InitializeAutocomplete_() {
       var allAutocompleteKeywords = new AutoCompleteStringCollection();
 
-      Queue<IFuzzyNode<FileNode>> queue = new();
-      queue.Enqueue(this.filterImpl_.Root);
-      while (queue.Count > 0) {
-        var filterNode = queue.Dequeue();
-
+      var queue = new FinQueue<IFuzzyNode<FileNode>>(this.filterImpl_.Root);
+      while (queue.TryDequeue(out var filterNode)) {
         foreach (var keyword in filterNode.Keywords) {
           allAutocompleteKeywords.Add(keyword);
         }
 
-        foreach (var child in filterNode.Children) {
-          queue.Enqueue(child);
-        }
+        queue.Enqueue(filterNode.Children);
       }
 
       this.filterTextBox_.AutoCompleteCustomSource = allAutocompleteKeywords;

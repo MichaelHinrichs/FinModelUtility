@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 
 using fin.data.fuzzy;
+using fin.data.queue;
 using fin.io;
 using fin.util.asserts;
 
@@ -150,18 +151,13 @@ namespace uni.ui.common {
     private void InitializeAutocomplete_() {
       var allAutocompleteKeywords = new AutoCompleteStringCollection();
 
-      Queue<IFuzzyNode<FileNode>> queue = new();
-      queue.Enqueue(this.filterImpl_.Root);
-      while (queue.Count > 0) {
-        var filterNode = queue.Dequeue();
-
+      var queue = new FinQueue<IFuzzyNode<FileNode>>(this.filterImpl_.Root);
+      while (queue.TryDequeue(out var filterNode)) {
         foreach (var keyword in filterNode.Keywords) {
           allAutocompleteKeywords.Add(keyword);
         }
 
-        foreach (var child in filterNode.Children) {
-          queue.Enqueue(child);
-        }
+        queue.Enqueue(filterNode.Children);
       }
 
       this.filterTextBox_.AutoCompleteCustomSource = allAutocompleteKeywords;

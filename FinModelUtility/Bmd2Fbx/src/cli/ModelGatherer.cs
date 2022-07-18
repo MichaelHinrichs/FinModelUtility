@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using fin.data.queue;
 using fin.io;
 
+
 namespace bmd.cli {
-  public record ModelFiles (
+  public record ModelFiles(
       string Name,
       IEnumerable<IFile> BmdFiles,
       IEnumerable<IFile> BcxFiles,
@@ -69,22 +71,17 @@ namespace bmd.cli {
     public IReadOnlyList<ModelFileTreeNode> Children { get; }
 
     public bool HasOnlyOneBmdInSubdirs() {
-      var queue = new Queue<ModelFileTreeNode>();
-      queue.Enqueue(this);
+      var queue = new FinQueue<ModelFileTreeNode>(this);
 
       var total = 0;
-      while (queue.Count > 0) {
-        var node = queue.Dequeue();
-
+      while (queue.TryDequeue(out var node)) {
         total += node.Impl.Impl.BmdFiles.Count();
 
         if (total > 1) {
           return false;
         }
 
-        foreach (var child in node.Children) {
-          queue.Enqueue(child);
-        }
+        queue.Enqueue(node.Children);
       }
 
       return total == 1;
@@ -95,21 +92,14 @@ namespace bmd.cli {
       List<IFile> bcxFiles = new();
       List<IFile> btiFiles = new();
 
-      var queue = new Queue<ModelFileTreeNode>();
-      queue.Enqueue(this);
-
-      var total = 0;
-      while (queue.Count > 0) {
-        var node = queue.Dequeue();
-
+      var queue = new FinQueue<ModelFileTreeNode>(this);
+      while (queue.TryDequeue(out var node)) {
         var impl = node.Impl.Impl;
         bmdFiles.AddRange(impl.BmdFiles);
         bcxFiles.AddRange(impl.BcxFiles);
         btiFiles.AddRange(impl.BtiFiles);
 
-        foreach (var child in node.Children) {
-          queue.Enqueue(child);
-        }
+        queue.Enqueue(node.Children);
       }
 
       FileComparer fileComparer = new();
@@ -126,20 +116,12 @@ namespace bmd.cli {
       List<ModelFiles> models = new();
 
       var rootNode = new ModelFileTreeNode(rootDir);
-
-      var queue = new Queue<ModelFileTreeNode>();
-      queue.Enqueue(rootNode);
-
-      var total = 0;
-      while (queue.Count > 0) {
-        var node = queue.Dequeue();
-
+      var queue = new FinQueue<ModelFileTreeNode>(rootNode);
+      while (queue.TryDequeue(out var node)) {
         if (node.HasOnlyOneBmdInSubdirs()) {
           models.Add(node.GatherAllFilesInSubdirs());
         } else {
-          foreach (var child in node.Children) {
-            queue.Enqueue(child);
-          }
+          queue.Enqueue(node.Children);
         }
       }
 

@@ -5,6 +5,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 
+using fin.data.queue;
 using fin.exporter.assimp.indirect;
 using fin.io;
 
@@ -91,13 +92,9 @@ namespace HaloWarsTools {
 
       var artDirectory = scratchDirectory.GetSubdir("art");
 
-      var artSubdirQueue = new Queue<IDirectory>();
-      artSubdirQueue.Enqueue(artDirectory);
-
+      var artSubdirQueue = new FinQueue<IDirectory>(artDirectory);
       // TODO: Switch to DFS instead, it's more intuitive as a user
-      while (artSubdirQueue.Count > 0) {
-        var artSubdir = artSubdirQueue.Dequeue();
-
+      while (artSubdirQueue.TryDequeue(out var artSubdir)) {
         // TODO: Skip a file if it's already been extracted
         // TODO: Parse UGX files instead, as long as they specify their own animations
         var visFiles =
@@ -120,9 +117,7 @@ namespace HaloWarsTools {
           Console.WriteLine($"Processed {visFile.FullName}");
         }
 
-        foreach (var child in artSubdir.GetExistingSubdirs()) {
-          artSubdirQueue.Enqueue(child);
-        }
+        artSubdirQueue.Enqueue(artSubdir.GetExistingSubdirs());
       }
 
 
