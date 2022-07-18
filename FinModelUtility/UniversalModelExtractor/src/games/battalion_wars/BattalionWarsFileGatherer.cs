@@ -11,9 +11,6 @@ using uni.util.io;
 namespace uni.games.battalion_wars {
   public class
       BattalionWarsFileGatherer : IModelFileGatherer<ModlModelFileBundle> {
-    private readonly ILogger logger_ =
-        Logging.Create<BattalionWarsFileGatherer>();
-
     public IModelDirectory<ModlModelFileBundle>? GatherModelFileBundles(
         bool assert) {
       var battalionWarsRom =
