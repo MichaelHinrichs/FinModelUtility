@@ -32,7 +32,7 @@ namespace uni.platforms.desktop {
           .Deserialize(
               SteamUtils.InstallDirectory
                         .GetExistingFile("config/libraryfolders.vdf")
-                        .ReadAsText())
+                        .OpenReadAsText())
           .Value.Skip(1)
           .Select(section => section.Value<VProperty>().Value)
           .Select(section => section["path"])

@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Imaging;
 
 using fin.io;
@@ -45,12 +44,7 @@ namespace glo.api {
       var textureDirectories = gloModelFileBundle.TextureDirectories;
       var fps = 20;
 
-      var glo = new Glo();
-      using (var er =
-             new EndianBinaryReader(
-                 gloFile.Impl.OpenRead(), Endianness.LittleEndian)) {
-        glo.Read(er);
-      }
+      var glo = gloFile.Impl.ReadNew<Glo>(Endianness.LittleEndian);
 
       var textureFilesByName = new Dictionary<string, IFileHierarchyFile>();
       foreach (var textureDirectory in textureDirectories) {

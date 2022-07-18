@@ -23,10 +23,7 @@ namespace uni.games.battalion_wars {
         var logger = Logging.Create<ResDump>();
         logger.LogInformation($"Dumping RES {resFile.LocalPath}...");
 
-        using var er =
-            new EndianBinaryReader(resFile.Impl.OpenRead(),
-                                   Endianness.LittleEndian);
-        var bwArchive = er.ReadNew<BwArchive>();
+        var bwArchive = resFile.Impl.ReadNew<BwArchive>(Endianness.LittleEndian);
 
         directory.Create();
         foreach (var (bwFileExtension, bwFiles) in bwArchive.Files) {

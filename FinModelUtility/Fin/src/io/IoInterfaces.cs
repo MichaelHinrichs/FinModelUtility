@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 
+using schema;
+
 
 namespace fin.io {
   public interface IIoObject {
@@ -43,8 +45,11 @@ namespace fin.io {
     string FullNameWithoutExtension { get; }
     string NameWithoutExtension { get; }
 
-    StreamReader ReadAsText();
-    byte[] SkimAllBytes();
+    T ReadNew<T>(Endianness endianness) where T : IDeserializable, new();
+
+    byte[] ReadAllBytes();
+
+    StreamReader OpenReadAsText();
 
     FileStream OpenRead();
     FileStream OpenWrite();

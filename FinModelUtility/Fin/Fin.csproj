@@ -65,4 +65,7 @@
   <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BinarySchema\BinarySchema.csproj" />
+  </ItemGroup>
 </Project>

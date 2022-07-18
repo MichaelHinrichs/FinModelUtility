@@ -4,6 +4,8 @@ using System.Linq;
 
 using fin.util.asserts;
 
+using schema;
+
 
 namespace fin.io {
   public class FinFile : IFile {
@@ -60,11 +62,16 @@ namespace fin.io {
       return parents.ToArray();
     }
 
-    public StreamReader ReadAsText() => File.OpenText(this.FullName);
-    public byte[] SkimAllBytes() => File.ReadAllBytes(this.FullName);
+    public T ReadNew<T>(Endianness endianness) where T : IDeserializable, new()
+      => FileUtil.ReadNew<T>(this.FullName, endianness);
 
-    public FileStream OpenRead() => File.OpenRead(this.FullName);
-    public FileStream OpenWrite() => File.OpenWrite(this.FullName);
+    public byte[] ReadAllBytes() => FileUtil.ReadAllBytes(this.FullName);
+
+    public StreamReader OpenReadAsText()
+      => FileUtil.OpenReadAsText(this.FullName);
+
+    public FileStream OpenRead() => FileUtil.OpenRead(this.FullName);
+    public FileStream OpenWrite() => FileUtil.OpenWrite(this.FullName);
 
     public override string ToString() => this.FullName;
 

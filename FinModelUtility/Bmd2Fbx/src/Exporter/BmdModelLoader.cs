@@ -36,7 +36,7 @@ namespace bmd.exporter {
     public IModel LoadModel(BmdModelFileBundle modelFileBundle) {
       var logger = Logging.Create<BmdModelLoader>();
 
-      var bmd = new BMD(modelFileBundle.BmdFile.Impl.SkimAllBytes());
+      var bmd = new BMD(modelFileBundle.BmdFile.Impl.ReadAllBytes());
 
       List<(string, IBcx)>? pathsAndBcxs;
       try {
@@ -47,9 +47,9 @@ namespace bmd.exporter {
                   var extension = bcxFile.Extension.ToLower();
                   IBcx bcx = extension switch {
                       ".bca" =>
-                          new BCA(bcxFile.Impl.SkimAllBytes()),
+                          new BCA(bcxFile.Impl.ReadAllBytes()),
                       ".bck" =>
-                          new BCK(bcxFile.Impl.SkimAllBytes()),
+                          new BCK(bcxFile.Impl.ReadAllBytes()),
                       _ => throw new NotSupportedException(),
                   };
                   return (bcxFile.FullName, bcx);
@@ -67,7 +67,7 @@ namespace bmd.exporter {
                 .BtiFiles?
                 .Select(btiFile
                             => (btiFile.FullName,
-                                new BTI(btiFile.Impl.SkimAllBytes())))
+                                new BTI(btiFile.Impl.ReadAllBytes())))
                 .ToList();
       } catch {
         logger.LogError("Failed to load BTI!");

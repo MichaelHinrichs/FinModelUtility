@@ -1,6 +1,4 @@
-﻿using System.Collections;
-
-using dat.schema;
+﻿using dat.schema;
 
 using fin.io;
 using fin.model;
@@ -19,9 +17,7 @@ namespace dat.api {
 
   public class DatModelLoader : IModelLoader<DatModelFileBundle> {
     public IModel LoadModel(DatModelFileBundle modelFileBundle) {
-      using var er = new EndianBinaryReader(
-          modelFileBundle.DatFile.Impl.OpenRead(), Endianness.BigEndian);
-      var dat = er.ReadNew<Dat>();
+      var dat = modelFileBundle.DatFile.Impl.ReadNew<Dat>(Endianness.BigEndian);
 
       var finModel = new ModelImpl();
 
