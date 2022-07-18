@@ -2,6 +2,7 @@
 using System.Numerics;
 
 using fin.data;
+using fin.data.queue;
 using fin.io;
 using fin.math;
 using fin.model;
@@ -31,11 +32,8 @@ namespace modl.api {
       var finBones = new IBone[bw1Model.Nodes.Count];
 
       {
-        var nodeQueue = new Queue<(IBone, ushort)>();
-        nodeQueue.Enqueue((model.Skeleton.Root, 0));
-        while (nodeQueue.Count > 0) {
-          var (parentFinBone, modlNodeId) = nodeQueue.Dequeue();
-
+        var nodeQueue = new FinTuple2Queue<IBone, ushort>((model.Skeleton.Root, 0));
+        while (nodeQueue.TryDequeue(out var parentFinBone, out var modlNodeId)) {
           var modlNode = bw1Model.Nodes[modlNodeId];
 
           var transform = modlNode.Transform;
@@ -59,9 +57,8 @@ namespace modl.api {
 
           if (bw1Model.CnctParentToChildren.TryGetList(
                   modlNodeId, out var modlChildIds)) {
-            foreach (var modlChildId in modlChildIds) {
-              nodeQueue.Enqueue((finBone, modlChildId));
-            }
+            nodeQueue.Enqueue(
+                modlChildIds!.Select(modlChildId => (finBone, modlChildId)));
           }
         }
 
@@ -71,7 +68,7 @@ namespace modl.api {
                   modlFile.Parent.Files.Single(
                       file => file.Name.ToLower() == $"{textureName}.png");
               var image =
-                  (Bitmap)Image.FromFile(textureFile.FullName);
+                  (Bitmap) Image.FromFile(textureFile.FullName);
 
               var finTexture =
                   model.MaterialManager.CreateTexture(image);
