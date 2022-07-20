@@ -34,7 +34,7 @@ namespace fin.model {
 
 
   public interface IMaterial {
-    string Name { get; set; }
+    string? Name { get; set; }
 
     IReadOnlyList<ITexture> Textures { get; }
 

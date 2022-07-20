@@ -42,8 +42,9 @@ namespace uni.ui.right_panel.materials {
 
         var comboBoxItems = this.comboBox_.Items;
         comboBoxItems.Clear();
-        foreach (var material in this.materials_) {
-          comboBoxItems.Add(material.Name);
+        for (var i = 0; i < this.materials_.Count; ++i) {
+          var material = this.materials_[i];
+          comboBoxItems.Add($"{i}: \"{material.Name ?? "(null)"}\"");
         }
 
         this.SelectedMaterial =

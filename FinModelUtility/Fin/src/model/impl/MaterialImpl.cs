@@ -87,7 +87,7 @@ namespace fin.model.impl {
         this.Textures = new ReadOnlyCollection<ITexture>(new[] {texture});
       }
 
-      public string Name { get; set; }
+      public string? Name { get; set; }
 
       public ITexture Texture { get; }
       public IReadOnlyList<ITexture> Textures { get; }
@@ -105,7 +105,7 @@ namespace fin.model.impl {
         this.Textures = new ReadOnlyCollection<ITexture>(this.textures_);
       }
 
-      public string Name { get; set; }
+      public string? Name { get; set; }
       public IReadOnlyList<ITexture> Textures { get; }
       public IShader Shader { get; }
       public CullingMode CullingMode { get; set; }
@@ -127,7 +127,7 @@ namespace fin.model.impl {
         this.Layers = new ReadOnlyCollection<ILayer>(this.layers_);
       }
 
-      public string Name { get; set; }
+      public string? Name { get; set; }
 
       public IReadOnlyList<ITexture> Textures { get; }
       public IShader Shader { get; }
@@ -180,7 +180,7 @@ namespace fin.model.impl {
         this.AlphaSources = new ReadOnlyCollection<float?>(this.alphas_);
       }
 
-      public string Name { get; set; }
+      public string? Name { get; set; }
 
       public IReadOnlyList<ITexture> Textures { get; }
       public IShader Shader { get; }
