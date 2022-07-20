@@ -87,7 +87,6 @@ namespace fin.language.equations.fixedFunction {
       os.WriteLine();
 
       os.WriteLine("  fragColor = vec4(colorComponent, alphaComponent);");
-      os.WriteLine();
 
       var alphaOpValue =
           DetermineAlphaOpValue(
@@ -99,61 +98,68 @@ namespace fin.language.equations.fixedFunction {
                   material.AlphaCompareType1,
                   material.AlphaReference1));
 
-      var alphaCompareText0 =
-          GetAlphaCompareText_(material.AlphaCompareType0,
-                               material.AlphaReference0);
-      var alphaCompareText1 =
-          GetAlphaCompareText_(material.AlphaCompareType1,
-                               material.AlphaReference1);
+      if (alphaOpValue != AlphaOpValue.ALWAYS_TRUE) {
+        os.WriteLine();
 
-      switch (alphaOpValue) {
-        case AlphaOpValue.ONLY_0_REQUIRED: {
-          os.WriteLine($@"  if (!({alphaCompareText0})) {{
+        var alphaCompareText0 =
+            GetAlphaCompareText_(material.AlphaCompareType0,
+                                 material.AlphaReference0);
+        var alphaCompareText1 =
+            GetAlphaCompareText_(material.AlphaCompareType1,
+                                 material.AlphaReference1);
+
+        switch (alphaOpValue) {
+          case AlphaOpValue.ONLY_0_REQUIRED: {
+            os.WriteLine($@"  if (!({alphaCompareText0})) {{
     discard;
   }}");
-          break;
-        }
-        case AlphaOpValue.ONLY_1_REQUIRED: {
-          os.WriteLine($@"  if (!({alphaCompareText1})) {{
-    discard;
-  }}");
-          break;
-        }
-        case AlphaOpValue.BOTH_REQUIRED: {
-          switch (material.AlphaOp) {
-            case AlphaOp.And: {
-              os.Write($"  if (!({alphaCompareText0} && {alphaCompareText1})");
-              break;
-            }
-            case AlphaOp.Or: {
-              os.Write($"  if (!({alphaCompareText0} || {alphaCompareText1})");
-              break;
-            }
-            case AlphaOp.XOR: {
-              os.WriteLine($"  bool a = {alphaCompareText0};");
-              os.WriteLine($"  bool b = {alphaCompareText1};");
-              os.Write($"  if (!(any(bvec2(all(bvec2(!a, b)), all(bvec2(a, !b)))))");
-              break;
-            }
-            case AlphaOp.XNOR: {
-              os.WriteLine($"  bool a = {alphaCompareText0};");
-              os.WriteLine($"  bool b = {alphaCompareText1};");
-              os.Write("  if (!(any(bvec2(all(bvec2(!a, !b)), all(bvec2(a, b)))))"); 
-              break;
-            }
-            default:           throw new ArgumentOutOfRangeException();
+            break;
           }
-          os.WriteLine(@") {
+          case AlphaOpValue.ONLY_1_REQUIRED: {
+            os.WriteLine($@"  if (!({alphaCompareText1})) {{
+    discard;
+  }}");
+            break;
+          }
+          case AlphaOpValue.BOTH_REQUIRED: {
+            switch (material.AlphaOp) {
+              case AlphaOp.And: {
+                os.Write(
+                    $"  if (!({alphaCompareText0} && {alphaCompareText1})");
+                break;
+              }
+              case AlphaOp.Or: {
+                os.Write(
+                    $"  if (!({alphaCompareText0} || {alphaCompareText1})");
+                break;
+              }
+              case AlphaOp.XOR: {
+                os.WriteLine($"  bool a = {alphaCompareText0};");
+                os.WriteLine($"  bool b = {alphaCompareText1};");
+                os.Write(
+                    $"  if (!(any(bvec2(all(bvec2(!a, b)), all(bvec2(a, !b)))))");
+                break;
+              }
+              case AlphaOp.XNOR: {
+                os.WriteLine($"  bool a = {alphaCompareText0};");
+                os.WriteLine($"  bool b = {alphaCompareText1};");
+                os.Write(
+                    "  if (!(any(bvec2(all(bvec2(!a, !b)), all(bvec2(a, b)))))");
+                break;
+              }
+              default: throw new ArgumentOutOfRangeException();
+            }
+            os.WriteLine(@") {
     discard;
   }");
-          break;
+            break;
+          }
+          case AlphaOpValue.ALWAYS_FALSE: {
+            os.WriteLine("  discard;");
+            break;
+          }
+          default: throw new ArgumentOutOfRangeException();
         }
-        case AlphaOpValue.ALWAYS_TRUE: break;
-        case AlphaOpValue.ALWAYS_FALSE: {
-          os.WriteLine("  discard;");
-          break;
-        }
-        default: throw new ArgumentOutOfRangeException();
       }
 
       os.WriteLine("}");
