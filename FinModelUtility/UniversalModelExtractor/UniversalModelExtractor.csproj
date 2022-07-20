@@ -81,6 +81,9 @@
     <Compile Update="src\ui\right_panel\animations\AnimationPlaybackPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="src\ui\right_panel\materials\MaterialsTab.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>

@@ -30,6 +30,7 @@
       System.Windows.Forms.TabPage materialsTabPage;
       this.texturesTab_ = new uni.ui.right_panel.textures.TexturesTab();
       this.animationsTab_ = new uni.ui.right_panel.AnimationsTab();
+      this.materialsTab_ = new uni.ui.right_panel.materials.MaterialsTab();
       tabControl = new System.Windows.Forms.TabControl();
       infoTabPage = new System.Windows.Forms.TabPage();
       texturesTabPage = new System.Windows.Forms.TabPage();
@@ -38,6 +39,7 @@
       tabControl.SuspendLayout();
       texturesTabPage.SuspendLayout();
       animationsTabPage.SuspendLayout();
+      materialsTabPage.SuspendLayout();
       this.SuspendLayout();
       // 
       // tabControl
@@ -103,12 +105,21 @@
       // 
       // materialsTabPage
       // 
+      materialsTabPage.Controls.Add(this.materialsTab_);
       materialsTabPage.Location = new System.Drawing.Point(4, 44);
       materialsTabPage.Name = "materialsTabPage";
       materialsTabPage.Size = new System.Drawing.Size(208, 387);
       materialsTabPage.TabIndex = 3;
       materialsTabPage.Text = "Materials";
       materialsTabPage.UseVisualStyleBackColor = true;
+      // 
+      // materialsTab_
+      // 
+      this.materialsTab_.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.materialsTab_.Location = new System.Drawing.Point(0, 0);
+      this.materialsTab_.Name = "materialsTab_";
+      this.materialsTab_.Size = new System.Drawing.Size(208, 387);
+      this.materialsTab_.TabIndex = 0;
       // 
       // ModelTabs
       // 
@@ -120,6 +131,7 @@
       tabControl.ResumeLayout(false);
       texturesTabPage.ResumeLayout(false);
       animationsTabPage.ResumeLayout(false);
+      materialsTabPage.ResumeLayout(false);
       this.ResumeLayout(false);
 
     }
@@ -133,5 +145,6 @@
     private TabPage materialsTabPage;
     private AnimationsTab animationsTab_;
     private textures.TexturesTab texturesTab_;
+    private materials.MaterialsTab materialsTab_;
   }
 }
