@@ -18,23 +18,6 @@ namespace uni.ui.right_panel.materials {
       };
     }
 
-    public IMaterial? SelectedMaterial {
-      get => this.selectedMaterial_;
-      set {
-        if (this.selectedMaterial_ == value) {
-          return;
-        }
-
-        this.comboBox_.SelectedIndex =
-            value == null
-                ? -1
-                : ListUtil.AssertFindFirst(
-                    this.materials_, value);
-
-        this.OnMaterialSelected(this.selectedMaterial_ = value);
-      }
-    }
-
     public IReadOnlyList<IMaterial> Materials {
       get => this.materials_;
       set {
@@ -49,6 +32,23 @@ namespace uni.ui.right_panel.materials {
 
         this.SelectedMaterial =
             this.materials_.Count > 0 ? this.materials_[0] : null;
+      }
+    }
+
+    public IMaterial? SelectedMaterial {
+      get => this.selectedMaterial_;
+      set {
+        if (this.selectedMaterial_ == value) {
+          return;
+        }
+
+        this.comboBox_.SelectedIndex =
+            value == null
+                ? -1
+                : ListUtil.AssertFindFirst(
+                    this.materials_, value);
+
+        this.OnMaterialSelected(this.selectedMaterial_ = value);
       }
     }
 

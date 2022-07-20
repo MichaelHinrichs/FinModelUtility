@@ -30,6 +30,7 @@ namespace uni.ui.right_panel.materials {
       this.splitContainer1 = new System.Windows.Forms.SplitContainer();
       this.splitContainer2 = new System.Windows.Forms.SplitContainer();
       this.shaderSection_ = new uni.ui.right_panel.materials.ShaderSection();
+      this.textureSection_ = new uni.ui.right_panel.materials.TextureSection();
       splitContainer = new System.Windows.Forms.SplitContainer();
       ((System.ComponentModel.ISupportInitialize)(splitContainer)).BeginInit();
       splitContainer.Panel1.SuspendLayout();
@@ -39,6 +40,7 @@ namespace uni.ui.right_panel.materials {
       this.splitContainer1.Panel2.SuspendLayout();
       this.splitContainer1.SuspendLayout();
       ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
+      this.splitContainer2.Panel1.SuspendLayout();
       this.splitContainer2.Panel2.SuspendLayout();
       this.splitContainer2.SuspendLayout();
       this.SuspendLayout();
@@ -95,6 +97,10 @@ namespace uni.ui.right_panel.materials {
       this.splitContainer2.Name = "splitContainer2";
       this.splitContainer2.Orientation = System.Windows.Forms.Orientation.Horizontal;
       // 
+      // splitContainer2.Panel1
+      // 
+      this.splitContainer2.Panel1.Controls.Add(this.textureSection_);
+      // 
       // splitContainer2.Panel2
       // 
       this.splitContainer2.Panel2.Controls.Add(this.shaderSection_);
@@ -110,6 +116,14 @@ namespace uni.ui.right_panel.materials {
       this.shaderSection_.Size = new System.Drawing.Size(296, 158);
       this.shaderSection_.TabIndex = 0;
       // 
+      // textureSection_
+      // 
+      this.textureSection_.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.textureSection_.Location = new System.Drawing.Point(0, 0);
+      this.textureSection_.Name = "textureSection_";
+      this.textureSection_.Size = new System.Drawing.Size(296, 155);
+      this.textureSection_.TabIndex = 0;
+      // 
       // MaterialsTab
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -124,6 +138,7 @@ namespace uni.ui.right_panel.materials {
       this.splitContainer1.Panel2.ResumeLayout(false);
       ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
       this.splitContainer1.ResumeLayout(false);
+      this.splitContainer2.Panel1.ResumeLayout(false);
       this.splitContainer2.Panel2.ResumeLayout(false);
       ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
       this.splitContainer2.ResumeLayout(false);
@@ -137,5 +152,6 @@ namespace uni.ui.right_panel.materials {
     private SplitContainer splitContainer1;
     private SplitContainer splitContainer2;
     private ShaderSection shaderSection_;
+    private TextureSection textureSection_;
   }
 }

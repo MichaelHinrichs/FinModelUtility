@@ -84,6 +84,9 @@
     <Compile Update="src\ui\right_panel\materials\MaterialsTab.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="src\ui\right_panel\materials\TextureSection.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
