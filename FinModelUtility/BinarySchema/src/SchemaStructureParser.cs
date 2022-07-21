@@ -377,16 +377,12 @@ namespace schema {
           // TODO: Apply this to element type as well
           var formatNumberType = SchemaNumberType.UNDEFINED;
           if (targetPrimitiveType == SchemaPrimitiveType.ENUM) {
-            var enumDeclaration =
-                targetMemberType.TypeSymbol.DeclaringSyntaxReferences[0]
-                                .GetSyntax() as
-                    EnumDeclarationSyntax;
-            var baseList = enumDeclaration.BaseList;
-            if (baseList != null) {
-              var type = baseList.Types[0].Type as PredefinedTypeSyntax;
-              formatNumberType =
-                  SchemaStructureParser.ParseNumber(type.Keyword.ValueText);
-            }
+            var enumNamedTypeSymbol =
+                targetMemberType.TypeSymbol as INamedTypeSymbol;
+            var underlyingType = enumNamedTypeSymbol!.EnumUnderlyingType;
+
+            formatNumberType =
+                SchemaStructureParser.GetNumberTypeFromType_(underlyingType);
           }
 
           var formatAttribute =
@@ -634,17 +630,18 @@ namespace schema {
           _                             => throw new NotImplementedException(),
       };
 
-    public static SchemaNumberType ParseNumber(string valueText)
-      => valueText switch {
-          "byte"   => SchemaNumberType.BYTE,
-          "sbyte"  => SchemaNumberType.SBYTE,
-          "short"  => SchemaNumberType.INT16,
-          "ushort" => SchemaNumberType.UINT16,
-          "int"    => SchemaNumberType.INT32,
-          "uint"   => SchemaNumberType.UINT32,
-          "long"   => SchemaNumberType.INT64,
-          "ulong"  => SchemaNumberType.UINT64,
-          _        => throw new NotImplementedException(),
+    public static SchemaNumberType GetNumberTypeFromType_(
+        ITypeSymbol? typeSymbol)
+      => typeSymbol?.SpecialType switch {
+          SpecialType.System_Byte   => SchemaNumberType.BYTE,
+          SpecialType.System_SByte  => SchemaNumberType.SBYTE,
+          SpecialType.System_Int16  => SchemaNumberType.INT16,
+          SpecialType.System_UInt16 => SchemaNumberType.UINT16,
+          SpecialType.System_Int32  => SchemaNumberType.INT32,
+          SpecialType.System_UInt32 => SchemaNumberType.UINT32,
+          SpecialType.System_Int64  => SchemaNumberType.INT64,
+          SpecialType.System_UInt64 => SchemaNumberType.UINT64,
+          _                         => SchemaNumberType.UNDEFINED,
       };
 
     private class SchemaStructure : ISchemaStructure {

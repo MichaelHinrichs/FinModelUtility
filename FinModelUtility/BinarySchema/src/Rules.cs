@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -100,11 +101,16 @@ namespace schema {
             "Unsupported array type",
             "Array type '{0}' is not currently supported.");
 
-    public static readonly DiagnosticDescriptor Exception
-        = Rules.CreateDiagnostic_(
-            "Exception",
-            "Ran into an exception while parsing.");
+    public static DiagnosticDescriptor Exception { get; }
+      = Rules.CreateDiagnostic_(
+          "Exception",
+          "Ran into an exception while parsing ({0}),{1}");
 
+
+    public static void ReportDiagnostic(
+        SyntaxNodeAnalysisContext? context,
+        Diagnostic diagnostic)
+      => context?.ReportDiagnostic(diagnostic);
 
     public static Diagnostic CreateDiagnostic(
         ISymbol symbol,
@@ -116,14 +122,38 @@ namespace schema {
 
     public static void ReportDiagnostic(
         SyntaxNodeAnalysisContext? context,
-        Diagnostic diagnostic)
-      => context?.ReportDiagnostic(diagnostic);
-
-    public static void ReportDiagnostic(
-        SyntaxNodeAnalysisContext? context,
         ISymbol symbol,
         DiagnosticDescriptor descriptor)
       => context?.ReportDiagnostic(
           Rules.CreateDiagnostic(symbol, descriptor));
+
+
+    public static Diagnostic CreateExceptionDiagnostic(
+        Exception exception)
+      => Diagnostic.Create(
+          Rules.Exception,
+          null,
+          exception.ToString());
+
+    public static void ReportExceptionDiagnostic(
+        SyntaxNodeAnalysisContext? context,
+        Exception exception)
+      => context?.ReportDiagnostic(Rules.CreateExceptionDiagnostic(exception));
+
+    public static Diagnostic CreateExceptionDiagnostic(
+        ISymbol symbol,
+        Exception exception)
+      => Diagnostic.Create(
+          Rules.Exception,
+          symbol.Locations.First(),
+          exception.Message,
+          exception.StackTrace.Replace("\r\n", "").Replace("\n", ""));
+
+    public static void ReportExceptionDiagnostic(
+        SyntaxNodeAnalysisContext? context,
+        ISymbol symbol,
+        Exception exception)
+      => context?.ReportDiagnostic(
+          Rules.CreateExceptionDiagnostic(symbol, exception));
   }
 }

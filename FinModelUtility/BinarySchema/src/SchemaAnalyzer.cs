@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
+
 namespace schema {
   [DiagnosticAnalyzer(LanguageNames.CSharp)]
   public class SchemaAnalyzer : DiagnosticAnalyzer {
@@ -86,12 +87,11 @@ namespace schema {
             Rules.ReportDiagnostic(context, diagnostic);
           }
         }
-      } catch {
+      } catch(Exception exception) {
         if (Debugger.IsAttached) {
           throw;
         }
-        Rules.ReportDiagnostic(context,
-                               Rules.CreateDiagnostic(symbol, Rules.Exception));
+        Rules.ReportExceptionDiagnostic(context, symbol, exception);
       }
     }
   }

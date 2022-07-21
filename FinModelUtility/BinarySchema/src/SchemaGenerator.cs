@@ -87,12 +87,12 @@ namespace schema {
         }
 
         this.EnqueueStructure(structure);
-      } catch {
+      } catch (Exception exception) {
         if (Debugger.IsAttached) {
           throw;
         }
 
-        this.EnqueueError(symbol);
+        this.EnqueueError(symbol, exception);
       }
     }
 
@@ -108,9 +108,9 @@ namespace schema {
       }
       this.queue_.Clear();
 
-      foreach (var errorSymbol in this.errorSymbols_) {
+      foreach (var (errorSymbol, exception) in this.errorSymbols_) {
         this.context_.Value.ReportDiagnostic(
-            Rules.CreateDiagnostic(errorSymbol, Rules.Exception));
+            Rules.CreateExceptionDiagnostic(errorSymbol, exception));
       }
       this.errorSymbols_.Clear();
     }
@@ -126,14 +126,14 @@ namespace schema {
       }
     }
 
-    private readonly List<ISymbol> errorSymbols_ = new();
+    private readonly List<(ISymbol, Exception)> errorSymbols_ = new();
 
-    public void EnqueueError(ISymbol errorSymbol) {
+    public void EnqueueError(ISymbol errorSymbol, Exception exception) {
       if (this.context_ == null) {
-        this.errorSymbols_.Add(errorSymbol);
+        this.errorSymbols_.Add((errorSymbol, exception));
       } else {
         this.context_.Value.ReportDiagnostic(
-            Rules.CreateDiagnostic(errorSymbol, Rules.Exception));
+            Rules.CreateExceptionDiagnostic(errorSymbol, exception));
       }
     }
   }
