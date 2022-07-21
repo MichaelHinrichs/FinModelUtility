@@ -2,7 +2,7 @@
 
 
 namespace dat.schema {
-
+  [Flags]
   public enum JObjFlags : uint {
     SKELETON = 1 << 0,
     SKELETON_ROOT = 1 << 1,

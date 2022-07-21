@@ -5,6 +5,8 @@ using fin.data;
 using fin.math;
 using fin.util.asserts;
 
+using gx;
+
 using modl.schema.modl.bw1.node;
 using modl.schema.modl.bw1.node.display_list;
 
@@ -326,9 +328,9 @@ namespace modl.schema.modl.bw1 {
 
       while (er.Position < expectedEnd) {
         var opcode = er.ReadByte();
-        var opcodeEnum = (BwOpcode) opcode;
+        var opcodeEnum = (GxOpcode) opcode;
 
-        if (opcodeEnum == BwOpcode.LOAD_CP_REG) {
+        if (opcodeEnum == GxOpcode.LOAD_CP_REG) {
           var command = er.ReadByte();
           var value = er.ReadUInt32();
 
@@ -342,7 +344,7 @@ namespace modl.schema.modl.bw1 {
           } else {
             throw new NotImplementedException();
           }
-        } else if (opcodeEnum == BwOpcode.LOAD_XF_REG) {
+        } else if (opcodeEnum == GxOpcode.LOAD_XF_REG) {
           var lengthMinusOne = er.ReadUInt16();
           var length = lengthMinusOne + 1;
 
@@ -351,7 +353,7 @@ namespace modl.schema.modl.bw1 {
 
           var values = er.ReadUInt32s(length);
           // TODO: Complete
-        } else if (opcodeEnum == BwOpcode.TRIANGLE_STRIP) {
+        } else if (opcodeEnum == GxOpcode.DRAW_TRIANGLE_STRIP) {
           var vertexAttributeIndicesList = new List<BwVertexAttributeIndices>();
 
           var vertexDescriptor = new VertexDescriptor();
@@ -373,8 +375,8 @@ namespace modl.schema.modl.bw1 {
                      vertexDescriptor) {
               var value = vertexFormat switch {
                   null                  => er.ReadByte(),
-                  VertexFormat.INDEX_8  => er.ReadByte(),
-                  VertexFormat.INDEX_16 => er.ReadUInt16(),
+                  GxAttributeType.INDEX_8  => er.ReadByte(),
+                  GxAttributeType.INDEX_16 => er.ReadUInt16(),
                   _                     => throw new NotImplementedException(),
               };
 
@@ -415,7 +417,7 @@ namespace modl.schema.modl.bw1 {
               }
             }
           }
-        } else if (opcodeEnum == BwOpcode.NOP) { } else {
+        } else if (opcodeEnum == GxOpcode.NOP) { } else {
           throw new NotImplementedException();
         }
       }
@@ -424,21 +426,14 @@ namespace modl.schema.modl.bw1 {
       Asserts.Equal(expectedEnd, er.Position);
     }
 
-    public enum BwOpcode : byte {
-      NOP = 0x0,
-      LOAD_CP_REG = 0x8,
-      LOAD_XF_REG = 0x10,
-      TRIANGLE_STRIP = 0x98,
-    }
-
 
     public class
-        VertexDescriptor : IEnumerable<(VertexAttribute, VertexFormat?)> {
+        VertexDescriptor : IEnumerable<(VertexAttribute, GxAttributeType?)> {
       public bool HasPosMat { get; set; }
       public bool[] HasTexMats { get; } = new bool[8];
-      public VertexFormat PositionFormat { get; set; }
-      public VertexFormat NormalFormat { get; set; }
-      public VertexFormat[] ColorFormats { get; } = new VertexFormat[2];
+      public GxAttributeType PositionFormat { get; set; }
+      public GxAttributeType NormalFormat { get; set; }
+      public GxAttributeType[] ColorFormats { get; } = new GxAttributeType[2];
       public bool[] HasTexCoord { get; } = new bool[8];
 
       public void FromValue(uint value) {
@@ -452,15 +447,15 @@ namespace modl.schema.modl.bw1 {
         }
 
         var positionFormatFlag = value & 3;
-        this.PositionFormat = (VertexFormat) positionFormatFlag;
+        this.PositionFormat = (GxAttributeType) positionFormatFlag;
         value >>= 2;
 
         var normalFormatFlag = value & 3;
-        this.NormalFormat = (VertexFormat) normalFormatFlag;
+        this.NormalFormat = (GxAttributeType) normalFormatFlag;
         value >>= 2;
 
         for (var i = 0; i < 2; ++i) {
-          this.ColorFormats[i] = (VertexFormat) (value & 3);
+          this.ColorFormats[i] = (GxAttributeType) (value & 3);
           value >>= 2;
         }
 
@@ -476,7 +471,7 @@ namespace modl.schema.modl.bw1 {
 
       IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-      public IEnumerator<(VertexAttribute, VertexFormat?)> GetEnumerator() {
+      public IEnumerator<(VertexAttribute, GxAttributeType?)> GetEnumerator() {
         if (this.HasPosMat) {
           yield return (VertexAttribute.PosMatIdx, null);
         }
@@ -487,15 +482,15 @@ namespace modl.schema.modl.bw1 {
           }
         }
 
-        if (this.PositionFormat != VertexFormat.NOT_PRESENT) {
+        if (this.PositionFormat != GxAttributeType.NOT_PRESENT) {
           yield return (VertexAttribute.Position, this.PositionFormat);
         }
-        if (this.NormalFormat != VertexFormat.NOT_PRESENT) {
+        if (this.NormalFormat != GxAttributeType.NOT_PRESENT) {
           yield return (VertexAttribute.Normal, this.NormalFormat);
         }
         for (var i = 0; i < this.ColorFormats.Length; ++i) {
           var colorFormat = this.ColorFormats[i];
-          if (colorFormat != VertexFormat.NOT_PRESENT) {
+          if (colorFormat != GxAttributeType.NOT_PRESENT) {
             yield return (VertexAttribute.Color0 + i, colorFormat);
           }
         }
@@ -534,13 +529,6 @@ namespace modl.schema.modl.bw1 {
       Tex5Coord,
       Tex6Coord,
       Tex7Coord,
-    }
-
-    public enum VertexFormat : byte {
-      NOT_PRESENT = 0,
-      DIRECT = 1,
-      INDEX_8 = 2,
-      INDEX_16 = 3
     }
 
     public class BwMesh {

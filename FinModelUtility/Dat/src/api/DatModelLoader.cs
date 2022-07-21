@@ -22,7 +22,7 @@ namespace dat.api {
       var finModel = new ModelImpl();
 
       var boneQueue = new Queue<(IBone finParentBone, JObj datBone)>();
-      foreach (var datRootBone in dat.RootBoneStructs) {
+      foreach (var datRootBone in dat.RootJObjs) {
         boneQueue.Enqueue((finModel.Skeleton.Root, datRootBone));
       }
 
