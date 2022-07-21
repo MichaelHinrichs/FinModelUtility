@@ -210,10 +210,16 @@ namespace modl.schema.modl.bw1 {
             break;
           }
           case "SCNT": {
+            var endianness = er.Endianness;
+            er.Endianness = Endianness.BigEndian;
+
             // TODO: Support this
             // This explains why multiple VPOS sections are included.
             Asserts.Equal(4, sectionSize);
             var lodCount = er.ReadUInt32();
+
+            er.Endianness = endianness;
+
             break;
           }
           case "VCOL": {
@@ -313,14 +319,35 @@ namespace modl.schema.modl.bw1 {
 
       var materialIndex = er.ReadUInt32();
 
-      var flags = er.ReadUInt32();
-      var gxDataSize = er.ReadUInt32();
+      // This may look simple, but it was an ABSOLUTE nightmare to reverse engineer, lol.
+      var posMatIdxMap = new int[10];
+      {
+        var posMatIdxOffsetFlags = er.ReadUInt32();
 
+        var currentOffset = 0;
+        var currentPosMatIdx = 0;
+
+        // Loops over each bit in the offset.
+        for (var i = 0; i < 32; ++i) {
+          var currentBit = ((posMatIdxOffsetFlags >> i) & 1) == 1;
+
+          // If bit is true, then we increment the current posMatIdx.
+          if (currentBit) {
+            posMatIdxMap[currentPosMatIdx] = currentPosMatIdx + currentOffset;
+            currentPosMatIdx++;
+          }
+          // Otherwise, if bit is false, then we increment the current offset.
+          else {
+            currentOffset++;
+          }
+        }
+      }
+
+      var gxDataSize = er.ReadUInt32();
       Asserts.Equal(expectedEnd, er.Position + gxDataSize);
 
       var triangleStrips = new List<BwTriangleStrip>();
       var mesh = new BwMesh {
-          Flags = flags,
           MaterialIndex = materialIndex,
           TriangleStrips = triangleStrips
       };
@@ -374,17 +401,17 @@ namespace modl.schema.modl.bw1 {
             foreach (var (vertexAttribute, vertexFormat) in
                      vertexDescriptor) {
               var value = vertexFormat switch {
-                  null                  => er.ReadByte(),
-                  GxAttributeType.INDEX_8  => er.ReadByte(),
+                  null => er.ReadByte(),
+                  GxAttributeType.INDEX_8 => er.ReadByte(),
                   GxAttributeType.INDEX_16 => er.ReadUInt16(),
-                  _                     => throw new NotImplementedException(),
+                  _ => throw new NotImplementedException(),
               };
 
               switch (vertexAttribute) {
                 case VertexAttribute.PosMatIdx: {
                   Asserts.Equal(0, value % 3);
                   value /= 3;
-                  vertexAttributeIndices.NodeIndex = value;
+                  vertexAttributeIndices.NodeIndex = posMatIdxMap[value];
                   break;
                 }
                 case VertexAttribute.Position: {
@@ -548,7 +575,7 @@ namespace modl.schema.modl.bw1 {
       public double Fraction { get; set; }
       public ushort PositionIndex { get; set; }
       public ushort? NormalIndex { get; set; }
-      public ushort? NodeIndex { get; set; }
+      public int? NodeIndex { get; set; }
       public ushort?[] TexCoordIndices { get; } = new ushort?[8];
     }
   }
