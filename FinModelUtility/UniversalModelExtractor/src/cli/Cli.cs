@@ -96,7 +96,7 @@ namespace uni.cli {
                   /*var window = new DebugWindow();
                   window.Run();*/
 
-                  new DebugProgram().Run();
+                  new DebugBattalionWars().Main();
                 })
                 .WithNotParsed(parseErrors => errors = parseErrors);
 
