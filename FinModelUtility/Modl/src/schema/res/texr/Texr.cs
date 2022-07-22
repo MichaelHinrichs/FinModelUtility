@@ -44,7 +44,7 @@ namespace modl.schema.res.texr {
 
         var unknowns0 = er.ReadUInt32s(2);
 
-        var textureType = er.ReadString(8);
+        var textureType = er.ReadString(8).Replace("\0", "");
         var drawType = er.ReadString(8);
 
         var unknowns1 = er.ReadUInt32s(8);
