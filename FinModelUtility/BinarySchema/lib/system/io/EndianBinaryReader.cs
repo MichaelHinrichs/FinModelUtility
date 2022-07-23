@@ -122,6 +122,12 @@ namespace System.IO {
     private static ulong ConvertUInt64_(byte[] buffer, int i)
       => BitConverter.ToUInt64(buffer, sizeof(ulong) * i);
 
+    private static float ConvertHalf_(byte[] buffer, int i) {
+      var bits = ConvertUInt16_(buffer, i);
+      var half = Half.ToHalf(bits);
+      return half;
+    }
+
     private static float ConvertSingle_(byte[] buffer, int i)
       => BitConverter.ToSingle(buffer, sizeof(float) * i);
 
@@ -312,6 +318,27 @@ namespace System.IO {
       for (var i = 0; i < dst.Length; ++i) {
         dst[i] =
             EndianBinaryReader.ConvertUInt64_(this.BufferedStream_.Buffer, i);
+      }
+      return dst;
+    }
+
+
+    public void AssertHalf(float expectedValue)
+      => EndianBinaryReader.Assert(expectedValue, this.ReadHalf());
+
+    public float ReadHalf() {
+      this.FillBuffer_(2);
+      return EndianBinaryReader.ConvertHalf_(this.BufferedStream_.Buffer, 0);
+    }
+
+    public float[] ReadHalf(int count) => this.ReadHalfs(new float[count]);
+
+    public float[] ReadHalfs(float[] dst) {
+      const int size = 2;
+      this.FillBuffer_(size * dst.Length, size);
+      for (var i = 0; i < dst.Length; ++i) {
+        dst[i] =
+            EndianBinaryReader.ConvertHalf_(this.BufferedStream_.Buffer, i);
       }
       return dst;
     }

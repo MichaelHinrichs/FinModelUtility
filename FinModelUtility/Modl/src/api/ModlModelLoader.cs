@@ -8,6 +8,7 @@ using fin.math;
 using fin.model;
 using fin.model.impl;
 
+using modl.schema.anim;
 using modl.schema.modl.bw1;
 
 
@@ -16,6 +17,7 @@ namespace modl.api {
     public IFileHierarchyFile MainFile => this.ModlFile;
 
     public IFileHierarchyFile ModlFile { get; set; }
+    public IList<IFileHierarchyFile>? AnimFiles { get; set; }
   }
 
   public class ModlModelLoader : IModelLoader<ModlModelFileBundle> {
@@ -32,8 +34,10 @@ namespace modl.api {
       var finBones = new IBone[bw1Model.Nodes.Count];
 
       {
-        var nodeQueue = new FinTuple2Queue<IBone, ushort>((model.Skeleton.Root, 0));
-        while (nodeQueue.TryDequeue(out var parentFinBone, out var modlNodeId)) {
+        var nodeQueue =
+            new FinTuple2Queue<IBone, ushort>((model.Skeleton.Root, 0));
+        while (nodeQueue.TryDequeue(out var parentFinBone,
+                                    out var modlNodeId)) {
           var modlNode = bw1Model.Nodes[modlNodeId];
 
           var transform = modlNode.Transform;
@@ -59,6 +63,73 @@ namespace modl.api {
                   modlNodeId, out var modlChildIds)) {
             nodeQueue.Enqueue(
                 modlChildIds!.Select(modlChildId => (finBone, modlChildId)));
+          }
+        }
+
+        foreach (var animFile in modelFileBundle.AnimFiles ??
+                                 Array.Empty<IFileHierarchyFile>()) {
+          var anim = animFile.Impl.ReadNew<Anim>(Endianness.BigEndian);
+
+          var maxFrameCount = -1;
+          foreach (var animBone in anim.AnimBones) {
+            maxFrameCount = (int) Math.Max(maxFrameCount,
+                                           Math.Max(
+                                               animBone.Data
+                                                   .PositionKeyframeCount,
+                                               animBone.Data
+                                                   .RotationKeyframeCount));
+          }
+
+          var finAnimation = model.AnimationManager.AddAnimation();
+          finAnimation.Name = animFile.NameWithoutExtension;
+          finAnimation.FrameRate = 30;
+          finAnimation.FrameCount = maxFrameCount;
+
+          for (var b = 0; b < anim.AnimBones.Count; ++b) {
+            var animBone = anim.AnimBones[b];
+            var animBoneFrames = anim.AnimBoneFrames[b];
+
+            var finBone = finBones[animBone.BoneIndex];
+            var localRotation = finBone.LocalRotation;
+
+            var dX = localRotation.XDegrees;
+            var dY = localRotation.YDegrees;
+            var dZ = localRotation.ZDegrees;
+
+            var averages = new float[6];
+            foreach (var (b0, b1, b2, b3, b4, b5) in
+                     animBoneFrames.RotationBytes) {
+              averages[0] += b0;
+              averages[1] += b1;
+              averages[2] += b2;
+              averages[3] += b3;
+              averages[4] += b4;
+              averages[5] += b5;
+            }
+            for (var a = 0; a < 6; ++a) {
+              averages[a] /= animBoneFrames.RotationBytes.Count;
+            }
+
+            var finBoneTracks = finAnimation.AddBoneTracks(finBone);
+            var fbtRotations = finBoneTracks.Rotations;
+            for (var f = 0; f < animBone.Data.RotationKeyframeCount; ++f) {
+              var (fRX, fRY, fRZ) = animBoneFrames.RotationFrames[f];
+
+              /*fRX *= animBone.Data.Floats0[3];
+              fRY *= animBone.Data.Floats0[4];
+              fRZ *= animBone.Data.Floats0[5];*/
+
+              var s = 1;
+
+              var influence = 1;
+              var rXR = localRotation.XRadians * influence + fRX * s;
+              var rYR = localRotation.YRadians * influence + fRY * s;
+              var rZR = localRotation.ZRadians * influence + fRZ * s;
+
+              fbtRotations.Set(f, 0, rXR);
+              fbtRotations.Set(f, 1, rYR);
+              fbtRotations.Set(f, 2, rZR);
+            }
           }
         }
 
@@ -130,8 +201,8 @@ namespace modl.api {
                   vertex.SetBoneWeights(
                       model.Skin
                            .GetOrCreateBoneWeights(
-                               PreprojectMode.ROOT,
-                               finBone));
+                               PreprojectMode.NONE,
+                               new BoneWeight(finBone, null, 1)));
                 }
 
                 var texCoordIndex0 = vertexAttributeIndices.TexCoordIndices[0];

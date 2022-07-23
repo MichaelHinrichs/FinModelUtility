@@ -41,11 +41,23 @@ namespace uni.games.battalion_wars {
       }
 
       return new FileHierarchyBundler<ModlModelFileBundle>(
-          directory =>
-              directory.FilesWithExtension(".modl")
-                       .Select(modlFile => new ModlModelFileBundle {
-                           ModlFile = modlFile
-                       })
+          directory => {
+            var modlFiles = directory.FilesWithExtension(".modl");
+            var animFiles = directory.FilesWithExtension(".anim");
+
+            return modlFiles.Select(
+                modlFile =>
+                    new ModlModelFileBundle {
+                        ModlFile = modlFile,
+                        AnimFiles =
+                            modlFile.NameWithoutExtension == "WGRUNT"
+                                ? animFiles
+                                  .Where(animFile => animFile.NameWithoutExtension == "FGRUN")
+                                             //animFile.Name.StartsWith("FG"))
+                                  .ToArray()
+                                : null
+                    });
+          }
       ).GatherBundles(fileHierarchy);
     }
   }
