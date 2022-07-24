@@ -48,10 +48,7 @@ namespace modl.schema.anim {
 
       for (var i = 0; i < boneCount; ++i) {
         var bone = new AnimBone();
-
         bone.Data.Read(er);
-        bone.BoneIndex = 31 & bone.Data.WeirdId;
-
         this.AnimBones.Add(bone);
       }
 
@@ -65,8 +62,6 @@ namespace modl.schema.anim {
 
       var boneBytes = new List<byte[]>();
       for (var i = 0; i < this.AnimBones.Count; ++i) {
-        var animBone = this.AnimBones[i];
-
         var currentBuffer = er.ReadBytes((int) estimatedLengths[i]);
         boneBytes.Add(currentBuffer);
 
@@ -107,19 +102,7 @@ namespace modl.schema.anim {
                                              (float) -floats[2],
                                              (float) floats[3]));
         }
-
-        var deltas = new List<(float, float, float)>();
-        for (var f = 1; f < animBoneFrames.RotationFrames.Count; ++f) {
-          var prev = animBoneFrames.RotationFrames[f - 1];
-          var current = animBoneFrames.RotationFrames[f];
-
-          deltas.Add((current.Item1 - prev.Item1,
-                      current.Item2 - prev.Item2,
-                      current.Item3 - prev.Item3));
-        }
       }
-
-      // TODO: There can be a little bit of extra data at the end, what is this for??
     }
 
     public void Parse3PositionValuesFrom2UShorts_(
@@ -252,7 +235,6 @@ namespace modl.schema.anim {
 
   public class AnimBone {
     public AnimBoneData Data { get; } = new();
-    public uint BoneIndex { get; set; }
   }
 
   public class AnimBoneFrames {
