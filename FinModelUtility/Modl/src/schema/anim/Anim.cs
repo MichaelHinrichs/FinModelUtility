@@ -63,34 +63,17 @@ namespace modl.schema.anim {
                                          bone.Data.RotationKeyframeCount * 6)
                                  .ToArray();
 
-      var boneBytes = new List<List<byte>>();
-      var currentBuffer = new List<byte>();
+      var boneBytes = new List<byte[]>();
+      for (var i = 0; i < this.AnimBones.Count; ++i) {
+        var animBone = this.AnimBones[i];
 
-      var prevC = new byte[2];
-      while (!er.Eof) {
-        var c = prevC[0] = er.ReadByte();
+        var currentBuffer = er.ReadBytes((int) estimatedLengths[i]);
+        boneBytes.Add(currentBuffer);
 
-        currentBuffer.Add(c);
-
-        if (prevC.All(c => c == 0xcd)) {
-          if (currentBuffer.Count <= 2) {
-            currentBuffer.Clear();
-          } else {
-            currentBuffer.RemoveRange(currentBuffer.Count - 2, 2);
-          }
-
-          var i = boneBytes.Count;
-          Asserts.Equal((int) estimatedLengths[i], currentBuffer.Count);
-
-          boneBytes.Add(currentBuffer);
-
-          currentBuffer = new List<byte>();
-          prevC[0] = 0;
+        if (er.ReadUInt16() != 0xcdcd) {
+          er.Position -= 2;
         }
-
-        prevC[1] = prevC[0];
       }
-      Asserts.Equal((uint) boneBytes.Count, boneCount);
 
       for (var i = 0; i < boneCount; ++i) {
         var bone = this.AnimBones[i];
