@@ -54,9 +54,6 @@ namespace modl.schema.anim {
 
         this.AnimBones.Add(bone);
       }
-      //er.AssertUInt64(0);
-
-      var remainingLength = er.Length - er.Position;
 
       // Next is blocks of data separated by "0xcd" bytes. The lengths of these can be predicted with the ints in the bones, so these seem to be keyframes.
       var estimatedLengths = this.AnimBones
@@ -137,8 +134,6 @@ namespace modl.schema.anim {
                       current.Item2 - prev.Item2,
                       current.Item3 - prev.Item3));
         }
-
-        ;
       }
 
       // TODO: There can be a little bit of extra data at the end, what is this for??
