@@ -15,7 +15,6 @@ namespace schema.parser.asserts {
     /// <summary>
     ///   All of the types that contain the given structure need to be partial for the code generator to work.
     /// </summary>
-    /// <param name="structureSymbol"></param>
     public void AssertContainersArePartial(INamedTypeSymbol structureSymbol) {
       var containingType = structureSymbol.ContainingType;
       while (containingType != null) {

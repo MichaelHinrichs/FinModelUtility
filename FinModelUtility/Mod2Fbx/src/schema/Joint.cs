@@ -21,7 +21,7 @@ namespace mod.schema {
     public readonly Vector3f rotation = new();
     public readonly Vector3f position = new();
 
-    [ArrayLengthSource(IntType.UINT32)]
+    [ArrayLengthSource(SchemaIntType.UINT32)]
     public JointMatPoly[] matpolys;
   }
 }

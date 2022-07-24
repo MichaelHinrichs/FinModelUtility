@@ -58,9 +58,6 @@ namespace schema {
     ITypeSymbol TypeSymbol { get; }
   }
 
-  /// <summary>
-  ///   
-  /// </summary>
   public interface IPrimitiveMemberType : IMemberType {
     SchemaPrimitiveType PrimitiveType { get; }
     bool IsConst { get; }
@@ -82,7 +79,7 @@ namespace schema {
   public interface IIfBoolean {
     IfBooleanSourceType SourceType { get; }
 
-    IntType ImmediateBooleanType { get; }
+    SchemaIntType ImmediateBooleanType { get; }
     ISchemaMember? BooleanMember { get; }
   }
 
@@ -108,7 +105,7 @@ namespace schema {
     /// </summary>
     StringLengthSourceType LengthSourceType { get; }
 
-    IntType ImmediateLengthType { get; }
+    SchemaIntType ImmediateLengthType { get; }
     ISchemaMember? LengthMember { get; }
     int ConstLength { get; }
 
@@ -131,7 +128,7 @@ namespace schema {
     SequenceType SequenceType { get; }
 
     SequenceLengthSourceType LengthSourceType { get; }
-    IntType ImmediateLengthType { get; }
+    SchemaIntType ImmediateLengthType { get; }
     ISchemaMember? LengthMember { get; }
 
     IMemberType ElementType { get; }
@@ -198,7 +195,7 @@ namespace schema {
                     SymbolTypeUtil.GetTypeFromMember(
                         structureSymbol, booleanMemberName!);
                 var booleanMemberPrimitiveType =
-                    SchemaStructureParser.GetPrimitiveTypeFromType_(
+                    SchemaPrimitiveTypesUtil.GetPrimitiveTypeFromTypeSymbol(
                         booleanMemberTypeSymbol);
                 booleanMember =
                     new SchemaMember {
@@ -234,7 +231,8 @@ namespace schema {
 
         {
           var primitiveType =
-              SchemaStructureParser.GetPrimitiveTypeFromType_(memberTypeSymbol);
+              SchemaPrimitiveTypesUtil.GetPrimitiveTypeFromTypeSymbol(
+                  memberTypeSymbol);
           if (primitiveType != SchemaPrimitiveType.UNDEFINED) {
             memberType = new PrimitiveMemberType {
                 TypeSymbol = memberTypeSymbol,
@@ -297,8 +295,8 @@ namespace schema {
         if (sequenceBundle != null) {
           var elementTypeSymbol = sequenceBundle.ElementTypeSymbol;
           var elementPrimitiveType =
-              SchemaStructureParser
-                  .GetPrimitiveTypeFromType_(elementTypeSymbol);
+              SchemaPrimitiveTypesUtil
+                  .GetPrimitiveTypeFromTypeSymbol(elementTypeSymbol);
 
           IMemberType? elementMemberType = null;
           if (elementPrimitiveType != SchemaPrimitiveType.UNDEFINED) {
@@ -361,7 +359,7 @@ namespace schema {
             var underlyingType = enumNamedTypeSymbol!.EnumUnderlyingType;
 
             formatNumberType =
-                SchemaStructureParser.GetNumberTypeFromType_(underlyingType);
+                SchemaPrimitiveTypesUtil.GetNumberTypeFromTypeSymbol(underlyingType);
           }
 
           var formatAttribute =
@@ -370,7 +368,7 @@ namespace schema {
             formatNumberType = formatAttribute.NumberType;
 
             var isPrimitiveTypeNumeric =
-                SchemaStructureParser.IsPrimitiveTypeNumeric_(
+                SchemaPrimitiveTypesUtil.IsPrimitiveTypeNumeric(
                     targetPrimitiveType);
             if (!(targetMemberType is PrimitiveMemberType &&
                   isPrimitiveTypeNumeric)) {
@@ -476,12 +474,12 @@ namespace schema {
 
                     ISchemaMember? otherLengthMember = null;
                     var otherLengthPrimitiveType =
-                        SchemaStructureParser.GetPrimitiveTypeFromType_(
+                        SchemaPrimitiveTypesUtil.GetPrimitiveTypeFromTypeSymbol(
                             otherLengthMemberTypeSymbol);
 
                     // TODO: Assert this
                     var isOtherLengthNumeric =
-                        SchemaStructureParser.IsPrimitiveTypeNumeric_(
+                        SchemaPrimitiveTypesUtil.IsPrimitiveTypeNumeric(
                             otherLengthPrimitiveType);
 
                     if (otherLengthPrimitiveType !=
@@ -562,66 +560,6 @@ namespace schema {
       };
     }
 
-    private static SchemaPrimitiveType GetPrimitiveTypeFromType_(
-        ITypeSymbol typeSymbol) {
-      if (typeSymbol.TypeKind == TypeKind.Enum) {
-        return SchemaPrimitiveType.ENUM;
-      }
-
-      return typeSymbol.SpecialType switch {
-          SpecialType.System_Boolean => SchemaPrimitiveType.BOOLEAN,
-          SpecialType.System_Char    => SchemaPrimitiveType.CHAR,
-          SpecialType.System_SByte   => SchemaPrimitiveType.SBYTE,
-          SpecialType.System_Byte    => SchemaPrimitiveType.BYTE,
-          SpecialType.System_Int16   => SchemaPrimitiveType.INT16,
-          SpecialType.System_UInt16  => SchemaPrimitiveType.UINT16,
-          SpecialType.System_Int32   => SchemaPrimitiveType.INT32,
-          SpecialType.System_UInt32  => SchemaPrimitiveType.UINT32,
-          SpecialType.System_Int64   => SchemaPrimitiveType.INT64,
-          SpecialType.System_UInt64  => SchemaPrimitiveType.UINT64,
-          SpecialType.System_Single  => SchemaPrimitiveType.SINGLE,
-          SpecialType.System_Double  => SchemaPrimitiveType.DOUBLE,
-          _                          => SchemaPrimitiveType.UNDEFINED
-      };
-    }
-
-    private static bool IsPrimitiveTypeNumeric_(SchemaPrimitiveType type)
-      => type switch {
-          SchemaPrimitiveType.BOOLEAN => true,
-          SchemaPrimitiveType.SBYTE   => true,
-          SchemaPrimitiveType.BYTE    => true,
-          SchemaPrimitiveType.INT16   => true,
-          SchemaPrimitiveType.UINT16  => true,
-          SchemaPrimitiveType.INT32   => true,
-          SchemaPrimitiveType.UINT32  => true,
-          SchemaPrimitiveType.INT64   => true,
-          SchemaPrimitiveType.UINT64  => true,
-          SchemaPrimitiveType.SINGLE  => true,
-          SchemaPrimitiveType.DOUBLE  => true,
-          SchemaPrimitiveType.SN8     => true,
-          SchemaPrimitiveType.UN8     => true,
-          SchemaPrimitiveType.SN16    => true,
-          SchemaPrimitiveType.UN16    => true,
-          SchemaPrimitiveType.ENUM    => true,
-
-          SchemaPrimitiveType.CHAR      => false,
-          SchemaPrimitiveType.UNDEFINED => false,
-          _                             => throw new NotImplementedException(),
-      };
-
-    public static SchemaNumberType GetNumberTypeFromType_(
-        ITypeSymbol? typeSymbol)
-      => typeSymbol?.SpecialType switch {
-          SpecialType.System_Byte   => SchemaNumberType.BYTE,
-          SpecialType.System_SByte  => SchemaNumberType.SBYTE,
-          SpecialType.System_Int16  => SchemaNumberType.INT16,
-          SpecialType.System_UInt16 => SchemaNumberType.UINT16,
-          SpecialType.System_Int32  => SchemaNumberType.INT32,
-          SpecialType.System_UInt32 => SchemaNumberType.UINT32,
-          SpecialType.System_Int64  => SchemaNumberType.INT64,
-          SpecialType.System_UInt64 => SchemaNumberType.UINT64,
-          _                         => SchemaNumberType.UNDEFINED,
-      };
 
     private class SchemaStructure : ISchemaStructure {
       public IList<Diagnostic> Diagnostics { get; set; }
@@ -654,7 +592,7 @@ namespace schema {
 
     public class IfBoolean : IIfBoolean {
       public IfBooleanSourceType SourceType { get; set; }
-      public IntType ImmediateBooleanType { get; set; }
+      public SchemaIntType ImmediateBooleanType { get; set; }
       public ISchemaMember? BooleanMember { get; set; }
     }
 
@@ -666,7 +604,7 @@ namespace schema {
       public bool IsNullTerminated { get; set; }
 
       public StringLengthSourceType LengthSourceType { get; set; }
-      public IntType ImmediateLengthType { get; set; }
+      public SchemaIntType ImmediateLengthType { get; set; }
       public ISchemaMember? LengthMember { get; set; }
       public int ConstLength { get; set; }
 
@@ -687,7 +625,7 @@ namespace schema {
       public SequenceType SequenceType { get; set; }
 
       public SequenceLengthSourceType LengthSourceType { get; set; }
-      public IntType ImmediateLengthType { get; set; }
+      public SchemaIntType ImmediateLengthType { get; set; }
       public ISchemaMember? LengthMember { get; set; }
 
       public IMemberType ElementType { get; set; }

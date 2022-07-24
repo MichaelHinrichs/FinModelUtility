@@ -75,7 +75,7 @@ namespace mod.schema {
   public partial class ChunkData : IBiSerializable {
     [Format(SchemaNumberType.UINT32)]
     public ChunkId Id { get; private set; }
-    [ArrayLengthSource(IntType.INT32)]
+    [ArrayLengthSource(SchemaIntType.INT32)]
     public byte[] Data { get; private set; }
   }
 

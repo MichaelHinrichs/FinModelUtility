@@ -66,10 +66,10 @@ namespace schema.text {
       if (ifBoolean != null) {
         if (ifBoolean.SourceType == IfBooleanSourceType.IMMEDIATE_VALUE) {
           var booleanNumberType =
-              SchemaGeneratorUtil.ConvertIntToNumber(
+              SchemaPrimitiveTypesUtil.ConvertIntToNumber(
                   ifBoolean.ImmediateBooleanType);
           var booleanPrimitiveType =
-              SchemaGeneratorUtil.ConvertNumberToPrimitive(booleanNumberType);
+              SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(booleanNumberType);
           var booleanNumberLabel =
               SchemaGeneratorUtil.GetTypeName(booleanNumberType);
           var booleanPrimitiveLabel =
@@ -131,14 +131,14 @@ namespace schema.text {
 
       var readType = SchemaGeneratorUtil.GetPrimitiveLabel(
           primitiveType.UseAltFormat
-              ? SchemaGeneratorUtil.ConvertNumberToPrimitive(
+              ? SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(
                   primitiveType.AltFormat)
               : primitiveType.PrimitiveType);
 
       var needToCast = primitiveType.UseAltFormat &&
                        primitiveType.PrimitiveType !=
-                       SchemaGeneratorUtil.GetUnderlyingPrimitiveType(
-                           SchemaGeneratorUtil.ConvertNumberToPrimitive(
+                       SchemaPrimitiveTypesUtil.GetUnderlyingPrimitiveType(
+                           SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(
                                primitiveType.AltFormat));
 
       var castText = "";
@@ -158,7 +158,7 @@ namespace schema.text {
       var primitiveType = member.MemberType as IPrimitiveMemberType;
 
       var writeType = SchemaGeneratorUtil.GetPrimitiveLabel(
-          SchemaGeneratorUtil.ConvertNumberToPrimitive(
+          SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(
               primitiveType.AltFormat));
       var castType = SchemaGeneratorUtil.GetTypeName(
           primitiveType.AltFormat);
@@ -203,7 +203,7 @@ namespace schema.text {
               arrayType.ImmediateLengthType);
 
           var castType = SchemaGeneratorUtil.GetTypeName(
-              SchemaGeneratorUtil.ConvertIntToNumber(
+              SchemaPrimitiveTypesUtil.ConvertIntToNumber(
                   arrayType.ImmediateLengthType));
 
           var arrayLengthName = arrayType.SequenceType == SequenceType.ARRAY
@@ -238,7 +238,7 @@ namespace schema.text {
 
         // Primitives that *do* need to be cast have to be written individually.
         var writeType = SchemaGeneratorUtil.GetPrimitiveLabel(
-            SchemaGeneratorUtil.ConvertNumberToPrimitive(
+            SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(
                 primitiveElementType.AltFormat));
         var arrayLengthName = arrayType.SequenceType == SequenceType.ARRAY
                                   ? "Length"

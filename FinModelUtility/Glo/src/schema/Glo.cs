@@ -8,16 +8,16 @@ namespace glo.schema {
 
     public ushort Version { get; set; }
 
-    [ArrayLengthSource(IntType.UINT16)] public GloObject[] Objects { get; set; }
+    [ArrayLengthSource(SchemaIntType.UINT16)] public GloObject[] Objects { get; set; }
   }
 
 
   [Schema]
   public sealed partial class GloObject : IBiSerializable {
-    [ArrayLengthSource(IntType.UINT16)]
+    [ArrayLengthSource(SchemaIntType.UINT16)]
     public GloAnimSeg[] AnimSegs { get; set; }
 
-    [ArrayLengthSource(IntType.UINT16)] public GloMesh[] Meshes { get; set; }
+    [ArrayLengthSource(SchemaIntType.UINT16)] public GloMesh[] Meshes { get; set; }
   }
 
   [Schema]
@@ -34,21 +34,21 @@ namespace glo.schema {
   public sealed partial class GloMesh : IBiSerializable {
     public char[] Name { get; } = new char[24];
 
-    [ArrayLengthSource(IntType.UINT16)]
+    [ArrayLengthSource(SchemaIntType.UINT16)]
     public GloXyzKey[] MoveKeys { get; set; }
 
-    [ArrayLengthSource(IntType.UINT16)]
+    [ArrayLengthSource(SchemaIntType.UINT16)]
     public GloScaleKey[] ScaleKeys { get; set; }
 
-    [ArrayLengthSource(IntType.UINT16)]
+    [ArrayLengthSource(SchemaIntType.UINT16)]
     public GloQuaternionKey[] RotateKeys { get; set; }
 
-    [ArrayLengthSource(IntType.UINT16)]
+    [ArrayLengthSource(SchemaIntType.UINT16)]
     public GloVertex[] Vertices { get; set; }
 
-    [ArrayLengthSource(IntType.UINT16)] public GloFace[] Faces { get; set; }
+    [ArrayLengthSource(SchemaIntType.UINT16)] public GloFace[] Faces { get; set; }
 
-    [ArrayLengthSource(IntType.UINT16)] public GloSprite[] Sprites { get; set; }
+    [ArrayLengthSource(SchemaIntType.UINT16)] public GloSprite[] Sprites { get; set; }
 
     [Format(SchemaNumberType.UN8)] public float MeshTranslucency { get; set; }
     private readonly byte padding_ = 0;
@@ -60,9 +60,9 @@ namespace glo.schema {
 
   [Schema]
   public sealed partial class GloMeshPointers : IBiSerializable {
-    [IfBoolean(IntType.UINT16)] public GloMesh? Child { get; set; }
+    [IfBoolean(SchemaIntType.UINT16)] public GloMesh? Child { get; set; }
 
-    [IfBoolean(IntType.UINT16)] public GloMesh? Next { get; set; }
+    [IfBoolean(SchemaIntType.UINT16)] public GloMesh? Next { get; set; }
   }
 
   [Schema]

@@ -24,29 +24,16 @@ namespace schema.text {
           _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
       };
 
-    public static string GetIntLabel(IntType type)
+    public static string GetIntLabel(SchemaIntType type)
       => type switch {
-          IntType.SBYTE => "SByte",
-          IntType.BYTE => "Byte",
-          IntType.INT16 => "Int16",
-          IntType.UINT16 => "UInt16",
-          IntType.INT32 => "Int32",
-          IntType.UINT32 => "UInt32",
-          IntType.INT64 => "Int64",
-          IntType.UINT64 => "UInt64",
-          _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-      };
-
-    public static SchemaNumberType ConvertIntToNumber(IntType type)
-      => type switch {
-          IntType.SBYTE => SchemaNumberType.SBYTE,
-          IntType.BYTE => SchemaNumberType.BYTE,
-          IntType.INT16 => SchemaNumberType.INT16,
-          IntType.UINT16 => SchemaNumberType.UINT16,
-          IntType.INT32 => SchemaNumberType.INT32,
-          IntType.UINT32 => SchemaNumberType.UINT32,
-          IntType.INT64 => SchemaNumberType.INT64,
-          IntType.UINT64 => SchemaNumberType.UINT64,
+          SchemaIntType.SBYTE => "SByte",
+          SchemaIntType.BYTE => "Byte",
+          SchemaIntType.INT16 => "Int16",
+          SchemaIntType.UINT16 => "UInt16",
+          SchemaIntType.INT32 => "Int32",
+          SchemaIntType.UINT32 => "UInt32",
+          SchemaIntType.INT64 => "Int64",
+          SchemaIntType.UINT64 => "UInt64",
           _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
       };
 
@@ -62,35 +49,6 @@ namespace schema.text {
           SchemaNumberType.UINT64 => "ulong",
           SchemaNumberType.SINGLE => "float",
           SchemaNumberType.DOUBLE => "double",
-          _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-      };
-
-    public static SchemaPrimitiveType GetUnderlyingPrimitiveType(SchemaPrimitiveType type)
-      => type switch {
-          SchemaPrimitiveType.SN8  => SchemaPrimitiveType.SINGLE,
-          SchemaPrimitiveType.UN8  => SchemaPrimitiveType.SINGLE,
-          SchemaPrimitiveType.UN16 => SchemaPrimitiveType.SINGLE,
-          SchemaPrimitiveType.SN16 => SchemaPrimitiveType.SINGLE,
-          _                        => type
-      };
-
-    public static SchemaPrimitiveType ConvertNumberToPrimitive(
-        SchemaNumberType type)
-      => type switch {
-          SchemaNumberType.SBYTE => SchemaPrimitiveType.SBYTE,
-          SchemaNumberType.BYTE => SchemaPrimitiveType.BYTE,
-          SchemaNumberType.INT16 => SchemaPrimitiveType.INT16,
-          SchemaNumberType.UINT16 => SchemaPrimitiveType.UINT16,
-          SchemaNumberType.INT32 => SchemaPrimitiveType.INT32,
-          SchemaNumberType.UINT32 => SchemaPrimitiveType.UINT32,
-          SchemaNumberType.INT64 => SchemaPrimitiveType.INT64,
-          SchemaNumberType.UINT64 => SchemaPrimitiveType.UINT64,
-          SchemaNumberType.SINGLE => SchemaPrimitiveType.SINGLE,
-          SchemaNumberType.DOUBLE => SchemaPrimitiveType.DOUBLE,
-          SchemaNumberType.SN8 => SchemaPrimitiveType.SN8,
-          SchemaNumberType.UN8 => SchemaPrimitiveType.UN8,
-          SchemaNumberType.SN16 => SchemaPrimitiveType.SN16,
-          SchemaNumberType.UN16 => SchemaPrimitiveType.UN16,
           _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
       };
   }

@@ -15,18 +15,6 @@ namespace schema {
   public class SchemaAttribute : Attribute { }
 
 
-  public enum IntType {
-    BYTE,
-    SBYTE,
-    INT16,
-    UINT16,
-    INT32,
-    UINT32,
-    INT64,
-    UINT64
-  }
-
-
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
   public class NullTerminatedSchemaStringAttribute : Attribute {
     /// <summary>
@@ -45,7 +33,7 @@ namespace schema {
     /// <summary>
     ///   Parses a length with the given format immediately before the array.
     /// </summary>
-    public ArrayLengthSourceAttribute(IntType lengthType) {
+    public ArrayLengthSourceAttribute(SchemaIntType lengthType) {
       this.Method = SequenceLengthSourceType.IMMEDIATE_VALUE;
       this.LengthType = lengthType;
     }
@@ -61,7 +49,7 @@ namespace schema {
 
     public SequenceLengthSourceType Method { get; }
 
-    public IntType LengthType { get; }
+    public SchemaIntType LengthType { get; }
     public string OtherMemberName { get; }
   }
 
@@ -70,7 +58,7 @@ namespace schema {
     /// <summary>
     ///   Parses a length with the given format immediately before the string.
     /// </summary>
-    public StringLengthSourceAttribute(IntType lengthType) {
+    public StringLengthSourceAttribute(SchemaIntType lengthType) {
       this.Method = StringLengthSourceType.IMMEDIATE_VALUE;
       this.LengthType = lengthType;
     }
@@ -91,32 +79,9 @@ namespace schema {
 
     public StringLengthSourceType Method { get; }
 
-    public IntType LengthType { get; }
+    public SchemaIntType LengthType { get; }
     public string? OtherMemberName { get; }
     public int ConstLength { get; }
-  }
-
-
-  public enum SchemaNumberType {
-    UNDEFINED,
-
-    SBYTE,
-    BYTE,
-    INT16,
-    UINT16,
-    INT32,
-    UINT32,
-    INT64,
-    UINT64,
-
-    SINGLE,
-    DOUBLE,
-
-    SN8,
-    UN8,
-
-    SN16,
-    UN16,
   }
 
 
@@ -132,7 +97,7 @@ namespace schema {
 
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
   public class IfBooleanAttribute : Attribute {
-    public IfBooleanAttribute(IntType lengthType) {
+    public IfBooleanAttribute(SchemaIntType lengthType) {
       this.Method = IfBooleanSourceType.IMMEDIATE_VALUE;
       this.BooleanType = lengthType;
     }
@@ -144,7 +109,7 @@ namespace schema {
 
     public IfBooleanSourceType Method { get; }
 
-    public IntType BooleanType { get; }
+    public SchemaIntType BooleanType { get; }
     public string? OtherMemberName { get; }
   }
 

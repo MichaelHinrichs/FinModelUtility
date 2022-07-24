@@ -71,10 +71,10 @@ namespace schema.text {
       if (ifBoolean != null) {
         if (ifBoolean.SourceType == IfBooleanSourceType.IMMEDIATE_VALUE) {
           var booleanNumberType =
-              SchemaGeneratorUtil.ConvertIntToNumber(
+              SchemaPrimitiveTypesUtil.ConvertIntToNumber(
                   ifBoolean.ImmediateBooleanType);
           var booleanPrimitiveType =
-              SchemaGeneratorUtil.ConvertNumberToPrimitive(booleanNumberType);
+              SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(booleanNumberType);
           var booleanPrimitiveLabel =
               SchemaGeneratorUtil.GetPrimitiveLabel(booleanPrimitiveType);
           cbsb.WriteLine($"var b = er.Read{booleanPrimitiveLabel}() != 0;")
@@ -146,14 +146,14 @@ namespace schema.text {
 
       var readType = SchemaGeneratorUtil.GetPrimitiveLabel(
           primitiveType.UseAltFormat
-              ? SchemaGeneratorUtil.ConvertNumberToPrimitive(
+              ? SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(
                   primitiveType.AltFormat)
               : primitiveType.PrimitiveType);
 
       var needToCast = primitiveType.UseAltFormat &&
                        primitiveType.PrimitiveType !=
-                       SchemaGeneratorUtil.GetUnderlyingPrimitiveType(
-                           SchemaGeneratorUtil.ConvertNumberToPrimitive(
+                       SchemaPrimitiveTypesUtil.GetUnderlyingPrimitiveType(
+                           SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(
                                primitiveType.AltFormat));
 
       if (!primitiveType.IsConst) {
@@ -186,7 +186,7 @@ namespace schema.text {
       var primitiveType = member.MemberType as IPrimitiveMemberType;
 
       var readType = SchemaGeneratorUtil.GetPrimitiveLabel(
-          SchemaGeneratorUtil.ConvertNumberToPrimitive(
+          SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(
               primitiveType.AltFormat));
 
       if (!primitiveType.IsConst) {
@@ -328,7 +328,7 @@ namespace schema.text {
 
         // Primitives that *do* need to be cast have to be read individually.
         var readType = SchemaGeneratorUtil.GetPrimitiveLabel(
-            SchemaGeneratorUtil.ConvertNumberToPrimitive(
+            SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(
                 primitiveElementType.AltFormat));
         if (!primitiveElementType.IsConst) {
           var arrayLengthName = arrayType.SequenceType == SequenceType.ARRAY

@@ -71,9 +71,9 @@ namespace mod.schema {
     public int unknown2 = 0;
     public float unknown3 = 0;
 
-    [ArrayLengthSource(IntType.UINT32)]
+    [ArrayLengthSource(SchemaIntType.UINT32)]
     public PCI_Unk1[] unknown4;
-    [ArrayLengthSource(IntType.UINT32)]
+    [ArrayLengthSource(SchemaIntType.UINT32)]
     public PCI_Unk2[] unknown5;
   }
 
@@ -135,11 +135,11 @@ namespace mod.schema {
     public float unknown16 = 0;
     public float unknown17 = 0;
 
-    [ArrayLengthSource(IntType.UINT32)]
+    [ArrayLengthSource(SchemaIntType.UINT32)]
     public TXD_Unk1[] unknown18;
-    [ArrayLengthSource(IntType.UINT32)]
+    [ArrayLengthSource(SchemaIntType.UINT32)]
     public TXD_Unk1[] unknown19;
-    [ArrayLengthSource(IntType.UINT32)]
+    [ArrayLengthSource(SchemaIntType.UINT32)]
     public TXD_Unk1[] unknown20;
   };
 
@@ -149,9 +149,9 @@ namespace mod.schema {
     public readonly Vector3f unknown2 = new();
 
     // TODO: These appear to be referenced before they're read? Try removing the {}
-    [ArrayLengthSource(IntType.UINT32)]
+    [ArrayLengthSource(SchemaIntType.UINT32)]
     public TexGenData[] unknown3 = {};
-    [ArrayLengthSource(IntType.UINT32)]
+    [ArrayLengthSource(SchemaIntType.UINT32)]
     public TextureData[] unknown4 = {};
   }
 
@@ -214,9 +214,9 @@ namespace mod.schema {
     public readonly ColourU16 unknown1 = new();
     public int unknown2 = 0;
     public float unknown3 = 0;
-    [ArrayLengthSource(IntType.UINT32)]
+    [ArrayLengthSource(SchemaIntType.UINT32)]
     public TCR_Unk1[] unknown4;
-    [ArrayLengthSource(IntType.UINT32)]
+    [ArrayLengthSource(SchemaIntType.UINT32)]
     public TCR_Unk2[] unknown5;
   }
 
@@ -263,7 +263,7 @@ namespace mod.schema {
     public readonly ColourU8 unknown6 = new();
     public readonly ColourU8 unknown7 = new();
 
-    [ArrayLengthSource(IntType.UINT32)]
+    [ArrayLengthSource(SchemaIntType.UINT32)]
     public TEVStage[] unknown8;
   }
 
