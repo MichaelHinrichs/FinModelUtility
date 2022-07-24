@@ -92,9 +92,14 @@ namespace modl.api {
             var animBoneFrames = anim.AnimBoneFrames[b];
 
             var animWeirdId = animBone.Data.WeirdId;
-            var finBone = finBonesByWeirdId[animWeirdId];
+            if (!finBonesByWeirdId.TryGetValue(animWeirdId, out var finBone)) {
+              // TODO: Gross hack for the vet models, what's the real fix???
+              if (animWeirdId == 33) {
+                finBone = finBonesByWeirdId[34];
+              }
+            }
 
-            var finBoneTracks = finAnimation.AddBoneTracks(finBone);
+            var finBoneTracks = finAnimation.AddBoneTracks(finBone!);
 
             var fbtPositions = finBoneTracks.Positions;
             for (var f = 0; f < animBone.Data.PositionKeyframeCount; ++f) {
