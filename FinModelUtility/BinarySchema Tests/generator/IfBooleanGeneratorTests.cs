@@ -57,7 +57,7 @@ namespace foo.bar {
       if (this.ImmediateValue != null) {
         this.ImmediateValue.Write(ew);
       }
-      ew.WriteByte(this.Field ? 1 : 0);
+      ew.WriteByte((byte) (this.Field ? 1 : 0));
       if (this.Field) {
         ew.WriteInt32(this.OtherValue);
       }

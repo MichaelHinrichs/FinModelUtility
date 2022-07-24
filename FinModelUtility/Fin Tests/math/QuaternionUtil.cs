@@ -19,9 +19,9 @@ namespace fin.math {
 
       var v = QuaternionUtil.ToEulerRadians(q);
 
-      Asserts.Equal(x, v.X);
-      Asserts.Equal(y, v.Y);
-      Asserts.Equal(z, v.Z);
+      Assert.AreEqual(x, v.X, .0001);
+      Assert.AreEqual(y, v.Y, .0001);
+      Assert.AreEqual(z, v.Z, .0001);
     }
   }
 }

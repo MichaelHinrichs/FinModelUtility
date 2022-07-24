@@ -33,8 +33,8 @@ using System.IO;
 namespace foo.bar {
   public partial class ByteWrapper {
     public void Write(EndianBinaryWriter ew) {
-      ew.WriteByte(this.Field ? 1 : 0);
-      ew.WriteByte(this.ReadonlyField ? 1 : 0);
+      ew.WriteByte((byte) (this.Field ? 1 : 0));
+      ew.WriteByte((byte) (this.ReadonlyField ? 1 : 0));
     }
   }
 }
