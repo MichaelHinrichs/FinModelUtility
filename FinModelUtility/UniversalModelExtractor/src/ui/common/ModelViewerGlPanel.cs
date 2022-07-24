@@ -26,6 +26,9 @@ namespace uni.ui.common {
     private GlShaderProgram texturedShaderProgram_;
     private int texture0Location_;
 
+    private int useLightingLocation_;
+    private bool hasNormals_;
+
     private GlShaderProgram texturelessShaderProgram_;
 
     private ModelRenderer? modelRenderer_;
@@ -53,6 +56,14 @@ namespace uni.ui.common {
               null);
           this.scale_ = 1000 / ModelScaleCalculator.CalculateScale(
                             value, this.boneTransformManager_);
+
+          hasNormals_ = false;
+          foreach (var vertex in value.Skin.Vertices) {
+            if (vertex.LocalNormal != null) {
+              hasNormals_ = true;
+              break;
+            }
+          }
         } else {
           this.modelRenderer_ = null;
           this.skeletonRenderer_ = null;
@@ -196,6 +207,7 @@ void main() {
 # version 130 
 
 uniform sampler2D texture0;
+uniform float useLighting;
 
 out vec4 fragColor;
 
@@ -215,7 +227,7 @@ void main() {{
 
     float lightAmount = min(ambientLightAmount + diffuseLightAmount, 1);
 
-    fragColor.rgb *= lightAmount;
+    fragColor.rgb = mix(fragColor.rgb, fragColor.rgb * lightAmount, useLighting);
 
     if (fragColor.a < .95) {{
       discard;
@@ -227,6 +239,8 @@ void main() {{
 
       this.texture0Location_ =
           this.texturedShaderProgram_.GetUniformLocation("texture0");
+      this.useLightingLocation_ =
+          this.texturedShaderProgram_.GetUniformLocation("useLighting");
 
       this.texturelessShaderProgram_ =
           GlShaderProgram.FromShaders(@"
@@ -276,7 +290,7 @@ void main() {
       GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
       GL.ClearColor(backgroundColor_.R / 255f, backgroundColor_.G / 255f,
-                      backgroundColor_.B / 255f, 1);
+                    backgroundColor_.B / 255f, 1);
     }
 
     protected override void RenderGl() {
@@ -338,7 +352,8 @@ void main() {
 
       this.texturedShaderProgram_.Use();
       GL.Uniform1(this.texture0Location_, 0);
-      
+      GL.Uniform1(this.useLightingLocation_, hasNormals_ ? 1f : 0f);
+
       this.modelRenderer_?.Render();
 
       if (DebugFlags.ENABLE_SKELETON) {

@@ -45,7 +45,7 @@ namespace uni.ui.right_panel.textures {
 
         var selectedIndices = this.listView_.SelectedIndices;
         selectedIndices.Clear();
-        if (this.selectedTexture_ != null) {
+        if (value != null) {
           selectedIndices.Add(ListUtil.AssertFindFirst(this.textures_, value));
         }
 
