@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
+
+using schema.parser.asserts;
+using schema.parser.attributes;
 
 
 namespace schema {
@@ -143,22 +143,8 @@ namespace schema {
       var diagnostics = new List<Diagnostic>();
 
       // All of the types that contain the structure need to be partial
-      {
-        var containingType = structureSymbol.ContainingType;
-        while (containingType != null) {
-          var typeDeclarationSyntax =
-              containingType.DeclaringSyntaxReferences[0].GetSyntax() as
-                  TypeDeclarationSyntax;
-
-          if (!SymbolTypeUtil.IsPartial(typeDeclarationSyntax!)) {
-            diagnostics.Add(Rules.CreateDiagnostic(
-                                containingType,
-                                Rules.ContainerTypeMustBePartial));
-          }
-
-          containingType = containingType.ContainingType;
-        }
-      }
+      new PartialContainerAsserter(diagnostics).AssertContainersArePartial(
+          structureSymbol);
 
       var members = structureSymbol.GetMembers();
 
@@ -195,14 +181,7 @@ namespace schema {
         IMemberType? memberType = null;
         SequenceBundle? sequenceBundle = null;
 
-        var align = 0;
-        {
-          var alignAttribute =
-              SymbolTypeUtil.GetAttribute<AlignAttribute>(memberSymbol);
-          if (alignAttribute != null) {
-            align = alignAttribute.Align;
-          }
-        }
+        var align = new AlignAttributeParser().GetAlignForMember(memberSymbol);
 
         IIfBoolean? ifBoolean = null;
         {
