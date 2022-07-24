@@ -32,6 +32,7 @@ namespace modl.api {
       var finMesh = model.Skin.AddMesh();
 
       var finBones = new IBone[bw1Model.Nodes.Count];
+      var finBonesByWeirdId = new Dictionary<uint, IBone>();
 
       {
         var nodeQueue =
@@ -58,6 +59,7 @@ namespace modl.api {
                       eulerRadians.X, eulerRadians.Y, eulerRadians.Z);
           finBone.Name = $"Node {modlNodeId}";
           finBones[modlNodeId] = finBone;
+          finBonesByWeirdId[modlNode.WeirdId] = finBone;
 
           if (bw1Model.CnctParentToChildren.TryGetList(
                   modlNodeId, out var modlChildIds)) {
@@ -69,6 +71,17 @@ namespace modl.api {
         foreach (var animFile in modelFileBundle.AnimFiles ??
                                  Array.Empty<IFileHierarchyFile>()) {
           var anim = animFile.Impl.ReadNew<Anim>(Endianness.BigEndian);
+
+
+          var animWeirdIds = anim.AnimBones
+                                 .Select(animBone => animBone.Data.WeirdId)
+                                 .ToList();
+          animWeirdIds.Sort();
+
+          var modlWeirdIds = bw1Model.NodeByWeirdId.Keys.ToList();
+          modlWeirdIds.Sort();
+
+          ;
 
           var maxFrameCount = -1;
           foreach (var animBone in anim.AnimBones) {
@@ -89,47 +102,52 @@ namespace modl.api {
             var animBone = anim.AnimBones[b];
             var animBoneFrames = anim.AnimBoneFrames[b];
 
-            var finBone = finBones[animBone.BoneIndex];
+            var animWeirdId = animBone.Data.WeirdId;
+            var finBone = finBonesByWeirdId[animWeirdId];
+
+            //var finBone = finBones[animBone.BoneIndex];
             var localRotation = finBone.LocalRotation;
-
-            var dX = localRotation.XDegrees;
-            var dY = localRotation.YDegrees;
-            var dZ = localRotation.ZDegrees;
-
-            var averages = new float[6];
-            foreach (var (b0, b1, b2, b3, b4, b5) in
-                     animBoneFrames.RotationBytes) {
-              averages[0] += b0;
-              averages[1] += b1;
-              averages[2] += b2;
-              averages[3] += b3;
-              averages[4] += b4;
-              averages[5] += b5;
-            }
-            for (var a = 0; a < 6; ++a) {
-              averages[a] /= animBoneFrames.RotationBytes.Count;
-            }
+            var baseQuaternion = QuaternionUtil.Create(localRotation ?? new ModelImpl.RotationImpl());
 
             var finBoneTracks = finAnimation.AddBoneTracks(finBone);
-            var fbtRotations = finBoneTracks.Rotations;
+
+            var fbtPositions = finBoneTracks.Positions;
+            for (var f = 0; f < animBone.Data.PositionKeyframeCount; ++f) {
+              var (fPX, fPY, fPZ) = animBoneFrames.PositionFrames[f];
+
+              fbtPositions.Set(f, 0, fPX);
+              fbtPositions.Set(f, 1, fPY);
+              fbtPositions.Set(f, 2, fPZ);
+            }
+
+            /*var fbtRotations = finBoneTracks.Rotations;
             for (var f = 0; f < animBone.Data.RotationKeyframeCount; ++f) {
-              var (fRX, fRY, fRZ) = animBoneFrames.RotationFrames[f];
+              var (fRX, fRY, fRZ, frW) = animBoneFrames.RotationFrames[f];
 
-              /*fRX *= animBone.Data.Floats0[3];
-              fRY *= animBone.Data.Floats0[4];
-              fRZ *= animBone.Data.Floats0[5];*/
+              var animationQuaternion = new Quaternion(fRX, fRY, fRZ, frW);
+              /*var eulerRadians = QuaternionUtil.ToEulerRadians(quaternion);
 
-              var s = 1;
+              var eRX = eulerRadians.X;
+              var eRY = eulerRadians.Y;
+              var eRZ = eulerRadians.Z;
 
               var influence = 1;
-              var rXR = localRotation.XRadians * influence + fRX * s;
-              var rYR = localRotation.YRadians * influence + fRY * s;
-              var rZR = localRotation.ZRadians * influence + fRZ * s;
+              var rXR = localRotation.XRadians * influence + eRX;
+              var rYR = localRotation.YRadians * influence + eRY;
+              var rZR = localRotation.ZRadians * influence + eRZ;*/
+
+              /*var sumQuaternion = baseQuaternion * animationQuaternion;
+
+              var eulerRadians = QuaternionUtil.ToEulerRadians(sumQuaternion);
+
+              var rXR = eulerRadians.X;
+              var rYR = eulerRadians.Y;
+              var rZR = eulerRadians.Z;
 
               fbtRotations.Set(f, 0, rXR);
               fbtRotations.Set(f, 1, rYR);
               fbtRotations.Set(f, 2, rZR);
-            }
+            }*/
           }
         }
 

@@ -17,8 +17,6 @@ namespace uni.games.battalion_wars {
       var er = new EndianBinaryReader(file.OpenRead(), Endianness.BigEndian);
 
       var anim = er.ReadNew<Anim>();
-
-      ;
     }
   }
 }

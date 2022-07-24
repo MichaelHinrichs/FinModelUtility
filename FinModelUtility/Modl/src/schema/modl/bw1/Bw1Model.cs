@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Drawing.Text;
 
+using Assimp;
+
 using fin.data;
 using fin.math;
 using fin.util.asserts;
@@ -17,6 +19,8 @@ namespace modl.schema.modl.bw1 {
   public class Bw1Model : IDeserializable {
     public List<NodeBw1> Nodes { get; } = new();
     public ListDictionary<ushort, ushort> CnctParentToChildren { get; } = new();
+
+    public Dictionary<uint, NodeBw1> NodeByWeirdId { get; } = new();
 
     public void Read(EndianBinaryReader er) {
       var filenameLength = er.ReadUInt32();
@@ -42,10 +46,13 @@ namespace modl.schema.modl.bw1 {
       // Reads in nodes (bones)
       {
         this.Nodes.Clear();
+        this.NodeByWeirdId.Clear();
         for (var i = 0; i < nodeCount; ++i) {
           var node = new NodeBw1(additionalDataCount);
           node.Read(er);
           this.Nodes.Add(node);
+
+          this.NodeByWeirdId[node.WeirdId] = node;
         }
       }
 
@@ -79,6 +86,8 @@ namespace modl.schema.modl.bw1 {
   public class NodeBw1 : IDeserializable {
     private int additionalDataCount_;
 
+    public uint WeirdId { get; set; }
+
     public BwTransform Transform { get; } = new();
     public Bw1BoundingBox BoundingBox { get; } = new();
 
@@ -103,6 +112,8 @@ namespace modl.schema.modl.bw1 {
         // TODO: What are these used for?
         var someMin = er.ReadUInt16();
         var someMax = er.ReadUInt16();
+
+        this.WeirdId = someMin;
 
         // TODO: unknown, probably enum values
         var unknowns0 = er.ReadUInt32s(2);
