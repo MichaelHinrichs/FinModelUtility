@@ -42,6 +42,8 @@ Command-line tools for extracting models from games en-masse. Separate batch scr
   - Super Mario Sunshine (`super_mario_sunshine.gcm`)
 - .mod (GCN)
   - Pikmin 1 (`pikmin_1.gcm`)
+- .modl (GCN)
+  - Battalion Wars (`battalion_wars.gcm`)
 
 *Note:* For GameCube ROMs, files with an `.iso` extension should work as long as they are renamed to `[game_name].gcm`.
 
