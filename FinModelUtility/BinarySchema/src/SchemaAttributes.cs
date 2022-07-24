@@ -115,14 +115,5 @@ namespace schema {
 
 
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-  public class AlignAttribute : Attribute {
-    public AlignAttribute(int align) {
-      this.Align = align;
-    }
-
-    public int Align { get; }
-  }
-
-  [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
   public class EndianOrderedAttribute : Attribute { }
 }

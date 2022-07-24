@@ -10,7 +10,7 @@ using schema;
 namespace foo.bar {
   [Schema]
   public partial class ByteWrapper : IBiSerializable {
-    [IfBoolean(IntType.BYTE)]
+    [IfBoolean(SchemaIntType.BYTE)]
     public A? ImmediateValue { get; set; }
 
     [Format(SchemaNumberType.BYTE)]

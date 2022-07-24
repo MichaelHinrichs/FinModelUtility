@@ -10,7 +10,7 @@ using schema;
 namespace foo.bar {
   [Schema]
   public partial class BooleanWrapper : IBiSerializable {
-    [IfBoolean(IntType.BYTE)]
+    [IfBoolean(SchemaIntType.BYTE)]
     public int field;
   }
 }");
@@ -25,7 +25,7 @@ using schema;
 namespace foo.bar {
   [Schema]
   public partial class BooleanWrapper : IBiSerializable {
-    [IfBoolean(IntType.BYTE)]
+    [IfBoolean(SchemaIntType.BYTE)]
     public A field;
   }
 

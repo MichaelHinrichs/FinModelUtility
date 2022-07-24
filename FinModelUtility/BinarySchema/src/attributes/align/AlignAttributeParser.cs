@@ -1,7 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 
 
-namespace schema.parser.attributes {
+namespace schema.attributes.align {
   public class AlignAttributeParser {
     public int GetAlignForMember(ISymbol memberSymbol) {
       var alignAttribute =

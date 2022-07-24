@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
+using schema.attributes.align;
 using schema.parser.asserts;
-using schema.parser.attributes;
 
 
 namespace schema {

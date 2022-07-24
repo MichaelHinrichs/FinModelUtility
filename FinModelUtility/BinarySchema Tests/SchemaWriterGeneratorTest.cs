@@ -303,11 +303,11 @@ namespace foo {
       public readonly ShortEnum constIntField;
 
       public readonly int[] constLengthIntValues;
-      [ArrayLengthSource(IntType.UINT32)]
+      [ArrayLengthSource(SchemaIntType.UINT32)]
       public int[] intValues;
 
       public Other other;
-      [ArrayLengthSource(IntType.INT32)]
+      [ArrayLengthSource(SchemaIntType.INT32)]
       public Other[] others;
 
       [Format(SchemaNumberType.UN16)]

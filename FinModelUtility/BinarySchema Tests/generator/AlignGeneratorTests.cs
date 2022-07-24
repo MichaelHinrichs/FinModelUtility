@@ -6,6 +6,7 @@ namespace schema.text {
     [Test] public void TestAlign() {
       SchemaTestUtil.AssertGenerated(@"
 using schema;
+using schema.attributes.align;
 
 namespace foo.bar {
   [Schema]
