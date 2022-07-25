@@ -235,25 +235,8 @@ namespace schema {
           }
         }
 
-        {
-          if (memberType is ISequenceMemberType sequenceMemberType
-              && sequenceMemberType.ElementType.TypeInfo is IStructureTypeInfo
-                  structureTypeInfo) {
-            if (!SymbolTypeUtil.Implements(structureTypeInfo.NamedTypeSymbol,
-                                           typeof(IBiSerializable))) {
-              diagnostics.Add(
-                  Rules.CreateDiagnostic(memberSymbol,
-                                         Rules
-                                             .StructureMemberNeedsToImplementIBiSerializable));
-              continue;
-            }
-
-            // TODO: Make sure array type is actually supported
-            /*diagnostics.Add(
-                Rules.CreateDiagnostic(memberSymbol,
-                                       Rules.UnsupportedArrayType));*/
-          }
-        }
+        new SupportedElementTypeAsserter(diagnostics)
+            .AssertElementTypesAreSupported(memberSymbol, memberType);
 
         {
           IMemberType? targetMemberType;

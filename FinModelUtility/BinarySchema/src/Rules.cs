@@ -71,6 +71,13 @@ namespace schema {
           "Structure member needs to implement IBiSerializable",
           "Structure member '{0}' must implement IBiSerializable.");
 
+    public static DiagnosticDescriptor
+        ElementNeedsToImplementIBiSerializable { get; } =
+      Rules.CreateDiagnostic_(
+          "Element needs to implement IBiSerializable",
+          "Element of '{0}' must implement IBiSerializable.");
+
+
     public static readonly DiagnosticDescriptor ConstUninitialized
         = Rules.CreateDiagnostic_(
             "Const uninitialized",
