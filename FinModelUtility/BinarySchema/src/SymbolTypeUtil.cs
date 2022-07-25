@@ -203,14 +203,28 @@ namespace schema {
     }
 
     public static ITypeSymbol GetTypeFromMember(
-        INamedTypeSymbol structureSymbol,
-        string memberName) =>
-        structureSymbol
-            .GetMembers(memberName)
-            .Single() switch {
-            IPropertySymbol propertySymbol => propertySymbol.Type,
-            IFieldSymbol fieldSymbol       => fieldSymbol.Type,
-            _                              => throw new NotSupportedException()
-        };
+        ITypeSymbol structureSymbol,
+        string memberName) {
+      var periodIndex = memberName.IndexOf('.');
+      if (periodIndex != -1) {
+        var subStructureName = memberName.Substring(0, periodIndex);
+        var subStructureTypeSymbol =
+            GetTypeFromMember(structureSymbol, subStructureName);
+
+        var subMemberName = memberName.Substring(periodIndex + 1);
+
+        return GetTypeFromMember(
+            subStructureTypeSymbol,
+            subMemberName);
+      }
+
+      return structureSymbol
+             .GetMembers(memberName)
+             .Single() switch {
+          IPropertySymbol propertySymbol => propertySymbol.Type,
+          IFieldSymbol fieldSymbol       => fieldSymbol.Type,
+          _                              => throw new NotSupportedException()
+      };
+    }
   }
 }

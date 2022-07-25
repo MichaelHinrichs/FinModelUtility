@@ -3,7 +3,8 @@
 
 namespace schema.text {
   internal class IfBooleanGeneratorTests {
-    [Test] public void TestIfBoolean() {
+    [Test]
+    public void TestIfBoolean() {
       SchemaTestUtil.AssertGenerated(@"
 using schema;
 
@@ -59,6 +60,52 @@ namespace foo.bar {
       }
       ew.WriteByte((byte) (this.Field ? 1 : 0));
       if (this.Field) {
+        ew.WriteInt32(this.OtherValue);
+      }
+    }
+  }
+}
+");
+    }
+
+
+    [Test]
+    public void TestUsingBoolFromChild() {
+      SchemaTestUtil.AssertGenerated(@"
+using schema;
+
+namespace foo.bar {
+  [Schema]
+  public partial class ByteWrapper : IBiSerializable {
+    public ClassWith1Bool Field { get; set; }
+
+    [IfBoolean($""{nameof(Field)}.{nameof(Field.Bool)}"")]
+    public int? OtherValue { get; set; }
+  }
+}",
+                                     @"using System;
+using System.IO;
+namespace foo.bar {
+  public partial class ByteWrapper {
+    public void Read(EndianBinaryReader er) {
+      this.Field.Read(er);
+      if (this.Field.Bool) {
+        this.OtherValue = er.ReadInt32();
+      }
+      else {
+        this.OtherValue = null;
+      }
+    }
+  }
+}
+",
+                                     @"using System;
+using System.IO;
+namespace foo.bar {
+  public partial class ByteWrapper {
+    public void Write(EndianBinaryWriter ew) {
+      this.Field.Write(ew);
+      if (this.Field.Bool) {
         ew.WriteInt32(this.OtherValue);
       }
     }

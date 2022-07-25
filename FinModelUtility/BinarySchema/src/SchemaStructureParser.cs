@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 
 using Microsoft.CodeAnalysis;
 
@@ -145,10 +146,12 @@ namespace schema {
           structureSymbol);
 
       var typeInfoParser = new TypeInfoParser();
+      var parsedMembers =
+          typeInfoParser.ParseMembers(structureSymbol).ToArray();
 
       var fields = new List<ISchemaMember>();
       foreach (var (parseStatus, memberSymbol, memberTypeInfo) in
-               typeInfoParser.ParseMembers(structureSymbol)) {
+               parsedMembers) {
         if (parseStatus == TypeInfoParser.ParseStatus.NOT_A_FIELD_OR_PROPERTY) {
           continue;
         }
@@ -429,21 +432,6 @@ namespace schema {
               Align = align,
               IfBoolean = ifBoolean,
           });
-        }
-      }
-
-      {
-        var memberByName = new Dictionary<string, ISchemaMember>();
-        foreach (var member in fields) {
-          memberByName[member.Name] = member;
-        }
-
-        foreach (var member in fields) {
-          var ifBooleanMemberName = member.IfBoolean?.BooleanMember?.Name;
-          if (ifBooleanMemberName != null) {
-            var mutableIfBoolean = member.IfBoolean as IfBoolean;
-            mutableIfBoolean!.BooleanMember = memberByName[ifBooleanMemberName];
-          }
         }
       }
 
