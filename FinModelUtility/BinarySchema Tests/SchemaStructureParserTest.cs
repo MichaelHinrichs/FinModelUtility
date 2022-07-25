@@ -31,7 +31,7 @@ namespace foo.bar {
 
       var primitiveType = (memberType as IPrimitiveMemberType)!;
       Assert.AreEqual(SchemaPrimitiveType.BYTE, primitiveType.PrimitiveType);
-      Assert.AreEqual(false, primitiveType.IsConst);
+      Assert.AreEqual(false, primitiveType.IsReadonly);
       Assert.AreEqual(false, primitiveType.UseAltFormat);
       Assert.AreEqual(SchemaNumberType.UNDEFINED, primitiveType.AltFormat);
     }
@@ -63,7 +63,7 @@ namespace foo.bar {
 
       var primitiveType = (memberType as IPrimitiveMemberType)!;
       Assert.AreEqual(SchemaPrimitiveType.SBYTE, primitiveType.PrimitiveType);
-      Assert.AreEqual(false, primitiveType.IsConst);
+      Assert.AreEqual(false, primitiveType.IsReadonly);
       Assert.AreEqual(false, primitiveType.UseAltFormat);
       Assert.AreEqual(SchemaNumberType.UNDEFINED, primitiveType.AltFormat);
     }
@@ -95,7 +95,7 @@ namespace foo.bar {
 
       var primitiveType = (memberType as IPrimitiveMemberType)!;
       Assert.AreEqual(SchemaPrimitiveType.INT16, primitiveType.PrimitiveType);
-      Assert.AreEqual(false, primitiveType.IsConst);
+      Assert.AreEqual(false, primitiveType.IsReadonly);
       Assert.AreEqual(false, primitiveType.UseAltFormat);
       Assert.AreEqual(SchemaNumberType.UNDEFINED, primitiveType.AltFormat);
     }
@@ -134,7 +134,7 @@ namespace foo.bar {
 
       var primitiveType = (memberType as IPrimitiveMemberType)!;
       Assert.AreEqual(SchemaPrimitiveType.ENUM, primitiveType.PrimitiveType);
-      Assert.AreEqual(false, primitiveType.IsConst);
+      Assert.AreEqual(false, primitiveType.IsReadonly);
       Assert.AreEqual(true, primitiveType.UseAltFormat);
       Assert.AreEqual(SchemaNumberType.UINT16, primitiveType.AltFormat);
     }
@@ -163,7 +163,7 @@ namespace foo.bar {
 
       var primitiveType = (arrayType.ElementType as IPrimitiveMemberType)!;
       Assert.AreEqual(SchemaPrimitiveType.INT32, primitiveType.PrimitiveType);
-      Assert.AreEqual(false, primitiveType.IsConst);
+      Assert.AreEqual(false, primitiveType.IsReadonly);
       Assert.AreEqual(false, primitiveType.UseAltFormat);
       Assert.AreEqual(SchemaNumberType.UNDEFINED, primitiveType.AltFormat);
     }
@@ -192,7 +192,7 @@ namespace foo.bar {
 
       var primitiveType = (arrayType.ElementType as IPrimitiveMemberType)!;
       Assert.AreEqual(SchemaPrimitiveType.CHAR, primitiveType.PrimitiveType);
-      Assert.AreEqual(false, primitiveType.IsConst);
+      Assert.AreEqual(false, primitiveType.IsReadonly);
       Assert.AreEqual(false, primitiveType.UseAltFormat);
       Assert.AreEqual(SchemaNumberType.UNDEFINED, primitiveType.AltFormat);
     }
@@ -224,7 +224,7 @@ namespace foo.bar {
 
       var primitiveType = (memberType as IPrimitiveMemberType)!;
       Assert.AreEqual(SchemaPrimitiveType.BYTE, primitiveType.PrimitiveType);
-      Assert.AreEqual(false, primitiveType.IsConst);
+      Assert.AreEqual(false, primitiveType.IsReadonly);
       Assert.AreEqual(false, primitiveType.UseAltFormat);
       Assert.AreEqual(SchemaNumberType.UNDEFINED, primitiveType.AltFormat);
     }
@@ -256,7 +256,7 @@ namespace foo.bar {
 
       var primitiveType = (memberType as IPrimitiveMemberType)!;
       Assert.AreEqual(SchemaPrimitiveType.BYTE, primitiveType.PrimitiveType);
-      Assert.AreEqual(false, primitiveType.IsConst);
+      Assert.AreEqual(false, primitiveType.IsReadonly);
       Assert.AreEqual(false, primitiveType.UseAltFormat);
       Assert.AreEqual(SchemaNumberType.UNDEFINED, primitiveType.AltFormat);
     }
@@ -288,7 +288,7 @@ namespace foo.bar {
 
       var primitiveType = (memberType as IPrimitiveMemberType)!;
       Assert.AreEqual(SchemaPrimitiveType.BYTE, primitiveType.PrimitiveType);
-      Assert.AreEqual(true, primitiveType.IsConst);
+      Assert.AreEqual(true, primitiveType.IsReadonly);
       Assert.AreEqual(false, primitiveType.UseAltFormat);
       Assert.AreEqual(SchemaNumberType.UNDEFINED, primitiveType.AltFormat);
     }
@@ -320,7 +320,7 @@ namespace foo.bar {
 
       var primitiveType = (memberType as IPrimitiveMemberType)!;
       Assert.AreEqual(SchemaPrimitiveType.BYTE, primitiveType.PrimitiveType);
-      Assert.AreEqual(true, primitiveType.IsConst);
+      Assert.AreEqual(true, primitiveType.IsReadonly);
       Assert.AreEqual(false, primitiveType.UseAltFormat);
       Assert.AreEqual(SchemaNumberType.UNDEFINED, primitiveType.AltFormat);
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using Microsoft.CodeAnalysis;
 
@@ -12,8 +13,7 @@ namespace schema.parser {
     STRING,
     ENUM,
     STRUCTURE,
-    CONST_LENGTH_CONTAINER,
-    VARIABLE_LENGTH_CONTAINER,
+    SEQUENCE,
   }
 
   public interface ITypeInfo {
@@ -43,18 +43,41 @@ namespace schema.parser {
 
   public interface IStringTypeInfo : ITypeInfo { }
 
-  public interface IStructureTypeInfo : ITypeInfo { }
+  public interface IStructureTypeInfo : ITypeInfo {
+    INamedTypeSymbol NamedTypeSymbol { get; }
+  }
 
-  public interface IContainerTypeInfo : ITypeInfo {
-    ITypeInfo ContainedType { get; }
+  public interface ISequenceTypeInfo : ITypeInfo {
+    bool IsArray { get; }
+    bool IsLengthConst { get; }
+    ITypeInfo ElementTypeInfo { get; }
   }
 
   public class TypeInfoParser {
     public enum ParseStatus {
       SUCCESS,
       NOT_A_FIELD_OR_PROPERTY,
-      NOT_SAME_KIND_OF_SERIALIZABLE,
       NOT_IMPLEMENTED,
+    }
+
+    public IEnumerable<(ParseStatus, ISymbol, ITypeInfo)> ParseMembers(
+        INamedTypeSymbol structureSymbol) {
+      foreach (var memberSymbol in structureSymbol.GetMembers()) {
+        // Skips static/const fields
+        if (memberSymbol.IsStatic) {
+          continue;
+        }
+
+        // Skips backing field, these are used internally for properties
+        if (memberSymbol.Name.Contains("k__BackingField")) {
+          continue;
+        }
+
+        // Tries to parse the type to get info about it
+        var parseStatus = this.ParseMember(
+            memberSymbol, out var memberTypeInfo);
+        yield return (parseStatus, memberSymbol, memberTypeInfo);
+      }
     }
 
     public ParseStatus
@@ -68,20 +91,18 @@ namespace schema.parser {
         return ParseStatus.NOT_A_FIELD_OR_PROPERTY;
       }
 
-      this.ParseNullable_(ref memberTypeSymbol, out var isNullable);
-
-      return this.ParseTypeSymbol_(
+      return this.ParseTypeSymbol(
           memberTypeSymbol,
           isReadonly,
-          isNullable,
           out typeInfo);
     }
 
-    private ParseStatus ParseTypeSymbol_(
+    public ParseStatus ParseTypeSymbol(
         ITypeSymbol typeSymbol,
         bool isReadonly,
-        bool isNullable,
         out ITypeInfo typeInfo) {
+      this.ParseNullable_(ref typeSymbol, out var isNullable);
+
       var primitiveType =
           SchemaPrimitiveTypesUtil.GetPrimitiveTypeFromTypeSymbol(
               typeSymbol);
@@ -155,97 +176,81 @@ namespace schema.parser {
 
       if (typeSymbol.SpecialType is SpecialType
               .System_Collections_Generic_IReadOnlyList_T) {
-        var namedTypeSymbol = typeSymbol as INamedTypeSymbol;
+        var listTypeSymbol = typeSymbol as INamedTypeSymbol;
 
-        var containedTypeSymbol = namedTypeSymbol.TypeArguments[0];
-        this.ParseNullable_(ref containedTypeSymbol,
-                            out var isContainedNullable);
-
-        var containedParseStatus = this.ParseTypeSymbol_(
+        var containedTypeSymbol = listTypeSymbol.TypeArguments[0];
+        var containedParseStatus = this.ParseTypeSymbol(
             containedTypeSymbol,
             true,
-            isContainedNullable,
             out var containedTypeInfo);
         if (containedParseStatus != ParseStatus.SUCCESS) {
           typeInfo = default;
           return containedParseStatus;
         }
 
-        typeInfo = new ContainerTypeInfo(
+        typeInfo = new SequenceTypeInfo(
             typeSymbol,
-            SchemaTypeKind.CONST_LENGTH_CONTAINER,
             isReadonly,
             isNullable,
-            containedTypeInfo);
-        return ParseStatus.SUCCESS;
-      } 
-      
-      if (typeSymbol.TypeKind is TypeKind.Array) {
-        var arrayTypeSymbol = typeSymbol as IArrayTypeSymbol;
-
-        var containedTypeSymbol = arrayTypeSymbol.ElementType;
-        this.ParseNullable_(ref containedTypeSymbol,
-                            out var isContainedNullable);
-
-        var containedParseStatus = this.ParseTypeSymbol_(
-            containedTypeSymbol,
             false,
-            isContainedNullable,
-            out var containedTypeInfo);
-        if (containedParseStatus != ParseStatus.SUCCESS) {
-          typeInfo = default;
-          return containedParseStatus;
-        }
-
-        typeInfo = new ContainerTypeInfo(
-            typeSymbol,
-            SchemaTypeKind.CONST_LENGTH_CONTAINER,
             isReadonly,
-            isNullable,
-            containedTypeInfo);
-        return ParseStatus.SUCCESS;
-      } 
-      
-      if (typeSymbol.SpecialType is SpecialType
-                     .System_Collections_Generic_IList_T) {
-        var namedTypeSymbol = typeSymbol as INamedTypeSymbol;
-
-        var containedTypeSymbol = namedTypeSymbol.TypeArguments[0];
-        this.ParseNullable_(ref containedTypeSymbol,
-                            out var isContainedNullable);
-
-        var containedParseStatus = this.ParseTypeSymbol_(
-            containedTypeSymbol,
-            false,
-            isContainedNullable,
-            out var containedTypeInfo);
-        if (containedParseStatus != ParseStatus.SUCCESS) {
-          typeInfo = default;
-          return containedParseStatus;
-        }
-
-        typeInfo = new ContainerTypeInfo(
-            typeSymbol,
-            SchemaTypeKind.VARIABLE_LENGTH_CONTAINER,
-            isReadonly,
-            isNullable,
             containedTypeInfo);
         return ParseStatus.SUCCESS;
       }
 
-      if (typeSymbol is INamedTypeSymbol fieldNamedTypeSymbol) {
-        // TODO: Check if implements same kind as parent
-        if (SymbolTypeUtil.Implements(fieldNamedTypeSymbol,
-                                      typeof(IBiSerializable))) {
-          typeInfo = new StructureTypeInfo(
-              typeSymbol,
-              isReadonly,
-              isNullable);
-          return ParseStatus.SUCCESS;
+      if (typeSymbol.TypeKind is TypeKind.Array) {
+        var arrayTypeSymbol = typeSymbol as IArrayTypeSymbol;
+
+        var containedTypeSymbol = arrayTypeSymbol.ElementType;
+        var containedParseStatus = this.ParseTypeSymbol(
+            containedTypeSymbol,
+            false,
+            out var containedTypeInfo);
+        if (containedParseStatus != ParseStatus.SUCCESS) {
+          typeInfo = default;
+          return containedParseStatus;
         }
 
-        typeInfo = default;
-        return ParseStatus.NOT_SAME_KIND_OF_SERIALIZABLE;
+        typeInfo = new SequenceTypeInfo(
+            typeSymbol,
+            isReadonly,
+            isNullable,
+            true,
+            isReadonly,
+            containedTypeInfo);
+        return ParseStatus.SUCCESS;
+      }
+
+      if (typeSymbol.SpecialType is SpecialType
+              .System_Collections_Generic_IList_T) {
+        var listTypeSymbol = typeSymbol as INamedTypeSymbol;
+
+        var containedTypeSymbol = listTypeSymbol.TypeArguments[0];
+        var containedParseStatus = this.ParseTypeSymbol(
+            containedTypeSymbol,
+            false,
+            out var containedTypeInfo);
+        if (containedParseStatus != ParseStatus.SUCCESS) {
+          typeInfo = default;
+          return containedParseStatus;
+        }
+
+        typeInfo = new SequenceTypeInfo(
+            typeSymbol,
+            isReadonly,
+            isNullable,
+            false,
+            false,
+            containedTypeInfo);
+        return ParseStatus.SUCCESS;
+      }
+
+      if (typeSymbol is INamedTypeSymbol namedTypeSymbol) {
+        typeInfo = new StructureTypeInfo(
+            namedTypeSymbol,
+            isReadonly,
+            isNullable);
+        return ParseStatus.SUCCESS;
       }
 
       typeInfo = default;
@@ -282,6 +287,9 @@ namespace schema.parser {
               Name: "Nullable"
           } fieldNamedTypeSymbol) {
         typeSymbol = fieldNamedTypeSymbol.TypeArguments[0];
+        isNullable = true;
+      } else if (typeSymbol.NullableAnnotation ==
+                 NullableAnnotation.Annotated) {
         isNullable = true;
       }
     }
@@ -417,43 +425,49 @@ namespace schema.parser {
 
     private class StructureTypeInfo : IStructureTypeInfo {
       public StructureTypeInfo(
-          ITypeSymbol typeSymbol,
+          INamedTypeSymbol namedTypeSymbol,
           bool isReadonly,
           bool isNullable) {
-        this.TypeSymbol = typeSymbol;
+        this.NamedTypeSymbol = namedTypeSymbol;
         this.IsReadonly = isReadonly;
         this.IsNullable = isNullable;
       }
 
       public SchemaTypeKind Kind => SchemaTypeKind.STRUCTURE;
 
-      public ITypeSymbol TypeSymbol { get; }
+      public INamedTypeSymbol NamedTypeSymbol { get; }
+      public ITypeSymbol TypeSymbol => this.NamedTypeSymbol;
 
       public bool IsReadonly { get; }
       public bool IsNullable { get; }
     }
 
-    private class ContainerTypeInfo : IContainerTypeInfo {
-      public ContainerTypeInfo(
+    private class SequenceTypeInfo : ISequenceTypeInfo {
+      public SequenceTypeInfo(
           ITypeSymbol typeSymbol,
-          SchemaTypeKind kind,
           bool isReadonly,
           bool isNullable,
+          bool isArray,
+          bool isLengthConst,
           ITypeInfo containedType) {
         this.TypeSymbol = typeSymbol;
-        this.Kind = kind;
         this.IsReadonly = isReadonly;
         this.IsNullable = isNullable;
-        this.ContainedType = containedType;
+        this.IsArray = isArray;
+        this.IsLengthConst = isLengthConst;
+        this.ElementTypeInfo = containedType;
       }
 
+      public SchemaTypeKind Kind => SchemaTypeKind.SEQUENCE;
+
       public ITypeSymbol TypeSymbol { get; }
-      public SchemaTypeKind Kind { get; }
 
       public bool IsReadonly { get; }
       public bool IsNullable { get; }
 
-      public ITypeInfo ContainedType { get; }
+      public bool IsArray { get; }
+      public bool IsLengthConst { get; }
+      public ITypeInfo ElementTypeInfo { get; }
     }
   }
 }

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 using Microsoft.CodeAnalysis;
 
 using schema.attributes.align;
+using schema.parser;
 using schema.parser.asserts;
 
 
@@ -54,13 +56,13 @@ namespace schema {
   }
 
   public interface IMemberType {
+    ITypeInfo TypeInfo { get; }
     ITypeSymbol TypeSymbol { get; }
+    bool IsReadonly { get; }
   }
 
   public interface IPrimitiveMemberType : IMemberType {
     SchemaPrimitiveType PrimitiveType { get; }
-    bool IsConst { get; }
-
     bool UseAltFormat { get; }
     SchemaNumberType AltFormat { get; }
   }
@@ -90,8 +92,6 @@ namespace schema {
   }
 
   public interface IStringType : IMemberType {
-    bool IsConst { get; }
-
     // TODO: Support char format?
     bool IsNullTerminated { get; }
 
@@ -124,6 +124,8 @@ namespace schema {
   }
 
   public interface ISequenceMemberType : IMemberType {
+    ISequenceTypeInfo SequenceTypeInfo { get; }
+
     SequenceType SequenceType { get; }
 
     SequenceLengthSourceType LengthSourceType { get; }
@@ -142,40 +144,41 @@ namespace schema {
       new PartialContainerAsserter(diagnostics).AssertContainersArePartial(
           structureSymbol);
 
-      var members = structureSymbol.GetMembers();
+      var typeInfoParser = new TypeInfoParser();
 
       var fields = new List<ISchemaMember>();
-      foreach (var memberSymbol in members) {
-        if (memberSymbol.IsStatic) {
+      foreach (var (parseStatus, memberSymbol, memberTypeInfo) in
+               typeInfoParser.ParseMembers(structureSymbol)) {
+        if (parseStatus == TypeInfoParser.ParseStatus.NOT_A_FIELD_OR_PROPERTY) {
           continue;
         }
 
-        if (memberSymbol.Name.Contains("k__BackingField")) {
+        if (parseStatus == TypeInfoParser.ParseStatus.NOT_IMPLEMENTED) {
+          diagnostics.Add(
+              Rules.CreateDiagnostic(
+                  memberSymbol,
+                  Rules.NotSupported));
           continue;
         }
 
-        ITypeSymbol memberTypeSymbol;
-        bool isMemberReadonly;
-        switch (memberSymbol) {
-          case IPropertySymbol propertySymbol: {
-            isMemberReadonly = propertySymbol.SetMethod == null;
-            memberTypeSymbol = propertySymbol.Type;
-            break;
-          }
-          case IFieldSymbol fieldSymbol: {
-            isMemberReadonly = fieldSymbol.IsReadOnly;
-            memberTypeSymbol = fieldSymbol.Type;
-            break;
-          }
-          default: {
-            continue;
+        // Makes sure the member is serializable
+        {
+          if (memberTypeInfo is IStructureTypeInfo structureTypeInfo) {
+            // TODO: Check if implements same kind as parent
+            if (!SymbolTypeUtil.Implements(
+                    structureTypeInfo.NamedTypeSymbol,
+                    typeof(IBiSerializable))) {
+              diagnostics.Add(
+                  Rules.CreateDiagnostic(
+                      memberSymbol,
+                      Rules.StructureMemberNeedsToImplementIBiSerializable));
+              continue;
+            }
           }
         }
 
         // Get attributes
-
-        IMemberType? memberType = null;
-        SequenceBundle? sequenceBundle = null;
+        var memberType = WrapTypeInfoWithMemberType(memberTypeInfo);
 
         var align = new AlignAttributeParser().GetAlignForMember(memberSymbol);
 
@@ -184,8 +187,7 @@ namespace schema {
           var ifBooleanAttribute =
               SymbolTypeUtil.GetAttribute<IfBooleanAttribute>(memberSymbol);
           if (ifBooleanAttribute != null) {
-            if (memberTypeSymbol.NullableAnnotation ==
-                NullableAnnotation.Annotated) {
+            if (memberTypeInfo.IsNullable) {
               SchemaMember? booleanMember = null;
               if (ifBooleanAttribute.Method ==
                   IfBooleanSourceType.OTHER_MEMBER) {
@@ -193,15 +195,28 @@ namespace schema {
                 var booleanMemberTypeSymbol =
                     SymbolTypeUtil.GetTypeFromMember(
                         structureSymbol, booleanMemberName!);
-                var booleanMemberPrimitiveType =
-                    SchemaPrimitiveTypesUtil.GetPrimitiveTypeFromTypeSymbol(
-                        booleanMemberTypeSymbol);
+                var booleanMemberParseStatus =
+                    typeInfoParser.ParseTypeSymbol(
+                        booleanMemberTypeSymbol,
+                        true,
+                        out var booleanMemberTypeInfo);
+
+                // TODO: Handle with better errors
+                if (booleanMemberParseStatus !=
+                    TypeInfoParser.ParseStatus.SUCCESS
+                    || booleanMemberTypeInfo is not IBoolTypeInfo
+                        booleanPrimitiveTypeInfo) {
+                  diagnostics.Add(
+                      Rules.CreateDiagnostic(
+                          memberSymbol, Rules.NotSupported));
+                  continue;
+                }
+
                 booleanMember =
                     new SchemaMember {
                         Name = booleanMemberName,
                         MemberType = new PrimitiveMemberType {
-                            TypeSymbol = booleanMemberTypeSymbol,
-                            PrimitiveType = booleanMemberPrimitiveType,
+                            PrimitiveTypeInfo = booleanPrimitiveTypeInfo
                         }
                     };
               }
@@ -221,120 +236,22 @@ namespace schema {
         }
 
         {
-          if (memberTypeSymbol is INamedTypeSymbol {
-                  Name: "Nullable"
-              } fieldNamedTypeSymbol) {
-            memberTypeSymbol = fieldNamedTypeSymbol.TypeArguments[0];
-          }
-        }
-
-        {
-          var primitiveType =
-              SchemaPrimitiveTypesUtil.GetPrimitiveTypeFromTypeSymbol(
-                  memberTypeSymbol);
-          if (primitiveType != SchemaPrimitiveType.UNDEFINED) {
-            memberType = new PrimitiveMemberType {
-                TypeSymbol = memberTypeSymbol,
-                IsConst = isMemberReadonly,
-                PrimitiveType = primitiveType,
-            };
-          } else if
-              (memberTypeSymbol.SpecialType ==
-               SpecialType.System_String) {
-            memberType = new StringType {
-                TypeSymbol = memberTypeSymbol,
-                IsConst = isMemberReadonly,
-            };
-          } else if (memberTypeSymbol.SpecialType is SpecialType
-                         .System_Collections_Generic_IReadOnlyList_T) {
-            /*isArray = true;
-            isPrimitiveConst = true;
-            hasConstArrayLength = isFieldReadonly;
-            primitiveType =
-                SchemaStructureParser.GetPrimitiveTypeFromType_(
-                    fieldTypeInfo.GenericTypeArguments[0]);*/
-            diagnostics.Add(
-                Rules.CreateDiagnostic(memberSymbol, Rules.NotSupported));
-          } else if (memberTypeSymbol.TypeKind is TypeKind.Array) {
-            var arrayTypeSymbol = memberTypeSymbol as IArrayTypeSymbol;
-            sequenceBundle = new SequenceBundle {
-                TypeSymbol = memberTypeSymbol,
-                IsArray = true,
-                IsLengthConst = isMemberReadonly,
-                ElementTypeSymbol = arrayTypeSymbol.ElementType,
-            };
-          } else if (memberTypeSymbol.SpecialType is SpecialType
-                         .System_Collections_Generic_IList_T) {
-            diagnostics.Add(
-                Rules.CreateDiagnostic(memberSymbol, Rules.NotSupported));
-            /*isArray = true;
-            primitiveType =
-                SchemaStructureParser.GetPrimitiveTypeFromType_(
-                    fieldTypeInfo.GenericTypeArguments[0]);*/
-          } else if
-              (memberTypeSymbol is INamedTypeSymbol fieldNamedTypeSymbol) {
-            if (SymbolTypeUtil.Implements(fieldNamedTypeSymbol,
-                                          typeof(IBiSerializable))) {
-              memberType = new StructureMemberType {
-                  TypeSymbol = memberTypeSymbol,
-                  IsReferenceType = fieldNamedTypeSymbol.IsReferenceType,
-              };
-            } else {
+          if (memberType is ISequenceMemberType sequenceMemberType
+              && sequenceMemberType.ElementType.TypeInfo is IStructureTypeInfo
+                  structureTypeInfo) {
+            if (!SymbolTypeUtil.Implements(structureTypeInfo.NamedTypeSymbol,
+                                           typeof(IBiSerializable))) {
               diagnostics.Add(
                   Rules.CreateDiagnostic(memberSymbol,
                                          Rules
                                              .StructureMemberNeedsToImplementIBiSerializable));
+              continue;
             }
-          } else {
-            diagnostics.Add(
-                Rules.CreateDiagnostic(memberSymbol, Rules.NotSupported));
-          }
-        }
 
-        if (sequenceBundle != null) {
-          var elementTypeSymbol = sequenceBundle.ElementTypeSymbol;
-          var elementPrimitiveType =
-              SchemaPrimitiveTypesUtil
-                  .GetPrimitiveTypeFromTypeSymbol(elementTypeSymbol);
-
-          IMemberType? elementMemberType = null;
-          if (elementPrimitiveType != SchemaPrimitiveType.UNDEFINED) {
-            elementMemberType = new PrimitiveMemberType {
-                TypeSymbol = elementTypeSymbol,
-                IsConst = sequenceBundle.AreElementsConst,
-                PrimitiveType = elementPrimitiveType,
-            };
-          } else if (elementTypeSymbol is INamedTypeSymbol
-                     elementNamedTypeSymbol) {
-            if (SymbolTypeUtil.Implements(elementNamedTypeSymbol,
-                                          typeof(IBiSerializable))) {
-              elementMemberType = new StructureMemberType {
-                  TypeSymbol = elementTypeSymbol,
-                  IsReferenceType = elementNamedTypeSymbol.IsReferenceType,
-              };
-            } else {
-              diagnostics.Add(
-                  Rules.CreateDiagnostic(memberSymbol,
-                                         Rules
-                                             .StructureMemberNeedsToImplementIBiSerializable));
-            }
-          } else {
-            diagnostics.Add(
+            // TODO: Make sure array type is actually supported
+            /*diagnostics.Add(
                 Rules.CreateDiagnostic(memberSymbol,
-                                       Rules.UnsupportedArrayType));
-          }
-
-          if (elementMemberType != null) {
-            memberType = new SequenceMemberType {
-                TypeSymbol = sequenceBundle.TypeSymbol,
-                SequenceType = sequenceBundle.IsArray
-                                   ? SequenceType.ARRAY
-                                   : SequenceType.LIST,
-                ElementType = elementMemberType,
-                LengthSourceType = sequenceBundle.IsLengthConst
-                                       ? SequenceLengthSourceType.CONST
-                                       : SequenceLengthSourceType.UNSPECIFIED,
-            };
+                                       Rules.UnsupportedArrayType));*/
           }
         }
 
@@ -358,7 +275,8 @@ namespace schema {
             var underlyingType = enumNamedTypeSymbol!.EnumUnderlyingType;
 
             formatNumberType =
-                SchemaPrimitiveTypesUtil.GetNumberTypeFromTypeSymbol(underlyingType);
+                SchemaPrimitiveTypesUtil.GetNumberTypeFromTypeSymbol(
+                    underlyingType);
           }
 
           var formatAttribute =
@@ -418,7 +336,7 @@ namespace schema {
                   memberSymbol);
           if (lengthSourceAttribute != null) {
             if (memberType is StringType stringType) {
-              if (isMemberReadonly) {
+              if (memberTypeInfo.IsReadonly) {
                 diagnostics.Add(
                     Rules.CreateDiagnostic(memberSymbol,
                                            Rules.UnexpectedAttribute));
@@ -471,35 +389,29 @@ namespace schema {
                             structureSymbol,
                             otherLengthMemberSymbolName);
 
-                    ISchemaMember? otherLengthMember = null;
-                    var otherLengthPrimitiveType =
-                        SchemaPrimitiveTypesUtil.GetPrimitiveTypeFromTypeSymbol(
-                            otherLengthMemberTypeSymbol);
+                    var otherLengthMemberParseStatus =
+                        typeInfoParser.ParseTypeSymbol(
+                            otherLengthMemberTypeSymbol,
+                            true,
+                            out var otherLengthMemberTypeInfo);
 
-                    // TODO: Assert this
-                    var isOtherLengthNumeric =
-                        SchemaPrimitiveTypesUtil.IsPrimitiveTypeNumeric(
-                            otherLengthPrimitiveType);
-
-                    if (otherLengthPrimitiveType !=
-                        SchemaPrimitiveType.UNDEFINED) {
-                      otherLengthMember = new SchemaMember {
-                          Name = otherLengthMemberSymbolName,
-                          MemberType = new PrimitiveMemberType {
-                              TypeSymbol = otherLengthMemberTypeSymbol,
-                              PrimitiveType = otherLengthPrimitiveType,
-                          }
-                      };
-                    }
-
-                    if (otherLengthMember != null) {
-                      sequenceMemberType.LengthMember = otherLengthMember;
-                    } else {
+                    // TODO: Add a better error
+                    if (otherLengthMemberParseStatus !=
+                        TypeInfoParser.ParseStatus.SUCCESS ||
+                        otherLengthMemberTypeInfo is not IIntegerTypeInfo
+                            otherLengthMemberIntegerTypeInfo) {
                       diagnostics.Add(
                           Rules.CreateDiagnostic(
                               memberSymbol,
                               Rules.NotSupported));
+                      continue;
                     }
+
+                    sequenceMemberType.LengthMember = new SchemaMember {
+                        Name = otherLengthMemberSymbolName,
+                        MemberType = WrapTypeInfoWithMemberType(
+                            otherLengthMemberIntegerTypeInfo),
+                    };
                     break;
                   }
                   default:
@@ -575,17 +487,23 @@ namespace schema {
     }
 
     public class PrimitiveMemberType : IPrimitiveMemberType {
-      public ITypeSymbol TypeSymbol { get; set; }
+      public IPrimitiveTypeInfo PrimitiveTypeInfo { get; set; }
+      public ITypeInfo TypeInfo => PrimitiveTypeInfo;
+      public ITypeSymbol TypeSymbol => TypeInfo.TypeSymbol;
+      public bool IsReadonly => this.TypeInfo.IsReadonly;
 
-      public SchemaPrimitiveType PrimitiveType { get; set; }
-      public bool IsConst { get; set; }
+      public SchemaPrimitiveType PrimitiveType
+        => this.PrimitiveTypeInfo.PrimitiveType;
 
       public bool UseAltFormat { get; set; }
       public SchemaNumberType AltFormat { get; set; }
     }
 
     public class StructureMemberType : IStructureMemberType {
-      public ITypeSymbol TypeSymbol { get; set; }
+      public ITypeInfo TypeInfo { get; set; }
+      public ITypeSymbol TypeSymbol => TypeInfo.TypeSymbol;
+      public bool IsReadonly => this.TypeInfo.IsReadonly;
+
       public bool IsReferenceType { get; set; }
     }
 
@@ -596,9 +514,9 @@ namespace schema {
     }
 
     public class StringType : IStringType {
-      public ITypeSymbol TypeSymbol { get; set; }
-
-      public bool IsConst { get; set; }
+      public ITypeInfo TypeInfo { get; set; }
+      public ITypeSymbol TypeSymbol => TypeInfo.TypeSymbol;
+      public bool IsReadonly => this.TypeInfo.IsReadonly;
 
       public bool IsNullTerminated { get; set; }
 
@@ -610,16 +528,11 @@ namespace schema {
       public bool IsEndianOrdered { get; set; }
     }
 
-    private class SequenceBundle {
-      public ITypeSymbol TypeSymbol { get; set; }
-      public bool IsArray { get; set; }
-      public bool IsLengthConst { get; set; }
-      public bool AreElementsConst { get; set; }
-      public ITypeSymbol ElementTypeSymbol { get; set; }
-    }
-
     public class SequenceMemberType : ISequenceMemberType {
-      public ITypeSymbol TypeSymbol { get; set; }
+      public ISequenceTypeInfo SequenceTypeInfo { get; set; }
+      public ITypeInfo TypeInfo => SequenceTypeInfo;
+      public ITypeSymbol TypeSymbol => TypeInfo.TypeSymbol;
+      public bool IsReadonly => this.TypeInfo.IsReadonly;
 
       public SequenceType SequenceType { get; set; }
 
@@ -628,6 +541,47 @@ namespace schema {
       public ISchemaMember? LengthMember { get; set; }
 
       public IMemberType ElementType { get; set; }
+    }
+
+
+    public IMemberType WrapTypeInfoWithMemberType(ITypeInfo typeInfo) {
+      switch (typeInfo) {
+        case IIntegerTypeInfo integerTypeInfo:
+        case INumberTypeInfo numberTypeInfo:
+        case IBoolTypeInfo boolTypeInfo:
+        case ICharTypeInfo charTypeInfo:
+        case IEnumTypeInfo enumTypeInfo: {
+          return new PrimitiveMemberType {
+              PrimitiveTypeInfo = typeInfo as IPrimitiveTypeInfo,
+          };
+        }
+        case IStringTypeInfo stringTypeInfo: {
+          return new StringType {
+              TypeInfo = typeInfo,
+          };
+        }
+        case IStructureTypeInfo structureTypeInfo: {
+          return new StructureMemberType {
+              TypeInfo = typeInfo,
+              IsReferenceType =
+                  structureTypeInfo.NamedTypeSymbol.IsReferenceType,
+          };
+        }
+        case ISequenceTypeInfo sequenceTypeInfo: {
+          return new SequenceMemberType {
+              SequenceTypeInfo = sequenceTypeInfo,
+              SequenceType = sequenceTypeInfo.IsArray
+                                 ? SequenceType.ARRAY
+                                 : SequenceType.LIST,
+              ElementType =
+                  WrapTypeInfoWithMemberType(sequenceTypeInfo.ElementTypeInfo),
+              LengthSourceType = sequenceTypeInfo.IsLengthConst
+                                     ? SequenceLengthSourceType.CONST
+                                     : SequenceLengthSourceType.UNSPECIFIED
+          };
+        }
+        default: throw new ArgumentOutOfRangeException(nameof(typeInfo));
+      }
     }
   }
 }

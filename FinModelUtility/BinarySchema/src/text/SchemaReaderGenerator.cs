@@ -156,7 +156,7 @@ namespace schema.text {
                            SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(
                                primitiveType.AltFormat));
 
-      if (!primitiveType.IsConst) {
+      if (!primitiveType.IsReadonly) {
         var castText = "";
         if (needToCast) {
           var castType =
@@ -189,7 +189,7 @@ namespace schema.text {
           SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(
               primitiveType.AltFormat));
 
-      if (!primitiveType.IsConst) {
+      if (!primitiveType.IsReadonly) {
         cbsb.WriteLine(
             $"this.{member.Name} = er.Read{readType}() != 0;");
       } else {
@@ -203,7 +203,7 @@ namespace schema.text {
         ISchemaMember member) {
       var stringType = member.MemberType as IStringType;
 
-      if (stringType.IsConst) {
+      if (stringType.IsReadonly) {
         if (stringType.IsNullTerminated) {
           cbsb.WriteLine($"er.AssertStringNT(this.{member.Name});");
         } else if (stringType.IsEndianOrdered) {
@@ -318,7 +318,7 @@ namespace schema.text {
           var label =
               SchemaGeneratorUtil.GetPrimitiveLabel(
                   primitiveElementType.PrimitiveType);
-          if (!primitiveElementType.IsConst) {
+          if (!primitiveElementType.IsReadonly) {
             cbsb.WriteLine($"er.Read{label}s(this.{member.Name});");
           } else {
             cbsb.WriteLine($"er.Assert{label}s(this.{member.Name});");
@@ -330,7 +330,7 @@ namespace schema.text {
         var readType = SchemaGeneratorUtil.GetPrimitiveLabel(
             SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(
                 primitiveElementType.AltFormat));
-        if (!primitiveElementType.IsConst) {
+        if (!primitiveElementType.IsReadonly) {
           var arrayLengthName = arrayType.SequenceType == SequenceType.ARRAY
                                     ? "Length"
                                     : "Count";
