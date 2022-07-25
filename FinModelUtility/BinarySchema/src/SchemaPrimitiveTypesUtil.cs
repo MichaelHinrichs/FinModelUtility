@@ -122,6 +122,20 @@ namespace schema {
           _                        => type
       };
 
+    public static SchemaIntType ConvertNumberToInt(
+        SchemaNumberType type)
+      => type switch {
+          SchemaNumberType.SBYTE => SchemaIntType.SBYTE,
+          SchemaNumberType.BYTE => SchemaIntType.BYTE,
+          SchemaNumberType.INT16 => SchemaIntType.INT16,
+          SchemaNumberType.UINT16 => SchemaIntType.UINT16,
+          SchemaNumberType.INT32 => SchemaIntType.INT32,
+          SchemaNumberType.UINT32 => SchemaIntType.UINT32,
+          SchemaNumberType.INT64 => SchemaIntType.INT64,
+          SchemaNumberType.UINT64 => SchemaIntType.UINT64,
+          _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+      };
+
     public static SchemaPrimitiveType ConvertNumberToPrimitive(
         SchemaNumberType type)
       => type switch {
@@ -139,6 +153,26 @@ namespace schema {
           SchemaNumberType.UN8 => SchemaPrimitiveType.UN8,
           SchemaNumberType.SN16 => SchemaPrimitiveType.SN16,
           SchemaNumberType.UN16 => SchemaPrimitiveType.UN16,
+          _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+      };
+
+    public static SchemaNumberType ConvertPrimitiveToNumber(
+        SchemaPrimitiveType type)
+      => type switch {
+          SchemaPrimitiveType.SBYTE => SchemaNumberType.SBYTE,
+          SchemaPrimitiveType.BYTE => SchemaNumberType.BYTE,
+          SchemaPrimitiveType.INT16 => SchemaNumberType.INT16,
+          SchemaPrimitiveType.UINT16 => SchemaNumberType.UINT16,
+          SchemaPrimitiveType.INT32 => SchemaNumberType.INT32,
+          SchemaPrimitiveType.UINT32 => SchemaNumberType.UINT32,
+          SchemaPrimitiveType.INT64 => SchemaNumberType.INT64,
+          SchemaPrimitiveType.UINT64 => SchemaNumberType.UINT64,
+          SchemaPrimitiveType.SINGLE => SchemaNumberType.SINGLE,
+          SchemaPrimitiveType.DOUBLE => SchemaNumberType.DOUBLE,
+          SchemaPrimitiveType.SN8 => SchemaNumberType.SN8,
+          SchemaPrimitiveType.UN8 => SchemaNumberType.UN8,
+          SchemaPrimitiveType.SN16 => SchemaNumberType.SN16,
+          SchemaPrimitiveType.UN16 => SchemaNumberType.UN16,
           _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
       };
   }
