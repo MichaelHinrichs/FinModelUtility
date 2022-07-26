@@ -60,6 +60,11 @@ namespace schema.text {
         ICurlyBracketStringBuilder cbsb,
         ITypeSymbol sourceSymbol,
         ISchemaMember member) {
+      if (member.Offset != null) {
+        cbsb.WriteLine("throw new NotImplementedException();");
+        return;
+      }
+
       SchemaWriterGenerator.Align_(cbsb, member);
 
       var ifBoolean = member.IfBoolean;

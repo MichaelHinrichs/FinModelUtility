@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis;
 
 using schema.attributes.align;
 using schema.attributes.child_of;
+using schema.attributes.offset;
 using schema.parser;
 using schema.parser.asserts;
 
@@ -54,6 +55,7 @@ namespace schema {
     IMemberType MemberType { get; }
     int Align { get; }
     IIfBoolean? IfBoolean { get; }
+    IOffset? Offset { get; }
   }
 
   public interface IMemberType {
@@ -85,6 +87,11 @@ namespace schema {
 
     SchemaIntType ImmediateBooleanType { get; }
     ISchemaMember? BooleanMember { get; }
+  }
+
+  public interface IOffset {
+    ISchemaMember StartIndexName { get; }
+    ISchemaMember OffsetName { get; }
   }
 
   public enum StringLengthSourceType {
@@ -269,6 +276,42 @@ namespace schema {
                                          Rules
                                              .IfBooleanNeedsNullable));
             }
+          }
+        }
+
+        IOffset? offset = null;
+        {
+          var offsetAttribute =
+              SymbolTypeUtil.GetAttribute<OffsetAttribute>(memberSymbol);
+
+          if (offsetAttribute != null) {
+            var startIndexName = offsetAttribute.StartIndexName;
+            var startIndexTypeSymbol =
+                SymbolTypeUtil.GetTypeFromMember(
+                    structureSymbol, startIndexName);
+            typeInfoParser.ParseTypeSymbol(
+                startIndexTypeSymbol,
+                true,
+                out var startIndexTypeInfo);
+
+            var offsetName = offsetAttribute.OffsetName;
+            var offsetTypeSymbol =
+                SymbolTypeUtil.GetTypeFromMember(structureSymbol, offsetName);
+            typeInfoParser.ParseTypeSymbol(
+                offsetTypeSymbol,
+                true,
+                out var offsetTypeInfo);
+
+            offset = new Offset {
+                StartIndexName = new SchemaMember {
+                    Name = startIndexName,
+                    MemberType = WrapTypeInfoWithMemberType(startIndexTypeInfo),
+                },
+                OffsetName = new SchemaMember {
+                    Name = offsetName,
+                    MemberType = WrapTypeInfoWithMemberType(offsetTypeInfo),
+                }
+            };
           }
         }
 
@@ -465,6 +508,7 @@ namespace schema {
               MemberType = memberType,
               Align = align,
               IfBoolean = ifBoolean,
+              Offset = offset,
           });
         }
       }
@@ -489,6 +533,7 @@ namespace schema {
       public IMemberType MemberType { get; set; }
       public int Align { get; set; }
       public IIfBoolean IfBoolean { get; set; }
+      public IOffset Offset { get; set; }
     }
 
     public class PrimitiveMemberType : IPrimitiveMemberType {
@@ -518,6 +563,11 @@ namespace schema {
       public IfBooleanSourceType SourceType { get; set; }
       public SchemaIntType ImmediateBooleanType { get; set; }
       public ISchemaMember? BooleanMember { get; set; }
+    }
+
+    public class Offset : IOffset {
+      public ISchemaMember StartIndexName { get; set; }
+      public ISchemaMember OffsetName { get; set; }
     }
 
     public class StringType : IStringType {

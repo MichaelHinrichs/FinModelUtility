@@ -62,6 +62,15 @@ namespace schema.text {
         ISchemaMember member) {
       SchemaReaderGenerator.Align_(cbsb, member);
 
+      // TODO: How to handle both offset & if boolean together?
+
+      var offset = member.Offset;
+      if (offset != null) {
+        cbsb.EnterBlock()
+            .WriteLine("var tempLocation = er.Position;")
+            .WriteLine($"er.Position = this.{offset.StartIndexName.Name} + this.{offset.OffsetName.Name};");
+      }
+
       var ifBoolean = member.IfBoolean;
       var immediateIfBoolean =
           ifBoolean?.SourceType == IfBooleanSourceType.IMMEDIATE_VALUE;
@@ -74,7 +83,8 @@ namespace schema.text {
               SchemaPrimitiveTypesUtil.ConvertIntToNumber(
                   ifBoolean.ImmediateBooleanType);
           var booleanPrimitiveType =
-              SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(booleanNumberType);
+              SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(
+                  booleanNumberType);
           var booleanPrimitiveLabel =
               SchemaGeneratorUtil.GetPrimitiveLabel(booleanPrimitiveType);
           cbsb.WriteLine($"var b = er.Read{booleanPrimitiveLabel}() != 0;")
@@ -121,6 +131,11 @@ namespace schema.text {
         if (immediateIfBoolean) {
           cbsb.ExitBlock();
         }
+      }
+
+      if (offset != null) {
+        cbsb.WriteLine("er.Position = tempLocation;")
+            .ExitBlock();
       }
     }
 
