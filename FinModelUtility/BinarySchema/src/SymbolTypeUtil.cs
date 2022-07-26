@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 using Microsoft.CodeAnalysis;
@@ -10,13 +11,19 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace schema {
   internal static class SymbolTypeUtil {
-    public static Type GetTypeFromSymbol(ISymbol symbol) {
-      // TODO: Factor in declaration types
-      var fieldName = symbol.Name;
-      var fullyQualifiedTypeName =
-          $"{symbol.ContainingNamespace}.{symbol.Name}";
-      return Type.GetType(fullyQualifiedTypeName);
+    public static ISymbol GetSymbolFromType(SemanticModel semanticModel,
+                                            Type type)
+      => GetSymbolFromIdentifier(semanticModel, type.FullName);
+
+    public static ISymbol GetSymbolFromIdentifier(
+        SemanticModel semanticModel,
+        string identifier) {
+      var symbol = semanticModel.LookupSymbols(0, null, identifier);
+      return symbol.First();
     }
+
+    public static bool ImplementsGeneric(INamedTypeSymbol symbol, Type type)
+      => symbol.AllInterfaces.Any(i => SymbolTypeUtil.MatchesGeneric(i, type));
 
     public static bool Implements(INamedTypeSymbol symbol, Type type)
       => symbol.AllInterfaces.Any(i => SymbolTypeUtil.IsExactlyType(i, type));
@@ -45,6 +52,18 @@ namespace schema {
     public static bool IsPartial(TypeDeclarationSyntax syntax)
       => syntax.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword));
 
+    public static bool MatchesGeneric(INamedTypeSymbol symbol,
+                                      Type expectedGenericType) {
+      var sameName = symbol.Name ==
+                     expectedGenericType.Name.Substring(
+                         0, expectedGenericType.Name.IndexOf('`'));
+      var sameNamespace =
+          SymbolTypeUtil.MergeContainingNamespaces(symbol) ==
+          expectedGenericType.Namespace;
+      var sameTypeArguments = symbol.TypeArguments.Length ==
+                              expectedGenericType.GetTypeInfo().GenericTypeParameters.Length;
+      return sameName && sameNamespace && sameTypeArguments;
+    }
 
     public static bool IsExactlyType(ISymbol symbol, Type expectedType)
       => symbol.Name == expectedType.Name &&
@@ -58,26 +77,30 @@ namespace schema {
                             attributeData.AttributeClass!,
                             expectedType));
 
+    internal static AttributeData?
+        GetAttributeData<TAttribute>(ISymbol symbol) {
+      var attributeType = typeof(TAttribute);
+      return symbol.GetAttributes()
+                   .FirstOrDefault(attributeData => {
+                     var attributeSymbol = attributeData.AttributeClass;
+
+                     return attributeSymbol.Name == attributeType.Name &&
+                            SymbolTypeUtil.MergeContainingNamespaces(
+                                attributeSymbol) ==
+                            attributeType.Namespace;
+                   });
+    }
+
     internal static TAttribute? GetAttribute<TAttribute>(ISymbol symbol)
         where TAttribute : notnull {
-      var attributeType = typeof(TAttribute);
-      var attributeData =
-          symbol.GetAttributes()
-                .FirstOrDefault(attributeData => {
-                  var attributeSymbol = attributeData.AttributeClass;
-
-                  return attributeSymbol.Name == attributeType.Name &&
-                         SymbolTypeUtil.MergeContainingNamespaces(
-                             attributeSymbol) ==
-                         attributeType.Namespace;
-                });
-
+      var attributeData = GetAttributeData<TAttribute>(symbol);
       if (attributeData == null) {
         return default;
       }
 
       var parameters = attributeData.AttributeConstructor.Parameters;
       // TODO: Does this still work w/ optional arguments?
+      var attributeType = typeof(TAttribute);
       var constructor =
           attributeType.GetConstructors()
                        .First(c => {
@@ -98,6 +121,23 @@ namespace schema {
       var arguments = attributeData.ConstructorArguments;
       return (TAttribute) constructor.Invoke(
           arguments.Select(a => a.Value).ToArray());
+    }
+
+    public static IEnumerable<ISymbol> GetInstanceMembers(
+        INamedTypeSymbol structureSymbol) {
+      foreach (var memberSymbol in structureSymbol.GetMembers()) {
+        // Skips static/const fields
+        if (memberSymbol.IsStatic) {
+          continue;
+        }
+
+        // Skips backing field, these are used internally for properties
+        if (memberSymbol.Name.Contains("k__BackingField")) {
+          continue;
+        }
+
+        yield return memberSymbol;
+      }
     }
 
     public static INamedTypeSymbol[] GetDeclaringTypesDownward(

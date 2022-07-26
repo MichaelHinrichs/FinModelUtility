@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 
 using Microsoft.CodeAnalysis;
 
 using schema.attributes.align;
+using schema.attributes.child_of;
 using schema.parser;
 using schema.parser.asserts;
 
@@ -69,7 +69,9 @@ namespace schema {
   }
 
   public interface IStructureMemberType : IMemberType {
+    IStructureTypeInfo StructureTypeInfo { get; }
     bool IsReferenceType { get; }
+    bool IsChild { get; }
   }
 
   public enum IfBooleanSourceType {
@@ -137,13 +139,20 @@ namespace schema {
   }
 
   public class SchemaStructureParser : ISchemaStructureParser {
-    public ISchemaStructure ParseStructure(
-        INamedTypeSymbol structureSymbol) {
+    public ISchemaStructure ParseStructure(INamedTypeSymbol structureSymbol) {
       var diagnostics = new List<Diagnostic>();
 
       // All of the types that contain the structure need to be partial
       new PartialContainerAsserter(diagnostics).AssertContainersArePartial(
           structureSymbol);
+
+      var iChildOfParser = new IChildOfParser(diagnostics);
+      var parentTypeSymbol =
+          iChildOfParser.GetParentTypeSymbolOf(structureSymbol);
+      if (parentTypeSymbol != null) {
+        iChildOfParser.AssertParentContainsChild(
+            parentTypeSymbol, structureSymbol);
+      }
 
       var typeInfoParser = new TypeInfoParser();
       var parsedMembers =
@@ -153,6 +162,12 @@ namespace schema {
       foreach (var (parseStatus, memberSymbol, memberTypeInfo) in
                parsedMembers) {
         if (parseStatus == TypeInfoParser.ParseStatus.NOT_A_FIELD_OR_PROPERTY) {
+          continue;
+        }
+
+        // Skips parent field for child types
+        if (memberSymbol.Name == nameof(IChildOf<IBiSerializable>.Parent)
+            && parentTypeSymbol != null) {
           continue;
         }
 
@@ -180,9 +195,28 @@ namespace schema {
           }
         }
 
-        // Get attributes
+        // Gets the type of the current member
         var memberType = WrapTypeInfoWithMemberType(memberTypeInfo);
 
+        // Checks if the member is a child of the current type
+        {
+          if (memberType is StructureMemberType structureMemberType) {
+            var expectedParentTypeSymbol =
+                iChildOfParser.GetParentTypeSymbolOf(
+                    structureMemberType.StructureTypeInfo.NamedTypeSymbol);
+            if (expectedParentTypeSymbol != null) {
+              if (expectedParentTypeSymbol == structureSymbol) {
+                structureMemberType.IsChild = true;
+              } else {
+                diagnostics.Add(Rules.CreateDiagnostic(
+                                    memberSymbol,
+                                    Rules.ChildTypeCanOnlyBeContainedInParent));
+              }
+            }
+          }
+        }
+
+        // Get attributes
         var align = new AlignAttributeParser().GetAlignForMember(memberSymbol);
 
         IIfBoolean? ifBoolean = null;
@@ -471,11 +505,13 @@ namespace schema {
     }
 
     public class StructureMemberType : IStructureMemberType {
-      public ITypeInfo TypeInfo { get; set; }
+      public IStructureTypeInfo StructureTypeInfo { get; set; }
+      public ITypeInfo TypeInfo => StructureTypeInfo;
       public ITypeSymbol TypeSymbol => TypeInfo.TypeSymbol;
       public bool IsReadonly => this.TypeInfo.IsReadonly;
 
       public bool IsReferenceType { get; set; }
+      public bool IsChild { get; set; }
     }
 
     public class IfBoolean : IIfBoolean {
@@ -533,7 +569,7 @@ namespace schema {
         }
         case IStructureTypeInfo structureTypeInfo: {
           return new StructureMemberType {
-              TypeInfo = typeInfo,
+              StructureTypeInfo = structureTypeInfo,
               IsReferenceType =
                   structureTypeInfo.NamedTypeSymbol.IsReferenceType,
           };

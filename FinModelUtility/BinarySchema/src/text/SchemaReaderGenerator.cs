@@ -232,8 +232,14 @@ namespace schema.text {
     private static void ReadStructure_(
         ICurlyBracketStringBuilder cbsb,
         ISchemaMember member) {
+      var structureMemberType = member.MemberType as IStructureMemberType;
+
       // TODO: Do value types need to be handled differently?
-      cbsb.WriteLine($"this.{member.Name}.Read(er);");
+      var memberName = member.Name;
+      if (structureMemberType.IsChild) {
+        cbsb.WriteLine($"this.{memberName}.Parent = this;");
+      }
+      cbsb.WriteLine($"this.{memberName}.Read(er);");
     }
 
     private static void ReadArray_(

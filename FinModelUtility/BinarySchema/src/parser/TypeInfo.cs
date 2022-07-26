@@ -62,17 +62,7 @@ namespace schema.parser {
 
     public IEnumerable<(ParseStatus, ISymbol, ITypeInfo)> ParseMembers(
         INamedTypeSymbol structureSymbol) {
-      foreach (var memberSymbol in structureSymbol.GetMembers()) {
-        // Skips static/const fields
-        if (memberSymbol.IsStatic) {
-          continue;
-        }
-
-        // Skips backing field, these are used internally for properties
-        if (memberSymbol.Name.Contains("k__BackingField")) {
-          continue;
-        }
-
+      foreach (var memberSymbol in SymbolTypeUtil.GetInstanceMembers(structureSymbol)) {
         // Tries to parse the type to get info about it
         var parseStatus = this.ParseMember(
             memberSymbol, out var memberTypeInfo);

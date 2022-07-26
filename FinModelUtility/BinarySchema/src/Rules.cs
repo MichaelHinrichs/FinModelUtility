@@ -14,7 +14,7 @@ namespace schema {
       return "SCH" + id.ToString("D3");
     }
 
-    private static DiagnosticDescriptor CreateDiagnostic_(
+    private static DiagnosticDescriptor CreateDiagnosticDescriptor_(
         string title,
         string messageFormat)
       => new(Rules.GetNextDiagnosticId_(),
@@ -26,90 +26,100 @@ namespace schema {
 
 
     public static readonly DiagnosticDescriptor SchemaTypeMustBePartial
-        = Rules.CreateDiagnostic_(
+        = Rules.CreateDiagnosticDescriptor_(
             "Schema type must be partial",
             "Schema type '{0}' must be partial to accept automatically generated read/write code.");
 
     public static readonly DiagnosticDescriptor ContainerTypeMustBePartial
-        = Rules.CreateDiagnostic_(
+        = Rules.CreateDiagnosticDescriptor_(
             "Container of schema type must be partial",
             "Type '{0}' contains a schema type, must be partial to accept automatically generated code.");
 
+    public static readonly DiagnosticDescriptor ChildTypeMustBeContainedInParent
+        = Rules.CreateDiagnosticDescriptor_(
+            "Child type must be contained in parent",
+            "Type '{0}' is defined as a child, but is not actually contained in its parent type.");
+
+    public static readonly DiagnosticDescriptor ChildTypeCanOnlyBeContainedInParent
+        = Rules.CreateDiagnosticDescriptor_(
+            "Child type can only be contained in parent",
+            "Type '{0}' is defined as a child of a different type than the one it is contained in.");
+
     public static readonly DiagnosticDescriptor MutableStringNeedsLengthSource
-        = Rules.CreateDiagnostic_(
+        = Rules.CreateDiagnosticDescriptor_(
             "Schema string must have length source",
             "Mutable string '{0}' is missing a LengthSource attribute.");
 
     public static readonly DiagnosticDescriptor MutableArrayNeedsLengthSource
-        = Rules.CreateDiagnostic_(
+        = Rules.CreateDiagnosticDescriptor_(
             "Mutable array needs length source",
             "Mutable array '{0}' is missing a LengthSource attribute.");
 
     public static readonly DiagnosticDescriptor FormatOnNonNumber
-        = Rules.CreateDiagnostic_(
+        = Rules.CreateDiagnosticDescriptor_(
             "Format attribute on non-numerical member",
             "A Format attribute is applied to the non-numerical member '{0}', which is unsupported.");
 
     public static DiagnosticDescriptor EnumNeedsFormat { get; }
-      = Rules.CreateDiagnostic_(
+      = Rules.CreateDiagnosticDescriptor_(
           "Enum needs format",
           "Enum member '{0}' needs either a valid Format attribute or for its enum type to specify an underlying representation.");
 
     public static DiagnosticDescriptor BooleanNeedsFormat { get; }
-      = Rules.CreateDiagnostic_(
+      = Rules.CreateDiagnosticDescriptor_(
           "Boolean needs format",
           "Boolean member '{0}' needs a valid Format attribute.");
 
     public static DiagnosticDescriptor IfBooleanNeedsNullable { get; }
-      = Rules.CreateDiagnostic_(
+      = Rules.CreateDiagnosticDescriptor_(
           "IfBoolean Attribute needs nullable type",
           "Member '{0}' must be a nullable type to use IfBoolean.");
 
     public static DiagnosticDescriptor
         StructureMemberNeedsToImplementIBiSerializable { get; } =
-      Rules.CreateDiagnostic_(
+      Rules.CreateDiagnosticDescriptor_(
           "Structure member needs to implement IBiSerializable",
           "Structure member '{0}' must implement IBiSerializable.");
 
     public static DiagnosticDescriptor
         ElementNeedsToImplementIBiSerializable { get; } =
-      Rules.CreateDiagnostic_(
+      Rules.CreateDiagnosticDescriptor_(
           "Element needs to implement IBiSerializable",
           "Element of '{0}' must implement IBiSerializable.");
 
 
     public static readonly DiagnosticDescriptor ConstUninitialized
-        = Rules.CreateDiagnostic_(
+        = Rules.CreateDiagnosticDescriptor_(
             "Const uninitialized",
             "Const member '{0}' must be initialized.");
 
     public static readonly DiagnosticDescriptor NotSupported
-        = Rules.CreateDiagnostic_(
+        = Rules.CreateDiagnosticDescriptor_(
             "Not supported",
             "This feature is not yet supported.");
 
     public static readonly DiagnosticDescriptor ReadAlreadyDefined
-        = Rules.CreateDiagnostic_(
+        = Rules.CreateDiagnosticDescriptor_(
             "Read already defined",
             "A Read method for '{0}' was already defined.");
 
     public static readonly DiagnosticDescriptor WriteAlreadyDefined
-        = Rules.CreateDiagnostic_(
+        = Rules.CreateDiagnosticDescriptor_(
             "Write already defined",
             "A Write method for '{0}' was already defined.");
 
     public static DiagnosticDescriptor UnexpectedAttribute { get; }
-      = Rules.CreateDiagnostic_(
+      = Rules.CreateDiagnosticDescriptor_(
           "Unexpected attribute",
           "Did not expect this attribute on this field.");
 
     public static readonly DiagnosticDescriptor UnsupportedArrayType
-        = Rules.CreateDiagnostic_(
+        = Rules.CreateDiagnosticDescriptor_(
             "Unsupported array type",
             "Array type '{0}' is not currently supported.");
 
     public static DiagnosticDescriptor Exception { get; }
-      = Rules.CreateDiagnostic_(
+      = Rules.CreateDiagnosticDescriptor_(
           "Exception",
           "Ran into an exception while parsing ({0}),{1}");
 
