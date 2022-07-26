@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis;
 
 using schema.attributes.align;
 using schema.attributes.child_of;
+using schema.attributes.ignore;
 using schema.attributes.offset;
 using schema.parser;
 using schema.parser.asserts;
@@ -169,6 +170,11 @@ namespace schema {
       foreach (var (parseStatus, memberSymbol, memberTypeInfo) in
                parsedMembers) {
         if (parseStatus == TypeInfoParser.ParseStatus.NOT_A_FIELD_OR_PROPERTY) {
+          continue;
+        }
+
+        if (SymbolTypeUtil.GetAttribute<IgnoreAttribute>(memberSymbol) !=
+            null) {
           continue;
         }
 
