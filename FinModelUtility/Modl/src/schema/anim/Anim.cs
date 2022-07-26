@@ -46,7 +46,7 @@ namespace modl.schema.anim {
 
       for (var i = 0; i < boneCount; ++i) {
         var bone = new AnimBone();
-        bone.Data.Read(er);
+        bone.Read(er);
         this.AnimBones.Add(bone);
       }
 
@@ -54,8 +54,8 @@ namespace modl.schema.anim {
       var estimatedLengths = this.AnimBones
                                  .Select(
                                      bone =>
-                                         bone.Data.PositionKeyframeCount * 4 +
-                                         bone.Data.RotationKeyframeCount * 6)
+                                         bone.PositionKeyframeCount * 4 +
+                                         bone.RotationKeyframeCount * 6)
                                  .ToArray();
 
       var boneBytes = new List<byte[]>();
@@ -79,14 +79,14 @@ namespace modl.schema.anim {
         var animBoneFrames = new AnimBoneFrames();
         this.AnimBoneFrames.Add(animBoneFrames);
 
-        for (var p = 0; p < bone.Data.PositionKeyframeCount; ++p) {
+        for (var p = 0; p < bone.PositionKeyframeCount; ++p) {
           Parse3PositionValuesFrom2UShorts_(bone, ber, out var floats);
           animBoneFrames.PositionFrames.Add(((float) floats[0],
                                              (float) floats[1],
                                              (float) floats[2]));
         }
 
-        for (var p = 0; p < bone.Data.RotationKeyframeCount; ++p) {
+        for (var p = 0; p < bone.RotationKeyframeCount; ++p) {
           var flipSigns =
               Parse4RotationValuesFrom3UShorts_(ber, out var floats);
           if (flipSigns) {
@@ -107,8 +107,6 @@ namespace modl.schema.anim {
         AnimBone animBone,
         EndianBinaryReader er,
         out double[] outValues) {
-      var animBoneData = animBone.Data;
-
       var first_ushort = er.ReadUInt16();
       var second_ushort = er.ReadUInt16();
 
@@ -117,17 +115,17 @@ namespace modl.schema.anim {
           (INTERPRET_AS_DOUBLE_(
                CONCAT44_(0x43300000, (uint) (first_ushort >> 0x15))) -
            INTERPRET_AS_DOUBLE_(0x4330000000000000)) *
-          animBoneData.XPosDelta + animBoneData.XPosMin;
+          animBone.XPosDelta + animBone.XPosMin;
       outValues[1] =
           (INTERPRET_AS_DOUBLE_(
                CONCAT44_(0x43300000, (uint) (first_ushort >> 10 & 0x7ff))) -
            INTERPRET_AS_DOUBLE_(0x4330000000000000)) *
-          animBoneData.YPosDelta + animBoneData.YPosMin;
+          animBone.YPosDelta + animBone.YPosMin;
       outValues[2] =
           (INTERPRET_AS_DOUBLE_(
                CONCAT44_(0x43300000, (uint) (second_ushort & 0x3ff))) -
            INTERPRET_AS_DOUBLE_(0x4330000000000000)) *
-          animBoneData.ZPosDelta + animBoneData.ZPosMin;
+          animBone.ZPosDelta + animBone.ZPosMin;
     }
 
     public bool Parse4RotationValuesFrom3UShorts_(EndianBinaryReader er,
@@ -207,32 +205,6 @@ namespace modl.schema.anim {
       var bytes = BitConverter.GetBytes(value);
       return BitConverter.ToSingle(bytes);
     }
-  }
-
-  [Schema]
-  public partial class AnimBoneData : IBiSerializable {
-    [StringLengthSource(16)] public string Name { get; set; }
-
-    // The number of what seem to be position keyframes? These have a length of 4 bytes each. 
-    public uint PositionKeyframeCount { get; set; }
-
-    // The number of what seem to be rotation keyframes? These have a length of 6 bytes each. 
-    public uint RotationKeyframeCount { get; set; }
-
-    private readonly ulong padding0_ = 0;
-    public float XPosDelta { get; set; }
-    public float YPosDelta { get; set; }
-    public float ZPosDelta { get; set; }
-    public float XPosMin { get; set; }
-    public float YPosMin { get; set; }
-    public float ZPosMin { get; set; }
-    private readonly uint padding1_ = 0;
-
-    public uint WeirdId { get; set; }
-  }
-
-  public class AnimBone {
-    public AnimBoneData Data { get; } = new();
   }
 
   public class AnimBoneFrames {

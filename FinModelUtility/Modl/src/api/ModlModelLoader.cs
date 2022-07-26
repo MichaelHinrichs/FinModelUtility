@@ -76,9 +76,9 @@ namespace modl.api {
           foreach (var animBone in anim.AnimBones) {
             maxFrameCount = (int) Math.Max(maxFrameCount,
                                            Math.Max(
-                                               animBone.Data
+                                               animBone
                                                    .PositionKeyframeCount,
-                                               animBone.Data
+                                               animBone
                                                    .RotationKeyframeCount));
           }
 
@@ -91,7 +91,7 @@ namespace modl.api {
             var animBone = anim.AnimBones[b];
             var animBoneFrames = anim.AnimBoneFrames[b];
 
-            var animWeirdId = animBone.Data.WeirdId;
+            var animWeirdId = animBone.WeirdId;
             if (!finBonesByWeirdId.TryGetValue(animWeirdId, out var finBone)) {
               // TODO: Gross hack for the vet models, what's the real fix???
               if (animWeirdId == 33) {
@@ -102,7 +102,7 @@ namespace modl.api {
             var finBoneTracks = finAnimation.AddBoneTracks(finBone!);
 
             var fbtPositions = finBoneTracks.Positions;
-            for (var f = 0; f < animBone.Data.PositionKeyframeCount; ++f) {
+            for (var f = 0; f < animBone.PositionKeyframeCount; ++f) {
               var (fPX, fPY, fPZ) = animBoneFrames.PositionFrames[f];
 
               fbtPositions.Set(f, 0, fPX);
@@ -111,11 +111,12 @@ namespace modl.api {
             }
 
             var fbtRotations = finBoneTracks.Rotations;
-            for (var f = 0; f < animBone.Data.RotationKeyframeCount; ++f) {
+            for (var f = 0; f < animBone.RotationKeyframeCount; ++f) {
               var (fRX, fRY, fRZ, frW) = animBoneFrames.RotationFrames[f];
 
               var animationQuaternion = new Quaternion(fRX, fRY, fRZ, frW);
-              var eulerRadians = QuaternionUtil.ToEulerRadians(animationQuaternion);
+              var eulerRadians =
+                  QuaternionUtil.ToEulerRadians(animationQuaternion);
 
               fbtRotations.Set(f, 0, eulerRadians.X);
               fbtRotations.Set(f, 1, eulerRadians.Y);
