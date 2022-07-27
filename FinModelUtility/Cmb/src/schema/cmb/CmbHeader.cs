@@ -5,6 +5,7 @@ using fin.util.strings;
 
 using schema;
 
+
 namespace cmb.schema.cmb {
   public class CmbHeader : IDeserializable {
     // TODO: Better way to do this?
@@ -30,11 +31,11 @@ namespace cmb.schema.cmb {
 
       this.fileSize = r.ReadUInt32();
 
-      this.version = CmbHeader.Version = (CmbVersion)r.ReadUInt32();
+      this.version = CmbHeader.Version = (CmbVersion) r.ReadUInt32();
 
 
       Asserts.Equal(0, r.ReadInt32());
-      this.name = CmbStringUtil.ReadString(r, 16);
+      this.name = r.ReadString(16);
       this.faceIndicesCount = r.ReadUInt32();
       this.sklOffset = r.ReadUInt32();
 

@@ -147,8 +147,7 @@ namespace modl.api {
         foreach (var modlNode in bw1Model.Nodes) {
           var finMaterials =
               modlNode.Materials.Select(modlMaterial => {
-                        var textureName =
-                            modlMaterial.Texture1.Replace("\0", "").ToLower();
+                        var textureName = modlMaterial.Texture1.ToLower();
                         if (textureName == "") {
                           return null;
                         }

@@ -97,7 +97,7 @@ using System.IO;
 namespace foo.bar {
   public partial class StringWrapper {
     public void Write(EndianBinaryWriter ew) {
-      ew.WriteString(this.Field);
+      ew.WriteStringWithExactLength(this.Field, 3);
     }
   }
 }

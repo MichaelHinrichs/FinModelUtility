@@ -24,7 +24,5 @@ namespace cmb.schema.cmb {
 
     [StringLengthSource(0x10)]
     public string name { get; private set; }
-
-    public string GetNameWithoutTerminators() => this.name.Replace("\0", "");
   }
 }

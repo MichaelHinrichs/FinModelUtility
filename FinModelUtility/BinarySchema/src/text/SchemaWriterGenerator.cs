@@ -185,6 +185,8 @@ namespace schema.text {
         cbsb.WriteLine($"ew.WriteStringNT(this.{member.Name});");
       } else if (stringType.IsEndianOrdered) {
         cbsb.WriteLine($"ew.WriteStringEndian(this.{member.Name});");
+      } else if (stringType.LengthSourceType == StringLengthSourceType.CONST) {
+        cbsb.WriteLine($"ew.WriteStringWithExactLength(this.{member.Name}, {stringType.ConstLength});");
       } else {
         cbsb.WriteLine($"ew.WriteString(this.{member.Name});");
       }

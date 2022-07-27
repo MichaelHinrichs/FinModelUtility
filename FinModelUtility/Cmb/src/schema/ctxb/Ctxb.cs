@@ -65,7 +65,7 @@ namespace cmb.schema.ctxb {
       this.height = r.ReadUInt16();
       this.imageFormat = (GlTextureFormat) r.ReadUInt32();
       this.dataOffset = r.ReadUInt32();
-      this.name = CmbStringUtil.ReadString(r, 16);
+      this.name = r.ReadString(16);
     }
 
     public void Write(EndianBinaryWriter w)

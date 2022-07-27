@@ -130,7 +130,7 @@ namespace glo.api {
           var endFrame = (int) animSeg.EndFrame;
 
           var finAnimation = finModel.AnimationManager.AddAnimation();
-          finAnimation.Name = new string(animSeg.Name).Replace("\0", "");
+          finAnimation.Name = animSeg.Name;
           finAnimation.FrameCount =
               (int) (animSeg.EndFrame - animSeg.StartFrame + 1);
 
@@ -142,7 +142,7 @@ namespace glo.api {
         while (meshQueue.Count > 0) {
           var (gloMesh, parentFinBone) = meshQueue.Dequeue();
 
-          var name = new string(gloMesh.Name).Replace("\0", "");
+          var name = gloMesh.Name;
 
           GloMesh idealMesh;
           if (!firstMeshMap.TryGetValue(name, out idealMesh)) {
@@ -256,8 +256,7 @@ namespace glo.api {
 
           foreach (var gloFace in idealMesh.Faces) {
             // TODO: What can we do if texture filename is empty?
-            var textureFilename =
-                new string(gloFace.TextureFilename).Replace("\0", "");
+            var textureFilename = gloFace.TextureFilename;
 
             var gloFaceColor = gloFace.Color;
             var finFaceColor = ColorImpl.FromRgbaBytes(

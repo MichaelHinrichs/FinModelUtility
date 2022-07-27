@@ -22,7 +22,8 @@ namespace glo.schema {
 
   [Schema]
   public sealed partial class GloAnimSeg : IBiSerializable {
-    public char[] Name { get; } = new char[24];
+    [StringLengthSource(24)]
+    public string Name { get; set; }
     public uint StartFrame { get; set; }
     public uint EndFrame { get; set; }
     public uint Flags { get; set; }
@@ -32,7 +33,8 @@ namespace glo.schema {
 
   [Schema]
   public sealed partial class GloMesh : IBiSerializable {
-    public char[] Name { get; } = new char[24];
+    [StringLengthSource(24)]
+    public string Name { get; set; }
 
     [ArrayLengthSource(SchemaIntType.UINT16)]
     public GloXyzKey[] MoveKeys { get; set; }
@@ -96,7 +98,8 @@ namespace glo.schema {
 
   [Schema]
   public sealed partial class GloFace : IBiSerializable {
-    public char[] TextureFilename { get; } = new char[16];
+    [StringLengthSource(16)]
+    public string TextureFilename { get; set; }
 
     public GloColor Color { get; } = new();
     public ushort Flags { get; set; }

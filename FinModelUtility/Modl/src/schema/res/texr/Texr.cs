@@ -37,14 +37,14 @@ namespace modl.schema.res.texr {
         var textureLength = er.ReadUInt32();
         var expectedTextureEnd = er.Position + textureLength;
 
-        var textureName = er.ReadString(0x10).Replace("\0", "");
+        var textureName = er.ReadString(0x10);
 
         var width = er.ReadUInt32();
         var height = er.ReadUInt32();
 
         var unknowns0 = er.ReadUInt32s(2);
 
-        var textureType = er.ReadString(8).Replace("\0", "");
+        var textureType = er.ReadString(8);
         var drawType = er.ReadString(8);
 
         var unknowns1 = er.ReadUInt32s(8);

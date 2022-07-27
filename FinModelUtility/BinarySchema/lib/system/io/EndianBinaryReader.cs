@@ -525,12 +525,12 @@ namespace System.IO {
 
     public void AssertString(Encoding encoding, string expectedValue)
       => EndianBinaryReader.Assert(
-          expectedValue,
+          expectedValue.TrimEnd('\0'),
           this.ReadString(encoding, expectedValue.Length));
 
     public string ReadString(Encoding encoding, int count) {
       this.AssertNotEof();
-      return new string(this.ReadChars(encoding, count));
+      return new string(this.ReadChars(encoding, count)).TrimEnd('\0');
     }
 
 
