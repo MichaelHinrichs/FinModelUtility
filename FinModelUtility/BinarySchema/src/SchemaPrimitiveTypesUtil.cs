@@ -27,6 +27,7 @@ namespace schema {
     INT64,
     UINT64,
 
+    HALF,
     SINGLE,
     DOUBLE,
 
@@ -72,6 +73,7 @@ namespace schema {
           SchemaPrimitiveType.UINT32  => true,
           SchemaPrimitiveType.INT64   => true,
           SchemaPrimitiveType.UINT64  => true,
+          SchemaPrimitiveType.HALF    => true,
           SchemaPrimitiveType.SINGLE  => true,
           SchemaPrimitiveType.DOUBLE  => true,
           SchemaPrimitiveType.SN8     => true,
@@ -147,6 +149,7 @@ namespace schema {
           SchemaNumberType.UINT32 => SchemaPrimitiveType.UINT32,
           SchemaNumberType.INT64 => SchemaPrimitiveType.INT64,
           SchemaNumberType.UINT64 => SchemaPrimitiveType.UINT64,
+          SchemaNumberType.HALF => SchemaPrimitiveType.HALF,
           SchemaNumberType.SINGLE => SchemaPrimitiveType.SINGLE,
           SchemaNumberType.DOUBLE => SchemaPrimitiveType.DOUBLE,
           SchemaNumberType.SN8 => SchemaPrimitiveType.SN8,
@@ -167,6 +170,7 @@ namespace schema {
           SchemaPrimitiveType.UINT32 => SchemaNumberType.UINT32,
           SchemaPrimitiveType.INT64 => SchemaNumberType.INT64,
           SchemaPrimitiveType.UINT64 => SchemaNumberType.UINT64,
+          SchemaPrimitiveType.HALF => SchemaNumberType.HALF,
           SchemaPrimitiveType.SINGLE => SchemaNumberType.SINGLE,
           SchemaPrimitiveType.DOUBLE => SchemaNumberType.DOUBLE,
           SchemaPrimitiveType.SN8 => SchemaNumberType.SN8,

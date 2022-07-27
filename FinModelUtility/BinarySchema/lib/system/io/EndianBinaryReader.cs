@@ -331,7 +331,7 @@ namespace System.IO {
       return EndianBinaryReader.ConvertHalf_(this.BufferedStream_.Buffer, 0);
     }
 
-    public float[] ReadHalf(int count) => this.ReadHalfs(new float[count]);
+    public float[] ReadHalfs(int count) => this.ReadHalfs(new float[count]);
 
     public float[] ReadHalfs(float[] dst) {
       const int size = 2;

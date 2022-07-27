@@ -199,6 +199,37 @@ namespace System.IO {
       this.WriteBuffer_(8 * count, 8);
     }
 
+
+    private static byte[] GetHalfBytes_(float value) {
+      var half = new Half(value);
+      return Half.GetBytes(half);
+    }
+
+    public void WriteHalf(float value) {
+      this.CreateBuffer_(2);
+      Array.Copy(GetHalfBytes_(value),
+                 0,
+                 this.buffer_,
+                 0,
+                 2);
+      this.WriteBuffer_(2, 2);
+    }
+
+    public void WriteHalfs(float[] value) 
+      => this.WriteSingles(value, 0, value.Length);
+
+    public void WriteHalfs(float[] value, int offset, int count) {
+      this.CreateBuffer_(2 * count);
+      for (int index = 0; index < count; ++index)
+        Array.Copy((Array)BitConverter.GetBytes(value[index + offset]),
+                   0,
+                   (Array)this.buffer_,
+                   index * 2,
+                   2);
+      this.WriteBuffer_(2 * count, 2);
+    }
+
+    
     public void WriteSingle(float value) {
       this.CreateBuffer_(4);
       Array.Copy((Array) BitConverter.GetBytes(value),

@@ -37,6 +37,7 @@ namespace schema {
     INT64,
     UINT64,
 
+    HALF,
     SINGLE,
     DOUBLE,
 

@@ -15,6 +15,7 @@ namespace schema.text {
           SchemaPrimitiveType.UINT32 => "UInt32",
           SchemaPrimitiveType.INT64 => "Int64",
           SchemaPrimitiveType.UINT64 => "UInt64",
+          SchemaPrimitiveType.HALF => "Half",
           SchemaPrimitiveType.SINGLE => "Single",
           SchemaPrimitiveType.DOUBLE => "Double",
           SchemaPrimitiveType.SN8 => "Sn8",
@@ -47,6 +48,7 @@ namespace schema.text {
           SchemaNumberType.UINT32 => "uint",
           SchemaNumberType.INT64 => "long",
           SchemaNumberType.UINT64 => "ulong",
+          SchemaNumberType.HALF => "float",
           SchemaNumberType.SINGLE => "float",
           SchemaNumberType.DOUBLE => "double",
           _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
