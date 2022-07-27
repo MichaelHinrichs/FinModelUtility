@@ -67,6 +67,10 @@ namespace System.IO {
       set => this.BaseStream.Position = value;
     }
 
+    public void AssertPosition(long expectedPosition) {
+      EndianBinaryReader.Assert(expectedPosition, this.Position);
+    }
+
     public long Length => this.BaseStream.Length;
 
     public bool Eof => this.Position >= this.Length;

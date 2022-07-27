@@ -8,6 +8,7 @@ using schema.attributes.align;
 using schema.attributes.child_of;
 using schema.attributes.ignore;
 using schema.attributes.offset;
+using schema.attributes.position;
 using schema.parser;
 using schema.parser.asserts;
 
@@ -58,6 +59,7 @@ namespace schema {
     int Align { get; }
     IIfBoolean? IfBoolean { get; }
     IOffset? Offset { get; }
+    public bool IsPosition { get; }
   }
 
   public interface IMemberType {
@@ -232,6 +234,23 @@ namespace schema {
 
         // Get attributes
         var align = new AlignAttributeParser().GetAlignForMember(memberSymbol);
+
+        var isPosition = false;
+        {
+          var positionAttribute =
+              SymbolTypeUtil.GetAttribute<PositionAttribute>(memberSymbol);
+          if (positionAttribute != null) {
+            isPosition = true;
+            if (memberTypeInfo is not IIntegerTypeInfo {
+                    IntType: SchemaIntType.INT64
+                }) {
+              diagnostics.Add(
+                  Rules.CreateDiagnostic(
+                      memberSymbol,
+                      Rules.NotSupported));
+            }
+          }
+        }
 
         IIfBoolean? ifBoolean = null;
         {
@@ -516,6 +535,7 @@ namespace schema {
               Align = align,
               IfBoolean = ifBoolean,
               Offset = offset,
+              IsPosition = isPosition,
           });
         }
       }
@@ -541,6 +561,7 @@ namespace schema {
       public int Align { get; set; }
       public IIfBoolean IfBoolean { get; set; }
       public IOffset Offset { get; set; }
+      public bool IsPosition { get; set; }
     }
 
     public class PrimitiveMemberType : IPrimitiveMemberType {

@@ -60,6 +60,15 @@ namespace schema.text {
         ICurlyBracketStringBuilder cbsb,
         ITypeSymbol sourceSymbol,
         ISchemaMember member) {
+      if (member.IsPosition) {
+        if (member.MemberType.IsReadonly) {
+          cbsb.WriteLine($"er.AssertPosition(this.{member.Name});");
+        } else {
+          cbsb.WriteLine($"this.{member.Name} = er.Position;");
+        }
+        return;
+      }
+
       SchemaReaderGenerator.Align_(cbsb, member);
 
       // TODO: How to handle both offset & if boolean together?

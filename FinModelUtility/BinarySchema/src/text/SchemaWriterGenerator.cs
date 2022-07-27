@@ -60,6 +60,10 @@ namespace schema.text {
         ICurlyBracketStringBuilder cbsb,
         ITypeSymbol sourceSymbol,
         ISchemaMember member) {
+      if (member.IsPosition) {
+        return;
+      }
+
       if (member.Offset != null) {
         cbsb.WriteLine("throw new NotImplementedException();");
         return;
