@@ -1,10 +1,4 @@
-﻿using System.Collections;
-using System.Drawing.Text;
-
-using Assimp;
-
-using fin.data;
-using fin.math;
+﻿using fin.data;
 using fin.util.asserts;
 
 using gx;
@@ -390,11 +384,11 @@ namespace modl.schema.modl.bw1 {
           var firstXfRegisterAddress = er.ReadUInt16();
 
           var values = er.ReadUInt32s(length);
-          // TODO: Complete
+          // TODO: Implement
         } else if (opcodeEnum == GxOpcode.DRAW_TRIANGLE_STRIP) {
           var vertexAttributeIndicesList = new List<BwVertexAttributeIndices>();
 
-          var vertexDescriptor = new VertexDescriptor();
+          var vertexDescriptor = new GxVertexDescriptor();
           vertexDescriptor.FromValue(vertexDescriptorValue);
 
           var triangleStrip = new BwTriangleStrip {
@@ -419,34 +413,34 @@ namespace modl.schema.modl.bw1 {
               };
 
               switch (vertexAttribute) {
-                case VertexAttribute.PosMatIdx: {
+                case GxVertexAttribute.PosMatIdx: {
                   Asserts.Equal(0, value % 3);
                   value /= 3;
                   vertexAttributeIndices.NodeIndex = posMatIdxMap[value];
                   break;
                 }
-                case VertexAttribute.Position: {
+                case GxVertexAttribute.Position: {
                   vertexAttributeIndices.PositionIndex = value;
                   break;
                 }
-                case VertexAttribute.Normal: {
+                case GxVertexAttribute.Normal: {
                   vertexAttributeIndices.NormalIndex = value;
                   break;
                 }
-                case VertexAttribute.Tex0Coord:
-                case VertexAttribute.Tex1Coord:
-                case VertexAttribute.Tex2Coord:
-                case VertexAttribute.Tex3Coord:
-                case VertexAttribute.Tex4Coord:
-                case VertexAttribute.Tex5Coord:
-                case VertexAttribute.Tex6Coord:
-                case VertexAttribute.Tex7Coord: {
-                  var index = vertexAttribute - VertexAttribute.Tex0Coord;
+                case GxVertexAttribute.Tex0Coord:
+                case GxVertexAttribute.Tex1Coord:
+                case GxVertexAttribute.Tex2Coord:
+                case GxVertexAttribute.Tex3Coord:
+                case GxVertexAttribute.Tex4Coord:
+                case GxVertexAttribute.Tex5Coord:
+                case GxVertexAttribute.Tex6Coord:
+                case GxVertexAttribute.Tex7Coord: {
+                  var index = vertexAttribute - GxVertexAttribute.Tex0Coord;
                   vertexAttributeIndices.TexCoordIndices[index] = value;
                   break;
                 }
-                case VertexAttribute.Color0:
-                case VertexAttribute.Color1: {
+                case GxVertexAttribute.Color0:
+                case GxVertexAttribute.Color1: {
                   break;
                 }
                 default: {
@@ -464,110 +458,6 @@ namespace modl.schema.modl.bw1 {
       Asserts.Equal(expectedEnd, er.Position);
     }
 
-
-    public class
-        VertexDescriptor : IEnumerable<(VertexAttribute, GxAttributeType?)> {
-      public bool HasPosMat { get; set; }
-      public bool[] HasTexMats { get; } = new bool[8];
-      public GxAttributeType PositionFormat { get; set; }
-      public GxAttributeType NormalFormat { get; set; }
-      public GxAttributeType[] ColorFormats { get; } = new GxAttributeType[2];
-      public bool[] HasTexCoord { get; } = new bool[8];
-
-      public void FromValue(uint value) {
-        var posMatFlag = value & 1;
-        this.HasPosMat = posMatFlag == 1;
-        value >>= 1;
-
-        for (var i = 0; i < 8; ++i) {
-          this.HasTexMats[i] = (value & 1) == 1;
-          value >>= 1;
-        }
-
-        var positionFormatFlag = value & 3;
-        this.PositionFormat = (GxAttributeType) positionFormatFlag;
-        value >>= 2;
-
-        var normalFormatFlag = value & 3;
-        this.NormalFormat = (GxAttributeType) normalFormatFlag;
-        value >>= 2;
-
-        for (var i = 0; i < 2; ++i) {
-          this.ColorFormats[i] = (GxAttributeType) (value & 3);
-          value >>= 2;
-        }
-
-        for (var i = 0; i < 8; ++i) {
-          this.HasTexCoord[i] = (value & 1) == 1;
-          value >>= 1;
-        }
-
-        if (value != 0) {
-          throw new NotImplementedException();
-        }
-      }
-
-      IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-      public IEnumerator<(VertexAttribute, GxAttributeType?)> GetEnumerator() {
-        if (this.HasPosMat) {
-          yield return (VertexAttribute.PosMatIdx, null);
-        }
-
-        for (var i = 0; i < this.HasTexMats.Length; ++i) {
-          if (this.HasTexMats[i]) {
-            yield return (VertexAttribute.Tex0MatIdx + i, null);
-          }
-        }
-
-        if (this.PositionFormat != GxAttributeType.NOT_PRESENT) {
-          yield return (VertexAttribute.Position, this.PositionFormat);
-        }
-        if (this.NormalFormat != GxAttributeType.NOT_PRESENT) {
-          yield return (VertexAttribute.Normal, this.NormalFormat);
-        }
-        for (var i = 0; i < this.ColorFormats.Length; ++i) {
-          var colorFormat = this.ColorFormats[i];
-          if (colorFormat != GxAttributeType.NOT_PRESENT) {
-            yield return (VertexAttribute.Color0 + i, colorFormat);
-          }
-        }
-
-        for (var i = 0; i < this.HasTexCoord.Length; ++i) {
-          if (this.HasTexCoord[i]) {
-            yield return (VertexAttribute.Tex0Coord + i, null);
-          }
-        }
-      }
-    }
-
-    public enum VertexAttribute {
-      PosMatIdx,
-
-      Tex0MatIdx,
-      Tex1MatIdx,
-      Tex2MatIdx,
-      Tex3MatIdx,
-      Tex4MatIdx,
-      Tex5MatIdx,
-      Tex6MatIdx,
-      Tex7MatIdx,
-
-      Position,
-      Normal,
-
-      Color0,
-      Color1,
-
-      Tex0Coord,
-      Tex1Coord,
-      Tex2Coord,
-      Tex3Coord,
-      Tex4Coord,
-      Tex5Coord,
-      Tex6Coord,
-      Tex7Coord,
-    }
 
     public class BwMesh {
       public uint Flags { get; set; }

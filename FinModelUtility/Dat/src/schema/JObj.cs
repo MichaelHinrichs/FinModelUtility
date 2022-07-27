@@ -51,7 +51,7 @@ namespace dat.schema {
   [Schema]
   public partial class JObjData : IBiSerializable {
     public uint StringOffset { get; set; }
-    public JObjFlags UnknownFlags { get; set; }
+    public JObjFlags Flags { get; set; }
     public uint FirstChildBoneOffset { get; set; }
     public uint NextSiblingBoneOffset { get; set; }
     public uint ObjectStructOffset { get; set; }
