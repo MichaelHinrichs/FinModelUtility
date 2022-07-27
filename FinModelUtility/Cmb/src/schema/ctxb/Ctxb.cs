@@ -6,21 +6,25 @@ using cmb.schema.cmb;
 using fin.util.strings;
 
 using schema;
+using schema.attributes.ignore;
+using schema.attributes.offset;
 
 
 namespace cmb.schema.ctxb {
-  public class Ctxb : IDeserializable {
+  [Schema]
+  public partial class Ctxb : IBiSerializable {
     public CtxbHeader Header { get; } = new();
     public CtxbTexChunk Chunk { get; } = new();
+
+    [Offset(nameof(BaseDataOffset), nameof(ThisDataOffset))]
+    [ArrayLengthSource(nameof(ThisDataLength))]
     public byte[] Data { get; private set; }
 
-    public void Read(EndianBinaryReader r) {
-      this.Header.Read(r);
-      this.Chunk.Read(r);
+    [Ignore] private uint BaseDataOffset => (uint) this.Header.DataOffset;
 
-      r.Position = this.Header.DataOffset + this.Chunk.Entry.dataOffset;
-      this.Data = r.ReadBytes((int) this.Chunk.Entry.dataLength);
-    }
+    [Ignore] private uint ThisDataOffset => this.Chunk.Entry.dataOffset;
+
+    [Ignore] private uint ThisDataLength => this.Chunk.Entry.dataLength;
   }
 
   [Schema]
