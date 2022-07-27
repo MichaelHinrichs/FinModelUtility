@@ -1,4 +1,7 @@
-﻿namespace schema.attributes.position {
+﻿using System;
+
+
+namespace schema.attributes.position {
   /// <summary>
   ///   Schema attribute for getting/asserting the current position of an EndianBinaryReader.
   ///   The type of a member with this attribute must be long, to correspond to the type of EndianBinaryReader.Position.
@@ -28,6 +31,6 @@
   ///     }
   ///   </code>
   /// </summary>
-  public class PositionAttribute {
-  }
+  [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+  public class PositionAttribute : Attribute { }
 }

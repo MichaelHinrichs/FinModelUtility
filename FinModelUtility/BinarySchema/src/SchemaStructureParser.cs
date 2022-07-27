@@ -103,12 +103,11 @@ namespace schema {
     IMMEDIATE_VALUE,
     OTHER_MEMBER,
     CONST,
+    NULL_TERMINATED,
   }
 
   public interface IStringType : IMemberType {
     // TODO: Support char format?
-    bool IsNullTerminated { get; }
-
     /// <summary>
     ///   Whether the string has a set length. This is required for non-null
     ///   terminated strings.
@@ -213,24 +212,6 @@ namespace schema {
 
         // Gets the type of the current member
         var memberType = WrapTypeInfoWithMemberType(memberTypeInfo);
-
-        // Checks if the member is a child of the current type
-        {
-          if (memberType is StructureMemberType structureMemberType) {
-            var expectedParentTypeSymbol =
-                iChildOfParser.GetParentTypeSymbolOf(
-                    structureMemberType.StructureTypeInfo.NamedTypeSymbol);
-            if (expectedParentTypeSymbol != null) {
-              if (expectedParentTypeSymbol == structureSymbol) {
-                structureMemberType.IsChild = true;
-              } else {
-                diagnostics.Add(Rules.CreateDiagnostic(
-                                    memberSymbol,
-                                    Rules.ChildTypeCanOnlyBeContainedInParent));
-              }
-            }
-          }
-        }
 
         // Get attributes
         var align = new AlignAttributeParser().GetAlignForMember(memberSymbol);
@@ -396,6 +377,24 @@ namespace schema {
                                          Rules.BooleanNeedsFormat));
             }
           }
+
+          // Checks if the member is a child of the current type
+          {
+            if (targetMemberType is StructureMemberType structureMemberType) {
+              var expectedParentTypeSymbol =
+                  iChildOfParser.GetParentTypeSymbolOf(
+                      structureMemberType.StructureTypeInfo.NamedTypeSymbol);
+              if (expectedParentTypeSymbol != null) {
+                if (expectedParentTypeSymbol == structureSymbol) {
+                  structureMemberType.IsChild = true;
+                } else {
+                  diagnostics.Add(Rules.CreateDiagnostic(
+                                      memberSymbol,
+                                      Rules.ChildTypeCanOnlyBeContainedInParent));
+                }
+              }
+            }
+          }
         }
 
         {
@@ -405,7 +404,8 @@ namespace schema {
             if (memberType is StringType stringMemberType) {
               stringMemberType.IsEndianOrdered = true;
 
-              if (stringMemberType.IsNullTerminated) {
+              if (stringMemberType.LengthSourceType ==
+                  StringLengthSourceType.NULL_TERMINATED) {
                 diagnostics.Add(
                     Rules.CreateDiagnostic(memberSymbol,
                                            Rules.UnexpectedAttribute));
@@ -420,23 +420,46 @@ namespace schema {
 
         {
           // TODO: Implement this, support strings in arrays?
-          var lengthSourceAttribute =
+          var stringLengthSourceAttribute =
               SymbolTypeUtil.GetAttribute<StringLengthSourceAttribute>(
                   memberSymbol);
-          if (lengthSourceAttribute != null) {
+          var nullTerminatedStringAttribute =
+              SymbolTypeUtil.GetAttribute<NullTerminatedStringAttribute>(
+                  memberSymbol);
+
+          if (stringLengthSourceAttribute != null ||
+              nullTerminatedStringAttribute != null) {
             if (memberType is StringType stringType) {
+              if (stringLengthSourceAttribute != null &&
+                  nullTerminatedStringAttribute != null) {
+                diagnostics.Add(
+                    Rules.CreateDiagnostic(memberSymbol,
+                                           Rules.NotSupported));
+              }
+
               if (memberTypeInfo.IsReadonly) {
                 diagnostics.Add(
                     Rules.CreateDiagnostic(memberSymbol,
                                            Rules.UnexpectedAttribute));
               }
 
-              switch (lengthSourceAttribute.Method) {
+              var method =
+                  stringLengthSourceAttribute?.Method ??
+                  StringLengthSourceType.NULL_TERMINATED;
+
+              switch (method) {
                 case StringLengthSourceType.CONST: {
                   stringType.LengthSourceType = StringLengthSourceType.CONST;
-                  stringType.ConstLength = lengthSourceAttribute.ConstLength;
+                  stringType.ConstLength =
+                      stringLengthSourceAttribute!.ConstLength;
                   break;
                 }
+                case StringLengthSourceType.NULL_TERMINATED: {
+                  stringType.LengthSourceType =
+                      StringLengthSourceType.NULL_TERMINATED;
+                  break;
+                }
+                // TODO: Support int length strings
                 default: {
                   diagnostics.Add(
                       Rules.CreateDiagnostic(memberSymbol,
@@ -602,8 +625,6 @@ namespace schema {
       public ITypeInfo TypeInfo { get; set; }
       public ITypeSymbol TypeSymbol => TypeInfo.TypeSymbol;
       public bool IsReadonly => this.TypeInfo.IsReadonly;
-
-      public bool IsNullTerminated { get; set; }
 
       public StringLengthSourceType LengthSourceType { get; set; }
       public SchemaIntType ImmediateLengthType { get; set; }

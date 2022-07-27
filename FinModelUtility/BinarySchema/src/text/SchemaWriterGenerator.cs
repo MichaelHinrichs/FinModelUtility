@@ -181,7 +181,7 @@ namespace schema.text {
         ISchemaMember member) {
       var stringType = member.MemberType as IStringType;
 
-      if (stringType.IsNullTerminated) {
+      if (stringType.LengthSourceType == StringLengthSourceType.NULL_TERMINATED) {
         cbsb.WriteLine($"ew.WriteStringNT(this.{member.Name});");
       } else if (stringType.IsEndianOrdered) {
         cbsb.WriteLine($"ew.WriteStringEndian(this.{member.Name});");

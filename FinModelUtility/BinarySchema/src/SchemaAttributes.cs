@@ -16,22 +16,9 @@ namespace schema {
 
 
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-  public class NullTerminatedSchemaStringAttribute : Attribute {
-    /// <summary>
-    ///   Parses a length with the given format immediately before the string/array.
-    /// </summary>
-    public NullTerminatedSchemaStringAttribute(int maxLength) {
-      this.MaxLength = maxLength;
-    }
-
-    public int MaxLength { get; }
-  }
-
-
-  [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
   public class ArrayLengthSourceAttribute : Attribute {
     /// <summary>
-    ///   Parses a length with the given format immediately before the array.
+    ///   Parses an integer length with the given format immediately before the array.
     /// </summary>
     public ArrayLengthSourceAttribute(SchemaIntType lengthType) {
       this.Method = SequenceLengthSourceType.IMMEDIATE_VALUE;
@@ -39,7 +26,7 @@ namespace schema {
     }
 
     /// <summary>
-    ///   Uses another field for the length. This separate field will only be used when
+    ///   Uses another integer field for the length. This separate field will only be used when
     ///   reading/writing.
     /// </summary>
     public ArrayLengthSourceAttribute(string otherMemberName) {
@@ -52,6 +39,9 @@ namespace schema {
     public SchemaIntType LengthType { get; }
     public string OtherMemberName { get; }
   }
+
+  [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+  public class NullTerminatedStringAttribute : Attribute { }
 
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
   public class StringLengthSourceAttribute : Attribute {

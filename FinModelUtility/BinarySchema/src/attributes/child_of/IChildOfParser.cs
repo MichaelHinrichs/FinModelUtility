@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+
+using schema.parser;
 
 
 namespace schema.attributes.child_of {
@@ -33,15 +36,19 @@ namespace schema.attributes.child_of {
         INamedTypeSymbol parentNamedTypeSymbol,
         INamedTypeSymbol childNamedTypeSymbol) {
       var containedInClass =
-          SymbolTypeUtil
-              .GetInstanceMembers(parentNamedTypeSymbol!)
-              .Any(memberSymbol => {
-                var typeSymbol = memberSymbol switch {
-                    IPropertySymbol propertySymbol => propertySymbol.Type,
-                    IFieldSymbol fieldSymbol       => fieldSymbol.Type,
-                    _ =>
-                        throw new NotSupportedException()
-                };
+          new TypeInfoParser()
+              .ParseMembers(parentNamedTypeSymbol)
+              .Any(tuple => {
+                var (parseStatus, memberSymbol, memberTypeInfo) = tuple;
+                if (parseStatus != TypeInfoParser.ParseStatus.SUCCESS) {
+                  return false;
+                }
+
+                var elementTypeInfo =
+                    (memberTypeInfo is ISequenceTypeInfo sequenceTypeInfo)
+                        ? sequenceTypeInfo.ElementTypeInfo
+                        : memberTypeInfo;
+                var typeSymbol = elementTypeInfo.TypeSymbol;
 
                 var hasSameName =
                     typeSymbol.Name == childNamedTypeSymbol.Name;

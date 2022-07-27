@@ -77,7 +77,8 @@ namespace schema.text {
       if (offset != null) {
         cbsb.EnterBlock()
             .WriteLine("var tempLocation = er.Position;")
-            .WriteLine($"er.Position = this.{offset.StartIndexName.Name} + this.{offset.OffsetName.Name};");
+            .WriteLine(
+                $"er.Position = this.{offset.StartIndexName.Name} + this.{offset.OffsetName.Name};");
       }
 
       var ifBoolean = member.IfBoolean;
@@ -228,13 +229,20 @@ namespace schema.text {
       var stringType = member.MemberType as IStringType;
 
       if (stringType.IsReadonly) {
-        if (stringType.IsNullTerminated) {
+        if (stringType.LengthSourceType ==
+            StringLengthSourceType.NULL_TERMINATED) {
           cbsb.WriteLine($"er.AssertStringNT(this.{member.Name});");
         } else if (stringType.IsEndianOrdered) {
           cbsb.WriteLine($"er.AssertStringEndian(this.{member.Name});");
         } else {
           cbsb.WriteLine($"er.AssertString(this.{member.Name});");
         }
+        return;
+      }
+
+      if (stringType.LengthSourceType ==
+          StringLengthSourceType.NULL_TERMINATED) {
+        cbsb.WriteLine($"this.{member.Name} = er.ReadStringNT();");
         return;
       }
 
@@ -387,9 +395,14 @@ namespace schema.text {
 
       if (elementType is IStructureMemberType structureElementType) {
         //if (structureElementType.IsReferenceType) {
-        cbsb.EnterBlock($"foreach (var e in this.{member.Name})")
-            .WriteLine("e.Read(er);")
-            .ExitBlock();
+        cbsb.EnterBlock($"foreach (var e in this.{member.Name})");
+
+        if (structureElementType.IsChild) {
+          cbsb.WriteLine("e.Parent = this;");
+        }
+
+        cbsb.WriteLine("e.Read(er);");
+        cbsb.ExitBlock();
         // TODO: Do value types need to be read like below?
         /*}
         // Value types (mainly structs) have to be pulled out, read, then put
