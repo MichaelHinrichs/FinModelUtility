@@ -1659,37 +1659,19 @@ label_7:
                 });
 
             return bitmap;
-          } 
-          
-          ImageDataFormat imageDataFormat = (ImageDataFormat)null;
-          switch (this.Format) {
-            case TextureFormat.I4:
-              imageDataFormat = ImageDataFormat.I4;
-              break;
-            case TextureFormat.I8:
-              imageDataFormat = ImageDataFormat.I8;
-              break;
-            case TextureFormat.A4_I4:
-              imageDataFormat = ImageDataFormat.IA4;
-              break;
-            case TextureFormat.A8_I8:
-              imageDataFormat = ImageDataFormat.IA8;
-              break;
-            case TextureFormat.R5_G6_B5:
-              imageDataFormat = ImageDataFormat.RGB565;
-              break;
-            case TextureFormat.A3_RGB5:
-              imageDataFormat = ImageDataFormat.RGB5A3;
-              break;
-            case TextureFormat.ARGB8:
-              imageDataFormat = ImageDataFormat.Rgba32;
-              break;
-            case TextureFormat.S3TC1:
-              imageDataFormat = ImageDataFormat.Cmpr;
-              break;
-            default:
-              throw new NotImplementedException();
           }
+
+          ImageDataFormat imageDataFormat = this.Format switch {
+              TextureFormat.I4       => ImageDataFormat.I4,
+              TextureFormat.I8       => ImageDataFormat.I8,
+              TextureFormat.A4_I4    => ImageDataFormat.IA4,
+              TextureFormat.A8_I8    => ImageDataFormat.IA8,
+              TextureFormat.R5_G6_B5 => ImageDataFormat.RGB565,
+              TextureFormat.A3_RGB5  => ImageDataFormat.RGB5A3,
+              TextureFormat.ARGB8    => ImageDataFormat.Rgba32,
+              TextureFormat.S3TC1    => ImageDataFormat.Cmpr,
+              _                      => throw new NotImplementedException()
+          };
 
           byte[] numArray = imageDataFormat.ConvertFrom(this.Data, (int)this.Width, (int)this.Height, (ProgressChangedEventHandler)null); 
           bitmap = new System.Drawing.Bitmap((int)this.Width, (int)this.Height);
@@ -1705,33 +1687,20 @@ label_7:
           int num2 = (int) this.Width + (4 - (int) this.Width % 4) % 4;
           int num3 = (int) this.Height + (8 - (int) this.Height % 8) % 8;
           int num4 = (int) this.Height + (4 - (int) this.Height % 4) % 4;
-          switch (this.Format)
-          {
-            case BMD.TEX1Section.TextureFormat.I4:
-              return num1 * num3 / 2;
-            case BMD.TEX1Section.TextureFormat.I8:
-              return num1 * num4;
-            case BMD.TEX1Section.TextureFormat.A4_I4:
-              return num1 * num4;
-            case BMD.TEX1Section.TextureFormat.A8_I8:
-              return num2 * num4 * 2;
-            case BMD.TEX1Section.TextureFormat.R5_G6_B5:
-              return num2 * num4 * 2;
-            case BMD.TEX1Section.TextureFormat.A3_RGB5:
-              return num2 * num4 * 2;
-            case BMD.TEX1Section.TextureFormat.ARGB8:
-              return num2 * num4 * 4;
-            case BMD.TEX1Section.TextureFormat.INDEX4:
-              return num1 * num3 / 2;
-            case BMD.TEX1Section.TextureFormat.INDEX8:
-              return num1 * num4;
-            case BMD.TEX1Section.TextureFormat.INDEX14_X2:
-              return num2 * num4 * 2;
-            case BMD.TEX1Section.TextureFormat.S3TC1:
-              return num2 * num4 / 2;
-            default:
-              return -1;
-          }
+          return this.Format switch {
+              BMD.TEX1Section.TextureFormat.I4         => num1 * num3 / 2,
+              BMD.TEX1Section.TextureFormat.I8         => num1 * num4,
+              BMD.TEX1Section.TextureFormat.A4_I4      => num1 * num4,
+              BMD.TEX1Section.TextureFormat.A8_I8      => num2 * num4 * 2,
+              BMD.TEX1Section.TextureFormat.R5_G6_B5   => num2 * num4 * 2,
+              BMD.TEX1Section.TextureFormat.A3_RGB5    => num2 * num4 * 2,
+              BMD.TEX1Section.TextureFormat.ARGB8      => num2 * num4 * 4,
+              BMD.TEX1Section.TextureFormat.INDEX4     => num1 * num3 / 2,
+              BMD.TEX1Section.TextureFormat.INDEX8     => num1 * num4,
+              BMD.TEX1Section.TextureFormat.INDEX14_X2 => num2 * num4 * 2,
+              BMD.TEX1Section.TextureFormat.S3TC1      => num2 * num4 / 2,
+              _                                        => -1
+          };
         }
       }
     }
