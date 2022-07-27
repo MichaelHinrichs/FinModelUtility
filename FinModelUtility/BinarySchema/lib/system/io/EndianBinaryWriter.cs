@@ -163,6 +163,22 @@ namespace System.IO {
     }
 
 
+    public void WriteStringWithExactLength(string value, int length) {
+      var difference = length - value.Length;
+      if (difference < 0) {
+        value = value.Substring(0, length);
+      } else if (difference > 0) {
+        var extender = new StringBuilder();
+        extender.Append(value);
+        for (var i = 0; i < difference; ++i) {
+          extender.Append('\0');
+        }
+        value = extender.ToString();
+      }
+      this.WriteString(value);
+    }
+
+
     public void WriteStringEndian(string value)
       => this.WriteStringEndian(
           value,
