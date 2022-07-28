@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 
-using fin.util.arrays;
 using fin.util.enumerables;
 
 using schema;

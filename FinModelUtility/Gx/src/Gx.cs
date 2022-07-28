@@ -92,4 +92,143 @@
     RGBA6 = 4,
     RGBA8 = 5,
   }
+
+  public enum GxCc : byte {
+    GX_CC_CPREV,
+    GX_CC_APREV,
+    GX_CC_C0,
+    GX_CC_A0,
+    GX_CC_C1,
+    GX_CC_A1,
+    GX_CC_C2,
+    GX_CC_A2,
+    GX_CC_TEXC,
+    GX_CC_TEXA,
+    GX_CC_RASC,
+    GX_CC_RASA,
+    GX_CC_ONE,
+    GX_CC_HALF,
+    GX_CC_KONST,
+    GX_CC_ZERO,
+  }
+
+  public enum GxCa : byte {
+    GX_CA_APREV,
+    GX_CA_A0,
+    GX_CA_A1,
+    GX_CA_A2,
+    GX_CA_TEXA,
+    GX_CA_RASA,
+    GX_CA_KONST,
+    GX_CA_ZERO,
+  }
+
+  public enum TevOp : byte {
+    GX_TEV_ADD = 0,
+    GX_TEV_SUB = 1,
+    GX_TEV_COMP_R8_GT = 8,
+    GX_TEV_COMP_R8_EQ = 9,
+    GX_TEV_COMP_GR16_GT = 10,
+    GX_TEV_COMP_GR16_EQ = 11,
+    GX_TEV_COMP_BGR24_GT = 12,
+    GX_TEV_COMP_BGR24_EQ = 13,
+    GX_TEV_COMP_RGB8_GT = 14,
+    GX_TEV_COMP_RGB8_EQ = 15
+  }
+
+  public enum TevBias : byte {
+    GX_TB_ZERO,
+    GX_TB_ADDHALF,
+    GX_TB_SUBHALF
+  }
+
+  public enum TevScale : byte {
+    GX_CS_SCALE_1,
+    GX_CS_SCALE_2,
+    GX_CS_SCALE_4,
+    GX_CS_DIVIDE_2
+  }
+
+  public enum ColorRegister : byte {
+    GX_TEVPREV,
+    GX_TEVREG0,
+    GX_TEVREG1,
+    GX_TEVREG2,
+  }
+
+  public enum GxKonstColorSel {
+    KCSel_1 = 0x00,     // Constant 1.0
+    KCSel_7_8 = 0x01,   // Constant 7/8
+    KCSel_3_4 = 0x02,   // Constant 3/4
+    KCSel_5_8 = 0x03,   // Constant 5/8
+    KCSel_1_2 = 0x04,   // Constant 1/2
+    KCSel_3_8 = 0x05,   // Constant 3/8
+    KCSel_1_4 = 0x06,   // Constant 1/4
+    KCSel_1_8 = 0x07,   // Constant 1/8
+    KCSel_K0 = 0x0C,    // K0[RGB] Register
+    KCSel_K1 = 0x0D,    // K1[RGB] Register
+    KCSel_K2 = 0x0E,    // K2[RGB] Register
+    KCSel_K3 = 0x0F,    // K3[RGB] Register
+    KCSel_K0_R = 0x10,  // K0[RRR] Register
+    KCSel_K1_R = 0x11,  // K1[RRR] Register
+    KCSel_K2_R = 0x12,  // K2[RRR] Register
+    KCSel_K3_R = 0x13,  // K3[RRR] Register
+    KCSel_K0_G = 0x14,  // K0[GGG] Register
+    KCSel_K1_G = 0x15,  // K1[GGG] Register
+    KCSel_K2_G = 0x16,  // K2[GGG] Register
+    KCSel_K3_G = 0x17,  // K3[GGG] Register
+    KCSel_K0_B = 0x18,  // K0[BBB] Register
+    KCSel_K1_B = 0x19,  // K1[BBB] Register
+    KCSel_K2_B = 0x1A,  // K2[BBB] Register
+    KCSel_K3_B = 0x1B,  // K3[BBB] Register
+    KCSel_K0_A = 0x1C,  // K0[AAA] Register
+    KCSel_K1_A = 0x1D,  // K1[AAA] Register
+    KCSel_K2_A = 0x1E,  // K2[AAA] Register
+    KCSel_K3_A = 0x1F   // K3[AAA] Register
+  }
+
+  public enum GxKonstAlphaSel {
+    KASel_1 = 0x00,     // Constant 1.0
+    KASel_7_8 = 0x01,   // Constant 7/8
+    KASel_3_4 = 0x02,   // Constant 3/4
+    KASel_5_8 = 0x03,   // Constant 5/8
+    KASel_1_2 = 0x04,   // Constant 1/2
+    KASel_3_8 = 0x05,   // Constant 3/8
+    KASel_1_4 = 0x06,   // Constant 1/4
+    KASel_1_8 = 0x07,   // Constant 1/8
+    KASel_K0_R = 0x10,  // K0[R] Register
+    KASel_K1_R = 0x11,  // K1[R] Register
+    KASel_K2_R = 0x12,  // K2[R] Register
+    KASel_K3_R = 0x13,  // K3[R] Register
+    KASel_K0_G = 0x14,  // K0[G] Register
+    KASel_K1_G = 0x15,  // K1[G] Register
+    KASel_K2_G = 0x16,  // K2[G] Register
+    KASel_K3_G = 0x17,  // K3[G] Register
+    KASel_K0_B = 0x18,  // K0[B] Register
+    KASel_K1_B = 0x19,  // K1[B] Register
+    KASel_K2_B = 0x1A,  // K2[B] Register
+    KASel_K3_B = 0x1B,  // K3[B] Register
+    KASel_K0_A = 0x1C,  // K0[A] Register
+    KASel_K1_A = 0x1D,  // K1[A] Register
+    KASel_K2_A = 0x1E,  // K2[A] Register
+    KASel_K3_A = 0x1F   // K3[A] Register
+  }
+
+  public enum GX_WRAP_TAG : byte {
+    GX_CLAMP,
+    GX_REPEAT,
+    GX_MIRROR,
+    GX_MAXTEXWRAPMODE,
+  }
+
+  public enum GX_TEXTURE_FILTER : byte {
+    GX_NEAR,
+    GX_LINEAR,
+    GX_NEAR_MIP_NEAR,
+    GX_LIN_MIP_NEAR,
+    GX_NEAR_MIP_LIN,
+    GX_LIN_MIP_LIN,
+    GX_NEAR2,
+    GX_NEAR3,
+  }
 }

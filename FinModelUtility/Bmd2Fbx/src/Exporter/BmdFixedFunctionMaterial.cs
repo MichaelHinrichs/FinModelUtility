@@ -13,7 +13,8 @@ using bmd.schema.bmd.mat3;
 using fin.language.equations.fixedFunction;
 using fin.language.equations.fixedFunction.impl;
 using fin.util.asserts;
-using fin.util.json;
+
+using gx;
 
 using FinBlendFactor = fin.model.BlendFactor;
 using FinLogicOp = fin.model.LogicOp;
@@ -24,9 +25,7 @@ using FinAlphaCompareType = fin.model.AlphaCompareType;
 
 
 namespace bmd.exporter {
-  using static bmd.GCN.BMD.MAT3Section.TevStageProps;
-
-  using TevStage = BMD.MAT3Section.TevStageProps;
+  using TevStage = TevStageProps;
 
   /// <summary>
   ///   BMD material, one of the common formats for the GameCube.
@@ -407,10 +406,10 @@ namespace bmd.exporter {
       private readonly Dictionary<ColorChannel, IScalarValue>
           alphaChannelsColors_ = new();
 
-      private readonly Dictionary<TevStage.GxCc, IColorValue>
+      private readonly Dictionary<GxCc, IColorValue>
           colorValues_ = new();
 
-      private readonly Dictionary<TevStage.GxCa, IScalarValue>
+      private readonly Dictionary<GxCa, IScalarValue>
           alphaValues_ = new();
 
       public ValueManager(
@@ -420,10 +419,10 @@ namespace bmd.exporter {
         var colorZero = equations.CreateColorConstant(0);
         var colorOne = equations.CreateColorConstant(1);
 
-        this.colorValues_[TevStage.GxCc.GX_CC_ZERO] = colorZero;
-        this.colorValues_[TevStage.GxCc.GX_CC_ONE] = colorOne;
+        this.colorValues_[GxCc.GX_CC_ZERO] = colorZero;
+        this.colorValues_[GxCc.GX_CC_ONE] = colorOne;
 
-        this.alphaValues_[TevStage.GxCa.GX_CA_ZERO] =
+        this.alphaValues_[GxCa.GX_CA_ZERO] =
             equations.CreateScalarConstant(0);
 
         this.colorUndefined_ =
@@ -441,10 +440,10 @@ namespace bmd.exporter {
           ColorRegister colorRegister,
           IColorValue colorValue) {
         var source = colorRegister switch {
-            ColorRegister.GX_TEVPREV => TevStage.GxCc.GX_CC_CPREV,
-            ColorRegister.GX_TEVREG0 => TevStage.GxCc.GX_CC_C0,
-            ColorRegister.GX_TEVREG1 => TevStage.GxCc.GX_CC_C1,
-            ColorRegister.GX_TEVREG2 => TevStage.GxCc.GX_CC_C2,
+            ColorRegister.GX_TEVPREV => GxCc.GX_CC_CPREV,
+            ColorRegister.GX_TEVREG0 => GxCc.GX_CC_C0,
+            ColorRegister.GX_TEVREG1 => GxCc.GX_CC_C1,
+            ColorRegister.GX_TEVREG2 => GxCc.GX_CC_C2,
             _ => throw new ArgumentOutOfRangeException(
                      nameof(colorRegister),
                      colorRegister,
@@ -458,10 +457,10 @@ namespace bmd.exporter {
           ColorRegister alphaRegister,
           IScalarValue alphaValue) {
         var source = alphaRegister switch {
-            ColorRegister.GX_TEVPREV => TevStage.GxCa.GX_CA_APREV,
-            ColorRegister.GX_TEVREG0 => TevStage.GxCa.GX_CA_A0,
-            ColorRegister.GX_TEVREG1 => TevStage.GxCa.GX_CA_A1,
-            ColorRegister.GX_TEVREG2 => TevStage.GxCa.GX_CA_A2,
+            ColorRegister.GX_TEVPREV => GxCa.GX_CA_APREV,
+            ColorRegister.GX_TEVREG0 => GxCa.GX_CA_A0,
+            ColorRegister.GX_TEVREG1 => GxCa.GX_CA_A1,
+            ColorRegister.GX_TEVREG2 => GxCa.GX_CA_A2,
             _ => throw new ArgumentOutOfRangeException(
                      nameof(alphaRegister),
                      alphaRegister,
@@ -474,9 +473,9 @@ namespace bmd.exporter {
       /*public void UpdateTextureColor(
           IColorNamedValue<FixedFunctionSource>? colorValue) {
         if (colorValue != null) {
-          this.colorValues_[TevStage.GxCc.GX_CC_TEXC] = colorValue;
+          this.colorValues_[GxCc.GX_CC_TEXC] = colorValue;
         } else {
-          this.colorValues_.Remove(TevStage.GxCc.GX_CC_TEXC);
+          this.colorValues_.Remove(GxCc.GX_CC_TEXC);
         }
       }*/
 
@@ -487,8 +486,8 @@ namespace bmd.exporter {
       public void UpdateTextureColor(int? index) {
         if (this.textureIndex_ != index) {
           this.textureIndex_ = index;
-          this.colorValues_.Remove(TevStage.GxCc.GX_CC_TEXC);
-          this.colorValues_.Remove(TevStage.GxCc.GX_CC_TEXA);
+          this.colorValues_.Remove(GxCc.GX_CC_TEXC);
+          this.colorValues_.Remove(GxCc.GX_CC_TEXA);
         }
 
         if (index != null) {
@@ -512,7 +511,7 @@ namespace bmd.exporter {
                   this.equations_.CreateColorConstant(0));
         }
 
-        return this.colorValues_[TevStage.GxCc.GX_CC_TEXC] = texture;
+        return this.colorValues_[GxCc.GX_CC_TEXC] = texture;
       }
 
       private IColorValue GetTextureAlphaChannel_() {
@@ -531,7 +530,7 @@ namespace bmd.exporter {
                   this.equations_.CreateColorConstant(0));
         }
 
-        return this.colorValues_[TevStage.GxCc.GX_CC_TEXA] = texture;
+        return this.colorValues_[GxCc.GX_CC_TEXA] = texture;
       }
 
       private IScalarValue GetTextureAlphaChannelAsAlpha_() {
@@ -547,7 +546,7 @@ namespace bmd.exporter {
                                        index),
                 this.equations_.CreateScalarConstant(0));
 
-        return this.alphaValues_[TevStage.GxCa.GX_CA_TEXA] = texture;
+        return this.alphaValues_[GxCa.GX_CA_TEXA] = texture;
       }
 
 
@@ -556,14 +555,14 @@ namespace bmd.exporter {
       public void UpdateRascColor(ColorChannel? colorChannel) {
         if (this.colorChannel_ != colorChannel) {
           this.colorChannel_ = colorChannel;
-          this.colorValues_.Remove(TevStage.GxCc.GX_CC_RASC);
-          this.colorValues_.Remove(TevStage.GxCc.GX_CC_RASA);
+          this.colorValues_.Remove(GxCc.GX_CC_RASC);
+          this.colorValues_.Remove(GxCc.GX_CC_RASA);
           this.alphaValues_.Remove(GxCa.GX_CA_RASA);
         }
       }
 
       // TODO: Switch from vertex color to ambient/diffuse lights when applicable
-      private IColorValue GetVertexColorChannel_(TevStage.GxCc colorSource) {
+      private IColorValue GetVertexColorChannel_(GxCc colorSource) {
         var channelOrNull = this.colorChannel_;
         Asserts.Nonnull(channelOrNull);
 
@@ -571,14 +570,14 @@ namespace bmd.exporter {
 
         if (!this.colorChannelsColors_.TryGetValue(channel, out var color)) {
           var source = colorSource switch {
-              TevStage.GxCc.GX_CC_RASC => channel switch {
+              GxCc.GX_CC_RASC => channel switch {
                   ColorChannel.GX_COLOR0A0 =>
                       FixedFunctionSource.VERTEX_COLOR_0,
                   ColorChannel.GX_COLOR1A1 =>
                       FixedFunctionSource.VERTEX_COLOR_1,
                   _ => throw new NotImplementedException()
               },
-              TevStage.GxCc.GX_CC_RASA => channel switch {
+              GxCc.GX_CC_RASA => channel switch {
                   ColorChannel.GX_COLOR0A0 =>
                       FixedFunctionSource.VERTEX_ALPHA_0,
                   ColorChannel.GX_COLOR1A1 =>
@@ -771,30 +770,30 @@ namespace bmd.exporter {
         throw new NotImplementedException();
       }
 
-      public IColorValue GetColor(TevStage.GxCc colorSource) {
+      public IColorValue GetColor(GxCc colorSource) {
         if (this.colorValues_.TryGetValue(colorSource, out var colorValue)) {
           return colorValue;
         }
 
-        if (colorSource == TevStage.GxCc.GX_CC_TEXC) {
+        if (colorSource == GxCc.GX_CC_TEXC) {
           return this.GetTextureColorChannel_();
         }
 
-        if (colorSource == TevStage.GxCc.GX_CC_TEXA) {
+        if (colorSource == GxCc.GX_CC_TEXA) {
           return this.GetTextureAlphaChannel_();
         }
 
-        if (colorSource == TevStage.GxCc.GX_CC_RASC ||
-            colorSource == TevStage.GxCc.GX_CC_RASA) {
+        if (colorSource == GxCc.GX_CC_RASC ||
+            colorSource == GxCc.GX_CC_RASA) {
           return this.GetVertexColorChannel_(colorSource);
         }
 
-        if (colorSource == TevStage.GxCc.GX_CC_KONST) {
+        if (colorSource == GxCc.GX_CC_KONST) {
           return this.GetKonstColor_(this.tevStageColorConstantSel_);
         }
 
-        if (colorSource >= TevStage.GxCc.GX_CC_C0 &&
-            colorSource <= TevStage.GxCc.GX_CC_A2) {
+        if (colorSource >= GxCc.GX_CC_C0 &&
+            colorSource <= GxCc.GX_CC_A2) {
           var (constColorImpl, isColor) = this.GetCCColor_(colorSource);
 
           var rByte = isColor
@@ -824,7 +823,7 @@ namespace bmd.exporter {
           return alphaValue;
         }
 
-        if (alphaSource == TevStage.GxCa.GX_CA_TEXA) {
+        if (alphaSource == GxCa.GX_CA_TEXA) {
           return this.GetTextureAlphaChannelAsAlpha_();
         }
 
@@ -832,14 +831,14 @@ namespace bmd.exporter {
           return this.GetVertexAlphaChannel_();
         }
 
-        if (alphaSource == TevStage.GxCa.GX_CA_KONST) {
+        if (alphaSource == GxCa.GX_CA_KONST) {
           return this.GetKonstAlpha_(this.tevStageAlphaConstantSel_);
         }
 
         if (TryGetEnumIndex_(
                 alphaSource,
-                TevStage.GxCa.GX_CA_A0,
-                TevStage.GxCa.GX_CA_A2, 
+                GxCa.GX_CA_A0,
+                GxCa.GX_CA_A2, 
                 out var caIndex)) {
           var index = 1 + caIndex;
           var constColorImpl = this.GetCCColor_(index);
@@ -860,7 +859,7 @@ namespace bmd.exporter {
       }
 
       private (Color? color, bool isAlpha) GetCCColor_(GxCc source) {
-        var ccIndex = (int) source - (int) TevStage.GxCc.GX_CC_C0;
+        var ccIndex = (int) source - (int) GxCc.GX_CC_C0;
 
         var isColor = ccIndex % 2 == 0;
         var index = isColor ? ccIndex / 2 : (ccIndex - 1) / 2;
