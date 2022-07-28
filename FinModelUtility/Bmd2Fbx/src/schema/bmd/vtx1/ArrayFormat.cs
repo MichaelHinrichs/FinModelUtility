@@ -1,10 +1,12 @@
-﻿using schema;
+﻿using gx;
+
+using schema;
 
 
 namespace bmd.schema.bmd.vtx1 {
   [Schema]
   public partial class ArrayFormat : IBiSerializable {
-    public uint ArrayType;
+    public GxAttribute ArrayType;
     public uint ComponentCount;
     public uint DataType;
     public byte DecimalPoint;

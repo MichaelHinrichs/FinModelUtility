@@ -639,11 +639,11 @@ namespace bmd.exporter {
         this.konstColorImpls_ = konstColors;
       }
 
-      private BMD.GxKonstColorSel tevStageColorConstantSel_;
-      private BMD.GxKonstAlphaSel tevStageAlphaConstantSel_;
+      private GxKonstColorSel tevStageColorConstantSel_;
+      private GxKonstAlphaSel tevStageAlphaConstantSel_;
 
-      public void UpdateKonst(BMD.GxKonstColorSel tevStageColorConstantSel,
-                              BMD.GxKonstAlphaSel tevStageAlphaConstantSel) {
+      public void UpdateKonst(GxKonstColorSel tevStageColorConstantSel,
+                              GxKonstAlphaSel tevStageAlphaConstantSel) {
         this.tevStageColorConstantSel_ = tevStageColorConstantSel;
         this.tevStageAlphaConstantSel_ = tevStageAlphaConstantSel;
       }
@@ -663,10 +663,10 @@ namespace bmd.exporter {
       }
 
       // https://github.com/magcius/bmdview/blob/master/tev.markdown#gx_settevkcolorsel
-      public IColorValue GetKonstColor_(BMD.GxKonstColorSel sel) {
+      public IColorValue GetKonstColor_(GxKonstColorSel sel) {
         if (TryGetEnumIndex_(sel,
-                             BMD.GxKonstColorSel.KCSel_1,
-                             BMD.GxKonstColorSel.KCSel_1_8,
+                             GxKonstColorSel.KCSel_1,
+                             GxKonstColorSel.KCSel_1_8,
                              out var fracIndex)) {
           var numerator = 8 - fracIndex;
           var intensity = numerator / 8f;
@@ -674,8 +674,8 @@ namespace bmd.exporter {
         }
 
         if (TryGetEnumIndex_(sel,
-                             BMD.GxKonstColorSel.KCSel_K0,
-                             BMD.GxKonstColorSel.KCSel_K3,
+                             GxKonstColorSel.KCSel_K0,
+                             GxKonstColorSel.KCSel_K3,
                              out var rgbIndex)) {
           var konstRgb = this.konstColorImpls_[rgbIndex];
           return this.equations_.CreateColorConstant(
@@ -683,8 +683,8 @@ namespace bmd.exporter {
         }
 
         if (TryGetEnumIndex_(sel,
-                             BMD.GxKonstColorSel.KCSel_K0_R,
-                             BMD.GxKonstColorSel.KCSel_K3_R,
+                             GxKonstColorSel.KCSel_K0_R,
+                             GxKonstColorSel.KCSel_K3_R,
                              out var rIndex)) {
           var konstR = this.konstColorImpls_[rIndex];
           return this.equations_.CreateColorConstant(
@@ -692,8 +692,8 @@ namespace bmd.exporter {
         }
 
         if (TryGetEnumIndex_(sel,
-                             BMD.GxKonstColorSel.KCSel_K0_G,
-                             BMD.GxKonstColorSel.KCSel_K3_G,
+                             GxKonstColorSel.KCSel_K0_G,
+                             GxKonstColorSel.KCSel_K3_G,
                              out var gIndex)) {
           var konstG = this.konstColorImpls_[gIndex];
           return this.equations_.CreateColorConstant(
@@ -701,8 +701,8 @@ namespace bmd.exporter {
         }
 
         if (TryGetEnumIndex_(sel,
-                             BMD.GxKonstColorSel.KCSel_K0_B,
-                             BMD.GxKonstColorSel.KCSel_K3_B,
+                             GxKonstColorSel.KCSel_K0_B,
+                             GxKonstColorSel.KCSel_K3_B,
                              out var bIndex)) {
           var konstB = this.konstColorImpls_[bIndex];
           return this.equations_.CreateColorConstant(
@@ -710,8 +710,8 @@ namespace bmd.exporter {
         }
 
         if (TryGetEnumIndex_(sel,
-                             BMD.GxKonstColorSel.KCSel_K0_A,
-                             BMD.GxKonstColorSel.KCSel_K3_A,
+                             GxKonstColorSel.KCSel_K0_A,
+                             GxKonstColorSel.KCSel_K3_A,
                              out var aIndex)) {
           var konstA = this.konstColorImpls_[aIndex];
           return this.equations_.CreateColorConstant(
@@ -721,10 +721,10 @@ namespace bmd.exporter {
         throw new NotImplementedException();
       }
 
-      public IScalarValue GetKonstAlpha_(BMD.GxKonstAlphaSel sel) {
+      public IScalarValue GetKonstAlpha_(GxKonstAlphaSel sel) {
         if (TryGetEnumIndex_(sel,
-                             BMD.GxKonstAlphaSel.KASel_1,
-                             BMD.GxKonstAlphaSel.KASel_1_8,
+                             GxKonstAlphaSel.KASel_1,
+                             GxKonstAlphaSel.KASel_1_8,
                              out var fracIndex)) {
           var numerator = 8 - fracIndex;
           var intensity = numerator / 8f;
@@ -732,8 +732,8 @@ namespace bmd.exporter {
         }
 
         if (TryGetEnumIndex_(sel,
-                             BMD.GxKonstAlphaSel.KASel_K0_R,
-                             BMD.GxKonstAlphaSel.KASel_K3_R,
+                             GxKonstAlphaSel.KASel_K0_R,
+                             GxKonstAlphaSel.KASel_K3_R,
                              out var rIndex)) {
           var konstR = this.konstColorImpls_[rIndex];
           return this.equations_.CreateScalarConstant(
@@ -741,8 +741,8 @@ namespace bmd.exporter {
         }
 
         if (TryGetEnumIndex_(sel,
-                             BMD.GxKonstAlphaSel.KASel_K0_G,
-                             BMD.GxKonstAlphaSel.KASel_K3_G,
+                             GxKonstAlphaSel.KASel_K0_G,
+                             GxKonstAlphaSel.KASel_K3_G,
                              out var gIndex)) {
           var konstG = this.konstColorImpls_[gIndex];
           return this.equations_.CreateScalarConstant(
@@ -750,8 +750,8 @@ namespace bmd.exporter {
         }
 
         if (TryGetEnumIndex_(sel,
-                             BMD.GxKonstAlphaSel.KASel_K0_B,
-                             BMD.GxKonstAlphaSel.KASel_K3_B,
+                             GxKonstAlphaSel.KASel_K0_B,
+                             GxKonstAlphaSel.KASel_K3_B,
                              out var bIndex)) {
           var konstB = this.konstColorImpls_[bIndex];
           return this.equations_.CreateScalarConstant(
@@ -759,8 +759,8 @@ namespace bmd.exporter {
         }
 
         if (TryGetEnumIndex_(sel,
-                             BMD.GxKonstAlphaSel.KASel_K0_A,
-                             BMD.GxKonstAlphaSel.KASel_K3_A,
+                             GxKonstAlphaSel.KASel_K0_A,
+                             GxKonstAlphaSel.KASel_K3_A,
                              out var aIndex)) {
           var konstA = this.konstColorImpls_[aIndex];
           return this.equations_.CreateScalarConstant(

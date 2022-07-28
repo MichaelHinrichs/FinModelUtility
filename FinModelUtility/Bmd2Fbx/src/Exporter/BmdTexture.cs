@@ -10,6 +10,9 @@ using fin.model;
 
 using bmd.GCN;
 
+using gx;
+
+
 namespace bmd.exporter {
   public class BmdTexture {
     public BmdTexture(
@@ -42,10 +45,10 @@ namespace bmd.exporter {
 
           this.Image = bti.ToBitmap();
           this.ColorType = BmdTexture.GetColorType_(bti.Header.Format);
-          mirrorS = (bti.Header.WrapS & BTI.GX_WRAP_TAG.GX_MIRROR) != 0;
-          mirrorT = (bti.Header.WrapT & BTI.GX_WRAP_TAG.GX_MIRROR) != 0;
-          repeatS = (bti.Header.WrapS & BTI.GX_WRAP_TAG.GX_REPEAT) != 0;
-          repeatT = (bti.Header.WrapT & BTI.GX_WRAP_TAG.GX_REPEAT) != 0;
+          mirrorS = (bti.Header.WrapS & GX_WRAP_TAG.GX_MIRROR) != 0;
+          mirrorT = (bti.Header.WrapT & GX_WRAP_TAG.GX_MIRROR) != 0;
+          repeatS = (bti.Header.WrapS & GX_WRAP_TAG.GX_REPEAT) != 0;
+          repeatT = (bti.Header.WrapT & GX_WRAP_TAG.GX_REPEAT) != 0;
         }
       }
 
@@ -53,13 +56,13 @@ namespace bmd.exporter {
         this.Image = header.ToBitmap();
         this.ColorType = BmdTexture.GetColorType_(header.Format);
         mirrorS =
-            (header.WrapS & BMD.TEX1Section.GX_WRAP_TAG.GX_MIRROR) != 0;
+            (header.WrapS & GX_WRAP_TAG.GX_MIRROR) != 0;
         mirrorT =
-            (header.WrapT & BMD.TEX1Section.GX_WRAP_TAG.GX_MIRROR) != 0;
+            (header.WrapT & GX_WRAP_TAG.GX_MIRROR) != 0;
         repeatS =
-            (header.WrapS & BMD.TEX1Section.GX_WRAP_TAG.GX_REPEAT) != 0;
+            (header.WrapS & GX_WRAP_TAG.GX_REPEAT) != 0;
         repeatT =
-            (header.WrapT & BMD.TEX1Section.GX_WRAP_TAG.GX_REPEAT) != 0;
+            (header.WrapT & GX_WRAP_TAG.GX_REPEAT) != 0;
       }
 
       // TODO: Need to handle wrapping in the shader?

@@ -12,6 +12,8 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 
+using gx;
+
 using schema;
 
 
@@ -92,39 +94,21 @@ namespace bmd.GCN {
       PAL_A3_RGB5,
     }
 
-    public enum GX_WRAP_TAG : byte {
-      GX_CLAMP,
-      GX_REPEAT,
-      GX_MIRROR,
-      GX_MAXTEXWRAPMODE,
-    }
-
-    public enum GX_TEXTURE_FILTER : byte {
-      GX_NEAR,
-      GX_LINEAR,
-      GX_NEAR_MIP_NEAR,
-      GX_LIN_MIP_NEAR,
-      GX_NEAR_MIP_LIN,
-      GX_LIN_MIP_LIN,
-      GX_NEAR2,
-      GX_NEAR3,
-    }
-
     [Schema]
     public partial class BTIHeader : IBiSerializable {
       public BTI.TextureFormat Format;
       public byte Unknown1;
       public ushort Width;
       public ushort Height;
-      public BTI.GX_WRAP_TAG WrapS;
-      public BTI.GX_WRAP_TAG WrapT;
+      public GX_WRAP_TAG WrapS;
+      public GX_WRAP_TAG WrapT;
       public byte Unknown2;
       public BTI.PaletteFormat PaletteFormat;
       public ushort NrPaletteEntries;
       public uint PaletteOffset;
       public uint Unknown3;
-      public BTI.GX_TEXTURE_FILTER MinFilter;
-      public BTI.GX_TEXTURE_FILTER MagFilter;
+      public GX_TEXTURE_FILTER MinFilter;
+      public GX_TEXTURE_FILTER MagFilter;
       public ushort Unknown4;
       public byte NrMipMap;
       public byte Unknown5;

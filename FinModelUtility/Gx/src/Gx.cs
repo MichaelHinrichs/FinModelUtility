@@ -33,7 +33,7 @@
     INDEX_16 = 3,
   }
 
-  public enum GxAttribute {
+  public enum GxAttribute : uint {
     PNMTXIDX = 0,
     TEX0MTXIDX = 1,
     TEX1MTXIDX = 2,
@@ -230,5 +230,18 @@
     GX_LIN_MIP_LIN,
     GX_NEAR2,
     GX_NEAR3,
+  }
+
+  public enum ColorChannel : byte {
+    GX_COLOR0,
+    GX_COLOR1,
+    GX_ALPHA0,
+    GX_ALPHA1,
+    GX_COLOR0A0,
+    GX_COLOR1A1,
+    GX_COLORZERO,
+    GX_BUMP,
+    GX_BUMPN,
+    GX_COLORNULL,
   }
 }

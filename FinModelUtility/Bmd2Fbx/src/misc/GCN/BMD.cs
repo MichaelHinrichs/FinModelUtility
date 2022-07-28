@@ -47,14 +47,14 @@ using schema.attributes.position;
 namespace bmd.GCN {
   public partial class BMD {
     public BmdHeader Header;
-    public BMD.INF1Section INF1;
-    public BMD.VTX1Section VTX1;
-    public BMD.EVP1Section EVP1;
-    public BMD.DRW1Section DRW1;
-    public BMD.JNT1Section JNT1;
-    public BMD.SHP1Section SHP1;
-    public BMD.MAT3Section MAT3;
-    public BMD.TEX1Section TEX1;
+    public INF1Section INF1;
+    public VTX1Section VTX1;
+    public EVP1Section EVP1;
+    public DRW1Section DRW1;
+    public JNT1Section JNT1;
+    public SHP1Section SHP1;
+    public MAT3Section MAT3;
+    public TEX1Section TEX1;
 
     public BMD(byte[] file)
     {
@@ -157,9 +157,9 @@ namespace bmd.GCN {
 
     public MA.Node[] GetJoints()
     {
-      Stack<BMD.Node> nodeStack = new Stack<BMD.Node>();
-      nodeStack.Push((BMD.Node) null);
-      List<MA.Node> nodeList = new List<MA.Node>();
+      Stack<Node> nodeStack = new Stack<Node>();
+      nodeStack.Push( null);
+      var nodeList = new List<MA.Node>();
       BMD.Node node = (BMD.Node) null;
       foreach (Inf1Entry entry in this.INF1.Entries)
       {
@@ -266,7 +266,7 @@ label_7:
               ArrayFormat arrayFormat = this.ArrayFormats[index1];
               int length2 = this.GetLength(k);
               er.Position = position1 + (long) this.Offsets[k];
-              if (arrayFormat.ArrayType >= 11 && arrayFormat.ArrayType <= 12) {
+              if (arrayFormat.ArrayType is GxAttribute.CLR0 or GxAttribute.CLR1) {
                 this.ReadColorArray(arrayFormat, length2, er);
               } else {
                 this.ReadVertexArray(arrayFormat, length2, er);
@@ -308,7 +308,7 @@ label_7:
             throw new NotImplementedException();
         }
         switch (Format.ArrayType) {
-          case 9:
+          case GxAttribute.POS:
             switch (Format.ComponentCount) {
               case 0:
                 this.Positions = new Vector3[floatList.Count / 2];
@@ -327,7 +327,7 @@ label_7:
               default:
                 return;
             }
-          case 10:
+          case GxAttribute.NRM:
             if (Format.ComponentCount != 0U)
               break;
             this.Normals = new Vector3[floatList.Count / 3];
@@ -337,28 +337,27 @@ label_7:
                   floatList[index + 1],
                   floatList[index + 2]);
             break;
-          case 13:
-          case 14:
-          case 15:
-          case 16:
-          case 17:
-          case 18:
-          case 19:
-          case 20:
-            uint num3 = Format.ArrayType - 13U;
+          case GxAttribute.TEX0:
+          case GxAttribute.TEX1:
+          case GxAttribute.TEX2:
+          case GxAttribute.TEX3:
+          case GxAttribute.TEX4:
+          case GxAttribute.TEX5:
+          case GxAttribute.TEX6:
+          case GxAttribute.TEX7:
+            var texCoordIndex = Format.ArrayType - GxAttribute.TEX0;
             switch (Format.ComponentCount) {
               case 0:
-                this.Texcoords[num3] =
-                    new BMD.VTX1Section.Texcoord[floatList.Count];
+                this.Texcoords[texCoordIndex] = new Texcoord[floatList.Count];
                 for (int index = 0; index < floatList.Count; ++index)
-                  this.Texcoords[num3][index] =
-                      new BMD.VTX1Section.Texcoord(floatList[index], 0.0f);
+                  this.Texcoords[texCoordIndex][index] =
+                      new Texcoord(floatList[index], 0.0f);
                 return;
               case 1:
-                this.Texcoords[num3] =
+                this.Texcoords[texCoordIndex] =
                     new BMD.VTX1Section.Texcoord[floatList.Count / 2];
                 for (int index = 0; index < floatList.Count - 1; index += 2)
-                  this.Texcoords[num3][index / 2] =
+                  this.Texcoords[texCoordIndex][index / 2] =
                       new BMD.VTX1Section.Texcoord(
                           floatList[index],
                           floatList[index + 1]);
@@ -386,7 +385,7 @@ label_7:
           ArrayFormat Format,
           int byteLength,
           EndianBinaryReader er) {
-        uint num2 = Format.ArrayType - 11U;
+        var colorIndex = Format.ArrayType - GxAttribute.CLR0;
 
         var colorDataType = (ColorDataType) Format.DataType;
         var expectedComponentCount = colorDataType switch {
@@ -456,7 +455,7 @@ label_7:
           colors[i] = color;
         }
 
-        this.Colors[num2] = colors;
+        this.Colors[colorIndex] = colors;
       }
 
       public class Color
@@ -1352,16 +1351,16 @@ label_7:
         public Byte AlphaSetting;
         public UInt16 Width;
         public UInt16 Height;
-        public BMD.TEX1Section.GX_WRAP_TAG WrapS;
-        public BMD.TEX1Section.GX_WRAP_TAG WrapT;
+        public GX_WRAP_TAG WrapS;
+        public GX_WRAP_TAG WrapT;
         public Byte PalettesEnabled;
         public BMD.TEX1Section.PaletteFormat PaletteFormat;
         public UInt16 NrPaletteEntries;
         public UInt32 PaletteOffset;
         public IColor[] palette;
         public UInt32 BorderColor;
-        public BMD.TEX1Section.GX_TEXTURE_FILTER MinFilter;
-        public BMD.TEX1Section.GX_TEXTURE_FILTER MagFilter;
+        public GX_TEXTURE_FILTER MinFilter;
+        public GX_TEXTURE_FILTER MagFilter;
         public UInt16 Unknown4;
         public Byte NrMipMap;
         public Byte Unknown5;
@@ -1378,15 +1377,15 @@ label_7:
           this.AlphaSetting = er.ReadByte();
           this.Width = er.ReadUInt16();
           this.Height = er.ReadUInt16();
-          this.WrapS = (BMD.TEX1Section.GX_WRAP_TAG) er.ReadByte();
-          this.WrapT = (BMD.TEX1Section.GX_WRAP_TAG) er.ReadByte();
+          this.WrapS = (GX_WRAP_TAG) er.ReadByte();
+          this.WrapT = (GX_WRAP_TAG) er.ReadByte();
           this.PalettesEnabled = er.ReadByte();
           this.PaletteFormat = (BMD.TEX1Section.PaletteFormat) er.ReadByte();
           this.NrPaletteEntries = er.ReadUInt16();
           this.PaletteOffset = er.ReadUInt32();
           this.BorderColor = er.ReadUInt32();
-          this.MinFilter = (BMD.TEX1Section.GX_TEXTURE_FILTER) er.ReadByte();
-          this.MagFilter = (BMD.TEX1Section.GX_TEXTURE_FILTER) er.ReadByte();
+          this.MinFilter = (GX_TEXTURE_FILTER) er.ReadByte();
+          this.MagFilter = (GX_TEXTURE_FILTER) er.ReadByte();
           this.Unknown4 = er.ReadUInt16();
           this.NrMipMap = er.ReadByte();
           this.Unknown5 = er.ReadByte();
