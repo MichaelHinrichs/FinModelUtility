@@ -385,7 +385,7 @@ namespace schema {
                   iChildOfParser.GetParentTypeSymbolOf(
                       structureMemberType.StructureTypeInfo.NamedTypeSymbol);
               if (expectedParentTypeSymbol != null) {
-                if (expectedParentTypeSymbol == structureSymbol) {
+                if (expectedParentTypeSymbol.Equals(structureSymbol)) {
                   structureMemberType.IsChild = true;
                 } else {
                   diagnostics.Add(Rules.CreateDiagnostic(

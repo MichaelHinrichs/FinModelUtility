@@ -34,6 +34,12 @@ using fin.util.asserts;
 using fin.util.color;
 using fin.util.image;
 
+using schema;
+using schema.attributes.child_of;
+using schema.attributes.ignore;
+using schema.attributes.offset;
+using schema.attributes.position;
+
 #pragma warning disable CS8604
 
 namespace bmd.GCN {
@@ -607,7 +613,7 @@ label_7:
       public uint UnknownOffset;
       public uint StringTableOffset;
       public Jnt1Entry[] Joints;
-      public BMD.Stringtable StringTable;
+      public StringTable StringTable;
 
       public JNT1Section(EndianBinaryReader er, out bool OK)
       {
@@ -626,7 +632,7 @@ label_7:
           this.UnknownOffset = er.ReadUInt32();
           this.StringTableOffset = er.ReadUInt32();
           er.Position = position + (long) this.StringTableOffset;
-          this.StringTable = new BMD.Stringtable(er);
+          this.StringTable = er.ReadNew<StringTable>();
           er.Position = position + (long) this.JointEntryOffset;
           er.ReadNewArray(out this.Joints, this.NrJoints);
           er.Position = position + (long) this.Header.size;
@@ -1018,7 +1024,7 @@ label_7:
       public TexCoordGen[] TexCoordGens;
       public TextureMatrixInfo[] TextureMatrices;
       public TevOrder[] TevOrders;
-      public BMD.Stringtable MaterialNameTable;
+      public StringTable MaterialNameTable;
 
       public MAT3Section(EndianBinaryReader er, out bool OK)
       {
@@ -1051,7 +1057,7 @@ label_7:
           this.MaterialEntryIndieces = er.ReadUInt16s((int) this.NrMaterials);
           
           er.Position = position1 + (long) this.Offsets[2];
-          this.MaterialNameTable = new BMD.Stringtable(er);
+          this.MaterialNameTable = er.ReadNew<StringTable>();
 
           // TODO: Add support for indirect textures (3)
 
@@ -1455,7 +1461,7 @@ label_7:
       public ushort Padding;
       public uint TextureHeaderOffset;
       public uint StringTableOffset;
-      public BMD.Stringtable StringTable;
+      public StringTable StringTable;
       public BMD.TEX1Section.TextureHeader[] TextureHeaders;
 
       public TEX1Section(EndianBinaryReader er, out bool OK)
@@ -1475,7 +1481,7 @@ label_7:
           this.StringTableOffset = er.ReadUInt32();
           long position2 = er.Position;
           er.Position = position1 + (long) this.StringTableOffset;
-          this.StringTable = new BMD.Stringtable(er);
+          this.StringTable = er.ReadNew<StringTable>();
           er.Position = position1 + (long) this.TextureHeaderOffset;
           this.TextureHeaders = new BMD.TEX1Section.TextureHeader[(int) this.NrTextures];
           for (int idx = 0; idx < (int) this.NrTextures; ++idx)
@@ -1704,62 +1710,7 @@ label_7:
         }
       }
     }
-
-    public class Stringtable
-    {
-      public ushort NrStrings;
-      public ushort Padding;
-      public BMD.Stringtable.StringTableEntry[] Entries;
-
-      public Stringtable(EndianBinaryReader er)
-      {
-        long position = er.Position;
-        this.NrStrings = er.ReadUInt16();
-        this.Padding = er.ReadUInt16();
-        this.Entries = new BMD.Stringtable.StringTableEntry[(int) this.NrStrings];
-        for (int index = 0; index < (int) this.NrStrings; ++index)
-          this.Entries[index] = new BMD.Stringtable.StringTableEntry(er, position);
-      }
-
-      public string this[int index] => (string) this.Entries[index];
-
-      public int this[string index]
-      {
-        get
-        {
-          for (int index1 = 0; index1 < this.Entries.Length; ++index1)
-          {
-            if ((string) this.Entries[index1] == index)
-              return index1;
-          }
-          return -1;
-        }
-      }
-
-      public class StringTableEntry
-      {
-        public ushort Unknown;
-        public ushort Offset;
-        public string Entry;
-
-        public StringTableEntry(EndianBinaryReader er, long baseoffset)
-        {
-          this.Unknown = er.ReadUInt16();
-          this.Offset = er.ReadUInt16();
-          long position = er.Position;
-          er.Position = baseoffset + (long) this.Offset;
-          this.Entry = er.ReadStringNT(Encoding.ASCII);
-          er.Position = position;
-        }
-
-        public override string ToString() => this.Entry;
-
-        public static implicit operator string(
-            BMD.Stringtable.StringTableEntry e)
-          => e.Entry;
-      }
-    }
-
+    
     private class Node
     {
       public BMD.Node Parent;
