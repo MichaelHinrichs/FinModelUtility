@@ -1,5 +1,7 @@
 ﻿using System;
 
+using schema.attributes;
+
 
 namespace schema {
   /// <summary>
@@ -16,7 +18,9 @@ namespace schema {
 
 
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-  public class ArrayLengthSourceAttribute : Attribute {
+  public class ArrayLengthSourceAttribute : BMemberAttribute {
+    private string? otherMemberName_;
+
     /// <summary>
     ///   Parses an integer length with the given format immediately before the array.
     /// </summary>
@@ -31,13 +35,21 @@ namespace schema {
     /// </summary>
     public ArrayLengthSourceAttribute(string otherMemberName) {
       this.Method = SequenceLengthSourceType.OTHER_MEMBER;
-      this.OtherMemberName = otherMemberName;
+      this.otherMemberName_ = otherMemberName;
+    }
+
+    protected override void InitFields() {
+      if (this.otherMemberName_ != null) {
+        this.OtherMember =
+            this.GetMemberRelativeToStructure(this.otherMemberName_)
+                .AssertIsInteger();
+      }
     }
 
     public SequenceLengthSourceType Method { get; }
 
     public SchemaIntType LengthType { get; }
-    public string OtherMemberName { get; }
+    public IMemberReference OtherMember { get; private set; }
   }
 
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]

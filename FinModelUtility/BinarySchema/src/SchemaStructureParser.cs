@@ -4,9 +4,11 @@ using System.Linq;
 
 using Microsoft.CodeAnalysis;
 
+using schema.attributes;
 using schema.attributes.align;
 using schema.attributes.child_of;
 using schema.attributes.ignore;
+using schema.attributes.memory;
 using schema.attributes.offset;
 using schema.attributes.position;
 using schema.parser;
@@ -390,7 +392,8 @@ namespace schema {
                 } else {
                   diagnostics.Add(Rules.CreateDiagnostic(
                                       memberSymbol,
-                                      Rules.ChildTypeCanOnlyBeContainedInParent));
+                                      Rules
+                                          .ChildTypeCanOnlyBeContainedInParent));
                 }
               }
             }
@@ -493,37 +496,8 @@ namespace schema {
                     break;
                   }
                   case SequenceLengthSourceType.OTHER_MEMBER: {
-                    // TODO: Verify whether it exists, type, stuff
-                    var otherLengthMemberSymbolName =
-                        lengthSourceAttribute.OtherMemberName;
-                    var otherLengthMemberTypeSymbol =
-                        SymbolTypeUtil.GetTypeFromMember(
-                            structureSymbol,
-                            otherLengthMemberSymbolName);
-
-                    var otherLengthMemberParseStatus =
-                        typeInfoParser.ParseTypeSymbol(
-                            otherLengthMemberTypeSymbol,
-                            true,
-                            out var otherLengthMemberTypeInfo);
-
-                    // TODO: Add a better error
-                    if (otherLengthMemberParseStatus !=
-                        TypeInfoParser.ParseStatus.SUCCESS ||
-                        otherLengthMemberTypeInfo is not IIntegerTypeInfo
-                            otherLengthMemberIntegerTypeInfo) {
-                      diagnostics.Add(
-                          Rules.CreateDiagnostic(
-                              memberSymbol,
-                              Rules.NotSupported));
-                      continue;
-                    }
-
-                    sequenceMemberType.LengthMember = new SchemaMember {
-                        Name = otherLengthMemberSymbolName,
-                        MemberType = WrapTypeInfoWithMemberType(
-                            otherLengthMemberIntegerTypeInfo),
-                    };
+                    sequenceMemberType.LengthMember =
+                        WrapMemberReference(lengthSourceAttribute.OtherMember);
                     break;
                   }
                   default:
@@ -689,5 +663,12 @@ namespace schema {
         default: throw new ArgumentOutOfRangeException(nameof(typeInfo));
       }
     }
+
+    public SchemaMember WrapMemberReference(IMemberReference memberReference)
+      => new() {
+          Name = memberReference.Name,
+          MemberType = WrapTypeInfoWithMemberType(
+              memberReference.MemberTypeInfo),
+      };
   }
 }
