@@ -1,10 +1,9 @@
 ﻿using System;
 
-using asserts;
-
 using Microsoft.CodeAnalysis;
 
 using schema.parser;
+using schema.util;
 
 
 namespace schema.attributes {
@@ -80,6 +79,9 @@ namespace schema.attributes {
 
     bool IsInteger { get; }
     IMemberReference AssertIsInteger();
+
+    bool IsBool { get; }
+    IMemberReference AssertIsBool();
   }
 
   public interface IMemberReference<T> : IMemberReference { }
@@ -104,6 +106,15 @@ namespace schema.attributes {
     public IMemberReference AssertIsInteger() {
       if (!this.IsInteger) {
         Asserts.Fail($"Expected {this.Name} to refer to an integer!");
+      }
+      return this;
+    }
+
+    public bool IsBool => this.MemberTypeInfo is IBoolTypeInfo;
+
+    public IMemberReference AssertIsBool() {
+      if (!this.IsBool) {
+        Asserts.Fail($"Expected {this.Name} to refer to an bool!");
       }
       return this;
     }
