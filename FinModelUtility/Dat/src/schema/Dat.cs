@@ -4,6 +4,7 @@ using fin.util.asserts;
 using gx;
 
 using schema;
+using schema.attributes.ignore;
 
 
 namespace dat.schema {
@@ -28,6 +29,8 @@ namespace dat.schema {
     public List<JObj> RootJObjs { get; } = new();
 
     public void Read(EndianBinaryReader er) {
+      Dat.vertexDescriptorValue_ = (uint) 0;
+
       var fileHeader = er.ReadNew<FileHeader>();
       Asserts.Equal(er.Length, fileHeader.FileSize);
 
@@ -92,6 +95,8 @@ namespace dat.schema {
       return true;
     }
 
+    private static uint vertexDescriptorValue_;
+
     private void ReadJObs_(EndianBinaryReader er) {
       var jObjQueue =
           new Queue<(
@@ -153,6 +158,7 @@ namespace dat.schema {
                 er.Position = this.dataBlockOffset_ +
                               pObjData.VertexDescriptorListOffset;
 
+                // Reads vertex descriptors
                 while (true) {
                   var vertexDescriptor = new VertexDescriptor();
                   var vertexDescriptorData = vertexDescriptor.Data;
@@ -163,6 +169,89 @@ namespace dat.schema {
                   }
 
                   pObj.VertexDescriptors.Add(vertexDescriptor);
+                }
+
+                var startingOffset =
+                    er.Position =
+                        this.dataBlockOffset_ + pObjData.DisplayOffset;
+
+                // Reads display list
+                while (er.Position - startingOffset < pObjData.nDisp * 32) {
+                  var opcode = (GxOpcode) er.ReadByte();
+                  if (opcode == GxOpcode.NOP) {
+                    break;
+                  }
+
+                  switch (opcode) {
+                    case GxOpcode.LOAD_CP_REG: {
+                      var command = er.ReadByte();
+                      var value = er.ReadUInt32();
+
+                      if (command == 0x50) {
+                        Dat.vertexDescriptorValue_ &= ~((uint) 0x1FFFF);
+                        Dat.vertexDescriptorValue_ |= value;
+                      } else if (command == 0x60) {
+                        value <<= 17;
+                        Dat.vertexDescriptorValue_ &= 0x1FFFF;
+                        Dat.vertexDescriptorValue_ |= value;
+                      } else {
+                        throw new NotImplementedException();
+                      }
+
+                      break;
+                    }
+                    case GxOpcode.LOAD_XF_REG: {
+                      var lengthMinusOne = er.ReadUInt16();
+                      var length = lengthMinusOne + 1;
+
+                      // http://hitmen.c02.at/files/yagcd/yagcd/chap5.html#sec5.11.4
+                      var firstXfRegisterAddress = er.ReadUInt16();
+
+                      var values = er.ReadUInt32s(length);
+                      // TODO: Implement
+                      break;
+                    }
+                    case GxOpcode.DRAW_TRIANGLES:
+                    case GxOpcode.DRAW_QUADS:
+                    case GxOpcode.DRAW_TRIANGLE_STRIP: {
+                      var vertexCount = er.ReadUInt16();
+
+                      for (var i = 0; i < vertexCount; ++i) {
+                        foreach (var vertexDescriptor in
+                                 pObj.VertexDescriptors) {
+                          var vertexAttribute = vertexDescriptor.Data.Attribute;
+                          var vertexFormat =
+                              vertexDescriptor.Data.AttributeType;
+
+                          var value = vertexFormat switch {
+                              GxAttributeType.DIRECT => er.ReadByte(),
+                              GxAttributeType.INDEX_8 => er.ReadByte(),
+                              GxAttributeType.INDEX_16 => er.ReadUInt16(),
+                              _ => throw new NotImplementedException(),
+                          };
+
+                          switch (vertexAttribute) {
+                            case GxAttribute.PNMTXIDX: {
+                              Asserts.Equal(0, value % 3);
+                              value /= 3;
+                              break;
+                            }
+                            case GxAttribute.POS: {
+                              break;
+                            }
+                            case GxAttribute.NRM: {
+                              break;
+                            }
+                          }
+                        }
+                      }
+
+                      break;
+                    }
+                    default: {
+                      break;
+                    }
+                  }
                 }
 
                 break;
@@ -204,9 +293,29 @@ namespace dat.schema {
     public uint RootNodeCount { get; set; }
     public uint ReferenceNodeCount { get; set; }
 
-    [StringLengthSource(4)] public string Version { get; set; }
+    [StringLengthSource(4)]
+    public string Version { get; set; }
+
     public uint Padding1 { get; set; }
     public uint Padding2 { get; set; }
+
+
+    [Ignore]
+    public uint DataBlockOffset => 0x20;
+
+    [Ignore]
+    public uint RelocationTableOffset => DataBlockOffset + DataBlockSize;
+
+    [Ignore]
+    public uint RootNodeOffset =>
+        RelocationTableOffset + 4 * RelocationTableCount;
+
+    [Ignore]
+    public uint ReferenceNodeOffset => RootNodeOffset + 8 * RootNodeCount;
+
+    [Ignore]
+    public uint StringTableOffset =>
+        ReferenceNodeOffset + 8 * ReferenceNodeCount;
   }
 
   [Schema]
@@ -241,6 +350,7 @@ namespace dat.schema {
     public RootNodeType Type { get; private set; }
 
     private static RootNodeType GetTypeFromName_(string name) {
+      // TODO: Use flags for this instead
       if (name.EndsWith("_Share_joint")) {
         return RootNodeType.JObj;
       }
@@ -306,12 +416,15 @@ namespace dat.schema {
 
   public class PObj {
     public PObjData Data { get; set; } = new();
+
     public List<VertexDescriptor> VertexDescriptors { get; } = new();
+
+    public List<(ushort, ushort, ushort)> PositionIndices { get; } = new();
   }
 
   [Schema]
   public partial class VertexDescriptorData : IBiSerializable {
-    [Format(SchemaNumberType.UINT32)] public GxAttribute Attribute { get; set; }
+    public GxAttribute Attribute { get; set; }
 
     [Format(SchemaNumberType.UINT32)]
     public GxAttributeType AttributeType { get; set; }
@@ -321,7 +434,10 @@ namespace dat.schema {
 
     [Format(SchemaNumberType.UINT32)]
     public GxComponentType CompType { get; set; }
-    public ushort CompShift { get; set; }
+
+    public byte CompShift { get; set; }
+
+    public byte Padding { get; set; }
 
     public ushort Stride { get; set; }
 
