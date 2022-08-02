@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 
 namespace schema.memory {
-  public interface IMemoryRange<T> {
-    IMemoryRange<T>? Parent { get; }
+  public interface INestedRanges<T> {
+    INestedRanges<T>? Parent { get; }
 
     T Data { get; set; }
 
@@ -13,17 +13,18 @@ namespace schema.memory {
     long Length { get; }
     void Resize(long length);
 
-    long GetOffset();
+    long GetRelativeOffset();
+    long GetAbsoluteOffset();
 
 
     void ClaimWithin(long offset, long sublength);
     void ClaimAtEnd(long sublength);
 
-    IMemoryRange<T> ClaimSubrangeWithin(T data, long offset, long length);
-    IMemoryRange<T> ClaimSubrangeAtEnd(T data, long length);
+    INestedRanges<T> ClaimSubrangeWithin(T data, long offset, long length);
+    INestedRanges<T> ClaimSubrangeAtEnd(T data, long length);
   }
 
-  public class MemoryRange<T> : IMemoryRange<T> {
+  public class NestedRanges<T> : INestedRanges<T> {
     private enum MemoryRangeType {
       ROOT,
       UNCLAIMED,
@@ -33,10 +34,10 @@ namespace schema.memory {
     private readonly T nullData_;
 
     private MemoryRangeType type_;
-    private readonly MemoryRange<T>? parent_;
-    private IList<MemoryRange<T>>? children_;
+    private readonly NestedRanges<T>? parent_;
+    private IList<NestedRanges<T>>? children_;
 
-    public MemoryRange(
+    public NestedRanges(
         T nullData,
         T data,
         long length) {
@@ -46,9 +47,9 @@ namespace schema.memory {
       this.Length = length;
     }
 
-    private MemoryRange(
+    private NestedRanges(
         MemoryRangeType type,
-        MemoryRange<T> parent,
+        NestedRanges<T> parent,
         T nullData,
         T data,
         long length) {
@@ -60,7 +61,7 @@ namespace schema.memory {
     }
 
 
-    public IMemoryRange<T>? Parent => parent_;
+    public INestedRanges<T>? Parent => parent_;
     public T Data { get; set; }
 
 
@@ -89,7 +90,7 @@ namespace schema.memory {
     }
 
 
-    public long GetOffset() {
+    public long GetRelativeOffset() {
       if (this.parent_ == null) {
         return 0;
       }
@@ -105,6 +106,18 @@ namespace schema.memory {
       throw new NotSupportedException();
     }
 
+    public long GetAbsoluteOffset() {
+      var totalOffset = 0L;
+
+      var range = this;
+      while (range != null) {
+        totalOffset += range.GetRelativeOffset();
+        range = range.parent_;
+      }
+
+      return totalOffset;
+    }
+
 
     public void ClaimWithin(long offset, long sublength)
       => this.ClaimSubrangeWithin(this.nullData_, offset, sublength);
@@ -113,7 +126,7 @@ namespace schema.memory {
       => this.ClaimSubrangeAtEnd(this.nullData_, sublength);
 
 
-    public IMemoryRange<T> ClaimSubrangeWithin(
+    public INestedRanges<T> ClaimSubrangeWithin(
         T data,
         long offset,
         long length) {
@@ -136,12 +149,12 @@ namespace schema.memory {
           this.FindRangeContainingRelativeOffset_(offset);
 
       if (child == null) {
-        this.children_ = new List<MemoryRange<T>>();
+        this.children_ = new List<NestedRanges<T>>();
 
         var beforeLength = offset;
         if (beforeLength > 0) {
           this.children_.Add(
-              new MemoryRange<T>(
+              new NestedRanges<T>(
                   MemoryRangeType.UNCLAIMED,
                   this,
                   this.nullData_,
@@ -149,7 +162,7 @@ namespace schema.memory {
                   beforeLength));
         }
 
-        var newRange = new MemoryRange<T>(
+        var newRange = new NestedRanges<T>(
             MemoryRangeType.CLAIMED,
             this,
             this.nullData_,
@@ -160,7 +173,7 @@ namespace schema.memory {
         var afterLength = this.Length - (beforeLength + length);
         if (afterLength > 0) {
           this.children_.Add(
-              new MemoryRange<T>(
+              new NestedRanges<T>(
                   MemoryRangeType.UNCLAIMED,
                   this,
                   this.nullData_,
@@ -177,6 +190,7 @@ namespace schema.memory {
 
       if (absoluteOffset == offset && child.Length == length) {
         child.type_ = MemoryRangeType.CLAIMED;
+        child.Data = data;
         return child;
       }
 
@@ -187,7 +201,7 @@ namespace schema.memory {
         if (beforeLength > 0) {
           this.children_.Insert(
               index,
-              new MemoryRange<T>(
+              new NestedRanges<T>(
                   MemoryRangeType.UNCLAIMED,
                   this,
                   this.nullData_,
@@ -195,7 +209,7 @@ namespace schema.memory {
                   beforeLength));
         }
 
-        var newRange = new MemoryRange<T>(
+        var newRange = new NestedRanges<T>(
             MemoryRangeType.CLAIMED,
             this,
             this.nullData_,
@@ -207,7 +221,7 @@ namespace schema.memory {
         if (afterLength > 0) {
           this.children_.Insert(
               index + 2,
-              new MemoryRange<T>(
+              new NestedRanges<T>(
                   MemoryRangeType.UNCLAIMED,
                   this,
                   this.nullData_,
@@ -219,7 +233,7 @@ namespace schema.memory {
       }
     }
 
-    public IMemoryRange<T> ClaimSubrangeAtEnd(T data, long length) {
+    public INestedRanges<T> ClaimSubrangeAtEnd(T data, long length) {
       if (length <= 0) {
         throw new ArgumentOutOfRangeException(
             nameof(length),
@@ -233,9 +247,9 @@ namespace schema.memory {
 
 
       if (this.children_ == null) {
-        this.children_ = new List<MemoryRange<T>>();
+        this.children_ = new List<NestedRanges<T>>();
         this.children_.Add(
-            new MemoryRange<T>(
+            new NestedRanges<T>(
                 MemoryRangeType.UNCLAIMED,
                 this,
                 this.nullData_,
@@ -243,7 +257,7 @@ namespace schema.memory {
                 this.Length));
       }
 
-      var newRange = new MemoryRange<T>(
+      var newRange = new NestedRanges<T>(
           MemoryRangeType.CLAIMED,
           this,
           this.nullData_,
@@ -257,7 +271,7 @@ namespace schema.memory {
     }
 
 
-    private (int index, long absoluteOffset, MemoryRange<T>? range)
+    private (int index, long absoluteOffset, NestedRanges<T>? range)
         FindRangeContainingRelativeOffset_(
             long relativeOffset) {
       if (this.children_ == null) {
