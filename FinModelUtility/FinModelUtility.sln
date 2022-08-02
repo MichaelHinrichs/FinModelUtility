@@ -75,7 +75,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Glo", "Glo\Glo.csproj", "{A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dat", "Dat\Dat.csproj", "{E97647AB-CDFF-4DDA-A516-79AF2CAEEB59}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gx", "Gx\Gx.csproj", "{C606A58F-1C67-45A7-A61F-045F8DE9E665}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gx", "Gx\Gx.csproj", "{C606A58F-1C67-45A7-A61F-045F8DE9E665}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Asserts", "Asserts\Asserts.csproj", "{7627A0BE-007E-4040-AA94-4F59C38EAD86}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -339,6 +341,18 @@ Global
 		{C606A58F-1C67-45A7-A61F-045F8DE9E665}.Release|x64.Build.0 = Release|Any CPU
 		{C606A58F-1C67-45A7-A61F-045F8DE9E665}.Release|x86.ActiveCfg = Release|Any CPU
 		{C606A58F-1C67-45A7-A61F-045F8DE9E665}.Release|x86.Build.0 = Release|Any CPU
+		{7627A0BE-007E-4040-AA94-4F59C38EAD86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7627A0BE-007E-4040-AA94-4F59C38EAD86}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7627A0BE-007E-4040-AA94-4F59C38EAD86}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7627A0BE-007E-4040-AA94-4F59C38EAD86}.Debug|x64.Build.0 = Debug|Any CPU
+		{7627A0BE-007E-4040-AA94-4F59C38EAD86}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7627A0BE-007E-4040-AA94-4F59C38EAD86}.Debug|x86.Build.0 = Debug|Any CPU
+		{7627A0BE-007E-4040-AA94-4F59C38EAD86}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7627A0BE-007E-4040-AA94-4F59C38EAD86}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7627A0BE-007E-4040-AA94-4F59C38EAD86}.Release|x64.ActiveCfg = Release|Any CPU
+		{7627A0BE-007E-4040-AA94-4F59C38EAD86}.Release|x64.Build.0 = Release|Any CPU
+		{7627A0BE-007E-4040-AA94-4F59C38EAD86}.Release|x86.ActiveCfg = Release|Any CPU
+		{7627A0BE-007E-4040-AA94-4F59C38EAD86}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
