@@ -62,7 +62,8 @@ namespace schema.parser {
 
     public IEnumerable<(ParseStatus, ISymbol, ITypeInfo)> ParseMembers(
         INamedTypeSymbol structureSymbol) {
-      foreach (var memberSymbol in SymbolTypeUtil.GetInstanceMembers(structureSymbol)) {
+      foreach (var memberSymbol in SymbolTypeUtil.GetInstanceMembers(
+                   structureSymbol)) {
         // Tries to parse the type to get info about it
         var parseStatus = this.ParseMember(
             memberSymbol, out var memberTypeInfo);
@@ -245,6 +246,16 @@ namespace schema.parser {
 
       typeInfo = default;
       return ParseStatus.NOT_IMPLEMENTED;
+    }
+
+    public ITypeInfo AssertParseTypeSymbol(
+        ITypeSymbol typeSymbol) {
+      var parseStatus =
+          this.ParseTypeSymbol(typeSymbol, true, out var typeInfo);
+      if (parseStatus != ParseStatus.SUCCESS) {
+        throw new NotImplementedException();
+      }
+      return typeInfo;
     }
 
     private bool GetTypeOfMember_(
