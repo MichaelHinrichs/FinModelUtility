@@ -1,7 +1,4 @@
-﻿using schema.memory;
-
-
-namespace schema.indirect {
+﻿namespace schema.memory {
   public interface IMemoryRange {
     IMemoryBlock? Parent { get; }
 
@@ -63,8 +60,8 @@ namespace schema.indirect {
     public IMemoryBlock? Parent => this.impl_.Parent?.Data as IMemoryBlock;
 
     public IMemoryBlock ClaimBlockWithin(MemoryBlockType type,
-                                       long offsetInBytes,
-                                       long sizeInBytes) {
+                                         long offsetInBytes,
+                                         long sizeInBytes) {
       var subrange =
           this.impl_.ClaimSubrangeWithin(null, offsetInBytes, sizeInBytes);
       var block = new MemoryBlock(subrange, type);
@@ -73,7 +70,8 @@ namespace schema.indirect {
       return block;
     }
 
-    public IMemoryBlock ClaimBlockAtEnd(MemoryBlockType type, long sizeInBytes) {
+    public IMemoryBlock
+        ClaimBlockAtEnd(MemoryBlockType type, long sizeInBytes) {
       var subrange =
           this.impl_.ClaimSubrangeAtEnd(null, sizeInBytes);
       var block = new MemoryBlock(subrange, type);
