@@ -244,34 +244,8 @@ namespace schema {
               SchemaMember? booleanMember = null;
               if (ifBooleanAttribute.Method ==
                   IfBooleanSourceType.OTHER_MEMBER) {
-                var booleanMemberName = ifBooleanAttribute.OtherMemberName;
-                var booleanMemberTypeSymbol =
-                    SymbolTypeUtil.GetTypeFromMember(
-                        structureSymbol, booleanMemberName!);
-                var booleanMemberParseStatus =
-                    typeInfoParser.ParseTypeSymbol(
-                        booleanMemberTypeSymbol,
-                        true,
-                        out var booleanMemberTypeInfo);
-
-                // TODO: Handle with better errors
-                if (booleanMemberParseStatus !=
-                    TypeInfoParser.ParseStatus.SUCCESS
-                    || booleanMemberTypeInfo is not IBoolTypeInfo
-                        booleanPrimitiveTypeInfo) {
-                  diagnostics.Add(
-                      Rules.CreateDiagnostic(
-                          memberSymbol, Rules.NotSupported));
-                  continue;
-                }
-
                 booleanMember =
-                    new SchemaMember {
-                        Name = booleanMemberName,
-                        MemberType = new PrimitiveMemberType {
-                            PrimitiveTypeInfo = booleanPrimitiveTypeInfo
-                        }
-                    };
+                    WrapMemberReference(ifBooleanAttribute.OtherMember!);
               }
 
               ifBoolean = new IfBoolean {

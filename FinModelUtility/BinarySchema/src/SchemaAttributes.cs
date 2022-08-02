@@ -56,7 +56,9 @@ namespace schema {
   public class NullTerminatedStringAttribute : Attribute { }
 
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-  public class StringLengthSourceAttribute : Attribute {
+  public class StringLengthSourceAttribute : BMemberAttribute {
+    private string? otherMemberName_;
+
     /// <summary>
     ///   Parses a length with the given format immediately before the string.
     /// </summary>
@@ -71,7 +73,7 @@ namespace schema {
     /// </summary>
     public StringLengthSourceAttribute(string otherMemberName) {
       this.Method = StringLengthSourceType.OTHER_MEMBER;
-      this.OtherMemberName = otherMemberName;
+      this.otherMemberName_ = otherMemberName;
     }
 
     public StringLengthSourceAttribute(int constLength) {
@@ -79,10 +81,19 @@ namespace schema {
       this.ConstLength = constLength;
     }
 
+    protected override void InitFields() {
+      if (this.otherMemberName_ != null) {
+        this.OtherMember =
+            this
+                .GetMemberRelativeToStructure(this.otherMemberName_)
+                .AssertIsInteger();
+      }
+    }
+
     public StringLengthSourceType Method { get; }
 
     public SchemaIntType LengthType { get; }
-    public string? OtherMemberName { get; }
+    public IMemberReference? OtherMember { get; private set; }
     public int ConstLength { get; }
   }
 
@@ -98,7 +109,9 @@ namespace schema {
 
 
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-  public class IfBooleanAttribute : Attribute {
+  public class IfBooleanAttribute : BMemberAttribute {
+    private readonly string? otherMemberName_;
+
     public IfBooleanAttribute(SchemaIntType lengthType) {
       this.Method = IfBooleanSourceType.IMMEDIATE_VALUE;
       this.BooleanType = lengthType;
@@ -106,13 +119,21 @@ namespace schema {
 
     public IfBooleanAttribute(string otherMemberName) {
       this.Method = IfBooleanSourceType.OTHER_MEMBER;
-      this.OtherMemberName = otherMemberName;
+      this.otherMemberName_ = otherMemberName;
+    }
+
+    protected override void InitFields() {
+      if (this.otherMemberName_ != null) {
+        this.OtherMember =
+            this.GetMemberRelativeToStructure(this.otherMemberName_)
+                .AssertIsBool();
+      }
     }
 
     public IfBooleanSourceType Method { get; }
 
     public SchemaIntType BooleanType { get; }
-    public string? OtherMemberName { get; }
+    public IMemberReference? OtherMember { get; private set; }
   }
 
 

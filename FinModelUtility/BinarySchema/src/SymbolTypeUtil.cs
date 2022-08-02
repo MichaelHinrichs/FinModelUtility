@@ -8,6 +8,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
+using schema.attributes;
+
 
 namespace schema {
   internal static class SymbolTypeUtil {
@@ -119,8 +121,14 @@ namespace schema {
                        });
 
       var arguments = attributeData.ConstructorArguments;
-      return (TAttribute) constructor.Invoke(
+      var attribute = (TAttribute) constructor.Invoke(
           arguments.Select(a => a.Value).ToArray());
+
+      if (attribute is BMemberAttribute memberAttribute) {
+        memberAttribute.Init(symbol.ContainingType, symbol.Name);
+      }
+
+      return attribute;
     }
 
     public static IEnumerable<ISymbol> GetInstanceMembers(
