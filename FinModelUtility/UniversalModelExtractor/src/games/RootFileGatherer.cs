@@ -3,6 +3,7 @@
 using uni.games.battalion_wars;
 using uni.games.glover;
 using uni.games.great_ace_attorney;
+using uni.games.halo_wars;
 using uni.games.luigis_mansion_3d;
 using uni.games.majoras_mask_3d;
 using uni.games.mario_kart_double_dash;
@@ -22,6 +23,7 @@ namespace uni.games {
           new BattalionWarsFileGatherer(),
           new GloverModelFileGatherer(),
           new GreatAceAttorneyModelFileGatherer(),
+          new HaloWarsModelFileGatherer(),
           new LuigisMansion3dModelFileGatherer(),
           new MajorasMask3dFileGatherer(),
           new MarioKartDoubleDashFileGatherer(),

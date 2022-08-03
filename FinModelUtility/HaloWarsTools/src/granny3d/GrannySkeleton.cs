@@ -21,9 +21,7 @@ namespace hw.granny3d {
       var boneCount = er.ReadUInt32();
       GrannyUtils.SubreadUInt64Pointer(er, ser => {
         for (var i = 0; i < boneCount; ++i) {
-          var bone = new GrannyBone();
-          bone.Read(ser);
-          Bones.Add(bone);
+          Bones.Add(ser.ReadNew<GrannyBone>());
         }
       });
     }
