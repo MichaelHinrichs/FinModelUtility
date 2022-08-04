@@ -1,4 +1,8 @@
-﻿using NUnit.Framework;
+﻿using System.Security.Cryptography.X509Certificates;
+
+using NUnit.Framework;
+
+using schema.util;
 
 
 namespace schema.memory {
@@ -44,7 +48,7 @@ namespace schema.memory {
 
     [Test]
     public void TestClaimingChildrenAtEnd() {
-      var nestedRanges = new NestedRanges<int>(-1, -1, 0);
+      var nestedRanges = new NestedRanges<int>(-1, -1);
       Assert.AreEqual(-1, nestedRanges.Data);
       Assert.AreEqual(0, nestedRanges.Length);
 
@@ -66,7 +70,7 @@ namespace schema.memory {
       Assert.AreEqual(1, secondChild.GetRelativeOffset());
       Assert.AreEqual(2, secondChild.Length);
 
-      var thirdChild = nestedRanges.ClaimSubrangeAtEnd(3,  3);
+      var thirdChild = nestedRanges.ClaimSubrangeAtEnd(3, 3);
       Assert.AreEqual(3, thirdChild.Data);
       Assert.AreEqual(3, thirdChild.GetAbsoluteOffset());
       Assert.AreEqual(3, thirdChild.GetRelativeOffset());
@@ -101,6 +105,48 @@ namespace schema.memory {
         nestedRanges.ResizeSelfAndParents(25);
         Assert.AreEqual(25, nestedRanges.Length);
       }
+    }
+
+    [Test]
+    public void TestResizingNestedRanges() {
+      var outerRanges = new NestedRanges<int>(-1, 0);
+      var middleRanges1 = outerRanges.ClaimSubrangeAtEnd(-1);
+      var innerRanges1_1 = middleRanges1.ClaimSubrangeAtEnd(-1);
+      var innerRanges1_2 = middleRanges1.ClaimSubrangeAtEnd(-1);
+      var middleRanges2 = outerRanges.ClaimSubrangeAtEnd(-1);
+      var innerRanges2_1 = middleRanges2.ClaimSubrangeAtEnd(-1);
+      var innerRanges2_2 = middleRanges2.ClaimSubrangeAtEnd(-1);
+
+      AssertLengthAndOffsets(outerRanges, 0, 0, 0);
+      AssertLengthAndOffsets(middleRanges1, 0, 0, 0);
+      AssertLengthAndOffsets(innerRanges1_1, 0, 0, 0);
+      AssertLengthAndOffsets(innerRanges1_2, 0, 0, 0);
+      AssertLengthAndOffsets(middleRanges2, 0, 0, 0);
+      AssertLengthAndOffsets(innerRanges2_1, 0, 0, 0);
+      AssertLengthAndOffsets(innerRanges2_2, 0, 0, 0);
+
+      innerRanges1_1.ResizeSelfAndParents(1);
+      innerRanges1_2.ResizeSelfAndParents(2);
+      innerRanges2_1.ResizeSelfAndParents(3);
+      innerRanges2_2.ResizeSelfAndParents(4);
+
+      AssertLengthAndOffsets(outerRanges, 10, 0, 0);
+      AssertLengthAndOffsets(middleRanges1, 3, 0, 0);
+      AssertLengthAndOffsets(innerRanges1_1, 1, 0, 0);
+      AssertLengthAndOffsets(innerRanges1_2, 2, 1, 1);
+      AssertLengthAndOffsets(middleRanges2, 7, 3, 3);
+      AssertLengthAndOffsets(innerRanges2_1, 3, 0, 3);
+      AssertLengthAndOffsets(innerRanges2_2, 4, 3, 6);
+    }
+
+    public static void AssertLengthAndOffsets<T>(
+        IReadonlyNestedRanges<T> range,
+        long length,
+        long relativeOffset,
+        long absoluteOffset) {
+      Assert.AreEqual(length, range.Length);
+      Assert.AreEqual(relativeOffset, range.GetRelativeOffset());
+      Assert.AreEqual(absoluteOffset, range.GetAbsoluteOffset());
     }
   }
 }

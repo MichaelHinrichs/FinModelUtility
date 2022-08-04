@@ -64,6 +64,10 @@ namespace schema.memory {
       this.Length = length;
     }
 
+    public NestedRanges(
+        T nullData,
+        T data) : this(nullData, data, 0) { }
+
     private NestedRanges(
         MemoryRangeType type,
         NestedRanges<T> parent,
@@ -133,7 +137,12 @@ namespace schema.memory {
 
     public void ResizeSelfAndParents(long length) {
       this.Length = length;
-      this.parent_?.RecalculateLengthFromChildren_();
+
+      var parent = this.parent_;
+      while (parent != null) {
+        parent.RecalculateLengthFromChildren_();
+        parent = parent.parent_;
+      }
     }
 
     private void RecalculateLengthFromChildren_() {
@@ -196,6 +205,9 @@ namespace schema.memory {
       return totalOffset;
     }
 
+
+    public INestedRanges<T> ClaimSubrangeWithin(T data, long offset)
+      => this.ClaimSubrangeWithin(data, offset, 0);
 
     public INestedRanges<T> ClaimSubrangeWithin(
         T data,
@@ -306,6 +318,10 @@ namespace schema.memory {
       }
     }
 
+
+    public INestedRanges<T> ClaimSubrangeAtEnd(T data)
+      => this.ClaimSubrangeAtEnd(data, 0);
+
     public INestedRanges<T> ClaimSubrangeAtEnd(T data, long length) {
       if (length < 0) {
         throw new ArgumentOutOfRangeException(
@@ -360,14 +376,6 @@ namespace schema.memory {
       }
 
       throw new NotSupportedException();
-    }
-
-    public INestedRanges<T> ClaimSubrangeWithin(T data, long offset) {
-      throw new NotImplementedException();
-    }
-
-    public INestedRanges<T> ClaimSubrangeAtEnd(T data) {
-      throw new NotImplementedException();
     }
   }
 }
