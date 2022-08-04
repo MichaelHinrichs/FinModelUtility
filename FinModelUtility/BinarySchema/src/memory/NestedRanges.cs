@@ -1,27 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using schema.util;
+
 
 namespace schema.memory {
-  public interface INestedRanges<T> {
+  public interface IReadonlyNestedRanges<T> {
     INestedRanges<T>? Parent { get; }
 
-    T Data { get; set; }
-
-    void Clear();
+    T Data { get; }
 
     long Length { get; }
-    void Resize(long length);
+    bool IsLengthValid { get; }
 
     long GetRelativeOffset();
     long GetAbsoluteOffset();
+  }
 
+  public interface INestedRanges<T> : IReadonlyNestedRanges<T> {
+    new T Data { get; set; }
 
-    void ClaimWithin(long offset, long sublength);
-    void ClaimAtEnd(long sublength);
+    void Free();
+
+    void InvalidateLengthOfSelfAndParents();
+
+    /// <summary>
+    ///   Resizes the range while also affecting any parent(s). Siblings that come after this will be pushed back.
+    /// </summary>
+    void ResizeSelfAndParents(long length);
+
+    /// <summary>
+    ///   Resizes the range by growing into the next unclaimed sibling. The parent's length will be unaffected.
+    /// </summary>
+    void ResizeInPlace(long length);
 
     INestedRanges<T> ClaimSubrangeWithin(T data, long offset, long length);
     INestedRanges<T> ClaimSubrangeAtEnd(T data, long length);
+
+    INestedRanges<T> ClaimSubrangeWithin(T data, long offset);
+    INestedRanges<T> ClaimSubrangeAtEnd(T data);
   }
 
   public class NestedRanges<T> : INestedRanges<T> {
@@ -60,33 +77,94 @@ namespace schema.memory {
       this.Length = length;
     }
 
+    private NestedRanges(
+        MemoryRangeType type,
+        NestedRanges<T> parent,
+        T nullData,
+        T data) {
+      this.type_ = type;
+      this.parent_ = parent;
+      this.nullData_ = nullData;
+      this.Data = data;
+    }
+
 
     public INestedRanges<T>? Parent => parent_;
     public T Data { get; set; }
 
 
-    public void Clear() {
+    public void Free() {
       if (this.parent_ == null) {
         this.children_?.Clear();
         this.children_ = null;
+        this.ResizeInPlace(0);
         return;
       }
 
-      this.Resize(0);
+      this.type_ = MemoryRangeType.UNCLAIMED;
+      this.parent_.MergeUnclaimedRegions();
+    }
+
+    private void MergeUnclaimedRegions() {
+      throw new NotImplementedException();
     }
 
 
-    public long Length { get; private set; }
+    private long length_ = -1;
 
-    public void Resize(long length) {
-      var deltaLength = length - this.Length;
-      this.Length = length;
-
-      var parent = this.parent_;
-      while (parent != null) {
-        parent.Length += deltaLength;
-        parent = parent.parent_;
+    public long Length {
+      get {
+        Asserts.True(this.IsLengthValid);
+        return this.length_;
       }
+      private set {
+        this.length_ = value;
+        this.IsLengthValid = true;
+      }
+    }
+
+    public bool IsLengthValid { get; private set; }
+
+    public void InvalidateLengthOfSelfAndParents() {
+      this.IsLengthValid = false;
+      this.parent_?.InvalidateLengthOfSelfAndParents();
+    }
+
+
+    public void ResizeSelfAndParents(long length) {
+      this.Length = length;
+      this.parent_?.RecalculateLengthFromChildren_();
+    }
+
+    private void RecalculateLengthFromChildren_() {
+      var totalLength = 0L;
+      if (this.children_ != null) {
+        foreach (var child in this.children_) {
+          if (child.IsLengthValid) {
+            totalLength += child.Length;
+          } else {
+            this.IsLengthValid = false;
+          }
+        }
+      }
+      this.Length = totalLength;
+    }
+
+
+    public void ResizeInPlace(long length) {
+      if (this.parent_ != null) {
+        var childrenOfParent = this.parent_!.children_;
+
+        var indexOfSelf = childrenOfParent.IndexOf(this);
+        var nextSibling = childrenOfParent[indexOfSelf + 1];
+        Asserts.Equal(MemoryRangeType.UNCLAIMED, nextSibling.type_);
+        Asserts.Equal(MemoryRangeType.UNCLAIMED, nextSibling.type_);
+
+        var deltaLength = length - this.Length;
+        nextSibling.Length += deltaLength;
+      }
+
+      this.Length = length;
     }
 
 
@@ -119,13 +197,6 @@ namespace schema.memory {
     }
 
 
-    public void ClaimWithin(long offset, long sublength)
-      => this.ClaimSubrangeWithin(this.nullData_, offset, sublength);
-
-    public void ClaimAtEnd(long sublength)
-      => this.ClaimSubrangeAtEnd(this.nullData_, sublength);
-
-
     public INestedRanges<T> ClaimSubrangeWithin(
         T data,
         long offset,
@@ -135,10 +206,10 @@ namespace schema.memory {
             nameof(offset),
             "Memory range offset must be a nonzero number!");
       }
-      if (length <= 0) {
+      if (length < 0) {
         throw new ArgumentOutOfRangeException(
             nameof(length),
-            "Memory range length must be a positive number!");
+            "Memory range length must be a nonzero number!");
       }
       if (offset + length > this.Length) {
         throw new Exception(
@@ -197,8 +268,10 @@ namespace schema.memory {
       {
         this.children_.RemoveAt(index);
 
+        var newRangeIndex = index;
         var beforeLength = offset - absoluteOffset;
         if (beforeLength > 0) {
+          newRangeIndex = index + 1;
           this.children_.Insert(
               index,
               new NestedRanges<T>(
@@ -215,12 +288,12 @@ namespace schema.memory {
             this.nullData_,
             data,
             length);
-        this.children_.Insert(index + 1, newRange);
+        this.children_.Insert(newRangeIndex, newRange);
 
         var afterLength = this.Length - (beforeLength + length);
         if (afterLength > 0) {
           this.children_.Insert(
-              index + 2,
+              newRangeIndex + 1,
               new NestedRanges<T>(
                   MemoryRangeType.UNCLAIMED,
                   this,
@@ -234,17 +307,11 @@ namespace schema.memory {
     }
 
     public INestedRanges<T> ClaimSubrangeAtEnd(T data, long length) {
-      if (length <= 0) {
+      if (length < 0) {
         throw new ArgumentOutOfRangeException(
             nameof(length),
-            "Memory range length must be a positive number!");
+            "Memory range length must be a nonnegative number!");
       }
-      if (length > this.Length) {
-        throw new ArgumentOutOfRangeException(
-            nameof(length),
-            "Memory range length must less than the parent length!");
-      }
-
 
       if (this.children_ == null) {
         this.children_ = new List<NestedRanges<T>>();
@@ -253,7 +320,7 @@ namespace schema.memory {
                 MemoryRangeType.UNCLAIMED,
                 this,
                 this.nullData_,
-                this.nullData_,
+                data,
                 this.Length));
       }
 
@@ -261,11 +328,11 @@ namespace schema.memory {
           MemoryRangeType.CLAIMED,
           this,
           this.nullData_,
-          this.nullData_,
+          data,
           length);
       this.children_.Add(newRange);
 
-      this.Resize(this.Length + length);
+      this.ResizeSelfAndParents(this.Length + length);
 
       return newRange;
     }
@@ -285,12 +352,22 @@ namespace schema.memory {
         var start = totalOffset;
         var end = totalOffset + child.Length;
 
-        if (start <= relativeOffset && relativeOffset <= end) {
+        if (start <= relativeOffset && relativeOffset < end) {
           return (i, start, child);
         }
+
+        totalOffset = end;
       }
 
       throw new NotSupportedException();
+    }
+
+    public INestedRanges<T> ClaimSubrangeWithin(T data, long offset) {
+      throw new NotImplementedException();
+    }
+
+    public INestedRanges<T> ClaimSubrangeAtEnd(T data) {
+      throw new NotImplementedException();
     }
   }
 }

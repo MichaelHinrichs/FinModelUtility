@@ -1,6 +1,19 @@
-﻿namespace schema.memory {
+﻿using schema.util;
+
+
+namespace schema.memory {
+  public enum MemoryRangeLengthState {
+    AT_REST,
+    READ_BEFORE_LENGTH_CALC,
+    READ_AFTER_LENGTH_CALC,
+    WRITE_BEFORE_LENGTH_CALC,
+    WRITE_AFTER_LENGTH_CALC
+  }
+
   public interface IMemoryRange {
     IMemoryBlock? Parent { get; }
+
+    MemoryRangeLengthState LengthState { get; }
 
     long GetAbsoluteOffsetInBytes();
     long GetRelativeOffsetInBytes();
@@ -21,6 +34,11 @@
 
   public interface IMemoryBlock : IMemoryRange {
     MemoryBlockType Type { get; }
+
+
+    void StartReading();
+    void StartWriting();
+    void StopReadingOrWriting();
 
 
     IMemoryBlock ClaimBlockWithin(
@@ -57,7 +75,29 @@
 
     public MemoryBlockType Type { get; }
 
+
+    public void StartReading() {
+      Asserts.True(this.LengthState is MemoryRangeLengthState.AT_REST);
+      this.LengthState = MemoryRangeLengthState.READ_BEFORE_LENGTH_CALC;
+    }
+
+    public void StartWriting() {
+      Asserts.True(this.LengthState is MemoryRangeLengthState.AT_REST);
+      this.LengthState = MemoryRangeLengthState.WRITE_BEFORE_LENGTH_CALC;
+    }
+
+    public void StopReadingOrWriting() {
+      Asserts.True(
+          this.LengthState is
+              MemoryRangeLengthState.READ_BEFORE_LENGTH_CALC
+              or MemoryRangeLengthState.WRITE_BEFORE_LENGTH_CALC);
+      this.LengthState = MemoryRangeLengthState.AT_REST;
+    }
+
+
     public IMemoryBlock? Parent => this.impl_.Parent?.Data as IMemoryBlock;
+
+    public MemoryRangeLengthState LengthState { get; private set; }
 
     public IMemoryBlock ClaimBlockWithin(MemoryBlockType type,
                                          long offsetInBytes,
@@ -91,6 +131,7 @@
 
     public long GetAbsoluteOffsetInBytes() => this.impl_.GetAbsoluteOffset();
     public long GetRelativeOffsetInBytes() => this.impl_.GetRelativeOffset();
+
     public long SizeInBytes => this.impl_.Length;
 
     private class MemoryPointer : IMemoryPointer {
@@ -99,6 +140,8 @@
       public MemoryPointer(INestedRanges<IMemoryRange?> impl) {
         this.impl_ = impl;
       }
+
+      public MemoryRangeLengthState LengthState { get; private set; }
 
       public IMemoryBlock Parent => (this.impl_.Parent!.Data as IMemoryBlock)!;
 
