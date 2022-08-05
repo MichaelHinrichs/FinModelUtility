@@ -1,4 +1,4 @@
-# CMB
+# Cmb
 
 Library for extracting models from Grezzo's .cmb model format, which was used in the following games:
 
