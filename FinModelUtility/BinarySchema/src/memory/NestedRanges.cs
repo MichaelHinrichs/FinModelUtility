@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,8 +7,9 @@ using schema.util;
 
 
 namespace schema.memory {
-  public interface IReadonlyNestedRanges<T> {
-    INestedRanges<T>? Parent { get; }
+  public interface
+      IReadonlyNestedRanges<T> : IEnumerable<IReadonlyNestedRanges<T>> {
+    IReadonlyNestedRanges<T>? Parent { get; }
 
     T Data { get; }
 
@@ -98,7 +100,23 @@ namespace schema.memory {
     }
 
 
-    public INestedRanges<T>? Parent => parent_;
+    public IReadonlyNestedRanges<T>? Parent => parent_;
+
+    IEnumerator IEnumerable.GetEnumerator()
+      => this.GetEnumerator();
+
+    public IEnumerator<IReadonlyNestedRanges<T>> GetEnumerator() {
+      if (this.children_ == null) {
+        yield break;
+      }
+
+      foreach (var child in this.children_) {
+        if (child.type_ == MemoryRangeType.CLAIMED) {
+          yield return child;
+        }
+      }
+    }
+
     public T Data { get; set; }
 
 

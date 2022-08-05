@@ -1,28 +1,24 @@
-﻿using schema.util;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 
 namespace schema.memory {
-  public enum MemoryRangeLengthState {
-    AT_REST,
-    READ_BEFORE_LENGTH_CALC,
-    READ_AFTER_LENGTH_CALC,
-    WRITE_BEFORE_LENGTH_CALC,
-    WRITE_AFTER_LENGTH_CALC
-  }
-
   public interface IMemoryRange {
     IMemoryBlock? Parent { get; }
 
-    MemoryRangeLengthState LengthState { get; }
-
     long GetAbsoluteOffsetInBytes();
     long GetRelativeOffsetInBytes();
+
     long SizeInBytes { get; }
   }
 
 
   public interface IMemoryPointer : IMemoryRange {
     new IMemoryBlock Parent { get; }
+    IBiSerializable Data { get; }
   }
 
   public enum MemoryBlockType {
@@ -32,14 +28,10 @@ namespace schema.memory {
     DATA,
   }
 
-  public interface IMemoryBlock : IMemoryRange {
+  public interface IMemoryBlock : IMemoryRange,
+      IBiSerializable,
+      IEnumerable<IMemoryRange> {
     MemoryBlockType Type { get; }
-
-
-    void StartReading();
-    void StartWriting();
-    void StopReadingOrWriting();
-
 
     IMemoryBlock ClaimBlockWithin(
         MemoryBlockType type,
@@ -75,29 +67,7 @@ namespace schema.memory {
 
     public MemoryBlockType Type { get; }
 
-
-    public void StartReading() {
-      Asserts.True(this.LengthState is MemoryRangeLengthState.AT_REST);
-      this.LengthState = MemoryRangeLengthState.READ_BEFORE_LENGTH_CALC;
-    }
-
-    public void StartWriting() {
-      Asserts.True(this.LengthState is MemoryRangeLengthState.AT_REST);
-      this.LengthState = MemoryRangeLengthState.WRITE_BEFORE_LENGTH_CALC;
-    }
-
-    public void StopReadingOrWriting() {
-      Asserts.True(
-          this.LengthState is
-              MemoryRangeLengthState.READ_BEFORE_LENGTH_CALC
-              or MemoryRangeLengthState.WRITE_BEFORE_LENGTH_CALC);
-      this.LengthState = MemoryRangeLengthState.AT_REST;
-    }
-
-
     public IMemoryBlock? Parent => this.impl_.Parent?.Data as IMemoryBlock;
-
-    public MemoryRangeLengthState LengthState { get; private set; }
 
     public IMemoryBlock ClaimBlockWithin(MemoryBlockType type,
                                          long offsetInBytes,
@@ -134,20 +104,86 @@ namespace schema.memory {
 
     public long SizeInBytes => this.impl_.Length;
 
-    private class MemoryPointer : IMemoryPointer {
-      private readonly INestedRanges<IMemoryRange?> impl_;
 
-      public MemoryPointer(INestedRanges<IMemoryRange?> impl) {
-        this.impl_ = impl;
+    public void Read(EndianBinaryReader er) {
+      /*var startingOffset = er.Position;
+      foreach (var child in this) {
+        var childStart =
+            er.Position =
+                startingOffset + child.GetRelativeOffsetInBytes();
+
+        INestedRanges<IMemoryRange?>? impl = null;
+        switch (child) {
+          case MemoryBlock memoryBlock: {
+            memoryBlock.Read(er);
+            impl = memoryBlock.impl_;
+            break;
+          }
+          case MemoryPointer memoryPointer: {
+            memoryPointer.Data.Read(er);
+            impl = memoryPointer.Impl;
+            break;
+          }
+          default: throw new NotSupportedException();
+        }
+
+        var childLength = er.Position - childStart;
+        impl!.ResizeInPlace(childLength);
+      }
+      this.impl_.RecalculateLengthFromChildren();
+      er.Position = startingOffset + this.SizeInBytes;*/
+    }
+
+    public void Write(EndianBinaryWriter ew) {
+      var startingOffset = ew.Position;
+      foreach (var child in this) {
+        var childStart =
+            ew.Position =
+                startingOffset + child.GetRelativeOffsetInBytes();
+
+        INestedRanges<IMemoryRange?>? impl = null;
+        switch (child) {
+          case MemoryBlock memoryBlock: {
+            memoryBlock.Write(ew);
+            break;
+          }
+          case MemoryPointer memoryPointer: {
+            memoryPointer.Data.Write(ew);
+            break;
+          }
+          default: throw new NotSupportedException();
+        }
+
+        var childLength = ew.Position - childStart;
+        impl!.ResizeSelfAndParents(childLength);
+      }
+      this.impl_.RecalculateLengthFromChildren();
+      ew.Position = startingOffset + this.SizeInBytes;
+    }
+
+
+    private class MemoryPointer : IMemoryPointer {
+      public MemoryPointer(
+          INestedRanges<IMemoryRange?> impl,
+          IBiSerializable data) {
+        this.Impl = impl;
+        this.Data = data;
       }
 
-      public MemoryRangeLengthState LengthState { get; private set; }
+      public INestedRanges<IMemoryRange?> Impl { get; }
 
-      public IMemoryBlock Parent => (this.impl_.Parent!.Data as IMemoryBlock)!;
+      public IMemoryBlock Parent => (this.Impl.Parent!.Data as IMemoryBlock)!;
+      public IBiSerializable Data { get; }
 
-      public long GetAbsoluteOffsetInBytes() => this.impl_.GetAbsoluteOffset();
-      public long GetRelativeOffsetInBytes() => this.impl_.GetRelativeOffset();
-      public long SizeInBytes => this.impl_.Length;
+      public long GetAbsoluteOffsetInBytes() => this.Impl.GetAbsoluteOffset();
+      public long GetRelativeOffsetInBytes() => this.Impl.GetRelativeOffset();
+      public long SizeInBytes => this.Impl.Length;
     }
+
+    IEnumerator IEnumerable.GetEnumerator()
+      => this.GetEnumerator();
+
+    public IEnumerator<IMemoryRange> GetEnumerator()
+      => this.impl_.Select(child => child.Data!).GetEnumerator();
   }
 }
