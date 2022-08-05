@@ -4,7 +4,8 @@ Library for converting classes to and from binary. Provides a C# Roslyn generato
 
 ## Credits
 
-- [@jefffhaynes](https://github.com/jefffhaynes), as their [BinarySerializer](https://github.com/jefffhaynes/BinarySerializer) attribute library inspired the schema source generator library used to generate read/write methods for arbitrary classes/structs.
+- [@jefffhaynes](https://github.com/jefffhaynes), as their [BinarySerializer](https://github.com/jefffhaynes/BinarySerializer) attribute library inspired the schema attributes for configuring how binary data is read.
+- [@Sergio0694](https://github.com/Sergio0694), as their [BinaryPack](https://github.com/Sergio0694/BinaryPack) generator inspired the schema source generator used to generate read/write methods.
 
 ## Usage
 
