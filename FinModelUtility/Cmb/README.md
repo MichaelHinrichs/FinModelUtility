@@ -1,6 +1,6 @@
 # CMB
 
-Library for parsing Grezzo's .cmb model format, which was used in the following games:
+Library for extracting models from Grezzo's .cmb model format, which was used in the following games:
 
 - Ever Oasis
 - Luigi's Mansion 3D
