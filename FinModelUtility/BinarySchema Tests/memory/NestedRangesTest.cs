@@ -139,6 +139,67 @@ namespace schema.memory {
       AssertLengthAndOffsets(innerRanges2_2, 4, 3, 6);
     }
 
+    [Test]
+    public void TestUnclaimedRanges() {
+      var parentRanges = new NestedRanges<int>(-1, 0, 10);
+
+      var range1 = parentRanges.ClaimSubrangeWithin(1, 1, 1);
+      var range2 = parentRanges.ClaimSubrangeWithin(2, 3, 1);
+      var range3 = parentRanges.ClaimSubrangeWithin(3, 5, 1);
+      var range4 = parentRanges.ClaimSubrangeWithin(4, 7, 1);
+
+      AssertLengthAndOffsets(parentRanges, 10, 0, 0);
+      AssertLengthAndOffsets(range1, 1, 1, 1);
+      AssertLengthAndOffsets(range2, 1, 3, 3);
+      AssertLengthAndOffsets(range3, 1, 5, 5);
+      AssertLengthAndOffsets(range4, 1, 7, 7);
+
+      range1.ResizeInPlace(2);
+      range2.ResizeSelfAndParents(2);
+      range3.ClaimSubrangeAtEnd(-1, 1);
+      range4.FreeAndMarkAsUnclaimed();
+
+      AssertLengthAndOffsets(parentRanges, 12, 0, 0);
+      AssertLengthAndOffsets(range1, 2, 1, 1);
+      AssertLengthAndOffsets(range2, 2, 3, 3);
+      AssertLengthAndOffsets(range3, 2, 6, 6);
+
+      parentRanges.RemoveAllUnclaimedSpace();
+
+      AssertLengthAndOffsets(parentRanges, 6, 0, 0);
+      AssertLengthAndOffsets(range1, 2, 0, 0);
+      AssertLengthAndOffsets(range2, 2, 2, 2);
+      AssertLengthAndOffsets(range3, 2, 4, 4);
+    }
+
+    [Test]
+    public void TestMergingUnclaimedRanges() {
+      var parentRanges = new NestedRanges<int>(-1, 0);
+
+      var range1 = parentRanges.ClaimSubrangeAtEnd(1, 1);
+      var range2 = parentRanges.ClaimSubrangeAtEnd(2, 1);
+      var range3 = parentRanges.ClaimSubrangeAtEnd(3, 1);
+      var range4 = parentRanges.ClaimSubrangeAtEnd(4, 1);
+
+      AssertLengthAndOffsets(parentRanges, 4, 0, 0);
+      AssertLengthAndOffsets(range1, 1, 0, 0);
+      AssertLengthAndOffsets(range2, 1, 1, 1);
+      AssertLengthAndOffsets(range3, 1, 2, 2);
+      AssertLengthAndOffsets(range4, 1, 3, 3);
+
+      range2.FreeAndMarkAsUnclaimed();
+      range3.FreeAndMarkAsUnclaimed();
+      range4.FreeAndMarkAsUnclaimed();
+
+      AssertLengthAndOffsets(parentRanges, 4, 0, 0);
+      AssertLengthAndOffsets(range1, 1, 0, 0);
+   
+      range1.ResizeInPlace(4);
+
+      AssertLengthAndOffsets(parentRanges, 4, 0, 0);
+      AssertLengthAndOffsets(range1, 4, 0, 0);
+    }
+
     public static void AssertLengthAndOffsets<T>(
         IReadonlyNestedRanges<T> range,
         long length,

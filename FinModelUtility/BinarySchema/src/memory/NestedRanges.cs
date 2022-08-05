@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using schema.util;
 
@@ -20,9 +21,14 @@ namespace schema.memory {
   public interface INestedRanges<T> : IReadonlyNestedRanges<T> {
     new T Data { get; set; }
 
-    void Free();
+    void FreeAndMarkAsUnclaimed();
 
     void InvalidateLengthOfSelfAndParents();
+    void InvalidateLengthOfSelfAndChildren();
+
+    void RemoveAllUnclaimedSpace();
+
+    void RecalculateLengthFromChildren();
 
     /// <summary>
     ///   Resizes the range while also affecting any parent(s). Siblings that come after this will be pushed back.
@@ -97,7 +103,7 @@ namespace schema.memory {
     public T Data { get; set; }
 
 
-    public void Free() {
+    public void FreeAndMarkAsUnclaimed() {
       if (this.parent_ == null) {
         this.children_?.Clear();
         this.children_ = null;
@@ -105,12 +111,42 @@ namespace schema.memory {
         return;
       }
 
-      this.type_ = MemoryRangeType.UNCLAIMED;
-      this.parent_.MergeUnclaimedRegions();
+      var childrenOfParent = this.parent_.children_;
+      var index = childrenOfParent.IndexOf(this);
+      childrenOfParent.RemoveAt(index);
+      childrenOfParent.Insert(
+          index,
+          new NestedRanges<T>(
+              MemoryRangeType.UNCLAIMED,
+              this.parent_,
+              this.nullData_,
+              this.nullData_,
+              this.length_));
+      this.parent_.MergeUnclaimedRegions_();
     }
 
-    private void MergeUnclaimedRegions() {
-      throw new NotImplementedException();
+    private void MergeUnclaimedRegions_() {
+      if (this.children_ == null) {
+        return;
+      }
+
+      // TODO: Fix this, use a nonnaive approach
+      var unclaimedChildren =
+          this.children_.Where(
+                  child => child.type_ == MemoryRangeType.UNCLAIMED)
+              .ToArray();
+      foreach (var unclaimedChild in unclaimedChildren) {
+        var childIndex = this.children_.IndexOf(unclaimedChild);
+        if (childIndex == -1 || childIndex == this.children_.Count - 1) {
+          continue;
+        }
+
+        var nextChild = this.children_[childIndex + 1];
+        if (nextChild.type_ == MemoryRangeType.UNCLAIMED) {
+          nextChild.length_ += unclaimedChild.length_;
+          this.children_.RemoveAt(childIndex);
+        }
+      }
     }
 
 
@@ -122,6 +158,7 @@ namespace schema.memory {
         return this.length_;
       }
       private set {
+        Asserts.True(value >= 0, "Length must be nonnegative!");
         this.length_ = value;
         this.IsLengthValid = true;
       }
@@ -129,9 +166,54 @@ namespace schema.memory {
 
     public bool IsLengthValid { get; private set; }
 
+
     public void InvalidateLengthOfSelfAndParents() {
       this.IsLengthValid = false;
       this.parent_?.InvalidateLengthOfSelfAndParents();
+    }
+
+    public void InvalidateLengthOfSelfAndChildren() {
+      this.IsLengthValid = false;
+
+      if (this.children_ == null) {
+        return;
+      }
+
+      foreach (var child in this.children_) {
+        child.InvalidateLengthOfSelfAndChildren();
+      }
+    }
+
+
+    public void RemoveAllUnclaimedSpace() {
+      if (this.children_ == null) {
+        return;
+      }
+
+      var unclaimedChildren =
+          this.children_.Where(
+                  child => child.type_ == MemoryRangeType.UNCLAIMED)
+              .ToArray();
+      foreach (var unclaimedChild in unclaimedChildren) {
+        this.children_.Remove(unclaimedChild);
+      }
+      this.RecalculateLengthFromChildren();
+    }
+
+
+    public void RecalculateLengthFromChildren() {
+      var totalLength = 0L;
+      if (this.children_ != null) {
+        foreach (var child in this.children_) {
+          if (child.IsLengthValid) {
+            totalLength += child.Length;
+          } else {
+            this.IsLengthValid = false;
+            return;
+          }
+        }
+      }
+      this.Length = totalLength;
     }
 
 
@@ -140,23 +222,9 @@ namespace schema.memory {
 
       var parent = this.parent_;
       while (parent != null) {
-        parent.RecalculateLengthFromChildren_();
+        parent.RecalculateLengthFromChildren();
         parent = parent.parent_;
       }
-    }
-
-    private void RecalculateLengthFromChildren_() {
-      var totalLength = 0L;
-      if (this.children_ != null) {
-        foreach (var child in this.children_) {
-          if (child.IsLengthValid) {
-            totalLength += child.Length;
-          } else {
-            this.IsLengthValid = false;
-          }
-        }
-      }
-      this.Length = totalLength;
     }
 
 
@@ -165,12 +233,16 @@ namespace schema.memory {
         var childrenOfParent = this.parent_!.children_;
 
         var indexOfSelf = childrenOfParent.IndexOf(this);
-        var nextSibling = childrenOfParent[indexOfSelf + 1];
-        Asserts.Equal(MemoryRangeType.UNCLAIMED, nextSibling.type_);
+        var nextSiblingIndex = indexOfSelf + 1;
+
+        var nextSibling = childrenOfParent[nextSiblingIndex];
         Asserts.Equal(MemoryRangeType.UNCLAIMED, nextSibling.type_);
 
         var deltaLength = length - this.Length;
-        nextSibling.Length += deltaLength;
+        nextSibling.Length -= deltaLength;
+        if (nextSibling.length_ == 0) {
+          childrenOfParent.RemoveAt(nextSiblingIndex);
+        }
       }
 
       this.Length = length;
@@ -302,7 +374,7 @@ namespace schema.memory {
             length);
         this.children_.Insert(newRangeIndex, newRange);
 
-        var afterLength = this.Length - (beforeLength + length);
+        var afterLength = child.Length - (beforeLength + length);
         if (afterLength > 0) {
           this.children_.Insert(
               newRangeIndex + 1,
@@ -331,13 +403,16 @@ namespace schema.memory {
 
       if (this.children_ == null) {
         this.children_ = new List<NestedRanges<T>>();
-        this.children_.Add(
-            new NestedRanges<T>(
-                MemoryRangeType.UNCLAIMED,
-                this,
-                this.nullData_,
-                data,
-                this.Length));
+
+        if (this.length_ > 0) {
+          this.children_.Add(
+              new NestedRanges<T>(
+                  MemoryRangeType.UNCLAIMED,
+                  this,
+                  this.nullData_,
+                  data,
+                  this.Length));
+        }
       }
 
       var newRange = new NestedRanges<T>(
