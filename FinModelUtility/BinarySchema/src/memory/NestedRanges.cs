@@ -23,7 +23,6 @@ namespace schema.memory {
 
     void FreeAndMarkAsUnclaimed();
 
-    void InvalidateLengthOfSelfAndParents();
     void InvalidateLengthOfSelfAndChildren();
 
     void RemoveAllUnclaimedSpace();
@@ -166,11 +165,6 @@ namespace schema.memory {
 
     public bool IsLengthValid { get; private set; }
 
-
-    public void InvalidateLengthOfSelfAndParents() {
-      this.IsLengthValid = false;
-      this.parent_?.InvalidateLengthOfSelfAndParents();
-    }
 
     public void InvalidateLengthOfSelfAndChildren() {
       this.IsLengthValid = false;

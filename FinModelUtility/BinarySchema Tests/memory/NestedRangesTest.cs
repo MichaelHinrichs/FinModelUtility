@@ -1,8 +1,5 @@
-﻿using System.Security.Cryptography.X509Certificates;
-
+﻿
 using NUnit.Framework;
-
-using schema.util;
 
 
 namespace schema.memory {
@@ -193,11 +190,52 @@ namespace schema.memory {
 
       AssertLengthAndOffsets(parentRanges, 4, 0, 0);
       AssertLengthAndOffsets(range1, 1, 0, 0);
-   
+
       range1.ResizeInPlace(4);
 
       AssertLengthAndOffsets(parentRanges, 4, 0, 0);
       AssertLengthAndOffsets(range1, 4, 0, 0);
+    }
+
+    [Test]
+    public void TestInvalidatingLengthsAllClaimed() {
+      var outerRanges = new NestedRanges<int>(-1, 0);
+      var middleRanges1 = outerRanges.ClaimSubrangeAtEnd(-1);
+      var innerRanges1_1 = middleRanges1.ClaimSubrangeAtEnd(-1);
+      var innerRanges1_2 = middleRanges1.ClaimSubrangeAtEnd(-1);
+      var middleRanges2 = outerRanges.ClaimSubrangeAtEnd(-1);
+      var innerRanges2_1 = middleRanges2.ClaimSubrangeAtEnd(-1);
+      var innerRanges2_2 = middleRanges2.ClaimSubrangeAtEnd(-1);
+
+      outerRanges.InvalidateLengthOfSelfAndChildren();
+
+      Assert.False(outerRanges.IsLengthValid);
+      Assert.False(middleRanges1.IsLengthValid);
+      Assert.False(innerRanges1_1.IsLengthValid);
+      Assert.False(innerRanges1_2.IsLengthValid);
+      Assert.False(middleRanges2.IsLengthValid);
+      Assert.False(innerRanges2_1.IsLengthValid);
+      Assert.False(innerRanges2_2.IsLengthValid);
+
+      innerRanges1_1.ResizeSelfAndParents(1);
+      innerRanges1_2.ResizeSelfAndParents(2);
+      innerRanges2_1.ResizeSelfAndParents(3);
+      innerRanges2_2.ResizeSelfAndParents(4);
+
+      AssertLengthAndOffsets(outerRanges, 10, 0, 0);
+      AssertLengthAndOffsets(middleRanges1, 3, 0, 0);
+      AssertLengthAndOffsets(innerRanges1_1, 1, 0, 0);
+      AssertLengthAndOffsets(innerRanges1_2, 2, 1, 1);
+      AssertLengthAndOffsets(middleRanges2, 7, 3, 3);
+      AssertLengthAndOffsets(innerRanges2_1, 3, 0, 3);
+      AssertLengthAndOffsets(innerRanges2_2, 4, 3, 6);
+      Assert.True(outerRanges.IsLengthValid);
+      Assert.True(middleRanges1.IsLengthValid);
+      Assert.True(innerRanges1_1.IsLengthValid);
+      Assert.True(innerRanges1_2.IsLengthValid);
+      Assert.True(middleRanges2.IsLengthValid);
+      Assert.True(innerRanges2_1.IsLengthValid);
+      Assert.True(innerRanges2_2.IsLengthValid);
     }
 
     public static void AssertLengthAndOffsets<T>(
