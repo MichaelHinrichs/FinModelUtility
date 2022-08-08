@@ -204,6 +204,24 @@ namespace schema.io {
       }, actualBytes);
     }
 
+    [Test]
+    public async Task TestDelayedLength() {
+      var impl = new DelayedContentOutputStream();
+
+      var lengthTask = impl.GetDelayedLength();
+      impl.WriteDelayed(
+          lengthTask.ContinueWith(length => new[] { (byte)length.Result }),
+          Task.FromResult(1L));
+      impl.WriteDelayed(
+          Task.FromResult(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }),
+          Task.FromResult(3L));
+
+      var actualBytes = await ToBytes_(impl);
+      AssertSequence_(new byte[] {
+          4, 0, 1, 2,
+      }, actualBytes);
+    }
+
 
     private async Task<byte[]> ToBytes_(
         DelayedContentOutputStream delayedContentOutputStream) {

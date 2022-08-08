@@ -111,8 +111,14 @@ namespace schema.io {
 
       this.PushCurrentBytes_();
       this.dataChunks_.Add(
-          delayedBytes.ContinueWith(
-              bytesTask => (IDataChunk) new BytesDataChunk(bytesTask.Result)));
+          Task.WhenAll(delayedBytes, delayedBytesLength)
+              .ContinueWith(
+                  _ => {
+                    var bytes = delayedBytes.Result;
+                    var length = delayedBytesLength.Result;
+                    return (IDataChunk) new BytesDataChunk(
+                        bytes, 0, (int) length);
+                  }));
       this.sizeChunks_.Add(
           delayedBytesLength.ContinueWith(
               lengthTask =>
@@ -176,7 +182,7 @@ namespace schema.io {
           }
           case BytesDataChunk bytesDataChunk: {
             var bytes = bytesDataChunk.Bytes;
-            await stream.WriteAsync(bytes, 0, bytes.Length);
+            await stream.WriteAsync(bytes, bytesDataChunk.Offset, bytesDataChunk.Count);
             break;
           }
         }
