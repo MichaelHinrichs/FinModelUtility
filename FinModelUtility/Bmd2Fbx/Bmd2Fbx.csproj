@@ -46,7 +46,11 @@
     <Compile Remove="src\cli\Args.cs" />
     <Compile Remove="src\cli\Cli.cs" />
     <Compile Remove="src\misc\Converters\Compression.cs" />
+    <Compile Remove="src\misc\Converters\Graphic.cs" />
     <Compile Remove="src\misc\Converters\Sound.cs" />
+    <Compile Remove="src\misc\G2D_Binary_File_Format\NCER.cs" />
+    <Compile Remove="src\misc\G2D_Binary_File_Format\NCGR.cs" />
+    <Compile Remove="src\misc\G2D_Binary_File_Format\NCLR.cs" />
     <Compile Remove="src\misc\G2D_Binary_File_Format\NSCR.cs" />
     <Compile Remove="src\misc\G3D_Binary_File_Format\AnmHeader.cs" />
     <Compile Remove="src\misc\G3D_Binary_File_Format\DictionaryData.cs" />
@@ -90,6 +94,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="src\misc\G2D_Binary_File_Format\" />
     <Folder Include="src\misc\Tao\OpenGl\" />
   </ItemGroup>
 
