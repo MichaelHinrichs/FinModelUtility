@@ -7,11 +7,15 @@ namespace schema.attributes.memory {
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
   public class BlockAttribute : BMemberAttribute {
     private readonly string? parentBlockName_;
-    private readonly string readOffsetName_;
+    private readonly string? readOffsetName_;
     private readonly string readSizeName_;
 
     public BlockAttribute(string readOffsetName, string readSizeName) {
       this.readOffsetName_ = readOffsetName;
+      this.readSizeName_ = readSizeName;
+    }
+
+    public BlockAttribute(string readSizeName) {
       this.readSizeName_ = readSizeName;
     }
 
@@ -31,9 +35,12 @@ namespace schema.attributes.memory {
                 this.parentBlockName_);
       }
 
-      this.ReadOffset =
-          this.GetMemberRelativeToStructure(this.readOffsetName_)
-              .AssertIsInteger();
+      if (this.readOffsetName_ != null) {
+        this.ReadOffset =
+            this.GetMemberRelativeToStructure(this.readOffsetName_)
+                .AssertIsInteger();
+      }
+
       this.ReadSize =
           this.GetMemberRelativeToStructure(this.readSizeName_)
               .AssertIsInteger();

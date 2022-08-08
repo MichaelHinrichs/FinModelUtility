@@ -18,7 +18,9 @@ namespace schema.memory {
 
   public interface IMemoryPointer : IMemoryRange {
     new IMemoryBlock Parent { get; }
-    IBiSerializable Data { get; }
+
+    void Read(EndianBinaryReader er);
+    void Write(EndianBinaryWriter ew);
   }
 
   public enum MemoryBlockType {
@@ -43,8 +45,14 @@ namespace schema.memory {
         long sizeInBytes);
 
 
-    IMemoryPointer ClaimPointerWithin(long offsetInBytes, long sizeInBytes);
-    IMemoryPointer ClaimPointerAtEnd(long sizeInBytes);
+    IMemoryPointer ClaimPointerWithin(
+        long offsetInBytes,
+        Action<EndianBinaryReader> readHandler,
+        Action<EndianBinaryWriter> writeHandler);
+
+    IMemoryPointer ClaimPointerAtEnd(
+        Action<EndianBinaryReader> readHandler,
+        Action<EndianBinaryWriter> writeHandler);
   }
 
 
@@ -90,13 +98,31 @@ namespace schema.memory {
       return block;
     }
 
-    public IMemoryPointer
-        ClaimPointerWithin(long offsetInBytes, long sizeInBytes) {
-      throw new System.NotImplementedException();
+    public IMemoryPointer ClaimPointerWithin(
+        long offsetInBytes,
+        Action<EndianBinaryReader> readHandler,
+        Action<EndianBinaryWriter> writeHandler) {
+      var pointerImpl = this.impl_.ClaimSubrangeWithin(null, offsetInBytes);
+      var pointer = new MemoryPointer(
+          pointerImpl,
+          readHandler,
+          writeHandler);
+      pointerImpl.Data = pointer;
+
+      return pointer;
     }
 
-    public IMemoryPointer ClaimPointerAtEnd(long sizeInBytes) {
-      throw new System.NotImplementedException();
+    public IMemoryPointer ClaimPointerAtEnd(
+        Action<EndianBinaryReader> readHandler,
+        Action<EndianBinaryWriter> writeHandler) {
+      var pointerImpl = this.impl_.ClaimSubrangeAtEnd(null);
+      var pointer = new MemoryPointer(
+          pointerImpl,
+          readHandler,
+          writeHandler);
+      pointerImpl.Data = pointer;
+
+      return pointer;
     }
 
     public long GetAbsoluteOffsetInBytes() => this.impl_.GetAbsoluteOffset();
@@ -148,7 +174,7 @@ namespace schema.memory {
             break;
           }
           case MemoryPointer memoryPointer: {
-            memoryPointer.Data.Write(ew);
+            memoryPointer.Write(ew);
             break;
           }
           default: throw new NotSupportedException();
@@ -163,17 +189,33 @@ namespace schema.memory {
 
 
     private class MemoryPointer : IMemoryPointer {
+      private Action<EndianBinaryReader> readHandler_;
+      private Action<EndianBinaryWriter> writeHandler_;
+
       public MemoryPointer(
           INestedRanges<IMemoryRange?> impl,
-          IBiSerializable data) {
+          Action<EndianBinaryReader> readHandler,
+          Action<EndianBinaryWriter> writeHandler) {
         this.Impl = impl;
-        this.Data = data;
+        this.readHandler_ = readHandler;
+        this.writeHandler_ = writeHandler;
       }
 
       public INestedRanges<IMemoryRange?> Impl { get; }
 
       public IMemoryBlock Parent => (this.Impl.Parent!.Data as IMemoryBlock)!;
-      public IBiSerializable Data { get; }
+
+      public void Read(EndianBinaryReader er) {
+        this.readHandler_(er);
+      }
+
+      public void Write(EndianBinaryWriter ew) {
+        var startPosition = ew.Position;
+        this.writeHandler_(ew);
+        var length = ew.Position - startPosition;
+
+        this.Impl.ResizeSelfAndParents(length);
+      }
 
       public long GetAbsoluteOffsetInBytes() => this.Impl.GetAbsoluteOffset();
       public long GetRelativeOffsetInBytes() => this.Impl.GetRelativeOffset();
