@@ -8,7 +8,6 @@ namespace schema.attributes.memory {
         ISchemaMember schemaMember) {
       var blockAttribute =
           SymbolTypeUtil.GetAttribute<BlockAttribute>(memberSymbol);
-      blockAttribute.ReadOffset;
     }
   }
 }
