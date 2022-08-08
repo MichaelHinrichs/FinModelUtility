@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 
 
-namespace schema.text {
+namespace schema.attributes.align {
   internal class AlignGeneratorTests {
     [Test] public void TestAlign() {
       SchemaTestUtil.AssertGenerated(@"

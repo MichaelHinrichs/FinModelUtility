@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 
 
-namespace schema.text {
+namespace schema.attributes.ignore {
   internal class IgnoreGeneratorTests {
     [Test] public void TestAlign() {
       SchemaTestUtil.AssertGenerated(@"
