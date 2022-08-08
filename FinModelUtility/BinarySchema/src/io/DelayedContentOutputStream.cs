@@ -3,60 +3,232 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
+using schema.util;
+
 
 namespace schema.io {
   public interface IDelayedContentOutputStream {
-    void Write(byte value);
+    Task<long> GetPositionDelayed();
+    Task<long> GetLengthDelayed();
+
+    void Align(uint amount);
+    void WriteByte(byte value);
+    void Write(byte[] bytes, int offset, int count);
     void Write(byte[] bytes);
+    void WriteDelayed(Task<byte[]> delayedBytes, Task<long> delayedBytesLength);
     void WriteDelayed(Task<byte[]> delayedBytes);
 
-    Task CopyTo(Stream stream);
+    Task CompleteAndCopyToDelayed(Stream stream);
   }
 
   public class DelayedContentOutputStream : IDelayedContentOutputStream {
-    private readonly List<Task<byte[]>> chunks_ = new();
-    private IList<byte>? currentChunk_ = null;
+    private readonly List<Task<IDataChunk>> dataChunks_ = new();
+    private readonly List<Task<ISizeChunk>> sizeChunks_ = new();
 
-    public void Write(byte value) {
-      this.CreateCurrentChunkIfNull_();
-      this.currentChunk_!.Add(value);
+    private IList<byte>? currentBytes_ = null;
+    private readonly TaskCompletionSource<long> lengthTask_ = new();
+    private bool isCompleted_ = false;
+
+    public Task<long> GetPositionDelayed() {
+      this.AssertNotCompleted_();
+
+      this.PushCurrentBytes_();
+      var task = new TaskCompletionSource<long>();
+      this.sizeChunks_.Add(
+          Task.FromResult<ISizeChunk>(new PositionSizeChunk(task)));
+      return task.Task;
     }
 
-    public void Write(byte[] bytes) {
-      this.CreateCurrentChunkIfNull_();
-      foreach (var value in bytes) {
-        this.currentChunk_!.Add(value);
+    public Task<long> GetLengthDelayed() {
+      this.AssertNotCompleted_();
+
+      return this.lengthTask_.Task;
+    }
+
+
+    public void Align(uint amount) {
+      this.AssertNotCompleted_();
+
+      this.PushCurrentBytes_();
+      this.dataChunks_.Add(
+          Task.FromResult<IDataChunk>(new AlignDataChunk(amount)));
+      this.sizeChunks_.Add(
+          Task.FromResult<ISizeChunk>(new AlignSizeChunk(amount)));
+    }
+
+    public void WriteByte(byte value) {
+      this.AssertNotCompleted_();
+
+      this.CreateCurrentBytesIfNull_();
+      this.currentBytes_!.Add(value);
+    }
+
+    public void Write(byte[] bytes) => this.Write(bytes, 0, bytes.Length);
+
+    public void Write(byte[] bytes, int offset, int count) {
+      this.AssertNotCompleted_();
+
+      this.CreateCurrentBytesIfNull_();
+      for (var i = 0; i < count; ++i) {
+        this.currentBytes_!.Add(bytes[offset + i]);
       }
     }
 
-    public void WriteDelayed(Task<byte[]> delayedStream) {
-      this.PushCurrentChunk_();
-      this.chunks_.Add(delayedStream);
+
+    public void WriteDelayed(Task<byte[]> delayedBytes)
+      => WriteDelayed(
+          delayedBytes,
+          delayedBytes.ContinueWith(bytesTask => bytesTask.Result.LongLength));
+
+    public void WriteDelayed(
+        Task<byte[]> delayedBytes,
+        Task<long> delayedBytesLength) {
+      this.AssertNotCompleted_();
+
+      this.PushCurrentBytes_();
+      this.dataChunks_.Add(
+          delayedBytes.ContinueWith(
+              bytesTask => (IDataChunk) new BytesDataChunk(bytesTask.Result)));
+      this.sizeChunks_.Add(
+          delayedBytesLength.ContinueWith(
+              lengthTask =>
+                  (ISizeChunk) new BytesSizeChunk(lengthTask.Result)));
     }
 
-    public async Task CopyTo(Stream stream) {
-      this.PushCurrentChunk_();
-      var chunks = await Task.WhenAll(this.chunks_);
-      foreach (var chunk in chunks) {
-        await stream.WriteAsync(chunk, 0, chunk.Length);
+
+    public async Task CompleteAndCopyToDelayed(Stream stream) {
+      this.AssertNotCompleted_();
+      this.isCompleted_ = true;
+
+      this.PushCurrentBytes_();
+
+      // Updates position and length Tasks first.
+      var position = 0L;
+      var sizeChunks = await Task.WhenAll(this.sizeChunks_);
+      foreach (var sizeChunk in sizeChunks) {
+        switch (sizeChunk) {
+          case PositionSizeChunk positionSizeChunk: {
+            positionSizeChunk.Task.SetResult(position);
+            break;
+          }
+          case AlignSizeChunk alignSizeChunk: {
+            var pos = position;
+            var amt = alignSizeChunk.Amount;
+            var align = GetAlign(pos, amt);
+            position += align;
+            break;
+          }
+          case BytesSizeChunk bytesSizeChunk: {
+            position += bytesSizeChunk.Length;
+            break;
+          }
+        }
+      }
+      this.lengthTask_.SetResult(position);
+
+      // Writes data.
+      var dataChunks = await Task.WhenAll(this.dataChunks_);
+      foreach (var dataChunk in dataChunks) {
+        switch (dataChunk) {
+          case AlignDataChunk alignDataChunk: {
+            var pos = position;
+            var amt = alignDataChunk.Amount;
+            var align = GetAlign(pos, amt);
+            for (var i = 0; i < align; ++i) {
+              stream.WriteByte(0);
+            }
+            break;
+          }
+          case BytesDataChunk bytesDataChunk: {
+            var bytes = bytesDataChunk.Bytes;
+            await stream.WriteAsync(bytes, 0, bytes.Length);
+            break;
+          }
+        }
       }
     }
 
-    private void CreateCurrentChunkIfNull_() {
-      if (this.currentChunk_ != null) {
+    private void AssertNotCompleted_() => Asserts.False(this.isCompleted_);
+
+    private void CreateCurrentBytesIfNull_() {
+      if (this.currentBytes_ != null) {
         return;
       }
 
-      this.currentChunk_ = new List<byte>();
+      this.currentBytes_ = new List<byte>();
     }
 
-    private void PushCurrentChunk_() {
-      if (this.currentChunk_ == null) {
+    private void PushCurrentBytes_() {
+      if (this.currentBytes_ == null) {
         return;
       }
 
-      this.chunks_.Add(Task.FromResult(this.currentChunk_.ToArray()));
-      this.currentChunk_ = null;
+      this.dataChunks_.Add(
+          Task.FromResult<IDataChunk>(
+              new BytesDataChunk(this.currentBytes_.ToArray())));
+      this.sizeChunks_.Add(
+          Task.FromResult<ISizeChunk>(
+              new BytesSizeChunk(this.currentBytes_.Count)));
+      this.currentBytes_ = null;
+    }
+
+
+    private long GetAlign(long pos, long amt)
+      => ((~(amt - 1) & (pos + amt - 1)) - pos);
+
+
+    private interface IDataChunk { }
+
+    public class AlignDataChunk : IDataChunk {
+      public AlignDataChunk(uint amount) {
+        this.Amount = amount;
+      }
+
+      public uint Amount { get; }
+    }
+
+    public class BytesDataChunk : IDataChunk {
+      public BytesDataChunk(byte[] bytes) : this(bytes, 0, bytes.Length) { }
+
+      public BytesDataChunk(
+          byte[] bytes,
+          int offset,
+          int count) {
+        this.Bytes = bytes;
+        this.Offset = offset;
+        this.Count = count;
+      }
+
+      public byte[] Bytes { get; }
+      public int Offset { get; }
+      public int Count { get; }
+    }
+
+
+    public interface ISizeChunk { }
+
+    public class PositionSizeChunk : ISizeChunk {
+      public PositionSizeChunk(TaskCompletionSource<long> task) {
+        this.Task = task;
+      }
+
+      public TaskCompletionSource<long> Task { get; }
+    }
+
+    public class BytesSizeChunk : ISizeChunk {
+      public BytesSizeChunk(long length) {
+        this.Length = length;
+      }
+
+      public long Length { get; }
+    }
+
+    public class AlignSizeChunk : ISizeChunk {
+      public AlignSizeChunk(uint amount) {
+        this.Amount = amount;
+      }
+
+      public uint Amount { get; }
     }
   }
 }
