@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 
+
 namespace cmb.schema.cmb.texture {
   /// <summary>
   ///   Stolen from:
@@ -132,8 +133,8 @@ namespace cmb.schema.cmb.texture {
       }
 
       var decodedData = new byte[(4 * 4) * 3];
+      var decodedPos = 0;
 
-      using var w = new EndianBinaryWriter(new MemoryStream(decodedData));
       for (int py = 0; py < 4; py++) {
         for (int px = 0; px < 4; px++) {
           int index = (int) (((block >> ((px * 4) + py)) & 0x1) |
@@ -141,14 +142,14 @@ namespace cmb.schema.cmb.texture {
 
           if ((flipBit == 0x01 && py < 2) || (flipBit == 0x00 && px < 2)) {
             int modifier = Etc1.ETC1_MODIFIER_TABLES_[tableIndex1, index];
-            Etc1.WriteClampedByte_(w, b1 + modifier);
-            Etc1.WriteClampedByte_(w, g1 + modifier);
-            Etc1.WriteClampedByte_(w, r1 + modifier);
+            Etc1.WriteClampedByte_(decodedData, ref decodedPos, b1 + modifier);
+            Etc1.WriteClampedByte_(decodedData, ref decodedPos, g1 + modifier);
+            Etc1.WriteClampedByte_(decodedData, ref decodedPos, r1 + modifier);
           } else {
             int modifier = Etc1.ETC1_MODIFIER_TABLES_[tableIndex2, index];
-            Etc1.WriteClampedByte_(w, b2 + modifier);
-            Etc1.WriteClampedByte_(w, g2 + modifier);
-            Etc1.WriteClampedByte_(w, r2 + modifier);
+            Etc1.WriteClampedByte_(decodedData, ref decodedPos, b2 + modifier);
+            Etc1.WriteClampedByte_(decodedData, ref decodedPos, g2 + modifier);
+            Etc1.WriteClampedByte_(decodedData, ref decodedPos, r2 + modifier);
           }
         }
       }
@@ -156,9 +157,11 @@ namespace cmb.schema.cmb.texture {
       return decodedData;
     }
 
-    private static void WriteClampedByte_(EndianBinaryWriter w, int value) {
+    private static void WriteClampedByte_(byte[] decodedData,
+                                          ref int pos,
+                                          int value) {
       value = Math.Clamp(value, byte.MinValue, byte.MaxValue);
-      w.WriteByte((byte) value);
+      decodedData[pos++] = (byte) value;
     }
   }
 }
