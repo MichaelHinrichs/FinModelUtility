@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,8 +9,11 @@ using schema.util;
 
 namespace schema.io {
   public interface IDelayedContentOutputStream {
-    Task<long> GetPositionDelayed();
-    Task<long> GetLengthDelayed();
+    Task<long> GetDelayedPosition();
+    Task<long> GetDelayedLength();
+
+    Task<long> EnterBlockAndGetDelayedLength(
+        Action<IDelayedContentOutputStream, Task<long>> handler);
 
     void Align(uint amount);
     void WriteByte(byte value);
@@ -29,7 +33,7 @@ namespace schema.io {
     private readonly TaskCompletionSource<long> lengthTask_ = new();
     private bool isCompleted_ = false;
 
-    public Task<long> GetPositionDelayed() {
+    public Task<long> GetDelayedPosition() {
       this.AssertNotCompleted_();
 
       this.PushCurrentBytes_();
@@ -39,10 +43,30 @@ namespace schema.io {
       return task.Task;
     }
 
-    public Task<long> GetLengthDelayed() {
+    public Task<long> GetDelayedLength() {
       this.AssertNotCompleted_();
 
       return this.lengthTask_.Task;
+    }
+
+
+    public Task<long> EnterBlockAndGetDelayedLength(
+        Action<IDelayedContentOutputStream, Task<long>> handler) {
+      this.AssertNotCompleted_();
+
+      var task = new TaskCompletionSource<long>();
+
+      this.PushCurrentBytes_();
+      this.sizeChunks_.Add(
+          Task.FromResult<ISizeChunk>(new SizeChunkBlockStart(task)));
+
+      handler(this, task.Task);
+
+      this.PushCurrentBytes_();
+      this.sizeChunks_.Add(
+          Task.FromResult<ISizeChunk>(new SizeChunkBlockEnd(task)));
+
+      return task.Task;
     }
 
 
@@ -103,6 +127,7 @@ namespace schema.io {
       this.PushCurrentBytes_();
 
       // Updates position and length Tasks first.
+      var blockStack = new Stack<(SizeChunkBlockStart, long)>();
       var position = 0L;
       var sizeChunks = await Task.WhenAll(this.sizeChunks_);
       foreach (var sizeChunk in sizeChunks) {
@@ -114,12 +139,22 @@ namespace schema.io {
           case AlignSizeChunk alignSizeChunk: {
             var pos = position;
             var amt = alignSizeChunk.Amount;
-            var align = GetAlign(pos, amt);
+            var align = this.GetAlign_(pos, amt);
             position += align;
             break;
           }
           case BytesSizeChunk bytesSizeChunk: {
             position += bytesSizeChunk.Length;
+            break;
+          }
+          case SizeChunkBlockStart blockStart: {
+            blockStack.Push((blockStart, position));
+            break;
+          }
+          case SizeChunkBlockEnd blockEnd: {
+            var (blockStart, startPosition) = blockStack.Pop();
+            Asserts.Same(blockStart.Task, blockEnd.Task);
+            blockStart.Task.SetResult(position - startPosition);
             break;
           }
         }
@@ -133,7 +168,7 @@ namespace schema.io {
           case AlignDataChunk alignDataChunk: {
             var pos = position;
             var amt = alignDataChunk.Amount;
-            var align = GetAlign(pos, amt);
+            var align = this.GetAlign_(pos, amt);
             for (var i = 0; i < align; ++i) {
               stream.WriteByte(0);
             }
@@ -173,13 +208,13 @@ namespace schema.io {
     }
 
 
-    private long GetAlign(long pos, long amt)
+    private long GetAlign_(long pos, long amt)
       => ((~(amt - 1) & (pos + amt - 1)) - pos);
 
 
     private interface IDataChunk { }
 
-    public class AlignDataChunk : IDataChunk {
+    private class AlignDataChunk : IDataChunk {
       public AlignDataChunk(uint amount) {
         this.Amount = amount;
       }
@@ -187,7 +222,7 @@ namespace schema.io {
       public uint Amount { get; }
     }
 
-    public class BytesDataChunk : IDataChunk {
+    private class BytesDataChunk : IDataChunk {
       public BytesDataChunk(byte[] bytes) : this(bytes, 0, bytes.Length) { }
 
       public BytesDataChunk(
@@ -205,9 +240,25 @@ namespace schema.io {
     }
 
 
-    public interface ISizeChunk { }
+    private interface ISizeChunk { }
 
-    public class PositionSizeChunk : ISizeChunk {
+    private class SizeChunkBlockStart : ISizeChunk {
+      public SizeChunkBlockStart(TaskCompletionSource<long> task) {
+        this.Task = task;
+      }
+
+      public TaskCompletionSource<long> Task { get; }
+    }
+
+    private class SizeChunkBlockEnd : ISizeChunk {
+      public SizeChunkBlockEnd(TaskCompletionSource<long> task) {
+        this.Task = task;
+      }
+
+      public TaskCompletionSource<long> Task { get; }
+    }
+
+    private class PositionSizeChunk : ISizeChunk {
       public PositionSizeChunk(TaskCompletionSource<long> task) {
         this.Task = task;
       }
@@ -215,7 +266,7 @@ namespace schema.io {
       public TaskCompletionSource<long> Task { get; }
     }
 
-    public class BytesSizeChunk : ISizeChunk {
+    private class BytesSizeChunk : ISizeChunk {
       public BytesSizeChunk(long length) {
         this.Length = length;
       }
@@ -223,7 +274,7 @@ namespace schema.io {
       public long Length { get; }
     }
 
-    public class AlignSizeChunk : ISizeChunk {
+    private class AlignSizeChunk : ISizeChunk {
       public AlignSizeChunk(uint amount) {
         this.Amount = amount;
       }

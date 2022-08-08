@@ -102,7 +102,7 @@ namespace schema.io {
     public async Task TestPosition() {
       var impl = new DelayedContentOutputStream();
 
-      var positionTask1 = impl.GetPositionDelayed();
+      var positionTask1 = impl.GetDelayedPosition();
       impl.WriteDelayed(
           positionTask1.ContinueWith(pos => new[] {(byte) pos.Result}),
           Task.FromResult(1L));
@@ -110,7 +110,7 @@ namespace schema.io {
       impl.WriteByte(1);
       impl.Write(new byte[] {2, 3});
 
-      var positionTask2 = impl.GetPositionDelayed();
+      var positionTask2 = impl.GetDelayedPosition();
       impl.WriteDelayed(
           positionTask2.ContinueWith(pos => new[] {(byte) pos.Result}),
           Task.FromResult(1L));
@@ -118,7 +118,7 @@ namespace schema.io {
       impl.WriteDelayed(Task.FromResult(new byte[] {4, 5}));
       impl.Write(new byte[] {6, 7});
 
-      var positionTask3 = impl.GetPositionDelayed();
+      var positionTask3 = impl.GetDelayedPosition();
       impl.WriteDelayed(
           positionTask3.ContinueWith(pos => new[] {(byte) pos.Result}),
           Task.FromResult(1L));
@@ -126,7 +126,7 @@ namespace schema.io {
       impl.WriteByte(8);
       impl.WriteDelayed(Task.FromResult(new byte[] {9, 10}));
 
-      var positionTask4 = impl.GetPositionDelayed();
+      var positionTask4 = impl.GetDelayedPosition();
       impl.WriteDelayed(
           positionTask4.ContinueWith(pos => new[] {(byte) pos.Result}),
           Task.FromResult(1L));
@@ -145,7 +145,7 @@ namespace schema.io {
     public async Task TestLength() {
       var impl = new DelayedContentOutputStream();
 
-      var lengthTask = impl.GetLengthDelayed();
+      var lengthTask = impl.GetDelayedLength();
       impl.WriteDelayed(
           lengthTask.ContinueWith(length => new[] {(byte) length.Result}),
           Task.FromResult(1L));
@@ -159,7 +159,48 @@ namespace schema.io {
 
       var actualBytes = await ToBytes_(impl);
       AssertSequence_(new byte[] {
-          11, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+          11,
+          1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+      }, actualBytes);
+    }
+
+    [Test]
+    public async Task TestBlockLength() {
+      var impl = new DelayedContentOutputStream();
+
+      impl.EnterBlockAndGetDelayedLength(
+          (s, lTask) => {
+            s.WriteDelayed(
+                lTask.ContinueWith(length => new[] {(byte) length.Result}),
+                Task.FromResult(1L));
+          });
+
+      impl.WriteByte(29);
+
+      impl.EnterBlockAndGetDelayedLength(
+          (s, lTask) => {
+            s.WriteDelayed(
+                lTask.ContinueWith(length => new[] {(byte) length.Result}),
+                Task.FromResult(1L));
+            s.Align(5);
+          });
+
+      var lengthTask = impl.EnterBlockAndGetDelayedLength(
+          (s, lTask) => {
+            s.WriteByte(0);
+            s.WriteByte(1);
+            s.WriteByte(2);
+          });
+      impl.WriteDelayed(
+          lengthTask.ContinueWith(length => new[] {(byte) length.Result}),
+          Task.FromResult(1L));
+
+      var actualBytes = await ToBytes_(impl);
+      AssertSequence_(new byte[] {
+          1,
+          29,
+          1, 0, 0, 0, 0,
+          0, 1, 2, 3
       }, actualBytes);
     }
 
