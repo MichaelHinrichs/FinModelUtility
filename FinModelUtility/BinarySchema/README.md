@@ -23,7 +23,7 @@ Copy this project into your solution, and then add the following into any other 
 
 To write a schema class, you must first do the following steps:
 1) Mark it as partial.
-1) Have it implement the `IBiSerializable` interface (a combination of the `ISerializable` and IDeserializable` interfaces).
+1) Have it implement the `IBiSerializable` interface (a combination of the `ISerializable` and `IDeserializable` interfaces).
 
 Then, based on how complicated your schema class is, you can either choose to automatically or manually implement `Read()`/`Write()` methods.
 
