@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-using schema;
+﻿using schema;
 
 namespace mod.schema {
   public interface IVector2<T> : IBiSerializable {

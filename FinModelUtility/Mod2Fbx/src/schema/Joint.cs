@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-
-using schema;
+﻿using schema;
 
 namespace mod.schema {
   [Schema]
