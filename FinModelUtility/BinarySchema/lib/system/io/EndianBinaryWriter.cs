@@ -6,28 +6,26 @@
 
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+
+using schema.io;
 
 
 namespace System.IO {
   public sealed class EndianBinaryWriter : IDisposable {
+    private readonly IDelayedContentOutputStream impl_ =
+        new DelayedContentOutputStream();
+
     private bool disposed_;
     private byte[] buffer_;
-
-    public Stream BaseStream { get; private set; }
 
     public Endianness Endianness { get; set; }
 
     private bool Reverse => EndiannessUtil.SystemEndianness != this.Endianness;
 
-    public EndianBinaryWriter(Stream baseStream)
-        : this(baseStream, Endianness.BigEndian) { }
+    public EndianBinaryWriter() : this(Endianness.BigEndian) { }
 
-    public EndianBinaryWriter(Stream baseStream, Endianness endianness) {
-      if (baseStream == null)
-        throw new ArgumentNullException(nameof(baseStream));
-      if (!baseStream.CanWrite)
-        throw new ArgumentException(nameof(baseStream));
-      this.BaseStream = baseStream;
+    public EndianBinaryWriter(Endianness endianness) {
       this.Endianness = endianness;
     }
 
@@ -35,40 +33,36 @@ namespace System.IO {
       this.Dispose(false);
     }
 
-    public long Position {
-      get => this.BaseStream.Position;
-      set => this.BaseStream.Position = value;
-    }
+    public void Align(uint amt) => this.impl_.Align(amt);
 
-    public void Align(uint amt) {
-      var pos = this.BaseStream.Position;
-      for (var i = 0; i < ((~(amt - 1) & (pos + amt - 1)) - pos); ++i) {
-        byte padding = 0;
-        this.WriteByte(padding);
-      }
-    }
+    public Task<long> EnterBlockAndGetDelayedLength(
+        Action<IDelayedContentOutputStream, Task<long>> handler)
+      => this.impl_.EnterBlockAndGetDelayedLength(handler);
 
-    public long StartChunk(uint chunk) {
-      this.WriteUInt32(chunk);
-      var position = this.Position;
-      this.WriteUInt32((uint) 0);
-      return position;
-    }
+    public Task CompleteAndCopyToDelayed(Stream stream)
+      => this.impl_.CompleteAndCopyToDelayed(stream);
 
-    public void FinishChunk(long chunkStart) {
-      this.Align(0x20);
-      var position = this.Position;
-      this.Position = chunkStart;
-      this.WriteUInt32((uint) (position - chunkStart - 4));
-      this.Position = position;
-    }
+    public Task<long> GetDelayedPosition() => this.impl_.GetDelayedPosition();
+    public Task<long> GetDelayedLength() => this.impl_.GetDelayedLength();
 
     private void WriteBuffer_(int bytes, int stride) {
       if (this.Reverse) {
         for (int index = 0; index < bytes; index += stride)
           Array.Reverse((Array) this.buffer_, index, stride);
       }
-      this.BaseStream.Write(this.buffer_, 0, bytes);
+      this.impl_.Write(this.buffer_, 0, bytes);
+    }
+
+    private void WriteBufferDelayed_(Task<byte[]> delayedBytes) {
+      var isReversed = this.Reverse;
+      this.impl_.WriteDelayed(
+          delayedBytes.ContinueWith(bytesTask => {
+            var bytes = bytesTask.Result;
+            if (isReversed) {
+              Array.Reverse(bytes, 0, bytes.Length);
+            }
+            return bytes;
+          }));
     }
 
     private void CreateBuffer_(int size) {
@@ -231,21 +225,21 @@ namespace System.IO {
       this.WriteBuffer_(2, 2);
     }
 
-    public void WriteHalfs(float[] value) 
+    public void WriteHalfs(float[] value)
       => this.WriteSingles(value, 0, value.Length);
 
     public void WriteHalfs(float[] value, int offset, int count) {
       this.CreateBuffer_(2 * count);
       for (int index = 0; index < count; ++index)
-        Array.Copy((Array)BitConverter.GetBytes(value[index + offset]),
+        Array.Copy((Array) BitConverter.GetBytes(value[index + offset]),
                    0,
-                   (Array)this.buffer_,
+                   (Array) this.buffer_,
                    index * 2,
                    2);
       this.WriteBuffer_(2 * count, 2);
     }
 
-    
+
     public void WriteSingle(float value) {
       this.CreateBuffer_(4);
       Array.Copy((Array) BitConverter.GetBytes(value),
@@ -376,6 +370,12 @@ namespace System.IO {
       this.WriteBuffer_(4, 4);
     }
 
+    public void WriteUInt32Delayed(Task<uint> delayedValue) {
+      this.WriteBufferDelayed_(
+          delayedValue.ContinueWith(
+              valueTask => BitConverter.GetBytes(valueTask.Result)));
+    }
+
     public void WriteUInt32s(uint[] value) =>
         this.WriteUInt32s(value, 0, value.Length);
 
@@ -475,29 +475,6 @@ namespace System.IO {
     }
 
 
-    public void WritePadding(int multiple, byte padding) {
-      int num = (int) (this.BaseStream.Position % (long) multiple);
-      if (num == 0)
-        return;
-      for (; num != multiple; ++num)
-        this.BaseStream.WriteByte(padding);
-    }
-
-    public void WritePadding(
-        int multiple,
-        byte padding,
-        long from,
-        int offset) {
-      int num =
-          ((int) ((this.BaseStream.Position - from) % (long) multiple) +
-           offset) %
-          multiple;
-      if (num == 0)
-        return;
-      for (; num != multiple; ++num)
-        this.BaseStream.WriteByte(padding);
-    }
-
     public void Close() {
       this.Dispose();
     }
@@ -510,8 +487,6 @@ namespace System.IO {
     private void Dispose(bool disposing) {
       if (this.disposed_)
         return;
-      if (disposing && this.BaseStream != null)
-        this.BaseStream.Close();
       this.buffer_ = (byte[]) null;
       this.disposed_ = true;
     }

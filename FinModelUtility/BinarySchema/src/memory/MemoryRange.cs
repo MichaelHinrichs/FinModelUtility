@@ -161,7 +161,7 @@ namespace schema.memory {
     }
 
     public void Write(EndianBinaryWriter ew) {
-      var startingOffset = ew.Position;
+      /*var startingOffset = ew.Position;
       foreach (var child in this) {
         var childStart =
             ew.Position =
@@ -184,7 +184,7 @@ namespace schema.memory {
         impl!.ResizeSelfAndParents(childLength);
       }
       this.impl_.RecalculateLengthFromChildren();
-      ew.Position = startingOffset + this.SizeInBytes;
+      ew.Position = startingOffset + this.SizeInBytes;*/
     }
 
 
@@ -210,11 +210,11 @@ namespace schema.memory {
       }
 
       public void Write(EndianBinaryWriter ew) {
-        var startPosition = ew.Position;
+        /*var startPosition = ew.Position;
         this.writeHandler_(ew);
         var length = ew.Position - startPosition;
 
-        this.Impl.ResizeSelfAndParents(length);
+        this.Impl.ResizeSelfAndParents(length);*/
       }
 
       public long GetAbsoluteOffsetInBytes() => this.Impl.GetAbsoluteOffset();

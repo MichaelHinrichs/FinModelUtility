@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 using schema;
+using schema.attributes.align;
+using schema.attributes.ignore;
+
 
 namespace mod.schema.collision {
   [Schema]
@@ -14,7 +18,7 @@ namespace mod.schema.collision {
   public partial class BaseCollTriInfo : IBiSerializable {
     public uint mapCode = 0;
     public readonly Vector3i indice = new();
-    
+
     public ushort unknown2 = 0;
     public ushort unknown3 = 0;
     public ushort unknown4 = 0;
@@ -48,21 +52,32 @@ namespace mod.schema.collision {
     }
 
     public void Write(EndianBinaryWriter ew) {
-      var start = ew.StartChunk(0x100);
-      ew.WriteInt32(this.collinfo.Count);
-      ew.WriteInt32(this.roominfo.Count);
+      ew.WriteUInt32(0x100);
 
-      ew.Align(0x20);
-      foreach (var info in this.roominfo) {
-        info.Write(ew);
-      }
+      var beforeLengthTask = new TaskCompletionSource<long>();
+      ew.WriteUInt32Delayed(
+          beforeLengthTask.Task.ContinueWith(
+              length => (uint)length.Result));
 
-      ew.Align(0x20);
-      foreach (var info in this.collinfo) {
-        info.Write(ew);
-      }
+      var actualLengthTask = ew.EnterBlockAndGetDelayedLength((_, _) => {
+        ew.WriteInt32(this.collinfo.Count);
+        ew.WriteInt32(this.roominfo.Count);
 
-      ew.FinishChunk(start);
+        ew.Align(0x20);
+        foreach (var info in this.roominfo) {
+          info.Write(ew);
+        }
+
+        ew.Align(0x20);
+        foreach (var info in this.collinfo) {
+          info.Write(ew);
+        }
+
+        ew.Align(0x20);
+      });
+      actualLengthTask.ContinueWith(
+          length =>
+              beforeLengthTask.SetResult(length.Result));
     }
   }
 
@@ -79,13 +94,26 @@ namespace mod.schema.collision {
   }
 
   public class CollGrid : IBiSerializable {
+    [Align(0x20)]
     public readonly Vector3f boundsMin = new();
     public readonly Vector3f boundsMax = new();
+
     public float unknown1 = 0;
+    
     public uint gridX = 0;
     public uint gridY = 0;
+
+    [ArrayLengthSource(SchemaIntType.UINT32)]
     public readonly List<CollGroup> groups = new();
+
+    [Ignore]
+    private uint gridSize_ => this.gridX * this.gridY;
+
+    [ArrayLengthSource(nameof(gridSize_))]
     public readonly List<int> unknown2 = new();
+
+    [Align(0x20)]
+    private readonly byte[] empty_ = new byte[0];
 
     public void Read(EndianBinaryReader reader) {
       reader.Align(0x20);
@@ -98,9 +126,7 @@ namespace mod.schema.collision {
       var numGroups = reader.ReadUInt32();
       this.groups.Clear();
       for (var i = 0; i < numGroups; ++i) {
-        var group = new CollGroup();
-        group.Read(reader);
-        this.groups.Add(group);
+        this.groups.Add(reader.ReadNew<CollGroup>());
       }
 
       this.unknown2.Clear();
@@ -110,25 +136,36 @@ namespace mod.schema.collision {
       reader.Align(0x20);
     }
 
-    public void Write(EndianBinaryWriter writer) {
-      var start = writer.StartChunk(0x110);
-      writer.Align(0x20);
-      this.boundsMin.Write(writer);
-      this.boundsMax.Write(writer);
-      writer.WriteSingle(this.unknown1);
-      writer.WriteUInt32(this.gridX);
-      writer.WriteUInt32(this.gridY);
+    public void Write(EndianBinaryWriter ew) {
+      ew.WriteUInt32(0x110);
 
-      writer.WriteInt32(this.groups.Count);
-      foreach (var group in this.groups) {
-        group.Write(writer);
-      }
+      var beforeLengthTask = new TaskCompletionSource<long>();
+      ew.WriteUInt32Delayed(
+          beforeLengthTask.Task.ContinueWith(
+              length => (uint) length.Result));
 
-      foreach (var i in this.unknown2) {
-        writer.WriteInt32(i);
-      }
-      writer.Align(0x20);
-      writer.FinishChunk(start);
+      var actualLengthTask = ew.EnterBlockAndGetDelayedLength(
+          (_, _) => {
+            ew.Align(0x20);
+            this.boundsMin.Write(ew);
+            this.boundsMax.Write(ew);
+            ew.WriteSingle(this.unknown1);
+            ew.WriteUInt32(this.gridX);
+            ew.WriteUInt32(this.gridY);
+
+            ew.WriteInt32(this.groups.Count);
+            foreach (var group in this.groups) {
+              group.Write(ew);
+            }
+
+            foreach (var i in this.unknown2) {
+              ew.WriteInt32(i);
+            }
+            ew.Align(0x20);
+          });
+      actualLengthTask.ContinueWith(
+          length =>
+              beforeLengthTask.SetResult(length.Result));
     }
 
     public void Clear() {
