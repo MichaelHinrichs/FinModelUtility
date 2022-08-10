@@ -17,11 +17,10 @@ using bmd.G3D_Binary_File_Format;
 using fin.io;
 using fin.log;
 
-using Tao.OpenGl;
-
 
 namespace bmd.exporter {
   using MkdsNode = bmd._3D_Formats.MA.Node;
+  using GxPrimitiveType = BMD.SHP1Section.Batch.Packet.Primitive.GXPrimitive;
 
   public class BmdModelFileBundle : IModelFileBundle {
     public IFileHierarchyFile MainFile => this.BmdFile;
@@ -321,29 +320,29 @@ namespace bmd.exporter {
                   }
                 }
 
-                var glPrimitiveType = primitive.GetGlPrimitive();
+                var gxPrimitiveType = primitive.Type;
 
                 Asserts.Nonnull(currentBmdMaterial);
-                switch (glPrimitiveType) {
-                  case Gl.GL_TRIANGLES: {
+                switch (gxPrimitiveType) {
+                  case GxPrimitiveType.GX_TRIANGLES: {
                     finMesh.AddTriangles(vertices)
                            .SetMaterial(currentBmdMaterial.Material);
                     break;
                   }
 
-                  case Gl.GL_TRIANGLE_STRIP: {
+                  case GxPrimitiveType.GX_TRIANGLESTRIP: {
                     finMesh.AddTriangleStrip(vertices)
                            .SetMaterial(currentBmdMaterial.Material);
                     break;
                   }
 
-                  case Gl.GL_TRIANGLE_FAN: {
+                  case GxPrimitiveType.GX_TRIANGLEFAN: {
                     finMesh.AddTriangleFan(vertices)
                            .SetMaterial(currentBmdMaterial.Material);
                     break;
                   }
 
-                  case Gl.GL_QUADS: {
+                  case GxPrimitiveType.GX_QUADS: {
                     finMesh.AddQuads(vertices)
                            .SetMaterial(currentBmdMaterial.Material);
                     break;
@@ -351,7 +350,7 @@ namespace bmd.exporter {
 
                   default:
                     throw new NotSupportedException(
-                        $"Unsupported primitive type: {glPrimitiveType}");
+                        $"Unsupported primitive type: {gxPrimitiveType}");
                 }
               }
             }

@@ -26,20 +26,26 @@
     <Compile Remove="src\misc\Converters\Colission\**" />
     <Compile Remove="src\misc\Converters\_3D\**" />
     <Compile Remove="src\misc\Flobbster\**" />
+    <Compile Remove="src\misc\G2D_Binary_File_Format\**" />
     <Compile Remove="src\misc\Language\**" />
     <Compile Remove="src\misc\Misc\**" />
+    <Compile Remove="src\misc\Tao\**" />
     <EmbeddedResource Remove="src\api\**" />
     <EmbeddedResource Remove="src\misc\Converters\Colission\**" />
     <EmbeddedResource Remove="src\misc\Converters\_3D\**" />
     <EmbeddedResource Remove="src\misc\Flobbster\**" />
+    <EmbeddedResource Remove="src\misc\G2D_Binary_File_Format\**" />
     <EmbeddedResource Remove="src\misc\Language\**" />
     <EmbeddedResource Remove="src\misc\Misc\**" />
+    <EmbeddedResource Remove="src\misc\Tao\**" />
     <None Remove="src\api\**" />
     <None Remove="src\misc\Converters\Colission\**" />
     <None Remove="src\misc\Converters\_3D\**" />
     <None Remove="src\misc\Flobbster\**" />
+    <None Remove="src\misc\G2D_Binary_File_Format\**" />
     <None Remove="src\misc\Language\**" />
     <None Remove="src\misc\Misc\**" />
+    <None Remove="src\misc\Tao\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -48,13 +54,10 @@
     <Compile Remove="src\misc\Converters\Compression.cs" />
     <Compile Remove="src\misc\Converters\Graphic.cs" />
     <Compile Remove="src\misc\Converters\Sound.cs" />
-    <Compile Remove="src\misc\G2D_Binary_File_Format\NCER.cs" />
-    <Compile Remove="src\misc\G2D_Binary_File_Format\NCGR.cs" />
-    <Compile Remove="src\misc\G2D_Binary_File_Format\NCLR.cs" />
-    <Compile Remove="src\misc\G2D_Binary_File_Format\NSCR.cs" />
     <Compile Remove="src\misc\G3D_Binary_File_Format\AnmHeader.cs" />
     <Compile Remove="src\misc\G3D_Binary_File_Format\DictionaryData.cs" />
     <Compile Remove="src\misc\G3D_Binary_File_Format\Dictionary`1.cs" />
+    <Compile Remove="src\misc\G3D_Binary_File_Format\FileHeader.cs" />
     <Compile Remove="src\misc\G3D_Binary_File_Format\NSBCA.cs" />
     <Compile Remove="src\misc\G3D_Binary_File_Format\NSBMA.cs" />
     <Compile Remove="src\misc\G3D_Binary_File_Format\NSBMD.cs" />
@@ -69,7 +72,8 @@
     <Compile Remove="src\misc\System\ControlHelper.cs" />
     <Compile Remove="src\misc\System\ObjectIDTypeConverter.cs" />
     <Compile Remove="src\misc\System\ObjectSelector.cs" />
-    <Compile Remove="src\misc\Tao\OpenGl\GlNitro.cs" />
+    <Compile Remove="src\misc\System\UInt16HexTypeConverter.cs" />
+    <Compile Remove="src\misc\System\UInt32HexTypeConverter.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -82,20 +86,6 @@
     <ProjectReference Include="../BinarySchema/BinarySchema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
     <ProjectReference Include="..\Fin\Fin.csproj" />
     <ProjectReference Include="..\Gx\Gx.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="OpenTK">
-      <HintPath>lib\OpenTK.dll</HintPath>
-    </Reference>
-    <Reference Include="Tao.OpenGl">
-      <HintPath>..\Utility of Time\Tao GL Libs\Tao.OpenGl.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="src\misc\G2D_Binary_File_Format\" />
-    <Folder Include="src\misc\Tao\OpenGl\" />
   </ItemGroup>
 
 </Project>

@@ -10,7 +10,6 @@ using bmd._3D_Formats;
 //using MKDS_Course_Modifier.Converters.Colission;
 using bmd.G3D_Binary_File_Format;
 //using MKDS_Course_Modifier.UI;
-using OpenTK;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -20,6 +19,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Drawing;
+using System.Numerics;
 
 using bmd.schema.bmd;
 using bmd.schema.bmd.inf1;
@@ -35,12 +35,6 @@ using fin.util.color;
 using fin.util.image;
 
 using gx;
-
-using schema;
-using schema.attributes.child_of;
-using schema.attributes.ignore;
-using schema.attributes.offset;
-using schema.attributes.position;
 
 #pragma warning disable CS8604
 
@@ -875,29 +869,6 @@ label_7:
           {
             public BMD.SHP1Section.Batch.Packet.Primitive.GXPrimitive Type;
             public BMD.SHP1Section.Batch.Packet.Primitive.Index[] Points;
-
-            public int GetGlPrimitive()
-            {
-              switch (this.Type)
-              {
-                case BMD.SHP1Section.Batch.Packet.Primitive.GXPrimitive.GX_QUADS:
-                  return 7;
-                case BMD.SHP1Section.Batch.Packet.Primitive.GXPrimitive.GX_TRIANGLES:
-                  return 4;
-                case BMD.SHP1Section.Batch.Packet.Primitive.GXPrimitive.GX_TRIANGLESTRIP:
-                  return 5;
-                case BMD.SHP1Section.Batch.Packet.Primitive.GXPrimitive.GX_TRIANGLEFAN:
-                  return 6;
-                case BMD.SHP1Section.Batch.Packet.Primitive.GXPrimitive.GX_LINES:
-                  return 1;
-                case BMD.SHP1Section.Batch.Packet.Primitive.GXPrimitive.GX_LINESTRIP:
-                  return 3;
-                case BMD.SHP1Section.Batch.Packet.Primitive.GXPrimitive.GX_POINTS:
-                  return 0;
-                default:
-                  return -1;
-              }
-            }
 
             public enum GXPrimitive
             {
