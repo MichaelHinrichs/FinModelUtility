@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using Microsoft.CodeAnalysis;
+
+using schema.util;
 
 
 namespace schema.parser {
@@ -13,6 +16,7 @@ namespace schema.parser {
     STRING,
     ENUM,
     STRUCTURE,
+    GENERIC,
     SEQUENCE,
   }
 
@@ -45,6 +49,11 @@ namespace schema.parser {
 
   public interface IStructureTypeInfo : ITypeInfo {
     INamedTypeSymbol NamedTypeSymbol { get; }
+  }
+
+  public interface IGenericTypeInfo : ITypeInfo {
+    ITypeInfo[] ConstraintTypeInfos { get; }
+    ITypeParameterSymbol TypeParameterSymbol { get; }
   }
 
   public interface ISequenceTypeInfo : ITypeInfo {
@@ -244,6 +253,26 @@ namespace schema.parser {
         return ParseStatus.SUCCESS;
       }
 
+      if (typeSymbol is ITypeParameterSymbol typeParameterSymbol) {
+        var constraintTypeInfos =
+            typeParameterSymbol
+                .ConstraintTypes
+                .Select(constraintType => {
+                  var parseStatus = this.ParseTypeSymbol(
+                      constraintType, isReadonly, out var constraintTypeInfo);
+                  Asserts.Equal(ParseStatus.SUCCESS, parseStatus);
+                  return constraintTypeInfo;
+                })
+                .ToArray();
+
+        typeInfo = new GenericTypeInfo(
+            constraintTypeInfos,
+            typeParameterSymbol,
+            isReadonly,
+            isNullable);
+        return ParseStatus.SUCCESS;
+      }
+
       typeInfo = default;
       return ParseStatus.NOT_IMPLEMENTED;
     }
@@ -438,6 +467,28 @@ namespace schema.parser {
 
       public INamedTypeSymbol NamedTypeSymbol { get; }
       public ITypeSymbol TypeSymbol => this.NamedTypeSymbol;
+
+      public bool IsReadonly { get; }
+      public bool IsNullable { get; }
+    }
+
+    private class GenericTypeInfo : IGenericTypeInfo {
+      public GenericTypeInfo(
+          ITypeInfo[] constraintTypeInfos,
+          ITypeParameterSymbol typeParameterSymbol,
+          bool isReadonly,
+          bool isNullable) {
+        this.ConstraintTypeInfos = constraintTypeInfos;
+        this.TypeParameterSymbol = typeParameterSymbol;
+        this.IsReadonly = isReadonly;
+        this.IsNullable = isNullable;
+      }
+
+      public SchemaTypeKind Kind => SchemaTypeKind.GENERIC;
+
+      public ITypeInfo[] ConstraintTypeInfos { get; }
+      public ITypeParameterSymbol TypeParameterSymbol { get; }
+      public ITypeSymbol TypeSymbol => this.TypeParameterSymbol;
 
       public bool IsReadonly { get; }
       public bool IsNullable { get; }

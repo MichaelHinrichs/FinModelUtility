@@ -8,17 +8,10 @@ namespace schema.text {
     public string Generate(ISchemaStructure structure) {
       var typeSymbol = structure.TypeSymbol;
 
-      var typeName = typeSymbol.Name;
       var typeNamespace = SymbolTypeUtil.MergeContainingNamespaces(typeSymbol);
-
-      var isTypeClass = typeSymbol.TypeKind == TypeKind.Class;
-      var isTypeAbstract = typeSymbol.IsAbstract;
 
       var declaringTypes =
           SymbolTypeUtil.GetDeclaringTypesDownward(typeSymbol);
-      var symbolType = (isTypeAbstract ? "abstract " : "") +
-                       "partial " +
-                       (isTypeClass ? "class" : "struct");
 
       var cbsb = new CurlyBracketStringBuilder();
       cbsb.WriteLine("using System;")
@@ -27,11 +20,9 @@ namespace schema.text {
       // TODO: Handle fancier cases here
       cbsb.EnterBlock($"namespace {typeNamespace}");
       foreach (var declaringType in declaringTypes) {
-        cbsb.EnterBlock(
-            $"{SymbolTypeUtil.GetSymbolQualifiers(declaringType)} {declaringType.Name}");
+        cbsb.EnterBlock(SymbolTypeUtil.GetQualifiersAndNameFor(declaringType));
       }
-      cbsb.EnterBlock(
-          $"{SymbolTypeUtil.GetSymbolQualifiers(typeSymbol)} {typeName}");
+      cbsb.EnterBlock(SymbolTypeUtil.GetQualifiersAndNameFor(typeSymbol));
 
       cbsb.EnterBlock("public void Write(EndianBinaryWriter ew)");
       foreach (var member in structure.Members) {
@@ -78,7 +69,8 @@ namespace schema.text {
               SchemaPrimitiveTypesUtil.ConvertIntToNumber(
                   ifBoolean.ImmediateBooleanType);
           var booleanPrimitiveType =
-              SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(booleanNumberType);
+              SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(
+                  booleanNumberType);
           var booleanNumberLabel =
               SchemaGeneratorUtil.GetTypeName(booleanNumberType);
           var booleanPrimitiveLabel =
@@ -92,6 +84,10 @@ namespace schema.text {
       }
 
       var memberType = member.MemberType;
+      if (memberType is IGenericMemberType genericMemberType) {
+        memberType = genericMemberType.ConstraintType;
+      }
+
       switch (memberType) {
         case IPrimitiveMemberType: {
           SchemaWriterGenerator.WritePrimitive_(cbsb, member);
@@ -101,7 +97,7 @@ namespace schema.text {
           SchemaWriterGenerator.WriteString_(cbsb, member);
           break;
         }
-        case IStructureMemberType: {
+        case IStructureMemberType structureMemberType: {
           SchemaWriterGenerator.WriteStructure_(cbsb, member);
           break;
         }
@@ -181,12 +177,14 @@ namespace schema.text {
         ISchemaMember member) {
       var stringType = member.MemberType as IStringType;
 
-      if (stringType.LengthSourceType == StringLengthSourceType.NULL_TERMINATED) {
+      if (stringType.LengthSourceType ==
+          StringLengthSourceType.NULL_TERMINATED) {
         cbsb.WriteLine($"ew.WriteStringNT(this.{member.Name});");
       } else if (stringType.IsEndianOrdered) {
         cbsb.WriteLine($"ew.WriteStringEndian(this.{member.Name});");
       } else if (stringType.LengthSourceType == StringLengthSourceType.CONST) {
-        cbsb.WriteLine($"ew.WriteStringWithExactLength(this.{member.Name}, {stringType.ConstLength});");
+        cbsb.WriteLine(
+            $"ew.WriteStringWithExactLength(this.{member.Name}, {stringType.ConstLength});");
       } else {
         cbsb.WriteLine($"ew.WriteString(this.{member.Name});");
       }

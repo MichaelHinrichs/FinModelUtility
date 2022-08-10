@@ -63,7 +63,8 @@ namespace schema {
           SymbolTypeUtil.MergeContainingNamespaces(symbol) ==
           expectedGenericType.Namespace;
       var sameTypeArguments = symbol.TypeArguments.Length ==
-                              expectedGenericType.GetTypeInfo().GenericTypeParameters.Length;
+                              expectedGenericType.GetTypeInfo()
+                                                 .GenericTypeParameters.Length;
       return sameName && sameNamespace && sameTypeArguments;
     }
 
@@ -160,6 +161,30 @@ namespace schema {
       declaringTypes.Reverse();
 
       return declaringTypes.ToArray();
+    }
+
+    public static string GetQualifiersAndNameFor(
+        INamedTypeSymbol namedTypeSymbol) {
+      var sb = new StringBuilder();
+      sb.Append(SymbolTypeUtil.GetSymbolQualifiers(namedTypeSymbol));
+      sb.Append(" ");
+      sb.Append(namedTypeSymbol.Name);
+
+      var typeParameters = namedTypeSymbol.TypeParameters;
+      if (typeParameters.Length > 0) {
+        sb.Append("<");
+        for (var i = 0; i < typeParameters.Length; ++i) {
+          if (i > 0) {
+            sb.Append(", ");
+          }
+
+          var typeParameter = typeParameters[i];
+          sb.Append(typeParameter.Name);
+        }
+        sb.Append(">");
+      }
+
+      return sb.ToString();
     }
 
     public static string GetSymbolQualifiers(INamedTypeSymbol typeSymbol)

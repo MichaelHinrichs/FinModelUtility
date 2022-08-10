@@ -48,7 +48,12 @@ namespace schema {
           src.IndexOf("class", attributeSpan.Start + attributeSpan.Length);
       var classNameIndex = src.IndexOf(' ', classIndex) + 1;
       var classNameLength = src.IndexOf(' ', classNameIndex) - classNameIndex;
+
       var typeName = src.Substring(classNameIndex, classNameLength);
+      var angleBracketIndex = typeName.IndexOf('<');
+      if (angleBracketIndex > -1) {
+        typeName = typeName.Substring(0, angleBracketIndex);
+      }
 
       var typeNode = syntaxTree.GetRoot()
                                .DescendantTokens()

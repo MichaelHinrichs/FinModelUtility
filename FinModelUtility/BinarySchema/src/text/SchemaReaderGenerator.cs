@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 using Microsoft.CodeAnalysis;
 
@@ -8,17 +9,10 @@ namespace schema.text {
     public string Generate(ISchemaStructure structure) {
       var typeSymbol = structure.TypeSymbol;
 
-      var typeName = typeSymbol.Name;
       var typeNamespace = SymbolTypeUtil.MergeContainingNamespaces(typeSymbol);
-
-      var isTypeClass = typeSymbol.TypeKind == TypeKind.Class;
-      var isTypeAbstract = typeSymbol.IsAbstract;
 
       var declaringTypes =
           SymbolTypeUtil.GetDeclaringTypesDownward(typeSymbol);
-      var symbolType = (isTypeAbstract ? "abstract " : "") +
-                       "partial " +
-                       (isTypeClass ? "class" : "struct");
 
       var cbsb = new CurlyBracketStringBuilder();
       cbsb.WriteLine("using System;")
@@ -27,11 +21,9 @@ namespace schema.text {
       // TODO: Handle fancier cases here
       cbsb.EnterBlock($"namespace {typeNamespace}");
       foreach (var declaringType in declaringTypes) {
-        cbsb.EnterBlock(
-            $"{SymbolTypeUtil.GetSymbolQualifiers(declaringType)} {declaringType.Name}");
+        cbsb.EnterBlock(SymbolTypeUtil.GetQualifiersAndNameFor(declaringType));
       }
-      cbsb.EnterBlock(
-          $"{SymbolTypeUtil.GetSymbolQualifiers(typeSymbol)} {typeName}");
+      cbsb.EnterBlock(SymbolTypeUtil.GetQualifiersAndNameFor(typeSymbol));
 
       cbsb.EnterBlock("public void Read(EndianBinaryReader er)");
       foreach (var member in structure.Members) {
@@ -110,6 +102,10 @@ namespace schema.text {
       }
 
       var memberType = member.MemberType;
+      if (memberType is IGenericMemberType genericMemberType) {
+        memberType = genericMemberType.ConstraintType;
+      }
+
       switch (memberType) {
         case IPrimitiveMemberType: {
           SchemaReaderGenerator.ReadPrimitive_(cbsb, sourceSymbol, member);
@@ -119,8 +115,10 @@ namespace schema.text {
           SchemaReaderGenerator.ReadString_(cbsb, member);
           break;
         }
-        case IStructureMemberType: {
-          SchemaReaderGenerator.ReadStructure_(cbsb, member);
+        case IStructureMemberType structureMemberType: {
+          SchemaReaderGenerator.ReadStructure_(cbsb,
+                                               structureMemberType,
+                                               member);
           break;
         }
         case ISequenceMemberType: {
@@ -263,7 +261,22 @@ namespace schema.text {
 
     private static void ReadStructure_(
         ICurlyBracketStringBuilder cbsb,
+        IStructureMemberType structureMemberType,
         ISchemaMember member) {
+      // TODO: Do value types need to be handled differently?
+      var memberName = member.Name;
+      if (structureMemberType.IsChild) {
+        cbsb.WriteLine($"this.{memberName}.Parent = this;");
+      }
+      cbsb.WriteLine($"this.{memberName}.Read(er);");
+    }
+
+    private static void ReadGeneric_(
+        ICurlyBracketStringBuilder cbsb,
+        ISchemaMember member) {
+      // TODO: Handle generic types beyond just IBiSerializable
+
+
       var structureMemberType = member.MemberType as IStructureMemberType;
 
       // TODO: Do value types need to be handled differently?

@@ -82,6 +82,11 @@ namespace schema {
     bool IsChild { get; }
   }
 
+  public interface IGenericMemberType : IMemberType {
+    IMemberType ConstraintType { get; }
+    IGenericTypeInfo GenericTypeInfo { get; }
+  }
+
   public enum IfBooleanSourceType {
     UNSPECIFIED,
     IMMEDIATE_VALUE,
@@ -558,6 +563,14 @@ namespace schema {
       public bool IsChild { get; set; }
     }
 
+    public class GenericMemberType : IGenericMemberType {
+      public IMemberType ConstraintType { get; set; }
+      public IGenericTypeInfo GenericTypeInfo { get; set; }
+      public ITypeInfo TypeInfo => GenericTypeInfo;
+      public ITypeSymbol TypeSymbol => TypeInfo.TypeSymbol;
+      public bool IsReadonly => this.TypeInfo.IsReadonly;
+    }
+
     public class IfBoolean : IIfBoolean {
       public IfBooleanSourceType SourceType { get; set; }
       public SchemaIntType ImmediateBooleanType { get; set; }
@@ -619,6 +632,16 @@ namespace schema {
               StructureTypeInfo = structureTypeInfo,
               IsReferenceType =
                   structureTypeInfo.NamedTypeSymbol.IsReferenceType,
+          };
+        }
+        case IGenericTypeInfo genericTypeInfo: {
+          // TODO: Figure out how to find the best constraint
+          var constraintTypeInfo = genericTypeInfo.ConstraintTypeInfos[0];
+          var constraintMemberType = this.WrapTypeInfoWithMemberType(constraintTypeInfo);
+
+          return new GenericMemberType {
+              ConstraintType = constraintMemberType,
+              GenericTypeInfo = genericTypeInfo,
           };
         }
         case ISequenceTypeInfo sequenceTypeInfo: {
