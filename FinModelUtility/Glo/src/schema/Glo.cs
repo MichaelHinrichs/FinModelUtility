@@ -1,4 +1,7 @@
-﻿using schema;
+﻿using fin.schema.color;
+using fin.schema.vector;
+
+using schema;
 
 
 namespace glo.schema {
@@ -70,7 +73,7 @@ namespace glo.schema {
   [Schema]
   public sealed partial class GloXyzKey : IBiSerializable {
     public uint Time { get; set; }
-    public GloXyz Xyz { get; } = new();
+    public Vector3f Xyz { get; } = new();
   }
 
   [Schema]
@@ -86,7 +89,7 @@ namespace glo.schema {
   [Schema]
   public sealed partial class GloScaleKey : IBiSerializable {
     public uint Time { get; set; }
-    public GloScale Scale { get; } = new();
+    public Vector3f Scale { get; } = new();
   }
 
   [Schema]
@@ -101,7 +104,7 @@ namespace glo.schema {
     [StringLengthSource(16)]
     public string TextureFilename { get; set; }
 
-    public GloColor Color { get; } = new();
+    public Rgba32 Color { get; } = new();
     public ushort Flags { get; set; }
 
     public GloVertexRef[] VertexRefs { get; } = {
@@ -122,39 +125,10 @@ namespace glo.schema {
   public sealed partial class GloSprite : IBiSerializable {
     public char[] TextureFilename { get; } = new char[16];
 
-    public GloColor Color { get; } = new();
+    public Rgba32 Color { get; } = new();
 
-    public GloXyz SpritePosition { get; } = new();
-    public GloXy SpriteSize { get; } = new();
+    public Vector3f SpritePosition { get; } = new();
+    public Vector2f SpriteSize { get; } = new();
     public ushort SpriteFlags { get; set; }
-  }
-
-
-  [Schema]
-  public sealed partial class GloXy : IBiSerializable {
-    public float X { get; set; }
-    public float Y { get; set; }
-  }
-
-  [Schema]
-  public sealed partial class GloXyz : IBiSerializable {
-    public float X { get; set; }
-    public float Y { get; set; }
-    public float Z { get; set; }
-  }
-
-  [Schema]
-  public sealed partial class GloScale : IBiSerializable {
-    public float Y { get; set; }
-    public float X { get; set; }
-    public float Z { get; set; }
-  }
-
-  [Schema]
-  public sealed partial class GloColor : IBiSerializable {
-    public byte R { get; set; }
-    public byte G { get; set; }
-    public byte B { get; set; }
-    public byte A { get; set; }
   }
 }
