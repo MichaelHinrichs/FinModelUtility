@@ -17,17 +17,25 @@ namespace schema {
     public override ImmutableArray<DiagnosticDescriptor>
         SupportedDiagnostics { get; } =
       ImmutableArray.Create(
+          Rules.BooleanNeedsFormat,
+          Rules.ChildTypeCanOnlyBeContainedInParent,
+          Rules.ChildTypeMustBeContainedInParent,
           Rules.ConstUninitialized,
           Rules.ContainerTypeMustBePartial,
           Rules.EnumNeedsFormat,
+          Rules.ElementNeedsToImplementIBiSerializable,
           Rules.Exception,
           Rules.FormatOnNonNumber,
+          Rules.IfBooleanNeedsNullable,
           Rules.MutableArrayNeedsLengthSource,
           Rules.MutableStringNeedsLengthSource,
           Rules.NotSupported,
+          Rules.ReadAlreadyDefined,
           Rules.SchemaTypeMustBePartial,
+          Rules.StructureMemberNeedsToImplementIBiSerializable,
           Rules.UnexpectedAttribute,
-          Rules.UnsupportedArrayType
+          Rules.UnsupportedArrayType,
+          Rules.WriteAlreadyDefined
       );
 
     public override void Initialize(AnalysisContext context) {
@@ -87,7 +95,7 @@ namespace schema {
             Rules.ReportDiagnostic(context, diagnostic);
           }
         }
-      } catch(Exception exception) {
+      } catch (Exception exception) {
         if (Debugger.IsAttached) {
           throw;
         }

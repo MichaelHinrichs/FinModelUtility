@@ -242,20 +242,10 @@ namespace mod.cli {
         }
       }
 
-      // Writes animations
-      for (var d = 0; d < (anm?.Dcxes.Count ?? 0); d++) {
-        var dcx = anm.Dcxes[d];
-        var animation = model.AnimationManager.AddAnimation();
-
-        animation.Name = dcx.Name;
-        animation.FrameCount = (int) dcx.FrameCount;
-        animation.FrameRate = 30;
-
-        foreach (var jointIndexAndKeyframes in dcx.JointKeyframesMap) {
-          var jointIndex = jointIndexAndKeyframes.Key;
-          var jointKeyframes = jointIndexAndKeyframes.Value;
-
-          animation.AddBoneTracks(bones[jointIndex]).Set(jointKeyframes);
+      // Converts animations
+      if (anm != null) {
+        foreach (var dcxWrapper in anm.Wrappers) {
+          DcxHelpers.AddAnimation(bones, model.AnimationManager, dcxWrapper.Dcx);
         }
       }
 
