@@ -167,15 +167,5 @@ namespace mod.schema.collision {
           length =>
               beforeLengthTask.SetResult(length.Result));
     }
-
-    public void Clear() {
-      this.boundsMin.Reset();
-      this.boundsMax.Reset();
-      this.unknown1 = 0;
-      this.gridX = 0;
-      this.gridY = 0;
-      this.groups.Clear();
-      this.unknown2.Clear();
-    }
   }
 }

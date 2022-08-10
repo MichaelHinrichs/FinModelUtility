@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 
+using fin.schema.vector;
 using fin.util.asserts;
 
 using mod.schema.collision;
@@ -225,32 +225,6 @@ namespace mod.schema {
 
     public void Write(EndianBinaryWriter writer) {
       throw new NotImplementedException();
-    }
-
-    public void Reset() {
-      this.vertices.Clear();
-      this.vnormals.Clear();
-      this.vertexnbt.Clear();
-      this.vcolours.Clear();
-      for (var i = 0; i < 8; i++) {
-        this.texcoords[i].Clear();
-      }
-      this.textures.Clear();
-      this.texattrs.Clear();
-      this.materials.materials.Clear();
-      this.materials.texEnvironments.Clear();
-      this.vtxMatrix.Clear();
-      this.envelopes.Clear();
-      this.meshes.Clear();
-      this.joints.Clear();
-      this.jointNames.Clear();
-
-      this.colltris.collinfo.Clear();
-      this.colltris.roominfo.Clear();
-
-      this.collgrid.Clear();
-
-      this.eofBytes.Clear();
     }
   }
 }

@@ -9,7 +9,6 @@ namespace mod.schema {
     T Z { get; set; }
 
     void Set(T x, T y, T z);
-    void Reset();
 
     string? ToString() => $"{this.X} {this.Y} {this.Z}";
   }
@@ -28,8 +27,6 @@ namespace mod.schema {
       this.Y = y;
       this.Z = z;
     }
-
-    public void Reset() => this.Set(0, 0, 0);
   }
 
   [Schema]
@@ -46,7 +43,5 @@ namespace mod.schema {
       this.Y = y;
       this.Z = z;
     }
-
-    public void Reset() => this.Set(0, 0, 0);
   }
 }

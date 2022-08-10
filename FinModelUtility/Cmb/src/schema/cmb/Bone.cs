@@ -1,16 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
+using fin.schema.vector;
+
 using schema;
+
 
 namespace cmb.schema.cmb {
   public class Bone : IDeserializable {
     public ushort id;
     public bool hasSkinningMatrix;
     public short parentId;
-    public readonly float[] scale = new float[3];
-    public readonly float[] rotation = new float[3];
-    public readonly float[] translation = new float[3];
+    public Vector3f scale { get; } = new();
+    public Vector3f rotation { get; } = new();
+    public Vector3f translation { get; } = new();
     public uint unk0;
 
     public Bone? parent;
@@ -31,10 +34,10 @@ namespace cmb.schema.cmb {
 
       this.id &= 0xFFF; // Get boneID
       this.parentId = r.ReadInt16();
-      
-      r.ReadSingles(this.scale);
-      r.ReadSingles(this.rotation);
-      r.ReadSingles(this.translation);
+
+      this.scale.Read(r);
+      this.rotation.Read(r);
+      this.translation.Read(r);
 
       if (CmbHeader.Version > CmbVersion.OCARINA_OF_TIME_3D) {
         // M-1: I assume a crc32 of the bone name

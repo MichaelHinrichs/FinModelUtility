@@ -98,18 +98,9 @@ namespace cmb.api {
 
         var finBone =
             (finBoneParent ?? finModel.Skeleton.Root)
-            .AddChild(
-                translation[0],
-                translation[1],
-                translation[2])
-            .SetLocalRotationRadians(
-                radians[0],
-                radians[1],
-                radians[2])
-            .SetLocalScale(
-                scale[0],
-                scale[1],
-                scale[2]);
+            .AddChild(translation.X, translation.Y, translation.Z)
+            .SetLocalRotationRadians(radians.X, radians.Y, radians.Z)
+            .SetLocalScale(scale.X, scale.Y, scale.Z);
         finBones[cmbBone.id] = finBone;
 
         foreach (var child in cmbBone.children) {

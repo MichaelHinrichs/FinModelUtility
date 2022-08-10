@@ -142,9 +142,6 @@ namespace mod.schema {
     }
 
     [Test]
-    public void TestVector2f() => TestGcnSerializableSimple(new Vector2f());
-
-    [Test]
     public void TestVector2i() => TestGcnSerializableSimple(new Vector2i());
 
 
