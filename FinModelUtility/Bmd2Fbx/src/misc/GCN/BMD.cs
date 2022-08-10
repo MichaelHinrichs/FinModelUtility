@@ -722,16 +722,11 @@ label_7:
                                    (long) this.AttribsOffset;
           List<BatchAttribute> source = new List<BatchAttribute>();
           {
-            var entry = er.ReadNew<BatchAttribute>();
-            source.Add(entry);
-
-            while (source.Last<BatchAttribute>()
-                         .Attribute !=
-                   (uint) byte.MaxValue) {
-              entry = new BatchAttribute();
-              entry.Read(er);
+            BatchAttribute entry;
+            do {
+              entry = er.ReadNew<BatchAttribute>();
               source.Add(entry);
-            }
+            } while ((uint) entry.Attribute != byte.MaxValue);
           }
 
         source.Remove(source.Last<BatchAttribute>());
@@ -740,30 +735,34 @@ label_7:
           {
             if (this.BatchAttributes[index].DataType != 1U && this.BatchAttributes[index].DataType != 3U)
               throw new Exception();
-            switch (this.BatchAttributes[index].Attribute)
-            {
-              case 0:
+            switch (this.BatchAttributes[index].Attribute) {
+              case GxAttribute.PNMTXIDX:
                 this.HasMatrixIndices = true;
                 break;
-              case 9:
+              case GxAttribute.POS:
                 this.HasPositions = true;
                 break;
-              case 10:
+              case GxAttribute.NRM:
                 this.HasNormals = true;
                 break;
-              case 11:
-              case 12:
-                this.HasColors[this.BatchAttributes[index].Attribute - 11U] = true;
+              case GxAttribute.CLR0:
+              case GxAttribute.CLR1:
+                this.HasColors[
+                        this.BatchAttributes[index].Attribute -
+                        GxAttribute.CLR0] =
+                    true;
                 break;
-              case 13:
-              case 14:
-              case 15:
-              case 16:
-              case 17:
-              case 18:
-              case 19:
-              case 20:
-                this.HasTexCoords[this.BatchAttributes[index].Attribute - 13U] = true;
+              case GxAttribute.TEX0:
+              case GxAttribute.TEX1:
+              case GxAttribute.TEX2:
+              case GxAttribute.TEX3:
+              case GxAttribute.TEX4:
+              case GxAttribute.TEX5:
+              case GxAttribute.TEX6:
+              case GxAttribute.TEX7:
+                this.HasTexCoords[this.BatchAttributes[index].Attribute -
+                                  GxAttribute.TEX0] =
+                    true;
                 break;
             }
           }
@@ -779,7 +778,7 @@ label_7:
             er.Position = baseoffset + (long) Parent.DataOffset + (long) this.PacketLocations[index].Offset;
             this.Packets[index] = new BMD.SHP1Section.Batch.Packet(er, (int) this.PacketLocations[index].Size, this.BatchAttributes);
             er.Position = baseoffset + (long) Parent.MatrixDataOffset + (long) (((int) this.FirstMatrixData + index) * 8);
-            this.Packets[index].MatrixData = new BMD.SHP1Section.Batch.Packet.Matrixdata(er);
+            this.Packets[index].MatrixData = er.ReadNew<MatrixData>();
             er.Position = baseoffset + (long) Parent.MatrixTableOffset + (long) (2U * this.Packets[index].MatrixData.FirstIndex);
             this.Packets[index].MatrixTable = er.ReadUInt16s((int) this.Packets[index].MatrixData.Count);
           }
@@ -790,7 +789,7 @@ label_7:
         {
           public BMD.SHP1Section.Batch.Packet.Primitive[] Primitives;
           public ushort[] MatrixTable;
-          public BMD.SHP1Section.Batch.Packet.Matrixdata MatrixData;
+          public MatrixData MatrixData;
 
           public Packet(
             EndianBinaryReader er,
@@ -831,30 +830,35 @@ label_7:
                         num1 += 2;
                         break;
                     }
-                    switch (Attributes[index2].Attribute)
-                    {
-                      case 0:
+                    switch (Attributes[index2].Attribute) {
+                      case GxAttribute.PNMTXIDX:
                         primitive.Points[index1].MatrixIndex = num3;
                         break;
-                      case 9:
+                      case GxAttribute.POS:
                         primitive.Points[index1].PosIndex = num3;
                         break;
-                      case 10:
+                      case GxAttribute.NRM:
                         primitive.Points[index1].NormalIndex = num3;
                         break;
-                      case 11:
-                      case 12:
-                        primitive.Points[index1].ColorIndex[(Attributes[index2].Attribute - 11U)] = num3;
+                      case GxAttribute.CLR0:
+                      case GxAttribute.CLR1:
+                        primitive.Points[index1]
+                                 .ColorIndex[
+                                     (Attributes[index2].Attribute -
+                                      GxAttribute.CLR0)] = num3;
                         break;
-                      case 13:
-                      case 14:
-                      case 15:
-                      case 16:
-                      case 17:
-                      case 18:
-                      case 19:
-                      case 20:
-                        primitive.Points[index1].TexCoordIndex[(Attributes[index2].Attribute - 13U)] = num3;
+                      case GxAttribute.TEX0:
+                      case GxAttribute.TEX1:
+                      case GxAttribute.TEX2:
+                      case GxAttribute.TEX3:
+                      case GxAttribute.TEX4:
+                      case GxAttribute.TEX5:
+                      case GxAttribute.TEX6:
+                      case GxAttribute.TEX7:
+                        primitive.Points[index1]
+                                 .TexCoordIndex[
+                                     (Attributes[index2].Attribute -
+                                      GxAttribute.TEX0)] = num3;
                         break;
                     }
                   }
@@ -888,20 +892,6 @@ label_7:
               public ushort MatrixIndex;
               public ushort PosIndex;
               public ushort NormalIndex;
-            }
-          }
-
-          public class Matrixdata
-          {
-            public ushort Unknown;
-            public ushort Count;
-            public uint FirstIndex;
-
-            public Matrixdata(EndianBinaryReader er)
-            {
-              this.Unknown = er.ReadUInt16();
-              this.Count = er.ReadUInt16();
-              this.FirstIndex = er.ReadUInt32();
             }
           }
         }
