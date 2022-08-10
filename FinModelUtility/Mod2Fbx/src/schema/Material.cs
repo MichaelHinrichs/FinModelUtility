@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
+using fin.schema.color;
+using fin.schema.vector;
+
 using schema;
 
 namespace mod.schema {
@@ -67,7 +70,7 @@ namespace mod.schema {
 
   [Schema]
   public partial class PolygonColourInfo : IBiSerializable {
-    public readonly ColourU8 diffuseColour = new();
+    public readonly Rgba32 diffuseColour = new();
     public int unknown2 = 0;
     public float unknown3 = 0;
 
@@ -162,7 +165,7 @@ namespace mod.schema {
   public class Material : IBiSerializable {
     public uint flags = 0;
     public uint unknown1 = 0;
-    public readonly ColourU8 colour = new();
+    public readonly Rgba32 colour = new();
 
     public uint unknown2 = 0;
     public readonly PolygonColourInfo colourInfo = new();
@@ -211,7 +214,7 @@ namespace mod.schema {
 
   [Schema]
   public partial class TEVColReg : IBiSerializable {
-    public readonly ColourU16 unknown1 = new();
+    public readonly Rgba64 unknown1 = new();
     public int unknown2 = 0;
     public float unknown3 = 0;
     [ArrayLengthSource(SchemaIntType.UINT32)]
@@ -258,10 +261,10 @@ namespace mod.schema {
     public readonly TEVColReg unknown2 = new();
     public readonly TEVColReg unknown3 = new();
 
-    public readonly ColourU8 unknown4 = new();
-    public readonly ColourU8 unknown5 = new();
-    public readonly ColourU8 unknown6 = new();
-    public readonly ColourU8 unknown7 = new();
+    public readonly Rgba32 unknown4 = new();
+    public readonly Rgba32 unknown5 = new();
+    public readonly Rgba32 unknown6 = new();
+    public readonly Rgba32 unknown7 = new();
 
     [ArrayLengthSource(SchemaIntType.UINT32)]
     public TEVStage[] unknown8;

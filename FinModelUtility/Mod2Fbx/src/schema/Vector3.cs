@@ -14,22 +14,6 @@ namespace mod.schema {
   }
 
   [Schema]
-  public partial class Vector3f : IVector3<float> {
-    public float X { get; set; }
-    public float Y { get; set; }
-    public float Z { get; set; }
-
-    public Vector3f() {}
-    public Vector3f(float x, float y, float z) => this.Set(x, y, z);
-
-    public void Set(float x, float y, float z) {
-      this.X = x;
-      this.Y = y;
-      this.Z = z;
-    }
-  }
-
-  [Schema]
   public partial class Vector3i : IVector3<uint> {
     public uint X { get; set; }
     public uint Y { get; set; }

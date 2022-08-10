@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
+using fin.schema.vector;
+
 using schema;
 using schema.attributes.align;
 using schema.attributes.ignore;

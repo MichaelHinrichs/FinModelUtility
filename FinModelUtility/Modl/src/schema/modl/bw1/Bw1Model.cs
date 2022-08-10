@@ -1,5 +1,7 @@
 ﻿using fin.data;
+using fin.schema.data;
 using fin.util.asserts;
+using fin.util.strings;
 
 using gx;
 
@@ -83,7 +85,9 @@ namespace modl.schema.modl.bw1 {
     public uint WeirdId { get; set; }
 
     public BwTransform Transform { get; } = new();
-    public Bw1BoundingBox BoundingBox { get; } = new();
+
+    public AutoMagicUInt32SizedSection<Bw1BoundingBox> BoundingBox { get; } =
+      new("BBOX".Reverse());
 
     public float Scale { get; set; }
 
@@ -117,14 +121,11 @@ namespace modl.schema.modl.bw1 {
         // TODO: unknown, also transform??
         // These look very similar to the values defined in the constructor
         var unknowns1 = er.ReadSingles(4);
-
-        ;
       }
       Asserts.Equal(er.Position, expectedHeaderEnd);
 
       // TODO: additional data
       var additionalData = er.ReadUInt32s(this.additionalDataCount_);
-      ;
 
       this.BoundingBox.Read(er);
 

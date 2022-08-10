@@ -47,13 +47,7 @@ namespace mod.schema {
 
       TestGcnSerializableExisting(collGrid);
     }
-
-    [Test]
-    public void TestColourU8() => TestGcnSerializableSimple(new ColourU8());
-
-    [Test]
-    public void TestColourU16() => TestGcnSerializableSimple(new ColourU16());
-
+    
     /*[Test]
     public void TestEnvelope() => TestGcnSerializableSimple(new Envelope());*/
 

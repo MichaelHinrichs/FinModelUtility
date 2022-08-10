@@ -1,4 +1,6 @@
-﻿using schema;
+﻿using fin.schema.vector;
+
+using schema;
 
 namespace mod.schema.collision {
   [Schema]

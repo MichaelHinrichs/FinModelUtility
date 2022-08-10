@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
+using fin.schema.color;
 using fin.schema.vector;
 using fin.util.asserts;
 
@@ -32,7 +33,7 @@ namespace mod.schema {
     public readonly List<Vector3f> vertices = new();
     public readonly List<Vector3f> vnormals = new();
     public readonly List<NBT> vertexnbt = new();
-    public readonly List<ColourU8> vcolours = new();
+    public readonly List<Rgba32> vcolours = new();
     public readonly List<Vector2f>[] texcoords = new List<Vector2f>[8];
     public readonly List<Texture> textures = new();
     public readonly List<TextureAttributes> texattrs = new();

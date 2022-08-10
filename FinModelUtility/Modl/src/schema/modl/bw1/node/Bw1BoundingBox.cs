@@ -3,12 +3,7 @@
 
 namespace modl.schema.modl.bw1.node {
   [Schema]
-  public partial class Bw1BoundingBox : IDeserializable {
-    [EndianOrdered]
-    private readonly string magic_ = "BBOX";
-
-    private readonly uint size_ = 4 * 6;
-
+  public partial class Bw1BoundingBox : IBiSerializable {
     public float X1 { get; set; }
     public float Y1 { get; set; }
     public float Z1 { get; set; }
