@@ -1,5 +1,6 @@
 ﻿using fin.data;
 using fin.schema.data;
+using fin.schema.matrix;
 using fin.util.asserts;
 using fin.util.strings;
 
@@ -247,14 +248,14 @@ namespace modl.schema.modl.bw1 {
     }
 
 
-    public Bw1RnodMatrix[] Matrices { get; set; }
+    public Matrix4x4f[] RnodMatrices { get; set; }
 
     private void ReadRnod_(EndianBinaryReader er) {
       var size = er.ReadUInt32();
-      this.Matrices = new Bw1RnodMatrix[size];
+      this.RnodMatrices = new Matrix4x4f[size];
 
-      for (var i = 0; i < this.Matrices.Length; ++i) {
-        this.Matrices[i] = er.ReadNew<Bw1RnodMatrix>();
+      for (var i = 0; i < this.RnodMatrices.Length; ++i) {
+        this.RnodMatrices[i] = er.ReadNew<Matrix4x4f>();
       }
     }
 
