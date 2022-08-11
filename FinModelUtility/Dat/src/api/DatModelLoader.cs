@@ -32,15 +32,17 @@ namespace dat.api {
         var datBoneData = datBone.Data;
 
         var finBone =
-            finParentBone.AddChild(datBoneData.X, datBoneData.Y, datBoneData.Z)
+            finParentBone.AddChild(datBoneData.Position.X,
+                                   datBoneData.Position.Y,
+                                   datBoneData.Position.Z)
                          .SetLocalRotationRadians(
-                             datBoneData.RotationRadiansX,
-                             datBoneData.RotationRadiansY,
-                             datBoneData.RotationRadiansZ)
+                             datBoneData.RotationRadians.X,
+                             datBoneData.RotationRadians.Y,
+                             datBoneData.RotationRadians.Z)
                          .SetLocalScale(
-                             datBoneData.ScaleX,
-                             datBoneData.ScaleY,
-                             datBoneData.ScaleZ);
+                             datBoneData.Scale.X,
+                             datBoneData.Scale.Y,
+                             datBoneData.Scale.Z);
 
         foreach (var datChildBone in datBone.Children) {
           boneQueue.Enqueue((finBone, datChildBone));

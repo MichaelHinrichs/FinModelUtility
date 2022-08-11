@@ -1,4 +1,6 @@
-﻿using schema;
+﻿using fin.schema.vector;
+
+using schema;
 
 
 namespace dat.schema {
@@ -55,15 +57,9 @@ namespace dat.schema {
     public uint FirstChildBoneOffset { get; set; }
     public uint NextSiblingBoneOffset { get; set; }
     public uint ObjectStructOffset { get; set; }
-    public float RotationRadiansX { get; set; }
-    public float RotationRadiansY { get; set; }
-    public float RotationRadiansZ { get; set; }
-    public float ScaleX { get; set; }
-    public float ScaleY { get; set; }
-    public float ScaleZ { get; set; }
-    public float X { get; set; }
-    public float Y { get; set; }
-    public float Z { get; set; }
+    public Vector3f RotationRadians;
+    public Vector3f Scale;
+    public Vector3f Position;
     public uint InverseBindMatrixOffset { get; set; }
     public uint UnknownPointer { get; set; }
   }

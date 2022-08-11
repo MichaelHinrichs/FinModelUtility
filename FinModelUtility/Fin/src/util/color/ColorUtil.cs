@@ -1,7 +1,5 @@
 ﻿using System;
 
-using Crayon;
-
 using fin.math;
 using fin.model;
 using fin.model.impl;

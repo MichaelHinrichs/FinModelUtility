@@ -145,23 +145,6 @@ namespace bmd.GCN {
                   RotScale);
         }
 
-        private float Interpolate(
-            float v1,
-            float d1,
-            float v2,
-            float d2,
-            float t) {
-          float num1 = (float) (2.0 * ((double) v1 - (double) v2)) + d1 + d2;
-          float num2 =
-              (float) (-3.0 * (double) v1 +
-                       3.0 * (double) v2 -
-                       2.0 * (double) d1) -
-              d2;
-          float num3 = d1;
-          float num4 = v1;
-          return ((num1 * t + num2) * t + num3) * t + num4;
-        }
-
         public float GetAnimValue(IJointAnimKey[] keys, float t) {
           if (keys.Length == 0)
             return 0.0f;
