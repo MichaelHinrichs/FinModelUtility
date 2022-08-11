@@ -458,16 +458,16 @@ namespace mod.cli {
                .ToArray();
         this.NbtNormalsByIndex =
             mod.vertexnbt.Select(vertexnbt => new ModelImpl.NormalImpl {
-                   X = vertexnbt.normals.X,
-                   Y = vertexnbt.normals.Y,
-                   Z = vertexnbt.normals.Z,
+                   X = vertexnbt.Normal.X,
+                   Y = vertexnbt.Normal.Y,
+                   Z = vertexnbt.Normal.Z,
                })
                .ToArray();
         this.TangentsByIndex = mod.vertexnbt.Select(
                                       vertexnbt => new ModelImpl.TangentImpl {
-                                          X = vertexnbt.tangent.X,
-                                          Y = vertexnbt.tangent.Y,
-                                          Z = vertexnbt.tangent.Z,
+                                          X = vertexnbt.Tangent.X,
+                                          Y = vertexnbt.Tangent.Y,
+                                          Z = vertexnbt.Tangent.Z,
                                           W = 0,
                                       })
                                   .ToArray();

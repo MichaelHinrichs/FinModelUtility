@@ -30,6 +30,7 @@ using bmd.schema.bmd.vtx1;
 
 using fin.model;
 using fin.model.impl;
+using fin.schema.matrix;
 using fin.util.asserts;
 using fin.util.color;
 using fin.util.image;
@@ -494,7 +495,7 @@ label_7:
       public ushort Padding;
       public uint[] Offsets;
       public byte[] Counts;
-      public MTX44[] InverseBindMatrices;
+      public Matrix4x3f[] InverseBindMatrices { get; set; }
       public BMD.EVP1Section.MultiMatrix[] WeightedIndices;
 
       public EVP1Section(EndianBinaryReader er, out bool OK)
@@ -538,13 +539,9 @@ label_7:
           }
 
           er.Position = position1 + (long) this.Offsets[3];
-          this.InverseBindMatrices = new MTX44[val1];
-          for (int index = 0; index < val1; ++index)
-          {
-            float[] array = er.ReadSingles(12);
-            Array.Resize<float>(ref array, 16);
-            array[15] = 1f;
-            this.InverseBindMatrices[index] = (MTX44) array;
+          this.InverseBindMatrices = new Matrix4x3f[val1];
+          for (int index = 0; index < val1; ++index) {
+            this.InverseBindMatrices[index] = er.ReadNew<Matrix4x3f>();
           }
           er.Position = position1 + (long) this.Header.size;
           OK = true;

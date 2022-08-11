@@ -16,6 +16,7 @@ using bmd.G3D_Binary_File_Format;
 
 using fin.io;
 using fin.log;
+using fin.schema.matrix;
 
 
 namespace bmd.exporter {
@@ -250,7 +251,7 @@ namespace bmd.exporter {
                     }
 
                     var skinToBoneMatrix =
-                        BmdModelLoader.ConvertMkdsToFin_(
+                        BmdModelLoader.ConvertSchemaToFin_(
                             bmd.EVP1.InverseBindMatrices[jointIndex]);
 
                     var bone = jointsAndBones[jointIndex].Item2;
@@ -361,12 +362,12 @@ namespace bmd.exporter {
       DoneRendering: ;
     }
 
-    private static IFinMatrix4x4 ConvertMkdsToFin_(MTX44 mkdsMatrix) {
-      var finMatrix = new FinMatrix4x4();
+    private static IFinMatrix4x4 ConvertSchemaToFin_(Matrix4x3f schemaMatrix) {
+      var finMatrix = new FinMatrix4x4().SetIdentity();
 
-      for (var y = 0; y < 4; ++y) {
-        for (var x = 0; x < 4; ++x) {
-          finMatrix[y, x] = mkdsMatrix[x, y];
+      for (var r = 0; r < 4; ++r) {
+        for (var c = 0; c < 3; ++c) {
+          finMatrix[r, c] = schemaMatrix[r, c];
         }
       }
 

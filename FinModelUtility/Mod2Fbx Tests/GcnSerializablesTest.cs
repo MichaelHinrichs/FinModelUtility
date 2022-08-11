@@ -104,7 +104,7 @@ namespace mod.schema {
     }
 
     [Test]
-    public void TestNbt() => TestGcnSerializableSimple(new NBT());
+    public void TestNbt() => TestGcnSerializableSimple(new Nbt());
 
     [Test]
     public void TestPlane() => TestGcnSerializableSimple(new Plane());
