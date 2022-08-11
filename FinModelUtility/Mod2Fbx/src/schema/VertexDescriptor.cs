@@ -4,42 +4,14 @@ using System.Collections.Generic;
 
 using fin.util.asserts;
 
+using gx;
+
+
 namespace mod.schema {
-  public enum VtxFmt {
-    NOT_PRESENT = 0,
-    DIRECT = 1,
-    INDEX8 = 2,
-    INDEX16 = 3,
-  }
-
-  public enum Vtx {
-    PosMatIdx,
-    Tex0MatIdx,
-    Tex1MatIdx,
-    Tex2MatIdx,
-    Tex3MatIdx,
-    Tex4MatIdx,
-    Tex5MatIdx,
-    Tex6MatIdx,
-    Tex7MatIdx,
-    Position,
-    Normal,
-    Color0,
-    Color1,
-    Tex0Coord,
-    Tex1Coord,
-    Tex2Coord,
-    Tex3Coord,
-    Tex4Coord,
-    Tex5Coord,
-    Tex6Coord,
-    Tex7Coord
-  }
-
-  public class VertexDescriptor : IEnumerable<(Vtx, VtxFmt?)> {
+  public class VertexDescriptor : IEnumerable<(GxAttribute, GxAttributeType?)> {
     public bool posMat = false;
 
-    public bool[] texMat = new[] {
+    public bool[] texMat = {
         false,
         false,
         false,
@@ -51,39 +23,38 @@ namespace mod.schema {
         false,
     };
 
-    public VtxFmt position = VtxFmt.NOT_PRESENT;
+    public GxAttributeType position = GxAttributeType.NOT_PRESENT;
 
-    public VtxFmt normal = VtxFmt.NOT_PRESENT;
+    public GxAttributeType normal = GxAttributeType.NOT_PRESENT;
     public bool useNbt;
 
-    public VtxFmt color0 = VtxFmt.NOT_PRESENT;
-    public VtxFmt color1 = VtxFmt.NOT_PRESENT;
+    public GxAttributeType color0 = GxAttributeType.NOT_PRESENT;
+    public GxAttributeType color1 = GxAttributeType.NOT_PRESENT;
 
-    public readonly VtxFmt[] texcoord = new[] {
-        VtxFmt.NOT_PRESENT,
-        VtxFmt.NOT_PRESENT,
-        VtxFmt.NOT_PRESENT,
-        VtxFmt.NOT_PRESENT,
+    public readonly GxAttributeType[] texcoord = new[] {
+        GxAttributeType.NOT_PRESENT,
+        GxAttributeType.NOT_PRESENT,
+        GxAttributeType.NOT_PRESENT,
+        GxAttributeType.NOT_PRESENT,
 
-        VtxFmt.NOT_PRESENT,
-        VtxFmt.NOT_PRESENT,
-        VtxFmt.NOT_PRESENT,
-        VtxFmt.NOT_PRESENT,
+        GxAttributeType.NOT_PRESENT,
+        GxAttributeType.NOT_PRESENT,
+        GxAttributeType.NOT_PRESENT,
+        GxAttributeType.NOT_PRESENT,
     };
 
-    public IEnumerator<(Vtx, VtxFmt?)> GetEnumerator()
+    public IEnumerator<(GxAttribute, GxAttributeType?)> GetEnumerator()
       => this.ActiveAttributes();
 
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
-    public IEnumerator<(Vtx, VtxFmt?)> ActiveAttributes() {
-      foreach (var attrObj in Enum.GetValues(typeof(Vtx))) {
-        var attr = (Vtx) attrObj;
+    public IEnumerator<(GxAttribute, GxAttributeType?)> ActiveAttributes() {
+      foreach (var attr in Enum.GetValues<GxAttribute>()) {
         if (!this.Exists(attr)) {
           continue;
         }
 
-        if (attr is >= Vtx.Position and <= Vtx.Tex7Coord) {
+        if (attr is >= GxAttribute.POS and <= GxAttribute.TEX7) {
           yield return (attr, this.GetFormat(attr));
         } else {
           yield return (attr, null);
@@ -91,65 +62,69 @@ namespace mod.schema {
       }
     }
 
-    public bool Exists(Vtx enumval) {
-      if (enumval is >= Vtx.Tex0MatIdx and <= Vtx.Tex7MatIdx) {
-        var texMatId = enumval - Vtx.Tex0MatIdx;
+    public bool Exists(GxAttribute enumval) {
+      if (enumval == GxAttribute.NULL) {
+        return false;
+      }
+
+      if (enumval is >= GxAttribute.TEX0MTXIDX and <= GxAttribute.TEX7MTXIDX) {
+        var texMatId = enumval - GxAttribute.TEX0MTXIDX;
         return this.texMat[texMatId];
       }
 
-      if (enumval is >= Vtx.Tex0Coord and <= Vtx.Tex7Coord) {
-        var texCoordId = enumval - Vtx.Tex0Coord;
-        return this.texcoord[texCoordId] != VtxFmt.NOT_PRESENT;
+      if (enumval is >= GxAttribute.TEX0 and <= GxAttribute.TEX7) {
+        var texCoordId = enumval - GxAttribute.TEX0;
+        return this.texcoord[texCoordId] != GxAttributeType.NOT_PRESENT;
       }
 
-      if (enumval == Vtx.PosMatIdx) {
+      if (enumval == GxAttribute.PNMTXIDX) {
         return this.posMat;
       }
 
-      if (enumval == Vtx.Position) {
-        return this.position != VtxFmt.NOT_PRESENT;
+      if (enumval == GxAttribute.POS) {
+        return this.position != GxAttributeType.NOT_PRESENT;
       }
 
-      if (enumval == Vtx.Normal) {
-        return this.normal != VtxFmt.NOT_PRESENT;
+      if (enumval == GxAttribute.NRM) {
+        return this.normal != GxAttributeType.NOT_PRESENT;
       }
 
-      if (enumval == Vtx.Color0) {
-        return this.color0 != VtxFmt.NOT_PRESENT;
+      if (enumval == GxAttribute.CLR0) {
+        return this.color0 != GxAttributeType.NOT_PRESENT;
       }
 
-      if (enumval == Vtx.Color1) {
-        return this.color1 != VtxFmt.NOT_PRESENT;
+      if (enumval == GxAttribute.CLR1) {
+        return this.color1 != GxAttributeType.NOT_PRESENT;
       }
 
       Asserts.Fail($"Unknown enum for exists: {enumval}");
       return false;
     }
 
-    public VtxFmt GetFormat(Vtx enumval) {
-      if (enumval == Vtx.Position) {
+    public GxAttributeType GetFormat(GxAttribute enumval) {
+      if (enumval == GxAttribute.POS) {
         return this.position;
       }
 
-      if (enumval == Vtx.Normal) {
+      if (enumval == GxAttribute.NRM) {
         return this.normal;
       }
 
-      if (enumval == Vtx.Color0) {
+      if (enumval == GxAttribute.CLR0) {
         return this.color0;
       }
 
-      if (enumval == Vtx.Color1) {
+      if (enumval == GxAttribute.CLR1) {
         return this.color1;
       }
 
-      if (enumval is >= Vtx.Tex0Coord and <= Vtx.Tex7Coord) {
-        var texcoordid = enumval - Vtx.Tex0Coord;
+      if (enumval is >= GxAttribute.TEX0 and <= GxAttribute.TEX7) {
+        var texcoordid = enumval - GxAttribute.TEX0;
         return this.texcoord[texcoordid];
       }
 
       Asserts.Fail($"Unknown enum for format: {enumval}");
-      return VtxFmt.NOT_PRESENT;
+      return GxAttributeType.NOT_PRESENT;
     }
 
     /*def from_value(self, val):
@@ -173,7 +148,7 @@ namespace mod.schema {
 
     public void FromPikmin1(uint val, bool hasNormals = false) {
       this.position =
-          VtxFmt.INDEX16; // Position is implied to be always enabled
+          GxAttributeType.INDEX_16; // Position is implied to be always enabled
 
       this.posMat = (val & 0b1) == 1;
       val = val >> 1;
@@ -182,13 +157,13 @@ namespace mod.schema {
       val = val >> 1;
 
       if ((val & 0b1) == 1) {
-        this.color0 = VtxFmt.INDEX16;
+        this.color0 = GxAttributeType.INDEX_16;
       }
       val = val >> 1;
 
       for (var i = 0; i < 8; ++i) {
         if ((val & 0b1) == 1) {
-          this.texcoord[i] = VtxFmt.INDEX16;
+          this.texcoord[i] = GxAttributeType.INDEX_16;
         }
         val = val >> 1;
       }
@@ -196,7 +171,7 @@ namespace mod.schema {
       this.useNbt = (val & 0x20) != 0;
 
       if (hasNormals) {
-        this.normal = VtxFmt.INDEX16;
+        this.normal = GxAttributeType.INDEX_16;
       }
     }
 

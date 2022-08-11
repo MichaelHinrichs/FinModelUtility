@@ -8,6 +8,8 @@ using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
 
+using gx;
+
 using mod.schema;
 using mod.schema.animation;
 using mod.util;
@@ -30,16 +32,6 @@ namespace mod.cli {
     ///   display list.
     /// </summary>
     private short[] activeMatrices_ = new short[10];
-
-    public enum Opcode {
-      QUADS = 0x80,
-      TRIANGLES = 0x90,
-      TRIANGLE_STRIP = 0x98,
-      TRIANGLE_FAN = 0xa0,
-      LINES = 0xa8,
-      LINE_STRIP = 0xb0,
-      POINTS = 0xb8,
-    }
 
     public enum TilingMode {
       REPEAT = 0,
@@ -275,10 +267,14 @@ namespace mod.cli {
 
           while (reader.GetRemaining() != 0) {
             var opcodeByte = reader.ReadU8();
-            var opcode = (Opcode) opcodeByte;
+            var opcode = (GxOpcode) opcodeByte;
 
-            if (opcode != Opcode.TRIANGLE_STRIP &&
-                opcode != Opcode.TRIANGLE_FAN) {
+            if (opcode == GxOpcode.NOP) {
+              continue;
+            }
+
+            if (opcode != GxOpcode.DRAW_TRIANGLE_STRIP &&
+                opcode != GxOpcode.DRAW_TRIANGLE_FAN) {
               continue;
             }
 
@@ -298,7 +294,7 @@ namespace mod.cli {
                 if (format == null) {
                   var unused = reader.ReadU8();
 
-                  if (attr == Vtx.PosMatIdx) {
+                  if (attr == GxAttribute.PNMTXIDX) {
                     // Internally, this represents which of the 10 active
                     // matrices to bind to.
                     var activeMatrixIndex = unused / 3;
@@ -350,16 +346,16 @@ namespace mod.cli {
                   continue;
                 }
 
-                if (attr == Vtx.Position) {
+                if (attr == GxAttribute.POS) {
                   positionIndices.Add(ModModelLoader.Read_(reader, format));
-                } else if (attr == Vtx.Normal) {
+                } else if (attr == GxAttribute.NRM) {
                   normalIndices.Add(ModModelLoader.Read_(reader, format));
-                } else if (attr == Vtx.Color0) {
+                } else if (attr == GxAttribute.CLR0) {
                   color0Indices.Add(ModModelLoader.Read_(reader, format));
-                } else if (attr is >= Vtx.Tex0Coord and <= Vtx.Tex7Coord) {
-                  texCoordIndices[attr - Vtx.Tex0Coord]
+                } else if (attr is >= GxAttribute.TEX0 and <= GxAttribute.TEX7) {
+                  texCoordIndices[attr - GxAttribute.TEX0]
                       .Add(ModModelLoader.Read_(reader, format));
-                } else if (format == VtxFmt.INDEX16) {
+                } else if (format == GxAttributeType.INDEX_16) {
                   reader.ReadU16();
                 } else {
                   Asserts.Fail(
@@ -414,9 +410,9 @@ namespace mod.cli {
             }
 
             var finVertices = finVertexList.ToArray();
-            if (opcode == Opcode.TRIANGLE_FAN) {
+            if (opcode == GxOpcode.DRAW_TRIANGLE_FAN) {
               finMesh.AddTriangleFan(finVertices).SetMaterial(material);
-            } else if (opcode == Opcode.TRIANGLE_STRIP) {
+            } else if (opcode == GxOpcode.DRAW_TRIANGLE_STRIP) {
               finMesh.AddTriangleStrip(finVertices).SetMaterial(material);
             }
           }
@@ -492,10 +488,10 @@ namespace mod.cli {
       }
     }
 
-    private static ushort Read_(VectorReader reader, VtxFmt? format) {
-      if (format == VtxFmt.INDEX16) {
+    private static ushort Read_(VectorReader reader, GxAttributeType? format) {
+      if (format == GxAttributeType.INDEX_16) {
         return reader.ReadU16();
-      } else if (format == VtxFmt.INDEX8) {
+      } else if (format == GxAttributeType.INDEX_8) {
         return reader.ReadU8();
       }
       Asserts.Fail($"Unsupported format: {format}");

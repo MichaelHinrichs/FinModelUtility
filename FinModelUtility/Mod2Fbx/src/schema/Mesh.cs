@@ -6,6 +6,7 @@ using fin.math;
 
 using schema;
 
+
 namespace mod.schema {
   // THANKS:
   // https://github.com/KillzXGaming/010-Templates/blob/816cfc57e2ee998b953cf488e4fed25c54e7861a/Pikmin/MOD.bt#L312
@@ -36,7 +37,7 @@ namespace mod.schema {
 
     // THANKS: Yoshi2's mod2obj
     public uint cmdCount = 0;
-    public readonly List<byte> dlistData = new();
+    public List<byte> dlistData { get; } = new();
 
     public void Read(EndianBinaryReader reader) {
       this.flags.intView = reader.ReadUInt32();
@@ -65,6 +66,7 @@ namespace mod.schema {
   public partial class MeshPacket : IBiSerializable {
     [ArrayLengthSource(SchemaIntType.UINT32)]
     public short[] indices;
+
     [ArrayLengthSource(SchemaIntType.UINT32)]
     public DisplayList[] displaylists;
   }
