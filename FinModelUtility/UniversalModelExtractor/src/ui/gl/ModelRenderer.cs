@@ -1,5 +1,6 @@
 ﻿using fin.data;
 using fin.gl;
+using fin.gl.material;
 using fin.language.equations.fixedFunction;
 using fin.math;
 using fin.model;
@@ -71,16 +72,13 @@ namespace uni.ui.gl {
     // TODO: Set up shader for material
     // TODO: Use material's textures
 
-    private readonly GlShaderProgram? shaderProgram_;
-
-    private static GlTexture? NULL_TEXTURE_;
-
     private readonly BoneTransformManager boneTransformManager_;
 
     private readonly IMaterial? material_;
-    private readonly IList<GlTexture> textures_;
 
     private readonly IList<IPrimitive> primitives_;
+
+    private readonly IGlMaterialShader? materialShader_;
 
 
     public MaterialMeshRenderer(BoneTransformManager boneTransformManager,
@@ -90,75 +88,15 @@ namespace uni.ui.gl {
 
       this.material_ = material;
 
-      var fixedFunctionMaterial = material as IFixedFunctionMaterial;
-
       if (DebugFlags.ENABLE_FIXED_FUNCTION_SHADER
           && !DebugFlags.ENABLE_WEIGHT_COLORS
-          && fixedFunctionMaterial != null) {
-        // TODO: Sometimes vertex colors are passed in from model, and sometimes they
-        // represent lighting. How to tell the difference??
-
-        var vertexShaderSrc = @"
-# version 120
-
-in vec2 in_uv0;
-
-varying vec3 vertexNormal;
-varying vec2 normalUv;
-varying vec4 vertexColor0_;
-varying vec4 vertexColor1_;
-varying vec2 uv0;
-varying vec2 uv1;
-varying vec2 uv2;
-varying vec2 uv3;
-
-void main() {
-    gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex;
-    vertexNormal = normalize(gl_ModelViewMatrix * vec4(gl_Normal, 0)).xyz;
-    normalUv = normalize(gl_ProjectionMatrix * gl_ModelViewMatrix * vec4(gl_Normal, 0)).xy;
-    vertexColor0_ = vec4(0.5, 0.5, 0.5, 1);
-    vertexColor1_ = vec4(0, 0, 0, 1);
-    uv0 = gl_MultiTexCoord0.st;
-    uv1 = gl_MultiTexCoord1.st;
-    uv2 = gl_MultiTexCoord2.st;
-    uv3 = gl_MultiTexCoord3.st;
-}";
-
-        var pretty =
-            new FixedFunctionEquationsPrettyPrinter<FixedFunctionSource>()
-                .Print(fixedFunctionMaterial.Equations);
-
-        var fragmentShaderSrc =
-            new FixedFunctionEquationsGlslPrinter(
-                    fixedFunctionMaterial.TextureSources)
-                .Print(fixedFunctionMaterial);
-
-        this.shaderProgram_ =
-            GlShaderProgram.FromShaders(vertexShaderSrc, fragmentShaderSrc);
-      }
-
-      if (MaterialMeshRenderer.NULL_TEXTURE_ == null) {
-        MaterialMeshRenderer.NULL_TEXTURE_ =
-            new GlTexture(BitmapUtil.Create1x1WithColor(Color.White));
-      }
-
-      IReadOnlyList<ITexture?>? finTextures =
-          fixedFunctionMaterial?.TextureSources ?? material?.Textures.ToArray();
-      if (DebugFlags.ENABLE_WEIGHT_COLORS) {
-        finTextures = Array.Empty<ITexture?>();
-      }
-
-      var nSupportedTextures = 8;
-      this.textures_ = new List<GlTexture>();
-      for (var i = 0; i < nSupportedTextures; ++i) {
-        var finTexture =
-            !DebugFlags.ENABLE_WEIGHT_COLORS && i < (finTextures?.Count ?? 0)
-                ? finTextures[i]
-                : null;
-
-        this.textures_.Add(finTexture != null
-                               ? new GlTexture(finTexture)
-                               : MaterialMeshRenderer.NULL_TEXTURE_);
+          && material is IFixedFunctionMaterial fixedFunctionMaterial) {
+        this.materialShader_ =
+            new GlFixedFunctionMaterialShader(fixedFunctionMaterial);
+      } else if (material is IStandardMaterial standardMaterial) {
+        this.materialShader_ = new GlStandardMaterialShader(standardMaterial);
+      } else if (material != null) {
+        this.materialShader_ = new GlSimpleMaterialShader(material);
       }
 
       this.primitives_ = primitives;
@@ -172,25 +110,11 @@ void main() {
     }
 
     private void ReleaseUnmanagedResources_() {
-      foreach (var texture in this.textures_) {
-        if (texture != MaterialMeshRenderer.NULL_TEXTURE_) {
-          texture.Dispose();
-        }
-      }
-      this.textures_.Clear();
-      this.shaderProgram_?.Dispose();
+      this.materialShader_?.Dispose();
     }
 
     public void Render() {
-      if (this.shaderProgram_ != null) {
-        this.shaderProgram_.Use();
-
-        for (var t = 0; t < 8; ++t) {
-          var textureLocation =
-              this.shaderProgram_.GetUniformLocation($"texture{t}");
-          GL.Uniform1(textureLocation, t);
-        }
-      }
+      this.materialShader_?.Use();
 
       var fixedFunctionMaterial = this.material_ as IFixedFunctionMaterial;
       if (fixedFunctionMaterial != null) {
@@ -201,9 +125,6 @@ void main() {
       }
 
       GlUtil.SetCulling(this.material_?.CullingMode ?? CullingMode.SHOW_BOTH);
-      for (var i = 0; i < this.textures_.Count; ++i) {
-        this.textures_[i].Bind(i);
-      }
 
       GL.Begin(GlPrimitiveType.Triangles);
 
@@ -287,8 +208,9 @@ void main() {
 
       GL.End();
 
-      for (var i = 0; i < this.textures_.Count; ++i) {
-        this.textures_[i].Unbind(i);
+      for (var i = 0; i < 8; ++i) {
+        GL.ActiveTexture(TextureUnit.Texture0 + i);
+        GL.BindTexture(TextureTarget.Texture2D, -1);
       }
 
       if (fixedFunctionMaterial != null) {
