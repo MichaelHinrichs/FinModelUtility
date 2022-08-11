@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 
 using fin.math.matrix;
+using fin.schema.vector;
 
 
 namespace hw.granny3d {
@@ -51,13 +52,13 @@ namespace hw.granny3d {
 
   public interface IGrannyTransform {
     GrannyTransformFlags Flags { get; }
-    Vector3 Position { get; }
+    Vector3f Position { get; }
     Quaternion Orientation { get; }
-    Vector3[] ScaleShear { get; }
+    Vector3f[] ScaleShear { get; }
   }
 
   [Flags]
-  public enum GrannyTransformFlags : int {
+  public enum GrannyTransformFlags : uint {
     HasPosition = 0x1,
     HasOrientation = 0x2,
     HasScaleShear = 0x4,
