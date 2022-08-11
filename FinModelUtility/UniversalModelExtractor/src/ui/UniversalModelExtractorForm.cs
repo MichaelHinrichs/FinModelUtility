@@ -14,6 +14,8 @@ using cmb.api;
 
 using dat.api;
 
+using hw.api;
+
 
 namespace uni.ui {
   public partial class UniversalModelExtractorForm : Form {
@@ -54,6 +56,10 @@ namespace uni.ui {
               => new ModModelLoader().LoadModel(modModelFileBundle),
           ModlModelFileBundle modlModelFileBundle
               => new ModlModelLoader().LoadModel(modlModelFileBundle),
+          VisModelFileBundle visModelFileBundle
+              => new VisModelLoader().LoadModel(visModelFileBundle),
+          XtdModelFileBundle xtdModelFileBundle
+              => new XtdModelLoader().LoadModel(xtdModelFileBundle),
           _ => throw new ArgumentOutOfRangeException(nameof(modelFileBundle))
       };
 
