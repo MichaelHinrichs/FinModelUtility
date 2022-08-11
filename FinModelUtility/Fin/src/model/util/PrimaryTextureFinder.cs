@@ -3,6 +3,7 @@ using System.Linq;
 
 using fin.util.image;
 
+
 namespace fin.model.util {
   public static class PrimaryTextureFinder {
     public static ITexture? GetFor(IMaterial material) {
@@ -39,8 +40,14 @@ namespace fin.model.util {
 
       var prioritizedTextures = textures
                                 // Sort by UV type, "normal" first
-                                .OrderByDescending(texture => texture.ColorType == ColorType.COLOR)
-                                .ThenByDescending(texture => BitmapUtil.GetTransparencyType(texture.ImageData) == BitmapTransparencyType.OPAQUE)
+                                .OrderByDescending(
+                                    texture =>
+                                        texture.ColorType == ColorType.COLOR)
+                                .ThenByDescending(
+                                    texture =>
+                                        BitmapUtil.GetTransparencyType(
+                                            texture.ImageData) ==
+                                        BitmapTransparencyType.OPAQUE)
                                 .ToArray();
 
       if (prioritizedTextures.Length > 0) {
@@ -48,14 +55,14 @@ namespace fin.model.util {
         return prioritizedTextures[0];
       }
 
-      return material.Textures.Count > 0 ? material.Textures.Last() : null;
+      return material.Textures.LastOrDefault((ITexture?) null);
 
       // TODO: Prioritize textures w/ color rather than intensity
       // TODO: Prioritize textures w/ standard texture sets
     }
 
     public static ITexture? GetFor(ILayerMaterial material)
-      => material.Textures.Count > 0 ? material.Textures[0] : null;
+      => material.Textures.FirstOrDefault((ITexture?) null);
 
     public static ITexture? GetFor(IStandardMaterial material)
       => material.DiffuseTexture ?? material.AmbientOcclusionTexture;

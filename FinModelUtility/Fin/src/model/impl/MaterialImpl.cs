@@ -90,7 +90,7 @@ namespace fin.model.impl {
       public string? Name { get; set; }
 
       public ITexture Texture { get; }
-      public IReadOnlyList<ITexture> Textures { get; }
+      public IEnumerable<ITexture> Textures { get; }
 
       public IShader Shader { get; }
       public CullingMode CullingMode { get; set; }
@@ -99,19 +99,41 @@ namespace fin.model.impl {
     }
 
     private class StandardMaterialImpl : IStandardMaterial {
-      private readonly IList<ITexture> textures_ = new List<ITexture>();
+      public string? Name { get; set; }
 
-      public StandardMaterialImpl() {
-        this.Textures = new ReadOnlyCollection<ITexture>(this.textures_);
+      public IEnumerable<ITexture> Textures {
+        get {
+          if (this.DiffuseTexture != null) {
+            yield return this.DiffuseTexture;
+          }
+
+          if (this.MaskTexture != null) {
+            yield return this.MaskTexture;
+          }
+
+          if (this.AmbientOcclusionTexture != null) {
+            yield return this.AmbientOcclusionTexture;
+          }
+
+          if (this.NormalTexture != null) {
+            yield return this.NormalTexture;
+          }
+
+          if (this.EmissiveTexture != null) {
+            yield return this.EmissiveTexture;
+          }
+
+          if (this.SpecularTexture != null) {
+            yield return this.SpecularTexture;
+          }
+        }
       }
 
-      public string? Name { get; set; }
-      public IReadOnlyList<ITexture> Textures { get; }
       public IShader Shader { get; }
       public CullingMode CullingMode { get; set; }
-      public ITexture DiffuseTexture { get; set; }
-      public ITexture MaskTexture { get; set; }
-      public ITexture AmbientOcclusionTexture { get; set; }
+      public ITexture? DiffuseTexture { get; set; }
+      public ITexture? MaskTexture { get; set; }
+      public ITexture? AmbientOcclusionTexture { get; set; }
       public ITexture? NormalTexture { get; set; }
       public ITexture? EmissiveTexture { get; set; }
       public ITexture? SpecularTexture { get; set; }
@@ -129,7 +151,7 @@ namespace fin.model.impl {
 
       public string? Name { get; set; }
 
-      public IReadOnlyList<ITexture> Textures { get; }
+      public IEnumerable<ITexture> Textures { get; }
       public IShader Shader { get; }
       public CullingMode CullingMode { get; set; }
 
@@ -182,7 +204,7 @@ namespace fin.model.impl {
 
       public string? Name { get; set; }
 
-      public IReadOnlyList<ITexture> Textures { get; }
+      public IEnumerable<ITexture> Textures { get; }
       public IShader Shader { get; }
       public CullingMode CullingMode { get; set; }
 

@@ -36,7 +36,7 @@ namespace fin.model {
   public interface IMaterial {
     string? Name { get; set; }
 
-    IReadOnlyList<ITexture> Textures { get; }
+    IEnumerable<ITexture> Textures { get; }
 
     IShader Shader { get; }
     CullingMode CullingMode { get; set; }

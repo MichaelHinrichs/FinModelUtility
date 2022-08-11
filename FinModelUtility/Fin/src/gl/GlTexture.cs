@@ -59,26 +59,46 @@ namespace fin.gl {
 
       BitmapUtil.InvokeAsLocked(imageData, bmpData => {
         unsafe {
-          var rgba = new byte[4 * imageWidth * imageHeight];
-
-          var scan0 = bmpData.Scan0;
           var ptr = (byte*) bmpData.Scan0.ToPointer();
-          for (var y = 0; y < imageHeight; y++) {
-            for (var x = 0; x < imageWidth; x++) {
-              var i = 4 * (y * imageWidth + x);
+          var rgba = new byte[4 * imageWidth * imageHeight];
+          switch (bmpData.PixelFormat) {
+            case System.Drawing.Imaging.PixelFormat.Format32bppArgb: {
+              for (var y = 0; y < imageHeight; y++) {
+                for (var x = 0; x < imageWidth; x++) {
+                  var i = 4 * (y * imageWidth + x);
 
-              var b = ptr[i];
-              var g = ptr[i + 1];
-              var r = ptr[i + 2];
-              var a = ptr[i + 3];
+                  var b = ptr[i];
+                  var g = ptr[i + 1];
+                  var r = ptr[i + 2];
+                  var a = ptr[i + 3];
 
-              rgba[i] = r;
-              rgba[i + 1] = g;
-              rgba[i + 2] = b;
-              rgba[i + 3] = a;
+                  rgba[i] = r;
+                  rgba[i + 1] = g;
+                  rgba[i + 2] = b;
+                  rgba[i + 3] = a;
+                }
+              }
+              break;
             }
-          }
+            case System.Drawing.Imaging.PixelFormat.Format24bppRgb: {
+              for (var y = 0; y < imageHeight; y++) {
+                for (var x = 0; x < imageWidth; x++) {
+                  var i = 3 * (y * imageWidth + x);
 
+                  var b = ptr[i];
+                  var g = ptr[i + 1];
+                  var r = ptr[i + 2];
+
+                  rgba[i] = r;
+                  rgba[i + 1] = g;
+                  rgba[i + 2] = b;
+                  rgba[i + 3] = 255;
+                }
+              }
+              break;
+            }
+            default: throw new NotImplementedException();
+          }
           GL.TexImage2D(TextureTarget.Texture2D,
                         0,
                         PixelInternalFormat.Rgba,

@@ -12,7 +12,7 @@ namespace uni.ui.right_panel.materials {
 
     public IMaterial? Material {
       set => this.textureSelectorBox_.Textures =
-                 value?.Textures ?? Array.Empty<ITexture>();
+                 value?.Textures.ToArray() ?? Array.Empty<ITexture>();
     }
   }
 }

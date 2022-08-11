@@ -143,7 +143,7 @@ void main() {
       }
 
       IReadOnlyList<ITexture?>? finTextures =
-          fixedFunctionMaterial?.TextureSources ?? material?.Textures;
+          fixedFunctionMaterial?.TextureSources ?? material?.Textures.ToArray();
       if (DebugFlags.ENABLE_WEIGHT_COLORS) {
         finTextures = Array.Empty<ITexture?>();
       }
