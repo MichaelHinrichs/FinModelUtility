@@ -1,4 +1,7 @@
-﻿using System;
+﻿#nullable enable
+
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,6 +12,7 @@ using System.Xml;
 
 using Dxt;
 
+using fin.data;
 using fin.io;
 using fin.math;
 using fin.math.matrix;
@@ -22,8 +26,6 @@ using KSoft.Granny3D;
 using KSoft.IO;
 using KSoft.Phoenix.Xmb;
 using KSoft.Shell;
-
-#nullable enable
 
 
 namespace HaloWarsTools {
@@ -89,6 +91,8 @@ namespace HaloWarsTools {
         bdt.Serialize(es);
       }
 
+      var lazyTextureDictionary = new LazyDictionary<string, ITexture>(name
+          => LoadTexture(materialManager, name));
       var materials = new List<IMaterial>();
 
       var xml = bdt.ToXmlDocument();
@@ -109,18 +113,15 @@ namespace HaloWarsTools {
             var diffuseMap = diffuse?["Map"];
             if (diffuseMap != null) {
               var diffuseMapName = diffuseMap.GetAttribute("Name");
-
               finMaterial.DiffuseTexture =
-                  LoadTexture(materialManager, diffuseMapName);
+                  lazyTextureDictionary[diffuseMapName];
             }
 
             var normal = maps["normal"];
             var normalMap = normal?["Map"];
             if (normalMap != null) {
               var normalMapName = normalMap.GetAttribute("Name");
-
-              finMaterial.NormalTexture =
-                  LoadTexture(materialManager, normalMapName);
+              finMaterial.NormalTexture = lazyTextureDictionary[normalMapName];
             }
 
             var emissive = maps["emissive"];
@@ -128,15 +129,14 @@ namespace HaloWarsTools {
             if (emissiveMap != null) {
               var emissiveMapName = emissiveMap.GetAttribute("Name");
               finMaterial.EmissiveTexture =
-                  LoadTexture(materialManager, emissiveMapName);
+                  lazyTextureDictionary[emissiveMapName];
             }
 
             var specular = maps["gloss"];
             var specularMap = specular?["Map"];
             if (specularMap != null) {
               var specularMapName = specularMap.GetAttribute("Name");
-              finMaterial.SpecularTexture =
-                  LoadTexture(materialManager, specularMapName);
+              finMaterial.SpecularTexture = lazyTextureDictionary[specularMapName];
             }
           }
 
@@ -160,18 +160,14 @@ namespace HaloWarsTools {
       var textureFile = new FinFile(absoluteTexturePath);
       var (textureType, dxt) = DxtDecoder.ReadDds(textureFile);
 
-      var mipMaps = dxt.ToList();
-      for (var m = 0; m < mipMaps.Count; ++m) {
-        var mipMap = mipMaps[m];
-        var levels = mipMap.ToList();
-        for (var l = 0; l < levels.Count; ++l) {
-          var textureImage = levels[l].Impl;
-          /*textureImage.Save(
-              $"R:\\Documents\\CSharpWorkspace\\Pikmin2Utility\\cli\\out\\halo_wars\\{textureType}_{textureFile.NameWithoutExtension}_{m}_{l}.png");*/
-        }
-      }
+      var firstMipmap = dxt.First();
+      var firstLevel = firstMipmap.First();
+      var firstImage = firstLevel.Impl;
 
-      return materialManager.CreateTexture(dxt.First().First().Impl);
+      var texture = materialManager.CreateTexture(firstImage);
+      texture.Name = name;
+
+      return texture;
     }
 
     private string GetStringAt(byte[] bytes, int offset) {
@@ -592,10 +588,13 @@ namespace HaloWarsTools {
                       })
                       .ToArray();
 
-              finVertex.SetBoneWeights(finSkin.GetOrCreateBoneWeights(PreprojectMode.ROOT, finBoneWeights));
+              finVertex.SetBoneWeights(
+                  finSkin.GetOrCreateBoneWeights(
+                      PreprojectMode.ROOT, finBoneWeights));
             } else {
               finVertex.SetBoneWeights(
-                  finSkin.GetOrCreateBoneWeights(PreprojectMode.ROOT, localFinBones[0].Item1));
+                  finSkin.GetOrCreateBoneWeights(
+                      PreprojectMode.ROOT, localFinBones[0].Item1));
             }
 
             finVertices.Add(finVertex);

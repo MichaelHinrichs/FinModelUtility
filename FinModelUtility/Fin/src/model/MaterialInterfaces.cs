@@ -302,7 +302,7 @@ namespace fin.model {
     UvType UvType { get; set; }
     ColorType ColorType { get; set; }
 
-
+    // TODO: Support mipmaps
     Bitmap ImageData { get; }
     IFile SaveInDirectory(IDirectory directory);
     BitmapTransparencyType TransparencyType { get; }
