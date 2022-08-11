@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using fin.io;
+using fin.util.strings;
 
 
 namespace fin.model {
@@ -23,6 +24,9 @@ namespace fin.model {
     IModelDirectory<TModelFileBundle> AddSubdir(string name);
     void AddSubdir(IModelDirectory<TModelFileBundle> subdir);
     void AddFileBundle(TModelFileBundle fileBundle);
+
+    void AddFileBundleRelative(TModelFileBundle fileBundle,
+                               IEnumerable<string>? segments = null);
 
     void ForEachTyped(Action<TModelFileBundle> callback);
   }
@@ -96,6 +100,32 @@ namespace fin.model {
 
     public void AddFileBundle(TModelFileBundle fileBundle)
       => this.fileBundles_.Add(fileBundle);
+
+    public void AddFileBundleRelative(TModelFileBundle fileBundle,
+                                      IEnumerable<string>? segments = null) {
+      segments ??= StringUtil.UpTo(fileBundle.MainFile.LocalPath,
+                                   fileBundle.MainFile.Name)
+                             .Split('\\', '/',
+                                    StringSplitOptions.RemoveEmptyEntries);
+
+      var firstSegment = segments.FirstOrDefault();
+      if (firstSegment == null) {
+        this.AddFileBundle(fileBundle);
+        return;
+      }
+
+      var subdirName = firstSegment;
+      segments = segments.Skip(1);
+
+      var subdir =
+          this.TypedSubdirs.Where(typedSubdir => typedSubdir.Name == subdirName)
+              .SingleOrDefault(
+                  (IModelDirectory<TModelFileBundle>?) null);
+      subdir ??= this.AddSubdir(subdirName);
+
+      subdir.AddFileBundleRelative(fileBundle, segments);
+    }
+
 
     public void ForEachTyped(Action<TModelFileBundle> callback) {
       foreach (var fileBundle in this.TypedFileBundles) {

@@ -41,7 +41,7 @@ namespace uni.games.halo_wars {
       foreach (var srcMapDirectory in mapDirectories) {
         var xtdFile = srcMapDirectory.FilesWithExtension(".xtd").Single();
         var xttFile = srcMapDirectory.FilesWithExtension(".xtt").Single();
-        rootNode.AddFileBundle(
+        rootNode.AddFileBundleRelative(
             new XtdModelFileBundle(xtdFile, xttFile, context));
       }
 
@@ -53,7 +53,7 @@ namespace uni.games.halo_wars {
         // TODO: Parse UGX files instead, as long as they specify their own animations
         var visFiles = artSubdir.FilesWithExtension(".vis");
         foreach (var visFile in visFiles) {
-          rootNode.AddFileBundle(new VisModelFileBundle(visFile, context));
+          rootNode.AddFileBundleRelative(new VisModelFileBundle(visFile, context));
         }
 
         artSubdirQueue.Enqueue(artSubdir.Subdirs);
