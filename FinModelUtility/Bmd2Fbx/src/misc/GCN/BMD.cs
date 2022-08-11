@@ -495,7 +495,7 @@ label_7:
       public ushort Padding;
       public uint[] Offsets;
       public byte[] Counts;
-      public Matrix4x3f[] InverseBindMatrices { get; set; }
+      public Matrix3x4f[] InverseBindMatrices { get; set; }
       public BMD.EVP1Section.MultiMatrix[] WeightedIndices;
 
       public EVP1Section(EndianBinaryReader er, out bool OK)
@@ -539,9 +539,9 @@ label_7:
           }
 
           er.Position = position1 + (long) this.Offsets[3];
-          this.InverseBindMatrices = new Matrix4x3f[val1];
+          this.InverseBindMatrices = new Matrix3x4f[val1];
           for (int index = 0; index < val1; ++index) {
-            this.InverseBindMatrices[index] = er.ReadNew<Matrix4x3f>();
+            this.InverseBindMatrices[index] = er.ReadNew<Matrix3x4f>();
           }
           er.Position = position1 + (long) this.Header.size;
           OK = true;

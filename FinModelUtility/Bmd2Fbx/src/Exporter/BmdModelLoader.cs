@@ -365,8 +365,8 @@ namespace bmd.exporter {
     private static IFinMatrix4x4 ConvertSchemaToFin_(Matrix4x3f schemaMatrix) {
       var finMatrix = new FinMatrix4x4().SetIdentity();
 
-      for (var r = 0; r < 4; ++r) {
-        for (var c = 0; c < 3; ++c) {
+      for (var r = 0; r < 3; ++r) {
+        for (var c = 0; c < 4; ++c) {
           finMatrix[r, c] = schemaMatrix[r, c];
         }
       }
