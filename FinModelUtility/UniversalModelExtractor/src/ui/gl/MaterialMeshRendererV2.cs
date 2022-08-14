@@ -1,7 +1,6 @@
 ﻿using fin.gl;
 using fin.gl.material;
 using fin.model;
-using fin.util.image;
 
 using OpenTK.Graphics.OpenGL;
 

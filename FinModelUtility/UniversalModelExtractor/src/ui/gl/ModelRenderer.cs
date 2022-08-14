@@ -1,11 +1,9 @@
 ﻿using fin.data;
 using fin.gl;
 using fin.gl.material;
-using fin.language.equations.fixedFunction;
 using fin.math;
 using fin.model;
 using fin.model.impl;
-using fin.util.image;
 
 using OpenTK.Graphics.OpenGL;
 
@@ -17,7 +15,7 @@ namespace uni.ui.gl {
   /// <summary>
   ///   A renderer for a Fin model.
   /// </summary>
-  public class ModelRenderer : IDisposable {
+  public class ModelRenderer : IModelRenderer {
     private readonly BoneTransformManager boneTransformManager_;
     private readonly List<MaterialMeshRenderer> materialMeshRenderers_ = new();
 
@@ -58,6 +56,12 @@ namespace uni.ui.gl {
 
     public IModel Model { get; }
 
+    public void InvalidateDisplayLists() {
+      foreach (var materialMeshRenderer in this.materialMeshRenderers_) {
+        materialMeshRenderer.InvalidateDisplayLists();
+      }
+    }
+
     public void Render() {
       foreach (var materialMeshRenderer in this.materialMeshRenderers_) {
         materialMeshRenderer.Render();
@@ -68,7 +72,7 @@ namespace uni.ui.gl {
   /// <summary>
   ///   A renderer for all of the primitives of a Fin model with a common material.
   /// </summary>
-  public class MaterialMeshRenderer : IDisposable {
+  public class MaterialMeshRenderer : IMaterialMeshRenderer {
     // TODO: Set up shader for material
     // TODO: Use material's textures
 
@@ -78,6 +82,7 @@ namespace uni.ui.gl {
 
     private readonly IList<IPrimitive> primitives_;
 
+    private readonly GlDisplayList displayList_;
     private readonly IGlMaterialShader? materialShader_;
 
 
@@ -100,6 +105,7 @@ namespace uni.ui.gl {
       }
 
       this.primitives_ = primitives;
+      this.displayList_ = new(this.CompileDisplayList_);
     }
 
     ~MaterialMeshRenderer() => ReleaseUnmanagedResources_();
@@ -111,6 +117,11 @@ namespace uni.ui.gl {
 
     private void ReleaseUnmanagedResources_() {
       this.materialShader_?.Dispose();
+      this.displayList_.Dispose();
+    }
+
+    public void InvalidateDisplayLists() {
+      this.displayList_.Invalidate();
     }
 
     public void Render() {
@@ -126,6 +137,19 @@ namespace uni.ui.gl {
 
       GlUtil.SetCulling(this.material_?.CullingMode ?? CullingMode.SHOW_BOTH);
 
+      this.displayList_.CompileOrRender();
+
+      for (var i = 0; i < 8; ++i) {
+        GL.ActiveTexture(TextureUnit.Texture0 + i);
+        GL.BindTexture(TextureTarget.Texture2D, -1);
+      }
+
+      if (fixedFunctionMaterial != null) {
+        GlUtil.ResetBlending();
+      }
+    }
+
+    private void CompileDisplayList_() {
       GL.Begin(GlPrimitiveType.Triangles);
 
       foreach (var primitive in this.primitives_) {
@@ -207,15 +231,6 @@ namespace uni.ui.gl {
       }
 
       GL.End();
-
-      for (var i = 0; i < 8; ++i) {
-        GL.ActiveTexture(TextureUnit.Texture0 + i);
-        GL.BindTexture(TextureTarget.Texture2D, -1);
-      }
-
-      if (fixedFunctionMaterial != null) {
-        GlUtil.ResetBlending();
-      }
     }
 
     private readonly IPosition position_ = new ModelImpl.PositionImpl();

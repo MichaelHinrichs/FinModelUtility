@@ -348,6 +348,8 @@ void main() {
             this.Model.Skin.BoneWeights,
             (this.Animation, (float) this.AnimationPlaybackManager.Frame),
             this.AnimationPlaybackManager.ShouldLoop);
+
+        this.modelRenderer_?.InvalidateDisplayLists();
       }
 
       this.texturedShaderProgram_.Use();
