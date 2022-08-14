@@ -60,6 +60,7 @@ namespace uni.ui.gl {
     public void Render() {
       if (!this.valid_) {
         this.bufferManager_.UpdateTransforms(this.boneTransformManager_);
+        this.valid_ = true;
       }
 
       foreach (var materialMeshRenderer in this.materialMeshRenderers_) {
