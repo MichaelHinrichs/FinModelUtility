@@ -218,15 +218,7 @@ namespace uni.ui.gl {
             }
             break;
           }
-          case PrimitiveType.QUADS: {
-            for (var v = 0; v < pointsCount; v += 4) {
-              this.RenderVertex_(vertices[v + 0]);
-              this.RenderVertex_(vertices[v + 1]);
-              this.RenderVertex_(vertices[v + 2]);
-              this.RenderVertex_(vertices[v + 3]);
-            }
-            break;
-          }
+          default: throw new NotImplementedException();
         }
       }
 

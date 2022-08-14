@@ -41,9 +41,17 @@ namespace uni.ui.gl {
         switch (primitive.Type) {
           case fin.model.PrimitiveType.TRIANGLES: {
             for (var v = 0; v < pointsCount; v += 3) {
-              triangles.Add((vertices[v + 0], vertices[v + 1],
-                             vertices[v + 2]));
+              if (primitive.VertexOrder == VertexOrder.FLIP) {
+                triangles.Add((vertices[v + 0],
+                               vertices[v + 2],
+                               vertices[v + 1]));
+              } else {
+                triangles.Add((vertices[v + 0],
+                               vertices[v + 1],
+                               vertices[v + 2]));
+              }
             }
+
             break;
           }
           case fin.model.PrimitiveType.TRIANGLE_STRIP: {
@@ -61,8 +69,11 @@ namespace uni.ui.gl {
                 v3 = vertices[v + 2];
               }
 
-              // Intentionally flipped to fix bug where faces were backwards.
-              triangles.Add((v1, v3, v2));
+              if (primitive.VertexOrder == VertexOrder.FLIP) {
+                triangles.Add((v1, v3, v2));
+              } else {
+                triangles.Add((v1, v2, v3));
+              }
             }
             break;
           }
@@ -74,12 +85,15 @@ namespace uni.ui.gl {
               var v2 = vertices[v - 1];
               var v3 = vertices[v];
 
-              // Intentionally flipped to fix bug where faces were backwards.
-              triangles.Add((v1, v3, v2));
+              if (primitive.VertexOrder == VertexOrder.FLIP) {
+                triangles.Add((v1, v3, v2));
+              } else {
+                triangles.Add((v1, v2, v3));
+              }
             }
             break;
           }
-          default: throw new ArgumentOutOfRangeException();
+          default: throw new NotImplementedException();
         }
 
         return triangles;
@@ -112,7 +126,7 @@ namespace uni.ui.gl {
       }
 
       GlUtil.SetCulling(this.material_.CullingMode);
-      
+
       this.bufferRenderer_.Render();
 
       for (var i = 0; i < 8; ++i) {

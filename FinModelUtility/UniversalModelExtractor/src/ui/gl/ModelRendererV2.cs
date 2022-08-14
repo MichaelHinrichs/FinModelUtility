@@ -7,7 +7,7 @@ namespace uni.ui.gl {
   /// <summary>
   ///   A renderer for a Fin model.
   /// </summary>
-  public class ModelRendererV2 : IDisposable {
+  public class ModelRendererV2 : IModelRenderer {
     private readonly GlBufferManager bufferManager_;
     private readonly BoneTransformManager boneTransformManager_;
     private readonly List<MaterialMeshRendererV2> materialMeshRenderers_ = new();
@@ -52,8 +52,16 @@ namespace uni.ui.gl {
 
     public IModel Model { get; }
 
+    private bool valid_ = false;
+    public void InvalidateDisplayLists() {
+      this.valid_ = false;
+    }
+
     public void Render() {
-      this.bufferManager_.UpdateTransforms(this.boneTransformManager_);
+      if (!this.valid_) {
+        this.bufferManager_.UpdateTransforms(this.boneTransformManager_);
+      }
+
       foreach (var materialMeshRenderer in this.materialMeshRenderers_) {
         materialMeshRenderer.Render();
       }

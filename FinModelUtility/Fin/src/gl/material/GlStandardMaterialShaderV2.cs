@@ -19,6 +19,7 @@ namespace fin.gl.material {
 # version 120
 
 in vec3 in_Position;
+in vec3 in_Normal;
 in vec2 in_Uv0;
 
 varying vec4 vertexPosition;
@@ -31,8 +32,8 @@ void main() {
     vertexPosition = gl_ModelViewMatrix * vec4(in_Position, 1);
     gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * vec4(in_Position, 1);
 
-    vertexNormal = normalize(gl_ModelViewMatrix * vec4(gl_Normal, 0)).xyz;
-    normalUv = normalize(gl_ProjectionMatrix * gl_ModelViewMatrix * vec4(gl_Normal, 0)).xy;
+    vertexNormal = normalize(gl_ModelViewMatrix * vec4(in_Normal, 0)).xyz;
+    normalUv = normalize(gl_ProjectionMatrix * gl_ModelViewMatrix * vec4(in_Normal, 0)).xy;
     vertexColor = gl_Color;
     uv = in_Uv0;
 }";

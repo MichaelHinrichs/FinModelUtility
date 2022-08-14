@@ -54,7 +54,8 @@ namespace uni.ui.gl {
         boneTransformManager.ProjectVertex(
             vertex,
             this.position_,
-            this.normal_);
+            this.normal_, 
+            true);
 
         var positionOffset = POSITION_SIZE_ * i;
         this.positionData_[positionOffset + 0] = this.position_.X;
@@ -125,7 +126,7 @@ namespace uni.ui.gl {
 
     public GlBufferRenderer CreateRenderer(
         IEnumerable<(IVertex, IVertex, IVertex)> triangles)
-      => new GlBufferRenderer(this.vaoId_, triangles);
+      => new(this.vaoId_, triangles);
 
     public class GlBufferRenderer : IDisposable {
       private readonly int vaoId_;
@@ -140,7 +141,7 @@ namespace uni.ui.gl {
         this.vaoId_ = vaoId;
         GL.GenBuffers(1, out this.eboId_);
 
-        this.indices_ = triangles.SelectMany(triangle => new int[] {
+        this.indices_ = triangles.SelectMany(triangle => new[] {
                                      triangle.Item1.Index,
                                      triangle.Item2.Index,
                                      triangle.Item3.Index

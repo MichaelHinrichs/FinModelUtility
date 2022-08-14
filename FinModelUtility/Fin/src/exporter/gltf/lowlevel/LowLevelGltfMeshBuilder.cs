@@ -279,20 +279,7 @@ namespace fin.exporter.gltf.lowlevel {
               }*/
               break;
             }
-            case PrimitiveType.QUADS: {
-              /*var quads =
-                  gltfMeshBuilder.UsePrimitive(
-                      materialBuilder,
-                      4);
-              for (var v = 0; v < pointsCount; v += 4) {
-                quads.AddQuadrangle(vertices[v + 0],
-                                    vertices[v + 1],
-                                    vertices[v + 2],
-                                    vertices[v + 3]);
-              }*/
-              break;
-            }
-            default: throw new NotSupportedException();
+            default: throw new NotImplementedException();
           }
         }
 
