@@ -12,7 +12,7 @@ namespace fin.gl.material {
     static GlMaterialConstants() {
       NULL_WHITE_TEXTURE ??=
           new GlTexture(BitmapUtil.Create1x1WithColor(Color.White));
-      NULL_WHITE_TEXTURE ??=
+      NULL_GRAY_TEXTURE ??=
           new GlTexture(BitmapUtil.Create1x1WithColor(Color.Gray));
     }
 

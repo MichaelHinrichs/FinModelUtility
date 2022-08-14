@@ -75,5 +75,8 @@ namespace fin.gl {
 
     public int GetUniformLocation(string name) =>
         GL.GetUniformLocation(this.ProgramId, name);
+
+    public int GetAttribLocation(string name) =>
+        GL.GetAttribLocation(this.ProgramId, name);
   }
 }

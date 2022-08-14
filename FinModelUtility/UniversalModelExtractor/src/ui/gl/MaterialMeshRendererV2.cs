@@ -1,21 +1,21 @@
 ﻿using fin.gl;
+using fin.gl.material;
 using fin.model;
 using fin.util.image;
 
+using OpenTK.Graphics.OpenGL;
+
 
 namespace uni.ui.gl {
-  /// </summary>
   public class MaterialMeshRendererV2 : IDisposable {
     // TODO: Set up shader for material
     // TODO: Use material's textures
 
     private readonly GlBufferManager.GlBufferRenderer bufferRenderer_;
 
-    private readonly GlShaderProgram shaderProgram_;
-    private static GlTexture? NULL_TEXTURE_;
-
     private readonly IMaterial material_;
-    private readonly GlTexture? texture_;
+
+    private readonly IGlMaterialShader? materialShader_;
 
     public MaterialMeshRendererV2(
         GlBufferManager bufferManager,
@@ -23,20 +23,16 @@ namespace uni.ui.gl {
         IList<IPrimitive> primitives) {
       this.material_ = material;
 
-      if (MaterialMeshRendererV2.NULL_TEXTURE_ == null) {
-        MaterialMeshRendererV2.NULL_TEXTURE_ =
-            new GlTexture(BitmapUtil.Create1x1WithColor(Color.White));
+      if (DebugFlags.ENABLE_FIXED_FUNCTION_SHADER
+          && !DebugFlags.ENABLE_WEIGHT_COLORS
+          && material is IFixedFunctionMaterial fixedFunctionMaterial) {
+        this.materialShader_ =
+            new GlFixedFunctionMaterialShader(fixedFunctionMaterial);
+      } else if (material is IStandardMaterial standardMaterial) {
+        this.materialShader_ = new GlStandardMaterialShaderV2(standardMaterial);
+      } else if (material != null) {
+        this.materialShader_ = new GlSimpleMaterialShaderV2(material);
       }
-
-      ITexture? finTexture = material.Textures.FirstOrDefault();
-
-      if (DebugFlags.ENABLE_WEIGHT_COLORS) {
-        finTexture = null;
-      }
-
-      this.texture_ = finTexture != null
-                          ? new GlTexture(finTexture)
-                          : MaterialMeshRendererV2.NULL_TEXTURE_;
 
       var triangles = primitives.SelectMany(primitive => {
         var triangles = new List<(IVertex, IVertex, IVertex)>();
@@ -101,18 +97,32 @@ namespace uni.ui.gl {
     }
 
     private void ReleaseUnmanagedResources_() {
-      if (this.texture_ != MaterialMeshRendererV2.NULL_TEXTURE_) {
-        this.texture_?.Dispose();
-      }
-      this.shaderProgram_.Dispose();
+      this.materialShader_?.Dispose();
       this.bufferRenderer_.Dispose();
     }
 
     public void Render() {
+      this.materialShader_?.Use();
+
+      var fixedFunctionMaterial = this.material_ as IFixedFunctionMaterial;
+      if (fixedFunctionMaterial != null) {
+        GlUtil.SetBlending(fixedFunctionMaterial.BlendMode,
+                           fixedFunctionMaterial.SrcFactor,
+                           fixedFunctionMaterial.DstFactor,
+                           fixedFunctionMaterial.LogicOp);
+      }
+
       GlUtil.SetCulling(this.material_.CullingMode);
-      this.texture_?.Bind();
+      
       this.bufferRenderer_.Render();
-      this.texture_?.Unbind();
+
+      for (var i = 0; i < 8; ++i) {
+        GL.ActiveTexture(TextureUnit.Texture0 + i);
+        GL.BindTexture(TextureTarget.Texture2D, -1);
+      }
+      if (fixedFunctionMaterial != null) {
+        GlUtil.ResetBlending();
+      }
     }
   }
 }
