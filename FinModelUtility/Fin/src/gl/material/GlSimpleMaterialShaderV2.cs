@@ -1,15 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 
 using fin.model;
+using fin.model.util;
+
+using OpenTK.Graphics.OpenGL;
 
 
 namespace fin.gl.material {
   public class GlSimpleMaterialShaderV2 : IGlMaterialShader {
     private readonly GlShaderProgram impl_;
-   
-    private readonly IList<GlTexture> textures_;
+    private readonly int diffuseTextureLocation_;
+
+    private readonly GlTexture primaryGlTexture_;
 
     public GlSimpleMaterialShaderV2(IMaterial material) {
       this.Material = material;
@@ -33,7 +35,7 @@ void main() {
 
     vertexNormal = normalize(gl_ModelViewMatrix * vec4(in_Normal, 0)).xyz;
     normalUv = normalize(gl_ProjectionMatrix * gl_ModelViewMatrix * vec4(in_Normal, 0)).xy;
-    vertexColor = gl_Color;
+    vertexColor = vec4(1);
     uv = in_Uv0;
 }";
 
@@ -41,7 +43,6 @@ void main() {
 # version 130 
 
 uniform sampler2D diffuseTexture;
-uniform sampler2D normalTexture;
 uniform float useLighting;
 
 out vec4 fragColor;
@@ -73,19 +74,13 @@ void main() {{
       this.impl_ =
           GlShaderProgram.FromShaders(vertexShaderSrc, fragmentShaderSrc);
 
-      var finTextures = material.Textures.ToArray();
+      this.diffuseTextureLocation_ =
+          this.impl_.GetUniformLocation("diffuseTexture");
 
-      var nSupportedTextures = 8;
-      this.textures_ = new List<GlTexture>();
-      for (var i = 0; i < nSupportedTextures; ++i) {
-        var finTexture = i < (finTextures?.Length ?? 0)
-                             ? finTextures[i]
-                             : null;
-
-        this.textures_.Add(finTexture != null
-                               ? new GlTexture(finTexture)
-                               : GlMaterialConstants.NULL_WHITE_TEXTURE);
-      }
+      var primaryFinTexture = PrimaryTextureFinder.GetFor(material);
+      this.primaryGlTexture_ = primaryFinTexture != null
+                                   ? new GlTexture(primaryFinTexture)
+                                   : GlMaterialConstants.NULL_WHITE_TEXTURE;
     }
 
     public void Dispose() {
@@ -95,10 +90,7 @@ void main() {{
 
     private void ReleaseUnmanagedResources_() {
       this.impl_.Dispose();
-      foreach (var texture in this.textures_) {
-        GlMaterialConstants.DisposeIfNotCommon(texture);
-      }
-      this.textures_.Clear();
+      GlMaterialConstants.DisposeIfNotCommon(this.primaryGlTexture_);
     }
 
 
@@ -107,9 +99,8 @@ void main() {{
     public void Use() {
       this.impl_.Use();
 
-      for (var i = 0; i < this.textures_.Count; ++i) {
-        this.textures_[i].Bind(i);
-      }
+      GL.Uniform1(this.diffuseTextureLocation_, 0);
+      this.primaryGlTexture_.Bind();
     }
   }
 }
