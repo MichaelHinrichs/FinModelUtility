@@ -116,8 +116,8 @@ void main() {{
 
       var normalTexture = standardMaterial.NormalTexture;
       this.normalTexture_ = normalTexture != null
-                                 ? new GlTexture(normalTexture)
-                                 : GlMaterialConstants.NULL_GRAY_TEXTURE;
+                                ? new GlTexture(normalTexture)
+                                : GlMaterialConstants.NULL_GRAY_TEXTURE;
     }
 
     public void Dispose() {
@@ -134,6 +134,9 @@ void main() {{
 
     public IMaterial Material { get; }
 
+    public bool UseLighting { get; set; }
+
+
     public void Use() {
       this.impl_.Use();
 
@@ -146,6 +149,9 @@ void main() {{
           this.impl_.GetUniformLocation("normalTexture");
       GL.Uniform1(normalTextureLocation, 1);
       this.normalTexture_.Bind(1);
+
+      var useLightingLocation = this.impl_.GetUniformLocation("useLighting");
+      GL.Uniform1(useLightingLocation, this.UseLighting ? 1f : 0f);
     }
   }
 }

@@ -9,6 +9,7 @@ using OpenTK.Graphics.OpenGL;
 namespace fin.gl.material {
   public class GlSimpleMaterialShaderV2 : IGlMaterialShader {
     private readonly GlShaderProgram impl_;
+
     private readonly int diffuseTextureLocation_;
 
     private readonly GlTexture primaryGlTexture_;
@@ -96,11 +97,16 @@ void main() {{
 
     public IMaterial Material { get; }
 
+    public bool UseLighting { get; set; }
+
     public void Use() {
       this.impl_.Use();
 
       GL.Uniform1(this.diffuseTextureLocation_, 0);
       this.primaryGlTexture_.Bind();
+
+      var useLightingLocation = this.impl_.GetUniformLocation("useLighting");
+      GL.Uniform1(useLightingLocation, this.UseLighting ? 1f : 0f);
     }
   }
 }

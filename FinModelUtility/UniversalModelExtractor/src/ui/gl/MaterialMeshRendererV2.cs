@@ -114,6 +114,15 @@ namespace uni.ui.gl {
       this.bufferRenderer_.Dispose();
     }
 
+    public bool UseLighting {
+      get => this.materialShader_?.UseLighting ?? false;
+      set {
+        if (this.materialShader_ != null) {
+          this.materialShader_.UseLighting = value;
+        }
+      }
+    }
+
     public void Render() {
       this.materialShader_?.Use();
 

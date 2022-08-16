@@ -41,6 +41,7 @@ namespace fin.gl.material {
 
 
     public IMaterial Material { get; }
+    public bool UseLighting { get; set; }
 
     public void Use() {
       for (var i = 0; i < this.textures_.Count; ++i) {

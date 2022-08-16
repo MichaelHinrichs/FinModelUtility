@@ -52,6 +52,18 @@ namespace uni.ui.gl {
 
     public IModel Model { get; }
 
+    private bool useLighting_ = false;
+
+    public bool UseLighting {
+      get => this.useLighting_;
+      set {
+        this.useLighting_ = value;
+        foreach (var materialMeshRenderer in this.materialMeshRenderers_) {
+          materialMeshRenderer.UseLighting = value;
+        }
+      }
+    }
+
     private bool valid_ = false;
     public void InvalidateDisplayLists() {
       this.valid_ = false;

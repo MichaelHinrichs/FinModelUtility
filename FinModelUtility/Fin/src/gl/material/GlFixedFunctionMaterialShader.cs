@@ -89,6 +89,8 @@ void main() {
 
     public IMaterial Material { get; }
 
+    public bool UseLighting { get; set; }
+
     public void Use() {
       this.impl_.Use();
 
