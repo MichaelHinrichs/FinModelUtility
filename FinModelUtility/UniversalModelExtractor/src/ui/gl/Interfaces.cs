@@ -1,5 +1,9 @@
-﻿namespace uni.ui.gl {
+﻿using fin.model;
+
+
+namespace uni.ui.gl {
   public interface IModelRenderer : IDisposable {
+    IModel Model { get; }
     void InvalidateDisplayLists();
     void Render();
   }

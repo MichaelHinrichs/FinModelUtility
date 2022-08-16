@@ -122,6 +122,10 @@ namespace uni.ui.gl {
           0,
           0);
       GL.EnableVertexAttribArray(vertexAttribUv0);
+
+      // Make sure the buffers are not changed by outside code
+      GL.BindVertexArray(0);
+      GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
     }
 
     public GlBufferRenderer CreateRenderer(
@@ -139,6 +143,8 @@ namespace uni.ui.gl {
           IEnumerable<(IVertex, IVertex, IVertex)>
               triangles) {
         this.vaoId_ = vaoId;
+
+        GL.BindVertexArray(this.vaoId_);
         GL.GenBuffers(1, out this.eboId_);
 
         this.indices_ = triangles.SelectMany(triangle => new[] {
@@ -153,6 +159,8 @@ namespace uni.ui.gl {
                       new IntPtr(sizeof(int) * this.indices_.Length),
                       this.indices_,
                       BufferUsageHint.StaticDraw);
+
+        GL.BindVertexArray(0);
       }
 
       ~GlBufferRenderer() => ReleaseUnmanagedResources_();
@@ -167,12 +175,15 @@ namespace uni.ui.gl {
       }
 
       public void Render() {
-        GL.BindBuffer(BufferTarget.ElementArrayBuffer, this.eboId_);
         GL.BindVertexArray(this.vaoId_);
+        GL.BindBuffer(BufferTarget.ElementArrayBuffer, this.eboId_);
+
         GL.DrawElements(BeginMode.Triangles,
                         this.indices_.Length,
                         DrawElementsType.UnsignedInt,
                         0);
+        
+        GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
         GL.BindVertexArray(0);
       }
     }
