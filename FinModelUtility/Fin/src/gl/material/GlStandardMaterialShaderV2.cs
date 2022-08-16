@@ -11,6 +11,8 @@ namespace fin.gl.material {
 
     private GlTexture diffuseTexture_;
     private GlTexture normalTexture_;
+    private GlTexture ambientOcclusionTexture_;
+    private GlTexture emissiveTexture_;
 
     public GlStandardMaterialShaderV2(IStandardMaterial standardMaterial) {
       this.Material = standardMaterial;
@@ -43,6 +45,8 @@ void main() {
 
 uniform sampler2D diffuseTexture;
 uniform sampler2D normalTexture;
+uniform sampler2D ambientOcclusionTexture;
+uniform sampler2D emissiveTexture;
 uniform float useLighting;
 
 out vec4 fragColor;
@@ -54,6 +58,8 @@ in vec2 uv;
 
 void main() {{
     vec4 diffuseColor = texture(diffuseTexture, uv);
+    vec4 ambientOcclusionColor = texture(ambientOcclusionTexture, uv);
+    vec4 emissiveColor = texture(emissiveTexture, uv);
 
     fragColor = diffuseColor * vertexColor;
 
@@ -62,9 +68,12 @@ void main() {{
 
     float ambientLightAmount = .3;
 
-    float lightAmount = min(ambientLightAmount + diffuseLightAmount, 1);
+    float lightAmount = ambientOcclusionColor.r * min(ambientLightAmount + diffuseLightAmount, 1);
 
     fragColor.rgb = mix(fragColor.rgb, fragColor.rgb * lightAmount, useLighting);
+    fragColor.rgb += emissiveColor.rgb;
+
+    fragColor.rgb = min(fragColor.rgb, 1);
 
     if (fragColor.a < .95) {{
       discard;
@@ -118,6 +127,17 @@ void main() {{
       this.normalTexture_ = normalTexture != null
                                 ? new GlTexture(normalTexture)
                                 : GlMaterialConstants.NULL_GRAY_TEXTURE;
+
+      var ambientOcclusionTexture = standardMaterial.AmbientOcclusionTexture;
+      this.ambientOcclusionTexture_ =
+          ambientOcclusionTexture != null
+              ? new GlTexture(ambientOcclusionTexture)
+              : GlMaterialConstants.NULL_WHITE_TEXTURE;
+
+      var emissiveTexture = standardMaterial.EmissiveTexture;
+      this.emissiveTexture_ = emissiveTexture != null
+                                  ? new GlTexture(emissiveTexture)
+                                  : GlMaterialConstants.NULL_BLACK_TEXTURE;
     }
 
     public void Dispose() {
@@ -129,6 +149,8 @@ void main() {{
       this.impl_.Dispose();
       GlMaterialConstants.DisposeIfNotCommon(this.diffuseTexture_);
       GlMaterialConstants.DisposeIfNotCommon(this.normalTexture_);
+      GlMaterialConstants.DisposeIfNotCommon(this.ambientOcclusionTexture_);
+      GlMaterialConstants.DisposeIfNotCommon(this.emissiveTexture_);
     }
 
 
@@ -149,6 +171,16 @@ void main() {{
           this.impl_.GetUniformLocation("normalTexture");
       GL.Uniform1(normalTextureLocation, 1);
       this.normalTexture_.Bind(1);
+
+      var ambientOcclusionTextureLocation =
+          this.impl_.GetUniformLocation("ambientOcclusionTexture");
+      GL.Uniform1(ambientOcclusionTextureLocation, 2);
+      this.ambientOcclusionTexture_.Bind(2);
+
+      var emissiveTextureLocation =
+          this.impl_.GetUniformLocation("emissiveTexture");
+      GL.Uniform1(emissiveTextureLocation, 3);
+      this.emissiveTexture_.Bind(3);
 
       var useLightingLocation = this.impl_.GetUniformLocation("useLighting");
       GL.Uniform1(useLightingLocation, this.UseLighting ? 1f : 0f);

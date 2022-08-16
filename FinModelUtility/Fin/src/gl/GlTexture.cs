@@ -83,16 +83,16 @@ namespace fin.gl {
             case System.Drawing.Imaging.PixelFormat.Format24bppRgb: {
               for (var y = 0; y < imageHeight; y++) {
                 for (var x = 0; x < imageWidth; x++) {
-                  var i = 3 * (y * imageWidth + x);
+                  var inI = 3 * (y * imageWidth + x);
+                  var b = ptr[inI];
+                  var g = ptr[inI + 1];
+                  var r = ptr[inI + 2];
 
-                  var b = ptr[i];
-                  var g = ptr[i + 1];
-                  var r = ptr[i + 2];
-
-                  rgba[i] = r;
-                  rgba[i + 1] = g;
-                  rgba[i + 2] = b;
-                  rgba[i + 3] = 255;
+                  var outI = 4 * (y * imageWidth + x);
+                  rgba[outI] = r;
+                  rgba[outI + 1] = g;
+                  rgba[outI + 2] = b;
+                  rgba[outI + 3] = 255;
                 }
               }
               break;
