@@ -22,6 +22,8 @@ namespace modl.api {
 
   public class ModlModelLoader : IModelLoader<ModlModelFileBundle> {
     public IModel LoadModel(ModlModelFileBundle modelFileBundle) {
+      var flipSign = ModlFlags.FLIP_HORIZONTALLY ? -1 : 1;
+
       var modlFile = modelFileBundle.ModlFile;
 
       using var er = new EndianBinaryReader(modlFile.Impl.OpenRead(),
@@ -37,6 +39,7 @@ namespace modl.api {
       {
         var nodeQueue =
             new FinTuple2Queue<IBone, ushort>((model.Skeleton.Root, 0));
+
         while (nodeQueue.TryDequeue(out var parentFinBone,
                                     out var modlNodeId)) {
           var modlNode = bw1Model.Nodes[modlNodeId];
@@ -46,15 +49,16 @@ namespace modl.api {
 
           var modlRotation = transform.Rotation;
           var rotation = new Quaternion(
-              modlRotation.X,
+              flipSign * modlRotation.X,
               modlRotation.Y,
               modlRotation.Z,
-              modlRotation.W);
+              flipSign * modlRotation.W);
           var eulerRadians = QuaternionUtil.ToEulerRadians(rotation);
 
           var finBone =
               parentFinBone
-                  .AddChild(bonePosition.X, bonePosition.Y, bonePosition.Z)
+                  .AddChild(flipSign * bonePosition.X, bonePosition.Y,
+                            bonePosition.Z)
                   .SetLocalRotationRadians(
                       eulerRadians.X, eulerRadians.Y, eulerRadians.Z);
           finBone.Name = $"Node {modlNodeId}";
@@ -105,7 +109,7 @@ namespace modl.api {
             for (var f = 0; f < animBone.PositionKeyframeCount; ++f) {
               var (fPX, fPY, fPZ) = animBoneFrames.PositionFrames[f];
 
-              fbtPositions.Set(f, 0, fPX);
+              fbtPositions.Set(f, 0, flipSign * fPX);
               fbtPositions.Set(f, 1, fPY);
               fbtPositions.Set(f, 2, fPZ);
             }
@@ -114,7 +118,8 @@ namespace modl.api {
             for (var f = 0; f < animBone.RotationKeyframeCount; ++f) {
               var (fRX, fRY, fRZ, frW) = animBoneFrames.RotationFrames[f];
 
-              var animationQuaternion = new Quaternion(fRX, fRY, fRZ, frW);
+              var animationQuaternion =
+                  new Quaternion(flipSign * fRX, fRY, fRZ, flipSign * frW);
               var eulerRadians =
                   QuaternionUtil.ToEulerRadians(animationQuaternion);
 
@@ -175,7 +180,7 @@ namespace modl.api {
                 var position =
                     modlNode.Positions[vertexAttributeIndices.PositionIndex];
                 var vertex = vertices[i] = model.Skin.AddVertex(
-                                 position.X * modlNode.Scale,
+                                 flipSign * position.X * modlNode.Scale,
                                  position.Y * modlNode.Scale,
                                  position.Z * modlNode.Scale);
 
@@ -183,7 +188,8 @@ namespace modl.api {
                   var normal =
                       modlNode.Normals[
                           vertexAttributeIndices.NormalIndex.Value];
-                  vertex.SetLocalNormal(normal.X, normal.Y, normal.Z);
+                  vertex.SetLocalNormal(flipSign * normal.X, normal.Y,
+                                        normal.Z);
                 }
 
                 if (vertexAttributeIndices.NodeIndex != null) {
@@ -212,9 +218,7 @@ namespace modl.api {
                 }
               }
 
-              var triangleStripPrimitive = finMesh.AddTriangleStrip(vertices)
-                                                  .SetVertexOrder(
-                                                      VertexOrder.NORMAL);
+              var triangleStripPrimitive = finMesh.AddTriangleStrip(vertices);
               if (finMaterial != null) {
                 triangleStripPrimitive.SetMaterial(finMaterial);
               }
