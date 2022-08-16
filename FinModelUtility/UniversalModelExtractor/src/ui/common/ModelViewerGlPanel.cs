@@ -31,7 +31,7 @@ namespace uni.ui.common {
 
     private GlShaderProgram texturelessShaderProgram_;
 
-    private ModelRenderer? modelRenderer_;
+    private IModelRenderer? modelRenderer_;
     private SkeletonRenderer? skeletonRenderer_;
     private readonly BoneTransformManager boneTransformManager_ = new();
 
@@ -47,7 +47,7 @@ namespace uni.ui.common {
 
         if (value != null) {
           this.modelRenderer_ =
-              new ModelRenderer(value, this.boneTransformManager_);
+              new ModelRendererV2(value, this.boneTransformManager_);
           this.skeletonRenderer_ =
               new SkeletonRenderer(value.Skeleton, this.boneTransformManager_);
           this.boneTransformManager_.CalculateMatrices(
@@ -356,7 +356,10 @@ void main() {
       GL.Uniform1(this.texture0Location_, 0);
       GL.Uniform1(this.useLightingLocation_, hasNormals_ ? 1f : 0f);
 
-      this.modelRenderer_?.Render();
+      if (this.modelRenderer_ != null) {
+        this.modelRenderer_.UseLighting = hasNormals_;
+        this.modelRenderer_.Render();
+      }
 
       if (DebugFlags.ENABLE_SKELETON) {
         this.texturelessShaderProgram_.Use();

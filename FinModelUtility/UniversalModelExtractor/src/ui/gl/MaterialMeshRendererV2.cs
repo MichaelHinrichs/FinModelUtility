@@ -26,7 +26,7 @@ namespace uni.ui.gl {
           && !DebugFlags.ENABLE_WEIGHT_COLORS
           && material is IFixedFunctionMaterial fixedFunctionMaterial) {
         this.materialShader_ =
-            new GlFixedFunctionMaterialShader(fixedFunctionMaterial);
+            new GlFixedFunctionMaterialShaderV2(fixedFunctionMaterial);
       } else if (material is IStandardMaterial standardMaterial) {
         this.materialShader_ = new GlStandardMaterialShaderV2(standardMaterial);
       } else if (material != null) {

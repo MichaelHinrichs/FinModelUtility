@@ -12,21 +12,24 @@ namespace uni.ui.gl {
 
     private readonly float[] positionData_;
     private readonly float[] normalData_;
-    private readonly float[] uv0Data_;
+    private readonly float[][] uvData_;
 
     private int vaoId_;
-    private int[] vboIds_ = new int[3];
+    private int[] vboIds_ = new int[1 + 1 + 4];
 
     private const int POSITION_SIZE_ = 3;
     private const int NORMAL_SIZE_ = 3;
-    private const int UV0_SIZE_ = 2;
+    private const int UV_SIZE_ = 2;
 
     public GlBufferManager(IModel model) {
       this.vertices_ = model.Skin.Vertices;
 
       this.positionData_ = new float[POSITION_SIZE_ * this.vertices_.Count];
       this.normalData_ = new float[NORMAL_SIZE_ * this.vertices_.Count];
-      this.uv0Data_ = new float[UV0_SIZE_ * this.vertices_.Count];
+      this.uvData_ = new float[4][];
+      for (var i = 0; i < this.uvData_.Length; ++i) {
+        this.uvData_[i] = new float[UV_SIZE_ * this.vertices_.Count];
+      }
 
       GL.GenVertexArrays(1, out this.vaoId_);
       GL.GenBuffers(this.vboIds_.Length, this.vboIds_);
@@ -54,7 +57,7 @@ namespace uni.ui.gl {
         boneTransformManager.ProjectVertex(
             vertex,
             this.position_,
-            this.normal_, 
+            this.normal_,
             true);
 
         var positionOffset = POSITION_SIZE_ * i;
@@ -67,17 +70,20 @@ namespace uni.ui.gl {
         this.normalData_[normalOffset + 1] = this.normal_.Y;
         this.normalData_[normalOffset + 2] = this.normal_.Z;
 
-        var uv0 = vertex.GetUv(0);
-        var uv0Offset = UV0_SIZE_ * i;
-        this.uv0Data_[uv0Offset + 0] = uv0?.U ?? 0;
-        this.uv0Data_[uv0Offset + 1] = uv0?.V ?? 0;
+        for (var u = 0; u < this.uvData_.Length; ++u) {
+          var uv = vertex.GetUv(u);
+          var uvOffset = UV_SIZE_ * i;
+          this.uvData_[u][uvOffset + 0] = uv?.U ?? 0;
+          this.uvData_[u][uvOffset + 1] = uv?.V ?? 0;
+        }
       }
 
       GL.BindVertexArray(this.vaoId_);
 
       // Position
       var vertexAttribPosition = 0;
-      GL.BindBuffer(BufferTarget.ArrayBuffer, this.vboIds_[0]);
+      GL.BindBuffer(BufferTarget.ArrayBuffer,
+                    this.vboIds_[vertexAttribPosition]);
       GL.BufferData(BufferTarget.ArrayBuffer,
                     new IntPtr(sizeof(float) * this.positionData_.Length),
                     this.positionData_,
@@ -93,7 +99,7 @@ namespace uni.ui.gl {
 
       // Normal
       var vertexAttribNormal = 1;
-      GL.BindBuffer(BufferTarget.ArrayBuffer, this.vboIds_[1]);
+      GL.BindBuffer(BufferTarget.ArrayBuffer, this.vboIds_[vertexAttribNormal]);
       GL.BufferData(BufferTarget.ArrayBuffer,
                     new IntPtr(sizeof(float) * this.normalData_.Length),
                     this.normalData_,
@@ -107,21 +113,23 @@ namespace uni.ui.gl {
           0);
       GL.EnableVertexAttribArray(vertexAttribNormal);
 
-      // Uv0
-      var vertexAttribUv0 = 2;
-      GL.BindBuffer(BufferTarget.ArrayBuffer, this.vboIds_[2]);
-      GL.BufferData(BufferTarget.ArrayBuffer,
-                    new IntPtr(sizeof(float) * this.uv0Data_.Length),
-                    this.uv0Data_,
-                    BufferUsageHint.DynamicDraw);
-      GL.VertexAttribPointer(
-          vertexAttribUv0,
-          UV0_SIZE_,
-          VertexAttribPointerType.Float,
-          false,
-          0,
-          0);
-      GL.EnableVertexAttribArray(vertexAttribUv0);
+      // Uv
+      for (var i = 0; i < this.uvData_.Length; ++i) {
+        var vertexAttribUv = 2 + i;
+        GL.BindBuffer(BufferTarget.ArrayBuffer, this.vboIds_[vertexAttribUv]);
+        GL.BufferData(BufferTarget.ArrayBuffer,
+                      new IntPtr(sizeof(float) * this.uvData_[i].Length),
+                      this.uvData_[i],
+                      BufferUsageHint.DynamicDraw);
+        GL.VertexAttribPointer(
+            vertexAttribUv,
+            UV_SIZE_,
+            VertexAttribPointerType.Float,
+            false,
+            0,
+            0);
+        GL.EnableVertexAttribArray(vertexAttribUv);
+      }
 
       // Make sure the buffers are not changed by outside code
       GL.BindVertexArray(0);
@@ -182,7 +190,7 @@ namespace uni.ui.gl {
                         this.indices_.Length,
                         DrawElementsType.UnsignedInt,
                         0);
-        
+
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
         GL.BindVertexArray(0);
       }
