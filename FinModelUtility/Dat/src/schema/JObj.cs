@@ -57,9 +57,9 @@ namespace dat.schema {
     public uint FirstChildBoneOffset { get; set; }
     public uint NextSiblingBoneOffset { get; set; }
     public uint ObjectStructOffset { get; set; }
-    public Vector3f RotationRadians;
-    public Vector3f Scale;
-    public Vector3f Position;
+    public Vector3f RotationRadians { get; } = new();
+    public Vector3f Scale { get; } = new();
+    public Vector3f Position { get; } = new();
     public uint InverseBindMatrixOffset { get; set; }
     public uint UnknownPointer { get; set; }
   }
@@ -68,7 +68,8 @@ namespace dat.schema {
     public JObjData Data { get; } = new();
 
     public string Name { get; set; }
-    public List<ObjectStruct> ObjectStructs { get; } = new();
+
+    public List<DObj> DObjs { get; } = new();
 
     public List<JObj> Children { get; } = new();
   }

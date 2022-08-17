@@ -1,5 +1,5 @@
-﻿using fin.io;
-using fin.util.asserts;
+﻿using fin.util.asserts;
+using fin.util.enums;
 
 using gx;
 
@@ -9,11 +9,14 @@ using schema.attributes.ignore;
 
 namespace dat.schema {
   // AObj: animation
+  // CObj: camera
   // DObj: ?
-  // FObj: animation track for a single joint?
+  // FObj: keyframe descriptor
+  // IObj: image
   // JObj: joint (bone)
   // MObj: material
   // PObj: primitive
+  // SObj: Scene object
   // TObj: texture
 
   public class Dat : IDeserializable {
@@ -136,139 +139,13 @@ namespace dat.schema {
           jObj.Name = er.ReadStringNT();
         }
 
-        var objectStructOffset = jObj.Data.ObjectStructOffset;
-        while (this.AssertNullOrValidPointer_(objectStructOffset)) {
-          var objectStruct = new ObjectStruct();
-          jObj.ObjectStructs.Add(objectStruct);
+        var jObjFlags = jObjData.Flags;
+        var isSpline = jObjFlags.CheckFlag(JObjFlags.SPLINE);
+        var isParticleJoint = jObjFlags.CheckFlag(JObjFlags.PTCL);
+        var isDObj = !isSpline && !isParticleJoint;
 
-          er.Position = this.dataBlockOffset_ + objectStructOffset;
-          objectStruct.Data.Read(er);
-
-          var pObjDataOffset = objectStruct.Data.MeshStructOffset;
-          while (this.AssertNullOrValidPointer_(pObjDataOffset)) {
-            er.Position = this.dataBlockOffset_ + pObjDataOffset;
-
-            var pObj = new PObj();
-            var pObjData = pObj.Data;
-            pObjData.Read(er);
-
-            var pObjType = pObjData.Flags & PObjFlags.OBJTYPE_SKIN;
-            switch (pObjType) {
-              case PObjFlags.OBJTYPE_SKIN: {
-                er.Position = this.dataBlockOffset_ +
-                              pObjData.VertexDescriptorListOffset;
-
-                // Reads vertex descriptors
-                while (true) {
-                  var vertexDescriptor = new VertexDescriptor();
-                  var vertexDescriptorData = vertexDescriptor.Data;
-                  vertexDescriptorData.Read(er);
-
-                  if (vertexDescriptorData.Attribute == GxAttribute.NULL) {
-                    break;
-                  }
-
-                  pObj.VertexDescriptors.Add(vertexDescriptor);
-                }
-
-                var startingOffset =
-                    er.Position =
-                        this.dataBlockOffset_ + pObjData.DisplayOffset;
-
-                // Reads display list
-                while (er.Position - startingOffset < pObjData.nDisp * 32) {
-                  var opcode = (GxOpcode) er.ReadByte();
-                  if (opcode == GxOpcode.NOP) {
-                    break;
-                  }
-
-                  switch (opcode) {
-                    case GxOpcode.LOAD_CP_REG: {
-                      var command = er.ReadByte();
-                      var value = er.ReadUInt32();
-
-                      if (command == 0x50) {
-                        Dat.vertexDescriptorValue_ &= ~((uint) 0x1FFFF);
-                        Dat.vertexDescriptorValue_ |= value;
-                      } else if (command == 0x60) {
-                        value <<= 17;
-                        Dat.vertexDescriptorValue_ &= 0x1FFFF;
-                        Dat.vertexDescriptorValue_ |= value;
-                      } else {
-                        throw new NotImplementedException();
-                      }
-
-                      break;
-                    }
-                    case GxOpcode.LOAD_XF_REG: {
-                      var lengthMinusOne = er.ReadUInt16();
-                      var length = lengthMinusOne + 1;
-
-                      // http://hitmen.c02.at/files/yagcd/yagcd/chap5.html#sec5.11.4
-                      var firstXfRegisterAddress = er.ReadUInt16();
-
-                      var values = er.ReadUInt32s(length);
-                      // TODO: Implement
-                      break;
-                    }
-                    case GxOpcode.DRAW_TRIANGLES:
-                    case GxOpcode.DRAW_QUADS:
-                    case GxOpcode.DRAW_TRIANGLE_STRIP: {
-                      var vertexCount = er.ReadUInt16();
-
-                      for (var i = 0; i < vertexCount; ++i) {
-                        foreach (var vertexDescriptor in
-                                 pObj.VertexDescriptors) {
-                          var vertexAttribute = vertexDescriptor.Data.Attribute;
-                          var vertexFormat =
-                              vertexDescriptor.Data.AttributeType;
-
-                          var value = vertexFormat switch {
-                              GxAttributeType.DIRECT => er.ReadByte(),
-                              GxAttributeType.INDEX_8 => er.ReadByte(),
-                              GxAttributeType.INDEX_16 => er.ReadUInt16(),
-                              _ => throw new NotImplementedException(),
-                          };
-
-                          switch (vertexAttribute) {
-                            case GxAttribute.PNMTXIDX: {
-                              Asserts.Equal(0, value % 3);
-                              value /= 3;
-                              break;
-                            }
-                            case GxAttribute.POS: {
-                              break;
-                            }
-                            case GxAttribute.NRM: {
-                              break;
-                            }
-                          }
-                        }
-                      }
-
-                      break;
-                    }
-                    default: {
-                      break;
-                    }
-                  }
-                }
-
-                break;
-              }
-              case PObjFlags.OBJTYPE_ENVELOPE: {
-                break;
-              }
-              case PObjFlags.OBJTYPE_SHAPEANIM: {
-                break;
-              }
-              default: throw new NotImplementedException();
-            }
-
-            pObjDataOffset = pObjData.NextPObjOffset;
-          }
-
-          objectStructOffset = objectStruct.Data.NextObjectOffset;
+        if (isDObj) {
+          this.ReadDObjIntoJObj_(er, jObj, jObj.Data.ObjectStructOffset);
         }
 
         var firstChildOffset = jObj.Data.FirstChildBoneOffset;
@@ -281,6 +158,155 @@ namespace dat.schema {
           jObjQueue.Enqueue((rootNode, parentJObj, nextSiblingOffset));
         }
       }
+    }
+
+    private void ReadDObjIntoJObj_(EndianBinaryReader er,
+                                   JObj jObj,
+                                   uint objectStructOffset) {
+      if (!this.AssertNullOrValidPointer_(objectStructOffset)) {
+        return;
+      }
+
+      var dObj = new DObj();
+      jObj.DObjs.Add(dObj);
+
+      er.Position = this.dataBlockOffset_ + objectStructOffset;
+      dObj.Data.Read(er);
+
+      this.ReadPObjIntoDObj_(er, dObj, dObj.Data.MeshStructOffset);
+
+      this.ReadDObjIntoJObj_(er, jObj, dObj.Data.NextObjectOffset);
+    }
+
+    private void ReadPObjIntoDObj_(EndianBinaryReader er,
+                                   DObj dObj,
+                                   uint pObjDataOffset) {
+      if (!this.AssertNullOrValidPointer_(pObjDataOffset)) {
+        return;
+      }
+
+      er.Position = this.dataBlockOffset_ + pObjDataOffset;
+
+      var pObj = new PObj();
+      dObj.PObjs.Add(pObj);
+
+      var pObjData = pObj.Data;
+      pObjData.Read(er);
+
+      var pObjType = pObjData.Flags & PObjFlags.OBJTYPE_SKIN;
+      switch (pObjType) {
+        case PObjFlags.OBJTYPE_SKIN: {
+          er.Position = this.dataBlockOffset_ +
+                        pObjData.VertexDescriptorListOffset;
+
+          // Reads vertex descriptors
+          while (true) {
+            var vertexDescriptor = new VertexDescriptor();
+            var vertexDescriptorData = vertexDescriptor.Data;
+            vertexDescriptorData.Read(er);
+
+            if (vertexDescriptorData.Attribute == GxAttribute.NULL) {
+              break;
+            }
+
+            pObj.VertexDescriptors.Add(vertexDescriptor);
+          }
+
+          var startingOffset =
+              er.Position =
+                  this.dataBlockOffset_ + pObjData.DisplayOffset;
+
+          // Reads display list
+          while (er.Position - startingOffset < pObjData.nDisp * 32) {
+            var opcode = (GxOpcode) er.ReadByte();
+            if (opcode == GxOpcode.NOP) {
+              break;
+            }
+
+            switch (opcode) {
+              case GxOpcode.LOAD_CP_REG: {
+                var command = er.ReadByte();
+                var value = er.ReadUInt32();
+
+                if (command == 0x50) {
+                  Dat.vertexDescriptorValue_ &= ~((uint) 0x1FFFF);
+                  Dat.vertexDescriptorValue_ |= value;
+                } else if (command == 0x60) {
+                  value <<= 17;
+                  Dat.vertexDescriptorValue_ &= 0x1FFFF;
+                  Dat.vertexDescriptorValue_ |= value;
+                } else {
+                  throw new NotImplementedException();
+                }
+
+                break;
+              }
+              case GxOpcode.LOAD_XF_REG: {
+                var lengthMinusOne = er.ReadUInt16();
+                var length = lengthMinusOne + 1;
+
+                // http://hitmen.c02.at/files/yagcd/yagcd/chap5.html#sec5.11.4
+                var firstXfRegisterAddress = er.ReadUInt16();
+
+                var values = er.ReadUInt32s(length);
+                // TODO: Implement
+                break;
+              }
+              case GxOpcode.DRAW_TRIANGLES:
+              case GxOpcode.DRAW_QUADS:
+              case GxOpcode.DRAW_TRIANGLE_STRIP: {
+                var vertexCount = er.ReadUInt16();
+
+                for (var i = 0; i < vertexCount; ++i) {
+                  foreach (var vertexDescriptor in
+                           pObj.VertexDescriptors) {
+                    var vertexAttribute = vertexDescriptor.Data.Attribute;
+                    var vertexFormat =
+                        vertexDescriptor.Data.AttributeType;
+
+                    var value = vertexFormat switch {
+                        GxAttributeType.DIRECT => er.ReadByte(),
+                        GxAttributeType.INDEX_8 => er.ReadByte(),
+                        GxAttributeType.INDEX_16 => er.ReadUInt16(),
+                        _ => throw new NotImplementedException(),
+                    };
+
+                    switch (vertexAttribute) {
+                      case GxAttribute.PNMTXIDX: {
+                        Asserts.Equal(0, value % 3);
+                        value /= 3;
+                        break;
+                      }
+                      case GxAttribute.POS: {
+                        break;
+                      }
+                      case GxAttribute.NRM: {
+                        break;
+                      }
+                    }
+                  }
+                }
+
+                break;
+              }
+              default: {
+                break;
+              }
+            }
+          }
+
+          break;
+        }
+        case PObjFlags.OBJTYPE_ENVELOPE: {
+          break;
+        }
+        case PObjFlags.OBJTYPE_SHAPEANIM: {
+          break;
+        }
+        default: throw new NotImplementedException();
+      }
+
+      this.ReadPObjIntoDObj_(er, dObj, pObjData.NextPObjOffset);
     }
   }
 
@@ -377,49 +403,6 @@ namespace dat.schema {
       }
       return RootNodeType.Undefined;
     }
-  }
-
-  public class ObjectStruct {
-    public ObjectStructData Data { get; } = new();
-    public string Name { get; set; }
-  }
-
-  [Schema]
-  public partial class ObjectStructData : IBiSerializable {
-    public uint StringOffset { get; set; }
-    public uint NextObjectOffset { get; set; }
-    public uint MaterialStructOffset { get; set; }
-    public uint MeshStructOffset { get; set; }
-  }
-
-  [Flags]
-  public enum PObjFlags : ushort {
-    OBJTYPE_SKIN = 0 << 12,
-    OBJTYPE_SHAPEANIM = 1 << 12,
-    OBJTYPE_ENVELOPE = 2 << 12,
-    OBJTYPE_MASK = 0x3000,
-
-    CULLFRONT = 1 << 14,
-    CULLBACK = 1 << 15,
-  }
-
-  [Schema]
-  public partial class PObjData : IBiSerializable {
-    public uint StringOffset { get; set; }
-    public uint NextPObjOffset { get; set; }
-    public uint VertexDescriptorListOffset { get; set; }
-    public PObjFlags Flags { get; set; }
-    public ushort nDisp { get; set; }
-    public ushort DisplayOffset { get; set; }
-    public ushort ContentsOffset { get; set; }
-  }
-
-  public class PObj {
-    public PObjData Data { get; set; } = new();
-
-    public List<VertexDescriptor> VertexDescriptors { get; } = new();
-
-    public List<(ushort, ushort, ushort)> PositionIndices { get; } = new();
   }
 
   [Schema]
