@@ -387,7 +387,6 @@ namespace cmb.api {
                             .Select(value => value * shape.color.Scale)
                             .ToArray();
 
-            //Asserts.Equal(DataType.Float, shape.color.dataType);
             finVertex.SetColorBytes((byte) (colorValues[0] * 255),
                                     (byte) (colorValues[1] * 255),
                                     (byte) (colorValues[2] * 255),
@@ -476,10 +475,6 @@ namespace cmb.api {
                                                finBones[boneIndex]));
           }
 
-          /*if (skinningModes[i].Value == SkinningMode.Single) {
-            finVertex.SetColor(ColorImpl.FromRgbaBytes(255, 0, 0, 255));
-          } else {
-          }*/
           finVertex.SetColor(ColorImpl.FromSystemColor(Color.White));
         }
 
