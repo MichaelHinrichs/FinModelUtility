@@ -6,6 +6,7 @@
     <AssemblyName>cmb</AssemblyName>
     <RootNamespace>cmb</RootNamespace>
     <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <!--

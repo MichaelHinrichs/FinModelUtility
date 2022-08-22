@@ -5,6 +5,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <Platforms>AnyCPU;x86;x64</Platforms>
     <RootNamespace>hw</RootNamespace>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
