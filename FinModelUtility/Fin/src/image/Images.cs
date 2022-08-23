@@ -107,6 +107,8 @@ namespace fin.image {
       });
     }
 
+    public Bitmap AsBitmap() => this.impl_;
+
     public void ExportToStream(Stream stream, LocalImageFormat imageFormat)
       => this.impl_.Save(
           stream, FinImage.ConvertFinImageFormatToSystem(imageFormat));
@@ -172,6 +174,8 @@ namespace fin.image {
       });
     }
 
+    public Bitmap AsBitmap() => this.impl_;
+
     public void ExportToStream(Stream stream, LocalImageFormat imageFormat)
       => this.impl_.Save(
           stream, FinImage.ConvertFinImageFormatToSystem(imageFormat));
@@ -225,6 +229,8 @@ namespace fin.image {
       });
     }
 
+    public Bitmap AsBitmap() => this.impl_.AsBitmap();
+
     public void ExportToStream(Stream stream, LocalImageFormat imageFormat)
       => this.impl_.ExportToStream(stream, imageFormat);
   }
@@ -273,6 +279,8 @@ namespace fin.image {
         mutateHandler(iGetHandler, iSetHandler);
       });
     }
+
+    public Bitmap AsBitmap() => this.impl_.AsBitmap();
 
     public void ExportToStream(Stream stream, LocalImageFormat imageFormat)
       => this.impl_.ExportToStream(stream, imageFormat);

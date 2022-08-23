@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 
+using fin.image;
 using fin.io;
 using fin.language.equations.fixedFunction;
 using fin.util.image;
@@ -47,6 +48,9 @@ namespace fin.model.impl {
         this.materials_.Add(material);
         return material;
       }
+
+      public ITexture CreateTexture(IImage imageData)
+        => new TextureImpl(imageData.AsBitmap());
 
       public ITexture CreateTexture(Bitmap imageData)
         => new TextureImpl(imageData);

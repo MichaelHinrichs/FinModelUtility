@@ -1,8 +1,8 @@
-﻿using System.Drawing;
-using System.Numerics;
+﻿using System.Numerics;
 
 using fin.data;
 using fin.data.queue;
+using fin.image;
 using fin.io;
 using fin.math;
 using fin.model;
@@ -135,8 +135,7 @@ namespace modl.api {
               var textureFile =
                   modlFile.Parent.Files.Single(
                       file => file.Name.ToLower() == $"{textureName}.png");
-              var image =
-                  (Bitmap) Image.FromFile(textureFile.FullName);
+              var image = FinImage.FromFile(textureFile.Impl);
 
               var finTexture =
                   model.MaterialManager.CreateTexture(image);

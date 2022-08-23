@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
 
+using fin.image;
 using fin.io;
 using fin.language.equations.fixedFunction;
 using fin.util.image;
@@ -16,6 +17,7 @@ namespace fin.model {
     ILayerMaterial AddLayerMaterial();
     IFixedFunctionMaterial AddFixedFunctionMaterial();
 
+    ITexture CreateTexture(IImage imageData);
     ITexture CreateTexture(Bitmap imageData);
   }
 

@@ -10,6 +10,7 @@ using fin.model;
 using bmd.GCN;
 using bmd.schema.bmd.mat3;
 
+using fin.image;
 using fin.language.equations.fixedFunction;
 using fin.language.equations.fixedFunction.impl;
 using fin.util.asserts;
@@ -383,10 +384,17 @@ namespace bmd.exporter {
           return;
         }
 
-        var colorBitmap = new Bitmap(1, 1);
-        colorBitmap.SetPixel(0, 0, colorConstant);
+        var colorImage = new Rgba32Image(1, 1);
+        colorImage.Mutate(
+            (_, setHandler) =>
+                setHandler(0,
+                           0,
+                           colorConstant.R,
+                           colorConstant.G,
+                           colorConstant.B,
+                           colorConstant.A));
 
-        var colorTexture = materialManager.CreateTexture(colorBitmap);
+        var colorTexture = materialManager.CreateTexture(colorImage);
         material.CompiledTexture = colorTexture;
       }
     }
@@ -838,7 +846,7 @@ namespace bmd.exporter {
         if (TryGetEnumIndex_(
                 alphaSource,
                 GxCa.GX_CA_A0,
-                GxCa.GX_CA_A2, 
+                GxCa.GX_CA_A2,
                 out var caIndex)) {
           var index = 1 + caIndex;
           var constColorImpl = this.GetCCColor_(index);
