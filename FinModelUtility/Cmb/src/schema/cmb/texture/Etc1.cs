@@ -142,14 +142,14 @@ namespace cmb.schema.cmb.texture {
 
           if ((flipBit == 0x01 && py < 2) || (flipBit == 0x00 && px < 2)) {
             int modifier = Etc1.ETC1_MODIFIER_TABLES_[tableIndex1, index];
-            Etc1.WriteClampedByte_(decodedData, ref decodedPos, b1 + modifier);
-            Etc1.WriteClampedByte_(decodedData, ref decodedPos, g1 + modifier);
             Etc1.WriteClampedByte_(decodedData, ref decodedPos, r1 + modifier);
+            Etc1.WriteClampedByte_(decodedData, ref decodedPos, g1 + modifier);
+            Etc1.WriteClampedByte_(decodedData, ref decodedPos, b1 + modifier);
           } else {
             int modifier = Etc1.ETC1_MODIFIER_TABLES_[tableIndex2, index];
-            Etc1.WriteClampedByte_(decodedData, ref decodedPos, b2 + modifier);
-            Etc1.WriteClampedByte_(decodedData, ref decodedPos, g2 + modifier);
             Etc1.WriteClampedByte_(decodedData, ref decodedPos, r2 + modifier);
+            Etc1.WriteClampedByte_(decodedData, ref decodedPos, g2 + modifier);
+            Etc1.WriteClampedByte_(decodedData, ref decodedPos, b2 + modifier);
           }
         }
       }

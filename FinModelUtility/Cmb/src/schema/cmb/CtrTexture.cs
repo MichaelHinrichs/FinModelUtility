@@ -5,6 +5,7 @@ using System.IO;
 
 using cmb.schema.cmb.texture;
 
+using fin.image;
 using fin.util.asserts;
 using fin.util.color;
 using fin.util.image;
@@ -71,7 +72,7 @@ namespace cmb.schema.cmb {
       };
 
 
-    public unsafe Bitmap DecodeImage(
+    public IImage DecodeImage(
         byte[] input,
         Texture texture) {
       // M-1: Note: I don't think HiLo8 exist for .cmb
@@ -84,116 +85,102 @@ namespace cmb.schema.cmb {
       var width = texture.width;
       var height = texture.height;
 
-      var output = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+      var output = new Rgba32Image(width, height);
+      output.Mutate((_, setHandler) => {
+        using var er =
+            new EndianBinaryReader(new MemoryStream(input),
+                                   Endianness.LittleEndian);
 
-      BitmapUtil.InvokeAsLocked(
-          output,
-          bitmapData => {
-            var o = (byte*) bitmapData.Scan0.ToPointer();
+        for (var ty = 0; ty < height; ty += 8) {
+          for (var tx = 0; tx < width; tx += 8) {
+            for (var px = 0; px < 64; ++px) {
+              byte r, g, b, a;
 
-            using var er =
-                new EndianBinaryReader(new MemoryStream(input),
-                                       Endianness.LittleEndian);
-
-            for (var ty = 0; ty < height; ty += 8) {
-              for (var tx = 0; tx < width; tx += 8) {
-                for (var px = 0; px < 64; ++px) {
-                  var x = this.swizzleLut_[px] & 7;
-                  var y = (this.swizzleLut_[px] - x) >> 3;
-
-                  var OOffs = (tx + x + (ty + y) * width) * 4;
-
-                  byte r, g, b, a;
-
-                  switch (format) {
-                    case GlTextureFormat.RGB8: {
-                      a = 255;
-                      b = er.ReadByte();
-                      g = er.ReadByte();
-                      r = er.ReadByte();
-                      break;
-                    }
-                    case GlTextureFormat.RGBA8: {
-                      a = er.ReadByte();
-                      b = er.ReadByte();
-                      g = er.ReadByte();
-                      r = er.ReadByte();
-                      break;
-                    }
-                    case GlTextureFormat.RGBA5551: {
-                      var value = er.ReadUInt16();
-                      ColorUtil.SplitRgb5A1(value, out r, out g, out b, out a);
-                      break;
-                    }
-                    case GlTextureFormat.RGB565: {
-                      var value = er.ReadUInt16();
-                      a = 255;
-                      ColorUtil.SplitRgb565(value, out r, out g, out b);
-                      break;
-                    }
-                    case GlTextureFormat.RGBA4444: {
-                      var value = er.ReadUInt16();
-                      ColorUtil.SplitRgba4444(value,
-                                              out r,
-                                              out g,
-                                              out b,
-                                              out a);
-                      break;
-                    }
-                    case GlTextureFormat.LA8: {
-                      a = er.ReadByte();
-                      b = g = r = er.ReadByte();
-                      break;
-                    }
-                    case GlTextureFormat.HiLo8: {
-                      throw new NotImplementedException();
-                      break;
-                    }
-                    case GlTextureFormat.A8: {
-                      a = er.ReadByte();
-                      b = 255;
-                      g = 255;
-                      r = 255;
-                      break;
-                    }
-                    case GlTextureFormat.LA4: {
-                      throw new NotImplementedException();
-                      break;
-                    }
-                    case GlTextureFormat.L4: {
-                      throw new NotImplementedException();
-                      break;
-                    }
-                    case GlTextureFormat.A4: {
-                      throw new NotImplementedException();
-                      break;
-                    }
-                    case GlTextureFormat.L8:
-                    case GlTextureFormat.Gas:
-                    case GlTextureFormat.Shadow: {
-                      a = 255;
-                      b = g = r = er.ReadByte();
-                      break;
-                    }
-                    default: throw new ArgumentOutOfRangeException();
-                  }
-
-                  o[OOffs + 0] = b;
-                  o[OOffs + 1] = g;
-                  o[OOffs + 2] = r;
-                  o[OOffs + 3] = a;
+              switch (format) {
+                case GlTextureFormat.RGB8: {
+                  a = 255;
+                  b = er.ReadByte();
+                  g = er.ReadByte();
+                  r = er.ReadByte();
+                  break;
                 }
+                case GlTextureFormat.RGBA8: {
+                  a = er.ReadByte();
+                  b = er.ReadByte();
+                  g = er.ReadByte();
+                  r = er.ReadByte();
+                  break;
+                }
+                case GlTextureFormat.RGBA5551: {
+                  var value = er.ReadUInt16();
+                  ColorUtil.SplitRgb5A1(value, out r, out g, out b, out a);
+                  break;
+                }
+                case GlTextureFormat.RGB565: {
+                  var value = er.ReadUInt16();
+                  a = 255;
+                  ColorUtil.SplitRgb565(value, out r, out g, out b);
+                  break;
+                }
+                case GlTextureFormat.RGBA4444: {
+                  var value = er.ReadUInt16();
+                  ColorUtil.SplitRgba4444(value,
+                                          out r,
+                                          out g,
+                                          out b,
+                                          out a);
+                  break;
+                }
+                case GlTextureFormat.LA8: {
+                  a = er.ReadByte();
+                  b = g = r = er.ReadByte();
+                  break;
+                }
+                case GlTextureFormat.HiLo8: {
+                  throw new NotImplementedException();
+                  break;
+                }
+                case GlTextureFormat.A8: {
+                  a = er.ReadByte();
+                  b = 255;
+                  g = 255;
+                  r = 255;
+                  break;
+                }
+                case GlTextureFormat.LA4: {
+                  throw new NotImplementedException();
+                  break;
+                }
+                case GlTextureFormat.L4: {
+                  throw new NotImplementedException();
+                  break;
+                }
+                case GlTextureFormat.A4: {
+                  throw new NotImplementedException();
+                  break;
+                }
+                case GlTextureFormat.L8:
+                case GlTextureFormat.Gas:
+                case GlTextureFormat.Shadow: {
+                  a = 255;
+                  b = g = r = er.ReadByte();
+                  break;
+                }
+                default: throw new ArgumentOutOfRangeException();
               }
+
+              var x = this.swizzleLut_[px] & 7;
+              var y = (this.swizzleLut_[px] - x) >> 3;
+              setHandler(x, y, r, g, b, a);
             }
-          });
+          }
+        }
+      });
 
       return output;
     }
 
-    private int[] xt_ = {0, 4, 0, 4};
-    private int[] yt_ = {0, 0, 4, 4};
-
-    private unsafe Bitmap Etc1Decompress_(byte[] data, Texture texture) {
+    private IImage Etc1Decompress_(byte[] data, Texture texture) {
       using var er =
           new EndianBinaryReader(new MemoryStream(data),
                                  Endianness.LittleEndian);
@@ -207,16 +194,21 @@ namespace cmb.schema.cmb {
       // The expected size will not be exactly the same as the number of decompressed bytes if there are mipmaps.
       Asserts.True(width * height * 4 <= bytes.Length);
 
-      var output = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+      var output = new Rgba32Image(width, height);
+      output.Mutate((_, setHandler) => {
+        for (var y = 0; y < height; ++y) {
+          for (var x = 0; x < width; ++x) {
+            var i = 4 * (y * width + x);
 
-      BitmapUtil.InvokeAsLocked(
-          output,
-          bitmapData => {
-            var o = (byte*) bitmapData.Scan0.ToPointer();
-            for (var i = 0; i < width * height * 4; ++i) {
-              o[i] = bytes[i];
-            }
-          });
+            var r = bytes[i + 0];
+            var g = bytes[i + 1];
+            var b = bytes[i + 2];
+            var a = bytes[i + 3];
+
+            setHandler(x, y, r, g, b, a);
+          }
+        }
+      });
 
       return output;
     }

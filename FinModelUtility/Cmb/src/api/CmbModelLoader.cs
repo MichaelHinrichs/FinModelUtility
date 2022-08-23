@@ -10,6 +10,7 @@ using cmb.schema.ctxb;
 using cmb.schema.shpa;
 
 using fin.data;
+using fin.image;
 using fin.io;
 using fin.math;
 using fin.model;
@@ -195,12 +196,12 @@ namespace cmb.api {
                var position = cmb.startOffset +
                               cmb.header.textureDataOffset +
                               cmbTexture.dataOffset;
-               Bitmap bitmap;
+               IImage image;
                if (position != 0) {
                  r.Position = position;
                  var data =
                      r.ReadBytes((int) cmbTexture.dataLength);
-                 bitmap =
+                 image =
                      ctrTexture.DecodeImage(data, cmbTexture);
                } else {
                  var ctxb =
@@ -208,11 +209,11 @@ namespace cmb.api {
                          .Select(
                              fileAndCtxb => fileAndCtxb.Item2)
                          .Single(ctxb => ctxb.Chunk.Entry.name == cmbTexture.name);
-                 bitmap =
+                 image =
                      ctrTexture.DecodeImage(ctxb.Data,
                                             cmbTexture);
                }
-               return bitmap;
+               return image;
              })
              .ToArray();
 
