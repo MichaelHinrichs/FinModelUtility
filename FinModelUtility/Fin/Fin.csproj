@@ -18,28 +18,6 @@
     <Compile Remove="src\exporter\assimp\AssimpMeshBuilder.cs" />
     <Compile Remove="src\exporter\assimp\AssimpSkeletonBuilder.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <None Remove="lib\freeglut.dll" />
-    <None Remove="lib\Tao.DevIl.dll" />
-    <None Remove="lib\Tao.DevIl.xml" />
-    <None Remove="lib\Tao.FreeGlut.dll" />
-    <None Remove="lib\Tao.FreeGlut.xml" />
-    <None Remove="lib\Tao.OpenGl.dll" />
-    <None Remove="lib\Tao.OpenGl.xml" />
-    <None Remove="lib\Tao.Platform.Windows.dll" />
-    <None Remove="lib\Tao.Platform.Windows.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="lib\freeglut.dll" />
-    <Content Include="lib\Tao.DevIl.dll" />
-    <Content Include="lib\Tao.DevIl.xml" />
-    <Content Include="lib\Tao.FreeGlut.dll" />
-    <Content Include="lib\Tao.FreeGlut.xml" />
-    <Content Include="lib\Tao.OpenGl.dll" />
-    <Content Include="lib\Tao.OpenGl.xml" />
-    <Content Include="lib\Tao.Platform.Windows.dll" />
-    <Content Include="lib\Tao.Platform.Windows.xml" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AssimpNet" Version="5.0.0-beta1" />
