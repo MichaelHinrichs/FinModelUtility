@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 
 
@@ -115,12 +114,12 @@ namespace fin.image {
 
 
   public static class MipMapUtil {
-    public static IMipMap<Bitmap> From(IList<Bitmap> bitmaps) =>
-        new MipMap<Bitmap>(bitmaps.Select(bitmap => MipMapUtil.From(bitmap))
-                                  .ToList());
+    public static IMipMap<IImage> From(IList<IImage> images) =>
+        new MipMap<IImage>(images.Select(image => MipMapUtil.From(image))
+                                 .ToList());
 
-    public static IMipMapLevel<Bitmap> From(Bitmap bitmap) =>
-        new MipMapLevel<Bitmap>(bitmap, bitmap.Width, bitmap.Height);
+    public static IMipMapLevel<IImage> From(IImage image) =>
+        new MipMapLevel<IImage>(image, image.Width, image.Height);
   }
 
   public class MipMapLevel<TImage> : IMipMapLevel<TImage>

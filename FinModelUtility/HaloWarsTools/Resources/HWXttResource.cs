@@ -6,10 +6,12 @@ using System.Runtime.InteropServices;
 
 using Dxt;
 
+using fin.image;
+
 
 namespace HaloWarsTools {
   public class HWXttResource : HWBinaryResource {
-    public Bitmap AlbedoTexture { get; private set; }
+    public IImage AlbedoTexture { get; private set; }
 
     public static new HWXttResource
         FromFile(HWContext context, string filename)
@@ -26,7 +28,7 @@ namespace HaloWarsTools {
                   .XTT_AtlasChunkAlbedo));
     }
 
-    private Bitmap ExtractEmbeddedDXT1(byte[] bytes,
+    private IImage ExtractEmbeddedDXT1(byte[] bytes,
                                        HWBinaryResourceChunk chunk) {
       // Decompress DXT1 texture and turn it into a Bitmap
       var width =

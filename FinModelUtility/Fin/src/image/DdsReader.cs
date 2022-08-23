@@ -1,44 +1,62 @@
 ﻿using System;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 
-using fin.util.image;
+using ImageFormat = Pfim.ImageFormat;
 
 
 namespace fin.image {
   public class DdsReader {
-    public unsafe IMipMap<Bitmap> Read(Stream stream) {
+    public IMipMap<IImage> Read(Stream stream) {
       using var pfimImage = Pfim.Pfim.FromStream(stream);
-
-      // Convert from Pfim's backend agnostic image format into GDI+'s image format
-      var format = pfimImage.Format switch {
-          Pfim.ImageFormat.Rgba32 => PixelFormat.Format32bppArgb,
-          Pfim.ImageFormat.Rgb24 => PixelFormat.Format24bppRgb,
-          _ => throw new NotImplementedException(
-                   $"Unsupported Pfim format: {pfimImage.Format}")
-      };
 
       return MipMapUtil.From(
           pfimImage.MipMaps.Select(pfimMipMap => {
                      var mmWidth = pfimMipMap.Width;
                      var mmHeight = pfimMipMap.Height;
 
-                     var bitmap = new Bitmap(mmWidth, mmHeight, format);
-                     BitmapUtil.InvokeAsLocked(
-                         bitmap,
-                         pfimImage,
-                         (bmpData, pfimImage) => {
-                           var ptr = (byte*) bmpData.Scan0.ToPointer();
-                           for (var i = 0;
-                                i < pfimMipMap.Stride * mmHeight;
-                                ++i) {
-                             ptr[i] = pfimImage.Data[pfimMipMap.DataOffset + i];
+                     switch (pfimImage.Format) {
+                       case ImageFormat.Rgba32: {
+                         var image = new Rgba32Image(mmWidth, mmHeight);
+                         image.Mutate((_, setHandler) => {
+                           for (var y = 0; y < mmHeight; ++y) {
+                             for (var x = 0; x < mmWidth; ++x) {
+                               var i = pfimMipMap.DataOffset +
+                                       4 * (y * mmWidth + x);
+
+                               var b = pfimImage.Data[i + 0];
+                               var g = pfimImage.Data[i + 1];
+                               var r = pfimImage.Data[i + 2];
+                               var a = pfimImage.Data[i + 3];
+
+                               setHandler(x, y, r, g, b, a);
+                             }
                            }
                          });
+                         return image as IImage;
+                       }
+                       case ImageFormat.Rgb24: {
+                         var image = new Rgb24Image(mmWidth, mmHeight);
+                         image.Mutate((_, setHandler) => {
+                           for (var y = 0; y < mmHeight; ++y) {
+                             for (var x = 0; x < mmWidth; ++x) {
+                               var i = pfimMipMap.DataOffset +
+                                       3 * (y * mmWidth + x);
 
-                     return bitmap;
+                               var b = pfimImage.Data[i + 0];
+                               var g = pfimImage.Data[i + 1];
+                               var r = pfimImage.Data[i + 2];
+
+                               setHandler(x, y, r, g, b);
+                             }
+                           }
+                         });
+                         return image;
+                       }
+                       default:
+                         throw new NotImplementedException(
+                             $"Unsupported Pfim format: {pfimImage.Format}");
+                     }
                    })
                    .ToList());
     }

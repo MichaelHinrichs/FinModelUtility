@@ -5,6 +5,7 @@ using System.Numerics;
 
 using Dxt;
 
+using fin.image;
 using fin.model;
 using fin.model.impl;
 
@@ -13,8 +14,8 @@ namespace HaloWarsTools {
   public class HWXtdResource : HWBinaryResource {
     public IModel Mesh { get; private set; }
 
-    public Bitmap AmbientOcclusionTexture { get; private set; }
-    public Bitmap OpacityTexture { get; private set; }
+    public IImage AmbientOcclusionTexture { get; private set; }
+    public IImage OpacityTexture { get; private set; }
 
     public static new HWXtdResource FromFile(HWContext context, string filename)
       => GetOrCreateFromFile(context, filename, HWResourceType.Xtd) as
@@ -33,7 +34,7 @@ namespace HaloWarsTools {
               GetFirstChunkOfType(HWBinaryResourceChunkType.XTD_AlphaChunk));
     }
 
-    private Bitmap ExtractEmbeddedDXT5A(byte[] bytes,
+    private IImage ExtractEmbeddedDXT5A(byte[] bytes,
                                         HWBinaryResourceChunk chunk) {
       // Get raw embedded DXT5 texture from resource file
       var width = (int) Math.Sqrt(chunk.Size * 2);

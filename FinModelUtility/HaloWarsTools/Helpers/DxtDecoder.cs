@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 
 using fin.image;
 using fin.io;
+using fin.util.color;
 using fin.util.image;
 
 using texture;
@@ -29,7 +30,7 @@ namespace Dxt {
       NEGATIVE_Z,
     }
 
-    public static (string, IDxt<Bitmap>) ReadDds(IFile ddsFile) {
+    public static (string, IDxt<IImage>) ReadDds(IFile ddsFile) {
       using var ddsStream = ddsFile.OpenRead();
       var er = new EndianBinaryReader(ddsStream, Endianness.LittleEndian);
       er.AssertString("DDS ");
@@ -118,7 +119,7 @@ namespace Dxt {
             if (!isCubeMap) {
               return (
                        q000Text,
-                       new DxtImpl<Bitmap>(
+                       new DxtImpl<IImage>(
                            ToneMapAndConvertHdrMipMapsToBitmap(hdrMipMap)));
             }
 
@@ -153,13 +154,14 @@ namespace Dxt {
           }
 
           return (q000Text,
-                  new DxtImpl<Bitmap>(
+                  new DxtImpl<IImage>(
                       ToneMapAndConvertHdrCubemapToBitmap(hdrCubeMap)));
         }
 
         default: {
           ddsStream.Position = 0;
-          return (pfFourCc, new DxtImpl<Bitmap>(new DdsReader().Read(ddsStream)));
+          return (pfFourCc,
+                  new DxtImpl<IImage>(new DdsReader().Read(ddsStream)));
         }
       }
     }
@@ -196,7 +198,7 @@ namespace Dxt {
       return hdr;
     }
 
-    public static IMipMap<Bitmap> ToneMapAndConvertHdrMipMapsToBitmap(
+    public static IMipMap<IImage> ToneMapAndConvertHdrMipMapsToBitmap(
         IMipMap<IList<float>> hdrMipMap) {
       var max = -1f;
       foreach (var hdr in hdrMipMap) {
@@ -207,7 +209,7 @@ namespace Dxt {
     }
 
 
-    public static ICubeMap<Bitmap> ToneMapAndConvertHdrCubemapToBitmap(
+    public static ICubeMap<IImage> ToneMapAndConvertHdrCubemapToBitmap(
         ICubeMap<IList<float>> hdrCubeMap) {
       // Tone-maps the HDR image so that it within [0, 1].
       // TODO: Is there a better algorithm than just the max?
@@ -246,7 +248,7 @@ namespace Dxt {
                               hdrCubeMap.NegativeZ, max)
                           : null;
 
-      return new CubeMapImpl<Bitmap> {
+      return new CubeMapImpl<IImage> {
           PositiveX = positiveX,
           NegativeX = negativeX,
           PositiveY = positiveY,
@@ -256,16 +258,16 @@ namespace Dxt {
       };
     }
 
-    private static IMipMap<Bitmap> ConvertHdrMipmapsToBitmap(
+    private static IMipMap<IImage> ConvertHdrMipmapsToBitmap(
         IMipMap<IList<float>> hdrMipMap,
         float max)
-      => new MipMap<Bitmap>(
+      => new MipMap<IImage>(
           hdrMipMap.Select(
                        hdr => {
                          var width = hdr.Width;
                          var height = hdr.Height;
-                         return (IMipMapLevel<Bitmap>) new
-                             MipMapLevel<Bitmap>(
+                         return (IMipMapLevel<IImage>) new
+                             MipMapLevel<IImage>(
                                  DxtDecoder.ConvertHdrToBitmap(hdr.Impl, width,
                                    height, max),
                                  width,
@@ -273,15 +275,13 @@ namespace Dxt {
                        })
                    .ToList());
 
-    private static unsafe Bitmap ConvertHdrToBitmap(
+    private static unsafe IImage ConvertHdrToBitmap(
         IList<float> hdr,
         int width,
         int height,
         float max) {
-      var bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
-      BitmapUtil.InvokeAsLocked(bitmap, bmpData => {
-        var ptr = (byte*) bmpData.Scan0.ToPointer();
-
+      var bitmap = new Rgba32Image(width, height);
+      bitmap.Mutate((_, setHandler) => {
         var offset = 0;
         for (var y = 0; y < height; ++y) {
           for (var x = 0; x < width; ++x) {
@@ -293,12 +293,7 @@ namespace Dxt {
             // TODO: How is this factored in?
             var a = 255f; //hdrImage[offset + 3] / max * 255;
 
-            ptr[offset + 0] = (byte) b;
-            ptr[offset + 1] = (byte) g;
-            ptr[offset + 2] = (byte) r;
-            ptr[offset + 3] = (byte) a;
-
-            offset += 4;
+            setHandler(x, y, (byte) r, (byte) g, (byte) b, (byte) a);
           }
         }
       });
@@ -314,7 +309,7 @@ namespace Dxt {
     private static float GammaToLinear(float gamma)
       => MathF.Pow(gamma, 1 / 2.2f);
 
-    public static unsafe Bitmap DecompressDXT1(
+    public static unsafe IImage DecompressDXT1(
         byte[] src,
         int srcOffset,
         int width,
@@ -326,12 +321,12 @@ namespace Dxt {
       int[] buffer = new int[16];
       int[] colors = new int[4];
 
-      var bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
-      BitmapUtil.InvokeAsLocked(bitmap, bmpData => {
-        var dst = (byte*) bmpData.Scan0.ToPointer();
-
+      var bitmap = new Rgba32Image(width, height);
+      bitmap.Mutate((_, setHandler) => {
         for (int t = 0; t < bch; t++) {
           for (int s = 0; s < bcw; s++, offset += 8) {
+            var x = s * 4;
+
             int r0, g0, b0, r1, g1, b1;
             int q0 = src[offset + 0] | src[offset + 1] << 8;
             int q1 = src[offset + 2] | src[offset + 3] << 8;
@@ -354,19 +349,19 @@ namespace Dxt {
             }
 
             uint d = BitConverter.ToUInt32(src, offset + 4);
-            for (int i = 0; i < 16; i++, d >>= 2) {
+            for (var i = 0; i < 16; i++, d >>= 2) {
               buffer[i] = colors[d & 3];
             }
 
-            int clen = (s < bcw - 1 ? 4 : clen_last);
+            var clen = (s < bcw - 1 ? 4 : clen_last);
             for (int i = 0, y = t * 4; i < 4 && y < height; i++, y++) {
-              var dstBuffer = dst + (y * width + s * 4) * 4;
-              var dstPtr = (IntPtr) dstBuffer;
+              for (var c = 0; c < clen; ++c) {
+                var color = buffer[4 * i + c];
 
-              Marshal.Copy(buffer,
-                           i * 4,
-                           dstPtr,
-                           clen);
+                SplitColor_(color, out var r, out var g, out var b, out var a);
+
+                setHandler(x + c, y, r, g, b, a);
+              }
             }
           }
         }
@@ -487,7 +482,7 @@ namespace Dxt {
   Asserts.Equal(128 + imageSize, ew.Position);
 }*/
 
-    public static unsafe Bitmap DecompressDxt5a(
+    public static unsafe IImage DecompressDxt5a(
         byte[] src,
         int srcOffset,
         int width,
@@ -502,10 +497,8 @@ namespace Dxt {
       var rIndices = new byte[16];
 
       // TODO: Support grayscale?
-      var bitmap = new Bitmap(width, height, PixelFormat.Format24bppRgb);
-      BitmapUtil.InvokeAsLocked(bitmap, bmpData => {
-        var dst = (byte*) bmpData.Scan0.ToPointer();
-
+      var bitmap = new I8Image(width, height);
+      bitmap.Mutate((_, setHandler) => {
         for (var i = 0; i < imageSize; i += 8) {
           var iOff = srcOffset + i;
 
@@ -557,10 +550,7 @@ namespace Dxt {
               var outX = (tileX * blockSize) + j;
               var outY = tileY * blockSize + k;
 
-              var outIndex = (outY * width + outX) * 3;
-
-              dst[outIndex] =
-                  dst[outIndex + 1] = dst[outIndex + 2] = value;
+              setHandler(outX, outY, value);
             }
           }
         }
@@ -582,6 +572,18 @@ namespace Dxt {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int Color(int r, int g, int b, int a) {
       return r << 16 | g << 8 | b | a << 24;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void SplitColor_(int color,
+                                    out byte r,
+                                    out byte g,
+                                    out byte b,
+                                    out byte a) {
+      r = (byte) ((color >> 16) & 0xff);
+      g = (byte) ((color >> 8) & 0xff);
+      b = (byte) (color & 0xff);
+      a = (byte) ((color >> 24) & 0xff);
     }
   }
 }
