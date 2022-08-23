@@ -3,7 +3,7 @@ using CommandLine.Text;
 
 using uni.debug;
 using uni.games.animal_crossing;
-using uni.games.battalion_wars;
+using uni.games.battalion_wars_1;
 using uni.games.glover;
 using uni.games.halo_wars;
 using uni.games.luigis_mansion;
@@ -54,7 +54,7 @@ namespace uni.cli {
                   new AnimalCrossingExtractor().ExtractAll();
                 })
                 .WithParsed((BattalionWarsOptions _) => {
-                  new BattalionWarsExtractor().ExtractAll();
+                  new BattalionWars1Extractor().ExtractAll();
                 })
                 .WithParsed((HaloWarsOptions _) => {
                   new HaloWarsExtractor().ExtractAll();
@@ -95,8 +95,6 @@ namespace uni.cli {
                 .WithParsed((DebugOptions _) => {
                   /*var window = new DebugWindow();
                   window.Run();*/
-
-                  new DebugBattalionWars().Main();
                 })
                 .WithNotParsed(parseErrors => errors = parseErrors);
 

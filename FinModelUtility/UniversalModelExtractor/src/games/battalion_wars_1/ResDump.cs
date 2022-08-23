@@ -7,7 +7,7 @@ using modl.schema.res;
 using uni.platforms.gcn.tools;
 
 
-namespace uni.games.battalion_wars {
+namespace uni.games.battalion_wars_1 {
   public class ResDump {
     public bool Run(IFileHierarchyFile resFile) {
       Asserts.True(

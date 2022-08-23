@@ -1,6 +1,6 @@
 ﻿using fin.model;
 
-using uni.games.battalion_wars;
+using uni.games.battalion_wars_1;
 using uni.games.glover;
 using uni.games.great_ace_attorney;
 using uni.games.halo_wars;
@@ -20,7 +20,7 @@ namespace uni.games {
       var rootModelDirectory = new RootModelDirectory();
 
       var gatherers = new IModelFileGatherer[] {
-          new BattalionWarsFileGatherer(),
+          new BattalionWars1FileGatherer(),
           new GloverModelFileGatherer(),
           new GreatAceAttorneyModelFileGatherer(),
           new HaloWarsModelFileGatherer(),

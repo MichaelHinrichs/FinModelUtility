@@ -8,14 +8,14 @@ using uni.platforms.gcn;
 using uni.util.io;
 
 
-namespace uni.games.battalion_wars {
+namespace uni.games.battalion_wars_1 {
   public class
-      BattalionWarsFileGatherer : IModelFileGatherer<ModlModelFileBundle> {
+      BattalionWars1FileGatherer : IModelFileGatherer<ModlModelFileBundle> {
     public IModelDirectory<ModlModelFileBundle>? GatherModelFileBundles(
         bool assert) {
       var battalionWarsRom =
           DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
-              "battalion_wars.gcm");
+              "battalion_wars_1.gcm");
 
       if (battalionWarsRom == null) {
         return null;

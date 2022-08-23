@@ -8,8 +8,8 @@ namespace uni.cli {
         HelpText = "Extract models from Animal Crossing.")]
   public class AnimalCrossingOptions {}
 
-  [Verb("battalion_wars",
-        HelpText = "Extract models from Battalion Wars.")]
+  [Verb("battalion_wars_1",
+        HelpText = "Extract models from Battalion Wars 1.")]
   public class BattalionWarsOptions {}
 
   [Verb("halo_wars",
