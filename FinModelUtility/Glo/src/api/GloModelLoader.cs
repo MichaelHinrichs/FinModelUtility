@@ -11,6 +11,7 @@ using glo.schema;
 using System.Numerics;
 
 using fin.data;
+using fin.image;
 using fin.util.asserts;
 using fin.util.image;
 
@@ -72,12 +73,9 @@ namespace glo.api {
               return null;
             }
 
-            using var rawTextureImage =
-                (Bitmap.FromFile(textureFile.FullName) as Bitmap)!;
-
+            using var rawTextureImage = FinImage.FromFile(textureFile.Impl);
             var textureImageWithAlpha =
-                GloModelLoader
-                    .AddTransparencyToGloImage_(rawTextureImage);
+                GloModelLoader.AddTransparencyToGloImage_(rawTextureImage);
 
             var finTexture = finModel.MaterialManager.CreateTexture(
                 textureImageWithAlpha);
@@ -202,7 +200,8 @@ namespace glo.api {
               Asserts.True(rotateKey.Time > prevTime);
               prevTime = rotateKey.Time;
 
-              if (!(rotateKey.Time >= startFrame && rotateKey.Time <= endFrame)) {
+              if (!(rotateKey.Time >= startFrame &&
+                    rotateKey.Time <= endFrame)) {
                 continue;
               }
 
@@ -310,36 +309,28 @@ namespace glo.api {
       return finModel;
     }
 
-    private static Bitmap AddTransparencyToGloImage_(Bitmap rawImage) {
-      var textureWidth = rawImage.Width;
-      var textureHeight = rawImage.Height;
+    private static IImage AddTransparencyToGloImage_(IImage rawImage) {
+      var width = rawImage.Width;
+      var height = rawImage.Height;
 
-      var textureImageWithAlpha = new Bitmap(
-          textureWidth, textureHeight, PixelFormat.Format32bppArgb);
-      BitmapUtil.ProcessImage(
-          rawImage, textureImageWithAlpha, ConvertGloPixel_);
+      var textureImageWithAlpha = new Rgba32Image(width, height);
+      textureImageWithAlpha.Mutate((_, setHandler) => {
+        rawImage.Access(getHandler => {
+          for (var y = 0; y < height; ++y) {
+            for (var x = 0; x < width; ++x) {
+              getHandler(x, y, out var r, out var g, out var b, out var a);
+
+              if (r == 255 && g == 0 && b == 255) {
+                a = 0;
+              }
+
+              setHandler(x, y, r, g, b, a);
+            }
+          }
+        });
+      });
+
       return textureImageWithAlpha;
-    }
-
-    private static void ConvertGloPixel_(byte inR,
-                                         byte inG,
-                                         byte inB,
-                                         byte inA,
-                                         out byte outR,
-                                         out byte outG,
-                                         out byte outB,
-                                         out byte outA) {
-      outR = inR;
-      outG = inG;
-      outB = inB;
-
-      if (inR == 255 &&
-          inG == 0 &&
-          inB == 255) {
-        outA = 0;
-      } else {
-        outA = inA;
-      }
     }
   }
 }
