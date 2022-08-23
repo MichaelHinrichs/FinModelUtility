@@ -50,16 +50,24 @@ namespace fin.model.impl {
       }
 
       public ITexture CreateTexture(IImage imageData)
-        => new TextureImpl(imageData.AsBitmap());
+        => new TextureImpl(imageData);
 
       public ITexture CreateTexture(Bitmap imageData)
         => new TextureImpl(imageData);
     }
 
     private class TextureImpl : ITexture {
+      private readonly IImage? image_;
+
       public TextureImpl(Bitmap imageData) {
         this.ImageData = imageData;
         this.TransparencyType = BitmapUtil.GetTransparencyType(imageData);
+      }
+
+      public TextureImpl(IImage image) {
+        this.image_ = image;
+        this.ImageData = image.AsBitmap();
+        this.TransparencyType = BitmapUtil.GetTransparencyType(this.ImageData);
       }
 
       public ColorSourceType Type => ColorSourceType.TEXTURE;
