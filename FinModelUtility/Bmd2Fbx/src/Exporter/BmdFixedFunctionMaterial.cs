@@ -384,16 +384,7 @@ namespace bmd.exporter {
           return;
         }
 
-        var colorImage = new Rgba32Image(1, 1);
-        colorImage.Mutate(
-            (_, setHandler) =>
-                setHandler(0,
-                           0,
-                           colorConstant.R,
-                           colorConstant.G,
-                           colorConstant.B,
-                           colorConstant.A));
-
+        var colorImage = FinImage.Create1x1WithColor(colorConstant);
         var colorTexture = materialManager.CreateTexture(colorImage);
         material.CompiledTexture = colorTexture;
       }

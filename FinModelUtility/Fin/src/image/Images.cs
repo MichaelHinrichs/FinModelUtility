@@ -35,6 +35,13 @@ namespace fin.image {
       }
     }
 
+    public static IImage Create1x1WithColor(Color color) {
+      var bmp = new Rgba32Image(1, 1);
+      bmp.Mutate((_, setHandler)
+                     => setHandler(0, 0, color.R, color.G, color.B, color.A));
+      return bmp;
+    }
+
     public static SystemImageFormat ConvertFinImageFormatToSystem(
         LocalImageFormat imageFormat)
       => imageFormat switch {
@@ -420,7 +427,7 @@ namespace fin.image {
       var palette = this.impl_.Palette.Entries;
 
       BitmapUtil.InvokeAsLocked(this.impl_, bmpData => {
-        var ptr = (byte*)bmpData.Scan0;
+        var ptr = (byte*) bmpData.Scan0;
 
         void GetHandler(int x,
                         int y,

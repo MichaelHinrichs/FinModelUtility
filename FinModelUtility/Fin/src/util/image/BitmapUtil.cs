@@ -46,12 +46,6 @@ namespace fin.util.image {
                  : BitmapTransparencyType.OPAQUE;
     }
 
-    public static Bitmap Create1x1WithColor(Color color) {
-      var bmp = new Bitmap(1, 1, PixelFormat.Format32bppArgb);
-      bmp.SetPixel(0, 0, color);
-      return bmp;
-    }
-
     public static T InvokeAsLocked<T>(Bitmap bmp, Func<BitmapData, T> handler) {
       var bmpBounds = new Rectangle(0, 0, bmp.Width, bmp.Height);
       var bmpData =

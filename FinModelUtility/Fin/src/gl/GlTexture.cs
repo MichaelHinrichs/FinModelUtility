@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 
+using fin.image;
 using fin.model;
 using fin.util.image;
 
@@ -13,14 +14,14 @@ namespace fin.gl {
 
     private int id_ = UNDEFINED_ID;
 
-    public GlTexture(Bitmap bitmap) {
+    public GlTexture(IImage image) {
       GL.GenTextures(1, out int id);
       this.id_ = id;
 
       var target = TextureTarget.Texture2D;
       GL.BindTexture(target, this.id_);
       {
-        this.LoadBitmapIntoTexture_(bitmap);
+        this.LoadBitmapIntoTexture_(image.AsBitmap());
       }
       GL.BindTexture(target, UNDEFINED_ID);
     }
@@ -99,6 +100,8 @@ namespace fin.gl {
             }
             default: throw new NotImplementedException();
           }
+
+          // TODO: Use different formats
           GL.TexImage2D(TextureTarget.Texture2D,
                         0,
                         PixelInternalFormat.Rgba,
