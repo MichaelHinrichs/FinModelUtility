@@ -63,11 +63,11 @@ namespace uni.ui.right_panel.textures {
         if (ReferenceEquals(x, null)) return false;
         if (ReferenceEquals(y, null)) return false;
         if (x.GetType() != y.GetType()) return false;
-        return x.ImageData.Equals(y.ImageData);
+        return x.Image.Equals(y.Image);
       }
 
       public int GetHashCode(ITexture obj) {
-        return obj.ImageData.GetHashCode();
+        return obj.Image.GetHashCode();
       }
     }
   }

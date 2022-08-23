@@ -21,7 +21,7 @@ namespace fin.gl {
       var target = TextureTarget.Texture2D;
       GL.BindTexture(target, this.id_);
       {
-        this.LoadBitmapIntoTexture_(image.AsBitmap());
+        this.LoadImageIntoTexture_(image);
       }
       GL.BindTexture(target, UNDEFINED_ID);
     }
@@ -33,7 +33,7 @@ namespace fin.gl {
       var target = TextureTarget.Texture2D;
       GL.BindTexture(target, this.id_);
       {
-        this.LoadBitmapIntoTexture_(texture.ImageData);
+        this.LoadImageIntoTexture_(texture.Image);
 
         // Gl.glGenerateMipmap(target);
 
@@ -54,64 +54,34 @@ namespace fin.gl {
       GL.BindTexture(target, UNDEFINED_ID);
     }
 
-    private void LoadBitmapIntoTexture_(Bitmap imageData) {
-      var imageWidth = imageData.Width;
-      var imageHeight = imageData.Height;
+    private void LoadImageIntoTexture_(IImage image) {
+      var imageWidth = image.Width;
+      var imageHeight = image.Height;
 
-      BitmapUtil.InvokeAsLocked(imageData, bmpData => {
-        unsafe {
-          var ptr = (byte*) bmpData.Scan0.ToPointer();
-          var rgba = new byte[4 * imageWidth * imageHeight];
-          switch (bmpData.PixelFormat) {
-            case System.Drawing.Imaging.PixelFormat.Format32bppArgb: {
-              for (var y = 0; y < imageHeight; y++) {
-                for (var x = 0; x < imageWidth; x++) {
-                  var i = 4 * (y * imageWidth + x);
+      var rgba = new byte[4 * imageWidth * imageHeight];
+      image.Access(getHandler => {
+        for (var y = 0; y < imageHeight; y++) {
+          for (var x = 0; x < imageWidth; x++) {
+            getHandler(x, y, out var r, out var g, out var b, out var a);
 
-                  var b = ptr[i];
-                  var g = ptr[i + 1];
-                  var r = ptr[i + 2];
-                  var a = ptr[i + 3];
-
-                  rgba[i] = r;
-                  rgba[i + 1] = g;
-                  rgba[i + 2] = b;
-                  rgba[i + 3] = a;
-                }
-              }
-              break;
-            }
-            case System.Drawing.Imaging.PixelFormat.Format24bppRgb: {
-              for (var y = 0; y < imageHeight; y++) {
-                for (var x = 0; x < imageWidth; x++) {
-                  var inI = 3 * (y * imageWidth + x);
-                  var b = ptr[inI];
-                  var g = ptr[inI + 1];
-                  var r = ptr[inI + 2];
-
-                  var outI = 4 * (y * imageWidth + x);
-                  rgba[outI] = r;
-                  rgba[outI + 1] = g;
-                  rgba[outI + 2] = b;
-                  rgba[outI + 3] = 255;
-                }
-              }
-              break;
-            }
-            default: throw new NotImplementedException();
+            var outI = 4 * (y * imageWidth + x);
+            rgba[outI] = r;
+            rgba[outI + 1] = g;
+            rgba[outI + 2] = b;
+            rgba[outI + 3] = a;
           }
-
-          // TODO: Use different formats
-          GL.TexImage2D(TextureTarget.Texture2D,
-                        0,
-                        PixelInternalFormat.Rgba,
-                        imageWidth, imageHeight,
-                        0,
-                        PixelFormat.Rgba,
-                        PixelType.UnsignedByte,
-                        rgba);
         }
       });
+
+      // TODO: Use different formats
+      GL.TexImage2D(TextureTarget.Texture2D,
+                    0,
+                    PixelInternalFormat.Rgba,
+                    imageWidth, imageHeight,
+                    0,
+                    PixelFormat.Rgba,
+                    PixelType.UnsignedByte,
+                    rgba);
     }
 
     ~GlTexture() => this.ReleaseUnmanagedResources_();

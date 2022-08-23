@@ -54,10 +54,8 @@ namespace fin.model.impl {
     }
 
     private class TextureImpl : ITexture {
-      private readonly IImage? image_;
-
       public TextureImpl(IImage image) {
-        this.image_ = image;
+        this.Image = image;
         this.ImageData = image.AsBitmap();
         this.TransparencyType = BitmapUtil.GetTransparencyType(this.ImageData);
       }
@@ -70,6 +68,7 @@ namespace fin.model.impl {
 
       public ColorType ColorType { get; set; }
 
+      public IImage Image { get; }
       public Bitmap ImageData { get; }
 
       public IFile SaveInDirectory(IDirectory directory) {
