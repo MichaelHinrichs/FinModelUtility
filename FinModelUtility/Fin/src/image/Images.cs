@@ -50,7 +50,7 @@ namespace fin.image {
         new Bitmap(width, height, PixelFormat.Format32bppArgb)) { }
 
     internal Rgba32Image(Bitmap bitmap) {
-      this.impl_ = new Bitmap(bitmap);
+      this.impl_ = bitmap;
     }
 
     ~Rgba32Image() => this.ReleaseUnmanagedResources_();
@@ -121,7 +121,7 @@ namespace fin.image {
         new Bitmap(width, height, PixelFormat.Format24bppRgb)) { }
 
     internal Rgb24Image(Bitmap bitmap) {
-      this.impl_ = new Bitmap(bitmap);
+      this.impl_ = bitmap;
     }
 
     ~Rgb24Image() => this.ReleaseUnmanagedResources_();

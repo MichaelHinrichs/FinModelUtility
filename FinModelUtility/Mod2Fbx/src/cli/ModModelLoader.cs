@@ -98,10 +98,10 @@ namespace mod.cli {
 
         var textureIndex = textureAttr.index;
         var texture = mod.textures[textureIndex];
-        var bitmap = texture.ToBitmap();
+        var image = texture.ToImage();
 
         var finTexture =
-            model.MaterialManager.CreateTexture(bitmap);
+            model.MaterialManager.CreateTexture(image);
         finTexture.Name = $"texattr {i}";
 
         // TODO: These might be backwards

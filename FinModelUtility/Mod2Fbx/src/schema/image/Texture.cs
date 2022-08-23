@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.IO;
 
+using fin.image;
 using fin.util.asserts;
 
 using mod.schema.image;
@@ -65,7 +66,7 @@ namespace mod.schema {
       }
     }
 
-    public Bitmap ToBitmap() {
+    public IImage ToImage() {
       BImageFormat? imageFormat = null;
       if (this.format == TextureFormat.RGB5A3) {
         imageFormat = new Rgb5A3(this.imageData, this.width, this.height);
