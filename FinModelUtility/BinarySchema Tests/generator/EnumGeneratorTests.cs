@@ -14,7 +14,7 @@ namespace foo.bar {
   enum B : int {
   }
  
-  [Schema]
+  [BinarySchema]
   public partial class EnumWrapper {
     [Format(SchemaNumberType.BYTE)]
     public A fieldA;

@@ -7,7 +7,7 @@ namespace schema {
     public void TestBooleanWithoutAltFormat() {
       var structure = SchemaTestUtil.Parse(@"
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class BooleanWrapper {
     public bool field;
   }

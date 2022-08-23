@@ -331,7 +331,7 @@ namespace schema {
           }
 
           var formatAttribute =
-              SymbolTypeUtil.GetAttribute<FormatAttribute>(memberSymbol);
+              SymbolTypeUtil.GetAttribute<NumberFormatAttribute>(memberSymbol);
           if (formatAttribute != null) {
             formatNumberType = formatAttribute.NumberType;
 

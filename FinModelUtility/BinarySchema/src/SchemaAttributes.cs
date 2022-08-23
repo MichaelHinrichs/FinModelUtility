@@ -14,7 +14,7 @@ namespace schema {
   ///   the fields unless you know what you're doing!
   /// </summary>
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-  public class SchemaAttribute : Attribute { }
+  public class BinarySchemaAttribute : Attribute { }
 
 
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
@@ -99,8 +99,8 @@ namespace schema {
 
 
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-  public class FormatAttribute : Attribute {
-    public FormatAttribute(SchemaNumberType numberType) {
+  public class NumberFormatAttribute : Attribute {
+    public NumberFormatAttribute(SchemaNumberType numberType) {
       this.NumberType = numberType;
     }
 

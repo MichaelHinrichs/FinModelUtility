@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace schema {
   [DiagnosticAnalyzer(LanguageNames.CSharp)]
   public class SchemaAnalyzer : DiagnosticAnalyzer {
-    private readonly Type schemaAttributeType_ = typeof(SchemaAttribute);
+    private readonly Type schemaAttributeType_ = typeof(BinarySchemaAttribute);
     private readonly SchemaStructureParser parser_ = new();
 
     public override ImmutableArray<DiagnosticDescriptor>

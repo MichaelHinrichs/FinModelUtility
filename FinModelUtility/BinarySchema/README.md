@@ -31,13 +31,13 @@ Then, based on how complicated your schema class is, you can either choose to au
 
 For most schema classes, you should be able to use the automatic code generator.
 
-All you have to do is annotate the schema class with the `[Schema]` attribute; this will flag to the generator that it should implement read/write methods for this class.
+All you have to do is annotate the schema class with the `[BinarySchema]` attribute; this will flag to the generator that it should implement read/write methods for this class.
 It will then look into all fields/properties in the schema class, and attempt to implement read/write logic in the same order that the fields/properties appear.
 
 Any nested schema classes will be automatically read/written as expected.
 
 Some types require additional attributes in order to clarify any ambiguity.
-For example, booleans require a `[Format(SchemaNumberType.###)]` attribute to know what type of number to read, which it will then compare to 0.
+For example, booleans require a `[NumberFormat(SchemaNumberType.###)]` attribute to know what type of number to read, which it will then compare to 0.
 
 Any readonly primitives will treated as assertions, which is useful for validating things like magic text or padding.
 

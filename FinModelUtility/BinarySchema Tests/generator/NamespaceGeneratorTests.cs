@@ -12,7 +12,7 @@ namespace foo.bar {
   public enum A : byte {
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class Wrapper : IBiSerializable {
     public A Field { get; set; }
   }
@@ -49,7 +49,7 @@ namespace foo {
   }
 
   namespace bar {
-    [Schema]
+    [BinarySchema]
     public partial class Wrapper : IBiSerializable {
       public A Field { get; set; }
     }
@@ -88,7 +88,7 @@ namespace foo.bar {
     }
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class Wrapper : IBiSerializable {
     public goo.A Field { get; set; }
   }

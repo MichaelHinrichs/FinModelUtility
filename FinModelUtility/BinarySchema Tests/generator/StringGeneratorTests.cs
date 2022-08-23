@@ -9,7 +9,7 @@ namespace schema.text {
 using schema;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class StringWrapper {
     public readonly string Field = ""foo"";
   }
@@ -42,7 +42,7 @@ namespace foo.bar {
 using schema;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class StringWrapper {
     [EndianOrdered]
     public readonly string Field = ""foo"";
@@ -76,7 +76,7 @@ namespace foo.bar {
 using schema;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class StringWrapper {
     [StringLengthSource(3)]
     public string Field;
@@ -110,7 +110,7 @@ namespace foo.bar {
 using schema;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class StringWrapper {
     [StringLengthSource(3)]
     [EndianOrdered]

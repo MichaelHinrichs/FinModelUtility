@@ -13,7 +13,7 @@ namespace schema.text {
 using schema;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class ByteWrapper {
     public byte Field { get; }
   }
@@ -36,7 +36,7 @@ namespace foo.bar {
 using schema;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class SByteWrapper {
     public sbyte Field { get; }
   }
@@ -59,7 +59,7 @@ namespace foo.bar {
 using schema;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class ShortWrapper {
     public short Field { get; }
   }
@@ -82,7 +82,7 @@ namespace foo.bar {
 using schema;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class ArrayWrapper {
     public readonly int[] field;
   }
@@ -105,7 +105,7 @@ namespace foo.bar {
 using schema;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class ArrayWrapper {
     public int length;
 
@@ -142,7 +142,7 @@ namespace foo.bar {
         A, B
       }
 
-      [Schema]
+      [BinarySchema]
       private partial class Wrapper {
         public int length;
         [Format(SchemaNumberType.INT32)]
@@ -174,7 +174,7 @@ namespace foo.bar {
 using schema;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class CharWrapper {
     public char[] Array { get; }
   }
@@ -197,7 +197,7 @@ namespace foo.bar {
 using schema;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class ShortWrapper {
     public short Field { get; }
   }
@@ -220,7 +220,7 @@ namespace foo.bar {
 using schema;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public class ByteWrapper {
     public byte field { get; set; }
   }
@@ -243,7 +243,7 @@ namespace foo.bar {
 using schema;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public class ByteWrapper {
     public readonly byte field;
   }
@@ -266,7 +266,7 @@ namespace foo.bar {
 using schema;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class ByteWrapper {
     public byte Field { get; }
   }
@@ -290,7 +290,7 @@ using schema;
 
 namespace foo {
   namespace bar {
-    [Schema]
+    [BinarySchema]
     public partial class EverythingWrapper : IBiSerializable {
       public readonly string magicText = ""foobar"";
 
@@ -324,7 +324,7 @@ namespace foo {
       A, B, C
     }
 
-    [Schema]
+    [BinarySchema]
     public partial class Other : IBiSerializable {
     }
   }

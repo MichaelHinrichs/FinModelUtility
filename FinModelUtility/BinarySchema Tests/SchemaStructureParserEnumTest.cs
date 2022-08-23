@@ -15,7 +15,7 @@ namespace foo.bar {
     C
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class EnumWrapper {
     public ValueType field;
   }
@@ -33,7 +33,7 @@ namespace foo.bar {
     C
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class EnumWrapper {
     public readonly ValueType[] field = new ValueType[1];
   }

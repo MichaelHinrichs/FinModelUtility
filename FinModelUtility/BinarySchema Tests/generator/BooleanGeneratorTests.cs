@@ -8,7 +8,7 @@ namespace schema.text {
 using schema;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class ByteWrapper {
     [Format(SchemaNumberType.BYTE)]
     public bool Field { get; set; }

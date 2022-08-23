@@ -10,7 +10,7 @@ using schema;
 using schema.attributes.position;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class PositionWrapper : IBiSerializable {
     [Position]
     public long Position { get; set; }

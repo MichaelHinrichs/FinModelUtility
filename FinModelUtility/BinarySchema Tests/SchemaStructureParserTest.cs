@@ -10,7 +10,7 @@ namespace schema {
 using schema;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public class ByteWrapper {
     public byte field;
   }
@@ -42,7 +42,7 @@ namespace foo.bar {
 using schema;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public class SByteWrapper {
     public sbyte field;
   }
@@ -74,7 +74,7 @@ namespace foo.bar {
 using schema;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public class Int16Wrapper {
     public short field;
   }
@@ -112,7 +112,7 @@ namespace foo.bar {
     C
   }
 
-  [Schema]
+  [BinarySchema]
   public class EnumWrapper {
     [Format(SchemaNumberType.UINT16)]
     public ValueType field;
@@ -143,7 +143,7 @@ namespace foo.bar {
     public void TestConstArray() {
       var structure = SchemaTestUtil.Parse(@"
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public class ArrayWrapper {
     public readonly int[] field;
   }
@@ -172,7 +172,7 @@ namespace foo.bar {
     public void TestConstCharArray() {
       var structure = SchemaTestUtil.Parse(@"
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public class CharWrapper {
     public readonly char[] field;
   }
@@ -203,7 +203,7 @@ namespace foo.bar {
 using schema;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public class ByteWrapper {
     public byte field;
   }
@@ -235,7 +235,7 @@ namespace foo.bar {
 using schema;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public class ByteWrapper {
     public byte Field { get; set; }
   }
@@ -267,7 +267,7 @@ namespace foo.bar {
 using schema;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public class ByteWrapper {
     public readonly byte field;
   }
@@ -299,7 +299,7 @@ namespace foo.bar {
 using schema;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public class ByteWrapper {
     public byte Field { get; }
   }

@@ -11,7 +11,7 @@ using schema.attributes.memory;
 using schema.memory;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class BlockWrapper {
     public long Size;
 

@@ -11,7 +11,7 @@
   ///     This can be used alongside [Ignore] to easily reference values from the parent class:
   ///   </para>
   ///   <code>
-  ///     [Schema]
+  ///     [BinarySchema]
   ///     public partial class ParentType : IBiSerializable {
   ///       [Format(SchemaIntType.BYTE)]
   ///       public bool ChildHasSomeField { get; set; }
@@ -25,7 +25,7 @@
   ///       public ChildType Child3 { get; } = new();
   ///     }
   /// 
-  ///     [Schema]
+  ///     [BinarySchema]
   ///     public partial class ChildType : IBiSerializable, IChildOf&lt;ParentType&gt; {
   ///       public ParentType Parent { get; set; }
   ///

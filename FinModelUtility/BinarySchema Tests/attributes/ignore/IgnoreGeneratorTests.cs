@@ -9,7 +9,7 @@ using schema;
 using schema.attributes.ignore;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class IgnoreWrapper : IBiSerializable {
     [Ignore]
     public byte Field { get; set; }

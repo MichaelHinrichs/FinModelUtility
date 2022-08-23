@@ -10,7 +10,7 @@ using schema;
 using schema.attributes.child_of;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class ChildOfWrapper : IBiSerializable, IChildOf<Parent> {
     public Parent Parent { get; set; }
 
@@ -50,7 +50,7 @@ using schema;
 using schema.attributes.child_of;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class Parent {
     public ChildOfWrapper Child { get; set; }
   }
@@ -91,7 +91,7 @@ using schema;
 using schema.attributes.child_of;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class ChildOfWrapper : IBiSerializable, IChildOf<Parent> {
     public Parent Parent { get; set; }
   }
@@ -130,7 +130,7 @@ using schema;
 using schema.attributes.child_of;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class Parent {
     public uint Length { get; set; }
 

@@ -55,7 +55,7 @@ namespace glo.schema {
 
     [ArrayLengthSource(SchemaIntType.UINT16)] public GloSprite[] Sprites { get; set; }
 
-    [Format(SchemaNumberType.UN8)] public float MeshTranslucency { get; set; }
+    [NumberFormat(SchemaNumberType.UN8)] public float MeshTranslucency { get; set; }
     private readonly byte padding_ = 0;
 
     public ushort MeshFlags { get; set; }

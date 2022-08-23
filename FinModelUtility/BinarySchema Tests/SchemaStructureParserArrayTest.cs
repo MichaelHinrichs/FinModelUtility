@@ -7,7 +7,7 @@ namespace schema {
       public void TestMutableArrayWithoutLength() {
         var structure = SchemaTestUtil.Parse(@"
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class ArrayWrapper {
     public int[] field;
   }

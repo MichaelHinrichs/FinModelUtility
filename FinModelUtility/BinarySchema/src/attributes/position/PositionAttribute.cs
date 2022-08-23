@@ -17,7 +17,7 @@ namespace schema.attributes.position {
   ///     For example, the following could be used to verify the size of a data structure is correct:
   ///   </para>
   ///   <code>
-  ///     [Schema]
+  ///     [BinarySchema]
   ///     public partial class SpecifiedSizeType : IBiSerializable {
   ///       [Position]
   ///       private long StartPosition_ { get; set; }

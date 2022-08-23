@@ -9,7 +9,7 @@ namespace schema.text {
 using schema;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class ByteWrapper : IBiSerializable {
     [IfBoolean(SchemaIntType.BYTE)]
     public A? ImmediateValue { get; set; }
@@ -75,7 +75,7 @@ namespace foo.bar {
 using schema;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class ByteWrapper : IBiSerializable {
     public ClassWith1Bool Field { get; set; }
 

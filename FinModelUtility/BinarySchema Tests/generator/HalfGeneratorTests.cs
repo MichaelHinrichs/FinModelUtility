@@ -9,7 +9,7 @@ namespace schema.text {
 using schema;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class HalfWrapper {
     [Format(SchemaNumberType.HALF)]
     public float field1;

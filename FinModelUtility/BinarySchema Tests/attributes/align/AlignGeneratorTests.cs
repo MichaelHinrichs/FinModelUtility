@@ -9,7 +9,7 @@ using schema;
 using schema.attributes.align;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class AlignWrapper : IBiSerializable {
     [Align(0x2)]
     public byte Field { get; set; }

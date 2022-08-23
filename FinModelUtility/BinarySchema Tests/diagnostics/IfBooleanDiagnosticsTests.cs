@@ -8,7 +8,7 @@ namespace schema.text {
       var structure = SchemaTestUtil.Parse(@"
 using schema;
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class BooleanWrapper : IBiSerializable {
     [IfBoolean(SchemaIntType.BYTE)]
     public int field;
@@ -23,13 +23,13 @@ namespace foo.bar {
       var structure = SchemaTestUtil.Parse(@"
 using schema;
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class BooleanWrapper : IBiSerializable {
     [IfBoolean(SchemaIntType.BYTE)]
     public A field;
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class A : IBiSerializable {
   }
 }");

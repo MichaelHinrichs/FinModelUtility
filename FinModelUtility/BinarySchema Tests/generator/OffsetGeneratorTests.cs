@@ -9,7 +9,7 @@ using schema;
 using schema.attributes.offset;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class OffsetWrapper : IBiSerializable {
     public uint BaseLocation { get; set; }
 
@@ -58,7 +58,7 @@ using schema.attributes.child_of;
 using schema.attributes.offset;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class OffsetWrapper : IBiSerializable, IChildOf<Parent> {
     public Parent Parent { get; set; }
 
