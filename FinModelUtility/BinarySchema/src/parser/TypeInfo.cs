@@ -38,7 +38,7 @@ namespace schema.parser {
   }
 
   public interface IIntegerTypeInfo : INumberTypeInfo {
-    SchemaIntType IntType { get; }
+    SchemaIntegerType IntegerType { get; }
   }
 
   public interface IEnumTypeInfo : IPrimitiveTypeInfo { }
@@ -373,22 +373,22 @@ namespace schema.parser {
       public IntegerTypeInfo(
           ITypeSymbol typeSymbol,
           SchemaTypeKind kind,
-          SchemaIntType intType,
+          SchemaIntegerType integerType,
           bool isReadonly,
           bool isNullable) {
         this.TypeSymbol = typeSymbol;
         this.Kind = kind;
-        this.IntType = intType;
+        this.IntegerType = integerType;
         this.IsReadonly = isReadonly;
         this.IsNullable = isNullable;
       }
 
       public ITypeSymbol TypeSymbol { get; }
       public SchemaTypeKind Kind { get; }
-      public SchemaIntType IntType { get; }
+      public SchemaIntegerType IntegerType { get; }
 
       public SchemaNumberType NumberType
-        => SchemaPrimitiveTypesUtil.ConvertIntToNumber(this.IntType);
+        => SchemaPrimitiveTypesUtil.ConvertIntToNumber(this.IntegerType);
 
       public SchemaPrimitiveType PrimitiveType
         => SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(this.NumberType);

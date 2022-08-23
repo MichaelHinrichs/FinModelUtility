@@ -20,7 +20,7 @@ namespace foo.bar {
     public ValueType field;
   }
 }");
-        SchemaTestUtil.AssertDiagnostics(structure.Diagnostics, Rules.EnumNeedsFormat);
+        SchemaTestUtil.AssertDiagnostics(structure.Diagnostics, Rules.EnumNeedsIntegerFormat);
       }
 
       [Test]
@@ -38,7 +38,7 @@ namespace foo.bar {
     public readonly ValueType[] field = new ValueType[1];
   }
 }");
-        SchemaTestUtil.AssertDiagnostics(structure.Diagnostics, Rules.EnumNeedsFormat);
+        SchemaTestUtil.AssertDiagnostics(structure.Diagnostics, Rules.EnumNeedsIntegerFormat);
       }
     }
   }

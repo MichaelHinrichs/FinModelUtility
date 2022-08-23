@@ -13,7 +13,7 @@
   ///   <code>
   ///     [BinarySchema]
   ///     public partial class ParentType : IBiSerializable {
-  ///       [Format(SchemaIntType.BYTE)]
+  ///       [NumberFormat(SchemaIntegerType.BYTE)]
   ///       public bool ChildHasSomeField { get; set; }
   ///
   ///       public uint BaseOffset { get; set; }

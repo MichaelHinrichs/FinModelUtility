@@ -74,9 +74,9 @@ namespace mod.schema {
     public int unknown2 = 0;
     public float unknown3 = 0;
 
-    [ArrayLengthSource(SchemaIntType.UINT32)]
+    [ArrayLengthSource(SchemaIntegerType.UINT32)]
     public PCI_Unk1[] unknown4;
-    [ArrayLengthSource(SchemaIntType.UINT32)]
+    [ArrayLengthSource(SchemaIntegerType.UINT32)]
     public PCI_Unk2[] unknown5;
   }
 
@@ -138,11 +138,11 @@ namespace mod.schema {
     public float unknown16 = 0;
     public float unknown17 = 0;
 
-    [ArrayLengthSource(SchemaIntType.UINT32)]
+    [ArrayLengthSource(SchemaIntegerType.UINT32)]
     public TXD_Unk1[] unknown18;
-    [ArrayLengthSource(SchemaIntType.UINT32)]
+    [ArrayLengthSource(SchemaIntegerType.UINT32)]
     public TXD_Unk1[] unknown19;
-    [ArrayLengthSource(SchemaIntType.UINT32)]
+    [ArrayLengthSource(SchemaIntegerType.UINT32)]
     public TXD_Unk1[] unknown20;
   };
 
@@ -152,9 +152,9 @@ namespace mod.schema {
     public readonly Vector3f unknown2 = new();
 
     // TODO: These appear to be referenced before they're read? Try removing the {}
-    [ArrayLengthSource(SchemaIntType.UINT32)]
+    [ArrayLengthSource(SchemaIntegerType.UINT32)]
     public TexGenData[] unknown3 = {};
-    [ArrayLengthSource(SchemaIntType.UINT32)]
+    [ArrayLengthSource(SchemaIntegerType.UINT32)]
     public TextureData[] unknown4 = {};
   }
 
@@ -217,9 +217,9 @@ namespace mod.schema {
     public readonly Rgba64 unknown1 = new();
     public int unknown2 = 0;
     public float unknown3 = 0;
-    [ArrayLengthSource(SchemaIntType.UINT32)]
+    [ArrayLengthSource(SchemaIntegerType.UINT32)]
     public TCR_Unk1[] unknown4;
-    [ArrayLengthSource(SchemaIntType.UINT32)]
+    [ArrayLengthSource(SchemaIntegerType.UINT32)]
     public TCR_Unk2[] unknown5;
   }
 
@@ -266,7 +266,7 @@ namespace mod.schema {
     public readonly Rgba32 unknown6 = new();
     public readonly Rgba32 unknown7 = new();
 
-    [ArrayLengthSource(SchemaIntType.UINT32)]
+    [ArrayLengthSource(SchemaIntegerType.UINT32)]
     public TEVStage[] unknown8;
   }
 

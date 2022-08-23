@@ -17,12 +17,12 @@ namespace schema {
     public override ImmutableArray<DiagnosticDescriptor>
         SupportedDiagnostics { get; } =
       ImmutableArray.Create(
-          Rules.BooleanNeedsFormat,
+          Rules.BooleanNeedsIntegerFormat,
           Rules.ChildTypeCanOnlyBeContainedInParent,
           Rules.ChildTypeMustBeContainedInParent,
           Rules.ConstUninitialized,
           Rules.ContainerTypeMustBePartial,
-          Rules.EnumNeedsFormat,
+          Rules.EnumNeedsIntegerFormat,
           Rules.ElementNeedsToImplementIBiSerializable,
           Rules.Exception,
           Rules.FormatOnNonNumber,

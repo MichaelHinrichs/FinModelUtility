@@ -96,7 +96,7 @@ namespace schema {
   public interface IIfBoolean {
     IfBooleanSourceType SourceType { get; }
 
-    SchemaIntType ImmediateBooleanType { get; }
+    SchemaIntegerType ImmediateBooleanType { get; }
     ISchemaMember? BooleanMember { get; }
   }
 
@@ -124,7 +124,7 @@ namespace schema {
     /// </summary>
     StringLengthSourceType LengthSourceType { get; }
 
-    SchemaIntType ImmediateLengthType { get; }
+    SchemaIntegerType ImmediateLengthType { get; }
     ISchemaMember? LengthMember { get; }
     int ConstLength { get; }
 
@@ -149,7 +149,7 @@ namespace schema {
     SequenceType SequenceType { get; }
 
     SequenceLengthSourceType LengthSourceType { get; }
-    SchemaIntType ImmediateLengthType { get; }
+    SchemaIntegerType ImmediateLengthType { get; }
     ISchemaMember? LengthMember { get; }
 
     IMemberType ElementType { get; }
@@ -230,7 +230,7 @@ namespace schema {
           if (positionAttribute != null) {
             isPosition = true;
             if (memberTypeInfo is not IIntegerTypeInfo {
-                    IntType: SchemaIntType.INT64
+                    IntegerType: SchemaIntegerType.INT64
                 }) {
               diagnostics.Add(
                   Rules.CreateDiagnostic(
@@ -320,42 +320,75 @@ namespace schema {
 
           // TODO: Apply this to element type as well
           var formatNumberType = SchemaNumberType.UNDEFINED;
+          var formatIntegerType = SchemaIntegerType.UNDEFINED;
+
           if (targetPrimitiveType == SchemaPrimitiveType.ENUM) {
             var enumNamedTypeSymbol =
                 targetMemberType.TypeSymbol as INamedTypeSymbol;
             var underlyingType = enumNamedTypeSymbol!.EnumUnderlyingType;
 
-            formatNumberType =
-                SchemaPrimitiveTypesUtil.GetNumberTypeFromTypeSymbol(
+            formatIntegerType =
+                SchemaPrimitiveTypesUtil.GetIntegerTypeFromTypeSymbol(
                     underlyingType);
           }
 
-          var formatAttribute =
-              SymbolTypeUtil.GetAttribute<NumberFormatAttribute>(memberSymbol);
-          if (formatAttribute != null) {
-            formatNumberType = formatAttribute.NumberType;
+          {
+            var numberFormatAttribute =
+                SymbolTypeUtil
+                    .GetAttribute<NumberFormatAttribute>(memberSymbol);
+            if (numberFormatAttribute != null) {
+              formatNumberType = numberFormatAttribute.NumberType;
 
-            var isPrimitiveTypeNumeric =
-                SchemaPrimitiveTypesUtil.IsPrimitiveTypeNumeric(
-                    targetPrimitiveType);
-            if (!(targetMemberType is PrimitiveMemberType &&
-                  isPrimitiveTypeNumeric)) {
-              diagnostics.Add(
-                  Rules.CreateDiagnostic(memberSymbol,
-                                         Rules.UnexpectedAttribute));
+              var canPrimitiveTypeBeReadAsNumber =
+                  SchemaPrimitiveTypesUtil.CanPrimitiveTypeBeReadAsNumber(
+                      targetPrimitiveType);
+              if (!(targetMemberType is PrimitiveMemberType &&
+                    canPrimitiveTypeBeReadAsNumber)) {
+                diagnostics.Add(
+                    Rules.CreateDiagnostic(memberSymbol,
+                                           Rules.UnexpectedAttribute));
+              }
             }
           }
+
+          {
+            var integerFormatAttribute =
+                SymbolTypeUtil
+                    .GetAttribute<IntegerFormatAttribute>(memberSymbol);
+            if (integerFormatAttribute != null) {
+              formatIntegerType = integerFormatAttribute.IntegerType;
+
+              var canPrimitiveTypeBeReadAsInteger =
+                  SchemaPrimitiveTypesUtil.CanPrimitiveTypeBeReadAsInteger(
+                      targetPrimitiveType);
+              if (!(targetMemberType is PrimitiveMemberType &&
+                    canPrimitiveTypeBeReadAsInteger)) {
+                diagnostics.Add(
+                    Rules.CreateDiagnostic(memberSymbol,
+                                           Rules.UnexpectedAttribute));
+              }
+            }
+          }
+
+          if (formatNumberType == SchemaNumberType.UNDEFINED &&
+              formatIntegerType != SchemaIntegerType.UNDEFINED) {
+            formatNumberType =
+                SchemaPrimitiveTypesUtil
+                    .ConvertIntToNumber(formatIntegerType);
+          }
+
           if (targetMemberType is PrimitiveMemberType primitiveMemberType) {
             if (formatNumberType != SchemaNumberType.UNDEFINED) {
               primitiveMemberType.UseAltFormat = true;
               primitiveMemberType.AltFormat = formatNumberType;
             } else if (targetPrimitiveType == SchemaPrimitiveType.ENUM) {
               diagnostics.Add(
-                  Rules.CreateDiagnostic(memberSymbol, Rules.EnumNeedsFormat));
+                  Rules.CreateDiagnostic(memberSymbol,
+                                         Rules.EnumNeedsIntegerFormat));
             } else if (targetPrimitiveType == SchemaPrimitiveType.BOOLEAN) {
               diagnostics.Add(
                   Rules.CreateDiagnostic(memberSymbol,
-                                         Rules.BooleanNeedsFormat));
+                                         Rules.BooleanNeedsIntegerFormat));
             }
           }
 
@@ -573,7 +606,7 @@ namespace schema {
 
     public class IfBoolean : IIfBoolean {
       public IfBooleanSourceType SourceType { get; set; }
-      public SchemaIntType ImmediateBooleanType { get; set; }
+      public SchemaIntegerType ImmediateBooleanType { get; set; }
       public ISchemaMember? BooleanMember { get; set; }
     }
 
@@ -588,7 +621,7 @@ namespace schema {
       public bool IsReadonly => this.TypeInfo.IsReadonly;
 
       public StringLengthSourceType LengthSourceType { get; set; }
-      public SchemaIntType ImmediateLengthType { get; set; }
+      public SchemaIntegerType ImmediateLengthType { get; set; }
       public ISchemaMember? LengthMember { get; set; }
       public int ConstLength { get; set; }
 
@@ -604,7 +637,7 @@ namespace schema {
       public SequenceType SequenceType { get; set; }
 
       public SequenceLengthSourceType LengthSourceType { get; set; }
-      public SchemaIntType ImmediateLengthType { get; set; }
+      public SchemaIntegerType ImmediateLengthType { get; set; }
       public ISchemaMember? LengthMember { get; set; }
 
       public IMemberType ElementType { get; set; }
@@ -637,7 +670,8 @@ namespace schema {
         case IGenericTypeInfo genericTypeInfo: {
           // TODO: Figure out how to find the best constraint
           var constraintTypeInfo = genericTypeInfo.ConstraintTypeInfos[0];
-          var constraintMemberType = this.WrapTypeInfoWithMemberType(constraintTypeInfo);
+          var constraintMemberType =
+              this.WrapTypeInfoWithMemberType(constraintTypeInfo);
 
           return new GenericMemberType {
               ConstraintType = constraintMemberType,

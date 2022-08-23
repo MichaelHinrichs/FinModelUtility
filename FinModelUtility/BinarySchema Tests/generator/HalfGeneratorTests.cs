@@ -11,13 +11,13 @@ using schema;
 namespace foo.bar {
   [BinarySchema]
   public partial class HalfWrapper {
-    [Format(SchemaNumberType.HALF)]
+    [NumberFormat(SchemaNumberType.HALF)]
     public float field1;
 
-    [Format(SchemaNumberType.HALF)]
+    [NumberFormat(SchemaNumberType.HALF)]
     public readonly float field2;
 
-    [Format(SchemaNumberType.HALF)]
+    [NumberFormat(SchemaNumberType.HALF)]
     public readonly float[] field3 = new float[5];
   }
 }",

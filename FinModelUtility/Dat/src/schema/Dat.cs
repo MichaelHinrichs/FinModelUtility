@@ -409,13 +409,13 @@ namespace dat.schema {
   public partial class VertexDescriptorData : IBiSerializable {
     public GxAttribute Attribute { get; set; }
 
-    [Format(SchemaNumberType.UINT32)]
+    [IntegerFormat(SchemaIntegerType.UINT32)]
     public GxAttributeType AttributeType { get; set; }
 
-    [Format(SchemaNumberType.UINT32)]
+    [IntegerFormat(SchemaIntegerType.UINT32)]
     public GxComponentCount CompCnt { get; set; }
 
-    [Format(SchemaNumberType.UINT32)]
+    [IntegerFormat(SchemaIntegerType.UINT32)]
     public GxComponentType CompType { get; set; }
 
     public byte CompShift { get; set; }

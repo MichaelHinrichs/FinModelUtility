@@ -9,7 +9,7 @@ namespace mod.schema {
 
   [BinarySchema]
   public partial class Envelope : IBiSerializable {
-    [ArrayLengthSource(SchemaIntType.UINT16)]
+    [ArrayLengthSource(SchemaIntegerType.UINT16)]
     public IndexAndWeight[] indicesAndWeights;
   }
 }

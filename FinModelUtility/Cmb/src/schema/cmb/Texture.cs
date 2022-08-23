@@ -6,10 +6,10 @@ namespace cmb.schema.cmb {
     public uint dataLength { get; private set; }
     public ushort mimapCount { get; private set; }
 
-    [Format(SchemaNumberType.BYTE)]
+    [IntegerFormat(SchemaIntegerType.BYTE)]
     public bool isEtc1 { get; private set; }
 
-    [Format(SchemaNumberType.BYTE)]
+    [IntegerFormat(SchemaIntegerType.BYTE)]
     public bool isCubemap { get; private set; }
 
     public ushort width { get; private set; }

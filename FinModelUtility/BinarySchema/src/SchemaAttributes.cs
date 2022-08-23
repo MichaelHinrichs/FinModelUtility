@@ -24,7 +24,7 @@ namespace schema {
     /// <summary>
     ///   Parses an integer length with the given format immediately before the array.
     /// </summary>
-    public ArrayLengthSourceAttribute(SchemaIntType lengthType) {
+    public ArrayLengthSourceAttribute(SchemaIntegerType lengthType) {
       this.Method = SequenceLengthSourceType.IMMEDIATE_VALUE;
       this.LengthType = lengthType;
     }
@@ -48,7 +48,7 @@ namespace schema {
 
     public SequenceLengthSourceType Method { get; }
 
-    public SchemaIntType LengthType { get; }
+    public SchemaIntegerType LengthType { get; }
     public IMemberReference OtherMember { get; private set; }
   }
 
@@ -62,7 +62,7 @@ namespace schema {
     /// <summary>
     ///   Parses a length with the given format immediately before the string.
     /// </summary>
-    public StringLengthSourceAttribute(SchemaIntType lengthType) {
+    public StringLengthSourceAttribute(SchemaIntegerType lengthType) {
       this.Method = StringLengthSourceType.IMMEDIATE_VALUE;
       this.LengthType = lengthType;
     }
@@ -92,7 +92,7 @@ namespace schema {
 
     public StringLengthSourceType Method { get; }
 
-    public SchemaIntType LengthType { get; }
+    public SchemaIntegerType LengthType { get; }
     public IMemberReference? OtherMember { get; private set; }
     public int ConstLength { get; }
   }
@@ -107,12 +107,21 @@ namespace schema {
     public SchemaNumberType NumberType { get; }
   }
 
+  [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+  public class IntegerFormatAttribute : Attribute {
+    public IntegerFormatAttribute(SchemaIntegerType integerType) {
+      this.IntegerType = integerType;
+    }
+
+    public SchemaIntegerType IntegerType { get; }
+  }
+
 
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
   public class IfBooleanAttribute : BMemberAttribute {
     private readonly string? otherMemberName_;
 
-    public IfBooleanAttribute(SchemaIntType lengthType) {
+    public IfBooleanAttribute(SchemaIntegerType lengthType) {
       this.Method = IfBooleanSourceType.IMMEDIATE_VALUE;
       this.BooleanType = lengthType;
     }
@@ -132,7 +141,7 @@ namespace schema {
 
     public IfBooleanSourceType Method { get; }
 
-    public SchemaIntType BooleanType { get; }
+    public SchemaIntegerType BooleanType { get; }
     public IMemberReference? OtherMember { get; private set; }
   }
 

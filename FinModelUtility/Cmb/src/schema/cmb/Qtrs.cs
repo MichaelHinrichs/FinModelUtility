@@ -6,7 +6,7 @@ namespace cmb.schema.cmb {
     public readonly string magic = "qtrs";
     public uint chunkSize { get; private set; }
 
-    [ArrayLengthSource(SchemaIntType.UINT32)]
+    [ArrayLengthSource(SchemaIntegerType.UINT32)]
     public BoundingBox[] boundingBoxes { get; private set; }
   }
 }

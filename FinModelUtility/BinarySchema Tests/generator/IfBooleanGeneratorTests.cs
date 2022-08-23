@@ -11,10 +11,10 @@ using schema;
 namespace foo.bar {
   [BinarySchema]
   public partial class ByteWrapper : IBiSerializable {
-    [IfBoolean(SchemaIntType.BYTE)]
+    [IfBoolean(SchemaIntegerType.BYTE)]
     public A? ImmediateValue { get; set; }
 
-    [Format(SchemaNumberType.BYTE)]
+    [IntegerFormat(SchemaIntegerType.BYTE)]
     public bool Field { get; set; }
 
     [IfBoolean(nameof(Field))]

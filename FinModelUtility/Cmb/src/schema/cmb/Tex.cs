@@ -7,7 +7,7 @@ namespace cmb.schema.cmb {
   public partial class Tex : IDeserializable {
     public readonly string magicText = "tex" + AsciiUtil.GetChar(0x20);
     public uint chunkSize { get; private set; }
-    [ArrayLengthSource(SchemaIntType.UINT32)]
+    [ArrayLengthSource(SchemaIntegerType.UINT32)]
     public Texture[] textures { get; private set; }
   }
 }

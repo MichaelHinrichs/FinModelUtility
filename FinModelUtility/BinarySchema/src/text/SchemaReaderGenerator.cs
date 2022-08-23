@@ -363,6 +363,10 @@ namespace schema.text {
       var arrayType = member.MemberType as ISequenceMemberType;
 
       var elementType = arrayType.ElementType;
+      if (elementType is IGenericMemberType genericElementType) {
+        elementType = genericElementType.ConstraintType;
+      }
+
       if (elementType is IPrimitiveMemberType primitiveElementType) {
         // Primitives that don't need to be cast are the easiest to read.
         if (!primitiveElementType.UseAltFormat) {

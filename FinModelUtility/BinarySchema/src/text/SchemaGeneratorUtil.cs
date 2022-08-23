@@ -25,16 +25,16 @@ namespace schema.text {
           _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
       };
 
-    public static string GetIntLabel(SchemaIntType type)
+    public static string GetIntLabel(SchemaIntegerType type)
       => type switch {
-          SchemaIntType.SBYTE => "SByte",
-          SchemaIntType.BYTE => "Byte",
-          SchemaIntType.INT16 => "Int16",
-          SchemaIntType.UINT16 => "UInt16",
-          SchemaIntType.INT32 => "Int32",
-          SchemaIntType.UINT32 => "UInt32",
-          SchemaIntType.INT64 => "Int64",
-          SchemaIntType.UINT64 => "UInt64",
+          SchemaIntegerType.SBYTE => "SByte",
+          SchemaIntegerType.BYTE => "Byte",
+          SchemaIntegerType.INT16 => "Int16",
+          SchemaIntegerType.UINT16 => "UInt16",
+          SchemaIntegerType.INT32 => "Int32",
+          SchemaIntegerType.UINT32 => "UInt32",
+          SchemaIntegerType.INT64 => "Int64",
+          SchemaIntegerType.UINT64 => "UInt64",
           _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
       };
 

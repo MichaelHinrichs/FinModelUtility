@@ -60,15 +60,15 @@ namespace schema {
             "Format attribute on non-numerical member",
             "A Format attribute is applied to the non-numerical member '{0}', which is unsupported.");
 
-    public static DiagnosticDescriptor EnumNeedsFormat { get; }
+    public static DiagnosticDescriptor EnumNeedsIntegerFormat { get; }
       = Rules.CreateDiagnosticDescriptor_(
-          "Enum needs format",
-          "Enum member '{0}' needs either a valid Format attribute or for its enum type to specify an underlying representation.");
+          "Enum needs integer format",
+          "Enum member '{0}' needs either a valid IntegerFormat attribute or for its enum type to specify an underlying representation.");
 
-    public static DiagnosticDescriptor BooleanNeedsFormat { get; }
+    public static DiagnosticDescriptor BooleanNeedsIntegerFormat { get; }
       = Rules.CreateDiagnosticDescriptor_(
-          "Boolean needs format",
-          "Boolean member '{0}' needs a valid Format attribute.");
+          "Boolean needs integer format",
+          "Boolean member '{0}' needs a valid IntegerFormat attribute.");
 
     public static DiagnosticDescriptor IfBooleanNeedsNullable { get; }
       = Rules.CreateDiagnosticDescriptor_(

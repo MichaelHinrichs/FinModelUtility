@@ -58,13 +58,13 @@ namespace mod.schema.animation {
     public uint JointCount { get; set; }
     public uint FrameCount { get; set; }
 
-    [ArrayLengthSource(SchemaIntType.INT32)]
+    [ArrayLengthSource(SchemaIntegerType.INT32)]
     public float[] ScaleValues { get; set; }
 
-    [ArrayLengthSource(SchemaIntType.INT32)]
+    [ArrayLengthSource(SchemaIntegerType.INT32)]
     public float[] RotationValues { get; set; }
 
-    [ArrayLengthSource(SchemaIntType.INT32)]
+    [ArrayLengthSource(SchemaIntegerType.INT32)]
     public float[] PositionValues { get; set; }
 
     [ArrayLengthSource(nameof(JointCount))]

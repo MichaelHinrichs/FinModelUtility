@@ -37,7 +37,7 @@ It will then look into all fields/properties in the schema class, and attempt to
 Any nested schema classes will be automatically read/written as expected.
 
 Some types require additional attributes in order to clarify any ambiguity.
-For example, booleans require a `[NumberFormat(SchemaNumberType.###)]` attribute to know what type of number to read, which it will then compare to 0.
+For example, booleans require a `[IntegerFormat(SchemaIntegerType.###)]` attribute to know what type of integer to read, which it will then compare to 0.
 
 Any readonly primitives will treated as assertions, which is useful for validating things like magic text or padding.
 

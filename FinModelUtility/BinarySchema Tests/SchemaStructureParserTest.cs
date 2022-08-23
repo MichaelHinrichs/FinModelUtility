@@ -114,7 +114,7 @@ namespace foo.bar {
 
   [BinarySchema]
   public class EnumWrapper {
-    [Format(SchemaNumberType.UINT16)]
+    [IntegerFormat(SchemaIntegerType.UINT16)]
     public ValueType field;
   }
 }");

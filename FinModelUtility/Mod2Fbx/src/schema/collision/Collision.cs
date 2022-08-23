@@ -105,7 +105,7 @@ namespace mod.schema.collision {
     public uint gridX = 0;
     public uint gridY = 0;
 
-    [ArrayLengthSource(SchemaIntType.UINT32)]
+    [ArrayLengthSource(SchemaIntegerType.UINT32)]
     public readonly List<CollGroup> groups = new();
 
     [Ignore]

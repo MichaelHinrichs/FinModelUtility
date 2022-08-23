@@ -34,7 +34,7 @@ namespace schema {
       var attributeSyntax = syntaxTree.GetRoot()
                                       .DescendantTokens()
                                       .First(t => {
-                                        if (t.Text == "Schema" &&
+                                        if (t.Text == "BinarySchema" &&
                                             t.Parent
                                              ?.Parent is AttributeSyntax) {
                                           return true;

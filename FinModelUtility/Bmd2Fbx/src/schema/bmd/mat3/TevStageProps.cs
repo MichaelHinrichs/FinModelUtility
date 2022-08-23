@@ -15,7 +15,7 @@ namespace bmd.schema.bmd.mat3 {
     public TevOp color_op;
     public TevBias color_bias;
     public TevScale color_scale;
-    [NumberFormat(SchemaNumberType.BYTE)]
+    [IntegerFormat(SchemaIntegerType.BYTE)]
     public bool color_clamp;
     public ColorRegister color_regid;
 
@@ -26,7 +26,7 @@ namespace bmd.schema.bmd.mat3 {
     public TevOp alpha_op;
     public TevBias alpha_bias;
     public TevScale alpha_scale;
-    [NumberFormat(SchemaNumberType.BYTE)]
+    [IntegerFormat(SchemaIntegerType.BYTE)]
     public bool alpha_clamp;
     public ColorRegister alpha_regid;
 

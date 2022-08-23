@@ -10,10 +10,10 @@ using schema;
 namespace foo.bar {
   [BinarySchema]
   public partial class ByteWrapper {
-    [Format(SchemaNumberType.BYTE)]
+    [IntegerFormat(SchemaIntegerType.BYTE)]
     public bool Field { get; set; }
 
-    [Format(SchemaNumberType.BYTE)]
+    [IntegerFormat(SchemaIntegerType.BYTE)]
     public bool ReadonlyField { get; }
   }
 }",

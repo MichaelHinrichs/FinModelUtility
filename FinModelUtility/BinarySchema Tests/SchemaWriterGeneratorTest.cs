@@ -141,7 +141,7 @@ namespace foo.bar {
       [BinarySchema]
       private partial class Wrapper {
         public int length;
-        [Format(SchemaNumberType.INT32)]
+        [IntegerFormat(SchemaIntegerType.INT32)]
         public ValueEnum value;
       }
     }
@@ -297,22 +297,22 @@ namespace foo {
      
       public ShortEnum nakedShortField;
       public readonly ShortEnum constNakedShortField;
-      [Format(SchemaNumberType.INT32)]
+      [IntegerFormat(SchemaIntegerType.INT32)]
       public ShortEnum intField;
-      [Format(SchemaNumberType.INT32)]
+      [IntegerFormat(SchemaIntegerType.INT32)]
       public readonly ShortEnum constIntField;
 
       public readonly int[] constLengthIntValues;
-      [ArrayLengthSource(SchemaIntType.UINT32)]
+      [ArrayLengthSource(SchemaIntegerType.UINT32)]
       public int[] intValues;
 
       public Other other;
-      [ArrayLengthSource(SchemaIntType.INT32)]
+      [ArrayLengthSource(SchemaIntegerType.INT32)]
       public Other[] others;
 
-      [Format(SchemaNumberType.UN16)]
+      [NumberFormat(SchemaNumberType.UN16)]
       public float normalized;
-      [Format(SchemaNumberType.UN16)]
+      [NumberFormat(SchemaNumberType.UN16)]
       public readonly float constNormalized = 0;
     }
 

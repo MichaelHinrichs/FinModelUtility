@@ -16,7 +16,7 @@ namespace foo.bar {
  
   [BinarySchema]
   public partial class EnumWrapper {
-    [Format(SchemaNumberType.BYTE)]
+    [IntegerFormat(SchemaIntegerType.BYTE)]
     public A fieldA;
 
     public B fieldB;

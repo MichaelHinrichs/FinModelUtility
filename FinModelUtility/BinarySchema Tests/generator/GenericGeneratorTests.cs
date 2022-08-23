@@ -52,7 +52,9 @@ using System.IO;
 namespace foo.bar {
   public partial class GenericWrapper<T> {
     public void Read(EndianBinaryReader er) {
-      this.Data.Read(er);
+      foreach (var e in this.Data) {
+        e.Read(er);
+      }
     }
   }
 }
@@ -60,9 +62,11 @@ namespace foo.bar {
                                      @"using System;
 using System.IO;
 namespace foo.bar {
-  public partial class ByteWrapper {
+  public partial class GenericWrapper<T> {
     public void Write(EndianBinaryWriter ew) {
-      this.Data.Write(er);
+      foreach (var e in this.Data) {
+        e.Write(ew);
+      }
     }
   }
 }

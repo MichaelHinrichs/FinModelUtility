@@ -4,7 +4,9 @@ using Microsoft.CodeAnalysis;
 
 
 namespace schema {
-  public enum SchemaIntType {
+  public enum SchemaIntegerType {
+    UNDEFINED,
+
     BYTE,
     SBYTE,
     INT16,
@@ -62,7 +64,32 @@ namespace schema {
       };
     }
 
-    public static bool IsPrimitiveTypeNumeric(SchemaPrimitiveType type)
+    public static bool CanPrimitiveTypeBeReadAsNumber(SchemaPrimitiveType type)
+      => type switch {
+          SchemaPrimitiveType.BOOLEAN => false,
+          SchemaPrimitiveType.SBYTE   => true,
+          SchemaPrimitiveType.BYTE    => true,
+          SchemaPrimitiveType.INT16   => true,
+          SchemaPrimitiveType.UINT16  => true,
+          SchemaPrimitiveType.INT32   => true,
+          SchemaPrimitiveType.UINT32  => true,
+          SchemaPrimitiveType.INT64   => true,
+          SchemaPrimitiveType.UINT64  => true,
+          SchemaPrimitiveType.HALF    => true,
+          SchemaPrimitiveType.SINGLE  => true,
+          SchemaPrimitiveType.DOUBLE  => true,
+          SchemaPrimitiveType.SN8     => true,
+          SchemaPrimitiveType.UN8     => true,
+          SchemaPrimitiveType.SN16    => true,
+          SchemaPrimitiveType.UN16    => true,
+          SchemaPrimitiveType.ENUM    => false,
+
+          SchemaPrimitiveType.CHAR      => false,
+          SchemaPrimitiveType.UNDEFINED => false,
+          _                             => throw new NotImplementedException(),
+      };
+
+    public static bool CanPrimitiveTypeBeReadAsInteger(SchemaPrimitiveType type)
       => type switch {
           SchemaPrimitiveType.BOOLEAN => true,
           SchemaPrimitiveType.SBYTE   => true,
@@ -87,30 +114,30 @@ namespace schema {
           _                             => throw new NotImplementedException(),
       };
 
-    public static SchemaNumberType GetNumberTypeFromTypeSymbol(
+    public static SchemaIntegerType GetIntegerTypeFromTypeSymbol(
         ITypeSymbol? typeSymbol)
       => typeSymbol?.SpecialType switch {
-          SpecialType.System_Byte   => SchemaNumberType.BYTE,
-          SpecialType.System_SByte  => SchemaNumberType.SBYTE,
-          SpecialType.System_Int16  => SchemaNumberType.INT16,
-          SpecialType.System_UInt16 => SchemaNumberType.UINT16,
-          SpecialType.System_Int32  => SchemaNumberType.INT32,
-          SpecialType.System_UInt32 => SchemaNumberType.UINT32,
-          SpecialType.System_Int64  => SchemaNumberType.INT64,
-          SpecialType.System_UInt64 => SchemaNumberType.UINT64,
-          _                         => SchemaNumberType.UNDEFINED,
+          SpecialType.System_Byte   => SchemaIntegerType.BYTE,
+          SpecialType.System_SByte  => SchemaIntegerType.SBYTE,
+          SpecialType.System_Int16  => SchemaIntegerType.INT16,
+          SpecialType.System_UInt16 => SchemaIntegerType.UINT16,
+          SpecialType.System_Int32  => SchemaIntegerType.INT32,
+          SpecialType.System_UInt32 => SchemaIntegerType.UINT32,
+          SpecialType.System_Int64  => SchemaIntegerType.INT64,
+          SpecialType.System_UInt64 => SchemaIntegerType.UINT64,
+          _                         => SchemaIntegerType.UNDEFINED,
       };
 
-    public static SchemaNumberType ConvertIntToNumber(SchemaIntType type)
+    public static SchemaNumberType ConvertIntToNumber(SchemaIntegerType type)
       => type switch {
-          SchemaIntType.SBYTE => SchemaNumberType.SBYTE,
-          SchemaIntType.BYTE => SchemaNumberType.BYTE,
-          SchemaIntType.INT16 => SchemaNumberType.INT16,
-          SchemaIntType.UINT16 => SchemaNumberType.UINT16,
-          SchemaIntType.INT32 => SchemaNumberType.INT32,
-          SchemaIntType.UINT32 => SchemaNumberType.UINT32,
-          SchemaIntType.INT64 => SchemaNumberType.INT64,
-          SchemaIntType.UINT64 => SchemaNumberType.UINT64,
+          SchemaIntegerType.SBYTE => SchemaNumberType.SBYTE,
+          SchemaIntegerType.BYTE => SchemaNumberType.BYTE,
+          SchemaIntegerType.INT16 => SchemaNumberType.INT16,
+          SchemaIntegerType.UINT16 => SchemaNumberType.UINT16,
+          SchemaIntegerType.INT32 => SchemaNumberType.INT32,
+          SchemaIntegerType.UINT32 => SchemaNumberType.UINT32,
+          SchemaIntegerType.INT64 => SchemaNumberType.INT64,
+          SchemaIntegerType.UINT64 => SchemaNumberType.UINT64,
           _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
       };
 
@@ -124,17 +151,17 @@ namespace schema {
           _                        => type
       };
 
-    public static SchemaIntType ConvertNumberToInt(
+    public static SchemaIntegerType ConvertNumberToInt(
         SchemaNumberType type)
       => type switch {
-          SchemaNumberType.SBYTE => SchemaIntType.SBYTE,
-          SchemaNumberType.BYTE => SchemaIntType.BYTE,
-          SchemaNumberType.INT16 => SchemaIntType.INT16,
-          SchemaNumberType.UINT16 => SchemaIntType.UINT16,
-          SchemaNumberType.INT32 => SchemaIntType.INT32,
-          SchemaNumberType.UINT32 => SchemaIntType.UINT32,
-          SchemaNumberType.INT64 => SchemaIntType.INT64,
-          SchemaNumberType.UINT64 => SchemaIntType.UINT64,
+          SchemaNumberType.SBYTE => SchemaIntegerType.SBYTE,
+          SchemaNumberType.BYTE => SchemaIntegerType.BYTE,
+          SchemaNumberType.INT16 => SchemaIntegerType.INT16,
+          SchemaNumberType.UINT16 => SchemaIntegerType.UINT16,
+          SchemaNumberType.INT32 => SchemaIntegerType.INT32,
+          SchemaNumberType.UINT32 => SchemaIntegerType.UINT32,
+          SchemaNumberType.INT64 => SchemaIntegerType.INT64,
+          SchemaNumberType.UINT64 => SchemaIntegerType.UINT64,
           _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
       };
 
