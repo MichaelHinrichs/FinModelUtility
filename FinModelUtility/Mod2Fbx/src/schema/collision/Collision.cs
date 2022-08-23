@@ -11,12 +11,12 @@ using schema.attributes.ignore;
 
 
 namespace mod.schema.collision {
-  [Schema]
+  [BinarySchema]
   public partial class BaseRoomInfo : IBiSerializable {
     public uint index = 0;
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class BaseCollTriInfo : IBiSerializable {
     public uint mapCode = 0;
     public readonly Vector3i indice = new();
@@ -83,7 +83,7 @@ namespace mod.schema.collision {
     }
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class CollGroup : IBiSerializable {
     public ushort NumUnknown1 { get; set; }
     public ushort NumUnknown2 { get; set; }

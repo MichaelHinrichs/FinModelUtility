@@ -1,7 +1,7 @@
 ﻿using schema;
 
 namespace cmb.schema.cmb {
-  [Schema]
+  [BinarySchema]
   public partial class Mshs : IBiSerializable {
     public readonly string magic = "mshs";
     public uint chunkSize;

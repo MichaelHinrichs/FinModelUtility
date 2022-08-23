@@ -50,7 +50,7 @@ namespace dat.schema {
     ROOT_TEXEDGE = 1 << 30,
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class JObjData : IBiSerializable {
     public uint StringOffset { get; set; }
     public JObjFlags Flags { get; set; }

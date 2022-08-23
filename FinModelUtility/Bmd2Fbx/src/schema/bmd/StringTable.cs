@@ -10,7 +10,7 @@ using schema.attributes.position;
 
 
 namespace bmd.schema.bmd {
-  [Schema]
+  [BinarySchema]
   public partial class StringTable : IBiSerializable {
     [Position]
     public long BasePosition { get; set; }
@@ -29,7 +29,7 @@ namespace bmd.schema.bmd {
         this.Entries.Select(entry => entry.Entry).IndexOfOrNegativeOne(value);
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class
       StringTableEntry : IBiSerializable, IChildOf<StringTable> {
     public StringTable Parent { get; set; }

@@ -54,7 +54,7 @@ namespace bmd.schema.bmd.mat3 {
     Identity = 60,
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class TexCoordGen : IBiSerializable {
     public GxTexGenType TexGenType { get; set; }
     public GxTexGenSrc TexGenSrc { get; set; }

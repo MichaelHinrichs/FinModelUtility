@@ -3,7 +3,7 @@
 using schema;
 
 namespace cmb.schema.cmb {
-  [Schema]
+  [BinarySchema]
   public partial class Tex : IDeserializable {
     public readonly string magicText = "tex" + AsciiUtil.GetChar(0x20);
     public uint chunkSize { get; private set; }

@@ -4,7 +4,7 @@ using schema;
 
 
 namespace bmd.schema.bmd.mat3 {
-  [Schema]
+  [BinarySchema]
   public partial class TevStageProps : IBiSerializable {
     private byte padding0_;
 

@@ -2,7 +2,7 @@
 
 
 namespace modl.schema.modl.bw1.node {
-  [Schema]
+  [BinarySchema]
   public partial class Bw1BoundingBox : IBiSerializable {
     public float X1 { get; set; }
     public float Y1 { get; set; }

@@ -1,7 +1,7 @@
 ﻿using schema;
 
 namespace cmb.schema.cmb {
-  [Schema]
+  [BinarySchema]
   public partial class Qtrs : IBiSerializable {
     public readonly string magic = "qtrs";
     public uint chunkSize { get; private set; }

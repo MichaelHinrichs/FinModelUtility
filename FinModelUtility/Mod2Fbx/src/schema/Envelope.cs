@@ -1,13 +1,13 @@
 ﻿using schema;
 
 namespace mod.schema {
-  [Schema]
+  [BinarySchema]
   public partial class IndexAndWeight : IBiSerializable {
     public ushort index;
     public float weight;
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class Envelope : IBiSerializable {
     [ArrayLengthSource(SchemaIntType.UINT16)]
     public IndexAndWeight[] indicesAndWeights;

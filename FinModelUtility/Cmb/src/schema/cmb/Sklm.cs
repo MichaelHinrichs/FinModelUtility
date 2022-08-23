@@ -3,7 +3,7 @@
 using schema;
 
 namespace cmb.schema.cmb {
-  [Schema]
+  [BinarySchema]
   public partial class Sklm : IDeserializable {
     public readonly string magic = "sklm";
     

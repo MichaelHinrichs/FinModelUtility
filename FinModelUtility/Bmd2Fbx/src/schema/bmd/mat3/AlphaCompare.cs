@@ -20,7 +20,7 @@ namespace bmd.schema.bmd.mat3 {
     XNOR = 3
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class AlphaCompare : IDeserializable {
     public GxCompareType Func0;
     public byte Reference0;

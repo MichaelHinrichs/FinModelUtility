@@ -1,7 +1,7 @@
 ﻿using schema;
 
 namespace cmb.schema.cmb {
-  [Schema]
+  [BinarySchema]
   public partial class TexCoords : IDeserializable {
     [Format(SchemaNumberType.BYTE)]
     public TextureMatrixMode matrixMode { get; private set; }

@@ -107,7 +107,7 @@ namespace bmd.GCN {
       PAL_A3_RGB5,
     }
 
-    [Schema]
+    [BinarySchema]
     public partial class BTIHeader : IBiSerializable {
       public BTI.TextureFormat Format;
       public byte Unknown1;

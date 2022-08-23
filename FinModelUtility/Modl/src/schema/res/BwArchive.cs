@@ -25,7 +25,7 @@ namespace modl.schema.res {
     }
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class Sond : IBiSerializable {
     [EndianOrdered] private readonly string magic_ = "SOND";
     [ArrayLengthSource(SchemaIntType.UINT32)] public byte[] Data { get; private set; }

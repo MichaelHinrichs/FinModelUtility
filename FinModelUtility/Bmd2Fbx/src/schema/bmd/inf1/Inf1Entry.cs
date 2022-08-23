@@ -2,7 +2,7 @@
 
 
 namespace bmd.schema.bmd.inf1 {
-  [Schema]
+  [BinarySchema]
   public partial class Inf1Entry : IBiSerializable {
     public ushort Type;
     public ushort Index;

@@ -20,7 +20,7 @@ namespace mod.schema {
   // TCR = Texture Environment (TEV) Colour Register                //
   ////////////////////////////////////////////////////////////////////
 
-  [Schema]
+  [BinarySchema]
   public partial class KeyInfoU8 : IBiSerializable {
     public byte unknown1 = 0;
     public byte unknownA = 0;
@@ -33,7 +33,7 @@ namespace mod.schema {
       => $"{this.unknown1} {this.unknown2} {this.unknown3}";
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class KeyInfoF32 : IBiSerializable {
     public float unknown1 = 0;
     public float unknown2 = 0;
@@ -43,7 +43,7 @@ namespace mod.schema {
       => $"{this.unknown1} {this.unknown2} {this.unknown3}";
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class KeyInfoS10 : IBiSerializable {
     public short unknown1 = 0;
     public readonly short padding = 0; // TODO: Is this right?
@@ -54,7 +54,7 @@ namespace mod.schema {
       => $"{this.unknown1} {this.unknown2} {this.unknown3}";
   };
 
-  [Schema]
+  [BinarySchema]
   public partial class PCI_Unk1 : IBiSerializable {
     public int unknown1 = 0;
     public readonly KeyInfoU8 unknown2 = new();
@@ -62,13 +62,13 @@ namespace mod.schema {
     public readonly KeyInfoU8 unknown4 = new();
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class PCI_Unk2 : IBiSerializable {
     public int unknown1 = 0;
     public readonly KeyInfoU8 unknown2 = new();
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class PolygonColourInfo : IBiSerializable {
     public readonly Rgba32 diffuseColour = new();
     public int unknown2 = 0;
@@ -84,13 +84,13 @@ namespace mod.schema {
     USE_SPOTLIGHT = 1
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class LightingInfo : IBiSerializable {
     public uint typeFlags = 0; // see LightingInfoFlags
     public float unknown2 = 0;
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class PeInfo : IBiSerializable {
     public int unknown1 = 0;
     public int unknown2 = 0;
@@ -98,7 +98,7 @@ namespace mod.schema {
     public int unknown4 = 0;
   };
 
-  [Schema]
+  [BinarySchema]
   public partial class TexGenData : IBiSerializable {
     public byte unknown1 = 0;
     public byte unknown2 = 0;
@@ -106,7 +106,7 @@ namespace mod.schema {
     public byte unknown4 = 0;
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class TXD_Unk1 : IBiSerializable {
     public int unknown1 = 0;
     public readonly KeyInfoF32 unknown2 = new();
@@ -114,7 +114,7 @@ namespace mod.schema {
     public readonly KeyInfoF32 unknown4 = new();
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class TextureData : IBiSerializable {
     public int unknown1 = 0;
 
@@ -146,7 +146,7 @@ namespace mod.schema {
     public TXD_Unk1[] unknown20;
   };
 
-  [Schema]
+  [BinarySchema]
   public partial class TextureInfo : IBiSerializable {
     public int unknown1 = 0;
     public readonly Vector3f unknown2 = new();
@@ -192,7 +192,7 @@ namespace mod.schema {
     }
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class TCR_Unk1 : IBiSerializable {
     public int unknown1 = 0;
     public readonly KeyInfoS10 unknown2 = new();
@@ -206,13 +206,13 @@ namespace mod.schema {
          $"\t\t\tUNK4: {this.unknown4}\n";
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class TCR_Unk2 : IBiSerializable {
     public int unknown1 = 0;
     public readonly KeyInfoS10 unknown2 = new();
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class TEVColReg : IBiSerializable {
     public readonly Rgba64 unknown1 = new();
     public int unknown2 = 0;
@@ -223,7 +223,7 @@ namespace mod.schema {
     public TCR_Unk2[] unknown5;
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class PVWCombiner : IBiSerializable {
     public byte unknown1 = 0;
     public byte unknown2 = 0;
@@ -239,7 +239,7 @@ namespace mod.schema {
     public byte unknown12 = 0;
   };
 
-  [Schema]
+  [BinarySchema]
   public partial class TEVStage : IBiSerializable {
     public byte unknown1 = 0;
     public byte unknown2 = 0;
@@ -254,7 +254,7 @@ namespace mod.schema {
     public readonly PVWCombiner unknown8 = new();
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class TEVInfo : IBiSerializable {
     // Probably RGB
     public readonly TEVColReg unknown1 = new();

@@ -4,7 +4,7 @@ using schema;
 
 
 namespace bmd.schema.bmd.mat3 {
-  [Schema]
+  [BinarySchema]
   public partial class TevOrder : IDeserializable {
     public byte TexCoordId;
     public sbyte TexMap;

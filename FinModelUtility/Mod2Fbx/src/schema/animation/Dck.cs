@@ -53,7 +53,7 @@ namespace mod.schema.animation {
     }
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class DckAnimationData : IDcxAnimationData {
     public uint JointCount { get; set; }
     public uint FrameCount { get; set; }
@@ -77,7 +77,7 @@ namespace mod.schema.animation {
     }
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class DckJointData : IDcxJointData {
     public int JointIndex { get; set; }
     public int ParentIndex { get; set; }
@@ -87,7 +87,7 @@ namespace mod.schema.animation {
     public IDcxAxes PositionAxes { get; } = new DckAxes();
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class DckAxes : IDcxAxes {
     public IDcxAxis[] Axes { get; } = {
         new DckAxis(),
@@ -96,7 +96,7 @@ namespace mod.schema.animation {
     };
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class DckAxis : IDcxAxis {
     public int FrameCount { get; set; }
     public int FrameOffset { get; set; }

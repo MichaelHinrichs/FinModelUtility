@@ -1,7 +1,7 @@
 ﻿using schema;
 
 namespace cmb.schema.cmb {
-  [Schema]
+  [BinarySchema]
   public partial class Texture : IBiSerializable {
     public uint dataLength { get; private set; }
     public ushort mimapCount { get; private set; }

@@ -56,7 +56,7 @@ namespace uni.platforms.threeDs.tools {
     }
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class LzssHeader : IBiSerializable {
     private readonly string magic_ = "LzS" + AsciiUtil.GetChar(0x1);
     public uint Unknown { get; set; }

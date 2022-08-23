@@ -2,7 +2,7 @@
 
 
 namespace dat.schema {
-  [Schema]
+  [BinarySchema]
   public partial class DObjData : IBiSerializable {
     public uint StringOffset { get; set; }
     public uint NextObjectOffset { get; set; }

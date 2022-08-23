@@ -13,7 +13,7 @@ namespace dat.schema {
     CULLBACK = 1 << 15,
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class PObjData : IBiSerializable {
     public uint StringOffset { get; set; }
     public uint NextPObjOffset { get; set; }

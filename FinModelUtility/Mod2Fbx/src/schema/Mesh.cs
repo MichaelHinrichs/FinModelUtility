@@ -62,7 +62,7 @@ namespace mod.schema {
     }
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class MeshPacket : IBiSerializable {
     [ArrayLengthSource(SchemaIntType.UINT32)]
     public short[] indices;
@@ -71,7 +71,7 @@ namespace mod.schema {
     public DisplayList[] displaylists;
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class Mesh : IBiSerializable {
     public uint boneIndex = 0;
     public uint vtxDescriptor = 0;

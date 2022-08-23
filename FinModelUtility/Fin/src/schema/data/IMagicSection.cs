@@ -20,7 +20,7 @@ namespace fin.schema.data {
   ///   be adequate for most cases, except when the data class needs to access
   ///   parent data.
   /// </summary>
-  [Schema]
+  [BinarySchema]
   public partial class AutoMagicUInt32SizedSection<T> : IMagicSection<T>
       where T : IBiSerializable, new() {
     private readonly PassThruMagicUint32SizedSection<T> impl_;

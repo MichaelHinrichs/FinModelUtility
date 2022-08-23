@@ -3,13 +3,13 @@
 using schema;
 
 namespace mod.schema {
-  [Schema]
+  [BinarySchema]
   public partial class JointMatPoly : IBiSerializable {
     public ushort matIdx = 0;
     public ushort meshIdx = 0;
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class Joint : IBiSerializable {
     public uint parentIdx = 0;
     public uint flags = 0;

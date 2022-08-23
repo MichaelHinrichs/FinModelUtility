@@ -2,7 +2,7 @@
 
 
 namespace bmd.schema.bmd.shp1 {
-  [Schema]
+  [BinarySchema]
   public partial class PacketLocation : IDeserializable {
     public uint Size;
     public uint Offset;

@@ -310,7 +310,7 @@ namespace dat.schema {
     }
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class FileHeader : IBiSerializable {
     public uint FileSize { get; set; }
     public uint DataBlockSize { get; set; }
@@ -344,7 +344,7 @@ namespace dat.schema {
         ReferenceNodeOffset + 8 * ReferenceNodeCount;
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class RootNodeData : IBiSerializable {
     public uint DataOffset { get; set; }
     public uint StringOffset { get; set; }
@@ -405,7 +405,7 @@ namespace dat.schema {
     }
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class VertexDescriptorData : IBiSerializable {
     public GxAttribute Attribute { get; set; }
 

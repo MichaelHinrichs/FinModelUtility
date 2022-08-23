@@ -4,7 +4,7 @@ using schema;
 
 
 namespace bmd.schema.bmd.vtx1 {
-  [Schema]
+  [BinarySchema]
   public partial class ArrayFormat : IBiSerializable {
     public GxAttribute ArrayType;
     public uint ComponentCount;

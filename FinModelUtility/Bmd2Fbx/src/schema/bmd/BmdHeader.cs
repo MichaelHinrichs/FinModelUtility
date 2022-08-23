@@ -2,7 +2,7 @@
 
 
 namespace bmd.schema.bmd {
-  [Schema]
+  [BinarySchema]
   public partial class BmdHeader : IBiSerializable {
     private readonly string magic_ = "J3D2bmd3";
     public uint FileSize;

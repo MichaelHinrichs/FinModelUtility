@@ -3,7 +3,7 @@ using schema.attributes.ignore;
 
 
 namespace fin.schema.matrix {
-  [Schema]
+  [BinarySchema]
   public partial class Matrix4x4f : IBiSerializable {
     public float[] Values { get; } = new float[4 * 4];
 

@@ -2,7 +2,7 @@
 
 
 namespace modl.schema.modl.bw1.node.display_list {
-  [Schema]
+  [BinarySchema]
   public partial class VertexNormal : IBiSerializable {
     [Format(SchemaNumberType.SN8)]
     public float X { get; set; }

@@ -2,7 +2,7 @@
 
 
 namespace bmd.schema.bmd.mat3 {
-  [Schema]
+  [BinarySchema]
   public partial class TextureMatrixInfo : IBiSerializable {
     public ushort Unknown1;
     public ushort Padding1;

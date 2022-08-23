@@ -92,7 +92,7 @@ namespace mod.schema {
     }
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class TextureAttributes : IBiSerializable {
     public ushort index = 0;
     private readonly ushort padding_ = 0;

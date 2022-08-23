@@ -2,7 +2,7 @@
 
 
 namespace bmd.schema.bmd.mat3 {
-  [Schema]
+  [BinarySchema]
   public partial class DepthFunction : IDeserializable {
     public byte Enable;
     public byte Func;

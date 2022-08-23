@@ -2,7 +2,7 @@
 
 
 namespace mod.schema.animation {
-  [Schema]
+  [BinarySchema]
   public partial class Anm : IBiSerializable {
     [ArrayLengthSource(SchemaIntType.UINT32)]
     public DcxWrapper[] Wrappers { get; set; }

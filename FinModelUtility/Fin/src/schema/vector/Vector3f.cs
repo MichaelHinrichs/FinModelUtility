@@ -2,7 +2,7 @@
 
 
 namespace fin.schema.vector {
-  [Schema]
+  [BinarySchema]
   public partial class Vector3f : IBiSerializable {
     public float X { get; set; }
     public float Y { get; set; }

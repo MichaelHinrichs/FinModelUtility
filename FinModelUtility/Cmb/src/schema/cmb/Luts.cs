@@ -4,7 +4,7 @@ namespace cmb.schema.cmb {
   /// <summary>
   ///   "LUT" stands for "lookup table". (But where is this actually used...?)
   /// </summary>
-  [Schema]
+  [BinarySchema]
   public partial class Luts : IBiSerializable {
     public readonly string magic = "luts";
     public uint dataLength;
@@ -19,7 +19,7 @@ namespace cmb.schema.cmb {
     public LutSet[] luts;
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class LutSet : IBiSerializable {
     public ushort BitFlags; //Not sure
     public ushort KeyCount; //Keyframes
@@ -31,7 +31,7 @@ namespace cmb.schema.cmb {
     public float unk2;
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class LutKeyframe : IBiSerializable {
     public float InSlope;
     public float OutSlope;

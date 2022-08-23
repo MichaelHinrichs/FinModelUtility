@@ -10,7 +10,7 @@ namespace mod.schema.animation {
     DCK = 3,
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class DcxWrapper : IBiSerializable {
     public AnimationFormat AnimationFormat { get; set; }
 

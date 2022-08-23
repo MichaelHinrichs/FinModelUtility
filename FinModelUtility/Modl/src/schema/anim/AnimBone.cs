@@ -2,7 +2,7 @@
 
 
 namespace modl.schema.anim {
-  [Schema]
+  [BinarySchema]
   public partial class AnimBone : IBiSerializable {
     [StringLengthSource(16)] public string Name { get; set; }
 

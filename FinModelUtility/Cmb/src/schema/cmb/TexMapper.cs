@@ -1,7 +1,7 @@
 ﻿using schema;
 
 namespace cmb.schema.cmb {
-  [Schema]
+  [BinarySchema]
   public partial class TexMapper : IBiSerializable {
     public short textureId;
     private readonly ushort padding_ = 0;

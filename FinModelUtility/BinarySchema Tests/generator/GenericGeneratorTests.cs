@@ -9,7 +9,7 @@ namespace schema.text {
 using schema;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class GenericWrapper<T> : IBiSerializable where T : IBiSerializable, new() {
     public T Data { get; } = new();
   }
@@ -42,7 +42,7 @@ namespace foo.bar {
 using schema;
 
 namespace foo.bar {
-  [Schema]
+  [BinarySchema]
   public partial class GenericWrapper<T> : IBiSerializable where T : IBiSerializable, new() {
     public T[] Data { get; } = {};
   }

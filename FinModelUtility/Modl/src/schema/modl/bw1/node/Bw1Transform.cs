@@ -3,20 +3,20 @@
 
 namespace modl.schema.modl.bw1.node {
 
-  [Schema]
+  [BinarySchema]
   public partial class BwTransform : IBiSerializable {
     public BwPosition Position { get; } = new();
     public BwRotation Rotation { get; } = new();
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class BwPosition : IBiSerializable {
     public float X { get; set; }
     public float Y { get; set; }
     public float Z { get; set; }
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class BwRotation : IBiSerializable {
     public float X { get; set; }
     public float Y { get; set; }

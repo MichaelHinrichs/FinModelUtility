@@ -2,7 +2,7 @@
 
 
 namespace fin.schema.color {
-  [Schema]
+  [BinarySchema]
   public partial class Rgba32 : IBiSerializable {
     public byte R { get; set; }
     public byte G { get; set; }

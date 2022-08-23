@@ -12,7 +12,7 @@ using schema.text;
 namespace schema {
   [Generator(LanguageNames.CSharp)]
   internal class SchemaGenerator : ISourceGenerator {
-    private readonly Type schemaAttributeType_ = typeof(SchemaAttribute);
+    private readonly Type schemaAttributeType_ = typeof(BinarySchemaAttribute);
     private readonly SchemaStructureParser parser_ = new();
 
     private readonly SchemaReaderGenerator readerImpl_ = new();

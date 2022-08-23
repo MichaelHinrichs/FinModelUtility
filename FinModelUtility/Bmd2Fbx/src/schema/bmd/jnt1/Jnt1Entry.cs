@@ -2,7 +2,7 @@
 
 
 namespace bmd.schema.bmd.jnt1 {
-  [Schema]
+  [BinarySchema]
   public partial class Jnt1Entry : IBiSerializable {
     public ushort Unknown1;
     public byte Unknown2;

@@ -11,7 +11,7 @@ using schema.attributes.offset;
 
 
 namespace cmb.schema.ctxb {
-  [Schema]
+  [BinarySchema]
   public partial class Ctxb : IBiSerializable {
     public CtxbHeader Header { get; } = new();
     public CtxbTexChunk Chunk { get; } = new();
@@ -27,7 +27,7 @@ namespace cmb.schema.ctxb {
     [Ignore] private uint ThisDataLength => this.Chunk.Entry.dataLength;
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class CtxbHeader : IBiSerializable {
     private readonly string magic_ = "ctxb";
     public int ChunkSize { get; private set; }
@@ -37,7 +37,7 @@ namespace cmb.schema.ctxb {
     public int DataOffset { get; private set; }
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class CtxbTexChunk : IBiSerializable {
     private readonly string magic_ = "tex" + AsciiUtil.GetChar(0x20);
     public int ChunkSize { get; private set; }

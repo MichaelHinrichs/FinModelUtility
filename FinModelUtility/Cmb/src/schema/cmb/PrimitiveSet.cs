@@ -3,7 +3,7 @@ using schema.attributes.align;
 
 
 namespace cmb.schema.cmb {
-  [Schema]
+  [BinarySchema]
   public partial class PrimitiveSet : IBiSerializable {
     private readonly string magic_ = "prms";
 

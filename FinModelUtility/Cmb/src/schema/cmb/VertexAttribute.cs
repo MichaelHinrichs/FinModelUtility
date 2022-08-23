@@ -1,7 +1,7 @@
 ﻿using schema;
 
 namespace cmb.schema.cmb {
-  [Schema]
+  [BinarySchema]
   public partial class VertexAttribute : IDeserializable {
     public uint Start { get; private set; }
     public float Scale { get; private set; } 

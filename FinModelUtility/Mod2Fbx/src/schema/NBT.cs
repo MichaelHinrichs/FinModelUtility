@@ -3,7 +3,7 @@
 using schema;
 
 namespace mod.schema {
-  [Schema]
+  [BinarySchema]
   public partial class Nbt : IBiSerializable {
     public Vector3f Normal { get; }= new();
     public Vector3f Binormal { get; }= new();

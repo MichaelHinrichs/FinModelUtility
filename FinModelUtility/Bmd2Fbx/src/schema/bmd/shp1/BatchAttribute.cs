@@ -4,7 +4,7 @@ using schema;
 
 
 namespace bmd.schema.bmd.shp1 {
-  [Schema]
+  [BinarySchema]
   public partial class BatchAttribute : IDeserializable {
     public GxAttribute Attribute { get; set; }
     public uint DataType { get; set; }

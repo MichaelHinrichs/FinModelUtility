@@ -39,7 +39,7 @@ namespace bmd.schema.bmd.mat3 {
     SET = 15,
   }
 
-  [Schema]
+  [BinarySchema]
   public partial class BlendFunction : IBiSerializable {
     public BmdBlendMode BlendMode;
     public BmdBlendFactor SrcFactor;

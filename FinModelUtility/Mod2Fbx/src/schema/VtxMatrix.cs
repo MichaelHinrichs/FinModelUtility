@@ -3,7 +3,7 @@
 using schema;
 
 namespace mod.schema {
-  [Schema]
+  [BinarySchema]
   public partial class VtxMatrix : IBiSerializable {
     public short index = 0;
   }
