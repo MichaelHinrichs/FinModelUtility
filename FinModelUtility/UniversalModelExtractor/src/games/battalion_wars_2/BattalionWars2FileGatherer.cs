@@ -3,31 +3,28 @@
 using modl.api;
 
 using uni.platforms;
-using uni.platforms.gcn;
+using uni.platforms.wii;
 using uni.util.io;
 
 
-namespace uni.games.battalion_wars_1 {
+namespace uni.games.battalion_wars_2 {
   public class
-      BattalionWars1FileGatherer : IModelFileGatherer<ModlModelFileBundle> {
+      BattalionWars2FileGatherer : IModelFileGatherer<ModlModelFileBundle> {
     public IModelDirectory<ModlModelFileBundle>? GatherModelFileBundles(
         bool assert) {
       var battalionWarsRom =
           DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
-              "battalion_wars_1.gcm");
+              "battalion_wars_2.iso");
 
       if (battalionWarsRom == null) {
         return null;
       }
 
-      var options = GcnFileHierarchyExtractor.Options.Standard();
-
       var fileHierarchy =
-          new GcnFileHierarchyExtractor().ExtractFromRom(
-              options,
+          new WiiFileHierarchyExtractor().ExtractFromRom(
               battalionWarsRom);
 
-      foreach (var directory in fileHierarchy) {
+      /*foreach (var directory in fileHierarchy) {
         var didUpdate = false;
         var resFiles = directory.FilesWithExtension(".res");
         foreach (var resFile in resFiles) {
@@ -37,7 +34,9 @@ namespace uni.games.battalion_wars_1 {
         if (didUpdate) {
           directory.Refresh();
         }
-      }
+      }*/
+
+      return null;
 
       return new FileHierarchyBundler<ModlModelFileBundle>(
           directory => {

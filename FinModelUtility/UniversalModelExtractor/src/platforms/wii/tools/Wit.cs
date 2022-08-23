@@ -5,14 +5,14 @@ using fin.util.asserts;
 using uni.util.cmd;
 
 
-namespace uni.platforms.gcn.tools {
-  public class GcmDump {
+namespace uni.platforms.wii.tools {
+  public class Wit {
     public bool Run(IFile romFile, out IFileHierarchy hierarchy) {
       Asserts.Equal(
-          ".gcm",
+          ".iso",
           romFile
               .Extension,
-          $"Cannot dump ROM because it is not a GCM: {romFile}");
+          $"Cannot dump ROM because it is not an ISO: {romFile}");
       Asserts.True(
           romFile.Exists,
           $"Cannot dump ROM because it does not exist: {romFile}");
@@ -24,16 +24,7 @@ namespace uni.platforms.gcn.tools {
       if (!finalDirectory.Exists) {
         didChange = true;
 
-        var directoryPath = romFile.FullName + "_dir";
-        var directory = new FinDirectory(directoryPath);
-
-        if (!directory.Exists) {
-          this.DumpRom_(romFile);
-          Asserts.True(directory.Exists,
-                       $"Directory was not created: {directory}");
-        }
-
-        directory.MoveTo(finalDirectoryPath);
+        this.DumpRom_(romFile);
         Asserts.True(finalDirectory.Exists,
                      $"Directory was not created: {finalDirectory}");
       }
@@ -43,15 +34,15 @@ namespace uni.platforms.gcn.tools {
     }
 
     private void DumpRom_(IFile romFile) {
-      var logger = Logging.Create<GcmDump>();
+      var logger = Logging.Create<Wit>();
       logger.LogInformation($"Dumping ROM {romFile}...");
 
       Files.RunInDirectory(
           romFile.GetParent()!,
           () => {
             ProcessUtil.ExecuteBlockingSilently(
-                GcnToolsConstants.GCMDUMP_EXE,
-                $"\"{romFile.FullName}\"");
+                WiiToolsConstants.WIT_EXE,
+                $"extract \"{romFile.FullName}\" \"./{romFile.NameWithoutExtension}\"");
           });
     }
   }
