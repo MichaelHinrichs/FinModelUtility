@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 
@@ -74,7 +73,8 @@ namespace fin.model.impl {
       public IFile SaveInDirectory(IDirectory directory) {
         var outFile =
             new FinFile(Path.Combine(directory.FullName, this.Name + ".png"));
-        this.ImageData.Save(outFile.FullName, ImageFormat.Png);
+        using var writer = outFile.OpenWrite();
+        this.Image.ExportToStream(writer, LocalImageFormat.PNG);
         return outFile;
       }
 

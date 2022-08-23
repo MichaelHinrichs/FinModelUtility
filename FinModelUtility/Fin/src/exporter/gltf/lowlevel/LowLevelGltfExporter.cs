@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 
+using fin.image;
 using fin.io;
 using fin.log;
 using fin.model;
@@ -113,8 +114,6 @@ namespace fin.exporter.gltf.lowlevel {
             default: {
               var texture = PrimaryTextureFinder.GetFor(finMaterial);
               if (texture != null) {
-                var textureImage = texture.ImageData;
-
                 var alphaMode = texture.TransparencyType switch {
                     BitmapTransparencyType.OPAQUE => AlphaMode.OPAQUE,
                     BitmapTransparencyType.MASK => AlphaMode.MASK,
@@ -179,7 +178,7 @@ namespace fin.exporter.gltf.lowlevel {
     private static MemoryImage
         GetGltfImageFromFinTexture_(ITexture finTexture) {
       using var imageStream = new MemoryStream();
-      finTexture.ImageData.Save(imageStream, ImageFormat.Png);
+      finTexture.Image.ExportToStream(imageStream, LocalImageFormat.PNG);
       var imageBytes = imageStream.ToArray();
       return new MemoryImage(imageBytes);
     }
