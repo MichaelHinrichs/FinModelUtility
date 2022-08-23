@@ -51,18 +51,10 @@ namespace fin.model.impl {
 
       public ITexture CreateTexture(IImage imageData)
         => new TextureImpl(imageData);
-
-      public ITexture CreateTexture(Bitmap imageData)
-        => new TextureImpl(imageData);
     }
 
     private class TextureImpl : ITexture {
       private readonly IImage? image_;
-
-      public TextureImpl(Bitmap imageData) {
-        this.ImageData = imageData;
-        this.TransparencyType = BitmapUtil.GetTransparencyType(imageData);
-      }
 
       public TextureImpl(IImage image) {
         this.image_ = image;

@@ -28,6 +28,7 @@ using bmd.schema.bmd.mat3;
 using bmd.schema.bmd.shp1;
 using bmd.schema.bmd.vtx1;
 
+using fin.image;
 using fin.model;
 using fin.model.impl;
 using fin.schema.matrix;
@@ -1390,52 +1391,50 @@ label_7:
         }
 
         // TODO: Share this implementation w/ BTI
-        public unsafe System.Drawing.Bitmap ToBitmap() {
-          Bitmap bitmap;
+        public unsafe IImage ToBitmap() {
+          var width = this.Width;
+          var height = this.Height;
+
+          Rgba32Image bitmap;
           var isIndex4 = this.Format == TextureFormat.INDEX4;
           var isIndex8 = this.Format == TextureFormat.INDEX8;
           if (isIndex4 || isIndex8) {
-            bitmap = new Bitmap(this.Width, this.Height, PixelFormat.Format32bppArgb);
-            BitmapUtil.InvokeAsLocked(
-                bitmap,
-                bitmapData => {
-                  var indices = new byte[this.Width * this.Height];
-                  if (isIndex4) {
-                    for (var i = 0; i < this.Data.Length; ++i) {
-                      var two = this.Data[i];
+            bitmap = new Rgba32Image(width, height);
+            bitmap.Mutate((_, setHandler) => {
+              var indices = new byte[width * height];
+              if (isIndex4) {
+                for (var i = 0; i < this.Data.Length; ++i) {
+                  var two = this.Data[i];
 
-                      var firstIndex = two >> 4;
-                      var secondIndex = two & 0x0F;
+                  var firstIndex = two >> 4;
+                  var secondIndex = two & 0x0F;
 
-                      indices[2 * i + 0] = (byte) firstIndex;
-                      indices[2 * i + 1] = (byte) secondIndex;
-                    }
-                  } else {
-                    indices = this.Data;
-                  }
+                  indices[2 * i + 0] = (byte)firstIndex;
+                  indices[2 * i + 1] = (byte)secondIndex;
+                }
+              } else {
+                indices = this.Data;
+              }
 
-                  var blockWidth = 8;
-                  var blockHeight = isIndex4 ? 8 : 4;
+              var blockWidth = 8;
+              var blockHeight = isIndex4 ? 8 : 4;
 
-                  var index = 0;
-                  var bytes = (byte*)bitmapData.Scan0.ToPointer();
-                  for (var ty = 0; ty < this.Height / blockHeight; ty++) {
-                    for (var tx = 0; tx < this.Width / blockWidth; tx++) {
+              var index = 0;
+              for (var ty = 0; ty < height / blockHeight; ty++) {
+                for (var tx = 0; tx < width / blockWidth; tx++) {
 
-                      for (var y = 0; y < blockHeight; ++y) {
-                        for (var x = 0; x < blockWidth; ++x) {
-                          var color = this.palette[indices[index++]];
-
-                          var i = (ty * blockHeight + y) * this.Width + tx * blockWidth + x;
-                          bytes[4 * i + 0] = color.Bb;
-                          bytes[4 * i + 1] = color.Gb;
-                          bytes[4 * i + 2] = color.Rb;
-                          bytes[4 * i + 3] = color.Ab;
-                        }
-                      }
+                  for (var y = 0; y < blockHeight; ++y) {
+                    for (var x = 0; x < blockWidth; ++x) {
+                      var color = this.palette[indices[index++]];
+                      setHandler(
+                          tx * blockWidth + x,
+                          ty * blockHeight + y,
+                          color.Rb, color.Gb, color.Bb, color.Ab);
                     }
                   }
-                });
+                }
+              }
+            });
 
             return bitmap;
           }
@@ -1452,12 +1451,22 @@ label_7:
               _                      => throw new NotImplementedException()
           };
 
-          byte[] numArray = imageDataFormat.ConvertFrom(this.Data, (int)this.Width, (int)this.Height, (ProgressChangedEventHandler)null); 
-          bitmap = new System.Drawing.Bitmap((int)this.Width, (int)this.Height);
-          BitmapData bitmapdata = bitmap.LockBits(new Rectangle(0, 0, (int)this.Width, (int)this.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
-          for (int ofs = 0; ofs < numArray.Length; ++ofs)
-            Marshal.WriteByte(bitmapdata.Scan0, ofs, numArray[ofs]);
-          bitmap.UnlockBits(bitmapdata);
+          byte[] numArray = imageDataFormat.ConvertFrom(this.Data, width, height, (ProgressChangedEventHandler)null); 
+          bitmap = new Rgba32Image(width, height);
+          bitmap.Mutate((_, setHandler) => {
+            for (var y = 0; y < height; ++y) {
+              for (var x = 0; x < width; ++x) {
+                var i = 4 * (y * width + x);
+
+                var b = numArray[i + 0];
+                var g = numArray[i + 1];
+                var r = numArray[i + 2];
+                var a = numArray[i + 3];
+
+                setHandler(x, y, r, g, b, a);
+              }
+            }
+          });
           return bitmap;
         }
 

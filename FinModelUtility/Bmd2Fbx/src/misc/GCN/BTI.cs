@@ -12,6 +12,8 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 
+using fin.image;
+
 using gx;
 
 using schema;
@@ -31,7 +33,7 @@ namespace bmd.GCN {
       this.Data = er.ReadBytes(this.Header.GetCompressedBufferSize());
     }
 
-    public Bitmap ToBitmap() {
+    public IImage ToBitmap() {
       ImageDataFormat imageDataFormat = (ImageDataFormat) null;
       switch ((byte) this.Header.Format) {
         case 0:
@@ -62,15 +64,26 @@ namespace bmd.GCN {
       byte[] numArray = imageDataFormat.ConvertFrom(
           this.Data, (int) this.Header.Width, (int) this.Header.Height,
           (ProgressChangedEventHandler) null);
-      Bitmap bitmap =
-          new Bitmap((int) this.Header.Width, (int) this.Header.Height);
-      BitmapData bitmapdata = bitmap.LockBits(
-          new Rectangle(0, 0, (int) this.Header.Width,
-                        (int) this.Header.Height), ImageLockMode.WriteOnly,
-          PixelFormat.Format32bppArgb);
-      for (int ofs = 0; ofs < numArray.Length; ++ofs)
-        Marshal.WriteByte(bitmapdata.Scan0, ofs, numArray[ofs]);
-      bitmap.UnlockBits(bitmapdata);
+
+      var width = this.Header.Width;
+      var height = this.Header.Height;
+
+      var bitmap = new Rgba32Image(width, height);
+      bitmap.Mutate((_, setHandler) => {
+        for (var y = 0; y < height; ++y) {
+          for (var x = 0; x < width; ++x) {
+            var i = 4 * (y * width + x);
+
+            var b = numArray[i + 0];
+            var g = numArray[i + 1];
+            var r = numArray[i + 2];
+            var a = numArray[i + 3];
+
+            setHandler(x, y, r, g, b, a);
+          }
+        }
+      });
+
       return bitmap;
     }
 

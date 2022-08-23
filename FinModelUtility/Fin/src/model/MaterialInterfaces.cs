@@ -18,7 +18,6 @@ namespace fin.model {
     IFixedFunctionMaterial AddFixedFunctionMaterial();
 
     ITexture CreateTexture(IImage imageData);
-    ITexture CreateTexture(Bitmap imageData);
   }
 
   public enum MaterialType {

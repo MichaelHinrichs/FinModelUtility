@@ -10,6 +10,8 @@ using fin.model;
 
 using bmd.GCN;
 
+using fin.image;
+
 using gx;
 
 
@@ -72,14 +74,14 @@ namespace bmd.exporter {
 
     public string Name { get; }
     public BMD.TEX1Section.TextureHeader Header { get; }
-    public Bitmap Image { get; }
+    public IImage Image { get; }
     public ColorType ColorType { get; }
     public WrapMode WrapModeS { get; }
     public WrapMode WrapModeT { get; }
 
     public void SaveInDirectory(IDirectory directory) {
       var stream = new MemoryStream();
-      this.Image.Save(stream, ImageFormat.Png);
+      this.Image.ExportToStream(stream, LocalImageFormat.PNG);
 
       var imageBytes = stream.ToArray();
 
