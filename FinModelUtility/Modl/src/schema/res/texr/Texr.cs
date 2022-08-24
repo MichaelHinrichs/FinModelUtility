@@ -86,10 +86,6 @@ namespace modl.schema.res.texr {
             var expectedTextureEnd = er.Position + textureLength;
 
             var textureName = er.ReadString(0x20);
-            if (textureName != "FM_panel_mid") {
-              er.Position = expectedTextureEnd;
-              continue;
-            }
 
             var endiannessType = er.Endianness;
             er.Endianness = Endianness.BigEndian;
@@ -115,16 +111,14 @@ namespace modl.schema.res.texr {
                 "DXT1"     => this.ReadDxt1_(er, width, height),
                 "P8"       => this.ReadP8_(er, width, height),
                 "P4"       => this.ReadP4_(er, width, height),
-                "IA8"      => null,
-                "IA4"      => null,
-                "I8"       => null,
-                "I4"       => null,
+                "IA8"      => this.ReadIA8_(er, width, height),
+                "IA4"      => this.ReadIA4_(er, width, height),
+                "I8"       => this.ReadI8_(er, width, height),
+                "I4"       => this.ReadI4_(er, width, height),
                 _          => throw new NotImplementedException(),
             };
 
-            if (image != null) {
-              this.Textures.Add(new BwTexture(textureName, image));
-            }
+            this.Textures.Add(new BwTexture(textureName, image));
 
             er.Position = expectedTextureEnd;
             Asserts.Equal(expectedTextureEnd, er.Position);
@@ -154,43 +148,46 @@ namespace modl.schema.res.texr {
       var image = new Bitmap((int) width, (int) height);
       BitmapUtil.InvokeAsLocked(image, bmpData => {
         unsafe {
-          var x = 0;
-          var y = 0;
-
           var ptr = (byte*) bmpData.Scan0;
-          for (var i = 0; i < mipSize / 64; ++i) {
-            for (var iy = 0; iy < 4; ++iy) {
-              var imgY = y + iy;
-              for (var ix = 0; ix < 4; ++ix) {
-                var imgX = x + ix;
 
-                var a = er.ReadByte();
-                var r = er.ReadByte();
+          var blockWidth = 4;
+          var blockHeight = 4;
 
-                var index = 4 * (imgY * width + imgX);
-                ptr[index + 2] = r;
-                ptr[index + 3] = a;
+          for (var blockY = 0; blockY < height / blockHeight; blockY++) {
+            var availableBlockHeight =
+                Math.Min(blockHeight, height - blockHeight * blockY);
+
+            for (var blockX = 0; blockX < width / blockWidth; blockX++) {
+              var availableBlockWidth =
+                  Math.Min(blockWidth, width - blockWidth * blockX);
+
+              for (var iy = 0; iy < availableBlockHeight; ++iy) {
+                var imgY = blockY * blockHeight + iy;
+                for (var ix = 0; ix < availableBlockWidth; ++ix) {
+                  var imgX = blockX * blockWidth + ix;
+
+                  var a = er.ReadByte();
+                  var r = er.ReadByte();
+
+                  var index = 4 * (imgY * width + imgX);
+                  ptr[index + 2] = r;
+                  ptr[index + 3] = a;
+                }
               }
-            }
 
-            for (var iy = 0; iy < 4; ++iy) {
-              var imgY = y + iy;
-              for (var ix = 0; ix < 4; ++ix) {
-                var imgX = x + ix;
+              for (var iy = 0; iy < availableBlockHeight; ++iy) {
+                var imgY = blockY * blockHeight + iy;
+                for (var ix = 0; ix < availableBlockWidth; ++ix) {
+                  var imgX = blockX * blockWidth + ix;
 
-                var g = er.ReadByte();
-                var b = er.ReadByte();
+                  var g = er.ReadByte();
+                  var b = er.ReadByte();
 
-                var index = 4 * (imgY * width + imgX);
-                ptr[index + 0] = b;
-                ptr[index + 1] = g;
+                  var index = 4 * (imgY * width + imgX);
+                  ptr[index + 0] = b;
+                  ptr[index + 1] = g;
+                }
               }
-            }
-
-            x += 4;
-            if (x >= width) {
-              x = 0;
-              y += 4;
             }
           }
         }
@@ -205,6 +202,7 @@ namespace modl.schema.res.texr {
       er.AssertStringEndian("MIP ");
 
       // TODO: Trim this little bit off?
+      width = (uint) (MathF.Ceiling(width / 8f) * 8);
       height = (uint) (MathF.Ceiling(height / 8f) * 8);
 
       var mipSize = width * height / 2;
@@ -421,6 +419,194 @@ namespace modl.schema.res.texr {
       });
 
       er.Endianness = endianness;
+
+      return image;
+    }
+
+    private Image ReadIA8_(EndianBinaryReader er, uint width, uint height) {
+      er.AssertStringEndian("MIP ");
+      var mipSize = 2 * width * height;
+      er.AssertUInt32(mipSize);
+
+      er.Endianness = Endianness.BigEndian;
+
+      var image = new Bitmap((int) width, (int) height);
+      BitmapUtil.InvokeAsLocked(image, bmpData => {
+        unsafe {
+          var blockWidth = 4;
+          var blockHeight = 4;
+
+          var blockCountX = width / blockWidth;
+          var blockCountY = height / blockHeight;
+
+          var ptr = (byte*) bmpData.Scan0;
+          for (var blockY = 0; blockY < blockCountY; ++blockY) {
+            for (var blockX = 0; blockX < blockCountX; ++blockX) {
+              for (var yInBlock = 0; yInBlock < blockHeight; ++yInBlock) {
+                var y = blockY * blockHeight + yInBlock;
+                for (var xInBlock = 0; xInBlock < blockWidth; ++xInBlock) {
+                  var x = blockX * blockWidth + xInBlock;
+
+                  var intensity = er.ReadByte();
+                  var alpha = er.ReadByte();
+
+                  var i = 4 * (y * width + x);
+
+                  ptr[i + 0] = intensity;
+                  ptr[i + 1] = intensity;
+                  ptr[i + 2] = intensity;
+                  ptr[i + 3] = alpha;
+                }
+              }
+            }
+          }
+        }
+      });
+
+      er.Endianness = Endianness.LittleEndian;
+
+      return image;
+    }
+
+    private Image ReadIA4_(EndianBinaryReader er, uint width, uint height) {
+      er.AssertStringEndian("MIP ");
+      var mipSize = width * height;
+      er.AssertUInt32(mipSize);
+
+      er.Endianness = Endianness.BigEndian;
+
+      var image = new Bitmap((int) width, (int) height);
+      BitmapUtil.InvokeAsLocked(image, bmpData => {
+        unsafe {
+          var blockWidth = 8;
+          var blockHeight = 4;
+
+          var blockCountX = width / blockWidth;
+          var blockCountY = height / blockHeight;
+
+          var ptr = (byte*) bmpData.Scan0;
+          for (var blockY = 0; blockY < blockCountY; ++blockY) {
+            for (var blockX = 0; blockX < blockCountX; ++blockX) {
+              for (var yInBlock = 0; yInBlock < blockHeight; ++yInBlock) {
+                var y = blockY * blockHeight + yInBlock;
+                for (var xInBlock = 0; xInBlock < blockWidth; ++xInBlock) {
+                  var x = blockX * blockWidth + xInBlock;
+
+                  var color = er.ReadByte();
+
+                  var intensity = ColorUtil.ExtractScaled(color, 0, 4);
+                  var alpha = ColorUtil.ExtractScaled(color, 4, 4);
+
+                  var i = 4 * (y * width + x);
+
+                  ptr[i + 0] = intensity;
+                  ptr[i + 1] = intensity;
+                  ptr[i + 2] = intensity;
+                  ptr[i + 3] = alpha;
+                }
+              }
+            }
+          }
+        }
+      });
+
+      er.Endianness = Endianness.LittleEndian;
+
+      return image;
+    }
+
+    private Image ReadI8_(EndianBinaryReader er, uint width, uint height) {
+      er.AssertStringEndian("MIP ");
+      var mipSize = width * height;
+      er.AssertUInt32(mipSize);
+
+      er.Endianness = Endianness.BigEndian;
+
+      var image = new Bitmap((int)width, (int)height);
+      BitmapUtil.InvokeAsLocked(image, bmpData => {
+        unsafe {
+          var blockWidth = 8;
+          var blockHeight = 4;
+
+          var blockCountX = width / blockWidth;
+          var blockCountY = height / blockHeight;
+
+          var ptr = (byte*)bmpData.Scan0;
+          for (var blockY = 0; blockY < blockCountY; ++blockY) {
+            for (var blockX = 0; blockX < blockCountX; ++blockX) {
+              for (var yInBlock = 0; yInBlock < blockHeight; ++yInBlock) {
+                var y = blockY * blockHeight + yInBlock;
+                for (var xInBlock = 0; xInBlock < blockWidth; ++xInBlock) {
+                  var x = blockX * blockWidth + xInBlock;
+
+                  var intensity = er.ReadByte();
+
+                  var i = 4 * (y * width + x);
+
+                  ptr[i + 0] = intensity;
+                  ptr[i + 1] = intensity;
+                  ptr[i + 2] = intensity;
+                  ptr[i + 3] = 255;
+                }
+              }
+            }
+          }
+        }
+      });
+
+      er.Endianness = Endianness.LittleEndian;
+
+      return image;
+    }
+
+    private Image ReadI4_(EndianBinaryReader er, uint width, uint height) {
+      er.AssertStringEndian("MIP ");
+      var mipSize = width * height / 2;
+      er.AssertUInt32(mipSize);
+
+      er.Endianness = Endianness.BigEndian;
+
+      var image = new Bitmap((int) width, (int) height);
+      BitmapUtil.InvokeAsLocked(image, bmpData => {
+        unsafe {
+          var blockWidth = 8;
+          var blockHeight = 8;
+
+          var blockCountX = width / blockWidth;
+          var blockCountY = height / blockHeight;
+
+          var ptr = (byte*) bmpData.Scan0;
+          for (var blockY = 0; blockY < blockCountY; ++blockY) {
+            for (var blockX = 0; blockX < blockCountX; ++blockX) {
+              for (var yInBlock = 0; yInBlock < blockHeight; ++yInBlock) {
+                var y = blockY * blockHeight + yInBlock;
+                for (var xInBlock = 0; xInBlock < blockWidth; xInBlock += 2) {
+                  var x = blockX * blockWidth + xInBlock;
+
+                  var color = er.ReadByte();
+
+                  var intensity1 = ColorUtil.ExtractScaled(color, 4, 4);
+                  var intensity2 = ColorUtil.ExtractScaled(color, 0, 4);
+
+                  var i = 4 * (y * width + x);
+
+                  ptr[i + 0] = intensity1;
+                  ptr[i + 1] = intensity1;
+                  ptr[i + 2] = intensity1;
+                  ptr[i + 3] = 255;
+
+                  ptr[i + 4] = intensity2;
+                  ptr[i + 5] = intensity2;
+                  ptr[i + 6] = intensity2;
+                  ptr[i + 7] = 255;
+                }
+              }
+            }
+          }
+        }
+      });
+
+      er.Endianness = Endianness.LittleEndian;
 
       return image;
     }
