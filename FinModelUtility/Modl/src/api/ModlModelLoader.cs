@@ -9,7 +9,9 @@ using fin.model;
 using fin.model.impl;
 
 using modl.schema.anim;
+using modl.schema.modl;
 using modl.schema.modl.bw1;
+using modl.schema.modl.bw2;
 
 
 namespace modl.api {
@@ -35,7 +37,10 @@ namespace modl.api {
 
       using var er = new EndianBinaryReader(modlFile.Impl.OpenRead(),
                                             Endianness.LittleEndian);
-      var bw1Model = er.ReadNew<Bw1Model>();
+      var bw1Model = modelFileBundle.ModlType switch {
+          ModlType.BW1 => (IBwModel) er.ReadNew<Bw1Model>(),
+          ModlType.BW2 => er.ReadNew<Bw2Model>(),
+      };
 
       var model = new ModelImpl();
       var finMesh = model.Skin.AddMesh();
@@ -140,8 +145,12 @@ namespace modl.api {
         var textureDictionary = new LazyDictionary<string, ITexture>(
             textureName => {
               var textureFile =
-                  modlFile.Parent.Files.Single(
+                  modlFile.Parent.Files.FirstOrDefault(
                       file => file.Name.ToLower() == $"{textureName}.png");
+              if (textureFile == null) {
+                ;
+              }
+
               var image = FinImage.FromFile(textureFile.Impl);
 
               var finTexture =

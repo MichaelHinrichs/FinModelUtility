@@ -13,8 +13,8 @@ using schema;
 
 
 namespace modl.schema.modl.bw1 {
-  public class Bw1Model : IBwModel {
-    public List<NodeBw1> Nodes { get; } = new();
+  public class Bw1Model : IBwModel, IDeserializable {
+    public List<IBwNode> Nodes { get; } = new();
     public ListDictionary<ushort, ushort> CnctParentToChildren { get; } = new();
 
     public Dictionary<uint, NodeBw1> NodeByWeirdId { get; } = new();
@@ -80,7 +80,7 @@ namespace modl.schema.modl.bw1 {
     }
   }
 
-  public class NodeBw1 : IDeserializable {
+  public class NodeBw1 : IBwNode, IDeserializable {
     private int additionalDataCount_;
 
     public uint WeirdId { get; set; }
@@ -92,7 +92,7 @@ namespace modl.schema.modl.bw1 {
 
     public float Scale { get; set; }
 
-    public List<Bw1Material> Materials { get; } = new();
+    public List<IBwMaterial> Materials { get; } = new();
 
     public NodeBw1(int additionalDataCount) {
       this.additionalDataCount_ = additionalDataCount;
@@ -260,7 +260,7 @@ namespace modl.schema.modl.bw1 {
     }
 
 
-    public Uv[][] UvMaps { get; } = new Uv[4][];
+    public VertexUv[][] UvMaps { get; } = new VertexUv[4][];
 
     private void ReadUvMap_(EndianBinaryReader er,
                             int uvMapIndex,
@@ -269,20 +269,15 @@ namespace modl.schema.modl.bw1 {
       er.Endianness = Endianness.BigEndian;
 
       var scale = MathF.Pow(2, 11);
-      var uvMap = this.UvMaps[uvMapIndex] = new Uv[uvCount];
+      var uvMap = this.UvMaps[uvMapIndex] = new VertexUv[uvCount];
       for (var i = 0; i < uvCount; ++i) {
-        uvMap[i] = new Uv {
+        uvMap[i] = new VertexUv {
             U = er.ReadInt16() / scale,
             V = er.ReadInt16() / scale,
         };
       }
 
       er.Endianness = endianness;
-    }
-
-    public class Uv {
-      public float U { get; set; }
-      public float V { get; set; }
     }
 
 
@@ -458,28 +453,6 @@ namespace modl.schema.modl.bw1 {
 
       er.Endianness = endianness;
       Asserts.Equal(expectedEnd, er.Position);
-    }
-
-
-    public class BwMesh {
-      public uint Flags { get; set; }
-      public uint MaterialIndex { get; set; }
-      public List<BwTriangleStrip> TriangleStrips { get; set; }
-    }
-
-    public class BwTriangleStrip {
-      public List<BwVertexAttributeIndices> VertexAttributeIndicesList {
-        get;
-        set;
-      }
-    }
-
-    public class BwVertexAttributeIndices {
-      public double Fraction { get; set; }
-      public ushort PositionIndex { get; set; }
-      public ushort? NormalIndex { get; set; }
-      public int? NodeIndex { get; set; }
-      public ushort?[] TexCoordIndices { get; } = new ushort?[8];
     }
   }
 }

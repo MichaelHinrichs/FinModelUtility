@@ -1,4 +1,5 @@
-﻿using fin.model;
+﻿using fin.io;
+using fin.model;
 
 using modl.api;
 
@@ -38,14 +39,12 @@ namespace uni.games.battalion_wars_2 {
         }
       }
 
-      return null;
-
       return new FileHierarchyBundler<ModlModelFileBundle>(
           directory => {
             var modlFiles = directory.FilesWithExtension(".modl");
             var animFiles = directory.FilesWithExtension(".anim");
 
-            var tvetModlFile =
+            /*var tvetModlFile =
                 modlFiles.Where(modlFile =>
                                     modlFile.NameWithoutExtension is "TVET");
             var tgruntModlFile =
@@ -82,15 +81,18 @@ namespace uni.games.battalion_wars_2 {
                                  !wvetModlFile.Contains(modlFile) &&
                                  !tgruntModlFile.Contains(modlFile) &&
                                  !wgruntModlFile.Contains(modlFile))
-                         .ToArray();
+                         .ToArray();*/
 
-            var allModlsAndAnims = new[] {
-                (tvetModlFile, fvAnimFiles),
-                (wvetModlFile, fvAnimFiles),
-                (tgruntModlFile, fgAnimFiles),
-                (wgruntModlFile, fgAnimFiles.Concat(wgruntAnimFiles).ToArray()),
-                (otherModlFiles, null),
-            };
+            var allModlsAndAnims =
+                new (IEnumerable<IFileHierarchyFile>,
+                    IList<IFileHierarchyFile>?)[] {
+                        /*(tvetModlFile, fvAnimFiles),
+                        (wvetModlFile, fvAnimFiles),
+                        (tgruntModlFile, fgAnimFiles),
+                        (wgruntModlFile, fgAnimFiles.Concat(wgruntAnimFiles).ToArray()),
+                        (otherModlFiles, null),*/
+                        (modlFiles, null),
+                    };
 
             var bundles =
                 allModlsAndAnims
@@ -101,6 +103,7 @@ namespace uni.games.battalion_wars_2 {
                                 .Select(
                                     modlFile => new ModlModelFileBundle {
                                         ModlFile = modlFile,
+                                        ModlType = ModlType.BW2,
                                         AnimFiles = modlsAndAnims.Item2
                                     }))
                     .ToList();

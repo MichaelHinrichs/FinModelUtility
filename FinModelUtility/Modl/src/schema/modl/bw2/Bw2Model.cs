@@ -13,8 +13,8 @@ using schema;
 
 
 namespace modl.schema.modl.bw2 {
-  public class Bw2Model : IBwModel {
-    public List<NodeBw2> Nodes { get; } = new();
+  public class Bw2Model : IBwModel, IDeserializable {
+    public List<IBwNode> Nodes { get; } = new();
     public ListDictionary<ushort, ushort> CnctParentToChildren { get; } = new();
 
     public Dictionary<uint, NodeBw2> NodeByWeirdId { get; } = new();
@@ -25,10 +25,13 @@ namespace modl.schema.modl.bw2 {
 
       er.AssertStringEndian("MODL");
 
-      var version = er.ReadUInt32s(2);
-
       var size = er.ReadUInt32();
       var expectedEnd = er.Position + size;
+
+      var endianness = er.Endianness;
+      er.Endianness = Endianness.BigEndian;
+
+      var version = er.ReadUInt32s(2);
 
       var nodeCount = er.ReadUInt16();
       var additionalDataCount = er.ReadUInt16();
@@ -40,6 +43,8 @@ namespace modl.schema.modl.bw2 {
       var bgfName = er.ReadString(bgfNameLength);
 
       var additionalData = er.ReadUInt32s(additionalDataCount);
+
+      er.Endianness = endianness;
 
       this.SkipSection_(er, "XMEM");
 
@@ -58,10 +63,13 @@ namespace modl.schema.modl.bw2 {
 
       // Reads in hierarchy, how nodes are "CoNneCTed" or "CoNCaTenated?"?
       {
-        er.AssertStringEndian("CNCT");
-
-        var cnctSize = er.ReadUInt32();
-        var cnctCount = cnctSize / 4;
+        uint cnctCount;
+        {
+          er.Endianness = Endianness.LittleEndian;
+          er.AssertStringEndian("CNCT");
+          var cnctSize = er.ReadUInt32();
+          cnctCount = cnctSize / 4;
+        }
 
         this.CnctParentToChildren.Clear();
         for (var i = 0; i < cnctCount; ++i) {
@@ -83,19 +91,16 @@ namespace modl.schema.modl.bw2 {
     }
   }
 
-  public class NodeBw2 : IDeserializable {
+  public class NodeBw2 : IBwNode, IDeserializable {
     private int additionalDataCount_;
 
     public uint WeirdId { get; set; }
 
     public BwTransform Transform { get; } = new();
 
-    public AutoMagicUInt32SizedSection<BwBoundingBox> BoundingBox { get; } =
-      new("BBOX".Reverse());
-
     public float Scale { get; set; }
 
-    public List<Bw2Material> Materials { get; } = new();
+    public List<IBwMaterial> Materials { get; } = new();
 
     public NodeBw2(int additionalDataCount) {
       this.additionalDataCount_ = additionalDataCount;
@@ -107,6 +112,9 @@ namespace modl.schema.modl.bw2 {
       var nodeSize = er.ReadUInt32();
       var nodeStart = er.Position;
       var expectedNodeEnd = nodeStart + nodeSize;
+
+      var tmpEndianness = er.Endianness;
+      er.Endianness = Endianness.BigEndian;
 
       var nodeNameLength = er.ReadInt32();
       var nodeName = er.ReadString(nodeNameLength);
@@ -134,10 +142,23 @@ namespace modl.schema.modl.bw2 {
       // TODO: additional data
       var additionalData = er.ReadUInt32s(this.additionalDataCount_);
 
-      this.BoundingBox.Read(er);
+      {
+        er.Endianness = Endianness.LittleEndian;
+        er.AssertStringEndian("BBOX");
+        er.AssertUInt32(4 * 6);
 
-      var sectionName = er.ReadStringEndian(4);
-      var sectionSize = er.ReadInt32();
+        er.Endianness = Endianness.BigEndian;
+        er.ReadNew<BwBoundingBox>();
+      }
+
+      string sectionName;
+      int sectionSize;
+      {
+        er.Endianness = Endianness.LittleEndian;
+        sectionName = er.ReadStringEndian(4);
+        sectionSize = er.ReadInt32();
+        er.Endianness = Endianness.BigEndian;
+      }
 
       while (sectionName != "MATL") {
         if (sectionName == "VSCL") {
@@ -149,8 +170,12 @@ namespace modl.schema.modl.bw2 {
           throw new NotImplementedException();
         }
 
-        sectionName = er.ReadStringEndian(4);
-        sectionSize = er.ReadInt32();
+        {
+          er.Endianness = Endianness.LittleEndian;
+          sectionName = er.ReadStringEndian(4);
+          sectionSize = er.ReadInt32();
+          er.Endianness = Endianness.BigEndian;
+        }
       }
 
       Asserts.Equal("MATL", sectionName);
@@ -165,9 +190,12 @@ namespace modl.schema.modl.bw2 {
 
       var vertexDescriptorValue = (uint) 0;
       while (er.Position < expectedNodeEnd) {
-        sectionName = er.ReadStringEndian(4);
-        sectionSize = er.ReadInt32();
-
+        {
+          er.Endianness = Endianness.LittleEndian;
+          sectionName = er.ReadStringEndian(4);
+          sectionSize = er.ReadInt32();
+          er.Endianness = Endianness.BigEndian;
+        }
         var expectedSectionEnd = er.Position + sectionSize;
 
         switch (sectionName) {
@@ -251,6 +279,8 @@ namespace modl.schema.modl.bw2 {
 
       BreakEarly: ;
       Asserts.Equal(er.Position, expectedNodeEnd);
+
+      er.Endianness = tmpEndianness;
     }
 
 
@@ -266,7 +296,7 @@ namespace modl.schema.modl.bw2 {
     }
 
 
-    public Uv[][] UvMaps { get; } = new Uv[4][];
+    public VertexUv[][] UvMaps { get; } = new VertexUv[4][];
 
     private void ReadUvMap_(EndianBinaryReader er,
                             int uvMapIndex,
@@ -275,20 +305,15 @@ namespace modl.schema.modl.bw2 {
       er.Endianness = Endianness.BigEndian;
 
       var scale = MathF.Pow(2, 11);
-      var uvMap = this.UvMaps[uvMapIndex] = new Uv[uvCount];
+      var uvMap = this.UvMaps[uvMapIndex] = new VertexUv[uvCount];
       for (var i = 0; i < uvCount; ++i) {
-        uvMap[i] = new Uv {
+        uvMap[i] = new VertexUv {
             U = er.ReadInt16() / scale,
             V = er.ReadInt16() / scale,
         };
       }
 
       er.Endianness = endianness;
-    }
-
-    public class Uv {
-      public float U { get; set; }
-      public float V { get; set; }
     }
 
 
@@ -355,6 +380,8 @@ namespace modl.schema.modl.bw2 {
           }
         }
       }
+
+      var unknown = er.ReadUInt32();
 
       var gxDataSize = er.ReadUInt32();
       Asserts.Equal(expectedEnd, er.Position + gxDataSize);
@@ -464,28 +491,6 @@ namespace modl.schema.modl.bw2 {
 
       er.Endianness = endianness;
       Asserts.Equal(expectedEnd, er.Position);
-    }
-
-
-    public class BwMesh {
-      public uint Flags { get; set; }
-      public uint MaterialIndex { get; set; }
-      public List<BwTriangleStrip> TriangleStrips { get; set; }
-    }
-
-    public class BwTriangleStrip {
-      public List<BwVertexAttributeIndices> VertexAttributeIndicesList {
-        get;
-        set;
-      }
-    }
-
-    public class BwVertexAttributeIndices {
-      public double Fraction { get; set; }
-      public ushort PositionIndex { get; set; }
-      public ushort? NormalIndex { get; set; }
-      public int? NodeIndex { get; set; }
-      public ushort?[] TexCoordIndices { get; } = new ushort?[8];
     }
   }
 }

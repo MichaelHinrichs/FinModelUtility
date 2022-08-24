@@ -102,6 +102,7 @@ namespace uni.games.battalion_wars_1 {
                                 .Select(
                                     modlFile => new ModlModelFileBundle {
                                         ModlFile = modlFile,
+                                        ModlType = ModlType.BW1,
                                         AnimFiles = modlsAndAnims.Item2
                                     }))
                     .ToList();
