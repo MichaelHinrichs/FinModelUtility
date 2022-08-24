@@ -10,7 +10,8 @@ namespace modl.schema.modl {
   }
 
   public interface IBwNode {
-    uint WeirdId { get; set; }
+    string GetIdentifier();
+
     BwTransform Transform { get; }
     float Scale { get; set; }
     List<IBwMaterial> Materials { get; }

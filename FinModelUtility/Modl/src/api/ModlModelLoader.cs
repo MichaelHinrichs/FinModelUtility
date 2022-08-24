@@ -49,7 +49,7 @@ namespace modl.api {
 
       var finBones = new IBone[bwModel.Nodes.Count];
       var finBonesByModlNode = new Dictionary<IBwNode, IBone>();
-      var finBonesByWeirdId = new Dictionary<uint, IBone>();
+      var finBonesByIdentifier = new Dictionary<string, IBone>();
 
       {
         var nodeQueue =
@@ -76,10 +76,12 @@ namespace modl.api {
                             bonePosition.Z)
                   .SetLocalRotationRadians(
                       eulerRadians.X, eulerRadians.Y, eulerRadians.Z);
-          finBone.Name = $"Node {modlNodeId}";
+
+          var identifier = modlNode.GetIdentifier();
+          finBone.Name = identifier;
           finBones[modlNodeId] = finBone;
           finBonesByModlNode[modlNode] = finBone;
-          finBonesByWeirdId[modlNode.WeirdId] = finBone;
+          finBonesByIdentifier[identifier] = finBone;
 
           if (bwModel.CnctParentToChildren.TryGetList(
                   modlNodeId, out var modlChildIds)) {
@@ -116,11 +118,12 @@ namespace modl.api {
             var animBone = anim.AnimBones[b];
             var animBoneFrames = anim.AnimBoneFrames[b];
 
-            var animWeirdId = animBone.WeirdId;
-            if (!finBonesByWeirdId.TryGetValue(animWeirdId, out var finBone)) {
+            var animNodeIdentifier = animBone.GetIdentifier();
+            if (!finBonesByIdentifier.TryGetValue(
+                    animNodeIdentifier, out var finBone)) {
               // TODO: Gross hack for the vet models, what's the real fix???
-              if (animWeirdId == 33) {
-                finBone = finBonesByWeirdId[34];
+              if (animNodeIdentifier == NodeBw1.GetIdentifier(33)) {
+                finBone = finBonesByIdentifier[NodeBw1.GetIdentifier(34)];
               }
             }
 

@@ -2,9 +2,10 @@
 
 
 namespace modl.schema.anim.bw2 {
-  [BinarySchema]
-  public partial class Bw2AnimBone : IBwAnimBone, IBiSerializable {
-    [StringLengthSource(16)] public string Name { get; set; }
+  public class Bw2AnimBone : IBwAnimBone, IDeserializable {
+    public string GetIdentifier() => this.Name;
+
+    public string Name { get; set; }
 
     public uint PositionKeyframeCount { get; set; }
     public uint RotationKeyframeCount { get; set; }
@@ -18,6 +19,25 @@ namespace modl.schema.anim.bw2 {
     public float ZPosMin { get; set; }
     private readonly uint padding1_ = 0;
 
-    public uint WeirdId { get; set; }
+    public void Read(EndianBinaryReader er) {
+      this.Name = er.ReadString(16);
+
+      this.PositionKeyframeCount = er.ReadUInt32();
+      this.RotationKeyframeCount = er.ReadUInt32();
+
+      er.AssertUInt64(0);
+
+      this.XPosDelta = er.ReadSingle();
+      this.YPosDelta = er.ReadSingle();
+      this.ZPosDelta = er.ReadSingle();
+
+      this.XPosMin = er.ReadSingle();
+      this.YPosMin = er.ReadSingle();
+      this.ZPosMin = er.ReadSingle();
+
+      er.AssertUInt32(0);
+
+      var values = er.ReadBytes(4);
+    }
   }
 }

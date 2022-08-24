@@ -17,8 +17,6 @@ namespace modl.schema.modl.bw2 {
     public List<IBwNode> Nodes { get; } = new();
     public ListDictionary<ushort, ushort> CnctParentToChildren { get; } = new();
 
-    public Dictionary<uint, NodeBw2> NodeByWeirdId { get; } = new();
-
     public void Read(EndianBinaryReader er) {
       var filenameLength = er.ReadUInt32();
       er.Position += filenameLength;
@@ -51,13 +49,10 @@ namespace modl.schema.modl.bw2 {
       // Reads in nodes (bones)
       {
         this.Nodes.Clear();
-        this.NodeByWeirdId.Clear();
         for (var i = 0; i < nodeCount; ++i) {
           var node = new NodeBw2(additionalDataCount);
           node.Read(er);
           this.Nodes.Add(node);
-
-          this.NodeByWeirdId[node.WeirdId] = node;
         }
       }
 
@@ -94,7 +89,8 @@ namespace modl.schema.modl.bw2 {
   public class NodeBw2 : IBwNode, IDeserializable {
     private int additionalDataCount_;
 
-    public uint WeirdId { get; set; }
+    public string GetIdentifier() => this.Name;
+    public string Name { get; set; }
 
     public BwTransform Transform { get; } = new();
 
@@ -118,6 +114,7 @@ namespace modl.schema.modl.bw2 {
 
       var nodeNameLength = er.ReadInt32();
       var nodeName = er.ReadString(nodeNameLength);
+      this.Name = nodeName;
 
       var headerStart = er.Position;
       var expectedHeaderEnd = headerStart + 0x38;
@@ -125,9 +122,6 @@ namespace modl.schema.modl.bw2 {
         // TODO: What are these used for?
         var someMin = er.ReadUInt16();
         var someMax = er.ReadUInt16();
-
-        this.WeirdId = someMin;
-        ;
 
         // TODO: unknown, probably enum values
         var unknowns0 = er.ReadUInt32s(2);

@@ -5,6 +5,8 @@
   }
 
   public interface IBwAnimBone {
+    string GetIdentifier();
+
     uint PositionKeyframeCount { get; }
     uint RotationKeyframeCount { get; }
 
@@ -14,7 +16,5 @@
     float XPosMin { get; }
     float YPosMin { get; }
     float ZPosMin { get; }
-
-    uint WeirdId { get; }
   }
 }

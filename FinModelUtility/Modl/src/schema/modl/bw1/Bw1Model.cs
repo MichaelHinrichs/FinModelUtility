@@ -98,6 +98,10 @@ namespace modl.schema.modl.bw1 {
       this.additionalDataCount_ = additionalDataCount;
     }
 
+    public static string GetIdentifier(uint weirdId) => $"Node {weirdId}";
+
+    public string GetIdentifier() => NodeBw1.GetIdentifier(this.WeirdId);
+
     public void Read(EndianBinaryReader er) {
       er.AssertStringEndian("NODE");
 

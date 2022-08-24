@@ -54,17 +54,25 @@ namespace modl.schema.anim.bw2 {
       var estimatedLengths = this.AnimBones
                                  .Select(
                                      bone =>
-                                         bone.PositionKeyframeCount * 4 +
-                                         bone.RotationKeyframeCount * 6)
+                                         bone.PositionKeyframeCount * 2 * 2 +
+                                         bone.RotationKeyframeCount * 2 * 4)
                                  .ToArray();
+
+      var totalLength = (uint) 0;
+      foreach (var estimatedLength in estimatedLengths) {
+        totalLength += estimatedLength;
+      }
 
       var boneBytes = new List<byte[]>();
       for (var i = 0; i < this.AnimBones.Count; ++i) {
         var currentBuffer = er.ReadBytes((int) estimatedLengths[i]);
         boneBytes.Add(currentBuffer);
 
-        if (er.ReadUInt16() != 0xcdcd) {
-          er.Position -= 2;
+        // TODO: May no longer be necessary
+        if (i + 1 < this.AnimBones.Count) {
+          if (er.ReadUInt16() != 0xcdcd) {
+            er.Position -= 2;
+          }
         }
       }
 
@@ -88,7 +96,7 @@ namespace modl.schema.anim.bw2 {
 
         for (var p = 0; p < bone.RotationKeyframeCount; ++p) {
           var flipSigns =
-              Parse4RotationValuesFrom3UShorts_(ber, out var floats);
+              this.Parse4RotationValuesFrom4UShorts_(ber, out var floats);
           if (flipSigns) {
             for (var f = 0; f < floats.Length; f++) {
               floats[f] *= -1;
@@ -128,69 +136,55 @@ namespace modl.schema.anim.bw2 {
           animBone.ZPosDelta + animBone.ZPosMin;
     }
 
-    public bool Parse4RotationValuesFrom3UShorts_(EndianBinaryReader er,
+    public bool Parse4RotationValuesFrom4UShorts_(EndianBinaryReader er,
                                                   out double[] outValues) {
       var first_ushort = er.ReadUInt16();
       var second_ushort = er.ReadUInt16();
       var third_ushort = er.ReadUInt16();
+      var fourth_ushort = er.ReadUInt16();
 
-      var const_for_out_value_2 = INTERPRET_AS_SINGLE_(0x38000000);
-      var fVar1 = INTERPRET_AS_SINGLE_(0x47000000);
+      const double DOUBLE_80600f40 = 4.503601774854144E15;
+      const double FLOAT_80603708 = 3.0517578E-5;
 
-      var out_x =
-          ((INTERPRET_AS_DOUBLE_(CONCAT44_(0x43300000,
-                                           (uint) (first_ushort & 0x7fff))) -
-            INTERPRET_AS_DOUBLE_(0x4330000000000000)) -
-           INTERPRET_AS_SINGLE_(0x46800000)) * INTERPRET_AS_SINGLE_(0x38800000);
-      var out_y =
-          ((INTERPRET_AS_DOUBLE_(
-                CONCAT44_(0x43300000, (uint) (second_ushort & 0x7fff))) -
-            INTERPRET_AS_DOUBLE_(0x4330000000000000)) -
-           INTERPRET_AS_SINGLE_(0x46800000)) * INTERPRET_AS_SINGLE_(0x38800000);
-      var third_parsed_thing =
-          INTERPRET_AS_DOUBLE_(CONCAT44_(0x43300000, third_ushort)) -
-          INTERPRET_AS_DOUBLE_(0x4330000000000000);
-
-      outValues = new double[4];
-      outValues[0] = out_x;
-      outValues[1] = out_y;
-
-      var out_z =
-          (third_parsed_thing - fVar1) * const_for_out_value_2;
-      outValues[2] = out_z;
-
-      var expected_normalized_w =
-          ((1 - out_x * out_x) - out_y * out_y) - out_z * out_z;
-      var out_w = 0d;
-      if (out_w <= expected_normalized_w) {
-        if (INTERPRET_AS_SINGLE_(0x0229C4AB) < expected_normalized_w) {
-          var inverse_sqrt_of_expected_normalized_w =
-              1.0 / Math.Sqrt(expected_normalized_w);
-          out_w =
-              (float) (-(inverse_sqrt_of_expected_normalized_w *
-                         inverse_sqrt_of_expected_normalized_w *
-                         expected_normalized_w -
-                         INTERPRET_AS_SINGLE_(0x40400000)) *
-                       inverse_sqrt_of_expected_normalized_w *
-                       INTERPRET_AS_SINGLE_(0x3F000000));
-          if (out_w <= 0.0) {
-            out_w = expected_normalized_w;
-          }
-          out_w = expected_normalized_w * out_w;
-        }
-
-        var sign = (first_ushort >> 0xf) switch {
-            0 => 1,
-            1 => -1,
-            _ => throw new InvalidDataException(),
-        };
-
-        outValues[3] = out_w * sign;
-      } else {
-        outValues[3] = out_w;
+      var uVar5 = (uint) second_ushort;
+      var fVar1 = (float) (INTERPRET_AS_DOUBLE_(CONCAT44_(0x43300000,
+                                                  ((first_ushort & 0x3fffU) << 1) ^
+                                                  0x80000000)) -
+                           DOUBLE_80600f40) * FLOAT_80603708;
+      var fVar2 = (float) (INTERPRET_AS_DOUBLE_(CONCAT44_(0x43300000,
+                                              (uint) ((second_ushort &
+                                                          0x3fff) <<
+                                                    1) ^
+                                              0x80000000)) - DOUBLE_80600f40)
+                  * FLOAT_80603708;
+      var fVar3 = (float) (INTERPRET_AS_DOUBLE_(CONCAT44_(0x43300000,
+                                                  third_ushort & 0x7fffU ^
+                                                  0x80000000)) -
+                           DOUBLE_80600f40) * FLOAT_80603708;
+      var fVar4 = (float) (INTERPRET_AS_DOUBLE_(CONCAT44_(0x43300000,
+                                                  fourth_ushort & 0x7fffU ^
+                                                  0x80000000)) -
+                           DOUBLE_80600f40) * FLOAT_80603708;
+      if (((int) first_ushort & 0x4000U) != 0) {
+        fVar1 = -fVar1;
+      }
+      if (((int) (short) (uVar5 << 1) & 0x8000U) != 0) {
+        fVar2 = -fVar2;
+      }
+      if (((int) third_ushort & 0x8000U) != 0) {
+        fVar3 = -fVar3;
+      }
+      if (((int) fourth_ushort & 0x8000U) != 0) {
+        fVar4 = -fVar4;
       }
 
-      return (short) second_ushort < 0;
+      outValues = new double[4];
+      outValues[0] = fVar1;
+      outValues[1] = fVar2;
+      outValues[2] = fVar3;
+      outValues[3] = fVar4;
+
+      return (-(uVar5 >> 0xf & 1) >> 0x1f) != 0;
     }
 
     static ulong CONCAT44_(uint first, uint second) =>
