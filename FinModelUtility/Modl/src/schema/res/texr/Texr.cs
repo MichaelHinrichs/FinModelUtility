@@ -71,9 +71,6 @@ namespace modl.schema.res.texr {
                 _          => throw new NotImplementedException(),
             };
 
-            image.Save(
-                $@"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\battalion_wars_2\_test_\{textureType}_{textureName}.png");
-
             this.Textures.Add(new BwTexture(textureName, image));
 
             er.Position = expectedTextureEnd;

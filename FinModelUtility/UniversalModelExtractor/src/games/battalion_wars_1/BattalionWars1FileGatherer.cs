@@ -32,7 +32,7 @@ namespace uni.games.battalion_wars_1 {
 
       foreach (var directory in fileHierarchy) {
         var didUpdate = false;
-        var resFiles = directory.FilesWithExtension(".res.gz");
+        var resFiles = directory.FilesWithExtension(".res");
         foreach (var resFile in resFiles) {
           didUpdate |= new ResDump().Run(resFile);
         }

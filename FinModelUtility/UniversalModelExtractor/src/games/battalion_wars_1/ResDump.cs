@@ -25,7 +25,7 @@ namespace uni.games.battalion_wars_1 {
 
       var directory = new FinDirectory(directoryFullName);
 
-      if (!isResGz && MagicTextUtil.Verify(resFile, "RXET")) {
+      if (!isResGz && !MagicTextUtil.Verify(resFile, "RXET")) {
         return false;
       }
 
