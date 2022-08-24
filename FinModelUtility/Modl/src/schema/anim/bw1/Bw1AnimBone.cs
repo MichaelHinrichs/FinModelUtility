@@ -1,9 +1,9 @@
 ﻿using schema;
 
 
-namespace modl.schema.anim {
+namespace modl.schema.anim.bw1 {
   [BinarySchema]
-  public partial class AnimBone : IBiSerializable {
+  public partial class Bw1AnimBone : IBwAnimBone, IBiSerializable {
     [StringLengthSource(16)] public string Name { get; set; }
 
     public uint PositionKeyframeCount { get; set; }

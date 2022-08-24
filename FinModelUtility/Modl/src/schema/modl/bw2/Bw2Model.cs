@@ -403,7 +403,7 @@ namespace modl.schema.modl.bw2 {
       this.Meshes.Add(mesh);
 
       while (er.Position < expectedEnd) {
-        var opcode = er.ReadByte();
+        var opcode = er.ReadByte() & 0xFA;
         var opcodeEnum = (GxOpcode) opcode;
 
         if (opcodeEnum == GxOpcode.LOAD_CP_REG) {

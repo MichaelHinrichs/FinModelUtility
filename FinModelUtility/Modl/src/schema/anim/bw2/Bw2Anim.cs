@@ -3,9 +3,9 @@
 using schema;
 
 
-namespace modl.schema.anim {
-  public class Anim : IDeserializable {
-    public List<AnimBone> AnimBones { get; } = new();
+namespace modl.schema.anim.bw2 {
+  public class Bw2Anim : IBwAnim, IDeserializable {
+    public List<IBwAnimBone> AnimBones { get; } = new();
     public List<AnimBoneFrames> AnimBoneFrames { get; } = new();
 
     public void Read(EndianBinaryReader er) {
@@ -45,7 +45,7 @@ namespace modl.schema.anim {
       er.ReadUInt32s(2);
 
       for (var i = 0; i < boneCount; ++i) {
-        var bone = new AnimBone();
+        var bone = new Bw2AnimBone();
         bone.Read(er);
         this.AnimBones.Add(bone);
       }
@@ -104,7 +104,7 @@ namespace modl.schema.anim {
     }
 
     public void Parse3PositionValuesFrom2UShorts_(
-        AnimBone animBone,
+        IBwAnimBone animBone,
         EndianBinaryReader er,
         out double[] outValues) {
       var first_ushort = er.ReadUInt16();
@@ -205,10 +205,5 @@ namespace modl.schema.anim {
       var bytes = BitConverter.GetBytes(value);
       return BitConverter.ToSingle(bytes);
     }
-  }
-
-  public class AnimBoneFrames {
-    public List<(float, float, float)> PositionFrames { get; } = new();
-    public List<(float, float, float, float)> RotationFrames { get; } = new();
   }
 }

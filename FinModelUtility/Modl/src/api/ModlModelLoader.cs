@@ -9,6 +9,8 @@ using fin.model;
 using fin.model.impl;
 
 using modl.schema.anim;
+using modl.schema.anim.bw1;
+using modl.schema.anim.bw2;
 using modl.schema.modl;
 using modl.schema.modl.bw1;
 using modl.schema.modl.bw2;
@@ -88,7 +90,12 @@ namespace modl.api {
 
         foreach (var animFile in modelFileBundle.AnimFiles ??
                                  Array.Empty<IFileHierarchyFile>()) {
-          var anim = animFile.Impl.ReadNew<Anim>(Endianness.BigEndian);
+          var anim = modelFileBundle.ModlType switch {
+              ModlType.BW1 => (IBwAnim) animFile.Impl.ReadNew<Bw1Anim>(
+                  Endianness.BigEndian),
+              ModlType.BW2 => animFile.Impl.ReadNew<Bw2Anim>(
+                  Endianness.BigEndian)
+          };
 
           var maxFrameCount = -1;
           foreach (var animBone in anim.AnimBones) {
