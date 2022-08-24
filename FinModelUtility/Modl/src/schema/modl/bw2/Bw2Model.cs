@@ -6,18 +6,18 @@ using fin.util.strings;
 
 using gx;
 
-using modl.schema.modl.bw1.node;
+using modl.schema.modl.bw2.node;
 using modl.schema.modl.common;
 
 using schema;
 
 
-namespace modl.schema.modl.bw1 {
-  public class Bw1Model : IBwModel {
-    public List<NodeBw1> Nodes { get; } = new();
+namespace modl.schema.modl.bw2 {
+  public class Bw2Model : IBwModel {
+    public List<NodeBw2> Nodes { get; } = new();
     public ListDictionary<ushort, ushort> CnctParentToChildren { get; } = new();
 
-    public Dictionary<uint, NodeBw1> NodeByWeirdId { get; } = new();
+    public Dictionary<uint, NodeBw2> NodeByWeirdId { get; } = new();
 
     public void Read(EndianBinaryReader er) {
       var filenameLength = er.ReadUInt32();
@@ -25,16 +25,19 @@ namespace modl.schema.modl.bw1 {
 
       er.AssertStringEndian("MODL");
 
+      var version = er.ReadUInt32s(2);
+
       var size = er.ReadUInt32();
       var expectedEnd = er.Position + size;
 
       var nodeCount = er.ReadUInt16();
-      var additionalDataCount = er.ReadByte();
+      var additionalDataCount = er.ReadUInt16();
 
-      var padding = er.ReadByte();
-
-      var someCount = er.ReadUInt32();
+      var unkInt = er.ReadUInt32();
       var unknown0 = er.ReadSingles(4);
+
+      var bgfNameLength = er.ReadInt32();
+      var bgfName = er.ReadString(bgfNameLength);
 
       var additionalData = er.ReadUInt32s(additionalDataCount);
 
@@ -45,7 +48,7 @@ namespace modl.schema.modl.bw1 {
         this.Nodes.Clear();
         this.NodeByWeirdId.Clear();
         for (var i = 0; i < nodeCount; ++i) {
-          var node = new NodeBw1(additionalDataCount);
+          var node = new NodeBw2(additionalDataCount);
           node.Read(er);
           this.Nodes.Add(node);
 
@@ -80,7 +83,7 @@ namespace modl.schema.modl.bw1 {
     }
   }
 
-  public class NodeBw1 : IDeserializable {
+  public class NodeBw2 : IDeserializable {
     private int additionalDataCount_;
 
     public uint WeirdId { get; set; }
@@ -92,9 +95,9 @@ namespace modl.schema.modl.bw1 {
 
     public float Scale { get; set; }
 
-    public List<Bw1Material> Materials { get; } = new();
+    public List<Bw2Material> Materials { get; } = new();
 
-    public NodeBw1(int additionalDataCount) {
+    public NodeBw2(int additionalDataCount) {
       this.additionalDataCount_ = additionalDataCount;
     }
 
@@ -104,6 +107,9 @@ namespace modl.schema.modl.bw1 {
       var nodeSize = er.ReadUInt32();
       var nodeStart = er.Position;
       var expectedNodeEnd = nodeStart + nodeSize;
+
+      var nodeNameLength = er.ReadInt32();
+      var nodeName = er.ReadString(nodeNameLength);
 
       var headerStart = er.Position;
       var expectedHeaderEnd = headerStart + 0x38;
@@ -149,12 +155,12 @@ namespace modl.schema.modl.bw1 {
 
       Asserts.Equal("MATL", sectionName);
 
-      var materialSize = 0x48;
+      var materialSize = 0xA4;
       Asserts.Equal(0, sectionSize % materialSize);
 
       this.Materials.Clear();
       for (var i = 0; i < sectionSize / materialSize; ++i) {
-        this.Materials.Add(er.ReadNew<Bw1Material>());
+        this.Materials.Add(er.ReadNew<Bw2Material>());
       }
 
       var vertexDescriptorValue = (uint) 0;
@@ -212,7 +218,7 @@ namespace modl.schema.modl.bw1 {
             er.Endianness = endianness;
             break;
           }
-          case "XBST": {
+          case "XBS2": {
             this.ReadOpcodes_(er, sectionSize, ref vertexDescriptorValue);
             break;
           }

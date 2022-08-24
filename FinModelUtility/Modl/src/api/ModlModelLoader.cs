@@ -13,10 +13,17 @@ using modl.schema.modl.bw1;
 
 
 namespace modl.api {
+  public enum ModlType {
+    BW1,
+    BW2,
+  }
+
   public class ModlModelFileBundle : IModelFileBundle {
     public IFileHierarchyFile MainFile => this.ModlFile;
 
+    public ModlType ModlType { get; set; }
     public IFileHierarchyFile ModlFile { get; set; }
+
     public IList<IFileHierarchyFile>? AnimFiles { get; set; }
   }
 

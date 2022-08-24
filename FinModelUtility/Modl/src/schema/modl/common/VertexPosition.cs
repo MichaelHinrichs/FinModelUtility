@@ -1,7 +1,7 @@
 ﻿using schema;
 
 
-namespace modl.schema.modl.bw1.node.display_list {
+namespace modl.schema.modl.common {
 
   [BinarySchema]
   public partial class VertexPosition : IBiSerializable {

@@ -18,7 +18,7 @@ namespace modl.schema.res.texr {
 
     public string FileName { get; private set; }
 
-    public List<Bw1Texture> Textures { get; } = new();
+    public List<BwTexture> Textures { get; } = new();
 
     public void Read(EndianBinaryReader er) {
       er.AssertStringEndian("TEXR");
@@ -74,7 +74,7 @@ namespace modl.schema.res.texr {
             image.Save(
                 $@"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\battalion_wars_2\_test_\{textureType}_{textureName}.png");
 
-            this.Textures.Add(new Bw1Texture(textureName, image));
+            this.Textures.Add(new BwTexture(textureName, image));
 
             er.Position = expectedTextureEnd;
             Asserts.Equal(expectedTextureEnd, er.Position);
@@ -86,6 +86,10 @@ namespace modl.schema.res.texr {
             var expectedTextureEnd = er.Position + textureLength;
 
             var textureName = er.ReadString(0x20);
+            if (textureName != "FM_panel_mid") {
+              er.Position = expectedTextureEnd;
+              continue;
+            }
 
             var endiannessType = er.Endianness;
             er.Endianness = Endianness.BigEndian;
@@ -119,10 +123,7 @@ namespace modl.schema.res.texr {
             };
 
             if (image != null) {
-              this.Textures.Add(new Bw1Texture(textureName, image));
-
-              image.Save(
-                  $@"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\battalion_wars_2\_test_\{textureType}_{textureName}.png");
+              this.Textures.Add(new BwTexture(textureName, image));
             }
 
             er.Position = expectedTextureEnd;
@@ -425,5 +426,5 @@ namespace modl.schema.res.texr {
     }
   }
 
-  public record Bw1Texture(string Name, Image Image);
+  public record BwTexture(string Name, Image Image);
 }
