@@ -11,6 +11,11 @@ using schema;
 
 namespace modl.schema.res.texr {
   public class Texr : IBiSerializable {
+    private enum TexrMode {
+      BW1,
+      BW2
+    }
+
     public string FileName { get; private set; }
 
     public List<Bw1Texture> Textures { get; } = new();
@@ -23,45 +28,108 @@ namespace modl.schema.res.texr {
 
       this.FileName = er.ReadString(er.ReadInt32());
 
-      // TODO: Only true for BW1, BW2 uses GBTF
-      er.AssertStringEndian("XBTF");
-      var xbtfLength = er.ReadUInt32();
-      var expectedXbtfEnd = er.Position + xbtfLength;
+      var textureSectionName = er.ReadStringEndian(4);
 
-      Asserts.Equal(expectedTexrEnd, expectedXbtfEnd);
+      var mode = textureSectionName switch {
+          "XBTF" => TexrMode.BW1,
+          "GBTF" => TexrMode.BW2,
+          _      => throw new NotSupportedException(),
+      };
+
+      var btfLength = er.ReadUInt32();
+      var expectedBtfEnd = er.Position + btfLength;
+
+      Asserts.Equal(expectedTexrEnd, expectedBtfEnd);
 
       this.Textures.Clear();
       var textureCount = er.ReadUInt32();
       for (var i = 0; i < textureCount; ++i) {
-        er.AssertStringEndian("TEXT");
-        var textureLength = er.ReadUInt32();
-        var expectedTextureEnd = er.Position + textureLength;
+        switch (mode) {
+          case TexrMode.BW1: {
+            er.AssertStringEndian("TEXT");
+            var textureLength = er.ReadUInt32();
+            var expectedTextureEnd = er.Position + textureLength;
 
-        var textureName = er.ReadString(0x10);
+            var textureName = er.ReadString(0x10);
 
-        var width = er.ReadUInt32();
-        var height = er.ReadUInt32();
+            var width = er.ReadUInt32();
+            var height = er.ReadUInt32();
 
-        var unknowns0 = er.ReadUInt32s(2);
+            var unknowns0 = er.ReadUInt32s(2);
 
-        var textureType = er.ReadString(8);
-        var drawType = er.ReadString(8);
+            var textureType = er.ReadString(8);
+            var drawType = er.ReadString(8);
 
-        var unknowns1 = er.ReadUInt32s(8);
+            var unknowns1 = er.ReadUInt32s(8);
 
-        var unknowns2 = er.ReadUInt32s(1);
+            var unknowns2 = er.ReadUInt32s(1);
 
-        var image = textureType switch {
-            "A8R8G8B8" => this.ReadA8R8G8B8_(er, width, height),
-            "DXT1"     => this.ReadDxt1_(er, width, height),
-            "P8"       => this.ReadP8_(er, width, height),
-            _          => throw new NotImplementedException(),
-        };
+            var image = textureType switch {
+                "A8R8G8B8" => this.ReadA8R8G8B8_(er, width, height),
+                "DXT1"     => this.ReadDxt1_(er, width, height),
+                "P8"       => this.ReadP8_(er, width, height),
+                _          => throw new NotImplementedException(),
+            };
 
-        this.Textures.Add(new Bw1Texture(textureName, image));
+            image.Save(
+                $@"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\battalion_wars_2\_test_\{textureType}_{textureName}.png");
 
-        er.Position = expectedTextureEnd;
-        Asserts.Equal(expectedTextureEnd, er.Position);
+            this.Textures.Add(new Bw1Texture(textureName, image));
+
+            er.Position = expectedTextureEnd;
+            Asserts.Equal(expectedTextureEnd, er.Position);
+            break;
+          }
+          case TexrMode.BW2: {
+            er.AssertStringEndian("GTXD");
+            var textureLength = er.ReadUInt32();
+            var expectedTextureEnd = er.Position + textureLength;
+
+            var textureName = er.ReadString(0x20);
+
+            var endiannessType = er.Endianness;
+            er.Endianness = Endianness.BigEndian;
+
+            var width = er.ReadUInt32();
+            var height = er.ReadUInt32();
+
+            var unknowns0 = er.ReadUInt32s(2);
+
+            var rawTextureType = er.ReadString(8)
+                                   .Replace("\0", "")
+                                   .ToCharArray();
+            Array.Reverse(rawTextureType);
+            var textureType = new string(rawTextureType);
+            var drawType = er.ReadString(8);
+
+            var unknown = er.ReadChars(48);
+
+            er.Endianness = endiannessType;
+
+            var image = textureType switch {
+                "A8R8G8B8" => this.ReadA8R8G8B8_(er, width, height),
+                "DXT1"     => this.ReadDxt1_(er, width, height),
+                "P8"       => this.ReadP8_(er, width, height),
+                "P4"       => this.ReadP4_(er, width, height),
+                "IA8"      => null,
+                "IA4"      => null,
+                "I8"       => null,
+                "I4"       => null,
+                _          => throw new NotImplementedException(),
+            };
+
+            if (image != null) {
+              this.Textures.Add(new Bw1Texture(textureName, image));
+
+              image.Save(
+                  $@"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\battalion_wars_2\_test_\{textureType}_{textureName}.png");
+            }
+
+            er.Position = expectedTextureEnd;
+            Asserts.Equal(expectedTextureEnd, er.Position);
+            break;
+          }
+        }
       }
 
       Asserts.Equal(expectedTexrEnd, er.Position);
@@ -71,7 +139,9 @@ namespace modl.schema.res.texr {
         throw new NotImplementedException();
 
     private Image
-        ReadA8R8G8B8_(EndianBinaryReader er, uint width, uint height) {
+        ReadA8R8G8B8_(EndianBinaryReader er,
+                      uint width,
+                      uint height) {
       er.AssertStringEndian("MIP ");
 
       var mipSize = width * height * 4;
@@ -237,8 +307,6 @@ namespace modl.schema.res.texr {
 
       er.Endianness = Endianness.BigEndian;
 
-      IColor[] colors = new IColor[4];
-
       var image = new Bitmap((int) width, (int) height);
       BitmapUtil.InvokeAsLocked(image, bmpData => {
         var blockWidth = 8;
@@ -264,6 +332,86 @@ namespace modl.schema.res.texr {
                   ptr[imageIndex + 1] = color.Gb;
                   ptr[imageIndex + 2] = color.Rb;
                   ptr[imageIndex + 3] = color.Ab;
+                }
+              }
+            }
+          }
+        }
+      });
+
+      er.Endianness = endianness;
+
+      return image;
+    }
+
+    private Image ReadP4_(EndianBinaryReader er, uint width, uint height) {
+      // TODO: This method seems incorrect...
+
+      er.AssertStringEndian("PAL ");
+      er.AssertUInt32(32);
+
+      var endianness = er.Endianness;
+      er.Endianness = Endianness.BigEndian;
+
+      var paletteShorts = er.ReadUInt16s(16);
+
+      var palette = paletteShorts
+                    .Select(value => {
+                      var r = ColorUtil.ExtractScaled(value, 0, 4);
+                      var g = ColorUtil.ExtractScaled(value, 4, 4);
+                      var b = ColorUtil.ExtractScaled(value, 8, 4);
+                      var a = ColorUtil.ExtractScaled(value, 12, 4);
+
+                      // TODO: Is this correct??? Textures don't look quite right
+                      return ColorImpl.FromRgbaBytes(
+                          (byte) r, (byte) g, (byte) b, (byte) a);
+                    })
+                    .ToArray();
+
+      er.Endianness = endianness;
+
+      er.AssertStringEndian("MIP ");
+      var mipSize = width * height;
+      er.AssertUInt32(mipSize / 2);
+
+      er.Endianness = Endianness.BigEndian;
+
+      var image = new Bitmap((int) width, (int) height);
+      BitmapUtil.InvokeAsLocked(image, bmpData => {
+        var blockWidth = 8;
+        var blockHeight = 8;
+
+        var blockCountX = width / blockWidth;
+        var blockCountY = height / blockHeight;
+
+        unsafe {
+          var ptr = (byte*) bmpData.Scan0;
+          for (var blockY = 0; blockY < blockCountY; ++blockY) {
+            for (var blockX = 0; blockX < blockCountX; ++blockX) {
+              for (var yInBlock = 0; yInBlock < blockHeight; ++yInBlock) {
+                var y = blockY * blockHeight + yInBlock;
+                for (var xInBlock = 0; xInBlock < blockWidth; xInBlock += 2) {
+                  var x = blockX * blockWidth + xInBlock;
+
+                  var paletteIndex = er.ReadByte();
+
+                  var upperPaletteIndex = paletteIndex >> 4;
+                  var color0 = palette[upperPaletteIndex];
+
+                  var imageIndex0 = 4 * (y * width + x);
+                  ptr[imageIndex0 + 0] = color0.Bb;
+                  ptr[imageIndex0 + 1] = color0.Gb;
+                  ptr[imageIndex0 + 2] = color0.Rb;
+                  ptr[imageIndex0 + 3] = color0.Ab;
+
+                  var lowerPaletteIndex = paletteIndex & 0xf;
+                  var color1 = palette[lowerPaletteIndex];
+
+                  var imageIndex1 = 4 * (y * width + x + 1);
+                  ptr[imageIndex1 + 0] = color1.Bb;
+                  ptr[imageIndex1 + 1] = color1.Gb;
+                  ptr[imageIndex1 + 2] = color1.Rb;
+                  ptr[imageIndex1 + 3] = color1.Ab;
                 }
               }
             }

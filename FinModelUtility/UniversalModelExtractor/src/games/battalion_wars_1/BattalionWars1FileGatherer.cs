@@ -1,4 +1,6 @@
-﻿using fin.model;
+﻿using System.IO.Compression;
+
+using fin.model;
 
 using modl.api;
 
@@ -29,7 +31,7 @@ namespace uni.games.battalion_wars_1 {
 
       foreach (var directory in fileHierarchy) {
         var didUpdate = false;
-        var resFiles = directory.FilesWithExtension(".res");
+        var resFiles = directory.FilesWithExtension(".res.gz");
         foreach (var resFile in resFiles) {
           didUpdate |= new ResDump().Run(resFile);
         }

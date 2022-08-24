@@ -1,4 +1,6 @@
-﻿using fin.io;
+﻿using System.IO.Compression;
+
+using fin.io;
 using fin.log;
 using fin.util.asserts;
 
@@ -14,16 +16,39 @@ namespace uni.games.battalion_wars_1 {
           resFile.Impl.Exists,
           $"Cannot dump RES because it does not exist: {resFile}");
 
-      if (!MagicTextUtil.Verify(resFile, "RXET")) {
+      var directoryFullName = resFile.FullNameWithoutExtension;
+
+      var isResGz = resFile.Name.EndsWith(".res.gz");
+      if (isResGz) {
+        directoryFullName = directoryFullName[..^4];
+      }
+
+      var directory = new FinDirectory(directoryFullName);
+
+      if (!isResGz && MagicTextUtil.Verify(resFile, "RXET")) {
         return false;
       }
 
-      var directory = new FinDirectory(resFile.FullNameWithoutExtension);
       if (!directory.Exists) {
         var logger = Logging.Create<ResDump>();
         logger.LogInformation($"Dumping RES {resFile.LocalPath}...");
 
-        var bwArchive = resFile.Impl.ReadNew<BwArchive>(Endianness.LittleEndian);
+        Stream stream;
+        if (isResGz) {
+          using var gZipStream =
+              new GZipStream(resFile.Impl.OpenRead(),
+                             CompressionMode.Decompress);
+
+          stream = new MemoryStream();
+          gZipStream.CopyTo(stream);
+          stream.Position = 0;
+        } else {
+          stream = resFile.Impl.OpenRead();
+        }
+
+        using var er = new EndianBinaryReader(stream, Endianness.LittleEndian);
+
+        var bwArchive = er.ReadNew<BwArchive>();
 
         directory.Create();
         foreach (var (bwFileExtension, bwFiles) in bwArchive.Files) {

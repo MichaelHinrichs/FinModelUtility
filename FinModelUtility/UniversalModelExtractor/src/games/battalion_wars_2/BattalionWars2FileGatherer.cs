@@ -2,6 +2,7 @@
 
 using modl.api;
 
+using uni.games.battalion_wars_1;
 using uni.platforms;
 using uni.platforms.wii;
 using uni.util.io;
@@ -24,9 +25,10 @@ namespace uni.games.battalion_wars_2 {
           new WiiFileHierarchyExtractor().ExtractFromRom(
               battalionWarsRom);
 
-      /*foreach (var directory in fileHierarchy) {
+      foreach (var directory in fileHierarchy) {
         var didUpdate = false;
-        var resFiles = directory.FilesWithExtension(".res");
+        var resFiles =
+            directory.Files.Where(file => file.Name.EndsWith(".res.gz"));
         foreach (var resFile in resFiles) {
           didUpdate |= new ResDump().Run(resFile);
         }
@@ -34,7 +36,7 @@ namespace uni.games.battalion_wars_2 {
         if (didUpdate) {
           directory.Refresh();
         }
-      }*/
+      }
 
       return null;
 
