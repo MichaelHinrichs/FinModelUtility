@@ -127,9 +127,12 @@ namespace modl.schema.modl.bw2 {
         var someMax = er.ReadUInt16();
 
         this.WeirdId = someMin;
+        ;
 
         // TODO: unknown, probably enum values
         var unknowns0 = er.ReadUInt32s(2);
+
+        er.Endianness = Endianness.LittleEndian;
 
         this.Transform.Read(er);
 
@@ -163,7 +166,9 @@ namespace modl.schema.modl.bw2 {
       while (sectionName != "MATL") {
         if (sectionName == "VSCL") {
           Asserts.Equal(4, sectionSize);
+          er.Endianness = Endianness.LittleEndian;
           this.Scale = er.ReadSingle();
+          er.Endianness = Endianness.BigEndian;
         } else if (sectionName == "RNOD") {
           this.ReadRnod_(er);
         } else {
@@ -287,12 +292,16 @@ namespace modl.schema.modl.bw2 {
     public Matrix4x4f[] RnodMatrices { get; set; }
 
     private void ReadRnod_(EndianBinaryReader er) {
+      er.Endianness = Endianness.LittleEndian;
+
       var size = er.ReadUInt32();
       this.RnodMatrices = new Matrix4x4f[size];
 
       for (var i = 0; i < this.RnodMatrices.Length; ++i) {
         this.RnodMatrices[i] = er.ReadNew<Matrix4x4f>();
       }
+
+      er.Endianness = Endianness.BigEndian;
     }
 
 

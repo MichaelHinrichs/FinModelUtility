@@ -37,7 +37,7 @@ namespace modl.api {
 
       using var er = new EndianBinaryReader(modlFile.Impl.OpenRead(),
                                             Endianness.LittleEndian);
-      var bw1Model = modelFileBundle.ModlType switch {
+      var bwModel = modelFileBundle.ModlType switch {
           ModlType.BW1 => (IBwModel) er.ReadNew<Bw1Model>(),
           ModlType.BW2 => er.ReadNew<Bw2Model>(),
       };
@@ -45,7 +45,8 @@ namespace modl.api {
       var model = new ModelImpl();
       var finMesh = model.Skin.AddMesh();
 
-      var finBones = new IBone[bw1Model.Nodes.Count];
+      var finBones = new IBone[bwModel.Nodes.Count];
+      var finBonesByModlNode = new Dictionary<IBwNode, IBone>();
       var finBonesByWeirdId = new Dictionary<uint, IBone>();
 
       {
@@ -54,7 +55,7 @@ namespace modl.api {
 
         while (nodeQueue.TryDequeue(out var parentFinBone,
                                     out var modlNodeId)) {
-          var modlNode = bw1Model.Nodes[modlNodeId];
+          var modlNode = bwModel.Nodes[modlNodeId];
 
           var transform = modlNode.Transform;
           var bonePosition = transform.Position;
@@ -75,9 +76,10 @@ namespace modl.api {
                       eulerRadians.X, eulerRadians.Y, eulerRadians.Z);
           finBone.Name = $"Node {modlNodeId}";
           finBones[modlNodeId] = finBone;
+          finBonesByModlNode[modlNode] = finBone;
           finBonesByWeirdId[modlNode.WeirdId] = finBone;
 
-          if (bw1Model.CnctParentToChildren.TryGetList(
+          if (bwModel.CnctParentToChildren.TryGetList(
                   modlNodeId, out var modlChildIds)) {
             nodeQueue.Enqueue(
                 modlChildIds!.Select(modlChildId => (finBone, modlChildId)));
@@ -145,11 +147,8 @@ namespace modl.api {
         var textureDictionary = new LazyDictionary<string, ITexture>(
             textureName => {
               var textureFile =
-                  modlFile.Parent.Files.FirstOrDefault(
+                  modlFile.Parent.Files.Single(
                       file => file.Name.ToLower() == $"{textureName}.png");
-              if (textureFile == null) {
-                ;
-              }
 
               var image = FinImage.FromFile(textureFile.Impl);
 
@@ -164,7 +163,7 @@ namespace modl.api {
               return finTexture;
             });
 
-        foreach (var modlNode in bw1Model.Nodes) {
+        foreach (var modlNode in bwModel.Nodes) {
           var finMaterials =
               modlNode.Materials.Select(modlMaterial => {
                         var textureName = modlMaterial.Texture1.ToLower();
@@ -215,6 +214,11 @@ namespace modl.api {
                            .GetOrCreateBoneWeights(
                                PreprojectMode.NONE,
                                new BoneWeight(finBone, null, 1)));
+                } else {
+                  var finBone = finBonesByModlNode[modlNode];
+                  vertex.SetBoneWeights(
+                      model.Skin.GetOrCreateBoneWeights(
+                          PreprojectMode.BONE, finBone));
                 }
 
                 var texCoordIndex0 = vertexAttributeIndices.TexCoordIndices[0];
