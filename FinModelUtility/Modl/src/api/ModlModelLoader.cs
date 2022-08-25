@@ -13,6 +13,7 @@ using modl.schema.anim.bw1;
 using modl.schema.anim.bw2;
 using modl.schema.modl;
 using modl.schema.modl.bw1;
+using modl.schema.modl.bw1.node;
 using modl.schema.modl.bw2;
 
 
@@ -40,8 +41,8 @@ namespace modl.api {
       using var er = new EndianBinaryReader(modlFile.Impl.OpenRead(),
                                             Endianness.LittleEndian);
       var bwModel = modelFileBundle.ModlType switch {
-          ModlType.BW1 => (IBwModel) er.ReadNew<Bw1Model>(),
-          ModlType.BW2 => er.ReadNew<Bw2Model>(),
+          ModlType.BW1 => (IModl) er.ReadNew<Bw1Modl>(),
+          ModlType.BW2 => er.ReadNew<Bw2Modl>(),
       };
 
       var model = new ModelImpl();
@@ -93,7 +94,7 @@ namespace modl.api {
         foreach (var animFile in modelFileBundle.AnimFiles ??
                                  Array.Empty<IFileHierarchyFile>()) {
           var anim = modelFileBundle.ModlType switch {
-              ModlType.BW1 => (IBwAnim) animFile.Impl.ReadNew<Bw1Anim>(
+              ModlType.BW1 => (IAnim) animFile.Impl.ReadNew<Bw1Anim>(
                   Endianness.BigEndian),
               ModlType.BW2 => animFile.Impl.ReadNew<Bw2Anim>(
                   Endianness.BigEndian)
@@ -122,8 +123,8 @@ namespace modl.api {
             if (!finBonesByIdentifier.TryGetValue(
                     animNodeIdentifier, out var finBone)) {
               // TODO: Gross hack for the vet models, what's the real fix???
-              if (animNodeIdentifier == NodeBw1.GetIdentifier(33)) {
-                finBone = finBonesByIdentifier[NodeBw1.GetIdentifier(34)];
+              if (animNodeIdentifier == Bw1Node.GetIdentifier(33)) {
+                finBone = finBonesByIdentifier[Bw1Node.GetIdentifier(34)];
               } else if (finBonesByIdentifier.TryGetValue(
                              animNodeIdentifier + 'X', out var xBone)) {
                 finBone = xBone;

@@ -1,4 +1,4 @@
-﻿using modl.schema.modl.bw1;
+﻿using modl.schema.modl.bw1.node;
 
 using schema;
 
@@ -6,7 +6,7 @@ using schema;
 namespace modl.schema.anim.bw1 {
   [BinarySchema]
   public partial class Bw1AnimBone : IBwAnimBone, IBiSerializable {
-    public string GetIdentifier() => NodeBw1.GetIdentifier(this.WeirdId);
+    public string GetIdentifier() => Bw1Node.GetIdentifier(this.WeirdId);
 
     [StringLengthSource(16)] public string Name { get; set; }
 

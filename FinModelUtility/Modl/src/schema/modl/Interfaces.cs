@@ -4,7 +4,7 @@ using modl.schema.modl.common;
 
 
 namespace modl.schema.modl {
-  public interface IBwModel {
+  public interface IModl {
     List<IBwNode> Nodes { get; }
     ListDictionary<ushort, ushort> CnctParentToChildren { get; }
   }

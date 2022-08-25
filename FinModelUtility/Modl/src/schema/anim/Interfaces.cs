@@ -1,5 +1,5 @@
 ﻿namespace modl.schema.anim {
-  public interface IBwAnim {
+  public interface IAnim {
     List<IBwAnimBone> AnimBones { get; }
     List<AnimBoneFrames> AnimBoneFrames { get; }
   }
