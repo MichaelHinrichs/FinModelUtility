@@ -146,45 +146,46 @@ namespace modl.schema.anim.bw2 {
       const double DOUBLE_80600f40 = 4.503601774854144E15;
       const double FLOAT_80603708 = 3.0517578E-5;
 
-      var uVar5 = (uint) second_ushort;
-      var fVar1 = (float) (INTERPRET_AS_DOUBLE_(CONCAT44_(0x43300000,
-                                                  ((first_ushort & 0x3fffU) << 1) ^
+      var outX = (float) (INTERPRET_AS_DOUBLE_(CONCAT44_(0x43300000,
+                                                 ((first_ushort & 0x3fffU) <<
+                                                  1) ^
+                                                 0x80000000)) -
+                          DOUBLE_80600f40) * FLOAT_80603708;
+      var outY = (float) (INTERPRET_AS_DOUBLE_(CONCAT44_(0x43300000,
+                                                  (uint) ((second_ushort &
+                                                              0x3fff) <<
+                                                        1) ^
                                                   0x80000000)) -
-                           DOUBLE_80600f40) * FLOAT_80603708;
-      var fVar2 = (float) (INTERPRET_AS_DOUBLE_(CONCAT44_(0x43300000,
-                                              (uint) ((second_ushort &
-                                                          0x3fff) <<
-                                                    1) ^
-                                              0x80000000)) - DOUBLE_80600f40)
+                           DOUBLE_80600f40)
                   * FLOAT_80603708;
-      var fVar3 = (float) (INTERPRET_AS_DOUBLE_(CONCAT44_(0x43300000,
+      var outZ = (float) (INTERPRET_AS_DOUBLE_(CONCAT44_(0x43300000,
                                                   third_ushort & 0x7fffU ^
                                                   0x80000000)) -
                            DOUBLE_80600f40) * FLOAT_80603708;
-      var fVar4 = (float) (INTERPRET_AS_DOUBLE_(CONCAT44_(0x43300000,
+      var outW = (float) (INTERPRET_AS_DOUBLE_(CONCAT44_(0x43300000,
                                                   fourth_ushort & 0x7fffU ^
                                                   0x80000000)) -
                            DOUBLE_80600f40) * FLOAT_80603708;
       if (((int) first_ushort & 0x4000U) != 0) {
-        fVar1 = -fVar1;
+        outX = -outX;
       }
-      if (((int) (short) (uVar5 << 1) & 0x8000U) != 0) {
-        fVar2 = -fVar2;
+      if (((int) (short) (second_ushort << 1) & 0x8000U) != 0) {
+        outY = -outY;
       }
       if (((int) third_ushort & 0x8000U) != 0) {
-        fVar3 = -fVar3;
+        outZ = -outZ;
       }
       if (((int) fourth_ushort & 0x8000U) != 0) {
-        fVar4 = -fVar4;
+        outW = -outW;
       }
 
       outValues = new double[4];
-      outValues[0] = fVar1;
-      outValues[1] = fVar2;
-      outValues[2] = fVar3;
-      outValues[3] = fVar4;
+      outValues[0] = outX;
+      outValues[1] = outY;
+      outValues[2] = outZ;
+      outValues[3] = outW;
 
-      return (-(uVar5 >> 0xf & 1) >> 0x1f) != 0;
+      return (-(second_ushort >> 0xf & 1) >> 0x1f) != 0;
     }
 
     static ulong CONCAT44_(uint first, uint second) =>
