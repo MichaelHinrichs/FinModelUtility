@@ -124,6 +124,18 @@ namespace modl.api {
               // TODO: Gross hack for the vet models, what's the real fix???
               if (animNodeIdentifier == NodeBw1.GetIdentifier(33)) {
                 finBone = finBonesByIdentifier[NodeBw1.GetIdentifier(34)];
+              } else if (finBonesByIdentifier.TryGetValue(
+                             animNodeIdentifier + 'X', out var xBone)) {
+                finBone = xBone;
+              } else if (finBonesByIdentifier.TryGetValue(
+                             "BONE_" + animNodeIdentifier,
+                             out var prefixBone)) {
+                finBone = prefixBone;
+              } else if (animNodeIdentifier == "WF_GRUNT_BACKPAC") {
+                // TODO: Is this right?????
+                finBone = finBonesByIdentifier["BONE_BCK_MISC"];
+              } else {
+                ;
               }
             }
 
