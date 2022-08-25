@@ -115,18 +115,19 @@ namespace modl.schema.anim.bw2 {
         IBwAnimBone animBone,
         EndianBinaryReader er,
         out double[] outValues) {
-      var first_ushort = er.ReadUInt16();
+      var first_uint = er.ReadUInt32();
+      er.Position -= 2;
       var second_ushort = er.ReadUInt16();
 
       outValues = new double[3];
       outValues[0] =
           (INTERPRET_AS_DOUBLE_(
-               CONCAT44_(0x43300000, (uint) (first_ushort >> 0x15))) -
+               CONCAT44_(0x43300000, (uint) (first_uint >> 0x15))) -
            INTERPRET_AS_DOUBLE_(0x4330000000000000)) *
           animBone.XPosDelta + animBone.XPosMin;
       outValues[1] =
           (INTERPRET_AS_DOUBLE_(
-               CONCAT44_(0x43300000, (uint) (first_ushort >> 10 & 0x7ff))) -
+               CONCAT44_(0x43300000, (uint) ((first_uint >> 10) & 0x7ff))) -
            INTERPRET_AS_DOUBLE_(0x4330000000000000)) *
           animBone.YPosDelta + animBone.YPosMin;
       outValues[2] =
@@ -152,20 +153,20 @@ namespace modl.schema.anim.bw2 {
                                                  0x80000000)) -
                           DOUBLE_80600f40) * FLOAT_80603708;
       var outY = (float) (INTERPRET_AS_DOUBLE_(CONCAT44_(0x43300000,
-                                                  (uint) ((second_ushort &
-                                                              0x3fff) <<
-                                                        1) ^
-                                                  0x80000000)) -
-                           DOUBLE_80600f40)
-                  * FLOAT_80603708;
+                                                 (uint) ((second_ushort &
+                                                             0x3fff) <<
+                                                       1) ^
+                                                 0x80000000)) -
+                          DOUBLE_80600f40)
+                 * FLOAT_80603708;
       var outZ = (float) (INTERPRET_AS_DOUBLE_(CONCAT44_(0x43300000,
-                                                  third_ushort & 0x7fffU ^
-                                                  0x80000000)) -
-                           DOUBLE_80600f40) * FLOAT_80603708;
+                                                 third_ushort & 0x7fffU ^
+                                                 0x80000000)) -
+                          DOUBLE_80600f40) * FLOAT_80603708;
       var outW = (float) (INTERPRET_AS_DOUBLE_(CONCAT44_(0x43300000,
-                                                  fourth_ushort & 0x7fffU ^
-                                                  0x80000000)) -
-                           DOUBLE_80600f40) * FLOAT_80603708;
+                                                 fourth_ushort & 0x7fffU ^
+                                                 0x80000000)) -
+                          DOUBLE_80600f40) * FLOAT_80603708;
       if (((int) first_ushort & 0x4000U) != 0) {
         outX = -outX;
       }

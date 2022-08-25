@@ -107,18 +107,19 @@ namespace modl.schema.anim.bw1 {
         IBwAnimBone animBone,
         EndianBinaryReader er,
         out double[] outValues) {
-      var first_ushort = er.ReadUInt16();
+      var first_uint = er.ReadUInt32();
+      er.Position -= 2;
       var second_ushort = er.ReadUInt16();
 
       outValues = new double[3];
       outValues[0] =
           (INTERPRET_AS_DOUBLE_(
-               CONCAT44_(0x43300000, (uint) (first_ushort >> 0x15))) -
+               CONCAT44_(0x43300000, (uint) (first_uint >> 0x15))) -
            INTERPRET_AS_DOUBLE_(0x4330000000000000)) *
           animBone.XPosDelta + animBone.XPosMin;
       outValues[1] =
           (INTERPRET_AS_DOUBLE_(
-               CONCAT44_(0x43300000, (uint) (first_ushort >> 10 & 0x7ff))) -
+               CONCAT44_(0x43300000, (uint) ((first_uint >> 10) & 0x7ff))) -
            INTERPRET_AS_DOUBLE_(0x4330000000000000)) *
           animBone.YPosDelta + animBone.YPosMin;
       outValues[2] =
