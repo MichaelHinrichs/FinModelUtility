@@ -1,9 +1,9 @@
 ﻿using CommandLine;
 using CommandLine.Text;
 
-using uni.debug;
 using uni.games.animal_crossing;
 using uni.games.battalion_wars_1;
+using uni.games.battalion_wars_2;
 using uni.games.glover;
 using uni.games.halo_wars;
 using uni.games.luigis_mansion;
@@ -31,7 +31,8 @@ namespace uni.cli {
                     args,
                     typeof(UiOptions),
                     typeof(AnimalCrossingOptions),
-                    typeof(BattalionWarsOptions),
+                    typeof(BattalionWars1Options),
+                    typeof(BattalionWars2Options),
                     typeof(HaloWarsOptions),
                     typeof(GloverOptions),
                     typeof(LuigisMansionOptions),
@@ -53,8 +54,11 @@ namespace uni.cli {
                 .WithParsed((AnimalCrossingOptions _) => {
                   new AnimalCrossingExtractor().ExtractAll();
                 })
-                .WithParsed((BattalionWarsOptions _) => {
+                .WithParsed((BattalionWars1Options _) => {
                   new BattalionWars1Extractor().ExtractAll();
+                })
+                .WithParsed((BattalionWars2Options _) => {
+                  new BattalionWars2Extractor().ExtractAll();
                 })
                 .WithParsed((HaloWarsOptions _) => {
                   new HaloWarsExtractor().ExtractAll();

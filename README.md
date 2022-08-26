@@ -45,8 +45,9 @@ Command-line tools for extracting models from games en-masse. Separate batch scr
   - Ocarina of Time 3D (`ocarina_of_time_3d.cia`)
 - .mod (GCN)
   - Pikmin 1 (`pikmin_1.gcm`)
-- .modl (GCN)
+- .modl (GCN/WII)
   - Battalion Wars 1 (`battalion_wars_1.gcm`)
+  - Battalion Wars 2 (`battalion_wars_2.iso`)
 
 *Note:* For GameCube ROMs, files with an `.iso` extension should work as long as they are renamed to `[game_name].gcm`.
 

@@ -12,6 +12,10 @@
       "commandName": "Project",
       "commandLineArgs": "battalion_wars_1"
     },
+    "Battalion Wars 2": {
+      "commandName": "Project",
+      "commandLineArgs": "battalion_wars_2"
+    },
     "Glover": {
       "commandName": "Project",
       "commandLineArgs": "glover"

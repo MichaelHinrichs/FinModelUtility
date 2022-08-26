@@ -10,7 +10,11 @@ namespace uni.cli {
 
   [Verb("battalion_wars_1",
         HelpText = "Extract models from Battalion Wars 1.")]
-  public class BattalionWarsOptions {}
+  public class BattalionWars1Options {}
+
+  [Verb("battalion_wars_2",
+        HelpText = "Extract models from Battalion Wars 2.")]
+  public class BattalionWars2Options { }
 
   [Verb("halo_wars",
         HelpText = "Extract models from Halo Wars.")]
