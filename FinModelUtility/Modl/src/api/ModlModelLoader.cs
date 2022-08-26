@@ -18,15 +18,10 @@ using modl.schema.modl.bw2;
 
 
 namespace modl.api {
-  public enum ModlType {
-    BW1,
-    BW2,
-  }
-
-  public class ModlModelFileBundle : IModelFileBundle {
+  public class ModlModelFileBundle : IBattalionWarsModelFileBundle {
     public IFileHierarchyFile MainFile => this.ModlFile;
 
-    public ModlType ModlType { get; set; }
+    public GameVersion GameVersion { get; set; }
     public IFileHierarchyFile ModlFile { get; set; }
 
     public IList<IFileHierarchyFile>? AnimFiles { get; set; }
@@ -40,9 +35,9 @@ namespace modl.api {
 
       using var er = new EndianBinaryReader(modlFile.Impl.OpenRead(),
                                             Endianness.LittleEndian);
-      var bwModel = modelFileBundle.ModlType switch {
-          ModlType.BW1 => (IModl) er.ReadNew<Bw1Modl>(),
-          ModlType.BW2 => er.ReadNew<Bw2Modl>(),
+      var bwModel = modelFileBundle.GameVersion switch {
+          GameVersion.BW1 => (IModl) er.ReadNew<Bw1Modl>(),
+          GameVersion.BW2 => er.ReadNew<Bw2Modl>(),
       };
 
       var model = new ModelImpl();
@@ -93,10 +88,10 @@ namespace modl.api {
 
         foreach (var animFile in modelFileBundle.AnimFiles ??
                                  Array.Empty<IFileHierarchyFile>()) {
-          var anim = modelFileBundle.ModlType switch {
-              ModlType.BW1 => (IAnim) animFile.Impl.ReadNew<Bw1Anim>(
+          var anim = modelFileBundle.GameVersion switch {
+              GameVersion.BW1 => (IAnim) animFile.Impl.ReadNew<Bw1Anim>(
                   Endianness.BigEndian),
-              ModlType.BW2 => animFile.Impl.ReadNew<Bw2Anim>(
+              GameVersion.BW2 => animFile.Impl.ReadNew<Bw2Anim>(
                   Endianness.BigEndian)
           };
 

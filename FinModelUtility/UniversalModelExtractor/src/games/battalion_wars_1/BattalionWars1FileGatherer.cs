@@ -1,6 +1,4 @@
-﻿using System.IO.Compression;
-
-using fin.io;
+﻿using fin.io;
 using fin.model;
 
 using modl.api;
@@ -12,9 +10,11 @@ using uni.util.io;
 
 namespace uni.games.battalion_wars_1 {
   public class
-      BattalionWars1FileGatherer : IModelFileGatherer<ModlModelFileBundle> {
-    public IModelDirectory<ModlModelFileBundle>? GatherModelFileBundles(
-        bool assert) {
+      BattalionWars1FileGatherer : IModelFileGatherer<
+          IBattalionWarsModelFileBundle> {
+    public IModelDirectory<IBattalionWarsModelFileBundle>?
+        GatherModelFileBundles(
+            bool assert) {
       var battalionWarsRom =
           DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
               "battalion_wars_1.gcm");
@@ -42,7 +42,7 @@ namespace uni.games.battalion_wars_1 {
         }
       }
 
-      return new FileHierarchyBundler<ModlModelFileBundle>(
+      return new FileHierarchyBundler<IBattalionWarsModelFileBundle>(
           directory => {
             var modlFiles = directory.FilesWithExtension(".modl");
             var animFiles = directory.FilesWithExtension(".anim");
@@ -163,7 +163,7 @@ namespace uni.games.battalion_wars_1 {
                         (otherModlFiles, null),
                     };
 
-            var bundles =
+            var modlBundles =
                 allModlsAndAnims
                     .SelectMany(
                         modlsAndAnims =>
@@ -172,13 +172,25 @@ namespace uni.games.battalion_wars_1 {
                                 .Select(
                                     modlFile => new ModlModelFileBundle {
                                         ModlFile = modlFile,
-                                        ModlType = ModlType.BW1,
+                                        GameVersion = GameVersion.BW1,
                                         AnimFiles = modlsAndAnims.Item2
                                     }))
                     .ToList();
-            bundles.Sort((lhs, rhs) =>
-                             lhs.MainFile.Name.CompareTo(rhs.MainFile.Name));
+            var outBundles =
+                directory.FilesWithExtension(".out")
+                         .Select(outFile => new OutModelFileBundle {
+                             OutFile = outFile,
+                             GameVersion = GameVersion.BW1,
+                         });
 
+            var bundles =
+                modlBundles.Concat<IBattalionWarsModelFileBundle>(outBundles)
+                           .ToList();
+            bundles.Sort((lhs, rhs) =>
+                             lhs.MainFile.Name.CompareTo(
+                                 rhs.MainFile.Name));
+
+            return bundles;
             return bundles;
           }
       ).GatherBundles(fileHierarchy);

@@ -56,6 +56,8 @@ namespace uni.ui {
               => new ModModelLoader().LoadModel(modModelFileBundle),
           ModlModelFileBundle modlModelFileBundle
               => new ModlModelLoader().LoadModel(modlModelFileBundle),
+          OutModelFileBundle outModelFileBundle
+              => new OutModelLoader().LoadModel(outModelFileBundle),
           VisModelFileBundle visModelFileBundle
               => new VisModelLoader().LoadModel(visModelFileBundle),
           XtdModelFileBundle xtdModelFileBundle
