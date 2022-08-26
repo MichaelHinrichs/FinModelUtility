@@ -44,6 +44,8 @@ namespace modl.schema.terrain {
               tilesEr.Position = 180 * (16 * offset + tileOffset);
               var schemaTile = tilesEr.ReadNew<SchemaTile>();
 
+              tile.MatlIndex = schemaTile.MatlIndex;
+
               for (var pointY = 0; pointY < 4; ++pointY) {
                 for (var pointX = 0; pointX < 4; ++pointX) {
                   var point = new BwHeightmapPoint();
@@ -63,8 +65,6 @@ namespace modl.schema.terrain {
           }
         }
       }
-
-      // TODO: There's 15 more blocks of 180 bytes for each tile, what does it mean???
     }
 
     [BinarySchema]
@@ -83,11 +83,9 @@ namespace modl.schema.terrain {
       public Rgba32[] LightColors { get; } =
         Arrays.From(16, () => new Rgba32());
 
-      public byte[] Unknown { get; } = new byte[76];
+      public byte[] Unknown { get; } = new byte[80];
 
-      public uint MaybeMaterial { get; private set; }
-
-      public uint Unknown2 { get; private set; }
+      public uint MatlIndex { get; private set; }
     }
 
     private class BwHeightmapChunk : IBwHeightmapChunk {
@@ -96,6 +94,7 @@ namespace modl.schema.terrain {
 
     private class BwHeightmapTile : IBwHeightmapTile {
       public Grid<IBwHeightmapPoint> Points { get; } = new(4, 4);
+      public uint MatlIndex { get; set; }
     }
 
     private class BwHeightmapPoint : IBwHeightmapPoint {

@@ -18,6 +18,11 @@ namespace modl.schema.terrain {
     public byte[] Unknown { get; } = new byte[16];
   }
 
+  public interface IBwTerrain {
+    IBwHeightmap Heightmap { get; }
+    IList<BwHeightmapMaterial> Materials { get; }
+  }
+
   public interface IBwHeightmap {
     Grid<IBwHeightmapChunk?> Chunks { get; } 
   }
@@ -28,6 +33,7 @@ namespace modl.schema.terrain {
 
   public interface IBwHeightmapTile {
     Grid<IBwHeightmapPoint> Points { get; }
+    uint MatlIndex { get; }
   }
 
   public interface IBwHeightmapPoint {

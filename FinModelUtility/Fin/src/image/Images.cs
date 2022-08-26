@@ -35,10 +35,18 @@ namespace fin.image {
       }
     }
 
-    public static IImage Create1x1WithColor(Color color) {
-      var bmp = new Rgba32Image(1, 1);
-      bmp.Mutate((_, setHandler)
-                     => setHandler(0, 0, color.R, color.G, color.B, color.A));
+    public static IImage Create1x1FromColor(Color color)
+      => CreateFromColor(color, 1, 1);
+
+    public static IImage CreateFromColor(Color color, int width, int height) {
+      var bmp = new Rgba32Image(width, height);
+      bmp.Mutate((_, setHandler) => {
+        for (var y = 0; y < height; ++y) {
+          for (var x = 0; x < width; ++x) {
+            setHandler(x, y, color.R, color.G, color.B, color.A);
+          }
+        }
+      });
       return bmp;
     }
 

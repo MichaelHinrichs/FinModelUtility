@@ -1,11 +1,10 @@
-﻿using fin.data;
-
-using schema;
+﻿using schema;
 
 
 namespace modl.schema.terrain.bw1 {
-  public class Bw1Heightmap : IBwHeightmap, IDeserializable {
-    public Grid<IBwHeightmapChunk?> Chunks { get; private set; }
+  public class Bw2Terrain : IBwTerrain, IDeserializable {
+    public IBwHeightmap Heightmap { get; private set; }
+    public IList<BwHeightmapMaterial> Materials { get; private set; }
 
     public void Read(EndianBinaryReader er) {
       var sections = new Dictionary<string, BwSection>();
@@ -32,8 +31,8 @@ namespace modl.schema.terrain.bw1 {
       var materialCount = matlSection.Size / 48;
       er.ReadNewArray<BwHeightmapMaterial>(out var materials, materialCount);
 
-      var heightmapParser = new HeightmapParser(tilemapBytes, tilesBytes);
-      this.Chunks = heightmapParser.Chunks;
+      this.Heightmap = new HeightmapParser(tilemapBytes, tilesBytes);
+      this.Materials = materials;
     }
   }
 }

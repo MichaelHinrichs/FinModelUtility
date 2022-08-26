@@ -384,7 +384,7 @@ namespace bmd.exporter {
           return;
         }
 
-        var colorImage = FinImage.Create1x1WithColor(colorConstant);
+        var colorImage = FinImage.Create1x1FromColor(colorConstant);
         var colorTexture = materialManager.CreateTexture(colorImage);
         material.CompiledTexture = colorTexture;
       }
