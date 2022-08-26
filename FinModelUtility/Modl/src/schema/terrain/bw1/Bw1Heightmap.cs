@@ -8,21 +8,29 @@ namespace modl.schema.terrain.bw1 {
     public Grid<IBwHeightmapChunk?> Chunks { get; private set; }
 
     public void Read(EndianBinaryReader er) {
-      er.AssertStringEndian("TERR");
-      var terrSize = er.ReadUInt32();
-      er.Position += terrSize;
+      var sections = new Dictionary<string, BwSection>();
+      while (!er.Eof) {
+        var name = er.ReadStringEndian(4);
+        var size = er.ReadInt32();
+        var offset = er.Position;
 
-      er.AssertStringEndian("CHNK");
-      var chnkSize = er.ReadInt32();
-      var tilesBytes = er.ReadBytes(chnkSize);
+        sections[name] = new BwSection(name, size, offset);
 
-      er.AssertStringEndian("GPNF");
-      var fnpgSize = er.ReadUInt32();
-      er.Position += fnpgSize;
+        er.Position += size;
+      }
 
-      er.AssertStringEndian("CMAP");
-      var cmapSize = er.ReadInt32();
-      var tilemapBytes = er.ReadBytes(cmapSize);
+      var chnkSection = sections["CHNK"];
+      er.Position = chnkSection.Offset;
+      var tilesBytes = er.ReadBytes(chnkSection.Size);
+
+      var cmapSection = sections["CMAP"];
+      er.Position = cmapSection.Offset;
+      var tilemapBytes = er.ReadBytes(cmapSection.Size);
+
+      var matlSection = sections["MATL"];
+      er.Position = matlSection.Offset;
+      var materialCount = matlSection.Size / 48;
+      er.ReadNewArray<BwHeightmapMaterial>(out var materials, materialCount);
 
       var heightmapParser = new HeightmapParser(tilemapBytes, tilesBytes);
       this.Chunks = heightmapParser.Chunks;

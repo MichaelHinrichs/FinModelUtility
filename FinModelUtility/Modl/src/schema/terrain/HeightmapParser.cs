@@ -1,9 +1,12 @@
 ﻿using fin.data;
 using fin.schema.color;
+using fin.util.array;
+
+using schema;
 
 
 namespace modl.schema.terrain {
-  public class HeightmapParser : IBwHeightmap {
+  public partial class HeightmapParser : IBwHeightmap {
     // TODO: Write this in a more schema way instead
 
     public Grid<IBwHeightmapChunk?> Chunks { get; } = new(64, 64);
@@ -36,9 +39,7 @@ namespace modl.schema.terrain {
 
               var tileOffset = 4 * tileY + tileX;
               tilesEr.Position = 180 * (16 * offset + tileOffset);
-              var tileBytes = tilesEr.ReadBytes(180);
-              using var tileEr =
-                  new EndianBinaryReader(new MemoryStream(tileBytes));
+              var schemaTile = tilesEr.ReadNew<SchemaTile>();
 
               for (var pointY = 0; pointY < 4; ++pointY) {
                 for (var pointX = 0; pointX < 4; ++pointX) {
@@ -51,19 +52,24 @@ namespace modl.schema.terrain {
 
                   var pointOffset = pointY * 4 + pointX;
 
-                  var heightOffset = 2 * pointOffset;
-                  tileEr.Position = heightOffset;
-                  point.Height = tileEr.ReadUInt16();
-
-                  var lightOffset = 32 + 4 * pointOffset;
-                  tileEr.Position = lightOffset;
-                  point.LightColor.Read(tileEr);
+                  point.Height = schemaTile.Heights[pointOffset];
+                  point.LightColor = schemaTile.LightColors[pointOffset];
                 }
               }
             }
           }
         }
       }
+    }
+
+    [BinarySchema]
+    private partial class SchemaTile : IBiSerializable {
+      public ushort[] Heights { get; } = new ushort[16];
+
+      public Rgba32[] LightColors { get; } =
+        Arrays.From(16, () => new Rgba32());
+
+      public byte[] Unknown { get; } = new byte[84];
     }
 
     private class BwHeightmapChunk : IBwHeightmapChunk {
@@ -78,7 +84,7 @@ namespace modl.schema.terrain {
       public int X { get; set; }
       public int Y { get; set; }
       public ushort Height { get; set; }
-      public Rgba32 LightColor { get; } = new();
+      public Rgba32 LightColor { get; set; }
     }
   }
 }
