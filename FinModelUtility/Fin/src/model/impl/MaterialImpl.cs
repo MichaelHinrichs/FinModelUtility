@@ -209,6 +209,7 @@ namespace fin.model.impl {
 
       public IEnumerable<ITexture> Textures { get; }
       public IShader Shader { get; }
+
       public CullingMode CullingMode { get; set; }
 
       public IFixedFunctionEquations<FixedFunctionSource> Equations { get; } =
@@ -259,10 +260,15 @@ namespace fin.model.impl {
         return this;
       }
 
-      public BlendMode BlendMode { get; private set; }
-      public BlendFactor SrcFactor { get; private set; }
-      public BlendFactor DstFactor { get; private set; }
-      public LogicOp LogicOp { get; private set; }
+      public BlendMode BlendMode { get; private set; } = BlendMode.ADD;
+
+      public BlendFactor SrcFactor { get; private set; } =
+        BlendFactor.SRC_ALPHA;
+
+      public BlendFactor DstFactor { get; private set; } =
+        BlendFactor.ONE_MINUS_SRC_ALPHA;
+
+      public LogicOp LogicOp { get; private set; } = LogicOp.COPY;
 
       public IFixedFunctionMaterial SetAlphaCompare(
           AlphaOp alphaOp,
@@ -279,9 +285,15 @@ namespace fin.model.impl {
       }
 
       public AlphaOp AlphaOp { get; private set; }
-      public AlphaCompareType AlphaCompareType0 { get; private set; }
+
+      public AlphaCompareType AlphaCompareType0 { get; private set; } =
+        AlphaCompareType.Always;
+
       public float AlphaReference0 { get; private set; }
-      public AlphaCompareType AlphaCompareType1 { get; private set; }
+
+      public AlphaCompareType AlphaCompareType1 { get; private set; } =
+        AlphaCompareType.Always;
+
       public float AlphaReference1 { get; private set; }
     }
   }

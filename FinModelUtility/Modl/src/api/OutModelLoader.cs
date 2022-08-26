@@ -95,25 +95,18 @@ namespace modl.api {
         }
       }
 
-      var lightImage = new Rgb24Image(heightmapWidth, heightmapHeight);
-      lightImage.Mutate((_, setHandler) => {
-        for (var vY = 0; vY < heightmapHeight; ++vY) {
-          for (var vX = 0; vX < heightmapWidth; ++vX) {
-            var finVertex = chunkFinVertices[vX, vY];
-
-            if (finVertex == null) {
-              continue;
-            }
-
-            var lightColor = finVertex.GetColor();
-            setHandler(vX, vY, lightColor.Rb, lightColor.Gb, lightColor.Bb);
-          }
-        }
-      });
-      var lightTexture = finModel.MaterialManager.CreateTexture(lightImage);
-
       var finMaterial =
-          finModel.MaterialManager.AddTextureMaterial(lightTexture);
+          finModel.MaterialManager.AddFixedFunctionMaterial();
+
+      var equations = finMaterial.Equations;
+      var color0 = equations.CreateColorConstant(0);
+      var scalar1 = equations.CreateScalarConstant(1);
+      equations.CreateColorOutput(FixedFunctionSource.OUTPUT_COLOR,
+                                  equations.CreateColorInput(
+                                      FixedFunctionSource.VERTEX_COLOR_0,
+                                      color0));
+      equations.CreateScalarOutput(FixedFunctionSource.OUTPUT_ALPHA,
+                                  scalar1);
 
       for (var vY = 0; vY < heightmapHeight - 1; ++vY) {
         for (var vX = 0; vX < heightmapWidth - 1; ++vX) {
