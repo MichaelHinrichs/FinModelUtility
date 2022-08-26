@@ -11,10 +11,7 @@ namespace modl.schema.terrain {
 
     public Grid<IBwHeightmapChunk?> Chunks { get; } = new(64, 64);
 
-    public HeightmapParser(EndianBinaryReader er,
-                           long tilesOffset,
-                           int materialCount,
-                           byte[] tilemapBytes,
+    public HeightmapParser(byte[] tilemapBytes,
                            byte[] tilesBytes) {
       using var tilemapEr =
           new EndianBinaryReader(new MemoryStream(tilemapBytes));
