@@ -568,19 +568,20 @@ namespace bmd.exporter {
         var channel = channelOrNull.Value;
 
         if (!this.colorChannelsColors_.TryGetValue(channel, out var color)) {
+          // TODO: Handle different color channels properly, how does vertex color factor in??
           var source = colorSource switch {
               GxCc.GX_CC_RASC => channel switch {
                   ColorChannel.GX_COLOR0A0 =>
-                      FixedFunctionSource.VERTEX_COLOR_0,
+                      FixedFunctionSource.DIFFUSE_LIGHTING_COLOR,
                   ColorChannel.GX_COLOR1A1 =>
-                      FixedFunctionSource.VERTEX_COLOR_1,
+                      FixedFunctionSource.AMBIENT_LIGHTING_COLOR,
                   _ => throw new NotImplementedException()
               },
               GxCc.GX_CC_RASA => channel switch {
                   ColorChannel.GX_COLOR0A0 =>
-                      FixedFunctionSource.VERTEX_ALPHA_0,
+                      FixedFunctionSource.DIFFUSE_LIGHTING_ALPHA,
                   ColorChannel.GX_COLOR1A1 =>
-                      FixedFunctionSource.VERTEX_ALPHA_1,
+                      FixedFunctionSource.AMBIENT_LIGHTING_ALPHA,
                   _ => throw new NotImplementedException()
               },
               _ => throw new NotImplementedException()
@@ -606,9 +607,9 @@ namespace bmd.exporter {
         if (!this.alphaChannelsColors_.TryGetValue(channel, out var alpha)) {
           var source = channel switch {
               ColorChannel.GX_COLOR0A0 => FixedFunctionSource
-                  .VERTEX_ALPHA_0,
+                  .DIFFUSE_LIGHTING_ALPHA,
               ColorChannel.GX_COLOR1A1 => FixedFunctionSource
-                  .VERTEX_ALPHA_1,
+                  .AMBIENT_LIGHTING_ALPHA,
               _ => throw new NotImplementedException()
           };
 

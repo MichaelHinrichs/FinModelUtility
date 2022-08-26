@@ -13,13 +13,15 @@ namespace uni.ui.gl {
     private readonly float[] positionData_;
     private readonly float[] normalData_;
     private readonly float[][] uvData_;
+    private readonly float[][] colorData_;
 
     private int vaoId_;
-    private int[] vboIds_ = new int[1 + 1 + 4];
+    private int[] vboIds_ = new int[1 + 1 + 4 + 2];
 
     private const int POSITION_SIZE_ = 3;
     private const int NORMAL_SIZE_ = 3;
     private const int UV_SIZE_ = 2;
+    private const int COLOR_SIZE_ = 4;
 
     public GlBufferManager(IModel model) {
       this.vertices_ = model.Skin.Vertices;
@@ -29,6 +31,10 @@ namespace uni.ui.gl {
       this.uvData_ = new float[4][];
       for (var i = 0; i < this.uvData_.Length; ++i) {
         this.uvData_[i] = new float[UV_SIZE_ * this.vertices_.Count];
+      }
+      this.colorData_ = new float[2][];
+      for (var i = 0; i < this.colorData_.Length; ++i) {
+        this.colorData_[i] = new float[COLOR_SIZE_ * this.vertices_.Count];
       }
 
       GL.GenVertexArrays(1, out this.vaoId_);
@@ -76,6 +82,15 @@ namespace uni.ui.gl {
           this.uvData_[u][uvOffset + 0] = uv?.U ?? 0;
           this.uvData_[u][uvOffset + 1] = uv?.V ?? 0;
         }
+
+        for (var c = 0; c < this.colorData_.Length; ++c) {
+          var color = vertex.GetColor(c);
+          var colorOffset = COLOR_SIZE_ * i;
+          this.colorData_[c][colorOffset + 0] = color?.Rf ?? 1;
+          this.colorData_[c][colorOffset + 1] = color?.Gf ?? 1;
+          this.colorData_[c][colorOffset + 2] = color?.Bf ?? 1;
+          this.colorData_[c][colorOffset + 3] = color?.Af ?? 1;
+        }
       }
 
       GL.BindVertexArray(this.vaoId_);
@@ -115,7 +130,7 @@ namespace uni.ui.gl {
 
       // Uv
       for (var i = 0; i < this.uvData_.Length; ++i) {
-        var vertexAttribUv = 2 + i;
+        var vertexAttribUv = 1 + 1 + i;
         GL.BindBuffer(BufferTarget.ArrayBuffer, this.vboIds_[vertexAttribUv]);
         GL.BufferData(BufferTarget.ArrayBuffer,
                       new IntPtr(sizeof(float) * this.uvData_[i].Length),
@@ -129,6 +144,24 @@ namespace uni.ui.gl {
             0,
             0);
         GL.EnableVertexAttribArray(vertexAttribUv);
+      }
+
+      // Color
+      for (var i = 0; i < this.colorData_.Length; ++i) {
+        var vertexAttribColor = 1 + 1 + 4 + i;
+        GL.BindBuffer(BufferTarget.ArrayBuffer, this.vboIds_[vertexAttribColor]);
+        GL.BufferData(BufferTarget.ArrayBuffer,
+                      new IntPtr(sizeof(float) * this.colorData_[i].Length),
+                      this.colorData_[i],
+                      BufferUsageHint.DynamicDraw);
+        GL.VertexAttribPointer(
+            vertexAttribColor,
+            COLOR_SIZE_,
+            VertexAttribPointerType.Float,
+            false,
+            0,
+            0);
+        GL.EnableVertexAttribArray(vertexAttribColor);
       }
 
       // Make sure the buffers are not changed by outside code

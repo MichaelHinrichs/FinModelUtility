@@ -27,8 +27,8 @@ in vec2 in_uv0;
 
 varying vec3 vertexNormal;
 varying vec2 normalUv;
-varying vec4 vertexColor0_;
-varying vec4 vertexColor1_;
+varying vec4 vertexColor0;
+varying vec4 vertexColor1;
 varying vec2 uv0;
 varying vec2 uv1;
 varying vec2 uv2;
@@ -38,8 +38,8 @@ void main() {
     gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex;
     vertexNormal = normalize(gl_ModelViewMatrix * vec4(gl_Normal, 0)).xyz;
     normalUv = normalize(gl_ProjectionMatrix * gl_ModelViewMatrix * vec4(gl_Normal, 0)).xy;
-    vertexColor0_ = vec4(0.5, 0.5, 0.5, 1);
-    vertexColor1_ = vec4(0, 0, 0, 1);
+    vertexColor0 = gl_Color;
+    vertexColor1 = vec4(0, 0, 0, 1);
     uv0 = gl_MultiTexCoord0.st;
     uv1 = gl_MultiTexCoord1.st;
     uv2 = gl_MultiTexCoord2.st;

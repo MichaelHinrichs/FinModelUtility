@@ -29,7 +29,7 @@ namespace fin.language.equations.fixedFunction {
         IFixedFunctionMaterial material) {
       var equations = material.Equations;
 
-      os.WriteLine("# version 130");
+      os.WriteLine("# version 330");
       os.WriteLine();
       for (var t = 0; t < 8; ++t) {
         if (equations.ColorInputs.ContainsKey(
@@ -44,8 +44,8 @@ namespace fin.language.equations.fixedFunction {
       os.WriteLine();
       os.WriteLine("in vec2 normalUv;");
       os.WriteLine("in vec3 vertexNormal;");
-      os.WriteLine("in vec4 vertexColor0_;");
-      os.WriteLine("in vec4 vertexColor1_;");
+      os.WriteLine("in vec4 vertexColor0;");
+      os.WriteLine("in vec4 vertexColor1;");
       for (var i = 0; i < 4; ++i) {
         os.WriteLine($"in vec2 uv{i};");
       }
@@ -63,10 +63,9 @@ namespace fin.language.equations.fixedFunction {
   float lightAmount = min(ambientLightAmount + diffuseLightAmount, 1);
   vec3 lightColor = vec3(.5, .5, .5);
   
-  vec4 vertexColor0 = vec4(lightAmount * lightColor, 1);");
+  vec4 diffuseLightingColor = vec4(lightAmount * lightColor, 1);");
       os.WriteLine();
-      os.WriteLine("  vec3 ambientLightColor = vec3(0, 0, 0);");
-      os.WriteLine("  vec4 vertexColor1 = vec4(ambientLightColor, 1);");
+      os.WriteLine("  vec4 ambientLightingColor = vec4(0, 0, 0, 1);");
       os.WriteLine();
 
       // TODO: Get tree of all values that this depends on, in case there needs to be other variables defined before.
@@ -368,6 +367,12 @@ namespace fin.language.equations.fixedFunction {
       return namedValue.Identifier switch {
           FixedFunctionSource.VERTEX_ALPHA_0 => "vertexColor0.a",
           FixedFunctionSource.VERTEX_ALPHA_1 => "vertexColor1.a",
+
+          FixedFunctionSource.DIFFUSE_LIGHTING_ALPHA
+              => "diffuseLightingColor.a",
+          FixedFunctionSource.AMBIENT_LIGHTING_ALPHA
+              => "ambientLightingColor.a",
+
           FixedFunctionSource.UNDEFINED => "1",
           _ => throw new ArgumentOutOfRangeException()
       };
@@ -516,8 +521,20 @@ namespace fin.language.equations.fixedFunction {
       return namedValue.Identifier switch {
           FixedFunctionSource.VERTEX_COLOR_0 => "vertexColor0.rgb",
           FixedFunctionSource.VERTEX_COLOR_1 => "vertexColor1.rgb",
+
           FixedFunctionSource.VERTEX_ALPHA_0 => "vertexColor0.aaa",
           FixedFunctionSource.VERTEX_ALPHA_1 => "vertexColor1.aaa",
+
+          FixedFunctionSource.DIFFUSE_LIGHTING_COLOR
+              => "diffuseLightingColor.rgb",
+          FixedFunctionSource.DIFFUSE_LIGHTING_ALPHA
+              => "diffuseLightingColor.aaa",
+
+          FixedFunctionSource.AMBIENT_LIGHTING_COLOR
+              => "ambientLightingColor.rgb",
+          FixedFunctionSource.AMBIENT_LIGHTING_ALPHA
+              => "ambientLightingColor.aaa",
+
           FixedFunctionSource.UNDEFINED => "vec3(1)",
           _ => throw new ArgumentOutOfRangeException()
       };

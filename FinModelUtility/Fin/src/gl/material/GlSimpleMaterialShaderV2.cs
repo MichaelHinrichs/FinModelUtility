@@ -3,6 +3,7 @@
 using fin.model;
 using fin.model.util;
 
+using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 
@@ -18,30 +19,34 @@ namespace fin.gl.material {
       this.Material = material;
 
       var vertexShaderSrc = @"
-# version 120
+# version 330
 
-in vec3 in_Position;
-in vec3 in_Normal;
-in vec2 in_Uv0;
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
 
-varying vec4 vertexPosition;
-varying vec4 vertexColor;
-varying vec3 vertexNormal;
-varying vec2 normalUv;
-varying vec2 uv;
+layout(location = 0) in vec3 in_Position;
+layout(location = 1) in vec3 in_Normal;
+layout(location = 2) in vec2 in_Uvs[4];
+layout(location = 6) in vec4 in_Colors[2];
+
+out vec4 vertexPosition;
+out vec4 vertexColor;
+out vec3 vertexNormal;
+out vec2 normalUv;
+out vec2 uv;
 
 void main() {
-    vertexPosition = gl_ModelViewMatrix * vec4(in_Position, 1);
-    gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * vec4(in_Position, 1);
+    vertexPosition = modelViewMatrix * vec4(in_Position, 1);
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(in_Position, 1);
 
-    vertexNormal = normalize(gl_ModelViewMatrix * vec4(in_Normal, 0)).xyz;
-    normalUv = normalize(gl_ProjectionMatrix * gl_ModelViewMatrix * vec4(in_Normal, 0)).xy;
-    vertexColor = vec4(1);
-    uv = in_Uv0;
+    vertexNormal = normalize(modelViewMatrix * vec4(in_Normal, 0)).xyz;
+    normalUv = normalize(projectionMatrix * modelViewMatrix * vec4(in_Normal, 0)).xy;
+    vertexColor = in_Colors[0];
+    uv = in_Uvs[0];
 }";
 
       var fragmentShaderSrc = @$"
-# version 130 
+# version 330
 
 uniform sampler2D diffuseTexture;
 uniform float useLighting;
@@ -101,6 +106,20 @@ void main() {{
 
     public void Use() {
       this.impl_.Use();
+
+      GL.GetFloat(GetPName.ModelviewMatrix, out Matrix4 modelViewMatrix);
+      GL.UniformMatrix4(this.impl_.GetUniformLocation("modelViewMatrix"),
+                        false, ref modelViewMatrix);
+
+      GL.GetFloat(GetPName.ProjectionMatrix, out Matrix4 projectionMatrix);
+      GL.UniformMatrix4(this.impl_.GetUniformLocation("projectionMatrix"),
+                        false, ref projectionMatrix);
+
+      GL.Uniform1(this.diffuseTextureLocation_, 0);
+      this.primaryGlTexture_.Bind();
+
+      GL.Uniform1(this.diffuseTextureLocation_, 0);
+      this.primaryGlTexture_.Bind();
 
       GL.Uniform1(this.diffuseTextureLocation_, 0);
       this.primaryGlTexture_.Bind();
