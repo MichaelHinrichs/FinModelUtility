@@ -11,23 +11,29 @@ namespace modl.schema.terrain {
 
     public Grid<IBwHeightmapChunk?> Chunks { get; } = new(64, 64);
 
-    public HeightmapParser(byte[] tilemapBytes, byte[] tilesBytes) {
+    public HeightmapParser(EndianBinaryReader er,
+                           long tilesOffset,
+                           int materialCount,
+                           byte[] tilemapBytes,
+                           byte[] tilesBytes) {
       using var tilemapEr =
           new EndianBinaryReader(new MemoryStream(tilemapBytes));
       using var tilesEr =
           new EndianBinaryReader(new MemoryStream(tilesBytes));
 
+      var maxOffset = -1;
+
+      tilemapEr.ReadNewArray<SchemaTilemapDefinition>(
+          out var tilemapDefinitions, 64 * 64);
       for (var chunkY = 0; chunkY < 64; ++chunkY) {
         for (var chunkX = 0; chunkX < 64; ++chunkX) {
-          var chunkOffset = 4 * (chunkY * 64 + chunkX);
-          tilemapEr.Position = chunkOffset;
-          var a = tilemapEr.ReadByte();
-          var b = tilemapEr.ReadByte();
-          var offset = tilemapEr.ReadUInt16();
-
-          if (b != 1) {
+          var tilemapDefinition = tilemapDefinitions[chunkY * 64 + chunkX];
+          if (tilemapDefinition.Unknown != 1) {
             continue;
           }
+
+          var offset = tilemapDefinition.Offset;
+          maxOffset = Math.Max(maxOffset, offset);
 
           var chunk = new BwHeightmapChunk();
           this.Chunks[chunkX, chunkY] = chunk;
@@ -60,6 +66,17 @@ namespace modl.schema.terrain {
           }
         }
       }
+
+      // TODO: There's 15 more blocks of 180 bytes for each tile, what does it mean???
+    }
+
+    [BinarySchema]
+    private partial class SchemaTilemapDefinition : IBiSerializable {
+      private readonly byte padding_ = 0;
+
+      public byte Unknown { get; private set; }
+
+      public ushort Offset { get; private set; }
     }
 
     [BinarySchema]
@@ -69,7 +86,11 @@ namespace modl.schema.terrain {
       public Rgba32[] LightColors { get; } =
         Arrays.From(16, () => new Rgba32());
 
-      public byte[] Unknown { get; } = new byte[84];
+      public byte[] Unknown { get; } = new byte[76];
+
+      public uint MaybeMaterial { get; private set; }
+
+      public uint Unknown2 { get; private set; }
     }
 
     private class BwHeightmapChunk : IBwHeightmapChunk {

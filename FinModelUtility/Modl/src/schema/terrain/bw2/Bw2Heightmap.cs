@@ -15,7 +15,7 @@ namespace modl.schema.terrain.bw1 {
         var offset = er.Position;
 
         sections[name] = new BwSection(name, size, offset);
-        
+
         er.Position += size;
       }
 
@@ -32,7 +32,10 @@ namespace modl.schema.terrain.bw1 {
       var materialCount = matlSection.Size / 48;
       er.ReadNewArray<BwHeightmapMaterial>(out var materials, materialCount);
 
-      var heightmapParser = new HeightmapParser(tilemapBytes, tilesBytes);
+      var heightmapParser =
+          new HeightmapParser(er, chnkSection.Offset, materialCount,
+                              tilemapBytes,
+                              tilesBytes);
       this.Chunks = heightmapParser.Chunks;
     }
   }
