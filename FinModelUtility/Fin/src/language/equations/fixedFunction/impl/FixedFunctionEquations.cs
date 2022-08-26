@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
+using System.Linq;
+
 
 namespace fin.language.equations.fixedFunction {
   public partial class FixedFunctionEquations<TIdentifier> :
@@ -19,5 +20,9 @@ namespace fin.language.equations.fixedFunction {
           new ReadOnlyDictionary<TIdentifier, IColorOutput<TIdentifier>>(
               this.colorOutputs_);
     }
+
+    public bool HasInput(TIdentifier identifier)
+      => this.ColorInputs.ContainsKey(identifier) ||
+         this.ScalarInputs.ContainsKey(identifier);
   }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 using fin.model;
@@ -32,12 +33,10 @@ namespace fin.language.equations.fixedFunction {
       os.WriteLine("# version 330");
       os.WriteLine();
       for (var t = 0; t < 8; ++t) {
-        if (equations.ColorInputs.ContainsKey(
-                FixedFunctionSource.TEXTURE_COLOR_0 + t) ||
-            equations.ColorInputs.ContainsKey(
-                FixedFunctionSource.TEXTURE_ALPHA_0 + t) ||
-            equations.ScalarInputs.ContainsKey(
-                FixedFunctionSource.TEXTURE_ALPHA_0 + t)) {
+        if (new[] {
+                FixedFunctionSource.TEXTURE_COLOR_0 + t,
+                FixedFunctionSource.TEXTURE_ALPHA_0 + t
+            }.Any(equations.HasInput)) {
           os.WriteLine($"uniform sampler2D texture{t};");
         }
       }
@@ -54,8 +53,11 @@ namespace fin.language.equations.fixedFunction {
       os.WriteLine();
       os.WriteLine("void main() {");
 
-      // TODO: Define inputs once as needed up here.
-      os.WriteLine(@"  vec3 diffuseLightNormal = normalize(vec3(.5, .5, -1));
+      if (new[] {
+              FixedFunctionSource.DIFFUSE_LIGHTING_COLOR,
+              FixedFunctionSource.DIFFUSE_LIGHTING_ALPHA
+          }.Any(equations.HasInput)) {
+        os.WriteLine(@"  vec3 diffuseLightNormal = normalize(vec3(.5, .5, -1));
   float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);
 
   float ambientLightAmount = .3;
@@ -64,9 +66,15 @@ namespace fin.language.equations.fixedFunction {
   vec3 lightColor = vec3(.5, .5, .5);
   
   vec4 diffuseLightingColor = vec4(lightAmount * lightColor, 1);");
-      os.WriteLine();
-      os.WriteLine("  vec4 ambientLightingColor = vec4(0, 0, 0, 1);");
-      os.WriteLine();
+        os.WriteLine();
+      }
+      if (new[] {
+              FixedFunctionSource.AMBIENT_LIGHTING_COLOR,
+              FixedFunctionSource.AMBIENT_LIGHTING_ALPHA
+          }.Any(equations.HasInput)) {
+        os.WriteLine("  vec4 ambientLightingColor = vec4(0, 0, 0, 1);");
+        os.WriteLine();
+      }
 
       // TODO: Get tree of all values that this depends on, in case there needs to be other variables defined before.
       var outputColor =

@@ -48,6 +48,8 @@ namespace fin.language.equations.fixedFunction {
     IColorOutput<TIdentifier> CreateColorOutput(
         TIdentifier identifier,
         IColorValue value);
+
+    bool HasInput(TIdentifier identifier);
   }
 
   public interface INamedValue<TIdentifier> {
