@@ -47,11 +47,6 @@ namespace modl.api {
 
       var finModel = new ModelImpl();
 
-      var finMaterial =
-          finModel.MaterialManager.AddTextureMaterial(
-              finModel.MaterialManager.CreateTexture(
-                  FinImage.Create1x1WithColor(Color.White)));
-
       var finSkin = finModel.Skin;
       var finMesh = finSkin.AddMesh();
 
@@ -59,16 +54,19 @@ namespace modl.api {
 
       var chunks = bwHeightmap.Chunks;
 
+      var heightmapWidth = 64 * 4 * 4;
+      var heightmapHeight = 64 * 4 * 4;
+      var chunkFinVertices =
+          new Grid<IVertex?>(heightmapWidth, heightmapHeight);
+
+      var heights = new Grid<ushort>(heightmapWidth, heightmapHeight);
+
       for (var chunkY = 0; chunkY < chunks.Height; ++chunkY) {
         for (var chunkX = 0; chunkX < chunks.Width; ++chunkX) {
           var tiles = chunks[chunkX, chunkY]?.Tiles;
           if (tiles == null) {
             continue;
           }
-
-          var chunkWidth = 4 * 4;
-          var chunkHeight = 4 * 4;
-          var chunkFinVertices = new Grid<IVertex>(chunkWidth, chunkHeight);
 
           for (var tileY = 0; tileY < tiles.Height; ++tileY) {
             for (var tileX = 0; tileX < tiles.Width; ++tileX) {
@@ -78,29 +76,45 @@ namespace modl.api {
                 for (var pointX = 0; pointX < points.Width; ++pointX) {
                   var point = points[pointX, pointY];
 
-                  var intensity = (byte) (point.Height / 24);
+                  var heightmapX = 16 * chunkX + 4 * tileX + pointX;
+                  var heightmapY = 16 * chunkY + 4 * tileY + pointY;
 
                   var finVertex =
                       finSkin.AddVertex(point.X, point.Height, point.Y)
-                             .SetColor(ColorImpl.FromIntensityByte(intensity));
+                             .SetUv(1f * heightmapX / heightmapWidth,
+                                    1f * heightmapY / heightmapHeight);
 
-                  chunkFinVertices[4 * tileX + pointX, 4 * tileY + pointY] =
-                      finVertex;
+                  chunkFinVertices[heightmapX, heightmapY] = finVertex;
+                  heights[heightmapX, heightmapY] = point.Height;
                 }
               }
             }
           }
+        }
+      }
 
-          for (var vY = 0; vY < chunkHeight - 1; ++vY) {
-            for (var vX = 0; vX < chunkWidth - 1; ++vX) {
-              var a = chunkFinVertices[vX, vY];
-              var b = chunkFinVertices[vX + 1, vY];
-              var c = chunkFinVertices[vX, vY + 1];
-              var d = chunkFinVertices[vX + 1, vY + 1];
+      var image = new I8Image(heightmapWidth, heightmapHeight);
+      image.Mutate((_, setHandler) => {
+        for (var vY = 0; vY < heightmapHeight; ++vY) {
+          for (var vX = 0; vX < heightmapWidth; ++vX) {
+            setHandler(vX, vY, (byte) (heights[vX, vY] / 24));
+          }
+        }
+      });
+      var heightmapTexture = finModel.MaterialManager.CreateTexture(image);
+      var finMaterial =
+          finModel.MaterialManager.AddTextureMaterial(heightmapTexture);
 
-              triangles.Add((a, b, c));
-              triangles.Add((d, c, b));
-            }
+      for (var vY = 0; vY < heightmapHeight - 1; ++vY) {
+        for (var vX = 0; vX < heightmapWidth - 1; ++vX) {
+          var a = chunkFinVertices[vX, vY];
+          var b = chunkFinVertices[vX + 1, vY];
+          var c = chunkFinVertices[vX, vY + 1];
+          var d = chunkFinVertices[vX + 1, vY + 1];
+
+          if (a != null && b != null && c != null && d != null) {
+            triangles.Add((a, b, c));
+            triangles.Add((d, c, b));
           }
         }
       }

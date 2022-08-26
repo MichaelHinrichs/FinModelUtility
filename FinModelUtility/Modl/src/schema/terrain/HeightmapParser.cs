@@ -22,7 +22,7 @@ namespace modl.schema.terrain {
           var b = tilemapEr.ReadByte();
           var offset = tilemapEr.ReadUInt16();
 
-          if (b == 0) {
+          if (b != 1) {
             continue;
           }
 
@@ -77,7 +77,7 @@ namespace modl.schema.terrain {
     private class BwHeightmapPoint : IBwHeightmapPoint {
       public int X { get; set; }
       public int Y { get; set; }
-      public int Height { get; set; }
+      public ushort Height { get; set; }
       public Rgba32 LightColor { get; } = new();
     }
   }

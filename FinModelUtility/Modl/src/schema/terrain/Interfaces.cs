@@ -18,7 +18,7 @@ namespace modl.schema.terrain {
   public interface IBwHeightmapPoint {
     int X { get; }
     int Y { get; }
-    int Height { get; }
+    ushort Height { get; }
 
     Rgba32 LightColor { get; }
   }
