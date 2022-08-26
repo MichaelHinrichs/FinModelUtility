@@ -59,8 +59,6 @@ namespace modl.api {
       var chunkFinVertices =
           new Grid<IVertex?>(heightmapWidth, heightmapHeight);
 
-      var heights = new Grid<ushort>(heightmapWidth, heightmapHeight);
-
       for (var chunkY = 0; chunkY < chunks.Height; ++chunkY) {
         for (var chunkX = 0; chunkX < chunks.Width; ++chunkX) {
           var tiles = chunks[chunkX, chunkY]?.Tiles;
@@ -79,13 +77,17 @@ namespace modl.api {
                   var heightmapX = 16 * chunkX + 4 * tileX + pointX;
                   var heightmapY = 16 * chunkY + 4 * tileY + pointY;
 
+                  var lightColor = point.LightColor;
+
                   var finVertex =
                       finSkin.AddVertex(point.X, point.Height, point.Y)
+                             .SetColor(
+                                 ColorImpl.FromRgbBytes(
+                                     lightColor.R, lightColor.G, lightColor.B))
                              .SetUv(1f * heightmapX / heightmapWidth,
                                     1f * heightmapY / heightmapHeight);
 
                   chunkFinVertices[heightmapX, heightmapY] = finVertex;
-                  heights[heightmapX, heightmapY] = point.Height;
                 }
               }
             }
@@ -93,17 +95,25 @@ namespace modl.api {
         }
       }
 
-      var image = new I8Image(heightmapWidth, heightmapHeight);
-      image.Mutate((_, setHandler) => {
+      var lightImage = new Rgb24Image(heightmapWidth, heightmapHeight);
+      lightImage.Mutate((_, setHandler) => {
         for (var vY = 0; vY < heightmapHeight; ++vY) {
           for (var vX = 0; vX < heightmapWidth; ++vX) {
-            setHandler(vX, vY, (byte) (heights[vX, vY] / 24));
+            var finVertex = chunkFinVertices[vX, vY];
+
+            if (finVertex == null) {
+              continue;
+            }
+
+            var lightColor = finVertex.GetColor();
+            setHandler(vX, vY, lightColor.Rb, lightColor.Gb, lightColor.Bb);
           }
         }
       });
-      var heightmapTexture = finModel.MaterialManager.CreateTexture(image);
+      var lightTexture = finModel.MaterialManager.CreateTexture(lightImage);
+
       var finMaterial =
-          finModel.MaterialManager.AddTextureMaterial(heightmapTexture);
+          finModel.MaterialManager.AddTextureMaterial(lightTexture);
 
       for (var vY = 0; vY < heightmapHeight - 1; ++vY) {
         for (var vX = 0; vX < heightmapWidth - 1; ++vX) {
