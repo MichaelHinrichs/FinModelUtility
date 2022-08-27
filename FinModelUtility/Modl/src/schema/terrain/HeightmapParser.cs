@@ -13,15 +13,21 @@ namespace modl.schema.terrain {
 
     public HeightmapParser(byte[] tilemapBytes,
                            byte[] tilesBytes) {
-      using var tilemapEr =
-          new EndianBinaryReader(new MemoryStream(tilemapBytes));
-      using var tilesEr =
-          new EndianBinaryReader(new MemoryStream(tilesBytes));
+      SchemaTilemapDefinition[] tilemapDefinitions;
+      {
+        using var tilemapEr =
+            new EndianBinaryReader(new MemoryStream(tilemapBytes));
+        tilemapEr.ReadNewArray(out tilemapDefinitions, 64 * 64);
+      }
 
-      var maxOffset = -1;
+      SchemaTile[] schemaTiles;
+      {
+        using var tilesEr =
+            new EndianBinaryReader(new MemoryStream(tilesBytes));
+        var schemaTileCount = tilesBytes.Length / 180;
+        tilesEr.ReadNewArray(out schemaTiles, schemaTileCount);
+      }
 
-      tilemapEr.ReadNewArray<SchemaTilemapDefinition>(
-          out var tilemapDefinitions, 64 * 64);
       for (var chunkY = 0; chunkY < 64; ++chunkY) {
         for (var chunkX = 0; chunkX < 64; ++chunkX) {
           var tilemapDefinition = tilemapDefinitions[chunkY * 64 + chunkX];
@@ -30,7 +36,6 @@ namespace modl.schema.terrain {
           }
 
           var offset = tilemapDefinition.Offset;
-          maxOffset = Math.Max(maxOffset, offset);
 
           var chunk = new BwHeightmapChunk();
           this.Chunks[chunkX, chunkY] = chunk;
@@ -41,8 +46,7 @@ namespace modl.schema.terrain {
               chunk.Tiles[tileX, tileY] = tile;
 
               var tileOffset = 4 * tileY + tileX;
-              tilesEr.Position = 180 * (16 * offset + tileOffset);
-              var schemaTile = tilesEr.ReadNew<SchemaTile>();
+              var schemaTile = schemaTiles[16 * offset + tileOffset];
 
               tile.MatlIndex = schemaTile.MatlIndex;
 
@@ -65,6 +69,28 @@ namespace modl.schema.terrain {
           }
         }
       }
+
+      var values = new CounterArray[5];
+      for (var i = 0; i < values.Length; ++i) {
+        values[i] = new CounterArray();
+      }
+
+      foreach (var schemaTile in schemaTiles) {
+        foreach (var frac in schemaTile.Unknowns0) {
+          values[0].Increment((byte) frac);
+        }
+
+        var uvs = schemaTile.Uvs;
+        foreach (var uv in uvs) {
+          for (var i = 1; i < values.Length; ++i) {
+            values[i].Increment(uv.Data[i - 1]);
+          }
+        }
+      }
+
+      var lists = values.Select(counter => counter.ToArray()).ToArray();
+
+      ;
     }
 
     [BinarySchema]
@@ -83,9 +109,21 @@ namespace modl.schema.terrain {
       public Rgba32[] LightColors { get; } =
         Arrays.From(16, () => new Rgba32());
 
-      public byte[] Unknown { get; } = new byte[80];
+      public BwUnknownEnum0[] Unknowns0 { get; } = new BwUnknownEnum0[16];
+
+      public TileUvs[] Uvs { get; } = Arrays.From(16, () => new TileUvs());
 
       public uint MatlIndex { get; private set; }
+    }
+
+    public enum BwUnknownEnum0 : byte {
+      VALUE_A = 0,
+      VALUE_B = 16
+    }
+
+    [BinarySchema]
+    public partial class TileUvs : IBiSerializable {
+      public byte[] Data { get; } = new byte[4];
     }
 
     private class BwHeightmapChunk : IBwHeightmapChunk {
