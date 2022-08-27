@@ -256,16 +256,23 @@ namespace schema.text {
         var arrayLengthName = arrayType.SequenceType == SequenceType.ARRAY
                                   ? "Length"
                                   : "Count";
-        var castType =
-            primitiveElementType.PrimitiveType == SchemaPrimitiveType.ENUM
-                ? SymbolTypeUtil.GetQualifiedNameFromCurrentSymbol(
-                    sourceSymbol,
-                    primitiveElementType.TypeSymbol)
-                : primitiveElementType.TypeSymbol.Name;
+        var needToCast = primitiveElementType.UseAltFormat &&
+                         primitiveElementType.PrimitiveType !=
+                         SchemaPrimitiveTypesUtil.GetUnderlyingPrimitiveType(
+                             SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(
+                                 primitiveElementType.AltFormat));
+
+        var castText = "";
+        if (needToCast) {
+          var castType =
+              SchemaGeneratorUtil.GetTypeName(primitiveElementType.AltFormat);
+          castText = $"({castType}) ";
+        }
+
         cbsb.EnterBlock(
                 $"for (var i = 0; i < this.{member.Name}.{arrayLengthName}; ++i)")
             .WriteLine(
-                $"ew.Write{writeType}(({castType}) this.{member.Name}[i]);")
+                $"ew.Write{writeType}({castText}this.{member.Name}[i]);")
             .ExitBlock();
         return;
       }

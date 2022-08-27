@@ -45,5 +45,56 @@ namespace foo.bar {
 }
 ");
     }
+
+    [Test]
+    public void TestEnumArray() {
+      SchemaTestUtil.AssertGenerated(@"
+using schema;
+
+namespace foo.bar {
+  enum A {}
+
+  enum B : int {
+  }
+ 
+  [BinarySchema]
+  public partial class EnumWrapper {
+    [IntegerFormat(SchemaIntegerType.BYTE)]
+    public readonly A[] fieldA = new A[5];
+
+    public readonly B[] fieldB = new B[5];
+  }
+}",
+                                     @"using System;
+using System.IO;
+namespace foo.bar {
+  public partial class EnumWrapper {
+    public void Read(EndianBinaryReader er) {
+      for (var i = 0; i < this.fieldA.Length; ++i) {
+        this.fieldA[i] = (A) er.ReadByte();
+      }
+      for (var i = 0; i < this.fieldB.Length; ++i) {
+        this.fieldB[i] = (B) er.ReadInt32();
+      }
+    }
+  }
+}
+",
+                                     @"using System;
+using System.IO;
+namespace foo.bar {
+  public partial class EnumWrapper {
+    public void Write(EndianBinaryWriter ew) {
+      for (var i = 0; i < this.fieldA.Length; ++i) {
+        ew.WriteByte((byte) this.fieldA[i]);
+      }
+      for (var i = 0; i < this.fieldB.Length; ++i) {
+        ew.WriteInt32((int) this.fieldB[i]);
+      }
+    }
+  }
+}
+");
+    }
   }
 }

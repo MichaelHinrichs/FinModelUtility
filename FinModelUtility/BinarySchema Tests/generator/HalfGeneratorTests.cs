@@ -43,7 +43,7 @@ namespace foo.bar {
       ew.WriteHalf((float) this.field1);
       ew.WriteHalf((float) this.field2);
       for (var i = 0; i < this.field3.Length; ++i) {
-        ew.WriteHalf((Single) this.field3[i]);
+        ew.WriteHalf((float) this.field3[i]);
       }
     }
   }
