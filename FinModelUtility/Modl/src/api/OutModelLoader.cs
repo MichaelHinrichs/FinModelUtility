@@ -53,9 +53,11 @@ namespace modl.api {
       var imageDictionary =
           new LazyDictionary<string, IImage>(textureName => {
             var outFile = modelFileBundle.OutFile;
+            var outName = outFile.Name.Replace(".out.gz", "")
+                                 .Replace(".out", "");
             var outDirectory =
                 outFile.Parent.Subdirs.Single(
-                    dir => dir.Name == outFile.NameWithoutExtension + "_Level");
+                    dir => dir.Name == outName + "_Level");
 
             var textureFile =
                 outDirectory.Files.Single(
