@@ -65,8 +65,8 @@ namespace modl.schema.terrain {
                   tile.Points[pointX, pointY] = point;
 
                   var xyScale = 64;
-                  point.X = xyScale * (16 * chunkX + 4 * tileX + pointX);
-                  point.Y = xyScale * (16 * chunkY + 4 * tileY + pointY);
+                  point.X = xyScale * (4 * 3 * chunkX + 3 * tileX + pointX);
+                  point.Y = xyScale * (4 * 3 * chunkY + 3 * tileY + pointY);
 
                   var pointOffset = pointY * 4 + pointX;
 

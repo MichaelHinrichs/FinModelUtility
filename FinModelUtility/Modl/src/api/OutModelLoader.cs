@@ -83,13 +83,29 @@ namespace modl.api {
             var finMaterial =
                 finModel.MaterialManager.AddFixedFunctionMaterial();
 
+            finMaterial.SetTextureSource(0, texture1);
+            finMaterial.SetTextureSource(1, texture2);
+
             var equations = finMaterial.Equations;
             var color0 = equations.CreateColorConstant(0);
             var scalar1 = equations.CreateScalarConstant(1);
-            equations.CreateColorOutput(FixedFunctionSource.OUTPUT_COLOR,
-                                        equations.CreateColorInput(
-                                            FixedFunctionSource.VERTEX_COLOR_0,
-                                            color0));
+
+            var vertexColor0 = equations.CreateColorInput(
+                FixedFunctionSource.VERTEX_COLOR_0,
+                color0);
+
+            var textureColor1 = equations.CreateColorInput(
+                FixedFunctionSource.TEXTURE_COLOR_0,
+                color0);
+            var textureColor2 = equations.CreateColorInput(
+                FixedFunctionSource.TEXTURE_COLOR_1,
+                color0);
+
+            var blendedTextureColor = textureColor1;
+
+            equations.CreateColorOutput(
+                FixedFunctionSource.OUTPUT_COLOR,
+                vertexColor0.Multiply(blendedTextureColor));
             equations.CreateScalarOutput(FixedFunctionSource.OUTPUT_ALPHA,
                                          scalar1);
 
@@ -113,6 +129,9 @@ namespace modl.api {
       var heightmapSizeX = tileCountX * 4;
       var heightmapSizeY = tileCountY * 4;
       var chunkFinVertices = new Grid<IVertex?>(heightmapSizeX, heightmapSizeY);
+
+      var trianglesByMaterial =
+          new ListDictionary<IMaterial, (IVertex, IVertex, IVertex)>();
 
       for (var chunkY = 0; chunkY < chunks.Height; ++chunkY) {
         for (var chunkX = 0; chunkX < chunks.Width; ++chunkX) {
@@ -147,11 +166,34 @@ namespace modl.api {
                   chunkFinVertices[heightmapX, heightmapY] = finVertex;
                 }
               }
+
+              var material = materialDictionary[tile.MatlIndex];
+              for (var pointY = 0; pointY < points.Height - 1; ++pointY) {
+                for (var pointX = 0; pointX < points.Width - 1; ++pointX) {
+                  var vX = 16 * chunkX + 4 * tileX + pointX;
+                  var vY = 16 * chunkY + 4 * tileY + pointY;
+
+                  var a = chunkFinVertices[vX, vY];
+                  var b = chunkFinVertices[vX + 1, vY];
+                  var c = chunkFinVertices[vX, vY + 1];
+                  var d = chunkFinVertices[vX + 1, vY + 1];
+
+                  if (a != null && b != null && c != null && d != null) {
+                    trianglesByMaterial.Add(material, (a, b, c));
+                    trianglesByMaterial.Add(material, (d, c, b));
+                  }
+                }
+              }
             }
           }
         }
       }
 
+      foreach (var (material, triangles) in trianglesByMaterial) {
+        finMesh.AddTriangles(triangles.ToArray()).SetMaterial(material);
+      }
+
+      /*
       {
         var minTx = tileCountX;
         var maxTx = -1;
@@ -243,10 +285,6 @@ namespace modl.api {
                     var unk3Int = tile.Schema.Uvs[pI].Data[3];
                     var unk3Frac = unk3Int / 255f;
 
-                    // Increases either horizontally or vertically, UV?
-                    /*var blendInt = tile.Schema.Uvs[pI].Data[0];
-                    var blendFrac = blendInt / 16f;*/
-
                     var blendFrac =
                         tile.Schema.Unknowns0[pI] ==
                         HeightmapParser.BwUnknownEnum0.VALUE_A
@@ -289,8 +327,9 @@ namespace modl.api {
                   .Save(
                       @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\out\test\image.png");
       }
+      */
 
-      var triangles = new List<(IVertex, IVertex, IVertex)>();
+      /*var triangles = new List<(IVertex, IVertex, IVertex)>();
 
       for (var vY = 0; vY < heightmapSizeY - 1; ++vY) {
         for (var vX = 0; vX < heightmapSizeX - 1; ++vX) {
@@ -319,7 +358,7 @@ namespace modl.api {
       equations.CreateScalarOutput(FixedFunctionSource.OUTPUT_ALPHA,
                                    scalar1);
 
-      finMesh.AddTriangles(triangles.ToArray()).SetMaterial(finMaterial);
+      finMesh.AddTriangles(triangles.ToArray()).SetMaterial(finMaterial);*/
 
       return finModel;
     }
