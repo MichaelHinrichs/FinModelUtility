@@ -48,6 +48,7 @@ namespace modl.schema.terrain {
               var tileOffset = 4 * tileY + tileX;
               var schemaTile = schemaTiles[16 * offset + tileOffset];
 
+              tile.Schema = schemaTile;
               tile.MatlIndex = schemaTile.MatlIndex;
 
               for (var pointY = 0; pointY < 4; ++pointY) {
@@ -81,11 +82,15 @@ namespace modl.schema.terrain {
         }
 
         var uvs = schemaTile.Uvs;
-        foreach (var uv in uvs) {
-          for (var i = 1; i < values.Length; ++i) {
-            values[i].Increment(uv.Data[i - 1]);
+        for (var p = 0; p < uvs.Length; ++p) {
+          var uv = uvs[p];
+
+          for (var i = 0; i < 4; ++i) {
+            values[1 + i].Increment(uv.Data[i]);
           }
         }
+
+        ;
       }
 
       var lists = values.Select(counter => counter.ToArray()).ToArray();
@@ -103,7 +108,7 @@ namespace modl.schema.terrain {
     }
 
     [BinarySchema]
-    private partial class SchemaTile : IBiSerializable {
+    public partial class SchemaTile : IBiSerializable {
       public ushort[] Heights { get; } = new ushort[16];
 
       public Rgba32[] LightColors { get; } =
@@ -133,6 +138,8 @@ namespace modl.schema.terrain {
     private class BwHeightmapTile : IBwHeightmapTile {
       public Grid<IBwHeightmapPoint> Points { get; } = new(4, 4);
       public uint MatlIndex { get; set; }
+
+      public SchemaTile Schema { get; set; }
     }
 
     private class BwHeightmapPoint : IBwHeightmapPoint {

@@ -7,6 +7,7 @@ using fin.image;
 using fin.io;
 using fin.model;
 using fin.model.impl;
+using fin.util.color;
 
 using modl.schema.modl;
 using modl.schema.terrain;
@@ -104,7 +105,7 @@ namespace modl.api {
       var tileSize = 64 * 4;
       //var tileMaterials = new Grid<IMaterial?>(tileSize, tileSize);
 
-      var tileMatlIndices = new Grid<uint?>(tileSize, tileSize);
+      var tileGrid = new Grid<IBwHeightmapTile?>(tileSize, tileSize);
 
       var heightmapSize = tileSize * 4;
       var chunkFinVertices = new Grid<IVertex?>(heightmapSize, heightmapSize);
@@ -121,8 +122,7 @@ namespace modl.api {
               var tile = tiles[tileX, tileY];
               /*tileMaterials[4 * chunkX + tileX, 4 * chunkY + tileY] =
                   materialDictionary[tile.MatlIndex];*/
-              tileMatlIndices[4 * chunkX + tileX, 4 * chunkY + tileY] =
-                  tile.MatlIndex;
+              tileGrid[4 * chunkX + tileX, 4 * chunkY + tileY] = tile;
 
               var points = tile.Points;
               for (var pointY = 0; pointY < points.Height; ++pointY) {
@@ -151,14 +151,14 @@ namespace modl.api {
       }
 
       {
-        /*var minTx = tileSize;
+        var minTx = tileSize;
         var maxTx = -1;
         var minTy = tileSize;
         var maxTy = -1;
         for (var tY = 0; tY < tileSize; ++tY) {
           for (var tX = 0; tX < tileSize; ++tX) {
-            var matlIndexOrNull = tileMatlIndices[tX, tY];
-            if (matlIndexOrNull == null) {
+            var tile = tileGrid[tX, tY];
+            if (tile == null) {
               continue;
             }
 
@@ -184,18 +184,13 @@ namespace modl.api {
         debugImage.Mutate((_, setHandler) => {
           for (var tY = minTy; tY <= maxTy; ++tY) {
             for (var tX = minTx; tX <= maxTx; ++tX) {
-              var matlIndexOrNull = tileMatlIndices[tX, tY];
-              if (matlIndexOrNull == null) {
+              var tile = tileGrid[tX, tY];
+              if (tile == null) {
                 continue;
               }
 
-              BwHeightmapMaterial? matl = null;
-
-              var matlIndex = matlIndexOrNull.Value;
-              if (matlIndex < bwTerrain.Materials.Count) {
-                matl = bwTerrain.Materials[(int) matlIndex];
-              }
-
+              var matlIndex = tile.MatlIndex;
+              var matl = bwTerrain.Materials[(int) matlIndex];
               var image1 = matl != null
                                ? textureDictionary[matl.Texture1].Image
                                : nullImage1;
@@ -224,33 +219,62 @@ namespace modl.api {
               bothGets((getHandler1, getHandler2) => {
                 for (var iY = 0; iY < resolution; ++iY) {
                   for (var iX = 0; iX < resolution; ++iX) {
+                    var pX = (int) Math.Floor((1f * iX / resolution) * 4);
+                    var pY = (int) Math.Floor((1f * iY / resolution) * 4);
+                    var pI = 4 * pY + pX;
+
                     var x = (tX - minTx) * resolution + iX;
                     var y = (tY - minTy) * resolution + iY;
 
-                    byte r, g, b, a;
+                    var unk0Int = tile.Schema.Uvs[pI].Data[0];
+                    var unk0Frac = unk0Int / 16f;
 
-                    var useFirstImage = (iX + iY) < resolution;
-                    if (useFirstImage) {
-                      var adjX =
-                          (int) ((1f * iX / resolution) *
-                                 image1.Width);
-                      var adjY =
-                          (int) ((1f * iY / resolution) *
-                                 image1.Height);
+                    // Generally results in vertical bars across image, seems to be U?
+                    var unk1Int = tile.Schema.Uvs[pI].Data[1];
+                    var unk1Frac = unk1Int / 16f;
 
-                      getHandler1(adjX, adjY, out r, out g, out b,
-                                  out a);
-                    } else {
-                      var adjX =
-                          (int) ((1f * iX / resolution) *
-                                 image2.Width);
-                      var adjY =
-                          (int) ((1f * iY / resolution) *
-                                 image2.Height);
+                    // Results in bars steadily increasing in either direction, but closer to unk3
+                    var unk2Int = tile.Schema.Uvs[pI].Data[2];
+                    var unk2Frac = unk2Int / 16f;
 
-                      getHandler2(adjX, adjY, out r, out g, out b,
-                                  out a);
-                    }
+                    // Generally results in horizontal bars across image, seems to be V?
+                    var unk3Int = tile.Schema.Uvs[pI].Data[3];
+                    var unk3Frac = unk3Int / 255f;
+
+                    // Increases either horizontally or vertically, UV?
+                    /*var blendInt = tile.Schema.Uvs[pI].Data[0];
+                    var blendFrac = blendInt / 16f;*/
+
+                    var blendFrac =
+                        tile.Schema.Unknowns0[pI] ==
+                        HeightmapParser.BwUnknownEnum0.VALUE_A
+                            ? 0
+                            : 1;
+
+                    var xF = 1f * iX / resolution;
+                    var yF = 1f * iY / resolution;
+
+                    var adj1X = (int) (xF * image1.Width);
+                    var adj1Y = (int) (yF * image1.Height);
+
+                    var adj2X = (int) (xF * image2.Width);
+                    var adj2Y = (int) (yF * image2.Height);
+
+                    getHandler1(adj1X, adj1Y,
+                                out var r1,
+                                out var g1,
+                                out var b1,
+                                out var a1);
+                    getHandler2(adj2X, adj2Y,
+                                out var r2,
+                                out var g2,
+                                out var b2,
+                                out var a2);
+
+                    ColorUtil.Interpolate(
+                        r1, g1, b1, a1,
+                        r2, g2, b2, a2, blendFrac,
+                        out var r, out var g, out var b, out var a);
 
                     setHandler(x, y, r, g, b, a);
                   }
@@ -261,7 +285,7 @@ namespace modl.api {
         });
         debugImage.AsBitmap()
                   .Save(
-                      @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\out\test\image.png");*/
+                      @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\out\test\image.png");
       }
 
       var triangles = new List<(IVertex, IVertex, IVertex)>();

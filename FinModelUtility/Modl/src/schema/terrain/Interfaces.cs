@@ -15,7 +15,7 @@ namespace modl.schema.terrain {
     [StringLengthSource(16)]
     public string Texture2 { get; private set; }
 
-    public byte[] Unknown { get; } = new byte[16];
+    public uint[] Unknown { get; } = new uint[4];
   }
 
   public interface IBwTerrain {
@@ -34,6 +34,8 @@ namespace modl.schema.terrain {
   public interface IBwHeightmapTile {
     Grid<IBwHeightmapPoint> Points { get; }
     uint MatlIndex { get; }
+
+    HeightmapParser.SchemaTile Schema { get; }
   }
 
   public interface IBwHeightmapPoint {

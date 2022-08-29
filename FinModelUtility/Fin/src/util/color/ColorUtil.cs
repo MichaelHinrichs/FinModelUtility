@@ -4,6 +4,7 @@ using fin.math;
 using fin.model;
 using fin.model.impl;
 
+
 namespace fin.util.color {
   public static class ColorUtil {
     public static byte ExtractScaled(ushort col, int offset, int count) {
@@ -96,11 +97,32 @@ namespace fin.util.color {
       a = ColorUtil.ExtractScaled(color, 0, 4);
     }
 
-    public static IColor Interpolate(IColor from, IColor to, double amt)
-      => ColorImpl.FromRgbaBytes(
-          (byte) Math.Round(from.Rb * (1 - amt) + to.Rb * amt),
-          (byte) Math.Round(from.Gb * (1 - amt) + to.Gb * amt),
-          (byte) Math.Round(from.Bb * (1 - amt) + to.Bb * amt),
-          (byte) Math.Round(from.Ab * (1 - amt) + to.Ab * amt));
+    public static IColor Interpolate(IColor from, IColor to, double amt) {
+      ColorUtil.Interpolate(from.Rb, from.Gb, from.Bb, from.Ab,
+                            to.Rb, to.Gb, to.Bb, to.Ab,
+                            amt,
+                            out var r, out var g, out var b, out var a);
+      return ColorImpl.FromRgbaBytes(r, g, b, a);
+    }
+
+    public static void Interpolate(
+        byte fromR,
+        byte fromG,
+        byte fromB,
+        byte fromA,
+        byte toR,
+        byte toG,
+        byte toB,
+        byte toA,
+        double amt,
+        out byte outR,
+        out byte outG,
+        out byte outB,
+        out byte outA) {
+      outR = (byte) Math.Round(fromR * (1 - amt) + toR * amt);
+      outG = (byte) Math.Round(fromG * (1 - amt) + toG * amt);
+      outB = (byte) Math.Round(fromB * (1 - amt) + toB * amt);
+      outA = (byte) Math.Round(fromA * (1 - amt) + toA * amt);
+    }
   }
 }
