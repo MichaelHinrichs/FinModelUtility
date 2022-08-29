@@ -1,4 +1,6 @@
-﻿using schema;
+﻿using fin.util.asserts;
+
+using schema;
 
 
 namespace modl.schema.terrain.bw1 {
@@ -18,6 +20,10 @@ namespace modl.schema.terrain.bw1 {
         er.Position += size;
       }
 
+      var terrSection = sections["TERR"];
+      er.Position = terrSection.Offset;
+      var terrData = er.ReadNew<TerrData>();
+
       var chnkSection = sections["CHNK"];
       er.Position = chnkSection.Offset;
       var tilesBytes = er.ReadBytes(chnkSection.Size);
@@ -28,10 +34,12 @@ namespace modl.schema.terrain.bw1 {
 
       var matlSection = sections["MATL"];
       er.Position = matlSection.Offset;
-      var materialCount = matlSection.Size / 48;
-      er.ReadNewArray<BwHeightmapMaterial>(out var materials, materialCount);
+      var expectedMatlSectionSize = terrData.MaterialCount * 48;
+      Asserts.Equal(expectedMatlSectionSize, matlSection.Size);
+      er.ReadNewArray<BwHeightmapMaterial>(out var materials,
+                                           terrData.MaterialCount);
 
-      this.Heightmap = new HeightmapParser(tilemapBytes, tilesBytes);
+      this.Heightmap = new HeightmapParser(terrData, tilemapBytes, tilesBytes);
       this.Materials = materials;
     }
   }

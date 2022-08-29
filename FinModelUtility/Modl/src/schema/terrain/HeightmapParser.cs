@@ -9,15 +9,22 @@ namespace modl.schema.terrain {
   public partial class HeightmapParser : IBwHeightmap {
     // TODO: Write this in a more schema way instead
 
-    public Grid<IBwHeightmapChunk?> Chunks { get; } = new(64, 64);
+    public Grid<IBwHeightmapChunk?> Chunks { get; }
 
-    public HeightmapParser(byte[] tilemapBytes,
+    public HeightmapParser(TerrData terrData,
+                           byte[] tilemapBytes,
                            byte[] tilesBytes) {
+      var chunkCountX = terrData.ChunkCountX;
+      var chunkCountY = terrData.ChunkCountY;
+
+      this.Chunks = new(chunkCountX, chunkCountY);
+
       SchemaTilemapDefinition[] tilemapDefinitions;
       {
         using var tilemapEr =
             new EndianBinaryReader(new MemoryStream(tilemapBytes));
-        tilemapEr.ReadNewArray(out tilemapDefinitions, 64 * 64);
+        tilemapEr.ReadNewArray(out tilemapDefinitions,
+                               chunkCountX * chunkCountY);
       }
 
       SchemaTile[] schemaTiles;
@@ -28,9 +35,10 @@ namespace modl.schema.terrain {
         tilesEr.ReadNewArray(out schemaTiles, schemaTileCount);
       }
 
-      for (var chunkY = 0; chunkY < 64; ++chunkY) {
-        for (var chunkX = 0; chunkX < 64; ++chunkX) {
-          var tilemapDefinition = tilemapDefinitions[chunkY * 64 + chunkX];
+      for (var chunkY = 0; chunkY < chunkCountY; ++chunkY) {
+        for (var chunkX = 0; chunkX < chunkCountX; ++chunkX) {
+          var tilemapDefinition =
+              tilemapDefinitions[chunkY * chunkCountX + chunkX];
           if (tilemapDefinition.Unknown != 1) {
             continue;
           }

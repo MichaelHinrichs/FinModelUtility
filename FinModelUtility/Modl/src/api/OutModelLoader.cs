@@ -102,13 +102,17 @@ namespace modl.api {
       var bwHeightmap = bwTerrain.Heightmap;
       var chunks = bwHeightmap.Chunks;
 
-      var tileSize = 64 * 4;
-      //var tileMaterials = new Grid<IMaterial?>(tileSize, tileSize);
+      var chunkCountX = chunks.Width;
+      var chunkCountY = chunks.Height;
 
-      var tileGrid = new Grid<IBwHeightmapTile?>(tileSize, tileSize);
+      var tileCountX = chunkCountX * 4;
+      var tileCountY = chunkCountY * 4;
 
-      var heightmapSize = tileSize * 4;
-      var chunkFinVertices = new Grid<IVertex?>(heightmapSize, heightmapSize);
+      var tileGrid = new Grid<IBwHeightmapTile?>(tileCountX, tileCountY);
+
+      var heightmapSizeX = tileCountX * 4;
+      var heightmapSizeY = tileCountY * 4;
+      var chunkFinVertices = new Grid<IVertex?>(heightmapSizeX, heightmapSizeY);
 
       for (var chunkY = 0; chunkY < chunks.Height; ++chunkY) {
         for (var chunkX = 0; chunkX < chunks.Width; ++chunkX) {
@@ -138,9 +142,7 @@ namespace modl.api {
                       finSkin.AddVertex(point.X, point.Height, point.Y)
                              .SetColor(
                                  ColorImpl.FromRgbBytes(
-                                     lightColor.R, lightColor.G, lightColor.B))
-                             .SetUv(1f * heightmapX / heightmapSize,
-                                    1f * heightmapY / heightmapSize);
+                                     lightColor.R, lightColor.G, lightColor.B));
 
                   chunkFinVertices[heightmapX, heightmapY] = finVertex;
                 }
@@ -151,12 +153,12 @@ namespace modl.api {
       }
 
       {
-        var minTx = tileSize;
+        var minTx = tileCountX;
         var maxTx = -1;
-        var minTy = tileSize;
+        var minTy = tileCountY;
         var maxTy = -1;
-        for (var tY = 0; tY < tileSize; ++tY) {
-          for (var tX = 0; tX < tileSize; ++tX) {
+        for (var tY = 0; tY < tileCountY; ++tY) {
+          for (var tX = 0; tX < tileCountX; ++tX) {
             var tile = tileGrid[tX, tY];
             if (tile == null) {
               continue;
@@ -290,8 +292,8 @@ namespace modl.api {
 
       var triangles = new List<(IVertex, IVertex, IVertex)>();
 
-      for (var vY = 0; vY < heightmapSize - 1; ++vY) {
-        for (var vX = 0; vX < heightmapSize - 1; ++vX) {
+      for (var vY = 0; vY < heightmapSizeY - 1; ++vY) {
+        for (var vX = 0; vX < heightmapSizeX - 1; ++vX) {
           var a = chunkFinVertices[vX, vY];
           var b = chunkFinVertices[vX + 1, vY];
           var c = chunkFinVertices[vX, vY + 1];

@@ -6,8 +6,8 @@ using schema;
 namespace modl.schema.terrain {
   [BinarySchema]
   public partial class TerrData : IBiSerializable {
-    public uint ChunkCountX { get; } = 64;
-    public uint ChunkCountY { get; } = 64;
+    public int ChunkCountX { get; } = 64;
+    public int ChunkCountY { get; } = 64;
 
     public uint SomeCount { get; } = 1;
 

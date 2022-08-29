@@ -26,7 +26,7 @@ namespace modl.schema.terrain.bw1 {
 
       var terrSection = sections["TERR"];
       er.Position = terrSection.Offset;
-      var terr = er.ReadNew<TerrData>();
+      var terrData = er.ReadNew<TerrData>();
 
       var chnkSection = sections["CHNK"];
       er.Position = chnkSection.Offset;
@@ -37,13 +37,13 @@ namespace modl.schema.terrain.bw1 {
       var tilemapBytes = er.ReadBytes(cmapSection.Size);
 
       var matlSection = sections["MATL"];
-      var expectedMatlSectionSize = terr.MaterialCount * 48;
+      var expectedMatlSectionSize = terrData.MaterialCount * 48;
       Asserts.Equal(expectedMatlSectionSize, matlSection.Size);
       er.Position = matlSection.Offset;
       er.ReadNewArray<BwHeightmapMaterial>(
-          out var materials, terr.MaterialCount);
+          out var materials, terrData.MaterialCount);
 
-      this.Heightmap = new HeightmapParser(tilemapBytes, tilesBytes);
+      this.Heightmap = new HeightmapParser(terrData, tilemapBytes, tilesBytes);
       this.Materials = materials;
     }
   }
