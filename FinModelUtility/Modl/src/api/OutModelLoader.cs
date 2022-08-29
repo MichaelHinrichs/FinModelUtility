@@ -50,8 +50,8 @@ namespace modl.api {
 
       var finModel = new ModelImpl();
 
-      var textureDictionary = new LazyDictionary<string, ITexture>(
-          textureName => {
+      var imageDictionary =
+          new LazyDictionary<string, IImage>(textureName => {
             var outFile = modelFileBundle.OutFile;
             var outDirectory =
                 outFile.Parent.Subdirs.Single(
@@ -62,10 +62,17 @@ namespace modl.api {
                     file => file.Name.ToLower() == $"{textureName}.png");
 
             var image = FinImage.FromFile(textureFile.Impl);
+            return image;
+          });
+      var textureDictionary = new LazyDictionary<(int, string), ITexture>(
+          uvIndexAndTextureName => {
+            var (uvIndex, textureName) = uvIndexAndTextureName;
+            var image = imageDictionary[textureName];
 
             var finTexture =
                 finModel.MaterialManager.CreateTexture(image);
             finTexture.Name = textureName;
+            finTexture.UvIndex = uvIndex;
 
             // TODO: Need to handle wrapping
             finTexture.WrapModeU = WrapMode.REPEAT;
@@ -77,8 +84,8 @@ namespace modl.api {
           new LazyDictionary<uint, IMaterial>(matlIndex => {
             var matl = bwTerrain.Materials[(int) matlIndex];
 
-            var texture1 = textureDictionary[matl.Texture1];
-            var texture2 = textureDictionary[matl.Texture2];
+            var texture1 = textureDictionary[(0, matl.Texture1)];
+            var texture2 = textureDictionary[(1, matl.Texture2)];
 
             var finMaterial =
                 finModel.MaterialManager.AddFixedFunctionMaterial();
@@ -101,7 +108,14 @@ namespace modl.api {
                 FixedFunctionSource.TEXTURE_COLOR_1,
                 color0);
 
-            var blendedTextureColor = textureColor1;
+            var vertexAlpha0 =
+                equations.CreateScalarInput(FixedFunctionSource.VERTEX_ALPHA_0,
+                                            scalar1);
+            var inverseVertexAlpha0 = scalar1.Subtract(vertexAlpha0);
+
+            var blendedTextureColor =
+                textureColor1.Multiply(inverseVertexAlpha0)
+                             .Add(textureColor2.Multiply(vertexAlpha0));
 
             equations.CreateColorOutput(
                 FixedFunctionSource.OUTPUT_COLOR,
@@ -140,15 +154,85 @@ namespace modl.api {
             continue;
           }
 
+          Func<ushort, double> loadUOrV = value
+              => value / Math.Pow(2, 12);
+
           for (var tileY = 0; tileY < tiles.Height; ++tileY) {
             for (var tileX = 0; tileX < tiles.Width; ++tileX) {
               var tile = tiles[tileX, tileY];
-              /*tileMaterials[4 * chunkX + tileX, 4 * chunkY + tileY] =
-                  materialDictionary[tile.MatlIndex];*/
               tileGrid[4 * chunkX + tileX, 4 * chunkY + tileY] = tile;
+
+              var surfaceTextureUvsFromFirstRow = tile.Schema
+                  .SurfaceTextureUvsFromFirstRow
+                  .Select(weirdUv => {
+                    var u = (float) loadUOrV(weirdUv.U);
+                    var v = (float) loadUOrV(weirdUv.V);
+                    return (u, v);
+                  })
+                  .ToArray();
 
               var points = tile.Points;
               for (var pointY = 0; pointY < points.Height; ++pointY) {
+                var oneThird = .33333f;
+                var twoThirds = 2 * oneThird;
+                var currentMultipleOfThird = pointY * oneThird;
+
+                var surfaceTextureUvsInRow = new (float, float)[4];
+                surfaceTextureUvsInRow[0] =
+                    (Lerp_(surfaceTextureUvsFromFirstRow[0].u,
+                           surfaceTextureUvsFromFirstRow[2].u,
+                           currentMultipleOfThird),
+                     Lerp_(surfaceTextureUvsFromFirstRow[0].v,
+                           surfaceTextureUvsFromFirstRow[2].v,
+                           currentMultipleOfThird));
+                surfaceTextureUvsInRow[1] =
+                    (Lerp_(
+                         Lerp_(surfaceTextureUvsFromFirstRow[0].u,
+                               surfaceTextureUvsFromFirstRow[1].u,
+                               oneThird),
+                         Lerp_(surfaceTextureUvsFromFirstRow[2].u,
+                               surfaceTextureUvsFromFirstRow[3].u,
+                               oneThird),
+                         currentMultipleOfThird
+                     ),
+                     Lerp_(
+                         Lerp_(surfaceTextureUvsFromFirstRow[0].v,
+                               surfaceTextureUvsFromFirstRow[1].v,
+                               oneThird),
+                         Lerp_(surfaceTextureUvsFromFirstRow[2].v,
+                               surfaceTextureUvsFromFirstRow[3].v,
+                               oneThird),
+                         currentMultipleOfThird
+                     )
+                    );
+                surfaceTextureUvsInRow[2] =
+                    (Lerp_(
+                         Lerp_(surfaceTextureUvsFromFirstRow[0].u,
+                               surfaceTextureUvsFromFirstRow[1].u,
+                               twoThirds),
+                         Lerp_(surfaceTextureUvsFromFirstRow[2].u,
+                               surfaceTextureUvsFromFirstRow[3].u,
+                               twoThirds),
+                         currentMultipleOfThird
+                     ),
+                     Lerp_(
+                         Lerp_(surfaceTextureUvsFromFirstRow[0].v,
+                               surfaceTextureUvsFromFirstRow[1].v,
+                               twoThirds),
+                         Lerp_(surfaceTextureUvsFromFirstRow[2].v,
+                               surfaceTextureUvsFromFirstRow[3].v,
+                               twoThirds),
+                         currentMultipleOfThird
+                     )
+                    );
+                surfaceTextureUvsInRow[3] =
+                    (Lerp_(surfaceTextureUvsFromFirstRow[1].u,
+                           surfaceTextureUvsFromFirstRow[3].u,
+                           currentMultipleOfThird),
+                     Lerp_(surfaceTextureUvsFromFirstRow[1].v,
+                           surfaceTextureUvsFromFirstRow[3].v,
+                           currentMultipleOfThird));
+
                 for (var pointX = 0; pointX < points.Width; ++pointX) {
                   var point = points[pointX, pointY];
 
@@ -157,11 +241,29 @@ namespace modl.api {
 
                   var lightColor = point.LightColor;
 
+                  var detailTextureUvs =
+                      tile.Schema.DetailTextureUvs[4 * pointY + pointX];
+
+                  var (u0, v0) = surfaceTextureUvsInRow[pointX];
+                  var uv0 = new ModelImpl.TexCoordImpl {
+                      U = (float) u0,
+                      V = (float) v0,
+                  };
+
+                  var u1 = loadUOrV(detailTextureUvs.U);
+                  var v1 = loadUOrV(detailTextureUvs.V);
+                  var uv1 = new ModelImpl.TexCoordImpl {
+                      U = (float) u1,
+                      V = (float) v1
+                  };
+
                   var finVertex =
                       finSkin.AddVertex(point.X, point.Height, point.Y)
-                             .SetColor(
-                                 ColorImpl.FromRgbBytes(
-                                     lightColor.R, lightColor.G, lightColor.B));
+                             .SetColor(ColorImpl.FromRgbaBytes(
+                                           lightColor.R, lightColor.G,
+                                           lightColor.B, lightColor.A))
+                             .SetUv(0, uv0)
+                             .SetUv(1, uv1);
 
                   chunkFinVertices[heightmapX, heightmapY] = finVertex;
                 }
@@ -193,174 +295,10 @@ namespace modl.api {
         finMesh.AddTriangles(triangles.ToArray()).SetMaterial(material);
       }
 
-      /*
-      {
-        var minTx = tileCountX;
-        var maxTx = -1;
-        var minTy = tileCountY;
-        var maxTy = -1;
-        for (var tY = 0; tY < tileCountY; ++tY) {
-          for (var tX = 0; tX < tileCountX; ++tX) {
-            var tile = tileGrid[tX, tY];
-            if (tile == null) {
-              continue;
-            }
-
-            minTx = Math.Min(minTx, tX);
-            maxTx = Math.Max(maxTx, tX);
-            minTy = Math.Min(minTy, tY);
-            maxTy = Math.Max(maxTy, tY);
-          }
-        }
-
-        var tWidth = (maxTx - minTx) + 1;
-        var tHeight = (maxTy - minTy) + 1;
-
-        var resolution = 32;
-        var debugImage =
-            new Rgba32Image(tWidth * resolution, tHeight * resolution);
-
-        var nullImage1 =
-            FinImage.CreateFromColor(Color.Magenta, resolution, resolution);
-        var nullImage2 =
-            FinImage.CreateFromColor(Color.Aqua, resolution, resolution);
-
-        debugImage.Mutate((_, setHandler) => {
-          for (var tY = minTy; tY <= maxTy; ++tY) {
-            for (var tX = minTx; tX <= maxTx; ++tX) {
-              var tile = tileGrid[tX, tY];
-              if (tile == null) {
-                continue;
-              }
-
-              var matlIndex = tile.MatlIndex;
-              var matl = bwTerrain.Materials[(int) matlIndex];
-              var image1 = matl != null
-                               ? textureDictionary[matl.Texture1].Image
-                               : nullImage1;
-              var image2 = matl != null
-                               ? textureDictionary[matl.Texture2].Image
-                               : nullImage2;
-
-              Action<Action<IImage.Rgba32GetHandler, IImage.Rgba32GetHandler>>
-                  bothGets;
-              if (image1 == image2) {
-                bothGets = handler => {
-                  image1.Access(getHandler1 => {
-                    handler(getHandler1, getHandler1);
-                  });
-                };
-              } else {
-                bothGets = handler => {
-                  image1.Access(getHandler1 => {
-                    image2.Access(getHandler2 => {
-                      handler(getHandler1, getHandler2);
-                    });
-                  });
-                };
-              }
-
-              bothGets((getHandler1, getHandler2) => {
-                for (var iY = 0; iY < resolution; ++iY) {
-                  for (var iX = 0; iX < resolution; ++iX) {
-                    var pX = (int) Math.Floor((1f * iX / resolution) * 4);
-                    var pY = (int) Math.Floor((1f * iY / resolution) * 4);
-                    var pI = 4 * pY + pX;
-
-                    var x = (tX - minTx) * resolution + iX;
-                    var y = (tY - minTy) * resolution + iY;
-
-                    var unk0Int = tile.Schema.Uvs[pI].Data[0];
-                    var unk0Frac = unk0Int / 16f;
-
-                    // Generally results in vertical bars across image, seems to be U?
-                    var unk1Int = tile.Schema.Uvs[pI].Data[1];
-                    var unk1Frac = unk1Int / 16f;
-
-                    // Results in bars steadily increasing in either direction, but closer to unk3
-                    var unk2Int = tile.Schema.Uvs[pI].Data[2];
-                    var unk2Frac = unk2Int / 16f;
-
-                    // Generally results in horizontal bars across image, seems to be V?
-                    var unk3Int = tile.Schema.Uvs[pI].Data[3];
-                    var unk3Frac = unk3Int / 255f;
-
-                    var blendFrac =
-                        tile.Schema.Unknowns0[pI] ==
-                        HeightmapParser.BwUnknownEnum0.VALUE_A
-                            ? 0
-                            : 1;
-
-                    var xF = 1f * iX / resolution;
-                    var yF = 1f * iY / resolution;
-
-                    var adj1X = (int) (xF * image1.Width);
-                    var adj1Y = (int) (yF * image1.Height);
-
-                    var adj2X = (int) (xF * image2.Width);
-                    var adj2Y = (int) (yF * image2.Height);
-
-                    getHandler1(adj1X, adj1Y,
-                                out var r1,
-                                out var g1,
-                                out var b1,
-                                out var a1);
-                    getHandler2(adj2X, adj2Y,
-                                out var r2,
-                                out var g2,
-                                out var b2,
-                                out var a2);
-
-                    ColorUtil.Interpolate(
-                        r1, g1, b1, a1,
-                        r2, g2, b2, a2, blendFrac,
-                        out var r, out var g, out var b, out var a);
-
-                    setHandler(x, y, r, g, b, a);
-                  }
-                }
-              });
-            }
-          }
-        });
-        debugImage.AsBitmap()
-                  .Save(
-                      @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\out\test\image.png");
-      }
-      */
-
-      /*var triangles = new List<(IVertex, IVertex, IVertex)>();
-
-      for (var vY = 0; vY < heightmapSizeY - 1; ++vY) {
-        for (var vX = 0; vX < heightmapSizeX - 1; ++vX) {
-          var a = chunkFinVertices[vX, vY];
-          var b = chunkFinVertices[vX + 1, vY];
-          var c = chunkFinVertices[vX, vY + 1];
-          var d = chunkFinVertices[vX + 1, vY + 1];
-
-          if (a != null && b != null && c != null && d != null) {
-            triangles.Add((a, b, c));
-            triangles.Add((d, c, b));
-          }
-        }
-      }
-
-      var finMaterial =
-          finModel.MaterialManager.AddFixedFunctionMaterial();
-
-      var equations = finMaterial.Equations;
-      var color0 = equations.CreateColorConstant(0);
-      var scalar1 = equations.CreateScalarConstant(1);
-      equations.CreateColorOutput(FixedFunctionSource.OUTPUT_COLOR,
-                                  equations.CreateColorInput(
-                                      FixedFunctionSource.VERTEX_COLOR_0,
-                                      color0));
-      equations.CreateScalarOutput(FixedFunctionSource.OUTPUT_ALPHA,
-                                   scalar1);
-
-      finMesh.AddTriangles(triangles.ToArray()).SetMaterial(finMaterial);*/
-
       return finModel;
     }
+
+    private static float Lerp_(float from, float to, float frac)
+      => from + (to - from) * frac;
   }
 }

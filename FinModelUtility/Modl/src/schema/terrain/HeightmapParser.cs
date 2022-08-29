@@ -78,32 +78,6 @@ namespace modl.schema.terrain {
           }
         }
       }
-
-      var values = new CounterArray[5];
-      for (var i = 0; i < values.Length; ++i) {
-        values[i] = new CounterArray();
-      }
-
-      foreach (var schemaTile in schemaTiles) {
-        foreach (var frac in schemaTile.Unknowns0) {
-          values[0].Increment((byte) frac);
-        }
-
-        var uvs = schemaTile.Uvs;
-        for (var p = 0; p < uvs.Length; ++p) {
-          var uv = uvs[p];
-
-          for (var i = 0; i < 4; ++i) {
-            values[1 + i].Increment(uv.Data[i]);
-          }
-        }
-
-        ;
-      }
-
-      var lists = values.Select(counter => counter.ToArray()).ToArray();
-
-      ;
     }
 
     [BinarySchema]
@@ -122,21 +96,17 @@ namespace modl.schema.terrain {
       public Rgba32[] LightColors { get; } =
         Arrays.From(16, () => new Rgba32());
 
-      public BwUnknownEnum0[] Unknowns0 { get; } = new BwUnknownEnum0[16];
+      public TileUvs[] SurfaceTextureUvsFromFirstRow { get; } = Arrays.From(4, () => new TileUvs());
 
-      public TileUvs[] Uvs { get; } = Arrays.From(16, () => new TileUvs());
+      public TileUvs[] DetailTextureUvs { get; } = Arrays.From(16, () => new TileUvs());
 
       public uint MatlIndex { get; private set; }
     }
 
-    public enum BwUnknownEnum0 : byte {
-      VALUE_A = 0,
-      VALUE_B = 16
-    }
-
     [BinarySchema]
     public partial class TileUvs : IBiSerializable {
-      public byte[] Data { get; } = new byte[4];
+      public ushort U { get; private set; }
+      public ushort V { get; private set; }
     }
 
     private class BwHeightmapChunk : IBwHeightmapChunk {
