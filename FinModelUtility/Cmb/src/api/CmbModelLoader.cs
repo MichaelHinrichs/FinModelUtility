@@ -252,7 +252,7 @@ namespace cmb.api {
                                               .AddTextureMaterial(
                                                   finTexture)
                                     : finModel.MaterialManager
-                                              .AddLayerMaterial();
+                                              .AddNullMaterial();
         finMaterial.Name = $"material{i}";
         finMaterial.CullingMode = cmbMaterial.faceCulling switch {
             CullMode.FrontAndBack => CullingMode.SHOW_BOTH,

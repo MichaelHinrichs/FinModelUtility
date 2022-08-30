@@ -13,9 +13,6 @@ namespace fin.model.util {
       if (material is ITextureMaterial textureMaterial) {
         return PrimaryTextureFinder.GetFor(textureMaterial);
       }
-      if (material is ILayerMaterial layerMaterial) {
-        return PrimaryTextureFinder.GetFor(layerMaterial);
-      }
       if (material is IStandardMaterial standardMaterial) {
         return PrimaryTextureFinder.GetFor(standardMaterial);
       }
@@ -60,9 +57,6 @@ namespace fin.model.util {
       // TODO: Prioritize textures w/ color rather than intensity
       // TODO: Prioritize textures w/ standard texture sets
     }
-
-    public static ITexture? GetFor(ILayerMaterial material)
-      => material.Textures.FirstOrDefault((ITexture?) null);
 
     public static ITexture? GetFor(IStandardMaterial material)
       => material.DiffuseTexture ?? material.AmbientOcclusionTexture;

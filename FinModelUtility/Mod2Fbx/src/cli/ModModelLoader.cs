@@ -144,7 +144,7 @@ namespace mod.cli {
         IMaterial finMaterial = finTexture != null
                                     ? model.MaterialManager.AddTextureMaterial(
                                         finTexture)
-                                    : model.MaterialManager.AddLayerMaterial();
+                                    : model.MaterialManager.AddNullMaterial();
 
         finMaterial.Name = $"material {i}";
         finMaterials.Add(finMaterial);

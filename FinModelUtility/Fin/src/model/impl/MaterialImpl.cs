@@ -24,6 +24,12 @@ namespace fin.model.impl {
 
       public IReadOnlyList<IMaterial> All { get; }
 
+      public INullMaterial AddNullMaterial() {
+        var material = new NullMaterialImpl();
+        this.materials_.Add(material);
+        return material;
+      }
+
       public ITextureMaterial AddTextureMaterial(ITexture texture) {
         var material = new TextureMaterialImpl(texture);
         this.materials_.Add(material);
@@ -32,12 +38,6 @@ namespace fin.model.impl {
 
       public IStandardMaterial AddStandardMaterial() {
         var material = new StandardMaterialImpl();
-        this.materials_.Add(material);
-        return material;
-      }
-
-      public ILayerMaterial AddLayerMaterial() {
-        var material = new LayerMaterialImpl();
         this.materials_.Add(material);
         return material;
       }
@@ -58,8 +58,6 @@ namespace fin.model.impl {
         this.ImageData = image.AsBitmap();
         this.TransparencyType = ImageUtil.GetTransparencyType(this.Image);
       }
-
-      public ColorSourceType Type => ColorSourceType.TEXTURE;
 
       public string Name { get; set; }
       public int UvIndex { get; set; }
@@ -86,6 +84,12 @@ namespace fin.model.impl {
       public IColor? BorderColor { get; set; }
     }
 
+    private class NullMaterialImpl : INullMaterial {
+      public string? Name { get; set; }
+      public IEnumerable<ITexture> Textures { get; } = Array.Empty<ITexture>();
+      public CullingMode CullingMode { get; set; }
+    }
+
     private class TextureMaterialImpl : ITextureMaterial {
       public TextureMaterialImpl(ITexture texture) {
         this.Texture = texture;
@@ -97,7 +101,6 @@ namespace fin.model.impl {
       public ITexture Texture { get; }
       public IEnumerable<ITexture> Textures { get; }
 
-      public IShader Shader { get; }
       public CullingMode CullingMode { get; set; }
 
       public bool Unlit { get; set; }
@@ -134,7 +137,6 @@ namespace fin.model.impl {
         }
       }
 
-      public IShader Shader { get; }
       public CullingMode CullingMode { get; set; }
       public ITexture? DiffuseTexture { get; set; }
       public ITexture? MaskTexture { get; set; }
@@ -143,52 +145,6 @@ namespace fin.model.impl {
       public ITexture? EmissiveTexture { get; set; }
       public ITexture? SpecularTexture { get; set; }
       public bool Unlit { get; set; }
-    }
-
-    private class LayerMaterialImpl : ILayerMaterial {
-      private readonly IList<ITexture> textures_ = new List<ITexture>();
-      private readonly IList<ILayer> layers_ = new List<ILayer>();
-
-      public LayerMaterialImpl() {
-        this.Textures = new ReadOnlyCollection<ITexture>(this.textures_);
-        this.Layers = new ReadOnlyCollection<ILayer>(this.layers_);
-      }
-
-      public string? Name { get; set; }
-
-      public IEnumerable<ITexture> Textures { get; }
-      public IShader Shader { get; }
-      public CullingMode CullingMode { get; set; }
-
-      public IReadOnlyList<ILayer> Layers { get; }
-
-      public ILayer AddColorLayer(byte r, byte g, byte b) {
-        throw new System.NotImplementedException();
-      }
-
-      public ILayer AddColorShaderParamLayer(string name) {
-        throw new System.NotImplementedException();
-      }
-
-      public ILayer AddTextureLayer(ITexture texture) {
-        this.textures_.Add(texture);
-
-        var layer = new LayerImpl(texture);
-        this.layers_.Add(layer);
-
-        return layer;
-      }
-
-      private class LayerImpl : ILayer {
-        public LayerImpl(IColorSource colorSource) {
-          this.ColorSource = colorSource;
-        }
-
-        public IColorSource ColorSource { get; }
-
-        public byte TexCoordIndex { get; set; }
-        public BlendMode BlendMode { get; set; }
-      }
     }
 
     private class FixedFunctionMaterialImpl : IFixedFunctionMaterial {
@@ -210,7 +166,6 @@ namespace fin.model.impl {
       public string? Name { get; set; }
 
       public IEnumerable<ITexture> Textures { get; }
-      public IShader Shader { get; }
 
       public CullingMode CullingMode { get; set; }
 
@@ -302,8 +257,6 @@ namespace fin.model.impl {
 
   public class ColorImpl : IColor {
     private static Random RANDOM_ = new();
-
-    public ColorSourceType Type => ColorSourceType.COLOR;
 
     private ColorImpl(byte rb, byte gb, byte bb, byte ab) {
       this.Rb = rb;
