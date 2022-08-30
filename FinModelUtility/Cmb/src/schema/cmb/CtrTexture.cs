@@ -171,7 +171,7 @@ namespace cmb.schema.cmb {
 
               var x = this.swizzleLut_[px] & 7;
               var y = (this.swizzleLut_[px] - x) >> 3;
-              setHandler(x, y, r, g, b, a);
+              setHandler(tx + x, ty + y, r, g, b, a);
             }
           }
         }
