@@ -208,7 +208,8 @@ namespace cmb.api {
                      filesAndCtxbs
                          .Select(
                              fileAndCtxb => fileAndCtxb.Item2)
-                         .Single(ctxb => ctxb.Chunk.Entry.name == cmbTexture.name);
+                         .Single(
+                             ctxb => ctxb.Chunk.Entry.name == cmbTexture.name);
                  image =
                      ctrTexture.DecodeImage(ctxb.Data,
                                             cmbTexture);
@@ -236,6 +237,13 @@ namespace cmb.api {
           finTexture.Name = cmbTexture.name;
           finTexture.WrapModeU = this.CmbToFinWrapMode(texMapper.wrapS);
           finTexture.WrapModeV = this.CmbToFinWrapMode(texMapper.wrapT);
+
+          var cmbBorderColor = texMapper.BorderColor;
+          finTexture.BorderColor = ColorImpl.FromRgbaBytes(
+              cmbBorderColor.R, 
+              cmbBorderColor.G,
+              cmbBorderColor.B,
+              cmbBorderColor.A);
         }
 
         // Create material

@@ -82,6 +82,8 @@ namespace fin.model.impl {
 
       public WrapMode WrapModeU { get; set; }
       public WrapMode WrapModeV { get; set; }
+
+      public IColor? BorderColor { get; set; }
     }
 
     private class TextureMaterialImpl : ITextureMaterial {

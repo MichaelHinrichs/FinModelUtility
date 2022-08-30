@@ -1,9 +1,11 @@
-﻿using schema;
+﻿using fin.schema.color;
+
+using schema;
 
 namespace cmb.schema.cmb {
   [BinarySchema]
   public partial class TexMapper : IBiSerializable {
-    public short textureId;
+    public short textureId { get; set; }
     private readonly ushort padding_ = 0;
     public TextureMinFilter minFilter;
     public TextureMagFilter magFilter;
@@ -11,6 +13,6 @@ namespace cmb.schema.cmb {
     public TextureWrapMode wrapT;
     public float minLodBias;
     public float lodBias;
-    public readonly byte[] borderColor = new byte[4];
+    public Rgba32 BorderColor { get; } = new();
   }
 }

@@ -37,14 +37,28 @@ namespace fin.gl {
 
         // Gl.glGenerateMipmap(target);
 
+        var finBorderColor = texture.BorderColor;
+        var hasBorderColor = finBorderColor != null;
         GL.TexParameter(target,
                         TextureParameterName.TextureWrapS,
                         (int) GlTexture.ConvertFinWrapToGlWrap_(
-                            texture.WrapModeU));
+                            texture.WrapModeU, hasBorderColor));
         GL.TexParameter(target,
                         TextureParameterName.TextureWrapT,
                         (int) GlTexture.ConvertFinWrapToGlWrap_(
-                            texture.WrapModeV));
+                            texture.WrapModeV, hasBorderColor));
+
+        if (hasBorderColor) {
+          var glBorderColor = new[] {
+              finBorderColor.Rf,
+              finBorderColor.Gf,
+              finBorderColor.Bf,
+              finBorderColor.Af
+          };
+
+          GL.TexParameter(target, TextureParameterName.TextureBorderColor,
+                          glBorderColor);
+        }
 
         GL.TexParameter(target, TextureParameterName.TextureMinFilter,
                         (int) TextureMinFilter.Nearest);
@@ -108,9 +122,13 @@ namespace fin.gl {
       GL.BindTexture(TextureTarget.Texture2D, UNDEFINED_ID);
     }
 
-    private static TextureWrapMode ConvertFinWrapToGlWrap_(WrapMode wrapMode) =>
+    private static TextureWrapMode ConvertFinWrapToGlWrap_(
+        WrapMode wrapMode,
+        bool hasBorderColor) =>
         wrapMode switch {
-            WrapMode.CLAMP         => TextureWrapMode.ClampToEdge,
+            WrapMode.CLAMP => hasBorderColor
+                                  ? TextureWrapMode.ClampToBorder
+                                  : TextureWrapMode.ClampToEdge,
             WrapMode.REPEAT        => TextureWrapMode.Repeat,
             WrapMode.MIRROR_REPEAT => TextureWrapMode.MirroredRepeat,
             _ => throw new ArgumentOutOfRangeException(

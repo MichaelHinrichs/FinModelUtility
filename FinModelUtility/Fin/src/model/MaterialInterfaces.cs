@@ -318,6 +318,8 @@ namespace fin.model {
     WrapMode WrapModeU { get; set; }
     WrapMode WrapModeV { get; set; }
 
+    IColor? BorderColor { get; set; }
+
     // TODO: UV Scaling
     // TODO: Support fixed # of repeats
     // TODO: Support animated textures
