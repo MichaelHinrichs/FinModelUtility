@@ -17,7 +17,7 @@ namespace fin.util.image {
       var transparencyType = ImageTransparencyType.OPAQUE;
       image.Access(getHandler => {
         for (var y = 0; y < image.Height; ++y) {
-          for (var x = 0; x < image.Height; ++x) {
+          for (var x = 0; x < image.Width; ++x) {
             getHandler(x, y, out _, out _, out _, out var a);
             switch (a) {
               case 0: {
