@@ -1,12 +1,10 @@
 ﻿#nullable enable
 
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml;
 
@@ -15,14 +13,12 @@ using Dxt;
 using fin.data;
 using fin.io;
 using fin.math;
-using fin.math.matrix;
 using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
 
-using hw.granny3d;
+using granny3d;
 
-using KSoft.Granny3D;
 using KSoft.IO;
 using KSoft.Phoenix.Xmb;
 using KSoft.Shell;

@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-
-
-namespace hw.granny3d {
+﻿namespace granny3d {
   public static class GrannyUtils {
     public static void SubreadUInt64Pointer(
         EndianBinaryReader er,

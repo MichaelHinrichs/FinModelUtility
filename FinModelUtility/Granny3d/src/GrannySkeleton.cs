@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Numerics;
+﻿using System.Numerics;
 
 using fin.math;
 using fin.math.matrix;
@@ -9,7 +7,7 @@ using fin.schema.vector;
 using schema;
 
 
-namespace hw.granny3d {
+namespace granny3d {
   public class GrannySkeleton : IGrannySkeleton, IDeserializable {
     public string Name { get; private set; }
     public IList<IGrannyBone> Bones { get; } = new List<IGrannyBone>();

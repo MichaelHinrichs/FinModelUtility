@@ -1,12 +1,9 @@
-﻿using System.Collections.Generic;
-using System.IO;
-
-using fin.util.asserts;
+﻿using fin.util.asserts;
 
 using schema;
 
 
-namespace hw.granny3d {
+namespace granny3d {
   /// <summary>
   ///   Based on HaloWarsDocs file template:
   ///   https://github.com/HaloMods/HaloWarsDocs/blob/master/010Editor/Granny.bt

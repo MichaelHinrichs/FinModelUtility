@@ -49,6 +49,7 @@
   <ItemGroup>
     <ProjectReference Include="..\BinarySchema\BinarySchema.csproj" />
     <ProjectReference Include="..\Fin\Fin.csproj" />
+    <ProjectReference Include="..\Granny3d\Granny3d.csproj" />
   </ItemGroup>
 
   <ItemGroup>

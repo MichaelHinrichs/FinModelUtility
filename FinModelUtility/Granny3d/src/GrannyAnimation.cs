@@ -1,10 +1,7 @@
-﻿using System.Collections.Generic;
-using System.IO;
-
-using schema;
+﻿using schema;
 
 
-namespace hw.granny3d {
+namespace granny3d {
   public class GrannyAnimation : IGrannyAnimation, IDeserializable {
     public string Name { get; private set; }
     public float Duration { get; private set; }

@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Numerics;
+﻿using System.Numerics;
 
 using fin.math.matrix;
 using fin.schema.vector;
 
 
-namespace hw.granny3d {
+namespace granny3d {
   public interface IGrannyFileInfo {
     string FromFileName { get; }
 
