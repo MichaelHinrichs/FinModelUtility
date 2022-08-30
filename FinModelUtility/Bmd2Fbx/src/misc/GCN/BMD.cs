@@ -924,6 +924,7 @@ label_7:
       public DepthFunction[] DepthFunctions;
       public TevStageProps[] TevStages;
       public TexCoordGen[] TexCoordGens;
+      public ColorChannelControl[] ColorChannelControls;
       public TextureMatrixInfo[] TextureMatrices;
       public TevOrder[] TevOrders;
       public StringTable MaterialNameTable;
@@ -973,7 +974,12 @@ label_7:
           for (int index = 0; index < sectionLengths[5] / 4; ++index)
             this.MaterialColor[index] = er.ReadColor8();
 
-          // TODO: Add support for color channel info (7)
+          er.Position = position1 + (long) this.Offsets[7];
+          this.ColorChannelControls =
+              new ColorChannelControl[sectionLengths[7] / 8];
+          for (var i = 0; i < this.ColorChannelControls.Length; ++i) {
+            this.ColorChannelControls[i] = er.ReadNew<ColorChannelControl>();
+          }
 
           er.Position = position1 + (long) this.Offsets[8];
           this.AmbientColors = new System.Drawing.Color[sectionLengths[8] / 4];
@@ -1177,7 +1183,7 @@ label_7:
         public byte DitherIndex;
 
         public Color[] MaterialColors;
-        public ushort[] ColorChannelControlIndexes;
+        public ColorChannelControl?[] ColorChannelControls;
         public Color[] AmbientColors;
         public ushort[] LightColorIndexes;
 
@@ -1218,6 +1224,11 @@ label_7:
           this.AmbientColors =
               entry.AmbientColorIndexes
                    .Select(i => GetOrNull(mat3.AmbientColors, i))
+                   .ToArray();
+
+          this.ColorChannelControls =
+              entry.ColorChannelControlIndexes
+                   .Select(i => GetOrNull(mat3.ColorChannelControls, i))
                    .ToArray();
 
           this.TevOrderInfos =

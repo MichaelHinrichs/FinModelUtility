@@ -240,25 +240,6 @@ namespace bmd.exporter {
           }
 
           valueManager.UpdateColorRegister(tevStage.color_regid, colorValue);
-
-          var colorAText =
-              new FixedFunctionEquationsPrettyPrinter<FixedFunctionSource>()
-                  .Print(colorA);
-          var colorBText =
-              new FixedFunctionEquationsPrettyPrinter<FixedFunctionSource>()
-                  .Print(colorB);
-          var colorCText =
-              new FixedFunctionEquationsPrettyPrinter<FixedFunctionSource>()
-                  .Print(colorC);
-          var colorDText =
-              new FixedFunctionEquationsPrettyPrinter<FixedFunctionSource>()
-                  .Print(colorD);
-
-          var colorValueText =
-              new FixedFunctionEquationsPrettyPrinter<FixedFunctionSource>()
-                  .Print(colorValue);
-
-          ;
         }
 
         // Set up alpha logic
@@ -321,25 +302,6 @@ namespace bmd.exporter {
           }
 
           valueManager.UpdateAlphaRegister(tevStage.alpha_regid, alphaValue);
-
-          var alphaAText =
-              new FixedFunctionEquationsPrettyPrinter<FixedFunctionSource>()
-                  .Print(alphaA);
-          var alphaBText =
-              new FixedFunctionEquationsPrettyPrinter<FixedFunctionSource>()
-                  .Print(alphaB);
-          var alphaCText =
-              new FixedFunctionEquationsPrettyPrinter<FixedFunctionSource>()
-                  .Print(alphaC);
-          var alphaDText =
-              new FixedFunctionEquationsPrettyPrinter<FixedFunctionSource>()
-                  .Print(alphaD);
-
-          var alphaValueText =
-              new FixedFunctionEquationsPrettyPrinter<FixedFunctionSource>()
-                  .Print(alphaValue);
-
-          ;
         }
       }
 
