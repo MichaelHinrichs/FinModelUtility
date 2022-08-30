@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 
+using fin.color;
 using fin.data;
 using fin.math;
 
@@ -271,7 +272,7 @@ namespace fin.model.impl {
             byte g,
             byte b,
             byte a)
-          => this.SetColor(colorIndex, ColorImpl.FromRgbaBytes(r, g, b, a));
+          => this.SetColor(colorIndex, FinColor.FromRgbaBytes(r, g, b, a));
 
         public IColor? GetColor() => this.GetColor(0);
 

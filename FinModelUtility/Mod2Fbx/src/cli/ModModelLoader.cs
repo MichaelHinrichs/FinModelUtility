@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 
+using fin.color;
 using fin.io;
 using fin.math;
 using fin.model;
@@ -253,7 +254,7 @@ namespace mod.cli {
         IBoneWeights[] envelopeBoneWeights,
         FinModCache finModCache) {
       //var currentBone = bones[mesh.boneIndex];
-      var currentColor = ColorImpl.FromRgbaBytes(255, 255, 255, 255);
+      var currentColor = FinColor.FromRgbaBytes(255, 255, 255, 255);
 
       var vertexDescriptor = new VertexDescriptor();
       vertexDescriptor.FromPikmin1(mesh.vtxDescriptor, mod.hasNormals);
@@ -431,7 +432,7 @@ namespace mod.cli {
       public IColor[] ColorsByIndex { get; }
 
       public IColor Default { get; } =
-        ColorImpl.FromRgbaBytes(255, 255, 255, 255);
+        FinColor.FromRgbaBytes(255, 255, 255, 255);
 
       public ITexCoord[][] TexCoordsByIndex { get; }
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 
+using fin.color;
 using fin.model;
 using fin.model.impl;
 using fin.util.color;
@@ -67,7 +68,7 @@ namespace mod.schema.image {
         color4 = ColorUtil.Interpolate(color1, color2, 2d / 3);
       } else {
         color3 = ColorUtil.Interpolate(color1, color2, .5);
-        color4 = ColorImpl.FromRgbaBytes(0, 0, 0, 0);
+        color4 = FinColor.FromRgbaBytes(0, 0, 0, 0);
       }
 
       palette[0] = color1;

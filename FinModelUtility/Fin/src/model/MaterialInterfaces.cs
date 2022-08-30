@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
 
+using fin.color;
 using fin.image;
 using fin.io;
 using fin.language.equations.fixedFunction;
@@ -224,20 +225,6 @@ namespace fin.model {
     float AlphaReference1 { get; }
   }
 
-
-  public interface IColor {
-    // TODO: Specify as RGB
-
-    float Rf { get; }
-    float Gf { get; }
-    float Bf { get; }
-    float Af { get; }
-
-    byte Rb { get; }
-    byte Gb { get; }
-    byte Bb { get; }
-    byte Ab { get; }
-  }
 
   public enum UvType {
     NORMAL,

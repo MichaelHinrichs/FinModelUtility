@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 
+using fin.color;
 using fin.data;
 using fin.math.matrix;
 using fin.model.impl;

@@ -1,4 +1,5 @@
-﻿using fin.model;
+﻿using fin.color;
+using fin.model;
 
 using schema;
 using schema.attributes.ignore;

@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 
 using fin.animation.playback;
+using fin.color;
 using fin.gl;
 using fin.math;
 using fin.model;
@@ -389,7 +390,7 @@ void main() {
       var t = this.stopwatch_.Elapsed.TotalSeconds;
       var angle = t * 45;
 
-      var color = ColorImpl.FromHsv(angle, 1, 1);
+      var color = FinColor.FromHsv(angle, 1, 1);
       GL.Color3(color.Rf, color.Gf, color.Bf);
 
       GL.Vertex2(-size / 2, -size / 2);

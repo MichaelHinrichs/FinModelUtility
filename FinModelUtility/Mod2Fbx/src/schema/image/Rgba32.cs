@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 
+using fin.color;
 using fin.model;
 using fin.model.impl;
 
@@ -42,7 +43,7 @@ namespace mod.schema.image {
         for (var i = 0; i < Rgba32.BLOCK_WIDTH; ++i) {
           var index = j * Rgba32.BLOCK_WIDTH + i;
           var (r, g, b, a) = colors[index];
-          bl[index] = ColorImpl.FromRgbaBytes(r, g, b, a);
+          bl[index] = FinColor.FromRgbaBytes(r, g, b, a);
         }
       }
 

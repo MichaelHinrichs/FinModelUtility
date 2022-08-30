@@ -10,6 +10,7 @@ using glo.schema;
 
 using System.Numerics;
 
+using fin.color;
 using fin.data;
 using fin.image;
 using fin.util.asserts;
@@ -258,7 +259,7 @@ namespace glo.api {
             var textureFilename = gloFace.TextureFilename;
 
             var gloFaceColor = gloFace.Color;
-            var finFaceColor = ColorImpl.FromRgbaBytes(
+            var finFaceColor = FinColor.FromRgbaBytes(
                 gloFaceColor.Rb, gloFaceColor.Gb, gloFaceColor.Bb, gloFaceColor.Ab);
 
             var enableBackfaceCulling = (gloFace.Flags & 1 << 2) == 0;
@@ -278,8 +279,8 @@ namespace glo.api {
             // 0: potentially some kind of repeat mode??
 
             var color = (gloFace.Flags & 1 << 6) != 0
-                            ? ColorImpl.FromRgbaBytes(255, 0, 0, 255)
-                            : ColorImpl.FromRgbaBytes(0, 255, 0, 255);
+                            ? FinColor.FromRgbaBytes(255, 0, 0, 255)
+                            : FinColor.FromRgbaBytes(0, 255, 0, 255);
 
             var finFaceVertices = new IVertex[3];
             for (var v = 0; v < 3; ++v) {

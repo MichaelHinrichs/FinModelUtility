@@ -9,6 +9,7 @@ using cmb.schema.csab;
 using cmb.schema.ctxb;
 using cmb.schema.shpa;
 
+using fin.color;
 using fin.data;
 using fin.image;
 using fin.io;
@@ -480,7 +481,7 @@ namespace cmb.api {
                                                finBones[boneIndex]));
           }
 
-          finVertex.SetColor(ColorImpl.FromSystemColor(Color.White));
+          finVertex.SetColor(FinColor.FromSystemColor(Color.White));
         }
 
         // Adds faces. Thankfully, it's all just triangles!

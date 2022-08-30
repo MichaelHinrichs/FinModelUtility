@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 
+using fin.color;
 using fin.model;
 using fin.model.impl;
 using fin.util.color;
@@ -27,7 +28,7 @@ namespace mod.schema.image {
           var intensity = ColorUtil.ExtractScaled(pixes, 4, 4, 17);
           var alpha = ColorUtil.ExtractScaled(pixes, 0, 4, 17);
 
-          bl[j * 8 + i] = ColorImpl.FromRgbaBytes(intensity, intensity, intensity, alpha);
+          bl[j * 8 + i] = FinColor.FromRgbaBytes(intensity, intensity, intensity, alpha);
         }
       }
       

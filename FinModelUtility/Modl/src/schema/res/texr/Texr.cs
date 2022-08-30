@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 
+using fin.color;
 using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
@@ -229,20 +230,20 @@ namespace modl.schema.res.texr {
             var color1 = colors[1] = ColorUtil.ParseRgb565(color1Value);
 
             if (color0Value > color1Value) {
-              colors[2] = ColorImpl.FromRgbBytes(
+              colors[2] = FinColor.FromRgbBytes(
                   (byte) ((2 * color0.Rb + color1.Rb) / 3f),
                   (byte) ((2 * color0.Gb + color1.Gb) / 3f),
                   (byte) ((2 * color0.Bb + color1.Bb) / 3f));
-              colors[3] = ColorImpl.FromRgbBytes(
+              colors[3] = FinColor.FromRgbBytes(
                   (byte) ((2 * color1.Rb + color0.Rb) / 3f),
                   (byte) ((2 * color1.Gb + color0.Gb) / 3f),
                   (byte) ((2 * color1.Bb + color0.Bb) / 3f));
             } else {
-              colors[2] = ColorImpl.FromRgbBytes(
+              colors[2] = FinColor.FromRgbBytes(
                   (byte) ((color0.Rb + color1.Rb) / 2f),
                   (byte) ((color0.Gb + color1.Gb) / 2f),
                   (byte) ((color0.Bb + color1.Bb) / 2f));
-              colors[3] = ColorImpl.FromRgbaBytes(
+              colors[3] = FinColor.FromRgbaBytes(
                   0, 0, 0, 0);
             }
 
@@ -359,7 +360,7 @@ namespace modl.schema.res.texr {
                       var a = ColorUtil.ExtractScaled(value, 12, 4);
 
                       // TODO: Is this correct??? Textures don't look quite right
-                      return ColorImpl.FromRgbaBytes(
+                      return FinColor.FromRgbaBytes(
                           (byte) r, (byte) g, (byte) b, (byte) a);
                     })
                     .ToArray();

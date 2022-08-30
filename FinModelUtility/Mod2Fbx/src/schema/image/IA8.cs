@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 
+using fin.color;
 using fin.model;
 using fin.model.impl;
 
@@ -24,7 +25,7 @@ namespace mod.schema.image {
           var intensity = s.ReadU8();
           var alpha = s.ReadU8();
 
-          bl[j * 4 + i] = ColorImpl.FromRgbaBytes(intensity, intensity, intensity, alpha); 
+          bl[j * 4 + i] = FinColor.FromRgbaBytes(intensity, intensity, intensity, alpha); 
         }
       }
       

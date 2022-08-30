@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 
+using fin.color;
 using fin.model;
 using fin.model.impl;
 using fin.util.color;
@@ -27,8 +28,8 @@ namespace mod.schema.image {
           var intensity1 = ColorUtil.ExtractScaled(pixes, 4, 4, 17);
           var intensity2 = ColorUtil.ExtractScaled(pixes, 0, 4, 17);
 
-          bl[j * 8 + 2 * i] = ColorImpl.FromIntensityByte(intensity1);
-          bl[j * 8 + 2 * i + 1] = ColorImpl.FromIntensityByte(intensity2);
+          bl[j * 8 + 2 * i] = FinColor.FromIntensityByte(intensity1);
+          bl[j * 8 + 2 * i + 1] = FinColor.FromIntensityByte(intensity2);
         }
       }
       

@@ -28,6 +28,7 @@ using bmd.schema.bmd.mat3;
 using bmd.schema.bmd.shp1;
 using bmd.schema.bmd.vtx1;
 
+using fin.color;
 using fin.image;
 using fin.model;
 using fin.model.impl;
@@ -1367,7 +1368,7 @@ label_7:
                   var alpha = er.ReadByte();
                   var intensity = er.ReadByte();
                   this.palette[i] =
-                      ColorImpl.FromRgbaBytes(intensity,
+                      FinColor.FromRgbaBytes(intensity,
                                               intensity,
                                               intensity,
                                               alpha);

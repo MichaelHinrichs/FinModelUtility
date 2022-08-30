@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 
+using fin.color;
 using fin.math;
 using fin.model;
 using fin.model.impl;
@@ -41,7 +42,7 @@ namespace mod.schema.image {
             b = ColorUtil.ExtractScaled(pix, 0, 4, 17);
           }
 
-          bl[j * 4 + i] = ColorImpl.FromRgbaBytes(r, g, b, a);
+          bl[j * 4 + i] = FinColor.FromRgbaBytes(r, g, b, a);
         }
       }
 

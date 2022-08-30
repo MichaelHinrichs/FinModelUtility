@@ -1,5 +1,6 @@
 ﻿using System;
 
+using fin.color;
 using fin.math;
 using fin.model;
 using fin.model.impl;
@@ -34,7 +35,7 @@ namespace fin.util.color {
 
     public static IColor ParseRgb565(ushort color) {
       ColorUtil.SplitRgb565(color, out var r, out var g, out var b);
-      return ColorImpl.FromRgbBytes(r, g, b);
+      return FinColor.FromRgbBytes(r, g, b);
     }
 
     public static void SplitRgb5A3(
@@ -61,7 +62,7 @@ namespace fin.util.color {
 
     public static IColor ParseRgb5A3(ushort color) {
       ColorUtil.SplitRgb5A3(color, out var r, out var g, out var b, out var a);
-      return ColorImpl.FromRgbaBytes(r, g, b, a);
+      return FinColor.FromRgbaBytes(r, g, b, a);
     }
 
     public static void SplitRgb5A1(
@@ -102,7 +103,7 @@ namespace fin.util.color {
                             to.Rb, to.Gb, to.Bb, to.Ab,
                             amt,
                             out var r, out var g, out var b, out var a);
-      return ColorImpl.FromRgbaBytes(r, g, b, a);
+      return FinColor.FromRgbaBytes(r, g, b, a);
     }
 
     public static void Interpolate(
