@@ -261,9 +261,7 @@ namespace modl.api {
 
                   var finVertex =
                       finSkin.AddVertex(point.X, point.Height, point.Y)
-                             .SetColor(ColorImpl.FromRgbaBytes(
-                                           lightColor.R, lightColor.G,
-                                           lightColor.B, lightColor.A))
+                             .SetColor(lightColor)
                              .SetUv(0, uv0)
                              .SetUv(1, uv1);
 

@@ -259,7 +259,7 @@ namespace glo.api {
 
             var gloFaceColor = gloFace.Color;
             var finFaceColor = ColorImpl.FromRgbaBytes(
-                gloFaceColor.R, gloFaceColor.G, gloFaceColor.B, gloFaceColor.A);
+                gloFaceColor.Rb, gloFaceColor.Gb, gloFaceColor.Bb, gloFaceColor.Ab);
 
             var enableBackfaceCulling = (gloFace.Flags & 1 << 2) == 0;
 

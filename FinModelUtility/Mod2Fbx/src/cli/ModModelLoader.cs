@@ -468,13 +468,7 @@ namespace mod.cli {
                                       })
                                   .ToArray();
         this.ColorsByIndex =
-            mod.vcolours.Select(
-                   vcolour => ColorImpl.FromRgbaBytes(
-                       vcolour.R,
-                       vcolour.G,
-                       vcolour.B,
-                       vcolour.A))
-               .ToArray();
+            mod.vcolours.ToArray();
         this.TexCoordsByIndex =
             mod.texcoords.Select(
                    texcoords

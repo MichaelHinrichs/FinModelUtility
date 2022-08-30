@@ -239,11 +239,7 @@ namespace cmb.api {
           finTexture.WrapModeV = this.CmbToFinWrapMode(texMapper.wrapT);
 
           var cmbBorderColor = texMapper.BorderColor;
-          finTexture.BorderColor = ColorImpl.FromRgbaBytes(
-              cmbBorderColor.R, 
-              cmbBorderColor.G,
-              cmbBorderColor.B,
-              cmbBorderColor.A);
+          finTexture.BorderColor = cmbBorderColor;
         }
 
         // Create material
