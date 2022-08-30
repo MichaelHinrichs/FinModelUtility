@@ -16,16 +16,18 @@ namespace fin.image {
     int Width { get; }
     int Height { get; }
 
-    public delegate void Rgba32GetHandler(int x,
+    delegate void Rgba32GetHandler(int x,
                                           int y,
                                           out byte r,
                                           out byte g,
                                           out byte b,
                                           out byte a);
 
-    public delegate void AccessHandler(Rgba32GetHandler getHandler);
+    delegate void AccessHandler(Rgba32GetHandler getHandler);
 
-    public void Access(AccessHandler accessHandler);
+    void Access(AccessHandler accessHandler);
+
+    bool HasAlphaChannel { get; }
 
     Bitmap AsBitmap();
 

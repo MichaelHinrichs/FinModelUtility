@@ -6,6 +6,7 @@ using System.Linq;
 
 using Assimp;
 
+using fin.image;
 using fin.model;
 using fin.model.util;
 
@@ -29,16 +30,15 @@ namespace fin.exporter.assimp.indirect {
       sc.Textures.Clear();
 
       foreach (var finTexture in finTextures) {
-        var imageData = finTexture.ImageData;
-
-        var imageBytes = new MemoryStream();
-        imageData.Save(imageBytes, ImageFormat.Png);
+        using var imageBytes = new MemoryStream();
+        finTexture.Image.ExportToStream(imageBytes, LocalImageFormat.PNG);
 
         var assTexture =
             new EmbeddedTexture("png",
                                 imageBytes.ToArray(),
-                                finTexture.Name);
-        assTexture.Filename = finTexture.Name + ".png";
+                                finTexture.Name) {
+                Filename = finTexture.Name + ".png"
+            };
 
         sc.Textures.Add(assTexture);
       }

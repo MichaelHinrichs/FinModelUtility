@@ -56,7 +56,7 @@ namespace fin.model.impl {
       public TextureImpl(IImage image) {
         this.Image = image;
         this.ImageData = image.AsBitmap();
-        this.TransparencyType = BitmapUtil.GetTransparencyType(this.ImageData);
+        this.TransparencyType = ImageUtil.GetTransparencyType(this.Image);
       }
 
       public ColorSourceType Type => ColorSourceType.TEXTURE;
@@ -78,7 +78,7 @@ namespace fin.model.impl {
         return outFile;
       }
 
-      public BitmapTransparencyType TransparencyType { get; }
+      public ImageTransparencyType TransparencyType { get; }
 
       public WrapMode WrapModeU { get; set; }
       public WrapMode WrapModeV { get; set; }

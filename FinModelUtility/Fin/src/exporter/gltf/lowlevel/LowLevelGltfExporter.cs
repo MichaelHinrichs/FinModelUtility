@@ -115,9 +115,9 @@ namespace fin.exporter.gltf.lowlevel {
               var texture = PrimaryTextureFinder.GetFor(finMaterial);
               if (texture != null) {
                 var alphaMode = texture.TransparencyType switch {
-                    BitmapTransparencyType.OPAQUE => AlphaMode.OPAQUE,
-                    BitmapTransparencyType.MASK => AlphaMode.MASK,
-                    BitmapTransparencyType.TRANSPARENT => AlphaMode.BLEND,
+                    ImageTransparencyType.OPAQUE => AlphaMode.OPAQUE,
+                    ImageTransparencyType.MASK => AlphaMode.MASK,
+                    ImageTransparencyType.TRANSPARENT => AlphaMode.BLEND,
                     _ => throw new ArgumentOutOfRangeException()
                 };
                 gltfMaterial.WithAlpha(alphaMode);

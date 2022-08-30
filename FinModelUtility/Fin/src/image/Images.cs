@@ -144,6 +144,7 @@ namespace fin.image {
       });
     }
 
+    public bool HasAlphaChannel => true;
     public Bitmap AsBitmap() => this.impl_;
 
     public void ExportToStream(Stream stream, LocalImageFormat imageFormat)
@@ -231,6 +232,7 @@ namespace fin.image {
       });
     }
 
+    public bool HasAlphaChannel => false;
     public Bitmap AsBitmap() => this.impl_;
 
     public void ExportToStream(Stream stream, LocalImageFormat imageFormat)
@@ -288,6 +290,7 @@ namespace fin.image {
       });
     }
 
+    public bool HasAlphaChannel => true;
     public Bitmap AsBitmap() => this.impl_.AsBitmap();
 
     public void ExportToStream(Stream stream, LocalImageFormat imageFormat)
@@ -342,6 +345,7 @@ namespace fin.image {
       });
     }
 
+    public bool HasAlphaChannel => false;
     public Bitmap AsBitmap() => this.impl_.AsBitmap();
 
     public void ExportToStream(Stream stream, LocalImageFormat imageFormat)
@@ -402,6 +406,7 @@ namespace fin.image {
       });
     }
 
+    public bool HasAlphaChannel => true;
     public Bitmap AsBitmap() => this.impl_;
 
     public void ExportToStream(Stream stream, LocalImageFormat imageFormat)
@@ -457,6 +462,7 @@ namespace fin.image {
       });
     }
 
+    public bool HasAlphaChannel => true;
     public Bitmap AsBitmap() => this.impl_;
 
     public void ExportToStream(Stream stream, LocalImageFormat imageFormat)
