@@ -1,7 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
+using fin.schema.color;
+using fin.util.array;
+
 using schema;
+
 
 namespace cmb.schema.cmb {
   public class Material : IDeserializable {
@@ -18,12 +22,15 @@ namespace cmb.schema.cmb {
     public readonly TexMapper[] texMappers = new TexMapper[3];
     public readonly TexCoords[] texCoords = new TexCoords[3];
 
-    public readonly byte[] emissionColor = new byte[4];
-    public readonly byte[] ambientColor = new byte[4];
-    public readonly byte[] diffuseColor = new byte[4];
-    public readonly byte[] specular0Color = new byte[4];
-    public readonly byte[] specular1Color = new byte[4];
-    public readonly byte[][] constantColors = new byte[6][];
+    public Rgba32 emissionColor { get; } = new();
+    public Rgba32 ambientColor { get; } = new();
+    public Rgba32 diffuseColor { get; } = new();
+    public Rgba32 specular0Color { get; } = new();
+    public Rgba32 specular1Color { get; } = new();
+
+    public Rgba32[] constantColors { get; } =
+      Arrays.From(6, () => new Rgba32());
+
     public readonly float[] bufferColor = new float[4];
 
     public BumpTexture bumpTexture;
@@ -107,13 +114,13 @@ namespace cmb.schema.cmb {
         this.texCoords[i] = texCoord;
       }
 
-      r.ReadBytes(this.emissionColor);
-      r.ReadBytes(this.ambientColor);
-      r.ReadBytes(this.diffuseColor);
-      r.ReadBytes(this.specular0Color);
-      r.ReadBytes(this.specular1Color);
-      for (var i = 0; i < this.constantColors.Length; ++i) {
-        this.constantColors[i] = r.ReadBytes(4);
+      this.emissionColor.Read(r);
+      this.ambientColor.Read(r);
+      this.diffuseColor.Read(r);
+      this.specular0Color.Read(r);
+      this.specular1Color.Read(r);
+      foreach (var constantColor in this.constantColors) {
+        constantColor.Read(r);
       }
       r.ReadSingles(this.bufferColor);
 
