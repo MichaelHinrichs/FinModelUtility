@@ -918,7 +918,7 @@ label_7:
       public System.Drawing.Color[] MaterialColor;
       public System.Drawing.Color[] AmbientColors;
       public System.Drawing.Color[] TevColors;
-      public System.Drawing.Color[] Color3;
+      public System.Drawing.Color[] TevKonstColors;
       public AlphaCompare[] AlphaCompares;
       public BlendFunction[] BlendFunctions;
       public DepthFunction[] DepthFunctions;
@@ -1011,9 +1011,9 @@ label_7:
             this.TevColors[index] = er.ReadColor16();
           
           er.Position = position1 + (long) this.Offsets[18];
-          this.Color3 = new System.Drawing.Color[4];
+          this.TevKonstColors = new System.Drawing.Color[4];
           for (int index = 0; index < 4; ++index)
-            this.Color3[index] = er.ReadColor8();
+            this.TevKonstColors[index] = er.ReadColor8();
 
           // TODO: Add support for tev counts (19)
 
