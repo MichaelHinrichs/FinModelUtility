@@ -7,6 +7,9 @@ using fin.util.image;
 namespace fin.model.util {
   public static class PrimaryTextureFinder {
     public static ITexture? GetFor(IMaterial material) {
+      if (material is INullMaterial) {
+        return null;
+      }
       if (material is IFixedFunctionMaterial fixedFunctionMaterial) {
         return PrimaryTextureFinder.GetFor(fixedFunctionMaterial);
       }

@@ -7,6 +7,7 @@ using fin.image;
 using fin.io;
 using fin.model;
 using fin.model.impl;
+using fin.util.asserts;
 using fin.util.color;
 
 using modl.schema.modl;
@@ -60,15 +61,30 @@ namespace modl.api {
                     dir => dir.Name == outName + "_Level");
 
             var textureFile =
-                outDirectory.Files.Single(
-                    file => file.Name.ToLower() == $"{textureName}.png");
+                outDirectory.Files.FirstOrDefault(
+                                file => file.Name.ToLower() ==
+                                        $"{textureName}.png")
+                            ?.Impl;
 
-            var image = FinImage.FromFile(textureFile.Impl);
+            // Some of the maps use textures from other directories...
+            if (textureFile == null) {
+              var allMapsDirectory = outDirectory.Parent;
+              textureFile = allMapsDirectory
+                            .Impl.SearchForFiles($"{textureName}.png", true)
+                            .First();
+            }
+
+            var image = FinImage.FromFile(textureFile);
             return image;
           });
-      var textureDictionary = new LazyDictionary<(int, string), ITexture>(
+      var textureDictionary = new LazyDictionary<(int, string), ITexture?>(
           uvIndexAndTextureName => {
             var (uvIndex, textureName) = uvIndexAndTextureName;
+
+            if (textureName == "Dummy") {
+              return null;
+            }
+
             var image = imageDictionary[textureName];
 
             var finTexture =
@@ -89,11 +105,15 @@ namespace modl.api {
             var texture1 = textureDictionary[(0, matl.Texture1)];
             var texture2 = textureDictionary[(1, matl.Texture2)];
 
+            if (texture1 == null && texture2 == null) {
+              return finModel.MaterialManager.AddNullMaterial();
+            }
+
             var finMaterial =
                 finModel.MaterialManager.AddFixedFunctionMaterial();
 
-            finMaterial.SetTextureSource(0, texture1);
-            finMaterial.SetTextureSource(1, texture2);
+            finMaterial.SetTextureSource(0, Asserts.CastNonnull(texture1));
+            finMaterial.SetTextureSource(1, Asserts.CastNonnull(texture2));
 
             var equations = finMaterial.Equations;
             var color0 = equations.CreateColorConstant(0);
