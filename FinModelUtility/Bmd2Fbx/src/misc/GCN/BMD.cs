@@ -917,7 +917,7 @@ label_7:
       public CullMode[] CullModes;
       public System.Drawing.Color[] MaterialColor;
       public System.Drawing.Color[] AmbientColors;
-      public System.Drawing.Color[] ColorS10;
+      public System.Drawing.Color[] TevColors;
       public System.Drawing.Color[] Color3;
       public AlphaCompare[] AlphaCompares;
       public BlendFunction[] BlendFunctions;
@@ -1006,9 +1006,9 @@ label_7:
           er.ReadNewArray(out this.TevOrders, sectionLengths[16] / 4);
 
           er.Position = position1 + (long) this.Offsets[17];
-          this.ColorS10 = new System.Drawing.Color[sectionLengths[17] / 8];
+          this.TevColors = new System.Drawing.Color[sectionLengths[17] / 8];
           for (int index = 0; index < sectionLengths[17] / 8; ++index)
-            this.ColorS10[index] = er.ReadColor16();
+            this.TevColors[index] = er.ReadColor16();
           
           er.Position = position1 + (long) this.Offsets[18];
           this.Color3 = new System.Drawing.Color[4];

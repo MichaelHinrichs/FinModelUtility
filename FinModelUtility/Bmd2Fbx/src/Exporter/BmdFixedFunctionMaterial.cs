@@ -110,13 +110,14 @@ namespace bmd.exporter {
       valueManager.SetColorRegisters(
           materialEntry.TevColorIndexes.Take(4)
                        .Select(
-                           tevColorIndex => bmd.MAT3.ColorS10[tevColorIndex])
+                           tevColorIndex => bmd.MAT3.TevColors[tevColorIndex])
                        .ToArray());
 
       var konstColors =
           materialEntry.TevKonstColorIndexes
                        .Take(4)
-                       .Select(konstIndex => bmd.MAT3.Color3[konstIndex])
+                       .Select(
+                           konstIndex => bmd.MAT3.TevKonstColors[konstIndex])
                        .ToArray();
       valueManager.SetKonstColors(konstColors);
 
@@ -313,9 +314,8 @@ namespace bmd.exporter {
           FixedFunctionSource.OUTPUT_ALPHA,
           valueManager.GetAlpha(GxCa.GX_CA_APREV));
 
-      // TODO: Set up compiled texture
+      // TODO: Set up compiled texture?
       // TODO: If only a const color, create a texture for that
-
 
       var sb = new StringBuilder();
 
