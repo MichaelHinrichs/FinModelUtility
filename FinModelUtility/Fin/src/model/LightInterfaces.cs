@@ -9,5 +9,8 @@ namespace fin.model {
     INormal Normal { get; }
 
     IColor Color { get; }
+
+    IVector3 CosineAttenuation { get; }
+    IVector3 DistanceAttenuation { get; }
   }
 }
