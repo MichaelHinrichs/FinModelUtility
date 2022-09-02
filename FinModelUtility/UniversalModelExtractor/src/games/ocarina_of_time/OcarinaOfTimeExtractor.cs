@@ -2,6 +2,7 @@
 
 using uni.platforms;
 
+
 namespace uni.games.ocarina_of_time {
   public class OcarinaOfTimeExtractor {
     public void ExtractAll() {
@@ -11,7 +12,9 @@ namespace uni.games.ocarina_of_time {
 
       OcarinaOfTimeBanks banks;
       {
-        using var er = new EndianBinaryReader(ocarinaOfTimeRom.OpenRead());
+        using var er =
+            new EndianBinaryReader(ocarinaOfTimeRom.OpenRead(),
+                                   Endianness.BigEndian);
         banks = new OcarinaOfTimeBanks(er);
       }
     }

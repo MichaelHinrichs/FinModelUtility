@@ -22,7 +22,8 @@ namespace modl.schema.terrain {
       SchemaTilemapDefinition[] tilemapDefinitions;
       {
         using var tilemapEr =
-            new EndianBinaryReader(new MemoryStream(tilemapBytes));
+            new EndianBinaryReader(new MemoryStream(tilemapBytes),
+                                   Endianness.BigEndian);
         tilemapEr.ReadNewArray(out tilemapDefinitions,
                                chunkCountX * chunkCountY);
       }
@@ -30,7 +31,8 @@ namespace modl.schema.terrain {
       SchemaTile[] schemaTiles;
       {
         using var tilesEr =
-            new EndianBinaryReader(new MemoryStream(tilesBytes));
+            new EndianBinaryReader(new MemoryStream(tilesBytes),
+                                   Endianness.BigEndian);
         var schemaTileCount = tilesBytes.Length / 180;
         tilesEr.ReadNewArray(out schemaTiles, schemaTileCount);
       }
@@ -96,9 +98,11 @@ namespace modl.schema.terrain {
       public Rgba32[] LightColors { get; } =
         Arrays.From(16, () => new Rgba32());
 
-      public TileUvs[] SurfaceTextureUvsFromFirstRow { get; } = Arrays.From(4, () => new TileUvs());
+      public TileUvs[] SurfaceTextureUvsFromFirstRow { get; } =
+        Arrays.From(4, () => new TileUvs());
 
-      public TileUvs[] DetailTextureUvs { get; } = Arrays.From(16, () => new TileUvs());
+      public TileUvs[] DetailTextureUvs { get; } =
+        Arrays.From(16, () => new TileUvs());
 
       public uint MatlIndex { get; private set; }
     }

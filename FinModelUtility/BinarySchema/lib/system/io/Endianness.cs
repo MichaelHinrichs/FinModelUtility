@@ -21,9 +21,9 @@ namespace System.IO {
   }
 
   public interface IEndiannessStack {
-    Endianness Endianness { get; }
+    Endianness Endianness { get; set; }
 
-    bool Reverse { get; }
+    bool IsOppositeEndiannessOfSystem { get; }
 
     /// <summary>
     ///   Pushes a class's endianness. This will be overwritten by the
@@ -47,10 +47,15 @@ namespace System.IO {
       this.endiannessStack_.Push(null);
     }
 
-    public Endianness Endianness
-      => this.endiannessStack_.Peek() ?? EndiannessUtil.SystemEndianness;
+    public Endianness Endianness {
+      get => this.endiannessStack_.Peek() ?? EndiannessUtil.SystemEndianness;
+      set {
+        this.endiannessStack_.Pop();
+        this.endiannessStack_.Push(value);
+      }
+    }
 
-    public bool Reverse => this.Endianness != EndiannessUtil.SystemEndianness;
+    public bool IsOppositeEndiannessOfSystem => this.Endianness != EndiannessUtil.SystemEndianness;
 
     /// <summary>
     ///   Pushes a class's endianness. This will be overwritten by the

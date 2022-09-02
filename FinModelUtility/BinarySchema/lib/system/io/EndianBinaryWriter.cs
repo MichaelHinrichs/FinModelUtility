@@ -42,7 +42,7 @@ namespace System.IO {
     public Task<long> GetDelayedLength() => this.impl_.GetDelayedLength();
 
     private void WriteBuffer_(int bytes, int stride) {
-      if (this.Reverse) {
+      if (this.IsOppositeEndiannessOfSystem) {
         for (int index = 0; index < bytes; index += stride)
           Array.Reverse((Array) this.buffer_, index, stride);
       }
@@ -50,7 +50,7 @@ namespace System.IO {
     }
 
     private void WriteBufferDelayed_(Task<byte[]> delayedBytes) {
-      var isReversed = this.Reverse;
+      var isReversed = this.IsOppositeEndiannessOfSystem;
       this.impl_.WriteDelayed(
           delayedBytes.ContinueWith(bytesTask => {
             var bytes = bytesTask.Result;
@@ -176,7 +176,7 @@ namespace System.IO {
 
     public void WriteStringEndian(string value, Encoding encoding)
       => this.WriteString(
-          this.Reverse ? new string(value.Reverse().ToArray()) : value,
+          this.IsOppositeEndiannessOfSystem ? new string(value.Reverse().ToArray()) : value,
           encoding,
           false);
 

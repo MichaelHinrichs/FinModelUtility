@@ -3,9 +3,13 @@
     private readonly IEndiannessStack endiannessImpl_ =
         new EndiannessStackImpl();
 
-    public Endianness Endianness => this.endiannessImpl_.Endianness;
+    public Endianness Endianness {
+      get => this.endiannessImpl_.Endianness;
+      set => this.endiannessImpl_.Endianness = value;
+    }
 
-    public bool Reverse => this.endiannessImpl_.Reverse;
+    public bool IsOppositeEndiannessOfSystem
+      => this.endiannessImpl_.IsOppositeEndiannessOfSystem;
 
     public void PushClassEndianness(Endianness endianness)
       => this.endiannessImpl_.PushClassEndianness(endianness);

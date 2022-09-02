@@ -11,23 +11,21 @@ using schema;
 
 
 namespace System.IO {
-  public sealed class EndianBinaryReader : IDisposable {
+  public sealed partial class EndianBinaryReader : IDisposable {
     private bool disposed_;
 
     // TODO: This should be private.
     // TODO: Does caching the buffer actually help, or can this logic be pulled into the extensions?
-    private EndianBinaryBufferedStream BufferedStream_ { get; }
+    private EndianBinaryBufferedStream BufferedStream_ { get; set; }
     public Stream BaseStream => this.BufferedStream_.BaseStream;
 
-    public Endianness Endianness {
-      get => this.BufferedStream_.Endianness;
-      set => this.BufferedStream_.Endianness = value;
-    }
+    /*public EndianBinaryReader(Stream baseStream)
+      => this.Init_(baseStream, null);*/
 
-    public EndianBinaryReader(Stream baseStream)
-        : this(baseStream, Endianness.BigEndian) { }
+    public EndianBinaryReader(Stream baseStream, Endianness endianness)
+      => this.Init_(baseStream, endianness);
 
-    public EndianBinaryReader(Stream baseStream, Endianness endianness) {
+    private void Init_(Stream baseStream, Endianness? endianness) {
       if (baseStream == null) {
         throw new ArgumentNullException(nameof(baseStream));
       }
@@ -37,8 +35,10 @@ namespace System.IO {
 
       this.BufferedStream_ = new EndianBinaryBufferedStream {
           BaseStream = baseStream,
-          Endianness = endianness
       };
+      if (endianness != null) {
+        this.BufferedStream_.PushFieldEndianness(endianness.Value);
+      }
     }
 
     ~EndianBinaryReader() {
@@ -542,7 +542,7 @@ namespace System.IO {
 
     public void AssertStringEndian(Encoding encoding, string expectedValue) {
       var endianExpectedValue =
-          this.BufferedStream_.ShouldReverseBytes
+          this.IsOppositeEndiannessOfSystem
               ? expectedValue
               : new string(expectedValue.Reverse().ToArray());
       this.AssertString(encoding, endianExpectedValue);
@@ -551,7 +551,7 @@ namespace System.IO {
     public string ReadStringEndian(Encoding encoding, int count) {
       var value = this.ReadString(encoding, count);
       var endianValue =
-          this.BufferedStream_.ShouldReverseBytes
+          this.IsOppositeEndiannessOfSystem
               ? value
               : new string(value.Reverse().ToArray());
       return endianValue;

@@ -51,7 +51,8 @@ namespace mod.cli {
       var mod = new Mod();
       {
         using var r = new EndianBinaryReader(
-            modelFileBundle.ModFile.Impl.OpenRead());
+            modelFileBundle.ModFile.Impl.OpenRead(),
+            System.IO.Endianness.BigEndian);
         mod.Read(r);
       }
 
@@ -59,7 +60,8 @@ namespace mod.cli {
       if (modelFileBundle.AnmFile != null) {
         anm = new Anm();
         using var r = new EndianBinaryReader(
-            modelFileBundle.AnmFile.Impl.OpenRead());
+            modelFileBundle.AnmFile.Impl.OpenRead(),
+            System.IO.Endianness.BigEndian);
         anm.Read(r);
       }
 
@@ -238,7 +240,8 @@ namespace mod.cli {
       // Converts animations
       if (anm != null) {
         foreach (var dcxWrapper in anm.Wrappers) {
-          DcxHelpers.AddAnimation(bones, model.AnimationManager, dcxWrapper.Dcx);
+          DcxHelpers.AddAnimation(bones, model.AnimationManager,
+                                  dcxWrapper.Dcx);
         }
       }
 
@@ -353,7 +356,8 @@ namespace mod.cli {
                   normalIndices.Add(ModModelLoader.Read_(reader, format));
                 } else if (attr == GxAttribute.CLR0) {
                   color0Indices.Add(ModModelLoader.Read_(reader, format));
-                } else if (attr is >= GxAttribute.TEX0 and <= GxAttribute.TEX7) {
+                } else if (attr is >= GxAttribute.TEX0
+                                   and <= GxAttribute.TEX7) {
                   texCoordIndices[attr - GxAttribute.TEX0]
                       .Add(ModModelLoader.Read_(reader, format));
                 } else if (format == GxAttributeType.INDEX_16) {
