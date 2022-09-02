@@ -230,8 +230,6 @@ namespace schema.text {
         if (stringType.LengthSourceType ==
             StringLengthSourceType.NULL_TERMINATED) {
           cbsb.WriteLine($"er.AssertStringNT(this.{member.Name});");
-        } else if (stringType.IsEndianOrdered) {
-          cbsb.WriteLine($"er.AssertStringEndian(this.{member.Name});");
         } else {
           cbsb.WriteLine($"er.AssertString(this.{member.Name});");
         }
@@ -245,13 +243,8 @@ namespace schema.text {
       }
 
       if (stringType.LengthSourceType == StringLengthSourceType.CONST) {
-        if (stringType.IsEndianOrdered) {
-          cbsb.WriteLine(
-              $"this.{member.Name} = er.ReadStringEndian({stringType.ConstLength});");
-        } else {
-          cbsb.WriteLine(
-              $"this.{member.Name} = er.ReadString({stringType.ConstLength});");
-        }
+        cbsb.WriteLine(
+            $"this.{member.Name} = er.ReadString({stringType.ConstLength});");
         return;
       }
 

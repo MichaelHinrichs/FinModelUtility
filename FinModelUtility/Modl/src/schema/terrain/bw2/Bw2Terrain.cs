@@ -11,11 +11,10 @@ namespace modl.schema.terrain.bw1 {
     public void Read(EndianBinaryReader er) {
       var sections = new Dictionary<string, BwSection>();
       while (!er.Eof) {
-        var name = er.ReadStringEndian(4);
-        var size = er.ReadInt32();
+        SectionHeaderUtil.ReadNameAndSize(er, out var name, out var size);
         var offset = er.Position;
 
-        sections[name] = new BwSection(name, size, offset);
+        sections[name] = new BwSection(name, (int) size, offset);
 
         er.Position += size;
       }

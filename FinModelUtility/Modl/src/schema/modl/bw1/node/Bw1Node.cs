@@ -34,11 +34,11 @@ namespace modl.schema.modl.bw1.node {
     public string GetIdentifier() => Bw1Node.GetIdentifier(this.WeirdId);
 
     public void Read(EndianBinaryReader er) {
-      er.AssertStringEndian("NODE");
-
-      var nodeSize = er.ReadUInt32();
+      SectionHeaderUtil.AssertNameAndReadSize(er, "NODE", out var nodeSize);
       var nodeStart = er.Position;
       var expectedNodeEnd = nodeStart + nodeSize;
+
+      er.PushFieldEndianness(Endianness.LittleEndian);
 
       var headerStart = er.Position;
       var expectedHeaderEnd = headerStart + 0x38;
@@ -65,12 +65,13 @@ namespace modl.schema.modl.bw1.node {
 
       this.BoundingBox.Read(er);
 
-      var sectionName = er.ReadStringEndian(4);
-      var sectionSize = er.ReadInt32();
+      SectionHeaderUtil.ReadNameAndSize(er,
+                                        out var sectionName,
+                                        out var sectionSize);
 
       while (sectionName != "MATL") {
         if (sectionName == "VSCL") {
-          Asserts.Equal(4, sectionSize);
+          Asserts.Equal(4, (int) sectionSize);
           this.Scale = er.ReadSingle();
         } else if (sectionName == "RNOD") {
           this.ReadRnod_(er);
@@ -78,8 +79,9 @@ namespace modl.schema.modl.bw1.node {
           throw new NotImplementedException();
         }
 
-        sectionName = er.ReadStringEndian(4);
-        sectionSize = er.ReadInt32();
+        SectionHeaderUtil.ReadNameAndSize(er,
+                                          out sectionName,
+                                          out sectionSize);
       }
 
       Asserts.Equal("MATL", sectionName);
@@ -92,10 +94,13 @@ namespace modl.schema.modl.bw1.node {
         this.Materials.Add(er.ReadNew<Bw1Material>());
       }
 
-      var vertexDescriptorValue = (uint)0;
+      er.PopEndianness();
+
+      var vertexDescriptorValue = (uint) 0;
       while (er.Position < expectedNodeEnd) {
-        sectionName = er.ReadStringEndian(4);
-        sectionSize = er.ReadInt32();
+        SectionHeaderUtil.ReadNameAndSize(er,
+                                          out sectionName,
+                                          out sectionSize);
 
         var expectedSectionEnd = er.Position + sectionSize;
 
@@ -104,81 +109,70 @@ namespace modl.schema.modl.bw1.node {
           case "VUV2":
           case "VUV3":
           case "VUV4": {
-              // TODO: Need to keep track of section order
-              var uvMapIndex = sectionName[3] - '1';
-              this.ReadUvMap_(er, uvMapIndex, sectionSize / (2 * 2));
-              break;
-            }
+            // TODO: Need to keep track of section order
+            var uvMapIndex = sectionName[3] - '1';
+            this.ReadUvMap_(er, uvMapIndex, sectionSize / (2 * 2));
+            break;
+          }
           case "VPOS": {
-              // TODO: Handle this properly
-              // Each new VPOS section seems to correspond to a new LOD mesh, but we only need the first one.
-              if (Positions.Count > 0) {
-                er.Position = expectedNodeEnd;
-                goto BreakEarly;
-              }
-
-              var vertexPositionSize = 2 * 3;
-              Asserts.Equal(0, sectionSize % vertexPositionSize);
-              this.ReadPositions_(er, sectionSize / vertexPositionSize);
-              break;
+            // TODO: Handle this properly
+            // Each new VPOS section seems to correspond to a new LOD mesh, but we only need the first one.
+            if (Positions.Count > 0) {
+              er.Position = expectedNodeEnd;
+              goto BreakEarly;
             }
+
+            var vertexPositionSize = 2 * 3;
+            Asserts.Equal(0, sectionSize % vertexPositionSize);
+            this.ReadPositions_(er, (uint) (sectionSize / vertexPositionSize));
+            break;
+          }
           case "VNRM": {
-              var normalSize = 3;
-              Asserts.Equal(0, sectionSize % normalSize);
-              this.ReadNormals_(er, sectionSize / normalSize);
-              break;
-            }
+            var normalSize = 3;
+            Asserts.Equal(0, sectionSize % normalSize);
+            this.ReadNormals_(er, (uint) (sectionSize / normalSize));
+            break;
+          }
           case "VNBT": {
-              var endianness = er.Endianness;
-              er.Endianness = Endianness.BigEndian;
-
-              var nbtSize = 4 * 9;
-              Asserts.Equal(0, sectionSize % nbtSize);
-              var nbtCount = sectionSize / nbtSize;
-              for (var i = 0; i < nbtCount; ++i) {
-                this.Normals.Add(new VertexNormal {
+            var nbtSize = 4 * 9;
+            Asserts.Equal(0, sectionSize % nbtSize);
+            var nbtCount = sectionSize / nbtSize;
+            for (var i = 0; i < nbtCount; ++i) {
+              this.Normals.Add(new VertexNormal {
                   X = er.ReadSingle(),
                   Y = er.ReadSingle(),
                   Z = er.ReadSingle(),
-                });
-                er.Position += 24;
-              }
-
-              er.Endianness = endianness;
-              break;
+              });
+              er.Position += 24;
             }
+            break;
+          }
           case "XBST": {
-              this.ReadOpcodes_(er, sectionSize, ref vertexDescriptorValue);
-              break;
-            }
+            this.ReadOpcodes_(er, sectionSize, ref vertexDescriptorValue);
+            break;
+          }
           case "SCNT": {
-              var endianness = er.Endianness;
-              er.Endianness = Endianness.BigEndian;
-
-              // TODO: Support this
-              // This explains why multiple VPOS sections are included.
-              Asserts.Equal(4, sectionSize);
-              var lodCount = er.ReadUInt32();
-
-              er.Endianness = endianness;
-
-              break;
-            }
+            // TODO: Support this
+            // This explains why multiple VPOS sections are included.
+            Asserts.Equal(4, (int) sectionSize);
+            var lodCount = er.ReadUInt32();
+            break;
+          }
           case "VCOL": {
-              er.Position += sectionSize;
-              break;
-            }
+            er.Position += sectionSize;
+            break;
+          }
           case "ANIM": {
-              er.Position += sectionSize;
-              break;
-            }
+            er.Position += sectionSize;
+            break;
+          }
           default: throw new NotImplementedException();
         }
 
         Asserts.Equal(er.Position, expectedSectionEnd);
       }
 
-      BreakEarly:;
+      BreakEarly: ;
       Asserts.Equal(er.Position, expectedNodeEnd);
     }
 
@@ -199,58 +193,40 @@ namespace modl.schema.modl.bw1.node {
 
     private void ReadUvMap_(EndianBinaryReader er,
                             int uvMapIndex,
-                            int uvCount) {
-      var endianness = er.Endianness;
-      er.Endianness = Endianness.BigEndian;
-
+                            uint uvCount) {
       var scale = MathF.Pow(2, 11);
       var uvMap = this.UvMaps[uvMapIndex] = new VertexUv[uvCount];
       for (var i = 0; i < uvCount; ++i) {
         uvMap[i] = new VertexUv {
-          U = er.ReadInt16() / scale,
-          V = er.ReadInt16() / scale,
+            U = er.ReadInt16() / scale,
+            V = er.ReadInt16() / scale,
         };
       }
-
-      er.Endianness = endianness;
     }
 
 
     public List<VertexPosition> Positions { get; } = new();
 
-    private void ReadPositions_(EndianBinaryReader er, int vertexCount) {
-      var endianness = er.Endianness;
-      er.Endianness = Endianness.BigEndian;
-
+    private void ReadPositions_(EndianBinaryReader er, uint vertexCount) {
       for (var i = 0; i < vertexCount; ++i) {
         this.Positions.Add(er.ReadNew<VertexPosition>());
       }
-
-      er.Endianness = endianness;
     }
 
 
     public List<VertexNormal> Normals { get; } = new();
 
-    private void ReadNormals_(EndianBinaryReader er, int vertexCount) {
-      var endianness = er.Endianness;
-      er.Endianness = Endianness.BigEndian;
-
+    private void ReadNormals_(EndianBinaryReader er, uint vertexCount) {
       for (var i = 0; i < vertexCount; ++i) {
         this.Normals.Add(er.ReadNew<VertexNormal>());
       }
-
-      er.Endianness = endianness;
     }
 
     public List<BwMesh> Meshes { get; } = new();
 
     private void ReadOpcodes_(EndianBinaryReader er,
-                              int sectionSize,
+                              uint sectionSize,
                               ref uint vertexDescriptorValue) {
-      var endianness = er.Endianness;
-      er.Endianness = Endianness.BigEndian;
-
       var start = er.Position;
       var expectedEnd = start + sectionSize;
 
@@ -285,21 +261,21 @@ namespace modl.schema.modl.bw1.node {
 
       var triangleStrips = new List<BwTriangleStrip>();
       var mesh = new BwMesh {
-        MaterialIndex = materialIndex,
-        TriangleStrips = triangleStrips
+          MaterialIndex = materialIndex,
+          TriangleStrips = triangleStrips
       };
       this.Meshes.Add(mesh);
 
       while (er.Position < expectedEnd) {
         var opcode = er.ReadByte();
-        var opcodeEnum = (GxOpcode)opcode;
+        var opcodeEnum = (GxOpcode) opcode;
 
         if (opcodeEnum == GxOpcode.LOAD_CP_REG) {
           var command = er.ReadByte();
           var value = er.ReadUInt32();
 
           if (command == 0x50) {
-            vertexDescriptorValue &= ~((uint)0x1FFFF);
+            vertexDescriptorValue &= ~((uint) 0x1FFFF);
             vertexDescriptorValue |= value;
           } else if (command == 0x60) {
             value <<= 17;
@@ -324,41 +300,41 @@ namespace modl.schema.modl.bw1.node {
           vertexDescriptor.FromValue(vertexDescriptorValue);
 
           var triangleStrip = new BwTriangleStrip {
-            VertexAttributeIndicesList = vertexAttributeIndicesList,
+              VertexAttributeIndicesList = vertexAttributeIndicesList,
           };
           triangleStrips.Add(triangleStrip);
 
           var vertexCount = er.ReadUInt16();
           for (var i = 0; i < vertexCount; ++i) {
             var vertexAttributeIndices = new BwVertexAttributeIndices {
-              Fraction = 1d * i / vertexCount
+                Fraction = 1d * i / vertexCount
             };
             vertexAttributeIndicesList.Add(vertexAttributeIndices);
 
             foreach (var (vertexAttribute, vertexFormat) in
                      vertexDescriptor) {
               var value = vertexFormat switch {
-                null => er.ReadByte(),
-                GxAttributeType.INDEX_8 => er.ReadByte(),
-                GxAttributeType.INDEX_16 => er.ReadUInt16(),
-                _ => throw new NotImplementedException(),
+                  null => er.ReadByte(),
+                  GxAttributeType.INDEX_8 => er.ReadByte(),
+                  GxAttributeType.INDEX_16 => er.ReadUInt16(),
+                  _ => throw new NotImplementedException(),
               };
 
               switch (vertexAttribute) {
                 case GxVertexAttribute.PosMatIdx: {
-                    Asserts.Equal(0, value % 3);
-                    value /= 3;
-                    vertexAttributeIndices.NodeIndex = posMatIdxMap[value];
-                    break;
-                  }
+                  Asserts.Equal(0, value % 3);
+                  value /= 3;
+                  vertexAttributeIndices.NodeIndex = posMatIdxMap[value];
+                  break;
+                }
                 case GxVertexAttribute.Position: {
-                    vertexAttributeIndices.PositionIndex = value;
-                    break;
-                  }
+                  vertexAttributeIndices.PositionIndex = value;
+                  break;
+                }
                 case GxVertexAttribute.Normal: {
-                    vertexAttributeIndices.NormalIndex = value;
-                    break;
-                  }
+                  vertexAttributeIndices.NormalIndex = value;
+                  break;
+                }
                 case GxVertexAttribute.Tex0Coord:
                 case GxVertexAttribute.Tex1Coord:
                 case GxVertexAttribute.Tex2Coord:
@@ -367,17 +343,17 @@ namespace modl.schema.modl.bw1.node {
                 case GxVertexAttribute.Tex5Coord:
                 case GxVertexAttribute.Tex6Coord:
                 case GxVertexAttribute.Tex7Coord: {
-                    var index = vertexAttribute - GxVertexAttribute.Tex0Coord;
-                    vertexAttributeIndices.TexCoordIndices[index] = value;
-                    break;
-                  }
+                  var index = vertexAttribute - GxVertexAttribute.Tex0Coord;
+                  vertexAttributeIndices.TexCoordIndices[index] = value;
+                  break;
+                }
                 case GxVertexAttribute.Color0:
                 case GxVertexAttribute.Color1: {
-                    break;
-                  }
+                  break;
+                }
                 default: {
-                    throw new NotImplementedException();
-                  }
+                  throw new NotImplementedException();
+                }
               }
             }
           }
@@ -386,9 +362,7 @@ namespace modl.schema.modl.bw1.node {
         }
       }
 
-      er.Endianness = endianness;
       Asserts.Equal(expectedEnd, er.Position);
     }
   }
-
 }

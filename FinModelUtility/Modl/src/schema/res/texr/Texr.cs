@@ -1,8 +1,6 @@
 ﻿using System.Drawing;
 
 using fin.color;
-using fin.model;
-using fin.model.impl;
 using fin.util.asserts;
 using fin.util.color;
 using fin.util.image;
@@ -22,22 +20,20 @@ namespace modl.schema.res.texr {
     public List<BwTexture> Textures { get; } = new();
 
     public void Read(EndianBinaryReader er) {
-      er.AssertStringEndian("TEXR");
-
-      var texrLength = er.ReadUInt32();
+      SectionHeaderUtil.AssertNameAndReadSize(
+          er, "TEXR", out var texrLength);
       var expectedTexrEnd = er.Position + texrLength;
 
       this.FileName = er.ReadString(er.ReadInt32());
 
-      var textureSectionName = er.ReadStringEndian(4);
-
+      SectionHeaderUtil.ReadNameAndSize(
+          er, out var textureSectionName, out var btfLength);
       var mode = textureSectionName switch {
           "XBTF" => TexrMode.BW1,
           "GBTF" => TexrMode.BW2,
           _      => throw new NotSupportedException(),
       };
 
-      var btfLength = er.ReadUInt32();
       var expectedBtfEnd = er.Position + btfLength;
 
       Asserts.Equal(expectedTexrEnd, expectedBtfEnd);
@@ -47,8 +43,8 @@ namespace modl.schema.res.texr {
       for (var i = 0; i < textureCount; ++i) {
         switch (mode) {
           case TexrMode.BW1: {
-            er.AssertStringEndian("TEXT");
-            var textureLength = er.ReadUInt32();
+            SectionHeaderUtil.AssertNameAndReadSize(
+                er, "TEXT", out var textureLength);
             var expectedTextureEnd = er.Position + textureLength;
 
             var textureName = er.ReadString(0x10);
@@ -65,12 +61,14 @@ namespace modl.schema.res.texr {
 
             var unknowns2 = er.ReadUInt32s(1);
 
+            er.PushFieldEndianness(Endianness.BigEndian);
             var image = textureType switch {
                 "A8R8G8B8" => this.ReadA8R8G8B8_(er, width, height),
                 "DXT1"     => this.ReadDxt1_(er, width, height),
                 "P8"       => this.ReadP8_(er, width, height),
                 _          => throw new NotImplementedException(),
             };
+            er.PopEndianness();
 
             this.Textures.Add(new BwTexture(textureName, image));
 
@@ -79,15 +77,13 @@ namespace modl.schema.res.texr {
             break;
           }
           case TexrMode.BW2: {
-            er.AssertStringEndian("GTXD");
-            var textureLength = er.ReadUInt32();
+            SectionHeaderUtil.AssertNameAndReadSize(
+                er, "GTXD", out var textureLength);
             var expectedTextureEnd = er.Position + textureLength;
 
             var textureName = er.ReadString(0x20);
 
-            var endiannessType = er.Endianness;
-            er.Endianness = Endianness.BigEndian;
-
+            er.PushFieldEndianness(Endianness.BigEndian);
             var width = er.ReadUInt32();
             var height = er.ReadUInt32();
 
@@ -102,8 +98,6 @@ namespace modl.schema.res.texr {
 
             var unknown = er.ReadChars(48);
 
-            er.Endianness = endiannessType;
-
             var image = textureType switch {
                 "A8R8G8B8" => this.ReadA8R8G8B8_(er, width, height),
                 "DXT1"     => this.ReadDxt1_(er, width, height),
@@ -115,6 +109,7 @@ namespace modl.schema.res.texr {
                 "I4"       => this.ReadI4_(er, width, height),
                 _          => throw new NotImplementedException(),
             };
+            er.PopEndianness();
 
             this.Textures.Add(new BwTexture(textureName, image));
 
@@ -135,14 +130,9 @@ namespace modl.schema.res.texr {
         ReadA8R8G8B8_(EndianBinaryReader er,
                       uint width,
                       uint height) {
-      er.AssertStringEndian("MIP ");
-
-      var mipSize = width * height * 4;
-      er.AssertUInt32(mipSize);
-
-      var endianness = er.Endianness;
-      er.Endianness = Endianness.BigEndian;
-
+      SectionHeaderUtil.AssertNameAndSize(
+          er, "MIP ", width * height * 4);
+      
       var image = new Bitmap((int) width, (int) height);
       BitmapUtil.InvokeAsLocked(image, bmpData => {
         unsafe {
@@ -191,23 +181,16 @@ namespace modl.schema.res.texr {
         }
       });
 
-      er.Endianness = endianness;
-
       return image;
     }
 
     private Image ReadDxt1_(EndianBinaryReader er, uint width, uint height) {
-      er.AssertStringEndian("MIP ");
-
       // TODO: Trim this little bit off?
       width = (uint) (MathF.Ceiling(width / 8f) * 8);
       height = (uint) (MathF.Ceiling(height / 8f) * 8);
 
       var mipSize = width * height / 2;
-      er.AssertUInt32(mipSize);
-
-      var endianness = er.Endianness;
-      er.Endianness = Endianness.BigEndian;
+      SectionHeaderUtil.AssertNameAndSize(er, "MIP ", mipSize);
 
       var tileWidth = 4;
       var tileHeight = 4;
@@ -280,29 +263,17 @@ namespace modl.schema.res.texr {
         }
       });
 
-      er.Endianness = endianness;
-
       return image;
     }
 
     private Image ReadP8_(EndianBinaryReader er, uint width, uint height) {
-      er.AssertStringEndian("PAL ");
-      er.AssertUInt32(512);
-
-      var endianness = er.Endianness;
-      er.Endianness = Endianness.BigEndian;
+      SectionHeaderUtil.AssertNameAndSize(er, "PAL ", 512);
 
       var palette = er.ReadUInt16s(256)
                       .Select(value => ColorUtil.ParseRgb5A3(value))
                       .ToArray();
 
-      er.Endianness = endianness;
-
-      er.AssertStringEndian("MIP ");
-      var mipSize = width * height;
-      er.AssertUInt32(mipSize);
-
-      er.Endianness = Endianness.BigEndian;
+      SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height);
 
       var image = new Bitmap((int) width, (int) height);
       BitmapUtil.InvokeAsLocked(image, bmpData => {
@@ -336,19 +307,13 @@ namespace modl.schema.res.texr {
         }
       });
 
-      er.Endianness = endianness;
-
       return image;
     }
 
     private Image ReadP4_(EndianBinaryReader er, uint width, uint height) {
       // TODO: This method seems incorrect...
 
-      er.AssertStringEndian("PAL ");
-      er.AssertUInt32(32);
-
-      var endianness = er.Endianness;
-      er.Endianness = Endianness.BigEndian;
+      SectionHeaderUtil.AssertNameAndSize(er, "PAL ", 32);
 
       var paletteShorts = er.ReadUInt16s(16);
 
@@ -365,13 +330,7 @@ namespace modl.schema.res.texr {
                     })
                     .ToArray();
 
-      er.Endianness = endianness;
-
-      er.AssertStringEndian("MIP ");
-      var mipSize = width * height;
-      er.AssertUInt32(mipSize / 2);
-
-      er.Endianness = Endianness.BigEndian;
+      SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height / 2);
 
       var image = new Bitmap((int) width, (int) height);
       BitmapUtil.InvokeAsLocked(image, bmpData => {
@@ -416,17 +375,11 @@ namespace modl.schema.res.texr {
         }
       });
 
-      er.Endianness = endianness;
-
       return image;
     }
 
     private Image ReadIA8_(EndianBinaryReader er, uint width, uint height) {
-      er.AssertStringEndian("MIP ");
-      var mipSize = 2 * width * height;
-      er.AssertUInt32(mipSize);
-
-      er.Endianness = Endianness.BigEndian;
+      SectionHeaderUtil.AssertNameAndSize(er, "MIP ", 2 * width * height);
 
       var image = new Bitmap((int) width, (int) height);
       BitmapUtil.InvokeAsLocked(image, bmpData => {
@@ -461,17 +414,11 @@ namespace modl.schema.res.texr {
         }
       });
 
-      er.Endianness = Endianness.LittleEndian;
-
       return image;
     }
 
     private Image ReadIA4_(EndianBinaryReader er, uint width, uint height) {
-      er.AssertStringEndian("MIP ");
-      var mipSize = width * height;
-      er.AssertUInt32(mipSize);
-
-      er.Endianness = Endianness.BigEndian;
+      SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height);
 
       var image = new Bitmap((int) width, (int) height);
       BitmapUtil.InvokeAsLocked(image, bmpData => {
@@ -508,19 +455,13 @@ namespace modl.schema.res.texr {
         }
       });
 
-      er.Endianness = Endianness.LittleEndian;
-
       return image;
     }
 
     private Image ReadI8_(EndianBinaryReader er, uint width, uint height) {
-      er.AssertStringEndian("MIP ");
-      var mipSize = width * height;
-      er.AssertUInt32(mipSize);
+      SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height);
 
-      er.Endianness = Endianness.BigEndian;
-
-      var image = new Bitmap((int)width, (int)height);
+      var image = new Bitmap((int) width, (int) height);
       BitmapUtil.InvokeAsLocked(image, bmpData => {
         unsafe {
           var blockWidth = 8;
@@ -529,7 +470,7 @@ namespace modl.schema.res.texr {
           var blockCountX = width / blockWidth;
           var blockCountY = height / blockHeight;
 
-          var ptr = (byte*)bmpData.Scan0;
+          var ptr = (byte*) bmpData.Scan0;
           for (var blockY = 0; blockY < blockCountY; ++blockY) {
             for (var blockX = 0; blockX < blockCountX; ++blockX) {
               for (var yInBlock = 0; yInBlock < blockHeight; ++yInBlock) {
@@ -552,17 +493,11 @@ namespace modl.schema.res.texr {
         }
       });
 
-      er.Endianness = Endianness.LittleEndian;
-
       return image;
     }
 
     private Image ReadI4_(EndianBinaryReader er, uint width, uint height) {
-      er.AssertStringEndian("MIP ");
-      var mipSize = width * height / 2;
-      er.AssertUInt32(mipSize);
-
-      er.Endianness = Endianness.BigEndian;
+      SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height / 2);
 
       var image = new Bitmap((int) width, (int) height);
       BitmapUtil.InvokeAsLocked(image, bmpData => {
@@ -603,8 +538,6 @@ namespace modl.schema.res.texr {
           }
         }
       });
-
-      er.Endianness = Endianness.LittleEndian;
 
       return image;
     }

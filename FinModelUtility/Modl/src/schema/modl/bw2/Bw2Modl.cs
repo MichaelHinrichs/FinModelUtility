@@ -12,16 +12,15 @@ namespace modl.schema.modl.bw2 {
     public ListDictionary<ushort, ushort> CnctParentToChildren { get; } = new();
 
     public void Read(EndianBinaryReader er) {
-      var filenameLength = er.ReadUInt32();
-      er.Position += filenameLength;
+      {
+        er.PushFieldEndianness(Endianness.LittleEndian);
+        var filenameLength = er.ReadUInt32();
+        er.Position += filenameLength;
+        er.PopEndianness();
+      }
 
-      er.AssertStringEndian("MODL");
-
-      var size = er.ReadUInt32();
+      SectionHeaderUtil.AssertNameAndReadSize(er, "MODL", out var size);
       var expectedEnd = er.Position + size;
-
-      var endianness = er.Endianness;
-      er.Endianness = Endianness.BigEndian;
 
       var version = er.ReadUInt32s(2);
 
@@ -35,8 +34,6 @@ namespace modl.schema.modl.bw2 {
       var bgfName = er.ReadString(bgfNameLength);
 
       var additionalData = er.ReadUInt32s(additionalDataCount);
-
-      er.Endianness = endianness;
 
       this.SkipSection_(er, "XMEM");
 
@@ -52,13 +49,9 @@ namespace modl.schema.modl.bw2 {
 
       // Reads in hierarchy, how nodes are "CoNneCTed" or "CoNCaTenated?"?
       {
-        uint cnctCount;
-        {
-          er.Endianness = Endianness.LittleEndian;
-          er.AssertStringEndian("CNCT");
-          var cnctSize = er.ReadUInt32();
-          cnctCount = cnctSize / 4;
-        }
+        er.PushFieldEndianness(Endianness.LittleEndian);
+        SectionHeaderUtil.AssertNameAndReadSize(er, "CNCT", out var cnctSize);
+        var cnctCount = cnctSize / 4;
 
         this.CnctParentToChildren.Clear();
         for (var i = 0; i < cnctCount; ++i) {
@@ -67,14 +60,15 @@ namespace modl.schema.modl.bw2 {
 
           this.CnctParentToChildren.Add(parent, child);
         }
+
+        er.PopEndianness();
       }
 
       Asserts.Equal(expectedEnd, er.Position);
     }
 
     private void SkipSection_(EndianBinaryReader er, string sectionName) {
-      er.AssertStringEndian(sectionName);
-      var size = er.ReadUInt32();
+      SectionHeaderUtil.AssertNameAndReadSize(er, sectionName, out var size);
       var data = er.ReadBytes((int) size);
     }
   }

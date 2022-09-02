@@ -34,7 +34,7 @@ namespace modl.api {
       var modlFile = modelFileBundle.ModlFile;
 
       using var er = new EndianBinaryReader(modlFile.Impl.OpenRead(),
-                                            Endianness.LittleEndian);
+                                            Endianness.BigEndian);
       var bwModel = modelFileBundle.GameVersion switch {
           GameVersion.BW1 => (IModl) er.ReadNew<Bw1Modl>(),
           GameVersion.BW2 => er.ReadNew<Bw2Modl>(),

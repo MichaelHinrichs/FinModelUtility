@@ -27,8 +27,10 @@ namespace modl.schema.res {
 
   [BinarySchema]
   public partial class Sond : IBiSerializable {
-    [EndianOrdered] private readonly string magic_ = "SOND";
-    [ArrayLengthSource(SchemaIntegerType.UINT32)] public byte[] Data { get; private set; }
+    private readonly string magic_ = "DNOS"; // SOND backwards
+
+    [ArrayLengthSource(SchemaIntegerType.UINT32)]
+    public byte[] Data { get; private set; }
   }
 
   public class BwFile : IDeserializable {
@@ -37,9 +39,11 @@ namespace modl.schema.res {
     public byte[] Data { get; private set; }
 
     public void Read(EndianBinaryReader er) {
-      this.Type = new string(er.ReadChars(4).Reverse().ToArray());
-
-      var dataLength = er.ReadUInt32();
+      SectionHeaderUtil.ReadNameAndSize(
+          er,
+          out var sectionName,
+          out var dataLength);
+      this.Type = sectionName;
       var dataOffset = er.Position;
 
       this.FileName = er.ReadString(er.ReadInt32());
