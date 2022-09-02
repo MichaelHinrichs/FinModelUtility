@@ -12,21 +12,17 @@ using schema.io;
 
 
 namespace System.IO {
-  public sealed class EndianBinaryWriter : IDisposable {
+  public sealed partial class EndianBinaryWriter : IDisposable {
     private readonly IDelayedContentOutputStream impl_ =
         new DelayedContentOutputStream();
 
     private bool disposed_;
     private byte[] buffer_;
 
-    public Endianness Endianness { get; set; }
-
-    private bool Reverse => EndiannessUtil.SystemEndianness != this.Endianness;
-
-    public EndianBinaryWriter() : this(Endianness.BigEndian) { }
+    public EndianBinaryWriter() { }
 
     public EndianBinaryWriter(Endianness endianness) {
-      this.Endianness = endianness;
+      this.endiannessImpl_.PushFieldEndianness(endianness);
     }
 
     ~EndianBinaryWriter() {
