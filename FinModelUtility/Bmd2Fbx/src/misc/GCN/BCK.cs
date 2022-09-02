@@ -12,11 +12,14 @@ using System.Text;
 
 using fin.util.asserts;
 
+using schema.attributes.align;
+
 
 namespace bmd.GCN {
   /// <summary>
   /// https://wiki.cloudmodding.com/tww/BCK
   /// </summary>
+  [Endianness(Endianness.BigEndian)]
   public class BCK : IBcx {
     public const string Signature = "J3D1bck1";
     public BCK.BCKHeader Header;

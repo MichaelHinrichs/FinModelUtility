@@ -6,6 +6,8 @@ using fin.util.asserts;
 using fin.util.optional;
 
 using schema;
+using schema.attributes.align;
+
 
 namespace cmb.schema.csab {
   public class CsabKeyframe {
@@ -244,6 +246,7 @@ namespace cmb.schema.csab {
     }
   }
 
+  [Endianness(Endianness.LittleEndian)]
   public class Csab : IDeserializable {
     public uint Version { get; set; }
     public uint Duration { get; set; }

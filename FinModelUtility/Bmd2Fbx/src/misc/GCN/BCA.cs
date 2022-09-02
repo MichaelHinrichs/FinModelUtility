@@ -10,8 +10,11 @@ using System;
 using System.IO;
 using System.Text;
 
+using schema.attributes.align;
+
 
 namespace bmd.GCN {
+  [Endianness(Endianness.BigEndian)]
   public class BCA : IBcx {
     public const string Signature = "J3D1bca1";
     public BCA.BCAHeader Header;

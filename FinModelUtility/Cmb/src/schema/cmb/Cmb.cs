@@ -4,8 +4,11 @@ using System.IO;
 using fin.util.strings;
 
 using schema;
+using schema.attributes.align;
+
 
 namespace cmb.schema.cmb {
+  [Endianness(Endianness.LittleEndian)]
   public class Cmb : IDeserializable {
     public long startOffset;
 
@@ -17,7 +20,7 @@ namespace cmb.schema.cmb {
     public readonly Sklm sklm = new();
     public readonly Luts luts = new();
     public readonly Vatr vatr = new();
-    
+
     public Cmb(EndianBinaryReader r) => this.Read(r);
 
     public void Read(EndianBinaryReader r) {
@@ -100,6 +103,7 @@ namespace cmb.schema.cmb {
     }
   }
 }
+
 
 /*pset.primitive.indices = 
 [int(readDataType(f, pset.primitive.dataType)) for _ in

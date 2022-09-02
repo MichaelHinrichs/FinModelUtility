@@ -2,10 +2,12 @@
 using fin.schema.vector;
 
 using schema;
+using schema.attributes.align;
 
 
 namespace glo.schema {
   [BinarySchema]
+  [Endianness(Endianness.LittleEndian)]
   public sealed partial class Glo : IBiSerializable {
     private readonly string magic_ = "GLO\0";
 
