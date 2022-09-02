@@ -1,9 +1,6 @@
 ﻿namespace System.IO {
   public sealed partial class EndianBinaryReader : IEndiannessStack {
-    public Endianness Endianness {
-      get => this.BufferedStream_.Endianness;
-      set => this.BufferedStream_.Endianness = value;
-    }
+    public Endianness Endianness => this.BufferedStream_.Endianness;
 
     public bool IsOppositeEndiannessOfSystem
       => this.BufferedStream_.IsOppositeEndiannessOfSystem;

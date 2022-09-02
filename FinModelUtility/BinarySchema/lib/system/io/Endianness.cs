@@ -21,7 +21,7 @@ namespace System.IO {
   }
 
   public interface IEndiannessStack {
-    Endianness Endianness { get; set; }
+    Endianness Endianness { get; }
 
     bool IsOppositeEndiannessOfSystem { get; }
 
@@ -47,13 +47,8 @@ namespace System.IO {
       this.endiannessStack_.Push(null);
     }
 
-    public Endianness Endianness {
-      get => this.endiannessStack_.Peek() ?? EndiannessUtil.SystemEndianness;
-      set {
-        this.endiannessStack_.Pop();
-        this.endiannessStack_.Push(value);
-      }
-    }
+    public Endianness Endianness 
+      => this.endiannessStack_.Peek() ?? EndiannessUtil.SystemEndianness;
 
     public bool IsOppositeEndiannessOfSystem => this.Endianness != EndiannessUtil.SystemEndianness;
 

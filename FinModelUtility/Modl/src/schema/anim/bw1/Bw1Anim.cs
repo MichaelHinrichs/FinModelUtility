@@ -11,13 +11,10 @@ namespace modl.schema.anim.bw1 {
     public void Read(EndianBinaryReader er) {
       string name0;
       {
-        var endianness = er.Endianness;
-        er.Endianness = Endianness.LittleEndian;
-
+        er.PushFieldEndianness(Endianness.LittleEndian);
         var name0Length = er.ReadUInt32();
         name0 = er.ReadString((int) name0Length);
-
-        er.Endianness = endianness;
+        er.PopEndianness();
       }
 
       var animStart = er.Position;
