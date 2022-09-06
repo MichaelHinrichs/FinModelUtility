@@ -68,13 +68,11 @@ namespace granny3d {
       GrannyUtils.SubreadRefToArray(
           er,
           (ser, trackGroupHeaderCount) => {
-            for (var i = 0; i < trackGroupHeaderCount; ++i) {
+            /*for (var i = 0; i < trackGroupHeaderCount; ++i) {
               GrannyUtils.SubreadRef(ser, sser => {
-                var trackGroup = new GrannyTrackGroup();
-                trackGroup.Read(ser);
-                this.TrackGroupHeaderList.Add(trackGroup);
+                this.TrackGroupHeaderList.Add(sser.ReadNew<GrannyTrackGroup>());
               });
-            }
+            }*/
           });
 
       GrannyUtils.SubreadRefToArray(

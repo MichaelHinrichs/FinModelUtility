@@ -25,7 +25,7 @@ namespace granny3d {
   public class GrannyBone : IGrannyBone, IDeserializable {
     public string Name { get; private set; }
     public int ParentIndex { get; private set; }
-    public IGrannyTransform LocalTransform { get; private set; }
+    public IGrannyTransform LocalTransform { get; } = new GrannyTransform();
     public IFinMatrix4x4 InverseWorld4x4 { get; } = new FinMatrix4x4();
     public float LodError { get; private set; }
 
@@ -35,10 +35,7 @@ namespace granny3d {
 
       this.ParentIndex = er.ReadInt32();
 
-      // granny_transform
-      var transform = new GrannyTransform();
-      transform.Read(er);
-      this.LocalTransform = transform;
+      (this.LocalTransform as GrannyTransform).Read(er);
 
       // inverse_world_4x4
       for (var y = 0; y < 4; ++y) {

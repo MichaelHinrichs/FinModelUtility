@@ -23,9 +23,9 @@ namespace granny3d {
 
       GrannyUtils.SubreadRefToArray(er, (ser, trackGroupCount) => {
         for (var i = 0; i < trackGroupCount; ++i) {
-          var trackGroup = new GrannyTrackGroup();
-          trackGroup.Read(ser);
-          this.TrackGroups.Add(trackGroup);
+          GrannyUtils.SubreadRef(ser, sser => {
+            this.TrackGroups.Add(sser.ReadNew<GrannyTrackGroup>());
+          });
         }
       });
     }
@@ -43,7 +43,7 @@ namespace granny3d {
           er, ser => this.Name = ser.ReadStringNT());
 
       // TODO: vector tracks header
-      /*GrannyUtils.SubreadRefToArray(
+      GrannyUtils.SubreadRefToArray(
           er, (ser, count) => { });
       // TODO: transform tracks header
       GrannyUtils.SubreadRefToArray(
@@ -59,12 +59,12 @@ namespace granny3d {
       var flags = er.ReadUInt32();
       this.LoopTranslation.Read(er);
       // TODO: periodic loop ref
-      GrannyUtils.SubreadUInt64Pointer(
+      GrannyUtils.SubreadRef(
           er, ser => { });
       // TODO: root motion ref
-      GrannyUtils.SubreadUInt64Pointer(
+      GrannyUtils.SubreadRef(
           er, ser => { });
-      this.ExtendedData.Read(er);*/
+      this.ExtendedData.Read(er);
     }
   }
 
