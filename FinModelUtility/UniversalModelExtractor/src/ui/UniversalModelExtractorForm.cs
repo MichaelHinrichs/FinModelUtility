@@ -42,13 +42,13 @@ namespace uni.ui {
 
     private void OnDirectorySelect_(
         IFileTreeNode<IModelFileBundle> directoryNode) {
-      this.modelToolStrip_.Directory = directoryNode;
+      this.modelToolStrip_.DirectoryNode = directoryNode;
     }
 
     private void OnFileSelect_(IFileTreeNode<IModelFileBundle> fileNode) {
       var model = this.LoadModel_(Asserts.CastNonnull(fileNode.File));
-      this.modelToolStrip_.Directory = fileNode.Parent;
-      this.modelToolStrip_.Model = model;
+      this.modelToolStrip_.DirectoryNode = fileNode.Parent;
+      this.modelToolStrip_.FileNodeAndModel = (fileNode, model);
       this.modelViewerGlPanel_.Model = model;
       this.modelTabs_.Model = model;
     }

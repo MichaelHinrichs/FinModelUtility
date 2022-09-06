@@ -52,7 +52,7 @@
       this.exportAllModelsInSelectedDirectoryButton_.Name = "exportAllModelsInSelectedDirectoryButton_";
       this.exportAllModelsInSelectedDirectoryButton_.Size = new System.Drawing.Size(23, 22);
       this.exportAllModelsInSelectedDirectoryButton_.Text = "Export All";
-      this.exportAllModelsInSelectedDirectoryButton_.ToolTipText = "Export All Models In Directory";
+      this.exportAllModelsInSelectedDirectoryButton_.ToolTipText = "Export all models in selected directory";
       this.exportAllModelsInSelectedDirectoryButton_.Click += new System.EventHandler(this.exportAllModelsInSelectedDirectoryButton__Click);
       // 
       // exportSelectedModelButton_
@@ -64,7 +64,7 @@
       this.exportSelectedModelButton_.Name = "exportSelectedModelButton_";
       this.exportSelectedModelButton_.Size = new System.Drawing.Size(23, 22);
       this.exportSelectedModelButton_.Text = "Export";
-      this.exportSelectedModelButton_.ToolTipText = "Export Selected Model";
+      this.exportSelectedModelButton_.ToolTipText = "Export selected model";
       this.exportSelectedModelButton_.Click += new System.EventHandler(this.exportSelectedModelButton__Click);
       // 
       // ModelToolStrip

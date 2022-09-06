@@ -22,6 +22,8 @@ namespace uni.ui.common {
   }
 
   public interface IFileTreeNode<TFile> {
+    string Text { get; }
+
     TFile? File { get; }
 
     IFileTreeNode<TFile>? Parent { get; }
@@ -125,6 +127,7 @@ namespace uni.ui.common {
         this.treeNode_.OpenImage = FileNode.fileImage;
       }
 
+      public string Text => this.treeNode_.Text ?? "n/a";
 
       public TFile? File { get; set; }
 
