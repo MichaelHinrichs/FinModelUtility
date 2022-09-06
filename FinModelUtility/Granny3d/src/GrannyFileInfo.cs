@@ -34,21 +34,22 @@ namespace granny3d {
       er.ReadUInt64(); // ArtToolInfo
       er.ReadUInt64(); // ExporterInfo
 
-      GrannyUtils.SubreadUInt64Pointer(
+      GrannyUtils.SubreadRef(
           er, ser => { this.FromFileName = ser.ReadStringNT(); });
 
-      var textureCount = er.ReadUInt32();
-      GrannyUtils.SubreadUInt64Pointer(er, ser => { });
+      GrannyUtils.SubreadRefToArray(er, (ser, textureCount) => {
+        for (var i = 0; i < textureCount; ++i) { }
+      });
 
-      var materialCount = er.ReadUInt32();
-      GrannyUtils.SubreadUInt64Pointer(er, ser => { });
+      GrannyUtils.SubreadRefToArray(er, (ser, materialCount) => {
+        for (var i = 0; i < materialCount; ++i) { }
+      });
 
-      var skeletonCount = er.ReadUInt32();
-      GrannyUtils.SubreadUInt64Pointer(
+      GrannyUtils.SubreadRefToArray(
           er,
-          ser => {
+          (ser, skeletonCount) => {
             for (var i = 0; i < skeletonCount; ++i) {
-              GrannyUtils.SubreadUInt64Pointer(ser, sser => {
+              GrannyUtils.SubreadRef(ser, sser => {
                 var skeleton = new GrannySkeleton();
                 skeleton.Read(sser);
                 this.SkeletonHeaderList.Add(skeleton);
@@ -56,18 +57,19 @@ namespace granny3d {
             }
           });
 
-      var vertexDataCount = er.ReadUInt32();
-      GrannyUtils.SubreadUInt64Pointer(er, ser => { });
+      GrannyUtils.SubreadRefToArray(er, (ser, vertexDataCount) => {
+        for (var i = 0; i < vertexDataCount; ++i) { }
+      });
 
-      var modelHeaderCount = er.ReadUInt32();
-      GrannyUtils.SubreadUInt64Pointer(er, ser => { });
+      GrannyUtils.SubreadRefToArray(er, (ser, modelHeaderCount) => {
+        for (var i = 0; i < modelHeaderCount; ++i) { }
+      });
 
-      var trackGroupHeaderCount = er.ReadUInt32();
-      GrannyUtils.SubreadUInt64Pointer(
+      GrannyUtils.SubreadRefToArray(
           er,
-          ser => {
+          (ser, trackGroupHeaderCount) => {
             for (var i = 0; i < trackGroupHeaderCount; ++i) {
-              GrannyUtils.SubreadUInt64Pointer(ser, sser => {
+              GrannyUtils.SubreadRef(ser, sser => {
                 var trackGroup = new GrannyTrackGroup();
                 trackGroup.Read(ser);
                 this.TrackGroupHeaderList.Add(trackGroup);
@@ -75,12 +77,11 @@ namespace granny3d {
             }
           });
 
-      var animationHeaderCount = er.ReadUInt32();
-      GrannyUtils.SubreadUInt64Pointer(
+      GrannyUtils.SubreadRefToArray(
           er,
-          ser => {
+          (ser, animationHeaderCount) => {
             for (var i = 0; i < animationHeaderCount; ++i) {
-              GrannyUtils.SubreadUInt64Pointer(ser, sser => {
+              GrannyUtils.SubreadRef(ser, sser => {
                 var animation = new GrannyAnimation();
                 animation.Read(sser);
                 this.AnimationHeaderList.Add(animation);

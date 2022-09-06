@@ -14,7 +14,7 @@ namespace granny3d {
       new List<IGrannyTrackGroup>();
 
     public void Read(EndianBinaryReader er) {
-      GrannyUtils.SubreadUInt64Pointer(
+      GrannyUtils.SubreadRef(
           er, ser => { this.Name = ser.ReadStringNT(); });
 
       this.Duration = er.ReadSingle();
@@ -39,7 +39,7 @@ namespace granny3d {
     public GrannyVariant ExtendedData { get; } = new();
 
     public void Read(EndianBinaryReader er) {
-      GrannyUtils.SubreadUInt64Pointer(
+      GrannyUtils.SubreadRef(
           er, ser => this.Name = ser.ReadStringNT());
 
       // TODO: vector tracks header
@@ -71,10 +71,10 @@ namespace granny3d {
   public class GrannyVariant : IDeserializable {
     public void Read(EndianBinaryReader er) {
       // TODO: type
-      GrannyUtils.SubreadUInt64Pointer(
+      GrannyUtils.SubreadRef(
           er, ser => { });
       // TODO: object
-      GrannyUtils.SubreadUInt64Pointer(
+      GrannyUtils.SubreadRef(
           er, ser => { });
     }
   }

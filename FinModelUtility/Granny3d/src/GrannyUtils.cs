@@ -1,6 +1,6 @@
 ﻿namespace granny3d {
   public static class GrannyUtils {
-    public static void SubreadUInt64Pointer(
+    public static void SubreadRef(
         EndianBinaryReader er,
         Action<EndianBinaryReader> subread) {
       var offset = er.ReadUInt64();

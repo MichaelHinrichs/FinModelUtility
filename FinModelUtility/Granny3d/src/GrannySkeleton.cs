@@ -11,11 +11,10 @@ namespace granny3d {
     public int LodType { get; private set; }
 
     public void Read(EndianBinaryReader er) {
-      GrannyUtils.SubreadUInt64Pointer(
+      GrannyUtils.SubreadRef(
           er, ser => { this.Name = ser.ReadStringNT(); });
 
-      var boneCount = er.ReadUInt32();
-      GrannyUtils.SubreadUInt64Pointer(er, ser => {
+      GrannyUtils.SubreadRefToArray(er, (ser, boneCount) => {
         for (var i = 0; i < boneCount; ++i) {
           Bones.Add(ser.ReadNew<GrannyBone>());
         }
@@ -31,7 +30,7 @@ namespace granny3d {
     public float LodError { get; private set; }
 
     public void Read(EndianBinaryReader er) {
-      GrannyUtils.SubreadUInt64Pointer(
+      GrannyUtils.SubreadRef(
           er, ser => { this.Name = ser.ReadStringNT(); });
 
       this.ParentIndex = er.ReadInt32();
