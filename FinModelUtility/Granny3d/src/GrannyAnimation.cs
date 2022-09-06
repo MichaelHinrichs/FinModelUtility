@@ -1,4 +1,6 @@
-﻿using schema;
+﻿using fin.schema.vector;
+
+using schema;
 
 
 namespace granny3d {
@@ -19,8 +21,7 @@ namespace granny3d {
       this.TimeStep = er.ReadSingle();
       this.Oversampling = er.ReadSingle();
 
-      var trackGroupCount = er.ReadUInt32();
-      GrannyUtils.SubreadUInt64Pointer(er, ser => {
+      GrannyUtils.SubreadRefToArray(er, (ser, trackGroupCount) => {
         for (var i = 0; i < trackGroupCount; ++i) {
           var trackGroup = new GrannyTrackGroup();
           trackGroup.Read(ser);
@@ -31,11 +32,50 @@ namespace granny3d {
   }
 
   public class GrannyTrackGroup : IGrannyTrackGroup, IDeserializable {
-    public void Read(EndianBinaryReader er) {
-      var name = "";
-      GrannyUtils.SubreadUInt64Pointer(er, ser => name = ser.ReadStringNT());
+    public string Name { get; private set; }
 
-      ;
+    public GrannyTransform InitialPlacement { get; } = new();
+    public Vector3f LoopTranslation { get; } = new();
+    public GrannyVariant ExtendedData { get; } = new();
+
+    public void Read(EndianBinaryReader er) {
+      GrannyUtils.SubreadUInt64Pointer(
+          er, ser => this.Name = ser.ReadStringNT());
+
+      // TODO: vector tracks header
+      /*GrannyUtils.SubreadRefToArray(
+          er, (ser, count) => { });
+      // TODO: transform tracks header
+      GrannyUtils.SubreadRefToArray(
+          er, (ser, count) => { });
+      // TODO: transform lod errors header
+      GrannyUtils.SubreadRefToArray(
+          er, (ser, count) => { });
+      // TODO: text tracks header
+      GrannyUtils.SubreadRefToArray(
+          er, (ser, count) => { });
+
+      this.InitialPlacement.Read(er);
+      var flags = er.ReadUInt32();
+      this.LoopTranslation.Read(er);
+      // TODO: periodic loop ref
+      GrannyUtils.SubreadUInt64Pointer(
+          er, ser => { });
+      // TODO: root motion ref
+      GrannyUtils.SubreadUInt64Pointer(
+          er, ser => { });
+      this.ExtendedData.Read(er);*/
+    }
+  }
+
+  public class GrannyVariant : IDeserializable {
+    public void Read(EndianBinaryReader er) {
+      // TODO: type
+      GrannyUtils.SubreadUInt64Pointer(
+          er, ser => { });
+      // TODO: object
+      GrannyUtils.SubreadUInt64Pointer(
+          er, ser => { });
     }
   }
 }
