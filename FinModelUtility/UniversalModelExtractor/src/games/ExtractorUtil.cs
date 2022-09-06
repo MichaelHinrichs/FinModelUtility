@@ -14,60 +14,87 @@ namespace uni.games {
   }
 
   public static class ExtractorUtil {
+    static ExtractorUtil() {
+      ExtractorUtil.logger_ = Logging.Create("extractor");
+      ExtractorUtil.config_ =
+          DirectoryConstants.CONFIG_FILE.Deserialize<Config>();
+    }
+
+    private static readonly ILogger logger_;
+    private static readonly Config config_;
+
     public static void ExtractAll<T>(
         IModelFileGatherer<T> gatherer,
         IModelLoader<T> loader)
         where T : IModelFileBundle {
-      var logger = Logging.Create<T>();
-
-      var config = DirectoryConstants.CONFIG_FILE.Deserialize<Config>();
-      var includeFbx = config.IncludeFbx;
+      var modelFileBundles = new List<T>();
 
       var root = gatherer.GatherModelFileBundles(true);
-      root.ForEachTyped(fileBundle => {
-        var mainFile = fileBundle.MainFile;
+      root.ForEachTyped(modelFileBundles.Add);
 
-        var parentOutputDirectory =
-            GameFileHierarchyUtil.GetOutputDirectoryForFile(mainFile);
-        var outputDirectory =
-            parentOutputDirectory.GetSubdir(mainFile.NameWithoutExtension,
-                                            true);
+      ExtractorUtil.ExtractAll(modelFileBundles, loader);
+    }
 
-        var existingOutputFile =
-            outputDirectory.GetExistingFiles()
-                           .Where(file => file.Extension is ".fbx" or ".glb")
-                           .SingleOrDefault(
-                               file => file.NameWithoutExtension ==
-                                       mainFile.NameWithoutExtension);
+    public static void ExtractAll<T>(
+        IEnumerable<T> modelFileBundles,
+        IModelLoader<T> loader)
+        where T : IModelFileBundle {
+      foreach (var modelFileBundle in modelFileBundles) {
+        ExtractorUtil.Extract(modelFileBundle, loader);
+      }
+    }
 
-        if (existingOutputFile != null) {
-          MessageUtil.LogAlreadyProcessed(logger, mainFile);
-          return;
+    public static void Extract<T>(T modelFileBundle, IModelLoader<T> loader)
+        where T : IModelFileBundle {
+      ExtractorUtil.Extract(modelFileBundle,
+                            () => loader.LoadModel(modelFileBundle));
+    }
+
+    public static void Extract<T>(T modelFileBundle, Func<IModel> loaderHandler)
+        where T : IModelFileBundle {
+      var mainFile = modelFileBundle.MainFile;
+
+      var parentOutputDirectory =
+          GameFileHierarchyUtil.GetOutputDirectoryForFile(mainFile);
+      var outputDirectory =
+          parentOutputDirectory.GetSubdir(mainFile.NameWithoutExtension,
+                                          true);
+
+      var existingOutputFile =
+          outputDirectory.GetExistingFiles()
+                         .Where(file => file.Extension is ".fbx" or ".glb")
+                         .SingleOrDefault(
+                             file => file.NameWithoutExtension ==
+                                     mainFile.NameWithoutExtension);
+
+      if (existingOutputFile != null) {
+        MessageUtil.LogAlreadyProcessed(ExtractorUtil.logger_, mainFile);
+        return;
+      }
+
+      MessageUtil.LogExtracting(ExtractorUtil.logger_, mainFile);
+
+      try {
+        var model = loaderHandler();
+
+        var includeFbx = ExtractorUtil.config_.IncludeFbx;
+        if (includeFbx) {
+          new AssimpIndirectExporter().Export(
+              new FinFile(Path.Join(outputDirectory.FullName,
+                                    mainFile.NameWithoutExtension +
+                                    ".fbx")),
+              model);
+        } else {
+          new GltfExporter().Export(
+              new FinFile(Path.Join(outputDirectory.FullName,
+                                    mainFile.NameWithoutExtension +
+                                    ".glb")),
+              model);
         }
-
-        MessageUtil.LogExtracting(logger, mainFile);
-
-        try {
-          var model = loader.LoadModel(fileBundle);
-
-          if (includeFbx) {
-            new AssimpIndirectExporter().Export(
-                new FinFile(Path.Join(outputDirectory.FullName,
-                                      mainFile.NameWithoutExtension +
-                                      ".fbx")),
-                model);
-          } else {
-            new GltfExporter().Export(
-                new FinFile(Path.Join(outputDirectory.FullName,
-                                      mainFile.NameWithoutExtension +
-                                      ".glb")),
-                model);
-          }
-        } catch (Exception e) {
-          logger.LogError(e.ToString());
-        }
-        logger.LogInformation(" ");
-      });
+      } catch (Exception e) {
+        ExtractorUtil.logger_.LogError(e.ToString());
+      }
+      ExtractorUtil.logger_.LogInformation(" ");
     }
   }
 }
