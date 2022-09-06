@@ -1,4 +1,6 @@
-﻿using fin.util.asserts;
+﻿using System;
+
+using fin.util.asserts;
 
 
 namespace fin.data {
@@ -19,7 +21,21 @@ namespace fin.data {
     public Grid(int width, int height, T defaultValue = default) {
       this.Width = width;
       this.Height = height;
+      
       this.impl_ = new T[width * height];
+      for (var i = 0; i < this.impl_.Length; ++i) {
+        this.impl_[i] = defaultValue;
+      }
+    }
+
+    public Grid(int width, int height, Func<T> defaultValueHandler) {
+      this.Width = width;
+      this.Height = height;
+
+      this.impl_ = new T[width * height];
+      for (var i = 0; i < this.impl_.Length; ++i) {
+        this.impl_[i] = defaultValueHandler();
+      }
     }
 
     public int Width { get; }
