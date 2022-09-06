@@ -11,8 +11,16 @@ namespace uni.src.ui.top {
       set {
         var hasModel = value != null;
         this.exportSelectedModelButton_.Enabled = hasModel;
-        this.exportAllModelsButton_.Enabled = hasModel;
+        this.exportAllModelsInSelectedDirectoryButton_.Enabled = hasModel;
       }
+    }
+
+    private void exportAllModelsInSelectedDirectoryButton__Click(object sender, EventArgs e) {
+
+    }
+
+    private void exportSelectedModelButton__Click(object sender, EventArgs e) {
+
     }
   }
 }
