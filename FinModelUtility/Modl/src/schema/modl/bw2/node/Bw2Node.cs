@@ -236,30 +236,29 @@ namespace modl.schema.modl.bw2.node {
       var materialIndex = er.ReadUInt32();
 
       // This may look simple, but it was an ABSOLUTE nightmare to reverse engineer, lol.
-      var posMatIdxMap = new int[10];
+      var posMatIdxMap = new int[20];
       {
-        var posMatIdxOffsetFlags = er.ReadUInt32();
-
-        var currentOffset = 0;
         var currentPosMatIdx = 0;
+        var currentOffset = 0;
+        for (var i = 0; i < 2; ++i) {
+          var posMatIdxOffsetFlags = er.ReadUInt32();
 
-        // Loops over each bit in the offset.
-        for (var i = 0; i < 32; ++i) {
-          var currentBit = ((posMatIdxOffsetFlags >> i) & 1) == 1;
+          // Loops over each bit in the offset.
+          for (var b = 0; b < 32; ++b) {
+            var currentBit = ((posMatIdxOffsetFlags >> b) & 1) == 1;
 
-          // If bit is true, then we increment the current posMatIdx.
-          if (currentBit) {
-            posMatIdxMap[currentPosMatIdx] = currentPosMatIdx + currentOffset;
-            currentPosMatIdx++;
-          }
-          // Otherwise, if bit is false, then we increment the current offset.
-          else {
-            currentOffset++;
+            // If bit is true, then we increment the current posMatIdx.
+            if (currentBit) {
+              posMatIdxMap[currentPosMatIdx] = currentPosMatIdx + currentOffset;
+              currentPosMatIdx++;
+            }
+            // Otherwise, if bit is false, then we increment the current offset.
+            else {
+              currentOffset++;
+            }
           }
         }
       }
-
-      var unknown = er.ReadUInt32();
 
       var gxDataSize = er.ReadUInt32();
       Asserts.Equal(expectedEnd, er.Position + gxDataSize);
