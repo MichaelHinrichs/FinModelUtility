@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-using fin.io;
+﻿using fin.io;
 using fin.util.asserts;
 
 namespace uni.platforms {
@@ -17,6 +15,10 @@ namespace uni.platforms {
 
     public static IDirectory CLI_DIRECTORY =
         DirectoryConstants.BASE_DIRECTORY.GetSubdir("cli");
+
+    public static IFile CONFIG_FILE =
+        CLI_DIRECTORY.GetExistingFile("config.json");
+    
 
     public static IDirectory ROMS_DIRECTORY =
         DirectoryConstants.CLI_DIRECTORY.GetSubdir("roms");
