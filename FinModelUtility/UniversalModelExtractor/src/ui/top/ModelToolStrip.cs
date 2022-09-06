@@ -23,8 +23,22 @@ namespace uni.src.ui.top {
 
         var tooltipText = "Export all models in selected directory";
         if (hasDirectory) {
+          var modelCount = 0;
+          var subdirQueue =
+              new FinQueue<IFileTreeNode<IModelFileBundle>>(value!);
+          while (subdirQueue.TryDequeue(out var subdirNode)) {
+            var modelFileBundle = subdirNode.File;
+            if (modelFileBundle != null) {
+              ++modelCount;
+            } else {
+              subdirQueue.Enqueue(subdirNode.Children);
+            }
+          }
+
           var totalText = this.GetTotalNodeText_(value!);
-          tooltipText = $"Export all models in '{totalText}'";
+          tooltipText = modelCount == 1
+                            ? $"Export {modelCount} model in '{totalText}'"
+                            : $"Export all {modelCount} models in '{totalText}'";
         }
         this.exportAllModelsInSelectedDirectoryButton_.ToolTipText =
             tooltipText;
@@ -43,7 +57,7 @@ namespace uni.src.ui.top {
           this.fileNodeAndModel_ = null;
         }
 
-          var tooltipText = "Export selected model";
+        var tooltipText = "Export selected model";
         if (hasModel) {
           var totalText = this.GetTotalNodeText_(fileNode);
           tooltipText = $"Export '{totalText}'";
