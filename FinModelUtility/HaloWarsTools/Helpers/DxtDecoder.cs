@@ -1,20 +1,13 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Imaging;
+
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 using fin.image;
 using fin.io;
-using fin.util.color;
-using fin.util.image;
 
-using texture;
 
 // From https://github.com/mafaca/Dxt
 
