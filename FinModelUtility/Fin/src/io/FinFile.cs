@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 
 using fin.util.asserts;
+using fin.util.json;
 
 using schema;
 
@@ -66,12 +67,26 @@ namespace fin.io {
       => FileUtil.ReadNew<T>(this.FullName, endianness);
 
     public byte[] ReadAllBytes() => FileUtil.ReadAllBytes(this.FullName);
+    public string ReadAllText() => FileUtil.ReadAllText(this.FullName);
 
     public StreamReader OpenReadAsText()
       => FileUtil.OpenReadAsText(this.FullName);
 
+    public StreamWriter OpenWriteAsText() 
+      => FileUtil.OpenWriteAsText(this.FullName);
+
     public FileStream OpenRead() => FileUtil.OpenRead(this.FullName);
     public FileStream OpenWrite() => FileUtil.OpenWrite(this.FullName);
+
+    public T Deserialize<T>() {
+      var text = this.ReadAllText();
+      return JsonUtil.Deserialize<T>(text);
+    }
+
+    public void Serialize<T>(T instance) where T : notnull {
+      using var writer = this.OpenWriteAsText();
+      writer.Write(JsonUtil.Serialize(instance));
+    }
 
     public override string ToString() => this.FullName;
 

@@ -48,10 +48,14 @@ namespace fin.io {
     T ReadNew<T>(Endianness endianness) where T : IDeserializable, new();
 
     byte[] ReadAllBytes();
+    string ReadAllText();
 
     StreamReader OpenReadAsText();
 
     FileStream OpenRead();
     FileStream OpenWrite();
+
+    T Deserialize<T>();
+    void Serialize<T>(T instance) where T : notnull;
   }
 }
