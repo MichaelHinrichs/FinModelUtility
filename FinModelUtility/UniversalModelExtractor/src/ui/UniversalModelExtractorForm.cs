@@ -1,22 +1,10 @@
-using bmd.exporter;
+using System.Diagnostics;
 
 using fin.model;
 
-using glo.api;
-
-using mod.cli;
-
-using modl.api;
-
 using uni.games;
 
-using cmb.api;
-
-using dat.api;
-
 using fin.util.asserts;
-
-using hw.api;
 
 using uni.ui.common;
 
@@ -57,5 +45,10 @@ namespace uni.ui {
       => new GlobalModelLoader().LoadModel(modelFileBundle);
 
     private void modelViewerGlPanel__Load(object sender, EventArgs e) { }
+
+    private void gitHubToolStripMenuItem_Click(object sender, EventArgs e) {
+      Process.Start("explorer",
+                    "https://github.com/MeltyPlayer/FinModelUtility");
+    }
   }
 }

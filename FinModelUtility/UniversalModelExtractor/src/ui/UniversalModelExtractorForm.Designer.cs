@@ -36,6 +36,7 @@ namespace uni.ui {
       this.modelTabs_ = new uni.ui.right_panel.ModelTabs();
       this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.gitHubToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.modelToolStrip_ = new uni.src.ui.top.ModelToolStrip();
       splitContainer1 = new System.Windows.Forms.SplitContainer();
       splitContainer2 = new System.Windows.Forms.SplitContainer();
@@ -141,17 +142,18 @@ namespace uni.ui {
       // 
       // helpToolStripMenuItem
       // 
+      this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.gitHubToolStripMenuItem});
       this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
       this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
       this.helpToolStripMenuItem.Text = "Help";
       // 
-      // modelToolStrip1
+      // gitHubToolStripMenuItem
       // 
-      this.modelToolStrip_.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.modelToolStrip_.Location = new System.Drawing.Point(0, 0);
-      this.modelToolStrip_.Name = "modelToolStrip_";
-      this.modelToolStrip_.Size = new System.Drawing.Size(1013, 25);
-      this.modelToolStrip_.TabIndex = 3;
+      this.gitHubToolStripMenuItem.Name = "gitHubToolStripMenuItem";
+      this.gitHubToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+      this.gitHubToolStripMenuItem.Text = "View on GitHub";
+      this.gitHubToolStripMenuItem.Click += new System.EventHandler(this.gitHubToolStripMenuItem_Click);
       // 
       // splitContainer3
       // 
@@ -172,6 +174,14 @@ namespace uni.ui {
       splitContainer3.Size = new System.Drawing.Size(1013, 520);
       splitContainer3.SplitterDistance = 25;
       splitContainer3.TabIndex = 4;
+      // 
+      // modelToolStrip_
+      // 
+      this.modelToolStrip_.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.modelToolStrip_.Location = new System.Drawing.Point(0, 0);
+      this.modelToolStrip_.Name = "modelToolStrip_";
+      this.modelToolStrip_.Size = new System.Drawing.Size(1013, 25);
+      this.modelToolStrip_.TabIndex = 3;
       // 
       // UniversalModelExtractorForm
       // 
@@ -213,5 +223,6 @@ namespace uni.ui {
     private ModelFileTreeView modelFileTreeView_;
     private ModelTabs modelTabs_;
     private src.ui.top.ModelToolStrip modelToolStrip_;
+    private ToolStripMenuItem gitHubToolStripMenuItem;
   }
 }
