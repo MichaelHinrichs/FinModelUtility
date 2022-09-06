@@ -1,5 +1,6 @@
 ﻿using System.IO.Compression;
 
+using fin.image;
 using fin.io;
 using fin.log;
 using fin.util.asserts;
@@ -61,8 +62,10 @@ namespace uni.games.battalion_wars_1 {
         }
 
         foreach (var texture in bwArchive.Texr.Textures) {
-          texture.Image.Save(Path.Join(directory.FullName,
+          using var fw =
+              File.OpenWrite(Path.Join(directory.FullName,
                                        $"{texture.Name}.png"));
+          texture.Image.ExportToStream(fw, LocalImageFormat.PNG);
         }
 
         return true;

@@ -1,6 +1,9 @@
 ﻿using System.Drawing;
 
 using fin.color;
+using fin.data;
+using fin.image;
+using fin.schema.color;
 using fin.util.asserts;
 using fin.util.color;
 using fin.util.image;
@@ -115,6 +118,38 @@ namespace modl.schema.res.texr {
 
             er.Position = expectedTextureEnd;
             Asserts.Equal(expectedTextureEnd, er.Position);
+
+            if (textureName.ToLower().EndsWith("_bump")) {
+              var normalTextureName = textureName.Replace(
+                  "_bump", "_normal",
+                  StringComparison.CurrentCultureIgnoreCase);
+
+              var normalImage = new Rgb24Image(image.Width, image.Height);
+              normalImage.Mutate((_, normalSetHandler) => {
+                image.Access(bumpGetHandler => {
+                  for (var y = 0; y < image.Height; ++y) {
+                    for (var x = 0; x < image.Width; ++x) {
+                      bumpGetHandler(
+                          x, y,
+                          out var bumpIntensity,
+                          out var _,
+                          out var _,
+                          out var bumpAlpha);
+
+                      normalSetHandler(
+                          x, y,
+                          bumpIntensity,
+                          bumpAlpha,
+                          255);
+                    }
+                  }
+                });
+              });
+
+              this.Textures.Add(
+                  new BwTexture(normalTextureName, normalImage));
+            }
+
             break;
           }
         }
@@ -126,55 +161,47 @@ namespace modl.schema.res.texr {
     public void Write(EndianBinaryWriter ew) =>
         throw new NotImplementedException();
 
-    private Image
+    private IImage
         ReadA8R8G8B8_(EndianBinaryReader er,
                       uint width,
                       uint height) {
       SectionHeaderUtil.AssertNameAndSize(
           er, "MIP ", width * height * 4);
-      
-      var image = new Bitmap((int) width, (int) height);
-      BitmapUtil.InvokeAsLocked(image, bmpData => {
-        unsafe {
-          var ptr = (byte*) bmpData.Scan0;
 
-          var blockWidth = 4;
-          var blockHeight = 4;
+      var image = new Rgba32Image((int) width, (int) height);
+      image.Mutate((_, setHandler) => {
+        var blockWidth = 4;
+        var blockHeight = 4;
 
-          for (var blockY = 0; blockY < height / blockHeight; blockY++) {
-            var availableBlockHeight =
-                Math.Min(blockHeight, height - blockHeight * blockY);
+        var blockGrid = new Grid<(byte a, byte r)>(blockWidth, blockHeight);
 
-            for (var blockX = 0; blockX < width / blockWidth; blockX++) {
-              var availableBlockWidth =
-                  Math.Min(blockWidth, width - blockWidth * blockX);
+        for (var blockY = 0; blockY < height / blockHeight; blockY++) {
+          var availableBlockHeight =
+              Math.Min(blockHeight, height - blockHeight * blockY);
 
-              for (var iy = 0; iy < availableBlockHeight; ++iy) {
-                var imgY = blockY * blockHeight + iy;
-                for (var ix = 0; ix < availableBlockWidth; ++ix) {
-                  var imgX = blockX * blockWidth + ix;
+          for (var blockX = 0; blockX < width / blockWidth; blockX++) {
+            var availableBlockWidth =
+                Math.Min(blockWidth, width - blockWidth * blockX);
 
-                  var a = er.ReadByte();
-                  var r = er.ReadByte();
+            for (var iy = 0; iy < availableBlockHeight; ++iy) {
+              for (var ix = 0; ix < availableBlockWidth; ++ix) {
+                var a = er.ReadByte();
+                var r = er.ReadByte();
 
-                  var index = 4 * (imgY * width + imgX);
-                  ptr[index + 2] = r;
-                  ptr[index + 3] = a;
-                }
+                blockGrid[ix, iy] = (a, r);
               }
+            }
 
-              for (var iy = 0; iy < availableBlockHeight; ++iy) {
-                var imgY = blockY * blockHeight + iy;
-                for (var ix = 0; ix < availableBlockWidth; ++ix) {
-                  var imgX = blockX * blockWidth + ix;
+            for (var iy = 0; iy < availableBlockHeight; ++iy) {
+              var imgY = blockY * blockHeight + iy;
+              for (var ix = 0; ix < availableBlockWidth; ++ix) {
+                var imgX = blockX * blockWidth + ix;
 
-                  var g = er.ReadByte();
-                  var b = er.ReadByte();
+                var (a, r) = blockGrid[ix, iy];
+                var g = er.ReadByte();
+                var b = er.ReadByte();
 
-                  var index = 4 * (imgY * width + imgX);
-                  ptr[index + 0] = b;
-                  ptr[index + 1] = g;
-                }
+                setHandler(imgX, imgY, r, g, b, a);
               }
             }
           }
@@ -184,7 +211,7 @@ namespace modl.schema.res.texr {
       return image;
     }
 
-    private Image ReadDxt1_(EndianBinaryReader er, uint width, uint height) {
+    private IImage ReadDxt1_(EndianBinaryReader er, uint width, uint height) {
       // TODO: Trim this little bit off?
       width = (uint) (MathF.Ceiling(width / 8f) * 8);
       height = (uint) (MathF.Ceiling(height / 8f) * 8);
@@ -197,67 +224,65 @@ namespace modl.schema.res.texr {
 
       IColor[] colors = new IColor[4];
 
-      var image = new Bitmap((int) width, (int) height);
-      BitmapUtil.InvokeAsLocked(image, bmpData => {
+      var image = new Rgba32Image((int) width, (int) height);
+      image.Mutate((_, setHandler) => {
         var x = 0;
         var y = 0;
 
-        unsafe {
-          var ptr = (byte*) bmpData.Scan0;
-          for (var ii = 0; ii < mipSize / 8; ++ii) {
-            var color0Value = er.ReadUInt16();
-            var color1Value = er.ReadUInt16();
-            var pixelMask = er.ReadUInt32();
+        for (var ii = 0; ii < mipSize / 8; ++ii) {
+          var color0Value = er.ReadUInt16();
+          var color1Value = er.ReadUInt16();
+          var pixelMask = er.ReadUInt32();
 
-            var color0 = colors[0] = ColorUtil.ParseRgb565(color0Value);
-            var color1 = colors[1] = ColorUtil.ParseRgb565(color1Value);
+          var color0 = colors[0] = ColorUtil.ParseRgb565(color0Value);
+          var color1 = colors[1] = ColorUtil.ParseRgb565(color1Value);
 
-            if (color0Value > color1Value) {
-              colors[2] = FinColor.FromRgbBytes(
-                  (byte) ((2 * color0.Rb + color1.Rb) / 3f),
-                  (byte) ((2 * color0.Gb + color1.Gb) / 3f),
-                  (byte) ((2 * color0.Bb + color1.Bb) / 3f));
-              colors[3] = FinColor.FromRgbBytes(
-                  (byte) ((2 * color1.Rb + color0.Rb) / 3f),
-                  (byte) ((2 * color1.Gb + color0.Gb) / 3f),
-                  (byte) ((2 * color1.Bb + color0.Bb) / 3f));
-            } else {
-              colors[2] = FinColor.FromRgbBytes(
-                  (byte) ((color0.Rb + color1.Rb) / 2f),
-                  (byte) ((color0.Gb + color1.Gb) / 2f),
-                  (byte) ((color0.Bb + color1.Bb) / 2f));
-              colors[3] = FinColor.FromRgbaBytes(
-                  0, 0, 0, 0);
+          if (color0Value > color1Value) {
+            colors[2] = FinColor.FromRgbBytes(
+                (byte) ((2 * color0.Rb + color1.Rb) / 3f),
+                (byte) ((2 * color0.Gb + color1.Gb) / 3f),
+                (byte) ((2 * color0.Bb + color1.Bb) / 3f));
+            colors[3] = FinColor.FromRgbBytes(
+                (byte) ((2 * color1.Rb + color0.Rb) / 3f),
+                (byte) ((2 * color1.Gb + color0.Gb) / 3f),
+                (byte) ((2 * color1.Bb + color0.Bb) / 3f));
+          } else {
+            colors[2] = FinColor.FromRgbBytes(
+                (byte) ((color0.Rb + color1.Rb) / 2f),
+                (byte) ((color0.Gb + color1.Gb) / 2f),
+                (byte) ((color0.Bb + color1.Bb) / 2f));
+            colors[3] = FinColor.FromRgbaBytes(
+                0, 0, 0, 0);
+          }
+
+          var ii2 = ii % 4;
+          var iiX = (ii2 % 2) * 4;
+          var iiY = (ii2 / 2) * 4;
+
+          for (var yInTile = 0; yInTile < tileHeight; ++yInTile) {
+            var arrayY = y + iiY + yInTile;
+            for (var xInTile = 0; xInTile < tileWidth; ++xInTile) {
+              var arrayX = x + iiX + xInTile;
+
+              var colorIndex =
+                  (pixelMask >> ((15 - (yInTile * 4 + xInTile)) * 2)) &
+                  0b11;
+              var color = colors[colorIndex];
+
+              setHandler(arrayX,
+                         arrayY,
+                         color.Rb,
+                         color.Gb,
+                         color.Bb,
+                         color.Ab);
             }
+          }
 
-            var ii2 = ii % 4;
-            var iiX = (ii2 % 2) * 4;
-            var iiY = (ii2 / 2) * 4;
-
-            for (var yInTile = 0; yInTile < tileHeight; ++yInTile) {
-              var arrayY = y + iiY + yInTile;
-              for (var xInTile = 0; xInTile < tileWidth; ++xInTile) {
-                var arrayX = x + iiX + xInTile;
-
-                var colorIndex =
-                    (pixelMask >> ((15 - (yInTile * 4 + xInTile)) * 2)) &
-                    0b11;
-                var color = colors[colorIndex];
-
-                var imageIndex = 4 * (arrayY * width + arrayX);
-                ptr[imageIndex + 0] = color.Bb;
-                ptr[imageIndex + 1] = color.Gb;
-                ptr[imageIndex + 2] = color.Rb;
-                ptr[imageIndex + 3] = color.Ab;
-              }
-            }
-
-            if (ii2 == 3) {
-              x += 8;
-              if (x >= width) {
-                x = 0;
-                y += 8;
-              }
+          if (ii2 == 3) {
+            x += 8;
+            if (x >= width) {
+              x = 0;
+              y += 8;
             }
           }
         }
@@ -266,7 +291,7 @@ namespace modl.schema.res.texr {
       return image;
     }
 
-    private Image ReadP8_(EndianBinaryReader er, uint width, uint height) {
+    private IImage ReadP8_(EndianBinaryReader er, uint width, uint height) {
       SectionHeaderUtil.AssertNameAndSize(er, "PAL ", 512);
 
       var palette = er.ReadUInt16s(256)
@@ -275,32 +300,25 @@ namespace modl.schema.res.texr {
 
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height);
 
-      var image = new Bitmap((int) width, (int) height);
-      BitmapUtil.InvokeAsLocked(image, bmpData => {
+      var image = new Rgba32Image((int) width, (int) height);
+      image.Mutate((_, setHandler) => {
         var blockWidth = 8;
         var blockHeight = 4;
 
         var blockCountX = width / blockWidth;
         var blockCountY = height / blockHeight;
 
-        unsafe {
-          var ptr = (byte*) bmpData.Scan0;
-          for (var blockY = 0; blockY < blockCountY; ++blockY) {
-            for (var blockX = 0; blockX < blockCountX; ++blockX) {
-              for (var yInBlock = 0; yInBlock < blockHeight; ++yInBlock) {
-                var y = blockY * blockHeight + yInBlock;
-                for (var xInBlock = 0; xInBlock < blockWidth; ++xInBlock) {
-                  var x = blockX * blockWidth + xInBlock;
+        for (var blockY = 0; blockY < blockCountY; ++blockY) {
+          for (var blockX = 0; blockX < blockCountX; ++blockX) {
+            for (var yInBlock = 0; yInBlock < blockHeight; ++yInBlock) {
+              var y = blockY * blockHeight + yInBlock;
+              for (var xInBlock = 0; xInBlock < blockWidth; ++xInBlock) {
+                var x = blockX * blockWidth + xInBlock;
 
-                  var paletteIndex = er.ReadByte();
-                  var color = palette[paletteIndex];
+                var paletteIndex = er.ReadByte();
+                var color = palette[paletteIndex];
 
-                  var imageIndex = 4 * (y * width + x);
-                  ptr[imageIndex + 0] = color.Bb;
-                  ptr[imageIndex + 1] = color.Gb;
-                  ptr[imageIndex + 2] = color.Rb;
-                  ptr[imageIndex + 3] = color.Ab;
-                }
+                setHandler(x, y, color.Rb, color.Gb, color.Bb, color.Ab);
               }
             }
           }
@@ -310,7 +328,7 @@ namespace modl.schema.res.texr {
       return image;
     }
 
-    private Image ReadP4_(EndianBinaryReader er, uint width, uint height) {
+    private IImage ReadP4_(EndianBinaryReader er, uint width, uint height) {
       // TODO: This method seems incorrect...
 
       SectionHeaderUtil.AssertNameAndSize(er, "PAL ", 32);
@@ -332,43 +350,38 @@ namespace modl.schema.res.texr {
 
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height / 2);
 
-      var image = new Bitmap((int) width, (int) height);
-      BitmapUtil.InvokeAsLocked(image, bmpData => {
+      var image = new Rgba32Image((int) width, (int) height);
+      image.Mutate((_, setHandler) => {
         var blockWidth = 8;
         var blockHeight = 8;
 
         var blockCountX = width / blockWidth;
         var blockCountY = height / blockHeight;
 
-        unsafe {
-          var ptr = (byte*) bmpData.Scan0;
-          for (var blockY = 0; blockY < blockCountY; ++blockY) {
-            for (var blockX = 0; blockX < blockCountX; ++blockX) {
-              for (var yInBlock = 0; yInBlock < blockHeight; ++yInBlock) {
-                var y = blockY * blockHeight + yInBlock;
-                for (var xInBlock = 0; xInBlock < blockWidth; xInBlock += 2) {
-                  var x = blockX * blockWidth + xInBlock;
+        for (var blockY = 0; blockY < blockCountY; ++blockY) {
+          for (var blockX = 0; blockX < blockCountX; ++blockX) {
+            for (var yInBlock = 0; yInBlock < blockHeight; ++yInBlock) {
+              var y = blockY * blockHeight + yInBlock;
+              for (var xInBlock = 0; xInBlock < blockWidth; xInBlock += 2) {
+                var x = blockX * blockWidth + xInBlock;
 
-                  var paletteIndex = er.ReadByte();
+                var paletteIndex = er.ReadByte();
 
-                  var upperPaletteIndex = paletteIndex >> 4;
-                  var color0 = palette[upperPaletteIndex];
+                var upperPaletteIndex = paletteIndex >> 4;
+                var color0 = palette[upperPaletteIndex];
+                setHandler(x, y,
+                           color0.Rb,
+                           color0.Gb,
+                           color0.Bb,
+                           color0.Ab);
 
-                  var imageIndex0 = 4 * (y * width + x);
-                  ptr[imageIndex0 + 0] = color0.Bb;
-                  ptr[imageIndex0 + 1] = color0.Gb;
-                  ptr[imageIndex0 + 2] = color0.Rb;
-                  ptr[imageIndex0 + 3] = color0.Ab;
-
-                  var lowerPaletteIndex = paletteIndex & 0xf;
-                  var color1 = palette[lowerPaletteIndex];
-
-                  var imageIndex1 = 4 * (y * width + x + 1);
-                  ptr[imageIndex1 + 0] = color1.Bb;
-                  ptr[imageIndex1 + 1] = color1.Gb;
-                  ptr[imageIndex1 + 2] = color1.Rb;
-                  ptr[imageIndex1 + 3] = color1.Ab;
-                }
+                var lowerPaletteIndex = paletteIndex & 0xf;
+                var color1 = palette[lowerPaletteIndex];
+                setHandler(x + 1, y,
+                           color1.Rb,
+                           color1.Gb, 
+                           color1.Bb, 
+                           color1.Ab);
               }
             }
           }
@@ -378,36 +391,28 @@ namespace modl.schema.res.texr {
       return image;
     }
 
-    private Image ReadIA8_(EndianBinaryReader er, uint width, uint height) {
+    private IImage ReadIA8_(EndianBinaryReader er, uint width, uint height) {
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", 2 * width * height);
 
-      var image = new Bitmap((int) width, (int) height);
-      BitmapUtil.InvokeAsLocked(image, bmpData => {
-        unsafe {
-          var blockWidth = 4;
-          var blockHeight = 4;
+      var image = new Ia16Image((int) width, (int) height);
+      image.Mutate((_, setHandler) => {
+        var blockWidth = 4;
+        var blockHeight = 4;
 
-          var blockCountX = width / blockWidth;
-          var blockCountY = height / blockHeight;
+        var blockCountX = width / blockWidth;
+        var blockCountY = height / blockHeight;
 
-          var ptr = (byte*) bmpData.Scan0;
-          for (var blockY = 0; blockY < blockCountY; ++blockY) {
-            for (var blockX = 0; blockX < blockCountX; ++blockX) {
-              for (var yInBlock = 0; yInBlock < blockHeight; ++yInBlock) {
-                var y = blockY * blockHeight + yInBlock;
-                for (var xInBlock = 0; xInBlock < blockWidth; ++xInBlock) {
-                  var x = blockX * blockWidth + xInBlock;
+        for (var blockY = 0; blockY < blockCountY; ++blockY) {
+          for (var blockX = 0; blockX < blockCountX; ++blockX) {
+            for (var yInBlock = 0; yInBlock < blockHeight; ++yInBlock) {
+              var y = blockY * blockHeight + yInBlock;
+              for (var xInBlock = 0; xInBlock < blockWidth; ++xInBlock) {
+                var x = blockX * blockWidth + xInBlock;
 
-                  var intensity = er.ReadByte();
-                  var alpha = er.ReadByte();
+                var intensity = er.ReadByte();
+                var alpha = er.ReadByte();
 
-                  var i = 4 * (y * width + x);
-
-                  ptr[i + 0] = intensity;
-                  ptr[i + 1] = intensity;
-                  ptr[i + 2] = intensity;
-                  ptr[i + 3] = alpha;
-                }
+                setHandler(x, y, intensity, alpha);
               }
             }
           }
@@ -417,38 +422,30 @@ namespace modl.schema.res.texr {
       return image;
     }
 
-    private Image ReadIA4_(EndianBinaryReader er, uint width, uint height) {
+    private IImage ReadIA4_(EndianBinaryReader er, uint width, uint height) {
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height);
 
-      var image = new Bitmap((int) width, (int) height);
-      BitmapUtil.InvokeAsLocked(image, bmpData => {
-        unsafe {
-          var blockWidth = 8;
-          var blockHeight = 4;
+      var image = new Ia16Image((int) width, (int) height);
+      image.Mutate((_, setHandler) => {
+        var blockWidth = 8;
+        var blockHeight = 4;
 
-          var blockCountX = width / blockWidth;
-          var blockCountY = height / blockHeight;
+        var blockCountX = width / blockWidth;
+        var blockCountY = height / blockHeight;
 
-          var ptr = (byte*) bmpData.Scan0;
-          for (var blockY = 0; blockY < blockCountY; ++blockY) {
-            for (var blockX = 0; blockX < blockCountX; ++blockX) {
-              for (var yInBlock = 0; yInBlock < blockHeight; ++yInBlock) {
-                var y = blockY * blockHeight + yInBlock;
-                for (var xInBlock = 0; xInBlock < blockWidth; ++xInBlock) {
-                  var x = blockX * blockWidth + xInBlock;
+        for (var blockY = 0; blockY < blockCountY; ++blockY) {
+          for (var blockX = 0; blockX < blockCountX; ++blockX) {
+            for (var yInBlock = 0; yInBlock < blockHeight; ++yInBlock) {
+              var y = blockY * blockHeight + yInBlock;
+              for (var xInBlock = 0; xInBlock < blockWidth; ++xInBlock) {
+                var x = blockX * blockWidth + xInBlock;
 
-                  var color = er.ReadByte();
+                var color = er.ReadByte();
 
-                  var intensity = ColorUtil.ExtractScaled(color, 0, 4);
-                  var alpha = ColorUtil.ExtractScaled(color, 4, 4);
+                var intensity = ColorUtil.ExtractScaled(color, 0, 4);
+                var alpha = ColorUtil.ExtractScaled(color, 4, 4);
 
-                  var i = 4 * (y * width + x);
-
-                  ptr[i + 0] = intensity;
-                  ptr[i + 1] = intensity;
-                  ptr[i + 2] = intensity;
-                  ptr[i + 3] = alpha;
-                }
+                setHandler(x, y, intensity, alpha);
               }
             }
           }
@@ -458,35 +455,26 @@ namespace modl.schema.res.texr {
       return image;
     }
 
-    private Image ReadI8_(EndianBinaryReader er, uint width, uint height) {
+    private IImage ReadI8_(EndianBinaryReader er, uint width, uint height) {
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height);
 
-      var image = new Bitmap((int) width, (int) height);
-      BitmapUtil.InvokeAsLocked(image, bmpData => {
-        unsafe {
-          var blockWidth = 8;
-          var blockHeight = 4;
+      var image = new I8Image((int) width, (int) height);
+      image.Mutate((_, setHandler) => {
+        var blockWidth = 8;
+        var blockHeight = 4;
 
-          var blockCountX = width / blockWidth;
-          var blockCountY = height / blockHeight;
+        var blockCountX = width / blockWidth;
+        var blockCountY = height / blockHeight;
 
-          var ptr = (byte*) bmpData.Scan0;
-          for (var blockY = 0; blockY < blockCountY; ++blockY) {
-            for (var blockX = 0; blockX < blockCountX; ++blockX) {
-              for (var yInBlock = 0; yInBlock < blockHeight; ++yInBlock) {
-                var y = blockY * blockHeight + yInBlock;
-                for (var xInBlock = 0; xInBlock < blockWidth; ++xInBlock) {
-                  var x = blockX * blockWidth + xInBlock;
+        for (var blockY = 0; blockY < blockCountY; ++blockY) {
+          for (var blockX = 0; blockX < blockCountX; ++blockX) {
+            for (var yInBlock = 0; yInBlock < blockHeight; ++yInBlock) {
+              var y = blockY * blockHeight + yInBlock;
+              for (var xInBlock = 0; xInBlock < blockWidth; ++xInBlock) {
+                var x = blockX * blockWidth + xInBlock;
 
-                  var intensity = er.ReadByte();
-
-                  var i = 4 * (y * width + x);
-
-                  ptr[i + 0] = intensity;
-                  ptr[i + 1] = intensity;
-                  ptr[i + 2] = intensity;
-                  ptr[i + 3] = 255;
-                }
+                var intensity = er.ReadByte();
+                setHandler(x, y, intensity);
               }
             }
           }
@@ -496,43 +484,31 @@ namespace modl.schema.res.texr {
       return image;
     }
 
-    private Image ReadI4_(EndianBinaryReader er, uint width, uint height) {
+    private IImage ReadI4_(EndianBinaryReader er, uint width, uint height) {
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height / 2);
 
-      var image = new Bitmap((int) width, (int) height);
-      BitmapUtil.InvokeAsLocked(image, bmpData => {
-        unsafe {
-          var blockWidth = 8;
-          var blockHeight = 8;
+      var image = new I8Image((int) width, (int) height);
+      image.Mutate((_, setHandler) => {
+        var blockWidth = 8;
+        var blockHeight = 8;
 
-          var blockCountX = width / blockWidth;
-          var blockCountY = height / blockHeight;
+        var blockCountX = width / blockWidth;
+        var blockCountY = height / blockHeight;
 
-          var ptr = (byte*) bmpData.Scan0;
-          for (var blockY = 0; blockY < blockCountY; ++blockY) {
-            for (var blockX = 0; blockX < blockCountX; ++blockX) {
-              for (var yInBlock = 0; yInBlock < blockHeight; ++yInBlock) {
-                var y = blockY * blockHeight + yInBlock;
-                for (var xInBlock = 0; xInBlock < blockWidth; xInBlock += 2) {
-                  var x = blockX * blockWidth + xInBlock;
+        for (var blockY = 0; blockY < blockCountY; ++blockY) {
+          for (var blockX = 0; blockX < blockCountX; ++blockX) {
+            for (var yInBlock = 0; yInBlock < blockHeight; ++yInBlock) {
+              var y = blockY * blockHeight + yInBlock;
+              for (var xInBlock = 0; xInBlock < blockWidth; xInBlock += 2) {
+                var x = blockX * blockWidth + xInBlock;
 
-                  var color = er.ReadByte();
+                var color = er.ReadByte();
 
-                  var intensity1 = ColorUtil.ExtractScaled(color, 4, 4);
-                  var intensity2 = ColorUtil.ExtractScaled(color, 0, 4);
+                var intensity1 = ColorUtil.ExtractScaled(color, 4, 4);
+                var intensity2 = ColorUtil.ExtractScaled(color, 0, 4);
 
-                  var i = 4 * (y * width + x);
-
-                  ptr[i + 0] = intensity1;
-                  ptr[i + 1] = intensity1;
-                  ptr[i + 2] = intensity1;
-                  ptr[i + 3] = 255;
-
-                  ptr[i + 4] = intensity2;
-                  ptr[i + 5] = intensity2;
-                  ptr[i + 6] = intensity2;
-                  ptr[i + 7] = 255;
-                }
+                setHandler(x, y, intensity1);
+                setHandler(x + 1, y, intensity2);
               }
             }
           }
@@ -543,5 +519,5 @@ namespace modl.schema.res.texr {
     }
   }
 
-  public record BwTexture(string Name, Image Image);
+  public record BwTexture(string Name, IImage Image);
 }
