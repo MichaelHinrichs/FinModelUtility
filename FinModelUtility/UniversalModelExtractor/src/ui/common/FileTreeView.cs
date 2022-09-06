@@ -9,7 +9,28 @@ using fin.util.asserts;
 
 
 namespace uni.ui.common {
-  public abstract partial class FileTreeView<TFile, TFiles> : UserControl
+  public interface IFileTreeView<TFile> {
+    public delegate void FileSelectedHandler(IFileTreeNode<TFile> fileNode);
+
+    event FileSelectedHandler FileSelected;
+
+
+    public delegate void DirectorySelectedHandler(
+        IFileTreeNode<TFile> directoryNode);
+
+    event DirectorySelectedHandler DirectorySelected;
+  }
+
+  public interface IFileTreeNode<TFile> {
+    TFile? File { get; }
+
+    IFileTreeNode<TFile>? Parent { get; }
+    IEnumerable<IFileTreeNode<TFile>> Children { get; }
+  }
+
+
+  public abstract partial class FileTreeView<TFile, TFiles> : UserControl,
+      IFileTreeView<TFile>
       where TFile : notnull, IUiFile where TFiles : notnull {
     // TODO: Add tests.
     // TODO: Move the fuzzy logic to a separate reusable component.
@@ -37,12 +58,16 @@ namespace uni.ui.common {
           return keywords;
         });
 
-    public delegate void FileSelectedHandler(TFile file);
+    public event IFileTreeView<TFile>.FileSelectedHandler FileSelected =
+        delegate { };
 
-    public event FileSelectedHandler FileSelected = delegate { };
+
+    public event IFileTreeView<TFile>.DirectorySelectedHandler
+        DirectorySelected = delegate { };
+
 
     // TODO: Clean this up.
-    protected class FileNode {
+    protected class FileNode : IFileTreeNode<TFile> {
       private static readonly Assembly assembly_ =
           Assembly.GetExecutingAssembly();
 
@@ -103,12 +128,15 @@ namespace uni.ui.common {
 
       public TFile? File { get; set; }
 
-      public FileNode? Parent => this.filterNode_.Parent?.Data;
+      public IFileTreeNode<TFile>? Parent => this.filterNode_.Parent?.Data;
       public float MatchPercentage => this.filterNode_.MatchPercentage;
       public IReadOnlySet<string> Keywords => this.filterNode_.Keywords;
 
       public FileNode AddChild(TFile file) => new(this, file);
       public FileNode AddChild(string text) => new(this, text);
+
+      public IEnumerable<IFileTreeNode<TFile>> Children
+        => this.filterNode_.Children.Select(fuzzyNode => fuzzyNode.Data);
 
       public void Expand() => this.treeNode_.Expand();
     }
@@ -120,14 +148,16 @@ namespace uni.ui.common {
 
       this.betterTreeView_ = new BetterTreeView<FileNode>(this.fileTreeView_);
       this.betterTreeView_.Selected += betterTreeNode => {
-        var associatedData = betterTreeNode.Data;
-        if (associatedData == null) {
+        var fileNode = betterTreeNode.Data;
+        if (fileNode == null) {
           return;
         }
 
-        var selectedFile = associatedData.File;
+        var selectedFile = fileNode.File;
         if (selectedFile != null) {
-          this.FileSelected.Invoke(selectedFile);
+          this.FileSelected.Invoke(fileNode);
+        } else {
+          this.DirectorySelected.Invoke(fileNode);
         }
       };
     }

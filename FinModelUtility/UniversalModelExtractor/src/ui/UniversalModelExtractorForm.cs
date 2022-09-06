@@ -14,7 +14,11 @@ using cmb.api;
 
 using dat.api;
 
+using fin.util.asserts;
+
 using hw.api;
+
+using uni.ui.common;
 
 
 namespace uni.ui {
@@ -32,12 +36,19 @@ namespace uni.ui {
       this.modelFileTreeView_.Populate(
           new RootModelFileGatherer().GatherAllModelFiles());
 
+      this.modelFileTreeView_.DirectorySelected += this.OnDirectorySelect_;
       this.modelFileTreeView_.FileSelected += this.OnFileSelect_;
     }
 
-    private void OnFileSelect_(IModelFileBundle modelFileBundle) {
-      var model = this.LoadModel_(modelFileBundle);
-      this.modelToolStrip1.Model = model;
+    private void OnDirectorySelect_(
+        IFileTreeNode<IModelFileBundle> directoryNode) {
+      this.modelToolStrip_.Directory = directoryNode;
+    }
+
+    private void OnFileSelect_(IFileTreeNode<IModelFileBundle> fileNode) {
+      var model = this.LoadModel_(Asserts.CastNonnull(fileNode.File));
+      this.modelToolStrip_.Directory = fileNode.Parent;
+      this.modelToolStrip_.Model = model;
       this.modelViewerGlPanel_.Model = model;
       this.modelTabs_.Model = model;
     }

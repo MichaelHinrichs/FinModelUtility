@@ -36,7 +36,7 @@ namespace uni.ui {
       this.modelTabs_ = new uni.ui.right_panel.ModelTabs();
       this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.modelToolStrip1 = new uni.src.ui.top.ModelToolStrip();
+      this.modelToolStrip_ = new uni.src.ui.top.ModelToolStrip();
       splitContainer1 = new System.Windows.Forms.SplitContainer();
       splitContainer2 = new System.Windows.Forms.SplitContainer();
       menuStrip = new System.Windows.Forms.MenuStrip();
@@ -147,11 +147,11 @@ namespace uni.ui {
       // 
       // modelToolStrip1
       // 
-      this.modelToolStrip1.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.modelToolStrip1.Location = new System.Drawing.Point(0, 0);
-      this.modelToolStrip1.Name = "modelToolStrip1";
-      this.modelToolStrip1.Size = new System.Drawing.Size(1013, 25);
-      this.modelToolStrip1.TabIndex = 3;
+      this.modelToolStrip_.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.modelToolStrip_.Location = new System.Drawing.Point(0, 0);
+      this.modelToolStrip_.Name = "modelToolStrip_";
+      this.modelToolStrip_.Size = new System.Drawing.Size(1013, 25);
+      this.modelToolStrip_.TabIndex = 3;
       // 
       // splitContainer3
       // 
@@ -164,7 +164,7 @@ namespace uni.ui {
       // 
       // splitContainer3.Panel1
       // 
-      splitContainer3.Panel1.Controls.Add(this.modelToolStrip1);
+      splitContainer3.Panel1.Controls.Add(this.modelToolStrip_);
       // 
       // splitContainer3.Panel2
       // 
@@ -212,6 +212,6 @@ namespace uni.ui {
     private SplitContainer splitContainer1;
     private ModelFileTreeView modelFileTreeView_;
     private ModelTabs modelTabs_;
-    private src.ui.top.ModelToolStrip modelToolStrip1;
+    private src.ui.top.ModelToolStrip modelToolStrip_;
   }
 }
