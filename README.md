@@ -43,6 +43,8 @@ Command-line tools for extracting models from games en-masse. Separate batch scr
   - Super Mario Sunshine (`super_mario_sunshine.gcm`)
 - .cmb (3DS)
   - Ocarina of Time 3D (`ocarina_of_time_3d.cia`)
+- .glo (PC)
+  - Glover (Steam)
 - .mod (GCN)
   - Pikmin 1 (`pikmin_1.gcm`)
 - .modl (GCN/WII)
