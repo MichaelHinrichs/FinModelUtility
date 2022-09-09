@@ -1,5 +1,9 @@
 # Fin Model Utility
 
+![example workflow](https://github.com/MeltyPlayer/FinModelUtility/actions/workflows/dotnet-desktop.yml/badge.svg)
+
+## Overview
+
 Command-line tools for extracting models from games en-masse. Separate batch scripts are provided for each supported game in order to simplify the process.
 
 ## Credits
