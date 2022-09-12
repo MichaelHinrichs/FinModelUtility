@@ -13,11 +13,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MKDS Course Modifier Tests", "MKDS Course Modifier Tests\MKDS Course Modifier Tests.csproj", "{622FBBAE-DC3C-4B74-BB1E-B1505D3651A5}"
-	ProjectSection(ProjectDependencies) = postProject
-		{86022D00-3FF6-4C1C-A0E4-CF0A96BF9897} = {86022D00-3FF6-4C1C-A0E4-CF0A96BF9897}
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fin", "Fin\Fin.csproj", "{48B6183A-CF51-42A4-889E-A75DA704D71D}"
 EndProject
 Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "Utility of Time", "Utility of Time\Utility of Time.vbproj", "{99CEE4F4-041C-4147-AE4F-5E11988AE392}"
@@ -79,7 +74,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gx", "Gx\Gx.csproj", "{C606
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Asserts", "Asserts\Asserts.csproj", "{7627A0BE-007E-4040-AA94-4F59C38EAD86}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Granny3d", "Granny3d\Granny3d.csproj", "{45DDB2A3-3AC0-43A9-AA11-F93FF020B218}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Granny3d", "Granny3d\Granny3d.csproj", "{45DDB2A3-3AC0-43A9-AA11-F93FF020B218}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -103,18 +98,6 @@ Global
 		{86022D00-3FF6-4C1C-A0E4-CF0A96BF9897}.Release|x64.Build.0 = Release|x64
 		{86022D00-3FF6-4C1C-A0E4-CF0A96BF9897}.Release|x86.ActiveCfg = Release|Any CPU
 		{86022D00-3FF6-4C1C-A0E4-CF0A96BF9897}.Release|x86.Build.0 = Release|Any CPU
-		{622FBBAE-DC3C-4B74-BB1E-B1505D3651A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{622FBBAE-DC3C-4B74-BB1E-B1505D3651A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{622FBBAE-DC3C-4B74-BB1E-B1505D3651A5}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{622FBBAE-DC3C-4B74-BB1E-B1505D3651A5}.Debug|x64.Build.0 = Debug|Any CPU
-		{622FBBAE-DC3C-4B74-BB1E-B1505D3651A5}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{622FBBAE-DC3C-4B74-BB1E-B1505D3651A5}.Debug|x86.Build.0 = Debug|Any CPU
-		{622FBBAE-DC3C-4B74-BB1E-B1505D3651A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{622FBBAE-DC3C-4B74-BB1E-B1505D3651A5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{622FBBAE-DC3C-4B74-BB1E-B1505D3651A5}.Release|x64.ActiveCfg = Release|Any CPU
-		{622FBBAE-DC3C-4B74-BB1E-B1505D3651A5}.Release|x64.Build.0 = Release|Any CPU
-		{622FBBAE-DC3C-4B74-BB1E-B1505D3651A5}.Release|x86.ActiveCfg = Release|Any CPU
-		{622FBBAE-DC3C-4B74-BB1E-B1505D3651A5}.Release|x86.Build.0 = Release|Any CPU
 		{48B6183A-CF51-42A4-889E-A75DA704D71D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{48B6183A-CF51-42A4-889E-A75DA704D71D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48B6183A-CF51-42A4-889E-A75DA704D71D}.Debug|x64.ActiveCfg = Debug|Any CPU
