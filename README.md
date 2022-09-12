@@ -2,7 +2,7 @@
 
 ![GitHub](https://img.shields.io/github/license/MeltyPlayer/FinModelUtility)
 ![Unit tests](https://github.com/MeltyPlayer/FinModelUtility/actions/workflows/dotnet.yml/badge.svg)
-[![Coverage Status](https://coveralls.io/repos/github/MeltyPlayer/FinModelUtility/badge.svg?branch=main)](https://coveralls.io/github/MeltyPlayer/FinModelUtility?branch=main)
+[![Coverage Status](https://coveralls.io/repos/github/MeltyPlayer/FinModelUtility/badge.svg)](https://coveralls.io/github/MeltyPlayer/FinModelUtility)
 
 ## Overview
 
