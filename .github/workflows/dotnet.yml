@@ -30,9 +30,8 @@ jobs:
 
     - name: Run Coverlet
       uses: b3b00/coverlet-action@1.1.9
-      working-directory: FinModelUtility
       with:
-        testProject:
+        testProject: 'FinModelUtility/FinModelUtility.sln'
         output: 'lcov.info'
         outputFormat: 'lcov'
         excludes: '[program]*,[test]test.*'
