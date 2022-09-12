@@ -30,6 +30,7 @@ jobs:
 
     - name: Run Coverlet
       uses: b3b00/coverlet-action@1.1.9
+      working-directory: FinModelUtility
       with:
         testProject:
         output: 'lcov.info'
@@ -37,8 +38,6 @@ jobs:
         excludes: '[program]*,[test]test.*'
         threshold: 0
         
-    - name: Aggregate LCOV results
-      uses: RauliL/lerna-lcov-aggregate-action@master
     - name: Coveralls
       uses: coverallsapp/github-action@master
       with:
