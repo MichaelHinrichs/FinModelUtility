@@ -61,6 +61,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Asserts", "Asserts\Asserts.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Granny3d", "Granny3d\Granny3d.csproj", "{45DDB2A3-3AC0-43A9-AA11-F93FF020B218}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glo Tests", "Glo Tests\Glo Tests.csproj", "{3071C4CC-A1CE-4211-9612-C366AA0CCE3D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -287,6 +289,18 @@ Global
 		{45DDB2A3-3AC0-43A9-AA11-F93FF020B218}.Release|x64.Build.0 = Release|Any CPU
 		{45DDB2A3-3AC0-43A9-AA11-F93FF020B218}.Release|x86.ActiveCfg = Release|Any CPU
 		{45DDB2A3-3AC0-43A9-AA11-F93FF020B218}.Release|x86.Build.0 = Release|Any CPU
+		{3071C4CC-A1CE-4211-9612-C366AA0CCE3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3071C4CC-A1CE-4211-9612-C366AA0CCE3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3071C4CC-A1CE-4211-9612-C366AA0CCE3D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3071C4CC-A1CE-4211-9612-C366AA0CCE3D}.Debug|x64.Build.0 = Debug|Any CPU
+		{3071C4CC-A1CE-4211-9612-C366AA0CCE3D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3071C4CC-A1CE-4211-9612-C366AA0CCE3D}.Debug|x86.Build.0 = Debug|Any CPU
+		{3071C4CC-A1CE-4211-9612-C366AA0CCE3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3071C4CC-A1CE-4211-9612-C366AA0CCE3D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3071C4CC-A1CE-4211-9612-C366AA0CCE3D}.Release|x64.ActiveCfg = Release|Any CPU
+		{3071C4CC-A1CE-4211-9612-C366AA0CCE3D}.Release|x64.Build.0 = Release|Any CPU
+		{3071C4CC-A1CE-4211-9612-C366AA0CCE3D}.Release|x86.ActiveCfg = Release|Any CPU
+		{3071C4CC-A1CE-4211-9612-C366AA0CCE3D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

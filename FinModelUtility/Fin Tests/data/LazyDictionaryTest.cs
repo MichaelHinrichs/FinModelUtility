@@ -1,4 +1,6 @@
-﻿using fin.util.strings;
+﻿using System;
+
+using fin.util.strings;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -52,19 +54,14 @@ namespace fin.data {
 
     [TestMethod]
     public void TestSettingValuesDirectly() {
-      var invokeCount = 0;
-      var lazyReverseMap = new LazyDictionary<string, string>(inStr => {
-        invokeCount++;
-        return inStr.Reverse();
-      });
+      var lazyReverseMap = new LazyDictionary<string, string>(
+          _ => throw new NotImplementedException());
 
       Assert.AreEqual(0, lazyReverseMap.Count);
-      Assert.AreEqual(0, invokeCount);
 
       lazyReverseMap["reverse"] = "esrever";
       Assert.AreEqual("esrever", lazyReverseMap["reverse"]);
       Assert.AreEqual(1, lazyReverseMap.Count);
-      Assert.AreEqual(0, invokeCount);
     }
 
     [TestMethod]
