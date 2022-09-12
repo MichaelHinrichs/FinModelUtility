@@ -20,16 +20,25 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
       working-directory: FinModelUtility
+
     - name: Build
       run: dotnet build --no-restore
       working-directory: FinModelUtility
- 
     - name: Test
       run: dotnet test --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=lcov
       working-directory: FinModelUtility     
-    - name: Aggregate LCOV results
-      uses: RauliL/lerna-lcov-aggregate-action@master      
+
+    - name: Set Up NPM
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+    - name: Install 'lcov-result-merger'
+      run: npm i -g lcov-result-merger
+    - name: Merge Test Coverage
+      run: lcov-result-merger "**/coverage.info" "lcov.info"
+
     - name: Coveralls
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: lcov.info
