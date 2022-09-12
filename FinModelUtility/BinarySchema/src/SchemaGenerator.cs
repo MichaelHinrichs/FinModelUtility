@@ -21,12 +21,12 @@ namespace schema {
     private void Generate_(ISchemaStructure structure) {
       var readerCode = this.readerImpl_.Generate(structure);
       this.context_.Value.AddSource(
-          SymbolTypeUtil.GetQualifiedName(structure.TypeSymbol) + "_reader",
+          SymbolTypeUtil.GetQualifiedName(structure.TypeSymbol) + "_reader.g",
           readerCode);
 
       var writerCode = this.writerImpl_.Generate(structure);
       this.context_.Value.AddSource(
-          SymbolTypeUtil.GetQualifiedName(structure.TypeSymbol) + "_writer",
+          SymbolTypeUtil.GetQualifiedName(structure.TypeSymbol) + "_writer.g",
           writerCode);
     }
 
