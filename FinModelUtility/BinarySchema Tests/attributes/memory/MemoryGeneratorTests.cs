@@ -3,7 +3,7 @@
 
 namespace schema.attributes.memory {
   internal class MemoryGeneratorTests {
-    [Test]
+    /*[Test]
     public void TestOtherFieldBlock() {
       SchemaTestUtil.AssertGenerated(@"
 using schema;
@@ -57,6 +57,6 @@ namespace foo.bar {
   }
 }
 ");
-    }
+    }*/
   }
 }

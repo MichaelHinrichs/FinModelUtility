@@ -2,12 +2,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MKDS Course Modifier", "MKDS Course Modifier\MKDS Course Modifier.csproj", "{86022D00-3FF6-4C1C-A0E4-CF0A96BF9897}"
-	ProjectSection(ProjectDependencies) = postProject
-		{48B6183A-CF51-42A4-889E-A75DA704D71D} = {48B6183A-CF51-42A4-889E-A75DA704D71D}
-		{E794C24F-B285-4BBD-9388-35382AB1A1B4} = {E794C24F-B285-4BBD-9388-35382AB1A1B4}
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8F02AE47-B319-4BCB-B7EE-FDECAA487C0B}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
@@ -21,8 +15,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utility of Time CSharp", "U
 	ProjectSection(ProjectDependencies) = postProject
 		{48B6183A-CF51-42A4-889E-A75DA704D71D} = {48B6183A-CF51-42A4-889E-A75DA704D71D}
 	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utility of Time CSharp Tests", "Utility of Time CSharp Tests\Utility of Time CSharp Tests.csproj", "{AE0E039F-94BB-4A04-9C69-BA6A8B4DC475}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fin Tests", "Fin Tests\Fin Tests.csproj", "{8D0572E4-4867-4AB4-B0C3-AE0BDDD3FEC6}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -86,18 +78,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{86022D00-3FF6-4C1C-A0E4-CF0A96BF9897}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{86022D00-3FF6-4C1C-A0E4-CF0A96BF9897}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{86022D00-3FF6-4C1C-A0E4-CF0A96BF9897}.Debug|x64.ActiveCfg = Debug|x64
-		{86022D00-3FF6-4C1C-A0E4-CF0A96BF9897}.Debug|x64.Build.0 = Debug|x64
-		{86022D00-3FF6-4C1C-A0E4-CF0A96BF9897}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{86022D00-3FF6-4C1C-A0E4-CF0A96BF9897}.Debug|x86.Build.0 = Debug|Any CPU
-		{86022D00-3FF6-4C1C-A0E4-CF0A96BF9897}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{86022D00-3FF6-4C1C-A0E4-CF0A96BF9897}.Release|Any CPU.Build.0 = Release|Any CPU
-		{86022D00-3FF6-4C1C-A0E4-CF0A96BF9897}.Release|x64.ActiveCfg = Release|x64
-		{86022D00-3FF6-4C1C-A0E4-CF0A96BF9897}.Release|x64.Build.0 = Release|x64
-		{86022D00-3FF6-4C1C-A0E4-CF0A96BF9897}.Release|x86.ActiveCfg = Release|Any CPU
-		{86022D00-3FF6-4C1C-A0E4-CF0A96BF9897}.Release|x86.Build.0 = Release|Any CPU
 		{48B6183A-CF51-42A4-889E-A75DA704D71D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{48B6183A-CF51-42A4-889E-A75DA704D71D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48B6183A-CF51-42A4-889E-A75DA704D71D}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -134,18 +114,6 @@ Global
 		{089C1412-5CCA-4E35-A3A9-13BB34071E8C}.Release|x64.Build.0 = Release|Any CPU
 		{089C1412-5CCA-4E35-A3A9-13BB34071E8C}.Release|x86.ActiveCfg = Release|Any CPU
 		{089C1412-5CCA-4E35-A3A9-13BB34071E8C}.Release|x86.Build.0 = Release|Any CPU
-		{AE0E039F-94BB-4A04-9C69-BA6A8B4DC475}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AE0E039F-94BB-4A04-9C69-BA6A8B4DC475}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AE0E039F-94BB-4A04-9C69-BA6A8B4DC475}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{AE0E039F-94BB-4A04-9C69-BA6A8B4DC475}.Debug|x64.Build.0 = Debug|Any CPU
-		{AE0E039F-94BB-4A04-9C69-BA6A8B4DC475}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{AE0E039F-94BB-4A04-9C69-BA6A8B4DC475}.Debug|x86.Build.0 = Debug|Any CPU
-		{AE0E039F-94BB-4A04-9C69-BA6A8B4DC475}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AE0E039F-94BB-4A04-9C69-BA6A8B4DC475}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AE0E039F-94BB-4A04-9C69-BA6A8B4DC475}.Release|x64.ActiveCfg = Release|Any CPU
-		{AE0E039F-94BB-4A04-9C69-BA6A8B4DC475}.Release|x64.Build.0 = Release|Any CPU
-		{AE0E039F-94BB-4A04-9C69-BA6A8B4DC475}.Release|x86.ActiveCfg = Release|Any CPU
-		{AE0E039F-94BB-4A04-9C69-BA6A8B4DC475}.Release|x86.Build.0 = Release|Any CPU
 		{8D0572E4-4867-4AB4-B0C3-AE0BDDD3FEC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8D0572E4-4867-4AB4-B0C3-AE0BDDD3FEC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D0572E4-4867-4AB4-B0C3-AE0BDDD3FEC6}.Debug|x64.ActiveCfg = Debug|Any CPU

@@ -9,7 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 
 namespace fin.language.equations.fixedFunction {
-  [TestClass]
+  /*[TestClass]
   public class FixedFunctionEquationsGlslPrinterTest {
     [TestMethod]
     public void TestScalarColor() {
@@ -77,5 +77,5 @@ void main() {
 
       Assert.AreEqual(expectedText, actualText);
     }
-  }
+  }*/
 }

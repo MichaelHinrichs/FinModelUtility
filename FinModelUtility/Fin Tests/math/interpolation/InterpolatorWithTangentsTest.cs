@@ -26,7 +26,7 @@ namespace fin.math.interpolation {
                           toTime));
     }
 
-    [TestMethod]
+    /*[TestMethod]
     public void TestLinearInterpolation() {
       var fromTime = 1;
       var fromValue = 2;
@@ -47,6 +47,6 @@ namespace fin.math.interpolation {
 
         Assert.AreEqual(expectedValue, actualValue, .001);
       }
-    }
+    }*/
   }
 }

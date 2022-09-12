@@ -1,4 +1,7 @@
 using System.IO;
+using System.Threading.Tasks;
+
+using fin.schema.vector;
 
 using mod.schema.collision;
 
@@ -7,6 +10,7 @@ using NUnit.Framework;
 using schema;
 
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
+
 
 namespace mod.schema {
   public class Tests {
@@ -21,7 +25,7 @@ namespace mod.schema {
     [Test]
     public void TestCollGroup() {
       var collGroup = new CollGroup();
-      collGroup.unknown1 = new byte[] { 1, 2, 3, 4 };
+      collGroup.unknown1 = new byte[] {1, 2, 3, 4};
 
       TestGcnSerializableExisting(collGroup);
     }
@@ -40,14 +44,14 @@ namespace mod.schema {
       }
 
       var collGroup = new CollGroup();
-      collGroup.unknown1 = new byte[] {1 ,2, 3, 4};
+      collGroup.unknown1 = new byte[] {1, 2, 3, 4};
 
       collGrid.groups.Add(collGroup);
       collGrid.groups.Add(collGroup);
 
       TestGcnSerializableExisting(collGrid);
     }
-    
+
     /*[Test]
     public void TestEnvelope() => TestGcnSerializableSimple(new Envelope());*/
 
@@ -89,16 +93,16 @@ namespace mod.schema {
       };
 
       var meshPacket = new MeshPacket();
-      meshPacket.indices = new short[] { 3, 4 };
+      meshPacket.indices = new short[] {3, 4};
 
       var displayList = new DisplayList();
       displayList.flags.intView = 5;
       displayList.cmdCount = 6;
       displayList.dlistData.Add(7);
       displayList.dlistData.Add(8);
-      meshPacket.displaylists = new[] { displayList, displayList };
+      meshPacket.displaylists = new[] {displayList, displayList};
 
-      mesh.packets = new[] { meshPacket, meshPacket };
+      mesh.packets = new[] {meshPacket, meshPacket};
 
       TestGcnSerializableExisting(mesh);
     }
@@ -148,7 +152,7 @@ namespace mod.schema {
     [Test]
     public void TestVtxMatrix() => TestGcnSerializableSimple(new VtxMatrix());
 
-    public static void TestGcnSerializableSimple(
+    public static async void TestGcnSerializableSimple(
         IBiSerializable gcnSerializable) {
       var dataLen = 100;
       var inData = new byte[dataLen];
@@ -156,15 +160,20 @@ namespace mod.schema {
         inData[i] = (byte) i;
       }
 
-      using var reader = new EndianBinaryReader(new MemoryStream(inData));
+      using var reader =
+          new EndianBinaryReader(new MemoryStream(inData),
+                                 Endianness.BigEndian);
       gcnSerializable.Read(reader);
 
-      var outData = new byte[dataLen];
-      var writer = new EndianBinaryWriter(new MemoryStream(outData));
+      var writer = new EndianBinaryWriter(Endianness.BigEndian);
       gcnSerializable.Write(writer);
 
+      var outData = new byte[dataLen];
+      using var outStream = new MemoryStream(outData);
+      await writer.CompleteAndCopyToDelayed(outStream);
+
       Assert.AreEqual(reader.Position,
-                      writer.Position,
+                      outStream.Position,
                       "Expected reader and writer to move the same amount.");
       for (var i = 0; i < reader.Position; ++i) {
         Assert.AreEqual(inData[i],
@@ -173,23 +182,31 @@ namespace mod.schema {
       }
     }
 
-    public static void TestGcnSerializableExisting(
+    public static async void TestGcnSerializableExisting(
         IBiSerializable gcnSerializable) {
       var dataLen = 300;
-      var firstOutData = new byte[dataLen];
-      var firstWriter = new EndianBinaryWriter(new MemoryStream(firstOutData));
+      var firstWriter = new EndianBinaryWriter(Endianness.BigEndian);
       gcnSerializable.Write(firstWriter);
 
-      using var reader = new EndianBinaryReader(new MemoryStream(firstOutData));
+      var firstOutData = new byte[dataLen];
+      using var firstOutStream = new MemoryStream(firstOutData);
+      await firstWriter.CompleteAndCopyToDelayed(firstOutStream);
+
+      using var reader =
+          new EndianBinaryReader(new MemoryStream(firstOutData),
+                                 Endianness.BigEndian);
       gcnSerializable.Read(reader);
 
-      var secondOutData = new byte[dataLen];
       var secondWriter =
-          new EndianBinaryWriter(new MemoryStream(secondOutData));
+          new EndianBinaryWriter(Endianness.BigEndian);
       gcnSerializable.Write(secondWriter);
 
-      Assert.IsTrue(firstWriter.Position == reader.Position &&
-                    reader.Position == secondWriter.Position,
+      var secondOutData = new byte[dataLen];
+      using var secondOutStream = new MemoryStream(secondOutData);
+      await secondWriter.CompleteAndCopyToDelayed(secondOutStream);
+
+      Assert.IsTrue(firstOutStream.Position == reader.Position &&
+                    reader.Position == secondOutStream.Position,
                     "Expected all readers & writers to move the same amount.");
       for (var i = 0; i < reader.Position; ++i) {
         Assert.AreEqual(firstOutData[i],

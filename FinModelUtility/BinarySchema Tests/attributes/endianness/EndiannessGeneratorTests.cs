@@ -36,7 +36,7 @@ namespace foo.bar {
 ");
     }
 
-    [Test]
+    /*[Test]
     public void TestEndiannessOnField() {
       SchemaTestUtil.AssertGenerated(@"
 using System.IO;
@@ -131,6 +131,6 @@ namespace foo.bar {
   }
 }
 ");
-    }
+    }*/
   }
 }
