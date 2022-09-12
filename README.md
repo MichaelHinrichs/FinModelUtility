@@ -1,7 +1,6 @@
 # Fin Model Utility
 
 ![GitHub](https://img.shields.io/github/license/MeltyPlayer/FinModelUtility)
-![example workflow](https://github.com/MeltyPlayer/FinModelUtility/actions/workflows/dotnet-desktop.yml/badge.svg)
 ![Unit tests](https://github.com/MeltyPlayer/FinModelUtility/actions/workflows/dotnet.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/MeltyPlayer/FinModelUtility/badge.svg?branch=main)](https://coveralls.io/github/MeltyPlayer/FinModelUtility?branch=main)
 
