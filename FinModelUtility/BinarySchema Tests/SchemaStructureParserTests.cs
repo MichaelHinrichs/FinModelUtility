@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 using NUnit.Framework;
 
 namespace schema {
-  public partial class SchemaStructureParserTest {
+  public partial class SchemaStructureParserTests {
     [Test]
     public void TestByte() {
       var structure = SchemaTestUtil.Parse(@"

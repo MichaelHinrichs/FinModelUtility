@@ -1,7 +1,7 @@
 using NUnit.Framework;
 
 namespace schema {
-  public partial class SchemaStructureParserTest {
+  public partial class SchemaStructureParserTests {
     public class Array {
       [Test]
       public void TestMutableArrayWithoutLength() {

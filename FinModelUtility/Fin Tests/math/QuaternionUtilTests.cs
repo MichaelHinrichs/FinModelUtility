@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace fin.math {
   [TestClass]
-  public class QuaternionUtilTest {
+  public class QuaternionUtilTests {
     [TestMethod]
     public void ToEulerDegrees() {
       var degToRad = MathF.PI / 180;

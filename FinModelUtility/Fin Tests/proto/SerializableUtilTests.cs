@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace fin.proto {
   [TestClass]
-  public class SerializableUtilTest {
+  public class SerializableUtilTests {
     [StructLayout(LayoutKind.Sequential)]
     private class Int32Type {
       public Int32 a;

@@ -2,7 +2,7 @@
 
 namespace fin.math {
   [TestClass]
-  public class BitLogicTest {
+  public class BitLogicTests {
     [TestMethod]
     public void ExtractFromRight() {
       Assert.AreEqual((uint) 0b1111,

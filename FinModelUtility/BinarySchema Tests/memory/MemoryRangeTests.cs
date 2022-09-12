@@ -4,7 +4,7 @@ using schema.util;
 
 
 namespace schema.memory {
-  public class MemoryRangeTest {
+  public class MemoryRangeTests {
     [Test]
     public void TestCreateSubranges() {
       var memoryRange = new MemoryBlock(MemoryBlockType.FILE, 10);

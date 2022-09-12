@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace fin.language.equations.fixedFunctionOld {
   [TestClass]
-  public class FixedFunctionEquationsTest {
+  public class FixedFunctionEquationsTests {
     [TestMethod]
     public void TestInOutScalars() {
       var equations = new FixedFunctionEquations<string>();

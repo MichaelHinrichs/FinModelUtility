@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace fin.data {
   [TestClass]
-  public class LazyDictionaryTest {
+  public class LazyDictionaryTests {
     [TestMethod]
     public void TestWithKeyAndValueHandler() {
       var invokeCount = 0;

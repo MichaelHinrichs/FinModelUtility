@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 using NUnit.Framework;
 
 namespace schema.text {
-  public class SchemaReaderGeneratorTest {
+  public class SchemaReaderGeneratorTests {
     [SetUp]
     public void Setup() {}
 

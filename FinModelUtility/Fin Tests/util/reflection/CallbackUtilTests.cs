@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace fin.util.reflection {
   [TestClass]
-  public class CallbackUtilTest {
+  public class CallbackUtilTests {
     [TestMethod]
     public void TestGet1ParameterNameFromFunc() {
       Expect.AreArraysEqual(new[] {"test"},

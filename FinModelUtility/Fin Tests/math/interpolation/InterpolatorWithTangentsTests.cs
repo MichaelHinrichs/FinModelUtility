@@ -3,7 +3,7 @@
 
 namespace fin.math.interpolation {
   [TestClass]
-  public class InterpolatorWithTangentsTest {
+  public class InterpolatorWithTangentsTests {
     [TestMethod]
     public void TestInterpolationStartAndEnd() {
       var fromTime = 1;

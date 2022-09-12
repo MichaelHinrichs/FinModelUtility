@@ -1,5 +1,4 @@
 using System.IO;
-using System.Threading.Tasks;
 
 using fin.schema.vector;
 
@@ -13,7 +12,7 @@ using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 
 namespace mod.schema {
-  public class Tests {
+  public class GcnSerializablesTests {
     [Test]
     public void TestBaseCollTriInfo()
       => TestGcnSerializableSimple(new BaseCollTriInfo());

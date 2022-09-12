@@ -6,7 +6,7 @@ using fin.util.asserts;
 
 namespace fin.data {
   [TestClass]
-  public class AsyncCollectorTest {
+  public class AsyncCollectorTests {
     [TestMethod]
     public async Task TestToArray() {
       var collector = new AsyncCollector<string>();

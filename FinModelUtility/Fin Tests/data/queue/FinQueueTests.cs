@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace fin.data.queue {
   [TestClass]
-  public class FinQueueTest {
+  public class FinQueueTests {
     [TestMethod]
     public void TestEnqueueSeparately() {
       var queue = new FinQueue<string>();

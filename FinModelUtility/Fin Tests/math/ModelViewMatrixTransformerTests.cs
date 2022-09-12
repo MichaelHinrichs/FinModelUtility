@@ -1,12 +1,10 @@
 ﻿using System.Numerics;
 
-using fin.math.matrix;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace fin.math {
   [TestClass]
-  public class ModelViewMatrixTransformerTest {
+  public class ModelViewMatrixTransformerTests {
     [TestMethod]
     public void TestTranslate() {
       var t = new SoftwareModelViewMatrixTransformer2();

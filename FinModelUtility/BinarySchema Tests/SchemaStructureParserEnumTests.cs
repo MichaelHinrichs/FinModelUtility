@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 
 namespace schema {
-  public partial class SchemaStructureParserTest {
+  public partial class SchemaStructureParserTests {
     public class Enum {
       [Test]
       public void TestEnumWithFormat() {

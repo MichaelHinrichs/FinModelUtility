@@ -9,7 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace fin.language.equations.scalar {
   [TestClass]
-  public class ScalarEquationsTest {
+  public class ScalarEquationsTests {
     [TestMethod]
     public void TestInOut() {
       var equations = new ScalarEquations<string>();

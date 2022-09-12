@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 
 namespace schema.memory {
-  public class NestedRangesTest {
+  public class NestedRangesTests {
     [Test]
     public void TestClaimingChildrenWithin() {
       var nestedRanges = new NestedRanges<int>(-1, -1, 10);

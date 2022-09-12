@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace fin.math {
   [TestClass]
-  public class RadiansUtilTest {
+  public class RadiansUtilTests {
     [TestMethod]
     public void TestAngleDifference() {
       var pi = MathF.PI;

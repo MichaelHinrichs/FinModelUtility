@@ -2,7 +2,7 @@
 
 namespace fin.gl {
   [TestClass]
-  public class GlUtilTest {
+  public class GlUtilTests {
     [TestMethod]
     public void CrossProduct() {
       GlUtil.CrossProduct3(
