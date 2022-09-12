@@ -32,17 +32,17 @@ jobs:
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: 'FinModelUtility/BinarySchema Tests/TestResults/lcov.info'
+        path-to-lcov: 'FinModelUtility/BinarySchema Tests/TestResults/coverage.info'
         base-path: 'FinModelUtility/BinarySchema Tests'
     - name: Fin Coveralls
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: 'FinModelUtility/Fin Tests/TestResults/lcov.info'
+        path-to-lcov: 'FinModelUtility/Fin Tests/TestResults/coverage.info'
         base-path: 'FinModelUtility/Fin Tests'
     - name: Mod2Fbx Coveralls
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: 'FinModelUtility/Mod2Fbx Tests/TestResults/lcov.info'
+        path-to-lcov: 'FinModelUtility/Mod2Fbx Tests/TestResults/coverage.info'
         base-path: 'FinModelUtility/Mod2Fbx Tests'
