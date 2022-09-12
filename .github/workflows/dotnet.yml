@@ -26,3 +26,36 @@ jobs:
     - name: Test
       run: dotnet test --no-build --verbosity normal
       working-directory: FinModelUtility
+
+
+    - name: Run Coverlet (BinarySchema Tests)
+      uses: b3b00/coverlet-action@1.1.9
+      with:
+        testProject: 'FinModelUtility\BinarySchema Tests\BinarySchema Tests.csproj'
+        output: 'lcov.info'
+        outputFormat: 'lcov'
+        excludes: '[program]*,[test]test.*'
+        threshold: 0
+    - name: Run Coverlet (Fin Tests)
+      uses: b3b00/coverlet-action@1.1.9
+      with:
+        testProject: 'FinModelUtility\Fin Tests\Fin Tests.csproj'
+        output: 'lcov.info'
+        outputFormat: 'lcov'
+        excludes: '[program]*,[test]test.*'
+        threshold: 0
+    - name: Run Coverlet (Mod2Fbx Tests)
+      uses: b3b00/coverlet-action@1.1.9
+      with:
+        testProject: 'FinModelUtility\Mod2Fbx Tests\Mod2Fbx Tests.csproj'
+        output: 'lcov.info'
+        outputFormat: 'lcov'
+        excludes: '[program]*,[test]test.*'
+        threshold: 0
+        
+    - name: Aggregate LCOV results
+      uses: RauliL/lerna-lcov-aggregate-action@master
+    - name: Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
