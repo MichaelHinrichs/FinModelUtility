@@ -23,21 +23,13 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
       working-directory: FinModelUtility
+ 
     - name: Test
-      run: dotnet test --no-build --verbosity normal
-      working-directory: FinModelUtility
-
-
-    - name: Run Coverlet
-      uses: b3b00/coverlet-action@1.1.9
-      with:
-        testProject: 'FinModelUtility/FinModelUtility.sln'
-        output: 'lcov.info'
-        outputFormat: 'lcov'
-        excludes: '[program]*,[test]test.*'
-        threshold: 0
-        
+      run: dotnet test --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=lcov
+      working-directory: FinModelUtility     
+      
     - name: Coveralls
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: FeatureFlags/FeatureFlags.Tests/TestResults/coverage.info 
