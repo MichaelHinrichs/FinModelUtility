@@ -26,23 +26,19 @@ jobs:
       working-directory: FinModelUtility
     - name: Test
       run: dotnet test --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=lcov
-      working-directory: FinModelUtility     
+      working-directory: FinModelUtility
+      
+    - name: Set Up NPM
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+    - name: Install 'lcov-result-merger'
+      run: npm i -g lcov-result-merger
+    - name: Merge Test Coverage
+      run: lcov-result-merger "**/coverage.info" "lcov.info"
 
-    - name: BinarySchema Coveralls
+    - name: Upload to Coveralls
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: 'FinModelUtility/BinarySchema Tests/TestResults/coverage.info'
-        base-path: 'FinModelUtility/BinarySchema Tests'
-    - name: Fin Coveralls
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: 'FinModelUtility/Fin Tests/TestResults/coverage.info'
-        base-path: 'FinModelUtility/Fin Tests'
-    - name: Mod2Fbx Coveralls
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: 'FinModelUtility/Mod2Fbx Tests/TestResults/coverage.info'
-        base-path: 'FinModelUtility/Mod2Fbx Tests'
+        path-to-lcov: lcov.info
