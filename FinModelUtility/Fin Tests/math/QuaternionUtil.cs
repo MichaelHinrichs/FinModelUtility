@@ -1,7 +1,5 @@
 ﻿using System;
 
-using fin.util.asserts;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace fin.math {
