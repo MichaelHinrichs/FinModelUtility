@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 
 namespace fin.data {
@@ -12,6 +13,11 @@ namespace fin.data {
       this.impl_.Clear();
       this.nullImpl_.Clear();
     }
+
+    public int Count
+      => this.impl_.Values
+             .Select(list => list.Count)
+             .Sum() + this.nullImpl_.Count;
 
     public void Add(TKey key, TValue value) {
       IList<TValue> list;
@@ -39,6 +45,7 @@ namespace fin.data {
     }
 
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+
     public IEnumerator<KeyValuePair<TKey, IList<TValue>>> GetEnumerator() {
       foreach (var value in this.impl_) {
         yield return value;
