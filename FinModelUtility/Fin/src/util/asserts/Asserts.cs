@@ -4,30 +4,29 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace fin.util.asserts {
-  public class Asserts {
-    /**
-     * NOTE: Using $"" to define messages allocates strings, and can be expensive!
-     * Try to avoid allocating strings unless an assertion actually fails.
-     */
+  /**
+   * NOTE: Using $"" to define messages allocates strings, and can be expensive!
+   * Try to avoid allocating strings unless an assertion actually fails.
+   */
+  public class AssertionException : Exception {
+    public AssertionException(string message) : base(message) { }
 
-    private class AssertionException : Exception {
-      public AssertionException(string message) : base(message) {}
+    public override string StackTrace {
+      get {
+        List<string> stackTrace = new List<string>();
+        stackTrace.AddRange(base.StackTrace!.Split(
+                                new string[] { Environment.NewLine },
+                                StringSplitOptions.None));
 
-      public override string StackTrace {
-        get {
-          List<string> stackTrace = new List<string>();
-          stackTrace.AddRange(base.StackTrace!.Split(
-                                  new string[] { Environment.NewLine },
-                                  StringSplitOptions.None));
+        var assertLine = new Regex("\\s*Asserts\\.");
+        stackTrace.RemoveAll(x => assertLine.IsMatch(x));
 
-          var assertLine = new Regex("\\s*Asserts\\.");
-          stackTrace.RemoveAll(x => assertLine.IsMatch(x));
-
-          return string.Join(Environment.NewLine, stackTrace.ToArray());
-        }
+        return string.Join(Environment.NewLine, stackTrace.ToArray());
       }
     }
+  }
 
+  public class Asserts {
     public static bool Fail(string? message = null)
       => throw new AssertionException(message ?? "Failed.");
 
