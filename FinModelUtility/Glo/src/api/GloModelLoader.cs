@@ -1,7 +1,4 @@
-﻿using System.Drawing;
-using System.Drawing.Imaging;
-
-using fin.io;
+﻿using fin.io;
 using fin.math;
 using fin.model;
 using fin.model.impl;
@@ -14,7 +11,6 @@ using fin.color;
 using fin.data;
 using fin.image;
 using fin.util.asserts;
-using fin.util.image;
 
 
 namespace glo.api {
