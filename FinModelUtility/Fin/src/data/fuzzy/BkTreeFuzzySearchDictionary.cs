@@ -11,9 +11,9 @@ namespace fin.data.fuzzy {
       => this.impl_.Add(keyword, associatedData);
 
     public IEnumerable<IFuzzySearchResult<T>> Search(
-        string keyword,
+        string filterText,
         float minMatchPercentage)
-      => this.impl_.Search(keyword, minMatchPercentage * 100)
+      => this.impl_.Search(filterText, minMatchPercentage * 100)
              .Select(searchResult
                          => new BkTreeFuzzySearchResult(
                              searchResult.AssociatedData,

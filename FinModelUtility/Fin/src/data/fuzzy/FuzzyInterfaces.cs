@@ -14,7 +14,7 @@ namespace fin.data.fuzzy {
     void Add(string keyword, T data);
 
     IEnumerable<IFuzzySearchResult<T>> Search(
-        string keyword,
+        string filterText,
         float minMatchPercentage);
   }
 

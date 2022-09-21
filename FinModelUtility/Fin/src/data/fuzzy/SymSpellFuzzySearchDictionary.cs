@@ -37,12 +37,12 @@ namespace fin.data.fuzzy {
     }
 
     public IEnumerable<IFuzzySearchResult<T>> Search(
-        string keyword,
+        string filterText,
         float minMatchPercentage) {
       // TODO: Use minMatchPercentage.
 
       // 1) Split up keyword into tokens.
-      var tokens = this.Tokenize_(keyword);
+      var tokens = this.Tokenize_(filterText);
       var inverseTokenCount = 1f / tokens.Count();
 
       // TODO: Possible to do some of these lookups in O(1) time?
@@ -61,7 +61,7 @@ namespace fin.data.fuzzy {
           var matchPercentage = (1 -
                                  (1f * match.distance) /
                                  Math.Max(matchedKeyword.Length,
-                                          keyword.Length)) *
+                                          filterText.Length)) *
                                 100;
 
           foreach (var associatedData in this.associatedData_[matchedKeyword]) {
