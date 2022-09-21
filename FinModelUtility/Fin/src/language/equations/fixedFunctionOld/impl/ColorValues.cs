@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Drawing;
 using System.Linq;
-
 using fin.util.asserts;
 using fin.util.data;
 
+
 namespace fin.language.equations.fixedFunctionOld {
   // TODO: Optimize this.
-  public partial class FixedFunctionEquations<TIdentifier> {
+  public partial class FixedFunctionEquations<TIdentifier>
+      where TIdentifier : notnull {
     private readonly Dictionary<TIdentifier, IColorInput<TIdentifier>>
         colorInputs_ = new();
 
@@ -129,8 +129,8 @@ namespace fin.language.equations.fixedFunctionOld {
 
 
     private class ColorNamedValueSwizzle : BScalarValue,
-                                           IColorNamedValueSwizzle<
-                                               TIdentifier> {
+        IColorNamedValueSwizzle<
+            TIdentifier> {
       public ColorNamedValueSwizzle(
           IColorNamedValue<TIdentifier> source,
           ColorSwizzle swizzleType) {

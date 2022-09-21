@@ -138,7 +138,6 @@ namespace cmb.schema.cmb {
                 }
                 case GlTextureFormat.HiLo8: {
                   throw new NotImplementedException();
-                  break;
                 }
                 case GlTextureFormat.A8: {
                   a = er.ReadByte();
@@ -149,15 +148,12 @@ namespace cmb.schema.cmb {
                 }
                 case GlTextureFormat.LA4: {
                   throw new NotImplementedException();
-                  break;
                 }
                 case GlTextureFormat.L4: {
                   throw new NotImplementedException();
-                  break;
                 }
                 case GlTextureFormat.A4: {
                   throw new NotImplementedException();
-                  break;
                 }
                 case GlTextureFormat.L8:
                 case GlTextureFormat.Gas:

@@ -1,6 +1,6 @@
 ﻿using System;
-
 using Microsoft.CodeAnalysis;
+using schema.util;
 
 
 namespace schema.text {
@@ -127,7 +127,8 @@ namespace schema.text {
     private static void WritePrimitive_(
         ICurlyBracketStringBuilder cbsb,
         ISchemaMember member) {
-      var primitiveType = member.MemberType as IPrimitiveMemberType;
+      var primitiveType =
+          Asserts.CastNonnull(member.MemberType as IPrimitiveMemberType);
 
       if (primitiveType.PrimitiveType == SchemaPrimitiveType.BOOLEAN) {
         SchemaWriterGenerator.WriteBoolean_(cbsb, member);
@@ -160,7 +161,8 @@ namespace schema.text {
     private static void WriteBoolean_(
         ICurlyBracketStringBuilder cbsb,
         ISchemaMember member) {
-      var primitiveType = member.MemberType as IPrimitiveMemberType;
+      var primitiveType =
+          Asserts.CastNonnull(member.MemberType as IPrimitiveMemberType);
 
       var writeType = SchemaGeneratorUtil.GetPrimitiveLabel(
           SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(
@@ -175,7 +177,7 @@ namespace schema.text {
     private static void WriteString_(
         ICurlyBracketStringBuilder cbsb,
         ISchemaMember member) {
-      var stringType = member.MemberType as IStringType;
+      var stringType = Asserts.CastNonnull(member.MemberType as IStringType);
 
       if (stringType.LengthSourceType ==
           StringLengthSourceType.NULL_TERMINATED) {
@@ -199,7 +201,8 @@ namespace schema.text {
         ICurlyBracketStringBuilder cbsb,
         ITypeSymbol sourceSymbol,
         ISchemaMember member) {
-      var arrayType = member.MemberType as ISequenceMemberType;
+      var arrayType =
+          Asserts.CastNonnull(member.MemberType as ISequenceMemberType);
       if (arrayType.LengthSourceType != SequenceLengthSourceType.CONST) {
         var isImmediate =
             arrayType.LengthSourceType ==
@@ -230,7 +233,8 @@ namespace schema.text {
         ICurlyBracketStringBuilder cbsb,
         ITypeSymbol sourceSymbol,
         ISchemaMember member) {
-      var arrayType = member.MemberType as ISequenceMemberType;
+      var arrayType =
+          Asserts.CastNonnull(member.MemberType as ISequenceMemberType);
 
       var elementType = arrayType.ElementType;
       if (elementType is IGenericMemberType genericElementType) {

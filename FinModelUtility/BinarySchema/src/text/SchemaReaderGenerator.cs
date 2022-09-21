@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Text;
-
 using Microsoft.CodeAnalysis;
+using schema.util;
 
 
 namespace schema.text {
@@ -160,7 +159,8 @@ namespace schema.text {
         ICurlyBracketStringBuilder cbsb,
         ITypeSymbol sourceSymbol,
         ISchemaMember member) {
-      var primitiveType = member.MemberType as IPrimitiveMemberType;
+      var primitiveType =
+          Asserts.CastNonnull(member.MemberType as IPrimitiveMemberType);
 
       if (primitiveType.PrimitiveType == SchemaPrimitiveType.BOOLEAN) {
         SchemaReaderGenerator.ReadBoolean_(cbsb, member);
@@ -206,7 +206,8 @@ namespace schema.text {
     private static void ReadBoolean_(
         ICurlyBracketStringBuilder cbsb,
         ISchemaMember member) {
-      var primitiveType = member.MemberType as IPrimitiveMemberType;
+      var primitiveType =
+          Asserts.CastNonnull(member.MemberType as IPrimitiveMemberType);
 
       var readType = SchemaGeneratorUtil.GetPrimitiveLabel(
           SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(
@@ -224,7 +225,7 @@ namespace schema.text {
     private static void ReadString_(
         ICurlyBracketStringBuilder cbsb,
         ISchemaMember member) {
-      var stringType = member.MemberType as IStringType;
+      var stringType = Asserts.CastNonnull(member.MemberType as IStringType);
 
       if (stringType.IsReadonly) {
         if (stringType.LengthSourceType ==
@@ -269,8 +270,8 @@ namespace schema.text {
         ISchemaMember member) {
       // TODO: Handle generic types beyond just IBiSerializable
 
-
-      var structureMemberType = member.MemberType as IStructureMemberType;
+      var structureMemberType =
+          Asserts.CastNonnull(member.MemberType as IStructureMemberType);
 
       // TODO: Do value types need to be handled differently?
       var memberName = member.Name;
@@ -284,7 +285,8 @@ namespace schema.text {
         ICurlyBracketStringBuilder cbsb,
         ITypeSymbol sourceSymbol,
         ISchemaMember member) {
-      var arrayType = member.MemberType as ISequenceMemberType;
+      var arrayType =
+          Asserts.CastNonnull(member.MemberType as ISequenceMemberType);
       if (arrayType.LengthSourceType != SequenceLengthSourceType.CONST) {
         var isImmediate =
             arrayType.LengthSourceType ==
@@ -353,7 +355,8 @@ namespace schema.text {
         ICurlyBracketStringBuilder cbsb,
         ITypeSymbol sourceSymbol,
         ISchemaMember member) {
-      var arrayType = member.MemberType as ISequenceMemberType;
+      var arrayType =
+          Asserts.CastNonnull(member.MemberType as ISequenceMemberType);
 
       var elementType = arrayType.ElementType;
       if (elementType is IGenericMemberType genericElementType) {

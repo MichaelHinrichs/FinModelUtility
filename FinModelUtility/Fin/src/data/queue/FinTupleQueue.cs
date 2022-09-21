@@ -54,8 +54,8 @@ namespace fin.data.queue {
         return true;
       }
 
-      value1 = default;
-      value2 = default;
+      value1 = default!;
+      value2 = default!;
       return false;
     }
 
@@ -67,8 +67,8 @@ namespace fin.data.queue {
         return true;
       }
 
-      value1 = default;
-      value2 = default;
+      value1 = default!;
+      value2 = default!;
       return false;
     }
 

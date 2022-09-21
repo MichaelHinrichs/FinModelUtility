@@ -47,10 +47,10 @@ namespace fin.data.queue {
     }
 
     public T Dequeue() => this.impl_.Dequeue();
-    public bool TryDequeue(out T value) => this.impl_.TryDequeue(out value);
+    public bool TryDequeue(out T value) => this.impl_.TryDequeue(out value!);
 
     public T Peek() => this.impl_.Peek();
-    public bool TryPeek(out T value) => this.impl_.TryPeek(out value);
+    public bool TryPeek(out T value) => this.impl_.TryPeek(out value!);
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     public IEnumerator<T> GetEnumerator() => this.impl_.GetEnumerator();

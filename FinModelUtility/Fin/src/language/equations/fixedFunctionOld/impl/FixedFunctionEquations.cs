@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 
 namespace fin.language.equations.fixedFunctionOld {
   public partial class FixedFunctionEquations<TIdentifier> :
-      IFixedFunctionEquations<TIdentifier> {
+      IFixedFunctionEquations<TIdentifier> where TIdentifier : notnull {
     public FixedFunctionEquations() {
       this.ScalarInputs =
           new ReadOnlyDictionary<TIdentifier, IScalarInput<TIdentifier>>(

@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-
 using fin.util.asserts;
 using fin.util.data;
 
+
 namespace fin.language.equations.scalar {
   // TODO: Optimize this.
-  public class ScalarEquations<TIdentifier> : IScalarEquations<TIdentifier> {
+  public class ScalarEquations<TIdentifier> : IScalarEquations<TIdentifier>
+      where TIdentifier : notnull {
     private readonly Dictionary<TIdentifier, IScalarInput<TIdentifier>>
         inputs_ = new();
 

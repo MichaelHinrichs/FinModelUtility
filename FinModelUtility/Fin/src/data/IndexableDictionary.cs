@@ -46,7 +46,7 @@ namespace fin.data {
 
         while (this.impl_.Count < id + 1) {
           this.impl_.Add(new IndexableDictionaryValue {
-              Key = default,
+              Key = default!,
               Value = Optional<TValue>.None(),
           });
         }
@@ -61,7 +61,7 @@ namespace fin.data {
       var index = key.Index;
 
       if (this.impl_.Count < index + 1) {
-        value = default;
+        value = default!;
         return false;
       }
 

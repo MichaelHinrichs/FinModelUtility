@@ -6,7 +6,8 @@ using fin.util.data;
 
 namespace fin.language.equations.fixedFunctionOld {
   // TODO: Optimize this.
-  public partial class FixedFunctionEquations<TIdentifier> {
+  public partial class FixedFunctionEquations<TIdentifier>
+      where TIdentifier : notnull {
     private readonly Dictionary<TIdentifier, IScalarInput<TIdentifier>>
         scalarInputs_ = new();
 

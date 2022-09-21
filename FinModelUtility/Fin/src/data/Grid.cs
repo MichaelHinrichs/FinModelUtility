@@ -18,7 +18,7 @@ namespace fin.data {
   public class Grid<T> : IGrid<T> {
     private T[] impl_;
 
-    public Grid(int width, int height, T defaultValue = default) {
+    public Grid(int width, int height, T defaultValue = default!) {
       this.Width = width;
       this.Height = height;
       

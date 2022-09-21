@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using Microsoft.CodeAnalysis;
-
 using schema.attributes;
 using schema.attributes.align;
 using schema.attributes.child_of;
@@ -13,6 +11,7 @@ using schema.attributes.offset;
 using schema.attributes.position;
 using schema.parser;
 using schema.parser.asserts;
+using schema.util;
 
 
 namespace schema {
@@ -627,13 +626,12 @@ namespace schema {
         case ICharTypeInfo charTypeInfo:
         case IEnumTypeInfo enumTypeInfo: {
           return new PrimitiveMemberType {
-              PrimitiveTypeInfo = typeInfo as IPrimitiveTypeInfo,
+              PrimitiveTypeInfo =
+                  Asserts.CastNonnull(typeInfo as IPrimitiveTypeInfo),
           };
         }
         case IStringTypeInfo stringTypeInfo: {
-          return new StringType {
-              TypeInfo = typeInfo,
-          };
+          return new StringType {TypeInfo = typeInfo,};
         }
         case IStructureTypeInfo structureTypeInfo: {
           return new StructureMemberType {
