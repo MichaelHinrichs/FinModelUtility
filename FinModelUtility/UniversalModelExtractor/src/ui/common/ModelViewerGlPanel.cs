@@ -320,7 +320,7 @@ void main() {
       {
         GL.MatrixMode(MatrixMode.Projection);
         GL.LoadIdentity();
-        GlUtil.Perspective(this.fovY_, 1.0 * width / height, .1, 10000);
+        GlUtil.Perspective(this.fovY_, 1.0 * width / height, 10, 10000);
         GlUtil.LookAt(this.camera_.X, this.camera_.Y, this.camera_.Z,
                       this.camera_.X + this.camera_.XNormal,
                       this.camera_.Y + this.camera_.YNormal,
