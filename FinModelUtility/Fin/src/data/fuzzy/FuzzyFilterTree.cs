@@ -10,7 +10,7 @@ namespace fin.data.fuzzy {
     private readonly Func<T, IReadOnlySet<string>> nodeToKeywords_;
 
     private readonly IFuzzySearchDictionary<FuzzyNode> impl_ =
-        new SymSpellFuzzySearchDictionary<FuzzyNode>();
+        new LevenshteinTreeFuzzySearchDictionary<FuzzyNode>();
 
     // TODO: Clean this up.
     private class FuzzyNode : IFuzzyNode<T> {
@@ -45,7 +45,8 @@ namespace fin.data.fuzzy {
       }
 
       public T Data { get; set; }
-      public float MatchPercentage { get; set; }
+      public int ChangeDistance { get; set; }
+      public float Similarity { get; set; }
 
       public IReadOnlySet<string> Keywords { get; }
 
@@ -68,7 +69,8 @@ namespace fin.data.fuzzy {
 
     public void Reset() {
       foreach (var node in this.nodes_) {
-        node.MatchPercentage = 0;
+        node.Similarity = 0;
+        node.ChangeDistance = Int32.MaxValue;
       }
     }
 
@@ -82,23 +84,40 @@ namespace fin.data.fuzzy {
     private void PropagateMatchPercentages_(
         IEnumerable<IFuzzySearchResult<FuzzyNode>> matches) {
       foreach (var match in matches) {
-        SetMatchPercentage_(match.Data, match.MatchPercentage);
+        SetChangeDistance_(match.Data, match.ChangeDistance);
+        SetSimilarity_(match.Data, match.Similarity);
       }
     }
 
-    private static void SetMatchPercentage_(
+    private static void SetSimilarity_(
         FuzzyNode node,
-        float matchPercentage) {
-      if (matchPercentage <= node.MatchPercentage) {
+        float similarity) {
+      if (similarity <= node.Similarity) {
         return;
       }
-      node.MatchPercentage = matchPercentage;
+      node.Similarity = similarity;
 
       if (node.Parent is not FuzzyNode parentNode) {
         return;
       }
 
-      SetMatchPercentage_(parentNode, matchPercentage);
+      SetSimilarity_(parentNode, similarity);
     }
+
+    private static void SetChangeDistance_(
+        FuzzyNode node,
+        int changeDistance) {
+      if (changeDistance >= node.ChangeDistance) {
+        return;
+      }
+      node.ChangeDistance = changeDistance;
+
+      if (node.Parent is not FuzzyNode parentNode) {
+        return;
+      }
+
+      SetChangeDistance_(parentNode, changeDistance);
+    }
+
   }
 }

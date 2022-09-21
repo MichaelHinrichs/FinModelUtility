@@ -8,41 +8,85 @@ namespace fin.data.fuzzy {
       LevenshteinTreeFuzzySearchDictionary<T> : IFuzzySearchDictionary<T> {
     private readonly ListDictionary<T, string> dataToKeywords_ = new();
 
-    public int MaxChangeDistance { get; set; } = 0;
-
     public void Add(string keyword, T associatedData)
-      => this.dataToKeywords_.Add(associatedData, keyword);
+      => this.dataToKeywords_.Add(associatedData, keyword.ToLower());
 
     public IEnumerable<IFuzzySearchResult<T>> Search(
         string filterText,
         float minMatchPercentage) {
-      var filterTokens = filterText.Split(' ');
+      var filterTokens = filterText.ToLower().Split(' ');
 
-      /*filterTokens.Select(token => {
-            this.dataToKeywords_.Select(pair => {
-              var (data, keywords) = pair;
+      var dataChangeDistancesAndSimilarities = this.dataToKeywords_.Select(
+          pair => {
+            var (data, keywords) = pair;
+            var tokenChangeDistancesAndSimilarities = filterTokens.Select(
+                    token => {
+                      var changeDistanceAndSimilarities =
+                          keywords.Select(keyword => {
+                                    var changeDistance =
+                                        token.Length -
+                                        this.FindLongestLengthOfSubstring_(
+                                            keyword, token);
+                                    var addOrRemoveDistance =
+                                        Math.Abs(
+                                            keyword.Length - token.Length) -
+                                        changeDistance;
 
-              var changeDistanceAndSimilarities =
-                  keywords.Select(keyword => {
-                    var changeDistance =
-                        token.Length -
-                        FindLongestLengthOfSubstring(
-                            keyword, token);
-                    var addOrRemoveCount =
-                        Math.Abs(keyword.Length - token.Length);
+                                    var editDistance = changeDistance +
+                                      addOrRemoveDistance;
+                                    var difference = 1f *
+                                        editDistance /
+                                        Math.Max(keyword.Length, token.Length);
+                                    var similarity = 1 - difference;
 
+                            return new ChangeDistanceAndSimilarity(
+                                        changeDistance, similarity);
+                                  })
+                                  .ToList();
 
-                  });
-            });
-          });*/
-      return null!;
+                      changeDistanceAndSimilarities.Sort((lhs, rhs) => {
+                        var (lhsChangeDistance, lhsSimilarity) = lhs;
+                        var (rhsChangeDistance, rhsSimilarity) = rhs;
+
+                        if (lhsChangeDistance == rhsChangeDistance) {
+                          return -lhsSimilarity.CompareTo(rhsSimilarity);
+                        }
+
+                        return lhsChangeDistance.CompareTo(rhsChangeDistance);
+                      });
+
+                      return changeDistanceAndSimilarities.First();
+                    })
+                .ToList();
+
+            var merged = tokenChangeDistancesAndSimilarities
+                .Aggregate(
+                    (total, current) => new ChangeDistanceAndSimilarity(
+                        total.ChangeDistance + current.ChangeDistance,
+                        total.Similarity * current.Similarity));
+                
+            return new SimilarityInfo(data, merged.ChangeDistance, merged.Similarity);
+          }).ToList();
+
+      return dataChangeDistancesAndSimilarities
+             .Select(similarityInfo => new FuzzySearchResult(similarityInfo.Data, similarityInfo.ChangeDistance, similarityInfo.Similarity));
     }
 
+    private record ChangeDistanceAndSimilarity(int ChangeDistance,
+                                               float Similarity);
+
+    private record SimilarityInfo(T Data,
+                                  int ChangeDistance,
+                                  float Similarity) :
+        ChangeDistanceAndSimilarity(ChangeDistance, Similarity);
+
     private record FuzzySearchResult
-        (T Data, float MatchPercentage) : IFuzzySearchResult<T>;
+        (T Data,
+         int ChangeDistance,
+         float Similarity) : IFuzzySearchResult<T>;
 
     private int
-        FindLongestLengthOfSubstring(string container, string substring) {
+        FindLongestLengthOfSubstring_(string container, string substring) {
       var substringLength = substring.Length;
       var matchLengths = new int[substringLength];
 
@@ -56,7 +100,7 @@ namespace fin.data.fuzzy {
              substringIndex < substringLength;
              ++substringIndex) {
           var i = (containerIndex + substringIndex) % substringLength;
-          var substringChar = substring[substringIndex];
+          var substringChar = substring[i];
 
           var matchLength = i == 0 ? 0 : matchLengths[substringIndex];
 

@@ -21,11 +21,12 @@ namespace fin.data.fuzzy {
 
     private class BkTreeFuzzySearchResult : IFuzzySearchResult<T> {
       public T Data { get; }
-      public float MatchPercentage { get; }
+      public int ChangeDistance { get; }
+      public float Similarity { get; }
 
       public BkTreeFuzzySearchResult(T data, float matchPercentage) {
         this.Data = data;
-        this.MatchPercentage = matchPercentage;
+        this.Similarity = matchPercentage;
       }
     }
   }

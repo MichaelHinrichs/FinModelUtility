@@ -108,12 +108,22 @@ namespace uni.ui.common {
       this.impl_.BeginUpdate();
       this.impl_.SuspendLayout();
       this.comparer_.Enabled = false;
+      this.impl_.Sorted = false;
+      //this.impl_.Scrollable = false;
+      this.impl_.Enabled = false;
+      this.impl_.Visible = false;
+      this.impl_.Hide();
     }
 
     public void EndUpdate() {
       this.impl_.EndUpdate();
       this.impl_.ResumeLayout();
       this.comparer_.Enabled = true;
+      this.impl_.Sorted = true;
+      //this.impl_.Scrollable = true;
+      this.impl_.Enabled = true;
+      this.impl_.Visible = true;
+      this.impl_.Show();
     }
 
     public void ScrollToTop() {

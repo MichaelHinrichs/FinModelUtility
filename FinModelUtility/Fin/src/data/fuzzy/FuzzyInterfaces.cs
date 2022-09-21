@@ -7,7 +7,8 @@ namespace fin.data.fuzzy {
 
   public interface IFuzzySearchResult<out T> {
     T Data { get; }
-    float MatchPercentage { get; }
+    int ChangeDistance { get; }
+    float Similarity { get; }
   }
 
   public interface IFuzzySearchDictionary<T> {
@@ -21,7 +22,8 @@ namespace fin.data.fuzzy {
 
   public interface IFuzzyNode<T> {
     T Data { get; set; }
-    float MatchPercentage { get; }
+    float Similarity { get; }
+    int ChangeDistance { get; }
 
     IReadOnlySet<string> Keywords { get; }
 

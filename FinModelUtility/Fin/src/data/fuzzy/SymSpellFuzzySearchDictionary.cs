@@ -71,7 +71,7 @@ namespace fin.data.fuzzy {
             }
 
             // 4) Divide each result's probability based on # of tokens.
-            result.MatchPercentage += inverseTokenCount * matchPercentage;
+            result.Similarity += inverseTokenCount * matchPercentage;
           }
         }
       }
@@ -87,7 +87,8 @@ namespace fin.data.fuzzy {
 
     private class SymSpellFuzzySearchResult : IFuzzySearchResult<T> {
       public T Data { get; }
-      public float MatchPercentage { get; set; }
+      public int ChangeDistance { get; }
+      public float Similarity { get; set; }
 
       public SymSpellFuzzySearchResult(T associatedData) {
         this.Data = associatedData;

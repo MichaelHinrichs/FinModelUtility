@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-
 using fin.data.fuzzy;
 using fin.data.queue;
 using fin.io;
@@ -55,6 +54,14 @@ namespace uni.ui.common {
             if (!string.IsNullOrEmpty(betterFileName)) {
               keywords.Add(betterFileName);
             }
+
+            var uiPath = "";
+            IFileTreeNode<TFile>? current = fileNode;
+            while (current != null) {
+              uiPath = $"{current.Text}/{uiPath}";
+              current = current.Parent;
+            }
+            keywords.Add(uiPath);
           }
 
           return keywords;
@@ -131,8 +138,9 @@ namespace uni.ui.common {
 
       public TFile? File { get; set; }
 
-      public IFileTreeNode<TFile>? Parent => this.filterNode_.Parent?.Data;
-      public float MatchPercentage => this.filterNode_.MatchPercentage;
+      public IFileTreeNode<TFile>? Parent => this.treeNode_.Parent?.Data;
+      public float Similarity => this.filterNode_.Similarity;
+      public float ChangeDistance => this.filterNode_.ChangeDistance;
       public IReadOnlySet<string> Keywords => this.filterNode_.Keywords;
 
       public FileNode AddChild(TFile file) => new(this, file);
@@ -209,13 +217,11 @@ namespace uni.ui.common {
 
         this.betterTreeView_.Comparer = null;
       } else {
-        const float minMatchPercentage = .2f;
-        this.filterImpl_.Filter(filterText, minMatchPercentage);
+        this.filterImpl_.Filter(filterText, -1);
 
         this.betterTreeView_.Root.ResetChildrenRecursively(
-            betterTreeNode
-                => Asserts.Assert(betterTreeNode.Data).MatchPercentage >=
-                   minMatchPercentage);
+            betterTreeNode =>
+                Asserts.Assert(betterTreeNode.Data).ChangeDistance <= 0);
 
         this.betterTreeView_.Comparer ??= new FuzzyTreeComparer();
       }
@@ -228,8 +234,8 @@ namespace uni.ui.common {
           IBetterTreeNode<FileNode> lhs,
           IBetterTreeNode<FileNode> rhs)
         => -Asserts.Assert(lhs.Data)
-                   .MatchPercentage.CompareTo(
-                       Asserts.Assert(rhs.Data).MatchPercentage);
+                   .Similarity.CompareTo(
+                       Asserts.Assert(rhs.Data).Similarity);
     }
   }
 }
