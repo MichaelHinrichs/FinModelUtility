@@ -1,8 +1,6 @@
 ﻿using fin.io;
 using fin.model;
-
 using modl.api;
-
 using uni.platforms;
 using uni.platforms.gcn;
 using uni.util.io;
@@ -49,38 +47,48 @@ namespace uni.games.battalion_wars_1 {
 
             var svetModlFile =
                 modlFiles.Where(modlFile =>
-                                    modlFile.NameWithoutExtension is "SVET");
+                                    modlFile.NameWithoutExtension is "SVET")
+                         .ToHashSet();
             var sgruntModlFile =
                 modlFiles.Where(modlFile =>
-                                    modlFile.NameWithoutExtension is "SGRUNT");
+                                    modlFile.NameWithoutExtension is "SGRUNT")
+                         .ToHashSet();
 
             var tvetModlFile =
                 modlFiles.Where(modlFile =>
-                                    modlFile.NameWithoutExtension is "TVET");
+                                    modlFile.NameWithoutExtension is "TVET")
+                         .ToHashSet();
             var tgruntModlFile =
                 modlFiles.Where(modlFile =>
-                                    modlFile.NameWithoutExtension is "TGRUNT");
+                                    modlFile.NameWithoutExtension is "TGRUNT")
+                         .ToHashSet();
 
             var uvetModlFile =
                 modlFiles.Where(modlFile =>
-                                    modlFile.NameWithoutExtension is "UVET");
+                                    modlFile.NameWithoutExtension is "UVET")
+                         .ToHashSet();
             var ugruntModlFile =
                 modlFiles.Where(modlFile =>
-                                    modlFile.NameWithoutExtension is "UGRUNT");
+                                    modlFile.NameWithoutExtension is "UGRUNT")
+                         .ToHashSet();
 
             var wvetModlFile =
                 modlFiles.Where(modlFile =>
-                                    modlFile.NameWithoutExtension is "WVET");
+                                    modlFile.NameWithoutExtension is "WVET")
+                         .ToHashSet();
             var wgruntModlFile =
                 modlFiles.Where(modlFile =>
-                                    modlFile.NameWithoutExtension is "WGRUNT");
+                                    modlFile.NameWithoutExtension is "WGRUNT")
+                         .ToHashSet();
 
             var xvetModlFile =
                 modlFiles.Where(modlFile =>
-                                    modlFile.NameWithoutExtension is "XVET");
+                                    modlFile.NameWithoutExtension is "XVET")
+                         .ToHashSet();
             var xgruntModlFile =
                 modlFiles.Where(modlFile =>
-                                    modlFile.NameWithoutExtension is "XGRUNT");
+                                    modlFile.NameWithoutExtension is "XGRUNT")
+                         .ToHashSet();
 
 
             var fvAnimFiles =
@@ -150,14 +158,12 @@ namespace uni.games.battalion_wars_1 {
                         (svetModlFile, fvAnimFiles),
                         (tgruntModlFile, fgAnimFiles),
                         (tvetModlFile, fvAnimFiles),
-                        (ugruntModlFile, fgAnimFiles),
-                        (uvetModlFile,
-                         fvAnimFiles.Concat(uvAnimFiles).ToArray()),
+                        (ugruntModlFile, fgAnimFiles), (uvetModlFile,
+                              fvAnimFiles.Concat(uvAnimFiles).ToArray()),
                         (wgruntModlFile,
                          fgAnimFiles.Concat(wgruntAnimFiles).ToArray()),
-                        (wvetModlFile, fvAnimFiles),
-                        (xgruntModlFile,
-                         fgAnimFiles.Concat(xgAnimFiles).ToArray()),
+                        (wvetModlFile, fvAnimFiles), (xgruntModlFile,
+                              fgAnimFiles.Concat(xgAnimFiles).ToArray()),
                         (xvetModlFile,
                          fvAnimFiles.Concat(xvAnimFiles).ToArray()),
                         (otherModlFiles, null),
@@ -179,8 +185,7 @@ namespace uni.games.battalion_wars_1 {
             var outBundles =
                 directory.FilesWithExtension(".out")
                          .Select(outFile => new OutModelFileBundle {
-                             OutFile = outFile,
-                             GameVersion = GameVersion.BW1,
+                             OutFile = outFile, GameVersion = GameVersion.BW1,
                          });
 
             var bundles =

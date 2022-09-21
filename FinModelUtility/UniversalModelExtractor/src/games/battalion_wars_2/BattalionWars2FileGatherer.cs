@@ -1,8 +1,6 @@
 ﻿using fin.io;
 using fin.model;
-
 using modl.api;
-
 using uni.games.battalion_wars_1;
 using uni.platforms;
 using uni.platforms.wii;
@@ -48,14 +46,17 @@ namespace uni.games.battalion_wars_2 {
 
             var svetModlFile =
                 modlFiles.Where(modlFile =>
-                                    modlFile.NameWithoutExtension is "SVET");
+                                    modlFile.NameWithoutExtension is "SVET")
+                         .ToHashSet();
 
             var gruntModlFiles =
                 modlFiles.Where(modlFile =>
-                                    modlFile.Name.EndsWith("G_HI_LOD.modl"));
+                                    modlFile.Name.EndsWith("G_HI_LOD.modl"))
+                         .ToHashSet();
             var vetModlFiles =
                 modlFiles.Where(modlFile =>
-                                    modlFile.Name.EndsWith("V_HI_LOD.modl"));
+                                    modlFile.Name.EndsWith("V_HI_LOD.modl"))
+                         .ToHashSet();
 
             var fvAnimFiles =
                 animFiles.Where(
@@ -84,8 +85,7 @@ namespace uni.games.battalion_wars_2 {
                     [] {
                         (svetModlFile, fvAnimFiles),
                         (gruntModlFiles, wgruntAnimFiles),
-                        (vetModlFiles, fvAnimFiles),
-                        (otherModlFiles, null),
+                        (vetModlFiles, fvAnimFiles), (otherModlFiles, null),
                     };
 
             var modlBundles =
@@ -104,8 +104,7 @@ namespace uni.games.battalion_wars_2 {
                 directory.Files
                          .Where(file => file.Name.EndsWith(".out.gz"))
                          .Select(outFile => new OutModelFileBundle {
-                             OutFile = outFile,
-                             GameVersion = GameVersion.BW2,
+                             OutFile = outFile, GameVersion = GameVersion.BW2,
                          });
 
             var bundles =
