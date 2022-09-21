@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 
 namespace fin.data.fuzzy {
-  // TODO: Need to support tokenizing.
-
   public interface IFuzzySearchResult<out T> {
     T Data { get; }
     int ChangeDistance { get; }
