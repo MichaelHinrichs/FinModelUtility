@@ -1,8 +1,6 @@
 ﻿using fin.io;
 using fin.model;
-
 using glo.api;
-
 using uni.platforms.desktop;
 
 
@@ -24,14 +22,14 @@ namespace uni.games.glover {
       var topLevelObjectDirectory =
           gloverFileHierarchy.Root.TryToGetSubdir("data/objects");
       foreach (var objectDirectory in topLevelObjectDirectory.Subdirs) {
-        this.AddObjectDirectory(
+        this.AddObjectDirectory_(
             parentObjectDirectory.AddSubdir(objectDirectory.Name),
             gloverFileHierarchy, objectDirectory);
       }
       return rootModelDirectory;
     }
 
-    private void AddObjectDirectory(
+    private void AddObjectDirectory_(
         IModelDirectory<GloModelFileBundle> parentNode,
         IFileHierarchy gloverFileHierarchy,
         IFileHierarchyDirectory objectDirectory) {
@@ -48,8 +46,8 @@ namespace uni.games.glover {
                                               "data\\textures"));
         textureDirectories.Add(levelTextureDirectory);
         textureDirectories.AddRange(levelTextureDirectory.Subdirs);
-      } catch(Exception e) {
-        ;
+      } catch {
+        // ignored
       }
 
       foreach (var objectFile in objectFiles) {

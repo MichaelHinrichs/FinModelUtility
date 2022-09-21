@@ -191,7 +191,6 @@ namespace uni.games.battalion_wars_1 {
                                  rhs.MainFile.Name));
 
             return bundles;
-            return bundles;
           }
       ).GatherBundles(fileHierarchy);
     }

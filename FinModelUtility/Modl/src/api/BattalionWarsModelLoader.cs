@@ -10,6 +10,8 @@ namespace modl.api {
               modlFileBundle),
           OutModelFileBundle outFileBundle => new OutModelLoader().LoadModel(
               outFileBundle),
+          _ => throw new ArgumentOutOfRangeException(
+                   nameof(modelFileBundle), modelFileBundle, null)
       };
   }
 }

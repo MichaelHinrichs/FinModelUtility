@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 
-using fin.util.asserts;
-
 namespace fin.data.fuzzy {
   // TODO: Need to support tokenizing.
 

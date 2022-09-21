@@ -9,7 +9,7 @@ namespace uni.ui.common {
         where S : class {
       // TODO: Remove unboxing?
       foreach (var childTreeNodeObj in collection) {
-        var childTreeNode = (TreeNode) childTreeNodeObj;
+        var childTreeNode = (TreeNode)childTreeNodeObj;
         var childBetterTreeNode =
             BetterTreeUtil.GetBetterFrom<T, S>(childTreeNode);
 
@@ -20,7 +20,7 @@ namespace uni.ui.common {
     public static T GetBetterFrom<T, S>(TreeNode node)
         where T : IBetterTreeNode<S>
         where S : class
-      => (T) node.Tag;
+      => (T)node.Tag;
   }
 
   public interface IBetterTreeView<T> where T : class {
@@ -78,25 +78,25 @@ namespace uni.ui.common {
 
     public BetterTreeView(TreeView impl) {
       this.impl_ = impl;
-      this.Root = new BetterTreeNode<T>(this, null, impl.Nodes);
+      this.Root = new BetterTreeNode(this, null, impl.Nodes);
 
       this.impl_.AfterSelect += (sender, args) =>
           this.Selected.Invoke(
-              (BetterTreeNode<T>) this.impl_.SelectedNode!.Tag);
+              (BetterTreeNode)this.impl_.SelectedNode!.Tag);
 
       this.impl_.TreeViewNodeSorter = this.comparer_;
 
       this.impl_.AfterExpand += (sender, args) => {
         var node = args.Node!;
         var betterNode =
-            BetterTreeUtil.GetBetterFrom<BetterTreeNode<T>, T>(node);
+            BetterTreeUtil.GetBetterFrom<BetterTreeNode, T>(node);
         betterNode.IsExpanded = true;
         node.ImageIndex = node.SelectedImageIndex = betterNode.OpenImageIndex;
       };
       this.impl_.AfterCollapse += (sender, args) => {
         var node = args.Node!;
         var betterNode =
-            BetterTreeUtil.GetBetterFrom<BetterTreeNode<T>, T>(node);
+            BetterTreeUtil.GetBetterFrom<BetterTreeNode, T>(node);
         betterNode.IsExpanded = false;
         node.ImageIndex = node.SelectedImageIndex = betterNode.ClosedImageIndex;
       };
@@ -154,7 +154,7 @@ namespace uni.ui.common {
     }
 
 
-    private class BetterTreeNode<T> : IBetterTreeNode<T> where T : class {
+    private class BetterTreeNode : IBetterTreeNode<T> {
       private readonly TreeNodeCollection collection_;
 
       private int openImageIndex_ = -1;
@@ -167,7 +167,7 @@ namespace uni.ui.common {
 
       public int AbsoluteIndex { get; }
 
-      private readonly List<BetterTreeNode<T>> absoluteChildren_ = new();
+      private readonly List<BetterTreeNode> absoluteChildren_ = new();
 
       // TODO: Possible to remove unboxing?
       public T? Data { get; set; }
@@ -190,12 +190,12 @@ namespace uni.ui.common {
 
       public Image? OpenImage {
         set => this.OpenImageIndex =
-                   ((BetterTreeView<T>) this.Tree).GetOrAddIndexOfImage(value);
+                   ((BetterTreeView<T>)this.Tree).GetOrAddIndexOfImage(value);
       }
 
       public Image? ClosedImage {
         set => this.ClosedImageIndex =
-                   ((BetterTreeView<T>) this.Tree).GetOrAddIndexOfImage(value);
+                   ((BetterTreeView<T>)this.Tree).GetOrAddIndexOfImage(value);
       }
 
       public int OpenImageIndex {
@@ -222,7 +222,7 @@ namespace uni.ui.common {
         var childTreeNode = this.collection_.Add(text);
 
         var childBetterTreeNode =
-            new BetterTreeNode<T>(this.Tree, childTreeNode, childTreeNode.Nodes) {
+            new BetterTreeNode(this.Tree, childTreeNode, childTreeNode.Nodes) {
                 Parent = this
             };
 
@@ -254,7 +254,7 @@ namespace uni.ui.common {
       }
 
       private void ClearRecursively_() {
-        BetterTreeUtil.ForEach<BetterTreeNode<T>, T>(
+        BetterTreeUtil.ForEach<BetterTreeNode, T>(
             this.collection_,
             childBetterTreeNode =>
                 childBetterTreeNode.ClearRecursively_());
@@ -263,7 +263,7 @@ namespace uni.ui.common {
       }
 
       private void ReaddChildrenRecursively(
-          Func<BetterTreeNode<T>, bool>? filter) {
+          Func<BetterTreeNode, bool>? filter) {
         // TODO: Remove unboxing?
         foreach (var childBetterTreeNode in this.absoluteChildren_) {
           if (filter != null && !filter(childBetterTreeNode)) {
@@ -291,15 +291,15 @@ namespace uni.ui.common {
         }
 
         var comparer = this.Comparer ?? this.defaultComparer_;
-        return comparer.Compare((BetterTreeNode<T>) (((TreeNode) lhs).Tag),
-                                (BetterTreeNode<T>) (((TreeNode) rhs).Tag));
+        return comparer.Compare((BetterTreeNode)(((TreeNode)lhs).Tag),
+                                (BetterTreeNode)(((TreeNode)rhs).Tag));
       }
 
       private class DefaultBetterTreeViewComparer :
           IComparer<IBetterTreeNode<T>> {
         public int Compare(IBetterTreeNode<T> lhs, IBetterTreeNode<T> rhs)
-          => ((BetterTreeNode<T>) lhs).AbsoluteIndex.CompareTo(
-              ((BetterTreeNode<T>) rhs).AbsoluteIndex);
+          => ((BetterTreeNode)lhs).AbsoluteIndex.CompareTo(
+              ((BetterTreeNode)rhs).AbsoluteIndex);
       }
     }
   }
