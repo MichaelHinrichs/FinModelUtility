@@ -8,6 +8,23 @@ using fin.util.asserts;
 
 
 namespace uni.ui.common {
+  public static class ActionExtensions {
+    public static Action Debounce(this Action func,
+                                  int milliseconds = 300) {
+      var last = 0;
+      return () => {
+        var current = Interlocked.Increment(ref last);
+        Task.Delay(milliseconds)
+            .ContinueWith(task => {
+              if (current == last) {
+                func();
+              }
+              task.Dispose();
+            });
+      };
+    }
+  }
+
   public interface IFileTreeView<TFile> {
     public delegate void FileSelectedHandler(IFileTreeNode<TFile> fileNode);
 
@@ -155,7 +172,9 @@ namespace uni.ui.common {
     public FileTreeView() {
       this.InitializeComponent();
 
-      this.filterTextBox_.TextChanged += (_, _) => this.Filter_();
+      var callFilterFromMainThread = () => this.Invoke(this.Filter_);
+      this.filterDebounced_ = callFilterFromMainThread.Debounce();
+      this.filterTextBox_.TextChanged += (_, _) => this.filterDebounced_();
 
       this.betterTreeView_ = new BetterTreeView<FileNode>(this.fileTreeView_);
       this.betterTreeView_.Selected += betterTreeNode => {
@@ -204,7 +223,8 @@ namespace uni.ui.common {
       this.filterTextBox_.AutoCompleteCustomSource = allAutocompleteKeywords;
     }
 
-    // TODO: Debounce this method.
+    private readonly Action filterDebounced_;
+
     private void Filter_() {
       var filterText = this.filterTextBox_.Text.ToLower();
 
@@ -212,7 +232,7 @@ namespace uni.ui.common {
 
       this.betterTreeView_.BeginUpdate();
 
-      if (string.IsNullOrEmpty(filterText)) {
+      if (string.IsNullOrEmpty(filterText) || filterText.Length <= 1) {
         this.betterTreeView_.Root.ResetChildrenRecursively();
 
         this.betterTreeView_.Comparer = null;
