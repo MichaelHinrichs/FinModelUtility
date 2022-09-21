@@ -1,29 +1,33 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-
 using fin.util.asserts;
+
 
 namespace fin.io {
   public static class Files {
     public static IDirectory GetCwd()
       => new FinDirectory(Directory.GetCurrentDirectory());
 
+    private static readonly object RUN_IN_DIRECTORY_LOCK_ = new();
+
     public static void RunInDirectory(IDirectory directory, Action handler) {
-      var cwd = Directory.GetCurrentDirectory();
+      lock (RUN_IN_DIRECTORY_LOCK_) {
+        var cwd = Directory.GetCurrentDirectory();
 
-      Asserts.True(directory.Exists,
-                   $"Attempted to run in nonexistent directory: {directory}");
-      Directory.SetCurrentDirectory(directory.FullName);
+        Asserts.True(directory.Exists,
+                     $"Attempted to run in nonexistent directory: {directory}");
+        Directory.SetCurrentDirectory(directory.FullName);
 
-      try {
-        handler();
-      } catch {
+        try {
+          handler();
+        } catch {
+          Directory.SetCurrentDirectory(cwd);
+          throw;
+        }
+
         Directory.SetCurrentDirectory(cwd);
-        throw;
       }
-
-      Directory.SetCurrentDirectory(cwd);
     }
 
 

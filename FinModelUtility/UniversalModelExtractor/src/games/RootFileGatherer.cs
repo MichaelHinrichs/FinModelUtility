@@ -1,5 +1,4 @@
 ﻿using fin.model;
-
 using uni.games.battalion_wars_1;
 using uni.games.battalion_wars_2;
 using uni.games.glover;
@@ -21,26 +20,39 @@ namespace uni.games {
       var rootModelDirectory = new RootModelDirectory();
 
       var gatherers = new IModelFileGatherer[] {
-          new BattalionWars1FileGatherer(),
-          new BattalionWars2FileGatherer(),
+          new BattalionWars1FileGatherer(), new BattalionWars2FileGatherer(),
           new GloverModelFileGatherer(),
           new GreatAceAttorneyModelFileGatherer(),
           new HaloWarsModelFileGatherer(),
           new LuigisMansion3dModelFileGatherer(),
           new MajorasMask3dFileGatherer(),
           new MarioKartDoubleDashFileGatherer(),
-          new OcarinaOfTime3dFileGatherer(),
-          new Pikmin1ModelFileGatherer(),
-          new Pikmin2FileGatherer(),
-          new SuperMarioSunshineModelFileGatherer(),
+          new OcarinaOfTime3dFileGatherer(), new Pikmin1ModelFileGatherer(),
+          new Pikmin2FileGatherer(), new SuperMarioSunshineModelFileGatherer(),
           new SuperSmashBrosMeleeModelFileGatherer(),
       };
 
-      foreach (var gatherer in gatherers) {
-        rootModelDirectory.AddSubdirIfNotNull(
-            gatherer.GatherModelFileBundles(false));
+      var gatherTasks =
+          gatherers.Select(
+                       gatherer =>
+                           new Task<IModelDirectory?>(() => gatherer
+                               .GatherModelFileBundles(false)))
+                   .ToArray();
+
+      foreach (var gatherTask in gatherTasks) {
+        gatherTask.Start();
+        gatherTask.Wait();
+        rootModelDirectory.AddSubdirIfNotNull(gatherTask.Result);
       }
 
+      /*Task.WhenAll(gatherTasks)
+          .ContinueWith(async resultsTask => {
+            var results = await resultsTask;
+            foreach (var result in results) {
+              rootModelDirectory.AddSubdirIfNotNull(result);
+            }
+          })
+          .Wait();*/
       rootModelDirectory.RemoveEmptyChildren();
 
       return rootModelDirectory;
