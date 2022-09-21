@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Drawing;
 
 using fin.image;
 using fin.model;
-using fin.util.image;
 
 using OpenTK.Graphics.OpenGL;
 

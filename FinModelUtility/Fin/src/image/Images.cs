@@ -1,15 +1,22 @@
-﻿using System;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-
-using fin.io;
+﻿using fin.io;
+using fin.util.asserts;
 using fin.util.image;
+using System;
+using System.Drawing;
+using System.IO;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Formats.Bmp;
+using SixLabors.ImageSharp.Formats.Gif;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.PixelFormats;
+using System.Drawing.Imaging;
+using Color = System.Drawing.Color;
+using Image = SixLabors.ImageSharp.Image;
 
 
 namespace fin.image {
-  using SystemImageFormat = System.Drawing.Imaging.ImageFormat;
-
   public static class FinImage {
     public static IImage FromFile(IFile file) {
       using var stream = file.OpenRead();
@@ -17,22 +24,22 @@ namespace fin.image {
     }
 
     public static IImage FromStream(Stream stream) {
-      var image = Bitmap.FromStream(stream) as Bitmap;
-      var pixelFormat = image.PixelFormat;
+      var image = Image.Load(stream);
 
-      switch (pixelFormat) {
-        case PixelFormat.Format32bppArgb:
-          return new Rgba32Image(image);
-        case PixelFormat.Format24bppRgb:
-          return new Rgb24Image(image);
-        case PixelFormat.Format4bppIndexed:
-          return new Indexed4Image(image);
-        case PixelFormat.Format8bppIndexed:
-          return new Indexed8Image(image);
-        default:
-          throw new ArgumentOutOfRangeException(
-              nameof(pixelFormat), pixelFormat, null);
+      var firstFrame = image.Frames[0];
+      var pixelFormat = image.GetType().GenericTypeArguments[0];
+      if (pixelFormat == typeof(Rgba32)) {
+        return new Rgba32Image(Asserts.CastNonnull(image as Image<Rgba32>));
+      } else if (pixelFormat == typeof(Rgb24)) {
+        return new Rgb24Image(Asserts.CastNonnull(image as Image<Rgb24>));
+      } else if (pixelFormat == typeof(L8)) {
+        return new I8Image(Asserts.CastNonnull(image as Image<L8>));
+      } else if (pixelFormat == typeof(La16)) {
+        return new Ia16Image(Asserts.CastNonnull(image as Image<La16>));
       }
+
+      throw new ArgumentOutOfRangeException(
+          nameof(pixelFormat), pixelFormat, null);
     }
 
     public static IImage Create1x1FromColor(Color color)
@@ -50,26 +57,51 @@ namespace fin.image {
       return bmp;
     }
 
-    public static SystemImageFormat ConvertFinImageFormatToSystem(
+    public static IImageEncoder ConvertFinImageFormatToImageSharpEncoder(
         LocalImageFormat imageFormat)
       => imageFormat switch {
-          LocalImageFormat.BMP  => SystemImageFormat.Bmp,
-          LocalImageFormat.PNG  => SystemImageFormat.Png,
-          LocalImageFormat.JPEG => SystemImageFormat.Jpeg,
-          LocalImageFormat.GIF  => SystemImageFormat.Gif,
-          _ => throw new ArgumentOutOfRangeException(
-                   nameof(imageFormat), imageFormat, null)
+        LocalImageFormat.BMP => new BmpEncoder(),
+        LocalImageFormat.PNG => new PngEncoder(),
+        LocalImageFormat.JPEG => new JpegEncoder(),
+        LocalImageFormat.GIF => new GifEncoder(),
+        _ => throw new ArgumentOutOfRangeException(
+                 nameof(imageFormat), imageFormat, null)
       };
+
+    public static unsafe Bitmap ConvertToBitmap(IImage image) {
+      var width = image.Width;
+      var height = image.Height;
+
+      var bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+      BitmapUtil.InvokeAsLocked(bitmap, bmpData => {
+        var ptr = (byte*)bmpData.Scan0;
+
+        image.Access(getHandler => {
+          for (var y = 0; y < height; ++y) {
+            for (var x = 0; x < width; ++x) {
+              getHandler(x, y, out var r, out var g, out var b, out var a);
+
+              var index = 4 * (y * width + x);
+              ptr[index] = b;
+              ptr[index + 1] = g;
+              ptr[index + 2] = r;
+              ptr[index + 3] = a;
+            }
+          }
+        });
+      });
+      return bitmap;
+    }
   }
 
   public class Rgba32Image : IImage {
-    private readonly Bitmap impl_;
+    private readonly Image<Rgba32> impl_;
 
     public Rgba32Image(int width, int height) : this(
-        new Bitmap(width, height, PixelFormat.Format32bppArgb)) { }
+        new Image<Rgba32>(width, height)) { }
 
-    internal Rgba32Image(Bitmap bitmap) {
-      this.impl_ = bitmap;
+    internal Rgba32Image(Image<Rgba32> impl) {
+      this.impl_ = impl;
     }
 
     ~Rgba32Image() => this.ReleaseUnmanagedResources_();
@@ -84,25 +116,24 @@ namespace fin.image {
     public int Width => this.impl_.Width;
     public int Height => this.impl_.Height;
 
-    public unsafe void Access(IImage.AccessHandler accessHandler) {
-      BitmapUtil.InvokeAsLocked(this.impl_, bmpData => {
-        var ptr = (byte*) bmpData.Scan0;
+    public void Access(IImage.AccessHandler accessHandler) {
+      var frame = this.impl_.Frames[0];
 
-        void GetHandler(int x,
-                        int y,
-                        out byte r,
-                        out byte g,
-                        out byte b,
-                        out byte a) {
-          var index = 4 * (y * bmpData.Width + x);
-          b = ptr[index];
-          g = ptr[index + 1];
-          r = ptr[index + 2];
-          a = ptr[index + 3];
-        }
+      void GetHandler(
+          int x,
+          int y,
+          out byte r,
+          out byte g,
+          out byte b,
+          out byte a) {
+        var pixel = frame[x, y];
+        r = pixel.R;
+        g = pixel.G;
+        b = pixel.B;
+        a = pixel.A;
+      }
 
-        accessHandler(GetHandler);
-      });
+      accessHandler(GetHandler);
     }
 
     public delegate void SetHandler(int x,
@@ -115,51 +146,52 @@ namespace fin.image {
     public delegate void MutateHandler(IImage.Rgba32GetHandler getHandler,
                                        SetHandler setHandler);
 
-    public unsafe void Mutate(MutateHandler mutateHandler) {
-      BitmapUtil.InvokeAsLocked(this.impl_, bmpData => {
-        var ptr = (byte*) bmpData.Scan0;
+    public void Mutate(MutateHandler mutateHandler) {
+      var frame = this.impl_.Frames[0];
 
-        void GetHandler(int x,
-                        int y,
-                        out byte r,
-                        out byte g,
-                        out byte b,
-                        out byte a) {
-          var index = 4 * (y * bmpData.Width + x);
-          b = ptr[index];
-          g = ptr[index + 1];
-          r = ptr[index + 2];
-          a = ptr[index + 3];
-        }
+      void GetHandler(
+          int x,
+          int y,
+          out byte r,
+          out byte g,
+          out byte b,
+          out byte a) {
+        var pixel = frame[x, y];
+        r = pixel.R;
+        g = pixel.G;
+        b = pixel.B;
+        a = pixel.A;
+      }
 
-        void SetHandler(int x, int y, byte r, byte g, byte b, byte a) {
-          var index = 4 * (y * bmpData.Width + x);
-          ptr[index] = b;
-          ptr[index + 1] = g;
-          ptr[index + 2] = r;
-          ptr[index + 3] = a;
-        }
+      void SetHandler(int x, int y, byte r, byte g, byte b, byte a) {
+        var pixel = frame[x, y];
+        pixel.R = r;
+        pixel.G = g;
+        pixel.B = b;
+        pixel.A = a;
+        frame[x, y] = pixel;
+      }
 
-        mutateHandler(GetHandler, SetHandler);
-      });
+      mutateHandler(GetHandler, SetHandler);
     }
 
     public bool HasAlphaChannel => true;
-    public Bitmap AsBitmap() => this.impl_;
+    public Bitmap AsBitmap() => FinImage.ConvertToBitmap(this);
 
     public void ExportToStream(Stream stream, LocalImageFormat imageFormat)
       => this.impl_.Save(
-          stream, FinImage.ConvertFinImageFormatToSystem(imageFormat));
+          stream,
+          FinImage.ConvertFinImageFormatToImageSharpEncoder(imageFormat));
   }
 
   public class Rgb24Image : IImage {
-    private readonly Bitmap impl_;
+    private readonly Image<Rgb24> impl_;
 
     public Rgb24Image(int width, int height) : this(
-        new Bitmap(width, height, PixelFormat.Format24bppRgb)) { }
+        new Image<Rgb24>(width, height)) { }
 
-    internal Rgb24Image(Bitmap bitmap) {
-      this.impl_ = bitmap;
+    internal Rgb24Image(Image<Rgb24> impl) {
+      this.impl_ = impl;
     }
 
     ~Rgb24Image() => this.ReleaseUnmanagedResources_();
@@ -174,25 +206,24 @@ namespace fin.image {
     public int Width => this.impl_.Width;
     public int Height => this.impl_.Height;
 
-    public unsafe void Access(IImage.AccessHandler accessHandler) {
-      BitmapUtil.InvokeAsLocked(this.impl_, bmpData => {
-        var ptr = (byte*) bmpData.Scan0;
+    public void Access(IImage.AccessHandler accessHandler) {
+      var frame = this.impl_.Frames[0];
 
-        void GetHandler(int x,
-                        int y,
-                        out byte r,
-                        out byte g,
-                        out byte b,
-                        out byte a) {
-          var index = 3 * (y * bmpData.Width + x);
-          b = ptr[index];
-          g = ptr[index + 1];
-          r = ptr[index + 2];
-          a = 255;
-        }
+      void GetHandler(
+          int x,
+          int y,
+          out byte r,
+          out byte g,
+          out byte b,
+          out byte a) {
+        var pixel = frame[x, y];
+        r = pixel.R;
+        g = pixel.G;
+        b = pixel.B;
+        a = 255;
+      }
 
-        accessHandler(GetHandler);
-      });
+      accessHandler(GetHandler);
     }
 
     public delegate void GetHandler(int x,
@@ -210,44 +241,49 @@ namespace fin.image {
     public delegate void MutateHandler(GetHandler getHandler,
                                        SetHandler setHandler);
 
-    public unsafe void Mutate(MutateHandler mutateHandler) {
-      BitmapUtil.InvokeAsLocked(this.impl_, bmpData => {
-        var ptr = (byte*) bmpData.Scan0;
+    public void Mutate(MutateHandler mutateHandler) {
+      var frame = this.impl_.Frames[0];
 
-        void GetHandler(int x, int y, out byte r, out byte g, out byte b) {
-          var index = 3 * (y * bmpData.Width + x);
-          b = ptr[index];
-          g = ptr[index + 1];
-          r = ptr[index + 2];
-        }
+      void GetHandler(
+          int x,
+          int y,
+          out byte r,
+          out byte g,
+          out byte b) {
+        var pixel = frame[x, y];
+        r = pixel.R;
+        g = pixel.G;
+        b = pixel.B;
+      }
 
-        void SetHandler(int x, int y, byte r, byte g, byte b) {
-          var index = 3 * (y * bmpData.Width + x);
-          ptr[index] = b;
-          ptr[index + 1] = g;
-          ptr[index + 2] = r;
-        }
+      void SetHandler(int x, int y, byte r, byte g, byte b) {
+        var pixel = frame[x, y];
+        pixel.R = r;
+        pixel.G = g;
+        pixel.B = b;
+        frame[x, y] = pixel;
+      }
 
-        mutateHandler(GetHandler, SetHandler);
-      });
+      mutateHandler(GetHandler, SetHandler);
     }
 
     public bool HasAlphaChannel => false;
-    public Bitmap AsBitmap() => this.impl_;
+    public Bitmap AsBitmap() => FinImage.ConvertToBitmap(this);
 
     public void ExportToStream(Stream stream, LocalImageFormat imageFormat)
       => this.impl_.Save(
-          stream, FinImage.ConvertFinImageFormatToSystem(imageFormat));
+          stream,
+          FinImage.ConvertFinImageFormatToImageSharpEncoder(imageFormat));
   }
 
   public class Ia16Image : IImage {
-    private readonly Rgba32Image impl_;
+    private readonly Image<La16> impl_;
 
     public Ia16Image(int width, int height) : this(
-        new Bitmap(width, height, PixelFormat.Format32bppArgb)) { }
+        new Image<La16>(width, height)) { }
 
-    internal Ia16Image(Bitmap bitmap) {
-      this.impl_ = new Rgba32Image(bitmap);
+    internal Ia16Image(Image<La16> impl) {
+      this.impl_ = impl;
     }
 
     ~Ia16Image() => this.ReleaseUnmanagedResources_();
@@ -262,8 +298,23 @@ namespace fin.image {
     public int Width => this.impl_.Width;
     public int Height => this.impl_.Height;
 
-    public void Access(IImage.AccessHandler accessHandler)
-      => this.impl_.Access(accessHandler);
+    public void Access(IImage.AccessHandler accessHandler) {
+      var frame = this.impl_.Frames[0];
+
+      void GetHandler(
+          int x,
+          int y,
+          out byte r,
+          out byte g,
+          out byte b,
+          out byte a) {
+        var pixel = frame[x, y];
+        r = g = b = pixel.L;
+        a = pixel.A;
+      }
+
+      accessHandler(GetHandler);
+    }
 
     public delegate void GetHandler(int x,
                                     int y,
@@ -279,32 +330,45 @@ namespace fin.image {
                                        SetHandler setHandler);
 
     public void Mutate(MutateHandler mutateHandler) {
-      this.impl_.Mutate((rgbaGetHandler, rgbaSetHandler) => {
-        void IaGetHandler(int x, int y, out byte intensity, out byte alpha)
-          => rgbaGetHandler(x, y, out intensity, out _, out _, out alpha);
+      var frame = this.impl_.Frames[0];
 
-        void IaSetHandler(int x, int y, byte intensity, byte alpha)
-          => rgbaSetHandler(x, y, intensity, intensity, intensity, alpha);
+      void GetHandler(
+          int x,
+          int y,
+          out byte i,
+          out byte a) {
+        var pixel = frame[x, y];
+        i = pixel.L;
+        a = pixel.A;
+      }
 
-        mutateHandler(IaGetHandler, IaSetHandler);
-      });
+      void SetHandler(int x, int y, byte i, byte a) {
+        var pixel = frame[x, y];
+        pixel.L = i;
+        pixel.A = a;
+        frame[x, y] = pixel;
+      }
+
+      mutateHandler(GetHandler, SetHandler);
     }
 
     public bool HasAlphaChannel => true;
-    public Bitmap AsBitmap() => this.impl_.AsBitmap();
+    public Bitmap AsBitmap() => FinImage.ConvertToBitmap(this);
 
     public void ExportToStream(Stream stream, LocalImageFormat imageFormat)
-      => this.impl_.ExportToStream(stream, imageFormat);
+      => this.impl_.Save(
+          stream,
+          FinImage.ConvertFinImageFormatToImageSharpEncoder(imageFormat));
   }
 
   public class I8Image : IImage {
-    private readonly Rgb24Image impl_;
+    private readonly Image<L8> impl_;
 
-    public I8Image(int width, int height) : this(
-        new Bitmap(width, height, PixelFormat.Format24bppRgb)) { }
+    public I8Image(int width, int height) :
+        this(new Image<L8>(width, height)) { }
 
-    internal I8Image(Bitmap bitmap) {
-      this.impl_ = new Rgb24Image(bitmap);
+    internal I8Image(Image<L8> impl) {
+      this.impl_ = impl;
     }
 
     ~I8Image() => this.ReleaseUnmanagedResources_();
@@ -319,8 +383,23 @@ namespace fin.image {
     public int Width => this.impl_.Width;
     public int Height => this.impl_.Height;
 
-    public void Access(IImage.AccessHandler accessHandler)
-      => this.impl_.Access(accessHandler);
+    public void Access(IImage.AccessHandler accessHandler) {
+      var frame = this.impl_.Frames[0];
+
+      void GetHandler(
+          int x,
+          int y,
+          out byte r,
+          out byte g,
+          out byte b,
+          out byte a) {
+        var pixel = frame[x, y];
+        r = g = b = pixel.PackedValue;
+        a = 255;
+      }
+
+      accessHandler(GetHandler);
+    }
 
     public delegate void GetHandler(int x,
                                     int y,
@@ -334,139 +413,31 @@ namespace fin.image {
                                        SetHandler setHandler);
 
     public void Mutate(MutateHandler mutateHandler) {
-      this.impl_.Mutate((rgbGetHandler, rgbSetHandler) => {
-        void IGetHandler(int x, int y, out byte intensity)
-          => rgbGetHandler(x, y, out intensity, out _, out _);
+      var frame = this.impl_.Frames[0];
 
-        void ISetHandler(int x, int y, byte intensity)
-          => rgbSetHandler(x, y, intensity, intensity, intensity);
+      void GetHandler(
+          int x,
+          int y,
+          out byte i) {
+        var pixel = frame[x, y];
+        i = pixel.PackedValue;
+      }
 
-        mutateHandler(IGetHandler, ISetHandler);
-      });
+      void SetHandler(int x, int y, byte i) {
+        var pixel = frame[x, y];
+        pixel.PackedValue = i;
+        frame[x, y] = pixel;
+      }
+
+      mutateHandler(GetHandler, SetHandler);
     }
 
     public bool HasAlphaChannel => false;
-    public Bitmap AsBitmap() => this.impl_.AsBitmap();
-
-    public void ExportToStream(Stream stream, LocalImageFormat imageFormat)
-      => this.impl_.ExportToStream(stream, imageFormat);
-  }
-
-  public class Indexed4Image : IImage {
-    private readonly Bitmap impl_;
-
-    public Indexed4Image(int width, int height) : this(
-        new Bitmap(width, height, PixelFormat.Format4bppIndexed)) { }
-
-    internal Indexed4Image(Bitmap bitmap) {
-      this.impl_ = bitmap;
-    }
-
-    ~Indexed4Image() => this.ReleaseUnmanagedResources_();
-
-    public void Dispose() {
-      this.ReleaseUnmanagedResources_();
-      GC.SuppressFinalize(this);
-    }
-
-    private void ReleaseUnmanagedResources_() => this.impl_.Dispose();
-
-    public int Width => this.impl_.Width;
-    public int Height => this.impl_.Height;
-
-    public unsafe void Access(IImage.AccessHandler accessHandler) {
-      var palette = this.impl_.Palette.Entries;
-
-      BitmapUtil.InvokeAsLocked(this.impl_, bmpData => {
-        var ptr = (byte*) bmpData.Scan0;
-
-        void GetHandler(int x,
-                        int y,
-                        out byte r,
-                        out byte g,
-                        out byte b,
-                        out byte a) {
-          var index = y * bmpData.Width + x;
-
-          var fullI = index;
-          var isUpper = fullI % 2 == 1;
-          var fullColorIndex = ptr[fullI / 2];
-
-          var colorIndex =
-              isUpper ? fullColorIndex & 0xF : fullColorIndex >> 4;
-          var color = palette[colorIndex];
-
-          r = color.R;
-          g = color.G;
-          b = color.B;
-          a = color.A;
-        }
-
-        accessHandler(GetHandler);
-      });
-    }
-
-    public bool HasAlphaChannel => true;
-    public Bitmap AsBitmap() => this.impl_;
+    public Bitmap AsBitmap() => FinImage.ConvertToBitmap(this);
 
     public void ExportToStream(Stream stream, LocalImageFormat imageFormat)
       => this.impl_.Save(
-          stream, FinImage.ConvertFinImageFormatToSystem(imageFormat));
-  }
-
-  public class Indexed8Image : IImage {
-    private readonly Bitmap impl_;
-
-    public Indexed8Image(int width, int height) : this(
-        new Bitmap(width, height, PixelFormat.Format4bppIndexed)) { }
-
-    internal Indexed8Image(Bitmap bitmap) {
-      this.impl_ = bitmap;
-    }
-
-    ~Indexed8Image() => this.ReleaseUnmanagedResources_();
-
-    public void Dispose() {
-      this.ReleaseUnmanagedResources_();
-      GC.SuppressFinalize(this);
-    }
-
-    private void ReleaseUnmanagedResources_() => this.impl_.Dispose();
-
-    public int Width => this.impl_.Width;
-    public int Height => this.impl_.Height;
-
-    public unsafe void Access(IImage.AccessHandler accessHandler) {
-      var palette = this.impl_.Palette.Entries;
-
-      BitmapUtil.InvokeAsLocked(this.impl_, bmpData => {
-        var ptr = (byte*) bmpData.Scan0;
-
-        void GetHandler(int x,
-                        int y,
-                        out byte r,
-                        out byte g,
-                        out byte b,
-                        out byte a) {
-          var index = y * bmpData.Width + x;
-          var colorIndex = ptr[index];
-          var color = palette[colorIndex];
-
-          r = color.R;
-          g = color.G;
-          b = color.B;
-          a = color.A;
-        }
-
-        accessHandler(GetHandler);
-      });
-    }
-
-    public bool HasAlphaChannel => true;
-    public Bitmap AsBitmap() => this.impl_;
-
-    public void ExportToStream(Stream stream, LocalImageFormat imageFormat)
-      => this.impl_.Save(
-          stream, FinImage.ConvertFinImageFormatToSystem(imageFormat));
+          stream,
+          FinImage.ConvertFinImageFormatToImageSharpEncoder(imageFormat));
   }
 }
