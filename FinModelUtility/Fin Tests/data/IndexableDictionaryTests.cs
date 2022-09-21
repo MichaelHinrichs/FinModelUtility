@@ -27,7 +27,7 @@ namespace fin.data {
 
       dict[index1] = "string1";
 
-      Assert.AreEqual(true, dict.TryGetValue(index1, out var value1));
+      Assert.AreEqual(true, dict.TryGetValue(index1, out _));
 
       dict.Clear();
 
