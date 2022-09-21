@@ -56,25 +56,32 @@ namespace uni.ui.gl {
     private readonly IPosition position_ = new ModelImpl.PositionImpl();
     private readonly INormal normal_ = new ModelImpl.NormalImpl();
 
-    public void UpdateTransforms(BoneTransformManager boneTransformManager) {
+    public void UpdateTransforms(BoneTransformManager? boneTransformManager) {
       for (var i = 0; i < this.vertices_.Count; ++i) {
         var vertex = this.vertices_[i];
 
-        boneTransformManager.ProjectVertex(
+        var position = this.position_;
+        var normal = this.normal_;
+        if (boneTransformManager != null) {
+          boneTransformManager.ProjectVertex(
             vertex,
             this.position_,
             this.normal_,
             true);
+        } else {
+          position = vertex.LocalPosition;
+          normal = vertex.LocalNormal;
+        }
 
         var positionOffset = POSITION_SIZE_ * i;
-        this.positionData_[positionOffset + 0] = this.position_.X;
-        this.positionData_[positionOffset + 1] = this.position_.Y;
-        this.positionData_[positionOffset + 2] = this.position_.Z;
+        this.positionData_[positionOffset + 0] = position.X;
+        this.positionData_[positionOffset + 1] = position.Y;
+        this.positionData_[positionOffset + 2] = position.Z;
 
         var normalOffset = NORMAL_SIZE_ * i;
-        this.normalData_[normalOffset + 0] = this.normal_.X;
-        this.normalData_[normalOffset + 1] = this.normal_.Y;
-        this.normalData_[normalOffset + 2] = this.normal_.Z;
+        this.normalData_[normalOffset + 0] = normal?.X ?? 0;
+        this.normalData_[normalOffset + 1] = normal?.Y ?? 0;
+        this.normalData_[normalOffset + 2] = normal?.Z ?? 0;
 
         for (var u = 0; u < this.uvData_.Length; ++u) {
           var uv = vertex.GetUv(u);

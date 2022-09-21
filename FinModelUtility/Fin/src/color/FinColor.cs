@@ -36,17 +36,17 @@ namespace fin.color {
       => FromRgbaFloats(rf, gf, bf, 1);
 
     public static IColor FromRgbaFloats(float rf, float gf, float bf, float af)
-      => FromRgbaBytes((byte) (rf * 255),
-                       (byte) (gf * 255),
-                       (byte) (bf * 255),
-                       (byte) (af * 255));
+      => FromRgbaBytes((byte)(rf * 255),
+                       (byte)(gf * 255),
+                       (byte)(bf * 255),
+                       (byte)(af * 255));
 
 
     public static IColor FromIntensityByte(byte ib)
       => FromRgbBytes(ib, ib, ib);
 
     public static IColor FromIntensityFloat(float iF)
-      => FromIntensityByte((byte) (iF * 255));
+      => FromIntensityByte((byte)(iF * 255));
 
 
     public static IColor FromSystemColor(Color color)
@@ -68,6 +68,17 @@ namespace fin.color {
       return FinColor.FromHsv(360 * FinColor.RANDOM_.NextDouble(),
                               1,
                               1);
+    }
+
+    public static float Lerp(float from, float to, float frac)
+      => from * (1 - frac) + to * frac;
+
+    public static IColor Lerp(IColor from, IColor to, float frac) {
+      var r = (byte)Math.Sqrt(Lerp(from.Rb * from.Rb, to.Rb * to.Rb, frac));
+      var g = (byte)Math.Sqrt(Lerp(from.Gb * from.Gb, to.Gb * to.Gb, frac));
+      var b = (byte)Math.Sqrt(Lerp(from.Bb * from.Bb, to.Bb * to.Bb, frac));
+
+      return FinColor.FromRgbBytes(r, g, b);
     }
 
     public float Rf => this.Rb / 255f;

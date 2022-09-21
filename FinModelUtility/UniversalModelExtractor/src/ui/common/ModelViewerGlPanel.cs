@@ -5,7 +5,6 @@ using fin.color;
 using fin.gl;
 using fin.math;
 using fin.model;
-using fin.model.impl;
 using fin.model.util;
 
 using OpenTK.Graphics.OpenGL;
@@ -32,6 +31,7 @@ namespace uni.ui.common {
 
     private GlShaderProgram texturelessShaderProgram_;
 
+    private BackgroundSphereRenderer backgroundRenderer_ = new();
     private IModelRenderer? modelRenderer_;
     private SkeletonRenderer? skeletonRenderer_;
     private readonly BoneTransformManager boneTransformManager_ = new();
@@ -328,6 +328,12 @@ void main() {
                       0, 0, 1);
 
         GL.MatrixMode(MatrixMode.Modelview);
+        GL.LoadIdentity();
+      }
+
+      {
+        GL.Translate(this.camera_.X, this.camera_.Y, this.camera_.Z * .995f);
+        this.backgroundRenderer_.Render();
         GL.LoadIdentity();
       }
 

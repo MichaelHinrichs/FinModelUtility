@@ -9,11 +9,11 @@ namespace uni.ui.gl {
   /// </summary>
   public class ModelRendererV2 : IModelRenderer {
     private readonly GlBufferManager bufferManager_;
-    private readonly BoneTransformManager boneTransformManager_;
+    private readonly BoneTransformManager? boneTransformManager_;
     private readonly List<MaterialMeshRendererV2> materialMeshRenderers_ = new();
 
     public ModelRendererV2(IModel model,
-                         BoneTransformManager boneTransformManager) {
+                         BoneTransformManager? boneTransformManager = null) {
       this.Model = model;
       this.boneTransformManager_ = boneTransformManager;
 
