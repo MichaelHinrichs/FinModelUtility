@@ -2,29 +2,13 @@
 using fin.data.fuzzy;
 using fin.data.queue;
 using fin.io;
+using fin.util.actions;
 using fin.util.asserts;
 
 #pragma warning disable CS8604
 
 
 namespace uni.ui.common {
-  public static class ActionExtensions {
-    public static Action Debounce(this Action func,
-                                  int milliseconds = 300) {
-      var last = 0;
-      return () => {
-        var current = Interlocked.Increment(ref last);
-        Task.Delay(milliseconds)
-            .ContinueWith(task => {
-              if (current == last) {
-                func();
-              }
-              task.Dispose();
-            });
-      };
-    }
-  }
-
   public interface IFileTreeView<TFile> {
     public delegate void FileSelectedHandler(IFileTreeNode<TFile> fileNode);
 

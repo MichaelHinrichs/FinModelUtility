@@ -24,7 +24,7 @@
     /// </summary>
     private void InitializeComponent() {
       System.Windows.Forms.SplitContainer splitContainer;
-      this.filterTextBox_ = new WaterMarkTextBox();
+      this.filterTextBox_ = new uni.ui.common.WaterMarkTextBox();
       this.fileTreeView_ = new System.Windows.Forms.TreeView();
       splitContainer = new System.Windows.Forms.SplitContainer();
       ((System.ComponentModel.ISupportInitialize)(splitContainer)).BeginInit();
@@ -39,6 +39,7 @@
       splitContainer.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
       splitContainer.IsSplitterFixed = true;
       splitContainer.Location = new System.Drawing.Point(0, 0);
+      splitContainer.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       splitContainer.Name = "splitContainer";
       splitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
       // 
@@ -50,20 +51,21 @@
       // splitContainer.Panel2
       // 
       splitContainer.Panel2.Controls.Add(this.fileTreeView_);
-      splitContainer.Size = new System.Drawing.Size(225, 627);
+      splitContainer.Size = new System.Drawing.Size(300, 965);
       splitContainer.SplitterDistance = 25;
+      splitContainer.SplitterWidth = 6;
       splitContainer.TabIndex = 0;
       // 
       // filterTextBox_
       // 
-      this.filterTextBox_.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
       this.filterTextBox_.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
       this.filterTextBox_.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
-      this.filterTextBox_.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-      this.filterTextBox_.Location = new System.Drawing.Point(0, 4);
+      this.filterTextBox_.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.filterTextBox_.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+      this.filterTextBox_.Location = new System.Drawing.Point(0, 0);
+      this.filterTextBox_.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.filterTextBox_.Name = "filterTextBox_";
-      this.filterTextBox_.Size = new System.Drawing.Size(225, 20);
+      this.filterTextBox_.Size = new System.Drawing.Size(300, 23);
       this.filterTextBox_.TabIndex = 1;
       this.filterTextBox_.WaterMarkColor = System.Drawing.Color.Gray;
       this.filterTextBox_.WaterMarkText = "Filter files...";
@@ -74,17 +76,19 @@
       this.fileTreeView_.HideSelection = false;
       this.fileTreeView_.HotTracking = true;
       this.fileTreeView_.Location = new System.Drawing.Point(0, 0);
+      this.fileTreeView_.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.fileTreeView_.Name = "fileTreeView_";
-      this.fileTreeView_.Size = new System.Drawing.Size(225, 598);
+      this.fileTreeView_.Size = new System.Drawing.Size(300, 934);
       this.fileTreeView_.TabIndex = 15;
       // 
       // FileTreeView
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.Controls.Add(splitContainer);
+      this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
       this.Name = "FileTreeView";
-      this.Size = new System.Drawing.Size(225, 627);
+      this.Size = new System.Drawing.Size(300, 965);
       splitContainer.Panel1.ResumeLayout(false);
       splitContainer.Panel1.PerformLayout();
       splitContainer.Panel2.ResumeLayout(false);
