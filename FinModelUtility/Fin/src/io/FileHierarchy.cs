@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-
 using fin.util.asserts;
 using fin.util.data;
 
@@ -64,7 +63,12 @@ namespace fin.io {
 
   public class FileHierarchy : IFileHierarchy {
     public FileHierarchy(IDirectory directory) {
-      this.Root = new FileHierarchyDirectory(null, directory, directory);
+      var populatedSubdirs =
+          new FileSystemPaths().ListAllPopulatedSubdirs(directory.FullName);
+
+      this.Root =
+          new FileHierarchyDirectory(null, directory, directory,
+                                     populatedSubdirs);
     }
 
     public IFileHierarchyDirectory Root { get; }
@@ -74,6 +78,37 @@ namespace fin.io {
 
       private List<IFileHierarchyDirectory> subdirs_ = new();
       private List<IFileHierarchyFile> files_ = new();
+
+      public FileHierarchyDirectory(
+          IFileHierarchyDirectory? parent,
+          IDirectory directory,
+          IDirectory baseDirectory,
+          ISubdirPaths paths) {
+        this.baseDirectory_ = baseDirectory;
+
+        this.Parent = parent;
+        this.Impl = directory;
+        this.LocalPath =
+            directory.FullName.Substring(baseDirectory.FullName.Length);
+
+        this.Subdirs =
+            new ReadOnlyCollection<IFileHierarchyDirectory>(this.subdirs_);
+        this.Files =
+            new ReadOnlyCollection<IFileHierarchyFile>(this.files_);
+
+        foreach (var filePath in paths.AbsoluteFilePaths) {
+          this.files_.Add(
+              new FileHierarchyFile(this, new FinFile(filePath),
+                                    baseDirectory));
+        }
+
+        foreach (var subdir in paths.Subdirs) {
+          this.subdirs_.Add(
+              new FileHierarchyDirectory(
+                  this, new FinDirectory(subdir.AbsoluteSubdirPath),
+                  baseDirectory, subdir));
+        }
+      }
 
       public FileHierarchyDirectory(
           IFileHierarchyDirectory? parent,
@@ -209,7 +244,8 @@ namespace fin.io {
                .Concat(
                    this.Subdirs.SelectMany(
                        subdir
-                           => subdir.FilesWithExtensionsRecursive(first, rest)));
+                           => subdir
+                               .FilesWithExtensionsRecursive(first, rest)));
 
       public override string ToString() => this.LocalPath;
     }

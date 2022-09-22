@@ -12,6 +12,10 @@ namespace benchmarks {
     public void FetchDirectoriesAllAtOnce() =>
         FetchDirectoriesAllAtOnceImpl();
 
+    [Benchmark]
+    public void FetchEntriesAllAtOnce() =>
+        FetchEntriesAllAtOnceImpl();
+
     public const string DIRECTORY =
         @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms";
 
@@ -45,6 +49,14 @@ namespace benchmarks {
                                     RecurseSubdirectories =
                                         true
                                 });
+    }
+
+    public string[] FetchEntriesAllAtOnceImpl() {
+      return Directory.GetFileSystemEntries(DIRECTORY, SEARCH_PATTERN,
+                                            new EnumerationOptions {
+                                                RecurseSubdirectories =
+                                                    true
+                                            });
     }
   }
 
