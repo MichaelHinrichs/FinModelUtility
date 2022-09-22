@@ -38,7 +38,7 @@
             this.exportSelectedModelButton_});
       toolStrip.Location = new System.Drawing.Point(0, 0);
       toolStrip.Name = "toolStrip";
-      toolStrip.Size = new System.Drawing.Size(451, 25);
+      toolStrip.Size = new System.Drawing.Size(451, 31);
       toolStrip.Stretch = true;
       toolStrip.TabIndex = 0;
       toolStrip.Text = "toolStrip1";
@@ -48,9 +48,10 @@
       this.exportAllModelsInSelectedDirectoryButton_.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
       this.exportAllModelsInSelectedDirectoryButton_.Enabled = false;
       this.exportAllModelsInSelectedDirectoryButton_.Image = ((System.Drawing.Image)(resources.GetObject("exportAllModelsInSelectedDirectoryButton_.Image")));
+      this.exportAllModelsInSelectedDirectoryButton_.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
       this.exportAllModelsInSelectedDirectoryButton_.ImageTransparentColor = System.Drawing.Color.Magenta;
       this.exportAllModelsInSelectedDirectoryButton_.Name = "exportAllModelsInSelectedDirectoryButton_";
-      this.exportAllModelsInSelectedDirectoryButton_.Size = new System.Drawing.Size(23, 22);
+      this.exportAllModelsInSelectedDirectoryButton_.Size = new System.Drawing.Size(28, 28);
       this.exportAllModelsInSelectedDirectoryButton_.Text = "Export All";
       this.exportAllModelsInSelectedDirectoryButton_.ToolTipText = "Export all models in selected directory";
       this.exportAllModelsInSelectedDirectoryButton_.Click += new System.EventHandler(this.exportAllModelsInSelectedDirectoryButton__Click);
@@ -60,9 +61,11 @@
       this.exportSelectedModelButton_.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
       this.exportSelectedModelButton_.Enabled = false;
       this.exportSelectedModelButton_.Image = ((System.Drawing.Image)(resources.GetObject("exportSelectedModelButton_.Image")));
+      this.exportSelectedModelButton_.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
       this.exportSelectedModelButton_.ImageTransparentColor = System.Drawing.Color.Magenta;
       this.exportSelectedModelButton_.Name = "exportSelectedModelButton_";
-      this.exportSelectedModelButton_.Size = new System.Drawing.Size(23, 22);
+      this.exportSelectedModelButton_.Padding = new System.Windows.Forms.Padding(6, 0, 0, 0);
+      this.exportSelectedModelButton_.Size = new System.Drawing.Size(28, 28);
       this.exportSelectedModelButton_.Text = "Export";
       this.exportSelectedModelButton_.ToolTipText = "Export selected model";
       this.exportSelectedModelButton_.Click += new System.EventHandler(this.exportSelectedModelButton__Click);
@@ -73,7 +76,7 @@
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.Controls.Add(toolStrip);
       this.Name = "ModelToolStrip";
-      this.Size = new System.Drawing.Size(451, 25);
+      this.Size = new System.Drawing.Size(451, 31);
       toolStrip.ResumeLayout(false);
       toolStrip.PerformLayout();
       this.ResumeLayout(false);

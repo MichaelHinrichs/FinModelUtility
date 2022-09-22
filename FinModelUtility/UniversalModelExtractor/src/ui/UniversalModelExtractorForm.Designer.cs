@@ -71,7 +71,7 @@ namespace uni.ui {
       // splitContainer1.Panel2
       // 
       splitContainer1.Panel2.Controls.Add(splitContainer2);
-      splitContainer1.Size = new System.Drawing.Size(1013, 491);
+      splitContainer1.Size = new System.Drawing.Size(1013, 488);
       splitContainer1.SplitterDistance = 224;
       splitContainer1.TabIndex = 2;
       // 
@@ -81,7 +81,7 @@ namespace uni.ui {
       this.modelFileTreeView_.Location = new System.Drawing.Point(0, 0);
       this.modelFileTreeView_.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
       this.modelFileTreeView_.Name = "modelFileTreeView_";
-      this.modelFileTreeView_.Size = new System.Drawing.Size(224, 491);
+      this.modelFileTreeView_.Size = new System.Drawing.Size(224, 488);
       this.modelFileTreeView_.TabIndex = 0;
       // 
       // splitContainer2
@@ -98,7 +98,7 @@ namespace uni.ui {
       // splitContainer2.Panel2
       // 
       splitContainer2.Panel2.Controls.Add(this.modelTabs_);
-      splitContainer2.Size = new System.Drawing.Size(785, 491);
+      splitContainer2.Size = new System.Drawing.Size(785, 488);
       splitContainer2.SplitterDistance = 573;
       splitContainer2.TabIndex = 1;
       // 
@@ -111,7 +111,7 @@ namespace uni.ui {
       this.modelViewerGlPanel_.Location = new System.Drawing.Point(0, 0);
       this.modelViewerGlPanel_.Model = null;
       this.modelViewerGlPanel_.Name = "modelViewerGlPanel_";
-      this.modelViewerGlPanel_.Size = new System.Drawing.Size(573, 491);
+      this.modelViewerGlPanel_.Size = new System.Drawing.Size(573, 488);
       this.modelViewerGlPanel_.TabIndex = 0;
       this.modelViewerGlPanel_.Load += new System.EventHandler(this.modelViewerGlPanel__Load);
       // 
@@ -120,7 +120,7 @@ namespace uni.ui {
       this.modelTabs_.Dock = System.Windows.Forms.DockStyle.Fill;
       this.modelTabs_.Location = new System.Drawing.Point(0, 0);
       this.modelTabs_.Name = "modelTabs_";
-      this.modelTabs_.Size = new System.Drawing.Size(208, 491);
+      this.modelTabs_.Size = new System.Drawing.Size(208, 488);
       this.modelTabs_.TabIndex = 0;
       // 
       // menuStrip
@@ -151,7 +151,7 @@ namespace uni.ui {
       // gitHubToolStripMenuItem
       // 
       this.gitHubToolStripMenuItem.Name = "gitHubToolStripMenuItem";
-      this.gitHubToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+      this.gitHubToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
       this.gitHubToolStripMenuItem.Text = "View on GitHub";
       this.gitHubToolStripMenuItem.Click += new System.EventHandler(this.gitHubToolStripMenuItem_Click);
       // 
@@ -167,12 +167,13 @@ namespace uni.ui {
       // splitContainer3.Panel1
       // 
       splitContainer3.Panel1.Controls.Add(this.modelToolStrip_);
+      splitContainer3.Panel1MinSize = 28;
       // 
       // splitContainer3.Panel2
       // 
       splitContainer3.Panel2.Controls.Add(splitContainer1);
       splitContainer3.Size = new System.Drawing.Size(1013, 520);
-      splitContainer3.SplitterDistance = 25;
+      splitContainer3.SplitterDistance = 28;
       splitContainer3.TabIndex = 4;
       // 
       // modelToolStrip_
@@ -180,7 +181,7 @@ namespace uni.ui {
       this.modelToolStrip_.Dock = System.Windows.Forms.DockStyle.Fill;
       this.modelToolStrip_.Location = new System.Drawing.Point(0, 0);
       this.modelToolStrip_.Name = "modelToolStrip_";
-      this.modelToolStrip_.Size = new System.Drawing.Size(1013, 25);
+      this.modelToolStrip_.Size = new System.Drawing.Size(1013, 28);
       this.modelToolStrip_.TabIndex = 3;
       // 
       // UniversalModelExtractorForm
