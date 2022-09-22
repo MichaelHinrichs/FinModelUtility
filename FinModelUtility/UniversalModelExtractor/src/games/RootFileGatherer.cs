@@ -1,4 +1,5 @@
 ﻿using fin.model;
+using System.ComponentModel;
 using uni.games.battalion_wars_1;
 using uni.games.battalion_wars_2;
 using uni.games.glover;
@@ -27,32 +28,50 @@ namespace uni.games {
           new LuigisMansion3dModelFileGatherer(),
           new MajorasMask3dFileGatherer(),
           new MarioKartDoubleDashFileGatherer(),
-          new OcarinaOfTime3dFileGatherer(), new Pikmin1ModelFileGatherer(),
+          new OcarinaOfTime3dFileGatherer(), 
+          new Pikmin1ModelFileGatherer(),
           new Pikmin2FileGatherer(), new SuperMarioSunshineModelFileGatherer(),
           new SuperSmashBrosMeleeModelFileGatherer(),
       };
 
-      var gatherTasks =
-          gatherers.Select(
-                       gatherer =>
-                           new Task<IModelDirectory?>(() => gatherer
-                               .GatherModelFileBundles(false)))
-                   .ToArray();
+      var useMultiThreading = true;
+      if (useMultiThreading) {
+        var gatherTasks =
+            gatherers.Select(
+                         gatherer =>
+                             Task.Run(() => {
+                               try {
+                                 return gatherer
+                                     .GatherModelFileBundles(false);
+                               } catch (Exception e) {
+                                 ;
+                                 return null;
+                               }
+                             }))
+                     .ToArray();
 
-      foreach (var gatherTask in gatherTasks) {
-        gatherTask.Start();
-        gatherTask.Wait();
-        rootModelDirectory.AddSubdirIfNotNull(gatherTask.Result);
+        Task.WhenAll(gatherTasks)
+            .ContinueWith(async resultsTask => {
+              var results = await resultsTask;
+              foreach (var result in results) {
+                rootModelDirectory.AddSubdirIfNotNull(result);
+              }
+            })
+            .Wait();
+      } else {
+        var gatherTasks =
+            gatherers.Select(
+                         gatherer =>
+                             new Task<IModelDirectory?>(() => gatherer
+                                 .GatherModelFileBundles(false)))
+                     .ToArray();
+
+        foreach (var gatherTask in gatherTasks) {
+          gatherTask.Start();
+          gatherTask.Wait();
+          rootModelDirectory.AddSubdirIfNotNull(gatherTask.Result);
+        }
       }
-
-      /*Task.WhenAll(gatherTasks)
-          .ContinueWith(async resultsTask => {
-            var results = await resultsTask;
-            foreach (var result in results) {
-              rootModelDirectory.AddSubdirIfNotNull(result);
-            }
-          })
-          .Wait();*/
       rootModelDirectory.RemoveEmptyChildren();
 
       return rootModelDirectory;

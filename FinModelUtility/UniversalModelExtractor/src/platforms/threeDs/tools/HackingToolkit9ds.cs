@@ -9,6 +9,8 @@ using uni.platforms.gcn.tools;
 
 namespace uni.platforms.threeDs.tools {
   public class HackingToolkit9ds {
+    private static readonly object HACKING_TOOLKIT_9DS_LOCK_ = new();
+
     public bool Run(IFile romFile, out IFileHierarchy hierarchy) {
       Asserts.Equal(
           ".cia",
@@ -27,50 +29,51 @@ namespace uni.platforms.threeDs.tools {
       if (!finalDirectory.Exists) {
         didChange = true;
 
-        var beforeFiles = ThreeDsToolsConstants.HACKING_TOOLKIT_9DS_DIRECTORY
+        lock (HACKING_TOOLKIT_9DS_LOCK_) {
+          var beforeFiles = ThreeDsToolsConstants.HACKING_TOOLKIT_9DS_DIRECTORY
                                                .GetExistingFiles()
                                                .ToHashSet();
-        var beforeSubdirs = ThreeDsToolsConstants.HACKING_TOOLKIT_9DS_DIRECTORY
-                                                 .GetExistingSubdirs()
-                                                 .ToHashSet();
+          var beforeSubdirs = ThreeDsToolsConstants.HACKING_TOOLKIT_9DS_DIRECTORY
+                                                   .GetExistingSubdirs()
+                                                   .ToHashSet();
 
-        var directoryPath = Path.Join(
-            ThreeDsToolsConstants.HACKING_TOOLKIT_9DS_DIRECTORY.FullName,
-            "ExtractedRomFS");
-        var directory = new FinDirectory(directoryPath);
+          var directoryPath = Path.Join(
+              ThreeDsToolsConstants.HACKING_TOOLKIT_9DS_DIRECTORY.FullName,
+              "ExtractedRomFS");
+          var directory = new FinDirectory(directoryPath);
 
-        if (!directory.Exists) {
-          this.DumpRom_(romFile);
-          Asserts.True(directory.Exists,
-                       $"Failed to find expected HackingToolkit9ds directory:\n{directory}" +
-                       "\n\n" +
-                       "This is most likely due to not pre-installing " +
-                       "HackingToolkit9ds via the installer:\n" +
-                       "cli/tools/HackingToolkit9DSv12/SetupUS.exe");
-        }
-
-        Directory.Move(directoryPath, finalDirectoryPath);
-        Asserts.True(finalDirectory.Exists,
-                     $"Directory was not created: {finalDirectory}");
-
-        var afterFiles = ThreeDsToolsConstants.HACKING_TOOLKIT_9DS_DIRECTORY
-                                              .GetExistingFiles()
-                                              .ToArray();
-        var afterSubdirs = ThreeDsToolsConstants.HACKING_TOOLKIT_9DS_DIRECTORY
-                                                .GetExistingSubdirs()
-                                                .ToArray();
-
-
-        // Cleans up unneeded files & directories
-        foreach (var afterFile in afterFiles) {
-          if (!beforeFiles.Contains(afterFile)) {
-            afterFile.Info.Delete();
+          if (!directory.Exists) {
+            this.DumpRom_(romFile);
+            Asserts.True(directory.Exists,
+                         $"Failed to find expected HackingToolkit9ds directory:\n{directory}" +
+                         "\n\n" +
+                         "This is most likely due to not pre-installing " +
+                         "HackingToolkit9ds via the installer:\n" +
+                         "cli/tools/HackingToolkit9DSv12/SetupUS.exe");
           }
-        }
 
-        foreach (var afterSubdir in afterSubdirs) {
-          if (!beforeSubdirs.Contains(afterSubdir)) {
-            afterSubdir.Info.Delete(true);
+          Directory.Move(directoryPath, finalDirectoryPath);
+          Asserts.True(finalDirectory.Exists,
+                       $"Directory was not created: {finalDirectory}");
+
+          var afterFiles = ThreeDsToolsConstants.HACKING_TOOLKIT_9DS_DIRECTORY
+                                                .GetExistingFiles()
+                                                .ToArray();
+          var afterSubdirs = ThreeDsToolsConstants.HACKING_TOOLKIT_9DS_DIRECTORY
+                                                  .GetExistingSubdirs()
+                                                  .ToArray();
+
+          // Cleans up unneeded files & directories
+          foreach (var afterFile in afterFiles) {
+            if (!beforeFiles.Contains(afterFile)) {
+              afterFile.Info.Delete();
+            }
+          }
+
+          foreach (var afterSubdir in afterSubdirs) {
+            if (!beforeSubdirs.Contains(afterSubdir)) {
+              afterSubdir.Info.Delete(true);
+            }
           }
         }
       }
