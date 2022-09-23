@@ -1,6 +1,6 @@
 ﻿using CommandLine;
 using CommandLine.Text;
-
+using level5.debug;
 using uni.debug;
 using uni.games.animal_crossing;
 using uni.games.battalion_wars_1;
@@ -100,7 +100,8 @@ namespace uni.cli {
                 .WithParsed((DebugOptions _) => {
                   /*var window = new DebugWindow();
                   window.Run();*/
-                  new DebugProgram().Run();
+                  //new DebugProgram().Run();
+                  new DebugLevel5().Run();
                 })
                 .WithNotParsed(parseErrors => errors = parseErrors);
 
