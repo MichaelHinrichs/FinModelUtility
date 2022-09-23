@@ -1,9 +1,7 @@
 ﻿using fin.io;
 using fin.util.asserts;
-
 using Gameloop.Vdf;
 using Gameloop.Vdf.Linq;
-
 using Microsoft.Win32;
 
 
@@ -33,7 +31,8 @@ namespace uni.platforms.desktop {
               SteamUtils.InstallDirectory
                         .GetExistingFile("config/libraryfolders.vdf")
                         .OpenReadAsText())
-          .Value.Skip(1)
+          .Value
+          .Children()
           .Select(section => section.Value<VProperty>().Value)
           .Select(section => section["path"])
           .Select(path => new FinDirectory(path.ToString()))
@@ -42,11 +41,14 @@ namespace uni.platforms.desktop {
           .Select(steamApps => steamApps.GetSubdir("common"))
           .ToArray();
 
+    public static IDirectory[] GameDirectories { get; }
+      = CommonDirectories
+        .SelectMany(common => common.GetExistingSubdirs())
+        .ToArray();
+
     public static IDirectory?
         GetGameDirectory(string name, bool assert = false) {
-      var gameDir = CommonDirectories
-                   .SelectMany(common => common.GetExistingSubdirs())
-                   .FirstOrDefault(game => game.Name == name);
+      var gameDir = GameDirectories.FirstOrDefault(game => game.Name == name);
       return !assert
                  ? gameDir
                  : Asserts.CastNonnull(
