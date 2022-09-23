@@ -1,5 +1,4 @@
 ﻿using fin.model;
-using System.ComponentModel;
 using uni.games.battalion_wars_1;
 using uni.games.battalion_wars_2;
 using uni.games.glover;
@@ -11,6 +10,7 @@ using uni.games.mario_kart_double_dash;
 using uni.games.ocarina_of_time_3d;
 using uni.games.pikmin_1;
 using uni.games.pikmin_2;
+using uni.games.professor_layton_vs_phoenix_wright;
 using uni.games.super_mario_sunshine;
 using uni.games.super_smash_bros_melee;
 
@@ -28,9 +28,11 @@ namespace uni.games {
           new LuigisMansion3dModelFileGatherer(),
           new MajorasMask3dFileGatherer(),
           new MarioKartDoubleDashFileGatherer(),
-          new OcarinaOfTime3dFileGatherer(), 
+          new OcarinaOfTime3dFileGatherer(),
           new Pikmin1ModelFileGatherer(),
-          new Pikmin2FileGatherer(), new SuperMarioSunshineModelFileGatherer(),
+          new Pikmin2FileGatherer(),
+          new ProfessorLaytonVsPhoenixWrightModelFileGatherer(),
+          new SuperMarioSunshineModelFileGatherer(),
           new SuperSmashBrosMeleeModelFileGatherer(),
       };
 
