@@ -89,6 +89,29 @@ namespace System.IO {
       }
     }
 
+    public byte[] ReadBytesFromOffset(long position, int len) {
+      var startingOffset = this.Position;
+      this.Position = position;
+
+      var bytes = this.ReadBytes(len);
+
+      this.Position = startingOffset;
+
+      return bytes;
+    }
+
+    public void Subread(long position, int len, Action<EndianBinaryReader> subread) {
+      var tempPos = this.Position;
+      {
+        this.Position = position;
+
+        var bytes = this.ReadBytesFromOffset(position, len);
+        using var ser = new EndianBinaryReader(new MemoryStream(bytes), this.Endianness);
+        subread(ser);
+      }
+      this.Position = tempPos;
+    }
+
     public void Subread(long position, Action<EndianBinaryReader> subread) {
       var tempPos = this.Position;
       {

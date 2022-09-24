@@ -18,7 +18,7 @@ namespace level5 {
       return false;
     }
 
-    /*public static byte[] Level5Decom(byte[] b) {
+    public static byte[] Level5Decom(byte[] b) {
       int tableType = (b[0] & 0xFF);
 
       byte[] t;
@@ -37,7 +37,7 @@ namespace level5 {
           t = (Huffman_Decompress(b, (byte)0x28));
           break;
         case 0x04:
-          t = (rle_Decompress(b));
+          t = (DecompressRle(b));
           break;
         default:
           t = new byte[b.Length - 4];
@@ -46,7 +46,7 @@ namespace level5 {
       }
 
       return t;
-    }*/
+    }
 
     /*
     public static byte[] YAY0(byte[] fileData) {
@@ -373,9 +373,9 @@ namespace level5 {
       return o.ToArray();
     }
 
-    /*public static byte[] rle_Decompress(byte[] instream) {
+    public static byte[] DecompressRle(byte[] instream) {
       long inLength = instream.Length;
-      long ReadBytes = 0;
+      long readBytes = 0;
       int p = 0;
 
       p++;
@@ -383,11 +383,11 @@ namespace level5 {
       int decompressedSize = (instream[p++] & 0xFF)
               | ((instream[p++] & 0xFF) << 8)
               | ((instream[p++] & 0xFF) << 16);
-      ReadBytes += 4;
+      readBytes += 4;
       if (decompressedSize == 0) {
         decompressedSize = decompressedSize
                 | ((instream[p++] & 0xFF) << 24);
-        ReadBytes += 4;
+        readBytes += 4;
       }
 
       List<byte> outstream = new List<byte>();
@@ -395,7 +395,7 @@ namespace level5 {
       while (p < instream.Length) {
 
         int flag = (byte)instream[p++];
-        ReadBytes++;
+        readBytes++;
 
         bool compressed = (flag & 0x80) > 0;
         int length = flag & 0x7F;
@@ -408,7 +408,7 @@ namespace level5 {
         if (compressed) {
 
           int data = (byte)instream[p++];
-          ReadBytes++;
+          readBytes++;
 
           byte bdata = (byte)data;
           for (int i = 0; i < length; i++) {
@@ -418,10 +418,10 @@ namespace level5 {
         } else {
 
           int tryReadLength = length;
-          if (ReadBytes + length > inLength)
-            tryReadLength = (int)(inLength - ReadBytes);
+          if (readBytes + length > inLength)
+            tryReadLength = (int)(inLength - readBytes);
 
-          ReadBytes += tryReadLength;
+          readBytes += tryReadLength;
 
           for (int i = 0; i < tryReadLength; i++) {
             outstream.Add((byte)(instream[p++] & 0xFF));
@@ -429,30 +429,29 @@ namespace level5 {
         }
       }
 
-      if (ReadBytes < inLength) {
+      if (readBytes < inLength) {
       }
 
       return outstream.ToArray();
     }
-    */
 
-    /*public class HUFF_STREAM {
+    public class HuffStream {
       public byte[] bytes;
       public int p = 0;
       public int length;
-      public HUFF_STREAM(byte[] b) {
+      public HuffStream(byte[] b) {
         bytes = b;
         length = b.Length;
       }
 
-      public bool hasBytes() {
+      public bool HasBytes() {
         return p < bytes.Length;
       }
 
       public int ReadByte() {
         return bytes[p++] & 0xFF;
       }
-      public int readThree() {
+      public int ReadThree() {
         return ((bytes[p++] & 0xFF)) | ((bytes[p++] & 0xFF) << 8) | ((bytes[p++] & 0xFF) << 16);
       }
       public int ReadInt32() {
@@ -467,7 +466,7 @@ namespace level5 {
       public byte data;
       public bool isData;
       public HuffTreeNode child0; public HuffTreeNode child1;
-      public HuffTreeNode(HUFF_STREAM stream, bool isData, long relOffset, long maxStreamPos) {
+      public HuffTreeNode(HuffStream stream, bool isData, long relOffset, long maxStreamPos) {
         if (stream.p >= maxStreamPos) {
           return;
         }
@@ -491,27 +490,26 @@ namespace level5 {
           stream.p = currStreamPos;
         }
       }
-
     }
 
     public static byte[] Huffman_Decompress(byte[] b, byte atype) {
-      HUFF_STREAM instream = new HUFF_STREAM(b);
-      long ReadBytes = 0;
+      HuffStream instream = new HuffStream(b);
+      long readBytes = 0;
 
       byte type = (byte)instream.ReadByte();
       type = atype;
       if (type != 0x28 && type != 0x24) return b;
-      int decompressedSize = instream.readThree();
-      ReadBytes += 4;
+      int decompressedSize = instream.ReadThree();
+      readBytes += 4;
       if (decompressedSize == 0) {
         instream.p -= 3;
         decompressedSize = instream.ReadInt32();
-        ReadBytes += 4;
+        readBytes += 4;
       }
 
       List<byte> o = new List<byte>();
 
-      int treeSize = instream.ReadByte(); ReadBytes++;
+      int treeSize = instream.ReadByte(); readBytes++;
       treeSize = (treeSize + 1) * 2;
 
       long treeEnd = (instream.p - 1) + treeSize;
@@ -521,7 +519,7 @@ namespace level5 {
       // the given value is odd or even.
       HuffTreeNode rootNode = new HuffTreeNode(instream, false, 5, treeEnd);
 
-      ReadBytes += treeSize;
+      readBytes += treeSize;
       // re-position the stream after the tree (the stream is currently positioned after the root
       // node, which is located at the start of the tree definition)
       instream.p = (int)treeEnd;
@@ -537,11 +535,11 @@ namespace level5 {
       // the current output size
       HuffTreeNode currentNode = rootNode;
 
-      while (instream.hasBytes()) {
+      while (instream.HasBytes()) {
         while (!currentNode.isData) {
           // if there are no bits left to read in the data, get a new byte from the input
           if (bitsLeft == 0) {
-            ReadBytes += 4;
+            readBytes += 4;
             data = instream.ReadInt32();
             bitsLeft = 32;
           }
@@ -575,12 +573,12 @@ namespace level5 {
         currentNode = rootNode;
       }
 
-      if (ReadBytes % 4 != 0)
-        ReadBytes += 4 - (ReadBytes % 4);
+      if (readBytes % 4 != 0)
+        readBytes += 4 - (readBytes % 4);
 
 
       return o.ToArray();
-    }*/
+    }
 
     public static byte[] DecompressZlib(byte[] data) {
       var stream = new MemoryStream();
