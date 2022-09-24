@@ -1,14 +1,17 @@
 ﻿using fin.model;
+using level5.api;
+using modl.api;
 using uni.platforms;
 using uni.platforms.threeDs;
 using uni.platforms.threeDs.tools;
+using uni.util.io;
 
 
 namespace uni.games.professor_layton_vs_phoenix_wright {
   public class
       ProfessorLaytonVsPhoenixWrightModelFileGatherer : IModelFileGatherer<
-          IModelFileBundle> {
-    public IModelDirectory<IModelFileBundle>? GatherModelFileBundles(
+          XiModelFileBundle> {
+    public IModelDirectory<XiModelFileBundle>? GatherModelFileBundles(
         bool assert) {
       var professorLaytonVsPhoenixWrightRom =
           DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
@@ -21,14 +24,26 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
           new ThreeDsFileHierarchyExtractor().ExtractFromRom(
               professorLaytonVsPhoenixWrightRom);
 
-      var rootModelDirectory =
-          new ModelDirectory<IModelFileBundle>(
-              "professor_layton_vs_phoenix_wright");
+      if (new ThreeDsXfsaTool().Extract(
+            fileHierarchy.Root.Files.Single(file => file.Name == "vs1.fa"))) {
+        fileHierarchy.Root.Refresh(true);
+      }
 
-      new ThreeDsXfsaTool().Extract(
-          fileHierarchy.Root.Files.Single(file => file.Name == "vs1.fa"));
+      return new FileHierarchyBundler<XiModelFileBundle>(
+          directory => {
+            var xcFiles = directory.FilesWithExtension(".xc");
 
-      return rootModelDirectory;
+            var bundles =
+              xcFiles
+                    .Select(
+                      xcFile => new XiModelFileBundle {
+                        XcFile = xcFile,
+                      })
+                    .ToList();
+
+            return bundles;
+          }
+      ).GatherBundles(fileHierarchy);
     }
   }
 }
