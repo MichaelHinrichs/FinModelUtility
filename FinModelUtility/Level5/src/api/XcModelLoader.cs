@@ -24,6 +24,7 @@ namespace level5.api {
 
       var model = new ModelImpl();
 
+      var indexToFinBone = new Dictionary<int, IBone>();
       {
         var mbnFiles = xc.FilesByExtension[".mbn"];
 
@@ -64,6 +65,43 @@ namespace level5.api {
 
           var scale = mbn.Scale;
           bone.SetLocalScale(scale.X, scale.Y, scale.Z);
+
+          indexToFinBone[mbn.Id] = bone;
+
+          mbnQueue.Enqueue(mbnNode.Children.Select(childNode => (childNode, bone)));
+        }
+      }
+
+      {
+        var prmFiles = xc.FilesByExtension[".prm"];
+        foreach (var prmFile in prmFiles) {
+          var prm = new Prm(prmFile.Data);
+
+          var mesh = model.Skin.AddMesh();
+          mesh.Name = prm.Name;
+
+          var finVertices = new List<IVertex>();
+          foreach (var prmVertex in prm.Vertices) {
+            var position = prmVertex.Pos;
+            var finVertex = model.Skin.AddVertex(position.X, position.Y, position.Z);
+
+            var boneWeightList = new List<BoneWeight>();
+            for (var b = 0; b < 4; ++b) {
+              var boneId = (int)prmVertex.Bones[b];
+              var weight = (int)prmVertex.Weights[b];
+
+              if (indexToFinBone.TryGetValue(boneId, out var finBone)) {
+                boneWeightList.Add(new BoneWeight(finBone, null, weight));
+              }
+            }
+            var boneWeights = model.Skin.GetOrCreateBoneWeights(PreprojectMode.BONE, boneWeightList.ToArray());
+            finVertex.SetBoneWeights(boneWeights);
+
+            finVertices.Add(finVertex);
+          }
+
+          var finTriangleVertices = prm.Triangles.Select(vertexIndex => finVertices[(int) vertexIndex]).ToArray();
+          mesh.AddTriangles(finTriangleVertices);
         }
       }
 

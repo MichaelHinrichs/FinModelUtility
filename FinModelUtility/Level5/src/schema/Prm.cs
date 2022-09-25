@@ -4,9 +4,6 @@ namespace level5.schema {
   public class Prm {
     public string Name { get; private set; }
 
-    public byte[] PolygonVertexBuffer { get; private set; }
-    public byte[] PolygonVertexIndexBuffer { get; private set; }
-
     public string MaterialName { get; private set; }
 
     private float[] nodeTable_;
@@ -33,8 +30,8 @@ namespace level5.schema {
       uint pviOffset = r.ReadUInt32();
       int pviSize = r.ReadInt32();
 
-      PolygonVertexBuffer = r.ReadBytesAtOffset(pvbOffset + prmOffset, pvbSize);
-      PolygonVertexIndexBuffer = r.ReadBytesAtOffset(pviOffset + prmOffset, pviSize);
+      var polygonVertexBuffer = r.ReadBytesAtOffset(pvbOffset + prmOffset, pvbSize);
+      var polygonVertexIndexBuffer = r.ReadBytesAtOffset(pviOffset + prmOffset, pviSize);
 
       // node table-------------------------------------------
 
@@ -54,8 +51,8 @@ namespace level5.schema {
       MaterialName = r.ReadStringAtOffset(r.ReadUInt32(), r.ReadInt32());
       Name = name;
 
-      Triangles = this.ParseIndexBuffer_(PolygonVertexIndexBuffer);
-      Vertices = this.ParseBuffer_(PolygonVertexBuffer);
+      Triangles = this.ParseIndexBuffer_(polygonVertexIndexBuffer);
+      Vertices = this.ParseBuffer_(polygonVertexBuffer);
     }
 
 

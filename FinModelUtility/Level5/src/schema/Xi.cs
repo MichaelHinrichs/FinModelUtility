@@ -62,7 +62,7 @@ namespace level5.schema {
 
         int imageDataOffset = someTable + someTableSize;
 
-        byte[] tileBytes = Decompress.Level5Decom(r.ReadBytesFromOffset((uint)someTable, someTableSize));
+        byte[] tileBytes = Decompress.Level5Decom(r.ReadBytesAtOffset((uint)someTable, someTableSize));
 
         if (tileBytes.Length > 2 && tileBytes[0] == 0x53 && tileBytes[1] == 0x04)
           SwitchFile = true;
@@ -103,7 +103,7 @@ namespace level5.schema {
 
         ImageFormat = (byte)type;
 
-        ImageData = Decompress.Level5Decom(r.ReadBytesFromOffset((uint)imageDataOffset, (int)(r.BaseStream.Length - imageDataOffset)));
+        ImageData = Decompress.Level5Decom(r.ReadBytesAtOffset((uint)imageDataOffset, (int)(r.BaseStream.Length - imageDataOffset)));
       }
     }
 
