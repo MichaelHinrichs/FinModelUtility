@@ -30,6 +30,8 @@ namespace fin.data {
       list.Add(value);
     }
 
+    public IList<TValue> this[TKey key] => this.impl_[key];
+
     public bool TryGetList(TKey key, out IList<TValue>? list) {
       if (key == null) {
         if (this.nullImpl_.Count > 0) {
