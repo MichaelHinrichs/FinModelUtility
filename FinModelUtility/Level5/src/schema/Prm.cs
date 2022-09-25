@@ -6,7 +6,7 @@ namespace level5.schema {
 
     public string MaterialName { get; private set; }
 
-    private float[] nodeTable_;
+    private uint[] nodeTable_;
 
     public List<uint> Triangles { get; set; }
     public List<GenericVertex> Vertices { get; set; }
@@ -39,10 +39,10 @@ namespace level5.schema {
       uint noOffset = r.ReadUInt32();
       int noSize = r.ReadInt32() / 4 + 1;
 
-      this.nodeTable_ = new float[noSize];
+      this.nodeTable_ = new uint[noSize];
       r.Position = noOffset;
       for (int i = 0; i < noSize; i++) {
-        this.nodeTable_[i] = r.ReadSingle();
+        this.nodeTable_[i] = r.ReadUInt32();
       }
 
       // name and material-------------------------------------------
@@ -187,7 +187,7 @@ namespace level5.schema {
               case 8: //Bone Index
                 Vector4 vn = ReadAttribute(r, aType[j], aCount[j]);
                 if (this.nodeTable_.Length > 0 && this.nodeTable_.Length != 1)
-                  vert.Bones = new Vector4(this.nodeTable_[(int)vn.X], this.nodeTable_[(int)vn.Y], this.nodeTable_[(int)vn.Z], this.nodeTable_[(int)vn.W]);
+                  vert.Bones = new uint[] { this.nodeTable_[(int)vn.X], this.nodeTable_[(int)vn.Y], this.nodeTable_[(int)vn.Z], this.nodeTable_[(int)vn.W] };
                 break;
               case 9: // Color
                 vert.Clr = ReadAttribute(r, aType[j], aCount[j]).Yzwx;
@@ -232,6 +232,6 @@ namespace level5.schema {
     public Vector2 Uv0 { get; set; }
     public Vector4 Weights { get; set; }
     public Vector4 Clr { get; set; }
-    public Vector4 Bones { get; set; }
+    public uint[] Bones { get; set; }
   }
 }

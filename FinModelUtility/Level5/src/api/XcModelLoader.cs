@@ -22,24 +22,27 @@ namespace level5.api {
       var endianness = Endianness.LittleEndian;
       var xc = xcFile.Impl.ReadNew<Xc>(endianness);
 
+      var resourceFile = new Resource(xc.FilesByExtension[".bin"].Single().Data);
+
       var model = new ModelImpl();
 
-      var indexToFinBone = new Dictionary<int, IBone>();
+      var finBoneByIndex = new Dictionary<uint, IBone>();
+      var finBoneByName = new Dictionary<string, IBone>();
       {
         var mbnFiles = xc.FilesByExtension[".mbn"];
 
-        var indexToMbn = new Dictionary<int, Node<Mbn>>();
+        var mbnByIndex = new Dictionary<uint, Node<Mbn>>();
         var mbnNodeList = mbnFiles.Select(mbnFile => {
           using var er = new EndianBinaryReader(new MemoryStream(mbnFile.Data), endianness);
           var mbn = er.ReadNew<Mbn>();
 
           var mbnNode = new Node<Mbn> { Value = mbn };
-          indexToMbn[mbn.Id] = mbnNode;
+          mbnByIndex[mbn.Id] = mbnNode;
           return mbnNode;
         }).ToArray();
 
         foreach (var mbnNode in mbnNodeList) {
-          if (indexToMbn.TryGetValue(mbnNode.Value.ParentId, out var parentNode)) {
+          if (mbnByIndex.TryGetValue(mbnNode.Value.ParentId, out var parentNode)) {
             mbnNode.Parent = parentNode;
           }
         }
@@ -49,7 +52,9 @@ namespace level5.api {
           var mbn = mbnNode.Value;
 
           var position = mbn.Position;
+          
           var bone = parentBone.AddChild(position.X, position.Y, position.Z);
+          bone.Name = resourceFile.GetResourceName(mbn.Id);
 
           var mat3 = mbn.RotationMatrix3;
           var matrix = new OpenTK.Matrix3(mat3[0], mat3[1], mat3[2],
@@ -66,7 +71,8 @@ namespace level5.api {
           var scale = mbn.Scale;
           bone.SetLocalScale(scale.X, scale.Y, scale.Z);
 
-          indexToFinBone[mbn.Id] = bone;
+          finBoneByIndex[mbn.Id] = bone;
+          finBoneByName[bone.Name] = bone;
 
           mbnQueue.Enqueue(mbnNode.Children.Select(childNode => (childNode, bone)));
         }
@@ -87,10 +93,13 @@ namespace level5.api {
 
             var boneWeightList = new List<BoneWeight>();
             for (var b = 0; b < 4; ++b) {
-              var boneId = (int)prmVertex.Bones[b];
-              var weight = (int)prmVertex.Weights[b];
+              var boneId = prmVertex.Bones[b];
+              var weight = prmVertex.Weights[b];
 
-              if (indexToFinBone.TryGetValue(boneId, out var finBone)) {
+              var hash = BitConverter.ToUInt32(BitConverter.GetBytes(boneId), 0);
+              var boneName = resourceFile.GetResourceName(hash);
+
+              if (finBoneByName.TryGetValue(boneName, out var finBone)) {
                 boneWeightList.Add(new BoneWeight(finBone, null, weight));
               }
             }

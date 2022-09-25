@@ -4,9 +4,9 @@ using schema;
 namespace level5.schema {
   [BinarySchema]
   public partial class Mbn : IDeserializable {
-    public int Id { get; private set; }
+    public uint Id { get; private set; }
 
-    public int ParentId { get; private set; }
+    public uint ParentId { get; private set; }
 
     public int Unknown0 { get; private set; }
 
