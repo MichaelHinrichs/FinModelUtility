@@ -10,8 +10,8 @@ using uni.util.io;
 namespace uni.games.professor_layton_vs_phoenix_wright {
   public class
       ProfessorLaytonVsPhoenixWrightModelFileGatherer : IModelFileGatherer<
-          XiModelFileBundle> {
-    public IModelDirectory<XiModelFileBundle>? GatherModelFileBundles(
+          XcModelFileBundle> {
+    public IModelDirectory<XcModelFileBundle>? GatherModelFileBundles(
         bool assert) {
       var professorLaytonVsPhoenixWrightRom =
           DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
@@ -29,14 +29,14 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
         fileHierarchy.Root.Refresh(true);
       }
 
-      return new FileHierarchyBundler<XiModelFileBundle>(
+      return new FileHierarchyBundler<XcModelFileBundle>(
           directory => {
             var xcFiles = directory.FilesWithExtension(".xc");
 
             var bundles =
               xcFiles
                     .Select(
-                      xcFile => new XiModelFileBundle {
+                      xcFile => new XcModelFileBundle {
                         XcFile = xcFile,
                       })
                     .ToList();

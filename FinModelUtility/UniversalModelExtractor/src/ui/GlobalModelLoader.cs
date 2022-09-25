@@ -35,8 +35,8 @@ namespace uni.ui {
               => new OutModelLoader().LoadModel(outModelFileBundle),
           VisModelFileBundle visModelFileBundle
               => new VisModelLoader().LoadModel(visModelFileBundle),
-          XiModelFileBundle xiModelFileBundle
-              => new XiModelLoader().LoadModel(xiModelFileBundle),
+          XcModelFileBundle xcModelFileBundle
+              => new XcModelLoader().LoadModel(xcModelFileBundle),
           XtdModelFileBundle xtdModelFileBundle
               => new XtdModelLoader().LoadModel(xtdModelFileBundle),
           _ => throw new ArgumentOutOfRangeException(nameof(modelFileBundle))
