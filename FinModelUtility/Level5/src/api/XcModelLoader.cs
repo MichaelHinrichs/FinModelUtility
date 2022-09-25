@@ -52,7 +52,7 @@ namespace level5.api {
           var mbn = mbnNode.Value;
 
           var position = mbn.Position;
-          
+
           var bone = parentBone.AddChild(position.X, position.Y, position.Z);
           bone.Name = resourceFile.GetResourceName(mbn.Id);
 
@@ -78,10 +78,32 @@ namespace level5.api {
         }
       }
 
+      var lazyTextures = new LazyDictionary<string, ITexture>(textureName => {
+        var textureIndex = resourceFile.TextureNames.IndexOf(textureName);
+        var xiFile = xc.FilesByExtension[".xi"][textureIndex];
+
+        var xi = new Xi();
+        xi.Open(xiFile.Data);
+
+        var image = xi.ToBitmap();
+        var texture = model.MaterialManager.CreateTexture(image);
+        texture.Name = textureName;
+
+        return texture;
+      });
+      var lazyMaterials = new LazyDictionary<string, IMaterial>(materialName => {
+        var binMaterial = resourceFile.Materials.Single(mat => mat.Name == materialName);
+        var finTexture = lazyTextures[binMaterial.TexName];
+        var finMaterial = model.MaterialManager.AddTextureMaterial(finTexture);
+        return finMaterial;
+      });
+
       {
         var prmFiles = xc.FilesByExtension[".prm"];
         foreach (var prmFile in prmFiles) {
           var prm = new Prm(prmFile.Data);
+
+          var finMaterial = lazyMaterials[prm.MaterialName];
 
           var mesh = model.Skin.AddMesh();
           mesh.Name = prm.Name;
@@ -90,6 +112,9 @@ namespace level5.api {
           foreach (var prmVertex in prm.Vertices) {
             var position = prmVertex.Pos;
             var finVertex = model.Skin.AddVertex(position.X, position.Y, position.Z);
+
+            var uv = prmVertex.Uv0;
+            finVertex.SetUv(uv.X, uv.Y);
 
             var boneWeightList = new List<BoneWeight>();
             for (var b = 0; b < 4; ++b) {
@@ -109,8 +134,9 @@ namespace level5.api {
             finVertices.Add(finVertex);
           }
 
-          var finTriangleVertices = prm.Triangles.Select(vertexIndex => finVertices[(int) vertexIndex]).ToArray();
-          mesh.AddTriangles(finTriangleVertices);
+          var finTriangleVertices = prm.Triangles.Select(vertexIndex => finVertices[(int)vertexIndex]).ToArray();
+          var triangles = mesh.AddTriangles(finTriangleVertices);
+          triangles.SetMaterial(finMaterial);
         }
       }
 

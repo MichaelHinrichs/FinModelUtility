@@ -48,8 +48,8 @@ namespace level5.schema {
     public void Open(byte[] data) {
       using (var r = new EndianBinaryReader(new MemoryStream(data), Endianness.LittleEndian)) {
         r.Position = 0x10;
-        Height = r.ReadInt16();
         Width = r.ReadInt16();
+        Height = r.ReadInt16();
 
         r.Position = 0xA;
         int type = r.ReadByte();
@@ -184,9 +184,12 @@ namespace level5.schema {
       var img = new Rgba32Image(Width, Height);
 
       BitmapUtil.InvokeAsLocked(tileSheet, inputBmpData => {
-        var inputPtr = (byte*) inputBmpData.Scan0;
+        var inputPtr = (byte*)inputBmpData.Scan0;
 
-        img.Mutate((_, setOutputHandler) => {
+        img.Mutate((_, setOutputHandlerRaw) => {
+          Action<int, int, byte, byte, byte, byte> setOutputHandler = (x, y, r, g, b, a) =>
+            setOutputHandlerRaw(y, x, r, g, b, a);
+
           int y = 0;
           int x = 0;
           for (int i = 0; i < Tiles.Count; i++) {
@@ -196,7 +199,7 @@ namespace level5.schema {
               for (int h = 0; h < 8; h++) {
                 for (int w = 0; w < 8; w++) {
                   var inputIndex = 4 * ((code * 8 + w) + (h) * tileSheet.Width);
-                  var b = inputPtr[inputIndex ];
+                  var b = inputPtr[inputIndex];
                   var g = inputPtr[inputIndex + 1];
                   var r = inputPtr[inputIndex + 2];
                   var a = inputPtr[inputIndex + 3];
