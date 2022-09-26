@@ -94,7 +94,12 @@ namespace level5.api {
       var lazyMaterials = new LazyDictionary<string, IMaterial>(materialName => {
         var binMaterial = resourceFile.Materials.Single(mat => mat.Name == materialName);
         var finTexture = lazyTextures[binMaterial.TexName];
+        
         var finMaterial = model.MaterialManager.AddTextureMaterial(finTexture);
+
+        // TODO: Figure out how to fix culling issues
+        finMaterial.CullingMode = CullingMode.SHOW_BOTH;
+
         return finMaterial;
       });
 
@@ -115,6 +120,9 @@ namespace level5.api {
 
             var uv = prmVertex.Uv0;
             finVertex.SetUv(uv.X, uv.Y);
+
+            var normal = prmVertex.Nrm;
+            finVertex.SetLocalNormal(normal.X, normal.Y, normal.Z);
 
             var boneWeightList = new List<BoneWeight>();
             for (var b = 0; b < 4; ++b) {

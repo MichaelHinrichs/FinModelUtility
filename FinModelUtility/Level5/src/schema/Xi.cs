@@ -141,6 +141,11 @@ namespace level5.schema {
         if (y >= Height) {
           y = 0;
           x += 8;
+
+          // TODO: This skips early, may not use all of the tiles. Is this right?
+          if (x >= Width) {
+            break;
+          }
         }
       }
 
@@ -220,6 +225,11 @@ namespace level5.schema {
             if (y >= Height) {
               y = 0;
               x += 8;
+
+              // TODO: This skips early, may not use all of the tiles. Is this right?
+              if (x >= Width) {
+                break;
+              }
             }
           }
         });
