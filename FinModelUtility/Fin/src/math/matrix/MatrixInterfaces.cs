@@ -2,11 +2,18 @@
 
 
 namespace fin.math.matrix {
+  public enum MatrixState {
+    UNDEFINED,
+    IDENTITY,
+    ZERO,
+  }
+
   public interface IFinMatrix4x4 : IReadOnlyFinMatrix4x4 {
     void CopyFrom(IReadOnlyFinMatrix4x4 other);
 
+    void UpdateState();
     IFinMatrix4x4 SetIdentity();
-    void UpdateIsIdentity();
+    IFinMatrix4x4 SetZero();
 
     new double this[int row, int column] { get; set; }
 
@@ -18,7 +25,9 @@ namespace fin.math.matrix {
   }
 
   public interface IReadOnlyFinMatrix4x4 {
+    MatrixState MatrixState { get; }
     bool IsIdentity { get; }
+    bool IsZero { get; }
 
     IFinMatrix4x4 Clone();
 

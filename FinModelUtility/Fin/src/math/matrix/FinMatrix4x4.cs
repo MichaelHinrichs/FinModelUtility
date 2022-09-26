@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using fin.math.matrix;
 using fin.util.asserts;
 
@@ -11,14 +10,16 @@ namespace fin.math {
   public class FinMatrix4x4 : IFinMatrix4x4 {
     private readonly double[] impl_ = new double[16];
 
-    public FinMatrix4x4() { }
+    public FinMatrix4x4() {
+      this.MatrixState = MatrixState.ZERO;
+    }
 
     public FinMatrix4x4(IReadOnlyList<float> data) {
       Asserts.Equal(4 * 4, data.Count);
       for (var i = 0; i < 4 * 4; ++i) {
         this.impl_[i] = data[i];
       }
-      this.UpdateIsIdentity();
+      this.UpdateState();
     }
 
     public FinMatrix4x4(IReadOnlyList<double> data) {
@@ -26,7 +27,7 @@ namespace fin.math {
       for (var i = 0; i < 4 * 4; ++i) {
         this.impl_[i] = data[i];
       }
-      this.UpdateIsIdentity();
+      this.UpdateState();
     }
 
     public FinMatrix4x4(IReadOnlyFinMatrix4x4 other) => this.CopyFrom(other);
@@ -41,21 +42,32 @@ namespace fin.math {
           this[r, c] = other[r, c];
         }
       }
-      this.IsIdentity = other.IsIdentity;
+      this.MatrixState = other.MatrixState;
     }
 
-    public bool IsIdentity { get; private set; }
+    public MatrixState MatrixState { get; private set; }
+    public bool IsIdentity => this.MatrixState == MatrixState.IDENTITY;
+    public bool IsZero => this.MatrixState == MatrixState.ZERO;
 
-    public void UpdateIsIdentity() {
+
+    public void UpdateState() {
+      var isZero = true;
       var isIdentity = true;
+      var error = .0001;
+
       for (var r = 0; r < 4; ++r) {
         for (var c = 0; c < 4; ++c) {
-          var isValueCorrect =
-              Math.Abs(this[r, c] - ((r == c) ? 1 : 0)) < .0001;
-          isIdentity &= isValueCorrect;
+          var isValueZero = Math.Abs(this[r, c]) < error;
+          isZero &= isValueZero;
+
+          var isValueIdentity =
+              Math.Abs(this[r, c] - ((r == c) ? 1 : 0)) < error;
+          isIdentity &= isValueIdentity;
         }
       }
-      this.IsIdentity = isIdentity;
+      this.MatrixState = isZero ? MatrixState.ZERO :
+                         isIdentity ? MatrixState.IDENTITY :
+                         MatrixState.UNDEFINED;
     }
 
     public IFinMatrix4x4 SetIdentity() {
@@ -64,7 +76,17 @@ namespace fin.math {
           this[r, c] = (r == c) ? 1 : 0;
         }
       }
-      this.IsIdentity = true;
+      this.MatrixState = MatrixState.IDENTITY;
+      return this;
+    }
+
+    public IFinMatrix4x4 SetZero() {
+      for (var r = 0; r < 4; ++r) {
+        for (var c = 0; c < 4; ++c) {
+          this[r, c] = 0;
+        }
+      }
+      this.MatrixState = MatrixState.ZERO;
       return this;
     }
 
@@ -72,7 +94,7 @@ namespace fin.math {
       get => this.impl_[FinMatrix4x4.GetIndex_(row, column)];
       set {
         this.impl_[FinMatrix4x4.GetIndex_(row, column)] = value;
-        this.IsIdentity = false;
+        this.MatrixState = MatrixState.UNDEFINED;
       }
     }
 
@@ -84,8 +106,10 @@ namespace fin.math {
       => this.Clone().AddInPlace(other);
 
     public IFinMatrix4x4 AddInPlace(IReadOnlyFinMatrix4x4 other) {
-      this.AddIntoBuffer(other, this);
-      this.IsIdentity = false;
+      if (!other.IsZero) {
+        this.AddIntoBuffer(other, this);
+        this.MatrixState = MatrixState.UNDEFINED;
+      }
       return this;
     }
 
@@ -213,7 +237,7 @@ namespace fin.math {
       if (ReferenceEquals(this, obj)) {
         return true;
       }
-      return Equals((IReadOnlyFinMatrix4x4) obj);
+      return Equals((IReadOnlyFinMatrix4x4)obj);
     }
   }
 }

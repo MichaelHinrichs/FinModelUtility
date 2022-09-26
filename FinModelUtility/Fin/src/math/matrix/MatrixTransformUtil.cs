@@ -23,7 +23,7 @@ namespace fin.math.matrix {
       matrix[1, 3] = y;
       matrix[2, 3] = z;
 
-      matrix.UpdateIsIdentity();
+      matrix.UpdateState();
 
       return matrix;
     }
@@ -59,7 +59,7 @@ namespace fin.math.matrix {
       matrix[3, 2] = 0;
       matrix[3, 3] = 1;
 
-      matrix.UpdateIsIdentity();
+      matrix.UpdateState();
 
       return matrix;
     }
@@ -71,7 +71,7 @@ namespace fin.math.matrix {
           [2, 2] = scale.Z,
           [3, 3] = 1,
       };
-      matrix.UpdateIsIdentity();
+      matrix.UpdateState();
       return matrix;
     }
 
