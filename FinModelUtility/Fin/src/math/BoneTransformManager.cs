@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-
 using fin.data;
 using fin.math.matrix;
 using fin.model;
@@ -20,7 +19,7 @@ namespace fin.math {
     private readonly IndexableDictionary<IBone, IReadOnlyFinMatrix4x4>
         bonesToInverseBindMatrices_ = new();
 
-    private readonly IndexableDictionary<IBoneWeights, IReadOnlyFinMatrix4x4>
+    private readonly IndexableDictionary<IBoneWeights, IFinMatrix4x4>
         boneWeightsToWorldMatrices_ = new();
 
     public void Clear() {
@@ -62,7 +61,7 @@ namespace fin.math {
         var boneLocalPosition = bone.LocalPosition;
         var boneLocalRotation = bone.LocalRotation != null
                                     ? QuaternionUtil.Create(bone.LocalRotation)
-                                    : (Quaternion?) null;
+                                    : (Quaternion?)null;
         var boneLocalScale = bone.LocalScale;
 
         IPosition? animationLocalPosition = null;
@@ -75,9 +74,7 @@ namespace fin.math {
         if (boneTracks != null) {
           // Need to pass in default pose of the bone to fill in for any axes that may be undefined.
           var defaultPosition = Optional.Of(new[] {
-              boneLocalPosition.X,
-              boneLocalPosition.Y,
-              boneLocalPosition.Z,
+              boneLocalPosition.X, boneLocalPosition.Y, boneLocalPosition.Z,
           });
           var defaultRotation = Optional.Of(new[] {
               bone.LocalRotation?.XRadians ?? 0,
@@ -85,8 +82,7 @@ namespace fin.math {
               bone.LocalRotation?.ZRadians ?? 0,
           });
           var defaultScale = Optional.Of(new[] {
-              boneLocalScale?.X ?? 0,
-              boneLocalScale?.Y ?? 0,
+              boneLocalScale?.X ?? 0, boneLocalScale?.Y ?? 0,
               boneLocalScale?.Z ?? 0,
           });
 
@@ -94,17 +90,17 @@ namespace fin.math {
           animationLocalPosition =
               boneTracks?.Positions.IsDefined ?? false
                   ? boneTracks?.Positions.GetInterpolatedFrame(
-                      (float) frame, defaultPosition, useLoopingInterpolation)
+                      (float)frame, defaultPosition, useLoopingInterpolation)
                   : null;
           animationLocalRotation =
               boneTracks?.Rotations.IsDefined ?? false
                   ? boneTracks?.Rotations.GetInterpolatedFrame(
-                      (float) frame, defaultRotation, useLoopingInterpolation)
+                      (float)frame, defaultRotation, useLoopingInterpolation)
                   : null;
           animationLocalScale =
               boneTracks?.Scales.IsDefined ?? false
                   ? boneTracks?.Scales.GetInterpolatedFrame(
-                      (float) frame, defaultScale, useLoopingInterpolation)
+                      (float)frame, defaultScale, useLoopingInterpolation)
                   : null;
         }
 
@@ -134,7 +130,12 @@ namespace fin.math {
       }
 
       foreach (var boneWeights in boneWeightsList) {
-        IReadOnlyFinMatrix4x4 boneWeightMatrix;
+        if (!this.boneWeightsToWorldMatrices_.TryGetValue(
+                boneWeights, out var boneWeightMatrix)) {
+          this.boneWeightsToWorldMatrices_[boneWeights] =
+              boneWeightMatrix = new FinMatrix4x4();
+        }
+        boneWeightMatrix.SetZero();
 
         var weights = boneWeights.Weights;
         if (weights.Count == 1) {
@@ -145,10 +146,8 @@ namespace fin.math {
                                  this.bonesToInverseBindMatrices_[bone];
           var boneMatrix = this.GetWorldMatrix(bone);
 
-          boneWeightMatrix = boneMatrix.CloneAndMultiply(skinToBoneMatrix);
+          boneMatrix.MultiplyIntoBuffer(skinToBoneMatrix, boneWeightMatrix);
         } else {
-          var mergedMatrix = new FinMatrix4x4();
-
           foreach (var weight in weights) {
             var bone = weight.Bone;
 
@@ -156,21 +155,19 @@ namespace fin.math {
                                    this.bonesToInverseBindMatrices_[bone];
             var boneMatrix = this.GetWorldMatrix(bone);
 
-            var skinToWorldMatrix = boneMatrix
-                                    .CloneAndMultiply(skinToBoneMatrix)
-                                    .MultiplyInPlace(weight.Weight);
+            boneMatrix.MultiplyIntoBuffer(skinToBoneMatrix,
+                                          this.tempSkinToWorldMatrix_);
+            this.tempSkinToWorldMatrix_.MultiplyInPlace(weight.Weight);
 
-            mergedMatrix.AddInPlace(skinToWorldMatrix);
+            boneWeightMatrix.AddInPlace(this.tempSkinToWorldMatrix_);
           }
-
-          boneWeightMatrix = mergedMatrix;
         }
-
-        this.boneWeightsToWorldMatrices_[boneWeights] = boneWeightMatrix;
       }
 
       return bonesToIndex;
     }
+
+    private readonly FinMatrix4x4 tempSkinToWorldMatrix_ = new();
 
     public IReadOnlyFinMatrix4x4 GetLocalMatrix(IBone bone)
       => this.bonesToLocalMatrices_[bone];
@@ -237,9 +234,9 @@ namespace fin.math {
                                  ref x,
                                  ref y,
                                  ref z);
-      outPosition.X = (float) x;
-      outPosition.Y = (float) y;
-      outPosition.Z = (float) z;
+      outPosition.X = (float)x;
+      outPosition.Y = (float)y;
+      outPosition.Z = (float)z;
 
       if (outNormal != null && localNormal != null) {
         double nX = localNormal.X;
@@ -250,9 +247,9 @@ namespace fin.math {
                                    ref nY,
                                    ref nZ);
 
-        outNormal.X = (float) nX;
-        outNormal.Y = (float) nY;
-        outNormal.Z = (float) nZ;
+        outNormal.X = (float)nX;
+        outNormal.Y = (float)nY;
+        outNormal.Z = (float)nZ;
       }
     }
 
