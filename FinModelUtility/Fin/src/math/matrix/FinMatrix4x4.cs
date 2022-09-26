@@ -116,6 +116,15 @@ namespace fin.math {
     public void AddIntoBuffer(
         IReadOnlyFinMatrix4x4 other,
         IFinMatrix4x4 buffer) {
+      if (this.IsZero) {
+        buffer.CopyFrom(other);
+        return;
+      }
+      if (other.IsZero) {
+        buffer.CopyFrom(this);
+        return;
+      }
+
       for (var r = 0; r < 4; ++r) {
         for (var c = 0; c < 4; ++c) {
           buffer[r, c] = this[r, c] + other[r, c];
@@ -141,6 +150,15 @@ namespace fin.math {
     public void MultiplyIntoBuffer(
         IReadOnlyFinMatrix4x4 other,
         IFinMatrix4x4 buffer) {
+      if (this.IsIdentity) {
+        buffer.CopyFrom(other);
+        return;
+      }
+      if (other.IsIdentity) {
+        buffer.CopyFrom(this);
+        return;
+      }
+
       for (var r = 0; r < 4; ++r) {
         for (var c = 0; c < 4; ++c) {
           var value = 0d;
