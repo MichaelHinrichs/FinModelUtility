@@ -232,6 +232,6 @@ namespace level5.schema {
     public Vector2 Uv0 { get; set; }
     public Vector4 Weights { get; set; }
     public Vector4 Clr { get; set; }
-    public uint[] Bones { get; set; }
+    public uint[]? Bones { get; set; }
   }
 }

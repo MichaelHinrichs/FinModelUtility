@@ -32,7 +32,7 @@ namespace level5.schema {
         this.Anim.FrameCount = r.ReadInt32();
 
         r.Position = nameOffset;
-        var hash = r.ReadUInt32();
+        this.Anim.NameHash = r.ReadUInt32();
         this.Anim.Name = r.ReadStringNT();
 
         var data = Decompress.Level5Decom(

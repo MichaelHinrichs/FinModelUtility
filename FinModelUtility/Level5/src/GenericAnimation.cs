@@ -1,6 +1,7 @@
 ﻿namespace level5 {
   public class GenericAnimation {
     public string Name { get; set; }
+    public uint NameHash { get; set; }
 
     public List<GenericAnimationTransform> TransformNodes = new List<GenericAnimationTransform>();
 
