@@ -8,7 +8,7 @@ namespace level5.debug {
     public void Run() {
       var fileHierarchy = new FileHierarchy(
           new FinDirectory(
-              @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\professor_layton_vs_phoenix_wright"));
+              @"C:\Users\Ryan\Documents\CSharpWorkspace\FinModelUtility\cli\roms\professor_layton_vs_phoenix_wright"));
 
       HashSet<string> filesWithModels = new();
       HashSet<string> filesWithAnimations = new();
@@ -20,11 +20,11 @@ namespace level5.debug {
             var xc = xcFile.Impl.ReadNew<Xc>(Endianness.LittleEndian);
 
             if (xc.FilesByExtension.TryGetList(".prm", out _)) {
-              filesWithModels.Add(xcFile.FullName);
+              filesWithModels.Add(xcFile.LocalPath);
             }
 
             if (xc.FilesByExtension.TryGetList(".mtn2", out _)) {
-              filesWithAnimations.Add(xcFile.FullName);
+              filesWithAnimations.Add(xcFile.LocalPath);
             }
           } catch { }
         }

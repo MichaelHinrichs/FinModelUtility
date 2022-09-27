@@ -222,12 +222,12 @@ namespace level5.schema {
             }
             y += 8;
 
-            if (y >= Height) {
+            if (y >= Width) {
               y = 0;
               x += 8;
 
               // TODO: This skips early, may not use all of the tiles. Is this right?
-              if (x >= Width) {
+              if (x >= Height) {
                 break;
               }
             }

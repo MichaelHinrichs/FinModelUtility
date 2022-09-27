@@ -72,7 +72,7 @@
               key = r.ReadUInt32();
               resourceName = (ResourceNames.ContainsKey(key) ? ResourceNames[key] : key.ToString("X"));
               mat.TexName = resourceName;
-              Console.WriteLine(resourceName + " " + unknown.ToString("X") + " " + size.ToString("X"));
+              // Console.WriteLine(resourceName + " " + unknown.ToString("X") + " " + size.ToString("X"));
               Materials.Add(mat);
             }
           }

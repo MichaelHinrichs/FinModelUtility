@@ -15,7 +15,7 @@ namespace level5.api {
     public IFileHierarchyFile MainFile => this.ModelXcFile;
 
     public IFileHierarchyFile ModelXcFile { get; set; }
-    public IFileHierarchyFile? AnimationXcFile { get; set; }
+    public IList<IFileHierarchyFile>? AnimationXcFiles { get; set; }
   }
 
   public class XcModelLoader : IModelLoader<XcModelFileBundle> {
@@ -26,11 +26,6 @@ namespace level5.api {
       var modelXc = modelXcFile.Impl.ReadNew<Xc>(endianness);
       var modelResourceFile =
           new Resource(modelXc.FilesByExtension[".bin"].Single().Data);
-
-      var animationXcFile = modelFileBundle.AnimationXcFile;
-      var animationXc = animationXcFile.Impl.ReadNew<Xc>(endianness);
-      var animationResourceFile =
-          new Resource(animationXc.FilesByExtension[".bin"].Single().Data);
 
       /*foreach (var (type, files) in modelXc.FilesByExtension) {
         foreach (var file in files) {
@@ -196,79 +191,85 @@ namespace level5.api {
 
       // Adds animations
       {
-        if (animationXc.FilesByExtension.TryGetList(
-                ".mtn2", out var mtn2Files)) {
-          foreach (var mtn2File in mtn2Files) {
-            var mtn2 = new Mtn2();
-            mtn2.Open(mtn2File.Data);
+        foreach (var animationXcFile in modelFileBundle.AnimationXcFiles) {
+          var animationXc = animationXcFile?.Impl?.ReadNew<Xc>(endianness);
+          var animationResourceFile =
+            new Resource(animationXc.FilesByExtension[".bin"].Single().Data);
 
-            var anim = mtn2.Anim;
+          if (animationXc.FilesByExtension.TryGetList(
+        ".mtn2", out var mtn2Files)) {
+            foreach (var mtn2File in mtn2Files) {
+              var mtn2 = new Mtn2();
+              mtn2.Open(mtn2File.Data);
 
-            var finAnimation = model.AnimationManager.AddAnimation();
-            finAnimation.Name = anim.Name;
-            finAnimation.FrameRate = 30;
-            finAnimation.FrameCount = anim.FrameCount;
+              var anim = mtn2.Anim;
 
-            foreach (var transformNode in anim.TransformNodes) {
-              if (!finBoneByIndex.TryGetValue(transformNode.Hash,
-                                              out var finBone)) {
-                continue;
-              }
+              var finAnimation = model.AnimationManager.AddAnimation();
+              finAnimation.Name = anim.Name;
+              finAnimation.FrameRate = 30;
+              finAnimation.FrameCount = anim.FrameCount;
 
-              var finBoneTracks = finAnimation.AddBoneTracks(finBone);
-              foreach (var mtnTrack in transformNode.Tracks) {
-                foreach (var mtnKey in mtnTrack.Keys.Keys) {
-                  var frame = (int)mtnKey.Frame;
-                  var value = mtnKey.Value;
+              foreach (var transformNode in anim.TransformNodes) {
+                if (!finBoneByIndex.TryGetValue(transformNode.Hash,
+                                                out var finBone)) {
+                  continue;
+                }
 
-                  var inTan = Optional<float>.Of(mtnKey.InTan);
-                  var outTan = Optional<float>.Of(mtnKey.OutTan);
+                var finBoneTracks = finAnimation.AddBoneTracks(finBone);
+                foreach (var mtnTrack in transformNode.Tracks) {
+                  foreach (var mtnKey in mtnTrack.Keys.Keys) {
+                    var frame = (int)mtnKey.Frame;
+                    var value = mtnKey.Value;
 
-                  switch (mtnTrack.Type) {
-                    case AnimationTrackFormat.RotateX: {
-                      finBoneTracks.Rotations.Set(
-                          frame, 0, value, inTan, outTan);
-                      break;
-                    }
-                    case AnimationTrackFormat.RotateY: {
-                      finBoneTracks.Rotations.Set(
-                          frame, 1, value, inTan, outTan);
-                      break;
-                    }
-                    case AnimationTrackFormat.RotateZ: {
-                      finBoneTracks.Rotations.Set(
-                          frame, 2, value, inTan, outTan);
-                      break;
-                    }
-                    case AnimationTrackFormat.ScaleX: {
-                      finBoneTracks.Scales.Set(
-                          frame, 0, value, inTan, outTan);
-                      break;
-                    }
-                    case AnimationTrackFormat.ScaleY: {
-                      finBoneTracks.Scales.Set(
-                          frame, 1, value, inTan, outTan);
-                      break;
-                    }
-                    case AnimationTrackFormat.ScaleZ: {
-                      finBoneTracks.Scales.Set(
-                          frame, 2, value, inTan, outTan);
-                      break;
-                    }
-                    case AnimationTrackFormat.TranslateX: {
-                      finBoneTracks.Positions.Set(
-                          frame, 0, value, inTan, outTan);
-                      break;
-                    }
-                    case AnimationTrackFormat.TranslateY: {
-                      finBoneTracks.Positions.Set(
-                          frame, 1, value, inTan, outTan);
-                      break;
-                    }
-                    case AnimationTrackFormat.TranslateZ: {
-                      finBoneTracks.Positions.Set(
-                          frame, 2, value, inTan, outTan);
-                      break;
+                    var inTan = Optional<float>.Of(mtnKey.InTan);
+                    var outTan = Optional<float>.Of(mtnKey.OutTan);
+
+                    switch (mtnTrack.Type) {
+                      case AnimationTrackFormat.RotateX: {
+                          finBoneTracks.Rotations.Set(
+                              frame, 0, value, inTan, outTan);
+                          break;
+                        }
+                      case AnimationTrackFormat.RotateY: {
+                          finBoneTracks.Rotations.Set(
+                              frame, 1, value, inTan, outTan);
+                          break;
+                        }
+                      case AnimationTrackFormat.RotateZ: {
+                          finBoneTracks.Rotations.Set(
+                              frame, 2, value, inTan, outTan);
+                          break;
+                        }
+                      case AnimationTrackFormat.ScaleX: {
+                          finBoneTracks.Scales.Set(
+                              frame, 0, value, inTan, outTan);
+                          break;
+                        }
+                      case AnimationTrackFormat.ScaleY: {
+                          finBoneTracks.Scales.Set(
+                              frame, 1, value, inTan, outTan);
+                          break;
+                        }
+                      case AnimationTrackFormat.ScaleZ: {
+                          finBoneTracks.Scales.Set(
+                              frame, 2, value, inTan, outTan);
+                          break;
+                        }
+                      case AnimationTrackFormat.TranslateX: {
+                          finBoneTracks.Positions.Set(
+                              frame, 0, value, inTan, outTan);
+                          break;
+                        }
+                      case AnimationTrackFormat.TranslateY: {
+                          finBoneTracks.Positions.Set(
+                              frame, 1, value, inTan, outTan);
+                          break;
+                        }
+                      case AnimationTrackFormat.TranslateZ: {
+                          finBoneTracks.Positions.Set(
+                              frame, 2, value, inTan, outTan);
+                          break;
+                        }
                     }
                   }
                 }

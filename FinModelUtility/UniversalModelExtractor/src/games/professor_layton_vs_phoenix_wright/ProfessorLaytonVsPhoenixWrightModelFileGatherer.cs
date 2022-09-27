@@ -2,6 +2,7 @@
 using fin.model;
 using level5.api;
 using level5.schema;
+using System.Linq;
 using uni.platforms;
 using uni.platforms.threeDs;
 using uni.platforms.threeDs.tools;
@@ -98,6 +99,7 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
                   GetSameFile("Knightle", directory, "c213.xc"),
                   GetSameFile("Miles Edgeworth", directory, "c401.xc"),
                   GetSameFile("Professor Layton (Gold)", directory, "c301.xc"),
+                  GetSameFile("Storyteller", directory, "c134.xc"),
                   GetSameFile("Wordsmith", directory, "c211.xc"),
               };
             }
@@ -105,9 +107,9 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
             var bundles = new List<XcModelFileBundle>();
             foreach (var xcBundle in xcBundles) {
               bundles.Add(new XcModelFileBundle {
-                  BetterFileName = xcBundle.Name,
-                  ModelXcFile = xcBundle.ModelFile,
-                  AnimationXcFile = xcBundle.AnimationFile,
+                BetterFileName = xcBundle.Name,
+                ModelXcFile = xcBundle.ModelFile,
+                AnimationXcFiles = xcBundle.AnimationFiles,
               });
             }
             foreach (var fileWithModelsAndAnimations in
@@ -119,12 +121,29 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
               }
 
               bundles.Add(new XcModelFileBundle {
-                  ModelXcFile = fileWithModelsAndAnimations,
-                  AnimationXcFile = fileWithModelsAndAnimations,
+                ModelXcFile = fileWithModelsAndAnimations,
+                AnimationXcFiles = new[] { fileWithModelsAndAnimations },
+              });
+            }
+            foreach (var fileWithModel in filesWithModels) {
+              if (xcBundles.Any(xcBundle =>
+                    xcBundle.ModelFile == fileWithModel)) {
+                continue;
+              }
+
+              var name = fileWithModel.NameWithoutExtension;
+              var underscoreIndex = name.IndexOf('_');
+              var nameUpToUnderscore = underscoreIndex == -1 ? name : name.Substring(0, underscoreIndex);
+
+              var animations = filesWithAnimations.Where(fileWithAnimations => fileWithAnimations.Name.StartsWith(nameUpToUnderscore)).ToArray();
+
+              bundles.Add(new XcModelFileBundle {
+                ModelXcFile = fileWithModel,
+                AnimationXcFiles = animations,
               });
             }
 
-            return bundles;
+            return bundles.OrderBy(bundle => bundle.BetterFileName ?? bundle.MainFile.Name).ToArray();
           }
       ).GatherBundles(fileHierarchy);
 
@@ -145,37 +164,37 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
                       directory.Files.Single(
                           file => file.Name == modelFileName));
 
-    internal IXcFiles GetModelAndAnimation(string name,
+    internal IXcFiles GetModelAndAnimations(string name,
                                            IFileHierarchyDirectory directory,
                                            string modelFileName,
-                                           string animationFileName)
-      => new ModelAndAnimation(
+                                           params string[] animationFileNames)
+      => new ModelAndAnimations(
           name,
           directory.Files.Single(file => file.Name == modelFileName),
-          directory.Files.Single(file => file.Name == animationFileName));
+          animationFileNames.Select(animationFileName => directory.Files.Single(file => file.Name == animationFileName)).ToArray());
 
     internal interface IXcFiles {
       string Name { get; }
       IFileHierarchyFile ModelFile { get; }
-      IFileHierarchyFile? AnimationFile { get; }
+      IFileHierarchyFile[]? AnimationFiles { get; }
     }
 
 
     internal record ModelOnly(
         string Name,
         IFileHierarchyFile ModelFile) : IXcFiles {
-      public IFileHierarchyFile? AnimationFile => null;
+      public IFileHierarchyFile[]? AnimationFiles => null;
     }
 
     internal record SameFile(
         string Name,
         IFileHierarchyFile ModelFile) : IXcFiles {
-      public IFileHierarchyFile? AnimationFile => ModelFile;
+      public IFileHierarchyFile[] AnimationFiles { get; } = { ModelFile };
     }
 
-    internal record ModelAndAnimation(
+    internal record ModelAndAnimations(
         string Name,
         IFileHierarchyFile ModelFile,
-        IFileHierarchyFile AnimationFile) : IXcFiles;
+        params IFileHierarchyFile[] AnimationFiles) : IXcFiles;
   }
 }
