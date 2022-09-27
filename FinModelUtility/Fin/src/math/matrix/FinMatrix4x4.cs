@@ -158,6 +158,10 @@ namespace fin.math {
         buffer.CopyFrom(this);
         return;
       }
+      if (this.IsZero || other.IsZero) {
+        buffer.SetZero();
+        return;
+      }
 
       for (var r = 0; r < 4; ++r) {
         for (var c = 0; c < 4; ++c) {
@@ -176,16 +180,32 @@ namespace fin.math {
       => this.Clone().MultiplyInPlace(other);
 
     public IFinMatrix4x4 MultiplyInPlace(double other) {
-      if (Math.Abs(other - 1) > .0001) {
+      if (Math.Abs(other) < .0001) {
+        this.SetZero();
+        return this;
+      }
+
+      if (!this.IsZero && Math.Abs(other - 1) > .0001) {
         this.MultiplyIntoBuffer(other, this);
       }
+
       return this;
     }
 
     public void MultiplyIntoBuffer(double other, IFinMatrix4x4 buffer) {
+      if (this.IsZero || Math.Abs(other) < .0001) {
+        buffer.SetZero();
+        return;
+      }
+
+      if (Math.Abs(other - 1) < .0001) {
+        buffer.CopyFrom(this);
+        return;
+      }
+
       for (var r = 0; r < 4; ++r) {
         for (var c = 0; c < 4; ++c) {
-          this[r, c] *= other;
+          buffer[r, c] = this[r, c] * other;
         }
       }
     }
