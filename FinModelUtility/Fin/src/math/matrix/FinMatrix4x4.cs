@@ -253,8 +253,18 @@ namespace fin.math {
     }
 
 
-    protected bool Equals(IReadOnlyFinMatrix4x4 other) {
+    public override bool Equals(object? obj)
+      => ReferenceEquals(this, obj) || this.Equals(obj);
+
+    public bool Equals(IReadOnlyFinMatrix4x4? other) {
+      if (other == null) {
+        return false;
+      }
+
       if (this.IsIdentity && other.IsIdentity) {
+        return true;
+      }
+      if (this.IsZero && other.IsZero) {
         return true;
       }
 
@@ -266,16 +276,6 @@ namespace fin.math {
         }
       }
       return true;
-    }
-
-    public override bool Equals(object? obj) {
-      if (ReferenceEquals(null, obj)) {
-        return false;
-      }
-      if (ReferenceEquals(this, obj)) {
-        return true;
-      }
-      return Equals((IReadOnlyFinMatrix4x4)obj);
     }
   }
 }

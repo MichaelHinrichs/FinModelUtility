@@ -163,8 +163,7 @@ namespace level5.api {
                       BitConverter.ToUInt32(BitConverter.GetBytes(boneId), 0);
                   var boneName = modelResourceFile.GetResourceName(hash);
 
-                  if (weight > 0.0001 &&
-                      finBoneByName.TryGetValue(boneName, out var finBone)) {
+                  if (finBoneByName.TryGetValue(boneName, out var finBone)) {
                     boneWeightList.Add(new BoneWeight(finBone, null, weight));
                   }
                 }

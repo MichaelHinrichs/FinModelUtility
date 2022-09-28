@@ -24,7 +24,7 @@ namespace fin.math.matrix {
     IFinMatrix4x4 TransposeInPlace();
   }
 
-  public interface IReadOnlyFinMatrix4x4 {
+  public interface IReadOnlyFinMatrix4x4 : IEquatable<IReadOnlyFinMatrix4x4> {
     MatrixState MatrixState { get; }
     bool IsIdentity { get; }
     bool IsZero { get; }

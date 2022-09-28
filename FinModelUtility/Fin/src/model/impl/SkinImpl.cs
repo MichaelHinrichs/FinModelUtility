@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-
 using fin.color;
 using fin.data;
 using fin.math;
+using fin.util.asserts;
+using System.Linq;
 
 
 namespace fin.model.impl {
@@ -77,6 +78,15 @@ namespace fin.model.impl {
 
       public IBoneWeights GetOrCreateBoneWeights(PreprojectMode preprojectMode,
                                                  params IBoneWeight[] weights) {
+        var error = .0001;
+        if (weights.Length > 1) {
+          weights = weights.Where(boneWeight => boneWeight.Weight > error)
+                           .ToArray();
+        }
+
+        var totalWeight = weights.Select(weight => weight.Weight).Sum();
+        Asserts.True(Math.Abs(totalWeight - 1) < error);
+
         foreach (var boneWeights in this.boneWeights_) {
           if (boneWeights.PreprojectMode != preprojectMode) {
             continue;
