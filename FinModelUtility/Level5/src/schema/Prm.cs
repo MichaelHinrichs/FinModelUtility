@@ -4,6 +4,8 @@ namespace level5.schema {
   public class Prm {
     public string Name { get; private set; }
 
+    public uint AnimationReferenceHash { get; private set; }
+
     public string MaterialName { get; private set; }
 
     private uint[] nodeTable_;
@@ -18,10 +20,13 @@ namespace level5.schema {
     }
 
     public void Open(EndianBinaryReader r) {
-      r.Position = 4;
+      r.AssertString("XMPR");
       var prmOffset = r.ReadUInt32();
+      var unknownOffset = r.ReadUInt32();
+      var prmHashesOffset = r.ReadUInt32();
 
-      r.Position = prmOffset + 4;
+      r.Position = prmOffset;
+      r.AssertString("XPRM");
 
       // buffers-------------------------------------------
 
@@ -53,6 +58,11 @@ namespace level5.schema {
 
       Triangles = this.ParseIndexBuffer_(polygonVertexIndexBuffer);
       Vertices = this.ParseBuffer_(polygonVertexBuffer);
+
+      // hashes
+      r.Position = prmHashesOffset;
+      var hashes = r.ReadUInt32s(4);
+      this.AnimationReferenceHash = hashes[3];
     }
 
 

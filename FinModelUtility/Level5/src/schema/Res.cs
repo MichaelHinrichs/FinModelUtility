@@ -7,7 +7,9 @@
     }
 
     public string ModelName { get; set; }
-    Dictionary<uint, string> ResourceNames { get; set; } = new Dictionary<uint, string>();
+
+    Dictionary<uint, string> ResourceNames { get; set; } =
+      new Dictionary<uint, string>();
 
     public List<string> TextureNames { get; } = new List<string>();
 
@@ -22,7 +24,8 @@
 
     public Resource(byte[] data) {
       data = Decompress.Level5Decom(data);
-      using (var r = new EndianBinaryReader(new System.IO.MemoryStream(data), Endianness.LittleEndian)) {
+      using (var r = new EndianBinaryReader(new System.IO.MemoryStream(data),
+                                            Endianness.LittleEndian)) {
         var magic = new string(r.ReadChars(6));
         if (magic != "CHRC00" && magic != "CHRN01")
           throw new FormatException("RES file is corrupt");
@@ -59,21 +62,29 @@
           for (int j = 0; j < count; j++) {
             r.Position = (uint)(offset + j * size);
             var key = r.ReadUInt32();
-            string resourceName = (ResourceNames.ContainsKey(key) ? ResourceNames[key] : key.ToString("X"));
+            string resourceName = (ResourceNames.ContainsKey(key)
+                                       ? ResourceNames[key]
+                                       : key.ToString("X"));
             //Console.WriteLine(resourceName + " " + unknown.ToString("X") + " " + size.ToString("X"));
 
-            if (unknown == 0xF0) {
+            if (unknown is 0xDC or 0xE6) {
+              // TODO: Default libs
+              ;
+            } else if (unknown == 0xF0) {
               TextureNames.Add(resourceName);
-            }
-            if (unknown == 0x122) {
+            } else if (unknown == 0x122) {
               Material mat = new Material();
               mat.Name = resourceName;
               r.Position += 12;
               key = r.ReadUInt32();
-              resourceName = (ResourceNames.ContainsKey(key) ? ResourceNames[key] : key.ToString("X"));
+              resourceName = (ResourceNames.ContainsKey(key)
+                                  ? ResourceNames[key]
+                                  : key.ToString("X"));
               mat.TexName = resourceName;
               // Console.WriteLine(resourceName + " " + unknown.ToString("X") + " " + size.ToString("X"));
               Materials.Add(mat);
+            } else {
+              ;
             }
           }
 

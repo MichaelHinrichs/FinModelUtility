@@ -1,10 +1,14 @@
-﻿using fin.math;
+﻿using fin.data;
+using fin.math;
+using fin.util.asserts;
 using System.Numerics;
 
 
 namespace level5.schema {
   public class Mtn2 {
     public GenericAnimation Anim { get; } = new GenericAnimation();
+
+    public ListDictionary<uint, (short, float)> Somethings { get; } = new();
 
     public class AnimTrack {
       public int Type { get; set; }
@@ -17,7 +21,8 @@ namespace level5.schema {
 
     public void Open(byte[] bytes) {
       var endianness = Endianness.LittleEndian;
-      using (var r = new EndianBinaryReader(new MemoryStream(bytes), endianness)) {
+      using (var r =
+             new EndianBinaryReader(new MemoryStream(bytes), endianness)) {
         r.Position = 0x08;
         var decomSize = r.ReadInt32();
         var nameOffset = r.ReadUInt32();
@@ -25,7 +30,10 @@ namespace level5.schema {
         var positionCount = r.ReadInt32();
         var rotationCount = r.ReadInt32();
         var scaleCount = r.ReadInt32();
-        var unknownCount = r.ReadInt32();
+
+        // This corresponds to PRMs that may be toggled on/off in the animation.
+        var toggledPrmCount = r.ReadInt32();
+        // This corresponds to bones that will be moved in the animation.
         var boneCount = r.ReadInt32();
 
         r.Position = 0x54;
@@ -36,19 +44,23 @@ namespace level5.schema {
         this.Anim.Name = r.ReadStringNT();
 
         var data = Decompress.Level5Decom(
-            r.ReadBytesAtOffset(compDataOffset, (int)(r.Length - compDataOffset)));
+            r.ReadBytesAtOffset(compDataOffset,
+                                (int)(r.Length - compDataOffset)));
 
-        using (var d = new EndianBinaryReader(new MemoryStream(data), endianness)) {
+        using (var d =
+               new EndianBinaryReader(new MemoryStream(data), endianness)) {
           // Header
-          var boneHashTableOffset = d.ReadUInt32();
+          var hashTableOffset = d.ReadUInt32();
           var trackInfoOffset = d.ReadUInt32();
           var dataOffset = d.ReadUInt32();
 
           // Bone Hashes
-          List<uint> boneNameHashes = new List<uint>();
-          d.Position = (boneHashTableOffset);
-          while (d.Position < trackInfoOffset)
-            boneNameHashes.Add(d.ReadUInt32());
+          List<uint> hashes = new List<uint>();
+          d.Position = (hashTableOffset);
+          while (d.Position < trackInfoOffset) {
+            hashes.Add(d.ReadUInt32());
+          }
+          Asserts.Equal(toggledPrmCount + boneCount, hashes.Count);
 
           // Track Information
           List<AnimTrack> tracks = new List<AnimTrack>();
@@ -75,7 +87,7 @@ namespace level5.schema {
 
           // Data
 
-          foreach (var v in boneNameHashes) {
+          foreach (var v in hashes) {
             var node = new GenericAnimationTransform();
             node.Hash = v;
             node.HashType = AnimNodeHashType.CRC32C;
@@ -92,30 +104,34 @@ namespace level5.schema {
           this.ReadFrameData_(d, offset, scaleCount, dataOffset, boneCount,
                               tracks[2]);
           offset += scaleCount;
-          //ReadFrameData(d, unknownCount, dataOffset, boneCount, Tracks[3]);
+          this.ReadFrameData_(d, offset, toggledPrmCount, dataOffset, boneCount,
+                              tracks[3]);
+          ;
         }
       }
     }
 
     private void ReadFrameData_(EndianBinaryReader d,
-                               int offset,
-                               int count,
-                               uint dataOffset,
-                               int boneCount,
-                               AnimTrack track) {
+                                int offset,
+                                int count,
+                                uint dataOffset,
+                                int boneCount,
+                                AnimTrack track) {
       for (int i = offset; i < offset + count; i++) {
         d.Position = ((uint)(dataOffset + 4 * 4 * i));
         var flagOffset = d.ReadUInt32();
         var keyFrameOffset = d.ReadUInt32();
         var keyDataOffset = d.ReadUInt32();
+        d.AssertUInt32(0);
 
         d.Position = (flagOffset);
         var boneIndex = d.ReadInt16();
         var keyFrameCount = d.ReadByte();
         var flag = d.ReadByte();
 
-        var node =
-            this.Anim.TransformNodes[boneIndex + (flag == 0 ? boneCount : 0)];
+        var nodeIndex = boneIndex + (flag == 0 ? boneCount : 0);
+
+        var node = this.Anim.TransformNodes[nodeIndex];
 
         d.Position = (keyDataOffset);
         for (int k = 0; k < keyFrameCount; k++) {
@@ -123,6 +139,10 @@ namespace level5.schema {
           d.Position = ((uint)(keyFrameOffset + k * 2));
           var frame = d.ReadInt16();
           d.Position = (temp);
+
+          if (d.Eof) {
+            break;
+          }
 
           float[] animdata = new float[track.DataCount];
           for (int j = 0; j < track.DataCount; j++)
@@ -154,7 +174,7 @@ namespace level5.schema {
               // TODO: Invert?
               var e = QuaternionUtil.ToEulerRadians(
                   new Quaternion(animdata[0], animdata[1], animdata[2],
-                                        animdata[3]));
+                                 animdata[3]));
               node.AddKey(frame, e.X, AnimationTrackFormat.RotateX);
               node.AddKey(frame, e.Y, AnimationTrackFormat.RotateY);
               node.AddKey(frame, e.Z, AnimationTrackFormat.RotateZ);
@@ -164,6 +184,11 @@ namespace level5.schema {
               node.AddKey(frame, animdata[1], AnimationTrackFormat.ScaleY);
               node.AddKey(frame, animdata[2], AnimationTrackFormat.ScaleZ);
               break;
+            case 9: {
+              Asserts.Equal(1, animdata.Length);
+              this.Somethings.Add(node.Hash, (frame, animdata[0]));
+              break;
+            }
           }
         }
       }
