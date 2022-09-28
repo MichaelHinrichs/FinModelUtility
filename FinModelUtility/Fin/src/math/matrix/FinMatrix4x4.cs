@@ -253,6 +253,8 @@ namespace fin.math {
     }
 
 
+    private const double ERROR = 0.0001;
+
     public override bool Equals(object? obj)
       => ReferenceEquals(this, obj) || this.Equals(obj);
 
@@ -270,12 +272,22 @@ namespace fin.math {
 
       for (var r = 0; r < 4; ++r) {
         for (var c = 0; c < 4; ++c) {
-          if (Math.Abs(this[r, c] - other[r, c]) > .0001) {
+          if (Math.Abs(this[r, c] - other[r, c]) > ERROR) {
             return false;
           }
         }
       }
       return true;
+    }
+
+    public override int GetHashCode() {
+      int hash = 17;
+      for (var i = 0; i < this.impl_.Length; ++i) {
+        var value = this.impl_[i];
+        value = Math.Round(value / ERROR) * ERROR;
+        hash = hash * 31 + value.GetHashCode();
+      }
+      return hash;
     }
   }
 }

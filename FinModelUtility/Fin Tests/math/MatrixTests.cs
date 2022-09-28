@@ -1,4 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using fin.math.matrix;
+using fin.util.asserts;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 
 namespace fin.math {
@@ -81,6 +83,85 @@ namespace fin.math {
           Assert.AreEqual(expectedMatrix[r, c], actualMatrix[r, c], .0001f);
         }
       }
+    }
+
+    [TestMethod]
+    public void TestCloseEquals() {
+      var identityMatrix = new FinMatrix4x4().SetIdentity();
+      var closeToIdentityMatrix = this.GetCloseToIdentityMatrix_();
+      Asserts.True(identityMatrix.Equals(closeToIdentityMatrix));
+    }
+
+    [TestMethod]
+    public void TestCloseHashCode() {
+      var identityMatrix = new FinMatrix4x4().SetIdentity();
+      var closeToIdentityMatrix = this.GetCloseToIdentityMatrix_();
+      Asserts.Equal(identityMatrix.GetHashCode(),
+                    closeToIdentityMatrix.GetHashCode());
+    }
+
+    [TestMethod]
+    public void TestDifferentEquals() {
+      var identityMatrix = new FinMatrix4x4().SetIdentity();
+      var differentFromIdentityMatrix = this.GetDifferentFromIdentityMatrix_();
+      Asserts.False(identityMatrix.Equals(differentFromIdentityMatrix));
+    }
+
+    [TestMethod]
+    public void TestDifferentHashCode() {
+      var identityMatrix = new FinMatrix4x4().SetIdentity();
+      var differentFromIdentityMatrix = this.GetDifferentFromIdentityMatrix_();
+      Assert.AreNotEqual(identityMatrix.GetHashCode(),
+                         differentFromIdentityMatrix.GetHashCode());
+    }
+
+
+    private IReadOnlyFinMatrix4x4 GetCloseToIdentityMatrix_() {
+      var closeToIdentityMatrix = new FinMatrix4x4().SetZero();
+
+      var error = .00001;
+      closeToIdentityMatrix[0, 0] = 1 + error;
+      closeToIdentityMatrix[0, 1] = error;
+      closeToIdentityMatrix[0, 2] = -error;
+      closeToIdentityMatrix[0, 3] = error;
+      closeToIdentityMatrix[1, 0] = -error;
+      closeToIdentityMatrix[1, 1] = 1 - error;
+      closeToIdentityMatrix[1, 2] = error;
+      closeToIdentityMatrix[1, 3] = -error;
+      closeToIdentityMatrix[2, 0] = error;
+      closeToIdentityMatrix[2, 1] = -error;
+      closeToIdentityMatrix[2, 2] = 1 + error;
+      closeToIdentityMatrix[2, 3] = error;
+      closeToIdentityMatrix[3, 0] = -error;
+      closeToIdentityMatrix[3, 1] = error;
+      closeToIdentityMatrix[3, 2] = -error;
+      closeToIdentityMatrix[3, 3] = 1 - error;
+
+      return closeToIdentityMatrix;
+    }
+
+    private IReadOnlyFinMatrix4x4 GetDifferentFromIdentityMatrix_() {
+      var closeToIdentityMatrix = new FinMatrix4x4().SetZero();
+
+      var error = .001;
+      closeToIdentityMatrix[0, 0] = 1 + error;
+      closeToIdentityMatrix[0, 1] = error;
+      closeToIdentityMatrix[0, 2] = -error;
+      closeToIdentityMatrix[0, 3] = error;
+      closeToIdentityMatrix[1, 0] = -error;
+      closeToIdentityMatrix[1, 1] = 1 - error;
+      closeToIdentityMatrix[1, 2] = error;
+      closeToIdentityMatrix[1, 3] = -error;
+      closeToIdentityMatrix[2, 0] = error;
+      closeToIdentityMatrix[2, 1] = -error;
+      closeToIdentityMatrix[2, 2] = 1 + error;
+      closeToIdentityMatrix[2, 3] = error;
+      closeToIdentityMatrix[3, 0] = -error;
+      closeToIdentityMatrix[3, 1] = error;
+      closeToIdentityMatrix[3, 2] = -error;
+      closeToIdentityMatrix[3, 3] = 1 - error;
+
+      return closeToIdentityMatrix;
     }
   }
 }
