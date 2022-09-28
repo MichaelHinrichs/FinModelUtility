@@ -20,6 +20,9 @@ namespace fin.model.impl {
       private readonly IList<IBoneWeights> boneWeights_ =
           new List<IBoneWeights>();
 
+      private readonly ListDictionary<int, IBoneWeights> boneWeightsByCount_ =
+          new();
+
       private readonly IndexableDictionary<IBone, IBoneWeights>
           boneWeightsByBone_ = new();
 
@@ -87,37 +90,38 @@ namespace fin.model.impl {
         var totalWeight = weights.Select(weight => weight.Weight).Sum();
         Asserts.True(Math.Abs(totalWeight - 1) < error);
 
-        foreach (var boneWeights in this.boneWeights_) {
-          if (boneWeights.PreprojectMode != preprojectMode) {
-            continue;
-          }
-
-          var existingWeights = boneWeights.Weights;
-          if (weights.Length != existingWeights.Count) {
-            continue;
-          }
-
-          for (var w = 0; w < weights.Length; ++w) {
-            var weight = weights[w];
-            var existingWeight = existingWeights[w];
-
-            if (Math.Abs(weight.Weight - existingWeight.Weight) > .0001) {
-              goto Skip;
+        if (this.boneWeightsByCount_.TryGetList(weights.Length,
+                                                out var allBoneWeightsWithCount)) {
+          foreach (var boneWeights in allBoneWeightsWithCount) {
+            if (boneWeights.PreprojectMode != preprojectMode) {
+              continue;
             }
 
-            if (weight.Bone != existingWeight.Bone) {
-              goto Skip;
+            var existingWeights = boneWeights.Weights;
+            for (var w = 0; w < weights.Length; ++w) {
+              var weight = weights[w];
+              var existingWeight = existingWeights[w];
+
+              if (weight.Bone != existingWeight.Bone) {
+                goto Skip;
+              }
+
+              if (Math.Abs(weight.Weight - existingWeight.Weight) > .0001) {
+                goto Skip;
+              }
+
+              if (!(weight.SkinToBone == null &&
+                    existingWeight.SkinToBone == null) ||
+                  !(weight.SkinToBone?.Equals(existingWeight.SkinToBone) ??
+                    false)) {
+                goto Skip;
+              }
             }
 
-            if (!(weight.SkinToBone?.Equals(existingWeight.SkinToBone) ??
-                  false)) {
-              goto Skip;
-            }
+            return boneWeights;
+
+            Skip: ;
           }
-
-          return boneWeights;
-
-          Skip: ;
         }
 
         return CreateBoneWeights(preprojectMode, weights);
@@ -125,12 +129,22 @@ namespace fin.model.impl {
 
       public IBoneWeights CreateBoneWeights(PreprojectMode preprojectMode,
                                             params IBoneWeight[] weights) {
+        var error = .0001;
+        if (weights.Length > 1) {
+          weights = weights.Where(boneWeight => boneWeight.Weight > error)
+                           .ToArray();
+        }
+
+        var totalWeight = weights.Select(weight => weight.Weight).Sum();
+        Asserts.True(Math.Abs(totalWeight - 1) < error);
+
         var boneWeights = new BoneWeightsImpl {
             Index = boneWeights_.Count,
             PreprojectMode = preprojectMode,
             Weights = weights,
         };
         this.boneWeights_.Add(boneWeights);
+        this.boneWeightsByCount_.Add(weights.Length, boneWeights);
         return boneWeights;
       }
 
