@@ -1,8 +1,6 @@
 ﻿using fin.util.optional;
-
 using System.Collections.Generic;
 using System.Numerics;
-
 using fin.data;
 using fin.math.interpolation;
 
@@ -31,6 +29,10 @@ namespace fin.model {
 
     IReadOnlyIndexableDictionary<IBone, IBoneTracks> BoneTracks { get; }
     IBoneTracks AddBoneTracks(IBone bone);
+
+    // TODO: Does this need to be set frame by frame??
+    IReadOnlySet<IMesh> HiddenMeshes { get; }
+    void HideMesh(IMesh mesh);
 
     // TODO: Allow setting looping behavior (once, back and forth, etc.)
   }
@@ -159,7 +161,7 @@ namespace fin.model {
         float frame,
         IOptional<TAxis[]>? defaultValue = null,
         bool useLoopingInterpolation = false
-        );
+    );
   }
 
   public interface IPositionTrack : IAxesTrack<float, IPosition> { }

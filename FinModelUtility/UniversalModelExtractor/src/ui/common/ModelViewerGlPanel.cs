@@ -87,6 +87,9 @@ namespace uni.ui.common {
         }
 
         this.animation_ = value;
+        if (this.modelRenderer_ != null) {
+          this.modelRenderer_.HiddenMeshes = this.animation_?.HiddenMeshes;
+        }
         if (this.AnimationPlaybackManager != null) {
           this.AnimationPlaybackManager.Frame = 0;
           this.AnimationPlaybackManager.FrameRate =

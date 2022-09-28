@@ -130,6 +130,8 @@ namespace level5.api {
           });
 
       // Adds vertices
+      Dictionary<uint, (Prm prm, IMesh mesh)> prmsByAnimationReferenceHash =
+          new();
       {
         if (modelXc.FilesByExtension.TryGetList(".prm", out var prmFiles)) {
           foreach (var prmFile in prmFiles) {
@@ -139,6 +141,9 @@ namespace level5.api {
 
             var mesh = model.Skin.AddMesh();
             mesh.Name = prm.Name;
+
+            prmsByAnimationReferenceHash[prm.AnimationReferenceHash] =
+                (prm, mesh);
 
             var finVertices = new List<IVertex>();
             foreach (var prmVertex in prm.Vertices) {
@@ -193,10 +198,10 @@ namespace level5.api {
         foreach (var animationXcFile in modelFileBundle.AnimationXcFiles) {
           var animationXc = animationXcFile?.Impl?.ReadNew<Xc>(endianness);
           var animationResourceFile =
-            new Resource(animationXc.FilesByExtension[".bin"].Single().Data);
+              new Resource(animationXc.FilesByExtension[".bin"].Single().Data);
 
           if (animationXc.FilesByExtension.TryGetList(
-        ".mtn2", out var mtn2Files)) {
+                  ".mtn2", out var mtn2Files)) {
             foreach (var mtn2File in mtn2Files) {
               var mtn2 = new Mtn2();
               mtn2.Open(mtn2File.Data);
@@ -207,6 +212,18 @@ namespace level5.api {
               finAnimation.Name = anim.Name;
               finAnimation.FrameRate = 30;
               finAnimation.FrameCount = anim.FrameCount;
+
+              foreach (var (animationReferenceHash, framesAndValues) in mtn2
+                           .Somethings) {
+                var (prm, mesh) =
+                    prmsByAnimationReferenceHash[animationReferenceHash];
+                var hasNonzero = (framesAndValues.Any(frameAndValue =>
+                                       frameAndValue.Item2 != 0));
+
+                if (!hasNonzero) {
+                  finAnimation.HideMesh(mesh);
+                }
+              }
 
               foreach (var transformNode in anim.TransformNodes) {
                 if (!finBoneByIndex.TryGetValue(transformNode.Hash,
@@ -225,50 +242,50 @@ namespace level5.api {
 
                     switch (mtnTrack.Type) {
                       case AnimationTrackFormat.RotateX: {
-                          finBoneTracks.Rotations.Set(
-                              frame, 0, value, inTan, outTan);
-                          break;
-                        }
+                        finBoneTracks.Rotations.Set(
+                            frame, 0, value, inTan, outTan);
+                        break;
+                      }
                       case AnimationTrackFormat.RotateY: {
-                          finBoneTracks.Rotations.Set(
-                              frame, 1, value, inTan, outTan);
-                          break;
-                        }
+                        finBoneTracks.Rotations.Set(
+                            frame, 1, value, inTan, outTan);
+                        break;
+                      }
                       case AnimationTrackFormat.RotateZ: {
-                          finBoneTracks.Rotations.Set(
-                              frame, 2, value, inTan, outTan);
-                          break;
-                        }
+                        finBoneTracks.Rotations.Set(
+                            frame, 2, value, inTan, outTan);
+                        break;
+                      }
                       case AnimationTrackFormat.ScaleX: {
-                          finBoneTracks.Scales.Set(
-                              frame, 0, value, inTan, outTan);
-                          break;
-                        }
+                        finBoneTracks.Scales.Set(
+                            frame, 0, value, inTan, outTan);
+                        break;
+                      }
                       case AnimationTrackFormat.ScaleY: {
-                          finBoneTracks.Scales.Set(
-                              frame, 1, value, inTan, outTan);
-                          break;
-                        }
+                        finBoneTracks.Scales.Set(
+                            frame, 1, value, inTan, outTan);
+                        break;
+                      }
                       case AnimationTrackFormat.ScaleZ: {
-                          finBoneTracks.Scales.Set(
-                              frame, 2, value, inTan, outTan);
-                          break;
-                        }
+                        finBoneTracks.Scales.Set(
+                            frame, 2, value, inTan, outTan);
+                        break;
+                      }
                       case AnimationTrackFormat.TranslateX: {
-                          finBoneTracks.Positions.Set(
-                              frame, 0, value, inTan, outTan);
-                          break;
-                        }
+                        finBoneTracks.Positions.Set(
+                            frame, 0, value, inTan, outTan);
+                        break;
+                      }
                       case AnimationTrackFormat.TranslateY: {
-                          finBoneTracks.Positions.Set(
-                              frame, 1, value, inTan, outTan);
-                          break;
-                        }
+                        finBoneTracks.Positions.Set(
+                            frame, 1, value, inTan, outTan);
+                        break;
+                      }
                       case AnimationTrackFormat.TranslateZ: {
-                          finBoneTracks.Positions.Set(
-                              frame, 2, value, inTan, outTan);
-                          break;
-                        }
+                        finBoneTracks.Positions.Set(
+                            frame, 2, value, inTan, outTan);
+                        break;
+                      }
                     }
                   }
                 }

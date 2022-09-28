@@ -4,6 +4,7 @@
 namespace uni.ui.gl {
   public interface IModelRenderer : IDisposable {
     IModel Model { get; }
+    IReadOnlySet<IMesh>? HiddenMeshes { get; set; }
 
     bool UseLighting { get; set; }
 

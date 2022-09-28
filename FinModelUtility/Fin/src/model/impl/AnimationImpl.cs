@@ -39,8 +39,11 @@ namespace fin.model.impl {
         private readonly IndexableDictionary<IBone, IBoneTracks> boneTracks_ =
             new();
 
+        private readonly HashSet<IMesh> hiddenMeshes_ = new();
+
         public AnimationImpl() {
           this.BoneTracks = this.boneTracks_;
+          this.HiddenMeshes = this.hiddenMeshes_;
         }
 
         public string Name { get; set; }
@@ -69,7 +72,13 @@ namespace fin.model.impl {
           return boneTracks;
         }
 
-        // TODO: Allow setting fps.
+        public IReadOnlySet<IMesh> HiddenMeshes { get; }
+
+        public void HideMesh(IMesh mesh) {
+          this.hiddenMeshes_.Add(mesh);
+        }
+
+
         // TODO: Allow setting looping behavior (once, back and forth, etc.)
       }
 

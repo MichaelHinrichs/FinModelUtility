@@ -25,6 +25,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="src\ui\gl\ModelRenderer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove=".editorconfig" />
     <None Remove="img\file.png" />
     <None Remove="img\folder_closed.png" />

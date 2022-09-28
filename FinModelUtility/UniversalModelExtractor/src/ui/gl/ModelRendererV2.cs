@@ -10,28 +10,31 @@ namespace uni.ui.gl {
   public class ModelRendererV2 : IModelRenderer {
     private readonly GlBufferManager bufferManager_;
     private readonly BoneTransformManager? boneTransformManager_;
-    private readonly List<MaterialMeshRendererV2> materialMeshRenderers_ = new();
+
+    private readonly ListDictionary<IMesh, MaterialMeshRendererV2>
+        materialMeshRenderers_ = new();
 
     public ModelRendererV2(IModel model,
-                         BoneTransformManager? boneTransformManager = null) {
+                           BoneTransformManager? boneTransformManager = null) {
       this.Model = model;
       this.boneTransformManager_ = boneTransformManager;
 
       this.bufferManager_ = new GlBufferManager(model);
 
-      var primitivesByMaterial = new ListDictionary<IMaterial, IPrimitive>();
       foreach (var mesh in model.Skin.Meshes) {
+        var primitivesByMaterial = new ListDictionary<IMaterial, IPrimitive>();
         foreach (var primitive in mesh.Primitives) {
           primitivesByMaterial.Add(primitive.Material, primitive);
         }
-      }
 
-      foreach (var (material, primitives) in primitivesByMaterial) {
-        materialMeshRenderers_.Add(
-            new MaterialMeshRendererV2(
-                this.bufferManager_,
-                material,
-                primitives));
+        foreach (var (material, primitives) in primitivesByMaterial) {
+          materialMeshRenderers_.Add(
+              mesh,
+              new MaterialMeshRendererV2(
+                  this.bufferManager_,
+                  material,
+                  primitives));
+        }
       }
     }
 
@@ -43,14 +46,17 @@ namespace uni.ui.gl {
     }
 
     private void ReleaseUnmanagedResources_() {
-      foreach (var materialMeshRenderer in this.materialMeshRenderers_) {
-        materialMeshRenderer.Dispose();
+      foreach (var (_, materialMeshRenderers) in this.materialMeshRenderers_) {
+        foreach (var materialMeshRenderer in materialMeshRenderers) {
+          materialMeshRenderer.Dispose();
+        }
       }
       materialMeshRenderers_.Clear();
       this.bufferManager_.Dispose();
     }
 
     public IModel Model { get; }
+    public IReadOnlySet<IMesh>? HiddenMeshes { get; set; }
 
     private bool useLighting_ = false;
 
@@ -58,13 +64,17 @@ namespace uni.ui.gl {
       get => this.useLighting_;
       set {
         this.useLighting_ = value;
-        foreach (var materialMeshRenderer in this.materialMeshRenderers_) {
-          materialMeshRenderer.UseLighting = value;
+        foreach (var (_, materialMeshRenderers) in
+                 this.materialMeshRenderers_) {
+          foreach (var materialMeshRenderer in materialMeshRenderers) {
+            materialMeshRenderer.UseLighting = value;
+          }
         }
       }
     }
 
     private bool valid_ = false;
+
     public void InvalidateDisplayLists() {
       this.valid_ = false;
     }
@@ -75,8 +85,15 @@ namespace uni.ui.gl {
         this.valid_ = true;
       }
 
-      foreach (var materialMeshRenderer in this.materialMeshRenderers_) {
-        materialMeshRenderer.Render();
+      foreach (var (mesh, materialMeshRenderers) in
+               this.materialMeshRenderers_) {
+        if (this.HiddenMeshes?.Contains(mesh) ?? false) {
+          continue;
+        }
+
+        foreach (var materialMeshRenderer in materialMeshRenderers) {
+          materialMeshRenderer.Render();
+        }
       }
     }
   }
