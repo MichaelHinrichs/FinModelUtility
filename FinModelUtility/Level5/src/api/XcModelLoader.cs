@@ -4,6 +4,7 @@ using fin.io;
 using fin.math;
 using fin.model;
 using fin.model.impl;
+using fin.util.asserts;
 using fin.util.optional;
 using level5.schema;
 using System.Numerics;
@@ -142,8 +143,10 @@ namespace level5.api {
             var mesh = model.Skin.AddMesh();
             mesh.Name = prm.Name;
 
-            prmsByAnimationReferenceHash[prm.AnimationReferenceHash] =
-                (prm, mesh);
+            var prmAnimationReferenceHashes = prm.AnimationReferenceHashes;
+            foreach (var hash in prmAnimationReferenceHashes) {
+              prmsByAnimationReferenceHash[hash] = (prm, mesh);
+            }
 
             var finVertices = new List<IVertex>();
             foreach (var prmVertex in prm.Vertices) {
@@ -215,8 +218,12 @@ namespace level5.api {
 
               foreach (var (animationReferenceHash, framesAndValues) in mtn2
                            .Somethings) {
-                var (prm, mesh) =
-                    prmsByAnimationReferenceHash[animationReferenceHash];
+                if (!prmsByAnimationReferenceHash.TryGetValue(animationReferenceHash,
+                                                out var prmAndMesh)) {
+                  continue;
+                }
+
+                var (prm, mesh) = prmAndMesh;
                 var hasNonzero = (framesAndValues.Any(frameAndValue =>
                                        frameAndValue.Item2 != 0));
 

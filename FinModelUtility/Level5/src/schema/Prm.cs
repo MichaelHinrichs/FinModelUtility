@@ -4,7 +4,7 @@ namespace level5.schema {
   public class Prm {
     public string Name { get; private set; }
 
-    public uint AnimationReferenceHash { get; private set; }
+    public uint[] AnimationReferenceHashes { get; private set; }
 
     public string MaterialName { get; private set; }
 
@@ -61,8 +61,7 @@ namespace level5.schema {
 
       // hashes
       r.Position = prmHashesOffset;
-      var hashes = r.ReadUInt32s(4);
-      this.AnimationReferenceHash = hashes[3];
+      this.AnimationReferenceHashes = r.ReadUInt32s(4);
     }
 
 
