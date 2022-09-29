@@ -20,11 +20,8 @@ namespace fin.math.matrix {
 
     public FinVector4 Clone() => new FinVector4(this);
 
-    public void CopyInto(FinVector4 other) {
-      for (var i = 0; i < 4; ++i) {
-        other[i] = this[i];
-      }
-    }
+    public void CopyInto(FinVector4 other)
+      => other.impl_ = this.impl_;
 
 
     // Accessing values
