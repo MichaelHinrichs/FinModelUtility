@@ -1,8 +1,11 @@
-﻿using System;
+﻿using System.Numerics;
+using System.Runtime.CompilerServices;
+using Vector4 = System.Numerics.Vector4;
+
 
 namespace fin.math.matrix {
   public class FinVector4 {
-    private readonly float[] impl_ = new float[4];
+    private Vector4 impl_ = new();
 
     public FinVector4() {}
 
@@ -26,41 +29,33 @@ namespace fin.math.matrix {
 
     // Accessing values
     public float this[int index] {
-      get => this.impl_[index];
-      set => this.impl_[index] = value;
+      get => Unsafe.Add(ref this.impl_.X, index);
+      set => Unsafe.Add(ref this.impl_.X, index) = value;
     }
 
     public float X {
-      get => this[0];
-      set => this[0] = value;
+      get => this.impl_.X;
+      set => this.impl_.X = value;
     }
 
     public float Y {
-      get => this[1];
-      set => this[1] = value;
+      get => this.impl_.Y;
+      set => this.impl_.Y = value;
     }
 
     public float Z {
-      get => this[2];
-      set => this[2] = value;
+      get => this.impl_.Z;
+      set => this.impl_.Z = value;
     }
 
     public float W {
-      get => this[3];
-      set => this[3] = value;
+      get => this.impl_.W;
+      set => this.impl_.W = value;
     }
 
 
     // Normalizing
-    public float Length {
-      get {
-        var x = this.X;
-        var y = this.Y;
-        var z = this.Z;
-        var w = this.W;
-        return MathF.Sqrt(x * x + y * y + z * z + w * w);
-      }
-    }
+    public float Length => this.impl_.Length();
 
     public FinVector4 CloneAndNormalize() => this.Clone().NormalizeInPlace();
 
@@ -127,6 +122,11 @@ namespace fin.math.matrix {
     public void MultiplyIntoBuffer(
         IReadOnlyFinMatrix4x4 other,
         FinVector4 buffer) {
+      if (other is FinMatrix4x4 otherImpl) {
+        buffer.impl_ = Vector4.Transform(this.impl_, Matrix4x4.Transpose(otherImpl.impl_));
+        return;
+      }
+
       for (var r = 0; r < 4; ++r) {
         var value = 0f;
 

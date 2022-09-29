@@ -9,7 +9,7 @@ namespace fin.math {
   using SystemMatrix = System.Numerics.Matrix4x4;
 
   public class FinMatrix4x4 : IFinMatrix4x4 {
-    private SystemMatrix impl_ = new();
+    internal SystemMatrix impl_  = new();
 
     public FinMatrix4x4() {
       this.SetZero();
@@ -72,21 +72,13 @@ namespace fin.math {
     }
 
     public IFinMatrix4x4 SetIdentity() {
-      for (var r = 0; r < 4; ++r) {
-        for (var c = 0; c < 4; ++c) {
-          this[r, c] = (r == c) ? 1 : 0;
-        }
-      }
+      this.impl_ = SystemMatrix.Identity;
       this.MatrixState = MatrixState.IDENTITY;
       return this;
     }
 
     public IFinMatrix4x4 SetZero() {
-      for (var r = 0; r < 4; ++r) {
-        for (var c = 0; c < 4; ++c) {
-          this[r, c] = 0;
-        }
-      }
+      this.impl_ = new SystemMatrix();
       this.MatrixState = MatrixState.ZERO;
       return this;
     }
