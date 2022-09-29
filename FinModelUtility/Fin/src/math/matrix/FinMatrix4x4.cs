@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using fin.math.matrix;
 using fin.util.asserts;
+using System.Runtime.CompilerServices;
 
 
 namespace fin.math {
   using SystemMatrix = System.Numerics.Matrix4x4;
 
   public class FinMatrix4x4 : IFinMatrix4x4 {
-    private readonly float[] impl_ = new float[16];
+    private SystemMatrix impl_ = new();
 
     public FinMatrix4x4() {
       this.SetZero();
@@ -17,7 +18,7 @@ namespace fin.math {
     public FinMatrix4x4(IReadOnlyList<float> data) {
       Asserts.Equal(4 * 4, data.Count);
       for (var i = 0; i < 4 * 4; ++i) {
-        this.impl_[i] = data[i];
+        this[i] = data[i];
       }
       this.UpdateState();
     }
@@ -25,7 +26,7 @@ namespace fin.math {
     public FinMatrix4x4(IReadOnlyList<double> data) {
       Asserts.Equal(4 * 4, data.Count);
       for (var i = 0; i < 4 * 4; ++i) {
-        this.impl_[i] = (float) data[i];
+        this[i] = (float)data[i];
       }
       this.UpdateState();
     }
@@ -90,12 +91,17 @@ namespace fin.math {
       return this;
     }
 
-    public float this[int row, int column] {
-      get => this.impl_[FinMatrix4x4.GetIndex_(row, column)];
+    public float this[int index] {
+      get => Unsafe.Add(ref this.impl_.M11, index);
       set {
-        this.impl_[FinMatrix4x4.GetIndex_(row, column)] = value;
+        Unsafe.Add(ref this.impl_.M11, index) = value;
         this.MatrixState = MatrixState.UNDEFINED;
       }
+    }
+
+    public float this[int row, int column] {
+      get => this[FinMatrix4x4.GetIndex_(row, column)];
+      set => this[FinMatrix4x4.GetIndex_(row, column)] = value;
     }
 
     private static int GetIndex_(int row, int column) => 4 * row + column;
@@ -141,8 +147,7 @@ namespace fin.math {
 
     public IFinMatrix4x4 MultiplyInPlace(IReadOnlyFinMatrix4x4 other) {
       if (!other.IsIdentity) {
-        this.MultiplyIntoBuffer(other, FinMatrix4x4.SHARED_BUFFER);
-        this.CopyFrom(FinMatrix4x4.SHARED_BUFFER);
+        this.MultiplyIntoBuffer(other, this);
       }
       return this;
     }
@@ -160,6 +165,13 @@ namespace fin.math {
       }
       if (this.IsZero || other.IsZero) {
         buffer.SetZero();
+        return;
+      }
+
+      if (other is FinMatrix4x4 otherImpl &&
+          buffer is FinMatrix4x4 bufferImpl) {
+        bufferImpl.impl_ = SystemMatrix.Multiply(this.impl_, otherImpl.impl_);
+        bufferImpl.MatrixState = MatrixState.UNDEFINED;
         return;
       }
 
@@ -203,6 +215,11 @@ namespace fin.math {
         return;
       }
 
+      if (buffer is FinMatrix4x4 bufferImpl) {
+        bufferImpl.impl_ = SystemMatrix.Multiply(this.impl_, other);
+        return;
+      }
+
       for (var r = 0; r < 4; ++r) {
         for (var c = 0; c < 4; ++c) {
           buffer[r, c] = this[r, c] * other;
@@ -221,12 +238,12 @@ namespace fin.math {
     }
 
     public void InvertIntoBuffer(IFinMatrix4x4 buffer) {
-      // TODO: calculate this here
+      if (buffer is FinMatrix4x4 bufferImpl) {
+        SystemMatrix.Invert(this.impl_, out bufferImpl.impl_);
+        return;
+      }
 
-      var systemMatrix = new SystemMatrix();
-      MatrixConversionUtil.CopyFinIntoSystem(this, ref systemMatrix);
-
-      SystemMatrix.Invert(systemMatrix, out var invertedSystemMatrix);
+      SystemMatrix.Invert(this.impl_, out var invertedSystemMatrix);
       MatrixConversionUtil.CopySystemIntoFin(invertedSystemMatrix, buffer);
     }
 
@@ -281,8 +298,8 @@ namespace fin.math {
 
     public override int GetHashCode() {
       int hash = 17;
-      for (var i = 0; i < this.impl_.Length; ++i) {
-        var value = this.impl_[i];
+      for (var i = 0; i < 16; ++i) {
+        var value = this[i];
         value = MathF.Round(value / ERROR) * ERROR;
         hash = hash * 31 + value.GetHashCode();
       }
