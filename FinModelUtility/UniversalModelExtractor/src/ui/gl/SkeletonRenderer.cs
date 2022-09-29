@@ -34,9 +34,9 @@ namespace uni.ui.gl {
       while (boneQueue.Any()) {
         var (bone, parentLocation) = boneQueue.Dequeue();
 
-        var x = 0d;
-        var y = 0d;
-        var z = 0d;
+        var x = 0f;
+        var y = 0f;
+        var z = 0f;
 
         this.boneTransformManager_.ProjectVertex(
             bone, ref x, ref y, ref z);

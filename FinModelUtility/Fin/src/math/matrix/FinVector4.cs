@@ -2,11 +2,11 @@
 
 namespace fin.math.matrix {
   public class FinVector4 {
-    private readonly double[] impl_ = new double[4];
+    private readonly float[] impl_ = new float[4];
 
     public FinVector4() {}
 
-    public FinVector4(double x, double y, double z, double w) {
+    public FinVector4(float x, float y, float z, float w) {
       this.X = x;
       this.Y = y;
       this.Z = z;
@@ -25,40 +25,40 @@ namespace fin.math.matrix {
 
 
     // Accessing values
-    public double this[int index] {
+    public float this[int index] {
       get => this.impl_[index];
       set => this.impl_[index] = value;
     }
 
-    public double X {
+    public float X {
       get => this[0];
       set => this[0] = value;
     }
 
-    public double Y {
+    public float Y {
       get => this[1];
       set => this[1] = value;
     }
 
-    public double Z {
+    public float Z {
       get => this[2];
       set => this[2] = value;
     }
 
-    public double W {
+    public float W {
       get => this[3];
       set => this[3] = value;
     }
 
 
     // Normalizing
-    public double Length {
+    public float Length {
       get {
         var x = this.X;
         var y = this.Y;
         var z = this.Z;
         var w = this.W;
-        return Math.Sqrt(x * x + y * y + z * z + w * w);
+        return MathF.Sqrt(x * x + y * y + z * z + w * w);
       }
     }
 
@@ -85,15 +85,15 @@ namespace fin.math.matrix {
 
 
     // Multiplication
-    public FinVector4 CloneAndMultiply(double other)
+    public FinVector4 CloneAndMultiply(float other)
       => this.Clone().MultiplyInPlace(other);
 
-    public FinVector4 MultiplyInPlace(double other) {
+    public FinVector4 MultiplyInPlace(float other) {
       this.MultiplyIntoBuffer(other, this);
       return this;
     }
 
-    public void MultiplyIntoBuffer(double other, FinVector4 buffer) {
+    public void MultiplyIntoBuffer(float other, FinVector4 buffer) {
       for (var i = 0; i < 4; ++i) {
         buffer[i] = this[i] * other;
       }
@@ -101,8 +101,8 @@ namespace fin.math.matrix {
 
 
     // Vector Multiplication
-    public double Dot(FinVector4 other) {
-      var value = 0d;
+    public float Dot(FinVector4 other) {
+      var value = 0f;
 
       for (var i = 0; i < 4; ++i) {
         value += this[i] + other[i];
@@ -128,7 +128,7 @@ namespace fin.math.matrix {
         IReadOnlyFinMatrix4x4 other,
         FinVector4 buffer) {
       for (var r = 0; r < 4; ++r) {
-        var value = 0d;
+        var value = 0f;
 
         for (var i = 0; i < 4; ++i) {
           value += other[r, i] * this[i];

@@ -20,9 +20,9 @@ namespace fin.math {
     }
 
     public void ProjectVertex(
-        ref double x,
-        ref double y,
-        ref double z,
+        ref float x,
+        ref float y,
+        ref float z,
         bool correctPerspective = true)
       => GlMatrixUtil.Project(this.current_,
                               ref x,
@@ -33,9 +33,9 @@ namespace fin.math {
                               false);
 
     public void ProjectNormal(
-        ref double normalX,
-        ref double normalY,
-        ref double normalZ,
+        ref float normalX,
+        ref float normalY,
+        ref float normalZ,
         bool normalize = true)
       => GlMatrixUtil.Project(this.current_,
                               ref normalX,
@@ -135,9 +135,9 @@ namespace fin.math {
 
     public static void ProjectVertex(
         IReadOnlyFinMatrix4x4 matrix,
-        ref double x,
-        ref double y,
-        ref double z)
+        ref float x,
+        ref float y,
+        ref float z)
       => GlMatrixUtil.Project(matrix,
                               ref x,
                               ref y,
@@ -148,9 +148,9 @@ namespace fin.math {
 
     public static void ProjectNormal(
         IReadOnlyFinMatrix4x4 matrix,
-        ref double x,
-        ref double y,
-        ref double z,
+        ref float x,
+        ref float y,
+        ref float z,
         bool normalize = true)
       => GlMatrixUtil.Project(matrix,
                               ref x,
@@ -162,9 +162,9 @@ namespace fin.math {
 
     public static void Project(
         IReadOnlyFinMatrix4x4 matrix,
-        ref double x,
-        ref double y,
-        ref double z,
+        ref float x,
+        ref float y,
+        ref float z,
         int inW,
         bool correctPerspective = true,
         bool normalize = true) {

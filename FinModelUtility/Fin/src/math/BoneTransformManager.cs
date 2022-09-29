@@ -227,36 +227,36 @@ namespace fin.math {
         return;
       }
 
-      double x = localPosition.X;
-      double y = localPosition.Y;
-      double z = localPosition.Z;
+      float x = localPosition.X;
+      float y = localPosition.Y;
+      float z = localPosition.Z;
       GlMatrixUtil.ProjectVertex(transformMatrix,
                                  ref x,
                                  ref y,
                                  ref z);
-      outPosition.X = (float)x;
-      outPosition.Y = (float)y;
-      outPosition.Z = (float)z;
+      outPosition.X = x;
+      outPosition.Y = y;
+      outPosition.Z = z;
 
       if (outNormal != null && localNormal != null) {
-        double nX = localNormal.X;
-        double nY = localNormal.Y;
-        double nZ = localNormal.Z;
+        float nX = localNormal.X;
+        float nY = localNormal.Y;
+        float nZ = localNormal.Z;
         GlMatrixUtil.ProjectNormal(transformMatrix,
                                    ref nX,
                                    ref nY,
                                    ref nZ);
 
-        outNormal.X = (float)nX;
-        outNormal.Y = (float)nY;
-        outNormal.Z = (float)nZ;
+        outNormal.X = nX;
+        outNormal.Y = nY;
+        outNormal.Z = nZ;
       }
     }
 
     public void ProjectVertex(IBone bone,
-                              ref double x,
-                              ref double y,
-                              ref double z) {
+                              ref float x,
+                              ref float y,
+                              ref float z) {
       GlMatrixUtil.ProjectVertex(
           this.GetWorldMatrix(bone),
           ref x, ref y, ref z);

@@ -8,10 +8,10 @@ namespace fin.math {
   using SystemMatrix = System.Numerics.Matrix4x4;
 
   public class FinMatrix4x4 : IFinMatrix4x4 {
-    private readonly double[] impl_ = new double[16];
+    private readonly float[] impl_ = new float[16];
 
     public FinMatrix4x4() {
-      this.MatrixState = MatrixState.ZERO;
+      this.SetZero();
     }
 
     public FinMatrix4x4(IReadOnlyList<float> data) {
@@ -25,7 +25,7 @@ namespace fin.math {
     public FinMatrix4x4(IReadOnlyList<double> data) {
       Asserts.Equal(4 * 4, data.Count);
       for (var i = 0; i < 4 * 4; ++i) {
-        this.impl_[i] = data[i];
+        this.impl_[i] = (float) data[i];
       }
       this.UpdateState();
     }
@@ -90,7 +90,7 @@ namespace fin.math {
       return this;
     }
 
-    public double this[int row, int column] {
+    public float this[int row, int column] {
       get => this.impl_[FinMatrix4x4.GetIndex_(row, column)];
       set {
         this.impl_[FinMatrix4x4.GetIndex_(row, column)] = value;
@@ -165,7 +165,7 @@ namespace fin.math {
 
       for (var r = 0; r < 4; ++r) {
         for (var c = 0; c < 4; ++c) {
-          var value = 0d;
+          var value = 0f;
 
           for (var i = 0; i < 4; ++i) {
             value += this[r, i] * other[i, c];
@@ -176,29 +176,29 @@ namespace fin.math {
       }
     }
 
-    public IFinMatrix4x4 CloneAndMultiply(double other)
+    public IFinMatrix4x4 CloneAndMultiply(float other)
       => this.Clone().MultiplyInPlace(other);
 
-    public IFinMatrix4x4 MultiplyInPlace(double other) {
+    public IFinMatrix4x4 MultiplyInPlace(float other) {
       if (Math.Abs(other) < .0001) {
         this.SetZero();
         return this;
       }
 
-      if (!this.IsZero && Math.Abs(other - 1) > .0001) {
+      if (!this.IsZero && Math.Abs(other - 1) > ERROR) {
         this.MultiplyIntoBuffer(other, this);
       }
 
       return this;
     }
 
-    public void MultiplyIntoBuffer(double other, IFinMatrix4x4 buffer) {
-      if (this.IsZero || Math.Abs(other) < .0001) {
+    public void MultiplyIntoBuffer(float other, IFinMatrix4x4 buffer) {
+      if (this.IsZero || Math.Abs(other) < .0001f) {
         buffer.SetZero();
         return;
       }
 
-      if (Math.Abs(other - 1) < .0001) {
+      if (Math.Abs(other - 1) < ERROR) {
         buffer.CopyFrom(this);
         return;
       }
@@ -227,7 +227,6 @@ namespace fin.math {
       MatrixConversionUtil.CopyFinIntoSystem(this, ref systemMatrix);
 
       SystemMatrix.Invert(systemMatrix, out var invertedSystemMatrix);
-
       MatrixConversionUtil.CopySystemIntoFin(invertedSystemMatrix, buffer);
     }
 
@@ -253,7 +252,7 @@ namespace fin.math {
     }
 
 
-    private const double ERROR = 0.0001;
+    private const float ERROR = 0.0001f;
 
     public override bool Equals(object? obj)
       => ReferenceEquals(this, obj) || this.Equals(obj);
@@ -284,7 +283,7 @@ namespace fin.math {
       int hash = 17;
       for (var i = 0; i < this.impl_.Length; ++i) {
         var value = this.impl_[i];
-        value = Math.Round(value / ERROR) * ERROR;
+        value = MathF.Round(value / ERROR) * ERROR;
         hash = hash * 31 + value.GetHashCode();
       }
       return hash;

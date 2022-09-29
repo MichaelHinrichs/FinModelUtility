@@ -15,11 +15,11 @@ namespace fin.math.matrix {
     IFinMatrix4x4 SetIdentity();
     IFinMatrix4x4 SetZero();
 
-    new double this[int row, int column] { get; set; }
+    new float this[int row, int column] { get; set; }
 
     IFinMatrix4x4 AddInPlace(IReadOnlyFinMatrix4x4 other);
     IFinMatrix4x4 MultiplyInPlace(IReadOnlyFinMatrix4x4 other);
-    IFinMatrix4x4 MultiplyInPlace(double other);
+    IFinMatrix4x4 MultiplyInPlace(float other);
     IFinMatrix4x4 InvertInPlace();
     IFinMatrix4x4 TransposeInPlace();
   }
@@ -31,7 +31,7 @@ namespace fin.math.matrix {
 
     IFinMatrix4x4 Clone();
 
-    double this[int row, int column] { get; }
+    float this[int row, int column] { get; }
 
     IFinMatrix4x4 CloneAndAdd(IReadOnlyFinMatrix4x4 other);
     void AddIntoBuffer(IReadOnlyFinMatrix4x4 other, IFinMatrix4x4 buffer);
@@ -39,8 +39,8 @@ namespace fin.math.matrix {
     IFinMatrix4x4 CloneAndMultiply(IReadOnlyFinMatrix4x4 other);
     void MultiplyIntoBuffer(IReadOnlyFinMatrix4x4 other, IFinMatrix4x4 buffer);
 
-    IFinMatrix4x4 CloneAndMultiply(double other);
-    void MultiplyIntoBuffer(double other, IFinMatrix4x4 buffer);
+    IFinMatrix4x4 CloneAndMultiply(float other);
+    void MultiplyIntoBuffer(float other, IFinMatrix4x4 buffer);
 
     IFinMatrix4x4 CloneAndInvert();
     void InvertIntoBuffer(IFinMatrix4x4 buffer);

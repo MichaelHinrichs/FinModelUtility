@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using Assimp.Configs;
-
 using fin.math;
 using fin.model.impl;
 
@@ -68,20 +66,20 @@ namespace fin.model.util {
         while (boneQueue.Count > 0) {
           var bone = boneQueue.Dequeue();
 
-          var x = 0d;
-          var y = 0d;
-          var z = 0d;
+          var x = 0f;
+          var y = 0f;
+          var z = 0f;
 
           boneTransformManager.ProjectVertex(bone, ref x, ref y, ref z);
 
-          minX = MathF.Min(minX, (float) x);
-          maxX = MathF.Max(maxX, (float) x);
+          minX = MathF.Min(minX, x);
+          maxX = MathF.Max(maxX, x);
 
-          minY = MathF.Min(minY, (float) y);
-          maxY = MathF.Max(maxY, (float) y);
+          minY = MathF.Min(minY, y);
+          maxY = MathF.Max(maxY, y);
 
-          minZ = MathF.Min(minZ, (float) z);
-          maxZ = MathF.Max(maxZ, (float) z);
+          minZ = MathF.Min(minZ, z);
+          maxZ = MathF.Max(maxZ, z);
 
           foreach (var child in bone.Children) {
             boneQueue.Enqueue(child);
