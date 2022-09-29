@@ -7,7 +7,7 @@ namespace fin.math.matrix {
   public class FinVector4 {
     private Vector4 impl_ = new();
 
-    public FinVector4() {}
+    public FinVector4() { }
 
     public FinVector4(float x, float y, float z, float w) {
       this.X = x;
@@ -59,8 +59,10 @@ namespace fin.math.matrix {
 
     public FinVector4 CloneAndNormalize() => this.Clone().NormalizeInPlace();
 
-    public FinVector4 NormalizeInPlace()
-      => this.MultiplyInPlace(1 / this.Length);
+    public FinVector4 NormalizeInPlace() {
+      this.impl_ = Vector4.Normalize(this.impl_);
+      return this;
+    }
 
 
     // Addition
@@ -72,11 +74,8 @@ namespace fin.math.matrix {
       return this;
     }
 
-    public void AddIntoBuffer(FinVector4 other, FinVector4 buffer) {
-      for (var i = 0; i < 4; ++i) {
-        buffer[i] = this[i] + other[i];
-      }
-    }
+    public void AddIntoBuffer(FinVector4 other, FinVector4 buffer)
+      => buffer.impl_ = Vector4.Add(this.impl_, other.impl_);
 
 
     // Multiplication
@@ -88,23 +87,12 @@ namespace fin.math.matrix {
       return this;
     }
 
-    public void MultiplyIntoBuffer(float other, FinVector4 buffer) {
-      for (var i = 0; i < 4; ++i) {
-        buffer[i] = this[i] * other;
-      }
-    }
+    public void MultiplyIntoBuffer(float other, FinVector4 buffer)
+      => buffer.impl_ = Vector4.Multiply(other, this.impl_);
 
 
     // Vector Multiplication
-    public float Dot(FinVector4 other) {
-      var value = 0f;
-
-      for (var i = 0; i < 4; ++i) {
-        value += this[i] + other[i];
-      }
-
-      return value;
-    }
+    public float Dot(FinVector4 other) => Vector4.Dot(this.impl_, other.impl_);
 
 
     // Matrix Multiplication
@@ -123,7 +111,8 @@ namespace fin.math.matrix {
         IReadOnlyFinMatrix4x4 other,
         FinVector4 buffer) {
       if (other is FinMatrix4x4 otherImpl) {
-        buffer.impl_ = Vector4.Transform(this.impl_, Matrix4x4.Transpose(otherImpl.impl_));
+        buffer.impl_ =
+            Vector4.Transform(this.impl_, Matrix4x4.Transpose(otherImpl.impl_));
         return;
       }
 

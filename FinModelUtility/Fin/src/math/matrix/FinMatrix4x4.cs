@@ -38,11 +38,16 @@ namespace fin.math {
     public void CopyFrom(IReadOnlyFinMatrix4x4 other) {
       Asserts.Different(this, other, "Copying into same matrix!");
 
-      for (var r = 0; r < 4; ++r) {
-        for (var c = 0; c < 4; ++c) {
-          this[r, c] = other[r, c];
+      if (other is FinMatrix4x4 otherImpl) {
+        this.impl_ = otherImpl.impl_;
+      } else {
+        for (var r = 0; r < 4; ++r) {
+          for (var c = 0; c < 4; ++c) {
+            this[r, c] = other[r, c];
+          }
         }
       }
+
       this.MatrixState = other.MatrixState;
     }
 
@@ -120,6 +125,13 @@ namespace fin.math {
       }
       if (other.IsZero) {
         buffer.CopyFrom(this);
+        return;
+      }
+
+      if (other is FinMatrix4x4 otherImpl &&
+          buffer is FinMatrix4x4 bufferImpl) {
+        bufferImpl.impl_ = SystemMatrix.Add(this.impl_, otherImpl.impl_);
+        bufferImpl.MatrixState = MatrixState.UNDEFINED;
         return;
       }
 
