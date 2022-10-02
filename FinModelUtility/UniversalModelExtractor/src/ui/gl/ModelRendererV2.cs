@@ -56,7 +56,8 @@ namespace uni.ui.gl {
     }
 
     public IModel Model { get; }
-    public IReadOnlySet<IMesh>? HiddenMeshes { get; set; }
+    public IReadOnlyDictionary<IMesh, IMeshTracks> MeshTracks { get; set; }
+    public ISet<IMesh> HiddenMeshes { get; } = new HashSet<IMesh>();
 
     private bool useLighting_ = false;
 

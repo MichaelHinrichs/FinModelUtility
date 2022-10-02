@@ -68,14 +68,19 @@ namespace fin.math.interpolation {
       new WrappedInterpolatorWithTangents<float>(
           (fromTime, fromValue, fromTangent, toTime, toValue, toTangent, time)
               => {
-            toValue = fromValue +
-                      RadiansUtil.angleDifference(toValue, fromValue);
+                toValue = fromValue +
+                          RadiansUtil.angleDifference(toValue, fromValue);
 
-            return InterpolatorWithTangents.InterpolateFloats(
-                fromTime, fromValue, fromTangent,
-                toTime, toValue, toTangent,
-                time);
-          });
+                return InterpolatorWithTangents.InterpolateFloats(
+                    fromTime, fromValue, fromTangent,
+                    toTime, toValue, toTangent,
+                    time);
+              });
+
+
+    public static IInterpolatorWithTangents<T> StairStep<T>()
+      => new WrappedInterpolatorWithTangents<T>((_, fromValue, _, _, _, _, _) => fromValue);
+
 
     public static float InterpolateFloats(
         float fromTime,
@@ -125,11 +130,11 @@ namespace fin.math.interpolation {
         float toTangent,
         float time) {
       var spline = CubicSpline
-          .InterpolateHermiteSorted(new double[] {fromTime, toTime},
-                                    new double[] {fromValue, toValue},
-                                    new double[] {fromTangent, toTangent});
+          .InterpolateHermiteSorted(new double[] { fromTime, toTime },
+                                    new double[] { fromValue, toValue },
+                                    new double[] { fromTangent, toTangent });
 
-      return (float) spline.Interpolate(time);
+      return (float)spline.Interpolate(time);
     }
 
     public static float InterpolateFloatsWithMkds(
@@ -152,7 +157,7 @@ namespace fin.math.interpolation {
       var num2 = -3.0 * v1 + 3.0 * v2 - 2.0 * d1 - d2;
       var num3 = d1;
       var num4 = v1;
-      return (float) (((num1 * t + num2) * t + num3) * t + num4);
+      return (float)(((num1 * t + num2) * t + num3) * t + num4);
     }
 
     public static float InterpolateFloatsWithRandom(float fromTime,

@@ -6,7 +6,7 @@ using fin.gl;
 using fin.math;
 using fin.model;
 using fin.model.util;
-
+using fin.util.optional;
 using OpenTK.Graphics.OpenGL;
 
 using uni.ui.gl;
@@ -87,13 +87,10 @@ namespace uni.ui.common {
         }
 
         this.animation_ = value;
-        if (this.modelRenderer_ != null) {
-          this.modelRenderer_.HiddenMeshes = this.animation_?.HiddenMeshes;
-        }
         if (this.AnimationPlaybackManager != null) {
           this.AnimationPlaybackManager.Frame = 0;
           this.AnimationPlaybackManager.FrameRate =
-              (int) (value?.FrameRate ?? 20);
+              (int)(value?.FrameRate ?? 20);
           this.AnimationPlaybackManager.TotalFrames =
               value?.FrameCount ?? 0;
         }
@@ -150,42 +147,42 @@ namespace uni.ui.common {
       this.impl_.KeyDown += (sender, args) => {
         switch (args.KeyCode) {
           case Keys.W: {
-            this.isForwardDown_ = true;
-            break;
-          }
+              this.isForwardDown_ = true;
+              break;
+            }
           case Keys.S: {
-            this.isBackwardDown_ = true;
-            break;
-          }
+              this.isBackwardDown_ = true;
+              break;
+            }
           case Keys.A: {
-            this.isLeftwardDown_ = true;
-            break;
-          }
+              this.isLeftwardDown_ = true;
+              break;
+            }
           case Keys.D: {
-            this.isRightwardDown_ = true;
-            break;
-          }
+              this.isRightwardDown_ = true;
+              break;
+            }
         }
       };
 
       this.impl_.KeyUp += (sender, args) => {
         switch (args.KeyCode) {
           case Keys.W: {
-            this.isForwardDown_ = false;
-            break;
-          }
+              this.isForwardDown_ = false;
+              break;
+            }
           case Keys.S: {
-            this.isBackwardDown_ = false;
-            break;
-          }
+              this.isBackwardDown_ = false;
+              break;
+            }
           case Keys.A: {
-            this.isLeftwardDown_ = false;
-            break;
-          }
+              this.isLeftwardDown_ = false;
+              break;
+            }
           case Keys.D: {
-            this.isRightwardDown_ = false;
-            break;
-          }
+              this.isRightwardDown_ = false;
+              break;
+            }
         }
       };
     }
@@ -353,13 +350,25 @@ void main() {
       if (this.Animation != null) {
         this.AnimationPlaybackManager.Tick();
 
+        var frame = (float)this.AnimationPlaybackManager.Frame;
         this.boneTransformManager_.CalculateMatrices(
             this.Model.Skeleton.Root,
             this.Model.Skin.BoneWeights,
-            (this.Animation, (float) this.AnimationPlaybackManager.Frame),
+            (this.Animation, frame),
             this.AnimationPlaybackManager.ShouldLoop);
 
         this.modelRenderer_?.InvalidateDisplayLists();
+
+        var hiddenMeshes = this.modelRenderer_?.HiddenMeshes;
+
+        hiddenMeshes?.Clear();
+        var defaultDisplayState = Optional.Of(MeshDisplayState.VISIBLE);
+        foreach (var (mesh, meshTracks) in this.Animation.MeshTracks) {
+          var displayState = meshTracks.DisplayStates.GetInterpolatedFrame(frame, defaultDisplayState);
+          if (displayState.Assert() == MeshDisplayState.HIDDEN) {
+            hiddenMeshes?.Add(mesh);
+          }
+        }
       }
 
       this.texturedShaderProgram_.Use();

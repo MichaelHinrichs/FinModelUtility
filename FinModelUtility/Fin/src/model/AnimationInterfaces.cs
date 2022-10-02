@@ -30,28 +30,40 @@ namespace fin.model {
     IReadOnlyIndexableDictionary<IBone, IBoneTracks> BoneTracks { get; }
     IBoneTracks AddBoneTracks(IBone bone);
 
-    // TODO: Does this need to be set frame by frame??
-    IReadOnlySet<IMesh> HiddenMeshes { get; }
-    void HideMesh(IMesh mesh);
+    IReadOnlyDictionary<IMesh, IMeshTracks> MeshTracks { get; }
+    IMeshTracks AddMeshTracks(IMesh mesh);
+
 
     // TODO: Allow setting looping behavior (once, back and forth, etc.)
   }
 
   public interface IBoneTracks {
-    public void Set(IBoneTracks other);
+    void Set(IBoneTracks other);
 
     // TODO: Should these be null if empty?
-    public IPositionTrack Positions { get; }
-    public IRadiansRotationTrack Rotations { get; }
-    public IScaleTrack Scales { get; }
+    IPositionTrack Positions { get; }
+    IRadiansRotationTrack Rotations { get; }
+    IScaleTrack Scales { get; }
   }
+
+
+  public enum MeshDisplayState {
+    UNDEFINED,
+    HIDDEN,
+    VISIBLE,
+  }
+
+  public interface IMeshTracks {
+    ITrack<MeshDisplayState> DisplayStates { get; }
+  }
+
 
   // TODO: Add a track for animating params, e.g. textures, UVs, frames.
   public record Keyframe<T>(
-      int Frame,
-      T Value,
-      Optional<float> IncomingTangent,
-      Optional<float> OutgoingTangent);
+    int Frame,
+    T Value,
+    Optional<float> IncomingTangent,
+    Optional<float> OutgoingTangent);
 
 
   public interface ITrack<T> : ITrack<T, T> { }
@@ -61,10 +73,10 @@ namespace fin.model {
 
     int FrameCount { get; set; }
 
-    public IInterpolator<TValue, TInterpolated> Interpolator { get; }
+    IInterpolator<TValue, TInterpolated> Interpolator { get; }
 
-    public IInterpolatorWithTangents<TValue, TInterpolated>
-        InterpolatorWithTangents { get; }
+    IInterpolatorWithTangents<TValue, TInterpolated>
+       InterpolatorWithTangents { get; }
 
     IReadOnlyList<Keyframe<TValue>> Keyframes { get; }
 

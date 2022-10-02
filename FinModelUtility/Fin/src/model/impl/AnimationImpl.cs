@@ -5,6 +5,7 @@ using System.Numerics;
 
 using fin.data;
 using fin.math;
+using fin.math.interpolation;
 
 
 namespace fin.model.impl {
@@ -39,11 +40,11 @@ namespace fin.model.impl {
         private readonly IndexableDictionary<IBone, IBoneTracks> boneTracks_ =
             new();
 
-        private readonly HashSet<IMesh> hiddenMeshes_ = new();
+        private readonly Dictionary<IMesh, IMeshTracks> meshTracks_ = new();
 
         public AnimationImpl() {
           this.BoneTracks = this.boneTracks_;
-          this.HiddenMeshes = this.hiddenMeshes_;
+          this.MeshTracks = this.meshTracks_;
         }
 
         public string Name { get; set; }
@@ -66,17 +67,16 @@ namespace fin.model.impl {
 
         public IBoneTracks AddBoneTracks(IBone bone) {
           var boneTracks = new BoneTracksImpl {
-              FrameCount = this.FrameCount,
+            FrameCount = this.FrameCount,
           };
           this.boneTracks_[bone] = boneTracks;
           return boneTracks;
         }
 
-        public IReadOnlySet<IMesh> HiddenMeshes { get; }
+        public IReadOnlyDictionary<IMesh, IMeshTracks> MeshTracks { get; }
 
-        public void HideMesh(IMesh mesh) {
-          this.hiddenMeshes_.Add(mesh);
-        }
+        public IMeshTracks AddMeshTracks(IMesh mesh)
+          => this.meshTracks_[mesh] = new MeshTracksImpl();
 
 
         // TODO: Allow setting looping behavior (once, back and forth, etc.)
@@ -142,9 +142,9 @@ namespace fin.model.impl {
         var toFrac = progress;
 
         return new PositionImpl {
-            X = lhs.X * fromFrac + rhs.X * toFrac,
-            Y = lhs.Y * fromFrac + rhs.Y * toFrac,
-            Z = lhs.Z * fromFrac + rhs.Z * toFrac
+          X = lhs.X * fromFrac + rhs.X * toFrac,
+          Y = lhs.Y * fromFrac + rhs.Y * toFrac,
+          Z = lhs.Z * fromFrac + rhs.Z * toFrac
         };
       }
 
@@ -163,11 +163,19 @@ namespace fin.model.impl {
         var toFrac = progress;
 
         return new ScaleImpl {
-            X = lhs.X * fromFrac + rhs.X * toFrac,
-            Y = lhs.Y * fromFrac + rhs.Y * toFrac,
-            Z = lhs.Z * fromFrac + rhs.Z * toFrac
+          X = lhs.X * fromFrac + rhs.X * toFrac,
+          Y = lhs.Y * fromFrac + rhs.Y * toFrac,
+          Z = lhs.Z * fromFrac + rhs.Z * toFrac
         };
       }
+    }
+
+
+    public class MeshTracksImpl : IMeshTracks {
+      public ITrack<MeshDisplayState> DisplayStates { get; } =
+        new TrackImpl<MeshDisplayState>(
+          Interpolator.StairStep<MeshDisplayState>(), 
+          InterpolatorWithTangents.StairStep<MeshDisplayState>());
     }
   }
 }

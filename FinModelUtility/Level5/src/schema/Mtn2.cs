@@ -8,7 +8,7 @@ namespace level5.schema {
   public class Mtn2 {
     public GenericAnimation Anim { get; } = new GenericAnimation();
 
-    public ListDictionary<uint, (short, float)> Somethings { get; } = new();
+    public ListDictionary<uint, (short, short)> Somethings { get; } = new();
 
     public class AnimTrack {
       public int Type { get; set; }
@@ -186,7 +186,7 @@ namespace level5.schema {
               break;
             case 9: {
               Asserts.Equal(1, animdata.Length);
-              this.Somethings.Add(node.Hash, (frame, animdata[0]));
+              this.Somethings.Add(node.Hash, (frame, (short) Math.Round(animdata[0])));
               break;
             }
           }
