@@ -46,7 +46,7 @@ namespace level5.api {
       {
         if (modelXc.FilesByExtension.TryGetList(".mbn", out var mbnFiles)) {
           var mbnByIndex = new Dictionary<uint, Node<Mbn>>();
-          var mbnNodeList = mbnFiles.Select(mbnFile => {
+          var mbnNodeList = mbnFiles!.Select(mbnFile => {
             using var er =
                 new EndianBinaryReader(
                     new MemoryStream(mbnFile.Data),

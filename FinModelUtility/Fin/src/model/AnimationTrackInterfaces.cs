@@ -1,6 +1,8 @@
 ﻿using fin.math.interpolation;
 using fin.util.optional;
 using System.Collections.Generic;
+using System.Numerics;
+
 
 namespace fin.model {
   public record Keyframe<T>(
