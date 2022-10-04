@@ -19,6 +19,7 @@ namespace fin.model {
     IFixedFunctionMaterial AddFixedFunctionMaterial();
 
     ITexture CreateTexture(IImage imageData);
+    IReadOnlyList<ITexture> Textures { get; }
   }
 
   public enum MaterialType {

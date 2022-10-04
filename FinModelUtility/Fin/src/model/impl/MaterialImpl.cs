@@ -19,9 +19,12 @@ namespace fin.model.impl {
 
     private class MaterialManagerImpl : IMaterialManager {
       private IList<IMaterial> materials_ = new List<IMaterial>();
+      private IList<ITexture> textures_ = new List<ITexture>();
 
-      public MaterialManagerImpl()
-        => this.All = new ReadOnlyCollection<IMaterial>(this.materials_);
+      public MaterialManagerImpl() {
+        this.All = new ReadOnlyCollection<IMaterial>(this.materials_);
+        this.Textures = new ReadOnlyCollection<ITexture>(this.textures_);
+      }
 
       public IReadOnlyList<IMaterial> All { get; }
 
@@ -49,8 +52,12 @@ namespace fin.model.impl {
         return material;
       }
 
-      public ITexture CreateTexture(IImage imageData)
-        => new TextureImpl(imageData);
+      public ITexture CreateTexture(IImage imageData) {
+        var texture = new TextureImpl(imageData);
+        this.textures_.Add(texture);
+        return texture;
+      }
+      public IReadOnlyList<ITexture> Textures { get; }
     }
 
     private class TextureImpl : ITexture {

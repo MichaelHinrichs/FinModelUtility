@@ -11,12 +11,7 @@ namespace uni.ui.right_panel.textures {
     }
 
     public IModel Model {
-      set {
-        this.textureSelectorBox_.Textures =
-            value.MaterialManager.All
-                 .SelectMany(material => material.Textures)
-                 .ToList();
-      }
+      set => this.textureSelectorBox_.Textures = value.MaterialManager.Textures;
     }
   }
 }
