@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
 namespace fin.data {
-  public interface INode<T, TSelf> where TSelf : INode<T, TSelf> {
+  public interface INode<out T, TSelf> where TSelf : INode<T, TSelf> {
     T Value { get; }
 
     TSelf? Parent { get; set; }
