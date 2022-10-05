@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <AssemblyName>bmd2fbx</AssemblyName>
     <RootNamespace>bmd</RootNamespace>
     <Description>BMD-to-FBX model converter</Description>
