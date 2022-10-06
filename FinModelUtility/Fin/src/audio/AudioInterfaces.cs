@@ -5,12 +5,10 @@ using System.Numerics;
 
 
 namespace fin.audio {
-  // - concepts:
-  //   - buffers hold PCM data
-  //   - 
-
-
   public interface IAudioManager<TNumber> where TNumber : INumber<TNumber> {
+    // TODO: Add method for creating mutable buffer
+    // TODO: Add method for creating mutable circular buffers
+
     IAudioBuffer<TNumber> LoadIntoBuffer(IFile file);
 
     IBufferAudioStream<TNumber> CreateBufferAudioStream(
@@ -37,22 +35,20 @@ namespace fin.audio {
   public interface IAudioFormat<out TNumber> where TNumber : INumber<TNumber> {
     AudioChannelsType AudioChannelsType { get; }
     int Frequency { get; }
-    long Length { get; }
+    int SampleCount { get; }
   }
 
   public interface IAudioData<out TNumber> : IAudioFormat<TNumber>
       where TNumber : INumber<TNumber> {
-    TNumber GetPcm(AudioChannelType channelType, long index);
+    TNumber GetPcm(AudioChannelType channelType, int sampleOffset);
   }
 
 
   /// <summary>
   ///   Type for storing static audio data, e.g. a loaded audio file.
   /// </summary>
-  public interface IAudioBuffer<out TNumber> : IAudioData<TNumber>, IDisposable
-      where TNumber : INumber<TNumber> {
-    string Name { get; }
-  }
+  public interface IAudioBuffer<out TNumber> : IAudioData<TNumber>
+      where TNumber : INumber<TNumber> { }
 
   /// <summary>
   ///   Type that streams out audio data. Can be used as an input for other
@@ -106,15 +102,15 @@ namespace fin.audio {
     DISPOSED,
   }
 
-  public interface IActiveSound<out TNumber> : IDisposable
-      where TNumber : INumber<TNumber> {
+  public interface IActiveSound<out TNumber>
+      : IAudioFormat<TNumber>, IDisposable where TNumber : INumber<TNumber> {
     SoundState State { get; }
 
     void Play();
     void Stop();
     void Pause();
 
-    long Index { get; set; }
+    int SampleOffset { get; set; }
     TNumber GetPcm(AudioChannelType channelType);
 
     bool Looping { get; set; }
