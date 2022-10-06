@@ -9,7 +9,9 @@ namespace fin.audio.impl.al {
   public partial class AlAudioManager {
     public IAudioBuffer<short> LoadIntoBuffer(IFile file) {
       Asserts.Equal(".ogg", file.Extension.ToLower());
-      return new AlAudioBuffer(new VorbisReader(file.FullName));
+
+      using var ogg = new VorbisReader(file.FullName);
+      return new AlAudioBuffer(ogg);
     }
 
     private class AlAudioBuffer : IAudioBuffer<short> {

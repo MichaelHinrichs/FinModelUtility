@@ -85,8 +85,6 @@ namespace fin.audio.impl.al {
 
         AL.GenSource(out this.alSourceId_);
         AL.BindBufferToSource(this.alSourceId_, this.alBufferId_);
-
-        // TODO: Copy data from stream into buffer
       }
 
       ~AlActiveSound() => this.ReleaseUnmanagedResources_();
