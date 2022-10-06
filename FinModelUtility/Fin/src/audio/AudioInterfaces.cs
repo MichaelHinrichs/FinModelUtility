@@ -1,4 +1,5 @@
-﻿using fin.model;
+﻿using fin.io;
+using fin.model;
 using System;
 using System.Numerics;
 
@@ -7,6 +8,17 @@ namespace fin.audio {
   // - concepts:
   //   - buffers hold PCM data
   //   - 
+
+
+  public interface IAudioManager<TNumber> where TNumber : INumber<TNumber> {
+    IAudioBuffer<TNumber> LoadIntoBuffer(IFile file);
+
+    IBufferAudioStream<TNumber> CreateBufferAudioStream(
+        IAudioBuffer<TNumber> buffer);
+
+    IAudioSource<TNumber> CreateAudioSource();
+  }
+
 
   public enum AudioChannelsType {
     UNDEFINED,
@@ -52,7 +64,7 @@ namespace fin.audio {
 
   public interface IBufferAudioStream<TNumber> : IAudioStream<TNumber>
       where TNumber : INumber<TNumber> {
-    IAudioBuffer<TNumber> InputBuffer { get; set; }
+    IAudioBuffer<TNumber> Buffer { get; }
     bool Reversed { get; set; }
   }
 
@@ -78,7 +90,15 @@ namespace fin.audio {
   }
 
 
-  public enum OutputState {
+  public interface IAudioSource<TNumber> where TNumber : INumber<TNumber> {
+    IActiveSound<TNumber> Create(IAudioBuffer<TNumber> buffer);
+    IActiveSound<TNumber> Play(IAudioBuffer<TNumber> buffer);
+
+    IActiveSound<TNumber> Create(IAudioStream<TNumber> stream);
+    IActiveSound<TNumber> Play(IAudioStream<TNumber> stream);
+  }
+
+  public enum SoundState {
     UNDEFINED,
     STOPPED,
     PLAYING,
@@ -86,19 +106,13 @@ namespace fin.audio {
     DISPOSED,
   }
 
-
-  /// <summary>
-  ///   Type that plays audio data out through the speakers.
-  /// </summary>
-  public interface IAudioOutput<TNumber> : IAudioFormat<TNumber>, IDisposable
+  public interface IActiveSound<out TNumber> : IDisposable
       where TNumber : INumber<TNumber> {
-    IAudioStream<TNumber> Stream { get; }
+    SoundState State { get; }
 
-    OutputState State { get; }
     void Play();
     void Stop();
     void Pause();
-
 
     long Index { get; set; }
     TNumber GetPcm(AudioChannelType channelType);
