@@ -104,6 +104,8 @@ namespace fin.audio {
 
   public interface IActiveSound<out TNumber>
       : IAudioFormat<TNumber>, IDisposable where TNumber : INumber<TNumber> {
+    IAudioStream<TNumber> Stream { get; }
+
     SoundState State { get; }
 
     void Play();

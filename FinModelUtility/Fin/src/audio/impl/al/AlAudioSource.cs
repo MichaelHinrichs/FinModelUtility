@@ -1,6 +1,7 @@
 ﻿using fin.util.asserts;
 using OpenTK.Audio.OpenAL;
 using System;
+using System.Diagnostics;
 
 
 namespace fin.audio.impl.al {
@@ -34,12 +35,11 @@ namespace fin.audio.impl.al {
     }
 
     private class AlActiveSound : IActiveSound<short> {
-      private readonly IAudioStream<short> stream_;
       private uint alBufferId_;
       private uint alSourceId_;
 
       public AlActiveSound(IAudioStream<short> stream) {
-        this.stream_ = stream;
+        this.Stream = stream;
 
         AL.GenBuffer(out this.alBufferId_);
 
@@ -105,11 +105,13 @@ namespace fin.audio.impl.al {
       private void AssertNotDisposed_()
         => Asserts.False(this.State == SoundState.DISPOSED);
 
-      public AudioChannelsType AudioChannelsType
-        => this.stream_.AudioChannelsType;
+      public IAudioStream<short> Stream { get; }
 
-      public int Frequency => this.stream_.Frequency;
-      public int SampleCount => this.stream_.SampleCount;
+      public AudioChannelsType AudioChannelsType
+        => this.Stream.AudioChannelsType;
+
+      public int Frequency => this.Stream.Frequency;
+      public int SampleCount => this.Stream.SampleCount;
 
       public SoundState State { get; private set; }
 
@@ -151,7 +153,7 @@ namespace fin.audio.impl.al {
       }
 
       public short GetPcm(AudioChannelType channelType)
-        => this.stream_.GetPcm(channelType, this.SampleOffset);
+        => this.Stream.GetPcm(channelType, this.SampleOffset);
 
       public bool Looping {
         get {
