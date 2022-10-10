@@ -2,12 +2,20 @@
 
 
 namespace ast.schema {
+  public enum AstAudioFormat : ushort {
+    ADPCM = 0,
+    PCM16 = 1,
+  }
+
   [BinarySchema]
   public partial class StrmHeader : IBiSerializable {
     private readonly string magic_ = "STRM";
 
     public uint MaybeSizeOfBlockSection { get; private set; }
-    public uint Unk2 { get; private set; }
+
+    public AstAudioFormat Format { get; private set; }
+    public ushort BitDepth { get; private set; }
+
 
     public ushort ChannelCount { get; private set; }
 

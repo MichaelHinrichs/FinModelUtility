@@ -8,6 +8,7 @@ namespace fin.audio {
   public interface IAudioManager<TNumber> where TNumber : INumber<TNumber> {
     // TODO: Add method for creating mutable buffer
     // TODO: Add method for creating mutable circular buffers
+    // TODO: Add support for looping a certain section of audio
 
     IAudioBuffer<TNumber> LoadIntoBuffer(IFile file);
     IMutableAudioBuffer<TNumber> CreateMutableBuffer();
