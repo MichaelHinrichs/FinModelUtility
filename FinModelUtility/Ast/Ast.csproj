@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="src\schema\" />
+    <ProjectReference Include="..\BinarySchema\BinarySchema.csproj" />
   </ItemGroup>
 
 </Project>
