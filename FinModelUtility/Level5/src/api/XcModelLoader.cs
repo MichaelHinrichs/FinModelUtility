@@ -5,7 +5,6 @@ using fin.log;
 using fin.math;
 using fin.model;
 using fin.model.impl;
-using fin.util.asserts;
 using fin.util.optional;
 using level5.schema;
 using System.Numerics;
@@ -29,16 +28,6 @@ namespace level5.api {
       var modelResourceFile =
           new Resource(modelXc.FilesByExtension[".bin"].Single().Data);
 
-      /*foreach (var (type, files) in modelXc.FilesByExtension) {
-        foreach (var file in files) {
-          using var w =
-              new FinFile(Path.Combine(
-                              @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\out\test",
-                              file.Name)).OpenWrite();
-          w.Write(file.Data);
-        }
-      }*/
-
       var model = new ModelImpl();
 
       var finBoneByIndex = new Dictionary<uint, IBone>();
@@ -47,17 +36,18 @@ namespace level5.api {
         if (modelXc.FilesByExtension.TryGetList(".mbn", out var mbnFiles)) {
           var mbnByIndex = new Dictionary<uint, Node<Mbn>>();
           var mbnNodeList = mbnFiles!.Select(mbnFile => {
-            using var er =
-                new EndianBinaryReader(
-                    new MemoryStream(mbnFile.Data),
-                    endianness);
-            var mbn = er.ReadNew<Mbn>();
+                                       using var er =
+                                           new EndianBinaryReader(
+                                               new MemoryStream(mbnFile.Data),
+                                               endianness);
+                                       var mbn = er.ReadNew<Mbn>();
 
-            var mbnNode = new Node<Mbn> { Value = mbn };
-            mbnByIndex[mbn.Id] = mbnNode;
-            return mbnNode;
-          })
-                                    .ToArray();
+                                       var mbnNode =
+                                           new Node<Mbn> {Value = mbn};
+                                       mbnByIndex[mbn.Id] = mbnNode;
+                                       return mbnNode;
+                                     })
+                                     .ToArray();
 
           foreach (var mbnNode in mbnNodeList) {
             if (mbnByIndex.TryGetValue(mbnNode.Value.ParentId,
@@ -115,6 +105,7 @@ namespace level5.api {
 
         return texture;
       });
+
       var lazyMaterials = new LazyDictionary<string, IMaterial>(
           materialName => {
             var binMaterial =
@@ -204,8 +195,6 @@ namespace level5.api {
           var animationResourceFile =
               new Resource(animationXc.FilesByExtension[".bin"].Single().Data);
 
-          //var logger = Logging.Create("animation");
-
           if (animationXc.FilesByExtension.TryGetList(
                   ".mtn2", out var mtn2Files)) {
             foreach (var mtn2File in mtn2Files) {
@@ -221,8 +210,9 @@ namespace level5.api {
 
               foreach (var (animationReferenceHash, framesAndValues) in mtn2
                            .Somethings) {
-                if (!prmsByAnimationReferenceHash.TryGetValue(animationReferenceHash,
-                                                out var prmAndMesh)) {
+                if (!prmsByAnimationReferenceHash.TryGetValue(
+                        animationReferenceHash,
+                        out var prmAndMesh)) {
                   continue;
                 }
 
@@ -234,17 +224,19 @@ namespace level5.api {
                   var (frame, value) = frameAndValue;
 
                   // TODO: Various values may be used to encode texture info?
-                  /*if (value != 0) {
-                    var bits = Convert.ToString(value, 2).PadLeft(16, '0');
-
-                    logger.LogInformation("########");
-                    logger.LogInformation($"> value: {value}");
-                    logger.LogInformation($">> {bits}");
-                  }*/
+                  var bits = Convert.ToString(value, 2).PadLeft(16, '0');
 
                   // TODO: This is just a guess, but still doesn't look right.
-                  var displayState = (value & 1) == 0 ? MeshDisplayState.HIDDEN : MeshDisplayState.VISIBLE;
-                  displayStates.Set(frame, displayState);
+                  var displayState = (MeshDisplayState?)null;
+                  if (value == 257) {
+                    displayState = MeshDisplayState.VISIBLE;
+                  } else if (value == 0) {
+                    displayState = MeshDisplayState.HIDDEN;
+                  }
+
+                  if (displayState != null) {
+                    displayStates.Set(frame, displayState.Value);
+                  }
                 }
               }
 
@@ -265,50 +257,50 @@ namespace level5.api {
 
                     switch (mtnTrack.Type) {
                       case AnimationTrackFormat.RotateX: {
-                          finBoneTracks.Rotations.Set(
-                              frame, 0, value, inTan, outTan);
-                          break;
-                        }
+                        finBoneTracks.Rotations.Set(
+                            frame, 0, value, inTan, outTan);
+                        break;
+                      }
                       case AnimationTrackFormat.RotateY: {
-                          finBoneTracks.Rotations.Set(
-                              frame, 1, value, inTan, outTan);
-                          break;
-                        }
+                        finBoneTracks.Rotations.Set(
+                            frame, 1, value, inTan, outTan);
+                        break;
+                      }
                       case AnimationTrackFormat.RotateZ: {
-                          finBoneTracks.Rotations.Set(
-                              frame, 2, value, inTan, outTan);
-                          break;
-                        }
+                        finBoneTracks.Rotations.Set(
+                            frame, 2, value, inTan, outTan);
+                        break;
+                      }
                       case AnimationTrackFormat.ScaleX: {
-                          finBoneTracks.Scales.Set(
-                              frame, 0, value, inTan, outTan);
-                          break;
-                        }
+                        finBoneTracks.Scales.Set(
+                            frame, 0, value, inTan, outTan);
+                        break;
+                      }
                       case AnimationTrackFormat.ScaleY: {
-                          finBoneTracks.Scales.Set(
-                              frame, 1, value, inTan, outTan);
-                          break;
-                        }
+                        finBoneTracks.Scales.Set(
+                            frame, 1, value, inTan, outTan);
+                        break;
+                      }
                       case AnimationTrackFormat.ScaleZ: {
-                          finBoneTracks.Scales.Set(
-                              frame, 2, value, inTan, outTan);
-                          break;
-                        }
+                        finBoneTracks.Scales.Set(
+                            frame, 2, value, inTan, outTan);
+                        break;
+                      }
                       case AnimationTrackFormat.TranslateX: {
-                          finBoneTracks.Positions.Set(
-                              frame, 0, value, inTan, outTan);
-                          break;
-                        }
+                        finBoneTracks.Positions.Set(
+                            frame, 0, value, inTan, outTan);
+                        break;
+                      }
                       case AnimationTrackFormat.TranslateY: {
-                          finBoneTracks.Positions.Set(
-                              frame, 1, value, inTan, outTan);
-                          break;
-                        }
+                        finBoneTracks.Positions.Set(
+                            frame, 1, value, inTan, outTan);
+                        break;
+                      }
                       case AnimationTrackFormat.TranslateZ: {
-                          finBoneTracks.Positions.Set(
-                              frame, 2, value, inTan, outTan);
-                          break;
-                        }
+                        finBoneTracks.Positions.Set(
+                            frame, 2, value, inTan, outTan);
+                        break;
+                      }
                     }
                   }
                 }
