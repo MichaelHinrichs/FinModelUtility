@@ -8,17 +8,6 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <DebugType>embedded</DebugType>
-    <SelfContained>true</SelfContained>
-    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
-    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
-    <PublishSingleFile>true</PublishSingleFile>
-    <PublishTrimmed>true</PublishTrimmed>
-    <Product>mod2fbx</Product>
-    <AssemblyName>mod2fbx</AssemblyName>
-  </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
