@@ -10,6 +10,7 @@ namespace fin.audio {
     // TODO: Add method for creating mutable circular buffers
 
     IAudioBuffer<TNumber> LoadIntoBuffer(IFile file);
+    IMutableAudioBuffer<TNumber> CreateMutableBuffer();
 
     IBufferAudioStream<TNumber> CreateBufferAudioStream(
         IAudioBuffer<TNumber> buffer);
@@ -49,6 +50,20 @@ namespace fin.audio {
   /// </summary>
   public interface IAudioBuffer<out TNumber> : IAudioData<TNumber>
       where TNumber : INumber<TNumber> { }
+
+
+  public interface IMutableAudioBuffer<TNumber> : IAudioBuffer<TNumber>
+      where TNumber : INumber<TNumber> {
+    new int Frequency { get; set; }
+
+    void SetPcm(TNumber[][] channelSamples);
+
+    void SetMonoPcm(TNumber[] samples);
+
+    void SetStereoPcm(TNumber[] leftChannelSamples,
+                      TNumber[] rightChannelSamples);
+  }
+
 
   /// <summary>
   ///   Type that streams out audio data. Can be used as an input for other

@@ -23,6 +23,10 @@ namespace ast.schema {
         er.Position = 0x40;
 
         for (var currentSample = 0; currentSample < sampleCount;) {
+          if (er.Eof) {
+            break;
+          }
+
           var blckHeader = er.ReadNew<BlckHeader>();
 
           var blockSizeInBytes = blckHeader.BlockSizeInBytes;
@@ -45,9 +49,10 @@ namespace ast.schema {
                 }
               }
 
-              // TODO: Add bytes to samples
               for (var s = 0; s < shorts.Length; ++s) {
-                this.ChannelData[chan][currentSample + s] = shorts[s];
+                if (currentSample + s < sampleCount) {
+                  this.ChannelData[chan][currentSample + s] = shorts[s];
+                }
               }
             } else {
               // Skips samples
@@ -55,7 +60,7 @@ namespace ast.schema {
             }
           }
 
-          currentSample += (int) blockSizeInShorts;
+          currentSample += (int)blockSizeInShorts;
         }
       }
     }
