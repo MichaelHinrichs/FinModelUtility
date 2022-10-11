@@ -1,17 +1,17 @@
-﻿using fin.model;
+﻿using fin.io.bundles;
 
 
 namespace uni.ui.common {
-  public class
-      ModelFileTreeView : FileTreeView<IModelFileBundle, RootModelDirectory> {
-    protected override void PopulateImpl(RootModelDirectory directoryRoot,
+  public class FileBundleTreeView
+      : FileTreeView<IFileBundle, RootFileBundleDirectory> {
+    protected override void PopulateImpl(RootFileBundleDirectory directoryRoot,
                                          FileNode uiRoot) {
       foreach (var subdir in directoryRoot.Subdirs) {
         this.AddDirectoryToNode_(subdir, uiRoot);
       }
     }
 
-    private FileNode AddDirectoryToNode_(IModelDirectory directory,
+    private FileNode AddDirectoryToNode_(IFileBundleDirectory directory,
                                          FileNode parentNode) {
       var uiNode = parentNode.AddChild(directory.Name);
 

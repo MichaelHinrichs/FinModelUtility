@@ -1,20 +1,21 @@
 ﻿using fin.io;
-using fin.model;
+using fin.io.bundles;
 using glo.api;
 using uni.platforms.desktop;
 
 
 namespace uni.games.glover {
-  public class
-      GloverModelFileGatherer : IModelFileGatherer<GloModelFileBundle> {
-    public IModelDirectory<GloModelFileBundle>? GatherModelFileBundles(
+  public class GloverModelFileGatherer
+      : IFileBundleGatherer<GloModelFileBundle> {
+    public IFileBundleDirectory<GloModelFileBundle>? GatherFileBundles(
         bool assert) {
       var gloverSteamDirectory = SteamUtils.GetGameDirectory("Glover", assert);
       if (gloverSteamDirectory == null) {
         return null;
       }
 
-      var rootModelDirectory = new ModelDirectory<GloModelFileBundle>("glover");
+      var rootModelDirectory =
+          new FileBundleDirectory<GloModelFileBundle>("glover");
       var parentObjectDirectory = rootModelDirectory.AddSubdir("data")
                                                     .AddSubdir("objects");
 
@@ -30,7 +31,7 @@ namespace uni.games.glover {
     }
 
     private void AddObjectDirectory_(
-        IModelDirectory<GloModelFileBundle> parentNode,
+        IFileBundleDirectory<GloModelFileBundle> parentNode,
         IFileHierarchy gloverFileHierarchy,
         IFileHierarchyDirectory objectDirectory) {
       var objectFiles = objectDirectory.FilesWithExtension(".glo");

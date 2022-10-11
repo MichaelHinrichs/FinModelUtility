@@ -1,7 +1,6 @@
 ﻿using fin.data.queue;
-using fin.exporter.assimp.indirect;
 using fin.io;
-using fin.model;
+using fin.io.bundles;
 
 using HaloWarsTools;
 
@@ -12,9 +11,9 @@ using uni.platforms.desktop;
 
 
 namespace uni.games.halo_wars {
-  public class HaloWarsModelFileGatherer : IModelFileGatherer<
-      IHaloWarsModelFileBundle> {
-    public IModelDirectory<IHaloWarsModelFileBundle>? GatherModelFileBundles(
+  public class HaloWarsModelFileGatherer 
+      : IFileBundleGatherer<IHaloWarsModelFileBundle> {
+    public IFileBundleDirectory<IHaloWarsModelFileBundle>? GatherFileBundles(
         bool assert) {
       var haloWarsSteamDirectory =
           SteamUtils.GetGameDirectory("HaloWarsDE", assert);
@@ -32,7 +31,7 @@ namespace uni.games.halo_wars {
 
       var fileHierarchy = new FileHierarchy(scratchDirectory);
 
-      var rootNode = new ModelDirectory<IHaloWarsModelFileBundle>("halo_wars");
+      var rootNode = new FileBundleDirectory<IHaloWarsModelFileBundle>("halo_wars");
 
       var mapDirectories =
           fileHierarchy.Root

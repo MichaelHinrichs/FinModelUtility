@@ -12,8 +12,6 @@ using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
 
-using bmd.G3D_Binary_File_Format;
-
 using fin.io;
 using fin.log;
 using fin.schema.matrix;

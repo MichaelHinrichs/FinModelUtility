@@ -31,7 +31,7 @@ namespace uni.ui {
       System.Windows.Forms.SplitContainer splitContainer2;
       System.Windows.Forms.MenuStrip menuStrip;
       System.Windows.Forms.SplitContainer splitContainer3;
-      this.modelFileTreeView_ = new uni.ui.common.ModelFileTreeView();
+      this.fileBundleTreeView_ = new uni.ui.common.FileBundleTreeView();
       this.modelViewerGlPanel_ = new uni.ui.common.ModelViewerGlPanel();
       this.modelTabs_ = new uni.ui.right_panel.ModelTabs();
       this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -66,7 +66,7 @@ namespace uni.ui {
       // 
       // splitContainer1.Panel1
       // 
-      splitContainer1.Panel1.Controls.Add(this.modelFileTreeView_);
+      splitContainer1.Panel1.Controls.Add(this.fileBundleTreeView_);
       // 
       // splitContainer1.Panel2
       // 
@@ -77,12 +77,12 @@ namespace uni.ui {
       // 
       // modelFileTreeView_
       // 
-      this.modelFileTreeView_.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.modelFileTreeView_.Location = new System.Drawing.Point(0, 0);
-      this.modelFileTreeView_.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-      this.modelFileTreeView_.Name = "modelFileTreeView_";
-      this.modelFileTreeView_.Size = new System.Drawing.Size(224, 488);
-      this.modelFileTreeView_.TabIndex = 0;
+      this.fileBundleTreeView_.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.fileBundleTreeView_.Location = new System.Drawing.Point(0, 0);
+      this.fileBundleTreeView_.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+      this.fileBundleTreeView_.Name = "fileBundleTreeView_";
+      this.fileBundleTreeView_.Size = new System.Drawing.Size(224, 488);
+      this.fileBundleTreeView_.TabIndex = 0;
       // 
       // splitContainer2
       // 
@@ -221,7 +221,7 @@ namespace uni.ui {
     private ToolStripMenuItem fileToolStripMenuItem;
     private ToolStripMenuItem helpToolStripMenuItem;
     private SplitContainer splitContainer1;
-    private ModelFileTreeView modelFileTreeView_;
+    private FileBundleTreeView fileBundleTreeView_;
     private ModelTabs modelTabs_;
     private src.ui.top.ModelToolStrip modelToolStrip_;
     private ToolStripMenuItem gitHubToolStripMenuItem;

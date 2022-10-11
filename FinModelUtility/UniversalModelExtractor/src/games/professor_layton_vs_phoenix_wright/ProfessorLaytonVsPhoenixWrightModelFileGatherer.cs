@@ -1,8 +1,7 @@
 ﻿using fin.io;
-using fin.model;
+using fin.io.bundles;
 using level5.api;
 using level5.schema;
-using System.Linq;
 using uni.platforms;
 using uni.platforms.threeDs;
 using uni.platforms.threeDs.tools;
@@ -10,10 +9,9 @@ using uni.util.io;
 
 
 namespace uni.games.professor_layton_vs_phoenix_wright {
-  public class
-      ProfessorLaytonVsPhoenixWrightModelFileGatherer : IModelFileGatherer<
-          XcModelFileBundle> {
-    public IModelDirectory<XcModelFileBundle>? GatherModelFileBundles(
+  public class ProfessorLaytonVsPhoenixWrightModelFileGatherer 
+      : IFileBundleGatherer<XcModelFileBundle> {
+    public IFileBundleDirectory<XcModelFileBundle>? GatherFileBundles(
         bool assert) {
       var professorLaytonVsPhoenixWrightRom =
           DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(

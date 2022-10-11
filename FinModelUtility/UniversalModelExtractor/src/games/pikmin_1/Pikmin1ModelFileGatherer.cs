@@ -1,5 +1,5 @@
 ﻿using fin.io;
-using fin.model;
+using fin.io.bundles;
 
 using mod.cli;
 
@@ -8,9 +8,9 @@ using uni.platforms.gcn;
 
 
 namespace uni.games.pikmin_1 {
-  public class
-      Pikmin1ModelFileGatherer : IModelFileGatherer<ModModelFileBundle> {
-    public IModelDirectory<ModModelFileBundle>? GatherModelFileBundles(
+  public class Pikmin1ModelFileGatherer 
+      : IFileBundleGatherer<ModModelFileBundle> {
+    public IFileBundleDirectory<ModModelFileBundle>? GatherFileBundles(
         bool assert) {
       var pikmin1Rom =
           DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
@@ -24,13 +24,13 @@ namespace uni.games.pikmin_1 {
           new GcnFileHierarchyExtractor().ExtractFromRom(options, pikmin1Rom);
 
       var rootModelDirectory =
-          new ModelDirectory<ModModelFileBundle>("pikmin_1");
+          new FileBundleDirectory<ModModelFileBundle>("pikmin_1");
       var parentObjectDirectory = rootModelDirectory.AddSubdir("data")
                                                     .AddSubdir("objects");
 
       var queue =
           new Queue<(IFileHierarchyDirectory,
-              IModelDirectory<ModModelFileBundle>)>();
+              IFileBundleDirectory<ModModelFileBundle>)>();
       queue.Enqueue((fileHierarchy.Root, rootModelDirectory));
       while (queue.Any()) {
         var (directory, node) = queue.Dequeue();

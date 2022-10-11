@@ -1,6 +1,7 @@
 ﻿using fin.exporter.assimp.indirect;
 using fin.exporter.gltf;
 using fin.io;
+using fin.io.bundles;
 using fin.log;
 using fin.model;
 
@@ -24,12 +25,12 @@ namespace uni.games {
     private static readonly Config config_;
 
     public static void ExtractAll<T>(
-        IModelFileGatherer<T> gatherer,
+        IFileBundleGatherer<T> gatherer,
         IModelLoader<T> loader)
         where T : IModelFileBundle {
       var modelFileBundles = new List<T>();
 
-      var root = gatherer.GatherModelFileBundles(true);
+      var root = gatherer.GatherFileBundles(true);
       root.ForEachTyped(modelFileBundles.Add);
 
       ExtractorUtil.ExtractAll(modelFileBundles, loader);

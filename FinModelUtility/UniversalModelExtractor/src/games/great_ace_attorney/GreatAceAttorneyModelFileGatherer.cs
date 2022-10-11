@@ -1,18 +1,14 @@
-﻿using fin.io;
-using fin.model;
-
-using uni.platforms;
+﻿using uni.platforms;
 
 using cmb.api;
-
+using fin.io.bundles;
 using uni.platforms.threeDs;
 
 
 namespace uni.games.great_ace_attorney {
-  public class
-      GreatAceAttorneyModelFileGatherer : IModelFileGatherer<
-          CmbModelFileBundle> {
-    public IModelDirectory<CmbModelFileBundle>? GatherModelFileBundles(
+  public class GreatAceAttorneyModelFileGatherer 
+      : IFileBundleGatherer<CmbModelFileBundle> {
+    public IFileBundleDirectory<CmbModelFileBundle>? GatherFileBundles(
         bool assert) {
       var greatAceAttorneyRom =
           DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(

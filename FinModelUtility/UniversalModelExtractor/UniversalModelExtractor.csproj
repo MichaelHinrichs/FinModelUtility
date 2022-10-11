@@ -89,7 +89,7 @@
     <Compile Update="src\ui\common\WaterMarkTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="src\ui\common\ModelFileTreeView.cs" />
+    <Compile Update="src\ui\common\FileBundleTreeView.cs" />
     <Compile Update="src\ui\right_panel\animations\AnimationPlaybackPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>

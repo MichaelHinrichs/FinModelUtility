@@ -1,16 +1,14 @@
 ﻿using dat.api;
-
-using fin.model;
+using fin.io.bundles;
 
 using uni.platforms;
 using uni.platforms.gcn;
 
 
 namespace uni.games.super_smash_bros_melee {
-  public class
-      SuperSmashBrosMeleeModelFileGatherer : IModelFileGatherer<
-          DatModelFileBundle> {
-    public IModelDirectory<DatModelFileBundle>? GatherModelFileBundles(
+  public class SuperSmashBrosMeleeModelFileGatherer 
+      : IFileBundleGatherer<DatModelFileBundle> {
+    public IFileBundleDirectory<DatModelFileBundle>? GatherFileBundles(
         bool assert) {
       var superSmashBrosMeleeRom =
           DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
@@ -25,7 +23,7 @@ namespace uni.games.super_smash_bros_melee {
               .ExtractFromRom(options, superSmashBrosMeleeRom);
 
       var rootModelDirectory =
-          new ModelDirectory<DatModelFileBundle>("super_smash_bros_melee");
+          new FileBundleDirectory<DatModelFileBundle>("super_smash_bros_melee");
 
       foreach (var datFile in fileHierarchy.Root.FilesWithExtension(".dat")) {
         var datFileName = datFile.NameWithoutExtension;

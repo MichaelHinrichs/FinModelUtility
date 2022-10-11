@@ -1,16 +1,15 @@
-﻿using fin.model;
-
-using uni.platforms;
+﻿using uni.platforms;
 using uni.platforms.threeDs;
 using uni.util.io;
 using uni.util.separator;
 
 using cmb.api;
+using fin.io.bundles;
 
 
 namespace uni.games.ocarina_of_time_3d {
-  public class OcarinaOfTime3dFileGatherer : IModelFileGatherer<
-      CmbModelFileBundle> {
+  public class OcarinaOfTime3dFileGatherer 
+      : IFileBundleGatherer<CmbModelFileBundle> {
     // TODO: Add support for Link
     // TODO: Add support for faceb
     // TODO: Add support for cmab
@@ -159,7 +158,7 @@ namespace uni.games.ocarina_of_time_3d {
           .Register("zelda_wm2", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_xc", new NoAnimationsModelSeparatorMethod());
 
-    public IModelDirectory<CmbModelFileBundle>? GatherModelFileBundles(
+    public IFileBundleDirectory<CmbModelFileBundle>? GatherFileBundles(
         bool assert) {
       var ocarinaOfTime3dRom =
           DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(

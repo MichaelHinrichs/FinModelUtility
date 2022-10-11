@@ -1,18 +1,15 @@
 ﻿using bmd.exporter;
-
 using fin.io;
-using fin.model;
+using fin.io.bundles;
 using fin.util.asserts;
-
 using uni.platforms;
 using uni.platforms.gcn;
 
 
 namespace uni.games.super_mario_sunshine {
-  public class
-      SuperMarioSunshineModelFileGatherer : IModelFileGatherer<
-          BmdModelFileBundle> {
-    public IModelDirectory<BmdModelFileBundle>? GatherModelFileBundles(
+  public class SuperMarioSunshineModelFileGatherer
+      : IFileBundleGatherer<BmdModelFileBundle> {
+    public IFileBundleDirectory<BmdModelFileBundle>? GatherFileBundles(
         bool assert) {
       var superMarioSunshineRom =
           DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
@@ -28,7 +25,7 @@ namespace uni.games.super_mario_sunshine {
               .ExtractFromRom(options, superMarioSunshineRom);
 
       var rootModelDirectory =
-          new ModelDirectory<BmdModelFileBundle>("super_mario_sunshine");
+          new FileBundleDirectory<BmdModelFileBundle>("super_mario_sunshine");
 
       this.ExtractMario_(rootModelDirectory, fileHierarchy);
       this.ExtractFludd_(rootModelDirectory, fileHierarchy);
@@ -39,7 +36,7 @@ namespace uni.games.super_mario_sunshine {
     }
 
     private void ExtractMario_(
-        ModelDirectory<BmdModelFileBundle> rootModelDirectory,
+        FileBundleDirectory<BmdModelFileBundle> rootModelDirectory,
         IFileHierarchy fileHierarchy) {
       var marioSubdir =
           fileHierarchy.Root.TryToGetSubdir(@"data\mario");
@@ -56,7 +53,7 @@ namespace uni.games.super_mario_sunshine {
     }
 
     private void ExtractFludd_(
-        ModelDirectory<BmdModelFileBundle> rootModelDirectory,
+        FileBundleDirectory<BmdModelFileBundle> rootModelDirectory,
         IFileHierarchy fileHierarchy) {
       var fluddSubdir =
           fileHierarchy.Root.TryToGetSubdir(@"data\mario\watergun2");
@@ -69,7 +66,7 @@ namespace uni.games.super_mario_sunshine {
     }
 
     private void ExtractYoshi_(
-        ModelDirectory<BmdModelFileBundle> rootModelDirectory,
+        FileBundleDirectory<BmdModelFileBundle> rootModelDirectory,
         IFileHierarchy fileHierarchy) {
       var yoshiSubdir =
           fileHierarchy.Root.TryToGetSubdir(@"data\yoshi");
@@ -87,7 +84,7 @@ namespace uni.games.super_mario_sunshine {
     }
 
     private void ExtractScenes_(
-        ModelDirectory<BmdModelFileBundle> rootModelDirectory,
+        FileBundleDirectory<BmdModelFileBundle> rootModelDirectory,
         IFileHierarchy fileHierarchy) {
       var sceneSubdir =
           fileHierarchy.Root.TryToGetSubdir(@"data\scene");
@@ -136,7 +133,7 @@ namespace uni.games.super_mario_sunshine {
     }
 
     private void ExtractFromSeparateDirectories_(
-        IModelDirectory<BmdModelFileBundle> node,
+        IFileBundleDirectory<BmdModelFileBundle> node,
         IFileHierarchyDirectory directory,
         IFileHierarchyDirectory common) {
       Asserts.Nonnull(common);
@@ -173,7 +170,7 @@ namespace uni.games.super_mario_sunshine {
     }
 
     private void ExtractModelsAndAnimationsFromSceneObject_(
-        IModelDirectory<BmdModelFileBundle> node,
+        IFileBundleDirectory<BmdModelFileBundle> node,
         IFileHierarchyDirectory directory) {
       var bmdFiles = directory.Files.Where(
                                   file => file.Extension == ".bmd")
@@ -207,9 +204,7 @@ namespace uni.games.super_mario_sunshine {
       if (bmdFiles.Length == 1 || allBcxFiles.Length == 0 || specialCase) {
         foreach (var bmdFile in bmdFiles) {
           this.ExtractModels_(node,
-                              new[] {
-                                  bmdFile
-                              },
+                              new[] {bmdFile},
                               allBcxFiles);
         }
         return;
@@ -219,15 +214,14 @@ namespace uni.games.super_mario_sunshine {
           directory.Name == "montewcommon") {
         foreach (var bmdFile in bmdFiles) {
           this.ExtractModels_(node,
-                              new[] {
-                                  bmdFile
-                              });
+                              new[] {bmdFile});
         }
         return;
       }
 
       var unclaimedBcxFiles = allBcxFiles.ToHashSet();
-      var bmdAndBcxFiles = new Dictionary<IFileHierarchyFile, IFileHierarchyFile[]>();
+      var bmdAndBcxFiles =
+          new Dictionary<IFileHierarchyFile, IFileHierarchyFile[]>();
       foreach (var bmdFile in bmdFiles) {
         var prefix = bmdFile.Name;
         prefix = prefix.Substring(0, prefix.Length - ".bmd".Length);
@@ -265,7 +259,7 @@ namespace uni.games.super_mario_sunshine {
     }
 
     private void ExtractPrimaryAndSecondaryModels_(
-        IModelDirectory<BmdModelFileBundle> node,
+        IFileBundleDirectory<BmdModelFileBundle> node,
         IFileHierarchyDirectory directory,
         Func<IFileHierarchyFile, bool> primaryIdentifier
     ) {
@@ -285,7 +279,7 @@ namespace uni.games.super_mario_sunshine {
     }
 
     private void ExtractPrimaryAndSecondaryModels_(
-        IModelDirectory<BmdModelFileBundle> node,
+        IFileBundleDirectory<BmdModelFileBundle> node,
         Func<IFileHierarchyFile, bool> primaryIdentifier,
         IReadOnlyList<IFileHierarchyFile> bmdFiles,
         IReadOnlyList<IFileHierarchyFile>? bcxFiles = null
@@ -303,7 +297,7 @@ namespace uni.games.super_mario_sunshine {
     }
 
     private void ExtractModels_(
-        IModelDirectory<BmdModelFileBundle> node,
+        IFileBundleDirectory<BmdModelFileBundle> node,
         IReadOnlyList<IFileHierarchyFile> bmdFiles,
         IReadOnlyList<IFileHierarchyFile>? bcxFiles = null,
         IReadOnlyList<IFileHierarchyFile>? btiFiles = null

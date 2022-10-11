@@ -1,17 +1,16 @@
 ﻿using fin.io;
-using fin.model;
 
 using uni.platforms;
 using uni.platforms.threeDs;
 using uni.util.separator;
 
 using cmb.api;
+using fin.io.bundles;
 
 
 namespace uni.games.luigis_mansion_3d {
-  public class
-      LuigisMansion3dModelFileGatherer : IModelFileGatherer<
-          CmbModelFileBundle> {
+  public class LuigisMansion3dModelFileGatherer 
+      : IFileBundleGatherer<CmbModelFileBundle> {
     private readonly IModelSeparator separator_ =
         new ModelSeparator(directory => directory.LocalPath)
             .Register(@"\effect\effect_mdl", new PrefixModelSeparatorMethod())
@@ -24,7 +23,7 @@ namespace uni.games.luigis_mansion_3d {
             .Register(@"\model\luige",
                       new NameModelSeparatorMethod("Luigi.cmb"));
 
-    public IModelDirectory<CmbModelFileBundle>? GatherModelFileBundles(
+    public IFileBundleDirectory<CmbModelFileBundle>? GatherFileBundles(
         bool assert) {
       var luigisMansionRom =
           DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
@@ -38,10 +37,10 @@ namespace uni.games.luigis_mansion_3d {
               luigisMansionRom);
 
       var rootModelDirectory =
-          new ModelDirectory<CmbModelFileBundle>("luigis_mansion_3d");
+          new FileBundleDirectory<CmbModelFileBundle>("luigis_mansion_3d");
       var queue =
           new Queue<(IFileHierarchyDirectory,
-              IModelDirectory<CmbModelFileBundle>)>();
+              IFileBundleDirectory<CmbModelFileBundle>)>();
       queue.Enqueue((fileHierarchy.Root, rootModelDirectory));
       while (queue.Any()) {
         var (directory, node) = queue.Dequeue();
@@ -56,7 +55,7 @@ namespace uni.games.luigis_mansion_3d {
     }
 
     public void ExtractModel_(
-        IModelDirectory<CmbModelFileBundle> parentNode,
+        IFileBundleDirectory<CmbModelFileBundle> parentNode,
         IFileHierarchyDirectory subdir) {
       var cmbFiles = subdir.FilesWithExtension(".cmb").ToArray();
       if (cmbFiles.Length == 0) {

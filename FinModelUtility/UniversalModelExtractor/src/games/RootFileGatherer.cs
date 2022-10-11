@@ -1,4 +1,4 @@
-﻿using fin.model;
+﻿using fin.io.bundles;
 using uni.games.battalion_wars_1;
 using uni.games.battalion_wars_2;
 using uni.games.glover;
@@ -17,10 +17,10 @@ using uni.games.super_smash_bros_melee;
 
 namespace uni.games {
   public class RootModelFileGatherer {
-    public RootModelDirectory GatherAllModelFiles() {
-      var rootModelDirectory = new RootModelDirectory();
+    public RootFileBundleDirectory GatherAllModelFiles() {
+      var rootFileBundleDirectory = new RootFileBundleDirectory();
 
-      var gatherers = new IModelFileGatherer[] {
+      var gatherers = new IFileBundleGatherer[] {
           new BattalionWars1FileGatherer(), new BattalionWars2FileGatherer(),
           new GloverModelFileGatherer(),
           new GreatAceAttorneyModelFileGatherer(),
@@ -44,7 +44,7 @@ namespace uni.games {
                              Task.Run(() => {
                                try {
                                  return gatherer
-                                     .GatherModelFileBundles(false);
+                                     .GatherFileBundles(false);
                                } catch (Exception e) {
                                  ;
                                  return null;
@@ -56,7 +56,7 @@ namespace uni.games {
             .ContinueWith(async resultsTask => {
               var results = await resultsTask;
               foreach (var result in results) {
-                rootModelDirectory.AddSubdirIfNotNull(result);
+                rootFileBundleDirectory.AddSubdirIfNotNull(result);
               }
             })
             .Wait();
@@ -64,19 +64,19 @@ namespace uni.games {
         var gatherTasks =
             gatherers.Select(
                          gatherer =>
-                             new Task<IModelDirectory?>(() => gatherer
-                                 .GatherModelFileBundles(false)))
+                             new Task<IFileBundleDirectory?>(() => gatherer
+                                 .GatherFileBundles(false)))
                      .ToArray();
 
         foreach (var gatherTask in gatherTasks) {
           gatherTask.Start();
           gatherTask.Wait();
-          rootModelDirectory.AddSubdirIfNotNull(gatherTask.Result);
+          rootFileBundleDirectory.AddSubdirIfNotNull(gatherTask.Result);
         }
       }
-      rootModelDirectory.RemoveEmptyChildren();
+      rootFileBundleDirectory.RemoveEmptyChildren();
 
-      return rootModelDirectory;
+      return rootFileBundleDirectory;
     }
   }
 }

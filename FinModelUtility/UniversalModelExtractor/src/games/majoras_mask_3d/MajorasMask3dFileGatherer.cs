@@ -1,16 +1,15 @@
-﻿using fin.model;
-
-using uni.platforms;
+﻿using uni.platforms;
 using uni.platforms.threeDs;
 using uni.util.io;
 using uni.util.separator;
 
 using cmb.api;
+using fin.io.bundles;
 
 
 namespace uni.games.majoras_mask_3d {
-  public class MajorasMask3dFileGatherer : IModelFileGatherer<
-      CmbModelFileBundle> {
+  public class MajorasMask3dFileGatherer 
+      : IFileBundleGatherer<CmbModelFileBundle> {
     private readonly IModelSeparator separator_
         = new ModelSeparator(directory => directory.Name)
           .Register(new SameNameSeparatorMethod(), "zelda2_zoraband")
@@ -46,7 +45,7 @@ namespace uni.games.majoras_mask_3d {
           );
 
 
-    public IModelDirectory<CmbModelFileBundle>? GatherModelFileBundles(
+    public IFileBundleDirectory<CmbModelFileBundle>? GatherFileBundles(
         bool assert) {
       var majorasMask3dRom =
           DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(

@@ -1,7 +1,7 @@
 ﻿using bmd.exporter;
 
 using fin.io;
-using fin.model;
+using fin.io.bundles;
 using fin.util.asserts;
 
 using uni.platforms;
@@ -9,9 +9,9 @@ using uni.platforms.gcn;
 
 
 namespace uni.games.mario_kart_double_dash {
-  public class
-      MarioKartDoubleDashFileGatherer : IModelFileGatherer<BmdModelFileBundle> {
-    public IModelDirectory<BmdModelFileBundle>? GatherModelFileBundles(
+  public class MarioKartDoubleDashFileGatherer 
+      : IFileBundleGatherer<BmdModelFileBundle> {
+    public IFileBundleDirectory<BmdModelFileBundle>? GatherFileBundles(
         bool assert) {
       var marioKartDoubleDashRom =
           DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
@@ -27,7 +27,7 @@ namespace uni.games.mario_kart_double_dash {
               .ExtractFromRom(options, marioKartDoubleDashRom);
 
       var rootModelDirectory =
-          new ModelDirectory<BmdModelFileBundle>("mario_kart_double_dash");
+          new FileBundleDirectory<BmdModelFileBundle>("mario_kart_double_dash");
 
       this.ExtractDrivers_(rootModelDirectory, fileHierarchy);
       this.ExtractKarts_(rootModelDirectory, fileHierarchy);
@@ -39,7 +39,7 @@ namespace uni.games.mario_kart_double_dash {
     }
 
     private void ExtractKarts_(
-        ModelDirectory<BmdModelFileBundle> rootModelDirectory,
+        FileBundleDirectory<BmdModelFileBundle> rootModelDirectory,
         IFileHierarchy fileHierarchy) {
       var kartSubdir = fileHierarchy.Root.TryToGetSubdir(@"MRAM\kart");
       var kartNode = rootModelDirectory.AddSubdir("kart");
@@ -52,7 +52,7 @@ namespace uni.games.mario_kart_double_dash {
     }
 
     private void ExtractDrivers_(
-        ModelDirectory<BmdModelFileBundle> rootModelDirectory,
+        FileBundleDirectory<BmdModelFileBundle> rootModelDirectory,
         IFileHierarchy fileHierarchy) {
       var mramSubdir = fileHierarchy.Root.TryToGetSubdir(@"MRAM\driver");
       var driverNode = rootModelDirectory.AddSubdir("driver");
@@ -156,7 +156,7 @@ namespace uni.games.mario_kart_double_dash {
     }
 
     private void ExtractFromDriverDirectory_(
-        IModelDirectory<BmdModelFileBundle> node,
+        IFileBundleDirectory<BmdModelFileBundle> node,
         IFileHierarchyDirectory directory) {
       var bmdFiles = directory.FilesWithExtension(".bmd")
                               .ToArray();
@@ -188,7 +188,7 @@ namespace uni.games.mario_kart_double_dash {
     }
 
     private void ExtractFromSeparateDriverDirectories_(
-        IModelDirectory<BmdModelFileBundle> node,
+        IFileBundleDirectory<BmdModelFileBundle> node,
         IFileHierarchyDirectory directory,
         IFileHierarchyDirectory common) {
       Asserts.Nonnull(common);
@@ -206,7 +206,7 @@ namespace uni.games.mario_kart_double_dash {
     }
 
     private void ExtractCourses_(
-        ModelDirectory<BmdModelFileBundle> rootModelDirectory,
+        FileBundleDirectory<BmdModelFileBundle> rootModelDirectory,
         IFileHierarchy fileHierarchy) {
       var courseSubdir = fileHierarchy.Root.TryToGetSubdir("Course");
       var coursesNode = rootModelDirectory.AddSubdir("Course");
@@ -235,7 +235,7 @@ namespace uni.games.mario_kart_double_dash {
     }
 
     private void ExtractModelsAndAnimationsFromSceneObject_(
-        IModelDirectory<BmdModelFileBundle> node,
+        IFileBundleDirectory<BmdModelFileBundle> node,
         IFileHierarchyDirectory directory) {
       var bmdFiles = directory.Files.Where(
                                   file => file.Extension == ".bmd")
@@ -301,7 +301,7 @@ namespace uni.games.mario_kart_double_dash {
     }
 
     private void ExtractModels_(
-        IModelDirectory<BmdModelFileBundle> node,
+        IFileBundleDirectory<BmdModelFileBundle> node,
         IReadOnlyList<IFileHierarchyFile> bmdFiles,
         IReadOnlyList<IFileHierarchyFile>? bcxFiles = null,
         IReadOnlyList<IFileHierarchyFile>? btiFiles = null

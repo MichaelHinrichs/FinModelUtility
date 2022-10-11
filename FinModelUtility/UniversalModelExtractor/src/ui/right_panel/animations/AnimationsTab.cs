@@ -4,7 +4,7 @@ using fin.model;
 
 namespace uni.ui.right_panel {
   public partial class AnimationsTab : UserControl {
-    private IAnimation[] animations_;
+    private IAnimation[]? animations_;
 
     public AnimationsTab() {
       InitializeComponent();
@@ -20,15 +20,19 @@ namespace uni.ui.right_panel {
       };
     }
 
-    public IModel Model {
+    public IModel? Model {
       set {
         this.listView_.SelectedIndices.Clear();
         this.listView_.Items.Clear();
 
         this.animations_ =
-            value.AnimationManager.Animations.OrderBy(
+            value?.AnimationManager.Animations.OrderBy(
                      animation => animation.Name)
                  .ToArray();
+
+        if (this.animations_ == null) {
+          return;
+        }
 
         foreach (var animation in this.animations_) {
           this.listView_.Items.Add(animation.Name);

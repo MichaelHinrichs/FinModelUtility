@@ -1,5 +1,6 @@
 ﻿using fin.data;
 using fin.io;
+using fin.io.bundles;
 using fin.model;
 
 
@@ -14,15 +15,15 @@ namespace uni.util.io {
       this.handler_ = handler;
     }
 
-    public IModelDirectory<TModelFileBundle> GatherBundles(
+    public IFileBundleDirectory<TModelFileBundle> GatherBundles(
         IFileHierarchy fileHierarchy) {
       var fileHierarchyRoot = fileHierarchy.Root;
       var rootModelDirectory =
-          new ModelDirectory<TModelFileBundle>(fileHierarchy.Root.Name);
+          new FileBundleDirectory<TModelFileBundle>(fileHierarchy.Root.Name);
 
       var lazyFileHierarchyDirToBundleDir =
           new LazyDictionary<IFileHierarchyDirectory,
-              IModelDirectory<TModelFileBundle>>(
+              IFileBundleDirectory<TModelFileBundle>>(
               (lazyDict, dir) => {
                 var parent = dir.Parent != null
                                  ? lazyDict[dir.Parent]

@@ -1,15 +1,12 @@
+using fin.io.bundles;
 using System.Diagnostics;
-
 using fin.model;
-
 using uni.games;
-
 using fin.util.asserts;
-
 using uni.ui.common;
 
 
-namespace uni.ui; 
+namespace uni.ui;
 
 public partial class UniversalModelExtractorForm : Form {
   public UniversalModelExtractorForm() {
@@ -22,20 +19,22 @@ public partial class UniversalModelExtractorForm : Form {
   }
 
   private void UniversalModelExtractorForm_Load(object sender, EventArgs e) {
-    this.modelFileTreeView_.Populate(
+    this.fileBundleTreeView_.Populate(
         new RootModelFileGatherer().GatherAllModelFiles());
 
-    this.modelFileTreeView_.DirectorySelected += this.OnDirectorySelect_;
-    this.modelFileTreeView_.FileSelected += this.OnFileSelect_;
+    this.fileBundleTreeView_.DirectorySelected += this.OnDirectorySelect_;
+    this.fileBundleTreeView_.FileSelected += this.OnFileBundleSelect_;
   }
 
-  private void OnDirectorySelect_(
-      IFileTreeNode<IModelFileBundle> directoryNode) {
+  private void OnDirectorySelect_(IFileTreeNode<IFileBundle> directoryNode) {
     this.modelToolStrip_.DirectoryNode = directoryNode;
   }
 
-  private void OnFileSelect_(IFileTreeNode<IModelFileBundle> fileNode) {
-    var model = this.LoadModel_(Asserts.CastNonnull(fileNode.File));
+  private void OnFileBundleSelect_(IFileTreeNode<IFileBundle> fileNode) {
+    var model = (fileNode.File is IModelFileBundle modelFileBundle)
+                    ? this.LoadModel_(modelFileBundle)
+                    : null;
+
     this.modelToolStrip_.DirectoryNode = fileNode.Parent;
     this.modelToolStrip_.FileNodeAndModel = (fileNode, model);
     this.modelViewerGlPanel_.Model = model;

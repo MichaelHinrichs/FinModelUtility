@@ -8,10 +8,10 @@ namespace uni.ui.right_panel {
       InitializeComponent();
     }
 
-    public IModel Model {
+    public IModel? Model {
       set {
         this.animationsTab_.Model = value;
-        this.materialsTab_.Materials = value.MaterialManager.All;
+        this.materialsTab_.Materials = value?.MaterialManager.All;
         this.texturesTab_.Model = value;
       }
     }

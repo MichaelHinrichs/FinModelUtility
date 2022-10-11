@@ -1,6 +1,7 @@
 ﻿using fin.data.queue;
+using fin.io.bundles;
 using fin.model;
-
+using fin.util.asserts;
 using uni.games;
 using uni.ui;
 using uni.ui.common;
@@ -8,24 +9,22 @@ using uni.ui.common;
 
 namespace uni.src.ui.top {
   public partial class ModelToolStrip : UserControl {
-    private IFileTreeNode<IModelFileBundle>? directoryNode_;
-    private (IFileTreeNode<IModelFileBundle>, IModel)? fileNodeAndModel_;
+    private IFileTreeNode<IFileBundle>? directoryNode_;
+    private (IFileTreeNode<IFileBundle>, IModel)? fileNodeAndModel_;
 
     public ModelToolStrip() {
       InitializeComponent();
     }
 
-    public IFileTreeNode<IModelFileBundle>? DirectoryNode {
+    public IFileTreeNode<IFileBundle>? DirectoryNode {
       set {
         var hasDirectory = value != null;
-        this.exportAllModelsInSelectedDirectoryButton_.Enabled = hasDirectory;
         this.directoryNode_ = value;
 
         var tooltipText = "Export all models in selected directory";
+        var modelCount = 0;
         if (hasDirectory) {
-          var modelCount = 0;
-          var subdirQueue =
-              new FinQueue<IFileTreeNode<IModelFileBundle>>(value!);
+          var subdirQueue = new FinQueue<IFileTreeNode<IFileBundle>>(value!);
           while (subdirQueue.TryDequeue(out var subdirNode)) {
             var modelFileBundle = subdirNode.File;
             if (modelFileBundle != null) {
@@ -40,12 +39,14 @@ namespace uni.src.ui.top {
                             ? $"Export {modelCount} model in '{totalText}'"
                             : $"Export all {modelCount} models in '{totalText}'";
         }
+
+        this.exportAllModelsInSelectedDirectoryButton_.Enabled = modelCount > 0;
         this.exportAllModelsInSelectedDirectoryButton_.ToolTipText =
             tooltipText;
       }
     }
 
-    public (IFileTreeNode<IModelFileBundle>, IModel?) FileNodeAndModel {
+    public (IFileTreeNode<IFileBundle>, IModel?) FileNodeAndModel {
       set {
         var (fileNode, model) = value;
 
@@ -72,10 +73,9 @@ namespace uni.src.ui.top {
       var allModelFileBundles = new List<IModelFileBundle>();
 
       var subdirQueue =
-          new FinQueue<IFileTreeNode<IModelFileBundle>>(this.directoryNode_!);
+          new FinQueue<IFileTreeNode<IFileBundle>>(this.directoryNode_!);
       while (subdirQueue.TryDequeue(out var subdirNode)) {
-        var modelFileBundle = subdirNode.File;
-        if (modelFileBundle != null) {
+        if (subdirNode.File is IModelFileBundle modelFileBundle) {
           allModelFileBundles.Add(modelFileBundle);
         } else {
           subdirQueue.Enqueue(subdirNode.Children);
@@ -85,13 +85,16 @@ namespace uni.src.ui.top {
       ExtractorUtil.ExtractAll(allModelFileBundles, new GlobalModelLoader());
     }
 
-    private void
-        exportSelectedModelButton__Click(object sender, EventArgs e) {
+    private void exportSelectedModelButton__Click(object sender, EventArgs e) {
+      if (this.fileNodeAndModel_ == null) {
+        return;
+      }
+
       var (fileNode, model) = this.fileNodeAndModel_.Value;
-      ExtractorUtil.Extract(fileNode.File!, () => model);
+      ExtractorUtil.Extract(fileNode.File as IModelFileBundle, () => model);
     }
 
-    private string GetTotalNodeText_(IFileTreeNode<IModelFileBundle> node) {
+    private string GetTotalNodeText_(IFileTreeNode<IFileBundle> node) {
       var totalText = "";
       var directory = node;
       while (true) {

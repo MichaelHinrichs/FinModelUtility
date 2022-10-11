@@ -1,5 +1,5 @@
 ﻿using fin.io;
-using fin.model;
+using fin.io.bundles;
 using modl.api;
 using uni.games.battalion_wars_1;
 using uni.platforms;
@@ -8,11 +8,10 @@ using uni.util.io;
 
 
 namespace uni.games.battalion_wars_2 {
-  public class
-      BattalionWars2FileGatherer : IModelFileGatherer<
-          IBattalionWarsModelFileBundle> {
-    public IModelDirectory<IBattalionWarsModelFileBundle>?
-        GatherModelFileBundles(
+  public class BattalionWars2FileGatherer
+      : IFileBundleGatherer<IBattalionWarsModelFileBundle> {
+    public IFileBundleDirectory<IBattalionWarsModelFileBundle>?
+        GatherFileBundles(
             bool assert) {
       var battalionWarsRom =
           DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
