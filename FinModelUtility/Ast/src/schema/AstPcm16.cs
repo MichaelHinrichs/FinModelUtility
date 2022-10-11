@@ -26,9 +26,8 @@
           for (var chan = 0; chan < channelCount; chan++) {
             if (chan / 2 == i / 2) {
               var shorts =
-                  er.ReadInt16s(
-                      (int)Math.Min(blockSizeInShorts,
-                                    (er.Length - er.Position) / 2));
+                  er.ReadInt16s(Math.Min(blockSizeInShorts,
+                                         (er.Length - er.Position) / 2));
 
               if (shorts.Length != blockSizeInShorts) {
                 if (currentSample + blockSizeInBytes / 2 >= sampleCount &&

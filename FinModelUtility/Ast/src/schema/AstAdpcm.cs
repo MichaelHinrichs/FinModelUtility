@@ -1,7 +1,4 @@
-﻿using fin.math;
-using schema.util;
-using static schema.SchemaStructureParser;
-using System;
+﻿using schema.util;
 
 
 namespace ast.schema {
@@ -38,12 +35,12 @@ namespace ast.schema {
 
         // TODO: Does this need to be split up as left/right channels??
         var blockSize = blckHeader.BlockSizeInBytes;
-        var leftChannelAdpcm = er.ReadBytes((int)blockSize);
-        var rightChannelAdpcm = er.ReadBytes((int)blockSize);
+        var leftChannelAdpcm = er.ReadBytes(blockSize);
+        var rightChannelAdpcm = er.ReadBytes(blockSize);
 
-        this.decode_ngc_afc(leftChannelAdpcm, 0, (int)sampleCount, ref histL1,
+        this.decode_ngc_afc(leftChannelAdpcm, 0, sampleCount, ref histL1,
                             ref histL2);
-        this.decode_ngc_afc(rightChannelAdpcm, 1, (int)sampleCount, ref histR1,
+        this.decode_ngc_afc(rightChannelAdpcm, 1, sampleCount, ref histR1,
                             ref histR2);
       }
     }
@@ -57,7 +54,7 @@ namespace ast.schema {
 
     void decode_ngc_afc(IList<byte> adpcmData,
                         int channel,
-                        int sampleCount,
+                        uint sampleCount,
                         ref int hist1,
                         ref int hist2) {
       var bytesPerFrame = 0x09;

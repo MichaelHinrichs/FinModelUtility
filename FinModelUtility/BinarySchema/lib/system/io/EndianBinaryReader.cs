@@ -4,9 +4,7 @@
 // MVID: DAEF8B62-698B-42D0-BEDD-3770EB8C9FE8
 // Assembly location: R:\Documents\CSharpWorkspace\Pikmin2Utility\MKDS Course Modifier\MKDS Course Modifier.exe
 
-using System.Linq;
 using System.Text;
-
 using schema;
 
 
@@ -49,7 +47,7 @@ namespace System.IO {
 
     public void Dispose() {
       this.Dispose(true);
-      GC.SuppressFinalize((object) this);
+      GC.SuppressFinalize((object)this);
     }
 
     private void Dispose(bool disposing) {
@@ -111,13 +109,16 @@ namespace System.IO {
       return str;
     }
 
-    public void Subread(long position, int len, Action<EndianBinaryReader> subread) {
+    public void Subread(long position,
+                        int len,
+                        Action<EndianBinaryReader> subread) {
       var tempPos = this.Position;
       {
         this.Position = position;
 
         var bytes = this.ReadBytesAtOffset(position, len);
-        using var ser = new EndianBinaryReader(new MemoryStream(bytes), this.Endianness);
+        using var ser =
+            new EndianBinaryReader(new MemoryStream(bytes), this.Endianness);
         subread(ser);
       }
       this.Position = tempPos;
@@ -140,7 +141,7 @@ namespace System.IO {
     private static byte ConvertByte_(byte[] buffer, int i) => buffer[i];
 
     private static sbyte ConvertSByte_(byte[] buffer, int i)
-      => (sbyte) buffer[i];
+      => (sbyte)buffer[i];
 
     private static short ConvertInt16_(byte[] buffer, int i)
       => BitConverter.ToInt16(buffer, sizeof(short) * i);
@@ -191,7 +192,7 @@ namespace System.IO {
       }
     }
 
-    private void FillBuffer_(int count, int? optStride = null) {
+    private void FillBuffer_(long count, int? optStride = null) {
       this.AssertNotEof();
       this.BufferedStream_.FillBuffer(count, optStride);
     }
@@ -205,7 +206,7 @@ namespace System.IO {
       return EndianBinaryReader.ConvertByte_(this.BufferedStream_.Buffer, 0);
     }
 
-    public byte[] ReadBytes(int count) => this.ReadBytes(new byte[count]);
+    public byte[] ReadBytes(long count) => this.ReadBytes(new byte[count]);
 
     public byte[] ReadBytes(byte[] dst) {
       this.BufferedStream_.BaseStream.Read(dst, 0, dst.Length);
@@ -221,7 +222,7 @@ namespace System.IO {
       return EndianBinaryReader.ConvertSByte_(this.BufferedStream_.Buffer, 0);
     }
 
-    public sbyte[] ReadSBytes(int count) => this.ReadSBytes(new sbyte[count]);
+    public sbyte[] ReadSBytes(long count) => this.ReadSBytes(new sbyte[count]);
 
     public sbyte[] ReadSBytes(sbyte[] dst) {
       const int size = sizeof(sbyte);
@@ -242,7 +243,7 @@ namespace System.IO {
       return EndianBinaryReader.ConvertInt16_(this.BufferedStream_.Buffer, 0);
     }
 
-    public short[] ReadInt16s(int count) => this.ReadInt16s(new short[count]);
+    public short[] ReadInt16s(long count) => this.ReadInt16s(new short[count]);
 
     public short[] ReadInt16s(short[] dst) {
       const int size = sizeof(short);
@@ -263,7 +264,7 @@ namespace System.IO {
       return EndianBinaryReader.ConvertUInt16_(this.BufferedStream_.Buffer, 0);
     }
 
-    public ushort[] ReadUInt16s(int count)
+    public ushort[] ReadUInt16s(long count)
       => this.ReadUInt16s(new ushort[count]);
 
     public ushort[] ReadUInt16s(ushort[] dst) {
@@ -285,7 +286,7 @@ namespace System.IO {
       return EndianBinaryReader.ConvertInt32_(this.BufferedStream_.Buffer, 0);
     }
 
-    public int[] ReadInt32s(int count) => this.ReadInt32s(new int[count]);
+    public int[] ReadInt32s(long count) => this.ReadInt32s(new int[count]);
 
     public int[] ReadInt32s(int[] dst) {
       const int size = sizeof(int);
@@ -306,7 +307,7 @@ namespace System.IO {
       return EndianBinaryReader.ConvertUInt32_(this.BufferedStream_.Buffer, 0);
     }
 
-    public uint[] ReadUInt32s(int count) => this.ReadUInt32s(new uint[count]);
+    public uint[] ReadUInt32s(long count) => this.ReadUInt32s(new uint[count]);
 
     public uint[] ReadUInt32s(uint[] dst) {
       const int size = sizeof(uint);
@@ -327,7 +328,7 @@ namespace System.IO {
       return EndianBinaryReader.ConvertInt64_(this.BufferedStream_.Buffer, 0);
     }
 
-    public long[] ReadInt64s(int count) => this.ReadInt64s(new long[count]);
+    public long[] ReadInt64s(long count) => this.ReadInt64s(new long[count]);
 
     public long[] ReadInt64s(long[] dst) {
       const int size = sizeof(long);
@@ -348,7 +349,8 @@ namespace System.IO {
       return EndianBinaryReader.ConvertUInt64_(this.BufferedStream_.Buffer, 0);
     }
 
-    public ulong[] ReadUInt64s(int count) => this.ReadUInt64s(new ulong[count]);
+    public ulong[] ReadUInt64s(long count) =>
+        this.ReadUInt64s(new ulong[count]);
 
     public ulong[] ReadUInt64s(ulong[] dst) {
       const int size = sizeof(ulong);
@@ -369,7 +371,7 @@ namespace System.IO {
       return EndianBinaryReader.ConvertHalf_(this.BufferedStream_.Buffer, 0);
     }
 
-    public float[] ReadHalfs(int count) => this.ReadHalfs(new float[count]);
+    public float[] ReadHalfs(long count) => this.ReadHalfs(new float[count]);
 
     public float[] ReadHalfs(float[] dst) {
       const int size = 2;
@@ -390,7 +392,8 @@ namespace System.IO {
       return EndianBinaryReader.ConvertSingle_(this.BufferedStream_.Buffer, 0);
     }
 
-    public float[] ReadSingles(int count) => this.ReadSingles(new float[count]);
+    public float[] ReadSingles(long count) =>
+        this.ReadSingles(new float[count]);
 
     public float[] ReadSingles(float[] dst) {
       const int size = sizeof(float);
@@ -411,7 +414,7 @@ namespace System.IO {
       return EndianBinaryReader.ConvertDouble_(this.BufferedStream_.Buffer, 0);
     }
 
-    public double[] ReadDoubles(int count)
+    public double[] ReadDoubles(long count)
       => this.ReadDoubles(new double[count]);
 
     public double[] ReadDoubles(double[] dst) {
@@ -433,7 +436,7 @@ namespace System.IO {
       return EndianBinaryReader.ConvertSn8_(this.BufferedStream_.Buffer, 0);
     }
 
-    public float[] ReadSn8s(int count) => this.ReadSn8s(new float[count]);
+    public float[] ReadSn8s(long count) => this.ReadSn8s(new float[count]);
 
     public float[] ReadSn8s(float[] dst) {
       const int size = sizeof(byte);
@@ -454,7 +457,7 @@ namespace System.IO {
       return EndianBinaryReader.ConvertUn8_(this.BufferedStream_.Buffer, 0);
     }
 
-    public float[] ReadUn8s(int count) => this.ReadUn8s(new float[count]);
+    public float[] ReadUn8s(long count) => this.ReadUn8s(new float[count]);
 
     public float[] ReadUn8s(float[] dst) {
       const int size = sizeof(byte);
@@ -475,7 +478,7 @@ namespace System.IO {
       return EndianBinaryReader.ConvertSn16_(this.BufferedStream_.Buffer, 0);
     }
 
-    public float[] ReadSn16s(int count) => this.ReadSn16s(new float[count]);
+    public float[] ReadSn16s(long count) => this.ReadSn16s(new float[count]);
 
     public float[] ReadSn16s(float[] dst) {
       const int size = sizeof(short);
@@ -496,7 +499,7 @@ namespace System.IO {
       return EndianBinaryReader.ConvertUn16_(this.BufferedStream_.Buffer, 0);
     }
 
-    public float[] ReadUn16s(int count) => this.ReadUn16s(new float[count]);
+    public float[] ReadUn16s(long count) => this.ReadUn16s(new float[count]);
 
     public float[] ReadUn16s(float[] dst) {
       const int size = sizeof(ushort);
@@ -512,7 +515,10 @@ namespace System.IO {
       => this.AssertChar(Encoding.ASCII, expectedValue);
 
     public char ReadChar() => this.ReadChar(Encoding.ASCII);
-    public char[] ReadChars(int count) => this.ReadChars(Encoding.ASCII, count);
+
+    public char[] ReadChars(long count) =>
+        this.ReadChars(Encoding.ASCII, count);
+
     public char[] ReadChars(char[] dst) => this.ReadChars(Encoding.ASCII, dst);
 
 
@@ -526,7 +532,7 @@ namespace System.IO {
       return encoding.GetChars(this.BufferedStream_.Buffer, 0, encodingSize)[0];
     }
 
-    public char[] ReadChars(Encoding encoding, int count)
+    public char[] ReadChars(Encoding encoding, long count)
       => this.ReadChars(encoding, new char[count]);
 
     public char[] ReadChars(Encoding encoding, char[] dst) {
@@ -553,7 +559,7 @@ namespace System.IO {
     public void AssertString(string expectedValue)
       => this.AssertString(Encoding.ASCII, expectedValue);
 
-    public string ReadString(int count)
+    public string ReadString(long count)
       => this.ReadString(Encoding.ASCII, count);
 
 
@@ -562,7 +568,7 @@ namespace System.IO {
           expectedValue.TrimEnd('\0'),
           this.ReadString(encoding, expectedValue.Length));
 
-    public string ReadString(Encoding encoding, int count) {
+    public string ReadString(Encoding encoding, long count) {
       this.AssertNotEof();
       return new string(this.ReadChars(encoding, count)).TrimEnd('\0');
     }

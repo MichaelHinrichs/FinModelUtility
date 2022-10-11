@@ -6,18 +6,18 @@
     public Stream BaseStream { get; set; }
     public byte[] Buffer { get; private set; }
 
-    public void FillBuffer(int count, int? optStride = null) {
+    public void FillBuffer(long count, int? optStride = null) {
       var stride = optStride ?? count;
       if (this.Buffer == null || this.Buffer.Length < count) {
         this.Buffer = new byte[count];
       }
-      this.BaseStream.Read(this.Buffer, 0, count);
+      this.BaseStream.Read(this.Buffer, 0, (int)count);
 
       if (!this.IsOppositeEndiannessOfSystem) {
         return;
       }
-      for (var i = 0; i < count; i += stride) {
-        Array.Reverse(this.Buffer, i, stride);
+      for (var i = 0L; i < count; i += stride) {
+        Array.Reverse(this.Buffer, (int)i, (int)stride);
       }
     }
 
