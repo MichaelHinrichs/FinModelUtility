@@ -5,7 +5,7 @@ namespace ast.schema {
   public partial class Ast : IDeserializable {
     public StrmHeader StrmHeader { get; } = new();
 
-    public short[][] ChannelData { get; private set; }
+    public IList<short>[] ChannelData { get; private set; }
 
     public void Read(EndianBinaryReader er) {
       this.StrmHeader.Read(er);

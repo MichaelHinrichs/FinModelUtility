@@ -14,9 +14,9 @@ namespace ast.schema {
       var channelCount = this.StrmHeader.ChannelCount;
       var sampleCount = this.StrmHeader.SampleCount;
 
-      this.ChannelData = new short[channelCount][];
+      this.ChannelData = new List<short>[channelCount];
       for (var i = 0; i < channelCount; ++i) {
-        this.ChannelData[i] = new short[sampleCount];
+        this.ChannelData[i] = new List<short>();
       }
 
       Asserts.Equal(2, channelCount);
@@ -24,7 +24,11 @@ namespace ast.schema {
       // TODO: This doesn't look right???
       er.Position = 0x40;
 
-      var adpcmData = new List<byte>();
+      var histL1 = 0;
+      var histL2 = 0;
+      var histR1 = 0;
+      var histR2 = 0;
+
       while (!er.Eof) {
         if (er.Eof) {
           break;
@@ -33,15 +37,15 @@ namespace ast.schema {
         var blckHeader = er.ReadNew<BlckHeader>();
 
         // TODO: Does this need to be split up as left/right channels??
-        var blockSize = 2 * blckHeader.BlockSizeInBytes;
-        adpcmData.AddRange(er.ReadBytes((int)blockSize));
+        var blockSize = blckHeader.BlockSizeInBytes;
+        var leftChannelAdpcm = er.ReadBytes((int)blockSize);
+        var rightChannelAdpcm = er.ReadBytes((int)blockSize);
+
+        this.decode_ngc_afc(leftChannelAdpcm, 0, (int)sampleCount, ref histL1,
+                            ref histL2);
+        this.decode_ngc_afc(rightChannelAdpcm, 1, (int)sampleCount, ref histR1,
+                            ref histR2);
       }
-
-      var frameCount = adpcmData.Count / 9;
-      var expectedSampleCount = frameCount * 16;
-
-      this.decode_ngc_afc(adpcmData, (int)sampleCount);
-      ;
     }
 
     private static (short, short)[] afc_coefs = {
@@ -52,17 +56,18 @@ namespace ast.schema {
     };
 
     void decode_ngc_afc(IList<byte> adpcmData,
-                        int sampleCount) {
+                        int channel,
+                        int sampleCount,
+                        ref int hist1,
+                        ref int hist2) {
       var bytesPerFrame = 0x09;
       var samplesPerFrame = 16; // (bytesPerFrame - 1) * 2
 
       var frameCount = Math.Min(adpcmData.Count / bytesPerFrame,
                                 sampleCount / samplesPerFrame);
 
-      var hist1 = 0;
-      var hist2 = 0;
+      var channelData = this.ChannelData[channel] as List<short>;
 
-      // TODO: Are these nested in the correct order??
       for (var frameIndex = 0; frameIndex < frameCount; ++frameIndex) {
         /* parse frame header */
         var frameOffset = frameIndex * bytesPerFrame;
@@ -93,8 +98,7 @@ namespace ast.schema {
 
           sample = clamp16(sample);
 
-          var sampleOffset = frameIndex * samplesPerFrame + (sampleIndex / 2);
-          this.ChannelData[isLeftChannel ? 0 : 1][sampleOffset] = (short)sample;
+          channelData.Add((short)sample);
 
           hist2 = hist1;
           hist1 = sample;
