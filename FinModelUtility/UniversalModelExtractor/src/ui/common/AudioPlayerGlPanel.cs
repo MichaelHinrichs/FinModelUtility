@@ -1,8 +1,7 @@
-﻿using ast.schema;
-using fin.audio.impl.al;
+﻿using fin.audio.impl.al;
 using fin.audio;
+using fin.data;
 using fin.gl;
-using fin.io;
 using OpenTK.Graphics.OpenGL;
 using uni.ui.gl;
 
@@ -11,57 +10,48 @@ namespace uni.ui.common {
   public class AudioPlayerGlPanel : BGlPanel {
     private readonly Color backgroundColor_ = Color.FromArgb(51, 128, 179);
 
+    private IReadOnlyList<IAudioFileBundle>? audioFileBundles_;
+    private ShuffledListView<IAudioFileBundle>? shuffledListView_;
     private readonly IAudioManager<short> audioManager_ = new AlAudioManager();
-    private readonly IAudioStream<short> musicStream_;
-    private readonly IActiveSound<short> musicSound_;
+    private IActiveSound<short>? activeSound_;
 
     private readonly WaveformRenderer waveformRenderer_ = new();
 
     private GlShaderProgram texturelessShaderProgram_;
 
-    public AudioPlayerGlPanel() {
-      /*var musicDir = DirectoryConstants.CLI_DIRECTORY.GetSubdir("ui/music");
-      var musicFiles = musicDir.GetExistingFiles()
-                               .Where(
-                                   file => file.Extension.ToLower() == ".ogg")
-                               .ToArray();
+    /// <summary>
+    ///   Sets the audio file bundles to play in the player.
+    /// </summary>
+    public IReadOnlyList<IAudioFileBundle>? AudioFileBundles {
+      get => this.audioFileBundles_;
+      set {
+        this.audioFileBundles_ = value;
 
-      this.musicStream_ =
-          this.audioManager_.CreateBufferAudioStream(
-              this.audioManager_.LoadIntoBuffer(musicFiles[0]));*/
-
-      if (!DesignModeUtil.InDesignMode) {
-        /*var astDir = new FinDirectory(
-             @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\mario_kart_double_dash\AudioRes\Stream");*/
-        var astDir = new FinDirectory(
-            @"R:\Documents\CSharpWorkspace\Pikmin2Utility\cli\roms\pikmin_2\AudioRes\Stream");
-        var astFiles = astDir.GetExistingFiles()
-                             .Where(
-                                 file => file.Extension.ToLower() == ".ast")
-                             .ToArray();
-
-        var firstAstFile = astFiles[Random.Shared.Next(astFiles.Length)];
-        var name = firstAstFile.Name;
-
-        var ast = firstAstFile.ReadNew<Ast>(Endianness.BigEndian);
-
-        var mutableBuffer = this.audioManager_.CreateMutableBuffer();
-
-        mutableBuffer.Frequency = (int)ast.StrmHeader.SampleRate;
-
-        var channelData =
-            ast.ChannelData.Select(data => data.ToArray()).ToArray();
-        mutableBuffer.SetPcm(channelData);
-
-        this.musicStream_ =
-            this.audioManager_.CreateBufferAudioStream(mutableBuffer);
-
-        this.musicSound_ = this.audioManager_.CreateAudioSource()
-                               .Play(this.musicStream_);
-        this.musicSound_.Looping = true;
-
-        this.waveformRenderer_.ActiveSound = this.musicSound_;
+        this.shuffledListView_
+            = value != null
+                  ? new ShuffledListView<IAudioFileBundle>(value)
+                  : null;
+        this.PlayNext_();
       }
+    }
+
+    private void PlayNext_() {
+      this.activeSound_?.Stop();
+
+      if (this.shuffledListView_ == null) {
+        this.activeSound_ = null;
+        return;
+      }
+
+      var audioBuffer =
+          new GlobalAudioLoader().LoadAudio(this.audioManager_,
+                                            this.shuffledListView_.Next());
+      var audioStream = this.audioManager_.CreateBufferAudioStream(audioBuffer);
+
+      this.activeSound_ = this.audioManager_.CreateAudioSource()
+                             .Play(audioStream);
+
+      this.waveformRenderer_.ActiveSound = this.activeSound_;
     }
 
     protected override void InitGl() {
