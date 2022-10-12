@@ -2,11 +2,10 @@
 using fin.io.bundles;
 using fin.model;
 using uni.games;
-using uni.ui;
 using uni.ui.common;
 
 
-namespace uni.src.ui.top {
+namespace uni.ui.top {
   public partial class ModelToolStrip : UserControl {
     private IFileTreeNode<IFileBundle>? directoryNode_;
     private (IFileTreeNode<IFileBundle>, IModel)? fileNodeAndModel_;

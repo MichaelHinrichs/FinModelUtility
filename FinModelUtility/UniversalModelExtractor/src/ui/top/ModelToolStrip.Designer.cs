@@ -1,4 +1,4 @@
-﻿namespace uni.src.ui.top {
+﻿namespace uni.ui.top {
   partial class ModelToolStrip {
     /// <summary> 
     /// Required designer variable.
