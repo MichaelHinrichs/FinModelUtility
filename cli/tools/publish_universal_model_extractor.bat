@@ -17,6 +17,6 @@ cd "FinModelUtility\UniversalModelExtractor\"
 dotnet publish -c Release
 
 echo Copying new universal model extractor...
-move "bin\Release\net6.0-windows\win-x86\publish\*" "!universalModelExtractorBasePath!"
+move "bin\Release\net7.0-windows\win-x86\publish\*" "!universalModelExtractorBasePath!"
 
 pause

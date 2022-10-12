@@ -1,9 +1,9 @@
 using fin.audio;
 using fin.data.queue;
-using fin.io;
 using fin.io.bundles;
 using System.Diagnostics;
 using fin.model;
+using uni.config;
 using uni.games;
 using uni.ui.common;
 
@@ -35,17 +35,28 @@ public partial class UniversalModelExtractorForm : Form {
   }
 
   private void OnFileBundleSelect_(IFileTreeNode<IFileBundle> fileNode) {
-    var modelFileBundle = fileNode.File as IModelFileBundle;
-    var model = modelFileBundle != null
-                    ? this.LoadModel_(modelFileBundle)
-                    : null;
+    switch (fileNode.File) {
+      case IModelFileBundle modelFileBundle: {
+        this.SelectModel_(fileNode, modelFileBundle);
+        break;
+      }
+      case IAudioFileBundle audioFileBundle: {
+        this.SelectAudio_(fileNode, audioFileBundle);
+        break;
+      }
+    }
+  }
+
+  private void SelectModel_(IFileTreeNode<IFileBundle> fileNode,
+                            IModelFileBundle modelFileBundle) {
+    var model = new GlobalModelLoader().LoadModel(modelFileBundle);
 
     this.modelToolStrip_.DirectoryNode = fileNode.Parent;
     this.modelToolStrip_.FileNodeAndModel = (fileNode, model);
     this.modelViewerGlPanel_.Model = model;
     this.modelTabs_.Model = model;
 
-    if (modelFileBundle != null) {
+    if (Config.Instance.AutomaticallyPlayGameAudioForModel) {
       var gameDirectory = fileNode.Parent;
       while (gameDirectory?.Parent?.Parent != null) {
         gameDirectory = gameDirectory.Parent;
@@ -75,11 +86,10 @@ public partial class UniversalModelExtractorForm : Form {
     }
   }
 
-  private IModel LoadModel_(IModelFileBundle modelFileBundle) {
-    return new GlobalModelLoader().LoadModel(modelFileBundle);
+  private void SelectAudio_(IFileTreeNode<IFileBundle> fileNode,
+                            IAudioFileBundle audioFileBundle) {
+    this.audioPlayerGlPanel_.AudioFileBundles = new[] {audioFileBundle};
   }
-
-  private void modelViewerGlPanel__Load(object sender, EventArgs e) { }
 
   private void gitHubToolStripMenuItem_Click(object sender, EventArgs e) {
     Process.Start("explorer",

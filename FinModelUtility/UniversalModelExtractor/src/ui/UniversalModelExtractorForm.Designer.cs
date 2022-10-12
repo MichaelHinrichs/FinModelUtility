@@ -138,7 +138,6 @@ namespace uni.ui {
       this.modelViewerGlPanel_.Name = "modelViewerGlPanel_";
       this.modelViewerGlPanel_.Size = new System.Drawing.Size(573, 454);
       this.modelViewerGlPanel_.TabIndex = 0;
-      this.modelViewerGlPanel_.Load += new System.EventHandler(this.modelViewerGlPanel__Load);
       // 
       // audioPlayerGlPanel_
       // 

@@ -2,6 +2,7 @@
 using fin.audio;
 using fin.data;
 using fin.gl;
+using fin.util.time;
 using OpenTK.Graphics.OpenGL;
 using uni.ui.gl;
 
@@ -13,11 +14,48 @@ namespace uni.ui.common {
     private IReadOnlyList<IAudioFileBundle>? audioFileBundles_;
     private ShuffledListView<IAudioFileBundle>? shuffledListView_;
     private readonly IAudioManager<short> audioManager_ = new AlAudioManager();
-    private IActiveSound<short>? activeSound_;
+    private readonly IAudioSource<short> audioSource_;
 
     private readonly WaveformRenderer waveformRenderer_ = new();
 
+    private readonly TimedCallback playNextCallback_;
+
     private GlShaderProgram texturelessShaderProgram_;
+
+    public AudioPlayerGlPanel() {
+      this.audioSource_ = this.audioManager_.CreateAudioSource();
+
+      var playNextLock = new object();
+      this.playNextCallback_ = new TimedCallback(() => {
+        lock (playNextLock) {
+          if (this.shuffledListView_ == null) {
+            return;
+          }
+
+          var activeSound = this.waveformRenderer_.ActiveSound;
+          if (activeSound?.State == SoundState.PLAYING) {
+            return;
+          }
+
+          this.waveformRenderer_.ActiveSound = null;
+          activeSound?.Stop();
+          activeSound?.Dispose();
+
+          if (this.shuffledListView_.TryGetNext(out var audioFileBundle)) {
+            var audioBuffer =
+                new GlobalAudioLoader().LoadAudio(this.audioManager_,
+                                                  audioFileBundle);
+            var audioStream =
+                this.audioManager_.CreateBufferAudioStream(audioBuffer);
+
+            activeSound = this.waveformRenderer_.ActiveSound =
+                              this.audioSource_.Create(audioStream);
+            activeSound.Volume = .1f;
+            activeSound.Play();
+          }
+        }
+      }, .1f);
+    }
 
     /// <summary>
     ///   Sets the audio file bundles to play in the player.
@@ -27,35 +65,13 @@ namespace uni.ui.common {
       set {
         this.audioFileBundles_ = value;
 
+        this.waveformRenderer_.ActiveSound?.Stop();
+        this.waveformRenderer_.ActiveSound = null;
+
         this.shuffledListView_
             = value != null
                   ? new ShuffledListView<IAudioFileBundle>(value)
                   : null;
-        this.PlayNext_();
-      }
-    }
-
-    private void PlayNext_() {
-      this.activeSound_?.Stop();
-
-      if (this.shuffledListView_ == null) {
-        this.waveformRenderer_.ActiveSound = this.activeSound_ = null;
-        return;
-      }
-
-      if (this.shuffledListView_.TryGetNext(out var audioFileBundle)) {
-        var audioBuffer =
-            new GlobalAudioLoader().LoadAudio(this.audioManager_,
-                                              audioFileBundle);
-        var audioStream =
-            this.audioManager_.CreateBufferAudioStream(audioBuffer);
-
-        this.activeSound_ = this.audioManager_.CreateAudioSource()
-                                .Play(audioStream);
-
-        // TODO: Automatically play the next sound once the current one has ended.
-
-        this.waveformRenderer_.ActiveSound = this.activeSound_;
       }
     }
 
