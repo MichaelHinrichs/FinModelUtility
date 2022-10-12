@@ -83,6 +83,9 @@
     <Compile Update="src\ui\common\FileTreeView.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="src\ui\common\AudioPlayerGlPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="src\ui\common\TransparentTrackBar.cs">
       <SubType>Component</SubType>
     </Compile>

@@ -7,8 +7,8 @@ namespace uni.ui.gl {
     public IActiveSound<short>? ActiveSound { get; set; }
 
     public int Width { get; set; }
-    public int MiddleY { get; set; }
-    public int Amplitude { get; set; }
+    public float MiddleY { get; set; }
+    public float Amplitude { get; set; }
 
     public void Render() {
       if (ActiveSound == null) {
