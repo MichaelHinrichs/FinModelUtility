@@ -4,24 +4,17 @@ using fin.io;
 using fin.io.bundles;
 using fin.log;
 using fin.model;
+using uni.config;
 using uni.msg;
-using uni.platforms;
 
 
 namespace uni.games {
-  public class Config {
-    public bool IncludeFbx { get; set; }
-  }
-
   public static class ExtractorUtil {
     static ExtractorUtil() {
       ExtractorUtil.logger_ = Logging.Create("extractor");
-      ExtractorUtil.config_ =
-          DirectoryConstants.CONFIG_FILE.Deserialize<Config>();
     }
 
     private static readonly ILogger logger_;
-    private static readonly Config config_;
 
     public static void ExtractAll<T>(
         IFileBundleGatherer<T> gatherer,
@@ -100,7 +93,7 @@ namespace uni.games {
       try {
         var model = loaderHandler();
 
-        var includeFbx = ExtractorUtil.config_.IncludeFbx;
+        var includeFbx = Config.Instance.IncludeFbx;
         if (includeFbx) {
           new AssimpIndirectExporter().Export(
               new FinFile(Path.Join(outputDirectory.FullName,

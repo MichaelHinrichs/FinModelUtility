@@ -1,3 +1,4 @@
 {
-  "IncludeFbx": true
+  "IncludeFbx": true,
+  "AutomaticallyPlayGameAudioForModel": false
 }
