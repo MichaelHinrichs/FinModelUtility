@@ -48,16 +48,13 @@ namespace uni.ui.gl {
         points[i] = floatSample;
       }
 
-      var waveformAmplitude = 32;
-      var waveformMiddleY = MiddleY - waveformAmplitude;
-
       GL.Color3(1f, 0, 0);
       GL.LineWidth(1);
 
       GL.Begin(PrimitiveType.LineStrip);
       for (var i = 0; i < pointCount; ++i) {
         var x = i * pointsPerX;
-        var y = waveformMiddleY + waveformAmplitude * points[i];
+        var y = this.MiddleY + this.Amplitude * points[i];
         GL.Vertex2(x, y);
       }
       GL.End();
