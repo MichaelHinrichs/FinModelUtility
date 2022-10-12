@@ -158,6 +158,19 @@ namespace fin.audio.impl.al {
       public short GetPcm(AudioChannelType channelType)
         => this.Stream.GetPcm(channelType, this.SampleOffset);
 
+      public float Volume {
+        get {
+          this.AssertNotDisposed_();
+
+          AL.GetSource(this.alSourceId_, ALSourcef.Gain, out var gain);
+          return gain;
+        }
+        set {
+          this.AssertNotDisposed_();
+          AL.Source(this.alSourceId_, ALSourcef.Gain, value);
+        }
+      }
+
       public bool Looping {
         get {
           this.AssertNotDisposed_();

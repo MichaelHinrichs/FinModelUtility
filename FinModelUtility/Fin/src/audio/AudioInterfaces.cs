@@ -130,6 +130,7 @@ namespace fin.audio {
     int SampleOffset { get; set; }
     TNumber GetPcm(AudioChannelType channelType);
 
+    float Volume { get; set; }
     bool Looping { get; set; }
   }
 }
