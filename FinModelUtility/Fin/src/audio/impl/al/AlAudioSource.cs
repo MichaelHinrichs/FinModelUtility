@@ -1,7 +1,6 @@
 ﻿using fin.util.asserts;
 using OpenTK.Audio.OpenAL;
 using System;
-using System.Diagnostics;
 
 
 namespace fin.audio.impl.al {
@@ -35,6 +34,7 @@ namespace fin.audio.impl.al {
     }
 
     private class AlActiveSound : IActiveSound<short> {
+      private bool isDisposed_;
       private uint alBufferId_;
       private uint alSourceId_;
 
@@ -77,8 +77,8 @@ namespace fin.audio.impl.al {
         Buffer.BlockCopy(shortBufferData, 0, byteBufferData, 0,
                          byteCount);
 
-        AL.BufferData((int) this.alBufferId_, 
-                      bufferFormat, 
+        AL.BufferData((int)this.alBufferId_,
+                      bufferFormat,
                       byteBufferData,
                       byteCount,
                       stream.Frequency);
@@ -97,7 +97,7 @@ namespace fin.audio.impl.al {
       }
 
       private void ReleaseUnmanagedResources_() {
-        this.State = SoundState.DISPOSED;
+        this.isDisposed_ = true;
         AL.DeleteBuffer(ref this.alBufferId_);
         AL.DeleteSource(ref this.alSourceId_);
       }
@@ -113,26 +113,29 @@ namespace fin.audio.impl.al {
       public int Frequency => this.Stream.Frequency;
       public int SampleCount => this.Stream.SampleCount;
 
-      public SoundState State { get; private set; }
+      public SoundState State
+        => this.isDisposed_
+               ? SoundState.DISPOSED
+               : AL.GetSourceState(this.alSourceId_) switch {
+                   ALSourceState.Initial => SoundState.STOPPED,
+                   ALSourceState.Playing => SoundState.PLAYING,
+                   ALSourceState.Paused => SoundState.PAUSED,
+                   ALSourceState.Stopped => SoundState.STOPPED,
+                   _ => throw new ArgumentOutOfRangeException()
+               };
 
       public void Play() {
         this.AssertNotDisposed_();
-
-        this.State = SoundState.PLAYING;
         AL.SourcePlay(this.alSourceId_);
       }
 
       public void Stop() {
         this.AssertNotDisposed_();
-
-        this.State = SoundState.STOPPED;
         AL.SourceStop(this.alSourceId_);
       }
 
       public void Pause() {
         this.AssertNotDisposed_();
-
-        this.State = SoundState.PAUSED;
         AL.SourcePause(this.alSourceId_);
       }
 
