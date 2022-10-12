@@ -1,17 +1,17 @@
-﻿using bmd.exporter;
-
+﻿using ast.api;
+using bmd.exporter;
+using dat.schema;
 using fin.io;
 using fin.io.bundles;
 using fin.util.asserts;
-
 using uni.platforms;
 using uni.platforms.gcn;
 
 
 namespace uni.games.mario_kart_double_dash {
-  public class MarioKartDoubleDashFileGatherer 
-      : IFileBundleGatherer<BmdModelFileBundle> {
-    public IFileBundleDirectory<BmdModelFileBundle>? GatherFileBundles(
+  public class MarioKartDoubleDashFileGatherer
+      : IFileBundleGatherer<IFileBundle> {
+    public IFileBundleDirectory<IFileBundle>? GatherFileBundles(
         bool assert) {
       var marioKartDoubleDashRom =
           DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
@@ -27,11 +27,12 @@ namespace uni.games.mario_kart_double_dash {
               .ExtractFromRom(options, marioKartDoubleDashRom);
 
       var rootModelDirectory =
-          new FileBundleDirectory<BmdModelFileBundle>("mario_kart_double_dash");
+          new FileBundleDirectory<IFileBundle>("mario_kart_double_dash");
 
       this.ExtractDrivers_(rootModelDirectory, fileHierarchy);
       this.ExtractKarts_(rootModelDirectory, fileHierarchy);
       this.ExtractCourses_(rootModelDirectory, fileHierarchy);
+      this.ExtractAudio_(rootModelDirectory, fileHierarchy);
       // TODO: Extract "enemies"
       // TODO: Extract "objects"
 
@@ -39,7 +40,7 @@ namespace uni.games.mario_kart_double_dash {
     }
 
     private void ExtractKarts_(
-        FileBundleDirectory<BmdModelFileBundle> rootModelDirectory,
+        FileBundleDirectory<IFileBundle> rootModelDirectory,
         IFileHierarchy fileHierarchy) {
       var kartSubdir = fileHierarchy.Root.TryToGetSubdir(@"MRAM\kart");
       var kartNode = rootModelDirectory.AddSubdir("kart");
@@ -52,7 +53,7 @@ namespace uni.games.mario_kart_double_dash {
     }
 
     private void ExtractDrivers_(
-        FileBundleDirectory<BmdModelFileBundle> rootModelDirectory,
+        FileBundleDirectory<IFileBundle> rootModelDirectory,
         IFileHierarchy fileHierarchy) {
       var mramSubdir = fileHierarchy.Root.TryToGetSubdir(@"MRAM\driver");
       var driverNode = rootModelDirectory.AddSubdir("driver");
@@ -135,14 +136,8 @@ namespace uni.games.mario_kart_double_dash {
 
       {
         var standaloneNames = new[] {
-            "bosspakkun",
-            "dk",
-            "dkjr",
-            "kingteresa",
-            "koopa",
-            "koopajr",
-            "waluigi",
-            "wario",
+            "bosspakkun", "dk", "dkjr", "kingteresa", "koopa", "koopajr",
+            "waluigi", "wario",
         };
         var standaloneSubdirs =
             mramSubdir.Subdirs.Where(
@@ -156,7 +151,7 @@ namespace uni.games.mario_kart_double_dash {
     }
 
     private void ExtractFromDriverDirectory_(
-        IFileBundleDirectory<BmdModelFileBundle> node,
+        IFileBundleDirectory<IFileBundle> node,
         IFileHierarchyDirectory directory) {
       var bmdFiles = directory.FilesWithExtension(".bmd")
                               .ToArray();
@@ -188,7 +183,7 @@ namespace uni.games.mario_kart_double_dash {
     }
 
     private void ExtractFromSeparateDriverDirectories_(
-        IFileBundleDirectory<BmdModelFileBundle> node,
+        IFileBundleDirectory<IFileBundle> node,
         IFileHierarchyDirectory directory,
         IFileHierarchyDirectory common) {
       Asserts.Nonnull(common);
@@ -206,7 +201,7 @@ namespace uni.games.mario_kart_double_dash {
     }
 
     private void ExtractCourses_(
-        FileBundleDirectory<BmdModelFileBundle> rootModelDirectory,
+        FileBundleDirectory<IFileBundle> rootModelDirectory,
         IFileHierarchy fileHierarchy) {
       var courseSubdir = fileHierarchy.Root.TryToGetSubdir("Course");
       var coursesNode = rootModelDirectory.AddSubdir("Course");
@@ -234,8 +229,18 @@ namespace uni.games.mario_kart_double_dash {
       }
     }
 
+    private void ExtractAudio_(
+        IFileBundleDirectory<IFileBundle> parentNode,
+        IFileHierarchy fileHierarchy) {
+      var astDirectory = fileHierarchy.Root.TryToGetSubdir(@"AudioRes\Stream");
+
+      foreach (var astFile in astDirectory.FilesWithExtension(".ast")) {
+        parentNode.AddFileBundleRelative(new AstAudioFileBundle(astFile));
+      }
+    }
+
     private void ExtractModelsAndAnimationsFromSceneObject_(
-        IFileBundleDirectory<BmdModelFileBundle> node,
+        IFileBundleDirectory<IFileBundle> node,
         IFileHierarchyDirectory directory) {
       var bmdFiles = directory.Files.Where(
                                   file => file.Extension == ".bmd")
@@ -254,9 +259,7 @@ namespace uni.games.mario_kart_double_dash {
       if (bmdFiles.Length == 1 || allBcxFiles.Length == 0) {
         foreach (var bmdFile in bmdFiles) {
           this.ExtractModels_(node,
-                              new[] {
-                                  bmdFile
-                              },
+                              new[] {bmdFile},
                               allBcxFiles,
                               btiFiles);
         }
@@ -264,7 +267,8 @@ namespace uni.games.mario_kart_double_dash {
       }
 
       var unclaimedBcxFiles = allBcxFiles.ToHashSet();
-      var bmdAndBcxFiles = new Dictionary<IFileHierarchyFile, IFileHierarchyFile[]>();
+      var bmdAndBcxFiles =
+          new Dictionary<IFileHierarchyFile, IFileHierarchyFile[]>();
       foreach (var bmdFile in bmdFiles) {
         var prefix = bmdFile.Name;
         prefix = prefix.Substring(0, prefix.Length - ".bmd".Length);
@@ -301,7 +305,7 @@ namespace uni.games.mario_kart_double_dash {
     }
 
     private void ExtractModels_(
-        IFileBundleDirectory<BmdModelFileBundle> node,
+        IFileBundleDirectory<IFileBundle> node,
         IReadOnlyList<IFileHierarchyFile> bmdFiles,
         IReadOnlyList<IFileHierarchyFile>? bcxFiles = null,
         IReadOnlyList<IFileHierarchyFile>? btiFiles = null
