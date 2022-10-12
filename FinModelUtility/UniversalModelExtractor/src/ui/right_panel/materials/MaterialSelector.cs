@@ -4,7 +4,7 @@ using fin.util.lists;
 
 namespace uni.ui.right_panel.materials {
   public partial class MaterialSelector : UserControl {
-    private IReadOnlyList<IMaterial> materials_ = Array.Empty<IMaterial>();
+    private IReadOnlyList<IMaterial>? materials_;
     private IMaterial? selectedMaterial_ = null;
 
     public MaterialSelector() {
@@ -14,14 +14,18 @@ namespace uni.ui.right_panel.materials {
         var selectedIndex = this.comboBox_.SelectedIndex;
         this.SelectedMaterial = selectedIndex == -1
                                     ? null
-                                    : this.materials_[selectedIndex];
+                                    : this.materials_?[selectedIndex];
       };
     }
 
-    public IReadOnlyList<IMaterial> Materials {
+    public IReadOnlyList<IMaterial>? Materials {
       get => this.materials_;
       set {
         this.materials_ = value;
+
+        if (this.materials_ == null) {
+          return;
+        }
 
         var comboBoxItems = this.comboBox_.Items;
         comboBoxItems.Clear();
@@ -38,7 +42,7 @@ namespace uni.ui.right_panel.materials {
     public IMaterial? SelectedMaterial {
       get => this.selectedMaterial_;
       set {
-        if (this.selectedMaterial_ == value) {
+        if (this.selectedMaterial_ == value || this.materials_ == null) {
           return;
         }
 

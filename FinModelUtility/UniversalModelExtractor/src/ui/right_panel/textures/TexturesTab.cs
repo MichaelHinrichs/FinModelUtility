@@ -10,8 +10,9 @@ namespace uni.ui.right_panel.textures {
           += texture => this.texturePanel_.Texture = texture;
     }
 
-    public IModel Model {
-      set => this.textureSelectorBox_.Textures = value.MaterialManager.Textures;
+    public IModel? Model {
+      set => this.textureSelectorBox_.Textures =
+                 value?.MaterialManager.Textures;
     }
   }
 }

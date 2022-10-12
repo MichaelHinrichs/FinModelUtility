@@ -1,19 +1,15 @@
-﻿using bmd.exporter;
-
+﻿using ast.api;
+using bmd.exporter;
 using fin.io;
 using fin.io.bundles;
-using fin.log;
 using fin.util.asserts;
-
 using uni.platforms;
 using uni.platforms.gcn;
 
 
 namespace uni.games.pikmin_2 {
-  public class Pikmin2FileGatherer : IFileBundleGatherer<BmdModelFileBundle> {
-    private readonly ILogger logger_ = Logging.Create<Pikmin2Extractor>();
-
-    public IFileBundleDirectory<BmdModelFileBundle>? GatherFileBundles(
+  public class Pikmin2FileGatherer : IFileBundleGatherer<IFileBundle> {
+    public IFileBundleDirectory<IFileBundle>? GatherFileBundles(
         bool assert) {
       var pikmin2Rom =
           DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
@@ -29,13 +25,14 @@ namespace uni.games.pikmin_2 {
               options,
               pikmin2Rom);
 
-      var rootNode = new FileBundleDirectory<BmdModelFileBundle>("pikmin_2");
+      var rootNode = new FileBundleDirectory<IFileBundle>("pikmin_2");
 
       this.ExtractPikminAndCaptainModels_(rootNode, fileHierarchy);
       this.ExtractAllFromSeparateDirectories_(rootNode, fileHierarchy);
       this.ExtractAllFromMergedDirectories_(rootNode, fileHierarchy);
       this.ExtractLeafBudFlower_(rootNode, fileHierarchy);
       this.ExtractAllTreasures_(rootNode, fileHierarchy);
+      this.ExtractAudio_(rootNode, fileHierarchy);
 
       return rootNode;
     }
@@ -44,7 +41,7 @@ namespace uni.games.pikmin_2 {
     ///   Gets from separate model/animation szs (e.g. Enemies)
     /// </summary>
     private void ExtractAllFromSeparateDirectories_(
-        IFileBundleDirectory<BmdModelFileBundle> parentNode,
+        IFileBundleDirectory<IFileBundle> parentNode,
         IFileHierarchy fileHierarchy) {
       foreach (var subdir in fileHierarchy) {
         var modelSubdir =
@@ -67,7 +64,7 @@ namespace uni.games.pikmin_2 {
     ///   Gets from model/animations in same szs (e.g. user\Kando)
     /// </summary>
     private void ExtractAllFromMergedDirectories_(
-        IFileBundleDirectory<BmdModelFileBundle> parentNode,
+        IFileBundleDirectory<IFileBundle> parentNode,
         IFileHierarchy fileHierarchy) {
       foreach (var subdir in fileHierarchy) {
         var arcSubdir =
@@ -82,7 +79,7 @@ namespace uni.games.pikmin_2 {
     }
 
     private void ExtractPikminAndCaptainModels_(
-        IFileBundleDirectory<BmdModelFileBundle> parentNode,
+        IFileBundleDirectory<IFileBundle> parentNode,
         IFileHierarchy fileHierarchy) {
       var pikminAndCaptainBaseDirectory =
           fileHierarchy.Root.TryToGetSubdir(
@@ -106,7 +103,7 @@ namespace uni.games.pikmin_2 {
     }
 
     private void ExtractAllTreasures_(
-        IFileBundleDirectory<BmdModelFileBundle> parentNode,
+        IFileBundleDirectory<IFileBundle> parentNode,
         IFileHierarchy fileHierarchy) {
       var treasureBaseDirectory =
           fileHierarchy.Root.TryToGetSubdir(@"user\Abe\Pellet");
@@ -133,8 +130,18 @@ namespace uni.games.pikmin_2 {
       }
     }
 
+    private void ExtractAudio_(
+        IFileBundleDirectory<IFileBundle> parentNode,
+        IFileHierarchy fileHierarchy) {
+      var astDirectory = fileHierarchy.Root.TryToGetSubdir(@"AudioRes\Stream");
+
+      foreach (var astFile in astDirectory.FilesWithExtension(".ast")) {
+        parentNode.AddFileBundleRelative(new AstAudioFileBundle(astFile));
+      }
+    }
+
     private void ExtractLeafBudFlower_(
-        IFileBundleDirectory<BmdModelFileBundle> parentNode,
+        IFileBundleDirectory<IFileBundle> parentNode,
         IFileHierarchy fileHierarchy) {
       var leafBudFlowerDirectory =
           fileHierarchy.Root.TryToGetSubdir(
@@ -144,7 +151,7 @@ namespace uni.games.pikmin_2 {
     }
 
     private void ExtractModelsInDirectoryAutomatically_(
-        IFileBundleDirectory<BmdModelFileBundle> parentNode,
+        IFileBundleDirectory<IFileBundle> parentNode,
         IFileHierarchyDirectory directory) {
       var bmdFiles = directory.FilesWithExtension(".bmd").ToArray();
       if (bmdFiles.Length > 0) {
@@ -156,7 +163,7 @@ namespace uni.games.pikmin_2 {
     }
 
     private void ExtractModels_(
-        IFileBundleDirectory<BmdModelFileBundle> parentNode,
+        IFileBundleDirectory<IFileBundle> parentNode,
         IReadOnlyList<IFileHierarchyFile> bmdFiles,
         IReadOnlyList<IFileHierarchyFile>? bcxFiles = null,
         IReadOnlyList<IFileHierarchyFile>? btiFiles = null
@@ -166,9 +173,7 @@ namespace uni.games.pikmin_2 {
       foreach (var bmdFile in bmdFiles) {
         parentNode.AddFileBundle(
             new BmdModelFileBundle {
-                BmdFile = bmdFile,
-                BcxFiles = bcxFiles,
-                BtiFiles = btiFiles,
+                BmdFile = bmdFile, BcxFiles = bcxFiles, BtiFiles = btiFiles,
             });
       }
     }

@@ -4,7 +4,6 @@ using fin.io;
 using fin.io.bundles;
 using fin.log;
 using fin.model;
-
 using uni.msg;
 using uni.platforms;
 
@@ -28,12 +27,12 @@ namespace uni.games {
         IFileBundleGatherer<T> gatherer,
         IModelLoader<T> loader)
         where T : IModelFileBundle {
-      var modelFileBundles = new List<T>();
+      var fileBundles = new List<T>();
 
       var root = gatherer.GatherFileBundles(true);
-      root.ForEachTyped(modelFileBundles.Add);
+      root.ForEachTyped(fileBundles.Add);
 
-      ExtractorUtil.ExtractAll(modelFileBundles, loader);
+      ExtractorUtil.ExtractAll(fileBundles, loader);
     }
 
     public static void ExtractAll<T>(
@@ -42,6 +41,29 @@ namespace uni.games {
         where T : IModelFileBundle {
       foreach (var modelFileBundle in modelFileBundles) {
         ExtractorUtil.Extract(modelFileBundle, loader);
+      }
+    }
+
+    public static void ExtractAll<T>(
+        IFileBundleGatherer<IFileBundle> gatherer,
+        IModelLoader<T> loader)
+        where T : IModelFileBundle {
+      var fileBundles = new List<IFileBundle>();
+
+      var root = gatherer.GatherFileBundles(true);
+      root.ForEachTyped(fileBundles.Add);
+
+      ExtractorUtil.ExtractAll(fileBundles, loader);
+    }
+
+    public static void ExtractAll<T>(
+        IEnumerable<IFileBundle> fileBundles,
+        IModelLoader<T> loader)
+        where T : IModelFileBundle {
+      foreach (var fileBundle in fileBundles) {
+        if (fileBundle is T modelFileBundle) {
+          ExtractorUtil.Extract(modelFileBundle, loader);
+        }
       }
     }
 

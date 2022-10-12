@@ -4,27 +4,31 @@ using fin.util.lists;
 
 namespace uni.ui.right_panel.textures {
   public partial class TextureSelectorBox : UserControl {
-    private IReadOnlyList<ITexture> textures_;
+    private IReadOnlyList<ITexture>? textures_;
     private ITexture? selectedTexture_;
 
     public TextureSelectorBox() {
       InitializeComponent();
 
       this.listView_.ItemSelectionChanged += (_, e) => {
-        this.SelectedTexture = this.textures_[e.ItemIndex];
+        this.SelectedTexture = this.textures_?[e.ItemIndex];
       };
     }
 
-    public IReadOnlyList<ITexture> Textures {
+    public IReadOnlyList<ITexture>? Textures {
       set {
         this.listView_.Clear();
 
         var imageList = this.listView_.SmallImageList = new ImageList();
 
         this.textures_ =
-            value.ToHashSet(new TextureEqualityComparer())
+            value?.ToHashSet(new TextureEqualityComparer())
                  .OrderBy(texture => texture.Name)
                  .ToList();
+
+        if (this.textures_ == null) {
+          return;
+        }
 
         foreach (var texture in this.textures_) {
           this.listView_.Items.Add(texture.Name, imageList.Images.Count);

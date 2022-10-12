@@ -1,7 +1,6 @@
 ﻿using fin.data.queue;
 using fin.io.bundles;
 using fin.model;
-using fin.util.asserts;
 using uni.games;
 using uni.ui;
 using uni.ui.common;
@@ -26,8 +25,7 @@ namespace uni.src.ui.top {
         if (hasDirectory) {
           var subdirQueue = new FinQueue<IFileTreeNode<IFileBundle>>(value!);
           while (subdirQueue.TryDequeue(out var subdirNode)) {
-            var modelFileBundle = subdirNode.File;
-            if (modelFileBundle != null) {
+            if (subdirNode.File is IModelFileBundle) {
               ++modelCount;
             } else {
               subdirQueue.Enqueue(subdirNode.Children);
