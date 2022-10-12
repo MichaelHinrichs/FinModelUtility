@@ -1,5 +1,6 @@
 ﻿using fin.gl;
 using fin.util.time;
+using OpenTK.Graphics.OpenGL;
 
 
 namespace uni.ui.common {
@@ -12,6 +13,7 @@ namespace uni.ui.common {
 
       if (!DesignModeUtil.InDesignMode) {
         GlUtil.Init();
+        this.impl_.Context.ErrorChecking = true;
         this.impl_.CreateGraphics();
         this.impl_.MakeCurrent();
 
@@ -34,11 +36,18 @@ namespace uni.ui.common {
     protected override void OnPaint(PaintEventArgs pe) {
       base.OnPaint(pe);
       if (!DesignModeUtil.InDesignMode) {
-        this.impl_.MakeCurrent();
+        // TODO: This may not actually be needed? The concern is whether or not
+        // makeCurrent is potentially a race condition
+        GlUtil.RunLockedGl(() => {
+          this.impl_.MakeCurrent();
 
-        this.RenderGl();
-        this.impl_.SwapBuffers();
-        //this.impl_.Invalidate();
+          this.RenderGl();
+
+          GL.Flush();
+          this.impl_.SwapBuffers();
+
+          this.impl_.Context.MakeCurrent(null);
+        });
       }
     }
   }

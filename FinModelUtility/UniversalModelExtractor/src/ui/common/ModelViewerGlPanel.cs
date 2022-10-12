@@ -1,26 +1,18 @@
-﻿using System.Diagnostics;
-
-using fin.animation.playback;
-using fin.color;
+﻿using fin.animation.playback;
 using fin.gl;
 using fin.math;
 using fin.model;
 using fin.model.util;
 using fin.util.optional;
 using OpenTK.Graphics.OpenGL;
-
 using uni.ui.gl;
-
-using PrimitiveType = fin.model.PrimitiveType;
-using GlPrimitiveType = OpenTK.Graphics.OpenGL.PrimitiveType;
 
 
 namespace uni.ui.common {
-  public partial class ModelViewerGlPanel : BGlPanel {
+  public class ModelViewerGlPanel : BGlPanel {
     private readonly Camera camera_ = new();
     private float fovY_ = 30;
 
-    private readonly Stopwatch stopwatch_ = Stopwatch.StartNew();
     private readonly Color backgroundColor_ = Color.FromArgb(51, 128, 179);
 
     private GlShaderProgram texturedShaderProgram_;
@@ -106,18 +98,18 @@ namespace uni.ui.common {
     private bool isRightwardDown_ = false;
 
     public ModelViewerGlPanel() {
-      this.impl_.MouseDown += (sender, args) => {
+      this.impl_.MouseDown += (_, args) => {
         if (args.Button == MouseButtons.Left) {
           isMouseDown_ = true;
           this.prevMousePosition_ = null;
         }
       };
-      this.impl_.MouseUp += (sender, args) => {
+      this.impl_.MouseUp += (_, args) => {
         if (args.Button == MouseButtons.Left) {
           isMouseDown_ = false;
         }
       };
-      this.impl_.MouseMove += (sender, args) => {
+      this.impl_.MouseMove += (_, args) => {
         if (this.isMouseDown_) {
           var mouseLocation = (args.X, args.Y);
 
@@ -144,45 +136,45 @@ namespace uni.ui.common {
         }
       };
 
-      this.impl_.KeyDown += (sender, args) => {
+      this.impl_.KeyDown += (_, args) => {
         switch (args.KeyCode) {
           case Keys.W: {
-              this.isForwardDown_ = true;
-              break;
-            }
+            this.isForwardDown_ = true;
+            break;
+          }
           case Keys.S: {
-              this.isBackwardDown_ = true;
-              break;
-            }
+            this.isBackwardDown_ = true;
+            break;
+          }
           case Keys.A: {
-              this.isLeftwardDown_ = true;
-              break;
-            }
+            this.isLeftwardDown_ = true;
+            break;
+          }
           case Keys.D: {
-              this.isRightwardDown_ = true;
-              break;
-            }
+            this.isRightwardDown_ = true;
+            break;
+          }
         }
       };
 
-      this.impl_.KeyUp += (sender, args) => {
+      this.impl_.KeyUp += (_, args) => {
         switch (args.KeyCode) {
           case Keys.W: {
-              this.isForwardDown_ = false;
-              break;
-            }
+            this.isForwardDown_ = false;
+            break;
+          }
           case Keys.S: {
-              this.isBackwardDown_ = false;
-              break;
-            }
+            this.isBackwardDown_ = false;
+            break;
+          }
           case Keys.A: {
-              this.isLeftwardDown_ = false;
-              break;
-            }
+            this.isLeftwardDown_ = false;
+            break;
+          }
           case Keys.D: {
-              this.isRightwardDown_ = false;
-              break;
-            }
+            this.isRightwardDown_ = false;
+            break;
+          }
         }
       };
     }
@@ -308,9 +300,6 @@ void main() {
       GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
       this.RenderPerspective_();
-      //this.RenderOrtho_();
-
-      GL.Flush();
     }
 
     private void RenderPerspective_() {
@@ -364,7 +353,9 @@ void main() {
         hiddenMeshes?.Clear();
         var defaultDisplayState = Optional.Of(MeshDisplayState.VISIBLE);
         foreach (var (mesh, meshTracks) in this.Animation.MeshTracks) {
-          var displayState = meshTracks.DisplayStates.GetInterpolatedFrame(frame, defaultDisplayState);
+          var displayState =
+              meshTracks.DisplayStates.GetInterpolatedFrame(
+                  frame, defaultDisplayState);
           if (displayState.Assert() == MeshDisplayState.HIDDEN) {
             hiddenMeshes?.Add(mesh);
           }
@@ -384,42 +375,6 @@ void main() {
         this.texturelessShaderProgram_.Use();
         this.skeletonRenderer_?.Render();
       }
-    }
-
-    private void RenderOrtho_() {
-      var width = this.Width;
-      var height = this.Height;
-
-      {
-        GL.MatrixMode(MatrixMode.Projection);
-        GL.LoadIdentity();
-        GlUtil.Ortho2d(0, width, height, 0);
-
-        GL.MatrixMode(MatrixMode.Modelview);
-        GL.LoadIdentity();
-
-        GL.Translate(width / 2f, height / 2f, 0);
-      }
-
-      var size = MathF.Max(width, height) * MathF.Sqrt(2);
-
-      GL.Begin(GlPrimitiveType.Quads);
-
-      var t = this.stopwatch_.Elapsed.TotalSeconds;
-      var angle = t * 45;
-
-      var color = FinColor.FromHsv(angle, 1, 1);
-      GL.Color3(color.Rf, color.Gf, color.Bf);
-
-      GL.Vertex2(-size / 2, -size / 2);
-
-      GL.Vertex2(-size / 2, size / 2);
-
-      GL.Vertex2(size / 2, size / 2);
-
-      GL.Vertex2(size / 2, -size / 2);
-
-      GL.End();
     }
   }
 }

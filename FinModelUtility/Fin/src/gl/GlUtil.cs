@@ -22,6 +22,13 @@ namespace fin.gl {
       IsInitialized = true;
     }
 
+    private static readonly object GL_LOCK_ = new();
+    public static void RunLockedGl(Action handler) {
+      lock (GL_LOCK_) {
+        handler();
+      }
+    }
+
     public static void SetCulling(CullingMode cullingMode) {
       if (cullingMode == CullingMode.SHOW_BOTH) {
         GL.Disable(EnableCap.CullFace);

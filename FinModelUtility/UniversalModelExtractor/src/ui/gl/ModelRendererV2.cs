@@ -6,22 +6,34 @@ using fin.model;
 namespace uni.ui.gl {
   /// <summary>
   ///   A renderer for a Fin model.
+  ///
+  ///   NOTE: This will only be valid in the GL context this was first rendered in!
   /// </summary>
   public class ModelRendererV2 : IModelRenderer {
-    private readonly GlBufferManager bufferManager_;
+    // TODO: Require passing in a GL context in the constructor.
+
+    private GlBufferManager? bufferManager_;
     private readonly BoneTransformManager? boneTransformManager_;
 
     private readonly ListDictionary<IMesh, MaterialMeshRendererV2>
         materialMeshRenderers_ = new();
 
-    public ModelRendererV2(IModel model,
-                           BoneTransformManager? boneTransformManager = null) {
+    public ModelRendererV2(
+        IModel model,
+        BoneTransformManager? boneTransformManager = null) {
       this.Model = model;
       this.boneTransformManager_ = boneTransformManager;
+    }
 
-      this.bufferManager_ = new GlBufferManager(model);
+    // Generates buffer manager and model within the current GL context.
+    private void GenerateModelIfNull_() {
+      if (this.bufferManager_ != null) {
+        return;
+      }
 
-      foreach (var mesh in model.Skin.Meshes) {
+      this.bufferManager_ = new GlBufferManager(this.Model);
+
+      foreach (var mesh in this.Model.Skin.Meshes) {
         var primitivesByMaterial = new ListDictionary<IMaterial, IPrimitive>();
         foreach (var primitive in mesh.Primitives) {
           primitivesByMaterial.Add(primitive.Material, primitive);
@@ -81,6 +93,8 @@ namespace uni.ui.gl {
     }
 
     public void Render() {
+      this.GenerateModelIfNull_();
+
       if (!this.valid_) {
         this.bufferManager_.UpdateTransforms(this.boneTransformManager_);
         this.valid_ = true;
