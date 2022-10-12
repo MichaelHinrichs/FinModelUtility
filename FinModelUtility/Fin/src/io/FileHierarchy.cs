@@ -12,6 +12,7 @@ namespace fin.io {
   }
 
   public interface IFileHierarchyInstance {
+    IFileHierarchyDirectory Root { get; }
     IFileHierarchyDirectory? Parent { get; }
     bool Exists { get; }
 
@@ -66,9 +67,8 @@ namespace fin.io {
       var populatedSubdirs =
           new FileSystemPaths().ListAllPopulatedSubdirs(directory.FullName);
 
-      this.Root =
-          new FileHierarchyDirectory(null, directory, directory,
-                                     populatedSubdirs);
+      this.Root = new FileHierarchyDirectory(directory,
+                                             populatedSubdirs);
     }
 
     public IFileHierarchyDirectory Root { get; }
@@ -80,12 +80,40 @@ namespace fin.io {
       private List<IFileHierarchyFile> files_ = new();
 
       public FileHierarchyDirectory(
-          IFileHierarchyDirectory? parent,
+          IDirectory directory,
+          ISubdirPaths paths) {
+        this.Root = this;
+        this.baseDirectory_ = this.Impl = directory;
+        this.LocalPath = "";
+
+        this.Subdirs =
+            new ReadOnlyCollection<IFileHierarchyDirectory>(this.subdirs_);
+        this.Files =
+            new ReadOnlyCollection<IFileHierarchyFile>(this.files_);
+
+        foreach (var filePath in paths.AbsoluteFilePaths) {
+          this.files_.Add(
+              new FileHierarchyFile(this, this, new FinFile(filePath),
+                                    directory));
+        }
+
+        foreach (var subdir in paths.Subdirs) {
+          this.subdirs_.Add(
+              new FileHierarchyDirectory(
+                  this, this, new FinDirectory(subdir.AbsoluteSubdirPath),
+                  directory, subdir));
+        }
+      }
+
+      private FileHierarchyDirectory(
+          IFileHierarchyDirectory root,
+          IFileHierarchyDirectory parent,
           IDirectory directory,
           IDirectory baseDirectory,
           ISubdirPaths paths) {
         this.baseDirectory_ = baseDirectory;
 
+        this.Root = root;
         this.Parent = parent;
         this.Impl = directory;
         this.LocalPath =
@@ -98,24 +126,26 @@ namespace fin.io {
 
         foreach (var filePath in paths.AbsoluteFilePaths) {
           this.files_.Add(
-              new FileHierarchyFile(this, new FinFile(filePath),
+              new FileHierarchyFile(root, this, new FinFile(filePath),
                                     baseDirectory));
         }
 
         foreach (var subdir in paths.Subdirs) {
           this.subdirs_.Add(
               new FileHierarchyDirectory(
-                  this, new FinDirectory(subdir.AbsoluteSubdirPath),
+                  root, this, new FinDirectory(subdir.AbsoluteSubdirPath),
                   baseDirectory, subdir));
         }
       }
 
-      public FileHierarchyDirectory(
-          IFileHierarchyDirectory? parent,
+      private FileHierarchyDirectory(
+          IFileHierarchyDirectory root,
+          IFileHierarchyDirectory parent,
           IDirectory directory,
           IDirectory baseDirectory) {
         this.baseDirectory_ = baseDirectory;
 
+        this.Root = root;
         this.Parent = parent;
         this.Impl = directory;
         this.LocalPath =
@@ -129,6 +159,7 @@ namespace fin.io {
         this.Refresh();
       }
 
+      public IFileHierarchyDirectory Root { get; }
       public IFileHierarchyDirectory? Parent { get; }
 
       public IDirectory Impl { get; }
@@ -156,7 +187,7 @@ namespace fin.io {
         foreach (var actualSubdir in actualSubdirs) {
           if (this.subdirs_.All(subdir => !subdir.Impl.Equals(actualSubdir))) {
             this.subdirs_.Add(
-                new FileHierarchyDirectory(this, actualSubdir,
+                new FileHierarchyDirectory(this.Root, this, actualSubdir,
                                            this.baseDirectory_));
             didChange = true;
           }
@@ -169,7 +200,8 @@ namespace fin.io {
         foreach (var actualFile in actualFiles) {
           if (this.files_.All(file => !file.Impl.Equals(actualFile))) {
             this.files_.Add(
-                new FileHierarchyFile(this, actualFile, this.baseDirectory_));
+                new FileHierarchyFile(this.Root, this, actualFile,
+                                      this.baseDirectory_));
             didChange = true;
           }
         }
@@ -251,16 +283,19 @@ namespace fin.io {
     }
 
     private class FileHierarchyFile : IFileHierarchyFile {
-      public FileHierarchyFile(IFileHierarchyDirectory? parent,
+      public FileHierarchyFile(IFileHierarchyDirectory root,
+                               IFileHierarchyDirectory parent,
                                IFile? file,
                                IDirectory baseDirectory) {
+        this.Root = root;
         this.Parent = parent;
         this.Impl = file;
         this.LocalPath =
             file.FullName.Substring(baseDirectory.FullName.Length);
       }
 
-      public IFileHierarchyDirectory? Parent { get; }
+      public IFileHierarchyDirectory Root { get; }
+      public IFileHierarchyDirectory Parent { get; }
 
       public IFile Impl { get; }
 

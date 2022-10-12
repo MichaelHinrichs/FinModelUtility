@@ -1,4 +1,5 @@
 ﻿using uni.ui.common;
+using uni.ui.common.model;
 using uni.ui.right_panel;
 
 
@@ -33,7 +34,7 @@ namespace uni.ui {
       System.Windows.Forms.SplitContainer splitContainer3;
       this.fileBundleTreeView_ = new uni.ui.common.FileBundleTreeView();
       this.splitContainer4 = new System.Windows.Forms.SplitContainer();
-      this.modelViewerGlPanel_ = new uni.ui.common.ModelViewerGlPanel();
+      this.modelViewerPanel_ = new uni.ui.common.model.ModelViewerPanel();
       this.audioPlayerGlPanel_ = new uni.ui.common.AudioPlayerGlPanel();
       this.modelTabs_ = new uni.ui.right_panel.ModelTabs();
       this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -118,7 +119,7 @@ namespace uni.ui {
       // 
       // splitContainer4.Panel1
       // 
-      this.splitContainer4.Panel1.Controls.Add(this.modelViewerGlPanel_);
+      this.splitContainer4.Panel1.Controls.Add(this.modelViewerPanel_);
       // 
       // splitContainer4.Panel2
       // 
@@ -127,17 +128,16 @@ namespace uni.ui {
       this.splitContainer4.SplitterDistance = 454;
       this.splitContainer4.TabIndex = 0;
       // 
-      // modelViewerGlPanel_
+      // modelViewerPanel_
       // 
-      this.modelViewerGlPanel_.Animation = null;
-      this.modelViewerGlPanel_.AnimationPlaybackManager = null;
-      this.modelViewerGlPanel_.BackColor = System.Drawing.Color.Fuchsia;
-      this.modelViewerGlPanel_.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.modelViewerGlPanel_.Location = new System.Drawing.Point(0, 0);
-      this.modelViewerGlPanel_.Model = null;
-      this.modelViewerGlPanel_.Name = "modelViewerGlPanel_";
-      this.modelViewerGlPanel_.Size = new System.Drawing.Size(573, 454);
-      this.modelViewerGlPanel_.TabIndex = 0;
+      this.modelViewerPanel_.Animation = null;
+      this.modelViewerPanel_.AnimationPlaybackManager = null;
+      this.modelViewerPanel_.BackColor = System.Drawing.Color.Transparent;
+      this.modelViewerPanel_.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.modelViewerPanel_.Location = new System.Drawing.Point(0, 0);
+      this.modelViewerPanel_.Name = "modelViewerPanel_";
+      this.modelViewerPanel_.Size = new System.Drawing.Size(573, 454);
+      this.modelViewerPanel_.TabIndex = 0;
       // 
       // audioPlayerGlPanel_
       // 
@@ -255,7 +255,7 @@ namespace uni.ui {
 
     #endregion
 
-    private ModelViewerGlPanel modelViewerGlPanel_;
+    private ModelViewerPanel modelViewerPanel_;
     private MenuStrip menuStrip;
     private ToolStripMenuItem fileToolStripMenuItem;
     private ToolStripMenuItem helpToolStripMenuItem;

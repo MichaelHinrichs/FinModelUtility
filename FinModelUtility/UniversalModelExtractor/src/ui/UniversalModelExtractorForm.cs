@@ -16,10 +16,10 @@ public partial class UniversalModelExtractorForm : Form {
   public UniversalModelExtractorForm() {
     this.InitializeComponent();
 
-    this.modelViewerGlPanel_.AnimationPlaybackManager =
+    this.modelViewerPanel_.AnimationPlaybackManager =
         this.modelTabs_.AnimationPlaybackManager;
     this.modelTabs_.OnAnimationSelected += animation =>
-        this.modelViewerGlPanel_.Animation = animation;
+        this.modelViewerPanel_.Animation = animation;
   }
 
   private void UniversalModelExtractorForm_Load(object sender, EventArgs e) {
@@ -53,7 +53,7 @@ public partial class UniversalModelExtractorForm : Form {
 
     this.modelToolStrip_.DirectoryNode = fileNode.Parent;
     this.modelToolStrip_.FileNodeAndModel = (fileNode, model);
-    this.modelViewerGlPanel_.Model = model;
+    this.modelViewerPanel_.ModelAndFileBundle = (modelFileBundle, model);
     this.modelTabs_.Model = model;
 
     if (Config.Instance.AutomaticallyPlayGameAudioForModel) {

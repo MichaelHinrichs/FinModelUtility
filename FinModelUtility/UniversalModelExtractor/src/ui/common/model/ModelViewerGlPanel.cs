@@ -8,8 +8,8 @@ using OpenTK.Graphics.OpenGL;
 using uni.ui.gl;
 
 
-namespace uni.ui.common {
-  public class ModelViewerGlPanel : BGlPanel {
+namespace uni.ui.common.model {
+  public class ModelViewerGlPanel : BGlPanel, IModelViewerPanel {
     private readonly Camera camera_ = new();
     private float fovY_ = 30;
 
@@ -32,26 +32,34 @@ namespace uni.ui.common {
 
     private float scale_ = 1;
 
-    public IModel? Model {
-      get => this.modelRenderer_?.Model;
+    private IModelFileBundle? modelFileBundle_;
+
+    public (IModelFileBundle, IModel)? ModelAndFileBundle {
+      get {
+        var model = this.modelRenderer_?.Model;
+        return model != null ? (this.modelFileBundle_!, model) : null;
+      }
       set {
+        this.modelFileBundle_ = value?.Item1;
+        var model = value?.Item2;
+
         this.modelRenderer_?.Dispose();
         this.boneTransformManager_.Clear();
 
-        if (value != null) {
+        if (model != null) {
           this.modelRenderer_ =
-              new ModelRendererV2(value, this.boneTransformManager_);
+              new ModelRendererV2(model, this.boneTransformManager_);
           this.skeletonRenderer_ =
-              new SkeletonRenderer(value.Skeleton, this.boneTransformManager_);
+              new SkeletonRenderer(model.Skeleton, this.boneTransformManager_);
           this.boneTransformManager_.CalculateMatrices(
-              value.Skeleton.Root,
-              value.Skin.BoneWeights,
+              model.Skeleton.Root,
+              model.Skin.BoneWeights,
               null);
           this.scale_ = 1000 / ModelScaleCalculator.CalculateScale(
-                            value, this.boneTransformManager_);
+                            model, this.boneTransformManager_);
 
           hasNormals_ = false;
-          foreach (var vertex in value.Skin.Vertices) {
+          foreach (var vertex in model.Skin.Vertices) {
             if (vertex.LocalNormal != null) {
               hasNormals_ = true;
               break;
@@ -63,9 +71,11 @@ namespace uni.ui.common {
           this.scale_ = 1;
         }
 
-        this.Animation = value?.AnimationManager.Animations.FirstOrDefault();
+        this.Animation = model?.AnimationManager.Animations.FirstOrDefault();
       }
     }
+
+    private IModel? Model => this.ModelAndFileBundle?.Item2;
 
     public IAnimationPlaybackManager AnimationPlaybackManager { get; set; }
 
