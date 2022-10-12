@@ -39,19 +39,24 @@ namespace uni.ui.common {
       this.activeSound_?.Stop();
 
       if (this.shuffledListView_ == null) {
-        this.activeSound_ = null;
+        this.waveformRenderer_.ActiveSound = this.activeSound_ = null;
         return;
       }
 
-      var audioBuffer =
-          new GlobalAudioLoader().LoadAudio(this.audioManager_,
-                                            this.shuffledListView_.Next());
-      var audioStream = this.audioManager_.CreateBufferAudioStream(audioBuffer);
+      if (this.shuffledListView_.TryGetNext(out var audioFileBundle)) {
+        var audioBuffer =
+            new GlobalAudioLoader().LoadAudio(this.audioManager_,
+                                              audioFileBundle);
+        var audioStream =
+            this.audioManager_.CreateBufferAudioStream(audioBuffer);
 
-      this.activeSound_ = this.audioManager_.CreateAudioSource()
-                             .Play(audioStream);
+        this.activeSound_ = this.audioManager_.CreateAudioSource()
+                                .Play(audioStream);
 
-      this.waveformRenderer_.ActiveSound = this.activeSound_;
+        // TODO: Automatically play the next sound once the current one has ended.
+
+        this.waveformRenderer_.ActiveSound = this.activeSound_;
+      }
     }
 
     protected override void InitGl() {

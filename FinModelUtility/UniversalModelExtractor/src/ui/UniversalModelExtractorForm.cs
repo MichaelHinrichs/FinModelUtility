@@ -1,3 +1,6 @@
+using fin.audio;
+using fin.data.queue;
+using fin.io;
 using fin.io.bundles;
 using System.Diagnostics;
 using fin.model;
@@ -8,6 +11,8 @@ using uni.ui.common;
 namespace uni.ui;
 
 public partial class UniversalModelExtractorForm : Form {
+  private IFileTreeNode<IFileBundle>? gameDirectory_;
+
   public UniversalModelExtractorForm() {
     this.InitializeComponent();
 
@@ -30,7 +35,8 @@ public partial class UniversalModelExtractorForm : Form {
   }
 
   private void OnFileBundleSelect_(IFileTreeNode<IFileBundle> fileNode) {
-    var model = (fileNode.File is IModelFileBundle modelFileBundle)
+    var modelFileBundle = fileNode.File as IModelFileBundle;
+    var model = modelFileBundle != null
                     ? this.LoadModel_(modelFileBundle)
                     : null;
 
@@ -38,6 +44,35 @@ public partial class UniversalModelExtractorForm : Form {
     this.modelToolStrip_.FileNodeAndModel = (fileNode, model);
     this.modelViewerGlPanel_.Model = model;
     this.modelTabs_.Model = model;
+
+    if (modelFileBundle != null) {
+      var gameDirectory = fileNode.Parent;
+      while (gameDirectory?.Parent?.Parent != null) {
+        gameDirectory = gameDirectory.Parent;
+      }
+
+      if (this.gameDirectory_ != gameDirectory) {
+        var audioFileBundles = new List<IAudioFileBundle>();
+
+        var nodeQueue =
+            new FinQueue<IFileTreeNode<IFileBundle>?>(gameDirectory);
+        while (nodeQueue.TryDequeue(out var node)) {
+          if (node == null) {
+            continue;
+          }
+
+          if (node.File is IAudioFileBundle audioFileBundle) {
+            audioFileBundles.Add(audioFileBundle);
+          }
+
+          nodeQueue.Enqueue(node.Children);
+        }
+
+        this.audioPlayerGlPanel_.AudioFileBundles = audioFileBundles;
+      }
+
+      this.gameDirectory_ = gameDirectory;
+    }
   }
 
   private IModel LoadModel_(IModelFileBundle modelFileBundle) {
