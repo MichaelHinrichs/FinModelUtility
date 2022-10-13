@@ -337,7 +337,7 @@ void main() {
         GL.LoadIdentity();
       }
 
-      if (DebugFlags.ENABLE_GRID) {
+      if (Config.Instance.ShowGrid) {
         this.texturelessShaderProgram_.Use();
         this.gridRenderer_.Render();
       }

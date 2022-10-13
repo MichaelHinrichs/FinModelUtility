@@ -14,10 +14,18 @@ namespace uni.ui.top {
     public ModelToolStrip() {
       InitializeComponent();
 
+      var config = Config.Instance;
+
       var showBonesButton = this.showBonesButton_;
-      showBonesButton.Checked = Config.Instance.ShowSkeleton;
+      showBonesButton.Checked = config.ShowSkeleton;
       showBonesButton.CheckedChanged += (_, e) => {
         Config.Instance.ShowSkeleton = showBonesButton.Checked;
+      };
+
+      var showGridButton = this.showGridButton_;
+      showGridButton.Checked = config.ShowGrid;
+      showGridButton.CheckedChanged += (_, e) => {
+        Config.Instance.ShowGrid = showGridButton.Checked;
       };
     }
 

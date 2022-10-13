@@ -28,6 +28,7 @@
       this.exportAllModelsInSelectedDirectoryButton_ = new System.Windows.Forms.ToolStripButton();
       this.exportSelectedModelButton_ = new System.Windows.Forms.ToolStripButton();
       this.showBonesButton_ = new System.Windows.Forms.ToolStripButton();
+      this.showGridButton_ = new System.Windows.Forms.ToolStripButton();
       toolStrip = new System.Windows.Forms.ToolStrip();
       toolStrip.SuspendLayout();
       this.SuspendLayout();
@@ -37,7 +38,8 @@
       toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.exportAllModelsInSelectedDirectoryButton_,
             this.exportSelectedModelButton_,
-            this.showBonesButton_});
+            this.showBonesButton_,
+            this.showGridButton_});
       toolStrip.Location = new System.Drawing.Point(0, 0);
       toolStrip.Name = "toolStrip";
       toolStrip.Size = new System.Drawing.Size(451, 31);
@@ -79,10 +81,24 @@
       this.showBonesButton_.CheckState = System.Windows.Forms.CheckState.Checked;
       this.showBonesButton_.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
       this.showBonesButton_.Image = ((System.Drawing.Image)(resources.GetObject("showBonesButton_.Image")));
+      this.showBonesButton_.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
       this.showBonesButton_.ImageTransparentColor = System.Drawing.Color.Magenta;
       this.showBonesButton_.Name = "showBonesButton_";
-      this.showBonesButton_.Size = new System.Drawing.Size(23, 28);
+      this.showBonesButton_.Size = new System.Drawing.Size(28, 28);
       this.showBonesButton_.Text = "Toggle Show Bones";
+      // 
+      // showGridButton_
+      // 
+      this.showGridButton_.Checked = true;
+      this.showGridButton_.CheckOnClick = true;
+      this.showGridButton_.CheckState = System.Windows.Forms.CheckState.Checked;
+      this.showGridButton_.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+      this.showGridButton_.Image = ((System.Drawing.Image)(resources.GetObject("showGridButton_.Image")));
+      this.showGridButton_.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+      this.showGridButton_.ImageTransparentColor = System.Drawing.Color.Magenta;
+      this.showGridButton_.Name = "showGridButton_";
+      this.showGridButton_.Size = new System.Drawing.Size(28, 28);
+      this.showGridButton_.Text = "Toggle Show Grid";
       // 
       // ModelToolStrip
       // 
@@ -104,5 +120,6 @@
     private ToolStripButton exportSelectedModelButton_;
     private ToolStripButton exportAllModelsInSelectedDirectoryButton_;
         private ToolStripButton showBonesButton_;
-    }
+    private ToolStripButton showGridButton_;
+  }
 }
