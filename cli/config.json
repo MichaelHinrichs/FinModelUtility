@@ -1,4 +1,5 @@
 {
   "IncludeFbx": true,
-  "AutomaticallyPlayGameAudioForModel": false
+  "AutomaticallyPlayGameAudioForModel": false,
+  "ShowSkeleton": true
 }

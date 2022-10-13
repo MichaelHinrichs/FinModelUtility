@@ -5,6 +5,7 @@ using fin.model;
 using fin.model.util;
 using fin.util.optional;
 using OpenTK.Graphics.OpenGL;
+using uni.config;
 using uni.ui.gl;
 
 
@@ -381,7 +382,7 @@ void main() {
         this.modelRenderer_.Render();
       }
 
-      if (DebugFlags.ENABLE_SKELETON) {
+      if (Config.Instance.ShowSkeleton) {
         this.texturelessShaderProgram_.Use();
         this.skeletonRenderer_?.Render();
       }

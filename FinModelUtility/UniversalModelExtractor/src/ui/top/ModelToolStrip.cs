@@ -1,6 +1,7 @@
 ﻿using fin.data.queue;
 using fin.io.bundles;
 using fin.model;
+using uni.config;
 using uni.games;
 using uni.ui.common;
 
@@ -12,6 +13,12 @@ namespace uni.ui.top {
 
     public ModelToolStrip() {
       InitializeComponent();
+
+      var showBonesButton = this.showBonesButton_;
+      showBonesButton.Checked = Config.Instance.ShowSkeleton;
+      showBonesButton.CheckedChanged += (_, e) => {
+        Config.Instance.ShowSkeleton = showBonesButton.Checked;
+      };
     }
 
     public IFileTreeNode<IFileBundle>? DirectoryNode {

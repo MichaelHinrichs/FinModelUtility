@@ -27,6 +27,7 @@
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ModelToolStrip));
       this.exportAllModelsInSelectedDirectoryButton_ = new System.Windows.Forms.ToolStripButton();
       this.exportSelectedModelButton_ = new System.Windows.Forms.ToolStripButton();
+      this.showBonesButton_ = new System.Windows.Forms.ToolStripButton();
       toolStrip = new System.Windows.Forms.ToolStrip();
       toolStrip.SuspendLayout();
       this.SuspendLayout();
@@ -35,7 +36,8 @@
       // 
       toolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.exportAllModelsInSelectedDirectoryButton_,
-            this.exportSelectedModelButton_});
+            this.exportSelectedModelButton_,
+            this.showBonesButton_});
       toolStrip.Location = new System.Drawing.Point(0, 0);
       toolStrip.Name = "toolStrip";
       toolStrip.Size = new System.Drawing.Size(451, 31);
@@ -70,6 +72,18 @@
       this.exportSelectedModelButton_.ToolTipText = "Export selected model";
       this.exportSelectedModelButton_.Click += new System.EventHandler(this.exportSelectedModelButton__Click);
       // 
+      // showBonesButton_
+      // 
+      this.showBonesButton_.Checked = true;
+      this.showBonesButton_.CheckOnClick = true;
+      this.showBonesButton_.CheckState = System.Windows.Forms.CheckState.Checked;
+      this.showBonesButton_.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+      this.showBonesButton_.Image = ((System.Drawing.Image)(resources.GetObject("showBonesButton_.Image")));
+      this.showBonesButton_.ImageTransparentColor = System.Drawing.Color.Magenta;
+      this.showBonesButton_.Name = "showBonesButton_";
+      this.showBonesButton_.Size = new System.Drawing.Size(23, 28);
+      this.showBonesButton_.Text = "Toggle Show Bones";
+      // 
       // ModelToolStrip
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -89,5 +103,6 @@
     private ToolStrip toolStrip;
     private ToolStripButton exportSelectedModelButton_;
     private ToolStripButton exportAllModelsInSelectedDirectoryButton_;
-  }
+        private ToolStripButton showBonesButton_;
+    }
 }
