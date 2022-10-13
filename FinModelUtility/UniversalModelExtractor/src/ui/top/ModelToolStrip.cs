@@ -19,13 +19,20 @@ namespace uni.ui.top {
       var showBonesButton = this.showBonesButton_;
       showBonesButton.Checked = config.ShowSkeleton;
       showBonesButton.CheckedChanged += (_, e) => {
-        Config.Instance.ShowSkeleton = showBonesButton.Checked;
+        config.ShowSkeleton = showBonesButton.Checked;
       };
 
       var showGridButton = this.showGridButton_;
       showGridButton.Checked = config.ShowGrid;
       showGridButton.CheckedChanged += (_, e) => {
-        Config.Instance.ShowGrid = showGridButton.Checked;
+        config.ShowGrid = showGridButton.Checked;
+      };
+
+      var automaticallyPlayMusicButton = this.automaticallyPlayMusicButton_;
+      automaticallyPlayMusicButton.Checked =
+          config.AutomaticallyPlayGameAudioForModel;
+      automaticallyPlayMusicButton.CheckedChanged += (_, e) => {
+        config.AutomaticallyPlayGameAudioForModel = showGridButton.Checked;
       };
     }
 

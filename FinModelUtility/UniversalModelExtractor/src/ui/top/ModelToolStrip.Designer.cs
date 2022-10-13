@@ -29,6 +29,7 @@
       this.exportSelectedModelButton_ = new System.Windows.Forms.ToolStripButton();
       this.showBonesButton_ = new System.Windows.Forms.ToolStripButton();
       this.showGridButton_ = new System.Windows.Forms.ToolStripButton();
+      this.automaticallyPlayMusicButton_ = new System.Windows.Forms.ToolStripButton();
       toolStrip = new System.Windows.Forms.ToolStrip();
       toolStrip.SuspendLayout();
       this.SuspendLayout();
@@ -39,7 +40,8 @@
             this.exportAllModelsInSelectedDirectoryButton_,
             this.exportSelectedModelButton_,
             this.showBonesButton_,
-            this.showGridButton_});
+            this.showGridButton_,
+            this.automaticallyPlayMusicButton_});
       toolStrip.Location = new System.Drawing.Point(0, 0);
       toolStrip.Name = "toolStrip";
       toolStrip.Size = new System.Drawing.Size(451, 31);
@@ -100,6 +102,17 @@
       this.showGridButton_.Size = new System.Drawing.Size(28, 28);
       this.showGridButton_.Text = "Toggle Show Grid";
       // 
+      // automaticallyPlayMusicButton_
+      // 
+      this.automaticallyPlayMusicButton_.CheckOnClick = true;
+      this.automaticallyPlayMusicButton_.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+      this.automaticallyPlayMusicButton_.Image = ((System.Drawing.Image)(resources.GetObject("automaticallyPlayMusicButton_.Image")));
+      this.automaticallyPlayMusicButton_.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+      this.automaticallyPlayMusicButton_.ImageTransparentColor = System.Drawing.Color.Magenta;
+      this.automaticallyPlayMusicButton_.Name = "automaticallyPlayMusicButton_";
+      this.automaticallyPlayMusicButton_.Size = new System.Drawing.Size(28, 28);
+      this.automaticallyPlayMusicButton_.Text = "Automatically Play Music from Model\'s Game";
+      // 
       // ModelToolStrip
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -121,5 +134,6 @@
     private ToolStripButton exportAllModelsInSelectedDirectoryButton_;
         private ToolStripButton showBonesButton_;
     private ToolStripButton showGridButton_;
+    private ToolStripButton automaticallyPlayMusicButton_;
   }
 }
