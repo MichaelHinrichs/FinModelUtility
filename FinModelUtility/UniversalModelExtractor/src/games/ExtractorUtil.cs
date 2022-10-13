@@ -92,21 +92,11 @@ namespace uni.games {
 
       try {
         var model = loaderHandler();
-
-        var includeFbx = Config.Instance.IncludeFbx;
-        if (includeFbx) {
-          new AssimpIndirectExporter().Export(
-              new FinFile(Path.Join(outputDirectory.FullName,
-                                    mainFile.NameWithoutExtension +
-                                    ".fbx")),
-              model);
-        } else {
-          new GltfExporter().Export(
-              new FinFile(Path.Join(outputDirectory.FullName,
-                                    mainFile.NameWithoutExtension +
-                                    ".glb")),
-              model);
-        }
+        new AssimpIndirectExporter().Export(
+            new FinFile(Path.Join(outputDirectory.FullName,
+                                  mainFile.NameWithoutExtension + ".foo")),
+            Config.Instance.ExportedFormats,
+            model);
       } catch (Exception e) {
         ExtractorUtil.logger_.LogError(e.ToString());
       }

@@ -1,92 +1,131 @@
 ﻿using System.IO;
 using System.Linq;
-
 using Assimp;
-
 using fin.exporter.gltf;
 using fin.exporter.gltf.lowlevel;
 using fin.io;
 using fin.model;
 using fin.util.asserts;
-
-using WrapMode = fin.model.WrapMode;
+using SharpGLTF.Schema2;
+using Scene = Assimp.Scene;
 
 
 namespace fin.exporter.assimp.indirect {
-  using FinBlendMode = fin.model.BlendMode;
-
   public class AssimpIndirectExporter : IExporter {
     // You can bet your ass I'm gonna prefix everything with ass.
 
     public bool LowLevel { get; set; }
 
-    public void Export(IFile outputFile, IModel model) {
-      var outputPath = outputFile.FullName;
-      var outputExtension = outputFile.Extension;
+    public void Export(IFile outputFile, IModel model)
+      => Export(outputFile,
+                new[] {".fbx", ".glb"},
+                model);
 
-      using var ctx = new AssimpContext();
-
-      string exportFormatId;
-      {
-        var supportedExportFormats = ctx.GetSupportedExportFormats();
-        var exportFormatIds =
-            supportedExportFormats
-                .Where(exportFormat
-                           => outputExtension ==
-                              $".{exportFormat.FileExtension}")
-                .Select(exportFormat => exportFormat.FormatId);
-        Asserts.True(exportFormatIds.Any(),
-                     $"'{outputExtension}' is not a supported export format!");
-
-        exportFormatId = exportFormatIds.First();
+    public void Export(IFile outputFile,
+                       string[] exportedFormats,
+                       IModel model) {
+      if (exportedFormats.Length == 0) {
+        return;
       }
 
-      var inputFile = !this.LowLevel
-                          ? outputFile.CloneWithExtension(".glb")
-                          : outputFile.CloneWithExtension(".gltf");
-      var inputPath = inputFile.FullName;
+      exportedFormats =
+          exportedFormats.Select(exportedFormat => exportedFormat.ToLower())
+                         .ToArray();
 
       IGltfExporter gltfExporter = !this.LowLevel
                                        ? new GltfExporter()
                                        : new LowLevelGltfExporter();
 
-      Scene? assScene = null;
-      if (!this.LowLevel) {
-        gltfExporter.UvIndices = true;
-        gltfExporter.Embedded = true;
-        gltfExporter.Export(inputFile, model);
+      var isGltfFormat = (string format) => format is ".gltf" or ".glb";
+      var gltfFormats = exportedFormats
+                        .Where(isGltfFormat)
+                        .ToArray();
+      var nonGltfFormats = exportedFormats
+                           .Where(exportedFormat =>
+                                      !isGltfFormat(exportedFormat))
+                           .ToArray();
 
-        assScene = ctx.ImportFile(inputPath);
-        File.Delete(inputPath);
+      if (gltfFormats.Length > 0) {
+        gltfExporter.UvIndices = false;
+        gltfExporter.Embedded = false;
 
-        // Importing the pre-generated GLTF file does most of the hard work off
-        // the bat: generating the mesh with properly weighted bones.
+        var gltfModelRoot = gltfExporter.CreateModelRoot(model);
 
-        // Bone orientation is already correct, you just need to enable
-        // "Automatic Bone Orientation" if importing in Blender.
+        var gltfWriteSettings = new WriteSettings {
+            ImageWriting = gltfExporter.Embedded
+                               ? ResourceWriteMode.Embedded
+                               : ResourceWriteMode.SatelliteFile,
+        };
 
-        new AssimpIndirectAnimationFixer().Fix(model, assScene);
-        new AssimpIndirectUvFixer().Fix(model, assScene);
-        new AssimpIndirectTextureFixer().Fix(model, assScene);
+        foreach (var gltfFormat in gltfFormats) {
+          var gltfOutputFile = outputFile.CloneWithExtension(gltfFormat);
+          gltfModelRoot.Save(gltfOutputFile.FullName, gltfWriteSettings);
+        }
       }
 
-      // Reexports the GLTF version in case the FBX version is screwed up.
-      gltfExporter.UvIndices = false;
-      gltfExporter.Embedded = false;
-      gltfExporter.Export(
-          new FinFile(inputFile.FullName.Replace(".glb", "_gltf.glb")),
-          model);
+      if (nonGltfFormats.Length > 0) {
+        gltfExporter.UvIndices = true;
+        gltfExporter.Embedded = true;
 
-      if (assScene != null) {
-        // Finally exports the fbx version.
-        // TODO: Are these all safe to include?
-        var preProcessing =
-            PostProcessSteps.FindInvalidData |
-            PostProcessSteps.JoinIdenticalVertices;
+        var inputFile = !this.LowLevel
+                            ? outputFile.CloneWithExtension(".tmp.glb")
+                            : outputFile.CloneWithExtension(".tmp.gltf");
+        var inputPath = inputFile.FullName;
+        gltfExporter.Export(inputFile, model);
 
-        var success =
-            ctx.ExportFile(assScene, outputPath, exportFormatId, preProcessing);
-        Asserts.True(success, "Failed to export model.");
+        using var ctx = new AssimpContext();
+        var supportedExportFormats = ctx.GetSupportedExportFormats();
+
+        Scene? assScene = null;
+        if (!this.LowLevel) {
+          assScene = ctx.ImportFile(inputPath);
+          File.Delete(inputPath);
+
+          // Importing the pre-generated GLTF file does most of the hard work off
+          // the bat: generating the mesh with properly weighted bones.
+
+          // Bone orientation is already correct, you just need to enable
+          // "Automatic Bone Orientation" if importing in Blender.
+
+          new AssimpIndirectAnimationFixer().Fix(model, assScene);
+          new AssimpIndirectUvFixer().Fix(model, assScene);
+          new AssimpIndirectTextureFixer().Fix(model, assScene);
+        }
+
+        if (assScene != null) {
+          foreach (var nonGltfFormat in nonGltfFormats) {
+            var nonGltfOutputFile =
+                outputFile.CloneWithExtension(nonGltfFormat);
+
+            var outputPath = nonGltfOutputFile.FullName;
+            var outputExtension = nonGltfOutputFile.Extension;
+
+            string exportFormatId;
+            {
+              var exportFormatIds =
+                  supportedExportFormats
+                      .Where(exportFormat
+                                 => outputExtension ==
+                                    $".{exportFormat.FileExtension}")
+                      .Select(exportFormat => exportFormat.FormatId)
+                      .ToArray();
+              Asserts.True(exportFormatIds.Any(),
+                           $"'{outputExtension}' is not a supported export format!");
+
+              exportFormatId = exportFormatIds.First();
+            }
+
+            // TODO: Are these all safe to include?
+            var preProcessing =
+                PostProcessSteps.FindInvalidData |
+                PostProcessSteps.JoinIdenticalVertices;
+
+            var success =
+                ctx.ExportFile(assScene, outputPath, exportFormatId,
+                               preProcessing);
+            Asserts.True(success, "Failed to export model.");
+          }
+        }
       }
     }
   }

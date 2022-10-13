@@ -1,5 +1,8 @@
 {
-  "IncludeFbx": true,
+  "ExportedFormats": [
+    ".fbx",
+    ".glb"
+  ],
   "AutomaticallyPlayGameAudioForModel": false,
   "ShowSkeleton": true,
   "ShowGrid": true

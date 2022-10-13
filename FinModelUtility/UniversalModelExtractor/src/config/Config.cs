@@ -6,7 +6,7 @@ namespace uni.config {
     public static Config Instance { get; } =
       DirectoryConstants.CONFIG_FILE.Deserialize<Config>();
 
-    public bool IncludeFbx { get; set; }
+    public string[] ExportedFormats { get; set; } = Array.Empty<string>();
     public bool AutomaticallyPlayGameAudioForModel { get; set; }
     public bool ShowSkeleton { get; set; }
     public bool ShowGrid { get; set; }
