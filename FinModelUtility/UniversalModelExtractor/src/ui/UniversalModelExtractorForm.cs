@@ -79,7 +79,7 @@ public partial class UniversalModelExtractorForm : Form {
           nodeQueue.Enqueue(node.Children);
         }
 
-        this.audioPlayerGlPanel_.AudioFileBundles = audioFileBundles;
+        this.audioPlayerPanel_.AudioFileBundles = audioFileBundles;
       }
 
       this.gameDirectory_ = gameDirectory;
@@ -88,7 +88,7 @@ public partial class UniversalModelExtractorForm : Form {
 
   private void SelectAudio_(IFileTreeNode<IFileBundle> fileNode,
                             IAudioFileBundle audioFileBundle) {
-    this.audioPlayerGlPanel_.AudioFileBundles = new[] {audioFileBundle};
+    this.audioPlayerPanel_.AudioFileBundles = new[] {audioFileBundle};
   }
 
   private void gitHubToolStripMenuItem_Click(object sender, EventArgs e) {

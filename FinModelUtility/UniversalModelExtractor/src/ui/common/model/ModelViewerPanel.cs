@@ -12,7 +12,6 @@ namespace uni.ui.common.model {
       get => this.impl_.ModelAndFileBundle;
       set {
         var modelFileBundle = value?.Item1;
-
         if (modelFileBundle != null) {
           var mainFile = modelFileBundle.MainFile;
           this.groupBox_.Text =

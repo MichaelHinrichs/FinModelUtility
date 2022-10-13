@@ -77,13 +77,16 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Update="src\ui\common\audio\AudioPlayerPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="src\ui\common\BGlPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="src\ui\common\FileTreeView.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="src\ui\common\AudioPlayerGlPanel.cs">
+    <Compile Update="src\ui\common\audio\AudioPlayerGlPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="src\ui\common\TransparentTrackBar.cs">

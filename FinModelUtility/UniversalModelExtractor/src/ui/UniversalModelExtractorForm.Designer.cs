@@ -1,4 +1,5 @@
 ﻿using uni.ui.common;
+using uni.ui.common.audio;
 using uni.ui.common.model;
 using uni.ui.right_panel;
 
@@ -35,7 +36,7 @@ namespace uni.ui {
       this.fileBundleTreeView_ = new uni.ui.common.FileBundleTreeView();
       this.splitContainer4 = new System.Windows.Forms.SplitContainer();
       this.modelViewerPanel_ = new uni.ui.common.model.ModelViewerPanel();
-      this.audioPlayerGlPanel_ = new uni.ui.common.AudioPlayerGlPanel();
+      this.audioPlayerPanel_ = new uni.ui.common.audio.AudioPlayerPanel();
       this.modelTabs_ = new uni.ui.right_panel.ModelTabs();
       this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -113,6 +114,7 @@ namespace uni.ui {
       // 
       this.splitContainer4.Dock = System.Windows.Forms.DockStyle.Fill;
       this.splitContainer4.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
+      this.splitContainer4.IsSplitterFixed = true;
       this.splitContainer4.Location = new System.Drawing.Point(0, 0);
       this.splitContainer4.Name = "splitContainer4";
       this.splitContainer4.Orientation = System.Windows.Forms.Orientation.Horizontal;
@@ -123,9 +125,9 @@ namespace uni.ui {
       // 
       // splitContainer4.Panel2
       // 
-      this.splitContainer4.Panel2.Controls.Add(this.audioPlayerGlPanel_);
+      this.splitContainer4.Panel2.Controls.Add(this.audioPlayerPanel_);
       this.splitContainer4.Size = new System.Drawing.Size(573, 488);
-      this.splitContainer4.SplitterDistance = 454;
+      this.splitContainer4.SplitterDistance = 430;
       this.splitContainer4.TabIndex = 0;
       // 
       // modelViewerPanel_
@@ -135,20 +137,21 @@ namespace uni.ui {
       this.modelViewerPanel_.BackColor = System.Drawing.Color.Transparent;
       this.modelViewerPanel_.Dock = System.Windows.Forms.DockStyle.Fill;
       this.modelViewerPanel_.Location = new System.Drawing.Point(0, 0);
+      this.modelViewerPanel_.ModelAndFileBundle = null;
       this.modelViewerPanel_.Name = "modelViewerPanel_";
-      this.modelViewerPanel_.Size = new System.Drawing.Size(573, 454);
+      this.modelViewerPanel_.Size = new System.Drawing.Size(573, 430);
       this.modelViewerPanel_.TabIndex = 0;
       // 
-      // audioPlayerGlPanel_
+      // audioPlayerPanel_
       // 
-      this.audioPlayerGlPanel_.AudioFileBundles = null;
-      this.audioPlayerGlPanel_.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-      this.audioPlayerGlPanel_.BackColor = System.Drawing.Color.Fuchsia;
-      this.audioPlayerGlPanel_.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.audioPlayerGlPanel_.Location = new System.Drawing.Point(0, 0);
-      this.audioPlayerGlPanel_.Name = "audioPlayerGlPanel_";
-      this.audioPlayerGlPanel_.Size = new System.Drawing.Size(573, 30);
-      this.audioPlayerGlPanel_.TabIndex = 2;
+      this.audioPlayerPanel_.AudioFileBundles = null;
+      this.audioPlayerPanel_.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+      this.audioPlayerPanel_.BackColor = System.Drawing.Color.Transparent;
+      this.audioPlayerPanel_.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.audioPlayerPanel_.Location = new System.Drawing.Point(0, 0);
+      this.audioPlayerPanel_.Name = "audioPlayerPanel_";
+      this.audioPlayerPanel_.Size = new System.Drawing.Size(573, 54);
+      this.audioPlayerPanel_.TabIndex = 2;
       // 
       // modelTabs_
       // 
@@ -265,6 +268,6 @@ namespace uni.ui {
     private top.ModelToolStrip modelToolStrip_;
     private ToolStripMenuItem gitHubToolStripMenuItem;
         private SplitContainer splitContainer4;
-        private AudioPlayerGlPanel audioPlayerGlPanel_;
+        private AudioPlayerPanel audioPlayerPanel_;
     }
 }

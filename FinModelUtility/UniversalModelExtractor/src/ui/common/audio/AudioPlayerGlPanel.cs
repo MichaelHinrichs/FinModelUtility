@@ -7,8 +7,8 @@ using OpenTK.Graphics.OpenGL;
 using uni.ui.gl;
 
 
-namespace uni.ui.common {
-  public class AudioPlayerGlPanel : BGlPanel {
+namespace uni.ui.common.audio {
+  public class AudioPlayerGlPanel : BGlPanel, IAudioPlayerPanel {
     private readonly Color backgroundColor_ = Color.FromArgb(51, 128, 179);
 
     private IReadOnlyList<IAudioFileBundle>? audioFileBundles_;
@@ -52,6 +52,8 @@ namespace uni.ui.common {
                               this.audioSource_.Create(audioStream);
             activeSound.Volume = .1f;
             activeSound.Play();
+
+            this.OnChange(audioFileBundle);
           }
         }
       }, .1f);
@@ -63,6 +65,7 @@ namespace uni.ui.common {
     public IReadOnlyList<IAudioFileBundle>? AudioFileBundles {
       get => this.audioFileBundles_;
       set {
+        var originalValue = this.audioFileBundles_;
         this.audioFileBundles_ = value;
 
         this.waveformRenderer_.ActiveSound?.Stop();
@@ -72,8 +75,14 @@ namespace uni.ui.common {
             = value != null
                   ? new ShuffledListView<IAudioFileBundle>(value)
                   : null;
+
+        if (value == null && originalValue != null) {
+          this.OnChange(null);
+        }
       }
     }
+
+    public event Action<IAudioFileBundle?> OnChange = delegate { };
 
     protected override void InitGl() {
       this.texturelessShaderProgram_ =
@@ -96,7 +105,7 @@ void main() {
     fragColor = vertexColor;
 }");
 
-      ResetGl_();
+      this.ResetGl_();
     }
 
     private void ResetGl_() {
@@ -122,8 +131,8 @@ void main() {
       GL.Enable(EnableCap.Blend);
       GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
-      GL.ClearColor(backgroundColor_.R / 255f, backgroundColor_.G / 255f,
-                    backgroundColor_.B / 255f, 1);
+      GL.ClearColor(this.backgroundColor_.R / 255f, this.backgroundColor_.G / 255f,
+                    this.backgroundColor_.B / 255f, 1);
     }
 
     protected override void RenderGl() {
