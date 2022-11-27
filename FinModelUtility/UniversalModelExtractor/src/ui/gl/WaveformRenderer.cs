@@ -18,8 +18,8 @@ namespace uni.ui.gl {
       var samplesPerPoint = 25;
       var xPerPoint = 1;
       var pointCount = Width / xPerPoint;
-      var points = new float[pointCount];
-      for (var i = 0; i < pointCount; ++i) {
+      var points = new float[pointCount + 1];
+      for (var i = 0; i <= pointCount; ++i) {
         float totalSample = 0;
         for (var s = 0; s < samplesPerPoint; ++s) {
           var sampleOffset =
@@ -52,7 +52,7 @@ namespace uni.ui.gl {
       GL.LineWidth(1);
 
       GL.Begin(PrimitiveType.LineStrip);
-      for (var i = 0; i < pointCount; ++i) {
+      for (var i = 0; i <= pointCount; ++i) {
         var x = i * xPerPoint;
         var y = this.MiddleY + this.Amplitude * points[i];
         GL.Vertex2(x, y);
