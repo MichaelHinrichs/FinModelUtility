@@ -97,14 +97,14 @@ namespace bmd.GCN {
           this.RotOffset = er.ReadUInt32();
           this.TransOffset = er.ReadUInt32();
 
-          er.BaseStream.Position = (long) (32U + this.ScaleOffset);
+          er.Position = (long) (32U + this.ScaleOffset);
           this.Scale = er.ReadSingles((int) this.NrScale);
-          er.BaseStream.Position = (long) (32U + this.RotOffset);
+          er.Position = (long) (32U + this.RotOffset);
           this.Rotation = er.ReadInt16s((int) this.NrRot);
-          er.BaseStream.Position = (long) (32U + this.TransOffset);
+          er.Position = (long) (32U + this.TransOffset);
           this.Translation = er.ReadSingles((int) this.NrTrans);
           float RotScale = (float) (1 * Math.PI / 32768f);
-          er.BaseStream.Position = (long) (32U + this.JointOffset);
+          er.Position = (long) (32U + this.JointOffset);
           this.Joints = new BCA.ANF1Section.AnimatedJoint[(int) this.NrJoints];
           for (int index = 0; index < (int) this.NrJoints; ++index) {
             var animatedJoint = new BCA.ANF1Section.AnimatedJoint(er);

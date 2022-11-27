@@ -40,7 +40,7 @@
         var resourceNodeCount = r.ReadInt16();
 
         r.Position = (uint)stringTableOffset;
-        while (r.Position < r.BaseStream.Length) {
+        while (!r.Eof) {
           string mname = r.ReadStringNT();
           if (mname == "")
             break;

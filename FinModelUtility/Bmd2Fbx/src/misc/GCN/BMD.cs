@@ -59,7 +59,7 @@ namespace bmd.GCN {
       this.Header = er.ReadNew<BmdHeader>();
 
       bool OK;
-      while (er.Position != er.Length)
+      while (!er.Eof)
       {
         switch (er.ReadString(Encoding.ASCII, 4))
         {

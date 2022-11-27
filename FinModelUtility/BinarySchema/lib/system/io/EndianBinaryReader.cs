@@ -15,7 +15,7 @@ namespace System.IO {
     // TODO: This should be private.
     // TODO: Does caching the buffer actually help, or can this logic be pulled into the extensions?
     private EndianBinaryBufferedStream BufferedStream_ { get; set; }
-    public Stream BaseStream => this.BufferedStream_.BaseStream;
+    private Stream BaseStream_ => this.BufferedStream_.BaseStream;
 
     /*public EndianBinaryReader(Stream baseStream)
       => this.Init_(baseStream, null);*/
@@ -54,22 +54,22 @@ namespace System.IO {
       if (this.disposed_) {
         return;
       }
-      if (disposing && this.BaseStream != null) {
-        this.BaseStream.Close();
+      if (disposing && this.BaseStream_ != null) {
+        this.BaseStream_.Close();
       }
       this.disposed_ = true;
     }
 
     public long Position {
-      get => this.BaseStream.Position;
-      set => this.BaseStream.Position = value;
+      get => this.BaseStream_.Position;
+      set => this.BaseStream_.Position = value;
     }
 
     public void AssertPosition(long expectedPosition) {
       EndianBinaryReader.Assert(expectedPosition, this.Position);
     }
 
-    public long Length => this.BaseStream.Length;
+    public long Length => this.BaseStream_.Length;
 
     public bool Eof => this.Position >= this.Length;
 

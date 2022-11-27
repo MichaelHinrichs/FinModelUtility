@@ -69,7 +69,7 @@ namespace level5.schema {
 
         using (var tileData = new EndianBinaryReader(new MemoryStream(tileBytes), Endianness.LittleEndian)) {
           int tileCount = 0;
-          while (tileData.Position + 2 <= tileData.BaseStream.Length) {
+          while (tileData.Position + 2 <= tileData.Length) {
             int i = SwitchFile ? tileData.ReadInt32() : tileData.ReadInt16();
             if (i > tileCount) tileCount = i;
             Tiles.Add(i);
@@ -103,7 +103,7 @@ namespace level5.schema {
 
         ImageFormat = (byte)type;
 
-        ImageData = Decompress.Level5Decom(r.ReadBytesAtOffset((uint)imageDataOffset, (int)(r.BaseStream.Length - imageDataOffset)));
+        ImageData = Decompress.Level5Decom(r.ReadBytesAtOffset((uint)imageDataOffset, (int)(r.Length - imageDataOffset)));
       }
     }
 

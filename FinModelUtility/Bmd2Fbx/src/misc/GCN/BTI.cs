@@ -29,7 +29,7 @@ namespace bmd.GCN {
           new EndianBinaryReader(new MemoryStream(data),
                                  Endianness.BigEndian);
       this.Header = er.ReadNew<BTIHeader>();
-      er.BaseStream.Position = (long) this.Header.DataOffset;
+      er.Position = (long) this.Header.DataOffset;
       this.Data = er.ReadBytes(this.Header.GetCompressedBufferSize());
     }
 

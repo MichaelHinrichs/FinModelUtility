@@ -17,7 +17,7 @@ namespace System
 
     public static void SetMarkerOnCurrentOffset(this EndianBinaryReader er, string Name)
     {
-      Extensions.Markers.Add(Name, er.BaseStream.Position);
+      Extensions.Markers.Add(Name, er.Position);
     }
 
     public static void SetMarker(this EndianBinaryReader er, string Name, long Offset)
@@ -70,7 +70,7 @@ namespace System
     {
       byte num1 = er.ReadByte();
       int num2 = (int) num1 & (int) sbyte.MaxValue;
-      while (er.BaseStream.Position < er.BaseStream.Length && ((int) num1 & 128) != 0)
+      while (!er.Eof && ((int) num1 & 128) != 0)
       {
         int num3 = num2 << 7;
         num1 = er.ReadByte();
