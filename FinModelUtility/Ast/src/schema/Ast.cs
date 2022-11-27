@@ -10,7 +10,6 @@ namespace ast.schema {
     public void Read(EndianBinaryReader er) {
       this.StrmHeader.Read(er);
 
-      // TODO: This is almost certainly wrong
       switch (this.StrmHeader.Format) {
         case AstAudioFormat.ADPCM: {
           this.ReadAdpcm_(er);

@@ -88,12 +88,12 @@ namespace ast.schema {
           var isLeftChannel = (sampleIndex & 1) != 0;
           var sample = isLeftChannel
                            ? /* high nibble first */
-                           get_low_nibble_signed(nibbles)
-                           : get_high_nibble_signed(nibbles);
+                           GetLowNibbleSigned_(nibbles)
+                           : GetHighNibbleSigned_(nibbles);
           sample = ((sample * scale) << 11);
           sample = (sample + coef1 * hist1 + coef2 * hist2) >> 11;
 
-          sample = clamp16(sample);
+          sample = Clamp16_(sample);
 
           channelData.Add((short)sample);
 
@@ -103,21 +103,19 @@ namespace ast.schema {
       }
     }
 
-    static int[] nibble_to_int = {
+    private static readonly int[] nibbleToInt_ = {
         0, 1, 2, 3, 4, 5, 6, 7, -8, -7, -6, -5, -4, -3, -2, -1
     };
 
-    private static int get_high_nibble_signed(byte n) {
-      /*return ((n&0x70)-(n&0x80))>>4;*/
-      return nibble_to_int[n >> 4];
+    private static int GetHighNibbleSigned_(byte n) {
+      return nibbleToInt_[n >> 4];
     }
 
-    private static int get_low_nibble_signed(byte n) {
-      /*return (n&7)-(n&8);*/
-      return nibble_to_int[n & 0xf];
+    private static int GetLowNibbleSigned_(byte n) {
+      return nibbleToInt_[n & 0xf];
     }
 
-    static int clamp16(int val) {
+    private static int Clamp16_(int val) {
       if (val > 32767) return 32767;
       else if (val < -32768) return -32768;
       else return val;
