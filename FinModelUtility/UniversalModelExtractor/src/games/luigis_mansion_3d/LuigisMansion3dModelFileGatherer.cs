@@ -26,8 +26,8 @@ namespace uni.games.luigis_mansion_3d {
     public IFileBundleDirectory<CmbModelFileBundle>? GatherFileBundles(
         bool assert) {
       var luigisMansionRom =
-          DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
-              "luigis_mansion_3d.cia");
+          DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
+              "luigis_mansion_3d.cia", assert);
       if (luigisMansionRom == null) {
         return null;
       }

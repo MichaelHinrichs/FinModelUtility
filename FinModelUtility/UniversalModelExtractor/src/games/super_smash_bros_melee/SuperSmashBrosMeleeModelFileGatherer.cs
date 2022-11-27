@@ -11,8 +11,8 @@ namespace uni.games.super_smash_bros_melee {
     public IFileBundleDirectory<DatModelFileBundle>? GatherFileBundles(
         bool assert) {
       var superSmashBrosMeleeRom =
-          DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
-              "super_smash_bros_melee.gcm");
+          DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
+              "super_smash_bros_melee.gcm", assert);
       if (superSmashBrosMeleeRom == null) {
         return null;
       }

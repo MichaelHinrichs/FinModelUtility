@@ -12,8 +12,8 @@ namespace uni.games.battalion_wars_1 {
     public IFileBundleDirectory<IBattalionWarsModelFileBundle>?
         GatherFileBundles(bool assert) {
       var battalionWarsRom =
-          DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
-              "battalion_wars_1.gcm");
+          DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
+              "battalion_wars_1.gcm", assert);
 
       if (battalionWarsRom == null) {
         return null;

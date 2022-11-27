@@ -62,7 +62,7 @@ namespace fin.io {
     public void MoveTo(string path) {
       try {
         this.Info.MoveTo(path);
-      } 
+      }
       // Sometimes the first move throws a permission denied error, so we just need to try again.
       catch {
         this.Info.MoveTo(path);
@@ -117,18 +117,32 @@ namespace fin.io {
                            : SearchOption.TopDirectoryOnly)
              .Select(file => new FinFile(file));
 
-    public IFile? TryToGetExistingFile(string path) {
-      var file = this.Info.GetFiles(path).SingleOrDefault();
-      return file != null ? new FinFile(file) : null;
+    public bool TryToGetExistingFile(string path, out IFile? file) {
+      // TODO: Handle subdirectories automatically.
+      var fileInfo = this.Info.GetFiles(path).SingleOrDefault();
+      if (fileInfo != null) {
+        file = new FinFile(fileInfo);
+        return true;
+      }
+
+      file = null;
+      return false;
     }
 
     public IFile GetExistingFile(string path) {
-      // TODO: Handle subdirectories automatically.
-      try {
-        return new FinFile(this.Info.GetFiles(path).Single());
-      } catch (Exception e) {
-        throw new Exception($"Expected to find {path}", e);
+      if (TryToGetExistingFile(path, out var file)) {
+        return file!;
       }
+      throw new Exception($"Expected to find file: '{path}' in directory '{this.GetAbsolutePath()}'");
+    }
+
+    public IFile? PossiblyAssertExistingFile(string relativePath, bool assert) {
+      if (assert) {
+        return GetExistingFile(relativePath);
+      }
+       
+      TryToGetExistingFile(relativePath, out var file);
+      return file;
     }
 
     public override string ToString() => this.FullName;

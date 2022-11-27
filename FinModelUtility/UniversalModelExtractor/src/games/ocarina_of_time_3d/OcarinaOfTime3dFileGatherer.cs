@@ -161,8 +161,8 @@ namespace uni.games.ocarina_of_time_3d {
     public IFileBundleDirectory<CmbModelFileBundle>? GatherFileBundles(
         bool assert) {
       var ocarinaOfTime3dRom =
-          DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
-              "ocarina_of_time_3d.cia");
+          DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
+              "ocarina_of_time_3d.cia", assert);
       if (ocarinaOfTime3dRom == null) {
         return null;
       }

@@ -11,8 +11,8 @@ namespace uni.games.great_ace_attorney {
     public IFileBundleDirectory<CmbModelFileBundle>? GatherFileBundles(
         bool assert) {
       var greatAceAttorneyRom =
-          DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
-              "great_ace_attorney.cia");
+          DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
+              "great_ace_attorney.cia", assert);
       if (greatAceAttorneyRom == null) {
         return null;
       }

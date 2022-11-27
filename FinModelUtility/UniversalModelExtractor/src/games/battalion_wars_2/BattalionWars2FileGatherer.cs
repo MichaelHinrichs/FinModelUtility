@@ -14,8 +14,8 @@ namespace uni.games.battalion_wars_2 {
         GatherFileBundles(
             bool assert) {
       var battalionWarsRom =
-          DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
-              "battalion_wars_2.iso");
+          DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
+              "battalion_wars_2.iso", assert);
 
       if (battalionWarsRom == null) {
         return null;

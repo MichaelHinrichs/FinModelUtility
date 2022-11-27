@@ -12,8 +12,8 @@ namespace uni.games.super_mario_sunshine {
     public IFileBundleDirectory<BmdModelFileBundle>? GatherFileBundles(
         bool assert) {
       var superMarioSunshineRom =
-          DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
-              "super_mario_sunshine.gcm");
+          DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
+              "super_mario_sunshine.gcm", assert);
       if (superMarioSunshineRom == null) {
         return null;
       }

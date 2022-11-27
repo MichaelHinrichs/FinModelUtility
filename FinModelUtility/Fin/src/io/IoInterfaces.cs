@@ -32,8 +32,9 @@ namespace fin.io {
         string searchPattern,
         bool includeSubdirs = false);
 
-    IFile? TryToGetExistingFile(string relativePath);
+    bool TryToGetExistingFile(string path, out IFile? file);
     IFile GetExistingFile(string relativePath);
+    IFile? PossiblyAssertExistingFile(string relativePath, bool assert);
   }
 
   public interface IFile : IIoObject, IEquatable<IFile> {

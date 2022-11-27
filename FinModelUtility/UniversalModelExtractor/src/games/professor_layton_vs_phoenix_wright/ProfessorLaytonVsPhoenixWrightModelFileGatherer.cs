@@ -14,8 +14,8 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
     public IFileBundleDirectory<XcModelFileBundle>? GatherFileBundles(
         bool assert) {
       var professorLaytonVsPhoenixWrightRom =
-          DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
-              "professor_layton_vs_phoenix_wright.cia");
+          DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
+              "professor_layton_vs_phoenix_wright.cia", assert);
       if (professorLaytonVsPhoenixWrightRom == null) {
         return null;
       }

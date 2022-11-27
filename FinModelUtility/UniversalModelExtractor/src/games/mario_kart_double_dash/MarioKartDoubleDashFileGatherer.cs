@@ -14,8 +14,8 @@ namespace uni.games.mario_kart_double_dash {
     public IFileBundleDirectory<IFileBundle>? GatherFileBundles(
         bool assert) {
       var marioKartDoubleDashRom =
-          DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
-              "mario_kart_double_dash.gcm");
+          DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
+              "mario_kart_double_dash.gcm", assert);
       if (marioKartDoubleDashRom == null) {
         return null;
       }

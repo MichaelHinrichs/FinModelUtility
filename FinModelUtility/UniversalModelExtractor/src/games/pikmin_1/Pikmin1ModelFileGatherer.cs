@@ -13,8 +13,8 @@ namespace uni.games.pikmin_1 {
     public IFileBundleDirectory<ModModelFileBundle>? GatherFileBundles(
         bool assert) {
       var pikmin1Rom =
-          DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
-              "pikmin_1.gcm");
+          DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
+              "pikmin_1.gcm", assert);
       if (pikmin1Rom == null) {
         return null;
       }
