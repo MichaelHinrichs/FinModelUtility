@@ -91,6 +91,10 @@ public partial class UniversalModelExtractorForm : Form {
     this.audioPlayerPanel_.AudioFileBundles = new[] {audioFileBundle};
   }
 
+  private void exitToolStripMenuItem_Click(object sender, EventArgs e) {
+    this.Close();
+  }
+
   private void gitHubToolStripMenuItem_Click(object sender, EventArgs e) {
     Process.Start("explorer",
                   "https://github.com/MeltyPlayer/FinModelUtility");

@@ -39,6 +39,7 @@ namespace uni.ui {
       this.audioPlayerPanel_ = new uni.ui.common.audio.AudioPlayerPanel();
       this.modelTabs_ = new uni.ui.right_panel.ModelTabs();
       this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.gitHubToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.modelToolStrip_ = new uni.ui.top.ModelToolStrip();
@@ -174,9 +175,18 @@ namespace uni.ui {
       // 
       // fileToolStripMenuItem
       // 
+      this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.exitToolStripMenuItem});
       this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
       this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
       this.fileToolStripMenuItem.Text = "File";
+      // 
+      // exitToolStripMenuItem
+      // 
+      this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+      this.exitToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+      this.exitToolStripMenuItem.Text = "Exit";
+      this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
       // 
       // helpToolStripMenuItem
       // 
@@ -261,13 +271,14 @@ namespace uni.ui {
     private ModelViewerPanel modelViewerPanel_;
     private MenuStrip menuStrip;
     private ToolStripMenuItem fileToolStripMenuItem;
+    private ToolStripMenuItem exitToolStripMenuItem;
     private ToolStripMenuItem helpToolStripMenuItem;
+    private ToolStripMenuItem gitHubToolStripMenuItem;
     private SplitContainer splitContainer1;
     private FileBundleTreeView fileBundleTreeView_;
     private ModelTabs modelTabs_;
     private top.ModelToolStrip modelToolStrip_;
-    private ToolStripMenuItem gitHubToolStripMenuItem;
-        private SplitContainer splitContainer4;
-        private AudioPlayerPanel audioPlayerPanel_;
-    }
+    private SplitContainer splitContainer4;
+    private AudioPlayerPanel audioPlayerPanel_;
+  }
 }
