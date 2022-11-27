@@ -31,18 +31,18 @@ namespace schema.attributes.memory {
     protected override void InitFields() {
       if (this.parentBlockName_ != null) {
         this.ParentBlock =
-            this.GetMemberRelativeToStructure<IMemoryBlock>(
+            this.GetOtherMemberRelativeToStructure<IMemoryBlock>(
                 this.parentBlockName_);
       }
 
       if (this.readOffsetName_ != null) {
         this.ReadOffset =
-            this.GetMemberRelativeToStructure(this.readOffsetName_)
+            this.GetOtherMemberRelativeToStructure(this.readOffsetName_)
                 .AssertIsInteger();
       }
 
       this.ReadSize =
-          this.GetMemberRelativeToStructure(this.readSizeName_)
+          this.GetOtherMemberRelativeToStructure(this.readSizeName_)
               .AssertIsInteger();
     }
 

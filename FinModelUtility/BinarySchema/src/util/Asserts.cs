@@ -10,7 +10,7 @@ namespace schema.util {
      * Try to avoid allocating strings unless an assertion actually fails.
      */
 
-    private class AssertionException : Exception {
+    public class AssertionException : Exception {
       public AssertionException(string message) : base(message) { }
 
       public override string StackTrace {

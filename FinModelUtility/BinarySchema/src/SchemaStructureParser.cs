@@ -6,7 +6,6 @@ using schema.attributes;
 using schema.attributes.align;
 using schema.attributes.child_of;
 using schema.attributes.ignore;
-using schema.attributes.memory;
 using schema.attributes.offset;
 using schema.attributes.position;
 using schema.parser;
@@ -272,8 +271,8 @@ namespace schema {
           if (offsetAttribute != null) {
             var startIndexName = offsetAttribute.StartIndexName;
             var startIndexTypeSymbol =
-                SymbolTypeUtil.GetTypeFromMember(
-                    structureSymbol, startIndexName);
+                SymbolTypeUtil.GetTypeFromMemberRelativeToAnother(
+                    structureSymbol, startIndexName, memberSymbol.Name);
             typeInfoParser.ParseTypeSymbol(
                 startIndexTypeSymbol,
                 true,
@@ -281,7 +280,7 @@ namespace schema {
 
             var offsetName = offsetAttribute.OffsetName;
             var offsetTypeSymbol =
-                SymbolTypeUtil.GetTypeFromMember(structureSymbol, offsetName);
+                SymbolTypeUtil.GetTypeFromMemberRelativeToAnother(structureSymbol, offsetName, memberSymbol.Name);
             typeInfoParser.ParseTypeSymbol(
                 offsetTypeSymbol,
                 true,

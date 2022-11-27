@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 using schema.attributes;
+using schema.util;
 
 
 namespace schema {
@@ -122,7 +123,7 @@ namespace schema {
                        });
 
       var arguments = attributeData.ConstructorArguments;
-      var attribute = (TAttribute) constructor.Invoke(
+      var attribute = (TAttribute)constructor.Invoke(
           arguments.Select(a => a.Value).ToArray());
 
       if (attribute is BMemberAttribute memberAttribute) {
@@ -199,14 +200,14 @@ namespace schema {
     public static string AccessibilityToModifier(
         Accessibility accessibility)
       => accessibility switch {
-          Accessibility.Private   => "private",
-          Accessibility.Protected => "protected",
-          Accessibility.Internal  => "internal",
-          Accessibility.Public    => "public",
-          _ => throw new ArgumentOutOfRangeException(
-                   nameof(accessibility),
-                   accessibility,
-                   null)
+        Accessibility.Private => "private",
+        Accessibility.Protected => "protected",
+        Accessibility.Internal => "internal",
+        Accessibility.Public => "public",
+        _ => throw new ArgumentOutOfRangeException(
+                 nameof(accessibility),
+                 accessibility,
+                 null)
       };
 
     public static string GetQualifiedName(ITypeSymbol typeSymbol) {
@@ -277,27 +278,56 @@ namespace schema {
 
     public static ITypeSymbol GetTypeFromMember(
         ITypeSymbol structureSymbol,
-        string memberName) {
-      var periodIndex = memberName.IndexOf('.');
+        string memberName)
+      => GetTypeFromMemberImpl_(structureSymbol, memberName, null);
+
+    public static ITypeSymbol GetTypeFromMemberRelativeToAnother(
+      ITypeSymbol structureSymbol,
+      string otherMemberName,
+      string thisMemberNameForFirstPass)
+      => GetTypeFromMemberImpl_(structureSymbol, otherMemberName, thisMemberNameForFirstPass);
+
+
+    private static ITypeSymbol GetTypeFromMemberImpl_(
+      ITypeSymbol structureSymbol,
+      string otherMemberName,
+      string? thisMemberNameForFirstPass) {
+
+      if (otherMemberName == thisMemberNameForFirstPass) {
+        Asserts.Fail($"Expected to find '{otherMemberName}' relative to '{thisMemberNameForFirstPass}' in '{structureSymbol.Name}', but they're the same!");
+      }
+
+      var periodIndex = otherMemberName.IndexOf('.');
       if (periodIndex != -1) {
-        var subStructureName = memberName.Substring(0, periodIndex);
+        var subStructureName = otherMemberName.Substring(0, periodIndex);
         var subStructureTypeSymbol =
-            GetTypeFromMember(structureSymbol, subStructureName);
+          GetTypeFromMemberImpl_(structureSymbol, subStructureName, thisMemberNameForFirstPass);
 
-        var subMemberName = memberName.Substring(periodIndex + 1);
+        var subMemberName = otherMemberName.Substring(periodIndex + 1);
 
-        return GetTypeFromMember(
-            subStructureTypeSymbol,
-            subMemberName);
+        return GetTypeFromMemberImpl_(
+          subStructureTypeSymbol,
+          subMemberName,
+          null);
+      }
+
+      if (thisMemberNameForFirstPass != null) {
+        var membersAndIndices = structureSymbol.GetMembers().Select((member, index) => (member, index));
+        var indexOfThisMember = membersAndIndices.Single(memberAndIndex => memberAndIndex.member.Name == thisMemberNameForFirstPass).index;
+        var indexOfOtherMember = membersAndIndices.Single(memberAndIndex => memberAndIndex.member.Name == otherMemberName).index;
+
+        if (indexOfThisMember < indexOfOtherMember) {
+          Asserts.Fail($"Expected to find '{otherMemberName}' before '{thisMemberNameForFirstPass}' in '{structureSymbol.Name}'.");
+        }
       }
 
       return structureSymbol
-             .GetMembers(memberName)
-             .Single() switch {
+        .GetMembers(otherMemberName)
+        .Single() switch {
           IPropertySymbol propertySymbol => propertySymbol.Type,
-          IFieldSymbol fieldSymbol       => fieldSymbol.Type,
-          _                              => throw new NotSupportedException()
-      };
+          IFieldSymbol fieldSymbol => fieldSymbol.Type,
+          _ => throw new NotSupportedException()
+        };
     }
   }
 }

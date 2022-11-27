@@ -41,7 +41,7 @@ namespace schema {
     protected override void InitFields() {
       if (this.otherMemberName_ != null) {
         this.OtherMember =
-            this.GetMemberRelativeToStructure(this.otherMemberName_)
+            this.GetOtherMemberRelativeToStructure(this.otherMemberName_)
                 .AssertIsInteger();
       }
     }
@@ -84,8 +84,7 @@ namespace schema {
     protected override void InitFields() {
       if (this.otherMemberName_ != null) {
         this.OtherMember =
-            this
-                .GetMemberRelativeToStructure(this.otherMemberName_)
+            this.GetOtherMemberRelativeToStructure(this.otherMemberName_)
                 .AssertIsInteger();
       }
     }
@@ -134,7 +133,7 @@ namespace schema {
     protected override void InitFields() {
       if (this.otherMemberName_ != null) {
         this.OtherMember =
-            this.GetMemberRelativeToStructure(this.otherMemberName_)
+            this.GetOtherMemberRelativeToStructure(this.otherMemberName_)
                 .AssertIsBool();
       }
     }

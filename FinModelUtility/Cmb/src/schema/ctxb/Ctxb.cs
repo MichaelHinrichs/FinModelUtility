@@ -14,17 +14,16 @@ namespace cmb.schema.ctxb {
   [BinarySchema]
   public partial class Ctxb : IBiSerializable {
     public CtxbHeader Header { get; } = new();
+    [Ignore] private uint BaseDataOffset => (uint)this.Header.DataOffset;
+
     public CtxbTexChunk Chunk { get; } = new();
+    [Ignore] private uint ThisDataOffset => this.Chunk.Entry.dataOffset;
+    [Ignore] private uint ThisDataLength => this.Chunk.Entry.dataLength;
+
 
     [Offset(nameof(BaseDataOffset), nameof(ThisDataOffset))]
     [ArrayLengthSource(nameof(ThisDataLength))]
     public byte[] Data { get; private set; }
-
-    [Ignore] private uint BaseDataOffset => (uint) this.Header.DataOffset;
-
-    [Ignore] private uint ThisDataOffset => this.Chunk.Entry.dataOffset;
-
-    [Ignore] private uint ThisDataLength => this.Chunk.Entry.dataLength;
   }
 
   [BinarySchema]

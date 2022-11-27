@@ -1,4 +1,6 @@
 ﻿using NUnit.Framework;
+using schema.util;
+using System;
 
 
 namespace schema.text {
@@ -68,6 +70,24 @@ namespace foo.bar {
 ");
     }
 
+    [Test]
+    public void TestFailsIfOutOfOrder() {
+      Assert.Throws(typeof(Asserts.AssertionException), () => SchemaTestUtil.Parse(@"
+using schema;
+
+namespace foo.bar {
+  [BinarySchema]
+  public partial class ByteWrapper : IBiSerializable {
+    [IfBoolean(nameof(Field))]
+    public int? OtherValue { get; set; }
+
+    [IntegerFormat(SchemaIntegerType.BYTE)]
+    public bool Field { get; set; }
+  }
+
+  public class A : IBiSerializable { }
+}"));
+    }
 
     [Test]
     public void TestUsingBoolFromChild() {
