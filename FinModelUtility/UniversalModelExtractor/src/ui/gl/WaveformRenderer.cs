@@ -15,9 +15,9 @@ namespace uni.ui.gl {
         return;
       }
 
-      var samplesPerPoint = 50;
-      var pointsPerX = 4;
-      var pointCount = Width / pointsPerX;
+      var samplesPerPoint = 25;
+      var xPerPoint = 1;
+      var pointCount = Width / xPerPoint;
       var points = new float[pointCount];
       for (var i = 0; i < pointCount; ++i) {
         float totalSample = 0;
@@ -53,7 +53,7 @@ namespace uni.ui.gl {
 
       GL.Begin(PrimitiveType.LineStrip);
       for (var i = 0; i < pointCount; ++i) {
-        var x = i * pointsPerX;
+        var x = i * xPerPoint;
         var y = this.MiddleY + this.Amplitude * points[i];
         GL.Vertex2(x, y);
       }
