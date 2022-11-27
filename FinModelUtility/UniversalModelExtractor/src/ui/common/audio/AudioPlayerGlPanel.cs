@@ -23,6 +23,8 @@ namespace uni.ui.common.audio {
     private GlShaderProgram texturelessShaderProgram_;
 
     public AudioPlayerGlPanel() {
+      this.Disposed += (_, _) => this.audioManager_.Dispose();
+
       this.audioSource_ = this.audioManager_.CreateAudioSource();
 
       var playNextLock = new object();
