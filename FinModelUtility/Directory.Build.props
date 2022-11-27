@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup Condition="$(MSBuildProjectName.Contains('Tests'))">
+    <CollectCoverage>true</CollectCoverage>
+    <CoverletOutput>TestResults/</CoverletOutput>
+    <CoverletOutputFormat>lcov</CoverletOutputFormat>
+  </PropertyGroup>
+</Project>
