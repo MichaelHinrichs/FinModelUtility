@@ -83,5 +83,9 @@ Then, follow the steps below.
 ### Extracting all files from a given game via a batch script
 
 2) Double-click the corresponding `rip_[game_name].bat` file in the `cli/` directory. This will first rip all of the files from the game, and then the currently supported models. This can take a while on the first execution, but future executions will reuse the exported files.
-3) Extracted models will appear within the corresponding `cli/out/[game_name]/` directory. Both GLTF (.glb) and FBX are exported, since each format has slightly different compatibility. FBX is generally preferred due to supporting additional UV channels, but GLTF is better supported within model viewer programs such as Noesis.
-4) The materials for some models are broken/incomplete due to the complexity of recreating fixed-function pipeline effects in a standalone model. These will need to be manually recreated in whichever program you import the model into.
+3) Extracted models will appear within the corresponding `cli/out/[game_name]/` directory.  
+
+## Notes about exported models
+
+- Both GLTF (.glb) and FBX models will be created when exporting, since each format has slightly different compatibility. FBX is generally preferred due to supporting additional UV channels, but GLTF is better supported within model viewer programs such as Noesis.
+- The materials for some models are broken/incomplete due to the complexity of recreating fixed-function pipeline effects in a standalone model. These will need to be manually recreated in whichever program you import the model into.
