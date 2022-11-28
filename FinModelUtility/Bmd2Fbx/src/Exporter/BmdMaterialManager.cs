@@ -4,6 +4,7 @@ using System.Linq;
 using fin.model;
 
 using bmd.GCN;
+using bmd.schema.bti;
 
 namespace bmd.exporter {
   public class BmdMaterialManager {
@@ -14,7 +15,7 @@ namespace bmd.exporter {
     public BmdMaterialManager(
         IModel model,
         BMD bmd,
-        IList<(string, BTI)>? pathsAndBtis = null) {
+        IList<(string, Bti)>? pathsAndBtis = null) {
       this.bmd_ = bmd;
 
       this.textures_ = bmd.TEX1.TextureHeaders.Select((textureHeader, i) => {

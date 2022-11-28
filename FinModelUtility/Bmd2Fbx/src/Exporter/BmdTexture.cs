@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 
 using fin.io;
 using fin.model;
 
-using bmd.GCN;
-
+using bmd.schema.bmd.tex1;
+using bmd.schema.bti;
 using fin.image;
 
 using gx;
@@ -19,8 +17,8 @@ namespace bmd.exporter {
   public class BmdTexture {
     public BmdTexture(
         string name,
-        BMD.TEX1Section.TextureHeader header,
-        IList<(string, BTI)>? pathsAndBtis = null) {
+        TextureEntry header,
+        IList<(string, Bti)>? pathsAndBtis = null) {
       this.Name = name;
       this.Header = header;
 
@@ -46,11 +44,11 @@ namespace bmd.exporter {
           var bti = matchingPathAndBti.Item2;
 
           this.Image = bti.ToBitmap();
-          this.ColorType = BmdTexture.GetColorType_(bti.Header.Format);
-          mirrorS = (bti.Header.WrapS & GX_WRAP_TAG.GX_MIRROR) != 0;
-          mirrorT = (bti.Header.WrapT & GX_WRAP_TAG.GX_MIRROR) != 0;
-          repeatS = (bti.Header.WrapS & GX_WRAP_TAG.GX_REPEAT) != 0;
-          repeatT = (bti.Header.WrapT & GX_WRAP_TAG.GX_REPEAT) != 0;
+          this.ColorType = BmdTexture.GetColorType_(bti.Format);
+          mirrorS = (bti.WrapS & GX_WRAP_TAG.GX_MIRROR) != 0;
+          mirrorT = (bti.WrapT & GX_WRAP_TAG.GX_MIRROR) != 0;
+          repeatS = (bti.WrapS & GX_WRAP_TAG.GX_REPEAT) != 0;
+          repeatT = (bti.WrapT & GX_WRAP_TAG.GX_REPEAT) != 0;
         }
       }
 
@@ -73,7 +71,7 @@ namespace bmd.exporter {
     }
 
     public string Name { get; }
-    public BMD.TEX1Section.TextureHeader Header { get; }
+    public TextureEntry Header { get; }
     public IImage Image { get; }
     public ColorType ColorType { get; }
     public WrapMode WrapModeS { get; }
@@ -105,44 +103,21 @@ namespace bmd.exporter {
       return WrapMode.CLAMP;
     }
 
-    private static ColorType GetColorType_(BTI.TextureFormat textureFormat) {
+    private static ColorType GetColorType_(TextureFormat textureFormat) {
       switch (textureFormat) {
-        case BTI.TextureFormat.I4:
-        case BTI.TextureFormat.I8:
-        case BTI.TextureFormat.A4_I4:
-        case BTI.TextureFormat.A8_I8:
+        case TextureFormat.I4:
+        case TextureFormat.I8:
+        case TextureFormat.A4_I4:
+        case TextureFormat.A8_I8:
           return ColorType.INTENSITY;
 
-        case BTI.TextureFormat.R5_G6_B5:
-        case BTI.TextureFormat.A3_RGB5:
-        case BTI.TextureFormat.ARGB8:
-        case BTI.TextureFormat.INDEX4:
-        case BTI.TextureFormat.INDEX8:
-        case BTI.TextureFormat.INDEX14_X2:
-        case BTI.TextureFormat.S3TC1:
-          return ColorType.COLOR;
-
-        default:
-          throw new NotImplementedException();
-      }
-    }
-
-    private static ColorType GetColorType_(
-        BMD.TEX1Section.TextureFormat textureFormat) {
-      switch (textureFormat) {
-        case BMD.TEX1Section.TextureFormat.I4:
-        case BMD.TEX1Section.TextureFormat.I8:
-        case BMD.TEX1Section.TextureFormat.A4_I4:
-        case BMD.TEX1Section.TextureFormat.A8_I8:
-          return ColorType.INTENSITY;
-
-        case BMD.TEX1Section.TextureFormat.R5_G6_B5:
-        case BMD.TEX1Section.TextureFormat.A3_RGB5:
-        case BMD.TEX1Section.TextureFormat.ARGB8:
-        case BMD.TEX1Section.TextureFormat.INDEX4:
-        case BMD.TEX1Section.TextureFormat.INDEX8:
-        case BMD.TEX1Section.TextureFormat.INDEX14_X2:
-        case BMD.TEX1Section.TextureFormat.S3TC1:
+        case TextureFormat.R5_G6_B5:
+        case TextureFormat.A3_RGB5:
+        case TextureFormat.ARGB8:
+        case TextureFormat.INDEX4:
+        case TextureFormat.INDEX8:
+        case TextureFormat.INDEX14_X2:
+        case TextureFormat.S3TC1:
           return ColorType.COLOR;
 
         default:

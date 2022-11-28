@@ -2,16 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-
 using fin.math;
 using fin.math.matrix;
-
 using bmd.GCN;
 using bmd.schema.bmd.mat3;
+using bmd.schema.bti;
 using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
-
 using fin.io;
 using fin.log;
 using fin.schema.matrix;
@@ -58,14 +56,15 @@ namespace bmd.exporter {
         throw;
       }
 
-      List<(string, BTI)>? pathsAndBtis;
+      List<(string, Bti)>? pathsAndBtis;
       try {
         pathsAndBtis =
             modelFileBundle
                 .BtiFiles?
                 .Select(btiFile
                             => (btiFile.FullName,
-                                new BTI(btiFile.Impl.ReadAllBytes())))
+                                btiFile.Impl.ReadNew<Bti>(
+                                    Endianness.BigEndian)))
                 .ToList();
       } catch {
         logger.LogError("Failed to load BTI!");
@@ -222,7 +221,7 @@ namespace bmd.exporter {
 
           // Batch
           case 0x12:
-            var batch = batches[(int) entry.Index];
+            var batch = batches[(int)entry.Index];
             foreach (var packet in batch.Packets) {
               // Updates contents of matrix table
               for (var i = 0; i < packet.MatrixTable.Length; ++i) {
@@ -265,10 +264,13 @@ namespace bmd.exporter {
                   }
 
                   var bone = jointsAndBones[jointIndex].Item2;
-                  weights = new[]
-                      {new BoneWeight(bone, MatrixTransformUtil.IDENTITY, 1)};
+                  weights = new[] {
+                      new BoneWeight(bone, MatrixTransformUtil.IDENTITY, 1)
+                  };
                 }
-                weightsTable[i] = finSkin.GetOrCreateBoneWeights(PreprojectMode.BONE, weights);
+                weightsTable[i] =
+                    finSkin.GetOrCreateBoneWeights(
+                        PreprojectMode.BONE, weights);
               }
 
               foreach (var primitive in packet.Primitives) {

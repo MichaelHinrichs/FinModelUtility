@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 
 using bmd.GCN;
-
+using bmd.schema.bti;
 using fin.io;
 
 using Newtonsoft.Json;
@@ -14,7 +14,7 @@ namespace bmd.exporter {
         IDirectory outputDirectory,
         BMD bmd,
         string bmdName,
-        IList<(string, BTI)> pathsAndBtis) {
+        IList<(string, Bti)> pathsAndBtis) {
       // Saves JSON representation of MAT3 for debugging materials
       var jsonSerializer = new JsonSerializer();
       jsonSerializer.Formatting = Formatting.Indented;
