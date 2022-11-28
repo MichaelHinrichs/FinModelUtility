@@ -9,10 +9,10 @@ using schema.parser;
 
 
 namespace schema.attributes.child_of {
-  public class IChildOfParser {
+  public class ChildOfParser {
     private readonly IList<Diagnostic> diagnostics_;
 
-    public IChildOfParser(IList<Diagnostic> diagnostics) {
+    public ChildOfParser(IList<Diagnostic> diagnostics) {
       this.diagnostics_ = diagnostics;
     }
 
