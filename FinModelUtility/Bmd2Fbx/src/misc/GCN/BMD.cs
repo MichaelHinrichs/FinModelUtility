@@ -910,8 +910,8 @@ label_7:
       public DataBlockHeader Header;
       public ushort NrMaterials;
       public uint[] Offsets;
-      public BMD.MAT3Section.MaterialEntry[] MaterialEntries;
-      public BMD.MAT3Section.PopulatedMaterial[] PopulatedMaterials;
+      public MaterialEntry[] MaterialEntries;
+      public PopulatedMaterial[] PopulatedMaterials;
       public ushort[] MaterialEntryIndieces;
       public short[] TextureIndices;
       public CullMode[] CullModes;
@@ -952,9 +952,9 @@ label_7:
           // https://github.com/RenolY2/SuperBMD/blob/ccc86e21493275bcd9d86f65b516b85d95c83abd/SuperBMDLib/source/Materials/Enums/Mat3OffsetIndex.cs
 
           er.Position = position1 + (long) this.Offsets[0];
-          this.MaterialEntries = new BMD.MAT3Section.MaterialEntry[sectionLengths[0] / 332];
+          this.MaterialEntries = new MaterialEntry[sectionLengths[0] / 332];
           for (int index = 0; index < sectionLengths[0] / 332; ++index)
-            this.MaterialEntries[index] = new BMD.MAT3Section.MaterialEntry(er);
+            this.MaterialEntries[index] = er.ReadNew<MaterialEntry>();
           
           er.Position = position1 + (long) this.Offsets[1];
           this.MaterialEntryIndieces = er.ReadUInt16s((int) this.NrMaterials);
@@ -1068,109 +1068,6 @@ label_7:
         return numArray;
       }
 
-      public class MaterialEntry
-      {
-        public byte Flag;
-        public byte CullModeIndex;
-        public byte ColorChannelControlsCountIndex;
-        public byte TexGensCountIndex;
-        public byte TevStagesCountIndex;
-        public byte ZCompLocIndex;
-        public byte ZModeIndex;
-        public byte DitherIndex;
-
-        public short[] MaterialColorIndexes;
-        public ushort[] ColorChannelControlIndexes;
-        public ushort[] AmbientColorIndexes;
-        public ushort[] LightColorIndexes;
-
-        public ushort[] TexGenInfo;
-        public TexGenType[] TexGenTypes;
-        
-        public ushort[] TexGenInfo2;
-        public ushort[] TexMatrices;
-        public ushort[] DttMatrices;
-        public short[] TextureIndexes;
-        public ushort[] TevKonstColorIndexes;
-        public GxKonstColorSel[] KonstColorSel;
-        public GxKonstAlphaSel[] KonstAlphaSel;
-        public short[] TevOrderInfoIndexes;
-        public ushort[] TevColorIndexes;
-        public short[] TevStageInfoIndexes;
-        public ushort[] TevSwapModeInfo;
-        public ushort[] TevSwapModeTable;
-        public ushort[] Unknown2;
-        public short FogInfoIndex;
-        public short AlphaCompareIndex;
-        public short BlendModeIndex;
-        public short UnknownIndex;
-
-        // https://github.com/LordNed/WindEditor/wiki/BMD-and-BDL-Model-Format#material-entry
-        public MaterialEntry(EndianBinaryReader er) {
-          this.Flag = er.ReadByte();
-          this.CullModeIndex = er.ReadByte();
-          this.ColorChannelControlsCountIndex = er.ReadByte();
-          this.TexGensCountIndex = er.ReadByte();
-          this.TevStagesCountIndex = er.ReadByte();
-          this.ZCompLocIndex = er.ReadByte();
-          this.ZModeIndex = er.ReadByte();
-          this.DitherIndex = er.ReadByte();
-          
-          this.MaterialColorIndexes = er.ReadInt16s(2);
-          this.ColorChannelControlIndexes = er.ReadUInt16s(4);
-          this.AmbientColorIndexes = er.ReadUInt16s(2);
-          this.LightColorIndexes = er.ReadUInt16s(8);
-          
-          this.TexGenInfo = er.ReadUInt16s(8);
-          this.TexGenTypes =
-              this.TexGenInfo
-                  .Select(texGenType
-                              => texGenType != 65535
-                                     ? (TexGenType) texGenType
-                                     : TexGenType.UNDEFINED)
-                  .ToArray();
-
-          this.TexGenInfo2 = er.ReadUInt16s(8);
-          this.TexMatrices = er.ReadUInt16s(10);
-          this.DttMatrices = er.ReadUInt16s(20);
-          this.TextureIndexes = er.ReadInt16s(8);
-          this.TevKonstColorIndexes = er.ReadUInt16s(4);
-          this.KonstColorSel =
-              er.ReadBytes(16)
-                .Select(konstColor => (GxKonstColorSel) konstColor)
-                .ToArray();
-          this.KonstAlphaSel =
-              er.ReadBytes(16)
-                .Select(konstAlpha => (GxKonstAlphaSel) konstAlpha)
-                .ToArray();
-          this.TevOrderInfoIndexes = er.ReadInt16s(16);
-          this.TevColorIndexes = er.ReadUInt16s(4);
-          this.TevStageInfoIndexes = er.ReadInt16s(16);
-          this.TevSwapModeInfo = er.ReadUInt16s(16);
-          this.TevSwapModeTable = er.ReadUInt16s(4);
-          this.Unknown2 = er.ReadUInt16s(12);
-          this.FogInfoIndex = er.ReadInt16();
-          this.AlphaCompareIndex = er.ReadInt16();
-          this.BlendModeIndex = er.ReadInt16();
-          this.UnknownIndex = er.ReadInt16();
-        }
-
-        public enum TexGenType {
-          GX_TG_MTX3x4,
-          GX_TG_MTX2x4,
-          GX_TG_BUMP0,
-          GX_TG_BUMP1,
-          GX_TG_BUMP2,
-          GX_TG_BUMP3,
-          GX_TG_BUMP4,
-          GX_TG_BUMP5,
-          GX_TG_BUMP6,
-          GX_TG_BUMP7,
-          GX_TG_SRTG,
-          UNDEFINED,
-      }
-      }
-
       public class PopulatedMaterial {
         public string Name;
         public byte Flag;
@@ -1188,7 +1085,6 @@ label_7:
         public ushort[] LightColorIndexes;
 
         public ushort[] TexGenInfo;
-        public MaterialEntry.TexGenType[] TexGenTypes;
 
         public ushort[] TexGenInfo2;
         public ushort[] TexMatrices;

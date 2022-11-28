@@ -7,7 +7,7 @@ using fin.math;
 using fin.math.matrix;
 
 using bmd.GCN;
-
+using bmd.schema.bmd.mat3;
 using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
@@ -201,7 +201,7 @@ namespace bmd.exporter {
       var entries = bmd.INF1.Entries;
       var batches = bmd.SHP1.Batches;
 
-      BMD.MAT3Section.MaterialEntry currentMaterialEntry = null;
+      MaterialEntry? currentMaterialEntry = null;
       BmdFixedFunctionMaterial? currentBmdMaterial = null;
 
       var weightsTable = new IBoneWeights?[10];

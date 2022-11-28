@@ -153,7 +153,7 @@
     GX_TEVREG2,
   }
 
-  public enum GxKonstColorSel {
+  public enum GxKonstColorSel : byte {
     KCSel_1 = 0x00,     // Constant 1.0
     KCSel_7_8 = 0x01,   // Constant 7/8
     KCSel_3_4 = 0x02,   // Constant 3/4
@@ -184,7 +184,7 @@
     KCSel_K3_A = 0x1F   // K3[AAA] Register
   }
 
-  public enum GxKonstAlphaSel {
+  public enum GxKonstAlphaSel : byte {
     KASel_1 = 0x00,     // Constant 1.0
     KASel_7_8 = 0x01,   // Constant 7/8
     KASel_3_4 = 0x02,   // Constant 3/4
