@@ -104,12 +104,20 @@ namespace bmd.exporter {
         var jnt = bmd.JNT1.Joints[j];
 
         var rotationFactor = 1f / 32768f * 3.14159f;
-        var bone = parentBone.AddChild(jnt.Tx, jnt.Ty, jnt.Tz)
-                             .SetLocalRotationRadians(
-                                 jnt.Rx * rotationFactor,
-                                 jnt.Ry * rotationFactor,
-                                 jnt.Rz * rotationFactor)
-                             .SetLocalScale(jnt.Sx, jnt.Sy, jnt.Sz);
+        var bone =
+            parentBone
+                .AddChild(
+                    jnt.Translation.X,
+                    jnt.Translation.Y,
+                    jnt.Translation.Z)
+                .SetLocalRotationRadians(
+                    jnt.Rotation.X * rotationFactor,
+                    jnt.Rotation.Y * rotationFactor,
+                    jnt.Rotation.Z * rotationFactor)
+                .SetLocalScale(
+                    jnt.Scale.X,
+                    jnt.Scale.Y, 
+                    jnt.Scale.Z);
         bone.Name = jointName;
 
         jointsAndBones[j] = (joint, bone);

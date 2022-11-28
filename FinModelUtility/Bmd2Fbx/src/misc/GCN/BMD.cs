@@ -172,7 +172,8 @@ namespace bmd.GCN {
             nodeStack.Pop();
             break;
           case 16:
-            nodeList.Add(new MA.Node(this.JNT1.Joints[(int) entry.Index].Tx, this.JNT1.Joints[(int) entry.Index].Ty, this.JNT1.Joints[(int) entry.Index].Tz, (float) ((double) this.JNT1.Joints[(int) entry.Index].Rx / 32768.0 * 180.0), (float) ((double) this.JNT1.Joints[(int) entry.Index].Ry / 32768.0 * 180.0), (float) ((double) this.JNT1.Joints[(int) entry.Index].Rz / 32768.0 * 180.0), this.JNT1.Joints[(int) entry.Index].Sx, this.JNT1.Joints[(int) entry.Index].Sy, this.JNT1.Joints[(int) entry.Index].Sz, this.JNT1.StringTable[(int) entry.Index], nodeStack.Peek() == null ? (string) null : nodeStack.Peek().Name));
+            nodeList.Add(new MA.Node(
+                             this.JNT1.StringTable[(int) entry.Index], nodeStack.Peek() == null ? (string) null : nodeStack.Peek().Name));
             node = new BMD.Node(this.JNT1.StringTable[(int) entry.Index], nodeStack.Peek() == null ? (BMD.Node) null : nodeStack.Peek());
             break;
         }

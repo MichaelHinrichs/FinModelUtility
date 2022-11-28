@@ -1,4 +1,5 @@
-﻿using schema;
+﻿using fin.schema.vector;
+using schema;
 
 
 namespace bmd.schema.bmd.jnt1 {
@@ -7,16 +8,10 @@ namespace bmd.schema.bmd.jnt1 {
     public ushort Unknown1;
     public byte Unknown2;
     public byte Padding1;
-    public float Sx;
-    public float Sy;
-    public float Sz;
-    public short Rx;
-    public short Ry;
-    public short Rz;
+    public Vector3f Scale { get; } = new();
+    public Vector3s Rotation { get; } = new();
     public ushort Padding2;
-    public float Tx;
-    public float Ty;
-    public float Tz;
+    public Vector3f Translation { get; } = new();
     public float Unknown3;
     public readonly float[] BoundingBoxMin = new float[3];
     public readonly float[] BoundingBoxMax = new float[3];
