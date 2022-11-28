@@ -22,13 +22,13 @@ namespace fin.schema.data {
   [BinarySchema]
   public partial class AutoUInt32SizedSection<T> : ISizedSection<T>
       where T : IBiSerializable, new() {
-    private readonly PassThruMagicUint32SizedSection<T> impl_;
+    private readonly PassThruUint32SizedSection<T> impl_;
 
     [Ignore]
     public T Data => this.impl_.Data;
 
-    public AutoUInt32SizedSection(string magic) {
-      this.impl_ = new(magic, new T());
+    public AutoUInt32SizedSection() {
+      this.impl_ = new(new T());
     }
   }
 

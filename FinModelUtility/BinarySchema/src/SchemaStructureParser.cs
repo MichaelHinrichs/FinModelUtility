@@ -159,7 +159,7 @@ namespace schema {
       new PartialContainerAsserter(diagnostics).AssertContainersArePartial(
           structureSymbol);
 
-      var iChildOfParser = new IChildOfParser(diagnostics);
+      var iChildOfParser = new ChildOfParser(diagnostics);
       var parentTypeSymbol =
           iChildOfParser.GetParentTypeSymbolOf(structureSymbol);
       if (parentTypeSymbol != null) {
