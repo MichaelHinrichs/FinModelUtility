@@ -23,24 +23,18 @@
 
   <ItemGroup>
     <Compile Remove="src\api\**" />
-    <Compile Remove="src\misc\Converters\Colission\**" />
-    <Compile Remove="src\misc\Converters\_3D\**" />
     <Compile Remove="src\misc\Flobbster\**" />
     <Compile Remove="src\misc\G2D_Binary_File_Format\**" />
     <Compile Remove="src\misc\Language\**" />
     <Compile Remove="src\misc\Misc\**" />
     <Compile Remove="src\misc\Tao\**" />
     <EmbeddedResource Remove="src\api\**" />
-    <EmbeddedResource Remove="src\misc\Converters\Colission\**" />
-    <EmbeddedResource Remove="src\misc\Converters\_3D\**" />
     <EmbeddedResource Remove="src\misc\Flobbster\**" />
     <EmbeddedResource Remove="src\misc\G2D_Binary_File_Format\**" />
     <EmbeddedResource Remove="src\misc\Language\**" />
     <EmbeddedResource Remove="src\misc\Misc\**" />
     <EmbeddedResource Remove="src\misc\Tao\**" />
     <None Remove="src\api\**" />
-    <None Remove="src\misc\Converters\Colission\**" />
-    <None Remove="src\misc\Converters\_3D\**" />
     <None Remove="src\misc\Flobbster\**" />
     <None Remove="src\misc\G2D_Binary_File_Format\**" />
     <None Remove="src\misc\Language\**" />
@@ -51,9 +45,6 @@
   <ItemGroup>
     <Compile Remove="src\cli\Args.cs" />
     <Compile Remove="src\cli\Cli.cs" />
-    <Compile Remove="src\misc\Converters\Compression.cs" />
-    <Compile Remove="src\misc\Converters\Graphic.cs" />
-    <Compile Remove="src\misc\Converters\Sound.cs" />
     <Compile Remove="src\misc\G3D_Binary_File_Format\AnmHeader.cs" />
     <Compile Remove="src\misc\G3D_Binary_File_Format\DictionaryData.cs" />
     <Compile Remove="src\misc\G3D_Binary_File_Format\Dictionary`1.cs" />
