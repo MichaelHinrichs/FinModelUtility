@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-
 using cmb.schema.cmb;
 using cmb.schema.csab;
 using cmb.schema.ctxb;
 using cmb.schema.shpa;
-
 using fin.color;
 using fin.data;
+using fin.data.queue;
 using fin.image;
 using fin.io;
 using fin.math;
@@ -97,11 +96,9 @@ namespace cmb.api {
       }
 
       var finBones = new IBone[cmb.skl.bones.Length];
-      var boneQueue = new Queue<(Bone, IBone?)>();
-      boneQueue.Enqueue((cmb.skl.bones[0], null));
-      while (boneQueue.Count > 0) {
-        var (cmbBone, finBoneParent) = boneQueue.Dequeue();
-
+      var boneQueue =
+          new FinTuple2Queue<Bone, IBone?>((cmb.skl.bones[0], null));
+      while (boneQueue.TryDequeue(out var cmbBone, out var finBoneParent)) {
         var translation = cmbBone.translation;
         var radians = cmbBone.rotation;
         var scale = cmbBone.scale;
@@ -114,9 +111,7 @@ namespace cmb.api {
         finBones[cmbBone.id] = finBone;
 
         if (boneChildren.TryGetList(cmbBone, out var children)) {
-          foreach (var child in children) {
-            boneQueue.Enqueue((child, finBone));
-          }
+          boneQueue.Enqueue(children!.Select(child => (child, finBone)));
         }
       }
 
@@ -125,7 +120,7 @@ namespace cmb.api {
         var finAnimation = finModel.AnimationManager.AddAnimation();
         finAnimation.Name = csabFile.NameWithoutExtension;
 
-        finAnimation.FrameCount = (int) csab.Duration;
+        finAnimation.FrameCount = (int)csab.Duration;
         finAnimation.FrameRate = fps;
 
         foreach (var (boneIndex, anod) in csab.BoneIndexToAnimationNode) {
@@ -133,21 +128,21 @@ namespace cmb.api {
 
           // TODO: Add support for in/out tangents
           foreach (var translationX in anod.TranslationX.Keyframes) {
-            boneTracks.Positions.Set((int) translationX.Time,
+            boneTracks.Positions.Set((int)translationX.Time,
                                      0,
                                      translationX.Value,
                                      translationX.IncomingTangent,
                                      translationX.OutgoingTangent);
           }
           foreach (var translationY in anod.TranslationY.Keyframes) {
-            boneTracks.Positions.Set((int) translationY.Time,
+            boneTracks.Positions.Set((int)translationY.Time,
                                      1,
                                      translationY.Value,
                                      translationY.IncomingTangent,
                                      translationY.OutgoingTangent);
           }
           foreach (var translationZ in anod.TranslationZ.Keyframes) {
-            boneTracks.Positions.Set((int) translationZ.Time,
+            boneTracks.Positions.Set((int)translationZ.Time,
                                      2,
                                      translationZ.Value,
                                      translationZ.IncomingTangent,
@@ -155,21 +150,21 @@ namespace cmb.api {
           }
 
           foreach (var scaleX in anod.ScaleX.Keyframes) {
-            boneTracks.Scales.Set((int) scaleX.Time,
+            boneTracks.Scales.Set((int)scaleX.Time,
                                   0,
                                   scaleX.Value,
                                   scaleX.IncomingTangent,
                                   scaleX.OutgoingTangent);
           }
           foreach (var scaleY in anod.ScaleY.Keyframes) {
-            boneTracks.Scales.Set((int) scaleY.Time,
+            boneTracks.Scales.Set((int)scaleY.Time,
                                   1,
                                   scaleY.Value,
                                   scaleY.IncomingTangent,
                                   scaleY.OutgoingTangent);
           }
           foreach (var scaleZ in anod.ScaleZ.Keyframes) {
-            boneTracks.Scales.Set((int) scaleZ.Time,
+            boneTracks.Scales.Set((int)scaleZ.Time,
                                   2,
                                   scaleZ.Value,
                                   scaleZ.IncomingTangent,
@@ -177,21 +172,21 @@ namespace cmb.api {
           }
 
           foreach (var rotationX in anod.RotationX.Keyframes) {
-            boneTracks.Rotations.Set((int) rotationX.Time,
+            boneTracks.Rotations.Set((int)rotationX.Time,
                                      0,
                                      rotationX.Value,
                                      rotationX.IncomingTangent,
                                      rotationX.OutgoingTangent);
           }
           foreach (var rotationY in anod.RotationY.Keyframes) {
-            boneTracks.Rotations.Set((int) rotationY.Time,
+            boneTracks.Rotations.Set((int)rotationY.Time,
                                      1,
                                      rotationY.Value,
                                      rotationY.IncomingTangent,
                                      rotationY.OutgoingTangent);
           }
           foreach (var rotationZ in anod.RotationZ.Keyframes) {
-            boneTracks.Rotations.Set((int) rotationZ.Time,
+            boneTracks.Rotations.Set((int)rotationZ.Time,
                                      2,
                                      rotationZ.Value,
                                      rotationZ.IncomingTangent,
@@ -211,7 +206,7 @@ namespace cmb.api {
                if (position != 0) {
                  r.Position = position;
                  var data =
-                     r.ReadBytes((int) cmbTexture.dataLength);
+                     r.ReadBytes((int)cmbTexture.dataLength);
                  image =
                      ctrTexture.DecodeImage(data, cmbTexture);
                } else {
@@ -344,7 +339,7 @@ namespace cmb.api {
                                          r,
                                          shape.bIndices.DataType);
                 bIndices[i * boneCount + bi] =
-                    pset.boneTable[(int) boneTableIndex];
+                    pset.boneTable[(int)boneTableIndex];
               }
             } else {
               bIndices[i] = shape.primitiveSets[0].boneTable[0];
@@ -374,7 +369,7 @@ namespace cmb.api {
                                             positionValues[2]);
           finVertices[i] = finVertex;
 
-          var index = (ushort) (shape.position.Start / 3 + i);
+          var index = (ushort)(shape.position.Start / 3 + i);
           verticesByIndex.Add(index, finVertex);
 
           if (hasNrm) {
@@ -403,10 +398,10 @@ namespace cmb.api {
                             .Select(value => value * shape.color.Scale)
                             .ToArray();
 
-            finVertex.SetColorBytes((byte) (colorValues[0] * 255),
-                                    (byte) (colorValues[1] * 255),
-                                    (byte) (colorValues[2] * 255),
-                                    (byte) (colorValues[3] * 255));
+            finVertex.SetColorBytes((byte)(colorValues[0] * 255),
+                                    (byte)(colorValues[1] * 255),
+                                    (byte)(colorValues[2] * 255),
+                                    (byte)(colorValues[3] * 255));
           }
 
           if (hasUv0) {
