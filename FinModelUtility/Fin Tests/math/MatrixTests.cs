@@ -7,6 +7,61 @@ namespace fin.math {
   [TestClass]
   public class MatrixTests {
     [TestMethod]
+    public void TestFloatArrayConstructor() {
+      var values = new float[16];
+      for (var r = 0; r < 4; ++r) {
+        for (var c = 0; c < 4; ++c) {
+          values[4 * r + c] = 4 * r + c;
+        }
+      }
+
+      var mat = new FinMatrix4x4(values);
+
+      for (var r = 0; r < 4; ++r) {
+        for (var c = 0; c < 4; ++c) {
+          Assert.AreEqual(4 * r + c, mat[r, c]);
+        }
+      }
+    }
+
+    [TestMethod]
+    public void TestDoubleArrayConstructor() {
+      var values = new double[16];
+      for (var r = 0; r < 4; ++r) {
+        for (var c = 0; c < 4; ++c) {
+          values[4 * r + c] = 4 * r + c;
+        }
+      }
+
+      var mat = new FinMatrix4x4(values);
+
+      for (var r = 0; r < 4; ++r) {
+        for (var c = 0; c < 4; ++c) {
+          Assert.AreEqual(4 * r + c, mat[r, c]);
+        }
+      }
+    }
+
+    [TestMethod]
+    public void TestCopyConstructor() {
+      var values = new float[16];
+      for (var r = 0; r < 4; ++r) {
+        for (var c = 0; c < 4; ++c) {
+          values[4 * r + c] = 4 * r + c;
+        }
+      }
+
+      var first = new FinMatrix4x4(values);
+      var second = new FinMatrix4x4(first);
+
+      for (var r = 0; r < 4; ++r) {
+        for (var c = 0; c < 4; ++c) {
+          Assert.AreEqual(4 * r + c, second[r, c]);
+        }
+      }
+    }
+
+    [TestMethod]
     public void TestMultiplyByMatrix() {
       var lhs = new FinMatrix4x4();
       lhs[0, 0] = 1;
