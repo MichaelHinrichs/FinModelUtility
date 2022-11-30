@@ -31,22 +31,40 @@ namespace schema {
     public static bool Implements(ITypeSymbol symbol, Type type)
       => symbol.AllInterfaces.Any(i => SymbolTypeUtil.IsExactlyType(i, type));
 
-    public static string? MergeContainingNamespaces(ISymbol symbol) {
+    public static string[]? GetContainingNamespaces(ISymbol symbol) {
       var namespaceSymbol = symbol.ContainingNamespace;
       if (namespaceSymbol == null) {
         return null;
       }
 
-      var combined = "";
+      var namespaces = new LinkedList<string>();
       while (namespaceSymbol != null) {
-        if (combined.Length == 0) {
-          combined = namespaceSymbol.Name;
-        } else if (namespaceSymbol.Name.Length > 0) {
-          combined = $"{namespaceSymbol.Name}.{combined}";
+        if (namespaceSymbol.Name.Length > 0) {
+          namespaces.AddFirst(namespaceSymbol.Name);
         }
         namespaceSymbol = namespaceSymbol.ContainingNamespace;
       }
-      return combined;
+      return namespaces.ToArray();
+    }
+
+    public static string? MergeContainingNamespaces(ISymbol symbol)
+      => MergeNamespaceParts(GetContainingNamespaces(symbol));
+
+    public static string? MergeNamespaceParts(IList<string>? namespaces) {
+      if (namespaces == null) {
+        return null;
+      }
+
+      var combined = new StringBuilder();
+      foreach (var space in namespaces) {
+        if (combined.Length == 0) {
+          combined.Append(space);
+        } else {
+          combined.Append(".");
+          combined.Append(space);
+        }
+      }
+      return combined.ToString();
     }
 
     public static bool HasEmptyConstructor(INamedTypeSymbol symbol)
@@ -234,9 +252,9 @@ namespace schema {
         ITypeSymbol sourceSymbol,
         ITypeSymbol referencedSymbol) {
       var currentNamespace =
-          SymbolTypeUtil.MergeContainingNamespaces(sourceSymbol);
+          SymbolTypeUtil.GetContainingNamespaces(sourceSymbol);
       var referencedNamespace =
-          SymbolTypeUtil.MergeContainingNamespaces(referencedSymbol);
+          SymbolTypeUtil.GetContainingNamespaces(referencedSymbol);
 
       string mergedNamespaceText;
       if (currentNamespace == null && referencedNamespace == null) {
@@ -246,28 +264,22 @@ namespace schema {
       } else if (referencedNamespace == null) {
         mergedNamespaceText = $"{currentNamespace}.";
       } else {
-        var mergedNamespaceBuilder = new StringBuilder();
+        var namespaces = new List<string>();
         var matching = true;
         for (var i = 0; i < referencedNamespace.Length; ++i) {
-          var prevMatching = matching;
-
-          var referencedC = referencedNamespace[i];
-          if (i >= currentNamespace.Length) {
-            matching = false;
-          } else if (currentNamespace[i] != referencedC) {
+          if (i >= currentNamespace.Length ||
+              referencedNamespace[i] != currentNamespace[i]) {
             matching = false;
           }
 
-          var newlyDifferent = prevMatching && !matching;
-          if (!(newlyDifferent && referencedC == '.') && !matching) {
-            mergedNamespaceBuilder.Append(referencedC);
+          if (!matching) {
+            namespaces.Add(referencedNamespace[i]);
           }
         }
 
-        mergedNamespaceText =
-            mergedNamespaceBuilder.Length > 0
-                ? $"{mergedNamespaceBuilder}."
-                : "";
+        mergedNamespaceText = namespaces.Count > 0
+                                  ? $"{MergeNamespaceParts(namespaces)}."
+                                  : "";
       }
 
       var mergedContainersText = "";
