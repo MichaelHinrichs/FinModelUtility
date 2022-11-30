@@ -88,6 +88,14 @@ namespace cmb.api {
       var finSkin = finModel.Skin;
 
       // Adds bones
+      var boneChildren = new ListDictionary<Bone, Bone>();
+      foreach (var bone in cmb.skl.bones) {
+        var parentId = bone.parentId;
+        if (parentId != -1) {
+          boneChildren.Add(cmb.skl.bones[parentId], bone);
+        }
+      }
+
       var finBones = new IBone[cmb.skl.bones.Length];
       var boneQueue = new Queue<(Bone, IBone?)>();
       boneQueue.Enqueue((cmb.skl.bones[0], null));
@@ -105,8 +113,10 @@ namespace cmb.api {
             .SetLocalScale(scale.X, scale.Y, scale.Z);
         finBones[cmbBone.id] = finBone;
 
-        foreach (var child in cmbBone.children) {
-          boneQueue.Enqueue((child, finBone));
+        if (boneChildren.TryGetList(cmbBone, out var children)) {
+          foreach (var child in children) {
+            boneQueue.Enqueue((child, finBone));
+          }
         }
       }
 

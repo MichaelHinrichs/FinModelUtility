@@ -24,15 +24,6 @@ namespace cmb.schema.cmb {
         bone.Read(r);
         this.bones[i] = bone;
       }
-
-      foreach (var bone in this.bones) {
-        var parentId = bone.parentId;
-        if (parentId != -1) {
-          var parent = this.bones[parentId];
-          bone.parent = parent;
-          parent.children.Add(bone);
-        }
-      }
     }
   }
 }
