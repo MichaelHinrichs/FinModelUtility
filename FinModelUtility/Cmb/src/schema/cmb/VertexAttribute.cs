@@ -2,7 +2,7 @@
 
 namespace cmb.schema.cmb {
   [BinarySchema]
-  public partial class VertexAttribute : IDeserializable {
+  public partial class VertexAttribute : IBiSerializable {
     public uint Start { get; private set; }
     public float Scale { get; private set; } 
 

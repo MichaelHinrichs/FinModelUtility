@@ -1,29 +1,20 @@
-﻿using System.IO;
-
-using fin.util.strings;
+﻿using fin.util.strings;
 
 using schema;
 
 namespace cmb.schema.cmb {
-  public class Skl : IDeserializable {
+  [BinarySchema]
+  public partial class Skl : IBiSerializable {
+    private readonly string magic_ = "skl" + AsciiUtil.GetChar(0x20);
+
     public uint chunkSize;
+    private uint boneCount_;
+
+    // M-1: Only value found is "2", possibly "IsTranslateAnimationEnabled"
+    // flag (I can't find a change in-game)
     public uint unkFlags;
+
+    [ArrayLengthSource(nameof(boneCount_))]
     public Bone[] bones;
-
-    public void Read(EndianBinaryReader r) {
-      r.AssertMagicText("skl" + AsciiUtil.GetChar(0x20));
-
-      this.chunkSize = r.ReadUInt32();
-      this.bones = new Bone[r.ReadUInt32()];
-      // M-1: Only value found is "2", possibly "IsTranslateAnimationEnabled"
-      // flag (I can't find a change in-game)
-      this.unkFlags = r.ReadUInt32();
-
-      for (var i = 0; i < this.bones.Length; ++i) {
-        var bone = new Bone();
-        bone.Read(r);
-        this.bones[i] = bone;
-      }
-    }
   }
 }
