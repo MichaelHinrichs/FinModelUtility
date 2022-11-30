@@ -126,7 +126,6 @@ namespace cmb.api {
         foreach (var (boneIndex, anod) in csab.BoneIndexToAnimationNode) {
           var boneTracks = finAnimation.AddBoneTracks(finBones[boneIndex]);
 
-          // TODO: Add support for in/out tangents
           foreach (var translationX in anod.TranslationX.Keyframes) {
             boneTracks.Positions.Set((int)translationX.Time,
                                      0,
