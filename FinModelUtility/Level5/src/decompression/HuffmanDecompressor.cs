@@ -2,20 +2,23 @@
 
 
 namespace level5.decompression {
-  public class HuffmanDecompressor : IDecompressor {
+  public class HuffmanDecompressor : BDecompressor {
     private readonly byte aType_;
 
     public HuffmanDecompressor(byte aType) {
       this.aType_ = aType;
     }
 
-    public byte[] Decompress(byte[] b) {
-      HuffStream instream = new HuffStream(b);
+    public override bool TryDecompress(byte[] src, out byte[] dst) {
+      HuffStream instream = new HuffStream(src);
       long readBytes = 0;
 
       byte type = (byte)instream.ReadByte();
       type = this.aType_;
-      if (type != 0x28 && type != 0x24) return b;
+      if (type != 0x28 && type != 0x24) {
+        dst = null;
+        return false;
+      }
       int decompressedSize = instream.ReadThree();
       readBytes += 4;
       if (decompressedSize == 0) {
@@ -94,7 +97,8 @@ namespace level5.decompression {
         readBytes += 4 - (readBytes % 4);
 
 
-      return o.ToArray();
+      dst = o.ToArray();
+      return true;
     }
 
     private class HuffStream {

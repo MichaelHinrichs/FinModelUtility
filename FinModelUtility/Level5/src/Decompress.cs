@@ -4,30 +4,12 @@ using System.IO.Compression;
 
 namespace level5 {
   public class Decompress {
-    public static bool CheckLevel5Zlib(byte[] input, out byte[] t) {
-      var b = input;
-      t = input;
-      if (b.Length >= 6) {
-        var decomLength = (b[0] & 0xFF) | ((b[1] & 0xFF) << 8) |
-                          ((b[2] & 0xFF) << 16) | ((b[3] & 0xFF) << 24);
-        if (b[4] == 0x78) {
-          t = new byte[b.Length - 4];
-          Array.Copy(b, 4, t, 0, b.Length - 4);
-          t = DecompressZlib(t);
-          Console.WriteLine("ZLIB: " + decomLength.ToString("X") + " " +
-                            t.Length.ToString("X"));
-          return true;
-        }
-      }
-      return false;
-    }
-
     public static byte[] Level5Decom(byte[] b) {
       int tableType = (b[0] & 0xFF);
 
       byte[] t;
 
-      if (CheckLevel5Zlib(b, out t))
+      if (new ZlibDecompressor().TryDecompress(b, out t)) 
         return t;
 
       switch (tableType & 0xF) {
@@ -41,7 +23,7 @@ namespace level5 {
           t = new HuffmanDecompressor(0x28).Decompress(b);
           break;
         case 0x04:
-          t = (DecompressRle(b));
+          t = new RleDecompressor().Decompress(b);
           break;
         default:
           t = new byte[b.Length - 4];
@@ -338,82 +320,6 @@ namespace level5 {
 
     }
     */
-
-    public static byte[] DecompressRle(byte[] instream) {
-      long inLength = instream.Length;
-      long readBytes = 0;
-      int p = 0;
-
-      p++;
-
-      int decompressedSize = (instream[p++] & 0xFF)
-                             | ((instream[p++] & 0xFF) << 8)
-                             | ((instream[p++] & 0xFF) << 16);
-      readBytes += 4;
-      if (decompressedSize == 0) {
-        decompressedSize = decompressedSize
-                           | ((instream[p++] & 0xFF) << 24);
-        readBytes += 4;
-      }
-
-      List<byte> outstream = new List<byte>();
-
-      while (p < instream.Length) {
-        int flag = (byte)instream[p++];
-        readBytes++;
-
-        bool compressed = (flag & 0x80) > 0;
-        int length = flag & 0x7F;
-
-        if (compressed)
-          length += 3;
-        else
-          length += 1;
-
-        if (compressed) {
-          int data = (byte)instream[p++];
-          readBytes++;
-
-          byte bdata = (byte)data;
-          for (int i = 0; i < length; i++) {
-            outstream.Add(bdata);
-          }
-        } else {
-          int tryReadLength = length;
-          if (readBytes + length > inLength)
-            tryReadLength = (int)(inLength - readBytes);
-
-          readBytes += tryReadLength;
-
-          for (int i = 0; i < tryReadLength; i++) {
-            outstream.Add((byte)(instream[p++] & 0xFF));
-          }
-        }
-      }
-
-      if (readBytes < inLength) { }
-
-      return outstream.ToArray();
-    }
-
-    public static byte[] DecompressZlib(byte[] data) {
-      var stream = new MemoryStream();
-      var ms = new MemoryStream(data);
-      ms.ReadByte();
-      ms.ReadByte();
-      var zlibStream = new DeflateStream(ms, CompressionMode.Decompress);
-      byte[] buffer = new byte[2048];
-      while (true) {
-        int size = zlibStream.Read(buffer, 0, buffer.Length);
-        if (size > 0)
-          stream.Write(buffer, 0, buffer.Length);
-        else
-          break;
-      }
-      zlibStream.Close();
-      return stream.ToArray();
-    }
-
 
     /*private static int fbuf = 0;
     public static byte[] PRS_Mod(byte[] compData, int decompSize, int compSize) {

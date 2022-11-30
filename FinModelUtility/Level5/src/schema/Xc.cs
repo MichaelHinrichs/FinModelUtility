@@ -1,5 +1,4 @@
 ﻿using fin.data;
-using fin.io;
 using level5.decompression;
 using schema;
 
@@ -38,9 +37,9 @@ namespace level5.schema {
         hashToData.Add(nameCrc, er.ReadBytesAtOffset(offset, (int) size));
       }
 
-      byte[] nameTable = er.ReadBytesAtOffset(fileTableOffset, filenameTableSize);
-      if (!Decompress.CheckLevel5Zlib(nameTable, out nameTable)) {
-        nameTable = new LzssDecompressor().Decompress(nameTable);
+      var inNameTable = er.ReadBytesAtOffset(fileTableOffset, filenameTableSize);
+      if (!new ZlibDecompressor().TryDecompress(inNameTable, out var nameTable)) {
+        nameTable = new LzssDecompressor().Decompress(inNameTable);
       }
 
       this.FilesByExtension.Clear();

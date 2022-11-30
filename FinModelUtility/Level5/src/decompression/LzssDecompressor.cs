@@ -2,8 +2,8 @@
 
 
 namespace level5.decompression {
-  public class LzssDecompressor : IDecompressor {
-    public byte[] Decompress(byte[] data) {
+  public class LzssDecompressor : BDecompressor {
+    public override bool TryDecompress(byte[] src, out byte[] dst) {
       List<byte> o = new List<byte>();
 
       int p = 4;
@@ -12,19 +12,19 @@ namespace level5.decompression {
       int mask = 0;
       int flag = 0;
 
-      while (p < data.Length) {
+      while (p < src.Length) {
         if (mask == 0) {
-          flag = (data[p++] & 0xFF);
+          flag = (src[p++] & 0xFF);
           mask = 0x80;
         }
 
         if ((flag & mask) == 0) {
-          if (p + 1 > data.Length) break;
-          o.Add(data[p++]);
+          if (p + 1 > src.Length) break;
+          o.Add(src[p++]);
           op++;
         } else {
-          if (p + 2 > data.Length) break;
-          int dat = ((data[p++] & 0xFF) << 8) | (data[p++] & 0xFF);
+          if (p + 2 > src.Length) break;
+          int dat = ((src[p++] & 0xFF) << 8) | (src[p++] & 0xFF);
           int pos = (dat & 0x0FFF) + 1;
           int length = (dat >> 12) + 3;
 
@@ -38,7 +38,8 @@ namespace level5.decompression {
         mask >>= 1;
       }
 
-      return o.ToArray();
+      dst = o.ToArray();
+      return true;
     }
   }
 }
