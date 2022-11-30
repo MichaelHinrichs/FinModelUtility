@@ -1,10 +1,5 @@
-﻿using System;
-using System.IO;
-
-using cmb.schema.cmb;
-
+﻿using cmb.schema.cmb;
 using fin.util.strings;
-
 using schema;
 using schema.attributes.ignore;
 using schema.attributes.offset;
@@ -14,11 +9,17 @@ namespace cmb.schema.ctxb {
   [BinarySchema]
   public partial class Ctxb : IBiSerializable {
     public CtxbHeader Header { get; } = new();
-    [Ignore] private uint BaseDataOffset => (uint)this.Header.DataOffset;
+
+    [Ignore]
+    private uint BaseDataOffset => (uint)this.Header.DataOffset;
 
     public CtxbTexChunk Chunk { get; } = new();
-    [Ignore] private uint ThisDataOffset => this.Chunk.Entry.dataOffset;
-    [Ignore] private uint ThisDataLength => this.Chunk.Entry.dataLength;
+
+    [Ignore]
+    private uint ThisDataOffset => this.Chunk.Entry.dataOffset;
+
+    [Ignore]
+    private uint ThisDataLength => this.Chunk.Entry.dataLength;
 
 
     [Offset(nameof(BaseDataOffset), nameof(ThisDataOffset))]
@@ -44,30 +45,23 @@ namespace cmb.schema.ctxb {
     public CtxbTexEntry Entry { get; } = new();
   }
 
-  public class CtxbTexEntry : IBiSerializable {
+  [BinarySchema]
+  public partial class CtxbTexEntry : IBiSerializable {
     public uint dataLength { get; private set; }
     public ushort mimapCount { get; private set; }
+
+    [IntegerFormat(SchemaIntegerType.BYTE)]
     public bool isEtc1 { get; private set; }
+
+    [IntegerFormat(SchemaIntegerType.BYTE)]
     public bool isCubemap { get; private set; }
+
     public ushort width { get; private set; }
     public ushort height { get; private set; }
     public GlTextureFormat imageFormat { get; private set; }
     public uint dataOffset { get; private set; }
+
+    [StringLengthSource(16)]
     public string name { get; private set; }
-
-    public void Read(EndianBinaryReader r) {
-      this.dataLength = r.ReadUInt32();
-      this.mimapCount = r.ReadUInt16();
-      this.isEtc1 = r.ReadByte() != 0;
-      this.isCubemap = r.ReadByte() != 0;
-      this.width = r.ReadUInt16();
-      this.height = r.ReadUInt16();
-      this.imageFormat = (GlTextureFormat) r.ReadUInt32();
-      this.dataOffset = r.ReadUInt32();
-      this.name = r.ReadString(16);
-    }
-
-    public void Write(EndianBinaryWriter w)
-      => throw new NotImplementedException();
   }
 }

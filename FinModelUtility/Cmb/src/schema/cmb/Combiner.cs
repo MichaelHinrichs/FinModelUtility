@@ -1,9 +1,8 @@
-﻿using System.IO;
-
-using schema;
+﻿using schema;
 
 namespace cmb.schema.cmb {
-  public class Combiner : IDeserializable {
+  [BinarySchema]
+  public partial class Combiner : IBiSerializable {
     public TexCombineMode combinerModeColor;
     public TexCombineMode combinerModeAlpha;
     public TexCombineScale scaleColor;
@@ -19,31 +18,9 @@ namespace cmb.schema.cmb {
     public TexCombinerSource sourceAlpha0;
     public TexCombinerSource sourceAlpha1;
     public TexCombinerSource sourceAlpha2;
-    public TexCombinerColorOp operandAlpha0;
-    public TexCombinerColorOp operandAlpha1;
-    public TexCombinerColorOp operandAlpha2;
+    public TexCombinerAlphaOp operandAlpha0;
+    public TexCombinerAlphaOp operandAlpha1;
+    public TexCombinerAlphaOp operandAlpha2;
     public int constColorIndex;
-
-    public void Read(EndianBinaryReader r) {
-      this.combinerModeColor = (TexCombineMode) (r.ReadUInt16());
-      this.combinerModeAlpha = (TexCombineMode) (r.ReadUInt16());
-      this.scaleColor = (TexCombineScale)(r.ReadUInt16());
-      this.scaleAlpha = (TexCombineScale)(r.ReadUInt16());
-      this.bufferColor = (TexCombinerSource)(r.ReadUInt16());
-      this.bufferAlpha = (TexCombinerSource)(r.ReadUInt16());
-      this.sourceColor0 = (TexCombinerSource)(r.ReadUInt16());
-      this.sourceColor1 = (TexCombinerSource)(r.ReadUInt16());
-      this.sourceColor2 = (TexCombinerSource)(r.ReadUInt16());
-      this.operandColor0 = (TexCombinerColorOp)(r.ReadUInt16());
-      this.operandColor1 = (TexCombinerColorOp)(r.ReadUInt16());
-      this.operandColor2 = (TexCombinerColorOp)(r.ReadUInt16());
-      this.sourceAlpha0 = (TexCombinerSource)(r.ReadUInt16());
-      this.sourceAlpha1 = (TexCombinerSource)(r.ReadUInt16());
-      this.sourceAlpha2 = (TexCombinerSource)(r.ReadUInt16());
-      this.operandAlpha0 = (TexCombinerColorOp)(r.ReadUInt16());
-      this.operandAlpha1 = (TexCombinerColorOp)(r.ReadUInt16());
-      this.operandAlpha2 = (TexCombinerColorOp)(r.ReadUInt16());
-      this.constColorIndex = r.ReadInt32();
-    }
   }
 }

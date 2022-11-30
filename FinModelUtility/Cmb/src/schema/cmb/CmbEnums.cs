@@ -99,7 +99,7 @@
     SourceAlphaSaturate = 776
   }
 
-  public enum TexCombineMode {
+  public enum TexCombineMode : ushort {
     Replace = 0x1E01,
     Modulate = 0x2100,
     Add = 0x0104,
@@ -112,13 +112,13 @@
     AddMult = 0x6402
   }
 
-  public enum TexCombineScale {
+  public enum TexCombineScale : ushort {
     One = 1,
     Two = 2,
     Four = 4
   }
 
-  public enum TexCombinerSource {
+  public enum TexCombinerSource : ushort {
     PrimaryColor = 0x8577,
     FragmentPrimaryColor = 0x6210,
     FragmentSecondaryColor = 0x6211,
@@ -131,7 +131,7 @@
     Previous = 0x8578
   }
 
-  public enum TexCombinerColorOp {
+  public enum TexCombinerColorOp : ushort {
     Color = 0x0300,
     OneMinusColor = 0x0301,
     Alpha = 0x0302,
@@ -144,7 +144,7 @@
     OneMinusBlue = 0x8585
   }
 
-  public enum TexCombinerAlphaOp {
+  public enum TexCombinerAlphaOp : ushort {
     Alpha = 0x0302,
     OneMinusAlpha = 0x0303,
     Red = 0x8580,

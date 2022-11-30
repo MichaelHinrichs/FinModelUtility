@@ -71,20 +71,14 @@ namespace cmb.schema.shpa {
     }
   }
 
-  public class Idxs : IDeserializable {
+  [BinarySchema]
+  public partial class Idxs : IBiSerializable {
+    private readonly string magic_ = "idxs";
+
     /// <summary>
     ///   The corresponding indices in the original model to update?
     /// </summary>
+    [ArrayLengthSource(SchemaIntegerType.INT32)]
     public ushort[] Indices { get; private set; }
-
-    public void Read(EndianBinaryReader r) {
-      r.AssertMagicText("idxs");
-
-      var count = r.ReadInt32();
-      this.Indices = new ushort[count];
-      for (var i = 0; i < count; ++i) {
-        this.Indices[i] = r.ReadUInt16();
-      }
-    }
   }
 }

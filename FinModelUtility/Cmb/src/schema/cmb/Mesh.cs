@@ -1,38 +1,23 @@
-﻿using System;
-using System.IO;
+﻿using schema;
+using schema.attributes.ignore;
 
-using schema;
 
 namespace cmb.schema.cmb {
-  public class Mesh : IBiSerializable {
+  [BinarySchema]
+  public partial class Mesh : IBiSerializable {
     public ushort shapeIndex;
     public byte materialIndex;
     public byte id;
 
-    public void Read(EndianBinaryReader r) {
-      this.shapeIndex = r.ReadUInt16();
-      this.materialIndex = r.ReadByte();
-      this.id = r.ReadByte();
+    [Ignore]
+    private int unknownLength_ => CmbHeader.Version switch {
+        CmbVersion.OCARINA_OF_TIME_3D => 0,
+        CmbVersion.MAJORAS_MASK_3D    => 0x8,
+        CmbVersion.EVER_OASIS         => 0xC,
+        CmbVersion.LUIGIS_MANSION_3D  => 0x54,
+    };
 
-      // Some of these values are possibly crc32
-      switch (CmbHeader.Version) {
-        case CmbVersion.MAJORAS_MASK_3D: {
-          r.Position += 0x8;
-          break;
-        }
-        case CmbVersion.EVER_OASIS: {
-          r.Position += 0xC;
-          break;
-        }
-        case CmbVersion.LUIGIS_MANSION_3D: {
-          r.Position += 0x54;
-          break;
-        }
-      }
-    }
-
-    public void Write(EndianBinaryWriter w) {
-      throw new NotImplementedException();
-    }
+    [ArrayLengthSource(nameof(unknownLength_))]
+    private byte[] unknown_;
   }
 }
