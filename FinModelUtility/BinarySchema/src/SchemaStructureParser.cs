@@ -136,7 +136,8 @@ namespace schema {
     UNSPECIFIED,
     IMMEDIATE_VALUE,
     OTHER_MEMBER,
-    CONST,
+    CONST_LENGTH,
+    READONLY,
   }
 
   public interface ISequenceMemberType : IMemberType {
@@ -147,6 +148,7 @@ namespace schema {
     SequenceLengthSourceType LengthSourceType { get; }
     SchemaIntegerType ImmediateLengthType { get; }
     ISchemaMember? LengthMember { get; }
+    uint ConstLength { get; }
 
     IMemberType ElementType { get; }
   }
@@ -280,7 +282,8 @@ namespace schema {
 
             var offsetName = offsetAttribute.OffsetName;
             var offsetTypeSymbol =
-                SymbolTypeUtil.GetTypeFromMemberRelativeToAnother(structureSymbol, offsetName, memberSymbol.Name);
+                SymbolTypeUtil.GetTypeFromMemberRelativeToAnother(
+                    structureSymbol, offsetName, memberSymbol.Name);
             typeInfoParser.ParseTypeSymbol(
                 offsetTypeSymbol,
                 true,
@@ -487,6 +490,11 @@ namespace schema {
                         WrapMemberReference(lengthSourceAttribute.OtherMember);
                     break;
                   }
+                  case SequenceLengthSourceType.CONST_LENGTH: {
+                    sequenceMemberType.ConstLength =
+                        lengthSourceAttribute.ConstLength;
+                    break;
+                  }
                   default:
                     throw new NotImplementedException();
                 }
@@ -612,6 +620,7 @@ namespace schema {
       public SequenceLengthSourceType LengthSourceType { get; set; }
       public SchemaIntegerType ImmediateLengthType { get; set; }
       public ISchemaMember? LengthMember { get; set; }
+      public uint ConstLength { get; set; }
 
       public IMemberType ElementType { get; set; }
     }
@@ -659,7 +668,7 @@ namespace schema {
               ElementType =
                   WrapTypeInfoWithMemberType(sequenceTypeInfo.ElementTypeInfo),
               LengthSourceType = sequenceTypeInfo.IsLengthConst
-                                     ? SequenceLengthSourceType.CONST
+                                     ? SequenceLengthSourceType.READONLY
                                      : SequenceLengthSourceType.UNSPECIFIED
           };
         }

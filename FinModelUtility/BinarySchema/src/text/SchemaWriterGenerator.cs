@@ -214,7 +214,7 @@ namespace schema.text {
         ISchemaMember member) {
       var arrayType =
           Asserts.CastNonnull(member.MemberType as ISequenceMemberType);
-      if (arrayType.LengthSourceType != SequenceLengthSourceType.CONST) {
+      if (arrayType.LengthSourceType != SequenceLengthSourceType.READONLY) {
         var isImmediate =
             arrayType.LengthSourceType ==
             SequenceLengthSourceType.IMMEDIATE_VALUE;

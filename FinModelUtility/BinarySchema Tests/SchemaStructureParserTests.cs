@@ -159,7 +159,7 @@ namespace foo.bar {
 
       var arrayType = (memberType as ISequenceMemberType)!;
       Assert.AreEqual(SequenceType.ARRAY, arrayType.SequenceType);
-      Assert.AreEqual(SequenceLengthSourceType.CONST, arrayType.LengthSourceType);
+      Assert.AreEqual(SequenceLengthSourceType.READONLY, arrayType.LengthSourceType);
 
       var primitiveType = (arrayType.ElementType as IPrimitiveMemberType)!;
       Assert.AreEqual(SchemaPrimitiveType.INT32, primitiveType.PrimitiveType);
@@ -188,7 +188,7 @@ namespace foo.bar {
 
       var arrayType = (memberType as ISequenceMemberType)!;
       Assert.AreEqual(SequenceType.ARRAY, arrayType.SequenceType);
-      Assert.AreEqual(SequenceLengthSourceType.CONST, arrayType.LengthSourceType);
+      Assert.AreEqual(SequenceLengthSourceType.READONLY, arrayType.LengthSourceType);
 
       var primitiveType = (arrayType.ElementType as IPrimitiveMemberType)!;
       Assert.AreEqual(SchemaPrimitiveType.CHAR, primitiveType.PrimitiveType);

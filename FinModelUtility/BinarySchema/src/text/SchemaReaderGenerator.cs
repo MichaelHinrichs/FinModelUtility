@@ -287,13 +287,17 @@ namespace schema.text {
         ISchemaMember member) {
       var arrayType =
           Asserts.CastNonnull(member.MemberType as ISequenceMemberType);
-      if (arrayType.LengthSourceType != SequenceLengthSourceType.CONST) {
+      if (arrayType.LengthSourceType != SequenceLengthSourceType.READONLY) {
         var isImmediate =
             arrayType.LengthSourceType ==
             SequenceLengthSourceType.IMMEDIATE_VALUE;
 
-        var lengthName =
-            isImmediate ? "c" : $"this.{arrayType.LengthMember!.Name}";
+        var lengthName = arrayType.LengthSourceType switch {
+            SequenceLengthSourceType.IMMEDIATE_VALUE => "c",
+            SequenceLengthSourceType.OTHER_MEMBER =>
+                $"this.{arrayType.LengthMember!.Name}",
+            SequenceLengthSourceType.CONST_LENGTH => $"{arrayType.ConstLength}",
+        };
 
         if (isImmediate) {
           var readType = SchemaGeneratorUtil.GetIntLabel(
@@ -302,10 +306,13 @@ namespace schema.text {
               .WriteLine($"var {lengthName} = er.Read{readType}();");
         }
 
-        cbsb.EnterBlock($"if ({lengthName} < 0)")
-            .WriteLine(
-                $"throw new Exception(\"Expected length to be nonnegative!\");")
-            .ExitBlock();
+        if (arrayType.LengthSourceType is SequenceLengthSourceType
+                .IMMEDIATE_VALUE or SequenceLengthSourceType.OTHER_MEMBER) {
+          cbsb.EnterBlock($"if ({lengthName} < 0)")
+              .WriteLine(
+                  $"throw new Exception(\"Expected length to be nonnegative!\");")
+              .ExitBlock();
+        }
 
         var qualifiedElementName =
             SymbolTypeUtil.GetQualifiedNameFromCurrentSymbol(

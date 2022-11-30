@@ -38,6 +38,14 @@ namespace schema {
       this.otherMemberName_ = otherMemberName;
     }
 
+    /// <summary>
+    ///   Uses a constant integer for the length.
+    /// </summary>
+    public ArrayLengthSourceAttribute(uint constLength) {
+      this.Method = SequenceLengthSourceType.CONST_LENGTH;
+      this.ConstLength = constLength;
+    }
+
     protected override void InitFields() {
       if (this.otherMemberName_ != null) {
         this.OtherMember =
@@ -50,6 +58,7 @@ namespace schema {
 
     public SchemaIntegerType LengthType { get; }
     public IMemberReference OtherMember { get; private set; }
+    public uint ConstLength { get; private set; }
   }
 
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
