@@ -190,7 +190,7 @@
     Dcc3dsMax = 2
   }
 
-  public enum LutInput {
+  public enum LutInput : ushort {
     CosNormalHalf = 25248,
     CosViewHalf = 25249,
     CosNormalView = 25250,
