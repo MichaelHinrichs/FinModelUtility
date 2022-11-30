@@ -164,7 +164,7 @@ namespace fin.model.impl {
 
         this.FindIndexOfKeyframe(frame,
                                  out var keyframeIndex,
-                                 out _,
+                                 out var maybeKeyframe,
                                  out var keyframeDefined,
                                  out var isLastKeyframe);
         var keyframeAndValue =
@@ -172,7 +172,10 @@ namespace fin.model.impl {
                                  t,
                                  optionalIncomingTangent,
                                  optionalOutgoingTangent);
-        if (isLastKeyframe) {
+        if (maybeKeyframe.Try(out var keyframe) &&
+            keyframe.Frame == frame) {
+          this.keyframesAndValues_[keyframeIndex] = keyframeAndValue;
+        } else if (isLastKeyframe) {
           this.keyframesAndValues_.Add(keyframeAndValue);
         } else if (keyframeDefined) {
           this.keyframesAndValues_[keyframeIndex] = keyframeAndValue;

@@ -37,7 +37,7 @@ namespace glo.api {
         "Badg2.bmp"
     };
 
-    public unsafe IModel LoadModel(GloModelFileBundle gloModelFileBundle) {
+    public IModel LoadModel(GloModelFileBundle gloModelFileBundle) {
       var gloFile = gloModelFileBundle.GloFile;
       var textureDirectories = gloModelFileBundle.TextureDirectories;
       var fps = 20;
@@ -149,17 +149,14 @@ namespace glo.api {
           var position = gloMesh.MoveKeys[0].Xyz;
 
           var rotation = gloMesh.RotateKeys[0];
-          var quaternion =
-              new Quaternion(rotation.X, rotation.Y, rotation.Z, rotation.W);
-          var xyzRadians = QuaternionUtil.ToEulerRadians(quaternion);
-
           var scale = gloMesh.ScaleKeys[0].Scale;
 
           var finBone = parentFinBone
                         .AddChild(position.X, position.Y, position.Z)
                         .SetLocalRotationRadians(
-                            xyzRadians.X, xyzRadians.Y, xyzRadians.Z)
-                        .SetLocalScale(scale.X, scale.Y, scale.Z);
+                            rotation.X, rotation.Y, rotation.Z)
+                        // This is weird, but seems to be right for levels.
+                        .SetLocalScale(scale.Y, scale.X, scale.Z);
           finBone.Name = name + "_bone";
 
           var child = gloMesh.Pointers.Child;
@@ -181,17 +178,27 @@ namespace glo.api {
               Asserts.True(moveKey.Time > prevTime);
               prevTime = moveKey.Time;
 
-              if (!(moveKey.Time >= startFrame && moveKey.Time <= endFrame)) {
-                continue;
+              var isLast = false;
+              int time;
+              if (moveKey.Time < startFrame) {
+                time = 0;
+              } else if (moveKey.Time > endFrame) {
+                time = endFrame - startFrame;
+                isLast = true;
+              } else {
+                time = (int)(moveKey.Time - startFrame);
+                isLast = moveKey.Time == endFrame;
               }
-
-              var time = (int) (moveKey.Time - startFrame);
               Asserts.True(time >= 0 && time < finAnimation.FrameCount);
 
               var moveValue = moveKey.Xyz;
               finBoneTracks.Positions.Set(time, 0, moveValue.X);
               finBoneTracks.Positions.Set(time, 1, moveValue.Y);
               finBoneTracks.Positions.Set(time, 2, moveValue.Z);
+
+              if (isLast) {
+                break;
+              }
             }
 
             prevTime = -1;
@@ -199,12 +206,17 @@ namespace glo.api {
               Asserts.True(rotateKey.Time > prevTime);
               prevTime = rotateKey.Time;
 
-              if (!(rotateKey.Time >= startFrame &&
-                    rotateKey.Time <= endFrame)) {
-                continue;
+              var isLast = false;
+              int time;
+              if (rotateKey.Time < startFrame) {
+                time = 0;
+              } else if (rotateKey.Time > endFrame) {
+                time = endFrame - startFrame;
+                isLast = true;
+              } else {
+                time = (int)(rotateKey.Time - startFrame);
+                isLast = rotateKey.Time == endFrame;
               }
-
-              var time = (int) (rotateKey.Time - startFrame);
               Asserts.True(time >= 0 && time < finAnimation.FrameCount);
 
               var quaternionKey =
@@ -218,6 +230,10 @@ namespace glo.api {
                                           xyzRadiansKey.Y);
               finBoneTracks.Rotations.Set(time, 2,
                                           xyzRadiansKey.Z);
+
+              if (isLast) {
+                break;
+              }
             }
 
             prevTime = -1;
@@ -225,17 +241,28 @@ namespace glo.api {
               Asserts.True(scaleKey.Time > prevTime);
               prevTime = scaleKey.Time;
 
-              if (!(scaleKey.Time >= startFrame && scaleKey.Time <= endFrame)) {
-                continue;
+              var isLast = false;
+              int time;
+              if (scaleKey.Time < startFrame) {
+                time = 0;
+              } else if (scaleKey.Time > endFrame) {
+                time = endFrame - startFrame;
+                isLast = true;
+              } else {
+                time = (int)(scaleKey.Time - startFrame);
+                isLast = scaleKey.Time == endFrame;
               }
-
-              var time = (int) (scaleKey.Time - startFrame);
               Asserts.True(time >= 0 && time < finAnimation.FrameCount);
 
+              // TODO: Does this also need to be out of order?
               var scaleValue = scaleKey.Scale;
               finBoneTracks.Scales.Set(time, 0, scaleValue.X);
               finBoneTracks.Scales.Set(time, 1, scaleValue.Y);
               finBoneTracks.Scales.Set(time, 2, scaleValue.Z);
+
+              if (isLast) {
+                break;
+              }
             }
           }
 
