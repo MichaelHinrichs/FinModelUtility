@@ -9,6 +9,7 @@ namespace fin.image {
     PNG,
     JPEG,
     GIF,
+    TGA,
   }
 
 
@@ -17,11 +18,11 @@ namespace fin.image {
     int Height { get; }
 
     delegate void Rgba32GetHandler(int x,
-                                          int y,
-                                          out byte r,
-                                          out byte g,
-                                          out byte b,
-                                          out byte a);
+                                   int y,
+                                   out byte r,
+                                   out byte g,
+                                   out byte b,
+                                   out byte a);
 
     delegate void AccessHandler(Rgba32GetHandler getHandler);
 

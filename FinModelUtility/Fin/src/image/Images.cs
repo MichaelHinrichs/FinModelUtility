@@ -10,6 +10,7 @@ using SixLabors.ImageSharp.Formats.Bmp;
 using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.Formats.Tga;
 using SixLabors.ImageSharp.PixelFormats;
 using System.Drawing.Imaging;
 using Color = System.Drawing.Color;
@@ -64,6 +65,7 @@ namespace fin.image {
         LocalImageFormat.PNG => new PngEncoder(),
         LocalImageFormat.JPEG => new JpegEncoder(),
         LocalImageFormat.GIF => new GifEncoder(),
+        LocalImageFormat.TGA => new TgaEncoder(),
         _ => throw new ArgumentOutOfRangeException(
                  nameof(imageFormat), imageFormat, null)
       };
