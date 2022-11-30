@@ -1,4 +1,5 @@
-﻿using OpenTK;
+﻿using level5.decompression;
+using OpenTK;
 
 namespace level5.schema {
   public class Prm {
@@ -78,7 +79,8 @@ namespace level5.schema {
         uint faceOffset = r.ReadUInt16();
         faceCount = r.ReadInt32();
 
-        buffer = Decompress.Level5Decom(r.ReadBytesAtOffset(faceOffset, (int)(r.Length - faceOffset)));
+        buffer = new Level5Decompressor().Decompress(
+            r.ReadBytesAtOffset(faceOffset, (int)(r.Length - faceOffset)));
       }
 
       if (primitiveType != 2 && primitiveType != 0)
@@ -151,8 +153,12 @@ namespace level5.schema {
         stride = r.ReadInt16();
         vertexCount = r.ReadInt32();
 
-        attributeBuffer = Decompress.Level5Decom(r.ReadBytesAtOffset(attOffset, attSomething));
-        buffer = Decompress.Level5Decom(r.ReadBytesAtOffset(verOffset, (int)(r.Length - verOffset)));
+        var level5Decompressor = new Level5Decompressor();
+        attributeBuffer =
+            level5Decompressor.Decompress(
+                r.ReadBytesAtOffset(attOffset, attSomething));
+        buffer = level5Decompressor.Decompress(
+            r.ReadBytesAtOffset(verOffset, (int)(r.Length - verOffset)));
       }
 
       int[] aCount = new int[10];

@@ -1,6 +1,7 @@
 ﻿using fin.data;
 using fin.math;
 using fin.util.asserts;
+using level5.decompression;
 using System.Numerics;
 
 
@@ -43,7 +44,7 @@ namespace level5.schema {
         this.Anim.NameHash = r.ReadUInt32();
         this.Anim.Name = r.ReadStringNT();
 
-        var data = Decompress.Level5Decom(
+        var data = new Level5Decompressor().Decompress(
             r.ReadBytesAtOffset(compDataOffset,
                                 (int)(r.Length - compDataOffset)));
 
@@ -186,7 +187,8 @@ namespace level5.schema {
               break;
             case 9: {
               Asserts.Equal(1, animdata.Length);
-              this.Somethings.Add(node.Hash, (frame, (short) Math.Round(animdata[0])));
+              this.Somethings.Add(node.Hash,
+                                  (frame, (short)Math.Round(animdata[0])));
               break;
             }
           }

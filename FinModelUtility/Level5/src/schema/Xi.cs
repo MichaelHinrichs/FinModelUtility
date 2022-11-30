@@ -1,6 +1,8 @@
 ﻿using fin.image;
 using fin.util.image;
+using level5.decompression;
 using System.Drawing;
+
 
 namespace level5.schema {
   public class Xi {
@@ -46,7 +48,9 @@ namespace level5.schema {
     }*/
 
     public void Open(byte[] data) {
-      using (var r = new EndianBinaryReader(new MemoryStream(data), Endianness.LittleEndian)) {
+      using (var r =
+             new EndianBinaryReader(new MemoryStream(data),
+                                    Endianness.LittleEndian)) {
         r.Position = 0x10;
         Width = r.ReadInt16();
         Height = r.ReadInt16();
@@ -62,12 +66,18 @@ namespace level5.schema {
 
         int imageDataOffset = someTable + someTableSize;
 
-        byte[] tileBytes = Decompress.Level5Decom(r.ReadBytesAtOffset((uint)someTable, someTableSize));
+        var level5Decompressor = new Level5Decompressor();
+        byte[] tileBytes =
+            level5Decompressor.Decompress(
+                r.ReadBytesAtOffset((uint)someTable, someTableSize));
 
-        if (tileBytes.Length > 2 && tileBytes[0] == 0x53 && tileBytes[1] == 0x04)
+        if (tileBytes.Length > 2 && tileBytes[0] == 0x53 &&
+            tileBytes[1] == 0x04)
           SwitchFile = true;
 
-        using (var tileData = new EndianBinaryReader(new MemoryStream(tileBytes), Endianness.LittleEndian)) {
+        using (var tileData =
+               new EndianBinaryReader(new MemoryStream(tileBytes),
+                                      Endianness.LittleEndian)) {
           int tileCount = 0;
           while (tileData.Position + 2 <= tileData.Length) {
             int i = SwitchFile ? tileData.ReadInt32() : tileData.ReadInt16();
@@ -98,12 +108,14 @@ namespace level5.schema {
           default:
             //File.WriteAllBytes("texture.bin", Decompress.Level5Decom(r.GetSection((uint)imageDataOffset, (int)(r.BaseStream.Length - imageDataOffset))));
             throw new Exception("Unknown Texture Type " + type.ToString("x"));
-            //break;
+          //break;
         }
 
         ImageFormat = (byte)type;
 
-        ImageData = Decompress.Level5Decom(r.ReadBytesAtOffset((uint)imageDataOffset, (int)(r.Length - imageDataOffset)));
+        ImageData = level5Decompressor.Decompress(
+            r.ReadBytesAtOffset((uint)imageDataOffset,
+                                (int)(r.Length - imageDataOffset)));
       }
     }
 
@@ -134,7 +146,8 @@ namespace level5.schema {
           var x1 = h / 8;
           var y1 = h % 8;
           for (int j = 0; j < bpp; j++)
-            mip1[((x + x1) * Height + (y + y1)) * 3 + j] = ImageData[code * (tileSize * bpp) + h * bpp + j];
+            mip1[((x + x1) * Height + (y + y1)) * 3 + j] =
+                ImageData[code * (tileSize * bpp) + h * bpp + j];
         }
         y += 8;
 
@@ -172,7 +185,8 @@ namespace level5.schema {
           break;
 
         for (int h = 0; h < blockSize * 4; h++)
-          mip1[(i - 2) * blockSize * 4 + h] = ImageData[code * blockSize * 4 + h];
+          mip1[(i - 2) * blockSize * 4 + h] =
+              ImageData[code * blockSize * 4 + h];
       }
 
       pixels.Add(mip1);
@@ -185,15 +199,17 @@ namespace level5.schema {
     /// </summary>
     /// <returns></returns>
     public unsafe IImage ToBitmap() {
-      Bitmap tileSheet = _3dsImageTools.DecodeImage(ImageData, Tiles.Count * 8, 8, (_3dsImageTools.TexFormat)ImageFormat);
+      Bitmap tileSheet = _3dsImageTools.DecodeImage(
+          ImageData, Tiles.Count * 8, 8, (_3dsImageTools.TexFormat)ImageFormat);
       var img = new Rgba32Image(Width, Height);
 
       BitmapUtil.InvokeAsLocked(tileSheet, inputBmpData => {
         var inputPtr = (byte*)inputBmpData.Scan0;
 
         img.Mutate((_, setOutputHandlerRaw) => {
-          Action<int, int, byte, byte, byte, byte> setOutputHandler = (x, y, r, g, b, a) =>
-            setOutputHandlerRaw(y, x, r, g, b, a);
+          Action<int, int, byte, byte, byte, byte> setOutputHandler =
+              (x, y, r, g, b, a) =>
+                  setOutputHandlerRaw(y, x, r, g, b, a);
 
           int y = 0;
           int x = 0;
@@ -237,6 +253,5 @@ namespace level5.schema {
 
       return img;
     }
-
   }
 }

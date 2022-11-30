@@ -1,4 +1,7 @@
-﻿namespace level5.schema {
+﻿using level5.decompression;
+
+
+namespace level5.schema {
   public class Resource {
     public class Material {
       public string Name { get; set; }
@@ -23,7 +26,7 @@
     }
 
     public Resource(byte[] data) {
-      data = Decompress.Level5Decom(data);
+      data = new Level5Decompressor().Decompress(data);
       using (var r = new EndianBinaryReader(new System.IO.MemoryStream(data),
                                             Endianness.LittleEndian)) {
         var magic = new string(r.ReadChars(6));

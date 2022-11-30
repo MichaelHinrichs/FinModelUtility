@@ -1,39 +1,5 @@
-﻿using level5.decompression;
-using System.IO.Compression;
-
-
-namespace level5 {
+﻿namespace level5 {
   public class Decompress {
-    public static byte[] Level5Decom(byte[] b) {
-      int tableType = (b[0] & 0xFF);
-
-      byte[] t;
-
-      if (new ZlibDecompressor().TryDecompress(b, out t)) 
-        return t;
-
-      switch (tableType & 0xF) {
-        case 0x01:
-          t = new LzssDecompressor().Decompress(b);
-          break;
-        case 0x02:
-          t = new HuffmanDecompressor(0x24).Decompress(b);
-          break;
-        case 0x03:
-          t = new HuffmanDecompressor(0x28).Decompress(b);
-          break;
-        case 0x04:
-          t = new RleDecompressor().Decompress(b);
-          break;
-        default:
-          t = new byte[b.Length - 4];
-          Array.Copy(b, 4, t, 0, b.Length - 4);
-          break;
-      }
-
-      return t;
-    }
-
     /*
     public static byte[] YAY0(byte[] fileData) {
       DataReader code = new DataReader(new MemoryStream(fileData));
