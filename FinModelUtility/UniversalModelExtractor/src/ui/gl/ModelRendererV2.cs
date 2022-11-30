@@ -64,7 +64,7 @@ namespace uni.ui.gl {
         }
       }
       materialMeshRenderers_.Clear();
-      this.bufferManager_.Dispose();
+      this.bufferManager_?.Dispose();
     }
 
     public IModel Model { get; }

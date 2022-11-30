@@ -372,31 +372,40 @@ namespace cmb.api {
           verticesByIndex.Add(index, finVertex);
 
           if (hasNrm) {
-            r.Position = cmb.startOffset +
-                         cmb.header.vatrOffset +
-                         cmb.vatr.normal.StartOffset +
-                         shape.normal.Start +
-                         3 * DataTypeUtil.GetSize(shape.normal.DataType) * i;
-            var normalValues =
-                DataTypeUtil.Read(r, 3, shape.normal.DataType)
-                            .Select(value => value * shape.normal.Scale)
-                            .ToArray();
+            float[] normalValues;
+            if (shape.normal.Mode == VertexAttributeMode.Constant) {
+              normalValues = shape.normal.Constants;
+            } else {
+              r.Position = cmb.startOffset +
+                           cmb.header.vatrOffset +
+                           cmb.vatr.normal.StartOffset +
+                           shape.normal.Start +
+                           3 * DataTypeUtil.GetSize(shape.normal.DataType) * i;
+              normalValues =
+                  DataTypeUtil.Read(r, 3, shape.normal.DataType)
+                              .Select(value => value * shape.normal.Scale)
+                              .ToArray();
+            }
             finVertex.SetLocalNormal(normalValues[0],
                                      normalValues[1],
                                      normalValues[2]);
           }
 
           if (hasClr) {
-            r.Position = cmb.startOffset +
-                         cmb.header.vatrOffset +
-                         cmb.vatr.color.StartOffset +
-                         shape.color.Start +
-                         4 * DataTypeUtil.GetSize(shape.color.DataType) * i;
-            var colorValues =
-                DataTypeUtil.Read(r, 4, shape.color.DataType)
-                            .Select(value => value * shape.color.Scale)
-                            .ToArray();
-
+            float[] colorValues;
+            if (shape.normal.Mode == VertexAttributeMode.Constant) {
+              colorValues = shape.color.Constants;
+            } else {
+              r.Position = cmb.startOffset +
+                           cmb.header.vatrOffset +
+                           cmb.vatr.color.StartOffset +
+                           shape.color.Start +
+                           4 * DataTypeUtil.GetSize(shape.color.DataType) * i;
+              colorValues =
+                  DataTypeUtil.Read(r, 4, shape.color.DataType)
+                              .Select(value => value * shape.color.Scale)
+                              .ToArray();
+            }
             finVertex.SetColorBytes((byte)(colorValues[0] * 255),
                                     (byte)(colorValues[1] * 255),
                                     (byte)(colorValues[2] * 255),

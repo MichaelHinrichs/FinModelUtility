@@ -67,9 +67,13 @@ namespace cmb.schema.cmb.texture {
           using BinaryReader decodedReader =
               new BinaryReader(new MemoryStream(Etc1.DecodeETC1Block_(block)));
           for (int py = 0; py < 4; py++) {
+            if (y + @by + py >= height) {
+              break;
+            }
             for (int px = 0; px < 4; px++) {
-              if (x + bx + px >= width) continue;
-              if (y + @by + py >= height) continue;
+              if (x + bx + px >= width) {
+                break;
+              }
 
               int pixelOffset =
                   (int) ((((y + @by + py) * width) + (x + bx + px)) * 4);
