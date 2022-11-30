@@ -4,16 +4,14 @@ using fin.io;
 using fin.util.strings;
 
 using glo.schema;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
+using NUnit.Framework;
 using schema.testing;
+using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 
 namespace fin.data {
-  [TestClass]
   public class GoldenTests {
-    [TestMethod]
+    [Test]
     public async Task TestEachGolden() {
       var executingAssembly = Assembly.GetExecutingAssembly();
       var assemblyName =
