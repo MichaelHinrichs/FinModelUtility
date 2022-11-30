@@ -23,6 +23,7 @@
     /// the contents of this method with the code editor.
     /// </summary>
     private void InitializeComponent() {
+      System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TexturePanel));
       this.groupBox_ = new System.Windows.Forms.GroupBox();
       this.pictureBox_ = new System.Windows.Forms.PictureBox();
       this.groupBox_.SuspendLayout();
@@ -42,6 +43,7 @@
       // 
       // pictureBox_
       // 
+      this.pictureBox_.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("pictureBox_.BackgroundImage")));
       this.pictureBox_.Dock = System.Windows.Forms.DockStyle.Fill;
       this.pictureBox_.Location = new System.Drawing.Point(3, 19);
       this.pictureBox_.Name = "pictureBox_";
