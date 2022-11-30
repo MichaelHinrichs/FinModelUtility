@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Bmd2Fbx\Bmd2Fbx.csproj" />
+    <ProjectReference Include="..\Bmd\Bmd.csproj" />
     <ProjectReference Include="..\Fin\Fin.csproj" />
   </ItemGroup>
 
