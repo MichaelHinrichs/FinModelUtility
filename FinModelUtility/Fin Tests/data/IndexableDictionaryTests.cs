@@ -2,12 +2,11 @@
 using System.Linq;
 
 using fin.util.asserts;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
+using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 
 namespace fin.data {
-  [TestClass]
   public class IndexableDictionaryTests {
     private class IndexableImpl : IIndexable {
       public IndexableImpl(int index) {
@@ -17,7 +16,7 @@ namespace fin.data {
       public int Index { get; }
     }
 
-    [TestMethod]
+    [Test]
     public void TestEnumeratorClear() {
       var dict = new IndexableDictionary<IndexableImpl, string>();
 
@@ -34,7 +33,7 @@ namespace fin.data {
       Assert.AreEqual(false, dict.TryGetValue(index1, out _));
     }
 
-    [TestMethod]
+    [Test]
     public void TestEnumeratorGet() {
       var dict = new IndexableDictionary<IndexableImpl, string>();
 
@@ -51,7 +50,7 @@ namespace fin.data {
       Assert.AreEqual("string5", dict[index5]);
     }
 
-    [TestMethod]
+    [Test]
     public void TestEnumeratorTryGet() {
       var dict = new IndexableDictionary<IndexableImpl, string>();
 
@@ -77,7 +76,7 @@ namespace fin.data {
       Assert.AreEqual("string5", value5);
     }
 
-    [TestMethod]
+    [Test]
     public void TestEnumeratorLinq() {
       var dict = new IndexableDictionary<IndexableImpl, string>();
 
@@ -98,7 +97,7 @@ namespace fin.data {
           }, values);
     }
 
-    [TestMethod]
+    [Test]
     public void TestEnumeratorManually() {
       var dict = new IndexableDictionary<IndexableImpl, string>();
 

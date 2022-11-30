@@ -1,13 +1,11 @@
 ﻿using System.Threading.Tasks;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 using fin.util.asserts;
+using NUnit.Framework;
 
 namespace fin.data {
-  [TestClass]
   public class AsyncCollectorTests {
-    [TestMethod]
+    [Test]
     public async Task TestToArray() {
       var collector = new AsyncCollector<string>();
 

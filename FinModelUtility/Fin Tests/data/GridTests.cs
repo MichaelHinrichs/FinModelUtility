@@ -1,12 +1,11 @@
-﻿using fin.util.asserts;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using NUnit.Framework;
+using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
+using AssertionException = fin.util.asserts.AssertionException;
 
 
 namespace fin.data {
-  [TestClass]
   public class GridTests {
-    [TestMethod]
+    [Test]
     public void TestDefaultValue() {
       var impl = new Grid<string>(3, 3, "foobar");
 
@@ -20,7 +19,7 @@ namespace fin.data {
       }
     }
 
-    [TestMethod]
+    [Test]
     public void TestDefaultHandler() {
       var index = 0;
       var impl = new Grid<int>(3, 3, () => index++);
@@ -35,7 +34,7 @@ namespace fin.data {
       }
     }
 
-    [TestMethod]
+    [Test]
     public void TestSetValues() {
       var impl = new Grid<string>(3, 3);
 
@@ -55,7 +54,7 @@ namespace fin.data {
       }
     }
 
-    [TestMethod]
+    [Test]
     public void TestFailsOutside() {
       var impl = new Grid<string>(3, 3);
 

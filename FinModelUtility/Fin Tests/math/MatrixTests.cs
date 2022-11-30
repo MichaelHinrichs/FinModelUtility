@@ -1,12 +1,12 @@
 ﻿using fin.math.matrix;
 using fin.util.asserts;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
+using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 
 namespace fin.math {
-  [TestClass]
   public class MatrixTests {
-    [TestMethod]
+    [Test]
     public void TestFloatArrayConstructor() {
       var values = new float[16];
       for (var r = 0; r < 4; ++r) {
@@ -24,7 +24,7 @@ namespace fin.math {
       }
     }
 
-    [TestMethod]
+    [Test]
     public void TestDoubleArrayConstructor() {
       var values = new double[16];
       for (var r = 0; r < 4; ++r) {
@@ -42,7 +42,7 @@ namespace fin.math {
       }
     }
 
-    [TestMethod]
+    [Test]
     public void TestCopyConstructor() {
       var values = new float[16];
       for (var r = 0; r < 4; ++r) {
@@ -61,7 +61,7 @@ namespace fin.math {
       }
     }
 
-    [TestMethod]
+    [Test]
     public void TestMultiplyByMatrix() {
       var lhs = new FinMatrix4x4();
       lhs[0, 0] = 1;
@@ -119,7 +119,7 @@ namespace fin.math {
       Assert.AreEqual(238, product[3, 3]);
     }
 
-    [TestMethod]
+    [Test]
     public void TestMultiplyByScalar() {
       var inputMatrix = new FinMatrix4x4();
       inputMatrix[0, 0] = 1;
@@ -159,7 +159,7 @@ namespace fin.math {
       Assert.AreEqual(32, inputMatrix[3, 3]);
     }
 
-    [TestMethod]
+    [Test]
     public void TestInvert() {
       var inputMatrix = new FinMatrix4x4();
       inputMatrix[0, 0] = 2;
@@ -206,7 +206,7 @@ namespace fin.math {
       }
     }
 
-    [TestMethod]
+    [Test]
     public void TestMultiplyByInverse() {
       var inputMatrix = new FinMatrix4x4();
       inputMatrix[0, 0] = 2;
@@ -238,14 +238,14 @@ namespace fin.math {
       }
     }
 
-    [TestMethod]
+    [Test]
     public void TestCloseEquals() {
       var identityMatrix = new FinMatrix4x4().SetIdentity();
       var closeToIdentityMatrix = this.GetCloseToIdentityMatrix_();
       Asserts.True(identityMatrix.Equals(closeToIdentityMatrix));
     }
 
-    [TestMethod]
+    [Test]
     public void TestCloseHashCode() {
       var identityMatrix = new FinMatrix4x4().SetIdentity();
       var closeToIdentityMatrix = this.GetCloseToIdentityMatrix_();
@@ -253,14 +253,14 @@ namespace fin.math {
                     closeToIdentityMatrix.GetHashCode());
     }
 
-    [TestMethod]
+    [Test]
     public void TestDifferentEquals() {
       var identityMatrix = new FinMatrix4x4().SetIdentity();
       var differentFromIdentityMatrix = this.GetDifferentFromIdentityMatrix_();
       Asserts.False(identityMatrix.Equals(differentFromIdentityMatrix));
     }
 
-    [TestMethod]
+    [Test]
     public void TestDifferentHashCode() {
       var identityMatrix = new FinMatrix4x4().SetIdentity();
       var differentFromIdentityMatrix = this.GetDifferentFromIdentityMatrix_();

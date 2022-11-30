@@ -1,10 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using NUnit.Framework;
+using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 
 namespace fin.math.interpolation {
-  [TestClass]
   public class InterpolatorWithTangentsTests {
-    [TestMethod]
+    [Test]
     public void TestInterpolationStartAndEnd() {
       var fromTime = 1;
       var fromValue = 2;
@@ -26,7 +26,7 @@ namespace fin.math.interpolation {
                           toTime));
     }
 
-    /*[TestMethod]
+    /*[Test]
     public void TestLinearInterpolation() {
       var fromTime = 1;
       var fromValue = 2;

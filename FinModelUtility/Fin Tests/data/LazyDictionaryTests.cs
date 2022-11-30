@@ -1,14 +1,13 @@
 ﻿using System;
 
 using fin.util.strings;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
+using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 
 namespace fin.data {
-  [TestClass]
   public class LazyDictionaryTests {
-    [TestMethod]
+    [Test]
     public void TestWithKeyAndValueHandler() {
       var invokeCount = 0;
       var lazyReverseMap = new LazyDictionary<string, string>(inStr => {
@@ -29,7 +28,7 @@ namespace fin.data {
       Assert.AreEqual(1, invokeCount);
     }
 
-    [TestMethod]
+    [Test]
     public void TestWithDictionaryKeyAndValueHandler() {
       var invokeCount = 0;
       LazyDictionary<string, string>? lazyReverseMap = null;
@@ -52,7 +51,7 @@ namespace fin.data {
       Assert.AreEqual(1, invokeCount);
     }
 
-    [TestMethod]
+    [Test]
     public void TestSettingValuesDirectly() {
       var lazyReverseMap = new LazyDictionary<string, string>(
           _ => throw new NotImplementedException());
@@ -64,7 +63,7 @@ namespace fin.data {
       Assert.AreEqual(1, lazyReverseMap.Count);
     }
 
-    [TestMethod]
+    [Test]
     public void TestClear() {
       var invokeCount = 0;
       var lazyReverseMap = new LazyDictionary<string, string>(inStr => {
@@ -88,7 +87,7 @@ namespace fin.data {
       Assert.AreEqual(2, invokeCount);
     }
 
-    [TestMethod]
+    [Test]
     public void TestContainsKey() {
       var lazyReverseMap =
           new LazyDictionary<string, string>(inStr => inStr.Reverse());

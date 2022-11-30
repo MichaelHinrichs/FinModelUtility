@@ -1,9 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using NUnit.Framework;
+using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace fin.math {
-  [TestClass]
   public class BitLogicTests {
-    [TestMethod]
+    [Test]
     public void ExtractFromRight() {
       Assert.AreEqual((uint) 0b1111,
                       BitLogic.ExtractFromRight(0b00001111, 0, 4));

@@ -1,12 +1,11 @@
 ﻿using System;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
+using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 
 namespace fin.math {
-  [TestClass]
   public class RadiansUtilTests {
-    [TestMethod]
+    [Test]
     public void TestAngleDifference() {
       var pi = MathF.PI;
 

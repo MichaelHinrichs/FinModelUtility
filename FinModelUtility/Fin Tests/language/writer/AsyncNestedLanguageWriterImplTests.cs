@@ -1,15 +1,12 @@
-﻿using System.Text;
-using System.Threading.Tasks;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Threading.Tasks;
 
 using fin.util.asserts;
 using fin.util.strings;
+using NUnit.Framework;
 
 namespace fin.language.writer {
-  [TestClass]
   public class AsyncNestedLanguageWriterImplTests {
-    [TestMethod]
+    [Test]
     public async Task TestAll() {
       var writer = new AsyncNestedStringBuilderImpl("  ");
 

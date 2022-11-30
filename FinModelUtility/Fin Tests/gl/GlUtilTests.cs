@@ -1,9 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using NUnit.Framework;
+using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace fin.gl {
-  [TestClass]
   public class GlUtilTests {
-    [TestMethod]
+    [Test]
     public void CrossProduct() {
       GlUtil.CrossProduct3(
           4, 5, 6,
@@ -15,7 +15,7 @@ namespace fin.gl {
       Assert.AreEqual(z, -3);
     }
 
-    [TestMethod]
+    [Test]
     public void Normalizing() {
       var x = 5d;
       var y = 6d;

@@ -1,18 +1,16 @@
 ﻿using fin.util.asserts;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 
 namespace fin.util.reflection {
-  [TestClass]
   public class CallbackUtilTests {
-    [TestMethod]
+    [Test]
     public void TestGet1ParameterNameFromFunc() {
       Expect.AreArraysEqual(new[] {"test"},
                             CallbackUtil.GetParameterNames((byte test) => true));
     }
 
-    [TestMethod]
+    [Test]
     public void TestGet2ParameterNamesFromFunc() {
       Expect.AreArraysEqual(new[] {"foo", "bar"},
                             CallbackUtil.GetParameterNames(

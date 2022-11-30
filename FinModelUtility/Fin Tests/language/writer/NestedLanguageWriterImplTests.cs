@@ -1,15 +1,10 @@
-﻿using System.Text;
-using System.Threading.Tasks;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using fin.util.asserts;
+﻿using fin.util.asserts;
 using fin.util.strings;
+using NUnit.Framework;
 
 namespace fin.language.writer {
-  [TestClass]
   public class NestedLanguageWriterImplTests {
-    [TestMethod]
+    [Test]
     public void TestAll() {
       var writer = new NestedStringBuilderImpl("  ");
 

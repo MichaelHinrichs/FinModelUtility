@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 
 using fin.util.asserts;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
+using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 
 namespace fin.data {
-  [TestClass]
   public class ListDictionaryTests {
-    [TestMethod]
+    [Test]
     public void TestClear() {
       var impl = new ListDictionary<string?, string>();
       Assert.AreEqual(0, impl.Count);
@@ -34,7 +33,7 @@ namespace fin.data {
       Assert.AreEqual(0, impl.Count);
     }
 
-    [TestMethod]
+    [Test]
     public void TestTryGetList() {
       var impl = new ListDictionary<string?, string>();
       Assert.AreEqual(0, impl.Count);
@@ -68,7 +67,7 @@ namespace fin.data {
       Asserts.Equal(new[] {"x", "y", "z"}, nullList!);
     }
 
-    [TestMethod]
+    [Test]
     public void TestEnumeratorLinq() {
       var impl = new ListDictionary<string?, string>();
       Assert.AreEqual(0, impl.Count);
@@ -101,7 +100,7 @@ namespace fin.data {
       }, actualValues);
     }
 
-    [TestMethod]
+    [Test]
     public void TestEnumeratorManually() {
       var impl = new ListDictionary<string?, string>();
       Assert.AreEqual(0, impl.Count);

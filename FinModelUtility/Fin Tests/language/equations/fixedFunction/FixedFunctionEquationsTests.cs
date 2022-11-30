@@ -1,15 +1,12 @@
-﻿using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 
 using fin.util.strings;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
+using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace fin.language.equations.fixedFunction {
-  [TestClass]
   public class FixedFunctionEquationsTests {
-    [TestMethod]
+    [Test]
     public void TestInOutScalars() {
       var equations = new FixedFunctionEquations<string>();
 
@@ -33,7 +30,7 @@ namespace fin.language.equations.fixedFunction {
     }
 
 
-    [TestMethod]
+    [Test]
     public void TestInOut() {
       var equations = new FixedFunctionEquations<string>();
 
@@ -60,7 +57,7 @@ namespace fin.language.equations.fixedFunction {
       );
     }
 
-    [TestMethod]
+    [Test]
     public void TestColorMath() {
       var equations = new FixedFunctionEquations<string>();
 
@@ -100,7 +97,7 @@ namespace fin.language.equations.fixedFunction {
     }
 
 
-    [TestMethod]
+    [Test]
     public void TestColorSwizzleOut() {
       var equations = new FixedFunctionEquations<string>();
 
@@ -151,7 +148,7 @@ namespace fin.language.equations.fixedFunction {
     }
 
 
-    [TestMethod]
+    [Test]
     public void TestColorSwizzleIn() {
       var equations = new FixedFunctionEquations<string>();
 

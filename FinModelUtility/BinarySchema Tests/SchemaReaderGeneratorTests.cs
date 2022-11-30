@@ -1,5 +1,3 @@
-using Microsoft.CodeAnalysis;
-
 using NUnit.Framework;
 
 namespace schema.text {

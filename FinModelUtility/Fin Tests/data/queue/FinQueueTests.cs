@@ -2,14 +2,13 @@
 using System.Linq;
 
 using fin.util.asserts;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
+using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 
 namespace fin.data.queue {
-  [TestClass]
   public class FinQueueTests {
-    [TestMethod]
+    [Test]
     public void TestEnqueueSeparately() {
       var queue = new FinQueue<string>();
       Assert.AreEqual(0, queue.Count);
@@ -26,7 +25,7 @@ namespace fin.data.queue {
       Assert.AreEqual(0, queue.Count);
     }
 
-    [TestMethod]
+    [Test]
     public void TestEnqueueParams() {
       var queue = new FinQueue<string>();
       Assert.AreEqual(0, queue.Count);
@@ -47,7 +46,7 @@ namespace fin.data.queue {
       Assert.AreEqual(0, queue.Count);
     }
 
-    [TestMethod]
+    [Test]
     public void TestEnqueueEnumerables() {
       var queue = new FinQueue<string>();
       Assert.AreEqual(0, queue.Count);
@@ -68,7 +67,7 @@ namespace fin.data.queue {
       Assert.AreEqual(0, queue.Count);
     }
 
-    [TestMethod]
+    [Test]
     public void TestConstructorParams() {
       var queue = new FinQueue<string>("value1", "value2");
       Assert.AreEqual(2, queue.Count);
@@ -79,7 +78,7 @@ namespace fin.data.queue {
       Assert.AreEqual(0, queue.Count);
     }
 
-    [TestMethod]
+    [Test]
     public void TestConstructorEnumerable() {
       var queue = new FinQueue<string>(new[] {"value1", "value2"});
       Assert.AreEqual(2, queue.Count);
@@ -90,7 +89,7 @@ namespace fin.data.queue {
       Assert.AreEqual(0, queue.Count);
     }
 
-    [TestMethod]
+    [Test]
     public void TestEnumeratorLinq() {
       var expectedValues = new[] {"value1", "value2", "value3"};
       var queue = new FinQueue<string>(expectedValues);
@@ -99,7 +98,7 @@ namespace fin.data.queue {
       Asserts.Equal(expectedValues, actualValues);
     }
 
-    [TestMethod]
+    [Test]
     public void TestEnumeratorManually() {
       var queue = new FinQueue<string>("value1", "value2", "value3");
 
@@ -117,7 +116,7 @@ namespace fin.data.queue {
       Assert.AreEqual(false, enumerator.MoveNext());
     }
 
-    [TestMethod]
+    [Test]
     public void TestClear() {
       var queue = new FinQueue<string>();
       Assert.AreEqual(0, queue.Count);
@@ -132,7 +131,7 @@ namespace fin.data.queue {
       Assert.AreEqual(false, queue.TryDequeue(out _));
     }
 
-    [TestMethod]
+    [Test]
     public void TestTryDequeue() {
       var queue = new FinQueue<string>();
       Assert.AreEqual(0, queue.Count);
@@ -151,7 +150,7 @@ namespace fin.data.queue {
       Assert.AreEqual(false, queue.TryDequeue(out _));
     }
 
-    [TestMethod]
+    [Test]
     public void TestTryPeek() {
       var queue = new FinQueue<string>();
       Assert.AreEqual(0, queue.Count);
@@ -172,7 +171,7 @@ namespace fin.data.queue {
       Assert.AreEqual(false, queue.TryPeek(out _));
     }
 
-    [TestMethod]
+    [Test]
     public void TestPeek() {
       var expectedValues = new[] { "value1", "value2", "value3" };
       var queue = new FinQueue<string>(expectedValues);

@@ -1,10 +1,10 @@
 ﻿using fin.math.matrix;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
+using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace fin.math {
-  [TestClass]
   public class ModelViewMatrixTransformerTests {
-    [TestMethod]
+    [Test]
     public void TestTranslate() {
       var t = new SoftwareModelViewMatrixTransformer();
       t.Translate(1, 2, 3);
@@ -18,7 +18,7 @@ namespace fin.math {
       Assert.AreEqual((1.12f, 2.34f, 3.56f), (x, y, z));
     }
 
-    [TestMethod]
+    [Test]
     public void TestSetMatrixTranslate() {
       var m = MatrixTransformUtil.FromTranslation(1, 2, 3);
 

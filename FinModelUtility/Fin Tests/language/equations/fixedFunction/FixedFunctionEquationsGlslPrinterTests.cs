@@ -9,9 +9,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 
 namespace fin.language.equations.fixedFunction {
-  /*[TestClass]
+  /*
   public class FixedFunctionEquationsGlslPrinterTest {
-    [TestMethod]
+    [Test]
     public void TestScalarColor() {
       var equations = new FixedFunctionEquations<FixedFunctionSource>();
 
@@ -34,7 +34,7 @@ void main() {
       );
     }
 
-    [TestMethod]
+    [Test]
     public void TestColorSwizzleIn() {
       var equations = new FixedFunctionEquations<FixedFunctionSource>();
 

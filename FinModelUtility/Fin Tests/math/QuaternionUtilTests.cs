@@ -1,11 +1,10 @@
 ﻿using System;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
+using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace fin.math {
-  [TestClass]
   public class QuaternionUtilTests {
-    [TestMethod]
+    [Test]
     public void ToEulerDegrees() {
       var degToRad = MathF.PI / 180;
 

@@ -2,15 +2,13 @@
 using System.Linq;
 using System.Text;
 
-using fin.util.asserts;
 using fin.util.strings;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
+using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace fin.language.equations.scalar {
-  [TestClass]
   public class ScalarEquationsTests {
-    [TestMethod]
+    [Test]
     public void TestInOut() {
       var equations = new ScalarEquations<string>();
 
@@ -27,7 +25,7 @@ namespace fin.language.equations.scalar {
                          "fooOut: {fooIn}");
     }
 
-    [TestMethod]
+    [Test]
     public void TestEquation() {
       var equations = new ScalarEquations<string>();
 
@@ -59,7 +57,7 @@ namespace fin.language.equations.scalar {
                          "output: {a}*{b}/{c} + {d}");
     }
 
-    [TestMethod]
+    [Test]
     public void TestComplexDivision() {
       var equations = new ScalarEquations<string>();
 
