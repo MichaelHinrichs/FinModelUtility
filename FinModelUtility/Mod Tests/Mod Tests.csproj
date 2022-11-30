@@ -25,7 +25,7 @@
   <ItemGroup>
     <ProjectReference Include="../BinarySchema/BinarySchema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
     <ProjectReference Include="../Fin/Fin.csproj" />
-    <ProjectReference Include="../Mod2Fbx/Mod2Fbx.csproj" />
+    <ProjectReference Include="..\Mod\Mod.csproj" />
   </ItemGroup>
 
 </Project>

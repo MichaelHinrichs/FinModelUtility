@@ -61,7 +61,7 @@
     <ProjectReference Include="..\Glo\Glo.csproj" />
     <ProjectReference Include="..\HaloWarsTools\HaloWarsTools.csproj" />
     <ProjectReference Include="..\Level5\Level5.csproj" />
-    <ProjectReference Include="..\Mod2Fbx\Mod2Fbx.csproj" />
+    <ProjectReference Include="..\Mod\Mod.csproj" />
     <ProjectReference Include="..\Modl\Modl.csproj" />
   </ItemGroup>
 
