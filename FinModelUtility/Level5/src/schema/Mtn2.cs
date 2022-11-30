@@ -79,13 +79,6 @@ namespace level5.schema {
             });
           }
 
-          foreach (var v in tracks)
-            Console.WriteLine(v.Type + " "
-                                     + v.DataType + " "
-                                     + v.DataCount
-                                     + " " + v.Start.ToString("X")
-                                     + " " + v.End.ToString("X"));
-
           // Data
 
           foreach (var v in hashes) {
@@ -107,7 +100,6 @@ namespace level5.schema {
           offset += scaleCount;
           this.ReadFrameData_(d, offset, toggledPrmCount, dataOffset, boneCount,
                               tracks[3]);
-          ;
         }
       }
     }

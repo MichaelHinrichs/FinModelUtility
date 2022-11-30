@@ -115,6 +115,7 @@ namespace level5.api {
 
             var finMaterial =
                 model.MaterialManager.AddTextureMaterial(finTexture);
+            finMaterial.Name = binMaterial.Name;
 
             // TODO: Figure out how to fix culling issues
             finMaterial.CullingMode = CullingMode.SHOW_BOTH;
