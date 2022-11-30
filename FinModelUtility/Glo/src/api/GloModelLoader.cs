@@ -47,7 +47,8 @@ namespace glo.api {
       var textureFilesByName = new Dictionary<string, IFileHierarchyFile>();
       foreach (var textureDirectory in textureDirectories) {
         foreach (var textureFile in textureDirectory.Files) {
-          textureFilesByName[textureFile.Name.ToLower()] = textureFile;
+          textureFilesByName[textureFile.NameWithoutExtension.ToLower()] =
+              textureFile;
         }
       }
 
@@ -65,8 +66,9 @@ namespace glo.api {
 
       var finTextureMap = new LazyDictionary<string, ITexture?>(
           textureFilename => {
-            if (!textureFilesByName.TryGetValue(textureFilename.ToLower(),
-                                                out var textureFile)) {
+            if (!textureFilesByName.TryGetValue(
+                    Path.GetFileNameWithoutExtension(textureFilename).ToLower(),
+                    out var textureFile)) {
               return null;
             }
 
