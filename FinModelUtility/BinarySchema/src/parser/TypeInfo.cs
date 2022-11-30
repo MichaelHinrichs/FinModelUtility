@@ -174,30 +174,6 @@ namespace schema.parser {
         return ParseStatus.SUCCESS;
       }
 
-      if (typeSymbol.SpecialType is SpecialType
-              .System_Collections_Generic_IReadOnlyList_T) {
-        var listTypeSymbol = typeSymbol as INamedTypeSymbol;
-
-        var containedTypeSymbol = listTypeSymbol.TypeArguments[0];
-        var containedParseStatus = this.ParseTypeSymbol(
-            containedTypeSymbol,
-            true,
-            out var containedTypeInfo);
-        if (containedParseStatus != ParseStatus.SUCCESS) {
-          typeInfo = default;
-          return containedParseStatus;
-        }
-
-        typeInfo = new SequenceTypeInfo(
-            typeSymbol,
-            isReadonly,
-            isNullable,
-            false,
-            isReadonly,
-            containedTypeInfo);
-        return ParseStatus.SUCCESS;
-      }
-
       if (typeSymbol.TypeKind is TypeKind.Array) {
         var arrayTypeSymbol = typeSymbol as IArrayTypeSymbol;
 
@@ -221,31 +197,54 @@ namespace schema.parser {
         return ParseStatus.SUCCESS;
       }
 
-      if (typeSymbol.SpecialType is SpecialType
-              .System_Collections_Generic_IList_T) {
-        var listTypeSymbol = typeSymbol as INamedTypeSymbol;
+      if (typeSymbol is INamedTypeSymbol namedTypeSymbol) {
+        if (SymbolTypeUtil.MatchesGeneric(namedTypeSymbol, typeof(List<>))) {
+          var listTypeSymbol = typeSymbol as INamedTypeSymbol;
 
-        var containedTypeSymbol = listTypeSymbol.TypeArguments[0];
-        var containedParseStatus = this.ParseTypeSymbol(
-            containedTypeSymbol,
-            false,
-            out var containedTypeInfo);
-        if (containedParseStatus != ParseStatus.SUCCESS) {
-          typeInfo = default;
-          return containedParseStatus;
+          var containedTypeSymbol = listTypeSymbol.TypeArguments[0];
+          var containedParseStatus = this.ParseTypeSymbol(
+              containedTypeSymbol,
+              false,
+              out var containedTypeInfo);
+          if (containedParseStatus != ParseStatus.SUCCESS) {
+            typeInfo = default;
+            return containedParseStatus;
+          }
+
+          typeInfo = new SequenceTypeInfo(
+              typeSymbol,
+              isReadonly,
+              isNullable,
+              false,
+              false,
+              containedTypeInfo);
+          return ParseStatus.SUCCESS;
         }
 
-        typeInfo = new SequenceTypeInfo(
-            typeSymbol,
-            isReadonly,
-            isNullable,
-            false,
-            false,
-            containedTypeInfo);
-        return ParseStatus.SUCCESS;
-      }
+        if (SymbolTypeUtil.MatchesGeneric(namedTypeSymbol, 
+                                          typeof(IReadOnlyList<>))) {
+          var listTypeSymbol = typeSymbol as INamedTypeSymbol;
 
-      if (typeSymbol is INamedTypeSymbol namedTypeSymbol) {
+          var containedTypeSymbol = listTypeSymbol.TypeArguments[0];
+          var containedParseStatus = this.ParseTypeSymbol(
+              containedTypeSymbol,
+              true,
+              out var containedTypeInfo);
+          if (containedParseStatus != ParseStatus.SUCCESS) {
+            typeInfo = default;
+            return containedParseStatus;
+          }
+
+          typeInfo = new SequenceTypeInfo(
+              typeSymbol,
+              isReadonly,
+              isNullable,
+              false,
+              isReadonly,
+              containedTypeInfo);
+          return ParseStatus.SUCCESS;
+        }
+
         typeInfo = new StructureTypeInfo(
             namedTypeSymbol,
             isReadonly,

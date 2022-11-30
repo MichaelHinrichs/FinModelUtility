@@ -94,7 +94,10 @@ namespace schema.text {
           cbsb.EnterBlock($"if (this.{ifBoolean.BooleanMember.Name})");
         }
 
-        if (member.MemberType is not IPrimitiveMemberType) {
+        if (member.MemberType is not IPrimitiveMemberType &&
+            member.MemberType is not ISequenceMemberType {
+                SequenceType: SequenceType.ARRAY
+            }) {
           cbsb.WriteLine(
               $"this.{member.Name} = new {SymbolTypeUtil.GetQualifiedNameFromCurrentSymbol(sourceSymbol, member.MemberType.TypeSymbol)}();");
         }
@@ -325,7 +328,7 @@ namespace schema.text {
 
         // TODO: Handle readonly lists, can't be expanded like this!
         if (arrayType.SequenceType == SequenceType.LIST) {
-          cbsb.EnterBlock($"if (this.{member.Name}.Count < {lengthName})");
+          cbsb.EnterBlock($"while (this.{member.Name}.Count < {lengthName})");
           if (hasReferenceElements) {
             cbsb.WriteLine(
                 $"this.{member.Name}.Add(new {qualifiedElementName}());");

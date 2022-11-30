@@ -25,10 +25,10 @@ namespace schema {
       return symbol.First();
     }
 
-    public static bool ImplementsGeneric(INamedTypeSymbol symbol, Type type)
+    public static bool ImplementsGeneric(ITypeSymbol symbol, Type type)
       => symbol.AllInterfaces.Any(i => SymbolTypeUtil.MatchesGeneric(i, type));
 
-    public static bool Implements(INamedTypeSymbol symbol, Type type)
+    public static bool Implements(ITypeSymbol symbol, Type type)
       => symbol.AllInterfaces.Any(i => SymbolTypeUtil.IsExactlyType(i, type));
 
     public static string? MergeContainingNamespaces(ISymbol symbol) {
@@ -107,7 +107,7 @@ namespace schema {
       var attributeType = typeof(TAttribute);
       var constructor =
           attributeType.GetConstructors()
-                       .First(c => {
+                       .FirstOrDefault(c => {
                          var cParameters = c.GetParameters();
                          if (cParameters.Length != parameters.Length) {
                            return false;
@@ -121,6 +121,10 @@ namespace schema {
 
                          return true;
                        });
+      if (constructor == null) {
+        throw new Exception(
+            $"Failed to find constructor for {typeof(TAttribute)}");
+      }
 
       var arguments = attributeData.ConstructorArguments;
       var attribute = (TAttribute)constructor.Invoke(
