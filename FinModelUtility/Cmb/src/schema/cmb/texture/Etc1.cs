@@ -81,7 +81,7 @@ namespace cmb.schema.cmb.texture {
               byte pixelAlpha =
                   (byte) ((alpha >> (((px * 4) + py) * 4)) & 0xF);
               pixelData[pixelOffset + 3] =
-                  (byte) ((pixelAlpha << 4) | pixelAlpha);
+                  (byte) (pixelAlpha * 17);
             }
           }
         }
