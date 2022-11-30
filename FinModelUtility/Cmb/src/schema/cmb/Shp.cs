@@ -1,42 +1,27 @@
-﻿using System;
-using System.IO;
-
-using fin.util.strings;
+﻿using fin.util.strings;
 
 using schema;
+using schema.attributes.align;
+
 
 namespace cmb.schema.cmb {
-  public class Shp : IBiSerializable {
+  [BinarySchema]
+  public partial class Shp : IBiSerializable {
+    private readonly string magic_ = "shp" + AsciiUtil.GetChar(0x20);
+
     public uint chunkSize;
-    public Sepd[] shapes;
+    private uint shapeCount_;
 
     // M-1:
     // No idea... but it does something to materials and it's never used on ANY model but link's in OoT3D
     // Set to 0x58 on "link_v2.cmb"
     public uint flags;
 
-    public void Read(EndianBinaryReader r) {
-      r.AssertMagicText("shp" + AsciiUtil.GetChar(0x20));
+    [ArrayLengthSource(nameof(shapeCount_))]
+    private ushort[] shapeOffsets_;
 
-      this.chunkSize = r.ReadUInt32();
-      this.shapes = new Sepd[r.ReadUInt32()];
-      this.flags = r.ReadUInt32();
-
-      for (var i = 0; i < this.shapes.Length; ++i) {
-        r.ReadInt16(); // ShapeOffset(s)
-      }
-
-      r.Align(4);
-
-      for (var i = 0; i < this.shapes.Length; ++i) {
-        var shape = new Sepd();
-        shape.Read(r);
-        this.shapes[i] = shape;
-      }
-    }
-
-    public void Write(EndianBinaryWriter w) {
-      throw new NotImplementedException();
-    }
+    [Align(4)]
+    [ArrayLengthSource(nameof(shapeCount_))]
+    public Sepd[] shapes;
   }
 }

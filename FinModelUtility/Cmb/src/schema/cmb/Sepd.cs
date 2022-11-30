@@ -1,9 +1,13 @@
-﻿using System.IO;
+﻿using schema;
+using schema.attributes.align;
+using schema.attributes.ignore;
 
-using schema;
 
 namespace cmb.schema.cmb {
-  public class Sepd : IDeserializable {
+  [BinarySchema]
+  public partial class Sepd : IBiSerializable {
+    private readonly string magic_ = "sepd";
+
     public uint chunkSize;
     public ushort primSetCount;
 
@@ -21,18 +25,32 @@ namespace cmb.schema.cmb {
      */
     public ushort vertFlags;
 
-    public float[] meshCenter = new float[3];
-    public float[] positionOffset = new float[3];
+    public float[] meshCenter { get; } = new float[3];
+    public float[] positionOffset { get; } = new float[3];
+
+    [Ignore]
+    private bool hasMinAndMax_ => CmbHeader.Version > CmbVersion.EVER_OASIS;
 
     // Min coordinate of the shape
-    public float[] min = new float[3];
+    [IfBoolean(nameof(hasMinAndMax_))]
+    [ArrayLengthSource(3)]
+    public float[]? min { get; private set; }
 
     // Max coordinate of the shape
-    public float[] max = new float[3];
+    [IfBoolean(nameof(hasMinAndMax_))]
+    [ArrayLengthSource(3)]
+    public float[]? max { get; private set; }
 
     public readonly VertexAttribute position = new();
     public readonly VertexAttribute normal = new();
-    public readonly VertexAttribute tangents = new();
+
+    [Ignore]
+    private bool hasTangents_ =>
+        CmbHeader.Version > CmbVersion.OCARINA_OF_TIME_3D;
+
+    [IfBoolean(nameof(hasTangents_))]
+    public VertexAttribute? tangents;
+
     public readonly VertexAttribute color = new();
     public readonly VertexAttribute uv0 = new();
     public readonly VertexAttribute uv1 = new();
@@ -58,52 +76,11 @@ namespace cmb.schema.cmb {
     */
     public ushort constantFlags;
 
+    [ArrayLengthSource(nameof(primSetCount))]
+    private short[] primitiveSetOffsets_;
+
+    [Align(4)]
+    [ArrayLengthSource(nameof(primSetCount))]
     public PrimitiveSet[] primitiveSets;
-
-    public void Read(EndianBinaryReader r) {
-      r.AssertMagicText("sepd");
-
-      this.chunkSize = r.ReadUInt32();
-      this.primSetCount = r.ReadUInt16();
-
-      this.vertFlags = r.ReadUInt16();
-
-      r.ReadSingles(this.meshCenter);
-      r.ReadSingles(this.positionOffset);
-
-      if (CmbHeader.Version > CmbVersion.EVER_OASIS) {
-        r.ReadSingles(this.min);
-        r.ReadSingles(this.max);
-      }
-
-      this.position.Read(r);
-      this.normal.Read(r);
-
-      if (CmbHeader.Version > CmbVersion.OCARINA_OF_TIME_3D) {
-        this.tangents.Read(r);
-      }
-
-      this.color.Read(r);
-      this.uv0.Read(r);
-      this.uv1.Read(r);
-      this.uv2.Read(r);
-      this.bIndices.Read(r);
-      this.bWeights.Read(r);
-
-      this.boneDimensions = r.ReadUInt16();
-      this.constantFlags = r.ReadUInt16();
-
-      for (var i = 0; i < this.primSetCount; ++i) {
-        r.ReadInt16(); // PrimitiveSetOffset(s)
-      }
-
-      r.Align(4);
-      this.primitiveSets = new PrimitiveSet[this.primSetCount];
-      for (var i = 0; i < this.primSetCount; ++i) {
-        var primitiveSet = new PrimitiveSet();
-        primitiveSet.Read(r);
-        this.primitiveSets[i] = primitiveSet;
-      }
-    }
   }
 }
