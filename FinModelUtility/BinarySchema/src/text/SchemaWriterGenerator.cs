@@ -141,7 +141,8 @@ namespace schema.text {
                   primitiveType.AltFormat)
               : primitiveType.PrimitiveType);
 
-      var needToCast = primitiveType.UseAltFormat &&
+      var needToCast = 
+          primitiveType.UseAltFormat &&
                        primitiveType.PrimitiveType !=
                        SchemaPrimitiveTypesUtil.GetUnderlyingPrimitiveType(
                            SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(
@@ -154,8 +155,13 @@ namespace schema.text {
         castText = $"({castType}) ";
       }
 
+      var accessText = $"this.{member.Name}";
+      if (member.MemberType.TypeInfo.IsNullable) {
+        accessText = $"{accessText}.Value";
+      }
+
       cbsb.WriteLine(
-          $"ew.Write{readType}({castText}this.{member.Name});");
+          $"ew.Write{readType}({castText}{accessText});");
     }
 
     private static void WriteBoolean_(
@@ -170,8 +176,13 @@ namespace schema.text {
       var castType = SchemaGeneratorUtil.GetTypeName(
           primitiveType.AltFormat);
 
+      var accessText = $"this.{member.Name}";
+      if (member.MemberType.TypeInfo.IsNullable) {
+        accessText = $"{accessText}.Value";
+      }
+
       cbsb.WriteLine(
-          $"ew.Write{writeType}(({castType}) (this.{member.Name} ? 1 : 0));");
+          $"ew.Write{writeType}(({castType}) ({accessText} ? 1 : 0));");
     }
 
     private static void WriteString_(

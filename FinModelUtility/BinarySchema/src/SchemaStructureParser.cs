@@ -59,7 +59,7 @@ namespace schema {
     int Align { get; }
     IIfBoolean? IfBoolean { get; }
     IOffset? Offset { get; }
-    public bool IsPosition { get; }
+    bool IsPosition { get; }
   }
 
   public interface IMemberType {

@@ -62,7 +62,7 @@ namespace foo.bar {
       }
       ew.WriteByte((byte) (this.Field ? 1 : 0));
       if (this.Field) {
-        ew.WriteInt32(this.OtherValue);
+        ew.WriteInt32(this.OtherValue.Value);
       }
     }
   }
@@ -126,7 +126,7 @@ namespace foo.bar {
     public void Write(EndianBinaryWriter ew) {
       this.Field.Write(ew);
       if (this.Field.Bool) {
-        ew.WriteInt32(this.OtherValue);
+        ew.WriteInt32(this.OtherValue.Value);
       }
     }
   }
