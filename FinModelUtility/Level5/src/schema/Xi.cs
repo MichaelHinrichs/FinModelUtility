@@ -1,4 +1,5 @@
 ﻿using fin.image;
+using fin.image.io;
 using fin.util.image;
 using level5.decompression;
 using System.Drawing;
@@ -199,8 +200,21 @@ namespace level5.schema {
     /// </summary>
     /// <returns></returns>
     public unsafe IImage ToBitmap() {
-      Bitmap tileSheet = _3dsImageTools.DecodeImage(
-          ImageData, Tiles.Count * 8, 8, (_3dsImageTools.TexFormat)ImageFormat);
+      Bitmap tileSheet;
+
+      var imageFormat = (_3dsImageTools.TexFormat)ImageFormat;
+      if (imageFormat is _3dsImageTools.TexFormat.ETC1
+                         or _3dsImageTools.TexFormat.ETC1a4) {
+        tileSheet = new Etc1ImageReader(
+                Tiles.Count * 8, 
+                8,
+                imageFormat is _3dsImageTools.TexFormat.ETC1a4).Read(ImageData)
+            .AsBitmap();
+      } else {
+        tileSheet = _3dsImageTools.DecodeImage(
+            ImageData, Tiles.Count * 8, 8, imageFormat);
+      }
+
       var img = new Rgba32Image(Width, Height);
 
       BitmapUtil.InvokeAsLocked(tileSheet, inputBmpData => {

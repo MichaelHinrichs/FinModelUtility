@@ -21,4 +21,9 @@
     int TileWidth { get; }
     int TileHeight { get; }
   }
+
+
+  public interface IImageReader<TImage> where TImage : IImage {
+    TImage Read(byte[] srcBytes);
+  }
 }
