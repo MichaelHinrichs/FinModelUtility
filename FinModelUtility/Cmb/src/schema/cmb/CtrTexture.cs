@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
-using cmb.schema.cmb.texture;
 using fin.image;
 using fin.image.io;
-using fin.util.asserts;
 using fin.util.color;
-using fin.util.image;
 
 
 namespace cmb.schema.cmb {
