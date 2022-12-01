@@ -260,6 +260,30 @@ namespace System.IO {
       this.WriteBuffer_(4 * count, 4);
     }
 
+    public void WriteInt24(int value) {
+      this.CreateBuffer_(3);
+      Array.Copy((Array)BitConverter.GetBytes(value),
+                 0,
+                 (Array)this.buffer_,
+                 0,
+                 3);
+      this.WriteBuffer_(3, 3);
+    }
+
+    public void WriteInt24s(int[] value) =>
+        this.WriteInt24s(value, 0, value.Length);
+
+    public void WriteInt24s(int[] value, int offset, int count) {
+      this.CreateBuffer_(3 * count);
+      for (int index = 0; index < count; ++index)
+        Array.Copy((Array)BitConverter.GetBytes(value[index + offset]),
+                   0,
+                   (Array)this.buffer_,
+                   index * 3,
+                   3);
+      this.WriteBuffer_(3 * count, 3);
+    }
+
     public void WriteInt32(int value) {
       this.CreateBuffer_(4);
       Array.Copy((Array) BitConverter.GetBytes(value),
@@ -354,6 +378,30 @@ namespace System.IO {
                    index * 2,
                    2);
       this.WriteBuffer_(2 * count, 2);
+    }
+
+    public void WriteUInt24(uint value) {
+      this.CreateBuffer_(3);
+      Array.Copy((Array)BitConverter.GetBytes(value),
+                 0,
+                 (Array)this.buffer_,
+                 0,
+                 3);
+      this.WriteBuffer_(3, 3);
+    }
+
+    public void WriteUInt24s(uint[] value) =>
+        this.WriteUInt24s(value, 0, value.Length);
+
+    public void WriteUInt24s(uint[] value, int offset, int count) {
+      this.CreateBuffer_(3 * count);
+      for (int index = 0; index < count; ++index)
+        Array.Copy((Array)BitConverter.GetBytes(value[index + offset]),
+                   0,
+                   (Array)this.buffer_,
+                   index * 3,
+                   3);
+      this.WriteBuffer_(3 * count, 3);
     }
 
     public void WriteUInt32(uint value) {

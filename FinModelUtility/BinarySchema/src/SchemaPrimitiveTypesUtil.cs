@@ -1,5 +1,4 @@
 ﻿using System;
-
 using Microsoft.CodeAnalysis;
 
 
@@ -11,6 +10,8 @@ namespace schema {
     SBYTE,
     INT16,
     UINT16,
+    INT24,
+    UINT24,
     INT32,
     UINT32,
     INT64,
@@ -24,6 +25,8 @@ namespace schema {
     BYTE,
     INT16,
     UINT16,
+    INT24,
+    UINT24,
     INT32,
     UINT32,
     INT64,
@@ -71,6 +74,8 @@ namespace schema {
           SchemaPrimitiveType.BYTE    => true,
           SchemaPrimitiveType.INT16   => true,
           SchemaPrimitiveType.UINT16  => true,
+          SchemaPrimitiveType.INT24   => true,
+          SchemaPrimitiveType.UINT24  => true,
           SchemaPrimitiveType.INT32   => true,
           SchemaPrimitiveType.UINT32  => true,
           SchemaPrimitiveType.INT64   => true,
@@ -96,6 +101,8 @@ namespace schema {
           SchemaPrimitiveType.BYTE    => true,
           SchemaPrimitiveType.INT16   => true,
           SchemaPrimitiveType.UINT16  => true,
+          SchemaPrimitiveType.INT24   => true,
+          SchemaPrimitiveType.UINT24  => true,
           SchemaPrimitiveType.INT32   => true,
           SchemaPrimitiveType.UINT32  => true,
           SchemaPrimitiveType.INT64   => true,
@@ -134,6 +141,8 @@ namespace schema {
           SchemaIntegerType.BYTE => SchemaNumberType.BYTE,
           SchemaIntegerType.INT16 => SchemaNumberType.INT16,
           SchemaIntegerType.UINT16 => SchemaNumberType.UINT16,
+          SchemaIntegerType.INT24 => SchemaNumberType.INT24,
+          SchemaIntegerType.UINT24 => SchemaNumberType.UINT24,
           SchemaIntegerType.INT32 => SchemaNumberType.INT32,
           SchemaIntegerType.UINT32 => SchemaNumberType.UINT32,
           SchemaIntegerType.INT64 => SchemaNumberType.INT64,
@@ -144,11 +153,13 @@ namespace schema {
     public static SchemaPrimitiveType GetUnderlyingPrimitiveType(
         SchemaPrimitiveType type)
       => type switch {
-          SchemaPrimitiveType.SN8  => SchemaPrimitiveType.SINGLE,
-          SchemaPrimitiveType.UN8  => SchemaPrimitiveType.SINGLE,
-          SchemaPrimitiveType.UN16 => SchemaPrimitiveType.SINGLE,
-          SchemaPrimitiveType.SN16 => SchemaPrimitiveType.SINGLE,
-          _                        => type
+          SchemaPrimitiveType.INT24  => SchemaPrimitiveType.INT32,
+          SchemaPrimitiveType.UINT24 => SchemaPrimitiveType.UINT32,
+          SchemaPrimitiveType.SN8    => SchemaPrimitiveType.SINGLE,
+          SchemaPrimitiveType.UN8    => SchemaPrimitiveType.SINGLE,
+          SchemaPrimitiveType.UN16   => SchemaPrimitiveType.SINGLE,
+          SchemaPrimitiveType.SN16   => SchemaPrimitiveType.SINGLE,
+          _                          => type
       };
 
     public static SchemaIntegerType ConvertNumberToInt(
@@ -158,6 +169,8 @@ namespace schema {
           SchemaNumberType.BYTE => SchemaIntegerType.BYTE,
           SchemaNumberType.INT16 => SchemaIntegerType.INT16,
           SchemaNumberType.UINT16 => SchemaIntegerType.UINT16,
+          SchemaNumberType.INT24 => SchemaIntegerType.INT24,
+          SchemaNumberType.UINT24 => SchemaIntegerType.UINT24,
           SchemaNumberType.INT32 => SchemaIntegerType.INT32,
           SchemaNumberType.UINT32 => SchemaIntegerType.UINT32,
           SchemaNumberType.INT64 => SchemaIntegerType.INT64,
@@ -172,6 +185,8 @@ namespace schema {
           SchemaNumberType.BYTE => SchemaPrimitiveType.BYTE,
           SchemaNumberType.INT16 => SchemaPrimitiveType.INT16,
           SchemaNumberType.UINT16 => SchemaPrimitiveType.UINT16,
+          SchemaNumberType.INT24 => SchemaPrimitiveType.INT24,
+          SchemaNumberType.UINT24 => SchemaPrimitiveType.UINT24,
           SchemaNumberType.INT32 => SchemaPrimitiveType.INT32,
           SchemaNumberType.UINT32 => SchemaPrimitiveType.UINT32,
           SchemaNumberType.INT64 => SchemaPrimitiveType.INT64,
@@ -193,6 +208,8 @@ namespace schema {
           SchemaPrimitiveType.BYTE => SchemaNumberType.BYTE,
           SchemaPrimitiveType.INT16 => SchemaNumberType.INT16,
           SchemaPrimitiveType.UINT16 => SchemaNumberType.UINT16,
+          SchemaPrimitiveType.INT24 => SchemaNumberType.INT24,
+          SchemaPrimitiveType.UINT24 => SchemaNumberType.UINT24,
           SchemaPrimitiveType.INT32 => SchemaNumberType.INT32,
           SchemaPrimitiveType.UINT32 => SchemaNumberType.UINT32,
           SchemaPrimitiveType.INT64 => SchemaNumberType.INT64,

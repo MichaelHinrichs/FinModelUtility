@@ -1,7 +1,5 @@
 ﻿using System;
 
-using Microsoft.CodeAnalysis;
-
 namespace schema.text {
   public static class SchemaGeneratorUtil {
     public static string GetPrimitiveLabel(SchemaPrimitiveType type)
@@ -11,6 +9,8 @@ namespace schema.text {
           SchemaPrimitiveType.BYTE => "Byte",
           SchemaPrimitiveType.INT16 => "Int16",
           SchemaPrimitiveType.UINT16 => "UInt16",
+          SchemaPrimitiveType.INT24 => "Int24",
+          SchemaPrimitiveType.UINT24 => "UInt24",
           SchemaPrimitiveType.INT32 => "Int32",
           SchemaPrimitiveType.UINT32 => "UInt32",
           SchemaPrimitiveType.INT64 => "Int64",
@@ -31,6 +31,8 @@ namespace schema.text {
           SchemaIntegerType.BYTE => "Byte",
           SchemaIntegerType.INT16 => "Int16",
           SchemaIntegerType.UINT16 => "UInt16",
+          SchemaIntegerType.INT24 => "Int24",
+          SchemaIntegerType.UINT24 => "UInt24",
           SchemaIntegerType.INT32 => "Int32",
           SchemaIntegerType.UINT32 => "UInt32",
           SchemaIntegerType.INT64 => "Int64",

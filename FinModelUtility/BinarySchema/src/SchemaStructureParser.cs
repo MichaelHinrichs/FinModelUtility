@@ -33,6 +33,8 @@ namespace schema {
     BYTE,
     INT16,
     UINT16,
+    INT24,
+    UINT24,
     INT32,
     UINT32,
     INT64,
