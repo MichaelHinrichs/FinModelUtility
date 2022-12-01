@@ -92,7 +92,7 @@ namespace fin.image.io {
         bool hasAlpha) {
       for (int by = 0; by < 8; by += 4) {
         for (int bx = 0; bx < 8; bx += 4) {
-          if (reader.Eof) {
+          if (reader.Length - reader.Position < 8) {
             break;
           }
 
