@@ -42,7 +42,7 @@ namespace glo.api {
       var textureDirectories = gloModelFileBundle.TextureDirectories;
       var fps = 20;
 
-      var glo = gloFile.Impl.ReadNew<Glo>(Endianness.LittleEndian);
+      var glo = gloFile.Impl.ReadNew<Glo>();
 
       var textureFilesByName = new Dictionary<string, IFileHierarchyFile>();
       foreach (var textureDirectory in textureDirectories) {

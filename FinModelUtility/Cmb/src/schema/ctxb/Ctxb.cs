@@ -1,12 +1,15 @@
 ﻿using cmb.schema.cmb;
 using fin.util.strings;
 using schema;
+using schema.attributes.endianness;
 using schema.attributes.ignore;
 using schema.attributes.offset;
+using System.IO;
 
 
 namespace cmb.schema.ctxb {
   [BinarySchema]
+  [Endianness(Endianness.LittleEndian)]
   public partial class Ctxb : IBiSerializable {
     public CtxbHeader Header { get; } = new();
 

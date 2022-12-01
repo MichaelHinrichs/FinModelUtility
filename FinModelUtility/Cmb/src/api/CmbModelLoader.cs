@@ -67,8 +67,7 @@ namespace cmb.api {
 
       var filesAndCtxbs =
           ctxbFiles?.Select(ctxbFile => {
-                     var ctxb =
-                         ctxbFile.Impl.ReadNew<Ctxb>(Endianness.LittleEndian);
+                     var ctxb = ctxbFile.Impl.ReadNew<Ctxb>();
                      return (ctxbFile, ctxb);
                    })
                    .ToList() ??
