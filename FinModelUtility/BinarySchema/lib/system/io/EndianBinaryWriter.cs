@@ -33,34 +33,12 @@ namespace System.IO {
 
     public void Align(uint amt) => this.impl_.Align(amt);
 
-    public Task<long> EnterBlockAndGetDelayedLength(
-        Action<IDelayedContentOutputStream, Task<long>> handler)
-      => this.impl_.EnterBlockAndGetDelayedLength(handler);
-
-    public Task CompleteAndCopyToDelayed(Stream stream)
-      => this.impl_.CompleteAndCopyToDelayed(stream);
-
-    public Task<long> GetDelayedPosition() => this.impl_.GetDelayedPosition();
-    public Task<long> GetDelayedLength() => this.impl_.GetDelayedLength();
-
     private void WriteBuffer_(int bytes, int stride) {
       if (this.IsOppositeEndiannessOfSystem) {
         for (int index = 0; index < bytes; index += stride)
           Array.Reverse((Array) this.buffer_, index, stride);
       }
       this.impl_.Write(this.buffer_, 0, bytes);
-    }
-
-    private void WriteBufferDelayed_(Task<byte[]> delayedBytes) {
-      var isReversed = this.IsOppositeEndiannessOfSystem;
-      this.impl_.WriteDelayed(
-          delayedBytes.ContinueWith(bytesTask => {
-            var bytes = bytesTask.Result;
-            if (isReversed) {
-              Array.Reverse(bytes, 0, bytes.Length);
-            }
-            return bytes;
-          }));
     }
 
     private void CreateBuffer_(int size) {
@@ -414,12 +392,6 @@ namespace System.IO {
                  0,
                  4);
       this.WriteBuffer_(4, 4);
-    }
-
-    public void WriteUInt32Delayed(Task<uint> delayedValue) {
-      this.WriteBufferDelayed_(
-          delayedValue.ContinueWith(
-              valueTask => BitConverter.GetBytes(valueTask.Result)));
     }
 
     public void WriteUInt32s(uint[] value) =>
