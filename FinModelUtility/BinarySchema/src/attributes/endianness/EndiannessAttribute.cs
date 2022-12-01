@@ -2,7 +2,7 @@
 using System.IO;
 
 
-namespace schema.attributes.align {
+namespace schema.attributes.endianness {
   /// <summary>
   ///   Attribute for specifying the endianness of a given class or field.
   ///

@@ -2,7 +2,7 @@
 using fin.schema.vector;
 
 using schema;
-using schema.attributes.align;
+using schema.attributes.endianness;
 
 
 namespace glo.schema {

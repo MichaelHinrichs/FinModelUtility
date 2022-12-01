@@ -64,7 +64,7 @@ namespace modl.schema.res.texr {
 
             var unknowns2 = er.ReadUInt32s(1);
 
-            er.PushFieldEndianness(Endianness.BigEndian);
+            er.PushMemberEndianness(Endianness.BigEndian);
             var image = textureType switch {
                 "A8R8G8B8" => this.ReadA8R8G8B8_(er, width, height),
                 "DXT1"     => this.ReadDxt1_(er, width, height),
@@ -86,7 +86,7 @@ namespace modl.schema.res.texr {
 
             var textureName = er.ReadString(0x20);
 
-            er.PushFieldEndianness(Endianness.BigEndian);
+            er.PushMemberEndianness(Endianness.BigEndian);
             var width = er.ReadUInt32();
             var height = er.ReadUInt32();
 

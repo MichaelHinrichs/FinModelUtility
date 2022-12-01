@@ -5,12 +5,14 @@ using Microsoft.CodeAnalysis;
 using schema.attributes;
 using schema.attributes.align;
 using schema.attributes.child_of;
+using schema.attributes.endianness;
 using schema.attributes.ignore;
 using schema.attributes.offset;
 using schema.attributes.position;
 using schema.parser;
 using schema.parser.asserts;
 using schema.util;
+using System.IO;
 
 
 namespace schema {
@@ -22,6 +24,7 @@ namespace schema {
     IList<Diagnostic> Diagnostics { get; }
     INamedTypeSymbol TypeSymbol { get; }
     IReadOnlyList<ISchemaMember> Members { get; }
+    Endianness? Endianness { get; }
   }
 
   public enum SchemaPrimitiveType {
@@ -62,6 +65,7 @@ namespace schema {
     IIfBoolean? IfBoolean { get; }
     IOffset? Offset { get; }
     bool IsPosition { get; }
+    Endianness? Endianness { get; }
   }
 
   public interface IMemberType {
@@ -171,6 +175,9 @@ namespace schema {
             parentTypeSymbol, structureSymbol);
       }
 
+      var structureEndianness =
+          new EndiannessParser().GetEndianness(structureSymbol);
+
       var typeInfoParser = new TypeInfoParser();
       var parsedMembers =
           typeInfoParser.ParseMembers(structureSymbol).ToArray();
@@ -216,6 +223,9 @@ namespace schema {
             }
           }
         }
+
+        var memberEndianness =
+            new EndiannessParser().GetEndianness(memberSymbol);
 
         // Gets the type of the current member
         var memberType = WrapTypeInfoWithMemberType(memberTypeInfo);
@@ -530,6 +540,7 @@ namespace schema {
               IfBoolean = ifBoolean,
               Offset = offset,
               IsPosition = isPosition,
+              Endianness = memberEndianness,
           });
         }
       }
@@ -538,6 +549,7 @@ namespace schema {
           Diagnostics = diagnostics,
           TypeSymbol = structureSymbol,
           Members = fields,
+          Endianness = structureEndianness,
       };
     }
 
@@ -546,6 +558,7 @@ namespace schema {
       public IList<Diagnostic> Diagnostics { get; set; }
       public INamedTypeSymbol TypeSymbol { get; set; }
       public IReadOnlyList<ISchemaMember> Members { get; set; }
+      public Endianness? Endianness { get; set; }
     }
 
 
@@ -556,6 +569,7 @@ namespace schema {
       public IIfBoolean IfBoolean { get; set; }
       public IOffset Offset { get; set; }
       public bool IsPosition { get; set; }
+      public Endianness? Endianness { get; set; }
     }
 
     public class PrimitiveMemberType : IPrimitiveMemberType {

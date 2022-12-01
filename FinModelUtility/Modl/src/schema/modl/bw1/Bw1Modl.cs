@@ -13,7 +13,7 @@ namespace modl.schema.modl.bw1 {
 
     public void Read(EndianBinaryReader er) {
       {
-        er.PushFieldEndianness(Endianness.LittleEndian);
+        er.PushMemberEndianness(Endianness.LittleEndian);
         var filenameLength = er.ReadUInt32();
         er.Position += filenameLength;
         er.PopEndianness();
@@ -22,7 +22,7 @@ namespace modl.schema.modl.bw1 {
       SectionHeaderUtil.AssertNameAndReadSize(er, "MODL", out var size);
       var expectedEnd = er.Position + size;
 
-      er.PushFieldEndianness(Endianness.LittleEndian);
+      er.PushMemberEndianness(Endianness.LittleEndian);
       var nodeCount = er.ReadUInt16();
       var additionalDataCount = er.ReadByte();
 
@@ -48,7 +48,7 @@ namespace modl.schema.modl.bw1 {
 
       // Reads in hierarchy, how nodes are "CoNneCTed" or "CoNCaTenated?"?
       {
-        er.PushFieldEndianness(Endianness.LittleEndian);
+        er.PushMemberEndianness(Endianness.LittleEndian);
         SectionHeaderUtil.AssertNameAndReadSize(er, "CNCT", out var cnctSize);
         var cnctCount = cnctSize / 4;
 

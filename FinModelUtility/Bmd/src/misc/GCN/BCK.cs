@@ -12,7 +12,7 @@ using System.Text;
 
 using fin.util.asserts;
 
-using schema.attributes.align;
+using schema.attributes.endianness;
 
 
 namespace bmd.GCN {

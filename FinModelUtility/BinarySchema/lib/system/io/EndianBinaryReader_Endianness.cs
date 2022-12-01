@@ -5,11 +5,11 @@
     public bool IsOppositeEndiannessOfSystem
       => this.BufferedStream_.IsOppositeEndiannessOfSystem;
 
-    public void PushClassEndianness(Endianness endianness)
-      => this.BufferedStream_.PushClassEndianness(endianness);
+    public void PushStructureEndianness(Endianness endianness)
+      => this.BufferedStream_.PushStructureEndianness(endianness);
 
-    public void PushFieldEndianness(Endianness endianness)
-      => this.BufferedStream_.PushFieldEndianness(endianness);
+    public void PushMemberEndianness(Endianness endianness)
+      => this.BufferedStream_.PushMemberEndianness(endianness);
 
     public void PopEndianness() => this.BufferedStream_.PopEndianness();
   }

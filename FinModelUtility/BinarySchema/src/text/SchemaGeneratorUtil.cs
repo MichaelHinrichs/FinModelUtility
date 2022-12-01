@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+
 
 namespace schema.text {
   public static class SchemaGeneratorUtil {
@@ -53,6 +55,13 @@ namespace schema.text {
           SchemaNumberType.HALF => "float",
           SchemaNumberType.SINGLE => "float",
           SchemaNumberType.DOUBLE => "double",
+          _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+      };
+
+    public static string GetEndiannessName(Endianness type)
+      => type switch {
+          Endianness.BigEndian => "Endianness.BigEndian",
+          Endianness.LittleEndian => "Endianness.LittleEndian",
           _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
       };
   }

@@ -10,7 +10,7 @@ using System;
 using System.IO;
 using System.Text;
 
-using schema.attributes.align;
+using schema.attributes.endianness;
 
 
 namespace bmd.GCN {

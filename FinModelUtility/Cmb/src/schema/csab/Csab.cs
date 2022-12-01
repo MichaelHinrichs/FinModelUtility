@@ -6,7 +6,7 @@ using fin.util.asserts;
 using fin.util.optional;
 
 using schema;
-using schema.attributes.align;
+using schema.attributes.endianness;
 
 
 namespace cmb.schema.csab {

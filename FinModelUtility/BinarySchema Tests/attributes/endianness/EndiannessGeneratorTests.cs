@@ -36,7 +36,7 @@ namespace foo.bar {
 ");
     }
 
-    /*[Test]
+    [Test]
     public void TestEndiannessOnField() {
       SchemaTestUtil.AssertGenerated(@"
 using System.IO;
@@ -62,7 +62,7 @@ namespace foo.bar {
   public partial class EndiannessWrapper {
     public void Read(EndianBinaryReader er) {
       this.Field1 = er.ReadUInt32();
-      er.PushFieldEndianness(Endianness.BigEndian);
+      er.PushMemberEndianness(Endianness.BigEndian);
       this.Field2 = er.ReadUInt32();
       er.PopEndianness();
       this.Field3 = er.ReadUInt32();
@@ -76,7 +76,7 @@ namespace foo.bar {
   public partial class EndiannessWrapper {
     public void Write(EndianBinaryWriter ew) {
       ew.WriteUInt32(this.Field1);
-      ew.PushFieldEndianness(Endianness.BigEndian);
+      ew.PushMemberEndianness(Endianness.BigEndian);
       ew.WriteUInt32(this.Field2);
       ew.PopEndianness();
       ew.WriteUInt32(this.Field3);
@@ -108,7 +108,7 @@ using System.IO;
 namespace foo.bar {
   public partial class EndiannessWrapper {
     public void Read(EndianBinaryReader er) {
-      er.PushClassEndianness(Endianness.BigEndian);
+      er.PushStructureEndianness(Endianness.BigEndian);
       this.Field1 = er.ReadUInt32();
       this.Field2 = er.ReadUInt32();
       this.Field3 = er.ReadUInt32();
@@ -122,7 +122,7 @@ using System.IO;
 namespace foo.bar {
   public partial class EndiannessWrapper {
     public void Write(EndianBinaryWriter ew) {
-      ew.PushClassEndianness(Endianness.BigEndian);
+      ew.PushStructureEndianness(Endianness.BigEndian);
       ew.WriteUInt32(this.Field1);
       ew.WriteUInt32(this.Field2);
       ew.WriteUInt32(this.Field3);
@@ -131,6 +131,6 @@ namespace foo.bar {
   }
 }
 ");
-    }*/
+    }
   }
 }

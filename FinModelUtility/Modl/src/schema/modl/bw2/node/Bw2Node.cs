@@ -50,7 +50,7 @@ namespace modl.schema.modl.bw2.node {
         var unknowns0 = er.ReadUInt32s(2);
 
         {
-          er.PushFieldEndianness(Endianness.LittleEndian);
+          er.PushMemberEndianness(Endianness.LittleEndian);
           this.Transform.Read(er);
           er.PopEndianness();
         }
@@ -76,7 +76,7 @@ namespace modl.schema.modl.bw2.node {
       while (sectionName != "MATL") {
         if (sectionName == "VSCL") {
           Asserts.Equal(4, (int) sectionSize);
-          er.PushFieldEndianness(Endianness.LittleEndian);
+          er.PushMemberEndianness(Endianness.LittleEndian);
           this.Scale = er.ReadSingle();
           er.PopEndianness();
         } else if (sectionName == "RNOD") {
@@ -179,7 +179,7 @@ namespace modl.schema.modl.bw2.node {
     public Matrix4x4f[] RnodMatrices { get; set; }
 
     private void ReadRnod_(EndianBinaryReader er) {
-      er.PushFieldEndianness(Endianness.LittleEndian);
+      er.PushMemberEndianness(Endianness.LittleEndian);
 
       var size = er.ReadUInt32();
       this.RnodMatrices = new Matrix4x4f[size];

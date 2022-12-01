@@ -17,10 +17,10 @@ namespace System.IO {
     private EndianBinaryBufferedStream BufferedStream_ { get; set; }
     private Stream BaseStream_ => this.BufferedStream_.BaseStream;
 
-    /*public EndianBinaryReader(Stream baseStream)
-      => this.Init_(baseStream, null);*/
+    public EndianBinaryReader(Stream baseStream)
+      => this.Init_(baseStream, null);
 
-    public EndianBinaryReader(Stream baseStream, Endianness endianness)
+    public EndianBinaryReader(Stream baseStream, Endianness? endianness)
       => this.Init_(baseStream, endianness);
 
     private void Init_(Stream baseStream, Endianness? endianness) {
@@ -31,12 +31,9 @@ namespace System.IO {
         throw new ArgumentException(nameof(baseStream));
       }
 
-      this.BufferedStream_ = new EndianBinaryBufferedStream {
+      this.BufferedStream_ = new EndianBinaryBufferedStream(endianness) {
           BaseStream = baseStream,
       };
-      if (endianness != null) {
-        this.BufferedStream_.PushFieldEndianness(endianness.Value);
-      }
     }
 
     ~EndianBinaryReader() {

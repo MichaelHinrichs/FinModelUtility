@@ -6,7 +6,7 @@ namespace modl.schema {
     public static void ReadName(
         EndianBinaryReader er,
         out string sectionName) {
-      er.PushFieldEndianness(Endianness.LittleEndian);
+      er.PushMemberEndianness(Endianness.LittleEndian);
       sectionName = er.ReadString(4).Reverse();
       er.PopEndianness();
     }
@@ -14,7 +14,7 @@ namespace modl.schema {
     public static void AssertName(
         EndianBinaryReader er,
         string expectedSectionName) {
-      er.PushFieldEndianness(Endianness.LittleEndian);
+      er.PushMemberEndianness(Endianness.LittleEndian);
       er.AssertString(expectedSectionName.Reverse());
       er.PopEndianness();
     }
@@ -23,7 +23,7 @@ namespace modl.schema {
     public static void ReadSize(
         EndianBinaryReader er,
         out uint size) {
-      er.PushFieldEndianness(Endianness.LittleEndian);
+      er.PushMemberEndianness(Endianness.LittleEndian);
       size = er.ReadUInt32();
       er.PopEndianness();
     }
@@ -31,7 +31,7 @@ namespace modl.schema {
     public static void AssertSize(
         EndianBinaryReader er,
         uint expectedSize) {
-      er.PushFieldEndianness(Endianness.LittleEndian);
+      er.PushMemberEndianness(Endianness.LittleEndian);
       er.AssertUInt32(expectedSize);
       er.PopEndianness();
     }

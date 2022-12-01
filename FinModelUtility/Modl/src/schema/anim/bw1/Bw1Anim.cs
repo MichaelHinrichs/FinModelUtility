@@ -11,7 +11,7 @@ namespace modl.schema.anim.bw1 {
     public void Read(EndianBinaryReader er) {
       string name0;
       {
-        er.PushFieldEndianness(Endianness.LittleEndian);
+        er.PushMemberEndianness(Endianness.LittleEndian);
         var name0Length = er.ReadUInt32();
         name0 = er.ReadString((int) name0Length);
         er.PopEndianness();

@@ -4,7 +4,7 @@ using System.IO;
 using fin.util.strings;
 
 using schema;
-using schema.attributes.align;
+using schema.attributes.endianness;
 
 
 namespace cmb.schema.cmb {

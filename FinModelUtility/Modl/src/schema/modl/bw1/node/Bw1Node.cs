@@ -38,7 +38,7 @@ namespace modl.schema.modl.bw1.node {
       var nodeStart = er.Position;
       var expectedNodeEnd = nodeStart + nodeSize;
 
-      er.PushFieldEndianness(Endianness.LittleEndian);
+      er.PushMemberEndianness(Endianness.LittleEndian);
 
       var headerStart = er.Position;
       var expectedHeaderEnd = headerStart + 0x38;
