@@ -149,6 +149,31 @@ namespace System.IO {
     private static ushort ConvertUInt16_(byte[] buffer, int i)
       => BitConverter.ToUInt16(buffer, sizeof(ushort) * i);
 
+    private static int ConvertInt24_(byte[] buffer, int i) {
+      var value = (buffer[3 * i + 2] << 16) |
+                  (buffer[3 * i + 1] << 8) |
+                  buffer[3 * i];
+
+      const int bitMask = -16777216;
+
+      // Stolen from https://github.com/GridProtectionAlliance/gsf/blob/master/Source/Libraries/GSF.Core.Shared/Int24.cs
+      // Check bit 23, the sign bit in a signed 24-bit integer
+      if ((value & 0x00800000) > 0) {
+        // If the sign-bit is set, this number will be negative - set all high-byte bits (keeps 32-bit number in 24-bit range)
+        value |= bitMask;
+      } else {
+        // If the sign-bit is not set, this number will be positive - clear all high-byte bits (keeps 32-bit number in 24-bit range)
+        value &= ~bitMask;
+      }
+
+      return value;
+    }
+
+    private static uint ConvertUInt24_(byte[] buffer, int i)
+      => (uint)((buffer[3 * i + 2] << 16) |
+                (buffer[3 * i + 1] << 8) |
+                buffer[3 * i]);
+
     private static int ConvertInt32_(byte[] buffer, int i)
       => BitConverter.ToInt32(buffer, sizeof(int) * i);
 
@@ -273,6 +298,48 @@ namespace System.IO {
       for (var i = 0; i < dst.Length; ++i) {
         dst[i] =
             EndianBinaryReader.ConvertUInt16_(this.BufferedStream_.Buffer, i);
+      }
+      return dst;
+    }
+
+
+    public void AssertInt24(int expectedValue)
+      => EndianBinaryReader.Assert(expectedValue, this.ReadInt24());
+
+    public int ReadInt24() {
+      this.FillBuffer_(3);
+      return EndianBinaryReader.ConvertInt24_(this.BufferedStream_.Buffer, 0);
+    }
+
+    public int[] ReadInt24s(long count) => this.ReadInt24s(new int[count]);
+
+    public int[] ReadInt24s(int[] dst) {
+      const int size = 3;
+      this.FillBuffer_(size * dst.Length, size);
+      for (var i = 0; i < dst.Length; ++i) {
+        dst[i] =
+            EndianBinaryReader.ConvertInt24_(this.BufferedStream_.Buffer, i);
+      }
+      return dst;
+    }
+
+
+    public void AssertUInt24(uint expectedValue)
+      => EndianBinaryReader.Assert(expectedValue, this.ReadUInt24());
+
+    public uint ReadUInt24() {
+      this.FillBuffer_(3);
+      return EndianBinaryReader.ConvertUInt24_(this.BufferedStream_.Buffer, 0);
+    }
+
+    public uint[] ReadUInt24s(long count) => this.ReadUInt24s(new uint[count]);
+
+    public uint[] ReadUInt24s(uint[] dst) {
+      const int size = 3;
+      this.FillBuffer_(size * dst.Length, size);
+      for (var i = 0; i < dst.Length; ++i) {
+        dst[i] =
+            EndianBinaryReader.ConvertUInt24_(this.BufferedStream_.Buffer, i);
       }
       return dst;
     }
