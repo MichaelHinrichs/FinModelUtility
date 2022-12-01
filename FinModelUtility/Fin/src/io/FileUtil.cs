@@ -10,6 +10,13 @@ namespace fin.io {
     public static void AssertExists(string path, string? message = null)
       => Asserts.True(File.Exists(path), message);
 
+    public static T ReadNew<T>(string path)
+        where T : IDeserializable, new() {
+      using var er =
+          new EndianBinaryReader(FileUtil.OpenRead(path));
+      return er.ReadNew<T>();
+    }
+
     public static T ReadNew<T>(string path, Endianness endianness)
         where T : IDeserializable, new() {
       using var er =

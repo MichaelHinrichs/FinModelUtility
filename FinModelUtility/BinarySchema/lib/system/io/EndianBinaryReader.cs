@@ -17,7 +17,10 @@ namespace System.IO {
     private EndianBinaryBufferedStream BufferedStream_ { get; set; }
     private Stream BaseStream_ => this.BufferedStream_.BaseStream;
 
-    public EndianBinaryReader(Stream baseStream, Endianness? endianness = null)
+    public EndianBinaryReader(Stream baseStream)
+      => this.Init_(baseStream, null);
+
+    public EndianBinaryReader(Stream baseStream, Endianness endianness)
       => this.Init_(baseStream, endianness);
 
     private void Init_(Stream baseStream, Endianness? endianness) {

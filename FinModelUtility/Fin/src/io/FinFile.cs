@@ -63,6 +63,9 @@ namespace fin.io {
       return parents.ToArray();
     }
 
+    public T ReadNew<T>() where T : IDeserializable, new()
+      => FileUtil.ReadNew<T>(this.FullName);
+
     public T ReadNew<T>(Endianness endianness) where T : IDeserializable, new()
       => FileUtil.ReadNew<T>(this.FullName, endianness);
 

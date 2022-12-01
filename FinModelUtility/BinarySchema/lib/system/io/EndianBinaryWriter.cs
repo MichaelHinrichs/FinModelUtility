@@ -19,7 +19,11 @@ namespace System.IO {
     private bool disposed_;
     private byte[] buffer_;
 
-    public EndianBinaryWriter(Endianness? endianness = null) {
+    public EndianBinaryWriter() {
+      this.endiannessImpl_ = new EndiannessStackImpl(null);
+    }
+
+    public EndianBinaryWriter(Endianness endianness) {
       this.endiannessImpl_ = new EndiannessStackImpl(endianness);
     }
 
