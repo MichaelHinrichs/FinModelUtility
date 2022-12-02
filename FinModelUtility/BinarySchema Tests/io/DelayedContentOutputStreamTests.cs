@@ -94,7 +94,7 @@ namespace schema.io {
     public async Task TestPosition() {
       var impl = new DelayedContentOutputStream();
 
-      var positionTask1 = impl.GetAbsoluteDelayedPosition();
+      var positionTask1 = impl.GetAbsolutePosition();
       impl.WriteDelayed(
           positionTask1.ContinueWith(pos => new[] {(byte)pos.Result}),
           Task.FromResult(1L));
@@ -102,7 +102,7 @@ namespace schema.io {
       impl.WriteByte(1);
       impl.Write(new byte[] {2, 3});
 
-      var positionTask2 = impl.GetAbsoluteDelayedPosition();
+      var positionTask2 = impl.GetAbsolutePosition();
       impl.WriteDelayed(
           positionTask2.ContinueWith(pos => new[] {(byte)pos.Result}),
           Task.FromResult(1L));
@@ -110,7 +110,7 @@ namespace schema.io {
       impl.WriteDelayed(Task.FromResult(new byte[] {4, 5}));
       impl.Write(new byte[] {6, 7});
 
-      var positionTask3 = impl.GetAbsoluteDelayedPosition();
+      var positionTask3 = impl.GetAbsolutePosition();
       impl.WriteDelayed(
           positionTask3.ContinueWith(pos => new[] {(byte)pos.Result}),
           Task.FromResult(1L));
@@ -118,7 +118,7 @@ namespace schema.io {
       impl.WriteByte(8);
       impl.WriteDelayed(Task.FromResult(new byte[] {9, 10}));
 
-      var positionTask4 = impl.GetAbsoluteDelayedPosition();
+      var positionTask4 = impl.GetAbsolutePosition();
       impl.WriteDelayed(
           positionTask4.ContinueWith(pos => new[] {(byte)pos.Result}),
           Task.FromResult(1L));
@@ -133,7 +133,7 @@ namespace schema.io {
     public async Task TestLength() {
       var impl = new DelayedContentOutputStream();
 
-      var lengthTask = impl.GetAbsoluteDelayedLength();
+      var lengthTask = impl.GetAbsoluteLength();
       impl.WriteDelayed(
           lengthTask.ContinueWith(length => new[] {(byte)length.Result}),
           Task.FromResult(1L));
@@ -155,7 +155,7 @@ namespace schema.io {
       var impl = new DelayedContentOutputStream();
 
       impl.WriteDelayed(
-          impl.GetAbsoluteDelayedLength()
+          impl.GetAbsoluteLength()
               .ContinueWith(length => new[] {(byte)length.Result}),
           Task.FromResult(1L));
 
@@ -168,7 +168,7 @@ namespace schema.io {
 
       impl.WriteByte(29);
       impl.WriteDelayed(
-          impl.GetAbsoluteDelayedPosition()
+          impl.GetAbsolutePosition()
               .ContinueWith(length => new[] {(byte)length.Result}),
           Task.FromResult(1L));
 
@@ -183,7 +183,7 @@ namespace schema.io {
 
       impl.WriteByte(29);
       impl.WriteDelayed(
-          impl.GetAbsoluteDelayedPosition()
+          impl.GetAbsolutePosition()
               .ContinueWith(length => new[] {(byte)length.Result}),
           Task.FromResult(1L));
 
@@ -197,7 +197,7 @@ namespace schema.io {
 
       impl.WriteByte(29);
       impl.WriteDelayed(
-          impl.GetAbsoluteDelayedPosition()
+          impl.GetAbsolutePosition()
               .ContinueWith(length => new[] {(byte)length.Result}),
           Task.FromResult(1L));
 
@@ -231,7 +231,7 @@ namespace schema.io {
     public async Task TestAbsoluteDelayedLength() {
       var impl = new DelayedContentOutputStream();
 
-      var lengthTask = impl.GetAbsoluteDelayedLength();
+      var lengthTask = impl.GetAbsoluteLength();
       impl.WriteDelayed(
           lengthTask.ContinueWith(length => new[] {(byte)length.Result}),
           Task.FromResult(1L));

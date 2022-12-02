@@ -11,7 +11,7 @@ using schema.io;
 
 
 namespace System.IO {
-  public sealed partial class EndianBinaryWriter : IDisposable {
+  public sealed partial class EndianBinaryWriter : IEndianBinaryWriter {
     private readonly IDelayedContentOutputStream impl_;
 
     private bool disposed_;

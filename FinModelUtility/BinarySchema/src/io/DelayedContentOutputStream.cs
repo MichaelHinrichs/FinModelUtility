@@ -13,8 +13,12 @@ namespace schema.io {
   }
 
   public interface ISubDelayedContentOutputStream {
-    Task<long> GetAbsoluteDelayedPosition();
-    Task<long> GetAbsoluteDelayedLength();
+    Task<long> GetAbsolutePosition();
+    Task<long> GetAbsoluteLength();
+
+    Task<long> GetStartPositionOfSubStream();
+    Task<long> GetPositionInSubStream();
+    Task<long> GetLengthOfSubStream();
 
     ISubDelayedContentOutputStream EnterBlock(out Task<long> delayedLength);
 
@@ -34,23 +38,32 @@ namespace schema.io {
     private List<DelayedContentOutputStream> children_ = new();
 
     private IList<byte>? currentBytes_ = null;
-    private readonly TaskCompletionSource<long> lengthTask_;
+    private readonly Task<long> startPositionTask_;
+    private readonly TaskCompletionSource<long>? lengthTaskCompletionSource_;
+    private readonly Task<long> lengthTask_;
     private bool isCompleted_ = false;
 
     public DelayedContentOutputStream() {
       this.dataChunks_ = new NestedList<Task<IDataChunk>>();
       this.sizeChunks_ = new NestedList<Task<ISizeChunk>>();
-      this.lengthTask_ = new();
+      this.startPositionTask_ = Task.FromResult(0L);
+      this.lengthTaskCompletionSource_ = new();
+      this.lengthTask_ = this.lengthTaskCompletionSource_.Task;
     }
 
-    private DelayedContentOutputStream(DelayedContentOutputStream parent) {
+    private DelayedContentOutputStream(
+        DelayedContentOutputStream parent,
+        Task<long> startPositionTask,
+        Task<long> lengthTask
+    ) {
       this.parent_ = parent;
       this.dataChunks_ = parent.dataChunks_.Enter();
       this.sizeChunks_ = parent.sizeChunks_.Enter();
-      this.lengthTask_ = parent.lengthTask_;
+      this.startPositionTask_ = startPositionTask;
+      this.lengthTask_ = lengthTask;
     }
 
-    public Task<long> GetAbsoluteDelayedPosition() {
+    public Task<long> GetAbsolutePosition() {
       this.AssertNotCompleted_();
 
       this.PushCurrentBytes_();
@@ -60,19 +73,29 @@ namespace schema.io {
       return task.Task;
     }
 
-    public Task<long> GetAbsoluteDelayedLength() {
+    public Task<long> GetAbsoluteLength() {
       this.AssertNotCompleted_();
-
-      return this.parent_ != null
-                 ? this.parent_.GetAbsoluteDelayedLength()
-                 : this.lengthTask_.Task;
+      return this.parent_?.GetAbsoluteLength() ?? this.lengthTask_;
     }
+
+
+    public Task<long> GetStartPositionOfSubStream()
+      => this.startPositionTask_;
+
+    public Task<long> GetPositionInSubStream()
+      => Task.WhenAll(this.GetAbsolutePosition(),
+                      this.GetStartPositionOfSubStream())
+             .ContinueWith(positions =>
+                               positions.Result[0] - positions.Result[1]);
+
+    public Task<long> GetLengthOfSubStream() => this.lengthTask_;
 
 
     public ISubDelayedContentOutputStream EnterBlock(
         out Task<long> delayedLength) {
       this.AssertNotCompleted_();
 
+      var startPosition = this.GetAbsolutePosition();
       var task = new TaskCompletionSource<long>();
       delayedLength = task.Task;
 
@@ -80,7 +103,7 @@ namespace schema.io {
       this.sizeChunks_.Add(
           Task.FromResult<ISizeChunk>(new SizeChunkBlockStart(task)));
 
-      var child = new DelayedContentOutputStream(this);
+      var child = new DelayedContentOutputStream(this, startPosition, delayedLength);
       this.children_.Add(child);
 
       this.sizeChunks_.Add(
@@ -185,7 +208,7 @@ namespace schema.io {
           }
         }
       }
-      this.lengthTask_.SetResult(position);
+      this.lengthTaskCompletionSource_.SetResult(position);
 
       // Writes data.
       var dataChunks = await Task.WhenAll(this.dataChunks_);

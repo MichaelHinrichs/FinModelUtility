@@ -3,18 +3,24 @@
 
 namespace System.IO {
   public sealed partial class EndianBinaryWriter {
-    public EndianBinaryWriter EnterBlock(out Task<long> delayedLength)
-      => new(this.Endianness,
-             this.impl_.EnterBlock(out delayedLength));
+    public ISubEndianBinaryWriter EnterBlock(out Task<long> delayedLength)
+      => new EndianBinaryWriter(this.Endianness,
+                                this.impl_.EnterBlock(out delayedLength));
+
+    public Task<long> GetAbsolutePosition() => this.impl_.GetAbsolutePosition();
+
+    public Task<long> GetAbsoluteLength() => this.impl_.GetAbsoluteLength();
+
+    public Task<long> GetStartPositionOfSubStream()
+      => this.impl_.GetStartPositionOfSubStream();
+
+    public Task<long> GetPositionInSubStream() 
+      => this.impl_.GetPositionInSubStream();
+
+    public Task<long> GetLengthOfSubStream() => this.GetLengthOfSubStream();
 
     public Task CompleteAndCopyToDelayed(Stream stream)
       => this.impl_.CompleteAndCopyToDelayed(stream);
-
-    public Task<long> GetAbsoluteDelayedPosition()
-      => this.impl_.GetAbsoluteDelayedPosition();
-
-    public Task<long> GetAbsoluteDelayedLength()
-      => this.impl_.GetAbsoluteDelayedLength();
 
     private void WriteBufferDelayed_(Task<byte[]> delayedBytes) {
       var isReversed = this.IsOppositeEndiannessOfSystem;
