@@ -61,25 +61,26 @@ namespace mod.schema.collision {
           beforeLengthTask.Task.ContinueWith(
               length => (uint)length.Result));
 
-      var actualLengthTask = ew.EnterBlockAndGetDelayedLength((_, _) => {
-        ew.WriteInt32(this.collinfo.Count);
-        ew.WriteInt32(this.roominfo.Count);
+      {
+        var sew = ew.EnterBlock(out var actualLengthTask);
+        sew.WriteInt32(this.collinfo.Count);
+        sew.WriteInt32(this.roominfo.Count);
 
-        ew.Align(0x20);
+        sew.Align(0x20);
         foreach (var info in this.roominfo) {
-          info.Write(ew);
+          info.Write(sew);
         }
 
-        ew.Align(0x20);
+        sew.Align(0x20);
         foreach (var info in this.collinfo) {
-          info.Write(ew);
+          info.Write(sew);
         }
 
-        ew.Align(0x20);
-      });
-      actualLengthTask.ContinueWith(
-          length =>
-              beforeLengthTask.SetResult(length.Result));
+        sew.Align(0x20);
+        actualLengthTask.ContinueWith(
+            length =>
+                beforeLengthTask.SetResult(length.Result));
+      }
     }
   }
 
@@ -146,28 +147,28 @@ namespace mod.schema.collision {
           beforeLengthTask.Task.ContinueWith(
               length => (uint) length.Result));
 
-      var actualLengthTask = ew.EnterBlockAndGetDelayedLength(
-          (_, _) => {
-            ew.Align(0x20);
-            this.boundsMin.Write(ew);
-            this.boundsMax.Write(ew);
-            ew.WriteSingle(this.unknown1);
-            ew.WriteUInt32(this.gridX);
-            ew.WriteUInt32(this.gridY);
+      {
+        var sew = ew.EnterBlock(out var actualLengthTask);
+        sew.Align(0x20);
+        this.boundsMin.Write(sew);
+        this.boundsMax.Write(sew);
+        sew.WriteSingle(this.unknown1);
+        sew.WriteUInt32(this.gridX);
+        sew.WriteUInt32(this.gridY);
 
-            ew.WriteInt32(this.groups.Count);
-            foreach (var group in this.groups) {
-              group.Write(ew);
-            }
+        sew.WriteInt32(this.groups.Count);
+        foreach (var group in this.groups) {
+          group.Write(sew);
+        }
 
-            foreach (var i in this.unknown2) {
-              ew.WriteInt32(i);
-            }
-            ew.Align(0x20);
-          });
-      actualLengthTask.ContinueWith(
-          length =>
-              beforeLengthTask.SetResult(length.Result));
+        foreach (var i in this.unknown2) {
+          sew.WriteInt32(i);
+        }
+        sew.Align(0x20);
+        actualLengthTask.ContinueWith(
+            length =>
+                beforeLengthTask.SetResult(length.Result));
+      }
     }
   }
 }

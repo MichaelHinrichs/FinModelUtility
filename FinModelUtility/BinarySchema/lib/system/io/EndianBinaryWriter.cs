@@ -6,25 +6,31 @@
 
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 using schema.io;
 
 
 namespace System.IO {
   public sealed partial class EndianBinaryWriter : IDisposable {
-    private readonly IDelayedContentOutputStream impl_ =
-        new DelayedContentOutputStream();
+    private readonly IDelayedContentOutputStream impl_;
 
     private bool disposed_;
     private byte[] buffer_;
 
     public EndianBinaryWriter() {
       this.endiannessImpl_ = new EndiannessStackImpl(null);
+      this.impl_ = new DelayedContentOutputStream();
     }
 
     public EndianBinaryWriter(Endianness endianness) {
       this.endiannessImpl_ = new EndiannessStackImpl(endianness);
+      this.impl_ = new DelayedContentOutputStream();
+    }
+
+    private EndianBinaryWriter(Endianness? endianness, 
+                               ISubDelayedContentOutputStream impl) {
+      this.endiannessImpl_ = new EndiannessStackImpl(endianness);
+      this.impl_ = impl as IDelayedContentOutputStream;
     }
 
     ~EndianBinaryWriter() {

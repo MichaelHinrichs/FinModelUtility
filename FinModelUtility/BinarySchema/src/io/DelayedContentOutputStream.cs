@@ -3,17 +3,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-
 using schema.util;
 
 
 namespace schema.io {
-  public interface IDelayedContentOutputStream {
-    Task<long> GetDelayedPosition();
-    Task<long> GetDelayedLength();
+  public interface IDelayedContentOutputStream :
+      ISubDelayedContentOutputStream {
+    Task CompleteAndCopyToDelayed(Stream stream);
+  }
 
-    Task<long> EnterBlockAndGetDelayedLength(
-        Action<IDelayedContentOutputStream, Task<long>> handler);
+  public interface ISubDelayedContentOutputStream {
+    Task<long> GetAbsoluteDelayedPosition();
+    Task<long> GetAbsoluteDelayedLength();
+
+    ISubDelayedContentOutputStream EnterBlock(out Task<long> delayedLength);
 
     void Align(uint amount);
     void WriteByte(byte value);
@@ -21,19 +24,33 @@ namespace schema.io {
     void Write(byte[] bytes);
     void WriteDelayed(Task<byte[]> delayedBytes, Task<long> delayedBytesLength);
     void WriteDelayed(Task<byte[]> delayedBytes);
-
-    Task CompleteAndCopyToDelayed(Stream stream);
   }
 
   public class DelayedContentOutputStream : IDelayedContentOutputStream {
-    private readonly List<Task<IDataChunk>> dataChunks_ = new();
-    private readonly List<Task<ISizeChunk>> sizeChunks_ = new();
+    private readonly DelayedContentOutputStream? parent_;
+    private readonly INestedList<Task<IDataChunk>> dataChunks_;
+    private readonly INestedList<Task<ISizeChunk>> sizeChunks_;
+
+    private List<DelayedContentOutputStream> children_ = new();
 
     private IList<byte>? currentBytes_ = null;
-    private readonly TaskCompletionSource<long> lengthTask_ = new();
+    private readonly TaskCompletionSource<long> lengthTask_;
     private bool isCompleted_ = false;
 
-    public Task<long> GetDelayedPosition() {
+    public DelayedContentOutputStream() {
+      this.dataChunks_ = new NestedList<Task<IDataChunk>>();
+      this.sizeChunks_ = new NestedList<Task<ISizeChunk>>();
+      this.lengthTask_ = new();
+    }
+
+    private DelayedContentOutputStream(DelayedContentOutputStream parent) {
+      this.parent_ = parent;
+      this.dataChunks_ = parent.dataChunks_.Enter();
+      this.sizeChunks_ = parent.sizeChunks_.Enter();
+      this.lengthTask_ = parent.lengthTask_;
+    }
+
+    public Task<long> GetAbsoluteDelayedPosition() {
       this.AssertNotCompleted_();
 
       this.PushCurrentBytes_();
@@ -43,30 +60,33 @@ namespace schema.io {
       return task.Task;
     }
 
-    public Task<long> GetDelayedLength() {
+    public Task<long> GetAbsoluteDelayedLength() {
       this.AssertNotCompleted_();
 
-      return this.lengthTask_.Task;
+      return this.parent_ != null
+                 ? this.parent_.GetAbsoluteDelayedLength()
+                 : this.lengthTask_.Task;
     }
 
 
-    public Task<long> EnterBlockAndGetDelayedLength(
-        Action<IDelayedContentOutputStream, Task<long>> handler) {
+    public ISubDelayedContentOutputStream EnterBlock(
+        out Task<long> delayedLength) {
       this.AssertNotCompleted_();
 
       var task = new TaskCompletionSource<long>();
+      delayedLength = task.Task;
 
       this.PushCurrentBytes_();
       this.sizeChunks_.Add(
           Task.FromResult<ISizeChunk>(new SizeChunkBlockStart(task)));
 
-      handler(this, task.Task);
+      var child = new DelayedContentOutputStream(this);
+      this.children_.Add(child);
 
-      this.PushCurrentBytes_();
       this.sizeChunks_.Add(
           Task.FromResult<ISizeChunk>(new SizeChunkBlockEnd(task)));
 
-      return task.Task;
+      return child;
     }
 
 
@@ -116,13 +136,13 @@ namespace schema.io {
                   _ => {
                     var bytes = delayedBytes.Result;
                     var length = delayedBytesLength.Result;
-                    return (IDataChunk) new BytesDataChunk(
-                        bytes, 0, (int) length);
+                    return (IDataChunk)new BytesDataChunk(
+                        bytes, 0, (int)length);
                   }));
       this.sizeChunks_.Add(
           delayedBytesLength.ContinueWith(
               lengthTask =>
-                  (ISizeChunk) new BytesSizeChunk(lengthTask.Result)));
+                  (ISizeChunk)new BytesSizeChunk(lengthTask.Result)));
     }
 
 
@@ -130,7 +150,7 @@ namespace schema.io {
       this.AssertNotCompleted_();
       this.isCompleted_ = true;
 
-      this.PushCurrentBytes_();
+      this.PushCurrentBytesInSelfAndChildren_();
 
       // Updates position and length Tasks first.
       var blockStack = new Stack<(SizeChunkBlockStart, long)>();
@@ -172,7 +192,7 @@ namespace schema.io {
       foreach (var dataChunk in dataChunks) {
         switch (dataChunk) {
           case AlignDataChunk alignDataChunk: {
-            var pos = position;
+            var pos = stream.Position;
             var amt = alignDataChunk.Amount;
             var align = this.GetAlign_(pos, amt);
             for (var i = 0; i < align; ++i) {
@@ -182,14 +202,16 @@ namespace schema.io {
           }
           case BytesDataChunk bytesDataChunk: {
             var bytes = bytesDataChunk.Bytes;
-            await stream.WriteAsync(bytes, bytesDataChunk.Offset, bytesDataChunk.Count);
+            await stream.WriteAsync(bytes, bytesDataChunk.Offset,
+                                    bytesDataChunk.Count);
             break;
           }
         }
       }
     }
 
-    private void AssertNotCompleted_() => Asserts.False(this.isCompleted_);
+    private void AssertNotCompleted_()
+      => Asserts.False(this.parent_?.isCompleted_ ?? this.isCompleted_);
 
     private void CreateCurrentBytesIfNull_() {
       if (this.currentBytes_ != null) {
@@ -213,9 +235,21 @@ namespace schema.io {
       this.currentBytes_ = null;
     }
 
+    private void PushCurrentBytesInSelfAndChildren_() {
+      this.PushCurrentBytes_();
+      foreach (var child in this.children_) {
+        child.PushCurrentBytesInSelfAndChildren_();
+      }
+    }
 
-    private long GetAlign_(long pos, long amt)
-      => ((~(amt - 1) & (pos + amt - 1)) - pos);
+
+    private long GetAlign_(long pos, long amt) {
+      var delta = amt - (pos % amt);
+      if (delta == amt) {
+        return 0;
+      }
+      return delta;
+    }
 
 
     private interface IDataChunk { }

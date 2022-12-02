@@ -37,14 +37,28 @@ namespace schema.io {
     [Test]
     public async Task TestNestedValues() {
       var impl = new NestedList<string>();
-      
-      impl.Add("before child");
-      var child = impl.Enter();
-      impl.Add("after child");
-      
-      child.Add("in child");
 
-      AssertSequence_(new[] { "before child", "in child", "after child" }, impl);
+      impl.Add("before children");
+      var child1 = impl.Enter();
+      var grandchild1A = impl.Enter();
+      impl.Add("between children");
+      {
+        var twin2i = impl.Enter();
+        var twin2ii = impl.Enter();
+        twin2i.Add("in twin 2i");
+        twin2ii.Add("in twin 2ii");
+      }
+      impl.Add("after children");
+
+      child1.Add("in child 1");
+      grandchild1A.Add("in grandchild 1A");
+
+      AssertSequence_(
+          new[] {
+              "before children", "in child 1", "in grandchild 1A",
+              "between children", "in twin 2i", "in twin 2ii", "after children"
+          },
+          impl);
     }
 
     private void AssertSequence_<T>(

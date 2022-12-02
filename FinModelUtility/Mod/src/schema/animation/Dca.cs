@@ -43,11 +43,13 @@ namespace mod.schema.animation {
       ew.WriteInt32(this.Name.Length);
       ew.WriteString(this.Name);
 
-      var actualLengthTask = ew.EnterBlockAndGetDelayedLength(
-          (_, _) => { this.AnimationData.Write(ew); });
-      actualLengthTask.ContinueWith(
-          length =>
-              beforeLengthTask.SetResult(length.Result));
+      {
+        var sew = ew.EnterBlock(out var actualLengthTask);
+        this.AnimationData.Write(sew);
+        actualLengthTask.ContinueWith(
+            length =>
+                beforeLengthTask.SetResult(length.Result));
+      }
     }
   }
 

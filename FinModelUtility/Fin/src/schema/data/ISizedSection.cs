@@ -58,12 +58,13 @@ namespace fin.schema.data {
           beforeLengthTask.Task.ContinueWith(
               length => (uint) length.Result));
 
-      var actualLengthTask = ew.EnterBlockAndGetDelayedLength((_, _) => {
-        this.Data.Write(ew);
-      });
-      actualLengthTask.ContinueWith(
-          length =>
-              beforeLengthTask.SetResult(length.Result));
+      {
+        var sew = ew.EnterBlock(out var actualLengthTask);
+        this.Data.Write(sew);
+        actualLengthTask.ContinueWith(
+            length =>
+                beforeLengthTask.SetResult(length.Result));
+      }
     }
   }
 }

@@ -1,19 +1,20 @@
 ﻿using System.Threading.Tasks;
 
-using schema.io;
-
 
 namespace System.IO {
   public sealed partial class EndianBinaryWriter {
-    public Task<long> EnterBlockAndGetDelayedLength(
-        Action<IDelayedContentOutputStream, Task<long>> handler)
-      => this.impl_.EnterBlockAndGetDelayedLength(handler);
+    public EndianBinaryWriter EnterBlock(out Task<long> delayedLength)
+      => new(this.Endianness,
+             this.impl_.EnterBlock(out delayedLength));
 
     public Task CompleteAndCopyToDelayed(Stream stream)
       => this.impl_.CompleteAndCopyToDelayed(stream);
 
-    public Task<long> GetDelayedPosition() => this.impl_.GetDelayedPosition();
-    public Task<long> GetDelayedLength() => this.impl_.GetDelayedLength();
+    public Task<long> GetAbsoluteDelayedPosition()
+      => this.impl_.GetAbsoluteDelayedPosition();
+
+    public Task<long> GetAbsoluteDelayedLength()
+      => this.impl_.GetAbsoluteDelayedLength();
 
     private void WriteBufferDelayed_(Task<byte[]> delayedBytes) {
       var isReversed = this.IsOppositeEndiannessOfSystem;
