@@ -293,7 +293,7 @@ namespace schema {
                     diagnostics,
                     structureSymbol, startIndexName, memberSymbol.Name);
             typeInfoParser.ParseTypeSymbol(
-                startIndexTypeSymbol,
+                startIndexTypeSymbol.TypeSymbol,
                 true,
                 out var startIndexTypeInfo);
 
@@ -303,7 +303,7 @@ namespace schema {
                     diagnostics,
                     structureSymbol, offsetName, memberSymbol.Name);
             typeInfoParser.ParseTypeSymbol(
-                offsetTypeSymbol,
+                offsetTypeSymbol.TypeSymbol,
                 true,
                 out var offsetTypeInfo);
 

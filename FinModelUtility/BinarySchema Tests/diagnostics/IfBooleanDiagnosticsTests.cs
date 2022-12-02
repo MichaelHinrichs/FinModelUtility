@@ -49,13 +49,139 @@ namespace foo.bar {
     public int? OtherValue { get; set; }
 
     [IntegerFormat(SchemaIntegerType.BYTE)]
-    public bool Field { get; set; }
+    private bool Field { get; set; }
   }
 
   public class A : IBiSerializable { }
 }");
       SchemaTestUtil.AssertDiagnostics(structure.Diagnostics,
                                        Rules.DependentMustComeAfterSource);
+    }
+
+    [Test]
+    public void TestPublicPropertySource() {
+      var structure = SchemaTestUtil.Parse(@"
+using schema;
+
+namespace foo.bar {
+  [BinarySchema]
+  public partial class ByteWrapper : IBiSerializable {
+    [IntegerFormat(SchemaIntegerType.BYTE)]
+    public bool Field { get; set; }
+
+    [IfBoolean(nameof(Field))]
+    public int? OtherValue { get; set; }
+  }
+
+  public class A : IBiSerializable { }
+}");
+      SchemaTestUtil.AssertDiagnostics(structure.Diagnostics,
+                                       Rules.SourceMustBePrivate);
+    }
+
+    [Test]
+    public void TestProtectedPropertySource() {
+      var structure = SchemaTestUtil.Parse(@"
+using schema;
+
+namespace foo.bar {
+  [BinarySchema]
+  public partial class ByteWrapper : IBiSerializable {
+    [IntegerFormat(SchemaIntegerType.BYTE)]
+    protected bool Field { get; set; }
+
+    [IfBoolean(nameof(Field))]
+    public int? OtherValue { get; set; }
+  }
+
+  public class A : IBiSerializable { }
+}");
+      SchemaTestUtil.AssertDiagnostics(structure.Diagnostics,
+                                       Rules.SourceMustBePrivate);
+    }
+
+    [Test]
+    public void TestInternalPropertySource() {
+      var structure = SchemaTestUtil.Parse(@"
+using schema;
+
+namespace foo.bar {
+  [BinarySchema]
+  public partial class ByteWrapper : IBiSerializable {
+    [IntegerFormat(SchemaIntegerType.BYTE)]
+    internal bool Field { get; set; }
+
+    [IfBoolean(nameof(Field))]
+    public int? OtherValue { get; set; }
+  }
+
+  public class A : IBiSerializable { }
+}");
+      SchemaTestUtil.AssertDiagnostics(structure.Diagnostics,
+                                       Rules.SourceMustBePrivate);
+    }
+
+    [Test]
+    public void TestPublicFieldSource() {
+      var structure = SchemaTestUtil.Parse(@"
+using schema;
+
+namespace foo.bar {
+  [BinarySchema]
+  public partial class ByteWrapper : IBiSerializable {
+    [IntegerFormat(SchemaIntegerType.BYTE)]
+    public bool Field;
+
+    [IfBoolean(nameof(Field))]
+    public int? OtherValue { get; set; }
+  }
+
+  public class A : IBiSerializable { }
+}");
+      SchemaTestUtil.AssertDiagnostics(structure.Diagnostics,
+                                       Rules.SourceMustBePrivate);
+    }
+
+    [Test]
+    public void TestProtectedFieldSource() {
+      var structure = SchemaTestUtil.Parse(@"
+using schema;
+
+namespace foo.bar {
+  [BinarySchema]
+  public partial class ByteWrapper : IBiSerializable {
+    [IntegerFormat(SchemaIntegerType.BYTE)]
+    protected bool Field;
+
+    [IfBoolean(nameof(Field))]
+    public int? OtherValue { get; set; }
+  }
+
+  public class A : IBiSerializable { }
+}");
+      SchemaTestUtil.AssertDiagnostics(structure.Diagnostics,
+                                       Rules.SourceMustBePrivate);
+    }
+
+    [Test]
+    public void TestInternalFieldSource() {
+      var structure = SchemaTestUtil.Parse(@"
+using schema;
+
+namespace foo.bar {
+  [BinarySchema]
+  public partial class ByteWrapper : IBiSerializable {
+    [IntegerFormat(SchemaIntegerType.BYTE)]
+    internal bool Field;
+
+    [IfBoolean(nameof(Field))]
+    public int? OtherValue { get; set; }
+  }
+
+  public class A : IBiSerializable { }
+}");
+      SchemaTestUtil.AssertDiagnostics(structure.Diagnostics,
+                                       Rules.SourceMustBePrivate);
     }
   }
 }

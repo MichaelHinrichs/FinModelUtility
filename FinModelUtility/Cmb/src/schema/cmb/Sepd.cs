@@ -9,7 +9,7 @@ namespace cmb.schema.cmb {
     private readonly string magic_ = "sepd";
 
     public uint chunkSize;
-    public ushort primSetCount;
+    private ushort primSetCount;
 
     /**
       Bit Flags: (HasTangents was added in versions > OoT:3D (aka 6))

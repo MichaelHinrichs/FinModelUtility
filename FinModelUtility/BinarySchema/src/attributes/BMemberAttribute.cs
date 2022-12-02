@@ -48,9 +48,10 @@ namespace schema.attributes {
               this.structureTypeInfo_.TypeSymbol,
               memberName);
       var otherMemberTypeInfo = BMemberAttribute.parser_.AssertParseTypeSymbol(
-          otherMemberTypeSymbol);
+          otherMemberTypeSymbol.TypeSymbol);
       return new MemberReference(memberName,
                                  this.structureTypeInfo_,
+                                 otherMemberTypeSymbol.MemberSymbol,
                                  otherMemberTypeInfo);
     }
 
@@ -63,9 +64,10 @@ namespace schema.attributes {
               this.structureTypeInfo_.TypeSymbol,
               memberName);
       var memberTypeInfo = BMemberAttribute.parser_.AssertParseTypeSymbol(
-          memberTypeSymbol);
+          memberTypeSymbol.TypeSymbol);
 
-      if (!SymbolTypeUtil.CanBeStoredAs(memberTypeSymbol, typeof(T))) {
+      if (!SymbolTypeUtil.CanBeStoredAs(memberTypeSymbol.TypeSymbol,
+                                        typeof(T))) {
         Asserts.Fail(
             $"Type of member, {memberTypeInfo.TypeSymbol}, does not match expected type: {typeof(T)}");
       }
@@ -73,6 +75,7 @@ namespace schema.attributes {
       return new MemberReference<T>(
           memberName,
           this.structureTypeInfo_,
+          memberTypeSymbol.MemberSymbol,
           memberTypeInfo);
     }
 
@@ -85,11 +88,12 @@ namespace schema.attributes {
               otherMemberName,
               this.memberThisIsAttachedTo_.Name);
       var memberTypeInfo = BMemberAttribute.parser_.AssertParseTypeSymbol(
-          memberTypeSymbol);
+          memberTypeSymbol.TypeSymbol);
 
       return new MemberReference(
           otherMemberName,
           this.structureTypeInfo_,
+          memberTypeSymbol.MemberSymbol,
           memberTypeInfo);
     }
 
@@ -102,9 +106,10 @@ namespace schema.attributes {
               otherMemberName,
               this.memberThisIsAttachedTo_.Name);
       var memberTypeInfo = BMemberAttribute.parser_.AssertParseTypeSymbol(
-          memberTypeSymbol);
+          memberTypeSymbol.TypeSymbol);
 
-      if (!SymbolTypeUtil.CanBeStoredAs(memberTypeSymbol, typeof(T))) {
+      if (!SymbolTypeUtil.CanBeStoredAs(memberTypeSymbol.TypeSymbol,
+                                        typeof(T))) {
         Asserts.Fail(
             $"Type of other member, {memberTypeInfo.TypeSymbol}, does not match expected type: {typeof(T)}");
       }
@@ -112,14 +117,52 @@ namespace schema.attributes {
       return new MemberReference<T>(
           otherMemberName,
           this.structureTypeInfo_,
+          memberTypeSymbol.MemberSymbol,
           memberTypeInfo);
     }
+
+    protected IMemberReference GetSourceRelativeToStructure(
+        string otherMemberName) {
+      var source = this.GetOtherMemberRelativeToStructure(otherMemberName);
+
+      if (!IsMemberWritePrivate_(source.MemberSymbol)) {
+        this.diagnostics_.Add(
+            Rules.CreateDiagnostic(source.MemberSymbol,
+                                   Rules.SourceMustBePrivate));
+      }
+
+      return source;
+    }
+
+    protected IMemberReference<T> GetSourceRelativeToStructure<T>(
+        string otherMemberName) {
+      var source = this.GetOtherMemberRelativeToStructure<T>(otherMemberName);
+
+      if (!IsMemberWritePrivate_(source.MemberSymbol)) {
+        this.diagnostics_.Add(
+            Rules.CreateDiagnostic(source.MemberSymbol,
+                                   Rules.SourceMustBePrivate));
+      }
+
+      return source;
+    }
+
+    private bool IsMemberWritePrivate_(ISymbol symbol)
+      => symbol switch {
+          IPropertySymbol propertySymbol
+              => (propertySymbol.SetMethod
+                                ?.DeclaredAccessibility ??
+                  Accessibility.Private) == Accessibility.Private,
+          IFieldSymbol fieldSymbol
+              => fieldSymbol.DeclaredAccessibility == Accessibility.Private,
+      };
   }
 
 
   public interface IMemberReference {
     string Name { get; }
     ITypeInfo StructureTypeInfo { get; }
+    ISymbol MemberSymbol { get; }
     ITypeInfo MemberTypeInfo { get; }
 
     bool IsInteger { get; }
@@ -136,14 +179,17 @@ namespace schema.attributes {
     public MemberReference(
         string name,
         ITypeInfo structureTypeInfo,
+        ISymbol memberSymbol,
         ITypeInfo memberTypeInfo) {
       this.Name = name;
       this.StructureTypeInfo = structureTypeInfo;
+      this.MemberSymbol = memberSymbol;
       this.MemberTypeInfo = memberTypeInfo;
     }
 
     public string Name { get; }
     public ITypeInfo StructureTypeInfo { get; }
+    public ISymbol MemberSymbol { get; }
     public ITypeInfo MemberTypeInfo { get; }
 
     public bool IsInteger => this.MemberTypeInfo is IIntegerTypeInfo;
@@ -169,9 +215,11 @@ namespace schema.attributes {
     public MemberReference(
         string name,
         ITypeInfo structureTypeInfo,
+        ISymbol memberSymbol,
         ITypeInfo memberTypeInfo)
         : base(name,
                structureTypeInfo,
+               memberSymbol,
                memberTypeInfo) { }
   }
 }
