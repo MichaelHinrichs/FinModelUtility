@@ -32,7 +32,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ByteWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteByte((byte) (this.Field ? 1 : 0));
       ew.WriteByte((byte) (this.ReadonlyField ? 1 : 0));
     }

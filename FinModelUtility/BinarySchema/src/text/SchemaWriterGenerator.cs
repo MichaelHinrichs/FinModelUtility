@@ -24,7 +24,7 @@ namespace schema.text {
       }
       cbsb.EnterBlock(SymbolTypeUtil.GetQualifiersAndNameFor(typeSymbol));
 
-      cbsb.EnterBlock("public void Write(EndianBinaryWriter ew)");
+      cbsb.EnterBlock("public void Write(ISubEndianBinaryWriter ew)");
       {
         var hasEndianness = structure.Endianness != null;
         if (hasEndianness) {

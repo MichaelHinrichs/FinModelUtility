@@ -2,7 +2,7 @@
 
 namespace schema {
   public interface ISerializable {
-    void Write(EndianBinaryWriter ew);
+    void Write(ISubEndianBinaryWriter ew);
   }
 
   public interface IDeserializable {

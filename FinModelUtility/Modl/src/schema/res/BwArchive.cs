@@ -54,7 +54,7 @@ namespace modl.schema.res {
       er.Position = dataOffset + dataLength;
     }
 
-    public void Write(EndianBinaryWriter ew) =>
+    public void Write(ISubEndianBinaryWriter ew) =>
         throw new NotImplementedException();
   }
 }

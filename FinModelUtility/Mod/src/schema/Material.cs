@@ -187,7 +187,7 @@ namespace mod.schema {
       }
     }
 
-    public void Write(EndianBinaryWriter writer) {
+    public void Write(ISubEndianBinaryWriter writer) {
       throw new System.NotImplementedException();
     }
   }

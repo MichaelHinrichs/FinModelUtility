@@ -20,7 +20,7 @@ namespace schema.memory {
     new IMemoryBlock Parent { get; }
 
     void Read(EndianBinaryReader er);
-    void Write(EndianBinaryWriter ew);
+    void Write(ISubEndianBinaryWriter ew);
   }
 
   public enum MemoryBlockType {
@@ -160,7 +160,7 @@ namespace schema.memory {
       er.Position = startingOffset + this.SizeInBytes;*/
     }
 
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       /*var startingOffset = ew.Position;
       foreach (var child in this) {
         var childStart =
@@ -209,7 +209,7 @@ namespace schema.memory {
         this.readHandler_(er);
       }
 
-      public void Write(EndianBinaryWriter ew) {
+      public void Write(ISubEndianBinaryWriter ew) {
         /*var startPosition = ew.Position;
         this.writeHandler_(ew);
         var length = ew.Position - startPosition;

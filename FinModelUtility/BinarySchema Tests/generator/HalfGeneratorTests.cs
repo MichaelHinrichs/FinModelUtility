@@ -39,7 +39,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class HalfWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteHalf((float) this.field1);
       ew.WriteHalf((float) this.field2);
       for (var i = 0; i < this.field3.Length; ++i) {

@@ -28,7 +28,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class StringWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteString(this.Field);
     }
   }
@@ -62,7 +62,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class StringWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteStringWithExactLength(this.Field, 3);
     }
   }

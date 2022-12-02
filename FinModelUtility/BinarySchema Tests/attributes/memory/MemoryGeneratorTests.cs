@@ -49,7 +49,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class BlockWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteInt64(this.Size);
       er.WriteInt64(this.Offset);
       this.Pointer.Write(ew);

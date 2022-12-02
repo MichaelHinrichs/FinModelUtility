@@ -34,7 +34,7 @@ namespace mod.schema.animation {
                     "Read unexpected number of bytes in animation!");
     }
 
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       var beforeLengthTask = new TaskCompletionSource<long>();
       ew.WriteUInt32Delayed(
           beforeLengthTask.Task.ContinueWith(

@@ -28,7 +28,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class EndiannessWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteUInt32(this.Field);
     }
   }
@@ -74,7 +74,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class EndiannessWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteUInt32(this.Field1);
       ew.PushMemberEndianness(Endianness.BigEndian);
       ew.WriteUInt32(this.Field2);
@@ -121,7 +121,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class EndiannessWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.PushStructureEndianness(Endianness.BigEndian);
       ew.WriteUInt32(this.Field1);
       ew.WriteUInt32(this.Field2);

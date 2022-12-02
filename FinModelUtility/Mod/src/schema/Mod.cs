@@ -224,7 +224,7 @@ namespace mod.schema {
       return instance;
     }
 
-    public void Write(EndianBinaryWriter writer) {
+    public void Write(ISubEndianBinaryWriter writer) {
       throw new NotImplementedException();
     }
   }

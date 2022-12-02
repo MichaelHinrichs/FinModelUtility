@@ -65,7 +65,7 @@ namespace schema {
   public class NullTerminatedStringAttribute : Attribute { }
 
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-  public class StringLengthSourceAttribute : BMemberAttribute {
+  public class StringLengthSourceAttribute : BMemberAttribute<string> {
     private string? otherMemberName_;
 
     /// <summary>

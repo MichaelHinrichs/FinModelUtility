@@ -55,7 +55,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ByteWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteByte((byte) (this.ImmediateValue != null ? 1 : 0));
       if (this.ImmediateValue != null) {
         this.ImmediateValue.Write(ew);
@@ -123,7 +123,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ByteWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       this.Field.Write(ew);
       if (this.Field.Bool) {
         ew.WriteInt32(this.OtherValue.Value);

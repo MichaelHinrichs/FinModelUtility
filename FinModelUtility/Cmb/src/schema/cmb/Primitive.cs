@@ -30,7 +30,7 @@ namespace cmb.schema.cmb {
       this.offset = r.ReadUInt16();
     }
 
-    public void Write(EndianBinaryWriter w)
+    public void Write(ISubEndianBinaryWriter w)
       => throw new NotImplementedException();
   }
 }

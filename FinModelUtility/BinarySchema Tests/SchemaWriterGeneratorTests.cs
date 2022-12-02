@@ -22,7 +22,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ByteWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteByte(this.Field);
     }
   }
@@ -45,7 +45,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class SByteWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteSByte(this.Field);
     }
   }
@@ -68,7 +68,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ShortWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteInt16(this.Field);
     }
   }
@@ -91,7 +91,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ArrayWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteInt32s(this.field);
     }
   }
@@ -117,7 +117,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ArrayWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteInt32(this.length);
       ew.WriteInt32s(this.field);
     }
@@ -153,7 +153,7 @@ namespace foo.bar {
   static internal partial class Parent {
     protected partial class Middle {
       private partial class Wrapper {
-        public void Write(EndianBinaryWriter ew) {
+        public void Write(ISubEndianBinaryWriter ew) {
           ew.WriteInt32(this.length);
           ew.WriteInt32((int) this.value);
         }
@@ -179,7 +179,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class CharWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteChars(this.Array);
     }
   }
@@ -202,7 +202,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ShortWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteInt16(this.Field);
     }
   }
@@ -225,7 +225,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ByteWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteByte(this.field);
     }
   }
@@ -248,7 +248,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ByteWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteByte(this.field);
     }
   }
@@ -271,7 +271,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ByteWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteByte(this.Field);
     }
   }
@@ -329,7 +329,7 @@ namespace foo {
 using System.IO;
 namespace foo.bar {
   public partial class EverythingWrapper {
-    public void Write(EndianBinaryWriter ew) {" +
+    public void Write(ISubEndianBinaryWriter ew) {" +
                             @"
       ew.WriteString(this.magicText);" +
                             @"

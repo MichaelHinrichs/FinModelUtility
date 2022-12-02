@@ -158,7 +158,7 @@ namespace modl.schema.res.texr {
       Asserts.Equal(expectedTexrEnd, er.Position);
     }
 
-    public void Write(EndianBinaryWriter ew) =>
+    public void Write(ISubEndianBinaryWriter ew) =>
         throw new NotImplementedException();
 
     private IImage

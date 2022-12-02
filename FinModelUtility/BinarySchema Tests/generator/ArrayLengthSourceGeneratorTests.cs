@@ -69,7 +69,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ConstLengthWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteInt32s(this.Field);
       ew.WriteInt32s(this.NullableField);
       if (this.Toggle) {

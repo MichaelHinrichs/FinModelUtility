@@ -31,7 +31,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class Wrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteByte((byte) this.Field);
     }
   }
@@ -69,7 +69,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class Wrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteByte((byte) this.Field);
     }
   }
@@ -107,7 +107,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class Wrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteByte((byte) this.Field);
     }
   }
@@ -147,7 +147,7 @@ namespace foo.bar.gar {
 using System.IO;
 namespace foo.bar.gar {
   public partial class Wrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteByte((byte) this.Field);
     }
   }

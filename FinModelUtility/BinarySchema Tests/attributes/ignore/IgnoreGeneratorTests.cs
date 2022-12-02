@@ -28,7 +28,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class IgnoreWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
     }
   }
 }

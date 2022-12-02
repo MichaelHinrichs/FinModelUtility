@@ -37,7 +37,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class EnumWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteByte((byte) this.fieldA);
       ew.WriteInt32((int) this.fieldB);
     }
@@ -84,7 +84,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class EnumWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       for (var i = 0; i < this.fieldA.Length; ++i) {
         ew.WriteByte((byte) this.fieldA[i]);
       }

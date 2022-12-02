@@ -33,7 +33,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class Int24Wrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteInt24(this.field1);
       ew.WriteInt24(this.field2);
     }
@@ -72,7 +72,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class UInt24Wrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteUInt24(this.field1);
       ew.WriteUInt24(this.field2);
     }

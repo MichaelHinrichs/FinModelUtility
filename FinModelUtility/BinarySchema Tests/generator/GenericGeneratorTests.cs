@@ -28,7 +28,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class GenericWrapper<T> {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       this.Data.Write(ew);
     }
   }
@@ -63,7 +63,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class GenericWrapper<T> {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       foreach (var e in this.Data) {
         e.Write(ew);
       }

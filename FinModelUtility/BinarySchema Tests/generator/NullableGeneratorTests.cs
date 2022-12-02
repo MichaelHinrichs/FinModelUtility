@@ -31,7 +31,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class NullableWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteByte((byte) (this.Field1.Value ? 1 : 0));
       ew.WriteInt32(this.Field2.Value);
     }

@@ -35,7 +35,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ChildOfWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteByte(this.Field);
     }
   }
@@ -76,7 +76,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class Parent {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       this.Child.Write(ew);
     }
   }
@@ -116,7 +116,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ChildOfWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
     }
   }
 }
@@ -167,7 +167,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class Parent {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteUInt32(this.Length);
       foreach (var e in this.Child) {
         e.Write(ew);

@@ -53,7 +53,7 @@ namespace mod.schema.collision {
       er.Align(0x20);
     }
 
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteUInt32(0x100);
 
       var beforeLengthTask = new TaskCompletionSource<long>();
@@ -139,7 +139,7 @@ namespace mod.schema.collision {
       reader.Align(0x20);
     }
 
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteUInt32(0x110);
 
       var beforeLengthTask = new TaskCompletionSource<long>();

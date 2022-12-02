@@ -25,6 +25,21 @@ namespace schema {
       return symbol.First();
     }
 
+    public static bool CanBeStoredAs(ITypeSymbol symbol, Type type) {
+      if (IsExactlyType(symbol, type) || 
+          Implements(symbol, type) || 
+          ImplementsGeneric(symbol, type)) {
+        return true;
+      }
+
+      if (symbol is INamedTypeSymbol namedSymbol &&
+          MatchesGeneric(namedSymbol, type)) {
+        return true;
+      }
+
+      return false;
+    }
+
     public static bool ImplementsGeneric(ITypeSymbol symbol, Type type)
       => symbol.AllInterfaces.Any(i => SymbolTypeUtil.MatchesGeneric(i, type));
 

@@ -40,7 +40,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class OffsetWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteUInt32(this.BaseLocation);
       ew.WriteUInt32(this.Offset);
       throw new NotImplementedException();
@@ -94,7 +94,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class OffsetWrapper {
-    public void Write(EndianBinaryWriter ew) {
+    public void Write(ISubEndianBinaryWriter ew) {
       ew.WriteUInt32(this.Offset);
       throw new NotImplementedException();
     }

@@ -50,7 +50,7 @@ namespace mod.schema {
       }
     }
 
-    public void Write(EndianBinaryWriter writer) {
+    public void Write(ISubEndianBinaryWriter writer) {
       writer.WriteUInt16(this.width);
       writer.WriteUInt16(this.height);
       writer.WriteUInt32((uint) this.format);
