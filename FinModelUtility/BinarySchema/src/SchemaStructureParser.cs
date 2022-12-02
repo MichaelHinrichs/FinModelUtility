@@ -176,7 +176,7 @@ namespace schema {
       }
 
       var structureEndianness =
-          new EndiannessParser().GetEndianness(structureSymbol);
+          new EndiannessParser().GetEndianness(diagnostics, structureSymbol);
 
       var typeInfoParser = new TypeInfoParser();
       var parsedMembers =
@@ -189,8 +189,8 @@ namespace schema {
           continue;
         }
 
-        if (SymbolTypeUtil.GetAttribute<IgnoreAttribute>(memberSymbol) !=
-            null) {
+        if (SymbolTypeUtil.GetAttribute<IgnoreAttribute>(
+                diagnostics, memberSymbol) != null) {
           continue;
         }
 
@@ -225,18 +225,20 @@ namespace schema {
         }
 
         var memberEndianness =
-            new EndiannessParser().GetEndianness(memberSymbol);
+            new EndiannessParser().GetEndianness(diagnostics, memberSymbol);
 
         // Gets the type of the current member
         var memberType = WrapTypeInfoWithMemberType(memberTypeInfo);
 
         // Get attributes
-        var align = new AlignAttributeParser().GetAlignForMember(memberSymbol);
+        var align = new AlignAttributeParser().GetAlignForMember(
+            diagnostics, memberSymbol);
 
         var isPosition = false;
         {
           var positionAttribute =
-              SymbolTypeUtil.GetAttribute<PositionAttribute>(memberSymbol);
+              SymbolTypeUtil.GetAttribute<PositionAttribute>(
+                  diagnostics, memberSymbol);
           if (positionAttribute != null) {
             isPosition = true;
             if (memberTypeInfo is not IIntegerTypeInfo {
@@ -253,7 +255,8 @@ namespace schema {
         IIfBoolean? ifBoolean = null;
         {
           var ifBooleanAttribute =
-              SymbolTypeUtil.GetAttribute<IfBooleanAttribute>(memberSymbol);
+              SymbolTypeUtil.GetAttribute<IfBooleanAttribute>(
+                  diagnostics, memberSymbol);
           if (ifBooleanAttribute != null) {
             if (memberTypeInfo.IsNullable) {
               SchemaMember? booleanMember = null;
@@ -280,12 +283,14 @@ namespace schema {
         IOffset? offset = null;
         {
           var offsetAttribute =
-              SymbolTypeUtil.GetAttribute<OffsetAttribute>(memberSymbol);
+              SymbolTypeUtil.GetAttribute<OffsetAttribute>(
+                  diagnostics, memberSymbol);
 
           if (offsetAttribute != null) {
             var startIndexName = offsetAttribute.StartIndexName;
             var startIndexTypeSymbol =
                 SymbolTypeUtil.GetTypeFromMemberRelativeToAnother(
+                    diagnostics,
                     structureSymbol, startIndexName, memberSymbol.Name);
             typeInfoParser.ParseTypeSymbol(
                 startIndexTypeSymbol,
@@ -295,6 +300,7 @@ namespace schema {
             var offsetName = offsetAttribute.OffsetName;
             var offsetTypeSymbol =
                 SymbolTypeUtil.GetTypeFromMemberRelativeToAnother(
+                    diagnostics,
                     structureSymbol, offsetName, memberSymbol.Name);
             typeInfoParser.ParseTypeSymbol(
                 offsetTypeSymbol,
@@ -346,7 +352,8 @@ namespace schema {
           {
             var numberFormatAttribute =
                 SymbolTypeUtil
-                    .GetAttribute<NumberFormatAttribute>(memberSymbol);
+                    .GetAttribute<NumberFormatAttribute>(
+                        diagnostics, memberSymbol);
             if (numberFormatAttribute != null) {
               formatNumberType = numberFormatAttribute.NumberType;
 
@@ -365,7 +372,8 @@ namespace schema {
           {
             var integerFormatAttribute =
                 SymbolTypeUtil
-                    .GetAttribute<IntegerFormatAttribute>(memberSymbol);
+                    .GetAttribute<IntegerFormatAttribute>(
+                        diagnostics, memberSymbol);
             if (integerFormatAttribute != null) {
               formatIntegerType = integerFormatAttribute.IntegerType;
 
@@ -427,10 +435,10 @@ namespace schema {
           // TODO: Implement this, support strings in arrays?
           var stringLengthSourceAttribute =
               SymbolTypeUtil.GetAttribute<StringLengthSourceAttribute>(
-                  memberSymbol);
+                  diagnostics, memberSymbol);
           var nullTerminatedStringAttribute =
               SymbolTypeUtil.GetAttribute<NullTerminatedStringAttribute>(
-                  memberSymbol);
+                  diagnostics, memberSymbol);
 
           if (stringLengthSourceAttribute != null ||
               nullTerminatedStringAttribute != null) {
@@ -483,7 +491,7 @@ namespace schema {
         {
           var lengthSourceAttribute =
               SymbolTypeUtil.GetAttribute<ArrayLengthSourceAttribute>(
-                  memberSymbol);
+                  diagnostics, memberSymbol);
           if (memberType is SequenceMemberType sequenceMemberType) {
             if (sequenceMemberType.LengthSourceType ==
                 SequenceLengthSourceType.UNSPECIFIED) {

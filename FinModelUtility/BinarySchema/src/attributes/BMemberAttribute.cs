@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis;
 using schema.parser;
 using schema.util;
+using System.Collections.Generic;
 
 
 namespace schema.attributes {
@@ -14,6 +15,7 @@ namespace schema.attributes {
 
   public abstract class BMemberAttribute : Attribute {
     private static readonly TypeInfoParser parser_ = new();
+    private IList<Diagnostic> diagnostics_;
 
     private ITypeInfo structureTypeInfo_;
     protected IMemberReference memberThisIsAttachedTo_;
@@ -26,24 +28,14 @@ namespace schema.attributes {
     }
 
 
-    public void Init(ITypeInfo structureTypeInfo,
-                     string memberName) {
-      this.structureTypeInfo_ = structureTypeInfo;
-      this.SetMemberFromName(memberName);
-      this.InitFields();
-    }
-
-    public void Init(ITypeSymbol structureTypeSymbol,
-                     string memberName) {
+    public void Init(
+        IList<Diagnostic> diagnostics,
+        ITypeSymbol structureTypeSymbol,
+        string memberName) {
+      this.diagnostics_ = diagnostics;
       this.structureTypeInfo_ = BMemberAttribute.parser_.AssertParseTypeSymbol(
           structureTypeSymbol);
       this.SetMemberFromName(memberName);
-      this.InitFields();
-    }
-
-    public void Init(IMemberReference memberThisIsAttachedTo) {
-      this.structureTypeInfo_ = memberThisIsAttachedTo.StructureTypeInfo;
-      this.memberThisIsAttachedTo_ = memberThisIsAttachedTo;
       this.InitFields();
     }
 
@@ -52,6 +44,7 @@ namespace schema.attributes {
         string memberName) {
       var otherMemberTypeSymbol =
           SymbolTypeUtil.GetTypeFromMember(
+              this.diagnostics_,
               this.structureTypeInfo_.TypeSymbol,
               memberName);
       var otherMemberTypeInfo = BMemberAttribute.parser_.AssertParseTypeSymbol(
@@ -65,8 +58,10 @@ namespace schema.attributes {
     protected IMemberReference<T> GetMemberRelativeToStructure<T>(
         string memberName) {
       var memberTypeSymbol =
-          SymbolTypeUtil.GetTypeFromMember(this.structureTypeInfo_.TypeSymbol,
-                                           memberName);
+          SymbolTypeUtil.GetTypeFromMember(
+              this.diagnostics_,
+              this.structureTypeInfo_.TypeSymbol,
+              memberName);
       var memberTypeInfo = BMemberAttribute.parser_.AssertParseTypeSymbol(
           memberTypeSymbol);
 
@@ -85,6 +80,7 @@ namespace schema.attributes {
         string otherMemberName) {
       var memberTypeSymbol =
           SymbolTypeUtil.GetTypeFromMemberRelativeToAnother(
+              this.diagnostics_,
               this.structureTypeInfo_.TypeSymbol,
               otherMemberName,
               this.memberThisIsAttachedTo_.Name);
@@ -101,6 +97,7 @@ namespace schema.attributes {
         string otherMemberName) {
       var memberTypeSymbol =
           SymbolTypeUtil.GetTypeFromMemberRelativeToAnother(
+              this.diagnostics_,
               this.structureTypeInfo_.TypeSymbol,
               otherMemberName,
               this.memberThisIsAttachedTo_.Name);

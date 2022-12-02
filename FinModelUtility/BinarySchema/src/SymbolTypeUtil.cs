@@ -128,7 +128,9 @@ namespace schema {
                    });
     }
 
-    internal static TAttribute? GetAttribute<TAttribute>(ISymbol symbol)
+    internal static TAttribute? GetAttribute<TAttribute>(
+        IList<Diagnostic> diagnostics,
+        ISymbol symbol)
         where TAttribute : notnull {
       var attributeData = GetAttributeData<TAttribute>(symbol);
       if (attributeData == null) {
@@ -164,7 +166,7 @@ namespace schema {
           arguments.Select(a => a.Value).ToArray());
 
       if (attribute is BMemberAttribute memberAttribute) {
-        memberAttribute.Init(symbol.ContainingType, symbol.Name);
+        memberAttribute.Init(diagnostics, symbol.ContainingType, symbol.Name);
       }
 
       return attribute;
@@ -308,47 +310,57 @@ namespace schema {
     }
 
     public static ITypeSymbol GetTypeFromMember(
+        IList<Diagnostic> diagnostics,
         ITypeSymbol structureSymbol,
         string memberName)
-      => GetTypeFromMemberImpl_(structureSymbol, memberName, null);
+      => GetTypeFromMemberImpl_(diagnostics, structureSymbol, memberName, null);
 
     public static ITypeSymbol GetTypeFromMemberRelativeToAnother(
-      ITypeSymbol structureSymbol,
-      string otherMemberName,
-      string thisMemberNameForFirstPass)
-      => GetTypeFromMemberImpl_(structureSymbol, otherMemberName, thisMemberNameForFirstPass);
+        IList<Diagnostic> diagnostics,
+        ITypeSymbol structureSymbol,
+        string otherMemberName,
+        string thisMemberNameForFirstPass)
+      => GetTypeFromMemberImpl_(diagnostics, structureSymbol, otherMemberName,
+                                thisMemberNameForFirstPass);
 
 
     private static ITypeSymbol GetTypeFromMemberImpl_(
-      ITypeSymbol structureSymbol,
-      string otherMemberName,
-      string? thisMemberNameForFirstPass) {
-
+        IList<Diagnostic> diagnostics,
+        ITypeSymbol structureSymbol,
+        string otherMemberName,
+        string? thisMemberNameForFirstPass) {
       if (otherMemberName == thisMemberNameForFirstPass) {
-        Asserts.Fail($"Expected to find '{otherMemberName}' relative to '{thisMemberNameForFirstPass}' in '{structureSymbol.Name}', but they're the same!");
+        Asserts.Fail(
+            $"Expected to find '{otherMemberName}' relative to '{thisMemberNameForFirstPass}' in '{structureSymbol.Name}', but they're the same!");
       }
 
       var periodIndex = otherMemberName.IndexOf('.');
       if (periodIndex != -1) {
         var subStructureName = otherMemberName.Substring(0, periodIndex);
         var subStructureTypeSymbol =
-          GetTypeFromMemberImpl_(structureSymbol, subStructureName, thisMemberNameForFirstPass);
+            GetTypeFromMemberImpl_(diagnostics, structureSymbol,
+                                   subStructureName,
+                                   thisMemberNameForFirstPass);
 
         var subMemberName = otherMemberName.Substring(periodIndex + 1);
 
         return GetTypeFromMemberImpl_(
-          subStructureTypeSymbol,
-          subMemberName,
-          null);
+            diagnostics,
+            subStructureTypeSymbol,
+            subMemberName,
+            null);
       }
 
       if (thisMemberNameForFirstPass != null) {
-        var membersAndIndices = structureSymbol.GetMembers().Select((member, index) => (member, index));
+        var members = structureSymbol.GetMembers();
+        var membersAndIndices = members.Select((member, index) => (member, index)).ToArray();
         var indexOfThisMember = membersAndIndices.Single(memberAndIndex => memberAndIndex.member.Name == thisMemberNameForFirstPass).index;
         var indexOfOtherMember = membersAndIndices.Single(memberAndIndex => memberAndIndex.member.Name == otherMemberName).index;
 
         if (indexOfThisMember < indexOfOtherMember) {
-          Asserts.Fail($"Expected to find '{otherMemberName}' before '{thisMemberNameForFirstPass}' in '{structureSymbol.Name}'.");
+          diagnostics.Add(Rules.CreateDiagnostic(
+                              members[indexOfThisMember],
+                              Rules.DependentMustComeAfterSource));
         }
       }
 

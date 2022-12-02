@@ -1,11 +1,15 @@
 ﻿using Microsoft.CodeAnalysis;
+using System.Collections.Generic;
 
 
 namespace schema.attributes.align {
   public class AlignAttributeParser {
-    public int GetAlignForMember(ISymbol memberSymbol) {
+    public int GetAlignForMember(
+        IList<Diagnostic> diagnostics,
+        ISymbol memberSymbol) {
       var alignAttribute =
-          SymbolTypeUtil.GetAttribute<AlignAttribute>(memberSymbol);
+          SymbolTypeUtil.GetAttribute<AlignAttribute>(
+              diagnostics, memberSymbol);
       return alignAttribute?.Align ?? 0;
     }
   }

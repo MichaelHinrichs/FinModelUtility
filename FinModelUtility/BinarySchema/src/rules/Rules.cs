@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 
 
 namespace schema {
-  public static class Rules {
+  public static partial class Rules {
     private static int diagnosticId_ = 0;
 
     private static string GetNextDiagnosticId_() {
