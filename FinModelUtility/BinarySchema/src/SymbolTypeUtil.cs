@@ -309,27 +309,24 @@ namespace schema {
           $"{mergedNamespaceText}{mergedContainersText}{referencedSymbol.Name}";
     }
 
-    public static (ISymbol MemberSymbol, ITypeSymbol TypeSymbol)
-        GetTypeFromMember(
-            IList<Diagnostic> diagnostics,
-            ITypeSymbol structureSymbol,
-            string memberName)
+    public static ITypeSymbol GetTypeFromMember(
+        IList<Diagnostic> diagnostics,
+        ITypeSymbol structureSymbol,
+        string memberName)
       => GetTypeFromMemberImpl_(diagnostics, structureSymbol, memberName, null);
 
-    public static (ISymbol MemberSymbol, ITypeSymbol TypeSymbol)
-        GetTypeFromMemberRelativeToAnother(
-            IList<Diagnostic> diagnostics,
-            ITypeSymbol structureSymbol,
-            string otherMemberName,
-            string thisMemberNameForFirstPass)
+    public static ITypeSymbol GetTypeFromMemberRelativeToAnother(
+        IList<Diagnostic> diagnostics,
+        ITypeSymbol structureSymbol,
+        string otherMemberName,
+        string thisMemberNameForFirstPass)
       => GetTypeFromMemberImpl_(diagnostics, structureSymbol, otherMemberName,
                                 thisMemberNameForFirstPass);
 
 
-    private static (ISymbol MemberSymbol, ITypeSymbol TypeSymbol)
-        GetTypeFromMemberImpl_(
-            IList<Diagnostic> diagnostics,
-            ITypeSymbol structureSymbol,
+    private static ITypeSymbol GetTypeFromMemberImpl_(
+        IList<Diagnostic> diagnostics,
+        ITypeSymbol structureSymbol,
         string otherMemberName,
         string? thisMemberNameForFirstPass) {
       if (otherMemberName == thisMemberNameForFirstPass) {
@@ -343,7 +340,7 @@ namespace schema {
         var subStructureTypeSymbol =
             GetTypeFromMemberImpl_(diagnostics, structureSymbol,
                                    subStructureName,
-                                   thisMemberNameForFirstPass).TypeSymbol;
+                                   thisMemberNameForFirstPass);
 
         var subMemberName = otherMemberName.Substring(periodIndex + 1);
 
@@ -367,15 +364,13 @@ namespace schema {
         }
       }
 
-      var memberSymbol = structureSymbol
-                         .GetMembers(otherMemberName)
-                         .Single();
-      var typeSymbol = memberSymbol switch {
+      return structureSymbol
+        .GetMembers(otherMemberName)
+        .Single() switch {
           IPropertySymbol propertySymbol => propertySymbol.Type,
           IFieldSymbol fieldSymbol => fieldSymbol.Type,
           _ => throw new NotSupportedException()
         };
-      return (memberSymbol, typeSymbol);
     }
   }
 }

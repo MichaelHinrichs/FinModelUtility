@@ -8,7 +8,7 @@ namespace cmb.schema.cmb {
   public partial class Luts : IBiSerializable {
     public readonly string magic = "luts";
     public uint dataLength;
-    private uint LutSetCount;
+    public uint LutSetCount;
     public uint unk;
 
     
@@ -22,7 +22,7 @@ namespace cmb.schema.cmb {
   [BinarySchema]
   public partial class LutSet : IBiSerializable {
     public ushort BitFlags; //Not sure
-    private ushort KeyCount; //Keyframes
+    public ushort KeyCount; //Keyframes
     public short Start;
     public short End;
     [ArrayLengthSource(nameof(LutSet.KeyCount))]

@@ -13,7 +13,7 @@ namespace cmb.schema.cmb {
     public readonly uint primitiveCount = 1;
     
     public SkinningMode skinningMode;
-    private ushort boneTableCount;
+    public ushort boneTableCount;
     public uint boneTableOffset;
     public uint primitiveOffset;
 

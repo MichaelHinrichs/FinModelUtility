@@ -8,7 +8,7 @@ namespace mod.schema.animation {
   }
 
   public interface IDcxAnimationData : IBiSerializable {
-    uint JointCount { get; }
+    uint JointCount { get; set; }
     uint FrameCount { get; set; }
 
     float[] ScaleValues { get; set; }

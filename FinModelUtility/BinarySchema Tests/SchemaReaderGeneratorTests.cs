@@ -105,7 +105,7 @@ using schema;
 namespace foo.bar {
   [BinarySchema]
   public partial class ArrayWrapper {
-    private int length;
+    public int length;
 
     [ArrayLengthSource(nameof(ArrayWrapper.length))]
     public int[] field;

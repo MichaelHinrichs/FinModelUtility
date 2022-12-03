@@ -86,8 +86,8 @@ namespace mod.schema.collision {
 
   [BinarySchema]
   public partial class CollGroup : IBiSerializable {
-    private ushort NumUnknown1 { get; set; }
-    private ushort NumUnknown2 { get; set; }
+    public ushort NumUnknown1 { get; set; }
+    public ushort NumUnknown2 { get; set; }
 
     [ArrayLengthSource(nameof(NumUnknown2))]
     public uint[] unknown2 = Array.Empty<uint>();

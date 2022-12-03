@@ -56,7 +56,7 @@ namespace mod.schema.animation {
 
   [BinarySchema]
   public partial class DcaAnimationData : IDcxAnimationData {
-    public uint JointCount { get; private set; }
+    public uint JointCount { get; set; }
     public uint FrameCount { get; set; }
 
     [ArrayLengthSource(SchemaIntegerType.INT32)]

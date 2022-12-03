@@ -21,7 +21,7 @@ namespace foo.bar {
     public int[]? NullableField { get; set; }
 
     [Ignore]
-    private bool Toggle { get; set; }
+    public bool Toggle { get; set; }
 
     [IfBoolean(nameof(Toggle))]
     [ArrayLengthSource(3)]

@@ -15,7 +15,7 @@ namespace bmd.schema.bmd {
     [Position]
     public long BasePosition { get; set; }
 
-    private ushort NrStrings;
+    public ushort NrStrings;
     public ushort Padding;
 
     [ArrayLengthSource(nameof(NrStrings))]
@@ -38,7 +38,7 @@ namespace bmd.schema.bmd {
     public long BasePosition => Parent.BasePosition;
 
     public ushort Unknown;
-    private ushort Offset;
+    public ushort Offset;
 
     [Offset(nameof(BasePosition), nameof(Offset))]
     [NullTerminatedString]

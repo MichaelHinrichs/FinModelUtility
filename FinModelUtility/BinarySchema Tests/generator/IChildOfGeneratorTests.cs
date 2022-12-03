@@ -132,7 +132,7 @@ using schema.attributes.child_of;
 namespace foo.bar {
   [BinarySchema]
   public partial class Parent {
-    private uint Length { get; set; }
+    public uint Length { get; set; }
 
     [ArrayLengthSource(nameof(Length))]
     public ChildOfWrapper[] Child { get; set; }
