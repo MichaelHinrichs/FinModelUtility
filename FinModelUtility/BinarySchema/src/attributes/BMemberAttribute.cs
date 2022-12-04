@@ -170,6 +170,9 @@ namespace schema.attributes {
 
     bool IsBool { get; }
     IMemberReference AssertIsBool();
+
+    bool IsSequence { get; }
+    IMemberReference AssertIsSequence();
   }
 
   public interface IMemberReference<T> : IMemberReference { }
@@ -206,6 +209,15 @@ namespace schema.attributes {
     public IMemberReference AssertIsBool() {
       if (!this.IsBool) {
         Asserts.Fail($"Expected {this.Name} to refer to an bool!");
+      }
+      return this;
+    }
+
+    public bool IsSequence => this.MemberTypeInfo is ISequenceTypeInfo;
+
+    public IMemberReference AssertIsSequence() {
+      if (!this.IsSequence) {
+        Asserts.Fail($"Expected {this.Name} to refer to an sequence!");
       }
       return this;
     }
