@@ -201,6 +201,7 @@ namespace schema {
             continue;
           }
 
+          // Skips indexers.
           if (memberSymbol is IPropertySymbol {IsIndexer: true}) {
             continue;
           }

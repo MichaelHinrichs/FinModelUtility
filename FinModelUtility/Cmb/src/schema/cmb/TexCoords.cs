@@ -1,4 +1,5 @@
-﻿using schema;
+﻿using fin.schema.vector;
+using schema;
 
 namespace cmb.schema.cmb {
   [BinarySchema]
@@ -9,8 +10,8 @@ namespace cmb.schema.cmb {
     [IntegerFormat(SchemaIntegerType.BYTE)]
     public TextureMappingType mappingMethod { get; private set; }
     public byte coordinateIndex { get; private set; }
-    public float[] scale { get; } = new float[2];
+    public Vector2f scale { get; } = new();
     public float rotation { get; private set; }
-    public float[] translation { get; } = new float[2];
+    public Vector2f translation { get; } = new();
   }
 }

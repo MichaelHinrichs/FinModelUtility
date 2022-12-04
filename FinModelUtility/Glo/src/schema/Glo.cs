@@ -51,7 +51,7 @@ namespace glo.schema {
     public GloQuaternionKey[] RotateKeys { get; set; }
 
     [ArrayLengthSource(SchemaIntegerType.UINT16)]
-    public GloVertex[] Vertices { get; set; }
+    public Vector3f[] Vertices { get; set; }
 
     [ArrayLengthSource(SchemaIntegerType.UINT16)] public GloFace[] Faces { get; set; }
 
@@ -92,13 +92,6 @@ namespace glo.schema {
   public sealed partial class GloScaleKey : IBiSerializable {
     public uint Time { get; set; }
     public Vector3f Scale { get; } = new();
-  }
-
-  [BinarySchema]
-  public sealed partial class GloVertex : IBiSerializable {
-    public float X { get; set; }
-    public float Y { get; set; }
-    public float Z { get; set; }
   }
 
   [BinarySchema]

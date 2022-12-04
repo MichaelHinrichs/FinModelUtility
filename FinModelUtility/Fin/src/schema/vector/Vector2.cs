@@ -18,11 +18,11 @@ namespace fin.schema.vector {
   }
 
   [BinarySchema]
-  public partial class Vector2f : BVector2<float>, IBiSerializable { }
+  public sealed partial class Vector2f : BVector2<float>, IBiSerializable { }
 
   [BinarySchema]
-  public partial class Vector2i : BVector2<int>, IBiSerializable { }
+  public sealed partial class Vector2i : BVector2<int>, IBiSerializable { }
 
   [BinarySchema]
-  public partial class Vector2s : BVector2<short>, IBiSerializable { }
+  public sealed partial class Vector2s : BVector2<short>, IBiSerializable { }
 }
