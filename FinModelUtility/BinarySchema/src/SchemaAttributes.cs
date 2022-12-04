@@ -1,5 +1,4 @@
 ﻿using System;
-
 using schema.attributes;
 
 
@@ -62,8 +61,9 @@ namespace schema {
   }
 
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-  public class NullTerminatedStringAttribute : Attribute { }
-  
+  public class NullTerminatedStringAttribute : BMemberAttribute<string> {
+    protected override void InitFields() { }
+  }
 
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
   public class NumberFormatAttribute : Attribute {
@@ -111,8 +111,4 @@ namespace schema {
     public SchemaIntegerType BooleanType { get; }
     public IMemberReference? OtherMember { get; private set; }
   }
-
-
-  [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-  public class EndianOrderedAttribute : Attribute { }
 }
