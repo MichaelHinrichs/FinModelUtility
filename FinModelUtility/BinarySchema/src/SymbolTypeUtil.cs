@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-
 using schema.attributes;
 using schema.util;
 
@@ -26,8 +24,8 @@ namespace schema {
     }
 
     public static bool CanBeStoredAs(ITypeSymbol symbol, Type type) {
-      if (IsExactlyType(symbol, type) || 
-          Implements(symbol, type) || 
+      if (IsExactlyType(symbol, type) ||
+          Implements(symbol, type) ||
           ImplementsGeneric(symbol, type)) {
         return true;
       }
@@ -114,11 +112,11 @@ namespace schema {
                             attributeData.AttributeClass!,
                             expectedType));
 
-    internal static AttributeData?
+    internal static IEnumerable<AttributeData>
         GetAttributeData<TAttribute>(ISymbol symbol) {
       var attributeType = typeof(TAttribute);
       return symbol.GetAttributes()
-                   .FirstOrDefault(attributeData => {
+                   .Where(attributeData => {
                      var attributeSymbol = attributeData.AttributeClass;
 
                      return attributeSymbol.Name == attributeType.Name &&
@@ -131,46 +129,54 @@ namespace schema {
     internal static TAttribute? GetAttribute<TAttribute>(
         IList<Diagnostic> diagnostics,
         ISymbol symbol)
-        where TAttribute : notnull {
-      var attributeData = GetAttributeData<TAttribute>(symbol);
-      if (attributeData == null) {
-        return default;
-      }
+        where TAttribute : notnull
+      => GetAttributes<TAttribute>(diagnostics, symbol)
+          .SingleOrDefault();
 
-      var parameters = attributeData.AttributeConstructor.Parameters;
-      // TODO: Does this still work w/ optional arguments?
-      var attributeType = typeof(TAttribute);
-      var constructor =
-          attributeType.GetConstructors()
-                       .FirstOrDefault(c => {
-                         var cParameters = c.GetParameters();
-                         if (cParameters.Length != parameters.Length) {
-                           return false;
-                         }
+    internal static IEnumerable<TAttribute> GetAttributes<TAttribute>(
+        IList<Diagnostic> diagnostics,
+        ISymbol symbol)
+        where TAttribute : notnull
+      => GetAttributeData<TAttribute>(symbol)
+          .Select(attributeData => {
+            var parameters = attributeData.AttributeConstructor.Parameters;
 
-                         for (var i = 0; i < parameters.Length; ++i) {
-                           if (parameters[i].Name != cParameters[i].Name) {
-                             return false;
-                           }
-                         }
+            // TODO: Does this still work w/ optional arguments?
+            var attributeType = typeof(TAttribute);
 
-                         return true;
-                       });
-      if (constructor == null) {
-        throw new Exception(
-            $"Failed to find constructor for {typeof(TAttribute)}");
-      }
+            var constructor =
+                attributeType.GetConstructors()
+                             .FirstOrDefault(c => {
+                               var cParameters = c.GetParameters();
+                               if (cParameters.Length != parameters.Length) {
+                                 return false;
+                               }
 
-      var arguments = attributeData.ConstructorArguments;
-      var attribute = (TAttribute)constructor.Invoke(
-          arguments.Select(a => a.Value).ToArray());
+                               for (var i = 0; i < parameters.Length; ++i) {
+                                 if (parameters[i].Name !=
+                                     cParameters[i].Name) {
+                                   return false;
+                                 }
+                               }
 
-      if (attribute is BMemberAttribute memberAttribute) {
-        memberAttribute.Init(diagnostics, symbol.ContainingType, symbol.Name);
-      }
+                               return true;
+                             });
+            if (constructor == null) {
+              throw new Exception(
+                  $"Failed to find constructor for {typeof(TAttribute)}");
+            }
 
-      return attribute;
-    }
+            var arguments = attributeData.ConstructorArguments;
+
+            var attribute = (TAttribute)constructor.Invoke(
+                arguments.Select(a => a.Value).ToArray());
+            if (attribute is BMemberAttribute memberAttribute) {
+              memberAttribute.Init(diagnostics, symbol.ContainingType,
+                                   symbol.Name);
+            }
+
+            return attribute;
+          });
 
     public static IEnumerable<ISymbol> GetInstanceMembers(
         INamedTypeSymbol structureSymbol) {
@@ -239,14 +245,14 @@ namespace schema {
     public static string AccessibilityToModifier(
         Accessibility accessibility)
       => accessibility switch {
-        Accessibility.Private => "private",
-        Accessibility.Protected => "protected",
-        Accessibility.Internal => "internal",
-        Accessibility.Public => "public",
-        _ => throw new ArgumentOutOfRangeException(
-                 nameof(accessibility),
-                 accessibility,
-                 null)
+          Accessibility.Private   => "private",
+          Accessibility.Protected => "protected",
+          Accessibility.Internal  => "internal",
+          Accessibility.Public    => "public",
+          _ => throw new ArgumentOutOfRangeException(
+                   nameof(accessibility),
+                   accessibility,
+                   null)
       };
 
     public static string GetQualifiedName(ITypeSymbol typeSymbol) {
@@ -330,8 +336,8 @@ namespace schema {
         GetTypeFromMemberImpl_(
             IList<Diagnostic> diagnostics,
             ITypeSymbol structureSymbol,
-        string otherMemberName,
-        string? thisMemberNameForFirstPass) {
+            string otherMemberName,
+            string? thisMemberNameForFirstPass) {
       if (otherMemberName == thisMemberNameForFirstPass) {
         Asserts.Fail(
             $"Expected to find '{otherMemberName}' relative to '{thisMemberNameForFirstPass}' in '{structureSymbol.Name}', but they're the same!");
@@ -343,7 +349,8 @@ namespace schema {
         var subStructureTypeSymbol =
             GetTypeFromMemberImpl_(diagnostics, structureSymbol,
                                    subStructureName,
-                                   thisMemberNameForFirstPass).TypeSymbol;
+                                   thisMemberNameForFirstPass)
+                .TypeSymbol;
 
         var subMemberName = otherMemberName.Substring(periodIndex + 1);
 
@@ -356,9 +363,18 @@ namespace schema {
 
       if (thisMemberNameForFirstPass != null) {
         var members = structureSymbol.GetMembers();
-        var membersAndIndices = members.Select((member, index) => (member, index)).ToArray();
-        var indexOfThisMember = membersAndIndices.Single(memberAndIndex => memberAndIndex.member.Name == thisMemberNameForFirstPass).index;
-        var indexOfOtherMember = membersAndIndices.Single(memberAndIndex => memberAndIndex.member.Name == otherMemberName).index;
+        var membersAndIndices =
+            members.Select((member, index) => (member, index)).ToArray();
+        var indexOfThisMember = membersAndIndices
+                                .Single(memberAndIndex =>
+                                            memberAndIndex.member.Name ==
+                                            thisMemberNameForFirstPass)
+                                .index;
+        var indexOfOtherMember = membersAndIndices
+                                 .Single(memberAndIndex =>
+                                             memberAndIndex.member.Name ==
+                                             otherMemberName)
+                                 .index;
 
         if (indexOfThisMember < indexOfOtherMember) {
           diagnostics.Add(Rules.CreateDiagnostic(
@@ -372,9 +388,9 @@ namespace schema {
                          .Single();
       var typeSymbol = memberSymbol switch {
           IPropertySymbol propertySymbol => propertySymbol.Type,
-          IFieldSymbol fieldSymbol => fieldSymbol.Type,
-          _ => throw new NotSupportedException()
-        };
+          IFieldSymbol fieldSymbol       => fieldSymbol.Type,
+          _                              => throw new NotSupportedException()
+      };
       return (memberSymbol, typeSymbol);
     }
   }
