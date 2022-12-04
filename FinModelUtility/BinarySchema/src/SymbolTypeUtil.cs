@@ -180,18 +180,33 @@ namespace schema {
 
     public static IEnumerable<ISymbol> GetInstanceMembers(
         INamedTypeSymbol structureSymbol) {
-      foreach (var memberSymbol in structureSymbol.GetMembers()) {
-        // Skips static/const fields
-        if (memberSymbol.IsStatic) {
-          continue;
+      var baseClassesAndSelf = new LinkedList<INamedTypeSymbol>();
+      {
+        var currentSymbol = structureSymbol;
+        while (currentSymbol != null) {
+          baseClassesAndSelf.AddFirst(currentSymbol);
+          currentSymbol = currentSymbol.BaseType;
         }
+      }
 
-        // Skips backing field, these are used internally for properties
-        if (memberSymbol.Name.Contains("k__BackingField")) {
-          continue;
+      foreach (var currentSymbol in baseClassesAndSelf) {
+        foreach (var memberSymbol in currentSymbol.GetMembers()) {
+          // Skips static/const fields
+          if (memberSymbol.IsStatic) {
+            continue;
+          }
+
+          // Skips backing field, these are used internally for properties
+          if (memberSymbol.Name.Contains("k__BackingField")) {
+            continue;
+          }
+
+          if (memberSymbol is IPropertySymbol {IsIndexer: true}) {
+            continue;
+          }
+
+          yield return memberSymbol;
         }
-
-        yield return memberSymbol;
       }
     }
 

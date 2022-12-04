@@ -21,10 +21,8 @@ namespace bmd.schema.bmd {
     [ArrayLengthSource(nameof(NrStrings))]
     public StringTableEntry[] Entries;
 
-    [Ignore]
     public string this[int index] => this.Entries[index].Entry;
 
-    [Ignore]
     public int this[string value] =>
         this.Entries.Select(entry => entry.Entry).IndexOfOrNegativeOne(value);
   }

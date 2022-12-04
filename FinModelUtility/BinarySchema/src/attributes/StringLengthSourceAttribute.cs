@@ -1,7 +1,8 @@
-﻿using System;
+﻿using schema.attributes;
+using System;
 
 
-namespace schema.attributes {
+namespace schema {
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
   public class StringLengthSourceAttribute : BMemberAttribute<string> {
     private string? otherMemberName_;
