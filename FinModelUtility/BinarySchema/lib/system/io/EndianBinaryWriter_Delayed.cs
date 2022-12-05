@@ -17,7 +17,8 @@ namespace System.IO {
     public Task<long> GetPositionInSubStream() 
       => this.impl_.GetPositionInSubStream();
 
-    public Task<long> GetLengthOfSubStream() => this.GetLengthOfSubStream();
+    public Task<long> GetLengthOfSubStream() 
+      => this.impl_.GetLengthOfSubStream();
 
     public Task CompleteAndCopyToDelayed(Stream stream)
       => this.impl_.CompleteAndCopyToDelayed(stream);
