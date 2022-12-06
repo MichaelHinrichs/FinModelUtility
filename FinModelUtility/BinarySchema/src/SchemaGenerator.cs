@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-
 using schema.text;
+using schema.util;
 
 
 namespace schema {
@@ -99,6 +98,8 @@ namespace schema {
     public void Execute(GeneratorExecutionContext context) {
       this.context_ = context;
 
+      // TODO: Hook up any dependencies within the structure here.
+
       foreach (var structure in this.queue_) {
         try {
           this.Generate_(structure);
@@ -119,22 +120,19 @@ namespace schema {
     private readonly List<ISchemaStructure> queue_ = new();
 
     public void EnqueueStructure(ISchemaStructure structure) {
-      if (this.context_ == null) {
-        this.queue_.Add(structure);
-      } else {
-        this.Generate_(structure);
-      }
+      // If this assertion fails, then it means that syntax nodes are added
+      // after the execution started.
+      Asserts.Null(this.context_, "Syntax node added after execution!");
+      this.queue_.Add(structure);
     }
 
     private readonly List<(ISymbol, Exception)> errorSymbols_ = new();
 
     public void EnqueueError(ISymbol errorSymbol, Exception exception) {
-      if (this.context_ == null) {
-        this.errorSymbols_.Add((errorSymbol, exception));
-      } else {
-        this.context_.Value.ReportDiagnostic(
-            Rules.CreateExceptionDiagnostic(errorSymbol, exception));
-      }
+      // If this assertion fails, then it means that syntax nodes are added
+      // after the execution started.
+      Asserts.Null(this.context_, "Syntax node added after execution!");
+      this.errorSymbols_.Add((errorSymbol, exception));
     }
   }
 }
