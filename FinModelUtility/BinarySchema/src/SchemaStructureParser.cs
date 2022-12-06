@@ -7,6 +7,7 @@ using schema.attributes.align;
 using schema.attributes.child_of;
 using schema.attributes.endianness;
 using schema.attributes.ignore;
+using schema.attributes.length;
 using schema.attributes.offset;
 using schema.attributes.position;
 using schema.parser;
@@ -228,7 +229,8 @@ namespace schema {
             new EndiannessParser().GetEndianness(diagnostics, memberSymbol);
 
         // Gets the type of the current member
-        var memberType = WrapTypeInfoWithMemberType(memberTypeInfo);
+        var memberType =
+            MemberReferenceUtil.WrapTypeInfoWithMemberType(memberTypeInfo);
 
         // Get attributes
         var align = new AlignAttributeParser().GetAlignForMember(
@@ -263,7 +265,8 @@ namespace schema {
               if (ifBooleanAttribute.Method ==
                   IfBooleanSourceType.OTHER_MEMBER) {
                 booleanMember =
-                    WrapMemberReference(ifBooleanAttribute.OtherMember!);
+                    MemberReferenceUtil.WrapMemberReference(
+                        ifBooleanAttribute.OtherMember!);
               }
 
               ifBoolean = new IfBoolean {
@@ -310,11 +313,15 @@ namespace schema {
             offset = new Offset {
                 StartIndexName = new SchemaMember {
                     Name = startIndexName,
-                    MemberType = WrapTypeInfoWithMemberType(startIndexTypeInfo),
+                    MemberType =
+                        MemberReferenceUtil.WrapTypeInfoWithMemberType(
+                            startIndexTypeInfo),
                 },
                 OffsetName = new SchemaMember {
                     Name = offsetName,
-                    MemberType = WrapTypeInfoWithMemberType(offsetTypeInfo),
+                    MemberType =
+                        MemberReferenceUtil.WrapTypeInfoWithMemberType(
+                            offsetTypeInfo),
                 }
             };
           }
@@ -488,57 +495,10 @@ namespace schema {
           }
         }
 
-        {
-          var lengthSourceAttribute =
-              SymbolTypeUtil.GetAttribute<ArrayLengthSourceAttribute>(
-                  diagnostics, memberSymbol);
-          if (memberType is SequenceMemberType sequenceMemberType) {
-            if (sequenceMemberType.LengthSourceType ==
-                SequenceLengthSourceType.UNSPECIFIED) {
-              if (lengthSourceAttribute != null) {
-                sequenceMemberType.LengthSourceType =
-                    lengthSourceAttribute.Method;
-
-                switch (sequenceMemberType.LengthSourceType) {
-                  case SequenceLengthSourceType.IMMEDIATE_VALUE: {
-                    sequenceMemberType.ImmediateLengthType =
-                        lengthSourceAttribute.LengthType;
-                    break;
-                  }
-                  case SequenceLengthSourceType.OTHER_MEMBER: {
-                    sequenceMemberType.LengthMember =
-                        WrapMemberReference(lengthSourceAttribute.OtherMember);
-                    break;
-                  }
-                  case SequenceLengthSourceType.CONST_LENGTH: {
-                    sequenceMemberType.ConstLength =
-                        lengthSourceAttribute.ConstLength;
-                    break;
-                  }
-                  default:
-                    throw new NotImplementedException();
-                }
-              } else {
-                diagnostics.Add(
-                    Rules.CreateDiagnostic(
-                        memberSymbol,
-                        Rules.MutableArrayNeedsLengthSource));
-              }
-            }
-            // Didn't expect attribute b/c length is already specified
-            else if (lengthSourceAttribute != null) {
-              diagnostics.Add(
-                  Rules.CreateDiagnostic(memberSymbol,
-                                         Rules.UnexpectedAttribute));
-            }
-          }
-          // Didn't expect attribute b/c not an array
-          else if (lengthSourceAttribute != null) {
-            diagnostics.Add(
-                Rules.CreateDiagnostic(memberSymbol,
-                                       Rules.UnexpectedAttribute));
-          }
-        }
+        new ArrayLengthSourceParser().Parse(
+            diagnostics,
+            memberSymbol,
+            memberType);
 
         if (memberType != null) {
           fields.Add(new SchemaMember {
@@ -648,63 +608,5 @@ namespace schema {
 
       public IMemberType ElementType { get; set; }
     }
-
-
-    public IMemberType WrapTypeInfoWithMemberType(ITypeInfo typeInfo) {
-      switch (typeInfo) {
-        case IIntegerTypeInfo integerTypeInfo:
-        case INumberTypeInfo numberTypeInfo:
-        case IBoolTypeInfo boolTypeInfo:
-        case ICharTypeInfo charTypeInfo:
-        case IEnumTypeInfo enumTypeInfo: {
-          return new PrimitiveMemberType {
-              PrimitiveTypeInfo =
-                  Asserts.CastNonnull(typeInfo as IPrimitiveTypeInfo),
-          };
-        }
-        case IStringTypeInfo stringTypeInfo: {
-          return new StringType {TypeInfo = typeInfo,};
-        }
-        case IStructureTypeInfo structureTypeInfo: {
-          return new StructureMemberType {
-              StructureTypeInfo = structureTypeInfo,
-              IsReferenceType =
-                  structureTypeInfo.NamedTypeSymbol.IsReferenceType,
-          };
-        }
-        case IGenericTypeInfo genericTypeInfo: {
-          // TODO: Figure out how to find the best constraint
-          var constraintTypeInfo = genericTypeInfo.ConstraintTypeInfos[0];
-          var constraintMemberType =
-              this.WrapTypeInfoWithMemberType(constraintTypeInfo);
-
-          return new GenericMemberType {
-              ConstraintType = constraintMemberType,
-              GenericTypeInfo = genericTypeInfo,
-          };
-        }
-        case ISequenceTypeInfo sequenceTypeInfo: {
-          return new SequenceMemberType {
-              SequenceTypeInfo = sequenceTypeInfo,
-              SequenceType = sequenceTypeInfo.IsArray
-                                 ? SequenceType.ARRAY
-                                 : SequenceType.LIST,
-              ElementType =
-                  WrapTypeInfoWithMemberType(sequenceTypeInfo.ElementTypeInfo),
-              LengthSourceType = sequenceTypeInfo.IsLengthConst
-                                     ? SequenceLengthSourceType.READONLY
-                                     : SequenceLengthSourceType.UNSPECIFIED
-          };
-        }
-        default: throw new ArgumentOutOfRangeException(nameof(typeInfo));
-      }
-    }
-
-    public SchemaMember WrapMemberReference(IMemberReference memberReference)
-      => new() {
-          Name = memberReference.Name,
-          MemberType = WrapTypeInfoWithMemberType(
-              memberReference.MemberTypeInfo),
-      };
   }
 }
