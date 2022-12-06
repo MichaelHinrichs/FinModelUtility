@@ -500,17 +500,15 @@ namespace schema {
             memberSymbol,
             memberType);
 
-        if (memberType != null) {
-          fields.Add(new SchemaMember {
-              Name = memberSymbol.Name,
-              MemberType = memberType,
-              Align = align,
-              IfBoolean = ifBoolean,
-              Offset = offset,
-              IsPosition = isPosition,
-              Endianness = memberEndianness,
-          });
-        }
+        fields.Add(new SchemaMember {
+            Name = memberSymbol.Name,
+            MemberType = memberType,
+            Align = align,
+            IfBoolean = ifBoolean,
+            Offset = offset,
+            IsPosition = isPosition,
+            Endianness = memberEndianness,
+        });
       }
 
       return new SchemaStructure {
