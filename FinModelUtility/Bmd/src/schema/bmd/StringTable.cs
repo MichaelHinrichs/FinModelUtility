@@ -12,7 +12,7 @@ using schema.attributes.position;
 namespace bmd.schema.bmd {
   [BinarySchema]
   public partial class StringTable : IBiSerializable {
-    [Position]
+    [PositionRelativeToStream]
     public long BasePosition { get; set; }
 
     private ushort NrStrings;

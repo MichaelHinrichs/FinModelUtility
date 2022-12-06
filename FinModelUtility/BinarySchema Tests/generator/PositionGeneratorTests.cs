@@ -12,12 +12,12 @@ using schema.attributes.position;
 namespace foo.bar {
   [BinarySchema]
   public partial class PositionWrapper : IBiSerializable {
-    [Position]
+    [PositionRelativeToStream]
     public long Position { get; set; }
 
     public byte Value { get; set; }
 
-    [Position]
+    [PositionRelativeToStream]
     public long ExpectedPosition { get; }
   }
 }",

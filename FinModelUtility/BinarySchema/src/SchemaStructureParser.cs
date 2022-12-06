@@ -239,7 +239,7 @@ namespace schema {
         var isPosition = false;
         {
           var positionAttribute =
-              SymbolTypeUtil.GetAttribute<PositionAttribute>(
+              SymbolTypeUtil.GetAttribute<PositionRelativeToStreamAttribute>(
                   diagnostics, memberSymbol);
           if (positionAttribute != null) {
             isPosition = true;

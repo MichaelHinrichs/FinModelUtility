@@ -1,4 +1,5 @@
-﻿using System;
+﻿using schema.attributes.memory;
+using System;
 
 
 namespace schema.attributes.position {
@@ -32,5 +33,15 @@ namespace schema.attributes.position {
   ///   </code>
   /// </summary>
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-  public class PositionAttribute : Attribute { }
+  public class PositionRelativeToStreamAttribute : BMemberAttribute<IPointer> {
+    protected override void InitFields() { }
+  }
+
+  [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+  public class LengthOfStreamAttribute : Attribute {
+  }
+
+  [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+  public class LengthOfContainingStructureAttribute : Attribute {
+  }
 }
