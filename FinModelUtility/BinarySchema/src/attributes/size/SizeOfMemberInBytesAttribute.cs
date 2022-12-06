@@ -1,7 +1,7 @@
 ﻿using System;
 
 
-namespace schema.attributes {
+namespace schema.attributes.size {
   /// <summary>
   ///   Attribute for specifying that an integer represents the size of some
   ///   structure.
