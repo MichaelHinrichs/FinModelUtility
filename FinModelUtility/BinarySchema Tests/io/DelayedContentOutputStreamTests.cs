@@ -9,7 +9,7 @@ using System.Text;
 
 
 namespace schema.io {
-  public class DelayedContentOutputStreamTest {
+  public class DelayedContentOutputStreamTests {
     [Test]
     public async Task TestEmptyStream() {
       var impl = new DelayedContentOutputStream();

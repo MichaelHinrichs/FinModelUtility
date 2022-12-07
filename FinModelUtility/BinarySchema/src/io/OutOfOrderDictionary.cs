@@ -43,11 +43,13 @@ namespace schema.io {
     public void Set(TKey key, TValue value)
       => this.GetOrCreateTaskCompletionSource_(key).SetResult(value);
 
-    public void Set(TKey key, Task<TValue> value) {
+    public void Set(TKey key, Task<TValue> valueTask) {
       var taskCompletionSource = this.GetOrCreateTaskCompletionSource_(key);
-      value.ContinueWith(delayedValue => {
-        taskCompletionSource.SetResult(delayedValue.Result);
-      }).Start();
+
+      Task.Run(async () => {
+        var value = await valueTask;
+        taskCompletionSource.SetResult(value);
+      });
     }
 
     private TaskCompletionSource<TValue> GetOrCreateTaskCompletionSource_(
