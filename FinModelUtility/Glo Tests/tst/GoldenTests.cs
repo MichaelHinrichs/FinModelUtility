@@ -9,10 +9,10 @@ using schema.testing;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 
-namespace fin.data {
+namespace glo {
   public class GoldenTests {
     [Test]
-    public async Task TestEachGolden() {
+    public async Task TestEachGloGolden() {
       var executingAssembly = Assembly.GetExecutingAssembly();
       var assemblyName =
           StringUtil.UpTo(executingAssembly.ManifestModule.Name, ".dll");
@@ -32,9 +32,7 @@ namespace fin.data {
 
       var goldenFiles = goldensDir.GetExistingFiles();
       foreach (var goldenFile in goldenFiles) {
-        var er =
-            new EndianBinaryReader(goldenFile.OpenRead(),
-                                   Endianness.LittleEndian);
+        var er = new EndianBinaryReader(goldenFile.OpenRead());
         await BinarySchemaAssert.ReadsAndWritesIdentically<Glo>(er);
       }
     }
