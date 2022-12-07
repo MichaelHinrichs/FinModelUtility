@@ -84,5 +84,17 @@ namespace System.IO {
           delayedValue.ContinueWith(
               valueTask => BitConverter.GetBytes(valueTask.Result)),
           Task.FromResult((long)sizeof(uint)));
+
+    public void WriteInt64Delayed(Task<long> delayedValue)
+      => this.WriteBufferDelayed_(
+          delayedValue.ContinueWith(
+              valueTask => BitConverter.GetBytes(valueTask.Result)),
+          Task.FromResult((long)sizeof(long)));
+
+    public void WriteUInt64Delayed(Task<ulong> delayedValue)
+      => this.WriteBufferDelayed_(
+          delayedValue.ContinueWith(
+              valueTask => BitConverter.GetBytes(valueTask.Result)),
+          Task.FromResult((long)sizeof(ulong)));
   }
 }

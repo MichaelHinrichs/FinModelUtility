@@ -111,6 +111,8 @@ namespace System.IO {
     void WriteUInt16Delayed(Task<ushort> delayedValue);
     void WriteInt32Delayed(Task<int> delayedValue);
     void WriteUInt32Delayed(Task<uint> delayedValue);
+    void WriteInt64Delayed(Task<long> delayedValue);
+    void WriteUInt64Delayed(Task<ulong> delayedValue);
 
     // Endianness
 
