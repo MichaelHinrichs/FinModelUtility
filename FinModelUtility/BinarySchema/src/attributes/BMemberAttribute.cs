@@ -116,6 +116,37 @@ namespace schema.attributes {
           memberTypeInfo);
     }
 
+
+    protected ITypeChain GetTypeChainRelativeToStructure(
+        string otherMemberPath,
+        bool assertOrder)
+      => TypeChainUtil.GetTypeChainForRelativeMember(
+          this.diagnostics_,
+          this.structureTypeInfo_.TypeSymbol,
+          otherMemberPath,
+          this.memberThisIsAttachedTo_.Name,
+          assertOrder);
+
+    protected ITypeChain GetTypeChainRelativeToStructure<T>(
+        string otherMemberPath,
+        bool assertOrder) {
+      var typeChain = TypeChainUtil.GetTypeChainForRelativeMember(
+          this.diagnostics_,
+          this.structureTypeInfo_.TypeSymbol,
+          otherMemberPath,
+          this.memberThisIsAttachedTo_.Name,
+          assertOrder);
+
+      var targetTypeSymbol = typeChain.Target.MemberTypeInfo.TypeSymbol;
+      if (!SymbolTypeUtil.CanBeStoredAs(targetTypeSymbol, typeof(T))) {
+        Asserts.Fail(
+            $"Type of other member, {targetTypeSymbol}, does not match expected type: {typeof(T)}");
+      }
+
+      return typeChain;
+    }
+
+
     protected IMemberReference GetSourceRelativeToStructure(
         string otherMemberName) {
       var source = this.GetOtherMemberRelativeToStructure(otherMemberName);

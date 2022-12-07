@@ -40,6 +40,21 @@ namespace schema {
           null
       );
 
+    public static void AssertAllNodesInTypeChainUseBinarySchema(
+        IList<Diagnostic> diagnostics,
+        ITypeChain typeChain) {
+      foreach (var typeChainNode in typeChain.RootToTarget) {
+        var binarySchemaAttribute =
+            SymbolTypeUtil.GetAttribute<BinarySchemaAttribute>(
+                diagnostics, typeChainNode.MemberTypeInfo.TypeSymbol);
+        if (binarySchemaAttribute == null) {
+          diagnostics.Add(Rules.CreateDiagnostic(
+                              typeChainNode.MemberSymbol,
+                              Rules.AllMembersInChainMustUseSchema));
+        }
+      }
+    }
+
     private static void GetMemberInStructure_(
         ITypeSymbol structureSymbol,
         string memberName,

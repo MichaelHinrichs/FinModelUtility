@@ -17,6 +17,7 @@ namespace schema {
     public override ImmutableArray<DiagnosticDescriptor>
         SupportedDiagnostics { get; } =
       ImmutableArray.Create(
+          Rules.AllMembersInChainMustUseSchema,
           Rules.BooleanNeedsIntegerFormat,
           Rules.ChildTypeCanOnlyBeContainedInParent,
           Rules.ChildTypeMustBeContainedInParent,

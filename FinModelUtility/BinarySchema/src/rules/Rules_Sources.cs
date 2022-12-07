@@ -12,5 +12,10 @@ namespace schema {
         = Rules.CreateDiagnosticDescriptor_(
             "Source must be private",
             "Source field '{0}' must be private, because it will never be used outside of read time.");
+
+    public static readonly DiagnosticDescriptor AllMembersInChainMustUseSchema
+        = Rules.CreateDiagnosticDescriptor_(
+            "All members in chain must use schema",
+            "All members in chain must use schema.");
   }
 }

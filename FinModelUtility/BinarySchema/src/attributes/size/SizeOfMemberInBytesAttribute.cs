@@ -24,10 +24,11 @@ namespace schema.attributes.size {
     }
 
     protected override void InitFields() {
-      this.OtherMember =
-          this.GetSourceRelativeToStructure<string>(this.otherMemberName_);
+      this.TypeChainToOtherMember =
+          this.GetTypeChainRelativeToStructure<string>(
+              this.otherMemberName_, false);
     }
 
-    public IMemberReference<string>? OtherMember { get; private set; }
+    public ITypeChain TypeChainToOtherMember { get; private set; }
   }
 }
