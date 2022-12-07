@@ -63,6 +63,10 @@ namespace schema.text {
         ICurlyBracketStringBuilder cbsb,
         ITypeSymbol sourceSymbol,
         ISchemaMember member) {
+      if (member.IsIgnored) {
+        return;
+      }
+
       if (member.IsPosition) {
         return;
       }

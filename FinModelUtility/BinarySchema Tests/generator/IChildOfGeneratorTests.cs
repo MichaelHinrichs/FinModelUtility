@@ -96,7 +96,7 @@ namespace foo.bar {
     public Parent Parent { get; set; }
   }
 
-  public partial class Parent {
+  public partial class Parent : IBiSerializable {
     public uint Length { get; set; }
 
     [ArrayLengthSource(nameof(Length))]

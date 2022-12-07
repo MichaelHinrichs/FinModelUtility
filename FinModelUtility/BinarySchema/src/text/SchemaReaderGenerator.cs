@@ -72,6 +72,10 @@ namespace schema.text {
         return;
       }
 
+      if (member.IsIgnored) {
+        return;
+      }
+
       SchemaReaderGenerator.Align_(cbsb, member);
 
       // TODO: How to handle both offset & if boolean together?

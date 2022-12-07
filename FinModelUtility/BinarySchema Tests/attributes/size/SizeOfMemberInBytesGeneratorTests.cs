@@ -89,5 +89,50 @@ namespace foo.bar {
 }
 ");
     }
+
+    [Test]
+    public void TestSizeOfThroughParent() {
+      SchemaTestUtil.AssertGenerated(@"
+using schema;
+using schema.attributes.child_of;
+using schema.attributes.size;
+
+namespace foo.bar {
+  [BinarySchema]
+  public partial class SizeWrapper : IChildOf<ParentImpl>, IBiSerializable {
+    public ParentImpl Parent;
+
+    [SizeOfMemberInBytes($""{nameof(Parent)}.{nameof(Parent.Foo}"")]
+    public uint FooSize { get; set; }
+  }
+
+  [BinarySchema]
+  public partial class ParentImpl : IBiSerializable {
+    public SizeWrapper Child;
+
+    public byte Foo;
+  }
+}",
+                                     @"using System;
+using System.IO;
+namespace foo.bar {
+  public partial class SizeWrapper {
+    public void Read(EndianBinaryReader er) {
+      this.FooSize = er.ReadUInt32();
+    }
+  }
+}
+",
+                                     @"using System;
+using System.IO;
+namespace foo.bar {
+  public partial class SizeWrapper {
+    public void Write(ISubEndianBinaryWriter ew) {
+      ew.WriteUInt32Delayed(ew.GetSizeOfMemberRelativeToScope(""Parent.Foo"").ContinueWith(task => (uint) task.Result));
+    }
+  }
+}
+");
+    }
   }
 }

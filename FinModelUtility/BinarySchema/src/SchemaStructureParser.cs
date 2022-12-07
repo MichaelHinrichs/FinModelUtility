@@ -12,6 +12,7 @@ using schema.attributes.size;
 using schema.parser;
 using schema.parser.asserts;
 using System.IO;
+using static schema.parser.TypeInfoParser;
 
 
 namespace schema {
@@ -60,6 +61,7 @@ namespace schema {
   public interface ISchemaMember {
     string Name { get; }
     IMemberType MemberType { get; }
+    bool IsIgnored { get; }
     int Align { get; }
     IIfBoolean? IfBoolean { get; }
     IOffset? Offset { get; }
@@ -185,340 +187,35 @@ namespace schema {
           typeInfoParser.ParseMembers(structureSymbol).ToArray();
 
       var fields = new List<ISchemaMember>();
-      foreach (var (parseStatus, memberSymbol, memberTypeInfo) in
-               parsedMembers) {
+      foreach (var parsedMember in parsedMembers) {
+        var (parseStatus, memberSymbol, _) = parsedMember;
         if (parseStatus == TypeInfoParser.ParseStatus.NOT_A_FIELD_OR_PROPERTY) {
           continue;
         }
 
+        var isIgnored = false;
         if (SymbolTypeUtil.GetAttribute<IgnoreAttribute>(
                 diagnostics, memberSymbol) != null) {
-          continue;
+          isIgnored = true;
         }
 
         // Skips parent field for child types
         if (memberSymbol.Name == nameof(IChildOf<IBiSerializable>.Parent)
             && parentTypeSymbol != null) {
-          continue;
+          isIgnored = true;
         }
 
-        if (parseStatus == TypeInfoParser.ParseStatus.NOT_IMPLEMENTED) {
-          diagnostics.Add(
-              Rules.CreateDiagnostic(
-                  memberSymbol,
-                  Rules.NotSupported));
-          continue;
+        var field =
+            !isIgnored
+                ? this.ParseNonIgnoredField_(
+                    diagnostics,
+                    structureSymbol,
+                    parsedMember)
+                : this.ParseIgnoredField_(parsedMember);
+
+        if (field != null) {
+          fields.Add(field);
         }
-
-        // Makes sure the member is serializable
-        {
-          if (memberTypeInfo is IStructureTypeInfo structureTypeInfo) {
-            // TODO: Check if implements same kind as parent
-            if (!SymbolTypeUtil.Implements(
-                    structureTypeInfo.NamedTypeSymbol,
-                    typeof(IBiSerializable))) {
-              diagnostics.Add(
-                  Rules.CreateDiagnostic(
-                      memberSymbol,
-                      Rules.StructureMemberNeedsToImplementIBiSerializable));
-              continue;
-            }
-          }
-        }
-
-        var memberEndianness =
-            new EndiannessParser().GetEndianness(diagnostics, memberSymbol);
-
-        // Gets the type of the current member
-        var memberType =
-            MemberReferenceUtil.WrapTypeInfoWithMemberType(memberTypeInfo);
-
-        // Get attributes
-        var align = new AlignAttributeParser().GetAlignForMember(
-            diagnostics, memberSymbol);
-
-        new SizeOfMemberInBytesParser().Parse(diagnostics, memberSymbol,
-                                              memberTypeInfo, memberType);
-
-        var isPosition = false;
-        {
-          var positionAttribute =
-              SymbolTypeUtil.GetAttribute<PositionRelativeToStreamAttribute>(
-                  diagnostics, memberSymbol);
-          if (positionAttribute != null) {
-            isPosition = true;
-            if (memberTypeInfo is not IIntegerTypeInfo {
-                    IntegerType: SchemaIntegerType.INT64
-                }) {
-              diagnostics.Add(
-                  Rules.CreateDiagnostic(
-                      memberSymbol,
-                      Rules.NotSupported));
-            }
-          }
-        }
-
-        IIfBoolean? ifBoolean = null;
-        {
-          var ifBooleanAttribute =
-              SymbolTypeUtil.GetAttribute<IfBooleanAttribute>(
-                  diagnostics, memberSymbol);
-          if (ifBooleanAttribute != null) {
-            if (memberTypeInfo.IsNullable) {
-              SchemaMember? booleanMember = null;
-              if (ifBooleanAttribute.Method ==
-                  IfBooleanSourceType.OTHER_MEMBER) {
-                booleanMember =
-                    MemberReferenceUtil.WrapMemberReference(
-                        ifBooleanAttribute.OtherMember!);
-              }
-
-              ifBoolean = new IfBoolean {
-                  SourceType = ifBooleanAttribute.Method,
-                  ImmediateBooleanType = ifBooleanAttribute.BooleanType,
-                  BooleanMember = booleanMember,
-              };
-            } else {
-              diagnostics.Add(
-                  Rules.CreateDiagnostic(memberSymbol,
-                                         Rules
-                                             .IfBooleanNeedsNullable));
-            }
-          }
-        }
-
-        IOffset? offset = null;
-        {
-          var offsetAttribute =
-              SymbolTypeUtil.GetAttribute<OffsetAttribute>(
-                  diagnostics, memberSymbol);
-
-          if (offsetAttribute != null) {
-            var startIndexName = offsetAttribute.StartIndexName;
-            SymbolTypeUtil.GetMemberRelativeToAnother(
-                diagnostics,
-                structureSymbol,
-                startIndexName,
-                memberSymbol.Name,
-                true,
-                out _,
-                out var startIndexTypeInfo);
-
-            var offsetName = offsetAttribute.OffsetName;
-            SymbolTypeUtil.GetMemberRelativeToAnother(
-                diagnostics,
-                structureSymbol,
-                offsetName,
-                memberSymbol.Name,
-                true,
-                out _,
-                out var offsetTypeInfo);
-
-            offset = new Offset {
-                StartIndexName = new SchemaMember {
-                    Name = startIndexName,
-                    MemberType =
-                        MemberReferenceUtil.WrapTypeInfoWithMemberType(
-                            startIndexTypeInfo),
-                },
-                OffsetName = new SchemaMember {
-                    Name = offsetName,
-                    MemberType =
-                        MemberReferenceUtil.WrapTypeInfoWithMemberType(
-                            offsetTypeInfo),
-                }
-            };
-          }
-        }
-
-        new SupportedElementTypeAsserter(diagnostics)
-            .AssertElementTypesAreSupported(memberSymbol, memberType);
-
-        {
-          IMemberType? targetMemberType;
-          if (memberType is ISequenceMemberType sequenceMember) {
-            targetMemberType = sequenceMember.ElementType;
-          } else {
-            targetMemberType = memberType;
-          }
-          var targetPrimitiveType = SchemaPrimitiveType.UNDEFINED;
-          if (targetMemberType is IPrimitiveMemberType primitiveType) {
-            targetPrimitiveType = primitiveType.PrimitiveType;
-          }
-
-          // TODO: Apply this to element type as well
-          var formatNumberType = SchemaNumberType.UNDEFINED;
-          var formatIntegerType = SchemaIntegerType.UNDEFINED;
-
-          if (targetPrimitiveType == SchemaPrimitiveType.ENUM) {
-            var enumNamedTypeSymbol =
-                targetMemberType.TypeSymbol as INamedTypeSymbol;
-            var underlyingType = enumNamedTypeSymbol!.EnumUnderlyingType;
-
-            formatIntegerType =
-                SchemaPrimitiveTypesUtil.GetIntegerTypeFromTypeSymbol(
-                    underlyingType);
-          }
-
-          {
-            var numberFormatAttribute =
-                SymbolTypeUtil
-                    .GetAttribute<NumberFormatAttribute>(
-                        diagnostics, memberSymbol);
-            if (numberFormatAttribute != null) {
-              formatNumberType = numberFormatAttribute.NumberType;
-
-              var canPrimitiveTypeBeReadAsNumber =
-                  SchemaPrimitiveTypesUtil.CanPrimitiveTypeBeReadAsNumber(
-                      targetPrimitiveType);
-              if (!(targetMemberType is PrimitiveMemberType &&
-                    canPrimitiveTypeBeReadAsNumber)) {
-                diagnostics.Add(
-                    Rules.CreateDiagnostic(memberSymbol,
-                                           Rules.UnexpectedAttribute));
-              }
-            }
-          }
-
-          {
-            var integerFormatAttribute =
-                SymbolTypeUtil
-                    .GetAttribute<IntegerFormatAttribute>(
-                        diagnostics, memberSymbol);
-            if (integerFormatAttribute != null) {
-              formatIntegerType = integerFormatAttribute.IntegerType;
-
-              var canPrimitiveTypeBeReadAsInteger =
-                  SchemaPrimitiveTypesUtil.CanPrimitiveTypeBeReadAsInteger(
-                      targetPrimitiveType);
-              if (!(targetMemberType is PrimitiveMemberType &&
-                    canPrimitiveTypeBeReadAsInteger)) {
-                diagnostics.Add(
-                    Rules.CreateDiagnostic(memberSymbol,
-                                           Rules.UnexpectedAttribute));
-              }
-            }
-          }
-
-          if (formatNumberType == SchemaNumberType.UNDEFINED &&
-              formatIntegerType != SchemaIntegerType.UNDEFINED) {
-            formatNumberType =
-                SchemaPrimitiveTypesUtil
-                    .ConvertIntToNumber(formatIntegerType);
-          }
-
-          if (targetMemberType is PrimitiveMemberType primitiveMemberType) {
-            if (formatNumberType != SchemaNumberType.UNDEFINED) {
-              primitiveMemberType.UseAltFormat = true;
-              primitiveMemberType.AltFormat = formatNumberType;
-            } else if (targetPrimitiveType == SchemaPrimitiveType.ENUM) {
-              diagnostics.Add(
-                  Rules.CreateDiagnostic(memberSymbol,
-                                         Rules.EnumNeedsIntegerFormat));
-            } else if (targetPrimitiveType == SchemaPrimitiveType.BOOLEAN) {
-              diagnostics.Add(
-                  Rules.CreateDiagnostic(memberSymbol,
-                                         Rules.BooleanNeedsIntegerFormat));
-            }
-          }
-
-          // Checks if the member is a child of the current type
-          {
-            if (targetMemberType is StructureMemberType structureMemberType) {
-              var expectedParentTypeSymbol =
-                  iChildOfParser.GetParentTypeSymbolOf(
-                      structureMemberType.StructureTypeInfo.NamedTypeSymbol);
-              if (expectedParentTypeSymbol != null) {
-                if (expectedParentTypeSymbol.Equals(structureSymbol)) {
-                  structureMemberType.IsChild = true;
-                } else {
-                  diagnostics.Add(Rules.CreateDiagnostic(
-                                      memberSymbol,
-                                      Rules
-                                          .ChildTypeCanOnlyBeContainedInParent));
-                }
-              }
-            }
-          }
-        }
-
-        {
-          // TODO: Implement this, support strings in arrays?
-          var stringLengthSourceAttribute =
-              SymbolTypeUtil.GetAttribute<StringLengthSourceAttribute>(
-                  diagnostics, memberSymbol);
-          var nullTerminatedStringAttribute =
-              SymbolTypeUtil.GetAttribute<NullTerminatedStringAttribute>(
-                  diagnostics, memberSymbol);
-
-          if (stringLengthSourceAttribute != null ||
-              nullTerminatedStringAttribute != null) {
-            if (memberType is StringType stringType) {
-              if (stringLengthSourceAttribute != null &&
-                  nullTerminatedStringAttribute != null) {
-                diagnostics.Add(
-                    Rules.CreateDiagnostic(memberSymbol,
-                                           Rules.NotSupported));
-              }
-
-              if (memberTypeInfo.IsReadonly) {
-                diagnostics.Add(
-                    Rules.CreateDiagnostic(memberSymbol,
-                                           Rules.UnexpectedAttribute));
-              }
-
-              var method =
-                  stringLengthSourceAttribute?.Method ??
-                  StringLengthSourceType.NULL_TERMINATED;
-
-              switch (method) {
-                case StringLengthSourceType.CONST: {
-                  stringType.LengthSourceType = StringLengthSourceType.CONST;
-                  stringType.ConstLength =
-                      stringLengthSourceAttribute!.ConstLength;
-                  break;
-                }
-                case StringLengthSourceType.NULL_TERMINATED: {
-                  stringType.LengthSourceType =
-                      StringLengthSourceType.NULL_TERMINATED;
-                  break;
-                }
-                case StringLengthSourceType.IMMEDIATE_VALUE: {
-                  stringType.LengthSourceType =
-                      StringLengthSourceType.IMMEDIATE_VALUE;
-                  stringType.ImmediateLengthType =
-                      stringLengthSourceAttribute.LengthType;
-                  break;
-                }
-                default: {
-                  diagnostics.Add(
-                      Rules.CreateDiagnostic(memberSymbol,
-                                             Rules.NotSupported));
-                  break;
-                }
-              }
-            } else {
-              diagnostics.Add(
-                  Rules.CreateDiagnostic(memberSymbol,
-                                         Rules.UnexpectedAttribute));
-            }
-          }
-        }
-
-        new ArrayLengthSourceParser().Parse(
-            diagnostics,
-            memberSymbol,
-            memberType);
-
-        fields.Add(new SchemaMember {
-            Name = memberSymbol.Name,
-            MemberType = memberType,
-            Align = align,
-            IfBoolean = ifBoolean,
-            Offset = offset,
-            IsPosition = isPosition,
-            Endianness = memberEndianness,
-        });
       }
 
       var schemaStructure = new SchemaStructure {
@@ -549,6 +246,349 @@ namespace schema {
       return schemaStructure;
     }
 
+    private ISchemaMember? ParseNonIgnoredField_(
+        IList<Diagnostic> diagnostics,
+        INamedTypeSymbol structureSymbol,
+        (ParseStatus, ISymbol, ITypeInfo) parsedMember
+    ) {
+      var (parseStatus, memberSymbol, memberTypeInfo) = parsedMember;
+
+      if (parseStatus == TypeInfoParser.ParseStatus.NOT_IMPLEMENTED) {
+        diagnostics.Add(
+            Rules.CreateDiagnostic(
+                memberSymbol,
+                Rules.NotSupported));
+        return null;
+      }
+
+      // Makes sure the member is serializable
+      {
+        if (memberTypeInfo is IStructureTypeInfo structureTypeInfo) {
+          // TODO: Check if implements same kind as parent
+          if (!SymbolTypeUtil.Implements(
+                  structureTypeInfo.NamedTypeSymbol,
+                  typeof(IBiSerializable))) {
+            diagnostics.Add(
+                Rules.CreateDiagnostic(
+                    memberSymbol,
+                    Rules.StructureMemberNeedsToImplementIBiSerializable));
+            return null;
+          }
+        }
+      }
+
+      var memberEndianness =
+          new EndiannessParser().GetEndianness(diagnostics, memberSymbol);
+
+      // Gets the type of the current member
+      var memberType =
+          MemberReferenceUtil.WrapTypeInfoWithMemberType(memberTypeInfo);
+
+      // Get attributes
+      var align = new AlignAttributeParser().GetAlignForMember(
+          diagnostics, memberSymbol);
+
+      new SizeOfMemberInBytesParser().Parse(diagnostics, memberSymbol,
+                                            memberTypeInfo, memberType);
+
+      var isPosition = false;
+      {
+        var positionAttribute =
+            SymbolTypeUtil.GetAttribute<PositionRelativeToStreamAttribute>(
+                diagnostics, memberSymbol);
+        if (positionAttribute != null) {
+          isPosition = true;
+          if (memberTypeInfo is not IIntegerTypeInfo {
+                  IntegerType: SchemaIntegerType.INT64
+              }) {
+            diagnostics.Add(
+                Rules.CreateDiagnostic(
+                    memberSymbol,
+                    Rules.NotSupported));
+          }
+        }
+      }
+
+      IIfBoolean? ifBoolean = null;
+      {
+        var ifBooleanAttribute =
+            SymbolTypeUtil.GetAttribute<IfBooleanAttribute>(
+                diagnostics, memberSymbol);
+        if (ifBooleanAttribute != null) {
+          if (memberTypeInfo.IsNullable) {
+            SchemaMember? booleanMember = null;
+            if (ifBooleanAttribute.Method ==
+                IfBooleanSourceType.OTHER_MEMBER) {
+              booleanMember =
+                  MemberReferenceUtil.WrapMemberReference(
+                      ifBooleanAttribute.OtherMember!);
+            }
+
+            ifBoolean = new IfBoolean {
+                SourceType = ifBooleanAttribute.Method,
+                ImmediateBooleanType = ifBooleanAttribute.BooleanType,
+                BooleanMember = booleanMember,
+            };
+          } else {
+            diagnostics.Add(
+                Rules.CreateDiagnostic(memberSymbol,
+                                       Rules
+                                           .IfBooleanNeedsNullable));
+          }
+        }
+      }
+
+      IOffset? offset = null;
+      {
+        var offsetAttribute =
+            SymbolTypeUtil.GetAttribute<OffsetAttribute>(
+                diagnostics, memberSymbol);
+
+        if (offsetAttribute != null) {
+          var startIndexName = offsetAttribute.StartIndexName;
+          SymbolTypeUtil.GetMemberRelativeToAnother(
+              diagnostics,
+              structureSymbol,
+              startIndexName,
+              memberSymbol.Name,
+              true,
+              out _,
+              out var startIndexTypeInfo);
+
+          var offsetName = offsetAttribute.OffsetName;
+          SymbolTypeUtil.GetMemberRelativeToAnother(
+              diagnostics,
+              structureSymbol,
+              offsetName,
+              memberSymbol.Name,
+              true,
+              out _,
+              out var offsetTypeInfo);
+
+          offset = new Offset {
+              StartIndexName = new SchemaMember {
+                  Name = startIndexName,
+                  MemberType =
+                      MemberReferenceUtil.WrapTypeInfoWithMemberType(
+                          startIndexTypeInfo),
+              },
+              OffsetName = new SchemaMember {
+                  Name = offsetName,
+                  MemberType =
+                      MemberReferenceUtil.WrapTypeInfoWithMemberType(
+                          offsetTypeInfo),
+              }
+          };
+        }
+      }
+
+      new SupportedElementTypeAsserter(diagnostics)
+          .AssertElementTypesAreSupported(memberSymbol, memberType);
+
+      {
+        IMemberType? targetMemberType;
+        if (memberType is ISequenceMemberType sequenceMember) {
+          targetMemberType = sequenceMember.ElementType;
+        } else {
+          targetMemberType = memberType;
+        }
+        var targetPrimitiveType = SchemaPrimitiveType.UNDEFINED;
+        if (targetMemberType is IPrimitiveMemberType primitiveType) {
+          targetPrimitiveType = primitiveType.PrimitiveType;
+        }
+
+        // TODO: Apply this to element type as well
+        var formatNumberType = SchemaNumberType.UNDEFINED;
+        var formatIntegerType = SchemaIntegerType.UNDEFINED;
+
+        if (targetPrimitiveType == SchemaPrimitiveType.ENUM) {
+          var enumNamedTypeSymbol =
+              targetMemberType.TypeSymbol as INamedTypeSymbol;
+          var underlyingType = enumNamedTypeSymbol!.EnumUnderlyingType;
+
+          formatIntegerType =
+              SchemaPrimitiveTypesUtil.GetIntegerTypeFromTypeSymbol(
+                  underlyingType);
+        }
+
+        {
+          var numberFormatAttribute =
+              SymbolTypeUtil
+                  .GetAttribute<NumberFormatAttribute>(
+                      diagnostics, memberSymbol);
+          if (numberFormatAttribute != null) {
+            formatNumberType = numberFormatAttribute.NumberType;
+
+            var canPrimitiveTypeBeReadAsNumber =
+                SchemaPrimitiveTypesUtil.CanPrimitiveTypeBeReadAsNumber(
+                    targetPrimitiveType);
+            if (!(targetMemberType is PrimitiveMemberType &&
+                  canPrimitiveTypeBeReadAsNumber)) {
+              diagnostics.Add(
+                  Rules.CreateDiagnostic(memberSymbol,
+                                         Rules.UnexpectedAttribute));
+            }
+          }
+        }
+
+        {
+          var integerFormatAttribute =
+              SymbolTypeUtil
+                  .GetAttribute<IntegerFormatAttribute>(
+                      diagnostics, memberSymbol);
+          if (integerFormatAttribute != null) {
+            formatIntegerType = integerFormatAttribute.IntegerType;
+
+            var canPrimitiveTypeBeReadAsInteger =
+                SchemaPrimitiveTypesUtil.CanPrimitiveTypeBeReadAsInteger(
+                    targetPrimitiveType);
+            if (!(targetMemberType is PrimitiveMemberType &&
+                  canPrimitiveTypeBeReadAsInteger)) {
+              diagnostics.Add(
+                  Rules.CreateDiagnostic(memberSymbol,
+                                         Rules.UnexpectedAttribute));
+            }
+          }
+        }
+
+        if (formatNumberType == SchemaNumberType.UNDEFINED &&
+            formatIntegerType != SchemaIntegerType.UNDEFINED) {
+          formatNumberType =
+              SchemaPrimitiveTypesUtil
+                  .ConvertIntToNumber(formatIntegerType);
+        }
+
+        if (targetMemberType is PrimitiveMemberType primitiveMemberType) {
+          if (formatNumberType != SchemaNumberType.UNDEFINED) {
+            primitiveMemberType.UseAltFormat = true;
+            primitiveMemberType.AltFormat = formatNumberType;
+          } else if (targetPrimitiveType == SchemaPrimitiveType.ENUM) {
+            diagnostics.Add(
+                Rules.CreateDiagnostic(memberSymbol,
+                                       Rules.EnumNeedsIntegerFormat));
+          } else if (targetPrimitiveType == SchemaPrimitiveType.BOOLEAN) {
+            diagnostics.Add(
+                Rules.CreateDiagnostic(memberSymbol,
+                                       Rules.BooleanNeedsIntegerFormat));
+          }
+        }
+
+        // Checks if the member is a child of the current type
+        {
+          if (targetMemberType is StructureMemberType structureMemberType) {
+            var expectedParentTypeSymbol =
+                new ChildOfParser(diagnostics).GetParentTypeSymbolOf(
+                    structureMemberType.StructureTypeInfo.NamedTypeSymbol);
+            if (expectedParentTypeSymbol != null) {
+              if (expectedParentTypeSymbol.Equals(structureSymbol)) {
+                structureMemberType.IsChild = true;
+              } else {
+                diagnostics.Add(Rules.CreateDiagnostic(
+                                    memberSymbol,
+                                    Rules
+                                        .ChildTypeCanOnlyBeContainedInParent));
+              }
+            }
+          }
+        }
+      }
+
+      {
+        // TODO: Implement this, support strings in arrays?
+        var stringLengthSourceAttribute =
+            SymbolTypeUtil.GetAttribute<StringLengthSourceAttribute>(
+                diagnostics, memberSymbol);
+        var nullTerminatedStringAttribute =
+            SymbolTypeUtil.GetAttribute<NullTerminatedStringAttribute>(
+                diagnostics, memberSymbol);
+
+        if (stringLengthSourceAttribute != null ||
+            nullTerminatedStringAttribute != null) {
+          if (memberType is StringType stringType) {
+            if (stringLengthSourceAttribute != null &&
+                nullTerminatedStringAttribute != null) {
+              diagnostics.Add(
+                  Rules.CreateDiagnostic(memberSymbol,
+                                         Rules.NotSupported));
+            }
+
+            if (memberTypeInfo.IsReadonly) {
+              diagnostics.Add(
+                  Rules.CreateDiagnostic(memberSymbol,
+                                         Rules.UnexpectedAttribute));
+            }
+
+            var method =
+                stringLengthSourceAttribute?.Method ??
+                StringLengthSourceType.NULL_TERMINATED;
+
+            switch (method) {
+              case StringLengthSourceType.CONST: {
+                stringType.LengthSourceType = StringLengthSourceType.CONST;
+                stringType.ConstLength =
+                    stringLengthSourceAttribute!.ConstLength;
+                break;
+              }
+              case StringLengthSourceType.NULL_TERMINATED: {
+                stringType.LengthSourceType =
+                    StringLengthSourceType.NULL_TERMINATED;
+                break;
+              }
+              case StringLengthSourceType.IMMEDIATE_VALUE: {
+                stringType.LengthSourceType =
+                    StringLengthSourceType.IMMEDIATE_VALUE;
+                stringType.ImmediateLengthType =
+                    stringLengthSourceAttribute.LengthType;
+                break;
+              }
+              default: {
+                diagnostics.Add(
+                    Rules.CreateDiagnostic(memberSymbol,
+                                           Rules.NotSupported));
+                break;
+              }
+            }
+          } else {
+            diagnostics.Add(
+                Rules.CreateDiagnostic(memberSymbol,
+                                       Rules.UnexpectedAttribute));
+          }
+        }
+      }
+
+      new ArrayLengthSourceParser().Parse(
+          diagnostics,
+          memberSymbol,
+          memberType);
+
+      return new SchemaMember {
+          Name = memberSymbol.Name,
+          MemberType = memberType,
+          IsIgnored = false,
+          Align = align,
+          IfBoolean = ifBoolean,
+          Offset = offset,
+          IsPosition = isPosition,
+          Endianness = memberEndianness,
+      };
+    }
+
+    private ISchemaMember ParseIgnoredField_(
+        (ParseStatus, ISymbol, ITypeInfo) parsedMember
+    ) {
+      var (_, memberSymbol, memberTypeInfo) = parsedMember;
+
+      // Gets the type of the current member
+      var memberType =
+          MemberReferenceUtil.WrapTypeInfoWithMemberType(memberTypeInfo);
+
+      return new SchemaMember {
+        Name = memberSymbol.Name,
+        MemberType = memberType,
+        IsIgnored = true,
+      };
+    }
+
 
     private class SchemaStructure : ISchemaStructure {
       public IList<Diagnostic> Diagnostics { get; set; }
@@ -561,6 +601,7 @@ namespace schema {
     public class SchemaMember : ISchemaMember {
       public string Name { get; set; }
       public IMemberType MemberType { get; set; }
+      public bool IsIgnored { get; set; }
       public int Align { get; set; }
       public IIfBoolean IfBoolean { get; set; }
       public IOffset Offset { get; set; }
