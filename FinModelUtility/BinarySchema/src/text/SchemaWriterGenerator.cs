@@ -76,8 +76,6 @@ namespace schema.text {
         return;
       }
 
-      SchemaWriterGenerator.Align_(cbsb, member);
-
       var ifBoolean = member.IfBoolean;
       if (ifBoolean != null) {
         if (ifBoolean.SourceType == IfBooleanSourceType.IMMEDIATE_VALUE) {
@@ -144,6 +142,8 @@ namespace schema.text {
         ICurlyBracketStringBuilder cbsb,
         ISchemaMember member,
         Action handler) {
+      SchemaWriterGenerator.Align_(cbsb, member);
+
       var hasEndianness = member.Endianness != null;
       if (hasEndianness) {
         cbsb.WriteLine(
@@ -184,7 +184,7 @@ namespace schema.text {
                     primitiveType.AltFormat)
                 : primitiveType.PrimitiveType);
 
-        var isNotDelayed = !primitiveType.SizeOfStream ||
+        var isNotDelayed = !primitiveType.SizeOfStream &&
                       primitiveType.TypeChainToSizeOf == null
                       && primitiveType.TypeChainToPointer == null;
         if (isNotDelayed) {

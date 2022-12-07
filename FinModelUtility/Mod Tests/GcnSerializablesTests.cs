@@ -97,8 +97,7 @@ namespace mod.schema {
       var displayList = new DisplayList();
       displayList.flags.intView = 5;
       displayList.cmdCount = 6;
-      displayList.dlistData.Add(7);
-      displayList.dlistData.Add(8);
+      displayList.dlistData = new byte[] {7, 8};
       meshPacket.displaylists = new[] {displayList, displayList};
 
       mesh.packets = new[] {meshPacket, meshPacket};
@@ -118,10 +117,8 @@ namespace mod.schema {
           width = 1,
           height = 2,
           format = (Texture.TextureFormat) 3,
-          unknown = 4,
       };
-      texture.imageData.Add(5);
-      texture.imageData.Add(6);
+      texture.imageData = new byte[] {5, 6};
 
       TestGcnSerializableExisting(texture);
     }

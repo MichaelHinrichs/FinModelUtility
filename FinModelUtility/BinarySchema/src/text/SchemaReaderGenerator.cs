@@ -76,8 +76,6 @@ namespace schema.text {
         return;
       }
 
-      SchemaReaderGenerator.Align_(cbsb, member);
-
       // TODO: How to handle both offset & if boolean together?
 
       var offset = member.Offset;
@@ -183,6 +181,8 @@ namespace schema.text {
         cbsb.WriteLine(
             $"er.PushMemberEndianness({SchemaGeneratorUtil.GetEndiannessName(member.Endianness.Value)});");
       }
+
+      SchemaReaderGenerator.Align_(cbsb, member);
 
       handler();
 

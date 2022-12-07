@@ -38,5 +38,51 @@ namespace foo.bar {
 }
 ");
     }
+
+    [Test]
+    public void TestAlignWithImmediate() {
+      SchemaTestUtil.AssertGenerated(@"
+using schema;
+using schema.attributes.align;
+
+namespace foo.bar {
+  [BinarySchema]
+  public partial class AlignWrapper : IBiSerializable {
+    [Align(0x2)]
+    [ArrayLengthSource(SchemaIntegerType.UINT32)]
+    public int[] Field { get; set; }
+  }
+}",
+                                     @"using System;
+using System.IO;
+namespace foo.bar {
+  public partial class AlignWrapper {
+    public void Read(EndianBinaryReader er) {
+      {
+        var c = er.ReadUInt32();
+        if (c < 0) {
+          throw new Exception(""Expected length to be nonnegative!"");
+        }
+        this.Field = new System.Int32[c];
+      }
+      er.Align(2);
+      er.ReadInt32s(this.Field);
+    }
+  }
+}
+",
+                                     @"using System;
+using System.IO;
+namespace foo.bar {
+  public partial class AlignWrapper {
+    public void Write(ISubEndianBinaryWriter ew) {
+      ew.WriteUInt32((uint) this.Field.Length);
+      ew.Align(2);
+      ew.WriteInt32s(this.Field);
+    }
+  }
+}
+");
+    }
   }
 }

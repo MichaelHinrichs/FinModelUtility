@@ -3,6 +3,7 @@ using fin.util.strings;
 using schema;
 using schema.attributes.child_of;
 using schema.attributes.endianness;
+using schema.attributes.ignore;
 using schema.attributes.memory;
 using schema.attributes.size;
 using System.IO;
@@ -38,8 +39,7 @@ namespace cmb.schema.ctxb {
   [BinarySchema]
   public partial class CtxbTexChunk : IBiSerializable {
     private readonly string magic_ = "tex" + AsciiUtil.GetChar(0x20);
-
-    public int ChunkSize { get; private set; }
+    private readonly int chunkSize_ = 0x30;
 
     private readonly uint texCount_ = 1;
 
@@ -65,6 +65,14 @@ namespace cmb.schema.ctxb {
     public string name { get; private set; }
 
     private uint padding_;
+
+    [Ignore]
+    private bool includeExtraPadding_ 
+      => CmbHeader.Version >= CmbVersion.LUIGIS_MANSION_3D;
+
+    [IfBoolean(nameof(includeExtraPadding_))]
+    [ArrayLengthSource(56)]
+    private byte[]? extraPadding_;
 
     [ArrayLengthSource(nameof(DataLength))]
     public byte[] Data { get; private set; }

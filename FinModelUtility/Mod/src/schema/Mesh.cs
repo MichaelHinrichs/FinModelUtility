@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-using fin.math;
+﻿using fin.math;
 
 using schema;
+using schema.attributes.align;
+using schema.attributes.ignore;
 
 
 namespace mod.schema {
@@ -17,7 +15,9 @@ namespace mod.schema {
     public byte cullMode;
   }
 
-  public class DisplayListFlags {
+  [BinarySchema]
+  public partial class DisplayListFlags : IBiSerializable {
+    [Ignore]
     public DisplayListFlagsByteView byteView = new();
 
     public uint intView {
@@ -32,34 +32,16 @@ namespace mod.schema {
     }
   }
 
-  public class DisplayList : IBiSerializable {
+  [BinarySchema]
+  public partial class DisplayList : IBiSerializable {
     public DisplayListFlags flags = new();
 
     // THANKS: Yoshi2's mod2obj
     public uint cmdCount = 0;
-    public List<byte> dlistData { get; } = new();
 
-    public void Read(EndianBinaryReader reader) {
-      this.flags.intView = reader.ReadUInt32();
-      this.cmdCount = reader.ReadUInt32();
-
-      var numDlists = reader.ReadUInt32();
-      reader.Align(0x20);
-      for (var i = 0; i < numDlists; ++i) {
-        this.dlistData.Add(reader.ReadByte());
-      }
-    }
-
-    public void Write(ISubEndianBinaryWriter writer) {
-      writer.WriteUInt32(this.flags.intView);
-      writer.WriteUInt32(this.cmdCount);
-
-      writer.WriteInt32(this.dlistData.Count);
-      writer.Align(0x20);
-      foreach (var b in this.dlistData) {
-        writer.WriteByte(b);
-      }
-    }
+    [Align(0x20)]
+    [ArrayLengthSource(SchemaIntegerType.INT32)]
+    public byte[] dlistData { get; set; }
   }
 
   [BinarySchema]

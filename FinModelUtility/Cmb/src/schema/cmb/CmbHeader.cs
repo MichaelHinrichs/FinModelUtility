@@ -9,7 +9,7 @@ using schema;
 namespace cmb.schema.cmb {
   public class CmbHeader : IDeserializable {
     // TODO: Better way to do this?
-    public static CmbVersion Version { get; private set; }
+    public static CmbVersion Version { get; set; }
 
     public uint fileSize { get; private set; }
     public CmbVersion version { get; private set; }

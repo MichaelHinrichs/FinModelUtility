@@ -19,7 +19,7 @@ namespace cmb.schema.cmb {
 
     [ArrayLengthSource(nameof(shapeCount_))]
     private ushort[] shapeOffsets_;
-
+    
     [Align(4)]
     [ArrayLengthSource(nameof(shapeCount_))]
     public Sepd[] shapes;

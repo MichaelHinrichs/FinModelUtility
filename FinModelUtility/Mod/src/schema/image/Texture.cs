@@ -1,26 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-
-using fin.image;
+﻿using fin.image;
 using fin.util.asserts;
-
 using mod.schema.image;
 
 using schema;
+using schema.attributes.ignore;
 
 
 namespace mod.schema {
-  public class Texture : IBiSerializable {
-    public int index;
-
-    public ushort width = 0;
-    public ushort height = 0;
-    public TextureFormat format = 0;
-    public uint unknown = 0;
-    public readonly List<byte> imageData = new();
-
-    public enum TextureFormat {
+  [BinarySchema]
+  public partial class Texture : IBiSerializable {
+    public enum TextureFormat : uint {
       RGB565 = 0,
       CMPR = 1,
       RGB5A3 = 2,
@@ -31,40 +20,20 @@ namespace mod.schema {
       RGBA32 = 7,
     }
 
+    [Ignore]
+    public int index;
+
+    [Ignore]
     public string Name => "texture" + this.index + "_" + this.format;
 
-    public void Read(EndianBinaryReader reader) {
-      this.width = reader.ReadUInt16();
-      this.height = reader.ReadUInt16();
-      this.format = (TextureFormat) reader.ReadUInt32();
-      this.unknown = reader.ReadUInt32();
+    public ushort width = 0;
+    public ushort height = 0;
+    public TextureFormat format = 0;
 
-      for (var i = 0; i < 4; i++) {
-        reader.ReadUInt32();
-      }
+    public readonly uint[] unknowns = new uint[5];
 
-      var numImageData = reader.ReadUInt32();
-      this.imageData.Clear();
-      for (var i = 0; i < numImageData; ++i) {
-        this.imageData.Add(reader.ReadByte());
-      }
-    }
-
-    public void Write(ISubEndianBinaryWriter writer) {
-      writer.WriteUInt16(this.width);
-      writer.WriteUInt16(this.height);
-      writer.WriteUInt32((uint) this.format);
-      writer.WriteUInt32(this.unknown);
-
-      for (var i = 0; i < 4; i++) {
-        writer.WriteUInt32((uint) 0);
-      }
-
-      writer.WriteInt32(this.imageData.Count);
-      foreach (var b in this.imageData) {
-        writer.WriteByte(b);
-      }
-    }
+    [ArrayLengthSource(SchemaIntegerType.UINT32)]
+    public byte[] imageData { get; set; }
 
     public IImage ToImage() {
       BImageFormat? imageFormat = null;

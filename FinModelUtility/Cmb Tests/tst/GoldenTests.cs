@@ -1,4 +1,5 @@
-﻿using cmb.schema.ctxb;
+﻿using cmb.schema.cmb;
+using cmb.schema.ctxb;
 using System.Reflection;
 using fin.io;
 using fin.util.strings;
@@ -27,10 +28,19 @@ namespace cmb {
       var cmbTestsDir = currentDir;
       var goldensDir = cmbTestsDir.GetSubdir("goldens/ctxb");
 
-      var goldenFiles = goldensDir.GetExistingFiles();
-      foreach (var goldenFile in goldenFiles) {
-        var er = new EndianBinaryReader(goldenFile.OpenRead());
-        await BinarySchemaAssert.ReadsAndWritesIdentically<Ctxb>(er);
+      var goldenGameDirs = goldensDir.GetExistingSubdirs();
+      foreach (var goldenGameDir in goldenGameDirs) {
+        CmbHeader.Version = goldenGameDir.Name switch {
+            "luigis_mansion_3d" => CmbVersion.LUIGIS_MANSION_3D,
+            "majoras_mask_3d" => CmbVersion.MAJORAS_MASK_3D,
+            "ocarina_of_time_3d" => CmbVersion.OCARINA_OF_TIME_3D
+        };
+
+        var goldenFiles = goldenGameDir.GetExistingFiles();
+        foreach (var goldenFile in goldenFiles) {
+          var er = new EndianBinaryReader(goldenFile.OpenRead());
+          await BinarySchemaAssert.ReadsAndWritesIdentically<Ctxb>(er);
+        }
       }
     }
   }
