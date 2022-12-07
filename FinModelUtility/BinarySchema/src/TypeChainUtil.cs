@@ -5,6 +5,7 @@ using schema.parser;
 using schema.util;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 
 namespace schema {
@@ -13,6 +14,7 @@ namespace schema {
     ITypeChainNode Target { get; }
 
     IReadOnlyList<ITypeChainNode> RootToTarget { get; }
+    string GetPath();
   }
 
   public interface ITypeChainNode {
@@ -181,6 +183,17 @@ namespace schema {
 
       public void AddLinkInChain(ITypeChainNode node)
         => this.rootToTarget_.Add(node);
+
+      public string GetPath() {
+        var totalPath = new StringBuilder();
+        foreach (var node in this.rootToTarget_.Skip(1)) {
+          if (totalPath.Length > 0) {
+            totalPath.Append(".");
+          }
+          totalPath.Append(node.MemberSymbol.Name);
+        }
+        return totalPath.ToString();
+      }
     }
 
     private class TypeChainNode : ITypeChainNode {
