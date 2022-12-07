@@ -10,6 +10,16 @@ namespace System.IO {
     private readonly OutOfOrderDictionary<string, long> startPositions_ = new();
     private readonly OutOfOrderDictionary<string, long> endPositions_ = new();
 
+    public Task<long> GetPointerToMemberRelativeToScope(
+        string memberPath) {
+      var fullPath = this.GetCurrentScope_();
+      if (fullPath.Length > 0) {
+        fullPath += ".";
+      }
+      fullPath += memberPath;
+      return this.startPositions_.Get(fullPath);
+    }
+
     public Task<long> GetSizeOfMemberRelativeToScope(
         string memberPath) {
       var fullPath = this.GetCurrentScope_();

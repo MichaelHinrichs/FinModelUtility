@@ -126,6 +126,7 @@ namespace System.IO {
 
     // Position
 
+    Task<long> GetPointerToMemberRelativeToScope(string memberPath);
     Task<long> GetSizeOfMemberRelativeToScope(string memberPath);
     void MarkStartOfMember(string memberName);
     void MarkEndOfMember();

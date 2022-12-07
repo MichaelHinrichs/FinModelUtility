@@ -96,6 +96,11 @@ namespace schema {
                   structureByNamedTypeSymbol,
                   primitiveMemberType.TypeChainToSizeOf);
             }
+            if (primitiveMemberType.TypeChainToPointer != null) {
+              sizeOfMemberInBytesDependencyFixer.AddDependenciesForStructure(
+                  structureByNamedTypeSymbol,
+                  primitiveMemberType.TypeChainToPointer);
+            }
           }
         }
       }

@@ -6,6 +6,7 @@ using schema.attributes.child_of;
 using schema.attributes.endianness;
 using schema.attributes.ignore;
 using schema.attributes.length;
+using schema.attributes.memory;
 using schema.attributes.offset;
 using schema.attributes.position;
 using schema.attributes.size;
@@ -82,6 +83,7 @@ namespace schema {
     SchemaNumberType AltFormat { get; }
 
     ITypeChain? TypeChainToSizeOf { get; }
+    ITypeChain? TypeChainToPointer { get; }
   }
 
   public interface IStructureMemberType : IMemberType {
@@ -239,6 +241,11 @@ namespace schema {
                   structureByNamedTypeSymbol,
                   primitiveMemberType.TypeChainToSizeOf);
             }
+            if (primitiveMemberType.TypeChainToPointer != null) {
+              sizeOfMemberInBytesDependencyFixer.AddDependenciesForStructure(
+                  structureByNamedTypeSymbol,
+                  primitiveMemberType.TypeChainToPointer);
+            }
           }
         }
       }
@@ -290,6 +297,8 @@ namespace schema {
 
       new SizeOfMemberInBytesParser().Parse(diagnostics, memberSymbol,
                                             memberTypeInfo, memberType);
+      new PointerToParser().Parse(diagnostics, memberSymbol, memberTypeInfo,
+                                  memberType);
 
       var isPosition = false;
       {
@@ -583,9 +592,7 @@ namespace schema {
           MemberReferenceUtil.WrapTypeInfoWithMemberType(memberTypeInfo);
 
       return new SchemaMember {
-        Name = memberSymbol.Name,
-        MemberType = memberType,
-        IsIgnored = true,
+          Name = memberSymbol.Name, MemberType = memberType, IsIgnored = true,
       };
     }
 
@@ -622,6 +629,7 @@ namespace schema {
       public bool UseAltFormat { get; set; }
       public SchemaNumberType AltFormat { get; set; }
       public ITypeChain? TypeChainToSizeOf { get; set; }
+      public ITypeChain? TypeChainToPointer { get; set; }
     }
 
     public class StructureMemberType : IStructureMemberType {
