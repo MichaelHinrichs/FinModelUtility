@@ -49,11 +49,28 @@ namespace System.IO {
           delayedBytesLength);
     }
 
-    public void WriteUInt32Delayed(Task<uint> delayedValue) {
-      this.WriteBufferDelayed_(
+    public void WriteInt16Delayed(Task<short> delayedValue)
+      => this.WriteBufferDelayed_(
+          delayedValue.ContinueWith(
+              valueTask => BitConverter.GetBytes(valueTask.Result)),
+          Task.FromResult((long)sizeof(short)));
+
+    public void WriteUInt16Delayed(Task<ushort> delayedValue)
+      => this.WriteBufferDelayed_(
+          delayedValue.ContinueWith(
+              valueTask => BitConverter.GetBytes(valueTask.Result)),
+          Task.FromResult((long)sizeof(ushort)));
+
+    public void WriteInt32Delayed(Task<int> delayedValue)
+      => this.WriteBufferDelayed_(
+          delayedValue.ContinueWith(
+              valueTask => BitConverter.GetBytes(valueTask.Result)),
+          Task.FromResult((long)sizeof(int)));
+
+    public void WriteUInt32Delayed(Task<uint> delayedValue)
+      => this.WriteBufferDelayed_(
           delayedValue.ContinueWith(
               valueTask => BitConverter.GetBytes(valueTask.Result)),
           Task.FromResult((long)sizeof(uint)));
-    }
   }
 }

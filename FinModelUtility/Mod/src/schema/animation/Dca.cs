@@ -7,7 +7,7 @@ namespace mod.schema.animation {
   [BinarySchema]
   public partial class Dca : IDcx {
     [SizeOfMemberInBytes(nameof(AnimationData))]
-    private int animationLength_;
+    private uint animationLength_;
 
     [StringLengthSource(SchemaIntegerType.INT32)]
     public string Name { get; set; }
