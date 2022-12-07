@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.IO;
+﻿using System.Collections;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using schema.util;
@@ -9,7 +7,7 @@ using System.Text;
 
 
 namespace schema.io {
-  public class NestedListsTest {
+  public class NestedListsTests {
     [Test]
     public void TestEmptyList() {
       var impl = new NestedList<string>();

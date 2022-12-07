@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using schema.attributes;
 using schema.attributes.align;
 using schema.attributes.child_of;
 using schema.attributes.endianness;
@@ -12,7 +10,6 @@ using schema.attributes.offset;
 using schema.attributes.position;
 using schema.parser;
 using schema.parser.asserts;
-using schema.util;
 using System.IO;
 
 
