@@ -42,6 +42,7 @@ namespace uni.ui {
       this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.gitHubToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.reportAnIssueToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.modelToolStrip_ = new uni.ui.top.ModelToolStrip();
       splitContainer1 = new System.Windows.Forms.SplitContainer();
       splitContainer2 = new System.Windows.Forms.SplitContainer();
@@ -191,7 +192,8 @@ namespace uni.ui {
       // helpToolStripMenuItem
       // 
       this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.gitHubToolStripMenuItem});
+            this.gitHubToolStripMenuItem,
+            this.reportAnIssueToolStripMenuItem});
       this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
       this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
       this.helpToolStripMenuItem.Text = "Help";
@@ -202,6 +204,13 @@ namespace uni.ui {
       this.gitHubToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
       this.gitHubToolStripMenuItem.Text = "View on GitHub";
       this.gitHubToolStripMenuItem.Click += new System.EventHandler(this.gitHubToolStripMenuItem_Click);
+      // 
+      // reportAnIssueToolStripMenuItem
+      // 
+      this.reportAnIssueToolStripMenuItem.Name = "reportAnIssueToolStripMenuItem";
+      this.gitHubToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+      this.reportAnIssueToolStripMenuItem.Text = "Report an Issue";
+      this.reportAnIssueToolStripMenuItem.Click += new System.EventHandler(this.reportAnIssueToolStripMenuItem_Click);
       // 
       // splitContainer3
       // 
@@ -274,6 +283,7 @@ namespace uni.ui {
     private ToolStripMenuItem exitToolStripMenuItem;
     private ToolStripMenuItem helpToolStripMenuItem;
     private ToolStripMenuItem gitHubToolStripMenuItem;
+    private ToolStripMenuItem reportAnIssueToolStripMenuItem;
     private SplitContainer splitContainer1;
     private FileBundleTreeView fileBundleTreeView_;
     private ModelTabs modelTabs_;

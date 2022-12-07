@@ -37,13 +37,13 @@ public partial class UniversalModelExtractorForm : Form {
   private void OnFileBundleSelect_(IFileTreeNode<IFileBundle> fileNode) {
     switch (fileNode.File) {
       case IModelFileBundle modelFileBundle: {
-        this.SelectModel_(fileNode, modelFileBundle);
-        break;
-      }
+          this.SelectModel_(fileNode, modelFileBundle);
+          break;
+        }
       case IAudioFileBundle audioFileBundle: {
-        this.SelectAudio_(fileNode, audioFileBundle);
-        break;
-      }
+          this.SelectAudio_(fileNode, audioFileBundle);
+          break;
+        }
     }
   }
 
@@ -88,7 +88,7 @@ public partial class UniversalModelExtractorForm : Form {
 
   private void SelectAudio_(IFileTreeNode<IFileBundle> fileNode,
                             IAudioFileBundle audioFileBundle) {
-    this.audioPlayerPanel_.AudioFileBundles = new[] {audioFileBundle};
+    this.audioPlayerPanel_.AudioFileBundles = new[] { audioFileBundle };
   }
 
   private void exitToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -98,5 +98,10 @@ public partial class UniversalModelExtractorForm : Form {
   private void gitHubToolStripMenuItem_Click(object sender, EventArgs e) {
     Process.Start("explorer",
                   "https://github.com/MeltyPlayer/FinModelUtility");
+  }
+
+  private void reportAnIssueToolStripMenuItem_Click(object sender, EventArgs e) {
+    Process.Start("explorer",
+      "https://github.com/MeltyPlayer/FinModelUtility/issues/new");
   }
 }
