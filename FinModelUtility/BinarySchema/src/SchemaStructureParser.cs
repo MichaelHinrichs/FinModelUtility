@@ -288,23 +288,23 @@ namespace schema {
 
           if (offsetAttribute != null) {
             var startIndexName = offsetAttribute.StartIndexName;
-            var startIndexTypeSymbol =
-                SymbolTypeUtil.GetTypeFromMemberRelativeToAnother(
-                    diagnostics,
-                    structureSymbol, startIndexName, memberSymbol.Name);
-            typeInfoParser.ParseTypeSymbol(
-                startIndexTypeSymbol.TypeSymbol,
+            SymbolTypeUtil.GetMemberRelativeToAnother(
+                diagnostics,
+                structureSymbol,
+                startIndexName,
+                memberSymbol.Name,
                 true,
+                out _,
                 out var startIndexTypeInfo);
 
             var offsetName = offsetAttribute.OffsetName;
-            var offsetTypeSymbol =
-                SymbolTypeUtil.GetTypeFromMemberRelativeToAnother(
-                    diagnostics,
-                    structureSymbol, offsetName, memberSymbol.Name);
-            typeInfoParser.ParseTypeSymbol(
-                offsetTypeSymbol.TypeSymbol,
+            SymbolTypeUtil.GetMemberRelativeToAnother(
+                diagnostics,
+                structureSymbol,
+                offsetName,
+                memberSymbol.Name,
                 true,
+                out _,
                 out var offsetTypeInfo);
 
             offset = new Offset {

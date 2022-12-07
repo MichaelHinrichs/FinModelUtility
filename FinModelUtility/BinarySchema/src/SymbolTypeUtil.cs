@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using schema.attributes;
+using schema.parser;
 using schema.util;
 
 
@@ -331,83 +332,34 @@ namespace schema {
           $"{mergedNamespaceText}{mergedContainersText}{referencedSymbol.Name}";
     }
 
-    public static (ISymbol MemberSymbol, ITypeSymbol TypeSymbol)
-        GetTypeFromMember(
-            IList<Diagnostic> diagnostics,
-            ITypeSymbol structureSymbol,
-            string memberName)
-      => GetTypeFromMemberImpl_(diagnostics, structureSymbol, memberName, null);
+    public static void GetMemberInStructure(
+        ITypeSymbol structureSymbol,
+        string memberName,
+        out ISymbol memberSymbol,
+        out ITypeInfo memberTypeInfo
+    ) {
+      memberSymbol = structureSymbol.GetMembers(memberName).Single();
+      new TypeInfoParser().ParseMember(memberSymbol, out memberTypeInfo);
+    }
 
-    public static (ISymbol MemberSymbol, ITypeSymbol TypeSymbol)
-        GetTypeFromMemberRelativeToAnother(
-            IList<Diagnostic> diagnostics,
-            ITypeSymbol structureSymbol,
-            string otherMemberName,
-            string thisMemberNameForFirstPass)
-      => GetTypeFromMemberImpl_(diagnostics, structureSymbol, otherMemberName,
-                                thisMemberNameForFirstPass);
+    public static void GetMemberRelativeToAnother(
+        IList<Diagnostic> diagnostics,
+        ITypeSymbol structureSymbol,
+        string otherMemberName,
+        string thisMemberNameForFirstPass,
+        bool assertOrder,
+        out ISymbol memberSymbol,
+        out ITypeInfo memberTypeInfo) {
+      var typeChain = TypeChainUtil.GetTypeChainForRelativeMember(
+          diagnostics,
+          structureSymbol,
+          otherMemberName,
+          thisMemberNameForFirstPass,
+          assertOrder);
 
-
-    private static (ISymbol MemberSymbol, ITypeSymbol TypeSymbol)
-        GetTypeFromMemberImpl_(
-            IList<Diagnostic> diagnostics,
-            ITypeSymbol structureSymbol,
-            string otherMemberName,
-            string? thisMemberNameForFirstPass) {
-      if (otherMemberName == thisMemberNameForFirstPass) {
-        Asserts.Fail(
-            $"Expected to find '{otherMemberName}' relative to '{thisMemberNameForFirstPass}' in '{structureSymbol.Name}', but they're the same!");
-      }
-
-      var periodIndex = otherMemberName.IndexOf('.');
-      if (periodIndex != -1) {
-        var subStructureName = otherMemberName.Substring(0, periodIndex);
-        var subStructureTypeSymbol =
-            GetTypeFromMemberImpl_(diagnostics, structureSymbol,
-                                   subStructureName,
-                                   thisMemberNameForFirstPass)
-                .TypeSymbol;
-
-        var subMemberName = otherMemberName.Substring(periodIndex + 1);
-
-        return GetTypeFromMemberImpl_(
-            diagnostics,
-            subStructureTypeSymbol,
-            subMemberName,
-            null);
-      }
-
-      if (thisMemberNameForFirstPass != null) {
-        var members = structureSymbol.GetMembers();
-        var membersAndIndices =
-            members.Select((member, index) => (member, index)).ToArray();
-        var indexOfThisMember = membersAndIndices
-                                .Single(memberAndIndex =>
-                                            memberAndIndex.member.Name ==
-                                            thisMemberNameForFirstPass)
-                                .index;
-        var indexOfOtherMember = membersAndIndices
-                                 .Single(memberAndIndex =>
-                                             memberAndIndex.member.Name ==
-                                             otherMemberName)
-                                 .index;
-
-        if (indexOfThisMember < indexOfOtherMember) {
-          diagnostics.Add(Rules.CreateDiagnostic(
-                              members[indexOfThisMember],
-                              Rules.DependentMustComeAfterSource));
-        }
-      }
-
-      var memberSymbol = structureSymbol
-                         .GetMembers(otherMemberName)
-                         .Single();
-      var typeSymbol = memberSymbol switch {
-          IPropertySymbol propertySymbol => propertySymbol.Type,
-          IFieldSymbol fieldSymbol       => fieldSymbol.Type,
-          _                              => throw new NotSupportedException()
-      };
-      return (memberSymbol, typeSymbol);
+      var target = typeChain.Target;
+      memberSymbol = target.MemberSymbol;
+      memberTypeInfo = target.MemberTypeInfo;
     }
   }
 }

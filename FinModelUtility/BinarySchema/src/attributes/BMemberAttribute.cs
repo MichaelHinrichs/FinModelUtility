@@ -42,32 +42,28 @@ namespace schema.attributes {
 
     protected IMemberReference GetMemberRelativeToStructure(
         string memberName) {
-      var otherMemberTypeSymbol =
-          SymbolTypeUtil.GetTypeFromMember(
-              this.diagnostics_,
-              this.structureTypeInfo_.TypeSymbol,
-              memberName);
-      var otherMemberTypeInfo = BMemberAttribute.parser_.AssertParseTypeSymbol(
-          otherMemberTypeSymbol.TypeSymbol);
+      SymbolTypeUtil.GetMemberInStructure(
+          this.structureTypeInfo_.TypeSymbol,
+          memberName,
+          out var memberSymbol,
+          out var memberTypeInfo);
+
       return new MemberReference(memberName,
                                  this.structureTypeInfo_,
-                                 otherMemberTypeSymbol.MemberSymbol,
-                                 otherMemberTypeInfo);
+                                 memberSymbol,
+                                 memberTypeInfo);
     }
 
 
     protected IMemberReference<T> GetMemberRelativeToStructure<T>(
         string memberName) {
-      var memberTypeSymbol =
-          SymbolTypeUtil.GetTypeFromMember(
-              this.diagnostics_,
-              this.structureTypeInfo_.TypeSymbol,
-              memberName);
-      var memberTypeInfo = BMemberAttribute.parser_.AssertParseTypeSymbol(
-          memberTypeSymbol.TypeSymbol);
+      SymbolTypeUtil.GetMemberInStructure(
+          this.structureTypeInfo_.TypeSymbol,
+          memberName,
+          out var memberSymbol,
+          out var memberTypeInfo);
 
-      if (!SymbolTypeUtil.CanBeStoredAs(memberTypeSymbol.TypeSymbol,
-                                        typeof(T))) {
+      if (!SymbolTypeUtil.CanBeStoredAs(memberTypeInfo.TypeSymbol, typeof(T))) {
         Asserts.Fail(
             $"Type of member, {memberTypeInfo.TypeSymbol}, does not match expected type: {typeof(T)}");
       }
@@ -75,41 +71,40 @@ namespace schema.attributes {
       return new MemberReference<T>(
           memberName,
           this.structureTypeInfo_,
-          memberTypeSymbol.MemberSymbol,
+          memberSymbol,
           memberTypeInfo);
     }
 
     protected IMemberReference GetOtherMemberRelativeToStructure(
         string otherMemberName) {
-      var memberTypeSymbol =
-          SymbolTypeUtil.GetTypeFromMemberRelativeToAnother(
-              this.diagnostics_,
-              this.structureTypeInfo_.TypeSymbol,
-              otherMemberName,
-              this.memberThisIsAttachedTo_.Name);
-      var memberTypeInfo = BMemberAttribute.parser_.AssertParseTypeSymbol(
-          memberTypeSymbol.TypeSymbol);
+      SymbolTypeUtil.GetMemberRelativeToAnother(
+          this.diagnostics_,
+          this.structureTypeInfo_.TypeSymbol,
+          otherMemberName,
+          this.memberThisIsAttachedTo_.Name,
+          true,
+          out var memberSymbol,
+          out var memberTypeInfo);
 
       return new MemberReference(
           otherMemberName,
           this.structureTypeInfo_,
-          memberTypeSymbol.MemberSymbol,
+          memberSymbol,
           memberTypeInfo);
     }
 
     protected IMemberReference<T> GetOtherMemberRelativeToStructure<T>(
         string otherMemberName) {
-      var memberTypeSymbol =
-          SymbolTypeUtil.GetTypeFromMemberRelativeToAnother(
-              this.diagnostics_,
-              this.structureTypeInfo_.TypeSymbol,
-              otherMemberName,
-              this.memberThisIsAttachedTo_.Name);
-      var memberTypeInfo = BMemberAttribute.parser_.AssertParseTypeSymbol(
-          memberTypeSymbol.TypeSymbol);
+      SymbolTypeUtil.GetMemberRelativeToAnother(
+          this.diagnostics_,
+          this.structureTypeInfo_.TypeSymbol,
+          otherMemberName,
+          this.memberThisIsAttachedTo_.Name,
+          true,
+          out var memberSymbol,
+          out var memberTypeInfo);
 
-      if (!SymbolTypeUtil.CanBeStoredAs(memberTypeSymbol.TypeSymbol,
-                                        typeof(T))) {
+      if (!SymbolTypeUtil.CanBeStoredAs(memberTypeInfo.TypeSymbol, typeof(T))) {
         Asserts.Fail(
             $"Type of other member, {memberTypeInfo.TypeSymbol}, does not match expected type: {typeof(T)}");
       }
@@ -117,7 +112,7 @@ namespace schema.attributes {
       return new MemberReference<T>(
           otherMemberName,
           this.structureTypeInfo_,
-          memberTypeSymbol.MemberSymbol,
+          memberSymbol,
           memberTypeInfo);
     }
 
