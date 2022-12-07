@@ -61,7 +61,7 @@ Model viewer and command-line tools for extracting models from games en-masse. S
 - .modl (GCN/WII)
   - Battalion Wars 1 (`battalion_wars_1.gcm`)
   - Battalion Wars 2 (`battalion_wars_2.iso`)
-- .xi (3DS)
+- .xc (3DS)
   - Professor Layton vs. Phoenix Wright (`professor_layton_vs_phoenix_wright.cia`)
 
 *Note:* For GameCube ROMs, files with an `.iso` extension should work as long as they are renamed to `[game_name].gcm`.
