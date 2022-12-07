@@ -8,6 +8,8 @@ namespace schema.io {
       where TKey : notnull {
     void AssertAllCompleted();
 
+    void Clear();
+
     Task<TValue> Get(TKey key);
     void Set(TKey key, TValue value);
   }
@@ -32,11 +34,21 @@ namespace schema.io {
       }
     }
 
+    public void Clear() => this.impl_.Clear();
+
+
     public Task<TValue> Get(TKey key)
       => this.GetOrCreateTaskCompletionSource_(key).Task;
 
     public void Set(TKey key, TValue value)
       => this.GetOrCreateTaskCompletionSource_(key).SetResult(value);
+
+    public void Set(TKey key, Task<TValue> value) {
+      var taskCompletionSource = this.GetOrCreateTaskCompletionSource_(key);
+      value.ContinueWith(delayedValue => {
+        taskCompletionSource.SetResult(delayedValue.Result);
+      }).Start();
+    }
 
     private TaskCompletionSource<TValue> GetOrCreateTaskCompletionSource_(
         TKey key) {

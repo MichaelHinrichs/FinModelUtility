@@ -25,7 +25,7 @@ namespace schema.attributes.size {
 
     protected override void InitFields() {
       this.TypeChainToOtherMember =
-          this.GetTypeChainRelativeToStructure<string>(
+          this.GetTypeChainRelativeToStructure(
               this.otherMemberName_, false);
     }
 

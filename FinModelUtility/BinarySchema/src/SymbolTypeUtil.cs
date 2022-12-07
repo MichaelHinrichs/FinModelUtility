@@ -89,9 +89,13 @@ namespace schema {
 
     public static bool MatchesGeneric(INamedTypeSymbol symbol,
                                       Type expectedGenericType) {
+      var indexOfBacktick = expectedGenericType.Name.IndexOf('`');
+      if (indexOfBacktick == -1) {
+        return false;
+      }
+
       var sameName = symbol.Name ==
-                     expectedGenericType.Name.Substring(
-                         0, expectedGenericType.Name.IndexOf('`'));
+                     expectedGenericType.Name.Substring(0, indexOfBacktick);
       var sameNamespace =
           SymbolTypeUtil.MergeContainingNamespaces(symbol) ==
           expectedGenericType.Namespace;

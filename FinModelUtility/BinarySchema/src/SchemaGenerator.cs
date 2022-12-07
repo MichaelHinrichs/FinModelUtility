@@ -4,6 +4,7 @@ using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using schema.attributes.size;
 using schema.text;
 using schema.util;
 
@@ -98,8 +99,31 @@ namespace schema {
     public void Execute(GeneratorExecutionContext context) {
       this.context_ = context;
 
-      // TODO: Hook up any dependencies within the structure here.
+      // Gathers up a map of all structures by named type symbol.
+      var structureByNamedTypeSymbol =
+          new Dictionary<INamedTypeSymbol, ISchemaStructure>();
+      foreach (var structure in this.queue_) {
+        structureByNamedTypeSymbol[structure.TypeSymbol] = structure;
+      }
 
+      // Hooks up size of dependencies.
+      {
+        var sizeOfMemberInBytesDependencyFixer =
+            new SizeOfMemberInBytesDependencyFixer();
+        foreach (var structure in this.queue_) {
+          foreach (var member in structure.Members) {
+            if (member.MemberType is IPrimitiveMemberType primitiveMemberType) {
+              if (primitiveMemberType.TypeChainToSizeOf != null) {
+                sizeOfMemberInBytesDependencyFixer.AddDependenciesForStructure(
+                    structureByNamedTypeSymbol,
+                    primitiveMemberType.TypeChainToSizeOf);
+              }
+            }
+          }
+        }
+      }
+
+      // Generates code for each structure.
       foreach (var structure in this.queue_) {
         try {
           this.Generate_(structure);

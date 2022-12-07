@@ -8,6 +8,7 @@ using schema.attributes.ignore;
 using schema.attributes.length;
 using schema.attributes.offset;
 using schema.attributes.position;
+using schema.attributes.size;
 using schema.parser;
 using schema.parser.asserts;
 using System.IO;
@@ -64,6 +65,7 @@ namespace schema {
     IOffset? Offset { get; }
     bool IsPosition { get; }
     Endianness? Endianness { get; }
+    bool TrackStartAndEnd { get; }
   }
 
   public interface IMemberType {
@@ -76,6 +78,8 @@ namespace schema {
     SchemaPrimitiveType PrimitiveType { get; }
     bool UseAltFormat { get; }
     SchemaNumberType AltFormat { get; }
+
+    ITypeChain? TypeChainToSizeOf { get; }
   }
 
   public interface IStructureMemberType : IMemberType {
@@ -232,6 +236,9 @@ namespace schema {
         // Get attributes
         var align = new AlignAttributeParser().GetAlignForMember(
             diagnostics, memberSymbol);
+
+        new SizeOfMemberInBytesParser().Parse(diagnostics, memberSymbol,
+                                              memberTypeInfo, memberType);
 
         var isPosition = false;
         {
@@ -508,12 +515,32 @@ namespace schema {
         });
       }
 
-      return new SchemaStructure {
+      var schemaStructure = new SchemaStructure {
           Diagnostics = diagnostics,
           TypeSymbol = structureSymbol,
           Members = fields,
           Endianness = structureEndianness,
       };
+
+      // Hooks up size of dependencies.
+      var structureByNamedTypeSymbol =
+          new Dictionary<INamedTypeSymbol, ISchemaStructure>();
+      structureByNamedTypeSymbol[structureSymbol] = schemaStructure;
+      {
+        var sizeOfMemberInBytesDependencyFixer =
+            new SizeOfMemberInBytesDependencyFixer();
+        foreach (var member in fields) {
+          if (member.MemberType is IPrimitiveMemberType primitiveMemberType) {
+            if (primitiveMemberType.TypeChainToSizeOf != null) {
+              sizeOfMemberInBytesDependencyFixer.AddDependenciesForStructure(
+                  structureByNamedTypeSymbol,
+                  primitiveMemberType.TypeChainToSizeOf);
+            }
+          }
+        }
+      }
+
+      return schemaStructure;
     }
 
 
@@ -533,6 +560,7 @@ namespace schema {
       public IOffset Offset { get; set; }
       public bool IsPosition { get; set; }
       public Endianness? Endianness { get; set; }
+      public bool TrackStartAndEnd { get; set; }
     }
 
     public class PrimitiveMemberType : IPrimitiveMemberType {
@@ -546,6 +574,7 @@ namespace schema {
 
       public bool UseAltFormat { get; set; }
       public SchemaNumberType AltFormat { get; set; }
+      public ITypeChain? TypeChainToSizeOf { get; set; }
     }
 
     public class StructureMemberType : IStructureMemberType {

@@ -136,7 +136,7 @@ namespace schema.text {
       }
     }
 
-    private static void HandleMemberEndianness_(
+    private static void HandleMemberEndiannessAndTracking_(
         ICurlyBracketStringBuilder cbsb,
         ISchemaMember member,
         Action handler) {
@@ -146,7 +146,16 @@ namespace schema.text {
             $"ew.PushMemberEndianness({SchemaGeneratorUtil.GetEndiannessName(member.Endianness.Value)});");
       }
 
+      var shouldTrackStartAndEnd = member.TrackStartAndEnd;
+      if (shouldTrackStartAndEnd) {
+        cbsb.WriteLine($"ew.MarkStartOfMember(\"{member.Name}\");");
+      }
+
       handler();
+
+      if (shouldTrackStartAndEnd) {
+        cbsb.WriteLine($"ew.MarkEndOfMember();");
+      }
 
       if (hasEndianness) {
         cbsb.WriteLine("ew.PopEndianness();");
@@ -164,7 +173,7 @@ namespace schema.text {
         return;
       }
 
-      HandleMemberEndianness_(cbsb, member, () => {
+      HandleMemberEndiannessAndTracking_(cbsb, member, () => {
         var readType = SchemaGeneratorUtil.GetPrimitiveLabel(
             primitiveType.UseAltFormat
                 ? SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(
@@ -185,20 +194,29 @@ namespace schema.text {
           castText = $"({castType}) ";
         }
 
-        var accessText = $"this.{member.Name}";
-        if (member.MemberType.TypeInfo.IsNullable) {
-          accessText = $"{accessText}.Value";
-        }
+        if (primitiveType.TypeChainToSizeOf == null) {
+          var accessText = $"this.{member.Name}";
+          if (member.MemberType.TypeInfo.IsNullable) {
+            accessText = $"{accessText}.Value";
+          }
 
-        cbsb.WriteLine(
-            $"ew.Write{readType}({castText}{accessText});");
+          cbsb.WriteLine(
+              $"ew.Write{readType}({castText}{accessText});");
+        } else {
+          var typeChain = primitiveType.TypeChainToSizeOf;
+
+          var accessText =
+              $"ew.GetSizeOfMemberRelativeToScope(\"{typeChain.Target.MemberSymbol.Name}\")";
+          cbsb.WriteLine(
+              $"ew.Write{readType}Delayed({castText}{accessText});");
+        }
       });
     }
 
     private static void WriteBoolean_(
         ICurlyBracketStringBuilder cbsb,
         ISchemaMember member) {
-      HandleMemberEndianness_(cbsb, member, () => {
+      HandleMemberEndiannessAndTracking_(cbsb, member, () => {
         var primitiveType =
             Asserts.CastNonnull(member.MemberType as IPrimitiveMemberType);
 
@@ -221,7 +239,7 @@ namespace schema.text {
     private static void WriteString_(
         ICurlyBracketStringBuilder cbsb,
         ISchemaMember member) {
-      HandleMemberEndianness_(cbsb, member, () => {
+      HandleMemberEndiannessAndTracking_(cbsb, member, () => {
         var stringType = Asserts.CastNonnull(member.MemberType as IStringType);
 
         if (stringType.LengthSourceType ==
@@ -240,7 +258,7 @@ namespace schema.text {
     private static void WriteStructure_(
         ICurlyBracketStringBuilder cbsb,
         ISchemaMember member) {
-      HandleMemberEndianness_(cbsb, member, () => {
+      HandleMemberEndiannessAndTracking_(cbsb, member, () => {
         // TODO: Do value types need to be handled differently?
         cbsb.WriteLine($"this.{member.Name}.Write(ew);");
       });
@@ -282,7 +300,7 @@ namespace schema.text {
         ICurlyBracketStringBuilder cbsb,
         ITypeSymbol sourceSymbol,
         ISchemaMember member) {
-      HandleMemberEndianness_(cbsb, member, () => {
+      HandleMemberEndiannessAndTracking_(cbsb, member, () => {
         var arrayType =
             Asserts.CastNonnull(member.MemberType as ISequenceMemberType);
 

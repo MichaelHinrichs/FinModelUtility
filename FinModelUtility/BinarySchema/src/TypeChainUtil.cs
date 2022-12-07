@@ -16,6 +16,7 @@ namespace schema {
   }
 
   public interface ITypeChainNode {
+    INamedTypeSymbol StructureSymbol { get; }
     ISymbol MemberSymbol { get; }
     ITypeInfo MemberTypeInfo { get; }
   }
@@ -40,13 +41,15 @@ namespace schema {
           null
       );
 
-    public static void AssertAllNodesInTypeChainUseBinarySchema(
+    public static void AssertAllNodesInTypeChainUntilTargetUseBinarySchema(
         IList<Diagnostic> diagnostics,
         ITypeChain typeChain) {
-      foreach (var typeChainNode in typeChain.RootToTarget) {
+      for (var i = 0; i < typeChain.RootToTarget.Count; ++i) {
+        var typeChainNode = typeChain.RootToTarget[i];
+
         var binarySchemaAttribute =
             SymbolTypeUtil.GetAttribute<BinarySchemaAttribute>(
-                diagnostics, typeChainNode.MemberTypeInfo.TypeSymbol);
+                diagnostics, typeChainNode.StructureSymbol);
         if (binarySchemaAttribute == null) {
           diagnostics.Add(Rules.CreateDiagnostic(
                               typeChainNode.MemberSymbol,
@@ -84,7 +87,9 @@ namespace schema {
             out var rootTypeInfo);
 
         typeChain = new TypeChain(new TypeChainNode {
-            MemberSymbol = rootSymbol, MemberTypeInfo = rootTypeInfo
+            StructureSymbol = (structureSymbol as INamedTypeSymbol)!,
+            MemberSymbol = rootSymbol,
+            MemberTypeInfo = rootTypeInfo
         });
 
         prevMemberName = thisMemberName;
@@ -104,7 +109,9 @@ namespace schema {
           out var memberTypeInfo);
 
       typeChain.AddLinkInChain(new TypeChainNode {
-          MemberSymbol = memberSymbol, MemberTypeInfo = memberTypeInfo
+          StructureSymbol = (structureSymbol as INamedTypeSymbol)!,
+          MemberSymbol = memberSymbol,
+          MemberTypeInfo = memberTypeInfo
       });
 
       // Asserts that we're not referencing something that comes before the
@@ -144,7 +151,7 @@ namespace schema {
         var subMemberPath = otherMemberPath.Substring(periodIndex + 1);
         return GetTypeChainForRelativeMemberImpl_(
             diagnostics,
-            memberTypeInfo.TypeSymbol,
+            (memberTypeInfo.TypeSymbol as INamedTypeSymbol)!,
             subMemberPath,
             thisMemberName,
             assertOrder,
@@ -177,6 +184,7 @@ namespace schema {
     }
 
     private class TypeChainNode : ITypeChainNode {
+      public INamedTypeSymbol StructureSymbol { get; set; }
       public ISymbol MemberSymbol { get; set; }
       public ITypeInfo MemberTypeInfo { get; set; }
     }
