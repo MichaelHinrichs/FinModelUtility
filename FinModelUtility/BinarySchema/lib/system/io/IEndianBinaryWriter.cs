@@ -105,6 +105,11 @@ namespace System.IO {
     Task<long> GetPositionInSubStream();
     Task<long> GetLengthOfSubStream();
 
+    void WriteByteDelayed(Task<byte> delayedValue);
+    void WriteSByteDelayed(Task<sbyte> delayedValue);
+    void WriteInt16Delayed(Task<short> delayedValue);
+    void WriteUInt16Delayed(Task<ushort> delayedValue);
+    void WriteInt32Delayed(Task<int> delayedValue);
     void WriteUInt32Delayed(Task<uint> delayedValue);
 
     // Endianness

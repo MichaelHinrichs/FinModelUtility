@@ -221,7 +221,7 @@ namespace schema.text {
 
           var typeChain = primitiveType.TypeChainToSizeOf;
           var accessText =
-              $"ew.GetSizeOfMemberRelativeToScope(\"{typeChain.GetPath()}\")";
+              $"ew.GetSizeOfMemberRelativeToScope(\"{typeChain.Path}\")";
           cbsb.WriteLine(
               $"ew.Write{readType}Delayed({accessText}{castText});");
         }

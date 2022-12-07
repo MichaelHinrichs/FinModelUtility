@@ -378,7 +378,7 @@ namespace foo.bar {
     }
 
     private void AssertGenerated_(string src, string expectedGenerated) {
-      var structure = SchemaTestUtil.Parse(src);
+      var structure = SchemaTestUtil.ParseFirst(src);
       Assert.IsEmpty(structure.Diagnostics);
 
       var actualGenerated = new SchemaReaderGenerator().Generate(structure);

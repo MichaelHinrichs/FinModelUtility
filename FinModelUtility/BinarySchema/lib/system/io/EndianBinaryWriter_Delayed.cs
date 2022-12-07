@@ -53,7 +53,7 @@ namespace System.IO {
       => this.WriteBufferDelayed_(
           delayedValue.ContinueWith(
               valueTask => new[] {valueTask.Result}),
-          Task.FromResult((long)sizeof(short)));
+          Task.FromResult((long)sizeof(byte)));
 
     public void WriteSByteDelayed(Task<sbyte> delayedValue)
       => this.WriteBufferDelayed_(

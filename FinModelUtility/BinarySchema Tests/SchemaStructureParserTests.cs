@@ -6,7 +6,7 @@ namespace schema {
   public partial class SchemaStructureParserTests {
     [Test]
     public void TestByte() {
-      var structure = SchemaTestUtil.Parse(@"
+      var structure = SchemaTestUtil.ParseFirst(@"
 using schema;
 
 namespace foo.bar {
@@ -38,7 +38,7 @@ namespace foo.bar {
 
     [Test]
     public void TestSByte() {
-      var structure = SchemaTestUtil.Parse(@"
+      var structure = SchemaTestUtil.ParseFirst(@"
 using schema;
 
 namespace foo.bar {
@@ -70,7 +70,7 @@ namespace foo.bar {
 
     [Test]
     public void TestInt16() {
-      var structure = SchemaTestUtil.Parse(@"
+      var structure = SchemaTestUtil.ParseFirst(@"
 using schema;
 
 namespace foo.bar {
@@ -102,7 +102,7 @@ namespace foo.bar {
 
     [Test]
     public void TestEnum() {
-      var structure = SchemaTestUtil.Parse(@"
+      var structure = SchemaTestUtil.ParseFirst(@"
 using schema;
 
 namespace foo.bar {
@@ -141,7 +141,7 @@ namespace foo.bar {
 
     [Test]
     public void TestConstArray() {
-      var structure = SchemaTestUtil.Parse(@"
+      var structure = SchemaTestUtil.ParseFirst(@"
 namespace foo.bar {
   [BinarySchema]
   public class ArrayWrapper {
@@ -170,7 +170,7 @@ namespace foo.bar {
 
     [Test]
     public void TestConstCharArray() {
-      var structure = SchemaTestUtil.Parse(@"
+      var structure = SchemaTestUtil.ParseFirst(@"
 namespace foo.bar {
   [BinarySchema]
   public class CharWrapper {
@@ -199,7 +199,7 @@ namespace foo.bar {
 
     [Test]
     public void TestField() {
-      var structure = SchemaTestUtil.Parse(@"
+      var structure = SchemaTestUtil.ParseFirst(@"
 using schema;
 
 namespace foo.bar {
@@ -231,7 +231,7 @@ namespace foo.bar {
 
     [Test]
     public void TestProperty() {
-      var structure = SchemaTestUtil.Parse(@"
+      var structure = SchemaTestUtil.ParseFirst(@"
 using schema;
 
 namespace foo.bar {
@@ -263,7 +263,7 @@ namespace foo.bar {
 
     [Test]
     public void TestReadonlyPrimitiveField() {
-      var structure = SchemaTestUtil.Parse(@"
+      var structure = SchemaTestUtil.ParseFirst(@"
 using schema;
 
 namespace foo.bar {
@@ -295,7 +295,7 @@ namespace foo.bar {
 
     [Test]
     public void TestReadonlyPrimitiveProperty() {
-      var structure = SchemaTestUtil.Parse(@"
+      var structure = SchemaTestUtil.ParseFirst(@"
 using schema;
 
 namespace foo.bar {

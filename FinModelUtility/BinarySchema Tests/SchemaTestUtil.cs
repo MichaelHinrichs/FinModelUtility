@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-
 using NUnit.Framework;
-
+using schema.attributes.size;
 using schema.text;
 
 #pragma warning disable CS8604
@@ -17,11 +14,14 @@ using schema.text;
 
 namespace schema {
   internal static class SchemaTestUtil {
-    public static ISchemaStructure Parse(string src) {
+    public static ISchemaStructure ParseFirst(string src)
+      => ParseAll(src).First();
+
+    public static IReadOnlyList<ISchemaStructure> ParseAll(string src) {
       var syntaxTree = CSharpSyntaxTree.ParseText(src);
 
       var references =
-          ((string) AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES"))
+          ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES"))
           .Split(Path.PathSeparator)
           .Select(path => MetadataReference.CreateFromFile(path));
 
@@ -31,43 +31,76 @@ namespace schema {
                            .AddSyntaxTrees(syntaxTree);
       var semanticModel = compilation.GetSemanticModel(syntaxTree);
 
-      var attributeSyntax = syntaxTree.GetRoot()
-                                      .DescendantTokens()
-                                      .First(t => {
-                                        if (t.Text == "BinarySchema" &&
-                                            t.Parent
-                                             ?.Parent is AttributeSyntax) {
-                                          return true;
-                                        }
-                                        return false;
-                                      })
-                                      .Parent?.Parent as AttributeSyntax;
-      var attributeSpan = attributeSyntax!.FullSpan;
+      var structures = syntaxTree
+                       .GetRoot()
+                       .DescendantTokens()
+                       .Where(t => {
+                         if (t.Text == "BinarySchema" &&
+                             t.Parent
+                              ?.Parent is AttributeSyntax) {
+                           return true;
+                         }
+                         return false;
+                       })
+                       .Select(t => t.Parent?.Parent as AttributeSyntax)
+                       .Select(attributeSyntax => {
+                         var attributeSpan = attributeSyntax!.FullSpan;
 
-      var classIndex =
-          src.IndexOf("class", attributeSpan.Start + attributeSpan.Length);
-      var classNameIndex = src.IndexOf(' ', classIndex) + 1;
-      var classNameLength = src.IndexOf(' ', classNameIndex) - classNameIndex;
+                         var classIndex =
+                             src.IndexOf("class",
+                                         attributeSpan.Start +
+                                         attributeSpan.Length);
+                         var classNameIndex = src.IndexOf(' ', classIndex) + 1;
+                         var classNameLength =
+                             src.IndexOf(' ', classNameIndex) - classNameIndex;
 
-      var typeName = src.Substring(classNameIndex, classNameLength);
-      var angleBracketIndex = typeName.IndexOf('<');
-      if (angleBracketIndex > -1) {
-        typeName = typeName.Substring(0, angleBracketIndex);
+                         var typeName =
+                             src.Substring(classNameIndex, classNameLength);
+                         var angleBracketIndex = typeName.IndexOf('<');
+                         if (angleBracketIndex > -1) {
+                           typeName = typeName.Substring(0, angleBracketIndex);
+                         }
+
+                         var typeNode = syntaxTree.GetRoot()
+                                                  .DescendantTokens()
+                                                  .Single(t =>
+                                                      t.Text ==
+                                                      typeName &&
+                                                      t.Parent is
+                                                          ClassDeclarationSyntax
+                                                          or StructDeclarationSyntax
+                                                  )
+                                                  .Parent;
+
+                         var symbol = semanticModel.GetDeclaredSymbol(typeNode);
+                         var namedTypeSymbol = symbol as INamedTypeSymbol;
+
+                         return new SchemaStructureParser().ParseStructure(
+                             namedTypeSymbol);
+                       })
+                       .ToArray();
+
+      var structureByNamedTypeSymbol =
+          new Dictionary<INamedTypeSymbol, ISchemaStructure>();
+      foreach (var structure in structures) {
+        structureByNamedTypeSymbol[structure.TypeSymbol] = structure;
       }
 
-      var typeNode = syntaxTree.GetRoot()
-                               .DescendantTokens()
-                               .Single(t =>
-                                           t.Text == typeName &&
-                                           t.Parent is ClassDeclarationSyntax
-                                               or StructDeclarationSyntax
-                               )
-                               .Parent;
+      var sizeOfMemberInBytesDependencyFixer =
+          new SizeOfMemberInBytesDependencyFixer();
+      foreach (var structure in structures) {
+        foreach (var member in structure.Members) {
+          if (member.MemberType is IPrimitiveMemberType primitiveMemberType) {
+            if (primitiveMemberType.TypeChainToSizeOf != null) {
+              sizeOfMemberInBytesDependencyFixer.AddDependenciesForStructure(
+                  structureByNamedTypeSymbol,
+                  primitiveMemberType.TypeChainToSizeOf);
+            }
+          }
+        }
+      }
 
-      var symbol = semanticModel.GetDeclaredSymbol(typeNode);
-      var namedTypeSymbol = symbol as INamedTypeSymbol;
-
-      return new SchemaStructureParser().ParseStructure(namedTypeSymbol);
+      return structures;
     }
 
     public static void AssertDiagnostics(
@@ -99,7 +132,7 @@ namespace schema {
     public static void AssertGenerated(string src,
                                        string expectedReader,
                                        string expectedWriter) {
-      var structure = SchemaTestUtil.Parse(src);
+      var structure = SchemaTestUtil.ParseFirst(src);
       Assert.IsEmpty(structure.Diagnostics);
 
       var actualReader = new SchemaReaderGenerator().Generate(structure);
@@ -107,6 +140,25 @@ namespace schema {
 
       Assert.AreEqual(expectedReader, actualReader.ReplaceLineEndings());
       Assert.AreEqual(expectedWriter, actualWriter.ReplaceLineEndings());
+    }
+
+    public static void AssertGeneratedForAll(
+        string src,
+        params (string, string)[] expectedReadersAndWriters) {
+      var structures = SchemaTestUtil.ParseAll(src).ToArray();
+      Assert.AreEqual(expectedReadersAndWriters.Length, structures.Length);
+      for (var i = 0; i < structures.Length; ++i) {
+        var (expectedReader, expectedWriter) = expectedReadersAndWriters[i];
+        var structure = structures[i];
+
+        Assert.IsEmpty(structure.Diagnostics);
+
+        var actualReader = new SchemaReaderGenerator().Generate(structure);
+        var actualWriter = new SchemaWriterGenerator().Generate(structure);
+
+        Assert.AreEqual(expectedReader, actualReader.ReplaceLineEndings());
+        Assert.AreEqual(expectedWriter, actualWriter.ReplaceLineEndings());
+      }
     }
   }
 }

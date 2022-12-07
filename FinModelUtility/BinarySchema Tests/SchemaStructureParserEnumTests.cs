@@ -8,7 +8,7 @@ namespace schema {
     public class Enum {
       [Test]
       public void TestEnumWithFormat() {
-        var structure = SchemaTestUtil.Parse(@"
+        var structure = SchemaTestUtil.ParseFirst(@"
 namespace foo.bar {
   public enum ValueType : byte {
     A,
@@ -28,7 +28,7 @@ namespace foo.bar {
 
       [Test]
       public void TestEnumWithoutFormat() {
-        var structure = SchemaTestUtil.Parse(@"
+        var structure = SchemaTestUtil.ParseFirst(@"
 namespace foo.bar {
   public enum ValueType {
     A,
@@ -48,7 +48,7 @@ namespace foo.bar {
 
       [Test]
       public void TestEnumArrayWithoutFormat() {
-        var structure = SchemaTestUtil.Parse(@"
+        var structure = SchemaTestUtil.ParseFirst(@"
 namespace foo.bar {
   public enum ValueType {
     A,

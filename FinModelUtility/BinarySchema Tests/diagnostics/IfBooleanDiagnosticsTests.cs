@@ -5,7 +5,7 @@ namespace schema.text {
   internal class IfBooleanDiagnosticsTests {
     [Test]
     public void TestIfBooleanNonReference() {
-      var structure = SchemaTestUtil.Parse(@"
+      var structure = SchemaTestUtil.ParseFirst(@"
 using schema;
 namespace foo.bar {
   [BinarySchema]
@@ -20,7 +20,7 @@ namespace foo.bar {
 
     [Test]
     public void TestIfBooleanNonNullable() {
-      var structure = SchemaTestUtil.Parse(@"
+      var structure = SchemaTestUtil.ParseFirst(@"
 using schema;
 namespace foo.bar {
   [BinarySchema]
@@ -39,7 +39,7 @@ namespace foo.bar {
 
     [Test]
     public void TestOutOfOrder() {
-      var structure = SchemaTestUtil.Parse(@"
+      var structure = SchemaTestUtil.ParseFirst(@"
 using schema;
 
 namespace foo.bar {
@@ -60,7 +60,7 @@ namespace foo.bar {
 
     [Test]
     public void TestPublicPropertySource() {
-      var structure = SchemaTestUtil.Parse(@"
+      var structure = SchemaTestUtil.ParseFirst(@"
 using schema;
 
 namespace foo.bar {
@@ -81,7 +81,7 @@ namespace foo.bar {
 
     [Test]
     public void TestProtectedPropertySource() {
-      var structure = SchemaTestUtil.Parse(@"
+      var structure = SchemaTestUtil.ParseFirst(@"
 using schema;
 
 namespace foo.bar {
@@ -102,7 +102,7 @@ namespace foo.bar {
 
     [Test]
     public void TestInternalPropertySource() {
-      var structure = SchemaTestUtil.Parse(@"
+      var structure = SchemaTestUtil.ParseFirst(@"
 using schema;
 
 namespace foo.bar {
@@ -123,7 +123,7 @@ namespace foo.bar {
 
     [Test]
     public void TestPublicFieldSource() {
-      var structure = SchemaTestUtil.Parse(@"
+      var structure = SchemaTestUtil.ParseFirst(@"
 using schema;
 
 namespace foo.bar {
@@ -144,7 +144,7 @@ namespace foo.bar {
 
     [Test]
     public void TestProtectedFieldSource() {
-      var structure = SchemaTestUtil.Parse(@"
+      var structure = SchemaTestUtil.ParseFirst(@"
 using schema;
 
 namespace foo.bar {
@@ -165,7 +165,7 @@ namespace foo.bar {
 
     [Test]
     public void TestInternalFieldSource() {
-      var structure = SchemaTestUtil.Parse(@"
+      var structure = SchemaTestUtil.ParseFirst(@"
 using schema;
 
 namespace foo.bar {

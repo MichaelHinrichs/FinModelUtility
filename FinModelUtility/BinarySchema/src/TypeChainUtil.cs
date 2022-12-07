@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using schema;
 using schema.attributes.child_of;
 using schema.io;
 using schema.parser;
@@ -6,6 +7,7 @@ using schema.util;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Linq;
 
 
 namespace schema {
@@ -14,7 +16,7 @@ namespace schema {
     ITypeChainNode Target { get; }
 
     IReadOnlyList<ITypeChainNode> RootToTarget { get; }
-    string GetPath();
+    string Path { get; }
   }
 
   public interface ITypeChainNode {
@@ -169,6 +171,18 @@ namespace schema {
             $"Expected to find '{currentMemberName}' relative to '{thisMemberName}' in '{structureSymbol.Name}', but they're the same!");
       }
 
+      // Gathers the path to the node
+      var totalPath = new StringBuilder();
+      foreach (var node in upDownStack.Reverse()) {
+        if (node is IDownStackNode<string> downStackNode) {
+          if (totalPath.Length > 0) {
+            totalPath.Append(".");
+          }
+          totalPath.Append(downStackNode.ToValue);
+        }
+      }
+      typeChain.Path = totalPath.ToString();
+
       return typeChain;
     }
 
@@ -184,16 +198,7 @@ namespace schema {
       public void AddLinkInChain(ITypeChainNode node)
         => this.rootToTarget_.Add(node);
 
-      public string GetPath() {
-        var totalPath = new StringBuilder();
-        foreach (var node in this.rootToTarget_.Skip(1)) {
-          if (totalPath.Length > 0) {
-            totalPath.Append(".");
-          }
-          totalPath.Append(node.MemberSymbol.Name);
-        }
-        return totalPath.ToString();
-      }
+      public string Path { get; set; }
     }
 
     private class TypeChainNode : ITypeChainNode {

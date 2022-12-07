@@ -92,7 +92,7 @@ namespace foo.bar {
 
     [Test]
     public void TestSizeOfThroughParent() {
-      SchemaTestUtil.AssertGenerated(@"
+      SchemaTestUtil.AssertGeneratedForAll(@"
 using schema;
 using schema.attributes.child_of;
 using schema.attributes.size;
@@ -113,7 +113,8 @@ namespace foo.bar {
     public byte Foo;
   }
 }",
-                                     @"using System;
+// Size Wrapper                                           
+                                           (@"using System;
 using System.IO;
 namespace foo.bar {
   public partial class SizeWrapper {
@@ -123,16 +124,42 @@ namespace foo.bar {
   }
 }
 ",
-                                     @"using System;
+                                            @"using System;
 using System.IO;
 namespace foo.bar {
   public partial class SizeWrapper {
     public void Write(ISubEndianBinaryWriter ew) {
-      ew.WriteUInt32Delayed(ew.GetSizeOfMemberRelativeToScope(""Parent.Foo"").ContinueWith(task => (uint) task.Result));
+      ew.WriteUInt32Delayed(ew.GetSizeOfMemberRelativeToScope(""Foo"").ContinueWith(task => (uint) task.Result));
     }
   }
 }
-");
+"),
+// Parent Impl
+                                           (@"using System;
+using System.IO;
+namespace foo.bar {
+  public partial class ParentImpl {
+    public void Read(EndianBinaryReader er) {
+      this.Child.Parent = this;
+      this.Child.Read(er);
+      this.Foo = er.ReadByte();
+    }
+  }
+}
+",
+                                            @"using System;
+using System.IO;
+namespace foo.bar {
+  public partial class ParentImpl {
+    public void Write(ISubEndianBinaryWriter ew) {
+      this.Child.Write(ew);
+      ew.MarkStartOfMember(""Foo"");
+      ew.WriteByte(this.Foo);
+      ew.MarkEndOfMember();
+    }
+  }
+}
+"));
     }
   }
 }
