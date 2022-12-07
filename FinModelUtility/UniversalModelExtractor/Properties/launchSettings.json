@@ -60,6 +60,10 @@
       "commandName": "Project",
       "commandLineArgs": "pikmin_2"
     },
+    "Professor Layton vs. Phoenix Wright": {
+      "commandName": "Project",
+      "commandLineArgs": "professor_layton_vs_phoenix_wright"
+    },
     "Super Mario Sunshine": {
       "commandName": "Project",
       "commandLineArgs": "super_mario_sunshine"

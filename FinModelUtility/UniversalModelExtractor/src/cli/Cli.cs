@@ -1,7 +1,6 @@
 ﻿using CommandLine;
 using CommandLine.Text;
 using level5.debug;
-using uni.debug;
 using uni.games.animal_crossing;
 using uni.games.battalion_wars_1;
 using uni.games.battalion_wars_2;
@@ -15,6 +14,7 @@ using uni.games.ocarina_of_time_3d;
 using uni.games.paper_mario_the_thousand_year_door;
 using uni.games.pikmin_1;
 using uni.games.pikmin_2;
+using uni.games.professor_layton_vs_phoenix_wright;
 using uni.games.super_mario_sunshine;
 using uni.games.wind_waker;
 using uni.ui;
@@ -44,6 +44,7 @@ namespace uni.cli {
                     typeof(PaperMarioTheThousandYearDoorOptions),
                     typeof(Pikmin1Options),
                     typeof(Pikmin2Options),
+                    typeof(ProfessorLaytonVsPhoenixWrightExtractor),
                     typeof(SuperMarioSunshineOptions),
                     typeof(WindWakerOptions),
                     typeof(DebugOptions))
@@ -90,6 +91,9 @@ namespace uni.cli {
                 })
                 .WithParsed((Pikmin2Options _) => {
                   new Pikmin2Extractor().ExtractAll();
+                })
+                .WithParsed((ProfessorLaytonVsPhoenixWrightOptions _) => {
+                  new ProfessorLaytonVsPhoenixWrightExtractor().ExtractAll();
                 })
                 .WithParsed((SuperMarioSunshineOptions _) => {
                   new SuperMarioSunshineExtractor().ExtractAll();

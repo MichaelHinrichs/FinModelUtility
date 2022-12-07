@@ -52,6 +52,9 @@ namespace uni.cli {
   [Verb("pikmin_2", HelpText = "Extract models from Pikmin 2.")]
   public class Pikmin2Options {}
 
+  [Verb("professor_layton_vs_phoenix_wright", HelpText = "Extract models from Professor Layton vs. Phoenix Wright.")]
+  public class ProfessorLaytonVsPhoenixWrightOptions { }
+
   [Verb("super_mario_sunshine",
         HelpText = "Extract models from Super Mario Sunshine.")]
   public class SuperMarioSunshineOptions {}
