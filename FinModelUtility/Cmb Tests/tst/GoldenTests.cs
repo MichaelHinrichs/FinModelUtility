@@ -24,8 +24,8 @@ namespace cmb {
       }
       Assert.IsNotNull(currentDir);
 
-      var gloTestsDir = currentDir;
-      var goldensDir = gloTestsDir.GetSubdir("goldens");
+      var cmbTestsDir = currentDir;
+      var goldensDir = cmbTestsDir.GetSubdir("goldens/ctxb");
 
       var goldenFiles = goldensDir.GetExistingFiles();
       foreach (var goldenFile in goldenFiles) {

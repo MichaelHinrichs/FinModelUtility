@@ -215,8 +215,7 @@ namespace cmb.api {
                          .Single(
                              ctxb => ctxb.Chunk.Entry.name == cmbTexture.name);
                  image =
-                     ctrTexture.DecodeImage(ctxb.Data,
-                                            cmbTexture);
+                     ctrTexture.DecodeImage(ctxb.Chunk.Entry.Data, cmbTexture);
                }
                return image;
              })

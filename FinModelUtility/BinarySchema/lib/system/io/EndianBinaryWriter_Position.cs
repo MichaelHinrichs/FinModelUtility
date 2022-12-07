@@ -1,5 +1,6 @@
 ﻿using schema.io;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -44,15 +45,17 @@ namespace System.IO {
       this.endPositions_.Set(currentScope, this.GetAbsolutePosition());
       this.scopes_.Pop();
 
-      if (this.scopes_.Count == 0) {
+      /*if (this.scopes_.Count == 0) {
+        this.startPositions_.AssertAllPopulated();
         this.startPositions_.Clear();
+        this.endPositions_.AssertAllPopulated();
         this.endPositions_.Clear();
-      }
+      }*/
     }
 
     private string GetCurrentScope_() {
       var totalString = new StringBuilder();
-      foreach (var scope in scopes_) {
+      foreach (var scope in scopes_.Reverse()) {
         if (totalString.Length > 0) {
           totalString.Append(".");
         }

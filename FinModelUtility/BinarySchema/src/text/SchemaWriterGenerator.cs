@@ -184,8 +184,10 @@ namespace schema.text {
                     primitiveType.AltFormat)
                 : primitiveType.PrimitiveType);
 
-        if (primitiveType.TypeChainToSizeOf == null
-            && primitiveType.TypeChainToPointer == null) {
+        var isNotDelayed = !primitiveType.SizeOfStream ||
+                      primitiveType.TypeChainToSizeOf == null
+                      && primitiveType.TypeChainToPointer == null;
+        if (isNotDelayed) {
           var needToCast =
               primitiveType.UseAltFormat &&
               primitiveType.PrimitiveType !=
@@ -220,12 +222,17 @@ namespace schema.text {
             castText = $".ContinueWith(task => ({castType}) task.Result)";
           }
 
+          string accessText;
           var typeChain = primitiveType.TypeChainToSizeOf ??
                           primitiveType.TypeChainToPointer;
-          var accessText =
-              primitiveType.TypeChainToSizeOf != null
-                  ? $"ew.GetSizeOfMemberRelativeToScope(\"{typeChain.Path}\")"
-                  : $"ew.GetPointerToMemberRelativeToScope(\"{typeChain.Path}\")";
+          if (typeChain != null) {
+            accessText =
+                primitiveType.TypeChainToSizeOf != null
+                    ? $"ew.GetSizeOfMemberRelativeToScope(\"{typeChain.Path}\")"
+                    : $"ew.GetPointerToMemberRelativeToScope(\"{typeChain.Path}\")";
+          } else {
+            accessText = "ew.GetAbsoluteLength()";
+          }
           cbsb.WriteLine(
               $"ew.Write{readType}Delayed({accessText}{castText});");
         }

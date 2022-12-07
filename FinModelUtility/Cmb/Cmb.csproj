@@ -9,7 +9,6 @@
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
-  <!--
   <PropertyGroup>
     <IncludePackageReferencesDuringMarkupCompilation>true</IncludePackageReferencesDuringMarkupCompilation>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
@@ -25,7 +24,6 @@
       <Compile Remove="gen\**" />
     </ItemGroup>
   </Target>
-  -->
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

@@ -32,19 +32,18 @@ namespace schema.testing {
         where T : IBiSerializable, new() {
       var readerStartPos = er.Position;
       var instance = er.ReadNew<T>();
-      var readerEndPos = er.Position;
 
-      var expectedLength = (int)(readerEndPos - readerStartPos);
+      var expectedReadLength = er.Position - readerStartPos;
 
       er.Position = readerStartPos;
-      var expectedBytes = er.ReadBytes(expectedLength);
+      var expectedBytes = er.ReadBytes(expectedReadLength);
 
       var ew = new EndianBinaryWriter(er.Endianness);
       instance.Write(ew);
 
       var actualBytes = await GetEndianBinaryWriterBytes(ew);
 
-      Asserts.Equal(expectedLength, actualBytes.Length);
+      Asserts.Equal(expectedReadLength, actualBytes.Length);
       Asserts.Equal(expectedBytes, actualBytes);
     }
 

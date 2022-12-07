@@ -82,6 +82,7 @@ namespace schema {
     bool UseAltFormat { get; }
     SchemaNumberType AltFormat { get; }
 
+    bool SizeOfStream { get; }
     ITypeChain? TypeChainToSizeOf { get; }
     ITypeChain? TypeChainToPointer { get; }
   }
@@ -299,6 +300,21 @@ namespace schema {
                                             memberTypeInfo, memberType);
       new PointerToParser().Parse(diagnostics, memberSymbol, memberTypeInfo,
                                   memberType);
+      {
+        var sizeOfStreamAttribute =
+            SymbolTypeUtil.GetAttribute<SizeOfStreamInBytesAttribute>(
+                diagnostics, memberSymbol);
+        if (sizeOfStreamAttribute != null) {
+          if (memberTypeInfo is IIntegerTypeInfo &&
+              memberType is SchemaStructureParser.PrimitiveMemberType
+                  primitiveMemberType) {
+            primitiveMemberType.SizeOfStream = true;
+          } else {
+            diagnostics.Add(
+                Rules.CreateDiagnostic(memberSymbol, Rules.NotSupported));
+          }
+        }
+      }
 
       var isPosition = false;
       {
@@ -628,6 +644,8 @@ namespace schema {
 
       public bool UseAltFormat { get; set; }
       public SchemaNumberType AltFormat { get; set; }
+
+      public bool SizeOfStream { get; set; }
       public ITypeChain? TypeChainToSizeOf { get; set; }
       public ITypeChain? TypeChainToPointer { get; set; }
     }
