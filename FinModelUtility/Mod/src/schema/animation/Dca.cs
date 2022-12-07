@@ -1,56 +1,18 @@
-﻿using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-
-using schema;
+﻿using schema;
 using schema.attributes.ignore;
-using schema.util;
+using schema.attributes.size;
 
 
 namespace mod.schema.animation {
-  public class Dca : IDcx {
+  [BinarySchema]
+  public partial class Dca : IDcx {
+    [SizeOfMemberInBytes(nameof(AnimationData))]
+    private int animationLength_;
+
+    [StringLengthSource(SchemaIntegerType.INT32)]
     public string Name { get; set; }
+    
     public IDcxAnimationData AnimationData { get; } = new DcaAnimationData();
-
-    public void Read(EndianBinaryReader er) {
-      // TODO: Pull this out as a common "animation header"
-      uint animationLength;
-      long startPosition;
-      {
-        animationLength = er.ReadUInt32();
-
-        var nameLength = er.ReadInt32();
-        this.Name = er.ReadString(Encoding.ASCII, nameLength);
-
-        startPosition = er.Position;
-      }
-
-      this.AnimationData.Read(er);
-
-      var endPosition = er.Position;
-      var readLength = endPosition - startPosition;
-      Asserts.Equal(animationLength,
-                    readLength,
-                    "Read unexpected number of bytes in animation!");
-    }
-
-    public void Write(ISubEndianBinaryWriter ew) {
-      var beforeLengthTask = new TaskCompletionSource<long>();
-      ew.WriteUInt32Delayed(
-          beforeLengthTask.Task.ContinueWith(
-              length => (uint) length.Result));
-
-      ew.WriteInt32(this.Name.Length);
-      ew.WriteString(this.Name);
-
-      {
-        var sew = ew.EnterBlock(out var actualLengthTask);
-        this.AnimationData.Write(sew);
-        actualLengthTask.ContinueWith(
-            length =>
-                beforeLengthTask.SetResult(length.Result));
-      }
-    }
   }
 
 

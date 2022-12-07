@@ -32,7 +32,7 @@ namespace fin.schema.data {
   public partial class PassThruUint32SizedSection<T> : ISizedSection<T>
       where T : IBiSerializable {
     [SizeOfMemberInBytes(nameof(Data))]
-    public uint Size { get; private set; }
+    private uint size_;
 
     public T Data { get; }
 
