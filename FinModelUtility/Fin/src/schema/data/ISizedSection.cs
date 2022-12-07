@@ -1,10 +1,6 @@
-﻿using System.IO;
-using System.Threading.Tasks;
-
-using fin.util.asserts;
-
-using schema;
+﻿using schema;
 using schema.attributes.ignore;
+using schema.attributes.size;
 
 
 namespace fin.schema.data {
@@ -32,39 +28,16 @@ namespace fin.schema.data {
     }
   }
 
-  public class PassThruUint32SizedSection<T> : ISizedSection<T>
+  [BinarySchema]
+  public partial class PassThruUint32SizedSection<T> : ISizedSection<T>
       where T : IBiSerializable {
+    [SizeOfMemberInBytes(nameof(Data))]
+    public uint Size { get; private set; }
+
     public T Data { get; }
 
     public PassThruUint32SizedSection(T data) {
       this.Data = data;
-    }
-
-    public void Read(EndianBinaryReader er) {
-      var expectedDataSize = er.ReadUInt32();
-
-      var dataStart = er.Position;
-      this.Data.Read(er);
-      var actualDataSize = er.Position - dataStart;
-      if (expectedDataSize != actualDataSize) {
-        Asserts.Fail(
-            $"Expected to read {expectedDataSize} bytes in section, but actually read {actualDataSize} bytes.");
-      }
-    }
-
-    public void Write(ISubEndianBinaryWriter ew) {
-      var beforeLengthTask = new TaskCompletionSource<long>();
-      ew.WriteUInt32Delayed(
-          beforeLengthTask.Task.ContinueWith(
-              length => (uint) length.Result));
-
-      {
-        var sew = ew.EnterBlock(out var actualLengthTask);
-        this.Data.Write(sew);
-        actualLengthTask.ContinueWith(
-            length =>
-                beforeLengthTask.SetResult(length.Result));
-      }
     }
   }
 }

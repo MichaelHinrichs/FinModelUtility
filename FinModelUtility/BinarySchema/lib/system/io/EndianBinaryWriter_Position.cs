@@ -12,22 +12,26 @@ namespace System.IO {
 
     public Task<long> GetSizeOfMemberRelativeToScope(
         string memberPath) {
-      var fullPath = this.GetCurrentScope_() + memberPath;
+      var fullPath = this.GetCurrentScope_();
+      if (fullPath.Length > 0) {
+        fullPath += ".";
+      }
+      fullPath += memberPath;
       var startTask = this.startPositions_.Get(fullPath);
-      var endTask = this.startPositions_.Get(fullPath);
+      var endTask = this.endPositions_.Get(fullPath);
       return Task.WhenAll(startTask, endTask)
                  .ContinueWith(_ => endTask.Result - startTask.Result);
     }
 
     public void MarkStartOfMember(string memberName) {
       this.scopes_.Push(memberName);
-      this.startPositions_.Set(this.GetCurrentScope_(),
-                               this.GetAbsolutePosition());
+      var currentScope = this.GetCurrentScope_();
+      this.startPositions_.Set(currentScope, this.GetAbsolutePosition());
     }
 
     public void MarkEndOfMember() {
-      this.endPositions_.Set(this.GetCurrentScope_(),
-                             this.GetAbsolutePosition());
+      var currentScope = this.GetCurrentScope_();
+      this.endPositions_.Set(currentScope, this.GetAbsolutePosition());
       this.scopes_.Pop();
 
       if (this.scopes_.Count == 0) {

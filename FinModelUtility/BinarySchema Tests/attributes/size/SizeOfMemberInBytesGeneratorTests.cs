@@ -33,7 +33,7 @@ using System.IO;
 namespace foo.bar {
   public partial class SizeWrapper {
     public void Write(ISubEndianBinaryWriter ew) {
-      ew.WriteUInt32Delayed(ew.GetSizeOfMemberRelativeToScope(""Foo""));
+      ew.WriteUInt32Delayed(ew.GetSizeOfMemberRelativeToScope(""Foo"").ContinueWith(task => (uint) task.Result));
       ew.MarkStartOfMember(""Foo"");
       ew.WriteByte(this.Foo);
       ew.MarkEndOfMember();

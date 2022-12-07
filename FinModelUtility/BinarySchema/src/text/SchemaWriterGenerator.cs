@@ -180,21 +180,21 @@ namespace schema.text {
                     primitiveType.AltFormat)
                 : primitiveType.PrimitiveType);
 
-        var needToCast =
-            primitiveType.UseAltFormat &&
-            primitiveType.PrimitiveType !=
-            SchemaPrimitiveTypesUtil.GetUnderlyingPrimitiveType(
-                SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(
-                    primitiveType.AltFormat));
-
-        var castText = "";
-        if (needToCast) {
-          var castType =
-              SchemaGeneratorUtil.GetTypeName(primitiveType.AltFormat);
-          castText = $"({castType}) ";
-        }
-
         if (primitiveType.TypeChainToSizeOf == null) {
+          var needToCast =
+              primitiveType.UseAltFormat &&
+              primitiveType.PrimitiveType !=
+              SchemaPrimitiveTypesUtil.GetUnderlyingPrimitiveType(
+                  SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(
+                      primitiveType.AltFormat));
+
+          var castText = "";
+          if (needToCast) {
+            var castType =
+                SchemaGeneratorUtil.GetTypeName(primitiveType.AltFormat);
+            castText = $"({castType}) ";
+          }
+
           var accessText = $"this.{member.Name}";
           if (member.MemberType.TypeInfo.IsNullable) {
             accessText = $"{accessText}.Value";
@@ -203,12 +203,23 @@ namespace schema.text {
           cbsb.WriteLine(
               $"ew.Write{readType}({castText}{accessText});");
         } else {
-          var typeChain = primitiveType.TypeChainToSizeOf;
+          var needToCast =
+              primitiveType.PrimitiveType != SchemaPrimitiveType.INT64;
 
+          var castText = "";
+          if (needToCast) {
+            var castType =
+                SchemaGeneratorUtil.GetTypeName(
+                    SchemaPrimitiveTypesUtil.ConvertPrimitiveToNumber(
+                        primitiveType.PrimitiveType));
+            castText = $".ContinueWith(task => ({castType}) task.Result)";
+          }
+
+          var typeChain = primitiveType.TypeChainToSizeOf;
           var accessText =
               $"ew.GetSizeOfMemberRelativeToScope(\"{typeChain.Target.MemberSymbol.Name}\")";
           cbsb.WriteLine(
-              $"ew.Write{readType}Delayed({castText}{accessText});");
+              $"ew.Write{readType}Delayed({accessText}{castText});");
         }
       });
     }

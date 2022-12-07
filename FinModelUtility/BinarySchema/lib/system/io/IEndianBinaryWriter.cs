@@ -116,5 +116,11 @@ namespace System.IO {
     void PushStructureEndianness(Endianness endianness);
     void PushMemberEndianness(Endianness endianness);
     void PopEndianness();
+
+    // Position
+
+    Task<long> GetSizeOfMemberRelativeToScope(string memberPath);
+    void MarkStartOfMember(string memberName);
+    void MarkEndOfMember();
   }
 }

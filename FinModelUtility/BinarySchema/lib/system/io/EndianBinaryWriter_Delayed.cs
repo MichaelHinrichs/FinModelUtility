@@ -14,10 +14,10 @@ namespace System.IO {
     public Task<long> GetStartPositionOfSubStream()
       => this.impl_.GetStartPositionOfSubStream();
 
-    public Task<long> GetPositionInSubStream() 
+    public Task<long> GetPositionInSubStream()
       => this.impl_.GetPositionInSubStream();
 
-    public Task<long> GetLengthOfSubStream() 
+    public Task<long> GetLengthOfSubStream()
       => this.impl_.GetLengthOfSubStream();
 
     public Task CompleteAndCopyToDelayed(Stream stream)
@@ -35,10 +35,25 @@ namespace System.IO {
           }));
     }
 
+    private void WriteBufferDelayed_(Task<byte[]> delayedBytes,
+                                     Task<long> delayedBytesLength) {
+      var isReversed = this.IsOppositeEndiannessOfSystem;
+      this.impl_.WriteDelayed(
+          delayedBytes.ContinueWith(bytesTask => {
+            var bytes = bytesTask.Result;
+            if (isReversed) {
+              Array.Reverse(bytes, 0, bytes.Length);
+            }
+            return bytes;
+          }),
+          delayedBytesLength);
+    }
+
     public void WriteUInt32Delayed(Task<uint> delayedValue) {
       this.WriteBufferDelayed_(
           delayedValue.ContinueWith(
-              valueTask => BitConverter.GetBytes(valueTask.Result)));
+              valueTask => BitConverter.GetBytes(valueTask.Result)),
+          Task.FromResult((long)sizeof(uint)));
     }
   }
 }
