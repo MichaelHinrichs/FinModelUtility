@@ -1,0 +1,3 @@
+tools\universal_model_extractor\universal_model_extractor.exe professor_layton_vs_phoenix_wright
+
+pause
