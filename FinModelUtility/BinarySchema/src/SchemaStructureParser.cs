@@ -483,7 +483,13 @@ namespace schema {
                       StringLengthSourceType.NULL_TERMINATED;
                   break;
                 }
-                // TODO: Support int length strings
+                case StringLengthSourceType.IMMEDIATE_VALUE: {
+                  stringType.LengthSourceType =
+                      StringLengthSourceType.IMMEDIATE_VALUE;
+                  stringType.ImmediateLengthType =
+                      stringLengthSourceAttribute.LengthType;
+                  break;
+                }
                 default: {
                   diagnostics.Add(
                       Rules.CreateDiagnostic(memberSymbol,

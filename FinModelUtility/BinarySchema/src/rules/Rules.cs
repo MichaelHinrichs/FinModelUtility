@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
@@ -40,10 +39,11 @@ namespace schema {
             "Child type must be contained in parent",
             "Type '{0}' is defined as a child, but is not actually contained in its parent type.");
 
-    public static readonly DiagnosticDescriptor ChildTypeCanOnlyBeContainedInParent
-        = Rules.CreateDiagnosticDescriptor_(
-            "Child type can only be contained in parent",
-            "Type '{0}' is defined as a child of a different type than the one it is contained in.");
+    public static readonly DiagnosticDescriptor
+        ChildTypeCanOnlyBeContainedInParent
+            = Rules.CreateDiagnosticDescriptor_(
+                "Child type can only be contained in parent",
+                "Type '{0}' is defined as a child of a different type than the one it is contained in.");
 
     public static readonly DiagnosticDescriptor MutableStringNeedsLengthSource
         = Rules.CreateDiagnosticDescriptor_(
@@ -93,10 +93,10 @@ namespace schema {
             "Const uninitialized",
             "Const member '{0}' must be initialized.");
 
-    public static readonly DiagnosticDescriptor NotSupported
-        = Rules.CreateDiagnosticDescriptor_(
-            "Not supported",
-            "This feature is not yet supported.");
+    public static DiagnosticDescriptor NotSupported { get; }
+      = Rules.CreateDiagnosticDescriptor_(
+          "Not supported",
+          "This feature is not yet supported.");
 
     public static readonly DiagnosticDescriptor ReadAlreadyDefined
         = Rules.CreateDiagnosticDescriptor_(

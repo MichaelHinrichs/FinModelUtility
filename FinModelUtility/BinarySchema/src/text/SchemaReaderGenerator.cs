@@ -286,6 +286,17 @@ namespace schema.text {
           return;
         }
 
+        if (stringType.LengthSourceType ==
+            StringLengthSourceType.IMMEDIATE_VALUE) {
+          var readType = SchemaGeneratorUtil.GetIntLabel(
+              stringType.ImmediateLengthType);
+          cbsb.EnterBlock()
+              .WriteLine($"var l = er.Read{readType}();")
+              .WriteLine($"this.{member.Name} = er.ReadString(l);")
+              .ExitBlock();
+          return;
+        }
+
         // TODO: Handle more cases
         throw new NotImplementedException();
       });

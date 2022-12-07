@@ -260,6 +260,12 @@ namespace schema.text {
                    StringLengthSourceType.CONST) {
           cbsb.WriteLine(
               $"ew.WriteStringWithExactLength(this.{member.Name}, {stringType.ConstLength});");
+        } else if (stringType.LengthSourceType ==
+                   StringLengthSourceType.IMMEDIATE_VALUE) {
+          var writeType = SchemaGeneratorUtil.GetIntLabel(
+              stringType.ImmediateLengthType);
+          cbsb.WriteLine($"ew.Write{writeType}(this.{member.Name}.Length);")
+              .WriteLine($"ew.WriteString(this.{member.Name});");
         } else {
           cbsb.WriteLine($"ew.WriteString(this.{member.Name});");
         }
