@@ -21,7 +21,7 @@ namespace schema.attributes.memory {
       if (memberTypeInfo is IIntegerTypeInfo &&
           memberType is SchemaStructureParser.PrimitiveMemberType
               primitiveMemberType) {
-        primitiveMemberType.TypeChainToPointer =
+        primitiveMemberType.AccessChainToPointer =
             pointerToAttribute.AccessChainToOtherMember;
       } else {
         diagnostics.Add(

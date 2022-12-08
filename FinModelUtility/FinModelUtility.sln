@@ -93,6 +93,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Level5", "Level5", "{625620
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Bmd", "Bmd", "{AEE48E38-BDEF-46C4-BD09-ED5079DB4D2E}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Quad64", "Quad64\Quad64.csproj", "{39CA04AC-C886-4B46-9540-99451931E8D1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -415,6 +417,18 @@ Global
 		{288E57B9-4D50-42D9-89C7-51A730B0C46A}.Release|x64.Build.0 = Release|Any CPU
 		{288E57B9-4D50-42D9-89C7-51A730B0C46A}.Release|x86.ActiveCfg = Release|Any CPU
 		{288E57B9-4D50-42D9-89C7-51A730B0C46A}.Release|x86.Build.0 = Release|Any CPU
+		{39CA04AC-C886-4B46-9540-99451931E8D1}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{39CA04AC-C886-4B46-9540-99451931E8D1}.Debug|Any CPU.Build.0 = Debug|x64
+		{39CA04AC-C886-4B46-9540-99451931E8D1}.Debug|x64.ActiveCfg = Debug|x64
+		{39CA04AC-C886-4B46-9540-99451931E8D1}.Debug|x64.Build.0 = Debug|x64
+		{39CA04AC-C886-4B46-9540-99451931E8D1}.Debug|x86.ActiveCfg = Debug|x86
+		{39CA04AC-C886-4B46-9540-99451931E8D1}.Debug|x86.Build.0 = Debug|x86
+		{39CA04AC-C886-4B46-9540-99451931E8D1}.Release|Any CPU.ActiveCfg = Release|x64
+		{39CA04AC-C886-4B46-9540-99451931E8D1}.Release|Any CPU.Build.0 = Release|x64
+		{39CA04AC-C886-4B46-9540-99451931E8D1}.Release|x64.ActiveCfg = Release|x64
+		{39CA04AC-C886-4B46-9540-99451931E8D1}.Release|x64.Build.0 = Release|x64
+		{39CA04AC-C886-4B46-9540-99451931E8D1}.Release|x86.ActiveCfg = Release|x86
+		{39CA04AC-C886-4B46-9540-99451931E8D1}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

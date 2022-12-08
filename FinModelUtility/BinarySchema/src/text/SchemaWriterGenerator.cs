@@ -185,8 +185,8 @@ namespace schema.text {
                 : primitiveType.PrimitiveType);
 
         var isNotDelayed = !primitiveType.SizeOfStream &&
-                      primitiveType.TypeChainToSizeOf == null
-                      && primitiveType.TypeChainToPointer == null;
+                      primitiveType.AccessChainToSizeOf == null
+                      && primitiveType.AccessChainToPointer == null;
         if (isNotDelayed) {
           var needToCast =
               primitiveType.UseAltFormat &&
@@ -223,11 +223,11 @@ namespace schema.text {
           }
 
           string accessText;
-          var typeChain = primitiveType.TypeChainToSizeOf ??
-                          primitiveType.TypeChainToPointer;
+          var typeChain = primitiveType.AccessChainToSizeOf ??
+                          primitiveType.AccessChainToPointer;
           if (typeChain != null) {
             accessText =
-                primitiveType.TypeChainToSizeOf != null
+                primitiveType.AccessChainToSizeOf != null
                     ? $"ew.GetSizeOfMemberRelativeToScope(\"{typeChain.Path}\")"
                     : $"ew.GetPointerToMemberRelativeToScope(\"{typeChain.Path}\")";
           } else {

@@ -22,7 +22,7 @@ namespace schema.attributes.size {
       if (memberTypeInfo is IIntegerTypeInfo &&
           memberType is SchemaStructureParser.PrimitiveMemberType
               primitiveMemberType) {
-        primitiveMemberType.TypeChainToSizeOf =
+        primitiveMemberType.AccessChainToSizeOf =
             sizeOfAttribute.AccessChainToOtherMember;
       } else {
         diagnostics.Add(

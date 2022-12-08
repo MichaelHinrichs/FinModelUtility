@@ -113,15 +113,15 @@ namespace schema {
         foreach (var structure in this.queue_) {
           foreach (var member in structure.Members) {
             if (member.MemberType is IPrimitiveMemberType primitiveMemberType) {
-              if (primitiveMemberType.TypeChainToSizeOf != null) {
+              if (primitiveMemberType.AccessChainToSizeOf != null) {
                 sizeOfMemberInBytesDependencyFixer.AddDependenciesForStructure(
                     structureByNamedTypeSymbol,
-                    primitiveMemberType.TypeChainToSizeOf);
+                    primitiveMemberType.AccessChainToSizeOf);
               }
-              if (primitiveMemberType.TypeChainToPointer != null) {
+              if (primitiveMemberType.AccessChainToPointer != null) {
                 sizeOfMemberInBytesDependencyFixer.AddDependenciesForStructure(
                     structureByNamedTypeSymbol,
-                    primitiveMemberType.TypeChainToPointer);
+                    primitiveMemberType.AccessChainToPointer);
               }
             }
           }
