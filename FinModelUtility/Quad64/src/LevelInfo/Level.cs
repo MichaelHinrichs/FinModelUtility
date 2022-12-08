@@ -300,9 +300,8 @@ namespace Quad64.src.LevelInfo {
       ushort pID = 0x1F;
       for (int i = 0; i < 366; i++) {
         var presetMacroEntry = er.ReadNew<PresetMacroEntry>();
-        presetMacroEntry.PresetID = pID++;
+        presetMacroEntry.PresetId = pID++;
         this.MacroObjectPresets.Add(presetMacroEntry);
-        pID++;
       }
     }
 

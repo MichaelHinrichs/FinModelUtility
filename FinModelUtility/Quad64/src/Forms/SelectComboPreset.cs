@@ -46,14 +46,14 @@ namespace Quad64.src.Forms {
                                  bool useFilter) {
       List<ushort> presetsTaken = new List<ushort>();
       foreach (PresetMacroEntry entry in specialList) {
-        if (!presetsTaken.Contains(entry.PresetID)) {
-          if (level.ModelIDs.ContainsKey(entry.ModelID)) {
-            uint modelAddress = level.ModelIDs[entry.ModelID].Current.GeoDataSegAddress;
+        if (!presetsTaken.Contains(entry.PresetId)) {
+          if (level.ModelIDs.ContainsKey(entry.ModelId)) {
+            uint modelAddress = level.ModelIDs[entry.ModelId].Current.GeoDataSegAddress;
             int oce_index = -1;
             ObjectComboEntry oce = level.getObjectComboFromData(
-                entry.ModelID, modelAddress, entry.Behavior, out oce_index);
+                entry.ModelId, modelAddress, entry.Behavior, out oce_index);
             if (oce_index > -1) {
-              string displayName = "(" + entry.PresetID + ") " + oce.Name;
+              string displayName = "(" + entry.PresetId + ") " + oce.Name;
               if (!useFilter)
                 listView1.Items.Add(displayName);
               else {
@@ -64,7 +64,7 @@ namespace Quad64.src.Forms {
               //int index = listView1.Items.Count - 1;
             }
           }
-          presetsTaken.Add(entry.PresetID);
+          presetsTaken.Add(entry.PresetId);
         }
       }
 
@@ -92,15 +92,15 @@ namespace Quad64.src.Forms {
           break;
         case 1:
           foreach (PresetMacroEntry entry in level.MacroObjectPresets) {
-            if (level.ModelIDs.ContainsKey(entry.ModelID)) {
+            if (level.ModelIDs.ContainsKey(entry.ModelId)) {
               uint modelAddress =
-                  level.ModelIDs[entry.ModelID].Current.GeoDataSegAddress;
+                  level.ModelIDs[entry.ModelId].Current.GeoDataSegAddress;
               int oce_index = -1;
               ObjectComboEntry oce = level.getObjectComboFromData(
-                  entry.ModelID, modelAddress, entry.Behavior, out oce_index);
+                  entry.ModelId, modelAddress, entry.Behavior, out oce_index);
               if (oce_index > -1) {
                 string displayName =
-                    "(" + entry.PresetID.ToString() + ") " + oce.Name;
+                    "(" + entry.PresetId.ToString() + ") " + oce.Name;
                 displayName += " {" + entry.BehaviorParameter1;
                 displayName += ", " + entry.BehaviorParameter2 + "}";
                 listView1.Items.Add(displayName);
@@ -181,7 +181,7 @@ namespace Quad64.src.Forms {
                                           string label) {
       int presetID = getMacroPresetFromLabel(label);
       foreach (PresetMacroEntry entry in specialList) {
-        if (entry.PresetID == presetID) {
+        if (entry.PresetId == presetID) {
           ReturnPresetMacro = entry;
           return;
         }
@@ -255,14 +255,14 @@ namespace Quad64.src.Forms {
           break;
         case 1:
           foreach (PresetMacroEntry entry in level.MacroObjectPresets) {
-            if (level.ModelIDs.TryGetValue(entry.ModelID, out var modelLods)) {
+            if (level.ModelIDs.TryGetValue(entry.ModelId, out var modelLods)) {
               uint modelAddress = modelLods.Current.GeoDataSegAddress;
               int oce_index = -1;
               ObjectComboEntry oce = level.getObjectComboFromData(
-                  entry.ModelID, modelAddress, entry.Behavior, out oce_index);
+                  entry.ModelId, modelAddress, entry.Behavior, out oce_index);
               if (oce_index > -1) {
                 string displayName =
-                    "(" + entry.PresetID.ToString() + ") " + oce.Name;
+                    "(" + entry.PresetId.ToString() + ") " + oce.Name;
                 if (displayName.ToUpper()
                                .Contains(textBox_filter.Text.ToUpper())) {
                   displayName += " {" + entry.BehaviorParameter1;

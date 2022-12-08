@@ -674,9 +674,9 @@ namespace Quad64 {
                                     ref SelectComboPreset comboWindow) {
       //Console.WriteLine(comboWindow.ReturnPresetMacro.PresetID);
       Area area = level.getCurrentArea();
-      area.MacroObjects[index].ModelID = comboWindow.ReturnPresetMacro.ModelID;
+      area.MacroObjects[index].ModelID = comboWindow.ReturnPresetMacro.ModelId;
       area.MacroObjects[index]
-          .setPresetID(comboWindow.ReturnPresetMacro.PresetID);
+          .setPresetID(comboWindow.ReturnPresetMacro.PresetId);
       area.MacroObjects[index]
           .setBehaviorFromAddress(comboWindow.ReturnPresetMacro.Behavior);
       //area.MacroObjects[Globals.item_selected].SetBehaviorParametersToZero();
@@ -694,9 +694,9 @@ namespace Quad64 {
       //Console.WriteLine(comboWindow.ReturnPresetMacro.PresetID);
       Area area = level.getCurrentArea();
       area.SpecialObjects[index].ModelID =
-          comboWindow.ReturnPresetMacro.ModelID;
+          comboWindow.ReturnPresetMacro.ModelId;
       area.SpecialObjects[index]
-          .setPresetID(comboWindow.ReturnPresetMacro.PresetID);
+          .setPresetID(comboWindow.ReturnPresetMacro.PresetId);
       area.SpecialObjects[index]
           .setBehaviorFromAddress(comboWindow.ReturnPresetMacro.Behavior);
       //area.SpecialObjects[Globals.item_selected].SetBehaviorParametersToZero();
