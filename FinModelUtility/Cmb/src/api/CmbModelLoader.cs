@@ -86,17 +86,18 @@ namespace cmb.api {
       var finSkin = finModel.Skin;
 
       // Adds bones
+      var cmbBones = cmb.skl.Data.bones;
       var boneChildren = new ListDictionary<Bone, Bone>();
-      foreach (var bone in cmb.skl.bones) {
+      foreach (var bone in cmbBones) {
         var parentId = bone.parentId;
         if (parentId != -1) {
-          boneChildren.Add(cmb.skl.bones[parentId], bone);
+          boneChildren.Add(cmbBones[parentId], bone);
         }
       }
 
-      var finBones = new IBone[cmb.skl.bones.Length];
+      var finBones = new IBone[cmbBones.Length];
       var boneQueue =
-          new FinTuple2Queue<Bone, IBone?>((cmb.skl.bones[0], null));
+          new FinTuple2Queue<Bone, IBone?>((cmbBones[0], null));
       while (boneQueue.TryDequeue(out var cmbBone, out var finBoneParent)) {
         var translation = cmbBone.translation;
         var radians = cmbBone.rotation;
@@ -194,32 +195,33 @@ namespace cmb.api {
       }
 
       // TODO: Move these reads into the model reading logic
+      var cmbTextures = cmb.tex.Data.textures;
       var ctrTexture = new CtrTexture();
       var textureImages =
-          cmb.tex.textures.Select(cmbTexture => {
-               var position = cmb.startOffset +
-                              cmb.header.textureDataOffset +
-                              cmbTexture.dataOffset;
-               IImage image;
-               if (position != 0) {
-                 r.Position = position;
-                 var data =
-                     r.ReadBytes((int)cmbTexture.dataLength);
-                 image =
-                     ctrTexture.DecodeImage(data, cmbTexture);
-               } else {
-                 var ctxb =
-                     filesAndCtxbs
-                         .Select(
-                             fileAndCtxb => fileAndCtxb.Item2)
-                         .Single(
-                             ctxb => ctxb.Chunk.Entry.name == cmbTexture.name);
-                 image =
-                     ctrTexture.DecodeImage(ctxb.Chunk.Entry.Data, cmbTexture);
-               }
-               return image;
-             })
-             .ToArray();
+          cmbTextures.Select(cmbTexture => {
+                       var position = cmb.startOffset +
+                                      cmb.header.textureDataOffset +
+                                      cmbTexture.dataOffset;
+                       IImage image;
+                       if (position != 0) {
+                         r.Position = position;
+                         var data =
+                             r.ReadBytes((int)cmbTexture.dataLength);
+                         image =
+                             ctrTexture.DecodeImage(data, cmbTexture);
+                       } else {
+                         var ctxb =
+                             filesAndCtxbs
+                                 .Select(
+                                     fileAndCtxb => fileAndCtxb.Item2)
+                                 .Single(
+                                     ctxb => ctxb.Chunk.Entry.name == cmbTexture.name);
+                         image =
+                             ctrTexture.DecodeImage(ctxb.Chunk.Entry.Data, cmbTexture);
+                       }
+                       return image;
+                     })
+                     .ToArray();
 
       // Creates meshes & textures
       // TODO: Emulate fixed-function materials
@@ -233,7 +235,7 @@ namespace cmb.api {
 
         ITexture? finTexture = null;
         if (textureId != -1) {
-          var cmbTexture = cmb.tex.textures[textureId];
+          var cmbTexture = cmbTextures[textureId];
           var textureImage = textureImages[textureId];
 
           finTexture = finModel.MaterialManager.CreateTexture(textureImage);

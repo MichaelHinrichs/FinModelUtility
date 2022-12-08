@@ -6,12 +6,9 @@ namespace cmb.schema.cmb {
   /// </summary>
   [BinarySchema]
   public partial class Luts : IBiSerializable {
-    public readonly string magic = "luts";
-    public uint dataLength;
     private uint LutSetCount;
     public uint unk;
 
-    
     [ArrayLengthSource(nameof(Luts.LutSetCount))]
     public uint[] Offset;
 

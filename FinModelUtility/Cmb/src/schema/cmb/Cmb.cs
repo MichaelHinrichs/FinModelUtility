@@ -1,8 +1,7 @@
-﻿using System;
+﻿using fin.schema.data;
+using System;
 using System.IO;
-
 using fin.util.strings;
-
 using schema;
 using schema.attributes.endianness;
 
@@ -13,12 +12,18 @@ namespace cmb.schema.cmb {
     public long startOffset;
 
     public readonly CmbHeader header = new();
-    public readonly Skl skl = new();
-    public readonly Qtrs qtrs = new();
+
+    public readonly AutoMagicUInt32SizedSection<Skl> skl
+        = new("skl" + AsciiUtil.GetChar(0x20));
+
+    public readonly AutoMagicUInt32SizedSection<Qtrs> qtrs = new("qtrs");
     public readonly Mat mat = new();
-    public readonly Tex tex = new();
+
+    public readonly AutoMagicUInt32SizedSection<Tex> tex
+        = new("tex" + AsciiUtil.GetChar(0x20));
+
     public readonly Sklm sklm = new();
-    public readonly Luts luts = new();
+    public readonly AutoMagicUInt32SizedSection<Luts> luts = new("luts");
     public readonly Vatr vatr = new();
 
     public Cmb(EndianBinaryReader r) => this.Read(r);
