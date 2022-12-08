@@ -354,7 +354,7 @@ namespace schema {
         bool assertOrder,
         out ISymbol memberSymbol,
         out ITypeInfo memberTypeInfo) {
-      var typeChain = TypeChainUtil.GetTypeChainForRelativeMember(
+      var typeChain = AccessChainUtil.GetAccessChainForRelativeMember(
           diagnostics,
           structureSymbol,
           otherMemberName,

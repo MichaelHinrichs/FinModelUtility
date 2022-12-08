@@ -117,20 +117,20 @@ namespace schema.attributes {
     }
 
 
-    protected ITypeChain GetTypeChainRelativeToStructure(
+    protected IChain<IAccessChainNode> GetAccessChainRelativeToStructure(
         string otherMemberPath,
         bool assertOrder)
-      => TypeChainUtil.GetTypeChainForRelativeMember(
+      => AccessChainUtil.GetAccessChainForRelativeMember(
           this.diagnostics_,
           this.structureTypeInfo_.TypeSymbol,
           otherMemberPath,
           this.memberThisIsAttachedTo_.Name,
           assertOrder);
 
-    protected ITypeChain GetTypeChainRelativeToStructure<T>(
+    protected IChain<IAccessChainNode> GetAccessChainRelativeToStructure<T>(
         string otherMemberPath,
         bool assertOrder) {
-      var typeChain = TypeChainUtil.GetTypeChainForRelativeMember(
+      var typeChain = AccessChainUtil.GetAccessChainForRelativeMember(
           this.diagnostics_,
           this.structureTypeInfo_.TypeSymbol,
           otherMemberPath,

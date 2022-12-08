@@ -17,12 +17,15 @@ namespace schema.attributes.memory {
     }
 
     protected override void InitFields() {
-      this.TypeChainToOtherMember =
-          this.GetTypeChainRelativeToStructure(
+      this.AccessChainToOtherMember =
+          this.GetAccessChainRelativeToStructure(
               this.otherMemberName_, false);
     }
 
-    public ITypeChain TypeChainToOtherMember { get; private set; }
+    public IChain<IAccessChainNode> AccessChainToOtherMember {
+      get;
+      private set;
+    }
   }
 
 
@@ -75,7 +78,6 @@ namespace schema.attributes.memory {
   public interface IReadOffset : IOffset<long> { }
 
   public interface IWriteOffset : IOffset<Task<long>> { }
-
 
 
   public interface IBlock { }

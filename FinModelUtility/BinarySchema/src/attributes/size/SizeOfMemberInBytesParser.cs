@@ -16,14 +16,14 @@ namespace schema.attributes.size {
         return;
       }
 
-      TypeChainUtil.AssertAllNodesInTypeChainUntilTargetUseBinarySchema(
-          diagnostics, sizeOfAttribute.TypeChainToOtherMember);
+      AccessChainUtil.AssertAllNodesInTypeChainUntilTargetUseBinarySchema(
+          diagnostics, sizeOfAttribute.AccessChainToOtherMember);
 
       if (memberTypeInfo is IIntegerTypeInfo &&
           memberType is SchemaStructureParser.PrimitiveMemberType
               primitiveMemberType) {
         primitiveMemberType.TypeChainToSizeOf =
-            sizeOfAttribute.TypeChainToOtherMember;
+            sizeOfAttribute.AccessChainToOtherMember;
       } else {
         diagnostics.Add(
             Rules.CreateDiagnostic(memberSymbol, Rules.NotSupported));

@@ -8,8 +8,8 @@ namespace schema.attributes.size {
     public void AddDependenciesForStructure(
         IDictionary<INamedTypeSymbol, ISchemaStructure>
             structureByNamedTypeSymbol,
-        ITypeChain typeChain) {
-      foreach (var typeChainNode in typeChain.RootToTarget.Skip(1)) {
+        IChain<IAccessChainNode> accessChain) {
+      foreach (var typeChainNode in accessChain.RootToTarget.Skip(1)) {
         if (structureByNamedTypeSymbol.TryGetValue(
                 typeChainNode.StructureSymbol, out var structure)) {
           var member = structure.Members.Single(

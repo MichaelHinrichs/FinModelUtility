@@ -1,5 +1,4 @@
 ﻿using Microsoft.CodeAnalysis;
-using schema;
 using schema.attributes.child_of;
 using schema.io;
 using schema.parser;
@@ -7,34 +6,33 @@ using schema.util;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Xml.Linq;
 
 
 namespace schema {
-  public interface ITypeChain {
-    ITypeChainNode Root { get; }
-    ITypeChainNode Target { get; }
+  public interface IChain<out T> {
+    T Root { get; }
+    T Target { get; }
 
-    IReadOnlyList<ITypeChainNode> RootToTarget { get; }
+    IReadOnlyList<T> RootToTarget { get; }
     string Path { get; }
   }
 
-  public interface ITypeChainNode {
+  public interface IAccessChainNode {
     INamedTypeSymbol StructureSymbol { get; }
     ISymbol MemberSymbol { get; }
     ITypeInfo MemberTypeInfo { get; }
   }
 
 
-  internal static class TypeChainUtil {
-    public static ITypeChain GetTypeChainForRelativeMember(
+  internal static class AccessChainUtil {
+    public static IChain<IAccessChainNode> GetAccessChainForRelativeMember(
         IList<Diagnostic> diagnostics,
         ITypeSymbol structureSymbol,
         string otherMemberPath,
         string thisMemberName,
         bool assertOrder
     )
-      => GetTypeChainForRelativeMemberImpl_(
+      => GetAccessChainForRelativeMemberImpl_(
           diagnostics,
           structureSymbol,
           otherMemberPath,
@@ -47,9 +45,9 @@ namespace schema {
 
     public static void AssertAllNodesInTypeChainUntilTargetUseBinarySchema(
         IList<Diagnostic> diagnostics,
-        ITypeChain typeChain) {
-      for (var i = 0; i < typeChain.RootToTarget.Count; ++i) {
-        var typeChainNode = typeChain.RootToTarget[i];
+        IChain<IAccessChainNode> accessChain) {
+      for (var i = 0; i < accessChain.RootToTarget.Count; ++i) {
+        var typeChainNode = accessChain.RootToTarget[i];
 
         var binarySchemaAttribute =
             SymbolTypeUtil.GetAttribute<BinarySchemaAttribute>(
@@ -73,24 +71,25 @@ namespace schema {
     }
 
 
-    private static ITypeChain GetTypeChainForRelativeMemberImpl_(
-        IList<Diagnostic> diagnostics,
-        ITypeSymbol structureSymbol,
-        string otherMemberPath,
-        string thisMemberName,
-        bool assertOrder,
-        IUpDownStack<string> upDownStack,
-        TypeChain typeChain,
-        string prevMemberName
-    ) {
-      if (typeChain == null) {
+    private static IChain<IAccessChainNode>
+        GetAccessChainForRelativeMemberImpl_(
+            IList<Diagnostic> diagnostics,
+            ITypeSymbol structureSymbol,
+            string otherMemberPath,
+            string thisMemberName,
+            bool assertOrder,
+            IUpDownStack<string> upDownStack,
+            AccessChain accessChain,
+            string prevMemberName
+        ) {
+      if (accessChain == null) {
         GetMemberInStructure_(
             structureSymbol,
             thisMemberName,
             out var rootSymbol,
             out var rootTypeInfo);
 
-        typeChain = new TypeChain(new TypeChainNode {
+        accessChain = new AccessChain(new AccessChainNode {
             StructureSymbol = (structureSymbol as INamedTypeSymbol)!,
             MemberSymbol = rootSymbol,
             MemberTypeInfo = rootTypeInfo
@@ -112,7 +111,7 @@ namespace schema {
           out var memberSymbol,
           out var memberTypeInfo);
 
-      typeChain.AddLinkInChain(new TypeChainNode {
+      accessChain.AddLinkInChain(new AccessChainNode {
           StructureSymbol = (structureSymbol as INamedTypeSymbol)!,
           MemberSymbol = memberSymbol,
           MemberTypeInfo = memberTypeInfo
@@ -153,14 +152,14 @@ namespace schema {
       // Steps down into next chain or returns.
       if (steppingIntoNewStructure) {
         var subMemberPath = otherMemberPath.Substring(periodIndex + 1);
-        return GetTypeChainForRelativeMemberImpl_(
+        return GetAccessChainForRelativeMemberImpl_(
             diagnostics,
             (memberTypeInfo.TypeSymbol as INamedTypeSymbol)!,
             subMemberPath,
             thisMemberName,
             assertOrder,
             upDownStack,
-            typeChain,
+            accessChain,
             currentMemberName);
       }
 
@@ -181,27 +180,27 @@ namespace schema {
           totalPath.Append(downStackNode.ToValue);
         }
       }
-      typeChain.Path = totalPath.ToString();
+      accessChain.Path = totalPath.ToString();
 
-      return typeChain;
+      return accessChain;
     }
 
-    private class TypeChain : ITypeChain {
-      private readonly List<ITypeChainNode> rootToTarget_ = new();
+    private class AccessChain : IChain<IAccessChainNode> {
+      private readonly List<IAccessChainNode> rootToTarget_ = new();
 
-      public TypeChain(ITypeChainNode root) => this.AddLinkInChain(root);
+      public AccessChain(IAccessChainNode root) => this.AddLinkInChain(root);
 
-      public ITypeChainNode Root => this.RootToTarget.First();
-      public ITypeChainNode Target => this.RootToTarget.Last();
-      public IReadOnlyList<ITypeChainNode> RootToTarget => this.rootToTarget_;
+      public IAccessChainNode Root => this.RootToTarget.First();
+      public IAccessChainNode Target => this.RootToTarget.Last();
+      public IReadOnlyList<IAccessChainNode> RootToTarget => this.rootToTarget_;
 
-      public void AddLinkInChain(ITypeChainNode node)
+      public void AddLinkInChain(IAccessChainNode node)
         => this.rootToTarget_.Add(node);
 
       public string Path { get; set; }
     }
 
-    private class TypeChainNode : ITypeChainNode {
+    private class AccessChainNode : IAccessChainNode {
       public INamedTypeSymbol StructureSymbol { get; set; }
       public ISymbol MemberSymbol { get; set; }
       public ITypeInfo MemberTypeInfo { get; set; }

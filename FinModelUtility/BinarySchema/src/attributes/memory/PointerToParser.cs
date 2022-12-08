@@ -15,14 +15,14 @@ namespace schema.attributes.memory {
         return;
       }
 
-      TypeChainUtil.AssertAllNodesInTypeChainUntilTargetUseBinarySchema(
-          diagnostics, pointerToAttribute.TypeChainToOtherMember);
+      AccessChainUtil.AssertAllNodesInTypeChainUntilTargetUseBinarySchema(
+          diagnostics, pointerToAttribute.AccessChainToOtherMember);
 
       if (memberTypeInfo is IIntegerTypeInfo &&
           memberType is SchemaStructureParser.PrimitiveMemberType
               primitiveMemberType) {
         primitiveMemberType.TypeChainToPointer =
-            pointerToAttribute.TypeChainToOtherMember;
+            pointerToAttribute.AccessChainToOtherMember;
       } else {
         diagnostics.Add(
             Rules.CreateDiagnostic(memberSymbol, Rules.NotSupported));

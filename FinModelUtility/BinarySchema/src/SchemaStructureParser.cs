@@ -83,8 +83,8 @@ namespace schema {
     SchemaNumberType AltFormat { get; }
 
     bool SizeOfStream { get; }
-    ITypeChain? TypeChainToSizeOf { get; }
-    ITypeChain? TypeChainToPointer { get; }
+    IChain<IAccessChainNode>? AccessChainToSizeOf { get; }
+    IChain<IAccessChainNode>? AccessChainToPointer { get; }
   }
 
   public interface IStructureMemberType : IMemberType {
@@ -237,15 +237,15 @@ namespace schema {
             new SizeOfMemberInBytesDependencyFixer();
         foreach (var member in fields) {
           if (member.MemberType is IPrimitiveMemberType primitiveMemberType) {
-            if (primitiveMemberType.TypeChainToSizeOf != null) {
+            if (primitiveMemberType.AccessChainToSizeOf != null) {
               sizeOfMemberInBytesDependencyFixer.AddDependenciesForStructure(
                   structureByNamedTypeSymbol,
-                  primitiveMemberType.TypeChainToSizeOf);
+                  primitiveMemberType.AccessChainToSizeOf);
             }
-            if (primitiveMemberType.TypeChainToPointer != null) {
+            if (primitiveMemberType.AccessChainToPointer != null) {
               sizeOfMemberInBytesDependencyFixer.AddDependenciesForStructure(
                   structureByNamedTypeSymbol,
-                  primitiveMemberType.TypeChainToPointer);
+                  primitiveMemberType.AccessChainToPointer);
             }
           }
         }
@@ -646,8 +646,8 @@ namespace schema {
       public SchemaNumberType AltFormat { get; set; }
 
       public bool SizeOfStream { get; set; }
-      public ITypeChain? TypeChainToSizeOf { get; set; }
-      public ITypeChain? TypeChainToPointer { get; set; }
+      public IChain<IAccessChainNode>? AccessChainToSizeOf { get; set; }
+      public IChain<IAccessChainNode>? AccessChainToPointer { get; set; }
     }
 
     public class StructureMemberType : IStructureMemberType {
