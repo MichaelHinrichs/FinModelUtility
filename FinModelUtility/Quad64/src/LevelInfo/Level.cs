@@ -1,5 +1,5 @@
 ﻿using OpenTK;
-
+using Quad64.schema;
 using Quad64.src.JSON;
 using Quad64.src.Scripts;
 using Quad64.src.Viewer;
@@ -293,15 +293,15 @@ namespace Quad64.src.LevelInfo {
     private void AddMacroObjectEntries() {
       MacroObjectPresets.Clear();
       ROM rom = ROM.Instance;
+
+      using var er = new EndianBinaryReader(new MemoryStream(rom.Bytes));
+      er.Position = Globals.macro_preset_table;
+
       ushort pID = 0x1F;
       for (int i = 0; i < 366; i++) {
-        uint offset = (uint) (Globals.macro_preset_table + (i * 8));
-        byte modelID = rom.readByte(offset + 5);
-        uint behavior = rom.readWordUnsigned(offset);
-        byte bp1 = rom.readByte(offset + 6);
-        byte bp2 = rom.readByte(offset + 7);
-        MacroObjectPresets.Add(
-            new PresetMacroEntry(pID, modelID, behavior, bp1, bp2));
+        var presetMacroEntry = er.ReadNew<PresetMacroEntry>();
+        presetMacroEntry.PresetID = pID++;
+        this.MacroObjectPresets.Add(presetMacroEntry);
         pID++;
       }
     }
