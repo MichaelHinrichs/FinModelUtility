@@ -8,16 +8,11 @@ namespace fin.model {
     IBone Root { get; }
   }
 
-  public interface IBone : IIndexable {
-    // TODO: Allow caching matrices directly on this type.
-
+  public interface ILeafBone : IIndexable {
     string Name { get; set; }
 
     IBone Root { get; }
     IBone? Parent { get; }
-    IReadOnlyList<IBone> Children { get; }
-    IBone AddRoot(float x, float y, float z);
-    IBone AddChild(float x, float y, float z);
 
     IPosition LocalPosition { get; }
     IRotation? LocalRotation { get; }
@@ -27,5 +22,12 @@ namespace fin.model {
     IBone SetLocalRotationDegrees(float x, float y, float z);
     IBone SetLocalRotationRadians(float x, float y, float z);
     IBone SetLocalScale(float x, float y, float z);
+    bool IgnoreParentScale { get; set; }
+  }
+
+  public interface IBone : ILeafBone {
+    IReadOnlyList<IBone> Children { get; }
+    IBone AddRoot(float x, float y, float z);
+    IBone AddChild(float x, float y, float z);
   }
 }

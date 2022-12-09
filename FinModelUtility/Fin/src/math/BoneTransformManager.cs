@@ -4,6 +4,8 @@ using System.Numerics;
 using fin.data;
 using fin.math.matrix;
 using fin.model;
+using fin.model.impl;
+using fin.schema.vector;
 using fin.util.optional;
 
 
@@ -41,6 +43,9 @@ namespace fin.math {
       var frame = animationAndFrame?.Item2;
 
       var transformer = new SoftwareModelViewMatrixTransformer();
+
+      var translationBuffer = new ModelImpl.PositionImpl();
+      var scaleBuffer = new ModelImpl.ScaleImpl();
 
       // TODO: Use a pool of matrices to prevent unneeded instantiations.
       var rootMatrix = new FinMatrix4x4();
@@ -114,7 +119,19 @@ namespace fin.math {
                                         localRotation,
                                         localScale);
 
-        matrix.MultiplyInPlace(localMatrix);
+        if (!bone.IgnoreParentScale) {
+          matrix.MultiplyInPlace(localMatrix);
+        } else {
+          matrix.CopyTranslationInto(translationBuffer);
+          matrix.CopyRotationInto(out var rotationBuffer);
+          scaleBuffer.X = scaleBuffer.Y = scaleBuffer.Z = 1;
+
+          matrix = MatrixTransformUtil.FromTrs(
+              translationBuffer,
+              rotationBuffer,
+              scaleBuffer);
+          matrix.MultiplyInPlace(localMatrix);
+        }
 
         this.bonesToLocalMatrices_[bone] = localMatrix;
         this.bonesToWorldMatrices_[bone] = matrix;

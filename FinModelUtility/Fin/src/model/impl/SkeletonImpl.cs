@@ -89,6 +89,8 @@ namespace fin.model.impl {
           this.LocalScale ??= new ScaleImpl {X = x, Y = y, Z = z};
           return this;
         }
+
+        public bool IgnoreParentScale { get; set; }
       }
 
       IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

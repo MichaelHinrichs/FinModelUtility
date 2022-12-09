@@ -120,6 +120,8 @@ namespace bmd.exporter {
                     jnt.Scale.Z);
         bone.Name = jointName;
 
+        bone.IgnoreParentScale = joint.Entry.IgnoreParentScale;
+
         jointsAndBones[j] = (joint, bone);
         jointIdToBone[j] = bone;
       }
