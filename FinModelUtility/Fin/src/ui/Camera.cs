@@ -1,6 +1,15 @@
-﻿namespace uni.ui.common {
+﻿using System;
+
+
+namespace fin.ui {
   public class Camera {
     // TODO: Add x/y/z locking.
+
+    public static Camera Instance { get; private set; }
+
+    public Camera() {
+      Camera.Instance = this;
+    }
 
     public float X { get; set; }
     public float Y { get; set; }
