@@ -12,6 +12,7 @@ namespace uni.ui.right_panel {
       set {
         this.animationsTab_.Model = value;
         this.materialsTab_.Materials = value?.MaterialManager.All;
+        this.skeletonTab_.Model = value;
         this.texturesTab_.Model = value;
       }
     }
@@ -22,6 +23,11 @@ namespace uni.ui.right_panel {
     public event AnimationsTab.AnimationSelected OnAnimationSelected {
       add => this.animationsTab_.OnAnimationSelected += value;
       remove => this.animationsTab_.OnAnimationSelected -= value;
+    }
+
+    public event SkeletonTab.BoneSelected OnBoneSelected {
+      add => this.skeletonTab_.OnBoneSelected += value;
+      remove => this.skeletonTab_.OnBoneSelected -= value;
     }
   }
 }

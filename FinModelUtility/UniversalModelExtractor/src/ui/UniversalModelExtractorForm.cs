@@ -20,6 +20,12 @@ public partial class UniversalModelExtractorForm : Form {
         this.modelTabs_.AnimationPlaybackManager;
     this.modelTabs_.OnAnimationSelected += animation =>
         this.modelViewerPanel_.Animation = animation;
+    this.modelTabs_.OnBoneSelected += bone => {
+      var skeletonRenderer = this.modelViewerPanel_.SkeletonRenderer;
+      if (skeletonRenderer != null) {
+        skeletonRenderer.SelectedBone = bone;
+      }
+    };
   }
 
   private void UniversalModelExtractorForm_Load(object sender, EventArgs e) {

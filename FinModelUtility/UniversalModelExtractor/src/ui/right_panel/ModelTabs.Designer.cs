@@ -28,18 +28,22 @@
       System.Windows.Forms.TabPage texturesTabPage;
       System.Windows.Forms.TabPage animationsTabPage;
       System.Windows.Forms.TabPage materialsTabPage;
+      System.Windows.Forms.TabPage skeletonTabPage;
       this.texturesTab_ = new uni.ui.right_panel.textures.TexturesTab();
       this.animationsTab_ = new uni.ui.right_panel.AnimationsTab();
       this.materialsTab_ = new uni.ui.right_panel.materials.MaterialsTab();
+      this.skeletonTab_ = new uni.ui.right_panel.SkeletonTab();
       tabControl = new System.Windows.Forms.TabControl();
       infoTabPage = new System.Windows.Forms.TabPage();
       texturesTabPage = new System.Windows.Forms.TabPage();
       animationsTabPage = new System.Windows.Forms.TabPage();
       materialsTabPage = new System.Windows.Forms.TabPage();
+      skeletonTabPage = new System.Windows.Forms.TabPage();
       tabControl.SuspendLayout();
       texturesTabPage.SuspendLayout();
       animationsTabPage.SuspendLayout();
       materialsTabPage.SuspendLayout();
+      skeletonTabPage.SuspendLayout();
       this.SuspendLayout();
       // 
       // tabControl
@@ -48,6 +52,7 @@
       tabControl.Controls.Add(texturesTabPage);
       tabControl.Controls.Add(animationsTabPage);
       tabControl.Controls.Add(materialsTabPage);
+      tabControl.Controls.Add(skeletonTabPage);
       tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
       tabControl.Location = new System.Drawing.Point(0, 0);
       tabControl.Multiline = true;
@@ -121,6 +126,26 @@
       this.materialsTab_.Size = new System.Drawing.Size(208, 387);
       this.materialsTab_.TabIndex = 0;
       // 
+      // skeletonTabPage
+      // 
+      skeletonTabPage.Controls.Add(this.skeletonTab_);
+      skeletonTabPage.Location = new System.Drawing.Point(4, 54);
+      skeletonTabPage.Name = "skeletonTabPage";
+      skeletonTabPage.Padding = new System.Windows.Forms.Padding(3);
+      skeletonTabPage.Size = new System.Drawing.Size(239, 522);
+      skeletonTabPage.TabIndex = 4;
+      skeletonTabPage.Text = "Skeleton";
+      skeletonTabPage.UseVisualStyleBackColor = true;
+      // 
+      // skeletonTab_
+      // 
+      this.skeletonTab_.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.skeletonTab_.Location = new System.Drawing.Point(3, 3);
+      this.skeletonTab_.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+      this.skeletonTab_.Name = "skeletonTab_";
+      this.skeletonTab_.Size = new System.Drawing.Size(233, 516);
+      this.skeletonTab_.TabIndex = 1;
+      // 
       // ModelTabs
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -132,6 +157,7 @@
       texturesTabPage.ResumeLayout(false);
       animationsTabPage.ResumeLayout(false);
       materialsTabPage.ResumeLayout(false);
+      skeletonTabPage.ResumeLayout(false);
       this.ResumeLayout(false);
 
     }
@@ -139,12 +165,9 @@
     #endregion
 
     private TabControl tabControl;
-    private TabPage infoTabPage;
-    private TabPage texturesTabPage;
-    private TabPage animationsTabPage;
-    private TabPage materialsTabPage;
     private AnimationsTab animationsTab_;
     private textures.TexturesTab texturesTab_;
     private materials.MaterialsTab materialsTab_;
+    private SkeletonTab skeletonTab_;
   }
 }

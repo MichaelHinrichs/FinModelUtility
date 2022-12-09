@@ -105,6 +105,9 @@
     <Compile Update="src\ui\right_panel\materials\TextureSection.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="src\ui\right_panel\skeleton\SkeletonTab.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -112,9 +115,5 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="src\ui\right_panel\skeleton\" />
   </ItemGroup>
 </Project>
