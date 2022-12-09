@@ -118,7 +118,8 @@ namespace glo.schema {
 
   [BinarySchema]
   public sealed partial class GloSprite : IBiSerializable {
-    public char[] TextureFilename { get; } = new char[16];
+    [StringLengthSource(16)]
+    public string TextureFilename { get; set; }
 
     public Rgba32 Color { get; } = new();
 
