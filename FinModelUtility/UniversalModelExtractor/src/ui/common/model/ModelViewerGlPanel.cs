@@ -49,16 +49,21 @@ namespace uni.ui.common.model {
         this.boneTransformManager_.Clear();
 
         if (model != null) {
+          this.boneTransformManager_.CalculateMatrices(
+            model.Skeleton.Root,
+            model.Skin.BoneWeights,
+            null);
+          this.scale_ = 1000 / ModelScaleCalculator.CalculateScale(
+            model, this.boneTransformManager_);
+
           this.modelRenderer_ =
               new ModelRendererV2(model, this.boneTransformManager_);
           this.skeletonRenderer_ =
-              new SkeletonRenderer(model.Skeleton, this.boneTransformManager_);
-          this.boneTransformManager_.CalculateMatrices(
-              model.Skeleton.Root,
-              model.Skin.BoneWeights,
-              null);
-          this.scale_ = 1000 / ModelScaleCalculator.CalculateScale(
-                            model, this.boneTransformManager_);
+              new SkeletonRenderer(
+                model.Skeleton,
+                this.boneTransformManager_,
+                this.scale_
+                );
 
           hasNormals_ = false;
           foreach (var vertex in model.Skin.Vertices) {
@@ -151,42 +156,42 @@ namespace uni.ui.common.model {
       this.impl_.KeyDown += (_, args) => {
         switch (args.KeyCode) {
           case Keys.W: {
-            this.isForwardDown_ = true;
-            break;
-          }
+              this.isForwardDown_ = true;
+              break;
+            }
           case Keys.S: {
-            this.isBackwardDown_ = true;
-            break;
-          }
+              this.isBackwardDown_ = true;
+              break;
+            }
           case Keys.A: {
-            this.isLeftwardDown_ = true;
-            break;
-          }
+              this.isLeftwardDown_ = true;
+              break;
+            }
           case Keys.D: {
-            this.isRightwardDown_ = true;
-            break;
-          }
+              this.isRightwardDown_ = true;
+              break;
+            }
         }
       };
 
       this.impl_.KeyUp += (_, args) => {
         switch (args.KeyCode) {
           case Keys.W: {
-            this.isForwardDown_ = false;
-            break;
-          }
+              this.isForwardDown_ = false;
+              break;
+            }
           case Keys.S: {
-            this.isBackwardDown_ = false;
-            break;
-          }
+              this.isBackwardDown_ = false;
+              break;
+            }
           case Keys.A: {
-            this.isLeftwardDown_ = false;
-            break;
-          }
+              this.isLeftwardDown_ = false;
+              break;
+            }
           case Keys.D: {
-            this.isRightwardDown_ = false;
-            break;
-          }
+              this.isRightwardDown_ = false;
+              break;
+            }
         }
       };
     }
