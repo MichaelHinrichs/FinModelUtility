@@ -23,6 +23,8 @@ namespace uni.ui.gl {
 
     public ISkeleton Skeleton { get; }
 
+    public IBone? SelectedBone { get; set; }
+
     public void Render() {
       GL.Disable(EnableCap.DepthTest);
 
@@ -66,9 +68,13 @@ namespace uni.ui.gl {
           GL.LineWidth(5);
           GL.Begin(PrimitiveType.Lines);
 
-          GL.Color4(1f, 0, 0, 1);
-
           foreach (var bone in this.Skeleton) {
+            if (bone == this.SelectedBone) {
+              GL.Color4(1f, 1f, 1f, 1);
+            } else {
+              GL.Color4(1f, 0, 0, 1);
+            }
+
             var fromX = 0f;
             var fromY = 0f;
             var fromZ = 0f;
@@ -94,9 +100,13 @@ namespace uni.ui.gl {
         GL.PointSize(8);
         GL.Begin(PrimitiveType.Points);
 
-        GL.Color4(1f, 0, 0, 1);
-
         foreach (var bone in this.Skeleton) {
+          if (bone == this.SelectedBone) {
+            GL.Color4(1f, 1f, 1f, 1);
+          } else {
+            GL.Color4(1f, 0, 0, 1);
+          }
+
           var fromX = 0f;
           var fromY = 0f;
           var fromZ = 0f;

@@ -27,7 +27,6 @@ namespace uni.ui.common.model {
 
     private BackgroundSphereRenderer backgroundRenderer_ = new();
     private IModelRenderer? modelRenderer_;
-    private SkeletonRenderer? skeletonRenderer_;
     private readonly BoneTransformManager boneTransformManager_ = new();
 
     private GridRenderer gridRenderer_ = new();
@@ -58,7 +57,7 @@ namespace uni.ui.common.model {
 
           this.modelRenderer_ =
               new ModelRendererV2(model, this.boneTransformManager_);
-          this.skeletonRenderer_ =
+          this.SkeletonRenderer =
               new SkeletonRenderer(
                 model.Skeleton,
                 this.boneTransformManager_,
@@ -74,7 +73,7 @@ namespace uni.ui.common.model {
           }
         } else {
           this.modelRenderer_ = null;
-          this.skeletonRenderer_ = null;
+          this.SkeletonRenderer = null;
           this.scale_ = 1;
         }
 
@@ -85,6 +84,8 @@ namespace uni.ui.common.model {
     private IModel? Model => this.ModelAndFileBundle?.Item2;
 
     public IAnimationPlaybackManager AnimationPlaybackManager { get; set; }
+
+    public SkeletonRenderer? SkeletonRenderer { get; private set; }
 
     private IAnimation? animation_;
 
@@ -390,7 +391,7 @@ void main() {
 
       if (Config.Instance.ShowSkeleton) {
         this.texturelessShaderProgram_.Use();
-        this.skeletonRenderer_?.Render();
+        this.SkeletonRenderer?.Render();
       }
     }
   }
