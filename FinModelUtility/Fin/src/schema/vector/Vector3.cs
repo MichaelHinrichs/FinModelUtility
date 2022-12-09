@@ -1,4 +1,5 @@
 ﻿using schema;
+using System;
 
 
 namespace fin.schema.vector {
@@ -7,17 +8,38 @@ namespace fin.schema.vector {
     public T Y { get; set; }
     public T Z { get; set; }
 
-    public T this[int index] => index switch {
-        0 => X,
-        1 => Y,
-        2 => Z,
-    };
+    public T this[int index] {
+      get => index switch {
+          0 => X,
+          1 => Y,
+          2 => Z,
+      };
+      set {
+        switch (index) {
+          case 0: {
+            this.X = value;
+            break;
+          }
+          case 1: {
+            this.Y = value;
+            break;
+          }
+          case 2: {
+            this.Z = value;
+            break;
+          }
+          default: throw new ArgumentOutOfRangeException(),
+        }
+      }
+    }
 
     public void Set(T x, T y, T z) {
       this.X = x;
       this.Y = y;
       this.Z = z;
     }
+
+    public override string ToString() => $"{{{this.X}, {this.Y}, {this.Z}}}";
   }
 
   [BinarySchema]
