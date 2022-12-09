@@ -1,4 +1,6 @@
-﻿using System;
+﻿using fin.schema.vector;
+using System;
+using System.Numerics;
 
 
 namespace fin.math.matrix {
@@ -47,5 +49,9 @@ namespace fin.math.matrix {
 
     IFinMatrix4x4 CloneAndTranspose();
     void TransposeIntoBuffer(IFinMatrix4x4 buffer);
+
+    void CopyTranslationInto(Vector3f dst);
+    void CopyRotationInto(ref Quaternion dst);
+    void CopyScaleInto(Vector3f dst);
   }
 }

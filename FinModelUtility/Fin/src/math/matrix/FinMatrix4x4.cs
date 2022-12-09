@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using fin.math.matrix;
+using fin.model;
+using fin.schema.vector;
 using fin.util.asserts;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 
@@ -9,7 +12,7 @@ namespace fin.math {
   using SystemMatrix = System.Numerics.Matrix4x4;
 
   public class FinMatrix4x4 : IFinMatrix4x4 {
-    internal SystemMatrix impl_  = new();
+    internal SystemMatrix impl_ = new();
 
     public FinMatrix4x4() {
       this.SetZero();
@@ -145,6 +148,7 @@ namespace fin.math {
 
     // Matrix Multiplication
     private static readonly FinMatrix4x4 SHARED_BUFFER = new();
+    private static readonly Vector3f SHARED_VECTOR = new();
 
     public IFinMatrix4x4 CloneAndMultiply(IReadOnlyFinMatrix4x4 other)
       => this.Clone().MultiplyInPlace(other);
@@ -269,6 +273,55 @@ namespace fin.math {
         for (var c = 0; c < 4; ++c) {
           buffer[r, c] = this[c, r];
         }
+      }
+    }
+
+    // Shamelessly copied from https://math.stackexchange.com/a/1463487
+    public void CopyTranslationInto(Vector3f dst) {
+      dst.X = this[0, 3];
+      dst.Y = this[1, 3];
+      dst.Z = this[2, 3];
+    }
+
+    public void CopyRotationInto(out Quaternion dst) {
+      CopyScaleInto(SHARED_VECTOR);
+      SHARED_BUFFER.CopyFrom(this);
+
+      // Sets corner to 1
+      SHARED_BUFFER[3, 3] = 1;
+
+      for (var i = 0; i < 3; ++i) {
+        // Clears out sides
+        SHARED_BUFFER[3, i] = 0;
+        SHARED_BUFFER[i, 3] = 0;
+
+        // Undoes scaling
+        for (var ii = 0; ii < 3; ++ii) {
+          SHARED_BUFFER[i, ii] /= SHARED_VECTOR[ii];
+        }
+      }
+
+      dst = Quaternion.CreateFromRotationMatrix(SHARED_BUFFER.impl_);
+    }
+
+    public void CopyScaleInto(Vector3f dst) {
+      {
+        var a = this[0, 0];
+        var e = this[1, 0];
+        var i = this[2, 0];
+        dst.X = MathF.Sqrt(a * a + e * e + i * i);
+      }
+      {
+        var b = this[0, 1];
+        var f = this[1, 1];
+        var j = this[2, 1];
+        dst.Y = MathF.Sqrt(b * b + f * f + j * j);
+      }
+      {
+        var c = this[0, 2];
+        var g = this[1, 2];
+        var k = this[2, 2];
+        dst.Z = MathF.Sqrt(c * c + g * g + k * k);
       }
     }
 
