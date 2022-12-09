@@ -16,7 +16,7 @@ namespace bmd.schema.bmd {
     public long BasePosition { get; set; }
 
     private ushort NrStrings;
-    public ushort Padding;
+    private readonly ushort padding_ = ushort.MaxValue;
 
     [ArrayLengthSource(nameof(NrStrings))]
     public StringTableEntry[] Entries;
