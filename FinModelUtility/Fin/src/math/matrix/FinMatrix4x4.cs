@@ -267,8 +267,7 @@ namespace fin.math {
 
     public IFinMatrix4x4 TransposeInPlace() {
       if (!this.IsIdentity) {
-        this.TransposeIntoBuffer(FinMatrix4x4.SHARED_BUFFER);
-        this.CopyFrom(FinMatrix4x4.SHARED_BUFFER);
+        this.impl_ = Matrix4x4.Transpose(this.impl_);
       }
       return this;
     }
@@ -307,7 +306,9 @@ namespace fin.math {
         SHARED_BUFFER[i, 2] /= SHARED_SCALE.Z;
       }
 
-      dst = Quaternion.CreateFromRotationMatrix(SHARED_BUFFER.impl_);
+      SHARED_BUFFER.TransposeInPlace();
+
+      dst = -Quaternion.CreateFromRotationMatrix(SHARED_BUFFER.impl_);
     }
 
     public void CopyScaleInto(IScale dst) {

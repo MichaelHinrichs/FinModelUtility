@@ -9,6 +9,17 @@ namespace fin.model.impl {
       public float W => 1;
 
       public override string ToString() => $"{{{this.X}, {this.Y}, {this.Z}, {this.W}}}";
+
+      public override bool Equals(object other) {
+        var error = .0001;
+        if (other is PositionImpl otherPosition) {
+          return Math.Abs(this.X - otherPosition.X) < error &&
+                 Math.Abs(this.Y - otherPosition.Y) < error &&
+                 Math.Abs(this.Z - otherPosition.Z) < error;
+        }
+
+        return false;
+      }
     }
 
     public class NormalImpl : INormal {
@@ -18,6 +29,17 @@ namespace fin.model.impl {
       public float W => 0;
 
       public override string ToString() => $"{{{this.X}, {this.Y}, {this.Z}, {this.W}}}";
+
+      public override bool Equals(object other) {
+        var error = .0001;
+        if (other is NormalImpl otherNormal) {
+          return Math.Abs(this.X - otherNormal.X) < error &&
+                 Math.Abs(this.Y - otherNormal.Y) < error &&
+                 Math.Abs(this.Z - otherNormal.Z) < error;
+        }
+
+        return false;
+      }
     }
 
     public class TangentImpl : ITangent {
@@ -35,6 +57,17 @@ namespace fin.model.impl {
       public float Z { get; set; }
       
       public override string ToString() => $"{{{this.X}, {this.Y}, {this.Z}}}";
+
+      public override bool Equals(object other) {
+        var error = .0001;
+        if (other is ScaleImpl otherScale) {
+          return Math.Abs(this.X - otherScale.X) < error &&
+                 Math.Abs(this.Y - otherScale.Y) < error &&
+                 Math.Abs(this.Z - otherScale.Z) < error;
+        }
+
+        return false;
+      }
     }
 
     /*public class QuaternionImpl : IQuaternion {
