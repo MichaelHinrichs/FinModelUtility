@@ -91,15 +91,15 @@ namespace bmd.exporter {
       var joints = bmd.GetJoints();
 
       var jointsAndBones = new (MkdsNode, IBone)[joints.Length];
-      var jointNameToBone = new Dictionary<string, IBone>();
+      var jointIdToBone = new Dictionary<int, IBone>();
 
       for (var j = 0; j < joints.Length; ++j) {
         var joint = joints[j];
         var jointName = joint.Name;
 
-        var parentBone = joint.Parent == null
+        var parentBone = joint.ParentJointIndex == -1
                              ? model.Skeleton.Root
-                             : jointNameToBone[joint.Parent];
+                             : jointIdToBone[joint.ParentJointIndex];
 
         var jnt = bmd.JNT1.Joints[j];
 
@@ -121,7 +121,7 @@ namespace bmd.exporter {
         bone.Name = jointName;
 
         jointsAndBones[j] = (joint, bone);
-        jointNameToBone[jointName] = bone;
+        jointIdToBone[j] = bone;
       }
 
       return jointsAndBones;
@@ -230,6 +230,7 @@ namespace bmd.exporter {
           // Batch
           case 0x12:
             var batch = batches[(int)entry.Index];
+
             foreach (var packet in batch.Packets) {
               // Updates contents of matrix table
               for (var i = 0; i < packet.MatrixTable.Length; ++i) {

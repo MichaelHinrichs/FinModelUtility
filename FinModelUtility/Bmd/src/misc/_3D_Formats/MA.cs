@@ -5,21 +5,24 @@
 // Assembly location: R:\Documents\CSharpWorkspace\Pikmin2Utility\MKDS Course Modifier\MKDS Course Modifier.exe
 
 
+using bmd.schema.bmd.jnt1;
+
+
 namespace bmd._3D_Formats {
   public class MA {
     public class Node {
-      public Node(string Name, string Parent = null) {
-        this.Name = Name;
-        this.Parent = Parent;
+      public Node(
+          Jnt1Entry entry,
+          string name,
+          int parentJointIndex) {
+        this.Entry = entry;
+        this.Name = name;
+        this.ParentJointIndex = parentJointIndex;
       }
 
+      public Jnt1Entry Entry { get; set; }
       public string Name { get; set; }
-
-      public string Parent { get; set; }
-
-      public override string ToString() {
-        return this.Name;
-      }
+      public int ParentJointIndex { get; set; }
     }
   }
 }

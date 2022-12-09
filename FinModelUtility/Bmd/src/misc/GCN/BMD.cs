@@ -39,6 +39,7 @@ using fin.util.image;
 
 using gx;
 using bmd.schema.bmd.tex1;
+using fin.data;
 
 #pragma warning disable CS8604
 
@@ -155,10 +156,10 @@ namespace bmd.GCN {
 
     public MA.Node[] GetJoints()
     {
-      Stack<Node> nodeStack = new Stack<Node>();
-      nodeStack.Push( null);
+      var nodeIndexStack = new Stack<int>();
+      nodeIndexStack.Push(-1);
       var nodeList = new List<MA.Node>();
-      BMD.Node node = (BMD.Node) null;
+      int nodeIndex = -1;
       foreach (Inf1Entry entry in this.INF1.Entries)
       {
         switch (entry.Type)
@@ -166,15 +167,23 @@ namespace bmd.GCN {
           case 0:
             goto label_7;
           case 1:
-            nodeStack.Push(node);
+            nodeIndexStack.Push(nodeIndex);
             break;
           case 2:
-            nodeStack.Pop();
+            nodeIndexStack.Pop();
             break;
           case 16:
             nodeList.Add(new MA.Node(
-                             this.JNT1.StringTable[(int) entry.Index], nodeStack.Peek() == null ? (string) null : nodeStack.Peek().Name));
-            node = new BMD.Node(this.JNT1.StringTable[(int) entry.Index], nodeStack.Peek() == null ? (BMD.Node) null : nodeStack.Peek());
+                             this.JNT1.Joints[entry.Index],
+                             this.JNT1.StringTable[entry.Index],
+                             nodeIndexStack.Peek()));
+            nodeIndex = entry.Index;
+            break;
+          case 17:
+            // Material
+            break;
+          case 18:
+            // Shape
             break;
         }
       }
@@ -1192,18 +1201,6 @@ label_7:
           er.Position = position1 + (long) this.Header.size;
           OK = true;
         }
-      }
-    }
-    
-    private class Node
-    {
-      public BMD.Node Parent;
-      public string Name;
-
-      public Node(string Name, BMD.Node Parent)
-      {
-        this.Name = Name;
-        this.Parent = Parent;
       }
     }
   }
