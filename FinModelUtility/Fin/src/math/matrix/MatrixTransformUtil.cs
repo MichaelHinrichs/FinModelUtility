@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using fin.model;
+using MathNet.Numerics.LinearAlgebra.Complex;
 
 
 namespace fin.math.matrix {
@@ -31,38 +32,9 @@ namespace fin.math.matrix {
     public static IFinMatrix4x4 FromRotation(IRotation rotation)
       => MatrixTransformUtil.FromRotation(QuaternionUtil.Create(rotation));
 
-    public static IFinMatrix4x4 FromRotation(Quaternion rotation) {
-      var qx = rotation.X;
-      var qy = rotation.Y;
-      var qz = rotation.Z;
-      var qw = rotation.W;
-
-      var matrix = new FinMatrix4x4();
-
-      matrix[0, 0] = (float)(1.0 - 2.0 * qy * qy - 2.0 * qz * qz);
-      matrix[0, 1] = (float)(2.0 * qx * qy - 2.0 * qz * qw);
-      matrix[0, 2] = (float)(2.0 * qx * qz + 2.0 * qy * qw);
-      matrix[0, 3] = 0.0f;
-
-      matrix[1, 0] = (float)(2.0 * qx * qy + 2.0 * qz * qw);
-      matrix[1, 1] = (float)(1.0 - 2.0 * qx * qx - 2.0 * qz * qz);
-      matrix[1, 2] = (float)(2.0 * qy * qz - 2.0 * qx * qw);
-      matrix[1, 3] = 0.0f;
-
-      matrix[2, 0] = (float)(2.0 * qx * qz - 2.0 * qy * qw);
-      matrix[2, 1] = (float)(2.0 * qy * qz + 2.0 * qx * qw);
-      matrix[2, 2] = (float)(1.0 - 2.0 * qx * qx - 2.0 * qy * qy);
-      matrix[2, 3] = 0.0f;
-
-      matrix[3, 0] = 0;
-      matrix[3, 1] = 0;
-      matrix[3, 2] = 0;
-      matrix[3, 3] = 1;
-
-      matrix.UpdateState();
-
-      return matrix;
-    }
+    public static IFinMatrix4x4 FromRotation(Quaternion rotation)
+      => new FinMatrix4x4(Matrix4x4.CreateFromQuaternion(rotation))
+          .TransposeInPlace();
 
     public static IFinMatrix4x4 FromScale(IScale scale) {
       var matrix = new FinMatrix4x4 {

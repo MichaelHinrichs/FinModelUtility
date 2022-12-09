@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using fin.math.matrix;
 using fin.model;
-using fin.schema.vector;
+using fin.model.impl;
 using fin.util.asserts;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -12,7 +12,7 @@ namespace fin.math {
   using SystemMatrix = System.Numerics.Matrix4x4;
 
   public class FinMatrix4x4 : IFinMatrix4x4 {
-    internal SystemMatrix impl_ = new();
+    internal SystemMatrix impl_;
 
     public FinMatrix4x4() {
       this.SetZero();
@@ -35,6 +35,7 @@ namespace fin.math {
     }
 
     public FinMatrix4x4(IReadOnlyFinMatrix4x4 other) => this.CopyFrom(other);
+    public FinMatrix4x4(SystemMatrix other) => this.CopyFrom(other);
 
     public IFinMatrix4x4 Clone() => new FinMatrix4x4(this);
 
@@ -52,6 +53,11 @@ namespace fin.math {
       }
 
       this.MatrixState = other.MatrixState;
+    }
+
+    public void CopyFrom(SystemMatrix other) {
+      this.impl_ = other;
+      this.UpdateState();
     }
 
     public MatrixState MatrixState { get; private set; }
@@ -148,7 +154,7 @@ namespace fin.math {
 
     // Matrix Multiplication
     private static readonly FinMatrix4x4 SHARED_BUFFER = new();
-    private static readonly Vector3f SHARED_VECTOR = new();
+    private static readonly ModelImpl.ScaleImpl SHARED_SCALE = new();
 
     public IFinMatrix4x4 CloneAndMultiply(IReadOnlyFinMatrix4x4 other)
       => this.Clone().MultiplyInPlace(other);
@@ -277,14 +283,14 @@ namespace fin.math {
     }
 
     // Shamelessly copied from https://math.stackexchange.com/a/1463487
-    public void CopyTranslationInto(Vector3f dst) {
+    public void CopyTranslationInto(IPosition dst) {
       dst.X = this[0, 3];
       dst.Y = this[1, 3];
       dst.Z = this[2, 3];
     }
 
     public void CopyRotationInto(out Quaternion dst) {
-      CopyScaleInto(SHARED_VECTOR);
+      CopyScaleInto(SHARED_SCALE);
       SHARED_BUFFER.CopyFrom(this);
 
       // Sets corner to 1
@@ -296,15 +302,15 @@ namespace fin.math {
         SHARED_BUFFER[i, 3] = 0;
 
         // Undoes scaling
-        for (var ii = 0; ii < 3; ++ii) {
-          SHARED_BUFFER[i, ii] /= SHARED_VECTOR[ii];
-        }
+        SHARED_BUFFER[i, 0] /= SHARED_SCALE.X;
+        SHARED_BUFFER[i, 1] /= SHARED_SCALE.Y;
+        SHARED_BUFFER[i, 2] /= SHARED_SCALE.Z;
       }
 
       dst = Quaternion.CreateFromRotationMatrix(SHARED_BUFFER.impl_);
     }
 
-    public void CopyScaleInto(Vector3f dst) {
+    public void CopyScaleInto(IScale dst) {
       {
         var a = this[0, 0];
         var e = this[1, 0];

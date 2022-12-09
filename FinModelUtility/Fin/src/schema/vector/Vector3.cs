@@ -28,7 +28,7 @@ namespace fin.schema.vector {
             this.Z = value;
             break;
           }
-          default: throw new ArgumentOutOfRangeException(),
+          default: throw new ArgumentOutOfRangeException();
         }
       }
     }
