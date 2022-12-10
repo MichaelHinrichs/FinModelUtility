@@ -148,7 +148,7 @@ namespace Quad64.src.Forms
             int sizeOfSegmentA = ROM.Instance.getSegment(0xA, (byte)level.CurrentAreaID).Length;
             int skybox_width = 248;
             int skybox_height = ((sizeOfSegmentA - 0x140) / 256 / 2 / 32) * 31;
-            Bitmap org = LargeImageLoader.getSkyboxImage(0x0A000000, skybox_width, skybox_height);
+            Bitmap? org = LargeImageLoader.getSkyboxImage(0x0A000000, skybox_width, skybox_height);
             if (org == null)
                 return;
             sb_imageBox.BackgroundImage = new Bitmap(org, skybox_width, skybox_height);
@@ -164,7 +164,7 @@ namespace Quad64.src.Forms
         {
             int skybox_width = 248;
             int skybox_height = ((sizeOfSegmentA - 0x140) / 256 / 2 / 32) * 31;
-            Bitmap org = LargeImageLoader.getSkyboxImage(0x0A000000, skybox_width, skybox_height);
+            Bitmap? org = LargeImageLoader.getSkyboxImage(0x0A000000, skybox_width, skybox_height);
             if (org != null)
             {
                 string[] tags = (string[])org.Tag;
@@ -255,7 +255,7 @@ namespace Quad64.src.Forms
                     tabControl1.TabPages.Add(tabPage3);
                     int skybox_width = 248;
                     int skybox_height = ((segA_size - 0x140) / 256 / 2 / 32) * 31;
-                    Bitmap org = LargeImageLoader.getSkyboxImage(0x0A000000, skybox_width, skybox_height);
+                    Bitmap? org = LargeImageLoader.getSkyboxImage(0x0A000000, skybox_width, skybox_height);
                     if (org == null)
                         return;
                     sb_imageBox.BackgroundImage = new Bitmap(org, skybox_width, skybox_height);

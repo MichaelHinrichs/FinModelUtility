@@ -136,7 +136,7 @@ namespace Quad64.src.Forms
                                 segmentsAreMIO0[l_seg] = !isFakeMIO0;
                                 if (isFakeMIO0)
                                     segmentStarts[l_seg] = l_start + (uint)uncompressedOffset;
-                                segments[l_seg] = MIO0.mio0_decode(rom.getROMSection(l_start, l_end));
+                                segments[l_seg] = MIO0.mio0_decode(rom.getROMSection(l_start, l_end))!;
                             }
                         }
                         break;
@@ -289,7 +289,7 @@ namespace Quad64.src.Forms
 
         private void loadOtherTexturesTab()
         {
-            JArray[] arrays = OtherTexturesFile.LoadOtherTextureFile(Globals.getDefaultOtherTexturesPath());
+            JArray[]? arrays = OtherTexturesFile.LoadOtherTextureFile(Globals.getDefaultOtherTexturesPath());
             if (arrays != null)
             {
                 ot_buttons = new RadioButtonWithInfo[arrays.Length][];

@@ -747,7 +747,7 @@ namespace Quad64.Scripts {
              bytesToInt(cmd, 4, 4).ToString("X8");
       byte segment = cmd[4];
       uint off = bytesToInt(cmd, 5, 3);
-      byte[] data = rom.getSegment(segment, areaID);
+      byte[] data = rom.getSegment(segment, areaID)!;
       var sub_cmd = (CollisionSubCommand) bytesToInt(data, (int) off, 2);
 
       // Check if the data is actually collision data.

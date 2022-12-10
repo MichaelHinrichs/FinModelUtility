@@ -44,7 +44,7 @@ namespace Quad64.src.LevelInfo {
             }
           }
         } else
-          return value.ToString();
+          return value.ToString()!;
       } else if (destinationType == typeof(string) &&
                  (value.GetType() == typeof(ushort) ||
                   value.GetType() == typeof(short))) {
@@ -60,15 +60,15 @@ namespace Quad64.src.LevelInfo {
             }
           }
         } else
-          return value.ToString();
+          return value.ToString()!;
       } else if (destinationType == typeof(string) &&
                  value.GetType() == typeof(byte)) {
         if (Globals.useHexadecimal)
           return string.Format("0x{0:X2}", value);
         else
-          return value.ToString();
+          return value.ToString()!;
       } else {
-        return base.ConvertTo(context, culture, value, destinationType);
+        return base.ConvertTo(context, culture, value, destinationType)!;
       }
     }
 
@@ -118,7 +118,7 @@ namespace Quad64.src.LevelInfo {
 
         return input;
       } else {
-        return base.ConvertFrom(context, culture, value);
+        return base.ConvertFrom(context, culture, value)!;
       }
     }
   }

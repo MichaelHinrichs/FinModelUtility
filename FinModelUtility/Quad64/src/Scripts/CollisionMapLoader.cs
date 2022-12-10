@@ -25,7 +25,7 @@ namespace Quad64.Scripts {
 
       var segment = (ushort) (address >> 24);
       uint off = address & 0xFFFFFF;
-      byte[] data = rom.getSegment(segment, null);
+      byte[] data = rom.getSegment(segment, null)!;
       var sub_cmd =
           (CollisionSubCommand) BitLogic.BytesToInt(data, (int) off, 2);
 

@@ -88,7 +88,7 @@ namespace Quad64.src.Forms.TextureEditorComponents
             }
         }
 
-        public static Bitmap getSkyboxImage(uint seg_address, int w, int h)
+        public static Bitmap? getSkyboxImage(uint seg_address, int w, int h)
         {
             if (!ROM.Instance.isSegmentMIO0((byte)(seg_address >> 24), null))
             {

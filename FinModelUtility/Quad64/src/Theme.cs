@@ -279,7 +279,7 @@ namespace Quad64.src {
 
     public static void LoadColor(ref Color color,
                                  Color default_color,
-                                 JToken token) {
+                                 JToken? token) {
       if (token != null) {
         if (token["R"] != null && token["G"] != null && token["B"] != null) {
           byte R, G, B;

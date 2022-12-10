@@ -63,6 +63,7 @@
     <ProjectReference Include="..\Level5\Level5.csproj" />
     <ProjectReference Include="..\Mod\Mod.csproj" />
     <ProjectReference Include="..\Modl\Modl.csproj" />
+    <ProjectReference Include="..\Quad64\Quad64.csproj" />
   </ItemGroup>
 
   <ItemGroup>

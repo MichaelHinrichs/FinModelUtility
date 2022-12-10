@@ -273,7 +273,7 @@ namespace Quad64.src.LevelInfo {
         new List<ScriptDumpCommandInfo>();
 
 
-    public ObjectComboEntry getObjectComboFromData(
+    public ObjectComboEntry? getObjectComboFromData(
         byte modelID,
         uint modelAddress,
         uint behavior,

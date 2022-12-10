@@ -316,7 +316,7 @@ namespace Quad64 {
         seg.Data =
             MIO0.mio0_decode(
                 getSubArray_safe(this.Bytes, segmentStart,
-                                 segmentEnd - segmentStart));
+                                 segmentEnd - segmentStart))!;
       }
 
       setSegment(index, seg, areaID);
@@ -440,7 +440,7 @@ namespace Quad64 {
         return new byte[size];
     }
 
-    public byte[] getSubArray_safe(byte[] arr, uint offset, long size) {
+    public byte[] getSubArray_safe(byte[]? arr, uint offset, long size) {
       if (arr == null || arr.Length <= offset)
         return new byte[size];
       if ((arr.Length - offset) < size)

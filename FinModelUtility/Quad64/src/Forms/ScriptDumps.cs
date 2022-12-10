@@ -290,7 +290,7 @@ namespace Quad64.src.Forms {
       }
 
       e.DrawBackground();
-      e.Graphics.DrawString(listBoxObjects.Items[e.Index].ToString(), e.Font,
+      e.Graphics.DrawString(listBoxObjects.Items[e.Index].ToString(), e.Font!,
                             textBrush, e.Bounds, StringFormat.GenericDefault);
       e.DrawFocusRectangle();
     }
@@ -314,7 +314,7 @@ namespace Quad64.src.Forms {
       }
 
       e.DrawBackground();
-      e.Graphics.DrawString(lt_f3d_listbox.Items[e.Index].ToString(), e.Font,
+      e.Graphics.DrawString(lt_f3d_listbox.Items[e.Index].ToString(), e.Font!,
                             textBrush, e.Bounds, StringFormat.GenericDefault);
       e.DrawFocusRectangle();
     }
@@ -338,7 +338,7 @@ namespace Quad64.src.Forms {
       }
 
       e.DrawBackground();
-      e.Graphics.DrawString(ot_f3d_listbox.Items[e.Index].ToString(), e.Font,
+      e.Graphics.DrawString(ot_f3d_listbox.Items[e.Index].ToString(), e.Font!,
                             textBrush, e.Bounds, StringFormat.GenericDefault);
       e.DrawFocusRectangle();
     }

@@ -78,7 +78,7 @@
     /// mio0_buf: buffer containing MIO0 data<para/>
     /// returns the raw data as a byte array
     ///</summary>
-    public static byte[] mio0_decode(byte[] mio0_buf) {
+    public static byte[]? mio0_decode(byte[] mio0_buf) {
       MIO0_Header head = new MIO0_Header();
       uint bytes_written = 0;
       int bit_idx = 0;

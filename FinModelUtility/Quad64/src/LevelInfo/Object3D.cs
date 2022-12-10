@@ -467,18 +467,18 @@ namespace Quad64 {
         isBrow.SetValue(attrib, name);
     }
 
-    private string GetPropertyDisplayName(string property) {
+    private string? GetPropertyDisplayName(string property) {
       PropertyDescriptor descriptor =
           TypeDescriptor.GetProperties(this.GetType())[property];
       DisplayNameAttribute attrib =
           (DisplayNameAttribute) descriptor.Attributes[
               typeof(DisplayNameAttribute)];
 
-      return (string) attrib.GetType()
-                            .GetField("_displayName",
-                                      BindingFlags.NonPublic |
-                                      BindingFlags.Instance)
-                            .GetValue(attrib);
+      return (string?) attrib.GetType()
+                   .GetField("_displayName",
+                             BindingFlags.NonPublic |
+                             BindingFlags.Instance)
+                   ?.GetValue(attrib);
     }
 
     private void
@@ -605,7 +605,7 @@ namespace Quad64 {
       }
     }
 
-    public FLAGS getFlagFromDisplayName(string displayName) {
+    public FLAGS getFlagFromDisplayName(string? displayName) {
       if (displayName == GetPropertyDisplayName("xPos"))
         return FLAGS.POSITION_X;
       if (displayName == GetPropertyDisplayName("yPos"))

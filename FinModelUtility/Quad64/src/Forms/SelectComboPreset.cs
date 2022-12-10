@@ -51,7 +51,7 @@ namespace Quad64.src.Forms {
             uint modelAddress = level.ModelIDs[entry.ModelId].Current.GeoDataSegAddress;
             int oce_index = -1;
             ObjectComboEntry oce = level.getObjectComboFromData(
-                entry.ModelId, modelAddress, entry.Behavior, out oce_index);
+                entry.ModelId, modelAddress, entry.Behavior, out oce_index)!;
             if (oce_index > -1) {
               string displayName = "(" + entry.PresetId + ") " + oce.Name;
               if (!useFilter)
@@ -97,7 +97,7 @@ namespace Quad64.src.Forms {
                   level.ModelIDs[entry.ModelId].Current.GeoDataSegAddress;
               int oce_index = -1;
               ObjectComboEntry oce = level.getObjectComboFromData(
-                  entry.ModelId, modelAddress, entry.Behavior, out oce_index);
+                  entry.ModelId, modelAddress, entry.Behavior, out oce_index)!;
               if (oce_index > -1) {
                 string displayName =
                     "(" + entry.PresetId.ToString() + ") " + oce.Name;
@@ -188,7 +188,7 @@ namespace Quad64.src.Forms {
       }
     }
 
-    private ObjectComboEntry getObjectComboEntryFromName(
+    private ObjectComboEntry? getObjectComboEntryFromName(
         string name,
         object tag) {
       byte modelID = (byte) ((object[]) tag)[0];
@@ -207,7 +207,7 @@ namespace Quad64.src.Forms {
       switch (listType) {
         case 0:
           ReturnObjectCombo = getObjectComboEntryFromName(
-              listView1.SelectedItems[0].Text, listView1.SelectedItems[0].Tag);
+              listView1.SelectedItems[0].Text, listView1.SelectedItems[0].Tag)!;
           break;
         case 1:
           ReturnPresetMacro =
@@ -259,7 +259,7 @@ namespace Quad64.src.Forms {
               uint modelAddress = modelLods.Current.GeoDataSegAddress;
               int oce_index = -1;
               ObjectComboEntry oce = level.getObjectComboFromData(
-                  entry.ModelId, modelAddress, entry.Behavior, out oce_index);
+                  entry.ModelId, modelAddress, entry.Behavior, out oce_index)!;
               if (oce_index > -1) {
                 string displayName =
                     "(" + entry.PresetId.ToString() + ") " + oce.Name;

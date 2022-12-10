@@ -140,7 +140,7 @@ namespace Quad64 {
       CamAngleY = -3.1459f - ((float) (Math.Asin(y_diff / dist)) - 1.57f);
     }
 
-    private Object3D getSelectedObject() {
+    private Object3D? getSelectedObject() {
       if (Globals.list_selected == -1 || Globals.item_selected == -1)
         return null;
       switch (Globals.list_selected) {
@@ -156,7 +156,7 @@ namespace Quad64 {
     }
 
     public void resetOrbitToSelectedObject() {
-      Object3D obj = getSelectedObject();
+      Object3D? obj = getSelectedObject();
       if (obj != null) {
         orbitTheta = -(obj.yRot * ((float) Math.PI / 180.0f));
         orbitPhi = -0.3f;
@@ -166,7 +166,7 @@ namespace Quad64 {
 
     public void updateOrbitCamera(ref Matrix4 cameraMatrix) {
       if (camMode == CameraMode.ORBIT) {
-        Object3D obj = getSelectedObject();
+        Object3D? obj = getSelectedObject();
         if (obj == null)
           return;
         pos.X = obj.xPos +

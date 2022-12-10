@@ -172,8 +172,12 @@ namespace Quad64.src.Forms
             }
         }
 
-        private void SaveImage(Image img, string suggestedName)
+        private void SaveImage(Image? img, string suggestedName)
         {
+          if (img == null) {
+            return;
+          }
+
             SaveFileDialog saveFileDialog1 = new SaveFileDialog();
             saveFileDialog1.FileName = suggestedName + ".png";
             saveFileDialog1.Filter = "PNG|*.png|JPEG|*.jpeg|BMP|*.bmp|GIF|*.gif|TIFF|*.tiff";
@@ -207,7 +211,7 @@ namespace Quad64.src.Forms
             }
         }
 
-        private string LoadImage()
+        private string? LoadImage()
         {
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
             openFileDialog1.Filter = "PNG|*.png|JPEG|*.jpeg|BMP|*.bmp|GIF|*.gif|TIFF|*.tiff";
@@ -257,7 +261,7 @@ namespace Quad64.src.Forms
                         MessageBoxDefaultButton.Button1);
                 return;
             }
-            string filename = LoadImage();
+            string? filename = LoadImage();
             if (filename != null)
             {
                 Bitmap newImg = 
@@ -311,7 +315,7 @@ namespace Quad64.src.Forms
                 return;
             }
 
-            string filename = LoadImage();
+            string? filename = LoadImage();
             if (filename != null)
             {
                 Bitmap newImg = new Bitmap(Image.FromFile(filename), new Size(info_bitmapImage.BackgroundImage.Width, info_bitmapImage.BackgroundImage.Height));
