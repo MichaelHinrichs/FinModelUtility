@@ -4,6 +4,7 @@ using fin.io;
 using fin.io.bundles;
 using fin.log;
 using fin.model;
+using fin.util.asserts;
 using uni.config;
 using uni.msg;
 
@@ -68,7 +69,7 @@ namespace uni.games {
 
     public static void Extract<T>(T modelFileBundle, Func<IModel> loaderHandler)
         where T : IModelFileBundle {
-      var mainFile = modelFileBundle.MainFile;
+      var mainFile = Asserts.CastNonnull(modelFileBundle.MainFile);
 
       var parentOutputDirectory =
           GameFileHierarchyUtil.GetOutputDirectoryForFile(mainFile);

@@ -254,6 +254,9 @@ namespace bmd.exporter {
           case 0x12:
             var batch = batches[(int)entry.Index];
 
+            // TODO: Pass matrix type into joint (how?)
+            var matrixType = batch.MatrixType;
+
             foreach (var packet in batch.Packets) {
               // Updates contents of matrix table
               for (var i = 0; i < packet.MatrixTable.Length; ++i) {

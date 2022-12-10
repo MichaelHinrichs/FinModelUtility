@@ -689,10 +689,17 @@ label_7:
         }
       }
 
+      public enum MatrixType : byte {
+        Mtx = 0,
+        BBoard = 1,
+        YBBoard = 2,
+        Multi = 3,
+      }
+
       public partial class Batch {
         public bool[] HasColors = new bool[2];
         public bool[] HasTexCoords = new bool[8];
-        public byte MatrixType;
+        public MatrixType MatrixType;
         public byte Unknown1;
         public ushort NrPacket;
         public ushort AttribsOffset;
@@ -713,7 +720,7 @@ label_7:
             EndianBinaryReader er,
             long baseoffset,
             BMD.SHP1Section Parent) {
-          this.MatrixType = er.ReadByte();
+          this.MatrixType = (MatrixType) er.ReadByte();
           this.Unknown1 = er.ReadByte();
           this.NrPacket = er.ReadUInt16();
           this.AttribsOffset = er.ReadUInt16();
