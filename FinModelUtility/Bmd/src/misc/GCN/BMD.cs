@@ -912,14 +912,7 @@ label_7:
       }
     }
 
-    public enum CullMode {
-      None = 0,  // Do not cull any primitives
-      Front = 1, // Cull front-facing primitives
-      Back = 2,  // Cull back-facing primitives
-      All = 3    // Cull all primitives
-    }
     
-
     public partial class MAT3Section {
       public const string Signature = "MAT3";
       public DataBlockHeader Header;
@@ -929,7 +922,7 @@ label_7:
       public PopulatedMaterial[] PopulatedMaterials;
       public ushort[] MaterialEntryIndieces;
       public short[] TextureIndices;
-      public CullMode[] CullModes;
+      public GxCullMode[] CullModes;
       public System.Drawing.Color[] MaterialColor;
       public System.Drawing.Color[] AmbientColors;
       public System.Drawing.Color[] TevColors;
@@ -980,9 +973,9 @@ label_7:
           // TODO: Add support for indirect textures (3)
 
           er.Position = position1 + (long)this.Offsets[4];
-          this.CullModes = new CullMode[sectionLengths[4] / 4];
+          this.CullModes = new GxCullMode[sectionLengths[4] / 4];
           for (var index = 0; index < sectionLengths[4] / 4; ++index)
-            this.CullModes[index] = (CullMode) er.ReadInt32();
+            this.CullModes[index] = (GxCullMode) er.ReadInt32();
 
           er.Position = position1 + (long) this.Offsets[5];
           this.MaterialColor = new System.Drawing.Color[sectionLengths[5] / 4];
@@ -1086,7 +1079,7 @@ label_7:
       public class PopulatedMaterial {
         public string Name;
         public byte Flag;
-        public CullMode CullMode;
+        public GxCullMode CullMode;
         public byte ColorChannelControlsCountIndex;
         public byte TexGensCountIndex;
         public byte TevStagesCountIndex;
@@ -1095,7 +1088,7 @@ label_7:
         public byte DitherIndex;
 
         public Color[] MaterialColors;
-        public ColorChannelControl?[] ColorChannelControls;
+        public IColorChannelControl?[] ColorChannelControls;
         public Color[] AmbientColors;
         public ushort[] LightColorIndexes;
 
@@ -1109,17 +1102,17 @@ label_7:
         public byte[] ConstColorSel;
         public byte[] ConstAlphaSel;
 
-        public TevOrder[] TevOrderInfos;
+        public ITevOrder?[] TevOrderInfos;
 
         public ushort[] TevOrderInfoIndexes;
         public ushort[] TevColorIndexes;
-        public TevStageProps[] TevStageInfos;
+        public ITevStageProps?[] TevStageInfos;
         public ushort[] TevSwapModeInfo;
         public ushort[] TevSwapModeTable;
         public ushort[] Unknown2;
         public short FogInfoIndex;
-        public AlphaCompare AlphaCompare;
-        public BlendFunction BlendMode;
+        public IAlphaCompare AlphaCompare;
+        public IBlendFunction BlendMode;
         public short UnknownIndex;
 
         public PopulatedMaterial(MAT3Section mat3, int index, MaterialEntry entry) {

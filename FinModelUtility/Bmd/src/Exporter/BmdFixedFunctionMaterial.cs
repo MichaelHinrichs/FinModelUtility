@@ -40,9 +40,9 @@ namespace bmd.exporter {
       // TODO: materialEntry.Flag determines draw order
 
       var materialEntry = bmd.MAT3.MaterialEntries[materialEntryIndex];
-      var materialName = bmd.MAT3.MaterialNameTable[materialEntryIndex];
 
       var populatedMaterial = bmd.MAT3.PopulatedMaterials[materialEntryIndex];
+      var materialName = populatedMaterial.Name;
 
       var textures =
           populatedMaterial.TextureIndices
@@ -52,12 +52,12 @@ namespace bmd.exporter {
       var material = materialManager.AddFixedFunctionMaterial();
       material.Name = materialName;
       material.CullingMode =
-          bmd.MAT3.CullModes[materialEntry.CullModeIndex] switch {
-              BMD.CullMode.None  => CullingMode.SHOW_BOTH,
-              BMD.CullMode.Front => CullingMode.SHOW_BACK_ONLY,
-              BMD.CullMode.Back  => CullingMode.SHOW_FRONT_ONLY,
-              BMD.CullMode.All   => CullingMode.SHOW_NEITHER,
-              _                  => throw new ArgumentOutOfRangeException(),
+          populatedMaterial.CullMode switch {
+              GxCullMode.None  => CullingMode.SHOW_BOTH,
+              GxCullMode.Front => CullingMode.SHOW_BACK_ONLY,
+              GxCullMode.Back  => CullingMode.SHOW_FRONT_ONLY,
+              GxCullMode.All   => CullingMode.SHOW_NEITHER,
+              _                => throw new ArgumentOutOfRangeException(),
           };
 
       // Shamelessly copied from:
@@ -74,8 +74,10 @@ namespace bmd.exporter {
         case GxBlendMode.BLEND: {
           material.SetBlending(
               BlendMode.ADD,
-              this.ConvertGxBlendFactorToFin_(populatedMaterial.BlendMode.SrcFactor),
-              this.ConvertGxBlendFactorToFin_(populatedMaterial.BlendMode.DstFactor),
+              this.ConvertGxBlendFactorToFin_(
+                  populatedMaterial.BlendMode.SrcFactor),
+              this.ConvertGxBlendFactorToFin_(
+                  populatedMaterial.BlendMode.DstFactor),
               LogicOp.UNDEFINED);
           break;
         }
@@ -83,8 +85,10 @@ namespace bmd.exporter {
           // TODO: Might not be correct?
           material.SetBlending(
               BlendMode.NONE,
-              this.ConvertGxBlendFactorToFin_(populatedMaterial.BlendMode.SrcFactor),
-              this.ConvertGxBlendFactorToFin_(populatedMaterial.BlendMode.DstFactor),
+              this.ConvertGxBlendFactorToFin_(
+                  populatedMaterial.BlendMode.SrcFactor),
+              this.ConvertGxBlendFactorToFin_(
+                  populatedMaterial.BlendMode.DstFactor),
               this.ConvertGxLogicOpToFin_(populatedMaterial.BlendMode.LogicOp));
           break;
         }
@@ -101,9 +105,11 @@ namespace bmd.exporter {
 
       material.SetAlphaCompare(
           this.ConvertGxAlphaOpToFin_(populatedMaterial.AlphaCompare.MergeFunc),
-          this.ConvertGxAlphaCompareTypeToFin_(populatedMaterial.AlphaCompare.Func0),
+          this.ConvertGxAlphaCompareTypeToFin_(
+              populatedMaterial.AlphaCompare.Func0),
           populatedMaterial.AlphaCompare.Reference0,
-          this.ConvertGxAlphaCompareTypeToFin_(populatedMaterial.AlphaCompare.Func1),
+          this.ConvertGxAlphaCompareTypeToFin_(
+              populatedMaterial.AlphaCompare.Func1),
           populatedMaterial.AlphaCompare.Reference1);
 
       this.Material = material;
@@ -149,16 +155,14 @@ namespace bmd.exporter {
                        .ToArray();
       valueManager.SetKonstColors(konstColors);
 
-      for (var i = 0; i < materialEntry.TevStageInfoIndexes.Length; ++i) {
-        var tevStageIndex = materialEntry.TevStageInfoIndexes[i];
-        if (tevStageIndex == -1) {
+      for (var i = 0; i < populatedMaterial.TevStageInfos.Length; ++i) {
+        var tevStage = populatedMaterial.TevStageInfos[i];
+        if (tevStage == null) {
           continue;
         }
 
-        var tevStage = bmd.MAT3.TevStages[tevStageIndex];
-
         var tevOrderIndex = materialEntry.TevOrderInfoIndexes[i];
-        var tevOrder = bmd.MAT3.TevOrders[tevOrderIndex];
+        var tevOrder = populatedMaterial.TevOrderInfos[i];
 
         // Updates which texture is referred to by TEXC
         var textureIndex = tevOrder.TexMap;
@@ -927,7 +931,8 @@ namespace bmd.exporter {
           GxAlphaCompareType.GEqual  => FinAlphaCompareType.GEqual,
           GxAlphaCompareType.Always  => FinAlphaCompareType.Always,
           _ => throw new ArgumentOutOfRangeException(
-                   nameof(gxAlphaAlphaCompareType), gxAlphaAlphaCompareType, null)
+                   nameof(gxAlphaAlphaCompareType), gxAlphaAlphaCompareType,
+                   null)
       };
   }
 }
