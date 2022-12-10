@@ -49,20 +49,20 @@ namespace uni.ui.common.model {
 
         if (model != null) {
           this.boneTransformManager_.CalculateMatrices(
-            model.Skeleton.Root,
-            model.Skin.BoneWeights,
-            null);
+              model.Skeleton.Root,
+              model.Skin.BoneWeights,
+              null);
           this.scale_ = 1000 / ModelScaleCalculator.CalculateScale(
-            model, this.boneTransformManager_);
+                            model, this.boneTransformManager_);
 
           this.modelRenderer_ =
               new ModelRendererV2(model, this.boneTransformManager_);
           this.SkeletonRenderer =
               new SkeletonRenderer(
-                model.Skeleton,
-                this.boneTransformManager_,
-                this.scale_
-                );
+                  model.Skeleton,
+                  this.boneTransformManager_,
+                  this.scale_
+              );
 
           hasNormals_ = false;
           foreach (var vertex in model.Skin.Vertices) {
@@ -114,16 +114,19 @@ namespace uni.ui.common.model {
     private bool isBackwardDown_ = false;
     private bool isLeftwardDown_ = false;
     private bool isRightwardDown_ = false;
+    private bool isSpeedupActive_ = false;
 
     public ModelViewerGlPanel() {
       this.impl_.MouseDown += (_, args) => {
-        if (args.Button == MouseButtons.Left) {
+        if (args.Button == MouseButtons.Left ||
+            args.Button == MouseButtons.Right) {
           isMouseDown_ = true;
           this.prevMousePosition_ = null;
         }
       };
       this.impl_.MouseUp += (_, args) => {
-        if (args.Button == MouseButtons.Left) {
+        if (args.Button == MouseButtons.Left ||
+            args.Button == MouseButtons.Right) {
           isMouseDown_ = false;
         }
       };
@@ -157,42 +160,50 @@ namespace uni.ui.common.model {
       this.impl_.KeyDown += (_, args) => {
         switch (args.KeyCode) {
           case Keys.W: {
-              this.isForwardDown_ = true;
-              break;
-            }
+            this.isForwardDown_ = true;
+            break;
+          }
           case Keys.S: {
-              this.isBackwardDown_ = true;
-              break;
-            }
+            this.isBackwardDown_ = true;
+            break;
+          }
           case Keys.A: {
-              this.isLeftwardDown_ = true;
-              break;
-            }
+            this.isLeftwardDown_ = true;
+            break;
+          }
           case Keys.D: {
-              this.isRightwardDown_ = true;
-              break;
-            }
+            this.isRightwardDown_ = true;
+            break;
+          }
+          case Keys.ShiftKey: {
+            this.isSpeedupActive_ = true;
+            break;
+          }
         }
       };
 
       this.impl_.KeyUp += (_, args) => {
         switch (args.KeyCode) {
           case Keys.W: {
-              this.isForwardDown_ = false;
-              break;
-            }
+            this.isForwardDown_ = false;
+            break;
+          }
           case Keys.S: {
-              this.isBackwardDown_ = false;
-              break;
-            }
+            this.isBackwardDown_ = false;
+            break;
+          }
           case Keys.A: {
-              this.isLeftwardDown_ = false;
-              break;
-            }
+            this.isLeftwardDown_ = false;
+            break;
+          }
           case Keys.D: {
-              this.isRightwardDown_ = false;
-              break;
-            }
+            this.isRightwardDown_ = false;
+            break;
+          }
+          case Keys.ShiftKey: {
+            this.isSpeedupActive_ = false;
+            break;
+          }
         }
       };
     }
@@ -309,7 +320,8 @@ void main() {
           (this.isForwardDown_ ? 1 : 0) - (this.isBackwardDown_ ? 1 : 0);
       var rightwardVector =
           (this.isRightwardDown_ ? 1 : 0) - (this.isLeftwardDown_ ? 1 : 0);
-      this.camera_.Move(forwardVector, rightwardVector, 15);
+      this.camera_.Move(forwardVector, rightwardVector,
+                        this.isSpeedupActive_ ? 30 : 15);
 
       var width = this.Width;
       var height = this.Height;

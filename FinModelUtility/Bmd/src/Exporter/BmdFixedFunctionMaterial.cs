@@ -82,12 +82,12 @@ namespace bmd.exporter {
           break;
         }
         case BmdBlendMode.LOGIC: {
-          // TODO: Not really implemented...
+          // TODO: Might not be correct?
           material.SetBlending(
-              BlendMode.ADD,
-              BlendFactor.ONE,
-              BlendFactor.ZERO,
-              LogicOp.UNDEFINED);
+              BlendMode.NONE,
+              ConvertBmdBlendFactorToFin(populatedMaterial.BlendMode.SrcFactor),
+              ConvertBmdBlendFactorToFin(populatedMaterial.BlendMode.DstFactor),
+              ConvertBmdLogicOpToFin(populatedMaterial.BlendMode.LogicOp));
           break;
         }
         case BmdBlendMode.SUBTRACT: {
