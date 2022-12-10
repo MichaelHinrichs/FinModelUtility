@@ -68,8 +68,12 @@ namespace fin.gl {
                        GlUtil.ConvertFinBlendFactorToGl_(dstFactor));
       }
 
-      GL.Enable(EnableCap.ColorLogicOp);
-      GL.LogicOp(GlUtil.ConvertFinLogicOpToGl_(logicOp));
+      if (logicOp == FinLogicOp.UNDEFINED) {
+        GL.Disable(EnableCap.ColorLogicOp);
+      } else {
+        GL.Enable(EnableCap.ColorLogicOp);
+        GL.LogicOp(GlUtil.ConvertFinLogicOpToGl_(logicOp));
+      }
     }
 
     private static BlendEquationMode ConvertFinBlendModeToGl_(

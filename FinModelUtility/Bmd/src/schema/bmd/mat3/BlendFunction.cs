@@ -4,8 +4,8 @@
 namespace bmd.schema.bmd.mat3 {
   public enum BmdBlendMode : byte {
     NONE = 0,
-    ADD = 1,
-    REVERSE_SUBTRACT = 2,
+    BLEND = 1,
+    LOGIC = 2,
     SUBTRACT = 3,
   }
 

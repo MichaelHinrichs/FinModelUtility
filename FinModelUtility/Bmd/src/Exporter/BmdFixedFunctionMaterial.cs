@@ -4,19 +4,14 @@ using System.IO;
 using System.Text;
 using System.Drawing;
 using System.Linq;
-
 using fin.model;
-
 using bmd.GCN;
 using bmd.schema.bmd.mat3;
-
 using fin.image;
 using fin.language.equations.fixedFunction;
 using fin.language.equations.fixedFunction.impl;
 using fin.util.asserts;
-
 using gx;
-
 using FinBlendFactor = fin.model.BlendFactor;
 using FinLogicOp = fin.model.LogicOp;
 using BmdAlphaOp = bmd.schema.bmd.mat3.GXAlphaOp;
@@ -36,6 +31,8 @@ namespace bmd.exporter {
   /// </summary>
   public class BmdFixedFunctionMaterial {
     private const bool STRICT = false;
+
+    public override string ToString() => this.Material.Name ?? "(n/a)";
 
     public BmdFixedFunctionMaterial(
         IMaterialManager materialManager,
@@ -65,11 +62,44 @@ namespace bmd.exporter {
               _                  => throw new ArgumentOutOfRangeException(),
           };
 
-      material.SetBlending(
-          ConvertBmdBlendModeToFin(populatedMaterial.BlendMode.BlendMode),
-          ConvertBmdBlendFactorToFin(populatedMaterial.BlendMode.SrcFactor),
-          ConvertBmdBlendFactorToFin(populatedMaterial.BlendMode.DstFactor),
-          ConvertBmdLogicOpToFin(populatedMaterial.BlendMode.LogicOp));
+      // Shamelessly copied from:
+      // https://github.com/magcius/noclip.website/blob/c5a6d0137128065068b5842ffa9dff04f03eefdb/src/gx/gx_render.ts#L405-L423
+      switch (populatedMaterial.BlendMode.BlendMode) {
+        case BmdBlendMode.NONE: {
+          material.SetBlending(
+              BlendMode.ADD,
+              BlendFactor.ONE,
+              BlendFactor.ZERO,
+              LogicOp.UNDEFINED);
+          break;
+        }
+        case BmdBlendMode.BLEND: {
+          material.SetBlending(
+              BlendMode.ADD,
+              ConvertBmdBlendFactorToFin(populatedMaterial.BlendMode.SrcFactor),
+              ConvertBmdBlendFactorToFin(populatedMaterial.BlendMode.DstFactor),
+              LogicOp.UNDEFINED);
+          break;
+        }
+        case BmdBlendMode.LOGIC: {
+          // TODO: Not really implemented...
+          material.SetBlending(
+              BlendMode.ADD,
+              BlendFactor.ONE,
+              BlendFactor.ZERO,
+              LogicOp.UNDEFINED);
+          break;
+        }
+        case BmdBlendMode.SUBTRACT: {
+          material.SetBlending(
+              BlendMode.REVERSE_SUBTRACT,
+              BlendFactor.ONE,
+              BlendFactor.ONE,
+              LogicOp.UNDEFINED);
+          break;
+        }
+        default: throw new ArgumentOutOfRangeException();
+      }
 
       material.SetAlphaCompare(
           ConvertBmdAlphaOpToFin(populatedMaterial.AlphaCompare.MergeFunc),
@@ -467,8 +497,8 @@ namespace bmd.exporter {
         if (texture == null) {
           this.textureColors_[index] =
               texture = this.equations_.CreateColorInput(
-                  (FixedFunctionSource) (FixedFunctionSource.TEXTURE_COLOR_0 +
-                                         index),
+                  (FixedFunctionSource)(FixedFunctionSource.TEXTURE_COLOR_0 +
+                                        index),
                   this.equations_.CreateColorConstant(0));
         }
 
@@ -486,8 +516,8 @@ namespace bmd.exporter {
         if (texture == null) {
           this.textureAlphas_[index] =
               texture = this.equations_.CreateColorInput(
-                  (FixedFunctionSource) (FixedFunctionSource.TEXTURE_ALPHA_0 +
-                                         index),
+                  (FixedFunctionSource)(FixedFunctionSource.TEXTURE_ALPHA_0 +
+                                        index),
                   this.equations_.CreateColorConstant(0));
         }
 
@@ -503,8 +533,8 @@ namespace bmd.exporter {
 
         var texture =
             this.equations_.CreateScalarInput(
-                (FixedFunctionSource) (FixedFunctionSource.TEXTURE_ALPHA_0 +
-                                       index),
+                (FixedFunctionSource)(FixedFunctionSource.TEXTURE_ALPHA_0 +
+                                      index),
                 this.equations_.CreateScalarConstant(0));
 
         return this.alphaValues_[GxCa.GX_CA_TEXA] = texture;
@@ -821,7 +851,7 @@ namespace bmd.exporter {
       }
 
       private (Color? color, bool isAlpha) GetCCColor_(GxCc source) {
-        var ccIndex = (int) source - (int) GxCc.GX_CC_C0;
+        var ccIndex = (int)source - (int)GxCc.GX_CC_C0;
 
         var isColor = ccIndex % 2 == 0;
         var index = isColor ? ccIndex / 2 : (ccIndex - 1) / 2;
@@ -836,16 +866,6 @@ namespace bmd.exporter {
         return null;
       }
     }
-
-    private BlendMode ConvertBmdBlendModeToFin(BmdBlendMode bmdBlendMode)
-      => bmdBlendMode switch {
-          BmdBlendMode.NONE             => BlendMode.NONE,
-          BmdBlendMode.ADD              => BlendMode.ADD,
-          BmdBlendMode.REVERSE_SUBTRACT => BlendMode.REVERSE_SUBTRACT,
-          BmdBlendMode.SUBTRACT         => BlendMode.SUBTRACT,
-          _ => throw new ArgumentOutOfRangeException(
-                   nameof(bmdBlendMode), bmdBlendMode, null)
-      };
 
     private FinBlendFactor ConvertBmdBlendFactorToFin(
         BmdBlendFactor bmdBlendFactor)

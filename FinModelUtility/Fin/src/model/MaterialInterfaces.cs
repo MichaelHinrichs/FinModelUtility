@@ -89,6 +89,7 @@ namespace fin.model {
   }
 
   public enum LogicOp {
+    UNDEFINED,
     CLEAR,
     AND,
     AND_REVERSE,
