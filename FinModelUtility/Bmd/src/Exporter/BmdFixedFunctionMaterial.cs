@@ -102,9 +102,9 @@ namespace bmd.exporter {
       material.SetAlphaCompare(
           this.ConvertGxAlphaOpToFin_(populatedMaterial.AlphaCompare.MergeFunc),
           this.ConvertGxAlphaCompareTypeToFin_(populatedMaterial.AlphaCompare.Func0),
-          populatedMaterial.AlphaCompare.Reference0 / 255f,
+          populatedMaterial.AlphaCompare.Reference0,
           this.ConvertGxAlphaCompareTypeToFin_(populatedMaterial.AlphaCompare.Func1),
-          populatedMaterial.AlphaCompare.Reference1 / 255f);
+          populatedMaterial.AlphaCompare.Reference1);
 
       this.Material = material;
 

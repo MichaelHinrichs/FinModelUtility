@@ -33,4 +33,28 @@
     Signed = 1,
     Clamp = 2
   }
+
+
+  public interface IColorChannelControl {
+    bool LightingEnabled { get; }
+
+    GxColorSrc MaterialSrc { get; }
+
+    /// <summary>
+    ///   Which lights affect the vertex.
+    /// </summary>
+    GxLightMask LitMask { get; }
+
+    /// <summary>
+    ///   How to merge the lights together.
+    /// </summary>
+    GxDiffuseFunction DiffuseFunction { get; }
+
+    /// <summary>
+    ///   What type of attenuation function to use for the lights.
+    /// </summary>
+    GxAttenuationFunction AttenuationFunction { get; }
+
+    GxColorSrc AmbientSrc { get; }
+  }
 }

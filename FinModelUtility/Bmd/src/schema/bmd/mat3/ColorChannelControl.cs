@@ -1,5 +1,4 @@
 ﻿using gx;
-
 using schema;
 
 
@@ -20,7 +19,8 @@ namespace bmd.schema.bmd.mat3 {
   ///   </seealso>
   /// </summary>
   [BinarySchema]
-  public partial class ColorChannelControl : IBiSerializable {
+  public partial class ColorChannelControl : IColorChannelControl,
+      IBiSerializable {
     [IntegerFormat(SchemaIntegerType.BYTE)]
     public bool LightingEnabled { get; set; }
 
