@@ -14,11 +14,7 @@ namespace uni.ui.common.model {
       set {
         var modelFileBundle = value?.Item1;
         if (modelFileBundle != null) {
-          var mainFile = modelFileBundle.MainFile;
-          this.groupBox_.Text =
-              Path.Join(mainFile.Root.Name,
-                        mainFile.Parent!.LocalPath,
-                        mainFile.NameWithoutExtension);
+          this.groupBox_.Text = modelFileBundle.FullPath;
         } else {
           this.groupBox_.Text = "(Select a model)";
         }

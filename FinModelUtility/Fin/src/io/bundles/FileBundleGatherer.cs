@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using fin.util.strings;
+using System.IO;
 
 
 namespace fin.io.bundles {
@@ -152,8 +153,20 @@ namespace fin.io.bundles {
 
 
   public interface IFileBundle : IUiFile {
-    IFileHierarchyFile MainFile { get; }
-    string IUiFile.FileName => this.MainFile.NameWithoutExtension;
+    IFileHierarchyFile? MainFile { get; }
+    string IUiFile.FileName => this.MainFile?.NameWithoutExtension ?? "(n/a)";
+
+    string FullPath {
+      get {
+        var mainFile = this.MainFile;
+        if (mainFile != null) {
+          return Path.Join(mainFile.Root.Name,
+                           mainFile.Parent!.LocalPath,
+                           mainFile.NameWithoutExtension);
+        }
+        return FileName;
+      }
+    }
   }
 
   public interface IFileBundleGatherer {

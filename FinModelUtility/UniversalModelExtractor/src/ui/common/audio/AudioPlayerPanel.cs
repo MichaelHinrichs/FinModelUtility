@@ -9,11 +9,7 @@ namespace uni.ui.common.audio {
       this.impl_.OnChange += audioFileBundle => {
         this.Invoke(() => {
           if (audioFileBundle != null) {
-            var mainFile = audioFileBundle.MainFile;
-            this.groupBox_.Text =
-                Path.Join(mainFile.Root.Name,
-                          mainFile.Parent!.LocalPath,
-                          mainFile.NameWithoutExtension);
+            this.groupBox_.Text = audioFileBundle.FullPath;
           } else {
             this.groupBox_.Text = "(Select audio)";
           }

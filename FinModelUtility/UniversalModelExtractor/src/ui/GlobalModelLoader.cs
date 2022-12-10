@@ -1,18 +1,13 @@
 ﻿using bmd.exporter;
-
 using cmb.api;
-
 using dat.api;
-
 using fin.model;
-
 using glo.api;
-
 using hw.api;
 using level5.api;
 using mod.cli;
-
 using modl.api;
+using sm64.api;
 
 
 namespace uni.ui {
@@ -33,6 +28,8 @@ namespace uni.ui {
               => new ModlModelLoader().LoadModel(modlModelFileBundle),
           OutModelFileBundle outModelFileBundle
               => new OutModelLoader().LoadModel(outModelFileBundle),
+          Sm64LevelModelFileBundle sm64LevelModelFileBundle
+              => new Sm64LevelModelLoader().LoadModel(sm64LevelModelFileBundle),
           VisModelFileBundle visModelFileBundle
               => new VisModelLoader().LoadModel(visModelFileBundle),
           XcModelFileBundle xcModelFileBundle

@@ -11,6 +11,7 @@ using uni.games.ocarina_of_time_3d;
 using uni.games.pikmin_1;
 using uni.games.pikmin_2;
 using uni.games.professor_layton_vs_phoenix_wright;
+using uni.games.super_mario_64;
 using uni.games.super_mario_sunshine;
 using uni.games.super_smash_bros_melee;
 
@@ -32,6 +33,7 @@ namespace uni.games {
           new Pikmin1ModelFileGatherer(),
           new Pikmin2FileGatherer(),
           new ProfessorLaytonVsPhoenixWrightModelFileGatherer(),
+          new SuperMario64FileGatherer(),
           new SuperMarioSunshineModelFileGatherer(),
           new SuperSmashBrosMeleeModelFileGatherer(),
       };
