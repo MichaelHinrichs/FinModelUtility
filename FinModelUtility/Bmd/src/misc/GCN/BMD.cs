@@ -4,7 +4,6 @@
 // MVID: DAEF8B62-698B-42D0-BEDD-3770EB8C9FE8
 // Assembly location: R:\Documents\CSharpWorkspace\Pikmin2Utility\MKDS Course Modifier\MKDS Course Modifier.exe
 
-using Chadsoft.CTools.Image;
 using bmd._3D_Formats;
 //using MKDS_Course_Modifier.Converters._3D;
 //using MKDS_Course_Modifier.Converters.Colission;
@@ -12,11 +11,8 @@ using bmd.G3D_Binary_File_Format;
 //using MKDS_Course_Modifier.UI;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Drawing;
 using System.Numerics;
@@ -28,18 +24,12 @@ using bmd.schema.bmd.mat3;
 using bmd.schema.bmd.shp1;
 using bmd.schema.bmd.vtx1;
 
-using fin.color;
-using fin.image;
-using fin.model;
-using fin.model.impl;
 using fin.schema.matrix;
 using fin.util.asserts;
 using fin.util.color;
-using fin.util.image;
 
 using gx;
 using bmd.schema.bmd.tex1;
-using fin.data;
 
 #pragma warning disable CS8604
 
@@ -173,9 +163,10 @@ namespace bmd.GCN {
             nodeIndexStack.Pop();
             break;
           case 16:
+            var jointIndex = this.JNT1.RemapTable[entry.Index];
             nodeList.Add(new MA.Node(
-                             this.JNT1.Joints[entry.Index],
-                             this.JNT1.StringTable[entry.Index],
+                             this.JNT1.Joints[jointIndex],
+                             this.JNT1.StringTable[jointIndex],
                              nodeIndexStack.Peek()));
             nodeIndex = entry.Index;
             break;
@@ -615,9 +606,10 @@ label_7:
       public ushort NrJoints;
       public ushort Padding;
       public uint JointEntryOffset;
-      public uint UnknownOffset;
+      public uint RemapTableOffset;
       public uint StringTableOffset;
       public Jnt1Entry[] Joints;
+      public ushort[] RemapTable { get; }
       public StringTable StringTable;
 
       public JNT1Section(EndianBinaryReader er, out bool OK)
@@ -634,12 +626,17 @@ label_7:
           this.NrJoints = er.ReadUInt16();
           this.Padding = er.ReadUInt16();
           this.JointEntryOffset = er.ReadUInt32();
-          this.UnknownOffset = er.ReadUInt32();
+          this.RemapTableOffset = er.ReadUInt32();
           this.StringTableOffset = er.ReadUInt32();
           er.Position = position + (long) this.StringTableOffset;
           this.StringTable = er.ReadNew<StringTable>();
+          
           er.Position = position + (long) this.JointEntryOffset;
           er.ReadNewArray(out this.Joints, this.NrJoints);
+
+          er.Position = position + (long)this.RemapTableOffset;
+          this.RemapTable = er.ReadUInt16s(this.NrJoints);
+
           er.Position = position + (long) this.Header.size;
           OK = true;
         }

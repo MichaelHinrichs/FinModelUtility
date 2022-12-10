@@ -13,8 +13,8 @@ namespace uni.ui.right_panel {
         var selectedIndices = this.listView_.SelectedIndices;
 
         var selectedBone = selectedIndices.Count > 0
-                                    ? this.bones_[selectedIndices[0]]
-                                    : null;
+                               ? this.bones_[selectedIndices[0]]
+                               : null;
 
         this.OnBoneSelected?.Invoke(selectedBone);
       };
@@ -25,10 +25,10 @@ namespace uni.ui.right_panel {
         this.listView_.SelectedIndices.Clear();
         this.listView_.Items.Clear();
 
-        this.bones_ =
-            value?.Skeleton.OrderBy(
-                     bone => bone.Name)
-                 .ToArray();
+        var skeleton = value?.Skeleton;
+        this.bones_ = skeleton?.SkipWhile(bone => bone == skeleton.Root)
+                              .OrderBy(bone => bone.Name)
+                              .ToArray();
 
         if (this.bones_ == null) {
           return;

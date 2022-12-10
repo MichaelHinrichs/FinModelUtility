@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 using fin.data;
+using System.Numerics;
 
 
 namespace fin.model.impl {
@@ -90,7 +91,18 @@ namespace fin.model.impl {
           return this;
         }
 
+
         public bool IgnoreParentScale { get; set; }
+
+
+        public IBone AlwaysFaceTowardsCamera(Quaternion adjustment) {
+          this.FaceTowardsCamera = true;
+          this.FaceTowardsCameraAdjustment = adjustment;
+          return this;
+        }
+
+        public bool FaceTowardsCamera { get; private set; }
+        public Quaternion FaceTowardsCameraAdjustment { get; private set; }
       }
 
       IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

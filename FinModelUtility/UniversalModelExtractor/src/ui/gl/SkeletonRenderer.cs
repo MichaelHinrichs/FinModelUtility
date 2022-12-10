@@ -1,7 +1,6 @@
 ﻿using fin.math;
 using fin.model;
 using OpenTK.Graphics.OpenGL;
-
 using PrimitiveType = OpenTK.Graphics.OpenGL.PrimitiveType;
 
 
@@ -28,25 +27,29 @@ namespace uni.ui.gl {
     public void Render() {
       GL.Disable(EnableCap.DepthTest);
 
+      var rootBone = this.Skeleton.Root;
+
+      // Renders lines from each bone to its parent.
       {
-        // Renders lines from each bone to its parent.
-        {
-          GL.LineWidth(1);
-          GL.Begin(PrimitiveType.Lines);
+        GL.LineWidth(1);
+        GL.Begin(PrimitiveType.Lines);
 
-          GL.Color4(0, 0, 1f, 1);
+        GL.Color4(0, 0, 1f, 1);
 
-          var boneQueue = new Queue<(IBone, (double, double, double)?)>();
-          boneQueue.Enqueue((this.Skeleton.Root, null));
-          while (boneQueue.Any()) {
-            var (bone, parentLocation) = boneQueue.Dequeue();
+        var boneQueue = new Queue<(IBone, (double, double, double)?)>();
+        boneQueue.Enqueue((this.Skeleton.Root, null));
+        while (boneQueue.Any()) {
+          var (bone, parentLocation) = boneQueue.Dequeue();
 
+          (float, float, float)? location = null;
+
+          if (bone != rootBone) {
             var x = 0f;
             var y = 0f;
             var z = 0f;
 
             this.boneTransformManager_.ProjectVertex(
-              bone, ref x, ref y, ref z);
+                bone, ref x, ref y, ref z);
 
             if (parentLocation != null) {
               var (parentX, parentY, parentZ) = parentLocation.Value;
@@ -54,42 +57,77 @@ namespace uni.ui.gl {
               GL.Vertex3(x, y, z);
             }
 
-            var location = (x, y, z);
-            foreach (var child in bone.Children) {
-              boneQueue.Enqueue((child, location));
-            }
+            location = (x, y, z);
           }
 
-          GL.End();
+          foreach (var child in bone.Children) {
+            boneQueue.Enqueue((child, location));
+          }
         }
 
-        // Renders lines out from each bone in its direction.
-        {
-          GL.LineWidth(5);
-          GL.Begin(PrimitiveType.Lines);
+        GL.End();
+      }
 
-          foreach (var bone in this.Skeleton) {
-            if (bone == this.SelectedBone) {
-              GL.Color4(1f, 1f, 1f, 1);
-            } else {
-              GL.Color4(1f, 0, 0, 1);
-            }
+      // Renders lines out from each bone in its direction.
+      {
+        GL.LineWidth(5);
+        GL.Begin(PrimitiveType.Lines);
 
-            var fromX = 0f;
-            var fromY = 0f;
-            var fromZ = 0f;
-            this.boneTransformManager_.ProjectVertex(
+        GL.Color4(1f, 0, 0, 1);
+
+        foreach (var bone in this.Skeleton) {
+          if (bone == rootBone || bone == this.SelectedBone) {
+            continue;
+          }
+
+          var fromX = 0f;
+          var fromY = 0f;
+          var fromZ = 0f;
+          this.boneTransformManager_.ProjectVertex(
               bone, ref fromX, ref fromY, ref fromZ);
 
-            var toX = 50f / this.scale_;
-            var toY = 0f;
-            var toZ = 0f;
-            this.boneTransformManager_.ProjectVertex(
-              bone, ref toX, ref toY, ref toZ);
+          var normalX = 1f;
+          var normalY = 0f;
+          var normalZ = 0f;
+          this.boneTransformManager_.ProjectNormal(
+              bone, ref normalX, ref normalY, ref normalZ);
 
-            GL.Vertex3(fromX, fromY, fromZ);
-            GL.Vertex3(toX, toY, toZ);
-          }
+          var normalScale = 50f / this.scale_;
+          normalX *= normalScale;
+          normalY *= normalScale;
+          normalZ *= normalScale;
+
+          GL.Vertex3(fromX, fromY, fromZ);
+          GL.Vertex3(fromX + normalX, fromY + normalY, fromZ + normalZ);
+        }
+
+        GL.End();
+
+        if (this.SelectedBone != null) {
+          GL.LineWidth(8);
+          GL.Begin(PrimitiveType.Lines);
+
+          GL.Color4(1f, 1f, 1f, 1);
+
+          var fromX = 0f;
+          var fromY = 0f;
+          var fromZ = 0f;
+          this.boneTransformManager_.ProjectVertex(
+              this.SelectedBone, ref fromX, ref fromY, ref fromZ);
+
+          var normalX = 1f;
+          var normalY = 0f;
+          var normalZ = 0f;
+          this.boneTransformManager_.ProjectNormal(
+              this.SelectedBone, ref normalX, ref normalY, ref normalZ);
+
+          var normalScale = 50f / this.scale_;
+          normalX *= normalScale;
+          normalY *= normalScale;
+          normalZ *= normalScale;
+
+          GL.Vertex3(fromX, fromY, fromZ);
+          GL.Vertex3(fromX + normalX, fromY + normalY, fromZ + normalZ);
 
           GL.End();
         }
@@ -100,25 +138,41 @@ namespace uni.ui.gl {
         GL.PointSize(8);
         GL.Begin(PrimitiveType.Points);
 
+        GL.Color4(1f, 0, 0, 1);
+
         foreach (var bone in this.Skeleton) {
-          if (bone == this.SelectedBone) {
-            GL.Color4(1f, 1f, 1f, 1);
-          } else {
-            GL.Color4(1f, 0, 0, 1);
+          if (bone == rootBone || bone == this.SelectedBone) {
+            continue;
           }
 
           var fromX = 0f;
           var fromY = 0f;
           var fromZ = 0f;
           this.boneTransformManager_.ProjectVertex(
-            bone, ref fromX, ref fromY, ref fromZ);
+              bone, ref fromX, ref fromY, ref fromZ);
 
           GL.Vertex3(fromX, fromY, fromZ);
         }
 
         GL.End();
-      }
 
+        if (this.SelectedBone != null) {
+          GL.PointSize(11);
+          GL.Begin(PrimitiveType.Points);
+
+          GL.Color4(1f, 1f, 1f, 1);
+
+          var fromX = 0f;
+          var fromY = 0f;
+          var fromZ = 0f;
+          this.boneTransformManager_.ProjectVertex(
+              this.SelectedBone, ref fromX, ref fromY, ref fromZ);
+
+          GL.Vertex3(fromX, fromY, fromZ);
+
+          GL.End();
+        }
+      }
 
       GL.Color4(1f, 1, 1, 1);
       GL.Enable(EnableCap.DepthTest);

@@ -6,7 +6,9 @@ using fin.math.matrix;
 using fin.model;
 using fin.model.impl;
 using fin.schema.vector;
+using fin.ui;
 using fin.util.optional;
+using System.Drawing.Drawing2D;
 
 
 namespace fin.math {
@@ -114,23 +116,50 @@ namespace fin.math {
         var localRotation = animationLocalRotation ?? boneLocalRotation;
         var localScale = animationLocalScale ?? boneLocalScale;
 
-        var localMatrix =
-            MatrixTransformUtil.FromTrs(localPosition,
-                                        localRotation,
-                                        localScale);
-
-        if (!bone.IgnoreParentScale) {
+        IFinMatrix4x4 localMatrix;
+        if (!bone.IgnoreParentScale && !bone.FaceTowardsCamera) {
+          localMatrix = MatrixTransformUtil.FromTrs(localPosition,
+                                                    localRotation,
+                                                    localScale);
           matrix.MultiplyInPlace(localMatrix);
         } else {
-          matrix.CopyTranslationInto(translationBuffer);
-          matrix.CopyRotationInto(out var rotationBuffer);
-          scaleBuffer.X = scaleBuffer.Y = scaleBuffer.Z = 1;
+          // Applies translation first, so it's affected by parent rotation/scale.
+          var localTranslationMatrix =
+              MatrixTransformUtil.FromTranslation(localPosition);
+          matrix.MultiplyInPlace(localTranslationMatrix);
 
+          // Extracts translation/rotation/scale.
+          matrix.CopyTranslationInto(translationBuffer);
+          Quaternion rotationBuffer;
+          if (bone.FaceTowardsCamera) {
+            var camera = Camera.Instance;
+            var angle = camera.Yaw / 180f * MathF.PI;
+            var rotateYaw =
+                Quaternion.CreateFromYawPitchRoll(angle, 0, 0);
+
+            rotationBuffer = rotateYaw * bone.FaceTowardsCameraAdjustment;
+          } else {
+            matrix.CopyRotationInto(out rotationBuffer);
+          }
+          if (bone.IgnoreParentScale) {
+            scaleBuffer.X = scaleBuffer.Y = scaleBuffer.Z = 1;
+          } else {
+            matrix.CopyScaleInto(scaleBuffer);
+          }
+
+          // Creates child matrix.
+          localMatrix = MatrixTransformUtil.FromTrs(localPosition,
+                                                    localRotation,
+                                                    localScale);
+
+          // Gets final matrix.
           matrix = MatrixTransformUtil.FromTrs(
               translationBuffer,
               rotationBuffer,
               scaleBuffer);
-          matrix.MultiplyInPlace(localMatrix);
+          matrix.MultiplyInPlace(MatrixTransformUtil.FromTrs(null,
+                                   localRotation,
+                                   localScale));
         }
 
         this.bonesToLocalMatrices_[bone] = localMatrix;
@@ -275,6 +304,15 @@ namespace fin.math {
                               ref float y,
                               ref float z) {
       GlMatrixUtil.ProjectVertex(
+          this.GetWorldMatrix(bone),
+          ref x, ref y, ref z);
+    }
+
+    public void ProjectNormal(IBone bone,
+                              ref float x,
+                              ref float y,
+                              ref float z) {
+      GlMatrixUtil.ProjectNormal(
           this.GetWorldMatrix(bone),
           ref x, ref y, ref z);
     }

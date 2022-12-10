@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-
 using fin.data;
+using System.Numerics;
 
 
 namespace fin.model {
@@ -22,7 +22,12 @@ namespace fin.model {
     IBone SetLocalRotationDegrees(float x, float y, float z);
     IBone SetLocalRotationRadians(float x, float y, float z);
     IBone SetLocalScale(float x, float y, float z);
+
     bool IgnoreParentScale { get; set; }
+
+    IBone AlwaysFaceTowardsCamera(Quaternion adjustment);
+    bool FaceTowardsCamera { get; }
+    Quaternion FaceTowardsCameraAdjustment { get; }
   }
 
   public interface IBone : ILeafBone {

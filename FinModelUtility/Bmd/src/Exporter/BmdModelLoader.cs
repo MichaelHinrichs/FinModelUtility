@@ -5,6 +5,7 @@ using System.Linq;
 using fin.math;
 using fin.math.matrix;
 using bmd.GCN;
+using bmd.schema.bmd.jnt1;
 using bmd.schema.bmd.mat3;
 using bmd.schema.bti;
 using fin.model;
@@ -13,6 +14,7 @@ using fin.util.asserts;
 using fin.io;
 using fin.log;
 using fin.schema.matrix;
+using System.Numerics;
 
 
 namespace bmd.exporter {
@@ -94,35 +96,54 @@ namespace bmd.exporter {
       var jointIdToBone = new Dictionary<int, IBone>();
 
       for (var j = 0; j < joints.Length; ++j) {
-        var joint = joints[j];
-        var jointName = joint.Name;
+        var node = joints[j];
 
-        var parentBone = joint.ParentJointIndex == -1
+        var parentBone = node.ParentJointIndex == -1
                              ? model.Skeleton.Root
-                             : jointIdToBone[joint.ParentJointIndex];
+                             : jointIdToBone[node.ParentJointIndex];
 
-        var jnt = bmd.JNT1.Joints[j];
+        var joint = node.Entry;
+        var jointName = node.Name;
 
         var rotationFactor = 1f / 32768f * 3.14159f;
         var bone =
             parentBone
                 .AddChild(
-                    jnt.Translation.X,
-                    jnt.Translation.Y,
-                    jnt.Translation.Z)
+                    joint.Translation.X,
+                    joint.Translation.Y,
+                    joint.Translation.Z)
                 .SetLocalRotationRadians(
-                    jnt.Rotation.X * rotationFactor,
-                    jnt.Rotation.Y * rotationFactor,
-                    jnt.Rotation.Z * rotationFactor)
+                    joint.Rotation.X * rotationFactor,
+                    joint.Rotation.Y * rotationFactor,
+                    joint.Rotation.Z * rotationFactor)
                 .SetLocalScale(
-                    jnt.Scale.X,
-                    jnt.Scale.Y, 
-                    jnt.Scale.Z);
+                    joint.Scale.X,
+                    joint.Scale.Y,
+                    joint.Scale.Z);
         bone.Name = jointName;
 
-        bone.IgnoreParentScale = joint.Entry.IgnoreParentScale;
+        bone.IgnoreParentScale = node.Entry.IgnoreParentScale;
 
-        jointsAndBones[j] = (joint, bone);
+        // TODO: How to do this without hardcoding???
+        if (node.Entry.JointType == JointType.MANUAL) {
+          if (node.Name.StartsWith("balloon")) {
+            var rotateYaw =
+                Quaternion.CreateFromYawPitchRoll(MathF.PI / 2, 0, 0);
+            var rotatePitch =
+                Quaternion.CreateFromYawPitchRoll(0, -MathF.PI / 2, 0);
+            bone.AlwaysFaceTowardsCamera(rotateYaw * rotatePitch);
+          }
+
+          // Japanese word for light
+          if (node.Name.StartsWith("hikair") ||
+              node.Name.StartsWith("hikari")) {
+            var rotateYaw =
+                Quaternion.CreateFromYawPitchRoll(-MathF.PI / 2, 0, 0);
+            bone.AlwaysFaceTowardsCamera(rotateYaw);
+          }
+        }
+
+        jointsAndBones[j] = (node, bone);
         jointIdToBone[j] = bone;
       }
 

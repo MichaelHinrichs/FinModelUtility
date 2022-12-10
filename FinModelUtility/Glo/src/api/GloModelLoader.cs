@@ -2,15 +2,13 @@
 using fin.math;
 using fin.model;
 using fin.model.impl;
-
 using glo.schema;
-
 using System.Numerics;
-
 using fin.color;
 using fin.data;
 using fin.image;
 using fin.util.asserts;
+using Microsoft.CodeAnalysis.CSharp;
 
 
 namespace glo.api {
@@ -29,13 +27,9 @@ namespace glo.api {
   }
 
   public class GloModelLoader : IModelLoader<GloModelFileBundle> {
-    private readonly string[] hiddenNames_ = new[] {
-        "Box01", "puzzle"
-    };
+    private readonly string[] hiddenNames_ = new[] {"Box01", "puzzle"};
 
-    private readonly string[] mirrorTextures_ = new[] {
-        "Badg2.bmp"
-    };
+    private readonly string[] mirrorTextures_ = new[] {"Badg2.bmp"};
 
     public IModel LoadModel(GloModelFileBundle gloModelFileBundle) {
       var gloFile = gloModelFileBundle.GloFile;
@@ -123,13 +117,13 @@ namespace glo.api {
 
         List<(IAnimation, int, int)> finAndGloAnimations = new();
         foreach (var animSeg in gloObject.AnimSegs) {
-          var startFrame = (int) animSeg.StartFrame;
-          var endFrame = (int) animSeg.EndFrame;
+          var startFrame = (int)animSeg.StartFrame;
+          var endFrame = (int)animSeg.EndFrame;
 
           var finAnimation = finModel.AnimationManager.AddAnimation();
           finAnimation.Name = animSeg.Name;
           finAnimation.FrameCount =
-              (int) (animSeg.EndFrame - animSeg.StartFrame + 1);
+              (int)(animSeg.EndFrame - animSeg.StartFrame + 1);
 
           finAnimation.FrameRate = fps * animSeg.Speed;
 
@@ -158,6 +152,7 @@ namespace glo.api {
                         // This is weird, but seems to be right for levels.
                         .SetLocalScale(scale.Y, scale.X, scale.Z);
           finBone.Name = name + "_bone";
+          finBone.IgnoreParentScale = true;
 
           var child = gloMesh.Pointers.Child;
           if (child != null) {
@@ -285,7 +280,8 @@ namespace glo.api {
 
             var gloFaceColor = gloFace.Color;
             var finFaceColor = FinColor.FromRgbaBytes(
-                gloFaceColor.Rb, gloFaceColor.Gb, gloFaceColor.Bb, gloFaceColor.Ab);
+                gloFaceColor.Rb, gloFaceColor.Gb, gloFaceColor.Bb,
+                gloFaceColor.Ab);
 
             var enableBackfaceCulling = (gloFace.Flags & 1 << 2) == 0;
 
@@ -326,6 +322,58 @@ namespace glo.api {
             finTriangles[0] = (finFaceVertices[0], finFaceVertices[2],
                                finFaceVertices[1]);
             finMesh.AddTriangles(finTriangles).SetMaterial(finMaterial!);
+          }
+
+          foreach (var gloSprite in idealMesh.Sprites) {
+            var gloSpritePosition = gloSprite.SpritePosition;
+
+            var finSpriteBone = finBone.AddChild(
+                gloSpritePosition.X,
+                gloSpritePosition.Y,
+                gloSpritePosition.Z);
+            finSpriteBone.AlwaysFaceTowardsCamera(Quaternion.Identity);
+            var finSpriteBoneWeights =
+                finSkin.GetOrCreateBoneWeights(PreprojectMode.BONE,
+                                               finSpriteBone);
+
+            var textureFilename = gloSprite.TextureFilename;
+
+            var gloFaceColor = gloSprite.Color;
+            var finFaceColor = FinColor.FromRgbaBytes(
+                gloFaceColor.Rb, gloFaceColor.Gb, gloFaceColor.Bb,
+                gloFaceColor.Ab);
+
+            IMaterial? finMaterial;
+            if (textureFilename == previousTextureName) {
+              finMaterial = previousMaterial;
+            } else {
+              previousTextureName = textureFilename;
+              finMaterial = withCullingMap[textureFilename];
+              previousMaterial = finMaterial;
+            }
+
+            var w = gloSprite.SpriteSize.X / 4;
+            var h = gloSprite.SpriteSize.Y / 4;
+
+            var v1 = finSkin
+                     .AddVertex(0, -h / 2, -w / 2)
+                     .SetUv(0, 0)
+                     .SetBoneWeights(finSpriteBoneWeights);
+            var v2 = finSkin
+                     .AddVertex(0, -h / 2, w / 2)
+                     .SetUv(1, 0)
+                     .SetBoneWeights(finSpriteBoneWeights);
+            var v3 = finSkin
+                     .AddVertex(0, h / 2, -w / 2)
+                     .SetUv(0, 1)
+                     .SetBoneWeights(finSpriteBoneWeights);
+            var v4 = finSkin
+                     .AddVertex(0, h / 2, w / 2)
+                     .SetUv(1, 1)
+                     .SetBoneWeights(finSpriteBoneWeights);
+
+            finMesh.AddTriangles((v1, v3, v2), (v4, v2, v3))
+                   .SetMaterial(finMaterial!);
           }
         }
 
