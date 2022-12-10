@@ -8,8 +8,7 @@ namespace bmd.schema.bmd.mat3 {
   public partial class TevOrder : IDeserializable {
     public byte TexCoordId;
     public sbyte TexMap;
-    public ColorChannel ColorChannelId;
+    public GxColorChannel ColorChannelId;
     private readonly byte padding_ = 0xff;
   }
-
 }

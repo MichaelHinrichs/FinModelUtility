@@ -14,9 +14,7 @@ using fin.util.asserts;
 using gx;
 using FinBlendFactor = fin.model.BlendFactor;
 using FinLogicOp = fin.model.LogicOp;
-using BmdAlphaOp = bmd.schema.bmd.mat3.GXAlphaOp;
 using FinAlphaOp = fin.model.AlphaOp;
-using BmdAlphaCompareType = bmd.schema.bmd.mat3.GxCompareType;
 using FinAlphaCompareType = fin.model.AlphaCompareType;
 
 
@@ -65,7 +63,7 @@ namespace bmd.exporter {
       // Shamelessly copied from:
       // https://github.com/magcius/noclip.website/blob/c5a6d0137128065068b5842ffa9dff04f03eefdb/src/gx/gx_render.ts#L405-L423
       switch (populatedMaterial.BlendMode.BlendMode) {
-        case BmdBlendMode.NONE: {
+        case GxBlendMode.NONE: {
           material.SetBlending(
               BlendMode.ADD,
               BlendFactor.ONE,
@@ -73,24 +71,24 @@ namespace bmd.exporter {
               LogicOp.UNDEFINED);
           break;
         }
-        case BmdBlendMode.BLEND: {
+        case GxBlendMode.BLEND: {
           material.SetBlending(
               BlendMode.ADD,
-              ConvertBmdBlendFactorToFin(populatedMaterial.BlendMode.SrcFactor),
-              ConvertBmdBlendFactorToFin(populatedMaterial.BlendMode.DstFactor),
+              this.ConvertGxBlendFactorToFin_(populatedMaterial.BlendMode.SrcFactor),
+              this.ConvertGxBlendFactorToFin_(populatedMaterial.BlendMode.DstFactor),
               LogicOp.UNDEFINED);
           break;
         }
-        case BmdBlendMode.LOGIC: {
+        case GxBlendMode.LOGIC: {
           // TODO: Might not be correct?
           material.SetBlending(
               BlendMode.NONE,
-              ConvertBmdBlendFactorToFin(populatedMaterial.BlendMode.SrcFactor),
-              ConvertBmdBlendFactorToFin(populatedMaterial.BlendMode.DstFactor),
-              ConvertBmdLogicOpToFin(populatedMaterial.BlendMode.LogicOp));
+              this.ConvertGxBlendFactorToFin_(populatedMaterial.BlendMode.SrcFactor),
+              this.ConvertGxBlendFactorToFin_(populatedMaterial.BlendMode.DstFactor),
+              this.ConvertGxLogicOpToFin_(populatedMaterial.BlendMode.LogicOp));
           break;
         }
-        case BmdBlendMode.SUBTRACT: {
+        case GxBlendMode.SUBTRACT: {
           material.SetBlending(
               BlendMode.REVERSE_SUBTRACT,
               BlendFactor.ONE,
@@ -102,10 +100,10 @@ namespace bmd.exporter {
       }
 
       material.SetAlphaCompare(
-          ConvertBmdAlphaOpToFin(populatedMaterial.AlphaCompare.MergeFunc),
-          ConvertBmdAlphaCompareTypeToFin(populatedMaterial.AlphaCompare.Func0),
+          this.ConvertGxAlphaOpToFin_(populatedMaterial.AlphaCompare.MergeFunc),
+          this.ConvertGxAlphaCompareTypeToFin_(populatedMaterial.AlphaCompare.Func0),
           populatedMaterial.AlphaCompare.Reference0 / 255f,
-          ConvertBmdAlphaCompareTypeToFin(populatedMaterial.AlphaCompare.Func1),
+          this.ConvertGxAlphaCompareTypeToFin_(populatedMaterial.AlphaCompare.Func1),
           populatedMaterial.AlphaCompare.Reference1 / 255f);
 
       this.Material = material;
@@ -391,10 +389,10 @@ namespace bmd.exporter {
       private readonly IFixedFunctionEquations<FixedFunctionSource> equations_;
 
 
-      private readonly Dictionary<ColorChannel, IColorValue>
+      private readonly Dictionary<GxColorChannel, IColorValue>
           colorChannelsColors_ = new();
 
-      private readonly Dictionary<ColorChannel, IScalarValue>
+      private readonly Dictionary<GxColorChannel, IScalarValue>
           alphaChannelsColors_ = new();
 
       private readonly Dictionary<GxCc, IColorValue>
@@ -541,9 +539,9 @@ namespace bmd.exporter {
       }
 
 
-      private ColorChannel? colorChannel_;
+      private GxColorChannel? colorChannel_;
 
-      public void UpdateRascColor(ColorChannel? colorChannel) {
+      public void UpdateRascColor(GxColorChannel? colorChannel) {
         if (this.colorChannel_ != colorChannel) {
           this.colorChannel_ = colorChannel;
           this.colorValues_.Remove(GxCc.GX_CC_RASC);
@@ -563,16 +561,16 @@ namespace bmd.exporter {
           // TODO: Handle different color channels properly, how does vertex color factor in??
           var source = colorSource switch {
               GxCc.GX_CC_RASC => channel switch {
-                  ColorChannel.GX_COLOR0A0 =>
+                  GxColorChannel.GX_COLOR0A0 =>
                       FixedFunctionSource.DIFFUSE_LIGHTING_COLOR,
-                  ColorChannel.GX_COLOR1A1 =>
+                  GxColorChannel.GX_COLOR1A1 =>
                       FixedFunctionSource.AMBIENT_LIGHTING_COLOR,
                   _ => throw new NotImplementedException()
               },
               GxCc.GX_CC_RASA => channel switch {
-                  ColorChannel.GX_COLOR0A0 =>
+                  GxColorChannel.GX_COLOR0A0 =>
                       FixedFunctionSource.DIFFUSE_LIGHTING_ALPHA,
-                  ColorChannel.GX_COLOR1A1 =>
+                  GxColorChannel.GX_COLOR1A1 =>
                       FixedFunctionSource.AMBIENT_LIGHTING_ALPHA,
                   _ => throw new NotImplementedException()
               },
@@ -598,9 +596,9 @@ namespace bmd.exporter {
 
         if (!this.alphaChannelsColors_.TryGetValue(channel, out var alpha)) {
           var source = channel switch {
-              ColorChannel.GX_COLOR0A0 => FixedFunctionSource
+              GxColorChannel.GX_COLOR0A0 => FixedFunctionSource
                   .DIFFUSE_LIGHTING_ALPHA,
-              ColorChannel.GX_COLOR1A1 => FixedFunctionSource
+              GxColorChannel.GX_COLOR1A1 => FixedFunctionSource
                   .AMBIENT_LIGHTING_ALPHA,
               _ => throw new NotImplementedException()
           };
@@ -867,69 +865,69 @@ namespace bmd.exporter {
       }
     }
 
-    private FinBlendFactor ConvertBmdBlendFactorToFin(
-        BmdBlendFactor bmdBlendFactor)
-      => bmdBlendFactor switch {
-          BmdBlendFactor.ZERO      => FinBlendFactor.ZERO,
-          BmdBlendFactor.ONE       => FinBlendFactor.ONE,
-          BmdBlendFactor.SRC_COLOR => FinBlendFactor.SRC_COLOR,
-          BmdBlendFactor.ONE_MINUS_SRC_COLOR => FinBlendFactor
+    private FinBlendFactor ConvertGxBlendFactorToFin_(
+        GxBlendFactor gxBlendFactor)
+      => gxBlendFactor switch {
+          GxBlendFactor.ZERO      => FinBlendFactor.ZERO,
+          GxBlendFactor.ONE       => FinBlendFactor.ONE,
+          GxBlendFactor.SRC_COLOR => FinBlendFactor.SRC_COLOR,
+          GxBlendFactor.ONE_MINUS_SRC_COLOR => FinBlendFactor
               .ONE_MINUS_SRC_COLOR,
-          BmdBlendFactor.SRC_ALPHA => FinBlendFactor.SRC_ALPHA,
-          BmdBlendFactor.ONE_MINUS_SRC_ALPHA => FinBlendFactor
+          GxBlendFactor.SRC_ALPHA => FinBlendFactor.SRC_ALPHA,
+          GxBlendFactor.ONE_MINUS_SRC_ALPHA => FinBlendFactor
               .ONE_MINUS_SRC_ALPHA,
-          BmdBlendFactor.DST_ALPHA => FinBlendFactor.DST_ALPHA,
-          BmdBlendFactor.ONE_MINUS_DST_ALPHA => FinBlendFactor
+          GxBlendFactor.DST_ALPHA => FinBlendFactor.DST_ALPHA,
+          GxBlendFactor.ONE_MINUS_DST_ALPHA => FinBlendFactor
               .ONE_MINUS_DST_ALPHA,
           _ => throw new ArgumentOutOfRangeException(
-                   nameof(bmdBlendFactor), bmdBlendFactor, null)
+                   nameof(gxBlendFactor), gxBlendFactor, null)
       };
 
-    private FinLogicOp ConvertBmdLogicOpToFin(BmdLogicOp bmdLogicOp)
-      => bmdLogicOp switch {
-          BmdLogicOp.CLEAR         => FinLogicOp.CLEAR,
-          BmdLogicOp.AND           => FinLogicOp.AND,
-          BmdLogicOp.AND_REVERSE   => FinLogicOp.AND_REVERSE,
-          BmdLogicOp.COPY          => FinLogicOp.COPY,
-          BmdLogicOp.AND_INVERTED  => FinLogicOp.AND_INVERTED,
-          BmdLogicOp.NOOP          => FinLogicOp.NOOP,
-          BmdLogicOp.XOR           => FinLogicOp.XOR,
-          BmdLogicOp.OR            => FinLogicOp.OR,
-          BmdLogicOp.NOR           => FinLogicOp.NOR,
-          BmdLogicOp.EQUIV         => FinLogicOp.EQUIV,
-          BmdLogicOp.INVERT        => FinLogicOp.INVERT,
-          BmdLogicOp.OR_REVERSE    => FinLogicOp.OR_REVERSE,
-          BmdLogicOp.COPY_INVERTED => FinLogicOp.COPY_INVERTED,
-          BmdLogicOp.OR_INVERTED   => FinLogicOp.OR_INVERTED,
-          BmdLogicOp.NAND          => FinLogicOp.NAND,
-          BmdLogicOp.SET           => FinLogicOp.SET,
+    private FinLogicOp ConvertGxLogicOpToFin_(GxLogicOp gxLogicOp)
+      => gxLogicOp switch {
+          GxLogicOp.CLEAR         => FinLogicOp.CLEAR,
+          GxLogicOp.AND           => FinLogicOp.AND,
+          GxLogicOp.AND_REVERSE   => FinLogicOp.AND_REVERSE,
+          GxLogicOp.COPY          => FinLogicOp.COPY,
+          GxLogicOp.AND_INVERTED  => FinLogicOp.AND_INVERTED,
+          GxLogicOp.NOOP          => FinLogicOp.NOOP,
+          GxLogicOp.XOR           => FinLogicOp.XOR,
+          GxLogicOp.OR            => FinLogicOp.OR,
+          GxLogicOp.NOR           => FinLogicOp.NOR,
+          GxLogicOp.EQUIV         => FinLogicOp.EQUIV,
+          GxLogicOp.INVERT        => FinLogicOp.INVERT,
+          GxLogicOp.OR_REVERSE    => FinLogicOp.OR_REVERSE,
+          GxLogicOp.COPY_INVERTED => FinLogicOp.COPY_INVERTED,
+          GxLogicOp.OR_INVERTED   => FinLogicOp.OR_INVERTED,
+          GxLogicOp.NAND          => FinLogicOp.NAND,
+          GxLogicOp.SET           => FinLogicOp.SET,
           _ => throw new ArgumentOutOfRangeException(
-                   nameof(bmdLogicOp), bmdLogicOp, null)
+                   nameof(gxLogicOp), gxLogicOp, null)
       };
 
-    private FinAlphaOp ConvertBmdAlphaOpToFin(BmdAlphaOp bmdAlphaOp)
+    private FinAlphaOp ConvertGxAlphaOpToFin_(GxAlphaOp bmdAlphaOp)
       => bmdAlphaOp switch {
-          BmdAlphaOp.And  => FinAlphaOp.And,
-          BmdAlphaOp.Or   => FinAlphaOp.Or,
-          BmdAlphaOp.XOR  => FinAlphaOp.XOR,
-          BmdAlphaOp.XNOR => FinAlphaOp.XNOR,
+          GxAlphaOp.And  => FinAlphaOp.And,
+          GxAlphaOp.Or   => FinAlphaOp.Or,
+          GxAlphaOp.XOR  => FinAlphaOp.XOR,
+          GxAlphaOp.XNOR => FinAlphaOp.XNOR,
           _ => throw new ArgumentOutOfRangeException(
                    nameof(bmdAlphaOp), bmdAlphaOp, null)
       };
 
-    private FinAlphaCompareType ConvertBmdAlphaCompareTypeToFin(
-        BmdAlphaCompareType bmdAlphaCompareType)
-      => bmdAlphaCompareType switch {
-          BmdAlphaCompareType.Never   => FinAlphaCompareType.Never,
-          BmdAlphaCompareType.Less    => FinAlphaCompareType.Less,
-          BmdAlphaCompareType.Equal   => FinAlphaCompareType.Equal,
-          BmdAlphaCompareType.LEqual  => FinAlphaCompareType.LEqual,
-          BmdAlphaCompareType.Greater => FinAlphaCompareType.Greater,
-          BmdAlphaCompareType.NEqual  => FinAlphaCompareType.NEqual,
-          BmdAlphaCompareType.GEqual  => FinAlphaCompareType.GEqual,
-          BmdAlphaCompareType.Always  => FinAlphaCompareType.Always,
+    private FinAlphaCompareType ConvertGxAlphaCompareTypeToFin_(
+        GxAlphaCompareType gxAlphaAlphaCompareType)
+      => gxAlphaAlphaCompareType switch {
+          GxAlphaCompareType.Never   => FinAlphaCompareType.Never,
+          GxAlphaCompareType.Less    => FinAlphaCompareType.Less,
+          GxAlphaCompareType.Equal   => FinAlphaCompareType.Equal,
+          GxAlphaCompareType.LEqual  => FinAlphaCompareType.LEqual,
+          GxAlphaCompareType.Greater => FinAlphaCompareType.Greater,
+          GxAlphaCompareType.NEqual  => FinAlphaCompareType.NEqual,
+          GxAlphaCompareType.GEqual  => FinAlphaCompareType.GEqual,
+          GxAlphaCompareType.Always  => FinAlphaCompareType.Always,
           _ => throw new ArgumentOutOfRangeException(
-                   nameof(bmdAlphaCompareType), bmdAlphaCompareType, null)
+                   nameof(gxAlphaAlphaCompareType), gxAlphaAlphaCompareType, null)
       };
   }
 }
