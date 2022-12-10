@@ -24,6 +24,8 @@ namespace uni.ui.common {
   }
 
   public interface IBetterTreeView<T> where T : class {
+    void Clear();
+
     IBetterTreeNode<T> Root { get; }
 
     delegate void SelectedHandler(IBetterTreeNode<T> betterTreeNode);
@@ -49,6 +51,8 @@ namespace uni.ui.common {
 
     IBetterTreeNode<T> Add(string text);
     void Add(IBetterTreeNode<T> node);
+
+    void RemoveChildren();
 
     void ResetChildrenRecursively(
         Func<IBetterTreeNode<T>, bool>? filter = null);
@@ -100,8 +104,6 @@ namespace uni.ui.common {
         betterNode.IsExpanded = false;
         node.ImageIndex = node.SelectedImageIndex = betterNode.ClosedImageIndex;
       };
-
-      this.impl_.ImageList ??= new ImageList();
     }
 
     public void BeginUpdate() {
@@ -133,6 +135,10 @@ namespace uni.ui.common {
       }
     }
 
+    public void Clear() {
+      this.Root.RemoveChildren();
+    }
+
     // TODO: Slow
     public int GetOrAddIndexOfImage(Image? image) {
       if (image == null) {
@@ -143,6 +149,7 @@ namespace uni.ui.common {
         return index;
       }
 
+      this.impl_.ImageList ??= new ImageList();
       var imageList = this.impl_.ImageList.Images;
 
       index = imageList.Count;
@@ -233,6 +240,14 @@ namespace uni.ui.common {
 
       public void Add(IBetterTreeNode<T> node) =>
           this.collection_.Add(node.Impl);
+
+      public void RemoveChildren() {
+        foreach (var child in this.absoluteChildren_) {
+          child.Impl?.Remove();
+        }
+        this.collection_.Clear();
+        this.absoluteChildren_.Clear();
+      }
 
       public void ResetChildrenRecursively(
           Func<IBetterTreeNode<T>, bool>? filter = null) {

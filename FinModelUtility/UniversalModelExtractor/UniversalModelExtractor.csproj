@@ -105,6 +105,9 @@
     <Compile Update="src\ui\right_panel\materials\TextureSection.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="src\ui\right_panel\skeleton\SkeletonTreeView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="src\ui\right_panel\skeleton\SkeletonTab.cs">
       <SubType>UserControl</SubType>
     </Compile>
