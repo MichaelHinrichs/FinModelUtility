@@ -1,8 +1,16 @@
-﻿using fin.model;
+﻿using fin.io.bundles;
+using fin.model;
 using System.Collections.Generic;
 
 
 namespace fin.scene {
+  public interface ISceneFileBundle : IFileBundle { }
+
+  public interface ISceneLoader<in TSceneFileBundle>
+      where TSceneFileBundle : ISceneFileBundle {
+    IScene LoadScene(TSceneFileBundle sceneFileBundle);
+  }
+
   /// <summary>
   ///   A single scene from a game. These can be thought of as the parts of the
   ///   game that are each separated by a loading screen.
@@ -29,6 +37,9 @@ namespace fin.scene {
   ///   characters.
   /// </summary>
   public interface ISceneObject {
+    IPosition Position { get; }
+    IRotation Rotation { get; }
+
     ISceneObject SetPosition(IPosition position);
     ISceneObject SetRotation(IRotation rotation);
 
