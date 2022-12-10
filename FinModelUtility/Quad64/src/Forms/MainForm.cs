@@ -1279,7 +1279,7 @@ namespace Quad64 {
     }
 
     private void treeView1_AfterSelect(object sender, TreeViewEventArgs e) {
-      updateAfterSelect(e.Node);
+      updateAfterSelect(e.Node!);
     }
 
     void updateFieldOfView() {
