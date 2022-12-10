@@ -33,12 +33,13 @@ Model viewer and command-line tools for extracting models from games en-masse. S
 - [@nico](https://github.com/nico), AKA thakis, whose [szstools](http://amnoid.de/gc/) CLI is used to extract the contents of GameCube .isos and their [ddsview](http://www.amnoid.de/ddsview/index.html) tool was referenced to fix Halo Wars DXT5A/ATI1/BC4 parsing.
 - [@Ploaj](https://github.com/Ploaj), whose [HSDLib](https://github.com/Ploaj/HSDLib) library was heavily referenced to fix the Super Smash Bros. Melee DAT importer and [Metanoia](https://github.com/Ploaj/Metanoia) library was heavily referenced to add support for parsing Level 5 formats. 
 - [@revel8n](https://github.com/revel8n), whose [Smashboards thread](https://smashboards.com/threads/melee-dat-format.292603/) was referenced to add support for the .dat importer.
-- [@RenolY2](https://github.com/RenolY2), whose [bw-model-viewer](https://github.com/RenolY2/bw-model-viewer) tool was used as the basis for the .modl importer.
+- [@RenolY2](https://github.com/RenolY2), AKA Yoshi2, whose [bw-model-viewer](https://github.com/RenolY2/bw-model-viewer) tool was used as the basis for the .modl importer.
 - [@Sage-of-Mirrors](https://github.com/Sage-of-Mirrors), whose [SuperBMD](https://github.com/Sage-of-Mirrors/SuperBMD) tool was referenced to clean up the .bmd logic.
 - [@Sergio0694](https://github.com/Sergio0694), whose [BinaryPack](https://github.com/Sergio0694/BinaryPack) generator inspired the schema source generator used to generate read/write methods.
 - [@shravan2x](https://github.com/shravan2x), whose [Gameloop.Vdf](https://github.com/shravan2x/Gameloop.Vdf) library is used to deserialize the contents of Steam's .vdf files.
 - [@srogee](https://github.com/srogee), as his [HaloWarsTools](https://github.com/srogee/HaloWarsTools) program was used as the basis of the Halo Wars importer.
 - TTEMMA, whose [Gar/Zar UnPacker v0.2](https://gbatemp.net/threads/release-gar-zar-unpacker-v0-1.385264/) tool is used to extract the contents of Ocarina of Time 3D files.
+- [@SuperHackio](https://github.com/SuperHackio), whose [Hack.io](https://github.com/SuperHackio/Hack.io) library was referenced to improve the BMD parser.
 - Twili, for reverse-engineering and documenting the .zar archive format and various additional research.
 - [@vgmstream](https://github.com/vgmstream), whose [https://github.com/vgmstream/vgmstream](https://github.com/vgmstream/vgmstream) tool was ported to add support for parsing .AST ADPCM data.
 - [@VPenades](https://github.com/vpenades), who created the [SharpGLTF](https://github.com/vpenades/SharpGLTF) library used to write GLTF models.
