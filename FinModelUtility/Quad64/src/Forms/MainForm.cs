@@ -1528,7 +1528,7 @@ namespace Quad64 {
 
     private Object3D getSelectedObject() {
       if (Globals.list_selected == -1 || Globals.item_selected == -1) {
-        return null;
+        return null!;
       }
       switch (Globals.list_selected) {
         case 0:
@@ -1539,7 +1539,7 @@ namespace Quad64 {
           return level.getCurrentArea().SpecialObjects[Globals.item_selected];
         default: {
           if (!Globals.isMultiSelected)
-            return null;
+            return null!;
           else {
             string parentText = treeView1.SelectedNodes[0].Parent.Text;
             if (parentText.Equals("3D Objects"))
@@ -1552,7 +1552,7 @@ namespace Quad64 {
               return level.getCurrentArea()
                           .SpecialObjects[treeView1.SelectedNodes[0].Index];
             else
-              return null;
+              return null!;
           }
         }
       }
@@ -1562,7 +1562,7 @@ namespace Quad64 {
       isPaintingWarp = false;
       if (Globals.list_selected == -1 || Globals.item_selected == -1) {
         warpIndex = -1;
-        return null;
+        return null!;
       }
       switch (Globals.list_selected) {
         case 3: {
@@ -1584,7 +1584,7 @@ namespace Quad64 {
         }
         default: {
           warpIndex = -1;
-          return null;
+          return null!;
         }
       }
     }
@@ -2251,8 +2251,8 @@ namespace Quad64 {
         using (StreamReader tempFile = new StreamReader(
                    "./data/profiles/default/saved-objects-" + slot.ToString() +
                    ".json")) {
-          string json = tempFile.ReadLine();
-          objectsToLoad = JsonConvert.DeserializeObject<ObjectData[]>(json);
+          string json = tempFile.ReadLine()!;
+          objectsToLoad = JsonConvert.DeserializeObject<ObjectData[]>(json)!;
         }
       } catch (Exception ex) {
         Console.Error.WriteLine(ex);

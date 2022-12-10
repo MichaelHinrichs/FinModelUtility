@@ -13,8 +13,8 @@ namespace PropertyGridExtensionHacks {
       //PropertyGridView is an internal class...
       MethodInfo methodInfo = typeof(PropertyGrid).GetMethod(
           "GetPropertyGridView",
-          BindingFlags.NonPublic | BindingFlags.Instance);
-      return methodInfo.Invoke(propertyGrid, new object[] { });
+          BindingFlags.NonPublic | BindingFlags.Instance)!;
+      return methodInfo.Invoke(propertyGrid, new object[] { })!;
     }
 
     /// <summary>
@@ -33,8 +33,8 @@ namespace PropertyGridExtensionHacks {
                                       .GetProperty(
                                           "InternalLabelWidth",
                                           BindingFlags.NonPublic |
-                                          BindingFlags.Instance);
-      return (int) propInfo.GetValue(gridView, null);
+                                          BindingFlags.Instance)!;
+      return (int) propInfo.GetValue(gridView, null)!;
     }
 
     /// <summary>
