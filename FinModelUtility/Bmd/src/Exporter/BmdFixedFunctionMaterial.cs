@@ -179,10 +179,7 @@ namespace bmd.exporter {
           texture.WrapModeV = bmdTexture.WrapModeT;
           texture.ColorType = bmdTexture.ColorType;
 
-          var texCoordGen =
-              bmd.MAT3.TexCoordGens[
-                  materialEntry.TexGenInfo[tevOrder.TexCoordId]];
-
+          var texCoordGen = populatedMaterial.TexCoordGens[tevOrder.TexCoordId]!;
           var texGenSrc = texCoordGen.TexGenSrc;
           switch (texGenSrc) {
             case >= GxTexGenSrc.Tex0 and <= GxTexGenSrc.Tex7: {

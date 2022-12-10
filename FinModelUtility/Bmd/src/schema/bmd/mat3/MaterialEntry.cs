@@ -22,7 +22,7 @@ namespace bmd.schema.bmd.mat3 {
     public ushort[] AmbientColorIndexes { get; } = new ushort[2];
     public ushort[] LightColorIndexes { get; } = new ushort[8];
 
-    public ushort[] TexGenInfo { get; } = new ushort[8];
+    public short[] TexGenInfo { get; } = new short[8];
 
     public ushort[] TexGenInfo2 { get; } = new ushort[8];
     public ushort[] TexMatrices { get; } = new ushort[10];

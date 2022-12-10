@@ -1076,10 +1076,10 @@ label_7:
         return numArray;
       }
 
-      public class PopulatedMaterial {
-        public string Name;
+      public class PopulatedMaterial : IPopulatedMaterial {
+        public string Name { get; set; }
         public byte Flag;
-        public GxCullMode CullMode;
+        public GxCullMode CullMode { get; set; }
         public byte ColorChannelControlsCountIndex;
         public byte TexGensCountIndex;
         public byte TevStagesCountIndex;
@@ -1087,9 +1087,9 @@ label_7:
         public byte ZModeIndex;
         public byte DitherIndex;
 
-        public Color[] MaterialColors;
-        public IColorChannelControl?[] ColorChannelControls;
-        public Color[] AmbientColors;
+        public Color[] MaterialColors { get; set; }
+        public IColorChannelControl?[] ColorChannelControls { get; set; }
+        public Color[] AmbientColors { get; set; }
         public ushort[] LightColorIndexes;
 
         public ushort[] TexGenInfo;
@@ -1102,18 +1102,20 @@ label_7:
         public byte[] ConstColorSel;
         public byte[] ConstAlphaSel;
 
-        public ITevOrder?[] TevOrderInfos;
+        public ITevOrder?[] TevOrderInfos { get; set; }
 
         public ushort[] TevOrderInfoIndexes;
         public ushort[] TevColorIndexes;
-        public ITevStageProps?[] TevStageInfos;
+        public ITevStageProps?[] TevStageInfos { get; set; }
         public ushort[] TevSwapModeInfo;
         public ushort[] TevSwapModeTable;
         public ushort[] Unknown2;
         public short FogInfoIndex;
-        public IAlphaCompare AlphaCompare;
-        public IBlendFunction BlendMode;
+        public IAlphaCompare AlphaCompare { get; set; }
+        public IBlendFunction BlendMode { get; set; }
         public short UnknownIndex;
+
+        public ITexCoordGen?[] TexCoordGens { get; set; }
 
         public PopulatedMaterial(MAT3Section mat3, int index, MaterialEntry entry) {
           this.Name = mat3.MaterialNameTable[index];
@@ -1147,7 +1149,12 @@ label_7:
 
           this.TextureIndices =
               entry.TextureIndexes
-                   .Select(t => (short) (t != -1 ? mat3.TextureIndices[t] : -1))
+                   .Select(t => (short)(t != -1 ? mat3.TextureIndices[t] : -1))
+                   .ToArray();
+
+          this.TexCoordGens =
+              entry.TexGenInfo
+                   .Select(i => GetOrNull(mat3.TexCoordGens, i))
                    .ToArray();
 
           this.AlphaCompare = mat3.AlphaCompares[entry.AlphaCompareIndex];
