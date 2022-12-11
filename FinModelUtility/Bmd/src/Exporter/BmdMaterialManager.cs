@@ -5,11 +5,13 @@ using fin.model;
 
 using bmd.GCN;
 using bmd.schema.bti;
+using gx;
+
 
 namespace bmd.exporter {
   public class BmdMaterialManager {
     private readonly BMD bmd_;
-    private readonly IList<BmdTexture> textures_;
+    private readonly IList<IGxTexture> textures_;
     private readonly IList<BmdFixedFunctionMaterial> materials_;
 
     public BmdMaterialManager(
@@ -22,7 +24,7 @@ namespace bmd.exporter {
                             var textureName =
                                 bmd.TEX1.StringTable.Entries[i].Entry;
 
-                            return new BmdTexture(
+                            return (IGxTexture) new BmdGxTexture(
                                 textureName,
                                 textureHeader,
                                 pathsAndBtis);

@@ -5,7 +5,6 @@ using System.Text;
 using System.Drawing;
 using System.Linq;
 using fin.model;
-using bmd.GCN;
 using bmd.schema.bmd.mat3;
 using fin.image;
 using fin.language.equations.fixedFunction;
@@ -35,7 +34,7 @@ namespace bmd.exporter {
     public BmdFixedFunctionMaterial(
         IMaterialManager materialManager,
         IPopulatedMaterial populatedMaterial,
-        IList<BmdTexture> tex1Textures) {
+        IList<IGxTexture> tex1Textures) {
       // TODO: materialEntry.Flag determines draw order
 
       var materialName = populatedMaterial.Name;
@@ -158,8 +157,8 @@ namespace bmd.exporter {
           var texture = materialManager.CreateTexture(bmdTexture.Image);
 
           texture.Name = bmdTexture.Name;
-          texture.WrapModeU = bmdTexture.WrapModeS;
-          texture.WrapModeV = bmdTexture.WrapModeT;
+          texture.WrapModeU = GetWrapMode_(bmdTexture.WrapModeS);
+          texture.WrapModeV = GetWrapMode_(bmdTexture.WrapModeT);
           texture.ColorType = bmdTexture.ColorType;
 
           var texCoordGen = populatedMaterial.TexCoordGens[tevOrder.TexCoordId]!;
@@ -908,5 +907,20 @@ namespace bmd.exporter {
                    nameof(gxAlphaAlphaCompareType), gxAlphaAlphaCompareType,
                    null)
       };
+
+    private static WrapMode GetWrapMode_(GX_WRAP_TAG wrapMode) {
+      var mirror = (wrapMode & GX_WRAP_TAG.GX_MIRROR) != 0;
+      var repeat = (wrapMode & GX_WRAP_TAG.GX_REPEAT) != 0;
+
+      if (mirror) {
+        return WrapMode.MIRROR_REPEAT;
+      }
+
+      if (repeat) {
+        return WrapMode.REPEAT;
+      }
+
+      return WrapMode.CLAMP;
+    }
   }
 }

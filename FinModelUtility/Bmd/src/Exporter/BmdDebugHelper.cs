@@ -29,7 +29,7 @@ namespace bmd.exporter {
                           var textureName =
                               bmd.TEX1.StringTable.Entries[i].Entry;
 
-                          return new BmdTexture(
+                          return new BmdGxTexture(
                               textureName,
                               textureHeader,
                               pathsAndBtis);

@@ -14,8 +14,8 @@ using gx;
 
 
 namespace bmd.exporter {
-  public class BmdTexture {
-    public BmdTexture(
+  public class BmdGxTexture : IGxTexture {
+    public BmdGxTexture(
         string name,
         TextureEntry header,
         IList<(string, Bti)>? pathsAndBtis = null) {
@@ -44,38 +44,26 @@ namespace bmd.exporter {
           var bti = matchingPathAndBti.Item2;
 
           this.Image = bti.ToBitmap();
-          this.ColorType = BmdTexture.GetColorType_(bti.Format);
-          mirrorS = (bti.WrapS & GX_WRAP_TAG.GX_MIRROR) != 0;
-          mirrorT = (bti.WrapT & GX_WRAP_TAG.GX_MIRROR) != 0;
-          repeatS = (bti.WrapS & GX_WRAP_TAG.GX_REPEAT) != 0;
-          repeatT = (bti.WrapT & GX_WRAP_TAG.GX_REPEAT) != 0;
+          this.ColorType = BmdGxTexture.GetColorType_(bti.Format);
+          this.WrapModeS = bti.WrapS;
+          this.WrapModeT = bti.WrapT;
         }
       }
 
       if (this.Image == null) {
         this.Image = header.ToBitmap();
-        this.ColorType = BmdTexture.GetColorType_(header.Format);
-        mirrorS =
-            (header.WrapS & GX_WRAP_TAG.GX_MIRROR) != 0;
-        mirrorT =
-            (header.WrapT & GX_WRAP_TAG.GX_MIRROR) != 0;
-        repeatS =
-            (header.WrapS & GX_WRAP_TAG.GX_REPEAT) != 0;
-        repeatT =
-            (header.WrapT & GX_WRAP_TAG.GX_REPEAT) != 0;
+        this.ColorType = BmdGxTexture.GetColorType_(header.Format);
+        this.WrapModeS = header.WrapS;
+        this.WrapModeT = header.WrapT;
       }
-
-      // TODO: Need to handle wrapping in the shader?
-      this.WrapModeS = BmdTexture.GetWrapMode_(mirrorS, repeatS);
-      this.WrapModeT = BmdTexture.GetWrapMode_(mirrorT, repeatT);
     }
 
     public string Name { get; }
     public TextureEntry Header { get; }
     public IImage Image { get; }
     public ColorType ColorType { get; }
-    public WrapMode WrapModeS { get; }
-    public WrapMode WrapModeT { get; }
+    public GX_WRAP_TAG WrapModeS { get; }
+    public GX_WRAP_TAG WrapModeT { get; }
 
     public void SaveInDirectory(IDirectory directory) {
       var stream = new MemoryStream();
@@ -89,18 +77,6 @@ namespace bmd.exporter {
 
       File.WriteAllBytes(Path.Join(directory.FullName, $"{name}.png"),
                          imageBytes);
-    }
-
-    private static WrapMode GetWrapMode_(bool mirror, bool repeat) {
-      if (mirror) {
-        return WrapMode.MIRROR_REPEAT;
-      }
-
-      if (repeat) {
-        return WrapMode.REPEAT;
-      }
-
-      return WrapMode.CLAMP;
     }
 
     private static ColorType GetColorType_(TextureFormat textureFormat) {

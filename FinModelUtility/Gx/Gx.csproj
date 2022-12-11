@@ -8,4 +8,8 @@
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Fin\Fin.csproj" />
+  </ItemGroup>
+
 </Project>

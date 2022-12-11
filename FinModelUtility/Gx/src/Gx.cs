@@ -147,29 +147,4 @@
     KASel_K2_A = 0x1E,  // K2[A] Register
     KASel_K3_A = 0x1F   // K3[A] Register
   }
-
-  public enum GX_WRAP_TAG : byte {
-    GX_CLAMP,
-    GX_REPEAT,
-    GX_MIRROR,
-    GX_MAXTEXWRAPMODE,
-  }
-
-  public enum GX_TEXTURE_FILTER : byte {
-    GX_NEAR,
-    GX_LINEAR,
-    GX_NEAR_MIP_NEAR,
-    GX_LIN_MIP_NEAR,
-    GX_NEAR_MIP_LIN,
-    GX_LIN_MIP_LIN,
-    GX_NEAR2,
-    GX_NEAR3,
-  }
-
-  public enum GxCullMode {
-    None = 0,  // Do not cull any primitives
-    Front = 1, // Cull front-facing primitives
-    Back = 2,  // Cull back-facing primitives
-    All = 3    // Cull all primitives
-  }
 }
