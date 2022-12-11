@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.Text;
 using System.Drawing;
-using System.Linq;
 using fin.model;
-using bmd.schema.bmd.mat3;
 using fin.image;
 using fin.language.equations.fixedFunction;
 using fin.language.equations.fixedFunction.impl;
@@ -17,21 +12,19 @@ using FinAlphaOp = fin.model.AlphaOp;
 using FinAlphaCompareType = fin.model.AlphaCompareType;
 
 
-namespace bmd.exporter {
-  using TevStage = TevStageProps;
-
+namespace gx {
   /// <summary>
   ///   BMD material, one of the common formats for the GameCube.
   ///
   ///   For more info:
   ///   http://www.amnoid.de/gc/tev.html
   /// </summary>
-  public class BmdFixedFunctionMaterial {
+  public class GxFixedFunctionMaterial {
     private const bool STRICT = false;
 
     public override string ToString() => this.Material.Name ?? "(n/a)";
 
-    public BmdFixedFunctionMaterial(
+    public GxFixedFunctionMaterial(
         IMaterialManager materialManager,
         IPopulatedMaterial populatedMaterial,
         IList<IGxTexture> tex1Textures) {
@@ -242,7 +235,7 @@ namespace bmd.exporter {
             }
 
             default: {
-              if (BmdFixedFunctionMaterial.STRICT) {
+              if (GxFixedFunctionMaterial.STRICT) {
                 throw new NotImplementedException();
               } else {
                 colorValue = colorC;
@@ -304,7 +297,7 @@ namespace bmd.exporter {
             }
 
             default: {
-              if (BmdFixedFunctionMaterial.STRICT) {
+              if (GxFixedFunctionMaterial.STRICT) {
                 throw new NotImplementedException();
               } else {
                 alphaValue = scZero;
@@ -778,7 +771,7 @@ namespace bmd.exporter {
           return constColor;
         }
 
-        if (!BmdFixedFunctionMaterial.STRICT) {
+        if (!GxFixedFunctionMaterial.STRICT) {
           return this.colorUndefined_;
         }
 
@@ -818,7 +811,7 @@ namespace bmd.exporter {
           return constColor;
         }
 
-        if (!BmdFixedFunctionMaterial.STRICT) {
+        if (!GxFixedFunctionMaterial.STRICT) {
           return this.alphaUndefined_;
         }
 

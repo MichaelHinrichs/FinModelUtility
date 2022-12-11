@@ -6,7 +6,6 @@ using fin.math;
 using fin.math.matrix;
 using bmd.GCN;
 using bmd.schema.bmd.jnt1;
-using bmd.schema.bmd.mat3;
 using bmd.schema.bti;
 using fin.model;
 using fin.model.impl;
@@ -14,6 +13,7 @@ using fin.util.asserts;
 using fin.io;
 using fin.log;
 using fin.schema.matrix;
+using gx;
 using System.Numerics;
 
 
@@ -231,8 +231,7 @@ namespace bmd.exporter {
       var entries = bmd.INF1.Entries;
       var batches = bmd.SHP1.Batches;
 
-      MaterialEntry? currentMaterialEntry = null;
-      BmdFixedFunctionMaterial? currentBmdMaterial = null;
+      GxFixedFunctionMaterial? currentMaterial = null;
 
       var weightsTable = new IBoneWeights?[10];
       foreach (var entry in entries) {
@@ -243,11 +242,7 @@ namespace bmd.exporter {
 
           // Material
           case 0x11:
-            var mappedMaterialIndex =
-                bmd.MAT3.MaterialEntryIndieces[entry.Index];
-            currentMaterialEntry =
-                bmd.MAT3.MaterialEntries[mappedMaterialIndex];
-            currentBmdMaterial = materialManager.Get(entry.Index);
+            currentMaterial = materialManager.Get(entry.Index);
             break;
 
           // Batch
@@ -358,29 +353,29 @@ namespace bmd.exporter {
 
                 var gxPrimitiveType = primitive.Type;
 
-                Asserts.Nonnull(currentBmdMaterial);
+                Asserts.Nonnull(currentMaterial);
                 switch (gxPrimitiveType) {
                   case GxPrimitiveType.GX_TRIANGLES: {
                     finMesh.AddTriangles(vertices)
-                           .SetMaterial(currentBmdMaterial.Material);
+                           .SetMaterial(currentMaterial.Material);
                     break;
                   }
 
                   case GxPrimitiveType.GX_TRIANGLESTRIP: {
                     finMesh.AddTriangleStrip(vertices)
-                           .SetMaterial(currentBmdMaterial.Material);
+                           .SetMaterial(currentMaterial.Material);
                     break;
                   }
 
                   case GxPrimitiveType.GX_TRIANGLEFAN: {
                     finMesh.AddTriangleFan(vertices)
-                           .SetMaterial(currentBmdMaterial.Material);
+                           .SetMaterial(currentMaterial.Material);
                     break;
                   }
 
                   case GxPrimitiveType.GX_QUADS: {
                     finMesh.AddQuads(vertices)
-                           .SetMaterial(currentBmdMaterial.Material);
+                           .SetMaterial(currentMaterial.Material);
                     break;
                   }
 
