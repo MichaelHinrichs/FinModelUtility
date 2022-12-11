@@ -5,7 +5,6 @@ using fin.image;
 using fin.language.equations.fixedFunction;
 using fin.language.equations.fixedFunction.impl;
 using fin.util.asserts;
-using gx;
 using FinBlendFactor = fin.model.BlendFactor;
 using FinLogicOp = fin.model.LogicOp;
 using FinAlphaOp = fin.model.AlphaOp;
@@ -109,6 +108,8 @@ namespace gx {
       var equations = material.Equations;
 
       var colorZero = equations.CreateColorConstant(0);
+      var colorHalf = equations.CreateColorConstant(.5);
+      var colorOne = equations.CreateColorConstant(1);
 
       var scZero = equations.CreateScalarConstant(0);
       var scOne = equations.CreateScalarConstant(1);
@@ -130,6 +131,121 @@ namespace gx {
 
       valueManager.SetColorRegisters(populatedMaterial.TevColors);
       valueManager.SetKonstColors(populatedMaterial.KonstColors);
+
+      var diffuseLightingColor = equations.CreateColorInput(
+          FixedFunctionSource.DIFFUSE_LIGHTING_COLOR,
+          colorZero);
+      var diffuseLightingAlpha = equations.CreateScalarInput(
+          FixedFunctionSource.DIFFUSE_LIGHTING_ALPHA,
+          scZero);
+
+      var vertexColors = new IColorValue[2];
+      var vertexAlphas = new IScalarValue[2];
+      for (byte i = 0; i < 2; i++) {
+        vertexColors[i] = equations.CreateColorInput(
+            FixedFunctionSource.VERTEX_COLOR_0 + i,
+            colorZero);
+        vertexAlphas[i] = equations.CreateScalarInput(
+            FixedFunctionSource.VERTEX_ALPHA_0 + i,
+            scZero);
+      }
+
+      for (var i = 0; i < 4; ++i) {
+        var colorChannelControl = populatedMaterial.ColorChannelControls[i];
+
+        if (colorChannelControl == null) {
+          continue;
+        }
+
+        // TODO: Properly handle lights and attentuation and stuff
+
+        if (i % 2 == 0) {
+          var colorIndex = (byte)(i / 2);
+
+          var vertexColor = vertexColors[colorIndex];
+
+          var materialRegister = populatedMaterial.MaterialColors[colorIndex];
+          var materialColor = colorChannelControl.MaterialSrc switch {
+              GxColorSrc.Register => equations.CreateColorConstant(
+                  materialRegister.R / 255.0,
+                  materialRegister.G / 255.0,
+                  materialRegister.B / 255.0),
+              GxColorSrc.Vertex => vertexColor,
+          };
+
+          var colorValue = materialColor;
+
+          var isLightingEnabled = colorChannelControl.LightingEnabled;
+          if (isLightingEnabled) {
+            var ambientRegister = populatedMaterial.AmbientColors[colorIndex];
+            var ambientColor = colorChannelControl.AmbientSrc switch {
+                GxColorSrc.Register => equations.CreateColorConstant(
+                    ambientRegister.R / 255.0,
+                    ambientRegister.G / 255.0,
+                    ambientRegister.B / 255.0),
+                GxColorSrc.Vertex => vertexColor,
+            };
+
+            var illuminationColor =
+                colorFixedFunctionOps.Add(diffuseLightingColor, ambientColor);
+            if (illuminationColor != null) {
+              illuminationColor.Clamp = true;
+            }
+
+            colorValue =
+                colorFixedFunctionOps.Multiply(materialColor,
+                                               illuminationColor);
+          }
+
+          valueManager.UpdateColorChannelColor(
+              colorIndex switch {
+                  0 => GxColorChannel.GX_COLOR0A0,
+                  1 => GxColorChannel.GX_COLOR1A1,
+              },
+              colorValue ?? colorZero);
+        } else {
+          var alphaIndex = (byte)((i - 1) / 2);
+
+          var vertexAlpha = vertexAlphas[alphaIndex];
+
+          var materialRegister = populatedMaterial.MaterialColors[alphaIndex];
+          var materialAlpha = colorChannelControl.MaterialSrc switch {
+              GxColorSrc.Register => equations.CreateScalarConstant(
+                  materialRegister.A / 255.0),
+              GxColorSrc.Vertex => vertexAlpha,
+          };
+
+          var alphaValue = materialAlpha;
+
+          var isLightingEnabled = colorChannelControl.LightingEnabled;
+          if (isLightingEnabled) {
+            var ambientRegister = populatedMaterial.AmbientColors[alphaIndex];
+            var ambientAlpha = colorChannelControl.AmbientSrc switch {
+                GxColorSrc.Register => equations.CreateScalarConstant(
+                    ambientRegister.A / 255.0),
+                GxColorSrc.Vertex => vertexAlpha,
+            };
+
+            var illuminationAlpha =
+                scalarFixedFunctionOps.Add(diffuseLightingAlpha, ambientAlpha);
+            if (illuminationAlpha != null) {
+              illuminationAlpha.Clamp = true;
+            }
+
+            alphaValue =
+                scalarFixedFunctionOps.Multiply(
+                    materialAlpha, illuminationAlpha);
+          }
+
+          valueManager.UpdateColorChannelAlpha(
+              alphaIndex switch {
+                  0 => GxColorChannel.GX_COLOR0A0,
+                  1 => GxColorChannel.GX_COLOR1A1,
+              },
+              alphaValue ?? scZero
+          );
+        }
+      }
 
       for (var i = 0; i < populatedMaterial.TevStageInfos.Length; ++i) {
         var tevStage = populatedMaterial.TevStageInfos[i];
@@ -154,7 +270,8 @@ namespace gx {
           texture.WrapModeV = GetWrapMode_(bmdTexture.WrapModeT);
           texture.ColorType = bmdTexture.ColorType;
 
-          var texCoordGen = populatedMaterial.TexCoordGens[tevOrder.TexCoordId]!;
+          var texCoordGen =
+              populatedMaterial.TexCoordGens[tevOrder.TexCoordId]!;
           var texGenSrc = texCoordGen.TexGenSrc;
           switch (texGenSrc) {
             case >= GxTexGenSrc.Tex0 and <= GxTexGenSrc.Tex7: {
@@ -525,6 +642,29 @@ namespace gx {
         }
       }
 
+      private readonly Dictionary<GxColorChannel, IColorValue>
+          colorChannelColorColors_ = new();
+
+      private readonly Dictionary<GxColorChannel, IColorValue>
+          colorChannelColorAlphas_ = new();
+
+      private readonly Dictionary<GxColorChannel, IScalarValue>
+          colorChannelAlphas_ = new();
+
+      public void UpdateColorChannelColor(
+          GxColorChannel colorChannel,
+          IColorValue colorValue) {
+        this.colorChannelColorColors_[colorChannel] = colorValue;
+      }
+
+      public void UpdateColorChannelAlpha(
+          GxColorChannel colorChannel,
+          IScalarValue alphaValue) {
+        this.colorChannelAlphas_[colorChannel] = alphaValue;
+        this.colorChannelColorAlphas_[colorChannel] =
+            this.equations_.CreateColor(alphaValue);
+      }
+
       // TODO: Switch from vertex color to ambient/diffuse lights when applicable
       private IColorValue GetVertexColorChannel_(GxCc colorSource) {
         var channelOrNull = this.colorChannel_;
@@ -534,28 +674,13 @@ namespace gx {
 
         if (!this.colorChannelsColors_.TryGetValue(channel, out var color)) {
           // TODO: Handle different color channels properly, how does vertex color factor in??
-          var source = colorSource switch {
-              GxCc.GX_CC_RASC => channel switch {
-                  GxColorChannel.GX_COLOR0A0 =>
-                      FixedFunctionSource.DIFFUSE_LIGHTING_COLOR,
-                  GxColorChannel.GX_COLOR1A1 =>
-                      FixedFunctionSource.AMBIENT_LIGHTING_COLOR,
-                  _ => throw new NotImplementedException()
-              },
-              GxCc.GX_CC_RASA => channel switch {
-                  GxColorChannel.GX_COLOR0A0 =>
-                      FixedFunctionSource.DIFFUSE_LIGHTING_ALPHA,
-                  GxColorChannel.GX_COLOR1A1 =>
-                      FixedFunctionSource.AMBIENT_LIGHTING_ALPHA,
-                  _ => throw new NotImplementedException()
-              },
-              _ => throw new NotImplementedException()
+          var value = colorSource switch {
+              GxCc.GX_CC_RASC => colorChannelColorColors_[channel],
+              GxCc.GX_CC_RASA => colorChannelColorAlphas_[channel],
+              _               => throw new NotImplementedException()
           };
 
-          this.colorChannelsColors_[channel] =
-              color = this.equations_.CreateColorInput(
-                  source,
-                  this.equations_.CreateColorConstant(0));
+          this.colorChannelsColors_[channel] = color = value;
         }
 
         return this.colorValues_[colorSource] = color;
@@ -570,18 +695,9 @@ namespace gx {
 
 
         if (!this.alphaChannelsColors_.TryGetValue(channel, out var alpha)) {
-          var source = channel switch {
-              GxColorChannel.GX_COLOR0A0 => FixedFunctionSource
-                  .DIFFUSE_LIGHTING_ALPHA,
-              GxColorChannel.GX_COLOR1A1 => FixedFunctionSource
-                  .AMBIENT_LIGHTING_ALPHA,
-              _ => throw new NotImplementedException()
-          };
+          var value = colorChannelAlphas_[channel];
 
-          this.alphaChannelsColors_[channel] =
-              alpha = this.equations_.CreateScalarInput(
-                  source,
-                  this.equations_.CreateScalarConstant(0));
+          this.alphaChannelsColors_[channel] = alpha = value;
         }
 
         return this.alphaValues_[GxCa.GX_CA_RASA] = alpha;

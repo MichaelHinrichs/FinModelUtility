@@ -21,7 +21,7 @@ namespace fin.language.equations.fixedFunction {
     IScalarTerm Multiply(IScalarValue factor1, params IScalarValue[] factors);
     IScalarTerm Divide(IScalarValue factor1, params IScalarValue[] factors);
 
-    bool Clamp { get; }
+    bool Clamp { get; set; }
   }
 
   public interface IScalarExpression : IScalarValue {

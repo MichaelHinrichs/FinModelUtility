@@ -2,6 +2,10 @@
 
 
 namespace fin.language.equations.fixedFunction.impl {
+  public class FixedFunctionOpsConstants {
+    public const bool SIMPLIFY = true;
+  }
+
   public abstract class BFixedFunctionOps<T> where T : notnull {
     public abstract T Zero { get; }
     public abstract T One { get; }
@@ -69,17 +73,22 @@ namespace fin.language.equations.fixedFunction.impl {
     public override IColorValue One { get; }
 
     public override IColorValue? Add(IColorValue? lhs, IColorValue? rhs) {
-      var lhsIsZero = this.IsZero(lhs);
-      var rhsIsZero = this.IsZero(rhs);
+      if (!FixedFunctionOpsConstants.SIMPLIFY) {
+        lhs ??= this.Zero;
+        rhs ??= this.Zero;
+      } else {
+        var lhsIsZero = this.IsZero(lhs);
+        var rhsIsZero = this.IsZero(rhs);
 
-      if (lhsIsZero && rhsIsZero) {
-        return null;
-      }
-      if (lhsIsZero) {
-        return rhs;
-      }
-      if (rhsIsZero) {
-        return lhs;
+        if (lhsIsZero && rhsIsZero) {
+          return null;
+        }
+        if (lhsIsZero) {
+          return rhs;
+        }
+        if (rhsIsZero) {
+          return lhs;
+        }
       }
 
       return lhs!.Add(rhs!);
@@ -87,55 +96,70 @@ namespace fin.language.equations.fixedFunction.impl {
 
     public override IColorValue? AddWithScalar(IColorValue? lhs,
                                                IScalarValue? rhs) {
-      var lhsIsZero = this.IsZero(lhs);
-      var rhsIsZero = this.IsZero(rhs);
+      if (!FixedFunctionOpsConstants.SIMPLIFY) {
+        lhs ??= this.Zero;
+        rhs ??= this.scZero_;
+      } else {
+        var lhsIsZero = this.IsZero(lhs);
+        var rhsIsZero = this.IsZero(rhs);
 
-      if (lhsIsZero && rhsIsZero) {
-        return null;
-      }
-      if (lhsIsZero) {
-        return this.equations_.CreateColor(rhs!);
-      }
-      if (rhsIsZero) {
-        return lhs;
+        if (lhsIsZero && rhsIsZero) {
+          return null;
+        }
+        if (lhsIsZero) {
+          return this.equations_.CreateColor(rhs!);
+        }
+        if (rhsIsZero) {
+          return lhs;
+        }
       }
 
       return lhs!.Add(rhs!);
     }
 
     public override IColorValue? Subtract(IColorValue? lhs, IColorValue? rhs) {
-      var lhsIsZero = this.IsZero(lhs);
-      var rhsIsZero = this.IsZero(rhs);
+      if (!FixedFunctionOpsConstants.SIMPLIFY) {
+        lhs ??= this.Zero;
+        rhs ??= this.Zero;
+      } else {
+        var lhsIsZero = this.IsZero(lhs);
+        var rhsIsZero = this.IsZero(rhs);
 
-      if ((lhsIsZero && rhsIsZero) || lhs == rhs) {
-        return null;
-      }
-      if (lhsIsZero) {
-        return rhs?.Multiply(this.scMinusOne_);
-      }
-      if (rhsIsZero) {
-        return lhs;
+        if ((lhsIsZero && rhsIsZero) || lhs == rhs) {
+          return null;
+        }
+        if (lhsIsZero) {
+          return rhs?.Multiply(this.scMinusOne_);
+        }
+        if (rhsIsZero) {
+          return lhs;
+        }
       }
 
       return lhs!.Subtract(rhs!);
     }
 
     public override IColorValue? Multiply(IColorValue? lhs, IColorValue? rhs) {
-      if (this.IsZero(lhs) || this.IsZero(rhs)) {
-        return null;
-      }
+      if (!FixedFunctionOpsConstants.SIMPLIFY) {
+        lhs ??= this.Zero;
+        rhs ??= this.Zero;
+      } else {
+        if (this.IsZero(lhs) || this.IsZero(rhs)) {
+          return null;
+        }
 
-      var lhsIsOne = lhs == this.One;
-      var rhsIsOne = rhs == this.One;
+        var lhsIsOne = lhs == this.One;
+        var rhsIsOne = rhs == this.One;
 
-      if (lhsIsOne && rhsIsOne) {
-        return this.One;
-      }
-      if (lhsIsOne) {
-        return rhs;
-      }
-      if (rhsIsOne) {
-        return lhs;
+        if (lhsIsOne && rhsIsOne) {
+          return this.One;
+        }
+        if (lhsIsOne) {
+          return rhs;
+        }
+        if (rhsIsOne) {
+          return lhs;
+        }
       }
 
       return lhs!.Multiply(rhs!);
@@ -144,21 +168,26 @@ namespace fin.language.equations.fixedFunction.impl {
     public override IColorValue? MultiplyWithScalar(
         IColorValue? lhs,
         IScalarValue? rhs) {
-      if (this.IsZero(lhs) || this.IsZero(rhs)) {
-        return null;
-      }
+      if (!FixedFunctionOpsConstants.SIMPLIFY) {
+        lhs ??= this.Zero;
+        rhs ??= this.scZero_;
+      } else {
+        if (this.IsZero(lhs) || this.IsZero(rhs)) {
+          return null;
+        }
 
-      var lhsIsOne = lhs == this.One;
-      var rhsIsOne = rhs == this.scOne_;
+        var lhsIsOne = lhs == this.One;
+        var rhsIsOne = rhs == this.scOne_;
 
-      if (lhsIsOne && rhsIsOne) {
-        return this.One;
-      }
-      if (lhsIsOne) {
-        return this.equations_.CreateColor(rhs!);
-      }
-      if (rhsIsOne) {
-        return lhs;
+        if (lhsIsOne && rhsIsOne) {
+          return this.One;
+        }
+        if (lhsIsOne) {
+          return this.equations_.CreateColor(rhs!);
+        }
+        if (rhsIsOne) {
+          return lhs;
+        }
       }
 
       return lhs!.Multiply(rhs!);
@@ -188,17 +217,22 @@ namespace fin.language.equations.fixedFunction.impl {
       => this.Add(lhs, rhs);
 
     public override IScalarValue? Add(IScalarValue? lhs, IScalarValue? rhs) {
-      var lhsIsZero = this.IsZero(lhs);
-      var rhsIsZero = this.IsZero(rhs);
+      if (!FixedFunctionOpsConstants.SIMPLIFY) {
+        lhs ??= this.Zero;
+        rhs ??= this.Zero;
+      } else {
+        var lhsIsZero = this.IsZero(lhs);
+        var rhsIsZero = this.IsZero(rhs);
 
-      if (lhsIsZero && rhsIsZero) {
-        return null;
-      }
-      if (lhsIsZero) {
-        return rhs;
-      }
-      if (rhsIsZero) {
-        return lhs;
+        if (lhsIsZero && rhsIsZero) {
+          return null;
+        }
+        if (lhsIsZero) {
+          return rhs;
+        }
+        if (rhsIsZero) {
+          return lhs;
+        }
       }
 
       return lhs!.Add(rhs!);
@@ -206,17 +240,22 @@ namespace fin.language.equations.fixedFunction.impl {
 
     public override IScalarValue?
         Subtract(IScalarValue? lhs, IScalarValue? rhs) {
-      var lhsIsZero = this.IsZero(lhs);
-      var rhsIsZero = this.IsZero(rhs);
+      if (!FixedFunctionOpsConstants.SIMPLIFY) {
+        lhs ??= this.Zero;
+        rhs ??= this.Zero;
+      } else {
+        var lhsIsZero = this.IsZero(lhs);
+        var rhsIsZero = this.IsZero(rhs);
 
-      if ((lhsIsZero && rhsIsZero) || lhs == rhs) {
-        return null;
-      }
-      if (lhsIsZero) {
-        return rhs?.Multiply(this.scMinusOne_);
-      }
-      if (rhsIsZero) {
-        return lhs;
+        if ((lhsIsZero && rhsIsZero) || lhs == rhs) {
+          return null;
+        }
+        if (lhsIsZero) {
+          return rhs?.Multiply(this.scMinusOne_);
+        }
+        if (rhsIsZero) {
+          return lhs;
+        }
       }
 
       return lhs!.Subtract(rhs!);
@@ -229,21 +268,26 @@ namespace fin.language.equations.fixedFunction.impl {
 
     public override IScalarValue?
         Multiply(IScalarValue? lhs, IScalarValue? rhs) {
-      if (this.IsZero(lhs) || this.IsZero(rhs)) {
-        return null;
-      }
+      if (!FixedFunctionOpsConstants.SIMPLIFY) {
+        lhs ??= this.Zero;
+        rhs ??= this.Zero;
+      } else {
+        if (this.IsZero(lhs) || this.IsZero(rhs)) {
+          return null;
+        }
 
-      var lhsIsOne = lhs == this.One;
-      var rhsIsOne = rhs == this.One;
+        var lhsIsOne = lhs == this.One;
+        var rhsIsOne = rhs == this.One;
 
-      if (lhsIsOne && rhsIsOne) {
-        return this.One;
-      }
-      if (lhsIsOne) {
-        return rhs;
-      }
-      if (rhsIsOne) {
-        return lhs;
+        if (lhsIsOne && rhsIsOne) {
+          return this.One;
+        }
+        if (lhsIsOne) {
+          return rhs;
+        }
+        if (rhsIsOne) {
+          return lhs;
+        }
       }
 
       return lhs!.Multiply(rhs!);

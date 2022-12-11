@@ -60,9 +60,7 @@ namespace fin.language.equations.fixedFunction {
         os.WriteLine(@"  vec3 diffuseLightNormal = normalize(vec3(.5, .5, -1));
   float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);
 
-  float ambientLightAmount = .3;
-  
-  float lightAmount = min(ambientLightAmount + diffuseLightAmount, 1);
+  float lightAmount = min(diffuseLightAmount, 1);
   vec3 lightColor = vec3(.5, .5, .5);
   
   vec4 diffuseLightingColor = vec4(lightAmount * lightColor, 1);");

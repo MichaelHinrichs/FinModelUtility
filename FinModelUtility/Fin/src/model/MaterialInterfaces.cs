@@ -170,8 +170,8 @@ namespace fin.model {
     VERTEX_COLOR_0,
     VERTEX_COLOR_1,
 
-    VERTEX_ALPHA_1,
     VERTEX_ALPHA_0,
+    VERTEX_ALPHA_1,
 
     OUTPUT_COLOR,
     OUTPUT_ALPHA,

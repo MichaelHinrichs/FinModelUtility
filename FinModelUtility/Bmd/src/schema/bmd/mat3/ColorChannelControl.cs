@@ -42,5 +42,7 @@ namespace bmd.schema.bmd.mat3 {
     public GxAttenuationFunction AttenuationFunction { get; set; }
 
     public GxColorSrc AmbientSrc { get; set; }
+
+    private readonly ushort padding_ = ushort.MaxValue;
   }
 }
