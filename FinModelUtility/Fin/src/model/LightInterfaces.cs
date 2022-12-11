@@ -2,6 +2,18 @@
 
 
 namespace fin.model {
+  public enum AttenuationFunction {
+    NONE,
+    SPECULAR,
+    SPOT,
+  }
+
+  public enum DiffuseFunction {
+    NONE,
+    SIGNED,
+    CLAMP,
+  }
+
   public interface ILight {
     string Name { get; }
     
@@ -12,5 +24,8 @@ namespace fin.model {
 
     IVector3 CosineAttenuation { get; }
     IVector3 DistanceAttenuation { get; }
+
+    AttenuationFunction AttenuationFunction { get; }
+    DiffuseFunction DiffuseFunction { get; }
   }
 }
