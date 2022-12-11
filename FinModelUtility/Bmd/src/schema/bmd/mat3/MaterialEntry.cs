@@ -28,11 +28,11 @@ namespace bmd.schema.bmd.mat3 {
     public ushort[] TexMatrices { get; } = new ushort[10];
     public ushort[] DttMatrices { get; } = new ushort[20];
     public short[] TextureIndexes { get; } = new short[8];
-    public ushort[] TevKonstColorIndexes { get; } = new ushort[4];
+    public short[] TevKonstColorIndexes { get; } = new short[4];
     public GxKonstColorSel[] KonstColorSel { get; } = new GxKonstColorSel[16];
     public GxKonstAlphaSel[] KonstAlphaSel { get; } = new GxKonstAlphaSel[16];
     public short[] TevOrderInfoIndexes { get; } = new short[16];
-    public ushort[] TevColorIndexes { get; } = new ushort[4];
+    public short[] TevColorIndexes { get; } = new short[4];
     public short[] TevStageInfoIndexes { get; } = new short[16];
     public ushort[] TevSwapModeInfo { get; } = new ushort[16];
     public ushort[] TevSwapModeTable { get; } = new ushort[4];

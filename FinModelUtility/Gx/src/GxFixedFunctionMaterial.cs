@@ -194,7 +194,6 @@ namespace gx {
 
           IColorValue? colorValue = null;
 
-          // TODO: Switch this to an enum
           var colorOp = tevStage.color_op;
           switch (colorOp) {
             // ADD: out = a*(1 - c) + b*c + d

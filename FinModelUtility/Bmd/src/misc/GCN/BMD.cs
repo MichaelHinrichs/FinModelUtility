@@ -1015,12 +1015,12 @@ label_7:
 
           er.Position = position1 + (long) this.Offsets[17];
           this.TevColors = new System.Drawing.Color[sectionLengths[17] / 8];
-          for (int index = 0; index < sectionLengths[17] / 8; ++index)
+          for (int index = 0; index < this.TevColors.Length; ++index)
             this.TevColors[index] = er.ReadColor16();
           
           er.Position = position1 + (long) this.Offsets[18];
-          this.TevKonstColors = new System.Drawing.Color[4];
-          for (int index = 0; index < 4; ++index)
+          this.TevKonstColors = new System.Drawing.Color[sectionLengths[18] / 4];
+          for (int index = 0; index < this.TevKonstColors.Length; ++index)
             this.TevKonstColors[index] = er.ReadColor8();
 
           // TODO: Add support for tev counts (19)
