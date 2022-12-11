@@ -16,5 +16,8 @@
     byte TexCoordId { get; }
     sbyte TexMap { get; }
     GxColorChannel ColorChannelId { get; }
+
+    GxKonstColorSel KonstColorSel { get; }
+    GxKonstAlphaSel KonstAlphaSel { get; }
   }
 }

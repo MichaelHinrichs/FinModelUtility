@@ -39,8 +39,7 @@ namespace bmd.exporter {
       => bmd.MAT3.MaterialEntries.Select(
                 (_, i) => new BmdFixedFunctionMaterial(
                     model.MaterialManager,
-                    i,
-                    bmd,
+                    bmd.MAT3.PopulatedMaterials[i],
                     this.textures_))
             .ToList();
   }

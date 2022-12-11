@@ -10,6 +10,9 @@ namespace gx {
     IColorChannelControl?[] ColorChannelControls { get; }
     Color[] AmbientColors { get; }
 
+    Color[] KonstColors { get; }
+    Color[] TevColors { get; }
+
     ITevOrder?[] TevOrderInfos { get; }
     ITevStageProps?[] TevStageInfos { get; }
 
@@ -17,5 +20,7 @@ namespace gx {
     IBlendFunction BlendMode { get; }
 
     ITexCoordGen?[] TexCoordGens { get; }
+
+    short[] TextureIndices { get; }
   }
 }

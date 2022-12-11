@@ -34,14 +34,10 @@ namespace bmd.exporter {
 
     public BmdFixedFunctionMaterial(
         IMaterialManager materialManager,
-        int materialEntryIndex,
-        BMD bmd,
+        IPopulatedMaterial populatedMaterial,
         IList<BmdTexture> tex1Textures) {
       // TODO: materialEntry.Flag determines draw order
 
-      var materialEntry = bmd.MAT3.MaterialEntries[materialEntryIndex];
-
-      var populatedMaterial = bmd.MAT3.PopulatedMaterials[materialEntryIndex];
       var materialName = populatedMaterial.Name;
 
       var textures =
@@ -140,20 +136,8 @@ namespace bmd.exporter {
       // TODO: Colors should just be RGB in the fixed function library
       // TODO: Seems like only texture 1 is used, is this accurate?
 
-      // TODO: This might need to be TevKonstColorIndexes
-      valueManager.SetColorRegisters(
-          materialEntry.TevColorIndexes.Take(4)
-                       .Select(
-                           tevColorIndex => bmd.MAT3.TevColors[tevColorIndex])
-                       .ToArray());
-
-      var konstColors =
-          materialEntry.TevKonstColorIndexes
-                       .Take(4)
-                       .Select(
-                           konstIndex => bmd.MAT3.TevKonstColors[konstIndex])
-                       .ToArray();
-      valueManager.SetKonstColors(konstColors);
+      valueManager.SetColorRegisters(populatedMaterial.TevColors);
+      valueManager.SetKonstColors(populatedMaterial.KonstColors);
 
       for (var i = 0; i < populatedMaterial.TevStageInfos.Length; ++i) {
         var tevStage = populatedMaterial.TevStageInfos[i];
@@ -161,7 +145,6 @@ namespace bmd.exporter {
           continue;
         }
 
-        var tevOrderIndex = materialEntry.TevOrderInfoIndexes[i];
         var tevOrder = populatedMaterial.TevOrderInfos[i];
 
         // Updates which texture is referred to by TEXC
@@ -207,8 +190,8 @@ namespace bmd.exporter {
         valueManager.UpdateRascColor(colorChannel);
 
         // Updates which values are referred to by konst
-        valueManager.UpdateKonst(materialEntry.KonstColorSel[tevOrderIndex],
-                                 materialEntry.KonstAlphaSel[tevOrderIndex]);
+        valueManager.UpdateKonst(tevOrder.KonstColorSel,
+                                 tevOrder.KonstAlphaSel);
 
         // Set up color logic
         {
@@ -613,14 +596,8 @@ namespace bmd.exporter {
         return this.alphaValues_[GxCa.GX_CA_RASA] = alpha;
       }
 
-      private int? konstIndex_ = null;
-      private Color? konstColor_ = null;
-
       private IList<Color> constColorImpls_;
       private IList<Color> konstColorImpls_;
-
-      // TODO: Is 10 right?
-      private readonly IColorValue?[] konstColors_ = new IColorValue?[16];
 
       public void SetColorRegisters(IList<Color> constColorImpls) {
         this.constColorImpls_ = constColorImpls;
