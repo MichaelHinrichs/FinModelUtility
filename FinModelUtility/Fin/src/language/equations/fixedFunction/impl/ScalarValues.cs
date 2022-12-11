@@ -132,7 +132,8 @@ namespace fin.language.equations.fixedFunction {
       public IScalarExpression Add(
           IScalarValue term1,
           params IScalarValue[] terms)
-        => new ScalarExpression(ListUtil.ReadonlyConcat(this.Terms, terms));
+        => new ScalarExpression(
+            ListUtil.ReadonlyConcat(this.Terms, new[] {term1}, terms));
 
       public IScalarExpression Subtract(
           IScalarValue term1,

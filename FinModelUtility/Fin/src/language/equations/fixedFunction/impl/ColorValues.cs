@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
-
 using fin.util.asserts;
 using fin.util.data;
 
@@ -275,7 +274,8 @@ namespace fin.language.equations.fixedFunction {
       public IColorExpression Add(
           IColorValue term1,
           params IColorValue[] terms)
-        => new ColorExpression(ListUtil.ReadonlyConcat(this.Terms, terms));
+        => new ColorExpression(
+            ListUtil.ReadonlyConcat(this.Terms, new[] {term1}, terms));
 
       public IColorExpression Subtract(
           IColorValue term1,
@@ -288,7 +288,8 @@ namespace fin.language.equations.fixedFunction {
           IScalarValue term1,
           params IScalarValue[] terms)
         => new ColorExpression(
-            ListUtil.ReadonlyConcat(this.Terms, this.ToColorValues(terms)));
+            ListUtil.ReadonlyConcat(this.Terms,
+                                    this.ToColorValues(term1, terms)));
 
       public IColorExpression Subtract(
           IScalarValue term1,
