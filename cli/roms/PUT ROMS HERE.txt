@@ -1,1 +1,0 @@
-Currently, only Pikmin 2 is supported. It must be named "pkmn2.gcm" to work.
