@@ -31,7 +31,6 @@ namespace bmd.schema.bcx {
                                  Endianness.BigEndian);
       this.Header = er.ReadNew<BckHeader>();
       this.ANK1 = new Bck.ANK1Section(er, out _);
-      er.Close();
     }
 
     public IAnx1 Anx1 => this.ANK1;
