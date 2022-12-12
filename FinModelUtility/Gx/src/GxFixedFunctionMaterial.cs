@@ -117,6 +117,8 @@ namespace gx {
       var scFour = equations.CreateScalarConstant(4);
       var scHalf = equations.CreateScalarConstant(.5);
       var scMinusHalf = equations.CreateScalarConstant(-.5);
+      var sc255 = equations.CreateScalarConstant(255);
+      var sc255Sqr = equations.CreateScalarConstant(255 * 255);
 
       var colorFixedFunctionOps = new ColorFixedFunctionOps(equations);
       var scalarFixedFunctionOps = new ScalarFixedFunctionOps(equations);
@@ -349,6 +351,36 @@ namespace gx {
               colorValue ??= colorZero;
               colorValue.Clamp = tevStage.color_clamp;
 
+              break;
+            }
+
+            case TevOp.GX_TEV_COMP_R8_GT: {
+              colorValue = colorFixedFunctionOps.Add(
+                  colorD, colorA.R.TernaryOperator(
+                      BoolComparisonType.GREATER_THAN, colorB.R, colorC,
+                      colorZero));
+              break;
+            }
+            case TevOp.GX_TEV_COMP_R8_EQ: {
+              colorValue = colorFixedFunctionOps.Add(
+                  colorD, colorA.R.TernaryOperator(
+                      BoolComparisonType.EQUAL_TO, colorB.R, colorC,
+                      colorZero));
+              break;
+            }
+
+            case TevOp.GX_TEV_COMP_GR16_GT: {
+              var valueA = scalarFixedFunctionOps.Add(
+                  scalarFixedFunctionOps.Multiply(colorA.G, sc255Sqr),
+                  scalarFixedFunctionOps.Multiply(colorA.R, sc255)) ?? scZero;
+              var valueB = scalarFixedFunctionOps.Add(
+                  scalarFixedFunctionOps.Multiply(colorB.G, sc255Sqr),
+                  scalarFixedFunctionOps.Multiply(colorB.R, sc255)) ?? scZero;
+
+              colorValue = colorFixedFunctionOps.Add(
+                  colorD, valueA.TernaryOperator(
+                      BoolComparisonType.GREATER_THAN, valueB, colorC,
+                      colorZero));
               break;
             }
 

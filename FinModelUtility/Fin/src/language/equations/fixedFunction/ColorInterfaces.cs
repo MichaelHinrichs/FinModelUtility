@@ -24,6 +24,11 @@ namespace fin.language.equations.fixedFunction {
     ColorSwizzle SwizzleType { get; }
   }
 
+  public interface IColorValueSwizzle : IScalarFactor {
+    IColorValue Source { get; }
+    ColorSwizzle SwizzleType { get; }
+  }
+
 
   public interface IColorValue {
     IColorExpression Add(IColorValue term1, params IColorValue[] terms);

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-
 using fin.model;
 using fin.util.asserts;
 
@@ -342,8 +341,11 @@ namespace fin.language.equations.fixedFunction {
       } else if (factor is IScalarConstant constant) {
         this.PrintScalarConstant_(os, constant);
       } else if
-          (factor is IColorNamedValueSwizzle<FixedFunctionSource> swizzle) {
-        this.PrintColorNamedValueSwizzle_(os, swizzle);
+          (factor is IColorNamedValueSwizzle<FixedFunctionSource>
+           namedSwizzle) {
+        this.PrintColorNamedValueSwizzle_(os, namedSwizzle);
+      } else if (factor is IColorValueSwizzle swizzle) {
+        this.PrintColorValueSwizzle_(os, swizzle);
       } else {
         Asserts.Fail("Unsupported factor type!");
       }
@@ -362,7 +364,7 @@ namespace fin.language.equations.fixedFunction {
 
       if (isTextureAlpha) {
         var textureIndex =
-            (int) id - (int) FixedFunctionSource.TEXTURE_ALPHA_0;
+            (int)id - (int)FixedFunctionSource.TEXTURE_ALPHA_0;
 
         var textureText = this.GetTextureValue_(textureIndex);
         var textureValueText = $"{textureText}.a";
@@ -389,11 +391,16 @@ namespace fin.language.equations.fixedFunction {
         IScalarConstant constant)
       => os.Write(constant.Value);
 
+    private enum WrapType {
+      NEVER,
+      EXPRESSIONS,
+      ALWAYS
+    }
 
     private void PrintColorValue_(
         StringWriter os,
         IColorValue value,
-        bool wrapExpressions = false) {
+        WrapType wrapType = WrapType.NEVER) {
       var clamp = value.Clamp;
 
       if (clamp) {
@@ -401,6 +408,8 @@ namespace fin.language.equations.fixedFunction {
       }
 
       if (value is IColorExpression expression) {
+        var wrapExpressions =
+            wrapType is WrapType.EXPRESSIONS or WrapType.ALWAYS;
         if (wrapExpressions) {
           os.Write("(");
         }
@@ -409,9 +418,25 @@ namespace fin.language.equations.fixedFunction {
           os.Write(")");
         }
       } else if (value is IColorTerm term) {
+        var wrapTerms = wrapType == WrapType.ALWAYS;
+        if (wrapTerms) {
+          os.Write("(");
+        }
         this.PrintColorTerm_(os, term);
+        if (wrapTerms) {
+          os.Write(")");
+        }
       } else if (value is IColorFactor factor) {
+        var wrapFactors = wrapType == WrapType.ALWAYS;
+        if (wrapFactors) {
+          os.Write("(");
+        }
         this.PrintColorFactor_(os, factor);
+        if (wrapFactors) {
+          os.Write(")");
+        }
+      } else if (value is IColorValueTernaryOperator ternaryOperator) {
+        this.PrintColorTernaryOperator_(os, ternaryOperator);
       } else {
         Asserts.Fail("Unsupported value type!");
       }
@@ -450,7 +475,7 @@ namespace fin.language.equations.fixedFunction {
             os.Write("*");
           }
 
-          this.PrintColorValue_(os, numerator, true);
+          this.PrintColorValue_(os, numerator, WrapType.EXPRESSIONS);
         }
       } else {
         os.Write(1);
@@ -462,7 +487,7 @@ namespace fin.language.equations.fixedFunction {
 
           os.Write("/");
 
-          this.PrintColorValue_(os, denominator, true);
+          this.PrintColorValue_(os, denominator, WrapType.EXPRESSIONS);
         }
       }
     }
@@ -513,8 +538,8 @@ namespace fin.language.equations.fixedFunction {
       if (isTextureColor || isTextureAlpha) {
         var textureIndex =
             isTextureColor
-                ? (int) id - (int) FixedFunctionSource.TEXTURE_COLOR_0
-                : (int) id - (int) FixedFunctionSource.TEXTURE_ALPHA_0;
+                ? (int)id - (int)FixedFunctionSource.TEXTURE_COLOR_0
+                : (int)id - (int)FixedFunctionSource.TEXTURE_ALPHA_0;
 
         var textureText = this.GetTextureValue_(textureIndex);
         var textureValueText = isTextureColor
@@ -560,6 +585,38 @@ namespace fin.language.equations.fixedFunction {
       return textureText;
     }
 
+    private void PrintColorTernaryOperator_(
+        StringWriter os,
+        IColorValueTernaryOperator ternaryOperator) {
+      os.Write('(');
+      switch (ternaryOperator.ComparisonType) {
+        case BoolComparisonType.EQUAL_TO: {
+          os.Write("abs(");
+          this.PrintScalarValue_(os, ternaryOperator.Lhs);
+          os.Write(" - ");
+          this.PrintScalarValue_(os, ternaryOperator.Rhs);
+          os.Write(")");
+          os.Write(" < ");
+          os.Write("(1.0 / 255)");
+          break;
+        }
+        case BoolComparisonType.GREATER_THAN: {
+          this.PrintScalarValue_(os, ternaryOperator.Lhs);
+          os.Write(" > ");
+          this.PrintScalarValue_(os, ternaryOperator.Rhs);
+          break;
+        }
+        default:
+          throw new ArgumentOutOfRangeException(
+              nameof(ternaryOperator.ComparisonType));
+      }
+      os.Write(" ? ");
+      this.PrintColorValue_(os, ternaryOperator.TrueValue);
+      os.Write(" : ");
+      this.PrintColorValue_(os, ternaryOperator.FalseValue);
+      os.Write(')');
+    }
+
     private void PrintColorNamedValueSwizzle_(
         StringWriter os,
         IColorNamedValueSwizzle<FixedFunctionSource> swizzle) {
@@ -570,6 +627,14 @@ namespace fin.language.equations.fixedFunction {
           ColorSwizzle.G => 'g',
           ColorSwizzle.B => 'b',
       });
+    }
+
+    private void PrintColorValueSwizzle_(
+        StringWriter os,
+        IColorValueSwizzle swizzle) {
+      this.PrintColorValue_(os, swizzle.Source, WrapType.ALWAYS);
+      os.Write(".");
+      os.Write(swizzle.SwizzleType);
     }
   }
 }

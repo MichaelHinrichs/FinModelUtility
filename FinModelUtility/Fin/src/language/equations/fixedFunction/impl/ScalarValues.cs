@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-
 using fin.util.asserts;
 using fin.util.data;
 
@@ -120,6 +119,19 @@ namespace fin.language.equations.fixedFunction {
                 .ToArray();
 
       public bool Clamp { get; set; }
+
+      public IColorValueTernaryOperator TernaryOperator(
+          BoolComparisonType comparisonType,
+          IScalarValue other,
+          IColorValue trueValue,
+          IColorValue falseValue)
+        => new ColorValueTernaryOperator {
+            ComparisonType = comparisonType,
+            Lhs = this,
+            Rhs = other,
+            TrueValue = trueValue,
+            FalseValue = falseValue
+        };
     }
 
     private class ScalarExpression : BScalarValue, IScalarExpression {

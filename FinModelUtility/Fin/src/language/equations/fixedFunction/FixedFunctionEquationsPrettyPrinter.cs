@@ -1,7 +1,8 @@
 ﻿using System.IO;
 using System.Text;
-
 using fin.util.asserts;
+using System;
+
 
 namespace fin.language.equations.fixedFunction {
   public class FixedFunctionEquationsPrettyPrinter<TIdentifier> {
@@ -152,8 +153,10 @@ namespace fin.language.equations.fixedFunction {
         this.PrintScalarNamedValue_(os, namedValue);
       } else if (factor is IScalarConstant constant) {
         this.PrintScalarConstant_(os, constant);
-      } else if (factor is IColorNamedValueSwizzle<TIdentifier> swizzle) {
-        this.PrintColorNamedValueSwizzle_(os, swizzle);
+      } else if (factor is IColorNamedValueSwizzle<TIdentifier> namedSwizzle) {
+        this.PrintColorNamedValueSwizzle_(os, namedSwizzle);
+      } else if (factor is IColorValueSwizzle swizzle) {
+        this.PrintColorValueSwizzle_(os, swizzle);
       } else {
         Asserts.Fail("Unsupported factor type!");
       }
@@ -170,11 +173,19 @@ namespace fin.language.equations.fixedFunction {
       => os.Write(constant.Value);
 
 
+    private enum WrapType {
+      NEVER,
+      EXPRESSIONS,
+      ALWAYS
+    }
+
     private void PrintColorValue_(
         StringWriter os,
         IColorValue value,
-        bool wrapExpressions = false) {
+        WrapType wrapType = WrapType.NEVER) {
       if (value is IColorExpression expression) {
+        var wrapExpressions =
+            wrapType is WrapType.EXPRESSIONS or WrapType.ALWAYS;
         if (wrapExpressions) {
           os.Write("(");
         }
@@ -183,9 +194,25 @@ namespace fin.language.equations.fixedFunction {
           os.Write(")");
         }
       } else if (value is IColorTerm term) {
+        var wrapTerms = wrapType == WrapType.ALWAYS;
+        if (wrapTerms) {
+          os.Write("(");
+        }
         this.PrintColorTerm_(os, term);
+        if (wrapTerms) {
+          os.Write(")");
+        }
       } else if (value is IColorFactor factor) {
+        var wrapFactors = wrapType == WrapType.ALWAYS;
+        if (wrapFactors) {
+          os.Write("(");
+        }
         this.PrintColorFactor_(os, factor);
+        if (wrapFactors) {
+          os.Write(")");
+        }
+      } else if (value is IColorValueTernaryOperator ternaryOperator) {
+        this.PrintColorTernaryOperator_(os, ternaryOperator);
       } else {
         Asserts.Fail("Unsupported value type!");
       }
@@ -220,7 +247,7 @@ namespace fin.language.equations.fixedFunction {
             os.Write("*");
           }
 
-          this.PrintColorValue_(os, numerator, true);
+          this.PrintColorValue_(os, numerator, WrapType.EXPRESSIONS);
         }
       } else {
         os.Write(1);
@@ -232,7 +259,7 @@ namespace fin.language.equations.fixedFunction {
 
           os.Write("/");
 
-          this.PrintColorValue_(os, denominator, true);
+          this.PrintColorValue_(os, denominator, WrapType.EXPRESSIONS);
         }
       }
     }
@@ -266,10 +293,39 @@ namespace fin.language.equations.fixedFunction {
         IColorNamedValue<TIdentifier> namedValue)
       => os.Write("<" + namedValue.Identifier + ">");
 
+    private void PrintColorTernaryOperator_(
+        StringWriter os,
+        IColorValueTernaryOperator ternaryOperator) {
+      os.Write('(');
+      this.PrintScalarValue_(os, ternaryOperator.Lhs);
+      os.Write(ternaryOperator.ComparisonType switch {
+          BoolComparisonType.EQUAL_TO                 => " == ",
+          BoolComparisonType.NOT_EQUAL_TO             => " != ",
+          BoolComparisonType.GREATER_THAN             => " > ",
+          BoolComparisonType.GREATER_THAN_OR_EQUAL_TO => " >= ",
+          BoolComparisonType.LESS_THAN                => " < ",
+          BoolComparisonType.LESS_THAN_OR_EQUAL_TO    => " <= ",
+      });
+      this.PrintScalarValue_(os, ternaryOperator.Rhs);
+      os.Write(" ? ");
+      this.PrintColorValue_(os, ternaryOperator.TrueValue);
+      os.Write(" : ");
+      this.PrintColorValue_(os, ternaryOperator.FalseValue);
+      os.Write(')');
+    }
+
     private void PrintColorNamedValueSwizzle_(
         StringWriter os,
         IColorNamedValueSwizzle<TIdentifier> swizzle) {
       this.PrintColorNamedValue_(os, swizzle.Source);
+      os.Write(".");
+      os.Write(swizzle.SwizzleType);
+    }
+
+    private void PrintColorValueSwizzle_(
+        StringWriter os,
+        IColorValueSwizzle swizzle) {
+      this.PrintColorValue_(os, swizzle.Source, WrapType.ALWAYS);
       os.Write(".");
       os.Write(swizzle.SwizzleType);
     }

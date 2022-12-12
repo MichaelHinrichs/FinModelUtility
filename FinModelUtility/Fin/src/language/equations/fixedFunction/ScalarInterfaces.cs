@@ -22,6 +22,12 @@ namespace fin.language.equations.fixedFunction {
     IScalarTerm Divide(IScalarValue factor1, params IScalarValue[] factors);
 
     bool Clamp { get; set; }
+
+    IColorValueTernaryOperator TernaryOperator(
+        BoolComparisonType comparisonType,
+        IScalarValue other,
+        IColorValue trueValue,
+        IColorValue falseValue);
   }
 
   public interface IScalarExpression : IScalarValue {

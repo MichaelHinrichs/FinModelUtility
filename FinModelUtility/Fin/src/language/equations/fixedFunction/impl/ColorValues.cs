@@ -152,8 +152,7 @@ namespace fin.language.equations.fixedFunction {
 
 
     private class ColorNamedValueSwizzle : BScalarValue,
-        IColorNamedValueSwizzle<
-            TIdentifier> {
+        IColorNamedValueSwizzle<TIdentifier> {
       public ColorNamedValueSwizzle(
           IColorNamedValue<TIdentifier> source,
           ColorSwizzle swizzleType) {
@@ -162,6 +161,17 @@ namespace fin.language.equations.fixedFunction {
       }
 
       public IColorNamedValue<TIdentifier> Source { get; }
+      public ColorSwizzle SwizzleType { get; }
+    }
+
+
+    private class ColorValueSwizzle : BScalarValue, IColorValueSwizzle {
+      public ColorValueSwizzle(IColorValue source, ColorSwizzle swizzleType) {
+        this.Source = source;
+        this.SwizzleType = swizzleType;
+      }
+
+      public IColorValue Source { get; }
       public ColorSwizzle SwizzleType { get; }
     }
 
@@ -468,6 +478,26 @@ namespace fin.language.equations.fixedFunction {
       public override IScalarValue R { get; }
       public override IScalarValue G { get; }
       public override IScalarValue B { get; }
+    }
+
+    private class ColorValueTernaryOperator : BColorValue,
+        IColorValueTernaryOperator {
+      public BoolComparisonType ComparisonType { get; set; }
+      public IScalarValue Lhs { get; set; }
+      public IScalarValue Rhs { get; set; }
+      public IColorValue TrueValue { get; set; }
+      public IColorValue FalseValue { get; set; }
+
+      public override IScalarValue? Intensity { get; }
+
+      public override IScalarValue R
+        => new ColorValueSwizzle(this, ColorSwizzle.R);
+
+      public override IScalarValue G
+        => new ColorValueSwizzle(this, ColorSwizzle.G);
+
+      public override IScalarValue B
+        => new ColorValueSwizzle(this, ColorSwizzle.B);
     }
   }
 }
