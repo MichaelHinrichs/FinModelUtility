@@ -14,6 +14,9 @@ using schema.attributes.endianness;
 
 
 namespace bmd.schema.bcx {
+  /// <summary>
+  ///   BCA files define joint animations where each frame is defined.
+  /// </summary>
   [Endianness(Endianness.BigEndian)]
   public partial class Bca : IBcx {
     public const string Signature = "J3D1bca1";

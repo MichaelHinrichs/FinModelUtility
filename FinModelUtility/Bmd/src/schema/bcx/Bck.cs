@@ -17,7 +17,9 @@ using schema.attributes.endianness;
 
 namespace bmd.schema.bcx {
   /// <summary>
-  /// https://wiki.cloudmodding.com/tww/BCK
+  ///   BCK files define joint animations with sparse keyframes.
+  ///
+  ///   https://wiki.cloudmodding.com/tww/BCK
   /// </summary>
   [Endianness(Endianness.BigEndian)]
   public partial class Bck : IBcx {
