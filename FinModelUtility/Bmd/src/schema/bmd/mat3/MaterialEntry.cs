@@ -25,7 +25,7 @@ namespace bmd.schema.bmd.mat3 {
     public short[] TexGenInfo { get; } = new short[8];
 
     public ushort[] TexGenInfo2 { get; } = new ushort[8];
-    public ushort[] TexMatrices { get; } = new ushort[10];
+    public short[] TexMatrices { get; } = new short[10];
     public ushort[] DttMatrices { get; } = new ushort[20];
     public short[] TextureIndexes { get; } = new short[8];
     public short[] TevKonstColorIndexes { get; } = new short[4];

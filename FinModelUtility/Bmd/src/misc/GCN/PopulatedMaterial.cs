@@ -30,7 +30,7 @@ namespace bmd.misc.GCN {
     public ushort[] TexGenInfo;
 
     public ushort[] TexGenInfo2;
-    public ushort[] TexMatrices;
+    public ITextureMatrixInfo?[] TextureMatrices { get; set; }
     public ushort[] DttMatrices;
     public short[] TextureIndices { get; set; }
     public ushort[] TevKonstColorIndexes;
@@ -79,6 +79,11 @@ namespace bmd.misc.GCN {
       this.ColorChannelControls =
           entry.ColorChannelControlIndexes
                .Select(i => GetOrNull_(mat3.ColorChannelControls, i))
+               .ToArray();
+
+      this.TextureMatrices =
+          entry.TexMatrices
+               .Select(i => GetOrNull_(mat3.TextureMatrices, i))
                .ToArray();
 
       this.TevOrderInfos =

@@ -1,21 +1,20 @@
-﻿using schema;
+﻿using fin.schema.matrix;
+using fin.schema.vector;
+using gx;
+using schema;
 
 
 namespace bmd.schema.bmd.mat3 {
   [BinarySchema]
-  public partial class TextureMatrixInfo : IBiSerializable {
-    public ushort Unknown1;
-    public ushort Padding1;
-    public float Unknown2;
-    public float Unknown3;
-    public float Unknown4;
-    public float Unknown5;
-    public float Unknown6;
-    public ushort Unknown7;
+  public partial class TextureMatrixInfo : ITextureMatrixInfo, IBiSerializable {
+    public GxTexGenType TexGenType { get; set; }
+    public byte info;
+    public ushort padding1;
+    public Vector3f Center { get; } = new();
+    public Vector2f Scale { get; } = new();
+    public ushort Rotation;
     public ushort Padding2;
-    public float Unknown8;
-    public float Unknown9;
-    public readonly float[] Matrix = new float[16];
+    public Vector2f Translation { get; } = new();
+    public Matrix4x4f Matrix { get; } = new();
   }
-
 }
