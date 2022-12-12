@@ -23,6 +23,9 @@ namespace gx {
     ITevOrder?[] TevOrderInfos { get; }
     ITevStageProps?[] TevStageInfos { get; }
 
+    ITevSwapMode?[] TevSwapModes { get; }
+    ITevSwapModeTable?[] TevSwapModeTables { get; }
+
     IAlphaCompare AlphaCompare { get; }
     IBlendFunction BlendMode { get; }
 

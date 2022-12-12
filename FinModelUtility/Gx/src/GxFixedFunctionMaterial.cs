@@ -253,6 +253,8 @@ namespace gx {
           continue;
         }
 
+        var tevSwapMode = populatedMaterial.TevSwapModes[i];
+
         var tevOrder = populatedMaterial.TevOrderInfos[i];
 
         // Updates which texture is referred to by TEXC

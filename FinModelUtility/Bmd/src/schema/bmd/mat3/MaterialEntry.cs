@@ -34,8 +34,8 @@ namespace bmd.schema.bmd.mat3 {
     public short[] TevOrderInfoIndexes { get; } = new short[16];
     public short[] TevColorIndexes { get; } = new short[4];
     public short[] TevStageInfoIndexes { get; } = new short[16];
-    public ushort[] TevSwapModeInfo { get; } = new ushort[16];
-    public ushort[] TevSwapModeTable { get; } = new ushort[4];
+    public short[] TevSwapModeInfo { get; } = new short[16];
+    public short[] TevSwapModeTable { get; } = new short[4];
     public ushort[] Unknown2 { get; } = new ushort[12];
     public short FogInfoIndex;
     public short AlphaCompareIndex;

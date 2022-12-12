@@ -931,6 +931,8 @@ label_7:
       public BlendFunction[] BlendFunctions;
       public DepthFunction[] DepthFunctions;
       public TevStageProps[] TevStages;
+      public TevSwapMode[] TevSwapModes;
+      public TevSwapModeTable[] TevSwapModeTables;
       public TexCoordGen[] TexCoordGens;
       public ColorChannelControl[] ColorChannelControls;
       public TextureMatrixInfo[] TextureMatrices;
@@ -1026,12 +1028,14 @@ label_7:
           // TODO: Add support for tev counts (19)
 
           er.Position = position1 + (long) this.Offsets[20];
-          this.TevStages = new TevStageProps[sectionLengths[20] / 20];
-          for (int index = 0; index < sectionLengths[20] / 20; ++index)
-            this.TevStages[index] = er.ReadNew<TevStageProps>();
+          er.ReadNewArray(out this.TevStages, sectionLengths[20] / 20);
 
-          // TODO: Add support for tev swap modes (21)
-          // TODO: Add support for tev swap mode table (22)
+          er.Position = position1 + (long)this.Offsets[21];
+          er.ReadNewArray(out this.TevSwapModes, sectionLengths[21] / 2);
+
+          er.Position = position1 + (long)this.Offsets[22];
+          er.ReadNewArray(out this.TevSwapModeTables, sectionLengths[22] / 4);
+
           // TODO: Add support for fog modes (23)
 
           er.Position = position1 + (long) this.Offsets[24];
@@ -1111,8 +1115,8 @@ label_7:
         public ushort[] TevOrderInfoIndexes;
         public ushort[] TevColorIndexes;
         public ITevStageProps?[] TevStageInfos { get; set; }
-        public ushort[] TevSwapModeInfo;
-        public ushort[] TevSwapModeTable;
+        public ITevSwapMode?[] TevSwapModes { get; set; }
+        public ITevSwapModeTable?[] TevSwapModeTables { get; set; }
         public ushort[] Unknown2;
         public short FogInfoIndex;
         public IAlphaCompare AlphaCompare { get; set; }
@@ -1168,6 +1172,15 @@ label_7:
           this.TevStageInfos = 
               entry.TevStageInfoIndexes
                    .Select(i => GetOrNull_(mat3.TevStages, i))
+                   .ToArray();
+
+          this.TevSwapModes =
+              entry.TevSwapModeInfo
+                   .Select(i => GetOrNull_(mat3.TevSwapModes, i))
+                   .ToArray();
+          this.TevSwapModeTables =
+              entry.TevSwapModeTable
+                   .Select(i => GetOrNull_(mat3.TevSwapModeTables, i))
                    .ToArray();
 
           this.TextureIndices =
