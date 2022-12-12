@@ -3,7 +3,7 @@ using System.IO;
 
 using fin.schema.color;
 using fin.schema.vector;
-
+using gx;
 using schema;
 
 namespace mod.schema {
@@ -224,11 +224,28 @@ namespace mod.schema {
   }
 
   [BinarySchema]
-  public partial class PVWCombiner : IBiSerializable {
-    public byte unknown1 = 0;
-    public byte unknown2 = 0;
-    public byte unknown3 = 0;
-    public byte unknown4 = 0;
+  public partial class ColorCombiner : IBiSerializable {
+    public GxCc colorA = 0;
+    public GxCc colorB = 0;
+    public GxCc colorC = 0;
+    public GxCc colorD = 0;
+    public byte unknown5 = 0;
+    public byte unknown6 = 0;
+    public byte unknown7 = 0;
+    public byte unknown8 = 0;
+    public byte unknown9 = 0;
+    public byte unknown10 = 0;
+    public byte unknown11 = 0;
+    public byte unknown12 = 0;
+  };
+
+  [BinarySchema]
+  public partial class AlphaCombiner : IBiSerializable {
+    public GxCa alphaA = 0;
+    public GxCa alphaB = 0;
+    public GxCa alphaC = 0;
+    public GxCa alphaD = 0;
+
     public byte unknown5 = 0;
     public byte unknown6 = 0;
     public byte unknown7 = 0;
@@ -250,13 +267,13 @@ namespace mod.schema {
     
     public ushort unknown65 = 0;
 
-    public readonly PVWCombiner unknown7 = new();
-    public readonly PVWCombiner unknown8 = new();
+    public readonly ColorCombiner colorCombiner = new();
+    public readonly AlphaCombiner alphaCombiner = new();
   }
 
   [BinarySchema]
   public partial class TEVInfo : IBiSerializable {
-    // Probably RGB
+    // These are probably default values for the 3 color registers.
     public readonly TEVColReg unknown1 = new();
     public readonly TEVColReg unknown2 = new();
     public readonly TEVColReg unknown3 = new();

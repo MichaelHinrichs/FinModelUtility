@@ -34,12 +34,6 @@ namespace mod.cli {
     /// </summary>
     private short[] activeMatrices_ = new short[10];
 
-    public enum TilingMode {
-      REPEAT = 0,
-      CLAMP = 1,
-      MIRROR_REPEAT = 2,
-    }
-
     public static WrapMode ConvertGcnToFin(TilingMode tilingMode)
       => tilingMode switch {
           TilingMode.CLAMP         => WrapMode.CLAMP,
@@ -107,20 +101,10 @@ namespace mod.cli {
             model.MaterialManager.CreateTexture(image);
         finTexture.Name = $"texattr {i}";
 
-        // TODO: These might be backwards
-        var tilingS =
-            (TilingMode) BitLogic.ExtractFromRight(
-                textureAttr.tilingMode,
-                0,
-                8);
-        var tilingT =
-            (TilingMode) BitLogic.ExtractFromRight(
-                textureAttr.tilingMode,
-                8,
-                8);
-
-        finTexture.WrapModeU = ModModelLoader.ConvertGcnToFin(tilingS);
-        finTexture.WrapModeV = ModModelLoader.ConvertGcnToFin(tilingT);
+        finTexture.WrapModeU =
+            ModModelLoader.ConvertGcnToFin(textureAttr.TilingModeS);
+        finTexture.WrapModeV =
+            ModModelLoader.ConvertGcnToFin(textureAttr.TilingModeT);
         // TODO: Set attributes
 
         finTexturesAndAttrs[i] = (finTexture, textureAttr);

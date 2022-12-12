@@ -1,7 +1,6 @@
 ﻿using fin.image;
 using fin.util.asserts;
 using mod.schema.image;
-
 using schema;
 using schema.attributes.ignore;
 
@@ -61,11 +60,18 @@ namespace mod.schema {
     }
   }
 
+  public enum TilingMode : byte {
+    REPEAT = 0,
+    CLAMP = 1,
+    MIRROR_REPEAT = 2,
+  }
+
   [BinarySchema]
   public partial class TextureAttributes : IBiSerializable {
     public ushort index = 0;
     private readonly ushort padding_ = 0;
-    public ushort tilingMode = 0;
+    public TilingMode TilingModeS { get; set; }
+    public TilingMode TilingModeT { get; set; }
     public ushort unknown1 = 0;
     public float unknown2 = 0;
   }
