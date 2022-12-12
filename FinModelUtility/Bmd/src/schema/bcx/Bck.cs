@@ -5,14 +5,13 @@
 // Assembly location: R:\Documents\CSharpWorkspace\Pikmin2Utility\MKDS Course Modifier\MKDS Course Modifier.exe
 
 using bmd.G3D_Binary_File_Format;
-
 using System;
 using System.IO;
 using System.Text;
-
 using fin.util.asserts;
 using schema;
 using schema.attributes.endianness;
+using schema.attributes.size;
 
 
 namespace bmd.schema.bcx {
@@ -23,48 +22,31 @@ namespace bmd.schema.bcx {
   /// </summary>
   [Endianness(Endianness.BigEndian)]
   public partial class Bck : IBcx {
-    public const string Signature = "J3D1bck1";
-    public Bck.BCKHeader Header;
-    public Bck.ANK1Section ANK1;
+    public BckHeader Header;
+    public ANK1Section ANK1;
 
     public Bck(byte[] file) {
-      EndianBinaryReader er =
-          new EndianBinaryReader((Stream) new MemoryStream(file),
+      using EndianBinaryReader er =
+          new EndianBinaryReader((Stream)new MemoryStream(file),
                                  Endianness.BigEndian);
-      bool OK;
-      this.Header = new Bck.BCKHeader(er, "J3D1bck1", out OK);
-      if (!OK) {
-        // TODO: Message box
-        //int num1 = (int) MessageBox.Show("Error 1");
-      } else {
-        this.ANK1 = new Bck.ANK1Section(er, out OK);
-        if (!OK) {
-          // TODO: Message box
-          //int num2 = (int) MessageBox.Show("Error 2");
-        }
-      }
+      this.Header = er.ReadNew<BckHeader>();
+      this.ANK1 = new Bck.ANK1Section(er, out _);
       er.Close();
     }
 
     public IAnx1 Anx1 => this.ANK1;
 
-    public class BCKHeader {
-      public string Type;
-      public uint FileSize;
-      public uint NrSections;
-      public byte[] Padding;
+    [BinarySchema]
+    public partial class BckHeader : IBiSerializable {
+      private readonly string magic_ = "J3D1bck1";
 
-      public BCKHeader(EndianBinaryReader er, string Signature, out bool OK) {
-        this.Type = er.ReadString(Encoding.ASCII, 8);
-        if (this.Type != Signature) {
-          OK = false;
-        } else {
-          this.FileSize = er.ReadUInt32();
-          this.NrSections = er.ReadUInt32();
-          this.Padding = er.ReadBytes(16);
-          OK = true;
-        }
-      }
+      [SizeOfStreamInBytes]
+      private uint fileSize_;
+
+      private readonly uint sectionCount_ = 1;
+
+      [ArrayLengthSource(16)]
+      private byte[] padding_;
     }
 
     public partial class ANK1Section : IAnx1 {
@@ -102,19 +84,19 @@ namespace bmd.schema.bcx {
           this.ScaleOffset = er.ReadUInt32();
           this.RotOffset = er.ReadUInt32();
           this.TransOffset = er.ReadUInt32();
-          er.Position = (long) (32U + this.ScaleOffset);
-          this.Scale = er.ReadSingles((int) this.NrScale);
-          er.Position = (long) (32U + this.RotOffset);
-          this.Rotation = er.ReadInt16s((int) this.NrRot);
-          er.Position = (long) (32U + this.TransOffset);
-          this.Translation = er.ReadSingles((int) this.NrTrans);
+          er.Position = (long)(32U + this.ScaleOffset);
+          this.Scale = er.ReadSingles((int)this.NrScale);
+          er.Position = (long)(32U + this.RotOffset);
+          this.Rotation = er.ReadInt16s((int)this.NrRot);
+          er.Position = (long)(32U + this.TransOffset);
+          this.Translation = er.ReadSingles((int)this.NrTrans);
           float RotScale =
-              (float) (Math.Pow(2.0, (double) this.AngleMultiplier) *
-                       Math.PI /
-                       32768.0);
-          er.Position = (long) (32U + this.JointOffset);
-          this.Joints = new AnimatedJoint[(int) this.NrJoints];
-          for (int index = 0; index < (int) this.NrJoints; ++index) {
+              (float)(Math.Pow(2.0, (double)this.AngleMultiplier) *
+                      Math.PI /
+                      32768.0);
+          er.Position = (long)(32U + this.JointOffset);
+          this.Joints = new AnimatedJoint[(int)this.NrJoints];
+          for (int index = 0; index < (int)this.NrJoints; ++index) {
             var animatedJoint = new AnimatedJoint(er);
             animatedJoint.SetValues(this.Scale,
                                     this.Rotation,
@@ -163,11 +145,11 @@ namespace bmd.schema.bcx {
             float v2,
             float d2,
             float t) {
-          float num1 = (float) (2.0 * ((double) v1 - (double) v2)) + d1 + d2;
+          float num1 = (float)(2.0 * ((double)v1 - (double)v2)) + d1 + d2;
           float num2 =
-              (float) (-3.0 * (double) v1 +
-                       3.0 * (double) v2 -
-                       2.0 * (double) d1) -
+              (float)(-3.0 * (double)v1 +
+                      3.0 * (double)v2 -
+                      2.0 * (double)d1) -
               d2;
           float num3 = d1;
           float num4 = v1;
@@ -181,7 +163,7 @@ namespace bmd.schema.bcx {
             return keys[0].Value;
           int index = 1;
 
-          while ((double) keys[index].Time < (double) t
+          while ((double)keys[index].Time < (double)t
                  // Don't shoot past the end of the keys list!
                  &&
                  index + 1 < keys.Length)
@@ -191,9 +173,9 @@ namespace bmd.schema.bcx {
             return keys[0].Value;
           }
 
-          float t1 = (float) (((double) t - (double) keys[index - 1].Time) /
-                              ((double) keys[index].Time -
-                               (double) keys[index - 1].Time));
+          float t1 = (float)(((double)t - (double)keys[index - 1].Time) /
+                             ((double)keys[index].Time -
+                              (double)keys[index - 1].Time));
 
 
           return this.Interpolate(keys[index - 1].Value,
@@ -261,14 +243,14 @@ namespace bmd.schema.bcx {
               out IJointAnimKey[] Destination,
               float[] Source,
               AnimIndex Component) {
-            Destination = new IJointAnimKey[(int) Component.Count];
-            if (Component.Count <= (ushort) 0)
+            Destination = new IJointAnimKey[(int)Component.Count];
+            if (Component.Count <= (ushort)0)
               throw new Exception("Count <= 0");
-            if (Component.Count == (ushort) 1) {
+            if (Component.Count == (ushort)1) {
               Destination[0] =
                   new Key(
                       0.0f,
-                      Source[(int) Component.Index],
+                      Source[(int)Component.Index],
                       0,
                       0);
             } else {
@@ -277,8 +259,8 @@ namespace bmd.schema.bcx {
               Asserts.True(tangentMode == 0 || tangentMode == 1);
 
               var stride = hasTwoTangents ? 4 : 3;
-              for (int index = 0; index < (int) Component.Count; ++index) {
-                var i = (int) Component.Index + stride * index;
+              for (int index = 0; index < (int)Component.Count; ++index) {
+                var i = (int)Component.Index + stride * index;
 
                 var time = Source[i + 0];
                 var value = Source[i + 1];
@@ -307,14 +289,14 @@ namespace bmd.schema.bcx {
               float RotScale,
               AnimIndex Component) {
             Destination =
-                new IJointAnimKey[(int) Component
+                new IJointAnimKey[(int)Component
                     .Count];
-            if (Component.Count <= (ushort) 0)
+            if (Component.Count <= (ushort)0)
               throw new Exception("Count <= 0");
-            if (Component.Count == (ushort) 1) {
+            if (Component.Count == (ushort)1) {
               Destination[0] = new JointAnim.Key(
                   0.0f,
-                  (float) Source[(int) Component.Index] * RotScale,
+                  (float)Source[(int)Component.Index] * RotScale,
                   0,
                   0);
             } else {
@@ -323,12 +305,12 @@ namespace bmd.schema.bcx {
               Asserts.True(tangentMode == 0 || tangentMode == 1);
 
               var stride = hasTwoTangents ? 4 : 3;
-              for (int index = 0; index < (int) Component.Count; ++index) {
-                var i = (int) Component.Index + stride * index;
+              for (int index = 0; index < (int)Component.Count; ++index) {
+                var i = (int)Component.Index + stride * index;
 
-                var time = (float) Source[i + 0];
+                var time = (float)Source[i + 0];
                 var value =
-                    (float) Source[i + 1] *
+                    (float)Source[i + 1] *
                     RotScale;
 
                 float incomingTangent, outgoingTangent;

@@ -7,5 +7,6 @@ namespace bmd.schema.btk {
   ///
   ///   https://wiki.cloudmodding.com/tww/BRK
   /// </summary>
+  [BinarySchema]
   public partial class Brk : IBiSerializable { }
 }

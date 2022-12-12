@@ -9,8 +9,8 @@ using schema;
 using System;
 using System.IO;
 using System.Text;
-
 using schema.attributes.endianness;
+using schema.attributes.size;
 
 
 namespace bmd.schema.bcx {
@@ -19,48 +19,30 @@ namespace bmd.schema.bcx {
   /// </summary>
   [Endianness(Endianness.BigEndian)]
   public partial class Bca : IBcx {
-    public const string Signature = "J3D1bca1";
-    public Bca.BCAHeader Header;
-    public Bca.ANF1Section ANF1;
+    public BcaHeader Header;
+    public ANF1Section ANF1;
 
     public Bca(byte[] file) {
-      EndianBinaryReader er =
-          new EndianBinaryReader((Stream) new MemoryStream(file),
+      using EndianBinaryReader er =
+          new EndianBinaryReader((Stream)new MemoryStream(file),
                                  Endianness.BigEndian);
-      bool OK;
-      this.Header = new Bca.BCAHeader(er, "J3D1bca1", out OK);
-      if (!OK) {
-        // TODO: Message box
-        //int num1 = (int) MessageBox.Show("Error 1");
-      } else {
-        this.ANF1 = new Bca.ANF1Section(er, out OK);
-        if (!OK) {
-          // TODO: Message box
-          //int num2 = (int) MessageBox.Show("Error 2");
-        }
-      }
-      er.Close();
+      this.Header = er.ReadNew<BcaHeader>();
+      this.ANF1 = new Bca.ANF1Section(er, out _);
     }
 
     public IAnx1 Anx1 => this.ANF1;
 
-    public class BCAHeader {
-      public string Type;
-      public uint FileSize;
-      public uint NrSections;
-      public byte[] Padding;
+    [BinarySchema]
+    public partial class BcaHeader : IBiSerializable {
+      private readonly string magic_ = "J3D1bca1";
 
-      public BCAHeader(EndianBinaryReader er, string Signature, out bool OK) {
-        this.Type = er.ReadString(Encoding.ASCII, 8);
-        if (this.Type != Signature) {
-          OK = false;
-        } else {
-          this.FileSize = er.ReadUInt32();
-          this.NrSections = er.ReadUInt32();
-          this.Padding = er.ReadBytes(16);
-          OK = true;
-        }
-      }
+      [SizeOfStreamInBytes]
+      private uint fileSize_;
+
+      private readonly uint sectionCount_ = 1;
+
+      [ArrayLengthSource(16)]
+      private byte[] padding_;
     }
 
     public partial class ANF1Section : IAnx1 {
@@ -100,16 +82,16 @@ namespace bmd.schema.bcx {
           this.RotOffset = er.ReadUInt32();
           this.TransOffset = er.ReadUInt32();
 
-          er.Position = (long) (32U + this.ScaleOffset);
-          this.Scale = er.ReadSingles((int) this.NrScale);
-          er.Position = (long) (32U + this.RotOffset);
-          this.Rotation = er.ReadInt16s((int) this.NrRot);
-          er.Position = (long) (32U + this.TransOffset);
-          this.Translation = er.ReadSingles((int) this.NrTrans);
-          float RotScale = (float) (1 * Math.PI / 32768f);
-          er.Position = (long) (32U + this.JointOffset);
-          this.Joints = new Bca.ANF1Section.AnimatedJoint[(int) this.NrJoints];
-          for (int index = 0; index < (int) this.NrJoints; ++index) {
+          er.Position = (long)(32U + this.ScaleOffset);
+          this.Scale = er.ReadSingles((int)this.NrScale);
+          er.Position = (long)(32U + this.RotOffset);
+          this.Rotation = er.ReadInt16s((int)this.NrRot);
+          er.Position = (long)(32U + this.TransOffset);
+          this.Translation = er.ReadSingles((int)this.NrTrans);
+          float RotScale = (float)(1 * Math.PI / 32768f);
+          er.Position = (long)(32U + this.JointOffset);
+          this.Joints = new Bca.ANF1Section.AnimatedJoint[(int)this.NrJoints];
+          for (int index = 0; index < (int)this.NrJoints; ++index) {
             var animatedJoint = new Bca.ANF1Section.AnimatedJoint(er);
             animatedJoint.SetValues(this.Scale,
                                     this.Rotation,
@@ -154,7 +136,7 @@ namespace bmd.schema.bcx {
         public float GetAnimValue(IJointAnimKey[] keys, float t) {
           if (keys.Length == 0)
             return 0.0f;
-          return keys.Length == 1 ? keys[0].Value : keys[(int) t].Value;
+          return keys.Length == 1 ? keys[0].Value : keys[(int)t].Value;
         }
 
         [BinarySchema]
@@ -214,15 +196,15 @@ namespace bmd.schema.bcx {
               out IJointAnimKey[] Destination,
               float[] Source,
               Bca.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex Component) {
-            Destination = new IJointAnimKey[(int) Component.Count];
-            if (Component.Count <= (ushort) 0)
+            Destination = new IJointAnimKey[(int)Component.Count];
+            if (Component.Count <= (ushort)0)
               throw new Exception("Count <= 0");
-            if (Component.Count == (ushort) 1) {
-              Destination[0] = new Key(Source[(int) Component.Index]);
+            if (Component.Count == (ushort)1) {
+              Destination[0] = new Key(Source[(int)Component.Index]);
             } else {
-              for (int index = 0; index < (int) Component.Count; ++index)
+              for (int index = 0; index < (int)Component.Count; ++index)
                 Destination[index] =
-                    new Key(Source[(int) Component.Index + index]);
+                    new Key(Source[(int)Component.Index + index]);
             }
           }
 
@@ -231,16 +213,16 @@ namespace bmd.schema.bcx {
               short[] Source,
               float RotScale,
               Bca.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex Component) {
-            Destination = new IJointAnimKey[(int) Component.Count];
-            if (Component.Count <= (ushort) 0)
+            Destination = new IJointAnimKey[(int)Component.Count];
+            if (Component.Count <= (ushort)0)
               throw new Exception("Count <= 0");
-            if (Component.Count == (ushort) 1) {
+            if (Component.Count == (ushort)1) {
               Destination[0] =
-                  new Key((float) Source[(int) Component.Index] * RotScale);
+                  new Key((float)Source[(int)Component.Index] * RotScale);
             } else {
-              for (int index = 0; index < (int) Component.Count; ++index)
+              for (int index = 0; index < (int)Component.Count; ++index)
                 Destination[index] =
-                    new Key((float) Source[(int) Component.Index + index] *
+                    new Key((float)Source[(int)Component.Index + index] *
                             RotScale);
             }
           }

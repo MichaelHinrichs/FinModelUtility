@@ -17,7 +17,7 @@ namespace bmd.schema.btk {
     private readonly string magic1_ = "J3D1btk1";
 
     [SizeOfStreamInBytes]
-    private uint fileSize_ { get; set; }
+    private uint fileSize_;
 
     private readonly uint padding1_ = 1;
 
