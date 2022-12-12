@@ -5,6 +5,7 @@ using System.Linq;
 using fin.math;
 using fin.math.matrix;
 using bmd.GCN;
+using bmd.schema.bcx;
 using bmd.schema.bmd.jnt1;
 using bmd.schema.bti;
 using fin.model;

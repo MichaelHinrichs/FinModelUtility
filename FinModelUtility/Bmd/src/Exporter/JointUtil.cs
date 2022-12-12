@@ -2,7 +2,8 @@
 
 using fin.math;
 
-using bmd.GCN;
+using bmd.schema.bcx;
+
 
 namespace bmd.exporter {
   public static class JointUtil {

@@ -13,24 +13,24 @@ using System.Text;
 using schema.attributes.endianness;
 
 
-namespace bmd.GCN {
+namespace bmd.schema.bcx {
   [Endianness(Endianness.BigEndian)]
-  public class BCA : IBcx {
+  public class Bca : IBcx {
     public const string Signature = "J3D1bca1";
-    public BCA.BCAHeader Header;
-    public BCA.ANF1Section ANF1;
+    public Bca.BCAHeader Header;
+    public Bca.ANF1Section ANF1;
 
-    public BCA(byte[] file) {
+    public Bca(byte[] file) {
       EndianBinaryReader er =
           new EndianBinaryReader((Stream) new MemoryStream(file),
                                  Endianness.BigEndian);
       bool OK;
-      this.Header = new BCA.BCAHeader(er, "J3D1bca1", out OK);
+      this.Header = new Bca.BCAHeader(er, "J3D1bca1", out OK);
       if (!OK) {
         // TODO: Message box
         //int num1 = (int) MessageBox.Show("Error 1");
       } else {
-        this.ANF1 = new BCA.ANF1Section(er, out OK);
+        this.ANF1 = new Bca.ANF1Section(er, out OK);
         if (!OK) {
           // TODO: Message box
           //int num2 = (int) MessageBox.Show("Error 2");
@@ -105,9 +105,9 @@ namespace bmd.GCN {
           this.Translation = er.ReadSingles((int) this.NrTrans);
           float RotScale = (float) (1 * Math.PI / 32768f);
           er.Position = (long) (32U + this.JointOffset);
-          this.Joints = new BCA.ANF1Section.AnimatedJoint[(int) this.NrJoints];
+          this.Joints = new Bca.ANF1Section.AnimatedJoint[(int) this.NrJoints];
           for (int index = 0; index < (int) this.NrJoints; ++index) {
-            var animatedJoint = new BCA.ANF1Section.AnimatedJoint(er);
+            var animatedJoint = new Bca.ANF1Section.AnimatedJoint(er);
             animatedJoint.SetValues(this.Scale,
                                     this.Rotation,
                                     this.Translation,
@@ -122,14 +122,14 @@ namespace bmd.GCN {
       public IAnimatedJoint[] Joints { get; }
 
       public class AnimatedJoint : IAnimatedJoint {
-        public BCA.ANF1Section.AnimatedJoint.AnimComponent X;
-        public BCA.ANF1Section.AnimatedJoint.AnimComponent Y;
-        public BCA.ANF1Section.AnimatedJoint.AnimComponent Z;
+        public Bca.ANF1Section.AnimatedJoint.AnimComponent X;
+        public Bca.ANF1Section.AnimatedJoint.AnimComponent Y;
+        public Bca.ANF1Section.AnimatedJoint.AnimComponent Z;
 
         public AnimatedJoint(EndianBinaryReader er) {
-          this.X = new BCA.ANF1Section.AnimatedJoint.AnimComponent(er);
-          this.Y = new BCA.ANF1Section.AnimatedJoint.AnimComponent(er);
-          this.Z = new BCA.ANF1Section.AnimatedJoint.AnimComponent(er);
+          this.X = new Bca.ANF1Section.AnimatedJoint.AnimComponent(er);
+          this.Y = new Bca.ANF1Section.AnimatedJoint.AnimComponent(er);
+          this.Z = new Bca.ANF1Section.AnimatedJoint.AnimComponent(er);
         }
 
         public IJointAnim Values { get; private set; }
@@ -140,7 +140,7 @@ namespace bmd.GCN {
             float[] Translations,
             float RotScale) {
           this.Values =
-              new BCA.ANF1Section.AnimatedJoint.JointAnim(
+              new Bca.ANF1Section.AnimatedJoint.JointAnim(
                   this,
                   Scales,
                   Rotations,
@@ -155,17 +155,17 @@ namespace bmd.GCN {
         }
 
         public class AnimComponent {
-          public BCA.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex S;
-          public BCA.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex R;
-          public BCA.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex T;
+          public Bca.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex S;
+          public Bca.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex R;
+          public Bca.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex T;
 
           public AnimComponent(EndianBinaryReader er) {
             this.S =
-                new BCA.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex(er);
+                new Bca.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex(er);
             this.R =
-                new BCA.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex(er);
+                new Bca.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex(er);
             this.T =
-                new BCA.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex(er);
+                new Bca.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex(er);
           }
 
           public class AnimIndex {
@@ -191,7 +191,7 @@ namespace bmd.GCN {
           private IJointAnimKey[] translationsZ_;
 
           public JointAnim(
-              BCA.ANF1Section.AnimatedJoint Joint,
+              Bca.ANF1Section.AnimatedJoint Joint,
               float[] Scales,
               short[] Rotations,
               float[] Translations,
@@ -222,7 +222,7 @@ namespace bmd.GCN {
           private void SetKeysST(
               out IJointAnimKey[] Destination,
               float[] Source,
-              BCA.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex Component) {
+              Bca.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex Component) {
             Destination = new IJointAnimKey[(int) Component.Count];
             if (Component.Count <= (ushort) 0)
               throw new Exception("Count <= 0");
@@ -239,7 +239,7 @@ namespace bmd.GCN {
               out IJointAnimKey[] Destination,
               short[] Source,
               float RotScale,
-              BCA.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex Component) {
+              Bca.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex Component) {
             Destination = new IJointAnimKey[(int) Component.Count];
             if (Component.Count <= (ushort) 0)
               throw new Exception("Count <= 0");

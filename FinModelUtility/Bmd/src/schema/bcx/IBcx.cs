@@ -1,4 +1,4 @@
-﻿namespace bmd.GCN {
+﻿namespace bmd.schema.bcx {
   public interface IBcx {
     IAnx1 Anx1 { get; }
   }

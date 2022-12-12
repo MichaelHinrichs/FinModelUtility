@@ -11,9 +11,10 @@ namespace bmd.schema.btk {
     private readonly string magic_ = "J3D1btk1";
 
     [SizeOfStreamInBytes]
-    private uint fileSize_ { get; private set; }
+    private uint fileSize_ { get; set; }
   }
 
+  [BinarySchema]
   public partial class Ttk1 : IBiSerializable {
     private readonly string magic_ = "TTK1";
   }

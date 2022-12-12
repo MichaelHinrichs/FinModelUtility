@@ -15,27 +15,27 @@ using fin.util.asserts;
 using schema.attributes.endianness;
 
 
-namespace bmd.GCN {
+namespace bmd.schema.bcx {
   /// <summary>
   /// https://wiki.cloudmodding.com/tww/BCK
   /// </summary>
   [Endianness(Endianness.BigEndian)]
-  public class BCK : IBcx {
+  public class Bck : IBcx {
     public const string Signature = "J3D1bck1";
-    public BCK.BCKHeader Header;
-    public BCK.ANK1Section ANK1;
+    public Bck.BCKHeader Header;
+    public Bck.ANK1Section ANK1;
 
-    public BCK(byte[] file) {
+    public Bck(byte[] file) {
       EndianBinaryReader er =
           new EndianBinaryReader((Stream) new MemoryStream(file),
                                  Endianness.BigEndian);
       bool OK;
-      this.Header = new BCK.BCKHeader(er, "J3D1bck1", out OK);
+      this.Header = new Bck.BCKHeader(er, "J3D1bck1", out OK);
       if (!OK) {
         // TODO: Message box
         //int num1 = (int) MessageBox.Show("Error 1");
       } else {
-        this.ANK1 = new BCK.ANK1Section(er, out OK);
+        this.ANK1 = new Bck.ANK1Section(er, out OK);
         if (!OK) {
           // TODO: Message box
           //int num2 = (int) MessageBox.Show("Error 2");
@@ -129,14 +129,14 @@ namespace bmd.GCN {
 
 
       public class AnimatedJoint : IAnimatedJoint {
-        public BCK.ANK1Section.AnimatedJoint.AnimComponent X;
-        public BCK.ANK1Section.AnimatedJoint.AnimComponent Y;
-        public BCK.ANK1Section.AnimatedJoint.AnimComponent Z;
+        public Bck.ANK1Section.AnimatedJoint.AnimComponent X;
+        public Bck.ANK1Section.AnimatedJoint.AnimComponent Y;
+        public Bck.ANK1Section.AnimatedJoint.AnimComponent Z;
 
         public AnimatedJoint(EndianBinaryReader er) {
-          this.X = new BCK.ANK1Section.AnimatedJoint.AnimComponent(er);
-          this.Y = new BCK.ANK1Section.AnimatedJoint.AnimComponent(er);
-          this.Z = new BCK.ANK1Section.AnimatedJoint.AnimComponent(er);
+          this.X = new Bck.ANK1Section.AnimatedJoint.AnimComponent(er);
+          this.Y = new Bck.ANK1Section.AnimatedJoint.AnimComponent(er);
+          this.Z = new Bck.ANK1Section.AnimatedJoint.AnimComponent(er);
         }
 
         public IJointAnim Values { get; private set; }
@@ -147,7 +147,7 @@ namespace bmd.GCN {
             float[] Translations,
             float RotScale) {
           this.Values =
-              new BCK.ANK1Section.AnimatedJoint.JointAnim(
+              new Bck.ANK1Section.AnimatedJoint.JointAnim(
                   this,
                   Scales,
                   Rotations,
@@ -202,17 +202,17 @@ namespace bmd.GCN {
         }
 
         public class AnimComponent {
-          public BCK.ANK1Section.AnimatedJoint.AnimComponent.AnimIndex S;
-          public BCK.ANK1Section.AnimatedJoint.AnimComponent.AnimIndex R;
-          public BCK.ANK1Section.AnimatedJoint.AnimComponent.AnimIndex T;
+          public Bck.ANK1Section.AnimatedJoint.AnimComponent.AnimIndex S;
+          public Bck.ANK1Section.AnimatedJoint.AnimComponent.AnimIndex R;
+          public Bck.ANK1Section.AnimatedJoint.AnimComponent.AnimIndex T;
 
           public AnimComponent(EndianBinaryReader er) {
             this.S =
-                new BCK.ANK1Section.AnimatedJoint.AnimComponent.AnimIndex(er);
+                new Bck.ANK1Section.AnimatedJoint.AnimComponent.AnimIndex(er);
             this.R =
-                new BCK.ANK1Section.AnimatedJoint.AnimComponent.AnimIndex(er);
+                new Bck.ANK1Section.AnimatedJoint.AnimComponent.AnimIndex(er);
             this.T =
-                new BCK.ANK1Section.AnimatedJoint.AnimComponent.AnimIndex(er);
+                new Bck.ANK1Section.AnimatedJoint.AnimComponent.AnimIndex(er);
           }
 
           public class AnimIndex {
@@ -240,7 +240,7 @@ namespace bmd.GCN {
           private IJointAnimKey[] translationsZ_;
 
           public JointAnim(
-              BCK.ANK1Section.AnimatedJoint Joint,
+              Bck.ANK1Section.AnimatedJoint Joint,
               float[] Scales,
               short[] Rotations,
               float[] Translations,
@@ -316,14 +316,14 @@ namespace bmd.GCN {
               out IJointAnimKey[] Destination,
               short[] Source,
               float RotScale,
-              BCK.ANK1Section.AnimatedJoint.AnimComponent.AnimIndex Component) {
+              Bck.ANK1Section.AnimatedJoint.AnimComponent.AnimIndex Component) {
             Destination =
                 new IJointAnimKey[(int) Component
                     .Count];
             if (Component.Count <= (ushort) 0)
               throw new Exception("Count <= 0");
             if (Component.Count == (ushort) 1) {
-              Destination[0] = new BCK.ANK1Section.AnimatedJoint.JointAnim.Key(
+              Destination[0] = new Bck.ANK1Section.AnimatedJoint.JointAnim.Key(
                   0.0f,
                   (float) Source[(int) Component.Index] * RotScale,
                   0,
@@ -351,7 +351,7 @@ namespace bmd.GCN {
                 }
 
                 Destination[index] =
-                    new BCK.ANK1Section.AnimatedJoint.JointAnim.Key(
+                    new Bck.ANK1Section.AnimatedJoint.JointAnim.Key(
                         time,
                         value,
                         incomingTangent,
