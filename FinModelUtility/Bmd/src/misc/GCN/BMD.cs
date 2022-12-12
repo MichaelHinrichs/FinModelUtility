@@ -468,8 +468,8 @@ label_7:
         {
           this.R = r;
           this.G = g;
-          this.B = g;
-          this.A = b;
+          this.B = b;
+          this.A = a;
         }
 
         public static implicit operator System.Drawing.Color(BMD.VTX1Section.Color c)
