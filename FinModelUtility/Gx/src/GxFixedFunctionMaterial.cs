@@ -125,12 +125,6 @@ namespace gx {
 
       var valueManager = new ValueManager(equations);
 
-      // TODO: Where are color constants set inside the materials?
-      // TODO: Need to support registers
-      // TODO: Need to support multiple vertex colors
-      // TODO: Colors should just be RGB in the fixed function library
-      // TODO: Seems like only texture 1 is used, is this accurate?
-
       valueManager.SetColorRegisters(populatedMaterial.TevColors);
       valueManager.SetKonstColors(populatedMaterial.KonstColors);
 
@@ -394,7 +388,8 @@ namespace gx {
             }
           }
 
-          valueManager.UpdateColorRegister(tevStage.color_regid, colorValue);
+          valueManager.UpdateColorRegister(tevStage.color_regid,
+                                           colorValue ?? colorZero);
         }
 
         // Set up alpha logic
