@@ -46,9 +46,9 @@ namespace bmd.exporter {
                   var extension = bcxFile.Extension.ToLower();
                   IBcx bcx = extension switch {
                       ".bca" =>
-                          new BCA(bcxFile.Impl.ReadAllBytes()),
+                          new Bca(bcxFile.Impl.ReadAllBytes()),
                       ".bck" =>
-                          new BCK(bcxFile.Impl.ReadAllBytes()),
+                          new Bck(bcxFile.Impl.ReadAllBytes()),
                       _ => throw new NotSupportedException(),
                   };
                   return (bcxFile.FullName, bcx);

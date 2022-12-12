@@ -122,14 +122,14 @@ namespace bmd.schema.bcx {
       public IAnimatedJoint[] Joints { get; }
 
       public class AnimatedJoint : IAnimatedJoint {
-        public Bca.ANF1Section.AnimatedJoint.AnimComponent X;
-        public Bca.ANF1Section.AnimatedJoint.AnimComponent Y;
-        public Bca.ANF1Section.AnimatedJoint.AnimComponent Z;
+        public AnimComponent X;
+        public AnimComponent Y;
+        public AnimComponent Z;
 
         public AnimatedJoint(EndianBinaryReader er) {
-          this.X = new Bca.ANF1Section.AnimatedJoint.AnimComponent(er);
-          this.Y = new Bca.ANF1Section.AnimatedJoint.AnimComponent(er);
-          this.Z = new Bca.ANF1Section.AnimatedJoint.AnimComponent(er);
+          this.X = new AnimComponent(er);
+          this.Y = new AnimComponent(er);
+          this.Z = new AnimComponent(er);
         }
 
         public IJointAnim Values { get; private set; }
@@ -140,7 +140,7 @@ namespace bmd.schema.bcx {
             float[] Translations,
             float RotScale) {
           this.Values =
-              new Bca.ANF1Section.AnimatedJoint.JointAnim(
+              new JointAnim(
                   this,
                   Scales,
                   Rotations,
@@ -155,17 +155,14 @@ namespace bmd.schema.bcx {
         }
 
         public class AnimComponent {
-          public Bca.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex S;
-          public Bca.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex R;
-          public Bca.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex T;
+          public AnimIndex S;
+          public AnimIndex R;
+          public AnimIndex T;
 
           public AnimComponent(EndianBinaryReader er) {
-            this.S =
-                new Bca.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex(er);
-            this.R =
-                new Bca.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex(er);
-            this.T =
-                new Bca.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex(er);
+            this.S = new AnimIndex(er);
+            this.R = new AnimIndex(er);
+            this.T = new AnimIndex(er);
           }
 
           public class AnimIndex {
