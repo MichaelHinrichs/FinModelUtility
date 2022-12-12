@@ -5,7 +5,7 @@
 // Assembly location: R:\Documents\CSharpWorkspace\Pikmin2Utility\MKDS Course Modifier\MKDS Course Modifier.exe
 
 using bmd.G3D_Binary_File_Format;
-
+using schema;
 using System;
 using System.IO;
 using System.Text;
@@ -15,7 +15,7 @@ using schema.attributes.endianness;
 
 namespace bmd.schema.bcx {
   [Endianness(Endianness.BigEndian)]
-  public class Bca : IBcx {
+  public partial class Bca : IBcx {
     public const string Signature = "J3D1bca1";
     public Bca.BCAHeader Header;
     public Bca.ANF1Section ANF1;
@@ -60,7 +60,7 @@ namespace bmd.schema.bcx {
       }
     }
 
-    public class ANF1Section : IAnx1 {
+    public partial class ANF1Section : IAnx1 {
       public const string Signature = "ANF1";
       public DataBlockHeader Header;
       public byte LoopFlags;
@@ -121,15 +121,15 @@ namespace bmd.schema.bcx {
       public int FrameCount => this.AnimLength;
       public IAnimatedJoint[] Joints { get; }
 
-      public class AnimatedJoint : IAnimatedJoint {
+      public partial class AnimatedJoint : IAnimatedJoint {
         public AnimComponent X;
         public AnimComponent Y;
         public AnimComponent Z;
 
         public AnimatedJoint(EndianBinaryReader er) {
-          this.X = new AnimComponent(er);
-          this.Y = new AnimComponent(er);
-          this.Z = new AnimComponent(er);
+          this.X = er.ReadNew<AnimComponent>();
+          this.Y = er.ReadNew<AnimComponent>();
+          this.Z = er.ReadNew<AnimComponent>();
         }
 
         public IJointAnim Values { get; private set; }
@@ -154,25 +154,16 @@ namespace bmd.schema.bcx {
           return keys.Length == 1 ? keys[0].Value : keys[(int) t].Value;
         }
 
-        public class AnimComponent {
-          public AnimIndex S;
-          public AnimIndex R;
-          public AnimIndex T;
+        [BinarySchema]
+        public partial class AnimComponent : IBiSerializable {
+          public AnimIndex S { get; } = new();
+          public AnimIndex R { get; } = new();
+          public AnimIndex T { get; } = new();
 
-          public AnimComponent(EndianBinaryReader er) {
-            this.S = new AnimIndex(er);
-            this.R = new AnimIndex(er);
-            this.T = new AnimIndex(er);
-          }
-
-          public class AnimIndex {
+          [BinarySchema]
+          public partial class AnimIndex : IBiSerializable {
             public ushort Count;
             public ushort Index;
-
-            public AnimIndex(EndianBinaryReader er) {
-              this.Count = er.ReadUInt16();
-              this.Index = er.ReadUInt16();
-            }
           }
         }
 
