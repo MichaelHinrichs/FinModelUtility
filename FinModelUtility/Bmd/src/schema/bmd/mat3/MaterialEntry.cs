@@ -3,7 +3,7 @@ using schema;
 
 
 namespace bmd.schema.bmd.mat3 {
-  public enum RenderOrder {
+  public enum RenderOrder : byte {
     PRE_ORDER = 1,
     POST_ORDER = 4,
   }

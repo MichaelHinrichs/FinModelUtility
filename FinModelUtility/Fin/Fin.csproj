@@ -32,7 +32,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NVorbis" Version="0.10.4" />
     <PackageReference Include="OpenAL.Soft" Version="1.19.1" />
-    <PackageReference Include="OpenTK" Version="3.3.2" />
+    <PackageReference Include="OpenTK" Version="3.3.3" />
     <PackageReference Include="Pfim" Version="0.10.3" />
     <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0025" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.3" />
