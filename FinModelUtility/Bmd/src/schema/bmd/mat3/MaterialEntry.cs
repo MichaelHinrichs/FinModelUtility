@@ -4,8 +4,8 @@ using schema;
 
 namespace bmd.schema.bmd.mat3 {
   public enum RenderOrder : byte {
-    PRE_ORDER = 1,
-    POST_ORDER = 4,
+    DRAW_ON_WAY_DOWN = 1,
+    DRAW_ON_WAY_UP = 4,
   }
 
   /// <summary>
@@ -19,7 +19,7 @@ namespace bmd.schema.bmd.mat3 {
     public byte TexGensCountIndex { get; set; }
     public byte TevStagesCountIndex { get; set; }
     public byte ZCompLocIndex { get; set; }
-    public byte ZModeIndex { get; set; }
+    public sbyte DepthFunctionIndex { get; set; }
     public byte DitherIndex { get; set; }
 
     public short[] MaterialColorIndexes { get; } = new short[2];

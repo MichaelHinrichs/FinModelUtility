@@ -96,6 +96,9 @@ namespace fin.model.impl {
       public string? Name { get; set; }
       public IEnumerable<ITexture> Textures { get; } = Array.Empty<ITexture>();
       public CullingMode CullingMode { get; set; }
+
+      public DepthMode DepthMode { get; set; }
+      public DepthCompareType DepthCompareType { get; set; }
     }
 
     private class TextureMaterialImpl : ITextureMaterial {
@@ -110,6 +113,9 @@ namespace fin.model.impl {
       public IEnumerable<ITexture> Textures { get; }
 
       public CullingMode CullingMode { get; set; }
+
+      public DepthMode DepthMode { get; set; }
+      public DepthCompareType DepthCompareType { get; set; }
 
       public bool Unlit { get; set; }
     }
@@ -146,6 +152,10 @@ namespace fin.model.impl {
       }
 
       public CullingMode CullingMode { get; set; }
+
+      public DepthMode DepthMode { get; set; }
+      public DepthCompareType DepthCompareType { get; set; }
+
       public ITexture? DiffuseTexture { get; set; }
       public ITexture? MaskTexture { get; set; }
       public ITexture? AmbientOcclusionTexture { get; set; }
@@ -176,6 +186,9 @@ namespace fin.model.impl {
       public IEnumerable<ITexture> Textures { get; }
 
       public CullingMode CullingMode { get; set; }
+
+      public DepthMode DepthMode { get; set; }
+      public DepthCompareType DepthCompareType { get; set; }
 
       public IFixedFunctionEquations<FixedFunctionSource> Equations { get; } =
         new FixedFunctionEquations<FixedFunctionSource>();

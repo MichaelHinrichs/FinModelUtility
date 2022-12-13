@@ -35,17 +35,26 @@ namespace uni.ui.gl {
 
       foreach (var mesh in this.Model.Skin.Meshes) {
         var primitivesByMaterial = new ListDictionary<IMaterial, IPrimitive>();
+        var prioritiesByMaterial = new SetDictionary<IMaterial, uint>();
         foreach (var primitive in mesh.Primitives) {
           primitivesByMaterial.Add(primitive.Material, primitive);
+          prioritiesByMaterial.Add(primitive.Material, primitive.InversePriority);
         }
 
-        foreach (var (material, primitives) in primitivesByMaterial) {
+        var orderedMaterials =
+            prioritiesByMaterial.OrderBy(pair => pair.Value.Order().First())
+                                .Select(pair => pair.Key)
+                                .ToArray();
+
+        foreach (var material in orderedMaterials) {
+          var primitives = primitivesByMaterial[material];
           materialMeshRenderers_.Add(
               mesh,
               new MaterialMeshRendererV2(
                   this.bufferManager_,
                   material,
-                  primitives));
+                  primitives.OrderBy(primitive => primitive.InversePriority)
+                            .ToArray()));
         }
       }
     }

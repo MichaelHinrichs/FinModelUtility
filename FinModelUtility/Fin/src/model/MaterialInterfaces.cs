@@ -36,12 +36,32 @@ namespace fin.model {
   }
 
 
+  public enum DepthMode {
+    USE_DEPTH_BUFFER,
+    IGNORE_DEPTH_BUFFER,
+    SKIP_WRITE_TO_DEPTH_BUFFER
+  }
+
+  public enum DepthCompareType {
+    LEqual,
+    Less,
+    Equal,
+    Greater,
+    NEqual,
+    GEqual,
+    Always,
+    Never,
+  }
+
   public interface IMaterial {
     string? Name { get; set; }
 
     IEnumerable<ITexture> Textures { get; }
 
     CullingMode CullingMode { get; set; }
+
+    DepthMode DepthMode { get; set; }
+    DepthCompareType DepthCompareType { get; set; }
   }
 
   public interface INullMaterial : IMaterial {

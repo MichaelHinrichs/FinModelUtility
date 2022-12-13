@@ -137,6 +137,8 @@ namespace uni.ui.gl {
       }
 
       GlUtil.SetCulling(this.material_?.CullingMode ?? CullingMode.SHOW_BOTH);
+      GlUtil.SetDepth(this.material_?.DepthMode ?? DepthMode.USE_DEPTH_BUFFER,
+          this.material_?.DepthCompareType ?? DepthCompareType.LEqual);
 
       this.bufferRenderer_.Render();
 
@@ -147,6 +149,8 @@ namespace uni.ui.gl {
       if (fixedFunctionMaterial != null) {
         GlUtil.ResetBlending();
       }
+
+      GlUtil.ResetDepth();
     }
   }
 }

@@ -353,6 +353,13 @@ namespace fin.model.impl {
           this.VertexOrder = vertexOrder;
           return this;
         }
+
+        public uint InversePriority { get; private set; }
+
+        public IPrimitive SetInversePriority(uint inversePriority) {
+          this.InversePriority = inversePriority;
+          return this;
+        }
       }
 
       private class BoneWeightsImpl : IBoneWeights {

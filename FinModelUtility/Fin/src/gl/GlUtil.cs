@@ -1,9 +1,6 @@
 ﻿using System;
-
 using fin.model;
-
 using OpenTK.Graphics.OpenGL;
-
 using FinLogicOp = fin.model.LogicOp;
 using GlLogicOp = OpenTK.Graphics.OpenGL.LogicOp;
 
@@ -23,6 +20,7 @@ namespace fin.gl {
     }
 
     private static readonly object GL_LOCK_ = new();
+
     public static void RunLockedGl(Action handler) {
       lock (GL_LOCK_) {
         handler();
@@ -45,6 +43,36 @@ namespace fin.gl {
       });
     }
 
+    public static void ResetDepth()
+      => SetDepth(DepthMode.USE_DEPTH_BUFFER, DepthCompareType.LEqual);
+
+    public static void SetDepth(
+        DepthMode depthMode,
+        DepthCompareType depthCompareType) {
+      switch (depthMode) {
+        case DepthMode.USE_DEPTH_BUFFER: {
+          GL.DepthFunc(ConvertFinDepthCompareTypeToGl_(depthCompareType));
+          GL.Enable(EnableCap.DepthTest);
+          GL.DepthMask(true);
+          break;
+        }
+        case DepthMode.IGNORE_DEPTH_BUFFER: {
+          GL.Disable(EnableCap.DepthTest);
+          GL.DepthMask(false);
+          break;
+        }
+        case DepthMode.SKIP_WRITE_TO_DEPTH_BUFFER: {
+          GL.DepthFunc(ConvertFinDepthCompareTypeToGl_(depthCompareType));
+          GL.Enable(EnableCap.DepthTest);
+          GL.DepthMask(false);
+          break;
+        }
+        default:
+          throw new ArgumentOutOfRangeException(nameof(depthMode), depthMode,
+                                                null);
+      }
+    }
+
     public static void ResetBlending() {
       GL.Disable(EnableCap.Blend);
       GL.BlendEquation(BlendEquationMode.FuncAdd);
@@ -65,7 +93,7 @@ namespace fin.gl {
         GL.Enable(EnableCap.Blend);
         GL.BlendEquation(GlUtil.ConvertFinBlendModeToGl_(blendMode));
         GL.BlendFunc(GlUtil.ConvertFinBlendFactorToGl_(srcFactor),
-                       GlUtil.ConvertFinBlendFactorToGl_(dstFactor));
+                     GlUtil.ConvertFinBlendFactorToGl_(dstFactor));
       }
 
       if (logicOp == FinLogicOp.UNDEFINED) {
@@ -75,6 +103,21 @@ namespace fin.gl {
         GL.LogicOp(GlUtil.ConvertFinLogicOpToGl_(logicOp));
       }
     }
+
+    private static DepthFunction ConvertFinDepthCompareTypeToGl_(
+        DepthCompareType finDepthCompareType)
+      => finDepthCompareType switch {
+          DepthCompareType.LEqual  => DepthFunction.Lequal,
+          DepthCompareType.Less    => DepthFunction.Less,
+          DepthCompareType.Equal   => DepthFunction.Equal,
+          DepthCompareType.Greater => DepthFunction.Greater,
+          DepthCompareType.NEqual  => DepthFunction.Notequal,
+          DepthCompareType.GEqual  => DepthFunction.Gequal,
+          DepthCompareType.Always  => DepthFunction.Always,
+          DepthCompareType.Never   => DepthFunction.Never,
+          _ => throw new ArgumentOutOfRangeException(
+                   nameof(finDepthCompareType), finDepthCompareType, null)
+      };
 
     private static BlendEquationMode ConvertFinBlendModeToGl_(
         BlendMode finBlendMode)

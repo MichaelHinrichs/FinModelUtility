@@ -187,7 +187,7 @@ label_7:
     {
       public const string Signature = "INF1";
       public DataBlockHeader Header;
-      public ushort Unknown1;
+      public ushort ScalingRule;
       public ushort Padding;
       public uint Unknown2;
       public uint NrVertex;
@@ -205,7 +205,7 @@ label_7:
         }
         else
         {
-          this.Unknown1 = er.ReadUInt16();
+          this.ScalingRule = er.ReadUInt16();
           this.Padding = er.ReadUInt16();
           this.Unknown2 = er.ReadUInt32();
           this.NrVertex = er.ReadUInt32();
@@ -652,7 +652,8 @@ label_7:
       public ushort NrBatch;
       public ushort Padding;
       public uint BatchesOffset;
-      public uint UnknownOffset;
+      public uint ShapeRemapTableOffset;
+      public short[] ShapeRemapTable;
       public uint Zero;
       public uint BatchAttribsOffset;
       public uint MatrixTableOffset;
@@ -675,7 +676,7 @@ label_7:
           this.NrBatch = er.ReadUInt16();
           this.Padding = er.ReadUInt16();
           this.BatchesOffset = er.ReadUInt32();
-          this.UnknownOffset = er.ReadUInt32();
+          this.ShapeRemapTableOffset = er.ReadUInt32();
           this.Zero = er.ReadUInt32();
           this.BatchAttribsOffset = er.ReadUInt32();
           this.MatrixTableOffset = er.ReadUInt32();
@@ -683,10 +684,17 @@ label_7:
           this.MatrixDataOffset = er.ReadUInt32();
           this.PacketLocationsOffset = er.ReadUInt32();
           long position2 = er.Position;
-          er.Position = position1 + (long) this.BatchesOffset;
-          this.Batches = new BMD.SHP1Section.Batch[(int) this.NrBatch];
-          for (int index = 0; index < (int) this.NrBatch; ++index)
-            this.Batches[index] = new BMD.SHP1Section.Batch(er, position1, this);
+          {
+            er.Position = position1 + (long)this.BatchesOffset;
+            this.Batches = new BMD.SHP1Section.Batch[(int)this.NrBatch];
+            for (int index = 0; index < (int)this.NrBatch; ++index) {
+              this.Batches[index] = new BMD.SHP1Section.Batch(er, position1, this);
+            }
+          }
+          {
+            er.Position = position1 + (long)this.ShapeRemapTableOffset;
+            this.ShapeRemapTable = er.ReadInt16s(this.NrBatch);
+          }
           er.Position = position1 + (long) this.Header.size;
           OK = true;
         }
@@ -709,7 +717,7 @@ label_7:
         public ushort FirstMatrixData;
         public ushort FirstPacketLocation;
         public ushort Unknown2;
-        public float Unknown3;
+        public float BoundingSphereReadius;
         public float[] BoundingBoxMin;
         public float[] BoundingBoxMax;
         public BatchAttribute[] BatchAttributes;
@@ -730,7 +738,7 @@ label_7:
           this.FirstMatrixData = er.ReadUInt16();
           this.FirstPacketLocation = er.ReadUInt16();
           this.Unknown2 = er.ReadUInt16();
-          this.Unknown3 = er.ReadSingle();
+          this.BoundingSphereReadius = er.ReadSingle();
           this.BoundingBoxMin = er.ReadSingles(3);
           this.BoundingBoxMax = er.ReadSingles(3);
           long position = er.Position;

@@ -1,36 +1,36 @@
 ﻿using fin.color;
+using fin.gl;
 using fin.model;
 using fin.model.impl;
-using OpenTK.Graphics.OpenGL;
+
 
 namespace uni.ui.gl {
   internal class BackgroundSphereRenderer {
     private IModelRenderer? impl_;
 
     public void Render() {
-      GL.DepthMask(false);
-
       this.impl_ ??= this.GenerateModel_();
       this.impl_.Render();
-
-      GL.DepthMask(true);
     }
 
     private readonly Gradient gradient_ = new(
-      new[] {
-        (FinColor.FromSystemColor(Color.DarkBlue), 0f),
-        (FinColor.FromSystemColor(Color.RoyalBlue), .2f),
-        (FinColor.FromSystemColor(Color.LightSkyBlue), .4f),
-        (FinColor.FromSystemColor(Color.AliceBlue), .5f),
-        (FinColor.FromRgbBytes(66, 52, 49), .5f),
-      });
+        new[] {
+            (FinColor.FromSystemColor(Color.DarkBlue), 0f),
+            (FinColor.FromSystemColor(Color.RoyalBlue), .2f),
+            (FinColor.FromSystemColor(Color.LightSkyBlue), .4f),
+            (FinColor.FromSystemColor(Color.AliceBlue), .5f),
+            (FinColor.FromRgbBytes(66, 52, 49), .5f),
+        });
 
     private IModelRenderer GenerateModel_() {
       var model = new ModelImpl();
 
       var mesh = model.Skin.AddMesh();
 
-      var scale = 100;
+      var material = model.MaterialManager.AddNullMaterial();
+      material.DepthMode = DepthMode.SKIP_WRITE_TO_DEPTH_BUFFER;
+
+      var scale = DebugFlags.GLOBAL_SCALE * 100;
 
       var n = 300;
       for (var pitchThetaI = 0; pitchThetaI < n / 2; ++pitchThetaI) {
@@ -59,16 +59,18 @@ namespace uni.ui.gl {
           var xComponent1 = xyComponent1 * MathF.Cos(yawTheta);
           var yComponent1 = xyComponent1 * MathF.Sin(yawTheta);
 
-          var vertex0 = model.Skin.AddVertex(xComponent0, yComponent0, zComponent0)
-            .SetColor(color0);
-          var vertex1 = model.Skin.AddVertex(xComponent1, yComponent1, zComponent1)
-            .SetColor(color1);
+          var vertex0 = model
+                        .Skin.AddVertex(xComponent0, yComponent0, zComponent0)
+                        .SetColor(color0);
+          var vertex1 = model
+                        .Skin.AddVertex(xComponent1, yComponent1, zComponent1)
+                        .SetColor(color1);
 
           triangles.Add(vertex0);
           triangles.Add(vertex1);
         }
 
-        mesh.AddTriangleStrip(triangles.ToArray());
+        mesh.AddTriangleStrip(triangles.ToArray()).SetMaterial(material);
       }
 
       return new ModelRendererV2(model);

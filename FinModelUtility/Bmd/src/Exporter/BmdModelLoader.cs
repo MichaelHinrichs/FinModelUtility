@@ -7,7 +7,9 @@ using fin.math.matrix;
 using bmd.GCN;
 using bmd.schema.bcx;
 using bmd.schema.bmd.jnt1;
+using bmd.schema.bmd.mat3;
 using bmd.schema.bti;
+using fin.data;
 using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
@@ -232,7 +234,16 @@ namespace bmd.exporter {
       var entries = bmd.INF1.Entries;
       var batches = bmd.SHP1.Batches;
 
+      var rootNode = new Node<bool>();
+      var currentNode = rootNode;
+
+      var scheduledDrawOnWayDownPrimitives = new List<IPrimitive>();
+      var scheduledDrawOnWayUpPrimitives = new List<IPrimitive>();
+
       GxFixedFunctionMaterial? currentMaterial = null;
+      MaterialEntry? currentMaterialEntry = null;
+
+      uint currentRenderIndex = 1;
 
       var weightsTable = new IBoneWeights?[10];
       foreach (var entry in entries) {
@@ -241,9 +252,34 @@ namespace bmd.exporter {
           case 0x00:
             goto DoneRendering;
 
+          case 0x01: {
+            var child = new Node<bool>();
+            currentNode.AddChild(child);
+            currentNode = child;
+
+            foreach (var primitive in scheduledDrawOnWayDownPrimitives) {
+              primitive.SetInversePriority(currentRenderIndex++);
+            }
+            scheduledDrawOnWayDownPrimitives.Clear();
+            break;
+          }
+
+          case 0x02: {
+            currentNode = currentNode.Parent;
+
+            foreach (var primitive in scheduledDrawOnWayUpPrimitives) {
+              primitive.SetInversePriority(currentRenderIndex++);
+            }
+            scheduledDrawOnWayUpPrimitives.Clear();
+            break;
+          }
+
           // Material
           case 0x11:
             currentMaterial = materialManager.Get(entry.Index);
+            currentMaterialEntry =
+                bmd.MAT3.MaterialEntries[
+                    bmd.MAT3.MaterialEntryIndieces[entry.Index]];
             break;
 
           // Batch
@@ -309,6 +345,7 @@ namespace bmd.exporter {
                 var pointsCount = points.Length;
                 var vertices = new IVertex[pointsCount];
 
+                var weightsUsedByPrimitive = new HashSet<IBoneWeights>();
                 for (var p = 0; p < pointsCount; ++p) {
                   var point = points[p];
 
@@ -329,6 +366,7 @@ namespace bmd.exporter {
                   var matrixIndex = point.MatrixIndex / 3;
                   var weights = weightsTable[matrixIndex];
                   if (weights != null) {
+                    weightsUsedByPrimitive.Add(weights);
                     vertex.SetBoneWeights(weights);
                   }
 
@@ -355,34 +393,54 @@ namespace bmd.exporter {
                 var gxPrimitiveType = primitive.Type;
 
                 Asserts.Nonnull(currentMaterial);
+
+                IPrimitive finPrimitive;
                 switch (gxPrimitiveType) {
                   case GxPrimitiveType.GX_TRIANGLES: {
-                    finMesh.AddTriangles(vertices)
-                           .SetMaterial(currentMaterial.Material);
+                    finPrimitive = finMesh.AddTriangles(vertices)
+                                          .SetMaterial(
+                                              currentMaterial.Material);
                     break;
                   }
 
                   case GxPrimitiveType.GX_TRIANGLESTRIP: {
-                    finMesh.AddTriangleStrip(vertices)
-                           .SetMaterial(currentMaterial.Material);
+                    finPrimitive =
+                        finMesh.AddTriangleStrip(vertices)
+                               .SetMaterial(currentMaterial.Material);
                     break;
                   }
 
                   case GxPrimitiveType.GX_TRIANGLEFAN: {
-                    finMesh.AddTriangleFan(vertices)
-                           .SetMaterial(currentMaterial.Material);
+                    finPrimitive = finMesh.AddTriangleFan(vertices)
+                                          .SetMaterial(
+                                              currentMaterial.Material);
                     break;
                   }
 
                   case GxPrimitiveType.GX_QUADS: {
-                    finMesh.AddQuads(vertices)
-                           .SetMaterial(currentMaterial.Material);
+                    finPrimitive =
+                        finMesh.AddQuads(vertices)
+                               .SetMaterial(currentMaterial.Material);
                     break;
                   }
 
                   default:
                     throw new NotSupportedException(
                         $"Unsupported primitive type: {gxPrimitiveType}");
+                }
+
+                var renderOrder = currentMaterialEntry?.RenderOrder ??
+                                  RenderOrder.DRAW_ON_WAY_DOWN;
+                switch (renderOrder) {
+                  case RenderOrder.DRAW_ON_WAY_DOWN: {
+                    scheduledDrawOnWayDownPrimitives.Add(finPrimitive);
+                    break;
+                  }
+                  case RenderOrder.DRAW_ON_WAY_UP: {
+                    scheduledDrawOnWayUpPrimitives.Add(finPrimitive);
+                    break;
+                  }
+                  default: throw new ArgumentOutOfRangeException();
                 }
               }
             }

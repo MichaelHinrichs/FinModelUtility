@@ -8,7 +8,6 @@ using fin.util.asserts;
 using FinBlendFactor = fin.model.BlendFactor;
 using FinLogicOp = fin.model.LogicOp;
 using FinAlphaOp = fin.model.AlphaOp;
-using FinAlphaCompareType = fin.model.AlphaCompareType;
 
 
 namespace gx {
@@ -46,6 +45,16 @@ namespace gx {
               GxCullMode.All   => CullingMode.SHOW_NEITHER,
               _                => throw new ArgumentOutOfRangeException(),
           };
+
+      var depthFunction = populatedMaterial.DepthFunction;
+      material.DepthMode =
+          depthFunction.Enable
+              ? (depthFunction.WriteNewValueIntoDepthBuffer
+                     ? DepthMode.USE_DEPTH_BUFFER
+                     : DepthMode.SKIP_WRITE_TO_DEPTH_BUFFER)
+              : DepthMode.IGNORE_DEPTH_BUFFER;
+      material.DepthCompareType =
+          ConvertGxDepthCompareTypeToFin_(depthFunction.Func);
 
       // Shamelessly copied from:
       // https://github.com/magcius/noclip.website/blob/c5a6d0137128065068b5842ffa9dff04f03eefdb/src/gx/gx_render.ts#L405-L423
@@ -1029,19 +1038,35 @@ namespace gx {
                    nameof(bmdAlphaOp), bmdAlphaOp, null)
       };
 
-    private FinAlphaCompareType ConvertGxAlphaCompareTypeToFin_(
-        GxAlphaCompareType gxAlphaAlphaCompareType)
-      => gxAlphaAlphaCompareType switch {
-          GxAlphaCompareType.Never   => FinAlphaCompareType.Never,
-          GxAlphaCompareType.Less    => FinAlphaCompareType.Less,
-          GxAlphaCompareType.Equal   => FinAlphaCompareType.Equal,
-          GxAlphaCompareType.LEqual  => FinAlphaCompareType.LEqual,
-          GxAlphaCompareType.Greater => FinAlphaCompareType.Greater,
-          GxAlphaCompareType.NEqual  => FinAlphaCompareType.NEqual,
-          GxAlphaCompareType.GEqual  => FinAlphaCompareType.GEqual,
-          GxAlphaCompareType.Always  => FinAlphaCompareType.Always,
+    private AlphaCompareType ConvertGxAlphaCompareTypeToFin_(
+        GxCompareType gxAlphaCompareType)
+      => gxAlphaCompareType switch {
+          GxCompareType.Never   => AlphaCompareType.Never,
+          GxCompareType.Less    => AlphaCompareType.Less,
+          GxCompareType.Equal   => AlphaCompareType.Equal,
+          GxCompareType.LEqual  => AlphaCompareType.LEqual,
+          GxCompareType.Greater => AlphaCompareType.Greater,
+          GxCompareType.NEqual  => AlphaCompareType.NEqual,
+          GxCompareType.GEqual  => AlphaCompareType.GEqual,
+          GxCompareType.Always  => AlphaCompareType.Always,
           _ => throw new ArgumentOutOfRangeException(
-                   nameof(gxAlphaAlphaCompareType), gxAlphaAlphaCompareType,
+                   nameof(gxAlphaCompareType), gxAlphaCompareType,
+                   null)
+      };
+
+    private DepthCompareType ConvertGxDepthCompareTypeToFin_(
+        GxCompareType gxDepthCompareType)
+      => gxDepthCompareType switch {
+          GxCompareType.Never   => DepthCompareType.Never,
+          GxCompareType.Less    => DepthCompareType.Less,
+          GxCompareType.Equal   => DepthCompareType.Equal,
+          GxCompareType.LEqual  => DepthCompareType.LEqual,
+          GxCompareType.Greater => DepthCompareType.Greater,
+          GxCompareType.NEqual  => DepthCompareType.NEqual,
+          GxCompareType.GEqual  => DepthCompareType.GEqual,
+          GxCompareType.Always  => DepthCompareType.Always,
+          _ => throw new ArgumentOutOfRangeException(
+                   nameof(gxDepthCompareType), gxDepthCompareType,
                    null)
       };
 

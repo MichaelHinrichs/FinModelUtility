@@ -131,5 +131,13 @@ namespace fin.model {
 
     VertexOrder VertexOrder { get; }
     IPrimitive SetVertexOrder(VertexOrder vertexOrder);
+
+    /// <summary>
+    ///   Rendering priority when determining what order to draw in. Lower
+    ///   values will be prioritized higher.
+    /// </summary>
+    uint InversePriority { get; }
+
+    IPrimitive SetInversePriority(uint inversePriority);
   }
 }

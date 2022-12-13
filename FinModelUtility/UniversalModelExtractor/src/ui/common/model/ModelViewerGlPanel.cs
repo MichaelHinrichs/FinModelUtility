@@ -321,7 +321,8 @@ void main() {
       var rightwardVector =
           (this.isRightwardDown_ ? 1 : 0) - (this.isLeftwardDown_ ? 1 : 0);
       this.camera_.Move(forwardVector, rightwardVector,
-                        this.isSpeedupActive_ ? 30 : 15);
+                        DebugFlags.GLOBAL_SCALE *
+                        (this.isSpeedupActive_ ? 30 : 15));
 
       var width = this.Width;
       var height = this.Height;
@@ -339,7 +340,8 @@ void main() {
       {
         GL.MatrixMode(MatrixMode.Projection);
         GL.LoadIdentity();
-        GlUtil.Perspective(this.fovY_, 1.0 * width / height, 10, 10000);
+        GlUtil.Perspective(this.fovY_, 1.0 * width / height,
+                           DebugFlags.NEAR_PLANE, DebugFlags.FAR_PLANE);
         GlUtil.LookAt(this.camera_.X, this.camera_.Y, this.camera_.Z,
                       this.camera_.X + this.camera_.XNormal,
                       this.camera_.Y + this.camera_.YNormal,
@@ -355,6 +357,10 @@ void main() {
         this.backgroundRenderer_.Render();
         GL.LoadIdentity();
       }
+
+      GL.Scale(DebugFlags.GLOBAL_SCALE,
+               DebugFlags.GLOBAL_SCALE,
+               DebugFlags.GLOBAL_SCALE);
 
       if (Config.Instance.ShowGrid) {
         this.texturelessShaderProgram_.Use();

@@ -1,5 +1,9 @@
 ﻿namespace uni.ui {
   public static class DebugFlags {
+    public const float GLOBAL_SCALE = .001f;
+    public const float NEAR_PLANE = .01f;
+    public const float FAR_PLANE = 5f;
+
     public const bool ENABLE_WEIGHT_COLORS = false;
     public const bool ENABLE_FIXED_FUNCTION_SHADER = true;
     public const bool ENABLE_LIGHTING = true;

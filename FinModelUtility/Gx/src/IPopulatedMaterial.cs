@@ -30,7 +30,9 @@ namespace gx {
     IBlendFunction BlendMode { get; }
 
     ITexCoordGen?[] TexCoordGens { get; }
-    ITextureMatrixInfo?[] TextureMatrices { get; set; }
+    ITextureMatrixInfo?[] TextureMatrices { get; }
+
+    IDepthFunction DepthFunction { get; }
 
     short[] TextureIndices { get; }
   }

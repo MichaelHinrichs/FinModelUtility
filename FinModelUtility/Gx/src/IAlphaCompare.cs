@@ -1,5 +1,5 @@
 ﻿namespace gx {
-  public enum GxAlphaCompareType : byte {
+  public enum GxCompareType : byte {
     Never = 0,
     Less = 1,
     Equal = 2,
@@ -18,10 +18,10 @@
   }
 
   public interface IAlphaCompare {
-    GxAlphaCompareType Func0 { get; }
+    GxCompareType Func0 { get; }
     float Reference0 { get; }
 
-    GxAlphaCompareType Func1 { get; }
+    GxCompareType Func1 { get; }
     float Reference1 { get; }
 
     GxAlphaOp MergeFunc { get; }

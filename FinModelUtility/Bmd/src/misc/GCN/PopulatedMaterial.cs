@@ -49,12 +49,15 @@ namespace bmd.misc.GCN {
     public IBlendFunction BlendMode { get; set; }
     public short UnknownIndex;
 
+    public IDepthFunction DepthFunction { get; }
+
     public ITexCoordGen?[] TexCoordGens { get; set; }
 
     public PopulatedMaterial(MAT3Section mat3, int index, MaterialEntry entry) {
       this.Name = mat3.MaterialNameTable[index];
 
       this.CullMode = mat3.CullModes[entry.CullModeIndex];
+      this.DepthFunction = mat3.DepthFunctions[entry.DepthFunctionIndex];
 
       this.MaterialColors =
           entry.MaterialColorIndexes

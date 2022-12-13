@@ -4,14 +4,14 @@ using schema;
 
 namespace bmd.schema.bmd.mat3 {
   [BinarySchema]
-  public partial class DepthFunction : IDeserializable {
+  public partial class DepthFunction : IDepthFunction, IBiSerializable {
     [IntegerFormat(SchemaIntegerType.BYTE)]
-    public bool Enable;
+    public bool Enable { get; set; }
 
-    public GxAlphaCompareType Func;
+    public GxCompareType Func { get; set; }
 
     [IntegerFormat(SchemaIntegerType.BYTE)]
-    public byte WriteNewValueIntoDepthBuffer;
+    public bool WriteNewValueIntoDepthBuffer { get; set; }
 
     private readonly byte padding_ = 0xff;
   }
