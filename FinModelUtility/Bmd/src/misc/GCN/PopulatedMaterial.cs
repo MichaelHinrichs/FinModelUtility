@@ -9,7 +9,6 @@ namespace bmd.misc.GCN {
 
   public class PopulatedMaterial : IPopulatedMaterial {
     public string Name { get; set; }
-    public byte Flag;
     public GxCullMode CullMode { get; set; }
     public byte ColorChannelControlsCountIndex;
     public byte TexGensCountIndex;
@@ -54,7 +53,6 @@ namespace bmd.misc.GCN {
 
     public PopulatedMaterial(MAT3Section mat3, int index, MaterialEntry entry) {
       this.Name = mat3.MaterialNameTable[index];
-      this.Flag = entry.Flag;
 
       this.CullMode = mat3.CullModes[entry.CullModeIndex];
 

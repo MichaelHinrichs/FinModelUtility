@@ -3,12 +3,17 @@ using schema;
 
 
 namespace bmd.schema.bmd.mat3 {
+  public enum RenderOrder {
+    PRE_ORDER = 1,
+    POST_ORDER = 4,
+  }
+
   /// <summary>
   ///   https://github.com/LordNed/WindEditor/wiki/BMD-and-BDL-Model-Format#material-entry
   /// </summary>
   [BinarySchema]
   public partial class MaterialEntry : IBiSerializable {
-    public byte Flag { get; set; }
+    public RenderOrder RenderOrder { get; set; }
     public byte CullModeIndex { get; set; }
     public byte ColorChannelControlsCountIndex { get; set; }
     public byte TexGensCountIndex { get; set; }
