@@ -365,6 +365,8 @@ label_7:
               default:
                 return;
             }
+          default:
+            throw new NotImplementedException();
         }
       }
 
@@ -940,6 +942,9 @@ label_7:
       public TevOrder[] TevOrders;
       public StringTable MaterialNameTable;
 
+      public readonly List<MatIndirectTexturingEntry>
+          MatIndirectTexturingEntries = new();
+
       public MAT3Section(EndianBinaryReader er, out bool OK)
       {
         long position1 = er.Position;
@@ -973,7 +978,13 @@ label_7:
           er.Position = position1 + (long) this.Offsets[2];
           this.MaterialNameTable = er.ReadNew<StringTable>();
 
-          // TODO: Add support for indirect textures (3)
+          var indirectTexturesOffset =
+              er.Position = position1 + this.Offsets[3];
+          this.MatIndirectTexturingEntries.Clear();
+          while ((er.Position - indirectTexturesOffset) < sectionLengths[3]) {
+            this.MatIndirectTexturingEntries.Add(
+                er.ReadNew<MatIndirectTexturingEntry>());
+          }
 
           er.Position = position1 + (long)this.Offsets[4];
           this.CullModes = new GxCullMode[sectionLengths[4] / 4];

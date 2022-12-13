@@ -278,6 +278,7 @@ namespace mod.schema {
     public readonly TEVColReg unknown2 = new();
     public readonly TEVColReg unknown3 = new();
 
+    // These are probably konst colors.
     public readonly Rgba32 unknown4 = new();
     public readonly Rgba32 unknown5 = new();
     public readonly Rgba32 unknown6 = new();
