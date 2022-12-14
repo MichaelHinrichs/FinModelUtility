@@ -28,7 +28,7 @@
   }
 
   public interface IJointAnimKey {
-    float Time { get; }
+    int Frame { get; }
     float Value { get; }
     float IncomingTangent { get; }
     float OutgoingTangent { get; }

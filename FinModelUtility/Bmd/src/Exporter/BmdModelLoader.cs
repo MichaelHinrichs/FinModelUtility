@@ -181,67 +181,67 @@ namespace bmd.exporter {
           // TODO: Handle mirrored animations
           foreach (var key in bcxJoint.Values.translationsX) {
             if (key is Bck.ANK1Section.AnimatedJoint.JointAnim.Key bckKey) {
-              boneTracks.Positions.Set((int)bckKey.Time, 0, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
+              boneTracks.Positions.Set(bckKey.Frame, 0, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
             } else {
-              boneTracks.Positions.Set((int)key.Time, 0, key.Value);
+              boneTracks.Positions.Set(key.Frame, 0, key.Value);
             }
           }
           foreach (var key in bcxJoint.Values.translationsY) {
             if (key is Bck.ANK1Section.AnimatedJoint.JointAnim.Key bckKey) {
-              boneTracks.Positions.Set((int)bckKey.Time, 1, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
+              boneTracks.Positions.Set(bckKey.Frame, 1, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
             } else {
-              boneTracks.Positions.Set((int)key.Time, 1, key.Value);
+              boneTracks.Positions.Set(key.Frame, 1, key.Value);
             }
           }
           foreach (var key in bcxJoint.Values.translationsZ) {
             if (key is Bck.ANK1Section.AnimatedJoint.JointAnim.Key bckKey) {
-              boneTracks.Positions.Set((int)bckKey.Time, 2, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
+              boneTracks.Positions.Set(bckKey.Frame, 2, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
             } else {
-              boneTracks.Positions.Set((int)key.Time, 2, key.Value);
+              boneTracks.Positions.Set(key.Frame, 2, key.Value);
             }
           }
 
           foreach (var key in bcxJoint.Values.rotationsX) {
             if (key is Bck.ANK1Section.AnimatedJoint.JointAnim.Key bckKey) {
-              boneTracks.Rotations.Set((int)bckKey.Time, 0, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
+              boneTracks.Rotations.Set(bckKey.Frame, 0, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
             } else {
-              boneTracks.Rotations.Set((int)key.Time, 0, key.Value);
+              boneTracks.Rotations.Set(key.Frame, 0, key.Value);
             }
           }
           foreach (var key in bcxJoint.Values.rotationsY) {
             if (key is Bck.ANK1Section.AnimatedJoint.JointAnim.Key bckKey) {
-              boneTracks.Rotations.Set((int)bckKey.Time, 1, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
+              boneTracks.Rotations.Set(bckKey.Frame, 1, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
             } else {
-              boneTracks.Rotations.Set((int)key.Time, 1, key.Value);
+              boneTracks.Rotations.Set(key.Frame, 1, key.Value);
             }
           }
           foreach (var key in bcxJoint.Values.rotationsZ) {
             if (key is Bck.ANK1Section.AnimatedJoint.JointAnim.Key bckKey) {
-              boneTracks.Rotations.Set((int)bckKey.Time, 2, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
+              boneTracks.Rotations.Set(bckKey.Frame, 2, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
             } else {
-              boneTracks.Rotations.Set((int)key.Time, 2, key.Value);
+              boneTracks.Rotations.Set(key.Frame, 2, key.Value);
             }
           }
 
           foreach (var key in bcxJoint.Values.scalesX) {
             if (key is Bck.ANK1Section.AnimatedJoint.JointAnim.Key bckKey) {
-              boneTracks.Scales.Set((int)bckKey.Time, 0, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
+              boneTracks.Scales.Set(bckKey.Frame, 0, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
             } else {
-              boneTracks.Scales.Set((int)key.Time, 0, key.Value);
+              boneTracks.Scales.Set(key.Frame, 0, key.Value);
             }
           }
           foreach (var key in bcxJoint.Values.scalesY) {
             if (key is Bck.ANK1Section.AnimatedJoint.JointAnim.Key bckKey) {
-              boneTracks.Scales.Set((int)bckKey.Time, 1, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
+              boneTracks.Scales.Set(bckKey.Frame, 1, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
             } else {
-              boneTracks.Scales.Set((int)key.Time, 1, key.Value);
+              boneTracks.Scales.Set(key.Frame, 1, key.Value);
             }
           }
           foreach (var key in bcxJoint.Values.scalesZ) {
             if (key is Bck.ANK1Section.AnimatedJoint.JointAnim.Key bckKey) {
-              boneTracks.Scales.Set((int)bckKey.Time, 2, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
+              boneTracks.Scales.Set(bckKey.Frame, 2, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
             } else {
-              boneTracks.Scales.Set((int)key.Time, 2, key.Value);
+              boneTracks.Scales.Set(key.Frame, 2, key.Value);
             }
           }
         }

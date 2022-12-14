@@ -162,19 +162,19 @@ namespace bmd.schema.bcx {
             return keys[0].Value;
           int index = 1;
 
-          while ((double)keys[index].Time < (double)t
+          while ((double)keys[index].Frame < (double)t
                  // Don't shoot past the end of the keys list!
                  &&
                  index + 1 < keys.Length)
             ++index;
 
-          if (index + 1 == keys.Length && keys[index].Time < t) {
+          if (index + 1 == keys.Length && keys[index].Frame < t) {
             return keys[0].Value;
           }
 
-          float t1 = (float)(((double)t - (double)keys[index - 1].Time) /
-                             ((double)keys[index].Time -
-                              (double)keys[index - 1].Time));
+          float t1 = (float)(((double)t - (double)keys[index - 1].Frame) /
+                             ((double)keys[index].Frame -
+                              (double)keys[index - 1].Frame));
 
 
           return this.Interpolate(keys[index - 1].Value,
@@ -242,14 +242,14 @@ namespace bmd.schema.bcx {
               out IJointAnimKey[] Destination,
               float[] Source,
               AnimIndex Component) {
-            Destination = new IJointAnimKey[(int)Component.Count];
-            if (Component.Count <= (ushort)0)
+            Destination = new IJointAnimKey[Component.Count];
+            if (Component.Count <= 0)
               throw new Exception("Count <= 0");
-            if (Component.Count == (ushort)1) {
+            if (Component.Count == 1) {
               Destination[0] =
                   new Key(
-                      0.0f,
-                      Source[(int)Component.Index],
+                      0,
+                      Source[Component.Index],
                       0,
                       0);
             } else {
@@ -258,10 +258,10 @@ namespace bmd.schema.bcx {
               Asserts.True(tangentMode == 0 || tangentMode == 1);
 
               var stride = hasTwoTangents ? 4 : 3;
-              for (int index = 0; index < (int)Component.Count; ++index) {
-                var i = (int)Component.Index + stride * index;
+              for (var index = 0; index < Component.Count; ++index) {
+                var i = Component.Index + stride * index;
 
-                var time = Source[i + 0];
+                var time = (int) Source[i + 0];
                 var value = Source[i + 1];
 
                 float incomingTangent, outgoingTangent;
@@ -288,14 +288,13 @@ namespace bmd.schema.bcx {
               float RotScale,
               AnimIndex Component) {
             Destination =
-                new IJointAnimKey[(int)Component
-                    .Count];
-            if (Component.Count <= (ushort)0)
+                new IJointAnimKey[Component.Count];
+            if (Component.Count <= 0)
               throw new Exception("Count <= 0");
-            if (Component.Count == (ushort)1) {
+            if (Component.Count == 1) {
               Destination[0] = new JointAnim.Key(
-                  0.0f,
-                  (float)Source[(int)Component.Index] * RotScale,
+                  0,
+                  Source[Component.Index] * RotScale,
                   0,
                   0);
             } else {
@@ -304,13 +303,11 @@ namespace bmd.schema.bcx {
               Asserts.True(tangentMode == 0 || tangentMode == 1);
 
               var stride = hasTwoTangents ? 4 : 3;
-              for (int index = 0; index < (int)Component.Count; ++index) {
-                var i = (int)Component.Index + stride * index;
+              for (var index = 0; index < Component.Count; ++index) {
+                var i = Component.Index + stride * index;
 
-                var time = (float)Source[i + 0];
-                var value =
-                    (float)Source[i + 1] *
-                    RotScale;
+                var time = Source[i + 0];
+                var value = Source[i + 1] * RotScale;
 
                 float incomingTangent, outgoingTangent;
                 if (hasTwoTangents) {
@@ -332,17 +329,17 @@ namespace bmd.schema.bcx {
 
           public class Key : IJointAnimKey {
             public Key(
-                float Time,
-                float Value,
+                int frame,
+                float value,
                 float incomingTangent,
                 float outgoingTangent) {
-              this.Time = Time;
-              this.Value = Value;
+              this.Frame = frame;
+              this.Value = value;
               this.IncomingTangent = incomingTangent;
               this.OutgoingTangent = outgoingTangent;
             }
 
-            public float Time { get; }
+            public int Frame { get; }
             public float Value { get; }
             public float IncomingTangent { get; }
             public float OutgoingTangent { get; }

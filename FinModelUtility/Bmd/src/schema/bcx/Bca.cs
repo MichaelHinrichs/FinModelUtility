@@ -196,15 +196,15 @@ namespace bmd.schema.bcx {
               out IJointAnimKey[] Destination,
               float[] Source,
               Bca.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex Component) {
-            Destination = new IJointAnimKey[(int)Component.Count];
-            if (Component.Count <= (ushort)0)
+            Destination = new IJointAnimKey[Component.Count];
+            if (Component.Count <= 0)
               throw new Exception("Count <= 0");
-            if (Component.Count == (ushort)1) {
-              Destination[0] = new Key(0, Source[(int)Component.Index]);
+            if (Component.Count == 1) {
+              Destination[0] = new Key(0, Source[Component.Index]);
             } else {
-              for (int index = 0; index < (int)Component.Count; ++index)
+              for (var index = 0; index < Component.Count; ++index)
                 Destination[index] =
-                    new Key(index, Source[(int)Component.Index + index]);
+                    new Key(index, Source[Component.Index + index]);
             }
           }
 
@@ -213,27 +213,27 @@ namespace bmd.schema.bcx {
               short[] Source,
               float RotScale,
               Bca.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex Component) {
-            Destination = new IJointAnimKey[(int)Component.Count];
-            if (Component.Count <= (ushort)0)
+            Destination = new IJointAnimKey[Component.Count];
+            if (Component.Count <= 0)
               throw new Exception("Count <= 0");
-            if (Component.Count == (ushort)1) {
+            if (Component.Count == 1) {
               Destination[0] =
-                  new Key(0, (float)Source[(int)Component.Index] * RotScale);
+                  new Key(0, Source[Component.Index] * RotScale);
             } else {
-              for (int index = 0; index < (int)Component.Count; ++index)
+              for (var index = 0; index < Component.Count; ++index)
                 Destination[index] =
-                    new Key(index, (float)Source[(int)Component.Index + index] *
+                    new Key(index, Source[Component.Index + index] *
                             RotScale);
             }
           }
 
           private sealed class Key : IJointAnimKey {
-            public Key(float time, float value) {
-              this.Time = time;
+            public Key(int frame, float value) {
+              this.Frame = frame;
               this.Value = value;
             }
 
-            public float Time { get; }
+            public int Frame { get; }
             public float Value { get; }
 
             // TODO: What should this actually be?
