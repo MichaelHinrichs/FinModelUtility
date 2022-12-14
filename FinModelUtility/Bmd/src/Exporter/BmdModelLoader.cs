@@ -6,6 +6,7 @@ using fin.math;
 using fin.math.matrix;
 using bmd.GCN;
 using bmd.schema.bcx;
+using bmd.schema.bmd.inf1;
 using bmd.schema.bmd.jnt1;
 using bmd.schema.bmd.mat3;
 using bmd.schema.bti;
@@ -234,9 +235,6 @@ namespace bmd.exporter {
       var entries = bmd.INF1.Entries;
       var batches = bmd.SHP1.Batches;
 
-      var rootNode = new Node<bool>();
-      var currentNode = rootNode;
-
       var scheduledDrawOnWayDownPrimitives = new List<IPrimitive>();
       var scheduledDrawOnWayUpPrimitives = new List<IPrimitive>();
 
@@ -248,15 +246,10 @@ namespace bmd.exporter {
       var weightsTable = new IBoneWeights?[10];
       foreach (var entry in entries) {
         switch (entry.Type) {
-          // Terminator
-          case 0x00:
+          case Inf1EntryType.TERMINATOR:
             goto DoneRendering;
 
-          case 0x01: {
-            var child = new Node<bool>();
-            currentNode.AddChild(child);
-            currentNode = child;
-
+          case Inf1EntryType.HIERARCHY_DOWN: {
             foreach (var primitive in scheduledDrawOnWayDownPrimitives) {
               primitive.SetInversePriority(currentRenderIndex++);
             }
@@ -264,9 +257,7 @@ namespace bmd.exporter {
             break;
           }
 
-          case 0x02: {
-            currentNode = currentNode.Parent;
-
+          case Inf1EntryType.HIERARCHY_UP: {
             foreach (var primitive in scheduledDrawOnWayUpPrimitives) {
               primitive.SetInversePriority(currentRenderIndex++);
             }
@@ -274,16 +265,14 @@ namespace bmd.exporter {
             break;
           }
 
-          // Material
-          case 0x11:
+          case Inf1EntryType.MATERIAL:
             currentMaterial = materialManager.Get(entry.Index);
             currentMaterialEntry =
                 bmd.MAT3.MaterialEntries[
                     bmd.MAT3.MaterialEntryIndieces[entry.Index]];
             break;
 
-          // Batch
-          case 0x12:
+          case Inf1EntryType.SHAPE:
             var batch = batches[(int)entry.Index];
 
             // TODO: Pass matrix type into joint (how?)

@@ -127,7 +127,7 @@ namespace gx {
       var scHalf = equations.CreateScalarConstant(.5);
       var scMinusHalf = equations.CreateScalarConstant(-.5);
       var sc255 = equations.CreateScalarConstant(255);
-      var sc255Sqr = equations.CreateScalarConstant(255 * 255);
+      var sc255Sqr = equations.CreateScalarConstant(256 * 255);
 
       var colorFixedFunctionOps = new ColorFixedFunctionOps(equations);
       var scalarFixedFunctionOps = new ScalarFixedFunctionOps(equations);

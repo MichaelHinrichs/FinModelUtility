@@ -155,15 +155,15 @@ namespace bmd.GCN {
       {
         switch (entry.Type)
         {
-          case 0:
+          case Inf1EntryType.TERMINATOR:
             goto label_7;
-          case 1:
+          case Inf1EntryType.HIERARCHY_DOWN:
             nodeIndexStack.Push(nodeIndex);
             break;
-          case 2:
+          case Inf1EntryType.HIERARCHY_UP:
             nodeIndexStack.Pop();
             break;
-          case 16:
+          case Inf1EntryType.JOINT:
             var jointIndex = this.JNT1.RemapTable[entry.Index];
             nodeList.Add(new MA.Node(
                              this.JNT1.Joints[jointIndex],
@@ -171,11 +171,9 @@ namespace bmd.GCN {
                              nodeIndexStack.Peek()));
             nodeIndex = entry.Index;
             break;
-          case 17:
-            // Material
+          case Inf1EntryType.MATERIAL:
             break;
-          case 18:
-            // Shape
+          case Inf1EntryType.SHAPE:
             break;
         }
       }
