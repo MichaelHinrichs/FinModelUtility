@@ -200,11 +200,11 @@ namespace bmd.schema.bcx {
             if (Component.Count <= (ushort)0)
               throw new Exception("Count <= 0");
             if (Component.Count == (ushort)1) {
-              Destination[0] = new Key(Source[(int)Component.Index]);
+              Destination[0] = new Key(0, Source[(int)Component.Index]);
             } else {
               for (int index = 0; index < (int)Component.Count; ++index)
                 Destination[index] =
-                    new Key(Source[(int)Component.Index + index]);
+                    new Key(index, Source[(int)Component.Index + index]);
             }
           }
 
@@ -218,21 +218,22 @@ namespace bmd.schema.bcx {
               throw new Exception("Count <= 0");
             if (Component.Count == (ushort)1) {
               Destination[0] =
-                  new Key((float)Source[(int)Component.Index] * RotScale);
+                  new Key(0, (float)Source[(int)Component.Index] * RotScale);
             } else {
               for (int index = 0; index < (int)Component.Count; ++index)
                 Destination[index] =
-                    new Key((float)Source[(int)Component.Index + index] *
+                    new Key(index, (float)Source[(int)Component.Index + index] *
                             RotScale);
             }
           }
 
           private sealed class Key : IJointAnimKey {
-            public Key(float value) {
+            public Key(float time, float value) {
+              this.Time = time;
               this.Value = value;
             }
 
-            public float Time => 1;
+            public float Time { get; }
             public float Value { get; }
 
             // TODO: What should this actually be?

@@ -344,8 +344,8 @@ namespace bmd.schema.bcx {
 
             public float Time { get; }
             public float Value { get; }
-            public float IncomingTangent { get; } = 1;
-            public float OutgoingTangent { get; } = 1;
+            public float IncomingTangent { get; }
+            public float OutgoingTangent { get; }
           }
         }
       }

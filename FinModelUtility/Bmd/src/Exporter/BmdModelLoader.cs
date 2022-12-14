@@ -48,11 +48,11 @@ namespace bmd.exporter {
                 .Select(bcxFile => {
                   var extension = bcxFile.Extension.ToLower();
                   IBcx bcx = extension switch {
-                      ".bca" =>
-                          new Bca(bcxFile.Impl.ReadAllBytes()),
-                      ".bck" =>
-                          new Bck(bcxFile.Impl.ReadAllBytes()),
-                      _ => throw new NotSupportedException(),
+                    ".bca" =>
+                        new Bca(bcxFile.Impl.ReadAllBytes()),
+                    ".bck" =>
+                        new Bck(bcxFile.Impl.ReadAllBytes()),
+                    _ => throw new NotSupportedException(),
                   };
                   return (bcxFile.FullName, bcx);
                 })
@@ -174,44 +174,75 @@ namespace bmd.exporter {
         // Writes translation/rotation/scale for each joint.
         foreach (var (joint, bone) in jointsAndBones) {
           var jointIndex = bmd.JNT1.StringTable[joint.Name];
+          var bcxJoint = bcx.Anx1.Joints[jointIndex];
 
           var boneTracks = animation.AddBoneTracks(bone);
 
           // TODO: Handle mirrored animations
-          // TODO: *Just* write keyframes.
-          for (var f = 0; f < bcx.Anx1.FrameCount; ++f) {
-            var position = JointUtil.GetTranslation(bcx, jointIndex, f);
-            if (!float.IsFinite(position.X) ||
-                !float.IsFinite(position.Y) ||
-                !float.IsFinite(position.Z)) {
-              throw new NotFiniteNumberException();
+          foreach (var key in bcxJoint.Values.translationsX) {
+            if (key is Bck.ANK1Section.AnimatedJoint.JointAnim.Key bckKey) {
+              boneTracks.Positions.Set((int)bckKey.Time, 0, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
+            } else {
+              boneTracks.Positions.Set((int)key.Time, 0, key.Value);
             }
-            boneTracks.Positions.Set(f, 0, position.X);
-            boneTracks.Positions.Set(f, 1, position.Y);
-            boneTracks.Positions.Set(f, 2, position.Z);
+          }
+          foreach (var key in bcxJoint.Values.translationsY) {
+            if (key is Bck.ANK1Section.AnimatedJoint.JointAnim.Key bckKey) {
+              boneTracks.Positions.Set((int)bckKey.Time, 1, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
+            } else {
+              boneTracks.Positions.Set((int)key.Time, 1, key.Value);
+            }
+          }
+          foreach (var key in bcxJoint.Values.translationsZ) {
+            if (key is Bck.ANK1Section.AnimatedJoint.JointAnim.Key bckKey) {
+              boneTracks.Positions.Set((int)bckKey.Time, 2, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
+            } else {
+              boneTracks.Positions.Set((int)key.Time, 2, key.Value);
+            }
+          }
 
-            var (xRadians, yRadians, zRadians) =
-                JointUtil.GetRotation(bcx, jointIndex, f);
-            if (!float.IsFinite(xRadians) ||
-                !float.IsFinite(yRadians) ||
-                !float.IsFinite(zRadians)) {
-              throw new NotFiniteNumberException();
+          foreach (var key in bcxJoint.Values.rotationsX) {
+            if (key is Bck.ANK1Section.AnimatedJoint.JointAnim.Key bckKey) {
+              boneTracks.Rotations.Set((int)bckKey.Time, 0, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
+            } else {
+              boneTracks.Rotations.Set((int)key.Time, 0, key.Value);
             }
-            var rotation = new ModelImpl.RotationImpl();
-            rotation.SetRadians(xRadians, yRadians, zRadians);
-            boneTracks.Rotations.Set(f, 0, rotation.XRadians);
-            boneTracks.Rotations.Set(f, 1, rotation.YRadians);
-            boneTracks.Rotations.Set(f, 2, rotation.ZRadians);
+          }
+          foreach (var key in bcxJoint.Values.rotationsY) {
+            if (key is Bck.ANK1Section.AnimatedJoint.JointAnim.Key bckKey) {
+              boneTracks.Rotations.Set((int)bckKey.Time, 1, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
+            } else {
+              boneTracks.Rotations.Set((int)key.Time, 1, key.Value);
+            }
+          }
+          foreach (var key in bcxJoint.Values.rotationsZ) {
+            if (key is Bck.ANK1Section.AnimatedJoint.JointAnim.Key bckKey) {
+              boneTracks.Rotations.Set((int)bckKey.Time, 2, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
+            } else {
+              boneTracks.Rotations.Set((int)key.Time, 2, key.Value);
+            }
+          }
 
-            var scale = JointUtil.GetScale(bcx, jointIndex, f);
-            if (!float.IsFinite(scale.X) ||
-                !float.IsFinite(scale.Y) ||
-                !float.IsFinite(scale.Z)) {
-              throw new NotFiniteNumberException();
+          foreach (var key in bcxJoint.Values.scalesX) {
+            if (key is Bck.ANK1Section.AnimatedJoint.JointAnim.Key bckKey) {
+              boneTracks.Scales.Set((int)bckKey.Time, 0, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
+            } else {
+              boneTracks.Scales.Set((int)key.Time, 0, key.Value);
             }
-            boneTracks.Scales.Set(f, 0, scale.X);
-            boneTracks.Scales.Set(f, 1, scale.Y);
-            boneTracks.Scales.Set(f, 2, scale.Z);
+          }
+          foreach (var key in bcxJoint.Values.scalesY) {
+            if (key is Bck.ANK1Section.AnimatedJoint.JointAnim.Key bckKey) {
+              boneTracks.Scales.Set((int)bckKey.Time, 1, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
+            } else {
+              boneTracks.Scales.Set((int)key.Time, 1, key.Value);
+            }
+          }
+          foreach (var key in bcxJoint.Values.scalesZ) {
+            if (key is Bck.ANK1Section.AnimatedJoint.JointAnim.Key bckKey) {
+              boneTracks.Scales.Set((int)bckKey.Time, 2, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
+            } else {
+              boneTracks.Scales.Set((int)key.Time, 2, key.Value);
+            }
           }
         }
       }
@@ -250,20 +281,20 @@ namespace bmd.exporter {
             goto DoneRendering;
 
           case Inf1EntryType.HIERARCHY_DOWN: {
-            foreach (var primitive in scheduledDrawOnWayDownPrimitives) {
-              primitive.SetInversePriority(currentRenderIndex++);
+              foreach (var primitive in scheduledDrawOnWayDownPrimitives) {
+                primitive.SetInversePriority(currentRenderIndex++);
+              }
+              scheduledDrawOnWayDownPrimitives.Clear();
+              break;
             }
-            scheduledDrawOnWayDownPrimitives.Clear();
-            break;
-          }
 
           case Inf1EntryType.HIERARCHY_UP: {
-            foreach (var primitive in scheduledDrawOnWayUpPrimitives) {
-              primitive.SetInversePriority(currentRenderIndex++);
+              foreach (var primitive in scheduledDrawOnWayUpPrimitives) {
+                primitive.SetInversePriority(currentRenderIndex++);
+              }
+              scheduledDrawOnWayUpPrimitives.Clear();
+              break;
             }
-            scheduledDrawOnWayUpPrimitives.Clear();
-            break;
-          }
 
           case Inf1EntryType.MATERIAL:
             currentMaterial = materialManager.Get(entry.Index);
@@ -386,32 +417,32 @@ namespace bmd.exporter {
                 IPrimitive finPrimitive;
                 switch (gxPrimitiveType) {
                   case GxPrimitiveType.GX_TRIANGLES: {
-                    finPrimitive = finMesh.AddTriangles(vertices)
-                                          .SetMaterial(
-                                              currentMaterial.Material);
-                    break;
-                  }
+                      finPrimitive = finMesh.AddTriangles(vertices)
+                                            .SetMaterial(
+                                                currentMaterial.Material);
+                      break;
+                    }
 
                   case GxPrimitiveType.GX_TRIANGLESTRIP: {
-                    finPrimitive =
-                        finMesh.AddTriangleStrip(vertices)
-                               .SetMaterial(currentMaterial.Material);
-                    break;
-                  }
+                      finPrimitive =
+                          finMesh.AddTriangleStrip(vertices)
+                                 .SetMaterial(currentMaterial.Material);
+                      break;
+                    }
 
                   case GxPrimitiveType.GX_TRIANGLEFAN: {
-                    finPrimitive = finMesh.AddTriangleFan(vertices)
-                                          .SetMaterial(
-                                              currentMaterial.Material);
-                    break;
-                  }
+                      finPrimitive = finMesh.AddTriangleFan(vertices)
+                                            .SetMaterial(
+                                                currentMaterial.Material);
+                      break;
+                    }
 
                   case GxPrimitiveType.GX_QUADS: {
-                    finPrimitive =
-                        finMesh.AddQuads(vertices)
-                               .SetMaterial(currentMaterial.Material);
-                    break;
-                  }
+                      finPrimitive =
+                          finMesh.AddQuads(vertices)
+                                 .SetMaterial(currentMaterial.Material);
+                      break;
+                    }
 
                   default:
                     throw new NotSupportedException(
@@ -422,13 +453,13 @@ namespace bmd.exporter {
                                   RenderOrder.DRAW_ON_WAY_DOWN;
                 switch (renderOrder) {
                   case RenderOrder.DRAW_ON_WAY_DOWN: {
-                    scheduledDrawOnWayDownPrimitives.Add(finPrimitive);
-                    break;
-                  }
+                      scheduledDrawOnWayDownPrimitives.Add(finPrimitive);
+                      break;
+                    }
                   case RenderOrder.DRAW_ON_WAY_UP: {
-                    scheduledDrawOnWayUpPrimitives.Add(finPrimitive);
-                    break;
-                  }
+                      scheduledDrawOnWayUpPrimitives.Add(finPrimitive);
+                      break;
+                    }
                   default: throw new ArgumentOutOfRangeException();
                 }
               }
@@ -437,7 +468,7 @@ namespace bmd.exporter {
         }
       }
 
-      DoneRendering: ;
+      DoneRendering:;
     }
 
     private static IFinMatrix4x4 ConvertSchemaToFin_(Matrix3x4f schemaMatrix) {
