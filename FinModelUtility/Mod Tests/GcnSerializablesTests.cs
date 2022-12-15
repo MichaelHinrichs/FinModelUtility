@@ -127,9 +127,10 @@ namespace mod.schema {
     public void TestTextureAttributes() {
       var textureAttributes = new TextureAttributes {
           index = 1,
-          tilingMode = 2,
-          unknown1 = 3,
-          unknown2 = 4
+          TilingModeS = (TilingMode) 2,
+          TilingModeT = (TilingMode) 3,
+          unknown1 = 4,
+          unknown2 = 5
       };
 
       TestGcnSerializableExisting(textureAttributes);
