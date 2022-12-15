@@ -68,7 +68,7 @@ namespace mod.schema.animation {
         var frameCount = axis.FrameCount;
         var frameOffset = axis.FrameOffset;
 
-        var sparse = isDck && frameCount != 1 && frameCount != animationData.FrameCount;
+        var sparse = isDck && frameCount != 1;
         frames[i] = !sparse
                         ? DcxHelpers.ReadDenseFrames(
                             values,
