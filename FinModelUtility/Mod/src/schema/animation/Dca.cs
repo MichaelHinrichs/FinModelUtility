@@ -13,6 +13,8 @@ namespace mod.schema.animation {
     public string Name { get; set; }
     
     public IDcxAnimationData AnimationData { get; } = new DcaAnimationData();
+   
+    public override string ToString() => this.Name;
   }
 
 

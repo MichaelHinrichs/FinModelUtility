@@ -13,6 +13,8 @@ namespace mod.schema.animation {
     public string Name { get; set; }
 
     public IDcxAnimationData AnimationData { get; } = new DckAnimationData();
+
+    public override string ToString() => this.Name;
   }
 
 
@@ -63,6 +65,6 @@ namespace mod.schema.animation {
   public partial class DckAxis : IDcxAxis {
     public int FrameCount { get; set; }
     public int FrameOffset { get; set; }
-    public int Unk { get; set; }
+    private readonly int padding_ = 0;
   }
 }

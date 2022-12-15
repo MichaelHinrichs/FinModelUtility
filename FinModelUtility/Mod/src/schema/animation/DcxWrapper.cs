@@ -31,5 +31,7 @@ namespace mod.schema.animation {
       => IsDca ? Dca! :
          IsDck ? Dck! :
          throw new NotSupportedException();
+
+    public override string ToString() => this.Dcx.ToString()!;
   }
 }
