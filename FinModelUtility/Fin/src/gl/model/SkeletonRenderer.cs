@@ -1,14 +1,21 @@
 ﻿using fin.math;
 using fin.model;
 using OpenTK.Graphics.OpenGL;
+using System.Collections.Generic;
+using System.Linq;
 using PrimitiveType = OpenTK.Graphics.OpenGL.PrimitiveType;
 
 
-namespace uni.ui.gl {
+namespace fin.gl.model {
+  public interface ISkeletonRenderer : IRenderable {
+    ISkeleton Skeleton { get; }
+    IBone? SelectedBone { get; set; }
+  }
+
   /// <summary>
   ///   A renderer for a Fin model's skeleton.
   /// </summary>
-  public class SkeletonRenderer {
+  public class SkeletonRenderer : ISkeletonRenderer {
     private readonly IBoneTransformManager boneTransformManager_;
     private readonly float scale_;
 
@@ -21,7 +28,6 @@ namespace uni.ui.gl {
     }
 
     public ISkeleton Skeleton { get; }
-
     public IBone? SelectedBone { get; set; }
 
     public void Render() {

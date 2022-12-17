@@ -1,12 +1,14 @@
-﻿using fin.gl;
-using fin.math;
+﻿using fin.math;
 using fin.model;
 using fin.model.impl;
 
 using OpenTK.Graphics.OpenGL;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 
-namespace uni.ui.gl {
+namespace fin.gl {
   public class GlBufferManager : IDisposable {
     private readonly IReadOnlyList<IVertex> vertices_;
 
@@ -56,7 +58,7 @@ namespace uni.ui.gl {
     private readonly IPosition position_ = new ModelImpl.PositionImpl();
     private readonly INormal normal_ = new ModelImpl.NormalImpl();
 
-    public void UpdateTransforms(BoneTransformManager? boneTransformManager) {
+    public void UpdateTransforms(IBoneTransformManager? boneTransformManager) {
       for (var i = 0; i < this.vertices_.Count; ++i) {
         var vertex = this.vertices_[i];
 

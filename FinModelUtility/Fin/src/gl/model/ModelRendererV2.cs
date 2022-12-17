@@ -1,9 +1,12 @@
 ﻿using fin.data;
 using fin.math;
 using fin.model;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 
-namespace uni.ui.gl {
+namespace fin.gl.model {
   /// <summary>
   ///   A renderer for a Fin model.
   ///
@@ -13,14 +16,14 @@ namespace uni.ui.gl {
     // TODO: Require passing in a GL context in the constructor.
 
     private GlBufferManager? bufferManager_;
-    private readonly BoneTransformManager? boneTransformManager_;
+    private readonly IBoneTransformManager? boneTransformManager_;
 
     private readonly ListDictionary<IMesh, MaterialMeshRendererV2>
         materialMeshRenderers_ = new();
 
     public ModelRendererV2(
         IModel model,
-        BoneTransformManager? boneTransformManager = null) {
+        IBoneTransformManager? boneTransformManager = null) {
       this.Model = model;
       this.boneTransformManager_ = boneTransformManager;
     }
@@ -38,7 +41,8 @@ namespace uni.ui.gl {
         var prioritiesByMaterial = new SetDictionary<IMaterial, uint>();
         foreach (var primitive in mesh.Primitives) {
           primitivesByMaterial.Add(primitive.Material, primitive);
-          prioritiesByMaterial.Add(primitive.Material, primitive.InversePriority);
+          prioritiesByMaterial.Add(primitive.Material,
+                                   primitive.InversePriority);
         }
 
         var orderedMaterials =

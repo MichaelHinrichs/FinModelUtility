@@ -1,4 +1,6 @@
 ﻿using fin.animation.playback;
+using fin.gl;
+using fin.gl.model;
 using fin.io.bundles;
 using fin.model;
 using System.Collections.Generic;
@@ -16,7 +18,7 @@ namespace fin.scene {
   ///   A single scene from a game. These can be thought of as the parts of the
   ///   game that are each separated by a loading screen.
   /// </summary>
-  public interface IScene {
+  public interface IScene : ITickable, IRenderable {
     IReadOnlyList<ISceneArea> Areas { get; }
     ISceneArea AddArea();
   }
@@ -27,7 +29,7 @@ namespace fin.scene {
   ///   example, in Ocarina of Time, this is used to represent a single room in
   ///   a dungeon.
   /// </summary>
-  public interface ISceneArea {
+  public interface ISceneArea : ITickable, IRenderable {
     IReadOnlyList<ISceneObject> Objects { get; }
     ISceneObject AddObject();
   }
@@ -37,22 +39,18 @@ namespace fin.scene {
   ///   appears in the scene, such as the level geometry, scenery, or
   ///   characters.
   /// </summary>
-  public interface ISceneObject {
+  public interface ISceneObject : ITickable, IRenderable {
     IPosition Position { get; }
     IRotation Rotation { get; }
 
     ISceneObject SetPosition(IPosition position);
     ISceneObject SetRotation(IRotation rotation);
 
-    ISceneModel AddSceneModel(IModel model);
-
-
     public delegate void OnTick(ISceneObject self);
+    ISceneObject SetOnTickHandler(OnTick handler);
 
-    event OnTick Tick;
-
-
-    void Render();
+    IReadOnlyList<ISceneModel> Models { get; }
+    ISceneModel AddSceneModel(IModel model);
   }
 
   /// <summary>
@@ -60,9 +58,17 @@ namespace fin.scene {
   ///   take care of rendering animations, and also supports adding sub-models
   ///   onto bones.
   /// </summary>
-  public interface ISceneModel {
-    IModel Model { get; }
-    IAnimation? Animation { get; set; }
+  public interface ISceneModel : IRenderable {
+    IReadOnlyList<ISceneModel> Children { get; }
     ISceneModel AddModelOntoBone(IModel model, IBone bone);
+
+    IModel Model { get; }
+    IModelRenderer ModelRenderer { get; }
+
+    IAnimation? Animation { get; set; }
+    IAnimationPlaybackManager AnimationPlaybackManager { get; }
+
+    bool ShowSkeleton { get; set; }
+    ISkeletonRenderer SkeletonRenderer { get; }
   }
 }

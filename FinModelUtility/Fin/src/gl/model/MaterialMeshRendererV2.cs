@@ -1,11 +1,13 @@
-﻿using fin.gl;
-using fin.gl.material;
+﻿using fin.gl.material;
 using fin.model;
 
 using OpenTK.Graphics.OpenGL;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 
-namespace uni.ui.gl {
+namespace fin.gl.model {
   public class MaterialMeshRendererV2 : IDisposable {
     // TODO: Set up shader for material
     // TODO: Use material's textures

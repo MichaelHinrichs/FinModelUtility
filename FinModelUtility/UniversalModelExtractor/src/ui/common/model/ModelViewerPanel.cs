@@ -1,6 +1,6 @@
 ﻿using fin.animation.playback;
+using fin.gl.model;
 using fin.model;
-using uni.ui.gl;
 
 
 namespace uni.ui.common.model {
@@ -33,6 +33,6 @@ namespace uni.ui.common.model {
       set => this.impl_.Animation = value;
     }
 
-    public SkeletonRenderer? SkeletonRenderer => this.impl_.SkeletonRenderer;
+    public ISkeletonRenderer? SkeletonRenderer => this.impl_.SkeletonRenderer;
   }
 }

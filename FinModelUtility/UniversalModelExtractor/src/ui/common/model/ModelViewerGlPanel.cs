@@ -1,5 +1,7 @@
 ﻿using fin.animation.playback;
 using fin.gl;
+using fin.gl.material;
+using fin.gl.model;
 using fin.math;
 using fin.model;
 using fin.model.util;
@@ -22,8 +24,6 @@ namespace uni.ui.common.model {
 
     private int useLightingLocation_;
     private bool hasNormals_;
-
-    private GlShaderProgram texturelessShaderProgram_;
 
     private BackgroundSphereRenderer backgroundRenderer_ = new();
     private IModelRenderer? modelRenderer_;
@@ -85,7 +85,7 @@ namespace uni.ui.common.model {
 
     public IAnimationPlaybackManager AnimationPlaybackManager { get; set; }
 
-    public SkeletonRenderer? SkeletonRenderer { get; private set; }
+    public ISkeletonRenderer? SkeletonRenderer { get; private set; }
 
     private IAnimation? animation_;
 
@@ -264,26 +264,6 @@ void main() {{
       this.useLightingLocation_ =
           this.texturedShaderProgram_.GetUniformLocation("useLighting");
 
-      this.texturelessShaderProgram_ =
-          GlShaderProgram.FromShaders(@"
-# version 120
-
-varying vec4 vertexColor;
-
-void main() {
-    gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex; 
-    vertexColor = gl_Color;
-}", @"
-# version 130 
-
-out vec4 fragColor;
-
-in vec4 vertexColor;
-
-void main() {
-    fragColor = vertexColor;
-}");
-
       ResetGl_();
     }
 
@@ -363,7 +343,7 @@ void main() {
                DebugFlags.GLOBAL_SCALE);
 
       if (Config.Instance.ShowGrid) {
-        this.texturelessShaderProgram_.Use();
+        CommonShaderPrograms.TEXTURELESS_SHADER_PROGRAM.Use();
         this.gridRenderer_.Render();
       }
 
@@ -408,7 +388,7 @@ void main() {
       }
 
       if (Config.Instance.ShowSkeleton) {
-        this.texturelessShaderProgram_.Use();
+        CommonShaderPrograms.TEXTURELESS_SHADER_PROGRAM.Use();
         this.SkeletonRenderer?.Render();
       }
     }
