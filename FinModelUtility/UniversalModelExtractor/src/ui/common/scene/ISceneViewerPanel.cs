@@ -5,8 +5,8 @@ using fin.model;
 using fin.scene;
 
 
-namespace uni.ui.common.model {
-  public interface IModelViewerPanel {
+namespace uni.ui.common.scene {
+  public interface ISceneViewerPanel {
     public (IFileBundle, IScene)? FileBundleAndScene { get; set; }
     public IAnimationPlaybackManager? AnimationPlaybackManager { get; }
     public IAnimation? Animation { get; set; }

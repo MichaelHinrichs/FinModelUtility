@@ -5,9 +5,9 @@ using fin.model;
 using fin.scene;
 
 
-namespace uni.ui.common.model {
-  public partial class ModelViewerPanel : UserControl, IModelViewerPanel {
-    public ModelViewerPanel() {
+namespace uni.ui.common.scene {
+  public partial class SceneViewerPanel : UserControl, ISceneViewerPanel {
+    public SceneViewerPanel() {
       this.InitializeComponent();
     }
 

@@ -18,9 +18,9 @@ public partial class UniversalModelExtractorForm : Form {
     this.InitializeComponent();
 
     this.modelTabs_.OnAnimationSelected += animation =>
-        this.modelViewerPanel_.Animation = animation;
+        this.sceneViewerPanel_.Animation = animation;
     this.modelTabs_.OnBoneSelected += bone => {
-      var skeletonRenderer = this.modelViewerPanel_.SkeletonRenderer;
+      var skeletonRenderer = this.sceneViewerPanel_.SkeletonRenderer;
       if (skeletonRenderer != null) {
         skeletonRenderer.SelectedBone = bone;
       }
@@ -56,7 +56,7 @@ public partial class UniversalModelExtractorForm : Form {
                             IModelFileBundle modelFileBundle) {
     var model = new GlobalModelLoader().LoadModel(modelFileBundle);
 
-    this.modelViewerPanel_?.FileBundleAndScene?.Item2.Dispose();
+    this.sceneViewerPanel_?.FileBundleAndScene?.Item2.Dispose();
 
     var scene = new SceneImpl();
     var area = scene.AddArea();
@@ -66,9 +66,9 @@ public partial class UniversalModelExtractorForm : Form {
     this.modelToolStrip_.DirectoryNode = fileNode.Parent;
     this.modelToolStrip_.FileNodeAndModel = (fileNode, model);
 
-    this.modelViewerPanel_.FileBundleAndScene = (modelFileBundle, scene);
+    this.sceneViewerPanel_.FileBundleAndScene = (modelFileBundle, scene);
     this.modelTabs_.AnimationPlaybackManager =
-        this.modelViewerPanel_.AnimationPlaybackManager;
+        this.sceneViewerPanel_.AnimationPlaybackManager;
 
     this.modelTabs_.Model = model;
 

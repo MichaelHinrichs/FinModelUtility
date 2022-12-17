@@ -1,6 +1,6 @@
 ﻿using uni.ui.common;
 using uni.ui.common.audio;
-using uni.ui.common.model;
+using uni.ui.common.scene;
 using uni.ui.right_panel;
 
 
@@ -35,7 +35,7 @@ namespace uni.ui {
       System.Windows.Forms.SplitContainer splitContainer3;
       this.fileBundleTreeView_ = new uni.ui.common.FileBundleTreeView();
       this.splitContainer4 = new System.Windows.Forms.SplitContainer();
-      this.modelViewerPanel_ = new uni.ui.common.model.ModelViewerPanel();
+      this.sceneViewerPanel_ = new uni.ui.common.scene.SceneViewerPanel();
       this.audioPlayerPanel_ = new uni.ui.common.audio.AudioPlayerPanel();
       this.modelTabs_ = new uni.ui.right_panel.ModelTabs();
       this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -123,7 +123,7 @@ namespace uni.ui {
       // 
       // splitContainer4.Panel1
       // 
-      this.splitContainer4.Panel1.Controls.Add(this.modelViewerPanel_);
+      this.splitContainer4.Panel1.Controls.Add(this.sceneViewerPanel_);
       // 
       // splitContainer4.Panel2
       // 
@@ -134,14 +134,14 @@ namespace uni.ui {
       // 
       // modelViewerPanel_
       // 
-      this.modelViewerPanel_.Animation = null;
-      this.modelViewerPanel_.BackColor = System.Drawing.Color.Transparent;
-      this.modelViewerPanel_.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.modelViewerPanel_.Location = new System.Drawing.Point(0, 0);
-      this.modelViewerPanel_.FileBundleAndScene = null;
-      this.modelViewerPanel_.Name = "modelViewerPanel_";
-      this.modelViewerPanel_.Size = new System.Drawing.Size(573, 430);
-      this.modelViewerPanel_.TabIndex = 0;
+      this.sceneViewerPanel_.Animation = null;
+      this.sceneViewerPanel_.BackColor = System.Drawing.Color.Transparent;
+      this.sceneViewerPanel_.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.sceneViewerPanel_.Location = new System.Drawing.Point(0, 0);
+      this.sceneViewerPanel_.FileBundleAndScene = null;
+      this.sceneViewerPanel_.Name = "sceneViewerPanel_";
+      this.sceneViewerPanel_.Size = new System.Drawing.Size(573, 430);
+      this.sceneViewerPanel_.TabIndex = 0;
       // 
       // audioPlayerPanel_
       // 
@@ -276,7 +276,7 @@ namespace uni.ui {
 
     #endregion
 
-    private ModelViewerPanel modelViewerPanel_;
+    private SceneViewerPanel sceneViewerPanel_;
     private MenuStrip menuStrip;
     private ToolStripMenuItem fileToolStripMenuItem;
     private ToolStripMenuItem exitToolStripMenuItem;

@@ -1,5 +1,5 @@
-﻿namespace uni.ui.common.model {
-  partial class ModelViewerPanel {
+﻿namespace uni.ui.common.scene {
+  partial class SceneViewerPanel {
     /// <summary> 
     /// Required designer variable.
     /// </summary>
@@ -24,7 +24,7 @@
     /// </summary>
     private void InitializeComponent() {
       this.groupBox_ = new System.Windows.Forms.GroupBox();
-      this.impl_ = new uni.ui.common.model.ModelViewerGlPanel();
+      this.impl_ = new SceneViewerGlPanel();
       this.groupBox_.SuspendLayout();
       this.SuspendLayout();
       // 
@@ -54,7 +54,7 @@
       this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.Controls.Add(this.groupBox_);
-      this.Name = "ModelViewerPanel";
+      this.Name = "SceneViewerPanel";
       this.Size = new System.Drawing.Size(462, 310);
       this.groupBox_.ResumeLayout(false);
       this.ResumeLayout(false);
@@ -64,6 +64,6 @@
     #endregion
 
     private GroupBox groupBox_;
-    private ModelViewerGlPanel impl_;
+    private SceneViewerGlPanel impl_;
   }
 }

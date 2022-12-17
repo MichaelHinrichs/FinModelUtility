@@ -12,8 +12,8 @@ using uni.config;
 using uni.ui.gl;
 
 
-namespace uni.ui.common.model {
-  public class ModelViewerGlPanel : BGlPanel, IModelViewerPanel {
+namespace uni.ui.common.scene {
+  public class SceneViewerGlPanel : BGlPanel, ISceneViewerPanel {
     private readonly Camera camera_ = new();
     private float fovY_ = 30;
 
@@ -38,7 +38,7 @@ namespace uni.ui.common.model {
 
         if (scene != null) {
           this.scale_ = scene.Scale =
-                            1000 / ModelScaleCalculator.CalculateScale(scene);
+                            1000 / SceneScaleCalculator.CalculateScale(scene);
         } else {
           this.scale_ = 1;
         }
@@ -78,7 +78,7 @@ namespace uni.ui.common.model {
     private bool isRightwardDown_ = false;
     private bool isSpeedupActive_ = false;
 
-    public ModelViewerGlPanel() {
+    public SceneViewerGlPanel() {
       this.impl_.MouseDown += (_, args) => {
         if (args.Button == MouseButtons.Left ||
             args.Button == MouseButtons.Right) {
