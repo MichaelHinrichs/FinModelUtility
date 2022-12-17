@@ -6,7 +6,7 @@ using fin.scene;
 
 
 namespace fin.model.util {
-  public static class ModelScaleCalculator {
+  public static class SceneScaleCalculator {
     public record Bounds(float MinX,
                          float MinY,
                          float MinZ,
