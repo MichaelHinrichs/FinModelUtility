@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 
 using fin.color;
@@ -8,9 +7,6 @@ using fin.math;
 using fin.model;
 using fin.model.impl;
 
-using SharpGLTF.Geometry;
-using SharpGLTF.Geometry.VertexTypes;
-using SharpGLTF.Materials;
 using SharpGLTF.Memory;
 using SharpGLTF.Schema2;
 using SharpGLTF.Transforms;

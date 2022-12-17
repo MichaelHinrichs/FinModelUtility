@@ -5,14 +5,48 @@ using fin.data;
 using fin.math.matrix;
 using fin.model;
 using fin.model.impl;
-using fin.schema.vector;
 using fin.ui;
 using fin.util.optional;
-using System.Drawing.Drawing2D;
 
 
 namespace fin.math {
-  public class BoneTransformManager {
+  public interface IBoneTransformManager {
+    (IBoneTransformManager, IBone)? Parent { get; }
+
+    void Clear();
+
+    IDictionary<IBone, int> CalculateMatrices(
+        IBone rootBone,
+        IReadOnlyList<IBoneWeights> boneWeightsList,
+        (IAnimation, float)? animationAndFrame,
+        bool useLoopingInterpolation = false
+    );
+
+    public IReadOnlyFinMatrix4x4 GetLocalMatrix(IBone bone);
+
+    public IReadOnlyFinMatrix4x4 GetWorldMatrix(IBone bone);
+
+    public IReadOnlyFinMatrix4x4? GetTransformMatrix(IVertex vertex,
+      bool forcePreproject = false);
+
+    void ProjectVertex(
+        IVertex vertex,
+        IPosition outPosition,
+        INormal? outNormal = null,
+        bool forcePreproject = false);
+
+    void ProjectVertex(IBone bone,
+                       ref float x,
+                       ref float y,
+                       ref float z);
+
+    void ProjectNormal(IBone bone,
+                       ref float x,
+                       ref float y,
+                       ref float z);
+  }
+
+  public class BoneTransformManager : IBoneTransformManager {
     // TODO: This is going to be slow, can we put this somewhere else for O(1) access?
     private readonly IndexableDictionary<IBone, IReadOnlyFinMatrix4x4>
         bonesToLocalMatrices_ = new();
@@ -26,6 +60,12 @@ namespace fin.math {
     private readonly IndexableDictionary<IBoneWeights, IFinMatrix4x4>
         boneWeightsToWorldMatrices_ = new();
 
+    public (IBoneTransformManager, IBone)? Parent { get; }
+
+    public BoneTransformManager((IBoneTransformManager, IBone)? parent = null) {
+      this.Parent = parent;
+    }
+    
     public void Clear() {
       this.bonesToLocalMatrices_.Clear();
       this.bonesToWorldMatrices_.Clear();
@@ -50,7 +90,13 @@ namespace fin.math {
       var scaleBuffer = new ModelImpl.ScaleImpl();
 
       // TODO: Use a pool of matrices to prevent unneeded instantiations.
-      var rootMatrix = new FinMatrix4x4();
+      IFinMatrix4x4 rootMatrix;
+      if (this.Parent == null) {
+        rootMatrix = new FinMatrix4x4();
+      } else {
+        var (parentManager, parentBone) = this.Parent.Value;
+        rootMatrix = new FinMatrix4x4(parentManager.GetWorldMatrix(parentBone));
+      }
       transformer.Get(rootMatrix);
 
       // TODO: Cache this directly on the bone itself instead.

@@ -9,11 +9,11 @@ namespace uni.ui.gl {
   ///   A renderer for a Fin model's skeleton.
   /// </summary>
   public class SkeletonRenderer {
-    private readonly BoneTransformManager boneTransformManager_;
+    private readonly IBoneTransformManager boneTransformManager_;
     private readonly float scale_;
 
     public SkeletonRenderer(ISkeleton skeleton,
-                            BoneTransformManager boneTransformManager,
+                            IBoneTransformManager boneTransformManager,
                             float scale) {
       this.Skeleton = skeleton;
       this.boneTransformManager_ = boneTransformManager;
