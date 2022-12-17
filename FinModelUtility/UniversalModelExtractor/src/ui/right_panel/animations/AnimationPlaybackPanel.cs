@@ -2,12 +2,10 @@
 
 
 namespace uni.ui.right_panel {
-  public partial class AnimationPlaybackPanel : UserControl, IAnimationPlaybackManager {
+  public partial class AnimationPlaybackPanel : UserControl {
     // TODO: Add tests.
     // TODO: How to right-align frame label?
     // TODO: Fix bug where scrolling trackbar changes time dramatically?
-
-    private readonly IAnimationPlaybackManager impl_ = new FrameAdvancer();
 
     public AnimationPlaybackPanel() {
       this.InitializeComponent();
@@ -31,58 +29,88 @@ namespace uni.ui.right_panel {
         }
       };
 
-      this.FrameRate = (int) Math.Floor(this.frameRateSelector_.Value);
+      this.FrameRate = (int)Math.Floor(this.frameRateSelector_.Value);
+    }
+
+    private IAnimationPlaybackManager? impl_;
+
+    public IAnimationPlaybackManager? Impl {
+      get => this.impl_;
+      set {
+        if (this.impl_ != null) {
+          this.impl_.OnUpdate -= this.Update_;
+        }
+
+        this.impl_ = value;
+
+        if (this.impl_ != null) {
+          this.impl_.OnUpdate += this.Update_;
+        }
+      }
     }
 
     // TODO: Should carry over changes to form.
     public double Frame {
-      get => this.impl_.Frame;
+      get => this.Impl?.Frame ?? 0;
       set {
-        this.impl_.Frame = value;
+        if (this.Impl != null) {
+          this.Impl.Frame = value;
+        }
 
         if (this.TotalFrames > 0) {
           this.frameTrackBar_.Value = (int)value;
         }
-      } 
+      }
     }
+
     public int TotalFrames {
-      get => this.impl_.TotalFrames;
+      get => this.Impl?.TotalFrames ?? 0;
       set {
-        this.impl_.TotalFrames = value;
+        if (this.Impl != null) {
+          this.Impl.TotalFrames = value;
+        }
         this.frameTrackBar_.Maximum = value;
       }
     }
 
     public int FrameRate {
-      get => this.impl_.FrameRate;
+      get => this.Impl?.FrameRate ?? 0;
       set {
-        this.impl_.FrameRate = value;
+        if (this.Impl != null) {
+          this.Impl.FrameRate = value;
+        }
         this.frameRateSelector_.Value = value;
       }
     }
 
 
     public bool IsPlaying {
-      get => this.impl_.IsPlaying;
-      set => this.impl_.IsPlaying = value;
-    }
-    public bool ShouldLoop {
-      get => this.impl_.ShouldLoop;
+      get => this.Impl?.IsPlaying ?? false;
       set {
-        this.impl_.ShouldLoop = value;
+        if (this.Impl != null) {
+          this.Impl.IsPlaying = value;
+        }
+      }
+    }
+
+    public bool ShouldLoop {
+      get => this.Impl?.ShouldLoop ?? false;
+      set {
+        if (this.Impl != null) {
+          this.Impl.ShouldLoop = value;
+        }
         this.loopCheckBox_.Checked = value;
       }
     }
 
 
-    public void Reset() => this.impl_.Reset();
-
-    public void Tick() {
-      this.impl_.Tick();
-      this.Update_();
-    }
-
     private void Update_() {
+      if (this.Impl != null) {
+        this.frameTrackBar_.Maximum = this.Impl.TotalFrames;
+        this.frameRateSelector_.Value = this.Impl.FrameRate;
+        this.loopCheckBox_.Checked = this.Impl.ShouldLoop;
+      }
+
       var elapsedSecondsText = "0.0s";
       var elapsedFramesText = "0/0";
 
@@ -98,9 +126,9 @@ namespace uni.ui.right_panel {
         var secondsDelta = (int)(seconds * 1000 % 1000);
 
         elapsedSecondsText = secondsInt +
-                              "." +
-                              secondsDelta +
-                              "s";
+                             "." +
+                             secondsDelta +
+                             "s";
         elapsedFramesText = frameIndex + "/" + this.TotalFrames;
       }
 

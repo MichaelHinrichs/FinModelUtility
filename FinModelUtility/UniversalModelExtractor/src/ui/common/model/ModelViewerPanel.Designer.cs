@@ -42,7 +42,6 @@
       // impl_
       // 
       this.impl_.Animation = null;
-      this.impl_.AnimationPlaybackManager = null;
       this.impl_.BackColor = System.Drawing.Color.Fuchsia;
       this.impl_.Dock = System.Windows.Forms.DockStyle.Fill;
       this.impl_.Location = new System.Drawing.Point(3, 19);

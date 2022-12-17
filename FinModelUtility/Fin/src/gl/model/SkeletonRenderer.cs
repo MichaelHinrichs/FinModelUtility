@@ -10,6 +10,7 @@ namespace fin.gl.model {
   public interface ISkeletonRenderer : IRenderable {
     ISkeleton Skeleton { get; }
     IBone? SelectedBone { get; set; }
+    float Scale { get; set; }
   }
 
   /// <summary>
@@ -17,18 +18,16 @@ namespace fin.gl.model {
   /// </summary>
   public class SkeletonRenderer : ISkeletonRenderer {
     private readonly IBoneTransformManager boneTransformManager_;
-    private readonly float scale_;
 
     public SkeletonRenderer(ISkeleton skeleton,
-                            IBoneTransformManager boneTransformManager,
-                            float scale) {
+                            IBoneTransformManager boneTransformManager) {
       this.Skeleton = skeleton;
       this.boneTransformManager_ = boneTransformManager;
-      this.scale_ = scale;
     }
 
     public ISkeleton Skeleton { get; }
     public IBone? SelectedBone { get; set; }
+    public float Scale { get; set; } = 1;
 
     public void Render() {
       GL.Disable(EnableCap.DepthTest);
@@ -98,7 +97,7 @@ namespace fin.gl.model {
           this.boneTransformManager_.ProjectNormal(
               bone, ref normalX, ref normalY, ref normalZ);
 
-          var normalScale = 50f / this.scale_;
+          var normalScale = 50f / this.Scale;
           normalX *= normalScale;
           normalY *= normalScale;
           normalZ *= normalScale;
@@ -127,7 +126,7 @@ namespace fin.gl.model {
           this.boneTransformManager_.ProjectNormal(
               this.SelectedBone, ref normalX, ref normalY, ref normalZ);
 
-          var normalScale = 50f / this.scale_;
+          var normalScale = 50f / this.Scale;
           normalX *= normalScale;
           normalY *= normalScale;
           normalZ *= normalScale;

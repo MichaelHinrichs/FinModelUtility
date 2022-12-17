@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Assimp.Configs;
 using fin.math;
 using fin.model.impl;
+using fin.scene;
 
 
 namespace fin.model.util {
@@ -14,18 +14,14 @@ namespace fin.model.util {
                          float MaxY,
                          float MaxZ);
 
-    public static float CalculateScale(IModel model,
-                                       BoneTransformManager
-                                           boneTransformManager) {
-      var bounds = CalculateBounds(model, boneTransformManager);
+    public static float CalculateScale(IScene scene) {
+      var bounds = CalculateBounds(scene);
       return MathF.Sqrt(MathF.Pow(bounds.MaxX - bounds.MinX, 2) +
                         MathF.Pow(bounds.MaxY - bounds.MinY, 2) +
                         MathF.Pow(bounds.MaxZ - bounds.MinZ, 2));
     }
 
-    public static Bounds CalculateBounds(IModel model,
-                                         BoneTransformManager
-                                             boneTransformManager) {
+    public static Bounds CalculateBounds(IScene scene) {
       var minX = float.MaxValue;
       var minY = float.MaxValue;
       var minZ = float.MaxValue;
@@ -35,54 +31,63 @@ namespace fin.model.util {
 
       var position = new ModelImpl.PositionImpl();
 
-      var anyVertices = false;
-      foreach (var mesh in model.Skin.Meshes) {
-        foreach (var primitive in mesh.Primitives) {
-          foreach (var vertex in primitive.Vertices) {
-            anyVertices = true;
+      foreach (var area in scene.Areas) {
+        foreach (var obj in area.Objects) {
+          foreach (var sceneModel in obj.Models) {
+            var model = sceneModel.Model;
+            var boneTransformManager = sceneModel.BoneTransformManager;
 
-            boneTransformManager.ProjectVertex(vertex, position);
+            var anyVertices = false;
+            foreach (var mesh in model.Skin.Meshes) {
+              foreach (var primitive in mesh.Primitives) {
+                foreach (var vertex in primitive.Vertices) {
+                  anyVertices = true;
 
-            var x = position.X;
-            var y = position.Y;
-            var z = position.Z;
+                  boneTransformManager.ProjectVertex(vertex, position);
 
-            minX = MathF.Min(minX, x);
-            maxX = MathF.Max(maxX, x);
+                  var x = position.X;
+                  var y = position.Y;
+                  var z = position.Z;
 
-            minY = MathF.Min(minY, y);
-            maxY = MathF.Max(maxY, y);
+                  minX = MathF.Min(minX, x);
+                  maxX = MathF.Max(maxX, x);
 
-            minZ = MathF.Min(minZ, z);
-            maxZ = MathF.Max(maxZ, z);
-          }
-        }
-      }
+                  minY = MathF.Min(minY, y);
+                  maxY = MathF.Max(maxY, y);
 
-      if (!anyVertices) {
-        var boneQueue = new Queue<IBone>();
-        boneQueue.Enqueue(model.Skeleton.Root);
+                  minZ = MathF.Min(minZ, z);
+                  maxZ = MathF.Max(maxZ, z);
+                }
+              }
+            }
 
-        while (boneQueue.Count > 0) {
-          var bone = boneQueue.Dequeue();
+            if (!anyVertices) {
+              var boneQueue = new Queue<IBone>();
+              boneQueue.Enqueue(model.Skeleton.Root);
 
-          var x = 0f;
-          var y = 0f;
-          var z = 0f;
+              while (boneQueue.Count > 0) {
+                var bone = boneQueue.Dequeue();
 
-          boneTransformManager.ProjectVertex(bone, ref x, ref y, ref z);
+                var x = 0f;
+                var y = 0f;
+                var z = 0f;
 
-          minX = MathF.Min(minX, x);
-          maxX = MathF.Max(maxX, x);
+                boneTransformManager.ProjectVertex(bone, ref x, ref y, ref z);
 
-          minY = MathF.Min(minY, y);
-          maxY = MathF.Max(maxY, y);
+                minX = MathF.Min(minX, x);
+                maxX = MathF.Max(maxX, x);
 
-          minZ = MathF.Min(minZ, z);
-          maxZ = MathF.Max(maxZ, z);
+                minY = MathF.Min(minY, y);
+                maxY = MathF.Max(maxY, y);
 
-          foreach (var child in bone.Children) {
-            boneQueue.Enqueue(child);
+                minZ = MathF.Min(minZ, z);
+                maxZ = MathF.Max(maxZ, z);
+
+                foreach (var child in bone.Children) {
+                  boneQueue.Enqueue(child);
+                }
+              }
+            }
           }
         }
       }

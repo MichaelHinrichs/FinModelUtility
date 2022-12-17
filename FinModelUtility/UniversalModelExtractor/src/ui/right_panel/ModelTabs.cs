@@ -17,8 +17,10 @@ namespace uni.ui.right_panel {
       }
     }
 
-    public IAnimationPlaybackManager AnimationPlaybackManager =>
-        this.animationsTab_.AnimationPlaybackManager;
+    public IAnimationPlaybackManager? AnimationPlaybackManager {
+      get => this.animationsTab_.AnimationPlaybackManager;
+      set => this.animationsTab_.AnimationPlaybackManager = value;
+    }
 
     public event AnimationsTab.AnimationSelected OnAnimationSelected {
       add => this.animationsTab_.OnAnimationSelected += value;

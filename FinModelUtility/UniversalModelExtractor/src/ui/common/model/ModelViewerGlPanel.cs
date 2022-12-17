@@ -3,11 +3,10 @@ using fin.gl;
 using fin.gl.material;
 using fin.gl.model;
 using fin.io.bundles;
-using fin.math;
 using fin.model;
 using fin.model.util;
+using fin.scene;
 using fin.ui;
-using fin.util.optional;
 using OpenTK.Graphics.OpenGL;
 using uni.config;
 using uni.ui.gl;
@@ -20,91 +19,53 @@ namespace uni.ui.common.model {
 
     private readonly Color backgroundColor_ = Color.FromArgb(51, 128, 179);
 
-    private GlShaderProgram texturedShaderProgram_;
-    private int texture0Location_;
-
-    private int useLightingLocation_;
-    private bool hasNormals_;
-
     private BackgroundSphereRenderer backgroundRenderer_ = new();
-    private IModelRenderer? modelRenderer_;
-    private readonly BoneTransformManager boneTransformManager_ = new();
-
     private GridRenderer gridRenderer_ = new();
 
     private float scale_ = 1;
 
+    private IScene? scene_;
     private IFileBundle? fileBundle_;
 
-    public (IFileBundle, IModel)? FileBundleAndModel {
+    public (IFileBundle, IScene)? FileBundleAndScene {
       get {
-        var model = this.modelRenderer_?.Model;
-        return model != null ? (this.fileBundle_!, model) : null;
+        var scene = this.scene_;
+        return scene != null ? (this.fileBundle_!, scene) : null;
       }
       set {
         this.fileBundle_ = value?.Item1;
-        var model = value?.Item2;
+        var scene = this.scene_ = value?.Item2;
 
-        this.modelRenderer_?.Dispose();
-        this.boneTransformManager_.Clear();
-
-        if (model != null) {
-          this.boneTransformManager_.CalculateMatrices(
-              model.Skeleton.Root,
-              model.Skin.BoneWeights,
-              null);
-          this.scale_ = 1000 / ModelScaleCalculator.CalculateScale(
-                            model, this.boneTransformManager_);
-
-          this.modelRenderer_ =
-              new ModelRendererV2(model, this.boneTransformManager_);
-          this.SkeletonRenderer =
-              new SkeletonRenderer(
-                  model.Skeleton,
-                  this.boneTransformManager_,
-                  this.scale_
-              );
-
-          hasNormals_ = false;
-          foreach (var vertex in model.Skin.Vertices) {
-            if (vertex.LocalNormal != null) {
-              hasNormals_ = true;
-              break;
-            }
-          }
+        if (scene != null) {
+          this.scale_ = scene.Scale =
+                            1000 / ModelScaleCalculator.CalculateScale(scene);
         } else {
-          this.modelRenderer_ = null;
-          this.SkeletonRenderer = null;
           this.scale_ = 1;
         }
-
-        this.Animation = model?.AnimationManager.Animations.FirstOrDefault();
       }
     }
 
-    private IModel? Model => this.FileBundleAndModel?.Item2;
+    private IScene? Scene => this.FileBundleAndScene?.Item2;
 
-    public IAnimationPlaybackManager AnimationPlaybackManager { get; set; }
+    private ISceneModel? FirstSceneModel
+      => this.Scene?.Areas.FirstOrDefault()
+             ?.Objects.FirstOrDefault()
+             ?.Models.FirstOrDefault();
 
-    public ISkeletonRenderer? SkeletonRenderer { get; private set; }
+    public IAnimationPlaybackManager? AnimationPlaybackManager
+      => this.FirstSceneModel?.AnimationPlaybackManager;
 
-    private IAnimation? animation_;
+    public ISkeletonRenderer? SkeletonRenderer
+      => this.FirstSceneModel?.SkeletonRenderer;
 
     public IAnimation? Animation {
-      get => this.animation_;
+      get => this.FirstSceneModel?.Animation;
       set {
-        if (this.animation_ == value) {
+        if (this.FirstSceneModel == null) {
           return;
         }
 
-        this.animation_ = value;
-        if (this.AnimationPlaybackManager != null) {
-          this.AnimationPlaybackManager.Frame = 0;
-          this.AnimationPlaybackManager.FrameRate =
-              (int)(value?.FrameRate ?? 20);
-          this.AnimationPlaybackManager.TotalFrames =
-              value?.FrameCount ?? 0;
-        }
+        this.FirstSceneModel.Animation = value;
       }
     }
 
@@ -210,61 +171,6 @@ namespace uni.ui.common.model {
     }
 
     protected override void InitGl() {
-      var vertexShaderSrc = @"
-# version 120
-
-in vec2 in_uv0;
-
-varying vec4 vertexColor;
-varying vec3 vertexNormal;
-varying vec2 uv0;
-
-void main() {
-    gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex; 
-    vertexNormal = normalize(gl_ModelViewMatrix * vec4(gl_Normal, 0)).xyz;
-    vertexColor = gl_Color;
-    uv0 = gl_MultiTexCoord0.st;
-}";
-
-      var fragmentShaderSrc = @$"
-# version 130 
-
-uniform sampler2D texture0;
-uniform float useLighting;
-
-out vec4 fragColor;
-
-in vec4 vertexColor;
-in vec3 vertexNormal;
-in vec2 uv0;
-
-void main() {{
-    vec4 texColor = texture(texture0, uv0);
-
-    fragColor = texColor * vertexColor;
-
-    vec3 diffuseLightNormal = normalize(vec3(.5, .5, -1));
-    float diffuseLightAmount = {(DebugFlags.ENABLE_LIGHTING ? "max(-dot(vertexNormal, diffuseLightNormal), 0)" : "1")};
-
-    float ambientLightAmount = .3;
-
-    float lightAmount = min(ambientLightAmount + diffuseLightAmount, 1);
-
-    fragColor.rgb = mix(fragColor.rgb, fragColor.rgb * lightAmount, useLighting);
-
-    if (fragColor.a < .95) {{
-      discard;
-    }}
-}}";
-
-      this.texturedShaderProgram_ =
-          GlShaderProgram.FromShaders(vertexShaderSrc, fragmentShaderSrc);
-
-      this.texture0Location_ =
-          this.texturedShaderProgram_.GetUniformLocation("texture0");
-      this.useLightingLocation_ =
-          this.texturedShaderProgram_.GetUniformLocation("useLighting");
-
       ResetGl_();
     }
 
@@ -353,45 +259,8 @@ void main() {{
         GL.Scale(this.scale_, this.scale_, this.scale_);
       }
 
-      if (this.Animation != null) {
-        this.AnimationPlaybackManager.Tick();
-
-        var frame = (float)this.AnimationPlaybackManager.Frame;
-        this.boneTransformManager_.CalculateMatrices(
-            this.Model.Skeleton.Root,
-            this.Model.Skin.BoneWeights,
-            (this.Animation, frame),
-            this.AnimationPlaybackManager.ShouldLoop);
-
-        this.modelRenderer_?.InvalidateDisplayLists();
-
-        var hiddenMeshes = this.modelRenderer_?.HiddenMeshes;
-
-        hiddenMeshes?.Clear();
-        var defaultDisplayState = Optional.Of(MeshDisplayState.VISIBLE);
-        foreach (var (mesh, meshTracks) in this.Animation.MeshTracks) {
-          var displayState =
-              meshTracks.DisplayStates.GetInterpolatedFrame(
-                  frame, defaultDisplayState);
-          if (displayState.Assert() == MeshDisplayState.HIDDEN) {
-            hiddenMeshes?.Add(mesh);
-          }
-        }
-      }
-
-      this.texturedShaderProgram_.Use();
-      GL.Uniform1(this.texture0Location_, 0);
-      GL.Uniform1(this.useLightingLocation_, hasNormals_ ? 1f : 0f);
-
-      if (this.modelRenderer_ != null) {
-        this.modelRenderer_.UseLighting = hasNormals_;
-        this.modelRenderer_.Render();
-      }
-
-      if (Config.Instance.ShowSkeleton) {
-        CommonShaderPrograms.TEXTURELESS_SHADER_PROGRAM.Use();
-        this.SkeletonRenderer?.Render();
-      }
+      this.Scene?.Tick();
+      this.Scene?.Render();
     }
   }
 }

@@ -3,6 +3,7 @@ using fin.data.queue;
 using fin.io.bundles;
 using System.Diagnostics;
 using fin.model;
+using fin.scene;
 using uni.config;
 using uni.games;
 using uni.ui.common;
@@ -16,8 +17,6 @@ public partial class UniversalModelExtractorForm : Form {
   public UniversalModelExtractorForm() {
     this.InitializeComponent();
 
-    this.modelViewerPanel_.AnimationPlaybackManager =
-        this.modelTabs_.AnimationPlaybackManager;
     this.modelTabs_.OnAnimationSelected += animation =>
         this.modelViewerPanel_.Animation = animation;
     this.modelTabs_.OnBoneSelected += bone => {
@@ -57,9 +56,20 @@ public partial class UniversalModelExtractorForm : Form {
                             IModelFileBundle modelFileBundle) {
     var model = new GlobalModelLoader().LoadModel(modelFileBundle);
 
+    this.modelViewerPanel_?.FileBundleAndScene?.Item2.Dispose();
+
+    var scene = new SceneImpl();
+    var area = scene.AddArea();
+    var obj = area.AddObject();
+    var sceneModel = obj.AddSceneModel(model);
+
     this.modelToolStrip_.DirectoryNode = fileNode.Parent;
     this.modelToolStrip_.FileNodeAndModel = (fileNode, model);
-    this.modelViewerPanel_.FileBundleAndModel = (modelFileBundle, model);
+
+    this.modelViewerPanel_.FileBundleAndScene = (modelFileBundle, scene);
+    this.modelTabs_.AnimationPlaybackManager =
+        this.modelViewerPanel_.AnimationPlaybackManager;
+
     this.modelTabs_.Model = model;
 
     if (Config.Instance.AutomaticallyPlayGameAudioForModel) {

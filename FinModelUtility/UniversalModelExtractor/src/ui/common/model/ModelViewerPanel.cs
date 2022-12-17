@@ -2,6 +2,7 @@
 using fin.gl.model;
 using fin.io.bundles;
 using fin.model;
+using fin.scene;
 
 
 namespace uni.ui.common.model {
@@ -10,8 +11,8 @@ namespace uni.ui.common.model {
       this.InitializeComponent();
     }
 
-    public (IFileBundle, IModel)? FileBundleAndModel {
-      get => this.impl_.FileBundleAndModel;
+    public (IFileBundle, IScene)? FileBundleAndScene {
+      get => this.impl_.FileBundleAndScene;
       set {
         var fileBundle = value?.Item1;
         if (fileBundle != null) {
@@ -20,20 +21,18 @@ namespace uni.ui.common.model {
           this.groupBox_.Text = "(Select a model)";
         }
 
-        this.impl_.FileBundleAndModel = value;
+        this.impl_.FileBundleAndScene = value;
       }
     }
 
-    public IAnimationPlaybackManager AnimationPlaybackManager {
-      get => this.impl_.AnimationPlaybackManager;
-      set => this.impl_.AnimationPlaybackManager = value;
-    }
+    public IAnimationPlaybackManager? AnimationPlaybackManager 
+      => this.impl_.AnimationPlaybackManager;
+
+    public ISkeletonRenderer? SkeletonRenderer => this.impl_.SkeletonRenderer;
 
     public IAnimation? Animation {
       get => this.impl_.Animation;
       set => this.impl_.Animation = value;
     }
-
-    public ISkeletonRenderer? SkeletonRenderer => this.impl_.SkeletonRenderer;
   }
 }

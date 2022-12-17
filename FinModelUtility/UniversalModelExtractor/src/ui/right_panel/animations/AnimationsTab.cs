@@ -44,8 +44,10 @@ namespace uni.ui.right_panel {
       }
     }
 
-    public IAnimationPlaybackManager AnimationPlaybackManager =>
-        this.animationPlaybackPanel_;
+    public IAnimationPlaybackManager? AnimationPlaybackManager {
+      get => this.animationPlaybackPanel_.Impl;
+      set => this.animationPlaybackPanel_.Impl = value;
+    }
 
     public delegate void AnimationSelected(IAnimation? animation);
 

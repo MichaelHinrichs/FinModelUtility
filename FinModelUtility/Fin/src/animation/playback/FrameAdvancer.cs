@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 
 namespace fin.animation.playback {
   public class FrameAdvancer : IAnimationPlaybackManager {
@@ -26,10 +27,16 @@ namespace fin.animation.playback {
 
     public bool ShouldLoop { get; set; }
 
+    
     public void Tick() {
       this.IncrementTowardsNextFrame_();
       this.WrapAround_();
+      this.OnUpdate.Invoke();
     }
+
+    public event Action OnUpdate = delegate { };
+
+
 
     public void Reset() {
       this.Frame = 0;
@@ -37,6 +44,7 @@ namespace fin.animation.playback {
 
       this.isPlaying_ = false;
       this.impl_.Reset();
+      this.OnUpdate.Invoke();
     }
 
     private void IncrementTowardsNextFrame_() {

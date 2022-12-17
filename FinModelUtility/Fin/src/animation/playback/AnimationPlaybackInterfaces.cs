@@ -1,4 +1,7 @@
-﻿namespace fin.animation.playback {
+﻿using System;
+
+
+namespace fin.animation.playback {
   /// <summary>
   ///   Helper interface for managing the dirty details of playing back an
   ///   animation for a model.
@@ -18,6 +21,8 @@
     bool ShouldLoop { get; set; }
 
     void Tick();
+    event Action OnUpdate;
+
     void Reset();
   }
 }
