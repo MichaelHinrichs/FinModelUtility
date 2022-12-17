@@ -104,6 +104,7 @@ namespace fin.scene {
     }
 
     private class SceneModelImpl : ISceneModel {
+      private readonly List<ISceneModel> children_ = new();
       private readonly IBoneTransformManager boneTransformManager_;
 
       public SceneModelImpl(IModel model) {
@@ -174,10 +175,12 @@ namespace fin.scene {
         }
       }
 
-      public IReadOnlyList<ISceneModel> Children { get; }
+      public IReadOnlyList<ISceneModel> Children => this.children_;
 
       public ISceneModel AddModelOntoBone(IModel model, IBone bone) {
-        throw new System.NotImplementedException();
+        var child = new SceneModelImpl(model, this, bone);
+        this.children_.Add(child);
+        return child;
       }
 
       public IModel Model { get; }

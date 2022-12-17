@@ -59,7 +59,7 @@ public partial class UniversalModelExtractorForm : Form {
 
     this.modelToolStrip_.DirectoryNode = fileNode.Parent;
     this.modelToolStrip_.FileNodeAndModel = (fileNode, model);
-    this.modelViewerPanel_.ModelAndFileBundle = (modelFileBundle, model);
+    this.modelViewerPanel_.FileBundleAndModel = (modelFileBundle, model);
     this.modelTabs_.Model = model;
 
     if (Config.Instance.AutomaticallyPlayGameAudioForModel) {

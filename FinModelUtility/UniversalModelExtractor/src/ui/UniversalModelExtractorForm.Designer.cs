@@ -139,7 +139,7 @@ namespace uni.ui {
       this.modelViewerPanel_.BackColor = System.Drawing.Color.Transparent;
       this.modelViewerPanel_.Dock = System.Windows.Forms.DockStyle.Fill;
       this.modelViewerPanel_.Location = new System.Drawing.Point(0, 0);
-      this.modelViewerPanel_.ModelAndFileBundle = null;
+      this.modelViewerPanel_.FileBundleAndModel = null;
       this.modelViewerPanel_.Name = "modelViewerPanel_";
       this.modelViewerPanel_.Size = new System.Drawing.Size(573, 430);
       this.modelViewerPanel_.TabIndex = 0;

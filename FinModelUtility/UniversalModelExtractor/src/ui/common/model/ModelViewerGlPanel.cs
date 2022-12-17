@@ -2,6 +2,7 @@
 using fin.gl;
 using fin.gl.material;
 using fin.gl.model;
+using fin.io.bundles;
 using fin.math;
 using fin.model;
 using fin.model.util;
@@ -33,15 +34,15 @@ namespace uni.ui.common.model {
 
     private float scale_ = 1;
 
-    private IModelFileBundle? modelFileBundle_;
+    private IFileBundle? fileBundle_;
 
-    public (IModelFileBundle, IModel)? ModelAndFileBundle {
+    public (IFileBundle, IModel)? FileBundleAndModel {
       get {
         var model = this.modelRenderer_?.Model;
-        return model != null ? (this.modelFileBundle_!, model) : null;
+        return model != null ? (this.fileBundle_!, model) : null;
       }
       set {
-        this.modelFileBundle_ = value?.Item1;
+        this.fileBundle_ = value?.Item1;
         var model = value?.Item2;
 
         this.modelRenderer_?.Dispose();
@@ -81,7 +82,7 @@ namespace uni.ui.common.model {
       }
     }
 
-    private IModel? Model => this.ModelAndFileBundle?.Item2;
+    private IModel? Model => this.FileBundleAndModel?.Item2;
 
     public IAnimationPlaybackManager AnimationPlaybackManager { get; set; }
 

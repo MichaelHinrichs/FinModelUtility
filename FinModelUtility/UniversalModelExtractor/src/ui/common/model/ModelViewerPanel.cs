@@ -1,5 +1,6 @@
 ﻿using fin.animation.playback;
 using fin.gl.model;
+using fin.io.bundles;
 using fin.model;
 
 
@@ -9,17 +10,17 @@ namespace uni.ui.common.model {
       this.InitializeComponent();
     }
 
-    public (IModelFileBundle, IModel)? ModelAndFileBundle {
-      get => this.impl_.ModelAndFileBundle;
+    public (IFileBundle, IModel)? FileBundleAndModel {
+      get => this.impl_.FileBundleAndModel;
       set {
-        var modelFileBundle = value?.Item1;
-        if (modelFileBundle != null) {
-          this.groupBox_.Text = modelFileBundle.FullPath;
+        var fileBundle = value?.Item1;
+        if (fileBundle != null) {
+          this.groupBox_.Text = fileBundle.FullPath;
         } else {
           this.groupBox_.Text = "(Select a model)";
         }
 
-        this.impl_.ModelAndFileBundle = value;
+        this.impl_.FileBundleAndModel = value;
       }
     }
 
