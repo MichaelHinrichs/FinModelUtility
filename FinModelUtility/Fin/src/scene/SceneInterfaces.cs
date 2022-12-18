@@ -52,7 +52,8 @@ namespace fin.scene {
     IScale Scale { get; }
 
     ISceneObject SetPosition(float x, float y, float z);
-    ISceneObject SetRotation(float xRadians, float yRadians, float zRadians);
+    ISceneObject SetRotationRadians(float xRadians, float yRadians, float zRadians);
+    ISceneObject SetRotationDegrees(float xDegrees, float yDegrees, float zDegrees);
     ISceneObject SetScale(float x, float y, float z);
 
     public delegate void OnTick(ISceneObject self);

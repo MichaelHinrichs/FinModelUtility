@@ -118,7 +118,7 @@ namespace fin.model.impl {
     }*/
 
     public class RotationImpl : IRotation {
-      private const float DEG_2_RAD = (float)(Math.PI / 180);
+      private const float DEG_2_RAD = MathF.PI / 180;
       private const float RAD_2_DEG = 1 / DEG_2_RAD;
 
       public float XDegrees => this.XRadians * RotationImpl.RAD_2_DEG;

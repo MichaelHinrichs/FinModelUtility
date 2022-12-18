@@ -7,6 +7,8 @@ using fin.scene;
 using uni.config;
 using uni.games;
 using uni.ui.common;
+using Microsoft.Xna.Framework.Graphics;
+using level5.api;
 
 
 namespace uni.ui;
@@ -42,35 +44,51 @@ public partial class UniversalModelExtractorForm : Form {
   private void OnFileBundleSelect_(IFileTreeNode<IFileBundle> fileNode) {
     switch (fileNode.File) {
       case IModelFileBundle modelFileBundle: {
-          this.SelectModel_(fileNode, modelFileBundle);
-          break;
-        }
+        this.SelectModel_(fileNode, modelFileBundle);
+        break;
+      }
       case IAudioFileBundle audioFileBundle: {
-          this.SelectAudio_(fileNode, audioFileBundle);
-          break;
-        }
+        this.SelectAudio_(fileNode, audioFileBundle);
+        break;
+      }
+      case ISceneFileBundle sceneFileBundle: {
+        this.SelectScene_(fileNode, sceneFileBundle);
+        break;
+      }
     }
+  }
+
+  private void SelectScene_(IFileTreeNode<IFileBundle> fileNode,
+                            ISceneFileBundle sceneFileBundle) {
+    var scene = new GlobalSceneLoader().LoadScene(sceneFileBundle);
+    this.UpdateScene_(fileNode, sceneFileBundle, scene);
   }
 
   private void SelectModel_(IFileTreeNode<IFileBundle> fileNode,
                             IModelFileBundle modelFileBundle) {
     var model = new GlobalModelLoader().LoadModel(modelFileBundle);
 
-    this.sceneViewerPanel_?.FileBundleAndScene?.Item2.Dispose();
-
     var scene = new SceneImpl();
     var area = scene.AddArea();
     var obj = area.AddObject();
     var sceneModel = obj.AddSceneModel(model);
 
-    this.modelToolStrip_.DirectoryNode = fileNode.Parent;
-    this.modelToolStrip_.FileNodeAndModel = (fileNode, model);
+    this.UpdateScene_(fileNode, modelFileBundle, scene);
+  }
 
-    this.sceneViewerPanel_.FileBundleAndScene = (modelFileBundle, scene);
+  private void UpdateScene_(IFileTreeNode<IFileBundle> fileNode,
+                            IFileBundle fileBundle,
+                            IScene scene) {
+    this.sceneViewerPanel_.FileBundleAndScene?.Item2.Dispose();
+    this.sceneViewerPanel_.FileBundleAndScene = (fileBundle, scene);
+
+    var model = this.sceneViewerPanel_.FirstSceneModel?.Model;
+    this.modelTabs_.Model = model;
     this.modelTabs_.AnimationPlaybackManager =
         this.sceneViewerPanel_.AnimationPlaybackManager;
 
-    this.modelTabs_.Model = model;
+    this.modelToolStrip_.DirectoryNode = fileNode.Parent;
+    this.modelToolStrip_.FileNodeAndModel = (fileNode, model);
 
     if (Config.Instance.AutomaticallyPlayGameAudioForModel) {
       var gameDirectory = fileNode.Parent;
@@ -104,7 +122,7 @@ public partial class UniversalModelExtractorForm : Form {
 
   private void SelectAudio_(IFileTreeNode<IFileBundle> fileNode,
                             IAudioFileBundle audioFileBundle) {
-    this.audioPlayerPanel_.AudioFileBundles = new[] { audioFileBundle };
+    this.audioPlayerPanel_.AudioFileBundles = new[] {audioFileBundle};
   }
 
   private void exitToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -116,8 +134,9 @@ public partial class UniversalModelExtractorForm : Form {
                   "https://github.com/MeltyPlayer/FinModelUtility");
   }
 
-  private void reportAnIssueToolStripMenuItem_Click(object sender, EventArgs e) {
+  private void
+      reportAnIssueToolStripMenuItem_Click(object sender, EventArgs e) {
     Process.Start("explorer",
-      "https://github.com/MeltyPlayer/FinModelUtility/issues/new");
+                  "https://github.com/MeltyPlayer/FinModelUtility/issues/new");
   }
 }

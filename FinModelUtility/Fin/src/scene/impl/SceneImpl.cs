@@ -1,8 +1,11 @@
-﻿using fin.animation.playback;
+﻿using Assimp;
+using fin.animation.playback;
 using fin.config;
+using fin.gl;
 using fin.gl.material;
 using fin.gl.model;
 using fin.math;
+using fin.math.matrix;
 using fin.model;
 using fin.model.impl;
 using fin.util.optional;
@@ -10,6 +13,8 @@ using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Camera = fin.ui.Camera;
+using Quaternion = System.Numerics.Quaternion;
 
 
 namespace fin.scene {
@@ -128,6 +133,7 @@ namespace fin.scene {
 
       public IPosition Position { get; } = new ModelImpl.PositionImpl();
       public IRotation Rotation { get; } = new ModelImpl.RotationImpl();
+
       public IScale Scale { get; } = new ModelImpl.ScaleImpl {
           X = 1, Y = 1, Z = 1
       };
@@ -139,13 +145,24 @@ namespace fin.scene {
         return this;
       }
 
-      public ISceneObject SetRotation(float xRadians,
+      public ISceneObject SetRotationRadians(float xRadians,
                                       float yRadians,
                                       float zRadians) {
         this.Rotation.SetRadians(
             xRadians,
             yRadians,
             zRadians
+        );
+        return this;
+      }
+
+      public ISceneObject SetRotationDegrees(float xDegrees,
+                                             float yDegrees,
+                                             float zDegrees) {
+        this.Rotation.SetDegrees(
+            xDegrees,
+            yDegrees,
+            zDegrees
         );
         return this;
       }
@@ -163,7 +180,8 @@ namespace fin.scene {
         => this.AddSceneModel(new ModelImpl());
 
       public ISceneModel AddSceneModel(IModel model) {
-        var sceneModel = new SceneModelImpl(model) {ViewerScale = this.ViewerScale};
+        var sceneModel =
+            new SceneModelImpl(model) {ViewerScale = this.ViewerScale};
         this.models_.Add(sceneModel);
         return sceneModel;
       }
@@ -178,8 +196,10 @@ namespace fin.scene {
       public void Render() {
         GL.PushMatrix();
 
-        GL.Translate(this.Position.X, this.Position.Y, this.Position.Z);
-        GL.Scale(this.Scale.X, this.Scale.Y, this.Scale.Z);
+        var trsMatrix =
+            MatrixTransformUtil.FromTrs(this.Position, this.Rotation,
+                                        this.Scale);
+        GlUtil.MultMatrix(trsMatrix);
 
         foreach (var model in this.Models) {
           model.Render();
@@ -267,6 +287,20 @@ namespace fin.scene {
       }
 
       public void Render() {
+        GL.PushMatrix();
+
+        var rootBone = this.Model.Skeleton.Root;
+        if (rootBone.FaceTowardsCamera) {
+          var camera = Camera.Instance;
+          var angle = camera.Yaw / 180f * MathF.PI;
+          var rotateYaw =
+              Quaternion.CreateFromYawPitchRoll(angle, 0, 0);
+
+          var rotationBuffer = rotateYaw * rootBone.FaceTowardsCameraAdjustment;
+          var rotationMatrix = MatrixTransformUtil.FromRotation(rotationBuffer);
+          GlUtil.MultMatrix(rotationMatrix);
+        }
+
         if (this.Animation != null) {
           this.AnimationPlaybackManager.Tick();
 
@@ -303,6 +337,8 @@ namespace fin.scene {
         foreach (var child in this.children_) {
           child.Render();
         }
+
+        GL.PopMatrix();
       }
 
       public IReadOnlyList<ISceneModel> Children => this.children_;
