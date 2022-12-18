@@ -3,6 +3,7 @@ using fin.image;
 using fin.io;
 using fin.model;
 using fin.model.impl;
+using fin.scene;
 using OpenTK.Graphics.OpenGL;
 using Quad64;
 using Quad64.Scripts;
@@ -12,8 +13,8 @@ using Quad64.src.Scripts;
 
 
 namespace sm64.api {
-  public class Sm64LevelModelFileBundle : IModelFileBundle {
-    public Sm64LevelModelFileBundle(
+  public class Sm64LevelSceneFileBundle : ISceneFileBundle {
+    public Sm64LevelSceneFileBundle(
         IFile sm64Rom,
         LevelId levelId) {
       this.Sm64Rom = sm64Rom;
@@ -27,26 +28,38 @@ namespace sm64.api {
     string IUiFile.FileName => $"{LevelId}";
   }
 
-  public class Sm64LevelModelLoader : IModelLoader<Sm64LevelModelFileBundle> {
+  public class Sm64LevelSceneLoader : ISceneLoader<Sm64LevelSceneFileBundle> {
     // TODO: Load this as a scene instead
 
-    public IModel LoadModel(Sm64LevelModelFileBundle levelModelFileBundle) {
-      var level = Sm64LevelModelLoader.LoadLevel_(levelModelFileBundle);
+    public IScene LoadScene(Sm64LevelSceneFileBundle levelModelFileBundle) {
+      var sm64Level = Sm64LevelSceneLoader.LoadLevel_(levelModelFileBundle);
 
-      var finModel = new ModelImpl();
+      var finScene = new SceneImpl();
 
-      foreach (var area in level.Areas) {
-        Sm64LevelModelLoader.AddAreaToModel_(finModel, area);
+      var lazyModelDictionary = new LazyDictionary<ushort, IModel?>(
+          sm64ModelId => {
+            if (sm64Level.ModelIDs.TryGetValue(sm64ModelId,
+                                               out var sm64Model)) {
+              return CreateModel_(sm64Model.HighestLod);
+            }
+            return null;
+          });
+
+      foreach (var sm64Area in sm64Level.Areas) {
+        Sm64LevelSceneLoader.AddAreaToScene_(
+            finScene,
+            lazyModelDictionary,
+            sm64Area);
       }
 
-      return finModel;
+      return finScene;
     }
 
     private static Level LoadLevel_(
-        Sm64LevelModelFileBundle levelModelFileBundle) {
+        Sm64LevelSceneFileBundle levelSceneFileBundle) {
       ROM rom = ROM.Instance;
 
-      rom.readFile(levelModelFileBundle.Sm64Rom.FullName);
+      rom.readFile(levelSceneFileBundle.Sm64Rom.FullName);
 
       Globals.objectComboEntries.Clear();
       Globals.behaviorNameEntries.Clear();
@@ -59,7 +72,7 @@ namespace sm64.api {
                      rom.isSegmentMIO0(0x02, null), rom.Seg02_isFakeMIO0,
                      rom.Seg02_uncompressedOffset, null);
 
-      var level = new Level((ushort)levelModelFileBundle.LevelId, 1);
+      var level = new Level((ushort)levelSceneFileBundle.LevelId, 1);
       LevelScripts.parse(ref level, 0x15, 0);
       level.sortAndAddNoModelEntries();
       level.CurrentAreaID = level.Areas[0].AreaID;
@@ -67,10 +80,41 @@ namespace sm64.api {
       return level;
     }
 
-    private static void AddAreaToModel_(IModel finModel, Area area) {
-      var scale = 1; //Constants.LEVEL_SCALE;
+    private static void AddAreaToScene_(
+        IScene finScene,
+        LazyDictionary<ushort, IModel?> lazyModelDictionary,
+        Area sm64Area) {
+      var finArea = finScene.AddArea();
+      AddAreaModelToScene_(finArea, sm64Area);
 
-      GL.Color3(1f, 1f, 1f);
+      var objects =
+          sm64Area.Objects.Concat(sm64Area.MacroObjects)
+                  .Concat(sm64Area.SpecialObjects)
+                  .ToArray();
+
+      foreach (var obj in objects) {
+        AddAreaObjectToScene_(finArea, lazyModelDictionary, obj);
+      }
+    }
+
+    private static void AddAreaModelToScene_(ISceneArea finArea, Area sm64Area)
+      => finArea.AddObject()
+                .AddSceneModel(CreateModel_(sm64Area.AreaModel.HighestLod));
+
+    private static void AddAreaObjectToScene_(
+        ISceneArea finArea,
+        LazyDictionary<ushort, IModel?> lazyModelDictionary,
+        Object3D sm64Object) {
+      var finModel = lazyModelDictionary[sm64Object.ModelID];
+      if (finModel != null) {
+        var finObject = finArea.AddObject();
+        finObject.AddSceneModel(finModel);
+        finObject.SetPosition(sm64Object.xPos, sm64Object.yPos, sm64Object.zPos);
+      }
+    }
+
+    private static IModel CreateModel_(Model3D sm64Model) {
+      var finModel = new ModelImpl();
 
       var lazyTextureDictionary = new LazyDictionary<Texture2D, ITexture>(
           sm64Texture => {
@@ -89,7 +133,6 @@ namespace sm64.api {
               finModel.MaterialManager.AddTextureMaterial(
                   lazyTextureDictionary[sm64Texture]));
 
-      var sm64Model = area.AreaModel.HighestLod;
       foreach (var sm64Mesh in sm64Model.meshes) {
         var geometryMode = sm64Mesh.Material.GeometryMode;
 
@@ -134,6 +177,8 @@ namespace sm64.api {
                .SetMaterial(finMaterial)
                .SetVertexOrder(VertexOrder.NORMAL);
       }
+
+      return finModel;
     }
 
     private static WrapMode ConvertFromGlWrap_(

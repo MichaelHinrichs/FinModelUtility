@@ -1,15 +1,11 @@
 ﻿using uni.platforms;
-using uni.platforms.threeDs;
-using uni.util.io;
-using cmb.api;
 using fin.io.bundles;
 using sm64.api;
 
 
 namespace uni.games.super_mario_64 {
-  public class SuperMario64FileGatherer
-      : IFileBundleGatherer<Sm64LevelModelFileBundle> {
-    public IFileBundleDirectory<Sm64LevelModelFileBundle>? GatherFileBundles(
+  public class SuperMario64FileGatherer : IFileBundleGatherer<IFileBundle> {
+    public IFileBundleDirectory<IFileBundle>? GatherFileBundles(
         bool assert) {
       var superMario64Rom =
           DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
@@ -19,11 +15,13 @@ namespace uni.games.super_mario_64 {
       }
 
       var rootNode =
-          new FileBundleDirectory<Sm64LevelModelFileBundle>("super_mario_64");
+          new FileBundleDirectory<IFileBundle>("super_mario_64");
 
       foreach (var levelId in Enum.GetValues<LevelId>()) {
         rootNode.AddFileBundle(
             new Sm64LevelModelFileBundle(superMario64Rom, levelId));
+        rootNode.AddFileBundle(
+            new Sm64LevelSceneFileBundle(superMario64Rom, levelId));
       }
 
       return rootNode;

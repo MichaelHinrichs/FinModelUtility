@@ -25,6 +25,8 @@ namespace uni.ui.common.scene {
       }
     }
 
+    public ISceneModel? FirstSceneModel => this.impl_.FirstSceneModel;
+
     public IAnimationPlaybackManager? AnimationPlaybackManager 
       => this.impl_.AnimationPlaybackManager;
 

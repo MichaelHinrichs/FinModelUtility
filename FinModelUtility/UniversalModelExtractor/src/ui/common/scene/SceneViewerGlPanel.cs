@@ -22,7 +22,7 @@ namespace uni.ui.common.scene {
     private BackgroundSphereRenderer backgroundRenderer_ = new();
     private GridRenderer gridRenderer_ = new();
 
-    private float scale_ = 1;
+    private float viewerScale_ = 1;
 
     private IScene? scene_;
     private IFileBundle? fileBundle_;
@@ -37,17 +37,17 @@ namespace uni.ui.common.scene {
         var scene = this.scene_ = value?.Item2;
 
         if (scene != null) {
-          this.scale_ = scene.Scale =
+          this.viewerScale_ = scene.ViewerScale =
                             1000 / SceneScaleCalculator.CalculateScale(scene);
         } else {
-          this.scale_ = 1;
+          this.viewerScale_ = 1;
         }
       }
     }
 
     private IScene? Scene => this.FileBundleAndScene?.Item2;
 
-    private ISceneModel? FirstSceneModel
+    public ISceneModel? FirstSceneModel
       => this.Scene?.Areas.FirstOrDefault()
              ?.Objects.FirstOrDefault()
              ?.Models.FirstOrDefault();
@@ -256,7 +256,7 @@ namespace uni.ui.common.scene {
 
       {
         GL.Rotate(90, 1, 0, 0);
-        GL.Scale(this.scale_, this.scale_, this.scale_);
+        GL.Scale(this.viewerScale_, this.viewerScale_, this.viewerScale_);
       }
 
       this.Scene?.Tick();

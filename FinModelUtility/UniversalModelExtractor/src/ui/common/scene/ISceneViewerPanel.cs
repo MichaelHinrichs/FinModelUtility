@@ -7,9 +7,10 @@ using fin.scene;
 
 namespace uni.ui.common.scene {
   public interface ISceneViewerPanel {
-    public (IFileBundle, IScene)? FileBundleAndScene { get; set; }
-    public IAnimationPlaybackManager? AnimationPlaybackManager { get; }
-    public IAnimation? Animation { get; set; }
-    public ISkeletonRenderer? SkeletonRenderer { get; }
+    (IFileBundle, IScene)? FileBundleAndScene { get; set; }
+    ISceneModel? FirstSceneModel { get; }
+    IAnimationPlaybackManager? AnimationPlaybackManager { get; }
+    IAnimation? Animation { get; set; }
+    ISkeletonRenderer? SkeletonRenderer { get; }
   }
 }

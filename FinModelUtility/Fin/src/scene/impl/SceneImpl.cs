@@ -6,6 +6,7 @@ using fin.math;
 using fin.model;
 using fin.model.impl;
 using fin.util.optional;
+using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,7 +31,7 @@ namespace fin.scene {
     public IReadOnlyList<ISceneArea> Areas => this.areas_;
 
     public ISceneArea AddArea() {
-      var area = new SceneAreaImpl {Scale = this.scale_};
+      var area = new SceneAreaImpl {ViewerScale = this.viewerScale_};
       this.areas_.Add(area);
       return area;
     }
@@ -47,14 +48,14 @@ namespace fin.scene {
       }
     }
 
-    private float scale_ = 1;
+    private float viewerScale_ = 1;
 
-    public float Scale {
-      get => this.scale_;
+    public float ViewerScale {
+      get => this.viewerScale_;
       set {
-        this.scale_ = value;
+        this.viewerScale_ = value;
         foreach (var area in this.areas_) {
-          area.Scale = this.scale_;
+          area.ViewerScale = this.viewerScale_;
         }
       }
     }
@@ -77,7 +78,7 @@ namespace fin.scene {
       public IReadOnlyList<ISceneObject> Objects => this.objects_;
 
       public ISceneObject AddObject() {
-        var obj = new SceneObjectImpl {Scale = this.Scale};
+        var obj = new SceneObjectImpl {ViewerScale = this.ViewerScale};
         this.objects_.Add(obj);
         return obj;
       }
@@ -95,14 +96,14 @@ namespace fin.scene {
       }
 
 
-      private float scale_ = 1;
+      private float viewerScale_ = 1;
 
-      public float Scale {
-        get => this.scale_;
+      public float ViewerScale {
+        get => this.viewerScale_;
         set {
-          this.scale_ = value;
+          this.viewerScale_ = value;
           foreach (var obj in this.objects_) {
-            obj.Scale = this.scale_;
+            obj.ViewerScale = this.viewerScale_;
           }
         }
       }
@@ -127,20 +128,30 @@ namespace fin.scene {
 
       public IPosition Position { get; } = new ModelImpl.PositionImpl();
       public IRotation Rotation { get; } = new ModelImpl.RotationImpl();
+      public IScale Scale { get; } = new ModelImpl.ScaleImpl();
 
-      public ISceneObject SetPosition(IPosition position) {
-        this.Position.X = position.X;
-        this.Position.Y = position.Y;
-        this.Position.Z = position.Z;
+      public ISceneObject SetPosition(float x, float y, float z) {
+        this.Position.X = x;
+        this.Position.Y = y;
+        this.Position.Z = z;
         return this;
       }
 
-      public ISceneObject SetRotation(IRotation rotation) {
+      public ISceneObject SetRotation(float xRadians,
+                                      float yRadians,
+                                      float zRadians) {
         this.Rotation.SetRadians(
-            rotation.XRadians,
-            rotation.YRadians,
-            rotation.ZRadians
+            xRadians,
+            yRadians,
+            zRadians
         );
+        return this;
+      }
+
+      public ISceneObject SetScale(float x, float y, float z) {
+        this.Scale.X = x;
+        this.Scale.Y = y;
+        this.Scale.Z = z;
         return this;
       }
 
@@ -150,7 +161,7 @@ namespace fin.scene {
         => this.AddSceneModel(new ModelImpl());
 
       public ISceneModel AddSceneModel(IModel model) {
-        var sceneModel = new SceneModelImpl(model) {Scale = this.Scale};
+        var sceneModel = new SceneModelImpl(model) {ViewerScale = this.ViewerScale};
         this.models_.Add(sceneModel);
         return sceneModel;
       }
@@ -163,20 +174,27 @@ namespace fin.scene {
       public void Tick() => this.tickHandler_?.Invoke(this);
 
       public void Render() {
+        GL.PushMatrix();
+
+        GL.Translate(this.Position.X, this.Position.Y, this.Position.Z);
+        GL.Scale(this.Scale.X, this.Scale.Y, this.Scale.Z);
+
         foreach (var model in this.Models) {
           model.Render();
         }
+
+        GL.PopMatrix();
       }
 
 
-      private float scale_ = 1;
+      private float viewerScale_ = 1;
 
-      public float Scale {
-        get => this.scale_;
+      public float ViewerScale {
+        get => this.viewerScale_;
         set {
-          this.scale_ = value;
+          this.viewerScale_ = value;
           foreach (var model in this.models_) {
-            model.Scale = scale_;
+            model.ViewerScale = this.viewerScale_;
           }
         }
       }
@@ -227,7 +245,7 @@ namespace fin.scene {
         this.SkeletonRenderer =
             new SkeletonRenderer(this.Model.Skeleton,
                                  this.BoneTransformManager) {
-                Scale = this.Scale
+                Scale = this.ViewerScale
             };
       }
 
@@ -323,11 +341,11 @@ namespace fin.scene {
       public ISkeletonRenderer SkeletonRenderer { get; private set; }
 
 
-      private float scale_ = 1;
+      private float viewerScale_ = 1;
 
-      public float Scale {
-        get => this.scale_;
-        set => this.scale_ = this.SkeletonRenderer.Scale = value;
+      public float ViewerScale {
+        get => this.viewerScale_;
+        set => this.viewerScale_ = this.SkeletonRenderer.Scale = value;
       }
     }
   }

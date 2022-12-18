@@ -4,6 +4,7 @@ using fin.gl.model;
 using fin.io.bundles;
 using fin.math;
 using fin.model;
+using fin.model.impl;
 using System;
 using System.Collections.Generic;
 
@@ -23,8 +24,8 @@ namespace fin.scene {
   public interface IScene : ITickable, IRenderable, IDisposable {
     IReadOnlyList<ISceneArea> Areas { get; }
     ISceneArea AddArea();
-   
-    float Scale { get; set; }
+
+    float ViewerScale { get; set; }
   }
 
   /// <summary>
@@ -37,7 +38,7 @@ namespace fin.scene {
     IReadOnlyList<ISceneObject> Objects { get; }
     ISceneObject AddObject();
 
-    float Scale { get; set; }
+    float ViewerScale { get; set; }
   }
 
   /// <summary>
@@ -48,17 +49,20 @@ namespace fin.scene {
   public interface ISceneObject : ITickable, IRenderable, IDisposable {
     IPosition Position { get; }
     IRotation Rotation { get; }
+    IScale Scale { get; }
 
-    ISceneObject SetPosition(IPosition position);
-    ISceneObject SetRotation(IRotation rotation);
+    ISceneObject SetPosition(float x, float y, float z);
+    ISceneObject SetRotation(float xRadians, float yRadians, float zRadians);
+    ISceneObject SetScale(float x, float y, float z);
 
     public delegate void OnTick(ISceneObject self);
+
     ISceneObject SetOnTickHandler(OnTick handler);
 
     IReadOnlyList<ISceneModel> Models { get; }
     ISceneModel AddSceneModel(IModel model);
-    
-    float Scale { get; set; }
+
+    float ViewerScale { get; set; }
   }
 
   /// <summary>
@@ -79,6 +83,6 @@ namespace fin.scene {
     IAnimationPlaybackManager AnimationPlaybackManager { get; }
 
     ISkeletonRenderer SkeletonRenderer { get; }
-    float Scale { get; set; }
+    float ViewerScale { get; set; }
   }
 }
