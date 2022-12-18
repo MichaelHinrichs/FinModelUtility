@@ -2,9 +2,11 @@
 using fin.image;
 using fin.model;
 using fin.model.impl;
+using fin.util.enums;
 using OpenTK.Graphics.OpenGL;
 using Quad64;
 using Quad64.src.Scripts;
+using LogicOp = fin.model.LogicOp;
 
 
 namespace sm64.api {
@@ -12,10 +14,13 @@ namespace sm64.api {
     public static IModel ConvertModels(params Model3D[] sm64Models) {
       var finModel = new ModelImpl();
 
-      var lazyTextureDictionary = new LazyDictionary<Texture2D, ITexture>(
-          sm64Texture => {
+      var lazyTextureDictionary = new LazyDictionary<(Texture2D, UvType), ITexture>(
+          sm64TextureAndUvType => {
+            var (sm64Texture, uvType) = sm64TextureAndUvType;
             var finTexture = finModel.MaterialManager.CreateTexture(
                 FinImage.FromBitmap(sm64Texture.Bmp));
+
+            finTexture.UvType = uvType;
 
             finTexture.WrapModeU =
                 ConvertFromGlWrap_((TextureWrapMode)sm64Texture.TextureParamS);
@@ -33,23 +38,57 @@ namespace sm64.api {
                 var geometryMode = sm64Material.GeometryMode;
 
                 var cullFront =
-                    geometryMode.HasFlag(RspGeometryMode.G_CULL_FRONT);
+                    geometryMode.CheckFlag(RspGeometryMode.G_CULL_FRONT);
                 var cullBack =
-                    geometryMode.HasFlag(RspGeometryMode.G_CULL_BACK);
+                    geometryMode.CheckFlag(RspGeometryMode.G_CULL_BACK);
                 var finCullingMode = cullFront switch {
-                    false => cullBack switch {
-                        true  => CullingMode.SHOW_FRONT_ONLY,
-                        false => CullingMode.SHOW_BOTH,
-                    },
-                    true => cullBack switch {
-                        false => CullingMode.SHOW_BACK_ONLY,
-                        true  => CullingMode.SHOW_NEITHER,
-                    },
+                  false => cullBack switch {
+                    true => CullingMode.SHOW_FRONT_ONLY,
+                    false => CullingMode.SHOW_BOTH,
+                  },
+                  true => cullBack switch {
+                    false => CullingMode.SHOW_BACK_ONLY,
+                    true => CullingMode.SHOW_NEITHER,
+                  },
                 };
 
-                var finMaterial = finModel.MaterialManager.AddTextureMaterial(
-                    lazyTextureDictionary[sm64Texture]);
+                var uvType =
+                  geometryMode.CheckFlag(RspGeometryMode.G_TEXTURE_GEN_LINEAR)
+                    ? UvType.LINEAR
+                    : UvType.NORMAL;
+
+                var finMaterial =
+                  finModel.MaterialManager.AddFixedFunctionMaterial();
+
+                var equations = finMaterial.Equations;
+
+                finMaterial.SetTextureSource(0, lazyTextureDictionary[(sm64Texture, uvType)]);
                 finMaterial.CullingMode = finCullingMode;
+
+                var color0 = equations.CreateColorConstant(0);
+                var scalar1 = equations.CreateScalarConstant(1);
+
+                var vertexColor0 = equations.CreateColorInput(
+                  FixedFunctionSource.VERTEX_COLOR_0,
+                  color0);
+                var textureColor0 = equations.CreateColorInput(
+                  FixedFunctionSource.TEXTURE_COLOR_0,
+                  color0);
+
+                var vertexAlpha0 =
+                  equations.CreateScalarInput(FixedFunctionSource.VERTEX_ALPHA_0,
+                    scalar1);
+                var textureAlpha0 = equations.CreateScalarInput(
+                  FixedFunctionSource.TEXTURE_ALPHA_0,
+                  scalar1);
+
+                equations.CreateColorOutput(
+                  FixedFunctionSource.OUTPUT_COLOR,
+                  vertexColor0.Multiply(textureColor0));
+                equations.CreateScalarOutput(FixedFunctionSource.OUTPUT_ALPHA,
+                  vertexAlpha0.Multiply(textureAlpha0));
+
+                finMaterial.SetAlphaCompare(AlphaOp.Or, AlphaCompareType.Greater, .5f, AlphaCompareType.Never, 0);
 
                 return finMaterial;
               });
@@ -93,11 +132,11 @@ namespace sm64.api {
     private static WrapMode ConvertFromGlWrap_(
         TextureWrapMode wrapMode) =>
         wrapMode switch {
-            TextureWrapMode.ClampToEdge    => WrapMode.CLAMP,
-            TextureWrapMode.Repeat         => WrapMode.REPEAT,
-            TextureWrapMode.MirroredRepeat => WrapMode.MIRROR_REPEAT,
-            _ => throw new ArgumentOutOfRangeException(
-                     nameof(wrapMode), wrapMode, null)
+          TextureWrapMode.ClampToEdge => WrapMode.CLAMP,
+          TextureWrapMode.Repeat => WrapMode.REPEAT,
+          TextureWrapMode.MirroredRepeat => WrapMode.MIRROR_REPEAT,
+          _ => throw new ArgumentOutOfRangeException(
+                   nameof(wrapMode), wrapMode, null)
         };
   }
 }
