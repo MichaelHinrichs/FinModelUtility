@@ -30,6 +30,7 @@ namespace sm64.scripts {
     DISPLAY_LIST_FROM_ASM = 0x18,
     BACKGROUND = 0x19,
     NOOP_1A = 0x1A,
+    HELD_OBJECT = 0x1C,
     SCALE = 0x1D,
     CULLING_RADIUS = 0x20,
   }
@@ -70,7 +71,7 @@ namespace sm64.scripts {
     public uint GeoCommandSegmentedAddress { get; set; }
 
     [Ignore]
-    public IGeoCommandList GeoCommandList { get; set; }
+    public IGeoCommandList? GeoCommandList { get; set; }
   }
 
   [BinarySchema]
@@ -93,7 +94,7 @@ namespace sm64.scripts {
     public uint GeoCommandSegmentedAddress { get; set; }
 
     [Ignore]
-    public IGeoCommandList GeoCommandList { get; set; }
+    public IGeoCommandList? GeoCommandList { get; set; }
   }
 
   [BinarySchema]
@@ -370,6 +371,17 @@ namespace sm64.scripts {
     private readonly uint padding1_ = 0;
 
     private readonly uint padding2_ = 0;
+  }
+
+  [BinarySchema]
+  public partial class GeoHeldObjectCommand : IGeoCommand, IDeserializable {
+    public GeoCommandId Id => GeoCommandId.HELD_OBJECT;
+
+    public byte Unk { get; set; }
+
+    public Vector3s Offset { get; } = new();
+
+    public uint Func { get; set; }
   }
 
   [BinarySchema]

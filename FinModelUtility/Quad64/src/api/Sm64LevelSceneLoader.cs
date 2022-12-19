@@ -1,6 +1,5 @@
 ﻿using fin.data;
 using fin.io;
-using fin.math;
 using fin.model;
 using fin.scene;
 using Quad64;

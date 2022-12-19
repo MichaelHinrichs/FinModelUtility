@@ -30,14 +30,23 @@ namespace sm64.scripts.geo {
     }
 
     public IGeoCommandList Parse(uint address, byte? areaId)
-      => ParseImpl_(address, areaId).Item1;
+      => Asserts.CastNonnull(ParseImpl_(address, areaId).Value).Item1;
 
-    private (IGeoCommandList, ReturnType)
+    private (IGeoCommandList, ReturnType)?
         ParseImpl_(uint address, byte? areaId) {
       SplitAddress(address, out var seg, out var off);
 
       ROM rom = ROM.Instance;
       byte[] data = rom.getSegment(seg, areaId)!;
+
+      if (data == null) {
+        return null;
+      }
+
+      if (off >= data.Length) {
+        return null;
+      }
+
       using var er = new EndianBinaryReader(new MemoryStream(data));
       er.Position = off;
 
@@ -58,9 +67,14 @@ namespace sm64.scripts.geo {
           case GeoCommandId.BRANCH_AND_STORE: {
             var branchAndStoreCommand = er.ReadNew<GeoBranchAndStoreCommand>();
             command = branchAndStoreCommand;
-            (branchAndStoreCommand.GeoCommandList, var branchReturnType) =
-                this.ParseImpl_(
-                    branchAndStoreCommand.GeoCommandSegmentedAddress, areaId);
+
+            ReturnType branchReturnType = ReturnType.UNDEFINED;
+            var commandListAndReturnValue = this.ParseImpl_(
+                branchAndStoreCommand.GeoCommandSegmentedAddress, areaId);
+            if (commandListAndReturnValue != null) {
+              (branchAndStoreCommand.GeoCommandList, branchReturnType) =
+                  commandListAndReturnValue.Value;
+            }
 
             if (branchReturnType == ReturnType.TERMINATED) {
               returnType = ReturnType.TERMINATED;
@@ -75,9 +89,16 @@ namespace sm64.scripts.geo {
           case GeoCommandId.BRANCH: {
             var branchCommand = er.ReadNew<GeoBranchCommand>();
             command = branchCommand;
-            (branchCommand.GeoCommandList, var branchReturnType) =
+
+            ReturnType branchReturnType = ReturnType.UNDEFINED;
+            var commandListAndReturnValue =
                 this.ParseImpl_(branchCommand.GeoCommandSegmentedAddress,
                                 areaId);
+
+            if (commandListAndReturnValue != null) {
+              (branchCommand.GeoCommandList, branchReturnType) =
+                  commandListAndReturnValue.Value;
+            }
 
             if (branchReturnType == ReturnType.TERMINATED) {
               returnType = ReturnType.TERMINATED;
@@ -209,6 +230,10 @@ namespace sm64.scripts.geo {
             command = er.ReadNew<GeoNoopCommand>();
             break;
           }
+          case GeoCommandId.HELD_OBJECT: {
+            command = er.ReadNew<GeoHeldObjectCommand>();
+            break;
+          }
           case GeoCommandId.SCALE: {
             command = er.ReadNew<GeoScaleCommand>();
             break;
@@ -225,7 +250,7 @@ namespace sm64.scripts.geo {
         var actualLen = er.Position - startPos;
         if (expectedLen != actualLen) {
           var translateAndRotateCommand =
-                  command as GeoTranslateAndRotateCommand;
+              command as GeoTranslateAndRotateCommand;
           if (translateAndRotateCommand == null) {
             Asserts.Fail();
           }
