@@ -1,8 +1,6 @@
 ﻿using OpenTK;
 using OpenTK.Graphics.OpenGL;
-
 using Quad64.src.Scripts;
-
 using System.Text;
 
 
@@ -11,8 +9,8 @@ namespace Quad64 {
     private List<Model3D> lods_ = new();
 
     public Model3DLods() {
-      this.Add();
       this.Lods = this.lods_;
+      this.Add(null);
     }
 
     public IReadOnlyList<Model3D> Lods { get; }
@@ -27,10 +25,10 @@ namespace Quad64 {
       }
     }
 
-    public Model3D Current => this.Lods.Last();
+    public Model3D Current => this.Lods.LastOrDefault()!;
 
-    public void Add() {
-      this.lods_.Add(new());
+    public void Add(GeoScriptNode? node) {
+      this.lods_.Add(new(node));
     }
 
     public void BuildBuffers() {
@@ -41,6 +39,13 @@ namespace Quad64 {
   }
 
   public class Model3D {
+    public GeoScriptNode? Node { get; set; }
+
+    public Model3D(GeoScriptNode? node) {
+      this.Node = node;
+      this.builder = new ModelBuilder(this);
+    }
+
     public class MeshData {
       public int vbo, ibo, texBuf, colorBuf;
       public Vector3[] vertices;
@@ -69,7 +74,7 @@ namespace Quad64 {
     }
 
     public uint GeoDataSegAddress { get; set; }
-    public ModelBuilder builder = new ModelBuilder();
+    public ModelBuilder builder;
     public List<MeshData> meshes = new List<MeshData>();
 
     public List<ScriptDumpCommandInfo> GeoLayoutCommands_ForDump =
@@ -165,7 +170,7 @@ namespace Quad64 {
         GL.BindBuffer(BufferTarget.ArrayBuffer, m.vbo);
         GL.BufferData(
             BufferTarget.ArrayBuffer,
-            (IntPtr) (Vector3.SizeInBytes * m.vertices.Length),
+            (IntPtr)(Vector3.SizeInBytes * m.vertices.Length),
             m.vertices,
             BufferUsageHint.StaticDraw
         );
@@ -174,7 +179,7 @@ namespace Quad64 {
         GL.BindBuffer(BufferTarget.ArrayBuffer, m.texBuf);
         GL.BufferData(
             BufferTarget.ArrayBuffer,
-            (IntPtr) (Vector2.SizeInBytes * m.texCoord.Length),
+            (IntPtr)(Vector2.SizeInBytes * m.texCoord.Length),
             m.texCoord,
             BufferUsageHint.StaticDraw
         );
@@ -183,7 +188,7 @@ namespace Quad64 {
         GL.BindBuffer(BufferTarget.ArrayBuffer, m.colorBuf);
         GL.BufferData(
             BufferTarget.ArrayBuffer,
-            (IntPtr) (Vector4.SizeInBytes * m.colors.Length),
+            (IntPtr)(Vector4.SizeInBytes * m.colors.Length),
             m.colors,
             BufferUsageHint.StaticDraw
         );
@@ -192,7 +197,7 @@ namespace Quad64 {
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, m.ibo);
         GL.BufferData(
             BufferTarget.ElementArrayBuffer,
-            (IntPtr) (sizeof(uint) * m.indices.Length),
+            (IntPtr)(sizeof(uint) * m.indices.Length),
             m.indices,
             BufferUsageHint.StaticDraw
         );
@@ -297,18 +302,18 @@ namespace Quad64 {
 
         foreach (Vector2 texCoord in m.texCoord) {
           float X = texCoord.X, Y = texCoord.Y;
-          if (m.texture.TextureParamS == (int) All.ClampToEdge)
+          if (m.texture.TextureParamS == (int)All.ClampToEdge)
             X = (X > 1.0f ? 1.0f : (X < 0.0f ? 0.0f : X));
-          if (m.texture.TextureParamT == (int) All.ClampToEdge)
+          if (m.texture.TextureParamT == (int)All.ClampToEdge)
             Y = (Y > 1.0f ? 1.0f : (Y < 0.0f ? 0.0f : Y));
           objModel.Append("vt " + X + " " + -Y + Environment.NewLine);
         }
 
         int largest_value = index_offset;
         for (int j = 0; j < m.indices.Length / 3; j++) {
-          int v1 = (int) m.indices[(j * 3) + 0] + index_offset;
-          int v2 = (int) m.indices[(j * 3) + 1] + index_offset;
-          int v3 = (int) m.indices[(j * 3) + 2] + index_offset;
+          int v1 = (int)m.indices[(j * 3) + 0] + index_offset;
+          int v2 = (int)m.indices[(j * 3) + 1] + index_offset;
+          int v3 = (int)m.indices[(j * 3) + 2] + index_offset;
           objModel.Append("f " + v1 + "/" + v1 + " " + v2 + "/" + v2 + " " +
                           v3 + "/" + v3 + Environment.NewLine);
 

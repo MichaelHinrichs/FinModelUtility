@@ -1,4 +1,5 @@
-﻿using OpenTK;
+﻿using fin.math;
+using OpenTK;
 
 
 namespace Quad64.src.Scripts {
@@ -27,7 +28,6 @@ namespace Quad64.src.Scripts {
 
     public bool processingTexture = false;
 
-    public float currentScale = 1f;
     public int numTriangles = 0;
 
     public ModelBuilderMaterial? CurrentMaterial { get; set; }
@@ -35,22 +35,21 @@ namespace Quad64.src.Scripts {
     private List<TempMesh> TempMeshes = new List<TempMesh>();
     private FinalMesh finalMesh;
 
+    public readonly Model3D model_;
+
+    public ModelBuilder(Model3D model) {
+      this.model_ = model;
+    }
+
     public bool UsesFog { get; set; }
     public Color FogColor { get; set; }
     public List<uint> FogColor_romLocation = new List<uint>();
-
-    private Vector3 offset = new Vector3(0, 0, 0);
 
     public HashSet<(Bitmap image, uint segmentAddr, TextureInfo info)>
         TextureData { get; } = new();
 
     public IEnumerable<Bitmap> TextureImages =>
         this.TextureData.Select(data => data.image);
-
-    public Vector3 Offset {
-      get { return offset; }
-      set { offset = value; }
-    }
 
     private FinalMesh newFinalMesh() {
       FinalMesh m = new FinalMesh();
@@ -127,9 +126,19 @@ namespace Quad64.src.Scripts {
     }
 
     public void AddTempVertex(Vector3 pos, Vector2 uv, Vector4 color) {
-      pos += offset;
-      if (currentScale != 1f)
-        pos *= currentScale;
+      if (this.model_.Node != null) {
+        var x = pos.X;
+        var y = pos.Y;
+        var z = pos.Z;
+        GlMatrixUtil.ProjectVertex(this.model_.Node.GetTotalMatrix(),
+                                   ref x,
+                                   ref y,
+                                   ref z);
+        pos.X = x;
+        pos.Y = y;
+        pos.Z = z;
+      }
+
       //Console.WriteLine("currentMaterial = " + currentMaterial + ", totalCount = " + textureImages.Count);
       if (CurrentMaterial?.Bitmap == null) {
         AddTexture(

@@ -17,6 +17,13 @@
   </PropertyGroup>
   
   <ItemGroup>
+    <Compile Remove="src\Forms\**" />
+    <EmbeddedResource Remove="src\Forms\**" />
+    <None Remove="src\Forms\**" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Compile Remove="src\Program.cs" />
     <Compile Remove="src\Scripts\geo\GeoScriptsV2.cs" />
   </ItemGroup>
   

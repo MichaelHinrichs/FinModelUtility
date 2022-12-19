@@ -1,55 +1,69 @@
-﻿using OpenTK;
-
+﻿using fin.math;
+using fin.math.matrix;
+using fin.model.impl;
 using Quad64.src.LevelInfo;
 
 
 namespace Quad64.src.Scripts {
-  class GeoScriptNode {
+  public class GeoScriptNode {
+    public GeoScriptNode(GeoScriptNode? parent) {
+      this.parent = parent;
+    }
+
     public int ID = 0;
-    public GeoScriptNode parent = null;
-    public Vector3 offset = Vector3.Zero;
+    public GeoScriptNode? parent = null;
+    public IFinMatrix4x4 matrix { get; } = new FinMatrix4x4().SetIdentity();
     public bool callSwitch = false, isSwitch = false;
     public uint switchFunc = 0, switchCount = 0, switchPos = 0;
+
+    public IFinMatrix4x4 GetTotalMatrix() {
+      var matrices = new LinkedList<IFinMatrix4x4>();
+
+      var current = this;
+      while (current != null) {
+        matrices.AddFirst(current.matrix);
+        current = current.parent;
+      }
+
+      var matrix = new FinMatrix4x4().SetIdentity();
+      foreach (var mat in matrices) {
+        matrix.MultiplyInPlace(mat);
+      }
+      return matrix;
+    }
   }
 
-  class GeoScripts {
+  public class GeoScripts {
+    private GeoScriptNode rootNode { get; set; }
+    private GeoScriptNode nodeCurrent { get; set; }
+
     private static uint bytesToInt(byte[] b, int offset, int length) {
       switch (length) {
         case 1: return b[0 + offset];
-        case 2: return (uint) (b[0 + offset] << 8 | b[1 + offset]);
+        case 2: return (uint)(b[0 + offset] << 8 | b[1 + offset]);
         case 3:
-          return (uint) (b[0 + offset] << 16 | b[1 + offset] << 8 |
-                         b[2 + offset]);
+          return (uint)(b[0 + offset] << 16 | b[1 + offset] << 8 |
+                        b[2 + offset]);
         default:
-          return (uint) (b[0 + offset] << 24 | b[1 + offset] << 16 |
-                         b[2 + offset] << 8 | b[3 + offset]);
+          return (uint)(b[0 + offset] << 24 | b[1 + offset] << 16 |
+                        b[2 + offset] << 8 | b[3 + offset]);
       }
     }
 
-    private static GeoScriptNode rootNode;
-    private static GeoScriptNode nodeCurrent;
-
-    private static Vector3 getTotalOffset() {
-      Vector3 newOffset = Vector3.Zero;
-      GeoScriptNode n = nodeCurrent;
-      while (n.parent != null) {
-        newOffset += n.offset;
-        n = n.parent;
-      }
-      return newOffset;
-    }
-
-    public static void resetNodes() {
-      rootNode = new GeoScriptNode();
+    public GeoScripts() {
+      rootNode = new GeoScriptNode(null);
       nodeCurrent = rootNode;
     }
 
-    public static void parse(Model3DLods mdlLods,
-                             ref Level lvl,
-                             byte seg,
-                             uint off,
-                             byte? areaID) {
+    public void parse(Model3DLods mdlLods,
+                      ref Level lvl,
+                      byte seg,
+                      uint off,
+                      byte? areaID) {
       if (seg == 0) return;
+
+      mdlLods.Current.Node = nodeCurrent;
+
       ROM rom = ROM.Instance;
       byte[] data = rom.getSegment(seg, areaID);
       bool end = false;
@@ -107,25 +121,27 @@ namespace Quad64.src.Scripts {
             break;
           case 0x04:
             desc = "Open New Node";
-            CMD_04();
+            CMD_04(mdlLods);
             break;
           case 0x05:
             desc = "Close Node";
-            if (nodeCurrent != rootNode)
+            if (nodeCurrent != rootNode) {
               nodeCurrent = nodeCurrent.parent;
+              mdlLods.Current.Node = nodeCurrent;
+            }
             break;
           case 0x08:
             desc = "Set screen rendering area (" +
-                   "center X = " + (short) bytesToInt(cmd, 4, 2) +
-                   ", center Y = " + (short) bytesToInt(cmd, 6, 2) +
-                   ", Width = " + (short) (bytesToInt(cmd, 8, 2) * 2) +
-                   ", Height = " + (short) (bytesToInt(cmd, 10, 2) * 2) + ")";
+                   "center X = " + (short)bytesToInt(cmd, 4, 2) +
+                   ", center Y = " + (short)bytesToInt(cmd, 6, 2) +
+                   ", Width = " + (short)(bytesToInt(cmd, 8, 2) * 2) +
+                   ", Height = " + (short)(bytesToInt(cmd, 10, 2) * 2) + ")";
             break;
           case 0x0A:
             desc = "Set camera frustum (" +
-                   "FOV = " + (short) bytesToInt(cmd, 2, 2) +
-                   ", Near = " + (short) bytesToInt(cmd, 4, 2) +
-                   ", Far = " + (short) bytesToInt(cmd, 6, 2) + ")";
+                   "FOV = " + (short)bytesToInt(cmd, 2, 2) +
+                   ", Near = " + (short)bytesToInt(cmd, 4, 2) +
+                   ", Far = " + (short)bytesToInt(cmd, 6, 2) + ")";
             break;
           case 0x0B:
             desc = "Start geometry layout";
@@ -137,12 +153,12 @@ namespace Quad64.src.Scripts {
               desc = "Enable Z-Buffer";
             break;
           case 0x0D:
-            var minRenderRange = (short) bytesToInt(cmd, 4, 2);
-            var maxRenderRange = (short) bytesToInt(cmd, 6, 2);
+            var minRenderRange = (short)bytesToInt(cmd, 4, 2);
+            var maxRenderRange = (short)bytesToInt(cmd, 6, 2);
             desc = "Set render range from camera (min = " +
                    minRenderRange + ", max = " +
                    maxRenderRange + ")";
-            mdlLods.Add();
+            mdlLods.Add(nodeCurrent!);
             break;
           case 0x0E:
             desc =
@@ -171,9 +187,9 @@ namespace Quad64.src.Scripts {
             desc = "Load display list 0x" +
                    bytesToInt(cmd, 8, 4).ToString("X8") +
                    " into layer " + cmd[1] + " and offset position by (" +
-                   (short) bytesToInt(cmd, 2, 2) +
-                   "," + (short) bytesToInt(cmd, 2, 2) +
-                   "," + (short) bytesToInt(cmd, 2, 2) +
+                   (short)bytesToInt(cmd, 2, 2) +
+                   "," + (short)bytesToInt(cmd, 2, 2) +
+                   "," + (short)bytesToInt(cmd, 2, 2) +
                    ")";
             //rom.printArray(cmd, cmdLen);
             CMD_13(mdlLods.Current, ref lvl, cmd, areaID);
@@ -209,7 +225,7 @@ namespace Quad64.src.Scripts {
           case 0x19:
             if (bytesToInt(cmd, 4, 4) == 0x00000000) {
               desc = "Draw solid color background. Color = (";
-              ushort color = (ushort) bytesToInt(cmd, 2, 2);
+              ushort color = (ushort)bytesToInt(cmd, 2, 2);
               desc += (((color >> 11) & 0x1F) * 8) + ","
                                                    + (((color >> 6) & 0x1F) *
                                                          8) + ","
@@ -255,7 +271,7 @@ namespace Quad64.src.Scripts {
       }
     }
 
-    private static void addGLSCommandToDump(Model3D mdl,
+    private void addGLSCommandToDump(Model3D? mdl,
                                             byte[] cmd,
                                             byte seg,
                                             uint offset,
@@ -264,13 +280,13 @@ namespace Quad64.src.Scripts {
       ScriptDumpCommandInfo info = new ScriptDumpCommandInfo();
       info.data = cmd;
       info.description = description;
-      info.segAddress = (uint) (seg << 24) | offset;
+      info.segAddress = (uint)(seg << 24) | offset;
       info.romAddress =
           ROM.Instance.decodeSegmentAddress_safe(seg, offset, areaID);
-      mdl.GeoLayoutCommands_ForDump.Add(info);
+      mdl?.GeoLayoutCommands_ForDump.Add(info);
     }
 
-    private static void CMD_00(Model3DLods mdlLods,
+    private void CMD_00(Model3DLods mdlLods,
                                ref Level lvl,
                                byte[] cmd,
                                byte? areaID) {
@@ -279,7 +295,7 @@ namespace Quad64.src.Scripts {
       parse(mdlLods, ref lvl, seg, off, areaID);
     }
 
-    private static void CMD_02(Model3DLods mdlLods,
+    private void CMD_02(Model3DLods mdlLods,
                                ref Level lvl,
                                byte[] cmd,
                                byte? areaID) {
@@ -289,8 +305,8 @@ namespace Quad64.src.Scripts {
     }
 
 
-    private static void CMD_04() {
-      GeoScriptNode newNode = new GeoScriptNode();
+    private void CMD_04(Model3DLods mdlLods) {
+      GeoScriptNode newNode = new GeoScriptNode(nodeCurrent);
       newNode.ID = nodeCurrent.ID + 1;
       newNode.parent = nodeCurrent;
       /*
@@ -303,9 +319,10 @@ namespace Quad64.src.Scripts {
       }
       */
       nodeCurrent = newNode;
+      mdlLods.Current.Node = nodeCurrent;
     }
 
-    private static void CMD_0E(Model3D mdl, ref Level lvl, byte[] cmd) {
+    private void CMD_0E(Model3D mdl, ref Level lvl, byte[] cmd) {
       //nodeCurrent.switchFunc = bytesToInt(cmd, 4, 4);
       // Special Ignore cases
       //if (nodeCurrent.switchFunc == 0x8029DBD4) return;
@@ -314,23 +331,16 @@ namespace Quad64.src.Scripts {
       nodeCurrent.callSwitch = true;
     }
 
-    private static void CMD_10(Model3D mdl, ref Level lvl, byte[] cmd) {
+    private void CMD_10(Model3D mdl, ref Level lvl, byte[] cmd) {
       // TODO: Definitely broken
-      short x = (short) bytesToInt(cmd, 4, 2);
-      short y = (short) bytesToInt(cmd, 6, 2);
-      short z = (short) bytesToInt(cmd, 8, 2);
-      nodeCurrent.offset += new Vector3(x, y, z);
+      short x = (short)bytesToInt(cmd, 4, 2);
+      short y = (short)bytesToInt(cmd, 6, 2);
+      short z = (short)bytesToInt(cmd, 8, 2);
+      nodeCurrent.matrix.MultiplyInPlace(
+          MatrixTransformUtil.FromTranslation(x, y, z));
     }
 
-    private static void CMD_11(Model3D mdl, ref Level lvl, byte[] cmd) {
-      // TODO: Definitely broken
-      short x = (short) bytesToInt(cmd, 2, 2);
-      short y = (short) bytesToInt(cmd, 4, 2);
-      short z = (short) bytesToInt(cmd, 6, 2);
-      //mdl.builder.GeoLayoutOffset += new OpenTK.Vector3(x, y, z);
-    }
-
-    private static void CMD_12(Model3D mdl, ref Level lvl, byte[] cmd) {
+    private void CMD_11(Model3D mdl, ref Level lvl, byte[] cmd) {
       // TODO: Definitely broken
       short x = (short)bytesToInt(cmd, 2, 2);
       short y = (short)bytesToInt(cmd, 4, 2);
@@ -338,20 +348,29 @@ namespace Quad64.src.Scripts {
       //mdl.builder.GeoLayoutOffset += new OpenTK.Vector3(x, y, z);
     }
 
-    private static void CMD_13(Model3D mdl,
+    private void CMD_12(Model3D mdl, ref Level lvl, byte[] cmd) {
+      // TODO: Definitely broken
+      short x = (short)bytesToInt(cmd, 2, 2);
+      short y = (short)bytesToInt(cmd, 4, 2);
+      short z = (short)bytesToInt(cmd, 6, 2);
+      //mdl.builder.GeoLayoutOffset += new OpenTK.Vector3(x, y, z);
+    }
+
+    private void CMD_13(Model3D mdl,
                                ref Level lvl,
                                byte[] cmd,
                                byte? areaID) {
       byte drawLayer = cmd[1];
-      short x = (short) bytesToInt(cmd, 2, 2);
-      short y = (short) bytesToInt(cmd, 4, 2);
-      short z = (short) bytesToInt(cmd, 6, 2);
+      short x = (short)bytesToInt(cmd, 2, 2);
+      short y = (short)bytesToInt(cmd, 4, 2);
+      short z = (short)bytesToInt(cmd, 6, 2);
       uint displayListAddress = bytesToInt(cmd, 8, 4);
-      byte seg = (byte) (displayListAddress >> 24);
+      byte seg = (byte)(displayListAddress >> 24);
       if (seg > 0x20)
         return;
       uint off = displayListAddress & 0xFFFFFF;
-      mdl.builder.Offset = new OpenTK.Vector3(x, y, z) + getTotalOffset();
+      nodeCurrent.matrix.MultiplyInPlace(
+          MatrixTransformUtil.FromTranslation(x, y, z));
       // Don't bother processing duplicate display lists.
       if (displayListAddress != 0) {
         if (!mdl.hasGeoDisplayList(off)) {
@@ -360,12 +379,10 @@ namespace Quad64.src.Scripts {
         lvl.temp_bgInfo.usesFog = mdl.builder.UsesFog;
         lvl.temp_bgInfo.fogColor = mdl.builder.FogColor;
         lvl.temp_bgInfo.fogColor_romLocation = mdl.builder.FogColor_romLocation;
-      } else {
-        nodeCurrent.offset += new OpenTK.Vector3(x, y, z);
-      }
+      } else { }
     }
 
-    private static void CMD_15(Model3D mdl,
+    private void CMD_15(Model3D mdl,
                                ref Level lvl,
                                byte[] cmd,
                                byte? areaID) {
@@ -375,7 +392,6 @@ namespace Quad64.src.Scripts {
       if (seg > 0x20)
         return;
       uint off = bytesToInt(cmd, 5, 3);
-      mdl.builder.Offset = getTotalOffset();
       // Don't bother processing duplicate display lists.
       if (!mdl.hasGeoDisplayList(off)) {
         Fast3DScripts.parse(ref mdl, ref lvl, seg, off, areaID, 0);
@@ -386,7 +402,7 @@ namespace Quad64.src.Scripts {
       lvl.temp_bgInfo.fogColor_romLocation = mdl.builder.FogColor_romLocation;
     }
 
-    private static void CMD_18(Model3D mdl, ref Level lvl, byte[] cmd) {
+    private void CMD_18(Model3D mdl, ref Level lvl, byte[] cmd) {
       ROM rom = ROM.Instance;
       uint asmAddress = bytesToInt(cmd, 4, 4);
       switch (rom.Region) {
@@ -398,22 +414,24 @@ namespace Quad64.src.Scripts {
       }
     }
 
-    private static void CMD_19(Model3D mdl,
+    private void CMD_19(Model3D mdl,
                                ref Level lvl,
                                byte[] cmd,
                                uint romOffset) {
-      lvl.temp_bgInfo.id_or_color = (ushort) bytesToInt(cmd, 2, 2);
+      lvl.temp_bgInfo.id_or_color = (ushort)bytesToInt(cmd, 2, 2);
       lvl.temp_bgInfo.address = bytesToInt(cmd, 4, 4);
       lvl.temp_bgInfo.isEndCakeImage = false;
       lvl.temp_bgInfo.romLocation = romOffset;
     }
 
-    private static void CMD_1D(Model3D mdl, byte[] cmd) {
-      uint scale = bytesToInt(cmd, 4, 4);
-      mdl.builder.currentScale = (float) scale / 65536.0f;
+    private void CMD_1D(Model3D mdl, byte[] cmd) {
+      var scale = (bytesToInt(cmd, 4, 4) / 65536.0f);
+      this.nodeCurrent.matrix.MultiplyInPlace(
+          MatrixTransformUtil.FromScale(
+              new ModelImpl.ScaleImpl {X = scale, Y = scale, Z = scale}));
     }
 
-    private static byte getCmdLength(byte cmd) {
+    private byte getCmdLength(byte cmd) {
       switch (cmd) {
         case 0x00:
         case 0x02:
