@@ -15,6 +15,10 @@
   <PropertyGroup>
     <SelfContained>true</SelfContained>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <Compile Remove="src\Scripts\GeoScriptParser.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
