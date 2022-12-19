@@ -17,6 +17,10 @@
   </PropertyGroup>
   
   <ItemGroup>
+    <Compile Remove="src\Scripts\geo\GeoScriptsV2.cs" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="OpenTK" Version="3.3.3" />
     <PackageReference Include="OpenTK.GLControl" Version="3.1.0" />
