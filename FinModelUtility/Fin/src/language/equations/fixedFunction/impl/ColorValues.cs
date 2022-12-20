@@ -424,6 +424,12 @@ namespace fin.language.equations.fixedFunction {
       public static readonly ColorConstant NEGATIVE_ONE = new(-1);
 
       public ColorConstant(double r, double g, double b) {
+        var tolerance = 1 / 255f;
+        if (Math.Abs(r - g) < tolerance && Math.Abs(r - b) < tolerance) {
+          this.IntensityValue = r;
+          this.Intensity = new ScalarConstant(r);
+        }
+
         this.RValue = r;
         this.GValue = g;
         this.BValue = b;

@@ -500,25 +500,23 @@ namespace fin.language.equations.fixedFunction {
       } else {
         var useIntensity = factor.Intensity != null;
 
-        IScalarValue r;
-        IScalarValue g;
-        IScalarValue b;
-
         if (!useIntensity) {
-          r = factor.R;
-          g = factor.G;
-          b = factor.B;
-        } else {
-          r = g = b = factor.Intensity!;
-        }
+          var r = factor.R;
+          var g = factor.G;
+          var b = factor.B;
 
-        os.Write("vec3(");
-        this.PrintScalarValue_(os, r);
-        os.Write(",");
-        this.PrintScalarValue_(os, g);
-        os.Write(",");
-        this.PrintScalarValue_(os, b);
-        os.Write(")");
+          os.Write("vec3(");
+          this.PrintScalarValue_(os, r);
+          os.Write(",");
+          this.PrintScalarValue_(os, g);
+          os.Write(",");
+          this.PrintScalarValue_(os, b);
+          os.Write(")");
+        } else {
+          os.Write("vec3(");
+          this.PrintScalarValue_(os, factor.Intensity!);
+          os.Write(")");
+        }
       }
     }
 
