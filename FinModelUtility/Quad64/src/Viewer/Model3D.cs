@@ -17,11 +17,17 @@ namespace Quad64 {
 
     public Model3D HighestLod {
       get {
+        return this.Lods.OrderBy(lod => lod.getNumberOfTrianglesInModel())
+                   .Last();
+
+        /*if (this.Lods.Count > 2) {
+          return this.Lods.Skip(2).First();
+        }
         if (this.Lods.Count > 1) {
           return this.Lods.Skip(1).First();
         } else {
           return this.Lods.First();
-        }
+        }*/
       }
     }
 

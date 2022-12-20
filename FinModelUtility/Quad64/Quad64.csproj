@@ -24,7 +24,6 @@
   
   <ItemGroup>
     <Compile Remove="src\Program.cs" />
-    <Compile Remove="src\Scripts\geo\GeoScriptsV2.cs" />
   </ItemGroup>
   
   <ItemGroup>

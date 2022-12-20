@@ -2,6 +2,8 @@
 using fin.math.matrix;
 using fin.model.impl;
 using Quad64.src.LevelInfo;
+using sm64.scripts;
+using sm64.scripts.geo;
 
 
 namespace Quad64.src.Scripts {
@@ -33,7 +35,7 @@ namespace Quad64.src.Scripts {
     }
   }
 
-  public class GeoScripts {
+  public class GeoScripts : IGeoScripts {
     private GeoScriptNode rootNode { get; set; }
     private GeoScriptNode nodeCurrent { get; set; }
 
@@ -170,7 +172,7 @@ namespace Quad64.src.Scripts {
           case 0x10:
             // TODO: Not implemented
             desc = "Translate and rotate";
-            //CMD_10(mdlLods.Current, ref lvl, cmd);
+            CMD_10(mdlLods.Current, ref lvl, cmd);
             break;
           case 0x11:
             // TODO: Not implemented
@@ -272,11 +274,11 @@ namespace Quad64.src.Scripts {
     }
 
     private void addGLSCommandToDump(Model3D? mdl,
-                                            byte[] cmd,
-                                            byte seg,
-                                            uint offset,
-                                            string description,
-                                            byte? areaID) {
+                                     byte[] cmd,
+                                     byte seg,
+                                     uint offset,
+                                     string description,
+                                     byte? areaID) {
       ScriptDumpCommandInfo info = new ScriptDumpCommandInfo();
       info.data = cmd;
       info.description = description;
@@ -287,18 +289,18 @@ namespace Quad64.src.Scripts {
     }
 
     private void CMD_00(Model3DLods mdlLods,
-                               ref Level lvl,
-                               byte[] cmd,
-                               byte? areaID) {
+                        ref Level lvl,
+                        byte[] cmd,
+                        byte? areaID) {
       byte seg = cmd[4];
       uint off = bytesToInt(cmd, 5, 3);
       parse(mdlLods, ref lvl, seg, off, areaID);
     }
 
     private void CMD_02(Model3DLods mdlLods,
-                               ref Level lvl,
-                               byte[] cmd,
-                               byte? areaID) {
+                        ref Level lvl,
+                        byte[] cmd,
+                        byte? areaID) {
       byte seg = cmd[4];
       uint off = bytesToInt(cmd, 5, 3);
       parse(mdlLods, ref lvl, seg, off, areaID);
@@ -332,12 +334,54 @@ namespace Quad64.src.Scripts {
     }
 
     private void CMD_10(Model3D mdl, ref Level lvl, byte[] cmd) {
-      // TODO: Definitely broken
-      short x = (short)bytesToInt(cmd, 4, 2);
-      short y = (short)bytesToInt(cmd, 6, 2);
-      short z = (short)bytesToInt(cmd, 8, 2);
-      nodeCurrent.matrix.MultiplyInPlace(
-          MatrixTransformUtil.FromTranslation(x, y, z));
+      var param = cmd[1];
+      var format = GeoUtils.GetTranslateAndRotateFormat(param);
+
+      var posX = 0f;
+      var posY = 0f;
+      var posZ = 0f;
+      var rotX = 0f;
+      var rotY = 0f;
+      var rotZ = 0f;
+
+      switch (format) {
+        case GeoTranslateAndRotateFormat.TRANSLATION_AND_ROTATION: {
+          posX = (short)bytesToInt(cmd, 4, 2);
+          posY = (short)bytesToInt(cmd, 6, 2);
+          posZ = (short)bytesToInt(cmd, 8, 2);
+          rotX = (short)bytesToInt(cmd, 10, 2);
+          rotY = (short)bytesToInt(cmd, 12, 2);
+          rotZ = (short)bytesToInt(cmd, 14, 2);
+          break;
+        }
+        case GeoTranslateAndRotateFormat.TRANSLATION: {
+          posX = (short)bytesToInt(cmd, 2, 2);
+          posY = (short)bytesToInt(cmd, 4, 2);
+          posZ = (short)bytesToInt(cmd, 6, 2);
+          break;
+        }
+        case GeoTranslateAndRotateFormat.ROTATION: {
+          rotX = (short)bytesToInt(cmd, 2, 2);
+          rotY = (short)bytesToInt(cmd, 4, 2);
+          rotZ = (short)bytesToInt(cmd, 6, 2);
+          break;
+        }
+        case GeoTranslateAndRotateFormat.YAW: {
+          rotY = (short)bytesToInt(cmd, 2, 2);
+          break;
+        }
+        default: throw new ArgumentOutOfRangeException();
+      }
+      this.nodeCurrent.matrix.MultiplyInPlace(
+          MatrixTransformUtil.FromTrs(
+              new ModelImpl.PositionImpl {
+                  X = posX,
+                  Y = posY,
+                  Z = posZ
+              },
+              new ModelImpl.RotationImpl().SetDegrees(
+                  rotX, rotY, rotZ),
+              null));
     }
 
     private void CMD_11(Model3D mdl, ref Level lvl, byte[] cmd) {
@@ -345,7 +389,8 @@ namespace Quad64.src.Scripts {
       short x = (short)bytesToInt(cmd, 2, 2);
       short y = (short)bytesToInt(cmd, 4, 2);
       short z = (short)bytesToInt(cmd, 6, 2);
-      //mdl.builder.GeoLayoutOffset += new OpenTK.Vector3(x, y, z);
+      nodeCurrent.matrix.MultiplyInPlace(
+          MatrixTransformUtil.FromTranslation(x, y, z));
     }
 
     private void CMD_12(Model3D mdl, ref Level lvl, byte[] cmd) {
@@ -353,13 +398,15 @@ namespace Quad64.src.Scripts {
       short x = (short)bytesToInt(cmd, 2, 2);
       short y = (short)bytesToInt(cmd, 4, 2);
       short z = (short)bytesToInt(cmd, 6, 2);
-      //mdl.builder.GeoLayoutOffset += new OpenTK.Vector3(x, y, z);
+      nodeCurrent.matrix.MultiplyInPlace(
+          MatrixTransformUtil.FromRotation(
+              new ModelImpl.RotationImpl().SetDegrees(x, y, z)));
     }
 
     private void CMD_13(Model3D mdl,
-                               ref Level lvl,
-                               byte[] cmd,
-                               byte? areaID) {
+                        ref Level lvl,
+                        byte[] cmd,
+                        byte? areaID) {
       byte drawLayer = cmd[1];
       short x = (short)bytesToInt(cmd, 2, 2);
       short y = (short)bytesToInt(cmd, 4, 2);
@@ -383,9 +430,9 @@ namespace Quad64.src.Scripts {
     }
 
     private void CMD_15(Model3D mdl,
-                               ref Level lvl,
-                               byte[] cmd,
-                               byte? areaID) {
+                        ref Level lvl,
+                        byte[] cmd,
+                        byte? areaID) {
       // if (bytesToInt(cmd, 4, 4) != 0x07006D70) return;
       byte drawLayer = cmd[1];
       byte seg = cmd[4];
@@ -415,9 +462,9 @@ namespace Quad64.src.Scripts {
     }
 
     private void CMD_19(Model3D mdl,
-                               ref Level lvl,
-                               byte[] cmd,
-                               uint romOffset) {
+                        ref Level lvl,
+                        byte[] cmd,
+                        uint romOffset) {
       lvl.temp_bgInfo.id_or_color = (ushort)bytesToInt(cmd, 2, 2);
       lvl.temp_bgInfo.address = bytesToInt(cmd, 4, 4);
       lvl.temp_bgInfo.isEndCakeImage = false;

@@ -4,16 +4,6 @@ using schema.util;
 
 namespace sm64.scripts.geo {
   public class GeoScriptParser {
-    public static void SplitAddress(uint address,
-                                    out byte segment,
-                                    out uint offset) {
-      segment = (byte)(address >> 24);
-      offset = address & 0xFFFFFF;
-    }
-
-    public static uint MergeAddress(byte segment, uint offset)
-      => (uint)((segment << 24) | offset);
-
     private class GeoCommandList : IGeoCommandList {
       private readonly List<IGeoCommand> commands_ = new();
 
@@ -34,7 +24,7 @@ namespace sm64.scripts.geo {
 
     private (IGeoCommandList, ReturnType)?
         ParseImpl_(uint address, byte? areaId) {
-      SplitAddress(address, out var seg, out var off);
+      GeoUtils.SplitAddress(address, out var seg, out var off);
 
       ROM rom = ROM.Instance;
       byte[] data = rom.getSegment(seg, areaId)!;
@@ -47,7 +37,23 @@ namespace sm64.scripts.geo {
         return null;
       }
 
-      using var er = new EndianBinaryReader(new MemoryStream(data));
+
+      {
+        var d = new byte[] {1, 2, 3, 4};
+
+        var r = new EndianBinaryReader(new MemoryStream(d),
+                                       GeoUtils.Endianness);
+
+        var adr = r.ReadUInt32();
+
+        GeoUtils.SplitAddress(adr, out var sgm, out var ofst);
+
+        ;
+      }
+
+
+      using var er = new EndianBinaryReader(new MemoryStream(data),
+                                            GeoUtils.Endianness);
       er.Position = off;
 
       var commands = new GeoCommandList();
@@ -198,8 +204,8 @@ namespace sm64.scripts.geo {
             command = er.ReadNew<GeoRotationCommand>();
             break;
           }
-          case GeoCommandId.DISPLAY_LIST_WITH_OFFSET: {
-            command = er.ReadNew<GeoDisplayListWithOffsetCommand>();
+          case GeoCommandId.ANIMATED_PART: {
+            command = er.ReadNew<GeoAnimatedPartCommand>();
             break;
           }
           case GeoCommandId.BILLBOARD: {

@@ -9,6 +9,7 @@ namespace sm64.api {
     public static Level LoadLevel(Sm64LevelFileBundle levelFileBundle) {
       ROM rom = ROM.Instance;
 
+      rom.clearSegments();
       rom.readFile(levelFileBundle.Sm64Rom.FullName);
 
       Globals.objectComboEntries.Clear();

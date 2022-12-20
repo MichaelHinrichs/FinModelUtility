@@ -1,6 +1,7 @@
 ﻿using fin.schema.vector;
 using schema;
 using schema.attributes.ignore;
+using sm64.scripts.geo;
 
 
 namespace sm64.scripts {
@@ -22,7 +23,7 @@ namespace sm64.scripts {
     TRANSLATE_AND_ROTATE = 0x10,
     TRANSLATE = 0x11,
     ROTATE = 0x12,
-    DISPLAY_LIST_WITH_OFFSET = 0x13,
+    ANIMATED_PART = 0x13,
     BILLBOARD = 0x14,
     DISPLAY_LIST = 0x15,
     SHADOW = 0x16,
@@ -281,9 +282,9 @@ namespace sm64.scripts {
   }
 
   [BinarySchema]
-  public partial class GeoDisplayListWithOffsetCommand
+  public partial class GeoAnimatedPartCommand
       : IGeoCommand, IDeserializable {
-    public GeoCommandId Id => GeoCommandId.DISPLAY_LIST_WITH_OFFSET;
+    public GeoCommandId Id => GeoCommandId.ANIMATED_PART;
 
     public GeoDrawingLayer DrawingLayer { get; set; }
 
@@ -416,18 +417,5 @@ namespace sm64.scripts {
     private readonly byte padding_ = 0;
 
     public short CullingRadius { get; set; }
-  }
-
-  public static class GeoUtils {
-    public static bool IsDisplayListAndDrawingLayerEnabled(byte param)
-      => (param & 0x80) != 0;
-
-    public static GeoDrawingLayer GetDrawingLayerFromParams(byte param)
-      => (GeoDrawingLayer)
-          (IsDisplayListAndDrawingLayerEnabled(param) ? param & 0xF : 0);
-
-    public static GeoTranslateAndRotateFormat GetTranslateAndRotateFormat(
-        byte param)
-      => (GeoTranslateAndRotateFormat)((param & 0x70) >> 4);
   }
 }

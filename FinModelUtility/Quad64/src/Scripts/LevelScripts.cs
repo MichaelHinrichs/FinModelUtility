@@ -504,7 +504,7 @@ namespace Quad64.Scripts {
       // Globals.DEBUG_PARSING_LEVEL_AREA = true;
       // Stopwatch stopWatch = new Stopwatch();
       // stopWatch.Start();
-      new GeoScripts().parse(newArea.AreaModel, ref lvl, seg, off, areaID);
+      new GeoScriptsWrapper().parse(newArea.AreaModel, ref lvl, seg, off, areaID);
       lvl.setAreaBackgroundInfo(ref newArea);
       lvl.Areas.Add(newArea);
       lvl.CurrentAreaID = areaID;
@@ -569,7 +569,7 @@ namespace Quad64.Scripts {
       Model3DLods newModel = new Model3DLods();
       if (rom.getSegment(seg, areaID) != null) {
         try {
-          new GeoScripts().parse(newModel, ref lvl, seg, off, areaID);
+          new GeoScriptsWrapper().parse(newModel, ref lvl, seg, off, areaID);
         } catch (Exception e) {
           Console.WriteLine(e.Message);
           Console.WriteLine(e.StackTrace);
