@@ -1,29 +1,28 @@
 ﻿using fin.data;
 using fin.io;
 using fin.io.bundles;
-using fin.model;
 
 
 namespace uni.util.io {
-  public class FileHierarchyBundler<TModelFileBundle>
-      where TModelFileBundle : IModelFileBundle {
+  public class FileHierarchyBundler<TFileBundle>
+      where TFileBundle : IFileBundle {
     private readonly
-        Func<IFileHierarchyDirectory, IEnumerable<TModelFileBundle>?> handler_;
+        Func<IFileHierarchyDirectory, IEnumerable<TFileBundle>?> handler_;
 
     public FileHierarchyBundler(
-        Func<IFileHierarchyDirectory, IEnumerable<TModelFileBundle>?> handler) {
+        Func<IFileHierarchyDirectory, IEnumerable<TFileBundle>?> handler) {
       this.handler_ = handler;
     }
 
-    public IFileBundleDirectory<TModelFileBundle> GatherBundles(
+    public IFileBundleDirectory<TFileBundle> GatherBundles(
         IFileHierarchy fileHierarchy) {
       var fileHierarchyRoot = fileHierarchy.Root;
       var rootModelDirectory =
-          new FileBundleDirectory<TModelFileBundle>(fileHierarchy.Root.Name);
+          new FileBundleDirectory<TFileBundle>(fileHierarchy.Root.Name);
 
       var lazyFileHierarchyDirToBundleDir =
           new LazyDictionary<IFileHierarchyDirectory,
-              IFileBundleDirectory<TModelFileBundle>>(
+              IFileBundleDirectory<TFileBundle>>(
               (lazyDict, dir) => {
                 var parent = dir.Parent != null
                                  ? lazyDict[dir.Parent]

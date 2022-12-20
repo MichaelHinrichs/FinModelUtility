@@ -1,16 +1,10 @@
-﻿using System.Collections;
-using System.Drawing;
-using System.IO.Compression;
-
+﻿using System.IO.Compression;
 using fin.data;
 using fin.image;
 using fin.io;
 using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
-using fin.util.color;
-
-using modl.schema.modl;
 using modl.schema.terrain;
 using modl.schema.terrain.bw1;
 
@@ -24,53 +18,55 @@ namespace modl.api {
   }
 
   public class OutModelLoader : IModelLoader<OutModelFileBundle> {
-    public IModel LoadModel(OutModelFileBundle modelFileBundle) {
-      var outFile = modelFileBundle.OutFile;
+    public IModel LoadModel(OutModelFileBundle modelFileBundle)
+      => LoadModel(modelFileBundle.OutFile.Impl, modelFileBundle.GameVersion);
 
-      var isBw2 = modelFileBundle.GameVersion == GameVersion.BW2;
+    public IModel LoadModel(IFile outFile, GameVersion gameVersion) {
+      var isBw2 = gameVersion == GameVersion.BW2;
 
       Stream stream;
       if (isBw2) {
         using var gZipStream =
-            new GZipStream(outFile.Impl.OpenRead(),
+            new GZipStream(outFile.OpenRead(),
                            CompressionMode.Decompress);
 
         stream = new MemoryStream();
         gZipStream.CopyTo(stream);
         stream.Position = 0;
       } else {
-        stream = outFile.Impl.OpenRead();
+        stream = outFile.OpenRead();
       }
 
       using var er = new EndianBinaryReader(stream, Endianness.LittleEndian);
 
       var bwTerrain =
           isBw2
-              ? (IBwTerrain) er.ReadNew<Bw2Terrain>()
+              ? (IBwTerrain)er.ReadNew<Bw2Terrain>()
               : er.ReadNew<Bw1Terrain>();
 
       var finModel = new ModelImpl();
 
       var imageDictionary =
           new LazyDictionary<string, IImage>(textureName => {
-            var outFile = modelFileBundle.OutFile;
             var outName = outFile.Name.Replace(".out.gz", "")
                                  .Replace(".out", "");
             var outDirectory =
-                outFile.Parent.Subdirs.Single(
-                    dir => dir.Name == outName + "_Level");
+                outFile.GetParent()
+                       .GetExistingSubdirs()
+                       .Single(
+                           dir => dir.Name == outName + "_Level");
 
             var textureFile =
-                outDirectory.Files.FirstOrDefault(
+                outDirectory.GetExistingFiles()
+                            .FirstOrDefault(
                                 file => file.Name.ToLower() ==
-                                        $"{textureName}.png")
-                            ?.Impl;
+                                        $"{textureName}.png");
 
             // Some of the maps use textures from other directories...
             if (textureFile == null) {
-              var allMapsDirectory = outDirectory.Parent;
+              var allMapsDirectory = outDirectory.GetParent();
               textureFile = allMapsDirectory
-                            .Impl.SearchForFiles($"{textureName}.png", true)
+                            .SearchForFiles($"{textureName}.png", true)
                             .First();
             }
 
@@ -100,7 +96,7 @@ namespace modl.api {
           });
       var materialDictionary =
           new LazyDictionary<uint, IMaterial>(matlIndex => {
-            var matl = bwTerrain.Materials[(int) matlIndex];
+            var matl = bwTerrain.Materials[(int)matlIndex];
 
             var texture1 = textureDictionary[(0, matl.Texture1)];
             var texture2 = textureDictionary[(1, matl.Texture2)];
@@ -187,8 +183,8 @@ namespace modl.api {
               var surfaceTextureUvsFromFirstRow = tile.Schema
                   .SurfaceTextureUvsFromFirstRow
                   .Select(weirdUv => {
-                    var u = (float) loadUOrV(weirdUv.U);
-                    var v = (float) loadUOrV(weirdUv.V);
+                    var u = (float)loadUOrV(weirdUv.U);
+                    var v = (float)loadUOrV(weirdUv.V);
                     return (u, v);
                   })
                   .ToArray();
@@ -268,15 +264,13 @@ namespace modl.api {
 
                   var (u0, v0) = surfaceTextureUvsInRow[pointX];
                   var uv0 = new ModelImpl.TexCoordImpl {
-                      U = (float) u0,
-                      V = (float) v0,
+                      U = (float)u0, V = (float)v0,
                   };
 
                   var u1 = loadUOrV(detailTextureUvs.U);
                   var v1 = loadUOrV(detailTextureUvs.V);
                   var uv1 = new ModelImpl.TexCoordImpl {
-                      U = (float) u1,
-                      V = (float) v1
+                      U = (float)u1, V = (float)v1
                   };
 
                   var finVertex =

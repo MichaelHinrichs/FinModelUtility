@@ -7,9 +7,8 @@ using uni.util.io;
 
 
 namespace uni.games.battalion_wars_1 {
-  public class BattalionWars1FileGatherer
-      : IFileBundleGatherer<IBattalionWarsModelFileBundle> {
-    public IFileBundleDirectory<IBattalionWarsModelFileBundle>?
+  public class BattalionWars1FileGatherer : IFileBundleGatherer<IFileBundle> {
+    public IFileBundleDirectory<IFileBundle>?
         GatherFileBundles(bool assert) {
       var battalionWarsRom =
           DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
@@ -38,7 +37,7 @@ namespace uni.games.battalion_wars_1 {
         }
       }
 
-      return new FileHierarchyBundler<IBattalionWarsModelFileBundle>(
+      return new FileHierarchyBundler<IFileBundle>(
           directory => {
             var modlFiles = directory.FilesWithExtension(".modl");
             var animFiles = directory.FilesWithExtension(".anim");
@@ -185,9 +184,22 @@ namespace uni.games.battalion_wars_1 {
                          .Select(outFile => new OutModelFileBundle {
                              OutFile = outFile, GameVersion = GameVersion.BW1,
                          });
+            var sceneBundles =
+                directory.Name == "CompoundFiles"
+                    ? directory
+                      .FilesWithExtension(".xml")
+                      .Where(file =>
+                                 !file.NameWithoutExtension.EndsWith("_Level"))
+                      .Where(file =>
+                                 !file.NameWithoutExtension.EndsWith("_preload"))
+                      .Select(file => new BwSceneFileBundle {
+                          MainXmlFile = file, GameVersion = GameVersion.BW1,
+                      })
+                    : new List<BwSceneFileBundle>();
 
             var bundles =
-                modlBundles.Concat<IBattalionWarsModelFileBundle>(outBundles)
+                modlBundles.Concat<IBattalionWarsFileBundle>(outBundles)
+                           .Concat(sceneBundles)
                            .ToList();
             bundles.Sort((lhs, rhs) =>
                              lhs.MainFile.Name.CompareTo(

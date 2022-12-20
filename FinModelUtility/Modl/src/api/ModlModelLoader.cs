@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-
 using fin.data;
 using fin.data.queue;
 using fin.image;
@@ -7,7 +6,6 @@ using fin.io;
 using fin.math;
 using fin.model;
 using fin.model.impl;
-
 using modl.schema.anim;
 using modl.schema.anim.bw1;
 using modl.schema.anim.bw2;
@@ -28,15 +26,23 @@ namespace modl.api {
   }
 
   public class ModlModelLoader : IModelLoader<ModlModelFileBundle> {
-    public IModel LoadModel(ModlModelFileBundle modelFileBundle) {
+    public IModel LoadModel(ModlModelFileBundle modelFileBundle)
+      => LoadModel(modelFileBundle.ModlFile.Impl,
+                   modelFileBundle.AnimFiles
+                                  ?.Select(file => file.Impl)
+                                  .ToArray(),
+                   modelFileBundle.GameVersion);
+
+    public IModel LoadModel(
+        IFile modlFile,
+        IList<IFile>? animFiles,
+        GameVersion gameVersion) {
       var flipSign = ModlFlags.FLIP_HORIZONTALLY ? -1 : 1;
 
-      var modlFile = modelFileBundle.ModlFile;
-
-      using var er = new EndianBinaryReader(modlFile.Impl.OpenRead(),
+      using var er = new EndianBinaryReader(modlFile.OpenRead(),
                                             Endianness.BigEndian);
-      var bwModel = modelFileBundle.GameVersion switch {
-          GameVersion.BW1 => (IModl) er.ReadNew<Bw1Modl>(),
+      var bwModel = gameVersion switch {
+          GameVersion.BW1 => (IModl)er.ReadNew<Bw1Modl>(),
           GameVersion.BW2 => er.ReadNew<Bw2Modl>(),
       };
 
@@ -86,23 +92,22 @@ namespace modl.api {
           }
         }
 
-        foreach (var animFile in modelFileBundle.AnimFiles ??
-                                 Array.Empty<IFileHierarchyFile>()) {
-          var anim = modelFileBundle.GameVersion switch {
-              GameVersion.BW1 => (IAnim) animFile.Impl.ReadNew<Bw1Anim>(
+        foreach (var animFile in animFiles ?? Array.Empty<IFile>()) {
+          var anim = gameVersion switch {
+              GameVersion.BW1 => (IAnim)animFile.ReadNew<Bw1Anim>(
                   Endianness.BigEndian),
-              GameVersion.BW2 => animFile.Impl.ReadNew<Bw2Anim>(
+              GameVersion.BW2 => animFile.ReadNew<Bw2Anim>(
                   Endianness.BigEndian)
           };
 
           var maxFrameCount = -1;
           foreach (var animBone in anim.AnimBones) {
-            maxFrameCount = (int) Math.Max(maxFrameCount,
-                                           Math.Max(
-                                               animBone
-                                                   .PositionKeyframeCount,
-                                               animBone
-                                                   .RotationKeyframeCount));
+            maxFrameCount = (int)Math.Max(maxFrameCount,
+                                          Math.Max(
+                                              animBone
+                                                  .PositionKeyframeCount,
+                                              animBone
+                                                  .RotationKeyframeCount));
           }
 
           var finAnimation = model.AnimationManager.AddAnimation();
@@ -165,10 +170,13 @@ namespace modl.api {
         var textureDictionary = new LazyDictionary<string, ITexture>(
             textureName => {
               var textureFile =
-                  modlFile.Parent.Files.Single(
-                      file => file.Name.ToLower() == $"{textureName}.png");
+                  modlFile.GetParent()
+                          .GetExistingFiles()
+                          .Single(
+                              file => file.Name.ToLower() ==
+                                      $"{textureName}.png");
 
-              var image = FinImage.FromFile(textureFile.Impl);
+              var image = FinImage.FromFile(textureFile);
 
               var finTexture =
                   model.MaterialManager.CreateTexture(image);

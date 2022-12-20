@@ -8,11 +8,9 @@ using uni.util.io;
 
 
 namespace uni.games.battalion_wars_2 {
-  public class BattalionWars2FileGatherer
-      : IFileBundleGatherer<IBattalionWarsModelFileBundle> {
-    public IFileBundleDirectory<IBattalionWarsModelFileBundle>?
-        GatherFileBundles(
-            bool assert) {
+  public class BattalionWars2FileGatherer : IFileBundleGatherer<IFileBundle> {
+    public IFileBundleDirectory<IFileBundle>? GatherFileBundles(
+        bool assert) {
       var battalionWarsRom =
           DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
               "battalion_wars_2.iso", assert);
@@ -38,7 +36,7 @@ namespace uni.games.battalion_wars_2 {
         }
       }
 
-      return new FileHierarchyBundler<IBattalionWarsModelFileBundle>(
+      return new FileHierarchyBundler<IFileBundle>(
           directory => {
             var modlFiles = directory.FilesWithExtension(".modl");
             var animFiles = directory.FilesWithExtension(".anim");
@@ -105,9 +103,22 @@ namespace uni.games.battalion_wars_2 {
                          .Select(outFile => new OutModelFileBundle {
                              OutFile = outFile, GameVersion = GameVersion.BW2,
                          });
+            var sceneBundles =
+                directory.Name == "CompoundFiles"
+                    ? directory
+                      .FilesWithExtension(".xml")
+                      .Where(file =>
+                                 !file.NameWithoutExtension.EndsWith("_Level"))
+                      .Where(file =>
+                                 !file.NameWithoutExtension.EndsWith("_preload"))
+                      .Select(file => new BwSceneFileBundle {
+                          MainXmlFile = file, GameVersion = GameVersion.BW2,
+                      })
+                    : new List<BwSceneFileBundle>();
 
             var bundles =
-                modlBundles.Concat<IBattalionWarsModelFileBundle>(outBundles)
+                modlBundles.Concat<IBattalionWarsFileBundle>(outBundles)
+                           .Concat(sceneBundles)
                            .ToList();
             bundles.Sort((lhs, rhs) =>
                              lhs.MainFile.Name.CompareTo(
