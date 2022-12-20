@@ -18,12 +18,19 @@
   
   <ItemGroup>
     <Compile Remove="src\Forms\**" />
+    <Compile Remove="src\TestROM\**" />
     <EmbeddedResource Remove="src\Forms\**" />
+    <EmbeddedResource Remove="src\TestROM\**" />
     <None Remove="src\Forms\**" />
+    <None Remove="src\TestROM\**" />
   </ItemGroup>
   
   <ItemGroup>
+    <Compile Remove="src\JSON\OtherTexturesFile.cs" />
     <Compile Remove="src\Program.cs" />
+    <Compile Remove="src\Prompts.cs" />
+    <Compile Remove="src\PropertyGridExtensionHacks.cs" />
+    <Compile Remove="src\Viewer\Camera.cs" />
   </ItemGroup>
   
   <ItemGroup>

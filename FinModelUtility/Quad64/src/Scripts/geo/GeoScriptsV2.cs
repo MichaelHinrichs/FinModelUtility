@@ -1,5 +1,7 @@
 ﻿using fin.math.matrix;
+using fin.model;
 using fin.model.impl;
+using fin.schema.vector;
 using Quad64.src.LevelInfo;
 using sm64.scripts;
 using sm64.scripts.geo;
@@ -41,8 +43,7 @@ namespace Quad64.src.Scripts {
           case GeoAnimatedPartCommand geoAnimatedPartCommand: {
             var translation = geoAnimatedPartCommand.Offset;
             this.nodeCurrent.matrix.MultiplyInPlace(
-                MatrixTransformUtil.FromTranslation(
-                    translation.X, translation.Y, translation.Z));
+                CreateTranslationMatrix_(translation));
             AddDisplayList(
                 mdlLods,
                 lvl,
@@ -99,9 +100,7 @@ namespace Quad64.src.Scripts {
           case GeoRotationCommand geoRotationCommand: {
             var rotation = geoRotationCommand.Rotation;
             this.nodeCurrent.matrix.MultiplyInPlace(
-                MatrixTransformUtil.FromRotation(
-                    new ModelImpl.RotationImpl().SetDegrees(
-                        rotation.X, rotation.Y, rotation.Z)));
+                CreateRotationMatrix_(rotation));
             AddDisplayList(
                 mdlLods,
                 lvl,
@@ -131,13 +130,7 @@ namespace Quad64.src.Scripts {
             var translation = geoTranslateAndRotateCommand.Translation;
             var rotation = geoTranslateAndRotateCommand.Rotation;
             this.nodeCurrent.matrix.MultiplyInPlace(
-                MatrixTransformUtil.FromTrs(
-                    new ModelImpl.PositionImpl {
-                        X = translation.X, Y = translation.Y, Z = translation.Z
-                    },
-                    new ModelImpl.RotationImpl().SetDegrees(
-                        rotation.X, rotation.Y, rotation.Z),
-                    null));
+                CreateTranslationAndRotationMatrix_(translation, rotation));
             AddDisplayList(
                 mdlLods,
                 lvl,
@@ -148,8 +141,7 @@ namespace Quad64.src.Scripts {
           case GeoTranslationCommand geoTranslationCommand: {
             var translation = geoTranslationCommand.Translation;
             this.nodeCurrent.matrix.MultiplyInPlace(
-                MatrixTransformUtil.FromTranslation(
-                    translation.X, translation.Y, translation.Z));
+                CreateTranslationMatrix_(translation));
             AddDisplayList(
                 mdlLods,
                 lvl,
@@ -172,6 +164,28 @@ namespace Quad64.src.Scripts {
         }
       }
     }
+
+    public IFinMatrix4x4 CreateTranslationAndRotationMatrix_(
+        Vector3s position,
+        Vector3s rotation)
+      => CreateRotationMatrix_(rotation)
+          .MultiplyInPlace(CreateTranslationMatrix_(position));
+
+    public IFinMatrix4x4 CreateTranslationMatrix_(Vector3s position)
+      => MatrixTransformUtil.FromTranslation(new ModelImpl.PositionImpl {
+          X = position.X, Y = position.Y, Z = position.Z
+      });
+
+    public IFinMatrix4x4 CreateRotationMatrix_(Vector3s rotation)
+      => MatrixTransformUtil
+         .FromRotation(
+             new ModelImpl.RotationImpl().SetDegrees(0, 0, rotation.Z))
+         .MultiplyInPlace(
+             MatrixTransformUtil.FromRotation(
+                 new ModelImpl.RotationImpl().SetDegrees(rotation.X, 0, 0)))
+         .MultiplyInPlace(
+             MatrixTransformUtil.FromRotation(
+                 new ModelImpl.RotationImpl().SetDegrees(0, rotation.Y, 0)));
 
     public void AddDisplayList(Model3DLods mdlLods,
                                Level lvl,
