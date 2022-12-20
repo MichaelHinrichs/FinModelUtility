@@ -209,7 +209,7 @@ namespace uni.ui.common {
         get => this.openImageIndex_;
         set {
           this.openImageIndex_ = value;
-          if (this.IsExpanded) {
+          if (this.Impl != null && this.IsExpanded) {
             this.Impl.ImageIndex = this.Impl.SelectedImageIndex = value;
           }
         }
@@ -219,7 +219,7 @@ namespace uni.ui.common {
         get => this.closedImageIndex_;
         set {
           this.closedImageIndex_ = value;
-          if (this.IsExpanded) {
+          if (this.Impl != null && !this.IsExpanded) {
             this.Impl.ImageIndex = this.Impl.SelectedImageIndex = value;
           }
         }

@@ -33,6 +33,9 @@
     <None Remove="img\file.png" />
     <None Remove="img\folder_closed.png" />
     <None Remove="img\folder_open.png" />
+    <None Remove="img\model.png" />
+    <None Remove="img\music.png" />
+    <None Remove="img\scene.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -67,9 +70,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="img\file.png" />
     <EmbeddedResource Include="img\folder_closed.png" />
     <EmbeddedResource Include="img\folder_open.png" />
+    <EmbeddedResource Include="img\model.png" />
+    <EmbeddedResource Include="img\music.png" />
+    <EmbeddedResource Include="img\scene.png" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,4 +1,7 @@
-﻿using fin.io.bundles;
+﻿using fin.audio;
+using fin.io.bundles;
+using fin.model;
+using fin.scene;
 
 
 namespace uni.ui.common {
@@ -29,5 +32,12 @@ namespace uni.ui.common {
 
       return uiNode;
     }
+
+    public override Image GetImageForFile(IFileBundle file)
+      => file switch {
+          IModelFileBundle => Icons.modelImage,
+          IAudioFileBundle => Icons.musicImage,
+          ISceneFileBundle => Icons.sceneImage,
+      };
   }
 }

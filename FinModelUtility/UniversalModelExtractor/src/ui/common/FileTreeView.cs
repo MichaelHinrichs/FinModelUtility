@@ -19,6 +19,8 @@ namespace uni.ui.common {
         IFileTreeNode<TFile> directoryNode);
 
     event DirectorySelectedHandler DirectorySelected;
+
+    Image GetImageForFile(TFile file);
   }
 
   public interface IFileTreeNode<TFile> {
@@ -78,24 +80,12 @@ namespace uni.ui.common {
 
     // TODO: Clean this up.
     protected class FileNode : IFileTreeNode<TFile> {
-      private static readonly Assembly assembly_ =
-          Assembly.GetExecutingAssembly();
-
-      private static readonly Image folderClosedImage =
-          EmbeddedResourceUtil.Load(FileNode.assembly_,
-                                    "uni.img.folder_closed.png");
-
-      private static readonly Image folderOpenImage =
-          EmbeddedResourceUtil.Load(FileNode.assembly_,
-                                    "uni.img.folder_open.png");
-
-      private static readonly Image fileImage =
-          EmbeddedResourceUtil.Load(FileNode.assembly_, "uni.img.file.png");
-
+      private readonly IFileTreeView<TFile> treeview_;
       private readonly IBetterTreeNode<FileNode> treeNode_;
       private readonly IFuzzyNode<FileNode> filterNode_;
 
       public FileNode(FileTreeView<TFile, TFiles> treeView) {
+        this.treeview_ = treeView;
         this.treeNode_ = treeView.betterTreeView_.Root;
         this.treeNode_.Data = this;
 
@@ -107,6 +97,7 @@ namespace uni.ui.common {
       private FileNode(FileNode parent, TFile file) {
         this.File = file;
 
+        this.treeview_ = parent.treeview_;
         this.treeNode_ =
             parent.treeNode_.Add(file.BetterFileName ?? file.FileName);
         this.treeNode_.Data = this;
@@ -117,6 +108,7 @@ namespace uni.ui.common {
       }
 
       private FileNode(FileNode parent, string text) {
+        this.treeview_ = parent.treeview_;
         this.treeNode_ = parent.treeNode_.Add(text);
         this.treeNode_.Data = this;
 
@@ -126,14 +118,14 @@ namespace uni.ui.common {
       }
 
       private void InitDirectory_() {
-        this.treeNode_.ClosedImage = FileNode.folderClosedImage;
-        this.treeNode_.OpenImage = FileNode.folderOpenImage;
+        this.treeNode_.ClosedImage = Icons.folderClosedImage;
+        this.treeNode_.OpenImage = Icons.folderOpenImage;
       }
 
-      private void InitFile_() {
-        this.treeNode_.ClosedImage = FileNode.fileImage;
-        this.treeNode_.OpenImage = FileNode.fileImage;
-      }
+      private void InitFile_()
+        => this.treeNode_.ClosedImage =
+               this.treeNode_.OpenImage =
+                   this.treeview_.GetImageForFile(this.File!);
 
       public string Text => this.treeNode_.Text ?? "n/a";
 
@@ -191,6 +183,9 @@ namespace uni.ui.common {
     protected abstract void PopulateImpl(
         TFiles files,
         FileNode root);
+
+    public abstract Image GetImageForFile(TFile file);
+
 
     private void InitializeAutocomplete_() {
       var allAutocompleteKeywords = new AutoCompleteStringCollection();

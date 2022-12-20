@@ -15,6 +15,6 @@ namespace sm64.api {
 
     public IFile Sm64Rom { get; }
     public LevelId LevelId { get; }
-    string IUiFile.FileName => $"{LevelId}";
+    string IUiFile.FileName => $"{LevelId}".ToLower();
   }
 }

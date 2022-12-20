@@ -4,8 +4,9 @@ using sm64.api;
 
 
 namespace uni.games.super_mario_64 {
-  public class SuperMario64FileGatherer : IFileBundleGatherer<IFileBundle> {
-    public IFileBundleDirectory<IFileBundle>? GatherFileBundles(
+  public class SuperMario64FileGatherer :
+      IFileBundleGatherer<Sm64LevelFileBundle> {
+    public IFileBundleDirectory<Sm64LevelFileBundle>? GatherFileBundles(
         bool assert) {
       var superMario64Rom =
           DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
@@ -15,9 +16,11 @@ namespace uni.games.super_mario_64 {
       }
 
       var rootNode =
-          new FileBundleDirectory<IFileBundle>("super_mario_64");
+          new FileBundleDirectory<Sm64LevelFileBundle>("super_mario_64");
 
-      foreach (var levelId in Enum.GetValues<LevelId>()) {
+      var levelIds = Enum.GetValues<LevelId>().ToList();
+      levelIds.Sort((lhs, rhs) => lhs.ToString().CompareTo(rhs.ToString()));
+      foreach (var levelId in levelIds) {
         rootNode.AddFileBundle(
             new Sm64LevelModelFileBundle(superMario64Rom, levelId));
         rootNode.AddFileBundle(
