@@ -73,12 +73,8 @@ namespace fin.math {
 
       for (var r = 0; r < 4; ++r) {
         for (var c = 0; c < 4; ++c) {
-          var isValueZero = Math.Abs(this[r, c]) < error;
-          isZero &= isValueZero;
-
-          var isValueIdentity =
-              Math.Abs(this[r, c] - ((r == c) ? 1 : 0)) < error;
-          isIdentity &= isValueIdentity;
+          isZero = isZero && Math.Abs(this[r, c]) < error;
+          isIdentity = isIdentity && Math.Abs(this[r, c] - ((r == c) ? 1 : 0)) < error;
         }
       }
       this.MatrixState = isZero ? MatrixState.ZERO :
@@ -154,9 +150,6 @@ namespace fin.math {
 
 
     // Matrix Multiplication
-    private static readonly FinMatrix4x4 SHARED_BUFFER = new();
-    private static readonly ModelImpl.ScaleImpl SHARED_SCALE = new();
-
     public IFinMatrix4x4 CloneAndMultiply(IReadOnlyFinMatrix4x4 other)
       => this.Clone().MultiplyInPlace(other);
 
