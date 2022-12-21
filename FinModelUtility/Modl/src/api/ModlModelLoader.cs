@@ -190,6 +190,10 @@ namespace modl.api {
             });
 
         foreach (var modlNode in bwModel.Nodes) {
+          if (modlNode.IsLowLodModel) {
+            continue;
+          }
+
           var finMaterials =
               modlNode.Materials.Select(modlMaterial => {
                         var textureName = modlMaterial.Texture1.ToLower();

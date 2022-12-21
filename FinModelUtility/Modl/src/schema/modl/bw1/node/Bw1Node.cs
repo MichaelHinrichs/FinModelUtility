@@ -15,6 +15,7 @@ namespace modl.schema.modl.bw1.node {
     private int additionalDataCount_;
 
     public uint WeirdId { get; set; }
+    public bool IsLowLodModel => (WeirdId & 0x80) != 0;
 
     public BwTransform Transform { get; } = new();
 

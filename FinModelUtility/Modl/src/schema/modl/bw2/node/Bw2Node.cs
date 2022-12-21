@@ -17,6 +17,8 @@ namespace modl.schema.modl.bw2.node {
     public string GetIdentifier() => this.Name;
     public string Name { get; set; }
 
+    public bool IsLowLodModel => false;
+
     public BwTransform Transform { get; } = new();
 
     public float Scale { get; set; }
