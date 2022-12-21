@@ -15,6 +15,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using System.Drawing.Imaging;
 using Color = System.Drawing.Color;
 using Image = SixLabors.ImageSharp.Image;
+using Assimp;
 
 
 namespace fin.image {
@@ -24,8 +25,15 @@ namespace fin.image {
       return FinImage.FromStream(stream);
     }
 
+    public static readonly Configuration ImageSharpConfig;
+
+    static FinImage() {
+      ImageSharpConfig = Configuration.Default.Clone();
+      ImageSharpConfig.PreferContiguousImageBuffers = true;
+    }
+
     public static IImage FromStream(Stream stream) {
-      var image = Image.Load(stream);
+      var image = Image.Load(ImageSharpConfig, stream);
 
       var firstFrame = image.Frames[0];
       var pixelFormat = image.GetType().GenericTypeArguments[0];
@@ -56,7 +64,7 @@ namespace fin.image {
             for (var x = 0; x < width; ++x) {
               var index = 4 * (y * width + x);
               var b = ptr[index];
-              var g= ptr[index + 1];
+              var g = ptr[index + 1];
               var r = ptr[index + 2];
               var a = ptr[index + 3];
 
@@ -119,13 +127,59 @@ namespace fin.image {
       });
       return bitmap;
     }
+
+    public delegate void GetHandler<TPixel>(int x,
+      int y,
+      out TPixel pixel) where TPixel : unmanaged, IPixel<TPixel>;
+
+    public delegate void AccessHandler<TPixel>(GetHandler<TPixel> getHandler)
+      where TPixel : unmanaged, IPixel<TPixel>;
+
+    public static unsafe void Access<TPixel>(Image<TPixel> image, AccessHandler<TPixel> accessHandler)
+      where TPixel : unmanaged, IPixel<TPixel> {
+      var frame = Asserts.CastNonnull(image.Frames[0]);
+      Asserts.True(frame.DangerousTryGetSinglePixelMemory(out var memory));
+
+      using var memoryHandle = memory.Pin();
+
+      var ptr = (TPixel*)memoryHandle.Pointer;
+
+      void GetHandler(int x, int y, out TPixel pixel)
+        => pixel = ptr[y * frame.Width + x];
+
+      accessHandler(GetHandler);
+    }
+
+
+    public delegate void SetHandler<TPixel>(int x,
+      int y,
+      TPixel pixel) where TPixel : unmanaged, IPixel<TPixel>;
+
+    public delegate void MutateHandler<TPixel>(GetHandler<TPixel> getHandler,
+      SetHandler<TPixel> setHandler) where TPixel : unmanaged, IPixel<TPixel>;
+
+    public static unsafe void Mutate<TPixel>(Image<TPixel> image, MutateHandler<TPixel> mutateHandler) where TPixel : unmanaged, IPixel<TPixel> {
+      var frame = Asserts.CastNonnull(image.Frames[0]);
+      Asserts.True(frame.DangerousTryGetSinglePixelMemory(out var memory));
+
+      using var memoryHandle = memory.Pin();
+
+      var ptr = (TPixel*)memoryHandle.Pointer;
+
+      void GetHandler(int x, int y, out TPixel pixel)
+        => pixel = ptr[y * frame.Width + x];
+      void SetHandler(int x, int y, TPixel pixel)
+        => ptr[y * frame.Width + x] = pixel;
+
+      mutateHandler(GetHandler, SetHandler);
+    }
   }
 
   public class Rgba32Image : IImage {
     private readonly Image<Rgba32> impl_;
 
     public Rgba32Image(int width, int height) : this(
-        new Image<Rgba32>(width, height)) { }
+      new Image<Rgba32>(FinImage.ImageSharpConfig, width, height)) { }
 
     internal Rgba32Image(Image<Rgba32> impl) {
       this.impl_ = impl;
@@ -143,25 +197,24 @@ namespace fin.image {
     public int Width => this.impl_.Width;
     public int Height => this.impl_.Height;
 
-    public void Access(IImage.AccessHandler accessHandler) {
-      var frame = this.impl_.Frames[0];
-
-      void GetHandler(
+    public void Access(IImage.AccessHandler accessHandler)
+      => FinImage.Access(this.impl_, getHandler => {
+        void InternalGetHandler(
           int x,
           int y,
           out byte r,
           out byte g,
           out byte b,
           out byte a) {
-        var pixel = frame[x, y];
-        r = pixel.R;
-        g = pixel.G;
-        b = pixel.B;
-        a = pixel.A;
-      }
+          getHandler(x, y, out var pixel);
+          r = pixel.R;
+          g = pixel.G;
+          b = pixel.B;
+          a = pixel.A;
+        }
 
-      accessHandler(GetHandler);
-    }
+        accessHandler(InternalGetHandler);
+      });
 
     public delegate void SetHandler(int x,
                                     int y,
@@ -173,34 +226,35 @@ namespace fin.image {
     public delegate void MutateHandler(IImage.Rgba32GetHandler getHandler,
                                        SetHandler setHandler);
 
-    public void Mutate(MutateHandler mutateHandler) {
-      var frame = this.impl_.Frames[0];
-
-      void GetHandler(
+    public void Mutate(MutateHandler mutateHandler)
+      => FinImage.Mutate(this.impl_, (getHandler, setHandler) => {
+        void InternalGetHandler(
           int x,
           int y,
           out byte r,
           out byte g,
           out byte b,
           out byte a) {
-        var pixel = frame[x, y];
-        r = pixel.R;
-        g = pixel.G;
-        b = pixel.B;
-        a = pixel.A;
-      }
+          getHandler(x, y, out var pixel);
+          r = pixel.R;
+          g = pixel.G;
+          b = pixel.B;
+          a = pixel.A;
+        }
 
-      void SetHandler(int x, int y, byte r, byte g, byte b, byte a) {
-        var pixel = frame[x, y];
-        pixel.R = r;
-        pixel.G = g;
-        pixel.B = b;
-        pixel.A = a;
-        frame[x, y] = pixel;
-      }
+        void InternalSetHandler(
+          int x,
+          int y,
+          byte r,
+          byte g,
+          byte b,
+          byte a) {
+          var pixel = new Rgba32(r, g, b, a);
+          setHandler(x, y, pixel);
+        }
 
-      mutateHandler(GetHandler, SetHandler);
-    }
+        mutateHandler(InternalGetHandler, InternalSetHandler);
+      });
 
     public bool HasAlphaChannel => true;
     public Bitmap AsBitmap() => FinImage.ConvertToBitmap(this);
@@ -215,7 +269,7 @@ namespace fin.image {
     private readonly Image<Rgb24> impl_;
 
     public Rgb24Image(int width, int height) : this(
-        new Image<Rgb24>(width, height)) { }
+        new Image<Rgb24>(FinImage.ImageSharpConfig, width, height)) { }
 
     internal Rgb24Image(Image<Rgb24> impl) {
       this.impl_ = impl;
@@ -307,7 +361,7 @@ namespace fin.image {
     private readonly Image<La16> impl_;
 
     public Ia16Image(int width, int height) : this(
-        new Image<La16>(width, height)) { }
+        new Image<La16>(FinImage.ImageSharpConfig, width, height)) { }
 
     internal Ia16Image(Image<La16> impl) {
       this.impl_ = impl;
@@ -392,7 +446,7 @@ namespace fin.image {
     private readonly Image<L8> impl_;
 
     public I8Image(int width, int height) :
-        this(new Image<L8>(width, height)) { }
+        this(new Image<L8>(FinImage.ImageSharpConfig, width, height)) { }
 
     internal I8Image(Image<L8> impl) {
       this.impl_ = impl;
