@@ -1,12 +1,11 @@
 ﻿using fin.data;
 using fin.schema.color;
-
 using schema;
 
 
 namespace modl.schema.terrain {
   public record BwSection(string Name, int Size, long Offset);
-  
+
   [BinarySchema]
   public partial class BwHeightmapMaterial : IBiSerializable {
     [StringLengthSource(16)]
@@ -24,7 +23,8 @@ namespace modl.schema.terrain {
   }
 
   public interface IBwHeightmap {
-    Grid<IBwHeightmapChunk?> Chunks { get; } 
+    Grid<IBwHeightmapChunk?> Chunks { get; }
+    float GetHeightAtPosition(float x, float y);
   }
 
   public interface IBwHeightmapChunk {
@@ -39,9 +39,9 @@ namespace modl.schema.terrain {
   }
 
   public interface IBwHeightmapPoint {
-    int X { get; }
-    int Y { get; }
-    ushort Height { get; }
+    float X { get; }
+    float Y { get; }
+    float Height { get; }
 
     Rgba32 LightColor { get; }
   }

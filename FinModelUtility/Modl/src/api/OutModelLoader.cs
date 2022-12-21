@@ -19,9 +19,13 @@ namespace modl.api {
 
   public class OutModelLoader : IModelLoader<OutModelFileBundle> {
     public IModel LoadModel(OutModelFileBundle modelFileBundle)
-      => LoadModel(modelFileBundle.OutFile.Impl, modelFileBundle.GameVersion);
+      => LoadModel(modelFileBundle.OutFile.Impl,
+                   modelFileBundle.GameVersion,
+                   out _);
 
-    public IModel LoadModel(IFile outFile, GameVersion gameVersion) {
+    public IModel LoadModel(IFile outFile,
+                            GameVersion gameVersion,
+                            out IBwTerrain bwTerrain) {
       var isBw2 = gameVersion == GameVersion.BW2;
 
       Stream stream;
@@ -39,10 +43,8 @@ namespace modl.api {
 
       using var er = new EndianBinaryReader(stream, Endianness.LittleEndian);
 
-      var bwTerrain =
-          isBw2
-              ? (IBwTerrain)er.ReadNew<Bw2Terrain>()
-              : er.ReadNew<Bw1Terrain>();
+      var terrain = bwTerrain =
+          isBw2 ? er.ReadNew<Bw2Terrain>() : er.ReadNew<Bw1Terrain>();
 
       var finModel = new ModelImpl();
 
@@ -96,7 +98,7 @@ namespace modl.api {
           });
       var materialDictionary =
           new LazyDictionary<uint, IMaterial>(matlIndex => {
-            var matl = bwTerrain.Materials[(int)matlIndex];
+            var matl = terrain.Materials[(int)matlIndex];
 
             var texture1 = textureDictionary[(0, matl.Texture1)];
             var texture2 = textureDictionary[(1, matl.Texture2)];
@@ -147,7 +149,7 @@ namespace modl.api {
       var finSkin = finModel.Skin;
       var finMesh = finSkin.AddMesh();
 
-      var bwHeightmap = bwTerrain.Heightmap;
+      var bwHeightmap = terrain.Heightmap;
       var chunks = bwHeightmap.Chunks;
 
       var chunkCountX = chunks.Width;

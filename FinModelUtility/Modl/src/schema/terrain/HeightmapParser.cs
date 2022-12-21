@@ -1,7 +1,6 @@
 ﻿using fin.data;
 using fin.schema.color;
 using fin.util.array;
-
 using schema;
 
 
@@ -9,11 +8,17 @@ namespace modl.schema.terrain {
   public partial class HeightmapParser : IBwHeightmap {
     // TODO: Write this in a more schema way instead
 
+    private readonly TerrData terrData_;
+    public const float overallScale = 5.25f;
+    public const float xyScale = overallScale;
+    public const float zScale = 1 / 64f * overallScale;
+
     public Grid<IBwHeightmapChunk?> Chunks { get; }
 
     public HeightmapParser(TerrData terrData,
                            byte[] tilemapBytes,
                            byte[] tilesBytes) {
+      this.terrData_ = terrData;
       var chunkCountX = terrData.ChunkCountX;
       var chunkCountY = terrData.ChunkCountY;
 
@@ -36,6 +41,9 @@ namespace modl.schema.terrain {
         var schemaTileCount = tilesBytes.Length / 180;
         tilesEr.ReadNewArray(out schemaTiles, schemaTileCount);
       }
+
+      var totalWidth = 12 * chunkCountX;
+      var totalHeight = 12 * chunkCountY;
 
       for (var chunkY = 0; chunkY < chunkCountY; ++chunkY) {
         for (var chunkX = 0; chunkX < chunkCountX; ++chunkX) {
@@ -66,13 +74,15 @@ namespace modl.schema.terrain {
                   var point = new BwHeightmapPoint();
                   tile.Points[pointX, pointY] = point;
 
-                  var xyScale = 64;
-                  point.X = xyScale * (4 * 3 * chunkX + 3 * tileX + pointX);
-                  point.Y = xyScale * (4 * 3 * chunkY + 3 * tileY + pointY);
+                  point.X = xyScale *
+                            (4 * 3 * chunkX + 3 * tileX + pointX -
+                             totalWidth / 2);
+                  point.Y = xyScale * (4 * 3 * chunkY + 3 * tileY + pointY -
+                                       totalHeight / 2);
 
                   var pointOffset = pointY * 4 + pointX;
 
-                  point.Height = schemaTile.Heights[pointOffset];
+                  point.Height = zScale * schemaTile.Heights[pointOffset];
                   point.LightColor = schemaTile.LightColors[pointOffset];
                 }
               }
@@ -80,6 +90,43 @@ namespace modl.schema.terrain {
           }
         }
       }
+    }
+
+    public float GetHeightAtPosition(float x, float y) {
+      // TODO: Optimize this method
+      var chunkCountX = this.terrData_.ChunkCountX;
+      var chunkCountY = this.terrData_.ChunkCountY;
+
+      for (var chunkY = 0; chunkY < chunkCountY; ++chunkY) {
+        for (var chunkX = 0; chunkX < chunkCountX; ++chunkX) {
+          var chunk = this.Chunks[chunkX, chunkY];
+          if (chunk == null) {
+            continue;
+          }
+
+          for (var tileY = 0; tileY < 4; ++tileY) {
+            for (var tileX = 0; tileX < 4; ++tileX) {
+              var tile = chunk.Tiles[tileX, tileY];
+              if (tile == null) {
+                continue;
+              }
+
+              for (var pointY = 0; pointY < 4; ++pointY) {
+                for (var pointX = 0; pointX < 4; ++pointX) {
+                  var point = tile.Points[pointX, pointY];
+
+                  // TODO: Perform interpolation between the four corners
+                  if (point.X >= x && point.Y >= y) {
+                    return point.Height;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      return 0;
     }
 
     [BinarySchema]
@@ -125,9 +172,9 @@ namespace modl.schema.terrain {
     }
 
     private class BwHeightmapPoint : IBwHeightmapPoint {
-      public int X { get; set; }
-      public int Y { get; set; }
-      public ushort Height { get; set; }
+      public float X { get; set; }
+      public float Y { get; set; }
+      public float Height { get; set; }
       public Rgba32 LightColor { get; set; }
     }
   }
