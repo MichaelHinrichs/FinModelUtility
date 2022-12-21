@@ -476,7 +476,7 @@ namespace bmd.exporter {
 
       for (var r = 0; r < 3; ++r) {
         for (var c = 0; c < 4; ++c) {
-          finMatrix[r, c] = schemaMatrix[r, c];
+          finMatrix[c, r] = schemaMatrix[r, c];
         }
       }
 
