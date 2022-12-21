@@ -1,4 +1,6 @@
-﻿namespace fin.model {
+﻿using System.Numerics;
+
+namespace fin.model {
   public interface IVector4 {
     float X { get; set; }
     float Y { get; set; }
@@ -52,5 +54,7 @@
     float YRadians { get; }
     float ZRadians { get; }
     IRotation SetRadians(float x, float y, float z);
+
+    IRotation SetQuaternion(Quaternion q);
   }
 }

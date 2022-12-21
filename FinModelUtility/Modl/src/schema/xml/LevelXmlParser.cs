@@ -90,40 +90,46 @@ namespace modl.schema.xml {
       });
 
       foreach (var obj in objectMap.Values) {
-        var matrix = obj.Matrix;
-        if (matrix == null) {
+        var rootMatrix = obj.Matrix;
+        if (rootMatrix == null) {
           continue;
         }
 
-        var sceneObject = sceneArea.AddObject();
-
-        matrix.CopyTranslationInto(sceneObject.Position);
-        if (sceneObject.Position.Y == 0) {
-          sceneObject.Position.Y =
-              bwTerrain.Heightmap.GetHeightAtPosition(
-                  sceneObject.Position.X, sceneObject.Position.Z);
-        }
-
-
-        matrix.CopyRotationInto(out var rotation);
-        var eulerRadians = QuaternionUtil.ToEulerRadians(rotation);
-        sceneObject.Rotation.SetRadians(
-            eulerRadians.X, eulerRadians.Y, eulerRadians.Z);
-        
-        matrix.CopyScaleInto(sceneObject.Scale);
-
-        var childIdQueue = new FinQueue<string>(obj.Children);
-        while (childIdQueue.TryDequeue(out var childId)) {
+        var childIdQueue = new FinTuple2Queue<string, IReadOnlyFinMatrix4x4>(obj.Children.Select(child => (child, rootMatrix)));
+        while (childIdQueue.TryDequeue(out var childId, out var parentMatrix)) {
           objectMap.TryGetValue(childId, out var child);
           if (child == null) {
             continue;
           }
 
+          IReadOnlyFinMatrix4x4 childMatrix;
+          if (child.Matrix == null) {
+            childMatrix = parentMatrix;
+          } else {
+            childMatrix = parentMatrix.CloneAndMultiply(child.Matrix);
+          }
+
           if (child.ModelName != null) {
+            var sceneObject = sceneArea.AddObject();
+
+            childMatrix.Decompose(out var translation, out var rotation, out var scale);
+            sceneObject.SetPosition(
+              translation.X, 
+              translation.Y,
+              translation.Z);
+            if (sceneObject.Position.Y == 0) {
+              sceneObject.Position.Y =
+                bwTerrain.Heightmap.GetHeightAtPosition(
+                  sceneObject.Position.X, sceneObject.Position.Z);
+            }
+
+            sceneObject.Rotation.SetQuaternion(rotation);
+            sceneObject.SetScale(scale.X, scale.Y, scale.Z);
+
             sceneObject.AddSceneModel(lazyModelMap[child.ModelName]);
           }
 
-          childIdQueue.Enqueue(child.Children);
+          childIdQueue.Enqueue(child.Children.Select(grandchild => (grandchild, childMatrix)));
         }
       }
     }
@@ -171,61 +177,61 @@ namespace modl.schema.xml {
 
           switch (childTag.Name) {
             case "Attribute": {
-              if (childNameAttribute is "mMatrix" or "Mat") {
-                var floats = new float[16];
-                var floatsText = childTag["Item"].InnerText;
+                if (childNameAttribute is "mMatrix" or "Mat") {
+                  var floats = new float[16];
+                  var floatsText = childTag["Item"].InnerText;
 
-                var currentIndex = 0;
-                for (var fI = 0; fI < floats.Length; ++fI) {
-                  var nextCommaIndex = floatsText.IndexOf(',', currentIndex);
+                  var currentIndex = 0;
+                  for (var fI = 0; fI < floats.Length; ++fI) {
+                    var nextCommaIndex = floatsText.IndexOf(',', currentIndex);
 
-                  var subText =
-                      nextCommaIndex > 0
-                          ? floatsText.Substring(currentIndex,
-                                                 nextCommaIndex - currentIndex)
-                          : floatsText.Substring(currentIndex);
-                  floats[fI] = float.Parse(subText);
+                    var subText =
+                        nextCommaIndex > 0
+                            ? floatsText.Substring(currentIndex,
+                                                   nextCommaIndex - currentIndex)
+                            : floatsText.Substring(currentIndex);
+                    floats[fI] = float.Parse(subText);
 
-                  currentIndex = nextCommaIndex + 1;
+                    currentIndex = nextCommaIndex + 1;
+                  }
+
+                  isUsefulNode = true;
+                  node ??= new LevelObject();
+                  node.Matrix = new FinMatrix4x4(floats);
+                } else if (objectType is "cNodeHierarchyResource" &&
+                           childNameAttribute is "mName") {
+                  isUsefulNode = true;
+                  node ??= new LevelObject();
+                  node.ModelName = childTag["Item"].InnerText;
                 }
-
-                isUsefulNode = true;
-                node ??= new LevelObject();
-                node.Matrix = new FinMatrix4x4(floats).TransposeInPlace();
-              } else if (objectType is "cNodeHierarchyResource" &&
-                         childNameAttribute is "mName") {
-                isUsefulNode = true;
-                node ??= new LevelObject();
-                node.ModelName = childTag["Item"].InnerText;
+                break;
               }
-              break;
-            }
             case "Pointer": {
-              if (childNameAttribute is "mBase") {
-                isUsefulNode = true;
-                node ??= new LevelObject();
-                node.AddChild(childTag["Item"].InnerText);
-              }
-              break;
-            }
-            case "Resource": {
-              if (childNameAttribute is "mModel"
-                                        or "mBAN_Model"
-                                        or "Model"
-                                        or "model") {
-                isUsefulNode = true;
-                node ??= new LevelObject();
-                node.AddChild(childTag["Item"].InnerText);
-              } else if (childNameAttribute is "Element") {
-                isUsefulNode = true;
-                node ??= new LevelObject();
-                var itemNodes = childTag.ChildNodes;
-                for (var itemI = 0; itemI < itemNodes.Count; ++itemI) {
-                  node.AddChild(itemNodes[itemI].InnerText);
+                if (childNameAttribute is "mBase") {
+                  isUsefulNode = true;
+                  node ??= new LevelObject();
+                  node.AddChild(childTag["Item"].InnerText);
                 }
+                break;
               }
-              break;
-            }
+            case "Resource": {
+                if (childNameAttribute is "mModel"
+                                          or "mBAN_Model"
+                                          or "Model"
+                                          or "model") {
+                  isUsefulNode = true;
+                  node ??= new LevelObject();
+                  node.AddChild(childTag["Item"].InnerText);
+                } else if (childNameAttribute is "Element") {
+                  isUsefulNode = true;
+                  node ??= new LevelObject();
+                  var itemNodes = childTag.ChildNodes;
+                  for (var itemI = 0; itemI < itemNodes.Count; ++itemI) {
+                    node.AddChild(itemNodes[itemI].InnerText);
+                  }
+                }
+                break;
+              }
           }
         }
 

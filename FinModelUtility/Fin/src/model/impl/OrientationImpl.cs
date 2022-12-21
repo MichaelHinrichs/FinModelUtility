@@ -1,4 +1,6 @@
-﻿using System;
+﻿using fin.math;
+using System;
+using System.Numerics;
 
 namespace fin.model.impl {
   public partial class ModelImpl {
@@ -142,6 +144,11 @@ namespace fin.model.impl {
         this.YRadians = y;
         this.ZRadians = z;
         return this;
+      }
+
+      public IRotation SetQuaternion(Quaternion q) {
+        var eulerRadians = QuaternionUtil.ToEulerRadians(q);
+        return this.SetRadians(eulerRadians.X, eulerRadians.Y, eulerRadians.Z);
       }
 
       public override string ToString() => $"{{{this.XDegrees}°, {this.YDegrees}°, {this.ZDegrees}°}}";

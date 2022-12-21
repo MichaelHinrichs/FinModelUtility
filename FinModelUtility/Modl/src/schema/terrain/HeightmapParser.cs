@@ -9,6 +9,14 @@ namespace modl.schema.terrain {
     // TODO: Write this in a more schema way instead
 
     private readonly TerrData terrData_;
+
+    public const int tilesPerChunkAxis = 4;
+    public const int tilesPerChunk = tilesPerChunkAxis * tilesPerChunkAxis;
+
+    public const int pointsPerTileAxis = 4;
+    public const int pointsPerTile = pointsPerTileAxis * pointsPerTileAxis;
+
+    public const float chunkSize = 12;
     public const float overallScale = 5.25f;
     public const float xyScale = overallScale;
     public const float zScale = 1 / 64f * overallScale;
@@ -42,8 +50,8 @@ namespace modl.schema.terrain {
         tilesEr.ReadNewArray(out schemaTiles, schemaTileCount);
       }
 
-      var totalWidth = 12 * chunkCountX;
-      var totalHeight = 12 * chunkCountY;
+      var totalWidth = chunkSize * chunkCountX;
+      var totalHeight = chunkSize * chunkCountY;
 
       for (var chunkY = 0; chunkY < chunkCountY; ++chunkY) {
         for (var chunkX = 0; chunkX < chunkCountX; ++chunkX) {
@@ -58,8 +66,8 @@ namespace modl.schema.terrain {
           var chunk = new BwHeightmapChunk();
           this.Chunks[chunkX, chunkY] = chunk;
 
-          for (var tileY = 0; tileY < 4; ++tileY) {
-            for (var tileX = 0; tileX < 4; ++tileX) {
+          for (var tileY = 0; tileY < tilesPerChunkAxis; ++tileY) {
+            for (var tileX = 0; tileX < tilesPerChunkAxis; ++tileX) {
               var tile = new BwHeightmapTile();
               chunk.Tiles[tileX, tileY] = tile;
 
@@ -69,16 +77,14 @@ namespace modl.schema.terrain {
               tile.Schema = schemaTile;
               tile.MatlIndex = schemaTile.MatlIndex;
 
-              for (var pointY = 0; pointY < 4; ++pointY) {
-                for (var pointX = 0; pointX < 4; ++pointX) {
+              for (var pointY = 0; pointY < pointsPerTileAxis; ++pointY) {
+                for (var pointX = 0; pointX < pointsPerTileAxis; ++pointX) {
                   var point = new BwHeightmapPoint();
                   tile.Points[pointX, pointY] = point;
 
-                  point.X = xyScale *
-                            (4 * 3 * chunkX + 3 * tileX + pointX -
-                             totalWidth / 2);
-                  point.Y = xyScale * (4 * 3 * chunkY + 3 * tileY + pointY -
-                                       totalHeight / 2);
+                  GetWorldPosition(terrData.ChunkCountX, terrData.ChunkCountY, chunkX, chunkY, tileX, tileY, pointX, pointY, out var worldX, out var worldY);
+                  point.X = worldX;
+                  point.Y = worldY;
 
                   var pointOffset = pointY * 4 + pointX;
 
@@ -92,41 +98,51 @@ namespace modl.schema.terrain {
       }
     }
 
-    public float GetHeightAtPosition(float x, float y) {
-      // TODO: Optimize this method
-      var chunkCountX = this.terrData_.ChunkCountX;
-      var chunkCountY = this.terrData_.ChunkCountY;
+    public static void GetWorldPosition(
+      int chunkCountX, int chunkCountY,
+      int chunkX, int chunkY,
+      int tileX, int tileY,
+      int pointX, int pointY,
+      out float worldX, out float worldY) {
+      worldX = xyScale *
+               (4 * 3 * chunkX + 3 * tileX + pointX -
+                chunkSize * chunkCountX / 2);
+      worldY = xyScale *
+               (4 * 3 * chunkY + 3 * tileY + pointY -
+                chunkSize * chunkCountY / 2);
+    }
 
-      for (var chunkY = 0; chunkY < chunkCountY; ++chunkY) {
-        for (var chunkX = 0; chunkX < chunkCountX; ++chunkX) {
-          var chunk = this.Chunks[chunkX, chunkY];
-          if (chunk == null) {
-            continue;
-          }
+    public static void GetIndices(
+      float worldX, float worldY,
+      int chunkCountX, int chunkCountY,
+      out int chunkX, out int chunkY,
+      out int tileX, out int tileY,
+      out int pointX, out int pointY) {
+      var localX = (int)(worldX / xyScale + chunkSize * chunkCountX / 2);
+      var localY = (int)(worldY / xyScale + chunkSize * chunkCountY / 2);
 
-          for (var tileY = 0; tileY < 4; ++tileY) {
-            for (var tileX = 0; tileX < 4; ++tileX) {
-              var tile = chunk.Tiles[tileX, tileY];
-              if (tile == null) {
-                continue;
-              }
+      pointX = localX % 3;
+      pointY = localY % 3;
 
-              for (var pointY = 0; pointY < 4; ++pointY) {
-                for (var pointX = 0; pointX < 4; ++pointX) {
-                  var point = tile.Points[pointX, pointY];
+      tileX = ((localX - pointX) / 3) % 4;
+      tileY = ((localY - pointY) / 3) % 4;
 
-                  // TODO: Perform interpolation between the four corners
-                  if (point.X >= x && point.Y >= y) {
-                    return point.Height;
-                  }
-                }
-              }
-            }
-          }
-        }
+      chunkX = (localX - 3 * tileX - pointX) / 12;
+      chunkY = (localY - 3 * tileY - pointY) / 12;
+    }
+
+    public float GetHeightAtPosition(float worldX, float worldY) {
+      GetIndices(worldX, worldY,
+        this.terrData_.ChunkCountX, this.terrData_.ChunkCountY, 
+        out var chunkX, out var chunkY,
+        out var tileX, out var tileY,
+        out var pointX, out var pointY);
+
+      try {
+        return this.Chunks[chunkX, chunkY]?.Tiles[tileX, tileY].Points[pointX, pointY].Height ?? 0;
+      } catch {
+        return 0;
       }
-
-      return 0;
     }
 
     [BinarySchema]
