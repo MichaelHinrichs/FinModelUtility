@@ -1,4 +1,5 @@
-﻿using fin.math.matrix;
+﻿using fin.math;
+using fin.math.matrix;
 using System;
 using fin.model;
 using OpenTK.Graphics.OpenGL;
@@ -260,7 +261,14 @@ namespace fin.gl {
       z /= length;
     }
 
-    public static void MultMatrix(IReadOnlyFinMatrix4x4 matrix) {
+    public static unsafe void MultMatrix(IReadOnlyFinMatrix4x4 matrix) {
+      if (matrix is FinMatrix4x4 matrixImpl) {
+        fixed (float* ptr = &matrixImpl.impl_.M11) {
+          GL.MultMatrix(ptr);
+        }
+        return;
+      }
+
       float[] buffer = new float[16];
       for (var y = 0; y < 4; ++y) {
         for (var x = 0; x < 4; ++x) {

@@ -99,7 +99,7 @@ namespace fin.math {
       rhs[3, 2] = 9;
       rhs[3, 3] = 5;
 
-      var product = lhs.CloneAndMultiply(rhs);
+      var product = rhs.CloneAndMultiply(lhs);
 
       Assert.AreEqual(45, product[0, 0]);
       Assert.AreEqual(62, product[0, 1]);

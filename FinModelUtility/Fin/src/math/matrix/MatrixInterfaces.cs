@@ -1,5 +1,4 @@
 ﻿using fin.model;
-using fin.schema.vector;
 using System;
 using System.Numerics;
 
@@ -54,5 +53,6 @@ namespace fin.math.matrix {
     void CopyTranslationInto(IPosition dst);
     void CopyRotationInto(out Quaternion dst);
     void CopyScaleInto(IScale dst);
+    void Decompose(out Vector3 translation, out Quaternion rotation, out Vector3 scale);
   }
 }

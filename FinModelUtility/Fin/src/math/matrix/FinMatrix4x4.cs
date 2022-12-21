@@ -4,6 +4,7 @@ using fin.math.matrix;
 using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
+using MathNet.Numerics.LinearAlgebra.Complex;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
@@ -184,7 +185,7 @@ namespace fin.math {
 
       if (other is FinMatrix4x4 otherImpl &&
           buffer is FinMatrix4x4 bufferImpl) {
-        bufferImpl.impl_ = SystemMatrix.Multiply(this.impl_, otherImpl.impl_);
+        bufferImpl.impl_ = SystemMatrix.Multiply(otherImpl.impl_, this.impl_);
         bufferImpl.MatrixState = MatrixState.UNDEFINED;
         return;
       }
@@ -283,53 +284,27 @@ namespace fin.math {
 
     // Shamelessly copied from https://math.stackexchange.com/a/1463487
     public void CopyTranslationInto(IPosition dst) {
-      dst.X = this[0, 3];
-      dst.Y = this[1, 3];
-      dst.Z = this[2, 3];
+      var translation = this.impl_.Translation;
+      dst.X = translation.X;
+      dst.Y = translation.Y;
+      dst.Z = translation.Z;
     }
 
     public void CopyRotationInto(out Quaternion dst) {
-      CopyScaleInto(SHARED_SCALE);
-      SHARED_BUFFER.CopyFrom(this);
-
-      // Sets corner to 1
-      SHARED_BUFFER[3, 3] = 1;
-
-      for (var i = 0; i < 3; ++i) {
-        // Clears out sides
-        SHARED_BUFFER[3, i] = 0;
-        SHARED_BUFFER[i, 3] = 0;
-
-        // Undoes scaling
-        SHARED_BUFFER[i, 0] /= SHARED_SCALE.X;
-        SHARED_BUFFER[i, 1] /= SHARED_SCALE.Y;
-        SHARED_BUFFER[i, 2] /= SHARED_SCALE.Z;
-      }
-
-      SHARED_BUFFER.TransposeInPlace();
-
-      dst = -Quaternion.CreateFromRotationMatrix(SHARED_BUFFER.impl_);
+      this.Decompose(out _, out dst, out _);
+      dst = -dst;
     }
 
     public void CopyScaleInto(IScale dst) {
-      {
-        var a = this[0, 0];
-        var e = this[1, 0];
-        var i = this[2, 0];
-        dst.X = MathF.Sqrt(a * a + e * e + i * i);
-      }
-      {
-        var b = this[0, 1];
-        var f = this[1, 1];
-        var j = this[2, 1];
-        dst.Y = MathF.Sqrt(b * b + f * f + j * j);
-      }
-      {
-        var c = this[0, 2];
-        var g = this[1, 2];
-        var k = this[2, 2];
-        dst.Z = MathF.Sqrt(c * c + g * g + k * k);
-      }
+      this.Decompose(out _, out _, out var scale);
+      dst.X = scale.X;
+      dst.Y = scale.Y;
+      dst.Z = scale.Z;
+    }
+
+    public void Decompose(out Vector3 translation, out Quaternion rotation,
+      out Vector3 scale) {
+      Asserts.True(Matrix4x4.Decompose(this.impl_, out scale, out rotation, out translation), "Failed to decompose matrix!");
     }
 
 

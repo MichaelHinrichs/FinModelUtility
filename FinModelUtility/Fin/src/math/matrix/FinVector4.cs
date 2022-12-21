@@ -108,8 +108,7 @@ namespace fin.math.matrix {
         IReadOnlyFinMatrix4x4 other,
         FinVector4 buffer) {
       if (other is FinMatrix4x4 otherImpl) {
-        buffer.impl_ =
-            Vector4.Transform(this.impl_, Matrix4x4.Transpose(otherImpl.impl_));
+        buffer.impl_ = Vector4.Transform(this.impl_, otherImpl.impl_);
         return;
       }
 
