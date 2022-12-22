@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace fin.model.impl {
   public interface IVertexAttributeArray<T> : IEnumerable<(int, T)>
@@ -14,69 +15,30 @@ namespace fin.model.impl {
 
   public class SparseVertexAttributeArray<T> : IVertexAttributeArray<T>
       where T : notnull {
-    private T? first_;
-    private T? second_;
+    private IList<T?>? impl_;
 
-    // TODO: Look into if an array is better here.
-    private Dictionary<int, T> extras_ = new();
-
-    public int Count {
-      get {
-        var total = 0;
-
-        if (this.first_ != null) {
-          ++total;
-        }
-        if (this.second_ != null) {
-          ++total;
-        }
-        total += this.extras_.Count;
-
-        return total;
-      }
-    }
+    public int Count => this.impl_?.Count(value => value != null) ?? 0;
 
     public T? this[int index] {
-      get => index switch {
-          0 => this.first_,
-          1 => this.second_,
-          _ => this.extras_.TryGetValue(index - 2, out var value)
-                   ? value
-                   : default,
-      };
+      get => index < (this.impl_?.Count ?? 0) ? this.impl_[index] : default;
       set {
-        switch (index) {
-          case 0: {
-            this.first_ = value;
-            break;
-          }
-          case 1: {
-            this.second_ = value;
-            break;
-          }
-          default: {
-            index -= 2;
-            if (value == null) {
-              this.extras_.Remove(index);
-            } else {
-              this.extras_[index] = value;
-            }
-            break;
-          }
+        this.impl_ ??= new List<T?>();
+        while (this.impl_?.Count <= index) {
+          this.impl_.Add(default);
         }
+        this.impl_![index] = value;
       }
     }
 
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
     public IEnumerator<(int, T)> GetEnumerator() {
-      if (this.first_ != null) {
-        yield return (0, this.first_);
-      }
-      if (this.second_ != null) {
-        yield return (1, this.second_);
-      }
-      foreach (var item in this.extras_) {
-        yield return (item.Key, item.Value);
+      if (this.impl_ != null) {
+        for (var i = 0; i < this.impl_.Count; ++i) {
+          var value = this.impl_[i];
+          if (value != null) {
+            yield return (i, value);
+          }
+        }
       }
     }
   }

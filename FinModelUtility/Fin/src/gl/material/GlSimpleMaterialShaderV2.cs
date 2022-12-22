@@ -9,16 +9,19 @@ using OpenTK.Graphics.OpenGL;
 
 namespace fin.gl.material {
   public class GlSimpleMaterialShaderV2 : IGlMaterialShader {
-    private readonly GlShaderProgram impl_;
-
-    private readonly int diffuseTextureLocation_;
+    private static GlShaderProgram impl_;
+    private static int diffuseTextureLocation_;
+    private static int modelViewMatrixLocation_;
+    private static int projectionMatrixLocation_;
+    private static int useLightingLocation_;
 
     private readonly GlTexture primaryGlTexture_;
 
     public GlSimpleMaterialShaderV2(IMaterial material) {
       this.Material = material;
 
-      var vertexShaderSrc = @"
+      if (impl_ == null) {
+        var vertexShaderSrc = @"
 # version 330
 
 uniform mat4 modelViewMatrix;
@@ -45,7 +48,7 @@ void main() {
     uv = in_Uvs[0];
 }";
 
-      var fragmentShaderSrc = @$"
+        var fragmentShaderSrc = @$"
 # version 330
 
 uniform sampler2D diffuseTexture;
@@ -77,11 +80,15 @@ void main() {{
     }}
 }}";
 
-      this.impl_ =
+        impl_ =
           GlShaderProgram.FromShaders(vertexShaderSrc, fragmentShaderSrc);
 
-      this.diffuseTextureLocation_ =
-          this.impl_.GetUniformLocation("diffuseTexture");
+        diffuseTextureLocation_ = impl_.GetUniformLocation("diffuseTexture");
+        modelViewMatrixLocation_ = impl_.GetUniformLocation("modelViewMatrix");
+        projectionMatrixLocation_ = impl_.GetUniformLocation("projectionMatrix");
+        useLightingLocation_ = impl_.GetUniformLocation("useLighting");
+      }
+
 
       var primaryFinTexture = PrimaryTextureFinder.GetFor(material);
       this.primaryGlTexture_ = primaryFinTexture != null
@@ -95,7 +102,6 @@ void main() {{
     }
 
     private void ReleaseUnmanagedResources_() {
-      this.impl_.Dispose();
       GlMaterialConstants.DisposeIfNotCommon(this.primaryGlTexture_);
     }
 
@@ -105,27 +111,19 @@ void main() {{
     public bool UseLighting { get; set; }
 
     public void Use() {
-      this.impl_.Use();
+      impl_.Use();
 
       GL.GetFloat(GetPName.ModelviewMatrix, out Matrix4 modelViewMatrix);
-      GL.UniformMatrix4(this.impl_.GetUniformLocation("modelViewMatrix"),
+      GL.UniformMatrix4(modelViewMatrixLocation_,
                         false, ref modelViewMatrix);
 
       GL.GetFloat(GetPName.ProjectionMatrix, out Matrix4 projectionMatrix);
-      GL.UniformMatrix4(this.impl_.GetUniformLocation("projectionMatrix"),
-                        false, ref projectionMatrix);
+      GL.UniformMatrix4(projectionMatrixLocation_, false, ref projectionMatrix);
 
-      GL.Uniform1(this.diffuseTextureLocation_, 0);
+      GL.Uniform1(diffuseTextureLocation_, 0);
       this.primaryGlTexture_.Bind();
 
-      GL.Uniform1(this.diffuseTextureLocation_, 0);
-      this.primaryGlTexture_.Bind();
-
-      GL.Uniform1(this.diffuseTextureLocation_, 0);
-      this.primaryGlTexture_.Bind();
-
-      var useLightingLocation = this.impl_.GetUniformLocation("useLighting");
-      GL.Uniform1(useLightingLocation, this.UseLighting ? 1f : 0f);
+      GL.Uniform1(useLightingLocation_, this.UseLighting ? 1f : 0f);
     }
   }
 }

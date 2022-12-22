@@ -36,7 +36,10 @@ namespace fin.gl {
       }
       this.colorData_ = new float[2][];
       for (var i = 0; i < this.colorData_.Length; ++i) {
-        this.colorData_[i] = new float[COLOR_SIZE_ * this.vertices_.Count];
+        var colorData = this.colorData_[i] = new float[COLOR_SIZE_ * this.vertices_.Count];
+        for (var c = 0; c < colorData.Length; ++c) {
+          colorData[c] = 1;
+        }
       }
 
       GL.GenVertexArrays(1, out this.vaoId_);
@@ -85,20 +88,28 @@ namespace fin.gl {
         this.normalData_[normalOffset + 1] = normal?.Y ?? 0;
         this.normalData_[normalOffset + 2] = normal?.Z ?? 0;
 
-        for (var u = 0; u < this.uvData_.Length; ++u) {
+        var uvCount = Math.Min(this.uvData_.Length, vertex.Uvs?.Count ?? 0);
+        for (var u = 0; u < uvCount; ++u) {
           var uv = vertex.GetUv(u);
-          var uvOffset = UV_SIZE_ * i;
-          this.uvData_[u][uvOffset + 0] = uv?.U ?? 0;
-          this.uvData_[u][uvOffset + 1] = uv?.V ?? 0;
+          if (uv != null) {
+            var uvOffset = UV_SIZE_ * i;
+            var uvData = this.uvData_[u];
+            uvData[uvOffset + 0] = uv?.U ?? 0;
+            uvData[uvOffset + 1] = uv?.V ?? 0;
+          }
         }
 
-        for (var c = 0; c < this.colorData_.Length; ++c) {
+        var colorCount = Math.Min(this.colorData_.Length, vertex.Colors?.Count ?? 0);
+        for (var c = 0; c < colorCount; ++c) {
           var color = vertex.GetColor(c);
-          var colorOffset = COLOR_SIZE_ * i;
-          this.colorData_[c][colorOffset + 0] = color?.Rf ?? 1;
-          this.colorData_[c][colorOffset + 1] = color?.Gf ?? 1;
-          this.colorData_[c][colorOffset + 2] = color?.Bf ?? 1;
-          this.colorData_[c][colorOffset + 3] = color?.Af ?? 1;
+          if (color != null) {
+            var colorOffset = COLOR_SIZE_ * i;
+            var colorData = this.colorData_[c];
+            colorData[colorOffset + 0] = color?.Rf ?? 1;
+            colorData[colorOffset + 1] = color?.Gf ?? 1;
+            colorData[colorOffset + 2] = color?.Bf ?? 1;
+            colorData[colorOffset + 3] = color?.Af ?? 1;
+          }
         }
       }
 
