@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using fin.data;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
@@ -56,21 +57,9 @@ namespace fin.model.impl {
                     optionalIncomingTangent,
                     optionalOutgoingTangent);
 
-      public Optional<Keyframe<float>>[] GetAxisListAtKeyframe(int keyframe)
+      public Optional<Keyframe<ValueAndTangents<float>>>[] GetAxisListAtKeyframe(int keyframe)
         => this.axisTracks_.Select(axis => axis.GetKeyframe(keyframe))
                .ToArray();
-
-      public IRotation GetAlmostKeyframe(float frame)
-        => new RotationImpl().SetRadians(
-            this.axisTracks_[0]
-                .GetInterpolatedFrame(frame, this.defaultRotation_)
-                .Assert(),
-            this.axisTracks_[1]
-                .GetInterpolatedFrame(frame, this.defaultRotation_)
-                .Assert(),
-            this.axisTracks_[2]
-                .GetInterpolatedFrame(frame, this.defaultRotation_)
-                .Assert());
 
       public Quaternion GetInterpolatedFrame(
           float frame,
@@ -80,7 +69,7 @@ namespace fin.model.impl {
         var yTrack = this.axisTracks_[1];
         var zTrack = this.axisTracks_[2];
 
-        var keyframe = (int) frame;
+        var keyframe = (int)frame;
 
         // TODO: Properly interpolate between first and final keyframe
         // TODO: Fix gimbal lock

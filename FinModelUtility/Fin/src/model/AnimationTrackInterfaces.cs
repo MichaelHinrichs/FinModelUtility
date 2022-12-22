@@ -1,12 +1,12 @@
-﻿using fin.math.interpolation;
+﻿using fin.data;
+using fin.math.interpolation;
 using fin.util.optional;
 using System.Collections.Generic;
 using System.Numerics;
 
 
 namespace fin.model {
-  public record Keyframe<T>(
-      int Frame,
+  public record ValueAndTangents<T>(
       T Value,
       Optional<float> IncomingTangent,
       Optional<float> OutgoingTangent);
@@ -24,7 +24,7 @@ namespace fin.model {
     IInterpolatorWithTangents<TValue, TInterpolated>
        InterpolatorWithTangents { get; }
 
-    IReadOnlyList<Keyframe<TValue>> Keyframes { get; }
+    IReadOnlyList<Keyframe<ValueAndTangents<TValue>>> Keyframes { get; }
 
     void Set(ITrack<TValue, TInterpolated> other);
 
@@ -53,7 +53,7 @@ namespace fin.model {
         Optional<float> optionalIncomingTangent,
         Optional<float> optionalOutgoingTangent);
 
-    Optional<Keyframe<TValue>> GetKeyframe(int frame);
+    Optional<Keyframe<ValueAndTangents<TValue>>> GetKeyframe(int frame);
 
     Optional<TInterpolated> GetInterpolatedFrame(
         float frame,
@@ -113,7 +113,7 @@ namespace fin.model {
 
 
     IReadOnlyList<ITrack<TAxis>> AxisTracks { get; }
-    Optional<Keyframe<TAxis>>[] GetAxisListAtKeyframe(int keyframe);
+    Optional<Keyframe<ValueAndTangents<TAxis>>>[] GetAxisListAtKeyframe(int keyframe);
 
     TInterpolated GetInterpolatedFrame(
         float frame,
@@ -125,8 +125,6 @@ namespace fin.model {
   public interface IPositionTrack : IAxesTrack<float, IPosition> { }
 
   public interface IRadiansRotationTrack : IAxesTrack<float, Quaternion> {
-    // TODO: Document this, better name
-    public IRotation GetAlmostKeyframe(float frame);
   }
 
   public interface IScaleTrack : IAxesTrack<float, IScale> { }

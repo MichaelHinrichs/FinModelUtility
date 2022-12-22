@@ -117,6 +117,67 @@ namespace fin.data {
       AssertKeyframe_(new Keyframe<string>(4, "third"), impl.GetKeyframeAtFrame(5));
     }
 
+    [Test]
+    public void TestFindIndexOfKeyframe() {
+      var impl = new Keyframes<string>();
+
+      impl.SetKeyframe(0, "0");
+      impl.SetKeyframe(1, "1");
+
+      impl.FindIndexOfKeyframe(-1,
+        out var keyframeIndexMinus1,
+        out _,
+        out var isLastKeyframeMinus1);
+      Assert.AreEqual(0, keyframeIndexMinus1);
+      Assert.AreEqual(false, isLastKeyframeMinus1);
+
+      impl.FindIndexOfKeyframe(0,
+        out var keyframeIndex0,
+        out _,
+        out var isLastKeyframe0);
+      Assert.AreEqual(0, keyframeIndex0);
+      Assert.AreEqual(false, isLastKeyframe0);
+
+      impl.FindIndexOfKeyframe(1,
+        out var keyframeIndex1,
+        out _,
+        out var isLastKeyframe1);
+      Assert.AreEqual(1, keyframeIndex1);
+      Assert.AreEqual(true, isLastKeyframe1);
+
+      impl.FindIndexOfKeyframe(2,
+        out var keyframeIndex2,
+        out _,
+        out var isLastKeyframe2);
+      Assert.AreEqual(1, keyframeIndex2);
+      Assert.AreEqual(true, isLastKeyframe2);
+    }
+
+    [Test]
+    public void TestFindManyIndices() {
+      var impl = new Keyframes<string>();
+
+      var s = 2;
+      var n = 25;
+      for (var sI = 0; sI < n; sI += s) {
+        impl.SetKeyframe(sI, $"{sI}");
+      }
+
+      for (var i = 0; i < n; ++i) {
+        var sI = i - (i % s);
+
+        var isKeyframeDefined = impl.FindIndexOfKeyframe(i,
+          out var keyframeIndex,
+          out var keyframe,
+          out var isLastKeyframe);
+
+        Assert.True(keyframe.HasValue);
+        Assert.True(isKeyframeDefined);
+        Assert.AreEqual(sI / s, keyframeIndex);
+        Assert.AreEqual(sI, keyframe.Assert().Frame);
+      }
+    }
+
     private void AssertKeyframe_(Keyframe<string>? expected,
       Optional<Keyframe<string>> maybeActual) {
       maybeActual.Try(out var actual);

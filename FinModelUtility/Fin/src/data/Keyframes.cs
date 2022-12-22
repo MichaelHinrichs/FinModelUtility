@@ -74,11 +74,11 @@ namespace fin.data {
       var keyframeCount = this.impl_.Count;
 
       var min = 0;
-      var max = keyframeCount;
+      var max = keyframeCount - 1;
 
       var i = (min + max) / 2;
 
-      while (min < max) {
+      while (min <= max) {
         var currentKeyframe = this.impl_[i];
 
         if (currentKeyframe.Frame == frame) {
@@ -98,11 +98,10 @@ namespace fin.data {
         if (kf.Frame <= frame) {
           keyframe = Optional.Of(kf);
           keyframeIndex = i;
-          isLastKeyframe = keyframeIndex == keyframeCount || keyframeIndex == keyframeCount - 1;
+          isLastKeyframe = keyframeIndex == keyframeCount - 1;
           return true;
         }
       }
-
       {
         keyframeIndex = Math.Max(min, max);
         var kf = i == this.impl_.Count ? this.impl_.LastOrDefault() : default;
