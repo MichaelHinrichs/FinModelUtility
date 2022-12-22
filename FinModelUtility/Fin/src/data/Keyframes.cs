@@ -1,5 +1,7 @@
-﻿using System;
+﻿using fin.util.optional;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace fin.data {
   public record Keyframe<T>(
@@ -7,26 +9,25 @@ namespace fin.data {
     T Value);
 
   public interface IKeyframes<T> {
-    int FrameCount { get; set; }
     IReadOnlyList<Keyframe<T>> Definitions { get; }
 
     bool IsDefined { get; }
 
     void SetKeyframe(int frame, T value);
 
-    Keyframe<T>? GetKeyframe(int frame);
+    Keyframe<T> GetKeyframeAtIndex(int index);
+    Optional<Keyframe<T>> GetKeyframeAtFrame(int frame);
 
     bool FindIndexOfKeyframe(
       int frame,
       out int keyframeIndex,
-      out Keyframe<T>? keyframe,
+      out Optional<Keyframe<T>> keyframe,
       out bool isLastKeyframe);
   }
 
   public class Keyframes<T> : IKeyframes<T> {
     private readonly List<Keyframe<T>> impl_ = new();
 
-    public int FrameCount { get; set; }
     public IReadOnlyList<Keyframe<T>> Definitions => this.impl_;
 
     public bool IsDefined { get; set; }
@@ -38,12 +39,12 @@ namespace fin.data {
 
       var keyframeExists = this.FindIndexOfKeyframe(frame,
         out var keyframeIndex,
-        out var existingKeyframe,
+        out var maybeExistingKeyframe,
         out var isLastKeyframe);
 
       var newKeyframe = new Keyframe<T>(frame, value);
 
-      if (keyframeExists && existingKeyframe.Frame == frame) {
+      if (maybeExistingKeyframe.Try(out var existingKeyframe) && existingKeyframe.Frame == frame) {
         this.impl_[frame] = newKeyframe;
       } else if (isLastKeyframe) {
         this.impl_.Add(newKeyframe);
@@ -54,7 +55,9 @@ namespace fin.data {
       }
     }
 
-    public Keyframe<T>? GetKeyframe(int frame) {
+    public Keyframe<T> GetKeyframeAtIndex(int index) => this.impl_[index];
+
+    public Optional<Keyframe<T>> GetKeyframeAtFrame(int frame) {
       this.FindIndexOfKeyframe(frame,
         out _,
         out var keyframe,
@@ -66,7 +69,7 @@ namespace fin.data {
     public bool FindIndexOfKeyframe(
       int frame,
       out int keyframeIndex,
-      out Keyframe<T>? keyframe,
+      out Optional<Keyframe<T>> keyframe,
       out bool isLastKeyframe) {
       var keyframeCount = this.impl_.Count;
 
@@ -91,17 +94,21 @@ namespace fin.data {
       }
 
       if (i < this.impl_.Count) {
-        keyframe = this.impl_[i];
-        if (keyframe.Frame <= frame) {
+        var kf = this.impl_[i];
+        if (kf.Frame <= frame) {
+          keyframe = Optional.Of(kf);
           keyframeIndex = i;
-          isLastKeyframe = keyframeIndex == keyframeCount;
+          isLastKeyframe = keyframeIndex == keyframeCount || keyframeIndex == keyframeCount - 1;
           return true;
         }
       }
 
-      keyframeIndex = Math.Max(min, max);
-      keyframe = default;
-      isLastKeyframe = keyframeIndex == keyframeCount;
+      {
+        keyframeIndex = Math.Max(min, max);
+        var kf = i == this.impl_.Count ? this.impl_.LastOrDefault() : default;
+        keyframe = kf == null ? Optional.None<Keyframe<T>>() : Optional.Of(kf);
+        isLastKeyframe = keyframeIndex == keyframeCount;
+      }
       return false;
     }
   }

@@ -63,6 +63,20 @@ namespace fin.data {
       );
     }
 
+    [Test]
+    public void TestGetKeyframes() {
+      var impl = new Keyframes<string>();
+
+      impl.SetKeyframe(0, "first");
+      impl.SetKeyframe(2, "second");
+      impl.SetKeyframe(4, "third");
+
+      Assert.AreEqual(null, impl.GetKeyframeAtFrame(-1));
+      Assert.AreEqual(new Keyframe<string>(0, "first"), impl.GetKeyframeAtFrame(0));
+      Assert.AreEqual(new Keyframe<string>(2, "second"), impl.GetKeyframeAtFrame(3));
+      Assert.AreEqual(new Keyframe<string>(4, "third"), impl.GetKeyframeAtFrame(5));
+    }
+
     private void AssertKeyframes_(Keyframes<string> actual,
       params Keyframe<string>[] expected) {
       Asserts.Equal(expected, actual.Definitions);
