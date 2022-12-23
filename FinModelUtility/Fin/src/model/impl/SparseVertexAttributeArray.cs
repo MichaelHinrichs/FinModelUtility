@@ -17,16 +17,24 @@ namespace fin.model.impl {
       where T : notnull {
     private IList<T?>? impl_;
 
-    public int Count => this.impl_?.Count(value => value != null) ?? 0;
+    public int Count { get; private set; }
 
     public T? this[int index] {
       get => index < (this.impl_?.Count ?? 0) ? this.impl_[index] : default;
       set {
         this.impl_ ??= new List<T?>();
+        if (this.impl_?.Count < index && this.impl_[index] != null) {
+          --this.Count;
+        }
+
         while (this.impl_?.Count <= index) {
           this.impl_.Add(default);
         }
         this.impl_![index] = value;
+
+        if (value != null) {
+          ++this.Count;
+        }
       }
     }
 

@@ -25,6 +25,9 @@ namespace fin.gl {
     private const int UV_SIZE_ = 2;
     private const int COLOR_SIZE_ = 4;
 
+    private bool uvStale_ = true;
+    private bool colorStale_ = true;
+
     public GlBufferManager(IModel model) {
       this.vertices_ = model.Skin.Vertices;
 
@@ -88,30 +91,38 @@ namespace fin.gl {
         this.normalData_[normalOffset + 1] = normal?.Y ?? 0;
         this.normalData_[normalOffset + 2] = normal?.Z ?? 0;
 
-        var uvCount = Math.Min(this.uvData_.Length, vertex.Uvs?.Count ?? 0);
-        for (var u = 0; u < uvCount; ++u) {
-          var uv = vertex.GetUv(u);
-          if (uv != null) {
-            var uvOffset = UV_SIZE_ * i;
-            var uvData = this.uvData_[u];
-            uvData[uvOffset + 0] = uv?.U ?? 0;
-            uvData[uvOffset + 1] = uv?.V ?? 0;
+        if (uvStale_) {
+          var uvCount = Math.Min(this.uvData_.Length, vertex.Uvs?.Count ?? 0);
+          for (var u = 0; u < uvCount; ++u) {
+            var uv = vertex.GetUv(u);
+            if (uv != null) {
+              var uvOffset = UV_SIZE_ * i;
+              var uvData = this.uvData_[u];
+              uvData[uvOffset + 0] = uv?.U ?? 0;
+              uvData[uvOffset + 1] = uv?.V ?? 0;
+            }
           }
         }
 
-        var colorCount = Math.Min(this.colorData_.Length, vertex.Colors?.Count ?? 0);
-        for (var c = 0; c < colorCount; ++c) {
-          var color = vertex.GetColor(c);
-          if (color != null) {
-            var colorOffset = COLOR_SIZE_ * i;
-            var colorData = this.colorData_[c];
-            colorData[colorOffset + 0] = color?.Rf ?? 1;
-            colorData[colorOffset + 1] = color?.Gf ?? 1;
-            colorData[colorOffset + 2] = color?.Bf ?? 1;
-            colorData[colorOffset + 3] = color?.Af ?? 1;
+        if (colorStale_) {
+          var colorCount = Math.Min(this.colorData_.Length,
+            vertex.Colors?.Count ?? 0);
+          for (var c = 0; c < colorCount; ++c) {
+            var color = vertex.GetColor(c);
+            if (color != null) {
+              var colorOffset = COLOR_SIZE_ * i;
+              var colorData = this.colorData_[c];
+              colorData[colorOffset + 0] = color?.Rf ?? 1;
+              colorData[colorOffset + 1] = color?.Gf ?? 1;
+              colorData[colorOffset + 2] = color?.Bf ?? 1;
+              colorData[colorOffset + 3] = color?.Af ?? 1;
+            }
           }
         }
       }
+
+      this.uvStale_ = false;
+      this.colorStale_ = false;
 
       GL.BindVertexArray(this.vaoId_);
 
