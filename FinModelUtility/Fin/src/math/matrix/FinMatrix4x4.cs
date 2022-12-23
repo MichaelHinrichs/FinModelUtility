@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using fin.math.matrix;
 using fin.model;
-using fin.model.impl;
 using fin.util.asserts;
-using MathNet.Numerics.LinearAlgebra.Complex;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
@@ -14,6 +12,9 @@ namespace fin.math {
 
   public class FinMatrix4x4 : IFinMatrix4x4 {
     internal SystemMatrix impl_;
+
+    public static IReadOnlyFinMatrix4x4 IDENTITY =
+      new FinMatrix4x4().SetIdentity();
 
     public FinMatrix4x4() {
       this.SetZero();

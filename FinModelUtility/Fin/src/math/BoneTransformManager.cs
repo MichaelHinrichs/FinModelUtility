@@ -48,10 +48,10 @@ namespace fin.math {
 
   public class BoneTransformManager : IBoneTransformManager {
     // TODO: This is going to be slow, can we put this somewhere else for O(1) access?
-    private readonly IndexableDictionary<IBone, IReadOnlyFinMatrix4x4>
+    private readonly IndexableDictionary<IBone, IFinMatrix4x4>
         bonesToLocalMatrices_ = new();
 
-    private readonly IndexableDictionary<IBone, IReadOnlyFinMatrix4x4>
+    private readonly IndexableDictionary<IBone, IFinMatrix4x4>
         bonesToWorldMatrices_ = new();
 
     private readonly IndexableDictionary<IBone, IReadOnlyFinMatrix4x4>
@@ -65,7 +65,7 @@ namespace fin.math {
     public BoneTransformManager((IBoneTransformManager, IBone)? parent = null) {
       this.Parent = parent;
     }
-    
+
     public void Clear() {
       this.bonesToLocalMatrices_.Clear();
       this.bonesToWorldMatrices_.Clear();
@@ -84,31 +84,35 @@ namespace fin.math {
       var animation = animationAndFrame?.Item1;
       var frame = animationAndFrame?.Item2;
 
-      var transformer = new SoftwareModelViewMatrixTransformer();
-
       var translationBuffer = new ModelImpl.PositionImpl();
       var scaleBuffer = new ModelImpl.ScaleImpl();
 
-      // TODO: Use a pool of matrices to prevent unneeded instantiations.
-      IFinMatrix4x4 rootMatrix;
+      IReadOnlyFinMatrix4x4 managerMatrix;
       if (this.Parent == null) {
-        rootMatrix = new FinMatrix4x4();
+        managerMatrix = FinMatrix4x4.IDENTITY;
       } else {
         var (parentManager, parentBone) = this.Parent.Value;
-        rootMatrix = new FinMatrix4x4(parentManager.GetWorldMatrix(parentBone));
+        managerMatrix = parentManager.GetWorldMatrix(parentBone);
       }
-      transformer.Get(rootMatrix);
 
       // TODO: Cache this directly on the bone itself instead.
       var bonesToIndex = new Dictionary<IBone, int>();
       var boneIndex = -1;
 
-      var boneQueue = new Queue<(IBone, IFinMatrix4x4)>();
-      boneQueue.Enqueue((rootBone, rootMatrix));
+      var boneQueue = new Queue<(IBone, IReadOnlyFinMatrix4x4)>();
+      boneQueue.Enqueue((rootBone, managerMatrix));
       while (boneQueue.Count > 0) {
-        var (bone, matrix) = boneQueue.Dequeue();
+        var (bone, parentMatrix) = boneQueue.Dequeue();
 
-        transformer.Set(matrix);
+        if (!this.bonesToLocalMatrices_.TryGetValue(bone, out var localMatrix)) {
+          this.bonesToLocalMatrices_[bone] = localMatrix = new FinMatrix4x4();
+        }
+        if (!this.bonesToWorldMatrices_.TryGetValue(bone, out var matrix)) {
+          this.bonesToWorldMatrices_[bone] = matrix = new FinMatrix4x4();
+        }
+
+        localMatrix.SetIdentity();
+        matrix.CopyFrom(parentMatrix);
 
         // The root pose of the bone.
         var boneLocalPosition = bone.LocalPosition;
@@ -162,11 +166,11 @@ namespace fin.math {
         var localRotation = animationLocalRotation ?? boneLocalRotation;
         var localScale = animationLocalScale ?? boneLocalScale;
 
-        IFinMatrix4x4 localMatrix;
         if (!bone.IgnoreParentScale && !bone.FaceTowardsCamera) {
-          localMatrix = MatrixTransformUtil.FromTrs(localPosition,
-                                                    localRotation,
-                                                    localScale);
+          MatrixTransformUtil.FromTrs(localPosition,
+                                      localRotation,
+                                      localScale, 
+                                      localMatrix);
           matrix.MultiplyInPlace(localMatrix);
         } else {
           // Applies translation first, so it's affected by parent rotation/scale.
@@ -194,22 +198,22 @@ namespace fin.math {
           }
 
           // Creates child matrix.
-          localMatrix = MatrixTransformUtil.FromTrs(localPosition,
-                                                    localRotation,
-                                                    localScale);
+          MatrixTransformUtil.FromTrs(localPosition,
+                                      localRotation,
+                                      localScale,
+                                      localMatrix);
 
           // Gets final matrix.
-          matrix = MatrixTransformUtil.FromTrs(
+          MatrixTransformUtil.FromTrs(
               translationBuffer,
               rotationBuffer,
-              scaleBuffer);
+              scaleBuffer,
+              matrix);
           matrix.MultiplyInPlace(MatrixTransformUtil.FromTrs(null,
                                    localRotation,
                                    localScale));
         }
 
-        this.bonesToLocalMatrices_[bone] = localMatrix;
-        this.bonesToWorldMatrices_[bone] = matrix;
         if (isFirstPass) {
           this.bonesToInverseBindMatrices_[bone] = matrix.CloneAndInvert();
         }
@@ -281,17 +285,17 @@ namespace fin.math {
       }
 
       var transformMatrix = boneWeights.PreprojectMode switch {
-          // If preproject mode is none, then the vertices are already in the same position as the bones.
-          // To calculate the animation, we have to first "undo" the root pose via an inverted matrix. 
-          PreprojectMode.NONE => this.boneWeightsToWorldMatrices_[
-              vertex.BoneWeights!],
-          // If preproject mode is bone, then we need to transform the vertex by one or more bones.
-          PreprojectMode.BONE => this.boneWeightsToWorldMatrices_[
-              vertex.BoneWeights!],
-          // If preproject mode is root, then the vertex needs to be transformed relative to
-          // some root bone.
-          PreprojectMode.ROOT => this.GetWorldMatrix(weights[0].Bone.Root),
-          _                   => throw new ArgumentOutOfRangeException()
+        // If preproject mode is none, then the vertices are already in the same position as the bones.
+        // To calculate the animation, we have to first "undo" the root pose via an inverted matrix. 
+        PreprojectMode.NONE => this.boneWeightsToWorldMatrices_[
+            vertex.BoneWeights!],
+        // If preproject mode is bone, then we need to transform the vertex by one or more bones.
+        PreprojectMode.BONE => this.boneWeightsToWorldMatrices_[
+            vertex.BoneWeights!],
+        // If preproject mode is root, then the vertex needs to be transformed relative to
+        // some root bone.
+        PreprojectMode.ROOT => this.GetWorldMatrix(weights[0].Bone.Root),
+        _ => throw new ArgumentOutOfRangeException()
       };
 
       return !transformMatrix.IsIdentity ? transformMatrix : null;

@@ -73,7 +73,7 @@ namespace fin.model.impl {
         if (!this.boneWeightsByBone_.TryGetValue(bone, out var boneWeights)) {
           boneWeights = this.CreateBoneWeights(
               preprojectMode,
-              new BoneWeight(bone, new FinMatrix4x4().SetIdentity(), 1));
+              new BoneWeight(bone, FinMatrix4x4.IDENTITY, 1));
           this.boneWeightsByBone_[bone] = boneWeights;
         }
         return boneWeights;

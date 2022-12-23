@@ -39,25 +39,32 @@ namespace fin.math.matrix {
           scale);
 
     public static IFinMatrix4x4 FromTrs(
-        IPosition? translation,
-        Quaternion? rotation,
-        IScale? scale) {
-      var matrix = MatrixTransformUtil.FromIdentity();
+      IPosition? translation,
+      Quaternion? rotation,
+      IScale? scale)
+      => FromTrs(translation, rotation, scale, new FinMatrix4x4());
+
+    public static IFinMatrix4x4 FromTrs(
+      IPosition? translation,
+      Quaternion? rotation,
+      IScale? scale,
+      IFinMatrix4x4 dst) {
+      dst.SetIdentity();
 
       if (translation != null) {
-        matrix.MultiplyInPlace(MatrixTransformUtil.FromTranslation(translation));
+        dst.MultiplyInPlace(MatrixTransformUtil.FromTranslation(translation));
       }
 
       if (rotation != null) {
-        matrix.MultiplyInPlace(
-            MatrixTransformUtil.FromRotation(rotation.Value));
+        dst.MultiplyInPlace(
+          MatrixTransformUtil.FromRotation(rotation.Value));
       }
 
       if (scale != null) {
-        matrix.MultiplyInPlace(MatrixTransformUtil.FromScale(scale));
+        dst.MultiplyInPlace(MatrixTransformUtil.FromScale(scale));
       }
 
-      return matrix;
+      return dst;
     }
 
     public static IFinMatrix4x4 FromTrs(

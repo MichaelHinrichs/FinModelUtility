@@ -229,7 +229,7 @@ namespace fin.math {
       var inverseMatrix = inputMatrix.CloneAndInvert();
 
       var actualMatrix = inputMatrix.CloneAndMultiply(inverseMatrix);
-      var expectedMatrix = new FinMatrix4x4().SetIdentity();
+      var expectedMatrix = FinMatrix4x4.IDENTITY;
 
       for (var r = 0; r < 4; r++) {
         for (var c = 0; c < 4; c++) {
@@ -240,14 +240,14 @@ namespace fin.math {
 
     [Test]
     public void TestCloseEquals() {
-      var identityMatrix = new FinMatrix4x4().SetIdentity();
+      var identityMatrix = FinMatrix4x4.IDENTITY;
       var closeToIdentityMatrix = this.GetCloseToIdentityMatrix_();
       Asserts.True(identityMatrix.Equals(closeToIdentityMatrix));
     }
 
     [Test]
     public void TestCloseHashCode() {
-      var identityMatrix = new FinMatrix4x4().SetIdentity();
+      var identityMatrix = FinMatrix4x4.IDENTITY;
       var closeToIdentityMatrix = this.GetCloseToIdentityMatrix_();
       Asserts.Equal(identityMatrix.GetHashCode(),
                     closeToIdentityMatrix.GetHashCode());
@@ -255,14 +255,14 @@ namespace fin.math {
 
     [Test]
     public void TestDifferentEquals() {
-      var identityMatrix = new FinMatrix4x4().SetIdentity();
+      var identityMatrix = FinMatrix4x4.IDENTITY;
       var differentFromIdentityMatrix = this.GetDifferentFromIdentityMatrix_();
       Asserts.False(identityMatrix.Equals(differentFromIdentityMatrix));
     }
 
     [Test]
     public void TestDifferentHashCode() {
-      var identityMatrix = new FinMatrix4x4().SetIdentity();
+      var identityMatrix = FinMatrix4x4.IDENTITY;
       var differentFromIdentityMatrix = this.GetDifferentFromIdentityMatrix_();
       Assert.AreNotEqual(identityMatrix.GetHashCode(),
                          differentFromIdentityMatrix.GetHashCode());

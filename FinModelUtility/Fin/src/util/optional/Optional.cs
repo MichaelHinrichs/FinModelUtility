@@ -21,7 +21,7 @@ namespace fin.util.optional {
     public static Optional<T> None<T>() => Optional<T>.None();
   }
 
-  public class Optional<T> : IOptional<T> {
+  public struct Optional<T> : IOptional<T> {
     private readonly T value_;
 
     public static Optional<T> Of(T value) => new(value);
@@ -32,8 +32,9 @@ namespace fin.util.optional {
       this.value_ = value;
     }
 
-    private Optional() {
+    public Optional() {
       this.HasValue = false;
+      this.value_ = default;
     }
 
     public bool HasValue { get; }
