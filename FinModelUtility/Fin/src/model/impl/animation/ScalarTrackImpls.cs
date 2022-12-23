@@ -39,8 +39,8 @@ namespace fin.model.impl {
           int frame,
           int axis,
           float value,
-          Optional<float> optionalIncomingTangent,
-          Optional<float> optionalOutgoingTangent)
+          float? optionalIncomingTangent,
+          float? optionalOutgoingTangent)
         => this.impl_.Set(frame,
                           axis,
                           value,
@@ -87,8 +87,8 @@ namespace fin.model.impl {
           int frame,
           int axis,
           float value,
-          Optional<float> optionalIncomingTangent,
-          Optional<float> optionalOutgoingTangent)
+          float? optionalIncomingTangent,
+          float? optionalOutgoingTangent)
         => this.impl_.Set(frame,
                           axis,
                           value,
@@ -157,8 +157,8 @@ namespace fin.model.impl {
       public void Set(
         int frame,
         TValue t,
-        Optional<float> optionalIncomingTangent,
-        Optional<float> optionalOutgoingTangent)
+        float? optionalIncomingTangent,
+        float? optionalOutgoingTangent)
         => this.impl_.SetKeyframe(frame,
           new ValueAndTangents<TValue>(t, optionalIncomingTangent,
             optionalOutgoingTangent));
@@ -192,7 +192,7 @@ namespace fin.model.impl {
 
         var fromKeyframe = optionalFromKeyframe.Assert();
         var fromTime = fromKeyframe.Frame;
-        var hasFromTangent = fromKeyframe.Value.OutgoingTangent.Try(out var fromTangent);
+        var fromTangent = fromKeyframe.Value.OutgoingTangent;
 
         var wrapsAround = isLastKeyframe && useLoopingInterpolation;
 
@@ -210,30 +210,30 @@ namespace fin.model.impl {
           }
         }
 
-        var hasToTangent = toKeyframe.Value.IncomingTangent.Try(out var toTangent);
+        var toTangent = toKeyframe.Value.IncomingTangent;
 
         var duration = toTime - fromTime;
         var progress = (frame - fromTime) / duration;
 
-        var useTangents = hasFromTangent && hasToTangent;
+        var useTangents = fromTangent != null && toTangent != null;
         return Optional.Of(
             !useTangents
                 ? this.Interpolator.Interpolate(fromValue, toValue, progress)
                 : this.InterpolatorWithTangents.Interpolate(
                     fromTime,
                     fromValue,
-                    fromTangent,
+                    fromTangent.Value,
                     toTime,
                     toValue,
-                    toTangent,
+                    toTangent.Value,
                     frame));
       }
 
       public bool GetInterpolationData(
           float frame,
           IOptional<TValue> defaultValue,
-          out (float frame, TValue value, IOptional<float> tangent)? fromData,
-          out (float frame, TValue value, IOptional<float> tangent)? toData,
+          out (float frame, TValue value, float? tangent)? fromData,
+          out (float frame, TValue value, float? tangent)? toData,
           bool useLoopingInterpolation = false
       ) {
         var keyframeDefined = this.impl_.FindIndexOfKeyframe((int)frame,
@@ -354,8 +354,8 @@ namespace fin.model.impl {
           int frame,
           int axis,
           TAxis value,
-          Optional<float> optionalIncomingTangent,
-          Optional<float> optionalOutgoingTangent)
+          float? optionalIncomingTangent,
+          float? optionalOutgoingTangent)
         => this.axisTracks_[axis]
                .Set(frame,
                     value,

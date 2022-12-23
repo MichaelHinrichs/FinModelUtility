@@ -8,8 +8,8 @@ using System.Numerics;
 namespace fin.model {
   public record ValueAndTangents<T>(
       T Value,
-      Optional<float> IncomingTangent,
-      Optional<float> OutgoingTangent);
+      float? IncomingTangent,
+      float? OutgoingTangent);
 
 
   public interface ITrack<T> : ITrack<T, T> { }
@@ -29,29 +29,16 @@ namespace fin.model {
     void Set(ITrack<TValue, TInterpolated> other);
 
     void Set(int frame, TValue value)
-      => this.Set(frame, value, Optional.None<float>());
+      => this.Set(frame, value, null);
 
-    void Set(int frame, TValue value, float tangent)
+    void Set(int frame, TValue value, float? tangent)
       => this.Set(frame, value, tangent, tangent);
 
-    void Set(int frame, TValue value, Optional<float> optionalTangent)
-      => this.Set(frame, value, optionalTangent, optionalTangent);
-
     void Set(
         int frame,
         TValue value,
-        float incomingTangent,
-        float outgoingTangent)
-      => this.Set(frame,
-                  value,
-                  Optional.Of(incomingTangent),
-                  Optional.Of(outgoingTangent));
-
-    void Set(
-        int frame,
-        TValue value,
-        Optional<float> optionalIncomingTangent,
-        Optional<float> optionalOutgoingTangent);
+        float? incomingTangent,
+        float? outgoingTangent);
 
     Optional<Keyframe<ValueAndTangents<TValue>>> GetKeyframe(int frame);
 
@@ -64,8 +51,8 @@ namespace fin.model {
     bool GetInterpolationData(
         float frame,
         IOptional<TValue> defaultValue,
-        out (float frame, TValue value, IOptional<float> tangent)? fromData,
-        out (float frame, TValue value, IOptional<float> tangent)? toData,
+        out (float frame, TValue value, float? tangent)? fromData,
+        out (float frame, TValue value, float? tangent)? toData,
         bool useLoopingInterpolation = false
     );
 
@@ -84,32 +71,17 @@ namespace fin.model {
     void Set(IAxesTrack<TAxis, TInterpolated> other);
 
     void Set(int frame, int axis, TAxis value)
-      => this.Set(frame, axis, value, Optional.None<float>());
+      => this.Set(frame, axis, value, null);
 
-    void Set(int frame, int axis, TAxis value, float tangent)
-      => this.Set(frame, axis, value, tangent, tangent);
-
-    void Set(int frame, int axis, TAxis value, Optional<float> optionalTangent)
+    void Set(int frame, int axis, TAxis value, float? optionalTangent)
       => this.Set(frame, axis, value, optionalTangent, optionalTangent);
 
     void Set(
         int frame,
         int axis,
         TAxis value,
-        float incomingTangent,
-        float outgoingTangent)
-      => this.Set(frame,
-                  axis,
-                  value,
-                  Optional.Of(incomingTangent),
-                  Optional.Of(outgoingTangent));
-
-    void Set(
-        int frame,
-        int axis,
-        TAxis value,
-        Optional<float> optionalIncomingTangent,
-        Optional<float> optionalOutgoingTangent);
+        float? optionalIncomingTangent,
+        float? optionalOutgoingTangent);
 
 
     IReadOnlyList<ITrack<TAxis>> AxisTracks { get; }

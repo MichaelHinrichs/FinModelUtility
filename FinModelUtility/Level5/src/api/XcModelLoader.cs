@@ -253,8 +253,8 @@ namespace level5.api {
                     var frame = (int)mtnKey.Frame;
                     var value = mtnKey.Value;
 
-                    var inTan = Optional<float>.Of(mtnKey.InTan);
-                    var outTan = Optional<float>.Of(mtnKey.OutTan);
+                    var inTan = mtnKey.InTan;
+                    var outTan = mtnKey.OutTan;
 
                     switch (mtnTrack.Type) {
                       case AnimationTrackFormat.RotateX: {

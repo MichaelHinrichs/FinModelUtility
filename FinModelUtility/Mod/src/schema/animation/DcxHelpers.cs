@@ -94,8 +94,7 @@ namespace mod.schema.animation {
             new Keyframe<ValueAndTangents<float>>(i,
               new ValueAndTangents<float>(
               values[offset + i],
-              Optional.None<float>(),
-              Optional.None<float>()));
+              null, null));
       }
       return keyframes;
     }
@@ -114,9 +113,8 @@ namespace mod.schema.animation {
         // The tangents are HUGE, have to be scaled down by the FPS.
         var tangent = values[offset + 3 * i + 2] / 30f;
 
-        var optionalTangent = Optional.Of(tangent);
         keyframes[i] =
-          new Keyframe<ValueAndTangents<float>>(index, new ValueAndTangents<float>(value, optionalTangent, optionalTangent));
+          new Keyframe<ValueAndTangents<float>>(index, new ValueAndTangents<float>(value, tangent, tangent));
       }
       return keyframes;
     }

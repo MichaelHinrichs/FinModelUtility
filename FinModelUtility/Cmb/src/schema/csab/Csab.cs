@@ -14,11 +14,8 @@ namespace cmb.schema.csab {
     public uint Time { get; set; }
     public float Value { get; set; }
 
-    public Optional<float> IncomingTangent { get; set; } =
-      Optional<float>.None();
-
-    public Optional<float> OutgoingTangent { get; set; } =
-      Optional<float>.None();
+    public float? IncomingTangent { get; set; }
+    public float? OutgoingTangent { get; set; }
   }
 
   public enum TrackType {
@@ -124,15 +121,15 @@ namespace cmb.schema.csab {
               this.Keyframes[i] = new CsabKeyframe {
                   Time = r.ReadUInt32(),
                   Value = r.ReadSingle(),
-                  IncomingTangent = Optional<float>.Of(r.ReadSingle()),
-                  OutgoingTangent = Optional<float>.Of(r.ReadSingle()),
+                  IncomingTangent = r.ReadSingle(),
+                  OutgoingTangent = r.ReadSingle(),
               };
             } else {
               this.Keyframes[i] = new CsabKeyframe {
                   Time = r.ReadUInt16(),
                   Value = r.ReadSn16(),
-                  IncomingTangent = Optional<float>.Of(r.ReadSn16()),
-                  OutgoingTangent = Optional<float>.Of(r.ReadSn16()),
+                  IncomingTangent = r.ReadSn16(),
+                  OutgoingTangent = r.ReadSn16(),
               };
             }
           }

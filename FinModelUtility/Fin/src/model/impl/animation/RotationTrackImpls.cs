@@ -49,8 +49,8 @@ namespace fin.model.impl {
           int frame,
           int axis,
           float radians,
-          Optional<float> optionalIncomingTangent,
-          Optional<float> optionalOutgoingTangent)
+          float? optionalIncomingTangent,
+          float? optionalOutgoingTangent)
         => this.axisTracks_[axis]
                .Set(frame,
                     radians,
@@ -178,7 +178,7 @@ namespace fin.model.impl {
 
       // TODO: Might be able to use this for euler-interpolated keyframe i and i+1
       private static bool CanInterpolateWithQuaternions_(
-          params (float frame, float value, IOptional<float> tangent)?[]
+          params (float frame, float value, float? tangent)?[]
               fromsAndTos) {
         if (fromsAndTos.Any(frameData => {
               if (frameData == null) {
@@ -187,7 +187,7 @@ namespace fin.model.impl {
 
               // TODO: Use tangents if all fromFrames have the same tangent and all
               // toFrames have the same tangent.
-              return frameData.Value.tangent.Or(0) != 0;
+              return (frameData.Value.tangent ?? 0) != 0;
             })) {
           return false;
         }
