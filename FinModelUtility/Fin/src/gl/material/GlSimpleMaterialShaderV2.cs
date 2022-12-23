@@ -21,33 +21,6 @@ namespace fin.gl.material {
       this.Material = material;
 
       if (impl_ == null) {
-        var vertexShaderSrc = @"
-# version 330
-
-uniform mat4 modelViewMatrix;
-uniform mat4 projectionMatrix;
-
-layout(location = 0) in vec3 in_Position;
-layout(location = 1) in vec3 in_Normal;
-layout(location = 2) in vec2 in_Uvs[4];
-layout(location = 6) in vec4 in_Colors[2];
-
-out vec4 vertexPosition;
-out vec4 vertexColor;
-out vec3 vertexNormal;
-out vec2 normalUv;
-out vec2 uv;
-
-void main() {
-    vertexPosition = modelViewMatrix * vec4(in_Position, 1);
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(in_Position, 1);
-
-    vertexNormal = normalize(modelViewMatrix * vec4(in_Normal, 0)).xyz;
-    normalUv = normalize(projectionMatrix * modelViewMatrix * vec4(in_Normal, 0)).xy;
-    vertexColor = in_Colors[0];
-    uv = in_Uvs[0];
-}";
-
         var fragmentShaderSrc = @$"
 # version 330
 
@@ -56,15 +29,14 @@ uniform float useLighting;
 
 out vec4 fragColor;
 
-in vec4 vertexPosition;
-in vec4 vertexColor;
+in vec4 vertexColor0;
 in vec3 vertexNormal;
 in vec2 uv;
 
 void main() {{
     vec4 diffuseColor = texture(diffuseTexture, uv);
 
-    fragColor = diffuseColor * vertexColor;
+    fragColor = diffuseColor * vertexColor0;
 
     vec3 diffuseLightNormal = normalize(vec3(.5, .5, -1));
     float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);
@@ -81,7 +53,7 @@ void main() {{
 }}";
 
         impl_ =
-          GlShaderProgram.FromShaders(vertexShaderSrc, fragmentShaderSrc);
+          GlShaderProgram.FromShaders(CommonShaderPrograms.VERTEX_SRC, fragmentShaderSrc);
 
         diffuseTextureLocation_ = impl_.GetUniformLocation("diffuseTexture");
         modelViewMatrixLocation_ = impl_.GetUniformLocation("modelViewMatrix");

@@ -7,38 +7,15 @@ using OpenTK.Graphics.OpenGL;
 namespace fin.gl.material {
   public class GlNullMaterialShaderV2 : IGlMaterialShader {
     private readonly GlShaderProgram impl_ =
-      GlShaderProgram.FromShaders(@"
-# version 330
-
-uniform mat4 modelViewMatrix;
-uniform mat4 projectionMatrix;
-
-layout(location = 0) in vec3 in_Position;
-layout(location = 1) in vec3 in_Normal;
-layout(location = 2) in vec2 in_Uvs[4];
-layout(location = 6) in vec4 in_Colors[2];
-
-out vec4 vertexPosition;
-out vec4 vertexColor;
-out vec3 vertexNormal;
-out vec2 normalUv;
-
-void main() {
-    vertexPosition = modelViewMatrix * vec4(in_Position, 1);
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(in_Position, 1);
-
-    vertexNormal = normalize(modelViewMatrix * vec4(in_Normal, 0)).xyz;
-    normalUv = normalize(projectionMatrix * modelViewMatrix * vec4(in_Normal, 0)).xy;
-    vertexColor = in_Colors[0];
-}", @"
+      GlShaderProgram.FromShaders(CommonShaderPrograms.VERTEX_SRC, @"
 # version 130 
 
 out vec4 fragColor;
 
-in vec4 vertexColor;
+in vec4 vertexColor0;
 
 void main() {
-    fragColor = vertexColor;
+    fragColor = vertexColor0;
 }");
 
     public void Dispose() {
