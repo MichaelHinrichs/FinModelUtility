@@ -43,7 +43,7 @@ namespace fin.gl.material {
                              : null;
 
         this.textures_.Add(finTexture != null
-                               ? new GlTexture(finTexture)
+                               ? GlTexture.FromTexture(finTexture)
                                : GlMaterialConstants.NULL_WHITE_TEXTURE);
       }
     }

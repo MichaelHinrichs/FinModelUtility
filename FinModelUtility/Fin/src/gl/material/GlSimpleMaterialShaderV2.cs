@@ -64,7 +64,7 @@ void main() {{
 
       var primaryFinTexture = PrimaryTextureFinder.GetFor(material);
       this.primaryGlTexture_ = primaryFinTexture != null
-                                   ? new GlTexture(primaryFinTexture)
+                                   ? GlTexture.FromTexture(primaryFinTexture)
                                    : GlMaterialConstants.NULL_WHITE_TEXTURE;
     }
 

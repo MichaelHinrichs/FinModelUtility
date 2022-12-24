@@ -92,6 +92,31 @@ namespace fin.model.impl {
       public WrapMode WrapModeV { get; set; }
 
       public IColor? BorderColor { get; set; }
+
+      public override int GetHashCode() {
+        int hash = 216613626;
+        var sub = 16780669;
+        hash = hash * sub ^ Image.GetHashCode();
+        hash = hash * sub ^ WrapModeU.GetHashCode();
+        hash = hash * sub ^ WrapModeU.GetHashCode();
+        return hash;
+      }
+
+      public override bool Equals(object? other) {
+        if (ReferenceEquals(null, other)) {
+          return false;
+        }
+
+        if (ReferenceEquals(this, other)) {
+          return true;
+        }
+
+        if (other is ITexture otherTexture) {
+          return this.Image == otherTexture.Image && this.WrapModeU == otherTexture.WrapModeU && this.WrapModeV == otherTexture.WrapModeV;
+        }
+
+        return false;
+      }
     }
 
     private class NullMaterialImpl : INullMaterial {
@@ -106,7 +131,7 @@ namespace fin.model.impl {
     private class TextureMaterialImpl : ITextureMaterial {
       public TextureMaterialImpl(ITexture texture) {
         this.Texture = texture;
-        this.Textures = new ReadOnlyCollection<ITexture>(new[] {texture});
+        this.Textures = new ReadOnlyCollection<ITexture>(new[] { texture });
       }
 
       public string? Name { get; set; }

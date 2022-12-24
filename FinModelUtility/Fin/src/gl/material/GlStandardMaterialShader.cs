@@ -107,12 +107,12 @@ void main() {{
 
       var diffuseTexture = standardMaterial.DiffuseTexture;
       this.diffuseTexture_ = diffuseTexture != null
-                                 ? new GlTexture(diffuseTexture)
+                                 ? GlTexture.FromTexture(diffuseTexture)
                                  : GlMaterialConstants.NULL_WHITE_TEXTURE;
 
       var normalTexture = standardMaterial.NormalTexture;
       this.normalTexture_ = normalTexture != null
-                                 ? new GlTexture(normalTexture)
+                                 ? GlTexture.FromTexture(normalTexture)
                                  : GlMaterialConstants.NULL_GRAY_TEXTURE;
     }
 

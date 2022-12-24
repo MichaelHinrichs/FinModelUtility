@@ -97,23 +97,23 @@ void main() {{
 
       var diffuseTexture = standardMaterial.DiffuseTexture;
       this.diffuseTexture_ = diffuseTexture != null
-                                 ? new GlTexture(diffuseTexture)
+                                 ? GlTexture.FromTexture(diffuseTexture)
                                  : GlMaterialConstants.NULL_WHITE_TEXTURE;
 
       var normalTexture = standardMaterial.NormalTexture;
       this.normalTexture_ = normalTexture != null
-                                ? new GlTexture(normalTexture)
+                                ? GlTexture.FromTexture(normalTexture)
                                 : GlMaterialConstants.NULL_GRAY_TEXTURE;
 
       var ambientOcclusionTexture = standardMaterial.AmbientOcclusionTexture;
       this.ambientOcclusionTexture_ =
           ambientOcclusionTexture != null
-              ? new GlTexture(ambientOcclusionTexture)
+              ? GlTexture.FromTexture(ambientOcclusionTexture)
               : GlMaterialConstants.NULL_WHITE_TEXTURE;
 
       var emissiveTexture = standardMaterial.EmissiveTexture;
       this.emissiveTexture_ = emissiveTexture != null
-                                  ? new GlTexture(emissiveTexture)
+                                  ? GlTexture.FromTexture(emissiveTexture)
                                   : GlMaterialConstants.NULL_BLACK_TEXTURE;
     }
 

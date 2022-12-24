@@ -5,13 +5,28 @@ using fin.model;
 
 using OpenTK.Graphics.OpenGL;
 using System.Buffers;
+using System.Collections.Generic;
 
 
 namespace fin.gl {
   public class GlTexture : IDisposable {
+    private static readonly Dictionary<ITexture, WeakReference<GlTexture>> cache_ = new();
+
+
     private const int UNDEFINED_ID = -1;
 
     private int id_ = UNDEFINED_ID;
+
+    public static GlTexture FromTexture(ITexture texture) {
+      if (!(cache_.TryGetValue(texture, out var glTextureReference) &&
+          glTextureReference.TryGetTarget(out var glTexture))) {
+        glTexture = new GlTexture(texture);
+        (glTextureReference ??= new WeakReference<GlTexture>(default)).SetTarget(glTexture);
+        cache_[texture] = glTextureReference;
+      }
+
+      return glTexture;
+    }
 
     public GlTexture(IImage image) {
       GL.GenTextures(1, out int id);
@@ -25,7 +40,7 @@ namespace fin.gl {
       GL.BindTexture(target, UNDEFINED_ID);
     }
 
-    public GlTexture(ITexture texture) {
+    private GlTexture(ITexture texture) {
       GL.GenTextures(1, out int id);
       this.id_ = id;
 
@@ -39,30 +54,30 @@ namespace fin.gl {
         var finBorderColor = texture.BorderColor;
         var hasBorderColor = finBorderColor != null;
         GL.TexParameter(target,
-                        TextureParameterName.TextureWrapS,
-                        (int)GlTexture.ConvertFinWrapToGlWrap_(
-                            texture.WrapModeU, hasBorderColor));
+          TextureParameterName.TextureWrapS,
+          (int)GlTexture.ConvertFinWrapToGlWrap_(
+            texture.WrapModeU, hasBorderColor));
         GL.TexParameter(target,
-                        TextureParameterName.TextureWrapT,
-                        (int)GlTexture.ConvertFinWrapToGlWrap_(
-                            texture.WrapModeV, hasBorderColor));
+          TextureParameterName.TextureWrapT,
+          (int)GlTexture.ConvertFinWrapToGlWrap_(
+            texture.WrapModeV, hasBorderColor));
 
         if (hasBorderColor) {
           var glBorderColor = new[] {
-              finBorderColor.Rf,
-              finBorderColor.Gf,
-              finBorderColor.Bf,
-              finBorderColor.Af
+            finBorderColor.Rf,
+            finBorderColor.Gf,
+            finBorderColor.Bf,
+            finBorderColor.Af
           };
 
           GL.TexParameter(target, TextureParameterName.TextureBorderColor,
-                          glBorderColor);
+            glBorderColor);
         }
 
         GL.TexParameter(target, TextureParameterName.TextureMinFilter,
-                        (int)TextureMinFilter.Nearest);
+          (int)TextureMinFilter.Nearest);
         GL.TexParameter(target, TextureParameterName.TextureMagFilter,
-                        (int)TextureMagFilter.Linear);
+          (int)TextureMagFilter.Linear);
       }
       GL.BindTexture(target, UNDEFINED_ID);
     }
