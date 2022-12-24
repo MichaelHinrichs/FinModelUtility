@@ -61,10 +61,11 @@ namespace fin.model.impl {
     }
 
     private class TextureImpl : ITexture {
+      private ImageTransparencyType? transparencyType_;
+      private Bitmap? imageData_;
+
       public TextureImpl(IImage image) {
         this.Image = image;
-        this.ImageData = image.AsBitmap();
-        this.TransparencyType = ImageUtil.GetTransparencyType(this.Image);
       }
 
       public string Name { get; set; }
@@ -74,7 +75,7 @@ namespace fin.model.impl {
       public ColorType ColorType { get; set; }
 
       public IImage Image { get; }
-      public Bitmap ImageData { get; }
+      public Bitmap ImageData => this.imageData_ ??= Image.AsBitmap();
 
       public IFile SaveInDirectory(IDirectory directory) {
         var outFile =
@@ -84,7 +85,8 @@ namespace fin.model.impl {
         return outFile;
       }
 
-      public ImageTransparencyType TransparencyType { get; }
+      public ImageTransparencyType TransparencyType
+        => this.transparencyType_ ??= ImageUtil.GetTransparencyType(this.Image);
 
       public WrapMode WrapModeU { get; set; }
       public WrapMode WrapModeV { get; set; }

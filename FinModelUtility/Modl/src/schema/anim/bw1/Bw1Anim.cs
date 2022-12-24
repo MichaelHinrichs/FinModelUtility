@@ -8,12 +8,13 @@ namespace modl.schema.anim.bw1 {
     public List<IBwAnimBone> AnimBones { get; } = new();
     public List<AnimBoneFrames> AnimBoneFrames { get; } = new();
 
+    private readonly double[] buffer_ = new double[4];
     public void Read(EndianBinaryReader er) {
       string name0;
       {
         er.PushMemberEndianness(Endianness.LittleEndian);
         var name0Length = er.ReadUInt32();
-        name0 = er.ReadString((int) name0Length);
+        name0 = er.ReadString((int)name0Length);
         er.PopEndianness();
       }
 
@@ -57,7 +58,7 @@ namespace modl.schema.anim.bw1 {
 
       var boneBytes = new List<byte[]>();
       for (var i = 0; i < this.AnimBones.Count; ++i) {
-        var currentBuffer = er.ReadBytes((int) estimatedLengths[i]);
+        var currentBuffer = er.ReadBytes((int)estimatedLengths[i]);
         boneBytes.Add(currentBuffer);
 
         if (er.ReadUInt16() != 0xcdcd) {
@@ -77,25 +78,25 @@ namespace modl.schema.anim.bw1 {
         this.AnimBoneFrames.Add(animBoneFrames);
 
         for (var p = 0; p < bone.PositionKeyframeCount; ++p) {
-          Parse3PositionValuesFrom2UShorts_(bone, ber, out var floats);
-          animBoneFrames.PositionFrames.Add(((float) floats[0],
-                                             (float) floats[1],
-                                             (float) floats[2]));
+          Parse3PositionValuesFrom2UShorts_(bone, ber, buffer_);
+          animBoneFrames.PositionFrames.Add(((float)buffer_[0],
+                                             (float)buffer_[1],
+                                             (float)buffer_[2]));
         }
 
         for (var p = 0; p < bone.RotationKeyframeCount; ++p) {
           var flipSigns =
-              Parse4RotationValuesFrom3UShorts_(ber, out var floats);
+              Parse4RotationValuesFrom3UShorts_(ber, buffer_);
           if (flipSigns) {
-            for (var f = 0; f < floats.Length; f++) {
-              floats[f] *= -1;
+            for (var f = 0; f < buffer_.Length; f++) {
+              buffer_[f] *= -1;
             }
           }
 
-          animBoneFrames.RotationFrames.Add(((float) -floats[0],
-                                             (float) -floats[1],
-                                             (float) -floats[2],
-                                             (float) floats[3]));
+          animBoneFrames.RotationFrames.Add(((float)-buffer_[0],
+                                             (float)-buffer_[1],
+                                             (float)-buffer_[2],
+                                             (float)buffer_[3]));
         }
       }
     }
@@ -103,31 +104,30 @@ namespace modl.schema.anim.bw1 {
     public void Parse3PositionValuesFrom2UShorts_(
         IBwAnimBone animBone,
         EndianBinaryReader er,
-        out double[] outValues) {
+        double[] outValues) {
       var first_uint = er.ReadUInt32();
       er.Position -= 2;
       var second_ushort = er.ReadUInt16();
 
-      outValues = new double[3];
       outValues[0] =
           (INTERPRET_AS_DOUBLE_(
-               CONCAT44_(0x43300000, (uint) (first_uint >> 0x15))) -
+               CONCAT44_(0x43300000, (uint)(first_uint >> 0x15))) -
            INTERPRET_AS_DOUBLE_(0x4330000000000000)) *
           animBone.XPosDelta + animBone.XPosMin;
       outValues[1] =
           (INTERPRET_AS_DOUBLE_(
-               CONCAT44_(0x43300000, (uint) ((first_uint >> 10) & 0x7ff))) -
+               CONCAT44_(0x43300000, (uint)((first_uint >> 10) & 0x7ff))) -
            INTERPRET_AS_DOUBLE_(0x4330000000000000)) *
           animBone.YPosDelta + animBone.YPosMin;
       outValues[2] =
           (INTERPRET_AS_DOUBLE_(
-               CONCAT44_(0x43300000, (uint) (second_ushort & 0x3ff))) -
+               CONCAT44_(0x43300000, (uint)(second_ushort & 0x3ff))) -
            INTERPRET_AS_DOUBLE_(0x4330000000000000)) *
           animBone.ZPosDelta + animBone.ZPosMin;
     }
 
-    public bool Parse4RotationValuesFrom3UShorts_(EndianBinaryReader er,
-                                                  out double[] outValues) {
+    public bool Parse4RotationValuesFrom3UShorts_(EndianBinaryReader er, 
+                                                  double[] outValues) {
       var first_ushort = er.ReadUInt16();
       var second_ushort = er.ReadUInt16();
       var third_ushort = er.ReadUInt16();
@@ -137,19 +137,18 @@ namespace modl.schema.anim.bw1 {
 
       var out_x =
           ((INTERPRET_AS_DOUBLE_(CONCAT44_(0x43300000,
-                                           (uint) (first_ushort & 0x7fff))) -
+                                           (uint)(first_ushort & 0x7fff))) -
             INTERPRET_AS_DOUBLE_(0x4330000000000000)) -
            INTERPRET_AS_SINGLE_(0x46800000)) * INTERPRET_AS_SINGLE_(0x38800000);
       var out_y =
           ((INTERPRET_AS_DOUBLE_(
-                CONCAT44_(0x43300000, (uint) (second_ushort & 0x7fff))) -
+                CONCAT44_(0x43300000, (uint)(second_ushort & 0x7fff))) -
             INTERPRET_AS_DOUBLE_(0x4330000000000000)) -
            INTERPRET_AS_SINGLE_(0x46800000)) * INTERPRET_AS_SINGLE_(0x38800000);
       var third_parsed_thing =
           INTERPRET_AS_DOUBLE_(CONCAT44_(0x43300000, third_ushort)) -
           INTERPRET_AS_DOUBLE_(0x4330000000000000);
 
-      outValues = new double[4];
       outValues[0] = out_x;
       outValues[1] = out_y;
 
@@ -165,7 +164,7 @@ namespace modl.schema.anim.bw1 {
           var inverse_sqrt_of_expected_normalized_w =
               1.0 / Math.Sqrt(expected_normalized_w);
           out_w =
-              (float) (-(inverse_sqrt_of_expected_normalized_w *
+              (float)(-(inverse_sqrt_of_expected_normalized_w *
                          inverse_sqrt_of_expected_normalized_w *
                          expected_normalized_w -
                          INTERPRET_AS_SINGLE_(0x40400000)) *
@@ -178,9 +177,9 @@ namespace modl.schema.anim.bw1 {
         }
 
         var sign = (first_ushort >> 0xf) switch {
-            0 => 1,
-            1 => -1,
-            _ => throw new InvalidDataException(),
+          0 => 1,
+          1 => -1,
+          _ => throw new InvalidDataException(),
         };
 
         outValues[3] = out_w * sign;
@@ -188,20 +187,16 @@ namespace modl.schema.anim.bw1 {
         outValues[3] = out_w;
       }
 
-      return (short) second_ushort < 0;
+      return (short)second_ushort < 0;
     }
 
     static ulong CONCAT44_(uint first, uint second) =>
-        ((ulong) first << 32) | second;
+        ((ulong)first << 32) | second;
 
-    static double INTERPRET_AS_DOUBLE_(ulong value) {
-      var bytes = BitConverter.GetBytes(value);
-      return BitConverter.ToDouble(bytes);
-    }
+    static unsafe double INTERPRET_AS_DOUBLE_(ulong ulongValue)
+      => *(double*)&ulongValue;
 
-    static float INTERPRET_AS_SINGLE_(uint value) {
-      var bytes = BitConverter.GetBytes(value);
-      return BitConverter.ToSingle(bytes);
-    }
+    static unsafe float INTERPRET_AS_SINGLE_(uint uintValue)
+      => *(float*)&uintValue;
   }
 }

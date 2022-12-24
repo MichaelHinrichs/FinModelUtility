@@ -31,12 +31,12 @@ out vec4 fragColor;
 
 in vec4 vertexColor0;
 in vec3 vertexNormal;
-in vec2 uv;
+in vec2 uv0;
 
 void main() {{
-    vec4 diffuseColor = texture(diffuseTexture, uv);
-    vec4 ambientOcclusionColor = texture(ambientOcclusionTexture, uv);
-    vec4 emissiveColor = texture(emissiveTexture, uv);
+    vec4 diffuseColor = texture(diffuseTexture, uv0);
+    vec4 ambientOcclusionColor = texture(ambientOcclusionTexture, uv0);
+    vec4 emissiveColor = texture(emissiveTexture, uv0);
 
     fragColor = diffuseColor * vertexColor0;
 
