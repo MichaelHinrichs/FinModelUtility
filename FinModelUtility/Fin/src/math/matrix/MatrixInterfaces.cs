@@ -13,7 +13,6 @@ namespace fin.math.matrix {
   public interface IFinMatrix4x4 : IReadOnlyFinMatrix4x4 {
     void CopyFrom(IReadOnlyFinMatrix4x4 other);
 
-    void UpdateState();
     IFinMatrix4x4 SetIdentity();
     IFinMatrix4x4 SetZero();
 
@@ -27,10 +26,6 @@ namespace fin.math.matrix {
   }
 
   public interface IReadOnlyFinMatrix4x4 : IEquatable<IReadOnlyFinMatrix4x4> {
-    MatrixState MatrixState { get; }
-    bool IsIdentity { get; }
-    bool IsZero { get; }
-
     IFinMatrix4x4 Clone();
 
     float this[int row, int column] { get; }

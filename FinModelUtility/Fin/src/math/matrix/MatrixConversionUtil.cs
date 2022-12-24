@@ -25,8 +25,6 @@
       finMatrix[3, 1] = other.M24;
       finMatrix[3, 2] = other.M34;
       finMatrix[3, 3] = other.M44;
-
-      finMatrix.UpdateState();
     }
 
     public static void CopyFinIntoSystem(

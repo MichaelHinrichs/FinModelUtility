@@ -298,7 +298,7 @@ namespace fin.math {
         _ => throw new ArgumentOutOfRangeException()
       };
 
-      return !transformMatrix.IsIdentity ? transformMatrix : null;
+      return transformMatrix;
     }
 
     public void ProjectVertex(

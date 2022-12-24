@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using fin.math.matrix;
 using fin.model;
 using fin.util.asserts;
+using MathNet.Numerics.LinearAlgebra.Complex;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
@@ -10,7 +11,7 @@ using System.Runtime.CompilerServices;
 namespace fin.math {
   using SystemMatrix = System.Numerics.Matrix4x4;
 
-  public class FinMatrix4x4 : IFinMatrix4x4 {
+  public sealed class FinMatrix4x4 : IFinMatrix4x4 {
     internal SystemMatrix impl_;
 
     public static IReadOnlyFinMatrix4x4 IDENTITY =
@@ -25,7 +26,6 @@ namespace fin.math {
       for (var i = 0; i < 4 * 4; ++i) {
         this[i] = data[i];
       }
-      this.UpdateState();
     }
 
     public FinMatrix4x4(IReadOnlyList<double> data) {
@@ -33,7 +33,6 @@ namespace fin.math {
       for (var i = 0; i < 4 * 4; ++i) {
         this[i] = (float)data[i];
       }
-      this.UpdateState();
     }
 
     public FinMatrix4x4(IReadOnlyFinMatrix4x4 other) => this.CopyFrom(other);
@@ -53,61 +52,37 @@ namespace fin.math {
           }
         }
       }
-
-      this.MatrixState = other.MatrixState;
     }
 
     public void CopyFrom(SystemMatrix other) {
       this.impl_ = other;
-      this.UpdateState();
-    }
-
-    public MatrixState MatrixState { get; private set; }
-    public bool IsIdentity => this.MatrixState == MatrixState.IDENTITY;
-    public bool IsZero => this.MatrixState == MatrixState.ZERO;
-
-
-    public void UpdateState() {
-      var isZero = true;
-      var isIdentity = true;
-      var error = .0001;
-
-      for (var r = 0; r < 4; ++r) {
-        for (var c = 0; c < 4; ++c) {
-          isZero = isZero && Math.Abs(this[r, c]) < error;
-          isIdentity = isIdentity && Math.Abs(this[r, c] - ((r == c) ? 1 : 0)) < error;
-        }
-      }
-      this.MatrixState = isZero ? MatrixState.ZERO :
-                         isIdentity ? MatrixState.IDENTITY :
-                         MatrixState.UNDEFINED;
     }
 
     public IFinMatrix4x4 SetIdentity() {
       this.impl_ = SystemMatrix.Identity;
-      this.MatrixState = MatrixState.IDENTITY;
       return this;
     }
 
     public IFinMatrix4x4 SetZero() {
       this.impl_ = new SystemMatrix();
-      this.MatrixState = MatrixState.ZERO;
       return this;
     }
 
     public float this[int index] {
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
       get => Unsafe.Add(ref this.impl_.M11, index);
-      set {
-        Unsafe.Add(ref this.impl_.M11, index) = value;
-        this.MatrixState = MatrixState.UNDEFINED;
-      }
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
+      set => Unsafe.Add(ref this.impl_.M11, index) = value;
     }
 
     public float this[int row, int column] {
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
       get => this[FinMatrix4x4.GetIndex_(row, column)];
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
       set => this[FinMatrix4x4.GetIndex_(row, column)] = value;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int GetIndex_(int row, int column) => 4 * row + column;
 
 
@@ -116,29 +91,16 @@ namespace fin.math {
       => this.Clone().AddInPlace(other);
 
     public IFinMatrix4x4 AddInPlace(IReadOnlyFinMatrix4x4 other) {
-      if (!other.IsZero) {
-        this.AddIntoBuffer(other, this);
-        this.MatrixState = MatrixState.UNDEFINED;
-      }
+      this.AddIntoBuffer(other, this);
       return this;
     }
 
     public void AddIntoBuffer(
         IReadOnlyFinMatrix4x4 other,
         IFinMatrix4x4 buffer) {
-      if (this.IsZero) {
-        buffer.CopyFrom(other);
-        return;
-      }
-      if (other.IsZero) {
-        buffer.CopyFrom(this);
-        return;
-      }
-
       if (other is FinMatrix4x4 otherImpl &&
           buffer is FinMatrix4x4 bufferImpl) {
         bufferImpl.impl_ = SystemMatrix.Add(this.impl_, otherImpl.impl_);
-        bufferImpl.MatrixState = MatrixState.UNDEFINED;
         return;
       }
 
@@ -155,32 +117,16 @@ namespace fin.math {
       => this.Clone().MultiplyInPlace(other);
 
     public IFinMatrix4x4 MultiplyInPlace(IReadOnlyFinMatrix4x4 other) {
-      if (!other.IsIdentity) {
-        this.MultiplyIntoBuffer(other, this);
-      }
+      this.MultiplyIntoBuffer(other, this);
       return this;
     }
 
     public void MultiplyIntoBuffer(
         IReadOnlyFinMatrix4x4 other,
         IFinMatrix4x4 buffer) {
-      if (this.IsIdentity) {
-        buffer.CopyFrom(other);
-        return;
-      }
-      if (other.IsIdentity) {
-        buffer.CopyFrom(this);
-        return;
-      }
-      if (this.IsZero || other.IsZero) {
-        buffer.SetZero();
-        return;
-      }
-
       if (other is FinMatrix4x4 otherImpl &&
           buffer is FinMatrix4x4 bufferImpl) {
         bufferImpl.impl_ = SystemMatrix.Multiply(otherImpl.impl_, this.impl_);
-        bufferImpl.MatrixState = MatrixState.UNDEFINED;
         return;
       }
 
@@ -201,29 +147,11 @@ namespace fin.math {
       => this.Clone().MultiplyInPlace(other);
 
     public IFinMatrix4x4 MultiplyInPlace(float other) {
-      if (Math.Abs(other) < .0001) {
-        this.SetZero();
-        return this;
-      }
-
-      if (!this.IsZero && Math.Abs(other - 1) > ERROR) {
-        this.MultiplyIntoBuffer(other, this);
-      }
-
+      this.MultiplyIntoBuffer(other, this);
       return this;
     }
 
     public void MultiplyIntoBuffer(float other, IFinMatrix4x4 buffer) {
-      if (this.IsZero || Math.Abs(other) < .0001f) {
-        buffer.SetZero();
-        return;
-      }
-
-      if (Math.Abs(other - 1) < ERROR) {
-        buffer.CopyFrom(this);
-        return;
-      }
-
       if (buffer is FinMatrix4x4 bufferImpl) {
         bufferImpl.impl_ = SystemMatrix.Multiply(this.impl_, other);
         return;
@@ -240,9 +168,7 @@ namespace fin.math {
       => this.Clone().InvertInPlace();
 
     public IFinMatrix4x4 InvertInPlace() {
-      if (!this.IsIdentity) {
-        this.InvertIntoBuffer(this);
-      }
+      this.InvertIntoBuffer(this);
       return this;
     }
 
@@ -261,9 +187,7 @@ namespace fin.math {
       => this.Clone().TransposeInPlace();
 
     public IFinMatrix4x4 TransposeInPlace() {
-      if (!this.IsIdentity) {
-        this.impl_ = Matrix4x4.Transpose(this.impl_);
-      }
+      this.impl_ = Matrix4x4.Transpose(this.impl_);
       return this;
     }
 
@@ -308,15 +232,12 @@ namespace fin.math {
       => ReferenceEquals(this, obj) || this.Equals(obj);
 
     public bool Equals(IReadOnlyFinMatrix4x4? other) {
-      if (other == null) {
-        return false;
+      if (other is FinMatrix4x4 otherImpl) {
+        return impl_ == otherImpl.impl_;
       }
 
-      if (this.IsIdentity && other.IsIdentity) {
-        return true;
-      }
-      if (this.IsZero && other.IsZero) {
-        return true;
+      if (other == null) {
+        return false;
       }
 
       for (var r = 0; r < 4; ++r) {
