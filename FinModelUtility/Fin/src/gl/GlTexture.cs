@@ -39,11 +39,11 @@ namespace fin.gl {
         var hasBorderColor = finBorderColor != null;
         GL.TexParameter(target,
                         TextureParameterName.TextureWrapS,
-                        (int) GlTexture.ConvertFinWrapToGlWrap_(
+                        (int)GlTexture.ConvertFinWrapToGlWrap_(
                             texture.WrapModeU, hasBorderColor));
         GL.TexParameter(target,
                         TextureParameterName.TextureWrapT,
-                        (int) GlTexture.ConvertFinWrapToGlWrap_(
+                        (int)GlTexture.ConvertFinWrapToGlWrap_(
                             texture.WrapModeV, hasBorderColor));
 
         if (hasBorderColor) {
@@ -59,9 +59,9 @@ namespace fin.gl {
         }
 
         GL.TexParameter(target, TextureParameterName.TextureMinFilter,
-                        (int) TextureMinFilter.Nearest);
+                        (int)TextureMinFilter.Nearest);
         GL.TexParameter(target, TextureParameterName.TextureMagFilter,
-                        (int) TextureMagFilter.Linear);
+                        (int)TextureMagFilter.Linear);
       }
       GL.BindTexture(target, UNDEFINED_ID);
     }
@@ -70,20 +70,24 @@ namespace fin.gl {
       var imageWidth = image.Width;
       var imageHeight = image.Height;
 
-      var rgba = new byte[4 * imageWidth * imageHeight];
-      image.Access(getHandler => {
-        for (var y = 0; y < imageHeight; y++) {
-          for (var x = 0; x < imageWidth; x++) {
-            getHandler(x, y, out var r, out var g, out var b, out var a);
+      byte[] rgba = new byte[4 * imageWidth * imageHeight];
+      if (image is Rgba32Image rgba32Image) {
+        rgba32Image.GetRgba32Bytes(rgba);
+      } else {
+        image.Access(getHandler => {
+          for (var y = 0; y < imageHeight; y++) {
+            for (var x = 0; x < imageWidth; x++) {
+              getHandler(x, y, out var r, out var g, out var b, out var a);
 
-            var outI = 4 * (y * imageWidth + x);
-            rgba[outI] = r;
-            rgba[outI + 1] = g;
-            rgba[outI + 2] = b;
-            rgba[outI + 3] = a;
+              var outI = 4 * (y * imageWidth + x);
+              rgba[outI] = r;
+              rgba[outI + 1] = g;
+              rgba[outI + 2] = b;
+              rgba[outI + 3] = a;
+            }
           }
-        }
-      });
+        });
+      }
 
       // TODO: Use different formats
       GL.TexImage2D(TextureTarget.Texture2D,
@@ -124,13 +128,13 @@ namespace fin.gl {
         WrapMode wrapMode,
         bool hasBorderColor) =>
         wrapMode switch {
-            WrapMode.CLAMP => hasBorderColor
-                                  ? TextureWrapMode.ClampToBorder
-                                  : TextureWrapMode.ClampToEdge,
-            WrapMode.REPEAT        => TextureWrapMode.Repeat,
-            WrapMode.MIRROR_REPEAT => TextureWrapMode.MirroredRepeat,
-            _ => throw new ArgumentOutOfRangeException(
-                     nameof(wrapMode), wrapMode, null)
+          WrapMode.CLAMP => hasBorderColor
+                                ? TextureWrapMode.ClampToBorder
+                                : TextureWrapMode.ClampToEdge,
+          WrapMode.REPEAT => TextureWrapMode.Repeat,
+          WrapMode.MIRROR_REPEAT => TextureWrapMode.MirroredRepeat,
+          _ => throw new ArgumentOutOfRangeException(
+                   nameof(wrapMode), wrapMode, null)
         };
   }
 }

@@ -259,6 +259,8 @@ namespace fin.image {
     public bool HasAlphaChannel => true;
     public Bitmap AsBitmap() => FinImage.ConvertToBitmap(this);
 
+    public void GetRgba32Bytes(Span<byte> bytes) => this.impl_.CopyPixelDataTo(bytes);
+
     public void ExportToStream(Stream stream, LocalImageFormat imageFormat)
       => this.impl_.Save(
           stream,
