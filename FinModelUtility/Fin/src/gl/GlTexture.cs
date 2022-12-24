@@ -4,6 +4,7 @@ using fin.image;
 using fin.model;
 
 using OpenTK.Graphics.OpenGL;
+using System.Buffers;
 
 
 namespace fin.gl {
@@ -66,11 +67,13 @@ namespace fin.gl {
       GL.BindTexture(target, UNDEFINED_ID);
     }
 
+    private static readonly ArrayPool<byte> pool_ = ArrayPool<byte>.Shared;
+
     private void LoadImageIntoTexture_(IImage image) {
       var imageWidth = image.Width;
       var imageHeight = image.Height;
 
-      byte[] rgba = new byte[4 * imageWidth * imageHeight];
+      byte[] rgba = pool_.Rent(4 * imageWidth * imageHeight);
       if (image is Rgba32Image rgba32Image) {
         rgba32Image.GetRgba32Bytes(rgba);
       } else {
@@ -98,6 +101,8 @@ namespace fin.gl {
                     PixelFormat.Rgba,
                     PixelType.UnsignedByte,
                     rgba);
+
+      pool_.Return(rgba);
     }
 
     ~GlTexture() => this.ReleaseUnmanagedResources_();
