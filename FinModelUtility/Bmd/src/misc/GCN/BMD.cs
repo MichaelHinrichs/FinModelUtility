@@ -928,7 +928,7 @@ label_7:
       public ushort NrMaterials;
       public uint[] Offsets;
       public MaterialEntry[] MaterialEntries;
-      public PopulatedMaterial[] PopulatedMaterials;
+      public BmdPopulatedMaterial[] PopulatedMaterials;
       public ushort[] MaterialEntryIndieces;
       public short[] TextureIndices;
       public GxCullMode[] CullModes;
@@ -1070,7 +1070,7 @@ label_7:
 
           // TODO: Add support for nbt scale (29)
 
-          this.PopulatedMaterials = this.MaterialEntries.Select((entry, index) => new PopulatedMaterial(this, index, entry)).ToArray();
+          this.PopulatedMaterials = this.MaterialEntries.Select((entry, index) => new BmdPopulatedMaterial(this, index, entry)).ToArray();
         }
       }
 

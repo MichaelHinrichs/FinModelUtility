@@ -7,7 +7,7 @@ using static bmd.GCN.BMD;
 
 namespace bmd.misc.GCN {
 
-  public class PopulatedMaterial : IPopulatedMaterial {
+  public class BmdPopulatedMaterial : IPopulatedMaterial {
     public string Name { get; set; }
     public GxCullMode CullMode { get; set; }
     public byte ColorChannelControlsCountIndex;
@@ -53,7 +53,7 @@ namespace bmd.misc.GCN {
 
     public ITexCoordGen?[] TexCoordGens { get; set; }
 
-    public PopulatedMaterial(MAT3Section mat3, int index, MaterialEntry entry) {
+    public BmdPopulatedMaterial(MAT3Section mat3, int index, MaterialEntry entry) {
       this.Name = mat3.MaterialNameTable[index];
 
       this.CullMode = mat3.CullModes[entry.CullModeIndex];
