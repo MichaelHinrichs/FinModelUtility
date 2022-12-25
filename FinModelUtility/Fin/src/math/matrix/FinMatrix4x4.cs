@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using fin.math.matrix;
 using fin.model;
 using fin.util.asserts;
-using MathNet.Numerics.LinearAlgebra.Complex;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
@@ -13,6 +12,7 @@ namespace fin.math {
 
   public sealed class FinMatrix4x4 : IFinMatrix4x4 {
     internal SystemMatrix impl_;
+    public SystemMatrix Impl => this.impl_;
 
     public static IReadOnlyFinMatrix4x4 IDENTITY =
       new FinMatrix4x4().SetIdentity();
@@ -44,7 +44,7 @@ namespace fin.math {
       Asserts.Different(this, other, "Copying into same matrix!");
 
       if (other is FinMatrix4x4 otherImpl) {
-        this.impl_ = otherImpl.impl_;
+        impl_ = otherImpl.Impl;
       } else {
         for (var r = 0; r < 4; ++r) {
           for (var c = 0; c < 4; ++c) {
@@ -55,24 +55,24 @@ namespace fin.math {
     }
 
     public void CopyFrom(SystemMatrix other) {
-      this.impl_ = other;
+      impl_ = other;
     }
 
     public IFinMatrix4x4 SetIdentity() {
-      this.impl_ = SystemMatrix.Identity;
+      impl_ = SystemMatrix.Identity;
       return this;
     }
 
     public IFinMatrix4x4 SetZero() {
-      this.impl_ = new SystemMatrix();
+      impl_ = new SystemMatrix();
       return this;
     }
 
     public float this[int index] {
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      get => Unsafe.Add(ref this.impl_.M11, index);
+      get => Unsafe.Add(ref impl_.M11, index);
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      set => Unsafe.Add(ref this.impl_.M11, index) = value;
+      set => Unsafe.Add(ref impl_.M11, index) = value;
     }
 
     public float this[int row, int column] {
@@ -100,7 +100,7 @@ namespace fin.math {
         IFinMatrix4x4 buffer) {
       if (other is FinMatrix4x4 otherImpl &&
           buffer is FinMatrix4x4 bufferImpl) {
-        bufferImpl.impl_ = SystemMatrix.Add(this.impl_, otherImpl.impl_);
+        bufferImpl.impl_ = SystemMatrix.Add(impl_, otherImpl.impl_);
         return;
       }
 
@@ -126,7 +126,7 @@ namespace fin.math {
         IFinMatrix4x4 buffer) {
       if (other is FinMatrix4x4 otherImpl &&
           buffer is FinMatrix4x4 bufferImpl) {
-        bufferImpl.impl_ = SystemMatrix.Multiply(otherImpl.impl_, this.impl_);
+        bufferImpl.impl_ = SystemMatrix.Multiply(otherImpl.impl_, impl_);
         return;
       }
 
@@ -153,7 +153,7 @@ namespace fin.math {
 
     public void MultiplyIntoBuffer(float other, IFinMatrix4x4 buffer) {
       if (buffer is FinMatrix4x4 bufferImpl) {
-        bufferImpl.impl_ = SystemMatrix.Multiply(this.impl_, other);
+        bufferImpl.impl_ = SystemMatrix.Multiply(impl_, other);
         return;
       }
 
@@ -174,11 +174,11 @@ namespace fin.math {
 
     public void InvertIntoBuffer(IFinMatrix4x4 buffer) {
       if (buffer is FinMatrix4x4 bufferImpl) {
-        SystemMatrix.Invert(this.impl_, out bufferImpl.impl_);
+        SystemMatrix.Invert(impl_, out bufferImpl.impl_);
         return;
       }
 
-      SystemMatrix.Invert(this.impl_, out var invertedSystemMatrix);
+      SystemMatrix.Invert(impl_, out var invertedSystemMatrix);
       MatrixConversionUtil.CopySystemIntoFin(invertedSystemMatrix, buffer);
     }
 
@@ -187,7 +187,7 @@ namespace fin.math {
       => this.Clone().TransposeInPlace();
 
     public IFinMatrix4x4 TransposeInPlace() {
-      this.impl_ = Matrix4x4.Transpose(this.impl_);
+      impl_ = Matrix4x4.Transpose(impl_);
       return this;
     }
 
@@ -202,7 +202,7 @@ namespace fin.math {
 
     // Shamelessly copied from https://math.stackexchange.com/a/1463487
     public void CopyTranslationInto(IPosition dst) {
-      var translation = this.impl_.Translation;
+      var translation = impl_.Translation;
       dst.X = translation.X;
       dst.Y = translation.Y;
       dst.Z = translation.Z;
@@ -222,7 +222,7 @@ namespace fin.math {
 
     public void Decompose(out Vector3 translation, out Quaternion rotation,
       out Vector3 scale) {
-      Asserts.True(Matrix4x4.Decompose(this.impl_, out scale, out rotation, out translation), "Failed to decompose matrix!");
+      Asserts.True(Matrix4x4.Decompose(impl_, out scale, out rotation, out translation), "Failed to decompose matrix!");
     }
 
 
@@ -233,7 +233,7 @@ namespace fin.math {
 
     public bool Equals(IReadOnlyFinMatrix4x4? other) {
       if (other is FinMatrix4x4 otherImpl) {
-        return impl_ == otherImpl.impl_;
+        return impl_ == otherImpl.Impl;
       }
 
       if (other == null) {

@@ -1,9 +1,8 @@
-﻿using System;
+﻿using fin.math.matrix;
+using fin.model;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
-
-using fin.math.matrix;
-using fin.model;
 
 
 namespace fin.math {
@@ -54,7 +53,7 @@ namespace fin.math {
       }
 
       this.stack_.AddLast(new MatrixNode {
-          Matrix = newMatrix
+        Matrix = newMatrix
       });
       this.UpdateCurrent_();
 

@@ -26,6 +26,8 @@ namespace fin.math.matrix {
   }
 
   public interface IReadOnlyFinMatrix4x4 : IEquatable<IReadOnlyFinMatrix4x4> {
+    Matrix4x4 Impl { get; }
+
     IFinMatrix4x4 Clone();
 
     float this[int row, int column] { get; }

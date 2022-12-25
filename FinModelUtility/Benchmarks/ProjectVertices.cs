@@ -1,18 +1,20 @@
 ﻿using BenchmarkDotNet.Attributes;
 using fin.math;
+using fin.math.matrix;
 using System.Numerics;
 
 using SystemMatrix = System.Numerics.Matrix4x4;
+using SystemVector4 = System.Numerics.Vector4;
 
 namespace benchmarks {
-  public class MultMatrices {
+  public class ProjectVertices {
     public const int n = 100000;
 
 
     [Benchmark]
     public void MultiplyWithSystem() {
       var lhs = new SystemMatrix();
-      var rhs = new SystemMatrix();
+      var rhs = new SystemVector4();
 
       for (var i = 0; i < n; i++) {
         lhs.M11 = 1;
@@ -32,32 +34,20 @@ namespace benchmarks {
         lhs.M43 = 15;
         lhs.M44 = 16;
 
-        rhs.M11 = 4;
-        rhs.M12 = 5;
-        rhs.M13 = 6;
-        rhs.M14 = 2;
-        rhs.M21 = 5;
-        rhs.M22 = 8;
-        rhs.M23 = 9;
-        rhs.M24 = 3;
-        rhs.M31 = 1;
-        rhs.M32 = 3;
-        rhs.M33 = 4;
-        rhs.M34 = 6;
-        rhs.M41 = 7;
-        rhs.M42 = 8;
-        rhs.M43 = 9;
-        rhs.M44 = 5;
+        rhs.X = 2;
+        rhs.Y = 3;
+        rhs.Z = 4;
+        rhs.W = 1;
 
-        var product = Matrix4x4.Multiply(rhs, lhs);
+        var product = SystemVector4.Transform(rhs, lhs);
       }
     }
 
     [Benchmark]
     public void MultiplyWithFin() {
       var lhs = new FinMatrix4x4();
-      var rhs = new FinMatrix4x4();
-      var result = new FinMatrix4x4();
+      var rhs = new FinVector4();
+      var result = new FinVector4();
 
       for (var i = 0; i < n; i++) {
         lhs[0, 0] = 1;
@@ -77,22 +67,7 @@ namespace benchmarks {
         lhs[3, 2] = 15;
         lhs[3, 3] = 16;
 
-        rhs[0, 0] = 4;
-        rhs[0, 1] = 5;
-        rhs[0, 2] = 6;
-        rhs[0, 3] = 2;
-        rhs[1, 0] = 5;
-        rhs[1, 1] = 8;
-        rhs[1, 2] = 9;
-        rhs[1, 3] = 3;
-        rhs[2, 0] = 1;
-        rhs[2, 1] = 3;
-        rhs[2, 2] = 4;
-        rhs[2, 3] = 6;
-        rhs[3, 0] = 7;
-        rhs[3, 1] = 8;
-        rhs[3, 2] = 9;
-        rhs[3, 3] = 5;
+        rhs.Set(2, 3, 4, 1);
 
         rhs.MultiplyIntoBuffer(lhs, result);
       }
