@@ -3,6 +3,7 @@ using fin.model;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 
 namespace fin.math {
@@ -132,6 +133,7 @@ namespace fin.math {
     private static readonly FinVector4 SHARED_VECTOR = new();
 
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ProjectVertex(
         IReadOnlyFinMatrix4x4 matrix,
         ref float x,
@@ -145,6 +147,7 @@ namespace fin.math {
                               true,
                               false);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ProjectNormal(
         IReadOnlyFinMatrix4x4 matrix,
         ref float x,
@@ -167,10 +170,7 @@ namespace fin.math {
         int inW,
         bool correctPerspective = true,
         bool normalize = true) {
-      SHARED_VECTOR.X = x;
-      SHARED_VECTOR.Y = y;
-      SHARED_VECTOR.Z = z;
-      SHARED_VECTOR.W = inW;
+      SHARED_VECTOR.Set(x, y, z, inW);
 
       SHARED_VECTOR.MultiplyInPlace(matrix);
 

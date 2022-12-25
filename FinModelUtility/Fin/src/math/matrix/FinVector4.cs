@@ -1,6 +1,4 @@
-﻿using fin.schema.data;
-using System.Numerics;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using Vector4 = System.Numerics.Vector4;
 
 
@@ -67,6 +65,7 @@ namespace fin.math.matrix {
 
     public FinVector4 CloneAndNormalize() => this.Clone().NormalizeInPlace();
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public FinVector4 NormalizeInPlace() {
       this.impl_ = Vector4.Normalize(this.impl_);
       return this;
@@ -90,11 +89,13 @@ namespace fin.math.matrix {
     public FinVector4 CloneAndMultiply(float other)
       => this.Clone().MultiplyInPlace(other);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public FinVector4 MultiplyInPlace(float other) {
       this.MultiplyIntoBuffer(other, this);
       return this;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void MultiplyIntoBuffer(float other, FinVector4 buffer)
       => buffer.impl_ = Vector4.Multiply(other, this.impl_);
 
@@ -104,17 +105,16 @@ namespace fin.math.matrix {
 
 
     // Matrix Multiplication
-    private static readonly FinVector4 SHARED_BUFFER = new();
-
     public FinVector4 CloneAndMultiply(IReadOnlyFinMatrix4x4 other)
       => this.Clone().MultiplyInPlace(other);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public FinVector4 MultiplyInPlace(IReadOnlyFinMatrix4x4 other) {
-      this.MultiplyIntoBuffer(other, FinVector4.SHARED_BUFFER);
-      FinVector4.SHARED_BUFFER.CopyInto(this);
+      this.MultiplyIntoBuffer(other, this);
       return this;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void MultiplyIntoBuffer(
         IReadOnlyFinMatrix4x4 other,
         FinVector4 buffer)
