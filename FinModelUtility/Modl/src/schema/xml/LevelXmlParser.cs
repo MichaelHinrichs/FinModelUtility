@@ -78,6 +78,22 @@ namespace modl.schema.xml {
                        .GetExistingFiles()
                        .Where(file => file.Name.EndsWith(".modl"))
                        .ToArray();
+      var animationFiles = levelDirectory
+        .GetExistingFiles()
+        .Where(file => file.Name.EndsWith(".anim"))
+        .ToArray();
+
+      var fvAnimFiles =
+        animationFiles.Where(
+            animFile =>
+              animFile.NameWithoutExtension.StartsWith("FV"))
+          .ToArray();
+      var fgAnimFiles =
+        animationFiles.Where(
+            animFile =>
+              animFile.NameWithoutExtension.StartsWith("FG"))
+          .ToArray();
+
 
       var modlLoader = new ModlModelLoader();
 
@@ -85,7 +101,19 @@ namespace modl.schema.xml {
       var lazyModelMap = new LazyDictionary<string, IModel>(modelId => {
         var modelFile =
             modelFiles.Single(file => file.NameWithoutExtension == modelId);
-        var model = modlLoader.LoadModel(modelFile, null, gameVersion);
+
+        IList<IFile>? animFiles = null;
+        if (gameVersion == GameVersion.BW1) {
+          if (modelId.Length == 4 && modelId.EndsWith("VET")) {
+            var firstTwoCharactersInModelId = modelId.Substring(0, 2);
+            animFiles = fvAnimFiles.Concat(animationFiles.Where(file => file.Name.StartsWith(firstTwoCharactersInModelId))).ToArray();
+          } else if (modelId.Length == 6 && modelId.EndsWith("GRUNT")) {
+            var firstTwoCharactersInModelId = modelId.Substring(0, 2);
+            animFiles = fgAnimFiles.Concat(animationFiles.Where(file => file.Name.StartsWith(firstTwoCharactersInModelId))).ToArray();
+          }
+        }
+
+        var model = modlLoader.LoadModel(modelFile, animFiles, gameVersion);
         return model;
       });
 
@@ -114,7 +142,7 @@ namespace modl.schema.xml {
 
             childMatrix.Decompose(out var translation, out var rotation, out var scale);
             sceneObject.SetPosition(
-              translation.X, 
+              translation.X,
               translation.Y,
               translation.Z);
             if (sceneObject.Position.Y == 0) {
