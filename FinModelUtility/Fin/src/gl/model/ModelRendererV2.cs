@@ -58,7 +58,9 @@ namespace fin.gl.model {
                   this.bufferManager_,
                   material,
                   primitives.OrderBy(primitive => primitive.InversePriority)
-                            .ToArray()));
+                            .ToArray()) {
+                UseLighting = UseLighting
+              });
         }
       }
     }
