@@ -7,6 +7,7 @@ using fin.data;
 using fin.math;
 using fin.util.asserts;
 using System.Linq;
+using fin.io;
 
 
 namespace fin.model.impl {
@@ -120,7 +121,7 @@ namespace fin.model.impl {
 
             return boneWeights;
 
-            Skip: ;
+            Skip:;
           }
         }
 
@@ -139,9 +140,9 @@ namespace fin.model.impl {
         Asserts.True(Math.Abs(totalWeight - 1) < error);
 
         var boneWeights = new BoneWeightsImpl {
-            Index = boneWeights_.Count,
-            PreprojectMode = preprojectMode,
-            Weights = weights,
+          Index = boneWeights_.Count,
+          PreprojectMode = preprojectMode,
+          Weights = weights,
         };
         this.boneWeights_.Add(boneWeights);
         this.boneWeightsByCount_.Add(weights.Length, boneWeights);
@@ -213,6 +214,29 @@ namespace fin.model.impl {
           this.primitives_.Add(primitive);
           return primitive;
         }
+
+        public ILinesPrimitive AddLines(params (IVertex, IVertex)[] lines) {
+          var vertices = new IVertex[2 * lines.Length];
+          for (var i = 0; i < lines.Length; ++i) {
+            var line = lines[i];
+            vertices[2 * i] = line.Item1;
+            vertices[2 * i + 1] = line.Item2;
+          }
+          return this.AddLines(vertices);
+        }
+
+        public ILinesPrimitive AddLines(params IVertex[] lines) {
+          Debug.Assert(lines.Length % 2 == 0);
+          var primitive = new LinesPrimitiveImpl(lines);
+          this.primitives_.Add(primitive);
+          return primitive;
+        }
+
+        public IPointsPrimitive AddPoints(params IVertex[] points) {
+          var primitive = new PointsPrimitiveImpl(points);
+          this.primitives_.Add(primitive);
+          return primitive;
+        }
       }
 
       private class VertexImpl : IVertex {
@@ -244,7 +268,7 @@ namespace fin.model.impl {
         }
 
         public IVertex SetLocalPosition(float x, float y, float z)
-          => this.SetLocalPosition(new PositionImpl {X = x, Y = y, Z = z});
+          => this.SetLocalPosition(new PositionImpl { X = x, Y = y, Z = z });
 
 
         public INormal? LocalNormal { get; private set; }
@@ -255,7 +279,7 @@ namespace fin.model.impl {
         }
 
         public IVertex SetLocalNormal(float x, float y, float z)
-          => this.SetLocalNormal(new NormalImpl {X = x, Y = y, Z = z});
+          => this.SetLocalNormal(new NormalImpl { X = x, Y = y, Z = z });
 
 
         public ITangent? LocalTangent { get; private set; }
@@ -266,7 +290,7 @@ namespace fin.model.impl {
         }
 
         public IVertex SetLocalTangent(float x, float y, float z, float w)
-          => this.SetLocalTangent(new TangentImpl {X = x, Y = y, Z = z, W = w});
+          => this.SetLocalTangent(new TangentImpl { X = x, Y = y, Z = z, W = w });
 
 
         public IVertexAttributeArray<IColor>? Colors { get; private set; }
@@ -323,16 +347,39 @@ namespace fin.model.impl {
         }
 
         public IVertex SetUv(int uvIndex, float u, float v)
-          => this.SetUv(uvIndex, new TexCoordImpl {U = u, V = v});
+          => this.SetUv(uvIndex, new TexCoordImpl { U = u, V = v });
 
         public ITexCoord? GetUv() => this.GetUv(0);
 
         public ITexCoord? GetUv(int uvIndex) => this.Uvs?.Get(uvIndex);
       }
 
+      private class PrimitiveImpl : BPrimitiveImpl {
+        public PrimitiveImpl(PrimitiveType type, params IVertex[] vertices) : base(type, vertices) { }
+      }
 
-      private class PrimitiveImpl : IPrimitive {
-        public PrimitiveImpl(PrimitiveType type, params IVertex[] vertices) {
+      private class LinesPrimitiveImpl : BPrimitiveImpl, ILinesPrimitive {
+        public LinesPrimitiveImpl(params IVertex[] vertices) : base(PrimitiveType.LINES, vertices) { }
+ 
+        public float LineWidth { get; private set; }
+        public ILinesPrimitive SetLineWidth(float width) {
+          this.LineWidth = width;
+          return this;
+        }
+      }
+
+      private class PointsPrimitiveImpl : BPrimitiveImpl, IPointsPrimitive {
+        public PointsPrimitiveImpl(params IVertex[] vertices) : base(PrimitiveType.POINTS, vertices) { }
+
+        public float Radius { get; private set; }
+        public IPointsPrimitive SetRadius(float radius) {
+          this.Radius = radius;
+          return this;
+        }
+      }
+
+      private abstract class BPrimitiveImpl : IPrimitive {
+        public BPrimitiveImpl(PrimitiveType type, params IVertex[] vertices) {
           this.Type = type;
           this.Vertices = new ReadOnlyCollection<IVertex>(vertices);
         }

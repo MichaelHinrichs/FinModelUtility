@@ -43,6 +43,11 @@ namespace fin.model {
 
     IPrimitive AddQuads(params (IVertex, IVertex, IVertex, IVertex)[] quads);
     IPrimitive AddQuads(params IVertex[] vertices);
+
+    ILinesPrimitive AddLines(params (IVertex, IVertex)[] lines);
+    ILinesPrimitive AddLines(params IVertex[] lines);
+
+    IPointsPrimitive AddPoints(params IVertex[] points);
   }
 
 
@@ -114,12 +119,24 @@ namespace fin.model {
     TRIANGLE_STRIP,
     TRIANGLE_FAN,
     QUADS,
+    LINES,
+    POINTS,
     // TODO: Other types.
   }
 
   public enum VertexOrder {
     NORMAL,
     FLIP,
+  }
+
+  public interface ILinesPrimitive : IPrimitive {
+    float LineWidth { get; }
+    ILinesPrimitive SetLineWidth(float width);
+  }
+
+  public interface IPointsPrimitive : IPrimitive {
+    float Radius { get; }
+    IPointsPrimitive SetRadius(float radius);
   }
 
   public interface IPrimitive {
