@@ -4,8 +4,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 
 using fin.math.interpolation;
-using fin.util.optional;
-using schema.util;
 
 
 namespace fin.model.impl {
@@ -15,13 +13,13 @@ namespace fin.model.impl {
     public class PositionTrackImpl : IPositionTrack {
       private readonly ScalarAxesTrack<PositionStruct, float> impl_ =
           new(3,
-              Optional.Of<float>(0),
+              0,
               Interpolator.Float,
               InterpolatorWithTangents.Float,
               (axesTrack, frame, defaultValue) => new PositionStruct {
-                  X = axesTrack.AxisTracks[0].GetInterpolatedFrame(frame).Or(defaultValue[0]),
-                  Y = axesTrack.AxisTracks[1].GetInterpolatedFrame(frame).Or(defaultValue[1]),
-                  Z = axesTrack.AxisTracks[2].GetInterpolatedFrame(frame).Or(defaultValue[2]),
+                X = axesTrack.AxisTracks[0].GetInterpolatedFrame(frame, defaultValue[0]),
+                Y = axesTrack.AxisTracks[1].GetInterpolatedFrame(frame, defaultValue[1]),
+                Z = axesTrack.AxisTracks[2].GetInterpolatedFrame(frame, defaultValue[2]),
               });
 
       public IReadOnlyList<ITrack<float>> AxisTracks => this.impl_.AxisTracks;
@@ -47,7 +45,7 @@ namespace fin.model.impl {
                           optionalIncomingTangent,
                           optionalOutgoingTangent);
 
-      public Optional<Keyframe<ValueAndTangents<float>>>[] GetAxisListAtKeyframe(int keyframe)
+      public Keyframe<ValueAndTangents<float>>?[] GetAxisListAtKeyframe(int keyframe)
         => this.impl_.GetAxisListAtKeyframe(keyframe);
 
       public PositionStruct GetInterpolatedFrame(
@@ -63,14 +61,14 @@ namespace fin.model.impl {
     public class ScaleTrackImpl : IScaleTrack {
       private readonly ScalarAxesTrack<ScaleStruct, float> impl_ =
           new(3,
-              Optional.Of<float>(1),
+              1,
               Interpolator.Float,
               InterpolatorWithTangents.Float,
               (axesTrack, frame, defaultValue)
                   => new ScaleStruct {
-                    X = axesTrack.AxisTracks[0].GetInterpolatedFrame(frame).Or(defaultValue[0]),
-                    Y = axesTrack.AxisTracks[1].GetInterpolatedFrame(frame).Or(defaultValue[1]),
-                    Z = axesTrack.AxisTracks[2].GetInterpolatedFrame(frame).Or(defaultValue[2]),
+                    X = axesTrack.AxisTracks[0].GetInterpolatedFrame(frame, defaultValue[0]),
+                    Y = axesTrack.AxisTracks[1].GetInterpolatedFrame(frame, defaultValue[1]),
+                    Z = axesTrack.AxisTracks[2].GetInterpolatedFrame(frame, defaultValue[2]),
                   });
 
       public IReadOnlyList<ITrack<float>> AxisTracks => this.impl_.AxisTracks;
@@ -95,7 +93,7 @@ namespace fin.model.impl {
                           optionalIncomingTangent,
                           optionalOutgoingTangent);
 
-      public Optional<Keyframe<ValueAndTangents<float>>>[] GetAxisListAtKeyframe(int keyframe)
+      public Keyframe<ValueAndTangents<float>>?[] GetAxisListAtKeyframe(int keyframe)
         => this.impl_.GetAxisListAtKeyframe(keyframe);
 
       public ScaleStruct GetInterpolatedFrame(
@@ -163,32 +161,29 @@ namespace fin.model.impl {
           new ValueAndTangents<TValue>(t, optionalIncomingTangent,
             optionalOutgoingTangent));
 
-      public Optional<Keyframe<ValueAndTangents<TValue>>> GetKeyframe(int frame)
+      public Keyframe<ValueAndTangents<TValue>>? GetKeyframe(int frame)
         => this.impl_.GetKeyframeAtFrame(frame);
 
-      public Optional<TInterpolated> GetInterpolatedFrame(
+      public TInterpolated GetInterpolatedFrame(
           float frame,
+          TInterpolated defaultValue,
           bool useLoopingInterpolation = false) {
         var keyframeDefined = this.impl_.FindIndexOfKeyframe((int)frame,
           out var fromKeyframeIndex,
-          out var optionalFromKeyframe,
+          out var fromKeyframe,
           out var isLastKeyframe);
 
-        var hasFromValue = optionalFromKeyframe
-          .Pluck(keyframe => keyframe.Value.Value)
-          .Try(out var fromValue);
-
-        if (!hasFromValue) {
-          return Optional.None<TInterpolated>();
+        if (fromKeyframe == null) {
+          return defaultValue;
         }
+
+        var fromValue = fromKeyframe.Value.Value;
 
         // TODO: Make this an option?
-        if (!keyframeDefined || (isLastKeyframe && !useLoopingInterpolation)) {
-          return Optional.Of(
-              this.Interpolator.Interpolate(fromValue, fromValue, 0));
+        if (isLastKeyframe && !useLoopingInterpolation) {
+          return this.Interpolator.Interpolate(fromValue, fromValue, 0);
         }
 
-        var fromKeyframe = optionalFromKeyframe.Assert();
         var fromTime = fromKeyframe.Frame;
         var fromTangent = fromKeyframe.Value.OutgoingTangent;
 
@@ -214,8 +209,7 @@ namespace fin.model.impl {
         var progress = (frame - fromTime) / duration;
 
         var useTangents = fromTangent != null && toTangent != null;
-        return Optional.Of(
-            !useTangents
+        return !useTangents
                 ? this.Interpolator.Interpolate(fromValue, toValue, progress)
                 : this.InterpolatorWithTangents.Interpolate(
                     fromTime,
@@ -224,7 +218,7 @@ namespace fin.model.impl {
                     toTime,
                     toValue,
                     toTangent.Value,
-                    frame));
+                    frame);
       }
 
       public bool GetInterpolationData(
@@ -236,19 +230,16 @@ namespace fin.model.impl {
       ) {
         var keyframeDefined = this.impl_.FindIndexOfKeyframe((int)frame,
                                  out var fromKeyframeIndex,
-                                 out var optionalFromKeyframe,
+                                 out var fromKeyframe,
                                  out var isLastKeyframe);
         fromData = toData = null;
 
-        var hasFromValue = optionalFromKeyframe
-          .Pluck(keyframe => keyframe.Value.Value)
-          .Try(out var fromValue);
-
-        if (!hasFromValue) {
+        if (fromKeyframe == null) {
           return false;
         }
 
-        var fromKeyframe = optionalFromKeyframe.Assert();
+        var fromValue = fromKeyframe.Value.Value;
+
         var fromTime = fromKeyframe.Frame;
         var fromOutgoingTangent = fromKeyframe.Value.OutgoingTangent;
         fromData = (fromTime, fromValue, fromOutgoingTangent);
@@ -287,7 +278,7 @@ namespace fin.model.impl {
           ScalarAxesTrack<TAxes, TAxis, TAxes> {
       public ScalarAxesTrack(
           int axisCount,
-          Optional<TAxis> defaultValue,
+          TAxis defaultValue,
           IInterpolator<TAxis> axisInterpolator,
           IInterpolatorWithTangents<TAxis> axisInterpolatorWithTangent,
           GetInterpolatedFromAxesTrack getInterpolatedFromAxesTrack)
@@ -300,7 +291,7 @@ namespace fin.model.impl {
 
     public class ScalarAxesTrack<TAxes, TAxis, TInterpolated> :
         IAxesTrack<TAxis, TInterpolated> {
-      private readonly Optional<TAxis> defaultValue_;
+      private readonly TAxis defaultValue_;
 
       public delegate TInterpolated GetInterpolatedFromAxesTrack(
           IAxesTrack<TAxis, TInterpolated> axesTrack,
@@ -314,7 +305,7 @@ namespace fin.model.impl {
 
       public ScalarAxesTrack(
           int axisCount,
-          Optional<TAxis> defaultValue,
+          TAxis defaultValue,
           IInterpolator<TAxis> axisInterpolator,
           IInterpolatorWithTangents<TAxis> axisInterpolatorWithTangent,
           GetInterpolatedFromAxesTrack getInterpolatedFromAxesTrack) {
@@ -362,13 +353,13 @@ namespace fin.model.impl {
                     optionalIncomingTangent,
                     optionalOutgoingTangent);
 
-      public Optional<Keyframe<ValueAndTangents<TAxis>>> GetKeyframe(int keyframe, int axis)
+      public Keyframe<ValueAndTangents<TAxis>>? GetKeyframe(int keyframe, int axis)
         => this.axisTracks_[axis].GetKeyframe(keyframe);
 
 
       public IReadOnlyList<ITrack<TAxis>> AxisTracks { get; }
 
-      public Optional<Keyframe<ValueAndTangents<TAxis>>>[] GetAxisListAtKeyframe(int keyframe)
+      public Keyframe<ValueAndTangents<TAxis>>?[] GetAxisListAtKeyframe(int keyframe)
         => this.axisTracks_.Select(axis => axis.GetKeyframe(keyframe))
                .ToArray();
 

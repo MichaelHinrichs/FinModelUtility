@@ -1,7 +1,6 @@
 ﻿using fin.data;
 using fin.math.interpolation;
 using fin.model.impl;
-using fin.util.optional;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -41,10 +40,11 @@ namespace fin.model {
         float? incomingTangent,
         float? outgoingTangent);
 
-    Optional<Keyframe<ValueAndTangents<TValue>>> GetKeyframe(int frame);
+    Keyframe<ValueAndTangents<TValue>>? GetKeyframe(int frame);
 
-    Optional<TInterpolated> GetInterpolatedFrame(
+    TInterpolated GetInterpolatedFrame(
         float frame,
+        TInterpolated defaultValue,
         bool useLoopingInterpolation = false
     );
 
@@ -85,7 +85,7 @@ namespace fin.model {
 
 
     IReadOnlyList<ITrack<TAxis>> AxisTracks { get; }
-    Optional<Keyframe<ValueAndTangents<TAxis>>>[] GetAxisListAtKeyframe(int keyframe);
+    Keyframe<ValueAndTangents<TAxis>>?[] GetAxisListAtKeyframe(int keyframe);
 
     TInterpolated GetInterpolatedFrame(
         float frame,

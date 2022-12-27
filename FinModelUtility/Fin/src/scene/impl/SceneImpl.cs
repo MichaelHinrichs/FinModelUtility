@@ -319,8 +319,7 @@ namespace fin.scene {
           var defaultDisplayState = MeshDisplayState.VISIBLE;
           foreach (var (mesh, meshTracks) in this.Animation.MeshTracks) {
             var displayState =
-                meshTracks.DisplayStates.GetInterpolatedFrame(frame)
-                          .Or(defaultDisplayState);
+                meshTracks.DisplayStates.GetInterpolatedFrame(frame, defaultDisplayState);
             if (displayState == MeshDisplayState.HIDDEN) {
               hiddenMeshes.Add(mesh);
             }

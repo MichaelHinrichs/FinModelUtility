@@ -57,7 +57,7 @@ namespace fin.model.impl {
                     optionalIncomingTangent,
                     optionalOutgoingTangent);
 
-      public Optional<Keyframe<ValueAndTangents<float>>>[] GetAxisListAtKeyframe(int keyframe)
+      public Keyframe<ValueAndTangents<float>>?[] GetAxisListAtKeyframe(int keyframe)
         => this.axisTracks_.Select(axis => axis.GetKeyframe(keyframe))
                .ToArray();
 
@@ -131,14 +131,11 @@ namespace fin.model.impl {
                 fromXFrame, fromYFrame, fromZFrame,
                 toXFrame, toYFrame, toZFrame)) {
           var xRadians =
-              xTrack.GetInterpolatedFrame(frame, useLoopingInterpolation)
-                    .Or(defaultX);
+              xTrack.GetInterpolatedFrame(frame, defaultX, useLoopingInterpolation);
           var yRadians =
-              yTrack.GetInterpolatedFrame(frame, useLoopingInterpolation)
-                    .Or(defaultY);
+              yTrack.GetInterpolatedFrame(frame, defaultY, useLoopingInterpolation);
           var zRadians =
-              zTrack.GetInterpolatedFrame(frame, useLoopingInterpolation)
-                    .Or(defaultZ);
+              zTrack.GetInterpolatedFrame(frame, defaultZ, useLoopingInterpolation);
 
           return QuaternionUtil.Create(xRadians, yRadians, zRadians);
         }
