@@ -1,5 +1,6 @@
 ﻿using fin.math.matrix;
 using NUnit.Framework;
+using System.Numerics;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace fin.math {
@@ -9,13 +10,11 @@ namespace fin.math {
       var t = new SoftwareModelViewMatrixTransformer();
       t.Translate(1, 2, 3);
 
-      var x = .12f;
-      var y = .34f;
-      var z = .56f;
+      var xyz = new Vector3(.12f, .34f, .56f);
 
-      t.ProjectVertex(ref x, ref y, ref z);
+      t.ProjectVertex(ref xyz);
 
-      Assert.AreEqual((1.12f, 2.34f, 3.56f), (x, y, z));
+      Assert.AreEqual(new Vector3(1.12f, 2.34f, 3.56f), xyz);
     }
 
     [Test]
@@ -25,13 +24,11 @@ namespace fin.math {
       var t = new SoftwareModelViewMatrixTransformer();
       t.Set(m);
 
-      var x = .12f;
-      var y = .34f;
-      var z = .56f;
+      var xyz = new Vector3(.12f, .34f, .56f);
 
-      t.ProjectVertex(ref x, ref y, ref z);
+      t.ProjectVertex(ref xyz);
 
-      Assert.AreEqual((1.12f, 2.34f, 3.56f), (x, y, z));
+      Assert.AreEqual(new Vector3(1.12f, 2.34f, 3.56f), xyz);
     }
   }
 }

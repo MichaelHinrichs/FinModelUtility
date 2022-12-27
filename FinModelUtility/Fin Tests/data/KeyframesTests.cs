@@ -171,16 +171,15 @@ namespace fin.data {
           out var keyframe,
           out var isLastKeyframe);
 
-        Assert.True(keyframe.HasValue);
+        Assert.True(keyframe != null);
         Assert.True(isKeyframeDefined);
         Assert.AreEqual(sI / s, keyframeIndex);
-        Assert.AreEqual(sI, keyframe.Assert().Frame);
+        Assert.AreEqual(sI, keyframe.Frame);
       }
     }
 
     private void AssertKeyframe_(Keyframe<string>? expected,
-      Optional<Keyframe<string>> maybeActual) {
-      maybeActual.Try(out var actual);
+      Keyframe<string>? actual) {
       Assert.AreEqual(expected, actual);
     }
 

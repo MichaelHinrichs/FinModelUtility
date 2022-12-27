@@ -199,7 +199,7 @@ namespace fin.scene {
         var trsMatrix =
             MatrixTransformUtil.FromTrs(this.Position, this.Rotation,
                                         this.Scale);
-        GlUtil.MultMatrix(trsMatrix);
+        GlTransform.MultMatrix(trsMatrix);
 
         foreach (var model in this.Models) {
           model.Render();
@@ -299,7 +299,7 @@ namespace fin.scene {
 
           var rotationBuffer = rotateYaw * rootBone.FaceTowardsCameraAdjustment;
           var rotationMatrix = MatrixTransformUtil.FromRotation(rotationBuffer);
-          GlUtil.MultMatrix(rotationMatrix);
+          GlTransform.MultMatrix(rotationMatrix);
         }
 
         if (this.Animation != null) {

@@ -122,50 +122,50 @@ namespace uni.ui.common.scene {
       this.impl_.KeyDown += (_, args) => {
         switch (args.KeyCode) {
           case Keys.W: {
-            this.isForwardDown_ = true;
-            break;
-          }
+              this.isForwardDown_ = true;
+              break;
+            }
           case Keys.S: {
-            this.isBackwardDown_ = true;
-            break;
-          }
+              this.isBackwardDown_ = true;
+              break;
+            }
           case Keys.A: {
-            this.isLeftwardDown_ = true;
-            break;
-          }
+              this.isLeftwardDown_ = true;
+              break;
+            }
           case Keys.D: {
-            this.isRightwardDown_ = true;
-            break;
-          }
+              this.isRightwardDown_ = true;
+              break;
+            }
           case Keys.ShiftKey: {
-            this.isSpeedupActive_ = true;
-            break;
-          }
+              this.isSpeedupActive_ = true;
+              break;
+            }
         }
       };
 
       this.impl_.KeyUp += (_, args) => {
         switch (args.KeyCode) {
           case Keys.W: {
-            this.isForwardDown_ = false;
-            break;
-          }
+              this.isForwardDown_ = false;
+              break;
+            }
           case Keys.S: {
-            this.isBackwardDown_ = false;
-            break;
-          }
+              this.isBackwardDown_ = false;
+              break;
+            }
           case Keys.A: {
-            this.isLeftwardDown_ = false;
-            break;
-          }
+              this.isLeftwardDown_ = false;
+              break;
+            }
           case Keys.D: {
-            this.isRightwardDown_ = false;
-            break;
-          }
+              this.isRightwardDown_ = false;
+              break;
+            }
           case Keys.ShiftKey: {
-            this.isSpeedupActive_ = false;
-            break;
-          }
+              this.isSpeedupActive_ = false;
+              break;
+            }
         }
       };
     }
@@ -227,9 +227,9 @@ namespace uni.ui.common.scene {
       {
         GL.MatrixMode(MatrixMode.Projection);
         GL.LoadIdentity();
-        GlUtil.Perspective(this.fovY_, 1.0 * width / height,
+        GlTransform.Perspective(this.fovY_, 1.0 * width / height,
                            DebugFlags.NEAR_PLANE, DebugFlags.FAR_PLANE);
-        GlUtil.LookAt(this.camera_.X, this.camera_.Y, this.camera_.Z,
+        GlTransform.LookAt(this.camera_.X, this.camera_.Y, this.camera_.Z,
                       this.camera_.X + this.camera_.XNormal,
                       this.camera_.Y + this.camera_.YNormal,
                       this.camera_.Z + this.camera_.ZNormal,

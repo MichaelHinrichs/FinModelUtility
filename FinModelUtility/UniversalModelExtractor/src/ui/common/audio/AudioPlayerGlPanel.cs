@@ -155,7 +155,7 @@ void main() {
       {
         GL.MatrixMode(MatrixMode.Projection);
         GL.LoadIdentity();
-        GlUtil.Ortho2d(0, width, height, 0);
+        GlTransform.Ortho2d(0, width, height, 0);
 
         GL.MatrixMode(MatrixMode.Modelview);
         GL.LoadIdentity();

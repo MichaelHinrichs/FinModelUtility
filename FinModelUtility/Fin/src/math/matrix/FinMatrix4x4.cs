@@ -232,10 +232,6 @@ namespace fin.math {
       => ReferenceEquals(this, obj) || this.Equals(obj);
 
     public bool Equals(IReadOnlyFinMatrix4x4? other) {
-      if (other is FinMatrix4x4 otherImpl) {
-        return impl_ == otherImpl.Impl;
-      }
-
       if (other == null) {
         return false;
       }
