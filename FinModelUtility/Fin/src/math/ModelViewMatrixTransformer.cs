@@ -1,5 +1,6 @@
 ﻿using fin.math.matrix;
 using fin.model;
+using fin.util.asserts;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -19,31 +20,11 @@ namespace fin.math {
       this.Push();
     }
 
-    public void ProjectVertex(
-        ref float x,
-        ref float y,
-        ref float z,
-        bool correctPerspective = true)
-      => GlMatrixUtil.Project(this.current_,
-                              ref x,
-                              ref y,
-                              ref z,
-                              1,
-                              correctPerspective,
-                              false);
+    public void ProjectVertex(ref Vector3 xyz)
+      => GlMatrixUtil.ProjectPosition(this.current_.Impl, ref xyz);
 
-    public void ProjectNormal(
-        ref float normalX,
-        ref float normalY,
-        ref float normalZ,
-        bool normalize = true)
-      => GlMatrixUtil.Project(this.current_,
-                              ref normalX,
-                              ref normalY,
-                              ref normalZ,
-                              0,
-                              false,
-                              normalize);
+    public void ProjectNormal(ref Vector3 xyz)
+      => GlMatrixUtil.ProjectNormal(this.current_.Impl, ref xyz);
 
     public SoftwareModelViewMatrixTransformer Push() {
       IFinMatrix4x4 newMatrix;
@@ -130,61 +111,16 @@ namespace fin.math {
 
   // TODO: Move this somewhere else.
   public class GlMatrixUtil {
-    private static readonly FinVector4 SHARED_VECTOR = new();
-
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void ProjectVertex(
-        IReadOnlyFinMatrix4x4 matrix,
-        ref float x,
-        ref float y,
-        ref float z)
-      => GlMatrixUtil.Project(matrix,
-                              ref x,
-                              ref y,
-                              ref z,
-                              1,
-                              true,
-                              false);
+    public static void ProjectPosition(
+        Matrix4x4 matrix,
+        ref Vector3 xyz)
+      => xyz = Vector3.Transform(xyz, matrix);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ProjectNormal(
-        IReadOnlyFinMatrix4x4 matrix,
-        ref float x,
-        ref float y,
-        ref float z,
-        bool normalize = true)
-      => GlMatrixUtil.Project(matrix,
-                              ref x,
-                              ref y,
-                              ref z,
-                              0,
-                              false,
-                              normalize);
-
-    public static void Project(
-        IReadOnlyFinMatrix4x4 matrix,
-        ref float x,
-        ref float y,
-        ref float z,
-        int inW,
-        bool correctPerspective = true,
-        bool normalize = true) {
-      SHARED_VECTOR.Set(x, y, z, inW);
-
-      SHARED_VECTOR.MultiplyInPlace(matrix);
-
-      if (inW == 0) {
-        if (normalize) {
-          GlMatrixUtil.SHARED_VECTOR.NormalizeInPlace();
-        }
-      } else if (correctPerspective) {
-        GlMatrixUtil.SHARED_VECTOR.MultiplyInPlace(1 / SHARED_VECTOR.W);
-      }
-
-      x = SHARED_VECTOR.X;
-      y = SHARED_VECTOR.Y;
-      z = SHARED_VECTOR.Z;
-    }
+        Matrix4x4 matrix,
+        ref Vector3 xyz)
+      => xyz = Vector3.TransformNormal(xyz, matrix);
   }
 }

@@ -61,6 +61,40 @@ namespace benchmarks {
 
 
     [Benchmark]
+    public void ReturnStructTwice() {
+      for (var i = 0; i < n; i++) {
+        var value = this.ReturnStructTwiceImpl1_();
+      }
+    }
+
+    private XyzwStruct ReturnStructTwiceImpl1_() {
+      return ReturnStructTwiceImpl2_();
+    }
+
+    private XyzwStruct ReturnStructTwiceImpl2_() {
+      return new XyzwStruct { X = 1, Y = 2, Z = 3, W = 4 };
+    }
+
+
+    [Benchmark]
+    public void ReturnStructByRefTwice() {
+      for (var i = 0; i < n; i++) {
+        this.ReturnStructByRefTwiceImpl1_(out var value);
+      }
+    }
+
+    private void ReturnStructByRefTwiceImpl1_(out XyzwStruct value) {
+      value = ReturnStructTwiceImpl2_();
+    }
+
+    private void ReturnStructByRefTwiceImpl2_(out XyzwStruct value) {
+      value = new XyzwStruct { X = 1, Y = 2, Z = 3, W = 4 };
+    }
+
+
+
+
+    [Benchmark]
     public void ReturnStructViaInterface() {
       for (var i = 0; i < n; i++) {
         var value = this.ReturnStructViaInterfaceImpl_();

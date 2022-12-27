@@ -6,7 +6,6 @@ using fin.math.matrix;
 using fin.model;
 using fin.model.impl;
 using fin.ui;
-using fin.util.optional;
 
 
 namespace fin.math {
@@ -35,15 +34,9 @@ namespace fin.math {
         INormal? outNormal = null,
         bool forcePreproject = false);
 
-    void ProjectVertex(IBone bone,
-                       ref float x,
-                       ref float y,
-                       ref float z);
+    void ProjectPosition(IBone bone, ref Vector3 xyz);
 
-    void ProjectNormal(IBone bone,
-                       ref float x,
-                       ref float y,
-                       ref float z);
+    void ProjectNormal(IBone bone, ref Vector3 xyz);
   }
 
   public class BoneTransformManager : IBoneTransformManager {
@@ -172,7 +165,7 @@ namespace fin.math {
         if (!bone.IgnoreParentScale && !bone.FaceTowardsCamera) {
           MatrixTransformUtil.FromTrs(localPosition,
                                       localRotation,
-                                      localScale, 
+                                      localScale,
                                       localMatrix);
           matrix.MultiplyInPlace(localMatrix);
         } else {
@@ -309,11 +302,12 @@ namespace fin.math {
         IPosition outPosition,
         INormal? outNormal = null,
         bool forcePreproject = false) {
-      var transformMatrix = this.GetTransformMatrix(vertex, forcePreproject);
+      var finTransformMatrix = this.GetTransformMatrix(vertex, forcePreproject);
 
       var localPosition = vertex.LocalPosition;
       var localNormal = vertex.LocalNormal;
-      if (transformMatrix == null) {
+
+      if (finTransformMatrix == null) {
         outPosition.X = localPosition.X;
         outPosition.Y = localPosition.Y;
         outPosition.Z = localPosition.Z;
@@ -326,48 +320,36 @@ namespace fin.math {
         return;
       }
 
-      float x = localPosition.X;
-      float y = localPosition.Y;
-      float z = localPosition.Z;
-      GlMatrixUtil.ProjectVertex(transformMatrix,
-                                 ref x,
-                                 ref y,
-                                 ref z);
-      outPosition.X = x;
-      outPosition.Y = y;
-      outPosition.Z = z;
+      var transformMatrix = finTransformMatrix.Impl;
+
+      var pos = new Vector3(localPosition.X, localPosition.Y, localPosition.Z);
+      GlMatrixUtil.ProjectPosition(transformMatrix,
+                                   ref pos);
+      outPosition.X = pos.X;
+      outPosition.Y = pos.Y;
+      outPosition.Z = pos.Z;
 
       if (outNormal != null && localNormal != null) {
-        float nX = localNormal.X;
-        float nY = localNormal.Y;
-        float nZ = localNormal.Z;
+        var norm = new Vector3(localNormal.X, localNormal.Y, localNormal.Z);
         GlMatrixUtil.ProjectNormal(transformMatrix,
-                                   ref nX,
-                                   ref nY,
-                                   ref nZ);
+                                   ref norm);
 
-        outNormal.X = nX;
-        outNormal.Y = nY;
-        outNormal.Z = nZ;
+        outNormal.X = norm.X;
+        outNormal.Y = norm.Y;
+        outNormal.Z = norm.Z;
       }
     }
 
-    public void ProjectVertex(IBone bone,
-                              ref float x,
-                              ref float y,
-                              ref float z) {
-      GlMatrixUtil.ProjectVertex(
-          this.GetWorldMatrix(bone),
-          ref x, ref y, ref z);
+    public void ProjectPosition(IBone bone, ref Vector3 xyz) {
+      GlMatrixUtil.ProjectPosition(
+          this.GetWorldMatrix(bone).Impl,
+          ref xyz);
     }
 
-    public void ProjectNormal(IBone bone,
-                              ref float x,
-                              ref float y,
-                              ref float z) {
+    public void ProjectNormal(IBone bone, ref Vector3 xyz) {
       GlMatrixUtil.ProjectNormal(
-          this.GetWorldMatrix(bone),
-          ref x, ref y, ref z);
+          this.GetWorldMatrix(bone).Impl,
+          ref xyz);
     }
   }
 }

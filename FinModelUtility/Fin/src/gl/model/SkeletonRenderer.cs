@@ -1,9 +1,13 @@
 ﻿using fin.math;
 using fin.model;
+using System.Numerics;
 using OpenTK.Graphics.OpenGL;
 using System.Collections.Generic;
 using System.Linq;
 using PrimitiveType = OpenTK.Graphics.OpenGL.PrimitiveType;
+using MathNet.Numerics.Distributions;
+using MathNet.Numerics.Providers.LinearAlgebra;
+using Assimp;
 
 
 namespace fin.gl.model {
@@ -41,28 +45,25 @@ namespace fin.gl.model {
 
         GL.Color4(0, 0, 1f, 1);
 
-        var boneQueue = new Queue<(IBone, (double, double, double)?)>();
+        var boneQueue = new Queue<(IBone, Vector3?)>();
         boneQueue.Enqueue((this.Skeleton.Root, null));
         while (boneQueue.Any()) {
           var (bone, parentLocation) = boneQueue.Dequeue();
 
-          (float, float, float)? location = null;
+          Vector3? location = null;
 
           if (bone != rootBone) {
-            var x = 0f;
-            var y = 0f;
-            var z = 0f;
+            var xyz = new Vector3();
 
-            this.boneTransformManager_.ProjectVertex(
-                bone, ref x, ref y, ref z);
+            this.boneTransformManager_.ProjectPosition(bone, ref xyz);
 
             if (parentLocation != null) {
-              var (parentX, parentY, parentZ) = parentLocation.Value;
-              GL.Vertex3(parentX, parentY, parentZ);
-              GL.Vertex3(x, y, z);
+              var parentPos = parentLocation.Value;
+              GL.Vertex3(parentPos.X, parentPos.Y, parentPos.Z);
+              GL.Vertex3(xyz.X, xyz.Y, xyz.Z);
             }
 
-            location = (x, y, z);
+            location = xyz;
           }
 
           foreach (var child in bone.Children) {
@@ -85,25 +86,17 @@ namespace fin.gl.model {
             continue;
           }
 
-          var fromX = 0f;
-          var fromY = 0f;
-          var fromZ = 0f;
-          this.boneTransformManager_.ProjectVertex(
-              bone, ref fromX, ref fromY, ref fromZ);
+          var from = new Vector3();
+          this.boneTransformManager_.ProjectPosition(bone, ref from);
 
-          var normalX = 1f;
-          var normalY = 0f;
-          var normalZ = 0f;
-          this.boneTransformManager_.ProjectNormal(
-              bone, ref normalX, ref normalY, ref normalZ);
+          var normal = new Vector3(1, 0, 0);
+          this.boneTransformManager_.ProjectNormal(bone, ref normal);
 
           var normalScale = 50f / this.Scale;
-          normalX *= normalScale;
-          normalY *= normalScale;
-          normalZ *= normalScale;
+          normal = Vector3.Multiply(normal, normalScale);
 
-          GL.Vertex3(fromX, fromY, fromZ);
-          GL.Vertex3(fromX + normalX, fromY + normalY, fromZ + normalZ);
+          GL.Vertex3(from.X, from.Y, from.Z);
+          GL.Vertex3(from.X + normal.X, from.Y + normal.Y, from.Z + normal.Z);
         }
 
         GL.End();
@@ -114,25 +107,17 @@ namespace fin.gl.model {
 
           GL.Color4(1f, 1f, 1f, 1);
 
-          var fromX = 0f;
-          var fromY = 0f;
-          var fromZ = 0f;
-          this.boneTransformManager_.ProjectVertex(
-              this.SelectedBone, ref fromX, ref fromY, ref fromZ);
+          var from = new Vector3();
+          this.boneTransformManager_.ProjectPosition(this.SelectedBone, ref from);
 
-          var normalX = 1f;
-          var normalY = 0f;
-          var normalZ = 0f;
-          this.boneTransformManager_.ProjectNormal(
-              this.SelectedBone, ref normalX, ref normalY, ref normalZ);
+          var normal = new Vector3(1, 0, 0);
+          this.boneTransformManager_.ProjectNormal(this.SelectedBone, ref normal);
 
           var normalScale = 50f / this.Scale;
-          normalX *= normalScale;
-          normalY *= normalScale;
-          normalZ *= normalScale;
+          normal = Vector3.Multiply(normal, normalScale);
 
-          GL.Vertex3(fromX, fromY, fromZ);
-          GL.Vertex3(fromX + normalX, fromY + normalY, fromZ + normalZ);
+          GL.Vertex3(from.X, from.Y, from.Z);
+          GL.Vertex3(from.X + normal.X, from.Y + normal.Y, from.Z + normal.Z);
 
           GL.End();
         }
@@ -150,13 +135,10 @@ namespace fin.gl.model {
             continue;
           }
 
-          var fromX = 0f;
-          var fromY = 0f;
-          var fromZ = 0f;
-          this.boneTransformManager_.ProjectVertex(
-              bone, ref fromX, ref fromY, ref fromZ);
+          var from = new Vector3();
+          this.boneTransformManager_.ProjectPosition(bone, ref from);
 
-          GL.Vertex3(fromX, fromY, fromZ);
+          GL.Vertex3(from.X, from.Y, from.Z);
         }
 
         GL.End();
@@ -167,13 +149,10 @@ namespace fin.gl.model {
 
           GL.Color4(1f, 1f, 1f, 1);
 
-          var fromX = 0f;
-          var fromY = 0f;
-          var fromZ = 0f;
-          this.boneTransformManager_.ProjectVertex(
-              this.SelectedBone, ref fromX, ref fromY, ref fromZ);
+          var from = new Vector3();
+          this.boneTransformManager_.ProjectPosition(this.SelectedBone, ref from);
 
-          GL.Vertex3(fromX, fromY, fromZ);
+          GL.Vertex3(from.X, from.Y, from.Z);
 
           GL.End();
         }

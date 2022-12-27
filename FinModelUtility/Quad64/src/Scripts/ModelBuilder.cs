@@ -1,5 +1,5 @@
 ﻿using fin.math;
-using OpenTK;
+using System.Numerics;
 
 
 namespace Quad64.src.Scripts {
@@ -130,10 +130,8 @@ namespace Quad64.src.Scripts {
         var x = pos.X;
         var y = pos.Y;
         var z = pos.Z;
-        GlMatrixUtil.ProjectVertex(this.model_.Node.GetTotalMatrix(),
-                                   ref x,
-                                   ref y,
-                                   ref z);
+        GlMatrixUtil.ProjectPosition(this.model_.Node.GetTotalMatrix().Impl,
+                                   ref pos);
         pos.X = x;
         pos.Y = y;
         pos.Z = z;

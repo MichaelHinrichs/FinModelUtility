@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using fin.math;
 using fin.model.impl;
 using fin.scene;
-
+using System.Numerics;
 
 namespace fin.model.util {
   public static class SceneScaleCalculator {
@@ -68,20 +67,18 @@ namespace fin.model.util {
               while (boneQueue.Count > 0) {
                 var bone = boneQueue.Dequeue();
 
-                var x = 0f;
-                var y = 0f;
-                var z = 0f;
+                var xyz = new Vector3();
 
-                boneTransformManager.ProjectVertex(bone, ref x, ref y, ref z);
+                boneTransformManager.ProjectPosition(bone, ref xyz);
 
-                minX = MathF.Min(minX, x);
-                maxX = MathF.Max(maxX, x);
+                minX = MathF.Min(minX, xyz.X);
+                maxX = MathF.Max(maxX, xyz.X);
 
-                minY = MathF.Min(minY, y);
-                maxY = MathF.Max(maxY, y);
+                minY = MathF.Min(minY, xyz.Y);
+                maxY = MathF.Max(maxY, xyz.Y);
 
-                minZ = MathF.Min(minZ, z);
-                maxZ = MathF.Max(maxZ, z);
+                minZ = MathF.Min(minZ, xyz.Z);
+                maxZ = MathF.Max(maxZ, xyz.Z);
 
                 foreach (var child in bone.Children) {
                   boneQueue.Enqueue(child);

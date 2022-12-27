@@ -1,4 +1,4 @@
-﻿using OpenTK;
+﻿using System.Numerics;
 using Quad64.schema;
 using Quad64.src.JSON;
 using Quad64.src.Scripts;

@@ -1,7 +1,7 @@
-﻿using OpenTK;
-using OpenTK.Graphics.OpenGL;
+﻿using OpenTK.Graphics.OpenGL;
 using Quad64.src.Scripts;
 using System.Text;
+using System.Numerics;
 
 
 namespace Quad64 {
@@ -176,7 +176,7 @@ namespace Quad64 {
         GL.BindBuffer(BufferTarget.ArrayBuffer, m.vbo);
         GL.BufferData(
             BufferTarget.ArrayBuffer,
-            (IntPtr)(Vector3.SizeInBytes * m.vertices.Length),
+            (IntPtr)(4 * 3 * m.vertices.Length),
             m.vertices,
             BufferUsageHint.StaticDraw
         );
@@ -185,7 +185,7 @@ namespace Quad64 {
         GL.BindBuffer(BufferTarget.ArrayBuffer, m.texBuf);
         GL.BufferData(
             BufferTarget.ArrayBuffer,
-            (IntPtr)(Vector2.SizeInBytes * m.texCoord.Length),
+            (IntPtr)(4 * 2 * m.texCoord.Length),
             m.texCoord,
             BufferUsageHint.StaticDraw
         );
@@ -194,7 +194,7 @@ namespace Quad64 {
         GL.BindBuffer(BufferTarget.ArrayBuffer, m.colorBuf);
         GL.BufferData(
             BufferTarget.ArrayBuffer,
-            (IntPtr)(Vector4.SizeInBytes * m.colors.Length),
+            (IntPtr)(4 * 4 * m.colors.Length),
             m.colors,
             BufferUsageHint.StaticDraw
         );

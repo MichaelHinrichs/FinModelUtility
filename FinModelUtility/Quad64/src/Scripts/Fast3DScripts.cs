@@ -1,6 +1,5 @@
-﻿using OpenTK;
-
-using Quad64.src.LevelInfo;
+﻿using Quad64.src.LevelInfo;
+using System.Numerics;
 
 
 namespace Quad64.src.Scripts {
