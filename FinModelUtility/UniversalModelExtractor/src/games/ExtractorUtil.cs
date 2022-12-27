@@ -80,11 +80,10 @@ namespace uni.games {
       var existingOutputFile =
           outputDirectory.GetExistingFiles()
                          .Where(file => file.Extension is ".fbx" or ".glb")
-                         .SingleOrDefault(
-                             file => file.NameWithoutExtension ==
+                         .Any(file => file.NameWithoutExtension ==
                                      mainFile.NameWithoutExtension);
 
-      if (existingOutputFile != null) {
+      if (existingOutputFile) {
         MessageUtil.LogAlreadyProcessed(ExtractorUtil.logger_, mainFile);
         return;
       }
