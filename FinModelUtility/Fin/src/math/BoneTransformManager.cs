@@ -14,6 +14,8 @@ namespace fin.math {
 
     void Clear();
 
+    void InitModelVertices(IModel model, bool forcePreproject = false);
+
     IDictionary<IBone, int> CalculateMatrices(
         IBone rootBone,
         IReadOnlyList<IBoneWeights> boneWeightsList,
@@ -25,14 +27,12 @@ namespace fin.math {
 
     public IReadOnlyFinMatrix4x4 GetWorldMatrix(IBone bone);
 
-    public IReadOnlyFinMatrix4x4? GetTransformMatrix(IVertex vertex,
-      bool forcePreproject = false);
+    public IReadOnlyFinMatrix4x4? GetTransformMatrix(IVertex vertex);
 
     void ProjectVertex(
         IVertex vertex,
         IPosition outPosition,
-        INormal? outNormal = null,
-        bool forcePreproject = false);
+        INormal? outNormal = null);
 
     void ProjectPosition(IBone bone, ref Vector3 xyz);
 
@@ -53,6 +53,9 @@ namespace fin.math {
     private readonly IndexableDictionary<IBoneWeights, IFinMatrix4x4>
         boneWeightsToWorldMatrices_ = new();
 
+    private IndexableDictionary<IVertex, IReadOnlyFinMatrix4x4?>
+        verticesToWorldMatrices_ = new();
+
     public (IBoneTransformManager, IBone)? Parent { get; }
 
     public BoneTransformManager((IBoneTransformManager, IBone)? parent = null) {
@@ -64,11 +67,20 @@ namespace fin.math {
       this.bonesToWorldMatrices_.Clear();
       this.bonesToInverseBindMatrices_.Clear();
       this.boneWeightsToWorldMatrices_.Clear();
+      this.verticesToWorldMatrices_.Clear();
     }
 
     private readonly float[] defaultPosition_ = new float[3];
     private readonly float[] defaultRotation_ = new float[3];
     private readonly float[] defaultScale_ = new float[3];
+
+    public void InitModelVertices(IModel model, bool forcePreproject = false) {
+      var vertices = model.Skin.Vertices;
+      this.verticesToWorldMatrices_ = new IndexableDictionary<IVertex, IReadOnlyFinMatrix4x4?>(vertices.Count);
+      foreach (var vertex in vertices) {
+        this.verticesToWorldMatrices_[vertex] = DetermineTransformMatrix_(vertex, forcePreproject);
+      }
+    }
 
     public IDictionary<IBone, int> CalculateMatrices(
         IBone rootBone,
@@ -267,8 +279,10 @@ namespace fin.math {
     public IReadOnlyFinMatrix4x4 GetWorldMatrix(IBone bone)
       => this.bonesToWorldMatrices_[bone];
 
-    public IReadOnlyFinMatrix4x4? GetTransformMatrix(IVertex vertex,
-      bool forcePreproject = false) {
+    public IReadOnlyFinMatrix4x4? GetTransformMatrix(IVertex vertex)
+      => this.verticesToWorldMatrices_[vertex];
+
+    private IReadOnlyFinMatrix4x4? DetermineTransformMatrix_(IVertex vertex, bool forcePreproject = false) {
       var boneWeights = vertex.BoneWeights;
       var weights = vertex.BoneWeights?.Weights;
       var preproject =
@@ -280,7 +294,7 @@ namespace fin.math {
         return null;
       }
 
-      var transformMatrix = boneWeights.PreprojectMode switch {
+      return boneWeights.PreprojectMode switch {
         // If preproject mode is none, then the vertices are already in the same position as the bones.
         // To calculate the animation, we have to first "undo" the root pose via an inverted matrix. 
         PreprojectMode.NONE => this.boneWeightsToWorldMatrices_[
@@ -293,16 +307,13 @@ namespace fin.math {
         PreprojectMode.ROOT => this.GetWorldMatrix(weights[0].Bone.Root),
         _ => throw new ArgumentOutOfRangeException()
       };
-
-      return transformMatrix;
     }
 
     public void ProjectVertex(
         IVertex vertex,
         IPosition outPosition,
-        INormal? outNormal = null,
-        bool forcePreproject = false) {
-      var finTransformMatrix = this.GetTransformMatrix(vertex, forcePreproject);
+        INormal? outNormal = null) {
+      var finTransformMatrix = this.GetTransformMatrix(vertex);
 
       var localPosition = vertex.LocalPosition;
       var localNormal = vertex.LocalNormal;

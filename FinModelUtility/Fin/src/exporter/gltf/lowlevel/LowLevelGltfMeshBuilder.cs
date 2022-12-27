@@ -30,6 +30,7 @@ namespace fin.exporter.gltf.lowlevel {
           model.Skeleton.Root,
           model.Skin.BoneWeights,
           null);
+      boneTransformManager.InitModelVertices(model);
 
       var outPosition = new ModelImpl.PositionImpl();
       var outNormal = new ModelImpl.NormalImpl();

@@ -246,6 +246,7 @@ namespace fin.scene {
             this.Model.Skeleton.Root,
             this.Model.Skin.BoneWeights,
             null);
+        this.BoneTransformManager.InitModelVertices(this.Model, true);
 
         this.ModelRenderer =
             new ModelRendererV2(this.Model, this.BoneTransformManager);

@@ -74,8 +74,7 @@ namespace fin.gl {
           boneTransformManager.ProjectVertex(
             vertex,
             this.position_,
-            this.normal_,
-            true);
+            this.normal_);
         } else {
           position = vertex.LocalPosition;
           normal = vertex.LocalNormal;
