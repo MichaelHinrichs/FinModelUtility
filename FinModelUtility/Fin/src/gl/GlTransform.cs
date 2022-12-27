@@ -6,6 +6,47 @@ using OpenTK.Graphics.OpenGL;
 
 namespace fin.gl {
   public static class GlTransform {
+    public static void MatrixMode(MatrixMode mode) {
+      GL.MatrixMode(mode);
+    }
+
+    public static void LoadIdentity() {
+      GL.LoadIdentity();
+    }
+
+    public static void MultMatrix(float[] matrix) {
+      GL.MultMatrix(matrix);
+    }
+
+    public static void MultMatrix(double[] matrix) {
+      GL.MultMatrix(matrix);
+    }
+
+    public static void Translate(float x, float y, float z) {
+      GL.Translate(x, y, z);
+    }
+
+    public static void Translate(double x, double y, double z) {
+      GL.Translate(x, y, z);
+    }
+
+    public static void Scale(float x, float y, float z) {
+      GL.Scale(x, y, z);
+    }
+
+    public static void Scale(double x, double y, double z) {
+      GL.Scale(x, y, z);
+    }
+
+    public static void Rotate(float angle, float x, float y, float z) {
+      GL.Rotate(angle, x, y, z);
+    }
+
+    public static void Rotate(double angle, double x, double y, double z) {
+      GL.Rotate(angle, x, y, z);
+    }
+
+
     public static void Perspective(double fovYDegrees,
                                    double aspectRatio,
                                    double zNear,
@@ -20,7 +61,7 @@ namespace fin.gl {
       SetInMatrix(matrix, 3, 2, 2 * zNear * zFar / (zNear - zFar));
       SetInMatrix(matrix, 2, 3, -1);
 
-      GL.MultMatrix(matrix);
+      MultMatrix(matrix);
     }
 
     public static void Ortho2d(int left, int right, int bottom, int top)
@@ -68,8 +109,8 @@ namespace fin.gl {
 
       SetInMatrix(matrix, 3, 3, 1);
 
-      GL.MultMatrix(matrix);
-      GL.Translate(-eyeX, -eyeY, -eyeZ);
+      MultMatrix(matrix);
+      Translate(-eyeX, -eyeY, -eyeZ);
     }
 
     public static int ConvertMatrixCoordToIndex(int r, int c) => 4 * r + c;
@@ -113,7 +154,7 @@ namespace fin.gl {
           buffer[y * 4 + x] = matrix[x, y];
         }
       }
-      GL.MultMatrix(buffer);
+      MultMatrix(buffer);
     }
   }
 }

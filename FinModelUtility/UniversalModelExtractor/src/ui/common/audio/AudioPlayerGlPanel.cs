@@ -153,12 +153,12 @@ void main() {
       var height = this.Height;
 
       {
-        GL.MatrixMode(MatrixMode.Projection);
-        GL.LoadIdentity();
+        GlTransform.MatrixMode(MatrixMode.Projection);
+        GlTransform.LoadIdentity();
         GlTransform.Ortho2d(0, width, height, 0);
 
-        GL.MatrixMode(MatrixMode.Modelview);
-        GL.LoadIdentity();
+        GlTransform.MatrixMode(MatrixMode.Modelview);
+        GlTransform.LoadIdentity();
       }
 
       GL.LineWidth(1.5f);

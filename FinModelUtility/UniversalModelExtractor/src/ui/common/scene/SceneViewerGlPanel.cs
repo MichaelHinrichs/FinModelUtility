@@ -225,8 +225,8 @@ namespace uni.ui.common.scene {
       var height = this.Height;
 
       {
-        GL.MatrixMode(MatrixMode.Projection);
-        GL.LoadIdentity();
+        GlTransform.MatrixMode(MatrixMode.Projection);
+        GlTransform.LoadIdentity();
         GlTransform.Perspective(this.fovY_, 1.0 * width / height,
                            DebugFlags.NEAR_PLANE, DebugFlags.FAR_PLANE);
         GlTransform.LookAt(this.camera_.X, this.camera_.Y, this.camera_.Z,
@@ -235,17 +235,17 @@ namespace uni.ui.common.scene {
                       this.camera_.Z + this.camera_.ZNormal,
                       0, 0, 1);
 
-        GL.MatrixMode(MatrixMode.Modelview);
-        GL.LoadIdentity();
+        GlTransform.MatrixMode(MatrixMode.Modelview);
+        GlTransform.LoadIdentity();
       }
 
       {
-        GL.Translate(this.camera_.X, this.camera_.Y, this.camera_.Z * .995f);
+        GlTransform.Translate(this.camera_.X, this.camera_.Y, this.camera_.Z * .995f);
         this.backgroundRenderer_.Render();
-        GL.LoadIdentity();
+        GlTransform.LoadIdentity();
       }
 
-      GL.Scale(DebugFlags.GLOBAL_SCALE,
+      GlTransform.Scale(DebugFlags.GLOBAL_SCALE,
                DebugFlags.GLOBAL_SCALE,
                DebugFlags.GLOBAL_SCALE);
 
@@ -255,8 +255,8 @@ namespace uni.ui.common.scene {
       }
 
       {
-        GL.Rotate(90, 1, 0, 0);
-        GL.Scale(this.viewerScale_, this.viewerScale_, this.viewerScale_);
+        GlTransform.Rotate(90, 1, 0, 0);
+        GlTransform.Scale(this.viewerScale_, this.viewerScale_, this.viewerScale_);
       }
 
       this.Scene?.Tick();
