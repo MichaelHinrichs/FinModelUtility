@@ -1,4 +1,5 @@
 ﻿using fin.audio;
+using fin.gl;
 using OpenTK.Graphics.OpenGL;
 
 
@@ -14,6 +15,8 @@ namespace uni.ui.gl {
       if (ActiveSound == null) {
         return;
       }
+
+      GlTransform.PassMatricesIntoGl();
 
       var samplesPerPoint = 25;
       var xPerPoint = 1;

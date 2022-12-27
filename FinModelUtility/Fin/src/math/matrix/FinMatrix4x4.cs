@@ -143,6 +143,37 @@ namespace fin.math {
       }
     }
 
+
+    public IFinMatrix4x4 CloneAndMultiply(SystemMatrix other)
+      => this.Clone().MultiplyInPlace(other);
+
+    public IFinMatrix4x4 MultiplyInPlace(SystemMatrix other) {
+      this.MultiplyIntoBuffer(other, this);
+      return this;
+    }
+
+    public void MultiplyIntoBuffer(
+        SystemMatrix other,
+        IFinMatrix4x4 buffer) {
+      if (buffer is FinMatrix4x4 bufferImpl) {
+        bufferImpl.impl_ = SystemMatrix.Multiply(other, impl_);
+        return;
+      }
+
+      for (var r = 0; r < 4; ++r) {
+        for (var c = 0; c < 4; ++c) {
+          var value = 0f;
+
+          for (var i = 0; i < 4; ++i) {
+            value += this[r, i] * other[i, c];
+          }
+
+          buffer[r, c] = value;
+        }
+      }
+    }
+
+
     public IFinMatrix4x4 CloneAndMultiply(float other)
       => this.Clone().MultiplyInPlace(other);
 

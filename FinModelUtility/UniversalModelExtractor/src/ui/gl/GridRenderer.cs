@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL;
+﻿using fin.gl;
+using OpenTK.Graphics.OpenGL;
 
 
 namespace uni.ui.gl {
@@ -7,6 +8,8 @@ namespace uni.ui.gl {
     public float Size = 1024;
 
     public void Render() {
+      GlTransform.PassMatricesIntoGl();
+
       var size = this.Size;
       var spacing = this.Spacing;
 

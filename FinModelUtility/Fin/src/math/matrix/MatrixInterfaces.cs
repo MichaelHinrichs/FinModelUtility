@@ -20,6 +20,7 @@ namespace fin.math.matrix {
 
     IFinMatrix4x4 AddInPlace(IReadOnlyFinMatrix4x4 other);
     IFinMatrix4x4 MultiplyInPlace(IReadOnlyFinMatrix4x4 other);
+    IFinMatrix4x4 MultiplyInPlace(Matrix4x4 other);
     IFinMatrix4x4 MultiplyInPlace(float other);
     IFinMatrix4x4 InvertInPlace();
     IFinMatrix4x4 TransposeInPlace();
@@ -37,6 +38,9 @@ namespace fin.math.matrix {
 
     IFinMatrix4x4 CloneAndMultiply(IReadOnlyFinMatrix4x4 other);
     void MultiplyIntoBuffer(IReadOnlyFinMatrix4x4 other, IFinMatrix4x4 buffer);
+
+    IFinMatrix4x4 CloneAndMultiply(Matrix4x4 other);
+    void MultiplyIntoBuffer(Matrix4x4 other, IFinMatrix4x4 buffer);
 
     IFinMatrix4x4 CloneAndMultiply(float other);
     void MultiplyIntoBuffer(float other, IFinMatrix4x4 buffer);

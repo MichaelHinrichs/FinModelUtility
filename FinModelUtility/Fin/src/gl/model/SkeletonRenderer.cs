@@ -34,6 +34,8 @@ namespace fin.gl.model {
     public float Scale { get; set; } = 1;
 
     public void Render() {
+      GlTransform.PassMatricesIntoGl();
+
       GL.Disable(EnableCap.DepthTest);
 
       var rootBone = this.Skeleton.Root;

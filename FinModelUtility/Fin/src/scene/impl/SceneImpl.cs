@@ -194,7 +194,7 @@ namespace fin.scene {
       public void Tick() => this.tickHandler_?.Invoke(this);
 
       public void Render() {
-        GL.PushMatrix();
+        GlTransform.PushMatrix();
 
         var trsMatrix =
             MatrixTransformUtil.FromTrs(this.Position, this.Rotation,
@@ -205,7 +205,7 @@ namespace fin.scene {
           model.Render();
         }
 
-        GL.PopMatrix();
+        GlTransform.PopMatrix();
       }
 
 
@@ -288,7 +288,7 @@ namespace fin.scene {
       }
 
       public void Render() {
-        GL.PushMatrix();
+        GlTransform.PushMatrix();
 
         var rootBone = this.Model.Skeleton.Root;
         if (rootBone.FaceTowardsCamera) {
@@ -338,7 +338,7 @@ namespace fin.scene {
           child.Render();
         }
 
-        GL.PopMatrix();
+        GlTransform.PopMatrix();
       }
 
       public IReadOnlyList<ISceneModel> Children => this.children_;

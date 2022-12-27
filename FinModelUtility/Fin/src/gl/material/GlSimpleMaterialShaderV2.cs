@@ -85,12 +85,12 @@ void main() {{
     public void Use() {
       impl_.Use();
 
-      GL.GetFloat(GetPName.ModelviewMatrix, out Matrix4 modelViewMatrix);
-      GL.UniformMatrix4(modelViewMatrixLocation_,
-                        false, ref modelViewMatrix);
+      var modelViewMatrix = GlTransform.ModelViewMatrix;
+      GlTransform.UniformMatrix4(impl_.GetUniformLocation("modelViewMatrix"),
+                        modelViewMatrix);
 
-      GL.GetFloat(GetPName.ProjectionMatrix, out Matrix4 projectionMatrix);
-      GL.UniformMatrix4(projectionMatrixLocation_, false, ref projectionMatrix);
+      var projectionMatrix = GlTransform.ProjectionMatrix;
+      GlTransform.UniformMatrix4(impl_.GetUniformLocation("projectionMatrix"), projectionMatrix);
 
       GL.Uniform1(diffuseTextureLocation_, 0);
       this.primaryGlTexture_.Bind();
