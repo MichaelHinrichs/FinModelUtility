@@ -1,8 +1,5 @@
 ﻿using fin.model;
-using OpenTK;
 using System;
-
-using OpenTK.Graphics.OpenGL;
 
 namespace fin.gl.material {
   public class GlNullMaterialShaderV2 : IGlMaterialShader {
@@ -17,6 +14,15 @@ in vec4 vertexColor0;
 void main() {
     fragColor = vertexColor0;
 }");
+
+    private readonly int modelViewMatrixLocation_;
+    private readonly int projectionMatrixLocation_;
+
+
+    public GlNullMaterialShaderV2() {
+      this.modelViewMatrixLocation_ = impl_.GetUniformLocation("modelViewMatrix");
+      this.projectionMatrixLocation_ = impl_.GetUniformLocation("projectionMatrix");
+    }
 
     public void Dispose() {
       ReleaseUnmanagedResources_();
@@ -34,11 +40,10 @@ void main() {
       this.impl_.Use();
 
       var modelViewMatrix = GlTransform.ModelViewMatrix;
-      GlTransform.UniformMatrix4(this.impl_.GetUniformLocation("modelViewMatrix"),
-                        modelViewMatrix);
+      GlTransform.UniformMatrix4(this.modelViewMatrixLocation_, modelViewMatrix);
 
       var projectionMatrix = GlTransform.ProjectionMatrix;
-      GlTransform.UniformMatrix4(this.impl_.GetUniformLocation("projectionMatrix"), projectionMatrix);
+      GlTransform.UniformMatrix4(this.projectionMatrixLocation_, projectionMatrix);
     }
   }
 }

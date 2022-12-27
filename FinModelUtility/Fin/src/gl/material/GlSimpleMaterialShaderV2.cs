@@ -86,11 +86,10 @@ void main() {{
       impl_.Use();
 
       var modelViewMatrix = GlTransform.ModelViewMatrix;
-      GlTransform.UniformMatrix4(impl_.GetUniformLocation("modelViewMatrix"),
-                        modelViewMatrix);
+      GlTransform.UniformMatrix4(modelViewMatrixLocation_, modelViewMatrix);
 
       var projectionMatrix = GlTransform.ProjectionMatrix;
-      GlTransform.UniformMatrix4(impl_.GetUniformLocation("projectionMatrix"), projectionMatrix);
+      GlTransform.UniformMatrix4(projectionMatrixLocation_, projectionMatrix);
 
       GL.Uniform1(diffuseTextureLocation_, 0);
       this.primaryGlTexture_.Bind();
