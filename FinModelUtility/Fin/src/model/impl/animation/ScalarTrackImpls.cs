@@ -13,15 +13,15 @@ namespace fin.model.impl {
     // TODO: Rethink this, this is all getting way too complicated.
 
     public class PositionTrackImpl : IPositionTrack {
-      private readonly ScalarAxesTrack<IPosition, float> impl_ =
+      private readonly ScalarAxesTrack<PositionStruct, float> impl_ =
           new(3,
               Optional.Of<float>(0),
               Interpolator.Float,
               InterpolatorWithTangents.Float,
-              axisList => new PositionImpl {
-                X = axisList[0],
-                Y = axisList[1],
-                Z = axisList[2],
+              (axesTrack, frame, defaultValue) => new PositionStruct {
+                  X = axesTrack.AxisTracks[0].GetInterpolatedFrame(frame).Or(defaultValue[0]),
+                  Y = axesTrack.AxisTracks[1].GetInterpolatedFrame(frame).Or(defaultValue[1]),
+                  Z = axesTrack.AxisTracks[2].GetInterpolatedFrame(frame).Or(defaultValue[2]),
               });
 
       public IReadOnlyList<ITrack<float>> AxisTracks => this.impl_.AxisTracks;
@@ -32,7 +32,7 @@ namespace fin.model.impl {
         set => this.impl_.FrameCount = value;
       }
 
-      public void Set(IAxesTrack<float, IPosition> other)
+      public void Set(IAxesTrack<float, PositionStruct> other)
         => this.impl_.Set(other);
 
       public void Set(
@@ -50,27 +50,27 @@ namespace fin.model.impl {
       public Optional<Keyframe<ValueAndTangents<float>>>[] GetAxisListAtKeyframe(int keyframe)
         => this.impl_.GetAxisListAtKeyframe(keyframe);
 
-      public IPosition GetInterpolatedFrame(
+      public PositionStruct GetInterpolatedFrame(
           float frame,
-          IOptional<float[]>? defaultAxes = null,
+          float[] defaultValue,
           bool useLoopingInterpolation = false)
         => this.impl_.GetInterpolatedFrame(
             frame,
-            defaultAxes,
+            defaultValue,
             useLoopingInterpolation);
     }
 
     public class ScaleTrackImpl : IScaleTrack {
-      private readonly ScalarAxesTrack<IScale, float> impl_ =
+      private readonly ScalarAxesTrack<ScaleStruct, float> impl_ =
           new(3,
               Optional.Of<float>(1),
               Interpolator.Float,
               InterpolatorWithTangents.Float,
-              axes
-                  => new ScaleImpl {
-                    X = axes[0],
-                    Y = axes[1],
-                    Z = axes[2],
+              (axesTrack, frame, defaultValue)
+                  => new ScaleStruct {
+                    X = axesTrack.AxisTracks[0].GetInterpolatedFrame(frame).Or(defaultValue[0]),
+                    Y = axesTrack.AxisTracks[1].GetInterpolatedFrame(frame).Or(defaultValue[1]),
+                    Z = axesTrack.AxisTracks[2].GetInterpolatedFrame(frame).Or(defaultValue[2]),
                   });
 
       public IReadOnlyList<ITrack<float>> AxisTracks => this.impl_.AxisTracks;
@@ -81,7 +81,7 @@ namespace fin.model.impl {
         set => this.impl_.FrameCount = value;
       }
 
-      public void Set(IAxesTrack<float, IScale> other) => this.impl_.Set(other);
+      public void Set(IAxesTrack<float, ScaleStruct> other) => this.impl_.Set(other);
 
       public void Set(
           int frame,
@@ -98,12 +98,12 @@ namespace fin.model.impl {
       public Optional<Keyframe<ValueAndTangents<float>>>[] GetAxisListAtKeyframe(int keyframe)
         => this.impl_.GetAxisListAtKeyframe(keyframe);
 
-      public IScale GetInterpolatedFrame(
+      public ScaleStruct GetInterpolatedFrame(
           float frame,
-          IOptional<float[]>? defaultAxes = null,
+          float[] defaultValue,
           bool useLoopingInterpolation = false
       )
-        => this.impl_.GetInterpolatedFrame(frame, defaultAxes,
+        => this.impl_.GetInterpolatedFrame(frame, defaultValue,
                                            useLoopingInterpolation);
     }
 
@@ -168,7 +168,6 @@ namespace fin.model.impl {
 
       public Optional<TInterpolated> GetInterpolatedFrame(
           float frame,
-          IOptional<TValue> defaultValue,
           bool useLoopingInterpolation = false) {
         var keyframeDefined = this.impl_.FindIndexOfKeyframe((int)frame,
           out var fromKeyframeIndex,
@@ -177,7 +176,6 @@ namespace fin.model.impl {
 
         var hasFromValue = optionalFromKeyframe
           .Pluck(keyframe => keyframe.Value.Value)
-          .Or(defaultValue)
           .Try(out var fromValue);
 
         if (!hasFromValue) {
@@ -231,7 +229,7 @@ namespace fin.model.impl {
 
       public bool GetInterpolationData(
           float frame,
-          IOptional<TValue> defaultValue,
+          TValue defaultValue,
           out (float frame, TValue value, float? tangent)? fromData,
           out (float frame, TValue value, float? tangent)? toData,
           bool useLoopingInterpolation = false
@@ -292,32 +290,34 @@ namespace fin.model.impl {
           Optional<TAxis> defaultValue,
           IInterpolator<TAxis> axisInterpolator,
           IInterpolatorWithTangents<TAxis> axisInterpolatorWithTangent,
-          MergeAxisListIntoInterpolated mergeAxisListIntoInterpolated)
+          GetInterpolatedFromAxesTrack getInterpolatedFromAxesTrack)
           : base(axisCount,
                  defaultValue,
                  axisInterpolator,
                  axisInterpolatorWithTangent,
-                 mergeAxisListIntoInterpolated) { }
+                 getInterpolatedFromAxesTrack) { }
     }
 
     public class ScalarAxesTrack<TAxes, TAxis, TInterpolated> :
         IAxesTrack<TAxis, TInterpolated> {
       private readonly Optional<TAxis> defaultValue_;
 
-      public delegate TInterpolated MergeAxisListIntoInterpolated(
-          TAxis[] axisList);
+      public delegate TInterpolated GetInterpolatedFromAxesTrack(
+          IAxesTrack<TAxis, TInterpolated> axesTrack,
+          float frame,
+          TAxis[] defaultValue);
 
       private TrackImpl<TAxis>[] axisTracks_;
 
-      private readonly MergeAxisListIntoInterpolated
-          mergeAxisListIntoInterpolated_;
+      private readonly GetInterpolatedFromAxesTrack
+          getInterpolatedFromAxesTrack_;
 
       public ScalarAxesTrack(
           int axisCount,
           Optional<TAxis> defaultValue,
           IInterpolator<TAxis> axisInterpolator,
           IInterpolatorWithTangents<TAxis> axisInterpolatorWithTangent,
-          MergeAxisListIntoInterpolated mergeAxisListIntoInterpolated) {
+          GetInterpolatedFromAxesTrack getInterpolatedFromAxesTrack) {
         this.axisTracks_ = new TrackImpl<TAxis>[axisCount];
         for (var i = 0; i < axisCount; ++i) {
           this.axisTracks_[i] =
@@ -330,7 +330,7 @@ namespace fin.model.impl {
 
         this.defaultValue_ = defaultValue;
 
-        this.mergeAxisListIntoInterpolated_ = mergeAxisListIntoInterpolated;
+        this.getInterpolatedFromAxesTrack_ = getInterpolatedFromAxesTrack;
       }
 
       public bool IsDefined => this.axisTracks_.Any(axis => axis.IsDefined);
@@ -375,28 +375,10 @@ namespace fin.model.impl {
 
       public TInterpolated GetInterpolatedFrame(
           float frame,
-          IOptional<TAxis[]>? defaultAxes = null,
+          TAxis[] defaultValue,
           bool useLoopingInterpolation = false
       ) {
-        var optionAxisList =
-            this.axisTracks_.Select(
-                (axis, i) => {
-                  var defaultValue = defaultAxes == null
-                                         ? this.defaultValue_
-                                         : defaultAxes.Pluck(axes => axes[i])
-                                             .Or(this.defaultValue_);
-
-                  return axis.GetInterpolatedFrame(
-                      frame,
-                      defaultValue,
-                      useLoopingInterpolation);
-                });
-        var axisList = optionAxisList
-                       .Select(axis => axis.Assert(
-                                   "Could not interpolate value for one of the axes!"))
-                       .ToArray();
-
-        return this.mergeAxisListIntoInterpolated_(axisList);
+        return this.getInterpolatedFromAxesTrack_(this, frame, defaultValue);
       }
     }
   }

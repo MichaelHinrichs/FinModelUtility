@@ -1,5 +1,6 @@
 ﻿using fin.data;
 using fin.math.interpolation;
+using fin.model.impl;
 using fin.util.optional;
 using System.Collections.Generic;
 using System.Numerics;
@@ -44,13 +45,12 @@ namespace fin.model {
 
     Optional<TInterpolated> GetInterpolatedFrame(
         float frame,
-        IOptional<TValue> defaultValue,
         bool useLoopingInterpolation = false
     );
 
     bool GetInterpolationData(
         float frame,
-        IOptional<TValue> defaultValue,
+        TValue defaultValue,
         out (float frame, TValue value, float? tangent)? fromData,
         out (float frame, TValue value, float? tangent)? toData,
         bool useLoopingInterpolation = false
@@ -89,15 +89,15 @@ namespace fin.model {
 
     TInterpolated GetInterpolatedFrame(
         float frame,
-        IOptional<TAxis[]>? defaultValue = null,
+        TAxis[] defaultValue,
         bool useLoopingInterpolation = false
     );
   }
 
-  public interface IPositionTrack : IAxesTrack<float, IPosition> { }
+  public interface IPositionTrack : IAxesTrack<float, PositionStruct> { }
 
   public interface IRadiansRotationTrack : IAxesTrack<float, Quaternion> {
   }
 
-  public interface IScaleTrack : IAxesTrack<float, IScale> { }
+  public interface IScaleTrack : IAxesTrack<float, ScaleStruct> { }
 }

@@ -146,8 +146,8 @@ namespace fin.scene {
       }
 
       public ISceneObject SetRotationRadians(float xRadians,
-                                      float yRadians,
-                                      float zRadians) {
+                                             float yRadians,
+                                             float zRadians) {
         this.Rotation.SetRadians(
             xRadians,
             yRadians,
@@ -316,12 +316,12 @@ namespace fin.scene {
           var hiddenMeshes = this.ModelRenderer.HiddenMeshes;
 
           hiddenMeshes.Clear();
-          var defaultDisplayState = Optional.Of(MeshDisplayState.VISIBLE);
+          var defaultDisplayState = MeshDisplayState.VISIBLE;
           foreach (var (mesh, meshTracks) in this.Animation.MeshTracks) {
             var displayState =
-                meshTracks.DisplayStates.GetInterpolatedFrame(
-                    frame, defaultDisplayState);
-            if (displayState.Assert() == MeshDisplayState.HIDDEN) {
+                meshTracks.DisplayStates.GetInterpolatedFrame(frame)
+                          .Or(defaultDisplayState);
+            if (displayState == MeshDisplayState.HIDDEN) {
               hiddenMeshes.Add(mesh);
             }
           }

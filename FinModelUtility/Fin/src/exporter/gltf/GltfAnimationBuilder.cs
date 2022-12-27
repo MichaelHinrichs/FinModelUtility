@@ -39,21 +39,21 @@ namespace fin.exporter.gltf {
           var scaleDefined = boneTracks.Scales.IsDefined;
 
           // TODO: Pass these in directly, not as lists
-          var defaultPosition = Optional.Of(new[] {
+          var defaultPosition = new[] {
               bone.LocalPosition.X,
               bone.LocalPosition.Y,
               bone.LocalPosition.Z,
-          });
-          var defaultRotation = Optional.Of(new[] {
+          };
+          var defaultRotation = new[] {
               bone.LocalRotation?.XRadians ?? 0,
               bone.LocalRotation?.YRadians ?? 0,
               bone.LocalRotation?.ZRadians ?? 0,
-          });
-          var defaultScale = Optional.Of(new[] {
+          };
+          var defaultScale = new[] {
               bone.LocalScale?.X ?? 1,
-              bone.LocalScale?.Y ?? 1,
-              bone.LocalScale?.Z ?? 1,
-          });
+              bone.LocalScale?.Y ?? 1, 
+              bone.LocalScale?.Z ?? 1
+          };
 
           // TODO: How to get keyframes for sparse tracks?
           for (var i = 0; i < animation.FrameCount; ++i) {

@@ -63,7 +63,7 @@ namespace fin.model.impl {
 
       public Quaternion GetInterpolatedFrame(
           float frame,
-          IOptional<float[]>? defaultAxes = null,
+          float[] defaultValue,
           bool useLoopingInterpolation = false) {
         var xTrack = this.axisTracks_[0];
         var yTrack = this.axisTracks_[1];
@@ -104,18 +104,9 @@ namespace fin.model.impl {
 
         }*/
 
-        var defaultX = defaultAxes == null
-                           ? this.defaultRotation_
-                           : defaultAxes.Pluck(axes => axes[0])
-                                        .Or(this.defaultRotation_);
-        var defaultY = defaultAxes == null
-                           ? this.defaultRotation_
-                           : defaultAxes.Pluck(axes => axes[1])
-                                        .Or(this.defaultRotation_);
-        var defaultZ = defaultAxes == null
-                           ? this.defaultRotation_
-                           : defaultAxes.Pluck(axes => axes[2])
-                                        .Or(this.defaultRotation_);
+        var defaultX = defaultValue[0];
+        var defaultY = defaultValue[1];
+        var defaultZ = defaultValue[2];
 
         xTrack.GetInterpolationData(
             frame,
@@ -140,17 +131,14 @@ namespace fin.model.impl {
                 fromXFrame, fromYFrame, fromZFrame,
                 toXFrame, toYFrame, toZFrame)) {
           var xRadians =
-              xTrack.GetInterpolatedFrame(frame, defaultX,
-                                          useLoopingInterpolation)
-                    .Assert();
+              xTrack.GetInterpolatedFrame(frame, useLoopingInterpolation)
+                    .Or(defaultX);
           var yRadians =
-              yTrack.GetInterpolatedFrame(frame, defaultY,
-                                          useLoopingInterpolation)
-                    .Assert();
+              yTrack.GetInterpolatedFrame(frame, useLoopingInterpolation)
+                    .Or(defaultY);
           var zRadians =
-              zTrack.GetInterpolatedFrame(frame, defaultZ,
-                                          useLoopingInterpolation)
-                    .Assert();
+              zTrack.GetInterpolatedFrame(frame, useLoopingInterpolation)
+                    .Or(defaultZ);
 
           return QuaternionUtil.Create(xRadians, yRadians, zRadians);
         }

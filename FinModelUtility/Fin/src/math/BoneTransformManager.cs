@@ -73,6 +73,10 @@ namespace fin.math {
       this.boneWeightsToWorldMatrices_.Clear();
     }
 
+    private readonly float[] defaultPosition_ = new float[3];
+    private readonly float[] defaultRotation_ = new float[3];
+    private readonly float[] defaultScale_ = new float[3];
+
     public IDictionary<IBone, int> CalculateMatrices(
         IBone rootBone,
         IReadOnlyList<IBoneWeights> boneWeightsList,
@@ -130,34 +134,33 @@ namespace fin.math {
         animation?.BoneTracks.TryGetValue(bone, out boneTracks);
         if (boneTracks != null) {
           // Need to pass in default pose of the bone to fill in for any axes that may be undefined.
-          var defaultPosition = Optional.Of(new[] {
-              boneLocalPosition.X, boneLocalPosition.Y, boneLocalPosition.Z,
-          });
-          var defaultRotation = Optional.Of(new[] {
-              bone.LocalRotation?.XRadians ?? 0,
-              bone.LocalRotation?.YRadians ?? 0,
-              bone.LocalRotation?.ZRadians ?? 0,
-          });
-          var defaultScale = Optional.Of(new[] {
-              boneLocalScale?.X ?? 0, boneLocalScale?.Y ?? 0,
-              boneLocalScale?.Z ?? 0,
-          });
+          defaultPosition_[0] = boneLocalPosition.X;
+          defaultPosition_[1] = boneLocalPosition.Y;
+          defaultPosition_[2] = boneLocalPosition.Z;
+
+          this.defaultRotation_[0] = bone.LocalRotation?.XRadians ?? 0;
+          this.defaultRotation_[1] = bone.LocalRotation?.YRadians ?? 0;
+          this.defaultRotation_[2] = bone.LocalRotation?.ZRadians ?? 0;
+
+          this.defaultScale_[0] = boneLocalScale?.X ?? 0;
+          this.defaultScale_[1] = boneLocalScale?.Y ?? 0;
+          this.defaultScale_[2] = boneLocalScale?.Z ?? 0;
 
           // Only gets the values from the animation if the frame is at least partially defined.
           animationLocalPosition =
               boneTracks?.Positions.IsDefined ?? false
                   ? boneTracks?.Positions.GetInterpolatedFrame(
-                      (float)frame, defaultPosition, useLoopingInterpolation)
+                      (float)frame, defaultPosition_, useLoopingInterpolation)
                   : null;
           animationLocalRotation =
               boneTracks?.Rotations.IsDefined ?? false
                   ? boneTracks?.Rotations.GetInterpolatedFrame(
-                      (float)frame, defaultRotation, useLoopingInterpolation)
+                      (float)frame, defaultRotation_, useLoopingInterpolation)
                   : null;
           animationLocalScale =
               boneTracks?.Scales.IsDefined ?? false
                   ? boneTracks?.Scales.GetInterpolatedFrame(
-                      (float)frame, defaultScale, useLoopingInterpolation)
+                      (float)frame, defaultScale_, useLoopingInterpolation)
                   : null;
         }
 

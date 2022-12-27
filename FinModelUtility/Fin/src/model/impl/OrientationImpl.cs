@@ -2,7 +2,48 @@
 using System;
 using System.Numerics;
 
+
 namespace fin.model.impl {
+  public struct PositionStruct : IPosition {
+    public float X { get; set; }
+    public float Y { get; set; }
+    public float Z { get; set; }
+    public float W => 1;
+
+    public override string ToString() =>
+        $"{{{this.X}, {this.Y}, {this.Z}, {this.W}}}";
+
+    public override bool Equals(object other) {
+      var error = .0001;
+      if (other is IPosition otherPosition) {
+        return Math.Abs(this.X - otherPosition.X) < error &&
+               Math.Abs(this.Y - otherPosition.Y) < error &&
+               Math.Abs(this.Z - otherPosition.Z) < error;
+      }
+
+      return false;
+    }
+  }
+
+  public struct ScaleStruct : IScale {
+    public float X { get; set; }
+    public float Y { get; set; }
+    public float Z { get; set; }
+
+    public override string ToString() => $"{{{this.X}, {this.Y}, {this.Z}}}";
+
+    public override bool Equals(object other) {
+      var error = .0001;
+      if (other is IScale otherScale) {
+        return Math.Abs(this.X - otherScale.X) < error &&
+               Math.Abs(this.Y - otherScale.Y) < error &&
+               Math.Abs(this.Z - otherScale.Z) < error;
+      }
+
+      return false;
+    }
+  }
+
   public partial class ModelImpl {
     public class PositionImpl : IPosition {
       public float X { get; set; }
@@ -10,11 +51,12 @@ namespace fin.model.impl {
       public float Z { get; set; }
       public float W => 1;
 
-      public override string ToString() => $"{{{this.X}, {this.Y}, {this.Z}, {this.W}}}";
+      public override string ToString() =>
+          $"{{{this.X}, {this.Y}, {this.Z}, {this.W}}}";
 
       public override bool Equals(object other) {
         var error = .0001;
-        if (other is PositionImpl otherPosition) {
+        if (other is IPosition otherPosition) {
           return Math.Abs(this.X - otherPosition.X) < error &&
                  Math.Abs(this.Y - otherPosition.Y) < error &&
                  Math.Abs(this.Z - otherPosition.Z) < error;
@@ -30,11 +72,12 @@ namespace fin.model.impl {
       public float Z { get; set; }
       public float W => 0;
 
-      public override string ToString() => $"{{{this.X}, {this.Y}, {this.Z}, {this.W}}}";
+      public override string ToString() =>
+          $"{{{this.X}, {this.Y}, {this.Z}, {this.W}}}";
 
       public override bool Equals(object other) {
         var error = .0001;
-        if (other is NormalImpl otherNormal) {
+        if (other is INormal otherNormal) {
           return Math.Abs(this.X - otherNormal.X) < error &&
                  Math.Abs(this.Y - otherNormal.Y) < error &&
                  Math.Abs(this.Z - otherNormal.Z) < error;
@@ -50,19 +93,20 @@ namespace fin.model.impl {
       public float Z { get; set; }
       public float W { get; set; }
 
-      public override string ToString() => $"{{{this.X}, {this.Y}, {this.Z}, {this.W}}}";
+      public override string ToString() =>
+          $"{{{this.X}, {this.Y}, {this.Z}, {this.W}}}";
     }
 
     public class ScaleImpl : IScale {
       public float X { get; set; }
       public float Y { get; set; }
       public float Z { get; set; }
-      
+
       public override string ToString() => $"{{{this.X}, {this.Y}, {this.Z}}}";
 
       public override bool Equals(object other) {
         var error = .0001;
-        if (other is ScaleImpl otherScale) {
+        if (other is IScale otherScale) {
           return Math.Abs(this.X - otherScale.X) < error &&
                  Math.Abs(this.Y - otherScale.Y) < error &&
                  Math.Abs(this.Z - otherScale.Z) < error;
@@ -151,7 +195,8 @@ namespace fin.model.impl {
         return this.SetRadians(eulerRadians.X, eulerRadians.Y, eulerRadians.Z);
       }
 
-      public override string ToString() => $"{{{this.XDegrees}°, {this.YDegrees}°, {this.ZDegrees}°}}";
+      public override string ToString() =>
+          $"{{{this.XDegrees}°, {this.YDegrees}°, {this.ZDegrees}°}}";
     }
   }
 }
