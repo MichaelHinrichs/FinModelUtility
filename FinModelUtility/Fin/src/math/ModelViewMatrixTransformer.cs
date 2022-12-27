@@ -1,6 +1,5 @@
 ﻿using fin.math.matrix;
 using fin.model;
-using fin.util.asserts;
 using System;
 using System.Collections.Generic;
 using System.Numerics;

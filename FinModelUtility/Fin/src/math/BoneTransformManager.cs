@@ -191,7 +191,8 @@ namespace fin.math {
           Quaternion rotationBuffer;
           if (bone.FaceTowardsCamera) {
             var camera = Camera.Instance;
-            var angle = camera.Yaw / 180f * MathF.PI;
+            var yaw = camera?.Yaw ?? 0;
+            var angle = yaw / 180f * MathF.PI;
             var rotateYaw =
                 Quaternion.CreateFromYawPitchRoll(angle, 0, 0);
 

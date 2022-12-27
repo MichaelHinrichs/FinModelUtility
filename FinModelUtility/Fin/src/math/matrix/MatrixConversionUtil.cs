@@ -27,30 +27,6 @@
       finMatrix[3, 3] = other.M44;
     }
 
-    public static void CopyFinIntoSystem(
-        IReadOnlyFinMatrix4x4 finMatrix,
-        ref SystemMatrix systemMatrix) {
-      systemMatrix.M11 = (float) finMatrix[0, 0];
-      systemMatrix.M12 = (float) finMatrix[1, 0];
-      systemMatrix.M13 = (float) finMatrix[2, 0];
-      systemMatrix.M14 = (float) finMatrix[3, 0];
-
-      systemMatrix.M21 = (float) finMatrix[0, 1];
-      systemMatrix.M22 = (float) finMatrix[1, 1];
-      systemMatrix.M23 = (float) finMatrix[2, 1];
-      systemMatrix.M24 = (float) finMatrix[3, 1];
-
-      systemMatrix.M31 = (float) finMatrix[0, 2];
-      systemMatrix.M32 = (float) finMatrix[1, 2];
-      systemMatrix.M33 = (float) finMatrix[2, 2];
-      systemMatrix.M34 = (float) finMatrix[3, 2];
-
-      systemMatrix.M41 = (float) finMatrix[0, 3];
-      systemMatrix.M42 = (float) finMatrix[1, 3];
-      systemMatrix.M43 = (float) finMatrix[2, 3];
-      systemMatrix.M44 = (float) finMatrix[3, 3];
-    }
-
     public static void CopyFinIntoAssimp(
         IReadOnlyFinMatrix4x4 finMatrix,
         ref AssimpMatrix assMatrix) {

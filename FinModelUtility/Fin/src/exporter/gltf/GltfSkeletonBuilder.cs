@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 
-using fin.math;
 using fin.math.matrix;
 using fin.model;
 
@@ -52,15 +50,9 @@ namespace fin.exporter.gltf {
     }
 
     private void ApplyBoneOrientationToNode_(GltfNode node, IBone bone) {
-      var systemMatrix = node.LocalMatrix;
-
-      MatrixConversionUtil.CopyFinIntoSystem(
-          MatrixTransformUtil.FromTrs(bone.LocalPosition,
+      node.LocalMatrix = MatrixTransformUtil.FromTrs(bone.LocalPosition,
                                       bone.LocalRotation,
-                                      bone.LocalScale),
-          ref systemMatrix);
-
-      node.LocalMatrix = systemMatrix;
+                                      bone.LocalScale).Impl;
     }
   }
 }
