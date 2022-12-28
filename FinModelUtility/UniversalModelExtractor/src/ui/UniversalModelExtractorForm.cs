@@ -7,8 +7,6 @@ using fin.scene;
 using uni.config;
 using uni.games;
 using uni.ui.common;
-using Microsoft.Xna.Framework.Graphics;
-using level5.api;
 
 
 namespace uni.ui;

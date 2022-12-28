@@ -8,7 +8,6 @@ using fin.color;
 using fin.data;
 using fin.image;
 using fin.util.asserts;
-using Microsoft.CodeAnalysis.CSharp;
 
 
 namespace glo.api {

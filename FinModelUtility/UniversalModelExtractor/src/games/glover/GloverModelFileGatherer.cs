@@ -1,4 +1,5 @@
-﻿using fin.io;
+﻿using fin.audio;
+using fin.io;
 using fin.io.bundles;
 using glo.api;
 using uni.platforms.desktop;
@@ -6,8 +7,8 @@ using uni.platforms.desktop;
 
 namespace uni.games.glover {
   public class GloverModelFileGatherer
-      : IFileBundleGatherer<GloModelFileBundle> {
-    public IFileBundleDirectory<GloModelFileBundle>? GatherFileBundles(
+      : IFileBundleGatherer<IFileBundle> {
+    public IFileBundleDirectory<IFileBundle>? GatherFileBundles(
         bool assert) {
       var gloverSteamDirectory = SteamUtils.GetGameDirectory("Glover", assert);
       if (gloverSteamDirectory == null) {
@@ -15,13 +16,21 @@ namespace uni.games.glover {
       }
 
       var rootModelDirectory =
-          new FileBundleDirectory<GloModelFileBundle>("glover");
-      var parentObjectDirectory = rootModelDirectory.AddSubdir("data")
-                                                    .AddSubdir("objects");
+          new FileBundleDirectory<IFileBundle>("glover");
 
       var gloverFileHierarchy = new FileHierarchy(gloverSteamDirectory);
-      var topLevelObjectDirectory =
-          gloverFileHierarchy.Root.TryToGetSubdir("data/objects");
+
+      var dataDirectory = gloverFileHierarchy.Root.TryToGetSubdir("data");
+      var parentDataDirectory = rootModelDirectory.AddSubdir("data");
+
+      var parentBgmDirectory = parentDataDirectory.AddSubdir("bgm");
+      var topLevelBgmDirectory = dataDirectory.TryToGetSubdir("bgm");
+      foreach (var bgmFile in topLevelBgmDirectory.Files) {
+        parentBgmDirectory.AddFileBundle(new OggAudioFileBundle(bgmFile));
+      }
+
+      var parentObjectDirectory = parentDataDirectory.AddSubdir("objects");
+      var topLevelObjectDirectory = dataDirectory.TryToGetSubdir("objects");
       foreach (var objectDirectory in topLevelObjectDirectory.Subdirs) {
         this.AddObjectDirectory_(
             parentObjectDirectory.AddSubdir(objectDirectory.Name),
@@ -31,7 +40,7 @@ namespace uni.games.glover {
     }
 
     private void AddObjectDirectory_(
-        IFileBundleDirectory<GloModelFileBundle> parentNode,
+        IFileBundleDirectory<IFileBundle> parentNode,
         IFileHierarchy gloverFileHierarchy,
         IFileHierarchyDirectory objectDirectory) {
       var objectFiles = objectDirectory.FilesWithExtension(".glo");
