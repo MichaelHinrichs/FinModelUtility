@@ -36,6 +36,13 @@ namespace glo.schema {
   }
 
 
+  [Flags]
+  public enum GloMeshFlags : ushort {
+    GOURAUD_SHADED = 1 << 0,
+    PRELIT = 1 << 3,
+    FACE_COLOR = 1 << 10,
+  }
+
   [BinarySchema]
   public sealed partial class GloMesh : IBiSerializable {
     [StringLengthSource(24)]
@@ -60,7 +67,7 @@ namespace glo.schema {
     [NumberFormat(SchemaNumberType.UN8)] public float MeshTranslucency { get; set; }
     private readonly byte padding_ = 0;
 
-    public ushort MeshFlags { get; set; }
+    public GloMeshFlags MeshFlags { get; set; }
 
     public GloMeshPointers Pointers { get; } = new();
   }
