@@ -1,4 +1,4 @@
-﻿using bmd.exporter;
+﻿using j3d.exporter;
 
 namespace uni.games.super_mario_sunshine {
   public class SuperMarioSunshineExtractor {

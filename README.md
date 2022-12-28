@@ -50,7 +50,7 @@ Model viewer and command-line tools for extracting models from games en-masse. S
 
 *Not all of the models for each game are currently supported, and not every feature of each model will be accurately recreated in the output GLTF/FBX files. To flag any broken/missing models that you'd like to see fixed, please feel free to file feedback via the Issues tab above.*
 
-- .bmd (GCN)
+- J3D (.bmd/.bdl) (GCN)
   - Mario Kart: Double Dash (`mario_kart_double_dash.gcm`)
   - Pikmin 2 (`pikmin_2.gcm`)
   - Super Mario Sunshine (`super_mario_sunshine.gcm`)
