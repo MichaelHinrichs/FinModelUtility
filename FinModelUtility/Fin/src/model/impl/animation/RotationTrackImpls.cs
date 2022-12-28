@@ -6,13 +6,11 @@ using System.Numerics;
 
 using fin.math;
 using fin.math.interpolation;
-using fin.util.optional;
 
 
 namespace fin.model.impl {
   public partial class ModelImpl {
     public class RadiansRotationTrackImpl : IRadiansRotationTrack {
-      private readonly Optional<float> defaultRotation_ = Optional.Of<float>(0);
       private readonly TrackImpl<float>[] axisTracks_;
 
       public RadiansRotationTrackImpl() {

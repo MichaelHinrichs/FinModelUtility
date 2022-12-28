@@ -4,5 +4,6 @@
     ISkin Skin { get; }
     IMaterialManager MaterialManager { get; }
     IAnimationManager AnimationManager { get; }
+    ILighting Lighting { get; }
   }
 }

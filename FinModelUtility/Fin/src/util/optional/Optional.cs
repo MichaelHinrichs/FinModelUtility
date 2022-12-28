@@ -1,24 +1,12 @@
-﻿using System;
-
-using fin.util.asserts;
+﻿using fin.util.asserts;
 
 namespace fin.util.optional {
   public interface IOptional<T> {
-    bool HasValue { get; }
-
     bool Try(out T value);
-
-    IOptional<TSub> Pluck<TSub>(Func<T, TSub> pluck);
-    IOptional<TSub> Pluck<TSub>(Func<T, IOptional<TSub>> pluck);
 
     IOptional<T> Or(IOptional<T> other);
     T Or(T defaultValue);
     T Assert(string? message = null);
-  }
-
-  public static class Optional {
-    public static Optional<T> Of<T>(T value) => Optional<T>.Of(value);
-    public static Optional<T> None<T>() => Optional<T>.None();
   }
 
   public struct Optional<T> : IOptional<T> {
@@ -48,17 +36,6 @@ namespace fin.util.optional {
       value = default;
       return false;
     }
-
-
-    public IOptional<TSub> Pluck<TSub>(Func<T, TSub> pluck)
-      => this.HasValue
-             ? Optional.Of(pluck(this.value_))
-             : Optional.None<TSub>();
-
-    public IOptional<TSub> Pluck<TSub>(Func<T, IOptional<TSub>> pluck)
-      => this.HasValue
-             ? pluck(this.value_)
-             : Optional.None<TSub>();
 
 
     public IOptional<T> Or(IOptional<T> other) => this.HasValue ? this : other;
