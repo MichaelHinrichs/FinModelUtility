@@ -10,27 +10,16 @@
 
   public interface IAnimatedJoint {
     IJointAnim Values { get; }
-    float GetAnimValue(IJointAnimKey[] keys, float time);
   }
 
   public interface IJointAnim {
-    IJointAnimKey[] scalesX { get; }
-    IJointAnimKey[] scalesY { get; }
-    IJointAnimKey[] scalesZ { get; }
-
-    IJointAnimKey[] rotationsX { get; }
-    IJointAnimKey[] rotationsY { get; }
-    IJointAnimKey[] rotationsZ { get; }
-    
-    IJointAnimKey[] translationsX { get; }
-    IJointAnimKey[] translationsY { get; }
-    IJointAnimKey[] translationsZ { get; }
+    IJointAnimKey[][] Scales { get; }
+    IJointAnimKey[][] Rotations { get; }
+    IJointAnimKey[][] Translations { get; }
   }
 
   public interface IJointAnimKey {
     int Frame { get; }
     float Value { get; }
-    float IncomingTangent { get; }
-    float OutgoingTangent { get; }
   }
 }

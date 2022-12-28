@@ -11,6 +11,7 @@ using System.IO;
 using System.Text;
 using schema.attributes.endianness;
 using schema.attributes.size;
+using System.Linq;
 
 
 namespace bmd.schema.bcx {
@@ -88,7 +89,7 @@ namespace bmd.schema.bcx {
           this.Rotation = er.ReadInt16s((int)this.NrRot);
           er.Position = (long)(32U + this.TransOffset);
           this.Translation = er.ReadSingles((int)this.NrTrans);
-          float RotScale = (float)(1 * Math.PI / 32768f);
+          float rotScale = (float)(1 * Math.PI / 32768f);
           er.Position = (long)(32U + this.JointOffset);
           this.Joints = new Bca.ANF1Section.AnimatedJoint[(int)this.NrJoints];
           for (int index = 0; index < (int)this.NrJoints; ++index) {
@@ -96,7 +97,7 @@ namespace bmd.schema.bcx {
             animatedJoint.SetValues(this.Scale,
                                     this.Rotation,
                                     this.Translation,
-                                    RotScale);
+                                    rotScale);
             this.Joints[index] = animatedJoint;
           }
           OK = true;
@@ -107,30 +108,29 @@ namespace bmd.schema.bcx {
       public IAnimatedJoint[] Joints { get; }
 
       public partial class AnimatedJoint : IAnimatedJoint {
-        public AnimComponent X;
-        public AnimComponent Y;
-        public AnimComponent Z;
+        public AnimComponent[] axes;
 
         public AnimatedJoint(EndianBinaryReader er) {
-          this.X = er.ReadNew<AnimComponent>();
-          this.Y = er.ReadNew<AnimComponent>();
-          this.Z = er.ReadNew<AnimComponent>();
+          this.axes = new AnimComponent[3];
+          for (var i = 0; i < axes.Length; ++i) {
+            this.axes[i] = er.ReadNew<AnimComponent>();
+          }
         }
 
         public IJointAnim Values { get; private set; }
 
         public void SetValues(
-            float[] Scales,
-            short[] Rotations,
-            float[] Translations,
-            float RotScale) {
+            float[] scales,
+            short[] rotations,
+            float[] translations,
+            float totScale) {
           this.Values =
               new JointAnim(
                   this,
-                  Scales,
-                  Rotations,
-                  Translations,
-                  RotScale);
+                  scales,
+                  rotations,
+                  translations,
+                  totScale);
         }
 
         public float GetAnimValue(IJointAnimKey[] keys, float t) {
@@ -153,77 +153,65 @@ namespace bmd.schema.bcx {
         }
 
         public class JointAnim : IJointAnim {
-          private IJointAnimKey[] scalesX_;
-          private IJointAnimKey[] scalesY_;
-          private IJointAnimKey[] scalesZ_;
-          private IJointAnimKey[] rotationsX_;
-          private IJointAnimKey[] rotationsY_;
-          private IJointAnimKey[] rotationsZ_;
-          private IJointAnimKey[] translationsX_;
-          private IJointAnimKey[] translationsY_;
-          private IJointAnimKey[] translationsZ_;
-
           public JointAnim(
-              Bca.ANF1Section.AnimatedJoint Joint,
-              float[] Scales,
-              short[] Rotations,
-              float[] Translations,
-              float RotScale) {
-            this.SetKeysST(out this.scalesX_, Scales, Joint.X.S);
-            this.SetKeysST(out this.scalesY_, Scales, Joint.Y.S);
-            this.SetKeysST(out this.scalesZ_, Scales, Joint.Z.S);
-            this.SetKeysR(out this.rotationsX_, Rotations, RotScale, Joint.X.R);
-            this.SetKeysR(out this.rotationsY_, Rotations, RotScale, Joint.Y.R);
-            this.SetKeysR(out this.rotationsZ_, Rotations, RotScale, Joint.Z.R);
-            this.SetKeysST(out this.translationsX_, Translations, Joint.X.T);
-            this.SetKeysST(out this.translationsY_, Translations, Joint.Y.T);
-            this.SetKeysST(out this.translationsZ_, Translations, Joint.Z.T);
+              AnimatedJoint joint,
+              float[] scales,
+              short[] rotations,
+              float[] translations,
+              float rotScale) {
+            this.Scales = joint.axes.Select(
+                axisSrc => {
+                  this.SetKeysSt_(out var axis, scales, axisSrc.S);
+                  return axis;
+                }).ToArray();
+            this.Rotations = joint.axes.Select(
+                axisSrc => {
+                  this.SetKeysR_(out var axis, rotations, rotScale, axisSrc.R);
+                  return axis;
+                }).ToArray();
+            this.Translations = joint.axes.Select(
+                axisSrc => {
+                  this.SetKeysSt_(out var axis, translations, axisSrc.T);
+                  return axis;
+                }).ToArray();
           }
 
-          public IJointAnimKey[] scalesX => this.scalesX_;
-          public IJointAnimKey[] scalesY => this.scalesY_;
-          public IJointAnimKey[] scalesZ => this.scalesZ_;
+          public IJointAnimKey[][] Scales { get; }
+          public IJointAnimKey[][] Rotations { get; }
+          public IJointAnimKey[][] Translations { get; }
 
-          public IJointAnimKey[] rotationsX => this.rotationsX_;
-          public IJointAnimKey[] rotationsY => this.rotationsY_;
-          public IJointAnimKey[] rotationsZ => this.rotationsZ_;
-
-          public IJointAnimKey[] translationsX => this.translationsX_;
-          public IJointAnimKey[] translationsY => this.translationsY_;
-          public IJointAnimKey[] translationsZ => this.translationsZ_;
-
-          private void SetKeysST(
-              out IJointAnimKey[] Destination,
-              float[] Source,
-              Bca.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex Component) {
-            Destination = new IJointAnimKey[Component.Count];
-            if (Component.Count <= 0)
+          private void SetKeysSt_(
+              out IJointAnimKey[] dst,
+              float[] src,
+              AnimComponent.AnimIndex component) {
+            dst = new IJointAnimKey[component.Count];
+            if (component.Count <= 0)
               throw new Exception("Count <= 0");
-            if (Component.Count == 1) {
-              Destination[0] = new Key(0, Source[Component.Index]);
+            if (component.Count == 1) {
+              dst[0] = new Key(0, src[component.Index]);
             } else {
-              for (var index = 0; index < Component.Count; ++index)
-                Destination[index] =
-                    new Key(index, Source[Component.Index + index]);
+              for (var index = 0; index < component.Count; ++index)
+                dst[index] =
+                    new Key(index, src[component.Index + index]);
             }
           }
 
-          private void SetKeysR(
-              out IJointAnimKey[] Destination,
-              short[] Source,
-              float RotScale,
-              Bca.ANF1Section.AnimatedJoint.AnimComponent.AnimIndex Component) {
-            Destination = new IJointAnimKey[Component.Count];
-            if (Component.Count <= 0)
+          private void SetKeysR_(
+              out IJointAnimKey[] dst,
+              short[] src,
+              float rotScale,
+              AnimComponent.AnimIndex component) {
+            dst = new IJointAnimKey[component.Count];
+            if (component.Count <= 0)
               throw new Exception("Count <= 0");
-            if (Component.Count == 1) {
-              Destination[0] =
-                  new Key(0, Source[Component.Index] * RotScale);
+            if (component.Count == 1) {
+              dst[0] =
+                  new Key(0, src[component.Index] * rotScale);
             } else {
-              for (var index = 0; index < Component.Count; ++index)
-                Destination[index] =
-                    new Key(index, Source[Component.Index + index] *
-                            RotScale);
+              for (var index = 0; index < component.Count; ++index)
+                dst[index] =
+                    new Key(index, src[component.Index + index] *
+                            rotScale);
             }
           }
 
@@ -235,10 +223,6 @@ namespace bmd.schema.bcx {
 
             public int Frame { get; }
             public float Value { get; }
-
-            // TODO: What should this actually be?
-            public float IncomingTangent => 1;
-            public float OutgoingTangent => 1;
           }
         }
       }

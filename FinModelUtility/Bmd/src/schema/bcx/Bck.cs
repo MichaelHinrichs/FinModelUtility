@@ -12,6 +12,7 @@ using fin.util.asserts;
 using schema;
 using schema.attributes.endianness;
 using schema.attributes.size;
+using System.Linq;
 
 
 namespace bmd.schema.bcx {
@@ -30,7 +31,7 @@ namespace bmd.schema.bcx {
           new EndianBinaryReader((Stream)new MemoryStream(file),
                                  Endianness.BigEndian);
       this.Header = er.ReadNew<BckHeader>();
-      this.ANK1 = new Bck.ANK1Section(er, out _);
+      this.ANK1 = new ANK1Section(er, out _);
     }
 
     public IAnx1 Anx1 => this.ANK1;
@@ -112,14 +113,13 @@ namespace bmd.schema.bcx {
 
 
       public partial class AnimatedJoint : IAnimatedJoint {
-        public AnimComponent X;
-        public AnimComponent Y;
-        public AnimComponent Z;
+        public AnimComponent[] axes;
 
         public AnimatedJoint(EndianBinaryReader er) {
-          this.X = er.ReadNew<AnimComponent>();
-          this.Y = er.ReadNew<AnimComponent>();
-          this.Z = er.ReadNew<AnimComponent>();
+          this.axes = new AnimComponent[3];
+          for (var i = 0; i < axes.Length; ++i) {
+            this.axes[i] = er.ReadNew<AnimComponent>();
+          }
         }
 
         public IJointAnim Values { get; private set; }
@@ -155,7 +155,7 @@ namespace bmd.schema.bcx {
           return ((num1 * t + num2) * t + num3) * t + num4;
         }
 
-        public float GetAnimValue(IJointAnimKey[] keys, float t) {
+        public float GetAnimValue(JointAnim.Key[] keys, float t) {
           if (keys.Length == 0)
             return 0.0f;
           if (keys.Length == 1)
@@ -199,80 +199,68 @@ namespace bmd.schema.bcx {
         }
 
         public class JointAnim : IJointAnim {
-          private IJointAnimKey[] scalesX_;
-          private IJointAnimKey[] scalesY_;
-          private IJointAnimKey[] scalesZ_;
-          private IJointAnimKey[] rotationsX_;
-          private IJointAnimKey[] rotationsY_;
-          private IJointAnimKey[] rotationsZ_;
-          private IJointAnimKey[] translationsX_;
-          private IJointAnimKey[] translationsY_;
-          private IJointAnimKey[] translationsZ_;
-
           public JointAnim(
-              AnimatedJoint Joint,
-              float[] Scales,
-              short[] Rotations,
-              float[] Translations,
-              float RotScale) {
-            this.SetKeysST(out this.scalesX_, Scales, Joint.X.S);
-            this.SetKeysST(out this.scalesY_, Scales, Joint.Y.S);
-            this.SetKeysST(out this.scalesZ_, Scales, Joint.Z.S);
-            this.SetKeysR(out this.rotationsX_, Rotations, RotScale, Joint.X.R);
-            this.SetKeysR(out this.rotationsY_, Rotations, RotScale, Joint.Y.R);
-            this.SetKeysR(out this.rotationsZ_, Rotations, RotScale, Joint.Z.R);
-            this.SetKeysST(out this.translationsX_, Translations, Joint.X.T);
-            this.SetKeysST(out this.translationsY_, Translations, Joint.Y.T);
-            this.SetKeysST(out this.translationsZ_, Translations, Joint.Z.T);
+              AnimatedJoint joint,
+              float[] scales,
+              short[] rotations,
+              float[] translations,
+              float rotScale) {
+            this.Scales = joint.axes.Select(
+                axisSrc => {
+                  this.SetKeysSt_(out var axis, scales, axisSrc.S);
+                  return axis;
+                }).ToArray();
+            this.Rotations = joint.axes.Select(
+                axisSrc => {
+                  this.SetKeysR_(out var axis, rotations, rotScale, axisSrc.R);
+                  return axis;
+                }).ToArray();
+            this.Translations = joint.axes.Select(
+                axisSrc => {
+                  this.SetKeysSt_(out var axis, translations, axisSrc.T);
+                  return axis;
+                }).ToArray();
           }
 
-          public IJointAnimKey[] scalesX => this.scalesX_;
-          public IJointAnimKey[] scalesY => this.scalesY_;
-          public IJointAnimKey[] scalesZ => this.scalesZ_;
+          public IJointAnimKey[][] Scales { get; }
+          public IJointAnimKey[][] Rotations { get; }
+          public IJointAnimKey[][] Translations { get; }
 
-          public IJointAnimKey[] rotationsX => this.rotationsX_;
-          public IJointAnimKey[] rotationsY => this.rotationsY_;
-          public IJointAnimKey[] rotationsZ => this.rotationsZ_;
-
-          public IJointAnimKey[] translationsX => this.translationsX_;
-          public IJointAnimKey[] translationsY => this.translationsY_;
-          public IJointAnimKey[] translationsZ => this.translationsZ_;
-
-          private void SetKeysST(
-              out IJointAnimKey[] Destination,
-              float[] Source,
-              AnimIndex Component) {
-            Destination = new IJointAnimKey[Component.Count];
-            if (Component.Count <= 0)
+          private void SetKeysSt_(
+              out IJointAnimKey[] dst,
+              float[] src,
+              AnimIndex component) {
+            dst = new IJointAnimKey[component.Count];
+            if (component.Count <= 0)
               throw new Exception("Count <= 0");
-            if (Component.Count == 1) {
-              Destination[0] =
+            if (component.Count == 1) {
+              dst[0] =
                   new Key(
                       0,
-                      Source[Component.Index],
+                      src[component.Index],
                       0,
                       0);
             } else {
-              var tangentMode = Component.TangentMode;
+              var tangentMode = component.TangentMode;
               var hasTwoTangents = tangentMode == 1;
               Asserts.True(tangentMode == 0 || tangentMode == 1);
 
               var stride = hasTwoTangents ? 4 : 3;
-              for (var index = 0; index < Component.Count; ++index) {
-                var i = Component.Index + stride * index;
+              for (var index = 0; index < component.Count; ++index) {
+                var i = component.Index + stride * index;
 
-                var time = (int) Source[i + 0];
-                var value = Source[i + 1];
+                var time = (int) src[i + 0];
+                var value = src[i + 1];
 
                 float incomingTangent, outgoingTangent;
                 if (hasTwoTangents) {
-                  incomingTangent = Source[i + 2];
-                  outgoingTangent = Source[i + 3];
+                  incomingTangent = src[i + 2];
+                  outgoingTangent = src[i + 3];
                 } else {
-                  incomingTangent = outgoingTangent = Source[i + 2];
+                  incomingTangent = outgoingTangent = src[i + 2];
                 }
 
-                Destination[index] =
+                dst[index] =
                     new Key(
                         time,
                         value,
@@ -282,42 +270,42 @@ namespace bmd.schema.bcx {
             }
           }
 
-          private void SetKeysR(
-              out IJointAnimKey[] Destination,
-              short[] Source,
-              float RotScale,
-              AnimIndex Component) {
-            Destination =
-                new IJointAnimKey[Component.Count];
-            if (Component.Count <= 0)
+          private void SetKeysR_(
+              out IJointAnimKey[] dst,
+              short[] src,
+              float rotScale,
+              AnimIndex component) {
+            dst =
+                new IJointAnimKey[component.Count];
+            if (component.Count <= 0)
               throw new Exception("Count <= 0");
-            if (Component.Count == 1) {
-              Destination[0] = new JointAnim.Key(
+            if (component.Count == 1) {
+              dst[0] = new JointAnim.Key(
                   0,
-                  Source[Component.Index] * RotScale,
+                  src[component.Index] * rotScale,
                   0,
                   0);
             } else {
-              var tangentMode = Component.TangentMode;
+              var tangentMode = component.TangentMode;
               var hasTwoTangents = tangentMode == 1;
               Asserts.True(tangentMode == 0 || tangentMode == 1);
 
               var stride = hasTwoTangents ? 4 : 3;
-              for (var index = 0; index < Component.Count; ++index) {
-                var i = Component.Index + stride * index;
+              for (var index = 0; index < component.Count; ++index) {
+                var i = component.Index + stride * index;
 
-                var time = Source[i + 0];
-                var value = Source[i + 1] * RotScale;
+                var time = src[i + 0];
+                var value = src[i + 1] * rotScale;
 
                 float incomingTangent, outgoingTangent;
                 if (hasTwoTangents) {
-                  incomingTangent = Source[i + 2] * RotScale;
-                  outgoingTangent = Source[i + 3] * RotScale;
+                  incomingTangent = src[i + 2] * rotScale;
+                  outgoingTangent = src[i + 3] * rotScale;
                 } else {
-                  incomingTangent = outgoingTangent = Source[i + 2] * RotScale;
+                  incomingTangent = outgoingTangent = src[i + 2] * rotScale;
                 }
 
-                Destination[index] =
+                dst[index] =
                     new Key(
                         time,
                         value,
