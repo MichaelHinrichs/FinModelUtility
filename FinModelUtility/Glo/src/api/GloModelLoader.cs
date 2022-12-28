@@ -26,9 +26,9 @@ namespace glo.api {
   }
 
   public class GloModelLoader : IModelLoader<GloModelFileBundle> {
-    private readonly string[] hiddenNames_ = new[] {"Box01", "puzzle"};
+    private readonly string[] hiddenNames_ = new[] { "Box01", "puzzle" };
 
-    private readonly string[] mirrorTextures_ = new[] {"Badg2.bmp"};
+    private readonly string[] mirrorTextures_ = new[] { "Badg2.bmp" };
 
     public IModel LoadModel(GloModelFileBundle gloModelFileBundle) {
       var gloFile = gloModelFileBundle.GloFile;
@@ -185,10 +185,7 @@ namespace glo.api {
               }
               Asserts.True(time >= 0 && time < finAnimation.FrameCount);
 
-              var moveValue = moveKey.Xyz;
-              finBoneTracks.Positions.Set(time, 0, moveValue.X);
-              finBoneTracks.Positions.Set(time, 1, moveValue.Y);
-              finBoneTracks.Positions.Set(time, 2, moveValue.Z);
+              finBoneTracks.Positions.Set(time, moveKey.Xyz);
 
               if (isLast) {
                 break;
@@ -217,13 +214,7 @@ namespace glo.api {
                   new Quaternion(rotateKey.X, rotateKey.Y, rotateKey.Z,
                                  rotateKey.W);
               var xyzRadiansKey = QuaternionUtil.ToEulerRadians(quaternionKey);
-
-              finBoneTracks.Rotations.Set(time, 0,
-                                          xyzRadiansKey.X);
-              finBoneTracks.Rotations.Set(time, 1,
-                                          xyzRadiansKey.Y);
-              finBoneTracks.Rotations.Set(time, 2,
-                                          xyzRadiansKey.Z);
+              finBoneTracks.Rotations.Set(time, xyzRadiansKey);
 
               if (isLast) {
                 break;
@@ -249,10 +240,7 @@ namespace glo.api {
               Asserts.True(time >= 0 && time < finAnimation.FrameCount);
 
               // TODO: Does this also need to be out of order?
-              var scaleValue = scaleKey.Scale;
-              finBoneTracks.Scales.Set(time, 0, scaleValue.X);
-              finBoneTracks.Scales.Set(time, 1, scaleValue.Y);
-              finBoneTracks.Scales.Set(time, 2, scaleValue.Z);
+              finBoneTracks.Scales.Set(time, scaleKey.Scale);
 
               if (isLast) {
                 break;

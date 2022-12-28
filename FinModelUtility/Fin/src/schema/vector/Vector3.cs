@@ -1,4 +1,5 @@
-﻿using schema;
+﻿using fin.model;
+using schema;
 using System;
 
 
@@ -43,7 +44,7 @@ namespace fin.schema.vector {
   }
 
   [BinarySchema]
-  public sealed partial class Vector3f : BVector3<float>, IBiSerializable { }
+  public sealed partial class Vector3f : BVector3<float>, IVector3, IBiSerializable { }
 
   [BinarySchema]
   public sealed partial class Vector3i : BVector3<int>, IBiSerializable { }

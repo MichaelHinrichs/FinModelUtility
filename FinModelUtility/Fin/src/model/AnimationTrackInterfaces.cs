@@ -1,6 +1,7 @@
 ﻿using fin.data;
 using fin.math.interpolation;
 using fin.model.impl;
+using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -94,10 +95,23 @@ namespace fin.model {
     );
   }
 
-  public interface IPositionTrack : IAxesTrack<float, PositionStruct> { }
+  public interface IAxes3fTrack<TInterpolated> : IAxesTrack<float, TInterpolated> {
+    void Set<TVector3>(int frame, TVector3 values) where TVector3 : IVector3 {
+      Set(frame, 0, values.X);
+      Set(frame, 1, values.Y);
+      Set(frame, 2, values.Z);
+    }
 
-  public interface IRadiansRotationTrack : IAxesTrack<float, Quaternion> {
+    void Set(int frame, Vector3 values) {
+      Set(frame, 0, values.X);
+      Set(frame, 1, values.Y);
+      Set(frame, 2, values.Z);
+    }
   }
 
-  public interface IScaleTrack : IAxesTrack<float, ScaleStruct> { }
+  public interface IPositionTrack : IAxes3fTrack<PositionStruct> { }
+
+  public interface IRadiansRotationTrack : IAxes3fTrack<Quaternion> { }
+
+  public interface IScaleTrack : IAxes3fTrack<ScaleStruct> { }
 }

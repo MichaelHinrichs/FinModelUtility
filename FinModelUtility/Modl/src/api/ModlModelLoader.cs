@@ -160,9 +160,7 @@ namespace modl.api {
               var eulerRadians =
                   QuaternionUtil.ToEulerRadians(animationQuaternion);
 
-              fbtRotations.Set(f, 0, eulerRadians.X);
-              fbtRotations.Set(f, 1, eulerRadians.Y);
-              fbtRotations.Set(f, 2, eulerRadians.Z);
+              fbtRotations.Set(f, eulerRadians);
             }
           }
         }
