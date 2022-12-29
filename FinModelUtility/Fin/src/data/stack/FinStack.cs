@@ -38,6 +38,8 @@ namespace fin.data.stack {
       }
     }
 
+    public void Clear() => this.impl_.Clear();
+
     public bool TryPop(out T item) => this.impl_.TryPop(out item);
     public T Pop() => this.impl_.Pop();
     public void Push(T item) => this.impl_.Push(item);
