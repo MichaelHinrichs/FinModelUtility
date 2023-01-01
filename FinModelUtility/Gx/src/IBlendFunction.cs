@@ -42,4 +42,11 @@
     GxBlendFactor DstFactor { get; }
     GxLogicOp LogicOp { get; }
   }
+
+  public class BlendFunctionImpl : IBlendFunction {
+    public GxBlendMode BlendMode { get; set; }
+    public GxBlendFactor SrcFactor { get; set; }
+    public GxBlendFactor DstFactor { get; set; }
+    public GxLogicOp LogicOp { get; set; }
+  }
 }

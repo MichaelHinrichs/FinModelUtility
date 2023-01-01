@@ -28,4 +28,12 @@ namespace gx {
     GX_WRAP_TAG WrapModeT { get; }
     ColorType ColorType { get; }
   }
+
+  public class GxTexture2d : IGxTexture {
+    public string Name { get; set; }
+    public IImage Image { get; set; }
+    public GX_WRAP_TAG WrapModeS { get; set; }
+    public GX_WRAP_TAG WrapModeT { get; set; }
+    public ColorType ColorType { get; set; }
+  }
 }

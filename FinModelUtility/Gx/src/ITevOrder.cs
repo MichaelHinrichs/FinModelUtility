@@ -20,4 +20,12 @@
     GxKonstColorSel KonstColorSel { get; }
     GxKonstAlphaSel KonstAlphaSel { get; }
   }
+
+  public class TevOrderImpl : ITevOrder {
+    public byte TexCoordId { get; set; }
+    public sbyte TexMap { get; set; }
+    public GxColorChannel ColorChannelId { get; set; }
+    public GxKonstColorSel KonstColorSel { get; set; }
+    public GxKonstAlphaSel KonstAlphaSel { get; set; }
+  }
 }

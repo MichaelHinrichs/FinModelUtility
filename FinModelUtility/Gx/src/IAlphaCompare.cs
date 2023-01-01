@@ -26,4 +26,12 @@
 
     GxAlphaOp MergeFunc { get; }
   }
+
+  public class AlphaCompareImpl : IAlphaCompare {
+    public GxCompareType Func0 { get; set; }
+    public float Reference0 { get; set; }
+    public GxCompareType Func1 { get; set; }
+    public float Reference1 { get; set; }
+    public GxAlphaOp MergeFunc { get; set; }
+  }
 }

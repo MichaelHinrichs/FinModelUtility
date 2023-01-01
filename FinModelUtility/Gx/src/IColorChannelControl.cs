@@ -57,4 +57,13 @@
 
     GxColorSrc AmbientSrc { get; }
   }
+
+  public class ColorChannelControlImpl : IColorChannelControl {
+    public bool LightingEnabled { get; set; }
+    public GxColorSrc MaterialSrc { get; set; }
+    public GxLightMask LitMask { get; set; }
+    public GxDiffuseFunction DiffuseFunction { get; set; }
+    public GxAttenuationFunction AttenuationFunction { get; set; }
+    public GxColorSrc AmbientSrc { get; set; }
+  }
 }
