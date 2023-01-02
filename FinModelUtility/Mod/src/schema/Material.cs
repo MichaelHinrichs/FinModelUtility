@@ -102,7 +102,7 @@ namespace mod.schema {
   public partial class TexGenData : IBiSerializable {
     public byte unknown1 = 0;
     public byte unknown2 = 0;
-    public byte unknown3 = 0;
+    public GxTexGenSrc TexGenSrc { get; set; }
     public byte unknown4 = 0;
   }
 
@@ -116,7 +116,7 @@ namespace mod.schema {
 
   [BinarySchema]
   public partial class TextureData : IBiSerializable {
-    public int unknown1 = 0;
+    public int TexAttrIndex = 0;
 
     public short unknown2 = 0;
     public short unknown3 = 0;
@@ -153,9 +153,9 @@ namespace mod.schema {
 
     // TODO: These appear to be referenced before they're read? Try removing the {}
     [ArrayLengthSource(SchemaIntegerType.UINT32)]
-    public TexGenData[] unknown3 = {};
+    public TexGenData[] unknown3 = { };
     [ArrayLengthSource(SchemaIntegerType.UINT32)]
-    public TextureData[] unknown4 = {};
+    public TextureData[] TexturesInMaterial = { };
   }
 
   public enum MaterialFlags {
@@ -167,7 +167,7 @@ namespace mod.schema {
     public uint unknown1 = 0;
     public readonly Rgba32 colour = new();
 
-    public uint unknown2 = 0;
+    public uint TexEnvironmentIndex = 0;
     public readonly PolygonColourInfo colourInfo = new();
     public readonly LightingInfo lightingInfo = new();
     public readonly PeInfo peInfo = new();
@@ -178,8 +178,8 @@ namespace mod.schema {
       this.unknown1 = reader.ReadUInt32();
       this.colour.Read(reader);
 
-      if ((this.flags & (uint) MaterialFlags.UsePVW) != 0) {
-        this.unknown2 = reader.ReadUInt32();
+      if ((this.flags & (uint)MaterialFlags.UsePVW) != 0) {
+        this.TexEnvironmentIndex = reader.ReadUInt32();
         this.colourInfo.Read(reader);
         this.lightingInfo.Read(reader);
         this.peInfo.Read(reader);
@@ -229,11 +229,15 @@ namespace mod.schema {
     public GxCc colorB = 0;
     public GxCc colorC = 0;
     public GxCc colorD = 0;
-    public byte unknown5 = 0;
+
+    // TODO: This is a guess
+    public TevOp colorOp = 0;
     public byte unknown6 = 0;
     public byte unknown7 = 0;
     public byte unknown8 = 0;
-    public byte unknown9 = 0;
+    // TODO: This is a guess
+    public ColorRegister colorRegister = 0;
+
     public byte unknown10 = 0;
     public byte unknown11 = 0;
     public byte unknown12 = 0;
@@ -246,11 +250,14 @@ namespace mod.schema {
     public GxCa alphaC = 0;
     public GxCa alphaD = 0;
 
-    public byte unknown5 = 0;
+    // TODO: This is a guess
+    public TevOp alphaOp = 0;
     public byte unknown6 = 0;
     public byte unknown7 = 0;
     public byte unknown8 = 0;
-    public byte unknown9 = 0;
+    // TODO: This is a guess
+    public ColorRegister alphaRegister = 0;
+
     public byte unknown10 = 0;
     public byte unknown11 = 0;
     public byte unknown12 = 0;
@@ -258,34 +265,35 @@ namespace mod.schema {
 
   [BinarySchema]
   public partial class TEVStage : IBiSerializable {
-    public byte unknown1 = 0;
-    public byte unknown2 = 0;
+    // TODO: This is a guess
+    public byte TexCoordId { get; set; }
+    // TODO: This is a guess
+    public sbyte TexMap { get; set; }
     public byte unknown3 = 0;
-    public byte unknown4 = 0;
+    public GxColorChannel ColorChannel { get; set; }
     public byte unknown5 = 0;
     public byte unknown6 = 0;
-    
+
     public ushort unknown65 = 0;
 
-    public readonly ColorCombiner colorCombiner = new();
-    public readonly AlphaCombiner alphaCombiner = new();
+    public ColorCombiner ColorCombiner { get; } = new();
+    public AlphaCombiner AlphaCombiner { get; } = new();
   }
 
   [BinarySchema]
   public partial class TEVInfo : IBiSerializable {
     // These are probably default values for the 3 color registers.
-    public readonly TEVColReg unknown1 = new();
-    public readonly TEVColReg unknown2 = new();
-    public readonly TEVColReg unknown3 = new();
+    // TODO: This is a guess
+    [ArrayLengthSource(3)]
+    public TEVColReg[] ColorRegisters { get; set; }
 
     // These are probably konst colors.
-    public readonly Rgba32 unknown4 = new();
-    public readonly Rgba32 unknown5 = new();
-    public readonly Rgba32 unknown6 = new();
-    public readonly Rgba32 unknown7 = new();
+    // TODO: This is a guess
+    [ArrayLengthSource(4)]
+    public Rgba32[] KonstColors { get; set; }
 
     [ArrayLengthSource(SchemaIntegerType.UINT32)]
-    public TEVStage[] unknown8;
+    public TEVStage[] TevStages;
   }
 
   public class MaterialContainer {

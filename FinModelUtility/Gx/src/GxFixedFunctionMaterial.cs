@@ -31,19 +31,20 @@ namespace gx {
       var materialName = populatedMaterial.Name;
 
       var textures =
-          populatedMaterial.TextureIndices
+          populatedMaterial.TextureIndices?
                            .Select(i => i != -1 ? tex1Textures[i] : null)
-                           .ToArray();
+                           .ToArray()
+          ?? tex1Textures;
 
       var material = materialManager.AddFixedFunctionMaterial();
       material.Name = materialName;
       material.CullingMode =
           populatedMaterial.CullMode switch {
-              GxCullMode.None  => CullingMode.SHOW_BOTH,
-              GxCullMode.Front => CullingMode.SHOW_BACK_ONLY,
-              GxCullMode.Back  => CullingMode.SHOW_FRONT_ONLY,
-              GxCullMode.All   => CullingMode.SHOW_NEITHER,
-              _                => throw new ArgumentOutOfRangeException(),
+            GxCullMode.None => CullingMode.SHOW_BOTH,
+            GxCullMode.Front => CullingMode.SHOW_BACK_ONLY,
+            GxCullMode.Back => CullingMode.SHOW_FRONT_ONLY,
+            GxCullMode.All => CullingMode.SHOW_NEITHER,
+            _ => throw new ArgumentOutOfRangeException(),
           };
 
       var depthFunction = populatedMaterial.DepthFunction;
@@ -60,42 +61,42 @@ namespace gx {
       // https://github.com/magcius/noclip.website/blob/c5a6d0137128065068b5842ffa9dff04f03eefdb/src/gx/gx_render.ts#L405-L423
       switch (populatedMaterial.BlendMode.BlendMode) {
         case GxBlendMode.NONE: {
-          material.SetBlending(
-              BlendMode.ADD,
-              BlendFactor.ONE,
-              BlendFactor.ZERO,
-              LogicOp.UNDEFINED);
-          break;
-        }
+            material.SetBlending(
+                BlendMode.ADD,
+                BlendFactor.ONE,
+                BlendFactor.ZERO,
+                LogicOp.UNDEFINED);
+            break;
+          }
         case GxBlendMode.BLEND: {
-          material.SetBlending(
-              BlendMode.ADD,
-              this.ConvertGxBlendFactorToFin_(
-                  populatedMaterial.BlendMode.SrcFactor),
-              this.ConvertGxBlendFactorToFin_(
-                  populatedMaterial.BlendMode.DstFactor),
-              LogicOp.UNDEFINED);
-          break;
-        }
+            material.SetBlending(
+                BlendMode.ADD,
+                this.ConvertGxBlendFactorToFin_(
+                    populatedMaterial.BlendMode.SrcFactor),
+                this.ConvertGxBlendFactorToFin_(
+                    populatedMaterial.BlendMode.DstFactor),
+                LogicOp.UNDEFINED);
+            break;
+          }
         case GxBlendMode.LOGIC: {
-          // TODO: Might not be correct?
-          material.SetBlending(
-              BlendMode.NONE,
-              this.ConvertGxBlendFactorToFin_(
-                  populatedMaterial.BlendMode.SrcFactor),
-              this.ConvertGxBlendFactorToFin_(
-                  populatedMaterial.BlendMode.DstFactor),
-              this.ConvertGxLogicOpToFin_(populatedMaterial.BlendMode.LogicOp));
-          break;
-        }
+            // TODO: Might not be correct?
+            material.SetBlending(
+                BlendMode.NONE,
+                this.ConvertGxBlendFactorToFin_(
+                    populatedMaterial.BlendMode.SrcFactor),
+                this.ConvertGxBlendFactorToFin_(
+                    populatedMaterial.BlendMode.DstFactor),
+                this.ConvertGxLogicOpToFin_(populatedMaterial.BlendMode.LogicOp));
+            break;
+          }
         case GxBlendMode.SUBTRACT: {
-          material.SetBlending(
-              BlendMode.REVERSE_SUBTRACT,
-              BlendFactor.ONE,
-              BlendFactor.ONE,
-              LogicOp.UNDEFINED);
-          break;
-        }
+            material.SetBlending(
+                BlendMode.REVERSE_SUBTRACT,
+                BlendFactor.ONE,
+                BlendFactor.ONE,
+                LogicOp.UNDEFINED);
+            break;
+          }
         default: throw new ArgumentOutOfRangeException();
       }
 
@@ -134,7 +135,7 @@ namespace gx {
 
       var valueManager = new ValueManager(equations);
 
-      valueManager.SetColorRegisters(populatedMaterial.TevColors);
+      valueManager.SetColorRegisters(populatedMaterial.ColorRegisters);
       valueManager.SetKonstColors(populatedMaterial.KonstColors);
 
       var diffuseLightingColor = equations.CreateColorInput(
@@ -156,7 +157,7 @@ namespace gx {
       }
 
       for (var i = 0; i < 4; ++i) {
-        var colorChannelControl = populatedMaterial.ColorChannelControls[i];
+        var colorChannelControl = populatedMaterial.ColorChannelControls?[i];
 
         if (colorChannelControl == null) {
           continue;
@@ -171,11 +172,11 @@ namespace gx {
 
           var materialRegister = populatedMaterial.MaterialColors[colorIndex];
           var materialColor = colorChannelControl.MaterialSrc switch {
-              GxColorSrc.Register => equations.CreateColorConstant(
-                  materialRegister.R / 255.0,
-                  materialRegister.G / 255.0,
-                  materialRegister.B / 255.0),
-              GxColorSrc.Vertex => vertexColor,
+            GxColorSrc.Register => equations.CreateColorConstant(
+                materialRegister.R / 255.0,
+                materialRegister.G / 255.0,
+                materialRegister.B / 255.0),
+            GxColorSrc.Vertex => vertexColor,
           };
 
           var colorValue = materialColor;
@@ -184,11 +185,11 @@ namespace gx {
           if (isLightingEnabled) {
             var ambientRegister = populatedMaterial.AmbientColors[colorIndex];
             var ambientColor = colorChannelControl.AmbientSrc switch {
-                GxColorSrc.Register => equations.CreateColorConstant(
-                    ambientRegister.R / 255.0,
-                    ambientRegister.G / 255.0,
-                    ambientRegister.B / 255.0),
-                GxColorSrc.Vertex => vertexColor,
+              GxColorSrc.Register => equations.CreateColorConstant(
+                  ambientRegister.R / 255.0,
+                  ambientRegister.G / 255.0,
+                  ambientRegister.B / 255.0),
+              GxColorSrc.Vertex => vertexColor,
             };
 
             var illuminationColor =
@@ -202,12 +203,19 @@ namespace gx {
                                                illuminationColor);
           }
 
+          var color = colorValue ?? colorZero;
           valueManager.UpdateColorChannelColor(
               colorIndex switch {
-                  0 => GxColorChannel.GX_COLOR0A0,
-                  1 => GxColorChannel.GX_COLOR1A1,
+                0 => GxColorChannel.GX_COLOR0A0,
+                1 => GxColorChannel.GX_COLOR1A1,
               },
-              colorValue ?? colorZero);
+              color);
+          valueManager.UpdateColorChannelColor(
+              colorIndex switch {
+                0 => GxColorChannel.GX_COLOR0,
+                1 => GxColorChannel.GX_COLOR1,
+              },
+              color);
         } else {
           var alphaIndex = (byte)((i - 1) / 2);
 
@@ -215,9 +223,9 @@ namespace gx {
 
           var materialRegister = populatedMaterial.MaterialColors[alphaIndex];
           var materialAlpha = colorChannelControl.MaterialSrc switch {
-              GxColorSrc.Register => equations.CreateScalarConstant(
-                  materialRegister.A / 255.0),
-              GxColorSrc.Vertex => vertexAlpha,
+            GxColorSrc.Register => equations.CreateScalarConstant(
+                materialRegister.A / 255.0),
+            GxColorSrc.Vertex => vertexAlpha,
           };
 
           var alphaValue = materialAlpha;
@@ -226,9 +234,9 @@ namespace gx {
           if (isLightingEnabled) {
             var ambientRegister = populatedMaterial.AmbientColors[alphaIndex];
             var ambientAlpha = colorChannelControl.AmbientSrc switch {
-                GxColorSrc.Register => equations.CreateScalarConstant(
-                    ambientRegister.A / 255.0),
-                GxColorSrc.Vertex => vertexAlpha,
+              GxColorSrc.Register => equations.CreateScalarConstant(
+                  ambientRegister.A / 255.0),
+              GxColorSrc.Vertex => vertexAlpha,
             };
 
             var illuminationAlpha =
@@ -242,12 +250,20 @@ namespace gx {
                     materialAlpha, illuminationAlpha);
           }
 
+          var alpha = alphaValue ?? scZero;
           valueManager.UpdateColorChannelAlpha(
               alphaIndex switch {
-                  0 => GxColorChannel.GX_COLOR0A0,
-                  1 => GxColorChannel.GX_COLOR1A1,
+                0 => GxColorChannel.GX_COLOR0A0,
+                1 => GxColorChannel.GX_COLOR1A1,
               },
-              alphaValue ?? scZero
+              alpha
+          );
+          valueManager.UpdateColorChannelAlpha(
+              alphaIndex switch {
+                0 => GxColorChannel.GX_ALPHA0,
+                1 => GxColorChannel.GX_ALPHA1,
+              },
+              alpha
           );
         }
       }
@@ -258,13 +274,13 @@ namespace gx {
           continue;
         }
 
-        var tevSwapMode = populatedMaterial.TevSwapModes[i];
+        //var tevSwapMode = populatedMaterial.TevSwapModes[i];
 
         var tevOrder = populatedMaterial.TevOrderInfos[i];
 
         // Updates which texture is referred to by TEXC
         var textureIndex = tevOrder.TexMap;
-        if (textureIndex == -1) {
+        if (textureIndex == -1 || (!STRICT && textureIndex >= textures.Count)) {
           valueManager.UpdateTextureColor(null);
         } else {
           var bmdTexture = textures[textureIndex];
@@ -282,19 +298,19 @@ namespace gx {
           var texGenSrc = texCoordGen.TexGenSrc;
           switch (texGenSrc) {
             case >= GxTexGenSrc.Tex0 and <= GxTexGenSrc.Tex7: {
-              var texCoordIndex = texGenSrc - GxTexGenSrc.Tex0;
-              texture.UvIndex = texCoordIndex;
-              break;
-            }
+                var texCoordIndex = texGenSrc - GxTexGenSrc.Tex0;
+                texture.UvIndex = texCoordIndex;
+                break;
+              }
             case GxTexGenSrc.Normal: {
-              texture.UvType = UvType.LINEAR;
-              break;
-            }
+                texture.UvType = UvType.LINEAR;
+                break;
+              }
             default: {
-              //Asserts.Fail($"Unsupported texGenSrc type: {texGenSrc}");
-              texture.UvIndex = 0;
-              break;
-            }
+                //Asserts.Fail($"Unsupported texGenSrc type: {texGenSrc}");
+                texture.UvIndex = 0;
+                break;
+              }
           }
 
           valueManager.UpdateTextureColor(textureIndex);
@@ -323,78 +339,78 @@ namespace gx {
             // ADD: out = a*(1 - c) + b*c + d
             case TevOp.GX_TEV_ADD:
             case TevOp.GX_TEV_SUB: {
-              var bias = tevStage.color_bias switch {
-                  TevBias.GX_TB_ZERO    => null,
+                var bias = tevStage.color_bias switch {
+                  TevBias.GX_TB_ZERO => null,
                   TevBias.GX_TB_ADDHALF => scHalf,
                   TevBias.GX_TB_SUBHALF => scMinusHalf,
                   _ => throw new ArgumentOutOfRangeException(
                            "Unsupported color bias!")
-              };
+                };
 
-              var scale = tevStage.color_scale switch {
-                  TevScale.GX_CS_SCALE_1  => scOne,
-                  TevScale.GX_CS_SCALE_2  => scTwo,
-                  TevScale.GX_CS_SCALE_4  => scFour,
+                var scale = tevStage.color_scale switch {
+                  TevScale.GX_CS_SCALE_1 => scOne,
+                  TevScale.GX_CS_SCALE_2 => scTwo,
+                  TevScale.GX_CS_SCALE_4 => scFour,
                   TevScale.GX_CS_DIVIDE_2 => scHalf,
                   _ => throw new ArgumentOutOfRangeException(
                            "Unsupported color scale!")
-              };
+                };
 
-              colorValue =
-                  colorFixedFunctionOps.AddOrSubtractOp(
-                      colorOp == TevOp.GX_TEV_ADD,
-                      colorA,
-                      colorB,
-                      colorC,
-                      colorD,
-                      bias,
-                      scale
-                  );
+                colorValue =
+                    colorFixedFunctionOps.AddOrSubtractOp(
+                        colorOp == TevOp.GX_TEV_ADD,
+                        colorA,
+                        colorB,
+                        colorC,
+                        colorD,
+                        bias,
+                        scale
+                    );
 
-              colorValue ??= colorZero;
-              colorValue.Clamp = tevStage.color_clamp;
+                colorValue ??= colorZero;
+                colorValue.Clamp = tevStage.color_clamp;
 
-              break;
-            }
+                break;
+              }
 
             case TevOp.GX_TEV_COMP_R8_GT: {
-              colorValue = colorFixedFunctionOps.Add(
-                  colorD, colorA.R.TernaryOperator(
-                      BoolComparisonType.GREATER_THAN, colorB.R, colorC,
-                      colorZero));
-              break;
-            }
+                colorValue = colorFixedFunctionOps.Add(
+                    colorD, colorA.R.TernaryOperator(
+                        BoolComparisonType.GREATER_THAN, colorB.R, colorC,
+                        colorZero));
+                break;
+              }
             case TevOp.GX_TEV_COMP_R8_EQ: {
-              colorValue = colorFixedFunctionOps.Add(
-                  colorD, colorA.R.TernaryOperator(
-                      BoolComparisonType.EQUAL_TO, colorB.R, colorC,
-                      colorZero));
-              break;
-            }
+                colorValue = colorFixedFunctionOps.Add(
+                    colorD, colorA.R.TernaryOperator(
+                        BoolComparisonType.EQUAL_TO, colorB.R, colorC,
+                        colorZero));
+                break;
+              }
 
             case TevOp.GX_TEV_COMP_GR16_GT: {
-              var valueA = scalarFixedFunctionOps.Add(
-                  scalarFixedFunctionOps.Multiply(colorA.G, sc255Sqr),
-                  scalarFixedFunctionOps.Multiply(colorA.R, sc255)) ?? scZero;
-              var valueB = scalarFixedFunctionOps.Add(
-                  scalarFixedFunctionOps.Multiply(colorB.G, sc255Sqr),
-                  scalarFixedFunctionOps.Multiply(colorB.R, sc255)) ?? scZero;
+                var valueA = scalarFixedFunctionOps.Add(
+                    scalarFixedFunctionOps.Multiply(colorA.G, sc255Sqr),
+                    scalarFixedFunctionOps.Multiply(colorA.R, sc255)) ?? scZero;
+                var valueB = scalarFixedFunctionOps.Add(
+                    scalarFixedFunctionOps.Multiply(colorB.G, sc255Sqr),
+                    scalarFixedFunctionOps.Multiply(colorB.R, sc255)) ?? scZero;
 
-              colorValue = colorFixedFunctionOps.Add(
-                  colorD, valueA.TernaryOperator(
-                      BoolComparisonType.GREATER_THAN, valueB, colorC,
-                      colorZero));
-              break;
-            }
+                colorValue = colorFixedFunctionOps.Add(
+                    colorD, valueA.TernaryOperator(
+                        BoolComparisonType.GREATER_THAN, valueB, colorC,
+                        colorZero));
+                break;
+              }
 
             default: {
-              if (GxFixedFunctionMaterial.STRICT) {
-                throw new NotImplementedException();
-              } else {
-                colorValue = colorC;
+                if (GxFixedFunctionMaterial.STRICT) {
+                  throw new NotImplementedException();
+                } else {
+                  colorValue = colorC;
+                }
+                break;
               }
-              break;
-            }
           }
 
           valueManager.UpdateColorRegister(tevStage.color_regid,
@@ -416,48 +432,48 @@ namespace gx {
             // ADD: out = a*(1 - c) + b*c + d
             case TevOp.GX_TEV_ADD:
             case TevOp.GX_TEV_SUB: {
-              var bias = tevStage.alpha_bias switch {
-                  TevBias.GX_TB_ZERO    => null,
+                var bias = tevStage.alpha_bias switch {
+                  TevBias.GX_TB_ZERO => null,
                   TevBias.GX_TB_ADDHALF => scHalf,
                   TevBias.GX_TB_SUBHALF => scMinusHalf,
                   _ => throw new ArgumentOutOfRangeException(
                            "Unsupported alpha bias!")
-              };
+                };
 
-              var scale = tevStage.alpha_scale switch {
-                  TevScale.GX_CS_SCALE_1  => scOne,
-                  TevScale.GX_CS_SCALE_2  => scTwo,
-                  TevScale.GX_CS_SCALE_4  => scFour,
+                var scale = tevStage.alpha_scale switch {
+                  TevScale.GX_CS_SCALE_1 => scOne,
+                  TevScale.GX_CS_SCALE_2 => scTwo,
+                  TevScale.GX_CS_SCALE_4 => scFour,
                   TevScale.GX_CS_DIVIDE_2 => scHalf,
                   _ => throw new ArgumentOutOfRangeException(
                            "Unsupported alpha scale!")
-              };
+                };
 
-              alphaValue =
-                  scalarFixedFunctionOps.AddOrSubtractOp(
-                      alphaOp == TevOp.GX_TEV_ADD,
-                      alphaA,
-                      alphaB,
-                      alphaC,
-                      alphaD,
-                      bias,
-                      scale
-                  );
+                alphaValue =
+                    scalarFixedFunctionOps.AddOrSubtractOp(
+                        alphaOp == TevOp.GX_TEV_ADD,
+                        alphaA,
+                        alphaB,
+                        alphaC,
+                        alphaD,
+                        bias,
+                        scale
+                    );
 
-              alphaValue ??= scZero;
-              //alphaValue.Clamp = tevStage.alpha_clamp;
+                alphaValue ??= scZero;
+                //alphaValue.Clamp = tevStage.alpha_clamp;
 
-              break;
-            }
+                break;
+              }
 
             default: {
-              if (GxFixedFunctionMaterial.STRICT) {
-                throw new NotImplementedException();
-              } else {
-                alphaValue = scZero;
+                if (GxFixedFunctionMaterial.STRICT) {
+                  throw new NotImplementedException();
+                } else {
+                  alphaValue = scZero;
+                }
+                break;
               }
-              break;
-            }
           }
 
           valueManager.UpdateAlphaRegister(tevStage.alpha_regid, alphaValue);
@@ -559,14 +575,14 @@ namespace gx {
           ColorRegister colorRegister,
           IColorValue colorValue) {
         var source = colorRegister switch {
-            ColorRegister.GX_TEVPREV => GxCc.GX_CC_CPREV,
-            ColorRegister.GX_TEVREG0 => GxCc.GX_CC_C0,
-            ColorRegister.GX_TEVREG1 => GxCc.GX_CC_C1,
-            ColorRegister.GX_TEVREG2 => GxCc.GX_CC_C2,
-            _ => throw new ArgumentOutOfRangeException(
-                     nameof(colorRegister),
-                     colorRegister,
-                     null)
+          ColorRegister.GX_TEVPREV => GxCc.GX_CC_CPREV,
+          ColorRegister.GX_TEVREG0 => GxCc.GX_CC_C0,
+          ColorRegister.GX_TEVREG1 => GxCc.GX_CC_C1,
+          ColorRegister.GX_TEVREG2 => GxCc.GX_CC_C2,
+          _ => throw new ArgumentOutOfRangeException(
+                   nameof(colorRegister),
+                   colorRegister,
+                   null)
         };
 
         this.colorValues_[source] = colorValue;
@@ -576,14 +592,14 @@ namespace gx {
           ColorRegister alphaRegister,
           IScalarValue alphaValue) {
         var source = alphaRegister switch {
-            ColorRegister.GX_TEVPREV => GxCa.GX_CA_APREV,
-            ColorRegister.GX_TEVREG0 => GxCa.GX_CA_A0,
-            ColorRegister.GX_TEVREG1 => GxCa.GX_CA_A1,
-            ColorRegister.GX_TEVREG2 => GxCa.GX_CA_A2,
-            _ => throw new ArgumentOutOfRangeException(
-                     nameof(alphaRegister),
-                     alphaRegister,
-                     null)
+          ColorRegister.GX_TEVPREV => GxCa.GX_CA_APREV,
+          ColorRegister.GX_TEVREG0 => GxCa.GX_CA_A0,
+          ColorRegister.GX_TEVREG1 => GxCa.GX_CA_A1,
+          ColorRegister.GX_TEVREG2 => GxCa.GX_CA_A2,
+          _ => throw new ArgumentOutOfRangeException(
+                   nameof(alphaRegister),
+                   alphaRegister,
+                   null)
         };
 
         this.alphaValues_[source] = alphaValue;
@@ -616,18 +632,24 @@ namespace gx {
 
       private IColorValue GetTextureColorChannel_() {
         var indexOrNull = this.textureIndex_;
-        Asserts.Nonnull(indexOrNull);
 
-        var index = indexOrNull.Value;
-        Asserts.True(index >= 0 && index < 8);
+        IColorValue texture;
+        if (indexOrNull == null && !STRICT) {
+          texture = colorUndefined_;
+        } else {
+          Asserts.Nonnull(indexOrNull);
 
-        var texture = this.textureColors_[index];
-        if (texture == null) {
-          this.textureColors_[index] =
-              texture = this.equations_.CreateColorInput(
-                  (FixedFunctionSource)(FixedFunctionSource.TEXTURE_COLOR_0 +
-                                        index),
-                  this.equations_.CreateColorConstant(0));
+          var index = indexOrNull.Value;
+          Asserts.True(index >= 0 && index < 8);
+
+          texture = this.textureColors_[index];
+          if (texture == null) {
+            this.textureColors_[index] =
+                texture = this.equations_.CreateColorInput(
+                    (FixedFunctionSource)(FixedFunctionSource.TEXTURE_COLOR_0 +
+                                          index),
+                    this.equations_.CreateColorConstant(0));
+          }
         }
 
         return this.colorValues_[GxCc.GX_CC_TEXC] = texture;
@@ -635,18 +657,24 @@ namespace gx {
 
       private IColorValue GetTextureAlphaChannel_() {
         var indexOrNull = this.textureIndex_;
-        Asserts.Nonnull(indexOrNull);
 
-        var index = indexOrNull.Value;
-        Asserts.True(index >= 0 && index < 8);
+        IColorValue texture;
+        if (indexOrNull == null && !STRICT) {
+          texture = colorUndefined_;
+        } else {
+          Asserts.Nonnull(indexOrNull);
 
-        var texture = this.textureAlphas_[index];
-        if (texture == null) {
-          this.textureAlphas_[index] =
-              texture = this.equations_.CreateColorInput(
-                  (FixedFunctionSource)(FixedFunctionSource.TEXTURE_ALPHA_0 +
-                                        index),
-                  this.equations_.CreateColorConstant(0));
+          var index = indexOrNull.Value;
+          Asserts.True(index >= 0 && index < 8);
+
+          texture = this.textureAlphas_[index];
+          if (texture == null) {
+            this.textureAlphas_[index] =
+                texture = this.equations_.CreateColorInput(
+                    (FixedFunctionSource)(FixedFunctionSource.TEXTURE_ALPHA_0 +
+                                          index),
+                    this.equations_.CreateColorConstant(0));
+          }
         }
 
         return this.colorValues_[GxCc.GX_CC_TEXA] = texture;
@@ -654,16 +682,22 @@ namespace gx {
 
       private IScalarValue GetTextureAlphaChannelAsAlpha_() {
         var indexOrNull = this.textureIndex_;
-        Asserts.Nonnull(indexOrNull);
 
-        var index = indexOrNull.Value;
-        Asserts.True(index >= 0 && index < 8);
+        IScalarValue texture;
+        if (indexOrNull == null && !STRICT) {
+          texture = alphaUndefined_;
+        } else {
+          Asserts.Nonnull(indexOrNull);
 
-        var texture =
-            this.equations_.CreateScalarInput(
-                (FixedFunctionSource)(FixedFunctionSource.TEXTURE_ALPHA_0 +
-                                      index),
-                this.equations_.CreateScalarConstant(0));
+          var index = indexOrNull.Value;
+          Asserts.True(index >= 0 && index < 8);
+
+          texture =
+              this.equations_.CreateScalarInput(
+                  (FixedFunctionSource)(FixedFunctionSource.TEXTURE_ALPHA_0 +
+                                        index),
+                  this.equations_.CreateScalarConstant(0));
+        }
 
         return this.alphaValues_[GxCa.GX_CA_TEXA] = texture;
       }
@@ -713,9 +747,9 @@ namespace gx {
         if (!this.colorChannelsColors_.TryGetValue(channel, out var color)) {
           // TODO: Handle different color channels properly, how does vertex color factor in??
           var value = colorSource switch {
-              GxCc.GX_CC_RASC => colorChannelColorColors_[channel],
-              GxCc.GX_CC_RASA => colorChannelColorAlphas_[channel],
-              _               => throw new NotImplementedException()
+            GxCc.GX_CC_RASC => colorChannelColorColors_[channel],
+            GxCc.GX_CC_RASA => colorChannelColorAlphas_[channel],
+            _ => throw new NotImplementedException()
           };
 
           this.colorChannelsColors_[channel] = color = value;
@@ -991,83 +1025,83 @@ namespace gx {
     private FinBlendFactor ConvertGxBlendFactorToFin_(
         GxBlendFactor gxBlendFactor)
       => gxBlendFactor switch {
-          GxBlendFactor.ZERO      => FinBlendFactor.ZERO,
-          GxBlendFactor.ONE       => FinBlendFactor.ONE,
-          GxBlendFactor.SRC_COLOR => FinBlendFactor.SRC_COLOR,
-          GxBlendFactor.ONE_MINUS_SRC_COLOR => FinBlendFactor
-              .ONE_MINUS_SRC_COLOR,
-          GxBlendFactor.SRC_ALPHA => FinBlendFactor.SRC_ALPHA,
-          GxBlendFactor.ONE_MINUS_SRC_ALPHA => FinBlendFactor
-              .ONE_MINUS_SRC_ALPHA,
-          GxBlendFactor.DST_ALPHA => FinBlendFactor.DST_ALPHA,
-          GxBlendFactor.ONE_MINUS_DST_ALPHA => FinBlendFactor
-              .ONE_MINUS_DST_ALPHA,
-          _ => throw new ArgumentOutOfRangeException(
-                   nameof(gxBlendFactor), gxBlendFactor, null)
+        GxBlendFactor.ZERO => FinBlendFactor.ZERO,
+        GxBlendFactor.ONE => FinBlendFactor.ONE,
+        GxBlendFactor.SRC_COLOR => FinBlendFactor.SRC_COLOR,
+        GxBlendFactor.ONE_MINUS_SRC_COLOR => FinBlendFactor
+            .ONE_MINUS_SRC_COLOR,
+        GxBlendFactor.SRC_ALPHA => FinBlendFactor.SRC_ALPHA,
+        GxBlendFactor.ONE_MINUS_SRC_ALPHA => FinBlendFactor
+            .ONE_MINUS_SRC_ALPHA,
+        GxBlendFactor.DST_ALPHA => FinBlendFactor.DST_ALPHA,
+        GxBlendFactor.ONE_MINUS_DST_ALPHA => FinBlendFactor
+            .ONE_MINUS_DST_ALPHA,
+        _ => throw new ArgumentOutOfRangeException(
+                 nameof(gxBlendFactor), gxBlendFactor, null)
       };
 
     private FinLogicOp ConvertGxLogicOpToFin_(GxLogicOp gxLogicOp)
       => gxLogicOp switch {
-          GxLogicOp.CLEAR         => FinLogicOp.CLEAR,
-          GxLogicOp.AND           => FinLogicOp.AND,
-          GxLogicOp.AND_REVERSE   => FinLogicOp.AND_REVERSE,
-          GxLogicOp.COPY          => FinLogicOp.COPY,
-          GxLogicOp.AND_INVERTED  => FinLogicOp.AND_INVERTED,
-          GxLogicOp.NOOP          => FinLogicOp.NOOP,
-          GxLogicOp.XOR           => FinLogicOp.XOR,
-          GxLogicOp.OR            => FinLogicOp.OR,
-          GxLogicOp.NOR           => FinLogicOp.NOR,
-          GxLogicOp.EQUIV         => FinLogicOp.EQUIV,
-          GxLogicOp.INVERT        => FinLogicOp.INVERT,
-          GxLogicOp.OR_REVERSE    => FinLogicOp.OR_REVERSE,
-          GxLogicOp.COPY_INVERTED => FinLogicOp.COPY_INVERTED,
-          GxLogicOp.OR_INVERTED   => FinLogicOp.OR_INVERTED,
-          GxLogicOp.NAND          => FinLogicOp.NAND,
-          GxLogicOp.SET           => FinLogicOp.SET,
-          _ => throw new ArgumentOutOfRangeException(
-                   nameof(gxLogicOp), gxLogicOp, null)
+        GxLogicOp.CLEAR => FinLogicOp.CLEAR,
+        GxLogicOp.AND => FinLogicOp.AND,
+        GxLogicOp.AND_REVERSE => FinLogicOp.AND_REVERSE,
+        GxLogicOp.COPY => FinLogicOp.COPY,
+        GxLogicOp.AND_INVERTED => FinLogicOp.AND_INVERTED,
+        GxLogicOp.NOOP => FinLogicOp.NOOP,
+        GxLogicOp.XOR => FinLogicOp.XOR,
+        GxLogicOp.OR => FinLogicOp.OR,
+        GxLogicOp.NOR => FinLogicOp.NOR,
+        GxLogicOp.EQUIV => FinLogicOp.EQUIV,
+        GxLogicOp.INVERT => FinLogicOp.INVERT,
+        GxLogicOp.OR_REVERSE => FinLogicOp.OR_REVERSE,
+        GxLogicOp.COPY_INVERTED => FinLogicOp.COPY_INVERTED,
+        GxLogicOp.OR_INVERTED => FinLogicOp.OR_INVERTED,
+        GxLogicOp.NAND => FinLogicOp.NAND,
+        GxLogicOp.SET => FinLogicOp.SET,
+        _ => throw new ArgumentOutOfRangeException(
+                 nameof(gxLogicOp), gxLogicOp, null)
       };
 
     private FinAlphaOp ConvertGxAlphaOpToFin_(GxAlphaOp bmdAlphaOp)
       => bmdAlphaOp switch {
-          GxAlphaOp.And  => FinAlphaOp.And,
-          GxAlphaOp.Or   => FinAlphaOp.Or,
-          GxAlphaOp.XOR  => FinAlphaOp.XOR,
-          GxAlphaOp.XNOR => FinAlphaOp.XNOR,
-          _ => throw new ArgumentOutOfRangeException(
-                   nameof(bmdAlphaOp), bmdAlphaOp, null)
+        GxAlphaOp.And => FinAlphaOp.And,
+        GxAlphaOp.Or => FinAlphaOp.Or,
+        GxAlphaOp.XOR => FinAlphaOp.XOR,
+        GxAlphaOp.XNOR => FinAlphaOp.XNOR,
+        _ => throw new ArgumentOutOfRangeException(
+                 nameof(bmdAlphaOp), bmdAlphaOp, null)
       };
 
     private AlphaCompareType ConvertGxAlphaCompareTypeToFin_(
         GxCompareType gxAlphaCompareType)
       => gxAlphaCompareType switch {
-          GxCompareType.Never   => AlphaCompareType.Never,
-          GxCompareType.Less    => AlphaCompareType.Less,
-          GxCompareType.Equal   => AlphaCompareType.Equal,
-          GxCompareType.LEqual  => AlphaCompareType.LEqual,
-          GxCompareType.Greater => AlphaCompareType.Greater,
-          GxCompareType.NEqual  => AlphaCompareType.NEqual,
-          GxCompareType.GEqual  => AlphaCompareType.GEqual,
-          GxCompareType.Always  => AlphaCompareType.Always,
-          _ => throw new ArgumentOutOfRangeException(
-                   nameof(gxAlphaCompareType), gxAlphaCompareType,
-                   null)
+        GxCompareType.Never => AlphaCompareType.Never,
+        GxCompareType.Less => AlphaCompareType.Less,
+        GxCompareType.Equal => AlphaCompareType.Equal,
+        GxCompareType.LEqual => AlphaCompareType.LEqual,
+        GxCompareType.Greater => AlphaCompareType.Greater,
+        GxCompareType.NEqual => AlphaCompareType.NEqual,
+        GxCompareType.GEqual => AlphaCompareType.GEqual,
+        GxCompareType.Always => AlphaCompareType.Always,
+        _ => throw new ArgumentOutOfRangeException(
+                 nameof(gxAlphaCompareType), gxAlphaCompareType,
+                 null)
       };
 
     private DepthCompareType ConvertGxDepthCompareTypeToFin_(
         GxCompareType gxDepthCompareType)
       => gxDepthCompareType switch {
-          GxCompareType.Never   => DepthCompareType.Never,
-          GxCompareType.Less    => DepthCompareType.Less,
-          GxCompareType.Equal   => DepthCompareType.Equal,
-          GxCompareType.LEqual  => DepthCompareType.LEqual,
-          GxCompareType.Greater => DepthCompareType.Greater,
-          GxCompareType.NEqual  => DepthCompareType.NEqual,
-          GxCompareType.GEqual  => DepthCompareType.GEqual,
-          GxCompareType.Always  => DepthCompareType.Always,
-          _ => throw new ArgumentOutOfRangeException(
-                   nameof(gxDepthCompareType), gxDepthCompareType,
-                   null)
+        GxCompareType.Never => DepthCompareType.Never,
+        GxCompareType.Less => DepthCompareType.Less,
+        GxCompareType.Equal => DepthCompareType.Equal,
+        GxCompareType.LEqual => DepthCompareType.LEqual,
+        GxCompareType.Greater => DepthCompareType.Greater,
+        GxCompareType.NEqual => DepthCompareType.NEqual,
+        GxCompareType.GEqual => DepthCompareType.GEqual,
+        GxCompareType.Always => DepthCompareType.Always,
+        _ => throw new ArgumentOutOfRangeException(
+                 nameof(gxDepthCompareType), gxDepthCompareType,
+                 null)
       };
 
     private static WrapMode GetWrapMode_(GX_WRAP_TAG wrapMode) {

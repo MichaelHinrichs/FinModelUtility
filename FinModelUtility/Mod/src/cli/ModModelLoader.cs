@@ -4,11 +4,9 @@ using System.Linq;
 
 using fin.color;
 using fin.io;
-using fin.math;
 using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
-
 using gx;
 
 using mod.schema;
@@ -36,9 +34,16 @@ namespace mod.cli {
 
     public static WrapMode ConvertGcnToFin(TilingMode tilingMode)
       => tilingMode switch {
-          TilingMode.CLAMP         => WrapMode.CLAMP,
-          TilingMode.MIRROR_REPEAT => WrapMode.MIRROR_REPEAT,
-          _                        => WrapMode.REPEAT,
+        TilingMode.CLAMP => WrapMode.CLAMP,
+        TilingMode.MIRROR_REPEAT => WrapMode.MIRROR_REPEAT,
+        _ => WrapMode.REPEAT,
+      };
+
+    public static GX_WRAP_TAG ConvertGcnToGx(TilingMode tilingMode)
+      => tilingMode switch {
+        TilingMode.CLAMP => GX_WRAP_TAG.GX_CLAMP,
+        TilingMode.MIRROR_REPEAT => GX_WRAP_TAG.GX_MIRROR,
+        _ => GX_WRAP_TAG.GX_REPEAT,
       };
 
     public IModel LoadModel(ModModelFileBundle modelFileBundle) {
@@ -88,6 +93,7 @@ namespace mod.cli {
       }*/
 
       // Writes textures
+      var gxTextures = new IGxTexture[mod.texattrs.Count];
       var finTexturesAndAttrs =
           new (ITexture, TextureAttributes)[mod.texattrs.Count];
       for (var i = 0; i < mod.texattrs.Count; ++i) {
@@ -107,6 +113,12 @@ namespace mod.cli {
             ModModelLoader.ConvertGcnToFin(textureAttr.TilingModeT);
         // TODO: Set attributes
 
+        gxTextures[i] = new GxTexture2d {
+          Name = finTexture.Name,
+          Image = image,
+          WrapModeS = ConvertGcnToGx(textureAttr.TilingModeS),
+          WrapModeT = ConvertGcnToGx(textureAttr.TilingModeT),
+        };
         finTexturesAndAttrs[i] = (finTexture, textureAttr);
       }
 
@@ -117,15 +129,13 @@ namespace mod.cli {
 
         ITexture? finTexture = null;
 
-        var texturesInMaterial = material.texInfo.unknown4;
+        var texturesInMaterial = material.texInfo.TexturesInMaterial;
         if (texturesInMaterial.Length > 0) {
           var textureInMaterial = texturesInMaterial[0];
 
-          var texAttrIndex = textureInMaterial.unknown1;
+          var texAttrIndex = textureInMaterial.TexAttrIndex;
           TextureAttributes texAttr;
           (finTexture, texAttr) = finTexturesAndAttrs[texAttrIndex];
-
-          ;
         }
 
         IMaterial finMaterial = finTexture != null
@@ -135,6 +145,11 @@ namespace mod.cli {
 
         finMaterial.Name = $"material {i}";
         finMaterials.Add(finMaterial);
+
+        /*var modPopulatedMaterial =
+          new ModPopulatedMaterial(material, mod.materials.texEnvironments[(int)material.TexEnvironmentIndex]);
+
+        finMaterials.Add(new GxFixedFunctionMaterial(model.MaterialManager, modPopulatedMaterial, gxTextures).Material);*/
       }
 
       // Writes bones
@@ -148,7 +163,7 @@ namespace mod.cli {
       // Pass 2: Gathers up children of each bone via parent index
       for (var i = 0; i < jointCount; ++i) {
         var joint = mod.joints[i];
-        var parentIndex = (int) joint.parentIdx;
+        var parentIndex = (int)joint.parentIdx;
         if (parentIndex != -1) {
           jointChildren[parentIndex].Add(i);
         }
@@ -255,7 +270,7 @@ namespace mod.cli {
 
           while (reader.GetRemaining() != 0) {
             var opcodeByte = reader.ReadU8();
-            var opcode = (GxOpcode) opcodeByte;
+            var opcode = (GxOpcode)opcodeByte;
 
             if (opcode == GxOpcode.NOP) {
               continue;
@@ -313,7 +328,7 @@ namespace mod.cli {
                       var boneIndex = attachmentIndex;
 
                       var vertexWeights = new VertexWeights {
-                          BoneWeights =
+                        BoneWeights =
                               finSkin.GetOrCreateBoneWeights(
                                   PreprojectMode.BONE, bones[boneIndex])
                       };
@@ -324,7 +339,7 @@ namespace mod.cli {
                       var envelopeIndex = -1 - attachmentIndex;
 
                       var vertexWeights = new VertexWeights {
-                          BoneWeights = envelopeBoneWeights[envelopeIndex],
+                        BoneWeights = envelopeBoneWeights[envelopeIndex],
                       };
 
                       allVertexWeights.Add(vertexWeights);
@@ -428,32 +443,32 @@ namespace mod.cli {
         this.PositionsByIndex =
             mod.vertices.Select(
                    position => new ModelImpl.PositionImpl {
-                       X = position.X,
-                       Y = position.Y,
-                       Z = position.Z,
+                     X = position.X,
+                     Y = position.Y,
+                     Z = position.Z,
                    })
                .ToArray();
         this.NormalsByIndex =
             mod.vnormals.Select(
                    vnormals => new ModelImpl.NormalImpl {
-                       X = vnormals.X,
-                       Y = vnormals.Y,
-                       Z = vnormals.Z,
+                     X = vnormals.X,
+                     Y = vnormals.Y,
+                     Z = vnormals.Z,
                    })
                .ToArray();
         this.NbtNormalsByIndex =
             mod.vertexnbt.Select(vertexnbt => new ModelImpl.NormalImpl {
-                   X = vertexnbt.Normal.X,
-                   Y = vertexnbt.Normal.Y,
-                   Z = vertexnbt.Normal.Z,
-               })
+              X = vertexnbt.Normal.X,
+              Y = vertexnbt.Normal.Y,
+              Z = vertexnbt.Normal.Z,
+            })
                .ToArray();
         this.TangentsByIndex = mod.vertexnbt.Select(
                                       vertexnbt => new ModelImpl.TangentImpl {
-                                          X = vertexnbt.Tangent.X,
-                                          Y = vertexnbt.Tangent.Y,
-                                          Z = vertexnbt.Tangent.Z,
-                                          W = 0,
+                                        X = vertexnbt.Tangent.X,
+                                        Y = vertexnbt.Tangent.Y,
+                                        Z = vertexnbt.Tangent.Z,
+                                        W = 0,
                                       })
                                   .ToArray();
         this.ColorsByIndex =
@@ -463,8 +478,8 @@ namespace mod.cli {
                    texcoords
                        => texcoords.Select(
                                        texcoord => new ModelImpl.TexCoordImpl {
-                                           U = texcoord.X,
-                                           V = texcoord.Y,
+                                         U = texcoord.X,
+                                         V = texcoord.Y,
                                        })
                                    .ToArray())
                .ToArray();
