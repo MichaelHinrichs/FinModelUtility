@@ -18,7 +18,7 @@ namespace schema.attributes.size {
     public partial class Child : IChildOf<ParentImpl>, IBiSerializable {
       public ParentImpl Parent { get; set; }
 
-      [SizeOfMemberInBytes($"{nameof(Parent)}.{nameof(ParentImpl.Field)}")]
+      [SizeOfMemberInBytes(nameof(Parent.Field))]
       private byte fieldSize_;
     }
 

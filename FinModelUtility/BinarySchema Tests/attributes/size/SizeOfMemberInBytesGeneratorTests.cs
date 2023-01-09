@@ -53,7 +53,7 @@ using schema.attributes.size;
 namespace foo.bar {
   [BinarySchema]
   public partial class SizeWrapper : IBiSerializable {
-    [SizeOfMemberInBytes($""{nameof(Foo)}.{nameof(Foo.Bar}"")]
+    [SizeOfMemberInBytes(nameof(Foo.Bar))]
     public uint FooBarSize { get; set; }
 
     public Child Foo;
@@ -102,7 +102,7 @@ namespace foo.bar {
   public partial class SizeWrapper : IChildOf<ParentImpl>, IBiSerializable {
     public ParentImpl Parent;
 
-    [SizeOfMemberInBytes($""{nameof(Parent)}.{nameof(Parent.Foo}"")]
+    [SizeOfMemberInBytes(nameof(Parent.Foo)]
     public uint FooSize { get; set; }
   }
 

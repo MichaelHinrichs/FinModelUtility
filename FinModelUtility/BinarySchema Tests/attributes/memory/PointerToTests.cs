@@ -18,7 +18,7 @@ namespace schema.attributes.memory {
     public partial class Child : IChildOf<ParentImpl>, IBiSerializable {
       public ParentImpl Parent { get; set; }
 
-      [PointerTo($"{nameof(Parent)}.{nameof(ParentImpl.Field)}")]
+      [PointerTo(nameof(Parent.Field))]
       private byte fieldPointer_;
     }
 

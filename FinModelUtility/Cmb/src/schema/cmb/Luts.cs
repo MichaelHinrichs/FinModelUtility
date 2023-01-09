@@ -9,10 +9,10 @@ namespace cmb.schema.cmb {
     private uint LutSetCount;
     public uint unk;
 
-    [ArrayLengthSource(nameof(Luts.LutSetCount))]
+    [ArrayLengthSource(nameof(LutSetCount))]
     public uint[] Offset;
 
-    [ArrayLengthSource(nameof(Luts.LutSetCount))]
+    [ArrayLengthSource(nameof(LutSetCount))]
     public LutSet[] luts;
   }
 
@@ -22,7 +22,7 @@ namespace cmb.schema.cmb {
     private ushort KeyCount; //Keyframes
     public short Start;
     public short End;
-    [ArrayLengthSource(nameof(LutSet.KeyCount))]
+    [ArrayLengthSource(nameof(KeyCount))]
     public LutKeyframe[] Frame;
     public float unk1;
     public float unk2;

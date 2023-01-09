@@ -107,7 +107,7 @@ namespace foo.bar {
   public partial class ArrayWrapper {
     private int length;
 
-    [ArrayLengthSource(nameof(ArrayWrapper.length))]
+    [ArrayLengthSource(nameof(length))]
     public int[] field;
   }
 }",

@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using schema.attributes;
 using schema.parser;
 using schema.util;
+using System.Net;
 
 
 namespace schema {
@@ -144,11 +145,19 @@ namespace schema {
         where TAttribute : notnull
       => GetAttributeData<TAttribute>(symbol)
           .Select(attributeData => {
-            var parameters = attributeData.AttributeConstructor.Parameters;
+            var syntaxReference = attributeData.ApplicationSyntaxReference;
+            var syntax = syntaxReference.GetSyntax();
+            var childNodes = syntax.ChildNodes().ToArray();
+
+            var attributeArgumentList =
+                childNodes.Select(childNode => childNode as AttributeArgumentListSyntax)
+                          .FirstOrDefault(childNode => childNode != null);
+            var argumentSyntaxList = attributeArgumentList?.Arguments.ToArray();
 
             // TODO: Does this still work w/ optional arguments?
             var attributeType = typeof(TAttribute);
 
+            var parameters = attributeData.AttributeConstructor.Parameters;
             var constructor =
                 attributeType.GetConstructors()
                              .FirstOrDefault(c => {
@@ -174,7 +183,18 @@ namespace schema {
             var arguments = attributeData.ConstructorArguments;
 
             var attribute = (TAttribute)constructor.Invoke(
-                arguments.Select(a => a.Value).ToArray());
+                arguments.Select((a, i) => {
+                  var argumentSyntax = argumentSyntaxList?[i];
+                  if (argumentSyntax
+                          ?.Expression is InvocationExpressionSyntax {Expression: IdentifierNameSyntax identifierNameSyntax} invocationExpressionSyntax 
+                      && identifierNameSyntax.Identifier.ToString() == "nameof") {
+                    var childNodes = invocationExpressionSyntax.ChildNodes().ToArray();
+                    var target = childNodes[1].ChildNodes().ToArray()[0].ToString();
+                    return target;
+                  }
+
+                  return a.Value;
+                }).ToArray());
             if (attribute is BMemberAttribute memberAttribute) {
               memberAttribute.Init(diagnostics, symbol.ContainingType,
                                    symbol.Name);
