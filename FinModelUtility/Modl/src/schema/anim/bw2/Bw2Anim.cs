@@ -78,8 +78,7 @@ namespace modl.schema.anim.bw2 {
 
         var buffer = boneBytes[i];
         using var ber =
-            new EndianBinaryReader(new MemoryStream(buffer.ToArray()),
-                                   Endianness.BigEndian);
+            new EndianBinaryReader(buffer, Endianness.BigEndian);
 
         var animBoneFrames = new AnimBoneFrames();
         this.AnimBoneFrames.Add(animBoneFrames);

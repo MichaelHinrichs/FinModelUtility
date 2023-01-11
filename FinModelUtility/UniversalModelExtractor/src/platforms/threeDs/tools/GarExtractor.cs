@@ -60,7 +60,7 @@ namespace uni.platforms.threeDs.tools {
         var isCompressed =
             new LzssDecompressor().TryToDecompress(er, out var decompressedGar);
         if (isCompressed) {
-          er = new EndianBinaryReader(new MemoryStream(decompressedGar!), er.Endianness);
+          er = new EndianBinaryReader(decompressedGar!, er.Endianness);
         }
 
         this.Header = new GarHeader(er);

@@ -1,8 +1,10 @@
 ﻿using schema;
+using schema.attributes.endianness;
 using schema.attributes.ignore;
 
 
 namespace Quad64.schema {
+  [Endianness(SchemaConstants.SM64_ENDIANNESS)]
   [BinarySchema]
   public partial class PresetMacroEntry : IBiSerializable {
     [Ignore]

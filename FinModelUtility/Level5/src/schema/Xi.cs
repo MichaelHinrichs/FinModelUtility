@@ -50,8 +50,7 @@ namespace level5.schema {
 
     public void Open(byte[] data) {
       using (var r =
-             new EndianBinaryReader(new MemoryStream(data),
-                                    Endianness.LittleEndian)) {
+             new EndianBinaryReader(data, Endianness.LittleEndian)) {
         r.Position = 0x10;
         Width = r.ReadInt16();
         Height = r.ReadInt16();
@@ -77,8 +76,7 @@ namespace level5.schema {
           SwitchFile = true;
 
         using (var tileData =
-               new EndianBinaryReader(new MemoryStream(tileBytes),
-                                      Endianness.LittleEndian)) {
+               new EndianBinaryReader(tileBytes, Endianness.LittleEndian)) {
           int tileCount = 0;
           while (tileData.Position + 2 <= tileData.Length) {
             int i = SwitchFile ? tileData.ReadInt32() : tileData.ReadInt16();

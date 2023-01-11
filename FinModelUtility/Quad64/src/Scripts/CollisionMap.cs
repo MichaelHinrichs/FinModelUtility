@@ -8,22 +8,10 @@ namespace Quad64.src.Scripts {
     public List<uint> indicesList;
     public uint[] indices;
     public int ibo { get; set; }
-    private Bitmap textureColor;
-    public Texture2D texture;
-    private static Random random = new Random();
 
     public CollisionTriangleList(int ID) {
       id = ID;
       indicesList = new List<uint>();
-      textureColor = new Bitmap(1, 1);
-      textureColor.SetPixel(0, 0,
-                            Color.FromArgb(
-                                random.Next(0, 255),
-                                random.Next(0, 255),
-                                random.Next(0, 255)
-                            )
-      );
-      texture = ContentPipe.LoadTexture(ref textureColor);
     }
 
     public void AddTriangle(uint a, uint b, uint c) {
@@ -174,60 +162,6 @@ namespace Quad64.src.Scripts {
             BufferUsageHint.StaticDraw
         );
       }
-    }
-
-    public void drawCollisionMap(bool drawAsBlack) {
-      GL.PushMatrix();
-      GL.EnableClientState(ArrayCap.VertexArray);
-      if (drawAsBlack) // Used as part of color picking
-        GL.BlendFunc(BlendingFactor.Zero, BlendingFactor.Zero);
-      for (int i = 0; i < triangles.Count; i++) {
-        CollisionTriangleList l = triangles[i];
-        //if (m.vertices == null || m.indices == null) return;
-        GL.BindTexture(TextureTarget.Texture2D, l.texture.ID);
-        GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
-        GL.VertexPointer(3, VertexPointerType.Float, 0, IntPtr.Zero);
-        if (Globals.doWireframe)
-          GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-        else
-          GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-
-        GL.BindBuffer(BufferTarget.ElementArrayBuffer, l.ibo);
-        GL.DrawElements(PrimitiveType.Triangles, l.indices.Length,
-                        DrawElementsType.UnsignedInt, IntPtr.Zero);
-
-        if (Globals.doWireframe)
-          GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-      }
-      if (drawAsBlack)
-        GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
-      GL.DisableClientState(ArrayCap.VertexArray);
-      GL.PopMatrix();
-
-      if (!drawAsBlack && !Globals.doWireframe)
-        drawCollisionMapOutline();
-    }
-
-    public void drawCollisionMapOutline() {
-      GL.PushMatrix();
-      GL.EnableClientState(ArrayCap.VertexArray);
-      GL.BlendFunc(BlendingFactor.Zero, BlendingFactor.Zero);
-      for (int i = 0; i < triangles.Count; i++) {
-        CollisionTriangleList l = triangles[i];
-        //if (m.vertices == null || m.indices == null) return;
-        GL.BindTexture(TextureTarget.Texture2D, l.texture.ID);
-        GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
-        GL.VertexPointer(3, VertexPointerType.Float, 0, IntPtr.Zero);
-        GL.BindBuffer(BufferTarget.ElementArrayBuffer, l.ibo);
-        GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-        GL.BindBuffer(BufferTarget.ElementArrayBuffer, l.ibo);
-        GL.DrawElements(PrimitiveType.Triangles, l.indices.Length,
-                        DrawElementsType.UnsignedInt, IntPtr.Zero);
-        GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-      }
-      GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
-      GL.DisableClientState(ArrayCap.VertexArray);
-      GL.PopMatrix();
     }
   }
 }

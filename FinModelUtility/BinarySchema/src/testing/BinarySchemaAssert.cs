@@ -24,7 +24,7 @@ namespace schema.testing {
 
       var actualBytes = await GetEndianBinaryWriterBytes(ew);
 
-      var er = new EndianBinaryReader(new MemoryStream(actualBytes), endianess);
+      var er = new EndianBinaryReader(actualBytes, endianess);
       await ReadsAndWritesIdentically<T>(er);
     }
 

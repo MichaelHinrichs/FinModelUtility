@@ -41,8 +41,7 @@ namespace sm64.scripts.geo {
       {
         var d = new byte[] {1, 2, 3, 4};
 
-        var r = new EndianBinaryReader(new MemoryStream(d),
-                                       GeoUtils.Endianness);
+        var r = new EndianBinaryReader(d, GeoUtils.Endianness);
 
         var adr = r.ReadUInt32();
 
@@ -52,8 +51,7 @@ namespace sm64.scripts.geo {
       }
 
 
-      using var er = new EndianBinaryReader(new MemoryStream(data),
-                                            GeoUtils.Endianness);
+      using var er = new EndianBinaryReader(data, GeoUtils.Endianness);
       er.Position = off;
 
       var commands = new GeoCommandList();

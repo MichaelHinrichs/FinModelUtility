@@ -190,8 +190,7 @@ namespace mod.schema {
       await firstWriter.CompleteAndCopyToDelayed(firstOutStream);
 
       using var reader =
-          new EndianBinaryReader(new MemoryStream(firstOutData),
-                                 Endianness.BigEndian);
+          new EndianBinaryReader(firstOutData, Endianness.BigEndian);
       gcnSerializable.Read(reader);
 
       var secondWriter =

@@ -17,6 +17,12 @@ namespace System.IO {
     private EndianBinaryBufferedStream BufferedStream_ { get; set; }
     private Stream BaseStream_ => this.BufferedStream_.BaseStream;
 
+    public EndianBinaryReader(byte[] data)
+      => this.Init_(new MemoryStream(data), null);
+
+    public EndianBinaryReader(byte[] data, Endianness endianness)
+      => this.Init_(new MemoryStream(data), endianness);
+
     public EndianBinaryReader(Stream baseStream)
       => this.Init_(baseStream, null);
 
@@ -32,7 +38,7 @@ namespace System.IO {
       }
 
       this.BufferedStream_ = new EndianBinaryBufferedStream(endianness) {
-          BaseStream = baseStream,
+        BaseStream = baseStream,
       };
     }
 

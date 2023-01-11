@@ -1,8 +1,6 @@
-﻿using System.Numerics;
-using Quad64.schema;
+﻿using Quad64.schema;
 using Quad64.src.JSON;
 using Quad64.src.Scripts;
-using Quad64.src.Viewer;
 
 
 namespace Quad64.src.LevelInfo {
@@ -121,7 +119,7 @@ namespace Quad64.src.LevelInfo {
       MacroObjectPresets.Clear();
       ROM rom = ROM.Instance;
 
-      using var er = new EndianBinaryReader(new MemoryStream(rom.Bytes));
+      using var er = new EndianBinaryReader(rom.Bytes);
       er.Position = Globals.macro_preset_table;
 
       ushort pID = 0x1F;
