@@ -6,7 +6,9 @@ using fin.exporter.gltf.lowlevel;
 using fin.io;
 using fin.model;
 using fin.util.asserts;
+using fin.util.gc;
 using SharpGLTF.Schema2;
+using SharpGLTF.Validation;
 using Scene = Assimp.Scene;
 
 
@@ -15,6 +17,7 @@ namespace fin.exporter.assimp.indirect {
     // You can bet your ass I'm gonna prefix everything with ass.
 
     public bool LowLevel { get; set; }
+    public bool ForceGarbageCollection { get; set; }
 
     public void Export(IFile outputFile, IModel model)
       => Export(outputFile,
@@ -50,6 +53,9 @@ namespace fin.exporter.assimp.indirect {
         gltfExporter.Embedded = false;
 
         var gltfModelRoot = gltfExporter.CreateModelRoot(model);
+        if (ForceGarbageCollection) {
+          GcUtil.ForceCollectEverything();
+        }
 
         var gltfWriteSettings = new WriteSettings {
             ImageWriting = gltfExporter.Embedded
@@ -57,9 +63,17 @@ namespace fin.exporter.assimp.indirect {
                                : ResourceWriteMode.SatelliteFile,
         };
 
+        if (LowLevel) {
+          gltfWriteSettings.MergeBuffers = false;
+          gltfWriteSettings.Validation = ValidationMode.Skip;
+        }
+
         foreach (var gltfFormat in gltfFormats) {
           var gltfOutputFile = outputFile.CloneWithExtension(gltfFormat);
           gltfModelRoot.Save(gltfOutputFile.FullName, gltfWriteSettings);
+          if (ForceGarbageCollection) {
+            GcUtil.ForceCollectEverything();
+          }
         }
       }
 
@@ -72,6 +86,9 @@ namespace fin.exporter.assimp.indirect {
                             : outputFile.CloneWithExtension(".tmp.gltf");
         var inputPath = inputFile.FullName;
         gltfExporter.Export(inputFile, model);
+        if (ForceGarbageCollection) {
+          GcUtil.ForceCollectEverything();
+        }
 
         using var ctx = new AssimpContext();
         var supportedExportFormats = ctx.GetSupportedExportFormats();
@@ -124,6 +141,10 @@ namespace fin.exporter.assimp.indirect {
                 ctx.ExportFile(assScene, outputPath, exportFormatId,
                                preProcessing);
             Asserts.True(success, "Failed to export model.");
+
+            if (ForceGarbageCollection) {
+              GcUtil.ForceCollectEverything();
+            }
           }
         }
       }

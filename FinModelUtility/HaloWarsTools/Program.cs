@@ -5,7 +5,7 @@ using System.Linq;
 using fin.data.queue;
 using fin.exporter.assimp.indirect;
 using fin.io;
-
+using fin.util.gc;
 using HaloWarsTools.Helpers;
 
 
@@ -70,7 +70,10 @@ namespace HaloWarsTools {
           primitive.SetMaterial(xttMaterial);
         }
 
-        var exporter = new AssimpIndirectExporter {LowLevel = true};
+        var exporter = new AssimpIndirectExporter {
+          LowLevel = true,
+          ForceGarbageCollection = true,
+        };
         exporter.Export(gltfFile.CloneWithExtension(".fbx"), finModel);
 
         // Cleans up any remaining .bin files.
@@ -82,9 +85,7 @@ namespace HaloWarsTools {
 
         // Forces an immediate garbage-collection cleanup. This is required to
         // prevent OOM errors, since Halo Wars maps are just so huge.
-        GC.Collect();
-        GC.WaitForFullGCComplete();
-        GC.WaitForPendingFinalizers();
+        GcUtil.ForceCollectEverything();
       }
 
       var artDirectory = scratchDirectory.GetSubdir("art");

@@ -92,7 +92,10 @@ namespace uni.games {
 
       try {
         var model = loaderHandler();
-        new AssimpIndirectExporter().Export(
+        new AssimpIndirectExporter {
+          LowLevel = modelFileBundle.UseLowLevelExporter,
+          ForceGarbageCollection = modelFileBundle.ForceGarbageCollection,
+        }.Export(
             new FinFile(Path.Join(outputDirectory.FullName,
                                   mainFile.NameWithoutExtension + ".foo")),
             Config.Instance.ExportedFormats,

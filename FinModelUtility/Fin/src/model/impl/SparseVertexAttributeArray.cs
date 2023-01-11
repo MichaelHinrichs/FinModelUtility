@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using fin.util.asserts;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,6 +12,29 @@ namespace fin.model.impl {
     void Set(int index, T? value) => this[index] = value;
 
     T? this[int index] { get; set; }
+  }
+
+  public class SingleVertexAttribute<T> : IVertexAttributeArray<T>
+      where T : notnull {
+    private T value_;
+
+    public int Count => 1;
+
+    public T? this[int index] {
+      get {
+        Asserts.Equal(0, index);
+        return this.value_;
+      }
+      set {
+        Asserts.Equal(0, index);
+        this.value_ = value;
+      }
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+    public IEnumerator<(int, T)> GetEnumerator() {
+      yield return (0, this.value_);
+    }
   }
 
   public class SparseVertexAttributeArray<T> : IVertexAttributeArray<T>

@@ -2,7 +2,7 @@
 
 using fin.io;
 using fin.model;
-
+using fin.util.gc;
 using HaloWarsTools;
 
 
@@ -21,6 +21,9 @@ namespace hw.api {
     public IFileHierarchyFile XtdFile { get; }
 
     public HWContext Context { get; }
+
+    public bool UseLowLevelExporter => true;
+    public bool ForceGarbageCollection => true;
   }
 
   public class XtdModelLoader : IModelLoader<XtdModelFileBundle> {
@@ -52,9 +55,7 @@ namespace hw.api {
 
       // Forces an immediate garbage-collection cleanup. This is required to
       // prevent OOM errors, since Halo Wars maps are just so huge.
-      GC.Collect();
-      GC.WaitForFullGCComplete();
-      GC.WaitForPendingFinalizers();
+      GcUtil.ForceCollectEverything();
 
       return xtd.Mesh;
     }

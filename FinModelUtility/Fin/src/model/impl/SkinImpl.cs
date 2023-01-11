@@ -329,8 +329,21 @@ namespace fin.model.impl {
 
         public IVertexAttributeArray<ITexCoord>? Uvs { get; private set; }
 
-        public IVertex SetUv(ITexCoord? uv) => this.SetUv(0, uv);
-        public IVertex SetUv(float u, float v) => this.SetUv(0, u, v);
+        public IVertex SetUv(ITexCoord? uv) {
+          if (uv == null) {
+            this.Uvs = null;
+          } else {
+            this.Uvs ??= new SingleVertexAttribute<ITexCoord>();
+            this.Uvs[0] = uv;
+          }
+          return this;
+        }
+
+        public IVertex SetUv(float u, float v) {
+          this.Uvs ??= new SingleVertexAttribute<ITexCoord>();
+          this.Uvs[0] = new TexCoordImpl { U = u, V = v };
+          return this;
+        }
 
         public IVertex SetUv(int uvIndex, ITexCoord? uv) {
           if (uv != null) {
@@ -360,7 +373,7 @@ namespace fin.model.impl {
 
       private class LinesPrimitiveImpl : BPrimitiveImpl, ILinesPrimitive {
         public LinesPrimitiveImpl(params IVertex[] vertices) : base(PrimitiveType.LINES, vertices) { }
- 
+
         public float LineWidth { get; private set; }
         public ILinesPrimitive SetLineWidth(float width) {
           this.LineWidth = width;
