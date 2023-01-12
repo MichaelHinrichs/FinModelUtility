@@ -203,7 +203,7 @@ namespace fin.exporter.gltf {
 
       var writeSettings = new WriteSettings {
           ImageWriting = this.Embedded
-                             ? ResourceWriteMode.Embedded
+                             ? ResourceWriteMode.EmbeddedAsBase64
                              : ResourceWriteMode.SatelliteFile,
       };
 

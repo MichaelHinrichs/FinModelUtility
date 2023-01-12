@@ -70,6 +70,8 @@ namespace HaloWarsTools {
           primitive.SetMaterial(xttMaterial);
         }
 
+        GcUtil.ForceCollectEverything();
+
         var exporter = new AssimpIndirectExporter {
           LowLevel = true,
           ForceGarbageCollection = true,

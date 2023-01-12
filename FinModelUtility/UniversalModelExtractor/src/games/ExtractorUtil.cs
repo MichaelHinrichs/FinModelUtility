@@ -98,7 +98,9 @@ namespace uni.games {
         }.Export(
             new FinFile(Path.Join(outputDirectory.FullName,
                                   mainFile.NameWithoutExtension + ".foo")),
-            Config.Instance.ExportedFormats,
+            !modelFileBundle.UseLowLevelExporter ?
+              Config.Instance.ExportedFormats :
+              new[] { ".gltf" },
             model);
       } catch (Exception e) {
         ExtractorUtil.logger_.LogError(e.ToString());

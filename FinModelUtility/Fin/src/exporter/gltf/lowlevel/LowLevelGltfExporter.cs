@@ -169,7 +169,7 @@ namespace fin.exporter.gltf.lowlevel {
 
       var writeSettings = new WriteSettings {
           ImageWriting = this.Embedded
-                             ? ResourceWriteMode.Embedded
+                             ? ResourceWriteMode.EmbeddedAsBase64
                              : ResourceWriteMode.SatelliteFile,
           MergeBuffers = false,
           Validation = ValidationMode.Skip,

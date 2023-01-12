@@ -7,9 +7,9 @@ using fin.io;
 using fin.model;
 using fin.util.asserts;
 using fin.util.gc;
+using SharpGLTF.IO;
 using SharpGLTF.Schema2;
 using SharpGLTF.Validation;
-using Scene = Assimp.Scene;
 
 
 namespace fin.exporter.assimp.indirect {
@@ -21,7 +21,7 @@ namespace fin.exporter.assimp.indirect {
 
     public void Export(IFile outputFile, IModel model)
       => Export(outputFile,
-                new[] {".fbx", ".glb"},
+                !LowLevel ? new[] { ".fbx", ".glb" } : new[] { ".gltf" },
                 model);
 
     public void Export(IFile outputFile,
@@ -57,33 +57,41 @@ namespace fin.exporter.assimp.indirect {
           GcUtil.ForceCollectEverything();
         }
 
-        var gltfWriteSettings = new WriteSettings {
-            ImageWriting = gltfExporter.Embedded
-                               ? ResourceWriteMode.Embedded
-                               : ResourceWriteMode.SatelliteFile,
-        };
-
-        if (LowLevel) {
-          gltfWriteSettings.MergeBuffers = false;
-          gltfWriteSettings.Validation = ValidationMode.Skip;
-        }
-
         foreach (var gltfFormat in gltfFormats) {
           var gltfOutputFile = outputFile.CloneWithExtension(gltfFormat);
-          gltfModelRoot.Save(gltfOutputFile.FullName, gltfWriteSettings);
+
+          var gltfWriteSettings =
+            WriteContext.CreateFromFile(gltfOutputFile.FullName);
+          gltfWriteSettings.ImageWriting = gltfExporter.Embedded
+              ? ResourceWriteMode.EmbeddedAsBase64
+              : ResourceWriteMode.SatelliteFile;
+
+          if (LowLevel) {
+            gltfWriteSettings.MergeBuffers = false;
+            gltfWriteSettings.Validation = ValidationMode.Skip;
+          }
+
+          var name =
+            Path.GetFileNameWithoutExtension(gltfOutputFile
+              .FullNameWithoutExtension);
+          if (gltfFormat == ".glb") {
+            gltfWriteSettings.WriteBinarySchema2(name, gltfModelRoot);
+          } else {
+            gltfWriteSettings.WriteTextSchema2(name, gltfModelRoot);
+          }
+
+          //gltfModelRoot.Save(gltfOutputFile.FullName, gltfWriteSettings);
           if (ForceGarbageCollection) {
             GcUtil.ForceCollectEverything();
           }
         }
       }
 
-      if (nonGltfFormats.Length > 0) {
+      if (!LowLevel && nonGltfFormats.Length > 0) {
         gltfExporter.UvIndices = true;
         gltfExporter.Embedded = true;
 
-        var inputFile = !this.LowLevel
-                            ? outputFile.CloneWithExtension(".tmp.glb")
-                            : outputFile.CloneWithExtension(".tmp.gltf");
+        var inputFile = outputFile.CloneWithExtension(".tmp.glb");
         var inputPath = inputFile.FullName;
         gltfExporter.Export(inputFile, model);
         if (ForceGarbageCollection) {
@@ -93,58 +101,53 @@ namespace fin.exporter.assimp.indirect {
         using var ctx = new AssimpContext();
         var supportedExportFormats = ctx.GetSupportedExportFormats();
 
-        Scene? assScene = null;
-        if (!this.LowLevel) {
-          assScene = ctx.ImportFile(inputPath);
-          File.Delete(inputPath);
+        var assScene = ctx.ImportFile(inputPath);
+        File.Delete(inputPath);
 
-          // Importing the pre-generated GLTF file does most of the hard work off
-          // the bat: generating the mesh with properly weighted bones.
+        // Importing the pre-generated GLTF file does most of the hard work off
+        // the bat: generating the mesh with properly weighted bones.
 
-          // Bone orientation is already correct, you just need to enable
-          // "Automatic Bone Orientation" if importing in Blender.
+        // Bone orientation is already correct, you just need to enable
+        // "Automatic Bone Orientation" if importing in Blender.
 
-          new AssimpIndirectAnimationFixer().Fix(model, assScene);
-          new AssimpIndirectUvFixer().Fix(model, assScene);
-          new AssimpIndirectTextureFixer().Fix(model, assScene);
-        }
+        new AssimpIndirectAnimationFixer().Fix(model, assScene);
+        new AssimpIndirectUvFixer().Fix(model, assScene);
+        new AssimpIndirectTextureFixer().Fix(model, assScene);
 
-        if (assScene != null) {
-          foreach (var nonGltfFormat in nonGltfFormats) {
-            var nonGltfOutputFile =
-                outputFile.CloneWithExtension(nonGltfFormat);
+        foreach (var nonGltfFormat in nonGltfFormats) {
+          var nonGltfOutputFile =
+              outputFile.CloneWithExtension(nonGltfFormat);
 
-            var outputPath = nonGltfOutputFile.FullName;
-            var outputExtension = nonGltfOutputFile.Extension;
+          var outputPath = nonGltfOutputFile.FullName;
+          var outputExtension = nonGltfOutputFile.Extension;
 
-            string exportFormatId;
-            {
-              var exportFormatIds =
-                  supportedExportFormats
-                      .Where(exportFormat
-                                 => outputExtension ==
-                                    $".{exportFormat.FileExtension}")
-                      .Select(exportFormat => exportFormat.FormatId)
-                      .ToArray();
-              Asserts.True(exportFormatIds.Any(),
-                           $"'{outputExtension}' is not a supported export format!");
+          string exportFormatId;
+          {
+            var exportFormatIds =
+                supportedExportFormats
+                    .Where(exportFormat
+                               => outputExtension ==
+                                  $".{exportFormat.FileExtension}")
+                    .Select(exportFormat => exportFormat.FormatId)
+                    .ToArray();
+            Asserts.True(exportFormatIds.Any(),
+                                   $"'{outputExtension}' is not a supported export format!");
 
-              exportFormatId = exportFormatIds.First();
-            }
+            exportFormatId = exportFormatIds.First();
+          }
 
-            // TODO: Are these all safe to include?
-            var preProcessing =
-                PostProcessSteps.FindInvalidData |
-                PostProcessSteps.JoinIdenticalVertices;
+          // TODO: Are these all safe to include?
+          var preProcessing =
+              PostProcessSteps.FindInvalidData |
+              PostProcessSteps.JoinIdenticalVertices;
 
-            var success =
-                ctx.ExportFile(assScene, outputPath, exportFormatId,
-                               preProcessing);
-            Asserts.True(success, "Failed to export model.");
+          var success =
+              ctx.ExportFile(assScene, outputPath, exportFormatId,
+                             preProcessing);
+          Asserts.True(success, "Failed to export model.");
 
-            if (ForceGarbageCollection) {
-              GcUtil.ForceCollectEverything();
-            }
+          if (ForceGarbageCollection) {
+            GcUtil.ForceCollectEverything();
           }
         }
       }
