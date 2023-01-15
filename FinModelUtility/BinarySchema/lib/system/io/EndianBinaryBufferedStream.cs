@@ -14,9 +14,9 @@
       if (this.Buffer == null || this.Buffer.Length < count) {
         this.Buffer = new byte[count];
       }
-      this.BaseStream.Read(this.Buffer, 0, (int)count);
+      this.BaseStream.Read(this.Buffer, 0, (int) count);
 
-      if (!this.IsOppositeEndiannessOfSystem) {
+      if (stride == 1 || !this.IsOppositeEndiannessOfSystem) {
         return;
       }
       for (var i = 0L; i < count; i += stride) {

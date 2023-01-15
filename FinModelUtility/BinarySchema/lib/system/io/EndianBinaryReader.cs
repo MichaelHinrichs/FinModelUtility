@@ -230,8 +230,8 @@ namespace System.IO {
       => EndianBinaryReader.Assert(expectedValue, this.ReadByte());
 
     public byte ReadByte() {
-      this.FillBuffer_(sizeof(byte));
-      return EndianBinaryReader.ConvertByte_(this.BufferedStream_.Buffer, 0);
+      this.AssertNotEof();
+      return (byte) this.BufferedStream_.BaseStream.ReadByte();
     }
 
     public byte[] ReadBytes(long count) => this.ReadBytes(new byte[count]);
