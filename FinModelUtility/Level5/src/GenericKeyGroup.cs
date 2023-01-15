@@ -1,4 +1,5 @@
 ﻿using OpenTK;
+using fin.math;
 
 namespace level5 {
   public enum InterpolationType {
@@ -202,11 +203,11 @@ namespace level5 {
       return ((av * (1 - mu)) + (bv * mu));
     }
 
-    public static Quaternion Slerp(Vector4 v0, Vector4 v1, double t) {
+    public static Quaternion Slerp(Vector4 v0, Vector4 v1, float t) {
       v0.Normalize();
       v1.Normalize();
 
-      double dot = Vector4.Dot(v0, v1);
+      var dot = Vector4.Dot(v0, v1);
 
       const double DOT_THRESHOLD = 0.9995;
       if (Math.Abs(dot) > DOT_THRESHOLD) {
@@ -221,13 +222,13 @@ namespace level5 {
 
       if (dot < -1) dot = -1;
       if (dot > 1) dot = 1;
-      double theta_0 = Math.Acos(dot);  // theta_0 = angle between input vectors
-      double theta = theta_0 * t;    // theta = angle between v0 and result 
+      var theta_0 = FinTrig.Acos(dot);  // theta_0 = angle between input vectors
+      var theta = theta_0 * t;    // theta = angle between v0 and result 
 
       Vector4 v2 = v1 - v0 * new Vector4((float)dot);
       v2.Normalize();              // { v0, v2 } is now an orthonormal basis
 
-      Vector4 res = v0 * new Vector4((float)Math.Cos(theta)) + v2 * new Vector4((float)Math.Sign(theta));
+      Vector4 res = v0 * new Vector4((float)FinTrig.Cos(theta)) + v2 * new Vector4((float)Math.Sign(theta));
       return new Quaternion(res.Xyz, res.W);
     }
 

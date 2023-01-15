@@ -227,7 +227,18 @@ namespace fin.model.impl {
 
         public IVertexAttributeArray<IColor>? Colors { get; private set; }
 
-        public IVertex SetColor(IColor? color) => this.SetColor(0, color);
+        public IVertex SetColor(IColor? color) {
+          if (color != null) {
+            this.Colors ??= new SingleVertexAttribute<IColor>();
+            this.Colors[0] = color;
+          } else {
+            this.Colors?.Set(0, null);
+            if (this.Colors?.Count == 0) {
+              this.Colors = null;
+            }
+          }
+          return this;
+        }
 
         public IVertex SetColor(int colorIndex, IColor? color) {
           if (color != null) {
@@ -243,8 +254,8 @@ namespace fin.model.impl {
           return this;
         }
 
-        public IVertex SetColorBytes(byte r, byte g, byte b, byte a)
-          => this.SetColorBytes(0, r, g, b, a);
+        public IVertex SetColorBytes(byte r, byte g, byte b, byte a) 
+          => this.SetColor(FinColor.FromRgbaBytes(r, g, b, a));
 
         public IVertex SetColorBytes(
             int colorIndex,

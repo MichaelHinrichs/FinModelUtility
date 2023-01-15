@@ -1,5 +1,6 @@
 ﻿using fin.color;
 using fin.gl.model;
+using fin.math;
 using fin.model;
 using fin.model.impl;
 
@@ -40,12 +41,12 @@ namespace uni.ui.gl {
         var pitchTheta0 = MathF.PI * frac0;
         var pitchTheta1 = MathF.PI * frac1;
 
-        var zComponent0 = scale * MathF.Cos(pitchTheta0);
-        var xyComponent0 = scale * MathF.Sin(pitchTheta0);
+        var zComponent0 = scale * FinTrig.Cos(pitchTheta0);
+        var xyComponent0 = scale * FinTrig.Sin(pitchTheta0);
         var color0 = this.gradient_.GetColor(frac0);
 
-        var zComponent1 = scale * MathF.Cos(pitchTheta1);
-        var xyComponent1 = scale * MathF.Sin(pitchTheta1);
+        var zComponent1 = scale * FinTrig.Cos(pitchTheta1);
+        var xyComponent1 = scale * FinTrig.Sin(pitchTheta1);
         var color1 = this.gradient_.GetColor(frac1);
 
         var triangles = new List<IVertex>();
@@ -53,11 +54,11 @@ namespace uni.ui.gl {
         for (var yawThetaI = 0; yawThetaI <= n; ++yawThetaI) {
           var yawTheta = 2 * MathF.PI * yawThetaI / n;
 
-          var xComponent0 = xyComponent0 * MathF.Cos(yawTheta);
-          var yComponent0 = xyComponent0 * MathF.Sin(yawTheta);
+          var xComponent0 = xyComponent0 * FinTrig.Cos(yawTheta);
+          var yComponent0 = xyComponent0 * FinTrig.Sin(yawTheta);
 
-          var xComponent1 = xyComponent1 * MathF.Cos(yawTheta);
-          var yComponent1 = xyComponent1 * MathF.Sin(yawTheta);
+          var xComponent1 = xyComponent1 * FinTrig.Cos(yawTheta);
+          var yComponent1 = xyComponent1 * FinTrig.Sin(yawTheta);
 
           var vertex0 = model
                         .Skin.AddVertex(xComponent0, yComponent0, zComponent0)

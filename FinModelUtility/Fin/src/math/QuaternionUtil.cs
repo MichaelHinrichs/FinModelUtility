@@ -28,20 +28,20 @@ namespace fin.math {
       // roll / x
       var sinr_cosp = 2 * (q.W * q.X + q.Y * q.Z);
       var cosr_cosp = 1 - 2 * (q.X * q.X + q.Y * q.Y);
-      angles.X = MathF.Atan2(sinr_cosp, cosr_cosp);
+      angles.X = FinTrig.Atan2(sinr_cosp, cosr_cosp);
 
       // pitch / y
       var sinp = (float) (2 * (q.W * q.Y - q.Z * q.X));
       if (Math.Abs(sinp) >= 1) {
         angles.Y = MathF.CopySign(MathF.PI / 2, sinp);
       } else {
-        angles.Y = MathF.Asin(sinp);
+        angles.Y = FinTrig.Asin(sinp);
       }
 
       // yaw / z
       var siny_cosp = 2 * (q.W * q.Z + q.X * q.Y);
       var cosy_cosp = 1 - 2 * (q.Y * q.Y + q.Z * q.Z);
-      angles.Z = MathF.Atan2(siny_cosp, cosy_cosp);
+      angles.Z = FinTrig.Atan2(siny_cosp, cosy_cosp);
 
       return angles;
     }

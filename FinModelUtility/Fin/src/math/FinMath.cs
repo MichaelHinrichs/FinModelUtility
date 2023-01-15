@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using FastMath;
+using System.Numerics;
 
 
 namespace fin.math {

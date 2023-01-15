@@ -1,4 +1,5 @@
 ﻿using System;
+using fin.math;
 
 
 namespace fin.ui {
@@ -27,15 +28,15 @@ namespace fin.ui {
     public float Pitch { get; set; }
 
 
-    public float HorizontalNormal => MathF.Cos(this.Pitch / 180 * MathF.PI);
-    public float VerticalNormal => MathF.Sin(this.Pitch / 180 * MathF.PI);
+    public float HorizontalNormal => FinTrig.Cos(this.Pitch / 180 * MathF.PI);
+    public float VerticalNormal => FinTrig.Sin(this.Pitch / 180 * MathF.PI);
 
 
     public float XNormal
-      => this.HorizontalNormal * MathF.Cos(this.Yaw / 180 * MathF.PI);
+      => this.HorizontalNormal * FinTrig.Cos(this.Yaw / 180 * MathF.PI);
 
     public float YNormal
-      => this.HorizontalNormal * MathF.Sin(this.Yaw / 180 * MathF.PI);
+      => this.HorizontalNormal * FinTrig.Sin(this.Yaw / 180 * MathF.PI);
 
     public float ZNormal => this.VerticalNormal;
 
@@ -52,13 +53,13 @@ namespace fin.ui {
 
       this.X += speed *
                 this.HorizontalNormal *
-                (forwardVector * MathF.Cos(forwardYawRads) +
-                 rightVector * MathF.Cos(rightYawRads));
+                (forwardVector * FinTrig.Cos(forwardYawRads) +
+                 rightVector * FinTrig.Cos(rightYawRads));
 
       this.Y += speed *
                 this.HorizontalNormal *
-                (forwardVector * MathF.Sin(forwardYawRads) +
-                 rightVector * MathF.Sin(rightYawRads));
+                (forwardVector * FinTrig.Sin(forwardYawRads) +
+                 rightVector * FinTrig.Sin(rightYawRads));
     }
   }
 }
