@@ -8,20 +8,21 @@ namespace uni.ui.common {
         Assembly.GetExecutingAssembly();
 
     public static readonly Image folderClosedImage =
-        EmbeddedResourceUtil.Load(Icons.assembly_,
-                                  "uni.img.folder_closed.png");
+        LoadIcon_("uni.img.folder_closed.png");
 
     public static readonly Image folderOpenImage =
-        EmbeddedResourceUtil.Load(Icons.assembly_,
-                                  "uni.img.folder_open.png");
+        LoadIcon_("uni.img.folder_open.png");
 
     public static readonly Image modelImage =
-        EmbeddedResourceUtil.Load(Icons.assembly_, "uni.img.model.png");
+        LoadIcon_("uni.img.model.png");
 
     public static readonly Image sceneImage =
-        EmbeddedResourceUtil.Load(Icons.assembly_, "uni.img.scene.png");
+        LoadIcon_("uni.img.scene.png");
 
     public static readonly Image musicImage =
-        EmbeddedResourceUtil.Load(Icons.assembly_, "uni.img.music.png");
+        LoadIcon_("uni.img.music.png");
+
+    private static Image LoadIcon_(string embeddedResourceName)
+      => EmbeddedResourceUtil.Load(Icons.assembly_, embeddedResourceName);
   }
 }
