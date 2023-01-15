@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using fin.data.queue;
+using System.Collections.Generic;
 using System.Linq;
 
 using fin.math.matrix;
@@ -17,8 +18,7 @@ namespace fin.exporter.gltf {
         ISkeleton skeleton) {
       var rootBone = skeleton.Root;
 
-      var boneQueue = new Queue<(GltfNode, IBone)>();
-      boneQueue.Enqueue((rootNode, rootBone));
+      var boneQueue = new FinQueue<(GltfNode, IBone)>((rootNode, rootBone));
 
       var skinNodesAndBones = new List<(GltfNode, IBone)>();
       while (boneQueue.Count > 0) {
@@ -30,9 +30,7 @@ namespace fin.exporter.gltf {
           skinNodesAndBones.Add((node, bone));
         }
 
-        foreach (var child in bone.Children) {
-          boneQueue.Enqueue((node.CreateNode(child.Name), child));
-        }
+        boneQueue.Enqueue(bone.Children.Select(child => (node.CreateNode(child.Name), child)));
       }
 
       var skinNodes = skinNodesAndBones

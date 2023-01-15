@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 
 using fin.color;
+using fin.data;
 using fin.math;
 using fin.model;
 using fin.model.impl;
@@ -46,6 +47,8 @@ namespace fin.exporter.gltf {
                                      .WithSpecularGlossiness();
 
       var DEFAULT_SKINNING = SparseWeight8.Create((0, 1));
+      var skinningByBoneWeights =
+        new IndexableDictionary<IBoneWeights, (int, float)[]>();
 
       var gltfMeshes = new List<Mesh>();
       foreach (var finMesh in skin.Meshes) {
@@ -76,12 +79,15 @@ namespace fin.exporter.gltf {
 
             var boneWeights = point.BoneWeights;
             if (boneWeights != null) {
-              vertexBuilder = vertexBuilder.WithSkinning(
-                  boneWeights.Weights.Select(
-                                 boneWeight
-                                     => (boneToIndex[boneWeight.Bone],
-                                         boneWeight.Weight))
-                             .ToArray());
+              if (!skinningByBoneWeights.TryGetValue(boneWeights,
+                    out var skinning)) {
+                skinningByBoneWeights[boneWeights] = skinning = boneWeights.Weights.Select(
+                    boneWeight
+                      => (boneToIndex[boneWeight.Bone],
+                        boneWeight.Weight))
+                  .ToArray();
+              }
+              vertexBuilder = vertexBuilder.WithSkinning(skinning);
             } else {
               vertexBuilder = vertexBuilder.WithSkinning(DEFAULT_SKINNING);
             }
