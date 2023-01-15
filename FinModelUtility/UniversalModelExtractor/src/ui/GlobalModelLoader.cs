@@ -14,6 +14,8 @@ namespace uni.ui {
   public class GlobalModelLoader : IModelLoader<IModelFileBundle> {
     public IModel LoadModel(IModelFileBundle modelFileBundle)
       => modelFileBundle switch {
+          IBattalionWarsModelFileBundle battalionWarsModelFileBundle
+              => new BattalionWarsModelLoader().LoadModel(battalionWarsModelFileBundle),
           BmdModelFileBundle bmdModelFileBundle
               => new BmdModelLoader().LoadModel(bmdModelFileBundle),
           CmbModelFileBundle cmbModelFileBundle
@@ -22,20 +24,14 @@ namespace uni.ui {
               => new DatModelLoader().LoadModel(datModelFileBundle),
           GloModelFileBundle gloModelFileBundle
               => new GloModelLoader().LoadModel(gloModelFileBundle),
+          IHaloWarsModelFileBundle haloWarsModelFileBundle 
+              => new HaloWarsModelLoader().LoadModel(haloWarsModelFileBundle),
           ModModelFileBundle modModelFileBundle
               => new ModModelLoader().LoadModel(modModelFileBundle),
-          ModlModelFileBundle modlModelFileBundle
-              => new ModlModelLoader().LoadModel(modlModelFileBundle),
-          OutModelFileBundle outModelFileBundle
-              => new OutModelLoader().LoadModel(outModelFileBundle),
           Sm64LevelModelFileBundle sm64LevelModelFileBundle
               => new Sm64LevelModelLoader().LoadModel(sm64LevelModelFileBundle),
-          VisModelFileBundle visModelFileBundle
-              => new VisModelLoader().LoadModel(visModelFileBundle),
           XcModelFileBundle xcModelFileBundle
               => new XcModelLoader().LoadModel(xcModelFileBundle),
-          XtdModelFileBundle xtdModelFileBundle
-              => new XtdModelLoader().LoadModel(xtdModelFileBundle),
           _ => throw new ArgumentOutOfRangeException(nameof(modelFileBundle))
       };
   }
