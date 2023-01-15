@@ -18,11 +18,7 @@ namespace fin.model.impl {
       private readonly IList<IVertex> vertices_;
       private readonly IList<IMesh> meshes_ = new List<IMesh>();
 
-      private readonly IList<IBoneWeights> boneWeights_ =
-          new List<IBoneWeights>();
-
-      private readonly ListDictionary<int, IBoneWeights> boneWeightsByCount_ =
-          new();
+      private readonly BoneWeightsDictionary boneWeightsDictionary_ = new();
 
       private readonly IndexableDictionary<IBone, IBoneWeights>
           boneWeightsByBone_ = new();
@@ -31,16 +27,12 @@ namespace fin.model.impl {
         this.vertices_ = new List<IVertex>();
         this.Vertices = new ReadOnlyCollection<IVertex>(this.vertices_);
         this.Meshes = new ReadOnlyCollection<IMesh>(this.meshes_);
-        this.BoneWeights =
-            new ReadOnlyCollection<IBoneWeights>(this.boneWeights_);
       }
 
       public SkinImpl(int vertexCount) {
         this.vertices_ = new List<IVertex>(vertexCount);
         this.Vertices = new ReadOnlyCollection<IVertex>(this.vertices_);
         this.Meshes = new ReadOnlyCollection<IMesh>(this.meshes_);
-        this.BoneWeights =
-            new ReadOnlyCollection<IBoneWeights>(this.boneWeights_);
       }
 
       public IReadOnlyList<IVertex> Vertices { get; }
@@ -66,7 +58,8 @@ namespace fin.model.impl {
         return mesh;
       }
 
-      public IReadOnlyList<IBoneWeights> BoneWeights { get; }
+      public IReadOnlyList<IBoneWeights> BoneWeights 
+        => this.boneWeightsDictionary_.List;
 
       public IBoneWeights GetOrCreateBoneWeights(
           PreprojectMode preprojectMode,
@@ -81,73 +74,12 @@ namespace fin.model.impl {
       }
 
       public IBoneWeights GetOrCreateBoneWeights(PreprojectMode preprojectMode,
-                                                 params IBoneWeight[] weights) {
-        var error = .0001;
-        if (weights.Length > 1) {
-          weights = weights.Where(boneWeight => boneWeight.Weight > error)
-                           .ToArray();
-        }
-
-        var totalWeight = weights.Select(weight => weight.Weight).Sum();
-        Asserts.True(Math.Abs(totalWeight - 1) < error);
-
-        if (this.boneWeightsByCount_.TryGetList(weights.Length,
-                                                out var allBoneWeightsWithCount)) {
-          foreach (var boneWeights in allBoneWeightsWithCount) {
-            if (boneWeights.PreprojectMode != preprojectMode) {
-              continue;
-            }
-
-            var existingWeights = boneWeights.Weights;
-            for (var w = 0; w < weights.Length; ++w) {
-              var weight = weights[w];
-              var existingWeight = existingWeights[w];
-
-              if (weight.Bone != existingWeight.Bone) {
-                goto Skip;
-              }
-
-              if (Math.Abs(weight.Weight - existingWeight.Weight) > .0001) {
-                goto Skip;
-              }
-
-              if (!(weight.SkinToBone == null &&
-                    existingWeight.SkinToBone == null) ||
-                  !(weight.SkinToBone?.Equals(existingWeight.SkinToBone) ??
-                    false)) {
-                goto Skip;
-              }
-            }
-
-            return boneWeights;
-
-            Skip:;
-          }
-        }
-
-        return CreateBoneWeights(preprojectMode, weights);
-      }
+                                                 params IBoneWeight[] weights)
+        => boneWeightsDictionary_.GetOrCreate(preprojectMode, weights);
 
       public IBoneWeights CreateBoneWeights(PreprojectMode preprojectMode,
-                                            params IBoneWeight[] weights) {
-        var error = .0001;
-        if (weights.Length > 1) {
-          weights = weights.Where(boneWeight => boneWeight.Weight > error)
-                           .ToArray();
-        }
-
-        var totalWeight = weights.Select(weight => weight.Weight).Sum();
-        Asserts.True(Math.Abs(totalWeight - 1) < error);
-
-        var boneWeights = new BoneWeightsImpl {
-          Index = boneWeights_.Count,
-          PreprojectMode = preprojectMode,
-          Weights = weights,
-        };
-        this.boneWeights_.Add(boneWeights);
-        this.boneWeightsByCount_.Add(weights.Length, boneWeights);
-        return boneWeights;
-      }
+                                            params IBoneWeight[] weights)
+        => this.boneWeightsDictionary_.Create(preprojectMode, weights);
 
 
       private class MeshImpl : IMesh {
@@ -420,12 +352,6 @@ namespace fin.model.impl {
           this.InversePriority = inversePriority;
           return this;
         }
-      }
-
-      private class BoneWeightsImpl : IBoneWeights {
-        public int Index { get; init; }
-        public PreprojectMode PreprojectMode { get; init; }
-        public IReadOnlyList<IBoneWeight> Weights { get; init; }
       }
     }
 

@@ -4,6 +4,8 @@ using fin.color;
 using fin.data;
 using fin.math.matrix;
 using fin.model.impl;
+using SharpGLTF.Schema2;
+using System;
 
 
 namespace fin.model {
@@ -51,9 +53,11 @@ namespace fin.model {
   }
 
 
-  public interface IBoneWeights : IIndexable {
+  public interface IBoneWeights : IIndexable, IEquatable<IBoneWeights> {
     PreprojectMode PreprojectMode { get; }
     IReadOnlyList<IBoneWeight> Weights { get; }
+
+    bool Equals(PreprojectMode preprojectMode, IReadOnlyList<IBoneWeight> weights);
   }
 
   public interface IBoneWeight {
@@ -63,10 +67,23 @@ namespace fin.model {
   }
 
   public record BoneWeight(
-      IBone Bone,
-      // TODO: This should be moved to the bone interface instead.
-      IReadOnlyFinMatrix4x4? SkinToBone,
-      float Weight) : IBoneWeight;
+    IBone Bone,
+    // TODO: This should be moved to the bone interface instead.
+    IReadOnlyFinMatrix4x4? SkinToBone,
+    float Weight) : IBoneWeight {
+    public override int GetHashCode() {
+      int hash = 216613626;
+      var sub = 16780669;
+
+      hash = hash * sub ^ Bone.Index.GetHashCode();
+      if (SkinToBone != null) {
+        hash = hash * sub ^ SkinToBone.GetHashCode();
+      }
+      hash = hash * sub ^ Weight.GetHashCode();
+      
+      return hash;
+    }
+  }
 
   public interface ITexCoord {
     float U { get; }
