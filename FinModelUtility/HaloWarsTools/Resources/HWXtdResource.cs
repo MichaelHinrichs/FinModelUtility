@@ -8,6 +8,7 @@ using Dxt;
 using fin.image;
 using fin.model;
 using fin.model.impl;
+using System.Runtime.CompilerServices;
 
 
 namespace HaloWarsTools {
@@ -99,10 +100,8 @@ namespace HaloWarsTools {
       // Read vertex offsets/normals and add them to the mesh
       for (int x = 0; x < gridSize; x += stride) {
         for (int z = 0; z < gridSize; z += stride) {
-          int index =
-              ConvertGridPositionToIndex(new Tuple<int, int>(x, z), gridSize);
+          int index = GetVertexIndex(x, z, gridSize);
           int offset = index * 4;
-
 
           // Get offset position and normal for this vertex
           Vector3 position =
@@ -129,15 +128,15 @@ namespace HaloWarsTools {
                       .AddVertex(position.X, position.Y, position.Z)
                       .SetLocalNormal(normal.X, normal.Y, normal.Z)
                       .SetUv(texCoord.X, texCoord.Y);
-          finVertices[GetVertexIndex(x, z, gridSize)] = finVertex;
+          finVertices[index] = finVertex;
         }
       }
 
       // Generate faces based on terrain grid
-      for (int x = 0; x < gridSize - stride; x += stride) {
-        var triangles = new List<(IVertex, IVertex, IVertex)>();
-
-        for (int z = 0; z < gridSize - stride; z += stride) {
+      var triangleGridSize = gridSize - stride;
+      var triangles = new List<(IVertex, IVertex, IVertex)>(2 * triangleGridSize * triangleGridSize);
+      for (int x = 0; x < triangleGridSize; x += stride) {
+        for (int z = 0; z < triangleGridSize; z += stride) {
           var a = finVertices[GetVertexIndex(x, z, gridSize)];
           var b = finVertices[GetVertexIndex(x + stride, z, gridSize)];
           var c = finVertices[GetVertexIndex(x, z + stride, gridSize)];
@@ -146,33 +145,15 @@ namespace HaloWarsTools {
           triangles.Add((a, b, c));
           triangles.Add((d, c, b));
         }
-
-        finMesh.AddTriangles(triangles.ToArray());
-        triangles.Clear();
       }
+      finMesh.AddTriangles(triangles.ToArray());
 
       return finModel;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int GetVertexIndex(int x, int z, int gridSize)
       => z * gridSize + x;
-
-    private static int GetVertexID(int x, int z, int gridSize, int stride) {
-      return ConvertGridPositionToIndex(
-          new Tuple<int, int>(x / stride, z / stride), gridSize / stride);
-    }
-
-    private static Tuple<int, int> ConvertIndexToGridPosition(
-        int index,
-        int gridSize) {
-      return new Tuple<int, int>(index % gridSize, index / gridSize);
-    }
-
-    private static int ConvertGridPositionToIndex(
-        Tuple<int, int> gridPosition,
-        int gridSize) {
-      return gridPosition.Item2 * gridSize + gridPosition.Item1;
-    }
 
     private Vector3 ReadVector3Compressed(byte[] bytes, int offset) {
       // Inexplicably, position and normal vectors are encoded inside 4 bytes. ~10 bits per component
