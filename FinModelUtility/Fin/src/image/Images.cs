@@ -466,23 +466,22 @@ namespace fin.image {
     public int Width => this.impl_.Width;
     public int Height => this.impl_.Height;
 
-    public void Access(IImage.AccessHandler accessHandler) {
-      var frame = this.impl_.Frames[0];
+    public void Access(IImage.AccessHandler accessHandler)
+        => FinImage.Access(this.impl_, getHandler => {
+          void InternalGetHandler(
+            int x,
+            int y,
+            out byte r,
+            out byte g,
+            out byte b,
+            out byte a) {
+            getHandler(x, y, out var pixel);
+            r = g = b = pixel.PackedValue;
+            a = 255;
+          }
 
-      void GetHandler(
-          int x,
-          int y,
-          out byte r,
-          out byte g,
-          out byte b,
-          out byte a) {
-        var pixel = frame[x, y];
-        r = g = b = pixel.PackedValue;
-        a = 255;
-      }
-
-      accessHandler(GetHandler);
-    }
+          accessHandler(InternalGetHandler);
+        });
 
     public delegate void GetHandler(int x,
                                     int y,
@@ -495,25 +494,26 @@ namespace fin.image {
     public delegate void MutateHandler(GetHandler getHandler,
                                        SetHandler setHandler);
 
-    public void Mutate(MutateHandler mutateHandler) {
-      var frame = this.impl_.Frames[0];
+    public void Mutate(MutateHandler mutateHandler)
+        => FinImage.Mutate(this.impl_, (getHandler, setHandler) => {
+          void InternalGetHandler(
+            int x,
+            int y,
+            out byte i) {
+            getHandler(x, y, out var pixel);
+            i = pixel.PackedValue;
+          }
 
-      void GetHandler(
-          int x,
-          int y,
-          out byte i) {
-        var pixel = frame[x, y];
-        i = pixel.PackedValue;
-      }
+          void InternalSetHandler(
+            int x,
+            int y,
+            byte i) {
+            var pixel = new L8(i);
+            setHandler(x, y, pixel);
+          }
 
-      void SetHandler(int x, int y, byte i) {
-        var pixel = frame[x, y];
-        pixel.PackedValue = i;
-        frame[x, y] = pixel;
-      }
-
-      mutateHandler(GetHandler, SetHandler);
-    }
+          mutateHandler(InternalGetHandler, InternalSetHandler);
+        });
 
     public bool HasAlphaChannel => false;
     public Bitmap AsBitmap() => FinImage.ConvertToBitmap(this);
