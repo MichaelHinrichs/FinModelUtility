@@ -79,7 +79,7 @@ namespace uni.games {
 
       var existingOutputFile =
           outputDirectory.GetExistingFiles()
-                         .Where(file => file.Extension is ".fbx" or ".glb")
+                         .Where(file => file.Extension is ".fbx" or ".glb" or ".gltf")
                          .Any(file => file.NameWithoutExtension ==
                                      mainFile.NameWithoutExtension);
 

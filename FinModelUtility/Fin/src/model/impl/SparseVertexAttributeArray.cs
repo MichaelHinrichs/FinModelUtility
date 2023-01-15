@@ -21,10 +21,7 @@ namespace fin.model.impl {
     public int Count => 1;
 
     public T? this[int index] {
-      get {
-        Asserts.Equal(0, index);
-        return this.value_;
-      }
+      get => index == 0 ? this.value_ : default;
       set {
         Asserts.Equal(0, index);
         this.value_ = value;
