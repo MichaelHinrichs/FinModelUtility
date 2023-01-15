@@ -91,14 +91,22 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
             if (directory.LocalPath == "\\vs1\\chr") {
               xcBundles = new[] {
                   GetSameFile("Emeer Punchenbaug", directory, "c206.xc"),
+                  GetSameFile("Espella Cantabella", directory, "c105.xc"),
                   GetSameFile("Flynch", directory, "c203.xc"),
+                  GetSameFile("Johnny Smiles", directory, "c201.xc"),
+                  GetSameFile("Judge", directory, "c107.xc"),
                   GetSameFile("Kira", directory, "c215.xc"),
                   GetSameFile("Kira (with flower petals)", directory, "c216.xc"),
                   GetSameFile("Knightle", directory, "c213.xc"),
                   GetSameFile("Miles Edgeworth", directory, "c401.xc"),
+                  GetSameFile("Olivia Aldente", directory, "c202.xc"),
+                  GetSameFile("Phoenix Wright", directory, "c102.xc"),
+                  GetSameFile("Phoenix Wright (Baker)", directory, "c113.xc"),
+                  GetSameFile("Professor Layton", directory, "c101.xc"),
                   GetSameFile("Professor Layton (Gold)", directory, "c301.xc"),
                   GetSameFile("Storyteller", directory, "c134.xc"),
                   GetSameFile("Wordsmith", directory, "c211.xc"),
+                  GetSameFile("Zacharias Barnham", directory, "c106_a.xc"),
               };
             }
 
