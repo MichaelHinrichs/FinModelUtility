@@ -207,25 +207,30 @@ namespace uni.ui.common {
     private void Filter_() {
       var filterText = this.filterTextBox_.Text.ToLower();
 
-      this.filterImpl_.Reset();
+      if (string.IsNullOrEmpty(filterText) || filterText.Length <= 2) {
+        if (this.betterTreeView_.Comparer != null) {
+          this.betterTreeView_.SelectedNode?.EnsureParentIsExpanded();
 
-      this.betterTreeView_.BeginUpdate();
+          this.filterImpl_.Reset();
+          this.betterTreeView_.BeginUpdate();
 
-      if (string.IsNullOrEmpty(filterText) || filterText.Length <= 1) {
-        this.betterTreeView_.Root.ResetChildrenRecursively();
+          this.betterTreeView_.Root.ResetChildrenRecursively();
+          this.betterTreeView_.Comparer = null;
 
-        this.betterTreeView_.Comparer = null;
+          this.betterTreeView_.EndUpdate();
+        }
       } else {
+        this.filterImpl_.Reset();
+        this.betterTreeView_.BeginUpdate();
+        
         this.filterImpl_.Filter(filterText, -1);
-
         this.betterTreeView_.Root.ResetChildrenRecursively(
             betterTreeNode =>
                 Asserts.Assert(betterTreeNode.Data).ChangeDistance <= 0);
-
         this.betterTreeView_.Comparer ??= new FuzzyTreeComparer();
-      }
 
-      this.betterTreeView_.EndUpdate();
+        this.betterTreeView_.EndUpdate();
+      }
     }
 
     private class FuzzyTreeComparer : IComparer<IBetterTreeNode<FileNode>> {

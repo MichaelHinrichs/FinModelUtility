@@ -31,6 +31,8 @@ namespace uni.ui.common {
     delegate void SelectedHandler(IBetterTreeNode<T> betterTreeNode);
 
     event SelectedHandler Selected;
+
+    IBetterTreeNode<T>? SelectedNode { get; }
   }
 
 
@@ -59,7 +61,10 @@ namespace uni.ui.common {
 
     bool IsExpanded { get; }
     void Expand();
+    void Collapse();
     void ExpandRecursively();
+
+    void EnsureParentIsExpanded();
   }
 
   public class BetterTreeView<T> : IBetterTreeView<T> where T : class {
@@ -74,6 +79,9 @@ namespace uni.ui.common {
     public IBetterTreeNode<T> Root { get; }
 
     public event IBetterTreeView<T>.SelectedHandler Selected = delegate { };
+    public IBetterTreeNode<T>? SelectedNode
+      => this.impl_.SelectedNode != null ?
+             BetterTreeUtil.GetBetterFrom<BetterTreeNode, T>(this.impl_.SelectedNode) : null;
 
     public IComparer<IBetterTreeNode<T>>? Comparer {
       get => this.comparer_.Comparer;
@@ -82,11 +90,9 @@ namespace uni.ui.common {
 
     public BetterTreeView(TreeView impl) {
       this.impl_ = impl;
-      this.Root = new BetterTreeNode(this, null, impl.Nodes);
+      this.Root = new BetterTreeNode(this, null, null, impl.Nodes);
 
-      this.impl_.AfterSelect += (sender, args) =>
-          this.Selected.Invoke(
-              (BetterTreeNode)this.impl_.SelectedNode!.Tag);
+      this.impl_.AfterSelect += (sender, args) => this.Selected.Invoke(this.SelectedNode!);
 
       this.impl_.TreeViewNodeSorter = this.comparer_;
 
@@ -94,14 +100,24 @@ namespace uni.ui.common {
         var node = args.Node!;
         var betterNode =
             BetterTreeUtil.GetBetterFrom<BetterTreeNode, T>(node);
-        betterNode.IsExpanded = true;
+
+        if (args.Action is TreeViewAction.ByMouse
+                           or TreeViewAction.ByKeyboard) {
+          betterNode.IsExpandedManually = true;
+        }
+
         node.ImageIndex = node.SelectedImageIndex = betterNode.OpenImageIndex;
       };
       this.impl_.AfterCollapse += (sender, args) => {
         var node = args.Node!;
         var betterNode =
             BetterTreeUtil.GetBetterFrom<BetterTreeNode, T>(node);
-        betterNode.IsExpanded = false;
+
+        if (args.Action is TreeViewAction.ByMouse
+                           or TreeViewAction.ByKeyboard) {
+          betterNode.IsExpandedManually = false;
+        }
+
         node.ImageIndex = node.SelectedImageIndex = betterNode.ClosedImageIndex;
       };
     }
@@ -111,7 +127,6 @@ namespace uni.ui.common {
       this.impl_.SuspendLayout();
       this.comparer_.Enabled = false;
       this.impl_.Sorted = false;
-      //this.impl_.Scrollable = false;
       this.impl_.Enabled = false;
       this.impl_.Visible = false;
       this.impl_.Hide();
@@ -122,7 +137,6 @@ namespace uni.ui.common {
       this.impl_.ResumeLayout();
       this.comparer_.Enabled = true;
       this.impl_.Sorted = true;
-      //this.impl_.Scrollable = true;
       this.impl_.Enabled = true;
       this.impl_.Visible = true;
       this.impl_.Show();
@@ -162,6 +176,7 @@ namespace uni.ui.common {
 
 
     private class BetterTreeNode : IBetterTreeNode<T> {
+      private readonly BetterTreeNode? parent_;
       private readonly TreeNodeCollection collection_;
 
       private int openImageIndex_ = -1;
@@ -170,7 +185,7 @@ namespace uni.ui.common {
       public TreeNode? Impl { get; }
 
       public IBetterTreeView<T> Tree { get; }
-      public IBetterTreeNode<T>? Parent { get; private set; }
+      public IBetterTreeNode<T>? Parent => parent_;
 
       public int AbsoluteIndex { get; }
 
@@ -181,9 +196,11 @@ namespace uni.ui.common {
       public string? Text => this.Impl?.Text;
 
       public BetterTreeNode(IBetterTreeView<T> tree,
+                            BetterTreeNode? parent,
                             TreeNode? impl,
                             TreeNodeCollection collection) {
         this.Tree = tree;
+        this.parent_ = parent;
         this.Impl = impl;
 
         if (impl != null) {
@@ -229,17 +246,15 @@ namespace uni.ui.common {
         var childTreeNode = this.collection_.Add(text);
 
         var childBetterTreeNode =
-            new BetterTreeNode(this.Tree, childTreeNode, childTreeNode.Nodes) {
-                Parent = this
-            };
+            new BetterTreeNode(this.Tree, this, childTreeNode, childTreeNode.Nodes);
 
         this.absoluteChildren_.Add(childBetterTreeNode);
 
         return childBetterTreeNode;
       }
 
-      public void Add(IBetterTreeNode<T> node) =>
-          this.collection_.Add(node.Impl);
+      public void Add(IBetterTreeNode<T> node)
+        => this.collection_.Add(node.Impl);
 
       public void RemoveChildren() {
         foreach (var child in this.absoluteChildren_) {
@@ -252,20 +267,7 @@ namespace uni.ui.common {
       public void ResetChildrenRecursively(
           Func<IBetterTreeNode<T>, bool>? filter = null) {
         this.ClearRecursively_();
-        this.ReaddChildrenRecursively(filter);
-        this.ExpandRecursively();
-      }
-
-      public bool IsExpanded { get; set; } = false;
-
-      public void Expand() => this.Impl?.Expand();
-
-      public void ExpandRecursively() {
-        this.Expand();
-        BetterTreeUtil.ForEach<IBetterTreeNode<T>, T>(
-            this.collection_,
-            childBetterTreeNode =>
-                childBetterTreeNode.ExpandRecursively());
+        this.ReaddChildrenRecursively_(filter);
       }
 
       private void ClearRecursively_() {
@@ -277,17 +279,57 @@ namespace uni.ui.common {
         this.collection_.Clear();
       }
 
-      private void ReaddChildrenRecursively(
+      private void ReaddChildrenRecursively_(
           Func<BetterTreeNode, bool>? filter) {
-        // TODO: Remove unboxing?
         foreach (var childBetterTreeNode in this.absoluteChildren_) {
           if (filter != null && !filter(childBetterTreeNode)) {
             continue;
           }
 
           this.Add(childBetterTreeNode);
-          childBetterTreeNode.ReaddChildrenRecursively(filter);
+
+          if (filter == null && this.IsExpandedManually != true) {
+            childBetterTreeNode.Collapse();
+          }
+
+          childBetterTreeNode.ReaddChildrenRecursively_(filter);
+
+          if (filter != null || this.IsExpandedManually == true) {
+            childBetterTreeNode.Expand();
+          }
+
+          var node = childBetterTreeNode.Impl;
+          node.ImageIndex =
+              node.SelectedImageIndex =
+                                childBetterTreeNode.IsExpanded
+                                    ? childBetterTreeNode.OpenImageIndex
+                                    : childBetterTreeNode.ClosedImageIndex;
         }
+      }
+
+      public bool IsExpanded => this.Impl.IsExpanded;
+      public bool? IsExpandedManually { get; set; }
+
+      public void Expand() => this.Impl?.Expand();
+
+      public void ExpandRecursively() {
+        this.Expand();
+        BetterTreeUtil.ForEach<IBetterTreeNode<T>, T>(
+            this.collection_,
+            childBetterTreeNode =>
+                childBetterTreeNode.ExpandRecursively());
+      }
+
+      public void Collapse() => this.Impl?.Collapse(true);
+
+      public void EnsureParentIsExpanded() {
+        if (this.parent_ == null) {
+          return;
+        }
+
+        this.parent_.IsExpandedManually = true;
+        this.parent_.Expand();
+        this.parent_.EnsureParentIsExpanded();
       }
     }
 
