@@ -36,6 +36,7 @@ namespace uni.platforms.desktop {
           .Select(section => section.Value<VProperty>().Value)
           .Select(section => section["path"])
           .Select(path => new FinDirectory(path.ToString()))
+          .Where(steamDirectory => steamDirectory.Exists) // A steam directory may not exist if it corresponds to an external hard drive
           .Select(
               libraryFolder => libraryFolder.GetSubdir("steamapps"))
           .Select(steamApps => steamApps.GetSubdir("common"))
