@@ -10,10 +10,10 @@ using fin.math.interpolation;
 
 namespace fin.model.impl {
   public partial class ModelImpl {
-    public class RadiansRotationTrackImpl : IRadiansRotationTrack {
+    public class RadiansRotationTrack3dImpl : IRadiansRotationTrack3d {
       private readonly TrackImpl<float>[] axisTracks_;
 
-      public RadiansRotationTrackImpl() {
+      public RadiansRotationTrack3dImpl() {
         this.axisTracks_ = new TrackImpl<float>[3];
         for (var i = 0; i < 3; ++i) {
           this.axisTracks_[i] =
@@ -125,7 +125,7 @@ namespace fin.model.impl {
             out var toZFrame,
             useLoopingInterpolation);
 
-        if (!RadiansRotationTrackImpl.CanInterpolateWithQuaternions_(
+        if (!RadiansRotationTrack3dImpl.CanInterpolateWithQuaternions_(
                 fromXFrame, fromYFrame, fromZFrame,
                 toXFrame, toYFrame, toZFrame)) {
           var xRadians =

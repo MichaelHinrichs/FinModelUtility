@@ -122,7 +122,7 @@ namespace mod.schema.animation {
     // TODO: Do this sparsely
     public static void MergeKeyframesToPositionTrack(
         Keyframe<ValueAndTangents<float>>[][] positionKeyframes,
-        IPositionTrack positionTrack) {
+        IPositionTrack3d positionTrack) {
       for (var i = 0; i < 3; ++i) {
         foreach (var keyframe in positionKeyframes[i]) {
           positionTrack.Set(keyframe.Frame,
@@ -136,7 +136,7 @@ namespace mod.schema.animation {
 
     public static void MergeKeyframesToRotationTrack(
         Keyframe<ValueAndTangents<float>>[][] rotationKeyframes,
-        IRadiansRotationTrack rotationTrack) {
+        IRadiansRotationTrack3d rotationTrack) {
       for (var i = 0; i < 3; ++i) {
         foreach (var keyframe in rotationKeyframes[i]) {
           rotationTrack.Set(keyframe.Frame,
@@ -150,7 +150,7 @@ namespace mod.schema.animation {
 
     public static void MergeKeyframesToScaleTrack(
         Keyframe<ValueAndTangents<float>>[][] scaleKeyframes,
-        IScaleTrack scaleTrack) {
+        IScale3dTrack scaleTrack) {
       for (var i = 0; i < 3; ++i) {
         foreach (var keyframe in scaleKeyframes[i]) {
           scaleTrack.Set(keyframe.Frame,

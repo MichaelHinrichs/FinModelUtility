@@ -73,9 +73,15 @@ namespace fin.model.impl {
         }
 
         public IReadOnlyDictionary<IMesh, IMeshTracks> MeshTracks { get; }
-
         public IMeshTracks AddMeshTracks(IMesh mesh)
           => this.meshTracks_[mesh] = new MeshTracksImpl();
+
+
+        public IReadOnlyDictionary<ITexture, ITextureTracks> TextureTracks 
+          => throw new System.NotImplementedException();
+        public ITextureTracks AddTextureTracks(ITexture texture) {
+          throw new System.NotImplementedException();
+        }
 
 
         // TODO: Allow setting looping behavior (once, back and forth, etc.)
@@ -122,12 +128,12 @@ namespace fin.model.impl {
         this.Scales.Set(other.Scales);
       }
 
-      public IPositionTrack Positions { get; } = new PositionTrackImpl();
+      public IPositionTrack3d Positions { get; } = new PositionTrack3dImpl();
 
-      public IRadiansRotationTrack Rotations { get; } =
-        new RadiansRotationTrackImpl();
+      public IRadiansRotationTrack3d Rotations { get; } =
+        new RadiansRotationTrack3dImpl();
 
-      public IScaleTrack Scales { get; } = new ScaleTrackImpl();
+      public IScale3dTrack Scales { get; } = new ScaleTrackImpl();
 
       // TODO: Add pattern for specifying WITH given tracks
     }

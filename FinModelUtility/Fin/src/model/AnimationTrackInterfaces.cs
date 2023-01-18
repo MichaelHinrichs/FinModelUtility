@@ -1,9 +1,6 @@
 ﻿using fin.data;
 using fin.math.interpolation;
-using fin.model.impl;
-using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
-using System.Numerics;
 
 
 namespace fin.model {
@@ -94,24 +91,4 @@ namespace fin.model {
         bool useLoopingInterpolation = false
     );
   }
-
-  public interface IAxes3fTrack<TInterpolated> : IAxesTrack<float, TInterpolated> {
-    void Set<TVector3>(int frame, TVector3 values) where TVector3 : IVector3 {
-      Set(frame, 0, values.X);
-      Set(frame, 1, values.Y);
-      Set(frame, 2, values.Z);
-    }
-
-    void Set(int frame, Vector3 values) {
-      Set(frame, 0, values.X);
-      Set(frame, 1, values.Y);
-      Set(frame, 2, values.Z);
-    }
-  }
-
-  public interface IPositionTrack : IAxes3fTrack<PositionStruct> { }
-
-  public interface IRadiansRotationTrack : IAxes3fTrack<Quaternion> { }
-
-  public interface IScaleTrack : IAxes3fTrack<ScaleStruct> { }
 }

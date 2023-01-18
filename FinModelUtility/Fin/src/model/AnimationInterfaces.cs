@@ -30,6 +30,8 @@ namespace fin.model {
     IReadOnlyDictionary<IMesh, IMeshTracks> MeshTracks { get; }
     IMeshTracks AddMeshTracks(IMesh mesh);
 
+    IReadOnlyDictionary<ITexture, ITextureTracks> TextureTracks { get; }
+    ITextureTracks AddTextureTracks(ITexture texture);
 
     // TODO: Allow setting looping behavior (once, back and forth, etc.)
   }
@@ -38,9 +40,9 @@ namespace fin.model {
     void Set(IBoneTracks other);
 
     // TODO: Should these be null if empty?
-    IPositionTrack Positions { get; }
-    IRadiansRotationTrack Rotations { get; }
-    IScaleTrack Scales { get; }
+    IPositionTrack3d Positions { get; }
+    IRadiansRotationTrack3d Rotations { get; }
+    IScale3dTrack Scales { get; }
   }
 
 
@@ -52,6 +54,11 @@ namespace fin.model {
 
   public interface IMeshTracks {
     ITrack<MeshDisplayState> DisplayStates { get; }
+  }
+
+
+
+  public interface ITextureTracks {
   }
 
 
