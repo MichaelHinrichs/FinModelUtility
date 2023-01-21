@@ -3,11 +3,13 @@ using System;
 
 namespace fin.math {
   public static class FinTrig {
-    private static readonly MemoizedCos MEMOIZED_COS = MemoizedCos.ConstructByMaxError(0.001f);
-    private static readonly MemoizedSin MEMOIZED_SIN = MemoizedSin.ConstructByMaxError(0.001f);
-    private static readonly MemoizedAcos MEMOIZED_ACOS = MemoizedAcos.ConstructByMaxError(0.001f);
-    private static readonly MemoizedAsin MEMOIZED_ASIN = MemoizedAsin.ConstructByMaxError(0.001f);
-    private static readonly MemoizedAtan2 MEMOIZED_ATAN2 = MemoizedAtan2.ConstructByMaxError(0.001f);
+    public const float PRECISION = .001f;
+
+    private static readonly MemoizedCos MEMOIZED_COS = MemoizedCos.ConstructByMaxError(PRECISION);
+    private static readonly MemoizedSin MEMOIZED_SIN = MemoizedSin.ConstructByMaxError(PRECISION);
+    private static readonly MemoizedAcos MEMOIZED_ACOS = MemoizedAcos.ConstructByMaxError(PRECISION);
+    private static readonly MemoizedAsin MEMOIZED_ASIN = MemoizedAsin.ConstructByMaxError(PRECISION);
+    private static readonly MemoizedAtan2 MEMOIZED_ATAN2 = MemoizedAtan2.ConstructByMaxError(PRECISION);
 
     public static Func<float, float> Cos => MEMOIZED_COS.CalculateUnbound;
     public static Func<float, float> Sin => MEMOIZED_SIN.CalculateUnbound;
