@@ -1,14 +1,14 @@
-# Remove the line below if you want to inherit .editorconfig settings from higher directories
 root = true
+# Remove the line below if you want to inherit .editorconfig settings from higher directories
 
 # C# files
 [*.cs]
 
 # CS8604: Possible null reference argument.
-dotnet_diagnostic.CS8604.severity = error
+dotnet_diagnostic.cs8604.severity = error
 
 # CS8603: Possible null reference return.
-dotnet_diagnostic.CS8603.severity = error
+dotnet_diagnostic.cs8603.severity = error
 
 #### Core EditorConfig Options ####
 
@@ -26,7 +26,7 @@ insert_final_newline = false
 # Organize usings
 dotnet_separate_import_directive_groups = false
 dotnet_sort_system_directives_first = false
-file_header_template = unset
+file_header_template = 
 
 # this. and Me. preferences
 dotnet_style_qualification_for_event = true
@@ -292,6 +292,35 @@ dotnet_naming_style.begins_w__b.required_prefix = B
 dotnet_naming_style.begins_w__b.required_suffix = 
 dotnet_naming_style.begins_w__b.word_separator = 
 dotnet_naming_style.begins_w__b.capitalization = pascal_case
+
+# ReSharper properties
+resharper_align_multiline_argument = true
+resharper_align_multiline_binary_patterns = true
+resharper_align_multiline_calls_chain = true
+resharper_align_multiline_expression = true
+resharper_align_multiline_extends_list = true
+resharper_align_multiline_parameter = true
+resharper_align_multiple_declaration = true
+resharper_align_multline_type_parameter_constrains = true
+resharper_align_multline_type_parameter_list = true
+resharper_align_tuple_components = true
+resharper_csharp_wrap_after_declaration_lpar = true
+resharper_csharp_wrap_before_first_type_parameter_constraint = true
+resharper_csharp_wrap_multiple_type_parameter_constraints_style = chop_always
+resharper_csharp_wrap_parameters_style = chop_if_long
+resharper_int_align_switch_expressions = true
+resharper_int_align_switch_sections = true
+resharper_keep_existing_declaration_block_arrangement = false
+resharper_keep_existing_declaration_parens_arrangement = false
+resharper_keep_existing_embedded_block_arrangement = false
+resharper_keep_existing_invocation_parens_arrangement = false
+resharper_keep_existing_switch_expression_arrangement = false
+resharper_max_attribute_length_for_same_line = 39
+resharper_place_accessorholder_attribute_on_same_line = false
+resharper_place_accessor_attribute_on_same_line = false
+resharper_place_field_attribute_on_same_line = false
+resharper_wrap_before_arrow_with_expressions = true
+resharper_wrap_chained_method_calls = chop_if_long
 
 [*.{cs,vb}]
 dotnet_style_coalesce_expression = true:suggestion
