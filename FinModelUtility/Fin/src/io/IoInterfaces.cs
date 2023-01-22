@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 
 using schema;
 
@@ -18,7 +19,7 @@ namespace fin.io {
   }
 
   public interface IDirectory : IIoObject, IEquatable<IDirectory> {
-    DirectoryInfo Info { get; }
+    IDirectoryInfo Info { get; }
 
     bool Create();
     void MoveTo(string path);
@@ -38,7 +39,7 @@ namespace fin.io {
   }
 
   public interface IFile : IIoObject, IEquatable<IFile> {
-    FileInfo Info { get; }
+    IFileInfo Info { get; }
 
     string Extension { get; }
     IFile CloneWithExtension(string newExtension);
@@ -57,8 +58,8 @@ namespace fin.io {
     StreamReader OpenReadAsText();
     StreamWriter OpenWriteAsText();
 
-    FileStream OpenRead();
-    FileStream OpenWrite();
+    FileSystemStream OpenRead();
+    FileSystemStream OpenWrite();
 
     T Deserialize<T>();
     void Serialize<T>(T instance) where T : notnull;

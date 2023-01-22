@@ -1,22 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 
 
 namespace fin.io {
   public class FinDirectory : IDirectory {
     public static IDirectory GetCwd()
-      => new FinDirectory(Directory.GetCurrentDirectory());
+      => new FinDirectory(FinFileSystem.Directory.GetCurrentDirectory());
 
 
-    public FinDirectory(DirectoryInfo directoryInfo)
+    public FinDirectory(IDirectoryInfo directoryInfo)
       => this.Info = directoryInfo;
 
     public FinDirectory(string fullName)
-      => this.Info = new DirectoryInfo(fullName);
+      => this.Info = FinFileSystem.Directory.CreateDirectory(fullName);
 
-    public DirectoryInfo Info { get; }
+    public IDirectoryInfo Info { get; }
 
     public string Name => this.Info.Name;
     public string FullName => this.Info.FullName;
@@ -35,8 +36,8 @@ namespace fin.io {
 
     public IDirectory? GetParent()
       => this.Info.Parent != null
-             ? new FinDirectory(this.Info.Parent)
-             : null;
+          ? new FinDirectory(this.Info.Parent)
+          : null;
 
     public IDirectory[] GetAncestry() {
       var parents = new LinkedList<IDirectory>();
@@ -47,6 +48,7 @@ namespace fin.io {
           parents.AddLast(parent);
         }
       } while (parent != null);
+
       return parents.ToArray();
     }
 
@@ -133,14 +135,16 @@ namespace fin.io {
       if (TryToGetExistingFile(path, out var file)) {
         return file!;
       }
-      throw new Exception($"Expected to find file: '{path}' in directory '{this.GetAbsolutePath()}'");
+
+      throw new Exception(
+          $"Expected to find file: '{path}' in directory '{this.GetAbsolutePath()}'");
     }
 
     public IFile? PossiblyAssertExistingFile(string relativePath, bool assert) {
       if (assert) {
         return GetExistingFile(relativePath);
       }
-       
+
       TryToGetExistingFile(relativePath, out var file);
       return file;
     }
@@ -152,9 +156,11 @@ namespace fin.io {
       if (object.ReferenceEquals(this, other)) {
         return true;
       }
+
       if (other is not IDirectory otherDirectory) {
         return false;
       }
+
       return this.Equals(otherDirectory);
     }
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 
 using fin.util.asserts;
@@ -10,10 +11,12 @@ using schema;
 
 namespace fin.io {
   public class FinFile : IFile {
-    public FinFile(FileInfo fileInfo) => this.Info = fileInfo;
-    public FinFile(string fullName) => this.Info = new FileInfo(fullName);
+    public FinFile(IFileInfo fileInfo) => this.Info = fileInfo;
 
-    public FileInfo Info { get; }
+    public FinFile(string fullName)
+      => this.Info = FinFileSystem.FileInfoFactory.New(fullName);
+
+    public IFileInfo Info { get; }
 
     public string Name => this.Info.Name;
     public string FullName => this.Info.FullName;
@@ -70,8 +73,11 @@ namespace fin.io {
     public T ReadNew<T>(Endianness endianness) where T : IDeserializable, new()
       => FileUtil.ReadNew<T>(this.FullName, endianness);
 
-    public byte[] ReadAllBytes() => FileUtil.ReadAllBytes(this.FullName);
-    public string ReadAllText() => FileUtil.ReadAllText(this.FullName);
+    public byte[] ReadAllBytes()
+      => FinFileSystem.File.ReadAllBytes(this.FullName);
+
+    public string ReadAllText()
+      => FinFileSystem.File.ReadAllText(this.FullName);
 
     public void WriteAllBytes(byte[] bytes)
       => File.WriteAllBytes(this.FullName, bytes);
@@ -82,8 +88,8 @@ namespace fin.io {
     public StreamWriter OpenWriteAsText()
       => FileUtil.OpenWriteAsText(this.FullName);
 
-    public FileStream OpenRead() => FileUtil.OpenRead(this.FullName);
-    public FileStream OpenWrite() => FileUtil.OpenWrite(this.FullName);
+    public FileSystemStream OpenRead() => FileUtil.OpenRead(this.FullName);
+    public FileSystemStream OpenWrite() => FileUtil.OpenWrite(this.FullName);
 
     public T Deserialize<T>() {
       var text = this.ReadAllText();
