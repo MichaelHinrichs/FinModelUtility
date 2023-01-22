@@ -6,8 +6,8 @@ using System.Linq;
 namespace fin.io {
   public interface ISubdirPaths {
     string AbsoluteSubdirPath { get; }
-    IReadOnlyList<string> AbsoluteFilePaths { get; }
-    IReadOnlyList<ISubdirPaths> Subdirs { get; }
+    IReadOnlyCollection<string> AbsoluteFilePaths { get; }
+    IReadOnlyCollection<ISubdirPaths> Subdirs { get; }
   }
 
   public interface IFileSystemPaths {
@@ -54,7 +54,7 @@ namespace fin.io {
             if (file[i] == '\\') {
               var subdirPath = file.Substring(0, i);
               var subdir = new SubdirPaths(subdirPath);
-              currentSubdir.SubdirsImpl.Add(subdir);
+              currentSubdir.SubdirsImpl.AddLast(subdir);
               subdirStack.Push(subdir);
 
               currentSubdir = subdir;
@@ -62,7 +62,7 @@ namespace fin.io {
           }
         }
 
-        currentSubdir.AbsoluteFilePathsImpl.Add(file);
+        currentSubdir.AbsoluteFilePathsImpl.AddLast(file);
       }
 
       return root;
@@ -75,11 +75,11 @@ namespace fin.io {
 
       public string AbsoluteSubdirPath { get; }
 
-      public IReadOnlyList<string> AbsoluteFilePaths => AbsoluteFilePathsImpl;
-      public IReadOnlyList<ISubdirPaths> Subdirs => SubdirsImpl;
+      public IReadOnlyCollection<string> AbsoluteFilePaths => AbsoluteFilePathsImpl;
+      public IReadOnlyCollection<ISubdirPaths> Subdirs => SubdirsImpl;
 
-      public List<string> AbsoluteFilePathsImpl { get; } = new();
-      public List<ISubdirPaths> SubdirsImpl { get; } = new();
+      public LinkedList<string> AbsoluteFilePathsImpl { get; } = new();
+      public LinkedList<ISubdirPaths> SubdirsImpl { get; } = new();
     }
   }
 }

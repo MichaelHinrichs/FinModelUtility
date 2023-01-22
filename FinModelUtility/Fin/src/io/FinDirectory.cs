@@ -32,7 +32,7 @@ namespace fin.io {
       return this.absolutePath_;
     }
 
-    public bool Exists => Directory.Exists(this.FullName);
+    public bool Exists => FinFileSystem.Directory.Exists(this.FullName);
 
     public IDirectory? GetParent()
       => this.Info.Parent != null

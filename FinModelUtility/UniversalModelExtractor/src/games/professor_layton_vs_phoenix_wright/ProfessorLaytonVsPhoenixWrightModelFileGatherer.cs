@@ -71,8 +71,17 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
             var xcFiles = directory.FilesWithExtension(".xc");
 
             foreach (var xcFile in xcFiles) {
+              using var er =
+                  new EndianBinaryReader(xcFile.Impl.OpenRead(),
+                                         Endianness.LittleEndian);
+
+              if (er.ReadString(4) != "XPCK") {
+                continue;
+              }
+
               try {
-                var xc = xcFile.Impl.ReadNew<Xc>(Endianness.LittleEndian);
+                er.Position = 0;
+                var xc = er.ReadNew<Xc>();
 
                 if (xc.FilesByExtension.TryGetList(".prm", out _)) {
                   filesWithModels.Add(xcFile);

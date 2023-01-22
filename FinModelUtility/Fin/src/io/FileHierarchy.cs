@@ -5,6 +5,8 @@ using System.Linq;
 using fin.util.asserts;
 using fin.util.data;
 
+using fins.io.sharpDirLister;
+
 
 namespace fin.io {
   public interface IFileHierarchy : IEnumerable<IFileHierarchyDirectory> {
@@ -65,8 +67,8 @@ namespace fin.io {
   public class FileHierarchy : IFileHierarchy {
     public FileHierarchy(IDirectory directory) {
       var populatedSubdirs =
-          new FileSystemPaths().ListAllPopulatedSubdirs(directory.FullName);
-
+          SharpFileLister.FindNextFilePInvokeRecursiveParalleled(
+              directory.FullName);
       this.Root = new FileHierarchyDirectory(directory,
                                              populatedSubdirs);
     }

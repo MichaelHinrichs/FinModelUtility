@@ -11,11 +11,11 @@ namespace fins.io.sharpDirLister {
   public class DirectoryInformation : ISubdirPaths {
     public string AbsoluteSubdirPath { get; set; }
 
-    public IReadOnlyList<string> AbsoluteFilePaths => AbsoluteFilePathsImpl;
-    public IReadOnlyList<ISubdirPaths> Subdirs => SubdirsImpl;
+    public IReadOnlyCollection<string> AbsoluteFilePaths => AbsoluteFilePathsImpl;
+    public IReadOnlyCollection<ISubdirPaths> Subdirs => SubdirsImpl;
 
-    public List<string> AbsoluteFilePathsImpl { get; } = new();
-    public List<DirectoryInformation> SubdirsImpl { get; } = new();
+    public LinkedList<string> AbsoluteFilePathsImpl { get; } = new();
+    public LinkedList<DirectoryInformation> SubdirsImpl { get; } = new();
   }
 
   public class SharpFileLister {
@@ -45,12 +45,12 @@ namespace fins.io.sharpDirLister {
                       FileAttributes.ReparsePoint)) {
                 var dirdata =
                     new DirectoryInformation { AbsoluteSubdirPath = fullPath, };
-                directoryList.Add(dirdata);
+                directoryList.AddLast(dirdata);
 
                 FindNextFilePInvokeRecursive(dirdata);
               } else if (!findData.dwFileAttributes.HasFlag(
                              FileAttributes.Directory)) {
-                fileList.Add(fullPath);
+                fileList.AddLast(fullPath);
               }
             }
           } while (FindNextFile(findHandle, out findData));
@@ -86,10 +86,10 @@ namespace fins.io.sharpDirLister {
                   !findData.dwFileAttributes.HasFlag(
                       FileAttributes.ReparsePoint)) {
                 var dirdata = new DirectoryInformation { AbsoluteSubdirPath = fullPath, };
-                directoryList.Add(dirdata);
+                directoryList.AddLast(dirdata);
               } else if (!findData.dwFileAttributes.HasFlag(
                              FileAttributes.Directory)) {
-                fileList.Add(fullPath);
+                fileList.AddLast(fullPath);
               }
             }
           } while (FindNextFile(findHandle, out findData));
