@@ -2,7 +2,9 @@
 using System.Linq;
 
 using fin.util.asserts;
+
 using NUnit.Framework;
+
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 
@@ -21,7 +23,7 @@ namespace fin.data {
       var dict = new IndexableDictionary<IndexableImpl, string>();
 
       var index1 = new IndexableImpl(1);
-      
+
       Assert.AreEqual(false, dict.TryGetValue(index1, out _));
 
       dict[index1] = "string1";
@@ -91,10 +93,9 @@ namespace fin.data {
       var values = dict.ToArray();
       Asserts.Equal(
           new[] {
-              (index1, "string1"),
-              (index3, "string3"),
-              (index5, "string5")
-          }, values);
+              (index1, "string1"), (index3, "string3"), (index5, "string5")
+          },
+          values);
     }
 
     [Test]

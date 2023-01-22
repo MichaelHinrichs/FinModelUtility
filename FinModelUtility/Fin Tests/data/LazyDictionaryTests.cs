@@ -1,7 +1,9 @@
 ﻿using System;
 
 using fin.util.strings;
+
 using NUnit.Framework;
+
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 

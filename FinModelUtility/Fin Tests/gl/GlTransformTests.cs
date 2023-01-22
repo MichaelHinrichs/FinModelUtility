@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace fin.gl {
@@ -6,9 +7,15 @@ namespace fin.gl {
     [Test]
     public void CrossProduct() {
       GlTransform.CrossProduct3(
-          4, 5, 6,
-          11, 13, 17,
-          out var x, out var y, out var z);
+          4,
+          5,
+          6,
+          11,
+          13,
+          17,
+          out var x,
+          out var y,
+          out var z);
 
       Assert.AreEqual(x, 7);
       Assert.AreEqual(y, -2);
@@ -27,6 +34,5 @@ namespace fin.gl {
       Assert.AreEqual(y, .5721, .001);
       Assert.AreEqual(z, .6674, .001);
     }
-
   }
 }

@@ -1,6 +1,8 @@
 ﻿using fin.math.matrix;
 using fin.util.asserts;
+
 using NUnit.Framework;
+
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 

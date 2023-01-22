@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 
 using fin.util.asserts;
+
 using NUnit.Framework;
 
 namespace fin.data {
@@ -20,8 +21,8 @@ namespace fin.data {
 
       delay.SetResult();
 
-      Expect.AreArraysEqual(new[] {"foo", "bar", "awaited"},
-                      await toArray);
+      Expect.AreArraysEqual(new[] { "foo", "bar", "awaited" },
+                            await toArray);
     }
   }
 }

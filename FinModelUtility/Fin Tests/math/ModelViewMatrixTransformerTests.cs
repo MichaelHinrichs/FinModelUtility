@@ -1,6 +1,9 @@
 ﻿using fin.math.matrix;
+
 using NUnit.Framework;
+
 using System.Numerics;
+
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace fin.math {

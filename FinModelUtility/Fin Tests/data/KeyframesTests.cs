@@ -1,5 +1,7 @@
 ﻿using fin.util.optional;
+
 using NUnit.Framework;
+
 using schema.util;
 
 namespace fin.data {
@@ -15,11 +17,11 @@ namespace fin.data {
       impl.SetKeyframe(4, "4");
 
       AssertKeyframes_(impl,
-        new Keyframe<string>(0, "0"),
-        new Keyframe<string>(1, "1"),
-        new Keyframe<string>(2, "2"),
-        new Keyframe<string>(3, "3"),
-        new Keyframe<string>(4, "4")
+                       new Keyframe<string>(0, "0"),
+                       new Keyframe<string>(1, "1"),
+                       new Keyframe<string>(2, "2"),
+                       new Keyframe<string>(3, "3"),
+                       new Keyframe<string>(4, "4")
       );
     }
 
@@ -45,11 +47,11 @@ namespace fin.data {
       impl.SetKeyframe(0, "0");
 
       AssertKeyframes_(impl,
-        new Keyframe<string>(0, "0"),
-        new Keyframe<string>(1, "1"),
-        new Keyframe<string>(2, "2"),
-        new Keyframe<string>(4, "4"),
-        new Keyframe<string>(5, "5")
+                       new Keyframe<string>(0, "0"),
+                       new Keyframe<string>(1, "1"),
+                       new Keyframe<string>(2, "2"),
+                       new Keyframe<string>(4, "4"),
+                       new Keyframe<string>(5, "5")
       );
     }
 
@@ -64,11 +66,11 @@ namespace fin.data {
       impl.SetKeyframe(7, "7");
 
       AssertKeyframes_(impl,
-        new Keyframe<string>(0, "0"),
-        new Keyframe<string>(2, "2"),
-        new Keyframe<string>(5, "5"),
-        new Keyframe<string>(7, "7"),
-        new Keyframe<string>(9, "9")
+                       new Keyframe<string>(0, "0"),
+                       new Keyframe<string>(2, "2"),
+                       new Keyframe<string>(5, "5"),
+                       new Keyframe<string>(7, "7"),
+                       new Keyframe<string>(9, "9")
       );
     }
 
@@ -81,9 +83,9 @@ namespace fin.data {
       impl.SetKeyframe(123, "123");
 
       AssertKeyframes_(impl,
-        new Keyframe<string>(2, "2"),
-        new Keyframe<string>(123, "123"),
-        new Keyframe<string>(1000, "1000")
+                       new Keyframe<string>(2, "2"),
+                       new Keyframe<string>(123, "123"),
+                       new Keyframe<string>(1000, "1000")
       );
     }
 
@@ -95,9 +97,12 @@ namespace fin.data {
       impl.SetKeyframe(2, "second");
       impl.SetKeyframe(4, "third");
 
-      Assert.AreEqual(new Keyframe<string>(0, "first"), impl.GetKeyframeAtIndex(0));
-      Assert.AreEqual(new Keyframe<string>(2, "second"), impl.GetKeyframeAtIndex(1));
-      Assert.AreEqual(new Keyframe<string>(4, "third"), impl.GetKeyframeAtIndex(2));
+      Assert.AreEqual(new Keyframe<string>(0, "first"),
+                      impl.GetKeyframeAtIndex(0));
+      Assert.AreEqual(new Keyframe<string>(2, "second"),
+                      impl.GetKeyframeAtIndex(1));
+      Assert.AreEqual(new Keyframe<string>(4, "third"),
+                      impl.GetKeyframeAtIndex(2));
     }
 
     [Test]
@@ -109,12 +114,18 @@ namespace fin.data {
       impl.SetKeyframe(4, "third");
 
       AssertKeyframe_(null, impl.GetKeyframeAtFrame(-1));
-      AssertKeyframe_(new Keyframe<string>(0, "first"), impl.GetKeyframeAtFrame(0));
-      AssertKeyframe_(new Keyframe<string>(0, "first"), impl.GetKeyframeAtFrame(1));
-      AssertKeyframe_(new Keyframe<string>(2, "second"), impl.GetKeyframeAtFrame(2));
-      AssertKeyframe_(new Keyframe<string>(2, "second"), impl.GetKeyframeAtFrame(3));
-      AssertKeyframe_(new Keyframe<string>(4, "third"), impl.GetKeyframeAtFrame(4));
-      AssertKeyframe_(new Keyframe<string>(4, "third"), impl.GetKeyframeAtFrame(5));
+      AssertKeyframe_(new Keyframe<string>(0, "first"),
+                      impl.GetKeyframeAtFrame(0));
+      AssertKeyframe_(new Keyframe<string>(0, "first"),
+                      impl.GetKeyframeAtFrame(1));
+      AssertKeyframe_(new Keyframe<string>(2, "second"),
+                      impl.GetKeyframeAtFrame(2));
+      AssertKeyframe_(new Keyframe<string>(2, "second"),
+                      impl.GetKeyframeAtFrame(3));
+      AssertKeyframe_(new Keyframe<string>(4, "third"),
+                      impl.GetKeyframeAtFrame(4));
+      AssertKeyframe_(new Keyframe<string>(4, "third"),
+                      impl.GetKeyframeAtFrame(5));
     }
 
     [Test]
@@ -125,30 +136,30 @@ namespace fin.data {
       impl.SetKeyframe(1, "1");
 
       impl.FindIndexOfKeyframe(-1,
-        out var keyframeIndexMinus1,
-        out _,
-        out var isLastKeyframeMinus1);
+                               out var keyframeIndexMinus1,
+                               out _,
+                               out var isLastKeyframeMinus1);
       Assert.AreEqual(0, keyframeIndexMinus1);
       Assert.AreEqual(false, isLastKeyframeMinus1);
 
       impl.FindIndexOfKeyframe(0,
-        out var keyframeIndex0,
-        out _,
-        out var isLastKeyframe0);
+                               out var keyframeIndex0,
+                               out _,
+                               out var isLastKeyframe0);
       Assert.AreEqual(0, keyframeIndex0);
       Assert.AreEqual(false, isLastKeyframe0);
 
       impl.FindIndexOfKeyframe(1,
-        out var keyframeIndex1,
-        out _,
-        out var isLastKeyframe1);
+                               out var keyframeIndex1,
+                               out _,
+                               out var isLastKeyframe1);
       Assert.AreEqual(1, keyframeIndex1);
       Assert.AreEqual(true, isLastKeyframe1);
 
       impl.FindIndexOfKeyframe(2,
-        out var keyframeIndex2,
-        out _,
-        out var isLastKeyframe2);
+                               out var keyframeIndex2,
+                               out _,
+                               out var isLastKeyframe2);
       Assert.AreEqual(1, keyframeIndex2);
       Assert.AreEqual(true, isLastKeyframe2);
     }
@@ -179,12 +190,12 @@ namespace fin.data {
     }
 
     private void AssertKeyframe_(Keyframe<string>? expected,
-      Keyframe<string>? actual) {
+                                 Keyframe<string>? actual) {
       Assert.AreEqual(expected, actual);
     }
 
     private void AssertKeyframes_(Keyframes<string> actual,
-      params Keyframe<string>[] expected) {
+                                  params Keyframe<string>[] expected) {
       Asserts.Equal(expected, actual.Definitions);
     }
   }

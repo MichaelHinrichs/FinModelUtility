@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 using AssertionException = fin.util.asserts.AssertionException;
 

@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 
 using fin.util.asserts;
+
 using NUnit.Framework;
+
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 
@@ -58,13 +60,13 @@ namespace fin.data {
       Assert.AreEqual(9, impl.Count);
 
       Assert.AreEqual(true, impl.TryGetList("foo", out var fooList));
-      Asserts.Equal(new[] {"a", "b", "c"}, fooList!);
+      Asserts.Equal(new[] { "a", "b", "c" }, fooList!);
 
       Assert.AreEqual(true, impl.TryGetList("bar", out var barList));
-      Asserts.Equal(new[] {"1", "2", "3"}, barList!);
+      Asserts.Equal(new[] { "1", "2", "3" }, barList!);
 
       Assert.AreEqual(true, impl.TryGetList(null, out var nullList));
-      Asserts.Equal(new[] {"x", "y", "z"}, nullList!);
+      Asserts.Equal(new[] { "x", "y", "z" }, nullList!);
     }
 
     [Test]
@@ -94,10 +96,14 @@ namespace fin.data {
       Assert.AreEqual(true, impl.TryGetList(null, out var nullList));
 
       Asserts.Equal(new[] {
-          new KeyValuePair<string?, IList<string>>("foo", fooList!),
-          new KeyValuePair<string?, IList<string>>("bar", barList!),
-          new KeyValuePair<string?, IList<string>>(null, nullList!),
-      }, actualValues);
+                        new KeyValuePair<string?, IList<string>>("foo",
+                          fooList!),
+                        new KeyValuePair<string?, IList<string>>("bar",
+                          barList!),
+                        new KeyValuePair<string?, IList<string>>(null,
+                          nullList!),
+                    },
+                    actualValues);
     }
 
     [Test]

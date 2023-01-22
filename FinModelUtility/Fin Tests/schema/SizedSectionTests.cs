@@ -1,7 +1,10 @@
 ﻿using fin.schema.data;
+
 using NUnit.Framework;
+
 using schema;
 using schema.testing;
+
 using System.IO;
 using System.Threading.Tasks;
 
@@ -27,10 +30,8 @@ namespace fin.schema {
       var ew = new EndianBinaryWriter(Endianness.LittleEndian);
       sizedSection.Write(ew);
       var bytes = await BinarySchemaAssert.GetEndianBinaryWriterBytes(ew);
-      BinarySchemaAssert.AssertSequence(bytes, new byte[] {
-          3, 0, 0, 0,
-          12, 23, 34
-      });
+      BinarySchemaAssert.AssertSequence(bytes,
+                                        new byte[] { 3, 0, 0, 0, 12, 23, 34 });
     }
   }
 }

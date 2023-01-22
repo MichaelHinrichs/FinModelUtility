@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 
@@ -15,14 +16,22 @@ namespace fin.math.interpolation {
 
       Assert.AreEqual(fromValue,
                       InterpolatorWithTangents.InterpolateFloats(
-                          fromTime, fromValue, fromTangent,
-                          toTime, toValue, toTangent,
+                          fromTime,
+                          fromValue,
+                          fromTangent,
+                          toTime,
+                          toValue,
+                          toTangent,
                           fromTime));
 
       Assert.AreEqual(toValue,
                       InterpolatorWithTangents.InterpolateFloats(
-                          fromTime, fromValue, fromTangent,
-                          toTime, toValue, toTangent,
+                          fromTime,
+                          fromValue,
+                          fromTangent,
+                          toTime,
+                          toValue,
+                          toTangent,
                           toTime));
     }
 
