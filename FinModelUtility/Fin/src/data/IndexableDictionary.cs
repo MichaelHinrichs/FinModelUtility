@@ -39,6 +39,11 @@ namespace fin.data {
     public IndexableDictionary(int length) => this.ResizeLength_(length);
 
     public void Clear() {
+      for (var i = 0; i < this.length_; i++) {
+        hasKeys_[i] = false;
+        this.impl_[i] = default;
+      }
+
       boolPool_.Return(this.hasKeys_);
       this.hasKeys_ = Array.Empty<bool>();
 
@@ -61,6 +66,10 @@ namespace fin.data {
             this.hasKeys_[i] = oldImpl[i];
           }
 
+          for (var i = oldCount; i < this.hasKeys_.Length; i++) {
+            this.hasKeys_[i] = false;
+          }
+
           if (oldImpl != null) {
             boolPool_.Return(oldImpl);
           }
@@ -72,6 +81,10 @@ namespace fin.data {
 
           for (var i = 0; i < oldCount; i++) {
             this.impl_[i] = oldImpl[i];
+          }
+
+          for (var i = oldCount; i < this.impl_.Length; i++) {
+            this.impl_[i] = default;
           }
 
           if (oldImpl != null) {
@@ -89,8 +102,8 @@ namespace fin.data {
         var id = key.Index;
         ResizeLength_(Math.Max(this.length_, id + 1));
 
-        this.impl_[key.Index] = value;
-        this.hasKeys_[key.Index] = true;
+        this.impl_[id] = value;
+        this.hasKeys_[id] = true;
       }
     }
 

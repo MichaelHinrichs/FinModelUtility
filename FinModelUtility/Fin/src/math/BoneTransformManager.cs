@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+
 using fin.data;
 using fin.math.matrix;
 using fin.model;
 using fin.model.impl;
 using fin.ui;
-
 
 namespace fin.math {
   public interface IBoneTransformManager {
@@ -33,6 +33,12 @@ namespace fin.math {
         IVertex vertex,
         IPosition outPosition,
         INormal? outNormal = null);
+
+    void ProjectVertex(
+        IVertex vertex,
+        out float x,
+        out float y,
+        out float z);
 
     void ProjectPosition(IBone bone, ref Vector3 xyz);
 
@@ -76,9 +82,12 @@ namespace fin.math {
 
     public void InitModelVertices(IModel model, bool forcePreproject = false) {
       var vertices = model.Skin.Vertices;
-      this.verticesToWorldMatrices_ = new IndexableDictionary<IVertex, IReadOnlyFinMatrix4x4?>(vertices.Count);
+      this.verticesToWorldMatrices_ =
+          new IndexableDictionary<IVertex, IReadOnlyFinMatrix4x4?>(
+              vertices.Count);
       foreach (var vertex in vertices) {
-        this.verticesToWorldMatrices_[vertex] = DetermineTransformMatrix_(vertex, forcePreproject);
+        this.verticesToWorldMatrices_[vertex] =
+            DetermineTransformMatrix_(vertex, forcePreproject);
       }
     }
 
@@ -113,9 +122,12 @@ namespace fin.math {
       while (boneQueue.Count > 0) {
         var (bone, parentMatrix) = boneQueue.Dequeue();
 
-        if (!this.bonesToLocalMatrices_.TryGetValue(bone, out var localMatrix)) {
+        if (!this.bonesToLocalMatrices_.TryGetValue(
+                bone,
+                out var localMatrix)) {
           this.bonesToLocalMatrices_[bone] = localMatrix = new FinMatrix4x4();
         }
+
         if (!this.bonesToWorldMatrices_.TryGetValue(bone, out var matrix)) {
           this.bonesToWorldMatrices_[bone] = matrix = new FinMatrix4x4();
         }
@@ -126,8 +138,8 @@ namespace fin.math {
         // The root pose of the bone.
         var boneLocalPosition = bone.LocalPosition;
         var boneLocalRotation = bone.LocalRotation != null
-                                    ? QuaternionUtil.Create(bone.LocalRotation)
-                                    : (Quaternion?)null;
+            ? QuaternionUtil.Create(bone.LocalRotation)
+            : (Quaternion?) null;
         var boneLocalScale = bone.LocalScale;
 
         IPosition? animationLocalPosition = null;
@@ -155,17 +167,23 @@ namespace fin.math {
           animationLocalPosition =
               boneTracks?.Positions.IsDefined ?? false
                   ? boneTracks?.Positions.GetInterpolatedFrame(
-                      (float)frame, defaultPosition_, useLoopingInterpolation)
+                      (float) frame,
+                      defaultPosition_,
+                      useLoopingInterpolation)
                   : null;
           animationLocalRotation =
               boneTracks?.Rotations.IsDefined ?? false
                   ? boneTracks?.Rotations.GetInterpolatedFrame(
-                      (float)frame, defaultRotation_, useLoopingInterpolation)
+                      (float) frame,
+                      defaultRotation_,
+                      useLoopingInterpolation)
                   : null;
           animationLocalScale =
               boneTracks?.Scales.IsDefined ?? false
                   ? boneTracks?.Scales.GetInterpolatedFrame(
-                      (float)frame, defaultScale_, useLoopingInterpolation)
+                      (float) frame,
+                      defaultScale_,
+                      useLoopingInterpolation)
                   : null;
         }
 
@@ -200,6 +218,7 @@ namespace fin.math {
           } else {
             matrix.CopyRotationInto(out rotationBuffer);
           }
+
           if (bone.IgnoreParentScale) {
             scaleBuffer.X = scaleBuffer.Y = scaleBuffer.Z = 1;
           } else {
@@ -226,6 +245,7 @@ namespace fin.math {
         if (isFirstPass) {
           this.bonesToInverseBindMatrices_[bone] = matrix.CloneAndInvert();
         }
+
         bonesToIndex[bone] = boneIndex++;
 
         foreach (var child in bone.Children) {
@@ -236,10 +256,12 @@ namespace fin.math {
 
       foreach (var boneWeights in boneWeightsList) {
         if (!this.boneWeightsToWorldMatrices_.TryGetValue(
-                boneWeights, out var boneWeightMatrix)) {
+                boneWeights,
+                out var boneWeightMatrix)) {
           this.boneWeightsToWorldMatrices_[boneWeights] =
               boneWeightMatrix = new FinMatrix4x4();
         }
+
         boneWeightMatrix.SetZero();
 
         var weights = boneWeights.Weights;
@@ -283,7 +305,9 @@ namespace fin.math {
     public IReadOnlyFinMatrix4x4? GetTransformMatrix(IVertex vertex)
       => this.verticesToWorldMatrices_[vertex];
 
-    private IReadOnlyFinMatrix4x4? DetermineTransformMatrix_(IVertex vertex, bool forcePreproject = false) {
+    private IReadOnlyFinMatrix4x4? DetermineTransformMatrix_(
+        IVertex vertex,
+        bool forcePreproject = false) {
       var boneWeights = vertex.BoneWeights;
       var weights = vertex.BoneWeights?.Weights;
       var preproject =
@@ -296,18 +320,43 @@ namespace fin.math {
       }
 
       return boneWeights.PreprojectMode switch {
-        // If preproject mode is none, then the vertices are already in the same position as the bones.
-        // To calculate the animation, we have to first "undo" the root pose via an inverted matrix. 
-        PreprojectMode.NONE => this.boneWeightsToWorldMatrices_[
-            vertex.BoneWeights!],
-        // If preproject mode is bone, then we need to transform the vertex by one or more bones.
-        PreprojectMode.BONE => this.boneWeightsToWorldMatrices_[
-            vertex.BoneWeights!],
-        // If preproject mode is root, then the vertex needs to be transformed relative to
-        // some root bone.
-        PreprojectMode.ROOT => this.GetWorldMatrix(weights[0].Bone.Root),
-        _ => throw new ArgumentOutOfRangeException()
+          // If preproject mode is none, then the vertices are already in the same position as the bones.
+          // To calculate the animation, we have to first "undo" the root pose via an inverted matrix. 
+          PreprojectMode.NONE => this.boneWeightsToWorldMatrices_[
+              vertex.BoneWeights!],
+          // If preproject mode is bone, then we need to transform the vertex by one or more bones.
+          PreprojectMode.BONE => this.boneWeightsToWorldMatrices_[
+              vertex.BoneWeights!],
+          // If preproject mode is root, then the vertex needs to be transformed relative to
+          // some root bone.
+          PreprojectMode.ROOT => this.GetWorldMatrix(weights[0].Bone.Root),
+          _                   => throw new ArgumentOutOfRangeException()
       };
+    }
+
+    public void ProjectVertex(
+        IVertex vertex,
+        out float x,
+        out float y,
+        out float z) {
+      var finTransformMatrix = this.GetTransformMatrix(vertex);
+
+      var localPosition = vertex.LocalPosition;
+
+      if (finTransformMatrix == null) {
+        x = localPosition.X;
+        y = localPosition.Y;
+        z = localPosition.Z;
+        return;
+      }
+
+      var transformMatrix = finTransformMatrix.Impl;
+
+      var pos = new Vector3(localPosition.X, localPosition.Y, localPosition.Z);
+      GlMatrixUtil.ProjectPosition(transformMatrix, ref pos);
+      x = pos.X;
+      y = pos.Y;
+      z = pos.Z;
     }
 
     public void ProjectVertex(
@@ -329,6 +378,7 @@ namespace fin.math {
           outNormal.Y = localNormal.Y;
           outNormal.Z = localNormal.Z;
         }
+
         return;
       }
 

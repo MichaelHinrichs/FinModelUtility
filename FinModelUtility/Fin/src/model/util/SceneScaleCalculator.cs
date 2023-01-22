@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using fin.model.impl;
 using fin.scene;
+
 using System.Numerics;
 
 namespace fin.model.util {
@@ -37,27 +39,23 @@ namespace fin.model.util {
             var boneTransformManager = sceneModel.BoneTransformManager;
 
             var anyVertices = false;
-            foreach (var mesh in model.Skin.Meshes) {
-              foreach (var primitive in mesh.Primitives) {
-                foreach (var vertex in primitive.Vertices) {
-                  anyVertices = true;
+            foreach (var vertex in model.Skin.Vertices) {
+              anyVertices = true;
 
-                  boneTransformManager.ProjectVertex(vertex, position);
+              boneTransformManager.ProjectVertex(
+                  vertex,
+                  out var x,
+                  out var y,
+                  out var z);
 
-                  var x = position.X;
-                  var y = position.Y;
-                  var z = position.Z;
+              minX = MathF.Min(minX, x);
+              maxX = MathF.Max(maxX, x);
 
-                  minX = MathF.Min(minX, x);
-                  maxX = MathF.Max(maxX, x);
+              minY = MathF.Min(minY, y);
+              maxY = MathF.Max(maxY, y);
 
-                  minY = MathF.Min(minY, y);
-                  maxY = MathF.Max(maxY, y);
-
-                  minZ = MathF.Min(minZ, z);
-                  maxZ = MathF.Max(maxZ, z);
-                }
-              }
+              minZ = MathF.Min(minZ, z);
+              maxZ = MathF.Max(maxZ, z);
             }
 
             if (!anyVertices) {
