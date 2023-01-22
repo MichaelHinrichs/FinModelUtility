@@ -48,8 +48,8 @@ namespace fin.io {
 
     public IDirectory? GetParent()
       => this.Info.Directory != null
-             ? new FinDirectory(this.Info.Directory)
-             : null;
+          ? new FinDirectory(this.Info.Directory)
+          : null;
 
     public IDirectory[] GetAncestry() {
       var parents = new LinkedList<IDirectory>();
@@ -60,6 +60,7 @@ namespace fin.io {
           parents.AddLast(parent);
         }
       } while (parent != null);
+
       return parents.ToArray();
     }
 
@@ -72,10 +73,13 @@ namespace fin.io {
     public byte[] ReadAllBytes() => FileUtil.ReadAllBytes(this.FullName);
     public string ReadAllText() => FileUtil.ReadAllText(this.FullName);
 
+    public void WriteAllBytes(byte[] bytes)
+      => File.WriteAllBytes(this.FullName, bytes);
+
     public StreamReader OpenReadAsText()
       => FileUtil.OpenReadAsText(this.FullName);
 
-    public StreamWriter OpenWriteAsText() 
+    public StreamWriter OpenWriteAsText()
       => FileUtil.OpenWriteAsText(this.FullName);
 
     public FileStream OpenRead() => FileUtil.OpenRead(this.FullName);
@@ -98,9 +102,11 @@ namespace fin.io {
       if (object.ReferenceEquals(this, other)) {
         return true;
       }
+
       if (other is not IFile otherFile) {
         return false;
       }
+
       return this.Equals(otherFile);
     }
 

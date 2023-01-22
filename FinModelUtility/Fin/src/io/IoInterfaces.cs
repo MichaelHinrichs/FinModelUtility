@@ -52,7 +52,10 @@ namespace fin.io {
     byte[] ReadAllBytes();
     string ReadAllText();
 
+    void WriteAllBytes(byte[] bytes);
+
     StreamReader OpenReadAsText();
+    StreamWriter OpenWriteAsText();
 
     FileStream OpenRead();
     FileStream OpenWrite();
