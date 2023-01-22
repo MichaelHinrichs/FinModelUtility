@@ -101,7 +101,7 @@ namespace fin.gl.model {
         }
 
         return triangles;
-      });
+      }).ToArray();
 
       this.bufferRenderer_ = bufferManager.CreateRenderer(triangles);
     }

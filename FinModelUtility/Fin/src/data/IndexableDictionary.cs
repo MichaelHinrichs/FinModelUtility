@@ -1,9 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Buffers;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-
-using System;
-using System.Buffers;
 
 
 namespace fin.data {
@@ -12,16 +11,14 @@ namespace fin.data {
   }
 
   public interface
-      IReadOnlyIndexableDictionary<TIndexable, TValue> : IEnumerable<(TIndexable
-          , TValue)>
+      IReadOnlyIndexableDictionary<TIndexable, TValue> : IEnumerable<TValue>
       where TIndexable : IIndexable {
     TValue this[TIndexable key] { get; }
     bool TryGetValue(TIndexable key, out TValue value);
   }
 
-  public interface
-      IIndexableDictionary<TIndexable, TValue> : IReadOnlyIndexableDictionary<
-          TIndexable, TValue>
+  public interface IIndexableDictionary<TIndexable, TValue> :
+      IReadOnlyIndexableDictionary<TIndexable, TValue>
       where TIndexable : IIndexable {
     void Clear();
     new TValue this[TIndexable key] { get; set; }
@@ -29,10 +26,12 @@ namespace fin.data {
 
   public class IndexableDictionary<TIndexable, TValue>
       : IIndexableDictionary<TIndexable, TValue> where TIndexable : IIndexable {
-    private static readonly ArrayPool<IndexableDictionaryValue> pool_
-      = ArrayPool<IndexableDictionaryValue>.Shared;
+    private static readonly ArrayPool<bool> boolPool_ = ArrayPool<bool>.Shared;
+    private static readonly ArrayPool<TValue> pool_ = ArrayPool<TValue>.Shared;
 
-    private IndexableDictionaryValue[] impl_ = Array.Empty<IndexableDictionaryValue>();
+    private bool[] hasKeys_ = Array.Empty<bool>();
+    private TValue[] impl_ = Array.Empty<TValue>();
+
     private int length_;
 
     public IndexableDictionary() : this(0) { }
@@ -40,8 +39,12 @@ namespace fin.data {
     public IndexableDictionary(int length) => this.ResizeLength_(length);
 
     public void Clear() {
+      boolPool_.Return(this.hasKeys_);
+      this.hasKeys_ = Array.Empty<bool>();
+
       pool_.Return(this.impl_);
-      this.impl_ = Array.Empty<IndexableDictionaryValue>();
+      this.impl_ = Array.Empty<TValue>();
+
       this.length_ = 0;
     }
 
@@ -49,19 +52,31 @@ namespace fin.data {
       var oldCount = this.length_;
       if (oldCount < newLength) {
         this.length_ = newLength;
-        var oldImpl = this.impl_;
-        this.impl_ = pool_.Rent(newLength);
 
-        for (var i = 0; i < oldCount; i++) {
-          this.impl_[i] = oldImpl[i];
+        {
+          var oldImpl = this.hasKeys_;
+          this.hasKeys_ = boolPool_.Rent(newLength);
+
+          for (var i = 0; i < oldCount; i++) {
+            this.hasKeys_[i] = oldImpl[i];
+          }
+
+          if (oldImpl != null) {
+            boolPool_.Return(oldImpl);
+          }
         }
 
-        for (var i = oldCount; i < newLength; ++i) {
-          this.impl_[i] = new IndexableDictionaryValue();
-        }
+        {
+          var oldImpl = this.impl_;
+          this.impl_ = pool_.Rent(newLength);
 
-        if (oldImpl != null) {
-          pool_.Return(oldImpl);
+          for (var i = 0; i < oldCount; i++) {
+            this.impl_[i] = oldImpl[i];
+          }
+
+          if (oldImpl != null) {
+            pool_.Return(oldImpl);
+          }
         }
       } else if (oldCount > newLength) {
         throw new NotSupportedException();
@@ -69,15 +84,13 @@ namespace fin.data {
     }
 
     public TValue this[TIndexable key] {
-      get => impl_[key.Index].Value!;
+      get => impl_[key.Index];
       set {
         var id = key.Index;
         ResizeLength_(Math.Max(this.length_, id + 1));
 
-        var current = this.impl_[key.Index];
-        current.HasValue = true;
-        current.Key = key;
-        current.Value = value;
+        this.impl_[key.Index] = value;
+        this.hasKeys_[key.Index] = true;
       }
     }
 
@@ -89,26 +102,19 @@ namespace fin.data {
         return false;
       }
 
-      var indexableDictionaryValue = this.impl_[index];
-      value = indexableDictionaryValue.Value;
-      return indexableDictionaryValue.HasValue;
+      value = this.impl_[index];
+      return this.hasKeys_[index];
     }
 
-    private class IndexableDictionaryValue {
-      public bool HasValue;
-      public TIndexable Key;
-      public TValue? Value;
-    }
 
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
-    public IEnumerator<(TIndexable, TValue)> GetEnumerator() {
+    public IEnumerator<TValue> GetEnumerator() {
       if (this.impl_ != null) {
-        foreach (var node in this.impl_
-                   .Take(this.length_)
-                   .Where(value => value.HasValue)
-                   .Select(value => (value.Key, value.Value))) {
-          yield return node;
+        for (var i = 0; i < this.length_; i++) {
+          if (this.hasKeys_[i]) {
+            yield return this.impl_[i];
+          }
         }
       }
     }

@@ -3,6 +3,7 @@ using fin.model;
 using fin.model.impl;
 
 using OpenTK.Graphics.OpenGL;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,9 +38,11 @@ namespace fin.gl {
       for (var i = 0; i < this.uvData_.Length; ++i) {
         this.uvData_[i] = new float[UV_SIZE_ * this.vertices_.Count];
       }
+
       this.colorData_ = new float[2][];
       for (var i = 0; i < this.colorData_.Length; ++i) {
-        var colorData = this.colorData_[i] = new float[COLOR_SIZE_ * this.vertices_.Count];
+        var colorData = this.colorData_[i] =
+            new float[COLOR_SIZE_ * this.vertices_.Count];
         for (var c = 0; c < colorData.Length; ++c) {
           colorData[c] = 1;
         }
@@ -72,9 +75,9 @@ namespace fin.gl {
         var normal = this.normal_;
         if (boneTransformManager != null) {
           boneTransformManager.ProjectVertex(
-            vertex,
-            this.position_,
-            this.normal_);
+              vertex,
+              this.position_,
+              this.normal_);
         } else {
           position = vertex.LocalPosition;
           normal = vertex.LocalNormal;
@@ -105,7 +108,7 @@ namespace fin.gl {
 
         if (colorStale_) {
           var colorCount = Math.Min(this.colorData_.Length,
-            vertex.Colors?.Count ?? 0);
+                                    vertex.Colors?.Count ?? 0);
           for (var c = 0; c < colorCount; ++c) {
             var color = vertex.GetColor(c);
             if (color != null) {
@@ -179,7 +182,8 @@ namespace fin.gl {
       // Color
       for (var i = 0; i < this.colorData_.Length; ++i) {
         var vertexAttribColor = 1 + 1 + 4 + i;
-        GL.BindBuffer(BufferTarget.ArrayBuffer, this.vboIds_[vertexAttribColor]);
+        GL.BindBuffer(BufferTarget.ArrayBuffer,
+                      this.vboIds_[vertexAttribColor]);
         GL.BufferData(BufferTarget.ArrayBuffer,
                       new IntPtr(sizeof(float) * this.colorData_[i].Length),
                       this.colorData_[i],
@@ -200,7 +204,7 @@ namespace fin.gl {
     }
 
     public GlBufferRenderer CreateRenderer(
-        IEnumerable<(IVertex, IVertex, IVertex)> triangles)
+        IList<(IVertex, IVertex, IVertex)> triangles)
       => new(this.vaoId_, triangles);
 
     public class GlBufferRenderer : IDisposable {
@@ -211,19 +215,19 @@ namespace fin.gl {
 
       public GlBufferRenderer(
           int vaoId,
-          IEnumerable<(IVertex, IVertex, IVertex)>
-              triangles) {
+          IList<(IVertex, IVertex, IVertex)> triangles) {
         this.vaoId_ = vaoId;
 
         GL.BindVertexArray(this.vaoId_);
         GL.GenBuffers(1, out this.eboId_);
 
-        this.indices_ = triangles.SelectMany(triangle => new[] {
-                                     triangle.Item1.Index,
-                                     triangle.Item2.Index,
-                                     triangle.Item3.Index
-                                 })
-                                 .ToArray();
+        this.indices_ = new int[3 * triangles.Count];
+        for (var i = 0; i < triangles.Count; ++i) {
+          var triangle = triangles[i];
+          this.indices_[3 * i + 0] = triangle.Item1.Index;
+          this.indices_[3 * i + 1] = triangle.Item2.Index;
+          this.indices_[3 * i + 2] = triangle.Item3.Index;
+        }
 
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, this.eboId_);
         GL.BufferData(BufferTarget.ElementArrayBuffer,

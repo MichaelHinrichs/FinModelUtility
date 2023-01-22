@@ -52,7 +52,7 @@ namespace fin.model.impl {
           get => this.frameCount_;
           set {
             this.frameCount_ = value;
-            foreach (var (_, boneTracks) in this.boneTracks_) {
+            foreach (var boneTracks in this.boneTracks_) {
               (boneTracks as BoneTracksImpl).FrameCount = value;
             }
           }

@@ -53,10 +53,6 @@ namespace hw.api {
         primitive.SetMaterial(xttMaterial);
       }
 
-      // Forces an immediate garbage-collection cleanup. This is required to
-      // prevent OOM errors, since Halo Wars maps are just so huge.
-      GcUtil.ForceCollectEverything();
-
       return xtd.Mesh;
     }
   }
