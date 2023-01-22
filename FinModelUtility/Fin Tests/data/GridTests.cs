@@ -56,21 +56,15 @@ namespace fin.data {
     }
 
     [Test]
-    public void TestFailsOutside() {
+    [TestCase(-1, 0)]
+    [TestCase(0, -1)]
+    [TestCase(4, 0)]
+    [TestCase(0, 4)]
+    public void TestFailsOutside(int x, int y) {
       var impl = new Grid<string>(3, 3);
-
       Assert.ThrowsException<AssertionException>(
-          () => { impl[-1, 0] = "value"; },
-          "\"Expected (-1, 0) to be a valid index in grid of size (3, 3).\"");
-      Assert.ThrowsException<AssertionException>(
-          () => { impl[0, -1] = "value"; },
-          "\"Expected (-1, 0) to be a valid index in grid of size (3, 3).\"");
-      Assert.ThrowsException<AssertionException>(
-          () => { impl[4, 0] = "value"; },
-          "\"Expected (4, 0) to be a valid index in grid of size (3, 3).\"");
-      Assert.ThrowsException<AssertionException>(
-          () => { impl[0, 4] = "value"; },
-          "\"Expected (0, 4) to be a valid index in grid of size (3, 3).\"");
+          () => { impl[x, y] = "value"; },
+          $"\"Expected ({x}, {y}) to be a valid index in grid of size (3, 3).\"");
     }
   }
 }
