@@ -213,6 +213,8 @@ namespace level5.schema {
             ImageData, Tiles.Count * 8, 8, imageFormat);
       }
 
+      var tileSheetWidth = tileSheet.Width;
+
       var img = new Rgba32Image(Width, Height);
 
       BitmapUtil.InvokeAsLocked(tileSheet, inputBmpData => {
@@ -231,7 +233,7 @@ namespace level5.schema {
             if (code != -1) {
               for (int h = 0; h < 8; h++) {
                 for (int w = 0; w < 8; w++) {
-                  var inputIndex = 4 * ((code * 8 + w) + (h) * tileSheet.Width);
+                  var inputIndex = 4 * ((code * 8 + w) + (h) * tileSheetWidth);
                   var b = inputPtr[inputIndex];
                   var g = inputPtr[inputIndex + 1];
                   var r = inputPtr[inputIndex + 2];

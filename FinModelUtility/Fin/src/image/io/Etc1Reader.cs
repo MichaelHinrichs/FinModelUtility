@@ -1,6 +1,9 @@
 ﻿using SharpGLTF.Schema2;
+
 using System;
+using System.Buffers;
 using System.IO;
+
 using Buffer = System.Buffer;
 
 
@@ -10,6 +13,7 @@ namespace fin.image.io {
   ///   https://github.com/xdanieldzd/Scarlet/blob/master/Scarlet/Drawing/Compression/ETC1.cs
   /// </summary>
   public class Etc1ImageReader : IImageReader<Rgba32Image> {
+    private ArrayPool<byte> pool_ = ArrayPool<byte>.Shared;
     private readonly int width_;
     private readonly int height_;
     private readonly bool hasAlpha_;
@@ -34,8 +38,8 @@ namespace fin.image.io {
     }
 
     public Rgba32Image Read(byte[] srcBytes) {
-      var bytes =
-          Decompress_(srcBytes, this.width_, this.height_, this.hasAlpha_);
+      var bytes = this.pool_.Rent(4 * this.width_ * this.height_);
+      Decompress_(srcBytes, bytes, this.width_, this.height_, this.hasAlpha_);
 
       var output = new Rgba32Image(this.width_, this.height_);
       output.Mutate((_, setHandler) => {
@@ -53,16 +57,17 @@ namespace fin.image.io {
         }
       });
 
+      pool_.Return(bytes);
+
       return output;
     }
 
-    private static byte[] Decompress_(
+    private static void Decompress_(
         byte[] srcData,
+        byte[] dstData,
         int width,
         int height,
         bool hasAlpha) {
-      byte[] dstData = new byte[4 * width * height];
-
       var er =
           new EndianBinaryReader(new MemoryStream(srcData),
                                  Endianness.LittleEndian);
@@ -78,8 +83,6 @@ namespace fin.image.io {
                                           hasAlpha);
         }
       }
-
-      return dstData;
     }
 
     private static void DecodeETC1Tile_(
@@ -115,16 +118,16 @@ namespace fin.image.io {
               }
 
               int pixelOffset =
-                  (int)((((y + @by + py) * width) + (x + bx + px)) * 4);
+                  (int) ((((y + @by + py) * width) + (x + bx + px)) * 4);
               Buffer.BlockCopy(decodedReader.ReadBytes(3),
                                0,
                                pixelData,
                                pixelOffset,
                                3);
               byte pixelAlpha =
-                  (byte)((alpha >> (((px * 4) + py) * 4)) & 0xF);
+                  (byte) ((alpha >> (((px * 4) + py) * 4)) & 0xF);
               pixelData[pixelOffset + 3] =
-                  (byte)(pixelAlpha * 17);
+                  (byte) (pixelAlpha * 17);
             }
           }
         }
@@ -134,45 +137,45 @@ namespace fin.image.io {
     private static byte[] DecodeETC1Block_(ulong block) {
       byte r1, g1, b1, r2, g2, b2;
 
-      byte tableIndex1 = (byte)((block >> 37) & 0x07);
-      byte tableIndex2 = (byte)((block >> 34) & 0x07);
-      byte diffBit = (byte)((block >> 33) & 0x01);
-      byte flipBit = (byte)((block >> 32) & 0x01);
+      byte tableIndex1 = (byte) ((block >> 37) & 0x07);
+      byte tableIndex2 = (byte) ((block >> 34) & 0x07);
+      byte diffBit = (byte) ((block >> 33) & 0x01);
+      byte flipBit = (byte) ((block >> 32) & 0x01);
 
       if (diffBit == 0x00) {
         /* Individual mode */
-        r1 = (byte)(((block >> 60) & 0x0F) << 4 | (block >> 60) & 0x0F);
-        g1 = (byte)(((block >> 52) & 0x0F) << 4 | (block >> 52) & 0x0F);
-        b1 = (byte)(((block >> 44) & 0x0F) << 4 | (block >> 44) & 0x0F);
+        r1 = (byte) (((block >> 60) & 0x0F) << 4 | (block >> 60) & 0x0F);
+        g1 = (byte) (((block >> 52) & 0x0F) << 4 | (block >> 52) & 0x0F);
+        b1 = (byte) (((block >> 44) & 0x0F) << 4 | (block >> 44) & 0x0F);
 
-        r2 = (byte)(((block >> 56) & 0x0F) << 4 | (block >> 56) & 0x0F);
-        g2 = (byte)(((block >> 48) & 0x0F) << 4 | (block >> 48) & 0x0F);
-        b2 = (byte)(((block >> 40) & 0x0F) << 4 | (block >> 40) & 0x0F);
+        r2 = (byte) (((block >> 56) & 0x0F) << 4 | (block >> 56) & 0x0F);
+        g2 = (byte) (((block >> 48) & 0x0F) << 4 | (block >> 48) & 0x0F);
+        b2 = (byte) (((block >> 40) & 0x0F) << 4 | (block >> 40) & 0x0F);
       } else {
         /* Differential mode */
 
         /* 5bit base values */
-        byte r1a = (byte)(((block >> 59) & 0x1F));
-        byte g1a = (byte)(((block >> 51) & 0x1F));
-        byte b1a = (byte)(((block >> 43) & 0x1F));
+        byte r1a = (byte) (((block >> 59) & 0x1F));
+        byte g1a = (byte) (((block >> 51) & 0x1F));
+        byte b1a = (byte) (((block >> 43) & 0x1F));
 
         /* Subblock 1, 8bit extended */
-        r1 = (byte)((r1a << 3) | (r1a >> 2));
-        g1 = (byte)((g1a << 3) | (g1a >> 2));
-        b1 = (byte)((b1a << 3) | (b1a >> 2));
+        r1 = (byte) ((r1a << 3) | (r1a >> 2));
+        g1 = (byte) ((g1a << 3) | (g1a >> 2));
+        b1 = (byte) ((b1a << 3) | (b1a >> 2));
 
         /* 3bit modifiers */
-        sbyte dr2 = (sbyte)((block >> 56) & 0x07);
-        sbyte dg2 = (sbyte)((block >> 48) & 0x07);
-        sbyte db2 = (sbyte)((block >> 40) & 0x07);
+        sbyte dr2 = (sbyte) ((block >> 56) & 0x07);
+        sbyte dg2 = (sbyte) ((block >> 48) & 0x07);
+        sbyte db2 = (sbyte) ((block >> 40) & 0x07);
         if (dr2 >= 4) dr2 -= 8;
         if (dg2 >= 4) dg2 -= 8;
         if (db2 >= 4) db2 -= 8;
 
         /* Subblock 2, 8bit extended */
-        r2 = (byte)((r1a + dr2) << 3 | (r1a + dr2) >> 2);
-        g2 = (byte)((g1a + dg2) << 3 | (g1a + dg2) >> 2);
-        b2 = (byte)((b1a + db2) << 3 | (b1a + db2) >> 2);
+        r2 = (byte) ((r1a + dr2) << 3 | (r1a + dr2) >> 2);
+        g2 = (byte) ((g1a + dg2) << 3 | (g1a + dg2) >> 2);
+        b2 = (byte) ((b1a + db2) << 3 | (b1a + db2) >> 2);
       }
 
       var decodedData = new byte[(4 * 4) * 3];
@@ -180,7 +183,7 @@ namespace fin.image.io {
 
       for (int py = 0; py < 4; py++) {
         for (int px = 0; px < 4; px++) {
-          int index = (int)(((block >> ((px * 4) + py)) & 0x1) |
+          int index = (int) (((block >> ((px * 4) + py)) & 0x1) |
                             ((block >> (((px * 4) + py) + 16)) & 0x1) << 1);
 
           if ((flipBit == 0x01 && py < 2) || (flipBit == 0x00 && px < 2)) {
@@ -212,7 +215,7 @@ namespace fin.image.io {
                                           ref int pos,
                                           int value) {
       value = Math.Clamp(value, byte.MinValue, byte.MaxValue);
-      decodedData[pos++] = (byte)value;
+      decodedData[pos++] = (byte) value;
     }
   }
 }
