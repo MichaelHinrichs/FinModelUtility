@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using fin.color;
 using fin.data;
 using fin.math;
-using fin.util.asserts;
-using System.Linq;
-using fin.io;
+using System.Threading.Tasks;
 
 
 namespace fin.model.impl {
@@ -31,6 +28,16 @@ namespace fin.model.impl {
 
       public SkinImpl(int vertexCount) {
         this.vertices_ = new List<IVertex>(vertexCount);
+        for (var i = 0; i < vertexCount; ++i) {
+          this.vertices_.Add(default);
+        }
+        Parallel.For(0,
+                     vertexCount,
+                     new ParallelOptions {MaxDegreeOfParallelism = -1},
+                     index => {
+                       this.vertices_[index] = new VertexImpl(index, 0, 0, 0);
+                     });
+
         this.Vertices = new ReadOnlyCollection<IVertex>(this.vertices_);
         this.Meshes = new ReadOnlyCollection<IMesh>(this.meshes_);
       }
@@ -38,15 +45,19 @@ namespace fin.model.impl {
       public IReadOnlyList<IVertex> Vertices { get; }
 
       public IVertex AddVertex(IPosition position) {
-        var vertex = new VertexImpl(this.vertices_.Count, position);
-        this.vertices_.Add(vertex);
-        return vertex;
+        lock (this.vertices_) {
+          var vertex = new VertexImpl(this.vertices_.Count, position);
+          this.vertices_.Add(vertex);
+          return vertex;
+        }
       }
 
       public IVertex AddVertex(float x, float y, float z) {
-        var vertex = new VertexImpl(this.vertices_.Count, x, y, z);
-        this.vertices_.Add(vertex);
-        return vertex;
+        lock (this.vertices_) {
+          var vertex = new VertexImpl(this.vertices_.Count, x, y, z);
+          this.vertices_.Add(vertex);
+          return vertex;
+        }
       }
 
 
@@ -58,7 +69,7 @@ namespace fin.model.impl {
         return mesh;
       }
 
-      public IReadOnlyList<IBoneWeights> BoneWeights 
+      public IReadOnlyList<IBoneWeights> BoneWeights
         => this.boneWeightsDictionary_.List;
 
       public IBoneWeights GetOrCreateBoneWeights(
@@ -254,7 +265,7 @@ namespace fin.model.impl {
           return this;
         }
 
-        public IVertex SetColorBytes(byte r, byte g, byte b, byte a) 
+        public IVertex SetColorBytes(byte r, byte g, byte b, byte a)
           => this.SetColor(FinColor.FromRgbaBytes(r, g, b, a));
 
         public IVertex SetColorBytes(

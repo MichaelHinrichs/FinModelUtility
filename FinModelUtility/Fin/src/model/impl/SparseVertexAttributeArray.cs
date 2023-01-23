@@ -23,7 +23,7 @@ namespace fin.model.impl {
     public T? this[int index] {
       get => index == 0 ? this.value_ : default;
       set {
-        Asserts.Equal(0, index);
+        //Asserts.Equal(0, index);
         this.value_ = value;
       }
     }

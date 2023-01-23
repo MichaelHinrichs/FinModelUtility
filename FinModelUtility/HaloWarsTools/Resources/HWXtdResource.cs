@@ -9,6 +9,7 @@ using fin.image;
 using fin.model;
 using fin.model.impl;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 
 namespace HaloWarsTools {
@@ -60,7 +61,6 @@ namespace HaloWarsTools {
     }
 
     private IModel ImportMesh(byte[] bytes) {
-      int stride = 1;
       MeshNormalExportMode shadingMode = MeshNormalExportMode.Unchanged;
 
       HWBinaryResourceChunk headerChunk =
@@ -77,11 +77,6 @@ namespace HaloWarsTools {
       int positionOffset = (int) atlasChunk.Offset + 32;
       int normalOffset = positionOffset + gridSize * gridSize * 4;
 
-      if (gridSize % stride != 0) {
-        throw new Exception(
-            $"Grid size {gridSize} is not evenly divisible by stride {stride} - choose a different stride value.");
-      }
-
       // These are stored as ZYX, 4 bytes per component
       Vector3 PosCompMin = BinaryUtils
                            .ReadVector3BigEndian(
@@ -95,52 +90,56 @@ namespace HaloWarsTools {
       var finModel = new ModelImpl(gridSize * gridSize);
       var finMesh = finModel.Skin.AddMesh();
 
-      var finVertices = new IVertex[gridSize * gridSize];
+      var finVertices = finModel.Skin.Vertices;
 
       // Read vertex offsets/normals and add them to the mesh
-      for (int x = 0; x < gridSize; x += stride) {
-        for (int z = 0; z < gridSize; z += stride) {
-          int index = GetVertexIndex(x, z, gridSize);
-          int offset = index * 4;
+      Parallel.For(0, finVertices.Count, new ParallelOptions {
+        MaxDegreeOfParallelism = -1,
+      },
+                   index => {
+                     var x = index % gridSize;
+                     var z = (index - x) / gridSize;
 
-          // Get offset position and normal for this vertex
-          Vector3 position =
-              ReadVector3Compressed(bytes, positionOffset + offset) *
-              PosCompRange -
-              PosCompMin;
+                     int offset = index * 4;
 
-          // Positions are relative to the terrain grid, so shift them by the grid position
-          position += new Vector3(x, 0, z) * tileScale;
+                     // Get offset position and normal for this vertex
+                     Vector3 position =
+                         ReadVector3Compressed(bytes, positionOffset + offset) *
+                         PosCompRange -
+                         PosCompMin;
 
-          Vector3 normal =
-              ConvertDirectionVector(
-                  Vector3.Normalize(
-                      ReadVector3Compressed(bytes, normalOffset + offset) *
-                      2.0f -
-                      Vector3.One));
+                     // Positions are relative to the terrain grid, so shift them by the grid position
+                     position += new Vector3(x, 0, z) * tileScale;
 
-          // Simple UV based on original, non-warped terrain grid
-          Vector3 texCoord = new Vector3(x / ((float) gridSize - 1),
-                                         z / ((float) gridSize - 1), 0);
+                     Vector3 normal =
+                         ConvertDirectionVector(
+                             Vector3.Normalize(
+                                 ReadVector3Compressed(bytes, normalOffset + offset) *
+                                 2.0f -
+                                 Vector3.One));
 
-          var finVertex =
-              finModel.Skin
-                      .AddVertex(position.X, position.Y, position.Z)
-                      .SetLocalNormal(normal.X, normal.Y, normal.Z)
-                      .SetUv(texCoord.X, texCoord.Y);
-          finVertices[index] = finVertex;
-        }
-      }
+                     // Simple UV based on original, non-warped terrain grid
+                     Vector3 texCoord = new Vector3(x / ((float) gridSize - 1),
+                                                    z / ((float) gridSize - 1), 0);
+
+                     var vertex = finVertices[index];
+                     vertex.LocalPosition.X = position.X;
+                     vertex.LocalPosition.Y = position.Y;
+                     vertex.LocalPosition.Z = position.Z;
+
+                     vertex.SetLocalNormal(normal.X, normal.Y, normal.Z)
+                           .SetUv(texCoord.X, texCoord.Y);
+                   });
 
       // Generate faces based on terrain grid
-      var triangleGridSize = gridSize - stride;
+      var triangleGridSize = gridSize - 1;
       var triangles = new List<(IVertex, IVertex, IVertex)>(2 * triangleGridSize * triangleGridSize);
-      for (int x = 0; x < triangleGridSize; x += stride) {
-        for (int z = 0; z < triangleGridSize; z += stride) {
+      for (int x = 0; x < triangleGridSize; x += 1) {
+        for (int z = 0; z < triangleGridSize; z += 1) {
           var a = finVertices[GetVertexIndex(x, z, gridSize)];
-          var b = finVertices[GetVertexIndex(x + stride, z, gridSize)];
-          var c = finVertices[GetVertexIndex(x, z + stride, gridSize)];
-          var d = finVertices[GetVertexIndex(x + stride, z + stride, gridSize)];
+          var b = finVertices[GetVertexIndex(x + 1, z, gridSize)];
+          var c = finVertices[GetVertexIndex(x, z + 1, gridSize)];
+          var d = finVertices[GetVertexIndex(x + 1, z + 1, gridSize)];
 
           triangles.Add((a, b, c));
           triangles.Add((d, c, b));
