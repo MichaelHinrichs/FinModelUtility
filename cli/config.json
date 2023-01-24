@@ -5,5 +5,8 @@
   ],
   "AutomaticallyPlayGameAudioForModel": false,
   "ShowSkeleton": true,
-  "ShowGrid": true
+  "ShowGrid": true,
+  "ThirdParty": {
+	  "ExportBoneScaleAnimationsSeparately": false
+  }
 }

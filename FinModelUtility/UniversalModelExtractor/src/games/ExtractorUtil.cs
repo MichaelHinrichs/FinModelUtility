@@ -5,8 +5,10 @@ using fin.io.bundles;
 using fin.log;
 using fin.model;
 using fin.util.asserts;
+
 using uni.config;
 using uni.msg;
+using uni.thirdparty;
 
 
 namespace uni.games {
@@ -92,6 +94,7 @@ namespace uni.games {
 
       try {
         var model = loaderHandler();
+
         new AssimpIndirectExporter {
           LowLevel = modelFileBundle.UseLowLevelExporter,
           ForceGarbageCollection = modelFileBundle.ForceGarbageCollection,
@@ -102,6 +105,13 @@ namespace uni.games {
               Config.Instance.ExportedFormats :
               new[] { ".gltf" },
             model);
+
+        if (Config.Instance.ThirdParty.ExportBoneScaleAnimationsSeparately) {
+          new BoneScaleAnimationExporter().Export(
+              new FinFile(Path.Join(outputDirectory.FullName,
+                                    mainFile.NameWithoutExtension + "_bone_scale_animations.txt")),
+              model);
+        }
       } catch (Exception e) {
         ExtractorUtil.logger_.LogError(e.ToString());
       }

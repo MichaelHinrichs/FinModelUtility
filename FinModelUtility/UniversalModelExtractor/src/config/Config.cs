@@ -17,7 +17,13 @@ namespace uni.config {
 
     public bool ShowGrid { get; set; }
 
+    public ThirdPartyConfig ThirdParty { get; } = new();
+
     public void SaveSettings()
       => DirectoryConstants.CONFIG_FILE.Serialize(Config.Instance);
+  }
+
+  public class ThirdPartyConfig {
+    public bool ExportBoneScaleAnimationsSeparately { get; set; }
   }
 }
