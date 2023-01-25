@@ -19,12 +19,7 @@ namespace j3d.exporter {
         TextureEntry header,
         IList<(string, Bti)>? pathsAndBtis = null) {
       this.Name = name;
-      this.Header = header;
-
-      var mirrorS = false;
-      var mirrorT = false;
-      var repeatS = false;
-      var repeatT = false;
+      this.DefaultHeader = header;
 
       // TODO: This doesn't feel right, where can we get the actual name?
       if (pathsAndBtis != null && name.Contains("_dummy")) {
@@ -39,30 +34,30 @@ namespace j3d.exporter {
         if (matchingPathAndBtis.Count() > 0) {
           var matchingPathAndBti = matchingPathAndBtis.First();
 
-          name = new FileInfo(matchingPathAndBti.Item1).Name;
+          this.Name = new FileInfo(matchingPathAndBti.Item1).Name;
           var bti = matchingPathAndBti.Item2;
 
-          this.Image = bti.ToBitmap();
-          this.ColorType = BmdGxTexture.GetColorType_(bti.Format);
-          this.WrapModeS = bti.WrapS;
-          this.WrapModeT = bti.WrapT;
+          this.OverrideHeader = bti;
         }
       }
 
-      if (this.Image == null) {
-        this.Image = header.ToBitmap();
-        this.ColorType = BmdGxTexture.GetColorType_(header.Format);
-        this.WrapModeS = header.WrapS;
-        this.WrapModeT = header.WrapT;
-      }
+      this.Image = this.Header.ToBitmap();
+      this.ColorType = BmdGxTexture.GetColorType_(this.Header.Format);
     }
 
     public string Name { get; }
-    public TextureEntry Header { get; }
+
     public IImage Image { get; }
+    public TextureEntry Header => OverrideHeader ?? DefaultHeader;
+    private TextureEntry DefaultHeader { get; }
+    private TextureEntry? OverrideHeader { get; }
+
+    public GX_WRAP_TAG WrapModeS => this.Header.WrapS;
+    public GX_WRAP_TAG WrapModeT => this.Header.WrapT;
+    public GX_MIN_TEXTURE_FILTER MinTextureFilter => this.Header.MinFilter;
+    public GX_MAG_TEXTURE_FILTER MagTextureFilter => this.Header.MagFilter;
+
     public ColorType ColorType { get; }
-    public GX_WRAP_TAG WrapModeS { get; }
-    public GX_WRAP_TAG WrapModeT { get; }
 
     public void SaveInDirectory(IDirectory directory) {
       var stream = new MemoryStream();

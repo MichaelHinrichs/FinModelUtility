@@ -7,6 +7,10 @@ using OpenTK.Graphics.OpenGL;
 using System.Buffers;
 using System.Collections.Generic;
 
+using FinTextureMinFilter = fin.model.TextureMinFilter;
+using TextureMagFilter = fin.model.TextureMagFilter;
+using TextureMinFilter = OpenTK.Graphics.OpenGL.TextureMinFilter;
+
 
 namespace fin.gl {
   public class GlTexture : IDisposable {
@@ -72,11 +76,34 @@ namespace fin.gl {
             glBorderColor);
         }
 
-        GL.GenerateTextureMipmap(this.id_);
-        GL.TexParameter(target, TextureParameterName.TextureMinFilter,
-                        (int)TextureMinFilter.LinearMipmapLinear);
-        GL.TexParameter(target, TextureParameterName.TextureMagFilter,
-          (int)TextureMagFilter.Linear);
+        if (texture.MinFilter is FinTextureMinFilter.NEAR_MIPMAP_NEAR
+                                 or FinTextureMinFilter.NEAR_MIPMAP_LINEAR
+                                 or FinTextureMinFilter.LINEAR_MIPMAP_NEAR
+                                 or FinTextureMinFilter.LINEAR_MIPMAP_LINEAR) {
+          GL.GenerateTextureMipmap(this.id_);
+        }
+
+        GL.TexParameter(
+            target,
+            TextureParameterName.TextureMinFilter,
+            (int) (texture.MinFilter switch {
+                FinTextureMinFilter.NEAR   => TextureMinFilter.Nearest,
+                FinTextureMinFilter.LINEAR => TextureMinFilter.Linear,
+                FinTextureMinFilter.NEAR_MIPMAP_NEAR => TextureMinFilter
+                    .NearestMipmapNearest,
+                FinTextureMinFilter.NEAR_MIPMAP_LINEAR => TextureMinFilter
+                    .NearestMipmapLinear,
+                FinTextureMinFilter.LINEAR_MIPMAP_NEAR => TextureMinFilter
+                    .LinearMipmapNearest,
+                FinTextureMinFilter.LINEAR_MIPMAP_LINEAR => TextureMinFilter
+                    .LinearMipmapLinear,
+            }));
+        GL.TexParameter(
+            target, TextureParameterName.TextureMagFilter,
+            (int) (texture.MagFilter switch {
+                TextureMagFilter.NEAR   => OpenTK.Graphics.OpenGL.TextureMagFilter.Nearest,
+                TextureMagFilter.LINEAR => OpenTK.Graphics.OpenGL.TextureMagFilter.Linear,
+            }));
       }
       GL.BindTexture(target, UNDEFINED_ID);
     }

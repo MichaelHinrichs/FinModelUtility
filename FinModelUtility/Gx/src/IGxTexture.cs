@@ -10,7 +10,12 @@ namespace gx {
     GX_MAXTEXWRAPMODE,
   }
 
-  public enum GX_TEXTURE_FILTER : byte {
+  public enum GX_MAG_TEXTURE_FILTER : byte {
+    GX_NEAR,
+    GX_LINEAR,
+  }
+
+  public enum GX_MIN_TEXTURE_FILTER : byte {
     GX_NEAR,
     GX_LINEAR,
     GX_NEAR_MIP_NEAR,
@@ -26,6 +31,8 @@ namespace gx {
     IImage Image { get; }
     GX_WRAP_TAG WrapModeS { get; }
     GX_WRAP_TAG WrapModeT { get; }
+    GX_MAG_TEXTURE_FILTER MagTextureFilter { get; }
+    GX_MIN_TEXTURE_FILTER MinTextureFilter { get; }
     ColorType ColorType { get; }
   }
 
@@ -34,6 +41,12 @@ namespace gx {
     public IImage Image { get; set; }
     public GX_WRAP_TAG WrapModeS { get; set; }
     public GX_WRAP_TAG WrapModeT { get; set; }
+
+    public GX_MIN_TEXTURE_FILTER MinTextureFilter { get; set; } =
+      GX_MIN_TEXTURE_FILTER.GX_LIN_MIP_LIN;
+
+    public GX_MAG_TEXTURE_FILTER MagTextureFilter { get; set; } =
+      GX_MAG_TEXTURE_FILTER.GX_LINEAR;
     public ColorType ColorType { get; set; }
   }
 }

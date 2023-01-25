@@ -265,6 +265,20 @@ namespace fin.model {
     INTENSITY,
   }
 
+  public enum TextureMagFilter {
+    NEAR,
+    LINEAR,
+  }
+
+  public enum TextureMinFilter {
+    NEAR,
+    LINEAR,
+    NEAR_MIPMAP_NEAR,
+    NEAR_MIPMAP_LINEAR,
+    LINEAR_MIPMAP_NEAR,
+    LINEAR_MIPMAP_LINEAR,
+  }
+
   public interface ITexture {
     string Name { get; set; }
 
@@ -272,7 +286,6 @@ namespace fin.model {
     UvType UvType { get; set; }
     ColorType ColorType { get; set; }
 
-    // TODO: Support mipmaps
     IImage Image { get; }
     Bitmap ImageData { get; }
     IFile SaveInDirectory(IDirectory directory);
@@ -282,6 +295,9 @@ namespace fin.model {
     WrapMode WrapModeV { get; set; }
 
     IColor? BorderColor { get; set; }
+
+    TextureMagFilter MagFilter { get; set; }
+    TextureMinFilter MinFilter { get; set; }
 
     // TODO: UV Scaling
     // TODO: Support fixed # of repeats

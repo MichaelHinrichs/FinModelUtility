@@ -47,8 +47,8 @@ namespace j3d.schema.bmd.tex1 {
     public UInt32 PaletteOffset;
     public IColor[] palette;
     public UInt32 BorderColor;
-    public GX_TEXTURE_FILTER MinFilter;
-    public GX_TEXTURE_FILTER MagFilter;
+    public GX_MIN_TEXTURE_FILTER MinFilter;
+    public GX_MAG_TEXTURE_FILTER MagFilter;
     public UInt16 Unknown4;
     public Byte NrMipMap;
     public Byte Unknown5;
@@ -75,8 +75,8 @@ namespace j3d.schema.bmd.tex1 {
       this.NrPaletteEntries = er.ReadUInt16();
       this.PaletteOffset = er.ReadUInt32();
       this.BorderColor = er.ReadUInt32();
-      this.MinFilter = (GX_TEXTURE_FILTER)er.ReadByte();
-      this.MagFilter = (GX_TEXTURE_FILTER)er.ReadByte();
+      this.MinFilter = (GX_MIN_TEXTURE_FILTER) er.ReadByte();
+      this.MagFilter = (GX_MAG_TEXTURE_FILTER) er.ReadByte();
       this.Unknown4 = er.ReadUInt16();
       this.NrMipMap = er.ReadByte();
       this.Unknown5 = er.ReadByte();

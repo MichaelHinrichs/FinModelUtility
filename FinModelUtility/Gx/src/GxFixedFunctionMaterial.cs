@@ -291,6 +291,24 @@ namespace gx {
           texture.Name = bmdTexture.Name;
           texture.WrapModeU = GetWrapMode_(bmdTexture.WrapModeS);
           texture.WrapModeV = GetWrapMode_(bmdTexture.WrapModeT);
+          texture.MinFilter = bmdTexture.MinTextureFilter switch {
+              GX_MIN_TEXTURE_FILTER.GX_NEAR   => TextureMinFilter.NEAR,
+              GX_MIN_TEXTURE_FILTER.GX_LINEAR => TextureMinFilter.LINEAR,
+              GX_MIN_TEXTURE_FILTER.GX_NEAR_MIP_NEAR => TextureMinFilter
+                  .NEAR_MIPMAP_NEAR,
+              GX_MIN_TEXTURE_FILTER.GX_LIN_MIP_NEAR => TextureMinFilter
+                  .LINEAR_MIPMAP_NEAR,
+              GX_MIN_TEXTURE_FILTER.GX_NEAR_MIP_LIN => TextureMinFilter
+                  .NEAR_MIPMAP_LINEAR,
+              GX_MIN_TEXTURE_FILTER.GX_LIN_MIP_LIN => TextureMinFilter
+                  .LINEAR_MIPMAP_NEAR,
+              GX_MIN_TEXTURE_FILTER.GX_NEAR2 => TextureMinFilter.NEAR,
+              GX_MIN_TEXTURE_FILTER.GX_NEAR3 => TextureMinFilter.NEAR,
+          };
+          texture.MagFilter = bmdTexture.MagTextureFilter switch {
+              GX_MAG_TEXTURE_FILTER.GX_NEAR   => TextureMagFilter.NEAR,
+              GX_MAG_TEXTURE_FILTER.GX_LINEAR => TextureMagFilter.LINEAR,
+          };
           texture.ColorType = bmdTexture.ColorType;
 
           var texCoordGen =

@@ -57,6 +57,7 @@ namespace fin.model.impl {
         this.textures_.Add(texture);
         return texture;
       }
+
       public IReadOnlyList<ITexture> Textures { get; }
     }
 
@@ -93,6 +94,11 @@ namespace fin.model.impl {
 
       public IColor? BorderColor { get; set; }
 
+      public TextureMagFilter MagFilter { get; set; } = TextureMagFilter.LINEAR;
+
+      public TextureMinFilter MinFilter { get; set; } =
+        TextureMinFilter.LINEAR_MIPMAP_LINEAR;
+
       public override int GetHashCode() {
         int hash = 216613626;
         var sub = 16780669;
@@ -112,7 +118,9 @@ namespace fin.model.impl {
         }
 
         if (other is ITexture otherTexture) {
-          return this.Image == otherTexture.Image && this.WrapModeU == otherTexture.WrapModeU && this.WrapModeV == otherTexture.WrapModeV;
+          return this.Image == otherTexture.Image &&
+                 this.WrapModeU == otherTexture.WrapModeU &&
+                 this.WrapModeV == otherTexture.WrapModeV;
         }
 
         return false;
