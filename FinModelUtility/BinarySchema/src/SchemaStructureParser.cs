@@ -269,13 +269,20 @@ namespace schema {
         return null;
       }
 
+      var typeOfSerializable = SymbolTypeUtil.Implements(
+              structureSymbol,
+              typeof(IBiSerializable)) ? typeof(IBiSerializable) :
+          SymbolTypeUtil.Implements(
+              structureSymbol,
+              typeof(IDeserializable)) ? typeof(IDeserializable) :
+          typeof(ISerializable);
+
       // Makes sure the member is serializable
       {
         if (memberTypeInfo is IStructureTypeInfo structureTypeInfo) {
-          // TODO: Check if implements same kind as parent
           if (!SymbolTypeUtil.Implements(
                   structureTypeInfo.NamedTypeSymbol,
-                  typeof(IBiSerializable))) {
+                  typeOfSerializable)) {
             diagnostics.Add(
                 Rules.CreateDiagnostic(
                     memberSymbol,
