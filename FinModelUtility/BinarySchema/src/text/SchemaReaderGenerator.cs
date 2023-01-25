@@ -1,4 +1,7 @@
 ﻿using System;
+using System.IO;
+using System.Text;
+
 using Microsoft.CodeAnalysis;
 using schema.util;
 
@@ -13,7 +16,8 @@ namespace schema.text {
       var declaringTypes =
           SymbolTypeUtil.GetDeclaringTypesDownward(typeSymbol);
 
-      var cbsb = new CurlyBracketStringBuilder();
+      var sb = new StringBuilder();
+      var cbsb = new CurlyBracketTextWriter(new StringWriter(sb));
       cbsb.WriteLine("using System;")
           .WriteLine("using System.IO;");
 
@@ -55,12 +59,12 @@ namespace schema.text {
       // namespace
       cbsb.ExitBlock();
 
-      var generatedCode = cbsb.ToString();
+      var generatedCode = sb.ToString();
       return generatedCode;
     }
 
     private static void ReadMember_(
-        ICurlyBracketStringBuilder cbsb,
+        ICurlyBracketTextWriter cbsb,
         ITypeSymbol sourceSymbol,
         ISchemaMember member) {
       if (member.IsPosition) {
@@ -164,7 +168,7 @@ namespace schema.text {
     }
 
     private static void Align_(
-        ICurlyBracketStringBuilder cbsb,
+        ICurlyBracketTextWriter cbsb,
         ISchemaMember member) {
       var align = member.Align;
       if (align != 0) {
@@ -173,7 +177,7 @@ namespace schema.text {
     }
 
     private static void HandleMemberEndianness_(
-        ICurlyBracketStringBuilder cbsb,
+        ICurlyBracketTextWriter cbsb,
         ISchemaMember member,
         Action handler) {
       var hasEndianness = member.Endianness != null;
@@ -192,7 +196,7 @@ namespace schema.text {
     }
 
     private static void ReadPrimitive_(
-        ICurlyBracketStringBuilder cbsb,
+        ICurlyBracketTextWriter cbsb,
         ITypeSymbol sourceSymbol,
         ISchemaMember member) {
       var primitiveType =
@@ -242,7 +246,7 @@ namespace schema.text {
     }
 
     private static void ReadBoolean_(
-        ICurlyBracketStringBuilder cbsb,
+        ICurlyBracketTextWriter cbsb,
         ISchemaMember member) {
       HandleMemberEndianness_(cbsb, member, () => {
         var primitiveType =
@@ -263,7 +267,7 @@ namespace schema.text {
     }
 
     private static void ReadString_(
-        ICurlyBracketStringBuilder cbsb,
+        ICurlyBracketTextWriter cbsb,
         ISchemaMember member) {
       HandleMemberEndianness_(cbsb, member, () => {
         var stringType = Asserts.CastNonnull(member.MemberType as IStringType);
@@ -307,7 +311,7 @@ namespace schema.text {
     }
 
     private static void ReadStructure_(
-        ICurlyBracketStringBuilder cbsb,
+        ICurlyBracketTextWriter cbsb,
         IStructureMemberType structureMemberType,
         ISchemaMember member) {
       // TODO: Do value types need to be handled differently?
@@ -321,7 +325,7 @@ namespace schema.text {
     }
 
     private static void ReadGeneric_(
-        ICurlyBracketStringBuilder cbsb,
+        ICurlyBracketTextWriter cbsb,
         ISchemaMember member) {
       // TODO: Handle generic types beyond just IBiSerializable
 
@@ -339,7 +343,7 @@ namespace schema.text {
     }
 
     private static void ReadArray_(
-        ICurlyBracketStringBuilder cbsb,
+        ICurlyBracketTextWriter cbsb,
         ITypeSymbol sourceSymbol,
         ISchemaMember member) {
       var arrayType =
@@ -416,7 +420,7 @@ namespace schema.text {
     }
 
     private static void ReadIntoArray_(
-        ICurlyBracketStringBuilder cbsb,
+        ICurlyBracketTextWriter cbsb,
         ITypeSymbol sourceSymbol,
         ISchemaMember member) {
       HandleMemberEndianness_(cbsb, member, () => {

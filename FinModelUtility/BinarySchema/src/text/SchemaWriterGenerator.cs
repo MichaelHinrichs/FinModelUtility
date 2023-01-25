@@ -1,4 +1,7 @@
 ﻿using System;
+using System.IO;
+using System.Text;
+
 using Microsoft.CodeAnalysis;
 using schema.util;
 
@@ -13,7 +16,8 @@ namespace schema.text {
       var declaringTypes =
           SymbolTypeUtil.GetDeclaringTypesDownward(typeSymbol);
 
-      var cbsb = new CurlyBracketStringBuilder();
+      var sb = new StringBuilder();
+      var cbsb = new CurlyBracketTextWriter(new StringWriter(sb));
       cbsb.WriteLine("using System;")
           .WriteLine("using System.IO;");
 
@@ -55,12 +59,12 @@ namespace schema.text {
       // namespace
       cbsb.ExitBlock();
 
-      var generatedCode = cbsb.ToString();
+      var generatedCode = sb.ToString();
       return generatedCode;
     }
 
     private static void WriteMember_(
-        ICurlyBracketStringBuilder cbsb,
+        ICurlyBracketTextWriter cbsb,
         ITypeSymbol sourceSymbol,
         ISchemaMember member) {
       if (member.IsIgnored) {
@@ -130,7 +134,7 @@ namespace schema.text {
     }
 
     private static void Align_(
-        ICurlyBracketStringBuilder cbsb,
+        ICurlyBracketTextWriter cbsb,
         ISchemaMember member) {
       var align = member.Align;
       if (align != 0) {
@@ -139,7 +143,7 @@ namespace schema.text {
     }
 
     private static void HandleMemberEndiannessAndTracking_(
-        ICurlyBracketStringBuilder cbsb,
+        ICurlyBracketTextWriter cbsb,
         ISchemaMember member,
         Action handler) {
       SchemaWriterGenerator.Align_(cbsb, member);
@@ -167,7 +171,7 @@ namespace schema.text {
     }
 
     private static void WritePrimitive_(
-        ICurlyBracketStringBuilder cbsb,
+        ICurlyBracketTextWriter cbsb,
         ISchemaMember member) {
       var primitiveType =
           Asserts.CastNonnull(member.MemberType as IPrimitiveMemberType);
@@ -240,7 +244,7 @@ namespace schema.text {
     }
 
     private static void WriteBoolean_(
-        ICurlyBracketStringBuilder cbsb,
+        ICurlyBracketTextWriter cbsb,
         ISchemaMember member) {
       HandleMemberEndiannessAndTracking_(cbsb, member, () => {
         var primitiveType =
@@ -263,7 +267,7 @@ namespace schema.text {
     }
 
     private static void WriteString_(
-        ICurlyBracketStringBuilder cbsb,
+        ICurlyBracketTextWriter cbsb,
         ISchemaMember member) {
       HandleMemberEndiannessAndTracking_(cbsb, member, () => {
         var stringType = Asserts.CastNonnull(member.MemberType as IStringType);
@@ -288,7 +292,7 @@ namespace schema.text {
     }
 
     private static void WriteStructure_(
-        ICurlyBracketStringBuilder cbsb,
+        ICurlyBracketTextWriter cbsb,
         ISchemaMember member) {
       HandleMemberEndiannessAndTracking_(cbsb, member, () => {
         // TODO: Do value types need to be handled differently?
@@ -297,7 +301,7 @@ namespace schema.text {
     }
 
     private static void WriteArray_(
-        ICurlyBracketStringBuilder cbsb,
+        ICurlyBracketTextWriter cbsb,
         ITypeSymbol sourceSymbol,
         ISchemaMember member) {
       var arrayType =
@@ -329,7 +333,7 @@ namespace schema.text {
     }
 
     private static void WriteIntoArray_(
-        ICurlyBracketStringBuilder cbsb,
+        ICurlyBracketTextWriter cbsb,
         ITypeSymbol sourceSymbol,
         ISchemaMember member) {
       HandleMemberEndiannessAndTracking_(cbsb, member, () => {
