@@ -93,7 +93,9 @@ namespace fin.data {
       var values = dict.ToArray();
       Asserts.Equal(
           new[] {
-              (index1, "string1"), (index3, "string3"), (index5, "string5")
+              "string1",
+              "string3",
+              "string5",
           },
           values);
     }
@@ -113,13 +115,13 @@ namespace fin.data {
       var enumerator = ((IEnumerable) dict).GetEnumerator();
 
       Assert.AreEqual(true, enumerator.MoveNext());
-      Assert.AreEqual((index1, "string1"), enumerator.Current);
+      Assert.AreEqual("string1", enumerator.Current);
 
       Assert.AreEqual(true, enumerator.MoveNext());
-      Assert.AreEqual((index3, "string3"), enumerator.Current);
+      Assert.AreEqual("string3", enumerator.Current);
 
       Assert.AreEqual(true, enumerator.MoveNext());
-      Assert.AreEqual((index5, "string5"), enumerator.Current);
+      Assert.AreEqual("string5", enumerator.Current);
 
       Assert.AreEqual(false, enumerator.MoveNext());
     }
