@@ -49,8 +49,6 @@ namespace fin.gl {
       {
         this.LoadImageIntoTexture_(texture.Image);
 
-        // Gl.glGenerateMipmap(target);
-
         var finBorderColor = texture.BorderColor;
         var hasBorderColor = finBorderColor != null;
         GL.TexParameter(target,
@@ -74,8 +72,9 @@ namespace fin.gl {
             glBorderColor);
         }
 
+        GL.GenerateTextureMipmap(this.id_);
         GL.TexParameter(target, TextureParameterName.TextureMinFilter,
-          (int)TextureMinFilter.Nearest);
+                        (int)TextureMinFilter.LinearMipmapLinear);
         GL.TexParameter(target, TextureParameterName.TextureMagFilter,
           (int)TextureMagFilter.Linear);
       }
