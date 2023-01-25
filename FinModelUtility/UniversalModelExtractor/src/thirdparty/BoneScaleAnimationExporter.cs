@@ -4,13 +4,13 @@ using fin.model;
 
 namespace uni.thirdparty {
   public class BoneScaleAnimationExporter {
-    public void Export(IFile file, IModel model) {
+    public void Export(IFile luaFile, IModel model) {
       var animations = model.AnimationManager.Animations;
       if (animations.Count == 0) {
         return;
       }
 
-      using var fw = file.OpenWriteAsText();
+      using var fw = luaFile.OpenWriteAsText();
 
       fw.WriteLine("local defScale = Vector(1,1,1)");
       fw.WriteLine("ScalerKeysTable = { // Animation name => Bone names => frame scale keys. The keys are in frame order so 1,2,3,4 etc");

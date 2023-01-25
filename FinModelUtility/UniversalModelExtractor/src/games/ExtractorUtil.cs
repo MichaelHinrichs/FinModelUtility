@@ -109,7 +109,7 @@ namespace uni.games {
         if (Config.Instance.ThirdParty.ExportBoneScaleAnimationsSeparately) {
           new BoneScaleAnimationExporter().Export(
               new FinFile(Path.Join(outputDirectory.FullName,
-                                    mainFile.NameWithoutExtension + "_bone_scale_animations.txt")),
+                                    mainFile.NameWithoutExtension + "_bone_scale_animations.lua")),
               model);
         }
       } catch (Exception e) {
