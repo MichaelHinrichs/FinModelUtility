@@ -169,10 +169,10 @@ namespace Dxt {
       var offset = 0;
       for (var y = 0; y < height; ++y) {
         for (var x = 0; x < width; ++x) {
-          var r = ReadHalf(er);
-          var g = ReadHalf(er);
-          var b = ReadHalf(er);
-          var a = ReadHalf(er);
+          var r = er.ReadHalf();
+          var g = er.ReadHalf();
+          var b = er.ReadHalf();
+          var a = er.ReadHalf();
 
           // TODO: This may be right, it sounds like this is what folks suggest online?
           r /= a;
@@ -293,11 +293,6 @@ namespace Dxt {
 
       return bitmap;
     }
-
-
-// TODO: Move this directly into EndianBinaryReader
-    private static float ReadHalf(IEndianBinaryReader er)
-      => (float) BitConverter.UInt16BitsToHalf(er.ReadUInt16());
 
     private static float GammaToLinear(float gamma)
       => MathF.Pow(gamma, 1 / 2.2f);
@@ -489,7 +484,6 @@ namespace Dxt {
       var monoTable = new byte[8];
       var rIndices = new byte[16];
 
-      // TODO: Support grayscale?
       var bitmap = new I8Image(width, height);
       bitmap.Mutate((_, setHandler) => {
         for (var i = 0; i < imageSize; i += 8) {
