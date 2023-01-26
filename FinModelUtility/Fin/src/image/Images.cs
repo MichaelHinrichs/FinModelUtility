@@ -353,6 +353,8 @@ namespace fin.image {
     public bool HasAlphaChannel => false;
     public Bitmap AsBitmap() => FinImage.ConvertToBitmap(this);
 
+    public void GetRgb24Bytes(Span<byte> bytes) => this.impl_.CopyPixelDataTo(bytes);
+
     public void ExportToStream(Stream stream, LocalImageFormat imageFormat)
       => this.impl_.Save(
           stream,
@@ -438,6 +440,8 @@ namespace fin.image {
     public bool HasAlphaChannel => true;
     public Bitmap AsBitmap() => FinImage.ConvertToBitmap(this);
 
+    public void GetIa16Bytes(Span<byte> bytes) => this.impl_.CopyPixelDataTo(bytes);
+
     public void ExportToStream(Stream stream, LocalImageFormat imageFormat)
       => this.impl_.Save(
           stream,
@@ -517,6 +521,8 @@ namespace fin.image {
 
     public bool HasAlphaChannel => false;
     public Bitmap AsBitmap() => FinImage.ConvertToBitmap(this);
+
+    public void GetI8Bytes(Span<byte> bytes) => this.impl_.CopyPixelDataTo(bytes);
 
     public void ExportToStream(Stream stream, LocalImageFormat imageFormat)
       => this.impl_.Save(

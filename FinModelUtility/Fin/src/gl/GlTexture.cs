@@ -114,32 +114,66 @@ namespace fin.gl {
       var imageWidth = image.Width;
       var imageHeight = image.Height;
 
-      byte[] rgba = pool_.Rent(4 * imageWidth * imageHeight);
-      if (image is Rgba32Image rgba32Image) {
-        rgba32Image.GetRgba32Bytes(rgba);
-      } else {
-        image.Access(getHandler => {
-          for (var y = 0; y < imageHeight; y++) {
-            for (var x = 0; x < imageWidth; x++) {
-              getHandler(x, y, out var r, out var g, out var b, out var a);
+      PixelInternalFormat pixelInternalFormat;
+      PixelFormat pixelFormat;
 
-              var outI = 4 * (y * imageWidth + x);
-              rgba[outI] = r;
-              rgba[outI + 1] = g;
-              rgba[outI + 2] = b;
-              rgba[outI + 3] = a;
-            }
+      byte[] rgba;
+      switch (image) {
+        case Rgba32Image rgba32Image: {
+            rgba = pool_.Rent(4 * imageWidth * imageHeight);
+            pixelInternalFormat = PixelInternalFormat.Rgba;
+            pixelFormat = PixelFormat.Rgba;
+            rgba32Image.GetRgba32Bytes(rgba);
+            break;
           }
-        });
+        case Rgb24Image rgb24Image: {
+            rgba = pool_.Rent(3 * imageWidth * imageHeight);
+            pixelInternalFormat = PixelInternalFormat.Rgba;
+            pixelFormat = PixelFormat.Rgba;
+            rgb24Image.GetRgb24Bytes(rgba);
+            break;
+          }
+        case Ia16Image ia16Image: {
+            rgba = pool_.Rent(2 * imageWidth * imageHeight);
+            pixelInternalFormat = PixelInternalFormat.LuminanceAlpha;
+            pixelFormat = PixelFormat.LuminanceAlpha;
+            ia16Image.GetIa16Bytes(rgba);
+            break;
+          }
+        case I8Image i8Image: {
+            rgba = pool_.Rent(imageWidth * imageHeight);
+            pixelInternalFormat = PixelInternalFormat.Luminance;
+            pixelFormat = PixelFormat.Luminance;
+            i8Image.GetI8Bytes(rgba);
+            break;
+          }
+        default: {
+            rgba = pool_.Rent(4 * imageWidth * imageHeight);
+            pixelInternalFormat = PixelInternalFormat.Rgba;
+            pixelFormat = PixelFormat.Rgba;
+            image.Access(getHandler => {
+              for (var y = 0; y < imageHeight; y++) {
+                for (var x = 0; x < imageWidth; x++) {
+                  getHandler(x, y, out var r, out var g, out var b, out var a);
+
+                  var outI = 4 * (y * imageWidth + x);
+                  rgba[outI] = r;
+                  rgba[outI + 1] = g;
+                  rgba[outI + 2] = b;
+                  rgba[outI + 3] = a;
+                }
+              }
+            });
+            break;
+          }
       }
 
-      // TODO: Use different formats
       GL.TexImage2D(TextureTarget.Texture2D,
                     0,
-                    PixelInternalFormat.Rgba,
+                    pixelInternalFormat,
                     imageWidth, imageHeight,
                     0,
-                    PixelFormat.Rgba,
+                    pixelFormat,
                     PixelType.UnsignedByte,
                     rgba);
 
