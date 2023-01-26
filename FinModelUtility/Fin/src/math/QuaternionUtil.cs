@@ -15,9 +15,9 @@ namespace fin.math {
         float xRadians,
         float yRadians,
         float zRadians) {
-      var qz = Quaternion.CreateFromYawPitchRoll(0, 0, zRadians);
-      var qy = Quaternion.CreateFromYawPitchRoll(yRadians, 0, 0);
-      var qx = Quaternion.CreateFromYawPitchRoll(0, xRadians, 0);
+      var qz = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, zRadians);
+      var qy = Quaternion.CreateFromAxisAngle(Vector3.UnitY, yRadians);
+      var qx = Quaternion.CreateFromAxisAngle(Vector3.UnitX, xRadians);
 
       return Quaternion.Normalize(qz * qy * qx);
     }
