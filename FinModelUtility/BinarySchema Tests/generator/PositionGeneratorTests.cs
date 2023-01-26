@@ -25,7 +25,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class PositionWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.Position = er.Position;
       this.Value = er.ReadByte();
       er.AssertPosition(this.ExpectedPosition);

@@ -28,7 +28,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class BlockWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.Size = er.ReadInt64();
       this.Block = new MemoryBlock(MemoryBlockType.DATA, this.Size);
       this.Offset = er.ReadInt64();

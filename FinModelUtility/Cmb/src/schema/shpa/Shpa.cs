@@ -12,7 +12,7 @@ namespace cmb.schema.shpa {
     public Norm Norm { get; } = new();
     public Idxs Idxs { get; } = new();
 
-    public void Read(EndianBinaryReader r) {
+    public void Read(IEndianBinaryReader r) {
       r.AssertMagicText("shpa");
 
       var headerLength = r.ReadUInt32();
@@ -38,7 +38,7 @@ namespace cmb.schema.shpa {
   public class Posi : IDeserializable {
     public IPosition[] Values { get; private set; }
 
-    public void Read(EndianBinaryReader r) {
+    public void Read(IEndianBinaryReader r) {
       r.AssertMagicText("posi");
 
       var count = (r.ReadInt32() - 8) / 4 / 3;
@@ -56,7 +56,7 @@ namespace cmb.schema.shpa {
   public class Norm : IDeserializable {
     public INormal[] Values { get; private set; }
 
-    public void Read(EndianBinaryReader r) {
+    public void Read(IEndianBinaryReader r) {
       r.AssertMagicText("norm");
 
       var count = (r.ReadInt32() - 8) / 2 / 3;

@@ -42,7 +42,7 @@ namespace cmb.schema.csab {
 
     public bool AreRotationsShort { get; set; }
 
-    public void Read(EndianBinaryReader r) {
+    public void Read(IEndianBinaryReader r) {
       bool isConstant = false;
       if (this.parent_.Version > 4) {
         isConstant = r.ReadByte() != 0;
@@ -175,7 +175,7 @@ namespace cmb.schema.csab {
     public CsabTrack RotationY { get; }
     public CsabTrack RotationZ { get; }
 
-    public void Read(EndianBinaryReader r) {
+    public void Read(IEndianBinaryReader r) {
       var basePosition = r.Position;
 
       r.AssertMagicText("anod");
@@ -251,7 +251,7 @@ namespace cmb.schema.csab {
     public Dictionary<int, AnimationNode>
         BoneIndexToAnimationNode { get; set; } = new();
 
-    public void Read(EndianBinaryReader r) {
+    public void Read(IEndianBinaryReader r) {
       var basePosition = r.Position;
 
       r.AssertMagicText("csab");

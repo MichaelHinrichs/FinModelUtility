@@ -8,7 +8,7 @@ namespace level5.schema {
   public class Xc : IDeserializable {
     public ListDictionary<string, XcFile> FilesByExtension { get; } = new();
 
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       er.AssertString("XPCK");
 
       var fileCount = er.ReadUInt16() & 0xfff;

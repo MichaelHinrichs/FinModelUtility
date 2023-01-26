@@ -160,7 +160,7 @@ namespace Dxt {
     }
 
     public static unsafe IList<float> DecompressA16B16G16R16F(
-        EndianBinaryReader er,
+        IEndianBinaryReader er,
         int width,
         int height) {
       // Reads in the original HDR image. This IS NOT normalized to [0, 1].
@@ -296,7 +296,7 @@ namespace Dxt {
 
 
 // TODO: Move this directly into EndianBinaryReader
-    private static float ReadHalf(EndianBinaryReader er)
+    private static float ReadHalf(IEndianBinaryReader er)
       => (float) BitConverter.UInt16BitsToHalf(er.ReadUInt16());
 
     private static float GammaToLinear(float gamma)

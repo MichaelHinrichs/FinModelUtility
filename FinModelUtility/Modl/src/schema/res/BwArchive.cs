@@ -12,7 +12,7 @@ namespace modl.schema.res {
 
     public ListDictionary<string, BwFile> Files { get; } = new();
 
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.Texr.Read(er);
       this.Sond.Read(er);
 
@@ -38,7 +38,7 @@ namespace modl.schema.res {
     public string FileName { get; private set; }
     public byte[] Data { get; private set; }
 
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       SectionHeaderUtil.ReadNameAndSize(
           er,
           out var sectionName,

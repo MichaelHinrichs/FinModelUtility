@@ -19,7 +19,7 @@ namespace modl.schema.anim.bw2 {
     public float ZPosMin { get; set; }
     private readonly uint padding1_ = 0;
 
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.Name = er.ReadString(16);
 
       this.PositionKeyframeCount = er.ReadUInt32();

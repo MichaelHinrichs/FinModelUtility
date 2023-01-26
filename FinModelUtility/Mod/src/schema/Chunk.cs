@@ -83,7 +83,7 @@ namespace mod.schema {
     public List<ChunkData> Chunks { get; } = new();
     public List<byte> EofBytes { get; } = new();
 
-    public void Read(EndianBinaryReader reader) {
+    public void Read(IEndianBinaryReader reader) {
       var opcodes = new HashSet<uint>();
 
       while (!opcodes.Contains(0xFFFF)) {

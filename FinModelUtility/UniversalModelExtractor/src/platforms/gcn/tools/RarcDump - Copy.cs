@@ -112,7 +112,7 @@ namespace uni.platforms.gcn.tools {
       return true;
     }
 
-    private RarcNode GetNode_(EndianBinaryReader er, RarcHeader h, int i) {
+    private RarcNode GetNode_(IEndianBinaryReader er, RarcHeader h, int i) {
       var node = new RarcNode();
 
       node.type = er.ReadString(Encoding.UTF8, 4);
@@ -142,7 +142,7 @@ namespace uni.platforms.gcn.tools {
       return node;
     }
 
-    private void DumpNode_(EndianBinaryReader er, RarcNode node, RarcHeader h) {
+    private void DumpNode_(IEndianBinaryReader er, RarcNode node, RarcHeader h) {
       /*
 string nodeName = getString(0x20 + n.filenameOffset + h.stringTableOffset, f);
         _mkdir(nodeName.c_str());
@@ -179,7 +179,7 @@ string nodeName = getString(0x20 + n.filenameOffset + h.stringTableOffset, f);
     }
 
     private FileEntry GetFileEntry_(
-        EndianBinaryReader er,
+        IEndianBinaryReader er,
         RarcHeader header,
         RarcNode node,
         int i) {

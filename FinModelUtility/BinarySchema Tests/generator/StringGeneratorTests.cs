@@ -18,7 +18,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class StringWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       er.AssertString(this.Field);
     }
   }
@@ -52,7 +52,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class StringWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.Field = er.ReadString(3);
     }
   }

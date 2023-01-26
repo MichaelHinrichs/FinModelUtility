@@ -6,7 +6,7 @@ namespace schema {
   }
 
   public interface IDeserializable {
-    void Read(EndianBinaryReader er);
+    void Read(IEndianBinaryReader er);
   }
 
   public interface IBiSerializable : ISerializable, IDeserializable {}

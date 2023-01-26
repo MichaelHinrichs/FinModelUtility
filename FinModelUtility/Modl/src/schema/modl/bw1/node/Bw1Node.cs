@@ -34,7 +34,7 @@ namespace modl.schema.modl.bw1.node {
 
     public string GetIdentifier() => Bw1Node.GetIdentifier(this.WeirdId);
 
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       SectionHeaderUtil.AssertNameAndReadSize(er, "NODE", out var nodeSize);
       var nodeStart = er.Position;
       var expectedNodeEnd = nodeStart + nodeSize;
@@ -180,7 +180,7 @@ namespace modl.schema.modl.bw1.node {
 
     public Matrix4x4f[] RnodMatrices { get; set; }
 
-    private void ReadRnod_(EndianBinaryReader er) {
+    private void ReadRnod_(IEndianBinaryReader er) {
       var size = er.ReadUInt32();
       this.RnodMatrices = new Matrix4x4f[size];
 
@@ -192,7 +192,7 @@ namespace modl.schema.modl.bw1.node {
 
     public VertexUv[][] UvMaps { get; } = new VertexUv[4][];
 
-    private void ReadUvMap_(EndianBinaryReader er,
+    private void ReadUvMap_(IEndianBinaryReader er,
                             int uvMapIndex,
                             uint uvCount) {
       var scale = MathF.Pow(2, 11);
@@ -208,7 +208,7 @@ namespace modl.schema.modl.bw1.node {
 
     public List<VertexPosition> Positions { get; } = new();
 
-    private void ReadPositions_(EndianBinaryReader er, uint vertexCount) {
+    private void ReadPositions_(IEndianBinaryReader er, uint vertexCount) {
       for (var i = 0; i < vertexCount; ++i) {
         this.Positions.Add(er.ReadNew<VertexPosition>());
       }
@@ -217,7 +217,7 @@ namespace modl.schema.modl.bw1.node {
 
     public List<VertexNormal> Normals { get; } = new();
 
-    private void ReadNormals_(EndianBinaryReader er, uint vertexCount) {
+    private void ReadNormals_(IEndianBinaryReader er, uint vertexCount) {
       for (var i = 0; i < vertexCount; ++i) {
         this.Normals.Add(er.ReadNew<VertexNormal>());
       }
@@ -225,7 +225,7 @@ namespace modl.schema.modl.bw1.node {
 
     public List<BwMesh> Meshes { get; } = new();
 
-    private void ReadOpcodes_(EndianBinaryReader er,
+    private void ReadOpcodes_(IEndianBinaryReader er,
                               uint sectionSize,
                               ref uint vertexDescriptorValue) {
       var start = er.Position;

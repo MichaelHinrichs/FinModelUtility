@@ -18,7 +18,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class GenericWrapper<T> {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.Data.Read(er);
     }
   }
@@ -51,7 +51,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class GenericWrapper<T> {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       foreach (var e in this.Data) {
         e.Read(er);
       }

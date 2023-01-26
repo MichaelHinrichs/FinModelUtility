@@ -21,7 +21,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class Wrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.Field = (A) er.ReadByte();
     }
   }
@@ -59,7 +59,7 @@ namespace foo {
 using System.IO;
 namespace foo.bar {
   public partial class Wrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.Field = (A) er.ReadByte();
     }
   }
@@ -97,7 +97,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class Wrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.Field = (goo.A) er.ReadByte();
     }
   }
@@ -137,7 +137,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar.gar {
   public partial class Wrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.Field = (goo.A) er.ReadByte();
     }
   }

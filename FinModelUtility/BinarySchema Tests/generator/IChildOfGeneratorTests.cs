@@ -25,7 +25,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ChildOfWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.Field = er.ReadByte();
     }
   }
@@ -65,7 +65,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class Parent {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.Child.Parent = this;
       this.Child.Read(er);
     }
@@ -107,7 +107,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ChildOfWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
     }
   }
 }
@@ -146,7 +146,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class Parent {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.Length = er.ReadUInt32();
       if (this.Length < 0) {
         throw new Exception(""Expected length to be nonnegative!"");

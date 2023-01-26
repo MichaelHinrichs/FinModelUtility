@@ -33,7 +33,7 @@ namespace mod.schema.collision {
     public readonly List<BaseRoomInfo> roominfo = new();
     public readonly List<BaseCollTriInfo> collinfo = new();
 
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       var numColInfos = er.ReadUInt32();
       var numRoomInfos = er.ReadUInt32();
 
@@ -118,7 +118,7 @@ namespace mod.schema.collision {
     [Align(0x20)]
     private readonly byte[] empty_ = new byte[0];
 
-    public void Read(EndianBinaryReader reader) {
+    public void Read(IEndianBinaryReader reader) {
       reader.Align(0x20);
       this.boundsMin.Read(reader);
       this.boundsMax.Read(reader);

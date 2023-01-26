@@ -104,7 +104,7 @@ namespace level5.schema {
       }
     }
 
-    private void ReadFrameData_(EndianBinaryReader d,
+    private void ReadFrameData_(IEndianBinaryReader d,
                                 int offset,
                                 int count,
                                 uint dataOffset,

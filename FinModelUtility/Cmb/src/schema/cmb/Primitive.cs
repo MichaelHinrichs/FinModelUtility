@@ -15,7 +15,7 @@ namespace cmb.schema.cmb {
     public uint[] indices;
     public ushort offset;
 
-    public void Read(EndianBinaryReader r) {
+    public void Read(IEndianBinaryReader r) {
       r.AssertMagicText("prm" + AsciiUtil.GetChar(0x20));
 
       this.chunkSize = r.ReadUInt32();

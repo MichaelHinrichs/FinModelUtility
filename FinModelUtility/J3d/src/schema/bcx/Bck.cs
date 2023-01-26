@@ -26,7 +26,7 @@ namespace j3d.schema.bcx {
     public ANK1Section ANK1;
 
     public Bck(byte[] file) {
-      using EndianBinaryReader er =
+      using IEndianBinaryReader er =
           new EndianBinaryReader((Stream)new MemoryStream(file),
                                  Endianness.BigEndian);
       this.Header = er.ReadNew<BckHeader>();
@@ -66,7 +66,7 @@ namespace j3d.schema.bcx {
       public short[] Rotation;
       public float[] Translation;
 
-      public ANK1Section(EndianBinaryReader er, out bool OK) {
+      public ANK1Section(IEndianBinaryReader er, out bool OK) {
         bool OK1;
         this.Header = new DataBlockHeader(er, "ANK1", out OK1);
         if (!OK1) {
@@ -114,7 +114,7 @@ namespace j3d.schema.bcx {
       public partial class AnimatedJoint : IAnimatedJoint {
         public AnimComponent[] axes;
 
-        public AnimatedJoint(EndianBinaryReader er) {
+        public AnimatedJoint(IEndianBinaryReader er) {
           this.axes = new AnimComponent[3];
           for (var i = 0; i < axes.Length; ++i) {
             this.axes[i] = er.ReadNew<AnimComponent>();

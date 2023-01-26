@@ -2,7 +2,7 @@ using NUnit.Framework;
 
 
 namespace System.IO {
-  public class EndianBinaryReaderTests {
+  public class IEndianBinaryReaderTests {
     [Test]
     public void TestReadInt24() {
       using var zeroStream = new MemoryStream(new byte[] {0x00, 0x00, 0x00});

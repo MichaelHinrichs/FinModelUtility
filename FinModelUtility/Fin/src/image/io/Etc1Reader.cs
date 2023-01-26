@@ -86,7 +86,7 @@ namespace fin.image.io {
     }
 
     private static void DecodeETC1Tile_(
-        EndianBinaryReader reader,
+        IEndianBinaryReader reader,
         byte[] pixelData,
         int x,
         int y,

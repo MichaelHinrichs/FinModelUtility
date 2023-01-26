@@ -28,7 +28,7 @@ namespace schema.testing {
       await ReadsAndWritesIdentically<T>(er);
     }
 
-    public static async Task ReadsAndWritesIdentically<T>(EndianBinaryReader er)
+    public static async Task ReadsAndWritesIdentically<T>(IEndianBinaryReader er)
         where T : IBiSerializable, new() {
       var readerStartPos = er.Position;
       var instance = er.ReadNew<T>();

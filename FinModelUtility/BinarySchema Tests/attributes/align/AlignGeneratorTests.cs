@@ -19,7 +19,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class AlignWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       er.Align(2);
       this.Field = er.ReadByte();
     }
@@ -57,7 +57,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class AlignWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       {
         var c = er.ReadUInt32();
         if (c < 0) {

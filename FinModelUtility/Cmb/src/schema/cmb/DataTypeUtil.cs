@@ -5,7 +5,7 @@ namespace cmb.schema.cmb {
   public static class DataTypeUtil {
     // TODO: Is there a better way to read arbitrary data types?
     public static float Read(
-        EndianBinaryReader r,
+        IEndianBinaryReader r,
         DataType dataType)
       => dataType switch {
           DataType.Byte   => r.ReadSByte(),
@@ -22,7 +22,7 @@ namespace cmb.schema.cmb {
       };
 
     public static float[] Read(
-        EndianBinaryReader r,
+        IEndianBinaryReader r,
         int count,
         DataType dataType) {
       var values = new float[count];

@@ -6,7 +6,7 @@ using schema;
 
 namespace uni.platforms.threeDs.tools {
   public class LzssDecompressor {
-    public bool TryToDecompress(EndianBinaryReader er, out byte[]? data) {
+    public bool TryToDecompress(IEndianBinaryReader er, out byte[]? data) {
       if (er.TryReadNew(out LzssHeader? header)) {
         Asserts.Equal(er.Length, 0x10 + header!.CompressedSize);
         data = new byte[header.DecompressedSize];

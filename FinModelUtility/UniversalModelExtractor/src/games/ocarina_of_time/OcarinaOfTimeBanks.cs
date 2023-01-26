@@ -9,7 +9,7 @@ namespace uni.games.ocarina_of_time {
   public class OcarinaOfTimeBanks {
     private readonly IBankManager impl_;
 
-    public OcarinaOfTimeBanks(EndianBinaryReader er) {
+    public OcarinaOfTimeBanks(IEndianBinaryReader er) {
       
     }
 

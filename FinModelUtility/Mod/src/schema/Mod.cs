@@ -49,9 +49,9 @@ namespace mod.schema {
     public bool hasNormals = false;
 
     public Mod() {}
-    public Mod(EndianBinaryReader reader) => this.Read(reader);
+    public Mod(IEndianBinaryReader reader) => this.Read(reader);
 
-    public void Read(EndianBinaryReader reader) {
+    public void Read(IEndianBinaryReader reader) {
       this.hasNormals = false;
 
       for (var i = 0; i < 8; ++i) {
@@ -205,7 +205,7 @@ namespace mod.schema {
     }
 
     private static void ReadGenericChunk_<T>(
-        EndianBinaryReader reader,
+        IEndianBinaryReader reader,
         List<T> vector) where T : IDeserializable, new() {
       var num = reader.ReadUInt32();
       vector.Clear();
@@ -217,7 +217,7 @@ namespace mod.schema {
       reader.Align(0x20);
     }
 
-    private static T ReadGeneric_<T>(EndianBinaryReader reader)
+    private static T ReadGeneric_<T>(IEndianBinaryReader reader)
         where T : IDeserializable, new() {
       var instance = new T();
       instance.Read(reader);

@@ -27,7 +27,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ByteWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       {
         var b = er.ReadByte() != 0;
         if (b) {
@@ -89,7 +89,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ByteWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.Field = er.ReadByte() != 0;
       if (this.Field) {
         this.OtherValue = er.ReadInt32();
@@ -134,7 +134,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ByteWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.Field.Read(er);
       if (this.Field.Bool) {
         this.OtherValue = er.ReadInt32();

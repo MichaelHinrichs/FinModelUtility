@@ -83,7 +83,7 @@ namespace cmb.schema.cmb {
     public StencilTestOp zPassOP;
     public uint unk1; // CRC32 of something
 
-    public void Read(EndianBinaryReader r) {
+    public void Read(IEndianBinaryReader r) {
       this.isFragmentLightingEnabled = r.ReadByte() != 0;
       this.isVertexLightingEnabled = r.ReadByte() != 0;
       this.isHemiSphereLightingEnabled = r.ReadByte() != 0;

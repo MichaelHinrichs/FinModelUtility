@@ -7,7 +7,7 @@ namespace ast.schema {
 
     public IList<short>[] ChannelData { get; private set; }
 
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.StrmHeader.Read(er);
 
       switch (this.StrmHeader.Format) {

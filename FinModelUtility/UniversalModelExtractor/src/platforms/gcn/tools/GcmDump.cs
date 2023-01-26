@@ -91,7 +91,7 @@ namespace uni.platforms.gcn.tools {
       }
     }
 
-    private IList<FileEntry> ReadFileSystemTable_(EndianBinaryReader er,
+    private IList<FileEntry> ReadFileSystemTable_(IEndianBinaryReader er,
                                                   DiskHeader diskHeader) {
       var entries = new List<FileEntry>();
 

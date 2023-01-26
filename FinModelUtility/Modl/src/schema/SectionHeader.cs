@@ -4,7 +4,7 @@
 namespace modl.schema {
   public static class SectionHeaderUtil {
     public static void ReadName(
-        EndianBinaryReader er,
+        IEndianBinaryReader er,
         out string sectionName) {
       er.PushMemberEndianness(Endianness.LittleEndian);
       sectionName = er.ReadString(4).Reverse();
@@ -12,7 +12,7 @@ namespace modl.schema {
     }
 
     public static void AssertName(
-        EndianBinaryReader er,
+        IEndianBinaryReader er,
         string expectedSectionName) {
       er.PushMemberEndianness(Endianness.LittleEndian);
       er.AssertString(expectedSectionName.Reverse());
@@ -21,7 +21,7 @@ namespace modl.schema {
 
 
     public static void ReadSize(
-        EndianBinaryReader er,
+        IEndianBinaryReader er,
         out uint size) {
       er.PushMemberEndianness(Endianness.LittleEndian);
       size = er.ReadUInt32();
@@ -29,7 +29,7 @@ namespace modl.schema {
     }
 
     public static void AssertSize(
-        EndianBinaryReader er,
+        IEndianBinaryReader er,
         uint expectedSize) {
       er.PushMemberEndianness(Endianness.LittleEndian);
       er.AssertUInt32(expectedSize);
@@ -38,7 +38,7 @@ namespace modl.schema {
 
 
     public static void ReadNameAndSize(
-        EndianBinaryReader er,
+        IEndianBinaryReader er,
         out string sectionName,
         out uint size) {
       SectionHeaderUtil.ReadName(er, out sectionName);
@@ -46,7 +46,7 @@ namespace modl.schema {
     }
 
     public static void AssertNameAndReadSize(
-        EndianBinaryReader er,
+        IEndianBinaryReader er,
         string expectedSectionName,
         out uint size) {
       SectionHeaderUtil.AssertName(er, expectedSectionName);
@@ -54,7 +54,7 @@ namespace modl.schema {
     }
 
     public static void AssertNameAndSize(
-        EndianBinaryReader er,
+        IEndianBinaryReader er,
         string expectedSectionName,
         uint expectedSize) {
       SectionHeaderUtil.AssertName(er, expectedSectionName);

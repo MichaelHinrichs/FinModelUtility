@@ -47,6 +47,7 @@ namespace System.IO {
           streamEndianness != null
               ? (EndiannessSource.STREAM, streamEndianness.Value)
               : null);
+      this.UpdateReverse_();
     }
 
     public Endianness Endianness

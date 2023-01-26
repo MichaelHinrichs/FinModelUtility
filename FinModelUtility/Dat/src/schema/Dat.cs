@@ -31,7 +31,7 @@ namespace dat.schema {
 
     public List<JObj> RootJObjs { get; } = new();
 
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       Dat.vertexDescriptorValue_ = (uint) 0;
 
       var fileHeader = er.ReadNew<FileHeader>();
@@ -100,7 +100,7 @@ namespace dat.schema {
 
     private static uint vertexDescriptorValue_;
 
-    private void ReadJObs_(EndianBinaryReader er) {
+    private void ReadJObs_(IEndianBinaryReader er) {
       var jObjQueue =
           new Queue<(
               RootNode rootNode,
@@ -160,7 +160,7 @@ namespace dat.schema {
       }
     }
 
-    private void ReadDObjIntoJObj_(EndianBinaryReader er,
+    private void ReadDObjIntoJObj_(IEndianBinaryReader er,
                                    JObj jObj,
                                    uint objectStructOffset) {
       if (!this.AssertNullOrValidPointer_(objectStructOffset)) {
@@ -178,7 +178,7 @@ namespace dat.schema {
       this.ReadDObjIntoJObj_(er, jObj, dObj.Data.NextObjectOffset);
     }
 
-    private void ReadPObjIntoDObj_(EndianBinaryReader er,
+    private void ReadPObjIntoDObj_(IEndianBinaryReader er,
                                    DObj dObj,
                                    uint pObjDataOffset) {
       if (!this.AssertNullOrValidPointer_(pObjDataOffset)) {

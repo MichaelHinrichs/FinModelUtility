@@ -20,7 +20,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class NullableWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.Field1 = er.ReadByte() != 0;
       this.Field2 = er.ReadInt32();
     }

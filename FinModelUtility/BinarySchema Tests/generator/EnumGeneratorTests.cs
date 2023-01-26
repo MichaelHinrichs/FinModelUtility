@@ -26,7 +26,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class EnumWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.fieldA = (A) er.ReadByte();
       this.fieldB = (B) er.ReadInt32();
     }
@@ -69,7 +69,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class EnumWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       for (var i = 0; i < this.fieldA.Length; ++i) {
         this.fieldA[i] = (A) er.ReadByte();
       }

@@ -10,7 +10,7 @@ namespace granny3d {
     public IList<IGrannyBone> Bones { get; } = new List<IGrannyBone>();
     public int LodType { get; private set; }
 
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       GrannyUtils.SubreadRef(
           er, ser => { this.Name = ser.ReadStringNT(); });
 
@@ -29,7 +29,7 @@ namespace granny3d {
     public IFinMatrix4x4 InverseWorld4x4 { get; } = new FinMatrix4x4();
     public float LodError { get; private set; }
 
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       GrannyUtils.SubreadRef(
           er, ser => { this.Name = ser.ReadStringNT(); });
 

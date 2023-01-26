@@ -36,7 +36,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ConstLengthWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.Field = new System.Int32[3];
       er.ReadInt32s(this.Field);
       this.NullableField = new System.Int32[3];

@@ -11,7 +11,7 @@ namespace modl.schema.modl.bw1 {
     public List<IBwNode> Nodes { get; } = new();
     public ListDictionary<ushort, ushort> CnctParentToChildren { get; } = new();
 
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       {
         er.PushMemberEndianness(Endianness.LittleEndian);
         var filenameLength = er.ReadUInt32();
@@ -65,7 +65,7 @@ namespace modl.schema.modl.bw1 {
       Asserts.Equal(expectedEnd, er.Position);
     }
 
-    private void SkipSection_(EndianBinaryReader er, string sectionName) {
+    private void SkipSection_(IEndianBinaryReader er, string sectionName) {
       SectionHeaderUtil.AssertNameAndReadSize(er, sectionName, out var size);
       var data = er.ReadBytes((int) size);
     }

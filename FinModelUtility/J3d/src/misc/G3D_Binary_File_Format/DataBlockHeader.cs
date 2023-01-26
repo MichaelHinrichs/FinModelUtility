@@ -14,7 +14,7 @@ namespace j3d.G3D_Binary_File_Format
     public string kind;
     public uint size;
 
-    public DataBlockHeader(EndianBinaryReader er, string Signature, out bool OK)
+    public DataBlockHeader(IEndianBinaryReader er, string Signature, out bool OK)
     {
       this.kind = er.ReadString(Encoding.ASCII, 4);
       if (this.kind != Signature)

@@ -7,7 +7,7 @@ namespace ast.schema {
   ///     - https://github.com/vgmstream/vgmstream/blob/37cc12295c92ec6aa874118fb237bd3821970836/src/meta/ast.c
   /// </summary>
   public partial class Ast {
-    private void ReadAdpcm_(EndianBinaryReader er) {
+    private void ReadAdpcm_(IEndianBinaryReader er) {
       var channelCount = this.StrmHeader.ChannelCount;
       var sampleCount = this.StrmHeader.SampleCount;
 

@@ -56,7 +56,7 @@ namespace uni.platforms.threeDs.tools {
       public GarHeader Header { get; }
       public IGarFileType[] FileTypes { get; }
 
-      public Gar(EndianBinaryReader er) {
+      public Gar(IEndianBinaryReader er) {
         var isCompressed =
             new LzssDecompressor().TryToDecompress(er, out var decompressedGar);
         if (isCompressed) {
@@ -92,7 +92,7 @@ namespace uni.platforms.threeDs.tools {
       public int FileMetadataOffset { get; }
       public int DataOffset { get; }
 
-      public GarHeader(EndianBinaryReader er) {
+      public GarHeader(IEndianBinaryReader er) {
         er.AssertMagicText("GAR");
 
         this.Version = er.ReadByte();
@@ -128,7 +128,7 @@ namespace uni.platforms.threeDs.tools {
       public IGarSubfile[] Files { get; }
 
       public Gar2FileType(
-          EndianBinaryReader er,
+          IEndianBinaryReader er,
           GarHeader header,
           int fileTypeIndex) {
         er.Position = header.FileTypesOffset + 16 * fileTypeIndex;
@@ -154,7 +154,7 @@ namespace uni.platforms.threeDs.tools {
       public byte[] Bytes { get; }
 
       public Gar2Subfile(
-          EndianBinaryReader er,
+          IEndianBinaryReader er,
           GarHeader header,
           Gar2FileType fileType,
           int fileInFileTypeIndex) {
@@ -189,7 +189,7 @@ namespace uni.platforms.threeDs.tools {
       public IGarSubfile[] Files { get; }
 
       public Gar5FileType(
-          EndianBinaryReader er,
+          IEndianBinaryReader er,
           GarHeader header,
           int fileTypeIndex) {
         er.Position = header.FileTypesOffset + 8 * 4 * fileTypeIndex;
@@ -218,7 +218,7 @@ namespace uni.platforms.threeDs.tools {
       public byte[] Bytes { get; }
 
       public Gar5Subfile(
-          EndianBinaryReader er,
+          IEndianBinaryReader er,
           GarHeader header,
           Gar5FileType fileType,
           int fileInFileTypeIndex) {

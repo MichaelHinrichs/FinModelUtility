@@ -3,7 +3,9 @@
 using System.Text;
 
 namespace System.IO {
-  public interface IEndianBinaryReader : IEndiannessStack {
+  public interface IEndianBinaryReader : IEndiannessStack, IDisposable {
+    void Close();
+
     long Position { get; set; }
 
     void AssertPosition(long expectedPosition);

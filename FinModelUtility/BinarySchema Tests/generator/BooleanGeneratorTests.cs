@@ -21,7 +21,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ByteWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.Field = er.ReadByte() != 0;
       er.AssertByte(this.ReadonlyField ? 1 : 0);
     }

@@ -20,7 +20,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ByteWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       er.AssertByte(this.Field);
     }
   }
@@ -43,7 +43,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class SByteWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       er.AssertSByte(this.Field);
     }
   }
@@ -66,7 +66,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ShortWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       er.AssertInt16(this.Field);
     }
   }
@@ -89,7 +89,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ArrayWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       er.ReadInt32s(this.field);
     }
   }
@@ -115,7 +115,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ArrayWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.length = er.ReadInt32();
       if (this.length < 0) {
         throw new Exception(""Expected length to be nonnegative!"");
@@ -155,7 +155,7 @@ namespace foo.bar {
   static internal partial class Parent {
     protected partial class Middle {
       private partial class Wrapper {
-        public void Read(EndianBinaryReader er) {
+        public void Read(IEndianBinaryReader er) {
           this.length = er.ReadInt32();
           this.value = (Parent.Middle.ValueEnum) er.ReadInt32();
         }
@@ -181,7 +181,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class CharWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       er.ReadChars(this.Array);
     }
   }
@@ -204,7 +204,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ShortWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       er.AssertInt16(this.Field);
     }
   }
@@ -227,7 +227,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ByteWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.field = er.ReadByte();
     }
   }
@@ -250,7 +250,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ByteWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       er.AssertByte(this.field);
     }
   }
@@ -273,7 +273,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ByteWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       er.AssertByte(this.Field);
     }
   }
@@ -331,7 +331,7 @@ namespace foo {
 using System.IO;
 namespace foo.bar {
   public partial class EverythingWrapper {
-    public void Read(EndianBinaryReader er) {" +
+    public void Read(IEndianBinaryReader er) {" +
                             @"
       er.AssertString(this.magicText);" +
                             @"

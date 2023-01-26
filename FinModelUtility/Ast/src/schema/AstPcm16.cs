@@ -1,6 +1,6 @@
 ﻿namespace ast.schema {
   public partial class Ast {
-    private void ReadPcm16_(EndianBinaryReader er) {
+    private void ReadPcm16_(IEndianBinaryReader er) {
       var channelCount = this.StrmHeader.ChannelCount;
       var sampleCount = this.StrmHeader.SampleCount;
 

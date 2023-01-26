@@ -1,8 +1,8 @@
 ﻿namespace granny3d {
   public static class GrannyUtils {
     public static void SubreadRef(
-        EndianBinaryReader er,
-        Action<EndianBinaryReader> subread) {
+        IEndianBinaryReader er,
+        Action<IEndianBinaryReader> subread) {
       var offset = er.ReadUInt64();
       if (offset == 0) {
         return;
@@ -12,8 +12,8 @@
     }
 
     public static void SubreadRefToArray(
-        EndianBinaryReader er,
-        Action<EndianBinaryReader, uint> subread) {
+        IEndianBinaryReader er,
+        Action<IEndianBinaryReader, uint> subread) {
       var count = er.ReadUInt32();
       var offset = er.ReadUInt64();
       if (offset == 0) {

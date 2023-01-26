@@ -61,7 +61,7 @@ namespace j3d.schema.bmd.tex1 {
       this.baseOffset_ = baseoffset;
     }
 
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       var pos = er.Position;
 
       this.Format = (TextureFormat)er.ReadByte();

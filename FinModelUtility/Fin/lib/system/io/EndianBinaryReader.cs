@@ -9,7 +9,7 @@ using schema;
 
 
 namespace System.IO {
-  public sealed partial class EndianBinaryReader : IDisposable {
+  public sealed partial class EndianBinaryReader : IEndianBinaryReader {
     private bool disposed_;
 
     // TODO: This should be private.
@@ -46,7 +46,7 @@ namespace System.IO {
       this.Dispose(false);
     }
 
-    public void Close() => this.Dispose();
+    public void Close() => Dispose();
 
     public void Dispose() {
       this.Dispose(true);
@@ -114,7 +114,7 @@ namespace System.IO {
 
     public void Subread(long position,
                         int len,
-                        Action<EndianBinaryReader> subread) {
+                        Action<IEndianBinaryReader> subread) {
       var tempPos = this.Position;
       {
         this.Position = position;
@@ -127,7 +127,7 @@ namespace System.IO {
       this.Position = tempPos;
     }
 
-    public void Subread(long position, Action<EndianBinaryReader> subread) {
+    public void Subread(long position, Action<IEndianBinaryReader> subread) {
       var tempPos = this.Position;
       {
         this.Position = position;
@@ -136,82 +136,6 @@ namespace System.IO {
       this.Position = tempPos;
     }
 
-
-    /**
-     * Methods for reading individual values and lists of values are generated
-     * for each of the following types within the FinGenerated project.
-     */
-    private static byte ConvertByte_(byte[] buffer, int i) => buffer[i];
-
-    private static sbyte ConvertSByte_(byte[] buffer, int i)
-      => (sbyte)buffer[i];
-
-    private static short ConvertInt16_(byte[] buffer, int i)
-      => BitConverter.ToInt16(buffer, sizeof(short) * i);
-
-    private static ushort ConvertUInt16_(byte[] buffer, int i)
-      => BitConverter.ToUInt16(buffer, sizeof(ushort) * i);
-
-    private static int ConvertInt24_(byte[] buffer, int i) {
-      var value = (buffer[3 * i + 2] << 16) |
-                  (buffer[3 * i + 1] << 8) |
-                  buffer[3 * i];
-
-      const int bitMask = -16777216;
-
-      // Stolen from https://github.com/GridProtectionAlliance/gsf/blob/master/Source/Libraries/GSF.Core.Shared/Int24.cs
-      // Check bit 23, the sign bit in a signed 24-bit integer
-      if ((value & 0x00800000) > 0) {
-        // If the sign-bit is set, this number will be negative - set all high-byte bits (keeps 32-bit number in 24-bit range)
-        value |= bitMask;
-      } else {
-        // If the sign-bit is not set, this number will be positive - clear all high-byte bits (keeps 32-bit number in 24-bit range)
-        value &= ~bitMask;
-      }
-
-      return value;
-    }
-
-    private static uint ConvertUInt24_(byte[] buffer, int i)
-      => (uint)((buffer[3 * i + 2] << 16) |
-                (buffer[3 * i + 1] << 8) |
-                buffer[3 * i]);
-
-    private static int ConvertInt32_(byte[] buffer, int i)
-      => BitConverter.ToInt32(buffer, sizeof(int) * i);
-
-    private static uint ConvertUInt32_(byte[] buffer, int i)
-      => BitConverter.ToUInt32(buffer, sizeof(uint) * i);
-
-    private static long ConvertInt64_(byte[] buffer, int i)
-      => BitConverter.ToInt64(buffer, sizeof(long) * i);
-
-    private static ulong ConvertUInt64_(byte[] buffer, int i)
-      => BitConverter.ToUInt64(buffer, sizeof(ulong) * i);
-
-    private static float ConvertHalf_(byte[] buffer, int i) {
-      var bits = ConvertUInt16_(buffer, i);
-      var half = Half.ToHalf(bits);
-      return half;
-    }
-
-    private static float ConvertSingle_(byte[] buffer, int i)
-      => BitConverter.ToSingle(buffer, sizeof(float) * i);
-
-    private static double ConvertDouble_(byte[] buffer, int i)
-      => BitConverter.ToDouble(buffer, sizeof(double) * i);
-
-    private static float ConvertSn8_(byte[] buffer, int i)
-      => EndianBinaryReader.ConvertSByte_(buffer, i) / (255f / 2);
-
-    private static float ConvertUn8_(byte[] buffer, int i)
-      => EndianBinaryReader.ConvertByte_(buffer, i) / 255f;
-
-    private static float ConvertSn16_(byte[] buffer, int i)
-      => EndianBinaryReader.ConvertInt16_(buffer, i) / (65535f / 2);
-
-    private static float ConvertUn16_(byte[] buffer, int i)
-      => EndianBinaryReader.ConvertUInt16_(buffer, i) / 65535f;
 
     private static void Assert<T>(T expectedValue, T actualValue) {
       if (!expectedValue.Equals(actualValue)) {
@@ -223,6 +147,11 @@ namespace System.IO {
     private void FillBuffer_(long count, int? optStride = null) {
       this.AssertNotEof();
       this.BufferedStream_.FillBuffer(count, optStride);
+    }
+
+    private void FillBuffer_(Span<byte> buffer) {
+      this.AssertNotEof();
+      this.BufferedStream_.FillBuffer(buffer);
     }
 
 
@@ -245,20 +174,12 @@ namespace System.IO {
     public void AssertSByte(sbyte expectedValue)
       => EndianBinaryReader.Assert(expectedValue, this.ReadSByte());
 
-    public sbyte ReadSByte() {
-      this.FillBuffer_(sizeof(sbyte));
-      return EndianBinaryReader.ConvertSByte_(this.BufferedStream_.Buffer, 0);
-    }
+    public sbyte ReadSByte() => (sbyte) this.ReadByte();
 
     public sbyte[] ReadSBytes(long count) => this.ReadSBytes(new sbyte[count]);
 
     public sbyte[] ReadSBytes(sbyte[] dst) {
-      const int size = sizeof(sbyte);
-      this.FillBuffer_(size * dst.Length, size);
-      for (var i = 0; i < dst.Length; ++i) {
-        dst[i] =
-            EndianBinaryReader.ConvertSByte_(this.BufferedStream_.Buffer, i);
-      }
+      this.BufferedStream_.FillBuffer(dst, dst.Length);
       return dst;
     }
 
@@ -266,20 +187,12 @@ namespace System.IO {
     public void AssertInt16(short expectedValue)
       => EndianBinaryReader.Assert(expectedValue, this.ReadInt16());
 
-    public short ReadInt16() {
-      this.FillBuffer_(sizeof(short));
-      return EndianBinaryReader.ConvertInt16_(this.BufferedStream_.Buffer, 0);
-    }
+    public short ReadInt16() => this.BufferedStream_.Read<short>();
 
     public short[] ReadInt16s(long count) => this.ReadInt16s(new short[count]);
 
     public short[] ReadInt16s(short[] dst) {
-      const int size = sizeof(short);
-      this.FillBuffer_(size * dst.Length, size);
-      for (var i = 0; i < dst.Length; ++i) {
-        dst[i] =
-            EndianBinaryReader.ConvertInt16_(this.BufferedStream_.Buffer, i);
-      }
+      this.BufferedStream_.FillBufferAndReverse(dst, dst.Length);
       return dst;
     }
 
@@ -287,21 +200,13 @@ namespace System.IO {
     public void AssertUInt16(ushort expectedValue)
       => EndianBinaryReader.Assert(expectedValue, this.ReadUInt16());
 
-    public ushort ReadUInt16() {
-      this.FillBuffer_(sizeof(ushort));
-      return EndianBinaryReader.ConvertUInt16_(this.BufferedStream_.Buffer, 0);
-    }
+    public ushort ReadUInt16() => this.BufferedStream_.Read<ushort>();
 
     public ushort[] ReadUInt16s(long count)
       => this.ReadUInt16s(new ushort[count]);
 
     public ushort[] ReadUInt16s(ushort[] dst) {
-      const int size = sizeof(ushort);
-      this.FillBuffer_(size * dst.Length, size);
-      for (var i = 0; i < dst.Length; ++i) {
-        dst[i] =
-            EndianBinaryReader.ConvertUInt16_(this.BufferedStream_.Buffer, i);
-      }
+      this.BufferedStream_.FillBufferAndReverse(dst, dst.Length);
       return dst;
     }
 
@@ -351,20 +256,12 @@ namespace System.IO {
     public void AssertInt32(int expectedValue)
       => EndianBinaryReader.Assert(expectedValue, this.ReadInt32());
 
-    public int ReadInt32() {
-      this.FillBuffer_(sizeof(int));
-      return EndianBinaryReader.ConvertInt32_(this.BufferedStream_.Buffer, 0);
-    }
+    public int ReadInt32() => this.BufferedStream_.Read<int>();
 
     public int[] ReadInt32s(long count) => this.ReadInt32s(new int[count]);
 
     public int[] ReadInt32s(int[] dst) {
-      const int size = sizeof(int);
-      this.FillBuffer_(size * dst.Length, size);
-      for (var i = 0; i < dst.Length; ++i) {
-        dst[i] =
-            EndianBinaryReader.ConvertInt32_(this.BufferedStream_.Buffer, i);
-      }
+      this.BufferedStream_.FillBufferAndReverse(dst, dst.Length);
       return dst;
     }
 
@@ -372,20 +269,12 @@ namespace System.IO {
     public void AssertUInt32(uint expectedValue)
       => EndianBinaryReader.Assert(expectedValue, this.ReadUInt32());
 
-    public uint ReadUInt32() {
-      this.FillBuffer_(sizeof(uint));
-      return EndianBinaryReader.ConvertUInt32_(this.BufferedStream_.Buffer, 0);
-    }
+    public uint ReadUInt32() => this.BufferedStream_.Read<uint>();
 
     public uint[] ReadUInt32s(long count) => this.ReadUInt32s(new uint[count]);
 
     public uint[] ReadUInt32s(uint[] dst) {
-      const int size = sizeof(uint);
-      this.FillBuffer_(size * dst.Length, size);
-      for (var i = 0; i < dst.Length; ++i) {
-        dst[i] =
-            EndianBinaryReader.ConvertUInt32_(this.BufferedStream_.Buffer, i);
-      }
+      this.BufferedStream_.FillBufferAndReverse(dst, dst.Length);
       return dst;
     }
 
@@ -393,20 +282,12 @@ namespace System.IO {
     public void AssertInt64(long expectedValue)
       => EndianBinaryReader.Assert(expectedValue, this.ReadInt64());
 
-    public long ReadInt64() {
-      this.FillBuffer_(sizeof(long));
-      return EndianBinaryReader.ConvertInt64_(this.BufferedStream_.Buffer, 0);
-    }
+    public long ReadInt64() => this.BufferedStream_.Read<long>();
 
     public long[] ReadInt64s(long count) => this.ReadInt64s(new long[count]);
 
     public long[] ReadInt64s(long[] dst) {
-      const int size = sizeof(long);
-      this.FillBuffer_(size * dst.Length, size);
-      for (var i = 0; i < dst.Length; ++i) {
-        dst[i] =
-            EndianBinaryReader.ConvertInt64_(this.BufferedStream_.Buffer, i);
-      }
+      this.BufferedStream_.FillBufferAndReverse(dst, dst.Length);
       return dst;
     }
 
@@ -414,21 +295,13 @@ namespace System.IO {
     public void AssertUInt64(ulong expectedValue)
       => EndianBinaryReader.Assert(expectedValue, this.ReadUInt64());
 
-    public ulong ReadUInt64() {
-      this.FillBuffer_(sizeof(ulong));
-      return EndianBinaryReader.ConvertUInt64_(this.BufferedStream_.Buffer, 0);
-    }
+    public ulong ReadUInt64() => this.BufferedStream_.Read<ulong>();
 
     public ulong[] ReadUInt64s(long count) =>
         this.ReadUInt64s(new ulong[count]);
 
     public ulong[] ReadUInt64s(ulong[] dst) {
-      const int size = sizeof(ulong);
-      this.FillBuffer_(size * dst.Length, size);
-      for (var i = 0; i < dst.Length; ++i) {
-        dst[i] =
-            EndianBinaryReader.ConvertUInt64_(this.BufferedStream_.Buffer, i);
-      }
+      this.BufferedStream_.FillBufferAndReverse(dst, dst.Length);
       return dst;
     }
 
@@ -457,21 +330,13 @@ namespace System.IO {
     public void AssertSingle(float expectedValue)
       => EndianBinaryReader.Assert(expectedValue, this.ReadSingle());
 
-    public float ReadSingle() {
-      this.FillBuffer_(sizeof(float));
-      return EndianBinaryReader.ConvertSingle_(this.BufferedStream_.Buffer, 0);
-    }
+    public float ReadSingle() => this.BufferedStream_.Read<float>();
 
     public float[] ReadSingles(long count) =>
         this.ReadSingles(new float[count]);
 
     public float[] ReadSingles(float[] dst) {
-      const int size = sizeof(float);
-      this.FillBuffer_(size * dst.Length, size);
-      for (var i = 0; i < dst.Length; ++i) {
-        dst[i] =
-            EndianBinaryReader.ConvertSingle_(this.BufferedStream_.Buffer, i);
-      }
+      this.BufferedStream_.FillBufferAndReverse(dst, dst.Length);
       return dst;
     }
 
@@ -479,21 +344,13 @@ namespace System.IO {
     public void AssertDouble(double expectedValue)
       => EndianBinaryReader.Assert(expectedValue, this.ReadDouble());
 
-    public double ReadDouble() {
-      this.FillBuffer_(sizeof(double));
-      return EndianBinaryReader.ConvertDouble_(this.BufferedStream_.Buffer, 0);
-    }
+    public double ReadDouble() => this.BufferedStream_.Read<double>();
 
     public double[] ReadDoubles(long count)
       => this.ReadDoubles(new double[count]);
 
     public double[] ReadDoubles(double[] dst) {
-      const int size = sizeof(double);
-      this.FillBuffer_(size * dst.Length, size);
-      for (var i = 0; i < dst.Length; ++i) {
-        dst[i] =
-            EndianBinaryReader.ConvertDouble_(this.BufferedStream_.Buffer, i);
-      }
+      this.BufferedStream_.FillBufferAndReverse(dst, dst.Length);
       return dst;
     }
 

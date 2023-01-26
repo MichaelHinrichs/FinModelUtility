@@ -28,7 +28,7 @@ namespace schema.text {
       }
       cbsb.EnterBlock(SymbolTypeUtil.GetQualifiersAndNameFor(typeSymbol));
 
-      cbsb.EnterBlock("public void Read(EndianBinaryReader er)");
+      cbsb.EnterBlock("public void Read(IEndianBinaryReader er)");
       {
         var hasEndianness = structure.Endianness != null;
         if (hasEndianness) {

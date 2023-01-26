@@ -19,7 +19,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ImmediateLengthWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       {
         var l = er.ReadUInt32();
         this.Field = er.ReadString(l);

@@ -22,7 +22,7 @@ namespace modl.schema.res.texr {
 
     public List<BwTexture> Textures { get; } = new();
 
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       SectionHeaderUtil.AssertNameAndReadSize(
           er, "TEXR", out var texrLength);
       var expectedTexrEnd = er.Position + texrLength;
@@ -162,7 +162,7 @@ namespace modl.schema.res.texr {
         throw new NotImplementedException();
 
     private IImage
-        ReadA8R8G8B8_(EndianBinaryReader er,
+        ReadA8R8G8B8_(IEndianBinaryReader er,
                       uint width,
                       uint height) {
       SectionHeaderUtil.AssertNameAndSize(
@@ -211,7 +211,7 @@ namespace modl.schema.res.texr {
       return image;
     }
 
-    private IImage ReadDxt1_(EndianBinaryReader er, uint width, uint height) {
+    private IImage ReadDxt1_(IEndianBinaryReader er, uint width, uint height) {
       // TODO: Trim this little bit off?
       width = (uint) (MathF.Ceiling(width / 8f) * 8);
       height = (uint) (MathF.Ceiling(height / 8f) * 8);
@@ -291,7 +291,7 @@ namespace modl.schema.res.texr {
       return image;
     }
 
-    private IImage ReadP8_(EndianBinaryReader er, uint width, uint height) {
+    private IImage ReadP8_(IEndianBinaryReader er, uint width, uint height) {
       SectionHeaderUtil.AssertNameAndSize(er, "PAL ", 512);
 
       var palette = er.ReadUInt16s(256)
@@ -328,7 +328,7 @@ namespace modl.schema.res.texr {
       return image;
     }
 
-    private IImage ReadP4_(EndianBinaryReader er, uint width, uint height) {
+    private IImage ReadP4_(IEndianBinaryReader er, uint width, uint height) {
       // TODO: This method seems incorrect...
 
       SectionHeaderUtil.AssertNameAndSize(er, "PAL ", 32);
@@ -391,7 +391,7 @@ namespace modl.schema.res.texr {
       return image;
     }
 
-    private IImage ReadIA8_(EndianBinaryReader er, uint width, uint height) {
+    private IImage ReadIA8_(IEndianBinaryReader er, uint width, uint height) {
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", 2 * width * height);
 
       var image = new Ia16Image((int) width, (int) height);
@@ -422,7 +422,7 @@ namespace modl.schema.res.texr {
       return image;
     }
 
-    private IImage ReadIA4_(EndianBinaryReader er, uint width, uint height) {
+    private IImage ReadIA4_(IEndianBinaryReader er, uint width, uint height) {
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height);
 
       var image = new Ia16Image((int) width, (int) height);
@@ -455,7 +455,7 @@ namespace modl.schema.res.texr {
       return image;
     }
 
-    private IImage ReadI8_(EndianBinaryReader er, uint width, uint height) {
+    private IImage ReadI8_(IEndianBinaryReader er, uint width, uint height) {
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height);
 
       var image = new I8Image((int) width, (int) height);
@@ -484,7 +484,7 @@ namespace modl.schema.res.texr {
       return image;
     }
 
-    private IImage ReadI4_(EndianBinaryReader er, uint width, uint height) {
+    private IImage ReadI4_(IEndianBinaryReader er, uint width, uint height) {
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height / 2);
 
       var image = new I8Image((int) width, (int) height);

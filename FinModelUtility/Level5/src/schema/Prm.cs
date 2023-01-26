@@ -20,7 +20,7 @@ namespace level5.schema {
       }
     }
 
-    public void Open(EndianBinaryReader r) {
+    public void Open(IEndianBinaryReader r) {
       r.AssertString("XMPR");
       var prmOffset = r.ReadUInt32();
       var unknownOffset = r.ReadUInt32();
@@ -217,7 +217,7 @@ namespace level5.schema {
       return vertices;
     }
 
-    public Vector4 ReadAttribute(EndianBinaryReader f, int type, int count) {
+    public Vector4 ReadAttribute(IEndianBinaryReader f, int type, int count) {
       Vector4 o = new Vector4();
       switch (type) {
         case 0://nothing

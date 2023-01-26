@@ -8,7 +8,7 @@ namespace cmb.schema.cmb {
     public uint chunkSize;
     public Material[] materials;
 
-    public void Read(EndianBinaryReader r) {
+    public void Read(IEndianBinaryReader r) {
       r.AssertMagicText("mats");
 
       this.chunkSize = r.ReadUInt32();

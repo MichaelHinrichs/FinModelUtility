@@ -54,7 +54,7 @@ namespace uni.platforms.threeDs.tools {
       public ZarHeader Header { get; }
       public ZarFileType[] FileTypes { get; }
 
-      public Zar(EndianBinaryReader er) {
+      public Zar(IEndianBinaryReader er) {
         this.Header = new ZarHeader(er);
 
         this.FileTypes = new ZarFileType[this.Header.FileTypeCount];
@@ -74,7 +74,7 @@ namespace uni.platforms.threeDs.tools {
       public int FileMetadataOffset { get; }
       public int DataOffset { get; }
 
-      public ZarHeader(EndianBinaryReader er) {
+      public ZarHeader(IEndianBinaryReader er) {
         er.AssertMagicText("ZAR" + AsciiUtil.GetChar(1));
 
         this.Size = er.ReadInt32();
@@ -97,7 +97,7 @@ namespace uni.platforms.threeDs.tools {
       public ZarSubfile[] Files { get; }
 
       public ZarFileType(
-          EndianBinaryReader er,
+          IEndianBinaryReader er,
           ZarHeader header,
           int fileTypeIndex) {
         er.Position = header.FileTypesOffset + 16 * fileTypeIndex;
@@ -122,7 +122,7 @@ namespace uni.platforms.threeDs.tools {
       public byte[] Bytes { get; }
 
       public ZarSubfile(
-          EndianBinaryReader er,
+          IEndianBinaryReader er,
           ZarHeader header,
           ZarFileType fileType,
           int fileInFileTypeIndex) {

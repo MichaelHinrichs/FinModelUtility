@@ -12,7 +12,7 @@ namespace granny3d {
     public Quaternion Orientation { get; private set; }
     public Vector3f[] ScaleShear { get; } = new Vector3f[3];
 
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.Flags = (GrannyTransformFlags)er.ReadInt32();
 
       this.Position = er.ReadNew<Vector3f>();

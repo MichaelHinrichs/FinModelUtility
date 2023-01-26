@@ -13,7 +13,7 @@ namespace granny3d {
     public IList<IGrannyTrackGroup> TrackGroups { get; } =
       new List<IGrannyTrackGroup>();
 
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       GrannyUtils.SubreadRef(
           er, ser => { this.Name = ser.ReadStringNT(); });
 
@@ -38,7 +38,7 @@ namespace granny3d {
     public Vector3f LoopTranslation { get; } = new();
     public GrannyVariant ExtendedData { get; } = new();
 
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       GrannyUtils.SubreadRef(
           er, ser => this.Name = ser.ReadStringNT());
 
@@ -69,7 +69,7 @@ namespace granny3d {
   }
 
   public class GrannyVariant : IDeserializable {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       // TODO: type
       GrannyUtils.SubreadRef(
           er, ser => { });

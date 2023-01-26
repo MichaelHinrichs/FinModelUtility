@@ -25,7 +25,7 @@ namespace granny3d {
     public IList<IGrannyAnimation> AnimationHeaderList { get; } =
       new List<IGrannyAnimation>();
 
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       // TODO: Make this offset-agnostic.
       // The reader passed into this method should have an offset of 0 at the
       // start of the granny_file_info object.

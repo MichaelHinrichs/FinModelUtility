@@ -18,7 +18,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class EndiannessWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.Field = er.ReadUInt32();
     }
   }
@@ -60,7 +60,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class EndiannessWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.Field1 = er.ReadUInt32();
       er.PushMemberEndianness(Endianness.BigEndian);
       this.Field2 = er.ReadUInt32();
@@ -107,7 +107,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class EndiannessWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       er.PushStructureEndianness(Endianness.BigEndian);
       this.Field1 = er.ReadUInt32();
       this.Field2 = er.ReadUInt32();

@@ -19,7 +19,7 @@ namespace schema.memory {
   public interface IMemoryPointer : IMemoryRange {
     new IMemoryBlock Parent { get; }
 
-    void Read(EndianBinaryReader er);
+    void Read(IEndianBinaryReader er);
     void Write(ISubEndianBinaryWriter ew);
   }
 
@@ -47,11 +47,11 @@ namespace schema.memory {
 
     IMemoryPointer ClaimPointerWithin(
         long offsetInBytes,
-        Action<EndianBinaryReader> readHandler,
+        Action<IEndianBinaryReader> readHandler,
         Action<EndianBinaryWriter> writeHandler);
 
     IMemoryPointer ClaimPointerAtEnd(
-        Action<EndianBinaryReader> readHandler,
+        Action<IEndianBinaryReader> readHandler,
         Action<EndianBinaryWriter> writeHandler);
   }
 
@@ -100,7 +100,7 @@ namespace schema.memory {
 
     public IMemoryPointer ClaimPointerWithin(
         long offsetInBytes,
-        Action<EndianBinaryReader> readHandler,
+        Action<IEndianBinaryReader> readHandler,
         Action<EndianBinaryWriter> writeHandler) {
       var pointerImpl = this.impl_.ClaimSubrangeWithin(null, offsetInBytes);
       var pointer = new MemoryPointer(
@@ -113,7 +113,7 @@ namespace schema.memory {
     }
 
     public IMemoryPointer ClaimPointerAtEnd(
-        Action<EndianBinaryReader> readHandler,
+        Action<IEndianBinaryReader> readHandler,
         Action<EndianBinaryWriter> writeHandler) {
       var pointerImpl = this.impl_.ClaimSubrangeAtEnd(null);
       var pointer = new MemoryPointer(
@@ -131,7 +131,7 @@ namespace schema.memory {
     public long SizeInBytes => this.impl_.Length;
 
 
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       /*var startingOffset = er.Position;
       foreach (var child in this) {
         var childStart =
@@ -189,12 +189,12 @@ namespace schema.memory {
 
 
     private class MemoryPointer : IMemoryPointer {
-      private Action<EndianBinaryReader> readHandler_;
+      private Action<IEndianBinaryReader> readHandler_;
       private Action<EndianBinaryWriter> writeHandler_;
 
       public MemoryPointer(
           INestedRanges<IMemoryRange?> impl,
-          Action<EndianBinaryReader> readHandler,
+          Action<IEndianBinaryReader> readHandler,
           Action<EndianBinaryWriter> writeHandler) {
         this.Impl = impl;
         this.readHandler_ = readHandler;
@@ -205,7 +205,7 @@ namespace schema.memory {
 
       public IMemoryBlock Parent => (this.Impl.Parent!.Data as IMemoryBlock)!;
 
-      public void Read(EndianBinaryReader er) {
+      public void Read(IEndianBinaryReader er) {
         this.readHandler_(er);
       }
 

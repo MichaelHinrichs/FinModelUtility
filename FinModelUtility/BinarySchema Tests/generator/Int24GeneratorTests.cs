@@ -22,7 +22,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class Int24Wrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.field1 = er.ReadInt24();
       er.AssertInt24(this.field2);
     }
@@ -61,7 +61,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class UInt24Wrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.field1 = er.ReadUInt24();
       er.AssertUInt24(this.field2);
     }

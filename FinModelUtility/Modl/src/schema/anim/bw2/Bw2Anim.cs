@@ -8,7 +8,7 @@ namespace modl.schema.anim.bw2 {
     public List<IBwAnimBone> AnimBones { get; } = new();
     public List<AnimBoneFrames> AnimBoneFrames { get; } = new();
 
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       string name0;
       {
         er.PushMemberEndianness(Endianness.LittleEndian);
@@ -109,7 +109,7 @@ namespace modl.schema.anim.bw2 {
 
     public void Parse3PositionValuesFrom2UShorts_(
         IBwAnimBone animBone,
-        EndianBinaryReader er,
+        IEndianBinaryReader er,
         out double[] outValues) {
       var first_uint = er.ReadUInt32();
       er.Position -= 2;
@@ -133,7 +133,7 @@ namespace modl.schema.anim.bw2 {
           animBone.ZPosDelta + animBone.ZPosMin;
     }
 
-    public bool Parse4RotationValuesFrom4UShorts_(EndianBinaryReader er,
+    public bool Parse4RotationValuesFrom4UShorts_(IEndianBinaryReader er,
                                                   out double[] outValues) {
       var first_ushort = er.ReadUInt16();
       var second_ushort = er.ReadUInt16();

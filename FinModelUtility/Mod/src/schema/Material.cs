@@ -173,7 +173,7 @@ namespace mod.schema {
     public readonly PeInfo peInfo = new();
     public readonly TextureInfo texInfo = new();
 
-    public void Read(EndianBinaryReader reader) {
+    public void Read(IEndianBinaryReader reader) {
       this.flags = reader.ReadUInt32();
       this.unknown1 = reader.ReadUInt32();
       this.colour.Read(reader);

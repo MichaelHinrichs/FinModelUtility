@@ -10,7 +10,7 @@ using System.IO;
 
 namespace System {
   public static class Extensions {
-    public static Color ReadColor16(this EndianBinaryReader er) {
+    public static Color ReadColor16(this IEndianBinaryReader er) {
       short num1 = er.ReadInt16();
       short num2 = er.ReadInt16();
       short num3 = er.ReadInt16();
@@ -20,7 +20,7 @@ namespace System {
                             (int)Math.Abs(num3) & (int)byte.MaxValue);
     }
 
-    public static Color ReadColor8(this EndianBinaryReader er) {
+    public static Color ReadColor8(this IEndianBinaryReader er) {
       int red = (int)er.ReadByte();
       int green = (int)er.ReadByte();
       int blue = (int)er.ReadByte();

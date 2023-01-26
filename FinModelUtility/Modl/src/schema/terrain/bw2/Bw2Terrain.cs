@@ -8,7 +8,7 @@ namespace modl.schema.terrain.bw1 {
     public IBwHeightmap Heightmap { get; private set; }
     public IList<BwHeightmapMaterial> Materials { get; private set; }
 
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       var sections = new Dictionary<string, BwSection>();
       while (!er.Eof) {
         SectionHeaderUtil.ReadNameAndSize(er, out var name, out var size);

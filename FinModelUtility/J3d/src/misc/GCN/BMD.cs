@@ -46,7 +46,7 @@ namespace j3d.GCN {
 
     public BMD(byte[] file)
     {
-      using EndianBinaryReader er = new EndianBinaryReader((Stream) new MemoryStream(file), Endianness.BigEndian);
+      using IEndianBinaryReader er = new EndianBinaryReader((Stream) new MemoryStream(file), Endianness.BigEndian);
       this.Header = er.ReadNew<BmdHeader>();
 
       bool OK;
@@ -190,7 +190,7 @@ label_7:
       public uint EntryOffset;
       public Inf1Entry[] Entries;
 
-      public INF1Section(EndianBinaryReader er, out bool OK)
+      public INF1Section(IEndianBinaryReader er, out bool OK)
       {
         long position1 = er.Position;
         bool OK1;
@@ -230,7 +230,7 @@ label_7:
       public Vector3[] Positions;
       public Vector3[] Normals;
 
-      public VTX1Section(EndianBinaryReader er, out bool OK)
+      public VTX1Section(IEndianBinaryReader er, out bool OK)
       {
         long position1 = er.Position;
         bool OK1;
@@ -289,7 +289,7 @@ label_7:
       private void ReadVertexArray(
           ArrayFormat Format,
           int Length,
-          EndianBinaryReader er) {
+          IEndianBinaryReader er) {
         List<float> floatList = new List<float>();
         switch (Format.DataType) {
           case 3:
@@ -382,7 +382,7 @@ label_7:
       private void ReadColorArray(
           ArrayFormat Format,
           int byteLength,
-          EndianBinaryReader er) {
+          IEndianBinaryReader er) {
         var colorIndex = Format.ArrayType - GxAttribute.CLR0;
 
         var colorDataType = (ColorDataType) Format.DataType;
@@ -501,7 +501,7 @@ label_7:
       public Matrix3x4f[] InverseBindMatrices { get; set; }
       public BMD.EVP1Section.MultiMatrix[] WeightedIndices;
 
-      public EVP1Section(EndianBinaryReader er, out bool OK)
+      public EVP1Section(IEndianBinaryReader er, out bool OK)
       {
         long position1 = er.Position;
         bool OK1;
@@ -569,7 +569,7 @@ label_7:
       public bool[] IsWeighted;
       public ushort[] Data;
 
-      public DRW1Section(EndianBinaryReader er, out bool OK)
+      public DRW1Section(IEndianBinaryReader er, out bool OK)
       {
         long position1 = er.Position;
         bool OK1;
@@ -611,7 +611,7 @@ label_7:
       public ushort[] RemapTable { get; }
       public StringTable StringTable;
 
-      public JNT1Section(EndianBinaryReader er, out bool OK)
+      public JNT1Section(IEndianBinaryReader er, out bool OK)
       {
         long position = er.Position;
         bool OK1;
@@ -658,7 +658,7 @@ label_7:
       public uint PacketLocationsOffset;
       public BMD.SHP1Section.Batch[] Batches;
 
-      public SHP1Section(EndianBinaryReader er, out bool OK)
+      public SHP1Section(IEndianBinaryReader er, out bool OK)
       {
         long position1 = er.Position;
         bool OK1;
@@ -724,7 +724,7 @@ label_7:
         public BMD.SHP1Section.Batch.Packet[] Packets;
 
         public Batch(
-            EndianBinaryReader er,
+            IEndianBinaryReader er,
             long baseoffset,
             BMD.SHP1Section Parent) {
           this.MatrixType = (MatrixType) er.ReadByte();
@@ -813,7 +813,7 @@ label_7:
           public MatrixData MatrixData;
 
           public Packet(
-            EndianBinaryReader er,
+            IEndianBinaryReader er,
             int Length,
             BatchAttribute[] Attributes)
           {
@@ -949,7 +949,7 @@ label_7:
       public readonly List<MatIndirectTexturingEntry>
           MatIndirectTexturingEntries = new();
 
-      public MAT3Section(EndianBinaryReader er, out bool OK)
+      public MAT3Section(IEndianBinaryReader er, out bool OK)
       {
         long position1 = er.Position;
         bool OK1;
@@ -1108,7 +1108,7 @@ label_7:
       public StringTable StringTable;
       public TextureEntry[] TextureHeaders;
 
-      public TEX1Section(EndianBinaryReader er, out bool OK)
+      public TEX1Section(IEndianBinaryReader er, out bool OK)
       {
         long position1 = er.Position;
         bool OK1;

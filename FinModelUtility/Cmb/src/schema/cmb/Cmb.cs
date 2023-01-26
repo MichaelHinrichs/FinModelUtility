@@ -26,9 +26,9 @@ namespace cmb.schema.cmb {
     public readonly AutoMagicUInt32SizedSection<Luts> luts = new("luts");
     public readonly Vatr vatr = new();
 
-    public Cmb(EndianBinaryReader r) => this.Read(r);
+    public Cmb(IEndianBinaryReader r) => this.Read(r);
 
-    public void Read(EndianBinaryReader r) {
+    public void Read(IEndianBinaryReader r) {
       long startOff = 0;
 
       if (r.ReadString(4) == "ZSI" + AsciiUtil.GetChar(1)) {

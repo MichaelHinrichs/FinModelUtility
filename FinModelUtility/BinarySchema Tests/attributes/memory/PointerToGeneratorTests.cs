@@ -22,7 +22,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class SizeWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.FooSize = er.ReadUInt32();
       this.Foo = er.ReadByte();
     }
@@ -68,7 +68,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class SizeWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.FooBarSize = er.ReadUInt32();
       this.Foo.Read(er);
     }
@@ -118,7 +118,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class SizeWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.FooSize = er.ReadUInt32();
     }
   }
@@ -139,7 +139,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class ParentImpl {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.Child.Parent = this;
       this.Child.Read(er);
       this.Foo = er.ReadByte();

@@ -23,7 +23,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class OffsetWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.BaseLocation = er.ReadUInt32();
       this.Offset = er.ReadUInt32();
       {
@@ -78,7 +78,7 @@ namespace foo.bar {
 using System.IO;
 namespace foo.bar {
   public partial class OffsetWrapper {
-    public void Read(EndianBinaryReader er) {
+    public void Read(IEndianBinaryReader er) {
       this.Offset = er.ReadUInt32();
       {
         var tempLocation = er.Position;
