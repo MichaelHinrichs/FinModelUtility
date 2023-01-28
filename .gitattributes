@@ -1,4 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
 
-FinModelUtility/ModelPluginWrappers/lib/* linguist-vendored
+FinModelUtility/ModelPluginWrappers/lib/** linguist-vendored
+FinModelUtility/ModelPluginWrappers/blender/** linguist-vendored
