@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Reflection.Emit;
+using System.Text;
 
 
 namespace System.IO {
@@ -47,18 +48,49 @@ namespace System.IO {
                  : 2;
     }
 
+    public string ReadUpTo(char endToken) => ReadUpTo(Encoding.ASCII, endToken);
+    public string ReadUpTo(Encoding encoding, char endToken) {
+      var strBuilder = new StringBuilder();
+      while (!Eof) {
+        var c = this.ReadChar(encoding);
+        if (c == endToken) {
+          break;
+        }
+
+        strBuilder.Append(c);
+      }
+      return strBuilder.ToString();
+    }
+
+    public string ReadUpTo(params string[] endTokens) => ReadUpTo(Encoding.ASCII, endTokens);
+    public string ReadUpTo(Encoding encoding, params string[] endTokens) {
+      var strBuilder = new StringBuilder();
+      while (!Eof) {
+        var firstC = this.ReadChar(encoding);
+        var originalOffset = Position;
+        
+        foreach (var endToken in endTokens) {
+          if (firstC == endToken[0]) {
+            for (var i = 1; i < endToken.Length; ++i) {
+              var c = this.ReadChar(encoding);
+              if (c != endToken[1]) {
+                Position = originalOffset;
+                break;
+              }
+            }
+            goto Done;
+          }
+        }
+
+        strBuilder.Append(firstC);
+      }
+      Done:
+      return strBuilder.ToString();
+    }
+
 
     public string ReadLine() => ReadLine(Encoding.ASCII);
-
-    public string ReadLine(Encoding encoding) {
-      var sb = new StringBuilder();
-      char c;
-      do {
-        c = this.ReadChar(encoding);
-        sb.Append(c);
-      } while (c != '\n');
-      return sb.ToString();
-    }
+    public string ReadLine(Encoding encoding) => ReadUpTo(encoding, "\n", "\r\n");
 
 
     public void AssertString(string expectedValue)
@@ -90,18 +122,7 @@ namespace System.IO {
           expectedValue,
           this.ReadStringNT(encoding));
 
-    public string ReadStringNT(Encoding encoding) {
-      var strBuilder = new StringBuilder();
-      while (true) {
-        var c = this.ReadChar(encoding);
-        if (c == '\0') {
-          break;
-        }
-
-        strBuilder.Append(c);
-      }
-      return strBuilder.ToString();
-    }
+    public string ReadStringNT(Encoding encoding) => ReadUpTo(encoding, '\0');
 
     public void AssertMagicText(string expectedText) {
       var actualText = this.ReadString(expectedText.Length);
