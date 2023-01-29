@@ -220,6 +220,16 @@ namespace fin.exporter.gltf {
               }
               break;
             }
+            case PrimitiveType.POINTS: {
+                var pointPrimitive =
+                    gltfMeshBuilder.UsePrimitive(
+                        materialBuilder,
+                        1);
+                for (var v = 0; v < pointsCount; v += 4) {
+                  pointPrimitive.AddPoint(vertices[v]);
+                }
+                break;
+              }
             default: throw new NotSupportedException();
           }
         }

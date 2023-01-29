@@ -16,15 +16,18 @@ Model viewer and command-line tools for extracting models from games en-masse. S
 - [@Chadderz121](https://github.com/Chadderz121), AKA Chadderz, whose [CTools](https://www.chadsoft.co.uk/wiicoder/) suite is used to read .bmd texture formats.
 - cooliscool, whose [Utility of Time](http://wiki.maco64.com/Tools/Utility_of_Time) program was used as the basis for the F3DZEX2/F3DEX2 importer.
 - [@Cuyler36](https://github.com/Cuyler36), aka CulyerAC, whose [RELDumper](https://github.com/Cuyler36/RELDumper) is used to extract the contents of .rel/.map files.
+- [@DickBlackshack](https://github.com/DickBlackshack), aka Rich Whitehouse, whose [Noesis](https://richwhitehouse.com/index.php?content=inc_projects.php&showproject=91) model viewer's plugins were leveraged to add support for various formats.
 - [@DavidSM64](https://github.com/DavidSM64), whose [Quad64](https://github.com/DavidSM64/Quad64) is used as the base for the SM64 importer.
 - [@EstevanBR](https://github.com/EstevanBR), whose [DATReaderC](https://github.com/EstevanBR/DATReaderC) was referenced as the starting point for the .dat importer.
 - [@Gericom](https://github.com/Gericom), whose [MKDS Course Modifier](https://www.romhacking.net/utilities/1285/) program was used as the basis for the .bmd importer.
 - [@hci64](https://github.com/hcs64), whose [vgm_ripping](https://github.com/hcs64/vgm_ripping) tool was ported to add support for parsing .AST PCM16 data.
+- [@HimeWorks](https://github.com/HimeWorks), whose [Noesis plugins](https://himeworks.com/noesis-plugins/) were used to add support for various formats.
 - [@intns](https://github.com/intns), whose [MODConv](https://github.com/intns/MODConv) tool was used as the basis for the .mod importer.
-- [@leftp](https://github.com/leftp), whose [SharpDirLister](https://github.com/EncodeGroup/SharpDirLister) API was used to dramatically improve listing out the file hierarchy.
+- [@IronLanguages](https://github.com/IronLanguages), whose [IronPython](https://github.com/IronLanguages/ironpython3) was used to add support for calling Python plugins from C#.
 - [@jefffhaynes](https://github.com/jefffhaynes), whose [BinarySerializer](https://github.com/jefffhaynes/BinarySerializer) attribute library inspired the schema attributes for configuring how binary data is read.
 - [@KillzXGaming](https://github.com/KillzXGaming), whose [Switch-Toolbox](https://github.com/KillzXGaming/Switch-Toolbox) was referenced to add support for LZSS decompression.
 - [@kornman00](https://github.com/kornman00), AKA [@KornnerStudios](https://github.com/KornnerStudios), for documenting the Halo Wars formats in [HaloWarsDocs](https://github.com/HaloMods/HaloWarsDocs) and providing the [KSoft suite](https://github.com/KornnerStudios/KSoft) to extract the contents of the game.
+- [@leftp](https://github.com/leftp), whose [SharpDirLister](https://github.com/EncodeGroup/SharpDirLister) API was used to dramatically improve listing out the file hierarchy.
 - [@LordNed](https://github.com/LordNed), whose [J3D-Model-Viewer](https://github.com/LordNed/J3D-Model-Viewer) tool and [JStudio](https://github.com/LordNed/JStudio) library were referenced to fix bugs in the .bmd importer.
 - [@M-1-RLG](https://github.com/M-1-RLG), AKA M-1, as his [io_scene_cmb](https://github.com/M-1-RLG/io_scene_cmb) Blender plugin was used as the basis for the .cmb importer. He also provided [thorough documentation](https://github.com/M-1-RLG/010-Editor-Templates/tree/master/Grezzo) on each of Grezzo's formats.
 - [@magcius](https://github.com/magcius), AKA Jasper, as their animated model viewer was used as the basis for the .csab importer.
