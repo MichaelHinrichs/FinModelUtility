@@ -43,6 +43,10 @@ namespace fin.image {
     FinImageLock<TPixel> Lock();
   }
 
+  /// <summary>
+  ///   Based on how FastBitmap performs locking:
+  ///   https://github.com/LuizZak/FastBitmap
+  /// </summary>
   public unsafe struct FinImageLock<TPixel> : IDisposable
       where TPixel : unmanaged, IPixel<TPixel> {
     private bool isDisposed_ = false;

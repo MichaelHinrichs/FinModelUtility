@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 
 
 namespace fin.color {
@@ -132,5 +133,26 @@ namespace fin.color {
       else
         return Color.FromArgb(255, v, p, q);
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void SplitBgra(int bgra, out byte r, out byte g, out byte b, out byte a) {
+      b = (byte) bgra;
+      g = (byte) (bgra >> 8);
+      r = (byte) (bgra >> 16);
+      a = (byte) (bgra >> 24);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void SplitRgba(int rgba, out byte r, out byte g, out byte b, out byte a) {
+      r = (byte) rgba;
+      g = (byte) (rgba >> 8);
+      b = (byte) (rgba >> 16);
+      a = (byte) (rgba >> 24);
+    }
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int MergeBgra(byte r, byte g, byte b, byte a)
+      => b | (g << 8) | (r << 16) | (a << 24);
   }
 }

@@ -17,6 +17,10 @@ using SixLabors.ImageSharp.PixelFormats;
 
 using System.Drawing.Imaging;
 
+using FastBitmapLib;
+
+using fin.color;
+
 using Color = System.Drawing.Color;
 using Image = SixLabors.ImageSharp.Image;
 
@@ -116,30 +120,57 @@ namespace fin.image {
       var height = image.Height;
 
       var bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
-      BitmapUtil.InvokeAsLocked(bitmap,
-                                bmpData => {
-                                  var ptr = (byte*) bmpData.Scan0;
+      using var fastBitmap = bitmap.FastLock();
+      var dstPtr = (int*) fastBitmap.Scan0;
 
-                                  image.Access(getHandler => {
-                                    for (var y = 0; y < height; ++y) {
-                                      for (var x = 0; x < width; ++x) {
-                                        getHandler(
-                                            x,
-                                            y,
-                                            out var r,
-                                            out var g,
-                                            out var b,
-                                            out var a);
+      switch (image) {
+        case Rgba32Image rgba32Image: {
+          using var imageLock = rgba32Image.Lock();
+          var srcPtr = imageLock.pixelScan0;
+          for (var y = 0; y < height; ++y) {
+            for (var x = 0; x < width; ++x) {
+              var index = y * width + x;
+              var rgba = srcPtr[index];
+              dstPtr[index] = FinColor.MergeBgra(rgba.R, rgba.G, rgba.B, rgba.A);
+            }
+          }
 
-                                        var index = 4 * (y * width + x);
-                                        ptr[index] = b;
-                                        ptr[index + 1] = g;
-                                        ptr[index + 2] = r;
-                                        ptr[index + 3] = a;
-                                      }
-                                    }
-                                  });
-                                });
+          break;
+        }
+        case Rgb24Image rgb24Image: {
+          using var imageLock = rgb24Image.Lock();
+          var srcPtr = imageLock.pixelScan0;
+          for (var y = 0; y < height; ++y) {
+            for (var x = 0; x < width; ++x) {
+              var index = y * width + x;
+              var rgb = srcPtr[index];
+              dstPtr[index] = FinColor.MergeBgra(rgb.R, rgb.G, rgb.B, 255);
+            }
+          }
+
+          break;
+        }
+        default: {
+          image.Access(getHandler => {
+            for (var y = 0; y < height; ++y) {
+              for (var x = 0; x < width; ++x) {
+                getHandler(
+                    x,
+                    y,
+                    out var r,
+                    out var g,
+                    out var b,
+                    out var a);
+
+                var index = y * width + x;
+                dstPtr[index] = FinColor.MergeBgra(r, g, b, a);
+              }
+            }
+          });
+          break;
+        }
+      }
+
       return bitmap;
     }
 
@@ -199,7 +230,7 @@ namespace fin.image {
     }
   }
 
-  public abstract class BImage<TPixel> : fin.image.IImage<TPixel>
+  public abstract class BImage<TPixel> : IImage<TPixel>
       where TPixel : unmanaged, IPixel<TPixel> {
     ~BImage() => this.ReleaseUnmanagedResources_();
 
@@ -306,30 +337,18 @@ namespace fin.image {
       => this.Impl.CopyPixelDataTo(bytes);
   }
 
-  public class Rgb24Image : IImage {
-    private readonly Image<Rgb24> impl_;
-
+  public class Rgb24Image : BImage<Rgb24> {
     public Rgb24Image(int width, int height) : this(
         new Image<Rgb24>(FinImage.ImageSharpConfig, width, height)) { }
 
     internal Rgb24Image(Image<Rgb24> impl) {
-      this.impl_ = impl;
+      this.Impl = impl;
     }
 
-    ~Rgb24Image() => this.ReleaseUnmanagedResources_();
+    protected override Image<Rgb24> Impl { get; }
 
-    public void Dispose() {
-      this.ReleaseUnmanagedResources_();
-      GC.SuppressFinalize(this);
-    }
-
-    private void ReleaseUnmanagedResources_() => this.impl_.Dispose();
-
-    public int Width => this.impl_.Width;
-    public int Height => this.impl_.Height;
-
-    public void Access(IImage.AccessHandler accessHandler) {
-      var frame = this.impl_.Frames[0];
+    public override void Access(IImage.AccessHandler accessHandler) {
+      var frame = this.Impl.Frames[0];
 
       void GetHandler(
           int x,
@@ -364,7 +383,7 @@ namespace fin.image {
                                        SetHandler setHandler);
 
     public void Mutate(MutateHandler mutateHandler) {
-      var frame = this.impl_.Frames[0];
+      var frame = this.Impl.Frames[0];
 
       void GetHandler(
           int x,
@@ -389,16 +408,10 @@ namespace fin.image {
       mutateHandler(GetHandler, SetHandler);
     }
 
-    public bool HasAlphaChannel => false;
-    public Bitmap AsBitmap() => FinImage.ConvertToBitmap(this);
+    public override bool HasAlphaChannel => false;
 
     public void GetRgb24Bytes(Span<byte> bytes)
-      => this.impl_.CopyPixelDataTo(bytes);
-
-    public void ExportToStream(Stream stream, LocalImageFormat imageFormat)
-      => this.impl_.Save(
-          stream,
-          FinImage.ConvertFinImageFormatToImageSharpEncoder(imageFormat));
+      => this.Impl.CopyPixelDataTo(bytes);
   }
 
   public class Ia16Image : IImage {

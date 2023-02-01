@@ -2,12 +2,16 @@
 using System.IO;
 using System.Linq;
 
+using fin.color;
+
+using SixLabors.ImageSharp.PixelFormats;
+
 using ImageFormat = Pfim.ImageFormat;
 
 
 namespace fin.image {
   public class DdsReader {
-    public IMipMap<IImage> Read(Stream stream) {
+    public unsafe IMipMap<IImage> Read(Stream stream) {
       using var pfimImage = Pfim.Pfim.FromStream(stream);
 
       return MipMapUtil.From(
@@ -15,47 +19,50 @@ namespace fin.image {
                      var mmWidth = pfimMipMap.Width;
                      var mmHeight = pfimMipMap.Height;
 
-                     switch (pfimImage.Format) {
-                       case ImageFormat.Rgba32: {
-                         var image = new Rgba32Image(mmWidth, mmHeight);
-                         image.Mutate((_, setHandler) => {
+                     fixed (byte* imagePtr = pfimImage.Data) {
+                       var byteSrcPtr = imagePtr + pfimMipMap.DataOffset;
+
+                       switch (pfimImage.Format) {
+                         case ImageFormat.Rgba32: {
+                           var intSrcPtr = (int*) byteSrcPtr;
+                           
+                           var image = new Rgba32Image(mmWidth, mmHeight);
+                           using var imageLock = image.Lock();
+                           var dstPtr = imageLock.pixelScan0;
+
                            for (var y = 0; y < mmHeight; ++y) {
                              for (var x = 0; x < mmWidth; ++x) {
-                               var i = pfimMipMap.DataOffset +
-                                       4 * (y * mmWidth + x);
-
-                               var b = pfimImage.Data[i + 0];
-                               var g = pfimImage.Data[i + 1];
-                               var r = pfimImage.Data[i + 2];
-                               var a = pfimImage.Data[i + 3];
-
-                               setHandler(x, y, r, g, b, a);
+                               var i = y * mmWidth + x;
+                               FinColor.SplitBgra(intSrcPtr[i], out var r, out var g, out var b, out var a);
+                               dstPtr[i] = new Rgba32(r, g, b, a);
                              }
                            }
-                         });
-                         return image as IImage;
-                       }
-                       case ImageFormat.Rgb24: {
-                         var image = new Rgb24Image(mmWidth, mmHeight);
-                         image.Mutate((_, setHandler) => {
+
+                           return image as IImage;
+                         }
+                         case ImageFormat.Rgb24: {
+                           var image = new Rgb24Image(mmWidth, mmHeight);
+                           using var imageLock = image.Lock();
+                           var ptr = imageLock.pixelScan0;
                            for (var y = 0; y < mmHeight; ++y) {
                              for (var x = 0; x < mmWidth; ++x) {
-                               var i = pfimMipMap.DataOffset +
-                                       3 * (y * mmWidth + x);
+                               var i = y * mmWidth + x;
 
-                               var b = pfimImage.Data[i + 0];
-                               var g = pfimImage.Data[i + 1];
-                               var r = pfimImage.Data[i + 2];
+                               var inI = pfimMipMap.DataOffset + 3 * i;
+                               var b = pfimImage.Data[inI + 0];
+                               var g = pfimImage.Data[inI + 1];
+                               var r = pfimImage.Data[inI + 2];
 
-                               setHandler(x, y, r, g, b);
+                               ptr[i] = new Rgb24(r, g, b);
                              }
                            }
-                         });
-                         return image;
+
+                           return image;
+                         }
+                         default:
+                           throw new NotImplementedException(
+                               $"Unsupported Pfim format: {pfimImage.Format}");
                        }
-                       default:
-                         throw new NotImplementedException(
-                             $"Unsupported Pfim format: {pfimImage.Format}");
                      }
                    })
                    .ToList());
