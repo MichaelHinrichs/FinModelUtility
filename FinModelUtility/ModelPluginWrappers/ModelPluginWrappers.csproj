@@ -5,19 +5,30 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="BlenderProgram.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="noesis\midnight_club_2.py" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="IronPython" Version="3.4.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BinarySchema\BinarySchema.csproj" />
     <ProjectReference Include="..\Fin\Fin.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="blender\" />
-    <Folder Include="lib\" />
+    <Folder Include="models\" />
+    <Folder Include="noesis\" />
   </ItemGroup>
 
 </Project>

@@ -1,10 +1,5 @@
 ﻿#pragma warning disable IDE1006 // Naming Styles
 
-using System.Text;
-
-using IronPython.Runtime;
-
-using Microsoft.Scripting.Utils;
 
 namespace ModelPluginWrappers.src.noesis {
   public enum NoeEndianness {
@@ -38,9 +33,6 @@ namespace ModelPluginWrappers.src.noesis {
     public int getOffset() => (int) this.impl_.Position;
     public void setOffset(int ofs) => this.impl_.Position = ofs;
 
-    public string readline() {
-      var str = this.impl_.ReadLine();
-      return str;
-    }
+    public string readline() => this.impl_.ReadLine();
   }
 }

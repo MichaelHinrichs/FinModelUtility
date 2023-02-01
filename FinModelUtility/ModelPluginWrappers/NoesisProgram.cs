@@ -26,15 +26,17 @@ namespace ModelPluginWrappers {
     }
 
     public class Rpg {
-      private IModel model_;
+      private readonly IModel model_ = new ModelImpl();
+
+      private string name_;
 
       private Bytes positionBuffer_;
       private NoeFormat positionFormat_;
       private int positionStride_;
       private int positionOffset_;
 
-      public void Reset() {
-        this.model_ = new ModelImpl();
+      public void SetName(string name) {
+        this.name_ = name;
       }
 
       public void BindPositionBufferOffset(Bytes data, NoeFormat format, int stride, int offset) {
@@ -57,7 +59,9 @@ namespace ModelPluginWrappers {
         switch (primitiveType) {
           case NoePrimitiveType.RPGEO_POINTS: {
               var skin = model_.Skin;
+
               var mesh = skin.AddMesh();
+              mesh.Name = name_;
 
               var vertices = new List<IVertex>();
               var bytes = positionBuffer_.ToArray();
@@ -91,9 +95,7 @@ namespace ModelPluginWrappers {
         }
       }
 
-      public IModel ConstructModel() {
-        return model_;
-      }
+      public IModel ConstructModel() => model_;
 
       public object CreateContext() {
         return new object();
@@ -163,7 +165,8 @@ namespace ModelPluginWrappers {
           var rpg = new Rpg();
 
           var rapiModule = engine.CreateModule("rapi");
-          rapiModule.SetVariable("rpgReset", rpg.Reset);
+          rapiModule.SetVariable("rpgReset", () => rpg = new Rpg());
+          rapiModule.SetVariable("rpgSetName", rpg.SetName);
           rapiModule.SetVariable("rpgBindPositionBufferOfs", rpg.BindPositionBufferOffset);
           rapiModule.SetVariable("rpgCommitTriangles", rpg.CommitTriangles);
           rapiModule.SetVariable("rpgConstructModel", rpg.ConstructModel);
