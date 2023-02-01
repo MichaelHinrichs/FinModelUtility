@@ -125,6 +125,15 @@ namespace System.IO {
     char[] ReadChars(Encoding encoding, long count);
     char[] ReadChars(Encoding encoding, char[] dst);
 
+    string ReadUpTo(char endToken);
+    string ReadUpTo(Encoding encoding, char endToken);
+
+    string ReadUpTo(params string[] endTokens);
+    string ReadUpTo(Encoding encoding, params string[] endTokens);
+
+    string ReadLine();
+    string ReadLine(Encoding encoding);
+
     void AssertString(string expectedValue);
     string ReadString(long count);
 

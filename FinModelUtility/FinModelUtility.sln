@@ -97,6 +97,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Quad64", "Quad64\Quad64.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModelPluginWrappers", "ModelPluginWrappers\ModelPluginWrappers.csproj", "{2FC033F8-043D-4175-BA13-B49A4DCD19B4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xmod", "Xmod\Xmod.csproj", "{D56EF0D4-DE4A-43E7-8888-972CF9D278C6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -443,6 +445,18 @@ Global
 		{2FC033F8-043D-4175-BA13-B49A4DCD19B4}.Release|x64.Build.0 = Release|Any CPU
 		{2FC033F8-043D-4175-BA13-B49A4DCD19B4}.Release|x86.ActiveCfg = Release|Any CPU
 		{2FC033F8-043D-4175-BA13-B49A4DCD19B4}.Release|x86.Build.0 = Release|Any CPU
+		{D56EF0D4-DE4A-43E7-8888-972CF9D278C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D56EF0D4-DE4A-43E7-8888-972CF9D278C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D56EF0D4-DE4A-43E7-8888-972CF9D278C6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D56EF0D4-DE4A-43E7-8888-972CF9D278C6}.Debug|x64.Build.0 = Debug|Any CPU
+		{D56EF0D4-DE4A-43E7-8888-972CF9D278C6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D56EF0D4-DE4A-43E7-8888-972CF9D278C6}.Debug|x86.Build.0 = Debug|Any CPU
+		{D56EF0D4-DE4A-43E7-8888-972CF9D278C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D56EF0D4-DE4A-43E7-8888-972CF9D278C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D56EF0D4-DE4A-43E7-8888-972CF9D278C6}.Release|x64.ActiveCfg = Release|Any CPU
+		{D56EF0D4-DE4A-43E7-8888-972CF9D278C6}.Release|x64.Build.0 = Release|Any CPU
+		{D56EF0D4-DE4A-43E7-8888-972CF9D278C6}.Release|x86.ActiveCfg = Release|Any CPU
+		{D56EF0D4-DE4A-43E7-8888-972CF9D278C6}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
