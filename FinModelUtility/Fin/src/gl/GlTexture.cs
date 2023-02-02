@@ -117,38 +117,38 @@ namespace fin.gl {
       PixelInternalFormat pixelInternalFormat;
       PixelFormat pixelFormat;
 
-      byte[] rgba;
+      byte[] pixelBytes;
       switch (image) {
         case Rgba32Image rgba32Image: {
-            rgba = pool_.Rent(4 * imageWidth * imageHeight);
+            pixelBytes = pool_.Rent(4 * imageWidth * imageHeight);
             pixelInternalFormat = PixelInternalFormat.Rgba;
             pixelFormat = PixelFormat.Rgba;
-            rgba32Image.GetRgba32Bytes(rgba);
+            rgba32Image.GetRgba32Bytes(pixelBytes);
             break;
           }
         case Rgb24Image rgb24Image: {
-            rgba = pool_.Rent(3 * imageWidth * imageHeight);
-            pixelInternalFormat = PixelInternalFormat.Rgba;
-            pixelFormat = PixelFormat.Rgba;
-            rgb24Image.GetRgb24Bytes(rgba);
+            pixelBytes = pool_.Rent(3 * imageWidth * imageHeight);
+            pixelInternalFormat = PixelInternalFormat.Rgb;
+            pixelFormat = PixelFormat.Rgb;
+            rgb24Image.GetRgb24Bytes(pixelBytes);
             break;
           }
         case Ia16Image ia16Image: {
-            rgba = pool_.Rent(2 * imageWidth * imageHeight);
+            pixelBytes = pool_.Rent(2 * imageWidth * imageHeight);
             pixelInternalFormat = PixelInternalFormat.LuminanceAlpha;
             pixelFormat = PixelFormat.LuminanceAlpha;
-            ia16Image.GetIa16Bytes(rgba);
+            ia16Image.GetIa16Bytes(pixelBytes);
             break;
           }
         case I8Image i8Image: {
-            rgba = pool_.Rent(imageWidth * imageHeight);
+            pixelBytes = pool_.Rent(imageWidth * imageHeight);
             pixelInternalFormat = PixelInternalFormat.Luminance;
             pixelFormat = PixelFormat.Luminance;
-            i8Image.GetI8Bytes(rgba);
+            i8Image.GetI8Bytes(pixelBytes);
             break;
           }
         default: {
-            rgba = pool_.Rent(4 * imageWidth * imageHeight);
+            pixelBytes = pool_.Rent(4 * imageWidth * imageHeight);
             pixelInternalFormat = PixelInternalFormat.Rgba;
             pixelFormat = PixelFormat.Rgba;
             image.Access(getHandler => {
@@ -157,10 +157,10 @@ namespace fin.gl {
                   getHandler(x, y, out var r, out var g, out var b, out var a);
 
                   var outI = 4 * (y * imageWidth + x);
-                  rgba[outI] = r;
-                  rgba[outI + 1] = g;
-                  rgba[outI + 2] = b;
-                  rgba[outI + 3] = a;
+                  pixelBytes[outI] = r;
+                  pixelBytes[outI + 1] = g;
+                  pixelBytes[outI + 2] = b;
+                  pixelBytes[outI + 3] = a;
                 }
               }
             });
@@ -175,9 +175,9 @@ namespace fin.gl {
                     0,
                     pixelFormat,
                     PixelType.UnsignedByte,
-                    rgba);
+                    pixelBytes);
 
-      pool_.Return(rgba);
+      pool_.Return(pixelBytes);
     }
 
     ~GlTexture() => this.ReleaseUnmanagedResources_();
