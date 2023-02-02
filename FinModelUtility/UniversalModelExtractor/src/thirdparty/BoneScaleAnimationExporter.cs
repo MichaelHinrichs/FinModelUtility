@@ -13,7 +13,8 @@ namespace uni.thirdparty {
       using var fw = luaFile.OpenWriteAsText();
 
       fw.WriteLine("local defScale = Vector(1,1,1)");
-      fw.WriteLine("ScalerKeysTable = { // Animation name => Bone names => frame scale keys. The keys are in frame order so 1,2,3,4 etc");
+      fw.WriteLine(
+          "ScalerKeysTable = { // Animation name => Bone names => frame scale keys. The keys are in frame order so 1,2,3,4 etc");
 
       var defaultValues = new float[] { 1, 1, 1 };
       foreach (var animation in animations) {
@@ -55,7 +56,8 @@ namespace uni.thirdparty {
             if (IsScaleOne(scale)) {
               fw.WriteLine("      defScale,");
             } else {
-              fw.WriteLine($"      Vector({scale.X:0.##}, {scale.Y:0.##}, {scale.Z:0.##}),");
+              fw.WriteLine(
+                  $"      Vector({scale.X:0.##}, {scale.Y:0.##}, {scale.Z:0.##}),");
             }
           }
 
@@ -68,8 +70,9 @@ namespace uni.thirdparty {
       fw.WriteLine("}");
     }
 
-    private static bool IsScaleOne(IScale scale) => Math.Abs(scale.X - 1) < .001
-                                                    && Math.Abs(scale.Y - 1) < .001
-                                                    && Math.Abs(scale.Z - 1) < .001;
+    private static bool IsScaleOne(Scale scale)
+      => Math.Abs(scale.X - 1) < .001
+         && Math.Abs(scale.Y - 1) < .001
+         && Math.Abs(scale.Z - 1) < .001;
   }
 }

@@ -14,8 +14,8 @@ namespace fin.model {
   public interface IMorphTarget {
     string Name { get; set; }
 
-    IReadOnlyDictionary<IVertex, IPosition> Morphs { get; }
-    IMorphTarget MoveTo(IVertex vertex, IPosition position);
+    IReadOnlyDictionary<IVertex, Position> Morphs { get; }
+    IMorphTarget MoveTo(IVertex vertex, Position position);
   }
 
   public interface IAnimation {

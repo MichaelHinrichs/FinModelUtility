@@ -23,7 +23,7 @@ namespace fin.model {
     }
   }
 
-  public interface IPositionTrack3d : IAxes3fTrack<PositionStruct> { }
+  public interface IPositionTrack3d : IAxes3fTrack<Position> { }
   public interface IRadiansRotationTrack3d : IAxes3fTrack<Quaternion> { }
-  public interface IScale3dTrack : IAxes3fTrack<ScaleStruct> { }
+  public interface IScale3dTrack : IAxes3fTrack<Scale> { }
 }

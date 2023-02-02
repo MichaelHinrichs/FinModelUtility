@@ -47,9 +47,9 @@ namespace fin.scene {
   ///   characters.
   /// </summary>
   public interface ISceneObject : ITickable, IRenderable, IDisposable {
-    IPosition Position { get; }
+    Position Position { get; }
     IRotation Rotation { get; }
-    IScale Scale { get; }
+    Scale Scale { get; }
 
     ISceneObject SetPosition(float x, float y, float z);
     ISceneObject SetRotationRadians(float xRadians, float yRadians, float zRadians);

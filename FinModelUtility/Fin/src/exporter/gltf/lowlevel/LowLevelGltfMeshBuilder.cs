@@ -32,9 +32,6 @@ namespace fin.exporter.gltf.lowlevel {
           null);
       boneTransformManager.InitModelVertices(model);
 
-      var outPosition = new ModelImpl.PositionImpl();
-      var outNormal = new ModelImpl.NormalImpl();
-
       var nullMaterial = gltfModel.CreateMaterial("null");
       nullMaterial.DoubleSided = false;
       nullMaterial.WithPBRSpecularGlossiness();
@@ -67,7 +64,7 @@ namespace fin.exporter.gltf.lowlevel {
       for (var p = 0; p < pointsCount; ++p) {
         var point = points[p];
 
-        boneTransformManager.ProjectVertex(point, outPosition, outNormal);
+        boneTransformManager.ProjectVertexPositionNormal(point, out var outPosition, out var outNormal);
         var pos = positionArray[p];
         pos.X = outPosition.X;
         pos.Y = outPosition.Y;

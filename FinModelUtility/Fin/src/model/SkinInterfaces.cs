@@ -11,7 +11,7 @@ using System;
 namespace fin.model {
   public interface ISkin {
     IReadOnlyList<IVertex> Vertices { get; }
-    IVertex AddVertex(IPosition position);
+    IVertex AddVertex(Position position);
     IVertex AddVertex(float x, float y, float z);
 
     IReadOnlyList<IMesh> Meshes { get; }
@@ -102,16 +102,16 @@ namespace fin.model {
     IBoneWeights? BoneWeights { get; }
     IVertex SetBoneWeights(IBoneWeights boneWeights);
 
-    IPosition LocalPosition { get; }
-    IVertex SetLocalPosition(IPosition localPosition);
+    Position LocalPosition { get; }
+    IVertex SetLocalPosition(Position localPosition);
     IVertex SetLocalPosition(float x, float y, float z);
 
-    INormal? LocalNormal { get; }
-    IVertex SetLocalNormal(INormal? localNormal);
+    Normal? LocalNormal { get; }
+    IVertex SetLocalNormal(Normal? localNormal);
     IVertex SetLocalNormal(float x, float y, float z);
 
-    ITangent? LocalTangent { get; }
-    IVertex SetLocalTangent(ITangent? localNormal);
+    Tangent? LocalTangent { get; }
+    IVertex SetLocalTangent(Tangent? localNormal);
     IVertex SetLocalTangent(float x, float y, float z, float w);
 
     IVertexAttributeArray<IColor>? Colors { get; }

@@ -8,16 +8,16 @@ namespace fin.model.impl {
     // TODO: Rethink this, this is all getting way too complicated.
 
     public class PositionTrack3dImpl : IPositionTrack3d {
-      private readonly ScalarAxesTrack<PositionStruct, float> impl_ =
+      private readonly ScalarAxesTrack<Position, float> impl_ =
           new(3,
               0,
               Interpolator.Float,
               InterpolatorWithTangents.Float,
-              (axesTrack, frame, defaultValue) => new PositionStruct {
-                X = axesTrack.AxisTracks[0].GetInterpolatedFrame(frame, defaultValue[0]),
-                Y = axesTrack.AxisTracks[1].GetInterpolatedFrame(frame, defaultValue[1]),
-                Z = axesTrack.AxisTracks[2].GetInterpolatedFrame(frame, defaultValue[2]),
-              });
+              (axesTrack, frame, defaultValue) => new Position(
+                axesTrack.AxisTracks[0].GetInterpolatedFrame(frame, defaultValue[0]),
+                axesTrack.AxisTracks[1].GetInterpolatedFrame(frame, defaultValue[1]),
+                axesTrack.AxisTracks[2].GetInterpolatedFrame(frame, defaultValue[2])
+              ));
 
       public IReadOnlyList<ITrack<float>> AxisTracks => this.impl_.AxisTracks;
 
@@ -27,7 +27,7 @@ namespace fin.model.impl {
         set => this.impl_.FrameCount = value;
       }
 
-      public void Set(IAxesTrack<float, PositionStruct> other)
+      public void Set(IAxesTrack<float, Position> other)
         => this.impl_.Set(other);
 
       public void Set(
@@ -45,7 +45,7 @@ namespace fin.model.impl {
       public Keyframe<ValueAndTangents<float>>?[] GetAxisListAtKeyframe(int keyframe)
         => this.impl_.GetAxisListAtKeyframe(keyframe);
 
-      public PositionStruct GetInterpolatedFrame(
+      public Position GetInterpolatedFrame(
           float frame,
           float[] defaultValue,
           bool useLoopingInterpolation = false)
@@ -56,17 +56,17 @@ namespace fin.model.impl {
     }
 
     public class ScaleTrackImpl : IScale3dTrack {
-      private readonly ScalarAxesTrack<ScaleStruct, float> impl_ =
+      private readonly ScalarAxesTrack<Scale, float> impl_ =
           new(3,
               1,
               Interpolator.Float,
               InterpolatorWithTangents.Float,
               (axesTrack, frame, defaultValue)
-                  => new ScaleStruct {
-                    X = axesTrack.AxisTracks[0].GetInterpolatedFrame(frame, defaultValue[0]),
-                    Y = axesTrack.AxisTracks[1].GetInterpolatedFrame(frame, defaultValue[1]),
-                    Z = axesTrack.AxisTracks[2].GetInterpolatedFrame(frame, defaultValue[2]),
-                  });
+                  => new Scale(
+                    axesTrack.AxisTracks[0].GetInterpolatedFrame(frame, defaultValue[0]),
+                    axesTrack.AxisTracks[1].GetInterpolatedFrame(frame, defaultValue[1]),
+                    axesTrack.AxisTracks[2].GetInterpolatedFrame(frame, defaultValue[2])
+                  ));
 
       public IReadOnlyList<ITrack<float>> AxisTracks => this.impl_.AxisTracks;
 
@@ -76,7 +76,7 @@ namespace fin.model.impl {
         set => this.impl_.FrameCount = value;
       }
 
-      public void Set(IAxesTrack<float, ScaleStruct> other) => this.impl_.Set(other);
+      public void Set(IAxesTrack<float, Scale> other) => this.impl_.Set(other);
 
       public void Set(
           int frame,
@@ -93,7 +93,7 @@ namespace fin.model.impl {
       public Keyframe<ValueAndTangents<float>>?[] GetAxisListAtKeyframe(int keyframe)
         => this.impl_.GetAxisListAtKeyframe(keyframe);
 
-      public ScaleStruct GetInterpolatedFrame(
+      public Scale GetInterpolatedFrame(
           float frame,
           float[] defaultValue,
           bool useLoopingInterpolation = false

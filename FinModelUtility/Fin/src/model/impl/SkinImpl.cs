@@ -44,7 +44,7 @@ namespace fin.model.impl {
 
       public IReadOnlyList<IVertex> Vertices { get; }
 
-      public IVertex AddVertex(IPosition position) {
+      public IVertex AddVertex(Position position) {
         lock (this.vertices_) {
           var vertex = new VertexImpl(this.vertices_.Count, position);
           this.vertices_.Add(vertex);
@@ -183,7 +183,7 @@ namespace fin.model.impl {
       }
 
       private class VertexImpl : IVertex {
-        public VertexImpl(int index, IPosition position) {
+        public VertexImpl(int index, Position position) {
           this.Index = index;
           this.SetLocalPosition(position);
         }
@@ -203,37 +203,37 @@ namespace fin.model.impl {
         }
 
 
-        public IPosition LocalPosition { get; private set; }
+        public Position LocalPosition { get; private set; }
 
-        public IVertex SetLocalPosition(IPosition localPosition) {
+        public IVertex SetLocalPosition(Position localPosition) {
           this.LocalPosition = localPosition;
           return this;
         }
 
         public IVertex SetLocalPosition(float x, float y, float z)
-          => this.SetLocalPosition(new PositionImpl { X = x, Y = y, Z = z });
+          => this.SetLocalPosition(new Position(x, y, z));
 
 
-        public INormal? LocalNormal { get; private set; }
+        public Normal? LocalNormal { get; private set; }
 
-        public IVertex SetLocalNormal(INormal localNormal) {
+        public IVertex SetLocalNormal(Normal? localNormal) {
           this.LocalNormal = localNormal;
           return this;
         }
 
         public IVertex SetLocalNormal(float x, float y, float z)
-          => this.SetLocalNormal(new NormalImpl { X = x, Y = y, Z = z });
+          => this.SetLocalNormal(new Normal(x, y ,z));
 
 
-        public ITangent? LocalTangent { get; private set; }
+        public Tangent? LocalTangent { get; private set; }
 
-        public IVertex SetLocalTangent(ITangent localTangent) {
+        public IVertex SetLocalTangent(Tangent? localTangent) {
           this.LocalTangent = localTangent;
           return this;
         }
 
         public IVertex SetLocalTangent(float x, float y, float z, float w)
-          => this.SetLocalTangent(new TangentImpl { X = x, Y = y, Z = z, W = w });
+          => this.SetLocalTangent(new Tangent(x, y, z, w));
 
 
         public IVertexAttributeArray<IColor>? Colors { get; private set; }

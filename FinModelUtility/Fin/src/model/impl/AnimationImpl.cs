@@ -97,17 +97,17 @@ namespace fin.model.impl {
       }
 
       private class MorphTargetImpl : IMorphTarget {
-        private Dictionary<IVertex, IPosition> morphs_ = new();
+        private Dictionary<IVertex, Position> morphs_ = new();
 
         public MorphTargetImpl() {
           this.Morphs =
-              new ReadOnlyDictionary<IVertex, IPosition>(this.morphs_);
+              new ReadOnlyDictionary<IVertex, Position>(this.morphs_);
         }
 
         public string Name { get; set; }
-        public IReadOnlyDictionary<IVertex, IPosition> Morphs { get; }
+        public IReadOnlyDictionary<IVertex, Position> Morphs { get; }
 
-        public IMorphTarget MoveTo(IVertex vertex, IPosition position) {
+        public IMorphTarget MoveTo(IVertex vertex, Position position) {
           this.morphs_[vertex] = position;
           return this;
         }
@@ -139,18 +139,18 @@ namespace fin.model.impl {
     }
 
     public static class TrackInterpolators {
-      public static IPosition PositionInterpolator(
-          IPosition lhs,
-          IPosition rhs,
+      public static Position PositionInterpolator(
+          Position lhs,
+          Position rhs,
           float progress) {
         var fromFrac = 1 - progress;
         var toFrac = progress;
 
-        return new PositionImpl {
-          X = lhs.X * fromFrac + rhs.X * toFrac,
-          Y = lhs.Y * fromFrac + rhs.Y * toFrac,
-          Z = lhs.Z * fromFrac + rhs.Z * toFrac
-        };
+        return new Position(
+          lhs.X * fromFrac + rhs.X * toFrac,
+          lhs.Y * fromFrac + rhs.Y * toFrac,
+          lhs.Z * fromFrac + rhs.Z * toFrac
+        );
       }
 
       // TODO: Implement this.
@@ -160,18 +160,18 @@ namespace fin.model.impl {
           float progress)
         => QuaternionUtil.Create(lhs.XRadians, lhs.YRadians, lhs.ZRadians);
 
-      public static IScale ScaleInterpolator(
-          IScale lhs,
-          IScale rhs,
+      public static Scale ScaleInterpolator(
+          Scale lhs,
+          Scale rhs,
           float progress) {
         var fromFrac = 1 - progress;
         var toFrac = progress;
 
-        return new ScaleImpl {
-          X = lhs.X * fromFrac + rhs.X * toFrac,
-          Y = lhs.Y * fromFrac + rhs.Y * toFrac,
-          Z = lhs.Z * fromFrac + rhs.Z * toFrac
-        };
+        return new Scale (
+          lhs.X * fromFrac + rhs.X * toFrac,
+          lhs.Y * fromFrac + rhs.Y * toFrac,
+          lhs.Z * fromFrac + rhs.Z * toFrac
+        );
       }
     }
 

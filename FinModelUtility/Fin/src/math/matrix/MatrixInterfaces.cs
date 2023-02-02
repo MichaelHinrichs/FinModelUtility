@@ -51,9 +51,9 @@ namespace fin.math.matrix {
     IFinMatrix4x4 CloneAndTranspose();
     void TransposeIntoBuffer(IFinMatrix4x4 buffer);
 
-    void CopyTranslationInto(IPosition dst);
+    void CopyTranslationInto(out Position dst);
     void CopyRotationInto(out Quaternion dst);
-    void CopyScaleInto(IScale dst);
+    void CopyScaleInto(out Scale dst);
     void Decompose(out Vector3 translation, out Quaternion rotation, out Vector3 scale);
   }
 }

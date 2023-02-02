@@ -1,5 +1,6 @@
 ﻿using fin.math;
 using fin.math.matrix;
+using fin.model;
 using fin.model.impl;
 using Quad64.src.LevelInfo;
 using sm64.scripts;
@@ -374,11 +375,11 @@ namespace Quad64.src.Scripts {
       }
       this.nodeCurrent.matrix.MultiplyInPlace(
           MatrixTransformUtil.FromTrs(
-              new ModelImpl.PositionImpl {
-                  X = posX,
-                  Y = posY,
-                  Z = posZ
-              },
+              new Position(
+                  posX,
+                  posY,
+                  posZ
+              ),
               new ModelImpl.RotationImpl().SetDegrees(
                   rotX, rotY, rotZ),
               null));
@@ -474,8 +475,7 @@ namespace Quad64.src.Scripts {
     private void CMD_1D(Model3D mdl, byte[] cmd) {
       var scale = (bytesToInt(cmd, 4, 4) / 65536.0f);
       this.nodeCurrent.matrix.MultiplyInPlace(
-          MatrixTransformUtil.FromScale(
-              new ModelImpl.ScaleImpl {X = scale, Y = scale, Z = scale}));
+          MatrixTransformUtil.FromScale(new Scale (scale)));
     }
 
     private byte getCmdLength(byte cmd) {

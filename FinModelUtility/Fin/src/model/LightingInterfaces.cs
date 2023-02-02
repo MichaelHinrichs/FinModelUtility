@@ -24,11 +24,11 @@ namespace fin.model {
     string Name { get; }
     ILight SetName(string name);
     
-    IPosition Position { get; }
-    ILight SetPosition(IPosition position);
+    Position Position { get; }
+    ILight SetPosition(Position position);
 
-    INormal Normal { get; }
-    ILight SetNormal(INormal normal);
+    Normal Normal { get; }
+    ILight SetNormal(Normal normal);
 
     IColor Color { get; }
     ILight SetColor(IColor color);

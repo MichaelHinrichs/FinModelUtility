@@ -1,19 +1,124 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 
 namespace fin.model {
-  public interface IVector4 {
-    float X { get; set; }
-    float Y { get; set; }
-    float Z { get; set; }
-    float W { get; }
+  public struct Position {
+    public Position() : this(0, 0, 0) { }
+
+    public Position(float x, float y, float z) {
+      X = x;
+      Y = y;
+      Z = z;
+    }
+
+    public float X { get; set; }
+    public float Y { get; set; }
+    public float Z { get; set; }
+
+
+    public override string ToString() =>
+        $"{{{this.X}, {this.Y}, {this.Z}}}";
+
+    public override bool Equals(object? other) {
+      if (other is Position otherPosition) {
+        var error = .0001;
+        return Math.Abs(this.X - otherPosition.X) < error &&
+               Math.Abs(this.Y - otherPosition.Y) < error &&
+               Math.Abs(this.Z - otherPosition.Z) < error;
+      }
+
+      return false;
+    }
   }
 
-  public interface IPosition : IVector4 {}
+  public struct Scale {
+    public Scale() : this(0, 0, 0) { }
 
-  public interface INormal : IVector4 {}
+    public Scale(float scale) : this(scale, scale, scale) { }
 
-  public interface ITangent : IVector4 {
-    new float W { get; set; }
+    public Scale(float x, float y, float z) {
+      X = x;
+      Y = y;
+      Z = z;
+    }
+
+    public float X { get; set; }
+    public float Y { get; set; }
+    public float Z { get; set; }
+
+    public override string ToString() =>
+        $"{{{this.X}, {this.Y}, {this.Z}}}";
+
+    public override bool Equals(object? other) {
+      if (other is Scale otherScale) {
+        var error = .0001;
+        return Math.Abs(this.X - otherScale.X) < error &&
+               Math.Abs(this.Y - otherScale.Y) < error &&
+               Math.Abs(this.Z - otherScale.Z) < error;
+      }
+
+      return false;
+    }
+  }
+
+  public struct Normal {
+    public Normal() : this(0, 0, 0) { }
+
+    public Normal(float x, float y, float z) {
+      X = x;
+      Y = y;
+      Z = z;
+    }
+
+    public float X { get; set; }
+    public float Y { get; set; }
+    public float Z { get; set; }
+
+    public override string ToString() =>
+        $"{{{this.X}, {this.Y}, {this.Z}}}";
+
+    public override bool Equals(object? other) {
+      if (other is Normal otherNormal) {
+        var error = .0001;
+        return Math.Abs(this.X - otherNormal.X) < error &&
+               Math.Abs(this.Y - otherNormal.Y) < error &&
+               Math.Abs(this.Z - otherNormal.Z) < error;
+      }
+
+      return false;
+    }
+  }
+
+  public struct Tangent {
+    public Tangent() : this(0, 0, 0, 0) { }
+
+    public Tangent(float x, float y, float z, float w) {
+      X = x;
+      Y = y;
+      Z = z;
+      W = w;
+    }
+
+    public float X { get; set; }
+    public float Y { get; set; }
+    public float Z { get; set; }
+    public float W { get; set; }
+
+
+    public override string ToString() =>
+        $"{{{this.X}, {this.Y}, {this.Z}, {this.W}}}";
+
+    public override bool Equals(object? other) {
+      if (other is Tangent otherTangent) {
+        var error = .0001;
+        return Math.Abs(this.X - otherTangent.X) < error &&
+               Math.Abs(this.Y - otherTangent.Y) < error &&
+               Math.Abs(this.Z - otherTangent.Z) < error &&
+               Math.Abs(this.W - otherTangent.W) < error;
+      }
+
+      return false;
+    }
   }
 
 
@@ -22,8 +127,6 @@ namespace fin.model {
     float Y { get; set; }
     float Z { get; set; }
   }
-
-  public interface IScale : IVector3 {}
 
   /*public interface IQuaternion {
     float X { get; }

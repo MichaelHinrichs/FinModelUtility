@@ -1,7 +1,6 @@
 ﻿using System.IO;
 
 using fin.model;
-using fin.model.impl;
 using fin.util.asserts;
 
 using schema;
@@ -36,15 +35,15 @@ namespace cmb.schema.shpa {
   }
 
   public class Posi : IDeserializable {
-    public IPosition[] Values { get; private set; }
+    public Position[] Values { get; private set; }
 
     public void Read(IEndianBinaryReader r) {
       r.AssertMagicText("posi");
 
       var count = (r.ReadInt32() - 8) / 4 / 3;
-      this.Values = new IPosition[count];
+      this.Values = new Position[count];
       for (var i = 0; i < count; ++i) {
-        this.Values[i] = new ModelImpl.PositionImpl() {
+        this.Values[i] = new Position {
             X = r.ReadSingle(),
             Y = r.ReadSingle(),
             Z = r.ReadSingle()
@@ -54,15 +53,15 @@ namespace cmb.schema.shpa {
   }
 
   public class Norm : IDeserializable {
-    public INormal[] Values { get; private set; }
+    public Normal[] Values { get; private set; }
 
     public void Read(IEndianBinaryReader r) {
       r.AssertMagicText("norm");
 
       var count = (r.ReadInt32() - 8) / 2 / 3;
-      this.Values = new INormal[count];
+      this.Values = new Normal[count];
       for (var i = 0; i < count; ++i) {
-        this.Values[i] = new ModelImpl.NormalImpl {
+        this.Values[i] = new Normal {
             X = r.ReadSn16(),
             Y = r.ReadSn16(),
             Z = r.ReadSn16()

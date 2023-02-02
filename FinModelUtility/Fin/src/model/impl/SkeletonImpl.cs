@@ -60,17 +60,14 @@ namespace fin.model.impl {
         }
 
 
-        public IPosition LocalPosition { get; } =
-          new PositionImpl();
+        public Position LocalPosition { get; private set; }
 
         public IRotation? LocalRotation { get; private set; }
 
-        public IScale? LocalScale { get; private set; }
+        public Scale? LocalScale { get; private set; }
 
         public IBone SetLocalPosition(float x, float y, float z) {
-          this.LocalPosition.X = x;
-          this.LocalPosition.Y = y;
-          this.LocalPosition.Z = z;
+          this.LocalPosition = new Position(x, y, z);
           return this;
         }
 
@@ -87,7 +84,7 @@ namespace fin.model.impl {
         }
 
         public IBone SetLocalScale(float x, float y, float z) {
-          this.LocalScale ??= new ScaleImpl {X = x, Y = y, Z = z};
+          this.LocalScale ??= new Scale(x, y, z);
           return this;
         }
 

@@ -146,9 +146,10 @@ namespace modl.schema.xml {
               translation.Y,
               translation.Z);
             if (sceneObject.Position.Y == 0) {
-              sceneObject.Position.Y =
+              sceneObject.SetPosition(sceneObject.Position.X, 
                 bwTerrain.Heightmap.GetHeightAtPosition(
-                  sceneObject.Position.X, sceneObject.Position.Z);
+                  sceneObject.Position.X, sceneObject.Position.Z),
+                sceneObject.Position.Z);
             }
 
             sceneObject.Rotation.SetQuaternion(rotation);

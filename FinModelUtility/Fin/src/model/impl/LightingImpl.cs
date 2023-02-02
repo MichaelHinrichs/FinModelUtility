@@ -24,19 +24,15 @@ namespace fin.model.impl {
         return this;
       }
 
-      public IPosition Position { get; } = new PositionImpl();
-      public ILight SetPosition(IPosition position) {
-        this.Position.X = position.X;
-        this.Position.Y = position.Y;
-        this.Position.Z = position.Z;
+      public Position Position { get; private set; }
+      public ILight SetPosition(Position position) {
+        this.Position = position;
         return this;
       }
 
-      public INormal Normal { get; } = new NormalImpl();
-      public ILight SetNormal(INormal normal) {
-        this.Normal.X = normal.X;
-        this.Normal.Y = normal.Y;
-        this.Normal.Z = normal.Z;
+      public Normal Normal { get; private set; }
+      public ILight SetNormal(Normal normal) {
+        this.Normal = normal;
         return this;
       }
 

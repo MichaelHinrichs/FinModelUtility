@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 using fin.data;
 using fin.math.matrix;
@@ -29,16 +30,14 @@ namespace fin.math {
 
     public IReadOnlyFinMatrix4x4? GetTransformMatrix(IVertex vertex);
 
-    void ProjectVertex(
+    void ProjectVertexPosition(
         IVertex vertex,
-        IPosition outPosition,
-        INormal? outNormal = null);
+        out Position outPosition);
 
-    void ProjectVertex(
+    void ProjectVertexPositionNormal(
         IVertex vertex,
-        out float x,
-        out float y,
-        out float z);
+        out Position outPosition,
+        out Normal outNormal);
 
     void ProjectPosition(IBone bone, ref Vector3 xyz);
 
@@ -102,9 +101,6 @@ namespace fin.math {
       var animation = animationAndFrame?.Item1;
       var frame = animationAndFrame?.Item2;
 
-      var translationBuffer = new ModelImpl.PositionImpl();
-      var scaleBuffer = new ModelImpl.ScaleImpl();
-
       IReadOnlyFinMatrix4x4 managerMatrix;
       if (this.Parent == null) {
         managerMatrix = FinMatrix4x4.IDENTITY;
@@ -142,9 +138,9 @@ namespace fin.math {
             : (Quaternion?) null;
         var boneLocalScale = bone.LocalScale;
 
-        IPosition? animationLocalPosition = null;
+        Position? animationLocalPosition = null;
         Quaternion? animationLocalRotation = null;
-        IScale? animationLocalScale = null;
+        Scale? animationLocalScale = null;
 
         // The pose of the animation, if available.
         IBoneTracks? boneTracks = null;
@@ -205,7 +201,7 @@ namespace fin.math {
           matrix.MultiplyInPlace(localTranslationMatrix);
 
           // Extracts translation/rotation/scale.
-          matrix.CopyTranslationInto(translationBuffer);
+          matrix.CopyTranslationInto(out var translationBuffer);
           Quaternion rotationBuffer;
           if (bone.FaceTowardsCamera) {
             var camera = Camera.Instance;
@@ -219,10 +215,11 @@ namespace fin.math {
             matrix.CopyRotationInto(out rotationBuffer);
           }
 
+          Scale scaleBuffer;
           if (bone.IgnoreParentScale) {
-            scaleBuffer.X = scaleBuffer.Y = scaleBuffer.Z = 1;
+            scaleBuffer = new Scale(1);
           } else {
-            matrix.CopyScaleInto(scaleBuffer);
+            matrix.CopyScaleInto(out scaleBuffer);
           }
 
           // Creates child matrix.
@@ -334,84 +331,53 @@ namespace fin.math {
       };
     }
 
-    public void ProjectVertex(
+    public void ProjectVertexPosition(
         IVertex vertex,
-        out float x,
-        out float y,
-        out float z) {
+        out Position outPosition) {
+      outPosition = vertex.LocalPosition;
+
       var finTransformMatrix = this.GetTransformMatrix(vertex);
-
-      var localPosition = vertex.LocalPosition;
-
       if (finTransformMatrix == null) {
-        x = localPosition.X;
-        y = localPosition.Y;
-        z = localPosition.Z;
         return;
       }
 
       var transformMatrix = finTransformMatrix.Impl;
-
-      var pos = new Vector3(localPosition.X, localPosition.Y, localPosition.Z);
-      GlMatrixUtil.ProjectPosition(transformMatrix, ref pos);
-      x = pos.X;
-      y = pos.Y;
-      z = pos.Z;
+      GlMatrixUtil.ProjectPosition(transformMatrix, ref outPosition);
     }
 
-    public void ProjectVertex(
+    public void ProjectVertexPositionNormal(
         IVertex vertex,
-        IPosition outPosition,
-        INormal? outNormal = null) {
+        out Position outPosition,
+        out Normal outNormal) {
+      outPosition = vertex.LocalPosition;
+      outNormal = vertex.LocalNormal.GetValueOrDefault();
+
       var finTransformMatrix = this.GetTransformMatrix(vertex);
-
-      var localPosition = vertex.LocalPosition;
-      var localNormal = vertex.LocalNormal;
-
       if (finTransformMatrix == null) {
-        outPosition.X = localPosition.X;
-        outPosition.Y = localPosition.Y;
-        outPosition.Z = localPosition.Z;
-
-        if (outNormal != null && localNormal != null) {
-          outNormal.X = localNormal.X;
-          outNormal.Y = localNormal.Y;
-          outNormal.Z = localNormal.Z;
-        }
-
         return;
       }
 
       var transformMatrix = finTransformMatrix.Impl;
-
-      var pos = new Vector3(localPosition.X, localPosition.Y, localPosition.Z);
-      GlMatrixUtil.ProjectPosition(transformMatrix,
-                                   ref pos);
-      outPosition.X = pos.X;
-      outPosition.Y = pos.Y;
-      outPosition.Z = pos.Z;
-
-      if (outNormal != null && localNormal != null) {
-        var norm = new Vector3(localNormal.X, localNormal.Y, localNormal.Z);
-        GlMatrixUtil.ProjectNormal(transformMatrix,
-                                   ref norm);
-
-        outNormal.X = norm.X;
-        outNormal.Y = norm.Y;
-        outNormal.Z = norm.Z;
+      GlMatrixUtil.ProjectPosition(transformMatrix, ref outPosition);
+      if (vertex.LocalNormal.HasValue) {
+        GlMatrixUtil.ProjectNormal(transformMatrix, ref outNormal);
       }
     }
 
-    public void ProjectPosition(IBone bone, ref Vector3 xyz) {
-      GlMatrixUtil.ProjectPosition(
-          this.GetWorldMatrix(bone).Impl,
-          ref xyz);
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void ProjectPosition(IBone bone, ref Position xyz)
+      => GlMatrixUtil.ProjectPosition(this.GetWorldMatrix(bone).Impl, ref xyz);
 
-    public void ProjectNormal(IBone bone, ref Vector3 xyz) {
-      GlMatrixUtil.ProjectNormal(
-          this.GetWorldMatrix(bone).Impl,
-          ref xyz);
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void ProjectPosition(IBone bone, ref Vector3 xyz)
+      => GlMatrixUtil.ProjectPosition(this.GetWorldMatrix(bone).Impl, ref xyz);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void ProjectNormal(IBone bone, ref Normal xyz)
+      => GlMatrixUtil.ProjectNormal(this.GetWorldMatrix(bone).Impl, ref xyz);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void ProjectNormal(IBone bone, ref Vector3 xyz)
+      => GlMatrixUtil.ProjectNormal(this.GetWorldMatrix(bone).Impl, ref xyz);
   }
 }

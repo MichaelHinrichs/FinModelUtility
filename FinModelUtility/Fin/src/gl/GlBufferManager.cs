@@ -7,14 +7,15 @@ using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 
 namespace fin.gl {
   public class GlBufferManager : IDisposable {
     private readonly IReadOnlyList<IVertex> vertices_;
 
-    private readonly float[] positionData_;
-    private readonly float[] normalData_;
+    private readonly Position[] positionData_;
+    private readonly Normal[] normalData_;
     private readonly float[][] uvData_;
     private readonly float[][] colorData_;
 
@@ -32,8 +33,8 @@ namespace fin.gl {
     public GlBufferManager(IModel model) {
       this.vertices_ = model.Skin.Vertices;
 
-      this.positionData_ = new float[POSITION_SIZE_ * this.vertices_.Count];
-      this.normalData_ = new float[NORMAL_SIZE_ * this.vertices_.Count];
+      this.positionData_ = new Position[this.vertices_.Count];
+      this.normalData_ = new Normal[this.vertices_.Count];
       this.uvData_ = new float[4][];
       for (var i = 0; i < this.uvData_.Length; ++i) {
         this.uvData_[i] = new float[UV_SIZE_ * this.vertices_.Count];
@@ -64,34 +65,24 @@ namespace fin.gl {
       GL.DeleteBuffers(this.vboIds_.Length, this.vboIds_);
     }
 
-    private readonly IPosition position_ = new ModelImpl.PositionImpl();
-    private readonly INormal normal_ = new ModelImpl.NormalImpl();
-
-    public void UpdateTransforms(IBoneTransformManager? boneTransformManager) {
+    public unsafe void UpdateTransforms(IBoneTransformManager? boneTransformManager) {
       for (var i = 0; i < this.vertices_.Count; ++i) {
         var vertex = this.vertices_[i];
 
-        var position = this.position_;
-        var normal = this.normal_;
+        Position position;
+        Normal normal;
         if (boneTransformManager != null) {
-          boneTransformManager.ProjectVertex(
+          boneTransformManager.ProjectVertexPositionNormal(
               vertex,
-              this.position_,
-              this.normal_);
+              out position,
+              out normal);
         } else {
           position = vertex.LocalPosition;
-          normal = vertex.LocalNormal;
+          normal = vertex.LocalNormal.GetValueOrDefault();
         }
 
-        var positionOffset = POSITION_SIZE_ * i;
-        this.positionData_[positionOffset + 0] = position.X;
-        this.positionData_[positionOffset + 1] = position.Y;
-        this.positionData_[positionOffset + 2] = position.Z;
-
-        var normalOffset = NORMAL_SIZE_ * i;
-        this.normalData_[normalOffset + 0] = normal?.X ?? 0;
-        this.normalData_[normalOffset + 1] = normal?.Y ?? 0;
-        this.normalData_[normalOffset + 2] = normal?.Z ?? 0;
+        this.positionData_[i] = position;
+        this.normalData_[i] = normal;
 
         if (uvStale_) {
           var uvCount = Math.Min(this.uvData_.Length, vertex.Uvs?.Count ?? 0);
@@ -133,7 +124,7 @@ namespace fin.gl {
       GL.BindBuffer(BufferTarget.ArrayBuffer,
                     this.vboIds_[vertexAttribPosition]);
       GL.BufferData(BufferTarget.ArrayBuffer,
-                    new IntPtr(sizeof(float) * this.positionData_.Length),
+                    new IntPtr(sizeof(float) * GlBufferManager.POSITION_SIZE_ * this.positionData_.Length),
                     this.positionData_,
                     BufferUsageHint.DynamicDraw);
       GL.VertexAttribPointer(
@@ -149,7 +140,7 @@ namespace fin.gl {
       var vertexAttribNormal = 1;
       GL.BindBuffer(BufferTarget.ArrayBuffer, this.vboIds_[vertexAttribNormal]);
       GL.BufferData(BufferTarget.ArrayBuffer,
-                    new IntPtr(sizeof(float) * this.normalData_.Length),
+                    new IntPtr(sizeof(float) * GlBufferManager.NORMAL_SIZE_ * this.normalData_.Length),
                     this.normalData_,
                     BufferUsageHint.DynamicDraw);
       GL.VertexAttribPointer(

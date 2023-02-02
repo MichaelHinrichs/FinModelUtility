@@ -11,7 +11,7 @@ namespace fin.math.matrix {
     public static IFinMatrix4x4 FromIdentity()
       => new FinMatrix4x4().SetIdentity();
 
-    public static IFinMatrix4x4 FromTranslation(IPosition translation)
+    public static IFinMatrix4x4 FromTranslation(Position translation)
       => MatrixTransformUtil.FromTranslation(
           translation.X,
           translation.Y,
@@ -26,33 +26,33 @@ namespace fin.math.matrix {
     public static IFinMatrix4x4 FromRotation(Quaternion rotation)
       => new FinMatrix4x4(Matrix4x4.CreateFromQuaternion(rotation));
 
-    public static IFinMatrix4x4 FromScale(IScale scale)
+    public static IFinMatrix4x4 FromScale(Scale scale)
       => new FinMatrix4x4(Matrix4x4.CreateScale(scale.X, scale.Y, scale.Z));
 
     public static IFinMatrix4x4 FromTrs(
-        IPosition? translation,
+        Position? translation,
         IRotation? rotation,
-        IScale? scale)
+        Scale? scale)
       => MatrixTransformUtil.FromTrs(
           translation,
           rotation != null ? QuaternionUtil.Create(rotation) : null,
           scale);
 
     public static IFinMatrix4x4 FromTrs(
-      IPosition? translation,
+      Position? translation,
       Quaternion? rotation,
-      IScale? scale)
+      Scale? scale)
       => FromTrs(translation, rotation, scale, new FinMatrix4x4());
 
     public static IFinMatrix4x4 FromTrs(
-      IPosition? translation,
+      Position? translation,
       Quaternion? rotation,
-      IScale? scale,
+      Scale? scale,
       IFinMatrix4x4 dst) {
       dst.SetIdentity();
 
       if (translation != null) {
-        dst.MultiplyInPlace(MatrixTransformUtil.FromTranslation(translation));
+        dst.MultiplyInPlace(MatrixTransformUtil.FromTranslation(translation.Value));
       }
 
       if (rotation != null) {
@@ -61,21 +61,21 @@ namespace fin.math.matrix {
       }
 
       if (scale != null) {
-        dst.MultiplyInPlace(MatrixTransformUtil.FromScale(scale));
+        dst.MultiplyInPlace(MatrixTransformUtil.FromScale(scale.Value));
       }
 
       return dst;
     }
 
     public static IFinMatrix4x4 FromTrs(
-        IPosition?[] translations,
+        Position?[] translations,
         Quaternion?[] rotations,
-        IScale?[] scales) {
+        Scale?[] scales) {
       var matrix = MatrixTransformUtil.FromIdentity();
 
       foreach (var translation in translations) {
         if (translation != null) {
-          matrix.MultiplyInPlace(MatrixTransformUtil.FromTranslation(translation));
+          matrix.MultiplyInPlace(MatrixTransformUtil.FromTranslation(translation.Value));
         }
       }
 
@@ -88,7 +88,7 @@ namespace fin.math.matrix {
 
       foreach (var scale in scales) {
         if (scale != null) {
-          matrix.MultiplyInPlace(MatrixTransformUtil.FromScale(scale));
+          matrix.MultiplyInPlace(MatrixTransformUtil.FromScale(scale.Value));
         }
       }
 

@@ -30,8 +30,6 @@ namespace fin.model.util {
       var maxY = float.MinValue;
       var maxZ = float.MinValue;
 
-      var position = new ModelImpl.PositionImpl();
-
       foreach (var area in scene.Areas) {
         foreach (var obj in area.Objects) {
           foreach (var sceneModel in obj.Models) {
@@ -42,11 +40,13 @@ namespace fin.model.util {
             foreach (var vertex in model.Skin.Vertices) {
               anyVertices = true;
 
-              boneTransformManager.ProjectVertex(
+              boneTransformManager.ProjectVertexPosition(
                   vertex,
-                  out var x,
-                  out var y,
-                  out var z);
+                  out var position);
+
+              var x = position.X;
+              var y = position.Y;
+              var z = position.Z;
 
               minX = MathF.Min(minX, x);
               maxX = MathF.Max(maxX, x);
@@ -66,7 +66,6 @@ namespace fin.model.util {
                 var bone = boneQueue.Dequeue();
 
                 var xyz = new Vector3();
-
                 boneTransformManager.ProjectPosition(bone, ref xyz);
 
                 minX = MathF.Min(minX, xyz.X);

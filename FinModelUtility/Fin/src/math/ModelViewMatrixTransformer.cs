@@ -1,5 +1,6 @@
 ﻿using fin.math.matrix;
 using fin.model;
+
 using System;
 using System.Collections.Generic;
 using System.Numerics;
@@ -33,9 +34,7 @@ namespace fin.math {
         newMatrix = this.current_.Clone();
       }
 
-      this.stack_.AddLast(new MatrixNode {
-        Matrix = newMatrix
-      });
+      this.stack_.AddLast(new MatrixNode { Matrix = newMatrix });
       this.UpdateCurrent_();
 
       return this;
@@ -61,7 +60,7 @@ namespace fin.math {
     }
 
 
-    public SoftwareModelViewMatrixTransformer Translate(IPosition position)
+    public SoftwareModelViewMatrixTransformer Translate(Position position)
       => this.MultMatrix(MatrixTransformUtil.FromTranslation(position));
 
     public SoftwareModelViewMatrixTransformer Translate(
@@ -77,21 +76,21 @@ namespace fin.math {
     public SoftwareModelViewMatrixTransformer Rotate(Quaternion rotation)
       => this.MultMatrix(MatrixTransformUtil.FromRotation(rotation));
 
-    public SoftwareModelViewMatrixTransformer Scale(IScale scale)
+    public SoftwareModelViewMatrixTransformer Scale(Scale scale)
       => this.MultMatrix(MatrixTransformUtil.FromScale(scale));
 
 
     public SoftwareModelViewMatrixTransformer Trs(
-        IPosition? position,
+        Position? position,
         IRotation? rotation,
-        IScale? scale)
+        Scale? scale)
       => this.MultMatrix(
           MatrixTransformUtil.FromTrs(position, rotation, scale));
 
     public SoftwareModelViewMatrixTransformer Trs(
-        IPosition? position,
+        Position? position,
         Quaternion? rotation,
-        IScale? scale)
+        Scale? scale)
       => this.MultMatrix(
           MatrixTransformUtil.FromTrs(position, rotation, scale));
 
@@ -113,8 +112,26 @@ namespace fin.math {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ProjectPosition(
         Matrix4x4 matrix,
+        ref Position xyz) 
+      => GlMatrixUtil.ProjectPosition(
+          matrix,
+          ref Unsafe.As<Position, Vector3>(ref xyz));
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void ProjectPosition(
+        Matrix4x4 matrix,
         ref Vector3 xyz)
       => xyz = Vector3.Transform(xyz, matrix);
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void ProjectNormal(
+        Matrix4x4 matrix,
+        ref Normal xyz)
+      => GlMatrixUtil.ProjectNormal(
+          matrix,
+          ref Unsafe.As<Normal, Vector3>(ref xyz));
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ProjectNormal(

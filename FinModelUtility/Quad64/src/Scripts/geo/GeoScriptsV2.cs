@@ -111,8 +111,7 @@ namespace Quad64.src.Scripts {
           case GeoScaleCommand geoScaleCommand: {
             var scale = (geoScaleCommand.Scale / 65536.0f);
             this.nodeCurrent.matrix.MultiplyInPlace(
-                MatrixTransformUtil.FromScale(
-                    new ModelImpl.ScaleImpl {X = scale, Y = scale, Z = scale}));
+                MatrixTransformUtil.FromScale(new Scale (scale)));
             AddDisplayList(
                 mdlLods,
                 lvl,
@@ -172,9 +171,7 @@ namespace Quad64.src.Scripts {
           .MultiplyInPlace(CreateTranslationMatrix_(position));
 
     public IFinMatrix4x4 CreateTranslationMatrix_(Vector3s position)
-      => MatrixTransformUtil.FromTranslation(new ModelImpl.PositionImpl {
-          X = position.X, Y = position.Y, Z = position.Z
-      });
+      => MatrixTransformUtil.FromTranslation(new Position(position.X, position.Y, position.Z));
 
     public IFinMatrix4x4 CreateRotationMatrix_(Vector3s rotation)
       => MatrixTransformUtil

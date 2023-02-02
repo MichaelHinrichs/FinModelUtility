@@ -232,11 +232,9 @@ namespace fin.math {
     }
 
     // Shamelessly copied from https://math.stackexchange.com/a/1463487
-    public void CopyTranslationInto(IPosition dst) {
+    public void CopyTranslationInto(out Position dst) {
       var translation = impl_.Translation;
-      dst.X = translation.X;
-      dst.Y = translation.Y;
-      dst.Z = translation.Z;
+      dst = Unsafe.As<Vector3, Position>(ref translation);
     }
 
     public void CopyRotationInto(out Quaternion dst) {
@@ -244,11 +242,9 @@ namespace fin.math {
       dst = -dst;
     }
 
-    public void CopyScaleInto(IScale dst) {
+    public void CopyScaleInto(out Scale dst) {
       this.Decompose(out _, out _, out var scale);
-      dst.X = scale.X;
-      dst.Y = scale.Y;
-      dst.Z = scale.Z;
+      dst = Unsafe.As<Vector3, Scale>(ref scale);
     }
 
     public void Decompose(out Vector3 translation, out Quaternion rotation,

@@ -425,12 +425,12 @@ namespace mod.cli {
     }
 
     private record FinModCache {
-      public IPosition[] PositionsByIndex { get; }
+      public Position[] PositionsByIndex { get; }
 
-      public INormal[] NormalsByIndex { get; }
+      public Normal[] NormalsByIndex { get; }
 
-      public INormal[] NbtNormalsByIndex { get; }
-      public ITangent[] TangentsByIndex { get; }
+      public Normal[] NbtNormalsByIndex { get; }
+      public Tangent[] TangentsByIndex { get; }
 
       public IColor[] ColorsByIndex { get; }
 
@@ -442,35 +442,34 @@ namespace mod.cli {
       public FinModCache(Mod mod) {
         this.PositionsByIndex =
             mod.vertices.Select(
-                   position => new ModelImpl.PositionImpl {
-                     X = position.X,
-                     Y = position.Y,
-                     Z = position.Z,
-                   })
+                   position => new Position(
+                     position.X,
+                     position.Y,
+                     position.Z
+                   ))
                .ToArray();
         this.NormalsByIndex =
             mod.vnormals.Select(
-                   vnormals => new ModelImpl.NormalImpl {
-                     X = vnormals.X,
-                     Y = vnormals.Y,
-                     Z = vnormals.Z,
-                   })
+                   vnormals => new Normal (
+                     vnormals.X,
+                     vnormals.Y,
+                     vnormals.Z
+                   ))
                .ToArray();
         this.NbtNormalsByIndex =
-            mod.vertexnbt.Select(vertexnbt => new ModelImpl.NormalImpl {
-              X = vertexnbt.Normal.X,
-              Y = vertexnbt.Normal.Y,
-              Z = vertexnbt.Normal.Z,
-            })
+            mod.vertexnbt.Select(vertexnbt => new Normal (
+              vertexnbt.Normal.X,
+              vertexnbt.Normal.Y,
+              vertexnbt.Normal.Z
+            ))
                .ToArray();
         this.TangentsByIndex = mod.vertexnbt.Select(
-                                      vertexnbt => new ModelImpl.TangentImpl {
-                                        X = vertexnbt.Tangent.X,
-                                        Y = vertexnbt.Tangent.Y,
-                                        Z = vertexnbt.Tangent.Z,
-                                        W = 0,
-                                      })
-                                  .ToArray();
+                                      vertexnbt => new Tangent (
+                                        vertexnbt.Tangent.X,
+                                        vertexnbt.Tangent.Y,
+                                        vertexnbt.Tangent.Z,
+                                        0
+                                      )).ToArray();
         this.ColorsByIndex =
             mod.vcolours.ToArray();
         this.TexCoordsByIndex =

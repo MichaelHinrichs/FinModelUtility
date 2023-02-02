@@ -123,11 +123,8 @@ namespace HaloWarsTools {
                                                     z / ((float) gridSize - 1), 0);
 
                      var vertex = finVertices[index];
-                     vertex.LocalPosition.X = position.X;
-                     vertex.LocalPosition.Y = position.Y;
-                     vertex.LocalPosition.Z = position.Z;
-
-                     vertex.SetLocalNormal(normal.X, normal.Y, normal.Z)
+                     vertex.SetLocalPosition(Unsafe.As<Vector3, Position>(ref position))
+                           .SetLocalNormal(Unsafe.As<Vector3, Normal>(ref normal))
                            .SetUv(texCoord.X, texCoord.Y);
                    });
 

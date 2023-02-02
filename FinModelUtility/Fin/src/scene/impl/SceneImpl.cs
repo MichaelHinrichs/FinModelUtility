@@ -131,17 +131,13 @@ namespace fin.scene {
         }
       }
 
-      public IPosition Position { get; } = new ModelImpl.PositionImpl();
+      public Position Position { get; private set; }
       public IRotation Rotation { get; } = new ModelImpl.RotationImpl();
 
-      public IScale Scale { get; } = new ModelImpl.ScaleImpl {
-          X = 1, Y = 1, Z = 1
-      };
+      public Scale Scale { get; private set; } = new Scale(1, 1, 1);
 
       public ISceneObject SetPosition(float x, float y, float z) {
-        this.Position.X = x;
-        this.Position.Y = y;
-        this.Position.Z = z;
+        this.Position = new Position(x, y, z);
         return this;
       }
 
@@ -168,9 +164,7 @@ namespace fin.scene {
       }
 
       public ISceneObject SetScale(float x, float y, float z) {
-        this.Scale.X = x;
-        this.Scale.Y = y;
-        this.Scale.Z = z;
+        this.Scale = new Scale(x, y, z);
         return this;
       }
 

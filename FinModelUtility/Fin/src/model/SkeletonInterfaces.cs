@@ -14,9 +14,9 @@ namespace fin.model {
     IBone Root { get; }
     IBone? Parent { get; }
 
-    IPosition LocalPosition { get; }
+    Position LocalPosition { get; }
     IRotation? LocalRotation { get; }
-    IScale? LocalScale { get; }
+    Scale? LocalScale { get; }
 
     IBone SetLocalPosition(float x, float y, float z);
     IBone SetLocalRotationDegrees(float x, float y, float z);

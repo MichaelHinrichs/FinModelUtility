@@ -39,9 +39,6 @@ namespace fin.exporter.gltf {
           null);
       boneTransformManager.InitModelVertices(model);
 
-      var outPosition = new ModelImpl.PositionImpl();
-      var outNormal = new ModelImpl.NormalImpl();
-
       var nullMaterialBuilder =
           new MaterialBuilder("null").WithDoubleSide(false)
                                      .WithSpecularGlossiness();
@@ -70,7 +67,7 @@ namespace fin.exporter.gltf {
           for (var p = 0; p < pointsCount; ++p) {
             var point = points[p];
 
-            boneTransformManager.ProjectVertex(point, outPosition, outNormal);
+            boneTransformManager.ProjectVertexPositionNormal(point, out var outPosition, out var outNormal);
 
             var position =
                 new Vector3(outPosition.X, outPosition.Y, outPosition.Z);
@@ -103,7 +100,7 @@ namespace fin.exporter.gltf {
                 vertexBuilder = vertexBuilder.WithGeometry(
                     position,
                     new Vector3(outNormal.X, outNormal.Y, outNormal.Z),
-                    new Vector4(tangent.X, tangent.Y, tangent.Z, tangent.W));
+                    new Vector4(tangent.Value.X, tangent.Value.Y, tangent.Value.Z, tangent.Value.W));
               }
             }
 
