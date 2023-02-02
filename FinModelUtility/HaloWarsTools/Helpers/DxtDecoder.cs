@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
 using fin.image;
 using fin.io;
+
+using SixLabors.ImageSharp.PixelFormats;
 
 
 // From https://github.com/mafaca/Dxt
@@ -62,9 +63,12 @@ namespace Dxt {
       var hasVolume = (caps2 & 0x200000) != 0;
 
       var sideCount = new[] {
-          hasPositiveX, hasNegativeX,
-          hasPositiveY, hasNegativeY,
-          hasPositiveZ, hasNegativeZ
+          hasPositiveX,
+          hasNegativeX,
+          hasPositiveY,
+          hasNegativeY,
+          hasPositiveZ,
+          hasNegativeZ
       }.Count(b => b);
 
       sideCount = Math.Max(1, sideCount);
@@ -73,18 +77,23 @@ namespace Dxt {
       if (hasPositiveX) {
         queue.Enqueue(CubeMapSide.POSITIVE_X);
       }
+
       if (hasNegativeX) {
         queue.Enqueue(CubeMapSide.NEGATIVE_X);
       }
+
       if (hasPositiveY) {
         queue.Enqueue(CubeMapSide.POSITIVE_Y);
       }
+
       if (hasNegativeY) {
         queue.Enqueue(CubeMapSide.NEGATIVE_Y);
       }
+
       if (hasPositiveZ) {
         queue.Enqueue(CubeMapSide.POSITIVE_Z);
       }
+
       if (hasNegativeZ) {
         queue.Enqueue(CubeMapSide.NEGATIVE_Z);
       }
@@ -111,9 +120,9 @@ namespace Dxt {
 
             if (!isCubeMap) {
               return (
-                       q000Text,
-                       new DxtImpl<IImage>(
-                           ToneMapAndConvertHdrMipMapsToBitmap(hdrMipMap)));
+                  q000Text,
+                  new DxtImpl<IImage>(
+                      ToneMapAndConvertHdrMipMapsToBitmap(hdrMipMap)));
             }
 
             var side = queue.Dequeue();
@@ -215,31 +224,37 @@ namespace Dxt {
       }
 
       var positiveX = hdrCubeMap.PositiveX != null
-                          ? ConvertHdrMipmapsToBitmap(
-                              hdrCubeMap.PositiveX, max)
-                          : null;
+          ? ConvertHdrMipmapsToBitmap(
+              hdrCubeMap.PositiveX,
+              max)
+          : null;
       var negativeX = hdrCubeMap.NegativeX != null
-                          ? ConvertHdrMipmapsToBitmap(
-                              hdrCubeMap.NegativeX, max)
-                          : null;
+          ? ConvertHdrMipmapsToBitmap(
+              hdrCubeMap.NegativeX,
+              max)
+          : null;
 
       var positiveY = hdrCubeMap.PositiveY != null
-                          ? ConvertHdrMipmapsToBitmap(
-                              hdrCubeMap.PositiveY, max)
-                          : null;
+          ? ConvertHdrMipmapsToBitmap(
+              hdrCubeMap.PositiveY,
+              max)
+          : null;
       var negativeY = hdrCubeMap.NegativeY != null
-                          ? ConvertHdrMipmapsToBitmap(
-                              hdrCubeMap.NegativeY, max)
-                          : null;
+          ? ConvertHdrMipmapsToBitmap(
+              hdrCubeMap.NegativeY,
+              max)
+          : null;
 
       var positiveZ = hdrCubeMap.PositiveZ != null
-                          ? ConvertHdrMipmapsToBitmap(
-                              hdrCubeMap.PositiveZ, max)
-                          : null;
+          ? ConvertHdrMipmapsToBitmap(
+              hdrCubeMap.PositiveZ,
+              max)
+          : null;
       var negativeZ = hdrCubeMap.NegativeZ != null
-                          ? ConvertHdrMipmapsToBitmap(
-                              hdrCubeMap.NegativeZ, max)
-                          : null;
+          ? ConvertHdrMipmapsToBitmap(
+              hdrCubeMap.NegativeZ,
+              max)
+          : null;
 
       return new CubeMapImpl<IImage> {
           PositiveX = positiveX,
@@ -261,8 +276,10 @@ namespace Dxt {
                          var height = hdr.Height;
                          return (IMipMapLevel<IImage>) new
                              MipMapLevel<IImage>(
-                                 DxtDecoder.ConvertHdrToBitmap(hdr.Impl, width,
-                                   height, max),
+                                 DxtDecoder.ConvertHdrToBitmap(hdr.Impl,
+                                   width,
+                                   height,
+                                   max),
                                  width,
                                  height);
                        })
@@ -306,54 +323,51 @@ namespace Dxt {
       int bcw = (width + 3) / 4;
       int bch = (height + 3) / 4;
       int clen_last = (width + 3) % 4 + 1;
-      int[] buffer = new int[16];
-      int[] colors = new int[4];
 
-      var bitmap = new Rgba32Image(width, height);
-      bitmap.Mutate((_, setHandler) => {
-        for (int t = 0; t < bch; t++) {
-          for (int s = 0; s < bcw; s++, offset += 8) {
-            var x = s * 4;
+      Span<Rgb24> buffer = stackalloc Rgb24[16];
+      Span<Rgb24> colors = stackalloc Rgb24[4];
 
-            int r0, g0, b0, r1, g1, b1;
-            int q0 = src[offset + 0] | src[offset + 1] << 8;
-            int q1 = src[offset + 2] | src[offset + 3] << 8;
-            Rgb565(q0, out r0, out g0, out b0);
-            Rgb565(q1, out r1, out g1, out b1);
-            colors[0] = Color(r0, g0, b0, 255);
-            colors[1] = Color(r1, g1, b1, 255);
-            if (q0 > q1) {
-              colors[2] = Color((r0 * 2 + r1) / 3,
-                                (g0 * 2 + g1) / 3,
-                                (b0 * 2 + b1) / 3,
-                                255);
-              colors[3] = Color((r0 + r1 * 2) / 3,
-                                (g0 + g1 * 2) / 3,
-                                (b0 + b1 * 2) / 3,
-                                255);
-            } else {
-              colors[2] = Color((r0 + r1) / 2, (g0 + g1) / 2, (b0 + b1) / 2,
-                                255);
-            }
+      var bitmap = new Rgb24Image(width, height);
+      using var imageLock = bitmap.Lock();
+      var ptr = imageLock.pixelScan0;
 
-            uint d = BitConverter.ToUInt32(src, offset + 4);
-            for (var i = 0; i < 16; i++, d >>= 2) {
-              buffer[i] = colors[d & 3];
-            }
+      for (int t = 0; t < bch; t++) {
+        for (int s = 0; s < bcw; s++, offset += 8) {
+          var x = s * 4;
 
-            var clen = (s < bcw - 1 ? 4 : clen_last);
-            for (int i = 0, y = t * 4; i < 4 && y < height; i++, y++) {
-              for (var c = 0; c < clen; ++c) {
-                var color = buffer[4 * i + c];
+          byte r0, g0, b0, r1, g1, b1;
+          ushort q0 = (ushort) (src[offset + 0] | src[offset + 1] << 8);
+          ushort q1 = (ushort) (src[offset + 2] | src[offset + 3] << 8);
+          Rgb565(q0, out r0, out g0, out b0);
+          Rgb565(q1, out r1, out g1, out b1);
+          colors[0] = new Rgb24(r0, g0, b0);
+          colors[1] = new Rgb24(r1, g1, b1);
+          if (q0 > q1) {
+            colors[2] = new Rgb24((byte) ((r0 * 2 + r1) / 3),
+                                  (byte) ((g0 * 2 + g1) / 3),
+                                  (byte) ((b0 * 2 + b1) / 3));
+            colors[3] = new Rgb24((byte) ((r0 + r1 * 2) / 3),
+                                  (byte) ((g0 + g1 * 2) / 3),
+                                  (byte) ((b0 + b1 * 2) / 3));
+          } else {
+            colors[2] = new Rgb24((byte) ((r0 + r1) / 2),
+                                  (byte) ((g0 + g1) / 2),
+                                  (byte) ((b0 + b1) / 2));
+          }
 
-                SplitColor_(color, out var r, out var g, out var b, out var a);
+          uint d = BitConverter.ToUInt32(src, offset + 4);
+          for (var i = 0; i < 16; i++, d >>= 2) {
+            buffer[i] = colors[(int) (d & 3)];
+          }
 
-                setHandler(x + c, y, r, g, b, a);
-              }
+          var clen = (s < bcw - 1 ? 4 : clen_last);
+          for (int i = 0, y = t * 4; i < 4 && y < height; i++, y++) {
+            for (var c = 0; c < clen; ++c) {
+              ptr[y * width + x + c] = buffer[4 * i + c];
             }
           }
         }
-      });
+      }
 
       return bitmap;
     }
@@ -381,9 +395,9 @@ namespace Dxt {
             alphas[i * 4 + 3] = (((alpha >> 12) & 0xF) * 0x11) << 24;
           }
 
-          int r0, g0, b0, r1, g1, b1;
-          int q0 = input[offset + 8] | input[offset + 9] << 8;
-          int q1 = input[offset + 10] | input[offset + 11] << 8;
+          byte r0, g0, b0, r1, g1, b1;
+          ushort q0 = (ushort) (input[offset + 8] | input[offset + 9] << 8);
+          ushort q1 = (ushort) (input[offset + 10] | input[offset + 11] << 8);
           Rgb565(q0, out r0, out g0, out b0);
           Rgb565(q1, out r1, out g1, out b1);
           colors[0] = Color(r0, g0, b0, 0);
@@ -547,13 +561,13 @@ namespace Dxt {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void Rgb565(int c, out int r, out int g, out int b) {
-      r = (c & 0xf800) >> 8;
-      g = (c & 0x07e0) >> 3;
-      b = (c & 0x001f) << 3;
-      r |= r >> 5;
-      g |= g >> 6;
-      b |= b >> 5;
+    private static void Rgb565(ushort c, out byte r, out byte g, out byte b) {
+      var rI = (c & 0xf800) >> 8;
+      var gI = (c & 0x07e0) >> 3;
+      var bI = (c & 0x001f) << 3;
+      r = (byte) (rI | (rI >> 5));
+      g = (byte) (gI | (gI >> 6));
+      b = (byte) (bI | (bI >> 5));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

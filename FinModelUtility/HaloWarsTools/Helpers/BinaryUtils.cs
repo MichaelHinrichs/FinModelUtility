@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers.Binary;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 
 namespace HaloWarsTools {
@@ -50,12 +51,15 @@ namespace HaloWarsTools {
       }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int ReadInt32LittleEndian(byte[] buffer, int startIndex) =>
         ReadInt32(buffer, startIndex, BinaryEndianness.LittleEndian);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int ReadInt32BigEndian(byte[] buffer, int startIndex) =>
         ReadInt32(buffer, startIndex, BinaryEndianness.BigEndian);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int ReadInt32(byte[] buffer, int startIndex, BinaryEndianness endianness) {
       int value = BitConverter.ToInt32(buffer, startIndex);
       return IsAlreadyDesiredEndianness(endianness) ? value : BinaryPrimitives.ReverseEndianness(value);
@@ -83,12 +87,14 @@ namespace HaloWarsTools {
       return IsAlreadyDesiredEndianness(endianness) ? value : BinaryPrimitives.ReverseEndianness(value);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static uint ReadUInt32LittleEndian(byte[] buffer, int startIndex) =>
         ReadUInt32(buffer, startIndex, BinaryEndianness.LittleEndian);
 
     public static uint ReadUInt32BigEndian(byte[] buffer, int startIndex) =>
         ReadUInt32(buffer, startIndex, BinaryEndianness.BigEndian);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static uint ReadUInt32(byte[] buffer, int startIndex, BinaryEndianness endianness) {
       uint value = BitConverter.ToUInt32(buffer, startIndex);
       return IsAlreadyDesiredEndianness(endianness) ? value : BinaryPrimitives.ReverseEndianness(value);
@@ -145,13 +151,12 @@ namespace HaloWarsTools {
       );
     }
 
-    public static bool IsAlreadyDesiredEndianness(BinaryEndianness endianness) {
-      return endianness switch {
-          BinaryEndianness.LittleEndian => BitConverter.IsLittleEndian,
-          BinaryEndianness.BigEndian    => !BitConverter.IsLittleEndian,
-          _                             => throw new NotImplementedException()
-      };
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsAlreadyDesiredEndianness(BinaryEndianness endianness)
+      => (endianness == BinaryEndianness.LittleEndian &&
+          BitConverter.IsLittleEndian) ||
+         (endianness == BinaryEndianness.BigEndian &&
+          !BitConverter.IsLittleEndian);
 
     public static float ReadHalfLittleEndian(byte[] buffer, int offset) {
       ushort hf = ReadUInt16LittleEndian(buffer, offset);
