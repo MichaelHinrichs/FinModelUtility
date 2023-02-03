@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 
 using fin.util.asserts;
 
 
 namespace fin.data {
-  public interface IReadOnlyGrid<out T> {
+  public interface IReadOnlyGrid<out T> : IEnumerable<T> {
     int Width { get; }
     int Height { get; }
 
@@ -16,14 +18,14 @@ namespace fin.data {
   }
 
   public class Grid<T> : IGrid<T> {
-    private T[] impl_;
+    private IList<T> impl_;
 
     public Grid(int width, int height, T defaultValue = default!) {
       this.Width = width;
       this.Height = height;
       
       this.impl_ = new T[width * height];
-      for (var i = 0; i < this.impl_.Length; ++i) {
+      for (var i = 0; i < this.impl_.Count; ++i) {
         this.impl_[i] = defaultValue;
       }
     }
@@ -33,7 +35,7 @@ namespace fin.data {
       this.Height = height;
 
       this.impl_ = new T[width * height];
-      for (var i = 0; i < this.impl_.Length; ++i) {
+      for (var i = 0; i < this.impl_.Count; ++i) {
         this.impl_[i] = defaultValueHandler();
       }
     }
@@ -53,5 +55,8 @@ namespace fin.data {
       }
       return y * this.Width + x;
     }
+
+    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+    public IEnumerator<T> GetEnumerator() => this.impl_.GetEnumerator();
   }
 }

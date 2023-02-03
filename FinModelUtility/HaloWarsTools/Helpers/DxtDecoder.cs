@@ -499,63 +499,64 @@ namespace Dxt {
       var rIndices = new byte[16];
 
       var bitmap = new I8Image(width, height);
-      bitmap.Mutate((_, setHandler) => {
-        for (var i = 0; i < imageSize; i += 8) {
-          var iOff = srcOffset + i;
+      using var imageLock = bitmap.Lock();
+      var ptr = imageLock.pixelScan0;
 
-          // Gathers up color palette.
-          var mono0 = monoTable[0] = src[iOff + 0];
-          var mono1 = monoTable[1] = src[iOff + 1];
+      for (var i = 0; i < imageSize; i += 8) {
+        var iOff = srcOffset + i;
 
-          var useEightIndexMode = mono0 > mono1;
-          if (useEightIndexMode) {
-            monoTable[2] = (byte) ((6 * mono0 + 1 * mono1) / 7f);
-            monoTable[3] = (byte) ((5 * mono0 + 2 * mono1) / 7f);
-            monoTable[4] = (byte) ((4 * mono0 + 3 * mono1) / 7f);
-            monoTable[5] = (byte) ((3 * mono0 + 4 * mono1) / 7f);
-            monoTable[6] = (byte) ((2 * mono0 + 5 * mono1) / 7f);
-            monoTable[7] = (byte) ((1 * mono0 + 6 * mono1) / 7f);
-          } else {
-            monoTable[2] = (byte) ((4 * mono0 + 1 * mono1) / 5f);
-            monoTable[3] = (byte) ((3 * mono0 + 2 * mono1) / 5f);
-            monoTable[4] = (byte) ((2 * mono0 + 3 * mono1) / 5f);
-            monoTable[5] = (byte) ((1 * mono0 + 4 * mono1) / 5f);
-            monoTable[6] = 0;
-            monoTable[7] = 255;
-          }
+        // Gathers up color palette.
+        var mono0 = monoTable[0] = src[iOff + 0];
+        var mono1 = monoTable[1] = src[iOff + 1];
 
-          // Gathers up color indices.
-          ulong indices = 0;
-          for (var b = 0; b < 6; ++b) {
-            ulong part = src[iOff + 2 + b];
-            part <<= (8 * b);
-            indices |= part;
-          }
+        var useEightIndexMode = mono0 > mono1;
+        if (useEightIndexMode) {
+          monoTable[2] = (byte) ((6 * mono0 + 1 * mono1) / 7f);
+          monoTable[3] = (byte) ((5 * mono0 + 2 * mono1) / 7f);
+          monoTable[4] = (byte) ((4 * mono0 + 3 * mono1) / 7f);
+          monoTable[5] = (byte) ((3 * mono0 + 4 * mono1) / 7f);
+          monoTable[6] = (byte) ((2 * mono0 + 5 * mono1) / 7f);
+          monoTable[7] = (byte) ((1 * mono0 + 6 * mono1) / 7f);
+        } else {
+          monoTable[2] = (byte) ((4 * mono0 + 1 * mono1) / 5f);
+          monoTable[3] = (byte) ((3 * mono0 + 2 * mono1) / 5f);
+          monoTable[4] = (byte) ((2 * mono0 + 3 * mono1) / 5f);
+          monoTable[5] = (byte) ((1 * mono0 + 4 * mono1) / 5f);
+          monoTable[6] = 0;
+          monoTable[7] = 255;
+        }
 
-          for (var ii = 0; ii < 16; ++ii) {
-            rIndices[ii] = (byte) (indices & 7);
-            indices >>= 3;
-          }
+        // Gathers up color indices.
+        ulong indices = 0;
+        for (var b = 0; b < 6; ++b) {
+          ulong part = src[iOff + 2 + b];
+          part <<= (8 * b);
+          indices |= part;
+        }
 
-          // Writes pixels to output image.
-          // TODO: This might actually be flipped across the X/Y axis. This is
-          // kept this way to align with the albedo texture for now.
-          var tileIndex = i / 8;
-          var tileY = tileIndex % blockCountY;
-          var tileX = (tileIndex - tileY) / blockCountX;
+        for (var ii = 0; ii < 16; ++ii) {
+          rIndices[ii] = (byte) (indices & 7);
+          indices >>= 3;
+        }
 
-          for (var j = 0; j < blockSize; j++) {
-            for (var k = 0; k < blockSize; k++) {
-              var value = monoTable[rIndices[(j * blockSize) + k]];
+        // Writes pixels to output image.
+        // TODO: This might actually be flipped across the X/Y axis. This is
+        // kept this way to align with the albedo texture for now.
+        var tileIndex = i / 8;
+        var tileY = tileIndex % blockCountY;
+        var tileX = (tileIndex - tileY) / blockCountX;
 
-              var outX = (tileX * blockSize) + j;
-              var outY = tileY * blockSize + k;
+        for (var j = 0; j < blockSize; j++) {
+          for (var k = 0; k < blockSize; k++) {
+            var value = monoTable[rIndices[(j * blockSize) + k]];
 
-              setHandler(outX, outY, value);
-            }
+            var outX = (tileX * blockSize) + j;
+            var outY = tileY * blockSize + k;
+
+            ptr[outY * width + outX] = new L8(value);
           }
         }
-      });
+      }
 
       return bitmap;
     }

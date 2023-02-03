@@ -8,8 +8,11 @@ using Dxt;
 using fin.image;
 using fin.model;
 using fin.model.impl;
+
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+
+using Microsoft.Toolkit.HighPerformance.Helpers;
 
 
 namespace HaloWarsTools {
@@ -21,7 +24,7 @@ namespace HaloWarsTools {
 
     public static new HWXtdResource FromFile(HWContext context, string filename)
       => GetOrCreateFromFile(context, filename, HWResourceType.Xtd) as
-             HWXtdResource;
+          HWXtdResource;
 
     protected override void Load(byte[] bytes) {
       base.Load(bytes);
@@ -78,11 +81,12 @@ namespace HaloWarsTools {
       int normalOffset = positionOffset + gridSize * gridSize * 4;
 
       // These are stored as ZYX, 4 bytes per component
-      Vector3 PosCompMin = BinaryUtils
+      Vector3 posCompMin = BinaryUtils
                            .ReadVector3BigEndian(
-                               bytes, (int) atlasChunk.Offset)
+                               bytes,
+                               (int) atlasChunk.Offset)
                            .ReverseComponents();
-      Vector3 PosCompRange =
+      Vector3 posCompRange =
           BinaryUtils
               .ReadVector3BigEndian(bytes, (int) atlasChunk.Offset + 16)
               .ReverseComponents();
@@ -93,73 +97,125 @@ namespace HaloWarsTools {
       var finVertices = finModel.Skin.Vertices;
 
       // Read vertex offsets/normals and add them to the mesh
-      Parallel.For(0, finVertices.Count, new ParallelOptions {
-        MaxDegreeOfParallelism = -1,
-      },
-                   index => {
-                     var x = index % gridSize;
-                     var z = (index - x) / gridSize;
-
-                     int offset = index * 4;
-
-                     // Get offset position and normal for this vertex
-                     Vector3 position =
-                         ReadVector3Compressed(bytes, positionOffset + offset) *
-                         PosCompRange -
-                         PosCompMin;
-
-                     // Positions are relative to the terrain grid, so shift them by the grid position
-                     position += new Vector3(x, 0, z) * tileScale;
-
-                     Vector3 normal =
-                         ConvertDirectionVector(
-                             Vector3.Normalize(
-                                 ReadVector3Compressed(bytes, normalOffset + offset) *
-                                 2.0f -
-                                 Vector3.One));
-
-                     // Simple UV based on original, non-warped terrain grid
-                     Vector3 texCoord = new Vector3(x / ((float) gridSize - 1),
-                                                    z / ((float) gridSize - 1), 0);
-
-                     var vertex = finVertices[index];
-                     vertex.SetLocalPosition(Unsafe.As<Vector3, Position>(ref position))
-                           .SetLocalNormal(Unsafe.As<Vector3, Normal>(ref normal))
-                           .SetUv(texCoord.X, texCoord.Y);
-                   });
+      ParallelHelper.For(0,
+                         finVertices.Count,
+                         new GridVertexGenerator(
+                             bytes,
+                             finVertices,
+                             gridSize,
+                             tileScale,
+                             positionOffset,
+                             normalOffset,
+                             posCompMin,
+                             posCompRange));
 
       // Generate faces based on terrain grid
       var triangleGridSize = gridSize - 1;
-      var triangles = new List<(IVertex, IVertex, IVertex)>(2 * triangleGridSize * triangleGridSize);
-      for (int x = 0; x < triangleGridSize; x += 1) {
-        for (int z = 0; z < triangleGridSize; z += 1) {
+      var triangles = new IVertex[2 * 3 * triangleGridSize * triangleGridSize];
+      for (int x = 0; x < triangleGridSize; ++x) {
+        for (int z = 0; z < triangleGridSize; ++z) {
           var a = finVertices[GetVertexIndex(x, z, gridSize)];
           var b = finVertices[GetVertexIndex(x + 1, z, gridSize)];
           var c = finVertices[GetVertexIndex(x, z + 1, gridSize)];
           var d = finVertices[GetVertexIndex(x + 1, z + 1, gridSize)];
 
-          triangles.Add((a, b, c));
-          triangles.Add((d, c, b));
+          var i = 2 * 3 * (triangleGridSize * z + x);
+
+          triangles[i + 0] = a;
+          triangles[i + 1] = b;
+          triangles[i + 2] = c;
+
+          triangles[i + 3] = d;
+          triangles[i + 4] = c;
+          triangles[i + 5] = b;
         }
       }
-      finMesh.AddTriangles(triangles.ToArray());
+
+      finMesh.AddTriangles(triangles);
 
       return finModel;
+    }
+
+    private readonly struct GridVertexGenerator : IAction {
+      private readonly byte[] bytes_;
+      private readonly IReadOnlyList<IVertex> vertices_;
+      private readonly int gridSize_;
+      private readonly float tileScale_;
+      private readonly int positionOffset_;
+      private readonly int normalOffset_;
+      private readonly Vector3 posCompMin_;
+      private readonly Vector3 posCompRange_;
+
+      public GridVertexGenerator(
+          byte[] bytes,
+          IReadOnlyList<IVertex> vertices,
+          int gridSize,
+          float tileScale,
+          int positionOffset,
+          int normalOffset,
+          Vector3 posCompMin,
+          Vector3 posCompRange) {
+        this.bytes_ = bytes;
+        this.vertices_ = vertices;
+        this.gridSize_ = gridSize;
+        this.tileScale_ = tileScale;
+        this.positionOffset_ = positionOffset;
+        this.normalOffset_ = normalOffset;
+        this.posCompMin_ = posCompMin;
+        this.posCompRange_ = posCompRange;
+      }
+
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
+      public void Invoke(int index) {
+        var x = index % this.gridSize_;
+        var z = (index - x) / this.gridSize_;
+
+        int offset = index * 4;
+
+        // Get offset position and normal for this vertex
+        Vector3 position =
+            ReadVector3Compressed(this.bytes_, this.positionOffset_ + offset) *
+            this.posCompRange_ -
+            this.posCompMin_;
+
+        // Positions are relative to the terrain grid, so shift them by the grid position
+        position += new Vector3(x, 0, z) * this.tileScale_;
+
+        Vector3 normal =
+            ConvertDirectionVector(
+                Vector3.Normalize(
+                    ReadVector3Compressed(this.bytes_, this.normalOffset_ + offset) *
+                    2.0f -
+                    Vector3.One));
+
+        // Simple UV based on original, non-warped terrain grid
+        Vector3 texCoord = new Vector3(x / ((float) this.gridSize_ - 1),
+                                       z / ((float) this.gridSize_ - 1),
+                                       0);
+
+        var vertex = this.vertices_[index];
+        vertex.SetLocalPosition(Unsafe.As<Vector3, Position>(ref position))
+              .SetLocalNormal(Unsafe.As<Vector3, Normal>(ref normal))
+              .SetUv(texCoord.X, texCoord.Y);
+      }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int GetVertexIndex(int x, int z, int gridSize)
       => z * gridSize + x;
 
-    private Vector3 ReadVector3Compressed(byte[] bytes, int offset) {
+    private const uint K_BIT_MASK_10 = (1 << 10) - 1;
+    private const float INVERSE_K_BIT_MASK_10 = 1f / HWXtdResource.K_BIT_MASK_10;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static Vector3 ReadVector3Compressed(byte[] bytes, int offset) {
       // Inexplicably, position and normal vectors are encoded inside 4 bytes. ~10 bits per component
       // This seems okay for directions, but positions suffer from stairstepping artifacts
-      uint kBitMask10 = (1 << 10) - 1;
       uint v = BinaryUtils.ReadUInt32LittleEndian(bytes, offset);
-      uint x = (v >> 0) & kBitMask10;
-      uint y = (v >> 10) & kBitMask10;
-      uint z = (v >> 20) & kBitMask10;
-      return new Vector3(x, y, z) / kBitMask10;
+      uint x = (v >> 0) & K_BIT_MASK_10;
+      uint y = (v >> 10) & K_BIT_MASK_10;
+      uint z = (v >> 20) & K_BIT_MASK_10;
+      return new Vector3(x, y, z) * INVERSE_K_BIT_MASK_10;
     }
 
     private static Vector3 ConvertPositionVector(Vector3 vector) {
@@ -167,6 +223,7 @@ namespace HaloWarsTools {
     }
 
     // TODO: This might not be right
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static Vector3 ConvertDirectionVector(Vector3 vector) {
       return new Vector3(vector.Z, vector.X, vector.Y);
     }

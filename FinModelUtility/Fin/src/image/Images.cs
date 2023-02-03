@@ -16,6 +16,8 @@ using SixLabors.ImageSharp.Formats.Tga;
 using SixLabors.ImageSharp.PixelFormats;
 
 using System.Drawing.Imaging;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 using FastBitmapLib;
 
@@ -32,6 +34,12 @@ namespace fin.image {
       return FinImage.FromStream(stream);
     }
 
+    public static async Task<IImage> FromFileAsync(IFile file) {
+      await using var stream = file.OpenRead();
+      return await FinImage.FromStreamAsync(stream);
+    }
+
+
     public static readonly Configuration ImageSharpConfig;
 
     static FinImage() {
@@ -40,9 +48,14 @@ namespace fin.image {
     }
 
     public static IImage FromStream(Stream stream) {
+      var imageTask = FromStreamAsync(stream);
+      imageTask.Wait();
+      return imageTask.Result;
+    }
+
+    public static async Task<IImage> FromStreamAsync(Stream stream) {
       var image = Image.Load(ImageSharpConfig, stream);
 
-      var firstFrame = image.Frames[0];
       var pixelFormat = image.GetType().GenericTypeArguments[0];
       if (pixelFormat == typeof(Rgba32)) {
         return new Rgba32Image(Asserts.CastNonnull(image as Image<Rgba32>));
@@ -145,6 +158,19 @@ namespace fin.image {
               var index = y * width + x;
               var rgb = srcPtr[index];
               dstPtr[index] = FinColor.MergeBgra(rgb.R, rgb.G, rgb.B, 255);
+            }
+          }
+
+          break;
+        }
+        case I8Image i8Image: {
+          using var imageLock = i8Image.Lock();
+          var srcPtr = imageLock.pixelScan0;
+          for (var y = 0; y < height; ++y) {
+            for (var x = 0; x < width; ++x) {
+              var index = y * width + x;
+              var i = srcPtr[index].PackedValue;
+              dstPtr[index] = FinColor.MergeBgra(i, i, i, 255);
             }
           }
 
@@ -502,30 +528,18 @@ namespace fin.image {
           FinImage.ConvertFinImageFormatToImageSharpEncoder(imageFormat));
   }
 
-  public class I8Image : IImage {
-    private readonly Image<L8> impl_;
-
-    public I8Image(int width, int height) :
-        this(new Image<L8>(FinImage.ImageSharpConfig, width, height)) { }
+  public class I8Image : BImage<L8> {
+    public I8Image(int width, int height) : this(
+        new Image<L8>(FinImage.ImageSharpConfig, width, height)) { }
 
     internal I8Image(Image<L8> impl) {
-      this.impl_ = impl;
+      this.Impl = impl;
     }
 
-    ~I8Image() => this.ReleaseUnmanagedResources_();
-
-    public void Dispose() {
-      this.ReleaseUnmanagedResources_();
-      GC.SuppressFinalize(this);
-    }
-
-    private void ReleaseUnmanagedResources_() => this.impl_.Dispose();
-
-    public int Width => this.impl_.Width;
-    public int Height => this.impl_.Height;
-
-    public void Access(IImage.AccessHandler accessHandler)
-      => FinImage.Access(this.impl_,
+    protected override Image<L8> Impl { get; }
+    
+    public override void Access(IImage.AccessHandler accessHandler)
+      => FinImage.Access(this.Impl,
                          getHandler => {
                            void InternalGetHandler(
                                int x,
@@ -554,7 +568,7 @@ namespace fin.image {
                                        SetHandler setHandler);
 
     public void Mutate(MutateHandler mutateHandler)
-      => FinImage.Mutate(this.impl_,
+      => FinImage.Mutate(this.Impl,
                          (getHandler, setHandler) => {
                            void InternalGetHandler(
                                int x,
@@ -576,15 +590,9 @@ namespace fin.image {
                                          InternalSetHandler);
                          });
 
-    public bool HasAlphaChannel => false;
-    public Bitmap AsBitmap() => FinImage.ConvertToBitmap(this);
+    public override bool HasAlphaChannel => false;
 
     public void GetI8Bytes(Span<byte> bytes)
-      => this.impl_.CopyPixelDataTo(bytes);
-
-    public void ExportToStream(Stream stream, LocalImageFormat imageFormat)
-      => this.impl_.Save(
-          stream,
-          FinImage.ConvertFinImageFormatToImageSharpEncoder(imageFormat));
+      => this.Impl.CopyPixelDataTo(bytes);
   }
 }

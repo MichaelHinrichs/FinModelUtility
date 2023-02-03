@@ -1,10 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+
 using fin.color;
 using fin.data;
 using fin.math;
+
 using System.Threading.Tasks;
+
+using Microsoft.Toolkit.HighPerformance.Helpers;
+
+using System;
 
 
 namespace fin.model.impl {
@@ -31,15 +38,23 @@ namespace fin.model.impl {
         for (var i = 0; i < vertexCount; ++i) {
           this.vertices_.Add(default);
         }
-        Parallel.For(0,
-                     vertexCount,
-                     new ParallelOptions {MaxDegreeOfParallelism = -1},
-                     index => {
-                       this.vertices_[index] = new VertexImpl(index, 0, 0, 0);
-                     });
+
+        ParallelHelper.For(0, vertexCount, new VertexGenerator(this.vertices_));
 
         this.Vertices = new ReadOnlyCollection<IVertex>(this.vertices_);
         this.Meshes = new ReadOnlyCollection<IMesh>(this.meshes_);
+      }
+
+      private readonly struct VertexGenerator : IAction {
+        private readonly IList<IVertex> vertices_;
+
+        public VertexGenerator(IList<IVertex> vertices) {
+          this.vertices_ = vertices;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Invoke(int index)
+          => this.vertices_[index] = new VertexImpl(index, 0, 0, 0);
       }
 
       public IReadOnlyList<IVertex> Vertices { get; }
@@ -81,6 +96,7 @@ namespace fin.model.impl {
               new BoneWeight(bone, FinMatrix4x4.IDENTITY, 1));
           this.boneWeightsByBone_[bone] = boneWeights;
         }
+
         return boneWeights;
       }
 
@@ -114,6 +130,7 @@ namespace fin.model.impl {
             vertices[3 * i + 1] = triangle.Item2;
             vertices[3 * i + 2] = triangle.Item3;
           }
+
           return this.AddTriangles(vertices);
         }
 
@@ -148,6 +165,7 @@ namespace fin.model.impl {
             vertices[4 * i + 2] = quad.Item3;
             vertices[4 * i + 3] = quad.Item4;
           }
+
           return this.AddQuads(vertices);
         }
 
@@ -165,6 +183,7 @@ namespace fin.model.impl {
             vertices[2 * i] = line.Item1;
             vertices[2 * i + 1] = line.Item2;
           }
+
           return this.AddLines(vertices);
         }
 
@@ -248,6 +267,7 @@ namespace fin.model.impl {
               this.Colors = null;
             }
           }
+
           return this;
         }
 
@@ -290,6 +310,7 @@ namespace fin.model.impl {
             this.Uvs ??= new SingleVertexAttribute<ITexCoord>();
             this.Uvs[0] = uv;
           }
+
           return this;
         }
 
@@ -322,13 +343,17 @@ namespace fin.model.impl {
       }
 
       private class PrimitiveImpl : BPrimitiveImpl {
-        public PrimitiveImpl(PrimitiveType type, params IVertex[] vertices) : base(type, vertices) { }
+        public PrimitiveImpl(PrimitiveType type, params IVertex[] vertices) :
+            base(type, vertices) { }
       }
 
       private class LinesPrimitiveImpl : BPrimitiveImpl, ILinesPrimitive {
-        public LinesPrimitiveImpl(params IVertex[] vertices) : base(PrimitiveType.LINES, vertices) { }
+        public LinesPrimitiveImpl(params IVertex[] vertices) : base(
+            PrimitiveType.LINES,
+            vertices) { }
 
         public float LineWidth { get; private set; }
+
         public ILinesPrimitive SetLineWidth(float width) {
           this.LineWidth = width;
           return this;
@@ -336,9 +361,12 @@ namespace fin.model.impl {
       }
 
       private class PointsPrimitiveImpl : BPrimitiveImpl, IPointsPrimitive {
-        public PointsPrimitiveImpl(params IVertex[] vertices) : base(PrimitiveType.POINTS, vertices) { }
+        public PointsPrimitiveImpl(params IVertex[] vertices) : base(
+            PrimitiveType.POINTS,
+            vertices) { }
 
         public float Radius { get; private set; }
+
         public IPointsPrimitive SetRadius(float radius) {
           this.Radius = radius;
           return this;
