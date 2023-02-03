@@ -194,9 +194,8 @@ namespace fin.gl {
       GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
     }
 
-    public GlBufferRenderer CreateRenderer(
-        IList<(IVertex, IVertex, IVertex)> triangles)
-      => new(this.vaoId_, triangles);
+    public GlBufferRenderer CreateRenderer(IReadOnlyList<IVertex> triangleVertices)
+      => new(this.vaoId_, triangleVertices);
 
     public class GlBufferRenderer : IDisposable {
       private readonly int vaoId_;
@@ -206,19 +205,14 @@ namespace fin.gl {
 
       public GlBufferRenderer(
           int vaoId,
-          IList<(IVertex, IVertex, IVertex)> triangles) {
+          IReadOnlyList<IVertex> triangleVertices) {
         this.vaoId_ = vaoId;
 
         GL.BindVertexArray(this.vaoId_);
         GL.GenBuffers(1, out this.eboId_);
 
-        this.indices_ = new int[3 * triangles.Count];
-        for (var i = 0; i < triangles.Count; ++i) {
-          var triangle = triangles[i];
-          this.indices_[3 * i + 0] = triangle.Item1.Index;
-          this.indices_[3 * i + 1] = triangle.Item2.Index;
-          this.indices_[3 * i + 2] = triangle.Item3.Index;
-        }
+        this.indices_ =
+            triangleVertices.Select(vertex => vertex.Index).ToArray();
 
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, this.eboId_);
         GL.BufferData(BufferTarget.ElementArrayBuffer,

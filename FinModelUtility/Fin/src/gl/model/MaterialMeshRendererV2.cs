@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using PrimitiveType = fin.model.PrimitiveType;
+
 
 namespace fin.gl.model {
   public class MaterialMeshRendererV2 : IDisposable {
@@ -37,73 +39,87 @@ namespace fin.gl.model {
         this.materialShader_ = new GlNullMaterialShaderV2();
       }
 
-      var triangles = primitives.SelectMany(primitive => {
-        var triangles = new List<(IVertex, IVertex, IVertex)>();
+      IReadOnlyList<IVertex> triangleVertices;
+      if (primitives is [{ Type: PrimitiveType.TRIANGLES }]) {
+        triangleVertices = primitives[0].Vertices;
+      } else {
+        triangleVertices = primitives.SelectMany(primitive => {
+          var triangleVertices = new List<IVertex>();
 
-        var vertices = primitive.Vertices;
-        var pointsCount = vertices.Count;
-        switch (primitive.Type) {
-          case fin.model.PrimitiveType.TRIANGLES: {
-              for (var v = 0; v < pointsCount; v += 3) {
-                if (primitive.VertexOrder == VertexOrder.FLIP) {
-                  triangles.Add((vertices[v + 0],
-                                 vertices[v + 2],
-                                 vertices[v + 1]));
-                } else {
-                  triangles.Add((vertices[v + 0],
-                                 vertices[v + 1],
-                                 vertices[v + 2]));
+          var vertices = primitive.Vertices;
+          var pointsCount = vertices.Count;
+          switch (primitive.Type) {
+            case fin.model.PrimitiveType.TRIANGLES: {
+                for (var v = 0; v < pointsCount; v += 3) {
+                  if (primitive.VertexOrder == VertexOrder.FLIP) {
+                    triangleVertices.Add(vertices[v + 0]);
+                    triangleVertices.Add(vertices[v + 2]);
+                    triangleVertices.Add(vertices[v + 1]);
+                  } else {
+                    triangleVertices.Add(vertices[v + 0]);
+                    triangleVertices.Add(vertices[v + 1]);
+                    triangleVertices.Add(vertices[v + 2]);
+                  }
                 }
+
+                break;
               }
+            case fin.model.PrimitiveType.TRIANGLE_STRIP: {
+                for (var v = 0; v < pointsCount - 2; ++v) {
+                  IVertex v1, v2, v3;
+                  if (v % 2 == 0) {
+                    v1 = vertices[v + 0];
+                    v2 = vertices[v + 1];
+                    v3 = vertices[v + 2];
+                  } else {
+                    // Switches drawing order to maintain proper winding:
+                    // https://www.khronos.org/opengl/wiki/Primitive
+                    v1 = vertices[v + 1];
+                    v2 = vertices[v + 0];
+                    v3 = vertices[v + 2];
+                  }
 
-              break;
-            }
-          case fin.model.PrimitiveType.TRIANGLE_STRIP: {
-              for (var v = 0; v < pointsCount - 2; ++v) {
-                IVertex v1, v2, v3;
-                if (v % 2 == 0) {
-                  v1 = vertices[v + 0];
-                  v2 = vertices[v + 1];
-                  v3 = vertices[v + 2];
-                } else {
-                  // Switches drawing order to maintain proper winding:
-                  // https://www.khronos.org/opengl/wiki/Primitive
-                  v1 = vertices[v + 1];
-                  v2 = vertices[v + 0];
-                  v3 = vertices[v + 2];
+                  if (primitive.VertexOrder == VertexOrder.FLIP) {
+                    triangleVertices.Add(v1);
+                    triangleVertices.Add(v3);
+                    triangleVertices.Add(v2);
+                  } else {
+                    triangleVertices.Add(v1);
+                    triangleVertices.Add(v2);
+                    triangleVertices.Add(v3);
+                  }
                 }
-
-                if (primitive.VertexOrder == VertexOrder.FLIP) {
-                  triangles.Add((v1, v3, v2));
-                } else {
-                  triangles.Add((v1, v2, v3));
-                }
+                break;
               }
-              break;
-            }
-          case fin.model.PrimitiveType.TRIANGLE_FAN: {
-              // https://stackoverflow.com/a/8044252
-              var firstVertex = vertices[0];
-              for (var v = 2; v < pointsCount; ++v) {
-                var v1 = firstVertex;
-                var v2 = vertices[v - 1];
-                var v3 = vertices[v];
+            case fin.model.PrimitiveType.TRIANGLE_FAN: {
+                // https://stackoverflow.com/a/8044252
+                var firstVertex = vertices[0];
+                for (var v = 2; v < pointsCount; ++v) {
+                  var v1 = firstVertex;
+                  var v2 = vertices[v - 1];
+                  var v3 = vertices[v];
 
-                if (primitive.VertexOrder == VertexOrder.FLIP) {
-                  triangles.Add((v1, v3, v2));
-                } else {
-                  triangles.Add((v1, v2, v3));
+                  if (primitive.VertexOrder == VertexOrder.FLIP) {
+                    triangleVertices.Add(v1);
+                    triangleVertices.Add(v3);
+                    triangleVertices.Add(v2);
+                  } else {
+                    triangleVertices.Add(v1);
+                    triangleVertices.Add(v2);
+                    triangleVertices.Add(v3);
+                  }
                 }
+                break;
               }
-              break;
-            }
-          default: throw new NotImplementedException();
-        }
+            default: throw new NotImplementedException();
+          }
 
-        return triangles;
-      }).ToArray();
+          return triangleVertices;
+        }).ToArray();
 
-      this.bufferRenderer_ = bufferManager.CreateRenderer(triangles);
+      }
+
+      this.bufferRenderer_ = bufferManager.CreateRenderer(triangleVertices);
     }
 
     ~MaterialMeshRendererV2() => ReleaseUnmanagedResources_();
