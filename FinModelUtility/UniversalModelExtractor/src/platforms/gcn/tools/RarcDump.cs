@@ -81,7 +81,7 @@ namespace uni.platforms.gcn.tools {
       Directory.Delete(directoryPath);
 
       if (cleanup) {
-        rarcFile.Impl.Info.Delete();
+        rarcFile.Impl.Delete();
       }
 
       return true;

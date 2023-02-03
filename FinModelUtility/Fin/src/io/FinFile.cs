@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.IO.Abstractions;
-using System.Linq;
 
 using fin.util.asserts;
 using fin.util.json;
@@ -10,30 +8,34 @@ using schema;
 
 
 namespace fin.io {
-  public class FinFile : IFile {
-    public FinFile(IFileInfo fileInfo) => this.Info = fileInfo;
+  public class FinFile : BIoObject, IFile {
+    public FinFile(string fullName) : base(fullName) {}
 
-    public FinFile(string fullName)
-      => this.Info = FinFileSystem.FileInfoFactory.New(fullName);
+    public override bool Exists => FinFileSystem.File.Exists(this.FullName);
 
-    public IFileInfo Info { get; }
-
-    public string Name => this.Info.Name;
-    public string FullName => this.Info.FullName;
-
-    private string? absolutePath_ = null;
-
-    public string GetAbsolutePath() {
-      if (this.absolutePath_ == null) {
-        this.absolutePath_ = Path.GetFullPath(this.FullName);
+    public bool Delete() {
+      if (!this.Exists) {
+        return false;
       }
 
-      return this.absolutePath_;
+      FinFileSystem.File.Delete(this.FullName);
+      return true;
     }
 
-    public bool Exists => File.Exists(this.FullName);
-
-    public string Extension => this.Info.Extension;
+    public string Extension {
+      get {
+        var fullName = FullName;
+        int length = fullName.Length;
+        for (int i = length; --i >= 0;) {
+          char ch = fullName[i];
+          if (ch == '.')
+            return fullName.Substring(i, length - i);
+          if (ch == '\\' || ch == '/' || ch == Path.VolumeSeparatorChar)
+            break;
+        }
+        return string.Empty;
+      }
+    }
 
     public string FullNameWithoutExtension
       => this.FullName.Substring(0,
@@ -47,24 +49,6 @@ namespace fin.io {
       Asserts.True(newExtension.StartsWith("."),
                    $"'{newExtension}' is not a valid extension!");
       return new FinFile(this.FullNameWithoutExtension + newExtension);
-    }
-
-    public IDirectory? GetParent()
-      => this.Info.Directory != null
-          ? new FinDirectory(this.Info.Directory)
-          : null;
-
-    public IDirectory[] GetAncestry() {
-      var parents = new LinkedList<IDirectory>();
-      IDirectory? parent = null;
-      do {
-        parent = parent == null ? this.GetParent() : parent.GetParent();
-        if (parent != null) {
-          parents.AddLast(parent);
-        }
-      } while (parent != null);
-
-      return parents.ToArray();
     }
 
     public T ReadNew<T>() where T : IDeserializable, new()
@@ -101,8 +85,6 @@ namespace fin.io {
       writer.Write(JsonUtil.Serialize(instance));
     }
 
-    public override string ToString() => this.FullName;
-
 
     public override bool Equals(object? other) {
       if (object.ReferenceEquals(this, other)) {
@@ -116,10 +98,7 @@ namespace fin.io {
       return this.Equals(otherFile);
     }
 
-    public bool Equals(IFile other)
-      => this.GetAbsolutePath() == other.GetAbsolutePath();
-
-    public override int GetHashCode() => this.FullName.GetHashCode();
+    public bool Equals(IFile other) => this.FullName == other.FullName;
 
     public static bool operator ==(FinFile lhs, IFile rhs)
       => lhs.Equals(rhs);

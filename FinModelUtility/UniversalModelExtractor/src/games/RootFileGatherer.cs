@@ -1,4 +1,5 @@
 ﻿using fin.io.bundles;
+
 using uni.games.battalion_wars_1;
 using uni.games.battalion_wars_2;
 using uni.games.glover;
@@ -22,7 +23,8 @@ namespace uni.games {
       var rootFileBundleDirectory = new RootFileBundleDirectory();
 
       var gatherers = new IFileBundleGatherer[] {
-          new BattalionWars1FileGatherer(), new BattalionWars2FileGatherer(),
+          new BattalionWars1FileGatherer(),
+          new BattalionWars2FileGatherer(),
           new GloverModelFileGatherer(),
           new GreatAceAttorneyModelFileGatherer(),
           new HaloWarsModelFileGatherer(),
@@ -63,19 +65,12 @@ namespace uni.games {
             })
             .Wait();
       } else {
-        var gatherTasks =
-            gatherers.Select(
-                         gatherer =>
-                             new Task<IFileBundleDirectory?>(() => gatherer
-                                 .GatherFileBundles(false)))
-                     .ToArray();
-
-        foreach (var gatherTask in gatherTasks) {
-          gatherTask.Start();
-          gatherTask.Wait();
-          rootFileBundleDirectory.AddSubdirIfNotNull(gatherTask.Result);
+        foreach (var gatherer in gatherers) {
+          rootFileBundleDirectory.AddSubdirIfNotNull(gatherer
+              .GatherFileBundles(false));
         }
       }
+
       rootFileBundleDirectory.RemoveEmptyChildren();
 
       return rootFileBundleDirectory;

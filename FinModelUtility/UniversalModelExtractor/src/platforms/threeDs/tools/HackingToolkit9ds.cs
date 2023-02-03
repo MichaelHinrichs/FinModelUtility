@@ -66,13 +66,13 @@ namespace uni.platforms.threeDs.tools {
           // Cleans up unneeded files & directories
           foreach (var afterFile in afterFiles) {
             if (!beforeFiles.Contains(afterFile)) {
-              afterFile.Info.Delete();
+              afterFile.Delete();
             }
           }
 
           foreach (var afterSubdir in afterSubdirs) {
             if (!beforeSubdirs.Contains(afterSubdir)) {
-              afterSubdir.Info.Delete(true);
+              afterSubdir.Delete(true);
             }
           }
         }

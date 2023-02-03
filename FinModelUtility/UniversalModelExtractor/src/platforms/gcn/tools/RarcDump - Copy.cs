@@ -43,7 +43,7 @@ namespace uni.platforms.gcn.tools {
 
       Directory.Move(directoryPath, finalDirectoryPath);
       if (cleanup) {
-        rarcFile.Impl.Info.Delete();
+        rarcFile.Impl.Delete();
       }
 
       return true;

@@ -1,87 +1,56 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Abstractions;
 using System.Linq;
+
+using fin.util.asserts;
 
 
 namespace fin.io {
-  public class FinDirectory : IDirectory {
-    public static IDirectory GetCwd()
-      => new FinDirectory(FinFileSystem.Directory.GetCurrentDirectory());
-
-
-    public FinDirectory(IDirectoryInfo directoryInfo)
-      => this.Info = directoryInfo;
-
-    public FinDirectory(string fullName)
-      => this.Info = FinFileSystem.Directory.CreateDirectory(fullName);
-
-    public IDirectoryInfo Info { get; }
-
-    public string Name => this.Info.Name;
-    public string FullName => this.Info.FullName;
-
-    private string? absolutePath_ = null;
-
-    public string GetAbsolutePath() {
-      if (this.absolutePath_ == null) {
-        this.absolutePath_ = Path.GetFullPath(this.FullName);
-      }
-
-      return this.absolutePath_;
-    }
-
-    public bool Exists => FinFileSystem.Directory.Exists(this.FullName);
-
-    public IDirectory? GetParent()
-      => this.Info.Parent != null
-          ? new FinDirectory(this.Info.Parent)
-          : null;
-
-    public IDirectory[] GetAncestry() {
-      var parents = new LinkedList<IDirectory>();
-      IDirectory? parent = null;
-      do {
-        parent = parent == null ? this.GetParent() : parent.GetParent();
-        if (parent != null) {
-          parents.AddLast(parent);
-        }
-      } while (parent != null);
-
-      return parents.ToArray();
-    }
+  public class FinDirectory : BIoObject, IDirectory {
+    public FinDirectory(string fullName) : base(fullName) {}
 
     public bool Create() {
       if (this.Exists) {
         return false;
       }
 
-      this.Info.Create();
+      FinFileSystem.Directory.CreateDirectory(this.FullName);
+      return true;
+    }
+
+    public override bool Exists => FinFileSystem.Directory.Exists(this.FullName);
+
+    public bool Delete(bool recursive = false) {
+      if (!this.Exists) {
+        return false;
+      }
+
+      FinFileSystem.Directory.Delete(this.FullName, recursive);
       return true;
     }
 
     public void MoveTo(string path) {
       try {
-        this.Info.MoveTo(path);
+        FinFileSystem.Directory.Move(this.FullName, path);
       }
       // Sometimes the first move throws a permission denied error, so we just need to try again.
       catch {
-        this.Info.MoveTo(path);
+        FinFileSystem.Directory.Move(this.FullName, path);
       }
     }
 
     public IEnumerable<IDirectory> GetExistingSubdirs()
-      => this.Info.EnumerateDirectories()
-             .Select(subdir => new FinDirectory(subdir));
+      => FinFileSystem.Directory.EnumerateDirectories(this.FullName)
+                      .Select(subdir => new FinDirectory(subdir));
 
     public IDirectory GetSubdir(string relativePath, bool create = false)
       => this.GetSubdirImpl_(relativePath.Split('/', '\\'), create);
 
-    private FinDirectory GetSubdirImpl_(
+    private IDirectory GetSubdirImpl_(
         IEnumerable<string> subdirs,
         bool create) {
-      var current = this.Info;
+      var current = this.FullName;
 
       foreach (var subdir in subdirs) {
         if (subdir == "") {
@@ -89,16 +58,16 @@ namespace fin.io {
         }
 
         if (subdir == "..") {
-          current = current.Parent;
+          current = Asserts.CastNonnull(Path.GetDirectoryName(current));
           continue;
         }
 
-        var matches = current.GetDirectories(subdir);
-
+        var matches = FinFileSystem.Directory.GetDirectories(current, subdir);
         if (!create || matches.Length == 1) {
           current = matches.Single();
         } else {
-          current = current.CreateSubdirectory(subdir);
+          current = Path.Join(current, subdir);
+          FinFileSystem.Directory.CreateDirectory(current);
         }
       }
 
@@ -107,21 +76,25 @@ namespace fin.io {
 
 
     public IEnumerable<IFile> GetExistingFiles()
-      => this.Info.EnumerateFiles().Select(file => new FinFile(file));
+      => FinFileSystem.Directory.EnumerateFiles(this.FullName)
+                      .Select(file => new FinFile(file));
 
     public IEnumerable<IFile> SearchForFiles(
         string searchPattern,
         bool includeSubdirs = false)
-      => this.Info
-             .GetFiles(searchPattern,
-                       includeSubdirs
-                           ? SearchOption.AllDirectories
-                           : SearchOption.TopDirectoryOnly)
-             .Select(file => new FinFile(file));
+      => FinFileSystem
+         .Directory.GetFiles(
+             this.FullName,
+             searchPattern,
+             includeSubdirs
+                 ? SearchOption.AllDirectories
+                 : SearchOption.TopDirectoryOnly)
+         .Select(file => new FinFile(file));
 
     public bool TryToGetExistingFile(string path, out IFile? file) {
       // TODO: Handle subdirectories automatically.
-      var fileInfo = this.Info.GetFiles(path).SingleOrDefault();
+      var fileInfo = FinFileSystem.Directory.GetFiles(this.FullName, path)
+                                  .SingleOrDefault();
       if (fileInfo != null) {
         file = new FinFile(fileInfo);
         return true;
@@ -137,7 +110,7 @@ namespace fin.io {
       }
 
       throw new Exception(
-          $"Expected to find file: '{path}' in directory '{this.GetAbsolutePath()}'");
+          $"Expected to find file: '{path}' in directory '{this.FullName}'");
     }
 
     public IFile? PossiblyAssertExistingFile(string relativePath, bool assert) {
@@ -149,7 +122,17 @@ namespace fin.io {
       return file;
     }
 
-    public override string ToString() => this.FullName;
+    public IFile[] GetFilesWithExtension(
+        string extension,
+        bool includeSubdirs = false)
+      => FinFileSystem.Directory.GetFiles(
+                          this.FullName,
+                          $"*{Files.AssertValidExtension(extension)}",
+                          includeSubdirs
+                              ? SearchOption.AllDirectories
+                              : SearchOption.TopDirectoryOnly)
+                      .Select(fileInfo => new FinFile(fileInfo))
+                      .ToArray();
 
 
     public override bool Equals(object? other) {
@@ -164,10 +147,7 @@ namespace fin.io {
       return this.Equals(otherDirectory);
     }
 
-    public bool Equals(IDirectory other)
-      => this.GetAbsolutePath() == other.GetAbsolutePath();
-
-    public override int GetHashCode() => this.FullName.GetHashCode();
+    public bool Equals(IDirectory other) => this.FullName == other.FullName;
 
     public static bool operator ==(FinDirectory lhs, IDirectory rhs)
       => lhs.Equals(rhs);

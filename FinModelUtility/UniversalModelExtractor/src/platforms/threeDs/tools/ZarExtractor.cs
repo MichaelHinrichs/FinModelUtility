@@ -45,7 +45,7 @@ namespace uni.platforms.threeDs.tools {
         }
       }
 
-      zarFile.Impl.Info.Delete();
+      zarFile.Impl.Delete();
 
       return true;
     }

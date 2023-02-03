@@ -37,7 +37,7 @@ namespace uni.platforms.gcn.tools {
 
       File.Move(rarcPath, finalRarcPath);
       if (cleanup) {
-        file.Impl.Info.Delete();
+        file.Impl.Delete();
       }
 
       return true;

@@ -10,18 +10,17 @@ namespace fin.io {
   public interface IIoObject {
     string Name { get; }
     string FullName { get; }
-    string GetAbsolutePath();
 
     bool Exists { get; }
 
+    string? GetParentFullName();
     IDirectory? GetParent();
     IDirectory[]? GetAncestry();
   }
 
   public interface IDirectory : IIoObject, IEquatable<IDirectory> {
-    IDirectoryInfo Info { get; }
-
     bool Create();
+    bool Delete(bool recursive = false);
     void MoveTo(string path);
 
     IEnumerable<IDirectory> GetExistingSubdirs();
@@ -36,10 +35,14 @@ namespace fin.io {
     bool TryToGetExistingFile(string path, out IFile? file);
     IFile GetExistingFile(string relativePath);
     IFile? PossiblyAssertExistingFile(string relativePath, bool assert);
+
+    IFile[] GetFilesWithExtension(
+        string extension,
+        bool includeSubdirs = false);
   }
 
   public interface IFile : IIoObject, IEquatable<IFile> {
-    IFileInfo Info { get; }
+    bool Delete();
 
     string Extension { get; }
     IFile CloneWithExtension(string newExtension);

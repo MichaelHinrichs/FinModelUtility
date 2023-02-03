@@ -82,7 +82,7 @@ namespace HaloWarsTools {
         var binFiles = dstMapDirectory.GetExistingFiles()
                                       .Where(file => file.Extension == ".bin");
         foreach (var binFile in binFiles) {
-          binFile.Info.Delete();
+          binFile.Delete();
         }
 
         // Forces an immediate garbage-collection cleanup. This is required to

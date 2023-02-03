@@ -42,7 +42,7 @@ namespace uni.platforms.threeDs.tools {
         }
       }
 
-      garFile.Impl.Info.Delete();
+      garFile.Impl.Delete();
 
       return true;
     }

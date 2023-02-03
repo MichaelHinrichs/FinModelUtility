@@ -32,26 +32,21 @@ namespace fin.io {
 
 
     // Getting Files
-    public static FinFile[] GetFilesWithExtension(
+    public static IFile[] GetFilesWithExtension(
         string extension,
         bool includeSubdirs = false)
       => Files.GetFilesWithExtension(Files.GetCwd(), extension, includeSubdirs);
 
-    private static string AssertValidExtension_(string extension) {
+    public static string AssertValidExtension(string extension) {
       Asserts.True(extension.StartsWith("."));
       return extension;
     }
 
-    public static FinFile[] GetFilesWithExtension(
+    public static IFile[] GetFilesWithExtension(
         IDirectory directory,
         string extension,
         bool includeSubdirs = false)
-      => directory.Info.GetFiles($"*{Files.AssertValidExtension_(extension)}",
-                                 includeSubdirs
-                                     ? SearchOption.AllDirectories
-                                     : SearchOption.TopDirectoryOnly)
-                  .Select(fileInfo => new FinFile(fileInfo))
-                  .ToArray();
+      => directory.GetFilesWithExtension(extension, includeSubdirs);
 
     public static IFile GetFileWithExtension(
         IDirectory directory,
