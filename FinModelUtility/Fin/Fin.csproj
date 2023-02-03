@@ -25,8 +25,9 @@
     <PackageReference Include="FastBitmapLib" Version="2.1.0" />
     <PackageReference Include="FastMath" Version="1.0.3" />
     <PackageReference Include="MathNet.Numerics" Version="5.0.0-alpha08" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.1.0-1.final">
+    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.4.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
