@@ -1,4 +1,6 @@
-﻿using fin.data;
+﻿using System.Collections.Concurrent;
+
+using fin.data;
 using fin.data.queue;
 using fin.io;
 using fin.math;
@@ -9,6 +11,8 @@ using modl.api;
 using modl.schema.terrain;
 using System.IO.Compression;
 using System.Xml;
+
+using Microsoft.Toolkit.HighPerformance.Helpers;
 
 
 namespace modl.schema.xml {
@@ -98,24 +102,17 @@ namespace modl.schema.xml {
       var modlLoader = new ModlModelLoader();
 
       var objectMap = this.ReadObjectMap_(levelXmlFile, gameVersion);
-      var lazyModelMap = new LazyDictionary<string, IModel>(modelId => {
-        var modelFile =
-            modelFiles.Single(file => file.NameWithoutExtension == modelId);
 
-        IList<IFile>? animFiles = null;
-        if (gameVersion == GameVersion.BW1) {
-          if (modelId.Length == 4 && modelId.EndsWith("VET")) {
-            var firstTwoCharactersInModelId = modelId.Substring(0, 2);
-            animFiles = fvAnimFiles.Concat(animationFiles.Where(file => file.Name.StartsWith(firstTwoCharactersInModelId))).ToArray();
-          } else if (modelId.Length == 6 && modelId.EndsWith("GRUNT")) {
-            var firstTwoCharactersInModelId = modelId.Substring(0, 2);
-            animFiles = fgAnimFiles.Concat(animationFiles.Where(file => file.Name.StartsWith(firstTwoCharactersInModelId))).ToArray();
-          }
-        }
-
-        var model = modlLoader.LoadModel(modelFile, animFiles, gameVersion);
-        return model;
-      });
+      var modelMap = new ConcurrentDictionary<string, IModel>();
+      ParallelHelper.For(0,
+                         modelFiles.Length,
+                         new ModlLoader(modlLoader,
+                                        modelFiles,
+                                        modelMap,
+                                        animationFiles,
+                                        fvAnimFiles,
+                                        fgAnimFiles,
+                                        gameVersion));
 
       foreach (var obj in objectMap.Values) {
         var rootMatrix = obj.Matrix;
@@ -155,11 +152,56 @@ namespace modl.schema.xml {
             sceneObject.Rotation.SetQuaternion(rotation);
             sceneObject.SetScale(scale.X, scale.Y, scale.Z);
 
-            sceneObject.AddSceneModel(lazyModelMap[child.ModelName]);
+            sceneObject.AddSceneModel(modelMap[child.ModelName]);
           }
 
           childIdQueue.Enqueue(child.Children.Select(grandchild => (grandchild, childMatrix)));
         }
+      }
+    }
+
+    private readonly struct ModlLoader : IAction {
+      private readonly ModlModelLoader modlLoader_;
+      private readonly IReadOnlyList<IFile> modelFiles_;
+      private readonly IDictionary<string, IModel> modelMap_;
+      private readonly IReadOnlyList<IFile> animationFiles_;
+      private readonly IReadOnlyList<IFile> fvAnimFiles_;
+      private readonly IReadOnlyList<IFile> fgAnimFiles_;
+      private readonly GameVersion gameVersion_;
+
+      public ModlLoader(
+          ModlModelLoader modlLoader,
+          IReadOnlyList<IFile> modelFiles,
+          IDictionary<string, IModel> modelMap,
+          IReadOnlyList<IFile> animationFiles,
+          IReadOnlyList<IFile> fvAnimFiles,
+          IReadOnlyList<IFile> fgAnimFiles,
+          GameVersion gameVersion) {
+        this.modlLoader_ = modlLoader;
+        this.modelFiles_ = modelFiles;
+        this.modelMap_ = modelMap;
+        this.animationFiles_ = animationFiles;
+        this.fvAnimFiles_ = fvAnimFiles;
+        this.fgAnimFiles_ = fgAnimFiles;
+        this.gameVersion_ = gameVersion;
+      }
+
+      public void Invoke(int index) {
+        var modelFile = modelFiles_[index];
+        var modelId = modelFile.NameWithoutExtension;
+
+        IList<IFile>? animFiles = null;
+        if (this.gameVersion_ == GameVersion.BW1) {
+          if (modelId.Length == 4 && modelId.EndsWith("VET")) {
+            var firstTwoCharactersInModelId = modelId.Substring(0, 2);
+            animFiles = this.fvAnimFiles_.Concat(this.animationFiles_.Where(file => file.Name.StartsWith(firstTwoCharactersInModelId))).ToArray();
+          } else if (modelId.Length == 6 && modelId.EndsWith("GRUNT")) {
+            var firstTwoCharactersInModelId = modelId.Substring(0, 2);
+            animFiles = this.fgAnimFiles_.Concat(this.animationFiles_.Where(file => file.Name.StartsWith(firstTwoCharactersInModelId))).ToArray();
+          }
+        }
+
+        this.modelMap_[modelId] = this.modlLoader_.LoadModel(modelFile, animFiles, this.gameVersion_);
       }
     }
 
