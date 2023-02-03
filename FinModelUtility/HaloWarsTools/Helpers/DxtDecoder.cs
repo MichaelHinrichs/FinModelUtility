@@ -356,14 +356,11 @@ namespace Dxt {
           }
 
           uint d = BitConverter.ToUInt32(src, offset + 4);
-          for (var i = 0; i < 16; i++, d >>= 2) {
-            buffer[i] = colors[(int) (d & 3)];
-          }
-
           var clen = (s < bcw - 1 ? 4 : clen_last);
           for (int i = 0, y = t * 4; i < 4 && y < height; i++, y++) {
             for (var c = 0; c < clen; ++c) {
-              ptr[y * width + x + c] = buffer[4 * i + c];
+              var colorIndex = (int) ((d >> (2 * (4 * i + c))) & 3);
+              ptr[y * width + x + c] = colors[colorIndex];
             }
           }
         }
