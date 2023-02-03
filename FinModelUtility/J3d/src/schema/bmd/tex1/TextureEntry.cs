@@ -8,6 +8,8 @@ using System;
 using System.ComponentModel;
 using System.IO;
 
+using SixLabors.ImageSharp.PixelFormats;
+
 
 namespace j3d.schema.bmd.tex1 {
   public enum TextureFormat : byte {
@@ -45,7 +47,7 @@ namespace j3d.schema.bmd.tex1 {
     public PaletteFormat PaletteFormat;
     public UInt16 NrPaletteEntries;
     public UInt32 PaletteOffset;
-    public IColor[] palette;
+    public Rgba32[] palette;
     public UInt32 BorderColor;
     public GX_MIN_TEXTURE_FILTER MinFilter;
     public GX_MAG_TEXTURE_FILTER MagFilter;
@@ -89,7 +91,7 @@ namespace j3d.schema.bmd.tex1 {
         this.Data = er.ReadBytes(this.GetCompressedBufferSize());
       }
 
-      this.palette = new IColor[this.NrPaletteEntries];
+      this.palette = new Rgba32[this.NrPaletteEntries];
       {
         er.Position = pos + this.PaletteOffset;
         for (var i = 0; i < this.NrPaletteEntries; ++i) {
@@ -98,19 +100,18 @@ namespace j3d.schema.bmd.tex1 {
               var alpha = er.ReadByte();
               var intensity = er.ReadByte();
               this.palette[i] =
-                  FinColor.FromRgbaBytes(intensity,
-                                         intensity,
-                                         intensity,
-                                         alpha);
+                  new Rgba32(intensity, intensity, intensity, alpha);
               break;
             }
             case PaletteFormat.PAL_R5_G6_B5: {
-              this.palette[i] = ColorUtil.ParseRgb565(er.ReadUInt16());
+              ColorUtil.SplitRgb565(er.ReadUInt16(), out var r, out var b, out var g);
+              this.palette[i] = new Rgba32(r, g, b);
               break;
             }
             // TODO: There seems to be a bug reading the palette, these colors look weird
             case PaletteFormat.PAL_A3_RGB5: {
-              this.palette[i] = ColorUtil.ParseRgb5A3(er.ReadUInt16());
+              ColorUtil.SplitRgb5A3(er.ReadUInt16(), out var r, out var g, out var b, out var a);
+              this.palette[i] = new Rgba32(r, g, b, a);
               break;
             }
             default:
@@ -121,7 +122,6 @@ namespace j3d.schema.bmd.tex1 {
       er.Position = position;
     }
 
-    // TODO: Share this implementation w/ BTI
     public unsafe IImage ToBitmap() {
       var width = this.Width;
       var height = this.Height;
@@ -131,40 +131,37 @@ namespace j3d.schema.bmd.tex1 {
       var isIndex8 = this.Format == TextureFormat.INDEX8;
       if (isIndex4 || isIndex8) {
         bitmap = new Rgba32Image(width, height);
-        bitmap.Mutate((_, setHandler) => {
-          var indices = new byte[width * height];
-          if (isIndex4) {
-            for (var i = 0; i < this.Data.Length; ++i) {
-              var two = this.Data[i];
+        using var imageLock = bitmap.Lock();
+        var ptr = imageLock.pixelScan0;
 
-              var firstIndex = two >> 4;
-              var secondIndex = two & 0x0F;
+        var indices = new byte[width * height];
+        if (isIndex4) {
+          for (var i = 0; i < this.Data.Length; ++i) {
+            var two = this.Data[i];
 
-              indices[2 * i + 0] = (byte)firstIndex;
-              indices[2 * i + 1] = (byte)secondIndex;
-            }
-          } else {
-            indices = this.Data;
+            var firstIndex = two >> 4;
+            var secondIndex = two & 0x0F;
+
+            indices[2 * i + 0] = (byte)firstIndex;
+            indices[2 * i + 1] = (byte)secondIndex;
           }
+        } else {
+          indices = this.Data;
+        }
 
-          var blockWidth = 8;
-          var blockHeight = isIndex4 ? 8 : 4;
+        var blockWidth = 8;
+        var blockHeight = isIndex4 ? 8 : 4;
 
-          var index = 0;
-          for (var ty = 0; ty < height / blockHeight; ty++) {
-            for (var tx = 0; tx < width / blockWidth; tx++) {
-              for (var y = 0; y < blockHeight; ++y) {
-                for (var x = 0; x < blockWidth; ++x) {
-                  var color = this.palette[indices[index++]];
-                  setHandler(
-                      tx * blockWidth + x,
-                      ty * blockHeight + y,
-                      color.Rb, color.Gb, color.Bb, color.Ab);
-                }
+        var index = 0;
+        for (var ty = 0; ty < height / blockHeight; ty++) {
+          for (var tx = 0; tx < width / blockWidth; tx++) {
+            for (var y = 0; y < blockHeight; ++y) {
+              for (var x = 0; x < blockWidth; ++x) {
+                ptr[(ty * blockHeight + y) * width + (tx * blockWidth + x)] = this.palette[indices[index++]];
               }
             }
           }
-        });
+        }
 
         return bitmap;
       }
@@ -184,20 +181,22 @@ namespace j3d.schema.bmd.tex1 {
       byte[] numArray = imageDataFormat.ConvertFrom(
           this.Data, width, height, (ProgressChangedEventHandler)null);
       bitmap = new Rgba32Image(width, height);
-      bitmap.Mutate((_, setHandler) => {
-        for (var y = 0; y < height; ++y) {
-          for (var x = 0; x < width; ++x) {
-            var i = 4 * (y * width + x);
+      using var imageLockRgba = bitmap.Lock(); 
+      var ptrRgba = imageLockRgba.pixelScan0;
 
-            var b = numArray[i + 0];
-            var g = numArray[i + 1];
-            var r = numArray[i + 2];
-            var a = numArray[i + 3];
+      for (var y = 0; y < height; ++y) {
+        for (var x = 0; x < width; ++x) {
+          var i = 4 * (y * width + x);
 
-            setHandler(x, y, r, g, b, a);
-          }
+          var b = numArray[i + 0];
+          var g = numArray[i + 1];
+          var r = numArray[i + 2];
+          var a = numArray[i + 3];
+
+          ptrRgba[y * width + x] = new Rgba32(r, g, b, a);
         }
-      });
+      }
+
       return bitmap;
     }
 

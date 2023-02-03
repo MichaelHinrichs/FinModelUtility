@@ -1,8 +1,12 @@
 ﻿using System;
 using System.IO;
+
+using fin.color;
 using fin.image;
 using fin.image.io;
 using fin.util.color;
+
+using SixLabors.ImageSharp.PixelFormats;
 
 
 namespace cmb.schema.cmb {
@@ -58,7 +62,7 @@ namespace cmb.schema.cmb {
       };
 
 
-    public IImage DecodeImage(
+    public unsafe IImage DecodeImage(
         byte[] input,
         Texture texture) {
       // M-1: Note: I don't think HiLo8 exist for .cmb
@@ -72,92 +76,93 @@ namespace cmb.schema.cmb {
       var height = texture.height;
 
       var output = new Rgba32Image(width, height);
-      output.Mutate((_, setHandler) => {
-        using var er =
-            new EndianBinaryReader(new MemoryStream(input),
-                                   Endianness.LittleEndian);
+      using var imageLock = output.Lock();
+      var ptr = imageLock.pixelScan0;
 
-        for (var ty = 0; ty < height; ty += 8) {
-          for (var tx = 0; tx < width; tx += 8) {
-            for (var px = 0; px < 64; ++px) {
-              byte r, g, b, a;
+      using var er =
+          new EndianBinaryReader(new MemoryStream(input),
+                                 Endianness.LittleEndian);
 
-              switch (format) {
-                case GlTextureFormat.RGB8: {
-                  a = 255;
-                  b = er.ReadByte();
-                  g = er.ReadByte();
-                  r = er.ReadByte();
-                  break;
-                }
-                case GlTextureFormat.RGBA8: {
-                  a = er.ReadByte();
-                  b = er.ReadByte();
-                  g = er.ReadByte();
-                  r = er.ReadByte();
-                  break;
-                }
-                case GlTextureFormat.RGBA5551: {
-                  var value = er.ReadUInt16();
-                  ColorUtil.SplitRgb5A1(value, out r, out g, out b, out a);
-                  break;
-                }
-                case GlTextureFormat.RGB565: {
-                  var value = er.ReadUInt16();
-                  a = 255;
-                  ColorUtil.SplitRgb565(value, out r, out g, out b);
-                  break;
-                }
-                case GlTextureFormat.RGBA4444: {
-                  var value = er.ReadUInt16();
-                  ColorUtil.SplitRgba4444(value,
-                                          out r,
-                                          out g,
-                                          out b,
-                                          out a);
-                  break;
-                }
-                case GlTextureFormat.LA8: {
-                  a = er.ReadByte();
-                  b = g = r = er.ReadByte();
-                  break;
-                }
-                case GlTextureFormat.HiLo8: {
-                  throw new NotImplementedException();
-                }
-                case GlTextureFormat.A8: {
-                  a = er.ReadByte();
-                  b = 255;
-                  g = 255;
-                  r = 255;
-                  break;
-                }
-                case GlTextureFormat.LA4: {
-                  throw new NotImplementedException();
-                }
-                case GlTextureFormat.L4: {
-                  throw new NotImplementedException();
-                }
-                case GlTextureFormat.A4: {
-                  throw new NotImplementedException();
-                }
-                case GlTextureFormat.L8:
-                case GlTextureFormat.Gas:
-                case GlTextureFormat.Shadow: {
-                  a = 255;
-                  b = g = r = er.ReadByte();
-                  break;
-                }
-                default: throw new ArgumentOutOfRangeException();
+      for (var ty = 0; ty < height; ty += 8) {
+        for (var tx = 0; tx < width; tx += 8) {
+          for (var px = 0; px < 64; ++px) {
+            byte r, g, b, a;
+
+            switch (format) {
+              case GlTextureFormat.RGB8: {
+                a = 255;
+                b = er.ReadByte();
+                g = er.ReadByte();
+                r = er.ReadByte();
+                break;
               }
-
-              var x = this.swizzleLut_[px] & 7;
-              var y = (this.swizzleLut_[px] - x) >> 3;
-              setHandler(tx + x, ty + y, r, g, b, a);
+              case GlTextureFormat.RGBA8: {
+                a = er.ReadByte();
+                b = er.ReadByte();
+                g = er.ReadByte();
+                r = er.ReadByte();
+                break;
+              }
+              case GlTextureFormat.RGBA5551: {
+                var value = er.ReadUInt16();
+                ColorUtil.SplitRgb5A1(value, out r, out g, out b, out a);
+                break;
+              }
+              case GlTextureFormat.RGB565: {
+                var value = er.ReadUInt16();
+                a = 255;
+                ColorUtil.SplitRgb565(value, out r, out g, out b);
+                break;
+              }
+              case GlTextureFormat.RGBA4444: {
+                var value = er.ReadUInt16();
+                ColorUtil.SplitRgba4444(value,
+                                        out r,
+                                        out g,
+                                        out b,
+                                        out a);
+                break;
+              }
+              case GlTextureFormat.LA8: {
+                a = er.ReadByte();
+                b = g = r = er.ReadByte();
+                break;
+              }
+              case GlTextureFormat.HiLo8: {
+                throw new NotImplementedException();
+              }
+              case GlTextureFormat.A8: {
+                a = er.ReadByte();
+                b = 255;
+                g = 255;
+                r = 255;
+                break;
+              }
+              case GlTextureFormat.LA4: {
+                throw new NotImplementedException();
+              }
+              case GlTextureFormat.L4: {
+                throw new NotImplementedException();
+              }
+              case GlTextureFormat.A4: {
+                throw new NotImplementedException();
+              }
+              case GlTextureFormat.L8:
+              case GlTextureFormat.Gas:
+              case GlTextureFormat.Shadow: {
+                a = 255;
+                b = g = r = er.ReadByte();
+                break;
+              }
+              default: throw new ArgumentOutOfRangeException();
             }
+
+            var x = this.swizzleLut_[px] & 7;
+            var y = (this.swizzleLut_[px] - x) >> 3;
+            ptr[(ty + y) * width + (tx + x)] = new Rgba32(r, g, b, a);
           }
         }
-      });
+      }
 
       return output;
     }
