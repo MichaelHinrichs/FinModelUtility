@@ -4,6 +4,8 @@ using System.Numerics;
 using OpenTK.Graphics.OpenGL;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+
 using PrimitiveType = OpenTK.Graphics.OpenGL.PrimitiveType;
 using MathNet.Numerics.Distributions;
 using MathNet.Numerics.Providers.LinearAlgebra;
@@ -61,8 +63,8 @@ namespace fin.gl.model {
 
             if (parentLocation != null) {
               var parentPos = parentLocation.Value;
-              GL.Vertex3(parentPos.X, parentPos.Y, parentPos.Z);
-              GL.Vertex3(xyz.X, xyz.Y, xyz.Z);
+              GL.Vertex3(Unsafe.As<Vector3, OpenTK.Vector3>(ref parentPos));
+              GL.Vertex3(Unsafe.As<Vector3, OpenTK.Vector3>(ref xyz));
             }
 
             location = xyz;
@@ -97,7 +99,7 @@ namespace fin.gl.model {
           var normalScale = 50f / this.Scale;
           normal = Vector3.Multiply(normal, normalScale);
 
-          GL.Vertex3(from.X, from.Y, from.Z);
+          GL.Vertex3(Unsafe.As<Vector3, OpenTK.Vector3>(ref from));
           GL.Vertex3(from.X + normal.X, from.Y + normal.Y, from.Z + normal.Z);
         }
 
@@ -118,7 +120,7 @@ namespace fin.gl.model {
           var normalScale = 50f / this.Scale;
           normal = Vector3.Multiply(normal, normalScale);
 
-          GL.Vertex3(from.X, from.Y, from.Z);
+          GL.Vertex3(Unsafe.As<Vector3, OpenTK.Vector3>(ref from));
           GL.Vertex3(from.X + normal.X, from.Y + normal.Y, from.Z + normal.Z);
 
           GL.End();
@@ -140,7 +142,7 @@ namespace fin.gl.model {
           var from = new Vector3();
           this.boneTransformManager_.ProjectPosition(bone, ref from);
 
-          GL.Vertex3(from.X, from.Y, from.Z);
+          GL.Vertex3(Unsafe.As<Vector3, OpenTK.Vector3>(ref from));
         }
 
         GL.End();
@@ -154,7 +156,7 @@ namespace fin.gl.model {
           var from = new Vector3();
           this.boneTransformManager_.ProjectPosition(this.SelectedBone, ref from);
 
-          GL.Vertex3(from.X, from.Y, from.Z);
+          GL.Vertex3(Unsafe.As<Vector3, OpenTK.Vector3>(ref from));
 
           GL.End();
         }

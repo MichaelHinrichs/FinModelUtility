@@ -169,10 +169,7 @@ namespace modl.api {
             textureName => {
               var textureFile =
                   modlFile.GetParent()
-                          .GetExistingFiles()
-                          .Single(
-                              file => file.Name.ToLower() ==
-                                      $"{textureName}.png");
+                          .GetExistingFile($"{textureName}.png");
 
               var image = FinImage.FromFile(textureFile);
 

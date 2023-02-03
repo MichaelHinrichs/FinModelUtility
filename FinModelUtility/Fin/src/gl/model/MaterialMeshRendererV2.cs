@@ -40,7 +40,8 @@ namespace fin.gl.model {
       }
 
       IReadOnlyList<IVertex> triangleVertices;
-      if (primitives is [{ Type: PrimitiveType.TRIANGLES }]) {
+      if (primitives is [{ Type: PrimitiveType.TRIANGLES, VertexOrder:
+              VertexOrder.NORMAL }]) {
         triangleVertices = primitives[0].Vertices;
       } else {
         triangleVertices = primitives.SelectMany(primitive => {

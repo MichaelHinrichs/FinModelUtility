@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 
 namespace fin.data {
@@ -97,6 +98,7 @@ namespace fin.data {
     }
 
     public TValue this[TIndexable key] {
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
       get => impl_[key.Index];
       set {
         var id = key.Index;

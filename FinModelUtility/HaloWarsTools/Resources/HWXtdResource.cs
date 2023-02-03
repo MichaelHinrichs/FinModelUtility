@@ -122,16 +122,17 @@ namespace HaloWarsTools {
           var i = 2 * 3 * (triangleGridSize * z + x);
 
           triangles[i + 0] = a;
-          triangles[i + 1] = b;
-          triangles[i + 2] = c;
+          triangles[i + 1] = c;
+          triangles[i + 2] = b;
 
           triangles[i + 3] = d;
-          triangles[i + 4] = c;
-          triangles[i + 5] = b;
+          triangles[i + 4] = b;
+          triangles[i + 5] = c;
         }
       }
 
-      finMesh.AddTriangles(triangles);
+      finMesh.AddTriangles(triangles)
+             .SetVertexOrder(VertexOrder.NORMAL);
 
       return finModel;
     }
@@ -184,7 +185,8 @@ namespace HaloWarsTools {
         Vector3 normal =
             ConvertDirectionVector(
                 Vector3.Normalize(
-                    ReadVector3Compressed(this.bytes_, this.normalOffset_ + offset) *
+                    ReadVector3Compressed(this.bytes_,
+                                          this.normalOffset_ + offset) *
                     2.0f -
                     Vector3.One));
 
@@ -205,7 +207,9 @@ namespace HaloWarsTools {
       => z * gridSize + x;
 
     private const uint K_BIT_MASK_10 = (1 << 10) - 1;
-    private const float INVERSE_K_BIT_MASK_10 = 1f / HWXtdResource.K_BIT_MASK_10;
+
+    private const float INVERSE_K_BIT_MASK_10 =
+        1f / HWXtdResource.K_BIT_MASK_10;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static Vector3 ReadVector3Compressed(byte[] bytes, int offset) {
