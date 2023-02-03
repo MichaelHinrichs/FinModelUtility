@@ -1,4 +1,5 @@
 ﻿using fin.math.matrix;
+using fin.model;
 using fin.model.impl;
 
 using NUnit.Framework;
@@ -8,14 +9,12 @@ namespace fin.math {
   public class MatrixTransformUtilTests {
     [Test]
     public void TestTranslation() {
-      var expectedTranslation =
-          new ModelImpl.PositionImpl { X = 2, Y = 3, Z = 4 };
+      var expectedTranslation = new Position(2, 3, 4);
 
       var matrix = MatrixTransformUtil.FromTranslation(
           expectedTranslation);
 
-      var actualTranslation = new ModelImpl.PositionImpl();
-      matrix.CopyTranslationInto(actualTranslation);
+      matrix.CopyTranslationInto(out var actualTranslation);
 
       Assert.AreEqual(expectedTranslation, actualTranslation);
     }
@@ -38,13 +37,12 @@ namespace fin.math {
 
     [Test]
     public void TestScale() {
-      var expectedScale = new ModelImpl.ScaleImpl { X = 3, Y = 4, Z = 5 };
+      var expectedScale = new Scale(3, 4, 5);
 
       var matrix = MatrixTransformUtil.FromScale(
           expectedScale);
 
-      var actualScale = new ModelImpl.ScaleImpl();
-      matrix.CopyScaleInto(actualScale);
+      matrix.CopyScaleInto(out var actualScale);
 
       Assert.AreEqual(expectedScale, actualScale);
     }
@@ -52,23 +50,18 @@ namespace fin.math {
 
     [Test]
     public void TestTrs() {
-      var expectedTranslation =
-          new ModelImpl.PositionImpl { X = 2, Y = 3, Z = 4 };
+      var expectedTranslation = new Position(2, 3, 4);
       var expectedRotation = QuaternionUtil.Create(1.2f, 2.3f, 3.4f);
-      var expectedScale = new ModelImpl.ScaleImpl { X = 3, Y = 4, Z = 5 };
+      var expectedScale = new Scale(3, 4, 5);
 
       var trs = MatrixTransformUtil.FromTrs(
           expectedTranslation,
           expectedRotation,
           expectedScale);
 
-      var actualTranslation = new ModelImpl.PositionImpl();
-      trs.CopyTranslationInto(actualTranslation);
-
+      trs.CopyTranslationInto(out var actualTranslation);
       trs.CopyRotationInto(out var actualRotation);
-
-      var actualScale = new ModelImpl.ScaleImpl();
-      trs.CopyScaleInto(actualScale);
+      trs.CopyScaleInto(out var actualScale);
 
       Assert.AreEqual(expectedTranslation, actualTranslation);
 

@@ -7,6 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="src\schema\Xmod.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="../BinarySchema/BinarySchema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="src\schema\" />
   </ItemGroup>
 </Project>
