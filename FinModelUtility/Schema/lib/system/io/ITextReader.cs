@@ -1,18 +1,10 @@
-﻿namespace System.IO {
-  public interface ITextReader : IDisposable {
-    long Position { get; set; }
-    long Length { get; }
-    bool Eof { get; }
+﻿using System.Text.RegularExpressions;
 
-    char ReadChar();
-
-    void AssertChar(char expectedValue);
-    void AssertString(string expectedValue);
-
-    bool Matches(out string text, string primary, params string[] secondary);
+namespace System.IO {
+  public interface ITextReader : IDataReader {
     bool Matches(out string text, params string[] matches);
 
-    string ReadUpTo(string primary, params string[] secondary);
-    string ReadWhile(string primary, params string[] secondary);
+    string ReadUpTo(params string[] matches);
+    string ReadWhile(params string[] matches);
   }
 }
