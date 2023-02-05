@@ -1,4 +1,8 @@
-﻿using fin.io.bundles;
+﻿using System.Runtime.CompilerServices;
+
+using fin.io.bundles;
+
+using Microsoft.Toolkit.HighPerformance.Helpers;
 
 using uni.games.battalion_wars_1;
 using uni.games.battalion_wars_2;
@@ -42,28 +46,13 @@ namespace uni.games {
 
       var useMultiThreading = true;
       if (useMultiThreading) {
-        var gatherTasks =
-            gatherers.Select(
-                         gatherer =>
-                             Task.Run(() => {
-                               try {
-                                 return gatherer
-                                     .GatherFileBundles(false);
-                               } catch (Exception e) {
-                                 ;
-                                 return null;
-                               }
-                             }))
-                     .ToArray();
-
-        Task.WhenAll(gatherTasks)
-            .ContinueWith(async resultsTask => {
-              var results = await resultsTask;
-              foreach (var result in results) {
-                rootFileBundleDirectory.AddSubdirIfNotNull(result);
-              }
-            })
-            .Wait();
+        var results = new IFileBundleDirectory?[gatherers.Length];
+        ParallelHelper.For(0,
+                           gatherers.Length,
+                           new GathererRunner(gatherers, results));
+        foreach (var result in results) {
+          rootFileBundleDirectory.AddSubdirIfNotNull(result);
+        }
       } else {
         foreach (var gatherer in gatherers) {
           rootFileBundleDirectory.AddSubdirIfNotNull(gatherer
@@ -74,6 +63,27 @@ namespace uni.games {
       rootFileBundleDirectory.RemoveEmptyChildren();
 
       return rootFileBundleDirectory;
+    }
+
+    private readonly struct GathererRunner : IAction {
+      private readonly IReadOnlyList<IFileBundleGatherer> gatherers_;
+      private readonly IList<IFileBundleDirectory?> results_;
+
+
+      public GathererRunner(IReadOnlyList<IFileBundleGatherer> gatherers,
+                            IList<IFileBundleDirectory?> results) {
+        this.gatherers_ = gatherers;
+        this.results_ = results;
+      }
+
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
+      public void Invoke(int i) {
+        try {
+          this.results_[i] = this.gatherers_[i].GatherFileBundles(false);
+        } catch (Exception e) {
+          ;
+        }
+      }
     }
   }
 }

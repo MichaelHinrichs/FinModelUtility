@@ -90,13 +90,15 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
                 if (xc.FilesByExtension.TryGetList(".mtn2", out _)) {
                   filesWithAnimations.Add(xcFile);
                 }
-              } catch { }
+              } catch {
+                ;
+              }
             }
 
             var filesWithModelsAndAnimations =
                 filesWithModels.Intersect(filesWithAnimations).ToHashSet();
 
-            var xcBundles = new IXcFiles[0];
+            var xcBundles = Array.Empty<IXcFiles>();
             if (directory.LocalPath == "\\vs1\\chr") {
               xcBundles = new[] {
                   GetSameFile("Emeer Punchenbaug", directory, "c206.xc"),
