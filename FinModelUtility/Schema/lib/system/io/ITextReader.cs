@@ -1,5 +1,5 @@
 ﻿namespace System.IO {
-  public interface ITextReader {
+  public interface ITextReader : IDisposable {
     long Position { get; set; }
 
     char ReadChar();

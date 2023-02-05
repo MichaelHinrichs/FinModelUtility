@@ -4,7 +4,7 @@ using System.Text;
 using schema.binary.util;
 
 namespace System.IO {
-  public sealed partial class TextReader {
+  public sealed partial class FinTextReader {
     public char ReadChar() => (char) this.impl_.ReadByte();
 
     public void AssertChar(char expectedValue)
