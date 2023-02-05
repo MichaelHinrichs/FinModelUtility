@@ -5,7 +5,7 @@ namespace schema.binary.text {
   internal class IChildOfGeneratorTests {
     [Test]
     public void TestChild() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 using schema.binary.attributes.child_of;
 
@@ -45,7 +45,7 @@ namespace foo.bar {
 
     [Test]
     public void TestParent() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 using schema.binary.attributes.child_of;
 
@@ -86,7 +86,7 @@ namespace foo.bar {
 
     [Test]
     public void TestChildInArray() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 using schema.binary.attributes.child_of;
 
@@ -125,7 +125,7 @@ namespace foo.bar {
 
     [Test]
     public void TestParentOfArray() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 using schema.binary.attributes.child_of;
 

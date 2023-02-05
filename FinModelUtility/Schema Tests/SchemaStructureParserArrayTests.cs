@@ -5,14 +5,14 @@ namespace schema.binary {
     public class Array {
       [Test]
       public void TestMutableArrayWithoutLength() {
-        var structure = SchemaTestUtil.ParseFirst(@"
+        var structure = BinarySchemaTestUtil.ParseFirst(@"
 namespace foo.bar {
   [BinarySchema]
   public partial class ArrayWrapper {
     public int[] field;
   }
 }");
-        SchemaTestUtil.AssertDiagnostics(structure.Diagnostics, Rules.MutableArrayNeedsLengthSource);
+        BinarySchemaTestUtil.AssertDiagnostics(structure.Diagnostics, Rules.MutableArrayNeedsLengthSource);
       }
     }
   }

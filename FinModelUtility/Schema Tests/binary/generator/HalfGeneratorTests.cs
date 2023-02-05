@@ -5,7 +5,7 @@ namespace schema.binary.text {
   internal class HalfGeneratorTests {
     [Test]
     public void TestHalf() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 
 namespace foo.bar {

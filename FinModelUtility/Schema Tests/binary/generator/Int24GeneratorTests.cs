@@ -5,7 +5,7 @@ namespace schema.binary.text {
   internal class Int24GeneratorTests {
     [Test]
     public void TestInt24() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 
 namespace foo.bar {
@@ -44,7 +44,7 @@ namespace foo.bar {
 
     [Test]
     public void TestUInt24() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 
 namespace foo.bar {

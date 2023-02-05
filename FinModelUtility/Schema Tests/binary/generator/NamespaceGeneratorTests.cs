@@ -5,7 +5,7 @@ namespace schema.binary.text {
   internal class NamespaceGeneratorTests {
     [Test]
     public void TestFromSameNamespace() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 
 namespace foo.bar {
@@ -41,7 +41,7 @@ namespace foo.bar {
 
     [Test]
     public void TestFromHigherNamespace() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 
 namespace foo {
@@ -79,7 +79,7 @@ namespace foo.bar {
 
     [Test]
     public void TestFromLowerNamespace() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 
 namespace foo.bar {
@@ -117,7 +117,7 @@ namespace foo.bar {
 
     [Test]
     public void TestFromSimilarNamespace() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 
 namespace foo.bar {

@@ -19,10 +19,10 @@ using schema.binary.parser.asserts;
 
 namespace schema.binary {
   public interface IBinarySchemaStructureParser {
-    ISchemaStructure ParseStructure(INamedTypeSymbol symbol);
+    IBinarySchemaStructure ParseStructure(INamedTypeSymbol symbol);
   }
 
-  public interface ISchemaStructure {
+  public interface IBinarySchemaStructure {
     IList<Diagnostic> Diagnostics { get; }
     INamedTypeSymbol TypeSymbol { get; }
     IReadOnlyList<ISchemaMember> Members { get; }
@@ -168,7 +168,7 @@ namespace schema.binary {
   }
 
   public class BinarySchemaStructureParser : IBinarySchemaStructureParser {
-    public ISchemaStructure ParseStructure(INamedTypeSymbol structureSymbol) {
+    public IBinarySchemaStructure ParseStructure(INamedTypeSymbol structureSymbol) {
       var diagnostics = new List<Diagnostic>();
 
       // All of the types that contain the structure need to be partial
@@ -222,7 +222,7 @@ namespace schema.binary {
         }
       }
 
-      var schemaStructure = new SchemaStructure {
+      var schemaStructure = new BinarySchemaStructure {
           Diagnostics = diagnostics,
           TypeSymbol = structureSymbol,
           Members = fields,
@@ -231,7 +231,7 @@ namespace schema.binary {
 
       // Hooks up size of dependencies.
       var structureByNamedTypeSymbol =
-          new Dictionary<INamedTypeSymbol, ISchemaStructure>();
+          new Dictionary<INamedTypeSymbol, IBinarySchemaStructure>();
       structureByNamedTypeSymbol[structureSymbol] = schemaStructure;
       {
         var sizeOfMemberInBytesDependencyFixer =
@@ -621,7 +621,7 @@ namespace schema.binary {
     }
 
 
-    private class SchemaStructure : ISchemaStructure {
+    private class BinarySchemaStructure : IBinarySchemaStructure {
       public IList<Diagnostic> Diagnostics { get; set; }
       public INamedTypeSymbol TypeSymbol { get; set; }
       public IReadOnlyList<ISchemaMember> Members { get; set; }

@@ -5,7 +5,7 @@ namespace schema.binary.text {
   internal class GenericGeneratorTests {
     [Test]
     public void TestGenericStructure() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 
 namespace foo.bar {
@@ -38,7 +38,7 @@ namespace foo.bar {
 
     [Test]
     public void TestGenericStructureArray() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 
 namespace foo.bar {

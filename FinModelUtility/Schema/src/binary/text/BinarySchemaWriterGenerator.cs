@@ -8,8 +8,8 @@ using schema.binary.util;
 
 
 namespace schema.binary.text {
-  public class SchemaWriterGenerator {
-    public string Generate(ISchemaStructure structure) {
+  public class BinarySchemaWriterGenerator {
+    public string Generate(IBinarySchemaStructure structure) {
       var typeSymbol = structure.TypeSymbol;
 
       var typeNamespace = SymbolTypeUtil.MergeContainingNamespaces(typeSymbol);
@@ -38,7 +38,7 @@ namespace schema.binary.text {
         }
 
         foreach (var member in structure.Members) {
-          SchemaWriterGenerator.WriteMember_(cbsb, typeSymbol, member);
+          BinarySchemaWriterGenerator.WriteMember_(cbsb, typeSymbol, member);
         }
 
         if (hasEndianness) {
@@ -109,19 +109,19 @@ namespace schema.binary.text {
 
       switch (memberType) {
         case IPrimitiveMemberType: {
-          SchemaWriterGenerator.WritePrimitive_(cbsb, member);
+          BinarySchemaWriterGenerator.WritePrimitive_(cbsb, member);
           break;
         }
         case IStringType: {
-          SchemaWriterGenerator.WriteString_(cbsb, member);
+          BinarySchemaWriterGenerator.WriteString_(cbsb, member);
           break;
         }
         case IStructureMemberType structureMemberType: {
-          SchemaWriterGenerator.WriteStructure_(cbsb, member);
+          BinarySchemaWriterGenerator.WriteStructure_(cbsb, member);
           break;
         }
         case ISequenceMemberType: {
-          SchemaWriterGenerator.WriteArray_(cbsb, sourceSymbol, member);
+          BinarySchemaWriterGenerator.WriteArray_(cbsb, sourceSymbol, member);
           break;
         }
         default:
@@ -147,7 +147,7 @@ namespace schema.binary.text {
         ICurlyBracketTextWriter cbsb,
         ISchemaMember member,
         Action handler) {
-      SchemaWriterGenerator.Align_(cbsb, member);
+      BinarySchemaWriterGenerator.Align_(cbsb, member);
 
       var hasEndianness = member.Endianness != null;
       if (hasEndianness) {
@@ -178,7 +178,7 @@ namespace schema.binary.text {
           Asserts.CastNonnull(member.MemberType as IPrimitiveMemberType);
 
       if (primitiveType.PrimitiveType == SchemaPrimitiveType.BOOLEAN) {
-        SchemaWriterGenerator.WriteBoolean_(cbsb, member);
+        BinarySchemaWriterGenerator.WriteBoolean_(cbsb, member);
         return;
       }
 
@@ -330,7 +330,7 @@ namespace schema.binary.text {
         }
       }
 
-      SchemaWriterGenerator.WriteIntoArray_(cbsb, sourceSymbol, member);
+      BinarySchemaWriterGenerator.WriteIntoArray_(cbsb, sourceSymbol, member);
     }
 
     private static void WriteIntoArray_(

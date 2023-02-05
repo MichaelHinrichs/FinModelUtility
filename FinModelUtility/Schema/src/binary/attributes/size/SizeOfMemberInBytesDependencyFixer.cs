@@ -6,7 +6,7 @@ using System.Linq;
 namespace schema.binary.attributes.size {
   public class SizeOfMemberInBytesDependencyFixer {
     public void AddDependenciesForStructure(
-        IDictionary<INamedTypeSymbol, ISchemaStructure>
+        IDictionary<INamedTypeSymbol, IBinarySchemaStructure>
             structureByNamedTypeSymbol,
         IChain<IAccessChainNode> accessChain) {
       foreach (var typeChainNode in accessChain.RootToTarget.Skip(1)) {

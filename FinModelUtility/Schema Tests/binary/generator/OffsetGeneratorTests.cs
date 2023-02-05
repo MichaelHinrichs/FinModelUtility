@@ -4,7 +4,7 @@
 namespace schema.binary.text {
   internal class OffsetGeneratorTests {
     [Test] public void TestOffset() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 using schema.binary.attributes.offset;
 
@@ -52,7 +52,7 @@ namespace foo.bar {
 
     [Test]
     public void TestOffsetFromParent() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 using schema.binary.attributes.child_of;
 using schema.binary.attributes.offset;

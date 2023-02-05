@@ -5,7 +5,7 @@ namespace schema.binary.text {
   internal class StringGeneratorTests {
     [Test]
     public void TestConstString() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 
 namespace foo.bar {
@@ -38,7 +38,7 @@ namespace foo.bar {
 
     [Test]
     public void TestConstLengthString() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 
 namespace foo.bar {

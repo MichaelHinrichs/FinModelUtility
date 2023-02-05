@@ -5,7 +5,7 @@ namespace schema.binary.text {
   internal class StringLengthSourceGeneratorTests {
     [Test]
     public void TestImmediateLength() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 
 namespace foo.bar {

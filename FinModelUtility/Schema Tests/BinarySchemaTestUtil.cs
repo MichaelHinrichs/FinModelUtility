@@ -14,11 +14,11 @@ using schema.binary.text;
 
 
 namespace schema.binary {
-  internal static class SchemaTestUtil {
-    public static ISchemaStructure ParseFirst(string src)
+  internal static class BinarySchemaTestUtil {
+    public static IBinarySchemaStructure ParseFirst(string src)
       => ParseAll(src).First();
 
-    public static IReadOnlyList<ISchemaStructure> ParseAll(string src) {
+    public static IReadOnlyList<IBinarySchemaStructure> ParseAll(string src) {
       var syntaxTree = CSharpSyntaxTree.ParseText(src);
 
       var references =
@@ -82,7 +82,7 @@ namespace schema.binary {
                        .ToArray();
 
       var structureByNamedTypeSymbol =
-          new Dictionary<INamedTypeSymbol, ISchemaStructure>();
+          new Dictionary<INamedTypeSymbol, IBinarySchemaStructure>();
       foreach (var structure in structures) {
         structureByNamedTypeSymbol[structure.TypeSymbol] = structure;
       }
@@ -138,11 +138,11 @@ namespace schema.binary {
     public static void AssertGenerated(string src,
                                        string expectedReader,
                                        string expectedWriter) {
-      var structure = SchemaTestUtil.ParseFirst(src);
+      var structure = BinarySchemaTestUtil.ParseFirst(src);
       Assert.IsEmpty(structure.Diagnostics);
 
-      var actualReader = new SchemaReaderGenerator().Generate(structure);
-      var actualWriter = new SchemaWriterGenerator().Generate(structure);
+      var actualReader = new BinarySchemaReaderGenerator().Generate(structure);
+      var actualWriter = new BinarySchemaWriterGenerator().Generate(structure);
 
       Assert.AreEqual(expectedReader, actualReader.ReplaceLineEndings());
       Assert.AreEqual(expectedWriter, actualWriter.ReplaceLineEndings());
@@ -151,7 +151,7 @@ namespace schema.binary {
     public static void AssertGeneratedForAll(
         string src,
         params (string, string)[] expectedReadersAndWriters) {
-      var structures = SchemaTestUtil.ParseAll(src).ToArray();
+      var structures = BinarySchemaTestUtil.ParseAll(src).ToArray();
       Assert.AreEqual(expectedReadersAndWriters.Length, structures.Length);
       for (var i = 0; i < structures.Length; ++i) {
         var (expectedReader, expectedWriter) = expectedReadersAndWriters[i];
@@ -159,8 +159,8 @@ namespace schema.binary {
 
         Assert.IsEmpty(structure.Diagnostics);
 
-        var actualReader = new SchemaReaderGenerator().Generate(structure);
-        var actualWriter = new SchemaWriterGenerator().Generate(structure);
+        var actualReader = new BinarySchemaReaderGenerator().Generate(structure);
+        var actualWriter = new BinarySchemaWriterGenerator().Generate(structure);
 
         Assert.AreEqual(expectedReader, actualReader.ReplaceLineEndings());
         Assert.AreEqual(expectedWriter, actualWriter.ReplaceLineEndings());

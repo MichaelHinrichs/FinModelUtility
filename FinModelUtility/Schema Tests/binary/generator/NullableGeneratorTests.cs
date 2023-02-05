@@ -5,7 +5,7 @@ namespace schema.binary.text {
   internal class NullableGeneratorTests {
     [Test]
     public void TestNullable() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 
 namespace foo.bar {

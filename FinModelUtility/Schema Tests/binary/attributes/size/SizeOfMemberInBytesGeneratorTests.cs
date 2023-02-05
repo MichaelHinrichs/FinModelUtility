@@ -5,7 +5,7 @@ namespace schema.binary.attributes.size {
   internal class SizeOfMemberInBytesGeneratorTests {
     [Test]
     public void TestSizeOfInStructure() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 using schema.binary.attributes.size;
 
@@ -46,7 +46,7 @@ namespace foo.bar {
 
     [Test]
     public void TestSizeOfThroughChild() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 using schema.binary.attributes.size;
 
@@ -92,7 +92,7 @@ namespace foo.bar {
 
     [Test]
     public void TestSizeOfThroughParent() {
-      SchemaTestUtil.AssertGeneratedForAll(@"
+      BinarySchemaTestUtil.AssertGeneratedForAll(@"
 using schema.binary;
 using schema.binary.attributes.child_of;
 using schema.binary.attributes.size;

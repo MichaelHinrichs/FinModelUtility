@@ -5,7 +5,7 @@ namespace schema.binary.text {
   internal class IfBooleanGeneratorTests {
     [Test]
     public void TestIfBoolean() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 
 namespace foo.bar {
@@ -70,7 +70,7 @@ namespace foo.bar {
 
     [Test]
     public void TestIfBooleanWithPrivateSetter() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 
 namespace foo.bar {
@@ -118,7 +118,7 @@ namespace foo.bar {
 
     [Test]
     public void TestUsingBoolFromChild() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 
 namespace foo.bar {

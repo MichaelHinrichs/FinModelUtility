@@ -8,7 +8,7 @@ namespace schema.binary {
     public class Enum {
       [Test]
       public void TestEnumWithFormat() {
-        var structure = SchemaTestUtil.ParseFirst(@"
+        var structure = BinarySchemaTestUtil.ParseFirst(@"
 namespace foo.bar {
   public enum ValueType : byte {
     A,
@@ -21,14 +21,14 @@ namespace foo.bar {
     public ValueType field;
   }
 }");
-        SchemaTestUtil.AssertDiagnostics(
+        BinarySchemaTestUtil.AssertDiagnostics(
             structure.Diagnostics,
             System.Array.Empty<DiagnosticDescriptor>());
       }
 
       [Test]
       public void TestEnumWithoutFormat() {
-        var structure = SchemaTestUtil.ParseFirst(@"
+        var structure = BinarySchemaTestUtil.ParseFirst(@"
 namespace foo.bar {
   public enum ValueType {
     A,
@@ -41,14 +41,14 @@ namespace foo.bar {
     public ValueType field;
   }
 }");
-        SchemaTestUtil.AssertDiagnostics(
+        BinarySchemaTestUtil.AssertDiagnostics(
             structure.Diagnostics,
             System.Array.Empty<DiagnosticDescriptor>());
       }
 
       [Test]
       public void TestEnumArrayWithoutFormat() {
-        var structure = SchemaTestUtil.ParseFirst(@"
+        var structure = BinarySchemaTestUtil.ParseFirst(@"
 namespace foo.bar {
   public enum ValueType {
     A,
@@ -61,7 +61,7 @@ namespace foo.bar {
     public readonly ValueType[] field = new ValueType[1];
   }
 }");
-        SchemaTestUtil.AssertDiagnostics(
+        BinarySchemaTestUtil.AssertDiagnostics(
             structure.Diagnostics,
             System.Array.Empty<DiagnosticDescriptor>());
       }

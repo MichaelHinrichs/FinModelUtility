@@ -5,7 +5,7 @@ namespace schema.binary.text {
   internal class PositionGeneratorTests {
     [Test]
     public void TestPosition() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 using schema.binary.attributes.position;
 

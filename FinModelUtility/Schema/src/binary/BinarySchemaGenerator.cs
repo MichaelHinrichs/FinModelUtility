@@ -16,10 +16,10 @@ namespace schema.binary {
     private readonly Type schemaAttributeType_ = typeof(BinarySchemaAttribute);
     private readonly BinarySchemaStructureParser parser_ = new();
 
-    private readonly SchemaReaderGenerator readerImpl_ = new();
-    private readonly SchemaWriterGenerator writerImpl_ = new();
+    private readonly BinarySchemaReaderGenerator readerImpl_ = new();
+    private readonly BinarySchemaWriterGenerator writerImpl_ = new();
 
-    private void Generate_(ISchemaStructure structure) {
+    private void Generate_(IBinarySchemaStructure structure) {
       var readerCode = this.readerImpl_.Generate(structure);
       this.context_.Value.AddSource(
           SymbolTypeUtil.GetQualifiedName(structure.TypeSymbol) + "_reader.g",
@@ -102,7 +102,7 @@ namespace schema.binary {
 
       // Gathers up a map of all structures by named type symbol.
       var structureByNamedTypeSymbol =
-          new Dictionary<INamedTypeSymbol, ISchemaStructure>();
+          new Dictionary<INamedTypeSymbol, IBinarySchemaStructure>();
       foreach (var structure in this.queue_) {
         structureByNamedTypeSymbol[structure.TypeSymbol] = structure;
       }
@@ -147,9 +147,9 @@ namespace schema.binary {
     }
 
     private GeneratorExecutionContext? context_;
-    private readonly List<ISchemaStructure> queue_ = new();
+    private readonly List<IBinarySchemaStructure> queue_ = new();
 
-    public void EnqueueStructure(ISchemaStructure structure) {
+    public void EnqueueStructure(IBinarySchemaStructure structure) {
       // If this assertion fails, then it means that syntax nodes are added
       // after the execution started.
       Asserts.Null(this.context_, "Syntax node added after execution!");

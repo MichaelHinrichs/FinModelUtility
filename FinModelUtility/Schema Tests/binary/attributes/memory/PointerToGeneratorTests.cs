@@ -5,7 +5,7 @@ namespace schema.binary.attributes.memory {
   internal class PointerToGeneratorTests {
     [Test]
     public void TestPointerToInStructure() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 using schema.binary.attributes.memory;
 
@@ -46,7 +46,7 @@ namespace foo.bar {
 
     [Test]
     public void TestPointerToThroughChild() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 using schema.binary.attributes.memory;
 
@@ -92,7 +92,7 @@ namespace foo.bar {
 
     [Test]
     public void TestPointerToThroughParent() {
-      SchemaTestUtil.AssertGeneratedForAll(@"
+      BinarySchemaTestUtil.AssertGeneratedForAll(@"
 using schema.binary;
 using schema.binary.attributes.child_of;
 using schema.binary.attributes.memory;

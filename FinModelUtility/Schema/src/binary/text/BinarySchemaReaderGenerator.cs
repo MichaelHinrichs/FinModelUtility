@@ -8,8 +8,8 @@ using schema.binary.util;
 
 
 namespace schema.binary.text {
-  public class SchemaReaderGenerator {
-    public string Generate(ISchemaStructure structure) {
+  public class BinarySchemaReaderGenerator {
+    public string Generate(IBinarySchemaStructure structure) {
       var typeSymbol = structure.TypeSymbol;
 
       var typeNamespace = SymbolTypeUtil.MergeContainingNamespaces(typeSymbol);
@@ -38,7 +38,7 @@ namespace schema.binary.text {
         }
 
         foreach (var member in structure.Members) {
-          SchemaReaderGenerator.ReadMember_(cbsb, typeSymbol, member);
+          BinarySchemaReaderGenerator.ReadMember_(cbsb, typeSymbol, member);
         }
 
         if (hasEndianness) {
@@ -129,21 +129,21 @@ namespace schema.binary.text {
 
       switch (memberType) {
         case IPrimitiveMemberType: {
-          SchemaReaderGenerator.ReadPrimitive_(cbsb, sourceSymbol, member);
+          BinarySchemaReaderGenerator.ReadPrimitive_(cbsb, sourceSymbol, member);
           break;
         }
         case IStringType: {
-          SchemaReaderGenerator.ReadString_(cbsb, member);
+          BinarySchemaReaderGenerator.ReadString_(cbsb, member);
           break;
         }
         case IStructureMemberType structureMemberType: {
-          SchemaReaderGenerator.ReadStructure_(cbsb,
+          BinarySchemaReaderGenerator.ReadStructure_(cbsb,
                                                structureMemberType,
                                                member);
           break;
         }
         case ISequenceMemberType: {
-          SchemaReaderGenerator.ReadArray_(cbsb, sourceSymbol, member);
+          BinarySchemaReaderGenerator.ReadArray_(cbsb, sourceSymbol, member);
           break;
         }
         default: {
@@ -187,7 +187,7 @@ namespace schema.binary.text {
             $"er.PushMemberEndianness({SchemaGeneratorUtil.GetEndiannessName(member.Endianness.Value)});");
       }
 
-      SchemaReaderGenerator.Align_(cbsb, member);
+      BinarySchemaReaderGenerator.Align_(cbsb, member);
 
       handler();
 
@@ -204,7 +204,7 @@ namespace schema.binary.text {
           Asserts.CastNonnull(member.MemberType as IPrimitiveMemberType);
 
       if (primitiveType.PrimitiveType == SchemaPrimitiveType.BOOLEAN) {
-        SchemaReaderGenerator.ReadBoolean_(cbsb, member);
+        BinarySchemaReaderGenerator.ReadBoolean_(cbsb, member);
         return;
       }
 
@@ -417,7 +417,7 @@ namespace schema.binary.text {
         }
       }
 
-      SchemaReaderGenerator.ReadIntoArray_(cbsb, sourceSymbol, member);
+      BinarySchemaReaderGenerator.ReadIntoArray_(cbsb, sourceSymbol, member);
     }
 
     private static void ReadIntoArray_(

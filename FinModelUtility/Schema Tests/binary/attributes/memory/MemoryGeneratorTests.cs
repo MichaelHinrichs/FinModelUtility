@@ -5,7 +5,7 @@ namespace schema.binary.attributes.memory {
   internal class MemoryGeneratorTests {
     /*[Test]
     public void TestOtherFieldBlock() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 using schema.binary.attributes.memory;
 using schema.memory;

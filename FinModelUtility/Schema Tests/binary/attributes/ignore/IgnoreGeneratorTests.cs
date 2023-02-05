@@ -4,7 +4,7 @@
 namespace schema.binary.attributes.ignore {
   internal class IgnoreGeneratorTests {
     [Test] public void TestAlign() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 using schema.binary.attributes.ignore;
 

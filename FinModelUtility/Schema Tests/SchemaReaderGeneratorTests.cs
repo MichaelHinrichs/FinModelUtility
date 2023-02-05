@@ -378,10 +378,10 @@ namespace foo.bar {
     }
 
     private void AssertGenerated_(string src, string expectedGenerated) {
-      var structure = SchemaTestUtil.ParseFirst(src);
+      var structure = BinarySchemaTestUtil.ParseFirst(src);
       Assert.IsEmpty(structure.Diagnostics);
 
-      var actualGenerated = new SchemaReaderGenerator().Generate(structure);
+      var actualGenerated = new BinarySchemaReaderGenerator().Generate(structure);
       Assert.AreEqual(expectedGenerated, actualGenerated.ReplaceLineEndings());
     }
   }

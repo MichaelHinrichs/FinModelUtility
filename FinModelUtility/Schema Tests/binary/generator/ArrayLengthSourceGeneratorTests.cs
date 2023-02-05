@@ -5,7 +5,7 @@ namespace schema.binary.text {
   internal class ArrayLengthSourceGeneratorTests {
     [Test]
     public void TestConstLength() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using System.Collections.Generic;
 
 using schema.binary;

@@ -4,7 +4,7 @@
 namespace schema.binary.attributes.align {
   internal class AlignGeneratorTests {
     [Test] public void TestAlign() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 using schema.binary.attributes.align;
 
@@ -41,7 +41,7 @@ namespace foo.bar {
 
     [Test]
     public void TestAlignWithImmediate() {
-      SchemaTestUtil.AssertGenerated(@"
+      BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 using schema.binary.attributes.align;
 
