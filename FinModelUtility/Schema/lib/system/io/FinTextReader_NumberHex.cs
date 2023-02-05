@@ -8,8 +8,7 @@ namespace System.IO {
     public void AssertHexByte(byte expectedValue)
       => Asserts.Equal(expectedValue, this.ReadHexByte());
 
-    public byte ReadHexByte()
-      => byte.Parse(this.ReadHexChars_(), NumberStyles.HexNumber);
+    public byte ReadHexByte() => this.ConvertHexByte_(this.ReadHexChars_());
 
 
     public void AssertHexSByte(sbyte expectedValue)
@@ -59,6 +58,7 @@ namespace System.IO {
     public ulong ReadHexUInt64()
       => ulong.Parse(this.ReadHexChars_(), NumberStyles.HexNumber);
 
+    private static readonly string[] hexSpecifierMatches_ = { "0x", "0X" };
 
     private static readonly string[] hexMatches =
         digitMatches_
@@ -67,6 +67,9 @@ namespace System.IO {
                     c => new[] { c.ToLower(), c.ToUpper() }))
             .ToArray();
 
-    private string ReadHexChars_() => this.ReadWhile(FinTextReader.hexMatches);
+    private string ReadHexChars_() {
+      Matches(out _, hexSpecifierMatches_);
+      return this.ReadWhile(FinTextReader.hexMatches);
+    }
   }
 }

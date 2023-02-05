@@ -22,17 +22,19 @@ namespace System.IO {
       return false;
     }
 
-    public string ReadUpTo(params string[] matches) {
+    public string ReadUpTo(params string[] terminators) {
       var sb = new StringBuilder();
 
       while (!Eof) {
-        if (!Matches(out var text, matches)) {
+        if (!Matches(out var text, terminators)) {
           sb.Append(this.ReadChar());
         } else {
           this.Position -= text.Length;
           break;
         }
       }
+
+      this.ReadWhile(terminators);
 
       return sb.ToString();
     }
