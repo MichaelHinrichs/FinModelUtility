@@ -2,8 +2,8 @@
 using System;
 using System.IO;
 using fin.util.strings;
-using schema;
-using schema.attributes.endianness;
+using schema.binary;
+using schema.binary.attributes.endianness;
 
 
 namespace cmb.schema.cmb {

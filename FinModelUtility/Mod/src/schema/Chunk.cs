@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-using schema;
+using schema.binary;
 
 namespace mod.schema {
   public enum ChunkId {

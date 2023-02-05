@@ -9,7 +9,7 @@ using fin.util.asserts;
 
 using mod.schema.collision;
 
-using schema;
+using schema.binary;
 
 namespace mod.schema {
   public class DateTime {

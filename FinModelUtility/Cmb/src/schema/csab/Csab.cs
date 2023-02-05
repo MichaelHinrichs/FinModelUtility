@@ -5,8 +5,8 @@ using System.IO;
 using fin.util.asserts;
 using fin.util.optional;
 
-using schema;
-using schema.attributes.endianness;
+using schema.binary;
+using schema.binary.attributes.endianness;
 
 
 namespace cmb.schema.csab {

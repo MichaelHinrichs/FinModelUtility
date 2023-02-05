@@ -1,12 +1,12 @@
 ﻿using NUnit.Framework;
 
 
-namespace schema.text {
+namespace schema.binary.text {
   internal class StringGeneratorTests {
     [Test]
     public void TestConstString() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
@@ -39,7 +39,7 @@ namespace foo.bar {
     [Test]
     public void TestConstLengthString() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]

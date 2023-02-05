@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 
-using schema;
+using schema.binary;
 
 
 namespace fin.io {

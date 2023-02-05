@@ -1,7 +1,7 @@
 ﻿using fin.math;
 using fin.math.matrix;
 
-using schema;
+using schema.binary;
 
 
 namespace granny3d {

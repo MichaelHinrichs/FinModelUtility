@@ -1,5 +1,5 @@
-﻿using schema;
-using schema.attributes.ignore;
+﻿using schema.binary;
+using schema.binary.attributes.ignore;
 
 
 namespace cmb.schema.cmb {

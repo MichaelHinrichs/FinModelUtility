@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-using schema;
+using schema.binary;
 
 namespace cmb.schema.cmb {
   public class Mat : IDeserializable {

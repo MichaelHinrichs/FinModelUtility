@@ -1,12 +1,12 @@
 ﻿using NUnit.Framework;
 
 
-namespace schema.text {
+namespace schema.binary.text {
   internal class Int24GeneratorTests {
     [Test]
     public void TestInt24() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
@@ -45,7 +45,7 @@ namespace foo.bar {
     [Test]
     public void TestUInt24() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]

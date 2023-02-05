@@ -1,12 +1,12 @@
 ﻿using NUnit.Framework;
 
 
-namespace schema.attributes.endianness {
+namespace schema.binary.attributes.endianness {
   internal class EndiannessGeneratorTests {
     [Test]
     public void TestNoEndianness() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
@@ -41,8 +41,8 @@ namespace foo.bar {
       SchemaTestUtil.AssertGenerated(@"
 using System.IO;
 
-using schema;
-using schema.attributes.endianness;
+using schema.binary;
+using schema.binary.attributes.endianness;
 
 namespace foo.bar {
   [BinarySchema]
@@ -91,8 +91,8 @@ namespace foo.bar {
       SchemaTestUtil.AssertGenerated(@"
 using System.IO;
 
-using schema;
-using schema.attributes.endianness;
+using schema.binary;
+using schema.binary.attributes.endianness;
 
 namespace foo.bar {
   [BinarySchema]

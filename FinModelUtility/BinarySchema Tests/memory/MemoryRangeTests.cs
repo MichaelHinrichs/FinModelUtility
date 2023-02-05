@@ -1,9 +1,9 @@
 ﻿using NUnit.Framework;
 
-using schema.util;
+using schema.binary.util;
 
 
-namespace schema.memory {
+namespace schema.binary.memory {
   public class MemoryRangeTests {
     [Test]
     public void TestCreateSubranges() {

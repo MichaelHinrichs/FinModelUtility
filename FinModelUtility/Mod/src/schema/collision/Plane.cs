@@ -1,6 +1,6 @@
 ﻿using fin.schema.vector;
 
-using schema;
+using schema.binary;
 
 namespace mod.schema.collision {
   [BinarySchema]

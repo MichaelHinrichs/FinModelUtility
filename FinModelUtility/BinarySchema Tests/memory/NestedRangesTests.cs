@@ -2,7 +2,7 @@
 using NUnit.Framework;
 
 
-namespace schema.memory {
+namespace schema.binary.memory {
   public class NestedRangesTests {
     [Test]
     public void TestClaimingChildrenWithin() {

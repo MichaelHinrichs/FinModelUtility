@@ -2,11 +2,11 @@
 
 using fin.util.enumerables;
 
-using schema;
-using schema.attributes.child_of;
-using schema.attributes.ignore;
-using schema.attributes.offset;
-using schema.attributes.position;
+using schema.binary;
+using schema.binary.attributes.child_of;
+using schema.binary.attributes.ignore;
+using schema.binary.attributes.offset;
+using schema.binary.attributes.position;
 
 
 namespace j3d.schema.bmd {

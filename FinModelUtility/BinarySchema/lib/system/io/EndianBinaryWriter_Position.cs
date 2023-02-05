@@ -1,4 +1,4 @@
-﻿using schema.io;
+﻿using schema.binary.io;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

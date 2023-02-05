@@ -1,6 +1,6 @@
 ﻿using fin.util.strings;
 
-using schema;
+using schema.binary;
 
 
 namespace modl.schema.terrain {

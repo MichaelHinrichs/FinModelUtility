@@ -1,12 +1,12 @@
 ﻿using NUnit.Framework;
 
 
-namespace schema.attributes.ignore {
+namespace schema.binary.attributes.ignore {
   internal class IgnoreGeneratorTests {
     [Test] public void TestAlign() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
-using schema.attributes.ignore;
+using schema.binary;
+using schema.binary.attributes.ignore;
 
 namespace foo.bar {
   [BinarySchema]

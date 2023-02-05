@@ -1,4 +1,4 @@
-﻿namespace schema {
+﻿namespace schema.binary {
   [BinarySchema]
   public partial class ClassWith1Bool : IBiSerializable {
     [IntegerFormat(SchemaIntegerType.INT16)]

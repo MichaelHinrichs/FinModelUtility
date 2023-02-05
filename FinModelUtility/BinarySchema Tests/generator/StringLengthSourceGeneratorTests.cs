@@ -1,12 +1,12 @@
 ﻿using NUnit.Framework;
 
 
-namespace schema.text {
+namespace schema.binary.text {
   internal class StringLengthSourceGeneratorTests {
     [Test]
     public void TestImmediateLength() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]

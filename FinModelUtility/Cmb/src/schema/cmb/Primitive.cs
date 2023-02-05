@@ -3,7 +3,7 @@ using System.IO;
 
 using fin.util.strings;
 
-using schema;
+using schema.binary;
 
 namespace cmb.schema.cmb {
   public class Primitive : IBiSerializable {

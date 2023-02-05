@@ -1,5 +1,5 @@
 ﻿using Quad64;
-using schema.util;
+using schema.binary.util;
 
 
 namespace sm64.scripts.geo {

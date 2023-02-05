@@ -1,12 +1,12 @@
 ﻿using NUnit.Framework;
 
 
-namespace schema.text {
+namespace schema.binary.text {
   internal class IfBooleanGeneratorTests {
     [Test]
     public void TestIfBoolean() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
@@ -71,7 +71,7 @@ namespace foo.bar {
     [Test]
     public void TestIfBooleanWithPrivateSetter() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
@@ -119,7 +119,7 @@ namespace foo.bar {
     [Test]
     public void TestUsingBoolFromChild() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]

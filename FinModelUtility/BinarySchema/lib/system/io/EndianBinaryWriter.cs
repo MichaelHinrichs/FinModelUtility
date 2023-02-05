@@ -7,7 +7,7 @@
 using System.Linq;
 using System.Text;
 
-using schema.io;
+using schema.binary.io;
 
 
 namespace System.IO {

@@ -2,7 +2,7 @@
 
 using modl.schema.res.texr;
 
-using schema;
+using schema.binary;
 
 
 namespace modl.schema.res {

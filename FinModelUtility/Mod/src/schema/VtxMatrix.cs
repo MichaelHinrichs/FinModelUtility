@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-using schema;
+using schema.binary;
 
 namespace mod.schema {
   [BinarySchema]

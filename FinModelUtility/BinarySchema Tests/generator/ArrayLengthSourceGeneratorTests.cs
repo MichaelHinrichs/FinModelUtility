@@ -1,15 +1,15 @@
 ﻿using NUnit.Framework;
 
 
-namespace schema.text {
+namespace schema.binary.text {
   internal class ArrayLengthSourceGeneratorTests {
     [Test]
     public void TestConstLength() {
       SchemaTestUtil.AssertGenerated(@"
 using System.Collections.Generic;
 
-using schema;
-using schema.attributes.ignore;
+using schema.binary;
+using schema.binary.attributes.ignore;
 
 namespace foo.bar {
   [BinarySchema]

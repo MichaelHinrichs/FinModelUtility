@@ -6,7 +6,7 @@
 
 using System.Text;
 
-using schema;
+using schema.binary;
 
 
 namespace System.IO {

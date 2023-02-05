@@ -3,7 +3,7 @@
 using fin.util.asserts;
 using fin.util.strings;
 
-using schema;
+using schema.binary;
 
 
 namespace cmb.schema.cmb {

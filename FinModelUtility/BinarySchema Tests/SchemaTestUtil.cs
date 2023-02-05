@@ -6,13 +6,14 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using NUnit.Framework;
-using schema.attributes.size;
-using schema.text;
+
+using schema.binary.attributes.size;
+using schema.binary.text;
 
 #pragma warning disable CS8604
 
 
-namespace schema {
+namespace schema.binary {
   internal static class SchemaTestUtil {
     public static ISchemaStructure ParseFirst(string src)
       => ParseAll(src).First();
@@ -75,7 +76,7 @@ namespace schema {
                          var symbol = semanticModel.GetDeclaredSymbol(typeNode);
                          var namedTypeSymbol = symbol as INamedTypeSymbol;
 
-                         return new SchemaStructureParser().ParseStructure(
+                         return new BinarySchemaStructureParser().ParseStructure(
                              namedTypeSymbol);
                        })
                        .ToArray();

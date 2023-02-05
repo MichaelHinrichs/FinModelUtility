@@ -2,12 +2,12 @@ using Microsoft.CodeAnalysis;
 
 using NUnit.Framework;
 
-namespace schema {
+namespace schema.binary {
   public partial class SchemaStructureParserTests {
     [Test]
     public void TestByte() {
       var structure = SchemaTestUtil.ParseFirst(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
@@ -39,7 +39,7 @@ namespace foo.bar {
     [Test]
     public void TestSByte() {
       var structure = SchemaTestUtil.ParseFirst(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
@@ -71,7 +71,7 @@ namespace foo.bar {
     [Test]
     public void TestInt16() {
       var structure = SchemaTestUtil.ParseFirst(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
@@ -103,7 +103,7 @@ namespace foo.bar {
     [Test]
     public void TestEnum() {
       var structure = SchemaTestUtil.ParseFirst(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   public enum ValueType {
@@ -200,7 +200,7 @@ namespace foo.bar {
     [Test]
     public void TestField() {
       var structure = SchemaTestUtil.ParseFirst(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
@@ -232,7 +232,7 @@ namespace foo.bar {
     [Test]
     public void TestProperty() {
       var structure = SchemaTestUtil.ParseFirst(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
@@ -264,7 +264,7 @@ namespace foo.bar {
     [Test]
     public void TestReadonlyPrimitiveField() {
       var structure = SchemaTestUtil.ParseFirst(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
@@ -296,7 +296,7 @@ namespace foo.bar {
     [Test]
     public void TestReadonlyPrimitiveProperty() {
       var structure = SchemaTestUtil.ParseFirst(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]

@@ -1,13 +1,13 @@
 ﻿using NUnit.Framework;
 
 
-namespace schema.attributes.size {
+namespace schema.binary.attributes.size {
   internal class SizeOfMemberInBytesGeneratorTests {
     [Test]
     public void TestSizeOfInStructure() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
-using schema.attributes.size;
+using schema.binary;
+using schema.binary.attributes.size;
 
 namespace foo.bar {
   [BinarySchema]
@@ -47,8 +47,8 @@ namespace foo.bar {
     [Test]
     public void TestSizeOfThroughChild() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
-using schema.attributes.size;
+using schema.binary;
+using schema.binary.attributes.size;
 
 namespace foo.bar {
   [BinarySchema]
@@ -93,9 +93,9 @@ namespace foo.bar {
     [Test]
     public void TestSizeOfThroughParent() {
       SchemaTestUtil.AssertGeneratedForAll(@"
-using schema;
-using schema.attributes.child_of;
-using schema.attributes.size;
+using schema.binary;
+using schema.binary.attributes.child_of;
+using schema.binary.attributes.size;
 
 namespace foo.bar {
   [BinarySchema]

@@ -4,7 +4,7 @@ using System.IO;
 using fin.schema.color;
 using fin.schema.vector;
 using gx;
-using schema;
+using schema.binary;
 
 namespace mod.schema {
   ////////////////////////////////////////////////////////////////////

@@ -2,7 +2,7 @@
 using NUnit.Framework;
 
 
-namespace schema.io {
+namespace schema.binary.io {
   public class OutOfOrderDictionaryTests {
     [Test]
     public async Task TestSetValueThenGet() {

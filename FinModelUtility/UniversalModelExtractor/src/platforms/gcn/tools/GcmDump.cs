@@ -4,7 +4,7 @@ using fin.data.stack;
 using fin.io;
 using fin.util.asserts;
 
-using schema;
+using schema.binary;
 
 namespace uni.platforms.gcn.tools {
   /// <summary>

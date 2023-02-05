@@ -1,8 +1,8 @@
 ﻿using fin.schema.color;
 using fin.schema.vector;
 
-using schema;
-using schema.attributes.endianness;
+using schema.binary;
+using schema.binary.attributes.endianness;
 
 
 namespace glo.schema {

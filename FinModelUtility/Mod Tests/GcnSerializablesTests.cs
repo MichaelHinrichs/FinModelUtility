@@ -6,7 +6,7 @@ using mod.schema.collision;
 
 using NUnit.Framework;
 
-using schema;
+using schema.binary;
 
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 

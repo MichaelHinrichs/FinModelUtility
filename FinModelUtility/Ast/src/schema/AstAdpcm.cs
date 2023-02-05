@@ -1,4 +1,4 @@
-﻿using schema.util;
+﻿using schema.binary.util;
 
 
 namespace ast.schema {

@@ -1,11 +1,13 @@
 ﻿using NUnit.Framework;
-using schema.attributes.child_of;
-using schema.testing;
+
 using System.IO;
 using System.Threading.Tasks;
 
+using schema.binary.attributes.child_of;
+using schema.binary.testing;
 
-namespace schema.attributes.size {
+
+namespace schema.binary.attributes.size {
   internal partial class SizeOfMemberInBytesTests {
     [BinarySchema]
     public partial class ParentImpl : IBiSerializable {

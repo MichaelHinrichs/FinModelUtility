@@ -3,7 +3,7 @@
 using fin.model;
 using fin.util.asserts;
 
-using schema;
+using schema.binary;
 
 namespace cmb.schema.shpa {
   public class Shpa : IDeserializable {

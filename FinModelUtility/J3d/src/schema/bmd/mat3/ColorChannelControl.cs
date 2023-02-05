@@ -1,5 +1,5 @@
 ﻿using gx;
-using schema;
+using schema.binary;
 
 
 namespace j3d.schema.bmd.mat3 {

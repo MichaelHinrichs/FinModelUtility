@@ -1,6 +1,6 @@
-﻿using schema;
-using schema.attributes.endianness;
-using schema.attributes.size;
+﻿using schema.binary;
+using schema.binary.attributes.endianness;
+using schema.binary.attributes.size;
 using System.IO;
 
 

@@ -5,7 +5,7 @@
 // Assembly location: R:\Documents\CSharpWorkspace\Pikmin2Utility\MKDS Course Modifier\MKDS Course Modifier.exe
 
 using System.Text;
-using schema;
+using schema.binary;
 
 
 namespace System.IO {

@@ -1,12 +1,12 @@
 ﻿using NUnit.Framework;
 
 
-namespace schema.text {
+namespace schema.binary.text {
   internal class EnumGeneratorTests {
     [Test]
     public void TestEnum() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   enum A {}
@@ -49,7 +49,7 @@ namespace foo.bar {
     [Test]
     public void TestEnumArray() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   enum A {}

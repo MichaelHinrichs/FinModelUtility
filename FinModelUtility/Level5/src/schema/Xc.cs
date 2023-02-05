@@ -1,6 +1,6 @@
 ﻿using fin.data;
 using level5.decompression;
-using schema;
+using schema.binary;
 
 namespace level5.schema {
   public record XcFile(string Name, byte[] Data);

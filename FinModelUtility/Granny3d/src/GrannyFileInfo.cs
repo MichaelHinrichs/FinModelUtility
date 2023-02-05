@@ -1,6 +1,6 @@
 ﻿using fin.util.asserts;
 
-using schema;
+using schema.binary;
 
 
 namespace granny3d {

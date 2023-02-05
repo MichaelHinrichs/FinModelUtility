@@ -3,8 +3,8 @@ using fin.util.enums;
 
 using gx;
 
-using schema;
-using schema.attributes.ignore;
+using schema.binary;
+using schema.binary.attributes.ignore;
 
 
 namespace dat.schema {

@@ -2,11 +2,12 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using schema.util;
 using System.Collections;
 
+using schema.binary.util;
 
-namespace schema.testing {
+
+namespace schema.binary.testing {
   public static class BinarySchemaAssert {
     public static async Task<byte[]> GetEndianBinaryWriterBytes(
         EndianBinaryWriter ew) {

@@ -3,7 +3,7 @@ using fin.color;
 using fin.image;
 using fin.util.color;
 using gx;
-using schema;
+using schema.binary;
 using System;
 using System.ComponentModel;
 using System.IO;

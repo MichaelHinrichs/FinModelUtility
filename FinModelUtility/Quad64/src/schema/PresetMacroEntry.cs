@@ -1,6 +1,6 @@
-﻿using schema;
-using schema.attributes.endianness;
-using schema.attributes.ignore;
+﻿using schema.binary;
+using schema.binary.attributes.endianness;
+using schema.binary.attributes.ignore;
 
 
 namespace Quad64.schema {

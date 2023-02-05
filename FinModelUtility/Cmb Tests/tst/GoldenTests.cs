@@ -3,7 +3,7 @@ using cmb.schema.ctxb;
 using System.Reflection;
 using fin.io;
 using fin.util.strings;
-using schema.testing;
+using schema.binary.testing;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 

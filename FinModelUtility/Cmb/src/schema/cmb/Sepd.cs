@@ -1,6 +1,6 @@
-﻿using schema;
-using schema.attributes.align;
-using schema.attributes.ignore;
+﻿using schema.binary;
+using schema.binary.attributes.align;
+using schema.binary.attributes.ignore;
 
 
 namespace cmb.schema.cmb {

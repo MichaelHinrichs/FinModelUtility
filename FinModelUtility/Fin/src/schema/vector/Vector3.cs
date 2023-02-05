@@ -1,5 +1,5 @@
 ﻿using fin.model;
-using schema;
+using schema.binary;
 using System;
 
 

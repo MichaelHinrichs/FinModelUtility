@@ -1,6 +1,6 @@
-﻿using schema;
-using schema.attributes.ignore;
-using schema.attributes.size;
+﻿using schema.binary;
+using schema.binary.attributes.ignore;
+using schema.binary.attributes.size;
 
 
 namespace mod.schema.animation {

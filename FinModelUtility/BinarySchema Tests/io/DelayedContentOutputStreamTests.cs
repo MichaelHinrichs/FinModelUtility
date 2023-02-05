@@ -3,12 +3,14 @@ using System.Collections;
 using System.IO;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using schema.util;
+
 using System.Linq;
 using System.Text;
 
+using schema.binary.util;
 
-namespace schema.io {
+
+namespace schema.binary.io {
   public class DelayedContentOutputStreamTests {
     [Test]
     public async Task TestEmptyStream() {

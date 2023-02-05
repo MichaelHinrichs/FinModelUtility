@@ -2,8 +2,8 @@
 
 using NUnit.Framework;
 
-using schema;
-using schema.testing;
+using schema.binary;
+using schema.binary.testing;
 
 using System.IO;
 using System.Threading.Tasks;

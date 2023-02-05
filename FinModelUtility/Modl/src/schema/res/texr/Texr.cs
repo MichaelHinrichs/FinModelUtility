@@ -8,7 +8,7 @@ using fin.util.asserts;
 using fin.util.color;
 using fin.util.image;
 
-using schema;
+using schema.binary;
 
 
 namespace modl.schema.res.texr {

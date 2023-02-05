@@ -1,7 +1,7 @@
 ﻿using fin.data;
 using fin.schema.color;
 using fin.util.array;
-using schema;
+using schema.binary;
 
 
 namespace modl.schema.terrain {

@@ -1,12 +1,12 @@
 ﻿using NUnit.Framework;
 
 
-namespace schema.text {
+namespace schema.binary.text {
   internal class NamespaceGeneratorTests {
     [Test]
     public void TestFromSameNamespace() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   public enum A : byte {
@@ -42,7 +42,7 @@ namespace foo.bar {
     [Test]
     public void TestFromHigherNamespace() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
+using schema.binary;
 
 namespace foo {
   public enum A : byte {
@@ -80,7 +80,7 @@ namespace foo.bar {
     [Test]
     public void TestFromLowerNamespace() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   namespace goo {
@@ -118,7 +118,7 @@ namespace foo.bar {
     [Test]
     public void TestFromSimilarNamespace() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   namespace goo {

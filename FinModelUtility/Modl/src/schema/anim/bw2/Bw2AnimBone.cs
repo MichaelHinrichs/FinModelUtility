@@ -1,4 +1,4 @@
-﻿using schema;
+﻿using schema.binary;
 
 
 namespace modl.schema.anim.bw2 {

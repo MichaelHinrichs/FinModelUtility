@@ -1,13 +1,13 @@
 ﻿using NUnit.Framework;
 
 
-namespace schema.text {
+namespace schema.binary.text {
   internal class IChildOfGeneratorTests {
     [Test]
     public void TestChild() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
-using schema.attributes.child_of;
+using schema.binary;
+using schema.binary.attributes.child_of;
 
 namespace foo.bar {
   [BinarySchema]
@@ -46,8 +46,8 @@ namespace foo.bar {
     [Test]
     public void TestParent() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
-using schema.attributes.child_of;
+using schema.binary;
+using schema.binary.attributes.child_of;
 
 namespace foo.bar {
   [BinarySchema]
@@ -87,8 +87,8 @@ namespace foo.bar {
     [Test]
     public void TestChildInArray() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
-using schema.attributes.child_of;
+using schema.binary;
+using schema.binary.attributes.child_of;
 
 namespace foo.bar {
   [BinarySchema]
@@ -126,8 +126,8 @@ namespace foo.bar {
     [Test]
     public void TestParentOfArray() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
-using schema.attributes.child_of;
+using schema.binary;
+using schema.binary.attributes.child_of;
 
 namespace foo.bar {
   [BinarySchema]

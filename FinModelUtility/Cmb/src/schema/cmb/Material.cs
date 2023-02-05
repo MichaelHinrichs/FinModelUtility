@@ -4,7 +4,7 @@ using System.IO;
 using fin.schema.color;
 using fin.util.array;
 
-using schema;
+using schema.binary;
 
 
 namespace cmb.schema.cmb {

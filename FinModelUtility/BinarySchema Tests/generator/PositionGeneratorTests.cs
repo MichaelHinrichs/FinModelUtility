@@ -1,13 +1,13 @@
 ﻿using NUnit.Framework;
 
 
-namespace schema.text {
+namespace schema.binary.text {
   internal class PositionGeneratorTests {
     [Test]
     public void TestPosition() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
-using schema.attributes.position;
+using schema.binary;
+using schema.binary.attributes.position;
 
 namespace foo.bar {
   [BinarySchema]

@@ -1,13 +1,13 @@
 ﻿using NUnit.Framework;
 
 
-namespace schema.attributes.memory {
+namespace schema.binary.attributes.memory {
   internal class MemoryGeneratorTests {
     /*[Test]
     public void TestOtherFieldBlock() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
-using schema.attributes.memory;
+using schema.binary;
+using schema.binary.attributes.memory;
 using schema.memory;
 
 namespace foo.bar {

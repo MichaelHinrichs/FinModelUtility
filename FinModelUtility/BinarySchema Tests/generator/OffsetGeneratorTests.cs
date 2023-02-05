@@ -1,12 +1,12 @@
 ﻿using NUnit.Framework;
 
 
-namespace schema.text {
+namespace schema.binary.text {
   internal class OffsetGeneratorTests {
     [Test] public void TestOffset() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
-using schema.attributes.offset;
+using schema.binary;
+using schema.binary.attributes.offset;
 
 namespace foo.bar {
   [BinarySchema]
@@ -53,9 +53,9 @@ namespace foo.bar {
     [Test]
     public void TestOffsetFromParent() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
-using schema.attributes.child_of;
-using schema.attributes.offset;
+using schema.binary;
+using schema.binary.attributes.child_of;
+using schema.binary.attributes.offset;
 
 namespace foo.bar {
   [BinarySchema]

@@ -4,7 +4,7 @@ using System.IO.Abstractions;
 using fin.util.asserts;
 using fin.util.json;
 
-using schema;
+using schema.binary;
 
 
 namespace fin.io {

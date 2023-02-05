@@ -1,6 +1,6 @@
 ﻿using fin.schema.vector;
-using schema;
-using schema.attributes.ignore;
+using schema.binary;
+using schema.binary.attributes.ignore;
 using sm64.scripts.geo;
 
 

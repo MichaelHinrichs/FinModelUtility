@@ -1,12 +1,14 @@
 ﻿using System.Collections;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using schema.util;
+
 using System.Collections.Generic;
 using System.Text;
 
+using schema.binary.util;
 
-namespace schema.io {
+
+namespace schema.binary.io {
   public class NestedListsTests {
     [Test]
     public void TestEmptyList() {

@@ -3,7 +3,7 @@ using fin.util.asserts;
 
 using modl.schema.modl.bw2.node;
 
-using schema;
+using schema.binary;
 
 
 namespace modl.schema.modl.bw2 {

@@ -1,11 +1,11 @@
 ﻿using cmb.schema.cmb;
 using fin.util.strings;
-using schema;
-using schema.attributes.child_of;
-using schema.attributes.endianness;
-using schema.attributes.ignore;
-using schema.attributes.memory;
-using schema.attributes.size;
+using schema.binary;
+using schema.binary.attributes.child_of;
+using schema.binary.attributes.endianness;
+using schema.binary.attributes.ignore;
+using schema.binary.attributes.memory;
+using schema.binary.attributes.size;
 using System.IO;
 
 

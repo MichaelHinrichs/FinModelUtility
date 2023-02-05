@@ -1,6 +1,6 @@
 ﻿using fin.data;
 using fin.schema.color;
-using schema;
+using schema.binary;
 
 
 namespace modl.schema.terrain {

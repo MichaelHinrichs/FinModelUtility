@@ -1,4 +1,4 @@
-﻿using schema;
+﻿using schema.binary;
 
 namespace cmb.schema.cmb {
   [BinarySchema]

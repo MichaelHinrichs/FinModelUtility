@@ -1,7 +1,7 @@
 using NUnit.Framework;
 
 
-namespace schema {
+namespace schema.binary {
   public class BooleanDiagnosticTests {
     [Test]
     public void TestBooleanWithoutAltFormat() {

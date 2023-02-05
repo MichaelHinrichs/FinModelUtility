@@ -5,12 +5,12 @@
 // Assembly location: R:\Documents\CSharpWorkspace\Pikmin2Utility\MKDS Course Modifier\MKDS Course Modifier.exe
 
 using j3d.G3D_Binary_File_Format;
-using schema;
+using schema.binary;
 using System;
 using System.IO;
 using System.Text;
-using schema.attributes.endianness;
-using schema.attributes.size;
+using schema.binary.attributes.endianness;
+using schema.binary.attributes.size;
 using System.Linq;
 
 

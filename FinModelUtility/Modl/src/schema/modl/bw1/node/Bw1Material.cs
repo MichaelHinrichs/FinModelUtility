@@ -1,4 +1,4 @@
-﻿using schema;
+﻿using schema.binary;
 
 
 namespace modl.schema.modl.bw1.node {

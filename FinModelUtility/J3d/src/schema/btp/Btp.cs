@@ -1,5 +1,5 @@
-﻿using schema;
-using schema.attributes.endianness;
+﻿using schema.binary;
+using schema.binary.attributes.endianness;
 using System.IO;
 
 

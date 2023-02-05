@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace schema.text {
+namespace schema.binary.text {
   public class SchemaReaderGeneratorTests {
     [SetUp]
     public void Setup() {}
@@ -8,7 +8,7 @@ namespace schema.text {
     [Test]
     public void TestByte() {
       this.AssertGenerated_(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
@@ -31,7 +31,7 @@ namespace foo.bar {
     [Test]
     public void TestSByte() {
       this.AssertGenerated_(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
@@ -54,7 +54,7 @@ namespace foo.bar {
     [Test]
     public void TestInt16() {
       this.AssertGenerated_(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
@@ -77,7 +77,7 @@ namespace foo.bar {
     [Test]
     public void TestConstArray() {
       this.AssertGenerated_(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
@@ -100,7 +100,7 @@ namespace foo.bar {
     [Test]
     public void TestArrayOtherMemberLength() {
       this.AssertGenerated_(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
@@ -131,7 +131,7 @@ namespace foo.bar {
     [Test]
     public void TestNestedClass() {
       this.AssertGenerated_(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   static internal partial class Parent {
@@ -169,7 +169,7 @@ namespace foo.bar {
     [Test]
     public void TestConstCharArray() {
       this.AssertGenerated_(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
@@ -192,7 +192,7 @@ namespace foo.bar {
     [Test]
     public void TestField() {
       this.AssertGenerated_(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
@@ -215,7 +215,7 @@ namespace foo.bar {
     [Test]
     public void TestProperty() {
       this.AssertGenerated_(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
@@ -238,7 +238,7 @@ namespace foo.bar {
     [Test]
     public void TestReadonlyPrimitiveField() {
       this.AssertGenerated_(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
@@ -261,7 +261,7 @@ namespace foo.bar {
     [Test]
     public void TestReadonlyPrimitiveProperty() {
       this.AssertGenerated_(@"
-using schema;
+using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
@@ -284,7 +284,7 @@ namespace foo.bar {
     [Test]
     public void TestEverything() {
       this.AssertGenerated_(@"
-using schema;
+using schema.binary;
 
 namespace foo {
   namespace bar {

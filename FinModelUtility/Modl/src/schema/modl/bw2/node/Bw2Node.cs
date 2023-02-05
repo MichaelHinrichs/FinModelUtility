@@ -7,7 +7,7 @@ using gx;
 
 using modl.schema.modl.common;
 
-using schema;
+using schema.binary;
 
 
 namespace modl.schema.modl.bw2.node {

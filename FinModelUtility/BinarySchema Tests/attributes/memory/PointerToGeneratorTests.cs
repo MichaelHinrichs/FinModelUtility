@@ -1,13 +1,13 @@
 ﻿using NUnit.Framework;
 
 
-namespace schema.attributes.memory {
+namespace schema.binary.attributes.memory {
   internal class PointerToGeneratorTests {
     [Test]
     public void TestPointerToInStructure() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
-using schema.attributes.memory;
+using schema.binary;
+using schema.binary.attributes.memory;
 
 namespace foo.bar {
   [BinarySchema]
@@ -47,8 +47,8 @@ namespace foo.bar {
     [Test]
     public void TestPointerToThroughChild() {
       SchemaTestUtil.AssertGenerated(@"
-using schema;
-using schema.attributes.memory;
+using schema.binary;
+using schema.binary.attributes.memory;
 
 namespace foo.bar {
   [BinarySchema]
@@ -93,9 +93,9 @@ namespace foo.bar {
     [Test]
     public void TestPointerToThroughParent() {
       SchemaTestUtil.AssertGeneratedForAll(@"
-using schema;
-using schema.attributes.child_of;
-using schema.attributes.memory;
+using schema.binary;
+using schema.binary.attributes.child_of;
+using schema.binary.attributes.memory;
 
 namespace foo.bar {
   [BinarySchema]

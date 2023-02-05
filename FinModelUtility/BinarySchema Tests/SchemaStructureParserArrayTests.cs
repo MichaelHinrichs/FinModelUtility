@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace schema {
+namespace schema.binary {
   public partial class SchemaStructureParserTests {
     public class Array {
       [Test]

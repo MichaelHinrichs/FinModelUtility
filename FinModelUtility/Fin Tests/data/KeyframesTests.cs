@@ -2,7 +2,7 @@
 
 using NUnit.Framework;
 
-using schema.util;
+using schema.binary.util;
 
 namespace fin.data {
   public class KeyframesTests {
