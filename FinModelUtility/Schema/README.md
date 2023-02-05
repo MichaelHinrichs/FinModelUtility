@@ -1,4 +1,4 @@
-# Binary Schema
+# Schema
 
 Library for converting classes to and from binary. Provides a C# Roslyn generator that automatically implements conversion logic for simple classes.
 
@@ -15,7 +15,7 @@ Copy this project into your solution, and then add the following into any other 
 
 ```
 <ItemGroup>
-  <ProjectReference Include="../BinarySchema/BinarySchema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
+  <ProjectReference Include="../Schema/Schema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
 </ItemGroup>
 ```
 

@@ -43,9 +43,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "F3dzex2", "F3dzex2\F3dzex2.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mdl2Fbx", "Mdl2Fbx\Mdl2Fbx.csproj", "{45228CB1-B212-4779-949E-4B8FCC001F71}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinarySchema", "BinarySchema\BinarySchema.csproj", "{7E2E1FEE-0A02-4FB6-8C3B-9C4080D3758A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Schema", "Schema\Schema.csproj", "{7E2E1FEE-0A02-4FB6-8C3B-9C4080D3758A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinarySchema Tests", "BinarySchema Tests\BinarySchema Tests.csproj", "{67444A5C-48C3-4004-8BC5-3947BF323921}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Schema Tests", "Schema Tests\Schema Tests.csproj", "{67444A5C-48C3-4004-8BC5-3947BF323921}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Modl", "Modl\Modl.csproj", "{0077C934-E53D-4881-83B6-011D2F080FB9}"
 EndProject
@@ -87,7 +87,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modl", "Modl", "{CABF7879-B
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Glo", "Glo", "{7E57743A-6B22-4706-80F6-A0A0B6D0F64A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BinarySchema", "BinarySchema", "{924DED9E-2ABC-484D-B32B-2ED2134CE605}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Schema", "_Schema", "{924DED9E-2ABC-484D-B32B-2ED2134CE605}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Level5", "Level5", "{6256208A-B872-4603-91AA-C79FB8F16EBB}"
 EndProject
@@ -95,9 +95,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "J3d", "J3d", "{AEE48E38-BDE
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Quad64", "Quad64\Quad64.csproj", "{39CA04AC-C886-4B46-9540-99451931E8D1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModelPluginWrappers", "ModelPluginWrappers\ModelPluginWrappers.csproj", "{2FC033F8-043D-4175-BA13-B49A4DCD19B4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModelPluginWrappers", "ModelPluginWrappers\ModelPluginWrappers.csproj", "{2FC033F8-043D-4175-BA13-B49A4DCD19B4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xmod", "Xmod\Xmod.csproj", "{D56EF0D4-DE4A-43E7-8888-972CF9D278C6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xmod", "Xmod\Xmod.csproj", "{D56EF0D4-DE4A-43E7-8888-972CF9D278C6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

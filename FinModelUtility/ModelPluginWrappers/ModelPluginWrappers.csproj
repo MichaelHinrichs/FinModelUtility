@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BinarySchema\BinarySchema.csproj" />
+    <ProjectReference Include="..\Schema\Schema.csproj" />
     <ProjectReference Include="..\Fin\Fin.csproj" />
   </ItemGroup>
 
