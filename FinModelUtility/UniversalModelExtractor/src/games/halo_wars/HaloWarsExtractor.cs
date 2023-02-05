@@ -1,7 +1,7 @@
 ﻿using hw.api;
 
 namespace uni.games.halo_wars {
-  internal class HaloWarsExtractor {
+  internal class HaloWarsExtractor : IExtractor {
     public void ExtractAll()
       => ExtractorUtil.ExtractAll(
         new HaloWarsModelFileGatherer(),

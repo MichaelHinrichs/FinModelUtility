@@ -2,7 +2,7 @@
 
 
 namespace uni.games.mario_kart_double_dash {
-  public class MarioKartDoubleDashExtractor {
+  public class MarioKartDoubleDashExtractor : IExtractor {
     public void ExtractAll()
       => ExtractorUtil.ExtractAll(new MarioKartDoubleDashFileGatherer(),
                                   new BmdModelLoader());

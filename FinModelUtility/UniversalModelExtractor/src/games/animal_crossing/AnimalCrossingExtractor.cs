@@ -4,7 +4,7 @@ using uni.platforms;
 using uni.platforms.gcn;
 
 namespace uni.games.animal_crossing {
-  public class AnimalCrossingExtractor {
+  public class AnimalCrossingExtractor : IExtractor {
     public void ExtractAll() {
       var animalCrossingRom =
           DirectoryConstants.ROMS_DIRECTORY.GetExistingFile(

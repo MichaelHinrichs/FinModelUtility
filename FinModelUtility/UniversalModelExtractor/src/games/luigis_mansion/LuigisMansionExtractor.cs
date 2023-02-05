@@ -4,7 +4,7 @@ using uni.platforms;
 using uni.platforms.gcn;
 
 namespace uni.games.luigis_mansion {
-  public class LuigisMansionExtractor {
+  public class LuigisMansionExtractor : IExtractor {
     private readonly ILogger logger_ =
         Logging.Create<LuigisMansionExtractor>();
 

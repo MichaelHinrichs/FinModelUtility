@@ -4,7 +4,7 @@ using uni.platforms;
 using uni.platforms.gcn;
 
 namespace uni.games.paper_mario_the_thousand_year_door {
-  public class PaperMarioTheThousandYearDoorExtractor {
+  public class PaperMarioTheThousandYearDoorExtractor : IExtractor {
     private readonly ILogger logger_ =
         Logging.Create<PaperMarioTheThousandYearDoorExtractor>();
 

@@ -13,7 +13,7 @@ using uni.platforms.gcn.tools;
 
 
 namespace uni.games.wind_waker {
-  public class WindWakerExtractor {
+  public class WindWakerExtractor : IExtractor {
     private readonly ILogger logger_ =
         Logging.Create<WindWakerExtractor>();
 

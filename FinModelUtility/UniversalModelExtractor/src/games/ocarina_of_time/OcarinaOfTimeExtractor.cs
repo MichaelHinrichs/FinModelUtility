@@ -4,7 +4,7 @@ using uni.platforms;
 
 
 namespace uni.games.ocarina_of_time {
-  public class OcarinaOfTimeExtractor {
+  public class OcarinaOfTimeExtractor : IExtractor {
     public void ExtractAll() {
       var ocarinaOfTimeRom =
           DirectoryConstants.ROMS_DIRECTORY.GetExistingFile(
