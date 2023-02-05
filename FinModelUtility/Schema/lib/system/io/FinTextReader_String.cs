@@ -3,9 +3,11 @@ using System.Text;
 
 using schema.binary.util;
 
+using static System.Net.Mime.MediaTypeNames;
+
 namespace System.IO {
   public sealed partial class FinTextReader {
-    public char ReadChar() => (char) this.impl_.ReadByte();
+    public char ReadChar() => (char) this.baseStream_.ReadByte();
 
     public void AssertChar(char expectedValue)
       => Asserts.Equal(expectedValue, this.ReadChar());
@@ -22,7 +24,7 @@ namespace System.IO {
       => Matches(out text, new[] { primary }.Concat(secondary).ToArray());
 
     public bool Matches(out string text, string[] matches) {
-      var position = this.impl_.Position;
+      var originalPosition = this.Position;
       foreach (var match in matches) {
         foreach (var c in match) {
           if (c != this.ReadChar()) {
@@ -34,7 +36,7 @@ namespace System.IO {
         return true;
 
         DidNotMatch:
-        this.Position = position;
+        this.Position = originalPosition;
       }
 
       text = String.Empty;
@@ -45,8 +47,14 @@ namespace System.IO {
       var sb = new StringBuilder();
 
       var matches = new[] { primary }.Concat(secondary).ToArray();
-      while (!Matches(out var text, matches)) {
-        sb.Append(text);
+
+      while (!Eof) {
+        if (!Matches(out var text, matches)) {
+          sb.Append(this.ReadChar());
+        } else {
+          this.Position -= text.Length;
+          break;
+        }
       }
 
       return sb.ToString();
@@ -56,7 +64,7 @@ namespace System.IO {
       var sb = new StringBuilder();
 
       var matches = new[] { primary }.Concat(secondary).ToArray();
-      while (Matches(out var text, matches)) {
+      while (!Eof && this.Matches(out var text, matches)) {
         sb.Append(text);
       }
 

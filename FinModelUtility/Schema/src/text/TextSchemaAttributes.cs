@@ -18,7 +18,7 @@ namespace schema.text {
 
 
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-  public class ReadUpToAttribute {
+  public class ReadUpToAttribute : Attribute {
     public ReadUpToAttribute(char primary, params char[] secondary)
       => this.UpToStrings =
           new[] { primary }.Concat(secondary).Select(c => $"{c}").ToArray();
@@ -30,7 +30,7 @@ namespace schema.text {
   }
 
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-  public class ReadUpToRegexAttribute {
+  public class ReadUpToRegexAttribute : Attribute {
     public ReadUpToRegexAttribute(char primary, params char[] secondary)
       => this.UpToRegexStrings =
           new[] { primary }.Concat(secondary).Select(c => $"{c}").ToArray();
@@ -42,7 +42,7 @@ namespace schema.text {
   }
 
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-  public class ReadWhileAttribute {
+  public class ReadWhileAttribute : Attribute {
     public ReadWhileAttribute(char primary, params char[] secondary)
       => this.WhileStrings =
           new[] { primary }.Concat(secondary).Select(c => $"{c}").ToArray();
@@ -54,7 +54,7 @@ namespace schema.text {
   }
 
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-  public class ReadWhileRegexAttribute {
+  public class ReadWhileRegexAttribute : Attribute {
     public ReadWhileRegexAttribute(char primary, params char[] secondary)
       => this.WhileRegexStrings =
           new[] { primary }.Concat(secondary).Select(c => $"{c}").ToArray();
