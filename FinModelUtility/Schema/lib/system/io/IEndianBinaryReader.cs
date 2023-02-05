@@ -32,9 +32,13 @@ namespace System.IO {
     ushort[] ReadUInt16s(long count);
     ushort[] ReadUInt16s(ushort[] dst);
 
+    void AssertInt24(int expectedValue);
+    int ReadInt24();
     int[] ReadInt24s(long count);
     int[] ReadInt24s(int[] dst);
 
+    void AssertUInt24(uint expectedValue);
+    uint ReadUInt24();
     uint[] ReadUInt24s(long count);
     uint[] ReadUInt24s(uint[] dst);
 

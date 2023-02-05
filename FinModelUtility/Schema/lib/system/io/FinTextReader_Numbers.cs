@@ -1,81 +1,118 @@
-﻿using System.Linq;
-
-using schema.binary.util;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace System.IO {
   public sealed partial class FinTextReader {
-    public void AssertByte(byte expectedValue)
-      => Asserts.Equal(expectedValue, this.ReadByte());
+    public byte[] ReadBytes(string[] separators, string[] terminators)
+      => this.ConvertSplitUpToTerminators_(separators,
+                                           terminators,
+                                           ConvertByte_);
 
-    public byte ReadByte() => byte.Parse(this.ReadIntegerChars_());
-
-
-    public void AssertSByte(sbyte expectedValue)
-      => Asserts.Equal(expectedValue, this.ReadSByte());
-
-    public sbyte ReadSByte() => sbyte.Parse(this.ReadIntegerChars_());
-
-
-    public void AssertInt16(short expectedValue)
-      => Asserts.Equal(expectedValue, this.ReadInt16());
-
-    public short ReadInt16() => short.Parse(this.ReadIntegerChars_());
-
-    public void AssertUInt16(ushort expectedValue)
-      => Asserts.Equal(expectedValue, this.ReadUInt16());
+    public byte[] ReadHexBytes(string[] separators, string[] terminators)
+      => this.ConvertSplitUpToTerminators_(separators,
+                                           terminators,
+                                           ConvertHexByte_);
 
 
-    public ushort ReadUInt16() => ushort.Parse(this.ReadIntegerChars_());
+    public sbyte[] ReadSBytes(string[] separators, string[] terminators)
+      => this.ConvertSplitUpToTerminators_(separators,
+                                           terminators,
+                                           ConvertSByte_);
+
+    public sbyte[] ReadHexSBytes(string[] separators, string[] terminators)
+      => this.ConvertSplitUpToTerminators_(separators,
+                                           terminators,
+                                           ConvertHexSByte_);
 
 
-    public void AssertInt32(int expectedValue)
-      => Asserts.Equal(expectedValue, this.ReadInt32());
+    public short[] ReadInt16s(string[] separators, string[] terminators)
+      => this.ConvertSplitUpToTerminators_(separators,
+                                           terminators,
+                                           ConvertInt16_);
 
-    public int ReadInt32() => int.Parse(this.ReadIntegerChars_());
-
-
-    public void AssertUInt32(uint expectedValue)
-      => Asserts.Equal(expectedValue, this.ReadUInt32());
-
-    public uint ReadUInt32() => uint.Parse(this.ReadIntegerChars_());
-
-
-    public void AssertInt64(long expectedValue)
-      => Asserts.Equal(expectedValue, this.ReadInt64());
-
-    public long ReadInt64() => long.Parse(this.ReadIntegerChars_());
+    public short[] ReadHexInt16s(string[] separators, string[] terminators)
+      => this.ConvertSplitUpToTerminators_(separators,
+                                           terminators,
+                                           ConvertHexInt16_);
 
 
-    public void AssertUInt64(ulong expectedValue)
-      => Asserts.Equal(expectedValue, this.ReadUInt64());
+    public ushort[] ReadUInt16s(string[] separators, string[] terminators)
+      => this.ConvertSplitUpToTerminators_(separators,
+                                           terminators,
+                                           ConvertUInt16_);
 
-    public ulong ReadUInt64() => ulong.Parse(this.ReadIntegerChars_());
-
-
-    public void AssertSingle(float expectedValue)
-      => Asserts.Equal(expectedValue, this.ReadSingle());
-
-    public float ReadSingle() => float.Parse(this.ReadFloatChars_());
-
-
-    public void AssertDouble(double expectedValue)
-      => Asserts.Equal(expectedValue, this.ReadDouble());
-
-    public double ReadDouble() => double.Parse(this.ReadFloatChars_());
+    public ushort[] ReadHexUInt16s(string[] separators, string[] terminators)
+      => this.ConvertSplitUpToTerminators_(separators,
+                                           terminators,
+                                           ConvertHexUInt16_);
 
 
-    private static readonly string[] integerMatches_ = {
-        "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
-    };
-
-    private static readonly string[] floatMatches_ =
-        integerMatches_.Concat(new[] { "." }).ToArray();
+    public int[] ReadInt32s(string[] separators, string[] terminators)
+      => this.ConvertSplitUpToTerminators_(separators,
+                                           terminators,
+                                           ConvertInt32_);
 
 
-    private string ReadIntegerChars_()
-      => ReadWhile(FinTextReader.integerMatches_);
+    public int[] ReadHexInt32s(string[] separators, string[] terminators)
+      => this.ConvertSplitUpToTerminators_(separators,
+                                           terminators,
+                                           ConvertHexInt32_);
 
-    private string ReadFloatChars_()
-      => ReadWhile(FinTextReader.floatMatches_);
+    public uint[] ReadUInt32s(string[] separators, string[] terminators)
+      => this.ConvertSplitUpToTerminators_(separators,
+                                           terminators,
+                                           ConvertUInt32_);
+
+    public uint[] ReadHexUInt32s(string[] separators, string[] terminators)
+      => this.ConvertSplitUpToTerminators_(separators,
+                                           terminators,
+                                           ConvertHexUInt32_);
+
+    public long[] ReadInt64s(string[] separators, string[] terminators)
+      => this.ConvertSplitUpToTerminators_(separators,
+                                           terminators,
+                                           ConvertInt64_);
+
+    public long[] ReadHexInt64s(string[] separators, string[] terminators)
+      => this.ConvertSplitUpToTerminators_(separators,
+                                           terminators,
+                                           ConvertHexInt64_);
+
+
+    public ulong[] ReadUInt64s(string[] separators, string[] terminators)
+      => this.ConvertSplitUpToTerminators_(separators,
+                                           terminators,
+                                           ConvertUInt64_);
+
+
+    public ulong[] ReadHexUInt64s(string[] separators, string[] terminators)
+      => this.ConvertSplitUpToTerminators_(separators,
+                                           terminators,
+                                           ConvertHexUInt64_);
+
+
+    public float[] ReadSingles(string[] separators, string[] terminators)
+      => this.ConvertSplitUpToTerminators_(separators,
+                                           terminators,
+                                           ConvertSingle_);
+
+    public double[] ReadDoubles(string[] separators, string[] terminators)
+      => this.ConvertSplitUpToTerminators_(separators,
+                                           terminators,
+                                           ConvertDouble_);
+
+
+    private IEnumerable<string> ReadSplitUpToTerminators_(string[] separators,
+      string[] terminators)
+      => this.ReadUpTo(terminators)
+             .Split(separators, StringSplitOptions.RemoveEmptyEntries);
+
+    private T[] ConvertSplitUpToTerminators_<T>(
+        string[] separators,
+        string[] terminators,
+        Func<string, T> converter)
+      => this.ReadSplitUpToTerminators_(separators, terminators)
+             .Select(converter)
+             .ToArray();
   }
 }
