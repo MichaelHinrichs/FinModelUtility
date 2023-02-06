@@ -4,10 +4,16 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
+using fin.color;
 using fin.image;
 using fin.io;
+using fin.util.color;
 
 using SixLabors.ImageSharp.PixelFormats;
+
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
+using static schema.binary.BinarySchemaStructureParser;
 
 
 // From https://github.com/mafaca/Dxt
@@ -370,116 +376,140 @@ namespace Dxt {
     }
 
 
-    public static void DecompressDXT3(
+    public static unsafe IImage DecompressDXT3(
         byte[] input,
         int width,
-        int height,
-        byte[] output) {
-      int offset = 0;
-      int bcw = (width + 3) / 4;
-      int bch = (height + 3) / 4;
-      int clen_last = (width + 3) % 4 + 1;
-      uint[] buffer = new uint[16];
-      int[] colors = new int[4];
-      int[] alphas = new int[16];
-      for (int t = 0; t < bch; t++) {
-        for (int s = 0; s < bcw; s++, offset += 16) {
-          for (int i = 0; i < 4; i++) {
-            int alpha = input[offset + i * 2] | input[offset + i * 2 + 1] << 8;
-            alphas[i * 4 + 0] = (((alpha >> 0) & 0xF) * 0x11) << 24;
-            alphas[i * 4 + 1] = (((alpha >> 4) & 0xF) * 0x11) << 24;
-            alphas[i * 4 + 2] = (((alpha >> 8) & 0xF) * 0x11) << 24;
-            alphas[i * 4 + 3] = (((alpha >> 12) & 0xF) * 0x11) << 24;
-          }
+        int height) {
+      var image = new Rgba32Image(width, height);
+      using var imageLock = image.Lock();
+      var dstPtr = imageLock.pixelScan0;
 
-          byte r0, g0, b0, r1, g1, b1;
-          ushort q0 = (ushort) (input[offset + 8] | input[offset + 9] << 8);
-          ushort q1 = (ushort) (input[offset + 10] | input[offset + 11] << 8);
-          Rgb565(q0, out r0, out g0, out b0);
-          Rgb565(q1, out r1, out g1, out b1);
-          colors[0] = Color(r0, g0, b0, 0);
-          colors[1] = Color(r1, g1, b1, 0);
-          if (q0 > q1) {
-            colors[2] = Color((r0 * 2 + r1) / 3,
-                              (g0 * 2 + g1) / 3,
-                              (b0 * 2 + b1) / 3,
-                              0);
-            colors[3] = Color((r0 + r1 * 2) / 3,
-                              (g0 + g1 * 2) / 3,
-                              (b0 + b1 * 2) / 3,
-                              0);
-          } else {
-            colors[2] = Color((r0 + r1) / 2, (g0 + g1) / 2, (b0 + b1) / 2, 0);
-          }
+      try {
+        int bcw = width / 4;
+        int bch = height / 4;
 
-          uint d = BitConverter.ToUInt32(input, offset + 12);
-          for (int i = 0; i < 16; i++, d >>= 2) {
-            buffer[i] = unchecked((uint) (colors[d & 3] | alphas[i]));
-          }
+        int streamIndex = 0;
+        // Remember where the alpha data is stored so we can decode simultaneously
+        int alphaPtr = streamIndex;
 
-          int clen = (s < bcw - 1 ? 4 : clen_last) * 4;
-          for (int i = 0, y = t * 4; i < 4 && y < height; i++, y++) {
-            Buffer.BlockCopy(buffer,
-                             i * 4 * 4,
-                             output,
-                             (y * width + s * 4) * 4,
-                             clen);
+        var dataIndex = 0;
+
+        for (int t = 0; t < bch; t++) {
+          for (int s = 0; s < bcw; s++) {
+            // Shamelessly copied from:
+            // https://github.com/nickbabcock/Pfim/blob/master/src/Pfim/dds/Dxt3Dds.cs
+
+            /*
+             * Strategy for decompression:
+             * -We're going to decode both alpha and color at the same time
+             * to save on space and time as we don't have to allocate an array
+             * to store values for later use.
+             */
+
+            // Jump ahead to the color data
+            streamIndex += 8;
+
+            // Colors are stored in a pair of 16 bits
+            ushort color0 = input[streamIndex++];
+            color0 |= (ushort) (input[streamIndex++] << 8);
+
+            ushort color1 = (input[streamIndex++]);
+            color1 |= (ushort) (input[streamIndex++] << 8);
+
+            // Extract R5G6B5
+            var c0 = ColorUtil.ParseRgb565(color0);
+            var c1 = ColorUtil.ParseRgb565(color1);
+
+            Func<IColor, Rgb24> toRgb = c => new Rgb24(c.Rb, c.Gb, c.Bb);
+
+            (var i0, var i1) = (toRgb(c0), toRgb(c1));
+            Rgb24[] colors = new[] {
+                i0,
+                i1,
+                toRgb(ColorUtil.Interpolate(c0, c1, 1f / 3)),
+                toRgb(ColorUtil.Interpolate(c0, c1, 2f / 3))
+            };
+
+            for (int i = 0; i < 4; i++) {
+              byte rowVal = input[streamIndex++];
+
+              // Each row of rgb values have 4 alpha values that  are
+              // encoded in 4 bits
+              ushort rowAlpha = input[alphaPtr++];
+              rowAlpha |= (ushort) (input[alphaPtr++] << 8);
+
+              for (int j = 0; j < 8; j += 2) {
+                byte currentAlpha = (byte) ((rowAlpha >> (j * 2)) & 0x0f);
+                currentAlpha |= (byte) (currentAlpha << 4);
+                var col = colors[((rowVal >> j) & 0x03)];
+                dstPtr[dataIndex++] =
+                    new Rgba32(col.R, col.G, col.B, currentAlpha);
+              }
+            }
+
           }
         }
+      } catch (Exception e) {
+        ;
       }
+
+
+     
+      return image;
     }
 
-/*public static void WriteToStreamFromRawDxt5a(
-    Stream dst,
-    byte[] src,
-    int srcOffset,
-    int width,
-    int height) {
-  var ew = new EndianBinaryWriter(dst, Endianness.LittleEndian);
 
-  var imageSize = width * height / 2;
+    /*public static void WriteToStreamFromRawDxt5a(
+        Stream dst,
+        byte[] src,
+        int srcOffset,
+        int width,
+        int height) {
+      var ew = new EndianBinaryWriter(dst, Endianness.LittleEndian);
 
-  ew.Write("DDS ", Encoding.ASCII, false);
-  ew.Write(124);
-  ew.Write(0x000A1007);
-  ew.Write(width);
-  ew.Write(height);
-  ew.Write(imageSize);
-  ew.Write(0);
-  ew.Write(1);
+      var imageSize = width * height / 2;
 
-  for (var i = 0; i < 11; ++i) {
-    ew.Write(0);
-  }
+      ew.Write("DDS ", Encoding.ASCII, false);
+      ew.Write(124);
+      ew.Write(0x000A1007);
+      ew.Write(width);
+      ew.Write(height);
+      ew.Write(imageSize);
+      ew.Write(0);
+      ew.Write(1);
 
-  ew.Write(0x20);
-  ew.Write(4);
-  ew.Write("ATI1", Encoding.ASCII, false);
-  ew.Write(0);
-  ew.Write(0);
-  ew.Write(0);
-  ew.Write(0);
-  ew.Write(0);
-  ew.Write(0x401008);
+      for (var i = 0; i < 11; ++i) {
+        ew.Write(0);
+      }
 
-  var fixedBuffer = new byte[imageSize];
-  for (var i = 0; i < imageSize; i += 8) {
-    fixedBuffer[i + 0] = src[srcOffset + i + 1];
-    fixedBuffer[i + 1] = src[srcOffset + i + 0];
+      ew.Write(0x20);
+      ew.Write(4);
+      ew.Write("ATI1", Encoding.ASCII, false);
+      ew.Write(0);
+      ew.Write(0);
+      ew.Write(0);
+      ew.Write(0);
+      ew.Write(0);
+      ew.Write(0x401008);
 
-    fixedBuffer[i + 2] = src[srcOffset + i + 3];
-    fixedBuffer[i + 3] = src[srcOffset + i + 2];
-    fixedBuffer[i + 4] = src[srcOffset + i + 5];
+      var fixedBuffer = new byte[imageSize];
+      for (var i = 0; i < imageSize; i += 8) {
+        fixedBuffer[i + 0] = src[srcOffset + i + 1];
+        fixedBuffer[i + 1] = src[srcOffset + i + 0];
 
-    fixedBuffer[i + 5] = src[srcOffset + i + 4];
-    fixedBuffer[i + 6] = src[srcOffset + i + 7];
-    fixedBuffer[i + 7] = src[srcOffset + i + 6];
-  }
+        fixedBuffer[i + 2] = src[srcOffset + i + 3];
+        fixedBuffer[i + 3] = src[srcOffset + i + 2];
+        fixedBuffer[i + 4] = src[srcOffset + i + 5];
 
-  ew.Position = 128;
-  ew.Write(fixedBuffer, 0, imageSize);
-  Asserts.Equal(128 + imageSize, ew.Position);
-}*/
+        fixedBuffer[i + 5] = src[srcOffset + i + 4];
+        fixedBuffer[i + 6] = src[srcOffset + i + 7];
+        fixedBuffer[i + 7] = src[srcOffset + i + 6];
+      }
+
+      ew.Position = 128;
+      ew.Write(fixedBuffer, 0, imageSize);
+      Asserts.Equal(128 + imageSize, ew.Position);
+    }*/
 
     public static unsafe IImage DecompressDxt5a(
         byte[] src,

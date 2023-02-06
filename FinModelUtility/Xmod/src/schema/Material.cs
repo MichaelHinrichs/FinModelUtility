@@ -5,7 +5,8 @@ namespace xmod.schema {
     public string Name { get; set; }
 
     public int NumPackets { get; set; }
-    
+    public IReadOnlyList<TextureId> TextureIds { get; set; }
+
     public void Read(ITextReader tr) {
       tr.AssertString("mtl ");
 
@@ -19,7 +20,7 @@ namespace xmod.schema {
       TextReaderUtils.ReadKeyValueInstance<Vector3>(tr, "diffuse");
       TextReaderUtils.ReadKeyValueInstance<Vector3>(tr, "specular");
 
-      // TODO: Textures
+      this.TextureIds = TextReaderUtils.ReadKeyValueInstances<TextureId>(tr, "texture", numTextures);
 
       // TODO: Attributes
       //TextReaderUtils.ReadKeyValueNumber<int>(tr, "attributes");

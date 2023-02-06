@@ -75,19 +75,22 @@ namespace uni.games {
 
       var parentOutputDirectory =
           GameFileHierarchyUtil.GetOutputDirectoryForFile(mainFile);
-      var outputDirectory =
-          parentOutputDirectory.GetSubdir(mainFile.NameWithoutExtension,
-                                          true);
+      var outputDirectory = new FinDirectory(
+          Path.Join(parentOutputDirectory.FullName,
+                    mainFile.NameWithoutExtension));
 
-      var existingOutputFile =
-          outputDirectory.GetExistingFiles()
-                         .Where(file => file.Extension is ".fbx" or ".glb" or ".gltf")
-                         .Any(file => file.NameWithoutExtension ==
-                                     mainFile.NameWithoutExtension);
+      if (outputDirectory.Exists) {
+        var existingOutputFile =
+            outputDirectory.GetExistingFiles()
+                           .Where(file => file.Extension is ".fbx" or ".glb"
+                                      or ".gltf")
+                           .Any(file => file.NameWithoutExtension ==
+                                        mainFile.NameWithoutExtension);
 
-      if (existingOutputFile) {
-        MessageUtil.LogAlreadyProcessed(ExtractorUtil.logger_, mainFile);
-        return;
+        if (existingOutputFile) {
+          MessageUtil.LogAlreadyProcessed(ExtractorUtil.logger_, mainFile);
+          return;
+        }
       }
 
       MessageUtil.LogExtracting(ExtractorUtil.logger_, mainFile);
@@ -95,21 +98,24 @@ namespace uni.games {
       try {
         var model = loaderHandler();
 
+        outputDirectory.Create();
+
         new AssimpIndirectExporter {
-          LowLevel = modelFileBundle.UseLowLevelExporter,
-          ForceGarbageCollection = modelFileBundle.ForceGarbageCollection,
+            LowLevel = modelFileBundle.UseLowLevelExporter,
+            ForceGarbageCollection = modelFileBundle.ForceGarbageCollection,
         }.Export(
             new FinFile(Path.Join(outputDirectory.FullName,
                                   mainFile.NameWithoutExtension + ".foo")),
-            !modelFileBundle.UseLowLevelExporter ?
-              Config.Instance.ExportedFormats :
-              new[] { ".gltf" },
+            !modelFileBundle.UseLowLevelExporter
+                ? Config.Instance.ExportedFormats
+                : new[] {".gltf"},
             model);
 
         if (Config.Instance.ThirdParty.ExportBoneScaleAnimationsSeparately) {
           new BoneScaleAnimationExporter().Export(
               new FinFile(Path.Join(outputDirectory.FullName,
-                                    mainFile.NameWithoutExtension + "_bone_scale_animations.lua")),
+                                    mainFile.NameWithoutExtension +
+                                    "_bone_scale_animations.lua")),
               model);
         }
       } catch (Exception e) {

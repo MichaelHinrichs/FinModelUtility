@@ -29,6 +29,19 @@ namespace xmod.schema {
       return instance;
     }
 
+    public static T[] ReadKeyValueInstances<T>(ITextReader tr,
+                                              string prefix,
+                                              int count)
+        where T : ITextDeserializable, new() {
+      var values = new T[count];
+      for (var i = 0; i < count; ++i) {
+        values[i] = ReadKeyValueInstance<T>(tr, prefix);
+      }
+
+      return values;
+    }
+
+
     public static T[] ReadInstances<T>(ITextReader tr,
                                        string prefix,
                                        int count)
