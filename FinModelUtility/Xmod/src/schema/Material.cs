@@ -5,7 +5,7 @@ namespace xmod.schema {
     public string Name { get; set; }
 
     public int NumPackets { get; set; }
-
+    
     public void Read(ITextReader tr) {
       tr.AssertString("mtl ");
 
@@ -13,12 +13,16 @@ namespace xmod.schema {
 
       this.NumPackets = TextReaderUtils.ReadKeyValueNumber<int>(tr, "packets");
       TextReaderUtils.ReadKeyValueNumber<int>(tr, "primitives");
-      TextReaderUtils.ReadKeyValueNumber<int>(tr, "textures");
+      var numTextures = TextReaderUtils.ReadKeyValueNumber<int>(tr, "textures");
       TextReaderUtils.ReadKeyValue(tr, "illum");
       TextReaderUtils.ReadKeyValueInstance<Vector3>(tr, "ambient");
       TextReaderUtils.ReadKeyValueInstance<Vector3>(tr, "diffuse");
       TextReaderUtils.ReadKeyValueInstance<Vector3>(tr, "specular");
-      TextReaderUtils.ReadKeyValueNumber<int>(tr, "attributes");
+
+      // TODO: Textures
+
+      // TODO: Attributes
+      //TextReaderUtils.ReadKeyValueNumber<int>(tr, "attributes");
 
       tr.ReadUpToAndPastTerminator("}");
       tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);

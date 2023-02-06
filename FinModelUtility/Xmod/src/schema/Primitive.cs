@@ -2,8 +2,9 @@
 
 namespace xmod.schema {
   public enum PrimitiveType {
-    TRIANGLE_STRIP,
-    TRIANGLE_FAN,
+    TRIANGLE_STRIP_2,
+    TRIANGLE_STRIP_1,
+    TRIANGLES,
   }
 
   public class Primitive : ITextDeserializable {
@@ -14,8 +15,9 @@ namespace xmod.schema {
       tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
 
       this.Type = tr.ReadString(3) switch {
-        "str" => PrimitiveType.TRIANGLE_STRIP,
-        "stp" => PrimitiveType.TRIANGLE_FAN,
+        "stp" => PrimitiveType.TRIANGLE_STRIP_1,
+        "str" => PrimitiveType.TRIANGLE_STRIP_2,
+        "tri" => PrimitiveType.TRIANGLES,
       };
 
       this.VertexIndices = tr.ReadInt32s(TextReaderConstants.WHITESPACE_STRINGS,
