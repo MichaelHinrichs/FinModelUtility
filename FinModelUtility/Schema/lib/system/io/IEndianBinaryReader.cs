@@ -110,11 +110,11 @@ namespace System.IO {
 
     void AssertMagicText(string expectedText);
 
-    T ReadNew<T>() where T : IDeserializable, new();
+    T ReadNew<T>() where T : IBinaryDeserializable, new();
 
-    bool TryReadNew<T>(out T? value) where T : IDeserializable, new();
+    bool TryReadNew<T>(out T? value) where T : IBinaryDeserializable, new();
 
     void ReadNewArray<T>(out T[] array, int length)
-        where T : IDeserializable, new();
+        where T : IBinaryDeserializable, new();
   }
 }

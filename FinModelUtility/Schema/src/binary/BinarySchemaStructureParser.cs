@@ -204,7 +204,7 @@ namespace schema.binary {
         }
 
         // Skips parent field for child types
-        if (memberSymbol.Name == nameof(IChildOf<IBiSerializable>.Parent)
+        if (memberSymbol.Name == nameof(IChildOf<IBinaryConvertible>.Parent)
             && parentTypeSymbol != null) {
           isIgnored = true;
         }
@@ -272,11 +272,11 @@ namespace schema.binary {
 
       var typeOfSerializable = SymbolTypeUtil.Implements(
               structureSymbol,
-              typeof(IBiSerializable)) ? typeof(IBiSerializable) :
+              typeof(IBinaryConvertible)) ? typeof(IBinaryConvertible) :
           SymbolTypeUtil.Implements(
               structureSymbol,
-              typeof(IDeserializable)) ? typeof(IDeserializable) :
-          typeof(ISerializable);
+              typeof(IBinaryDeserializable)) ? typeof(IBinaryDeserializable) :
+          typeof(IBinarySerializable);
 
       // Makes sure the member is serializable
       {
