@@ -12,7 +12,7 @@ namespace j3d.schema.bmd.inf1 {
   }
 
   [BinarySchema]
-  public partial class Inf1Entry : IBiSerializable {
+  public partial class Inf1Entry : IBinaryConvertible {
     public Inf1EntryType Type { get; set; }
     public ushort Index { get; set; }
 

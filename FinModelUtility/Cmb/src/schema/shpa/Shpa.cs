@@ -6,7 +6,7 @@ using fin.util.asserts;
 using schema.binary;
 
 namespace cmb.schema.shpa {
-  public class Shpa : IDeserializable {
+  public class Shpa : IBinaryDeserializable {
     public Posi Posi { get; } = new();
     public Norm Norm { get; } = new();
     public Idxs Idxs { get; } = new();
@@ -34,7 +34,7 @@ namespace cmb.schema.shpa {
     }
   }
 
-  public class Posi : IDeserializable {
+  public class Posi : IBinaryDeserializable {
     public Position[] Values { get; private set; }
 
     public void Read(IEndianBinaryReader r) {
@@ -52,7 +52,7 @@ namespace cmb.schema.shpa {
     }
   }
 
-  public class Norm : IDeserializable {
+  public class Norm : IBinaryDeserializable {
     public Normal[] Values { get; private set; }
 
     public void Read(IEndianBinaryReader r) {
@@ -71,7 +71,7 @@ namespace cmb.schema.shpa {
   }
 
   [BinarySchema]
-  public partial class Idxs : IBiSerializable {
+  public partial class Idxs : IBinaryConvertible {
     private readonly string magic_ = "idxs";
 
     /// <summary>

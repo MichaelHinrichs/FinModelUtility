@@ -4,8 +4,8 @@ using schema.binary.attributes.size;
 
 
 namespace fin.schema.data {
-  public interface ISizedSection<T> : IBiSerializable
-      where T : IBiSerializable {
+  public interface ISizedSection<T> : IBinaryConvertible
+      where T : IBinaryConvertible {
     T Data { get; }
   }
 
@@ -17,7 +17,7 @@ namespace fin.schema.data {
   /// </summary>
   [BinarySchema]
   public partial class AutoUInt32SizedSection<T> : ISizedSection<T>
-      where T : IBiSerializable, new() {
+      where T : IBinaryConvertible, new() {
     private readonly PassThruUint32SizedSection<T> impl_;
 
     [Ignore]
@@ -30,7 +30,7 @@ namespace fin.schema.data {
 
   [BinarySchema]
   public partial class PassThruUint32SizedSection<T> : ISizedSection<T>
-      where T : IBiSerializable {
+      where T : IBinaryConvertible {
     [SizeOfMemberInBytes(nameof(Data))]
     private uint size_;
 

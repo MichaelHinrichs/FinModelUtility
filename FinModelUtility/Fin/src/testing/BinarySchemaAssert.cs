@@ -19,7 +19,7 @@ namespace schema.binary.testing {
     public static async Task WritesAndReadsIdentically<T>(
         T value,
         Endianness endianess = Endianness.LittleEndian)
-        where T : IBiSerializable, new() {
+        where T : IBinaryConvertible, new() {
       var ew = new EndianBinaryWriter(endianess);
       value.Write(ew);
 
@@ -30,7 +30,7 @@ namespace schema.binary.testing {
     }
 
     public static async Task ReadsAndWritesIdentically<T>(IEndianBinaryReader er)
-        where T : IBiSerializable, new() {
+        where T : IBinaryConvertible, new() {
       var readerStartPos = er.Position;
       var instance = er.ReadNew<T>();
 

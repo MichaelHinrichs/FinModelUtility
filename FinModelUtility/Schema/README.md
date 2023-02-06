@@ -19,11 +19,11 @@ Copy this project into your solution, and then add the following into any other 
 </ItemGroup>
 ```
 
-### Implementing schema classes
+### Implementing binary schema classes
 
-To write a schema class, you must first do the following steps:
+To write a binary schema class, you must first do the following steps:
 1) Mark it as partial.
-1) Have it implement the `IBiSerializable` interface (a combination of the `ISerializable` and `IDeserializable` interfaces).
+1) Have it implement the `IBinaryConvertible` interface (a combination of the `IBinarySerializable` and `IBinaryDeserializable` interfaces).
 
 Then, based on how complicated your schema class is, you can either choose to automatically or manually implement `Read()`/`Write()` methods.
 
@@ -45,13 +45,13 @@ Any readonly primitives will treated as assertions, which is useful for validati
 
 For complicated schema classes, such as ones that use decompression logic or pointers, you'll need to implement the read/write logic manually.
 
-Specifically, you'll need to implement both a `Read(EndianBinaryReader er)` and `Write(EndianBinaryWriter ew)` method.
+Specifically, you'll need to implement both a `Read(IEndianBinaryReader er)` and `Write(ISubEndianBinaryWriter ew)` method.
 The `EndianBinaryReader` and `EndianBinaryWriter` classes provide many helpful methods for reading/writing a number of different primitive formats, including basic ones such as `byte`/`int`/`float`, but also more complex/unique ones such as `Half` (two-byte float) and `un16` (unsigned normalized 16-bit float).
 
 Similar to the automatic process, you can nest schema classes and manually read/write them by calling their `Read()`/`Write()` methods. 
 This can allow you to automatically generate subsections, so only the most complex logic needs to be manually written.
 
-### How to use a schema class
+### How to use a binary schema class
 
 To convert a given schema class to or from binary, simply instantiate an `EndianBinaryReader` or `EndianBinaryWriter` and pass it into the corresponding `Read()` or `Write()` methods in the schema class. 
 You must use the `EndianBinaryReader`/`EndianBinaryWriter` defined within this project, as this adds more functionality.

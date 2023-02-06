@@ -8,5 +8,5 @@ namespace j3d.schema.btk {
   ///   https://wiki.cloudmodding.com/tww/BRK
   /// </summary>
   [BinarySchema]
-  public partial class Brk : IBiSerializable { }
+  public partial class Brk : IBinaryConvertible { }
 }

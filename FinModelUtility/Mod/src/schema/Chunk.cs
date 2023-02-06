@@ -72,14 +72,14 @@ namespace mod.schema {
   }
 
   [BinarySchema]
-  public partial class ChunkData : IBiSerializable {
+  public partial class ChunkData : IBinaryConvertible {
     [IntegerFormat(SchemaIntegerType.UINT32)]
     public ChunkId Id { get; private set; }
     [ArrayLengthSource(SchemaIntegerType.INT32)]
     public byte[] Data { get; private set; }
   }
 
-  public class ModSectionData : IBiSerializable {
+  public class ModSectionData : IBinaryConvertible {
     public List<ChunkData> Chunks { get; } = new();
     public List<byte> EofBytes { get; } = new();
 

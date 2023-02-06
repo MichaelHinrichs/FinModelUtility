@@ -8,7 +8,7 @@ using schema.binary;
 
 
 namespace cmb.schema.cmb {
-  public class Material : IDeserializable {
+  public class Material : IBinaryDeserializable {
     public bool isFragmentLightingEnabled;
     public bool isVertexLightingEnabled;
     public bool isHemiSphereLightingEnabled;

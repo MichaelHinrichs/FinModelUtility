@@ -51,7 +51,7 @@ namespace dat.schema {
   }
 
   [BinarySchema]
-  public partial class JObjData : IBiSerializable {
+  public partial class JObjData : IBinaryConvertible {
     public uint StringOffset { get; set; }
     public JObjFlags Flags { get; set; }
     public uint FirstChildBoneOffset { get; set; }

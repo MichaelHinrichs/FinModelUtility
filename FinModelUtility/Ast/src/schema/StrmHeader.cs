@@ -8,7 +8,7 @@ namespace ast.schema {
   }
 
   [BinarySchema]
-  public partial class StrmHeader : IBiSerializable {
+  public partial class StrmHeader : IBinaryConvertible {
     private readonly string magic_ = "STRM";
 
     public uint MaybeSizeOfBlockSection { get; private set; }

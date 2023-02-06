@@ -5,7 +5,7 @@ using schema.binary;
 namespace level5.schema {
   public record XcFile(string Name, byte[] Data);
 
-  public class Xc : IDeserializable {
+  public class Xc : IBinaryDeserializable {
     public ListDictionary<string, XcFile> FilesByExtension { get; } = new();
 
     public void Read(IEndianBinaryReader er) {

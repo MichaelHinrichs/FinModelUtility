@@ -13,7 +13,7 @@ namespace j3d.schema.btk {
   /// </summary>
   [Endianness(Endianness.BigEndian)]
   [BinarySchema]
-  public partial class Btk : IBiSerializable {
+  public partial class Btk : IBinaryConvertible {
     private readonly string magic1_ = "J3D1btk1";
 
     [SizeOfStreamInBytes]
@@ -31,7 +31,7 @@ namespace j3d.schema.btk {
   }
 
   [BinarySchema]
-  public partial class Ttk1 : IBiSerializable {
+  public partial class Ttk1 : IBinaryConvertible {
     private readonly string magic_ = "TTK1";
   }
 }

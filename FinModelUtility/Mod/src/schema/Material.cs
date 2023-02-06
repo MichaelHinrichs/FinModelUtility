@@ -21,7 +21,7 @@ namespace mod.schema {
   ////////////////////////////////////////////////////////////////////
 
   [BinarySchema]
-  public partial class KeyInfoU8 : IBiSerializable {
+  public partial class KeyInfoU8 : IBinaryConvertible {
     public byte unknown1 = 0;
     public byte unknownA = 0;
     public ushort unknownB = 0;
@@ -34,7 +34,7 @@ namespace mod.schema {
   }
 
   [BinarySchema]
-  public partial class KeyInfoF32 : IBiSerializable {
+  public partial class KeyInfoF32 : IBinaryConvertible {
     public float unknown1 = 0;
     public float unknown2 = 0;
     public float unknown3 = 0;
@@ -44,7 +44,7 @@ namespace mod.schema {
   }
 
   [BinarySchema]
-  public partial class KeyInfoS10 : IBiSerializable {
+  public partial class KeyInfoS10 : IBinaryConvertible {
     public short unknown1 = 0;
     public readonly short padding = 0; // TODO: Is this right?
     public float unknown2 = 0;
@@ -55,7 +55,7 @@ namespace mod.schema {
   };
 
   [BinarySchema]
-  public partial class PCI_Unk1 : IBiSerializable {
+  public partial class PCI_Unk1 : IBinaryConvertible {
     public int unknown1 = 0;
     public readonly KeyInfoU8 unknown2 = new();
     public readonly KeyInfoU8 unknown3 = new();
@@ -63,13 +63,13 @@ namespace mod.schema {
   }
 
   [BinarySchema]
-  public partial class PCI_Unk2 : IBiSerializable {
+  public partial class PCI_Unk2 : IBinaryConvertible {
     public int unknown1 = 0;
     public readonly KeyInfoU8 unknown2 = new();
   }
 
   [BinarySchema]
-  public partial class PolygonColourInfo : IBiSerializable {
+  public partial class PolygonColourInfo : IBinaryConvertible {
     public readonly Rgba32 diffuseColour = new();
     public int unknown2 = 0;
     public float unknown3 = 0;
@@ -85,13 +85,13 @@ namespace mod.schema {
   }
 
   [BinarySchema]
-  public partial class LightingInfo : IBiSerializable {
+  public partial class LightingInfo : IBinaryConvertible {
     public uint typeFlags = 0; // see LightingInfoFlags
     public float unknown2 = 0;
   }
 
   [BinarySchema]
-  public partial class PeInfo : IBiSerializable {
+  public partial class PeInfo : IBinaryConvertible {
     public int unknown1 = 0;
     public int unknown2 = 0;
     public int unknown3 = 0;
@@ -99,7 +99,7 @@ namespace mod.schema {
   };
 
   [BinarySchema]
-  public partial class TexGenData : IBiSerializable {
+  public partial class TexGenData : IBinaryConvertible {
     public byte unknown1 = 0;
     public byte unknown2 = 0;
     public GxTexGenSrc TexGenSrc { get; set; }
@@ -107,7 +107,7 @@ namespace mod.schema {
   }
 
   [BinarySchema]
-  public partial class TXD_Unk1 : IBiSerializable {
+  public partial class TXD_Unk1 : IBinaryConvertible {
     public int unknown1 = 0;
     public readonly KeyInfoF32 unknown2 = new();
     public readonly KeyInfoF32 unknown3 = new();
@@ -115,7 +115,7 @@ namespace mod.schema {
   }
 
   [BinarySchema]
-  public partial class TextureData : IBiSerializable {
+  public partial class TextureData : IBinaryConvertible {
     public int TexAttrIndex = 0;
 
     public short unknown2 = 0;
@@ -147,7 +147,7 @@ namespace mod.schema {
   };
 
   [BinarySchema]
-  public partial class TextureInfo : IBiSerializable {
+  public partial class TextureInfo : IBinaryConvertible {
     public int unknown1 = 0;
     public readonly Vector3f unknown2 = new();
 
@@ -162,7 +162,7 @@ namespace mod.schema {
     UsePVW = 1
   }
 
-  public class Material : IBiSerializable {
+  public class Material : IBinaryConvertible {
     public uint flags = 0;
     public uint unknown1 = 0;
     public readonly Rgba32 colour = new();
@@ -193,7 +193,7 @@ namespace mod.schema {
   }
 
   [BinarySchema]
-  public partial class TCR_Unk1 : IBiSerializable {
+  public partial class TCR_Unk1 : IBinaryConvertible {
     public int unknown1 = 0;
     public readonly KeyInfoS10 unknown2 = new();
     public readonly KeyInfoS10 unknown3 = new();
@@ -207,13 +207,13 @@ namespace mod.schema {
   }
 
   [BinarySchema]
-  public partial class TCR_Unk2 : IBiSerializable {
+  public partial class TCR_Unk2 : IBinaryConvertible {
     public int unknown1 = 0;
     public readonly KeyInfoS10 unknown2 = new();
   }
 
   [BinarySchema]
-  public partial class TEVColReg : IBiSerializable {
+  public partial class TEVColReg : IBinaryConvertible {
     public readonly Rgba64 unknown1 = new();
     public int unknown2 = 0;
     public float unknown3 = 0;
@@ -224,7 +224,7 @@ namespace mod.schema {
   }
 
   [BinarySchema]
-  public partial class ColorCombiner : IBiSerializable {
+  public partial class ColorCombiner : IBinaryConvertible {
     public GxCc colorA = 0;
     public GxCc colorB = 0;
     public GxCc colorC = 0;
@@ -244,7 +244,7 @@ namespace mod.schema {
   };
 
   [BinarySchema]
-  public partial class AlphaCombiner : IBiSerializable {
+  public partial class AlphaCombiner : IBinaryConvertible {
     public GxCa alphaA = 0;
     public GxCa alphaB = 0;
     public GxCa alphaC = 0;
@@ -264,7 +264,7 @@ namespace mod.schema {
   };
 
   [BinarySchema]
-  public partial class TEVStage : IBiSerializable {
+  public partial class TEVStage : IBinaryConvertible {
     // TODO: This is a guess
     public byte TexCoordId { get; set; }
     // TODO: This is a guess
@@ -281,7 +281,7 @@ namespace mod.schema {
   }
 
   [BinarySchema]
-  public partial class TEVInfo : IBiSerializable {
+  public partial class TEVInfo : IBinaryConvertible {
     // These are probably default values for the 3 color registers.
     // TODO: This is a guess
     [ArrayLengthSource(3)]

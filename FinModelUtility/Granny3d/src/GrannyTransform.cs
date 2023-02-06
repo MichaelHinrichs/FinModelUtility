@@ -6,7 +6,7 @@ using schema.binary;
 
 
 namespace granny3d {
-  public class GrannyTransform : IGrannyTransform, IDeserializable {
+  public class GrannyTransform : IGrannyTransform, IBinaryDeserializable {
     public GrannyTransformFlags Flags { get; private set; }
     public Vector3f Position { get; private set; }
     public Quaternion Orientation { get; private set; }

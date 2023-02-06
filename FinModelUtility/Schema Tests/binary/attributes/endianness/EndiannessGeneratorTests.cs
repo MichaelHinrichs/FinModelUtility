@@ -10,7 +10,7 @@ using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
-  public partial class EndiannessWrapper : IBiSerializable {
+  public partial class EndiannessWrapper : IBinaryConvertible {
     public uint Field { get; set; }
   }
 }",
@@ -46,7 +46,7 @@ using schema.binary.attributes.endianness;
 
 namespace foo.bar {
   [BinarySchema]
-  public partial class EndiannessWrapper : IBiSerializable {
+  public partial class EndiannessWrapper : IBinaryConvertible {
 
     public uint Field1 { get; set; }
 
@@ -97,7 +97,7 @@ using schema.binary.attributes.endianness;
 namespace foo.bar {
   [BinarySchema]
   [Endianness(Endianness.BigEndian)]
-  public partial class EndiannessWrapper : IBiSerializable {
+  public partial class EndiannessWrapper : IBinaryConvertible {
     public uint Field1 { get; set; }
     public uint Field2 { get; set; }
     public uint Field3 { get; set; }

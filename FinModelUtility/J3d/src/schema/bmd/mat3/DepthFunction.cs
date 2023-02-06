@@ -4,7 +4,7 @@ using schema.binary;
 
 namespace j3d.schema.bmd.mat3 {
   [BinarySchema]
-  public partial class DepthFunction : IDepthFunction, IBiSerializable {
+  public partial class DepthFunction : IDepthFunction, IBinaryConvertible {
     [IntegerFormat(SchemaIntegerType.BYTE)]
     public bool Enable { get; set; }
 

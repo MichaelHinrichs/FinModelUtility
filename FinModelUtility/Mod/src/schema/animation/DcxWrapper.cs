@@ -11,7 +11,7 @@ namespace mod.schema.animation {
   }
 
   [BinarySchema]
-  public partial class DcxWrapper : IBiSerializable {
+  public partial class DcxWrapper : IBinaryConvertible {
     public AnimationFormat AnimationFormat { get; set; }
 
     [Ignore]

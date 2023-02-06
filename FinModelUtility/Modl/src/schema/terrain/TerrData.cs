@@ -5,7 +5,7 @@ using schema.binary;
 
 namespace modl.schema.terrain {
   [BinarySchema]
-  public partial class TerrData : IBiSerializable {
+  public partial class TerrData : IBinaryConvertible {
     public int ChunkCountX { get; } = 64;
     public int ChunkCountY { get; } = 64;
 

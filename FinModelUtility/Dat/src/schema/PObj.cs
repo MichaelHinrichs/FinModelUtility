@@ -14,7 +14,7 @@ namespace dat.schema {
   }
 
   [BinarySchema]
-  public partial class PObjData : IBiSerializable {
+  public partial class PObjData : IBinaryConvertible {
     public uint StringOffset { get; set; }
     public uint NextPObjOffset { get; set; }
     public uint VertexDescriptorListOffset { get; set; }

@@ -4,7 +4,7 @@ using schema.binary.attributes.align;
 
 namespace cmb.schema.cmb {
   [BinarySchema]
-  public partial class PrimitiveSet : IBiSerializable {
+  public partial class PrimitiveSet : IBinaryConvertible {
     private readonly string magic_ = "prms";
 
     public uint chunkSize;

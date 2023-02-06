@@ -12,7 +12,7 @@
   ///   </para>
   ///   <code>
   ///     [BinarySchema]
-  ///     public partial class ParentType : IBiSerializable {
+  ///     public partial class ParentType : IBinaryConvertible {
   ///       [NumberFormat(SchemaIntegerType.BYTE)]
   ///       public bool ChildHasSomeField { get; set; }
   ///
@@ -26,7 +26,7 @@
   ///     }
   /// 
   ///     [BinarySchema]
-  ///     public partial class ChildType : IBiSerializable, IChildOf&lt;ParentType&gt; {
+  ///     public partial class ChildType : IBinaryConvertible, IChildOf&lt;ParentType&gt; {
   ///       public ParentType Parent { get; set; }
   ///
   ///       [Ignore]
@@ -45,7 +45,7 @@
   ///     }
   ///   </code>
   /// </summary>
-  public interface IChildOf<TParent> where TParent : IBiSerializable {
+  public interface IChildOf<TParent> where TParent : IBinaryConvertible {
     public TParent Parent { get; set; }
   }
 }

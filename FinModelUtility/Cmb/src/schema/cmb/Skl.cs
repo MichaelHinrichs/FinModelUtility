@@ -2,7 +2,7 @@
 
 namespace cmb.schema.cmb {
   [BinarySchema]
-  public partial class Skl : IBiSerializable {
+  public partial class Skl : IBinaryConvertible {
     private uint boneCount_;
 
     // M-1: Only value found is "2", possibly "IsTranslateAnimationEnabled"

@@ -289,7 +289,7 @@ using schema.binary;
 namespace foo {
   namespace bar {
     [BinarySchema]
-    public partial class EverythingWrapper : IBiSerializable {
+    public partial class EverythingWrapper : IBinaryConvertible {
       public readonly string magicText = ""foobar"";
 
       public byte byteField;
@@ -323,7 +323,7 @@ namespace foo {
     }
 
     [BinarySchema]
-    public partial class Other : IBiSerializable {
+    public partial class Other : IBinaryConvertible {
     }
   }
 }",

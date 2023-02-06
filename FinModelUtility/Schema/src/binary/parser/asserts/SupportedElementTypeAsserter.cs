@@ -21,7 +21,7 @@ namespace schema.binary.parser.asserts {
       var elementTypeInfo = sequenceMemberType.ElementType.TypeInfo;
       if (elementTypeInfo is IStructureTypeInfo structureTypeInfo) {
         if (!SymbolTypeUtil.Implements(structureTypeInfo.NamedTypeSymbol,
-                                       typeof(IBiSerializable))) {
+                                       typeof(IBinaryConvertible))) {
           this.diagnostics_.Add(
               Rules.CreateDiagnostic(
                   memberSymbol,

@@ -12,12 +12,12 @@ using schema.binary.attributes.ignore;
 
 namespace mod.schema.collision {
   [BinarySchema]
-  public partial class BaseRoomInfo : IBiSerializable {
+  public partial class BaseRoomInfo : IBinaryConvertible {
     public uint index = 0;
   }
 
   [BinarySchema]
-  public partial class BaseCollTriInfo : IBiSerializable {
+  public partial class BaseCollTriInfo : IBinaryConvertible {
     public uint mapCode = 0;
     public readonly Vector3i indice = new();
 
@@ -29,7 +29,7 @@ namespace mod.schema.collision {
     public readonly Plane plane = new();
   }
 
-  public class CollTriInfo : IBiSerializable {
+  public class CollTriInfo : IBinaryConvertible {
     public readonly List<BaseRoomInfo> roominfo = new();
     public readonly List<BaseCollTriInfo> collinfo = new();
 
@@ -85,7 +85,7 @@ namespace mod.schema.collision {
   }
 
   [BinarySchema]
-  public partial class CollGroup : IBiSerializable {
+  public partial class CollGroup : IBinaryConvertible {
     private ushort NumUnknown1 { get; set; }
     private ushort NumUnknown2 { get; set; }
 
@@ -96,7 +96,7 @@ namespace mod.schema.collision {
     public byte[] unknown1 = Array.Empty<byte>();
   }
 
-  public class CollGrid : IBiSerializable {
+  public class CollGrid : IBinaryConvertible {
     [Align(0x20)]
     public readonly Vector3f boundsMin = new();
     public readonly Vector3f boundsMax = new();

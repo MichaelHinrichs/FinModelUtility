@@ -44,11 +44,11 @@ namespace fin.schema.vector {
   }
 
   [BinarySchema]
-  public sealed partial class Vector3f : BVector3<float>, IVector3, IBiSerializable { }
+  public sealed partial class Vector3f : BVector3<float>, IVector3, IBinaryConvertible { }
 
   [BinarySchema]
-  public sealed partial class Vector3i : BVector3<int>, IBiSerializable { }
+  public sealed partial class Vector3i : BVector3<int>, IBinaryConvertible { }
 
   [BinarySchema]
-  public sealed partial class Vector3s : BVector3<short>, IBiSerializable { }
+  public sealed partial class Vector3s : BVector3<short>, IBinaryConvertible { }
 }

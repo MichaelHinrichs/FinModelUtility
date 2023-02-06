@@ -12,13 +12,13 @@ using System.IO;
 namespace cmb.schema.ctxb {
   [BinarySchema]
   [Endianness(Endianness.LittleEndian)]
-  public partial class Ctxb : IBiSerializable {
+  public partial class Ctxb : IBinaryConvertible {
     public CtxbHeader Header { get; } = new();
     public CtxbTexChunk Chunk { get; } = new();
   }
 
   [BinarySchema]
-  public partial class CtxbHeader : IChildOf<Ctxb>, IBiSerializable {
+  public partial class CtxbHeader : IChildOf<Ctxb>, IBinaryConvertible {
     public Ctxb Parent { get; set; }
 
     private readonly string magic_ = "ctxb";
@@ -37,7 +37,7 @@ namespace cmb.schema.ctxb {
   }
 
   [BinarySchema]
-  public partial class CtxbTexChunk : IBiSerializable {
+  public partial class CtxbTexChunk : IBinaryConvertible {
     private readonly string magic_ = "tex" + AsciiUtil.GetChar(0x20);
     private readonly int chunkSize_ = 0x30;
 
@@ -47,7 +47,7 @@ namespace cmb.schema.ctxb {
   }
 
   [BinarySchema]
-  public partial class CtxbTexEntry : IBiSerializable {
+  public partial class CtxbTexEntry : IBinaryConvertible {
     public uint DataLength { get; private set; }
     public ushort mimapCount { get; private set; }
 

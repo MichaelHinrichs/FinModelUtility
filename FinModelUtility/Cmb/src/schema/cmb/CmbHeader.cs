@@ -7,7 +7,7 @@ using schema.binary;
 
 
 namespace cmb.schema.cmb {
-  public class CmbHeader : IDeserializable {
+  public class CmbHeader : IBinaryDeserializable {
     // TODO: Better way to do this?
     public static CmbVersion Version { get; set; }
 

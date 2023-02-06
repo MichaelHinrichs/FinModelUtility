@@ -5,7 +5,7 @@ using schema.binary.attributes.ignore;
 
 namespace cmb.schema.cmb {
   [BinarySchema]
-  public partial class Bone : IBiSerializable {
+  public partial class Bone : IBinaryConvertible {
     // Because only 12 bits are used, 4095 is the max bone count. (In
     // versions > OoT3D anyway)
     private ushort flags;

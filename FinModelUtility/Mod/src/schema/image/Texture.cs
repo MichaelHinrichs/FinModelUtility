@@ -7,7 +7,7 @@ using schema.binary.attributes.ignore;
 
 namespace mod.schema {
   [BinarySchema]
-  public partial class Texture : IBiSerializable {
+  public partial class Texture : IBinaryConvertible {
     public enum TextureFormat : uint {
       RGB565 = 0,
       CMPR = 1,
@@ -67,7 +67,7 @@ namespace mod.schema {
   }
 
   [BinarySchema]
-  public partial class TextureAttributes : IBiSerializable {
+  public partial class TextureAttributes : IBinaryConvertible {
     public ushort index = 0;
     private readonly ushort padding_ = 0;
     public TilingMode TilingModeS { get; set; }

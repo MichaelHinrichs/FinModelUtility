@@ -11,7 +11,7 @@ using schema.binary;
 
 
 namespace modl.schema.modl.bw1.node {
-  public class Bw1Node : IBwNode, IDeserializable {
+  public class Bw1Node : IBwNode, IBinaryDeserializable {
     private int additionalDataCount_;
 
     public uint WeirdId { get; set; }

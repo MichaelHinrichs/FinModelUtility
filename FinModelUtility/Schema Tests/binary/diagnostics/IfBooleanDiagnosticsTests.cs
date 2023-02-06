@@ -9,7 +9,7 @@ namespace schema.binary.text {
 using schema.binary;
 namespace foo.bar {
   [BinarySchema]
-  public partial class BooleanWrapper : IBiSerializable {
+  public partial class BooleanWrapper : IBinaryConvertible {
     [IfBoolean(SchemaIntegerType.BYTE)]
     public int field;
   }
@@ -24,13 +24,13 @@ namespace foo.bar {
 using schema.binary;
 namespace foo.bar {
   [BinarySchema]
-  public partial class BooleanWrapper : IBiSerializable {
+  public partial class BooleanWrapper : IBinaryConvertible {
     [IfBoolean(SchemaIntegerType.BYTE)]
     public A field;
   }
 
   [BinarySchema]
-  public partial class A : IBiSerializable {
+  public partial class A : IBinaryConvertible {
   }
 }");
       BinarySchemaTestUtil.AssertDiagnostics(structure.Diagnostics,
@@ -44,7 +44,7 @@ using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
-  public partial class ByteWrapper : IBiSerializable {
+  public partial class ByteWrapper : IBinaryConvertible {
     [IfBoolean(nameof(Field))]
     public int? OtherValue { get; set; }
 
@@ -52,7 +52,7 @@ namespace foo.bar {
     private bool Field { get; set; }
   }
 
-  public class A : IBiSerializable { }
+  public class A : IBinaryConvertible { }
 }");
       BinarySchemaTestUtil.AssertDiagnostics(structure.Diagnostics,
                                        Rules.DependentMustComeAfterSource);
@@ -65,7 +65,7 @@ using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
-  public partial class ByteWrapper : IBiSerializable {
+  public partial class ByteWrapper : IBinaryConvertible {
     [IntegerFormat(SchemaIntegerType.BYTE)]
     public bool Field { get; set; }
 
@@ -73,7 +73,7 @@ namespace foo.bar {
     public int? OtherValue { get; set; }
   }
 
-  public class A : IBiSerializable { }
+  public class A : IBinaryConvertible { }
 }");
       BinarySchemaTestUtil.AssertDiagnostics(structure.Diagnostics,
                                        Rules.SourceMustBePrivate);
@@ -86,7 +86,7 @@ using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
-  public partial class ByteWrapper : IBiSerializable {
+  public partial class ByteWrapper : IBinaryConvertible {
     [IntegerFormat(SchemaIntegerType.BYTE)]
     protected bool Field { get; set; }
 
@@ -94,7 +94,7 @@ namespace foo.bar {
     public int? OtherValue { get; set; }
   }
 
-  public class A : IBiSerializable { }
+  public class A : IBinaryConvertible { }
 }");
       BinarySchemaTestUtil.AssertDiagnostics(structure.Diagnostics,
                                        Rules.SourceMustBePrivate);
@@ -107,7 +107,7 @@ using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
-  public partial class ByteWrapper : IBiSerializable {
+  public partial class ByteWrapper : IBinaryConvertible {
     [IntegerFormat(SchemaIntegerType.BYTE)]
     internal bool Field { get; set; }
 
@@ -115,7 +115,7 @@ namespace foo.bar {
     public int? OtherValue { get; set; }
   }
 
-  public class A : IBiSerializable { }
+  public class A : IBinaryConvertible { }
 }");
       BinarySchemaTestUtil.AssertDiagnostics(structure.Diagnostics,
                                        Rules.SourceMustBePrivate);
@@ -128,7 +128,7 @@ using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
-  public partial class ByteWrapper : IBiSerializable {
+  public partial class ByteWrapper : IBinaryConvertible {
     [IntegerFormat(SchemaIntegerType.BYTE)]
     public bool Field;
 
@@ -136,7 +136,7 @@ namespace foo.bar {
     public int? OtherValue { get; set; }
   }
 
-  public class A : IBiSerializable { }
+  public class A : IBinaryConvertible { }
 }");
       BinarySchemaTestUtil.AssertDiagnostics(structure.Diagnostics,
                                        Rules.SourceMustBePrivate);
@@ -149,7 +149,7 @@ using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
-  public partial class ByteWrapper : IBiSerializable {
+  public partial class ByteWrapper : IBinaryConvertible {
     [IntegerFormat(SchemaIntegerType.BYTE)]
     protected bool Field;
 
@@ -157,7 +157,7 @@ namespace foo.bar {
     public int? OtherValue { get; set; }
   }
 
-  public class A : IBiSerializable { }
+  public class A : IBinaryConvertible { }
 }");
       BinarySchemaTestUtil.AssertDiagnostics(structure.Diagnostics,
                                        Rules.SourceMustBePrivate);
@@ -170,7 +170,7 @@ using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
-  public partial class ByteWrapper : IBiSerializable {
+  public partial class ByteWrapper : IBinaryConvertible {
     [IntegerFormat(SchemaIntegerType.BYTE)]
     internal bool Field;
 
@@ -178,7 +178,7 @@ namespace foo.bar {
     public int? OtherValue { get; set; }
   }
 
-  public class A : IBiSerializable { }
+  public class A : IBinaryConvertible { }
 }");
       BinarySchemaTestUtil.AssertDiagnostics(structure.Diagnostics,
                                        Rules.SourceMustBePrivate);

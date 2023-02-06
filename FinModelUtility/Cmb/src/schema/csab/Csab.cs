@@ -24,7 +24,7 @@ namespace cmb.schema.csab {
     ROTATION
   }
 
-  public class CsabTrack : IDeserializable {
+  public class CsabTrack : IBinaryDeserializable {
     private readonly Csab parent_;
 
     public CsabTrack(Csab parent) {
@@ -142,7 +142,7 @@ namespace cmb.schema.csab {
   }
 
 
-  public class AnimationNode : IDeserializable {
+  public class AnimationNode : IBinaryDeserializable {
     private readonly Csab parent_;
 
     public AnimationNode(Csab parent) {
@@ -244,7 +244,7 @@ namespace cmb.schema.csab {
   }
 
   [Endianness(Endianness.LittleEndian)]
-  public class Csab : IDeserializable {
+  public class Csab : IBinaryDeserializable {
     public uint Version { get; set; }
     public uint Duration { get; set; }
 

@@ -10,7 +10,7 @@ using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
-  public partial class ImmediateLengthWrapper : IBiSerializable {
+  public partial class ImmediateLengthWrapper : IBinaryConvertible {
     [StringLengthSource(SchemaIntegerType.UINT32)]
     public string Field { get; set; }
   }

@@ -34,7 +34,7 @@ namespace j3d.schema.bcx {
     public IAnx1 Anx1 => this.ANF1;
 
     [BinarySchema]
-    public partial class BcaHeader : IBiSerializable {
+    public partial class BcaHeader : IBinaryConvertible {
       private readonly string magic_ = "J3D1bca1";
 
       [SizeOfStreamInBytes]
@@ -140,13 +140,13 @@ namespace j3d.schema.bcx {
         }
 
         [BinarySchema]
-        public partial class AnimComponent : IBiSerializable {
+        public partial class AnimComponent : IBinaryConvertible {
           public AnimIndex S { get; } = new();
           public AnimIndex R { get; } = new();
           public AnimIndex T { get; } = new();
 
           [BinarySchema]
-          public partial class AnimIndex : IBiSerializable {
+          public partial class AnimIndex : IBinaryConvertible {
             public ushort Count;
             public ushort Index;
           }

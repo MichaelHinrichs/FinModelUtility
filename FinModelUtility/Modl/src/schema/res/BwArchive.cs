@@ -6,7 +6,7 @@ using schema.binary;
 
 
 namespace modl.schema.res {
-  public class BwArchive : IDeserializable {
+  public class BwArchive : IBinaryDeserializable {
     public Texr Texr { get; } = new();
     public Sond Sond { get; } = new();
 
@@ -26,14 +26,14 @@ namespace modl.schema.res {
   }
 
   [BinarySchema]
-  public partial class Sond : IBiSerializable {
+  public partial class Sond : IBinaryConvertible {
     private readonly string magic_ = "DNOS"; // SOND backwards
 
     [ArrayLengthSource(SchemaIntegerType.UINT32)]
     public byte[] Data { get; private set; }
   }
 
-  public class BwFile : IDeserializable {
+  public class BwFile : IBinaryDeserializable {
     public string Type { get; private set; }
     public string FileName { get; private set; }
     public byte[] Data { get; private set; }

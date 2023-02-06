@@ -78,14 +78,14 @@ namespace schema.binary {
     public static DiagnosticDescriptor
         StructureMemberNeedsToImplementIBiSerializable { get; } =
       Rules.CreateDiagnosticDescriptor_(
-          "Structure member needs to implement IBiSerializable",
-          "Structure member '{0}' must implement IBiSerializable.");
+          "Structure member needs to implement IBinaryConvertible",
+          "Structure member '{0}' must implement IBinaryConvertible.");
 
     public static DiagnosticDescriptor
         ElementNeedsToImplementIBiSerializable { get; } =
       Rules.CreateDiagnosticDescriptor_(
-          "Element needs to implement IBiSerializable",
-          "Element of '{0}' must implement IBiSerializable.");
+          "Element needs to implement IBinaryConvertible",
+          "Element of '{0}' must implement IBinaryConvertible.");
 
 
     public static readonly DiagnosticDescriptor ConstUninitialized

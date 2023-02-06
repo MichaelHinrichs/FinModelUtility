@@ -143,7 +143,7 @@ namespace schema.binary {
         }
       }
 
-      if (currentMemberName == nameof(IChildOf<IBiSerializable>.Parent) &&
+      if (currentMemberName == nameof(IChildOf<IBinaryConvertible>.Parent) &&
           new ChildOfParser(diagnostics).GetParentTypeSymbolOf(
               (structureSymbol as INamedTypeSymbol)!) != null) {
         upDownStack.PushUpFrom(prevMemberName);

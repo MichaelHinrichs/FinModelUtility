@@ -20,7 +20,7 @@ namespace j3d.schema.bmd.mat3 {
   /// </summary>
   [BinarySchema]
   public partial class ColorChannelControl : IColorChannelControl,
-      IBiSerializable {
+      IBinaryConvertible {
     [IntegerFormat(SchemaIntegerType.BYTE)]
     public bool LightingEnabled { get; set; }
 

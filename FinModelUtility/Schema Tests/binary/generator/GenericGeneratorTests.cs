@@ -10,7 +10,7 @@ using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
-  public partial class GenericWrapper<T> : IBiSerializable where T : IBiSerializable, new() {
+  public partial class GenericWrapper<T> : IBinaryConvertible where T : IBinaryConvertible, new() {
     public T Data { get; } = new();
   }
 }",
@@ -43,7 +43,7 @@ using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
-  public partial class GenericWrapper<T> : IBiSerializable where T : IBiSerializable, new() {
+  public partial class GenericWrapper<T> : IBinaryConvertible where T : IBinaryConvertible, new() {
     public T[] Data { get; } = {};
   }
 }",

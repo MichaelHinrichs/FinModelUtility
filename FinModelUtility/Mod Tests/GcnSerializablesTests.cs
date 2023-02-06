@@ -150,7 +150,7 @@ namespace mod.schema {
     public void TestVtxMatrix() => TestGcnSerializableSimple(new VtxMatrix());
 
     public static async void TestGcnSerializableSimple(
-        IBiSerializable gcnSerializable) {
+        IBinaryConvertible gcnSerializable) {
       var dataLen = 100;
       var inData = new byte[dataLen];
       for (var i = 0; i < dataLen; ++i) {
@@ -180,7 +180,7 @@ namespace mod.schema {
     }
 
     public static async void TestGcnSerializableExisting(
-        IBiSerializable gcnSerializable) {
+        IBinaryConvertible gcnSerializable) {
       var dataLen = 300;
       var firstWriter = new EndianBinaryWriter(Endianness.BigEndian);
       gcnSerializable.Write(firstWriter);

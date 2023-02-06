@@ -11,7 +11,7 @@ using schema.binary.attributes.child_of;
 
 namespace foo.bar {
   [BinarySchema]
-  public partial class ChildOfWrapper : IBiSerializable, IChildOf<Parent> {
+  public partial class ChildOfWrapper : IBinaryConvertible, IChildOf<Parent> {
     public Parent Parent { get; set; }
 
     public byte Field { get; set; }
@@ -55,7 +55,7 @@ namespace foo.bar {
     public ChildOfWrapper Child { get; set; }
   }
 
-  public partial class ChildOfWrapper : IBiSerializable, IChildOf<Parent> {
+  public partial class ChildOfWrapper : IBinaryConvertible, IChildOf<Parent> {
     public Parent Parent { get; set; }
 
     public byte Field { get; set; }
@@ -92,11 +92,11 @@ using schema.binary.attributes.child_of;
 
 namespace foo.bar {
   [BinarySchema]
-  public partial class ChildOfWrapper : IBiSerializable, IChildOf<Parent> {
+  public partial class ChildOfWrapper : IBinaryConvertible, IChildOf<Parent> {
     public Parent Parent { get; set; }
   }
 
-  public partial class Parent : IBiSerializable {
+  public partial class Parent : IBinaryConvertible {
     public uint Length { get; set; }
 
     [ArrayLengthSource(nameof(Length))]
@@ -138,7 +138,7 @@ namespace foo.bar {
     public ChildOfWrapper[] Child { get; set; }
   }
 
-  public partial class ChildOfWrapper : IBiSerializable, IChildOf<Parent> {
+  public partial class ChildOfWrapper : IBinaryConvertible, IChildOf<Parent> {
     public Parent Parent { get; set; }
   }
 }",

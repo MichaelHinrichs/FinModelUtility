@@ -11,7 +11,7 @@ using schema.binary.attributes.size;
 
 namespace foo.bar {
   [BinarySchema]
-  public partial class SizeWrapper : IBiSerializable {
+  public partial class SizeWrapper : IBinaryConvertible {
     [SizeOfMemberInBytes(nameof(Foo)]
     public uint FooSize { get; set; }
 
@@ -52,7 +52,7 @@ using schema.binary.attributes.size;
 
 namespace foo.bar {
   [BinarySchema]
-  public partial class SizeWrapper : IBiSerializable {
+  public partial class SizeWrapper : IBinaryConvertible {
     [SizeOfMemberInBytes($""{nameof(Foo)}.{nameof(Foo.Bar}"")]
     public uint FooBarSize { get; set; }
 
@@ -60,7 +60,7 @@ namespace foo.bar {
   }
 
   [BinarySchema]
-  public partial class Child : IBiSerializable {
+  public partial class Child : IBinaryConvertible {
     public byte Bar;
   }
 }",
@@ -99,7 +99,7 @@ using schema.binary.attributes.size;
 
 namespace foo.bar {
   [BinarySchema]
-  public partial class SizeWrapper : IChildOf<ParentImpl>, IBiSerializable {
+  public partial class SizeWrapper : IChildOf<ParentImpl>, IBinaryConvertible {
     public ParentImpl Parent;
 
     [SizeOfMemberInBytes($""{nameof(Parent)}.{nameof(Parent.Foo}"")]
@@ -107,7 +107,7 @@ namespace foo.bar {
   }
 
   [BinarySchema]
-  public partial class ParentImpl : IBiSerializable {
+  public partial class ParentImpl : IBinaryConvertible {
     public SizeWrapper Child;
 
     public byte Foo;

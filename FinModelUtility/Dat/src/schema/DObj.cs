@@ -3,7 +3,7 @@
 
 namespace dat.schema {
   [BinarySchema]
-  public partial class DObjData : IBiSerializable {
+  public partial class DObjData : IBinaryConvertible {
     public uint StringOffset { get; set; }
     public uint NextObjectOffset { get; set; }
     public uint MaterialStructOffset { get; set; }

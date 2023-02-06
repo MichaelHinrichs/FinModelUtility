@@ -10,7 +10,7 @@ using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
-  public partial class ByteWrapper : IBiSerializable {
+  public partial class ByteWrapper : IBinaryConvertible {
     [IfBoolean(SchemaIntegerType.BYTE)]
     public A? ImmediateValue { get; set; }
 
@@ -21,7 +21,7 @@ namespace foo.bar {
     public int? OtherValue { get; set; }
   }
 
-  public class A : IBiSerializable { }
+  public class A : IBinaryConvertible { }
 }",
                                      @"using System;
 using System.IO;
@@ -75,7 +75,7 @@ using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
-  public partial class ByteWrapper : IBiSerializable {
+  public partial class ByteWrapper : IBinaryConvertible {
     [IntegerFormat(SchemaIntegerType.BYTE)]
     public bool Field { get; private set; }
 
@@ -83,7 +83,7 @@ namespace foo.bar {
     public int? OtherValue { get; set; }
   }
 
-  public class A : IBiSerializable { }
+  public class A : IBinaryConvertible { }
 }",
                                      @"using System;
 using System.IO;
@@ -123,7 +123,7 @@ using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
-  public partial class ByteWrapper : IBiSerializable {
+  public partial class ByteWrapper : IBinaryConvertible {
     public ClassWith1Bool Field { get; set; }
 
     [IfBoolean($""{nameof(Field)}.{nameof(Field.Bool)}"")]

@@ -11,7 +11,7 @@ using schema.binary;
 
 
 namespace modl.schema.modl.bw2.node {
-  public class Bw2Node : IBwNode, IDeserializable {
+  public class Bw2Node : IBwNode, IBinaryDeserializable {
     private int additionalDataCount_;
 
     public string GetIdentifier() => this.Name;

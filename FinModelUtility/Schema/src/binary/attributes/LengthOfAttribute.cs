@@ -17,9 +17,9 @@ namespace schema.binary.attributes {
   ///     equal.
   ///   </para>
   ///   <para>
-  ///     If included within an IDeserializable, this will result in a
+  ///     If included within an IBinaryDeserializable, this will result in a
   ///     compile-time error since this is only used at write-time. If included
-  ///     within an IBiSerializable, it will be enforced that any other members
+  ///     within an IBinaryConvertible, it will be enforced that any other members
   ///     that this is marked as a length of must have this marked as their
   ///     length source.
   ///   </para>
@@ -55,9 +55,9 @@ namespace schema.binary.attributes {
   ///     equal.
   ///   </para>
   ///   <para>
-  ///     If included within an IDeserializable, this will result in a
+  ///     If included within an IBinaryDeserializable, this will result in a
   ///     compile-time error since this is only used at write-time. If included
-  ///     within an IBiSerializable, it will be enforced that any other members
+  ///     within an IBinaryConvertible, it will be enforced that any other members
   ///     that this is marked as a length of must have this marked as their
   ///     length source.
   ///   </para>

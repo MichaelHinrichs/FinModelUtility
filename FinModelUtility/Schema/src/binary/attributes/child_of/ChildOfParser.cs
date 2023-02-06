@@ -22,7 +22,7 @@ namespace schema.binary.attributes.child_of {
       }
 
       var parentSymbol = childNamedTypeSymbol
-                         .GetMembers(nameof(IChildOf<IBiSerializable>.Parent))
+                         .GetMembers(nameof(IChildOf<IBinaryConvertible>.Parent))
                          .Single();
       return parentSymbol switch {
           IPropertySymbol propertySymbol => propertySymbol.Type,

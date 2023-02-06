@@ -3,7 +3,7 @@
 
 namespace ast.schema {
   [BinarySchema]
-  public partial class BlckHeader : IBiSerializable {
+  public partial class BlckHeader : IBinaryConvertible {
     private readonly string magic_ = "BLCK";
 
     public uint BlockSizeInBytes { get; private set; }

@@ -10,14 +10,14 @@ using schema.binary.testing;
 namespace schema.binary.attributes.memory {
   internal partial class PointerToTests {
     [BinarySchema]
-    public partial class ParentImpl : IBiSerializable {
+    public partial class ParentImpl : IBinaryConvertible {
       public Child Child { get; } = new();
 
       public int Field { get; set; }
     }
 
     [BinarySchema]
-    public partial class Child : IChildOf<ParentImpl>, IBiSerializable {
+    public partial class Child : IChildOf<ParentImpl>, IBinaryConvertible {
       public ParentImpl Parent { get; set; }
 
       [PointerTo($"{nameof(Parent)}.{nameof(ParentImpl.Field)}")]

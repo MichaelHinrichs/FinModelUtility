@@ -4,7 +4,7 @@ using schema.binary.attributes.ignore;
 
 namespace cmb.schema.cmb {
   [BinarySchema]
-  public partial class Mesh : IBiSerializable {
+  public partial class Mesh : IBinaryConvertible {
     public ushort shapeIndex;
     public byte materialIndex;
     public byte id;

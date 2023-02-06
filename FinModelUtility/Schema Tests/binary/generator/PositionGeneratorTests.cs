@@ -11,7 +11,7 @@ using schema.binary.attributes.position;
 
 namespace foo.bar {
   [BinarySchema]
-  public partial class PositionWrapper : IBiSerializable {
+  public partial class PositionWrapper : IBinaryConvertible {
     [PositionRelativeToStream]
     public long Position { get; set; }
 

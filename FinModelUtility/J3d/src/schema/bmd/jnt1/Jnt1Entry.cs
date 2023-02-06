@@ -27,7 +27,7 @@ namespace j3d.schema.bmd.jnt1 {
   }
 
   [BinarySchema]
-  public partial class Jnt1Entry : IBiSerializable {
+  public partial class Jnt1Entry : IBinaryConvertible {
     public JointType JointType { get; set; }
 
     [IntegerFormat(SchemaIntegerType.BYTE)]

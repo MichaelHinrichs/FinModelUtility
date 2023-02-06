@@ -13,7 +13,7 @@ using schema.binary.attributes.ignore;
 
 namespace foo.bar {
   [BinarySchema]
-  public partial class ConstLengthWrapper : IBiSerializable {
+  public partial class ConstLengthWrapper : IBinaryConvertible {
     [ArrayLengthSource(3)]
     public int[] Field { get; set; }
 

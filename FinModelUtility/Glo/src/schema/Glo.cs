@@ -8,7 +8,7 @@ using schema.binary.attributes.endianness;
 namespace glo.schema {
   [BinarySchema]
   [Endianness(Endianness.LittleEndian)]
-  public sealed partial class Glo : IBiSerializable {
+  public sealed partial class Glo : IBinaryConvertible {
     private readonly string magic_ = "GLO\0";
 
     public ushort Version { get; set; }
@@ -18,7 +18,7 @@ namespace glo.schema {
 
 
   [BinarySchema]
-  public sealed partial class GloObject : IBiSerializable {
+  public sealed partial class GloObject : IBinaryConvertible {
     [ArrayLengthSource(SchemaIntegerType.UINT16)]
     public GloAnimSeg[] AnimSegs { get; set; }
 
@@ -26,7 +26,7 @@ namespace glo.schema {
   }
 
   [BinarySchema]
-  public sealed partial class GloAnimSeg : IBiSerializable {
+  public sealed partial class GloAnimSeg : IBinaryConvertible {
     [StringLengthSource(24)]
     public string Name { get; set; }
     public uint StartFrame { get; set; }
@@ -44,7 +44,7 @@ namespace glo.schema {
   }
 
   [BinarySchema]
-  public sealed partial class GloMesh : IBiSerializable {
+  public sealed partial class GloMesh : IBinaryConvertible {
     [StringLengthSource(24)]
     public string Name { get; set; }
 
@@ -73,20 +73,20 @@ namespace glo.schema {
   }
 
   [BinarySchema]
-  public sealed partial class GloMeshPointers : IBiSerializable {
+  public sealed partial class GloMeshPointers : IBinaryConvertible {
     [IfBoolean(SchemaIntegerType.UINT16)] public GloMesh? Child { get; set; }
 
     [IfBoolean(SchemaIntegerType.UINT16)] public GloMesh? Next { get; set; }
   }
 
   [BinarySchema]
-  public sealed partial class GloXyzKey : IBiSerializable {
+  public sealed partial class GloXyzKey : IBinaryConvertible {
     public uint Time { get; set; }
     public Vector3f Xyz { get; } = new();
   }
 
   [BinarySchema]
-  public sealed partial class GloQuaternionKey : IBiSerializable {
+  public sealed partial class GloQuaternionKey : IBinaryConvertible {
     public uint Time { get; set; }
 
     public float X { get; set; }
@@ -96,13 +96,13 @@ namespace glo.schema {
   }
 
   [BinarySchema]
-  public sealed partial class GloScaleKey : IBiSerializable {
+  public sealed partial class GloScaleKey : IBinaryConvertible {
     public uint Time { get; set; }
     public Vector3f Scale { get; } = new();
   }
 
   [BinarySchema]
-  public sealed partial class GloFace : IBiSerializable {
+  public sealed partial class GloFace : IBinaryConvertible {
     [StringLengthSource(16)]
     public string TextureFilename { get; set; }
 
@@ -117,14 +117,14 @@ namespace glo.schema {
   }
 
   [BinarySchema]
-  public sealed partial class GloVertexRef : IBiSerializable {
+  public sealed partial class GloVertexRef : IBinaryConvertible {
     public ushort Index { get; set; }
     public float U { get; set; }
     public float V { get; set; }
   }
 
   [BinarySchema]
-  public sealed partial class GloSprite : IBiSerializable {
+  public sealed partial class GloSprite : IBinaryConvertible {
     [StringLengthSource(16)]
     public string TextureFilename { get; set; }
 

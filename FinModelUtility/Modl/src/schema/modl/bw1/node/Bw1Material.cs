@@ -3,7 +3,7 @@
 
 namespace modl.schema.modl.bw1.node {
   [BinarySchema]
-  public partial class Bw1Material : IBwMaterial, IBiSerializable {
+  public partial class Bw1Material : IBwMaterial, IBinaryConvertible {
     [StringLengthSource(0x10)]
     public string Texture1 { get; set; } = "";
 

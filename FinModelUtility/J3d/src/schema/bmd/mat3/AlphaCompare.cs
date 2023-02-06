@@ -4,7 +4,7 @@ using schema.binary;
 
 namespace j3d.schema.bmd.mat3 {
   [BinarySchema]
-  public partial class AlphaCompare : IAlphaCompare, IDeserializable {
+  public partial class AlphaCompare : IAlphaCompare, IBinaryDeserializable {
     public GxCompareType Func0 { get; set; }
 
     [NumberFormat(SchemaNumberType.UN8)]

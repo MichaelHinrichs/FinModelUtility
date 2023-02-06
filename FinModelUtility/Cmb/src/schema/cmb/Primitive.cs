@@ -6,7 +6,7 @@ using fin.util.strings;
 using schema.binary;
 
 namespace cmb.schema.cmb {
-  public class Primitive : IBiSerializable {
+  public class Primitive : IBinaryConvertible {
     public uint chunkSize;
     public bool isVisible;
     public PrimitiveMode primitiveMode;

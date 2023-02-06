@@ -2,7 +2,7 @@
 
 namespace cmb.schema.cmb {
   [BinarySchema]
-  public partial class Combiner : IBiSerializable {
+  public partial class Combiner : IBinaryConvertible {
     public TexCombineMode combinerModeColor;
     public TexCombineMode combinerModeAlpha;
     public TexCombineScale scaleColor;

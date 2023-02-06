@@ -28,7 +28,7 @@ namespace mod.schema {
     UseNBT = 0x01
   }
 
-  public class Mod : IBiSerializable {
+  public class Mod : IBinaryConvertible {
     public readonly ModHeader header = new();
     public readonly List<Vector3f> vertices = new();
     public readonly List<Vector3f> vnormals = new();
@@ -206,7 +206,7 @@ namespace mod.schema {
 
     private static void ReadGenericChunk_<T>(
         IEndianBinaryReader reader,
-        List<T> vector) where T : IDeserializable, new() {
+        List<T> vector) where T : IBinaryDeserializable, new() {
       var num = reader.ReadUInt32();
       vector.Clear();
 
@@ -218,7 +218,7 @@ namespace mod.schema {
     }
 
     private static T ReadGeneric_<T>(IEndianBinaryReader reader)
-        where T : IDeserializable, new() {
+        where T : IBinaryDeserializable, new() {
       var instance = new T();
       instance.Read(reader);
       return instance;

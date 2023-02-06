@@ -50,5 +50,5 @@ namespace fin.schema.vector {
   }
 
   [BinarySchema]
-  public sealed partial class Vector4f : BVector4<float>, IBiSerializable { }
+  public sealed partial class Vector4f : BVector4<float>, IBinaryConvertible { }
 }

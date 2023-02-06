@@ -110,7 +110,7 @@ namespace uni.platforms.gcn.tools {
     }
 
     [BinarySchema]
-    private partial class Ids : IBiSerializable {
+    private partial class Ids : IBinaryConvertible {
       public byte ConsoleId { get; set; }
       public ushort GameId { get; set; }
       public byte CountryId { get; set; }
@@ -118,7 +118,7 @@ namespace uni.platforms.gcn.tools {
     }
 
     [BinarySchema]
-    private partial class DiskHeader : IBiSerializable {
+    private partial class DiskHeader : IBinaryConvertible {
       public Ids Ids { get; } = new();
       public byte DiskId { get; set; }
       public byte Version { get; set; }
@@ -154,7 +154,7 @@ namespace uni.platforms.gcn.tools {
     }
 
     [BinarySchema]
-    private partial class FileEntry : IBiSerializable {
+    private partial class FileEntry : IBinaryConvertible {
       [IntegerFormat(SchemaIntegerType.BYTE)]
       public bool IsDirectory { get; set; }
 

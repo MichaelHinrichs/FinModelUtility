@@ -11,7 +11,7 @@ using schema.binary.attributes.position;
 
 namespace j3d.schema.bmd {
   [BinarySchema]
-  public partial class StringTable : IBiSerializable {
+  public partial class StringTable : IBinaryConvertible {
     [PositionRelativeToStream]
     public long BasePosition { get; set; }
 
@@ -29,7 +29,7 @@ namespace j3d.schema.bmd {
 
   [BinarySchema]
   public partial class
-      StringTableEntry : IBiSerializable, IChildOf<StringTable> {
+      StringTableEntry : IBinaryConvertible, IChildOf<StringTable> {
     public StringTable Parent { get; set; }
 
     [Ignore]

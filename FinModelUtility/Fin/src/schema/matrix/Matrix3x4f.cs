@@ -4,7 +4,7 @@ using schema.binary.attributes.ignore;
 
 namespace fin.schema.matrix {
   [BinarySchema]
-  public partial class Matrix3x4f : IBiSerializable {
+  public partial class Matrix3x4f : IBinaryConvertible {
     public float[] Values { get; } = new float[3 * 4];
 
     [Ignore]

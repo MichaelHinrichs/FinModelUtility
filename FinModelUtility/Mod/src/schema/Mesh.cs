@@ -16,7 +16,7 @@ namespace mod.schema {
   }
 
   [BinarySchema]
-  public partial class DisplayListFlags : IBiSerializable {
+  public partial class DisplayListFlags : IBinaryConvertible {
     [Ignore]
     public DisplayListFlagsByteView byteView = new();
 
@@ -33,7 +33,7 @@ namespace mod.schema {
   }
 
   [BinarySchema]
-  public partial class DisplayList : IBiSerializable {
+  public partial class DisplayList : IBinaryConvertible {
     public DisplayListFlags flags = new();
 
     // THANKS: Yoshi2's mod2obj
@@ -45,7 +45,7 @@ namespace mod.schema {
   }
 
   [BinarySchema]
-  public partial class MeshPacket : IBiSerializable {
+  public partial class MeshPacket : IBinaryConvertible {
     [ArrayLengthSource(SchemaIntegerType.UINT32)]
     public short[] indices;
 
@@ -54,7 +54,7 @@ namespace mod.schema {
   }
 
   [BinarySchema]
-  public partial class Mesh : IBiSerializable {
+  public partial class Mesh : IBinaryConvertible {
     public uint boneIndex = 0;
     public uint vtxDescriptor = 0;
 

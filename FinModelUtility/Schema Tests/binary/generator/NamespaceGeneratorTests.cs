@@ -13,7 +13,7 @@ namespace foo.bar {
   }
 
   [BinarySchema]
-  public partial class Wrapper : IBiSerializable {
+  public partial class Wrapper : IBinaryConvertible {
     public A Field { get; set; }
   }
 }",
@@ -50,7 +50,7 @@ namespace foo {
 
   namespace bar {
     [BinarySchema]
-    public partial class Wrapper : IBiSerializable {
+    public partial class Wrapper : IBinaryConvertible {
       public A Field { get; set; }
     }
   }
@@ -89,7 +89,7 @@ namespace foo.bar {
   }
 
   [BinarySchema]
-  public partial class Wrapper : IBiSerializable {
+  public partial class Wrapper : IBinaryConvertible {
     public goo.A Field { get; set; }
   }
 }",
@@ -128,7 +128,7 @@ namespace foo.bar {
 
   namespace gar {
     [BinarySchema]
-    public partial class Wrapper : IBiSerializable {
+    public partial class Wrapper : IBinaryConvertible {
       public goo.A Field { get; set; }
     }
   }

@@ -3,7 +3,7 @@ using schema.binary;
 
 namespace level5.schema {
   [BinarySchema]
-  public partial class Mbn : IDeserializable {
+  public partial class Mbn : IBinaryDeserializable {
     public uint Id { get; private set; }
 
     public uint ParentId { get; private set; }

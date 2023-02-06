@@ -11,7 +11,7 @@ namespace schema.binary.attributes.size {
   ///     value of this field.
   ///   </para>
   ///   <para>
-  ///     If included within an IDeserializable, this will result in a
+  ///     If included within an IBinaryDeserializable, this will result in a
   ///     compile-time error since this is only used at write-time.
   ///   </para>
   /// </summary>

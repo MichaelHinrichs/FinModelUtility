@@ -5,7 +5,7 @@ using schema.binary;
 
 namespace j3d.schema.bmd.mat3 {
   [BinarySchema]
-  public partial class TevStageProps : ITevStageProps, IBiSerializable {
+  public partial class TevStageProps : ITevStageProps, IBinaryConvertible {
     private byte padding0_;
 
     public GxCc color_a { get; set; }

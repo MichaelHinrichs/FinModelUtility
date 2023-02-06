@@ -6,7 +6,7 @@ using schema.binary.attributes.align;
 
 namespace cmb.schema.cmb {
   [BinarySchema]
-  public partial class Shp : IBiSerializable {
+  public partial class Shp : IBinaryConvertible {
     private readonly string magic_ = "shp" + AsciiUtil.GetChar(0x20);
 
     public uint chunkSize;

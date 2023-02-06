@@ -4,7 +4,7 @@ using schema.binary;
 
 namespace cmb.schema.cmb {
   [BinarySchema]
-  public partial class TexMapper : IBiSerializable {
+  public partial class TexMapper : IBinaryConvertible {
     public short textureId { get; set; }
     private readonly ushort padding_ = 0;
     public TextureMinFilter minFilter;

@@ -4,7 +4,7 @@ using schema.binary.attributes.ignore;
 
 namespace cmb.schema.cmb {
   [BinarySchema]
-  public partial class Vatr : IBiSerializable {
+  public partial class Vatr : IBinaryConvertible {
     private readonly string magic_ = "vatr";
 
     public uint chunkSize;

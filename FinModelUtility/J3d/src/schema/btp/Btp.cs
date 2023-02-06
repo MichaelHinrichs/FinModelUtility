@@ -11,5 +11,5 @@ namespace j3d.schema.btp {
   /// </summary>
   [Endianness(Endianness.BigEndian)]
   [BinarySchema]
-  public partial class Btp : IBiSerializable { }
+  public partial class Btp : IBinaryConvertible { }
 }

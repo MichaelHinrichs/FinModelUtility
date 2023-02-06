@@ -51,10 +51,10 @@ namespace fin.io {
       return new FinFile(this.FullNameWithoutExtension + newExtension);
     }
 
-    public T ReadNew<T>() where T : IDeserializable, new()
+    public T ReadNew<T>() where T : IBinaryDeserializable, new()
       => FileUtil.ReadNew<T>(this.FullName);
 
-    public T ReadNew<T>(Endianness endianness) where T : IDeserializable, new()
+    public T ReadNew<T>(Endianness endianness) where T : IBinaryDeserializable, new()
       => FileUtil.ReadNew<T>(this.FullName, endianness);
 
     public byte[] ReadAllBytes()

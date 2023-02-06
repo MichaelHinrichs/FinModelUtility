@@ -2,7 +2,7 @@
 
 namespace cmb.schema.cmb {
   [BinarySchema]
-  public partial class Mshs : IBiSerializable {
+  public partial class Mshs : IBinaryConvertible {
     public readonly string magic = "mshs";
     public uint chunkSize;
 

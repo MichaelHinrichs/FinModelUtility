@@ -31,7 +31,7 @@ namespace schema.binary.memory {
   }
 
   public interface IMemoryBlock : IMemoryRange,
-      IBiSerializable,
+      IBinaryConvertible,
       IEnumerable<IMemoryRange> {
     MemoryBlockType Type { get; }
 

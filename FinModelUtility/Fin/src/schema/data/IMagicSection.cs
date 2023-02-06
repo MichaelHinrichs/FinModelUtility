@@ -4,7 +4,7 @@ using schema.binary.attributes.ignore;
 
 namespace fin.schema.data {
   public interface IMagicSection<T> : ISizedSection<T>
-      where T : IBiSerializable {
+      where T : IBinaryConvertible {
     string Magic { get; }
   }
 
@@ -16,7 +16,7 @@ namespace fin.schema.data {
   /// </summary>
   [BinarySchema]
   public partial class AutoMagicUInt32SizedSection<T> : IMagicSection<T>
-      where T : IBiSerializable, new() {
+      where T : IBinaryConvertible, new() {
     private readonly PassThruMagicUint32SizedSection<T> impl_;
 
     public AutoMagicUInt32SizedSection(string magic) {
@@ -32,7 +32,7 @@ namespace fin.schema.data {
 
   [BinarySchema]
   public partial class PassThruMagicUint32SizedSection<T> : IMagicSection<T>
-      where T : IBiSerializable {
+      where T : IBinaryConvertible {
     public string Magic { get; }
 
     private readonly PassThruUint32SizedSection<T> impl_;

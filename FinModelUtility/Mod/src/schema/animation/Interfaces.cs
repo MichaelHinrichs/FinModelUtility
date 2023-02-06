@@ -2,12 +2,12 @@
 
 
 namespace mod.schema.animation {
-  public interface IDcx : IBiSerializable {
+  public interface IDcx : IBinaryConvertible {
     string Name { get; set; }
     IDcxAnimationData AnimationData { get; }
   }
 
-  public interface IDcxAnimationData : IBiSerializable {
+  public interface IDcxAnimationData : IBinaryConvertible {
     uint JointCount { get; }
     uint FrameCount { get; set; }
 
@@ -18,7 +18,7 @@ namespace mod.schema.animation {
     IDcxJointData[] JointDataList { get; set; }
   }
 
-  public interface IDcxJointData : IBiSerializable {
+  public interface IDcxJointData : IBinaryConvertible {
     int JointIndex { get; set; }
     int ParentIndex { get; set; }
 
@@ -27,11 +27,11 @@ namespace mod.schema.animation {
     IDcxAxes PositionAxes { get; }
   }
 
-  public interface IDcxAxes : IBiSerializable {
+  public interface IDcxAxes : IBinaryConvertible {
     IDcxAxis[] Axes { get; }
   }
 
-  public interface IDcxAxis : IBiSerializable {
+  public interface IDcxAxis : IBinaryConvertible {
     int FrameCount { get; set; }
     int FrameOffset { get; set; }
   }

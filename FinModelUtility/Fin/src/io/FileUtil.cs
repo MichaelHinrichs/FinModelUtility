@@ -12,13 +12,13 @@ namespace fin.io {
       => Asserts.True(FinFileSystem.File.Exists(path), message);
 
     public static T ReadNew<T>(string path)
-        where T : IDeserializable, new() {
+        where T : IBinaryDeserializable, new() {
       using var er = new EndianBinaryReader(OpenRead(path));
       return er.ReadNew<T>();
     }
 
     public static T ReadNew<T>(string path, Endianness endianness)
-        where T : IDeserializable, new() {
+        where T : IBinaryDeserializable, new() {
       using var er = new EndianBinaryReader(OpenRead(path), endianness);
       return er.ReadNew<T>();
     }

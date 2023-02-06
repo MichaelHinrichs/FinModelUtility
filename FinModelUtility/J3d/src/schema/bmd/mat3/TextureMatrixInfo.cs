@@ -6,7 +6,7 @@ using schema.binary;
 
 namespace j3d.schema.bmd.mat3 {
   [BinarySchema]
-  public partial class TextureMatrixInfo : ITextureMatrixInfo, IBiSerializable {
+  public partial class TextureMatrixInfo : ITextureMatrixInfo, IBinaryConvertible {
     public GxTexGenType TexGenType { get; set; }
     public byte info;
     public ushort padding1;

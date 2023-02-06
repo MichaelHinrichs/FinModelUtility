@@ -6,7 +6,7 @@ using schema.binary.attributes.ignore;
 
 namespace fin.schema.color {
   [BinarySchema]
-  public partial class Rgba32 : IColor, IBiSerializable {
+  public partial class Rgba32 : IColor, IBinaryConvertible {
     public byte Rb { get; set; }
     public byte Gb { get; set; }
     public byte Bb { get; set; }

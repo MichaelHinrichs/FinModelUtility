@@ -3,7 +3,7 @@ using schema.binary;
 
 namespace cmb.schema.cmb {
   [BinarySchema]
-  public partial class TexCoords : IDeserializable {
+  public partial class TexCoords : IBinaryDeserializable {
     [IntegerFormat(SchemaIntegerType.BYTE)]
     public TextureMatrixMode matrixMode { get; private set; }
     public byte referenceCameraIndex { get; private set; }

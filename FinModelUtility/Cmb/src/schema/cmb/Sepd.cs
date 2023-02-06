@@ -5,7 +5,7 @@ using schema.binary.attributes.ignore;
 
 namespace cmb.schema.cmb {
   [BinarySchema]
-  public partial class Sepd : IBiSerializable {
+  public partial class Sepd : IBinaryConvertible {
     private readonly string magic_ = "sepd";
 
     public uint chunkSize;

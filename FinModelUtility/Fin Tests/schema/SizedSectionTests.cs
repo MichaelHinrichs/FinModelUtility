@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace fin.schema {
   internal partial class SizedSectionTests {
     [BinarySchema]
-    public partial class A : IBiSerializable {
+    public partial class A : IBinaryConvertible {
       public byte Field1 { get; set; }
       public byte Field2 { get; set; }
       public byte Field3 { get; set; }

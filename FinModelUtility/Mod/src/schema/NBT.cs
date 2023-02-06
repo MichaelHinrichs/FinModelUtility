@@ -4,7 +4,7 @@ using schema.binary;
 
 namespace mod.schema {
   [BinarySchema]
-  public partial class Nbt : IBiSerializable {
+  public partial class Nbt : IBinaryConvertible {
     public Vector3f Normal { get; }= new();
     public Vector3f Binormal { get; }= new();
     public Vector3f Tangent { get; }= new();

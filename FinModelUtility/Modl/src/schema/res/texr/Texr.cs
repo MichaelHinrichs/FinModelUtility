@@ -12,7 +12,7 @@ using schema.binary;
 
 
 namespace modl.schema.res.texr {
-  public class Texr : IBiSerializable {
+  public class Texr : IBinaryConvertible {
     private enum TexrMode {
       BW1,
       BW2

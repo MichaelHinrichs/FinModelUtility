@@ -4,7 +4,7 @@ using schema.binary;
 
 namespace cmb.schema.cmb {
   [BinarySchema]
-  public partial class Sklm : IDeserializable {
+  public partial class Sklm : IBinaryDeserializable {
     public readonly string magic = "sklm";
     
     public uint chunkSize;

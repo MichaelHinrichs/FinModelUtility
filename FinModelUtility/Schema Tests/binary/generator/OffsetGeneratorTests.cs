@@ -10,7 +10,7 @@ using schema.binary.attributes.offset;
 
 namespace foo.bar {
   [BinarySchema]
-  public partial class OffsetWrapper : IBiSerializable {
+  public partial class OffsetWrapper : IBinaryConvertible {
     public uint BaseLocation { get; set; }
 
     public uint Offset { get; set; }
@@ -59,7 +59,7 @@ using schema.binary.attributes.offset;
 
 namespace foo.bar {
   [BinarySchema]
-  public partial class OffsetWrapper : IBiSerializable, IChildOf<Parent> {
+  public partial class OffsetWrapper : IBinaryConvertible, IChildOf<Parent> {
     public Parent Parent { get; set; }
 
     public uint Offset { get; set; }
@@ -68,7 +68,7 @@ namespace foo.bar {
     public byte Field { get; set; }
   }
 
-  public partial class Parent : IBiSerializable {
+  public partial class Parent : IBinaryConvertible {
     public OffsetWrapper Child { get; set; }
 
     public uint BaseLocation { get; set; }

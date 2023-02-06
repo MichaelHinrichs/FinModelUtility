@@ -18,7 +18,7 @@ namespace schema.binary.attributes.position {
   ///   </para>
   ///   <code>
   ///     [BinarySchema]
-  ///     public partial class SpecifiedSizeType : IBiSerializable {
+  ///     public partial class SpecifiedSizeType : IBinaryConvertible {
   ///       [Position]
   ///       private long StartPosition_ { get; set; }
   ///

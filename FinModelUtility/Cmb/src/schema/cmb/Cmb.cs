@@ -8,7 +8,7 @@ using schema.binary.attributes.endianness;
 
 namespace cmb.schema.cmb {
   [Endianness(Endianness.LittleEndian)]
-  public class Cmb : IDeserializable {
+  public class Cmb : IBinaryDeserializable {
     public long startOffset;
 
     public readonly CmbHeader header = new();

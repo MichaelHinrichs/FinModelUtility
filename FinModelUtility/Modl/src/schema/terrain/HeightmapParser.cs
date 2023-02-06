@@ -146,7 +146,7 @@ namespace modl.schema.terrain {
     }
 
     [BinarySchema]
-    private partial class SchemaTilemapDefinition : IBiSerializable {
+    private partial class SchemaTilemapDefinition : IBinaryConvertible {
       private readonly byte padding_ = 0;
 
       public byte Unknown { get; private set; }
@@ -155,7 +155,7 @@ namespace modl.schema.terrain {
     }
 
     [BinarySchema]
-    public partial class SchemaTile : IBiSerializable {
+    public partial class SchemaTile : IBinaryConvertible {
       public ushort[] Heights { get; } = new ushort[16];
 
       public Rgba32[] LightColors { get; } =
@@ -171,7 +171,7 @@ namespace modl.schema.terrain {
     }
 
     [BinarySchema]
-    public partial class TileUvs : IBiSerializable {
+    public partial class TileUvs : IBinaryConvertible {
       public ushort U { get; private set; }
       public ushort V { get; private set; }
     }

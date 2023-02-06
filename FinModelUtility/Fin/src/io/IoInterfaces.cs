@@ -50,8 +50,8 @@ namespace fin.io {
     string FullNameWithoutExtension { get; }
     string NameWithoutExtension { get; }
 
-    T ReadNew<T>() where T : IDeserializable, new();
-    T ReadNew<T>(Endianness endianness) where T : IDeserializable, new();
+    T ReadNew<T>() where T : IBinaryDeserializable, new();
+    T ReadNew<T>(Endianness endianness) where T : IBinaryDeserializable, new();
 
     byte[] ReadAllBytes();
     string ReadAllText();

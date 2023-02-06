@@ -6,7 +6,7 @@ using schema.binary.attributes.ignore;
 namespace Quad64.schema {
   [Endianness(SchemaConstants.SM64_ENDIANNESS)]
   [BinarySchema]
-  public partial class PresetMacroEntry : IBiSerializable {
+  public partial class PresetMacroEntry : IBinaryConvertible {
     [Ignore]
     public ushort PresetId { get; set; }
 

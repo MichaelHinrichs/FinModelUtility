@@ -4,7 +4,7 @@ using schema.binary.attributes.size;
 
 namespace j3d.schema.bmd {
   [BinarySchema]
-  public partial class BmdHeader : IBiSerializable {
+  public partial class BmdHeader : IBinaryConvertible {
     private readonly string magic_ = "J3D2bmd3";
 
     [SizeOfStreamInBytes]

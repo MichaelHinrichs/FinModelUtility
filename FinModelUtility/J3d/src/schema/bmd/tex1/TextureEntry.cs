@@ -33,7 +33,7 @@ namespace j3d.schema.bmd.tex1 {
   }
 
 
-  public class TextureEntry : IDeserializable {
+  public class TextureEntry : IBinaryDeserializable {
     private readonly long baseOffset_;
 
     // Do not modify any of these types or the order!

@@ -3,7 +3,7 @@
 
 namespace j3d.schema.bmd.mat3 {
   [BinarySchema]
-  public partial class MatIndirectTexturingEntry : IBiSerializable {
+  public partial class MatIndirectTexturingEntry : IBinaryConvertible {
     public byte Unknown0 { get; set; }
     public byte Unknown1 { get; set; }
     private readonly ushort padding_ = ushort.MaxValue;
@@ -21,14 +21,14 @@ namespace j3d.schema.bmd.mat3 {
   }
 
   [BinarySchema]
-  public partial class IndTexOrder : IBiSerializable {
+  public partial class IndTexOrder : IBinaryConvertible {
     public sbyte TexCoord { get; set; }
     public sbyte TexMap { get; set; }
     private readonly ushort padding_ = ushort.MaxValue;
   }
 
   [BinarySchema]
-  public partial class IndTexMatrix : IBiSerializable {
+  public partial class IndTexMatrix : IBinaryConvertible {
     public float[] OffsetMatrix { get; } = new float[2 * 3];
     public sbyte ScaleExponent { get; set; }
     private readonly byte padding1_ = 0xff;
@@ -37,14 +37,14 @@ namespace j3d.schema.bmd.mat3 {
   }
 
   [BinarySchema]
-  public partial class IndTexCoordScale : IBiSerializable {
+  public partial class IndTexCoordScale : IBinaryConvertible {
     public byte ScaleS { get; set; }
     public byte ScaleT { get; set; }
     private readonly ushort padding_ = ushort.MaxValue;
   }
 
   [BinarySchema]
-  public partial class TevIndirect : IBiSerializable {
+  public partial class TevIndirect : IBinaryConvertible {
     public byte TevStageId { get; set; }
     public byte IndTexFormat { get; set; }
     public byte IndTexBiasSel { get; set; }

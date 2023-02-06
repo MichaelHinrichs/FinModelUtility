@@ -10,7 +10,7 @@ using schema.binary.attributes.align;
 
 namespace foo.bar {
   [BinarySchema]
-  public partial class AlignWrapper : IBiSerializable {
+  public partial class AlignWrapper : IBinaryConvertible {
     [Align(0x2)]
     public byte Field { get; set; }
   }
@@ -47,7 +47,7 @@ using schema.binary.attributes.align;
 
 namespace foo.bar {
   [BinarySchema]
-  public partial class AlignWrapper : IBiSerializable {
+  public partial class AlignWrapper : IBinaryConvertible {
     [Align(0x2)]
     [ArrayLengthSource(SchemaIntegerType.UINT32)]
     public int[] Field { get; set; }

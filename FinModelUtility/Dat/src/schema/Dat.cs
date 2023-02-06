@@ -19,7 +19,7 @@ namespace dat.schema {
   // SObj: Scene object
   // TObj: texture
 
-  public class Dat : IDeserializable {
+  public class Dat : IBinaryDeserializable {
     private readonly List<RootNode> rootNodes_ = new();
     private readonly HashSet<uint> validOffsets_ = new();
 
@@ -311,7 +311,7 @@ namespace dat.schema {
   }
 
   [BinarySchema]
-  public partial class FileHeader : IBiSerializable {
+  public partial class FileHeader : IBinaryConvertible {
     public uint FileSize { get; set; }
     public uint DataBlockSize { get; set; }
 
@@ -345,7 +345,7 @@ namespace dat.schema {
   }
 
   [BinarySchema]
-  public partial class RootNodeData : IBiSerializable {
+  public partial class RootNodeData : IBinaryConvertible {
     public uint DataOffset { get; set; }
     public uint StringOffset { get; set; }
   }
@@ -406,7 +406,7 @@ namespace dat.schema {
   }
 
   [BinarySchema]
-  public partial class VertexDescriptorData : IBiSerializable {
+  public partial class VertexDescriptorData : IBinaryConvertible {
     public GxAttribute Attribute { get; set; }
 
     [IntegerFormat(SchemaIntegerType.UINT32)]

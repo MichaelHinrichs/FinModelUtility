@@ -4,7 +4,7 @@ using schema.binary;
 
 namespace cmb.schema.cmb {
   [BinarySchema]
-  public partial class BoundingBox : IBiSerializable {
+  public partial class BoundingBox : IBinaryConvertible {
     // M-1 checked all files, and Min/Max are the only values to ever change
     public uint unk0 { get; private set; }
     public uint unk1 { get; private set; }

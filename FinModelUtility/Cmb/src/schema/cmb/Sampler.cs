@@ -2,7 +2,7 @@
 
 namespace cmb.schema.cmb {
   [BinarySchema]
-  public partial class Sampler : IBiSerializable {
+  public partial class Sampler : IBinaryConvertible {
     [IntegerFormat(SchemaIntegerType.BYTE)]
     public bool isAbs { get; private set; }
     public sbyte index { get; private set; }

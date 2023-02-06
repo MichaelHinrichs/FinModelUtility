@@ -10,7 +10,7 @@ using schema.binary;
 
 namespace foo.bar {
   [BinarySchema]
-  public partial class NullableWrapper : IBiSerializable {
+  public partial class NullableWrapper : IBinaryConvertible {
     [IntegerFormat(SchemaIntegerType.BYTE)]
     public bool? Field1 { get; set; }
     public int? Field2 { get; set; }

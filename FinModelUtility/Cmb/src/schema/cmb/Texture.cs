@@ -2,7 +2,7 @@
 
 namespace cmb.schema.cmb {
   [BinarySchema]
-  public partial class Texture : IBiSerializable {
+  public partial class Texture : IBinaryConvertible {
     public uint dataLength { get; private set; }
     public ushort mimapCount { get; private set; }
 

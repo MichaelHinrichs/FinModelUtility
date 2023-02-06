@@ -4,7 +4,7 @@ using schema.binary;
 
 
 namespace granny3d {
-  public class GrannyAnimation : IGrannyAnimation, IDeserializable {
+  public class GrannyAnimation : IGrannyAnimation, IBinaryDeserializable {
     public string Name { get; private set; }
     public float Duration { get; private set; }
     public float TimeStep { get; private set; }
@@ -31,7 +31,7 @@ namespace granny3d {
     }
   }
 
-  public class GrannyTrackGroup : IGrannyTrackGroup, IDeserializable {
+  public class GrannyTrackGroup : IGrannyTrackGroup, IBinaryDeserializable {
     public string Name { get; private set; }
 
     public GrannyTransform InitialPlacement { get; } = new();
@@ -68,7 +68,7 @@ namespace granny3d {
     }
   }
 
-  public class GrannyVariant : IDeserializable {
+  public class GrannyVariant : IBinaryDeserializable {
     public void Read(IEndianBinaryReader er) {
       // TODO: type
       GrannyUtils.SubreadRef(

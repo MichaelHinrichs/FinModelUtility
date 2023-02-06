@@ -328,7 +328,7 @@ namespace schema.binary.text {
     private static void ReadGeneric_(
         ICurlyBracketTextWriter cbsb,
         ISchemaMember member) {
-      // TODO: Handle generic types beyond just IBiSerializable
+      // TODO: Handle generic types beyond just IBinaryConvertible
 
       var structureMemberType =
           Asserts.CastNonnull(member.MemberType as IStructureMemberType);

@@ -57,7 +57,7 @@ namespace uni.platforms.threeDs.tools {
   }
 
   [BinarySchema]
-  public partial class LzssHeader : IBiSerializable {
+  public partial class LzssHeader : IBinaryConvertible {
     private readonly string magic_ = "LzS" + AsciiUtil.GetChar(0x1);
     public uint Unknown { get; set; }
     public uint DecompressedSize { get; set; }

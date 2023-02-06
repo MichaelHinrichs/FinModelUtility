@@ -5,7 +5,7 @@ using schema.binary;
 
 
 namespace granny3d {
-  public class GrannySkeleton : IGrannySkeleton, IDeserializable {
+  public class GrannySkeleton : IGrannySkeleton, IBinaryDeserializable {
     public string Name { get; private set; }
     public IList<IGrannyBone> Bones { get; } = new List<IGrannyBone>();
     public int LodType { get; private set; }
@@ -22,7 +22,7 @@ namespace granny3d {
     }
   }
 
-  public class GrannyBone : IGrannyBone, IDeserializable {
+  public class GrannyBone : IGrannyBone, IBinaryDeserializable {
     public string Name { get; private set; }
     public int ParentIndex { get; private set; }
     public IGrannyTransform LocalTransform { get; } = new GrannyTransform();
