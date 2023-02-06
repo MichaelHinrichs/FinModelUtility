@@ -9,6 +9,7 @@ using uni.games.halo_wars;
 using uni.games.luigis_mansion;
 using uni.games.luigis_mansion_3d;
 using uni.games.mario_kart_double_dash;
+using uni.games.midnight_club_2;
 using uni.games.ocarina_of_time;
 using uni.games.ocarina_of_time_3d;
 using uni.games.paper_mario_the_thousand_year_door;
@@ -66,6 +67,11 @@ namespace uni.cli {
         HelpText = "Extract models from Mario Kart: Double Dash.")]
   public class MarioKartDoubleDashOptions
       : IExtractorOptions<MarioKartDoubleDashExtractor> { }
+
+  [Verb("midnight_club_2",
+        HelpText = "Extract models from Midnight Club 2.")]
+  public class MidnightClub2Options
+      : IExtractorOptions<MidnightClub2Extractor> { }
 
   [Verb("ocarina_of_time", HelpText = "Extract models from Ocarina of Time.")]
   public class OcarinaOfTimeOptions

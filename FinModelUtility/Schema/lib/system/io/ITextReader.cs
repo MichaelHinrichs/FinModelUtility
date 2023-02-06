@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+﻿using schema.text;
 
 namespace System.IO {
   public interface ITextReader : IDataReader {
@@ -7,6 +7,8 @@ namespace System.IO {
     string ReadUpToStartOfTerminator(params string[] terminators);
     string ReadUpToAndPastTerminator(params string[] terminators);
     string ReadWhile(params string[] matches);
+    void IgnoreOnceIfPresent(params string[] matches);
+    void IgnoreManyIfPresent(params string[] matches);
 
     byte[] ReadBytes(string[] separators, string[] terminators);
     void AssertHexByte(byte expectedValue);
@@ -52,5 +54,12 @@ namespace System.IO {
     double[] ReadDoubles(string[] separators, string[] terminators);
 
     string[] ReadStrings(string[] separators, string[] terminators);
+
+    T ReadNew<T>() where T : ITextDeserializable, new();
+
+    bool TryReadNew<T>(out T? value) where T : ITextDeserializable, new();
+
+    void ReadNewArray<T>(out T[] array, int length)
+        where T : ITextDeserializable, new();
   }
 }

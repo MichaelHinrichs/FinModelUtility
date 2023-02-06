@@ -12,6 +12,7 @@ using uni.games.halo_wars;
 using uni.games.luigis_mansion_3d;
 using uni.games.majoras_mask_3d;
 using uni.games.mario_kart_double_dash;
+using uni.games.midnight_club_2;
 using uni.games.ocarina_of_time_3d;
 using uni.games.pikmin_1;
 using uni.games.pikmin_2;
@@ -35,6 +36,7 @@ namespace uni.games {
           new LuigisMansion3dModelFileGatherer(),
           new MajorasMask3dFileGatherer(),
           new MarioKartDoubleDashFileGatherer(),
+          new MidnightClub2FileGatherer(),
           new OcarinaOfTime3dFileGatherer(),
           new Pikmin1ModelFileGatherer(),
           new Pikmin2FileGatherer(),

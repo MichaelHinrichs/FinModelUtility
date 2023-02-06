@@ -40,6 +40,10 @@
       "commandName": "Project",
       "commandLineArgs": "mario_kart_double_dash"
     },
+    "Midnight Club 2": {
+      "commandName": "Project",
+      "commandLineArgs": "midnight_club_2"
+    },
     "Ocarina of Time": {
       "commandName": "Project",
       "commandLineArgs": "ocarina_of_time"

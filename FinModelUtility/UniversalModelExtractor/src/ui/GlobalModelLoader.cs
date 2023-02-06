@@ -8,6 +8,7 @@ using level5.api;
 using mod.cli;
 using modl.api;
 using sm64.api;
+using xmod.api;
 
 
 namespace uni.ui {
@@ -32,6 +33,8 @@ namespace uni.ui {
               => new Sm64LevelModelLoader().LoadModel(sm64LevelModelFileBundle),
           XcModelFileBundle xcModelFileBundle
               => new XcModelLoader().LoadModel(xcModelFileBundle),
+          XmodModelFileBundle xmodModelFileBundle
+              => new XmodModelLoader().LoadModel(xmodModelFileBundle),
           _ => throw new ArgumentOutOfRangeException(nameof(modelFileBundle))
       };
   }

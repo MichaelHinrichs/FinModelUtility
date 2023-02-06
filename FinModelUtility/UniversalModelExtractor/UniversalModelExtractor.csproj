@@ -65,6 +65,7 @@
     <ProjectReference Include="..\Mod\Mod.csproj" />
     <ProjectReference Include="..\Modl\Modl.csproj" />
     <ProjectReference Include="..\Quad64\Quad64.csproj" />
+    <ProjectReference Include="..\Xmod\Xmod.csproj" />
   </ItemGroup>
 
   <ItemGroup>

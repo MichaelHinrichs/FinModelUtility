@@ -1,4 +1,6 @@
-﻿namespace System.IO {
+﻿using schema.text;
+
+namespace System.IO {
   public sealed partial class FinTextReader : ITextReader {
     private readonly Stream baseStream_;
 
@@ -22,5 +24,32 @@
 
     public long Length => this.baseStream_.Length;
     public bool Eof => this.Position >= this.Length;
+
+
+    public T ReadNew<T>() where T : ITextDeserializable, new() {
+      var value = new T();
+      value.Read(this);
+      return value;
+    }
+
+    public bool TryReadNew<T>(out T? value) where T : ITextDeserializable, new() {
+      var originalPosition = this.Position;
+      try {
+        value = this.ReadNew<T>();
+        return true;
+      } catch {
+        this.Position = originalPosition;
+        value = default;
+        return false;
+      }
+    }
+
+    public void ReadNewArray<T>(out T[] array, int length)
+        where T : ITextDeserializable, new() {
+      array = new T[length];
+      for (var i = 0; i < length; ++i) {
+        array[i] = this.ReadNew<T>();
+      }
+    }
   }
 }
