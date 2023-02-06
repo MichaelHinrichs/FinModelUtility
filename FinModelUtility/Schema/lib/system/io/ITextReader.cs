@@ -4,7 +4,8 @@ namespace System.IO {
   public interface ITextReader : IDataReader {
     bool Matches(out string text, params string[] matches);
 
-    string ReadUpTo(params string[] terminators);
+    string ReadUpToStartOfTerminator(params string[] terminators);
+    string ReadUpToAndPastTerminator(params string[] terminators);
     string ReadWhile(params string[] matches);
 
     byte[] ReadBytes(string[] separators, string[] terminators);
@@ -49,5 +50,7 @@ namespace System.IO {
 
     float[] ReadSingles(string[] separators, string[] terminators);
     double[] ReadDoubles(string[] separators, string[] terminators);
+
+    string[] ReadStrings(string[] separators, string[] terminators);
   }
 }

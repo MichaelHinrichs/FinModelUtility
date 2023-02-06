@@ -41,5 +41,6 @@
 
     void AssertString(string expectedValue);
     string ReadString(long count);
+    string ReadLine();
   }
 }

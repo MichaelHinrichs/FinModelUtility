@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.RegularExpressions;
 
 namespace System.IO {
   public sealed partial class FinTextReader {
@@ -22,7 +23,7 @@ namespace System.IO {
       return false;
     }
 
-    public string ReadUpTo(params string[] terminators) {
+    public string ReadUpToStartOfTerminator(params string[] terminators) {
       var sb = new StringBuilder();
 
       while (!Eof) {
@@ -34,7 +35,22 @@ namespace System.IO {
         }
       }
 
-      this.ReadWhile(terminators);
+      return sb.ToString();
+    }
+
+    public string ReadUpToAndPastTerminator(params string[] terminators) {
+      var sb = new StringBuilder();
+
+      while (!Eof) {
+        if (!Matches(out var text, terminators)) {
+          sb.Append(this.ReadChar());
+        } else {
+          this.Position -= text.Length;
+          break;
+        }
+      }
+
+      this.IgnoreOnceIfPresent(terminators);
 
       return sb.ToString();
     }
@@ -48,5 +64,12 @@ namespace System.IO {
 
       return sb.ToString();
     }
+
+    public void IgnoreManyIfPresent(params string[] matches) {
+      while (Matches(out _, matches)) { }
+    }
+
+    public void IgnoreOnceIfPresent(params string[] matches)
+      => Matches(out _, matches);
   }
 }

@@ -31,5 +31,13 @@ namespace System.IO {
 
       return sb.ToString();
     }
+
+    public string[] ReadStrings(string[] separators, string[] terminators)
+      => this.ReadSplitUpToAndPastTerminators_(separators, terminators)
+             .ToArray();
+
+
+    public string ReadLine()
+      => this.ReadUpToAndPastTerminator(TextReaderConstants.NEWLINE_STRINGS);
   }
 }

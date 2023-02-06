@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Linq;
+﻿using System.Linq;
 
 using schema.binary.util;
 
@@ -49,7 +48,8 @@ namespace System.IO {
     public void AssertHexUInt64(ulong expectedValue)
       => Asserts.Equal(expectedValue, this.ReadHexUInt64());
 
-    public ulong ReadHexUInt64() => this.ConvertHexUInt64_(this.ReadHexChars_());
+    public ulong ReadHexUInt64()
+      => this.ConvertHexUInt64_(this.ReadHexChars_());
 
 
     private static readonly string[] hexSpecifierMatches_ = { "0x", "0X" };
@@ -62,7 +62,8 @@ namespace System.IO {
             .ToArray();
 
     private string ReadHexChars_() {
-      Matches(out _, hexSpecifierMatches_);
+      IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
+      IgnoreOnceIfPresent(hexSpecifierMatches_);
       return this.ReadWhile(FinTextReader.hexMatches);
     }
   }
