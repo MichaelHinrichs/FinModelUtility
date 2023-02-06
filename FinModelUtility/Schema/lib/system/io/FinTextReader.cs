@@ -45,11 +45,16 @@ namespace System.IO {
     }
 
     public void ReadNewArray<T>(out T[] array, int length)
+        where T : ITextDeserializable, new()
+      => array = ReadNewArray<T>(length);
+
+    public T[] ReadNewArray<T>(int length)
         where T : ITextDeserializable, new() {
-      array = new T[length];
+      var array = new T[length];
       for (var i = 0; i < length; ++i) {
         array[i] = this.ReadNew<T>();
       }
+      return array;
     }
   }
 }

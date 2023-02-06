@@ -4,12 +4,14 @@ namespace xmod.schema {
   public class Material : ITextDeserializable {
     public string Name { get; set; }
 
+    public int NumPackets { get; set; }
+
     public void Read(ITextReader tr) {
       tr.AssertString("mtl ");
 
       this.Name = tr.ReadUpToAndPastTerminator(" {");
 
-      TextReaderUtils.ReadKeyValueNumber<int>(tr, "packets");
+      this.NumPackets = TextReaderUtils.ReadKeyValueNumber<int>(tr, "packets");
       TextReaderUtils.ReadKeyValueNumber<int>(tr, "primitives");
       TextReaderUtils.ReadKeyValueNumber<int>(tr, "textures");
       TextReaderUtils.ReadKeyValue(tr, "illum");

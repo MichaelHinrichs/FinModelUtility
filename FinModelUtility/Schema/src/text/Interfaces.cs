@@ -2,7 +2,7 @@
 
 namespace schema.text {
   public interface ITextDeserializable {
-    void Read(ITextReader er);
+    void Read(ITextReader tr);
   }
 
   public interface ITextConvertible : ITextDeserializable { }

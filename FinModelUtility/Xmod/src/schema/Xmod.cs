@@ -1,9 +1,14 @@
-﻿using System.Numerics;
-
-using schema.text;
+﻿using schema.text;
 
 namespace xmod.schema {
   public class Xmod : ITextDeserializable {
+    public IReadOnlyList<Vector3> Positions { get; set; }
+    public IReadOnlyList<Vector3> Normals { get; set; }
+    public IReadOnlyList<Vector4> Colors { get; set; }
+    public IReadOnlyList<Vector2> Uv1s { get; set; }
+    public IReadOnlyList<Material> Materials { get; set; }
+    public IReadOnlyList<Packet> Packets { get; set; }
+
     public void Read(ITextReader tr) {
       var version = TextReaderUtils.ReadKeyValue(tr, "version");
 
@@ -25,23 +30,26 @@ namespace xmod.schema {
       var numReskins = TextReaderUtils.ReadKeyValueNumber<int>(tr, "reskins");
       tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
 
-      var vertices = TextReaderUtils.ReadInstances<Vector3>(tr, "v", numVertices);
+      this.Positions = TextReaderUtils.ReadInstances<Vector3>(tr, "v", numVertices);
       tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
 
-      var normals = TextReaderUtils.ReadInstances<Vector3>(tr, "n", numNormals);
+      this.Normals = TextReaderUtils.ReadInstances<Vector3>(tr, "n", numNormals);
       tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
 
-      var colors = TextReaderUtils.ReadInstances<Vector4>(tr, "c", numColors);
+      this.Colors = TextReaderUtils.ReadInstances<Vector4>(tr, "c", numColors);
       tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
 
-      var uv1s =
+      this.Uv1s =
           TextReaderUtils.ReadInstances<Vector2>(tr, "t1", numUv1s);
       tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
       var uv2s =
           TextReaderUtils.ReadInstances<Vector2>(tr, "t2", numUv2s);
       tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
 
-      tr.ReadNewArray<Material>(out var materials, numMaterials);
+      this.Materials = tr.ReadNewArray<Material>(numMaterials);
+
+      var numPackets = Materials.Select(material => material.NumPackets).Sum();
+      this.Packets = tr.ReadNewArray<Packet>(numPackets);
     }
   }
 }

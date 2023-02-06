@@ -110,7 +110,7 @@ namespace System.IO {
         return Array.Empty<string>();
       }
 
-      return match.Split(separators, StringSplitOptions.None);
+      return match.Split(separators, StringSplitOptions.RemoveEmptyEntries);
     }
 
     private T[] ConvertSplitUpToAndPastTerminators_<T>(
@@ -118,6 +118,23 @@ namespace System.IO {
         string[] terminators,
         Func<string, T> converter)
       => this.ReadSplitUpToAndPastTerminators_(separators, terminators)
+             .Select(t => {
+               var start = 0;
+
+               int i;
+               for (i = 0; i < t.Length; ++i) {
+                 var c = t[i];
+                 if (c == '\t' || c == ' ' || c == '\r' || c == '\n') {
+                   start++;
+                 }
+               }
+               if (t.Length - start == 0) {
+                 return null;
+               }
+
+               return start == 0 ? t : t.Substring(start);
+             })
+             .Where(text => text != null)
              .Select(converter)
              .ToArray();
 
@@ -129,20 +146,26 @@ namespace System.IO {
              .Select(t => {
                var start = 0;
 
-               for (var i = 0; i < t.Length; ++i) {
+               int i;
+               for (i = 0; i < t.Length; ++i) {
                  var c = t[i];
                  if (c == '\t' || c == ' ' || c == '\r' || c == '\n') {
                    start++;
                  } else {
-                   if (c == '0' && i < t.Length - 1 && t[i + 1] == 'x') {
-                     start += 2;
-                   }
                    break;
                  }
+               }
+               if (t.Length - start == 0) {
+                 return null;
+               }
+
+               if (t[i] == '0' && i < t.Length - 1 && t[i + 1] == 'x') {
+                 start += 2;
                }
 
                return start == 0 ? t : t.Substring(start);
              })
+             .Where(text => text != null)
              .Select(converter)
              .ToArray();
   }

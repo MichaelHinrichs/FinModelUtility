@@ -33,7 +33,7 @@ namespace System.IO {
     }
 
     public string[] ReadStrings(string[] separators, string[] terminators)
-      => this.ReadSplitUpToAndPastTerminators_(separators, terminators)
+      => this.ReadSplitUpToAndPastTerminatorsIncludingEmpty_(separators, terminators)
              .ToArray();
 
 
