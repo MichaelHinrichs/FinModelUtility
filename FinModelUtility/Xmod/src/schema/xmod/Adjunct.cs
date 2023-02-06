@@ -1,13 +1,14 @@
 ﻿using schema.binary.util;
 using schema.text;
 
-namespace xmod.schema {
+namespace xmod.schema.xmod {
 
   public class Adjunct : ITextDeserializable {
     public int PositionIndex { get; set; }
     public int NormalIndex { get; set; }
     public int ColorIndex { get; set; }
     public int Uv1Index { get; set; }
+    public int MatrixIndex { get; set; }
 
     public void Read(ITextReader tr) {
       tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
@@ -24,8 +25,7 @@ namespace xmod.schema {
       // TODO: This might not be correct
       var uv2Index = indices[4];
 
-      // TODO: This might not be correct
-      var tangentIndex = indices[5];
+      MatrixIndex = indices[5];
 
       tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
     }

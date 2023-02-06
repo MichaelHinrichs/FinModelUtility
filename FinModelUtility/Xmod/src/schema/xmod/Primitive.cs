@@ -1,9 +1,9 @@
 ﻿using schema.text;
 
-namespace xmod.schema {
+namespace xmod.schema.xmod {
   public enum PrimitiveType {
-    TRIANGLE_STRIP_2,
-    TRIANGLE_STRIP_1,
+    TRIANGLE_STRIP,
+    TRIANGLE_STRIP_REVERSED,
     TRIANGLES,
   }
 
@@ -15,8 +15,8 @@ namespace xmod.schema {
       tr.IgnoreManyIfPresent(TextReaderConstants.WHITESPACE_STRINGS);
 
       this.Type = tr.ReadString(3) switch {
-        "stp" => PrimitiveType.TRIANGLE_STRIP_1,
-        "str" => PrimitiveType.TRIANGLE_STRIP_2,
+        "stp" => PrimitiveType.TRIANGLE_STRIP,
+        "str" => PrimitiveType.TRIANGLE_STRIP_REVERSED,
         "tri" => PrimitiveType.TRIANGLES,
       };
 

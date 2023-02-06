@@ -17,4 +17,9 @@
     <ProjectReference Include="..\HaloWarsTools\HaloWarsTools.csproj" />
     <ProjectReference Include="..\Schema\Schema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="src\schema\anim\" />
+    <Folder Include="src\schema\skel\" />
+  </ItemGroup>
 </Project>

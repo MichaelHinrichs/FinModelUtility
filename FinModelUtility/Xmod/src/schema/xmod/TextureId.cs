@@ -1,6 +1,6 @@
 ﻿using schema.text;
 
-namespace xmod.schema {
+namespace xmod.schema.xmod {
   public class TextureId : ITextDeserializable {
     public int Index { get; set; }
     public string Name { get; set; }

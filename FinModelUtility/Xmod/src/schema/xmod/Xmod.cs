@@ -1,6 +1,8 @@
 ﻿using schema.text;
 
-namespace xmod.schema {
+using xmod.schema;
+
+namespace xmod.schema.xmod {
   public class Xmod : ITextDeserializable {
     public IReadOnlyList<Vector3> Positions { get; set; }
     public IReadOnlyList<Vector3> Normals { get; set; }

@@ -15,10 +15,10 @@ using Pfim;
 
 using SixLabors.ImageSharp.PixelFormats;
 
-using xmod.schema;
+using xmod.schema.xmod;
 
 using IImage = fin.image.IImage;
-using PrimitiveType = xmod.schema.PrimitiveType;
+using PrimitiveType = xmod.schema.xmod.PrimitiveType;
 
 
 namespace xmod.api {
@@ -171,15 +171,14 @@ namespace xmod.api {
                              PrimitiveType.TRIANGLES => 0,
                              _                       => 1,
                          })
-                         .Select(vertexIndex => packetVertices[vertexIndex])
-                         .ToArray();
+                         .Select(vertexIndex => packetVertices[vertexIndex]);
             var finPrimitive = primitive.Type switch {
-                PrimitiveType.TRIANGLE_STRIP_1 => finMesh.AddTriangleStrip(
-                    primitiveVertices),
-                PrimitiveType.TRIANGLE_STRIP_2 => finMesh.AddTriangleStrip(
-                    primitiveVertices),
+                PrimitiveType.TRIANGLE_STRIP => finMesh.AddTriangleStrip(
+                    primitiveVertices.ToArray()),
+                PrimitiveType.TRIANGLE_STRIP_REVERSED => finMesh.AddTriangleStrip(
+                    primitiveVertices.Reverse().ToArray()),
                 PrimitiveType.TRIANGLES =>
-                    finMesh.AddTriangles(primitiveVertices),
+                    finMesh.AddTriangles(primitiveVertices.ToArray()),
             };
 
             finPrimitive.SetMaterial(finMaterial);
