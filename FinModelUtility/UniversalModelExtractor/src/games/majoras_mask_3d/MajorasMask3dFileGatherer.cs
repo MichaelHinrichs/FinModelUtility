@@ -4,11 +4,13 @@ using uni.util.io;
 using uni.util.separator;
 
 using cmb.api;
+
+using fin.io;
 using fin.io.bundles;
 
 
 namespace uni.games.majoras_mask_3d {
-  public class MajorasMask3dFileGatherer 
+  public class MajorasMask3dFileGatherer
       : IFileBundleGatherer<CmbModelFileBundle> {
     private readonly IModelSeparator separator_
         = new ModelSeparator(directory => directory.Name)
@@ -49,7 +51,8 @@ namespace uni.games.majoras_mask_3d {
         bool assert) {
       var majorasMask3dRom =
           DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
-              "majoras_mask_3d.cia", assert);
+              "majoras_mask_3d.cia",
+              assert);
       if (majorasMask3dRom == null) {
         return null;
       }
@@ -60,6 +63,10 @@ namespace uni.games.majoras_mask_3d {
 
       return new FileHierarchyBundler<CmbModelFileBundle>(
           subdir => {
+            if (subdir.Name == "zelda2_link_child_new") {
+              return new[] {GetLinkModel_(fileHierarchy, subdir)};
+            }
+
             if (!separator_.Contains(subdir)) {
               return null;
             }
@@ -90,6 +97,18 @@ namespace uni.games.majoras_mask_3d {
             }
           }
       ).GatherBundles(fileHierarchy);
+    }
+
+    private CmbModelFileBundle GetLinkModel_(IFileHierarchy root,
+                                             IFileHierarchyDirectory subdir) {
+      var cmbFile = subdir.Files.Single(file => file.Name == "link_child.cmb");
+      return new CmbModelFileBundle(
+          cmbFile,
+          root.Root.TryToGetSubdir("actors/zelda2_link_new")
+              .FilesWithExtension(".csab")
+              .ToArray(),
+          null,
+          null);
     }
   }
 }
