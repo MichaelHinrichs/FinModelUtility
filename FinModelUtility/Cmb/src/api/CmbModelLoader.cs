@@ -126,70 +126,33 @@ namespace cmb.api {
         foreach (var (boneIndex, anod) in csab.BoneIndexToAnimationNode) {
           var boneTracks = finAnimation.AddBoneTracks(finBones[boneIndex]);
 
-          foreach (var translationX in anod.TranslationX.Keyframes) {
-            boneTracks.Positions.Set((int)translationX.Time,
-                                     0,
-                                     translationX.Value,
-                                     translationX.IncomingTangent,
-                                     translationX.OutgoingTangent);
-          }
-          foreach (var translationY in anod.TranslationY.Keyframes) {
-            boneTracks.Positions.Set((int)translationY.Time,
-                                     1,
-                                     translationY.Value,
-                                     translationY.IncomingTangent,
-                                     translationY.OutgoingTangent);
-          }
-          foreach (var translationZ in anod.TranslationZ.Keyframes) {
-            boneTracks.Positions.Set((int)translationZ.Time,
-                                     2,
-                                     translationZ.Value,
-                                     translationZ.IncomingTangent,
-                                     translationZ.OutgoingTangent);
-          }
+          for (var i = 0; i < 3; ++i) {
+            var translationAxis = anod.TranslationAxes[i];
+            foreach (var translation in translationAxis.Keyframes) {
+              boneTracks.Positions.Set((int) translation.Time,
+                                       i,
+                                       translation.Value,
+                                       translation.IncomingTangent,
+                                       translation.OutgoingTangent);
+            }
 
-          foreach (var scaleX in anod.ScaleX.Keyframes) {
-            boneTracks.Scales.Set((int)scaleX.Time,
-                                  0,
-                                  scaleX.Value,
-                                  scaleX.IncomingTangent,
-                                  scaleX.OutgoingTangent);
-          }
-          foreach (var scaleY in anod.ScaleY.Keyframes) {
-            boneTracks.Scales.Set((int)scaleY.Time,
-                                  1,
-                                  scaleY.Value,
-                                  scaleY.IncomingTangent,
-                                  scaleY.OutgoingTangent);
-          }
-          foreach (var scaleZ in anod.ScaleZ.Keyframes) {
-            boneTracks.Scales.Set((int)scaleZ.Time,
-                                  2,
-                                  scaleZ.Value,
-                                  scaleZ.IncomingTangent,
-                                  scaleZ.OutgoingTangent);
-          }
+            var rotationAxis = anod.RotationAxes[i];
+            foreach (var rotation in rotationAxis.Keyframes) {
+              boneTracks.Rotations.Set((int) rotation.Time,
+                                       i,
+                                       rotation.Value,
+                                       rotation.IncomingTangent,
+                                       rotation.OutgoingTangent);
+            }
 
-          foreach (var rotationX in anod.RotationX.Keyframes) {
-            boneTracks.Rotations.Set((int)rotationX.Time,
-                                     0,
-                                     rotationX.Value,
-                                     rotationX.IncomingTangent,
-                                     rotationX.OutgoingTangent);
-          }
-          foreach (var rotationY in anod.RotationY.Keyframes) {
-            boneTracks.Rotations.Set((int)rotationY.Time,
-                                     1,
-                                     rotationY.Value,
-                                     rotationY.IncomingTangent,
-                                     rotationY.OutgoingTangent);
-          }
-          foreach (var rotationZ in anod.RotationZ.Keyframes) {
-            boneTracks.Rotations.Set((int)rotationZ.Time,
-                                     2,
-                                     rotationZ.Value,
-                                     rotationZ.IncomingTangent,
-                                     rotationZ.OutgoingTangent);
+            var scaleAxis = anod.ScaleAxes[i];
+            foreach (var scale in scaleAxis.Keyframes) {
+              boneTracks.Scales.Set((int) scale.Time,
+                                       i,
+                                       scale.Value,
+                                       scale.IncomingTangent,
+                                       scale.OutgoingTangent);
+            }
           }
         }
       }
