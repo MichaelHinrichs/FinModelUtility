@@ -37,6 +37,7 @@ Model viewer and command-line tools for extracting models from games en-masse. S
 - [@NerduMiner](https://github.com/NerduMiner), whose [Pikmin1Toolset](https://github.com/NerduMiner/Pikmin1Toolset) was ported from C++ to C# to add texture support for Pikmin 1.
 - [@nickbabcock](https://github.com/nickbabcock), whose [Pfim](https://github.com/nickbabcock/Pfim) library is used to extract the contents of .dds images.
 - [@nico](https://github.com/nico), AKA thakis, whose [szstools](http://amnoid.de/gc/) CLI is used to extract the contents of GameCube .isos and their [ddsview](http://www.amnoid.de/ddsview/index.html) tool was referenced to fix Halo Wars DXT5A/ATI1/BC4 parsing.
+- [@Nominom](https://github.com/Nominom), whose [BCnEncoder.NET](https://github.com/Nominom/BCnEncoder.NET) library is used to parse DXT1/3/5 images.
 - [@Ploaj](https://github.com/Ploaj), whose [HSDLib](https://github.com/Ploaj/HSDLib) library was heavily referenced to fix the Super Smash Bros. Melee DAT importer and [Metanoia](https://github.com/Ploaj/Metanoia) library was heavily referenced to add support for parsing Level 5 formats. 
 - [@revel8n](https://github.com/revel8n), whose [Smashboards thread](https://smashboards.com/threads/melee-dat-format.292603/) was referenced to add support for the .dat importer.
 - [@RenolY2](https://github.com/RenolY2), AKA Yoshi2, whose [bw-model-viewer](https://github.com/RenolY2/bw-model-viewer) tool was used as the basis for the .modl importer.
