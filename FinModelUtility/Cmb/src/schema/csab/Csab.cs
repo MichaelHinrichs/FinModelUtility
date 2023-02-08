@@ -30,11 +30,10 @@ namespace cmb.schema.csab {
 
       r.AssertUInt32(0x00);
 
+      float[] unk;
       if (IsPastVersion4) {
         // M-1: Min or max?
-        r.ReadSingle();
-        r.ReadSingle();
-        r.ReadSingle();
+        unk = r.ReadSingles(3);
       }
 
       // Num animations?

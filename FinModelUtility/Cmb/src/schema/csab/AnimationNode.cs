@@ -13,17 +13,17 @@ namespace cmb.schema.csab {
 
       this.TranslationAxes = Enumerable.Range(0, 3)
                                        .Select(_ => new CsabTrack(parent) {
-                                         ValueType = TrackType.POSITION
+                                           ValueType = TrackType.POSITION
                                        })
                                        .ToArray();
       this.RotationAxes = Enumerable.Range(0, 3)
                                     .Select(_ => new CsabTrack(parent) {
-                                      ValueType = TrackType.ROTATION
+                                        ValueType = TrackType.ROTATION
                                     })
                                     .ToArray();
       this.ScaleAxes = Enumerable.Range(0, 3)
                                  .Select(_ => new CsabTrack(parent) {
-                                   ValueType = TrackType.SCALE
+                                     ValueType = TrackType.SCALE
                                  })
                                  .ToArray();
     }
@@ -43,14 +43,8 @@ namespace cmb.schema.csab {
 
       this.BoneIndex = r.ReadUInt16();
 
-      bool isRotationShort;
-      if (IsPastVersion4) {
-        isRotationShort = r.ReadByte() != 0;
-        var unk = r.ReadByte();
-      } else {
-        isRotationShort = r.ReadUInt16() != 0;
-      }
-
+      var isRotationShort = r.ReadUInt16() != 0;
+      
       foreach (var translationAxis in TranslationAxes) {
         var offset = r.ReadUInt16();
         if (offset != 0) {

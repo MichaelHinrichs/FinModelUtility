@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 using schema.binary;
 
@@ -44,8 +45,7 @@ namespace cmb.schema.csab {
             var value = r.ReadUInt32();
 
             this.Keyframes[i] = new CsabKeyframe {
-              Time = (uint) i,
-              Value = value * scale - bias,
+                Time = (uint) i, Value = ApplyScaleAndBias_(value, scale, bias),
             };
           }
 
@@ -67,24 +67,24 @@ namespace cmb.schema.csab {
 
       for (var i = 0; i < this.Keyframes.Count; ++i) {
         this.Keyframes[i] = this.Type switch {
-          AnimationTrackType.LINEAR when !this.AreRotationsShort
-              => this.ReadKeyframeLinearFloat_(
-                  r,
-                  trackScale,
-                  trackBias,
-                  startFrame,
-                  i),
-          AnimationTrackType.LINEAR when this.AreRotationsShort
-              => this.ReadKeyframeLinearShort_(
-                  r,
-                  trackScale,
-                  trackBias,
-                  startFrame,
-                  i),
-          AnimationTrackType.HERMITE when !this.AreRotationsShort
-              => this.ReadKeyframeHermiteFloat_(r, startFrame),
-          AnimationTrackType.HERMITE when this.AreRotationsShort
-              => this.ReadKeyframeHermiteShort_(r, startFrame),
+            AnimationTrackType.LINEAR when !this.AreRotationsShort
+                => this.ReadKeyframeLinearFloat_(
+                    r,
+                    trackScale,
+                    trackBias,
+                    startFrame,
+                    i),
+            AnimationTrackType.LINEAR when this.AreRotationsShort
+                => this.ReadKeyframeLinearShort_(
+                    r,
+                    trackScale,
+                    trackBias,
+                    startFrame,
+                    i),
+            AnimationTrackType.HERMITE when !this.AreRotationsShort
+                => this.ReadKeyframeHermiteFloat_(r, startFrame),
+            AnimationTrackType.HERMITE when this.AreRotationsShort
+                => this.ReadKeyframeHermiteShort_(r, startFrame),
         };
       }
 
@@ -98,23 +98,21 @@ namespace cmb.schema.csab {
         int startFrame,
         int index) {
       if (IsPastVersion4) {
-        // TODO: Is this right????
         var raw = this.ValueType switch {
-          TrackType.POSITION => (int) er.ReadUInt16(),
-          TrackType.SCALE => (int) er.ReadInt16(),
-          TrackType.ROTATION => (int) er.ReadInt16(),
+            // Weird that this is different, but this really does seem to be right.
+            TrackType.POSITION => (int) er.ReadUInt16() / 2,
+            TrackType.SCALE    => (int) er.ReadInt16(),
+            TrackType.ROTATION => (int) er.ReadInt16(),
         };
 
-        var value = raw * trackScale - trackBias;
+        var value = ApplyScaleAndBias_(raw, trackScale, trackBias);
         return new CsabKeyframe {
-          Time = (uint) (startFrame + index),
-          Value = value,
+            Time = (uint) (startFrame + index), Value = value,
         };
       }
 
       return new CsabKeyframe {
-        Time = (uint) (startFrame + er.ReadUInt32()),
-        Value = er.ReadSingle(),
+          Time = (uint) (startFrame + er.ReadUInt32()), Value = er.ReadSingle(),
       };
     }
 
@@ -127,40 +125,42 @@ namespace cmb.schema.csab {
       if (IsPastVersion4) {
         // TODO: Is this right????
         var raw = this.ValueType switch {
-          TrackType.POSITION => (int) er.ReadUInt16(),
-          TrackType.SCALE => (int) er.ReadInt16(),
-          TrackType.ROTATION => (int) er.ReadInt16(),
+            TrackType.POSITION => (int) er.ReadUInt16(),
+            TrackType.SCALE    => (int) er.ReadInt16(),
+            TrackType.ROTATION => (int) er.ReadInt16(),
         };
 
-        var value = raw * trackScale - trackBias;
+        var value = ApplyScaleAndBias_(raw, trackScale, trackBias);
         return new CsabKeyframe {
-          Time = (uint) (startFrame + index),
-          Value = value,
+            Time = (uint) (startFrame + index), Value = value,
         };
       }
 
       return new CsabKeyframe {
-        Time = (uint) (startFrame + er.ReadUInt16()),
-        Value = er.ReadSn16(),
+          Time = (uint) (startFrame + er.ReadUInt16()), Value = er.ReadSn16(),
       };
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private float ApplyScaleAndBias_(float value, float scale, float bias)
+      => value * scale - bias;
 
     private CsabKeyframe ReadKeyframeHermiteFloat_(IEndianBinaryReader er,
                                                    int startFrame)
       => new CsabKeyframe {
-        Time = (uint) (startFrame + er.ReadUInt32()),
-        Value = er.ReadSingle(),
-        IncomingTangent = er.ReadSingle(),
-        OutgoingTangent = er.ReadSingle(),
+          Time = (uint) (startFrame + er.ReadUInt32()),
+          Value = er.ReadSingle(),
+          IncomingTangent = er.ReadSingle(),
+          OutgoingTangent = er.ReadSingle(),
       };
 
     private CsabKeyframe ReadKeyframeHermiteShort_(IEndianBinaryReader er,
                                                    int startFrame)
       => new CsabKeyframe {
-        Time = (uint) (startFrame + er.ReadUInt16()),
-        Value = er.ReadSn16(),
-        IncomingTangent = er.ReadSn16(),
-        OutgoingTangent = er.ReadSn16(),
+          Time = (uint) (startFrame + er.ReadUInt16()),
+          Value = er.ReadSn16(),
+          IncomingTangent = er.ReadSn16(),
+          OutgoingTangent = er.ReadSn16(),
       };
   }
 }
