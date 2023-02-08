@@ -1,17 +1,11 @@
-﻿using System.Runtime.CompilerServices;
-
-using BCnEncoder.Decoder;
+﻿using BCnEncoder.Decoder;
 using BCnEncoder.Shared;
-
-using Dxt;
 
 using fin.color;
 using fin.image;
 using fin.io;
 using fin.model;
 using fin.model.impl;
-
-using Pfim;
 
 using SixLabors.ImageSharp.PixelFormats;
 
@@ -53,82 +47,11 @@ namespace xmod.api {
           var textureId = textureIds[0];
           var textureName = textureId.Name;
 
-          var textureFile = modelFileBundle
-                            .XmodFile.Root.Impl.GetSubdir("texture_x")
-                            .SearchForFiles($"{textureName}.tex", true)
-                            .Single();
-
-          using var er = new EndianBinaryReader(textureFile.OpenRead());
-          var width = er.ReadUInt16();
-          var height = er.ReadUInt16();
-          var dxtType = er.ReadUInt16();
-
-          ColorRgba32[] loadedDxt;
-
-          IImage image;
-          switch (dxtType) {
-            // DXT1
-            case 22: {
-              var expectedLength = width * height / 16 * (2 + 2 + 4);
-
-              er.Position = 0xe;
-              var bytes = er.ReadBytes(expectedLength);
-
-              loadedDxt =
-                  new BcDecoder().DecodeRaw(bytes,
-                                            width,
-                                            height,
-                                            CompressionFormat.Bc1);
-              break;
-            }
-            // DXT3
-            case 14: {
-              var expectedLength = width * height / 16 * (8 + 2 + 2 + 4);
-
-              er.Position = 0xe;
-              var bytes = er.ReadBytes(expectedLength);
-
-              loadedDxt =
-                  new BcDecoder().DecodeRaw(bytes,
-                                            width,
-                                            height,
-                                            CompressionFormat.Bc2);
-              break;
-            }
-            // DXT5
-            case 26: {
-              var expectedLength = width * height / 16 * (8 + 2 + 2 + 4);
-
-              er.Position = 0xe;
-              var bytes = er.ReadBytes(expectedLength);
-
-              loadedDxt =
-                  new BcDecoder().DecodeRaw(bytes,
-                                            width,
-                                            height,
-                                            CompressionFormat.Bc3);
-              break;
-            }
-            default:
-              throw new NotImplementedException();
-          }
-
-          unsafe {
-            var rgbaImage = new Rgba32Image(width, height);
-            image = rgbaImage;
-            using var imageLock = rgbaImage.Lock();
-            var ptr = imageLock.pixelScan0;
-
-            for (var y = 0; y < height; y++) {
-              for (var x = 0; x < width; ++x) {
-                var i = y * width + x;
-
-                var src = loadedDxt[i];
-                ptr[i] = new Rgba32(src.r, src.g, src.b, src.a);
-              }
-            }
-          }
-
+          var texFile = modelFileBundle
+                        .XmodFile.Root.Impl.GetSubdir("texture_x")
+                        .SearchForFiles($"{textureName}.tex", true)
+                        .Single();
+          var image = new TexImageLoader().LoadImage(texFile);
 
           var finTexture = finMaterialManager.CreateTexture(image);
           finMaterial = finMaterialManager.AddTextureMaterial(finTexture);
@@ -175,8 +98,9 @@ namespace xmod.api {
             var finPrimitive = primitive.Type switch {
                 PrimitiveType.TRIANGLE_STRIP => finMesh.AddTriangleStrip(
                     primitiveVertices.ToArray()),
-                PrimitiveType.TRIANGLE_STRIP_REVERSED => finMesh.AddTriangleStrip(
-                    primitiveVertices.Reverse().ToArray()),
+                PrimitiveType.TRIANGLE_STRIP_REVERSED => finMesh
+                    .AddTriangleStrip(
+                        primitiveVertices.Reverse().ToArray()),
                 PrimitiveType.TRIANGLES =>
                     finMesh.AddTriangles(primitiveVertices.ToArray()),
             };
