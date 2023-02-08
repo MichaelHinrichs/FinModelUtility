@@ -1,5 +1,6 @@
 ﻿using fin.io;
 using fin.io.bundles;
+using fin.model;
 
 using uni.platforms;
 using uni.util.io;
@@ -9,8 +10,8 @@ using xmod.api;
 
 namespace uni.games.midnight_club_2 {
   public class MidnightClub2FileGatherer
-      : IFileBundleGatherer<XmodModelFileBundle> {
-    public IFileBundleDirectory<XmodModelFileBundle>? GatherFileBundles(
+      : IFileBundleGatherer<IModelFileBundle> {
+    public IFileBundleDirectory<IModelFileBundle>? GatherFileBundles(
         bool assert) {
       var midnightClub2Directory =
           DirectoryConstants.ROMS_DIRECTORY.GetSubdir("midnight_club_2");
@@ -20,11 +21,17 @@ namespace uni.games.midnight_club_2 {
 
       var fileHierarchy = new FileHierarchy(midnightClub2Directory);
 
-      return new FileHierarchyBundler<XmodModelFileBundle>(
+      return new FileHierarchyBundler<IModelFileBundle>(
           subdir => subdir.FilesWithExtension(".xmod")
                           .Select(file => new XmodModelFileBundle {
                               XmodFile = file,
-                          })).GatherBundles(
+                          })
+                          .Concat<IModelFileBundle>(
+                              subdir.FilesWithExtension(".ped")
+                                    .Select(
+                                        file => new PedModelFileBundle {
+                                            PedFile = file,
+                                        }))).GatherBundles(
           fileHierarchy);
     }
   }

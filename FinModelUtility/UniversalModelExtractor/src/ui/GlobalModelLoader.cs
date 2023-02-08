@@ -29,6 +29,8 @@ namespace uni.ui {
               => new HaloWarsModelLoader().LoadModel(haloWarsModelFileBundle),
           ModModelFileBundle modModelFileBundle
               => new ModModelLoader().LoadModel(modModelFileBundle),
+          PedModelFileBundle pedModelFileBundle
+              => new PedModelLoader().LoadModel(pedModelFileBundle),
           Sm64LevelModelFileBundle sm64LevelModelFileBundle
               => new Sm64LevelModelLoader().LoadModel(sm64LevelModelFileBundle),
           XcModelFileBundle xcModelFileBundle

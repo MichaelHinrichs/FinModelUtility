@@ -1,17 +1,10 @@
-﻿using BCnEncoder.Decoder;
-using BCnEncoder.Shared;
-
-using fin.color;
-using fin.image;
+﻿using fin.color;
 using fin.io;
 using fin.model;
 using fin.model.impl;
 
-using SixLabors.ImageSharp.PixelFormats;
-
 using xmod.schema.xmod;
 
-using IImage = fin.image.IImage;
 using PrimitiveType = xmod.schema.xmod.PrimitiveType;
 
 
