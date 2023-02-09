@@ -4,6 +4,7 @@ using fin.io;
 using fin.log;
 using fin.util.asserts;
 
+using uni.config;
 using uni.platforms.gcn.tools;
 
 
@@ -102,15 +103,33 @@ namespace uni.platforms.threeDs.tools {
             var process = Asserts.CastNonnull(Process.Start(processStartInfo));
             ChildProcessTracker.AddProcess(process);
 
+            var verbose = Config.Instance.VerboseConsole;
             var singleChar = new char[1];
 
             var output = "";
             while (!output.EndsWith("Write your choice:")) {
               process.StandardOutput.Read(singleChar, 0, 1);
               output += singleChar[0];
+
+              if (verbose) {
+                Console.Write(singleChar[0]);
+              }
             }
 
             process.StandardInput.WriteLine("CE");
+            if (verbose) {
+              Console.WriteLine("CE");
+            }
+
+            output = "";
+            while (!output.EndsWith(".CIA filename (without extension) :")) {
+              process.StandardOutput.Read(singleChar, 0, 1);
+              output += singleChar[0];
+
+              if (verbose) {
+                Console.Write(singleChar[0]);
+              }
+            }
 
             // For some reason this is needed by HackingToolkit9DS.
             var romPathWithoutExtension =
@@ -118,11 +137,19 @@ namespace uni.platforms.threeDs.tools {
                                            romFile.FullName.Length -
                                            ".cia".Length);
             process.StandardInput.WriteLine(romPathWithoutExtension);
+            if (verbose) {
+              Console.WriteLine(romPathWithoutExtension);
+            }
+
 
             output = "";
             while (!output.EndsWith("Extraction done!")) {
               process.StandardOutput.Read(singleChar, 0, 1);
               output += singleChar[0];
+
+              if (verbose) {
+                Console.Write(singleChar[0]);
+              }
             }
 
             process.Kill(true);

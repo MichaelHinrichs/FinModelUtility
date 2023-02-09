@@ -4,6 +4,7 @@ using fin.io.bundles;
 
 using Microsoft.Toolkit.HighPerformance.Helpers;
 
+using uni.config;
 using uni.games.battalion_wars_1;
 using uni.games.battalion_wars_2;
 using uni.games.glover;
@@ -46,8 +47,7 @@ namespace uni.games {
           new SuperSmashBrosMeleeModelFileGatherer(),
       };
 
-      var useMultiThreading = true;
-      if (useMultiThreading) {
+      if (Config.Instance.UseMultithreadingToExtractRoms) {
         var results = new IFileBundleDirectory?[gatherers.Length];
         ParallelHelper.For(0,
                            gatherers.Length,

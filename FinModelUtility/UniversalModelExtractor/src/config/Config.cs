@@ -19,6 +19,9 @@ namespace uni.config {
 
     public ThirdPartyConfig ThirdParty { get; } = new();
 
+    public bool UseMultithreadingToExtractRoms { get; set; }
+    public bool VerboseConsole { get; set; }
+
     public void SaveSettings()
       => DirectoryConstants.CONFIG_FILE.Serialize(Config.Instance);
   }
