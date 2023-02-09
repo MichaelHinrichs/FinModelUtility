@@ -136,9 +136,9 @@ namespace uni.platforms.threeDs.tools {
                 romFile.FullName.Substring(0,
                                            romFile.FullName.Length -
                                            ".cia".Length);
-            process.StandardInput.WriteLine(romPathWithoutExtension);
+            process.StandardInput.WriteLine($"\"{romPathWithoutExtension}\"");
             if (verbose) {
-              Console.WriteLine(romPathWithoutExtension);
+              Console.WriteLine($"\"{romPathWithoutExtension}\"");
             }
 
 
