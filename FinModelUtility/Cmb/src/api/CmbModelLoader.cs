@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+
 using cmb.schema.cmb;
 using cmb.schema.csab;
 using cmb.schema.ctxb;
 using cmb.schema.shpa;
+
 using fin.color;
 using fin.data;
 using fin.data.queue;
 using fin.image;
 using fin.io;
+using fin.language.equations.fixedFunction;
 using fin.math;
 using fin.model;
 using fin.model.impl;
@@ -120,7 +123,7 @@ namespace cmb.api {
         var finAnimation = finModel.AnimationManager.AddAnimation();
         finAnimation.Name = csabFile.NameWithoutExtension;
 
-        finAnimation.FrameCount = (int)csab.Duration;
+        finAnimation.FrameCount = (int) csab.Duration;
         finAnimation.FrameRate = fps;
 
         foreach (var (boneIndex, anod) in csab.BoneIndexToAnimationNode) {
@@ -148,10 +151,10 @@ namespace cmb.api {
             var scaleAxis = anod.ScaleAxes[i];
             foreach (var scale in scaleAxis.Keyframes) {
               boneTracks.Scales.Set((int) scale.Time,
-                                       i,
-                                       scale.Value,
-                                       scale.IncomingTangent,
-                                       scale.OutgoingTangent);
+                                    i,
+                                    scale.Value,
+                                    scale.IncomingTangent,
+                                    scale.OutgoingTangent);
             }
           }
         }
@@ -169,7 +172,7 @@ namespace cmb.api {
                        if (position != 0) {
                          r.Position = position;
                          var data =
-                             r.ReadBytes((int)cmbTexture.dataLength);
+                             r.ReadBytes((int) cmbTexture.dataLength);
                          image =
                              ctrTexture.DecodeImage(data, cmbTexture);
                        } else {
@@ -178,10 +181,14 @@ namespace cmb.api {
                                  .Select(
                                      fileAndCtxb => fileAndCtxb.Item2)
                                  .Single(
-                                     ctxb => ctxb.Chunk.Entry.name == cmbTexture.name);
+                                     ctxb => ctxb.Chunk.Entry.name ==
+                                             cmbTexture.name);
                          image =
-                             ctrTexture.DecodeImage(ctxb.Chunk.Entry.Data, cmbTexture);
+                             ctrTexture.DecodeImage(
+                                 ctxb.Chunk.Entry.Data,
+                                 cmbTexture);
                        }
+
                        return image;
                      })
                      .ToArray();
@@ -212,11 +219,11 @@ namespace cmb.api {
 
         // Create material
         IMaterial finMaterial = finTexture != null
-                                    ? finModel.MaterialManager
-                                              .AddTextureMaterial(
-                                                  finTexture)
-                                    : finModel.MaterialManager
-                                              .AddNullMaterial();
+            ? finModel.MaterialManager
+                      .AddTextureMaterial(
+                          finTexture)
+            : finModel.MaterialManager
+                      .AddNullMaterial();
         finMaterial.Name = $"material{i}";
         finMaterial.CullingMode = cmbMaterial.faceCulling switch {
             CullMode.FrontAndBack => CullingMode.SHOW_BOTH,
@@ -257,6 +264,7 @@ namespace cmb.api {
             vertexCount = Math.Max(vertexCount, index);
           }
         }
+
         ++vertexCount;
 
         var preproject = new bool?[vertexCount];
@@ -275,6 +283,7 @@ namespace cmb.api {
           // Skip "HasTangents" for now
           inc++;
         }
+
         var hasClr = BitLogic.GetFlag(shape.vertFlags, inc++);
         var hasUv0 = BitLogic.GetFlag(shape.vertFlags, inc++);
         var hasUv1 = BitLogic.GetFlag(shape.vertFlags, inc++);
@@ -301,7 +310,7 @@ namespace cmb.api {
                                          r,
                                          shape.bIndices.DataType);
                 bIndices[i * boneCount + bi] =
-                    pset.boneTable[(int)boneTableIndex];
+                    pset.boneTable[(int) boneTableIndex];
               }
             } else {
               bIndices[i] = shape.primitiveSets[0].boneTable[0];
@@ -331,7 +340,7 @@ namespace cmb.api {
                                             positionValues[2]);
           finVertices[i] = finVertex;
 
-          var index = (ushort)(shape.position.Start / 3 + i);
+          var index = (ushort) (shape.position.Start / 3 + i);
           verticesByIndex.Add(index, finVertex);
 
           if (hasNrm) {
@@ -349,6 +358,7 @@ namespace cmb.api {
                               .Select(value => value * shape.normal.Scale)
                               .ToArray();
             }
+
             finVertex.SetLocalNormal(normalValues[0],
                                      normalValues[1],
                                      normalValues[2]);
@@ -369,10 +379,11 @@ namespace cmb.api {
                               .Select(value => value * shape.color.Scale)
                               .ToArray();
             }
-            finVertex.SetColorBytes((byte)(colorValues[0] * 255),
-                                    (byte)(colorValues[1] * 255),
-                                    (byte)(colorValues[2] * 255),
-                                    (byte)(colorValues[3] * 255));
+
+            finVertex.SetColorBytes((byte) (colorValues[0] * 255),
+                                    (byte) (colorValues[1] * 255),
+                                    (byte) (colorValues[2] * 255),
+                                    (byte) (colorValues[3] * 255));
           }
 
           if (hasUv0) {
@@ -388,6 +399,7 @@ namespace cmb.api {
 
             finVertex.SetUv(0, uv0Values[0], 1 - uv0Values[1]);
           }
+
           if (hasUv1) {
             r.Position = cmb.startOffset +
                          cmb.header.vatrOffset +
@@ -401,6 +413,7 @@ namespace cmb.api {
 
             finVertex.SetUv(1, uv1Values[0], 1 - uv1Values[1]);
           }
+
           if (hasUv2) {
             r.Position = cmb.startOffset +
                          cmb.header.vatrOffset +
@@ -416,8 +429,8 @@ namespace cmb.api {
           }
 
           var preprojectMode = preproject[i].Value
-                                   ? PreprojectMode.BONE
-                                   : PreprojectMode.NONE;
+              ? PreprojectMode.BONE
+              : PreprojectMode.NONE;
 
           if (hasBw) {
             r.Position = cmb.startOffset +
@@ -430,10 +443,22 @@ namespace cmb.api {
 
             var totalWeight = 0f;
             var boneWeights = new List<BoneWeight>();
-            for (var j = 0; j < boneCount; ++j) {
+
+            float[] weightValues;
+            if (shape.bWeights.Mode == VertexAttributeMode.Constant) {
+              weightValues = shape.bWeights.Constants
+                                  .Select(value => value / 100)
+                                  .ToArray();
+            } else {
               // TODO: Looks like this is rounded to the nearest 2 in the original??
-              var weight = DataTypeUtil.Read(r, shape.bWeights.DataType) *
-                           shape.bWeights.Scale;
+              weightValues =
+                  DataTypeUtil.Read(r, boneCount, shape.bWeights.DataType)
+                              .Select(value => value * shape.bWeights.Scale)
+                              .ToArray();
+            }
+
+            for (var j = 0; j < boneCount; ++j) {
+              var weight = weightValues[j];
               totalWeight += weight;
 
               if (weight > 0) {
