@@ -86,6 +86,24 @@ namespace cmb.schema.cmb {
       for (var ty = 0; ty < height; ty += 8) {
         for (var tx = 0; tx < width; tx += 8) {
           for (var px = 0; px < 64; ++px) {
+            if (format is GlTextureFormat.L4) {
+              var value = er.ReadByte();
+
+              var upper = (value >> 4) * 17;
+              var lower = (value & 0xF) * 17;
+
+              var x1 = this.swizzleLut_[px] & 7;
+              var y1 = (this.swizzleLut_[px] - x1) >> 3;
+              ptr[(ty + y1) * width + (tx + x1)] = new Rgba32(upper, upper, upper);
+
+              px++;
+              var x2 = this.swizzleLut_[px] & 7;
+              var y2 = (this.swizzleLut_[px] - x1) >> 3;
+              ptr[(ty + y2) * width + (tx + x2)] = new Rgba32(lower, lower, lower);
+
+              continue;
+            }
+
             byte r, g, b, a;
 
             switch (format) {
@@ -139,9 +157,6 @@ namespace cmb.schema.cmb {
                 break;
               }
               case GlTextureFormat.LA4: {
-                throw new NotImplementedException();
-              }
-              case GlTextureFormat.L4: {
                 throw new NotImplementedException();
               }
               case GlTextureFormat.A4: {
