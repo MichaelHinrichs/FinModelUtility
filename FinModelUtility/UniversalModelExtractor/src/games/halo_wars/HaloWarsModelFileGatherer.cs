@@ -33,7 +33,7 @@ namespace uni.games.halo_wars {
 
       var mapDirectories =
           fileHierarchy.Root
-                       .TryToGetSubdir("scenario/skirmish/design")
+                       .GetExistingSubdir("scenario/skirmish/design")
                        .Subdirs;
       foreach (var srcMapDirectory in mapDirectories) {
         var xtdFile = srcMapDirectory.FilesWithExtension(".xtd").Single();
@@ -41,7 +41,7 @@ namespace uni.games.halo_wars {
         yield return new XtdModelFileBundle(xtdFile, xttFile, context);
       }
 
-      var artDirectory = fileHierarchy.Root.TryToGetSubdir("art");
+      var artDirectory = fileHierarchy.Root.GetExistingSubdir("art");
       var artSubdirQueue = new FinQueue<IFileHierarchyDirectory>(artDirectory);
       // TODO: Switch to DFS instead, it's more intuitive as a user
       while (artSubdirQueue.TryDequeue(out var artSubdir)) {

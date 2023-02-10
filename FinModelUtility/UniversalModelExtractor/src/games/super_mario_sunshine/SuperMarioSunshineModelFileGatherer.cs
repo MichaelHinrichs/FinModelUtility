@@ -37,12 +37,12 @@ namespace uni.games.super_mario_sunshine {
     private IEnumerable<BmdModelFileBundle> ExtractMario_(
         IFileHierarchy fileHierarchy) {
       var marioSubdir =
-          fileHierarchy.Root.TryToGetSubdir(@"data\mario");
-      var bcxFiles = marioSubdir.TryToGetSubdir("bck")
+          fileHierarchy.Root.GetExistingSubdir(@"data\mario");
+      var bcxFiles = marioSubdir.GetExistingSubdir("bck")
                                 .Files.Where(
                                     file => file.Name.StartsWith("ma_"))
                                 .ToArray();
-      var bmdFile = marioSubdir.TryToGetSubdir("bmd")
+      var bmdFile = marioSubdir.GetExistingSubdir("bmd")
                                .Files.Single(
                                    file => file.Name == "ma_mdl1.bmd");
 
@@ -52,7 +52,7 @@ namespace uni.games.super_mario_sunshine {
     private IEnumerable<BmdModelFileBundle> ExtractFludd_(
         IFileHierarchy fileHierarchy) {
       var fluddSubdir =
-          fileHierarchy.Root.TryToGetSubdir(@"data\mario\watergun2");
+          fileHierarchy.Root.GetExistingSubdir(@"data\mario\watergun2");
       foreach (var subdir in fluddSubdir.Subdirs) {
         foreach (var bundle in this.ExtractPrimaryAndSecondaryModels_(
                      subdir,
@@ -65,7 +65,7 @@ namespace uni.games.super_mario_sunshine {
     private IEnumerable<BmdModelFileBundle> ExtractYoshi_(
         IFileHierarchy fileHierarchy) {
       var yoshiSubdir =
-          fileHierarchy.Root.TryToGetSubdir(@"data\yoshi");
+          fileHierarchy.Root.GetExistingSubdir(@"data\yoshi");
       var bcxFiles = yoshiSubdir
                      .Files.Where(
                          file => file.Extension == ".bck")
@@ -81,11 +81,11 @@ namespace uni.games.super_mario_sunshine {
     private IEnumerable<BmdModelFileBundle> ExtractScenes_(
         IFileHierarchy fileHierarchy) {
       var sceneSubdir =
-          fileHierarchy.Root.TryToGetSubdir(@"data\scene");
+          fileHierarchy.Root.GetExistingSubdir(@"data\scene");
 
       foreach (var subdir in sceneSubdir.Subdirs) {
-        var mapSubdir = subdir.TryToGetSubdir("map");
-        var bmdFiles = mapSubdir.TryToGetSubdir("map")
+        var mapSubdir = subdir.GetExistingSubdir("map");
+        var bmdFiles = mapSubdir.GetExistingSubdir("map")
                                 .Files.Where(file => file.Extension == ".bmd")
                                 .ToArray();
         foreach (var bundle in this.ExtractModels_(bmdFiles)) {

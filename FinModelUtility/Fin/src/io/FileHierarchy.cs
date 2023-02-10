@@ -32,7 +32,8 @@ namespace fin.io {
 
     bool Refresh(bool recursive = false);
 
-    IFileHierarchyDirectory TryToGetSubdir(string localPath);
+    IFileHierarchyFile GetExistingFile(string localPath);
+    IFileHierarchyDirectory GetExistingSubdir(string localPath);
 
     IEnumerable<IFileHierarchyFile> FilesWithExtension(string extension);
 
@@ -217,13 +218,31 @@ namespace fin.io {
         return didChange;
       }
 
-      public IFileHierarchyDirectory TryToGetSubdir(string relativePath)
-        => this.GetSubdirImpl_(relativePath.Split('/', '\\'));
+      public IFileHierarchyFile GetExistingFile(string relativePath) {
+        var subdirs = relativePath.Split('/', '\\');
 
-      private IFileHierarchyDirectory GetSubdirImpl_(
-          IEnumerable<string> subdirs) {
         IFileHierarchyDirectory current = this;
+        foreach (var subdir in subdirs.SkipLast(1)) {
+          if (subdir == "") {
+            continue;
+          }
 
+          if (subdir == "..") {
+            Asserts.Fail();
+            continue;
+          }
+
+          current = current.Subdirs
+                           .Single(dir => dir.Name == subdir);
+        }
+
+        return current.Files.Single(file => file.Name == subdirs.Last());
+      }
+
+      public IFileHierarchyDirectory GetExistingSubdir(string relativePath) {
+        var subdirs = relativePath.Split('/', '\\');
+
+        IFileHierarchyDirectory current = this;
         foreach (var subdir in subdirs) {
           if (subdir == "") {
             continue;

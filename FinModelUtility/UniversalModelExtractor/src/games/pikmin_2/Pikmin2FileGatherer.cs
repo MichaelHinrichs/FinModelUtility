@@ -85,17 +85,17 @@ namespace uni.games.pikmin_2 {
     private IEnumerable<IFileBundle> ExtractPikminAndCaptainModels_(
         IFileHierarchy fileHierarchy) {
       var pikminAndCaptainBaseDirectory =
-          fileHierarchy.Root.TryToGetSubdir(
+          fileHierarchy.Root.GetExistingSubdir(
               @"user\Kando\piki\pikis_designer");
 
       var bcxFiles =
-          pikminAndCaptainBaseDirectory.TryToGetSubdir("motion")
+          pikminAndCaptainBaseDirectory.GetExistingSubdir("motion")
                                        .Files;
 
       var captainSubdir =
-          pikminAndCaptainBaseDirectory.TryToGetSubdir("orima_model");
+          pikminAndCaptainBaseDirectory.GetExistingSubdir("orima_model");
       var pikminSubdir =
-          pikminAndCaptainBaseDirectory.TryToGetSubdir("piki_model");
+          pikminAndCaptainBaseDirectory.GetExistingSubdir("piki_model");
 
       return this.ExtractModels_(captainSubdir.Files, bcxFiles)
                  .Concat(this.ExtractModels_(pikminSubdir.Files, bcxFiles));
@@ -104,7 +104,7 @@ namespace uni.games.pikmin_2 {
     private IEnumerable<IFileBundle> ExtractAllTreasures_(
         IFileHierarchy fileHierarchy) {
       var treasureBaseDirectory =
-          fileHierarchy.Root.TryToGetSubdir(@"user\Abe\Pellet");
+          fileHierarchy.Root.GetExistingSubdir(@"user\Abe\Pellet");
 
       foreach (var locale in treasureBaseDirectory.Subdirs) {
         foreach (var treasure in locale.Subdirs) {
@@ -126,14 +126,14 @@ namespace uni.games.pikmin_2 {
 
     private IEnumerable<IFileBundle> ExtractAudio_(
         IFileHierarchy fileHierarchy)
-      => fileHierarchy.Root.TryToGetSubdir(@"AudioRes\Stream")
+      => fileHierarchy.Root.GetExistingSubdir(@"AudioRes\Stream")
                       .FilesWithExtension(".ast")
                       .Select(astFile => new AstAudioFileBundle(astFile));
 
     private IEnumerable<IFileBundle> ExtractLeafBudFlower_(
         IFileHierarchy fileHierarchy)
       => this.ExtractModelsInDirectoryAutomatically_(
-          fileHierarchy.Root.TryToGetSubdir(
+          fileHierarchy.Root.GetExistingSubdir(
               @"user\Kando\piki\pikis_designer\happa_model"));
 
     private IEnumerable<IFileBundle> ExtractModelsInDirectoryAutomatically_(

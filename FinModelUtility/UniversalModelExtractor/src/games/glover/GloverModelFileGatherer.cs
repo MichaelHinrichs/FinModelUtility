@@ -18,13 +18,13 @@ namespace uni.games.glover {
 
       var gloverFileHierarchy = new FileHierarchy(gloverSteamDirectory);
 
-      var dataDirectory = gloverFileHierarchy.Root.TryToGetSubdir("data");
-      var topLevelBgmDirectory = dataDirectory.TryToGetSubdir("bgm");
+      var dataDirectory = gloverFileHierarchy.Root.GetExistingSubdir("data");
+      var topLevelBgmDirectory = dataDirectory.GetExistingSubdir("bgm");
       foreach (var bgmFile in topLevelBgmDirectory.Files) {
         yield return new OggAudioFileBundle(bgmFile);
       }
 
-      var topLevelObjectDirectory = dataDirectory.TryToGetSubdir("objects");
+      var topLevelObjectDirectory = dataDirectory.GetExistingSubdir("objects");
       foreach (var objectDirectory in topLevelObjectDirectory.Subdirs) {
         foreach (var fileBundle in this.AddObjectDirectory_(
                      gloverFileHierarchy,
@@ -41,11 +41,11 @@ namespace uni.games.glover {
 
       var gloverSteamDirectory = gloverFileHierarchy.Root;
       var textureDirectories = gloverSteamDirectory
-                               .TryToGetSubdir("data/textures/generic")
+                               .GetExistingSubdir("data/textures/generic")
                                .Subdirs.ToList();
 
       try {
-        var levelTextureDirectory = gloverSteamDirectory.TryToGetSubdir(
+        var levelTextureDirectory = gloverSteamDirectory.GetExistingSubdir(
             objectDirectory.LocalPath.Replace("data\\objects",
                                               "data\\textures"));
         textureDirectories.Add(levelTextureDirectory);

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace fin.io.bundles {
@@ -39,5 +40,15 @@ namespace fin.io.bundles {
 
   public interface IFileBundleGathererAccumulator : IFileBundleGatherer {
     IFileBundleGathererAccumulator Add(IFileBundleGatherer gatherer);
+    IFileBundleGathererAccumulator Add(Func<IEnumerable<IFileBundle>> handler);
+  }
+
+  public interface IFileBundleGathererAccumulator<TFileBundle>
+      : IFileBundleGatherer<TFileBundle> where TFileBundle : IFileBundle {
+    IFileBundleGathererAccumulator<TFileBundle> Add(
+        IFileBundleGatherer<TFileBundle> gatherer);
+
+    IFileBundleGathererAccumulator<TFileBundle> Add(
+        Func<IEnumerable<TFileBundle>> handler);
   }
 }

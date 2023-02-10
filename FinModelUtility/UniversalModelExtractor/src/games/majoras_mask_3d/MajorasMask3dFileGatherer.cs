@@ -61,13 +61,17 @@ namespace uni.games.majoras_mask_3d {
           new ThreeDsFileHierarchyExtractor()
               .ExtractFromRom(majorasMask3dRom);
 
-      return new FileHierarchyAssetBundleSeparator<CmbModelFileBundle>(
+      return new FileBundleGathererAccumulator<CmbModelFileBundle>()
+             .Add(() => GetModelsViaSeparator_(fileHierarchy))
+             .Add(() => this.GetLinkModels_(fileHierarchy))
+             .GatherFileBundles(assert);
+    }
+
+    private IEnumerable<CmbModelFileBundle> GetModelsViaSeparator_(
+        IFileHierarchy fileHierarchy)
+      => new FileHierarchyAssetBundleSeparator<CmbModelFileBundle>(
           fileHierarchy,
           subdir => {
-            if (subdir.Name == "zelda2_link_child_new") {
-              return new[] {GetLinkModel_(fileHierarchy, subdir)};
-            }
-
             if (!separator_.Contains(subdir)) {
               return Enumerable.Empty<CmbModelFileBundle>();
             }
@@ -96,19 +100,30 @@ namespace uni.games.majoras_mask_3d {
               return Enumerable.Empty<CmbModelFileBundle>();
             }
           }
-      ).GatherFileBundles(assert);
-    }
+      ).GatherFileBundles(false);
 
-    private CmbModelFileBundle GetLinkModel_(IFileHierarchy root,
-                                             IFileHierarchyDirectory subdir) {
-      var cmbFile = subdir.Files.Single(file => file.Name == "link_child.cmb");
-      return new CmbModelFileBundle(
-          cmbFile,
-          root.Root.TryToGetSubdir("actors/zelda2_link_new")
-              .FilesWithExtension(".csab")
-              .ToArray(),
-          null,
-          null);
+    private IEnumerable<CmbModelFileBundle> GetLinkModels_(
+        IFileHierarchy fileHierarchy) {
+      var actorsDir = fileHierarchy.Root.GetExistingSubdir("actors");
+
+      var cmbFiles =
+          new[] {
+              actorsDir.GetExistingFile("zelda2_link_child_new/link_child.cmb"),
+              actorsDir.GetExistingFile("zelda2_link_goron_new/link_goron.cmb"),
+              actorsDir.GetExistingFile("zelda2_link_nuts_new/link_deknuts.cmb"),
+              actorsDir.GetExistingFile("zelda2_link_zora_new/link_zora.cmb"),
+          };
+
+      var csabFiles = fileHierarchy
+                      .Root.GetExistingSubdir("actors/zelda2_link_new")
+                      .FilesWithExtension(".csab")
+                      .ToArray();
+
+      return cmbFiles.Select(cmbFile => new CmbModelFileBundle(
+                                 cmbFile,
+                                 csabFiles,
+                                 null,
+                                 null));
     }
   }
 }

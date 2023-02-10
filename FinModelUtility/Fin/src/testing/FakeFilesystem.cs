@@ -41,7 +41,7 @@ using fin.io;
     public bool Create() => throw new NotSupportedException();
 
     public IEnumerable<IDirectory> GetExistingSubdirs() => this.subdirs_;
-    public IDirectory TryToGetSubdir(string relativePath, bool create = false) {
+    public IDirectory GetExistingSubdir(string relativePath, bool create = false) {
       throw new NotImplementedException();
     }
 

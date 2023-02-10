@@ -39,21 +39,21 @@ namespace uni.games.mario_kart_double_dash {
 
     private IEnumerable<IFileBundle> ExtractKarts_(
         IFileHierarchy fileHierarchy)
-      => fileHierarchy.Root.TryToGetSubdir(@"MRAM\kart")
+      => fileHierarchy.Root.GetExistingSubdir(@"MRAM\kart")
                       .Subdirs
                       .Select(subdir => subdir.FilesWithExtension(".bmd"))
                       .SelectMany(bmdFiles => this.ExtractModels_(bmdFiles));
 
     private IEnumerable<IFileBundle> ExtractDrivers_(
         IFileHierarchy fileHierarchy) {
-      var mramSubdir = fileHierarchy.Root.TryToGetSubdir(@"MRAM\driver");
+      var mramSubdir = fileHierarchy.Root.GetExistingSubdir(@"MRAM\driver");
 
       {
         var plumberNames = new[] { "mario", "luigi", };
         var plumberSubdirs =
             mramSubdir.Subdirs.Where(
                 subdir => plumberNames.Contains(subdir.Name));
-        var plumberCommon = mramSubdir.TryToGetSubdir("cmn_hige");
+        var plumberCommon = mramSubdir.GetExistingSubdir("cmn_hige");
         foreach (var plumberSubdir in plumberSubdirs) {
           foreach (var bundle in this.ExtractFromSeparateDriverDirectories_(
                        plumberSubdir,
@@ -74,7 +74,7 @@ namespace uni.games.mario_kart_double_dash {
         var babySubdirs =
             mramSubdir.Subdirs.Where(
                 subdir => babyNames.Contains(subdir.Name));
-        var babyCommon = mramSubdir.TryToGetSubdir("cmn_baby");
+        var babyCommon = mramSubdir.GetExistingSubdir("cmn_baby");
         foreach (var babySubdir in babySubdirs) {
           foreach (var bundle in this.ExtractFromSeparateDriverDirectories_(
                        babySubdir,
@@ -89,7 +89,7 @@ namespace uni.games.mario_kart_double_dash {
         var princessSubdirs =
             mramSubdir.Subdirs.Where(
                 subdir => princessNames.Contains(subdir.Name));
-        var princessCommon = mramSubdir.TryToGetSubdir("cmn_hime");
+        var princessCommon = mramSubdir.GetExistingSubdir("cmn_hime");
         foreach (var princessSubdir in princessSubdirs) {
           foreach (var bundle in this.ExtractFromSeparateDriverDirectories_(
                        princessSubdir,
@@ -104,7 +104,7 @@ namespace uni.games.mario_kart_double_dash {
         var lizardSubdirs =
             mramSubdir.Subdirs.Where(
                 subdir => lizardNames.Contains(subdir.Name));
-        var lizardCommon = mramSubdir.TryToGetSubdir("cmn_liz");
+        var lizardCommon = mramSubdir.GetExistingSubdir("cmn_liz");
         foreach (var lizardSubdir in lizardSubdirs) {
           foreach (var bundle in this.ExtractFromSeparateDriverDirectories_(
                        lizardSubdir,
@@ -121,7 +121,7 @@ namespace uni.games.mario_kart_double_dash {
         var koopaSubdirs =
             mramSubdir.Subdirs.Where(
                 subdir => koopaNames.Contains(subdir.Name));
-        var koopaCommon = mramSubdir.TryToGetSubdir("cmn_zako");
+        var koopaCommon = mramSubdir.GetExistingSubdir("cmn_zako");
         foreach (var koopaSubdir in koopaSubdirs) {
           foreach (var bundle in this.ExtractFromSeparateDriverDirectories_(
                        koopaSubdir,
@@ -206,7 +206,7 @@ namespace uni.games.mario_kart_double_dash {
 
     private IEnumerable<IFileBundle> ExtractCourses_(
         IFileHierarchy fileHierarchy) {
-      var courseSubdir = fileHierarchy.Root.TryToGetSubdir("Course");
+      var courseSubdir = fileHierarchy.Root.GetExistingSubdir("Course");
       foreach (var subdir in courseSubdir.Subdirs) {
         var bmdFiles = subdir.FilesWithExtension(".bmd")
                              .ToArray();
@@ -221,7 +221,7 @@ namespace uni.games.mario_kart_double_dash {
           yield return bundle;
         }
 
-        var objectsSubdir = subdir.TryToGetSubdir("objects");
+        var objectsSubdir = subdir.GetExistingSubdir("objects");
         foreach (var bundle in this.ExtractModelsAndAnimationsFromSceneObject_(
                      objectsSubdir)) {
           yield return bundle;
@@ -230,7 +230,7 @@ namespace uni.games.mario_kart_double_dash {
     }
 
     private IEnumerable<IFileBundle> ExtractAudio_(IFileHierarchy fileHierarchy)
-      => fileHierarchy.Root.TryToGetSubdir(@"AudioRes\Stream")
+      => fileHierarchy.Root.GetExistingSubdir(@"AudioRes\Stream")
                       .FilesWithExtension(".ast")
                       .Select(astFile => new AstAudioFileBundle(astFile));
 

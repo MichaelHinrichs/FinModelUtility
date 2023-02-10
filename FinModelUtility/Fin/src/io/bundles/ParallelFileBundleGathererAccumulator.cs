@@ -15,6 +15,10 @@ namespace fin.io.bundles {
       return this;
     }
 
+    public IFileBundleGathererAccumulator Add(
+        Func<IEnumerable<IFileBundle>> handler)
+      => Add(new FileBundleHandlerGatherer<IFileBundle>(handler));
+
     public IEnumerable<IFileBundle> GatherFileBundles(bool assert) {
       var results = new IEnumerable<IFileBundle>[this.gatherers_.Count];
       ParallelHelper.For(0,

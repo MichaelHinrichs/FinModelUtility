@@ -27,7 +27,7 @@ namespace uni.games.wind_waker {
           new GcnFileHierarchyExtractor()
               .ExtractFromRom(options, windWakerRom);
 
-      var objectDirectory = fileHierarchy.Root.TryToGetSubdir(@"res\Object");
+      var objectDirectory = fileHierarchy.Root.GetExistingSubdir(@"res\Object");
       {
         var yaz0Dec = new Yaz0Dec();
         var didDecompress = false;
@@ -55,8 +55,8 @@ namespace uni.games.wind_waker {
       this.ExtractObjects_(objectDirectory);
 
       /*{
-        var relsDirectory = fileHierarchy.Root.TryToGetSubdir("rels");
-        var mapFiles = fileHierarchy.Root.TryToGetSubdir("maps").Files;
+        var relsDirectory = fileHierarchy.Root.GetExistingSubdir("rels");
+        var mapFiles = fileHierarchy.Root.GetExistingSubdir("maps").Files;
 
         var yaz0Dec = new Yaz0Dec();
         var didDecompress = false;

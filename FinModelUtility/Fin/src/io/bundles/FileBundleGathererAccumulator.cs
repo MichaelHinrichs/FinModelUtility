@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace fin.io.bundles {
@@ -10,9 +11,35 @@ namespace fin.io.bundles {
       return this;
     }
 
+    public IFileBundleGathererAccumulator Add(
+        Func<IEnumerable<IFileBundle>> handler)
+      => Add(new FileBundleHandlerGatherer<IFileBundle>(handler));
+
     public IEnumerable<IFileBundle> GatherFileBundles(bool assert)
       => this.gatherers_
              .SelectMany(gatherer => gatherer.GatherFileBundles(assert))
              .ToList();
+  }
+
+  public class FileBundleGathererAccumulator<TFileBundle>
+      : IFileBundleGathererAccumulator<TFileBundle>
+      where TFileBundle : IFileBundle {
+    private readonly List<IFileBundleGatherer<TFileBundle>> gatherers_ = new();
+
+    public IFileBundleGathererAccumulator<TFileBundle> Add(
+        IFileBundleGatherer<TFileBundle> gatherer) {
+      this.gatherers_.Add(gatherer);
+      return this;
+    }
+
+    public IFileBundleGathererAccumulator<TFileBundle> Add(
+        Func<IEnumerable<TFileBundle>> handler)
+      => Add(new FileBundleHandlerGatherer<TFileBundle>(handler));
+
+    public IEnumerable<TFileBundle> GatherFileBundles(bool assert)
+      => this.gatherers_
+             .SelectMany(gatherer => gatherer.GatherFileBundles(assert))
+             .ToList();
+
   }
 }
