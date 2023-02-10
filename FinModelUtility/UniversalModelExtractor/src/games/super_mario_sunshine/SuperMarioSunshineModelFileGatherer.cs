@@ -6,8 +6,6 @@ using fin.util.asserts;
 
 using uni.platforms;
 using uni.platforms.gcn;
-using modl.schema.res;
-using static uni.games.professor_layton_vs_phoenix_wright.ProfessorLaytonVsPhoenixWrightModelFileGatherer;
 
 
 namespace uni.games.super_mario_sunshine {

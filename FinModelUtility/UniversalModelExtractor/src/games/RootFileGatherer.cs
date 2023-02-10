@@ -22,6 +22,7 @@ using uni.games.professor_layton_vs_phoenix_wright;
 using uni.games.super_mario_64;
 using uni.games.super_mario_sunshine;
 using uni.games.super_smash_bros_melee;
+using uni.games.wind_waker;
 using uni.util.io;
 
 
@@ -50,6 +51,7 @@ namespace uni.games {
           new SuperMario64FileGatherer(),
           new SuperMarioSunshineModelFileGatherer(),
           new SuperSmashBrosMeleeModelFileGatherer(),
+          new WindWakerFileGatherer(),
       };
       foreach (var gatherer in gatherers) {
         accumulator.Add(gatherer);
