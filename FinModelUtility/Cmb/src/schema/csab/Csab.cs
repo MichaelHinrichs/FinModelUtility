@@ -32,7 +32,7 @@ namespace cmb.schema.csab {
 
       float[] unk;
       if (IsPastVersion4) {
-        // M-1: Min or max?
+        // TODO: Might have to do with translations?
         unk = r.ReadSingles(3);
       }
 

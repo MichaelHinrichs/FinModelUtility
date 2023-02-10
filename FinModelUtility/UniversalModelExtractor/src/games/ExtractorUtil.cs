@@ -1,5 +1,4 @@
 ﻿using fin.exporter.assimp.indirect;
-using fin.exporter.gltf;
 using fin.io;
 using fin.io.bundles;
 using fin.log;
@@ -23,12 +22,7 @@ namespace uni.games {
         IFileBundleGatherer<T> gatherer,
         IModelLoader<T> loader)
         where T : IModelFileBundle {
-      var fileBundles = new List<T>();
-
-      var root = gatherer.GatherFileBundles(true);
-      root.ForEachTyped(fileBundles.Add);
-
-      ExtractorUtil.ExtractAll(fileBundles, loader);
+      ExtractorUtil.ExtractAll(gatherer.GatherFileBundles(true), loader);
     }
 
     public static void ExtractAll<T>(
@@ -44,12 +38,7 @@ namespace uni.games {
         IFileBundleGatherer<IFileBundle> gatherer,
         IModelLoader<T> loader)
         where T : IModelFileBundle {
-      var fileBundles = new List<IFileBundle>();
-
-      var root = gatherer.GatherFileBundles(true);
-      root.ForEachTyped(fileBundles.Add);
-
-      ExtractorUtil.ExtractAll(fileBundles, loader);
+      ExtractorUtil.ExtractAll(gatherer.GatherFileBundles(true), loader);
     }
 
     public static void ExtractAll<T>(

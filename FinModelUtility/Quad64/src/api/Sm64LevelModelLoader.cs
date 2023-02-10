@@ -7,8 +7,9 @@ namespace sm64.api {
       Sm64LevelFileBundle,
       IModelFileBundle {
     public Sm64LevelModelFileBundle(
+        IFileHierarchyDirectory directory,
         IFile sm64Rom,
-        LevelId levelId) : base(sm64Rom, levelId) { }
+        LevelId levelId) : base(directory, sm64Rom, levelId) { }
   }
 
   public class Sm64LevelModelLoader : IModelLoader<Sm64LevelModelFileBundle> {

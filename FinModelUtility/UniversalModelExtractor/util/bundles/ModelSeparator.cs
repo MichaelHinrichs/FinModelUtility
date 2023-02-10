@@ -2,7 +2,7 @@
 using fin.io;
 
 
-namespace uni.util.separator {
+namespace uni.util.bundles {
   public interface IModelBundle {
     IFileHierarchyFile ModelFile { get; }
     IList<IFileHierarchyFile> AnimationFiles { get; }

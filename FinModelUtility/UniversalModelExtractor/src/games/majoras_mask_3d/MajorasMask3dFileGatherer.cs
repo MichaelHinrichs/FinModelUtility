@@ -1,7 +1,7 @@
 ﻿using uni.platforms;
 using uni.platforms.threeDs;
 using uni.util.io;
-using uni.util.separator;
+using uni.util.bundles;
 
 using cmb.api;
 
@@ -47,34 +47,35 @@ namespace uni.games.majoras_mask_3d {
           );
 
 
-    public IFileBundleDirectory<CmbModelFileBundle>? GatherFileBundles(
+    public IEnumerable<CmbModelFileBundle> GatherFileBundles(
         bool assert) {
       var majorasMask3dRom =
           DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
               "majoras_mask_3d.cia",
               assert);
       if (majorasMask3dRom == null) {
-        return null;
+        return Enumerable.Empty<CmbModelFileBundle>();
       }
 
       var fileHierarchy =
           new ThreeDsFileHierarchyExtractor()
               .ExtractFromRom(majorasMask3dRom);
 
-      return new FileHierarchyBundler<CmbModelFileBundle>(
+      return new FileHierarchyAssetBundleSeparator<CmbModelFileBundle>(
+          fileHierarchy,
           subdir => {
             if (subdir.Name == "zelda2_link_child_new") {
               return new[] {GetLinkModel_(fileHierarchy, subdir)};
             }
 
             if (!separator_.Contains(subdir)) {
-              return null;
+              return Enumerable.Empty<CmbModelFileBundle>();
             }
 
             var cmbFiles =
                 subdir.FilesWithExtensionsRecursive(".cmb").ToArray();
             if (cmbFiles.Length == 0) {
-              return null;
+              return Enumerable.Empty<CmbModelFileBundle>();
             }
 
             var csabFiles =
@@ -85,7 +86,6 @@ namespace uni.games.majoras_mask_3d {
             try {
               var bundles =
                   this.separator_.Separate(subdir, cmbFiles, csabFiles);
-
               return bundles.Select(bundle => new CmbModelFileBundle(
                                         bundle.ModelFile,
                                         bundle.AnimationFiles.ToArray(),
@@ -93,10 +93,10 @@ namespace uni.games.majoras_mask_3d {
                                         null
                                     ));
             } catch {
-              return null;
+              return Enumerable.Empty<CmbModelFileBundle>();
             }
           }
-      ).GatherBundles(fileHierarchy);
+      ).GatherFileBundles(assert);
     }
 
     private CmbModelFileBundle GetLinkModel_(IFileHierarchy root,

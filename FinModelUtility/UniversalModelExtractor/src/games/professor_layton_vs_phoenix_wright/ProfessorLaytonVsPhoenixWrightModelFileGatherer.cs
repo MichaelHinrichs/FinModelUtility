@@ -11,13 +11,12 @@ using uni.util.io;
 namespace uni.games.professor_layton_vs_phoenix_wright {
   public class ProfessorLaytonVsPhoenixWrightModelFileGatherer 
       : IFileBundleGatherer<XcModelFileBundle> {
-    public IFileBundleDirectory<XcModelFileBundle>? GatherFileBundles(
-        bool assert) {
+    public IEnumerable<XcModelFileBundle> GatherFileBundles(bool assert) {
       var professorLaytonVsPhoenixWrightRom =
           DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
               "professor_layton_vs_phoenix_wright.cia", assert);
       if (professorLaytonVsPhoenixWrightRom == null) {
-        return null;
+        return Enumerable.Empty<XcModelFileBundle>();
       }
 
       var fileHierarchy =
@@ -29,7 +28,8 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
         fileHierarchy.Root.Refresh(true);
       }
 
-      var root = new FileHierarchyBundler<XcModelFileBundle>(
+      return new FileHierarchyAssetBundleSeparator<XcModelFileBundle>(
+          fileHierarchy,
           directory => {
             /*var xcFiles = directory.FilesWithExtension(".xc")
                                    .ToDictionary(
@@ -162,9 +162,7 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
 
             return bundles.OrderBy(bundle => bundle.BetterFileName ?? bundle.MainFile.Name).ToArray();
           }
-      ).GatherBundles(fileHierarchy);
-
-      return root;
+      ).GatherFileBundles(assert);
     }
 
     internal IXcFiles GetModelOnly(string name,

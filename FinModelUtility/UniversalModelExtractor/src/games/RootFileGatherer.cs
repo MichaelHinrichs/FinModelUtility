@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Collections;
+using System.Runtime.CompilerServices;
 
 using fin.io.bundles;
 
@@ -21,12 +22,16 @@ using uni.games.professor_layton_vs_phoenix_wright;
 using uni.games.super_mario_64;
 using uni.games.super_mario_sunshine;
 using uni.games.super_smash_bros_melee;
+using uni.util.io;
 
 
 namespace uni.games {
   public class RootModelFileGatherer {
-    public RootFileBundleDirectory GatherAllModelFiles() {
-      var rootFileBundleDirectory = new RootFileBundleDirectory();
+    public IFileBundleDirectory GatherAllModelFiles() {
+      IFileBundleGathererAccumulator accumulator =
+          Config.Instance.UseMultithreadingToExtractRoms
+              ? new ParallelFileBundleGathererAccumulator()
+              : new FileBundleGathererAccumulator();
 
       var gatherers = new IFileBundleGatherer[] {
           new BattalionWars1FileGatherer(),
@@ -46,46 +51,12 @@ namespace uni.games {
           new SuperMarioSunshineModelFileGatherer(),
           new SuperSmashBrosMeleeModelFileGatherer(),
       };
-
-      if (Config.Instance.UseMultithreadingToExtractRoms) {
-        var results = new IFileBundleDirectory?[gatherers.Length];
-        ParallelHelper.For(0,
-                           gatherers.Length,
-                           new GathererRunner(gatherers, results));
-        foreach (var result in results) {
-          rootFileBundleDirectory.AddSubdirIfNotNull(result);
-        }
-      } else {
-        foreach (var gatherer in gatherers) {
-          rootFileBundleDirectory.AddSubdirIfNotNull(gatherer
-              .GatherFileBundles(false));
-        }
+      foreach (var gatherer in gatherers) {
+        accumulator.Add(gatherer);
       }
 
-      rootFileBundleDirectory.RemoveEmptyChildren();
-
-      return rootFileBundleDirectory;
-    }
-
-    private readonly struct GathererRunner : IAction {
-      private readonly IReadOnlyList<IFileBundleGatherer> gatherers_;
-      private readonly IList<IFileBundleDirectory?> results_;
-
-
-      public GathererRunner(IReadOnlyList<IFileBundleGatherer> gatherers,
-                            IList<IFileBundleDirectory?> results) {
-        this.gatherers_ = gatherers;
-        this.results_ = results;
-      }
-
-      [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      public void Invoke(int i) {
-        try {
-          this.results_[i] = this.gatherers_[i].GatherFileBundles(false);
-        } catch (Exception e) {
-          ;
-        }
-      }
+      return new FileBundleHierarchyOrganizer().Organize(
+          accumulator.GatherFileBundles(false));
     }
   }
 }

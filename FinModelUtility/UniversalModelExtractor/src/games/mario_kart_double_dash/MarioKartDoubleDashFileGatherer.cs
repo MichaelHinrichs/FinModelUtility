@@ -1,9 +1,11 @@
 ﻿using ast.api;
+
 using j3d.exporter;
-using dat.schema;
+
 using fin.io;
 using fin.io.bundles;
 using fin.util.asserts;
+
 using uni.platforms;
 using uni.platforms.gcn;
 
@@ -11,13 +13,14 @@ using uni.platforms.gcn;
 namespace uni.games.mario_kart_double_dash {
   public class MarioKartDoubleDashFileGatherer
       : IFileBundleGatherer<IFileBundle> {
-    public IFileBundleDirectory<IFileBundle>? GatherFileBundles(
+    public IEnumerable<IFileBundle> GatherFileBundles(
         bool assert) {
       var marioKartDoubleDashRom =
           DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
-              "mario_kart_double_dash.gcm", assert);
+              "mario_kart_double_dash.gcm",
+              assert);
       if (marioKartDoubleDashRom == null) {
-        return null;
+        return Enumerable.Empty<IFileBundle>();
       }
 
       var options = GcnFileHierarchyExtractor.Options.Standard()
@@ -26,132 +29,132 @@ namespace uni.games.mario_kart_double_dash {
           new GcnFileHierarchyExtractor()
               .ExtractFromRom(options, marioKartDoubleDashRom);
 
-      var rootModelDirectory =
-          new FileBundleDirectory<IFileBundle>("mario_kart_double_dash");
-
-      this.ExtractDrivers_(rootModelDirectory, fileHierarchy);
-      this.ExtractKarts_(rootModelDirectory, fileHierarchy);
-      this.ExtractCourses_(rootModelDirectory, fileHierarchy);
-      this.ExtractAudio_(rootModelDirectory, fileHierarchy);
       // TODO: Extract "enemies"
       // TODO: Extract "objects"
-
-      return rootModelDirectory;
+      return this.ExtractDrivers_(fileHierarchy)
+                 .Concat(this.ExtractKarts_(fileHierarchy))
+                 .Concat(this.ExtractCourses_(fileHierarchy))
+                 .Concat(this.ExtractAudio_(fileHierarchy));
     }
 
-    private void ExtractKarts_(
-        FileBundleDirectory<IFileBundle> rootModelDirectory,
-        IFileHierarchy fileHierarchy) {
-      var kartSubdir = fileHierarchy.Root.TryToGetSubdir(@"MRAM\kart");
-      var kartNode = rootModelDirectory.AddSubdir("kart");
+    private IEnumerable<IFileBundle> ExtractKarts_(
+        IFileHierarchy fileHierarchy)
+      => fileHierarchy.Root.TryToGetSubdir(@"MRAM\kart")
+                      .Subdirs
+                      .Select(subdir => subdir.FilesWithExtension(".bmd"))
+                      .SelectMany(bmdFiles => this.ExtractModels_(bmdFiles));
 
-      foreach (var subdir in kartSubdir.Subdirs) {
-        var bmdFiles = subdir.FilesWithExtension(".bmd")
-                             .ToArray();
-        this.ExtractModels_(kartNode.AddSubdir(subdir.Name), bmdFiles);
-      }
-    }
-
-    private void ExtractDrivers_(
-        FileBundleDirectory<IFileBundle> rootModelDirectory,
+    private IEnumerable<IFileBundle> ExtractDrivers_(
         IFileHierarchy fileHierarchy) {
       var mramSubdir = fileHierarchy.Root.TryToGetSubdir(@"MRAM\driver");
-      var driverNode = rootModelDirectory.AddSubdir("driver");
 
       {
-        var plumberNames = new[] {"mario", "luigi",};
+        var plumberNames = new[] { "mario", "luigi", };
         var plumberSubdirs =
             mramSubdir.Subdirs.Where(
                 subdir => plumberNames.Contains(subdir.Name));
         var plumberCommon = mramSubdir.TryToGetSubdir("cmn_hige");
         foreach (var plumberSubdir in plumberSubdirs) {
-          this.ExtractFromSeparateDriverDirectories_(
-              driverNode.AddSubdir(plumberSubdir.Name),
-              plumberSubdir,
-              plumberCommon);
+          foreach (var bundle in this.ExtractFromSeparateDriverDirectories_(
+                       plumberSubdir,
+                       plumberCommon)) {
+            yield return bundle;
+          }
         }
       }
 
       {
         var babyNames = new[] {
-            "babymario", "babyluigi",
+            "babymario",
+            "babyluigi",
             // Should the toads actually be included here?
-            "kinipio", "kinopico"
+            "kinipio",
+            "kinopico"
         };
         var babySubdirs =
             mramSubdir.Subdirs.Where(
                 subdir => babyNames.Contains(subdir.Name));
         var babyCommon = mramSubdir.TryToGetSubdir("cmn_baby");
         foreach (var babySubdir in babySubdirs) {
-          this.ExtractFromSeparateDriverDirectories_(
-              driverNode.AddSubdir(babySubdir.Name),
-              babySubdir,
-              babyCommon);
+          foreach (var bundle in this.ExtractFromSeparateDriverDirectories_(
+                       babySubdir,
+                       babyCommon)) {
+            yield return bundle;
+          }
         }
       }
 
       {
-        var princessNames = new[] {"daisy", "peach"};
+        var princessNames = new[] { "daisy", "peach" };
         var princessSubdirs =
             mramSubdir.Subdirs.Where(
                 subdir => princessNames.Contains(subdir.Name));
         var princessCommon = mramSubdir.TryToGetSubdir("cmn_hime");
         foreach (var princessSubdir in princessSubdirs) {
-          this.ExtractFromSeparateDriverDirectories_(
-              driverNode.AddSubdir(princessSubdir.Name),
-              princessSubdir,
-              princessCommon);
+          foreach (var bundle in this.ExtractFromSeparateDriverDirectories_(
+                       princessSubdir,
+                       princessCommon)) {
+            yield return bundle;
+          }
         }
       }
 
       {
-        var lizardNames = new[] {"catherine", "yoshi"};
+        var lizardNames = new[] { "catherine", "yoshi" };
         var lizardSubdirs =
             mramSubdir.Subdirs.Where(
                 subdir => lizardNames.Contains(subdir.Name));
         var lizardCommon = mramSubdir.TryToGetSubdir("cmn_liz");
         foreach (var lizardSubdir in lizardSubdirs) {
-          this.ExtractFromSeparateDriverDirectories_(
-              driverNode.AddSubdir(lizardSubdir.Name),
-              lizardSubdir,
-              lizardCommon);
+          foreach (var bundle in this.ExtractFromSeparateDriverDirectories_(
+                       lizardSubdir,
+                       lizardCommon)) {
+            yield return bundle;
+          }
         }
       }
 
       // TODO: Where are toad's animations?
 
       {
-        var koopaNames = new[] {"patapata", "nokonoko"};
+        var koopaNames = new[] { "patapata", "nokonoko" };
         var koopaSubdirs =
             mramSubdir.Subdirs.Where(
                 subdir => koopaNames.Contains(subdir.Name));
         var koopaCommon = mramSubdir.TryToGetSubdir("cmn_zako");
         foreach (var koopaSubdir in koopaSubdirs) {
-          this.ExtractFromSeparateDriverDirectories_(
-              driverNode.AddSubdir(koopaSubdir.Name),
-              koopaSubdir,
-              koopaCommon);
+          foreach (var bundle in this.ExtractFromSeparateDriverDirectories_(
+                       koopaSubdir,
+                       koopaCommon)) {
+            yield return bundle;
+          }
         }
       }
 
       {
         var standaloneNames = new[] {
-            "bosspakkun", "dk", "dkjr", "kingteresa", "koopa", "koopajr",
-            "waluigi", "wario",
+            "bosspakkun",
+            "dk",
+            "dkjr",
+            "kingteresa",
+            "koopa",
+            "koopajr",
+            "waluigi",
+            "wario",
         };
         var standaloneSubdirs =
             mramSubdir.Subdirs.Where(
                 subdir => standaloneNames.Contains(subdir.Name));
         foreach (var standaloneSubdir in standaloneSubdirs) {
-          this.ExtractFromDriverDirectory_(
-              driverNode.AddSubdir(standaloneSubdir.Name),
-              standaloneSubdir);
+          foreach (var bundle in this.ExtractFromDriverDirectory_(
+                       standaloneSubdir)) {
+            yield return bundle;
+          }
         }
       }
     }
 
-    private void ExtractFromDriverDirectory_(
-        IFileBundleDirectory<IFileBundle> node,
+    private IEnumerable<IFileBundle> ExtractFromDriverDirectory_(
         IFileHierarchyDirectory directory) {
       var bmdFiles = directory.FilesWithExtension(".bmd")
                               .ToArray();
@@ -166,9 +169,10 @@ namespace uni.games.mario_kart_double_dash {
                                  file.Name.StartsWith("c_") ||
                                  file.Name.StartsWith("all"))
                   .ToArray();
-      this.ExtractModels_(node,
-                          driverBmdFiles,
-                          driverBcxFiles);
+      foreach (var bundle in this.ExtractModels_(driverBmdFiles,
+                                                 driverBcxFiles)) {
+        yield return bundle;
+      }
 
       var otherBmdFiles = bmdFiles.Where(file => !driverBmdFiles.Contains(file))
                                   .ToArray();
@@ -176,14 +180,14 @@ namespace uni.games.mario_kart_double_dash {
         var otherBcxFiles =
             bcxFiles.Where(file => !driverBcxFiles.Contains(file))
                     .ToArray();
-        this.ExtractModels_(node,
-                            otherBmdFiles,
-                            otherBcxFiles);
+        foreach (var bundle in
+                 this.ExtractModels_(otherBmdFiles, otherBcxFiles)) {
+          yield return bundle;
+        }
       }
     }
 
-    private void ExtractFromSeparateDriverDirectories_(
-        IFileBundleDirectory<IFileBundle> node,
+    private IEnumerable<IFileBundle> ExtractFromSeparateDriverDirectories_(
         IFileHierarchyDirectory directory,
         IFileHierarchyDirectory common) {
       Asserts.Nonnull(common);
@@ -195,17 +199,14 @@ namespace uni.games.mario_kart_double_dash {
       var localBcxFiles = directory.FilesWithExtensions(".bca", ".bck")
                                    .ToArray();
 
-      this.ExtractModels_(node,
-                          bmdFiles,
-                          commonBcxFiles.Concat(localBcxFiles).ToArray());
+      return this.ExtractModels_(
+          bmdFiles,
+          commonBcxFiles.Concat(localBcxFiles).ToArray());
     }
 
-    private void ExtractCourses_(
-        FileBundleDirectory<IFileBundle> rootModelDirectory,
+    private IEnumerable<IFileBundle> ExtractCourses_(
         IFileHierarchy fileHierarchy) {
       var courseSubdir = fileHierarchy.Root.TryToGetSubdir("Course");
-      var coursesNode = rootModelDirectory.AddSubdir("Course");
-
       foreach (var subdir in courseSubdir.Subdirs) {
         var bmdFiles = subdir.FilesWithExtension(".bmd")
                              .ToArray();
@@ -216,31 +217,24 @@ namespace uni.games.mario_kart_double_dash {
         var btiFiles = subdir.FilesWithExtension(".bti")
                              .ToArray();
 
-        var courseNode = coursesNode.AddSubdir(subdir.Name);
-        this.ExtractModels_(courseNode,
-                            bmdFiles,
-                            null,
-                            btiFiles);
+        foreach (var bundle in this.ExtractModels_(bmdFiles, null, btiFiles)) {
+          yield return bundle;
+        }
 
         var objectsSubdir = subdir.TryToGetSubdir("objects");
-        this.ExtractModelsAndAnimationsFromSceneObject_(
-            courseNode.AddSubdir("objects"),
-            objectsSubdir);
+        foreach (var bundle in this.ExtractModelsAndAnimationsFromSceneObject_(
+                     objectsSubdir)) {
+          yield return bundle;
+        }
       }
     }
 
-    private void ExtractAudio_(
-        IFileBundleDirectory<IFileBundle> parentNode,
-        IFileHierarchy fileHierarchy) {
-      var astDirectory = fileHierarchy.Root.TryToGetSubdir(@"AudioRes\Stream");
+    private IEnumerable<IFileBundle> ExtractAudio_(IFileHierarchy fileHierarchy)
+      => fileHierarchy.Root.TryToGetSubdir(@"AudioRes\Stream")
+                      .FilesWithExtension(".ast")
+                      .Select(astFile => new AstAudioFileBundle(astFile));
 
-      foreach (var astFile in astDirectory.FilesWithExtension(".ast")) {
-        parentNode.AddFileBundleRelative(new AstAudioFileBundle(astFile));
-      }
-    }
-
-    private void ExtractModelsAndAnimationsFromSceneObject_(
-        IFileBundleDirectory<IFileBundle> node,
+    private IEnumerable<IFileBundle> ExtractModelsAndAnimationsFromSceneObject_(
         IFileHierarchyDirectory directory) {
       var bmdFiles = directory.Files.Where(
                                   file => file.Extension == ".bmd")
@@ -257,13 +251,10 @@ namespace uni.games.mario_kart_double_dash {
       // If there is only one model or 0 animations, it's easy to tell which
       // animations go with which model.
       if (bmdFiles.Length == 1 || allBcxFiles.Length == 0) {
-        foreach (var bmdFile in bmdFiles) {
-          this.ExtractModels_(node,
-                              new[] {bmdFile},
-                              allBcxFiles,
-                              btiFiles);
-        }
-        return;
+        return bmdFiles.SelectMany(bmdFile => this.ExtractModels_(
+                                       new[] { bmdFile },
+                                       allBcxFiles,
+                                       btiFiles));
       }
 
       var unclaimedBcxFiles = allBcxFiles.ToHashSet();
@@ -298,28 +289,24 @@ namespace uni.games.mario_kart_double_dash {
 
         bmdAndBcxFiles[bmdFile] = claimedBcxFiles;
       }
+
       Asserts.True(unclaimedBcxFiles.Count == 0);
-      foreach (var (bmdFile, bcxFiles) in bmdAndBcxFiles) {
-        this.ExtractModels_(node, new[] {bmdFile}, bcxFiles, btiFiles);
-      }
+      return bmdAndBcxFiles.SelectMany(pair => {
+        var (bmdFile, bcxFiles) = pair;
+        return this.ExtractModels_(new[] { bmdFile }, bcxFiles, btiFiles);
+      });
     }
 
-    private void ExtractModels_(
-        IFileBundleDirectory<IFileBundle> node,
-        IReadOnlyList<IFileHierarchyFile> bmdFiles,
+    private IEnumerable<IFileBundle> ExtractModels_(
+        IEnumerable<IFileHierarchyFile> bmdFiles,
         IReadOnlyList<IFileHierarchyFile>? bcxFiles = null,
         IReadOnlyList<IFileHierarchyFile>? btiFiles = null
-    ) {
-      Asserts.True(bmdFiles.Count > 0);
-
-      foreach (var bmdFile in bmdFiles) {
-        node.AddFileBundle(new BmdModelFileBundle {
-            BmdFile = bmdFile,
-            BcxFiles = bcxFiles,
-            BtiFiles = btiFiles,
-            FrameRate = 60
-        });
-      }
-    }
+    )
+      => bmdFiles.Select(bmdFile => new BmdModelFileBundle {
+          BmdFile = bmdFile,
+          BcxFiles = bcxFiles,
+          BtiFiles = btiFiles,
+          FrameRate = 60,
+      });
   }
 }

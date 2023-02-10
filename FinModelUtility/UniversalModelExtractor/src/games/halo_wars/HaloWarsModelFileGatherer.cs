@@ -13,12 +13,12 @@ using uni.platforms.desktop;
 namespace uni.games.halo_wars {
   public class HaloWarsModelFileGatherer 
       : IFileBundleGatherer<IHaloWarsModelFileBundle> {
-    public IFileBundleDirectory<IHaloWarsModelFileBundle>? GatherFileBundles(
+    public IEnumerable<IHaloWarsModelFileBundle> GatherFileBundles(
         bool assert) {
       var haloWarsSteamDirectory =
           SteamUtils.GetGameDirectory("HaloWarsDE", assert);
       if (haloWarsSteamDirectory == null) {
-        return null;
+        yield break;
       }
 
       var scratchDirectory = DirectoryConstants.ROMS_DIRECTORY
@@ -31,8 +31,6 @@ namespace uni.games.halo_wars {
 
       var fileHierarchy = new FileHierarchy(scratchDirectory);
 
-      var rootNode = new FileBundleDirectory<IHaloWarsModelFileBundle>("halo_wars");
-
       var mapDirectories =
           fileHierarchy.Root
                        .TryToGetSubdir("scenario/skirmish/design")
@@ -40,8 +38,7 @@ namespace uni.games.halo_wars {
       foreach (var srcMapDirectory in mapDirectories) {
         var xtdFile = srcMapDirectory.FilesWithExtension(".xtd").Single();
         var xttFile = srcMapDirectory.FilesWithExtension(".xtt").Single();
-        rootNode.AddFileBundleRelative(
-            new XtdModelFileBundle(xtdFile, xttFile, context));
+        yield return new XtdModelFileBundle(xtdFile, xttFile, context);
       }
 
       var artDirectory = fileHierarchy.Root.TryToGetSubdir("art");
@@ -52,13 +49,11 @@ namespace uni.games.halo_wars {
         // TODO: Parse UGX files instead, as long as they specify their own animations
         var visFiles = artSubdir.FilesWithExtension(".vis");
         foreach (var visFile in visFiles) {
-          rootNode.AddFileBundleRelative(new VisModelFileBundle(visFile, context));
+          yield return new VisModelFileBundle(visFile, context);
         }
 
         artSubdirQueue.Enqueue(artSubdir.Subdirs);
       }
-
-      return rootNode;
     }
   }
 }

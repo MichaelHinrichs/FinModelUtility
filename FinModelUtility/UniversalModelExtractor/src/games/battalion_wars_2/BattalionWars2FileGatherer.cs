@@ -9,14 +9,13 @@ using uni.util.io;
 
 namespace uni.games.battalion_wars_2 {
   public class BattalionWars2FileGatherer : IFileBundleGatherer<IFileBundle> {
-    public IFileBundleDirectory<IFileBundle>? GatherFileBundles(
-        bool assert) {
+    public IEnumerable<IFileBundle> GatherFileBundles(bool assert) {
       var battalionWarsRom =
           DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
               "battalion_wars_2.iso", assert);
 
-      if (battalionWarsRom == null) {
-        return null;
+      if (battalionWarsRom == null) { 
+        return Enumerable.Empty<IFileBundle>();
       }
 
       var fileHierarchy =
@@ -36,7 +35,8 @@ namespace uni.games.battalion_wars_2 {
         }
       }
 
-      return new FileHierarchyBundler<IFileBundle>(
+      return new FileHierarchyAssetBundleSeparator<IFileBundle>(
+          fileHierarchy,
           directory => {
             var modlFiles = directory.FilesWithExtension(".modl");
             var animFiles = directory.FilesWithExtension(".anim");
@@ -126,7 +126,7 @@ namespace uni.games.battalion_wars_2 {
 
             return bundles;
           }
-      ).GatherBundles(fileHierarchy);
+      ).GatherFileBundles(assert);
     }
   }
 }

@@ -6,8 +6,8 @@ using fin.scene;
 
 namespace uni.ui.common {
   public class FileBundleTreeView
-      : FileTreeView<IFileBundle, RootFileBundleDirectory> {
-    protected override void PopulateImpl(RootFileBundleDirectory directoryRoot,
+      : FileTreeView<IFileBundle, IFileBundleDirectory> {
+    protected override void PopulateImpl(IFileBundleDirectory directoryRoot,
                                          FileNode uiRoot) {
       foreach (var subdir in directoryRoot.Subdirs) {
         this.AddDirectoryToNode_(subdir, uiRoot);

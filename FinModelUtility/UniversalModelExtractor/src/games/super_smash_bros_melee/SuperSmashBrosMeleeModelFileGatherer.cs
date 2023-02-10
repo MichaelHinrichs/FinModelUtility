@@ -8,22 +8,20 @@ using uni.platforms.gcn;
 namespace uni.games.super_smash_bros_melee {
   public class SuperSmashBrosMeleeModelFileGatherer 
       : IFileBundleGatherer<DatModelFileBundle> {
-    public IFileBundleDirectory<DatModelFileBundle>? GatherFileBundles(
-        bool assert) {
+    public string Name => "super_smash_bros_melee";
+
+    public IEnumerable<DatModelFileBundle>? GatherFileBundles(bool assert) {
       var superSmashBrosMeleeRom =
           DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
               "super_smash_bros_melee.gcm", assert);
       if (superSmashBrosMeleeRom == null) {
-        return null;
+        yield break;
       }
 
       var options = GcnFileHierarchyExtractor.Options.Standard();
       var fileHierarchy =
           new GcnFileHierarchyExtractor()
               .ExtractFromRom(options, superSmashBrosMeleeRom);
-
-      var rootModelDirectory =
-          new FileBundleDirectory<DatModelFileBundle>("super_smash_bros_melee");
 
       foreach (var datFile in fileHierarchy.Root.FilesWithExtension(".dat")) {
         var datFileName = datFile.NameWithoutExtension;
@@ -50,11 +48,9 @@ namespace uni.games.super_smash_bros_melee {
         // TODO: Look into the other files
 
         if (isValidModel) {
-          rootModelDirectory.AddFileBundle(new DatModelFileBundle(datFile));
+          yield return new DatModelFileBundle(datFile);
         }
       }
-
-      return rootModelDirectory;
     }
   }
 }

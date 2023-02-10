@@ -2,14 +2,15 @@
 
 using uni.platforms;
 using uni.platforms.threeDs;
-using uni.util.separator;
+using uni.util.bundles;
 
 using cmb.api;
+
 using fin.io.bundles;
 
 
 namespace uni.games.luigis_mansion_3d {
-  public class LuigisMansion3dModelFileGatherer 
+  public class LuigisMansion3dModelFileGatherer
       : IFileBundleGatherer<CmbModelFileBundle> {
     private readonly IModelSeparator separator_ =
         new ModelSeparator(directory => directory.LocalPath)
@@ -23,43 +24,26 @@ namespace uni.games.luigis_mansion_3d {
             .Register(@"\model\luige",
                       new NameModelSeparatorMethod("Luigi.cmb"));
 
-    public IFileBundleDirectory<CmbModelFileBundle>? GatherFileBundles(
-        bool assert) {
+    public IEnumerable<CmbModelFileBundle> GatherFileBundles(bool assert) {
       var luigisMansionRom =
           DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
-              "luigis_mansion_3d.cia", assert);
+              "luigis_mansion_3d.cia",
+              assert);
       if (luigisMansionRom == null) {
-        return null;
+        return Enumerable.Empty<CmbModelFileBundle>();
       }
 
       var fileHierarchy =
           new ThreeDsFileHierarchyExtractor().ExtractFromRom(
               luigisMansionRom);
-
-      var rootModelDirectory =
-          new FileBundleDirectory<CmbModelFileBundle>("luigis_mansion_3d");
-      var queue =
-          new Queue<(IFileHierarchyDirectory,
-              IFileBundleDirectory<CmbModelFileBundle>)>();
-      queue.Enqueue((fileHierarchy.Root, rootModelDirectory));
-      while (queue.Any()) {
-        var (directory, node) = queue.Dequeue();
-
-        this.ExtractModel_(node, directory);
-
-        foreach (var subdir in directory.Subdirs) {
-          queue.Enqueue((subdir, node.AddSubdir(subdir.Name)));
-        }
-      }
-      return rootModelDirectory;
+      return fileHierarchy.SelectMany(this.ExtractModel_);
     }
 
-    public void ExtractModel_(
-        IFileBundleDirectory<CmbModelFileBundle> parentNode,
+    public IEnumerable<CmbModelFileBundle> ExtractModel_(
         IFileHierarchyDirectory subdir) {
       var cmbFiles = subdir.FilesWithExtension(".cmb").ToArray();
       if (cmbFiles.Length == 0) {
-        return;
+        return Enumerable.Empty<CmbModelFileBundle>();
       }
 
       var csabFiles = subdir.FilesWithExtension(".csab").ToArray();
@@ -67,18 +51,16 @@ namespace uni.games.luigis_mansion_3d {
       var shpaFiles = subdir.FilesWithExtension(".shpa").ToArray();
 
       try {
-        var bundles =
-            this.separator_.Separate(subdir, cmbFiles, csabFiles);
-
-        foreach (var bundle in bundles) {
-          parentNode.AddFileBundle(new CmbModelFileBundle(
-                                       bundle.ModelFile,
-                                       bundle.AnimationFiles.ToArray(),
-                                       ctxbFiles,
-                                       shpaFiles
-                                   ));
-        }
-      } catch { }
+        return this.separator_.Separate(subdir, cmbFiles, csabFiles)
+                   .Select(bundle => new CmbModelFileBundle(
+                               bundle.ModelFile,
+                               bundle.AnimationFiles.ToArray(),
+                               ctxbFiles,
+                               shpaFiles
+                           ));
+      } catch {
+        return Enumerable.Empty<CmbModelFileBundle>();
+      }
     }
   }
 }

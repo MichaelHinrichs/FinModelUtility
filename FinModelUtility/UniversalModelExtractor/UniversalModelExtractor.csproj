@@ -25,6 +25,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="util\separator\**" />
+    <EmbeddedResource Remove="util\separator\**" />
+    <None Remove="util\separator\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="src\ui\gl\ModelRenderer.cs" />
   </ItemGroup>
 

@@ -1,7 +1,7 @@
 ﻿using uni.platforms;
 using uni.platforms.threeDs;
 using uni.util.io;
-using uni.util.separator;
+using uni.util.bundles;
 
 using cmb.api;
 using fin.io.bundles;
@@ -158,29 +158,29 @@ namespace uni.games.ocarina_of_time_3d {
           .Register("zelda_wm2", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_xc", new NoAnimationsModelSeparatorMethod());
 
-    public IFileBundleDirectory<CmbModelFileBundle>? GatherFileBundles(
-        bool assert) {
+    public IEnumerable<CmbModelFileBundle> GatherFileBundles(bool assert) {
       var ocarinaOfTime3dRom =
           DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
               "ocarina_of_time_3d.cia", assert);
       if (ocarinaOfTime3dRom == null) {
-        return null;
+        return Enumerable.Empty<CmbModelFileBundle>();
       }
 
       var fileHierarchy =
           new ThreeDsFileHierarchyExtractor()
               .ExtractFromRom(ocarinaOfTime3dRom);
 
-      return new FileHierarchyBundler<CmbModelFileBundle>(
+      return new FileHierarchyAssetBundleSeparator<CmbModelFileBundle>(
+          fileHierarchy,
           subdir => {
             if (!separator_.Contains(subdir)) {
-              return null;
+              return Enumerable.Empty<CmbModelFileBundle>();
             }
 
             var cmbFiles =
                 subdir.FilesWithExtensionsRecursive(".cmb").ToArray();
             if (cmbFiles.Length == 0) {
-              return null;
+              return Enumerable.Empty<CmbModelFileBundle>();
             }
 
             var csabFiles =
@@ -199,10 +199,10 @@ namespace uni.games.ocarina_of_time_3d {
                                         null
                                     ));
             } catch {
-              return null;
+              return Enumerable.Empty<CmbModelFileBundle>();
             }
           }
-      ).GatherBundles(fileHierarchy);
+      ).GatherFileBundles(assert);
     }
   }
 }
