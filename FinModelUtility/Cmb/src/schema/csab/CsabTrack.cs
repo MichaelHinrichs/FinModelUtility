@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 
@@ -137,7 +138,8 @@ namespace cmb.schema.csab {
       }
 
       return new CsabKeyframe {
-          Time = (uint) (startFrame + er.ReadUInt16()), Value = er.ReadSn16(),
+          Time = (uint) (startFrame + er.ReadUInt16()),
+          Value = er.ReadSn16() * MathF.PI,
       };
     }
 
@@ -158,7 +160,7 @@ namespace cmb.schema.csab {
                                                    int startFrame)
       => new CsabKeyframe {
           Time = (uint) (startFrame + er.ReadUInt16()),
-          Value = er.ReadSn16(),
+          Value = er.ReadSn16() * MathF.PI,
           IncomingTangent = er.ReadSn16(),
           OutgoingTangent = er.ReadSn16(),
       };

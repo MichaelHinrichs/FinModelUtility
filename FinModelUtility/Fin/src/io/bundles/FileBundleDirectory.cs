@@ -12,7 +12,7 @@ namespace fin.io.bundles {
     IFileBundleDirectory AddSubdir(string name);
     void AddFileBundle(IFileBundle fileBundle);
 
-    void RemoveEmptyChildren();
+    void CleanUp();
   }
 
   public class FileBundleDirectory : IFileBundleDirectory {
@@ -37,10 +37,10 @@ namespace fin.io.bundles {
     public void AddFileBundle(IFileBundle fileBundle)
       => this.fileBundles_.Add(fileBundle);
 
-    public void RemoveEmptyChildren() {
+    public void CleanUp() {
       var subdirsToRemove = new List<IFileBundleDirectory>();
       foreach (var subdir in this.subdirs_) {
-        subdir.RemoveEmptyChildren();
+        subdir.CleanUp();
         if (!subdir.Subdirs.Any() && !subdir.FileBundles.Any()) {
           subdirsToRemove.Add(subdir);
         }
@@ -49,6 +49,9 @@ namespace fin.io.bundles {
       foreach (var subdir in subdirsToRemove) {
         this.subdirs_.Remove(subdir);
       }
+
+      this.subdirs_.Sort((lhs, rhs) => lhs.Name.CompareTo(rhs.Name));
+      this.fileBundles_.Sort((lhs, rhs) => lhs.FileName.CompareTo(rhs.FileName));
     }
   }
 }

@@ -24,7 +24,7 @@ namespace uni.util.io {
             .AddFileBundle(fileBundle);
       }
 
-      rootFileBundleDirectory.RemoveEmptyChildren();
+      rootFileBundleDirectory.CleanUp();
       return rootFileBundleDirectory;
     }
   }

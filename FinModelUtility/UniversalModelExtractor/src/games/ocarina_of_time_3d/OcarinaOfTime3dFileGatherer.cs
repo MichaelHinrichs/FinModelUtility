@@ -4,11 +4,13 @@ using uni.util.io;
 using uni.util.bundles;
 
 using cmb.api;
+
+using fin.io;
 using fin.io.bundles;
 
 
 namespace uni.games.ocarina_of_time_3d {
-  public class OcarinaOfTime3dFileGatherer 
+  public class OcarinaOfTime3dFileGatherer
       : IFileBundleGatherer<CmbModelFileBundle> {
     // TODO: Add support for Link
     // TODO: Add support for faceb
@@ -20,62 +22,62 @@ namespace uni.games.ocarina_of_time_3d {
     private readonly IModelSeparator separator_
         = new ModelSeparator(directory => directory.Name)
           .Register(new AllAnimationsModelSeparatorMethod(),
-              "zelda_am",
-              "zelda_aob",
-              "zelda_av",
-              "zelda_bb",
-              "zelda_bdan_objects",
-              "zelda_bji",
-              "zelda_bob",
-              "zelda_bombf",
-              "zelda_bowl",
-              "zelda_brob",
-              "zelda_bw",
-              "zelda_cne",
-              "zelda_cow",
-              "zelda_crow",
-              "zelda_cs",
-              "zelda_dodojr",
-              "zelda_dodongo",
-              "zelda_dog",
-              "zelda_ds",
-              "zelda_ei",
-              "zelda_ff",
-              "zelda_fu",
-              "zelda_gi_bottle",
-              "zelda_gi_coin",
-              "zelda_gi_compass",
-              "zelda_gi_dekupouch",
-              "zelda_gi_egg",
-              "zelda_horse",
-              "zelda_horse_ganon",
-              "zelda_horse_normal",
-              "zelda_horse_zelda",
-              "zelda_hs",
-              "zelda_jj",
-              "zelda_ka",
-              "zelda_kanban",
-              "zelda_kibako2",
-              "zelda_killer_door",
-              "zelda_km1",
-              "zelda_kogoma",
-              "zelda_kusa",
-              "zelda_kz",
-              "zelda_lightswitch",
-              "zelda_ma2",
-              "zelda_mjin",
-              "zelda_rd",
-              "zelda_ru1",
-              "zelda_ru2",
-              "zelda_sa",
-              "zelda_tk",
-              "zelda_ydan_objects",
-              "zelda_yukabyun",
-              "zelda_zf",
-              "zelda_zl1",
-              "zelda_zl2",
-              "zelda_zl4",
-              "zelda_zo"
+                    "zelda_am",
+                    "zelda_aob",
+                    "zelda_av",
+                    "zelda_bb",
+                    "zelda_bdan_objects",
+                    "zelda_bji",
+                    "zelda_bob",
+                    "zelda_bombf",
+                    "zelda_bowl",
+                    "zelda_brob",
+                    "zelda_bw",
+                    "zelda_cne",
+                    "zelda_cow",
+                    "zelda_crow",
+                    "zelda_cs",
+                    "zelda_dodojr",
+                    "zelda_dodongo",
+                    "zelda_dog",
+                    "zelda_ds",
+                    "zelda_ei",
+                    "zelda_ff",
+                    "zelda_fu",
+                    "zelda_gi_bottle",
+                    "zelda_gi_coin",
+                    "zelda_gi_compass",
+                    "zelda_gi_dekupouch",
+                    "zelda_gi_egg",
+                    "zelda_horse",
+                    "zelda_horse_ganon",
+                    "zelda_horse_normal",
+                    "zelda_horse_zelda",
+                    "zelda_hs",
+                    "zelda_jj",
+                    "zelda_ka",
+                    "zelda_kanban",
+                    "zelda_kibako2",
+                    "zelda_killer_door",
+                    "zelda_km1",
+                    "zelda_kogoma",
+                    "zelda_kusa",
+                    "zelda_kz",
+                    "zelda_lightswitch",
+                    "zelda_ma2",
+                    "zelda_mjin",
+                    "zelda_rd",
+                    "zelda_ru1",
+                    "zelda_ru2",
+                    "zelda_sa",
+                    "zelda_tk",
+                    "zelda_ydan_objects",
+                    "zelda_yukabyun",
+                    "zelda_zf",
+                    "zelda_zl1",
+                    "zelda_zl2",
+                    "zelda_zl4",
+                    "zelda_zo"
           )
           // TODO: This is probably wrong
           .Register("zelda_box",
@@ -161,7 +163,8 @@ namespace uni.games.ocarina_of_time_3d {
     public IEnumerable<CmbModelFileBundle> GatherFileBundles(bool assert) {
       var ocarinaOfTime3dRom =
           DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
-              "ocarina_of_time_3d.cia", assert);
+              "ocarina_of_time_3d.cia",
+              assert);
       if (ocarinaOfTime3dRom == null) {
         return Enumerable.Empty<CmbModelFileBundle>();
       }
@@ -170,7 +173,15 @@ namespace uni.games.ocarina_of_time_3d {
           new ThreeDsFileHierarchyExtractor()
               .ExtractFromRom(ocarinaOfTime3dRom);
 
-      return new FileHierarchyAssetBundleSeparator<CmbModelFileBundle>(
+      return new FileBundleGathererAccumulator<CmbModelFileBundle>()
+             .Add(() => GetModelsViaSeparator_(fileHierarchy))
+             .Add(() => this.GetLinkModels_(fileHierarchy))
+             .GatherFileBundles(assert);
+    }
+
+    private IEnumerable<CmbModelFileBundle> GetModelsViaSeparator_(
+        IFileHierarchy fileHierarchy)
+      => new FileHierarchyAssetBundleSeparator<CmbModelFileBundle>(
           fileHierarchy,
           subdir => {
             if (!separator_.Contains(subdir)) {
@@ -202,7 +213,29 @@ namespace uni.games.ocarina_of_time_3d {
               return Enumerable.Empty<CmbModelFileBundle>();
             }
           }
-      ).GatherFileBundles(assert);
+      ).GatherFileBundles(false);
+
+    private IEnumerable<CmbModelFileBundle> GetLinkModels_(
+        IFileHierarchy fileHierarchy) {
+      var actorsDir = fileHierarchy.Root.GetExistingSubdir("actor");
+
+      var childDir = actorsDir.GetExistingSubdir("zelda_link_child_new/child");
+      yield return new CmbModelFileBundle(
+          childDir.GetExistingFile("model/childlink_v2.cmb"),
+          childDir.GetExistingSubdir("anim")
+                  .FilesWithExtension(".csab")
+                  .ToArray(),
+          null,
+          null);
+
+      var adultDir = actorsDir.GetExistingSubdir("zelda_link_boy_new/boy");
+      yield return new CmbModelFileBundle(
+          adultDir.GetExistingFile("model/link_v2.cmb"),
+          adultDir.GetExistingSubdir("anim")
+                  .FilesWithExtension(".csab")
+                  .ToArray(),
+          null,
+          null);
     }
   }
 }
