@@ -25,6 +25,7 @@ Model viewer and command-line tools for extracting models from games en-masse. S
 - [@intns](https://github.com/intns), whose [MODConv](https://github.com/intns/MODConv) tool was used as the basis for the .mod importer.
 - [@IronLanguages](https://github.com/IronLanguages), whose [IronPython](https://github.com/IronLanguages/ironpython3) was used to add support for calling Python plugins from C#.
 - [@jefffhaynes](https://github.com/jefffhaynes), whose [BinarySerializer](https://github.com/jefffhaynes/BinarySerializer) attribute library inspired the schema attributes for configuring how binary data is read.
+- [@Julgodis](https://github.com/Julgodis), whose [picori](https://github.com/Julgodis/picori) library was referenced to implement parsing .CISO files. 
 - [@KillzXGaming](https://github.com/KillzXGaming), whose [Switch-Toolbox](https://github.com/KillzXGaming/Switch-Toolbox) was referenced to add support for LZSS decompression.
 - [@kornman00](https://github.com/kornman00), AKA [@KornnerStudios](https://github.com/KornnerStudios), for documenting the Halo Wars formats in [HaloWarsDocs](https://github.com/HaloMods/HaloWarsDocs) and providing the [KSoft suite](https://github.com/KornnerStudios/KSoft) to extract the contents of the game.
 - [@leftp](https://github.com/leftp), whose [SharpDirLister](https://github.com/EncodeGroup/SharpDirLister) API was used to dramatically improve listing out the file hierarchy.
@@ -77,7 +78,7 @@ Model viewer and command-line tools for extracting models from games en-masse. S
 - .xc (3DS)
   - Professor Layton vs. Phoenix Wright (`professor_layton_vs_phoenix_wright.cia`)
 
-*Note:* For GameCube ROMs, files with an `.iso` extension should work as long as they are renamed to `[game_name].gcm`.
+*Note:* For GameCube ROMs, files with `.iso`, `.nkit.iso`, or `.ciso` extensions should work as long as they are renamed to `[game_name].gcm`.
 
 ## Usage guide
 
