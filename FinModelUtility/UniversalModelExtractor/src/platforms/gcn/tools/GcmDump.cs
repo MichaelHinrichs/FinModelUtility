@@ -8,11 +8,9 @@ using schema.binary;
 
 namespace uni.platforms.gcn.tools {
   /// <summary>
-  ///   Shamelessly ported from version 1.0 (20050213) of gcmdump by by thakis.
+  ///   Shamelessly ported from version 1.0 (20050213) of gcmdump by thakis.
   /// </summary>
   public partial class GcmDump {
-    // TODO: Add support for NKit ISOs
-
     public bool Run(IFile romFile, out IFileHierarchy hierarchy)
       => Run(romFile.OpenRead(),
              romFile.FullNameWithoutExtension,
