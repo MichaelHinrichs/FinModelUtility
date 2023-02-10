@@ -35,7 +35,13 @@ namespace uni.platforms.gcn.tools {
     }
 
     private void DumpRom_(Stream romStream, string directoryPath) {
-      using var er = new EndianBinaryReader(romStream, Endianness.BigEndian);
+      var isCiso = MagicTextUtil.Verify(romStream, "CISO");
+      romStream.Position = 0;
+
+      using var er = !isCiso
+          ? new EndianBinaryReader(romStream, Endianness.BigEndian)
+          : new EndianBinaryReader(new CisoStream(romStream),
+                                   Endianness.BigEndian);
 
       var diskHeader = er.ReadNew<DiskHeader>();
       var fileEntries = this.ReadFileSystemTable_(er, diskHeader);
