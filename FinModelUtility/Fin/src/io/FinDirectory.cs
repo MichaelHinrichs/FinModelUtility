@@ -63,11 +63,13 @@ namespace fin.io {
         }
 
         var matches = FinFileSystem.Directory.GetDirectories(current, subdir);
-        if (!create || matches.Length == 1) {
+        if (matches.Length == 1) {
           current = matches.Single();
         } else {
           current = Path.Join(current, subdir);
-          FinFileSystem.Directory.CreateDirectory(current);
+          if (create) {
+            FinFileSystem.Directory.CreateDirectory(current);
+          }
         }
       }
 
