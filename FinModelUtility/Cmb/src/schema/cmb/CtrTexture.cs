@@ -1,32 +1,12 @@
-﻿using System;
-using System.IO;
+﻿using cmb.schema.cmb.image;
 
-using fin.color;
 using fin.image;
-using fin.image.io;
-using fin.util.color;
-
-using SixLabors.ImageSharp.PixelFormats;
 
 
 namespace cmb.schema.cmb {
   public class CtrTexture {
-    private int[] swizzleLut_ = {
-        0, 1, 8, 9, 2, 3, 10, 11, 16, 17, 24, 25, 18, 19, 26, 27, 4, 5, 12, 13,
-        6, 7, 14, 15, 20, 21, 28, 29, 22, 23, 30, 31, 32, 33, 40, 41, 34, 35,
-        42, 43, 48, 49, 56, 57, 50, 51, 58, 59, 36, 37, 44, 45, 38, 39, 46, 47,
-        52, 53, 60, 61, 54, 55, 62, 63
-    };
-
-    private int[][] etc1Lut_ = {
-        new[] {2, 8, -2, -8}, new[] {5, 17, -5, -17}, new[] {9, 29, -9, -29},
-        new[] {13, 42, -13, -42}, new[] {18, 60, -18, -60},
-        new[] {24, 80, -24, -80}, new[] {33, 106, -33, -106},
-        new[] {47, 183, -47, -183},
-    };
-
     private GlTextureFormat CollapseFormat_(GlTextureFormat format) {
-      var lowerFormat = (GlTextureFormat)((int)format & 0xFFFF);
+      var lowerFormat = (GlTextureFormat) ((int) format & 0xFFFF);
 
       if (lowerFormat == GlTextureFormat.ETC1) {
         format = GlTextureFormat.ETC1;
@@ -37,156 +17,12 @@ namespace cmb.schema.cmb {
       return format;
     }
 
-    private int GetFmtBpp_(GlTextureFormat format)
-      => this.CollapseFormat_(format) switch {
-          GlTextureFormat.RGBA8    => 32,
-          GlTextureFormat.RGB8     => 24,
-          GlTextureFormat.RGBA5551 => 16,
-          GlTextureFormat.RGB565   => 16,
-          GlTextureFormat.RGBA4444 => 16,
-          GlTextureFormat.LA8      => 16,
-          GlTextureFormat.Gas      => 8,
-          GlTextureFormat.HiLo8    => 8,
-          GlTextureFormat.L8       => 8,
-          GlTextureFormat.A8       => 8,
-          GlTextureFormat.LA4      => 8,
-          GlTextureFormat.Shadow   => 8,
-          GlTextureFormat.L4       => 4,
-          GlTextureFormat.A4       => 4,
-          GlTextureFormat.ETC1     => 4,
-          GlTextureFormat.ETC1a4   => 8,
-          _ => throw new ArgumentOutOfRangeException(
-                   nameof(format),
-                   format,
-                   null)
-      };
-
-
-    public unsafe IImage DecodeImage(
+    public IImage DecodeImage(
         byte[] input,
-        Texture texture) {
-      // M-1: Note: I don't think HiLo8 exist for .cmb
-
-      if (texture.isEtc1) {
-        return this.Etc1Decompress_(input, texture);
-      }
-
-      var format = this.CollapseFormat_(texture.imageFormat);
-      var width = texture.width;
-      var height = texture.height;
-
-      var output = new Rgba32Image(width, height);
-      using var imageLock = output.Lock();
-      var ptr = imageLock.pixelScan0;
-
-      using var er =
-          new EndianBinaryReader(new MemoryStream(input),
-                                 Endianness.LittleEndian);
-
-      for (var ty = 0; ty < height; ty += 8) {
-        for (var tx = 0; tx < width; tx += 8) {
-          for (var px = 0; px < 64; ++px) {
-            if (format is GlTextureFormat.L4) {
-              var value = er.ReadByte();
-
-              var upper = (value >> 4) * 17;
-              var lower = (value & 0xF) * 17;
-
-              var x1 = this.swizzleLut_[px] & 7;
-              var y1 = (this.swizzleLut_[px] - x1) >> 3;
-              ptr[(ty + y1) * width + (tx + x1)] = new Rgba32(upper, upper, upper);
-
-              px++;
-              var x2 = this.swizzleLut_[px] & 7;
-              var y2 = (this.swizzleLut_[px] - x1) >> 3;
-              ptr[(ty + y2) * width + (tx + x2)] = new Rgba32(lower, lower, lower);
-
-              continue;
-            }
-
-            byte r, g, b, a;
-
-            switch (format) {
-              case GlTextureFormat.RGB8: {
-                a = 255;
-                b = er.ReadByte();
-                g = er.ReadByte();
-                r = er.ReadByte();
-                break;
-              }
-              case GlTextureFormat.RGBA8: {
-                a = er.ReadByte();
-                b = er.ReadByte();
-                g = er.ReadByte();
-                r = er.ReadByte();
-                break;
-              }
-              case GlTextureFormat.RGBA5551: {
-                var value = er.ReadUInt16();
-                ColorUtil.SplitRgb5A1(value, out r, out g, out b, out a);
-                break;
-              }
-              case GlTextureFormat.RGB565: {
-                var value = er.ReadUInt16();
-                a = 255;
-                ColorUtil.SplitRgb565(value, out r, out g, out b);
-                break;
-              }
-              case GlTextureFormat.RGBA4444: {
-                var value = er.ReadUInt16();
-                ColorUtil.SplitRgba4444(value,
-                                        out r,
-                                        out g,
-                                        out b,
-                                        out a);
-                break;
-              }
-              case GlTextureFormat.LA8: {
-                a = er.ReadByte();
-                b = g = r = er.ReadByte();
-                break;
-              }
-              case GlTextureFormat.HiLo8: {
-                throw new NotImplementedException();
-              }
-              case GlTextureFormat.A8: {
-                a = er.ReadByte();
-                b = 255;
-                g = 255;
-                r = 255;
-                break;
-              }
-              case GlTextureFormat.LA4: {
-                throw new NotImplementedException();
-              }
-              case GlTextureFormat.A4: {
-                throw new NotImplementedException();
-              }
-              case GlTextureFormat.L8:
-              case GlTextureFormat.Gas:
-              case GlTextureFormat.Shadow: {
-                a = 255;
-                b = g = r = er.ReadByte();
-                break;
-              }
-              default: throw new ArgumentOutOfRangeException();
-            }
-
-            var x = this.swizzleLut_[px] & 7;
-            var y = (this.swizzleLut_[px] - x) >> 3;
-            ptr[(ty + y) * width + (tx + x)] = new Rgba32(r, g, b, a);
-          }
-        }
-      }
-
-      return output;
-    }
-
-    private IImage Etc1Decompress_(byte[] data, Texture texture)
-      => new Etc1ImageReader(
-              texture.width,
-              texture.height,
-              texture.imageFormat == GlTextureFormat.ETC1a4)
-          .Read(data);
+        Texture texture)
+      => new CmbImageReader(texture.width,
+                            texture.height,
+                            CollapseFormat_(texture.imageFormat))
+          .Read(input);
   }
 }

@@ -21,8 +21,8 @@ namespace cmb.schema.cmb.image {
                                           int offset) {
       var value = er.ReadByte();
 
-      var upper = (value >> 4) * 17;
-      var lower = (value & 0xF) * 17;
+      var upper = (byte) ((value >> 4) * 17);
+      var lower = (byte) ((value & 0xF) * 17);
 
       scan0[2 * offset + 0] = new L8(upper);
       scan0[2 * offset + 1] = new L8(lower);

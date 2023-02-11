@@ -18,7 +18,8 @@ namespace cmb.schema.cmb.image {
     }
 
     public unsafe IImage<TPixel> Read(byte[] srcBytes) {
-      using var er = new EndianBinaryReader(srcBytes, Endianness.LittleEndian);
+      using var er =
+          new EndianBinaryReader(srcBytes, Endianness.LittleEndian);
 
       var image = this.CreateImage_(this.width_, this.height_);
       using var imageLock = image.Lock();

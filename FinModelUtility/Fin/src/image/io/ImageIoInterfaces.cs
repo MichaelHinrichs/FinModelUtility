@@ -23,7 +23,14 @@
   }
 
 
-  public interface IImageReader<TImage> where TImage : IImage {
-    TImage Read(byte[] srcBytes);
+  public interface IImageReader {
+    IImage Read(byte[] srcBytes);
+  }
+
+
+  public interface IImageReader<out TImage> : IImageReader
+      where TImage : IImage {
+    new TImage Read(byte[] srcBytes);
+    IImage IImageReader.Read(byte[] srcBytes) => Read(srcBytes);
   }
 }
