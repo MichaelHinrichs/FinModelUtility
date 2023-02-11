@@ -351,6 +351,8 @@ namespace level5.api {
                             outTan);
                         break;
                       }
+                      default:
+                        throw new NotSupportedException();
                     }
                   }
                 }
