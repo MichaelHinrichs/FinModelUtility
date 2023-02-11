@@ -22,8 +22,11 @@ namespace uni.games.wind_waker {
 
     public IEnumerable<BmdModelFileBundle> GatherFileBundles(bool assert) {
       var windWakerRom =
-          DirectoryConstants.ROMS_DIRECTORY.GetExistingFile(
-              "wind_waker.gcm");
+          DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
+              "wind_waker.gcm", assert);
+      if (windWakerRom == null) {
+        return Enumerable.Empty<BmdModelFileBundle>();
+      }
 
       var options = GcnFileHierarchyExtractor.Options.Standard();
       var fileHierarchy =
