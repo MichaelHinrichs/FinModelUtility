@@ -15,5 +15,7 @@ namespace level5.schema {
     public float[] RotationMatrix3 { get; } = new float[9];
 
     public Vector3f Scale { get; } = new();
+
+    public override string ToString() => $"{Id}";
   }
 }

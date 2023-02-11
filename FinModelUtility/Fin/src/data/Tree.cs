@@ -40,5 +40,7 @@ namespace fin.data {
       child.parent_ = this;
       this.children_.Add(child);
     }
+
+    public override string ToString() => this.Value?.ToString() ?? "undefined";
   }
 }
