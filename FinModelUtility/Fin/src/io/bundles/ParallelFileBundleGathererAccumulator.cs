@@ -6,8 +6,8 @@ using System.Runtime.CompilerServices;
 using Microsoft.Toolkit.HighPerformance.Helpers;
 
 namespace fin.io.bundles {
-  public class ParallelFileBundleGathererAccumulator
-      : IFileBundleGathererAccumulator {
+  public class ParallelFileBundleGathererAccumulator :
+      IFileBundleGathererAccumulator {
     private readonly List<IFileBundleGatherer> gatherers_ = new();
 
     public IFileBundleGathererAccumulator Add(IFileBundleGatherer gatherer) {

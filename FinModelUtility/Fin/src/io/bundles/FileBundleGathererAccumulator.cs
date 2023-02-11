@@ -40,6 +40,37 @@ namespace fin.io.bundles {
       => this.gatherers_
              .SelectMany(gatherer => gatherer.GatherFileBundles(assert))
              .ToList();
+  }
 
+  public class FileBundleGathererAccumulatorWithInput<TFileBundle, T>
+      : IFileBundleGathererAccumulatorWithInput<TFileBundle, T>
+      where TFileBundle : IFileBundle {
+    private readonly List<IFileBundleGatherer<TFileBundle>> gatherers_ = new();
+    private readonly T input_;
+
+    public FileBundleGathererAccumulatorWithInput(T input) {
+      this.input_ = input;
+    }
+
+    public IFileBundleGathererAccumulatorWithInput<TFileBundle, T> Add(
+        IFileBundleGatherer<TFileBundle> gatherer) {
+      this.gatherers_.Add(gatherer);
+      return this;
+    }
+
+    public IFileBundleGathererAccumulatorWithInput<TFileBundle, T> Add(
+        Func<IEnumerable<TFileBundle>> handler)
+      => Add(new FileBundleHandlerGatherer<TFileBundle>(handler));
+
+    public IFileBundleGathererAccumulatorWithInput<TFileBundle, T> Add(
+        Func<T, IEnumerable<TFileBundle>> handler)
+      => Add(new FileBundleHandlerGathererWithInput<TFileBundle, T>(
+                 handler,
+                 this.input_));
+
+    public IEnumerable<TFileBundle> GatherFileBundles(bool assert)
+      => this.gatherers_
+             .SelectMany(gatherer => gatherer.GatherFileBundles(assert))
+             .ToList();
   }
 }

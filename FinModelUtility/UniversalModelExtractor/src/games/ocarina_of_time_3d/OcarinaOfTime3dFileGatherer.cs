@@ -121,12 +121,16 @@ namespace uni.games.ocarina_of_time_3d {
           .Register("zelda_fishing", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_fr", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_fw", new NoAnimationsModelSeparatorMethod())
-          .Register("zelda_ganon", new NoAnimationsModelSeparatorMethod())
-          .Register("zelda_ganon2", new NoAnimationsModelSeparatorMethod())
+          .Register("zelda_ganon",
+                    new PrimaryModelSeparatorMethod("ganondorf.cmb"))
+          .Register("zelda_ganon2",
+                    new PrimaryModelSeparatorMethod("ganon.cmb"))
           .Register("zelda_ganon_down", new NoAnimationsModelSeparatorMethod())
-          .Register("zelda_gnd", new NoAnimationsModelSeparatorMethod())
-          .Register("zelda_gndd", new NoAnimationsModelSeparatorMethod())
-          .Register("zelda_goma", new NoAnimationsModelSeparatorMethod())
+          .Register("zelda_gnd",
+                    new PrimaryModelSeparatorMethod("phantomganon.cmb"))
+          .Register("zelda_gndd",
+                    new PrimaryModelSeparatorMethod("ganondorfchild.cmb"))
+          .Register("zelda_goma", new PrimaryModelSeparatorMethod("goma.cmb"))
           .Register("zelda_haka_door", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_hidan_objects",
                     new NoAnimationsModelSeparatorMethod())
@@ -140,7 +144,6 @@ namespace uni.games.ocarina_of_time_3d {
           .Register("zelda_nw", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_oc2", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_oF1d", new NoAnimationsModelSeparatorMethod())
-          .Register("zelda_owl", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_ph", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_po", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_po_composer", new NoAnimationsModelSeparatorMethod())
@@ -173,9 +176,12 @@ namespace uni.games.ocarina_of_time_3d {
           new ThreeDsFileHierarchyExtractor()
               .ExtractFromRom(ocarinaOfTime3dRom);
 
-      return new FileBundleGathererAccumulator<CmbModelFileBundle>()
-             .Add(() => GetModelsViaSeparator_(fileHierarchy))
-             .Add(() => this.GetLinkModels_(fileHierarchy))
+      return new FileBundleGathererAccumulatorWithInput<CmbModelFileBundle,
+                 IFileHierarchy>(
+                 fileHierarchy)
+             .Add(this.GetModelsViaSeparator_)
+             .Add(this.GetLinkModels_)
+             .Add(this.GetOwlModels_)
              .GatherFileBundles(assert);
     }
 
@@ -234,6 +240,32 @@ namespace uni.games.ocarina_of_time_3d {
           adultDir.GetExistingSubdir("anim")
                   .FilesWithExtension(".csab")
                   .ToArray(),
+          null,
+          null);
+    }
+
+    private IEnumerable<CmbModelFileBundle> GetOwlModels_(
+        IFileHierarchy fileHierarchy) {
+      var owlDir = fileHierarchy.Root.GetExistingSubdir("actor/zelda_owl");
+
+      // Waiting
+      yield return new CmbModelFileBundle(
+          owlDir.GetExistingFile("Model/kaeporagaebora1.cmb"),
+          owlDir.GetExistingSubdir("Anim")
+                .FilesWithExtension(".csab")
+                .Where(file => file.Name == "owl_wait.csab")
+                .ToArray(),
+          null,
+          null);
+
+
+      // Flying
+      yield return new CmbModelFileBundle(
+          owlDir.GetExistingFile("Model/kaeporagaebora2.cmb"),
+          owlDir.GetExistingSubdir("Anim")
+                .FilesWithExtension(".csab")
+                .Where(file => file.Name != "owl_wait.csab")
+                .ToArray(),
           null,
           null);
     }

@@ -51,4 +51,17 @@ namespace fin.io.bundles {
     IFileBundleGathererAccumulator<TFileBundle> Add(
         Func<IEnumerable<TFileBundle>> handler);
   }
+
+  public interface IFileBundleGathererAccumulatorWithInput<TFileBundle, out T>
+      : IFileBundleGatherer<TFileBundle>
+      where TFileBundle : IFileBundle {
+    IFileBundleGathererAccumulatorWithInput<TFileBundle, T> Add(
+        IFileBundleGatherer<TFileBundle> gatherer);
+
+    IFileBundleGathererAccumulatorWithInput<TFileBundle, T> Add(
+        Func<IEnumerable<TFileBundle>> handler);
+
+    IFileBundleGathererAccumulatorWithInput<TFileBundle, T> Add(
+        Func<T, IEnumerable<TFileBundle>> handler);
+  }
 }
