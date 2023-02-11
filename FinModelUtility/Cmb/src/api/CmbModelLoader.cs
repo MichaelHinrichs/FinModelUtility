@@ -14,11 +14,15 @@ using fin.data;
 using fin.data.queue;
 using fin.image;
 using fin.io;
-using fin.language.equations.fixedFunction;
 using fin.math;
 using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
+
+using CmbTextureMinFilter = cmb.schema.cmb.TextureMinFilter;
+using CmbTextureMagFilter = cmb.schema.cmb.TextureMagFilter;
+using FinTextureMinFilter = fin.model.TextureMinFilter;
+using FinTextureMagFilter = fin.model.TextureMagFilter;
 
 
 namespace cmb.api {
@@ -212,6 +216,18 @@ namespace cmb.api {
           finTexture.Name = cmbTexture.name;
           finTexture.WrapModeU = this.CmbToFinWrapMode(texMapper.wrapS);
           finTexture.WrapModeV = this.CmbToFinWrapMode(texMapper.wrapT);
+          finTexture.MinFilter = texMapper.minFilter switch {
+              CmbTextureMinFilter.Nearest => FinTextureMinFilter.NEAR,
+              CmbTextureMinFilter.Linear => FinTextureMinFilter.LINEAR,
+              CmbTextureMinFilter.NearestMipmapNearest => FinTextureMinFilter.NEAR_MIPMAP_NEAR,
+              CmbTextureMinFilter.LinearMipmapNearest => FinTextureMinFilter.LINEAR_MIPMAP_NEAR,
+              CmbTextureMinFilter.NearestMipmapLinear => FinTextureMinFilter.NEAR_MIPMAP_LINEAR,
+              CmbTextureMinFilter.LinearMipmapLinear => FinTextureMinFilter.LINEAR_MIPMAP_LINEAR,
+          };
+          finTexture.MagFilter = texMapper.magFilter switch {
+              CmbTextureMagFilter.Nearest => FinTextureMagFilter.NEAR,
+              CmbTextureMagFilter.Linear  => FinTextureMagFilter.LINEAR,
+          };
 
           var cmbBorderColor = texMapper.BorderColor;
           finTexture.BorderColor = cmbBorderColor;
@@ -235,20 +251,6 @@ namespace cmb.api {
 
         finMaterials.Add(finMaterial);
       }
-
-      /*{
-        var nameToTextures = new Dictionary<string, ITexture>();
-        foreach (var finMaterial in finMaterials) {
-          foreach (var finTexture in finMaterial.Textures) {
-            nameToTextures[finTexture.Name] = finTexture;
-          }
-        }
-
-        foreach (var (_, finTexture) in nameToTextures) {
-          finTexture.ImageData.Save(
-              Path.Join(outputDirectory.FullName, finTexture.Name + ".png"));
-        }
-      }*/
 
       var verticesByIndex = new ListDictionary<int, IVertex>();
 
