@@ -144,7 +144,8 @@ namespace fin.image {
             for (var x = 0; x < width; ++x) {
               var index = y * width + x;
               var rgba = srcPtr[index];
-              dstPtr[index] = FinColor.MergeBgra(rgba.R, rgba.G, rgba.B, rgba.A);
+              dstPtr[index] =
+                  FinColor.MergeBgra(rgba.R, rgba.G, rgba.B, rgba.A);
             }
           }
 
@@ -440,30 +441,18 @@ namespace fin.image {
       => this.Impl.CopyPixelDataTo(bytes);
   }
 
-  public class Ia16Image : IImage {
-    private readonly Image<La16> impl_;
-
+  public class Ia16Image : BImage<La16> {
     public Ia16Image(int width, int height) : this(
         new Image<La16>(FinImage.ImageSharpConfig, width, height)) { }
 
     internal Ia16Image(Image<La16> impl) {
-      this.impl_ = impl;
+      this.Impl = impl;
     }
 
-    ~Ia16Image() => this.ReleaseUnmanagedResources_();
+    protected override Image<La16> Impl { get; }
 
-    public void Dispose() {
-      this.ReleaseUnmanagedResources_();
-      GC.SuppressFinalize(this);
-    }
-
-    private void ReleaseUnmanagedResources_() => this.impl_.Dispose();
-
-    public int Width => this.impl_.Width;
-    public int Height => this.impl_.Height;
-
-    public void Access(IImage.AccessHandler accessHandler) {
-      var frame = this.impl_.Frames[0];
+    public override void Access(IImage.AccessHandler accessHandler) {
+      var frame = this.Impl.Frames[0];
 
       void GetHandler(
           int x,
@@ -494,7 +483,7 @@ namespace fin.image {
                                        SetHandler setHandler);
 
     public void Mutate(MutateHandler mutateHandler) {
-      var frame = this.impl_.Frames[0];
+      var frame = this.Impl.Frames[0];
 
       void GetHandler(
           int x,
@@ -516,16 +505,10 @@ namespace fin.image {
       mutateHandler(GetHandler, SetHandler);
     }
 
-    public bool HasAlphaChannel => true;
-    public Bitmap AsBitmap() => FinImage.ConvertToBitmap(this);
+    public override bool HasAlphaChannel => true;
 
     public void GetIa16Bytes(Span<byte> bytes)
-      => this.impl_.CopyPixelDataTo(bytes);
-
-    public void ExportToStream(Stream stream, LocalImageFormat imageFormat)
-      => this.impl_.Save(
-          stream,
-          FinImage.ConvertFinImageFormatToImageSharpEncoder(imageFormat));
+      => this.Impl.CopyPixelDataTo(bytes);
   }
 
   public class I8Image : BImage<L8> {
@@ -537,7 +520,7 @@ namespace fin.image {
     }
 
     protected override Image<L8> Impl { get; }
-    
+
     public override void Access(IImage.AccessHandler accessHandler)
       => FinImage.Access(this.Impl,
                          getHandler => {
