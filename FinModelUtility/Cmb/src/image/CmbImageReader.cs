@@ -1,10 +1,12 @@
 ﻿using System;
 
+using cmb.schema.cmb;
+
 using fin.image;
 using fin.image.io;
 
 
-namespace cmb.schema.cmb.image {
+namespace cmb.image {
   /// <summary>
   ///   Stolen from:
   ///   https://github.com/magcius/noclip.website/blob/master/src/oot3d/pica_texture.ts

@@ -1,4 +1,4 @@
-﻿using cmb.schema.cmb.image;
+﻿using cmb.image;
 
 using fin.image;
 

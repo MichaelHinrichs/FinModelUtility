@@ -6,7 +6,7 @@ using fin.image.io;
 
 using SixLabors.ImageSharp.PixelFormats;
 
-namespace cmb.schema.cmb.image {
+namespace cmb.image {
   public abstract class BTiledImageReader<TPixel> : IImageReader<IImage<TPixel>>
       where TPixel : unmanaged, IPixel<TPixel> {
     private readonly int width_;
