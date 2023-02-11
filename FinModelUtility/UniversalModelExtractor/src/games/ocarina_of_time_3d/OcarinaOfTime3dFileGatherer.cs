@@ -17,26 +17,38 @@ namespace uni.games.ocarina_of_time_3d {
     // TODO: Add support for cmab
     // TODO: Add support for other texture types
 
+    // TODO: Switch this to automatically use all animations for directories with a single model
+    // TODO: Switch this to automatically include all models without animations
+
     // *sigh*
     // Why tf did they have to name things so randomly????
     private readonly IModelSeparator separator_
         = new ModelSeparator(directory => directory.Name)
           .Register(new AllAnimationsModelSeparatorMethod(),
+                    "zelda_ahg",
                     "zelda_am",
+                    "zelda_ane",
+                    "zelda_ani",
                     "zelda_aob",
                     "zelda_av",
                     "zelda_bb",
+                    "zelda_bba",
                     "zelda_bdan_objects",
                     "zelda_bji",
+                    "zelda_bl",
                     "zelda_bob",
+                    "zelda_boj",
                     "zelda_bombf",
                     "zelda_bowl",
                     "zelda_brob",
                     "zelda_bw",
                     "zelda_cne",
+                    "zelda_cob",
                     "zelda_cow",
                     "zelda_crow",
                     "zelda_cs",
+                    "zelda_daiku",
+                    "zelda_dekujr",
                     "zelda_dodojr",
                     "zelda_dodongo",
                     "zelda_dog",
@@ -44,17 +56,25 @@ namespace uni.games.ocarina_of_time_3d {
                     "zelda_ei",
                     "zelda_ff",
                     "zelda_fu",
+                    "zelda_ge1",
                     "zelda_gi_bottle",
                     "zelda_gi_coin",
                     "zelda_gi_compass",
                     "zelda_gi_dekupouch",
                     "zelda_gi_egg",
+                    "zelda_hata",
+                    "zelda_hintstone",
+                    "zelda_hlc",
+                    "zelda_hni",
                     "zelda_horse",
                     "zelda_horse_ganon",
                     "zelda_horse_normal",
                     "zelda_horse_zelda",
                     "zelda_hs",
+                    "zelda_im",
+                    "zelda_ironknack",
                     "zelda_jj",
+                    "zelda_js",
                     "zelda_ka",
                     "zelda_kanban",
                     "zelda_kibako2",
@@ -62,10 +82,17 @@ namespace uni.games.ocarina_of_time_3d {
                     "zelda_km1",
                     "zelda_kogoma",
                     "zelda_kusa",
+                    "zelda_kw1",
                     "zelda_kz",
                     "zelda_lightswitch",
+                    "zelda_ma1",
                     "zelda_ma2",
+                    "zelda_magic_wind",
+                    "zelda_mastergolon",
+                    "zelda_masterzoora",
                     "zelda_mjin",
+                    "zelda_ms",
+                    "zelda_nb",
                     "zelda_rd",
                     "zelda_ru1",
                     "zelda_ru2",
@@ -106,11 +133,11 @@ namespace uni.games.ocarina_of_time_3d {
                               "baarm_death.csab")
                         .Case("balinadetrap.cmb", "balinadetrap.csab"))
           // TODO: Figure these all out
-          .Register("zelda_dekubaba", new NoAnimationsModelSeparatorMethod())
-          .Register("zelda_dekunuts", new NoAnimationsModelSeparatorMethod())
+          .Register("zelda_dekubaba", new PrimaryModelSeparatorMethod("dekubaba.cmb"))
+          .Register("zelda_dekunuts", new PrimaryModelSeparatorMethod("okorinuts.cmb"))
           .Register("zelda_dh", new NoAnimationsModelSeparatorMethod())
-          .Register("zelda_dnk", new NoAnimationsModelSeparatorMethod())
-          .Register("zelda_dns", new NoAnimationsModelSeparatorMethod())
+          .Register("zelda_dnk", new PrimaryModelSeparatorMethod("choronuts.cmb"))
+          .Register("zelda_dns", new PrimaryModelSeparatorMethod("eldernuts.cmb"))
           .Register("zelda_dy_obj", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_ec", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_ec2", new NoAnimationsModelSeparatorMethod())
@@ -134,8 +161,9 @@ namespace uni.games.ocarina_of_time_3d {
           .Register("zelda_haka_door", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_hidan_objects",
                     new NoAnimationsModelSeparatorMethod())
-          .Register("zelda_hintnuts", new NoAnimationsModelSeparatorMethod())
+          .Register("zelda_hintnuts", new PrimaryModelSeparatorMethod("dekunuts.cmb"))
           .Register("zelda_ik", new NoAnimationsModelSeparatorMethod())
+          .Register("zelda_kdodongo", new PrimaryModelSeparatorMethod("kingdodongo.cmb"))
           .Register("zelda_mag", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_mb", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_mizu_objects",
@@ -146,7 +174,7 @@ namespace uni.games.ocarina_of_time_3d {
           .Register("zelda_oF1d", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_ph", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_po", new NoAnimationsModelSeparatorMethod())
-          .Register("zelda_po_composer", new NoAnimationsModelSeparatorMethod())
+          .Register("zelda_po_composer", new PrimaryModelSeparatorMethod("pohmusic.cmb"))
           .Register("zelda_po_field", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_po_sisters", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_ps", new NoAnimationsModelSeparatorMethod())
