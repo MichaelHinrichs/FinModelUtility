@@ -167,91 +167,98 @@ namespace cmb.api {
       // TODO: Move these reads into the model reading logic
       var cmbTextures = cmb.tex.Data.textures;
       var ctrTexture = new CtrTexture();
-      var textureImages =
-          cmbTextures.Select(cmbTexture => {
-                       var position = cmb.startOffset +
-                                      cmb.header.textureDataOffset +
-                                      cmbTexture.dataOffset;
-                       IImage image;
-                       if (position != 0) {
-                         r.Position = position;
-                         var data =
-                             r.ReadBytes((int) cmbTexture.dataLength);
-                         image =
-                             ctrTexture.DecodeImage(data, cmbTexture);
-                       } else {
-                         var ctxb =
-                             filesAndCtxbs
-                                 .Select(
-                                     fileAndCtxb => fileAndCtxb.Item2)
-                                 .Single(
-                                     ctxb => ctxb.Chunk.Entry.name ==
-                                             cmbTexture.name);
-                         image =
-                             ctrTexture.DecodeImage(
-                                 ctxb.Chunk.Entry.Data,
-                                 cmbTexture);
-                       }
 
-                       return image;
-                     })
-                     .ToArray();
-
-      // Creates meshes & textures
-      // TODO: Emulate fixed-function materials
-      var finMaterials = new List<IMaterial>();
-      for (var i = 0; i < cmb.mat.materials.Length; ++i) {
-        var cmbMaterial = cmb.mat.materials[i];
-
-        // Get associated texture
-        var texMapper = cmbMaterial.texMappers[0];
-        var textureId = texMapper.textureId;
-
-        ITexture? finTexture = null;
-        if (textureId != -1) {
-          var cmbTexture = cmbTextures[textureId];
-          var textureImage = textureImages[textureId];
-
-          finTexture = finModel.MaterialManager.CreateTexture(textureImage);
-          finTexture.Name = cmbTexture.name;
-          finTexture.WrapModeU = this.CmbToFinWrapMode(texMapper.wrapS);
-          finTexture.WrapModeV = this.CmbToFinWrapMode(texMapper.wrapT);
-          finTexture.MinFilter = texMapper.minFilter switch {
-              CmbTextureMinFilter.Nearest => FinTextureMinFilter.NEAR,
-              CmbTextureMinFilter.Linear => FinTextureMinFilter.LINEAR,
-              CmbTextureMinFilter.NearestMipmapNearest => FinTextureMinFilter.NEAR_MIPMAP_NEAR,
-              CmbTextureMinFilter.LinearMipmapNearest => FinTextureMinFilter.LINEAR_MIPMAP_NEAR,
-              CmbTextureMinFilter.NearestMipmapLinear => FinTextureMinFilter.NEAR_MIPMAP_LINEAR,
-              CmbTextureMinFilter.LinearMipmapLinear => FinTextureMinFilter.LINEAR_MIPMAP_LINEAR,
-          };
-          finTexture.MagFilter = texMapper.magFilter switch {
-              CmbTextureMagFilter.Nearest => FinTextureMagFilter.NEAR,
-              CmbTextureMagFilter.Linear  => FinTextureMagFilter.LINEAR,
-          };
-
-          var cmbBorderColor = texMapper.BorderColor;
-          finTexture.BorderColor = cmbBorderColor;
+      var textureImages = new LazyDictionary<int, IImage>(imageIndex => {
+        var cmbTexture = cmbTextures[imageIndex];
+        var position = cmb.startOffset +
+                       cmb.header.textureDataOffset +
+                       cmbTexture.dataOffset;
+        IImage image;
+        if (position != 0) {
+          r.Position = position;
+          var data =
+              r.ReadBytes((int) cmbTexture.dataLength);
+          image =
+              ctrTexture.DecodeImage(data, cmbTexture);
+        } else {
+          var ctxb =
+              filesAndCtxbs
+                  .Select(
+                      fileAndCtxb => fileAndCtxb.Item2)
+                  .Single(
+                      ctxb => ctxb.Chunk.Entry.name ==
+                              cmbTexture.name);
+          image =
+              ctrTexture.DecodeImage(
+                  ctxb.Chunk.Entry.Data,
+                  cmbTexture);
         }
 
+        return image;
+      });
+
+      // TODO: Emulate fixed-function materials
+      var cmbMaterials = cmb.mat.materials;
+      var finMaterials = new LazyDictionary<int, IMaterial>(index => {
+        var cmbMaterial = cmbMaterials[index];
+
+        // Get associated texture
+        var finTextures = cmbMaterial.texMappers.Select(texMapper => {
+          var textureId = texMapper.textureId;
+
+          ITexture? finTexture = null;
+          if (textureId != -1) {
+            var cmbTexture = cmbTextures[textureId];
+            var textureImage = textureImages[textureId];
+
+            finTexture = finModel.MaterialManager.CreateTexture(textureImage);
+            finTexture.Name = cmbTexture.name;
+            finTexture.WrapModeU = this.CmbToFinWrapMode(texMapper.wrapS);
+            finTexture.WrapModeV = this.CmbToFinWrapMode(texMapper.wrapT);
+            finTexture.MinFilter = texMapper.minFilter switch {
+                CmbTextureMinFilter.Nearest => FinTextureMinFilter.NEAR,
+                CmbTextureMinFilter.Linear  => FinTextureMinFilter.LINEAR,
+                CmbTextureMinFilter.NearestMipmapNearest => FinTextureMinFilter
+                    .NEAR_MIPMAP_NEAR,
+                CmbTextureMinFilter.LinearMipmapNearest => FinTextureMinFilter
+                    .LINEAR_MIPMAP_NEAR,
+                CmbTextureMinFilter.NearestMipmapLinear => FinTextureMinFilter
+                    .NEAR_MIPMAP_LINEAR,
+                CmbTextureMinFilter.LinearMipmapLinear => FinTextureMinFilter
+                    .LINEAR_MIPMAP_LINEAR,
+            };
+            finTexture.MagFilter = texMapper.magFilter switch {
+                CmbTextureMagFilter.Nearest => FinTextureMagFilter.NEAR,
+                CmbTextureMagFilter.Linear  => FinTextureMagFilter.LINEAR,
+            };
+
+            var cmbBorderColor = texMapper.BorderColor;
+            finTexture.BorderColor = cmbBorderColor;
+          }
+
+          return finTexture;
+        }).ToArray();
+
         // Create material
+        var finTexture = finTextures.FirstOrDefault(finTexture => finTexture != null);
         IMaterial finMaterial = finTexture != null
             ? finModel.MaterialManager
                       .AddTextureMaterial(
                           finTexture)
             : finModel.MaterialManager
                       .AddNullMaterial();
-        finMaterial.Name = $"material{i}";
+        finMaterial.Name = $"material{index}";
         finMaterial.CullingMode = cmbMaterial.faceCulling switch {
-            CullMode.FrontAndBack => CullingMode.SHOW_BOTH,
-            CullMode.Front        => CullingMode.SHOW_FRONT_ONLY,
-            CullMode.BackFace     => CullingMode.SHOW_BACK_ONLY,
-            CullMode.Never        => CullingMode.SHOW_NEITHER,
-            _                     => throw new NotImplementedException(),
+          CullMode.FrontAndBack => CullingMode.SHOW_BOTH,
+          CullMode.Front => CullingMode.SHOW_FRONT_ONLY,
+          CullMode.BackFace => CullingMode.SHOW_BACK_ONLY,
+          CullMode.Never => CullingMode.SHOW_NEITHER,
         };
 
-        finMaterials.Add(finMaterial);
-      }
+        return finMaterial;
+      });
 
+      // Creates meshes
       var verticesByIndex = new ListDictionary<int, IVertex>();
 
       // Adds meshes
