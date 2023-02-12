@@ -6,7 +6,7 @@ using fin.util.color;
 using SixLabors.ImageSharp.PixelFormats;
 
 
-namespace cmb.image {
+namespace fin.image.io {
   /// <summary>
   ///   Stolen from:
   ///   https://github.com/magcius/noclip.website/blob/master/src/oot3d/pica_texture.ts

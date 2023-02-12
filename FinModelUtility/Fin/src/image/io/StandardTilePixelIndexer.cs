@@ -1,4 +1,4 @@
-﻿namespace cmb.image {
+﻿namespace fin.image.io {
   public class StandardTilePixelIndexer : ITilePixelIndexer {
     private readonly int tileWidth_;
 

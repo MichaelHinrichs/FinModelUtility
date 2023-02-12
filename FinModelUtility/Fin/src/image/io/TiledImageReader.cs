@@ -1,11 +1,8 @@
 ﻿using System.IO;
 
-using fin.image;
-using fin.image.io;
-
 using SixLabors.ImageSharp.PixelFormats;
 
-namespace cmb.image {
+namespace fin.image.io {
   public interface ITilePixelIndexer {
     void GetPixelInTile(int index, out int x, out int y);
   }

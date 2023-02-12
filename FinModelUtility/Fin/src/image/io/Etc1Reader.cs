@@ -1,6 +1,4 @@
-﻿using SharpGLTF.Schema2;
-
-using System;
+﻿using System;
 using System.Buffers;
 using System.IO;
 
