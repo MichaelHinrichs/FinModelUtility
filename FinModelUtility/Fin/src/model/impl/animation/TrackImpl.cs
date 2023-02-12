@@ -1,25 +1,27 @@
 ﻿using fin.data;
 using fin.math.interpolation;
-using fin.model;
 using System.Collections.Generic;
 
 namespace fin.model.impl {
   public partial class ModelImpl {
     private class TrackImpl<T> : TrackImpl<T, T>, ITrack<T> {
       public TrackImpl(
+          int initialCapacity,
           IInterpolator<T> interpolator,
           IInterpolatorWithTangents<T> interpolatorWithTangent) :
-          base(interpolator, interpolatorWithTangent) { }
+          base(initialCapacity, interpolator, interpolatorWithTangent) { }
     }
 
     private class TrackImpl<TValue, TInterpolated> :
         ITrack<TValue, TInterpolated> {
-      private readonly Keyframes<ValueAndTangents<TValue>> impl_ = new();
+      private readonly Keyframes<ValueAndTangents<TValue>> impl_;
 
       public TrackImpl(
+          int initialCapacity,
           IInterpolator<TValue, TInterpolated> interpolator,
           IInterpolatorWithTangents<TValue, TInterpolated>
               interpolatorWithTangent) {
+        this.impl_ = new Keyframes<ValueAndTangents<TValue>>(initialCapacity);
         this.Interpolator = interpolator;
         this.InterpolatorWithTangents = interpolatorWithTangent;
       }

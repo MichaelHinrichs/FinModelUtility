@@ -1,5 +1,7 @@
 ﻿using fin.data;
 using fin.math.interpolation;
+
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -10,11 +12,13 @@ namespace fin.model.impl {
           ScalarAxesTrack<TAxes, TAxis, TAxes> {
       public ScalarAxesTrack(
           int axisCount,
+          ReadOnlySpan<int> initialKeyframeCapacitiesPerAxis,
           TAxis defaultValue,
           IInterpolator<TAxis> axisInterpolator,
           IInterpolatorWithTangents<TAxis> axisInterpolatorWithTangent,
           GetInterpolatedFromAxesTrack getInterpolatedFromAxesTrack)
           : base(axisCount,
+                 initialKeyframeCapacitiesPerAxis,
                  defaultValue,
                  axisInterpolator,
                  axisInterpolatorWithTangent,
@@ -37,6 +41,7 @@ namespace fin.model.impl {
 
       public ScalarAxesTrack(
           int axisCount,
+          ReadOnlySpan<int> initialKeyframeCapacitiesPerAxis,
           TAxis defaultValue,
           IInterpolator<TAxis> axisInterpolator,
           IInterpolatorWithTangents<TAxis> axisInterpolatorWithTangent,
@@ -44,7 +49,8 @@ namespace fin.model.impl {
         this.axisTracks_ = new TrackImpl<TAxis>[axisCount];
         for (var i = 0; i < axisCount; ++i) {
           this.axisTracks_[i] =
-              new TrackImpl<TAxis>(axisInterpolator,
+              new TrackImpl<TAxis>(initialKeyframeCapacitiesPerAxis[i],
+                                   axisInterpolator,
                                    axisInterpolatorWithTangent);
         }
 

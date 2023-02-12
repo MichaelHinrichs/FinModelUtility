@@ -1,4 +1,6 @@
-﻿using fin.data;
+﻿using System;
+
+using fin.data;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -13,12 +15,14 @@ namespace fin.model.impl {
     public class RadiansRotationTrack3dImpl : IRadiansRotationTrack3d {
       private readonly TrackImpl<float>[] axisTracks_;
 
-      public RadiansRotationTrack3dImpl() {
+      public RadiansRotationTrack3dImpl(ReadOnlySpan<int> initialCapacityPerAxis) {
         this.axisTracks_ = new TrackImpl<float>[3];
         for (var i = 0; i < 3; ++i) {
           this.axisTracks_[i] =
-              new TrackImpl<float>(Interpolator.Float,
-                                   InterpolatorWithTangents.Radians);
+              new TrackImpl<float>(
+                  initialCapacityPerAxis[i],
+                  Interpolator.Float,
+                  InterpolatorWithTangents.Radians);
         }
 
         this.AxisTracks =

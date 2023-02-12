@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using fin.data;
 
 
@@ -26,6 +27,11 @@ namespace fin.model {
 
     IReadOnlyIndexableDictionary<IBone, IBoneTracks> BoneTracks { get; }
     IBoneTracks AddBoneTracks(IBone bone);
+
+    IBoneTracks AddBoneTracks(IBone bone,
+                              ReadOnlySpan<int> initialCapacityPerPositionAxis,
+                              ReadOnlySpan<int> initialCapacityPerRotationAxis,
+                              ReadOnlySpan<int> initialCapacityPerScaleAxis);
 
     IReadOnlyDictionary<IMesh, IMeshTracks> MeshTracks { get; }
     IMeshTracks AddMeshTracks(IMesh mesh);

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Numerics;
 
@@ -64,9 +65,23 @@ namespace fin.model.impl {
           get;
         }
 
-        public IBoneTracks AddBoneTracks(IBone bone) {
-          var boneTracks = new BoneTracksImpl {
-            FrameCount = this.FrameCount,
+        public IBoneTracks AddBoneTracks(IBone bone)
+          => AddBoneTracks(bone,
+                           AnimationImplConstants.EMPTY_CAPACITY_PER_AXIS,
+                           AnimationImplConstants.EMPTY_CAPACITY_PER_AXIS,
+                           AnimationImplConstants.EMPTY_CAPACITY_PER_AXIS);
+
+        public IBoneTracks AddBoneTracks(
+            IBone bone,
+            ReadOnlySpan<int> initialCapacityPerPositionAxis,
+            ReadOnlySpan<int> initialCapacityPerRotationAxis,
+            ReadOnlySpan<int> initialCapacityPerScaleAxis) {
+          var boneTracks = new BoneTracksImpl(
+              initialCapacityPerPositionAxis,
+              initialCapacityPerRotationAxis,
+              initialCapacityPerScaleAxis
+              ) {
+              FrameCount = this.FrameCount,
           };
           this.boneTracks_[bone] = boneTracks;
           return boneTracks;
@@ -115,7 +130,15 @@ namespace fin.model.impl {
     }
 
     public class BoneTracksImpl : IBoneTracks {
-      public int FrameCount {
+      public BoneTracksImpl(ReadOnlySpan<int> initialCapacityPerPositionAxis,
+                            ReadOnlySpan<int> initialCapacityPerRotationAxis,
+                            ReadOnlySpan<int> initialCapacityPerScaleAxis) {
+      Positions = new PositionTrack3dImpl(initialCapacityPerPositionAxis);
+      Rotations = new RadiansRotationTrack3dImpl(initialCapacityPerRotationAxis);
+      Scales = new ScaleTrackImpl(initialCapacityPerScaleAxis);
+    }
+
+    public int FrameCount {
         set {
           this.Positions.FrameCount =
               this.Rotations.FrameCount = this.Scales.FrameCount = value;
@@ -128,12 +151,9 @@ namespace fin.model.impl {
         this.Scales.Set(other.Scales);
       }
 
-      public IPositionTrack3d Positions { get; } = new PositionTrack3dImpl();
-
-      public IRadiansRotationTrack3d Rotations { get; } =
-        new RadiansRotationTrack3dImpl();
-
-      public IScale3dTrack Scales { get; } = new ScaleTrackImpl();
+      public IPositionTrack3d Positions { get; }
+      public IRadiansRotationTrack3d Rotations { get; }
+      public IScale3dTrack Scales { get; }
 
       // TODO: Add pattern for specifying WITH given tracks
     }
@@ -179,8 +199,9 @@ namespace fin.model.impl {
     public class MeshTracksImpl : IMeshTracks {
       public ITrack<MeshDisplayState> DisplayStates { get; } =
         new TrackImpl<MeshDisplayState>(
-          Interpolator.StairStep<MeshDisplayState>(), 
-          InterpolatorWithTangents.StairStep<MeshDisplayState>());
+            0,
+            Interpolator.StairStep<MeshDisplayState>(),
+            InterpolatorWithTangents.StairStep<MeshDisplayState>());
     }
   }
 }

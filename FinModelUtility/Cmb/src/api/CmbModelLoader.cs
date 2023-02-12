@@ -134,6 +134,20 @@ namespace cmb.api {
         finAnimation.FrameRate = fps;
 
         foreach (var (boneIndex, anod) in csab.BoneIndexToAnimationNode) {
+          Span<int> initialCapacityPerPositionAxis = stackalloc int[3];
+          Span<int> initialCapacityPerRotationAxis = stackalloc int[3];
+          Span<int> initialCapacityPerScaleAxis = stackalloc int[3];
+          for (var i = 0; i < 3; ++i) {
+            var translationAxis = anod.TranslationAxes[i];
+            initialCapacityPerPositionAxis[i] = translationAxis.Keyframes.Count;
+
+            var rotationAxis = anod.RotationAxes[i];
+            initialCapacityPerRotationAxis[i] = rotationAxis.Keyframes.Count;
+
+            var scaleAxis = anod.ScaleAxes[i];
+            initialCapacityPerScaleAxis[i] = scaleAxis.Keyframes.Count;
+          }
+
           var boneTracks = finAnimation.AddBoneTracks(finBones[boneIndex]);
 
           for (var i = 0; i < 3; ++i) {

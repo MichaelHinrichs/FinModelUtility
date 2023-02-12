@@ -32,7 +32,11 @@ namespace fin.data {
   }
 
   public class Keyframes<T> : IKeyframes<T> {
-    private readonly List<Keyframe<T>> impl_ = new();
+    private readonly List<Keyframe<T>> impl_;
+
+    public Keyframes(int initialCapacity = 0) {
+      this.impl_ = new(initialCapacity);
+    }
 
     public IReadOnlyList<Keyframe<T>> Definitions => this.impl_;
 

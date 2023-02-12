@@ -1,4 +1,6 @@
-﻿using fin.data;
+﻿using System;
+
+using fin.data;
 using System.Collections.Generic;
 
 using fin.math.interpolation;
@@ -8,16 +10,29 @@ namespace fin.model.impl {
     // TODO: Rethink this, this is all getting way too complicated.
 
     public class PositionTrack3dImpl : IPositionTrack3d {
-      private readonly ScalarAxesTrack<Position, float> impl_ =
-          new(3,
-              0,
-              Interpolator.Float,
-              InterpolatorWithTangents.Float,
-              (axesTrack, frame, defaultValue) => new Position(
-                axesTrack.AxisTracks[0].GetInterpolatedFrame(frame, defaultValue[0]),
-                axesTrack.AxisTracks[1].GetInterpolatedFrame(frame, defaultValue[1]),
-                axesTrack.AxisTracks[2].GetInterpolatedFrame(frame, defaultValue[2])
-              ));
+      private readonly ScalarAxesTrack<Position, float> impl_;
+
+      public PositionTrack3dImpl(ReadOnlySpan<int> initialCapacityPerAxis) {
+        this.impl_ = new(3,
+                         initialCapacityPerAxis,
+                         0,
+                         Interpolator.Float,
+                         InterpolatorWithTangents.Float,
+                         (axesTrack, frame, defaultValue) => new Position(
+                             axesTrack.AxisTracks[0]
+                                      .GetInterpolatedFrame(
+                                          frame,
+                                          defaultValue[0]),
+                             axesTrack.AxisTracks[1]
+                                      .GetInterpolatedFrame(
+                                          frame,
+                                          defaultValue[1]),
+                             axesTrack.AxisTracks[2]
+                                      .GetInterpolatedFrame(
+                                          frame,
+                                          defaultValue[2])
+                         ));
+      }
 
       public IReadOnlyList<ITrack<float>> AxisTracks => this.impl_.AxisTracks;
 
@@ -56,17 +71,30 @@ namespace fin.model.impl {
     }
 
     public class ScaleTrackImpl : IScale3dTrack {
-      private readonly ScalarAxesTrack<Scale, float> impl_ =
-          new(3,
-              1,
-              Interpolator.Float,
-              InterpolatorWithTangents.Float,
-              (axesTrack, frame, defaultValue)
-                  => new Scale(
-                    axesTrack.AxisTracks[0].GetInterpolatedFrame(frame, defaultValue[0]),
-                    axesTrack.AxisTracks[1].GetInterpolatedFrame(frame, defaultValue[1]),
-                    axesTrack.AxisTracks[2].GetInterpolatedFrame(frame, defaultValue[2])
-                  ));
+      private readonly ScalarAxesTrack<Scale, float> impl_;
+
+      public ScaleTrackImpl(ReadOnlySpan<int> initialCapacityPerAxis) {
+        this.impl_ = new ScalarAxesTrack<Scale, float>(3,
+          initialCapacityPerAxis,
+          1,
+          Interpolator.Float,
+          InterpolatorWithTangents.Float,
+          (axesTrack, frame, defaultValue)
+              => new Scale(
+                  axesTrack.AxisTracks[0]
+                           .GetInterpolatedFrame(
+                               frame,
+                               defaultValue[0]),
+                  axesTrack.AxisTracks[1]
+                           .GetInterpolatedFrame(
+                               frame,
+                               defaultValue[1]),
+                  axesTrack.AxisTracks[2]
+                           .GetInterpolatedFrame(
+                               frame,
+                               defaultValue[2])
+              ));
+      }
 
       public IReadOnlyList<ITrack<float>> AxisTracks => this.impl_.AxisTracks;
 
