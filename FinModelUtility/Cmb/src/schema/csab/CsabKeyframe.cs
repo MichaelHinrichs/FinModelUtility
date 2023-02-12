@@ -1,5 +1,5 @@
 ﻿namespace cmb.schema.csab {
-  public class CsabKeyframe {
+  public struct CsabKeyframe {
     public uint Time { get; set; }
     public float Value { get; set; }
 

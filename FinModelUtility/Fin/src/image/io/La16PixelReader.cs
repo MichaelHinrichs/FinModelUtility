@@ -13,10 +13,11 @@ namespace fin.image.io {
       => new Ia16Image(width, height);
 
     public unsafe void Decode(IEndianBinaryReader er,
-                                          La16* scan0,
-                                          int offset) {
-      var a = er.ReadByte();
-      var l = er.ReadByte();
+                              La16* scan0,
+                              int offset) {
+      var la = er.ReadUInt16();
+      var l = (byte) (la >> 8);
+      var a = (byte) (la & 0xFF);
       scan0[offset] = new La16(l, a);
     }
   }

@@ -19,6 +19,8 @@ using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
 
+using Microsoft.Toolkit.HighPerformance.Helpers;
+
 using CmbTextureMinFilter = cmb.schema.cmb.TextureMinFilter;
 using CmbTextureMagFilter = cmb.schema.cmb.TextureMagFilter;
 using FinTextureMinFilter = fin.model.TextureMinFilter;
@@ -63,14 +65,15 @@ namespace cmb.api {
       var cmb = new Cmb(r);
       r.Position = 0;
 
-      var filesAndCsabs =
-          csabFiles?.Select(csabFile => {
-                     var csab =
-                         csabFile.Impl.ReadNew<Csab>(Endianness.LittleEndian);
-                     return (csabFile, csab);
-                   })
-                   .ToList() ??
-          new List<(IFileHierarchyFile shpaFile, Csab csab)>();
+      (IFileHierarchyFile, Csab)[] filesAndCsabs;
+      if (csabFiles == null) {
+        filesAndCsabs = Array.Empty<(IFileHierarchyFile, Csab)>();
+      } else {
+        filesAndCsabs = new (IFileHierarchyFile, Csab)[csabFiles.Count];
+        ParallelHelper.For(0,
+                           csabFiles.Count,
+                           new CsabLoader(csabFiles, filesAndCsabs));
+      }
 
       var filesAndCtxbs =
           ctxbFiles?.Select(ctxbFile => {
@@ -536,5 +539,24 @@ namespace cmb.api {
           TextureWrapMode.Mirror => WrapMode.MIRROR_REPEAT,
           _ => throw new ArgumentOutOfRangeException()
       };
+
+    public readonly struct CsabLoader : IAction {
+      private readonly IReadOnlyList<IFileHierarchyFile> src_;
+      private readonly (IFileHierarchyFile, Csab)[] dst_;
+
+      public CsabLoader(
+          IReadOnlyList<IFileHierarchyFile> src,
+          (IFileHierarchyFile, Csab)[] dst) {
+        this.src_ = src;
+        this.dst_ = dst;
+      }
+
+      public void Invoke(int i) {
+        var csabFile = this.src_[i];
+        var csab =
+            csabFile.Impl.ReadNew<Csab>(Endianness.LittleEndian);
+        this.dst_[i] = (csabFile, csab);
+      }
+    }
   }
 }

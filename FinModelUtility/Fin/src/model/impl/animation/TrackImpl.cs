@@ -69,13 +69,14 @@ namespace fin.model.impl {
           bool useLoopingInterpolation = false) {
         var keyframeDefined = this.impl_.FindIndexOfKeyframe((int)frame,
           out var fromKeyframeIndex,
-          out var fromKeyframe,
+          out var fromKeyframeOrNull,
           out var isLastKeyframe);
 
-        if (fromKeyframe == null) {
+        if (!keyframeDefined) {
           return defaultValue;
         }
 
+        var fromKeyframe = fromKeyframeOrNull.Value;
         var fromValue = fromKeyframe.Value.Value;
 
         // TODO: Make this an option?
@@ -129,14 +130,15 @@ namespace fin.model.impl {
       ) {
         var keyframeDefined = this.impl_.FindIndexOfKeyframe((int)frame,
                                  out var fromKeyframeIndex,
-                                 out var fromKeyframe,
+                                 out var fromKeyframeOrNull,
                                  out var isLastKeyframe);
         fromData = toData = null;
 
-        if (fromKeyframe == null) {
+        if (!keyframeDefined) {
           return false;
         }
 
+        var fromKeyframe = fromKeyframeOrNull.Value;
         var fromValue = fromKeyframe.Value.Value;
 
         var fromTime = fromKeyframe.Frame;

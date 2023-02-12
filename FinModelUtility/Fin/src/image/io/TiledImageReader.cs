@@ -14,6 +14,8 @@ namespace fin.image.io {
     unsafe void Decode(IEndianBinaryReader er,
                        TPixel* scan0,
                        int offset);
+
+    int PixelsPerRead => 1;
   }
 
   public static class TiledImageReader {
@@ -66,9 +68,11 @@ namespace fin.image.io {
 
       for (var yy = 0; yy < this.height_; yy += this.tileHeight_) {
         for (var xx = 0; xx < this.width_; xx += this.tileWidth_) {
-          for (var i = 0; i < this.tileWidth_ * this.tileHeight_; i++) {
+          for (var i = 0;
+               i < this.tileWidth_ * this.tileHeight_;
+               i += this.reader_.PixelsPerRead) {
             this.tilePixelIndexer_.GetPixelInTile(i, out var x, out var y);
-            var dstOffs = ((yy + y) * this.width_ + xx + x);
+            var dstOffs = (yy + y) * this.width_ + xx + x;
             this.reader_.Decode(er, scan0, dstOffs);
           }
         }

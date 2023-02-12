@@ -150,6 +150,13 @@ namespace fin.color {
       a = (byte) (rgba >> 24);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void SplitRgb(int rgb, out byte r, out byte g, out byte b) {
+      r = (byte) rgb;
+      g = (byte) (rgb >> 8);
+      b = (byte) (rgb >> 16);
+    }
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int MergeBgra(byte r, byte g, byte b, byte a)

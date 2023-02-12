@@ -1,5 +1,7 @@
 ﻿using System.IO;
 
+using fin.color;
+
 using SixLabors.ImageSharp.PixelFormats;
 
 
@@ -15,10 +17,7 @@ namespace fin.image.io {
     public unsafe void Decode(IEndianBinaryReader er,
                               Rgba32* scan0,
                               int offset) {
-      var a = er.ReadByte();
-      var b = er.ReadByte();
-      var g = er.ReadByte();
-      var r = er.ReadByte();
+      FinColor.SplitRgba(er.ReadInt32(), out var r, out var g, out var b, out var a);
       scan0[offset] = new Rgba32(r, g, b, a);
     }
   }

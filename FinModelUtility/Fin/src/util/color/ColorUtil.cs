@@ -53,7 +53,6 @@ namespace fin.util.color {
         b = ColorUtil.ExtractScaled(color, 0, 5);
       } else {
         a = ColorUtil.ExtractScaled(color, 12, 3);
-
         r = ColorUtil.ExtractScaled(color, 8, 4, 17);
         g = ColorUtil.ExtractScaled(color, 4, 4, 17);
         b = ColorUtil.ExtractScaled(color, 0, 4, 17);

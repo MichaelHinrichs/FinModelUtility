@@ -185,7 +185,7 @@ namespace fin.data {
         Assert.True(keyframe != null);
         Assert.True(isKeyframeDefined);
         Assert.AreEqual(sI / s, keyframeIndex);
-        Assert.AreEqual(sI, keyframe.Frame);
+        Assert.AreEqual(sI, keyframe.Value.Frame);
       }
     }
 

@@ -4,11 +4,19 @@ using System.Collections.Generic;
 
 
 namespace fin.model {
-  public record ValueAndTangents<T>(
-      T Value,
-      float? IncomingTangent,
-      float? OutgoingTangent);
+  public readonly struct ValueAndTangents<T> {
+    public T Value { get; }
+    public float? IncomingTangent { get; }
+    public float? OutgoingTangent { get; }
 
+    public ValueAndTangents(T value,
+                            float? incomingTangent,
+                            float? outgoingTangent) {
+      this.Value = value;
+      this.IncomingTangent = incomingTangent;
+      this.OutgoingTangent = outgoingTangent;
+    }
+  }
 
   public interface ITrack<T> : ITrack<T, T> { }
 
