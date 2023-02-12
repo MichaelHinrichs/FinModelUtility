@@ -25,6 +25,34 @@
     Shadow = 0x00006040
   }
 
+  public static class GlTextureFormatExtensions {
+    public static bool IsRgb(this GlTextureFormat format)
+      => format is GlTextureFormat.RGB8 or GlTextureFormat.RGB565;
+
+    public static bool IsRgba(this GlTextureFormat format)
+      => format is GlTextureFormat.RGBA8
+                   or GlTextureFormat.RGBA4444
+                   or GlTextureFormat.RGBA5551;
+
+    public static bool IsIntensity(this GlTextureFormat format)
+      => format is GlTextureFormat.L4
+                   or GlTextureFormat.L8 
+                   or GlTextureFormat.Gas
+                   or GlTextureFormat.Shadow;
+
+    public static bool IsIntensityAlpha(this GlTextureFormat format)
+      => format is GlTextureFormat.LA4
+                   or GlTextureFormat.LA8;
+
+    public static bool IsAlpha(this GlTextureFormat format)
+      => format is GlTextureFormat.A4 or GlTextureFormat.A8;
+
+    public static bool IsEtc1(this GlTextureFormat format, out bool hasAlpha) {
+      hasAlpha = format == GlTextureFormat.ETC1a4;
+      return format is GlTextureFormat.ETC1 or GlTextureFormat.ETC1a4;
+    }
+  }
+
   public enum DataType : uint {
     Byte = 0x1400,
     UByte = 0x1401,

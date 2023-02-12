@@ -10,15 +10,13 @@ namespace cmb.image {
   ///   Stolen from:
   ///   https://github.com/magcius/noclip.website/blob/master/src/oot3d/pica_texture.ts
   /// </summary>
-  public class L4ImageReader : BTiledImageReader<L8> {
-    public L4ImageReader(int width, int height) : base(width, height) { }
-
-    protected override IImage<L8> CreateImage_(int width, int height)
+  public class L4PixelReader : IPixelReader<L8> {
+    public IImage<L8> CreateImage_(int width, int height)
       => new I8Image(width, height);
 
-    protected override unsafe void Decode(IEndianBinaryReader er,
-                                          L8* scan0,
-                                          int offset) {
+    public unsafe void Decode(IEndianBinaryReader er,
+                              L8* scan0,
+                              int offset) {
       var value = er.ReadByte();
 
       var upper = (byte) ((value >> 4) * 17);

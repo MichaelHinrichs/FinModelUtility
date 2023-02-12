@@ -5,6 +5,8 @@ using cmb.schema.cmb;
 using fin.image;
 using fin.image.io;
 
+using SixLabors.ImageSharp.PixelFormats;
+
 
 namespace cmb.image {
   /// <summary>
@@ -15,25 +17,63 @@ namespace cmb.image {
     private readonly IImageReader impl_;
 
     public CmbImageReader(int width, int height, GlTextureFormat format) {
-      this.impl_ = format switch {
-          GlTextureFormat.RGBA4444 => new Rgba4444ImageReader(width, height),
-          GlTextureFormat.RGBA5551 => new Rgba5551ImageReader(width, height),
-          GlTextureFormat.RGBA8    => new Rgba32ImageReader(width, height),
-          GlTextureFormat.RGB565   => new Rgb565ImageReader(width, height),
-          GlTextureFormat.RGB8     => new Rgb24ImageReader(width, height),
-          GlTextureFormat.L4       => new L4ImageReader(width, height),
-          GlTextureFormat.Gas      => new L8ImageReader(width, height),
-          GlTextureFormat.Shadow   => new L8ImageReader(width, height),
-          GlTextureFormat.L8       => new L8ImageReader(width, height),
-          GlTextureFormat.A8       => new A8ImageReader(width, height),
-          GlTextureFormat.ETC1     => new Etc1ImageReader(width, height, false),
-          GlTextureFormat.ETC1a4   => new Etc1ImageReader(width, height, true),
-          GlTextureFormat.LA8      => new La16ImageReader(width, height),
-          _ => throw new ArgumentOutOfRangeException(
-              nameof(format),
-              format,
-              null)
-      };
+      this.impl_ = this.CreateImpl_(width, height, format);
+    }
+
+    private IImageReader CreateImpl_(int width,
+                                    int height,
+                                    GlTextureFormat format) {
+      if (format.IsEtc1(out var hasAlpha)) {
+        return new Etc1ImageReader(width, height, hasAlpha);
+      }
+
+      if (format.IsRgb()) {
+        IPixelReader<Rgb24> pixelReader = format switch {
+            GlTextureFormat.RGB8   => new Rgb24PixelReader(),
+            GlTextureFormat.RGB565 => new Rgb565PixelReader(),
+        };
+
+        return TiledImageReader.New(width, height, pixelReader);
+      }
+
+      if (format.IsRgba()) {
+        IPixelReader<Rgba32> pixelReader = format switch {
+            GlTextureFormat.RGBA8    => new Rgba32PixelReader(),
+            GlTextureFormat.RGBA4444 => new Rgba4444PixelReader(),
+            GlTextureFormat.RGBA5551 => new Rgba5551PixelReader(),
+        };
+
+        return TiledImageReader.New(width, height, pixelReader);
+      }
+
+      if (format.IsIntensity()) {
+        IPixelReader<L8> pixelReader = format switch {
+            GlTextureFormat.L4     => new L4PixelReader(),
+            GlTextureFormat.L8     => new L8PixelReader(),
+            GlTextureFormat.Gas    => new L8PixelReader(),
+            GlTextureFormat.Shadow => new L8PixelReader(),
+        };
+
+        return TiledImageReader.New(width, height, pixelReader);
+      }
+
+      if (format.IsIntensityAlpha()) {
+        IPixelReader<La16> pixelReader = format switch {
+            GlTextureFormat.LA8 => new La16PixelReader(),
+        };
+
+        return TiledImageReader.New(width, height, pixelReader);
+      }
+
+      if (format.IsAlpha()) {
+        IPixelReader<La16> pixelReader = format switch {
+            GlTextureFormat.A8 => new A8PixelReader(),
+        };
+
+        return TiledImageReader.New(width, height, pixelReader);
+      }
+
+      throw new NotImplementedException();
     }
 
     public IImage Read(byte[] srcBytes) => this.impl_.Read(srcBytes);

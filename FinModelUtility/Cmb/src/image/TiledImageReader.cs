@@ -7,21 +7,43 @@ using fin.image.io;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace cmb.image {
-  public abstract class BTiledImageReader<TPixel> : IImageReader<IImage<TPixel>>
+  public interface IPixelReader<TPixel>
+      where TPixel : unmanaged, IPixel<TPixel> {
+    IImage<TPixel> CreateImage_(int width, int height);
+
+    unsafe void Decode(IEndianBinaryReader er,
+                       TPixel* scan0,
+                       int offset);
+  }
+
+  public static class TiledImageReader {
+    public static TiledImageReader<TPixel> New<TPixel>(
+        int width,
+        int height,
+        IPixelReader<TPixel> reader)
+        where TPixel : unmanaged, IPixel<TPixel>
+      => new(width, height, reader);
+  }
+
+  public class TiledImageReader<TPixel> : IImageReader<IImage<TPixel>>
       where TPixel : unmanaged, IPixel<TPixel> {
     private readonly int width_;
     private readonly int height_;
+    private readonly IPixelReader<TPixel> reader_;
 
-    public BTiledImageReader(int width, int height) {
+    public TiledImageReader(int width,
+                            int height,
+                            IPixelReader<TPixel> pixelReader) {
       this.width_ = width;
       this.height_ = height;
+      this.reader_ = pixelReader;
     }
 
     public unsafe IImage<TPixel> Read(byte[] srcBytes) {
       using var er =
           new EndianBinaryReader(srcBytes, Endianness.LittleEndian);
 
-      var image = this.CreateImage_(this.width_, this.height_);
+      var image = this.reader_.CreateImage_(this.width_, this.height_);
       using var imageLock = image.Lock();
       var scan0 = imageLock.pixelScan0;
 
@@ -32,20 +54,13 @@ namespace cmb.image {
             var x = Morton7_(i);
             var y = Morton7_(i >>> 1);
             var dstOffs = ((yy + y) * this.width_ + xx + x);
-            this.Decode(er, scan0, dstOffs);
+            this.reader_.Decode(er, scan0, dstOffs);
           }
         }
       }
 
       return image;
     }
-
-    protected abstract IImage<TPixel> CreateImage_(int width, int height);
-
-    protected abstract unsafe void Decode(
-        IEndianBinaryReader er,
-        TPixel* scan0,
-        int offset);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int Morton7_(int n)
