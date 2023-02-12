@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Runtime.CompilerServices;
 
 using fin.image;
 using fin.image.io;
@@ -7,6 +6,10 @@ using fin.image.io;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace cmb.image {
+  public interface ITilePixelIndexer {
+    void GetPixelInTile(int index, out int x, out int y);
+  }
+
   public interface IPixelReader<TPixel>
       where TPixel : unmanaged, IPixel<TPixel> {
     IImage<TPixel> CreateImage_(int width, int height);
@@ -20,22 +23,39 @@ namespace cmb.image {
     public static TiledImageReader<TPixel> New<TPixel>(
         int width,
         int height,
-        IPixelReader<TPixel> reader)
+        int tileWidth,
+        int tileHeight,
+        ITilePixelIndexer tilePixelIndexer,
+        IPixelReader<TPixel> pixelReader)
         where TPixel : unmanaged, IPixel<TPixel>
-      => new(width, height, reader);
+      => new(width,
+             height,
+             tileWidth,
+             tileHeight,
+             tilePixelIndexer,
+             pixelReader);
   }
 
   public class TiledImageReader<TPixel> : IImageReader<IImage<TPixel>>
       where TPixel : unmanaged, IPixel<TPixel> {
     private readonly int width_;
     private readonly int height_;
+    private readonly int tileWidth_;
+    private readonly int tileHeight_;
+    private readonly ITilePixelIndexer tilePixelIndexer_;
     private readonly IPixelReader<TPixel> reader_;
 
     public TiledImageReader(int width,
                             int height,
+                            int tileWidth,
+                            int tileHeight,
+                            ITilePixelIndexer tilePixelIndexer,
                             IPixelReader<TPixel> pixelReader) {
       this.width_ = width;
       this.height_ = height;
+      this.tileWidth_ = tileWidth;
+      this.tileHeight_ = tileHeight;
+      this.tilePixelIndexer_ = tilePixelIndexer;
       this.reader_ = pixelReader;
     }
 
@@ -47,12 +67,10 @@ namespace cmb.image {
       using var imageLock = image.Lock();
       var scan0 = imageLock.pixelScan0;
 
-      for (var yy = 0; yy < this.height_; yy += 8) {
-        for (var xx = 0; xx < this.width_; xx += 8) {
-          // Iterate in Morton order inside each tile.
-          for (var i = 0; i < 0x40; i++) {
-            var x = Morton7_(i);
-            var y = Morton7_(i >>> 1);
+      for (var yy = 0; yy < this.height_; yy += this.tileHeight_) {
+        for (var xx = 0; xx < this.width_; xx += this.tileWidth_) {
+          for (var i = 0; i < this.tileWidth_ * this.tileHeight_; i++) {
+            this.tilePixelIndexer_.GetPixelInTile(i, out var x, out var y);
             var dstOffs = ((yy + y) * this.width_ + xx + x);
             this.reader_.Decode(er, scan0, dstOffs);
           }
@@ -61,10 +79,5 @@ namespace cmb.image {
 
       return image;
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int Morton7_(int n)
-        // 0a0b0c => 000abc
-      => ((n >>> 2) & 0x04) | ((n >>> 1) & 0x02) | (n & 0x01);
   }
 }

@@ -21,11 +21,15 @@ namespace cmb.image {
     }
 
     private IImageReader CreateImpl_(int width,
-                                    int height,
-                                    GlTextureFormat format) {
+                                     int height,
+                                     GlTextureFormat format) {
       if (format.IsEtc1(out var hasAlpha)) {
         return new Etc1ImageReader(width, height, hasAlpha);
       }
+
+      var blockWidth = 8;
+      var blockHeight = 8;
+      var tilePixelIndexer = new MortonTilePixelIndexer();
 
       if (format.IsRgb()) {
         IPixelReader<Rgb24> pixelReader = format switch {
@@ -33,7 +37,12 @@ namespace cmb.image {
             GlTextureFormat.RGB565 => new Rgb565PixelReader(),
         };
 
-        return TiledImageReader.New(width, height, pixelReader);
+        return TiledImageReader.New(width,
+                                    height,
+                                    blockWidth,
+                                    blockHeight,
+                                    tilePixelIndexer,
+                                    pixelReader);
       }
 
       if (format.IsRgba()) {
@@ -43,7 +52,12 @@ namespace cmb.image {
             GlTextureFormat.RGBA5551 => new Rgba5551PixelReader(),
         };
 
-        return TiledImageReader.New(width, height, pixelReader);
+        return TiledImageReader.New(width,
+                                    height,
+                                    blockWidth,
+                                    blockHeight,
+                                    tilePixelIndexer,
+                                    pixelReader);
       }
 
       if (format.IsIntensity()) {
@@ -54,7 +68,12 @@ namespace cmb.image {
             GlTextureFormat.Shadow => new L8PixelReader(),
         };
 
-        return TiledImageReader.New(width, height, pixelReader);
+        return TiledImageReader.New(width,
+                                    height,
+                                    blockWidth,
+                                    blockHeight,
+                                    tilePixelIndexer,
+                                    pixelReader);
       }
 
       if (format.IsIntensityAlpha()) {
@@ -62,7 +81,12 @@ namespace cmb.image {
             GlTextureFormat.LA8 => new La16PixelReader(),
         };
 
-        return TiledImageReader.New(width, height, pixelReader);
+        return TiledImageReader.New(width,
+                                    height,
+                                    blockWidth,
+                                    blockHeight,
+                                    tilePixelIndexer,
+                                    pixelReader);
       }
 
       if (format.IsAlpha()) {
@@ -70,7 +94,12 @@ namespace cmb.image {
             GlTextureFormat.A8 => new A8PixelReader(),
         };
 
-        return TiledImageReader.New(width, height, pixelReader);
+        return TiledImageReader.New(width,
+                                    height,
+                                    blockWidth,
+                                    blockHeight,
+                                    tilePixelIndexer,
+                                    pixelReader);
       }
 
       throw new NotImplementedException();
