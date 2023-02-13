@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+
 
 namespace fin.io.bundles {
   public interface IFileBundle : IUiFile {
@@ -31,11 +33,8 @@ namespace fin.io.bundles {
     new IEnumerable<TFileBundle> GatherFileBundles(bool assert);
 
     IEnumerable<IFileBundle> IFileBundleGatherer.
-        GatherFileBundles(bool assert) {
-      foreach (var fileBundle in this.GatherFileBundles(assert)) {
-        yield return fileBundle;
-      }
-    }
+        GatherFileBundles(bool assert)
+      => this.GatherFileBundles(assert).Cast<IFileBundle>();
   }
 
   public interface IFileBundleGathererAccumulator : IFileBundleGatherer {
