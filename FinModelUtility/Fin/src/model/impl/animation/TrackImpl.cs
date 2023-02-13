@@ -1,6 +1,7 @@
 ﻿using fin.data;
 using fin.math.interpolation;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace fin.model.impl {
   public partial class ModelImpl {
@@ -53,6 +54,7 @@ namespace fin.model.impl {
         }
       }
 
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public void Set(
         int frame,
         TValue t,
@@ -62,6 +64,7 @@ namespace fin.model.impl {
           new ValueAndTangents<TValue>(t, optionalIncomingTangent,
             optionalOutgoingTangent));
 
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public Keyframe<ValueAndTangents<TValue>>? GetKeyframe(int frame)
         => this.impl_.GetKeyframeAtFrame(frame);
 
@@ -71,14 +74,13 @@ namespace fin.model.impl {
           bool useLoopingInterpolation = false) {
         var keyframeDefined = this.impl_.FindIndexOfKeyframe((int)frame,
           out var fromKeyframeIndex,
-          out var fromKeyframeOrNull,
+          out var fromKeyframe,
           out var isLastKeyframe);
 
         if (!keyframeDefined) {
           return defaultValue;
         }
 
-        var fromKeyframe = fromKeyframeOrNull.Value;
         var fromValue = fromKeyframe.Value.Value;
 
         // TODO: Make this an option?
@@ -132,7 +134,7 @@ namespace fin.model.impl {
       ) {
         var keyframeDefined = this.impl_.FindIndexOfKeyframe((int)frame,
                                  out var fromKeyframeIndex,
-                                 out var fromKeyframeOrNull,
+                                 out var fromKeyframe,
                                  out var isLastKeyframe);
         fromData = toData = null;
 
@@ -140,7 +142,6 @@ namespace fin.model.impl {
           return false;
         }
 
-        var fromKeyframe = fromKeyframeOrNull.Value;
         var fromValue = fromKeyframe.Value.Value;
 
         var fromTime = fromKeyframe.Frame;

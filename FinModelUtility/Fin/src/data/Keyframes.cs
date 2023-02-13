@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace fin.data {
   public readonly struct Keyframe<T> {
@@ -27,7 +28,7 @@ namespace fin.data {
     bool FindIndexOfKeyframe(
         int frame,
         out int keyframeIndex,
-        out Keyframe<T>? keyframe,
+        out Keyframe<T> keyframe,
         out bool isLastKeyframe);
   }
 
@@ -52,19 +53,21 @@ namespace fin.data {
 
       var newKeyframe = new Keyframe<T>(frame, value);
 
-      if (keyframeExists && existingKeyframe?.Frame == frame) {
+      if (keyframeExists && existingKeyframe.Frame == frame) {
         this.impl_[frame] = newKeyframe;
       } else if (isLastKeyframe) {
         this.impl_.Add(newKeyframe);
-      } else if (keyframeExists && existingKeyframe.Value.Frame < frame) {
+      } else if (keyframeExists && existingKeyframe.Frame < frame) {
         this.impl_.Insert(keyframeIndex + 1, newKeyframe);
       } else {
         this.impl_.Insert(keyframeIndex, newKeyframe);
       }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Keyframe<T> GetKeyframeAtIndex(int index) => this.impl_[index];
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Keyframe<T>? GetKeyframeAtFrame(int frame) {
       this.FindIndexOfKeyframe(frame,
                                out _,
@@ -77,17 +80,15 @@ namespace fin.data {
     public bool FindIndexOfKeyframe(
         int frame,
         out int keyframeIndex,
-        out Keyframe<T>? keyframe,
+        out Keyframe<T> keyframe,
         out bool isLastKeyframe) {
       // Optimizes the "finding last keyframe" state, which is expected to be
       // each call when creating an animation.
       var keyframeCount = this.impl_.Count;
       if (keyframeCount > 0) {
-        var lastKeyframeIndex = keyframeCount - 1;
-        var lastKeyframe = this.impl_[lastKeyframeIndex];
-        if (frame > lastKeyframe.Frame) {
-          keyframeIndex = lastKeyframeIndex;
-          keyframe = lastKeyframe;
+        keyframeIndex = keyframeCount - 1;
+        keyframe = this.impl_[keyframeIndex];
+        if (frame > keyframe.Frame) {
           isLastKeyframe = true;
           return true;
         }
@@ -125,7 +126,7 @@ namespace fin.data {
 
       {
         keyframeIndex = Math.Max(min, max);
-        keyframe = i == keyframeCount ? this.impl_.LastOrDefault() : null;
+        keyframe = i == keyframeCount ? this.impl_.LastOrDefault() : default;
         isLastKeyframe = keyframeIndex == keyframeCount;
       }
       return false;

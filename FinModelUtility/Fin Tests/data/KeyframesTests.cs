@@ -1,6 +1,4 @@
-﻿using fin.util.optional;
-
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 using schema.binary.util;
 
@@ -113,7 +111,8 @@ namespace fin.data {
       impl.SetKeyframe(2, "second");
       impl.SetKeyframe(4, "third");
 
-      AssertKeyframe_(null, impl.GetKeyframeAtFrame(-1));
+      AssertKeyframe_(new Keyframe<string>(0, default),
+                      impl.GetKeyframeAtFrame(-1));
       AssertKeyframe_(new Keyframe<string>(0, "first"),
                       impl.GetKeyframeAtFrame(0));
       AssertKeyframe_(new Keyframe<string>(0, "first"),
@@ -182,10 +181,9 @@ namespace fin.data {
           out var keyframe,
           out var isLastKeyframe);
 
-        Assert.True(keyframe != null);
         Assert.True(isKeyframeDefined);
         Assert.AreEqual(sI / s, keyframeIndex);
-        Assert.AreEqual(sI, keyframe.Value.Frame);
+        Assert.AreEqual(sI, keyframe.Frame);
       }
     }
 

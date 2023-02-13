@@ -4,6 +4,7 @@ using fin.data;
 using System.Collections.Generic;
 
 using fin.math.interpolation;
+using System.Runtime.CompilerServices;
 
 namespace fin.model.impl {
   public partial class ModelImpl {
@@ -42,9 +43,11 @@ namespace fin.model.impl {
         set => this.impl_.FrameCount = value;
       }
 
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public void Set(IAxesTrack<float, Position> other)
         => this.impl_.Set(other);
 
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public void Set(
           int frame,
           int axis,
@@ -57,9 +60,11 @@ namespace fin.model.impl {
                           optionalIncomingTangent,
                           optionalOutgoingTangent);
 
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public Keyframe<ValueAndTangents<float>>?[] GetAxisListAtKeyframe(int keyframe)
         => this.impl_.GetAxisListAtKeyframe(keyframe);
 
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public Position GetInterpolatedFrame(
           float frame,
           float[] defaultValue,
@@ -104,8 +109,10 @@ namespace fin.model.impl {
         set => this.impl_.FrameCount = value;
       }
 
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public void Set(IAxesTrack<float, Scale> other) => this.impl_.Set(other);
 
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public void Set(
           int frame,
           int axis,
@@ -118,9 +125,11 @@ namespace fin.model.impl {
                           optionalIncomingTangent,
                           optionalOutgoingTangent);
 
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public Keyframe<ValueAndTangents<float>>?[] GetAxisListAtKeyframe(int keyframe)
         => this.impl_.GetAxisListAtKeyframe(keyframe);
 
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public Scale GetInterpolatedFrame(
           float frame,
           float[] defaultValue,

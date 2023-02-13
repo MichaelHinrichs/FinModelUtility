@@ -11,21 +11,18 @@ namespace cmb.schema.csab {
     public AnimationNode(Csab parent) {
       this.parent_ = parent;
 
-      this.TranslationAxes = Enumerable.Range(0, 3)
-                                       .Select(_ => new CsabTrack(parent) {
-                                           ValueType = TrackType.POSITION
-                                       })
-                                       .ToArray();
-      this.RotationAxes = Enumerable.Range(0, 3)
-                                    .Select(_ => new CsabTrack(parent) {
-                                        ValueType = TrackType.ROTATION
-                                    })
-                                    .ToArray();
-      this.ScaleAxes = Enumerable.Range(0, 3)
-                                 .Select(_ => new CsabTrack(parent) {
-                                     ValueType = TrackType.SCALE
-                                 })
-                                 .ToArray();
+      this.TranslationAxes =
+          Enumerable.Range(0, 3)
+                    .Select(_ => new CsabTrack(parent, TrackType.POSITION))
+                    .ToArray();
+      this.RotationAxes =
+          Enumerable.Range(0, 3)
+                    .Select(_ => new CsabTrack(parent, TrackType.ROTATION))
+                    .ToArray();
+      this.ScaleAxes =
+          Enumerable.Range(0, 3)
+                    .Select(_ => new CsabTrack(parent, TrackType.SCALE))
+                    .ToArray();
     }
 
     public ushort BoneIndex { get; set; }
@@ -44,7 +41,7 @@ namespace cmb.schema.csab {
       this.BoneIndex = r.ReadUInt16();
 
       var isRotationShort = r.ReadUInt16() != 0;
-      
+
       foreach (var translationAxis in TranslationAxes) {
         var offset = r.ReadUInt16();
         if (offset != 0) {

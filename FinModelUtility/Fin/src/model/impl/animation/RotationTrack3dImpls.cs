@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 using fin.math;
 using fin.math.interpolation;
@@ -47,6 +48,7 @@ namespace fin.model.impl {
         }
       }
 
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public void Set(
           int frame,
           int axis,
@@ -59,6 +61,7 @@ namespace fin.model.impl {
                     optionalIncomingTangent,
                     optionalOutgoingTangent);
 
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public Keyframe<ValueAndTangents<float>>?[] GetAxisListAtKeyframe(int keyframe)
         => this.axisTracks_.Select(axis => axis.GetKeyframe(keyframe))
                .ToArray();

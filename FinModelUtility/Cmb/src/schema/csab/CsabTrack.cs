@@ -14,12 +14,31 @@ namespace cmb.schema.csab {
 
   public class CsabTrack : IBinaryDeserializable {
     private readonly Csab parent_;
+    private Func<IEndianBinaryReader, int> readRawLinearFloat_;
+    private Func<IEndianBinaryReader, int> readRawLinearShort_;
 
-    public CsabTrack(Csab parent) {
+    public CsabTrack(Csab parent,
+                     TrackType valueType) {
       this.parent_ = parent;
+      this.ValueType = valueType;
+
+      // TODO: Is this right????
+      this.readRawLinearFloat_ = this.ValueType switch {
+          // Weird that this is different, but this really does seem to be right.
+          TrackType.POSITION => er => er.ReadUInt16() / 2,
+          TrackType.SCALE    => er => er.ReadInt16(),
+          TrackType.ROTATION => er => er.ReadInt16(),
+      };
+      // TODO: Is this right????
+      this.readRawLinearShort_ = this.ValueType switch {
+          // Weird that this is different, but this really does seem to be right.
+          TrackType.POSITION => er => er.ReadUInt16(),
+          TrackType.SCALE    => er => er.ReadInt16(),
+          TrackType.ROTATION => er => er.ReadInt16(),
+      };
     }
 
-    public TrackType ValueType { get; set; }
+    public TrackType ValueType { get; }
 
     public AnimationTrackType Type { get; set; }
 
@@ -99,13 +118,7 @@ namespace cmb.schema.csab {
         int startFrame,
         int index) {
       if (IsPastVersion4) {
-        var raw = this.ValueType switch {
-            // Weird that this is different, but this really does seem to be right.
-            TrackType.POSITION => (int) er.ReadUInt16() / 2,
-            TrackType.SCALE    => (int) er.ReadInt16(),
-            TrackType.ROTATION => (int) er.ReadInt16(),
-        };
-
+        var raw = readRawLinearFloat_(er);
         var value = ApplyScaleAndBias_(raw, trackScale, trackBias);
         return new CsabKeyframe {
             Time = (uint) (startFrame + index), Value = value,
@@ -124,13 +137,7 @@ namespace cmb.schema.csab {
         int startFrame,
         int index) {
       if (IsPastVersion4) {
-        // TODO: Is this right????
-        var raw = this.ValueType switch {
-            TrackType.POSITION => (int) er.ReadUInt16(),
-            TrackType.SCALE    => (int) er.ReadInt16(),
-            TrackType.ROTATION => (int) er.ReadInt16(),
-        };
-
+        var raw = this.readRawLinearShort_(er);
         var value = ApplyScaleAndBias_(raw, trackScale, trackBias);
         return new CsabKeyframe {
             Time = (uint) (startFrame + index), Value = value,

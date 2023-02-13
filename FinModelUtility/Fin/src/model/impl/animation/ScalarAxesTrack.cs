@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace fin.model.impl {
   public partial class ModelImpl {
@@ -79,6 +80,7 @@ namespace fin.model.impl {
         }
       }
 
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public void Set(
           int frame,
           int axis,
@@ -91,24 +93,26 @@ namespace fin.model.impl {
                     optionalIncomingTangent,
                     optionalOutgoingTangent);
 
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public Keyframe<ValueAndTangents<TAxis>>? GetKeyframe(int keyframe, int axis)
         => this.axisTracks_[axis].GetKeyframe(keyframe);
 
 
       public IReadOnlyList<ITrack<TAxis>> AxisTracks { get; }
 
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public Keyframe<ValueAndTangents<TAxis>>?[] GetAxisListAtKeyframe(int keyframe)
         => this.axisTracks_.Select(axis => axis.GetKeyframe(keyframe))
                .ToArray();
 
 
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public TInterpolated GetInterpolatedFrame(
           float frame,
           TAxis[] defaultValue,
           bool useLoopingInterpolation = false
-      ) {
-        return this.getInterpolatedFromAxesTrack_(this, frame, defaultValue);
-      }
+      )
+        => this.getInterpolatedFromAxesTrack_(this, frame, defaultValue);
     }
   }
 }

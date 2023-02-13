@@ -148,7 +148,11 @@ namespace cmb.api {
             initialCapacityPerScaleAxis[i] = scaleAxis.Keyframes.Count;
           }
 
-          var boneTracks = finAnimation.AddBoneTracks(finBones[boneIndex]);
+          var boneTracks = finAnimation.AddBoneTracks(
+              finBones[boneIndex],
+              initialCapacityPerPositionAxis,
+              initialCapacityPerRotationAxis,
+              initialCapacityPerScaleAxis);
 
           for (var i = 0; i < 3; ++i) {
             var translationAxis = anod.TranslationAxes[i];
