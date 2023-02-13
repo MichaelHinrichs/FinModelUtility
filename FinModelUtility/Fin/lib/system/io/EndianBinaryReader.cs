@@ -4,6 +4,7 @@
 // MVID: DAEF8B62-698B-42D0-BEDD-3770EB8C9FE8
 // Assembly location: R:\Documents\CSharpWorkspace\Pikmin2Utility\MKDS Course Modifier\MKDS Course Modifier.exe
 
+using System.Runtime.CompilerServices;
 using System.Text;
 using schema.binary;
 
@@ -74,7 +75,10 @@ namespace System.IO {
 
     public long Length => this.BaseStream_.Length;
 
-    public bool Eof => this.Position >= this.Length;
+    public bool Eof {
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
+      get => this.Position >= this.Length;
+    }
 
     public void AssertNotEof() {
       if (this.Eof) {
@@ -144,11 +148,13 @@ namespace System.IO {
       }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void FillBuffer_(long count, int? optStride = null) {
       this.AssertNotEof();
       this.BufferedStream_.FillBuffer(count, optStride);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void FillBuffer_(Span<byte> buffer) {
       this.AssertNotEof();
       this.BufferedStream_.FillBuffer(buffer);

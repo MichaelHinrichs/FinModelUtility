@@ -5,6 +5,7 @@
 // Assembly location: R:\Documents\CSharpWorkspace\Pikmin2Utility\MKDS Course Modifier\MKDS Course Modifier.exe
 
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 
 namespace System.IO {
@@ -50,8 +51,10 @@ namespace System.IO {
       this.UpdateReverse_();
     }
 
-    public Endianness Endianness
-      => this.endiannessStack_.Peek()?.Item2 ?? EndiannessUtil.SystemEndianness;
+    public Endianness Endianness {
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
+      get => this.endiannessStack_.Peek()?.Item2 ?? EndiannessUtil.SystemEndianness;
+    }
 
     public bool IsOppositeEndiannessOfSystem { get; private set; }
 
@@ -60,6 +63,7 @@ namespace System.IO {
     ///   endianness, but will be overwritten by the field endianness if those
     ///   were already pushed.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void PushStructureEndianness(Endianness endianness) {
       this.endiannessStack_.Push(
           PickSuperior_(
@@ -67,22 +71,25 @@ namespace System.IO {
               (EndiannessSource.STRUCTURE, endianness)));
       this.UpdateReverse_();
     }
-    
+
     /// <summary>
     ///   Pushes a field's endianness. This will override any other
     ///   endiannesses that were previously pushed.
     /// </summary>
     /// <param name="endianness"></param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void PushMemberEndianness(Endianness endianness) {
       this.endiannessStack_.Push((EndiannessSource.MEMBER, endianness));
       this.UpdateReverse_();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void PopEndianness() {
       this.endiannessStack_.Pop();
       this.UpdateReverse_();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void UpdateReverse_() {
       IsOppositeEndiannessOfSystem =
           this.Endianness != EndiannessUtil.SystemEndianness;
