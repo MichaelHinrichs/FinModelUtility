@@ -66,7 +66,7 @@ namespace schema.binary {
       => MergeNamespaceParts(GetContainingNamespaces(symbol));
 
     public static string? MergeNamespaceParts(IList<string>? namespaces) {
-      if (namespaces == null) {
+      if ((namespaces?.Count ?? 0) == 0) {
         return null;
       }
 

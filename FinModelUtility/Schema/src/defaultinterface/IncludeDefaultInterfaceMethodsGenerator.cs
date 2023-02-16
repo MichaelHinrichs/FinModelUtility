@@ -90,13 +90,6 @@ namespace schema.defaultinterface {
     public void Execute(GeneratorExecutionContext context) {
       this.context_ = context;
 
-      // Gathers up a map of all structures by named type symbol.
-      var structureByNamedTypeSymbol =
-          new Dictionary<INamedTypeSymbol, DefaultInterfaceMethodsData>();
-      foreach (var structure in this.queue_) {
-        structureByNamedTypeSymbol[structure.StructureSymbol] = structure;
-      }
-
       // Generates code for each structure.
       foreach (var structure in this.queue_) {
         try {

@@ -6,12 +6,12 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace schema.defaultinterface {
   public class DefaultInterfaceMethodsData {
-    public required INamedTypeSymbol StructureSymbol { get; set; }
+    public INamedTypeSymbol StructureSymbol { get; set; }
 
     // Will either be IMethodSymbol or IFieldSymbol
-    public required IReadOnlyList<ISymbol> AllMembersToInclude { get; set; }
+    public IReadOnlyList<ISymbol> AllMembersToInclude { get; set; }
 
-    public required IReadOnlyList<UsingDirectiveSyntax> AllUsingDirectives {
+    public IReadOnlyList<UsingDirectiveSyntax> AllUsingDirectives {
       get;
       set;
     }
@@ -32,6 +32,10 @@ namespace schema.defaultinterface {
         foreach (var memberFromInterface in anInterface.GetMembers()) {
           if (memberFromInterface.Kind is not (SymbolKind.Property
                                                or SymbolKind.Method)) {
+            continue;
+          }
+
+          if (memberFromInterface.IsAbstract) {
             continue;
           }
 

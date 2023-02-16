@@ -30,9 +30,22 @@ namespace schema.binary.text {
     public ICurlyBracketTextWriter WriteLine(string text) {
       var lines = text.Split('\n');
       foreach (var line in lines) {
+        foreach (var c in line) {
+          if (c == '}') {
+            --this.indentLevel_;
+          }
+        }
+
         this.PrintIndent_();
         this.impl_.WriteLine(line);
+
+        foreach (var c in line) {
+          if (c == '{') {
+            ++this.indentLevel_;
+          }
+        }
       }
+
       return this;
     }
 

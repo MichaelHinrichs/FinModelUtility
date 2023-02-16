@@ -23,7 +23,10 @@ namespace schema.binary.text {
           .WriteLine("using System.IO;");
 
       // TODO: Handle fancier cases here
-      cbsb.EnterBlock($"namespace {typeNamespace}");
+      if (typeNamespace != null) {
+        cbsb.EnterBlock($"namespace {typeNamespace}");
+      }
+
       foreach (var declaringType in declaringTypes) {
         cbsb.EnterBlock(SymbolTypeUtil.GetQualifiersAndNameFor(declaringType));
       }
@@ -58,7 +61,9 @@ namespace schema.binary.text {
       }
 
       // namespace
-      cbsb.ExitBlock();
+      if (typeNamespace != null) {
+        cbsb.ExitBlock();
+      }
 
       var generatedCode = sb.ToString();
       return generatedCode;
