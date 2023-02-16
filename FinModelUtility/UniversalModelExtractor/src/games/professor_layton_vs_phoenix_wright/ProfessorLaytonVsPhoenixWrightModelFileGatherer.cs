@@ -33,37 +33,7 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
       return new FileHierarchyAssetBundleSeparator<XcModelFileBundle>(
           fileHierarchy,
           directory => {
-            HashSet<IFileHierarchyFile> filesWithModels = new();
-            HashSet<IFileHierarchyFile> filesWithAnimations = new();
             var xcFiles = directory.FilesWithExtension(".xc");
-
-            foreach (var xcFile in xcFiles) {
-              using var er =
-                  new EndianBinaryReader(xcFile.Impl.OpenRead(),
-                                         Endianness.LittleEndian);
-
-              if (er.ReadString(4) != "XPCK") {
-                continue;
-              }
-
-              try {
-                er.Position = 0;
-                var xc = er.ReadNew<Xc>();
-
-                if (xc.FilesByExtension.TryGetList(".prm", out _)) {
-                  filesWithModels.Add(xcFile);
-                }
-
-                if (xc.FilesByExtension.TryGetList(".mtn2", out _)) {
-                  filesWithAnimations.Add(xcFile);
-                }
-              } catch {
-                ;
-              }
-            }
-
-            var filesWithModelsAndAnimations =
-                filesWithModels.Intersect(filesWithAnimations).ToHashSet();
 
             var xcBundles = Array.Empty<IXcFiles>();
             if (directory.LocalPath == "\\vs1\\chr") {
@@ -100,40 +70,28 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
               });
             }
 
-            foreach (var fileWithModelsAndAnimations in
-                     filesWithModelsAndAnimations) {
+            foreach (var xcFile in xcFiles) {
               if (xcBundles.Any(xcBundle =>
-                                    xcBundle.ModelFile ==
-                                    fileWithModelsAndAnimations)) {
+                                    xcBundle.ModelFile == xcFile)) {
                 continue;
               }
 
-              bundles.Add(new XcModelFileBundle {
-                  ModelXcFile = fileWithModelsAndAnimations,
-                  AnimationXcFiles = new[] { fileWithModelsAndAnimations },
-              });
-            }
-
-            foreach (var fileWithModel in filesWithModels) {
-              if (xcBundles
-                  .Any(xcBundle => xcBundle.ModelFile == fileWithModel)) {
-                continue;
-              }
-
-              var name = fileWithModel.NameWithoutExtension;
+              IFileHierarchyFile[] animationFiles;
+              var name = xcFile.NameWithoutExtension;
               var underscoreIndex = name.IndexOf('_');
-              var nameUpToUnderscore = underscoreIndex == -1
-                  ? name
-                  : name.Substring(0, underscoreIndex);
-
-              var animations = filesWithAnimations
-                               .Where(fileWithAnimations
-                                          => fileWithAnimations.Name.StartsWith(
-                                              nameUpToUnderscore))
-                               .ToArray();
+              if (underscoreIndex != -1) {
+                animationFiles = new[] { xcFile };
+              } else {
+                animationFiles = xcFiles
+                                 .Where(fileWithAnimations
+                                            => fileWithAnimations.Name
+                                                .StartsWith(
+                                                    name))
+                                 .ToArray();
+              }
 
               bundles.Add(new XcModelFileBundle {
-                  ModelXcFile = fileWithModel, AnimationXcFiles = animations,
+                  ModelXcFile = xcFile, AnimationXcFiles = new[] { xcFile },
               });
             }
 
