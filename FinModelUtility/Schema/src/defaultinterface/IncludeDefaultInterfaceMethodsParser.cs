@@ -11,10 +11,7 @@ namespace schema.defaultinterface {
     // Will either be IMethodSymbol or IFieldSymbol
     public IReadOnlyList<ISymbol> AllMembersToInclude { get; set; }
 
-    public IReadOnlyList<UsingDirectiveSyntax> AllUsingDirectives {
-      get;
-      set;
-    }
+    public IReadOnlyList<UsingDirectiveSyntax> AllUsingDirectives { get; set; }
   }
 
   public class IncludeDefaultInterfaceMethodsParser {
@@ -39,7 +36,8 @@ namespace schema.defaultinterface {
             continue;
           }
 
-          if (!memberFromInterface.CanBeReferencedByName) {
+          if (memberFromInterface is
+              { CanBeReferencedByName: false, Kind: SymbolKind.Method }) {
             continue;
           }
 
@@ -72,11 +70,11 @@ namespace schema.defaultinterface {
               }
 
               if (!methodFromStructure
-                  .Parameters
-                  .Select(param => param.Type.ToString())
-                  .SequenceEqual(
-                      methodFromInterface.Parameters.Select(
-                          param => param.Type.ToString()))) {
+                   .Parameters
+                   .Select(param => param.Type.ToString())
+                   .SequenceEqual(
+                       methodFromInterface.Parameters.Select(
+                           param => param.Type.ToString()))) {
                 goto DidNotMatch;
               }
             }

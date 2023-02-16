@@ -74,11 +74,43 @@ namespace schema.defaultinterface {
                          (p, a) => (p.ToDisplayString(), a.ToDisplayString()))
                     .ToDictionary(t => t.Item1, t => t.Item2);
 
-      var hasPrintedPublic = false;
-      var squareBracketIndent = 0;
-
       var syntax = symbol.DeclaringSyntaxReferences[0].GetSyntax();
       var tokens = syntax.DescendantTokens().ToArray();
+
+      int indexAfterMemberName = -1;
+      for (var i = 0; i < tokens.Length; ++i) {
+        var token = tokens[i];
+        if (token.IsKind(SyntaxKind.EqualsGreaterThanToken) ||
+            token.IsKind(SyntaxKind.OpenBraceToken) ||
+            token.IsKind(SyntaxKind.OpenParenToken)) {
+          indexAfterMemberName = i;
+          break;
+        }
+      }
+
+      (int, int)? ignoreParentInterfaceRange = null;
+      if (indexAfterMemberName > -1) {
+        var endOfRange = indexAfterMemberName - 2;
+        var startOfRange = endOfRange;
+        for (var i = endOfRange; i >= 1; i -= 2) {
+          var firstToken = tokens[i - 1];
+          var secondToken = tokens[i];
+
+          if (firstToken.IsKind(SyntaxKind.IdentifierToken) &&
+              secondToken.IsKind(SyntaxKind.DotToken)) {
+            startOfRange -= 2;
+          } else {
+            break;
+          }
+        }
+
+        if (endOfRange != startOfRange) {
+          ignoreParentInterfaceRange = (startOfRange, endOfRange);
+        }
+      }
+
+      var hasPrintedPublic = false;
+      var squareBracketIndent = 0;
       for (var i = 0; i < tokens.Length; ++i) {
         var token = tokens[i];
 
@@ -91,6 +123,13 @@ namespace schema.defaultinterface {
             hasPrintedPublic = true;
 
             sb.Append("public ");
+          }
+        } else {
+          if (ignoreParentInterfaceRange != null) {
+            if (i >= ignoreParentInterfaceRange.Value.Item1 &&
+                i <= ignoreParentInterfaceRange.Value.Item2) {
+              continue;
+            }
           }
         }
 
