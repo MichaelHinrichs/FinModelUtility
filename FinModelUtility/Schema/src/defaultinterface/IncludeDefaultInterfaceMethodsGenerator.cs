@@ -16,12 +16,13 @@ namespace schema.defaultinterface {
         typeof(IncludeDefaultInterfaceMethodsAttribute);
 
     private readonly IncludeDefaultInterfaceMethodsParser parser_ = new();
+    private readonly IncludeDefaultInterfaceMethodsWriter impl_ = new();
 
     private void Generate_(DefaultInterfaceMethodsData data) {
-      /*var writerCode = this.writerImpl_.Generate(structure);
+      /*var code = this.impl_.Generate(data);
       this.context_.Value.AddSource(
-          SymbolTypeUtil.GetQualifiedName(structure.TypeSymbol) + "_writer.g",
-          writerCode);*/
+          SymbolTypeUtil.GetQualifiedName(data.StructureSymbol) + "_default_interface_methods.g",
+          code);*/
     }
 
     public void Initialize(GeneratorInitializationContext context) {

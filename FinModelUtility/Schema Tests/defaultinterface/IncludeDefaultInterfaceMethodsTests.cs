@@ -17,7 +17,8 @@ interface IInterface {
 [IncludeDefaultInterfaceMethods]
 public partial class Class : IInterface {
 }
-", @"public partial class Class {
+",
+        @"public partial class Class {
 }
 ");
     }
@@ -36,7 +37,8 @@ interface IInterface {
 [IncludeDefaultInterfaceMethods]
 public partial class Class : IInterface {
 }
-", @"using schema.defaultinterface;
+",
+        @"using schema.defaultinterface;
 
 public partial class Class {
   public void Something() {
@@ -63,10 +65,60 @@ public partial class Class : IInterface {
     // Do nothing
   }
 }
-", @"public partial class Class {
+",
+        @"public partial class Class {
 }
 ");
     }
+
+    [Test]
+    public void TestIgnoresGenericMethodWithImplementation() {
+      DefaultInterfaceMethodsTestUtil.AssertGenerated(@"
+using schema.defaultinterface;
+
+interface IInterface<T> {
+  T Something() {
+    var a = 0;
+  }
+}
+
+[IncludeDefaultInterfaceMethods]
+public partial class Class : IInterface<int> {
+  public int Something() {
+    // Do nothing
+  }
+}
+",
+        @"public partial class Class {
+}
+");
+    }
+
+    [Test]
+    public void TestIncludesGenericMethodWithoutImplementation() {
+      DefaultInterfaceMethodsTestUtil.AssertGenerated(@"
+using schema.defaultinterface;
+
+interface IInterface<T> {
+  T Something() {
+    var a = 0;
+  }
+}
+
+[IncludeDefaultInterfaceMethods]
+public partial class Class : IInterface<int> {
+}
+",
+        @"using schema.defaultinterface;
+
+public partial class Class {
+  public int Something() {
+    var a = 0;
+  }
+}
+");
+    }
+
 
     [Test]
     public void TestIgnoresPropertyWithoutImplementation() {
@@ -80,7 +132,8 @@ interface IInterface {
 [IncludeDefaultInterfaceMethods]
 public partial class Class : IInterface {
 }
-", @"public partial class Class {
+",
+        @"public partial class Class {
 }
 ");
     }
@@ -97,7 +150,8 @@ interface IInterface {
 [IncludeDefaultInterfaceMethods]
 public partial class Class : IInterface {
 }
-", @"using schema.defaultinterface;
+",
+        @"using schema.defaultinterface;
 
 public partial class Class {
   public byte Something => 1;
@@ -118,7 +172,48 @@ interface IInterface {
 public partial class Class : IInterface {
   public byte Something => 3;
 }
-", @"public partial class Class {
+",
+        @"public partial class Class {
+}
+");
+    }
+
+    [Test]
+    public void TestIgnoresGenericPropertyWithImplementation() {
+      DefaultInterfaceMethodsTestUtil.AssertGenerated(@"
+using schema.defaultinterface;
+
+interface IInterface<T> {
+  T Something => default;
+}
+
+[IncludeDefaultInterfaceMethods]
+public partial class Class : IInterface<int> {
+  public int Something => 1;
+}
+",
+        @"public partial class Class {
+}
+");
+    }
+
+    [Test]
+    public void TestIncludesGenericPropertyWithoutImplementation() {
+      DefaultInterfaceMethodsTestUtil.AssertGenerated(@"
+using schema.defaultinterface;
+
+interface IInterface<T> {
+  T Something => default;
+}
+
+[IncludeDefaultInterfaceMethods]
+public partial class Class : IInterface<int> {
+}
+",
+        @"using schema.defaultinterface;
+
+public partial class Class {
+  public int Something => default;
 }
 ");
     }

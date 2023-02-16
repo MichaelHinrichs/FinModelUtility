@@ -4,6 +4,7 @@ using System.IO;
 namespace schema.binary.text {
   public interface ICurlyBracketTextWriter {
     public ICurlyBracketTextWriter EnterBlock(string prefix = "");
+    public ICurlyBracketTextWriter Write(string text);
     public ICurlyBracketTextWriter WriteLine(string text);
     public ICurlyBracketTextWriter ExitBlock();
   }
@@ -27,17 +28,20 @@ namespace schema.binary.text {
       return this;
     }
 
-    public ICurlyBracketTextWriter WriteLine(string text) {
+    public ICurlyBracketTextWriter Write(string text) {
       var lines = text.Split('\n');
-      foreach (var line in lines) {
+      for (var i = 0; i < lines.Length; ++i) {
+        var line = lines[i];
         foreach (var c in line) {
           if (c == '}') {
             --this.indentLevel_;
           }
         }
 
-        this.PrintIndent_();
-        this.impl_.WriteLine(line);
+        if (i < lines.Length - 1) {
+          this.PrintIndent_();
+          this.impl_.WriteLine(line);
+        }
 
         foreach (var c in line) {
           if (c == '{') {
@@ -60,6 +64,8 @@ namespace schema.binary.text {
 
       return this;
     }
+
+    public ICurlyBracketTextWriter WriteLine(string text) => Write(text + '\n');
 
     private void PrintIndent_() {
       for (var i = 0; i < this.indentLevel_; ++i) {
