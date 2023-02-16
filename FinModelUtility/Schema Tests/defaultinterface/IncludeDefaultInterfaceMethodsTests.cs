@@ -6,6 +6,31 @@ using schema.binary;
 namespace schema.defaultinterface {
   internal class IncludeDefaultInterfaceMethodsTests {
     [Test]
+    public void TestHandlesNamespaces() {
+      DefaultInterfaceMethodsTestUtil.AssertGenerated(@"
+using schema.defaultinterface;
+
+namespace foo.bar {
+  interface IInterface {
+    void Something() => 1;
+  }
+
+  [IncludeDefaultInterfaceMethods]
+  public partial class Class : IInterface {
+  }
+}
+",
+        @"using schema.defaultinterface;
+
+namespace foo.bar {
+  public partial class Class {
+    public void Something() => 1;
+  }
+}
+");
+    }
+
+    [Test]
     public void TestIgnoresMethodWithoutImplementation() {
       DefaultInterfaceMethodsTestUtil.AssertGenerated(@"
 using schema.defaultinterface;
@@ -213,6 +238,29 @@ public partial class Class : IInterface<int> {
         @"using schema.defaultinterface;
 
 public partial class Class {
+  public int Something => default;
+}
+");
+    }
+
+    [Test]
+    public void TestHandlesPropertiesWithAttributes() {
+      DefaultInterfaceMethodsTestUtil.AssertGenerated(@"
+using schema.defaultinterface;
+
+interface IInterface<T> {
+  [Something]
+  T Something => default;
+}
+
+[IncludeDefaultInterfaceMethods]
+public partial class Class : IInterface<int> {
+}
+",
+        @"using schema.defaultinterface;
+
+public partial class Class {
+  [Something]
   public int Something => default;
 }
 ");

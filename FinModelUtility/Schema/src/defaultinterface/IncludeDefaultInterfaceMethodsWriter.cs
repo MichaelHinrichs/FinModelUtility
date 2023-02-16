@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
 using schema.binary;
 using schema.binary.text;
@@ -41,7 +42,7 @@ namespace schema.defaultinterface {
       cbsb.EnterBlock(SymbolTypeUtil.GetQualifiersAndNameFor(typeSymbol));
 
       foreach (var member in data.AllMembersToInclude) {
-        cbsb.Write($"public {GetNonGenericText_(member)}"
+        cbsb.Write(GetNonGenericText_(member)
                    .Replace("\r\n", "\n")
                    .Replace("  ", ""));
       }
@@ -73,10 +74,25 @@ namespace schema.defaultinterface {
                          (p, a) => (p.ToDisplayString(), a.ToDisplayString()))
                     .ToDictionary(t => t.Item1, t => t.Item2);
 
+      var hasPrintedPublic = false;
+      var squareBracketIndent = 0;
+
       var syntax = symbol.DeclaringSyntaxReferences[0].GetSyntax();
       var tokens = syntax.DescendantTokens().ToArray();
       for (var i = 0; i < tokens.Length; ++i) {
         var token = tokens[i];
+
+        if (!hasPrintedPublic) {
+          if (token.IsKind(SyntaxKind.OpenBracketToken)) {
+            ++squareBracketIndent;
+          } else if (token.IsKind(SyntaxKind.CloseBracketToken)) {
+            --squareBracketIndent;
+          } else if (squareBracketIndent == 0) {
+            hasPrintedPublic = true;
+
+            sb.Append("public ");
+          }
+        }
 
         var justTokenText = token.ToString();
         var tokenAndSpaces = token.ToFullString();
