@@ -46,6 +46,12 @@ namespace schema.defaultinterface {
           cbsb.WriteLine($"public {methodText}"
                          .Replace("\r\n", "\n")
                          .Replace("  ", ""));
+        } else if (member is IPropertySymbol property) {
+          var syntax = property.DeclaringSyntaxReferences[0];
+          var propertyText = syntax.GetSyntax().ToString();
+          cbsb.WriteLine($"public {propertyText}"
+                         .Replace("\r\n", "\n")
+                         .Replace("  ", ""));
         }
       }
 

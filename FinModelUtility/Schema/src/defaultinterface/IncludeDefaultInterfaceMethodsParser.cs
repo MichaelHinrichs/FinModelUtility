@@ -39,7 +39,9 @@ namespace schema.defaultinterface {
             continue;
           }
 
-          // TODO: Check if actually provides default method??
+          if (!memberFromInterface.CanBeReferencedByName) {
+            continue;
+          }
 
           foreach (var memberFromStructure in membersFromStructure) {
             if (memberFromStructure.Kind is not (SymbolKind.Property
