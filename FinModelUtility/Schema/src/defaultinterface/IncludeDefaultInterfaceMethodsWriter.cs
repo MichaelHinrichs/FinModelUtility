@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -92,16 +93,37 @@ namespace schema.defaultinterface {
       if (indexAfterMemberName > -1) {
         var endOfRange = indexAfterMemberName - 2;
         var startOfRange = endOfRange;
-        for (var i = endOfRange; i >= 1; i -= 2) {
-          var firstToken = tokens[i - 1];
-          var secondToken = tokens[i];
+        for (var i = endOfRange; i >= 1;) {
+          var expectedDotToken = tokens[i];
 
-          if (firstToken.IsKind(SyntaxKind.IdentifierToken) &&
-              secondToken.IsKind(SyntaxKind.DotToken)) {
-            startOfRange -= 2;
+          if (expectedDotToken.IsKind(SyntaxKind.DotToken)) {
+            var expectedEndOfIdentifierToken = tokens[i - 1];
+            if (expectedEndOfIdentifierToken.IsKind(
+                    SyntaxKind.IdentifierToken)) {
+              startOfRange -= 2;
+              i -= 2;
+              continue;
+            }
+
+            var arrowIndent = 0;
+            for (var a = i; a >= 1; --a) {
+              var aToken = tokens[a];
+              if (aToken.IsKind(SyntaxKind.GreaterThanEqualsToken)) {
+                ++arrowIndent;
+              } else if (aToken.IsKind(SyntaxKind.LessThanToken)) {
+                --arrowIndent;
+              } else if (aToken.IsKind(SyntaxKind.IdentifierToken)) {
+                i = startOfRange = a;
+                goto FoundStartOfIdentifier;
+              }
+            }
+
+            throw new NotImplementedException();
           } else {
             break;
           }
+
+          FoundStartOfIdentifier:;
         }
 
         if (endOfRange != startOfRange) {
