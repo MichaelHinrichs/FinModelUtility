@@ -99,6 +99,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModelPluginWrappers", "Mode
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xmod", "Xmod\Xmod.csproj", "{D56EF0D4-DE4A-43E7-8888-972CF9D278C6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Geo", "Geo\Geo.csproj", "{81FDE95E-2E17-4B16-8CD7-8104BAEC39FC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -457,6 +459,18 @@ Global
 		{D56EF0D4-DE4A-43E7-8888-972CF9D278C6}.Release|x64.Build.0 = Release|Any CPU
 		{D56EF0D4-DE4A-43E7-8888-972CF9D278C6}.Release|x86.ActiveCfg = Release|Any CPU
 		{D56EF0D4-DE4A-43E7-8888-972CF9D278C6}.Release|x86.Build.0 = Release|Any CPU
+		{81FDE95E-2E17-4B16-8CD7-8104BAEC39FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81FDE95E-2E17-4B16-8CD7-8104BAEC39FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81FDE95E-2E17-4B16-8CD7-8104BAEC39FC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{81FDE95E-2E17-4B16-8CD7-8104BAEC39FC}.Debug|x64.Build.0 = Debug|Any CPU
+		{81FDE95E-2E17-4B16-8CD7-8104BAEC39FC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{81FDE95E-2E17-4B16-8CD7-8104BAEC39FC}.Debug|x86.Build.0 = Debug|Any CPU
+		{81FDE95E-2E17-4B16-8CD7-8104BAEC39FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81FDE95E-2E17-4B16-8CD7-8104BAEC39FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81FDE95E-2E17-4B16-8CD7-8104BAEC39FC}.Release|x64.ActiveCfg = Release|Any CPU
+		{81FDE95E-2E17-4B16-8CD7-8104BAEC39FC}.Release|x64.Build.0 = Release|Any CPU
+		{81FDE95E-2E17-4B16-8CD7-8104BAEC39FC}.Release|x86.ActiveCfg = Release|Any CPU
+		{81FDE95E-2E17-4B16-8CD7-8104BAEC39FC}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
