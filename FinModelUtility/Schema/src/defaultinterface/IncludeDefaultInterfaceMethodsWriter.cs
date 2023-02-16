@@ -108,11 +108,12 @@ namespace schema.defaultinterface {
             var arrowIndent = 0;
             for (var a = i; a >= 1; --a) {
               var aToken = tokens[a];
-              if (aToken.IsKind(SyntaxKind.GreaterThanEqualsToken)) {
+              if (aToken.IsKind(SyntaxKind.GreaterThanToken)) {
                 ++arrowIndent;
               } else if (aToken.IsKind(SyntaxKind.LessThanToken)) {
                 --arrowIndent;
-              } else if (aToken.IsKind(SyntaxKind.IdentifierToken)) {
+              } else if (arrowIndent == 0 &&
+                         aToken.IsKind(SyntaxKind.IdentifierToken)) {
                 i = startOfRange = a;
                 goto FoundStartOfIdentifier;
               }
@@ -123,7 +124,7 @@ namespace schema.defaultinterface {
             break;
           }
 
-          FoundStartOfIdentifier:;
+          FoundStartOfIdentifier: ;
         }
 
         if (endOfRange != startOfRange) {
