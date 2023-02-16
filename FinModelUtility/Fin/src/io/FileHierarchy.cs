@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+
 using fin.util.asserts;
 using fin.util.data;
+using fin.util.linq;
 
 using fins.io.sharpDirLister;
 
@@ -96,15 +98,20 @@ namespace fin.io {
 
         foreach (var filePath in paths.AbsoluteFilePaths) {
           this.files_.Add(
-              new FileHierarchyFile(this, this, new FinFile(filePath),
+              new FileHierarchyFile(this,
+                                    this,
+                                    new FinFile(filePath),
                                     directory));
         }
 
         foreach (var subdir in paths.Subdirs) {
           this.subdirs_.Add(
               new FileHierarchyDirectory(
-                  this, this, new FinDirectory(subdir.AbsoluteSubdirPath),
-                  directory, subdir));
+                  this,
+                  this,
+                  new FinDirectory(subdir.AbsoluteSubdirPath),
+                  directory,
+                  subdir));
         }
       }
 
@@ -129,15 +136,20 @@ namespace fin.io {
 
         foreach (var filePath in paths.AbsoluteFilePaths) {
           this.files_.Add(
-              new FileHierarchyFile(root, this, new FinFile(filePath),
+              new FileHierarchyFile(root,
+                                    this,
+                                    new FinFile(filePath),
                                     baseDirectory));
         }
 
         foreach (var subdir in paths.Subdirs) {
           this.subdirs_.Add(
               new FileHierarchyDirectory(
-                  root, this, new FinDirectory(subdir.AbsoluteSubdirPath),
-                  baseDirectory, subdir));
+                  root,
+                  this,
+                  new FinDirectory(subdir.AbsoluteSubdirPath),
+                  baseDirectory,
+                  subdir));
         }
       }
 
@@ -182,28 +194,36 @@ namespace fin.io {
       public bool Refresh(bool recursive = false) {
         var didChange = false;
 
-        var actualSubdirs = this.Impl.GetExistingSubdirs().ToArray();
+        var actualSubdirs = this.Impl.GetExistingSubdirs()
+                                .CastTo<FinDirectory, IDirectory>()
+                                .ToArray();
         didChange |=
             ListUtil.RemoveWhere(this.subdirs_,
                                  subdir => !actualSubdirs
-                                               .Contains(subdir.Impl));
+                                     .Contains(subdir.Impl));
         foreach (var actualSubdir in actualSubdirs) {
           if (this.subdirs_.All(subdir => !subdir.Impl.Equals(actualSubdir))) {
             this.subdirs_.Add(
-                new FileHierarchyDirectory(this.Root, this, actualSubdir,
+                new FileHierarchyDirectory(this.Root,
+                                           this,
+                                           actualSubdir,
                                            this.baseDirectory_));
             didChange = true;
           }
         }
 
-        var actualFiles = this.Impl.GetExistingFiles().ToList();
+        var actualFiles = this.Impl.GetExistingFiles()
+                              .CastTo<FinFile, IFile>()
+                              .ToArray();
         didChange |=
             ListUtil.RemoveWhere(this.files_,
                                  file => !actualFiles.Contains(file.Impl));
         foreach (var actualFile in actualFiles) {
           if (this.files_.All(file => !file.Impl.Equals(actualFile))) {
             this.files_.Add(
-                new FileHierarchyFile(this.Root, this, actualFile,
+                new FileHierarchyFile(this.Root,
+                                      this,
+                                      actualFile,
                                       this.baseDirectory_));
             didChange = true;
           }

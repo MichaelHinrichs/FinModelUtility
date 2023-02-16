@@ -192,11 +192,10 @@ namespace uni.games.ocarina_of_time_3d {
           .Register("zelda_xc", new NoAnimationsModelSeparatorMethod());
 
     public IEnumerable<CmbModelFileBundle> GatherFileBundles(bool assert) {
-      var ocarinaOfTime3dRom =
-          DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
+      if (!DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
               "ocarina_of_time_3d.cia",
-              assert);
-      if (ocarinaOfTime3dRom == null) {
+              assert,
+              out var ocarinaOfTime3dRom)) {
         return Enumerable.Empty<CmbModelFileBundle>();
       }
 

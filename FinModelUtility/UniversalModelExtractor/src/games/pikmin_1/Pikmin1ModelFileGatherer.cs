@@ -10,11 +10,10 @@ namespace uni.games.pikmin_1 {
   public class Pikmin1ModelFileGatherer
       : IFileBundleGatherer<ModModelFileBundle> {
     public IEnumerable<ModModelFileBundle> GatherFileBundles(bool assert) {
-      var pikmin1Rom =
-          DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
+      if (!DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
               "pikmin_1.gcm",
-              assert);
-      if (pikmin1Rom == null) {
+              assert,
+              out var pikmin1Rom)) {
         return Enumerable.Empty<ModModelFileBundle>();
       }
 

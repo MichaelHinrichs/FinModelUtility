@@ -25,11 +25,10 @@ namespace uni.games.luigis_mansion_3d {
                       new NameModelSeparatorMethod("Luigi.cmb"));
 
     public IEnumerable<CmbModelFileBundle> GatherFileBundles(bool assert) {
-      var luigisMansionRom =
-          DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
+      if (!DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
               "luigis_mansion_3d.cia",
-              assert);
-      if (luigisMansionRom == null) {
+              assert,
+              out var luigisMansionRom)) {
         return Enumerable.Empty<CmbModelFileBundle>();
       }
 

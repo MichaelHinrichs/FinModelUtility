@@ -7,6 +7,7 @@ using fin.io;
 using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
+using fin.util.linq;
 
 using modl.schema.terrain;
 using modl.schema.terrain.bw1;
@@ -68,22 +69,22 @@ namespace modl.api {
                                 .Single(
                                     dir => dir.Name == outName + "_Level");
 
-                     var textureFile =
-                         outDirectory.GetExistingFiles()
-                                     .FirstOrDefault(
-                                         file => file.Name.ToLower() ==
-                                                 $"{textureName}.png");
-
-                     // Some of the maps use textures from other directories...
-                     if (textureFile == null) {
+                     if (!outDirectory
+                         .GetExistingFiles()
+                         .Where(file => file.Name.ToLower() ==
+                                        $"{textureName}.png")
+                         .TryGetFirst(out var textureFile)) {
+                       // Some of the maps use textures from other directories...
                        var allMapsDirectory = outDirectory.GetParent();
                        textureFile = allMapsDirectory
                                      .SearchForFiles($"{textureName}.png", true)
                                      .First();
                      }
 
-                     imageDictionary[textureName] = await FinImage.FromFileAsync(textureFile);
-                   })).Wait();
+                     imageDictionary[textureName] =
+                         await FinImage.FromFileAsync(textureFile);
+                   }))
+          .Wait();
 
       var textureDictionary = new LazyDictionary<(int, string), ITexture?>(
           uvIndexAndTextureName => {

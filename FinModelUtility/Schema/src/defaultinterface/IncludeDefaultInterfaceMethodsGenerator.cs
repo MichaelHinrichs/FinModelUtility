@@ -19,10 +19,10 @@ namespace schema.defaultinterface {
     private readonly IncludeDefaultInterfaceMethodsWriter impl_ = new();
 
     private void Generate_(DefaultInterfaceMethodsData data) {
-      /*var code = this.impl_.Generate(data);
+      var code = this.impl_.Generate(data);
       this.context_.Value.AddSource(
           SymbolTypeUtil.GetQualifiedName(data.StructureSymbol) + "_default_interface_methods.g",
-          code);*/
+          code);
     }
 
     public void Initialize(GeneratorInitializationContext context) {

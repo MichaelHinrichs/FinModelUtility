@@ -12,11 +12,10 @@ namespace uni.games.super_mario_64 {
       IFileBundleGatherer<Sm64LevelFileBundle> {
     public IEnumerable<Sm64LevelFileBundle> GatherFileBundles(
         bool assert) {
-      var superMario64Rom =
-          DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
+      if (!DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
               "super_mario_64.z64",
-              assert);
-      if (superMario64Rom == null) {
+              assert,
+              out var superMario64Rom)) {
         yield break;
       }
 

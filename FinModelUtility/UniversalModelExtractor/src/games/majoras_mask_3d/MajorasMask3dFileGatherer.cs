@@ -49,11 +49,10 @@ namespace uni.games.majoras_mask_3d {
 
     public IEnumerable<CmbModelFileBundle> GatherFileBundles(
         bool assert) {
-      var majorasMask3dRom =
-          DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
+      if (!DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
               "majoras_mask_3d.cia",
-              assert);
-      if (majorasMask3dRom == null) {
+              assert,
+              out var majorasMask3dRom)) {
         return Enumerable.Empty<CmbModelFileBundle>();
       }
 

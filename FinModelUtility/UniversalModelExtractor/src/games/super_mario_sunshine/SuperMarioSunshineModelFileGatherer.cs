@@ -12,11 +12,10 @@ namespace uni.games.super_mario_sunshine {
   public class SuperMarioSunshineModelFileGatherer
       : IFileBundleGatherer<BmdModelFileBundle> {
     public IEnumerable<BmdModelFileBundle> GatherFileBundles(bool assert) {
-      var superMarioSunshineRom =
-          DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
+      if (!DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
               "super_mario_sunshine.gcm",
-              assert);
-      if (superMarioSunshineRom == null) {
+              assert,
+              out var superMarioSunshineRom)) {
         return Enumerable.Empty<BmdModelFileBundle>();
       }
 

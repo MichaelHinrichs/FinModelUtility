@@ -4,6 +4,7 @@ using System.Linq;
 
 using fin.data.queue;
 using fin.io;
+using fin.util.linq;
 
 
 namespace j3d.cli {
@@ -48,9 +49,9 @@ namespace j3d.cli {
   public class ModelFilesInDirectory {
     public ModelFilesInDirectory(IDirectory directory) {
       this.Impl = new ModelFiles(directory.Name,
-                                 directory.SearchForFiles("*.bmd"),
-                                 directory.SearchForFiles("*.bc?"),
-                                 directory.SearchForFiles("*.bti"));
+                                 directory.SearchForFiles("*.bmd").CastTo<FinFile, IFile>(),
+                                 directory.SearchForFiles("*.bc?").CastTo<FinFile, IFile>(),
+                                 directory.SearchForFiles("*.bti").CastTo<FinFile, IFile>());
     }
 
     public ModelFiles Impl { get; }

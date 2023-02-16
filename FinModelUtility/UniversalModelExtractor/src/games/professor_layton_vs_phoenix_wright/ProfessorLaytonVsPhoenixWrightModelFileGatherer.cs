@@ -14,11 +14,10 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
   public class ProfessorLaytonVsPhoenixWrightModelFileGatherer
       : IFileBundleGatherer<XcModelFileBundle> {
     public IEnumerable<XcModelFileBundle> GatherFileBundles(bool assert) {
-      var professorLaytonVsPhoenixWrightRom =
-          DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
+      if (!DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
               "professor_layton_vs_phoenix_wright.cia",
-              assert);
-      if (professorLaytonVsPhoenixWrightRom == null) {
+              assert,
+              out var professorLaytonVsPhoenixWrightRom)) {
         return Enumerable.Empty<XcModelFileBundle>();
       }
 

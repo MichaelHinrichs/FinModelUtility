@@ -9,10 +9,10 @@ using uni.util.io;
 namespace uni.games.battalion_wars_1 {
   public class BattalionWars1FileGatherer : IFileBundleGatherer<IFileBundle> {
     public IEnumerable<IFileBundle> GatherFileBundles(bool assert) {
-      var battalionWarsRom =
-          DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
-              "battalion_wars_1.gcm", assert);
-      if (battalionWarsRom == null) {
+      if (!DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
+              "battalion_wars_1.gcm",
+              assert,
+              out var battalionWarsRom)) {
         return Enumerable.Empty<IFileBundle>();
       }
 

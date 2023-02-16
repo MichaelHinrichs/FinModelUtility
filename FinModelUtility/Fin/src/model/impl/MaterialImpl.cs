@@ -79,7 +79,7 @@ namespace fin.model.impl {
       public Bitmap ImageData => this.imageData_ ??= Image.AsBitmap();
 
       public IFile SaveInDirectory(IDirectory directory) {
-        var outFile =
+        IFile outFile =
             new FinFile(Path.Combine(directory.FullName, this.Name + ".png"));
         using var writer = outFile.OpenWrite();
         this.Image.ExportToStream(writer, LocalImageFormat.PNG);

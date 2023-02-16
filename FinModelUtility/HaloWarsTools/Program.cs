@@ -92,7 +92,7 @@ namespace HaloWarsTools {
 
       var artDirectory = scratchDirectory.GetSubdir("art");
 
-      var artSubdirQueue = new FinQueue<IDirectory>(artDirectory);
+      var artSubdirQueue = new FinQueue<FinDirectory>(artDirectory);
       // TODO: Switch to DFS instead, it's more intuitive as a user
       while (artSubdirQueue.TryDequeue(out var artSubdir)) {
         // TODO: Skip a file if it's already been extracted
@@ -110,7 +110,9 @@ namespace HaloWarsTools {
               visFile.FullName.Replace(scratchDirectoryPath,
                                        outputDirectoryPath);
           var outFile = new FinFile(outFilePath).CloneWithExtension(".fbx");
-          outFile.GetParent().Create();
+          if (outFile.TryGetParent(out var parent)) {
+            parent.Create();
+          }
 
           var exporter = new AssimpIndirectExporter();
           exporter.Export(outFile, finModel);

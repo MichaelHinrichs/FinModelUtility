@@ -11,10 +11,10 @@ namespace uni.games.super_smash_bros_melee {
     public string Name => "super_smash_bros_melee";
 
     public IEnumerable<DatModelFileBundle>? GatherFileBundles(bool assert) {
-      var superSmashBrosMeleeRom =
-          DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
-              "super_smash_bros_melee.gcm", assert);
-      if (superSmashBrosMeleeRom == null) {
+      if (!DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
+              "super_smash_bros_melee.gcm",
+              assert,
+              out var superSmashBrosMeleeRom)) {
         yield break;
       }
 

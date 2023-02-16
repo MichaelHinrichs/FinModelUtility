@@ -12,6 +12,8 @@ using modl.schema.terrain;
 using System.IO.Compression;
 using System.Xml;
 
+using fin.util.linq;
+
 using Microsoft.Toolkit.HighPerformance.Helpers;
 
 
@@ -81,10 +83,12 @@ namespace modl.schema.xml {
       var modelFiles = levelDirectory
                        .GetExistingFiles()
                        .Where(file => file.Name.EndsWith(".modl"))
+                       .CastTo<FinFile, IFile>()
                        .ToArray();
       var animationFiles = levelDirectory
         .GetExistingFiles()
         .Where(file => file.Name.EndsWith(".anim"))
+        .CastTo<FinFile, IFile>()
         .ToArray();
 
       var fvAnimFiles =

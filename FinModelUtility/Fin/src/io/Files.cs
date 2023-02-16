@@ -1,7 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+
 using fin.util.asserts;
+using fin.util.linq;
 
 
 namespace fin.io {
@@ -46,7 +48,9 @@ namespace fin.io {
         IDirectory directory,
         string extension,
         bool includeSubdirs = false)
-      => directory.GetFilesWithExtension(extension, includeSubdirs);
+      => directory.GetFilesWithExtension(extension, includeSubdirs)
+                  .CastTo<FinFile, IFile>()
+                  .ToArray();
 
     public static IFile GetFileWithExtension(
         IDirectory directory,

@@ -21,10 +21,10 @@ namespace uni.games.wind_waker {
         Logging.Create<WindWakerFileGatherer>();
 
     public IEnumerable<BmdModelFileBundle> GatherFileBundles(bool assert) {
-      var windWakerRom =
-          DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
-              "wind_waker.gcm", assert);
-      if (windWakerRom == null) {
+      if (!DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
+              "wind_waker.gcm",
+              assert,
+              out var windWakerRom)) {
         return Enumerable.Empty<BmdModelFileBundle>();
       }
 
