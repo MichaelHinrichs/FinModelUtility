@@ -37,12 +37,12 @@ using System.IO;
 namespace foo.bar {
   public partial class ConstLengthWrapper {
     public void Read(IEndianBinaryReader er) {
-      this.Field = new System.Int32[3];
+      this.Field = new int[3];
       er.ReadInt32s(this.Field);
-      this.NullableField = new System.Int32[3];
+      this.NullableField = new int[3];
       er.ReadInt32s(this.NullableField);
       if (this.Toggle) {
-        this.IfBooleanArray = new System.Int32[3];
+        this.IfBooleanArray = new int[3];
         er.ReadInt32s(this.IfBooleanArray);
       }
       else {

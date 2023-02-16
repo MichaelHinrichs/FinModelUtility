@@ -63,7 +63,7 @@ namespace foo.bar {
         if (c < 0) {
           throw new Exception(""Expected length to be nonnegative!"");
         }
-        this.Field = new System.Int32[c];
+        this.Field = new int[c];
       }
       er.Align(2);
       er.ReadInt32s(this.Field);

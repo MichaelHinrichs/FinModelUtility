@@ -36,11 +36,6 @@ namespace schema.defaultinterface {
             continue;
           }
 
-          if (memberFromInterface is
-              { CanBeReferencedByName: false, Kind: SymbolKind.Method }) {
-            continue;
-          }
-
           foreach (var memberFromStructure in membersFromStructure) {
             if (memberFromStructure.Kind is not (SymbolKind.Property
                                                  or SymbolKind.Method)) {

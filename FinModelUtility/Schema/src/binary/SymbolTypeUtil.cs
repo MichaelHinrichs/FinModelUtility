@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -57,8 +58,10 @@ namespace schema.binary {
         if (namespaceSymbol.Name.Length > 0) {
           namespaces.AddFirst(namespaceSymbol.Name);
         }
+
         namespaceSymbol = namespaceSymbol.ContainingNamespace;
       }
+
       return namespaces.ToArray();
     }
 
@@ -79,6 +82,7 @@ namespace schema.binary {
           combined.Append(space);
         }
       }
+
       return combined.ToString();
     }
 
@@ -174,10 +178,11 @@ namespace schema.binary {
 
             var arguments = attributeData.ConstructorArguments;
 
-            var attribute = (TAttribute)constructor.Invoke(
+            var attribute = (TAttribute) constructor.Invoke(
                 arguments.Select(a => a.Value).ToArray());
             if (attribute is BMemberAttribute memberAttribute) {
-              memberAttribute.Init(diagnostics, symbol.ContainingType,
+              memberAttribute.Init(diagnostics,
+                                   symbol.ContainingType,
                                    symbol.Name);
             }
 
@@ -208,7 +213,7 @@ namespace schema.binary {
           }
 
           // Skips indexers.
-          if (memberSymbol is IPropertySymbol {IsIndexer: true}) {
+          if (memberSymbol is IPropertySymbol { IsIndexer: true }) {
             continue;
           }
 
@@ -226,6 +231,7 @@ namespace schema.binary {
         declaringTypes.Add(declaringType);
         declaringType = declaringType.ContainingType;
       }
+
       declaringTypes.Reverse();
 
       return declaringTypes.ToArray();
@@ -249,6 +255,7 @@ namespace schema.binary {
           var typeParameter = typeParameters[i];
           sb.Append(typeParameter.Name);
         }
+
         sb.Append(">");
       }
 
@@ -272,17 +279,17 @@ namespace schema.binary {
           Accessibility.Internal  => "internal",
           Accessibility.Public    => "public",
           _ => throw new ArgumentOutOfRangeException(
-                   nameof(accessibility),
-                   accessibility,
-                   null)
+              nameof(accessibility),
+              accessibility,
+              null)
       };
 
     public static string GetQualifiedName(ITypeSymbol typeSymbol) {
       var mergedNamespace =
           SymbolTypeUtil.MergeContainingNamespaces(typeSymbol);
       var mergedNamespaceText = mergedNamespace == null
-                                    ? ""
-                                    : $"{mergedNamespace}.";
+          ? ""
+          : $"{mergedNamespace}.";
 
       var mergedContainersText = "";
       foreach (var container in SymbolTypeUtil.GetDeclaringTypesDownward(
@@ -296,6 +303,24 @@ namespace schema.binary {
     public static string GetQualifiedNameFromCurrentSymbol(
         ITypeSymbol sourceSymbol,
         ITypeSymbol referencedSymbol) {
+      if (referencedSymbol.SpecialType
+          is SpecialType.System_Byte
+             or SpecialType.System_SByte
+             or SpecialType.System_Int16
+             or SpecialType.System_UInt16
+             or SpecialType.System_Int32
+             or SpecialType.System_UInt32
+             or SpecialType.System_Int64
+             or SpecialType.System_UInt64
+             or SpecialType.System_Single
+             or SpecialType.System_Double
+             or SpecialType.System_Char
+             or SpecialType.System_String
+             or SpecialType.System_Boolean
+         ) {
+        return referencedSymbol.ToDisplayString();
+      }
+
       var currentNamespace =
           SymbolTypeUtil.GetContainingNamespaces(sourceSymbol);
       var referencedNamespace =
@@ -323,8 +348,8 @@ namespace schema.binary {
         }
 
         mergedNamespaceText = namespaces.Count > 0
-                                  ? $"{MergeNamespaceParts(namespaces)}."
-                                  : "";
+            ? $"{MergeNamespaceParts(namespaces)}."
+            : "";
       }
 
       var mergedContainersText = "";

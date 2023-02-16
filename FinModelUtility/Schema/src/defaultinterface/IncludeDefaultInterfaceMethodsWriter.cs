@@ -43,7 +43,7 @@ namespace schema.defaultinterface {
       cbsb.EnterBlock(SymbolTypeUtil.GetQualifiersAndNameFor(typeSymbol));
 
       foreach (var member in data.AllMembersToInclude) {
-        cbsb.Write(GetNonGenericText_(member)
+        cbsb.Write(GetNonGenericText_(typeSymbol, member)
                    .Replace("\r\n", "\n")
                    .Replace("  ", ""));
       }
@@ -64,7 +64,7 @@ namespace schema.defaultinterface {
       return sb.ToString();
     }
 
-    private string GetNonGenericText_(ISymbol symbol) {
+    private string GetNonGenericText_(INamedTypeSymbol thisSymbol, ISymbol symbol) {
       var sb = new StringBuilder();
 
       var containingType = symbol.ContainingType;
@@ -72,7 +72,7 @@ namespace schema.defaultinterface {
       var typeArguments = containingType.TypeArguments;
       var typeMap = typeParameters
                     .Zip(typeArguments,
-                         (p, a) => (p.ToDisplayString(), a.ToDisplayString()))
+                         (p, a) => (p.ToDisplayString(), a))
                     .ToDictionary(t => t.Item1, t => t.Item2);
 
       var syntax = symbol.DeclaringSyntaxReferences[0].GetSyntax();
@@ -137,6 +137,8 @@ namespace schema.defaultinterface {
       for (var i = 0; i < tokens.Length; ++i) {
         var token = tokens[i];
 
+        var didUseLeadingTrivia = false;
+
         if (!hasPrintedPublic) {
           if (token.IsKind(SyntaxKind.OpenBracketToken)) {
             ++squareBracketIndent;
@@ -144,7 +146,11 @@ namespace schema.defaultinterface {
             --squareBracketIndent;
           } else if (squareBracketIndent == 0) {
             hasPrintedPublic = true;
+            didUseLeadingTrivia = true;
 
+            foreach (var leadingTrivia in token.LeadingTrivia) {
+              sb.Append(leadingTrivia.ToFullString());
+            }
             sb.Append("public ");
           }
         } else {
@@ -157,11 +163,26 @@ namespace schema.defaultinterface {
         }
 
         var justTokenText = token.ToString();
-        var tokenAndSpaces = token.ToFullString();
+        string tokenAndSpaces;
+        if (!didUseLeadingTrivia) {
+          tokenAndSpaces = token.ToFullString();
+        } else {
+          tokenAndSpaces = justTokenText;
+          foreach (var trailingTrivia in token.TrailingTrivia) {
+            tokenAndSpaces += trailingTrivia.ToFullString();
+          }
+        }
 
-        var tokenToWrite = typeMap.TryGetValue(justTokenText, out var match)
-            ? tokenAndSpaces.Replace(justTokenText, match)
-            : tokenAndSpaces;
+        string tokenToWrite;
+        if (!typeMap.TryGetValue(justTokenText, out var match)) {
+          tokenToWrite = tokenAndSpaces;
+        } else {
+          var qualifiedName =
+              SymbolTypeUtil.GetQualifiedNameFromCurrentSymbol(
+                  thisSymbol,
+                  match);
+          tokenToWrite = tokenAndSpaces.Replace(justTokenText, qualifiedName);
+        }
 
         sb.Append(tokenToWrite);
       }

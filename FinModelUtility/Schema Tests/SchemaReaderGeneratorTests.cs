@@ -120,7 +120,7 @@ namespace foo.bar {
       if (this.length < 0) {
         throw new Exception(""Expected length to be nonnegative!"");
       }
-      this.field = new System.Int32[this.length];
+      this.field = new int[this.length];
       er.ReadInt32s(this.field);
     }
   }
@@ -351,7 +351,7 @@ namespace foo.bar {
         if (c < 0) {
           throw new Exception(""Expected length to be nonnegative!"");
         }
-        this.intValues = new System.Int32[c];
+        this.intValues = new int[c];
       }
       er.ReadInt32s(this.intValues);" +
                             @"

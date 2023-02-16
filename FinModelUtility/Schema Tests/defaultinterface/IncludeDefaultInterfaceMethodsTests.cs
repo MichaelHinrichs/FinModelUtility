@@ -446,5 +446,57 @@ public partial class Class : IInterface2 {
 }
 ");
     }
+
+    [Test]
+    public void TestIncludesStaticMethods() {
+      DefaultInterfaceMethodsTestUtil.AssertGenerated(@"
+using schema.defaultinterface;
+
+interface IInterface<TSelf> where TSelf : IInterface<TSelf> {
+  static TSelf Something() => default;
+}
+
+[IncludeDefaultInterfaceMethods]
+public partial class Class : IInterface<Class> {
+}
+",
+        @"using schema.defaultinterface;
+
+public partial class Class {
+  public static Class Something() => default;
+}
+");
+    }
+
+    [Test]
+    public void TestIncludesStaticMethods2() {
+      DefaultInterfaceMethodsTestUtil.AssertGenerated(@"
+using schema.defaultinterface;
+
+namespace foo.bar {
+  public class A {}
+
+  interface IInterface1<TSelf, T1, T2> {
+    static abstract TSelf Something(T1 value1, T2 value2);
+  }
+
+  interface IInterface2 : IInterface1<Class, A, int> {
+    static Class IInterface1<Class, A, int>.Something(A value1, int value2) => default;
+  }
+
+  [IncludeDefaultInterfaceMethods]
+  public partial class Class : IInterface2 {
+  }
+}
+",
+        @"using schema.defaultinterface;
+
+namespace foo.bar {
+  public partial class Class {
+    public static Class Something(A value1, int value2) => default;
+  }
+}
+");
+    }
   }
 }
