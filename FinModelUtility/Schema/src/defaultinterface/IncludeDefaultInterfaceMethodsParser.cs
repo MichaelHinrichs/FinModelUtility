@@ -47,7 +47,9 @@ namespace schema.defaultinterface {
               continue;
             }
 
-            if (memberFromInterface.Name != memberFromStructure.Name) {
+            if (memberFromInterface.Name != memberFromStructure.Name &&
+                !memberFromInterface.Name.EndsWith(
+                    $".{memberFromStructure.Name}")) {
               goto DidNotMatch;
             }
 

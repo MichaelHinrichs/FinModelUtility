@@ -422,5 +422,29 @@ public partial class Class {
 }
 ");
     }
+
+    [Test]
+    public void TestCanIgnoreGenericRepeatedProperty() {
+      DefaultInterfaceMethodsTestUtil.AssertGenerated(@"
+using schema.defaultinterface;
+
+interface IInterface1<T> {
+  T Something { get; }
+}
+
+interface IInterface2 : IInterface1<int> {
+  int IInterface1<int>.Something => 1;
+}
+
+
+[IncludeDefaultInterfaceMethods]
+public partial class Class : IInterface2 {
+  public int Something => 3;
+}
+",
+        @"public partial class Class {
+}
+");
+    }
   }
 }
