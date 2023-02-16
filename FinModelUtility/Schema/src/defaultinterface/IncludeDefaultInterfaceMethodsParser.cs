@@ -73,10 +73,10 @@ namespace schema.defaultinterface {
 
               if (!methodFromStructure
                   .Parameters
-                  .Select(param => param.Type)
+                  .Select(param => param.Type.ToString())
                   .SequenceEqual(
                       methodFromInterface.Parameters.Select(
-                          param => param.Type))) {
+                          param => param.Type.ToString()))) {
                 goto DidNotMatch;
               }
             }

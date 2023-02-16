@@ -146,6 +146,55 @@ public partial class Class {
 
 
     [Test]
+    public void TestIgnoresGenericMethodOnlyWithImplementation() {
+      DefaultInterfaceMethodsTestUtil.AssertGenerated(@"
+using schema.defaultinterface;
+
+interface IInterface {
+  void Something<T>(T value) {
+    var a = 0;
+  }
+}
+
+[IncludeDefaultInterfaceMethods]
+public partial class Class : IInterface {
+  public void Something<T>(T value) {
+    // Do nothing
+  }
+}
+",
+        @"public partial class Class {
+}
+");
+    }
+
+    [Test]
+    public void TestIncludesGenericMethodOnlyWithoutImplementation() {
+      DefaultInterfaceMethodsTestUtil.AssertGenerated(@"
+using schema.defaultinterface;
+
+interface IInterface {
+  void Something<T>(T value) {
+    var a = 0;
+  }
+}
+
+[IncludeDefaultInterfaceMethods]
+public partial class Class : IInterface {
+}
+",
+        @"using schema.defaultinterface;
+
+public partial class Class {
+  public void Something<T>(T value) {
+    var a = 0;
+  }
+}
+");
+    }
+
+
+    [Test]
     public void TestIgnoresPropertyWithoutImplementation() {
       DefaultInterfaceMethodsTestUtil.AssertGenerated(@"
 using schema.defaultinterface;
