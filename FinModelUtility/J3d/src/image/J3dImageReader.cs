@@ -56,7 +56,7 @@ namespace j3d.image {
             height,
             4,
             4,
-            new Rgba5551PixelReader(),
+            new Rgba5553PixelReader(),
             Endianness.BigEndian),
           TextureFormat.ARGB8 => TiledImageReader.New(width,
             height,

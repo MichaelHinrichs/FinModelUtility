@@ -178,6 +178,8 @@ namespace Chadsoft.CTools.Image {
     private static unsafe void ConvertBlockFromQuaterCmpr(Span<Rgba32> dst, byte[] block, int offset) {
       Span<Rgba32> palette = stackalloc Rgba32[4];
 
+      // This appears to just be a DXT1 parser.
+
       for (var p = 0; p < 2; ++p) {
         ColorUtil.SplitRgb565((ushort) (block[offset + 2 * p] << 8 | block[offset + 2 * p + 1]), out var b, out var g, out var r);
         palette[p] = new Rgba32(r, g, b);
@@ -186,23 +188,26 @@ namespace Chadsoft.CTools.Image {
       if (block[offset] > block[offset + 2] ||
           block[offset] == block[offset + 2] &&
           block[offset + 1] > block[offset + 3]) {
+        // 3rd color in palette is 1/3 from 1st to 2nd.
         palette[2] = new Rgba32(
             (byte) ((((int) palette[0].R << 1) + (int) palette[1].R) / 3),
             (byte) ((((int) palette[0].G << 1) + (int) palette[1].G) / 3),
             (byte) ((((int) palette[0].B << 1) + (int) palette[1].B) / 3),
             byte.MaxValue);
+        // 4th color in palette is 2/3 from 1st to 2nd.
         palette[3] = new Rgba32(
             (byte) (((int) palette[0].R + ((int) palette[1].R << 1)) / 3),
             (byte) (((int) palette[0].G + ((int) palette[1].G << 1)) / 3),
             (byte) (((int) palette[0].B + ((int) palette[1].B << 1)) / 3),
             byte.MaxValue);
       } else {
+        // 3rd color in palette is halfway between 1st and 2nd.
         palette[2] = new Rgba32(
-            (byte) ((int) palette[0].R + (int) palette[1].R >> 1)
-            ,
-            (byte) ((int) palette[0].G + (int) palette[1].G >> 1),
-            (byte) ((int) palette[0].B + (int) palette[1].B >> 1),
+            (byte) (((int) palette[0].R + (int) palette[1].R) >> 1),
+            (byte) (((int) palette[0].G + (int) palette[1].G) >> 1),
+            (byte) (((int) palette[0].B + (int) palette[1].B) >> 1),
             byte.MaxValue);
+        // 4th color in palette is transparency.
         palette[3] = new Rgba32(0, 0, 0, 0);
       }
 
