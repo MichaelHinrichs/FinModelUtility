@@ -1,8 +1,14 @@
 ﻿using fin.image;
 using fin.image.io;
 using fin.util.image;
+
 using level5.decompression;
+
 using System.Drawing;
+
+using FastBitmapLib;
+
+using SixLabors.ImageSharp.PixelFormats;
 
 
 namespace level5.schema {
@@ -69,7 +75,7 @@ namespace level5.schema {
         var level5Decompressor = new Level5Decompressor();
         byte[] tileBytes =
             level5Decompressor.Decompress(
-                r.ReadBytesAtOffset((uint)someTable, someTableSize));
+                r.ReadBytesAtOffset((uint) someTable, someTableSize));
 
         if (tileBytes.Length > 2 && tileBytes[0] == 0x53 &&
             tileBytes[1] == 0x04)
@@ -110,11 +116,11 @@ namespace level5.schema {
           //break;
         }
 
-        ImageFormat = (byte)type;
+        ImageFormat = (byte) type;
 
         ImageData = level5Decompressor.Decompress(
-            r.ReadBytesAtOffset((uint)imageDataOffset,
-                                (int)(r.Length - imageDataOffset)));
+            r.ReadBytesAtOffset((uint) imageDataOffset,
+                                (int) (r.Length - imageDataOffset)));
       }
     }
 
@@ -148,6 +154,7 @@ namespace level5.schema {
             mip1[((x + x1) * Height + (y + y1)) * 3 + j] =
                 ImageData[code * (tileSize * bpp) + h * bpp + j];
         }
+
         y += 8;
 
         if (y >= Height) {
@@ -212,60 +219,61 @@ namespace level5.schema {
                                     .AsBitmap();
       } else {
         tileSheet = _3dsImageTools.DecodeImage(
-            ImageData, Tiles.Count * 8, 8, imageFormat);
+            ImageData,
+            Tiles.Count * 8,
+            8,
+            imageFormat);
       }
 
       var tileSheetWidth = tileSheet.Width;
 
       var img = new Rgba32Image(Width, Height);
 
-      BitmapUtil.InvokeAsLocked(tileSheet, inputBmpData => {
-        var inputPtr = (byte*)inputBmpData.Scan0;
+      using var inputBmpData = tileSheet.FastLock();
+      var inputPtr = (byte*) inputBmpData.Scan0;
 
-        img.Mutate((_, setOutputHandlerRaw) => {
-          Action<int, int, byte, byte, byte, byte> setOutputHandler =
-              (x, y, r, g, b, a) =>
-                  setOutputHandlerRaw(y, x, r, g, b, a);
+      using var dstImgLock = img.Lock();
+      var dstPtr = dstImgLock.pixelScan0;
 
-          int y = 0;
-          int x = 0;
-          for (int i = 0; i < Tiles.Count; i++) {
-            int code = Tiles[i];
+      int y = 0;
+      int x = 0;
+      for (int i = 0; i < Tiles.Count; i++) {
+        int code = Tiles[i];
 
-            if (code != -1) {
-              for (int h = 0; h < 8; h++) {
-                for (int w = 0; w < 8; w++) {
-                  var inputIndex = 4 * ((code * 8 + w) + (h) * tileSheetWidth);
-                  var b = inputPtr[inputIndex];
-                  var g = inputPtr[inputIndex + 1];
-                  var r = inputPtr[inputIndex + 2];
-                  var a = inputPtr[inputIndex + 3];
+        if (code != -1) {
+          for (int h = 0; h < 8; h++) {
+            for (int w = 0; w < 8; w++) {
+              var inputIndex = 4 * ((code * 8 + w) + (h) * tileSheetWidth);
+              var b = inputPtr[inputIndex];
+              var g = inputPtr[inputIndex + 1];
+              var r = inputPtr[inputIndex + 2];
+              var a = inputPtr[inputIndex + 3];
 
-                  setOutputHandler(x + w, y + h, r, g, b, a);
-                }
-              }
-            }
-            if (code == -1 && (ImageFormat == 0xC || ImageFormat == 0xD)) {
-              for (int h = 0; h < 8; h++) {
-                for (int w = 0; w < 8; w++) {
-                  setOutputHandler(x + w, y + h, 0, 0, 0, 0);
-                }
-              }
-            }
-            y += 8;
-
-            if (y >= Width) {
-              y = 0;
-              x += 8;
-
-              // TODO: This skips early, may not use all of the tiles. Is this right?
-              if (x >= Height) {
-                break;
-              }
+              dstPtr[(x + w) * Width + y + h] = new Rgba32(r, g, b, a);
             }
           }
-        });
-      });
+        }
+
+        if (code == -1 && (ImageFormat == 0xC || ImageFormat == 0xD)) {
+          for (int h = 0; h < 8; h++) {
+            for (int w = 0; w < 8; w++) {
+              dstPtr[(x + w) * Width + y + h] = new Rgba32(0, 0, 0, 0);
+            }
+          }
+        }
+
+        y += 8;
+
+        if (y >= Width) {
+          y = 0;
+          x += 8;
+
+          // TODO: This skips early, may not use all of the tiles. Is this right?
+          if (x >= Height) {
+            break;
+          }
+        }
+      }
 
       return img;
     }
