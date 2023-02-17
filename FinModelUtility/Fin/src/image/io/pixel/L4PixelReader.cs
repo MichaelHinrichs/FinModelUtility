@@ -5,8 +5,7 @@ using SixLabors.ImageSharp.PixelFormats;
 
 namespace fin.image.io {
   /// <summary>
-  ///   Stolen from:
-  ///   https://github.com/magcius/noclip.website/blob/master/src/oot3d/pica_texture.ts
+  ///   Helper class for reading 4-bit luminance pixels.
   /// </summary>
   public class L4PixelReader : IPixelReader<L8> {
     public IImage<L8> CreateImage(int width, int height)

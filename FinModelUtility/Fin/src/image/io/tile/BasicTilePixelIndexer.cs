@@ -1,4 +1,8 @@
 ﻿namespace fin.image.io {
+  /// <summary>
+  ///   Basic indexer for tiles, where it assumes the tile pixels are laid out
+  ///   row-wise.
+  /// </summary>
   public class BasicTilePixelIndexer : ITilePixelIndexer {
     private readonly int tileWidth_;
 

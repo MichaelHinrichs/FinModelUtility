@@ -7,8 +7,7 @@ using SixLabors.ImageSharp.PixelFormats;
 
 namespace fin.image.io {
   /// <summary>
-  ///   Stolen from:
-  ///   https://github.com/magcius/noclip.website/blob/master/src/oot3d/pica_texture.ts
+  ///   Helper class for reading 24-bit RGB pixels.
   /// </summary>
   public class Rgb24PixelReader : IPixelReader<Rgb24> {
     public IImage<Rgb24> CreateImage(int width, int height)

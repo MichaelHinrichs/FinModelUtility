@@ -7,8 +7,8 @@ using SixLabors.ImageSharp.PixelFormats;
 
 namespace fin.image.io {
   /// <summary>
-  ///   Stolen from:
-  ///   https://github.com/magcius/noclip.website/blob/master/src/oot3d/pica_texture.ts
+  ///   Helper class for reading 16-bit RGBA pixels, where each channel has 4
+  ///   bits.
   /// </summary>
   public class Rgba4444PixelReader : IPixelReader<Rgba32> {
     public IImage<Rgba32> CreateImage(int width, int height)
