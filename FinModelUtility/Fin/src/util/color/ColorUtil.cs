@@ -5,6 +5,8 @@ using fin.math;
 using fin.model;
 using fin.model.impl;
 
+using SixLabors.ImageSharp.PixelFormats;
+
 
 namespace fin.util.color {
   public static class ColorUtil {
@@ -32,6 +34,24 @@ namespace fin.util.color {
       g = ColorUtil.ExtractScaled(color, 5, 6);
       b = ColorUtil.ExtractScaled(color, 0, 5);
     }
+
+    public static void SplitRgb565(
+        ushort color,
+        out Rgb24 rgb) {
+      rgb = new Rgb24(ColorUtil.ExtractScaled(color, 11, 5),
+                      ColorUtil.ExtractScaled(color, 5, 6),
+                      ColorUtil.ExtractScaled(color, 0, 5));
+    }
+
+    public static void SplitRgb565(
+        ushort color,
+        out Rgba32 rgba) {
+      rgba = new Rgba32(ColorUtil.ExtractScaled(color, 11, 5),
+                       ColorUtil.ExtractScaled(color, 5, 6),
+                       ColorUtil.ExtractScaled(color, 0, 5),
+                       255);
+    }
+
 
     public static IColor ParseRgb565(ushort color) {
       ColorUtil.SplitRgb565(color, out var r, out var g, out var b);
