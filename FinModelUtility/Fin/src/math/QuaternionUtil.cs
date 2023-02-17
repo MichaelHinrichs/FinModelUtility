@@ -23,6 +23,10 @@ namespace fin.math {
     }
 
     public static Vector3 ToEulerRadians(Quaternion q) {
+      if (q.IsIdentity) {
+        return Vector3.Zero;
+      }
+
       Vector3 angles = new();
 
       // roll / x

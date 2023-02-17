@@ -18,8 +18,9 @@ namespace level5 {
 
     public AnimNodeHashType HashType { get; set; } = AnimNodeHashType.Name;
 
-    public List<GenericTransformTrack> Tracks { get; } =
-      new List<GenericTransformTrack>();
+    public Dictionary<AnimationTrackFormat, GenericTransformTrack> Tracks {
+      get;
+    } = new();
 
     /// <summary>
     /// adds a new key frame to the animation
@@ -33,27 +34,12 @@ namespace level5 {
                        AnimationTrackFormat type,
                        InterpolationType interpolationType =
                            InterpolationType.Linear) {
-      var track = Tracks.Find(e => e.Type == type);
-      if (track == null) {
+      if (!Tracks.TryGetValue(type, out var track)) {
         track = new GenericTransformTrack(type);
-        Tracks.Add(track);
+        Tracks[type] = track;
       }
+
       track.AddKey(frame, value, interpolationType);
-    }
-
-    /// <summary>
-    /// gets the interpolated values for track type at frame
-    /// </summary>
-    /// <param name="frame"></param>
-    /// <param name="type"></param>
-    /// <returns></returns>
-    public float GetTrackValueAt(float frame, AnimationTrackFormat type) {
-      var track = Tracks.Find(e => e.Type == type);
-
-      if (track == null)
-        return 0;
-
-      return track.Keys.GetValue(frame);
     }
   }
 
@@ -84,10 +70,6 @@ namespace level5 {
       Type = type;
     }
 
-    public float GetValueAt(float frame) {
-      return Keys.GetValue(frame);
-    }
-
     public void AddKey(float frame,
                        float value,
                        InterpolationType interpolationType =
@@ -95,10 +77,6 @@ namespace level5 {
                        float InTan = 0,
                        float OutTan = float.MaxValue) {
       Keys.AddKey(frame, value, interpolationType, InTan, OutTan);
-    }
-
-    public void Optimize() {
-      Keys.Optimize();
     }
   }
 }

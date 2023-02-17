@@ -261,7 +261,7 @@ namespace level5.api {
                 }
 
                 var finBoneTracks = finAnimation.AddBoneTracks(finBone);
-                foreach (var mtnTrack in transformNode.Tracks) {
+                foreach (var mtnTrack in transformNode.Tracks.Values) {
                   foreach (var mtnKey in mtnTrack.Keys.Keys) {
                     var frame = (int) mtnKey.Frame;
                     var value = mtnKey.Value;
