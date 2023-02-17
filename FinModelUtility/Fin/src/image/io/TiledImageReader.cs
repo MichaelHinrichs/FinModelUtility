@@ -11,14 +11,16 @@ namespace fin.image.io {
         int height,
         int tileWidth,
         int tileHeight,
-        IPixelReader<TPixel> pixelReader)
+        IPixelReader<TPixel> pixelReader,
+        Endianness endianness = Endianness.LittleEndian)
         where TPixel : unmanaged, IPixel<TPixel>
       => New(width,
              height,
              tileWidth,
              tileHeight,
              new BasicTilePixelIndexer(tileWidth),
-             pixelReader);
+             pixelReader,
+             endianness);
 
     public static TiledImageReader<TPixel> New<TPixel>(
         int width,
@@ -26,7 +28,8 @@ namespace fin.image.io {
         int tileWidth,
         int tileHeight,
         ITilePixelIndexer tilePixelIndexer,
-        IPixelReader<TPixel> pixelReader)
+        IPixelReader<TPixel> pixelReader,
+        Endianness endianness = Endianness.LittleEndian)
         where TPixel : unmanaged, IPixel<TPixel>
       => New(width,
              height,
@@ -34,16 +37,19 @@ namespace fin.image.io {
                  tileWidth,
                  tileHeight,
                  tilePixelIndexer,
-                 pixelReader));
+                 pixelReader),
+             endianness);
 
     public static TiledImageReader<TPixel> New<TPixel>(
         int width,
         int height,
-        ITileReader<TPixel> tileReader)
+        ITileReader<TPixel> tileReader,
+        Endianness endianness = Endianness.LittleEndian)
         where TPixel : unmanaged, IPixel<TPixel>
       => new(width,
              height,
-             tileReader);
+             tileReader,
+             endianness);
   }
 
   public class TiledImageReader<TPixel> : IImageReader<IImage<TPixel>>
@@ -51,18 +57,20 @@ namespace fin.image.io {
     private readonly int width_;
     private readonly int height_;
     private readonly ITileReader<TPixel> tileReader_;
+    private readonly Endianness endianness_;
 
     public TiledImageReader(int width,
                             int height,
-                            ITileReader<TPixel> tileReader) {
+                            ITileReader<TPixel> tileReader,
+                            Endianness endianness = Endianness.LittleEndian) {
       this.width_ = width;
       this.height_ = height;
       this.tileReader_ = tileReader;
+      this.endianness_ = endianness;
     }
 
     public unsafe IImage<TPixel> Read(byte[] srcBytes) {
-      using var er =
-          new EndianBinaryReader(srcBytes, Endianness.LittleEndian);
+      using var er = new EndianBinaryReader(srcBytes, this.endianness_);
 
       var image = this.tileReader_.CreateImage(this.width_, this.height_);
       using var imageLock = image.Lock();

@@ -8,6 +8,8 @@ using System;
 using System.ComponentModel;
 using System.IO;
 
+using j3d.image;
+
 using SixLabors.ImageSharp.PixelFormats;
 
 
@@ -123,6 +125,11 @@ namespace j3d.schema.bmd.tex1 {
     }
 
     public unsafe IImage ToBitmap() {
+      try {
+        return new J3dImageReader(this.Width, this.Height, this.Format).Read(
+            this.Data);
+      } catch { }
+
       var width = this.Width;
       var height = this.Height;
 
@@ -167,13 +174,6 @@ namespace j3d.schema.bmd.tex1 {
       }
 
       ImageDataFormat imageDataFormat = this.Format switch {
-          TextureFormat.I4       => ImageDataFormat.I4,
-          TextureFormat.I8       => ImageDataFormat.I8,
-          TextureFormat.A4_I4    => ImageDataFormat.IA4,
-          TextureFormat.A8_I8    => ImageDataFormat.IA8,
-          TextureFormat.R5_G6_B5 => ImageDataFormat.RGB565,
-          TextureFormat.A3_RGB5  => ImageDataFormat.RGB5A3,
-          TextureFormat.ARGB8    => ImageDataFormat.Rgba32,
           TextureFormat.S3TC1    => ImageDataFormat.Cmpr,
           _                      => throw new NotImplementedException()
       };

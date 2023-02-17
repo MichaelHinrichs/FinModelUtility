@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace fin.math {
   public static class BitLogic {
@@ -28,10 +29,12 @@ namespace fin.math {
     //    Function to extract k bits from p position
     //    and returns the extracted value as integer
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static uint ExtractFromRight(uint number, int offset, int count)
         // => (((1 << count) - 1) & (number >> (offset - 1)));
       => (uint) ((number >> offset) & ((1 << count) - 1));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool GetFlag(uint number, int offset)
       => ((number >> offset) & 1) != 0;
   }
