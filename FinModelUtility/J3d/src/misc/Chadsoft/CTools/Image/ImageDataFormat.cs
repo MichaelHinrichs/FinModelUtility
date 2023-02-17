@@ -145,46 +145,37 @@ namespace Chadsoft.CTools.Image {
       return numArray1;
     }
 
-    private static byte[] ConvertBlockFromCmpr(byte[] block) {
-      byte[] numArray1 = new byte[256];
-      byte[][] numArray2 = new byte[4][];
+    private static unsafe byte[] ConvertBlockFromCmpr(byte[] block) {
+      Span<Rgba32> outBlock = stackalloc Rgba32[8 * 8];
+
       int index = 0;
       int num1 = 0;
       int num2 = 0;
 
+      Span<Rgba32> quater = stackalloc Rgba32[16];
+
       for (; index < block.Length / 8; ++index) {
-        numArray2[index] =
-            ImageDataFormat.ConvertBlockFromQuaterCmpr(block, index << 3);
-        Array.Copy((Array) numArray2[index],
-                   0,
-                   (Array) numArray1,
-                   num1 + num2,
-                   16);
-        Array.Copy((Array) numArray2[index],
-                   16,
-                   (Array) numArray1,
-                   num1 + num2 + 32,
-                   16);
-        Array.Copy((Array) numArray2[index],
-                   32,
-                   (Array) numArray1,
-                   num1 + num2 + 64,
-                   16);
-        Array.Copy((Array) numArray2[index],
-                   48,
-                   (Array) numArray1,
-                   num1 + num2 + 96,
-                   16);
+        ImageDataFormat.ConvertBlockFromQuaterCmpr(quater, block, index << 3);
+        for (var r = 0; r < 4; ++r) {
+          for (var c = 0; c < 4; ++c) {
+            var srcOffset = 4 * r + c;
+            var srcColor = quater[srcOffset];
+
+            var dstOffset = (num1 + num2 + 32 * r + 4 * c) / 4;
+            outBlock[dstOffset] = srcColor;
+          }
+        }
         num1 = 16 - num1;
         if (num1 == 0)
           num2 = 128;
       }
 
-      return numArray1;
+      fixed (Rgba32* ptr = outBlock) {
+        return new Span<byte>(ptr, outBlock.Length * 4).ToArray();
+      }
     }
 
-    private static unsafe byte[] ConvertBlockFromQuaterCmpr(byte[] block, int offset) {
-      Span<byte> numArray1 = stackalloc byte[64];
+    private static unsafe void ConvertBlockFromQuaterCmpr(Span<Rgba32> dst, byte[] block, int offset) {
       Span<Rgba32> palette = stackalloc Rgba32[4];
 
       for (var p = 0; p < 2; ++p) {
@@ -219,17 +210,11 @@ namespace Chadsoft.CTools.Image {
         var currentRow = block[offset + r + 4];
         for (var c = 0; c < 4; ++c) {
           var paletteIndex = (currentRow >> ((3 - c) * 2)) & 3;
-          var paletteColor = palette[paletteIndex];
 
-          var i = r * 16 + 4 * c;
-          numArray1[i + 0] = paletteColor.R;
-          numArray1[i + 1] = paletteColor.G;
-          numArray1[i + 2] = paletteColor.B;
-          numArray1[i + 3] = paletteColor.A;
+          var i = r * 4 + c;
+          dst[i] = palette[paletteIndex];
         }
       }
-
-      return numArray1.ToArray();
     }
 
     private static byte[] ConvertBlockToCmpr(byte[] block) {

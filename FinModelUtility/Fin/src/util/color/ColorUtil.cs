@@ -1,57 +1,44 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 using fin.color;
 using fin.math;
-using fin.model;
-using fin.model.impl;
 
 using SixLabors.ImageSharp.PixelFormats;
 
 
 namespace fin.util.color {
   public static class ColorUtil {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static byte ExtractScaled(ushort col, int offset, int count) {
-      var maxPossible = Math.Pow(2, count);
-      var factor = 255 / maxPossible;
+      var maxPossible = 1 << count;
+      var factor = 255f / maxPossible;
       return ColorUtil.ExtractScaled(col, offset, count, factor);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static byte ExtractScaled(
         ushort col,
         int offset,
         int count,
-        double factor) {
-      var extracted = BitLogic.ExtractFromRight(col, offset, count) * 1d;
-      return (byte) Math.Round(extracted * factor);
+        float factor) {
+      var extracted = BitLogic.ExtractFromRight(col, offset, count);
+      return (byte) (extracted * factor);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void SplitRgb565(
         ushort color,
         out byte r,
         out byte g,
         out byte b) {
-      r = ColorUtil.ExtractScaled(color, 11, 5);
-      g = ColorUtil.ExtractScaled(color, 5, 6);
-      b = ColorUtil.ExtractScaled(color, 0, 5);
-    }
+      var upper = (byte) (color >> 8);
+      var lower = (byte) (color);
 
-    public static void SplitRgb565(
-        ushort color,
-        out Rgb24 rgb) {
-      rgb = new Rgb24(ColorUtil.ExtractScaled(color, 11, 5),
-                      ColorUtil.ExtractScaled(color, 5, 6),
-                      ColorUtil.ExtractScaled(color, 0, 5));
+      r = (byte) ((uint) upper & 248U);
+      b = (byte) ((int) lower << 3 & 248);
+      g = (byte) ((int) upper << 5 & 224 | (int) lower >> 3 & 28);
     }
-
-    public static void SplitRgb565(
-        ushort color,
-        out Rgba32 rgba) {
-      rgba = new Rgba32(ColorUtil.ExtractScaled(color, 11, 5),
-                       ColorUtil.ExtractScaled(color, 5, 6),
-                       ColorUtil.ExtractScaled(color, 0, 5),
-                       255);
-    }
-
 
     public static IColor ParseRgb565(ushort color) {
       ColorUtil.SplitRgb565(color, out var r, out var g, out var b);
