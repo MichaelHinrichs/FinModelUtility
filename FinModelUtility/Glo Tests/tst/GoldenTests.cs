@@ -22,7 +22,7 @@ namespace glo {
       var executingAssemblyDir = executingAssemblyDll.GetParent();
 
       var currentDir = executingAssemblyDir;
-      while (currentDir != null && currentDir.Name != assemblyName) {
+      while (currentDir.Name != assemblyName) {
         currentDir = currentDir.GetParent();
       }
       Assert.IsNotNull(currentDir);
