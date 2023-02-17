@@ -1,32 +1,41 @@
-﻿namespace fin.image.io {
-  public enum SubIndexType {
-    AT_INDEX,
-    UPPER,
-    LOWER,
+﻿using Assimp;
+
+using SixLabors.ImageSharp.PixelFormats;
+using System.IO;
+
+namespace fin.image.io {
+  public interface IPixelReader<TPixel>
+      where TPixel : unmanaged, IPixel<TPixel> {
+    IImage<TPixel> CreateImage(int width, int height);
+
+    unsafe void Decode(IEndianBinaryReader er,
+                       TPixel* scan0,
+                       int offset);
+
+    int PixelsPerRead => 1;
   }
 
-  public interface IImageBytesIndexer {
-    int ImageWidth { get; }
-    int ImageHeight { get; }
-
-    int BitsPerPixel { get; }
-
-    void GetByteIndexOfPixel(int x,
-                             int y,
-                             out int index,
-                             out SubIndexType subIndexType);
+  public interface ITilePixelIndexer {
+    void GetPixelInTile(int index, out int x, out int y);
   }
 
-  public interface ITiledImageBytesIndexer : IImageBytesIndexer {
+  public interface ITileReader<TPixel>
+      where TPixel : unmanaged, IPixel<TPixel> {
+    IImage<TPixel> CreateImage(int width, int height);
+
     int TileWidth { get; }
     int TileHeight { get; }
-  }
 
+    unsafe void Decode(IEndianBinaryReader er,
+                       TPixel* scan0,
+                       int tileX,
+                       int tileY,
+                       int imageWidth);
+  }
 
   public interface IImageReader {
     IImage Read(byte[] srcBytes);
   }
-
 
   public interface IImageReader<out TImage> : IImageReader
       where TImage : IImage {

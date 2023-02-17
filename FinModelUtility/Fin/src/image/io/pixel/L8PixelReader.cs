@@ -9,7 +9,7 @@ namespace fin.image.io {
   ///   https://github.com/magcius/noclip.website/blob/master/src/oot3d/pica_texture.ts
   /// </summary>
   public class L8PixelReader : IPixelReader<L8> {
-    public IImage<L8> CreateImage_(int width, int height)
+    public IImage<L8> CreateImage(int width, int height)
       => new I8Image(width, height);
 
     public unsafe void Decode(IEndianBinaryReader er,

@@ -1,8 +1,8 @@
 ﻿namespace fin.image.io {
-  public class StandardTilePixelIndexer : ITilePixelIndexer {
+  public class BasicTilePixelIndexer : ITilePixelIndexer {
     private readonly int tileWidth_;
 
-    public StandardTilePixelIndexer(int tileWidth) {
+    public BasicTilePixelIndexer(int tileWidth) {
       this.tileWidth_ = tileWidth;
     }
 

@@ -1,7 +1,5 @@
 ﻿using System.IO;
 
-using fin.color;
-
 using SixLabors.ImageSharp.PixelFormats;
 
 
@@ -10,15 +8,17 @@ namespace fin.image.io {
   ///   Stolen from:
   ///   https://github.com/magcius/noclip.website/blob/master/src/oot3d/pica_texture.ts
   /// </summary>
-  public class Rgb24PixelReader : IPixelReader<Rgb24> {
-    public IImage<Rgb24> CreateImage_(int width, int height)
-      => new Rgb24Image(width, height);
+  public class La16PixelReader : IPixelReader<La16> {
+    public IImage<La16> CreateImage(int width, int height)
+      => new Ia16Image(width, height);
 
     public unsafe void Decode(IEndianBinaryReader er,
-                              Rgb24* scan0,
+                              La16* scan0,
                               int offset) {
-      FinColor.SplitRgb(er.ReadInt24(), out var r, out var g, out var b);
-      scan0[offset] = new Rgb24(r, g, b);
+      var la = er.ReadUInt16();
+      var l = (byte) (la >> 8);
+      var a = (byte) (la & 0xFF);
+      scan0[offset] = new La16(l, a);
     }
   }
 }

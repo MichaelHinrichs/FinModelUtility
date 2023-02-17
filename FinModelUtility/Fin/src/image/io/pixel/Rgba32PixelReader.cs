@@ -11,7 +11,7 @@ namespace fin.image.io {
   ///   https://github.com/magcius/noclip.website/blob/master/src/oot3d/pica_texture.ts
   /// </summary>
   public class Rgba32PixelReader : IPixelReader<Rgba32> {
-    public IImage<Rgba32> CreateImage_(int width, int height)
+    public IImage<Rgba32> CreateImage(int width, int height)
       => new Rgba32Image(width, height);
 
     public unsafe void Decode(IEndianBinaryReader er,

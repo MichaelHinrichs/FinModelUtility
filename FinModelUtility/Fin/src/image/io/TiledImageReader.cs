@@ -1,24 +1,25 @@
 ﻿using System.IO;
 
+using fin.image.io.tile;
+
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace fin.image.io {
-  public interface ITilePixelIndexer {
-    void GetPixelInTile(int index, out int x, out int y);
-  }
-
-  public interface IPixelReader<TPixel>
-      where TPixel : unmanaged, IPixel<TPixel> {
-    IImage<TPixel> CreateImage_(int width, int height);
-
-    unsafe void Decode(IEndianBinaryReader er,
-                       TPixel* scan0,
-                       int offset);
-
-    int PixelsPerRead => 1;
-  }
-
   public static class TiledImageReader {
+    public static TiledImageReader<TPixel> New<TPixel>(
+        int width,
+        int height,
+        int tileWidth,
+        int tileHeight,
+        IPixelReader<TPixel> pixelReader)
+        where TPixel : unmanaged, IPixel<TPixel>
+      => New(width,
+             height,
+             tileWidth,
+             tileHeight,
+             new BasicTilePixelIndexer(tileWidth),
+             pixelReader);
+
     public static TiledImageReader<TPixel> New<TPixel>(
         int width,
         int height,
@@ -27,54 +28,52 @@ namespace fin.image.io {
         ITilePixelIndexer tilePixelIndexer,
         IPixelReader<TPixel> pixelReader)
         where TPixel : unmanaged, IPixel<TPixel>
+      => New(width,
+             height,
+             new BasicTileReader<TPixel>(
+                 tileWidth,
+                 tileHeight,
+                 tilePixelIndexer,
+                 pixelReader));
+
+    public static TiledImageReader<TPixel> New<TPixel>(
+        int width,
+        int height,
+        ITileReader<TPixel> tileReader)
+        where TPixel : unmanaged, IPixel<TPixel>
       => new(width,
              height,
-             tileWidth,
-             tileHeight,
-             tilePixelIndexer,
-             pixelReader);
+             tileReader);
   }
 
   public class TiledImageReader<TPixel> : IImageReader<IImage<TPixel>>
       where TPixel : unmanaged, IPixel<TPixel> {
     private readonly int width_;
     private readonly int height_;
-    private readonly int tileWidth_;
-    private readonly int tileHeight_;
-    private readonly ITilePixelIndexer tilePixelIndexer_;
-    private readonly IPixelReader<TPixel> reader_;
+    private readonly ITileReader<TPixel> tileReader_;
 
     public TiledImageReader(int width,
                             int height,
-                            int tileWidth,
-                            int tileHeight,
-                            ITilePixelIndexer tilePixelIndexer,
-                            IPixelReader<TPixel> pixelReader) {
+                            ITileReader<TPixel> tileReader) {
       this.width_ = width;
       this.height_ = height;
-      this.tileWidth_ = tileWidth;
-      this.tileHeight_ = tileHeight;
-      this.tilePixelIndexer_ = tilePixelIndexer;
-      this.reader_ = pixelReader;
+      this.tileReader_ = tileReader;
     }
 
     public unsafe IImage<TPixel> Read(byte[] srcBytes) {
       using var er =
           new EndianBinaryReader(srcBytes, Endianness.LittleEndian);
 
-      var image = this.reader_.CreateImage_(this.width_, this.height_);
+      var image = this.tileReader_.CreateImage(this.width_, this.height_);
       using var imageLock = image.Lock();
       var scan0 = imageLock.pixelScan0;
 
-      for (var yy = 0; yy < this.height_; yy += this.tileHeight_) {
-        for (var xx = 0; xx < this.width_; xx += this.tileWidth_) {
-          for (var i = 0;
-               i < this.tileWidth_ * this.tileHeight_;
-               i += this.reader_.PixelsPerRead) {
-            this.tilePixelIndexer_.GetPixelInTile(i, out var x, out var y);
-            var dstOffs = (yy + y) * this.width_ + xx + x;
-            this.reader_.Decode(er, scan0, dstOffs);
-          }
+      var tileXCount = this.width_ / this.tileReader_.TileWidth;
+      var tileYCount = this.height_ / this.tileReader_.TileHeight;
+
+      for (var tileY = 0; tileY < tileYCount; ++tileY) {
+        for (var tileX = 0; tileX < tileXCount; ++tileX) {
+          this.tileReader_.Decode(er, scan0, tileX, tileY, this.width_);
         }
       }
 
