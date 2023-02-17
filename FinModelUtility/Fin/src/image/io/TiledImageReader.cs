@@ -73,7 +73,12 @@ namespace fin.image.io {
 
       for (var tileY = 0; tileY < tileYCount; ++tileY) {
         for (var tileX = 0; tileX < tileXCount; ++tileX) {
-          this.tileReader_.Decode(er, scan0, tileX, tileY, this.width_);
+          this.tileReader_.Decode(er,
+                                  scan0,
+                                  tileX,
+                                  tileY,
+                                  this.width_,
+                                  this.height_);
         }
       }
 

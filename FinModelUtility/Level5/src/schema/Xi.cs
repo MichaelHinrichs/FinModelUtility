@@ -200,14 +200,16 @@ namespace level5.schema {
     public unsafe IImage ToBitmap() {
       Bitmap tileSheet;
 
-      var imageFormat = (_3dsImageTools.TexFormat)ImageFormat;
+      var imageFormat = (_3dsImageTools.TexFormat) ImageFormat;
       if (imageFormat is _3dsImageTools.TexFormat.ETC1
                          or _3dsImageTools.TexFormat.ETC1a4) {
-        tileSheet = new Etc1ImageReader(
-                Tiles.Count * 8, 
-                8,
-                imageFormat is _3dsImageTools.TexFormat.ETC1a4).Read(ImageData)
-            .AsBitmap();
+        tileSheet = TiledImageReader.New(Tiles.Count * 8,
+                                         8,
+                                         new Etc1TileReader(
+                                             imageFormat is _3dsImageTools
+                                                 .TexFormat.ETC1a4))
+                                    .Read(ImageData)
+                                    .AsBitmap();
       } else {
         tileSheet = _3dsImageTools.DecodeImage(
             ImageData, Tiles.Count * 8, 8, imageFormat);

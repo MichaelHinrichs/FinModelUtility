@@ -24,7 +24,9 @@ namespace cmb.image {
                                      int height,
                                      GlTextureFormat format) {
       if (format.IsEtc1(out var hasAlpha)) {
-        return new Etc1ImageReader(width, height, hasAlpha);
+        return TiledImageReader.New(width,
+                                    height,
+                                    new Etc1TileReader(hasAlpha));
       }
 
       var blockWidth = 8;

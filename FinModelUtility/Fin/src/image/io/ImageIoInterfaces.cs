@@ -30,7 +30,8 @@ namespace fin.image.io {
                        TPixel* scan0,
                        int tileX,
                        int tileY,
-                       int imageWidth);
+                       int imageWidth,
+                       int imageHeight);
   }
 
   public interface IImageReader {

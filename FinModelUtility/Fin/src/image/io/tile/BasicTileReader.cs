@@ -29,7 +29,8 @@ namespace fin.image.io.tile {
                               TPixel* scan0,
                               int tileX,
                               int tileY,
-                              int imageWidth) {
+                              int imageWidth,
+                              int imageHeight) {
       var xx = tileX * this.TileWidth;
       var yy = tileY * this.TileHeight;
 
