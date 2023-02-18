@@ -24,7 +24,7 @@ using schema.binary;
 
 namespace geo.schema.str {
   [BinarySchema]
-  public partial class FileInfo {
+  public partial class FileInfo : IBinaryConvertible {
     public FileBuild Build { get; set; }
     public ushort Alignment { get; set; }
     public ushort Flags { get; set; }

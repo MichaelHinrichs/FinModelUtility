@@ -12,26 +12,27 @@ namespace fin.schema.data {
   ///   parent data.
   /// </summary>
   [BinarySchema]
-  public partial class IndeterminateMagicUInt32SizedSection<T>
-      : IMagicSection<T>
-      where T : IBinaryConvertible, new() {
+  public partial class SwitchMagicSizedSection<T> : IMagicSection<T>
+      where T : IBinaryConvertible {
     [Ignore]
     private readonly int magicLength_;
+
     [Ignore]
     private readonly int tweakSize_;
+
     [Ignore]
     private readonly Func<string, T> createTypeHandler_;
 
     private PassThruMagicUint32SizedSection<T> impl_;
 
-    public IndeterminateMagicUInt32SizedSection(
+    public SwitchMagicSizedSection(
         int magicLength,
         Func<string, T> createTypeHandler) {
       this.magicLength_ = magicLength;
       this.createTypeHandler_ = createTypeHandler;
     }
 
-    public IndeterminateMagicUInt32SizedSection(
+    public SwitchMagicSizedSection(
         int magicLength,
         int tweakSize,
         Func<string, T> createTypeHandler) {

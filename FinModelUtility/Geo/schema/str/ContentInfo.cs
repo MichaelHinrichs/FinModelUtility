@@ -24,7 +24,7 @@ using schema.binary;
 
 namespace geo.schema.str {
   [BinarySchema]
-  public partial class ContentInfo {
+  public partial class ContentInfo : IBinaryConvertible {
     public ContentType Type { get; set; }
     public long Offset { get; set; }
     public uint Size { get; set; }
