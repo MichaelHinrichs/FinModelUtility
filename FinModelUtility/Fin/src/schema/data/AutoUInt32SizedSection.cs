@@ -19,5 +19,9 @@ namespace fin.schema.data {
     public AutoUInt32SizedSection() {
       this.impl_ = new(new T());
     }
+
+    public AutoUInt32SizedSection(int tweakSize) {
+      this.impl_ = new(new T(), tweakSize);
+    }
   }
 }

@@ -16,6 +16,14 @@ namespace fin.schema.data {
       this.impl_ = new PassThruUint32SizedSection<T>(data);
     }
 
+    public PassThruMagicUint32SizedSection(
+        string magic,
+        T data,
+        int tweakSize) {
+      this.Magic = magic;
+      this.impl_ = new PassThruUint32SizedSection<T>(data, tweakSize);
+    }
+
     [Ignore]
     public T Data => this.impl_.Data;
   }

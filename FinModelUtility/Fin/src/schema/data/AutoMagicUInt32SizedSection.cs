@@ -17,6 +17,11 @@ namespace fin.schema.data {
       this.impl_ = new(magic, new T());
     }
 
+    public AutoMagicUInt32SizedSection(string magic, int tweakSize) {
+      this.impl_ = new(magic, new T(), tweakSize);
+    }
+
+
     [Ignore]
     public string Magic => this.impl_.Magic;
 

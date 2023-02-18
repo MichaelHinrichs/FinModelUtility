@@ -4,6 +4,7 @@ using System.IO;
 using fin.util.strings;
 using schema.binary;
 using schema.binary.attributes.endianness;
+using schema.binary.attributes.ignore;
 
 
 namespace cmb.schema.cmb {
@@ -13,17 +14,21 @@ namespace cmb.schema.cmb {
 
     public readonly CmbHeader header = new();
 
-    public readonly AutoMagicUInt32SizedSection<Skl> skl
-        = new("skl" + AsciiUtil.GetChar(0x20));
+    private const int TWEAK_AUTO_SIZE = -8;
 
-    public readonly AutoMagicUInt32SizedSection<Qtrs> qtrs = new("qtrs");
+    public readonly AutoMagicUInt32SizedSection<Skl> skl
+        = new("skl" + AsciiUtil.GetChar(0x20), TWEAK_AUTO_SIZE);
+
+    public readonly AutoMagicUInt32SizedSection<Qtrs> qtrs 
+        = new("qtrs", TWEAK_AUTO_SIZE);
     public readonly Mat mat = new();
 
     public readonly AutoMagicUInt32SizedSection<Tex> tex
-        = new("tex" + AsciiUtil.GetChar(0x20));
+        = new("tex" + AsciiUtil.GetChar(0x20), TWEAK_AUTO_SIZE);
 
     public readonly Sklm sklm = new();
-    public readonly AutoMagicUInt32SizedSection<Luts> luts = new("luts");
+    public readonly AutoMagicUInt32SizedSection<Luts> luts 
+        = new("luts", TWEAK_AUTO_SIZE);
     public readonly Vatr vatr = new();
 
     public Cmb(IEndianBinaryReader r) => this.Read(r);
