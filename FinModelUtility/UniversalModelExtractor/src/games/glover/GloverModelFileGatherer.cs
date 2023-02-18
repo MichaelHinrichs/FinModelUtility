@@ -11,8 +11,9 @@ namespace uni.games.glover {
   public class GloverModelFileGatherer : IFileBundleGatherer<IFileBundle> {
     public IEnumerable<IFileBundle> GatherFileBundles(
         bool assert) {
-      var gloverSteamDirectory = SteamUtils.GetGameDirectory("Glover", assert);
-      if (gloverSteamDirectory == null) {
+      if (!SteamUtils.TryGetGameDirectory("Glover",
+                                          out var gloverSteamDirectory,
+                                          assert)) {
         yield break;
       }
 

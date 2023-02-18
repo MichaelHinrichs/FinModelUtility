@@ -15,9 +15,9 @@ namespace uni.games.halo_wars {
       : IFileBundleGatherer<IHaloWarsModelFileBundle> {
     public IEnumerable<IHaloWarsModelFileBundle> GatherFileBundles(
         bool assert) {
-      var haloWarsSteamDirectory =
-          SteamUtils.GetGameDirectory("HaloWarsDE", assert);
-      if (haloWarsSteamDirectory == null) {
+      if (!SteamUtils.TryGetGameDirectory("HaloWarsDE",
+                                          out var haloWarsSteamDirectory,
+                                          assert)) {
         yield break;
       }
 

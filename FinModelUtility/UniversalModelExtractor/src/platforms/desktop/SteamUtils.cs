@@ -58,14 +58,24 @@ namespace uni.platforms.desktop {
         .CastTo<FinDirectory, IDirectory>()
         .ToArray();
 
-    public static IDirectory?
-        GetGameDirectory(string name, bool assert = false) {
-      var gameDir = GameDirectories.FirstOrDefault(game => game.Name == name);
-      return !assert
-          ? gameDir
-          : Asserts.CastNonnull(
-              gameDir,
-              $"Could not find \"{name}\" installed in Steam.");
+    public static bool TryGetGameDirectory(
+        string name,
+        out IDirectory directory,
+        bool assert = false) {
+      if (GameDirectories.TryGetFirst(game => game.Name == name,
+                                      out directory)) {
+        return true;
+      }
+
+      Asserts.False(assert, $"Could not find \"{name}\" installed in Steam.");
+      return false;
     }
+
+    public static IDirectory? GetGameDirectory(
+        string name,
+        bool assert = false)
+      => TryGetGameDirectory(name, out var directory, assert)
+          ? directory
+          : null;
   }
 }
