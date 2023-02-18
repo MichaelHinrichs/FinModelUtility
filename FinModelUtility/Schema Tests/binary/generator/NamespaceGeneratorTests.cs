@@ -18,6 +18,7 @@ namespace foo.bar {
   }
 }",
                                      @"using System;
+using System.Collections.Generic;
 using System.IO;
 namespace foo.bar {
   public partial class Wrapper {
@@ -56,6 +57,7 @@ namespace foo {
   }
 }",
                                      @"using System;
+using System.Collections.Generic;
 using System.IO;
 namespace foo.bar {
   public partial class Wrapper {
@@ -94,6 +96,7 @@ namespace foo.bar {
   }
 }",
                                      @"using System;
+using System.Collections.Generic;
 using System.IO;
 namespace foo.bar {
   public partial class Wrapper {
@@ -134,6 +137,7 @@ namespace foo.bar {
   }
 }",
                                      @"using System;
+using System.Collections.Generic;
 using System.IO;
 namespace foo.bar.gar {
   public partial class Wrapper {

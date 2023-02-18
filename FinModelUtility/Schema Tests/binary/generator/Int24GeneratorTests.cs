@@ -19,6 +19,7 @@ namespace foo.bar {
   }
 }",
                                      @"using System;
+using System.Collections.Generic;
 using System.IO;
 namespace foo.bar {
   public partial class Int24Wrapper {
@@ -58,6 +59,7 @@ namespace foo.bar {
   }
 }",
                                      @"using System;
+using System.Collections.Generic;
 using System.IO;
 namespace foo.bar {
   public partial class UInt24Wrapper {

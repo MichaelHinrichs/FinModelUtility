@@ -20,6 +20,7 @@ namespace schema.binary.text {
       var sb = new StringBuilder();
       var cbsb = new CurlyBracketTextWriter(new StringWriter(sb));
       cbsb.WriteLine("using System;")
+          .WriteLine("using System.Collections.Generic;")
           .WriteLine("using System.IO;");
 
       // TODO: Handle fancier cases here
@@ -354,7 +355,35 @@ namespace schema.binary.text {
         ISchemaMember member) {
       var arrayType =
           Asserts.CastNonnull(member.MemberType as ISequenceMemberType);
-      if (arrayType.LengthSourceType != SequenceLengthSourceType.READONLY) {
+      if (arrayType.LengthSourceType ==
+          SequenceLengthSourceType.UNTIL_END_OF_STREAM) {
+        cbsb.EnterBlock();
+
+        var qualifiedElementName =
+            SymbolTypeUtil.GetQualifiedNameFromCurrentSymbol(
+                sourceSymbol,
+                arrayType.ElementType.TypeSymbol);
+
+        var isArray = arrayType.SequenceType == SequenceType.ARRAY;
+        var target = isArray ? "temp" : $"this.{member.Name}";
+
+        if (isArray) {
+          cbsb.Write($"var {target} = new List<{qualifiedElementName}>();");
+        } else {
+          cbsb.WriteLine($"{target}.Clear()");
+        }
+        {
+          cbsb.EnterBlock("while (!er.Eof)");
+          cbsb.WriteLine($"{target}.Add(er.ReadNew<${qualifiedElementName}>())");
+          cbsb.ExitBlock();
+        }
+
+        if (isArray) {
+          cbsb.WriteLine($"this.{member.Name} = {target};");
+        }
+
+        cbsb.ExitBlock();
+      } else if (arrayType.LengthSourceType != SequenceLengthSourceType.READONLY) {
         var isImmediate =
             arrayType.LengthSourceType ==
             SequenceLengthSourceType.IMMEDIATE_VALUE;

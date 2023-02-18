@@ -3,7 +3,7 @@
 
 namespace schema.binary.attributes.ignore {
   internal class IgnoreGeneratorTests {
-    [Test] public void TestAlign() {
+    [Test] public void TestIgnore() {
       BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
 using schema.binary.attributes.ignore;
@@ -16,6 +16,7 @@ namespace foo.bar {
   }
 }",
                                      @"using System;
+using System.Collections.Generic;
 using System.IO;
 namespace foo.bar {
   public partial class IgnoreWrapper {

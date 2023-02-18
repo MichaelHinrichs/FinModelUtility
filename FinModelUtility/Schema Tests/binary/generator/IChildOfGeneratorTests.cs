@@ -22,6 +22,7 @@ namespace foo.bar {
   }
 }",
                                      @"using System;
+using System.Collections.Generic;
 using System.IO;
 namespace foo.bar {
   public partial class ChildOfWrapper {
@@ -62,6 +63,7 @@ namespace foo.bar {
   }
 }",
                                      @"using System;
+using System.Collections.Generic;
 using System.IO;
 namespace foo.bar {
   public partial class Parent {
@@ -104,6 +106,7 @@ namespace foo.bar {
   }
 }",
                                      @"using System;
+using System.Collections.Generic;
 using System.IO;
 namespace foo.bar {
   public partial class ChildOfWrapper {
@@ -143,6 +146,7 @@ namespace foo.bar {
   }
 }",
                                      @"using System;
+using System.Collections.Generic;
 using System.IO;
 namespace foo.bar {
   public partial class Parent {

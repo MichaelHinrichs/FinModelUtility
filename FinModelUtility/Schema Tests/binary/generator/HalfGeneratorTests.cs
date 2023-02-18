@@ -22,6 +22,7 @@ namespace foo.bar {
   }
 }",
                                      @"using System;
+using System.Collections.Generic;
 using System.IO;
 namespace foo.bar {
   public partial class HalfWrapper {
