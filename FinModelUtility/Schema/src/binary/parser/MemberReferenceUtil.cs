@@ -47,9 +47,15 @@ namespace schema.binary.parser {
                                    : SequenceType.LIST,
               ElementType =
                     WrapTypeInfoWithMemberType(sequenceTypeInfo.ElementTypeInfo),
-              LengthSourceType = sequenceTypeInfo.IsLengthConst
-                                       ? SequenceLengthSourceType.READONLY
-                                       : SequenceLengthSourceType.UNSPECIFIED
+              LengthSourceType =
+                    sequenceTypeInfo.IsLengthConst
+                        ? SequenceLengthSourceType.READONLY
+                        : SymbolTypeUtil
+                            .GetAttribute<ArrayLengthSourceAttribute>(
+                                null,
+                                sequenceTypeInfo.TypeSymbol) == null
+                            ? SequenceLengthSourceType.UNSPECIFIED
+                            : SequenceLengthSourceType.UNTIL_END_OF_STREAM,
             };
           }
         default: throw new ArgumentOutOfRangeException(nameof(typeInfo));

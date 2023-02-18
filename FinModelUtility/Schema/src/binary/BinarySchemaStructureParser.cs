@@ -152,6 +152,7 @@ namespace schema.binary {
     OTHER_MEMBER,
     CONST_LENGTH,
     READONLY,
+    UNTIL_END_OF_STREAM,
   }
 
   public interface ISequenceMemberType : IMemberType {

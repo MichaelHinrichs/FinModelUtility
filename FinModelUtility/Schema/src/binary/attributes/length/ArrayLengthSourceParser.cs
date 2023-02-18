@@ -1,9 +1,11 @@
 ﻿using Microsoft.CodeAnalysis;
 
 using static schema.binary.BinarySchemaStructureParser;
+
 using System;
 using System.Collections.Generic;
 
+using schema.binary.attributes.array;
 using schema.binary.parser;
 
 
@@ -13,9 +15,16 @@ namespace schema.binary.attributes.length {
                       ISymbol memberSymbol,
                       IMemberType memberType) {
       var lengthSourceAttribute =
-              SymbolTypeUtil.GetAttribute<ArrayLengthSourceAttribute>(
-                  diagnostics, memberSymbol);
-      if (memberType is BinarySchemaStructureParser.SequenceMemberType sequenceMemberType) {
+          SymbolTypeUtil.GetAttribute<ArrayLengthSourceAttribute>(
+              diagnostics,
+              memberSymbol);
+      var untilEndOfStreamAttribute =
+          SymbolTypeUtil.GetAttribute<ArrayUntilEndOfStreamAttribute>(
+              diagnostics,
+              memberSymbol);
+
+      if (memberType is BinarySchemaStructureParser.SequenceMemberType
+          sequenceMemberType) {
         if (sequenceMemberType.LengthSourceType ==
             SequenceLengthSourceType.UNSPECIFIED) {
           if (lengthSourceAttribute != null) {
@@ -24,10 +33,10 @@ namespace schema.binary.attributes.length {
 
             switch (sequenceMemberType.LengthSourceType) {
               case SequenceLengthSourceType.IMMEDIATE_VALUE: {
-                  sequenceMemberType.ImmediateLengthType =
-                      lengthSourceAttribute.LengthType;
-                  break;
-                }
+                sequenceMemberType.ImmediateLengthType =
+                    lengthSourceAttribute.LengthType;
+                break;
+              }
               case SequenceLengthSourceType.OTHER_MEMBER: {
                 sequenceMemberType.LengthMember =
                     MemberReferenceUtil.WrapMemberReference(
@@ -35,13 +44,16 @@ namespace schema.binary.attributes.length {
                 break;
               }
               case SequenceLengthSourceType.CONST_LENGTH: {
-                  sequenceMemberType.ConstLength =
-                      lengthSourceAttribute.ConstLength;
-                  break;
-                }
+                sequenceMemberType.ConstLength =
+                    lengthSourceAttribute.ConstLength;
+                break;
+              }
               default:
                 throw new NotImplementedException();
             }
+          } else if (untilEndOfStreamAttribute != null) {
+            sequenceMemberType.LengthSourceType =
+                SequenceLengthSourceType.UNTIL_END_OF_STREAM;
           } else {
             diagnostics.Add(
                 Rules.CreateDiagnostic(
@@ -56,6 +68,7 @@ namespace schema.binary.attributes.length {
                                      Rules.UnexpectedAttribute));
         }
       }
+
       // Didn't expect attribute b/c not an array
       else if (lengthSourceAttribute != null) {
         diagnostics.Add(

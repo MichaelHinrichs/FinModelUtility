@@ -31,6 +31,7 @@ namespace schema.binary.text {
       foreach (var declaringType in declaringTypes) {
         cbsb.EnterBlock(SymbolTypeUtil.GetQualifiersAndNameFor(declaringType));
       }
+
       cbsb.EnterBlock(SymbolTypeUtil.GetQualifiersAndNameFor(typeSymbol));
 
       cbsb.EnterBlock("public void Read(IEndianBinaryReader er)");
@@ -80,6 +81,7 @@ namespace schema.binary.text {
         } else {
           cbsb.WriteLine($"this.{member.Name} = er.Position;");
         }
+
         return;
       }
 
@@ -103,6 +105,7 @@ namespace schema.binary.text {
       if (immediateIfBoolean) {
         cbsb.EnterBlock();
       }
+
       if (ifBoolean != null) {
         if (ifBoolean.SourceType == IfBooleanSourceType.IMMEDIATE_VALUE) {
           var booleanNumberType =
@@ -135,7 +138,10 @@ namespace schema.binary.text {
 
       switch (memberType) {
         case IPrimitiveMemberType: {
-          BinarySchemaReaderGenerator.ReadPrimitive_(cbsb, sourceSymbol, member);
+          BinarySchemaReaderGenerator.ReadPrimitive_(
+              cbsb,
+              sourceSymbol,
+              member);
           break;
         }
         case IStringType: {
@@ -144,8 +150,8 @@ namespace schema.binary.text {
         }
         case IStructureMemberType structureMemberType: {
           BinarySchemaReaderGenerator.ReadStructure_(cbsb,
-                                               structureMemberType,
-                                               member);
+            structureMemberType,
+            member);
           break;
         }
         case ISequenceMemberType: {
@@ -214,107 +220,138 @@ namespace schema.binary.text {
         return;
       }
 
-      HandleMemberEndianness_(cbsb, member, () => {
-        var readType = SchemaGeneratorUtil.GetPrimitiveLabel(
-            primitiveType.UseAltFormat
-                ? SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(
-                    primitiveType.AltFormat)
-                : primitiveType.PrimitiveType);
+      HandleMemberEndianness_(cbsb,
+                              member,
+                              () => {
+                                var readType =
+                                    SchemaGeneratorUtil.GetPrimitiveLabel(
+                                        primitiveType.UseAltFormat
+                                            ? SchemaPrimitiveTypesUtil
+                                                .ConvertNumberToPrimitive(
+                                                    primitiveType.AltFormat)
+                                            : primitiveType.PrimitiveType);
 
-        var needToCast = primitiveType.UseAltFormat &&
-                         primitiveType.PrimitiveType !=
-                         SchemaPrimitiveTypesUtil.GetUnderlyingPrimitiveType(
-                             SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(
-                                 primitiveType.AltFormat));
+                                var needToCast = primitiveType.UseAltFormat &&
+                                                 primitiveType.PrimitiveType !=
+                                                 SchemaPrimitiveTypesUtil
+                                                     .GetUnderlyingPrimitiveType(
+                                                         SchemaPrimitiveTypesUtil
+                                                             .ConvertNumberToPrimitive(
+                                                                 primitiveType
+                                                                     .AltFormat));
 
-        if (!primitiveType.IsReadonly) {
-          var castText = "";
-          if (needToCast) {
-            var castType =
-                primitiveType.PrimitiveType == SchemaPrimitiveType.ENUM
-                    ? SymbolTypeUtil.GetQualifiedNameFromCurrentSymbol(
-                        sourceSymbol,
-                        primitiveType.TypeSymbol)
-                    : primitiveType.TypeSymbol.Name;
-            castText = $"({castType}) ";
-          }
-          cbsb.WriteLine(
-              $"this.{member.Name} = {castText}er.Read{readType}();");
-        } else {
-          var castText = "";
-          if (needToCast) {
-            var castType =
-                SchemaGeneratorUtil.GetTypeName(primitiveType.AltFormat);
-            castText = $"({castType}) ";
-          }
-          cbsb.WriteLine($"er.Assert{readType}({castText}this.{member.Name});");
-        }
-      });
+                                if (!primitiveType.IsReadonly) {
+                                  var castText = "";
+                                  if (needToCast) {
+                                    var castType =
+                                        primitiveType.PrimitiveType ==
+                                        SchemaPrimitiveType.ENUM
+                                            ? SymbolTypeUtil
+                                                .GetQualifiedNameFromCurrentSymbol(
+                                                    sourceSymbol,
+                                                    primitiveType.TypeSymbol)
+                                            : primitiveType.TypeSymbol.Name;
+                                    castText = $"({castType}) ";
+                                  }
+
+                                  cbsb.WriteLine(
+                                      $"this.{member.Name} = {castText}er.Read{readType}();");
+                                } else {
+                                  var castText = "";
+                                  if (needToCast) {
+                                    var castType =
+                                        SchemaGeneratorUtil.GetTypeName(
+                                            primitiveType.AltFormat);
+                                    castText = $"({castType}) ";
+                                  }
+
+                                  cbsb.WriteLine(
+                                      $"er.Assert{readType}({castText}this.{member.Name});");
+                                }
+                              });
     }
 
     private static void ReadBoolean_(
         ICurlyBracketTextWriter cbsb,
         ISchemaMember member) {
-      HandleMemberEndianness_(cbsb, member, () => {
-        var primitiveType =
-            Asserts.CastNonnull(member.MemberType as IPrimitiveMemberType);
+      HandleMemberEndianness_(cbsb,
+                              member,
+                              () => {
+                                var primitiveType =
+                                    Asserts.CastNonnull(
+                                        member.MemberType as
+                                            IPrimitiveMemberType);
 
-        var readType = SchemaGeneratorUtil.GetPrimitiveLabel(
-            SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(
-                primitiveType.AltFormat));
+                                var readType =
+                                    SchemaGeneratorUtil.GetPrimitiveLabel(
+                                        SchemaPrimitiveTypesUtil
+                                            .ConvertNumberToPrimitive(
+                                                primitiveType.AltFormat));
 
-        if (!primitiveType.IsReadonly) {
-          cbsb.WriteLine(
-              $"this.{member.Name} = er.Read{readType}() != 0;");
-        } else {
-          cbsb.WriteLine(
-              $"er.Assert{readType}(this.{member.Name} ? 1 : 0);");
-        }
-      });
+                                if (!primitiveType.IsReadonly) {
+                                  cbsb.WriteLine(
+                                      $"this.{member.Name} = er.Read{readType}() != 0;");
+                                } else {
+                                  cbsb.WriteLine(
+                                      $"er.Assert{readType}(this.{member.Name} ? 1 : 0);");
+                                }
+                              });
     }
 
     private static void ReadString_(
         ICurlyBracketTextWriter cbsb,
         ISchemaMember member) {
-      HandleMemberEndianness_(cbsb, member, () => {
-        var stringType = Asserts.CastNonnull(member.MemberType as IStringType);
+      HandleMemberEndianness_(cbsb,
+                              member,
+                              () => {
+                                var stringType =
+                                    Asserts.CastNonnull(
+                                        member.MemberType as IStringType);
 
-        if (stringType.IsReadonly) {
-          if (stringType.LengthSourceType ==
-              StringLengthSourceType.NULL_TERMINATED) {
-            cbsb.WriteLine($"er.AssertStringNT(this.{member.Name});");
-          } else {
-            cbsb.WriteLine($"er.AssertString(this.{member.Name});");
-          }
-          return;
-        }
+                                if (stringType.IsReadonly) {
+                                  if (stringType.LengthSourceType ==
+                                      StringLengthSourceType.NULL_TERMINATED) {
+                                    cbsb.WriteLine(
+                                        $"er.AssertStringNT(this.{member.Name});");
+                                  } else {
+                                    cbsb.WriteLine(
+                                        $"er.AssertString(this.{member.Name});");
+                                  }
 
-        if (stringType.LengthSourceType ==
-            StringLengthSourceType.NULL_TERMINATED) {
-          cbsb.WriteLine($"this.{member.Name} = er.ReadStringNT();");
-          return;
-        }
+                                  return;
+                                }
 
-        if (stringType.LengthSourceType == StringLengthSourceType.CONST) {
-          cbsb.WriteLine(
-              $"this.{member.Name} = er.ReadString({stringType.ConstLength});");
-          return;
-        }
+                                if (stringType.LengthSourceType ==
+                                    StringLengthSourceType.NULL_TERMINATED) {
+                                  cbsb.WriteLine(
+                                      $"this.{member.Name} = er.ReadStringNT();");
+                                  return;
+                                }
 
-        if (stringType.LengthSourceType ==
-            StringLengthSourceType.IMMEDIATE_VALUE) {
-          var readType = SchemaGeneratorUtil.GetIntLabel(
-              stringType.ImmediateLengthType);
-          cbsb.EnterBlock()
-              .WriteLine($"var l = er.Read{readType}();")
-              .WriteLine($"this.{member.Name} = er.ReadString(l);")
-              .ExitBlock();
-          return;
-        }
+                                if (stringType.LengthSourceType ==
+                                    StringLengthSourceType.CONST) {
+                                  cbsb.WriteLine(
+                                      $"this.{member.Name} = er.ReadString({stringType.ConstLength});");
+                                  return;
+                                }
 
-        // TODO: Handle more cases
-        throw new NotImplementedException();
-      });
+                                if (stringType.LengthSourceType ==
+                                    StringLengthSourceType.IMMEDIATE_VALUE) {
+                                  var readType =
+                                      SchemaGeneratorUtil.GetIntLabel(
+                                          stringType.ImmediateLengthType);
+                                  cbsb.EnterBlock()
+                                      .WriteLine(
+                                          $"var l = er.Read{readType}();")
+                                      .WriteLine(
+                                          $"this.{member.Name} = er.ReadString(l);")
+                                      .ExitBlock();
+                                  return;
+                                }
+
+                                // TODO: Handle more cases
+                                throw new NotImplementedException();
+                              });
     }
 
     private static void ReadStructure_(
@@ -326,9 +363,12 @@ namespace schema.binary.text {
       if (structureMemberType.IsChild) {
         cbsb.WriteLine($"this.{memberName}.Parent = this;");
       }
-      HandleMemberEndianness_(cbsb, member, () => {
-        cbsb.WriteLine($"this.{memberName}.Read(er);");
-      });
+
+      HandleMemberEndianness_(cbsb,
+                              member,
+                              () => {
+                                cbsb.WriteLine($"this.{memberName}.Read(er);");
+                              });
     }
 
     private static void ReadGeneric_(
@@ -344,9 +384,12 @@ namespace schema.binary.text {
       if (structureMemberType.IsChild) {
         cbsb.WriteLine($"this.{memberName}.Parent = this;");
       }
-      HandleMemberEndianness_(cbsb, member, () => {
-        cbsb.WriteLine($"this.{memberName}.Read(er);");
-      });
+
+      HandleMemberEndianness_(cbsb,
+                              member,
+                              () => {
+                                cbsb.WriteLine($"this.{memberName}.Read(er);");
+                              });
     }
 
     private static void ReadArray_(
@@ -368,22 +411,65 @@ namespace schema.binary.text {
         var target = isArray ? "temp" : $"this.{member.Name}";
 
         if (isArray) {
-          cbsb.Write($"var {target} = new List<{qualifiedElementName}>();");
+          cbsb.WriteLine($"var {target} = new List<{qualifiedElementName}>();");
         } else {
           cbsb.WriteLine($"{target}.Clear()");
         }
+
         {
           cbsb.EnterBlock("while (!er.Eof)");
-          cbsb.WriteLine($"{target}.Add(er.ReadNew<${qualifiedElementName}>())");
+          {
+            var elementType = arrayType.ElementType;
+            if (elementType is IGenericMemberType genericElementType) {
+              elementType = genericElementType.ConstraintType;
+            }
+
+            if (elementType is IPrimitiveMemberType primitiveElementType) {
+              // Primitives that don't need to be cast are the easiest to read.
+              if (!primitiveElementType.UseAltFormat) {
+                var label =
+                    SchemaGeneratorUtil.GetPrimitiveLabel(
+                        primitiveElementType.PrimitiveType);
+                cbsb.WriteLine($"{target}.Add(er.Read{label}());");
+              } else {
+                // Primitives that *do* need to be cast have to be read individually.
+                var readType = SchemaGeneratorUtil.GetPrimitiveLabel(
+                    SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(
+                        primitiveElementType.AltFormat));
+                var castType =
+                    primitiveElementType.PrimitiveType ==
+                    SchemaPrimitiveType.ENUM
+                        ? SymbolTypeUtil.GetQualifiedNameFromCurrentSymbol(
+                            sourceSymbol,
+                            primitiveElementType.TypeSymbol)
+                        : primitiveElementType.TypeSymbol.Name;
+                cbsb.WriteLine(
+                    $"{target}.Add(({castType}) er.Read{readType}();");
+              }
+            }
+            else if (elementType is IStructureMemberType structureElementType) {
+              cbsb.WriteLine($"var e = new {qualifiedElementName}();");
+
+              if (structureElementType.IsChild) {
+                cbsb.WriteLine("e.Parent = this;");
+              }
+
+              cbsb.WriteLine("e.Read(er);");
+              cbsb.WriteLine($"{target}.Add(e);");
+            }
+          }
           cbsb.ExitBlock();
         }
 
         if (isArray) {
-          cbsb.WriteLine($"this.{member.Name} = {target};");
+          cbsb.WriteLine($"this.{member.Name} = {target}.ToArray();");
         }
 
         cbsb.ExitBlock();
-      } else if (arrayType.LengthSourceType != SequenceLengthSourceType.READONLY) {
+
+        return;
+      } else if (arrayType.LengthSourceType !=
+                 SequenceLengthSourceType.READONLY) {
         var isImmediate =
             arrayType.LengthSourceType ==
             SequenceLengthSourceType.IMMEDIATE_VALUE;
@@ -428,6 +514,7 @@ namespace schema.binary.text {
           } else {
             cbsb.WriteLine($"this.{member.Name}.Add(default);");
           }
+
           cbsb.ExitBlock();
 
           cbsb.EnterBlock(
@@ -458,89 +545,98 @@ namespace schema.binary.text {
         ICurlyBracketTextWriter cbsb,
         ITypeSymbol sourceSymbol,
         ISchemaMember member) {
-      HandleMemberEndianness_(cbsb, member, () => {
-        var arrayType =
-            Asserts.CastNonnull(member.MemberType as ISequenceMemberType);
+      HandleMemberEndianness_(cbsb,
+                              member,
+                              () => {
+                                var arrayType =
+                                    Asserts.CastNonnull(
+                                        member.MemberType as
+                                            ISequenceMemberType);
 
-        var elementType = arrayType.ElementType;
-        if (elementType is IGenericMemberType genericElementType) {
-          elementType = genericElementType.ConstraintType;
-        }
+                                var elementType = arrayType.ElementType;
+                                if (elementType is IGenericMemberType
+                                    genericElementType) {
+                                  elementType =
+                                      genericElementType.ConstraintType;
+                                }
 
-        if (elementType is IPrimitiveMemberType primitiveElementType) {
-          // Primitives that don't need to be cast are the easiest to read.
-          if (!primitiveElementType.UseAltFormat) {
-            var label =
-                SchemaGeneratorUtil.GetPrimitiveLabel(
-                    primitiveElementType.PrimitiveType);
-            if (!primitiveElementType.IsReadonly) {
-              cbsb.WriteLine($"er.Read{label}s(this.{member.Name});");
-            } else {
-              cbsb.WriteLine($"er.Assert{label}s(this.{member.Name});");
-            }
-            return;
-          }
+                                if (elementType is IPrimitiveMemberType
+                                    primitiveElementType) {
+                                  // Primitives that don't need to be cast are the easiest to read.
+                                  if (!primitiveElementType.UseAltFormat) {
+                                    var label =
+                                        SchemaGeneratorUtil.GetPrimitiveLabel(
+                                            primitiveElementType.PrimitiveType);
+                                    if (!primitiveElementType.IsReadonly) {
+                                      cbsb.WriteLine(
+                                          $"er.Read{label}s(this.{member.Name});");
+                                    } else {
+                                      cbsb.WriteLine(
+                                          $"er.Assert{label}s(this.{member.Name});");
+                                    }
 
-          // Primitives that *do* need to be cast have to be read individually.
-          var readType = SchemaGeneratorUtil.GetPrimitiveLabel(
-              SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(
-                  primitiveElementType.AltFormat));
-          if (!primitiveElementType.IsReadonly) {
-            var arrayLengthName = arrayType.SequenceType == SequenceType.ARRAY
-                                      ? "Length"
-                                      : "Count";
-            var castType =
-                primitiveElementType.PrimitiveType == SchemaPrimitiveType.ENUM
-                    ? SymbolTypeUtil.GetQualifiedNameFromCurrentSymbol(
-                        sourceSymbol,
-                        primitiveElementType.TypeSymbol)
-                    : primitiveElementType.TypeSymbol.Name;
-            cbsb.EnterBlock(
-                    $"for (var i = 0; i < this.{member.Name}.{arrayLengthName}; ++i)")
-                .WriteLine(
-                    $"this.{member.Name}[i] = ({castType}) er.Read{readType}();")
-                .ExitBlock();
-          } else {
-            var castType =
-                SchemaGeneratorUtil.GetTypeName(primitiveElementType.AltFormat);
-            cbsb.EnterBlock($"foreach (var e in this.{member.Name})")
-                .WriteLine($"er.Assert{readType}(({castType}) e);")
-                .ExitBlock();
-          }
-          return;
-        }
+                                    return;
+                                  }
 
-        if (elementType is IStructureMemberType structureElementType) {
-          //if (structureElementType.IsReferenceType) {
-          cbsb.EnterBlock($"foreach (var e in this.{member.Name})");
+                                  // Primitives that *do* need to be cast have to be read individually.
+                                  var readType = SchemaGeneratorUtil
+                                      .GetPrimitiveLabel(
+                                          SchemaPrimitiveTypesUtil
+                                              .ConvertNumberToPrimitive(
+                                                  primitiveElementType
+                                                      .AltFormat));
+                                  if (!primitiveElementType.IsReadonly) {
+                                    var arrayLengthName =
+                                        arrayType.SequenceType ==
+                                        SequenceType.ARRAY
+                                            ? "Length"
+                                            : "Count";
+                                    var castType =
+                                        primitiveElementType.PrimitiveType ==
+                                        SchemaPrimitiveType.ENUM
+                                            ? SymbolTypeUtil
+                                                .GetQualifiedNameFromCurrentSymbol(
+                                                    sourceSymbol,
+                                                    primitiveElementType
+                                                        .TypeSymbol)
+                                            : primitiveElementType.TypeSymbol
+                                                .Name;
+                                    cbsb.EnterBlock(
+                                            $"for (var i = 0; i < this.{member.Name}.{arrayLengthName}; ++i)")
+                                        .WriteLine(
+                                            $"this.{member.Name}[i] = ({castType}) er.Read{readType}();")
+                                        .ExitBlock();
+                                  } else {
+                                    var castType =
+                                        SchemaGeneratorUtil.GetTypeName(
+                                            primitiveElementType.AltFormat);
+                                    cbsb.EnterBlock(
+                                            $"foreach (var e in this.{member.Name})")
+                                        .WriteLine(
+                                            $"er.Assert{readType}(({castType}) e);")
+                                        .ExitBlock();
+                                  }
 
-          if (structureElementType.IsChild) {
-            cbsb.WriteLine("e.Parent = this;");
-          }
+                                  return;
+                                }
 
-          cbsb.WriteLine("e.Read(er);");
-          cbsb.ExitBlock();
-          // TODO: Do value types need to be read like below?
-          /*}
-          // Value types (mainly structs) have to be pulled out, read, then put
-          // back in.
-          else {
-            var arrayLengthName = arrayType.SequenceType == SequenceType.ARRAY
-                                      ? "Length"
-                                      : "Count";
-            cbsb.EnterBlock(
-                    $"for (var i = 0; i < this.{member.Name}.{arrayLengthName}; ++i)")
-                .WriteLine($"var e = this.{member.Name}[i];")
-                .WriteLine("e.Read(er);")
-                .WriteLine($"this.{member.Name}[i] = e;")
-                .ExitBlock();
-          }*/
-          return;
-        }
+                                if (elementType is IStructureMemberType
+                                    structureElementType) {
+                                  cbsb.EnterBlock(
+                                      $"foreach (var e in this.{member.Name})");
+
+                                  if (structureElementType.IsChild) {
+                                    cbsb.WriteLine("e.Parent = this;");
+                                  }
+
+                                  cbsb.WriteLine("e.Read(er);");
+                                  cbsb.ExitBlock();
+                                  return;
+                                }
 
 // Anything that makes it down here probably isn't meant to be read.
-        throw new NotImplementedException();
-      });
+                                throw new NotImplementedException();
+                              });
     }
   }
 }
