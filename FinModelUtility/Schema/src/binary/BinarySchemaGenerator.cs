@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -20,15 +22,19 @@ namespace schema.binary {
     private readonly BinarySchemaWriterGenerator writerImpl_ = new();
 
     private void Generate_(IBinarySchemaStructure structure) {
-      var readerCode = this.readerImpl_.Generate(structure);
-      this.context_.Value.AddSource(
-          SymbolTypeUtil.GetQualifiedName(structure.TypeSymbol) + "_reader.g",
-          readerCode);
+      if (structure.TypeSymbol.MemberNames.All(member => member != "Read")) {
+        var readerCode = this.readerImpl_.Generate(structure);
+        this.context_.Value.AddSource(
+            SymbolTypeUtil.GetQualifiedName(structure.TypeSymbol) + "_reader.g",
+            readerCode);
+      }
 
-      var writerCode = this.writerImpl_.Generate(structure);
-      this.context_.Value.AddSource(
-          SymbolTypeUtil.GetQualifiedName(structure.TypeSymbol) + "_writer.g",
-          writerCode);
+      if (structure.TypeSymbol.MemberNames.All(member => member != "Write")) {
+        var writerCode = this.writerImpl_.Generate(structure);
+        this.context_.Value.AddSource(
+            SymbolTypeUtil.GetQualifiedName(structure.TypeSymbol) + "_writer.g",
+            writerCode);
+      }
     }
 
     public void Initialize(GeneratorInitializationContext context) {
