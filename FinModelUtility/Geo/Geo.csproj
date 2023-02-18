@@ -4,10 +4,11 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <RootNamespace>geo</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="schema\" />
+    <ProjectReference Include="..\Schema\Schema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\Fin\Fin.csproj" />
   </ItemGroup>
-
 </Project>
