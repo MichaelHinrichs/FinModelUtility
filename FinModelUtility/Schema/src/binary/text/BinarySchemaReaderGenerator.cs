@@ -413,7 +413,7 @@ namespace schema.binary.text {
         if (isArray) {
           cbsb.WriteLine($"var {target} = new List<{qualifiedElementName}>();");
         } else {
-          cbsb.WriteLine($"{target}.Clear()");
+          cbsb.WriteLine($"{target}.Clear();");
         }
 
         {
