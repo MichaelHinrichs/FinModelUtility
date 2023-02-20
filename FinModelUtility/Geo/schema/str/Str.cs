@@ -20,17 +20,7 @@
  *    distribution.
  */
 
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Xml;
-
-using Gibbed.IO;
-using Gibbed.Visceral.FileFormats;
-
-using NDesk.Options;
-
-using StreamSet = Gibbed.Visceral.FileFormats.StreamSet;
 
 namespace geo.schema.str {
   public class Program {
@@ -44,30 +34,6 @@ namespace geo.schema.str {
       bool showHelp = false;
       bool debugMode = false;
 
-      OptionSet options = new OptionSet()
-      {
-                {
-                    "v|verbose",
-                    "be verbose (list files)",
-                    v => verbose = v != null
-                },
-                {
-                    "d|debug",
-                    "debug mode",
-                    v => debugMode = v != null
-                },
-                {
-                    "o|overwrite",
-                    "overwrite files if they already exist",
-                    v => overwriteFiles = v != null
-                },
-                {
-                    "h|help",
-                    "show this message and exit",
-                    v => showHelp = v != null
-                },
-            };
-
       List<string> extra;
 
       string inputPath = extra[0];
@@ -76,149 +42,81 @@ namespace geo.schema.str {
       Stream input = File.OpenRead(inputPath);
       Directory.CreateDirectory(outputPath);
 
-      var settings = new XmlWriterSettings();
-      settings.Indent = true;
+      var set = new StreamSetFile();
+      set.Deserialize(input);
 
-      using (var xml = XmlWriter.Create(
-          Path.Combine(outputPath, "@archive.xml"), settings)) {
-        xml.WriteStartDocument();
-        xml.WriteStartElement("streams");
-
-        var set = new StreamSetFile();
-        set.Deserialize(input);
-
-        int counter = 0;
-        for (int i = 0; i < set.Contents.Count;) {
-          var headerInfo = set.Contents[i];
-          if (headerInfo.Type != StreamSet.ContentType.Header) {
-            //throw new FormatException("excepted header");
-            i++;
-            continue;
-          }
-
-          input.Seek(headerInfo.Offset, SeekOrigin.Begin);
-
-          var fileInfo = new StreamSet.FileInfo();
-          fileInfo.Deserialize(input, set.Endian);
-
-          if (input.Position > headerInfo.Offset + headerInfo.Size) {
-            throw new FormatException("read too much header data?");
-          }
-
-          string fileName;
-
-          fileName =
-              counter.ToString("D4") + "_" +
-              fileInfo.GetSaneFileName();
-          counter++;
-
-          fileName =
-              Path.Combine(fileInfo.TypeName, fileName);
-
+      int counter = 0;
+      for (int i = 0; i < set.Contents.Count;) {
+        var headerInfo = set.Contents[i];
+        if (headerInfo.Type != StreamSet.ContentType.Header) {
+          //throw new FormatException("excepted header");
           i++;
+          continue;
+        }
 
-          Console.WriteLine("{0}", fileInfo.FileName);
+        input.Seek(headerInfo.Offset, SeekOrigin.Begin);
 
-          string outputName = Path.Combine(outputPath, fileName);
+        var fileInfo = new StreamSet.FileInfo();
+        fileInfo.Deserialize(input, set.Endian);
 
-          if (overwriteFiles == false &&
-              File.Exists(outputName) == true) {
-            continue;
+        if (input.Position > headerInfo.Offset + headerInfo.Size) {
+          throw new FormatException("read too much header data?");
+        }
+
+        string fileName;
+
+        fileName =
+            counter.ToString("D4") + "_" +
+            fileInfo.GetSaneFileName();
+        counter++;
+
+        fileName =
+            Path.Combine(fileInfo.TypeName, fileName);
+
+        i++;
+
+        string outputName = Path.Combine(outputPath, fileName);
+
+        if (overwriteFiles == false &&
+            File.Exists(outputName) == true) {
+          continue;
+        }
+
+        Directory.CreateDirectory(Path.GetDirectoryName(outputName));
+
+        using var output = File.Create(outputName);
+        uint readSize = 0;
+        while (readSize < fileInfo.TotalSize) {
+          uint leftSize = fileInfo.TotalSize - readSize;
+
+          var dataInfo = set.Contents[i];
+          if (dataInfo.Type != StreamSet.ContentType.Data &&
+              dataInfo.Type != StreamSet.ContentType.CompressedData) {
+            throw new InvalidOperationException();
           }
 
-          xml.WriteStartElement("stream");
+          input.Seek(dataInfo.Offset, SeekOrigin.Begin);
 
-          //xml.WriteAttributeString("build", fileInfo.Build.ToString());
-
-          if (Enum.IsDefined(typeof(StreamSet.FileBuild), fileInfo.Build) == false) {
-            xml.WriteAttributeString("build", ((uint) fileInfo.Build).ToString("X8"));
-          } else {
-            xml.WriteAttributeString("build", fileInfo.Build.ToString());
-          }
-
-          xml.WriteAttributeString("alignment", fileInfo.Alignment.ToString("X4"));
-          xml.WriteAttributeString("flags", fileInfo.Flags.ToString("X4"));
-          xml.WriteAttributeString("type", fileInfo.Type.ToString("X8"));
-          xml.WriteAttributeString("u0C", fileInfo.Unknown0C.ToString("X8"));
-          xml.WriteAttributeString("type2", fileInfo.Type2.ToString("X8"));
-          xml.WriteAttributeString("u14", fileInfo.Unknown14.ToString("X8"));
-          xml.WriteAttributeString("u18", fileInfo.Unknown18.ToString("X8"));
-          xml.WriteAttributeString("base_name", fileInfo.BaseName);
-          xml.WriteAttributeString("file_name", fileInfo.FileName);
-          xml.WriteAttributeString("type_name", fileInfo.TypeName);
-
-          if (debugMode == false) {
-            xml.WriteString(fileName);
-          }
-
-          if (debugMode == true) {
-            xml.WriteStartElement("blocks");
-          }
-
-          Directory.CreateDirectory(Path.GetDirectoryName(outputName));
-
-          using (var output = File.Create(outputName)) {
-            uint readSize = 0;
-            while (readSize < fileInfo.TotalSize) {
-              uint leftSize = fileInfo.TotalSize - readSize;
-
-              var dataInfo = set.Contents[i];
-              if (dataInfo.Type != StreamSet.ContentType.Data &&
-                  dataInfo.Type != StreamSet.ContentType.CompressedData) {
-                throw new InvalidOperationException();
-              }
-
-              input.Seek(dataInfo.Offset, SeekOrigin.Begin);
-
-              if (debugMode == true) {
-                xml.WriteStartElement("block");
-              }
-
-              if (dataInfo.Type == StreamSet.ContentType.CompressedData) {
-                if (debugMode == true) {
-                  xml.WriteAttributeString("type", "compressed");
-                }
-
-                var compressedSize = input.ReadValueU32(set.Endian);
-                if (4 + compressedSize > dataInfo.Size) {
-                  throw new InvalidOperationException();
-                }
-
-                var compressedStream = input.ReadToMemoryStream((int) compressedSize);
-                var compressedData = Gibbed.RefPack.Decompression.Decompress(
-                    compressedStream);
-
-                uint writeSize = Math.Min(leftSize, (uint) compressedData.Length);
-                output.Write(compressedData, 0, (int) writeSize);
-                readSize += writeSize;
-
-                if (debugMode == true) {
-                  xml.WriteAttributeString("offset", dataInfo.Offset.ToString("X8"));
-                  xml.WriteAttributeString("tsize", (dataInfo.Size + 12).ToString());
-                  xml.WriteAttributeString("size", dataInfo.Size.ToString());
-                  xml.WriteAttributeString("csize", compressedSize.ToString());
-                  xml.WriteAttributeString("usize1", writeSize.ToString());
-                  xml.WriteAttributeString("usize2", compressedData.Length.ToString());
-                }
-              } else {
-                if (debugMode == true) {
-                  xml.WriteAttributeString("type", "uncompressed");
-                }
-
-                uint writeSize = Math.Min(leftSize, dataInfo.Size);
-                output.WriteFromStream(input, writeSize);
-                readSize += writeSize;
-
-                if (debugMode == true) {
-                  xml.WriteAttributeString("offset", dataInfo.Offset.ToString("X8"));
-                  xml.WriteAttributeString("tsize", (dataInfo.Size + 12).ToString());
-                  xml.WriteAttributeString("size", dataInfo.Size.ToString());
-                }
-              }
-
-              ++i;
+          if (dataInfo.Type == StreamSet.ContentType.CompressedData) {
+            var compressedSize = input.ReadValueU32(set.Endian);
+            if (4 + compressedSize > dataInfo.Size) {
+              throw new InvalidOperationException();
             }
+
+            var compressedStream = input.ReadToMemoryStream((int) compressedSize);
+            var compressedData = Gibbed.RefPack.Decompression.Decompress(
+                compressedStream);
+
+            uint writeSize = Math.Min(leftSize, (uint) compressedData.Length);
+            output.Write(compressedData, 0, (int) writeSize);
+            readSize += writeSize;
+          } else {
+            uint writeSize = Math.Min(leftSize, dataInfo.Size);
+            output.WriteFromStream(input, writeSize);
+            readSize += writeSize;
           }
+
+          ++i;
         }
       }
     }
