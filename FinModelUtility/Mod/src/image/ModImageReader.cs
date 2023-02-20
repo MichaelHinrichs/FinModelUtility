@@ -3,14 +3,14 @@
 using fin.image;
 using fin.image.io;
 
-using j3d.schema.bmd.tex1;
+using TextureFormat = mod.schema.Texture.TextureFormat;
 
 
-namespace j3d.image {
-  public class J3dImageReader : IImageReader {
+namespace mod.image {
+  public class ModImageReader : IImageReader {
     private readonly IImageReader impl_;
 
-    public J3dImageReader(int width, int height, TextureFormat format) {
+    public ModImageReader(int width, int height, TextureFormat format) {
       this.impl_ = this.CreateImpl_(width, height, format);
     }
 
@@ -18,49 +18,47 @@ namespace j3d.image {
                                      int height,
                                      TextureFormat format) {
       return format switch {
-          // TODO: For some reason, this has to include alpha to look correct, but is this actually right??
           TextureFormat.I4 => TiledImageReader.New(
               width,
               height,
               8,
               8,
-              new L2a4PixelReader(),
+              new L4PixelReader(),
               Endianness.BigEndian),
-          // TODO: For some reason, this has to include alpha to look correct, but is this actually right??
           TextureFormat.I8 => TiledImageReader.New(
               width,
               height,
               8,
               4,
-              new L2a8PixelReader(),
+              new L8PixelReader(),
               Endianness.BigEndian),
-          TextureFormat.A4_I4 => TiledImageReader.New(
+          TextureFormat.IA4 => TiledImageReader.New(
               width,
               height,
               8,
               4,
               new La8PixelReader(),
               Endianness.BigEndian),
-          TextureFormat.A8_I8 => TiledImageReader.New(
+          TextureFormat.IA8 => TiledImageReader.New(
               width,
               height,
               4,
               4,
               new La16PixelReader(),
               Endianness.BigEndian),
-          TextureFormat.R5_G6_B5 => TiledImageReader.New(width,
+          TextureFormat.RGB565 => TiledImageReader.New(width,
             height,
             4,
             4,
             new Rgb565PixelReader(),
             Endianness.BigEndian),
-          TextureFormat.A3_RGB5 => TiledImageReader.New(width,
+          TextureFormat.RGB5A3 => TiledImageReader.New(width,
             height,
             4,
             4,
             new Rgba5553PixelReader(),
             Endianness.BigEndian),
-          TextureFormat.ARGB8 => TiledImageReader.New(width,
+          TextureFormat.RGBA32 => TiledImageReader.New(width,
             height,
             4,
             4,

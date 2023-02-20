@@ -1,5 +1,8 @@
 ﻿using System.IO;
 
+using fin.math;
+using fin.util.color;
+
 using SixLabors.ImageSharp.PixelFormats;
 
 
@@ -11,23 +14,21 @@ namespace fin.image.io {
     public unsafe void Decode(IEndianBinaryReader er,
                               Rgba32* scan0,
                               int offset) {
-      var firstByte = er.ReadByte();
-      var secondByte = er.ReadByte();
+      var pix = er.ReadUInt16();
 
-      if (((int) firstByte & 128) == 0) {
+      // Alpha flag
+      if (BitLogic.ExtractFromRight(pix, 15, 1) == 1) {
         scan0[offset] = new Rgba32(
-            (byte) ((int) secondByte << 4 & 240 | (int) secondByte & 15),
-            (byte) ((int) secondByte & 240 | (int) secondByte >> 4 & 15),
-            (byte) ((int) firstByte << 4 & 240 | (int) firstByte & 15),
-            (byte) ((int) firstByte << 1 & 224 | (int) firstByte >> 2 & 28 |
-                    (int) firstByte >> 5 & 3));
+            ColorUtil.ExtractScaled(pix, 10, 5),
+            ColorUtil.ExtractScaled(pix, 5, 5),
+            ColorUtil.ExtractScaled(pix, 0, 5),
+            255);
       } else {
         scan0[offset] = new Rgba32(
-            (byte) ((int) secondByte << 3 & 248 | (int) secondByte >> 2 & 7),
-            (byte) ((int) firstByte << 6 & 192 | (int) secondByte >> 2 & 56 |
-                    (int) firstByte & 6 | (int) secondByte >> 7 & 1),
-            (byte) ((int) firstByte << 1 & 248 | (int) firstByte >> 4 & 7),
-            255);
+            ColorUtil.ExtractScaled(pix, 8, 4, 17),
+            ColorUtil.ExtractScaled(pix, 4, 4, 17),
+            ColorUtil.ExtractScaled(pix, 0, 4, 17),
+            ColorUtil.ExtractScaled(pix, 12, 3));
       }
     }
   }

@@ -1,5 +1,9 @@
-﻿using fin.image;
+﻿using System;
+
+using fin.image;
 using fin.util.asserts;
+
+using mod.image;
 using mod.schema.image;
 using schema.binary;
 using schema.binary.attributes.ignore;
@@ -35,28 +39,12 @@ namespace mod.schema {
     public byte[] imageData { get; set; }
 
     public IImage ToImage() {
-      BImageFormat? imageFormat = null;
-      if (this.format == TextureFormat.RGB5A3) {
-        imageFormat = new Rgb5A3(this.imageData, this.width, this.height);
-      } else if (this.format == TextureFormat.RGB565) {
-        imageFormat = new Rgb565(this.imageData, this.width, this.height);
-      } else if (this.format == TextureFormat.CMPR) {
-        imageFormat = new Cmpr(this.imageData, this.width, this.height);
-      } else if (this.format == TextureFormat.I4) {
-        imageFormat = new I4(this.imageData, this.width, this.height);
-      } else if (this.format == TextureFormat.I8) {
-        imageFormat = new I8(this.imageData, this.width, this.height);
-      } else if (this.format == TextureFormat.IA4) {
-        imageFormat = new IA4(this.imageData, this.width, this.height);
-      } else if (this.format == TextureFormat.IA8) {
-        imageFormat = new IA8(this.imageData, this.width, this.height);
-      } else if (this.format == TextureFormat.RGBA32) {
-        imageFormat = new Rgba32(this.imageData, this.width, this.height);
-      } else {
-        Asserts.Fail($"Unsupported type: {this.format}");
+      if (this.format == TextureFormat.CMPR) {
+        return new Cmpr(this.imageData, this.width, this.height).Image;
       }
 
-      return imageFormat.Image;
+      return new ModImageReader(this.width, this.height, this.format).Read(
+          this.imageData);
     }
   }
 

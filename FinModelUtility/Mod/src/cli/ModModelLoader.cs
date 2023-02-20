@@ -261,6 +261,8 @@ namespace mod.cli {
       var vertexDescriptor = new VertexDescriptor();
       vertexDescriptor.FromPikmin1(mesh.vtxDescriptor, mod.hasNormals);
 
+      var vertexDescriptorValues = vertexDescriptor.ToArray();
+
       var finSkin = model.Skin;
       var finMesh = finSkin.AddMesh();
 
@@ -293,7 +295,7 @@ namespace mod.cli {
             }
 
             for (var f = 0; f < faceCount; f++) {
-              foreach (var (attr, format) in vertexDescriptor) {
+              foreach (var (attr, format) in vertexDescriptorValues) {
                 if (format == null) {
                   var unused = reader.ReadU8();
 
