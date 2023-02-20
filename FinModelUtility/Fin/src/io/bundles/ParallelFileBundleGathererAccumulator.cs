@@ -46,7 +46,7 @@ namespace fin.io.bundles {
         try {
           this.results_[i] = this.gatherers_[i].GatherFileBundles(this.assert_);
         } catch (Exception e) {
-          ;
+          this.results_[i] = Enumerable.Empty<IFileBundle>();
         }
       }
     }
