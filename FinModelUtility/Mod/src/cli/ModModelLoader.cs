@@ -1,13 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 using fin.color;
+using fin.image;
 using fin.io;
 using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
 using gx;
+
+using Microsoft.Toolkit.HighPerformance.Helpers;
 
 using mod.schema;
 using mod.schema.animation;
@@ -92,6 +96,11 @@ namespace mod.cli {
         }
       }*/
 
+      var textureImages = new IImage[mod.textures.Count];
+      ParallelHelper.For(0,
+                         textureImages.Length,
+                         new TextureImageLoader(mod.textures, textureImages));
+
       // Writes textures
       var gxTextures = new IGxTexture[mod.texattrs.Count];
       var finTexturesAndAttrs =
@@ -100,8 +109,7 @@ namespace mod.cli {
         var textureAttr = mod.texattrs[i];
 
         var textureIndex = textureAttr.index;
-        var texture = mod.textures[textureIndex];
-        var image = texture.ToImage();
+        var image = textureImages[textureIndex];
 
         var finTexture =
             model.MaterialManager.CreateTexture(image);
@@ -285,7 +293,7 @@ namespace mod.cli {
 
             var faceCount = reader.ReadU16();
             var positionIndices = new List<ushort>();
-            var allVertexWeights = new List<VertexWeights>();
+            var allVertexWeights = new List<IBoneWeights>();
             var normalIndices = new List<ushort>();
             var color0Indices = new List<ushort>();
 
@@ -328,23 +336,14 @@ namespace mod.cli {
                     // Positive indices refer to joints/bones.
                     if (attachmentIndex >= 0) {
                       var boneIndex = attachmentIndex;
-
-                      var vertexWeights = new VertexWeights {
-                        BoneWeights =
-                              finSkin.GetOrCreateBoneWeights(
-                                  PreprojectMode.BONE, bones[boneIndex])
-                      };
-                      allVertexWeights.Add(vertexWeights);
+                      allVertexWeights.Add(
+                          finSkin.GetOrCreateBoneWeights(
+                              PreprojectMode.BONE, bones[boneIndex]));
                     }
                     // Negative indices refer to envelopes.
                     else {
                       var envelopeIndex = -1 - attachmentIndex;
-
-                      var vertexWeights = new VertexWeights {
-                        BoneWeights = envelopeBoneWeights[envelopeIndex],
-                      };
-
-                      allVertexWeights.Add(vertexWeights);
+                      allVertexWeights.Add(envelopeBoneWeights[envelopeIndex]);
                     }
                   }
 
@@ -377,7 +376,7 @@ namespace mod.cli {
                   model.Skin.AddVertex(position);
 
               if (allVertexWeights.Count > 0) {
-                finVertex.SetBoneWeights(allVertexWeights[v].BoneWeights);
+                finVertex.SetBoneWeights(allVertexWeights[v]);
               }
 
               // TODO: For collision models, there can be normal indices when
@@ -497,8 +496,20 @@ namespace mod.cli {
       return 0;
     }
 
-    private class VertexWeights {
-      public IBoneWeights BoneWeights { get; set; }
+    private readonly struct TextureImageLoader : IAction {
+      private readonly IList<Texture> srcTextures_;
+      private readonly IList<IImage> dstImages_;
+
+      public TextureImageLoader(
+          IList<Texture> srcTextures,
+          IList<IImage> dstImages) {
+        this.srcTextures_ = srcTextures;
+        this.dstImages_ = dstImages;
+      }
+
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
+      public void Invoke(int index)
+        => this.dstImages_[index] = this.srcTextures_[index].ToImage();
     }
   }
 }

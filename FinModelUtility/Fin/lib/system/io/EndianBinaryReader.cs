@@ -149,25 +149,19 @@ namespace System.IO {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void FillBuffer_(long count, int? optStride = null) {
-      this.AssertNotEof();
-      this.BufferedStream_.FillBuffer(count, optStride);
-    }
+    private void FillBuffer_(long count, int? optStride = null)
+      => this.BufferedStream_.FillBuffer(count, optStride);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void FillBuffer_(Span<byte> buffer) {
-      this.AssertNotEof();
-      this.BufferedStream_.FillBuffer(buffer);
-    }
+    private void FillBuffer_(Span<byte> buffer)
+      => this.BufferedStream_.FillBuffer(buffer);
 
 
     public void AssertByte(byte expectedValue)
       => EndianBinaryReader.Assert(expectedValue, this.ReadByte());
 
-    public byte ReadByte() {
-      this.AssertNotEof();
-      return (byte) this.BufferedStream_.BaseStream.ReadByte();
-    }
+    public byte ReadByte()
+      => (byte) this.BufferedStream_.BaseStream.ReadByte();
 
     public byte[] ReadBytes(long count) => this.ReadBytes(new byte[count]);
 
