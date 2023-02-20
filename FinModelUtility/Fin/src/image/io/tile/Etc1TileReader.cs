@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Buffers;
 using System.IO;
-using System.Reflection.PortableExecutable;
 using System.Runtime.CompilerServices;
 
 using SixLabors.ImageSharp.PixelFormats;
 
-using Buffer = System.Buffer;
 
-
-namespace fin.image.io {
+namespace fin.image.io.tile {
   /// <summary>
   ///   Stolen from:
   ///   https://github.com/xdanieldzd/Scarlet/blob/master/Scarlet/Drawing/Compression/ETC1.cs

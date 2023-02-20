@@ -1,11 +1,8 @@
-﻿using Chadsoft.CTools.Image;
-using fin.color;
-using fin.image;
+﻿using fin.image;
 using fin.util.color;
 using gx;
 using schema.binary;
 using System;
-using System.ComponentModel;
 using System.IO;
 
 using j3d.image;
@@ -173,31 +170,7 @@ namespace j3d.schema.bmd.tex1 {
         return bitmap;
       }
 
-      ImageDataFormat imageDataFormat = this.Format switch {
-          TextureFormat.S3TC1    => ImageDataFormat.Cmpr,
-          _                      => throw new NotImplementedException()
-      };
-
-      byte[] numArray = imageDataFormat.ConvertFrom(
-          this.Data, width, height, (ProgressChangedEventHandler)null);
-      bitmap = new Rgba32Image(width, height);
-      using var imageLockRgba = bitmap.Lock(); 
-      var ptrRgba = imageLockRgba.pixelScan0;
-
-      for (var y = 0; y < height; ++y) {
-        for (var x = 0; x < width; ++x) {
-          var i = 4 * (y * width + x);
-
-          var b = numArray[i + 0];
-          var g = numArray[i + 1];
-          var r = numArray[i + 2];
-          var a = numArray[i + 3];
-
-          ptrRgba[y * width + x] = new Rgba32(r, g, b, a);
-        }
-      }
-
-      return bitmap;
+      throw new NotImplementedException();
     }
 
     private int GetCompressedBufferSize() {

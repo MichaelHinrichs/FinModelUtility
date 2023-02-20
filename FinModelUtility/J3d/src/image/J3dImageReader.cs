@@ -2,6 +2,7 @@
 
 using fin.image;
 using fin.image.io;
+using fin.io.image.tile;
 
 using j3d.schema.bmd.tex1;
 
@@ -48,24 +49,32 @@ namespace j3d.image {
               4,
               new La16PixelReader(),
               Endianness.BigEndian),
-          TextureFormat.R5_G6_B5 => TiledImageReader.New(width,
-            height,
-            4,
-            4,
-            new Rgb565PixelReader(),
-            Endianness.BigEndian),
-          TextureFormat.A3_RGB5 => TiledImageReader.New(width,
-            height,
-            4,
-            4,
-            new Rgba5553PixelReader(),
-            Endianness.BigEndian),
-          TextureFormat.ARGB8 => TiledImageReader.New(width,
-            height,
-            4,
-            4,
-            new Rgba32PixelReader(),
-            Endianness.BigEndian),
+          TextureFormat.R5_G6_B5 => TiledImageReader.New(
+              width,
+              height,
+              4,
+              4,
+              new Rgb565PixelReader(),
+              Endianness.BigEndian),
+          TextureFormat.A3_RGB5 => TiledImageReader.New(
+              width,
+              height,
+              4,
+              4,
+              new Rgba5553PixelReader(),
+              Endianness.BigEndian),
+          TextureFormat.ARGB8 => TiledImageReader.New(
+              width,
+              height,
+              4,
+              4,
+              new Rgba32PixelReader(),
+              Endianness.BigEndian),
+          TextureFormat.S3TC1 => TiledImageReader.New(
+              width,
+              height,
+              new CmprTileReader(),
+              Endianness.BigEndian),
       };
     }
 

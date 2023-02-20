@@ -39,10 +39,6 @@ namespace mod.schema {
     public byte[] imageData { get; set; }
 
     public IImage ToImage() {
-      if (this.format == TextureFormat.CMPR) {
-        return new Cmpr(this.imageData, this.width, this.height).Image;
-      }
-
       return new ModImageReader(this.width, this.height, this.format).Read(
           this.imageData);
     }

@@ -1,12 +1,13 @@
 ﻿using fin.image;
 using fin.image.io;
-using fin.util.image;
 
 using level5.decompression;
 
 using System.Drawing;
 
 using FastBitmapLib;
+
+using fin.image.io.tile;
 
 using SixLabors.ImageSharp.PixelFormats;
 

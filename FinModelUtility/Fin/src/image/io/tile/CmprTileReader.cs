@@ -1,62 +1,65 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.IO;
 
-using fin.color;
+using fin.image;
+using fin.image.io;
 using fin.util.color;
-
-using mod.util;
 
 using SixLabors.ImageSharp.PixelFormats;
 
-namespace mod.schema.image {
-  public class Cmpr : BImageFormat {
-    public Cmpr(IList<byte> rawData, int imageWidth, int imageHeight) : base(
-        rawData,
-        imageWidth,
-        imageHeight,
-        8,
-        8,
-        4) { }
+namespace fin.io.image.tile {
+  /// <summary>
+  ///   Seems EERILY similar to the DXT1 format--they might actually be exactly
+  ///   the same.
+  /// </summary>
+  public class CmprTileReader : ITileReader<Rgba32> {
+    public IImage<Rgba32> CreateImage(int width, int height)
+      => new Rgba32Image(width, height);
 
-    protected override IColor[] DecodeBlock(IList<byte> block, int position) {
-      var bl = new IColor[8 * 8];
-      var s = new VectorReader(block, position, Endianness.Big);
+    private const int SUB_TILE_COUNT_IN_AXIS = 2;
+    private const int SUB_TILE_SIZE_IN_AXIS = 4;
 
-      for (var j = 0; j < 2; ++j) {
-        for (var i = 0; i < 2; ++i) {
-          var subblock = this.DecodeCmprSubblock_(block, position);
-          position += 8;
+    private const int TILE_SIZE_IN_AXIS =
+        CmprTileReader.SUB_TILE_COUNT_IN_AXIS *
+        CmprTileReader.SUB_TILE_SIZE_IN_AXIS;
 
-          for (var r = 0; r < 4; ++r) {
-            for (var c = 0; c < 4; ++c) {
-              var x = i * 4 + c;
-              var y = j * 4 + r;
+    public int TileWidth => CmprTileReader.TILE_SIZE_IN_AXIS;
+    public int TileHeight => CmprTileReader.TILE_SIZE_IN_AXIS;
 
-              bl[y * 8 + x] = subblock[r * 4 + c];
-            }
-          }
+    public unsafe void Decode(IEndianBinaryReader er,
+                              Rgba32* scan0,
+                              int tileX,
+                              int tileY,
+                              int imageWidth,
+                              int imageHeight) {
+      for (var j = 0; j < SUB_TILE_COUNT_IN_AXIS; ++j) {
+        for (var i = 0; i < SUB_TILE_COUNT_IN_AXIS; ++i) {
+          DecodeCmprSubblock_(
+              er, 
+              scan0,
+              tileX * TileWidth + i * SUB_TILE_SIZE_IN_AXIS,
+              tileY * TileHeight + j * SUB_TILE_SIZE_IN_AXIS,
+              imageWidth);
         }
       }
-
-      return bl;
     }
 
-    private IColor[] DecodeCmprSubblock_(IList<byte> block, int position) {
-      var reader = new VectorReader(block, position, Endianness.Big);
-
+    private static unsafe void DecodeCmprSubblock_(
+        IEndianBinaryReader er,
+        Rgba32* scan0,
+        int imageX,
+        int imageY,
+        int imageWidth) {
       Span<Rgba32> palette = stackalloc Rgba32[4];
-      DecodeCmprPalette_(palette, reader.ReadU16(), reader.ReadU16());
+      DecodeCmprPalette_(palette, er.ReadUInt16(), er.ReadUInt16());
 
-      var sb = new IColor[4 * 4];
       for (var j = 0; j < 4; ++j) {
-        var indices = reader.ReadU8();
+        var indices = er.ReadByte();
         for (var i = 0; i < 4; ++i) {
           var index = (indices >> (2 * (3 - i))) & 0b11;
-          sb[j * 4 + i] = FinColor.FromRgba(palette[index]);
+          scan0[(imageY + j) * imageWidth + imageX + i] = palette[index];
         }
       }
-
-      return sb;
     }
 
     private static void DecodeCmprPalette_(Span<Rgba32> palette,
