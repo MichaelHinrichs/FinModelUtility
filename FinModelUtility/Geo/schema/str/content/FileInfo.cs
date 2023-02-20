@@ -22,9 +22,11 @@
 
 using schema.binary;
 
-namespace geo.schema.str {
+using static geo.schema.str.StreamSetFile;
+
+namespace geo.schema.str.content {
   [BinarySchema]
-  public partial class FileInfo : IBinaryConvertible {
+  public partial class FileInfo : IContent {
     public FileBuild Build { get; set; }
     public ushort Alignment { get; set; }
     public ushort Flags { get; set; }

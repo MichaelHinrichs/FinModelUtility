@@ -22,6 +22,8 @@
 
 using fin.schema.data;
 
+using geo.schema.str.content;
+
 using schema.binary;
 using schema.binary.attributes.array;
 using schema.binary.attributes.endianness;
@@ -49,42 +51,24 @@ namespace geo.schema.str {
     public ushort Unknown02 { get; set; }
 
     [ArrayUntilEndOfStream]
-    public List<Section> Contents { get; } = new();
+    public List<BlockWrapper> Contents { get; } = new();
 
     [BinarySchema]
-    public partial class Section : IBinaryConvertible {
-      public SwitchMagicUInt32SizedSection<BlockType, ISectionType> Impl {
+    public partial class BlockWrapper : IBinaryConvertible {
+      public SwitchMagicUInt32SizedSection<BlockType, IBlock> Impl {
         get;
       }
-        = new(
-            er => (BlockType) er.ReadUInt32(),
-            (ew, magic) => ew.WriteUInt32((uint) magic),
-            magic => magic switch {
-                BlockType.Options => new NoopSection(),
-                BlockType.Content => new NoopSection(),
-                BlockType.Padding => new NoopSection(),
-            });
-    }
-
-    public interface ISectionType : IBinaryConvertible { }
-
-    [BinarySchema]
-    public partial class ContentSection : ISectionType {
-      public SwitchMagicUInt32SizedSection<ContentType, ISectionType> Impl {
-        get;
-      }
-        = new(er => (ContentType) er.ReadUInt32(),
+        = new(-8,
+              er => (BlockType) er.ReadUInt32(),
               (ew, magic) => ew.WriteUInt32((uint) magic),
               magic => magic switch {
-                  ContentType.Header         => new NoopSection(),
-                  ContentType.Data           => new NoopSection(),
-                  ContentType.CompressedData => new NoopSection(),
+                  BlockType.Options => new NoopBlock(),
+                  BlockType.Content => new ContentBlock(),
+                  BlockType.Padding => new NoopBlock(),
               });
+
+      public override string ToString() => this.Impl.ToString();
     }
-
-
-    [BinarySchema]
-    public partial class NoopSection : ISectionType { }
 
     /*case StreamSet.BlockType.Content: {
   this.Contents.Add(new StreamSet.ContentInfo() {
