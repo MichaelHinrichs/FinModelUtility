@@ -4,6 +4,8 @@ using System.Runtime.CompilerServices;
 using fin.color;
 using fin.math;
 
+using SixLabors.ImageSharp.PixelFormats;
+
 
 namespace fin.util.color {
   public static class ColorUtil {
@@ -103,10 +105,19 @@ namespace fin.util.color {
     }
 
     public static IColor Interpolate(IColor from, IColor to, double amt) {
-      ColorUtil.Interpolate(from.Rb, from.Gb, from.Bb, from.Ab,
-                            to.Rb, to.Gb, to.Bb, to.Ab,
+      ColorUtil.Interpolate(from.Rb,
+                            from.Gb,
+                            from.Bb,
+                            from.Ab,
+                            to.Rb,
+                            to.Gb,
+                            to.Bb,
+                            to.Ab,
                             amt,
-                            out var r, out var g, out var b, out var a);
+                            out var r,
+                            out var g,
+                            out var b,
+                            out var a);
       return FinColor.FromRgbaBytes(r, g, b, a);
     }
 

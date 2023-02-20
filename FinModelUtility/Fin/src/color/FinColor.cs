@@ -2,6 +2,8 @@
 using System.Drawing;
 using System.Runtime.CompilerServices;
 
+using SixLabors.ImageSharp.PixelFormats;
+
 
 namespace fin.color {
   public interface IColor {
@@ -28,6 +30,9 @@ namespace fin.color {
 
     public static IColor FromRgbBytes(byte rb, byte gb, byte bb)
       => FromRgbaBytes(rb, gb, bb, 255);
+
+    public static IColor FromRgba(Rgba32 rgba)
+      => new FinColor(rgba.R, rgba.G, rgba.B, rgba.A);
 
     public static IColor FromRgbaBytes(byte rb, byte gb, byte bb, byte ab)
       => new FinColor(rb, gb, bb, ab);
