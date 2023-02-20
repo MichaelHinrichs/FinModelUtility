@@ -6,7 +6,7 @@ using schema.binary.attributes.ignore;
 
 namespace fin.schema.data {
   [BinarySchema]
-  public partial class PassThruUint32SizedSection<T> : ISizedSection<T>
+  public partial class PassThruUInt32SizedSection<T> : ISizedSection<T>
       where T : IBinaryConvertible {
     [Ignore]
     private readonly int tweakSize_;
@@ -16,11 +16,11 @@ namespace fin.schema.data {
 
     public T Data { get; }
 
-    public PassThruUint32SizedSection(T data) {
+    public PassThruUInt32SizedSection(T data) {
       this.Data = data;
     }
 
-    public PassThruUint32SizedSection(T data, int tweakSize) {
+    public PassThruUInt32SizedSection(T data, int tweakSize) {
       this.Data = data;
       this.tweakSize_ = tweakSize;
     }

@@ -11,7 +11,7 @@ namespace fin.schema.data {
   [BinarySchema]
   public partial class AutoUInt32SizedSection<T> : ISizedSection<T>
       where T : IBinaryConvertible, new() {
-    private readonly PassThruUint32SizedSection<T> impl_;
+    private readonly PassThruUInt32SizedSection<T> impl_;
 
     [Ignore]
     public T Data => this.impl_.Data;

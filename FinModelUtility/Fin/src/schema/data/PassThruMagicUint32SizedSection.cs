@@ -3,25 +3,25 @@ using schema.binary.attributes.ignore;
 
 namespace fin.schema.data {
   [BinarySchema]
-  public partial class PassThruMagicUint32SizedSection<T> : IMagicSection<T>
+  public partial class PassThruMagicUInt32SizedSection<T> : IMagicSection<T>
       where T : IBinaryConvertible {
     public string Magic { get; }
 
-    private readonly PassThruUint32SizedSection<T> impl_;
+    private readonly PassThruUInt32SizedSection<T> impl_;
 
-    public PassThruMagicUint32SizedSection(
+    public PassThruMagicUInt32SizedSection(
         string magic,
         T data) {
       this.Magic = magic;
-      this.impl_ = new PassThruUint32SizedSection<T>(data);
+      this.impl_ = new PassThruUInt32SizedSection<T>(data);
     }
 
-    public PassThruMagicUint32SizedSection(
+    public PassThruMagicUInt32SizedSection(
         string magic,
         T data,
         int tweakSize) {
       this.Magic = magic;
-      this.impl_ = new PassThruUint32SizedSection<T>(data, tweakSize);
+      this.impl_ = new PassThruUInt32SizedSection<T>(data, tweakSize);
     }
 
     [Ignore]

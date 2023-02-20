@@ -11,7 +11,7 @@ namespace fin.schema.data {
   [BinarySchema]
   public partial class AutoMagicUInt32SizedSection<T> : IMagicSection<T>
       where T : IBinaryConvertible, new() {
-    private readonly PassThruMagicUint32SizedSection<T> impl_;
+    private readonly PassThruMagicUInt32SizedSection<T> impl_;
 
     public AutoMagicUInt32SizedSection(string magic) {
       this.impl_ = new(magic, new T());

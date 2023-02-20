@@ -12,7 +12,7 @@ namespace fin.schema.data {
   ///   parent data.
   /// </summary>
   [BinarySchema]
-  public partial class SwitchMagicSizedSection<T> : IMagicSection<T>
+  public partial class SwitchMagicStringUInt32SizedSection<T> : IMagicSection<T>
       where T : IBinaryConvertible {
     [Ignore]
     private readonly int magicLength_;
@@ -23,16 +23,16 @@ namespace fin.schema.data {
     [Ignore]
     private readonly Func<string, T> createTypeHandler_;
 
-    private PassThruMagicUint32SizedSection<T> impl_;
+    private PassThruMagicUInt32SizedSection<T> impl_;
 
-    public SwitchMagicSizedSection(
+    public SwitchMagicStringUInt32SizedSection(
         int magicLength,
         Func<string, T> createTypeHandler) {
       this.magicLength_ = magicLength;
       this.createTypeHandler_ = createTypeHandler;
     }
 
-    public SwitchMagicSizedSection(
+    public SwitchMagicStringUInt32SizedSection(
         int magicLength,
         int tweakSize,
         Func<string, T> createTypeHandler) {
@@ -52,7 +52,7 @@ namespace fin.schema.data {
 
       var magic = er.ReadString(this.magicLength_);
       this.impl_ =
-          new PassThruMagicUint32SizedSection<T>(
+          new PassThruMagicUInt32SizedSection<T>(
               magic,
               this.createTypeHandler_(magic),
               this.tweakSize_);

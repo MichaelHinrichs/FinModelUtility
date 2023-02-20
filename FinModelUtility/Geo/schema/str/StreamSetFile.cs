@@ -30,7 +30,7 @@ namespace geo.schema.str {
   [Endianness(Endianness.LittleEndian)]
   [BinarySchema]
   public partial class StreamSetFile : IBinaryConvertible {
-    private readonly string magic_ = "3slo";
+    private readonly BlockType magic_ = BlockType.Options;
     private readonly uint size_ = 12;
 
     /* Dead Space:
@@ -52,25 +52,33 @@ namespace geo.schema.str {
     public List<Section> Contents { get; } = new();
 
     [BinarySchema]
-    private partial class Section : IBinaryConvertible {
-      public SwitchMagicSizedSection<ISectionType> Impl { get; }
-        = new(4,
-              magic => magic switch {
-                "COHS" => new NoopSection(),
-                "LLIF" => new NoopSection(),
-              });
+    public partial class Section : IBinaryConvertible {
+      public SwitchMagicUInt32SizedSection<BlockType, ISectionType> Impl {
+        get;
+      }
+        = new(
+            er => (BlockType) er.ReadUInt32(),
+            (ew, magic) => ew.WriteUInt32((uint) magic),
+            magic => magic switch {
+                BlockType.Options => new NoopSection(),
+                BlockType.Content => new NoopSection(),
+                BlockType.Padding => new NoopSection(),
+            });
     }
 
     public interface ISectionType : IBinaryConvertible { }
 
     [BinarySchema]
     public partial class ContentSection : ISectionType {
-      public SwitchMagicSizedSection<ISectionType> Impl { get; }
-        = new(4,
+      public SwitchMagicUInt32SizedSection<ContentType, ISectionType> Impl {
+        get;
+      }
+        = new(er => (ContentType) er.ReadUInt32(),
+              (ew, magic) => ew.WriteUInt32((uint) magic),
               magic => magic switch {
-                  "RDHS" => new NoopSection(),
-                  "TADS" => new NoopSection(),
-                  "kapR" => new NoopSection(),
+                  ContentType.Header         => new NoopSection(),
+                  ContentType.Data           => new NoopSection(),
+                  ContentType.CompressedData => new NoopSection(),
               });
     }
 
