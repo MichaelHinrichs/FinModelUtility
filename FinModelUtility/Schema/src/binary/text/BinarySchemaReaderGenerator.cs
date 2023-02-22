@@ -400,20 +400,65 @@ namespace schema.binary.text {
           Asserts.CastNonnull(member.MemberType as ISequenceMemberType);
       if (arrayType.LengthSourceType ==
           SequenceLengthSourceType.UNTIL_END_OF_STREAM) {
-        cbsb.EnterBlock();
-
         var qualifiedElementName =
             SymbolTypeUtil.GetQualifiedNameFromCurrentSymbol(
                 sourceSymbol,
                 arrayType.ElementType.TypeSymbol);
 
+        var memberAccessor = $"this.{member.Name}";
+
         var isArray = arrayType.SequenceType == SequenceType.ARRAY;
+        {
+          if (isArray &&
+              arrayType.ElementType is IPrimitiveMemberType
+                  primitiveElementType &&
+              SizeUtil.TryGetSizeOfType(arrayType.ElementType, out var size)) {
+            var remainingLengthAccessor = "er.Length - er.Position";
+            var readCountAccessor = size == 1
+                ? remainingLengthAccessor
+                : $"{remainingLengthAccessor} / {size}";
+
+            // Primitives that don't need to be cast are the easiest to read.
+            if (!primitiveElementType.UseAltFormat) {
+              var label =
+                  SchemaGeneratorUtil.GetPrimitiveLabel(
+                      primitiveElementType.PrimitiveType);
+              cbsb.WriteLine(
+                  $"{memberAccessor} = er.Read{label}s({readCountAccessor});");
+            } else {
+              // Primitives that *do* need to be cast have to be read individually.
+              var readType = SchemaGeneratorUtil.GetPrimitiveLabel(
+                  SchemaPrimitiveTypesUtil.ConvertNumberToPrimitive(
+                      primitiveElementType.AltFormat));
+              var castType =
+                  primitiveElementType.PrimitiveType ==
+                  SchemaPrimitiveType.ENUM
+                      ? SymbolTypeUtil.GetQualifiedNameFromCurrentSymbol(
+                          sourceSymbol,
+                          primitiveElementType.TypeSymbol)
+                      : primitiveElementType.TypeSymbol.Name;
+              cbsb.WriteLine(
+                      $"{memberAccessor} = new {qualifiedElementName}[{readCountAccessor}];")
+                  .EnterBlock(
+                      $"for (var i = 0; i < {memberAccessor}.Length; ++i)")
+                  .WriteLine(
+                      $"{memberAccessor}[i] = ({castType}) er.Read{readType}();")
+                  .ExitBlock();
+            }
+
+            return;
+          }
+        }
+
+        cbsb.EnterBlock();
+        if (!isArray) {
+          cbsb.WriteLine($"{memberAccessor}.Clear();");
+        }
+
         var target = isArray ? "temp" : $"this.{member.Name}";
 
         if (isArray) {
           cbsb.WriteLine($"var {target} = new List<{qualifiedElementName}>();");
-        } else {
-          cbsb.WriteLine($"{target}.Clear();");
         }
 
         {
@@ -446,8 +491,8 @@ namespace schema.binary.text {
                 cbsb.WriteLine(
                     $"{target}.Add(({castType}) er.Read{readType}();");
               }
-            }
-            else if (elementType is IStructureMemberType structureElementType) {
+            } else if
+                (elementType is IStructureMemberType structureElementType) {
               cbsb.WriteLine($"var e = new {qualifiedElementName}();");
 
               if (structureElementType.IsChild) {

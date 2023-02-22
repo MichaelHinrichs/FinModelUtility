@@ -21,13 +21,7 @@ using System.IO;
 namespace foo.bar {
   public partial class Wrapper {
     public void Read(IEndianBinaryReader er) {
-      {
-        var temp = new List<byte>();
-        while (!er.Eof) {
-          temp.Add(er.ReadByte());
-        }
-        this.Field = temp.ToArray();
-      }
+      this.Field = er.ReadBytes(er.Length - er.Position);
     }
   }
 }
