@@ -5,8 +5,10 @@
 // Assembly location: R:\Documents\CSharpWorkspace\Pikmin2Utility\MKDS Course Modifier\MKDS Course Modifier.exe
 
 using System.Runtime.CompilerServices;
-using System.Text;
+
 using schema.binary;
+
+using SubstreamSharp;
 
 
 namespace System.IO {
@@ -34,12 +36,13 @@ namespace System.IO {
       if (baseStream == null) {
         throw new ArgumentNullException(nameof(baseStream));
       }
+
       if (!baseStream.CanRead) {
         throw new ArgumentException(nameof(baseStream));
       }
 
       this.BufferedStream_ = new EndianBinaryBufferedStream(endianness) {
-        BaseStream = baseStream,
+          BaseStream = baseStream,
       };
     }
 
@@ -51,16 +54,18 @@ namespace System.IO {
 
     public void Dispose() {
       this.Dispose(true);
-      GC.SuppressFinalize((object)this);
+      GC.SuppressFinalize((object) this);
     }
 
     private void Dispose(bool disposing) {
       if (this.disposed_) {
         return;
       }
+
       if (disposing && this.BaseStream_ != null) {
         this.BaseStream_.Close();
       }
+
       this.disposed_ = true;
     }
 
@@ -123,9 +128,10 @@ namespace System.IO {
       {
         this.Position = position;
 
-        var bytes = this.ReadBytesAtOffset(position, len);
         using var ser =
-            new EndianBinaryReader(new MemoryStream(bytes), this.Endianness);
+            new EndianBinaryReader(
+                new Substream(this.BaseStream_, position, len),
+                this.Endianness);
         subread(ser);
       }
       this.Position = tempPos;
@@ -228,6 +234,7 @@ namespace System.IO {
         dst[i] =
             EndianBinaryReader.ConvertInt24_(this.BufferedStream_.Buffer, i);
       }
+
       return dst;
     }
 
@@ -249,6 +256,7 @@ namespace System.IO {
         dst[i] =
             EndianBinaryReader.ConvertUInt24_(this.BufferedStream_.Buffer, i);
       }
+
       return dst;
     }
 
@@ -323,6 +331,7 @@ namespace System.IO {
         dst[i] =
             EndianBinaryReader.ConvertHalf_(this.BufferedStream_.Buffer, i);
       }
+
       return dst;
     }
 
@@ -372,6 +381,7 @@ namespace System.IO {
         dst[i] =
             EndianBinaryReader.ConvertSn8_(this.BufferedStream_.Buffer, i);
       }
+
       return dst;
     }
 
@@ -393,6 +403,7 @@ namespace System.IO {
         dst[i] =
             EndianBinaryReader.ConvertUn8_(this.BufferedStream_.Buffer, i);
       }
+
       return dst;
     }
 
@@ -414,6 +425,7 @@ namespace System.IO {
         dst[i] =
             EndianBinaryReader.ConvertSn16_(this.BufferedStream_.Buffer, i);
       }
+
       return dst;
     }
 
@@ -435,6 +447,7 @@ namespace System.IO {
         dst[i] =
             EndianBinaryReader.ConvertUn16_(this.BufferedStream_.Buffer, i);
       }
+
       return dst;
     }
 
@@ -445,7 +458,8 @@ namespace System.IO {
       return value;
     }
 
-    public bool TryReadNew<T>(out T? value) where T : IBinaryDeserializable, new() {
+    public bool TryReadNew<T>(out T? value)
+        where T : IBinaryDeserializable, new() {
       var originalPosition = this.Position;
       try {
         value = this.ReadNew<T>();
