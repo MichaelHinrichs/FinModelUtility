@@ -12,14 +12,8 @@ namespace fin.io {
     public static bool Exists(string fullName)
       => FinFileSystem.Directory.Exists(fullName);
 
-    public static bool Create(string fullName) {
-      if (Exists(fullName)) {
-        return false;
-      }
-
-      FinFileSystem.Directory.CreateDirectory(fullName);
-      return true;
-    }
+    public static bool Create(string fullName)
+      => FinFileSystem.Directory.CreateDirectory(fullName).Exists;
 
     public static bool Delete(string fullName, bool recursive = false) {
       if (!Exists(fullName)) {

@@ -1,28 +1,32 @@
-﻿using System.Reflection.Emit;
+﻿using System.Runtime.CompilerServices;
 using System.Text;
 
 
 namespace System.IO {
   public sealed partial class EndianBinaryReader {
     public void AssertChar(char expectedValue)
-      => this.AssertChar(Encoding.ASCII, expectedValue);
+      => Assert(expectedValue, this.ReadChar());
 
-    public char ReadChar() => this.ReadChar(Encoding.ASCII);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public char ReadChar() => (char) this.ReadByte();
 
-    public char[] ReadChars(long count) =>
-        this.ReadChars(Encoding.ASCII, count);
+    public char[] ReadChars(long count)
+      => this.ReadChars(Encoding.ASCII, count);
 
     public char[] ReadChars(char[] dst) => this.ReadChars(Encoding.ASCII, dst);
 
 
     public void AssertChar(Encoding encoding, char expectedValue)
-      => EndianBinaryReader.Assert(expectedValue, this.ReadChar(encoding));
+      => Assert(expectedValue, this.ReadChar(encoding));
 
     public char ReadChar(Encoding encoding) {
-      this.AssertNotEof();
       var encodingSize = EndianBinaryReader.GetEncodingSize_(encoding);
-      this.BufferedStream_.FillBuffer(encodingSize, encodingSize);
-      return encoding.GetChars(this.BufferedStream_.Buffer, 0, encodingSize)[0];
+      Span<byte> bBuffer = stackalloc byte[encodingSize];
+      this.BufferedStream_.FillBuffer(bBuffer, encodingSize);
+
+      Span<char> cBuffer = stackalloc char[1];
+      encoding.GetChars(bBuffer, cBuffer);
+      return cBuffer[0];
     }
 
     public char[] ReadChars(Encoding encoding, long count)
@@ -44,11 +48,22 @@ namespace System.IO {
              encoding == Encoding.ASCII ||
              encoding != Encoding.Unicode &&
              encoding != Encoding.BigEndianUnicode
-                 ? 1
-                 : 2;
+          ? 1
+          : 2;
     }
 
-    public string ReadUpTo(char endToken) => ReadUpTo(Encoding.ASCII, endToken);
+    public string ReadUpTo(char endToken) {
+      var remainingCharacters = this.Length - this.Position;
+
+      var strBuilder = new StringBuilder();
+      char c;
+      while ((remainingCharacters--) > 0 && (c = this.ReadChar()) != endToken) {
+        strBuilder.Append(c);
+      }
+
+      return strBuilder.ToString();
+    }
+
     public string ReadUpTo(Encoding encoding, char endToken) {
       var strBuilder = new StringBuilder();
       while (!Eof) {
@@ -59,16 +74,19 @@ namespace System.IO {
 
         strBuilder.Append(c);
       }
+
       return strBuilder.ToString();
     }
 
-    public string ReadUpTo(params string[] endTokens) => ReadUpTo(Encoding.ASCII, endTokens);
+    public string ReadUpTo(params string[] endTokens)
+      => ReadUpTo(Encoding.ASCII, endTokens);
+
     public string ReadUpTo(Encoding encoding, params string[] endTokens) {
       var strBuilder = new StringBuilder();
       while (!Eof) {
         var firstC = this.ReadChar(encoding);
         var originalOffset = Position;
-        
+
         foreach (var endToken in endTokens) {
           if (firstC == endToken[0]) {
             for (var i = 1; i < endToken.Length; ++i) {
@@ -78,19 +96,23 @@ namespace System.IO {
                 break;
               }
             }
+
             goto Done;
           }
         }
 
         strBuilder.Append(firstC);
       }
+
       Done:
       return strBuilder.ToString();
     }
 
 
     public string ReadLine() => ReadLine(Encoding.ASCII);
-    public string ReadLine(Encoding encoding) => ReadUpTo(encoding, "\n", "\r\n");
+
+    public string ReadLine(Encoding encoding)
+      => ReadUpTo(encoding, "\n", "\r\n");
 
 
     public void AssertString(string expectedValue)
@@ -106,15 +128,14 @@ namespace System.IO {
           this.ReadString(encoding, expectedValue.Length));
 
     public string ReadString(Encoding encoding, long count) {
-      this.AssertNotEof();
       return new string(this.ReadChars(encoding, count)).TrimEnd('\0');
     }
 
 
     public void AssertStringNT(string expectedValue)
-      => this.AssertStringNT(Encoding.ASCII, expectedValue);
+      => EndianBinaryReader.Assert(expectedValue, this.ReadStringNT());
 
-    public string ReadStringNT() => this.ReadStringNT(Encoding.ASCII);
+    public string ReadStringNT() => ReadUpTo('\0');
 
 
     public void AssertStringNT(Encoding encoding, string expectedValue)

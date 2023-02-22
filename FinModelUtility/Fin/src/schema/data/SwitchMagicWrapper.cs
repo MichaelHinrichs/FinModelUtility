@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 using schema.binary;
 
@@ -29,12 +30,14 @@ namespace fin.schema.data {
 
     public TData Data { get; private set; }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Read(IEndianBinaryReader er) {
       this.Magic = this.readMagicHandler_(er);
       this.Data = this.createTypeHandler_(this.Magic);
       this.Data.Read(er);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write(ISubEndianBinaryWriter ew) {
       this.writeMagicHandler_(ew, this.Magic);
       this.Data.Write(ew);

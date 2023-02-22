@@ -18,7 +18,11 @@ namespace System.IO {
     // TODO: This should be private.
     // TODO: Does caching the buffer actually help, or can this logic be pulled into the extensions?
     private EndianBinaryBufferedStream BufferedStream_ { get; set; }
-    private Stream BaseStream_ => this.BufferedStream_.BaseStream;
+
+    private Stream BaseStream_ {
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
+      get => this.BufferedStream_.BaseStream;
+    }
 
     public EndianBinaryReader(byte[] data)
       => this.Init_(new MemoryStream(data), null);
@@ -70,6 +74,7 @@ namespace System.IO {
     }
 
     public long Position {
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
       get => this.BaseStream_.Position;
       set => this.BaseStream_.Position = value;
     }
@@ -78,7 +83,10 @@ namespace System.IO {
       EndianBinaryReader.Assert(expectedPosition, this.Position);
     }
 
-    public long Length => this.BaseStream_.Length;
+    public long Length {
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
+      get => this.BaseStream_.Length;
+    }
 
     public bool Eof {
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -166,11 +174,14 @@ namespace System.IO {
     public void AssertByte(byte expectedValue)
       => EndianBinaryReader.Assert(expectedValue, this.ReadByte());
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte ReadByte()
       => (byte) this.BufferedStream_.BaseStream.ReadByte();
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte[] ReadBytes(long count) => this.ReadBytes(new byte[count]);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte[] ReadBytes(byte[] dst) {
       this.BufferedStream_.BaseStream.Read(dst, 0, dst.Length);
       return dst;

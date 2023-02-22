@@ -26,8 +26,8 @@ namespace geo.decompression {
   public class RefPackDecompressor : BDecompressor {
     public override bool TryDecompress(byte[] inData, out byte[] outData) {
       using var input = new MemoryStream(inData);
-      var dummy = new byte[4];
-      if (input.Read(dummy, 0, 2) != 2) {
+      Span<byte> dummy = stackalloc byte[4];
+      if (input.Read(dummy[..2]) != 2) {
         throw new EndOfStreamException("could not read header");
       }
 
@@ -39,23 +39,25 @@ namespace geo.decompression {
       var isLong = (header & 0x8000) != 0;
       var isDoubled = (header & 0x0100) != 0;
 
-      if (isDoubled == true) {
+      if (isDoubled) {
         throw new InvalidOperationException("this should never happen");
       }
 
       uint uncompressedSize;
-      if (isLong == true) {
-        if (input.Read(dummy, 0, 4) != 4) {
+      if (isLong) {
+        if (input.Read(dummy) != 4) {
           throw new EndOfStreamException("could not read uncompressed size");
         }
+
         uncompressedSize = (uint) (dummy[0] << 24) |
                            (uint) (dummy[1] << 16) |
                            (uint) (dummy[2] << 8) |
                            (uint) (dummy[3] << 0);
       } else {
-        if (input.Read(dummy, 0, 3) != 3) {
+        if (input.Read(dummy[..3]) != 3) {
           throw new EndOfStreamException("could not read uncompressed size");
         }
+
         uncompressedSize = (uint) (dummy[0] << 16) |
                            (uint) (dummy[1] << 8) |
                            (uint) (dummy[2] << 0);
@@ -69,13 +71,13 @@ namespace geo.decompression {
         var copySize = 0u;
         var copyOffset = 0u;
 
-        if (input.Read(dummy, 0, 1) != 1) {
+        var prefix = input.ReadByte();
+        if (prefix == -1) {
           throw new EndOfStreamException("could not read prefix");
         }
-        var prefix = dummy[0];
 
         if (prefix < 0x80) {
-          if (input.Read(dummy, 0, 1) != 1) {
+          if (input.Read(dummy[..1]) != 1) {
             throw new EndOfStreamException("could not read extra");
           }
 
@@ -83,7 +85,7 @@ namespace geo.decompression {
           copySize = (UInt32) (((prefix & 0x1C) >> 2) + 3);
           copyOffset = (UInt32) ((((prefix & 0x60) << 3) | dummy[0]) + 1);
         } else if (prefix < 0xC0) {
-          if (input.Read(dummy, 0, 2) != 2) {
+          if (input.Read(dummy[..2]) != 2) {
             throw new EndOfStreamException("could not read extra");
           }
 
@@ -91,13 +93,15 @@ namespace geo.decompression {
           copySize = (uint) ((prefix & 0x3F) + 4);
           copyOffset = (uint) ((((dummy[0] & 0x3F) << 8) | dummy[1]) + 1);
         } else if (prefix < 0xE0) {
-          if (input.Read(dummy, 0, 3) != 3) {
+          if (input.Read(dummy[..3]) != 3) {
             throw new EndOfStreamException("could not read extra");
           }
 
           plainSize = (uint) (prefix & 3);
           copySize = (uint) ((((prefix & 0x0C) << 6) | dummy[2]) + 5);
-          copyOffset = (uint) ((((((prefix & 0x10) << 4) | dummy[0]) << 8) | dummy[1]) + 1);
+          copyOffset =
+              (uint) ((((((prefix & 0x10) << 4) | dummy[0]) << 8) | dummy[1]) +
+                      1);
         } else if (prefix < 0xFC) {
           plainSize = (uint) (((prefix & 0x1F) + 1) * 4);
         } else {
@@ -106,7 +110,8 @@ namespace geo.decompression {
         }
 
         if (plainSize > 0) {
-          if (input.Read(outData, (int) offset, (int) plainSize) != (int) plainSize) {
+          if (input.Read(outData, (int) offset, (int) plainSize) !=
+              (int) plainSize) {
             throw new EndOfStreamException("could not read plain");
           }
 
@@ -114,10 +119,8 @@ namespace geo.decompression {
         }
 
         if (copySize > 0) {
-          for (uint i = 0; i < copySize; i++) {
-            outData[offset + i] = outData[(offset - copyOffset) + i];
-          }
-
+          outData.AsSpan((int) offset - (int) copyOffset, (int) copySize)
+                 .CopyTo(outData.AsSpan((int) offset, (int) copySize));
           offset += copySize;
         }
 

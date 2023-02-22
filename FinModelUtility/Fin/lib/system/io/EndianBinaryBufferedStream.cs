@@ -8,7 +8,11 @@ namespace System.IO {
       this.endiannessImpl_ = new EndiannessStackImpl(endianness);
     }
 
-    public Stream BaseStream { get; set; }
+    public Stream BaseStream {
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
+      get; 
+      set;
+    }
     public byte[] Buffer { get; private set; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
