@@ -69,12 +69,5 @@ namespace geo.schema.str {
 
       public override string ToString() => this.Impl.ToString();
     }
-
-    /*case StreamSet.BlockType.Content: {
-  this.Contents.Add(new StreamSet.ContentInfo() {
-      Type = type, Offset = input.Position, Size = blockSize - 12,
-  });
-  break;
-}*/
   }
 }

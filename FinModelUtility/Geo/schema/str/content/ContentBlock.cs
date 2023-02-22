@@ -10,8 +10,8 @@ namespace geo.schema.str.content {
             (ew, magic) => ew.WriteUInt32((uint) magic),
             magic => magic switch {
                 ContentType.Header         => new FileInfo(),
-                ContentType.Data           => new NoopContent(),
-                ContentType.CompressedData => new NoopContent(),
+                ContentType.Data           => new UncompressedData(),
+                ContentType.CompressedData => new CompressedData(),
             });
 
     public override string ToString() => this.Impl.ToString();
