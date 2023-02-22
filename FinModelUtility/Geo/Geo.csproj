@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="schema\str\Str.cs" />
+    <Compile Remove="src\schema\str\Str.cs" />
   </ItemGroup>
 
   <ItemGroup>
