@@ -20,14 +20,12 @@
  *    distribution.
  */
 
-namespace geo.decompression {
-  public static class RefPackDecompression {
-    public static byte[] Decompress(byte[] input) {
-      using var data = new MemoryStream(input, false);
-      return RefPackDecompression.Decompress(data);
-    }
+using fin.decompression;
 
-    public static byte[] Decompress(Stream input) {
+namespace geo.decompression {
+  public class RefPackDecompressor : BDecompressor {
+    public override bool TryDecompress(byte[] inData, out byte[] outData) {
+      using var input = new MemoryStream(inData);
       var dummy = new byte[4];
       if (input.Read(dummy, 0, 2) != 2) {
         throw new EndOfStreamException("could not read header");
@@ -63,7 +61,7 @@ namespace geo.decompression {
                            (uint) (dummy[2] << 0);
       }
 
-      var data = new byte[uncompressedSize];
+      outData = new byte[uncompressedSize];
       uint offset = 0;
       while (true) {
         bool stop = false;
@@ -108,7 +106,7 @@ namespace geo.decompression {
         }
 
         if (plainSize > 0) {
-          if (input.Read(data, (int) offset, (int) plainSize) != (int) plainSize) {
+          if (input.Read(outData, (int) offset, (int) plainSize) != (int) plainSize) {
             throw new EndOfStreamException("could not read plain");
           }
 
@@ -117,7 +115,7 @@ namespace geo.decompression {
 
         if (copySize > 0) {
           for (uint i = 0; i < copySize; i++) {
-            data[offset + i] = data[(offset - copyOffset) + i];
+            outData[offset + i] = outData[(offset - copyOffset) + i];
           }
 
           offset += copySize;
@@ -128,7 +126,7 @@ namespace geo.decompression {
         }
       }
 
-      return data;
+      return true;
     }
   }
 }

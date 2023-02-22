@@ -1,6 +1,7 @@
 ﻿using fin.io;
 using fin.io.bundles;
 
+using geo.api;
 using geo.schema.str;
 
 using uni.platforms.desktop;
@@ -16,9 +17,18 @@ namespace uni.games.dead_space_1 {
       }
 
       var fileHierarchy = new FileHierarchy(deadSpaceDir);
+      foreach (var strFile in fileHierarchy.SelectMany(
+                   dir => dir.FilesWithExtensionRecursive(".str"))) {
+        var baseOutputDirectory =
+            GameFileHierarchyUtil.GetWorkingDirectoryForFile(strFile);
+        var outputDirForFile = new FinDirectory(
+            Path.Join(baseOutputDirectory.FullName,
+                      strFile.NameWithoutExtension));
 
-      var strFile = fileHierarchy.Root.GetExistingFile("ch01_fit/ch01_flt.str");
-      var str = strFile.Impl.ReadNew<StreamSetFile>();
+        if (!outputDirForFile.Exists) {
+          new StrExtractor().Extract(strFile, outputDirForFile);
+        }
+      }
 
       return Enumerable.Empty<IFileBundle>();
     }

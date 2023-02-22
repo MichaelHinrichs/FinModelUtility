@@ -11,7 +11,7 @@ namespace geo.schema.str.content {
             magic => magic switch {
                 ContentType.Header         => new FileInfo(),
                 ContentType.Data           => new UncompressedData(),
-                ContentType.CompressedData => new CompressedData(),
+                ContentType.CompressedData => new RefPackCompressedData(),
             });
 
     public override string ToString() => this.Impl.ToString();
