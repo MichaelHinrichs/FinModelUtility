@@ -20,7 +20,9 @@ namespace uni.games.dead_space_1 {
       foreach (var strFile in fileHierarchy.SelectMany(
                    dir => dir.FilesWithExtensionRecursive(".str"))) {
         var baseOutputDirectory =
-            GameFileHierarchyUtil.GetWorkingDirectoryForFile(strFile);
+            GameFileHierarchyUtil.GetWorkingDirectoryForFile(
+                strFile,
+                "dead_space_1");
         var outputDirForFile = new FinDirectory(
             Path.Join(baseOutputDirectory.FullName,
                       strFile.NameWithoutExtension));
