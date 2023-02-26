@@ -90,8 +90,18 @@ namespace geo.api {
                                   Path.Join(outputDir.FullName, fileName));
                           outputFile.GetParent().Create();
 
-                          await using var output =
-                              outputFile.OpenWrite();
+                          await using var output = FinFileSystem.File.Open(
+                              outputFile.FullName,
+                              new FileStreamOptions {
+                                  Mode = FileMode.Create,
+                                  Access = FileAccess.Write,
+                                  BufferSize = 0,
+                                  PreallocationSize = fileInfo.TotalSize,
+                                  Options = FileOptions.SequentialScan |
+                                            FileOptions.Asynchronous |
+                                            FileOptions.WriteThrough,
+                              });
+
                           var readSize = 0L;
                           while (readSize < fileInfo.TotalSize) {
                             var leftSize = fileInfo.TotalSize - readSize;
