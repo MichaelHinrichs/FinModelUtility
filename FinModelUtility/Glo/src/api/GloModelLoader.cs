@@ -5,7 +5,7 @@ using fin.model.impl;
 using glo.schema;
 using System.Numerics;
 using fin.color;
-using fin.data;
+using fin.data.lazy;
 using fin.image;
 using fin.util.asserts;
 

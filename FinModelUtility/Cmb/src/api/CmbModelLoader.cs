@@ -11,6 +11,7 @@ using cmb.schema.shpa;
 
 using fin.color;
 using fin.data;
+using fin.data.lazy;
 using fin.data.queue;
 using fin.image;
 using fin.io;

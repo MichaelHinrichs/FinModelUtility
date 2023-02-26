@@ -1,11 +1,13 @@
-﻿using fin.data;
-using fin.io;
+﻿using fin.io;
 using fin.model;
 using fin.scene;
 using Quad64;
 using Quad64.src.LevelInfo;
 using Quad64.src.Scripts;
 using System.Numerics;
+
+using fin.data.lazy;
+
 using BitLogic = Quad64.BitLogic;
 
 

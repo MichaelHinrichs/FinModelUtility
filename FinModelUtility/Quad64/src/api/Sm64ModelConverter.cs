@@ -1,4 +1,4 @@
-﻿using fin.data;
+﻿using fin.data.lazy;
 using fin.image;
 using fin.model;
 using fin.model.impl;
@@ -6,7 +6,6 @@ using fin.util.enums;
 using OpenTK.Graphics.OpenGL;
 using Quad64;
 using Quad64.src.Scripts;
-using LogicOp = fin.model.LogicOp;
 
 
 namespace sm64.api {

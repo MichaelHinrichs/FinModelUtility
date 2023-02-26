@@ -1,15 +1,15 @@
 ﻿using fin.data;
 using fin.data.queue;
 using fin.io;
-using fin.log;
 using fin.math;
 using fin.model;
 using fin.model.impl;
-using fin.util.optional;
 
 using level5.schema;
 
 using System.Numerics;
+
+using fin.data.lazy;
 
 
 namespace level5.api {

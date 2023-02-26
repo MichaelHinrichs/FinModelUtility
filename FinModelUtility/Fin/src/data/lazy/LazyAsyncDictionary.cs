@@ -3,8 +3,9 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
 
-namespace fin.data {
-  public class LazyAsyncDictionary<TKey, TValue> {
+namespace fin.data.lazy {
+  public class LazyAsyncDictionary<TKey, TValue> 
+      : ILazyAsyncDictionary<TKey, TValue> {
     private readonly ConcurrentDictionary<TKey, Task<TValue>> impl_ = new();
 
     private Func<TKey, Task<TValue>> handler_;
@@ -17,25 +18,17 @@ namespace fin.data {
       this.handler_ = (TKey key) => handler(this, key);
     }
 
-    public void Clear() => this.impl_.Clear();
-
-    public int Count => this.impl_.Count;
-
-    public bool ContainsKey(TKey key) => this.impl_.ContainsKey(key);
-
     public Task<TValue> this[TKey key] {
-      get => this.GetAsync(key);
-      set => this.impl_[key] = value;
-    }
+      get {
+        if (this.impl_.TryGetValue(key, out var value)) {
+          return value;
+        }
 
-    public Task<TValue> GetAsync(TKey key) {
-      if (this.impl_.TryGetValue(key, out var value)) {
+        value = this.handler_(key);
+        this.impl_[key] = value;
         return value;
       }
-
-      value = this.handler_(key);
-      this.impl_[key] = value;
-      return value;
+      set => this.impl_[key] = value;
     }
   }
 }

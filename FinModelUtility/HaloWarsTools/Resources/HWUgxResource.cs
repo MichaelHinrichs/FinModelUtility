@@ -10,7 +10,7 @@ using System.Xml;
 
 using Dxt;
 
-using fin.data;
+using fin.data.lazy;
 using fin.io;
 using fin.math;
 using fin.model;
