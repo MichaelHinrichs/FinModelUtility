@@ -29,82 +29,111 @@ using geo.decompression;
 using geo.schema.str;
 using geo.schema.str.content;
 
+using Microsoft.Extensions.FileProviders;
+
 using FileInfo = geo.schema.str.content.FileInfo;
 
 namespace geo.api {
   public class StrExtractor {
     private readonly ILogger logger_ = Logging.Create<StrExtractor>();
 
-    public bool Extract(IFileHierarchyFile strFile, IDirectory outputDir) {
+    public void Extract(IFileHierarchyFile strFile, IDirectory outputDir) {
+      var task = ExtractAsync(strFile, outputDir);
+      task.Wait();
+    }
+
+    public readonly struct StrFile {
+      public required IFileInfo Header { get; init; }
+      public required byte[] Bytes { get; init; }
+    }
+
+    public async Task ExtractAsync(IFileHierarchyFile strFile,
+                                   IDirectory outputDir) {
       this.logger_.LogInformation($"Extracting {strFile.LocalPath}...");
 
       outputDir.Create();
 
-      var set = strFile.Impl.ReadNew<StreamSetFile>();
+      ContentBlock[] contentBlocks;
+      var headerBlocks = new LinkedList<(FileInfo fileInfo, int index)>();
+      {
+        var set = strFile.Impl.ReadNew<StreamSetFile>();
+        contentBlocks =
+            set.Contents
+               .Select(block => block.Impl.Data)
+               .WhereIs<IBlock, ContentBlock>()
+               .ToArray();
 
-      var contentBlocks =
-          set.Contents
-             .Select(block => block.Impl.Data)
-             .WhereIs<IBlock, ContentBlock>()
-             .ToArray();
-
-      int counter = 0;
-      for (int i = 0; i < contentBlocks.Length;) {
-        var headerInfo = contentBlocks[i];
-        if (headerInfo.Impl.Data is not FileInfo fileInfo) {
-          throw new FormatException("excepted header");
-        }
-
-        var fileName =
-            counter.ToString("D4") + "_" +
-            fileInfo.GetSaneFileName();
-        counter++;
-
-        fileName =
-            Path.Combine(fileInfo.TypeName, fileName);
-
-        i++;
-
-        IFile outputFile =
-            new FinFile(Path.Join(outputDir.FullName, fileName));
-        Asserts.False(outputFile.Exists);
-        outputFile.GetParent().Create();
-
-        using var output = outputFile.OpenWrite();
-        var readSize = 0L;
-        while (readSize < fileInfo.TotalSize) {
-          var leftSize = fileInfo.TotalSize - readSize;
-
-          var dataInfo = contentBlocks[i];
-          switch (dataInfo.Impl.Data) {
-            case UncompressedData uncompressedData: {
-              var data = uncompressedData.Bytes;
-              var writeSize = Math.Min(leftSize, data.Length);
-              output.Write(data, 0, (int) writeSize);
-              readSize += writeSize;
-
-              break;
-            }
-            case RefPackCompressedData compressedData: {
-              Asserts.True(
-                  new RefPackDecompressor().TryDecompress(
-                      compressedData.RawBytes,
-                      out var data));
-              var writeSize = Math.Min(leftSize, (uint) data.Length);
-              output.Write(data, 0, (int) writeSize);
-              readSize += writeSize;
-
-              break;
-            }
-            default:
-              throw new InvalidOperationException();
+        for (var i = 0; i < contentBlocks.Length; ++i) {
+          var block = contentBlocks[i];
+          if (block.Impl.Magic == ContentType.Header) {
+            headerBlocks.AddLast(((FileInfo) block.Impl.Data, i));
           }
-
-          ++i;
         }
       }
 
-      return true;
+      await Parallel.ForEachAsync(
+                        headerBlocks,
+                        new ParallelOptions { MaxDegreeOfParallelism = -1, },
+                        async (tuple, cancellationToken) => {
+                          var (fileInfo, initialIndex) = tuple;
+
+                          var fileName =
+                              initialIndex.ToString("D4") + "_" +
+                              fileInfo.GetSaneFileName();
+
+                          fileName =
+                              Path.Combine(fileInfo.TypeName, fileName);
+
+                          var i = initialIndex + 1;
+                          IFile outputFile =
+                              new FinFile(
+                                  Path.Join(outputDir.FullName, fileName));
+                          outputFile.GetParent().Create();
+
+                          await using var output =
+                              outputFile.OpenWrite();
+                          var readSize = 0L;
+                          while (readSize < fileInfo.TotalSize) {
+                            var leftSize = fileInfo.TotalSize - readSize;
+
+                            var dataInfo = contentBlocks[i];
+                            switch (dataInfo.Impl.Data) {
+                              case UncompressedData uncompressedData: {
+                                var data = uncompressedData.Bytes;
+                                var writeSize = Math.Min(leftSize, data.Length);
+                                await output.WriteAsync(data,
+                                  0,
+                                  (int) writeSize,
+                                  cancellationToken);
+                                readSize += writeSize;
+
+                                break;
+                              }
+                              case RefPackCompressedData compressedData: {
+                                Asserts.True(
+                                    new RefPackDecompressor().TryDecompress(
+                                        compressedData.RawBytes,
+                                        out var data));
+                                var writeSize = Math.Min(leftSize,
+                                  (uint) data.Length);
+                                await output.WriteAsync(data,
+                                  0,
+                                  (int) writeSize,
+                                  cancellationToken);
+                                readSize += writeSize;
+
+                                break;
+                              }
+                              default:
+                                throw new InvalidOperationException();
+                            }
+
+                            ++i;
+                          }
+
+                          await output.FlushAsync(cancellationToken);
+                        })
+                    .ConfigureAwait(false);
     }
   }
 }
