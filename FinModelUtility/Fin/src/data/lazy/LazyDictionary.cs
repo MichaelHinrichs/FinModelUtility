@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace fin.data.lazy {
   public class LazyDictionary<TKey, TValue> : ILazyDictionary<TKey, TValue> {
-    private readonly Dictionary<TKey, TValue> impl_ = new();
-
-    private Func<TKey, TValue> handler_;
+    private readonly ConcurrentDictionary<TKey, TValue> impl_ = new();
+    private readonly Func<TKey, TValue> handler_;
 
     public LazyDictionary(Func<TKey, TValue> handler) {
       this.handler_ = handler;
@@ -15,6 +14,10 @@ namespace fin.data.lazy {
         Func<LazyDictionary<TKey, TValue>, TKey, TValue> handler) {
       this.handler_ = (TKey key) => handler(this, key);
     }
+
+    public int Count => this.impl_.Count;
+    public void Clear() => this.impl_.Clear();
+    public bool ContainsKey(TKey key) => this.impl_.ContainsKey(key);
 
     public TValue this[TKey key] {
       get {

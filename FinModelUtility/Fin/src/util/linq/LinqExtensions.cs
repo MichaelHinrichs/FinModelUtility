@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace fin.util.linq {
-  public static class EnumerableExtensions {
+  public static class LinqExtensions {
     public static IEnumerable<TTo> CastTo<TFrom, TTo>(
         this IEnumerable<TFrom> enumerable) where TFrom : TTo
       => enumerable.Select(value => (TTo) value);

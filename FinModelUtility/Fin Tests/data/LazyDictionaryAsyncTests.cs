@@ -8,12 +8,12 @@ using NUnit.Framework;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 
-namespace fin.data {
+namespace fin.data.lazy {
   public class LazyAsyncDictionaryTests {
     [Test]
     public async Task TestWithKeyAndValueHandler() {
       var invokeCount = 0;
-      var lazyReverseMap = new LazyAsyncDictionary<string, string>(inStr => {
+      var lazyReverseMap = new LazyDictionary<string, Task<string>>(inStr => {
         invokeCount++;
         return Task.FromResult(inStr.Reverse());
       });
@@ -34,8 +34,8 @@ namespace fin.data {
     [Test]
     public async Task TestWithDictionaryKeyAndValueHandler() {
       var invokeCount = 0;
-      LazyAsyncDictionary<string, string>? lazyReverseMap = null;
-      lazyReverseMap = new LazyAsyncDictionary<string, string>((dict, inStr) => {
+      LazyDictionary<string, Task<string>>? lazyReverseMap = null;
+      lazyReverseMap = new LazyDictionary<string, Task<string>>((dict, inStr) => {
         Assert.AreSame(lazyReverseMap, dict);
         invokeCount++;
         return Task.FromResult(inStr.Reverse());
@@ -56,7 +56,7 @@ namespace fin.data {
 
     [Test]
     public async Task TestSettingValuesDirectly() {
-      var lazyReverseMap = new LazyAsyncDictionary<string, string>(
+      var lazyReverseMap = new LazyDictionary<string, Task<string>>(
           _ => throw new NotImplementedException());
 
       Assert.AreEqual(0, lazyReverseMap.Count);
@@ -69,7 +69,7 @@ namespace fin.data {
     [Test]
     public async Task TestClear() {
       var invokeCount = 0;
-      var lazyReverseMap = new LazyAsyncDictionary<string, string>(inStr => {
+      var lazyReverseMap = new LazyDictionary<string, Task<string>>(inStr => {
         invokeCount++;
         return Task.FromResult(inStr.Reverse());
       });
@@ -93,7 +93,7 @@ namespace fin.data {
     [Test]
     public async Task TestContainsKey() {
       var lazyReverseMap =
-          new LazyAsyncDictionary<string, string>(inStr => Task.FromResult(inStr.Reverse()));
+          new LazyDictionary<string, Task<string>>(inStr => Task.FromResult(inStr.Reverse()));
 
       Assert.AreEqual(false, lazyReverseMap.ContainsKey("reverse"));
 

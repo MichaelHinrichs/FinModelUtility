@@ -8,6 +8,7 @@ using fin.io;
 using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
+using fin.util.linq;
 
 using modl.schema.terrain;
 using modl.schema.terrain.bw1;
@@ -107,9 +108,10 @@ namespace modl.api {
 
             return finTexture;
           });
-      var materialDictionary =
-          new LazyDictionary<uint, IMaterial>(matlIndex => {
-            var matl = terrain.Materials[(int) matlIndex];
+      var materialDictionary = new LazyArray<IMaterial>(
+          terrain.Materials.Count,
+          matlIndex => {
+            var matl = terrain.Materials[matlIndex];
 
             var texture1 = textureDictionary[(0, matl.Texture1)];
             var texture2 = textureDictionary[(1, matl.Texture2)];
@@ -296,7 +298,7 @@ namespace modl.api {
                 }
               }
 
-              var material = materialDictionary[tile.MatlIndex];
+              var material = materialDictionary[(int) tile.MatlIndex];
               for (var pointY = 0; pointY < points.Height - 1; ++pointY) {
                 for (var pointX = 0; pointX < points.Width - 1; ++pointX) {
                   var vX = 16 * chunkX + 4 * tileX + pointX;
