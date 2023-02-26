@@ -16,6 +16,8 @@ namespace uni.games.dead_space_1 {
         return Enumerable.Empty<IFileBundle>();
       }
 
+      var strExtractor = new StrExtractor();
+
       var fileHierarchy = new FileHierarchy(deadSpaceDir);
       foreach (var strFile in fileHierarchy.SelectMany(
                    dir => dir.FilesWithExtensionRecursive(".str"))) {
@@ -28,7 +30,7 @@ namespace uni.games.dead_space_1 {
                       strFile.NameWithoutExtension));
 
         if (!outputDirForFile.Exists) {
-          new StrExtractor().Extract(strFile, outputDirForFile);
+          strExtractor.Extract(strFile, outputDirForFile);
         }
       }
 
