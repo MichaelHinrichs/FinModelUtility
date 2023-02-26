@@ -71,6 +71,7 @@ namespace geo.api {
         }
       }
 
+      var refPackDecompressor = new RefPackDecompressor();
       await Parallel.ForEachAsync(
                         headerBlocks,
                         new ParallelOptions { MaxDegreeOfParallelism = -1, },
@@ -121,7 +122,7 @@ namespace geo.api {
                               }
                               case RefPackCompressedData compressedData: {
                                 Asserts.True(
-                                    new RefPackDecompressor().TryDecompress(
+                                    refPackDecompressor.TryDecompress(
                                         compressedData.RawBytes,
                                         out var data));
                                 var writeSize = Math.Min(leftSize,
