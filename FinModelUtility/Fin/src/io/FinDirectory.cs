@@ -8,5 +8,7 @@ namespace fin.io {
     public FinDirectory(string fullName) {
       this.FullName = fullName;
     }
+
+    public override string ToString() => this.FullName;
   }
 }

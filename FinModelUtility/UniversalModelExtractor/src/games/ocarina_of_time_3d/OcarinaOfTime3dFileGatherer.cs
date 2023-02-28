@@ -133,11 +133,15 @@ namespace uni.games.ocarina_of_time_3d {
                               "baarm_death.csab")
                         .Case("balinadetrap.cmb", "balinadetrap.csab"))
           // TODO: Figure these all out
-          .Register("zelda_dekubaba", new PrimaryModelSeparatorMethod("dekubaba.cmb"))
-          .Register("zelda_dekunuts", new PrimaryModelSeparatorMethod("okorinuts.cmb"))
+          .Register("zelda_dekubaba",
+                    new PrimaryModelSeparatorMethod("dekubaba.cmb"))
+          .Register("zelda_dekunuts",
+                    new PrimaryModelSeparatorMethod("okorinuts.cmb"))
           .Register("zelda_dh", new NoAnimationsModelSeparatorMethod())
-          .Register("zelda_dnk", new PrimaryModelSeparatorMethod("choronuts.cmb"))
-          .Register("zelda_dns", new PrimaryModelSeparatorMethod("eldernuts.cmb"))
+          .Register("zelda_dnk",
+                    new PrimaryModelSeparatorMethod("choronuts.cmb"))
+          .Register("zelda_dns",
+                    new PrimaryModelSeparatorMethod("eldernuts.cmb"))
           .Register("zelda_dy_obj", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_ec", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_ec2", new NoAnimationsModelSeparatorMethod())
@@ -148,8 +152,6 @@ namespace uni.games.ocarina_of_time_3d {
           .Register("zelda_fishing", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_fr", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_fw", new NoAnimationsModelSeparatorMethod())
-          .Register("zelda_ganon",
-                    new PrimaryModelSeparatorMethod("ganondorf.cmb"))
           .Register("zelda_ganon2",
                     new PrimaryModelSeparatorMethod("ganon.cmb"))
           .Register("zelda_ganon_down", new NoAnimationsModelSeparatorMethod())
@@ -161,9 +163,11 @@ namespace uni.games.ocarina_of_time_3d {
           .Register("zelda_haka_door", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_hidan_objects",
                     new NoAnimationsModelSeparatorMethod())
-          .Register("zelda_hintnuts", new PrimaryModelSeparatorMethod("dekunuts.cmb"))
+          .Register("zelda_hintnuts",
+                    new PrimaryModelSeparatorMethod("dekunuts.cmb"))
           .Register("zelda_ik", new NoAnimationsModelSeparatorMethod())
-          .Register("zelda_kdodongo", new PrimaryModelSeparatorMethod("kingdodongo.cmb"))
+          .Register("zelda_kdodongo",
+                    new PrimaryModelSeparatorMethod("kingdodongo.cmb"))
           .Register("zelda_mag", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_mb", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_mizu_objects",
@@ -174,7 +178,8 @@ namespace uni.games.ocarina_of_time_3d {
           .Register("zelda_oF1d", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_ph", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_po", new NoAnimationsModelSeparatorMethod())
-          .Register("zelda_po_composer", new PrimaryModelSeparatorMethod("pohmusic.cmb"))
+          .Register("zelda_po_composer",
+                    new PrimaryModelSeparatorMethod("pohmusic.cmb"))
           .Register("zelda_po_field", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_po_sisters", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_ps", new NoAnimationsModelSeparatorMethod())
@@ -208,6 +213,7 @@ namespace uni.games.ocarina_of_time_3d {
                  fileHierarchy)
              .Add(this.GetModelsViaSeparator_)
              .Add(this.GetLinkModels_)
+             .Add(this.GetGanondorfModels_)
              .Add(this.GetOwlModels_)
              .GatherFileBundles(assert);
     }
@@ -269,6 +275,41 @@ namespace uni.games.ocarina_of_time_3d {
                   .ToArray(),
           null,
           null);
+    }
+
+    private IEnumerable<CmbModelFileBundle> GetGanondorfModels_(
+        IFileHierarchy fileHierarchy) {
+      var baseDir = fileHierarchy.Root.GetExistingSubdir("actor/zelda_ganon");
+
+      var modelDir = baseDir.GetExistingSubdir("Model");
+
+      var allAnimations =
+          baseDir.GetExistingSubdir("Anim").Files;
+      var capeAnimations =
+          allAnimations.Where(file => file.Name.EndsWith("_m.csab"));
+      var ganondorfAnimations =
+          allAnimations.Where(file => !capeAnimations.Contains(file));
+
+      yield return new CmbModelFileBundle(
+          modelDir.GetExistingFile("ganondorf.cmb"),
+          ganondorfAnimations.ToArray(),
+          null,
+          null);
+      yield return new CmbModelFileBundle(
+          modelDir.GetExistingFile("ganon_mant_model.cmb"),
+          capeAnimations.ToArray(),
+          null,
+          null);
+
+      foreach (var otherModel in modelDir.Files.Where(
+                   file => file.Name is not "ganondorf.cmb"
+                                        or "ganon_mant_model.cmb")) {
+        yield return new CmbModelFileBundle(
+            otherModel,
+            null,
+            null,
+            null);
+      }
     }
 
     private IEnumerable<CmbModelFileBundle> GetOwlModels_(

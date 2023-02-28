@@ -32,7 +32,7 @@ namespace uni.cli {
                 .WithParsed((UiOptions _) => {
                   DesignModeUtil.InDesignMode = false;
                   ApplicationConfiguration.Initialize();
-                  Application.Run(new UniversalModelExtractorForm());
+                    Application.Run(new UniversalModelExtractorForm());
                 })
                 .WithParsed((DebugOptions _) => {
                   /*var window = new DebugWindow();

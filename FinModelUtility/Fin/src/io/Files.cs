@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 
 using fin.util.asserts;
@@ -19,7 +18,7 @@ namespace fin.io {
 
         Asserts.True(directory.Exists,
                      $"Attempted to run in nonexistent directory: {directory}");
-        Directory.SetCurrentDirectory(directory.FullName);
+        FinFileSystem.Directory.SetCurrentDirectory(directory.FullName);
 
         try {
           handler();

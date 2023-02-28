@@ -3,15 +3,39 @@ using fin.util.asserts;
 
 namespace uni.platforms {
   public static class DirectoryConstants {
-    public static IDirectory BASE_DIRECTORY =
-        Asserts.CastNonnull(Files.GetCwd().GetAncestry())
-               .Where(ancestor => {
-                 var subdirNames = ancestor.GetExistingSubdirs()
-                                           .Select(directory => directory.Name);
-                 return subdirNames.Contains("cli") &&
-                        subdirNames.Contains("FinModelUtility");
-               })
-               .Single();
+    public static IDirectory BASE_DIRECTORY { get; } =
+      DirectoryConstants.GetBaseDirectory_();
+
+    private static IDirectory GetBaseDirectory_() {
+      var cwd = Files.GetCwd();
+      if (cwd.Name == "FinModelUtility") {
+        return cwd;
+      }
+
+      if (cwd.Name == "cli") {
+        return cwd.GetParent();
+      }
+
+      if (cwd.Name == "universal_model_extractor") {
+        return cwd.GetParent() // tools
+                  .GetParent() // cli
+                  .GetParent(); // FinModelUtility
+      }
+
+      return
+          Asserts
+              .CastNonnull(Files.GetCwd().GetAncestry())
+              .Where(ancestor => {
+                var subdirNames = ancestor
+                                  .GetExistingSubdirs()
+                                  .Select(
+                                      directory
+                                          => directory.Name);
+                return subdirNames.Contains("cli") &&
+                       subdirNames.Contains("FinModelUtility");
+              })
+              .Single();
+    }
 
     public static IDirectory CLI_DIRECTORY =
         DirectoryConstants.BASE_DIRECTORY.GetSubdir("cli");
