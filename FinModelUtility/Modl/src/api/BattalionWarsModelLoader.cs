@@ -6,8 +6,8 @@ namespace modl.api {
       : IModelLoader<IBattalionWarsModelFileBundle> {
     public IModel LoadModel(IBattalionWarsModelFileBundle modelFileBundle)
       => modelFileBundle switch {
-          ModlModelFileBundle modlFileBundle => new ModlModelLoader().LoadModel(
-              modlFileBundle),
+          ModlModelFileBundle modlFileBundle => new ModlModelLoader()
+              .LoadModelAsync(modlFileBundle).Result,
           OutModelFileBundle outFileBundle => new OutModelLoader().LoadModel(
               outFileBundle),
           _ => throw new ArgumentOutOfRangeException(

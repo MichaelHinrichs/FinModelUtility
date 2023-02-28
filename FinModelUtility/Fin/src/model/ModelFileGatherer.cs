@@ -1,4 +1,6 @@
-﻿using fin.io.bundles;
+﻿using System.Threading.Tasks;
+
+using fin.io.bundles;
 
 
 namespace fin.model {
@@ -16,5 +18,10 @@ namespace fin.model {
   public interface IModelLoader<in TModelFileBundle>
       where TModelFileBundle : IModelFileBundle {
     IModel LoadModel(TModelFileBundle modelFileBundle);
+  }
+
+  public interface IAsyncModelLoader<in TModelFileBundle>
+      where TModelFileBundle : IModelFileBundle {
+    Task<IModel> LoadModelAsync(TModelFileBundle modelFileBundle);
   }
 }

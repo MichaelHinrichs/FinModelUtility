@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+
 using fin.data.lazy;
 using fin.data.queue;
 using fin.image;
@@ -6,6 +7,7 @@ using fin.io;
 using fin.math;
 using fin.model;
 using fin.model.impl;
+
 using modl.schema.anim;
 using modl.schema.anim.bw1;
 using modl.schema.anim.bw2;
@@ -25,15 +27,15 @@ namespace modl.api {
     public IList<IFileHierarchyFile>? AnimFiles { get; set; }
   }
 
-  public class ModlModelLoader : IModelLoader<ModlModelFileBundle> {
-    public IModel LoadModel(ModlModelFileBundle modelFileBundle)
-      => LoadModel(modelFileBundle.ModlFile.Impl,
-                   modelFileBundle.AnimFiles
-                                  ?.Select(file => file.Impl)
-                                  .ToArray(),
-                   modelFileBundle.GameVersion);
+  public class ModlModelLoader : IAsyncModelLoader<ModlModelFileBundle> {
+    public Task<IModel> LoadModelAsync(ModlModelFileBundle modelFileBundle)
+      => LoadModelAsync(modelFileBundle.ModlFile.Impl,
+                        modelFileBundle.AnimFiles
+                                       ?.Select(file => file.Impl)
+                                       .ToArray(),
+                        modelFileBundle.GameVersion);
 
-    public IModel LoadModel(
+    public async Task<IModel> LoadModelAsync(
         IFile modlFile,
         IList<IFile>? animFiles,
         GameVersion gameVersion) {
@@ -42,7 +44,7 @@ namespace modl.api {
       using var er = new EndianBinaryReader(modlFile.OpenRead(),
                                             Endianness.BigEndian);
       var bwModel = gameVersion switch {
-          GameVersion.BW1 => (IModl)er.ReadNew<Bw1Modl>(),
+          GameVersion.BW1 => (IModl) er.ReadNew<Bw1Modl>(),
           GameVersion.BW2 => er.ReadNew<Bw2Modl>(),
       };
 
@@ -74,10 +76,13 @@ namespace modl.api {
 
           var finBone =
               parentFinBone
-                  .AddChild(flipSign * bonePosition.X, bonePosition.Y,
+                  .AddChild(flipSign * bonePosition.X,
+                            bonePosition.Y,
                             bonePosition.Z)
                   .SetLocalRotationRadians(
-                      eulerRadians.X, eulerRadians.Y, eulerRadians.Z);
+                      eulerRadians.X,
+                      eulerRadians.Y,
+                      eulerRadians.Z);
 
           var identifier = modlNode.GetIdentifier();
           finBone.Name = identifier;
@@ -86,7 +91,8 @@ namespace modl.api {
           finBonesByIdentifier[identifier] = finBone;
 
           if (bwModel.CnctParentToChildren.TryGetList(
-                  modlNodeId, out var modlChildIds)) {
+                  modlNodeId,
+                  out var modlChildIds)) {
             nodeQueue.Enqueue(
                 modlChildIds!.Select(modlChildId => (finBone, modlChildId)));
           }
@@ -94,7 +100,7 @@ namespace modl.api {
 
         foreach (var animFile in animFiles ?? Array.Empty<IFile>()) {
           var anim = gameVersion switch {
-              GameVersion.BW1 => (IAnim)animFile.ReadNew<Bw1Anim>(
+              GameVersion.BW1 => (IAnim) animFile.ReadNew<Bw1Anim>(
                   Endianness.BigEndian),
               GameVersion.BW2 => animFile.ReadNew<Bw2Anim>(
                   Endianness.BigEndian)
@@ -102,12 +108,12 @@ namespace modl.api {
 
           var maxFrameCount = -1;
           foreach (var animBone in anim.AnimBones) {
-            maxFrameCount = (int)Math.Max(maxFrameCount,
-                                          Math.Max(
-                                              animBone
-                                                  .PositionKeyframeCount,
-                                              animBone
-                                                  .RotationKeyframeCount));
+            maxFrameCount = (int) Math.Max(maxFrameCount,
+                                           Math.Max(
+                                               animBone
+                                                   .PositionKeyframeCount,
+                                               animBone
+                                                   .RotationKeyframeCount));
           }
 
           var finAnimation = model.AnimationManager.AddAnimation();
@@ -121,12 +127,14 @@ namespace modl.api {
 
             var animNodeIdentifier = animBone.GetIdentifier();
             if (!finBonesByIdentifier.TryGetValue(
-                    animNodeIdentifier, out var finBone)) {
+                    animNodeIdentifier,
+                    out var finBone)) {
               // TODO: Gross hack for the vet models, what's the real fix???
               if (animNodeIdentifier == Bw1Node.GetIdentifier(33)) {
                 finBone = finBonesByIdentifier[Bw1Node.GetIdentifier(34)];
               } else if (finBonesByIdentifier.TryGetValue(
-                             animNodeIdentifier + 'X', out var xBone)) {
+                             animNodeIdentifier + 'X',
+                             out var xBone)) {
                 finBone = xBone;
               } else if (finBonesByIdentifier.TryGetValue(
                              "BONE_" + animNodeIdentifier,
@@ -165,13 +173,13 @@ namespace modl.api {
           }
         }
 
-        var textureDictionary = new LazyDictionary<string, ITexture>(
-            textureName => {
+        var textureDictionary = new LazyDictionary<string, Task<ITexture>>(
+            async textureName => {
               var textureFile =
                   modlFile.GetParent()
                           .GetExistingFile($"{textureName}.png");
 
-              var image = FinImage.FromFile(textureFile);
+              var image = await FinImage.FromFileAsync(textureFile);
 
               var finTexture =
                   model.MaterialManager.CreateTexture(image);
@@ -189,22 +197,18 @@ namespace modl.api {
             continue;
           }
 
-          var finMaterials =
-              modlNode.Materials.Select(modlMaterial => {
-                        var textureName = modlMaterial.Texture1.ToLower();
-                        if (textureName == "") {
-                          return null;
-                        }
+          var modlMaterials = modlNode.Materials;
+          var finMaterials = new ITextureMaterial[modlMaterials.Count];
+          await Task.WhenAll(modlMaterials.Select(async (modlMaterial, i) => {
+            var textureName = modlMaterial.Texture1.ToLower();
+            if (textureName == "") {
+              return;
+            }
 
-                        var finTexture = textureDictionary[textureName];
-
-                        var finMaterial =
-                            model.MaterialManager
-                                 .AddTextureMaterial(finTexture);
-
-                        return finMaterial;
-                      })
-                      .ToArray();
+            var finTexture = await textureDictionary[textureName];
+            finMaterials[i] = model.MaterialManager
+                                  .AddTextureMaterial(finTexture);
+          })).ConfigureAwait(false);
 
           foreach (var modlMesh in modlNode.Meshes) {
             var finMaterial = finMaterials[modlMesh.MaterialIndex];
@@ -219,15 +223,16 @@ namespace modl.api {
                 var position =
                     modlNode.Positions[vertexAttributeIndices.PositionIndex];
                 var vertex = vertices[i] = model.Skin.AddVertex(
-                                 flipSign * position.X * modlNode.Scale,
-                                 position.Y * modlNode.Scale,
-                                 position.Z * modlNode.Scale);
+                    flipSign * position.X * modlNode.Scale,
+                    position.Y * modlNode.Scale,
+                    position.Z * modlNode.Scale);
 
                 if (vertexAttributeIndices.NormalIndex != null) {
                   var normal =
                       modlNode.Normals[
                           vertexAttributeIndices.NormalIndex.Value];
-                  vertex.SetLocalNormal(flipSign * normal.X, normal.Y,
+                  vertex.SetLocalNormal(flipSign * normal.X,
+                                        normal.Y,
                                         normal.Z);
                 }
 
@@ -243,7 +248,8 @@ namespace modl.api {
                   var finBone = finBonesByModlNode[modlNode];
                   vertex.SetBoneWeights(
                       model.Skin.GetOrCreateBoneWeights(
-                          PreprojectMode.BONE, finBone));
+                          PreprojectMode.BONE,
+                          finBone));
                 }
 
                 var texCoordIndex0 = vertexAttributeIndices.TexCoordIndices[0];
