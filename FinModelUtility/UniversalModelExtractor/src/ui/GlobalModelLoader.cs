@@ -2,6 +2,9 @@
 using cmb.api;
 using dat.api;
 using fin.model;
+
+using geo.api;
+
 using glo.api;
 using hw.api;
 using level5.api;
@@ -23,6 +26,8 @@ namespace uni.ui {
               => new CmbModelLoader().LoadModel(cmbModelFileBundle),
           DatModelFileBundle datModelFileBundle
               => new DatModelLoader().LoadModel(datModelFileBundle),
+          GeoModelFileBundle geoModelFileBundle
+              => new GeoModelLoader().LoadModel(geoModelFileBundle),
           GloModelFileBundle gloModelFileBundle
               => new GloModelLoader().LoadModel(gloModelFileBundle),
           IHaloWarsModelFileBundle haloWarsModelFileBundle 

@@ -2,7 +2,6 @@
 using fin.io.bundles;
 
 using geo.api;
-using geo.schema.str;
 
 using uni.platforms.desktop;
 
@@ -16,10 +15,11 @@ namespace uni.games.dead_space_1 {
         return Enumerable.Empty<IFileBundle>();
       }
 
+      var originalGameFileHierarchy = new FileHierarchy(deadSpaceDir);
+
       var strExtractor = new StrExtractor();
 
-      var fileHierarchy = new FileHierarchy(deadSpaceDir);
-      foreach (var strFile in fileHierarchy.SelectMany(
+      foreach (var strFile in originalGameFileHierarchy.SelectMany(
                    dir => dir.FilesWithExtensionRecursive(".str"))) {
         var baseOutputDirectory =
             GameFileHierarchyUtil.GetWorkingDirectoryForFile(
@@ -34,7 +34,16 @@ namespace uni.games.dead_space_1 {
         }
       }
 
-      return Enumerable.Empty<IFileBundle>();
+      var assetFileHierarchy =
+          new FileHierarchy(
+              GameFileHierarchyUtil.GetWorkingDirectoryForDirectory(
+                  originalGameFileHierarchy.Root,
+                  "dead_space_1"));
+
+      return assetFileHierarchy
+             .SelectMany(dir => dir.FilesWithExtension(".geo"))
+             .Select(
+                 geoFile => new GeoModelFileBundle { GeoFile = geoFile });
     }
   }
 }

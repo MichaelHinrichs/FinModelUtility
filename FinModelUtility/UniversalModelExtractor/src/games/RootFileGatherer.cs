@@ -33,7 +33,7 @@ namespace uni.games {
       var gatherers = new IFileBundleGatherer[] {
           new BattalionWars1FileGatherer(),
           new BattalionWars2FileGatherer(),
-          //new DeadSpace1FileGatherer(),
+          new DeadSpace1FileGatherer(),
           new GloverModelFileGatherer(),
           new GreatAceAttorneyModelFileGatherer(),
           new HaloWarsModelFileGatherer(),

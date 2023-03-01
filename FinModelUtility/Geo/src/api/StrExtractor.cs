@@ -29,8 +29,6 @@ using geo.decompression;
 using geo.schema.str;
 using geo.schema.str.content;
 
-using Microsoft.Extensions.FileProviders;
-
 using FileInfo = geo.schema.str.content.FileInfo;
 
 namespace geo.api {
@@ -40,11 +38,6 @@ namespace geo.api {
     public void Extract(IFileHierarchyFile strFile, IDirectory outputDir) {
       var task = ExtractAsync(strFile, outputDir);
       task.Wait();
-    }
-
-    public readonly struct StrFile {
-      public required IFileInfo Header { get; init; }
-      public required byte[] Bytes { get; init; }
     }
 
     public async Task ExtractAsync(IFileHierarchyFile strFile,
