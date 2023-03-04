@@ -4,8 +4,10 @@ using fin.data;
 using fin.data.queue;
 using fin.io;
 using fin.math;
+using fin.math.matrix;
 using fin.model;
 using fin.model.impl;
+using fin.schema.matrix;
 
 using geo.schema.rcb;
 
@@ -41,10 +43,17 @@ namespace geo.api {
             new FinTuple2Queue<IBone, int>(
                 rootChildren.Select(id => (finRoot, id)));
         while (boneQueue.TryDequeue(out var finParentBone, out var id)) {
+          var parentId = rcbSkeleton.BoneParentIdMap[id];
           var rcbBone = rcbSkeleton.Bones[id];
 
-          var matrix = new FinMatrix4x4(rcbBone.Matrix.Values).InvertInPlace();
-          matrix.Decompose(out var translation, out var rotation, out var scale);
+          var currentMatrix = GetMatrixFromBone(rcbBone.Matrix);
+          if (parentId != -1) {
+            var rcbParentBone = rcbSkeleton.Bones[parentId];
+            var parentMatrix = GetMatrixFromBone(rcbParentBone.Matrix);
+            currentMatrix = parentMatrix.InvertInPlace().CloneAndMultiply(currentMatrix);
+          }
+
+          currentMatrix.Decompose(out var translation, out var rotation, out var scale);
           var eulerRadians = QuaternionUtil.ToEulerRadians(rotation);
 
           var finBone =
@@ -65,5 +74,8 @@ namespace geo.api {
 
       return finModel;
     }
+
+    public IFinMatrix4x4 GetMatrixFromBone(Matrix4x4f matrix)
+      => new FinMatrix4x4(matrix.Values).InvertInPlace();
   }
 }
