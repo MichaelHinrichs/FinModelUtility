@@ -15,8 +15,4 @@
     <ProjectReference Include="..\Schema\Schema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
     <ProjectReference Include="..\Fin\Fin.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="src\schema\geo\" />
-  </ItemGroup>
 </Project>

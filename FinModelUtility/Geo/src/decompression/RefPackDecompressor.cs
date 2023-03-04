@@ -119,8 +119,9 @@ namespace geo.decompression {
         }
 
         if (copySize > 0) {
-          outData.AsSpan((int) offset - (int) copyOffset, (int) copySize)
-                 .CopyTo(outData.AsSpan((int) offset, (int) copySize));
+          for (var i = 0; i < copySize; ++i) {
+            outData[offset + i] = outData[(offset - copyOffset) + i];
+          }
           offset += copySize;
         }
 
