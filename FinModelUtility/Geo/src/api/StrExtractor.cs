@@ -44,8 +44,6 @@ namespace geo.api {
                                    IDirectory outputDir) {
       this.logger_.LogInformation($"Extracting {strFile.LocalPath}...");
 
-      outputDir.Create();
-
       ContentBlock[] contentBlocks;
       var headerBlocks = new LinkedList<(FileInfo fileInfo, int index)>();
       {
@@ -71,17 +69,14 @@ namespace geo.api {
                         async (tuple, cancellationToken) => {
                           var (fileInfo, initialIndex) = tuple;
 
-                          var fileName =
-                              initialIndex.ToString("D4") + "_" +
-                              fileInfo.GetSaneFileName();
-
-                          fileName =
-                              Path.Combine(fileInfo.TypeName, fileName);
-
                           var i = initialIndex + 1;
                           IFile outputFile =
                               new FinFile(
-                                  Path.Join(outputDir.FullName, fileName));
+                                  Path.Join(outputDir.FullName, fileInfo.FileName));
+                          if (outputFile.Exists) {
+                            return;
+                          }
+
                           outputFile.GetParent().Create();
 
                           await using var output = FinFileSystem.File.Open(

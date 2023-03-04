@@ -52,21 +52,6 @@ namespace geo.schema.str.content {
     [NullTerminatedString]
     public string TypeName { get; set; }
 
-    public string GetSaneFileName() {
-      var name = this.FileName;
-      var pos = name.LastIndexOf('\\');
-
-      if (pos >= 0) {
-        name = name.Substring(pos + 1);
-      }
-
-      if (name.Length > 50) {
-        name = Path.ChangeExtension(name.Substring(0, 50), "." + this.TypeName);
-      } else if (name.Length == 0) {
-        name = Path.ChangeExtension("unknown", "." + this.TypeName);
-      }
-
-      return name;
-    }
+    public override string ToString() => this.FileName;
   }
 }

@@ -27,8 +27,7 @@ namespace uni.games {
       var localDirectoryPath = fileHierarchyDirectory.LocalPath;
       var localOutPath = Path.Join(romName, localDirectoryPath);
 
-      return DirectoryConstants.ROMS_DIRECTORY
-                               .GetSubdir(localOutPath, true);
+      return DirectoryConstants.ROMS_DIRECTORY.GetSubdir(localOutPath);
     }
 
 

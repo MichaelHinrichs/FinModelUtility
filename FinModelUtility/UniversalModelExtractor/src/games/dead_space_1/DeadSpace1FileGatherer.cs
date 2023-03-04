@@ -17,29 +17,19 @@ namespace uni.games.dead_space_1 {
 
       var originalGameFileHierarchy = new FileHierarchy(deadSpaceDir);
 
-      var strExtractor = new StrExtractor();
-
-      foreach (var strFile in originalGameFileHierarchy.SelectMany(
-                   dir => dir.FilesWithExtensionRecursive(".str"))) {
-        var baseOutputDirectory =
-            GameFileHierarchyUtil.GetWorkingDirectoryForFile(
-                strFile,
-                "dead_space_1");
-        var outputDirForFile = new FinDirectory(
-            Path.Join(baseOutputDirectory.FullName,
-                      strFile.NameWithoutExtension));
-
-        if (!outputDirForFile.Exists) {
-          strExtractor.Extract(strFile, outputDirForFile);
+      var baseOutputDirectory =
+          GameFileHierarchyUtil.GetWorkingDirectoryForDirectory(
+              originalGameFileHierarchy.Root,
+              "dead_space_1");
+      if (!baseOutputDirectory.Exists) {
+        var strExtractor = new StrExtractor();
+        foreach (var strFile in originalGameFileHierarchy.SelectMany(
+                     dir => dir.FilesWithExtensionRecursive(".str"))) {
+          strExtractor.Extract(strFile, baseOutputDirectory);
         }
       }
 
-      var assetFileHierarchy =
-          new FileHierarchy(
-              GameFileHierarchyUtil.GetWorkingDirectoryForDirectory(
-                  originalGameFileHierarchy.Root,
-                  "dead_space_1"));
-
+      var assetFileHierarchy = new FileHierarchy(baseOutputDirectory);
       return assetFileHierarchy
              .SelectMany(dir => dir.FilesWithExtension(".geo"))
              .Select(
