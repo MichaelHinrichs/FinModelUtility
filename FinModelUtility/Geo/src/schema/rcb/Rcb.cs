@@ -6,15 +6,13 @@ namespace geo.schema.rcb {
   public partial class Rcb : IBinaryDeserializable {
     public const float SCALE = 100;
 
-    public string SkeletonName { get; private set; }
-    public IReadOnlyList<int> BoneParentIdMap { get; private set; }
-    public IReadOnlyList<Bone> Bones { get; private set; }
+    public IReadOnlyList<Skeleton> Skeletons { get; private set; }
 
     public void Read(IEndianBinaryReader er) {
       var fileLength = er.ReadUInt32();
       er.Position += 20;
 
-      er.AssertUInt32(1); // Skeleton count
+      var skeletonCount = er.ReadUInt32();
 
       var dataOffset = er.ReadUInt32();
       var unk4 = er.ReadUInt32();
@@ -26,30 +24,48 @@ namespace geo.schema.rcb {
       var dataOffset3 = er.ReadUInt32();
 
       er.Position = dataOffset;
+      er.ReadNewArray<Skeleton>(out var skeletons, (int) skeletonCount);
+      this.Skeletons = skeletons;
+    }
 
-      // Read skeleton header
-      var unk7 = er.ReadUInt32();
+    public class Skeleton : IBinaryDeserializable {
+      public string SkeletonName { get; private set; }
+      public IReadOnlyList<int> BoneParentIdMap { get; private set; }
+      public IReadOnlyList<Bone> Bones { get; private set; }
 
-      this.SkeletonName = er.ReadStringNTAtOffset(er.ReadUInt32());
-      var boneCount = er.ReadUInt32();
-      var boneIdTableOffset = er.ReadUInt32();
-      var boneStart = er.ReadUInt32();
-      var ukwTableOffset = er.ReadUInt32();
+      public void Read(IEndianBinaryReader er) {
+        // Read skeleton header
+        var unk7 = er.ReadUInt32();
 
-      // Get bone parent table
-      er.Position = boneIdTableOffset;
+        this.SkeletonName = er.ReadStringNTAtOffset(er.ReadUInt32());
+        var boneCount = er.ReadUInt32();
+        var boneIdTableOffset = er.ReadUInt32();
+        var boneStart = er.ReadUInt32();
+        var ukwTableOffset = er.ReadUInt32();
 
-      var boneParentIdMap = new int[boneCount];
-      for (var i = 0; i < boneCount; i++) {
-        boneParentIdMap[i] = er.ReadInt32();
-        er.Position += 12;
+        // Get bone parent table
+        er.Subread(
+            boneIdTableOffset,
+            ser => {
+              ser.Position = boneIdTableOffset;
+
+              var boneParentIdMap = new int[boneCount];
+              for (var i = 0; i < boneCount; i++) {
+                boneParentIdMap[i] = ser.ReadInt32();
+                ser.Position += 12;
+              }
+
+              this.BoneParentIdMap = boneParentIdMap;
+            });
+
+        // Read bone matrices
+        er.Subread(
+            boneStart,
+            ser => {
+              er.ReadNewArray<Bone>(out var bones, (int) boneCount);
+              this.Bones = bones;
+            });
       }
-      this.BoneParentIdMap = boneParentIdMap;
-
-      // Read bone matrices
-      er.Position = boneStart;
-      er.ReadNewArray<Bone>(out var bones, (int) boneCount);
-      this.Bones = bones;
     }
 
     [BinarySchema]

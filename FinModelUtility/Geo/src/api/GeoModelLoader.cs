@@ -22,39 +22,44 @@ namespace geo.api {
 
       var finModel = new ModelImpl();
 
-      var rootChildren = new List<int>();
-      var childIndices = new ListDictionary<int, int>();
-      for (var i = 0; i < rcb.BoneParentIdMap.Count; ++i) {
-        var parent = rcb.BoneParentIdMap[i];
-        if (parent == -1) {
-          rootChildren.Add(i);
-        } else {
-          childIndices.Add(parent, i);
+      foreach (var rcbSkeleton in rcb.Skeletons) {
+        var finRoot = finModel.Skeleton.Root.AddRoot(0, 0, 0);
+        finRoot.Name = rcbSkeleton.SkeletonName;
+
+        var rootChildren = new List<int>();
+        var childIndices = new ListDictionary<int, int>();
+        for (var i = 0; i < rcbSkeleton.BoneParentIdMap.Count; ++i) {
+          var parent = rcbSkeleton.BoneParentIdMap[i];
+          if (parent == -1) {
+            rootChildren.Add(i);
+          } else {
+            childIndices.Add(parent, i);
+          }
         }
-      }
 
-      var boneQueue =
-          new FinTuple2Queue<IBone, int>(
-              rootChildren.Select(id => (finModel.Skeleton.Root, id)));
-      while (boneQueue.TryDequeue(out var finParentBone, out var id)) {
-        var rcbBone = rcb.Bones[id];
+        var boneQueue =
+            new FinTuple2Queue<IBone, int>(
+                rootChildren.Select(id => (finRoot, id)));
+        while (boneQueue.TryDequeue(out var finParentBone, out var id)) {
+          var rcbBone = rcbSkeleton.Bones[id];
 
-        var matrix = new FinMatrix4x4(rcbBone.Matrix.Values).InvertInPlace();
-        matrix.Decompose(out var translation, out var rotation, out var scale);
-        var eulerRadians = QuaternionUtil.ToEulerRadians(rotation);
+          var matrix = new FinMatrix4x4(rcbBone.Matrix.Values).InvertInPlace();
+          matrix.Decompose(out var translation, out var rotation, out var scale);
+          var eulerRadians = QuaternionUtil.ToEulerRadians(rotation);
 
-        var finBone =
-            finParentBone
-                .AddChild(translation.X, translation.Y, translation.Z)
-                .SetLocalRotationRadians(
-                    eulerRadians.X,
-                    eulerRadians.Y,
-                    eulerRadians.Z)
-                .SetLocalScale(scale.X, scale.Y, scale.Z);
+          var finBone =
+              finParentBone
+                  .AddChild(translation.X, translation.Y, translation.Z)
+                  .SetLocalRotationRadians(
+                      eulerRadians.X,
+                      eulerRadians.Y,
+                      eulerRadians.Z)
+                  .SetLocalScale(scale.X, scale.Y, scale.Z);
 
-        if (childIndices.TryGetList(id, out var currentChildren)) {
-          boneQueue.Enqueue(
-              currentChildren!.Select(childId => (finBone, childId)));
+          if (childIndices.TryGetList(id, out var currentChildren)) {
+            boneQueue.Enqueue(
+                currentChildren!.Select(childId => (finBone, childId)));
+          }
         }
       }
 
