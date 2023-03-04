@@ -1,4 +1,6 @@
-﻿using fin.io;
+﻿using System.Collections.Generic;
+
+using fin.io;
 using fin.io.bundles;
 
 using geo.api;
@@ -12,7 +14,7 @@ namespace uni.games.dead_space_1 {
       if (!SteamUtils.TryGetGameDirectory("Dead Space",
                                           out var deadSpaceDir,
                                           assert)) {
-        return Enumerable.Empty<IFileBundle>();
+        yield break;
       }
 
       var originalGameFileHierarchy = new FileHierarchy(deadSpaceDir);
@@ -30,10 +32,40 @@ namespace uni.games.dead_space_1 {
       }
 
       var assetFileHierarchy = new FileHierarchy(baseOutputDirectory);
-      return assetFileHierarchy
-             .SelectMany(dir => dir.Files.Where(file => file.Name.EndsWith(".rcb.WIN")))
-             .Select(
-                 rcbFile => new GeoModelFileBundle { RcbFile = rcbFile });
+
+      var charsDirectory = assetFileHierarchy.Root.GetExistingSubdir("chars");
+      foreach (var charSubdir in charsDirectory.Subdirs) {
+        if (charSubdir.TryToGetExistingSubdir("cct/export",
+                                              out var cctSubdir)) {
+          var cctFiles = cctSubdir.Files.ToArray();
+          var rcbFile = cctFiles.Single(file => file.Name.EndsWith(".rcb.WIN"));
+
+          Tg4ImageFileBundle[]? textureFiles = null;
+          if (charSubdir.TryToGetExistingSubdir("rigged/textures",
+                                                out var textureDir)) {
+            var textureDirFiles = textureDir.Files.ToArray();
+            var tg4hFiles =
+                textureDirFiles.Where(file => file.Extension == ".tg4h")
+                               .ToDictionary(file => file.NameWithoutExtension);
+            textureFiles =
+                textureDirFiles.Where(file => file.Extension == ".tg4d")
+                               .Select(tg4dFile => new Tg4ImageFileBundle {
+                                   Tg4dFile = tg4dFile,
+                                   Tg4hFile = tg4hFiles[tg4dFile.NameWithoutExtension]
+                               })
+                               .ToArray();
+          }
+
+          yield return new GeoModelFileBundle {
+              RcbFile = rcbFile, Tg4ImageFileBundles = textureFiles
+          };
+        }
+      }
+
+      /*return assetFileHierarchy
+       .SelectMany(dir => dir.Files.Where(file => file.Name.EndsWith(".rcb.WIN")))
+       .Select(
+           rcbFile => new GeoModelFileBundle { RcbFile = rcbFile });*/
     }
   }
 }

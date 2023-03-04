@@ -37,6 +37,9 @@ namespace fin.io {
     IFileHierarchyFile GetExistingFile(string localPath);
     IFileHierarchyDirectory GetExistingSubdir(string localPath);
 
+    bool TryToGetExistingSubdir(string localPath,
+                                out IFileHierarchyDirectory outDirectory);
+
     IEnumerable<IFileHierarchyFile> FilesWithExtension(string extension);
 
     IEnumerable<IFileHierarchyFile> FilesWithExtensions(
@@ -279,6 +282,19 @@ namespace fin.io {
 
         return current;
       }
+
+      public bool TryToGetExistingSubdir(
+          string localPath,
+          out IFileHierarchyDirectory outDirectory) {
+        try {
+          outDirectory = this.GetExistingSubdir(localPath);
+          return true;
+        } catch {
+          outDirectory = null;
+          return false;
+        }
+      }
+
 
       public IEnumerable<IFileHierarchyFile> FilesWithExtension(
           string extension)

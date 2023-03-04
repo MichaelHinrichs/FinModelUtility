@@ -1,6 +1,4 @@
-﻿using System.Collections.Specialized;
-
-using fin.data;
+﻿using fin.data;
 using fin.data.queue;
 using fin.io;
 using fin.math;
@@ -15,6 +13,13 @@ namespace geo.api {
   public class GeoModelFileBundle : IModelFileBundle {
     public IFileHierarchyFile? MainFile => RcbFile;
     public required IFileHierarchyFile? RcbFile { get; init; }
+
+    public IReadOnlyList<Tg4ImageFileBundle>? Tg4ImageFileBundles { get; init; }
+  }
+
+  public class Tg4ImageFileBundle {
+    public required IFileHierarchyFile Tg4hFile { get; init; }
+    public required IFileHierarchyFile Tg4dFile { get; init; }
   }
 
   public class GeoModelLoader : IModelLoader<GeoModelFileBundle> {
