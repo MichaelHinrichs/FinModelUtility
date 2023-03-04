@@ -7,6 +7,7 @@ namespace uni.config {
     public static Config Instance { get; } =
       DirectoryConstants.CONFIG_FILE.Deserialize<Config>();
 
+    public bool ExportAllTextures { get; set; }
     public string[] ExportedFormats { get; set; } = Array.Empty<string>();
     public bool AutomaticallyPlayGameAudioForModel { get; set; }
 

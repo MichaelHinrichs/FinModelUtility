@@ -89,6 +89,12 @@ namespace uni.games {
 
         outputDirectory.Create();
 
+        if (Config.Instance.ExportAllTextures) {
+          foreach (var texture in model.MaterialManager.Textures) {
+            texture.SaveInDirectory(outputDirectory);
+          }
+        }
+
         new AssimpIndirectExporter {
             LowLevel = modelFileBundle.UseLowLevelExporter,
             ForceGarbageCollection = modelFileBundle.ForceGarbageCollection,

@@ -1,5 +1,6 @@
 {
   "AutomaticallyPlayGameAudioForModel": false,
+  "ExportAllTextures": true,
   "ExportedFormats": [
     ".fbx",
     ".glb"
@@ -7,7 +8,7 @@
   "ShowSkeleton": true,
   "ShowGrid": true,
   "ThirdParty": {
-	  "ExportBoneScaleAnimationsSeparately": false
+    "ExportBoneScaleAnimationsSeparately": false
   },
   "UseMultithreadingToExtractRoms": true,
   "VerboseConsole": false
