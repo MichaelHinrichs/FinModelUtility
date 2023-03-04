@@ -12,6 +12,7 @@ Model viewer and command-line tools for extracting models from games en-masse. S
 
 ## Credits
 
+- Acewell, whose [Noesis script](https://forum.xentax.com/viewtopic.php?p=122302#p122302) was used as the basis for reading Dead Space textures.
 - [@Asia81](https://github.com/Asia81), whose [HackingToolkit9DS](https://github.com/Asia81/HackingToolkit9DS-Deprecated-) is used to extract the contents of 3DS .cias.
 - [@Chadderz121](https://github.com/Chadderz121), AKA Chadderz, whose [CTools](https://www.chadsoft.co.uk/wiicoder/) suite is used to read .bmd texture formats.
 - cooliscool, whose [Utility of Time](http://wiki.maco64.com/Tools/Utility_of_Time) program was used as the basis for the F3DZEX2/F3DEX2 importer.
