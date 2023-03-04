@@ -17,18 +17,25 @@ namespace geo.api {
     public IReadOnlyList<Tg4ImageFileBundle>? Tg4ImageFileBundles { get; init; }
   }
 
-  public class Tg4ImageFileBundle {
-    public required IFileHierarchyFile Tg4hFile { get; init; }
-    public required IFileHierarchyFile Tg4dFile { get; init; }
-  }
-
   public class GeoModelLoader : IModelLoader<GeoModelFileBundle> {
     public IModel LoadModel(GeoModelFileBundle modelFileBundle) {
-      var rcbFile = modelFileBundle.RcbFile;
-      var rcb = rcbFile.Impl.ReadNew<Rcb>();
-
       var finModel = new ModelImpl();
 
+      // Builds textures
+      var textureBundles = modelFileBundle.Tg4ImageFileBundles;
+      if (textureBundles != null) {
+        var tg4ImageLoader = new Tg4ImageLoader();
+
+        foreach (var textureBundle in textureBundles) {
+          var image = tg4ImageLoader.LoadImage(textureBundle);
+          var finTexture = finModel.MaterialManager.CreateTexture(image);
+          finTexture.Name = textureBundle.Tg4hFile.NameWithoutExtension;
+        }
+      }
+
+      // Builds skeletons
+      var rcbFile = modelFileBundle.RcbFile;
+      var rcb = rcbFile.Impl.ReadNew<Rcb>();
       foreach (var rcbSkeleton in rcb.Skeletons) {
         var finRoot = finModel.Skeleton.Root.AddRoot(0, 0, 0);
         finRoot.Name = rcbSkeleton.SkeletonName;
