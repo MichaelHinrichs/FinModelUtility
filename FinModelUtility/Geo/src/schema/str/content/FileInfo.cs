@@ -22,8 +22,6 @@
 
 using schema.binary;
 
-using static geo.schema.str.StreamSetFile;
-
 namespace geo.schema.str.content {
   [BinarySchema]
   public partial class FileInfo : IContent {

@@ -4,6 +4,7 @@
 // MVID: DAEF8B62-698B-42D0-BEDD-3770EB8C9FE8
 // Assembly location: R:\Documents\CSharpWorkspace\Pikmin2Utility\MKDS Course Modifier\MKDS Course Modifier.exe
 
+using System.Drawing;
 using System.Runtime.CompilerServices;
 
 using schema.binary;
@@ -128,6 +129,31 @@ namespace System.IO {
 
       return str;
     }
+
+    public string ReadStringNTAtOffset(long position) {
+      var startingOffset = this.Position;
+      this.Position = position;
+
+      var str = this.ReadStringNT();
+
+      this.Position = startingOffset;
+
+      return str;
+    }
+
+    public T ReadNewAtOffset<T>(long position)
+        where T : IBinaryDeserializable, new() {
+      var startingOffset = this.Position;
+      this.Position = position;
+
+      var value = this.ReadNew<T>();
+
+      this.Position = startingOffset;
+
+      return value;
+    }
+
+
 
     public void Subread(long position,
                         int len,

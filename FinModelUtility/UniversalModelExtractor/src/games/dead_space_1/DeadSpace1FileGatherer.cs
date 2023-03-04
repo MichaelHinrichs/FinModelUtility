@@ -31,9 +31,9 @@ namespace uni.games.dead_space_1 {
 
       var assetFileHierarchy = new FileHierarchy(baseOutputDirectory);
       return assetFileHierarchy
-             .SelectMany(dir => dir.FilesWithExtension(".geo"))
+             .SelectMany(dir => dir.Files.Where(file => file.Name.EndsWith(".rcb.WIN")))
              .Select(
-                 geoFile => new GeoModelFileBundle { GeoFile = geoFile });
+                 rcbFile => new GeoModelFileBundle { RcbFile = rcbFile });
     }
   }
 }

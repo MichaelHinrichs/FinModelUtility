@@ -13,6 +13,8 @@ namespace System.IO {
 
     byte[] ReadBytesAtOffset(long position, int len);
     string ReadStringAtOffset(long position, int len);
+    string ReadStringNTAtOffset(long position);
+    T ReadNewAtOffset<T>(long position) where T : IBinaryDeserializable, new();
 
     void Subread(long position,
                  int len,
