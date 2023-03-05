@@ -38,6 +38,9 @@ namespace geo.api {
                                                 height,
                                                 compressionFormat);
 
+      // TODO: Is there a better way to detect this???
+      var isNormal = headerFile.NameWithoutExtension.EndsWith("_n");
+
       var rgbaImage = new Rgba32Image(width, height);
       using var imageLock = rgbaImage.Lock();
       var ptr = imageLock.pixelScan0;
@@ -47,7 +50,12 @@ namespace geo.api {
           var i = y * width + x;
 
           var src = loadedDxt[i];
-          ptr[i] = new Rgba32(src.r, src.g, src.b, src.a);
+
+          if (!isNormal) {
+            ptr[i] = new Rgba32(src.r, src.g, src.b, src.a);
+          } else {
+            ptr[i] = new Rgba32(src.a, src.g,  (byte) (255 - src.b), 255);
+          }
         }
       }
 
