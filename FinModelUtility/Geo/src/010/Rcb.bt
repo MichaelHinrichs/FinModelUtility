@@ -1,0 +1,86 @@
+//------------------------------------------------
+//--- 010 Editor v13.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+LittleEndian();
+
+local uint i, ii;
+
+
+typedef struct {
+  uint fileSize;
+  uint maybeVersion;
+  uint primarySkeletonId;
+  uint unk[3];
+
+  uint skeletonCount;
+  uint skeletonsOffset;
+
+  uint unkCount;
+  uint unkOffset;
+} FileHeader;
+
+FileHeader fileHeader;
+
+
+typedef struct {
+  typedef struct {
+    int parentBoneId;
+    uint unk1;
+    uint unk2;
+    uint unk3;
+  } BoneId;
+
+  typedef struct {
+    float matrix[16];
+  } BoneMatrix;
+
+  typedef struct {
+    uint maybeNameHash;
+
+    uint unk2;
+    Assert(unk2 == 0);
+
+    uint unk3;
+    Assert(unk3 == 0);
+
+    uint unk4;
+    Assert(unk4 == 0);
+
+    uint someId;
+  } Something;
+
+  uint skeletonId; // This looks like it may be a hash?
+  uint skeletonNameOffset;
+
+  uint boneCount;
+  uint boneIdTableOffset;
+  uint boneMatricesOffset;
+  uint unkOffset;
+
+  local ulong endOffset = FTell();
+  
+  FSeek(boneIdTableOffset);
+  BoneId boneIds[boneCount];
+
+  FSeek(boneMatricesOffset);
+  BoneMatrix boneMatrix[boneCount];
+
+  FSeek(unkOffset);
+  Something something[boneCount];
+
+  FSeek(endOffset);
+} Skeleton;
+
+
+FSeek(fileHeader.skeletonsOffset);
+Skeleton skeleton[fileHeader.skeletonCount];

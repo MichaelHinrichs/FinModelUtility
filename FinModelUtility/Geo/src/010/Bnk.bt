@@ -1,0 +1,95 @@
+//------------------------------------------------
+//--- 010 Editor v13.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+LittleEndian();
+
+local uint i, ii;
+
+
+typedef struct {
+  uint fileSize;
+  uint maybeVersion;
+  uint unk1;
+  uint skeletonId; // Matches a value from the associated RCB file
+  uint unk2[5];
+
+  uint animationHeaderCount;
+  uint animationHeaderOffsetTableOffset;
+
+  uint animationDataCount;
+  uint animationDataOffsetTableOffset;
+
+  uint textCount;
+  uint textOffset;
+} FileHeader;
+
+FileHeader fileHeader;
+
+
+typedef struct {
+  uint nameOffset;
+  uint unkOffset;
+
+  FSeek(nameOffset);
+  string name;
+} AnimationHeader;
+
+for(i = 0; i < fileHeader.animationHeaderCount; i++) {
+  FSeek(fileHeader.animationHeaderOffsetTableOffset + 4 * i);
+  uint animationHeaderOffset;
+
+  FSeek(animationHeaderOffset);
+  AnimationHeader animationHeader;
+}
+
+
+typedef struct {
+  uint someId; // Looks like a hash, matches something at the bottom of RCB files
+  uint unk1[9];
+
+  uint someCount;
+  uint someOffset;
+} AnimationData;
+
+typedef struct {
+  ushort maybePadding;
+  ushort maybeOffsetToData;
+  uint commandOffset;
+  uint someFlags;
+  uint paramsOffset;
+
+  FSeek(commandOffset);
+  string command;
+} SomeData;
+
+typedef struct {
+  uint someEnum;
+  uint someValue;
+} Params;
+
+
+for(i = 0; i < fileHeader.animationDataCount; i++) {
+  FSeek(fileHeader.animationDataOffsetTableOffset + 4 * i);
+  uint animationDataOffset;
+
+  FSeek(animationDataOffset);
+  AnimationData animationData;
+
+  for(ii = 0; ii < animationData.someCount; ii++) {
+    FSeek(animationData.someOffset + 16 * ii);
+    SomeData someData;
+
+    FSeek(someData.paramsOffset);
+    Params params;
+  }
+}
