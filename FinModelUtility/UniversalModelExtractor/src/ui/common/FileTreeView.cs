@@ -1,7 +1,10 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
+
 using fin.data.fuzzy;
 using fin.data.queue;
 using fin.io;
+using fin.io.bundles;
 using fin.util.actions;
 using fin.util.asserts;
 
@@ -34,8 +37,9 @@ namespace uni.ui.common {
 
 
   public abstract partial class FileTreeView<TFile, TFiles> : UserControl,
-      IFileTreeView<TFile>
-      where TFile : notnull, IUiFile where TFiles : notnull {
+    IFileTreeView<TFile>
+      where TFile : notnull, IFileBundle
+      where TFiles : notnull {
     // TODO: Add tests.
     // TODO: Move the fuzzy logic to a separate reusable component.
     // TODO: Add support for different sorting systems.
@@ -64,6 +68,7 @@ namespace uni.ui.common {
               uiPath = $"{current.Text}/{uiPath}";
               current = current.Parent;
             }
+
             keywords.Add(uiPath);
           }
 
@@ -124,8 +129,8 @@ namespace uni.ui.common {
 
       private void InitFile_()
         => this.treeNode_.ClosedImage =
-               this.treeNode_.OpenImage =
-                   this.treeview_.GetImageForFile(this.File!);
+            this.treeNode_.OpenImage =
+                this.treeview_.GetImageForFile(this.File!);
 
       public string Text => this.treeNode_.Text ?? "n/a";
 
@@ -166,6 +171,20 @@ namespace uni.ui.common {
           this.DirectorySelected.Invoke(fileNode);
         }
       };
+      this.betterTreeView_.ContextMenuItemsGenerator =
+          this.GenerateContextMenuItems_;
+    }
+
+    private IEnumerable<(string, Action)> GenerateContextMenuItems_(
+        IBetterTreeNode<FileNode> betterNode) {
+      var mainFile = betterNode.Data?.File?.MainFile;
+      if (mainFile == null) {
+        yield break;
+      }
+
+      yield return (
+          "Show in explorer",
+          () => Process.Start("explorer.exe", $"/select,\"{mainFile.FullName}\""));
     }
 
     public void Populate(TFiles files) {
@@ -222,7 +241,7 @@ namespace uni.ui.common {
       } else {
         this.filterImpl_.Reset();
         this.betterTreeView_.BeginUpdate();
-        
+
         this.filterImpl_.Filter(filterText, -1);
         this.betterTreeView_.Root.ResetChildrenRecursively(
             betterTreeNode =>

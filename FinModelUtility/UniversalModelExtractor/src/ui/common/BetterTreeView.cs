@@ -29,10 +29,11 @@ namespace uni.ui.common {
     IBetterTreeNode<T> Root { get; }
 
     delegate void SelectedHandler(IBetterTreeNode<T> betterTreeNode);
-
     event SelectedHandler Selected;
-
     IBetterTreeNode<T>? SelectedNode { get; }
+
+    Func<IBetterTreeNode<T>, IEnumerable<(string, Action)>>
+        ContextMenuItemsGenerator { get; set; }
   }
 
 
@@ -123,6 +124,37 @@ namespace uni.ui.common {
 
         node.ImageIndex = node.SelectedImageIndex = betterNode.ClosedImageIndex;
       };
+
+      this.impl_.NodeMouseClick += (sender, args) => {
+        var senderControl = (Control) sender;
+        if (senderControl == null || args.Node == null ||
+            args.Button != MouseButtons.Right) {
+          return;
+        }
+
+        if (ContextMenuItemsGenerator == null) {
+          return;
+        }
+
+        var betterTreeNode =
+            BetterTreeUtil.GetBetterFrom<BetterTreeNode, T>(args.Node);
+        var items = this.ContextMenuItemsGenerator(betterTreeNode).ToArray();
+        if (items.Length == 0) {
+          return;
+        }
+
+        var contextMenu = new ContextMenuStrip();
+        foreach (var (itemText, itemHandler) in items) {
+          contextMenu.Items.Add(itemText, null, (s, e) => itemHandler());
+        }
+
+        contextMenu.Show(senderControl, args.Location);
+      };
+    }
+
+    public Func<IBetterTreeNode<T>, IEnumerable<(string, Action)>> ContextMenuItemsGenerator {
+      get;
+      set;
     }
 
     public void BeginUpdate() {
