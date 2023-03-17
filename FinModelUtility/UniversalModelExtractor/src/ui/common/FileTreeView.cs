@@ -101,6 +101,7 @@ namespace uni.ui.common {
 
       private FileNode(FileNode parent, TFile file) {
         this.File = file;
+        this.FullName = file.TrueFullName;
 
         this.treeview_ = parent.treeview_;
         this.treeNode_ =
@@ -135,6 +136,7 @@ namespace uni.ui.common {
       public string Text => this.treeNode_.Text ?? "n/a";
 
       public TFile? File { get; set; }
+      public string FullName { get; set; }
 
       public IFileTreeNode<TFile>? Parent => this.treeNode_.Parent?.Data;
       public float Similarity => this.filterNode_.Similarity;
@@ -177,7 +179,7 @@ namespace uni.ui.common {
 
     private IEnumerable<(string, Action)> GenerateContextMenuItems_(
         IBetterTreeNode<FileNode> betterNode) {
-      var fullName = betterNode.Data?.File?.TrueFullName;
+      var fullName = betterNode.Data?.FullName;
       if (fullName == null) {
         yield break;
       }

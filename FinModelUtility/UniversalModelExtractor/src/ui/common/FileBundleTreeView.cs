@@ -17,6 +17,7 @@ namespace uni.ui.common {
     private FileNode AddDirectoryToNode_(IFileBundleDirectory directory,
                                          FileNode parentNode) {
       var uiNode = parentNode.AddChild(directory.Name);
+      uiNode.FullName = directory.Directory?.FullName;
 
       foreach (var subdirectory in directory.Subdirs) {
         this.AddDirectoryToNode_(subdirectory, uiNode);

@@ -13,10 +13,10 @@ namespace uni.util.io {
           new LazyDictionary<IFileHierarchyDirectory, IFileBundleDirectory>(
               (lazyDict, dir) => {
                 if (dir.Parent == null) {
-                  return rootFileBundleDirectory.AddSubdir(dir.Root.Name);
+                  return rootFileBundleDirectory.AddSubdir(dir.Root);
                 }
 
-                return lazyDict[dir.Parent].AddSubdir(dir.Name);
+                return lazyDict[dir.Parent].AddSubdir(dir);
               });
 
       foreach (var fileBundle in fileBundles) {

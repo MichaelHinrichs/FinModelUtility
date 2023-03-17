@@ -136,6 +136,8 @@ namespace uni.ui.common {
           return;
         }
 
+        this.impl_.SelectedNode = args.Node;
+
         var betterTreeNode =
             BetterTreeUtil.GetBetterFrom<BetterTreeNode, T>(args.Node);
         var items = this.ContextMenuItemsGenerator(betterTreeNode).ToArray();

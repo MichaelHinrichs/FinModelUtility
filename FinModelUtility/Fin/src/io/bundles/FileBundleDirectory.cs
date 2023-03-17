@@ -1,14 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 
 
 namespace fin.io.bundles {
   public interface IFileBundleDirectory {
+    IFileHierarchyDirectory? Directory { get; }
     string Name { get; }
 
     IReadOnlyList<IFileBundleDirectory> Subdirs { get; }
     IReadOnlyList<IFileBundle> FileBundles { get; }
 
+    IFileBundleDirectory AddSubdir(IFileHierarchyDirectory directory);
     IFileBundleDirectory AddSubdir(string name);
     void AddFileBundle(IFileBundle fileBundle);
 
@@ -19,14 +22,26 @@ namespace fin.io.bundles {
     private readonly List<IFileBundleDirectory> subdirs_ = new();
     private readonly List<IFileBundle> fileBundles_ = new();
 
+    public FileBundleDirectory(IFileHierarchyDirectory? directory) {
+      this.Directory = directory;
+      this.Name = directory.Name;
+    }
+
     public FileBundleDirectory(string name) {
       this.Name = name;
     }
 
+    public IFileHierarchyDirectory? Directory { get; }
     public string Name { get; }
 
     public IReadOnlyList<IFileBundleDirectory> Subdirs => this.subdirs_;
     public IReadOnlyList<IFileBundle> FileBundles => this.fileBundles_;
+
+    public IFileBundleDirectory AddSubdir(IFileHierarchyDirectory directory) {
+      var subdir = new FileBundleDirectory(directory);
+      this.subdirs_.Add(subdir);
+      return subdir;
+    }
 
     public IFileBundleDirectory AddSubdir(string name) {
       var subdir = new FileBundleDirectory(name);
