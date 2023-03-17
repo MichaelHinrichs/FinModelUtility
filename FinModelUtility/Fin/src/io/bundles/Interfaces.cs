@@ -17,9 +17,11 @@ namespace fin.io.bundles {
       get {
         var mainFile = this.MainFile;
         if (mainFile != null) {
-          return Path.Join(mainFile.Root.Name,
+          return Path.Join("//",
+                           mainFile.Root.Name,
                            mainFile.Parent!.LocalPath,
-                           mainFile.Name);
+                           mainFile.Name)
+                     .Replace('\\', '/');
         }
 
         return this.BetterName ?? this.Name;
