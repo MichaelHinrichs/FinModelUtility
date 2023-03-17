@@ -51,6 +51,7 @@
       this.pictureBox_.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
       this.pictureBox_.TabIndex = 1;
       this.pictureBox_.TabStop = false;
+      this.pictureBox_.Click += new System.EventHandler(this.pictureBox__Click);
       // 
       // TexturePanel
       // 
