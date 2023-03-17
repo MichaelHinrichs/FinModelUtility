@@ -13,11 +13,12 @@ namespace sm64.api {
       this.LevelId = levelId;
     }
 
-    public IFileHierarchyFile MainFile => null!;
+    public IFileHierarchyFile? MainFile => null;
     public IFileHierarchyDirectory Directory { get; }
 
     public IFile Sm64Rom { get; }
     public LevelId LevelId { get; }
-    string IUiFile.FileName => $"{LevelId}".ToLower();
+    string IUiFile.BetterName => $"{LevelId}".ToLower();
+    public string TrueFullName => this.Sm64Rom.FullName;
   }
 }

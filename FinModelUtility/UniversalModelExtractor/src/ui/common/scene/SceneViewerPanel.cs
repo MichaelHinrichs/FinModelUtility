@@ -16,7 +16,7 @@ namespace uni.ui.common.scene {
       set {
         var fileBundle = value?.Item1;
         if (fileBundle != null) {
-          this.groupBox_.Text = fileBundle.FullPath;
+          this.groupBox_.Text = fileBundle.DisplayFullName;
         } else {
           this.groupBox_.Text = "(Select a model)";
         }

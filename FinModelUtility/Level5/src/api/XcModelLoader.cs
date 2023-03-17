@@ -14,7 +14,7 @@ using fin.data.lazy;
 
 namespace level5.api {
   public class XcModelFileBundle : IModelFileBundle {
-    public string? BetterFileName { get; set; }
+    public string? BetterName { get; set; }
     public IFileHierarchyFile MainFile => this.ModelXcFile;
 
     public IFileHierarchyFile ModelXcFile { get; set; }

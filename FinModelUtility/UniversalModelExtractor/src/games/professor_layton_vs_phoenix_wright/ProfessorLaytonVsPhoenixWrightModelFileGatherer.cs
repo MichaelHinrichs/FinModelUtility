@@ -64,7 +64,7 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
             var bundles = new List<XcModelFileBundle>();
             foreach (var xcBundle in xcBundles) {
               bundles.Add(new XcModelFileBundle {
-                  BetterFileName = xcBundle.Name,
+                  BetterName = xcBundle.Name,
                   ModelXcFile = xcBundle.ModelFile,
                   AnimationXcFiles = xcBundle.AnimationFiles,
               });
@@ -96,7 +96,7 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
             }
 
             return bundles
-                   .OrderBy(bundle => bundle.BetterFileName ??
+                   .OrderBy(bundle => bundle.BetterName ??
                                       bundle.MainFile.Name)
                    .ToArray();
           }

@@ -54,10 +54,10 @@ namespace uni.ui.common {
 
           var file = fileNode.File;
           if (file != null) {
-            var fileName = file.FileName;
+            var fileName = file.Name;
             keywords.Add(fileName);
 
-            var betterFileName = file.BetterFileName;
+            var betterFileName = file.BetterName;
             if (!string.IsNullOrEmpty(betterFileName)) {
               keywords.Add(betterFileName);
             }
@@ -104,7 +104,7 @@ namespace uni.ui.common {
 
         this.treeview_ = parent.treeview_;
         this.treeNode_ =
-            parent.treeNode_.Add(file.BetterFileName ?? file.FileName);
+            parent.treeNode_.Add(file.BetterName ?? file.Name);
         this.treeNode_.Data = this;
 
         this.filterNode_ = parent.filterNode_.AddChild(this);
@@ -177,14 +177,14 @@ namespace uni.ui.common {
 
     private IEnumerable<(string, Action)> GenerateContextMenuItems_(
         IBetterTreeNode<FileNode> betterNode) {
-      var mainFile = betterNode.Data?.File?.MainFile;
-      if (mainFile == null) {
+      var fullName = betterNode.Data?.File?.TrueFullName;
+      if (fullName == null) {
         yield break;
       }
 
       yield return (
           "Show in explorer",
-          () => Process.Start("explorer.exe", $"/select,\"{mainFile.FullName}\""));
+          () => Process.Start("explorer.exe", $"/select,\"{fullName}\""));
     }
 
     public void Populate(TFiles files) {

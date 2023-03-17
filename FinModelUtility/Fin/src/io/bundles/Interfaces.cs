@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
+using fin.util.asserts;
 using fin.util.linq;
 
 
@@ -9,20 +10,23 @@ namespace fin.io.bundles {
   public interface IFileBundle : IUiFile {
     IFileHierarchyFile? MainFile { get; }
     IFileHierarchyDirectory Directory => MainFile.Parent!;
-    string IUiFile.FileName => this.MainFile?.NameWithoutExtension ?? "(n/a)";
+    string IUiFile.Name => this.MainFile?.Name ?? "(n/a)";
 
-    string FullPath {
+
+    string DisplayFullName {
       get {
         var mainFile = this.MainFile;
         if (mainFile != null) {
           return Path.Join(mainFile.Root.Name,
                            mainFile.Parent!.LocalPath,
-                           mainFile.NameWithoutExtension);
+                           mainFile.Name);
         }
 
-        return FileName;
+        return this.BetterName ?? this.Name;
       }
     }
+
+    string TrueFullName => Asserts.Assert(MainFile.FullName);
   }
 
   public interface IFileBundleGatherer {
