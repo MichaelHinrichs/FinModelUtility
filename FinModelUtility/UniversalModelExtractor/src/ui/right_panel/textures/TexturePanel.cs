@@ -1,5 +1,7 @@
 ﻿using fin.model;
 
+using uni.ui.common;
+
 
 namespace uni.ui.right_panel.textures {
   public partial class TexturePanel : UserControl {
@@ -7,6 +9,9 @@ namespace uni.ui.right_panel.textures {
       InitializeComponent();
 
       this.Texture = null;
+
+      this.pictureBox_.Click += ContextMenuUtils.CreateRightClickEventHandler(
+          this.GenerateContextMenuItems_);
     }
 
     public ITexture? Texture {
@@ -16,17 +21,13 @@ namespace uni.ui.right_panel.textures {
       }
     }
 
-    private void pictureBox__Click(object sender, EventArgs e) {
-      if (this.pictureBox_.Image != null && 
-          e is MouseEventArgs { Button: MouseButtons.Right } mouseEventArgs) {
-        var contextMenu = new ContextMenuStrip();
-
-        var copyImageButton = contextMenu.Items.Add("Copy image");
-        copyImageButton.Click +=
-            (s, e) => Clipboard.SetImage(this.pictureBox_.Image);
-        
-        contextMenu.Show(this.pictureBox_, mouseEventArgs.Location);
+    private IEnumerable<(string, Action)> GenerateContextMenuItems_() {
+      if (this.pictureBox_.Image != null) {
+        yield return ("Copy image", this.CopyImageToClipboard_);
       }
     }
+
+    private void CopyImageToClipboard_()
+      => Clipboard.SetImage(this.pictureBox_.Image);
   }
 }

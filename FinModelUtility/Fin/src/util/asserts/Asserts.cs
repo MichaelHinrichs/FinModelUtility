@@ -135,9 +135,10 @@ namespace fin.util.asserts {
 
     public static TExpected AsA<TExpected>(
         object? instance,
-        string? message = null) {
-      Asserts.IsA<TExpected>(instance, message);
-      return (TExpected)instance!;
+        string? message = null) where TExpected : notnull {
+      var cast = (TExpected) instance;
+      Asserts.Nonnull(cast, message);
+      return cast!;
     }
 
     public static T Assert<T>(T? value) where T : notnull {
