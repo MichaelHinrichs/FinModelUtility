@@ -33,6 +33,7 @@
       this.animationsTab_ = new uni.ui.right_panel.AnimationsTab();
       this.materialsTab_ = new uni.ui.right_panel.materials.MaterialsTab();
       this.skeletonTab_ = new uni.ui.right_panel.SkeletonTab();
+      this.registersTabPage = new System.Windows.Forms.TabPage();
       tabControl = new System.Windows.Forms.TabControl();
       infoTabPage = new System.Windows.Forms.TabPage();
       texturesTabPage = new System.Windows.Forms.TabPage();
@@ -49,10 +50,11 @@
       // tabControl
       // 
       tabControl.Controls.Add(infoTabPage);
-      tabControl.Controls.Add(texturesTabPage);
-      tabControl.Controls.Add(animationsTabPage);
-      tabControl.Controls.Add(materialsTabPage);
       tabControl.Controls.Add(skeletonTabPage);
+      tabControl.Controls.Add(animationsTabPage);
+      tabControl.Controls.Add(texturesTabPage);
+      tabControl.Controls.Add(materialsTabPage);
+      tabControl.Controls.Add(this.registersTabPage);
       tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
       tabControl.Location = new System.Drawing.Point(0, 0);
       tabControl.Multiline = true;
@@ -146,6 +148,15 @@
       this.skeletonTab_.Size = new System.Drawing.Size(233, 516);
       this.skeletonTab_.TabIndex = 1;
       // 
+      // registersTabPage
+      // 
+      this.registersTabPage.Location = new System.Drawing.Point(4, 54);
+      this.registersTabPage.Name = "registersTabPage";
+      this.registersTabPage.Size = new System.Drawing.Size(239, 522);
+      this.registersTabPage.TabIndex = 5;
+      this.registersTabPage.Text = "Registers";
+      this.registersTabPage.UseVisualStyleBackColor = true;
+      // 
       // ModelTabs
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -169,5 +180,6 @@
     private textures.TexturesTab texturesTab_;
     private materials.MaterialsTab materialsTab_;
     private SkeletonTab skeletonTab_;
+    private TabPage registersTabPage;
   }
 }

@@ -131,4 +131,9 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="src\ui\right_panel\info\" />
+    <Folder Include="src\ui\right_panel\registers\" />
+  </ItemGroup>
 </Project>
