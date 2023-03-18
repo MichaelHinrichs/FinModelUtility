@@ -27,7 +27,7 @@ namespace uni.ui.right_panel {
       remove => this.animationsTab_.OnAnimationSelected -= value;
     }
 
-    public event SkeletonTab.BoneSelected OnBoneSelected {
+    public event skeleton.SkeletonTab.BoneSelected OnBoneSelected {
       add => this.skeletonTab_.OnBoneSelected += value;
       remove => this.skeletonTab_.OnBoneSelected -= value;
     }
