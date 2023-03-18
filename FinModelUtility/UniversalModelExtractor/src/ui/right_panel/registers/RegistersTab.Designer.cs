@@ -1,5 +1,5 @@
-﻿namespace uni.ui.right_panel.skeleton {
-  partial class SkeletonTab {
+﻿namespace uni.ui.right_panel.registers {
+  partial class RegistersTab {
     /// <summary> 
     /// Required designer variable.
     /// </summary>
@@ -23,30 +23,19 @@
     /// the contents of this method with the code editor.
     /// </summary>
     private void InitializeComponent() {
-      this.skeletonTreeView_ = new uni.ui.right_panel.skeleton.SkeletonTreeView();
       this.SuspendLayout();
       // 
-      // skeletonTreeView_
+      // RegistersTab
       // 
-      this.skeletonTreeView_.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.skeletonTreeView_.Location = new System.Drawing.Point(0, 0);
-      this.skeletonTreeView_.Margin = new System.Windows.Forms.Padding(4);
-      this.skeletonTreeView_.Name = "skeletonTreeView_";
-      this.skeletonTreeView_.Size = new System.Drawing.Size(245, 338);
-      this.skeletonTreeView_.TabIndex = 0;
-      // 
-      // SkeletonTab
-      // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.Controls.Add(this.skeletonTreeView_);
-      this.Name = "SkeletonTab";
-      this.Size = new System.Drawing.Size(245, 338);
+      this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+      this.Name = "RegistersTab";
+      this.Size = new System.Drawing.Size(280, 451);
       this.ResumeLayout(false);
+
     }
 
     #endregion
-
-    private skeleton.SkeletonTreeView skeletonTreeView_;
   }
 }

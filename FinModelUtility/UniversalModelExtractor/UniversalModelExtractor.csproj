@@ -111,10 +111,16 @@
     <Compile Update="src\ui\right_panel\animations\AnimationPlaybackPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="src\ui\right_panel\info\InfoTab.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="src\ui\right_panel\materials\MaterialsTab.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="src\ui\right_panel\materials\TextureSection.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="src\ui\right_panel\registers\RegistersTab.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="src\ui\right_panel\skeleton\SkeletonTreeView.cs">
@@ -130,10 +136,5 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="src\ui\right_panel\info\" />
-    <Folder Include="src\ui\right_panel\registers\" />
   </ItemGroup>
 </Project>
