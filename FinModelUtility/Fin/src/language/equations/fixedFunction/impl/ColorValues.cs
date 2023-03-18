@@ -23,6 +23,13 @@ namespace fin.language.equations.fixedFunction {
     private readonly Dictionary<TIdentifier, IColorOutput<TIdentifier>>
         colorOutputs_ = new();
 
+
+    public IReadOnlyDictionary<TIdentifier, IColorInput<TIdentifier>>
+        ColorInputs => this.colorInputs_;
+
+    public IReadOnlyDictionary<TIdentifier, IColorOutput<TIdentifier>>
+        ColorOutputs => this.colorOutputs_;
+
     public IColorConstant CreateColorConstant(
         double r,
         double g,
@@ -71,10 +78,6 @@ namespace fin.language.equations.fixedFunction {
       return this.scalarValueColorConstants_[key] = new ColorWrapper(intensity);
     }
 
-
-    public IReadOnlyDictionary<TIdentifier, IColorInput<TIdentifier>>
-        ColorInputs { get; }
-
     public IColorInput<TIdentifier> CreateColorInput(
         TIdentifier identifier,
         IColorConstant defaultValue) {
@@ -85,9 +88,6 @@ namespace fin.language.equations.fixedFunction {
       this.colorInputs_[identifier] = input;
       return input;
     }
-
-    public IReadOnlyDictionary<TIdentifier, IColorOutput<TIdentifier>>
-        ColorOutputs { get; }
 
     public IColorOutput<TIdentifier> CreateColorOutput(
         TIdentifier identifier,

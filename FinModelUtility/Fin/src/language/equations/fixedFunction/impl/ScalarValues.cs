@@ -16,6 +16,12 @@ namespace fin.language.equations.fixedFunction {
     private readonly Dictionary<TIdentifier, IScalarOutput<TIdentifier>>
         scalarOutputs_ = new();
 
+    public IReadOnlyDictionary<TIdentifier, IScalarInput<TIdentifier>>
+        ScalarInputs => this.scalarInputs_;
+
+    public IReadOnlyDictionary<TIdentifier, IScalarOutput<TIdentifier>>
+        ScalarOutputs => this.scalarOutputs_;
+
     public IScalarConstant CreateScalarConstant(double v) {
       if (this.scalarConstants_.TryGetValue(
               v, out var scalarConstant)) {
@@ -24,9 +30,6 @@ namespace fin.language.equations.fixedFunction {
 
       return this.scalarConstants_[v] = new ScalarConstant(v);
     }
-
-    public IReadOnlyDictionary<TIdentifier, IScalarInput<TIdentifier>>
-        ScalarInputs { get; }
 
     public IScalarInput<TIdentifier> CreateScalarInput(
         TIdentifier identifier,
@@ -38,9 +41,6 @@ namespace fin.language.equations.fixedFunction {
       this.scalarInputs_[identifier] = input;
       return input;
     }
-
-    public IReadOnlyDictionary<TIdentifier, IScalarOutput<TIdentifier>>
-        ScalarOutputs { get; }
 
     public IScalarOutput<TIdentifier> CreateScalarOutput(
         TIdentifier identifier,
