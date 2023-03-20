@@ -9,6 +9,8 @@ using fin.util.linq;
 
 using fins.io.sharpDirLister;
 
+using schema.defaultinterface;
+
 
 namespace fin.io {
   public interface IFileHierarchy : IEnumerable<IFileHierarchyDirectory> {
@@ -16,18 +18,21 @@ namespace fin.io {
   }
 
   public interface IFileHierarchyInstance {
+    string FullName { get; }
+    string Name { get; }
+
     IFileHierarchyDirectory Root { get; }
     IFileHierarchyDirectory? Parent { get; }
     bool Exists { get; }
-
-    string FullName { get; }
-    string Name { get; }
 
     string LocalPath { get; }
   }
 
   public interface IFileHierarchyDirectory : IFileHierarchyInstance {
     IDirectory Impl { get; }
+
+    string IFileHierarchyInstance.FullName => this.Impl.FullName;
+    string IFileHierarchyInstance.Name => this.Impl.Name;
 
     IReadOnlyList<IFileHierarchyDirectory> Subdirs { get; }
     IReadOnlyList<IFileHierarchyFile> Files { get; }
@@ -60,17 +65,19 @@ namespace fin.io {
         params string[] rest);
   }
 
-  public interface IFileHierarchyFile : IFileHierarchyInstance {
+  public interface IFileHierarchyFile 
+      : IFileHierarchyInstance, IDisplayableFile {
     IFile Impl { get; }
 
-    string Extension { get; }
-
-    string FullNameWithoutExtension { get; }
-    string NameWithoutExtension { get; }
+    string Extension => this.Impl.Extension;
+    string IFileHierarchyInstance.FullName => this.Impl.FullName;
+    string IFileHierarchyInstance.Name => this.Impl.Name;
+    string FullNameWithoutExtension => this.Impl.FullNameWithoutExtension;
+    string NameWithoutExtension => this.Impl.NameWithoutExtension;
   }
 
 
-  public class FileHierarchy : IFileHierarchy {
+  public partial class FileHierarchy : IFileHierarchy {
     public FileHierarchy(IDirectory directory) {
       var populatedSubdirs =
           SharpFileLister.FindNextFilePInvokeRecursiveParalleled(
@@ -81,7 +88,8 @@ namespace fin.io {
 
     public IFileHierarchyDirectory Root { get; }
 
-    private class FileHierarchyDirectory : IFileHierarchyDirectory {
+    [IncludeDefaultInterfaceMethods]
+    private partial class FileHierarchyDirectory : IFileHierarchyDirectory {
       private readonly IDirectory baseDirectory_;
 
       private List<IFileHierarchyDirectory> subdirs_ = new();
@@ -339,7 +347,8 @@ namespace fin.io {
       public override string ToString() => this.LocalPath;
     }
 
-    private class FileHierarchyFile : IFileHierarchyFile {
+    [IncludeDefaultInterfaceMethods]
+    private partial class FileHierarchyFile : IFileHierarchyFile {
       public FileHierarchyFile(IFileHierarchyDirectory root,
                                IFileHierarchyDirectory parent,
                                IFile? file,
@@ -358,17 +367,8 @@ namespace fin.io {
 
       public bool Exists => this.Impl.Exists;
 
-      public string FullName => this.Impl.FullName;
-      public string Name => this.Impl.Name;
-
-      public string FullNameWithoutExtension
-        => this.Impl.FullNameWithoutExtension;
-
-      public string NameWithoutExtension => this.Impl.NameWithoutExtension;
-
-      public string Extension => this.Impl.Extension;
-
       public string LocalPath { get; }
+      public string DisplayFullName => this.LocalPath;
 
       public override string ToString() => this.LocalPath;
     }

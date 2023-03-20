@@ -81,7 +81,7 @@ public partial class UniversalModelExtractorForm : Form {
     this.sceneViewerPanel_.FileBundleAndScene = (fileBundle, scene);
 
     var model = this.sceneViewerPanel_.FirstSceneModel?.Model;
-    this.modelTabs_.Model = model;
+    this.modelTabs_.Model = (fileBundle, model);
     this.modelTabs_.AnimationPlaybackManager =
         this.sceneViewerPanel_.AnimationPlaybackManager;
 

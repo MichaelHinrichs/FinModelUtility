@@ -9,6 +9,16 @@ using fin.util.linq;
 namespace fin.io.bundles {
   public interface IFileBundle : IUiFile {
     IFileHierarchyFile? MainFile { get; }
+
+    IEnumerable<IDisplayableFile> Files {
+      get {
+        if (this.MainFile != null) {
+          yield return this.MainFile;
+        }
+      }
+    }
+
+
     IFileHierarchyDirectory Directory => MainFile.Parent!;
     string IUiFile.Name => this.MainFile?.Name ?? "(n/a)";
 

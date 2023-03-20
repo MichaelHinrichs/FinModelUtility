@@ -20,6 +20,8 @@ using j3d.schema.bmd.mat3;
 using j3d.schema.bti;
 using System.Numerics;
 
+using fin.util.enumerables;
+
 
 namespace j3d.exporter {
   using MkdsNode = MA.Node;
@@ -27,6 +29,11 @@ namespace j3d.exporter {
 
   public class BmdModelFileBundle : IModelFileBundle {
     public IFileHierarchyFile MainFile => this.BmdFile;
+
+    public IEnumerable<IDisplayableFile> Files
+      => this.MainFile.Yield()
+             .ConcatIfNonnull(this.BcxFiles)
+             .ConcatIfNonnull(this.BtiFiles);
 
     public IFileHierarchyFile BmdFile { get; set; }
     public IReadOnlyList<IFileHierarchyFile>? BcxFiles { get; set; }

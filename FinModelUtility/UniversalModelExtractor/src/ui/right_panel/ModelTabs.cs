@@ -1,4 +1,5 @@
 ﻿using fin.animation.playback;
+using fin.io.bundles;
 using fin.model;
 
 
@@ -8,12 +9,16 @@ namespace uni.ui.right_panel {
       InitializeComponent();
     }
 
-    public IModel? Model {
+    public (IFileBundle, IModel)? Model {
       set {
-        this.animationsTab_.Model = value;
-        this.materialsTab_.Materials = value?.MaterialManager.All;
-        this.skeletonTab_.Model = value;
-        this.texturesTab_.Model = value;
+        var modelFileBundle = value?.Item1;
+        var model = value?.Item2;
+
+        this.infoTab_.FileBundle = modelFileBundle;
+        this.animationsTab_.Model = model;
+        this.materialsTab_.Materials = model?.MaterialManager.All;
+        this.skeletonTab_.Model = model;
+        this.texturesTab_.Model = model;
       }
     }
 

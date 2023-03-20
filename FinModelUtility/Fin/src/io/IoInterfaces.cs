@@ -169,6 +169,9 @@ namespace fin.io {
 
 
   // File 
+  public interface IDisplayableFile {
+    string DisplayFullName { get; }
+  }
 
   public interface IFile : IFile<FinFile, FinDirectory> {
     static FinFile IIoObject<FinFile, FinFile, FinDirectory>.FromFullName(
@@ -176,7 +179,7 @@ namespace fin.io {
   }
 
   public interface IFile<TFile, TDirectory>
-      : IIoObject<TFile, TFile, TDirectory>
+      : IIoObject<TFile, TFile, TDirectory>, IDisplayableFile
       where TFile : IFile<TFile, TDirectory>
       where TDirectory : IDirectory<TFile, TDirectory> {
     bool IIoObject<TFile, TFile, TDirectory>.Exists
