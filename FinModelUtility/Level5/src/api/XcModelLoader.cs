@@ -10,12 +10,16 @@ using level5.schema;
 using System.Numerics;
 
 using fin.data.lazy;
+using fin.util.enumerables;
 
 
 namespace level5.api {
   public class XcModelFileBundle : IModelFileBundle {
     public string? BetterName { get; set; }
     public IFileHierarchyFile MainFile => this.ModelXcFile;
+    public IEnumerable<IDisplayableFile> Files
+      => this.ModelXcFile.Yield()
+             .ConcatIfNonnull(this.AnimationXcFiles);
 
     public IFileHierarchyFile ModelXcFile { get; set; }
     public IList<IFileHierarchyFile>? AnimationXcFiles { get; set; }

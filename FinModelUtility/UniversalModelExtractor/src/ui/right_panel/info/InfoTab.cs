@@ -16,12 +16,12 @@ namespace uni.ui.right_panel.info {
           return;
         }
 
-        var files = value.Files.ToList();
-        files.Sort((lhs, rhs)
-                       => lhs.DisplayFullName.CompareTo(rhs.DisplayFullName));
+        var files = value.Files.Select(file => file.DisplayFullName)
+                         .Distinct()
+                         .Order();
 
         foreach (var file in files) {
-          items.Add(file.DisplayFullName);
+          items.Add(file);
         }
       }
     }

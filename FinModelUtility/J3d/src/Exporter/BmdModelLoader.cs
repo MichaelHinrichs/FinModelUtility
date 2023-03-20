@@ -31,7 +31,7 @@ namespace j3d.exporter {
     public IFileHierarchyFile MainFile => this.BmdFile;
 
     public IEnumerable<IDisplayableFile> Files
-      => this.MainFile.Yield()
+      => this.BmdFile.Yield()
              .ConcatIfNonnull(this.BcxFiles)
              .ConcatIfNonnull(this.BtiFiles);
 

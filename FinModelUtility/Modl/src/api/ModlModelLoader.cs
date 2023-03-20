@@ -7,6 +7,7 @@ using fin.io;
 using fin.math;
 using fin.model;
 using fin.model.impl;
+using fin.util.enumerables;
 
 using modl.schema.anim;
 using modl.schema.anim.bw1;
@@ -20,6 +21,8 @@ using modl.schema.modl.bw2;
 namespace modl.api {
   public class ModlModelFileBundle : IBattalionWarsModelFileBundle {
     public IFileHierarchyFile MainFile => this.ModlFile;
+    public IEnumerable<IDisplayableFile> Files
+      => this.ModlFile.Yield().ConcatIfNonnull(this.AnimFiles);
 
     public GameVersion GameVersion { get; set; }
     public IFileHierarchyFile ModlFile { get; set; }

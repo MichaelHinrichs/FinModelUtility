@@ -24,6 +24,11 @@ namespace fin.util.enumerables {
         IEnumerable<T>? other)
       => other == null ? enumerable : enumerable.Concat(other);
 
+    public static IEnumerable<T> ConcatIfNonnull<T>(
+        this IEnumerable<T> enumerable,
+        T? other)
+      => other == null ? enumerable : enumerable.Concat(other.Yield());
+
     public static IEnumerable<T> Yield<T>(this T item) {
       yield return item;
     }

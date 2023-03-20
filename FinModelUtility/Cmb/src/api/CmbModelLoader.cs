@@ -19,6 +19,7 @@ using fin.math;
 using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
+using fin.util.enumerables;
 
 using Microsoft.Toolkit.HighPerformance.Helpers;
 
@@ -41,6 +42,11 @@ namespace cmb.api {
     }
 
     public IFileHierarchyFile MainFile => this.CmbFile;
+    public IEnumerable<IDisplayableFile> Files
+      => this.CmbFile.Yield()
+             .ConcatIfNonnull(this.CsabFiles)
+             .ConcatIfNonnull(this.CtxbFiles)
+             .ConcatIfNonnull(this.ShpaFiles);
 
     public IFileHierarchyFile CmbFile { get; }
     public IReadOnlyList<IFileHierarchyFile>? CsabFiles { get; }

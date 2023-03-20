@@ -9,6 +9,8 @@ using fin.io;
 using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
+using fin.util.enumerables;
+
 using gx;
 
 using Microsoft.Toolkit.HighPerformance.Helpers;
@@ -23,6 +25,8 @@ using Endianness = mod.util.Endianness;
 namespace mod.cli {
   public class ModModelFileBundle : IModelFileBundle {
     public IFileHierarchyFile MainFile => this.ModFile;
+    public IEnumerable<IDisplayableFile> Files
+      => this.ModFile.Yield().ConcatIfNonnull(this.AnmFile);
 
     public IFileHierarchyFile ModFile { get; set; }
     public IFileHierarchyFile? AnmFile { get; set; }
