@@ -18,6 +18,7 @@ namespace sm64.api {
             var (sm64Texture, uvType) = sm64TextureAndUvType;
             var finTexture = finModel.MaterialManager.CreateTexture(
                 FinImage.FromBitmap(sm64Texture.Bmp));
+            finTexture.Name = $"{sm64Texture.Id}";
 
             finTexture.UvType = uvType;
 
@@ -58,6 +59,7 @@ namespace sm64.api {
 
                 var finMaterial =
                   finModel.MaterialManager.AddFixedFunctionMaterial();
+                finMaterial.Name = $"{sm64Material.SegmentAddress}";
 
                 var equations = finMaterial.Equations;
 

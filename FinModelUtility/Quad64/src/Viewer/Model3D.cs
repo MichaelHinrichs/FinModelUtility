@@ -62,7 +62,7 @@ namespace Quad64 {
       public ModelBuilder.ModelBuilderMaterial Material;
 
       public override string ToString() {
-        return "Texture [ID/W/H]: [" + texture.ID + "/" + texture.Width + "/" +
+        return "Texture [ID/W/H]: [" + texture.Id + "/" + texture.Width + "/" +
                texture.Height + "]";
       }
     }
@@ -232,7 +232,7 @@ namespace Quad64 {
         //if (m.vertices == null || m.indices == null) return;
 
         if (m.texture != null) {
-          GL.BindTexture(TextureTarget.Texture2D, m.texture.ID);
+          GL.BindTexture(TextureTarget.Texture2D, m.texture.Id);
           GL.TexParameter(TextureTarget.Texture2D,
                           TextureParameterName.TextureWrapS,
                           m.texture.TextureParamS);
