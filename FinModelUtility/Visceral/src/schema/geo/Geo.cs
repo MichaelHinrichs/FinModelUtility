@@ -1,6 +1,6 @@
 ﻿using schema.binary;
 
-namespace geo.schema.geo {
+namespace visceral.schema.geo {
   [BinarySchema]
   public partial class Geo : IBinaryConvertible {
 

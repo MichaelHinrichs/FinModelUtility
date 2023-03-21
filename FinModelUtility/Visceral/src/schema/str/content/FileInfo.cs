@@ -20,10 +20,36 @@
  *    distribution.
  */
 
-namespace geo.schema.str {
-  public enum BlockType : uint {
-    Options = 0x6F6C7333, // ols3
-    Content = 0x53484F43, // SHOC
-    Padding = 0x46494C4C, // FILL
+using schema.binary;
+
+namespace visceral.schema.str.content {
+  [BinarySchema]
+  public partial class FileInfo : IContent {
+    public FileBuild Build { get; set; }
+    public ushort Alignment { get; set; }
+    public ushort Flags { get; set; }
+
+    public uint Type { get; set; }
+
+    public uint Unknown0C { get; set; }
+    public uint Type2 { get; set; }
+
+    public uint Unknown14 { get; set; }
+
+    // seems to be some kind of hash of the file name
+    public uint Unknown18 { get; set; }
+
+    public uint TotalSize { get; set; }
+
+    [NullTerminatedString]
+    public string BaseName { get; set; }
+
+    [NullTerminatedString]
+    public string FileName { get; set; }
+
+    [NullTerminatedString]
+    public string TypeName { get; set; }
+
+    public override string ToString() => this.FileName;
   }
 }

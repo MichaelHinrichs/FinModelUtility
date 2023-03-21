@@ -22,7 +22,7 @@
 
 using fin.decompression;
 
-namespace geo.decompression {
+namespace visceral.decompression {
   public class RefPackDecompressor : BDecompressor {
     public override bool TryDecompress(byte[] inData, out byte[] outData) {
       using var input = new MemoryStream(inData);

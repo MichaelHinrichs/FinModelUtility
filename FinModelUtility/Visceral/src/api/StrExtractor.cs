@@ -25,13 +25,14 @@ using fin.log;
 using fin.util.asserts;
 using fin.util.linq;
 
-using geo.decompression;
-using geo.schema.str;
-using geo.schema.str.content;
+using visceral.schema.str.content;
 
-using FileInfo = geo.schema.str.content.FileInfo;
+using visceral.decompression;
+using visceral.schema.str;
 
-namespace geo.api {
+using FileInfo = visceral.schema.str.content.FileInfo;
+
+namespace visceral.api {
   public class StrExtractor {
     private readonly ILogger logger_ = Logging.Create<StrExtractor>();
 
@@ -45,7 +46,7 @@ namespace geo.api {
       this.logger_.LogInformation($"Extracting {strFile.LocalPath}...");
 
       ContentBlock[] contentBlocks;
-      var headerBlocks = new LinkedList<(FileInfo fileInfo, int index)>();
+      var headerBlocks = new LinkedList<(schema.str.content.FileInfo fileInfo, int index)>();
       {
         var set = strFile.Impl.ReadNew<StreamSetFile>();
         contentBlocks =
@@ -57,7 +58,7 @@ namespace geo.api {
         for (var i = 0; i < contentBlocks.Length; ++i) {
           var block = contentBlocks[i];
           if (block.Impl.Magic == ContentType.Header) {
-            headerBlocks.AddLast(((FileInfo) block.Impl.Data, i));
+            headerBlocks.AddLast(((schema.str.content.FileInfo) block.Impl.Data, i));
           }
         }
       }

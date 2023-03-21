@@ -22,13 +22,13 @@
 
 using fin.schema.data;
 
-using geo.schema.str.content;
+using visceral.schema.str.content;
 
 using schema.binary;
 using schema.binary.attributes.array;
 using schema.binary.attributes.endianness;
 
-namespace geo.schema.str {
+namespace visceral.schema.str {
   [Endianness(Endianness.LittleEndian)]
   [BinarySchema]
   public partial class StreamSetFile : IBinaryConvertible {

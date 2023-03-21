@@ -20,15 +20,10 @@
  *    distribution.
  */
 
-namespace geo.schema.str {
-  public enum FileBuild : uint {
-    Default = 0x5393AC01, // "default"
-    Debug = 0x143C8453, // "debug"
-    Temporary = 0x473FCFB4, // "temp"
-    Geometry = 0x38B2B8D2, // "geometry"
-    GeometryVolatile = 0x67A6002E, // "geometryvolatile"
-    Volatile = 0x67456B5C, // "volatile"
-    SoundBank = 0x7A10372B, // "soundbank"
-    AnimationBank = 0x3D074740, // "animationbank"
+namespace visceral.schema.str {
+  public enum BlockType : uint {
+    Options = 0x6F6C7333, // ols3
+    Content = 0x53484F43, // SHOC
+    Padding = 0x46494C4C, // FILL
   }
 }

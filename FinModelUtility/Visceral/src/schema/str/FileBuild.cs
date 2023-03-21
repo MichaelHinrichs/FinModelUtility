@@ -20,36 +20,15 @@
  *    distribution.
  */
 
-using schema.binary;
-
-namespace geo.schema.str.content {
-  [BinarySchema]
-  public partial class FileInfo : IContent {
-    public FileBuild Build { get; set; }
-    public ushort Alignment { get; set; }
-    public ushort Flags { get; set; }
-
-    public uint Type { get; set; }
-
-    public uint Unknown0C { get; set; }
-    public uint Type2 { get; set; }
-
-    public uint Unknown14 { get; set; }
-
-    // seems to be some kind of hash of the file name
-    public uint Unknown18 { get; set; }
-
-    public uint TotalSize { get; set; }
-
-    [NullTerminatedString]
-    public string BaseName { get; set; }
-
-    [NullTerminatedString]
-    public string FileName { get; set; }
-
-    [NullTerminatedString]
-    public string TypeName { get; set; }
-
-    public override string ToString() => this.FileName;
+namespace visceral.schema.str {
+  public enum FileBuild : uint {
+    Default = 0x5393AC01, // "default"
+    Debug = 0x143C8453, // "debug"
+    Temporary = 0x473FCFB4, // "temp"
+    Geometry = 0x38B2B8D2, // "geometry"
+    GeometryVolatile = 0x67A6002E, // "geometryvolatile"
+    Volatile = 0x67456B5C, // "volatile"
+    SoundBank = 0x7A10372B, // "soundbank"
+    AnimationBank = 0x3D074740, // "animationbank"
   }
 }

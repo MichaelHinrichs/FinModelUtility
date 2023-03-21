@@ -58,7 +58,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Geo\Geo.csproj" />
+    <ProjectReference Include="..\Visceral\Visceral.csproj" />
     <ProjectReference Include="..\Schema\Schema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
     <ProjectReference Include="..\Ast\Ast.csproj" />
     <ProjectReference Include="..\J3d\J3d.csproj" />

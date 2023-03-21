@@ -6,7 +6,7 @@ using fin.io;
 
 using SixLabors.ImageSharp.PixelFormats;
 
-namespace geo.api {
+namespace visceral.api {
   public class Tg4ImageFileBundle {
     public required IFileHierarchyFile Tg4hFile { get; init; }
     public required IFileHierarchyFile Tg4dFile { get; init; }

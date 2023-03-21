@@ -2,7 +2,7 @@
 
 using schema.binary;
 
-namespace geo.schema.rcb {
+namespace visceral.schema.rcb {
   public partial class Rcb : IBinaryDeserializable {
     public const float SCALE = 100;
 

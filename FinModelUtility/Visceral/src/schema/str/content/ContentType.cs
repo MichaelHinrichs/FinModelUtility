@@ -20,7 +20,7 @@
  *    distribution.
  */
 
-namespace geo.schema.str.content {
+namespace visceral.schema.str.content {
   public enum ContentType : uint {
     Header = 0x53484452, // SHDR
     Data = 0x53444154, // SDAT

@@ -2,7 +2,7 @@
 
 using schema.binary;
 
-namespace geo.schema.str.content {
+namespace visceral.schema.str.content {
   [BinarySchema]
   public partial class ContentBlock : IBlock {
     public SwitchMagicWrapper<ContentType, IContent> Impl { get; }

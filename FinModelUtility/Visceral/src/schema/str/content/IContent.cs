@@ -1,5 +1,5 @@
 ﻿using schema.binary;
 
-namespace geo.schema.str.content {
+namespace visceral.schema.str.content {
   public interface IContent : IBinaryConvertible { }
 }

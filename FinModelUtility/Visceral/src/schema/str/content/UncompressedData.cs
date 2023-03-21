@@ -1,7 +1,7 @@
 ﻿using schema.binary;
 using schema.binary.attributes.array;
 
-namespace geo.schema.str.content {
+namespace visceral.schema.str.content {
   [BinarySchema]
   public partial class UncompressedData : IContent {
     [ArrayUntilEndOfStream]

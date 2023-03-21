@@ -1,6 +1,6 @@
 ﻿using schema.binary;
 
-namespace geo.schema.str {
+namespace visceral.schema.str {
 
   [BinarySchema]
   public partial class NoopBlock : IBlock { }

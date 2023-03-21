@@ -1,6 +1,6 @@
 ﻿using schema.binary;
 
-namespace geo.schema.str {
+namespace visceral.schema.str {
   public interface IBlock : IBinaryConvertible {
   }
 }

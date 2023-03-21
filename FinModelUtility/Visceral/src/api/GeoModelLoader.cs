@@ -7,9 +7,9 @@ using fin.model;
 using fin.model.impl;
 using fin.schema.matrix;
 
-using geo.schema.rcb;
+using visceral.schema.rcb;
 
-namespace geo.api {
+namespace visceral.api {
   public class GeoModelFileBundle : IModelFileBundle {
     public IFileHierarchyFile? MainFile => RcbFile;
     public required IFileHierarchyFile? RcbFile { get; init; }
