@@ -35,31 +35,37 @@ namespace uni.games.dead_space_1 {
 
       var charsDirectory = assetFileHierarchy.Root.GetExistingSubdir("chars");
       foreach (var charSubdir in charsDirectory.Subdirs) {
-        if (charSubdir.TryToGetExistingSubdir("cct/export",
-                                              out var cctSubdir)) {
-          var cctFiles = cctSubdir.Files.ToArray();
-          var rcbFile = cctFiles.Single(file => file.Name.EndsWith(".rcb.WIN"));
+        var riggedSubdir = charSubdir.GetExistingSubdir("rigged/export");
+        var geoFiles =
+            riggedSubdir.Files.Where(file => file.Name.EndsWith(".geo"))
+                        .ToArray();
 
-          Tg4ImageFileBundle[]? textureFiles = null;
-          if (charSubdir.TryToGetExistingSubdir("rigged/textures",
-                                                out var textureDir)) {
-            var textureDirFiles = textureDir.Files.ToArray();
-            var tg4hFiles =
-                textureDirFiles.Where(file => file.Extension == ".tg4h")
-                               .ToDictionary(file => file.NameWithoutExtension);
-            textureFiles =
-                textureDirFiles.Where(file => file.Extension == ".tg4d")
-                               .Select(tg4dFile => new Tg4ImageFileBundle {
-                                   Tg4dFile = tg4dFile,
-                                   Tg4hFile = tg4hFiles[tg4dFile.NameWithoutExtension]
-                               })
-                               .ToArray();
-          }
+        var cctSubdir = charSubdir.GetExistingSubdir("cct/export");
+        var rcbFile =
+            cctSubdir.Files.Single(file => file.Name.EndsWith(".rcb.WIN"));
 
-          yield return new GeoModelFileBundle {
-              RcbFile = rcbFile, Tg4ImageFileBundles = textureFiles
-          };
+        Tg4ImageFileBundle[]? textureFiles = null;
+        if (charSubdir.TryToGetExistingSubdir("rigged/textures",
+                                              out var textureDir)) {
+          var textureDirFiles = textureDir.Files.ToArray();
+          var tg4hFiles =
+              textureDirFiles.Where(file => file.Extension == ".tg4h")
+                             .ToDictionary(file => file.NameWithoutExtension);
+          textureFiles =
+              textureDirFiles.Where(file => file.Extension == ".tg4d")
+                             .Select(tg4dFile => new Tg4ImageFileBundle {
+                                 Tg4dFile = tg4dFile,
+                                 Tg4hFile =
+                                     tg4hFiles[tg4dFile.NameWithoutExtension]
+                             })
+                             .ToArray();
         }
+
+        yield return new GeoModelFileBundle {
+            GeoFiles = geoFiles,
+            RcbFile = rcbFile,
+            Tg4ImageFileBundles = textureFiles
+        };
       }
 
       /*return assetFileHierarchy
