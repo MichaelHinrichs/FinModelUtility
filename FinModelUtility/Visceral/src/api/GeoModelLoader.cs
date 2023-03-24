@@ -8,6 +8,7 @@ using fin.model.impl;
 using fin.schema.matrix;
 using fin.util.enumerables;
 
+using visceral.schema.geo;
 using visceral.schema.rcb;
 
 namespace visceral.api {
@@ -101,6 +102,8 @@ namespace visceral.api {
       // Builds meshes
       var geoFiles = modelFileBundle.GeoFiles;
       foreach (var geoFile in geoFiles) {
+        var geo = geoFile.Impl.ReadNew<Geo>();
+
         // TODO: Add this to the model
       }
 
