@@ -25,6 +25,21 @@ typedef struct (uint offset) {
 } StringAtOffset;
 
 
+typedef struct {
+  float x;
+  float y;
+  float z;
+} Vec3f;
+
+typedef struct {
+  float x;
+  float y;
+} Vec2f;
+
+typedef struct {
+  float values[16];
+} Mat4x4;
+
 
 typedef struct {
   uint magic;
@@ -68,6 +83,28 @@ typedef struct {
 FileHeader fileHeader;
 
 
+typedef struct {
+  uint boneNameOffset;
+  StringAtOffset name(boneNameOffset);
+
+  ushort unk0;
+  ushort unk1;
+  uint null;
+  uint someId;
+
+  local uint tempOffset = FTell();
+
+  Assert(someId >= 1 && someId <= fileHeader.boneCount);
+
+  // This might not be the right use of "someId"
+  FSeek(fileHeader.boneOffset + 16 * (someId - 1));
+  Mat4x4 matrix;
+
+  FSeek(tempOffset);
+} Bone;
+
+FSeek(fileHeader.boneDataOffset);
+Bone bones[fileHeader.boneCount];
 
 
 typedef struct {
@@ -103,12 +140,6 @@ typedef struct {
 
 
   typedef struct {
-    float x;
-    float y;
-    float z;
-  } Vec3f;
-
-  typedef struct {
     Vec3f Position;
 
     uint normal;
@@ -120,13 +151,8 @@ typedef struct {
   FSeek(vertOffset);
   Vertex vertices[polyInfo.vertCount];
 
-  typedef struct {
-    float x;
-    float y;
-  } Vec2f;
   FSeek(fileHeader.uvBufferOffset + polyInfo.baseVertexIndex * fileHeader.uvSize);
   Vec2f uvs[polyInfo.vertCount];
-
 
   typedef struct {
     ushort vertexIndices[3];
