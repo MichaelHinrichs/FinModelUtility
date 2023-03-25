@@ -1,0 +1,167 @@
+//------------------------------------------------
+//--- 010 Editor v13.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+/** Most of this is straight-up copied from sleepyzay's script. **/
+
+LittleEndian();
+
+typedef struct (uint offset) {
+  local uint tempOffset = FTell();
+  FSeek(offset);
+
+  string value;
+
+  FSeek(tempOffset);
+} StringAtOffset;
+
+
+typedef struct {
+  float x;
+  float y;
+  float z;
+} Vec3f;
+
+typedef struct {
+  float x;
+  float y;
+} Vec2f;
+
+typedef struct {
+  float values[16];
+} Mat4x4;
+
+
+typedef struct {
+  uint magic;
+  uint unk0[2];
+
+  uint fileSize;
+  uint unk1[4];
+  
+  uint modelNameOffset;
+  StringAtOffset name(modelNameOffset);
+
+  uint unk2[4];
+
+  uint meshCount;
+  uint boneCount;
+
+  ushort unk3[6];
+
+  uint refCount;
+  uint refTableOffset;
+
+  uint tableOffset;
+  uint unkOffset;
+
+  uint unk4[2];
+  uint boneDataOffset;
+  uint boneOffset;
+  uint uvBufferInfoOffset;
+  uint faceBufferInfoOffset;
+
+
+  FSeek(uvBufferInfoOffset);
+  uint unk5[4];
+  uint uvBufferLength;
+  uint totalUvBufferCount;
+  ushort uvSize;
+  ushort unk6;
+  uint uvBufferOffset;
+} FileHeader;
+
+FileHeader fileHeader;
+
+
+typedef struct {
+  uint boneNameOffset;
+  StringAtOffset name(boneNameOffset);
+
+  ushort unk0;
+  ushort unk1;
+  uint null;
+  uint someId;
+
+  local uint tempOffset = FTell();
+
+  Assert(someId >= 1 && someId <= fileHeader.boneCount);
+
+  // This might not be the right use of "someId"
+  FSeek(fileHeader.boneOffset + 16 * (someId - 1));
+  Mat4x4 matrix;
+
+  FSeek(tempOffset);
+} Bone;
+
+FSeek(fileHeader.boneDataOffset);
+Bone bones[fileHeader.boneCount];
+
+
+typedef struct {
+  local uint baseOffset = FTell();
+
+  uint meshNameOffset;
+  StringAtOffset name(meshNameOffset);
+
+  byte unk0[0x1c];
+  byte unk1[0x10];
+
+  uint polyInfoOffset;
+
+  byte unk2[0x4];
+
+  uint vertOffset;
+    
+  byte unk3[0x4];
+  
+  uint faceOffset;
+
+  byte unk4[0x4];
+
+
+  typedef struct {
+    uint faceCount;
+    uint faceOffset;
+    ushort baseVertexIndex;
+    ushort vertCount;
+  } PolyInfo;  
+  FSeek(polyInfoOffset);
+  PolyInfo polyInfo;
+
+
+  typedef struct {
+    Vec3f Position;
+
+    uint normal;
+    uint tangent;
+
+    byte bones[4];
+    ushort weights[4];
+  } Vertex;
+  FSeek(vertOffset);
+  Vertex vertices[polyInfo.vertCount];
+
+  FSeek(fileHeader.uvBufferOffset + polyInfo.baseVertexIndex * fileHeader.uvSize);
+  Vec2f uvs[polyInfo.vertCount];
+
+  typedef struct {
+    ushort vertexIndices[3];
+  } Face;
+  FSeek(faceOffset);
+  Face faces[polyInfo.faceCount / 3];
+
+  FSeek(baseOffset + 0xC0); 
+} Mesh;
+
+FSeek(fileHeader.tableOffset);
+Mesh meshes[fileHeader.meshCount];

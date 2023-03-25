@@ -35,14 +35,18 @@ namespace uni.games.dead_space_1 {
 
       var charsDirectory = assetFileHierarchy.Root.GetExistingSubdir("chars");
       foreach (var charSubdir in charsDirectory.Subdirs) {
-        var riggedSubdir = charSubdir.GetExistingSubdir("rigged/export");
-        var geoFiles =
-            riggedSubdir.Files.Where(file => file.Name.EndsWith(".geo"))
-                        .ToArray();
+        IFileHierarchyFile[] geoFiles = Array.Empty<IFileHierarchyFile>();
+        if (charSubdir.TryToGetExistingSubdir("rigged/export",
+                                              out var riggedSubdir)) {
+          geoFiles =
+              riggedSubdir.Files.Where(file => file.Name.EndsWith(".geo"))
+                          .ToArray();
+        }
 
-        var cctSubdir = charSubdir.GetExistingSubdir("cct/export");
-        var rcbFile =
-            cctSubdir.Files.Single(file => file.Name.EndsWith(".rcb.WIN"));
+        IFileHierarchyFile? rcbFile = null;
+        if (charSubdir.TryToGetExistingSubdir("cct/export", out var cctSubdir)) {
+          rcbFile = cctSubdir.Files.Single(file => file.Name.EndsWith(".rcb.WIN"));
+        }
 
         Tg4ImageFileBundle[]? textureFiles = null;
         if (charSubdir.TryToGetExistingSubdir("rigged/textures",
@@ -61,11 +65,15 @@ namespace uni.games.dead_space_1 {
                              .ToArray();
         }
 
-        yield return new GeoModelFileBundle {
+        if (geoFiles.Length > 0 || rcbFile != null) {
+          yield return new GeoModelFileBundle {
             GeoFiles = geoFiles,
             RcbFile = rcbFile,
             Tg4ImageFileBundles = textureFiles
-        };
+          };
+        } else {
+          ;
+        }
       }
 
       /*return assetFileHierarchy

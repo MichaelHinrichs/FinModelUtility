@@ -8,12 +8,15 @@ using fin.model.impl;
 using fin.schema.matrix;
 using fin.util.enumerables;
 
+using visceral.schema.geo;
 using visceral.schema.rcb;
+
 
 namespace visceral.api {
   public class GeoModelFileBundle : IModelFileBundle {
     // TODO: Is there a better thing to rely on?
-    public IFileHierarchyFile? MainFile => this.RcbFile ?? this.GeoFiles.First();
+    public IFileHierarchyFile? MainFile
+      => this.RcbFile ?? this.GeoFiles.First();
 
     public IEnumerable<IGenericFile> Files => this.GeoFiles
         .ConcatIfNonnull(this.RcbFile)
@@ -46,68 +49,127 @@ namespace visceral.api {
       }
 
       // Builds skeletons
+      IBone[] finBones = Array.Empty<IBone>();
       var rcbFile = modelFileBundle.RcbFile;
       if (rcbFile != null) {
-        var rcb = rcbFile.ReadNew<Rcb>();
-        foreach (var rcbSkeleton in rcb.Skeletons) {
-          var finRoot = finModel.Skeleton.Root.AddRoot(0, 0, 0);
-          finRoot.Name = rcbSkeleton.SkeletonName;
-
-          var rootChildren = new List<int>();
-          var childIndices = new ListDictionary<int, int>();
-          for (var i = 0; i < rcbSkeleton.BoneParentIdMap.Count; ++i) {
-            var parent = rcbSkeleton.BoneParentIdMap[i];
-            if (parent == -1) {
-              rootChildren.Add(i);
-            } else {
-              childIndices.Add(parent, i);
-            }
-          }
-
-          var boneQueue =
-              new FinTuple2Queue<IBone, int>(
-                  rootChildren.Select(id => (finRoot, id)));
-          while (boneQueue.TryDequeue(out var finParentBone, out var id)) {
-            var parentId = rcbSkeleton.BoneParentIdMap[id];
-            var rcbBone = rcbSkeleton.Bones[id];
-
-            var currentMatrix = GetMatrixFromBone(rcbBone.Matrix);
-            if (parentId != -1) {
-              var rcbParentBone = rcbSkeleton.Bones[parentId];
-              var parentMatrix = GetMatrixFromBone(rcbParentBone.Matrix);
-              currentMatrix = parentMatrix.InvertInPlace().CloneAndMultiply(currentMatrix);
-            }
-
-            currentMatrix.Decompose(out var translation, out var rotation, out var scale);
-            var eulerRadians = QuaternionUtil.ToEulerRadians(rotation);
-
-            var finBone =
-                finParentBone
-                    .AddChild(translation.X, translation.Y, translation.Z)
-                    .SetLocalRotationRadians(
-                        eulerRadians.X,
-                        eulerRadians.Y,
-                        eulerRadians.Z)
-                    .SetLocalScale(scale.X, scale.Y, scale.Z);
-
-            if (childIndices.TryGetList(id, out var currentChildren)) {
-              boneQueue.Enqueue(
-                  currentChildren!.Select(childId => (finBone, childId)));
-            }
-          }
-        }
+        AddRcbFileToModel_(finModel, rcbFile, out finBones);
       }
 
       // Builds meshes
       var geoFiles = modelFileBundle.GeoFiles;
       foreach (var geoFile in geoFiles) {
-        // TODO: Add this to the model
+        this.AddGeoFileToModel_(finModel, geoFile, finBones);
       }
 
       return finModel;
     }
 
-    public IFinMatrix4x4 GetMatrixFromBone(Matrix4x4f matrix)
+    private void AddRcbFileToModel_(
+        IModel finModel,
+        IFileHierarchyFile rcbFile,
+        out IBone[] finBones) {
+      finBones = Array.Empty<IBone>();
+
+      var rcb = rcbFile.Impl.ReadNew<Rcb>();
+      foreach (var rcbSkeleton in rcb.Skeletons) {
+        finBones = new IBone[rcbSkeleton.Bones.Count];
+
+        var finRoot = finModel.Skeleton.Root.AddRoot(0, 0, 0);
+        finRoot.Name = rcbSkeleton.SkeletonName;
+
+        var rootChildren = new List<int>();
+        var childIndices = new ListDictionary<int, int>();
+        for (var i = 0; i < rcbSkeleton.BoneParentIdMap.Count; ++i) {
+          var parent = rcbSkeleton.BoneParentIdMap[i];
+          if (parent == -1) {
+            rootChildren.Add(i);
+          } else {
+            childIndices.Add(parent, i);
+          }
+        }
+
+        var boneQueue =
+            new FinTuple2Queue<IBone, int>(
+                rootChildren.Select(id => (finRoot, id)));
+        while (boneQueue.TryDequeue(out var finParentBone, out var id)) {
+          var parentId = rcbSkeleton.BoneParentIdMap[id];
+          var rcbBone = rcbSkeleton.Bones[id];
+
+          var currentMatrix = GetMatrixFromBone_(rcbBone.Matrix);
+          if (parentId != -1) {
+            var rcbParentBone = rcbSkeleton.Bones[parentId];
+            var parentMatrix = GetMatrixFromBone_(rcbParentBone.Matrix);
+            currentMatrix = parentMatrix.InvertInPlace()
+                                        .CloneAndMultiply(currentMatrix);
+          }
+
+          currentMatrix.Decompose(out var translation,
+                                  out var rotation,
+                                  out var scale);
+          var eulerRadians = QuaternionUtil.ToEulerRadians(rotation);
+
+          var finBone =
+              finParentBone
+                  .AddChild(translation.X, translation.Y, translation.Z)
+                  .SetLocalRotationRadians(
+                      eulerRadians.X,
+                      eulerRadians.Y,
+                      eulerRadians.Z)
+                  .SetLocalScale(scale.X, scale.Y, scale.Z);
+          finBones[id] = finBone;
+
+          if (childIndices.TryGetList(id, out var currentChildren)) {
+            boneQueue.Enqueue(
+                currentChildren!.Select(childId => (finBone, childId)));
+          }
+        }
+      }
+    }
+
+    private void AddGeoFileToModel_(IModel finModel,
+                                    IFileHierarchyFile geoFile,
+                                    IBone[] finBones) {
+      var geo = geoFile.Impl.ReadNew<Geo>();
+
+      foreach (var geoBone in geo.Bones) {
+        finBones[geoBone.Id].Name = geoBone.Name;
+      }
+
+      var finSkin = finModel.Skin;
+      foreach (var geoMesh in geo.Meshes) {
+        var finMesh = finSkin.AddMesh();
+        finMesh.Name = geoMesh.Name;
+
+        var finVertices = geoMesh.Vertices
+                                 .Select(geoVertex
+                                             => finSkin.AddVertex(
+                                                 geoVertex.Position.X,
+                                                 geoVertex.Position.Y,
+                                                 geoVertex.Position.Z))
+                                 .ToArray();
+
+        var triangles = geoMesh.Faces.Select(geoFace => {
+          var indices = geoFace.Indices
+                               .Select(
+                                   index => index - geoMesh.BaseVertexIndex)
+                               .ToArray();
+
+          foreach (var index in indices) {
+            if (index >= finVertices.Length) {
+              ;
+            }
+          }
+
+          return (finVertices[indices[0]],
+                  finVertices[indices[1]],
+                  finVertices[indices[2]]);
+        }).ToArray();
+
+        finMesh.AddTriangles(triangles);
+      }
+    }
+
+    public IFinMatrix4x4 GetMatrixFromBone_(Matrix4x4f matrix)
       => new FinMatrix4x4(matrix.Values).InvertInPlace();
   }
 }

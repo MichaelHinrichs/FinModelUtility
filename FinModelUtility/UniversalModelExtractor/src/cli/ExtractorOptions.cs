@@ -8,6 +8,7 @@ using uni.games.glover;
 using uni.games.halo_wars;
 using uni.games.luigis_mansion;
 using uni.games.luigis_mansion_3d;
+using uni.games.majoras_mask_3d;
 using uni.games.mario_kart_double_dash;
 using uni.games.midnight_club_2;
 using uni.games.ocarina_of_time;
@@ -63,10 +64,16 @@ namespace uni.cli {
   public class LuigisMansion3dOptions
       : IExtractorOptions<LuigisMansion3dExtractor> { }
 
+  [Verb("majoras_mask_3d",
+        HelpText = "Extract models from Majora's Mask 3D.")]
+  public class MajorasMask3dOptions
+      : IExtractorOptions<MajorasMask3dExtractor> { }
+
   [Verb("mario_kart_double_dash",
         HelpText = "Extract models from Mario Kart: Double Dash.")]
   public class MarioKartDoubleDashOptions
       : IExtractorOptions<MarioKartDoubleDashExtractor> { }
+
 
   [Verb("midnight_club_2",
         HelpText = "Extract models from Midnight Club 2.")]
