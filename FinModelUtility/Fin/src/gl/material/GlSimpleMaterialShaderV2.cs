@@ -3,7 +3,6 @@
 using fin.model;
 using fin.model.util;
 
-using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 

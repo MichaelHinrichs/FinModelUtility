@@ -43,6 +43,8 @@ layout(location = 3) in vec2 in_Uvs[4];
 layout(location = 7) in vec4 in_Colors[2];
 
 out vec3 vertexNormal;
+out vec3 tangent;
+out vec3 binormal;
 out vec2 normalUv;
 out vec2 uv0;
 out vec2 uv1;
@@ -54,6 +56,8 @@ out vec4 vertexColor1;
 void main() {
     gl_Position = projectionMatrix * modelViewMatrix * vec4(in_Position, 1);
     vertexNormal = normalize(modelViewMatrix * vec4(in_Normal, 0)).xyz;
+    tangent = normalize(modelViewMatrix * vec4(in_Tangent)).xyz;
+    binormal = cross(vertexNormal, tangent); 
     normalUv = normalize(projectionMatrix * modelViewMatrix * vec4(in_Normal, 0)).xy;
     vertexColor0 = in_Colors[0];
     vertexColor1 = in_Colors[1];

@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Text;
 
 using fin.model;
 
-using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
 
@@ -18,11 +18,20 @@ namespace fin.gl.material {
     public GlStandardMaterialShaderV2(IStandardMaterial standardMaterial) {
       this.Material = standardMaterial;
 
-      var fragmentShaderSrc = @$"
+      var hasNormalTexture = standardMaterial.NormalTexture != null;
+
+      var fragmentShaderSrc = new StringBuilder();
+
+      fragmentShaderSrc.Append(@$"
 # version 330 
 
-uniform sampler2D diffuseTexture;
-uniform sampler2D normalTexture;
+uniform sampler2D diffuseTexture;");
+
+      if (hasNormalTexture) {
+        fragmentShaderSrc.Append("uniform sampler2D normalTexture;");
+      }
+
+      fragmentShaderSrc.Append(@$"
 uniform sampler2D ambientOcclusionTexture;
 uniform sampler2D emissiveTexture;
 uniform float useLighting;
@@ -31,17 +40,30 @@ out vec4 fragColor;
 
 in vec4 vertexColor0;
 in vec3 vertexNormal;
+in vec3 tangent;
+in vec3 binormal;
 in vec2 uv0;
 
-void main() {{
+void main() {{{{
     vec4 diffuseColor = texture(diffuseTexture, uv0);
     vec4 ambientOcclusionColor = texture(ambientOcclusionTexture, uv0);
     vec4 emissiveColor = texture(emissiveTexture, uv0);
 
-    fragColor = diffuseColor * vertexColor0;
+    fragColor = vec4(1); // diffuseColor * vertexColor0;
+");
 
+      if (!hasNormalTexture) {
+        fragmentShaderSrc.Append(@"
+    vec3 fragNormal = vertexNormal;");
+      } else {
+        fragmentShaderSrc.Append(@"
+    vec3 textureNormal = texture(normalTexture, uv0).xyz * 2 - 1;    
+    vec3 fragNormal = normalize(mat3(tangent, binormal, vertexNormal) * textureNormal);");
+      }
+
+      fragmentShaderSrc.Append(@$"
     vec3 diffuseLightNormal = normalize(vec3(.5, .5, -1));
-    float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);
+    float diffuseLightAmount = max(-dot(fragNormal, diffuseLightNormal), 0);
 
     float ambientLightAmount = .3;
 
@@ -52,34 +74,12 @@ void main() {{
 
     fragColor.rgb = min(fragColor.rgb, 1);
 
-    if (fragColor.a < .95) {{
+    if (fragColor.a < .95) {{{{
       discard;
-    }}
-}}";
+    }}}}
+}}}}");
 
       /*
-
-// compute derivations of the world position
-    vec3 p_dx = dFdx(vertexPosition);
-    vec3 p_dy = dFdy(vertexPosition);
-    // compute derivations of the texture coordinate
-    vec2 tc_dx = dFdx(uv);
-    vec2 tc_dy = dFdy(uv);
-    // compute initial tangent and bi-tangent
-    vec3 t = normalize( tc_dy.y * p_dx - tc_dx.y * p_dy );
-    vec3 b = normalize( tc_dy.x * p_dx - tc_dx.x * p_dy ); // sign inversion
-    // get new tangent from a given mesh normal
-    vec3 n = normalize(n_obj_i);
-    vec3 x = cross(n, t);
-    t = cross(x, n);
-    t = normalize(t);
-    // get updated bi-tangent
-    x = cross(b, n);
-    b = cross(n, x);
-    b = normalize(b);
-    mat3 tbn = mat3(t, b, n);
-
-
 
     vec4 diffuseColor = texture(diffuseTexture, uv);
 
@@ -93,7 +93,7 @@ void main() {{
 
 
       this.impl_ =
-          GlShaderProgram.FromShaders(CommonShaderPrograms.VERTEX_SRC, fragmentShaderSrc);
+          GlShaderProgram.FromShaders(CommonShaderPrograms.VERTEX_SRC, fragmentShaderSrc.ToString());
 
       var diffuseTexture = standardMaterial.DiffuseTexture;
       this.diffuseTexture_ = diffuseTexture != null
