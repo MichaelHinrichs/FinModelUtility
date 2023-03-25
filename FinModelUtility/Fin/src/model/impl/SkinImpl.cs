@@ -67,6 +67,9 @@ namespace fin.model.impl {
         }
       }
 
+      public IVertex AddVertex(IVector3 position)
+        => this.AddVertex(new Position(position.X, position.Y, position.Z));
+
       public IVertex AddVertex(float x, float y, float z) {
         lock (this.vertices_) {
           var vertex = new VertexImpl(this.vertices_.Count, x, y, z);
@@ -229,6 +232,12 @@ namespace fin.model.impl {
           return this;
         }
 
+        public IVertex SetLocalPosition(IVector3 localPosition)
+          => this.SetLocalPosition(new Position(localPosition.X,
+                                         localPosition.Y,
+                                         localPosition.Z));
+
+
         public IVertex SetLocalPosition(float x, float y, float z)
           => this.SetLocalPosition(new Position(x, y, z));
 
@@ -239,6 +248,13 @@ namespace fin.model.impl {
           this.LocalNormal = localNormal;
           return this;
         }
+
+        public IVertex SetLocalNormal(IVector3? localNormal)
+          => this.SetLocalNormal(localNormal != null
+                                     ? new Normal(localNormal.X,
+                                                  localNormal.Y,
+                                                  localNormal.Z)
+                                     : null);
 
         public IVertex SetLocalNormal(float x, float y, float z)
           => this.SetLocalNormal(new Normal(x, y ,z));

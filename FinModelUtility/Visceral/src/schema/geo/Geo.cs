@@ -60,12 +60,9 @@ namespace visceral.schema.geo {
         var matrix =
             er.ReadNewAtOffset<Matrix4x4f>(boneOffset + 16 * (someId - 1));
 
-        bones.Add(new Bone {
-            Name = boneName, 
-            Matrix = matrix,
-            Id = someId,
-        });
+        bones.Add(new Bone { Name = boneName, Matrix = matrix, Id = someId, });
       }
+
       this.Bones = bones;
 
 
@@ -99,15 +96,18 @@ namespace visceral.schema.geo {
         var vertices = new List<Vertex>();
         for (var v = 0; v < vertexCount; v++) {
           var position = er.ReadNew<Vector3f>();
-          er.Position += 8;
+
+          var normal = this.Read32BitNormal_(er, 10, 512);
+          er.Position += 4;
 
           var boneIds = er.ReadBytes(4);
           var weights = er.ReadUn16s(4);
 
           vertices.Add(new Vertex {
-            Position = position,
-            Bones = boneIds,
-            Weights = weights,
+              Position = position,
+              Normal = normal,
+              Bones = boneIds,
+              Weights = weights,
           });
         }
 
@@ -116,11 +116,8 @@ namespace visceral.schema.geo {
         var faces = new List<Face>();
         for (var f = 0; f < faceCount / 3; ++f) {
           var vertexIndices = er.ReadUInt16s(3);
-          faces.Add(new Face {
-            Indices = vertexIndices,
-          });
+          faces.Add(new Face { Indices = vertexIndices, });
         }
-
 
         meshes.Add(new Mesh {
             Name = meshName,
@@ -133,6 +130,41 @@ namespace visceral.schema.geo {
       this.Meshes = meshes;
 
       ;
+    }
+
+    private Vector3f Read32BitNormal_(IEndianBinaryReader er,
+                                      int bitsPerAxis,
+                                      float divisor) {
+      var vec = new Vector3f();
+
+      var value = er.ReadUInt32();
+
+      for (var i = 0; i < 3; ++i) {
+        var axisValue = ReadBits_(value, bitsPerAxis * i, bitsPerAxis);
+        var signedAxisValue = SignValue_(axisValue, bitsPerAxis);
+        vec[i] = signedAxisValue / divisor;
+      }
+
+      return vec;
+    }
+
+    private uint ReadBits_(uint value, int position, int bitsPerAxis) {
+      var mask = (uint) ((1 << (bitsPerAxis)) - 1);
+      var axisValue = (value >> position) & mask;
+      return axisValue;
+    }
+
+    private int SignValue_(uint x, int bitsPerAxis) {
+      var signedX = (int) x;
+
+      if (((x >> (bitsPerAxis - 1)) & 1) == 1) {
+        var mask = (uint) ((1 << (bitsPerAxis - 1)) - 1);
+        signedX = (int) (signedX ^ mask);
+        signedX++; // Because of 2's complement
+        signedX *= -1;
+      }
+
+      return signedX;
     }
 
     public class Bone {
@@ -150,6 +182,7 @@ namespace visceral.schema.geo {
 
     public class Vertex {
       public required Vector3f Position { get; init; }
+      public required Vector3f Normal { get; init; }
       public required IReadOnlyList<byte> Bones { get; init; }
       public required IReadOnlyList<float> Weights { get; init; }
     }

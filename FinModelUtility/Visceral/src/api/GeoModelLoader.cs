@@ -19,12 +19,19 @@ namespace visceral.api {
       => this.RcbFile ?? this.GeoFiles.First();
 
     public IEnumerable<IGenericFile> Files => this.GeoFiles
-        .ConcatIfNonnull(this.RcbFile)
-        .ConcatIfNonnull(this.Tg4ImageFileBundles?.SelectMany(
-                             tg4Bundle => new IGenericFile[] {
-                                 tg4Bundle.Tg4hFile, 
-                                 tg4Bundle.Tg4dFile
-                             }));
+                                                  .ConcatIfNonnull(this.RcbFile)
+                                                  .ConcatIfNonnull(
+                                                      this.Tg4ImageFileBundles
+                                                          ?.SelectMany(
+                                                              tg4Bundle
+                                                                  => new
+                                                                      IGenericFile
+                                                                      [] {
+                                                                          tg4Bundle
+                                                                              .Tg4hFile,
+                                                                          tg4Bundle
+                                                                              .Tg4dFile
+                                                                      }));
 
     public required IReadOnlyList<IFileHierarchyFile> GeoFiles { get; init; }
     public required IFileHierarchyFile? RcbFile { get; init; }
@@ -129,7 +136,9 @@ namespace visceral.api {
     private void AddGeoFileToModel_(IModel finModel,
                                     IFileHierarchyFile geoFile,
                                     IBone[] finBones) {
-      var geo = geoFile.Impl.ReadNew<Geo>();
+      var material = finModel.MaterialManager.AddNullMaterial();
+
+      var geo = geoFile.ReadNew<Geo>();
 
       foreach (var geoBone in geo.Bones) {
         finBones[geoBone.Id].Name = geoBone.Name;
@@ -142,30 +151,25 @@ namespace visceral.api {
 
         var finVertices = geoMesh.Vertices
                                  .Select(geoVertex
-                                             => finSkin.AddVertex(
-                                                 geoVertex.Position.X,
-                                                 geoVertex.Position.Y,
-                                                 geoVertex.Position.Z))
+                                             => finSkin.AddVertex(geoVertex.Position)
+                                                 .SetLocalNormal(geoVertex.Normal))
                                  .ToArray();
 
         var triangles = geoMesh.Faces.Select(geoFace => {
-          var indices = geoFace.Indices
-                               .Select(
-                                   index => index - geoMesh.BaseVertexIndex)
+                                 var indices = geoFace.Indices
+                                     .Select(
+                                         index => index -
+                                                  geoMesh.BaseVertexIndex)
+                                     .ToArray();
+                                 return (finVertices[indices[0]],
+                                         finVertices[indices[1]],
+                                         finVertices[indices[2]]);
+                               })
                                .ToArray();
 
-          foreach (var index in indices) {
-            if (index >= finVertices.Length) {
-              ;
-            }
-          }
-
-          return (finVertices[indices[0]],
-                  finVertices[indices[1]],
-                  finVertices[indices[2]]);
-        }).ToArray();
-
-        finMesh.AddTriangles(triangles);
+        finMesh.AddTriangles(triangles)
+               .SetMaterial(material)
+               .SetVertexOrder(VertexOrder.NORMAL);
       }
     }
 

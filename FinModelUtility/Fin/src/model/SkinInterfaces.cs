@@ -12,6 +12,7 @@ namespace fin.model {
   public interface ISkin {
     IReadOnlyList<IVertex> Vertices { get; }
     IVertex AddVertex(Position position);
+    IVertex AddVertex(IVector3 position);
     IVertex AddVertex(float x, float y, float z);
 
     IReadOnlyList<IMesh> Meshes { get; }
@@ -104,10 +105,12 @@ namespace fin.model {
 
     Position LocalPosition { get; }
     IVertex SetLocalPosition(Position localPosition);
+    IVertex SetLocalPosition(IVector3 localPosition);
     IVertex SetLocalPosition(float x, float y, float z);
 
     Normal? LocalNormal { get; }
     IVertex SetLocalNormal(Normal? localNormal);
+    IVertex SetLocalNormal(IVector3? localNormal);
     IVertex SetLocalNormal(float x, float y, float z);
 
     Tangent? LocalTangent { get; }
