@@ -16,7 +16,7 @@ namespace uni.ui.right_panel.info {
           return;
         }
 
-        var files = value.Files.Select(file => file.DisplayFullName)
+        var files = value.Files.Select(file => file.DisplayPath)
                          .Distinct()
                          .Order();
 

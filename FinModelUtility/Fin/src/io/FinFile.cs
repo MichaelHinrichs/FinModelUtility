@@ -1,4 +1,7 @@
-﻿using schema.defaultinterface;
+﻿using System.IO.Abstractions;
+using System.Runtime.CompilerServices;
+
+using schema.defaultinterface;
 
 namespace fin.io {
   [IncludeDefaultInterfaceMethods]
@@ -11,5 +14,13 @@ namespace fin.io {
     }
 
     public override string ToString() => this.FullName;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public FileSystemStream OpenRead()
+      => FinFileStatic.OpenRead(this.FullName);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public FileSystemStream OpenWrite()
+      => FinFileStatic.OpenWrite(this.FullName);
   }
 }

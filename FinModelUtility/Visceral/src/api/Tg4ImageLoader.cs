@@ -16,7 +16,7 @@ namespace visceral.api {
     public unsafe IImage LoadImage(Tg4ImageFileBundle bundle) {
       var headerFile = bundle.Tg4hFile;
       using var headerEr =
-          new EndianBinaryReader(headerFile.Impl.OpenRead(),
+          new EndianBinaryReader(headerFile.OpenRead(),
                                  Endianness.LittleEndian);
       headerEr.Position = 0x20;
       var width = headerEr.ReadUInt16();
@@ -24,7 +24,7 @@ namespace visceral.api {
       var format = headerEr.ReadStringNTAtOffset(0x4b);
 
       var dataFile = bundle.Tg4dFile;
-      var bytes = dataFile.Impl.ReadAllBytes();
+      var bytes = dataFile.ReadAllBytes();
 
       var compressionFormat = format switch {
           "DXT1c"   => CompressionFormat.Bc1,

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO.Abstractions;
 using System.Linq;
 
 using fin.util.asserts;
@@ -66,7 +67,7 @@ namespace fin.io {
   }
 
   public interface IFileHierarchyFile 
-      : IFileHierarchyInstance, IDisplayableFile {
+      : IFileHierarchyInstance, IGenericFile {
     IFile Impl { get; }
 
     string Extension => this.Impl.Extension;
@@ -74,6 +75,11 @@ namespace fin.io {
     string IFileHierarchyInstance.Name => this.Impl.Name;
     string FullNameWithoutExtension => this.Impl.FullNameWithoutExtension;
     string NameWithoutExtension => this.Impl.NameWithoutExtension;
+
+    string IGenericFile.DisplayPath => this.Impl.DisplayPath;
+
+    FileSystemStream IGenericFile.OpenRead() => this.Impl.OpenRead();
+    FileSystemStream IGenericFile.OpenWrite() => this.Impl.OpenWrite();
   }
 
 

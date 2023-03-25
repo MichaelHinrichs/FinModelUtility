@@ -30,7 +30,7 @@ namespace uni.platforms.threeDs.tools {
       Zar zar;
       {
         using var er =
-            new EndianBinaryReader(zarFile.Impl.OpenRead(),
+            new EndianBinaryReader(zarFile.OpenRead(),
                                    Endianness.LittleEndian);
         zar = new Zar(er);
       }

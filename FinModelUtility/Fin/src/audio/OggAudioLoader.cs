@@ -22,7 +22,7 @@ namespace fin.audio {
       var oggFile = audioFileBundle.OggFile;
       Asserts.Equal(".ogg", oggFile.Extension.ToLower());
 
-      using var ogg = new VorbisReader(oggFile.FullName);
+      using var ogg = new VorbisReader(oggFile.OpenRead());
 
       var mutableBuffer = audioManager.CreateMutableBuffer();
       mutableBuffer.Frequency = ogg.SampleRate;

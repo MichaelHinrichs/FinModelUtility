@@ -23,7 +23,7 @@ namespace uni.platforms.threeDs.tools {
       Gar gar;
       {
         using var er =
-            new EndianBinaryReader(garFile.Impl.OpenRead(),
+            new EndianBinaryReader(garFile.OpenRead(),
                                    Endianness.LittleEndian);
         gar = new Gar(er);
       }

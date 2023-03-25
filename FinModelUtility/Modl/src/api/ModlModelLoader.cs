@@ -21,7 +21,7 @@ using modl.schema.modl.bw2;
 namespace modl.api {
   public class ModlModelFileBundle : IBattalionWarsModelFileBundle {
     public IFileHierarchyFile MainFile => this.ModlFile;
-    public IEnumerable<IDisplayableFile> Files
+    public IEnumerable<IGenericFile> Files
       => this.ModlFile.Yield().ConcatIfNonnull(this.AnimFiles);
 
     public GameVersion GameVersion { get; set; }

@@ -48,7 +48,7 @@ namespace visceral.api {
       ContentBlock[] contentBlocks;
       var headerBlocks = new LinkedList<(schema.str.content.FileInfo fileInfo, int index)>();
       {
-        var set = strFile.Impl.ReadNew<StreamSetFile>();
+        var set = strFile.ReadNew<StreamSetFile>();
         contentBlocks =
             set.Contents
                .Select(block => block.Impl.Data)

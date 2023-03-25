@@ -17,7 +17,7 @@ namespace level5.api {
   public class XcModelFileBundle : IModelFileBundle {
     public string? BetterName { get; set; }
     public IFileHierarchyFile MainFile => this.ModelXcFile;
-    public IEnumerable<IDisplayableFile> Files
+    public IEnumerable<IGenericFile> Files
       => this.ModelXcFile.Yield()
              .ConcatIfNonnull(this.AnimationXcFiles);
 

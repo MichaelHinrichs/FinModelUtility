@@ -6,11 +6,73 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 
 using fin.util.asserts;
+using fin.util.json;
 
 using schema.binary;
 
 
 namespace fin.io {
+  public interface IGenericFile {
+    string DisplayPath { get; }
+
+    FileSystemStream OpenRead();
+    FileSystemStream OpenWrite();
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    StreamReader OpenReadAsText() => new(this.OpenRead());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    StreamWriter OpenWriteAsText() => new(this.OpenWrite());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    T ReadNew<T>() where T : IBinaryDeserializable, new() {
+      using var er = new EndianBinaryReader(this.OpenRead());
+      return er.ReadNew<T>();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    T ReadNew<T>(Endianness endianness)
+        where T : IBinaryDeserializable, new() {
+      using var er = new EndianBinaryReader(this.OpenRead(), endianness);
+      return er.ReadNew<T>();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    byte[] ReadAllBytes() {
+      using var s = this.OpenRead();
+      using var ms = new MemoryStream();
+      s.CopyTo(ms);
+      return ms.ToArray();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    string ReadAllText() {
+      using var sr = this.OpenReadAsText();
+      return sr.ReadToEnd();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    void WriteAllBytes(byte[] bytes) {
+      using var s = this.OpenWrite();
+      using var ms = new MemoryStream(bytes);
+      ms.CopyTo(s);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    void WriteAllText(string text) {
+      using var sw = this.OpenWriteAsText();
+      sw.Write(text);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    T Deserialize<T>() => JsonUtil.Deserialize<T>(this.ReadAllText());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    void Serialize<T>(T instance) where T : notnull
+      => this.WriteAllText(JsonUtil.Serialize(instance));
+  }
+
   public interface IIoObject<TSelf, TFile, TDirectory> : IEquatable<TSelf>
       where TSelf : IIoObject<TSelf, TFile, TDirectory>
       where TFile : IFile<TFile, TDirectory>
@@ -143,7 +205,9 @@ namespace fin.io {
       => TFile.FromFullName(
           FinDirectoryStatic.GetExistingFile(this.FullName, path));
 
-    bool PossiblyAssertExistingFile(string relativePath, bool assert, out TFile outFile) {
+    bool PossiblyAssertExistingFile(string relativePath,
+                                    bool assert,
+                                    out TFile outFile) {
       var fileFullName =
           FinDirectoryStatic.PossiblyAssertExistingFile(
               this.FullName,
@@ -169,21 +233,19 @@ namespace fin.io {
 
 
   // File 
-  public interface IDisplayableFile {
-    string DisplayFullName { get; }
-  }
-
   public interface IFile : IFile<FinFile, FinDirectory> {
     static FinFile IIoObject<FinFile, FinFile, FinDirectory>.FromFullName(
         string fullName) => new(fullName);
   }
 
   public interface IFile<TFile, TDirectory>
-      : IIoObject<TFile, TFile, TDirectory>, IDisplayableFile
+      : IIoObject<TFile, TFile, TDirectory>, IGenericFile
       where TFile : IFile<TFile, TDirectory>
       where TDirectory : IDirectory<TFile, TDirectory> {
     bool IIoObject<TFile, TFile, TDirectory>.Exists
       => FinFileStatic.Exists(this.FullName);
+
+    string IGenericFile.DisplayPath => this.FullName;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     bool Delete() => FinFileStatic.Delete(FullName);
@@ -201,47 +263,5 @@ namespace fin.io {
                    $"'{newExtension}' is not a valid extension!");
       return TFile.FromFullName(this.FullNameWithoutExtension + newExtension);
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    T ReadNew<T>() where T : IBinaryDeserializable, new()
-      => FinFileStatic.ReadNew<T>(this.FullName);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    T ReadNew<T>(Endianness endianness)
-        where T : IBinaryDeserializable, new()
-      => FinFileStatic.ReadNew<T>(this.FullName, endianness);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    byte[] ReadAllBytes()
-      => FinFileStatic.ReadAllBytes(this.FullName);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    string ReadAllText()
-      => FinFileStatic.ReadAllText(this.FullName);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    void WriteAllBytes(byte[] bytes)
-      => FinFileStatic.WriteAllBytes(this.FullName, bytes);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    StreamReader OpenReadAsText()
-      => FinFileStatic.OpenReadAsText(this.FullName);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    StreamWriter OpenWriteAsText()
-      => FinFileStatic.OpenWriteAsText(this.FullName);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    FileSystemStream OpenRead() => FinFileStatic.OpenRead(this.FullName);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    FileSystemStream OpenWrite() => FinFileStatic.OpenWrite(this.FullName);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    T Deserialize<T>() => FinFileStatic.Deserialize<T>(this.FullName);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    void Serialize<T>(T instance)
-      => FinFileStatic.Serialize(this.FullName, instance);
   }
 }

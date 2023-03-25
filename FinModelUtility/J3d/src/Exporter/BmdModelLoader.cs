@@ -30,7 +30,7 @@ namespace j3d.exporter {
   public class BmdModelFileBundle : IModelFileBundle {
     public IFileHierarchyFile MainFile => this.BmdFile;
 
-    public IEnumerable<IDisplayableFile> Files
+    public IEnumerable<IGenericFile> Files
       => this.BmdFile.Yield()
              .ConcatIfNonnull(this.BcxFiles)
              .ConcatIfNonnull(this.BtiFiles);

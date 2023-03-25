@@ -42,7 +42,7 @@ namespace cmb.api {
     }
 
     public IFileHierarchyFile MainFile => this.CmbFile;
-    public IEnumerable<IDisplayableFile> Files
+    public IEnumerable<IGenericFile> Files
       => this.CmbFile.Yield()
              .ConcatIfNonnull(this.CsabFiles)
              .ConcatIfNonnull(this.CtxbFiles)

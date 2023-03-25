@@ -17,7 +17,7 @@ namespace xmod.api {
   public class XmodModelLoader : IModelLoader<XmodModelFileBundle> {
     public IModel LoadModel(XmodModelFileBundle modelFileBundle) {
       using var tr =
-          new FinTextReader(modelFileBundle.XmodFile.Impl.OpenRead());
+          new FinTextReader(modelFileBundle.XmodFile.OpenRead());
 
       var xmod = new Xmod();
       xmod.Read(tr);

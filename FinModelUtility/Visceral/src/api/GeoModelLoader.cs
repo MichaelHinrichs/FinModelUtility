@@ -15,10 +15,10 @@ namespace visceral.api {
     // TODO: Is there a better thing to rely on?
     public IFileHierarchyFile? MainFile => this.RcbFile ?? this.GeoFiles.First();
 
-    public IEnumerable<IDisplayableFile> Files => this.GeoFiles
+    public IEnumerable<IGenericFile> Files => this.GeoFiles
         .ConcatIfNonnull(this.RcbFile)
         .ConcatIfNonnull(this.Tg4ImageFileBundles?.SelectMany(
-                             tg4Bundle => new IDisplayableFile[] {
+                             tg4Bundle => new IGenericFile[] {
                                  tg4Bundle.Tg4hFile, 
                                  tg4Bundle.Tg4dFile
                              }));
@@ -48,7 +48,7 @@ namespace visceral.api {
       // Builds skeletons
       var rcbFile = modelFileBundle.RcbFile;
       if (rcbFile != null) {
-        var rcb = rcbFile.Impl.ReadNew<Rcb>();
+        var rcb = rcbFile.ReadNew<Rcb>();
         foreach (var rcbSkeleton in rcb.Skeletons) {
           var finRoot = finModel.Skeleton.Root.AddRoot(0, 0, 0);
           finRoot.Name = rcbSkeleton.SkeletonName;

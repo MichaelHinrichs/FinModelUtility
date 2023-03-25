@@ -25,7 +25,7 @@ using Endianness = mod.util.Endianness;
 namespace mod.cli {
   public class ModModelFileBundle : IModelFileBundle {
     public IFileHierarchyFile MainFile => this.ModFile;
-    public IEnumerable<IDisplayableFile> Files
+    public IEnumerable<IGenericFile> Files
       => this.ModFile.Yield().ConcatIfNonnull(this.AnmFile);
 
     public IFileHierarchyFile ModFile { get; set; }
@@ -58,7 +58,7 @@ namespace mod.cli {
       var mod = new Mod();
       {
         using var r = new EndianBinaryReader(
-            modelFileBundle.ModFile.Impl.OpenRead(),
+            modelFileBundle.ModFile.OpenRead(),
             System.IO.Endianness.BigEndian);
         mod.Read(r);
       }
@@ -67,7 +67,7 @@ namespace mod.cli {
       if (modelFileBundle.AnmFile != null) {
         anm = new Anm();
         using var r = new EndianBinaryReader(
-            modelFileBundle.AnmFile.Impl.OpenRead(),
+            modelFileBundle.AnmFile.OpenRead(),
             System.IO.Endianness.BigEndian);
         anm.Read(r);
       }

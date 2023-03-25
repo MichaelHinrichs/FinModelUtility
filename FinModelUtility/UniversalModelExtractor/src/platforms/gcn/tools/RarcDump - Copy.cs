@@ -66,7 +66,7 @@ namespace uni.platforms.gcn.tools {
 
     private bool ReadFile_(IFileHierarchyFile rarcFile) {
       using var er =
-          new EndianBinaryReader(rarcFile.Impl.OpenRead(),
+          new EndianBinaryReader(rarcFile.OpenRead(),
                                  Endianness.BigEndian);
 
       var header = new RarcHeader();
