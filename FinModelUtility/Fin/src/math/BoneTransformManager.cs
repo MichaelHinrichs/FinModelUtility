@@ -39,6 +39,13 @@ namespace fin.math {
         out Position outPosition,
         out Normal outNormal);
 
+    void ProjectVertexPositionNormalTangent(
+        IVertex vertex,
+        out Position outPosition,
+        out Normal outNormal,
+        out Tangent outTangent);
+
+
     void ProjectPosition(IBone bone, ref Vector3 xyz);
 
     void ProjectNormal(IBone bone, ref Vector3 xyz);
@@ -363,6 +370,32 @@ namespace fin.math {
         GlMatrixUtil.ProjectNormal(transformMatrix, ref outNormal);
       }
     }
+
+    public void ProjectVertexPositionNormalTangent(
+        IVertex vertex,
+        out Position outPosition,
+        out Normal outNormal,
+        out Tangent outTangent) {
+      outPosition = vertex.LocalPosition;
+      outNormal = vertex.LocalNormal.GetValueOrDefault();
+      outTangent = vertex.LocalTangent.GetValueOrDefault();
+
+      var finTransformMatrix = this.GetTransformMatrix(vertex);
+      if (finTransformMatrix == null) {
+        return;
+      }
+
+      var transformMatrix = finTransformMatrix.Impl;
+      GlMatrixUtil.ProjectPosition(transformMatrix, ref outPosition);
+      if (vertex.LocalNormal.HasValue) {
+        GlMatrixUtil.ProjectNormal(transformMatrix, ref outNormal);
+      }
+
+      if (vertex.LocalTangent.HasValue) {
+        GlMatrixUtil.ProjectTangent(transformMatrix, ref outTangent);
+      }
+    }
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ProjectPosition(IBone bone, ref Position xyz)

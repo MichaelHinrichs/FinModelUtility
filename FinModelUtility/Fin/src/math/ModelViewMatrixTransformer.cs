@@ -134,9 +134,19 @@ namespace fin.math {
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void ProjectNormal(
-        Matrix4x4 matrix,
-        ref Vector3 xyz)
+    public static void ProjectNormal(Matrix4x4 matrix, ref Vector3 xyz)
       => xyz = Vector3.TransformNormal(xyz, matrix);
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void ProjectTangent(Matrix4x4 matrix, ref Tangent xyzw)
+      => GlMatrixUtil.ProjectTangent(
+          matrix,
+          ref Unsafe.As<Tangent, Vector4>(ref xyzw));
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void ProjectTangent(Matrix4x4 matrix, ref Vector4 xyzw)
+      // TODO: Might be wrong
+      => xyzw = Vector4.Transform(xyzw, matrix);
   }
 }

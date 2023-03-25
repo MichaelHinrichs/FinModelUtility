@@ -38,8 +38,9 @@ uniform mat4 projectionMatrix;
 
 layout(location = 0) in vec3 in_Position;
 layout(location = 1) in vec3 in_Normal;
-layout(location = 2) in vec2 in_Uvs[4];
-layout(location = 6) in vec4 in_Colors[2];
+layout(location = 2) in vec4 in_Tangent;
+layout(location = 3) in vec2 in_Uvs[4];
+layout(location = 7) in vec4 in_Colors[2];
 
 out vec3 vertexNormal;
 out vec2 normalUv;

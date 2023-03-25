@@ -16,14 +16,16 @@ namespace fin.gl {
 
     private readonly Position[] positionData_;
     private readonly Normal[] normalData_;
+    private readonly Tangent[] tangentData_;
     private readonly float[][] uvData_;
     private readonly float[][] colorData_;
 
     private int vaoId_;
-    private int[] vboIds_ = new int[1 + 1 + 4 + 2];
+    private int[] vboIds_ = new int[1 + 1 + 1 + 4 + 2];
 
     private const int POSITION_SIZE_ = 3;
     private const int NORMAL_SIZE_ = 3;
+    private const int TANGENT_SIZE_ = 4;
     private const int UV_SIZE_ = 2;
     private const int COLOR_SIZE_ = 4;
 
@@ -35,6 +37,7 @@ namespace fin.gl {
 
       this.positionData_ = new Position[this.vertices_.Count];
       this.normalData_ = new Normal[this.vertices_.Count];
+      this.tangentData_ = new Tangent[this.vertices_.Count];
       this.uvData_ = new float[4][];
       for (var i = 0; i < this.uvData_.Length; ++i) {
         this.uvData_[i] = new float[UV_SIZE_ * this.vertices_.Count];
@@ -71,18 +74,22 @@ namespace fin.gl {
 
         Position position;
         Normal normal;
+        Tangent tangent;
         if (boneTransformManager != null) {
-          boneTransformManager.ProjectVertexPositionNormal(
+          boneTransformManager.ProjectVertexPositionNormalTangent(
               vertex,
               out position,
-              out normal);
+              out normal,
+              out tangent);
         } else {
           position = vertex.LocalPosition;
           normal = vertex.LocalNormal.GetValueOrDefault();
+          tangent = vertex.LocalTangent.GetValueOrDefault();
         }
 
         this.positionData_[i] = position;
         this.normalData_[i] = normal;
+        this.tangentData_[i] = tangent;
 
         if (uvStale_) {
           var uvCount = Math.Min(this.uvData_.Length, vertex.Uvs?.Count ?? 0);
@@ -119,8 +126,10 @@ namespace fin.gl {
 
       GL.BindVertexArray(this.vaoId_);
 
+      var currentVertexAttrib = 0;
+
       // Position
-      var vertexAttribPosition = 0;
+      var vertexAttribPosition = currentVertexAttrib++;
       GL.BindBuffer(BufferTarget.ArrayBuffer,
                     this.vboIds_[vertexAttribPosition]);
       GL.BufferData(BufferTarget.ArrayBuffer,
@@ -137,7 +146,7 @@ namespace fin.gl {
       GL.EnableVertexAttribArray(vertexAttribPosition);
 
       // Normal
-      var vertexAttribNormal = 1;
+      var vertexAttribNormal = currentVertexAttrib++;
       GL.BindBuffer(BufferTarget.ArrayBuffer, this.vboIds_[vertexAttribNormal]);
       GL.BufferData(BufferTarget.ArrayBuffer,
                     new IntPtr(sizeof(float) * GlBufferManager.NORMAL_SIZE_ * this.normalData_.Length),
@@ -152,9 +161,25 @@ namespace fin.gl {
           0);
       GL.EnableVertexAttribArray(vertexAttribNormal);
 
+      // Tangent
+      var vertexAttribTangent = currentVertexAttrib++;
+      GL.BindBuffer(BufferTarget.ArrayBuffer, this.vboIds_[vertexAttribTangent]);
+      GL.BufferData(BufferTarget.ArrayBuffer,
+                    new IntPtr(sizeof(float) * GlBufferManager.TANGENT_SIZE_ * this.tangentData_.Length),
+                    this.tangentData_,
+                    BufferUsageHint.DynamicDraw);
+      GL.VertexAttribPointer(
+          vertexAttribTangent,
+          TANGENT_SIZE_,
+          VertexAttribPointerType.Float,
+          false,
+          0,
+          0);
+      GL.EnableVertexAttribArray(vertexAttribTangent);
+
       // Uv
       for (var i = 0; i < this.uvData_.Length; ++i) {
-        var vertexAttribUv = 1 + 1 + i;
+        var vertexAttribUv = currentVertexAttrib++;
         GL.BindBuffer(BufferTarget.ArrayBuffer, this.vboIds_[vertexAttribUv]);
         GL.BufferData(BufferTarget.ArrayBuffer,
                       new IntPtr(sizeof(float) * this.uvData_[i].Length),
@@ -172,7 +197,7 @@ namespace fin.gl {
 
       // Color
       for (var i = 0; i < this.colorData_.Length; ++i) {
-        var vertexAttribColor = 1 + 1 + 4 + i;
+        var vertexAttribColor = currentVertexAttrib++;
         GL.BindBuffer(BufferTarget.ArrayBuffer,
                       this.vboIds_[vertexAttribColor]);
         GL.BufferData(BufferTarget.ArrayBuffer,
