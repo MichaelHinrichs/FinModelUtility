@@ -45,6 +45,7 @@ namespace visceral.api {
 
       // Builds textures
       var textureBundles = modelFileBundle.Tg4ImageFileBundles;
+      var textures = new List<ITexture>();
       if (textureBundles != null) {
         var tg4ImageLoader = new Tg4ImageLoader();
 
@@ -52,6 +53,8 @@ namespace visceral.api {
           var image = tg4ImageLoader.LoadImage(textureBundle);
           var finTexture = finModel.MaterialManager.CreateTexture(image);
           finTexture.Name = textureBundle.Tg4hFile.NameWithoutExtension;
+
+          textures.Add(finTexture);
         }
       }
 
@@ -65,7 +68,7 @@ namespace visceral.api {
       // Builds meshes
       var geoFiles = modelFileBundle.GeoFiles;
       foreach (var geoFile in geoFiles) {
-        this.AddGeoFileToModel_(finModel, geoFile, finBones);
+        this.AddGeoFileToModel_(finModel, geoFile, finBones, textures);
       }
 
       return finModel;
@@ -135,8 +138,18 @@ namespace visceral.api {
 
     private void AddGeoFileToModel_(IModel finModel,
                                     IFileHierarchyFile geoFile,
-                                    IBone[] finBones) {
-      var material = finModel.MaterialManager.AddNullMaterial();
+                                    IBone[] finBones,
+                                    IList<ITexture> textures) {
+      var colorTextures = textures.Where(texture => texture.Name.EndsWith("_c"))
+                                  .ToArray();
+      IMaterial material;
+      if (colorTextures.Length == 1) {
+        var standardMaterial = finModel.MaterialManager.AddStandardMaterial();
+        standardMaterial.DiffuseTexture = colorTextures[0];
+        material = standardMaterial;
+      } else {
+        material = finModel.MaterialManager.AddNullMaterial();
+      }
 
       var geo = geoFile.ReadNew<Geo>();
 
@@ -152,7 +165,8 @@ namespace visceral.api {
         var finVertices = geoMesh.Vertices
                                  .Select(geoVertex
                                              => finSkin.AddVertex(geoVertex.Position)
-                                                 .SetLocalNormal(geoVertex.Normal))
+                                                 .SetLocalNormal(geoVertex.Normal)
+                                                 .SetUv(geoVertex.Uv.X, geoVertex.Uv.Y))
                                  .ToArray();
 
         var triangles = geoMesh.Faces.Select(geoFace => {

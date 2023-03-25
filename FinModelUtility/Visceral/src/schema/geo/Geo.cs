@@ -42,7 +42,7 @@ namespace visceral.schema.geo {
 
 
       er.Position = uvBufferInfoOffset;
-      er.Position += 0x14;
+      er.Position += 0x10;
       var uvBufferLength = er.ReadUInt32();
       var totalUvBufferCount = er.ReadUInt32();
       var uvSize = er.ReadUInt16();
@@ -111,6 +111,10 @@ namespace visceral.schema.geo {
           });
         }
 
+        er.Position = uvBufferOffset + baseVertexIndex * uvSize;
+        for (var u = 0; u < vertexCount; ++u) {
+          vertices[u].Uv = er.ReadNew<Vector2f>();
+        }
 
         er.Position = faceOffset;
         var faces = new List<Face>();
@@ -128,8 +132,6 @@ namespace visceral.schema.geo {
       }
 
       this.Meshes = meshes;
-
-      ;
     }
 
     private Vector3f Read32BitNormal_(IEndianBinaryReader er,
@@ -183,6 +185,7 @@ namespace visceral.schema.geo {
     public class Vertex {
       public required Vector3f Position { get; init; }
       public required Vector3f Normal { get; init; }
+      public Vector2f Uv { get; set; }
       public required IReadOnlyList<byte> Bones { get; init; }
       public required IReadOnlyList<float> Weights { get; init; }
     }
