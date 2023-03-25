@@ -64,19 +64,10 @@ namespace xmod.api {
                                        var uv1 = xmod.Uv1s[adjunct.Uv1Index];
 
                                        return finSkin
-                                              .AddVertex(position.X,
-                                                position.Y,
-                                                position.Z)
-                                              .SetLocalNormal(normal.X,
-                                                normal.Y,
-                                                normal.Z)
-                                              .SetColor(
-                                                  FinColor.FromRgbaFloats(
-                                                      color.X,
-                                                      color.Y,
-                                                      color.Z,
-                                                      color.W))
-                                              .SetUv(uv1.X, uv1.Y);
+                                              .AddVertex(position)
+                                              .SetLocalNormal(normal)
+                                              .SetColor(color)
+                                              .SetUv(uv1);
                                      })
                                      .ToArray();
 

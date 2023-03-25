@@ -1,8 +1,10 @@
-﻿using schema.binary.util;
+﻿using fin.model;
+
+using schema.binary.util;
 using schema.text;
 
 namespace xmod.schema.xmod {
-  public class Vector4 : ITextDeserializable {
+  public class Vector4 : ITextDeserializable, IVector4 {
     public Vector4() { }
 
     public Vector4(float x, float y, float z, float w) {

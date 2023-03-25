@@ -295,6 +295,15 @@ namespace fin.model.impl {
           return this;
         }
 
+        public IVertex SetColor(IVector4? color)
+          => this.SetColor(color != null
+                               ? FinColor.FromRgbaFloats(
+                                   color.X,
+                                   color.Y,
+                                   color.Z,
+                                   color.W)
+                               : null);
+
         public IVertex SetColor(int colorIndex, IColor? color) {
           if (color != null) {
             this.Colors ??= new SparseVertexAttributeArray<IColor>();

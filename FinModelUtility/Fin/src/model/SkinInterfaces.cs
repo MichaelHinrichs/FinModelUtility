@@ -120,6 +120,7 @@ namespace fin.model {
 
     IVertexAttributeArray<IColor>? Colors { get; }
     IVertex SetColor(IColor? color);
+    IVertex SetColor(IVector4? color);
     IVertex SetColor(int colorIndex, IColor? color);
     IVertex SetColorBytes(byte r, byte g, byte b, byte a);
     IVertex SetColorBytes(int colorIndex, byte r, byte g, byte b, byte a);
