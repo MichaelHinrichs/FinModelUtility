@@ -1,6 +1,8 @@
 ﻿using schema.binary;
 using System;
 
+using fin.model;
+
 
 namespace fin.schema.vector {
   public abstract class BVector4<T> {
@@ -50,5 +52,6 @@ namespace fin.schema.vector {
   }
 
   [BinarySchema]
-  public sealed partial class Vector4f : BVector4<float>, IBinaryConvertible { }
+  public sealed partial class Vector4f 
+      : BVector4<float>, IVector4, IBinaryConvertible { }
 }

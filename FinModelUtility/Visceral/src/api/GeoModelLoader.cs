@@ -173,7 +173,8 @@ namespace visceral.api {
                                  .Select(geoVertex
                                              => finSkin.AddVertex(geoVertex.Position)
                                                  .SetLocalNormal(geoVertex.Normal)
-                                                 .SetUv(geoVertex.Uv.X, geoVertex.Uv.Y))
+                                                 .SetLocalTangent(geoVertex.Tangent)
+                                                 .SetUv(geoVertex.Uv))
                                  .ToArray();
 
         var triangles = geoMesh.Faces.Select(geoFace => {

@@ -114,7 +114,8 @@ namespace fin.model {
     IVertex SetLocalNormal(float x, float y, float z);
 
     Tangent? LocalTangent { get; }
-    IVertex SetLocalTangent(Tangent? localNormal);
+    IVertex SetLocalTangent(Tangent? localTangent);
+    IVertex SetLocalTangent(IVector4? localTangent);
     IVertex SetLocalTangent(float x, float y, float z, float w);
 
     IVertexAttributeArray<IColor>? Colors { get; }
@@ -127,6 +128,7 @@ namespace fin.model {
 
     IVertexAttributeArray<ITexCoord>? Uvs { get; }
     IVertex SetUv(ITexCoord? uv);
+    IVertex SetUv(IVector2? uv);
     IVertex SetUv(float u, float v);
     IVertex SetUv(int uvIndex, ITexCoord? uv);
     IVertex SetUv(int uvIndex, float u, float v);

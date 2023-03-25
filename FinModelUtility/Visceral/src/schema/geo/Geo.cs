@@ -97,8 +97,8 @@ namespace visceral.schema.geo {
         for (var v = 0; v < vertexCount; v++) {
           var position = er.ReadNew<Vector3f>();
 
-          var normal = this.Read32BitNormal_(er, 10, 512);
-          er.Position += 4;
+          var normal = this.Read32BitNormal_(er);
+          var tangent = this.Read32BitTangent_(er);
 
           var boneIds = er.ReadBytes(4);
           var weights = er.ReadUn16s(4);
@@ -106,6 +106,7 @@ namespace visceral.schema.geo {
           vertices.Add(new Vertex {
               Position = position,
               Normal = normal,
+              Tangent = tangent,
               Bones = boneIds,
               Weights = weights,
           });
@@ -134,14 +135,30 @@ namespace visceral.schema.geo {
       this.Meshes = meshes;
     }
 
-    private Vector3f Read32BitNormal_(IEndianBinaryReader er,
-                                      int bitsPerAxis,
-                                      float divisor) {
+    private Vector3f Read32BitNormal_(IEndianBinaryReader er) {
       var vec = new Vector3f();
 
-      var value = er.ReadUInt32();
+      var bitsPerAxis = 10;
+      var divisor = 512f;
 
+      var value = er.ReadUInt32();
       for (var i = 0; i < 3; ++i) {
+        var axisValue = ReadBits_(value, bitsPerAxis * i, bitsPerAxis);
+        var signedAxisValue = SignValue_(axisValue, bitsPerAxis);
+        vec[i] = signedAxisValue / divisor;
+      }
+
+      return vec;
+    }
+
+    private Vector4f Read32BitTangent_(IEndianBinaryReader er) {
+      var vec = new Vector4f();
+
+      var bitsPerAxis = 8;
+      var divisor = 127f;
+
+      var value = er.ReadUInt32();
+      for (var i = 0; i < 4; ++i) {
         var axisValue = ReadBits_(value, bitsPerAxis * i, bitsPerAxis);
         var signedAxisValue = SignValue_(axisValue, bitsPerAxis);
         vec[i] = signedAxisValue / divisor;
@@ -185,6 +202,7 @@ namespace visceral.schema.geo {
     public class Vertex {
       public required Vector3f Position { get; init; }
       public required Vector3f Normal { get; init; }
+      public required Vector4f Tangent { get; init; }
       public Vector2f Uv { get; set; }
       public required IReadOnlyList<byte> Bones { get; init; }
       public required IReadOnlyList<float> Weights { get; init; }

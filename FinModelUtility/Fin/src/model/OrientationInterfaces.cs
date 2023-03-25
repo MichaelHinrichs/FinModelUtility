@@ -122,11 +122,24 @@ namespace fin.model {
   }
 
 
+  public interface IVector2 {
+    float X { get; set; }
+    float Y { get; set; }
+  }
+
   public interface IVector3 {
     float X { get; set; }
     float Y { get; set; }
     float Z { get; set; }
   }
+
+  public interface IVector4 {
+    float X { get; set; }
+    float Y { get; set; }
+    float Z { get; set; }
+    float W { get; set; }
+  }
+
 
   /*public interface IQuaternion {
     float X { get; }

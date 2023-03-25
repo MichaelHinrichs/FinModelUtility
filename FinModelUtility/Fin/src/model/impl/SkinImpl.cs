@@ -234,8 +234,8 @@ namespace fin.model.impl {
 
         public IVertex SetLocalPosition(IVector3 localPosition)
           => this.SetLocalPosition(new Position(localPosition.X,
-                                         localPosition.Y,
-                                         localPosition.Z));
+                                                localPosition.Y,
+                                                localPosition.Z));
 
 
         public IVertex SetLocalPosition(float x, float y, float z)
@@ -257,7 +257,7 @@ namespace fin.model.impl {
                                      : null);
 
         public IVertex SetLocalNormal(float x, float y, float z)
-          => this.SetLocalNormal(new Normal(x, y ,z));
+          => this.SetLocalNormal(new Normal(x, y, z));
 
 
         public Tangent? LocalTangent { get; private set; }
@@ -266,6 +266,14 @@ namespace fin.model.impl {
           this.LocalTangent = localTangent;
           return this;
         }
+
+        public IVertex SetLocalTangent(IVector4? localTangent)
+          => this.SetLocalTangent(localTangent != null
+                                      ? new Tangent(localTangent.X,
+                                                    localTangent.Y,
+                                                    localTangent.Z,
+                                                    localTangent.W)
+                                      : null);
 
         public IVertex SetLocalTangent(float x, float y, float z, float w)
           => this.SetLocalTangent(new Tangent(x, y, z, w));
@@ -329,6 +337,11 @@ namespace fin.model.impl {
 
           return this;
         }
+
+        public IVertex SetUv(IVector2? uv)
+          => this.SetUv(uv != null
+                            ? new TexCoordImpl { U = uv.X, V = uv.Y }
+                            : null);
 
         public IVertex SetUv(float u, float v) {
           this.Uvs ??= new SingleVertexAttribute<ITexCoord>();
