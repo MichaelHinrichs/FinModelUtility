@@ -144,8 +144,15 @@ namespace visceral.api {
                                   .ToArray();
       IMaterial material;
       if (colorTextures.Length == 1) {
+        var colorTexture = colorTextures[0];
+        var baseTextureName = colorTexture.Name[..^2];
+        var normalTexture =
+            textures.SingleOrDefault(
+                texture => texture.Name == $"{baseTextureName}_n");
+
         var standardMaterial = finModel.MaterialManager.AddStandardMaterial();
-        standardMaterial.DiffuseTexture = colorTextures[0];
+        standardMaterial.DiffuseTexture = colorTexture;
+        standardMaterial.NormalTexture = normalTexture;
         material = standardMaterial;
       } else {
         material = finModel.MaterialManager.AddNullMaterial();
