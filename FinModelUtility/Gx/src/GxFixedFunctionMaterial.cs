@@ -139,10 +139,10 @@ namespace gx {
       valueManager.SetKonstColors(populatedMaterial.KonstColors);
 
       var diffuseLightingColor = equations.CreateColorInput(
-          FixedFunctionSource.DIFFUSE_LIGHTING_COLOR,
+          FixedFunctionSource.ALL_LIGHTING_MERGED_COLOR,
           colorZero);
       var diffuseLightingAlpha = equations.CreateScalarInput(
-          FixedFunctionSource.DIFFUSE_LIGHTING_ALPHA,
+          FixedFunctionSource.ALL_LIGHTING_MERGED_ALPHA,
           scZero);
 
       var vertexColors = new IColorValue[2];

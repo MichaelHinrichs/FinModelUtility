@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using fin.model;
 using fin.util.asserts;
@@ -114,8 +115,8 @@ struct Light {
       os.WriteLine("void main() {");
 
       if (new[] {
-              FixedFunctionSource.DIFFUSE_LIGHTING_COLOR,
-              FixedFunctionSource.DIFFUSE_LIGHTING_ALPHA
+              FixedFunctionSource.ALL_LIGHTING_MERGED_COLOR,
+              FixedFunctionSource.ALL_LIGHTING_MERGED_ALPHA
           }.Any(equations.HasInput)) {
         os.WriteLine(@"  vec3 diffuseLightNormal = normalize(vec3(.5, .5, -1));
   float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);
@@ -123,14 +124,7 @@ struct Light {
   float lightAmount = min(diffuseLightAmount, 1);
   vec3 lightColor = vec3(.5, .5, .5);
   
-  vec4 diffuseLightingColor = vec4(lightAmount * lightColor, 1);");
-        os.WriteLine();
-      }
-      if (new[] {
-              FixedFunctionSource.AMBIENT_LIGHTING_COLOR,
-              FixedFunctionSource.AMBIENT_LIGHTING_ALPHA
-          }.Any(equations.HasInput)) {
-        os.WriteLine("  vec4 ambientLightingColor = vec4(0, 0, 0, 1);");
+  vec4 allLightMergedColor = vec4(lightAmount * lightColor, 1);");
         os.WriteLine();
       }
 
@@ -433,14 +427,31 @@ struct Light {
         return textureValueText;
       }
 
+      if (id == FixedFunctionSource.ALL_LIGHTING_MERGED_ALPHA) {
+        return "allLightMergedColor.a";
+      }
+      if (id == FixedFunctionSource.GLOBAL_LIGHTING_MERGED_ALPHA) {
+        return "globalLightMergedColor.a";
+      }
+      if (id == FixedFunctionSource.LOCAL_LIGHTING_MERGED_ALPHA) {
+        return "localLightMergedColor.a";
+      }
+      if (IsInRange_(id,
+                     FixedFunctionSource.GLOBAL_LIGHT_0_ALPHA,
+                     FixedFunctionSource.GLOBAL_LIGHT_7_ALPHA,
+                     out var globalLightAlphaIndex)) {
+        return $"individualGlobalLightColors[{globalLightAlphaIndex}].a";
+      }
+      if (IsInRange_(id,
+                     FixedFunctionSource.LOCAL_LIGHT_0_ALPHA,
+                     FixedFunctionSource.LOCAL_LIGHT_7_ALPHA,
+                     out var localLightAlphaIndex)) {
+        return $"individualLocalLightColors[{localLightAlphaIndex}].a";
+      }
+
       return namedValue.Identifier switch {
           FixedFunctionSource.VERTEX_ALPHA_0 => "vertexColor0.a",
           FixedFunctionSource.VERTEX_ALPHA_1 => "vertexColor1.a",
-
-          FixedFunctionSource.DIFFUSE_LIGHTING_ALPHA
-              => "diffuseLightingColor.a",
-          FixedFunctionSource.AMBIENT_LIGHTING_ALPHA
-              => "ambientLightingColor.a",
 
           FixedFunctionSource.UNDEFINED => "1",
           _ => throw new ArgumentOutOfRangeException()
@@ -608,6 +619,53 @@ struct Light {
         return textureValueText;
       }
 
+      if (id == FixedFunctionSource.ALL_LIGHTING_MERGED_COLOR) {
+        return "allLightMergedColor.rgb";
+      }
+      if (id == FixedFunctionSource.ALL_LIGHTING_MERGED_ALPHA) {
+        return "allLightMergedColor.aaa";
+      }
+
+      if (id == FixedFunctionSource.GLOBAL_LIGHTING_MERGED_COLOR) {
+        return "globalLightMergedColor.rgb";
+      }
+      if (id == FixedFunctionSource.GLOBAL_LIGHTING_MERGED_ALPHA) {
+        return "globalLightMergedColor.aaa";
+      }
+
+      if (id == FixedFunctionSource.LOCAL_LIGHTING_MERGED_COLOR) {
+        return "localLightMergedColor.rgb";
+      }
+      if (id == FixedFunctionSource.LOCAL_LIGHTING_MERGED_ALPHA) {
+        return "localLightMergedColor.aaa";
+      }
+
+      if (IsInRange_(id,
+                     FixedFunctionSource.GLOBAL_LIGHT_0_COLOR,
+                     FixedFunctionSource.GLOBAL_LIGHT_7_COLOR,
+                     out var globalLightColorIndex)) {
+        return $"individualGlobalLightColors[{globalLightColorIndex}].rgb";
+      }
+      if (IsInRange_(id,
+                     FixedFunctionSource.GLOBAL_LIGHT_0_ALPHA,
+                     FixedFunctionSource.GLOBAL_LIGHT_7_ALPHA,
+                     out var globalLightAlphaIndex)) {
+        return $"individualGlobalLightColors[{globalLightAlphaIndex}].aaa";
+      }
+
+      if (IsInRange_(id,
+                     FixedFunctionSource.LOCAL_LIGHT_0_COLOR,
+                     FixedFunctionSource.LOCAL_LIGHT_7_COLOR,
+                     out var localLightColorIndex)) {
+        return $"individualLocalLightColors[{localLightColorIndex}].rgb";
+      }
+      if (IsInRange_(id,
+                     FixedFunctionSource.LOCAL_LIGHT_0_ALPHA,
+                     FixedFunctionSource.LOCAL_LIGHT_7_ALPHA,
+                     out var localLightAlphaIndex)) {
+        return $"individualLocalLightColors[{localLightAlphaIndex}].aaa";
+      }
+
       return namedValue.Identifier switch {
           FixedFunctionSource.VERTEX_COLOR_0 => "vertexColor0.rgb",
           FixedFunctionSource.VERTEX_COLOR_1 => "vertexColor1.rgb",
@@ -615,19 +673,17 @@ struct Light {
           FixedFunctionSource.VERTEX_ALPHA_0 => "vertexColor0.aaa",
           FixedFunctionSource.VERTEX_ALPHA_1 => "vertexColor1.aaa",
 
-          FixedFunctionSource.DIFFUSE_LIGHTING_COLOR
-              => "diffuseLightingColor.rgb",
-          FixedFunctionSource.DIFFUSE_LIGHTING_ALPHA
-              => "diffuseLightingColor.aaa",
-
-          FixedFunctionSource.AMBIENT_LIGHTING_COLOR
-              => "ambientLightingColor.rgb",
-          FixedFunctionSource.AMBIENT_LIGHTING_ALPHA
-              => "ambientLightingColor.aaa",
-
           FixedFunctionSource.UNDEFINED => "vec3(1)",
           _ => throw new ArgumentOutOfRangeException()
       };
+    }
+
+    private bool IsInRange_(FixedFunctionSource value,
+                            FixedFunctionSource min,
+                            FixedFunctionSource max,
+                            out int relative) {
+      relative = value - min;
+      return value >= min && value <= max;
     }
 
     private string GetTextureValue_(int textureIndex) {
