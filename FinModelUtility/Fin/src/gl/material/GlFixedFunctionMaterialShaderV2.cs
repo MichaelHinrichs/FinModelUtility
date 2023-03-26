@@ -96,12 +96,9 @@ namespace fin.gl.material {
         this.textures_[i].Bind(i);
       }
 
-      this.SetUpLightUniforms_(this.model_.Lighting.GlobalLights,
-                               "globalLights",
-                               MaterialConstants.MAX_GLOBAL_LIGHTS);
-      this.SetUpLightUniforms_(this.Material.Lights,
-                               "localLights",
-                               MaterialConstants.MAX_LOCAL_LIGHTS);
+      this.SetUpLightUniforms_(this.model_.Lighting.Lights,
+                               "lights",
+                               MaterialConstants.MAX_LIGHTS);
     }
 
     private void SetUpLightUniforms_(IReadOnlyList<ILight> lights, string name, int max) {

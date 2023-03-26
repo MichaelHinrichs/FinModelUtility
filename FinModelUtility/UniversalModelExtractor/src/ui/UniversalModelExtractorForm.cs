@@ -77,11 +77,11 @@ public partial class UniversalModelExtractorForm : Form {
     var sceneModel = obj.AddSceneModel(model);
 
     ILight light;
-    if (model.Lighting.GlobalLights.Count == 0) {
-      light = model.Lighting.CreateGlobalLight();
+    if (model.Lighting.Lights.Count == 0) {
+      light = model.Lighting.CreateLight();
       light.SetColor(FinColor.FromRgbFloats(1, 1, 1));
     } else {
-      light = model.Lighting.GlobalLights[0];
+      light = model.Lighting.Lights[0];
     }
     light.SetNormal(new Vector3f { X = .5f, Y = .5f, Z = -1 });
 

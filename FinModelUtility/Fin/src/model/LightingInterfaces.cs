@@ -4,8 +4,8 @@ using System.Collections.Generic;
 
 namespace fin.model {
   public interface ILighting {
-    IReadOnlyList<ILight> GlobalLights { get; }
-    ILight CreateGlobalLight();
+    IReadOnlyList<ILight> Lights { get; }
+    ILight CreateLight();
   }
 
   public enum AttenuationFunction {

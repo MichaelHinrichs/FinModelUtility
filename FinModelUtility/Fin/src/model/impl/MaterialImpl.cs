@@ -128,8 +128,6 @@ namespace fin.model.impl {
     }
 
     private abstract class BMaterialImpl : IMaterial {
-      private readonly List<ILight> lights_ = new();
-
       public abstract IEnumerable<ITexture> Textures { get; }
 
       public string? Name { get; set; }
@@ -138,15 +136,7 @@ namespace fin.model.impl {
       public DepthMode DepthMode { get; set; }
       public DepthCompareType DepthCompareType { get; set; }
 
-      public bool Unlit { get; set; }
-      public bool IgnoreGlobalLights { get; set; }
-      public IReadOnlyList<ILight> Lights => this.lights_;
-
-      public ILight CreateLight() {
-        var light = new LightImpl();
-        this.lights_.Add(light);
-        return light;
-      }
+      public bool IgnoreLights { get; set; }
     }
 
     private class NullMaterialImpl : BMaterialImpl, INullMaterial {

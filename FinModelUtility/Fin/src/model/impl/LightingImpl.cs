@@ -13,9 +13,9 @@ namespace fin.model.impl {
     private class LightingImpl : ILighting {
       private readonly List<ILight> lights_ = new();
 
-      public IReadOnlyList<ILight> GlobalLights => lights_;
+      public IReadOnlyList<ILight> Lights => lights_;
 
-      public ILight CreateGlobalLight() {
+      public ILight CreateLight() {
         var light = new LightImpl();
         this.lights_.Add(light);
         return light;

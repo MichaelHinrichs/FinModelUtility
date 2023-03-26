@@ -64,8 +64,7 @@ namespace fin.model {
     DepthMode DepthMode { get; }
     DepthCompareType DepthCompareType { get; }
 
-    bool IgnoreGlobalLights { get; }
-    IReadOnlyList<ILight> Lights { get; }
+    bool IgnoreLights { get; }
   }
 
   public interface IMaterial : IReadOnlyMaterial {
@@ -76,8 +75,7 @@ namespace fin.model {
     new DepthMode DepthMode { get; set; }
     new DepthCompareType DepthCompareType { get; set; }
 
-    new bool IgnoreGlobalLights { get; set; }
-    ILight CreateLight();
+    new bool IgnoreLights { get; set; }
   }
 
 
@@ -94,8 +92,6 @@ namespace fin.model {
     ITexture? NormalTexture { get; set; }
     ITexture? EmissiveTexture { get; set; }
     ITexture? SpecularTexture { get; set; }
-
-    bool Unlit { get; set; }
   }
 
 
@@ -211,50 +207,23 @@ namespace fin.model {
     OUTPUT_COLOR,
     OUTPUT_ALPHA,
 
-    ALL_LIGHTING_MERGED_COLOR,
-    ALL_LIGHTING_MERGED_ALPHA,
+    LIGHT_0_COLOR,
+    LIGHT_1_COLOR,
+    LIGHT_2_COLOR,
+    LIGHT_3_COLOR,
+    LIGHT_4_COLOR,
+    LIGHT_5_COLOR,
+    LIGHT_6_COLOR,
+    LIGHT_7_COLOR,
 
-    GLOBAL_LIGHTING_MERGED_COLOR,
-    GLOBAL_LIGHTING_MERGED_ALPHA,
-
-    GLOBAL_LIGHT_0_COLOR,
-    GLOBAL_LIGHT_1_COLOR,
-    GLOBAL_LIGHT_2_COLOR,
-    GLOBAL_LIGHT_3_COLOR,
-    GLOBAL_LIGHT_4_COLOR,
-    GLOBAL_LIGHT_5_COLOR,
-    GLOBAL_LIGHT_6_COLOR,
-    GLOBAL_LIGHT_7_COLOR,
-
-    GLOBAL_LIGHT_0_ALPHA,
-    GLOBAL_LIGHT_1_ALPHA,
-    GLOBAL_LIGHT_2_ALPHA,
-    GLOBAL_LIGHT_3_ALPHA,
-    GLOBAL_LIGHT_4_ALPHA,
-    GLOBAL_LIGHT_5_ALPHA,
-    GLOBAL_LIGHT_6_ALPHA,
-    GLOBAL_LIGHT_7_ALPHA,
-
-    LOCAL_LIGHTING_MERGED_COLOR,
-    LOCAL_LIGHTING_MERGED_ALPHA,
-
-    LOCAL_LIGHT_0_COLOR,
-    LOCAL_LIGHT_1_COLOR,
-    LOCAL_LIGHT_2_COLOR,
-    LOCAL_LIGHT_3_COLOR,
-    LOCAL_LIGHT_4_COLOR,
-    LOCAL_LIGHT_5_COLOR,
-    LOCAL_LIGHT_6_COLOR,
-    LOCAL_LIGHT_7_COLOR,
-    
-    LOCAL_LIGHT_0_ALPHA,
-    LOCAL_LIGHT_1_ALPHA,
-    LOCAL_LIGHT_2_ALPHA,
-    LOCAL_LIGHT_3_ALPHA,
-    LOCAL_LIGHT_4_ALPHA,
-    LOCAL_LIGHT_5_ALPHA,
-    LOCAL_LIGHT_6_ALPHA,
-    LOCAL_LIGHT_7_ALPHA,
+    LIGHT_0_ALPHA,
+    LIGHT_1_ALPHA,
+    LIGHT_2_ALPHA,
+    LIGHT_3_ALPHA,
+    LIGHT_4_ALPHA,
+    LIGHT_5_ALPHA,
+    LIGHT_6_ALPHA,
+    LIGHT_7_ALPHA,
 
     UNDEFINED,
   }

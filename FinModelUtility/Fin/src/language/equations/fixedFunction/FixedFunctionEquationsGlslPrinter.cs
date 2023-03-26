@@ -42,53 +42,19 @@ namespace fin.language.equations.fixedFunction {
       }
       os.WriteLine();
 
-      var dependsOnAllLightingMerged = new[] {
-          FixedFunctionSource.ALL_LIGHTING_MERGED_COLOR,
-          FixedFunctionSource.ALL_LIGHTING_MERGED_ALPHA
-      }.Any(equations.HasInput);
+      var hasIndividualLights = Enumerable
+                                .Range(0, MaterialConstants.MAX_LIGHTS)
+                                .Select(
+                                    i => new[] {
+                                        FixedFunctionSource.LIGHT_0_COLOR + i,
+                                        FixedFunctionSource.LIGHT_0_ALPHA + i
+                                    }.Any(equations.HasInput))
+                                .ToArray();
 
-      var dependsOnGlobalLightingMerged = new[] {
-          FixedFunctionSource.GLOBAL_LIGHTING_MERGED_COLOR,
-          FixedFunctionSource.GLOBAL_LIGHTING_MERGED_ALPHA
-      }.Any(equations.HasInput);
+      var dependsOnAnIndividualLight =
+          hasIndividualLights.Any(value => value);
 
-      var dependsOnLocalLightingMerged = new[] {
-          FixedFunctionSource.LOCAL_LIGHTING_MERGED_COLOR,
-          FixedFunctionSource.LOCAL_LIGHTING_MERGED_ALPHA
-      }.Any(equations.HasInput);
-
-      var hasIndividualGlobalLights = Enumerable
-                           .Range(0, MaterialConstants.MAX_GLOBAL_LIGHTS)
-                           .Select(
-                               i => new[] {
-                                   FixedFunctionSource.GLOBAL_LIGHT_0_COLOR + i,
-                                   FixedFunctionSource.GLOBAL_LIGHT_0_ALPHA + i
-                               }.Any(equations.HasInput))
-                           .ToArray();
-      var hasIndividualLocalLights = Enumerable
-                           .Range(0, MaterialConstants.MAX_LOCAL_LIGHTS)
-                           .Select(
-                               i => new[] {
-                                   FixedFunctionSource.LOCAL_LIGHT_0_COLOR + i,
-                                   FixedFunctionSource.LOCAL_LIGHT_0_ALPHA + i
-                               }.Any(equations.HasInput))
-                           .ToArray();
-
-      var dependsOnAnIndividualGlobalLight =
-          hasIndividualGlobalLights.Any(value => value);
-      var dependsOnAnIndividualLocalLight =
-          hasIndividualLocalLights.Any(value => value);
-
-      var dependsOnGlobalLights = dependsOnAllLightingMerged ||
-                                  dependsOnGlobalLightingMerged ||
-                                  dependsOnAnIndividualGlobalLight;
-      var dependsOnLocalLights =
-          dependsOnAllLightingMerged || dependsOnLocalLightingMerged ||
-          dependsOnAnIndividualLocalLight;
-
-      var dependsOnLighting = dependsOnGlobalLights || dependsOnLocalLights;
-      
-      if (dependsOnLighting) {
+      if (dependsOnAnIndividualLight) {
         os.WriteLine(@"struct Light {
   bool enabled;
   vec3 position;
@@ -96,18 +62,8 @@ namespace fin.language.equations.fixedFunction {
   vec4 color;
 };");
         os.WriteLine();
-      }
-
-      if (dependsOnGlobalLights) {
         os.WriteLine(
-            $"uniform Light globalLights[{MaterialConstants.MAX_GLOBAL_LIGHTS}];");
-      }
-      if (dependsOnLocalLights) {
-        os.WriteLine(
-            $"uniform Light localLights[{MaterialConstants.MAX_LOCAL_LIGHTS}];");
-      }
-
-      if (dependsOnLighting) {
+            $"uniform Light lights[{MaterialConstants.MAX_LIGHTS}];");
         os.WriteLine();
       }
 
@@ -123,7 +79,7 @@ namespace fin.language.equations.fixedFunction {
       os.WriteLine("out vec4 fragColor;");
       os.WriteLine();
 
-      if (dependsOnLighting) {
+      if (dependsOnAnIndividualLight) {
         os.WriteLine(@"vec4 getLightColor(Light light) {
   vec3 diffuseLightNormal = normalize(light.normal);
   float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);
@@ -136,98 +92,12 @@ namespace fin.language.equations.fixedFunction {
       os.WriteLine("void main() {");
 
       // Calculate lighting
-      if (dependsOnAllLightingMerged) {
-        os.WriteLine("  vec4 allLightMergedColor;");
-      }
-
-      if (dependsOnGlobalLightingMerged) {
-        os.WriteLine("  vec4 globalLightMergedColor;");
-      }
-
-      if (dependsOnLocalLightingMerged) {
-        os.WriteLine("  vec4 localLightMergedColor;");
-      } 
-
-      if (dependsOnAnIndividualGlobalLight) {
-        os.WriteLine($"  vec4 individualGlobalLightColors[{MaterialConstants.MAX_GLOBAL_LIGHTS}];");
-      }
-
-      if (dependsOnAnIndividualLocalLight) {
-        os.WriteLine($"  vec4 individualLocalLightColors[{MaterialConstants.MAX_LOCAL_LIGHTS}];");
-      }
-
-      if (dependsOnLighting) {
-        os.WriteLine();
-      }
-
-      // Gets # of enabled local/global lights
-      if (dependsOnAllLightingMerged) {
-        os.WriteLine("  int enabledLightCount;");
-      }
-      if (dependsOnAllLightingMerged || dependsOnGlobalLightingMerged) {
-        os.WriteLine("  int enabledGlobalLightCount;");
+      if (dependsOnAnIndividualLight) {
+        os.WriteLine($"  vec4 individualLightColors[{MaterialConstants.MAX_LIGHTS}];");
         os.WriteLine(
-            @$"  for (int i = 0; i < {MaterialConstants.MAX_GLOBAL_LIGHTS}; ++i) {{");
-        os.WriteLine("    enabledGlobalLightCount += globalLights[i].enabled ? 1 : 0;");
-        os.WriteLine("  }");
-
-        if (dependsOnAllLightingMerged) {
-          os.WriteLine("  enabledLightCount += enabledGlobalLightCount;");
-        }
-
-        os.WriteLine();
-      }
-      if (dependsOnAllLightingMerged || dependsOnLocalLightingMerged) {
-        os.WriteLine("  int enabledLocalLightCount;");
-        os.WriteLine(
-            @$"  for (int i = 0; i < {MaterialConstants.MAX_LOCAL_LIGHTS}; ++i) {{");
-        os.WriteLine("    enabledLocalLightCount += localLights[i].enabled ? 1 : 0;");
-        os.WriteLine("  }");
-
-        if (dependsOnAllLightingMerged) {
-          os.WriteLine("  enabledLightCount += enabledLocalLightCount;");
-        }
-
-        os.WriteLine();
-      }
-
-      if (dependsOnGlobalLights) {
-        os.WriteLine(
-            @$"  for (int i = 0; i < {MaterialConstants.MAX_GLOBAL_LIGHTS}; ++i) {{");
-        os.WriteLine("    vec4 lightColor = getLightColor(globalLights[i]);");
-
-        if (dependsOnAnIndividualLocalLight) {
-          os.WriteLine("    individualGlobalLightColors[i] = lightColor;");
-        }
-
-        if (dependsOnLocalLightingMerged) {
-          os.WriteLine("    globalLightMergedColor += lightColor / enabledGlobalLightCount;");
-        }
-        if (dependsOnAllLightingMerged) {
-          os.WriteLine("    allLightMergedColor += lightColor / enabledLightCount;");
-        }
-
-        os.WriteLine("  }");
-        os.WriteLine();
-      }
-
-
-      if (dependsOnLocalLights) {
-        os.WriteLine(
-            @$"  for (int i = 0; i < {MaterialConstants.MAX_LOCAL_LIGHTS}; ++i) {{");
-        os.WriteLine("    vec4 lightColor = getLightColor(localLights[i]);");
-
-        if (dependsOnAnIndividualLocalLight) {
-          os.WriteLine("    individualLocalLightColors[i] = lightColor;");
-        }
-
-        if (dependsOnLocalLightingMerged) {
-          os.WriteLine("    localLightMergedColor += lightColor / enabledLocalLightCount;");
-        }
-        if (dependsOnAllLightingMerged) {
-          os.WriteLine("    allLightMergedColor += lightColor / enabledLightCount;");
-        }
-
+            @$"  for (int i = 0; i < {MaterialConstants.MAX_LIGHTS}; ++i) {{");
+        os.WriteLine("    vec4 lightColor = getLightColor(lights[i]);");
+        os.WriteLine("    individualLightColors[i] = lightColor;");
         os.WriteLine("  }");
         os.WriteLine();
       }
@@ -531,26 +401,11 @@ namespace fin.language.equations.fixedFunction {
         return textureValueText;
       }
 
-      if (id == FixedFunctionSource.ALL_LIGHTING_MERGED_ALPHA) {
-        return "allLightMergedColor.a";
-      }
-      if (id == FixedFunctionSource.GLOBAL_LIGHTING_MERGED_ALPHA) {
-        return "globalLightMergedColor.a";
-      }
-      if (id == FixedFunctionSource.LOCAL_LIGHTING_MERGED_ALPHA) {
-        return "localLightMergedColor.a";
-      }
       if (IsInRange_(id,
-                     FixedFunctionSource.GLOBAL_LIGHT_0_ALPHA,
-                     FixedFunctionSource.GLOBAL_LIGHT_7_ALPHA,
+                     FixedFunctionSource.LIGHT_0_ALPHA,
+                     FixedFunctionSource.LIGHT_7_ALPHA,
                      out var globalLightAlphaIndex)) {
-        return $"individualGlobalLightColors[{globalLightAlphaIndex}].a";
-      }
-      if (IsInRange_(id,
-                     FixedFunctionSource.LOCAL_LIGHT_0_ALPHA,
-                     FixedFunctionSource.LOCAL_LIGHT_7_ALPHA,
-                     out var localLightAlphaIndex)) {
-        return $"individualLocalLightColors[{localLightAlphaIndex}].a";
+        return $"individualLightColors[{globalLightAlphaIndex}].a";
       }
 
       return namedValue.Identifier switch {
@@ -723,51 +578,17 @@ namespace fin.language.equations.fixedFunction {
         return textureValueText;
       }
 
-      if (id == FixedFunctionSource.ALL_LIGHTING_MERGED_COLOR) {
-        return "allLightMergedColor.rgb";
-      }
-      if (id == FixedFunctionSource.ALL_LIGHTING_MERGED_ALPHA) {
-        return "allLightMergedColor.aaa";
-      }
-
-      if (id == FixedFunctionSource.GLOBAL_LIGHTING_MERGED_COLOR) {
-        return "globalLightMergedColor.rgb";
-      }
-      if (id == FixedFunctionSource.GLOBAL_LIGHTING_MERGED_ALPHA) {
-        return "globalLightMergedColor.aaa";
-      }
-
-      if (id == FixedFunctionSource.LOCAL_LIGHTING_MERGED_COLOR) {
-        return "localLightMergedColor.rgb";
-      }
-      if (id == FixedFunctionSource.LOCAL_LIGHTING_MERGED_ALPHA) {
-        return "localLightMergedColor.aaa";
-      }
-
       if (IsInRange_(id,
-                     FixedFunctionSource.GLOBAL_LIGHT_0_COLOR,
-                     FixedFunctionSource.GLOBAL_LIGHT_7_COLOR,
+                     FixedFunctionSource.LIGHT_0_COLOR,
+                     FixedFunctionSource.LIGHT_7_COLOR,
                      out var globalLightColorIndex)) {
-        return $"individualGlobalLightColors[{globalLightColorIndex}].rgb";
+        return $"individualLightColors[{globalLightColorIndex}].rgb";
       }
       if (IsInRange_(id,
-                     FixedFunctionSource.GLOBAL_LIGHT_0_ALPHA,
-                     FixedFunctionSource.GLOBAL_LIGHT_7_ALPHA,
+                     FixedFunctionSource.LIGHT_0_ALPHA,
+                     FixedFunctionSource.LIGHT_7_ALPHA,
                      out var globalLightAlphaIndex)) {
-        return $"individualGlobalLightColors[{globalLightAlphaIndex}].aaa";
-      }
-
-      if (IsInRange_(id,
-                     FixedFunctionSource.LOCAL_LIGHT_0_COLOR,
-                     FixedFunctionSource.LOCAL_LIGHT_7_COLOR,
-                     out var localLightColorIndex)) {
-        return $"individualLocalLightColors[{localLightColorIndex}].rgb";
-      }
-      if (IsInRange_(id,
-                     FixedFunctionSource.LOCAL_LIGHT_0_ALPHA,
-                     FixedFunctionSource.LOCAL_LIGHT_7_ALPHA,
-                     out var localLightAlphaIndex)) {
-        return $"individualLocalLightColors[{localLightAlphaIndex}].aaa";
+        return $"individualLightColors[{globalLightAlphaIndex}].aaa";
       }
 
       return namedValue.Identifier switch {
