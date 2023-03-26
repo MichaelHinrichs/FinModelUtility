@@ -89,7 +89,7 @@ public partial class UniversalModelExtractorForm : Form {
       var elapsed = current - start;
       
       var time = elapsed.TotalMilliseconds;
-      var baseAngleInRadians = time / 300;
+      var baseAngleInRadians = time / 400;
 
       var enabledCount = 0;
       foreach (var light in lights) {
@@ -108,7 +108,7 @@ public partial class UniversalModelExtractorForm : Form {
           var normal = light.Normal;
           normal.X = (float) (.5f * Math.Cos(angleInRadians));
           normal.Y = (float) (.5f * Math.Sin(angleInRadians));
-          normal.Z = -1;
+          normal.Z = (float) (.5f * Math.Cos(2 * angleInRadians));
 
           currentIndex++;
         }

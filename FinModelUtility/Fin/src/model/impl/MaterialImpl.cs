@@ -241,8 +241,6 @@ namespace fin.model.impl {
         new FixedFunctionEquations<FixedFunctionSource>();
 
       public IReadOnlyList<ITexture?> TextureSources { get; }
-      public IReadOnlyList<IColor?> ColorSources { get; }
-      public IReadOnlyList<float?> AlphaSources { get; }
 
       public IFixedFunctionMaterial SetTextureSource(
           int textureIndex,
