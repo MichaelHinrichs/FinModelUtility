@@ -9,6 +9,8 @@ using fin.color;
 using fin.image;
 using fin.io;
 using fin.language.equations.fixedFunction;
+using fin.schema.vector;
+using fin.util.enumerables;
 using fin.util.image;
 
 
@@ -98,6 +100,33 @@ namespace fin.model.impl {
 
       public TextureMinFilter MinFilter { get; set; } =
         TextureMinFilter.LINEAR_MIPMAP_LINEAR;
+
+
+      public IVector2 Offset { get; } = new Vector2f();
+
+      public ITexture SetOffset(float x, float y) {
+        this.Offset.X = x;
+        this.Offset.Y = y;
+        return this;
+      }
+
+
+      public IVector2 Scale { get; } = new Vector2f { X = 1, Y = 1 };
+
+      public ITexture SetScale(float x, float y) {
+        this.Scale.X = x;
+        this.Scale.Y = y;
+        return this;
+      }
+
+
+      public float RotationDegrees { get; private set; }
+
+      public ITexture SetRotationDegrees(float rotationDegrees) {
+        this.RotationDegrees = rotationDegrees;
+        return this;
+      }
+
 
       public override int GetHashCode() {
         int hash = 216613626;

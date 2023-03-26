@@ -87,57 +87,20 @@ namespace fin.exporter.gltf {
             case IStandardMaterial standardMaterial: {
                 var diffuseTexture = standardMaterial.DiffuseTexture;
                 if (diffuseTexture != null) {
-                  gltfMaterial
-                      .UseChannel(KnownChannel.Diffuse)
-                      .UseTexture()
-                      .WithPrimaryImage(
-                          GltfExporter
-                              .GetGltfImageFromFinTexture_(diffuseTexture))
-                      .WithSampler(
-                          this.ConvertWrapMode_(
-                              diffuseTexture.WrapModeU),
-                          this.ConvertWrapMode_(
-                              diffuseTexture.WrapModeV),
-                          this.ConvertMinFilter_(
-                              diffuseTexture.MinFilter),
-                          this.ConvertMagFilter_(
-                              diffuseTexture.MagFilter));
+                  gltfMaterial.UseChannel(KnownChannel.Diffuse)
+                              .UseTexture(diffuseTexture);
                 }
 
                 var normalTexture = standardMaterial.NormalTexture;
                 if (normalTexture != null) {
                   gltfMaterial.UseChannel(KnownChannel.Normal)
-                              .UseTexture()
-                              .WithPrimaryImage(
-                                  GltfExporter.GetGltfImageFromFinTexture_(
-                                      normalTexture))
-                              .WithSampler(
-                                  this.ConvertWrapMode_(
-                                      normalTexture.WrapModeU),
-                                  this.ConvertWrapMode_(
-                                      normalTexture.WrapModeV),
-                                  this.ConvertMinFilter_(
-                                      normalTexture.MinFilter),
-                                  this.ConvertMagFilter_(
-                                      normalTexture.MagFilter));
+                              .UseTexture(normalTexture);
                 }
 
                 var emissiveTexture = standardMaterial.EmissiveTexture;
                 if (emissiveTexture != null) {
                   gltfMaterial.UseChannel(KnownChannel.Emissive)
-                              .UseTexture()
-                              .WithPrimaryImage(
-                                  GltfExporter.GetGltfImageFromFinTexture_(
-                                      emissiveTexture))
-                              .WithSampler(
-                                  this.ConvertWrapMode_(
-                                      emissiveTexture.WrapModeU),
-                                  this.ConvertWrapMode_(
-                                      emissiveTexture.WrapModeV),
-                                  this.ConvertMinFilter_(
-                                      emissiveTexture.MinFilter),
-                                  this.ConvertMagFilter_(
-                                      emissiveTexture.MagFilter));
+                              .UseTexture(emissiveTexture);
                 }
 
                 /*var specularTexture = standardMaterial.SpecularTexture;
@@ -152,20 +115,7 @@ namespace fin.exporter.gltf {
                 if (ambientOcclusionTexture != null) {
                   gltfMaterial
                       .UseChannel(KnownChannel.Occlusion)
-                      .UseTexture()
-                      .WithPrimaryImage(
-                          GltfExporter
-                              .GetGltfImageFromFinTexture_(
-                                  ambientOcclusionTexture))
-                      .WithSampler(
-                          this.ConvertWrapMode_(
-                              ambientOcclusionTexture.WrapModeU),
-                          this.ConvertWrapMode_(
-                              ambientOcclusionTexture.WrapModeV),
-                          this.ConvertMinFilter_(
-                              ambientOcclusionTexture.MinFilter),
-                          this.ConvertMagFilter_(
-                              ambientOcclusionTexture.MagFilter));
+                      .UseTexture(ambientOcclusionTexture);
                 }
 
                 break;
@@ -183,15 +133,7 @@ namespace fin.exporter.gltf {
 
                   gltfMaterial
                       .UseChannel(KnownChannel.Diffuse)
-                      .UseTexture()
-                      .WithPrimaryImage(
-                          GltfExporter.GetGltfImageFromFinTexture_(texture))
-                      .WithCoordinateSet(0)
-                      .WithSampler(
-                          this.ConvertWrapMode_(texture.WrapModeU),
-                          this.ConvertWrapMode_(texture.WrapModeV),
-                          this.ConvertMinFilter_(texture.MinFilter),
-                          this.ConvertMagFilter_(texture.MagFilter));
+                      .UseTexture(texture);
                 }
                 break;
               }
@@ -248,45 +190,5 @@ namespace fin.exporter.gltf {
       this.logger_.LogInformation($"Writing to {outputPath}...");
       modelRoot.Save(outputPath, writeSettings);
     }
-
-    private static MemoryImage
-        GetGltfImageFromFinTexture_(ITexture finTexture) {
-      using var imageStream = new MemoryStream();
-      finTexture.Image.ExportToStream(imageStream, LocalImageFormat.PNG);
-      var imageBytes = imageStream.ToArray();
-      return new MemoryImage(imageBytes);
-    }
-
-    private TextureWrapMode ConvertWrapMode_(WrapMode wrapMode)
-      => wrapMode switch {
-          WrapMode.CLAMP         => TextureWrapMode.CLAMP_TO_EDGE,
-          WrapMode.REPEAT        => TextureWrapMode.REPEAT,
-          WrapMode.MIRROR_REPEAT => TextureWrapMode.MIRRORED_REPEAT,
-          _ => throw new ArgumentOutOfRangeException(
-                   nameof(wrapMode),
-                   wrapMode,
-                   null)
-      };
-
-    private TextureMipMapFilter ConvertMinFilter_(TextureMinFilter minFilter)
-      => minFilter switch {
-          TextureMinFilter.NEAR   => TextureMipMapFilter.NEAREST,
-          TextureMinFilter.LINEAR => TextureMipMapFilter.LINEAR,
-          TextureMinFilter.NEAR_MIPMAP_NEAR => TextureMipMapFilter
-              .NEAREST_MIPMAP_NEAREST,
-          TextureMinFilter.NEAR_MIPMAP_LINEAR => TextureMipMapFilter
-              .NEAREST_MIPMAP_LINEAR,
-          TextureMinFilter.LINEAR_MIPMAP_NEAR => TextureMipMapFilter
-              .LINEAR_MIPMAP_NEAREST,
-          TextureMinFilter.LINEAR_MIPMAP_LINEAR => TextureMipMapFilter
-              .LINEAR_MIPMAP_LINEAR,
-      };
-
-    private TextureInterpolationFilter ConvertMagFilter_(
-        TextureMagFilter magFilter)
-      => magFilter switch {
-          TextureMagFilter.NEAR   => TextureInterpolationFilter.NEAREST,
-          TextureMagFilter.LINEAR => TextureInterpolationFilter.LINEAR,
-      };
   }
 }

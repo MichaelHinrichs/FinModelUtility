@@ -361,6 +361,22 @@ namespace gx {
               }
           }
 
+          var texMatrixType = texCoordGen.TexMatrix;
+          if (texMatrixType != GxTexMatrix.Identity) {
+            var texMatrixIndex = (texMatrixType - GxTexMatrix.TexMtx0) / 3;
+            var texMatrix = populatedMaterial.TextureMatrices[texMatrixIndex];
+
+            // TODO: handle special matrix types
+
+            var texTranslation = texMatrix.Translation;
+            var texScale = texMatrix.Scale;
+            var texRotationDegrees = texMatrix.Rotation / 32768f * 180;
+
+            texture.SetOffset(texTranslation.X, texTranslation.Y)
+                   .SetScale(texScale.X, texScale.Y)
+                   .SetRotationDegrees(texRotationDegrees);
+          }
+
           valueManager.UpdateTextureColor(textureIndex);
           material.SetTextureSource(textureIndex, texture);
         }

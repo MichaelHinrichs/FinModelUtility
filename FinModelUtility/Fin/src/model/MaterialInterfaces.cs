@@ -322,6 +322,15 @@ namespace fin.model {
     TextureMagFilter MagFilter { get; set; }
     TextureMinFilter MinFilter { get; set; }
 
+    IVector2 Offset { get; }
+    ITexture SetOffset(float x, float y);
+
+    IVector2 Scale { get; }
+    ITexture SetScale(float x, float y);
+
+    float RotationDegrees { get; }
+    ITexture SetRotationDegrees(float rotationDegrees);
+
     // TODO: UV Scaling
     // TODO: Support fixed # of repeats
     // TODO: Support animated textures

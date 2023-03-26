@@ -12,7 +12,7 @@ namespace j3d.schema.bmd.mat3 {
     public ushort padding1;
     public Vector3f Center { get; } = new();
     public Vector2f Scale { get; } = new();
-    public ushort Rotation;
+    public short Rotation { get; set; }
     public ushort Padding2;
     public Vector2f Translation { get; } = new();
     public Matrix4x4f Matrix { get; } = new();
