@@ -76,8 +76,6 @@ namespace fin.io {
     string FullNameWithoutExtension => this.Impl.FullNameWithoutExtension;
     string NameWithoutExtension => this.Impl.NameWithoutExtension;
 
-    string IGenericFile.DisplayPath => this.Impl.DisplayPath;
-
     FileSystemStream IGenericFile.OpenRead() => this.Impl.OpenRead();
     FileSystemStream IGenericFile.OpenWrite() => this.Impl.OpenWrite();
   }
@@ -374,7 +372,7 @@ namespace fin.io {
       public bool Exists => this.Impl.Exists;
 
       public string LocalPath { get; }
-      public string DisplayFullName => this.LocalPath;
+      public string DisplayPath => this.LocalPath;
 
       public override string ToString() => this.LocalPath;
     }

@@ -49,8 +49,8 @@ namespace uni.games.pikmin_2 {
             subdir.Subdirs.SingleOrDefault(dir => dir.Name == "anim");
 
         if (modelSubdir != null && animSubdir != null) {
-          var bmdFiles = modelSubdir.Files;
-          var bcxFiles = animSubdir.Files;
+          var bmdFiles = modelSubdir.FilesWithExtension(".bmd").ToArray();
+          var bcxFiles = animSubdir.FilesWithExtensions(".bca", ".bck").ToArray();
           var btiFiles = subdir.FilesWithExtensionRecursive(".bti").ToArray();
 
           foreach (var bundle in this.ExtractModels_(bmdFiles,

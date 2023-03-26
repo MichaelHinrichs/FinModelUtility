@@ -31,12 +31,11 @@
       // 
       // filesGroupBox
       // 
-      filesGroupBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
       filesGroupBox.Controls.Add(this.filesListBox_);
-      filesGroupBox.Location = new System.Drawing.Point(3, 3);
+      filesGroupBox.Dock = System.Windows.Forms.DockStyle.Fill;
+      filesGroupBox.Location = new System.Drawing.Point(0, 0);
       filesGroupBox.Name = "filesGroupBox";
-      filesGroupBox.Size = new System.Drawing.Size(274, 125);
+      filesGroupBox.Size = new System.Drawing.Size(280, 451);
       filesGroupBox.TabIndex = 1;
       filesGroupBox.TabStop = false;
       filesGroupBox.Text = "Files";
@@ -49,7 +48,7 @@
       this.filesListBox_.ItemHeight = 20;
       this.filesListBox_.Location = new System.Drawing.Point(3, 23);
       this.filesListBox_.Name = "filesListBox_";
-      this.filesListBox_.Size = new System.Drawing.Size(268, 99);
+      this.filesListBox_.Size = new System.Drawing.Size(274, 425);
       this.filesListBox_.TabIndex = 0;
       // 
       // InfoTab
