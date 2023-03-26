@@ -77,7 +77,7 @@ void main() {{
     }
 
 
-    public IMaterial Material { get; }
+    public IReadOnlyMaterial Material { get; }
 
     public bool UseLighting { get; set; }
 

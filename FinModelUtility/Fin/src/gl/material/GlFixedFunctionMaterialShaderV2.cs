@@ -20,7 +20,7 @@ namespace fin.gl.material {
     private readonly IList<GlTexture> textures_;
 
     public GlFixedFunctionMaterialShaderV2(
-        IFixedFunctionMaterial fixedFunctionMaterial) {
+        IReadOnlyFixedFunctionMaterial fixedFunctionMaterial) {
       this.Material = fixedFunctionMaterial;
 
       // TODO: Sometimes vertex colors are passed in from model, and sometimes they
@@ -72,7 +72,7 @@ namespace fin.gl.material {
     }
 
 
-    public IMaterial Material { get; }
+    public IReadOnlyMaterial Material { get; }
 
     public bool UseLighting { get; set; }
 

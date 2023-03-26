@@ -53,19 +53,30 @@ namespace fin.model {
     Never,
   }
 
-  public interface IMaterial {
-    string? Name { get; set; }
+
+  public interface IReadOnlyMaterial {
+    string? Name { get; }
 
     IEnumerable<ITexture> Textures { get; }
 
-    CullingMode CullingMode { get; set; }
+    CullingMode CullingMode { get; }
 
-    DepthMode DepthMode { get; set; }
-    DepthCompareType DepthCompareType { get; set; }
+    DepthMode DepthMode { get; }
+    DepthCompareType DepthCompareType { get; }
 
-    bool Unlit { get; set; }
-    bool IgnoreGlobalLights { get; set; }
+    bool IgnoreGlobalLights { get; }
     IReadOnlyList<ILight> Lights { get; }
+  }
+
+  public interface IMaterial : IReadOnlyMaterial {
+    new string? Name { get; set; }
+
+    new CullingMode CullingMode { get; set; }
+
+    new DepthMode DepthMode { get; set; }
+    new DepthCompareType DepthCompareType { get; set; }
+
+    new bool IgnoreGlobalLights { get; set; }
     ILight CreateLight();
   }
 
@@ -209,20 +220,37 @@ namespace fin.model {
     UNDEFINED,
   }
 
-  public interface IFixedFunctionMaterial : IMaterial {
+
+  public interface IReadOnlyFixedFunctionMaterial : IReadOnlyMaterial {
     IFixedFunctionEquations<FixedFunctionSource> Equations { get; }
 
     IReadOnlyList<ITexture?> TextureSources { get; }
     IReadOnlyList<IColor?> ColorSources { get; }
     IReadOnlyList<float?> AlphaSources { get; }
 
+    ITexture? CompiledTexture { get; }
+
+    BlendMode BlendMode { get; }
+    BlendFactor SrcFactor { get; }
+    BlendFactor DstFactor { get; }
+    LogicOp LogicOp { get; }
+
+    AlphaOp AlphaOp { get; }
+    AlphaCompareType AlphaCompareType0 { get; }
+    float AlphaReference0 { get; }
+    AlphaCompareType AlphaCompareType1 { get; }
+    float AlphaReference1 { get; }
+  }
+
+  public interface IFixedFunctionMaterial : IReadOnlyFixedFunctionMaterial,
+                                            IMaterial {
     IFixedFunctionMaterial SetTextureSource(int textureIndex, ITexture texture);
 
     // TODO: This should be rgb specifically
     IFixedFunctionMaterial SetColorSource(int colorIndex, IColor color);
     IFixedFunctionMaterial SetAlphaSource(int alphaIndex, float alpha);
 
-    ITexture? CompiledTexture { get; set; }
+    new ITexture? CompiledTexture { get; set; }
 
     // TODO: Merge this into a single type
     IFixedFunctionMaterial SetBlending(
@@ -231,11 +259,6 @@ namespace fin.model {
         BlendFactor dstFactor,
         LogicOp logicOp);
 
-    BlendMode BlendMode { get; }
-    BlendFactor SrcFactor { get; }
-    BlendFactor DstFactor { get; }
-    LogicOp LogicOp { get; }
-
     // TODO: Merge this into a single type
     IFixedFunctionMaterial SetAlphaCompare(
         AlphaOp alphaOp,
@@ -243,12 +266,6 @@ namespace fin.model {
         float reference0,
         AlphaCompareType alphaCompareType1,
         float reference1);
-
-    AlphaOp AlphaOp { get; }
-    AlphaCompareType AlphaCompareType0 { get; }
-    float AlphaReference0 { get; }
-    AlphaCompareType AlphaCompareType1 { get; }
-    float AlphaReference1 { get; }
   }
 
 

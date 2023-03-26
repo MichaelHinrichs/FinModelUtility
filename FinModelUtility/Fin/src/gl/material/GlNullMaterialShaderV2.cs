@@ -33,7 +33,7 @@ void main() {
       this.impl_.Dispose();
     }
 
-    public IMaterial Material { get; }
+    public IReadOnlyMaterial Material { get; }
     public bool UseLighting { get; set; }
 
     public void Use() {

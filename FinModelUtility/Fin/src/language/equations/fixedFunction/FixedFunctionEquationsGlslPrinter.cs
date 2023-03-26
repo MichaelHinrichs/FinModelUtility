@@ -15,7 +15,7 @@ namespace fin.language.equations.fixedFunction {
       this.textures_ = textures;
     }
 
-    public string Print(IFixedFunctionMaterial material) {
+    public string Print(IReadOnlyFixedFunctionMaterial material) {
       var sb = new StringBuilder();
 
       using var os = new StringWriter(sb);
@@ -26,7 +26,7 @@ namespace fin.language.equations.fixedFunction {
 
     public void Print(
         StringWriter os,
-        IFixedFunctionMaterial material) {
+        IReadOnlyFixedFunctionMaterial material) {
       var equations = material.Equations;
 
       os.WriteLine("# version 330");
