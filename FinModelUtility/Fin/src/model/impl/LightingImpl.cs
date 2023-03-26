@@ -3,6 +3,8 @@
 using System.Collections.Generic;
 using System.Numerics;
 
+using fin.schema.vector;
+
 
 namespace fin.model.impl {
   public partial class ModelImpl {
@@ -28,14 +30,14 @@ namespace fin.model.impl {
         return this;
       }
 
-      public IVector3 Position { get; private set; }
+      public IVector3 Position { get; private set; } = new Vector3f();
 
       public ILight SetPosition(IVector3 position) {
         this.Position = position;
         return this;
       }
 
-      public IVector3 Normal { get; private set; }
+      public IVector3 Normal { get; private set; } = new Vector3f();
 
       public ILight SetNormal(IVector3 normal) {
         this.Normal = normal;
@@ -43,7 +45,7 @@ namespace fin.model.impl {
       }
 
       public IColor Color { get; private set; } =
-        FinColor.FromRgbFloats(1, 1, 1);
+        FinColor.FromRgbaFloats(1, 1, 1, 1);
 
       public ILight SetColor(IColor color) {
         this.Color = color;

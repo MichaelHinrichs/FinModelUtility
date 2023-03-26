@@ -2,8 +2,13 @@ using fin.audio;
 using fin.data.queue;
 using fin.io.bundles;
 using System.Diagnostics;
+
+using fin.color;
 using fin.model;
 using fin.scene;
+using fin.schema.color;
+using fin.schema.vector;
+
 using uni.config;
 using uni.games;
 using uni.ui.common;
@@ -70,6 +75,28 @@ public partial class UniversalModelExtractorForm : Form {
     var area = scene.AddArea();
     var obj = area.AddObject();
     var sceneModel = obj.AddSceneModel(model);
+
+    ILight light;
+    if (model.Lighting.GlobalLights.Count == 0) {
+      light = model.Lighting.CreateGlobalLight();
+      light.SetColor(FinColor.FromRgbFloats(1, 1, 1));
+    } else {
+      light = model.Lighting.GlobalLights[0];
+    }
+    light.SetNormal(new Vector3f { X = .5f, Y = .5f, Z = -1 });
+
+    var start = DateTime.Now;
+    obj.SetOnTickHandler(_ => {
+      var current = DateTime.Now;
+      var elapsed = current - start;
+      
+      var time = elapsed.TotalMilliseconds;
+      var angle = time / 300;
+
+      var normal = light.Normal;
+      normal.X = (float) (.5f * Math.Cos(angle));
+      normal.Y = (float) (.5f * Math.Sin(angle));
+    });
 
     this.UpdateScene_(fileNode, modelFileBundle, scene);
   }

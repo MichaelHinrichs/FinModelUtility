@@ -56,6 +56,7 @@ namespace fin.gl.model {
               mesh,
               new MaterialMeshRendererV2(
                   this.bufferManager_,
+                  this.Model,
                   material,
                   primitives.OrderBy(primitive => primitive.InversePriority)
                             .ToArray()) {

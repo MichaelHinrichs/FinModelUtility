@@ -22,6 +22,7 @@ namespace fin.gl.model {
 
     public MaterialMeshRendererV2(
         GlBufferManager bufferManager,
+        IModel model,
         IMaterial? material,
         IList<IPrimitive> primitives) {
       this.material_ = material;
@@ -30,7 +31,7 @@ namespace fin.gl.model {
           && !DebugFlags.ENABLE_WEIGHT_COLORS
           && material is IFixedFunctionMaterial fixedFunctionMaterial) {
         this.materialShader_ =
-            new GlFixedFunctionMaterialShaderV2(fixedFunctionMaterial);
+            new GlFixedFunctionMaterialShaderV2(model, fixedFunctionMaterial);
       } else if (material is IStandardMaterial standardMaterial) {
         this.materialShader_ = new GlStandardMaterialShaderV2(standardMaterial);
       } else if (material != null) {

@@ -118,7 +118,7 @@ struct Light {
               FixedFunctionSource.ALL_LIGHTING_MERGED_COLOR,
               FixedFunctionSource.ALL_LIGHTING_MERGED_ALPHA
           }.Any(equations.HasInput)) {
-        os.WriteLine(@"  vec3 diffuseLightNormal = normalize(vec3(.5, .5, -1));
+        os.WriteLine(@"  vec3 diffuseLightNormal = normalize(globalLights[0].normal);
   float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);
 
   float lightAmount = min(diffuseLightAmount, 1);

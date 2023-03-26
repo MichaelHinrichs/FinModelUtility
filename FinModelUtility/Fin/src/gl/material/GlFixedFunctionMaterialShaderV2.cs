@@ -9,6 +9,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace fin.gl.material {
   public class GlFixedFunctionMaterialShaderV2 : IGlMaterialShader {
+    private readonly IModel model_;
     private readonly GlShaderProgram impl_;
 
     private readonly int modelViewMatrixLocation_;
@@ -20,7 +21,9 @@ namespace fin.gl.material {
     private readonly IList<GlTexture> textures_;
 
     public GlFixedFunctionMaterialShaderV2(
+        IModel model,
         IReadOnlyFixedFunctionMaterial fixedFunctionMaterial) {
+      this.model_ = model;
       this.Material = fixedFunctionMaterial;
 
       // TODO: Sometimes vertex colors are passed in from model, and sometimes they
@@ -91,6 +94,39 @@ namespace fin.gl.material {
       }
       for (var i = 0; i < this.textures_.Count; ++i) {
         this.textures_[i].Bind(i);
+      }
+
+      this.SetUpLightUniforms_(this.model_.Lighting.GlobalLights,
+                               "globalLights",
+                               MaterialConstants.MAX_GLOBAL_LIGHTS);
+      this.SetUpLightUniforms_(this.Material.Lights,
+                               "localLights",
+                               MaterialConstants.MAX_LOCAL_LIGHTS);
+    }
+
+    private void SetUpLightUniforms_(IReadOnlyList<ILight> lights, string name, int max) {
+      for (var i = 0; i < max; ++i) {
+        var isEnabled = i < lights.Count;
+        var enabledLocation = this.impl_.GetUniformLocation($"{name}[{i}].enabled");
+        GL.Uniform1(enabledLocation, isEnabled ? 1 : 0);
+
+        if (!isEnabled) {
+          continue;
+        }
+        
+        var light = lights[i];
+
+        var position = light.Position;
+        var positionLocation = this.impl_.GetUniformLocation($"{name}[{i}].position");
+        GL.Uniform3(positionLocation, position.X, position.Y, position.Z);
+
+        var normal = light.Normal;
+        var normalLocation = this.impl_.GetUniformLocation($"{name}[{i}].normal");
+        GL.Uniform3(normalLocation, normal.X, normal.Y, normal.Z);
+
+        var color = light.Color;
+        var colorLocation = this.impl_.GetUniformLocation($"{name}[{i}].color");
+        GL.Uniform4(colorLocation, color.Rf, color.Gf, color.Bf, color.Af);
       }
     }
   }
