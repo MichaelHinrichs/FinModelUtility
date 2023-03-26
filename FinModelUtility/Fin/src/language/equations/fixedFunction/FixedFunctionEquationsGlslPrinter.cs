@@ -31,7 +31,8 @@ namespace fin.language.equations.fixedFunction {
 
       os.WriteLine("# version 330");
       os.WriteLine();
-      for (var t = 0; t < 8; ++t) {
+
+      for (var t = 0; t < MaterialConstants.MAX_TEXTURES; ++t) {
         if (new[] {
                 FixedFunctionSource.TEXTURE_COLOR_0 + t,
                 FixedFunctionSource.TEXTURE_ALPHA_0 + t
@@ -40,11 +41,71 @@ namespace fin.language.equations.fixedFunction {
         }
       }
       os.WriteLine();
+
+      var hasAllLightsMerged = new[] {
+          FixedFunctionSource.ALL_LIGHTING_MERGED_COLOR,
+          FixedFunctionSource.ALL_LIGHTING_MERGED_ALPHA
+      }.Any(equations.HasInput);
+
+      var hasGlobalLightsMerged = new[] {
+          FixedFunctionSource.GLOBAL_LIGHTING_MERGED_COLOR,
+          FixedFunctionSource.GLOBAL_LIGHTING_MERGED_ALPHA
+      }.Any(equations.HasInput);
+
+      var hasLocalLightsMerged = new[] {
+          FixedFunctionSource.LOCAL_LIGHTING_MERGED_COLOR,
+          FixedFunctionSource.LOCAL_LIGHTING_MERGED_ALPHA
+      }.Any(equations.HasInput);
+
+      var hasIndividualGlobalLights = Enumerable
+                           .Range(0, MaterialConstants.MAX_GLOBAL_LIGHTS)
+                           .Select(
+                               i => new[] {
+                                   FixedFunctionSource.GLOBAL_LIGHT_0_COLOR + i,
+                                   FixedFunctionSource.GLOBAL_LIGHT_0_ALPHA + i
+                               }.Any(equations.HasInput))
+                           .ToArray();
+      var hasIndividualLocalLights = Enumerable
+                           .Range(0, MaterialConstants.MAX_LOCAL_LIGHTS)
+                           .Select(
+                               i => new[] {
+                                   FixedFunctionSource.LOCAL_LIGHT_0_COLOR + i,
+                                   FixedFunctionSource.LOCAL_LIGHT_0_ALPHA + i
+                               }.Any(equations.HasInput))
+                           .ToArray();
+
+      var dependsOnGlobalLights = hasAllLightsMerged || hasGlobalLightsMerged ||
+                                  hasIndividualGlobalLights.Any(value => value);
+      var dependsOnLocalLights = hasAllLightsMerged || hasLocalLightsMerged ||
+                                 hasIndividualLocalLights.Any(value => value);
+      
+      if (dependsOnGlobalLights || dependsOnLocalLights) {
+        os.WriteLine(@"
+struct Light {
+  bool enabled;
+  vec3 position;
+  vec3 normal;
+  vec4 color;
+};
+");
+      }
+
+      if (dependsOnGlobalLights) {
+        os.WriteLine(
+            $"uniform Light globalLights[{MaterialConstants.MAX_GLOBAL_LIGHTS}];");
+      }
+      if (dependsOnLocalLights) {
+        os.WriteLine(
+            $"uniform Light localLights[{MaterialConstants.MAX_LOCAL_LIGHTS}];");
+      }
+      os.WriteLine();
+
       os.WriteLine("in vec2 normalUv;");
       os.WriteLine("in vec3 vertexNormal;");
-      os.WriteLine("in vec4 vertexColor0;");
-      os.WriteLine("in vec4 vertexColor1;");
-      for (var i = 0; i < 4; ++i) {
+      for (var i = 0; i < MaterialConstants.MAX_COLORS; ++i) {
+        os.WriteLine($"in vec4 vertexColor{i};");
+      }
+      for (var i = 0; i < MaterialConstants.MAX_UVS; ++i) {
         os.WriteLine($"in vec2 uv{i};");
       }
       os.WriteLine();

@@ -1,13 +1,11 @@
 ﻿using fin.math;
 using fin.model;
-using fin.model.impl;
 
 using OpenTK.Graphics.OpenGL;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 
 namespace fin.gl {
@@ -21,7 +19,7 @@ namespace fin.gl {
     private readonly float[][] colorData_;
 
     private int vaoId_;
-    private int[] vboIds_ = new int[1 + 1 + 1 + 4 + 2];
+    private int[] vboIds_ = new int[1 + 1 + 1 + MaterialConstants.MAX_UVS + MaterialConstants.MAX_COLORS];
 
     private const int POSITION_SIZE_ = 3;
     private const int NORMAL_SIZE_ = 3;
@@ -38,12 +36,12 @@ namespace fin.gl {
       this.positionData_ = new Position[this.vertices_.Count];
       this.normalData_ = new Normal[this.vertices_.Count];
       this.tangentData_ = new Tangent[this.vertices_.Count];
-      this.uvData_ = new float[4][];
+      this.uvData_ = new float[MaterialConstants.MAX_UVS][];
       for (var i = 0; i < this.uvData_.Length; ++i) {
         this.uvData_[i] = new float[UV_SIZE_ * this.vertices_.Count];
       }
 
-      this.colorData_ = new float[2][];
+      this.colorData_ = new float[MaterialConstants.MAX_COLORS][];
       for (var i = 0; i < this.colorData_.Length; ++i) {
         var colorData = this.colorData_[i] =
             new float[COLOR_SIZE_ * this.vertices_.Count];

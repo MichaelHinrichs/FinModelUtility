@@ -49,7 +49,7 @@ void main() {{{{
     vec4 ambientOcclusionColor = texture(ambientOcclusionTexture, uv0);
     vec4 emissiveColor = texture(emissiveTexture, uv0);
 
-    fragColor = vec4(1); // diffuseColor * vertexColor0;
+    fragColor = diffuseColor * vertexColor0;
 ");
 
       if (!hasNormalTexture) {

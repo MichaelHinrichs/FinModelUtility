@@ -1,4 +1,10 @@
-﻿namespace fin.gl.material {
+﻿using System.Numerics;
+
+using fin.model;
+
+using SharpGLTF.Geometry.VertexTypes;
+
+namespace fin.gl.material {
   public static class CommonShaderPrograms {
     private static GlShaderProgram? texturelessShaderProgram_;
 
@@ -14,7 +20,8 @@ varying vec4 vertexColor;
 void main() {
     gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex; 
     vertexColor = gl_Color;
-}", @"
+}",
+                                          @"
 # version 130 
 
 out vec4 fragColor;
@@ -30,41 +37,66 @@ void main() {
       }
     }
 
-    public static string VERTEX_SRC { get; } = @"
+    public static string VERTEX_SRC { get; }
+
+    public static TNumber UseThenAdd<TNumber>(ref TNumber value, TNumber delta)
+        where TNumber : INumber<TNumber> {
+      var initialValue = value;
+      value += delta;
+      return initialValue;
+    }
+
+    static CommonShaderPrograms() {
+      var location = 0;
+      var vertexSrc = $@"
 # version 330
 
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
 
-layout(location = 0) in vec3 in_Position;
-layout(location = 1) in vec3 in_Normal;
-layout(location = 2) in vec4 in_Tangent;
-layout(location = 3) in vec2 in_Uvs[4];
-layout(location = 7) in vec4 in_Colors[2];
+layout(location = {location++}) in vec3 in_Position;
+layout(location = {location++}) in vec3 in_Normal;
+layout(location = {location++}) in vec4 in_Tangent;
+layout(location = {UseThenAdd(ref location, MaterialConstants.MAX_UVS)}) in vec2 in_Uvs[{MaterialConstants.MAX_UVS}];
+layout(location = {UseThenAdd(ref location, MaterialConstants.MAX_COLORS)}) in vec4 in_Colors[{MaterialConstants.MAX_COLORS}];
 
 out vec3 vertexNormal;
 out vec3 tangent;
 out vec3 binormal;
-out vec2 normalUv;
-out vec2 uv0;
-out vec2 uv1;
-out vec2 uv2;
-out vec2 uv3;
-out vec4 vertexColor0;
-out vec4 vertexColor1;
+out vec2 normalUv;";
 
+      for (var i = 0; i < MaterialConstants.MAX_UVS; ++i) {
+        vertexSrc += $@"
+out vec2 uv{i};";
+      }
+
+      for (var i = 0; i < MaterialConstants.MAX_COLORS; ++i) {
+        vertexSrc += $@"
+out vec4 vertexColor{i};";
+      }
+
+      vertexSrc += @"
 void main() {
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(in_Position, 1);
-    vertexNormal = normalize(modelViewMatrix * vec4(in_Normal, 0)).xyz;
-    tangent = normalize(modelViewMatrix * vec4(in_Tangent)).xyz;
-    binormal = cross(vertexNormal, tangent); 
-    normalUv = normalize(projectionMatrix * modelViewMatrix * vec4(in_Normal, 0)).xy;
-    vertexColor0 = in_Colors[0];
-    vertexColor1 = in_Colors[1];
-    uv0 = in_Uvs[0].st;
-    uv1 = in_Uvs[1].st;
-    uv2 = in_Uvs[2].st;
-    uv3 = in_Uvs[3].st;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(in_Position, 1);
+  vertexNormal = normalize(modelViewMatrix * vec4(in_Normal, 0)).xyz;
+  tangent = normalize(modelViewMatrix * vec4(in_Tangent)).xyz;
+  binormal = cross(vertexNormal, tangent); 
+  normalUv = normalize(projectionMatrix * modelViewMatrix * vec4(in_Normal, 0)).xy;";
+
+      for (var i = 0; i < MaterialConstants.MAX_UVS; ++i) {
+        vertexSrc += $@"
+  uv{i} = in_Uvs[{i}];";
+      }
+
+      for (var i = 0; i < MaterialConstants.MAX_COLORS; ++i) {
+        vertexSrc += $@"
+  vertexColor{i} = in_Colors[{i}];";
+      }
+
+      vertexSrc += @"
 }";
+
+      VERTEX_SRC = vertexSrc;
+    }
   }
 }
