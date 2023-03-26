@@ -21,7 +21,7 @@ namespace j3d.misc.GCN {
     public Color[] MaterialColors { get; set; }
     public IColorChannelControl?[] ColorChannelControls { get; set; }
     public Color[] AmbientColors { get; set; }
-    public ushort[] LightColorIndexes;
+    public Color?[] LightColors { get; set; }
 
     public Color[] KonstColors { get; set; }
     public Color[] ColorRegisters { get; set; }
@@ -67,6 +67,11 @@ namespace j3d.misc.GCN {
       this.AmbientColors =
           entry.AmbientColorIndexes
                .Select(i => GetOrNull_(mat3.AmbientColors, i))
+               .ToArray();
+
+      this.LightColors =
+          entry.LightColorIndexes
+               .Select(i => GetOrNullStruct_(mat3.LightColors, i))
                .ToArray();
 
       this.ColorRegisters =
@@ -149,5 +154,9 @@ namespace j3d.misc.GCN {
     private static T? GetOrNull_<T>(IList<T> array, int i)
         where T : notnull
       => i != -1 ? array[i] : default;
+
+    private static T? GetOrNullStruct_<T>(IList<T> array, int i)
+        where T : struct
+      => i != -1 ? array[i] : null;
   }
 }

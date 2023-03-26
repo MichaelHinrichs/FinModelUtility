@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Drawing;
 using System.Linq;
 using fin.util.asserts;
 using fin.util.data;
@@ -82,10 +81,18 @@ namespace fin.language.equations.fixedFunction {
         TIdentifier identifier,
         IColorConstant defaultValue) {
       Asserts.False(this.colorInputs_.ContainsKey(identifier));
+      return this.CreateOrGetColorInput(identifier, defaultValue);
+    }
+
+    public IColorInput<TIdentifier> CreateOrGetColorInput(
+        TIdentifier identifier,
+        IColorConstant defaultValue) {
       Asserts.False(this.colorOutputs_.ContainsKey(identifier));
 
-      var input = new ColorInput(identifier, defaultValue);
-      this.colorInputs_[identifier] = input;
+      if (!this.colorInputs_.TryGetValue(identifier, out var input)) {
+        input = new ColorInput(identifier, defaultValue);
+        this.colorInputs_[identifier] = input;
+      }
       return input;
     }
 

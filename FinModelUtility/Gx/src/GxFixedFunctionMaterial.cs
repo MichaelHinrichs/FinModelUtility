@@ -1,5 +1,7 @@
 ﻿using System.Text;
 using System.Drawing;
+
+using fin.color;
 using fin.model;
 using fin.image;
 using fin.language.equations.fixedFunction;
@@ -8,7 +10,7 @@ using fin.util.asserts;
 using FinBlendFactor = fin.model.BlendFactor;
 using FinLogicOp = fin.model.LogicOp;
 using FinAlphaOp = fin.model.AlphaOp;
-
+using BlendMode = fin.model.BlendMode;
 
 namespace gx {
   /// <summary>
@@ -23,6 +25,7 @@ namespace gx {
     public override string ToString() => this.Material.Name ?? "(n/a)";
 
     public GxFixedFunctionMaterial(
+        IModel model,
         IMaterialManager materialManager,
         IPopulatedMaterial populatedMaterial,
         IList<IGxTexture> tex1Textures) {
@@ -113,8 +116,6 @@ namespace gx {
 
       var colorConstants = new List<Color>();
 
-      // TODO: Need to use material entry indices
-
       var equations = material.Equations;
 
       var colorZero = equations.CreateColorConstant(0);
@@ -138,13 +139,6 @@ namespace gx {
       valueManager.SetColorRegisters(populatedMaterial.ColorRegisters);
       valueManager.SetKonstColors(populatedMaterial.KonstColors);
 
-      var diffuseLightingColor = equations.CreateColorInput(
-          FixedFunctionSource.LIGHT_0_COLOR,
-          colorZero);
-      var diffuseLightingAlpha = equations.CreateScalarInput(
-          FixedFunctionSource.LIGHT_0_ALPHA,
-          scZero);
-
       var vertexColors = new IColorValue[2];
       var vertexAlphas = new IScalarValue[2];
       for (byte i = 0; i < 2; i++) {
@@ -158,12 +152,26 @@ namespace gx {
 
       for (var i = 0; i < 4; ++i) {
         var colorChannelControl = populatedMaterial.ColorChannelControls?[i];
-
         if (colorChannelControl == null) {
           continue;
         }
 
+        var finLighting = model.Lighting;
+        var lights = model.Lighting.Lights;
+        var activeLights = colorChannelControl.LitMask.GetActiveLights().ToArray();
+        foreach (var activeLight in activeLights) {
+          while (lights.Count <= activeLight) {
+            var newLight = finLighting.CreateLight();
+            newLight.Enabled = false;
+          }
+
+          var finLight = lights[activeLight];
+          finLight.Enabled = true;
+        }
+
         // TODO: Properly handle lights and attentuation and stuff
+
+        // TODO: Expose material/ambient registers to side panel
 
         if (i % 2 == 0) {
           var colorIndex = (byte)(i / 2);
@@ -192,8 +200,19 @@ namespace gx {
               GxColorSrc.Vertex => vertexColor,
             };
 
+            // TODO: Factor in how colors are merged in channel control
+            IColorValue? mergedLightColor = null;
+            // TODO: Should these be averaged?
+            foreach (var activeLight in activeLights) {
+              var lightSrc = FixedFunctionSource.LIGHT_0_COLOR +
+                             activeLight;
+              mergedLightColor = colorFixedFunctionOps.Add(
+                  mergedLightColor,
+                  equations.CreateOrGetColorInput(lightSrc, colorZero));
+            }
+
             var illuminationColor =
-                colorFixedFunctionOps.Add(diffuseLightingColor, ambientColor);
+                colorFixedFunctionOps.Add(mergedLightColor, ambientColor);
             if (illuminationColor != null) {
               illuminationColor.Clamp = true;
             }
@@ -239,8 +258,19 @@ namespace gx {
               GxColorSrc.Vertex => vertexAlpha,
             };
 
+            // TODO: Factor in how colors are merged in channel control
+            IScalarValue? mergedLightAlpha = null;
+            // TODO: Should these be averaged?
+            foreach (var activeLight in activeLights) {
+              var lightSrc = FixedFunctionSource.LIGHT_0_ALPHA +
+                             activeLight;
+              mergedLightAlpha = scalarFixedFunctionOps.Add(
+                  mergedLightAlpha,
+                  equations.CreateOrGetScalarInput(lightSrc, scZero));
+            }
+
             var illuminationAlpha =
-                scalarFixedFunctionOps.Add(diffuseLightingAlpha, ambientAlpha);
+                scalarFixedFunctionOps.Add(mergedLightAlpha, ambientAlpha);
             if (illuminationAlpha != null) {
               illuminationAlpha.Clamp = true;
             }

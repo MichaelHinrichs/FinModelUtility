@@ -1,7 +1,6 @@
 ﻿using fin.color;
 
 using System.Collections.Generic;
-using System.Numerics;
 
 using fin.schema.vector;
 

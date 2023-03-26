@@ -28,6 +28,17 @@
     None = 0x00
   }
 
+  public static class GxLightMaskExtensions {
+    public static IEnumerable<int> GetActiveLights(this GxLightMask lightMask) {
+      for (var i = 0; i < 8; ++i) {
+        var bitMask = 1 << i;
+        if (((int) lightMask & bitMask) != 0) {
+          yield return i;
+        }
+      }
+    }
+  }
+
   public enum GxDiffuseFunction : byte {
     None = 0,
     Signed = 1,

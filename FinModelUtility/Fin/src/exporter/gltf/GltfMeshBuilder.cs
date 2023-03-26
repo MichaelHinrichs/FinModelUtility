@@ -7,7 +7,6 @@ using fin.color;
 using fin.data;
 using fin.math;
 using fin.model;
-using fin.model.impl;
 
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;

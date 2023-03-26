@@ -4,6 +4,8 @@ using mod.schema;
 using System.Drawing;
 using System.Linq;
 
+using Material = mod.schema.Material;
+
 namespace mod.util {
   internal class ModPopulatedMaterial : IPopulatedMaterial {
     public ModPopulatedMaterial(Material material, TEVInfo tevInfo) {
@@ -78,6 +80,7 @@ namespace mod.util {
     public Color[] MaterialColors { get; }
     public IColorChannelControl?[] ColorChannelControls { get; }
     public Color[] AmbientColors { get; }
+    public Color?[] LightColors { get; } = { };
     public Color[] KonstColors { get; }
     public Color[] ColorRegisters { get; }
     public ITevOrder?[] TevOrderInfos { get; }

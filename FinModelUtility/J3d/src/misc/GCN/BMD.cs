@@ -931,6 +931,7 @@ label_7:
       public short[] TextureIndices;
       public GxCullMode[] CullModes;
       public System.Drawing.Color[] MaterialColor;
+      public System.Drawing.Color[] LightColors;
       public System.Drawing.Color[] AmbientColors;
       public System.Drawing.Color[] TevColors;
       public System.Drawing.Color[] TevKonstColors;
@@ -1012,7 +1013,12 @@ label_7:
           for (int index = 0; index < sectionLengths[8] / 4; ++index)
             this.AmbientColors[index] = er.ReadColor8();
 
-          // TODO: Add support for light colors (9)
+          er.Position = position1 + this.Offsets[9];
+          this.LightColors = new Color[sectionLengths[9] / 8];
+          for (int index = 0; index < this.LightColors.Length; ++index) {
+            this.LightColors[index] = er.ReadColor16();
+          }
+
           // TODO: Add support for texgen counts (10)
 
           er.Position = position1 + this.Offsets[11];

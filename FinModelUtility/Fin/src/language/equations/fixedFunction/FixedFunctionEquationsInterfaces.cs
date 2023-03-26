@@ -26,6 +26,10 @@ namespace fin.language.equations.fixedFunction {
         TIdentifier identifier,
         IScalarConstant defaultValue);
 
+    IScalarInput<TIdentifier> CreateOrGetScalarInput(
+        TIdentifier identifier,
+        IScalarConstant defaultValue);
+
 
     IReadOnlyDictionary<TIdentifier, IScalarOutput<TIdentifier>>
         ScalarOutputs { get; }
@@ -41,6 +45,11 @@ namespace fin.language.equations.fixedFunction {
     IColorInput<TIdentifier> CreateColorInput(
         TIdentifier identifier,
         IColorConstant value);
+
+    IColorInput<TIdentifier> CreateOrGetColorInput(
+        TIdentifier identifier,
+        IColorConstant defaultValue);
+
 
     IReadOnlyDictionary<TIdentifier, IColorOutput<TIdentifier>>
         ColorOutputs { get; }

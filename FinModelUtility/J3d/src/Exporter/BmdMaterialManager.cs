@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
+using fin.color;
 using fin.model;
 using gx;
 using j3d.GCN;
@@ -31,6 +32,8 @@ namespace j3d.exporter {
                           .ToList();
 
       this.materials_ = this.GetMaterials_(model, bmd);
+
+      // TODO: How to set up lights from mat3??? Also, is this ever actually used???
     }
 
     public GxFixedFunctionMaterial Get(int entryIndex)
@@ -39,6 +42,7 @@ namespace j3d.exporter {
     private IList<GxFixedFunctionMaterial> GetMaterials_(IModel model, BMD bmd)
       => bmd.MAT3.MaterialEntries.Select(
                 (_, i) => new GxFixedFunctionMaterial(
+                    model,
                     model.MaterialManager,
                     bmd.MAT3.PopulatedMaterials[i],
                     this.textures_))

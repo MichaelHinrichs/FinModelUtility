@@ -76,14 +76,12 @@ public partial class UniversalModelExtractorForm : Form {
     var obj = area.AddObject();
     var sceneModel = obj.AddSceneModel(model);
 
-    ILight light;
-    if (model.Lighting.Lights.Count == 0) {
-      light = model.Lighting.CreateLight();
-      light.SetColor(FinColor.FromRgbFloats(1, 1, 1));
-    } else {
-      light = model.Lighting.Lights[0];
+    // TODO: Need to be able to pass lighting into model from scene
+    IReadOnlyList<ILight> lights = model.Lighting.Lights;
+    if (lights.Count == 0) {
+      model.Lighting.CreateLight()
+           .SetColor(FinColor.FromRgbFloats(1, 1, 1));
     }
-    light.SetNormal(new Vector3f { X = .5f, Y = .5f, Z = -1 });
 
     var start = DateTime.Now;
     obj.SetOnTickHandler(_ => {
@@ -91,11 +89,31 @@ public partial class UniversalModelExtractorForm : Form {
       var elapsed = current - start;
       
       var time = elapsed.TotalMilliseconds;
-      var angle = time / 300;
+      var baseAngleInRadians = time / 300;
 
-      var normal = light.Normal;
-      normal.X = (float) (.5f * Math.Cos(angle));
-      normal.Y = (float) (.5f * Math.Sin(angle));
+      var enabledCount = 0;
+      foreach (var light in lights) {
+        if (light.Enabled) {
+          enabledCount++;
+        }
+      }
+
+      var currentIndex = 0;
+      foreach (var light in lights) {
+        if (light.Enabled) {
+          var angleInRadians = baseAngleInRadians +
+                               2 * MathF.PI *
+                               (1f * currentIndex / enabledCount);
+
+          var normal = light.Normal;
+          normal.X = (float) (.5f * Math.Cos(angleInRadians));
+          normal.Y = (float) (.5f * Math.Sin(angleInRadians));
+          normal.Z = -1;
+
+          currentIndex++;
+        }
+      }
+
     });
 
     this.UpdateScene_(fileNode, modelFileBundle, scene);

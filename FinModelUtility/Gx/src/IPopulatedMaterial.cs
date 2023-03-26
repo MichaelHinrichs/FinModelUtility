@@ -16,6 +16,7 @@ namespace gx {
     Color[] MaterialColors { get; }
     IColorChannelControl?[] ColorChannelControls { get; }
     Color[] AmbientColors { get; }
+    Color?[] LightColors { get; }
 
     Color[] KonstColors { get; }
     Color[] ColorRegisters { get; }

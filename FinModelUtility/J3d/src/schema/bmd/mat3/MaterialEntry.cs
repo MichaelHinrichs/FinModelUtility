@@ -25,7 +25,7 @@ namespace j3d.schema.bmd.mat3 {
     public short[] MaterialColorIndexes { get; } = new short[2];
     public ushort[] ColorChannelControlIndexes { get; } = new ushort[4];
     public ushort[] AmbientColorIndexes { get; } = new ushort[2];
-    public ushort[] LightColorIndexes { get; } = new ushort[8];
+    public short[] LightColorIndexes { get; } = new short[8];
 
     public short[] TexGenInfo { get; } = new short[8];
 

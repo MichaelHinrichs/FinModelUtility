@@ -35,10 +35,18 @@ namespace fin.language.equations.fixedFunction {
         TIdentifier identifier,
         IScalarConstant defaultValue) {
       Asserts.False(this.scalarInputs_.ContainsKey(identifier));
+      return this.CreateOrGetScalarInput(identifier, defaultValue);
+    }
+
+    public IScalarInput<TIdentifier> CreateOrGetScalarInput(
+        TIdentifier identifier,
+        IScalarConstant defaultValue) {
       Asserts.False(this.scalarOutputs_.ContainsKey(identifier));
 
-      var input = new ScalarInput(identifier, defaultValue);
-      this.scalarInputs_[identifier] = input;
+      if (!this.scalarInputs_.TryGetValue(identifier, out var input)) {
+        input = new ScalarInput(identifier, defaultValue);
+        this.scalarInputs_[identifier] = input;
+      }
       return input;
     }
 
