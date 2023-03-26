@@ -204,8 +204,6 @@ namespace fin.model.impl {
 
         this.TextureSources =
             new ReadOnlyCollection<ITexture?>(this.texturesSources_);
-        this.ColorSources = new ReadOnlyCollection<IColor?>(this.colors_);
-        this.AlphaSources = new ReadOnlyCollection<float?>(this.alphas_);
       }
 
       public override IEnumerable<ITexture> Textures { get; }
@@ -226,20 +224,6 @@ namespace fin.model.impl {
 
         this.texturesSources_[textureIndex] = texture;
 
-        return this;
-      }
-
-      public IFixedFunctionMaterial SetColorSource(
-          int colorIndex,
-          IColor color) {
-        this.colors_[colorIndex] = color;
-        return this;
-      }
-
-      public IFixedFunctionMaterial SetAlphaSource(
-          int alphaIndex,
-          float alpha) {
-        this.alphas_[alphaIndex] = alpha;
         return this;
       }
 

@@ -233,8 +233,6 @@ namespace fin.model {
     IFixedFunctionEquations<FixedFunctionSource> Equations { get; }
 
     IReadOnlyList<ITexture?> TextureSources { get; }
-    IReadOnlyList<IColor?> ColorSources { get; }
-    IReadOnlyList<float?> AlphaSources { get; }
 
     ITexture? CompiledTexture { get; }
 
@@ -253,10 +251,6 @@ namespace fin.model {
   public interface IFixedFunctionMaterial : IReadOnlyFixedFunctionMaterial,
                                             IMaterial {
     IFixedFunctionMaterial SetTextureSource(int textureIndex, ITexture texture);
-
-    // TODO: This should be rgb specifically
-    IFixedFunctionMaterial SetColorSource(int colorIndex, IColor color);
-    IFixedFunctionMaterial SetAlphaSource(int alphaIndex, float alpha);
 
     new ITexture? CompiledTexture { get; set; }
 
