@@ -30,6 +30,8 @@ namespace fin.model.impl {
         return this;
       }
 
+      public bool Enabled { get; set; } = true;
+
       public IVector3 Position { get; private set; } = new Vector3f();
 
       public ILight SetPosition(IVector3 position) {

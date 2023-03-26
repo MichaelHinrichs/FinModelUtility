@@ -103,7 +103,7 @@ namespace fin.gl.material {
 
     private void SetUpLightUniforms_(IReadOnlyList<ILight> lights, string name, int max) {
       for (var i = 0; i < max; ++i) {
-        var isEnabled = i < lights.Count;
+        var isEnabled = i < lights.Count && lights[i].Enabled;
         var enabledLocation = this.impl_.GetUniformLocation($"{name}[{i}].enabled");
         GL.Uniform1(enabledLocation, isEnabled ? 1 : 0);
 

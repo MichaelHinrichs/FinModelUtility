@@ -24,6 +24,8 @@ namespace fin.model {
     string Name { get; }
     ILight SetName(string name);
 
+    bool Enabled { get; set; }
+
     IVector3 Position { get; }
     ILight SetPosition(IVector3 position);
 
