@@ -62,15 +62,19 @@ namespace fin.model {
 
     DepthMode DepthMode { get; set; }
     DepthCompareType DepthCompareType { get; set; }
+
+    bool Unlit { get; set; }
+    bool IgnoreGlobalLights { get; set; }
+    IReadOnlyList<ILight> Lights { get; }
+    ILight CreateLight();
   }
+
 
   public interface INullMaterial : IMaterial {
   }
 
   public interface ITextureMaterial : IMaterial {
     ITexture Texture { get; }
-
-    bool Unlit { get; set; }
   }
 
   public interface IStandardMaterial : IMaterial {

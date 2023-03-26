@@ -1,5 +1,7 @@
 ﻿using fin.color;
+
 using System.Collections.Generic;
+using System.Numerics;
 
 
 namespace fin.model.impl {
@@ -9,8 +11,9 @@ namespace fin.model.impl {
     private class LightingImpl : ILighting {
       private readonly List<ILight> lights_ = new();
 
-      public IReadOnlyList<ILight> Lights => lights_;
-      public ILight CreateLight() {
+      public IReadOnlyList<ILight> GlobalLights => lights_;
+
+      public ILight CreateGlobalLight() {
         var light = new LightImpl();
         this.lights_.Add(light);
         return light;
@@ -19,47 +22,63 @@ namespace fin.model.impl {
 
     private class LightImpl : ILight {
       public string Name { get; private set; }
+
       public ILight SetName(string name) {
         this.Name = name;
         return this;
       }
 
-      public Position Position { get; private set; }
-      public ILight SetPosition(Position position) {
+      public IVector3 Position { get; private set; }
+
+      public ILight SetPosition(IVector3 position) {
         this.Position = position;
         return this;
       }
 
-      public Normal Normal { get; private set; }
-      public ILight SetNormal(Normal normal) {
+      public IVector3 Normal { get; private set; }
+
+      public ILight SetNormal(IVector3 normal) {
         this.Normal = normal;
         return this;
       }
 
-      public IColor Color { get; private set; } = FinColor.FromRgbFloats(1, 1, 1);
+      public IColor Color { get; private set; } =
+        FinColor.FromRgbFloats(1, 1, 1);
+
       public ILight SetColor(IColor color) {
         this.Color = color;
         return this;
       }
 
-      public IVector3 CosineAttenuation { get; } 
+      public IVector3 CosineAttenuation { get; private set; }
+
       public ILight SetCosineAttenuation(IVector3 cosineAttenuation) {
-        throw new System.NotImplementedException();
+        this.CosineAttenuation = cosineAttenuation;
+        return this;
       }
 
-      public IVector3 DistanceAttenuation { get; }
+      public IVector3 DistanceAttenuation { get; private set; }
+
       public ILight SetDistanceAttenuation(IVector3 distanceAttenuation) {
-        throw new System.NotImplementedException();
+        this.DistanceAttenuation = distanceAttenuation;
+        return this;
       }
 
-      public AttenuationFunction AttenuationFunction { get; }
-      public ILight SetAttenuationFunction(AttenuationFunction attenuationFunction) {
-        throw new System.NotImplementedException();
+      public AttenuationFunction AttenuationFunction { get; private set; } =
+        AttenuationFunction.SPECULAR;
+
+      public ILight SetAttenuationFunction(
+          AttenuationFunction attenuationFunction) {
+        this.AttenuationFunction = attenuationFunction;
+        return this;
       }
 
-      public DiffuseFunction DiffuseFunction { get; }
+      public DiffuseFunction DiffuseFunction { get; private set; } =
+        DiffuseFunction.CLAMP;
+
       public ILight SetDiffuseFunction(DiffuseFunction diffuseFunction) {
-        throw new System.NotImplementedException();
+        this.DiffuseFunction = diffuseFunction;
+        return this;
       }
     }
   }

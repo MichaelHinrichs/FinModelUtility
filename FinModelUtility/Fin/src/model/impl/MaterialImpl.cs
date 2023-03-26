@@ -127,38 +127,45 @@ namespace fin.model.impl {
       }
     }
 
-    private class NullMaterialImpl : INullMaterial {
-      public string? Name { get; set; }
-      public IEnumerable<ITexture> Textures { get; } = Array.Empty<ITexture>();
-      public CullingMode CullingMode { get; set; }
+    private abstract class BMaterialImpl : IMaterial {
+      private readonly List<ILight> lights_ = new();
 
-      public DepthMode DepthMode { get; set; }
-      public DepthCompareType DepthCompareType { get; set; }
-    }
-
-    private class TextureMaterialImpl : ITextureMaterial {
-      public TextureMaterialImpl(ITexture texture) {
-        this.Texture = texture;
-        this.Textures = new ReadOnlyCollection<ITexture>(new[] { texture });
-      }
+      public abstract IEnumerable<ITexture> Textures { get; }
 
       public string? Name { get; set; }
-
-      public ITexture Texture { get; }
-      public IEnumerable<ITexture> Textures { get; }
-
       public CullingMode CullingMode { get; set; }
 
       public DepthMode DepthMode { get; set; }
       public DepthCompareType DepthCompareType { get; set; }
 
       public bool Unlit { get; set; }
+      public bool IgnoreGlobalLights { get; set; }
+      public IReadOnlyList<ILight> Lights => this.lights_;
+
+      public ILight CreateLight() {
+        var light = new LightImpl();
+        this.lights_.Add(light);
+        return light;
+      }
     }
 
-    private class StandardMaterialImpl : IStandardMaterial {
-      public string? Name { get; set; }
+    private class NullMaterialImpl : BMaterialImpl, INullMaterial {
+      public override IEnumerable<ITexture> Textures { get; } =
+        Array.Empty<ITexture>();
+    }
 
-      public IEnumerable<ITexture> Textures {
+    private class TextureMaterialImpl : BMaterialImpl, ITextureMaterial {
+      public TextureMaterialImpl(ITexture texture) {
+        this.Texture = texture;
+        this.Textures = new ReadOnlyCollection<ITexture>(new[] { texture });
+      }
+
+      public ITexture Texture { get; }
+      public override IEnumerable<ITexture> Textures { get; }
+    }
+
+    private class StandardMaterialImpl : BMaterialImpl, IStandardMaterial {
+      public override IEnumerable<ITexture> Textures {
         get {
           if (this.DiffuseTexture != null) {
             yield return this.DiffuseTexture;
@@ -186,21 +193,16 @@ namespace fin.model.impl {
         }
       }
 
-      public CullingMode CullingMode { get; set; }
-
-      public DepthMode DepthMode { get; set; }
-      public DepthCompareType DepthCompareType { get; set; }
-
       public ITexture? DiffuseTexture { get; set; }
       public ITexture? MaskTexture { get; set; }
       public ITexture? AmbientOcclusionTexture { get; set; }
       public ITexture? NormalTexture { get; set; }
       public ITexture? EmissiveTexture { get; set; }
       public ITexture? SpecularTexture { get; set; }
-      public bool Unlit { get; set; }
     }
 
-    private class FixedFunctionMaterialImpl : IFixedFunctionMaterial {
+    private class FixedFunctionMaterialImpl 
+        : BMaterialImpl, IFixedFunctionMaterial {
       private readonly List<ITexture> textures_ = new();
 
       private readonly ITexture?[] texturesSources_ = new ITexture[8];
@@ -216,18 +218,10 @@ namespace fin.model.impl {
         this.AlphaSources = new ReadOnlyCollection<float?>(this.alphas_);
       }
 
-      public string? Name { get; set; }
-
-      public IEnumerable<ITexture> Textures { get; }
-
-      public CullingMode CullingMode { get; set; }
-
-      public DepthMode DepthMode { get; set; }
-      public DepthCompareType DepthCompareType { get; set; }
+      public override IEnumerable<ITexture> Textures { get; }
 
       public IFixedFunctionEquations<FixedFunctionSource> Equations { get; } =
         new FixedFunctionEquations<FixedFunctionSource>();
-
 
       public IReadOnlyList<ITexture?> TextureSources { get; }
       public IReadOnlyList<IColor?> ColorSources { get; }

@@ -4,8 +4,8 @@ using System.Collections.Generic;
 
 namespace fin.model {
   public interface ILighting {
-    IReadOnlyList<ILight> Lights { get; }
-    ILight CreateLight();
+    IReadOnlyList<ILight> GlobalLights { get; }
+    ILight CreateGlobalLight();
   }
 
   public enum AttenuationFunction {
@@ -23,12 +23,12 @@ namespace fin.model {
   public interface ILight {
     string Name { get; }
     ILight SetName(string name);
-    
-    Position Position { get; }
-    ILight SetPosition(Position position);
 
-    Normal Normal { get; }
-    ILight SetNormal(Normal normal);
+    IVector3 Position { get; }
+    ILight SetPosition(IVector3 position);
+
+    IVector3 Normal { get; }
+    ILight SetNormal(IVector3 normal);
 
     IColor Color { get; }
     ILight SetColor(IColor color);
