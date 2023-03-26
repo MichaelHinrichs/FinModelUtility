@@ -1,7 +1,6 @@
 ﻿using System.Drawing;
 
 using fin.image;
-using fin.util.image;
 
 
 namespace fin.gl.material {

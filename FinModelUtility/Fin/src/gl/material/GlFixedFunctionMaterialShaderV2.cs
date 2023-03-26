@@ -9,13 +9,13 @@ using OpenTK.Graphics.OpenGL;
 
 namespace fin.gl.material {
   public class GlFixedFunctionMaterialShaderV2 : IGlMaterialShader {
-    private const int NUM_SUPPORTED_TEXTURES = 8;
-
     private readonly GlShaderProgram impl_;
 
     private readonly int modelViewMatrixLocation_;
     private readonly int projectionMatrixLocation_;
-    private readonly int[] textureLocations_ = new int[NUM_SUPPORTED_TEXTURES];
+
+    private readonly int[] textureLocations_ =
+        new int[MaterialConstants.MAX_TEXTURES];
 
     private readonly IList<GlTexture> textures_;
 
@@ -40,14 +40,14 @@ namespace fin.gl.material {
 
       this.modelViewMatrixLocation_ = this.impl_.GetUniformLocation("modelViewMatrix");
       this.projectionMatrixLocation_ = this.impl_.GetUniformLocation("projectionMatrix");
-      for (var i = 0; i < NUM_SUPPORTED_TEXTURES; ++i) {
+      for (var i = 0; i < MaterialConstants.MAX_TEXTURES; ++i) {
         textureLocations_[i] = this.impl_.GetUniformLocation($"texture{i}");
       }
 
       var finTextures = fixedFunctionMaterial.TextureSources;
 
       this.textures_ = new List<GlTexture>();
-      for (var i = 0; i < NUM_SUPPORTED_TEXTURES; ++i) {
+      for (var i = 0; i < MaterialConstants.MAX_TEXTURES; ++i) {
         var finTexture = i < (finTextures?.Count ?? 0)
                              ? finTextures[i]
                              : null;
@@ -86,7 +86,7 @@ namespace fin.gl.material {
       var projectionMatrix = GlTransform.ProjectionMatrix;
       GlTransform.UniformMatrix4(this.projectionMatrixLocation_, projectionMatrix);
 
-      for (var t = 0; t < NUM_SUPPORTED_TEXTURES; ++t) {
+      for (var t = 0; t < MaterialConstants.MAX_TEXTURES; ++t) {
         GL.Uniform1(textureLocations_[t], t);
       }
       for (var i = 0; i < this.textures_.Count; ++i) {

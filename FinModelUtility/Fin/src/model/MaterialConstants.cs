@@ -1,9 +1,9 @@
 ﻿namespace fin.model {
   public static class MaterialConstants {
-    public const int MAX_GLOBAL_LIGHTS = 8;
-    public const int MAX_LOCAL_LIGHTS = 8;
-    public const int MAX_TEXTURES = 8;
-    public const int MAX_COLORS = 2;
-    public const int MAX_UVS = 4;
+    public static int MAX_GLOBAL_LIGHTS { get; } = 8;
+    public static int MAX_LOCAL_LIGHTS { get; } = 8;
+    public static int MAX_TEXTURES { get; } = 8;
+    public static int MAX_COLORS { get; } = 2;
+    public static int MAX_UVS { get; } = 4;
   }
 }
