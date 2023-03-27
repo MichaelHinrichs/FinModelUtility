@@ -56,12 +56,17 @@ namespace uni.games.ocarina_of_time_3d {
                     "zelda_ei",
                     "zelda_ff",
                     "zelda_fu",
+                    "zelda_fz",
                     "zelda_ge1",
                     "zelda_gi_bottle",
                     "zelda_gi_coin",
                     "zelda_gi_compass",
                     "zelda_gi_dekupouch",
                     "zelda_gi_egg",
+                    "zelda_gi_ghost",
+                    "zelda_gi_goddess",
+                    "zelda_gnd_magic",
+                    "zelda_goroiwa",
                     "zelda_hata",
                     "zelda_hintstone",
                     "zelda_hlc",
@@ -91,16 +96,27 @@ namespace uni.games.ocarina_of_time_3d {
                     "zelda_mastergolon",
                     "zelda_masterzoora",
                     "zelda_mjin",
+                    "zelda_mm",
                     "zelda_ms",
                     "zelda_nb",
                     "zelda_rd",
+                    "zelda_rl",
+                    "zelda_rs",
                     "zelda_ru1",
                     "zelda_ru2",
                     "zelda_sa",
+                    "zelda_saku",
+                    "zelda_skelton",
+                    "zelda_ssh",
+                    "zelda_ta",
                     "zelda_tk",
+                    "zelda_toryo",
+                    "zelda_tr",
+                    "zelda_vm",
                     "zelda_ydan_objects",
                     "zelda_yukabyun",
                     "zelda_zf",
+                    "zelda_zg",
                     "zelda_zl1",
                     "zelda_zl2",
                     "zelda_zl4",
@@ -190,7 +206,6 @@ namespace uni.games.ocarina_of_time_3d {
                     new NoAnimationsModelSeparatorMethod())
           .Register("zelda_sst", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_st", new NoAnimationsModelSeparatorMethod())
-          .Register("zelda_tr", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_tw", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_vali", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_wm2", new NoAnimationsModelSeparatorMethod())
