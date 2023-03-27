@@ -106,6 +106,7 @@ namespace uni.games.ocarina_of_time_3d {
                     "zelda_ru2",
                     "zelda_sa",
                     "zelda_saku",
+                    "zelda_skb",
                     "zelda_skelton",
                     "zelda_ssh",
                     "zelda_ta",
