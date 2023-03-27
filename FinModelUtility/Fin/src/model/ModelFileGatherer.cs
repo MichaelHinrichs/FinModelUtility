@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 
 using fin.io.bundles;
+using fin.language.equations.fixedFunction;
 
 
 namespace fin.model {
@@ -13,6 +14,11 @@ namespace fin.model {
     bool UseLowLevelExporter => false;
 
     bool ForceGarbageCollection => false;
+  }
+
+  public interface IModelParameters {
+    ILighting? Lighting { get; }
+    IFixedFunctionRegisters? Registers { get; }
   }
 
   public interface IModelLoader<in TModelFileBundle>
