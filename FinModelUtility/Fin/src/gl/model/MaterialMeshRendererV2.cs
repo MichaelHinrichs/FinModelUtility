@@ -33,11 +33,12 @@ namespace fin.gl.model {
         this.materialShader_ =
             new GlFixedFunctionMaterialShaderV2(model, fixedFunctionMaterial);
       } else if (material is IStandardMaterial standardMaterial) {
-        this.materialShader_ = new GlStandardMaterialShaderV2(standardMaterial);
+        this.materialShader_ =
+            new GlStandardMaterialShaderV2(model, standardMaterial);
       } else if (material != null) {
-        this.materialShader_ = new GlSimpleMaterialShaderV2(material);
+        this.materialShader_ = new GlSimpleMaterialShaderV2(model, material);
       } else {
-        this.materialShader_ = new GlNullMaterialShaderV2();
+        this.materialShader_ = new GlNullMaterialShaderV2(model);
       }
 
       IReadOnlyList<IVertex> triangleVertices;

@@ -11,8 +11,8 @@ namespace fin.gl.material {
     private int diffuseTextureLocation_;
     private readonly GlTexture primaryGlTexture_;
 
-    public GlSimpleMaterialShaderV2(IReadOnlyMaterial material) :
-        base(material) {
+    public GlSimpleMaterialShaderV2(IModel model, IReadOnlyMaterial material) :
+        base(model, material) {
       var primaryFinTexture = PrimaryTextureFinder.GetFor(material);
       this.primaryGlTexture_ = primaryFinTexture != null
           ? GlTexture.FromTexture(primaryFinTexture)
@@ -24,8 +24,16 @@ namespace fin.gl.material {
 
     protected override GlShaderProgram GenerateShaderProgram(
         IReadOnlyMaterial material) {
-      var fragmentShaderSrc = @$"
-# version 330
+      var fragmentShaderSrc = @$"# version 330
+
+struct Light {{
+  bool enabled;
+  vec3 position;
+  vec3 normal;
+  vec4 color;
+}};
+
+uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
 
 uniform sampler2D diffuseTexture;
 uniform float useLighting;
@@ -35,6 +43,37 @@ out vec4 fragColor;
 in vec4 vertexColor0;
 in vec3 vertexNormal;
 in vec2 uv0;
+
+vec3 getDiffuseLightColor(Light light, vec3 vertexNormal) {{
+  vec3 diffuseLightNormal = normalize(light.normal);
+  float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);
+  float lightAmount = min(diffuseLightAmount, 1);
+  return lightAmount * light.color.rgb;
+}}
+
+vec3 getMergedDiffuseLightColor(vec3 vertexNormal) {{
+  int enabledLightCount;
+
+  vec3 mergedLightColor;
+  for (int i = 0; i < {MaterialConstants.MAX_LIGHTS}; ++i) {{
+    if (lights[i].enabled) {{
+      enabledLightCount++;
+      mergedLightColor += getDiffuseLightColor(lights[i], vertexNormal);
+    }}
+  }}
+
+  return enabledLightCount == 0 ? vec3(1) : mergedLightColor / enabledLightCount;
+}}
+
+vec3 applyLightingColor(vec3 diffuseColor, vec3 vertexNormal) {{
+  vec3 mergedDiffuseLightColor = getMergedDiffuseLightColor(vertexNormal);
+
+  vec3 ambientLightColor = vec3(1);
+  float ambientLightAmount = .3;
+
+  vec3 mergedLightColor = min(ambientLightAmount * ambientLightColor + mergedDiffuseLightColor, 1);
+  return diffuseColor * mergedLightColor;
+}}
 
 void main() {{
     vec4 diffuseColor = texture(diffuseTexture, uv0);
@@ -48,14 +87,16 @@ void main() {{
 
     float lightAmount = min(ambientLightAmount + diffuseLightAmount, 1);
 
-    fragColor.rgb = mix(fragColor.rgb, fragColor.rgb * lightAmount, useLighting);
+    fragColor.rgb = mix(fragColor.rgb, applyLightingColor(fragColor.rgb, vertexNormal), useLighting);
 
     if (fragColor.a < .95) {{
       discard;
     }}
 }}";
 
-      var impl = GlShaderProgram.FromShaders(CommonShaderPrograms.VERTEX_SRC, fragmentShaderSrc);
+      var impl =
+          GlShaderProgram.FromShaders(CommonShaderPrograms.VERTEX_SRC,
+                                      fragmentShaderSrc);
       this.diffuseTextureLocation_ = impl.GetUniformLocation("diffuseTexture");
 
       return impl;

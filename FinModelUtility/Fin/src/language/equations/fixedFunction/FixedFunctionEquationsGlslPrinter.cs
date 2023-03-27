@@ -80,6 +80,10 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
 
       if (dependsOnAnIndividualLight) {
         os.WriteLine(@"vec4 getLightColor(Light light) {
+  if (!light.enabled) {
+    return vec4(0);
+  }
+
   vec3 diffuseLightNormal = normalize(light.normal);
   float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);
   float lightAmount = min(diffuseLightAmount, 1);

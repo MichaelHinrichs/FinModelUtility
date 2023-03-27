@@ -2,15 +2,14 @@
 
 namespace fin.gl.material {
   public class GlNullMaterialShaderV2 : BGlMaterialShader<IReadOnlyMaterial?> {
-    public GlNullMaterialShaderV2() : base(null) { }
+    public GlNullMaterialShaderV2(IModel model) : base(model, null) { }
 
     protected override void DisposeInternal() { }
 
     protected override GlShaderProgram GenerateShaderProgram(
         IReadOnlyMaterial? _) => GlShaderProgram.FromShaders(
         CommonShaderPrograms.VERTEX_SRC,
-        @"
-# version 130 
+        @"# version 130 
 
 out vec4 fragColor;
 
