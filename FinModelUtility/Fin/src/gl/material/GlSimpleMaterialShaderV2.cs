@@ -7,20 +7,24 @@ using OpenTK.Graphics.OpenGL;
 
 
 namespace fin.gl.material {
-  public class GlSimpleMaterialShaderV2 : IGlMaterialShader {
-    private static GlShaderProgram impl_;
-    private static int diffuseTextureLocation_;
-    private static int modelViewMatrixLocation_;
-    private static int projectionMatrixLocation_;
-    private static int useLightingLocation_;
-
+  public class GlSimpleMaterialShaderV2 : BGlMaterialShader<IReadOnlyMaterial> {
+    private int diffuseTextureLocation_;
     private readonly GlTexture primaryGlTexture_;
 
-    public GlSimpleMaterialShaderV2(IMaterial material) {
-      this.Material = material;
+    public GlSimpleMaterialShaderV2(IReadOnlyMaterial material) :
+        base(material) {
+      var primaryFinTexture = PrimaryTextureFinder.GetFor(material);
+      this.primaryGlTexture_ = primaryFinTexture != null
+          ? GlTexture.FromTexture(primaryFinTexture)
+          : GlMaterialConstants.NULL_WHITE_TEXTURE;
+    }
 
-      if (impl_ == null) {
-        var fragmentShaderSrc = @$"
+    protected override void DisposeInternal()
+      => GlMaterialConstants.DisposeIfNotCommon(this.primaryGlTexture_);
+
+    protected override GlShaderProgram GenerateShaderProgram(
+        IReadOnlyMaterial material) {
+      var fragmentShaderSrc = @$"
 # version 330
 
 uniform sampler2D diffuseTexture;
@@ -51,49 +55,16 @@ void main() {{
     }}
 }}";
 
-        impl_ =
-          GlShaderProgram.FromShaders(CommonShaderPrograms.VERTEX_SRC, fragmentShaderSrc);
+      var impl = GlShaderProgram.FromShaders(CommonShaderPrograms.VERTEX_SRC, fragmentShaderSrc);
+      this.diffuseTextureLocation_ = impl.GetUniformLocation("diffuseTexture");
 
-        diffuseTextureLocation_ = impl_.GetUniformLocation("diffuseTexture");
-        modelViewMatrixLocation_ = impl_.GetUniformLocation("modelViewMatrix");
-        projectionMatrixLocation_ = impl_.GetUniformLocation("projectionMatrix");
-        useLightingLocation_ = impl_.GetUniformLocation("useLighting");
-      }
-
-
-      var primaryFinTexture = PrimaryTextureFinder.GetFor(material);
-      this.primaryGlTexture_ = primaryFinTexture != null
-                                   ? GlTexture.FromTexture(primaryFinTexture)
-                                   : GlMaterialConstants.NULL_WHITE_TEXTURE;
+      return impl;
     }
 
-    public void Dispose() {
-      ReleaseUnmanagedResources_();
-      GC.SuppressFinalize(this);
-    }
-
-    private void ReleaseUnmanagedResources_() {
-      GlMaterialConstants.DisposeIfNotCommon(this.primaryGlTexture_);
-    }
-
-
-    public IReadOnlyMaterial Material { get; }
-
-    public bool UseLighting { get; set; }
-
-    public void Use() {
-      impl_.Use();
-
-      var modelViewMatrix = GlTransform.ModelViewMatrix;
-      GlTransform.UniformMatrix4(modelViewMatrixLocation_, modelViewMatrix);
-
-      var projectionMatrix = GlTransform.ProjectionMatrix;
-      GlTransform.UniformMatrix4(projectionMatrixLocation_, projectionMatrix);
-
-      GL.Uniform1(diffuseTextureLocation_, 0);
+    protected override void PassUniformsAndBindTextures(
+        GlShaderProgram shaderProgram) {
+      GL.Uniform1(this.diffuseTextureLocation_, 0);
       this.primaryGlTexture_.Bind();
-
-      GL.Uniform1(useLightingLocation_, this.UseLighting ? 1f : 0f);
     }
   }
 }

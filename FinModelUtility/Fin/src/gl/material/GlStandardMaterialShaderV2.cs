@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 
 using fin.model;
 
@@ -7,18 +6,25 @@ using OpenTK.Graphics.OpenGL;
 
 
 namespace fin.gl.material {
-  public class GlStandardMaterialShaderV2 : IGlMaterialShader {
-    private readonly GlShaderProgram impl_;
-
+  public class GlStandardMaterialShaderV2 
+      : BGlMaterialShader<IStandardMaterial> {
     private GlTexture diffuseTexture_;
     private GlTexture normalTexture_;
     private GlTexture ambientOcclusionTexture_;
     private GlTexture emissiveTexture_;
 
-    public GlStandardMaterialShaderV2(IStandardMaterial standardMaterial) {
-      this.Material = standardMaterial;
+    public GlStandardMaterialShaderV2(IStandardMaterial standardMaterial) :
+        base(standardMaterial) {}
 
-      var hasNormalTexture = standardMaterial.NormalTexture != null;
+    protected override void DisposeInternal() {
+      GlMaterialConstants.DisposeIfNotCommon(this.diffuseTexture_);
+      GlMaterialConstants.DisposeIfNotCommon(this.normalTexture_);
+      GlMaterialConstants.DisposeIfNotCommon(this.ambientOcclusionTexture_);
+      GlMaterialConstants.DisposeIfNotCommon(this.emissiveTexture_);
+    }
+
+    protected override GlShaderProgram GenerateShaderProgram(IStandardMaterial material) {
+      var hasNormalTexture = material.NormalTexture != null;
 
       var fragmentShaderSrc = new StringBuilder();
 
@@ -44,7 +50,7 @@ in vec3 tangent;
 in vec3 binormal;
 in vec2 uv0;
 
-void main() {{{{
+void main() {{
     vec4 diffuseColor = texture(diffuseTexture, uv0);
     vec4 ambientOcclusionColor = texture(ambientOcclusionTexture, uv0);
     vec4 emissiveColor = texture(emissiveTexture, uv0);
@@ -74,10 +80,10 @@ void main() {{{{
 
     fragColor.rgb = min(fragColor.rgb, 1);
 
-    if (fragColor.a < .95) {{{{
+    if (fragColor.a < .95) {{
       discard;
-    }}}}
-}}}}");
+    }}
+}}");
 
       /*
 
@@ -92,82 +98,53 @@ void main() {{{{
        */
 
 
-      this.impl_ =
+      var impl =
           GlShaderProgram.FromShaders(CommonShaderPrograms.VERTEX_SRC, fragmentShaderSrc.ToString());
 
-      var diffuseTexture = standardMaterial.DiffuseTexture;
+      var diffuseTexture = material.DiffuseTexture;
       this.diffuseTexture_ = diffuseTexture != null
                                  ? GlTexture.FromTexture(diffuseTexture)
                                  : GlMaterialConstants.NULL_WHITE_TEXTURE;
 
-      var normalTexture = standardMaterial.NormalTexture;
+      var normalTexture = material.NormalTexture;
       this.normalTexture_ = normalTexture != null
                                 ? GlTexture.FromTexture(normalTexture)
                                 : GlMaterialConstants.NULL_GRAY_TEXTURE;
 
-      var ambientOcclusionTexture = standardMaterial.AmbientOcclusionTexture;
+      var ambientOcclusionTexture = material.AmbientOcclusionTexture;
       this.ambientOcclusionTexture_ =
           ambientOcclusionTexture != null
               ? GlTexture.FromTexture(ambientOcclusionTexture)
               : GlMaterialConstants.NULL_WHITE_TEXTURE;
 
-      var emissiveTexture = standardMaterial.EmissiveTexture;
+      var emissiveTexture = material.EmissiveTexture;
       this.emissiveTexture_ = emissiveTexture != null
                                   ? GlTexture.FromTexture(emissiveTexture)
                                   : GlMaterialConstants.NULL_BLACK_TEXTURE;
+
+      return impl;
     }
 
-    public void Dispose() {
-      ReleaseUnmanagedResources_();
-      GC.SuppressFinalize(this);
-    }
-
-    private void ReleaseUnmanagedResources_() {
-      this.impl_.Dispose();
-      GlMaterialConstants.DisposeIfNotCommon(this.diffuseTexture_);
-      GlMaterialConstants.DisposeIfNotCommon(this.normalTexture_);
-      GlMaterialConstants.DisposeIfNotCommon(this.ambientOcclusionTexture_);
-      GlMaterialConstants.DisposeIfNotCommon(this.emissiveTexture_);
-    }
-
-
-    public IReadOnlyMaterial Material { get; }
-
-    public bool UseLighting { get; set; }
-
-
-    public void Use() {
-      this.impl_.Use();
-
-      var modelViewMatrix = GlTransform.ModelViewMatrix;
-      GlTransform.UniformMatrix4(this.impl_.GetUniformLocation("modelViewMatrix"),
-                        modelViewMatrix);
-
-      var projectionMatrix = GlTransform.ProjectionMatrix;
-      GlTransform.UniformMatrix4(this.impl_.GetUniformLocation("projectionMatrix"), projectionMatrix);
-
+    protected override void PassUniformsAndBindTextures(GlShaderProgram impl) {
       var diffuseTextureLocation =
-          this.impl_.GetUniformLocation("diffuseTexture");
+          impl.GetUniformLocation("diffuseTexture");
       GL.Uniform1(diffuseTextureLocation, 0);
       this.diffuseTexture_.Bind(0);
 
       var normalTextureLocation =
-          this.impl_.GetUniformLocation("normalTexture");
+          impl.GetUniformLocation("normalTexture");
       GL.Uniform1(normalTextureLocation, 1);
       this.normalTexture_.Bind(1);
 
       var ambientOcclusionTextureLocation =
-          this.impl_.GetUniformLocation("ambientOcclusionTexture");
+          impl.GetUniformLocation("ambientOcclusionTexture");
       GL.Uniform1(ambientOcclusionTextureLocation, 2);
       this.ambientOcclusionTexture_.Bind(2);
 
       var emissiveTextureLocation =
-          this.impl_.GetUniformLocation("emissiveTexture");
+          impl.GetUniformLocation("emissiveTexture");
       GL.Uniform1(emissiveTextureLocation, 3);
       this.emissiveTexture_.Bind(3);
-
-      var useLightingLocation = this.impl_.GetUniformLocation("useLighting");
-      GL.Uniform1(useLightingLocation, this.UseLighting ? 1f : 0f);
     }
   }
 }

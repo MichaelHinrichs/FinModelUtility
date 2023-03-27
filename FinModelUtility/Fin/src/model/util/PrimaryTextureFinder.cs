@@ -6,7 +6,7 @@ using fin.util.image;
 
 namespace fin.model.util {
   public static class PrimaryTextureFinder {
-    public static ITexture? GetFor(IMaterial material) {
+    public static ITexture? GetFor(IReadOnlyMaterial material) {
       if (material is INullMaterial) {
         return null;
       }

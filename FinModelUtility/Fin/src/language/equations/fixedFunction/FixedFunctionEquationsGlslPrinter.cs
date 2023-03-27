@@ -55,16 +55,15 @@ namespace fin.language.equations.fixedFunction {
           hasIndividualLights.Any(value => value);
 
       if (dependsOnAnIndividualLight) {
-        os.WriteLine(@"struct Light {
+        os.WriteLine($@"struct Light {{
   bool enabled;
   vec3 position;
   vec3 normal;
   vec4 color;
-};");
-        os.WriteLine();
-        os.WriteLine(
-            $"uniform Light lights[{MaterialConstants.MAX_LIGHTS}];");
-        os.WriteLine();
+}};
+
+uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
+");
       }
 
       os.WriteLine("in vec2 normalUv;");
