@@ -47,13 +47,14 @@ namespace uni.ui.right_panel.textures {
           return;
         }
 
+        this.selectedTexture_ = value;
         var selectedIndices = this.listView_.SelectedIndices;
         selectedIndices.Clear();
         if (value != null && this.textures_ != null) {
           selectedIndices.Add(ListUtil.AssertFindFirst(this.textures_, value));
         }
 
-        this.OnTextureSelected(this.selectedTexture_ = value);
+        this.OnTextureSelected(value);
       }
     }
 
