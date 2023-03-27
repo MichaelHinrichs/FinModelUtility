@@ -11,21 +11,27 @@ namespace fin.gl.material {
     private readonly IModel model_;
     private readonly GlShaderProgram impl_;
 
-    private int modelViewMatrixLocation_;
-    private int projectionMatrixLocation_;
-    private int useLightingLocation_;
+    private readonly int modelViewMatrixLocation_;
+    private readonly int projectionMatrixLocation_;
+    private readonly int useLightingLocation_;
 
     protected BGlMaterialShader(IModel model,
                                 TMaterial material) {
       this.model_ = model;
       this.Material = material;
-      this.impl_ = this.GenerateShaderProgram(material);
+
+      var shaderSource = this.GenerateShaderSource(material);
+      this.impl_ = GlShaderProgram.FromShaders(
+          shaderSource.VertexShaderSource,
+          shaderSource.FragmentShaderSource);
 
       this.modelViewMatrixLocation_ =
           this.impl_.GetUniformLocation("modelViewMatrix");
       this.projectionMatrixLocation_ =
           this.impl_.GetUniformLocation("projectionMatrix");
       this.useLightingLocation_ = this.impl_.GetUniformLocation("useLighting");
+
+      this.Setup(material, this.impl_);
     }
 
     ~BGlMaterialShader() => this.Dispose();
@@ -42,11 +48,17 @@ namespace fin.gl.material {
 
     protected abstract void DisposeInternal();
 
-    protected abstract GlShaderProgram
-        GenerateShaderProgram(TMaterial material);
+    protected virtual IGlMaterialShaderSource GenerateShaderSource(
+        TMaterial material) => material.ToShaderSource();
+
+    protected abstract void Setup(TMaterial material,
+                                  GlShaderProgram shaderProgram);
 
     protected abstract void PassUniformsAndBindTextures(
         GlShaderProgram shaderProgram);
+
+    public string VertexShaderSource => this.impl_.VertexShaderSource;
+    public string FragmentShaderSource => this.impl_.FragmentShaderSource;
 
     public IReadOnlyMaterial Material { get; }
 

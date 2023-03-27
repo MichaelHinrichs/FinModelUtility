@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using fin.language.equations.fixedFunction;
 using fin.model;
@@ -8,6 +7,17 @@ using OpenTK.Graphics.OpenGL;
 
 
 namespace fin.gl.material {
+  public class GlFixedFunctionMaterialShaderSource : IGlMaterialShaderSource {
+    public GlFixedFunctionMaterialShaderSource(
+        IFixedFunctionMaterial material)
+      => this.FragmentShaderSource =
+          new FixedFunctionEquationsGlslPrinter(material.TextureSources)
+              .Print(material);
+
+    public string VertexShaderSource => CommonShaderPrograms.VERTEX_SRC;
+    public string FragmentShaderSource { get; }
+  }
+
   public class GlFixedFunctionMaterialShaderV2
       : BGlMaterialShader<IReadOnlyFixedFunctionMaterial> {
     private int[] textureLocations_ =
@@ -26,16 +36,9 @@ namespace fin.gl.material {
       }
     }
 
-    protected override GlShaderProgram GenerateShaderProgram(
-        IReadOnlyFixedFunctionMaterial material) {
-      var fragmentShaderSrc =
-          new FixedFunctionEquationsGlslPrinter(material.TextureSources)
-              .Print(material);
-
-      var impl =
-          GlShaderProgram.FromShaders(CommonShaderPrograms.VERTEX_SRC,
-                                      fragmentShaderSrc);
-
+    protected override void Setup(
+        IReadOnlyFixedFunctionMaterial material,
+        GlShaderProgram impl) {
       for (var i = 0; i < MaterialConstants.MAX_TEXTURES; ++i) {
         this.textureLocations_[i] =
             impl.GetUniformLocation($"texture{i}");
@@ -53,8 +56,6 @@ namespace fin.gl.material {
                                ? GlTexture.FromTexture(finTexture)
                                : GlMaterialConstants.NULL_WHITE_TEXTURE);
       }
-
-      return impl;
     }
 
     protected override void PassUniformsAndBindTextures(

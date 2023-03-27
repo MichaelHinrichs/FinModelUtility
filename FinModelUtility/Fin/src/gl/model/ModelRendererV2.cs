@@ -52,7 +52,7 @@ namespace fin.gl.model {
 
         foreach (var material in orderedMaterials) {
           var primitives = primitivesByMaterial[material];
-          materialMeshRenderers_.Add(
+          this.materialMeshRenderers_.Add(
               mesh,
               new MaterialMeshRendererV2(
                   this.bufferManager_,

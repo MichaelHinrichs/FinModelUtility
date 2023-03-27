@@ -16,6 +16,9 @@ namespace fin.gl {
 
     private GlShaderProgram(string vertexShaderSrc,
                             string fragmentShaderSrc) {
+      this.VertexShaderSource = vertexShaderSrc;
+      this.FragmentShaderSource = fragmentShaderSrc;
+
       this.vertexShaderId_ =
           CreateAndCompileShader_(vertexShaderSrc, ShaderType.VertexShader);
       this.fragmentShaderId_ =
@@ -68,6 +71,9 @@ namespace fin.gl {
 
       return shaderId;
     }
+
+    public string VertexShaderSource { get; }
+    public string FragmentShaderSource { get; }
 
     public int ProgramId { get; private set; } = UNDEFINED_ID;
 

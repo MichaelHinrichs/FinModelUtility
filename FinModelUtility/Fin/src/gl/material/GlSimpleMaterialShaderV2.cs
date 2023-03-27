@@ -1,30 +1,13 @@
-﻿using System;
-
-using fin.model;
+﻿using fin.model;
 using fin.model.util;
 
 using OpenTK.Graphics.OpenGL;
 
 
 namespace fin.gl.material {
-  public class GlSimpleMaterialShaderV2 : BGlMaterialShader<IReadOnlyMaterial> {
-    private int diffuseTextureLocation_;
-    private readonly GlTexture primaryGlTexture_;
-
-    public GlSimpleMaterialShaderV2(IModel model, IReadOnlyMaterial material) :
-        base(model, material) {
-      var primaryFinTexture = PrimaryTextureFinder.GetFor(material);
-      this.primaryGlTexture_ = primaryFinTexture != null
-          ? GlTexture.FromTexture(primaryFinTexture)
-          : GlMaterialConstants.NULL_WHITE_TEXTURE;
-    }
-
-    protected override void DisposeInternal()
-      => GlMaterialConstants.DisposeIfNotCommon(this.primaryGlTexture_);
-
-    protected override GlShaderProgram GenerateShaderProgram(
-        IReadOnlyMaterial material) {
-      var fragmentShaderSrc = @$"# version 330
+  public class GlSimpleMaterialShaderSource : IGlMaterialShaderSource {
+    public GlSimpleMaterialShaderSource() {
+      this.FragmentShaderSource = @$"# version 330
 
 struct Light {{
   bool enabled;
@@ -76,30 +59,49 @@ vec3 applyLightingColor(vec3 diffuseColor, vec3 vertexNormal) {{
 }}
 
 void main() {{
-    vec4 diffuseColor = texture(diffuseTexture, uv0);
+  vec4 diffuseColor = texture(diffuseTexture, uv0);
 
-    fragColor = diffuseColor * vertexColor0;
+  fragColor = diffuseColor * vertexColor0;
 
-    vec3 diffuseLightNormal = normalize(vec3(.5, .5, -1));
-    float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);
+  vec3 diffuseLightNormal = normalize(vec3(.5, .5, -1));
+  float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);
 
-    float ambientLightAmount = .3;
+  float ambientLightAmount = .3;
 
-    float lightAmount = min(ambientLightAmount + diffuseLightAmount, 1);
+  float lightAmount = min(ambientLightAmount + diffuseLightAmount, 1);
 
-    fragColor.rgb = mix(fragColor.rgb, applyLightingColor(fragColor.rgb, vertexNormal), useLighting);
+  fragColor.rgb = mix(fragColor.rgb, applyLightingColor(fragColor.rgb, vertexNormal), useLighting);
 
-    if (fragColor.a < .95) {{
-      discard;
-    }}
+  if (fragColor.a < .95) {{
+    discard;
+  }}
 }}";
+    }
 
-      var impl =
-          GlShaderProgram.FromShaders(CommonShaderPrograms.VERTEX_SRC,
-                                      fragmentShaderSrc);
-      this.diffuseTextureLocation_ = impl.GetUniformLocation("diffuseTexture");
+    public string VertexShaderSource => CommonShaderPrograms.VERTEX_SRC;
+    public string FragmentShaderSource { get; }
+  }
 
-      return impl;
+  public class GlSimpleMaterialShaderV2 : BGlMaterialShader<IReadOnlyMaterial> {
+    private int diffuseTextureLocation_;
+    private readonly GlTexture primaryGlTexture_;
+
+    public GlSimpleMaterialShaderV2(IModel model, IReadOnlyMaterial material) :
+        base(model, material) {
+      var primaryFinTexture = PrimaryTextureFinder.GetFor(material);
+      this.primaryGlTexture_ = primaryFinTexture != null
+          ? GlTexture.FromTexture(primaryFinTexture)
+          : GlMaterialConstants.NULL_WHITE_TEXTURE;
+    }
+
+    protected override void DisposeInternal()
+      => GlMaterialConstants.DisposeIfNotCommon(this.primaryGlTexture_);
+
+    protected override void Setup(
+        IReadOnlyMaterial material,
+        GlShaderProgram shaderProgram) {
+      this.diffuseTextureLocation_ =
+          shaderProgram.GetUniformLocation("diffuseTexture");
     }
 
     protected override void PassUniformsAndBindTextures(

@@ -6,25 +6,8 @@ using OpenTK.Graphics.OpenGL;
 
 
 namespace fin.gl.material {
-  public class GlStandardMaterialShaderV2 
-      : BGlMaterialShader<IStandardMaterial> {
-    private GlTexture diffuseTexture_;
-    private GlTexture normalTexture_;
-    private GlTexture ambientOcclusionTexture_;
-    private GlTexture emissiveTexture_;
-
-    public GlStandardMaterialShaderV2(IModel model,
-                                      IStandardMaterial standardMaterial) :
-        base(model, standardMaterial) {}
-
-    protected override void DisposeInternal() {
-      GlMaterialConstants.DisposeIfNotCommon(this.diffuseTexture_);
-      GlMaterialConstants.DisposeIfNotCommon(this.normalTexture_);
-      GlMaterialConstants.DisposeIfNotCommon(this.ambientOcclusionTexture_);
-      GlMaterialConstants.DisposeIfNotCommon(this.emissiveTexture_);
-    }
-
-    protected override GlShaderProgram GenerateShaderProgram(IStandardMaterial material) {
+  public class GlStandardMaterialShaderSource : IGlMaterialShaderSource {
+    public GlStandardMaterialShaderSource(IStandardMaterial material) {
       var hasNormalTexture = material.NormalTexture != null;
 
       var fragmentShaderSrc = new StringBuilder();
@@ -91,11 +74,11 @@ vec3 applyLightingColor(vec3 diffuseColor, float ambientOcclusionAmount, vec3 ve
 }}
 
 void main() {{
-    vec4 diffuseColor = texture(diffuseTexture, uv0);
-    vec4 ambientOcclusionColor = texture(ambientOcclusionTexture, uv0);
-    vec4 emissiveColor = texture(emissiveTexture, uv0);
+  vec4 diffuseColor = texture(diffuseTexture, uv0);
+  vec4 ambientOcclusionColor = texture(ambientOcclusionTexture, uv0);
+  vec4 emissiveColor = texture(emissiveTexture, uv0);
 
-    fragColor = diffuseColor * vertexColor0;
+  fragColor = diffuseColor * vertexColor0;
 ");
 
       if (!hasNormalTexture) {
@@ -121,20 +104,43 @@ void main() {{
 
       /*
 
-    vec4 diffuseColor = texture(diffuseTexture, uv);
+vec4 diffuseColor = texture(diffuseTexture, uv);
 
-    fragColor = diffuseColor * vertexColor;
+fragColor = diffuseColor * vertexColor;
 
-    vec3 normalColor = texture(normalTexture, uv).rgb;
-    vec3 fragNormal = normalize(2 * (normalColor - .5));
-    vec3 normal_viewSpace = tbn * normalize((fragNormal * 2.0) - 1.0);
-       
-       */
+vec3 normalColor = texture(normalTexture, uv).rgb;
+vec3 fragNormal = normalize(2 * (normalColor - .5));
+vec3 normal_viewSpace = tbn * normalize((fragNormal * 2.0) - 1.0);
 
+ */
 
-      var impl =
-          GlShaderProgram.FromShaders(CommonShaderPrograms.VERTEX_SRC, fragmentShaderSrc.ToString());
+      this.FragmentShaderSource = fragmentShaderSrc.ToString();
+    }
 
+    public string VertexShaderSource => CommonShaderPrograms.VERTEX_SRC;
+    public string FragmentShaderSource { get; set; }
+  }
+
+  public class GlStandardMaterialShaderV2 
+      : BGlMaterialShader<IStandardMaterial> {
+    private GlTexture diffuseTexture_;
+    private GlTexture normalTexture_;
+    private GlTexture ambientOcclusionTexture_;
+    private GlTexture emissiveTexture_;
+
+    public GlStandardMaterialShaderV2(IModel model,
+                                      IStandardMaterial standardMaterial) :
+        base(model, standardMaterial) {}
+
+    protected override void DisposeInternal() {
+      GlMaterialConstants.DisposeIfNotCommon(this.diffuseTexture_);
+      GlMaterialConstants.DisposeIfNotCommon(this.normalTexture_);
+      GlMaterialConstants.DisposeIfNotCommon(this.ambientOcclusionTexture_);
+      GlMaterialConstants.DisposeIfNotCommon(this.emissiveTexture_);
+    }
+
+    protected override void Setup(IStandardMaterial material,
+                                  GlShaderProgram shaderProgram) {
       var diffuseTexture = material.DiffuseTexture;
       this.diffuseTexture_ = diffuseTexture != null
                                  ? GlTexture.FromTexture(diffuseTexture)
@@ -155,8 +161,6 @@ void main() {{
       this.emissiveTexture_ = emissiveTexture != null
                                   ? GlTexture.FromTexture(emissiveTexture)
                                   : GlMaterialConstants.NULL_BLACK_TEXTURE;
-
-      return impl;
     }
 
     protected override void PassUniformsAndBindTextures(GlShaderProgram impl) {

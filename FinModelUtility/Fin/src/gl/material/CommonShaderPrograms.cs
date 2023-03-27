@@ -2,8 +2,6 @@
 
 using fin.model;
 
-using SharpGLTF.Geometry.VertexTypes;
-
 namespace fin.gl.material {
   public static class CommonShaderPrograms {
     private static GlShaderProgram? texturelessShaderProgram_;

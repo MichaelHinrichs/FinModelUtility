@@ -34,8 +34,10 @@
       groupBox.Controls.Add(this.richTextBox_);
       groupBox.Dock = System.Windows.Forms.DockStyle.Fill;
       groupBox.Location = new System.Drawing.Point(0, 0);
+      groupBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
       groupBox.Name = "groupBox";
-      groupBox.Size = new System.Drawing.Size(367, 305);
+      groupBox.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
+      groupBox.Size = new System.Drawing.Size(419, 407);
       groupBox.TabIndex = 0;
       groupBox.TabStop = false;
       groupBox.Text = "Shader";
@@ -43,19 +45,23 @@
       // richTextBox_
       // 
       this.richTextBox_.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.richTextBox_.Location = new System.Drawing.Point(3, 19);
+      this.richTextBox_.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+      this.richTextBox_.Location = new System.Drawing.Point(3, 24);
+      this.richTextBox_.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
       this.richTextBox_.Name = "richTextBox_";
-      this.richTextBox_.Size = new System.Drawing.Size(361, 283);
+      this.richTextBox_.ReadOnly = true;
+      this.richTextBox_.Size = new System.Drawing.Size(413, 379);
       this.richTextBox_.TabIndex = 0;
       this.richTextBox_.Text = "";
       // 
       // ShaderSection
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.Controls.Add(groupBox);
+      this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
       this.Name = "ShaderSection";
-      this.Size = new System.Drawing.Size(367, 305);
+      this.Size = new System.Drawing.Size(419, 407);
       groupBox.ResumeLayout(false);
       this.ResumeLayout(false);
 

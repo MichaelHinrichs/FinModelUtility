@@ -1,4 +1,4 @@
-﻿using fin.language.equations.fixedFunction;
+﻿using fin.gl.material;
 using fin.model;
 
 
@@ -10,14 +10,8 @@ namespace uni.ui.right_panel.materials {
 
     public IMaterial? Material {
       set {
-        var shaderText = "(n/a)";
-        if (value is IFixedFunctionMaterial fixedFunctionMaterial) {
-          shaderText = new FixedFunctionEquationsGlslPrinter(
-                  fixedFunctionMaterial.TextureSources)
-              .Print(fixedFunctionMaterial);
-        }
-
-        this.richTextBox_.Text = shaderText;
+        this.richTextBox_.Text =
+            value?.ToShaderSource().FragmentShaderSource ?? "(n/a)";
       }
     }
   }
