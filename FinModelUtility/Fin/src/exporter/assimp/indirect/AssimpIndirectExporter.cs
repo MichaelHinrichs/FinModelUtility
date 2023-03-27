@@ -7,7 +7,6 @@ using fin.io;
 using fin.model;
 using fin.util.asserts;
 using fin.util.gc;
-using SharpGLTF.IO;
 using SharpGLTF.Schema2;
 using SharpGLTF.Validation;
 

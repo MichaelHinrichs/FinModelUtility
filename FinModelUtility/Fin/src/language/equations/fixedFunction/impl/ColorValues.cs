@@ -161,13 +161,13 @@ namespace fin.language.equations.fixedFunction {
     private class ColorNamedValueSwizzle : BScalarValue,
         IColorNamedValueSwizzle<TIdentifier> {
       public ColorNamedValueSwizzle(
-          IColorNamedValue<TIdentifier> source,
+          IColorIdentifiedValue<TIdentifier> source,
           ColorSwizzle swizzleType) {
         this.Source = source;
         this.SwizzleType = swizzleType;
       }
 
-      public IColorNamedValue<TIdentifier> Source { get; }
+      public IColorIdentifiedValue<TIdentifier> Source { get; }
       public ColorSwizzle SwizzleType { get; }
     }
 

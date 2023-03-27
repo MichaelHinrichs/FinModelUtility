@@ -368,7 +368,7 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
     private void PrintScalarFactor_(
         StringWriter os,
         IScalarFactor factor) {
-      if (factor is IScalarNamedValue<FixedFunctionSource> namedValue) {
+      if (factor is IScalarIdentifiedValue<FixedFunctionSource> namedValue) {
         this.PrintScalarNamedValue_(os, namedValue);
       } else if (factor is IScalarConstant constant) {
         this.PrintScalarConstant_(os, constant);
@@ -385,12 +385,12 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
 
     private void PrintScalarNamedValue_(
         StringWriter os,
-        IScalarNamedValue<FixedFunctionSource> namedValue)
-      => os.Write(this.GetScalarNamedValue_(namedValue));
+        IScalarIdentifiedValue<FixedFunctionSource> identifiedValue)
+      => os.Write(this.GetScalarNamedValue_(identifiedValue));
 
     private string GetScalarNamedValue_(
-        IScalarNamedValue<FixedFunctionSource> namedValue) {
-      var id = namedValue.Identifier;
+        IScalarIdentifiedValue<FixedFunctionSource> identifiedValue) {
+      var id = identifiedValue.Identifier;
       var isTextureAlpha = id is >= FixedFunctionSource.TEXTURE_ALPHA_0
                                  and <= FixedFunctionSource.TEXTURE_ALPHA_7;
 
@@ -411,7 +411,7 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
         return $"individualLightColors[{globalLightAlphaIndex}].a";
       }
 
-      return namedValue.Identifier switch {
+      return identifiedValue.Identifier switch {
           FixedFunctionSource.VERTEX_ALPHA_0 => "vertexColor0.a",
           FixedFunctionSource.VERTEX_ALPHA_1 => "vertexColor1.a",
 
@@ -529,7 +529,7 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
     private void PrintColorFactor_(
         StringWriter os,
         IColorFactor factor) {
-      if (factor is IColorNamedValue<FixedFunctionSource> namedValue) {
+      if (factor is IColorIdentifiedValue<FixedFunctionSource> namedValue) {
         this.PrintColorNamedValue_(os, namedValue);
       } else {
         var useIntensity = factor.Intensity != null;
@@ -556,12 +556,12 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
 
     private void PrintColorNamedValue_(
         StringWriter os,
-        IColorNamedValue<FixedFunctionSource> namedValue)
-      => os.Write(this.GetColorNamedValue_(namedValue));
+        IColorIdentifiedValue<FixedFunctionSource> identifiedValue)
+      => os.Write(this.GetColorNamedValue_(identifiedValue));
 
     private string GetColorNamedValue_(
-        IColorNamedValue<FixedFunctionSource> namedValue) {
-      var id = namedValue.Identifier;
+        IColorIdentifiedValue<FixedFunctionSource> identifiedValue) {
+      var id = identifiedValue.Identifier;
       var isTextureColor = id is >= FixedFunctionSource.TEXTURE_COLOR_0
                                  and <= FixedFunctionSource.TEXTURE_COLOR_7;
       var isTextureAlpha = id is >= FixedFunctionSource.TEXTURE_ALPHA_0
@@ -594,7 +594,7 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
         return $"individualLightColors[{globalLightAlphaIndex}].aaa";
       }
 
-      return namedValue.Identifier switch {
+      return identifiedValue.Identifier switch {
           FixedFunctionSource.VERTEX_COLOR_0 => "vertexColor0.rgb",
           FixedFunctionSource.VERTEX_COLOR_1 => "vertexColor1.rgb",
 

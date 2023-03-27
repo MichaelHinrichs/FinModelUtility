@@ -61,7 +61,11 @@ namespace fin.language.equations.fixedFunction {
     bool HasInput(TIdentifier identifier);
   }
 
-  public interface INamedValue<TIdentifier> {
+  public interface IIdentifiedValue<TIdentifier> {
     TIdentifier Identifier { get; }
+  }
+
+  public interface INamedValue {
+    string Name { get; }
   }
 }

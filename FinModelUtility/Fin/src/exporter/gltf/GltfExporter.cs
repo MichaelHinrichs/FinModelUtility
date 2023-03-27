@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Numerics;
 
-using fin.image;
 using fin.io;
 using fin.log;
 using fin.model;
@@ -13,7 +11,6 @@ using fin.util.asserts;
 using fin.util.image;
 
 using SharpGLTF.Materials;
-using SharpGLTF.Memory;
 using SharpGLTF.Schema2;
 
 using AlphaMode = SharpGLTF.Materials.AlphaMode;

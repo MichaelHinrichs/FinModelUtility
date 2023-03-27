@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Text;
 using fin.util.asserts;
-using System;
 
 
 namespace fin.language.equations.fixedFunction {
@@ -149,7 +148,7 @@ namespace fin.language.equations.fixedFunction {
     private void PrintScalarFactor_(
         StringWriter os,
         IScalarFactor factor) {
-      if (factor is IScalarNamedValue<TIdentifier> namedValue) {
+      if (factor is IScalarIdentifiedValue<TIdentifier> namedValue) {
         this.PrintScalarNamedValue_(os, namedValue);
       } else if (factor is IScalarConstant constant) {
         this.PrintScalarConstant_(os, constant);
@@ -164,8 +163,8 @@ namespace fin.language.equations.fixedFunction {
 
     private void PrintScalarNamedValue_(
         StringWriter os,
-        IScalarNamedValue<TIdentifier> namedValue)
-      => os.Write("{" + namedValue.Identifier + "}");
+        IScalarIdentifiedValue<TIdentifier> identifiedValue)
+      => os.Write("{" + identifiedValue.Identifier + "}");
 
     private void PrintScalarConstant_(
         StringWriter os,
@@ -267,7 +266,7 @@ namespace fin.language.equations.fixedFunction {
     private void PrintColorFactor_(
         StringWriter os,
         IColorFactor factor) {
-      if (factor is IColorNamedValue<TIdentifier> namedValue) {
+      if (factor is IColorIdentifiedValue<TIdentifier> namedValue) {
         this.PrintColorNamedValue_(os, namedValue);
       } else {
         var useIntensity = factor.Intensity != null;
@@ -290,8 +289,8 @@ namespace fin.language.equations.fixedFunction {
 
     private void PrintColorNamedValue_(
         StringWriter os,
-        IColorNamedValue<TIdentifier> namedValue)
-      => os.Write("<" + namedValue.Identifier + ">");
+        IColorIdentifiedValue<TIdentifier> identifiedValue)
+      => os.Write("<" + identifiedValue.Identifier + ">");
 
     private void PrintColorTernaryOperator_(
         StringWriter os,

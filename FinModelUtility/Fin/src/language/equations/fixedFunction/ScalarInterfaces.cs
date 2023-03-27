@@ -1,18 +1,22 @@
 ﻿using System.Collections.Generic;
 
 namespace fin.language.equations.fixedFunction {
-  public interface IScalarNamedValue<TIdentifier> : INamedValue<TIdentifier>,
+  public interface IScalarNamedValue : INamedValue, IColorFactor {
+    IScalarValue ScalarValue { get; }
+  }
+
+  public interface IScalarIdentifiedValue<TIdentifier> : IIdentifiedValue<TIdentifier>,
                                                     IScalarFactor {
     IScalarValue ScalarValue { get; }
   }
 
-  public interface IScalarInput<TIdentifier> : IScalarNamedValue<TIdentifier> {
+  public interface IScalarInput<TIdentifier> : IScalarIdentifiedValue<TIdentifier> {
     IScalarConstant DefaultValue { get; }
     IScalarConstant? CustomValue { get; set; }
   }
 
   public interface IScalarOutput<TIdentifier>
-      : IScalarNamedValue<TIdentifier> {}
+      : IScalarIdentifiedValue<TIdentifier> {}
 
 
   public interface IScalarValue {

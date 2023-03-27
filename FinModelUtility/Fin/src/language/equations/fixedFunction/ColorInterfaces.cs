@@ -1,17 +1,21 @@
 ﻿using System.Collections.Generic;
 
 namespace fin.language.equations.fixedFunction {
-  public interface IColorNamedValue<TIdentifier> : INamedValue<TIdentifier>,
+  public interface IColorNamedValue : INamedValue, IColorFactor {
+    IColorValue ColorValue { get; }
+  }
+  
+  public interface IColorIdentifiedValue<TIdentifier> : IIdentifiedValue<TIdentifier>,
                                                    IColorFactor {
     IColorValue ColorValue { get; }
   }
 
-  public interface IColorInput<TIdentifier> : IColorNamedValue<TIdentifier> {
+  public interface IColorInput<TIdentifier> : IColorIdentifiedValue<TIdentifier> {
     IColorConstant DefaultValue { get; }
     IColorConstant? CustomValue { get; set; }
   }
 
-  public interface IColorOutput<TIdentifier> : IColorNamedValue<TIdentifier> {}
+  public interface IColorOutput<TIdentifier> : IColorIdentifiedValue<TIdentifier> {}
 
   public enum ColorSwizzle {
     R,
@@ -20,7 +24,7 @@ namespace fin.language.equations.fixedFunction {
   }
 
   public interface IColorNamedValueSwizzle<TIdentifier> : IScalarFactor {
-    IColorNamedValue<TIdentifier> Source { get; }
+    IColorIdentifiedValue<TIdentifier> Source { get; }
     ColorSwizzle SwizzleType { get; }
   }
 
