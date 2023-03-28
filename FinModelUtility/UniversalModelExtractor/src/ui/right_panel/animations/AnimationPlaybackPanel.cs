@@ -7,6 +7,8 @@ namespace uni.ui.right_panel {
     // TODO: How to right-align frame label?
     // TODO: Fix bug where scrolling trackbar changes time dramatically?
 
+    private bool? wasPlayingBeforeScroll_;
+
     public AnimationPlaybackPanel() {
       this.InitializeComponent();
 
@@ -19,9 +21,22 @@ namespace uni.ui.right_panel {
       this.loopCheckBox_.Click += (sender, args) => {
         this.ShouldLoop = this.loopCheckBox_.Checked;
       };
+
       this.frameTrackBar_.Scroll += (sender, args) => {
+        if (this.wasPlayingBeforeScroll_ == null) {
+          this.wasPlayingBeforeScroll_ = this.IsPlaying;
+          this.IsPlaying = false;
+        }
+
         this.Frame = this.frameTrackBar_.Value;
       };
+      this.frameTrackBar_.MouseCaptureChanged += (sender, args) => {
+        if (this.wasPlayingBeforeScroll_ != null) {
+          this.IsPlaying = this.wasPlayingBeforeScroll_.Value;
+          this.wasPlayingBeforeScroll_ = null;
+        }
+      };
+
       this.frameRateSelector_.ValueChanged += (sender, args) => {
         var newFrameRate = (int)Math.Floor(this.frameRateSelector_.Value);
         if (this.FrameRate != newFrameRate) {
