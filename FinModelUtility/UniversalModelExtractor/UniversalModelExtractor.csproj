@@ -101,6 +101,9 @@
     <Compile Update="src\ui\common\audio\AudioPlayerGlPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="src\ui\common\KeyValueTable.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="src\ui\common\TransparentTrackBar.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -127,6 +130,9 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="src\ui\right_panel\skeleton\SkeletonTab.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="src\ui\right_panel\textures\TextureInfoSection.cs">
       <SubType>UserControl</SubType>
     </Compile>
   </ItemGroup>

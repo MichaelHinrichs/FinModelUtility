@@ -7,7 +7,8 @@ namespace uni.ui.right_panel.textures {
       InitializeComponent();
 
       this.textureSelectorBox_.OnTextureSelected
-          += texture => this.texturePanel_.Texture = texture;
+          += texture => this.texturePanel_.Texture =
+              this.textureInfoSection_.SelectedTexture = texture;
     }
 
     public IModel? Model {
