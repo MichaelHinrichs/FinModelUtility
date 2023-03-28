@@ -16,35 +16,7 @@ namespace uni.games.majoras_mask_3d {
         = new ModelSeparator(directory => directory.Name)
           .Register(new SameNameSeparatorMethod(), "zelda2_zoraband")
           .Register(new AllAnimationsModelSeparatorMethod(),
-                    "zelda_cow",
-                    "zelda_cne",
-                    "zelda_crow",
-                    "zelda_fz",
-                    "zelda_tt",
-                    "zelda2_ani",
-                    "zelda2_aob",
-                    "zelda2_bat",
-                    "zelda2_bai",
-                    "zelda2_bee",
-                    "zelda2_cs",
-                    "zelda2_gi_bosskey",
-                    "zelda2_gi_compass",
-                    "zelda2_gi_fish",
-                    "zelda2_gi_hearts",
-                    "zelda2_gi_mask03",
-                    "zelda2_gi_mask21",
-                    "zelda2_gi_mask22",
-                    "zelda2_gi_mask23",
-                    "zelda2_kz",
-                    "zelda_maruta",
-                    "zelda2_nb",
-                    "zelda2_ny",
-                    "zelda2_oyu",
-                    "zelda2_pamera",
-                    "zelda2_shn",
-                    "zelda2_snowwd",
-                    "zelda2_tab"
-          );
+                    "zelda_cow");
 
 
     public IEnumerable<CmbModelFileBundle> GatherFileBundles(
@@ -60,11 +32,35 @@ namespace uni.games.majoras_mask_3d {
           new ThreeDsFileHierarchyExtractor()
               .ExtractFromRom(majorasMask3dRom);
 
-      return new FileBundleGathererAccumulator<CmbModelFileBundle>()
-             .Add(() => GetModelsViaSeparator_(fileHierarchy))
-             .Add(() => this.GetLinkModels_(fileHierarchy))
+      return new FileBundleGathererAccumulatorWithInput<CmbModelFileBundle,
+                 IFileHierarchy>(fileHierarchy)
+             .Add(this.GetAutomaticModels_)
+             .Add(this.GetModelsViaSeparator_)
+             .Add(this.GetLinkModels_)
              .GatherFileBundles(assert);
     }
+
+    private IEnumerable<CmbModelFileBundle> GetAutomaticModels_(
+        IFileHierarchy fileHierarchy) {
+      var actorsDir = fileHierarchy.Root.GetExistingSubdir("actors");
+
+      foreach (var actorDir in actorsDir.Subdirs) {
+        if (actorDir.Name.StartsWith("zelda2_link_")) {
+          continue;
+        }
+
+        var animations =
+            actorDir.FilesWithExtensionRecursive(".csab").ToArray();
+        var models = actorDir.FilesWithExtensionRecursive(".cmb").ToArray();
+
+        if (models.Length == 1 || animations.Length == 0) {
+          foreach (var model in models) {
+            yield return new CmbModelFileBundle(model, animations, null, null);
+          }
+        }
+      }
+    }
+
 
     private IEnumerable<CmbModelFileBundle> GetModelsViaSeparator_(
         IFileHierarchy fileHierarchy)
@@ -109,7 +105,8 @@ namespace uni.games.majoras_mask_3d {
           new[] {
               actorsDir.GetExistingFile("zelda2_link_child_new/link_child.cmb"),
               actorsDir.GetExistingFile("zelda2_link_goron_new/link_goron.cmb"),
-              actorsDir.GetExistingFile("zelda2_link_nuts_new/link_deknuts.cmb"),
+              actorsDir.GetExistingFile(
+                  "zelda2_link_nuts_new/link_deknuts.cmb"),
               actorsDir.GetExistingFile("zelda2_link_zora_new/link_zora.cmb"),
           };
 

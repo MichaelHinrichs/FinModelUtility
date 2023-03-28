@@ -17,9 +17,6 @@ namespace uni.games.ocarina_of_time_3d {
     // TODO: Add support for cmab
     // TODO: Add support for other texture types
 
-    // TODO: Switch this to automatically use all animations for directories with a single model
-    // TODO: Switch this to automatically include all models without animations
-
     // *sigh*
     // Why tf did they have to name things so randomly????
     private readonly IModelSeparator separator_
