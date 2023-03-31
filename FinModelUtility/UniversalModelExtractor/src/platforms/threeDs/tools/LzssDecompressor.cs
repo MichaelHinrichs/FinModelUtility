@@ -1,4 +1,5 @@
-﻿using fin.util.asserts;
+﻿using fin.math;
+using fin.util.asserts;
 using fin.util.strings;
 
 using schema.binary;
@@ -18,7 +19,7 @@ namespace uni.platforms.threeDs.tools {
           var flags8 = er.ReadByte();
 
           for (var i = 0; i < 8; i++) {
-            if ((flags8 & 1) != 0) {
+            if (flags8.GetBit(0)) {
               var decompressedByte = er.ReadByte();
               data[dI++] = decompressedByte;
               BUFFER[writeIndex] = decompressedByte;
