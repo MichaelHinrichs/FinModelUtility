@@ -1,5 +1,6 @@
-﻿using asserts;
-
+using asserts;
+using fin.math;
+using schema.binary.util;
 
 namespace ast.schema {
   /// <summary>
@@ -85,7 +86,7 @@ namespace ast.schema {
              sampleIndex++) {
           var nibbles = frame[0x01 + sampleIndex / 2];
 
-          var isLeftChannel = (sampleIndex & 1) != 0;
+          var isLeftChannel = sampleIndex.GetBit(0);
           var sample = isLeftChannel
                            ? /* high nibble first */
                            GetLowNibbleSigned_(nibbles)
