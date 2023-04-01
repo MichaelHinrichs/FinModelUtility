@@ -1,4 +1,4 @@
-﻿using fin.util.asserts;
+﻿using asserts;
 
 namespace fin.util.optional {
   public interface IOptional<T> {

@@ -1,6 +1,7 @@
-﻿using fin.schema.data;
+﻿using asserts;
+
+using fin.schema.data;
 using fin.schema.matrix;
-using fin.util.asserts;
 using fin.util.strings;
 
 using gx;

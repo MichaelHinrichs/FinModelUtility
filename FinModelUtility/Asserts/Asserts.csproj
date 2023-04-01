@@ -6,5 +6,4 @@
     <RootNamespace>asserts</RootNamespace>
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
-
 </Project>

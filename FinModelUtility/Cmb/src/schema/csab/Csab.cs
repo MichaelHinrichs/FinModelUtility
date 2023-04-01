@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
-using fin.util.asserts;
+using asserts;
 
 using schema.binary;
 using schema.binary.attributes.endianness;

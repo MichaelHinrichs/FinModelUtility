@@ -1,8 +1,8 @@
-﻿using static schema.binary.BinarySchemaStructureParser;
-using System;
+﻿using System;
+
+using asserts;
 
 using schema.binary.attributes;
-using schema.binary.util;
 
 namespace schema.binary.parser {
   internal static class MemberReferenceUtil {

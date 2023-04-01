@@ -5,7 +5,8 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
-using fin.util.asserts;
+using asserts;
+
 using fin.util.json;
 
 using schema.binary;

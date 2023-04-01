@@ -2,8 +2,9 @@
 using System.Text;
 using System.Xml;
 
+using asserts;
+
 using fin.data;
-using fin.util.asserts;
 
 using Force.Crc32;
 

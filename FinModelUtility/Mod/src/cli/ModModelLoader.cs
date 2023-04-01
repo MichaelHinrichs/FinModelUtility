@@ -3,12 +3,13 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
+using asserts;
+
 using fin.color;
 using fin.image;
 using fin.io;
 using fin.model;
 using fin.model.impl;
-using fin.util.asserts;
 using fin.util.enumerables;
 
 using gx;

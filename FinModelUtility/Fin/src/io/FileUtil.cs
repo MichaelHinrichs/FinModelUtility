@@ -2,7 +2,7 @@
 using System.IO.Abstractions;
 using System.Runtime.CompilerServices;
 
-using fin.util.asserts;
+using asserts;
 
 using schema.binary;
 

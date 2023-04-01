@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
-using fin.util.asserts;
+using asserts;
 
 namespace fin.io {
   public static class FinDirectoryStatic {

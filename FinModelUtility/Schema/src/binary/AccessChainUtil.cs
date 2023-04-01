@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using asserts;
+
 using schema.binary.attributes.child_of;
 using schema.binary.io;
 using schema.binary.parser;
-using schema.binary.util;
 
 
 namespace schema.binary {

@@ -1,6 +1,7 @@
-﻿using NUnit.Framework;
+﻿using asserts;
 
-using schema.binary.util;
+using NUnit.Framework;
+
 using schema.text;
 
 

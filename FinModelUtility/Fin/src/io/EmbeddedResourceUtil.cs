@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-using fin.util.asserts;
+using asserts;
 
 
 namespace fin.io {

@@ -1,5 +1,6 @@
-﻿using fin.data;
-using fin.util.asserts;
+﻿using asserts;
+
+using fin.data;
 
 using modl.schema.modl.bw1.node;
 

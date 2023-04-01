@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-using schema.binary.util;
+using asserts;
 
 namespace System.IO {
   public sealed partial class FinTextReader {

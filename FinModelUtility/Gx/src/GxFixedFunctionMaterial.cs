@@ -1,12 +1,12 @@
 ﻿using System.Text;
 using System.Drawing;
 
-using fin.color;
+using asserts;
+
 using fin.model;
 using fin.image;
 using fin.language.equations.fixedFunction;
 using fin.language.equations.fixedFunction.impl;
-using fin.util.asserts;
 using FinBlendFactor = fin.model.BlendFactor;
 using FinLogicOp = fin.model.LogicOp;
 using FinAlphaOp = fin.model.AlphaOp;

@@ -1,4 +1,4 @@
-﻿using fin.util.asserts;
+﻿using asserts;
 
 using schema.binary;
 

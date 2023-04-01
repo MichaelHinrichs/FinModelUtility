@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+
+using asserts;
+
 using fin.model;
-using fin.util.asserts;
 
 
 namespace fin.language.equations.fixedFunction {

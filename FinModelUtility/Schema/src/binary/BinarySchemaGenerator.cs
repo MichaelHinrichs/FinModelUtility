@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
+using asserts;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 using schema.binary.attributes.size;
 using schema.binary.text;
-using schema.binary.util;
 
 
 namespace schema.binary {

@@ -1,11 +1,13 @@
 ﻿using System.IO;
 using System.Linq;
+
+using asserts;
+
 using Assimp;
 using fin.exporter.gltf;
 using fin.exporter.gltf.lowlevel;
 using fin.io;
 using fin.model;
-using fin.util.asserts;
 using fin.util.gc;
 using SharpGLTF.Schema2;
 using SharpGLTF.Validation;

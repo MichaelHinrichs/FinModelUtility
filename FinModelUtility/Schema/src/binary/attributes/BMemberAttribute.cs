@@ -3,8 +3,9 @@ using Microsoft.CodeAnalysis;
 
 using System.Collections.Generic;
 
+using asserts;
+
 using schema.binary.parser;
-using schema.binary.util;
 
 
 namespace schema.binary.attributes {

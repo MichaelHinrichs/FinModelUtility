@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-using schema.binary.util;
+using asserts;
 
 
 namespace schema.binary.io {

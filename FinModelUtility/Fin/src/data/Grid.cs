@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-using fin.util.asserts;
+using asserts;
 
 
 namespace fin.data {

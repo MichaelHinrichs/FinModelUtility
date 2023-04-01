@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Linq;
 
-using fin.util.asserts;
+using asserts;
+
 using fin.util.linq;
 
 

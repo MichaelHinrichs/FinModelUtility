@@ -1,6 +1,7 @@
-﻿using fin.util.asserts;
-using OpenTK.Audio.OpenAL;
+﻿using OpenTK.Audio.OpenAL;
 using System;
+
+using asserts;
 
 
 namespace fin.audio.impl.al {

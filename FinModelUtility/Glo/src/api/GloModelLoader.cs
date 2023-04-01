@@ -4,10 +4,12 @@ using fin.model;
 using fin.model.impl;
 using glo.schema;
 using System.Numerics;
+
+using asserts;
+
 using fin.color;
 using fin.data.lazy;
 using fin.image;
-using fin.util.asserts;
 
 
 namespace glo.api {

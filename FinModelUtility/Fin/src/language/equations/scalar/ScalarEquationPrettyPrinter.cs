@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-using fin.util.asserts;
+using asserts;
 
 namespace fin.language.equations.scalar {
   public class ScalarEquationsPrettyPrinter<TIdentifier> {

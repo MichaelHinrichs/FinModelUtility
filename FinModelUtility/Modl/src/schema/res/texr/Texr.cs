@@ -1,12 +1,9 @@
-﻿using System.Drawing;
+﻿using asserts;
 
 using fin.color;
 using fin.data;
 using fin.image;
-using fin.schema.color;
-using fin.util.asserts;
 using fin.util.color;
-using fin.util.image;
 
 using schema.binary;
 

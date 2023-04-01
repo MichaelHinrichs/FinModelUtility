@@ -1,13 +1,14 @@
 ﻿using System.Collections.Concurrent;
 using System.IO.Compression;
 
+using asserts;
+
 using fin.data;
 using fin.data.lazy;
 using fin.image;
 using fin.io;
 using fin.model;
 using fin.model.impl;
-using fin.util.asserts;
 using fin.util.linq;
 
 using modl.schema.terrain;

@@ -1,5 +1,4 @@
 ﻿using fin.io;
-using fin.util.asserts;
 using fin.util.image;
 
 using System;
@@ -17,6 +16,8 @@ using SixLabors.ImageSharp.PixelFormats;
 
 using System.Drawing.Imaging;
 using System.Threading.Tasks;
+
+using asserts;
 
 using FastBitmapLib;
 

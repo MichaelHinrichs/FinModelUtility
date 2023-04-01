@@ -8,6 +8,8 @@ using System.Numerics;
 using System.Text;
 using System.Xml;
 
+using asserts;
+
 using Dxt;
 
 using fin.data.lazy;
@@ -15,7 +17,6 @@ using fin.io;
 using fin.math;
 using fin.model;
 using fin.model.impl;
-using fin.util.asserts;
 
 using granny3d;
 

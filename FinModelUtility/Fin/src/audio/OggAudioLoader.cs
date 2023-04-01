@@ -1,7 +1,8 @@
 ﻿using fin.io;
-using fin.util.asserts;
 using NVorbis;
 using System;
+
+using asserts;
 
 
 namespace fin.audio {
