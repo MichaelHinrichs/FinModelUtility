@@ -9,6 +9,7 @@ using fin.scene;
 using fin.ui;
 using OpenTK.Graphics.OpenGL;
 using uni.config;
+using uni.model;
 using uni.ui.gl;
 
 
@@ -34,14 +35,17 @@ namespace uni.ui.common.scene {
         return scene != null ? (this.fileBundle_!, scene) : null;
       }
       set {
-        this.fileBundle_ = value?.Item1;
-        var scene = this.scene_ = value?.Item2;
-
-        if (scene != null) {
-          this.viewerScale_ = scene.ViewerScale =
-                            1000 / SceneScaleCalculator.CalculateScale(scene);
-        } else {
+        if (value == null) {
+          this.fileBundle_ = null;
+          this.scene_ = null;
           this.viewerScale_ = 1;
+        } else {
+          this.fileBundle_ = value.Value.Item1;
+          this.scene_ = value.Value.Item2;
+          this.viewerScale_ = this.scene_.ViewerScale =
+              new ScaleSource(Config.Instance.ViewerModelScaleSource).GetScale(
+                  this.scene_,
+                  this.fileBundle_);
         }
       }
     }

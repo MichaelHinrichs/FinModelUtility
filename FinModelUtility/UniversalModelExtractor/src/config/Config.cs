@@ -7,7 +7,7 @@ using uni.platforms;
 
 
 namespace uni.config {
-  public enum ModelScaleSource {
+  public enum ScaleSourceType {
     NONE,
     MIN_MAX_BOUNDS,
     GAME_CONFIG,
@@ -27,12 +27,12 @@ namespace uni.config {
     }
 
     [JsonConverter(typeof(StringEnumConverter))]
-    public ModelScaleSource ViewerModelScaleSource { get; set; } =
-      ModelScaleSource.MIN_MAX_BOUNDS;
+    public ScaleSourceType ViewerModelScaleSource { get; set; } =
+      ScaleSourceType.MIN_MAX_BOUNDS;
 
     [JsonConverter(typeof(StringEnumConverter))]
-    public ModelScaleSource ExportedModelScaleSource { get; set; } =
-      ModelScaleSource.NONE;
+    public ScaleSourceType ExportedModelScaleSource { get; set; } =
+      ScaleSourceType.NONE;
 
 
     public bool ShowGrid { get; set; }
