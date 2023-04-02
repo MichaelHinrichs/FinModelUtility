@@ -7,7 +7,7 @@
   ],
   "ShowSkeleton": true,
   "ViewerModelScaleSource": "MIN_MAX_BOUNDS",
-  "ExportedModelScaleSource": "NONE",
+  "ExportedModelScaleSource": "GAME_CONFIG",
   "ShowGrid": true,
   "ThirdParty": {
     "ExportBoneScaleAnimationsSeparately": false

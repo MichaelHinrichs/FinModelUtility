@@ -1,4 +1,5 @@
-﻿using fin.io.bundles;
+﻿using fin.config;
+using fin.io.bundles;
 using fin.model;
 using fin.model.util;
 using fin.scene;
@@ -57,8 +58,9 @@ namespace uni.model {
 
     private bool TryToGetScaleFromGameConfig_(IFileBundle fileBundle,
                                               out float scale) {
-      var gameName = "";
-      if (DirectoryConstants.GAME_CONFIG_DIRECTORY.TryToGetExistingFile(
+      var gameName = fileBundle.GameName;
+      if (gameName != null &&
+          DirectoryConstants.GAME_CONFIG_DIRECTORY.TryToGetExistingFile(
               $"{gameName}.json",
               out var gameConfigFile)) {
         var gameConfig = gameConfigFile.Deserialize<GameConfig>();

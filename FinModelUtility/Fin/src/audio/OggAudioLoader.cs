@@ -12,6 +12,7 @@ namespace fin.audio {
       this.OggFile = oggFile;
     }
 
+    public string? GameName { get; init; }
     public IFileHierarchyFile MainFile => this.OggFile;
 
     public IFileHierarchyFile OggFile { get; }

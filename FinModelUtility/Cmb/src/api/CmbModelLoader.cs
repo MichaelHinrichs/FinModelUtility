@@ -31,15 +31,19 @@ using FinTextureMagFilter = fin.model.TextureMagFilter;
 
 namespace cmb.api {
   public class CmbModelFileBundle : IModelFileBundle {
-    public CmbModelFileBundle(IFileHierarchyFile cmbFile,
+    public CmbModelFileBundle(string gameName,
+                              IFileHierarchyFile cmbFile,
                               IReadOnlyList<IFileHierarchyFile>? csabFiles,
                               IReadOnlyList<IFileHierarchyFile>? ctxbFiles,
                               IReadOnlyList<IFileHierarchyFile>? shpaFiles) {
+      this.GameName = gameName;
       this.CmbFile = cmbFile;
       this.CsabFiles = csabFiles;
       this.CtxbFiles = ctxbFiles;
       this.ShpaFiles = shpaFiles;
     }
+
+    public string GameName { get; }
 
     public IFileHierarchyFile MainFile => this.CmbFile;
     public IEnumerable<IGenericFile> Files
