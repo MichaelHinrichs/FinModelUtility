@@ -4,7 +4,6 @@ using fin.gl.material;
 using fin.gl.model;
 using fin.io.bundles;
 using fin.model;
-using fin.model.util;
 using fin.scene;
 using fin.ui;
 using OpenTK.Graphics.OpenGL;
