@@ -14,7 +14,8 @@ using uni.ui.gl;
 
 namespace uni.ui.common.scene {
   public class SceneViewerGlPanel : BGlPanel, ISceneViewerPanel {
-    private readonly Camera camera_ = new();
+    private readonly Camera camera_ = Camera.NewLookingAt(0, 0, 0, 45, -10, 1.5f);
+
     private float fovY_ = 30;
 
     private readonly Color backgroundColor_ = Color.FromArgb(51, 128, 179);

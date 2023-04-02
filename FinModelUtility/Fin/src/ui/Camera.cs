@@ -6,6 +6,19 @@ namespace fin.ui {
   public class Camera {
     // TODO: Add x/y/z locking.
 
+    public static Camera NewLookingAt(float x,
+                                      float y,
+                                      float z,
+                                      float yaw,
+                                      float pitch,
+                                      float distance) {
+      var camera = new Camera { Yaw = yaw, Pitch = pitch };
+      camera.X -= camera.XNormal * distance;
+      camera.Y -= camera.YNormal * distance;
+      camera.Z -= camera.ZNormal * distance;
+      return camera;
+    }
+
     public static Camera Instance { get; private set; }
 
     public Camera() {
