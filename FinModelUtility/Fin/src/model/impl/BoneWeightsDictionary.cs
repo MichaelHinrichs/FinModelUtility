@@ -1,8 +1,7 @@
-﻿using System;
+﻿using fin.util.asserts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-
-using asserts;
 
 namespace fin.model.impl {
   public class BoneWeightsDictionary {

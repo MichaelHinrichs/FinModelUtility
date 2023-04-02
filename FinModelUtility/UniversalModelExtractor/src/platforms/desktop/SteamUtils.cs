@@ -1,6 +1,5 @@
-﻿using asserts;
-
-using fin.io;
+﻿using fin.io;
+using fin.util.asserts;
 using fin.util.linq;
 
 using Gameloop.Vdf;

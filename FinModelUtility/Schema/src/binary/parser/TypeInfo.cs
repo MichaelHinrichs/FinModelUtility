@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using asserts;
-
 using Microsoft.CodeAnalysis;
+
+using schema.binary.util;
 
 
 namespace schema.binary.parser {

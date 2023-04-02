@@ -14,10 +14,8 @@ using System.Linq;
 using System.Text;
 using System.Drawing;
 using System.Numerics;
-
-using asserts;
-
 using fin.schema.matrix;
+using fin.util.asserts;
 using fin.util.color;
 
 using gx;

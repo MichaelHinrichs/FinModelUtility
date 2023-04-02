@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-using asserts;
-
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 using schema.binary;
+using schema.binary.util;
 
 namespace schema.defaultinterface {
   [Generator(LanguageNames.CSharp)]

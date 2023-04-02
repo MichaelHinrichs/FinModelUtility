@@ -45,7 +45,6 @@
     <PackageReference Include="System.IO.Abstractions" Version="19.1.5" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Asserts\Asserts.csproj" />
     <ProjectReference Include="..\Schema\Schema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
   </ItemGroup>
 </Project>

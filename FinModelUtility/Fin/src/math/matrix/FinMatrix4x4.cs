@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using fin.math.matrix;
 using fin.model;
+using fin.util.asserts;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-
-using asserts;
 
 
 namespace fin.math {

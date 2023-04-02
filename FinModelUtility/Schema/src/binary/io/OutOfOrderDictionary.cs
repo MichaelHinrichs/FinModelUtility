@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using asserts;
+using schema.binary.util;
 
 
 namespace schema.binary.io {

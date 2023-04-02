@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
 
-using asserts;
+using schema.binary.util;
 
 
 namespace schema.binary.testing {

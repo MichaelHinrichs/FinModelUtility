@@ -4,8 +4,6 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 
-using asserts;
-
 using cmb.schema.cmb;
 using cmb.schema.csab;
 using cmb.schema.ctxb;
@@ -20,6 +18,7 @@ using fin.io;
 using fin.math;
 using fin.model;
 using fin.model.impl;
+using fin.util.asserts;
 using fin.util.enumerables;
 
 using Microsoft.Toolkit.HighPerformance.Helpers;

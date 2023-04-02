@@ -1,7 +1,7 @@
-﻿using System.IO;
-using System.Text;
+﻿using fin.util.asserts;
 
-using asserts;
+using System.IO;
+using System.Text;
 
 
 namespace fin.io {

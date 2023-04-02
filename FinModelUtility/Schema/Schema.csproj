@@ -23,25 +23,4 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.0.1" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.0.1" />
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Asserts\Asserts.csproj" />
-  </ItemGroup>
-
-  <!-- See https://github.com/dotnet/roslyn-sdk/blob/0313c80ed950ac4f4eef11bb2e1c6d1009b328c4/samples/CSharp/SourceGenerators/SourceGeneratorSamples/SourceGeneratorSamples.csproj#L13-L30
-and https://github.com/dotnet/roslyn/discussions/47517#discussioncomment-64145 -->
-  <PropertyGroup>
-    <GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>
-  </PropertyGroup>
-
-  <Target Name="GetDependencyTargetPaths">
-    <ItemGroup>
-      <TargetPathWithTargetPlatformMoniker Condition="'$(Configuration)' == 'Release'"
-                                           Include="..\Asserts\bin\Debug\netstandard2.0\Asserts.dll" 
-                                           IncludeRuntimeDependency="false" />
-      <TargetPathWithTargetPlatformMoniker Condition="'$(Configuration)' == 'Debug'"
-                                           Include="..\Asserts\bin\Debug\netstandard2.0\Asserts.dll" 
-                                           IncludeRuntimeDependency="false" />
-    </ItemGroup>
-  </Target>
 </Project>

@@ -1,7 +1,6 @@
 ﻿using System.IO;
 
-using asserts;
-
+using fin.util.asserts;
 using fin.util.strings;
 
 using schema.binary;

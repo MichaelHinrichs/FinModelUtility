@@ -7,8 +7,6 @@ using NUnit.Framework;
 using System.Linq;
 using System.Text;
 
-using asserts;
-
 using schema.binary.util;
 
 

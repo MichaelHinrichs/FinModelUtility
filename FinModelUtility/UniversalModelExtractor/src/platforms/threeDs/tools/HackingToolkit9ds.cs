@@ -1,9 +1,8 @@
 ﻿using System.Diagnostics;
 
-using asserts;
-
 using fin.io;
 using fin.log;
+using fin.util.asserts;
 
 using uni.config;
 using uni.platforms.gcn.tools;

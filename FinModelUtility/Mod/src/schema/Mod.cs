@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-using asserts;
-
 using fin.schema.color;
 using fin.schema.vector;
+using fin.util.asserts;
 
 using mod.schema.collision;
 

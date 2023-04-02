@@ -1,9 +1,8 @@
 ﻿using System.Text;
 
-using asserts;
-
 using fin.data.stack;
 using fin.io;
+using fin.util.asserts;
 
 using schema.binary;
 

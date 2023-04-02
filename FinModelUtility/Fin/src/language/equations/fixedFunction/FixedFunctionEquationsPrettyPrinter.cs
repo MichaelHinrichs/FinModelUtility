@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Text;
-
-using asserts;
+using fin.util.asserts;
 
 
 namespace fin.language.equations.fixedFunction {

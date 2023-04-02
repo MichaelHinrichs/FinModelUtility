@@ -1,5 +1,5 @@
-using asserts;
 using fin.math;
+﻿using fin.util.asserts;
 using fin.util.strings;
 
 using schema.binary;

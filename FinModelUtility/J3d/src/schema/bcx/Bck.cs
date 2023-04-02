@@ -6,13 +6,12 @@
 
 using System;
 using System.IO;
+using fin.util.asserts;
 using j3d.G3D_Binary_File_Format;
 using schema.binary;
 using schema.binary.attributes.endianness;
 using schema.binary.attributes.size;
 using System.Linq;
-
-using asserts;
 
 
 namespace j3d.schema.bcx {

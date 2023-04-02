@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Numerics;
-
-using asserts;
 
 using fin.image;
 using fin.io;
 using fin.log;
 using fin.model;
 using fin.model.util;
+using fin.util.asserts;
 using fin.util.image;
 
 using SharpGLTF.Materials;

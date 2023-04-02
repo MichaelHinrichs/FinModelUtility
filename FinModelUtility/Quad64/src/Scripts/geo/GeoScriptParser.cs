@@ -1,6 +1,5 @@
-﻿using asserts;
-
-using Quad64;
+﻿using Quad64;
+using schema.binary.util;
 
 
 namespace sm64.scripts.geo {

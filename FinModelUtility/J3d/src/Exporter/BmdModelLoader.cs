@@ -6,6 +6,7 @@ using fin.math;
 using fin.math.matrix;
 using fin.model;
 using fin.model.impl;
+using fin.util.asserts;
 using fin.io;
 using fin.log;
 using fin.schema.matrix;
@@ -18,8 +19,6 @@ using j3d.schema.bmd.jnt1;
 using j3d.schema.bmd.mat3;
 using j3d.schema.bti;
 using System.Numerics;
-
-using asserts;
 
 using fin.util.enumerables;
 

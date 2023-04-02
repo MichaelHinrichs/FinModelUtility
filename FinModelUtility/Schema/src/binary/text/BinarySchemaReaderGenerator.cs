@@ -2,9 +2,9 @@
 using System.IO;
 using System.Text;
 
-using asserts;
-
 using Microsoft.CodeAnalysis;
+
+using schema.binary.util;
 
 
 namespace schema.binary.text {
