@@ -95,7 +95,7 @@ namespace fin.exporter.assimp.indirect {
         gltfExporter.Export(new ExporterParams {
             OutputFile = inputFile,
             Model = model,
-            Scale = scale,
+            Scale = scale * 100,
         });
         if (ForceGarbageCollection) {
           GcUtil.ForceCollectEverything();
