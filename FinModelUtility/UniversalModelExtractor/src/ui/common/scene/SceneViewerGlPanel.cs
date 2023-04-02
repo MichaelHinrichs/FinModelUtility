@@ -3,6 +3,7 @@ using fin.gl;
 using fin.gl.material;
 using fin.gl.model;
 using fin.io.bundles;
+using fin.math;
 using fin.model;
 using fin.scene;
 using fin.ui;
@@ -80,6 +81,8 @@ namespace uni.ui.common.scene {
     private bool isBackwardDown_ = false;
     private bool isLeftwardDown_ = false;
     private bool isRightwardDown_ = false;
+    private bool isUpwardDown_ = false;
+    private bool isDownwardDown_ = false;
     private bool isSpeedupActive_ = false;
 
     public SceneViewerGlPanel() {
@@ -115,7 +118,11 @@ namespace uni.ui.common.scene {
 
             var mouseSpeed = 3;
 
-            this.camera_.Pitch -= deltaYFrac * fovY * mouseSpeed;
+            this.camera_.Pitch =
+                float.Clamp(
+                    this.camera_.Pitch - deltaYFrac * fovY * mouseSpeed,
+                    -90,
+                    90);
             this.camera_.Yaw -= deltaXFrac * fovX * mouseSpeed;
           }
 
@@ -126,50 +133,66 @@ namespace uni.ui.common.scene {
       this.impl_.KeyDown += (_, args) => {
         switch (args.KeyCode) {
           case Keys.W: {
-              this.isForwardDown_ = true;
-              break;
-            }
+            this.isForwardDown_ = true;
+            break;
+          }
           case Keys.S: {
-              this.isBackwardDown_ = true;
-              break;
-            }
+            this.isBackwardDown_ = true;
+            break;
+          }
           case Keys.A: {
-              this.isLeftwardDown_ = true;
-              break;
-            }
+            this.isLeftwardDown_ = true;
+            break;
+          }
           case Keys.D: {
-              this.isRightwardDown_ = true;
-              break;
-            }
+            this.isRightwardDown_ = true;
+            break;
+          }
+          case Keys.Q: {
+            this.isDownwardDown_ = true;
+            break;
+          }
+          case Keys.E: {
+            this.isUpwardDown_ = true;
+            break;
+          }
           case Keys.ShiftKey: {
-              this.isSpeedupActive_ = true;
-              break;
-            }
+            this.isSpeedupActive_ = true;
+            break;
+          }
         }
       };
 
       this.impl_.KeyUp += (_, args) => {
         switch (args.KeyCode) {
           case Keys.W: {
-              this.isForwardDown_ = false;
-              break;
-            }
+            this.isForwardDown_ = false;
+            break;
+          }
           case Keys.S: {
-              this.isBackwardDown_ = false;
-              break;
-            }
+            this.isBackwardDown_ = false;
+            break;
+          }
           case Keys.A: {
-              this.isLeftwardDown_ = false;
-              break;
-            }
+            this.isLeftwardDown_ = false;
+            break;
+          }
           case Keys.D: {
-              this.isRightwardDown_ = false;
-              break;
-            }
+            this.isRightwardDown_ = false;
+            break;
+          }
+          case Keys.Q: {
+            this.isDownwardDown_ = false;
+            break;
+          }
+          case Keys.E: {
+            this.isUpwardDown_ = false;
+            break;
+          }
           case Keys.ShiftKey: {
-              this.isSpeedupActive_ = false;
-              break;
-            }
+            this.isSpeedupActive_ = false;
+            break;
+          }
         }
       };
     }
@@ -211,7 +234,11 @@ namespace uni.ui.common.scene {
           (this.isForwardDown_ ? 1 : 0) - (this.isBackwardDown_ ? 1 : 0);
       var rightwardVector =
           (this.isRightwardDown_ ? 1 : 0) - (this.isLeftwardDown_ ? 1 : 0);
-      this.camera_.Move(forwardVector, rightwardVector,
+      var upwardVector =
+          (this.isUpwardDown_ ? 1 : 0) - (this.isDownwardDown_ ? 1 : 0);
+      this.camera_.Move(forwardVector, 
+                        rightwardVector,
+                        upwardVector,
                         DebugFlags.GLOBAL_SCALE *
                         (this.isSpeedupActive_ ? 30 : 15));
 
@@ -237,7 +264,7 @@ namespace uni.ui.common.scene {
                       this.camera_.X + this.camera_.XNormal,
                       this.camera_.Y + this.camera_.YNormal,
                       this.camera_.Z + this.camera_.ZNormal,
-                      0, 0, 1);
+                      this.camera_.XUp, this.camera_.YUp, this.camera_.ZUp);
 
         GlTransform.MatrixMode(MatrixMode.Modelview);
         GlTransform.LoadIdentity();

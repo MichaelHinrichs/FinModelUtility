@@ -8,6 +8,10 @@
     float YNormal { get; }
     float ZNormal { get; }
 
+    float XUp { get; }
+    float YUp { get; }
+    float ZUp { get; }
+
     float Yaw { get; }
   }
 }

@@ -27,7 +27,7 @@ namespace fin.math {
         where TNumber : INumber<TNumber>
       => minTo + (value - minFrom) / (maxFrom - minFrom) * (maxTo - minTo);
 
-    public static TNumber Clamp<TNumber>(TNumber value,
+    public static TNumber ClampMagnitude<TNumber>(TNumber value,
                                          TNumber min,
                                          TNumber max)
         where TNumber : INumber<TNumber>
