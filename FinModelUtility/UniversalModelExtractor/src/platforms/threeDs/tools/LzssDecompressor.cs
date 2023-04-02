@@ -13,7 +13,7 @@ namespace uni.platforms.threeDs.tools {
         data = new byte[header.DecompressedSize];
         var dI = 0;
 
-        var BUFFER = new byte[4096];
+        Span<byte> buffer = stackalloc byte[4096];
         ushort writeIndex = 0xFEE;
         while (!er.Eof) {
           var flags8 = er.ReadByte();
@@ -22,7 +22,7 @@ namespace uni.platforms.threeDs.tools {
             if (flags8.GetBit(0)) {
               var decompressedByte = er.ReadByte();
               data[dI++] = decompressedByte;
-              BUFFER[writeIndex] = decompressedByte;
+              buffer[writeIndex] = decompressedByte;
               writeIndex++;
               writeIndex %= 4096;
             } else {
@@ -32,8 +32,8 @@ namespace uni.platforms.threeDs.tools {
               var someByte = er.ReadByte();
               readIndex |= (ushort) ((someByte & 0xF0) << 4);
               for (var j = 0; j < (someByte & 0x0F) + 3; j++) {
-                data[dI++] = BUFFER[readIndex];
-                BUFFER[writeIndex] = BUFFER[readIndex];
+                data[dI++] = buffer[readIndex];
+                buffer[writeIndex] = buffer[readIndex];
                 readIndex++;
                 readIndex %= 4096;
                 writeIndex++;
