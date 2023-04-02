@@ -34,15 +34,20 @@ namespace uni.games {
 
     public static bool CheckIfModelFileBundlesAlreadyExtracted(
         IEnumerable<IModelFileBundle> modelFileBundles,
+        IReadOnlyList<string> extensions,
         out IReadOnlyList<IModelFileBundle> existingModelFileBundles) {
       existingModelFileBundles =
-          modelFileBundles.Where(CheckIfModelFileBundleAlreadyExtracted)
+          modelFileBundles
+              .Where(mfb => CheckIfModelFileBundleAlreadyExtracted(
+                         mfb,
+                         extensions))
                           .ToArray();
       return existingModelFileBundles.Count > 0;
     }
 
     public static bool CheckIfModelFileBundleAlreadyExtracted(
-        IModelFileBundle modelFileBundle) {
+        IModelFileBundle modelFileBundle,
+        IReadOnlyList<string> extensions) {
       var mainFile = Asserts.CastNonnull(modelFileBundle.MainFile);
 
       var parentOutputDirectory =
@@ -51,15 +56,12 @@ namespace uni.games {
           Path.Join(parentOutputDirectory.FullName,
                     mainFile.NameWithoutExtension));
 
-      // TODO: Pass in extensions
       if (outputDirectory.Exists) {
-        var existingOutputFile =
+        var existingOutputFileCount =
             outputDirectory.GetExistingFiles()
-                           .Where(file => file.Extension is ".fbx" or ".glb"
-                                      or ".gltf")
-                           .Any(file => file.NameWithoutExtension ==
-                                        mainFile.NameWithoutExtension);
-        return true;
+                           .Where(file => extensions.Contains(file.Extension))
+                           .Count(file => file.NameWithoutExtension == mainFile.NameWithoutExtension);
+        return existingOutputFileCount == extensions.Count;
       }
 
       return false;
@@ -104,9 +106,11 @@ namespace uni.games {
     }
 
     public static ExtractorPromptChoice PromptIfModelFileBundlesAlreadyExtracted(
-        IReadOnlyList<IModelFileBundle> modelFileBundles) {
+        IReadOnlyList<IModelFileBundle> modelFileBundles,
+        IReadOnlyList<string> extensions) {
       if (ExtractorUtil.CheckIfModelFileBundlesAlreadyExtracted(
               modelFileBundles,
+              extensions,
               out var existingOutputFiles)) {
         var totalCount = modelFileBundles.Count;
         if (totalCount == 1) {
@@ -141,43 +145,49 @@ namespace uni.games {
 
     public static void ExtractAll<T>(
         IFileBundleGatherer<T> gatherer,
-        IModelLoader<T> loader,
-        bool overwriteExistingFiles)
+        IModelLoader<T> loader)
         where T : IModelFileBundle {
       ExtractorUtil.ExtractAll(gatherer.GatherFileBundles(true),
                                loader,
-                               overwriteExistingFiles);
+                               Config.Instance.ExportedFormats,
+                               false);
     }
 
     public static void ExtractAll<T>(
         IEnumerable<T> modelFileBundles,
         IModelLoader<T> loader,
+        IReadOnlyList<string> extensions,
         bool overwriteExistingFiles)
         where T : IModelFileBundle {
       foreach (var modelFileBundle in modelFileBundles) {
-        ExtractorUtil.Extract(modelFileBundle, loader, overwriteExistingFiles);
+        ExtractorUtil.Extract(modelFileBundle,
+                              loader,
+                              extensions,
+                              overwriteExistingFiles);
       }
     }
 
     public static void ExtractAll<T>(
         IFileBundleGatherer<IFileBundle> gatherer,
-        IModelLoader<T> loader,
-        bool overwriteExistingFiles)
+        IModelLoader<T> loader)
         where T : IModelFileBundle {
       ExtractorUtil.ExtractAll(gatherer.GatherFileBundles(true),
                                loader,
-                               overwriteExistingFiles);
+                               Config.Instance.ExportedFormats,
+                               false);
     }
 
     public static void ExtractAll<T>(
         IEnumerable<IFileBundle> fileBundles,
         IModelLoader<T> loader,
+        IReadOnlyList<string> extensions,
         bool overwriteExistingFiles)
         where T : IModelFileBundle {
       foreach (var fileBundle in fileBundles) {
         if (fileBundle is T modelFileBundle) {
           ExtractorUtil.Extract(modelFileBundle,
                                 loader,
+                                extensions,
                                 overwriteExistingFiles);
         }
       }
@@ -185,15 +195,18 @@ namespace uni.games {
 
     public static void Extract<T>(T modelFileBundle,
                                   IModelLoader<T> loader,
+                                  IReadOnlyList<string> extensions,
                                   bool overwriteExistingFile)
         where T : IModelFileBundle {
       ExtractorUtil.Extract(modelFileBundle,
                             () => loader.LoadModel(modelFileBundle),
+                            extensions,
                             overwriteExistingFile);
     }
 
     public static void Extract<T>(T modelFileBundle,
                                   Func<IModel> loaderHandler,
+                                  IReadOnlyList<string> extensions,
                                   bool overwriteExistingFile)
         where T : IModelFileBundle {
       var mainFile = Asserts.CastNonnull(modelFileBundle.MainFile);
@@ -204,18 +217,11 @@ namespace uni.games {
           Path.Join(parentOutputDirectory.FullName,
                     mainFile.NameWithoutExtension));
 
-      if (!overwriteExistingFile && outputDirectory.Exists) {
-        var existingOutputFile =
-            outputDirectory.GetExistingFiles()
-                           .Where(file => file.Extension is ".fbx" or ".glb"
-                                      or ".gltf")
-                           .Any(file => file.NameWithoutExtension ==
-                                        mainFile.NameWithoutExtension);
-
-        if (existingOutputFile) {
-          MessageUtil.LogAlreadyProcessed(ExtractorUtil.logger_, mainFile);
-          return;
-        }
+      if (!overwriteExistingFile && CheckIfModelFileBundleAlreadyExtracted(
+              modelFileBundle,
+              extensions)) {
+        MessageUtil.LogAlreadyProcessed(ExtractorUtil.logger_, mainFile);
+        return;
       }
 
       MessageUtil.LogExtracting(ExtractorUtil.logger_, mainFile);

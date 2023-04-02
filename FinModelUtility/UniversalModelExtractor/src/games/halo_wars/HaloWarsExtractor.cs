@@ -5,8 +5,7 @@ namespace uni.games.halo_wars {
     public void ExtractAll()
       => ExtractorUtil.ExtractAll(
         new HaloWarsModelFileGatherer(),
-        new HaloWarsModelLoader(),
-        false);
+        new HaloWarsModelLoader());
 
       /*new HaloWarsTools.Program().Run(
           DirectoryConstants.ROMS_DIRECTORY.GetSubdir("halo_wars", true).FullName,

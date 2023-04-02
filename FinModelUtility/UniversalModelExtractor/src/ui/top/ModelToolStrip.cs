@@ -103,10 +103,11 @@ namespace uni.ui.top {
 
       var extractorPromptChoice =
           ExtractorUtil.PromptIfModelFileBundlesAlreadyExtracted(
-              allModelFileBundles);
+              allModelFileBundles, Config.Instance.ExportedFormats);
       if (extractorPromptChoice != ExtractorUtil.ExtractorPromptChoice.CANCEL) {
         ExtractorUtil.ExtractAll(allModelFileBundles,
                                  new GlobalModelLoader(),
+                                 Config.Instance.ExportedFormats,
                                  extractorPromptChoice == ExtractorUtil
                                      .ExtractorPromptChoice.OVERWRITE_EXISTING);
       }
@@ -121,10 +122,11 @@ namespace uni.ui.top {
       var modelFileBundle = fileNode.File as IModelFileBundle;
       var extractorPromptChoice =
           ExtractorUtil.PromptIfModelFileBundlesAlreadyExtracted(
-              new[] { modelFileBundle });
+              new[] { modelFileBundle }, Config.Instance.ExportedFormats);
       if (extractorPromptChoice != ExtractorUtil.ExtractorPromptChoice.CANCEL) {
         ExtractorUtil.Extract(modelFileBundle,
                               () => model,
+                              Config.Instance.ExportedFormats,
                               extractorPromptChoice == ExtractorUtil
                                   .ExtractorPromptChoice.OVERWRITE_EXISTING);
       }
