@@ -1,6 +1,8 @@
 ﻿using fin.io;
 using fin.util.asserts;
+
 using NVorbis;
+
 using System;
 
 
@@ -28,12 +30,12 @@ namespace fin.audio {
       mutableBuffer.Frequency = ogg.SampleRate;
 
       {
-        var sampleCount = (int)ogg.TotalSamples;
+        var sampleCount = (int) ogg.TotalSamples;
 
         var channelCount = ogg.Channels;
         var floatCount = channelCount * sampleCount;
         var floatPcm = new float[floatCount];
-        ogg.ReadSamples(floatPcm, 0, floatCount);
+        ogg.ReadSamples(floatPcm);
 
         var channels = new short[channelCount][];
         for (var c = 0; c < channelCount; ++c) {
@@ -54,10 +56,9 @@ namespace fin.audio {
             float shortMin = short.MinValue;
             float shortMax = short.MaxValue;
 
-            var shortSample =
-                (short)Math.Round(shortMin +
-                                  normalizedFloatSample *
-                                  (shortMax - shortMin));
+            var shortSample = (short) (shortMin +
+                                       normalizedFloatSample *
+                                       (shortMax - shortMin));
 
             channels[c][i] = shortSample;
           }
