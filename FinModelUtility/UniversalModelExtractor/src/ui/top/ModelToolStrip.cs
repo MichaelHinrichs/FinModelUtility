@@ -101,9 +101,15 @@ namespace uni.ui.top {
         }
       }
 
-      ExtractorUtil.ExtractAll(allModelFileBundles,
-                               new GlobalModelLoader(),
-                               true);
+      var extractorPromptChoice =
+          ExtractorUtil.PromptIfModelFileBundlesAlreadyExtracted(
+              allModelFileBundles);
+      if (extractorPromptChoice != ExtractorUtil.ExtractorPromptChoice.CANCEL) {
+        ExtractorUtil.ExtractAll(allModelFileBundles,
+                                 new GlobalModelLoader(),
+                                 extractorPromptChoice == ExtractorUtil
+                                     .ExtractorPromptChoice.OVERWRITE_EXISTING);
+      }
     }
 
     private void exportSelectedModelButton__Click(object sender, EventArgs e) {
@@ -112,9 +118,16 @@ namespace uni.ui.top {
       }
 
       var (fileNode, model) = this.fileNodeAndModel_.Value;
-      ExtractorUtil.Extract(fileNode.File as IModelFileBundle,
-                            () => model,
-                            true);
+      var modelFileBundle = fileNode.File as IModelFileBundle;
+      var extractorPromptChoice =
+          ExtractorUtil.PromptIfModelFileBundlesAlreadyExtracted(
+              new[] { modelFileBundle });
+      if (extractorPromptChoice != ExtractorUtil.ExtractorPromptChoice.CANCEL) {
+        ExtractorUtil.Extract(modelFileBundle,
+                              () => model,
+                              extractorPromptChoice == ExtractorUtil
+                                  .ExtractorPromptChoice.OVERWRITE_EXISTING);
+      }
     }
 
     private string GetTotalNodeText_(IFileTreeNode<IFileBundle> node) {
