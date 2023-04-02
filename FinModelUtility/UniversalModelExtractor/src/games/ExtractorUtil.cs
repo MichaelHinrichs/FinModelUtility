@@ -22,45 +22,58 @@ namespace uni.games {
 
     public static void ExtractAll<T>(
         IFileBundleGatherer<T> gatherer,
-        IModelLoader<T> loader)
+        IModelLoader<T> loader,
+        bool overwriteExistingFiles)
         where T : IModelFileBundle {
-      ExtractorUtil.ExtractAll(gatherer.GatherFileBundles(true), loader);
+      ExtractorUtil.ExtractAll(gatherer.GatherFileBundles(true),
+                               loader,
+                               overwriteExistingFiles);
     }
 
     public static void ExtractAll<T>(
         IEnumerable<T> modelFileBundles,
-        IModelLoader<T> loader)
+        IModelLoader<T> loader,
+        bool overwriteExistingFiles)
         where T : IModelFileBundle {
       foreach (var modelFileBundle in modelFileBundles) {
-        ExtractorUtil.Extract(modelFileBundle, loader);
+        ExtractorUtil.Extract(modelFileBundle, loader, overwriteExistingFiles);
       }
     }
 
     public static void ExtractAll<T>(
         IFileBundleGatherer<IFileBundle> gatherer,
-        IModelLoader<T> loader)
+        IModelLoader<T> loader,
+        bool overwriteExistingFiles)
         where T : IModelFileBundle {
-      ExtractorUtil.ExtractAll(gatherer.GatherFileBundles(true), loader);
+      ExtractorUtil.ExtractAll(gatherer.GatherFileBundles(true),
+                               loader,
+                               overwriteExistingFiles);
     }
 
     public static void ExtractAll<T>(
         IEnumerable<IFileBundle> fileBundles,
-        IModelLoader<T> loader)
+        IModelLoader<T> loader,
+        bool overwriteExistingFiles)
         where T : IModelFileBundle {
       foreach (var fileBundle in fileBundles) {
         if (fileBundle is T modelFileBundle) {
-          ExtractorUtil.Extract(modelFileBundle, loader);
+          ExtractorUtil.Extract(modelFileBundle, loader, overwriteExistingFiles);
         }
       }
     }
 
-    public static void Extract<T>(T modelFileBundle, IModelLoader<T> loader)
+    public static void Extract<T>(T modelFileBundle,
+                                  IModelLoader<T> loader,
+                                  bool overwriteExistingFile)
         where T : IModelFileBundle {
       ExtractorUtil.Extract(modelFileBundle,
-                            () => loader.LoadModel(modelFileBundle));
+                            () => loader.LoadModel(modelFileBundle),
+                            overwriteExistingFile);
     }
 
-    public static void Extract<T>(T modelFileBundle, Func<IModel> loaderHandler)
+    public static void Extract<T>(T modelFileBundle,
+                                  Func<IModel> loaderHandler,
+                                  bool overwriteExistingFile)
         where T : IModelFileBundle {
       var mainFile = Asserts.CastNonnull(modelFileBundle.MainFile);
 
@@ -70,7 +83,7 @@ namespace uni.games {
           Path.Join(parentOutputDirectory.FullName,
                     mainFile.NameWithoutExtension));
 
-      if (outputDirectory.Exists) {
+      if (overwriteExistingFile || outputDirectory.Exists) {
         var existingOutputFile =
             outputDirectory.GetExistingFiles()
                            .Where(file => file.Extension is ".fbx" or ".glb"

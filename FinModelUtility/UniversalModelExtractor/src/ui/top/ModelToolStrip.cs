@@ -101,7 +101,9 @@ namespace uni.ui.top {
         }
       }
 
-      ExtractorUtil.ExtractAll(allModelFileBundles, new GlobalModelLoader());
+      ExtractorUtil.ExtractAll(allModelFileBundles,
+                               new GlobalModelLoader(),
+                               true);
     }
 
     private void exportSelectedModelButton__Click(object sender, EventArgs e) {
@@ -110,7 +112,9 @@ namespace uni.ui.top {
       }
 
       var (fileNode, model) = this.fileNodeAndModel_.Value;
-      ExtractorUtil.Extract(fileNode.File as IModelFileBundle, () => model);
+      ExtractorUtil.Extract(fileNode.File as IModelFileBundle,
+                            () => model,
+                            true);
     }
 
     private string GetTotalNodeText_(IFileTreeNode<IFileBundle> node) {
