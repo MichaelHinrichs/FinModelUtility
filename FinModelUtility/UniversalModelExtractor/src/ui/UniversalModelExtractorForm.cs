@@ -10,6 +10,8 @@ using fin.model;
 using fin.scene;
 using fin.util.enumerables;
 
+using MathNet.Numerics;
+
 using uni.config;
 using uni.games;
 using uni.ui.common;
@@ -29,6 +31,25 @@ public partial class UniversalModelExtractorForm : Form {
         skeletonRenderer.SelectedBone = bone;
       }
     };
+
+    this.modelToolStrip_.Progress.ProgressChanged +=
+        (_, currentProgress) => {
+          var fractionalProgress = currentProgress.Item1;
+          this.labelledProgressBar_.Value =
+              (int) Math.Round(fractionalProgress * 100);
+
+          var modelFileBundle = currentProgress.Item2;
+          if (modelFileBundle == null) {
+            if (fractionalProgress.AlmostEqual(0, .00001)) {
+              this.labelledProgressBar_.Text = "Nothing to report";
+            } else if (fractionalProgress.AlmostEqual(1, .00001)) {
+              this.labelledProgressBar_.Text = "Done!";
+            }
+          } else {
+            this.labelledProgressBar_.Text =
+                $"Extracting {modelFileBundle.DisplayFullName}...";
+          }
+        };
   }
 
   private void UniversalModelExtractorForm_Load(object sender, EventArgs e) {

@@ -1,15 +1,24 @@
 ﻿using fin.data.queue;
 using fin.io.bundles;
 using fin.model;
+using fin.util.progress;
+
+using MathNet.Numerics;
+
 using uni.config;
 using uni.games;
 using uni.ui.common;
 
+using static uni.games.ExtractorUtil;
 
 namespace uni.ui.top {
   public partial class ModelToolStrip : UserControl {
     private IFileTreeNode<IFileBundle>? directoryNode_;
     private (IFileTreeNode<IFileBundle>, IModel)? fileNodeAndModel_;
+
+    private bool isStarted_ = false;
+    private bool hasModelsInDirectory_;
+    private bool isModelSelected_;
 
     public ModelToolStrip() {
       InitializeComponent();
@@ -34,7 +43,19 @@ namespace uni.ui.top {
       automaticallyPlayMusicButton.CheckedChanged += (_, e) => {
         config.AutomaticallyPlayGameAudioForModel = showGridButton.Checked;
       };
+
+      this.Progress.ProgressChanged += (_, e) => {
+        this.AttemptToUpdateExportSelectedModelButtonEnabledState_();
+        this.AttemptToUpdateExportAllModelsInSelectedDirectoryButtonEnabledState_();
+      };
     }
+
+    public MemoryProgress<(float, IModelFileBundle?)> Progress { get; } =
+      new((0, null));
+
+    public bool IsInProgress
+      => this.isStarted_ &&
+         !this.Progress.Current.Item1.AlmostEqual(1, .000001);
 
     public IFileTreeNode<IFileBundle>? DirectoryNode {
       set {
@@ -55,11 +76,12 @@ namespace uni.ui.top {
 
           var totalText = this.GetTotalNodeText_(value!);
           tooltipText = modelCount == 1
-                            ? $"Export {modelCount} model in '{totalText}'"
-                            : $"Export all {modelCount} models in '{totalText}'";
+              ? $"Export {modelCount} model in '{totalText}'"
+              : $"Export all {modelCount} models in '{totalText}'";
         }
 
-        this.exportAllModelsInSelectedDirectoryButton_.Enabled = modelCount > 0;
+        this.hasModelsInDirectory_ = modelCount > 0;
+        this.AttemptToUpdateExportAllModelsInSelectedDirectoryButtonEnabledState_();
         this.exportAllModelsInSelectedDirectoryButton_.ToolTipText =
             tooltipText;
       }
@@ -69,28 +91,38 @@ namespace uni.ui.top {
       set {
         var (fileNode, model) = value;
 
-        var hasModel = fileNode.File is IModelFileBundle;
-        this.exportSelectedModelButton_.Enabled = hasModel;
-        if (hasModel) {
+        this.isModelSelected_ = fileNode.File is IModelFileBundle;
+        if (this.isModelSelected_) {
           this.fileNodeAndModel_ = (fileNode, model!);
         } else {
           this.fileNodeAndModel_ = null;
         }
 
         var tooltipText = "Export selected model";
-        if (hasModel) {
+        if (this.isModelSelected_) {
           var totalText = this.GetTotalNodeText_(fileNode);
           tooltipText = $"Export '{totalText}'";
         }
+
+        this.AttemptToUpdateExportSelectedModelButtonEnabledState_();
         this.exportSelectedModelButton_.ToolTipText = tooltipText;
       }
+    }
+
+    public void AttemptToUpdateExportSelectedModelButtonEnabledState_() {
+      this.exportSelectedModelButton_.Enabled =
+          !this.IsInProgress && this.isModelSelected_;
+    }
+
+    public void AttemptToUpdateExportAllModelsInSelectedDirectoryButtonEnabledState_() {
+      this.exportAllModelsInSelectedDirectoryButton_.Enabled =
+          !this.IsInProgress && this.hasModelsInDirectory_;
     }
 
     private void exportAllModelsInSelectedDirectoryButton__Click(
         object sender,
         EventArgs e) {
       var allModelFileBundles = new List<IModelFileBundle>();
-
       var subdirQueue =
           new FinQueue<IFileTreeNode<IFileBundle>>(this.directoryNode_!);
       while (subdirQueue.TryDequeue(out var subdirNode)) {
@@ -101,16 +133,7 @@ namespace uni.ui.top {
         }
       }
 
-      var extractorPromptChoice =
-          ExtractorUtil.PromptIfModelFileBundlesAlreadyExtracted(
-              allModelFileBundles, Config.Instance.ExportedFormats);
-      if (extractorPromptChoice != ExtractorUtil.ExtractorPromptChoice.CANCEL) {
-        ExtractorUtil.ExtractAll(allModelFileBundles,
-                                 new GlobalModelLoader(),
-                                 Config.Instance.ExportedFormats,
-                                 extractorPromptChoice == ExtractorUtil
-                                     .ExtractorPromptChoice.OVERWRITE_EXISTING);
-      }
+      this.StartExportingModelsInBackground_(allModelFileBundles);
     }
 
     private void exportSelectedModelButton__Click(object sender, EventArgs e) {
@@ -118,17 +141,27 @@ namespace uni.ui.top {
         return;
       }
 
-      var (fileNode, model) = this.fileNodeAndModel_.Value;
+      var (fileNode, _) = this.fileNodeAndModel_.Value;
       var modelFileBundle = fileNode.File as IModelFileBundle;
+      this.StartExportingModelsInBackground_(new[] { modelFileBundle});
+    }
+
+    private void StartExportingModelsInBackground_(
+        IReadOnlyList<IModelFileBundle> modelFileBundles) {
       var extractorPromptChoice =
           ExtractorUtil.PromptIfModelFileBundlesAlreadyExtracted(
-              new[] { modelFileBundle }, Config.Instance.ExportedFormats);
-      if (extractorPromptChoice != ExtractorUtil.ExtractorPromptChoice.CANCEL) {
-        ExtractorUtil.Extract(modelFileBundle,
-                              () => model,
-                              Config.Instance.ExportedFormats,
-                              extractorPromptChoice == ExtractorUtil
-                                  .ExtractorPromptChoice.OVERWRITE_EXISTING);
+              modelFileBundles,
+              Config.Instance.ExportedFormats);
+      if (extractorPromptChoice != ExtractorPromptChoice.CANCEL) {
+        this.isStarted_ = true;
+        Task.Run(() => {
+          ExtractorUtil.ExtractAll(modelFileBundles,
+                                   new GlobalModelLoader(),
+                                   this.Progress,
+                                   Config.Instance.ExportedFormats,
+                                   extractorPromptChoice == ExtractorUtil
+                                       .ExtractorPromptChoice.OVERWRITE_EXISTING);
+        });
       }
     }
 
@@ -139,6 +172,7 @@ namespace uni.ui.top {
         if (totalText.Length > 0) {
           totalText = "/" + totalText;
         }
+
         totalText = directory.Text + totalText;
 
         directory = directory.Parent;
@@ -146,6 +180,7 @@ namespace uni.ui.top {
           break;
         }
       }
+
       return totalText;
     }
   }

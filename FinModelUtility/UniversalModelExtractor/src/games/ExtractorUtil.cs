@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-using Assimp;
+﻿using Assimp;
 
 using fin.exporter;
 using fin.exporter.assimp;
@@ -10,8 +8,7 @@ using fin.io.bundles;
 using fin.log;
 using fin.model;
 using fin.util.asserts;
-
-using level5.api;
+using fin.util.linq;
 
 using uni.config;
 using uni.model;
@@ -192,14 +189,36 @@ namespace uni.games {
         IReadOnlyList<string> extensions,
         bool overwriteExistingFiles)
         where T : IModelFileBundle {
-      foreach (var fileBundle in fileBundles) {
-        if (fileBundle is T modelFileBundle) {
-          ExtractorUtil.Extract(modelFileBundle,
-                                loader,
-                                extensions,
-                                overwriteExistingFiles);
-        }
+      var fileBundleArray = fileBundles.WhereIs<IFileBundle, T>()
+                                       .ToArray();
+      for (var i = 0; i < fileBundleArray.Length; ++i) {
+        var modelFileBundle = fileBundleArray[i];
+        ExtractorUtil.Extract(modelFileBundle,
+                              loader,
+                              extensions,
+                              overwriteExistingFiles);
       }
+    }
+
+    public static void ExtractAll<T>(
+        IEnumerable<IFileBundle> fileBundles,
+        IModelLoader<T> loader,
+        IProgress<(float, T?)> progress,
+        IReadOnlyList<string> extensions,
+        bool overwriteExistingFiles)
+        where T : IModelFileBundle {
+      var fileBundleArray = fileBundles.WhereIs<IFileBundle, T>()
+                                       .ToArray();
+      for (var i = 0; i < fileBundleArray.Length; ++i) {
+        var modelFileBundle = fileBundleArray[i];
+        progress.Report((i * 1f / fileBundleArray.Length, modelFileBundle));
+        ExtractorUtil.Extract(modelFileBundle,
+                              loader,
+                              extensions,
+                              overwriteExistingFiles);
+      }
+
+      progress.Report((1, default));
     }
 
     public static void Extract<T>(T modelFileBundle,
@@ -225,7 +244,7 @@ namespace uni.games {
       var outputDirectory = new FinDirectory(
           Path.Join(parentOutputDirectory.FullName,
                     mainFile.NameWithoutExtension));
-      
+
       Extract<T>(modelFileBundle,
                  loaderHandler,
                  outputDirectory,
@@ -271,6 +290,7 @@ namespace uni.games {
         return;
       }
 
+      outputDirectory.Create();
       MessageUtil.LogExtracting(ExtractorUtil.logger_, mainFile);
 
       try {
@@ -286,15 +306,17 @@ namespace uni.games {
             LowLevel = modelFileBundle.UseLowLevelExporter,
             ForceGarbageCollection = modelFileBundle.ForceGarbageCollection,
         }.ExportFormats(new ExporterParams {
-                     OutputFile = new FinFile(
-                         Path.Join(outputDirectory.FullName, name + ".foo")),
-                     Model = model,
-                     Scale = new ScaleSource(
-                         Config.Instance.ExportedModelScaleSource).GetScale(
-                         model,
-                         modelFileBundle)
-                 }, 
-                 formats);
+                            OutputFile = new FinFile(
+                                Path.Join(outputDirectory.FullName,
+                                          name + ".foo")),
+                            Model = model,
+                            Scale = new ScaleSource(
+                                    Config.Instance.ExportedModelScaleSource)
+                                .GetScale(
+                                    model,
+                                    modelFileBundle)
+                        },
+                        formats);
 
         if (Config.Instance.ThirdParty.ExportBoneScaleAnimationsSeparately) {
           new BoneScaleAnimationExporter().Export(
