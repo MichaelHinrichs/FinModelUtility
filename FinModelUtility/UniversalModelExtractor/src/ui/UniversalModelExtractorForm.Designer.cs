@@ -46,7 +46,7 @@ namespace uni.ui {
       this.reportAnIssueToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.modelToolStrip_ = new uni.ui.top.ModelToolStrip();
       this.splitContainer5 = new System.Windows.Forms.SplitContainer();
-      this.labelledProgressBar_ = new uni.ui.common.LabelledProgressBar();
+      this.cancellableProgressBar_ = new uni.ui.common.CancellableProgressBar();
       splitContainer1 = new System.Windows.Forms.SplitContainer();
       splitContainer2 = new System.Windows.Forms.SplitContainer();
       menuStrip = new System.Windows.Forms.MenuStrip();
@@ -118,7 +118,7 @@ namespace uni.ui {
       // 
       splitContainer2.Panel2.Controls.Add(this.modelTabs_);
       splitContainer2.Size = new System.Drawing.Size(928, 631);
-      splitContainer2.SplitterDistance = 708;
+      splitContainer2.SplitterDistance = 706;
       splitContainer2.SplitterWidth = 6;
       splitContainer2.TabIndex = 1;
       // 
@@ -139,8 +139,8 @@ namespace uni.ui {
       // splitContainer4.Panel2
       // 
       this.splitContainer4.Panel2.Controls.Add(this.audioPlayerPanel_);
-      this.splitContainer4.Size = new System.Drawing.Size(708, 631);
-      this.splitContainer4.SplitterDistance = 570;
+      this.splitContainer4.Size = new System.Drawing.Size(706, 631);
+      this.splitContainer4.SplitterDistance = 569;
       this.splitContainer4.SplitterWidth = 5;
       this.splitContainer4.TabIndex = 0;
       // 
@@ -153,7 +153,7 @@ namespace uni.ui {
       this.sceneViewerPanel_.Location = new System.Drawing.Point(0, 0);
       this.sceneViewerPanel_.Margin = new System.Windows.Forms.Padding(3, 7, 3, 7);
       this.sceneViewerPanel_.Name = "sceneViewerPanel_";
-      this.sceneViewerPanel_.Size = new System.Drawing.Size(708, 570);
+      this.sceneViewerPanel_.Size = new System.Drawing.Size(706, 569);
       this.sceneViewerPanel_.TabIndex = 0;
       // 
       // audioPlayerPanel_
@@ -165,7 +165,7 @@ namespace uni.ui {
       this.audioPlayerPanel_.Location = new System.Drawing.Point(0, 0);
       this.audioPlayerPanel_.Margin = new System.Windows.Forms.Padding(3, 7, 3, 7);
       this.audioPlayerPanel_.Name = "audioPlayerPanel_";
-      this.audioPlayerPanel_.Size = new System.Drawing.Size(708, 56);
+      this.audioPlayerPanel_.Size = new System.Drawing.Size(706, 57);
       this.audioPlayerPanel_.TabIndex = 2;
       // 
       // modelTabs_
@@ -175,7 +175,7 @@ namespace uni.ui {
       this.modelTabs_.Location = new System.Drawing.Point(0, 0);
       this.modelTabs_.Margin = new System.Windows.Forms.Padding(3, 7, 3, 7);
       this.modelTabs_.Name = "modelTabs_";
-      this.modelTabs_.Size = new System.Drawing.Size(214, 631);
+      this.modelTabs_.Size = new System.Drawing.Size(216, 631);
       this.modelTabs_.TabIndex = 0;
       // 
       // menuStrip
@@ -289,13 +289,14 @@ namespace uni.ui {
       this.splitContainer5.SplitterDistance = 631;
       this.splitContainer5.TabIndex = 3;
       // 
-      // labelledProgressBar_
+      // cancellableProgressBar_
       // 
-      this.labelledProgressBar_.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.labelledProgressBar_.Location = new System.Drawing.Point(0, 0);
-      this.labelledProgressBar_.Name = "labelledProgressBar_";
-      this.labelledProgressBar_.Size = new System.Drawing.Size(1158, 25);
-      this.labelledProgressBar_.TabIndex = 0;
+      this.cancellableProgressBar_.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.cancellableProgressBar_.Location = new System.Drawing.Point(0, 0);
+      this.cancellableProgressBar_.Name = "cancellableProgressBar_";
+      this.cancellableProgressBar_.Size = new System.Drawing.Size(1158, 25);
+      this.cancellableProgressBar_.TabIndex = 0;
+      this.cancellableProgressBar_.Value = 0;
       // 
       // UniversalModelExtractorForm
       // 
@@ -352,6 +353,6 @@ namespace uni.ui {
     private AudioPlayerPanel audioPlayerPanel_;
     private ToolStripMenuItem exportAsToolStripMenuItem;
     private SplitContainer splitContainer5;
-    private LabelledProgressBar labelledProgressBar_;
+    private CancellableProgressBar cancellableProgressBar_;
   }
 }

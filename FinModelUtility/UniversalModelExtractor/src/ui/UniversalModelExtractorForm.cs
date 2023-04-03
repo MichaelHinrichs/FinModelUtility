@@ -35,21 +35,23 @@ public partial class UniversalModelExtractorForm : Form {
     this.modelToolStrip_.Progress.ProgressChanged +=
         (_, currentProgress) => {
           var fractionalProgress = currentProgress.Item1;
-          this.labelledProgressBar_.Value =
+          this.cancellableProgressBar_.Value =
               (int) Math.Round(fractionalProgress * 100);
 
           var modelFileBundle = currentProgress.Item2;
           if (modelFileBundle == null) {
             if (fractionalProgress.AlmostEqual(0, .00001)) {
-              this.labelledProgressBar_.Text = "Nothing to report";
+              this.cancellableProgressBar_.Text = "Nothing to report";
             } else if (fractionalProgress.AlmostEqual(1, .00001)) {
-              this.labelledProgressBar_.Text = "Done!";
+              this.cancellableProgressBar_.Text = "Done!";
             }
           } else {
-            this.labelledProgressBar_.Text =
+            this.cancellableProgressBar_.Text =
                 $"Extracting {modelFileBundle.DisplayFullName}...";
           }
         };
+    this.cancellableProgressBar_.Clicked += (sender, args)
+        => this.modelToolStrip_.CancellationToken?.Cancel();
   }
 
   private void UniversalModelExtractorForm_Load(object sender, EventArgs e) {

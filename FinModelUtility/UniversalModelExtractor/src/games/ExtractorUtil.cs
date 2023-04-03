@@ -204,12 +204,17 @@ namespace uni.games {
         IEnumerable<IFileBundle> fileBundles,
         IModelLoader<T> loader,
         IProgress<(float, T?)> progress,
+        CancellationTokenSource cancellationTokenSource,
         IReadOnlyList<string> extensions,
         bool overwriteExistingFiles)
         where T : IModelFileBundle {
       var fileBundleArray = fileBundles.WhereIs<IFileBundle, T>()
                                        .ToArray();
       for (var i = 0; i < fileBundleArray.Length; ++i) {
+        if (cancellationTokenSource.IsCancellationRequested) {
+          break;
+        }
+
         var modelFileBundle = fileBundleArray[i];
         progress.Report((i * 1f / fileBundleArray.Length, modelFileBundle));
         ExtractorUtil.Extract(modelFileBundle,

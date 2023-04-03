@@ -16,7 +16,6 @@ namespace uni.ui.top {
     private IFileTreeNode<IFileBundle>? directoryNode_;
     private (IFileTreeNode<IFileBundle>, IModel)? fileNodeAndModel_;
 
-    private bool isStarted_ = false;
     private bool hasModelsInDirectory_;
     private bool isModelSelected_;
 
@@ -53,9 +52,11 @@ namespace uni.ui.top {
     public MemoryProgress<(float, IModelFileBundle?)> Progress { get; } =
       new((0, null));
 
+    public CancellationTokenSource? CancellationToken { get; private set; }
+
+    public bool IsStarted => this.CancellationToken != null;
     public bool IsInProgress
-      => this.isStarted_ &&
-         !this.Progress.Current.Item1.AlmostEqual(1, .000001);
+      => this.IsStarted && !this.Progress.Current.Item1.AlmostEqual(1, .000001);
 
     public IFileTreeNode<IFileBundle>? DirectoryNode {
       set {
@@ -153,11 +154,13 @@ namespace uni.ui.top {
               modelFileBundles,
               Config.Instance.ExportedFormats);
       if (extractorPromptChoice != ExtractorPromptChoice.CANCEL) {
-        this.isStarted_ = true;
+        this.CancellationToken = new CancellationTokenSource();
+
         Task.Run(() => {
           ExtractorUtil.ExtractAll(modelFileBundles,
                                    new GlobalModelLoader(),
                                    this.Progress,
+                                   this.CancellationToken,
                                    Config.Instance.ExportedFormats,
                                    extractorPromptChoice == ExtractorUtil
                                        .ExtractorPromptChoice.OVERWRITE_EXISTING);
