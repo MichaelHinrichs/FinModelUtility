@@ -1,10 +1,13 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Assimp;
 using fin.exporter.gltf;
 using fin.exporter.gltf.lowlevel;
 using fin.util.asserts;
 using fin.util.gc;
+using fin.util.linq;
+
 using SharpGLTF.Schema2;
 using SharpGLTF.Validation;
 
@@ -17,28 +20,43 @@ namespace fin.exporter.assimp.indirect {
     public bool ForceGarbageCollection { get; set; }
 
     public void Export(IExporterParams exporterParams)
-      => Export(exporterParams,
-                !LowLevel ? new[] { ".fbx", ".glb" } : new[] { ".gltf" });
+      => ExportExtensions(exporterParams,
+                          !LowLevel ? new[] { ".fbx", ".glb" } : new[] { ".gltf" });
 
-    public void Export(IExporterParams exporterParams,
-                       string[] exportedFormats) {
+    public void ExportExtensions(IExporterParams exporterParams,
+                                 IReadOnlyList<string> exportedExtensions) {
+      var supportedExportFormats = AssimpUtil.SupportedExportFormats;
+      var exportedFormats =
+          exportedExtensions
+              .Select(exportedExtension => exportedExtension.ToLower())
+              .Select(exportedExtension =>
+                          supportedExportFormats
+                              .Where(exportFormat
+                                         => exportedExtension ==
+                                            $".{exportFormat.FileExtension}")
+                              .First($"'{exportedExtension}' is not a supported export format!"))
+          .ToArray();
+      this.ExportFormats(exporterParams, exportedFormats);
+    }
+
+    public void ExportFormats(IExporterParams exporterParams,
+                              IReadOnlyList<ExportFormatDescription>
+                                  exportedFormats) {
       var outputFile = exporterParams.OutputFile;
       var model = exporterParams.Model;
       var scale = exporterParams.Scale;
 
-      if (exportedFormats.Length == 0) {
+      if (exportedFormats.Count == 0) {
         return;
       }
 
-      exportedFormats =
-          exportedFormats.Select(exportedFormat => exportedFormat.ToLower())
-                         .ToArray();
 
       IGltfExporter gltfExporter = !this.LowLevel
                                        ? new GltfExporter()
                                        : new LowLevelGltfExporter();
 
-      var isGltfFormat = (string format) => format is ".gltf" or ".glb";
+      var isGltfFormat = (ExportFormatDescription format)
+          => format.FileExtension is "gltf" or "glb";
       var gltfFormats = exportedFormats
                         .Where(isGltfFormat)
                         .ToArray();
@@ -57,7 +75,8 @@ namespace fin.exporter.assimp.indirect {
         }
 
         foreach (var gltfFormat in gltfFormats) {
-          var gltfOutputFile = outputFile.CloneWithExtension(gltfFormat);
+          var gltfOutputFile =
+              outputFile.CloneWithExtension($".{gltfFormat.FileExtension}");
 
           var gltfWriteSettings =
             WriteContext.CreateFromFile(gltfOutputFile.FullName);
@@ -73,7 +92,7 @@ namespace fin.exporter.assimp.indirect {
           var name =
             Path.GetFileNameWithoutExtension(gltfOutputFile
               .FullNameWithoutExtension);
-          if (gltfFormat == ".glb") {
+          if (gltfFormat.FileExtension == "glb") {
             gltfWriteSettings.WriteBinarySchema2(name, gltfModelRoot);
           } else {
             gltfWriteSettings.WriteTextSchema2(name, gltfModelRoot);
@@ -102,8 +121,6 @@ namespace fin.exporter.assimp.indirect {
         }
 
         using var ctx = new AssimpContext();
-        var supportedExportFormats = ctx.GetSupportedExportFormats();
-
         var assScene = ctx.ImportFile(inputPath);
         File.Delete(inputPath);
 
@@ -119,25 +136,12 @@ namespace fin.exporter.assimp.indirect {
 
         foreach (var nonGltfFormat in nonGltfFormats) {
           var nonGltfOutputFile =
-              outputFile.CloneWithExtension(nonGltfFormat);
+              outputFile.CloneWithExtension($".{nonGltfFormat.FileExtension}");
 
           var outputPath = nonGltfOutputFile.FullName;
           var outputExtension = nonGltfOutputFile.Extension;
 
-          string exportFormatId;
-          {
-            var exportFormatIds =
-                supportedExportFormats
-                    .Where(exportFormat
-                               => outputExtension ==
-                                  $".{exportFormat.FileExtension}")
-                    .Select(exportFormat => exportFormat.FormatId)
-                    .ToArray();
-            Asserts.True(exportFormatIds.Any(),
-                                   $"'{outputExtension}' is not a supported export format!");
-
-            exportFormatId = exportFormatIds.First();
-          }
+          var supportedExportFormats = ctx.GetSupportedExportFormats();
 
           // TODO: Are these all safe to include?
           var preProcessing =
@@ -145,7 +149,7 @@ namespace fin.exporter.assimp.indirect {
               PostProcessSteps.JoinIdenticalVertices;
 
           var success =
-              ctx.ExportFile(assScene, outputPath, exportFormatId,
+              ctx.ExportFile(assScene, outputPath, nonGltfFormat.FormatId,
                              preProcessing);
           Asserts.True(success, "Failed to export model.");
 

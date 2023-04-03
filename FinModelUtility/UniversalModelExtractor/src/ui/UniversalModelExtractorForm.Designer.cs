@@ -39,6 +39,7 @@ namespace uni.ui {
       this.audioPlayerPanel_ = new uni.ui.common.audio.AudioPlayerPanel();
       this.modelTabs_ = new uni.ui.right_panel.ModelTabs();
       this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.exportAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.gitHubToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -72,6 +73,7 @@ namespace uni.ui {
       splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
       splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
       splitContainer1.Location = new System.Drawing.Point(0, 0);
+      splitContainer1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
       splitContainer1.Name = "splitContainer1";
       // 
       // splitContainer1.Panel1
@@ -81,17 +83,18 @@ namespace uni.ui {
       // splitContainer1.Panel2
       // 
       splitContainer1.Panel2.Controls.Add(splitContainer2);
-      splitContainer1.Size = new System.Drawing.Size(1013, 488);
+      splitContainer1.Size = new System.Drawing.Size(1158, 662);
       splitContainer1.SplitterDistance = 224;
+      splitContainer1.SplitterWidth = 5;
       splitContainer1.TabIndex = 2;
       // 
       // fileBundleTreeView_
       // 
       this.fileBundleTreeView_.Dock = System.Windows.Forms.DockStyle.Fill;
       this.fileBundleTreeView_.Location = new System.Drawing.Point(0, 0);
-      this.fileBundleTreeView_.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+      this.fileBundleTreeView_.Margin = new System.Windows.Forms.Padding(5, 4, 5, 4);
       this.fileBundleTreeView_.Name = "fileBundleTreeView_";
-      this.fileBundleTreeView_.Size = new System.Drawing.Size(224, 488);
+      this.fileBundleTreeView_.Size = new System.Drawing.Size(224, 662);
       this.fileBundleTreeView_.TabIndex = 0;
       // 
       // splitContainer2
@@ -99,6 +102,7 @@ namespace uni.ui {
       splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
       splitContainer2.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
       splitContainer2.Location = new System.Drawing.Point(0, 0);
+      splitContainer2.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
       splitContainer2.Name = "splitContainer2";
       // 
       // splitContainer2.Panel1
@@ -108,8 +112,9 @@ namespace uni.ui {
       // splitContainer2.Panel2
       // 
       splitContainer2.Panel2.Controls.Add(this.modelTabs_);
-      splitContainer2.Size = new System.Drawing.Size(785, 488);
-      splitContainer2.SplitterDistance = 573;
+      splitContainer2.Size = new System.Drawing.Size(929, 662);
+      splitContainer2.SplitterDistance = 715;
+      splitContainer2.SplitterWidth = 5;
       splitContainer2.TabIndex = 1;
       // 
       // splitContainer4
@@ -118,6 +123,7 @@ namespace uni.ui {
       this.splitContainer4.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
       this.splitContainer4.IsSplitterFixed = true;
       this.splitContainer4.Location = new System.Drawing.Point(0, 0);
+      this.splitContainer4.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
       this.splitContainer4.Name = "splitContainer4";
       this.splitContainer4.Orientation = System.Windows.Forms.Orientation.Horizontal;
       // 
@@ -137,10 +143,11 @@ namespace uni.ui {
       this.sceneViewerPanel_.Animation = null;
       this.sceneViewerPanel_.BackColor = System.Drawing.Color.Transparent;
       this.sceneViewerPanel_.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.sceneViewerPanel_.Location = new System.Drawing.Point(0, 0);
       this.sceneViewerPanel_.FileBundleAndScene = null;
+      this.sceneViewerPanel_.Location = new System.Drawing.Point(0, 0);
+      this.sceneViewerPanel_.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
       this.sceneViewerPanel_.Name = "sceneViewerPanel_";
-      this.sceneViewerPanel_.Size = new System.Drawing.Size(573, 430);
+      this.sceneViewerPanel_.Size = new System.Drawing.Size(715, 602);
       this.sceneViewerPanel_.TabIndex = 0;
       // 
       // audioPlayerPanel_
@@ -150,36 +157,50 @@ namespace uni.ui {
       this.audioPlayerPanel_.BackColor = System.Drawing.Color.Transparent;
       this.audioPlayerPanel_.Dock = System.Windows.Forms.DockStyle.Fill;
       this.audioPlayerPanel_.Location = new System.Drawing.Point(0, 0);
+      this.audioPlayerPanel_.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
       this.audioPlayerPanel_.Name = "audioPlayerPanel_";
-      this.audioPlayerPanel_.Size = new System.Drawing.Size(573, 54);
+      this.audioPlayerPanel_.Size = new System.Drawing.Size(715, 55);
       this.audioPlayerPanel_.TabIndex = 2;
       // 
       // modelTabs_
       // 
+      this.modelTabs_.AnimationPlaybackManager = null;
       this.modelTabs_.Dock = System.Windows.Forms.DockStyle.Fill;
       this.modelTabs_.Location = new System.Drawing.Point(0, 0);
+      this.modelTabs_.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
       this.modelTabs_.Name = "modelTabs_";
-      this.modelTabs_.Size = new System.Drawing.Size(208, 488);
+      this.modelTabs_.Size = new System.Drawing.Size(209, 662);
       this.modelTabs_.TabIndex = 0;
       // 
       // menuStrip
       // 
+      menuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
       menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.helpToolStripMenuItem});
       menuStrip.Location = new System.Drawing.Point(0, 0);
       menuStrip.Name = "menuStrip";
-      menuStrip.Size = new System.Drawing.Size(1013, 24);
+      menuStrip.Padding = new System.Windows.Forms.Padding(7, 3, 0, 3);
+      menuStrip.Size = new System.Drawing.Size(1158, 30);
       menuStrip.TabIndex = 1;
       menuStrip.Text = "menuStrip1";
       // 
       // fileToolStripMenuItem
       // 
       this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.exportAsToolStripMenuItem,
             this.exitToolStripMenuItem});
       this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-      this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+      this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 24);
       this.fileToolStripMenuItem.Text = "File";
+      // 
+      // exportAsToolStripMenuItem
+      // 
+      this.exportAsToolStripMenuItem.Enabled = false;
+      this.exportAsToolStripMenuItem.Name = "exportAsToolStripMenuItem";
+      this.exportAsToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+      this.exportAsToolStripMenuItem.Text = "Export as";
+      this.exportAsToolStripMenuItem.Click += new System.EventHandler(this.exportAsToolStripMenuItem_Click);
       // 
       // exitToolStripMenuItem
       // 
@@ -289,5 +310,6 @@ namespace uni.ui {
     private top.ModelToolStrip modelToolStrip_;
     private SplitContainer splitContainer4;
     private AudioPlayerPanel audioPlayerPanel_;
+    private ToolStripMenuItem exportAsToolStripMenuItem;
   }
 }

@@ -1,6 +1,9 @@
 ﻿using System.Linq;
 
+using Assimp;
+
 using fin.exporter;
+using fin.exporter.assimp;
 using fin.exporter.assimp.indirect;
 using fin.io;
 using fin.io.bundles;
@@ -41,13 +44,13 @@ namespace uni.games {
               .Where(mfb => CheckIfModelFileBundleAlreadyExtracted(
                          mfb,
                          extensions))
-                          .ToArray();
+              .ToArray();
       return existingModelFileBundles.Count > 0;
     }
 
     public static bool CheckIfModelFileBundleAlreadyExtracted(
         IModelFileBundle modelFileBundle,
-        IReadOnlyList<string> extensions) {
+        IEnumerable<string> extensions) {
       var mainFile = Asserts.CastNonnull(modelFileBundle.MainFile);
 
       var parentOutputDirectory =
@@ -57,11 +60,12 @@ namespace uni.games {
                     mainFile.NameWithoutExtension));
 
       if (outputDirectory.Exists) {
-        var existingOutputFileCount =
-            outputDirectory.GetExistingFiles()
-                           .Where(file => extensions.Contains(file.Extension))
-                           .Count(file => file.NameWithoutExtension == mainFile.NameWithoutExtension);
-        return existingOutputFileCount == extensions.Count;
+        return extensions.All(
+            extension => outputDirectory
+                         .GetExistingFiles()
+                         .Where(file => extensions.Contains(file.Extension))
+                         .Any(file => file.NameWithoutExtension ==
+                                      mainFile.NameWithoutExtension));
       }
 
       return false;
@@ -78,22 +82,24 @@ namespace uni.games {
       if (CheckIfFilesAlreadyExist(outputFiles, out var existingOutputFiles)) {
         if (outputFiles.Count == 1) {
           var result =
-              MessageBox.Show($"Output file \"{existingOutputFiles.First()}\" already exists. Would you like to overwrite it?",
-                              "Output file already exists!",
-                              MessageBoxButtons.YesNo,
-                              MessageBoxIcon.Warning,
-                              MessageBoxDefaultButton.Button1);
+              MessageBox.Show(
+                  $"Output file \"{existingOutputFiles.First()}\" already exists. Would you like to overwrite it?",
+                  "Output file already exists!",
+                  MessageBoxButtons.YesNo,
+                  MessageBoxIcon.Warning,
+                  MessageBoxDefaultButton.Button1);
           return result switch {
               DialogResult.Yes => ExtractorPromptChoice.OVERWRITE_EXISTING,
               DialogResult.No  => ExtractorPromptChoice.CANCEL,
           };
         } else {
           var result =
-              MessageBox.Show($"\"{existingOutputFiles.Count()}\" output files already exist. Would you like to continue extracting and overwrite them?",
-                              "Some output files already exist!",
-                              MessageBoxButtons.YesNo,
-                              MessageBoxIcon.Warning,
-                              MessageBoxDefaultButton.Button1);
+              MessageBox.Show(
+                  $"\"{existingOutputFiles.Count()}\" output files already exist. Would you like to continue extracting and overwrite them?",
+                  "Some output files already exist!",
+                  MessageBoxButtons.YesNo,
+                  MessageBoxIcon.Warning,
+                  MessageBoxDefaultButton.Button1);
           return result switch {
               DialogResult.Yes    => ExtractorPromptChoice.OVERWRITE_EXISTING,
               DialogResult.No     => ExtractorPromptChoice.SKIP_EXISTING,
@@ -105,9 +111,10 @@ namespace uni.games {
       return ExtractorPromptChoice.SKIP_EXISTING;
     }
 
-    public static ExtractorPromptChoice PromptIfModelFileBundlesAlreadyExtracted(
-        IReadOnlyList<IModelFileBundle> modelFileBundles,
-        IReadOnlyList<string> extensions) {
+    public static ExtractorPromptChoice
+        PromptIfModelFileBundlesAlreadyExtracted(
+            IReadOnlyList<IModelFileBundle> modelFileBundles,
+            IReadOnlyList<string> extensions) {
       if (ExtractorUtil.CheckIfModelFileBundlesAlreadyExtracted(
               modelFileBundles,
               extensions,
@@ -115,11 +122,12 @@ namespace uni.games {
         var totalCount = modelFileBundles.Count;
         if (totalCount == 1) {
           var result =
-              MessageBox.Show($"Model defined in \"{existingOutputFiles.First().DisplayFullName}\" has already been extracted. Would you like to overwrite it?", 
-                              "Model has already been extracted!",
-                              MessageBoxButtons.YesNo,
-                              MessageBoxIcon.Warning,
-                              MessageBoxDefaultButton.Button1);
+              MessageBox.Show(
+                  $"Model defined in \"{existingOutputFiles.First().DisplayFullName}\" has already been extracted. Would you like to overwrite it?",
+                  "Model has already been extracted!",
+                  MessageBoxButtons.YesNo,
+                  MessageBoxIcon.Warning,
+                  MessageBoxDefaultButton.Button1);
           return result switch {
               DialogResult.Yes => ExtractorPromptChoice.OVERWRITE_EXISTING,
               DialogResult.No  => ExtractorPromptChoice.CANCEL,
@@ -127,11 +135,12 @@ namespace uni.games {
         } else {
           var existingCount = existingOutputFiles.Count();
           var result =
-              MessageBox.Show($"{existingCount} model{(existingCount != 1 ? "s have" : " has")} already been extracted. Select 'Yes' to overwrite them, 'No' to skip them, or 'Cancel' to abort this operation.",
-                              $"{existingCount}/{totalCount} models have already been extracted!",
-                              MessageBoxButtons.YesNoCancel,
-                              MessageBoxIcon.Warning,
-                              MessageBoxDefaultButton.Button1);
+              MessageBox.Show(
+                  $"{existingCount} model{(existingCount != 1 ? "s have" : " has")} already been extracted. Select 'Yes' to overwrite them, 'No' to skip them, or 'Cancel' to abort this operation.",
+                  $"{existingCount}/{totalCount} models have already been extracted!",
+                  MessageBoxButtons.YesNoCancel,
+                  MessageBoxIcon.Warning,
+                  MessageBoxDefaultButton.Button1);
           return result switch {
               DialogResult.Yes    => ExtractorPromptChoice.OVERWRITE_EXISTING,
               DialogResult.No     => ExtractorPromptChoice.SKIP_EXISTING,
@@ -216,10 +225,48 @@ namespace uni.games {
       var outputDirectory = new FinDirectory(
           Path.Join(parentOutputDirectory.FullName,
                     mainFile.NameWithoutExtension));
+      
+      Extract<T>(modelFileBundle,
+                 loaderHandler,
+                 outputDirectory,
+                 extensions,
+                 overwriteExistingFile);
+    }
+
+    public static void Extract<T>(T modelFileBundle,
+                                  Func<IModel> loaderHandler,
+                                  IDirectory outputDirectory,
+                                  IReadOnlyList<string> extensions,
+                                  bool overwriteExistingFile,
+                                  string? overrideName = null)
+        where T : IModelFileBundle
+      => Extract(modelFileBundle,
+                 loaderHandler,
+                 outputDirectory,
+                 extensions.Select(AssimpUtil.GetExportFormatFromExtension)
+                           .ToArray(),
+                 overwriteExistingFile,
+                 overrideName);
+
+
+    public static void Extract<T>(
+        T modelFileBundle,
+        Func<IModel> loaderHandler,
+        IDirectory outputDirectory,
+        IReadOnlyList<ExportFormatDescription> formats,
+        bool overwriteExistingFile,
+        string? overrideName = null)
+        where T : IModelFileBundle {
+      var mainFile = Asserts.CastNonnull(modelFileBundle.MainFile);
+      var name = overrideName ?? mainFile.NameWithoutExtension;
+
+      if (modelFileBundle.UseLowLevelExporter) {
+        formats = new[] { AssimpUtil.GetExportFormatFromExtension(".gltf") };
+      }
 
       if (!overwriteExistingFile && CheckIfModelFileBundleAlreadyExtracted(
               modelFileBundle,
-              extensions)) {
+              formats.Select(format => $".{format.FileExtension}"))) {
         MessageUtil.LogAlreadyProcessed(ExtractorUtil.logger_, mainFile);
         return;
       }
@@ -228,8 +275,6 @@ namespace uni.games {
 
       try {
         var model = loaderHandler();
-
-        outputDirectory.Create();
 
         if (Config.Instance.ExportAllTextures) {
           foreach (var texture in model.MaterialManager.Textures) {
@@ -240,25 +285,21 @@ namespace uni.games {
         new AssimpIndirectExporter {
             LowLevel = modelFileBundle.UseLowLevelExporter,
             ForceGarbageCollection = modelFileBundle.ForceGarbageCollection,
-        }.Export(new ExporterParams {
+        }.ExportFormats(new ExporterParams {
                      OutputFile = new FinFile(
-                         Path.Join(outputDirectory.FullName,
-                                   mainFile.NameWithoutExtension + ".foo")),
+                         Path.Join(outputDirectory.FullName, name + ".foo")),
                      Model = model,
                      Scale = new ScaleSource(
                          Config.Instance.ExportedModelScaleSource).GetScale(
                          model,
                          modelFileBundle)
-                 },
-                 !modelFileBundle.UseLowLevelExporter
-                     ? Config.Instance.ExportedFormats
-                     : new[] { ".gltf" });
+                 }, 
+                 formats);
 
         if (Config.Instance.ThirdParty.ExportBoneScaleAnimationsSeparately) {
           new BoneScaleAnimationExporter().Export(
               new FinFile(Path.Join(outputDirectory.FullName,
-                                    mainFile.NameWithoutExtension +
-                                    "_bone_scale_animations.lua")),
+                                    name + "_bone_scale_animations.lua")),
               model);
         }
       } catch (Exception e) {

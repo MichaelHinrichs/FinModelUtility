@@ -4,16 +4,15 @@ using fin.io.bundles;
 using System.Diagnostics;
 
 using fin.color;
+using fin.exporter.assimp;
+using fin.io;
 using fin.model;
 using fin.scene;
-using fin.schema.color;
-using fin.schema.vector;
+using fin.util.enumerables;
 
 using uni.config;
 using uni.games;
 using uni.ui.common;
-
-
 namespace uni.ui;
 
 public partial class UniversalModelExtractorForm : Form {
@@ -132,6 +131,7 @@ public partial class UniversalModelExtractorForm : Form {
 
     this.modelToolStrip_.DirectoryNode = fileNode.Parent;
     this.modelToolStrip_.FileNodeAndModel = (fileNode, model);
+    this.exportAsToolStripMenuItem.Enabled = fileBundle is IModelFileBundle;
 
     if (Config.Instance.AutomaticallyPlayGameAudioForModel) {
       var gameDirectory = fileNode.Parent;
@@ -166,6 +166,44 @@ public partial class UniversalModelExtractorForm : Form {
   private void SelectAudio_(IFileTreeNode<IFileBundle> fileNode,
                             IAudioFileBundle audioFileBundle) {
     this.audioPlayerPanel_.AudioFileBundles = new[] {audioFileBundle};
+  }
+
+  private void exportAsToolStripMenuItem_Click(object sender, EventArgs e) {
+    var fileBundleAndScene = this.sceneViewerPanel_.FileBundleAndScene;
+    if (fileBundleAndScene == null) {
+      return;
+    }
+
+    var (fileBundle, scene) = fileBundleAndScene.Value;
+    var modelFileBundle = fileBundle as IModelFileBundle;
+    var model = this.sceneViewerPanel_.FirstSceneModel!.Model;
+
+    var allSupportedExportFormats = AssimpUtil.SupportedExportFormats
+                                              .OrderBy(ef => ef.Description)
+                                              .ToArray();
+    var mergedFormat =
+        $"Model files|{string.Join(';', allSupportedExportFormats.Select(ef => $"*.{ef.FileExtension}"))}";
+    var filter = string.Join('|', mergedFormat.Yield().Concat(allSupportedExportFormats.Select(
+                                 ef => $"{ef.Description}|*.{ef.FileExtension}")));
+
+    var fbxIndex = allSupportedExportFormats.Select(ef => ef.FormatId)
+                                            .IndexOfOrNegativeOne("fbx");
+
+    var saveFileDialog = new SaveFileDialog();
+    saveFileDialog.Filter = filter;
+    saveFileDialog.FilterIndex = 2 + fbxIndex;
+    saveFileDialog.OverwritePrompt = true;
+
+    var result = saveFileDialog.ShowDialog();
+    if (result == DialogResult.OK) {
+      var outputFile = new FinFile(saveFileDialog.FileName);
+      ExtractorUtil.Extract(modelFileBundle,
+                            () => model,
+                            outputFile.GetParent(),
+                            new[] { outputFile.Extension },
+                            true,
+                            outputFile.NameWithoutExtension);
+    }
   }
 
   private void exitToolStripMenuItem_Click(object sender, EventArgs e) {

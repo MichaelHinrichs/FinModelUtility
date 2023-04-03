@@ -69,7 +69,7 @@ namespace uni.ui.top {
       set {
         var (fileNode, model) = value;
 
-        var hasModel = model != null;
+        var hasModel = fileNode.File is IModelFileBundle;
         this.exportSelectedModelButton_.Enabled = hasModel;
         if (hasModel) {
           this.fileNodeAndModel_ = (fileNode, model!);
