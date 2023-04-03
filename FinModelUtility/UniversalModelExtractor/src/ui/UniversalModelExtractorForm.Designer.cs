@@ -284,7 +284,7 @@ namespace uni.ui {
       // 
       // splitContainer5.Panel2
       // 
-      this.splitContainer5.Panel2.Controls.Add(this.labelledProgressBar_);
+      this.splitContainer5.Panel2.Controls.Add(this.cancellableProgressBar_);
       this.splitContainer5.Size = new System.Drawing.Size(1158, 660);
       this.splitContainer5.SplitterDistance = 631;
       this.splitContainer5.TabIndex = 3;
