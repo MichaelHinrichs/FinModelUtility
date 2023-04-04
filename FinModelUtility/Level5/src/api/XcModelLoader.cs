@@ -31,7 +31,7 @@ namespace level5.api {
       var endianness = Endianness.LittleEndian;
 
       var modelXcFile = modelFileBundle.ModelXcFile;
-      var modelXc = modelXcFile.Impl.ReadNew<Xc>(endianness);
+      var modelXc = modelXcFile.ReadNew<Xc>(endianness);
       var modelResourceFile =
           new Resource(modelXc.FilesByExtension[".bin"].Single().Data);
 
@@ -209,7 +209,7 @@ namespace level5.api {
       // Adds animations
       {
         foreach (var animationXcFile in modelFileBundle.AnimationXcFiles) {
-          var animationXc = animationXcFile?.Impl?.ReadNew<Xc>(endianness);
+          var animationXc = animationXcFile?.ReadNew<Xc>(endianness);
           var animationResourceFile =
               new Resource(animationXc.FilesByExtension[".bin"].Single().Data);
 

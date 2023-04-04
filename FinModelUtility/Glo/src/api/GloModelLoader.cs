@@ -36,7 +36,7 @@ namespace glo.api {
       var textureDirectories = gloModelFileBundle.TextureDirectories;
       var fps = 20;
 
-      var glo = gloFile.Impl.ReadNew<Glo>();
+      var glo = gloFile.ReadNew<Glo>();
 
       var textureFilesByName = new Dictionary<string, IFileHierarchyFile>();
       foreach (var textureDirectory in textureDirectories) {
@@ -66,7 +66,7 @@ namespace glo.api {
               return null;
             }
 
-            using var rawTextureImage = FinImage.FromFile(textureFile.Impl);
+            using var rawTextureImage = FinImage.FromFile(textureFile);
             var textureImageWithAlpha =
                 GloModelLoader.AddTransparencyToGloImage_(rawTextureImage);
 

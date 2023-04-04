@@ -70,7 +70,7 @@ namespace cmb.api {
       var fps = 30;
 
       using var r =
-          new EndianBinaryReader(cmbFile.Impl.OpenRead(),
+          new EndianBinaryReader(cmbFile.OpenRead(),
                                  Endianness.LittleEndian);
 
       var cmb = new Cmb(r);
@@ -88,7 +88,7 @@ namespace cmb.api {
 
       var filesAndCtxbs =
           ctxbFiles?.Select(ctxbFile => {
-                     var ctxb = ctxbFile.Impl.ReadNew<Ctxb>();
+                     var ctxb = ctxbFile.ReadNew<Ctxb>();
                      return (ctxbFile, ctxb);
                    })
                    .ToList() ??
@@ -97,7 +97,7 @@ namespace cmb.api {
       var filesAndShpas =
           shpaFiles?.Select(shpaFile => {
                      var shpa =
-                         shpaFile.Impl.ReadNew<Shpa>(Endianness.LittleEndian);
+                         shpaFile.ReadNew<Shpa>(Endianness.LittleEndian);
                      return (shpaFile, shpa);
                    })
                    .ToList() ??
@@ -626,7 +626,7 @@ namespace cmb.api {
       public void Invoke(int i) {
         var csabFile = this.src_[i];
         var csab =
-            csabFile.Impl.ReadNew<Csab>(Endianness.LittleEndian);
+            csabFile.ReadNew<Csab>(Endianness.LittleEndian);
         this.dst_[i] = (csabFile, csab);
       }
     }

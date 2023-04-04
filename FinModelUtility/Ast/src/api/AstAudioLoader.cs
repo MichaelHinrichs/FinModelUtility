@@ -17,7 +17,7 @@ namespace ast.api {
         IAudioManager<short> audioManager,
         AstAudioFileBundle audioFileBundle) {
       var astFile = audioFileBundle.AstFile;
-      var ast = astFile.Impl.ReadNew<Ast>(Endianness.BigEndian);
+      var ast = astFile.ReadNew<Ast>(Endianness.BigEndian);
 
       var mutableBuffer = audioManager.CreateMutableBuffer();
 

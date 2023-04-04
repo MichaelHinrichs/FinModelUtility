@@ -57,9 +57,9 @@ namespace j3d.exporter {
                   var extension = bcxFile.Extension.ToLower();
                   IBcx bcx = extension switch {
                     ".bca" =>
-                        new Bca(bcxFile.Impl.ReadAllBytes()),
+                        new Bca(bcxFile.ReadAllBytes()),
                     ".bck" =>
-                        new Bck(bcxFile.Impl.ReadAllBytes()),
+                        new Bck(bcxFile.ReadAllBytes()),
                     _ => throw new NotSupportedException(),
                   };
                   return (bcxFile.FullName, bcx);
@@ -77,7 +77,7 @@ namespace j3d.exporter {
                 .BtiFiles?
                 .Select(btiFile
                             => (btiFile.FullName,
-                                btiFile.Impl.ReadNew<Bti>(
+                                btiFile.ReadNew<Bti>(
                                     Endianness.BigEndian)))
                 .ToList();
       } catch {

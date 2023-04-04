@@ -28,12 +28,12 @@ using Image = SixLabors.ImageSharp.Image;
 
 namespace fin.image {
   public static class FinImage {
-    public static IImage FromFile(IFile file) {
+    public static IImage FromFile(IGenericFile file) {
       using var stream = file.OpenRead();
       return FinImage.FromStream(stream);
     }
 
-    public static async Task<IImage> FromFileAsync(IFile file) {
+    public static async Task<IImage> FromFileAsync(IGenericFile file) {
       await using var stream = file.OpenRead();
       return await FinImage.FromStreamAsync(stream);
     }

@@ -78,11 +78,11 @@ namespace visceral.api {
 
     private void AddRcbFileToModel_(
         IModel finModel,
-        IFileHierarchyFile rcbFile,
+        IGenericFile rcbFile,
         out IBone[] finBones) {
       finBones = Array.Empty<IBone>();
 
-      var rcb = rcbFile.Impl.ReadNew<Rcb>();
+      var rcb = rcbFile.ReadNew<Rcb>();
       foreach (var rcbSkeleton in rcb.Skeletons) {
         finBones = new IBone[rcbSkeleton.Bones.Count];
 

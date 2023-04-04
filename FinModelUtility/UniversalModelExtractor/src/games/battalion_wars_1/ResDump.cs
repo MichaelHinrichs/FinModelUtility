@@ -37,14 +37,14 @@ namespace uni.games.battalion_wars_1 {
         Stream stream;
         if (isResGz) {
           using var gZipStream =
-              new GZipStream(resFile.Impl.OpenRead(),
+              new GZipStream(resFile.OpenRead(),
                              CompressionMode.Decompress);
 
           stream = new MemoryStream();
           gZipStream.CopyTo(stream);
           stream.Position = 0;
         } else {
-          stream = resFile.Impl.OpenRead();
+          stream = resFile.OpenRead();
         }
 
         using var er = new EndianBinaryReader(stream, Endianness.LittleEndian);

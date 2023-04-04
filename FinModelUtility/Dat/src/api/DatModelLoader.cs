@@ -15,7 +15,7 @@ namespace dat.api {
 
   public class DatModelLoader : IModelLoader<DatModelFileBundle> {
     public IModel LoadModel(DatModelFileBundle modelFileBundle) {
-      var dat = modelFileBundle.DatFile.Impl.ReadNew<Dat>(Endianness.BigEndian);
+      var dat = modelFileBundle.DatFile.ReadNew<Dat>(Endianness.BigEndian);
 
       var finModel = new ModelImpl();
 

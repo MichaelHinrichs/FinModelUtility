@@ -17,7 +17,7 @@ namespace level5.debug {
 
         foreach (var xcFile in xcFiles) {
           try {
-            var xc = xcFile.Impl.ReadNew<Xc>(Endianness.LittleEndian);
+            var xc = xcFile.ReadNew<Xc>(Endianness.LittleEndian);
 
             if (xc.FilesByExtension.TryGetList(".prm", out _)) {
               filesWithModels.Add(xcFile.LocalPath);
