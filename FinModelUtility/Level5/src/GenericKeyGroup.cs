@@ -1,7 +1,4 @@
-﻿using OpenTK;
-using fin.math;
-
-namespace level5 {
+﻿namespace level5 {
   public enum InterpolationType {
     Constant,
     Linear,

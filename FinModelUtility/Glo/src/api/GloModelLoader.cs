@@ -6,6 +6,7 @@ using glo.schema;
 using System.Numerics;
 using fin.color;
 using fin.data.lazy;
+using fin.data.queue;
 using fin.image;
 using fin.util.asserts;
 
@@ -110,10 +111,10 @@ namespace glo.api {
       // TODO: Consider separating these out as separate models
       foreach (var gloObject in glo.Objects) {
         var finObjectRootBone = finRootBone.AddRoot(0, 0, 0);
-        var meshQueue = new Queue<(GloMesh, IBone)>();
-        foreach (var topLevelGloMesh in gloObject.Meshes) {
-          meshQueue.Enqueue((topLevelGloMesh, finObjectRootBone));
-        }
+        var meshQueue = new FinTuple2Queue<GloMesh, IBone>(
+            gloObject.Meshes.Select(topLevelGloMesh
+                                        => (topLevelGloMesh,
+                                            finObjectRootBone)));
 
         List<(IAnimation, int, int)> finAndGloAnimations = new();
         foreach (var animSeg in gloObject.AnimSegs) {
@@ -130,9 +131,7 @@ namespace glo.api {
           finAndGloAnimations.Add((finAnimation, startFrame, endFrame));
         }
 
-        while (meshQueue.Count > 0) {
-          var (gloMesh, parentFinBone) = meshQueue.Dequeue();
-
+        while (meshQueue.TryDequeue(out var gloMesh, out var parentFinBone)) {
           var name = gloMesh.Name;
 
           GloMesh idealMesh;

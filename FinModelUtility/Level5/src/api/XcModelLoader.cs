@@ -274,90 +274,29 @@ namespace level5.api {
                     var inTan = mtnKey.InTan;
                     var outTan = mtnKey.OutTan;
 
-                    switch (mtnTrack.Type) {
-                      case AnimationTrackFormat.RotateX: {
-                        finBoneTracks.Rotations.Set(
-                            frame,
-                            0,
-                            value,
-                            inTan,
-                            outTan);
-                        break;
-                      }
-                      case AnimationTrackFormat.RotateY: {
-                        finBoneTracks.Rotations.Set(
-                            frame,
-                            1,
-                            value,
-                            inTan,
-                            outTan);
-                        break;
-                      }
-                      case AnimationTrackFormat.RotateZ: {
-                        finBoneTracks.Rotations.Set(
-                            frame,
-                            2,
-                            value,
-                            inTan,
-                            outTan);
-                        break;
-                      }
-                      case AnimationTrackFormat.ScaleX: {
-                        finBoneTracks.Scales.Set(
-                            frame,
-                            0,
-                            value,
-                            inTan,
-                            outTan);
-                        break;
-                      }
-                      case AnimationTrackFormat.ScaleY: {
-                        finBoneTracks.Scales.Set(
-                            frame,
-                            1,
-                            value,
-                            inTan,
-                            outTan);
-                        break;
-                      }
-                      case AnimationTrackFormat.ScaleZ: {
-                        finBoneTracks.Scales.Set(
-                            frame,
-                            2,
-                            value,
-                            inTan,
-                            outTan);
-                        break;
-                      }
-                      case AnimationTrackFormat.TranslateX: {
-                        finBoneTracks.Positions.Set(
-                            frame,
-                            0,
-                            value,
-                            inTan,
-                            outTan);
-                        break;
-                      }
-                      case AnimationTrackFormat.TranslateY: {
-                        finBoneTracks.Positions.Set(
-                            frame,
-                            1,
-                            value,
-                            inTan,
-                            outTan);
-                        break;
-                      }
-                      case AnimationTrackFormat.TranslateZ: {
-                        finBoneTracks.Positions.Set(
-                            frame,
-                            2,
-                            value,
-                            inTan,
-                            outTan);
-                        break;
-                      }
-                      default:
-                        throw new NotSupportedException();
+                    if (mtnTrack.Type.IsTranslation(out var translationAxis)) {
+                      finBoneTracks.Positions.Set(
+                          frame,
+                          translationAxis,
+                          value,
+                          inTan,
+                          outTan);
+                    } else if (mtnTrack.Type.IsRotation(out var rotationAxis)) {
+                      finBoneTracks.Rotations.Set(
+                          frame,
+                          rotationAxis,
+                          value,
+                          inTan,
+                          outTan);
+                    } else if (mtnTrack.Type.IsScale(out var scaleAxis)) {
+                      finBoneTracks.Scales.Set(
+                          frame,
+                          scaleAxis,
+                          value,
+                          inTan,
+                          outTan);
+                    } else {
+                      throw new NotSupportedException();
                     }
                   }
                 }

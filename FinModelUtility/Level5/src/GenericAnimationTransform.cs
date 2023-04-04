@@ -1,7 +1,4 @@
-﻿using OpenTK;
-
-
-namespace level5 {
+﻿namespace level5 {
   public enum AnimNodeHashType {
     Name = 0,
     CRC32C = 1,
@@ -55,6 +52,28 @@ namespace level5 {
     ScaleY,
     ScaleZ,
     CompensateScale
+  }
+
+  public static class AnimationTrackFormatExtensions {
+    public static bool IsTranslation(this AnimationTrackFormat value,
+                                     out int axis)
+      => value.IsInRange(AnimationTrackFormat.TranslateX, 3, out axis);
+
+    public static bool IsRotation(this AnimationTrackFormat value,
+                                  out int axis)
+      => value.IsInRange(AnimationTrackFormat.RotateX, 3, out axis);
+
+    public static bool IsScale(this AnimationTrackFormat value,
+                               out int axis)
+      => value.IsInRange(AnimationTrackFormat.ScaleX, 3, out axis);
+
+    public static bool IsInRange(this AnimationTrackFormat value,
+                                 AnimationTrackFormat min,
+                                 int max,
+                                 out int id) {
+      id = value - min;
+      return id >= 0 && id < max;
+    }
   }
 
   /// <summary>

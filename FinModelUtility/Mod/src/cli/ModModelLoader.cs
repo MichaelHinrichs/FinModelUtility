@@ -57,22 +57,10 @@ namespace mod.cli {
       };
 
     public IModel LoadModel(ModModelFileBundle modelFileBundle) {
-      var mod = new Mod();
-      {
-        using var r = new EndianBinaryReader(
-            modelFileBundle.ModFile.OpenRead(),
-            System.IO.Endianness.BigEndian);
-        mod.Read(r);
-      }
-
-      Anm? anm = null;
-      if (modelFileBundle.AnmFile != null) {
-        anm = new Anm();
-        using var r = new EndianBinaryReader(
-            modelFileBundle.AnmFile.OpenRead(),
-            System.IO.Endianness.BigEndian);
-        anm.Read(r);
-      }
+      var mod =
+          modelFileBundle.ModFile.ReadNew<Mod>(System.IO.Endianness.BigEndian);
+      var anm =
+          modelFileBundle.AnmFile?.ReadNew<Anm>(System.IO.Endianness.BigEndian);
 
       // Resets the active matrices to -1. This lets us catch issues when
       // attempting to use an invalid active matrix.
@@ -269,9 +257,6 @@ namespace mod.cli {
         IBone[] bones,
         IBoneWeights[] envelopeBoneWeights,
         FinModCache finModCache) {
-      //var currentBone = bones[mesh.boneIndex];
-      var currentColor = FinColor.FromRgbaBytes(255, 255, 255, 255);
-
       var vertexDescriptor = new VertexDescriptor();
       vertexDescriptor.FromPikmin1(mesh.vtxDescriptor, mod.hasNormals);
 
@@ -397,8 +382,8 @@ namespace mod.cli {
                 } else {
                   var normal = finModCache.NbtNormalsByIndex[normalIndex];
                   var tangent = finModCache.TangentsByIndex[normalIndex];
-                  finVertex.SetLocalNormal(normal);
-                  finVertex.SetLocalTangent(tangent);
+                  finVertex.SetLocalNormal(normal)
+                           .SetLocalTangent(tangent);
                 }
               }
 

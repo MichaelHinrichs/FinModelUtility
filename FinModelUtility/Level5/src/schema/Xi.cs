@@ -25,36 +25,6 @@ namespace level5.schema {
 
     private bool SwitchFile { get; set; } = false;
 
-    /*public static GenericTexture ToGenericTexture(byte[] xifile) {
-      GenericTexture tex = new GenericTexture();
-      Level5_XI xi = new Level5_XI();
-      xi.Open(xifile);
-      if (xi.SwitchFile && xi.ImageFormat == 0x1D) {
-        tex.Mipmaps.Add(xi.BuildImageDataFromBlock_(8)[0]);
-        tex.InternalFormat = OpenTK.Graphics.OpenGL.PixelInternalFormat.CompressedRgbS3tcDxt1Ext;
-        tex.Width = (uint)xi.Height;
-        tex.Height = (uint)xi.Width;
-      } else
-      if (xi.SwitchFile && xi.ImageFormat == 0x1F) {
-        tex.Mipmaps.Add(xi.BuildImageDataFromBlock_(16)[0]);
-        tex.InternalFormat = OpenTK.Graphics.OpenGL.PixelInternalFormat.CompressedRgbaS3tcDxt5Ext;
-        tex.Width = (uint)xi.Height;
-        tex.Height = (uint)xi.Width;
-      } else
-      if (xi.SwitchFile && xi.ImageFormat == 0x1) {
-        tex.Mipmaps.Add(xi.BuildImageData_()[0]);
-        tex.InternalFormat = OpenTK.Graphics.OpenGL.PixelInternalFormat.Rgb8;
-        tex.PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat.Rgb;
-        tex.Width = (uint)xi.Height;
-        tex.Height = (uint)xi.Width;
-      } else {
-        var texture = xi.ToBitmap();
-        tex.FromBitmap(texture);
-        texture.Dispose();
-      }
-      return tex;
-    }*/
-
     public void Open(byte[] data) {
       using (var r =
              new EndianBinaryReader(data, Endianness.LittleEndian)) {
@@ -124,83 +94,7 @@ namespace level5.schema {
                                 (int) (r.Length - imageDataOffset)));
       }
     }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="blockSize"></param>
-    /// <returns></returns>
-    private List<byte[]> BuildImageData_() {
-      List<byte[]> pixels = new List<byte[]>();
-
-      var mip1 = new byte[Width * Height * 3];
-
-      var tileSize = 64;
-      var bpp = 3;
-
-      var x = 0;
-      var y = 0;
-
-      for (int i = 2; i < Tiles.Count; i++) {
-        int code = Tiles[i];
-
-        // only need the first mip for now really...
-        if ((i - 2) * tileSize * bpp >= mip1.Length)
-          break;
-
-        for (int h = 0; h < tileSize; h++) {
-          var x1 = h / 8;
-          var y1 = h % 8;
-          for (int j = 0; j < bpp; j++)
-            mip1[((x + x1) * Height + (y + y1)) * 3 + j] =
-                ImageData[code * (tileSize * bpp) + h * bpp + j];
-        }
-
-        y += 8;
-
-        if (y >= Height) {
-          y = 0;
-          x += 8;
-
-          // TODO: This skips early, may not use all of the tiles. Is this right?
-          if (x >= Width) {
-            break;
-          }
-        }
-      }
-
-      pixels.Add(mip1);
-
-      return pixels;
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="blockSize"></param>
-    /// <returns></returns>
-    private List<byte[]> BuildImageDataFromBlock_(int blockSize) {
-      List<byte[]> pixels = new List<byte[]>();
-
-      var mip1 = new byte[Width * Height * (blockSize / 8) / 2];
-
-      for (int i = 2; i < Tiles.Count; i++) {
-        int code = Tiles[i];
-
-        // only need the first mip for now really...
-        if ((i - 2) * blockSize * 4 + blockSize * 4 > mip1.Length)
-          break;
-
-        for (int h = 0; h < blockSize * 4; h++)
-          mip1[(i - 2) * blockSize * 4 + h] =
-              ImageData[code * blockSize * 4 + h];
-      }
-
-      pixels.Add(mip1);
-
-      return pixels;
-    }
-
+    
     /// <summary>
     /// 
     /// </summary>
