@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../Fin/Fin.csproj" />
+    <ProjectReference Include="..\Asserts\Asserts.csproj" />
     <ProjectReference Include="..\Schema\Schema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
   </ItemGroup>
 </Project>

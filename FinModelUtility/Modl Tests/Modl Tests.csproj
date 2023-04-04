@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Asserts\Asserts.csproj" />
     <ProjectReference Include="..\Fin\Fin.csproj" />
     <ProjectReference Include="..\Modl\Modl.csproj" />
   </ItemGroup>

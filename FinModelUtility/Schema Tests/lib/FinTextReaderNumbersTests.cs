@@ -1,9 +1,8 @@
-﻿using asserts;
+﻿using NUnit.Framework;
 
-using NUnit.Framework;
-
-using schema.binary.util;
 using schema.text;
+
+using Asserts = asserts.Asserts;
 
 
 namespace System.IO {
