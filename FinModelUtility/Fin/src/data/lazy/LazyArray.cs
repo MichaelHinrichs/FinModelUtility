@@ -1,7 +1,5 @@
 ﻿using System;
 
-using OpenTK.Input;
-
 namespace fin.data.lazy {
   public class LazyArray<T> : ILazyArray<T> {
     private readonly T[] impl_;

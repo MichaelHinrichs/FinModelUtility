@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 
-using MathNet.Numerics;
-
 
 namespace fin.io {
   public class MemoryUsageStream : Stream {

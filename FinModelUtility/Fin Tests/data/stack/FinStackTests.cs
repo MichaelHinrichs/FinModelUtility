@@ -1,10 +1,27 @@
 ﻿using NUnit.Framework;
 
-using schema.binary.util;
-
 
 namespace fin.data.stack {
   public class FinStackTests {
+    [Test]
+    public void TestInitWithSingle() {
+      var stack = new FinStack<string>("foo");
+      Assert.AreEqual("foo", stack.Top);
+      Assert.AreEqual(1, stack.Count);
+    }
+
+    [Test]
+    public void TestInitWithMultiple() {
+      var stack = new FinStack<string>(new [] { "foo", "bar", });
+      Assert.AreEqual(2, stack.Count);
+
+      Assert.AreEqual("bar", stack.Pop());
+      Assert.AreEqual(1, stack.Count);
+
+      Assert.AreEqual("foo", stack.Pop());
+      Assert.Zero(stack.Count);
+    }
+
     [Test]
     public void TestPush() {
       var stack = new FinStack<string>();
