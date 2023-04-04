@@ -30,7 +30,7 @@ namespace cmb.schema.cmb {
     public Vector3f translation { get; } = new();
 
     [Ignore]
-    private bool HasUnk => CmbHeader.Version > CmbVersion.OCARINA_OF_TIME_3D;
+    private bool HasUnk => CmbHeader.Version > Version.OCARINA_OF_TIME_3D;
 
     [IfBoolean(nameof(HasUnk))]
     public uint? unk0;

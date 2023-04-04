@@ -18,7 +18,7 @@ namespace cmb.schema.cmb {
 
     [Ignore]
     private bool hasTangent_ 
-      => CmbHeader.Version > CmbVersion.OCARINA_OF_TIME_3D;
+      => CmbHeader.Version > Version.OCARINA_OF_TIME_3D;
 
     [IfBoolean(nameof(hasTangent_))]
     public AttributeSlice? tangent;

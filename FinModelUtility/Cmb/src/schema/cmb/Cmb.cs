@@ -4,7 +4,6 @@ using System.IO;
 using fin.util.strings;
 using schema.binary;
 using schema.binary.attributes.endianness;
-using schema.binary.attributes.ignore;
 
 
 namespace cmb.schema.cmb {
@@ -68,7 +67,7 @@ namespace cmb.schema.cmb {
       this.header.Read(r);
       this.skl.Read(r);
 
-      if (CmbHeader.Version > CmbVersion.OCARINA_OF_TIME_3D) {
+      if (CmbHeader.Version > Version.OCARINA_OF_TIME_3D) {
         this.qtrs.Read(r);
       }
 

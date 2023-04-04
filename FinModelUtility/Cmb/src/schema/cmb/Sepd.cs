@@ -29,7 +29,7 @@ namespace cmb.schema.cmb {
     public float[] positionOffset { get; } = new float[3];
 
     [Ignore]
-    private bool hasMinAndMax_ => CmbHeader.Version > CmbVersion.EVER_OASIS;
+    private bool hasMinAndMax_ => CmbHeader.Version.SupportsMinAndMaxInSepd();
 
     // Min coordinate of the shape
     [IfBoolean(nameof(hasMinAndMax_))]
@@ -45,8 +45,7 @@ namespace cmb.schema.cmb {
     public readonly VertexAttribute normal = new();
 
     [Ignore]
-    private bool hasTangents_ =>
-        CmbHeader.Version > CmbVersion.OCARINA_OF_TIME_3D;
+    private bool hasTangents_ => CmbHeader.Version.SupportsInSepd();
 
     [IfBoolean(nameof(hasTangents_))]
     public VertexAttribute? tangents;

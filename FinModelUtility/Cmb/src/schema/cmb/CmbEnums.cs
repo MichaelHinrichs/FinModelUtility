@@ -1,11 +1,4 @@
 ﻿namespace cmb.schema.cmb {
-  public enum CmbVersion {
-    OCARINA_OF_TIME_3D = 6,
-    MAJORAS_MASK_3D = 10,
-    EVER_OASIS = 12,
-    LUIGIS_MANSION_3D = 15
-  }
-
   public enum GlTextureFormat : uint {
     RGB8 = 0x14016754,
     RGBA8 = 0x14016752,

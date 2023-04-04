@@ -68,7 +68,7 @@ namespace cmb.schema.ctxb {
 
     [Ignore]
     private bool includeExtraPadding_ 
-      => CmbHeader.Version >= CmbVersion.LUIGIS_MANSION_3D;
+      => CmbHeader.Version >= Version.LUIGIS_MANSION_3D;
 
     [IfBoolean(nameof(includeExtraPadding_))]
     [ArrayLengthSource(56)]

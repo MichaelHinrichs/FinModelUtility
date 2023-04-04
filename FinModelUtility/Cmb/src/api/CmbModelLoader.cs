@@ -27,6 +27,7 @@ using CmbTextureMinFilter = cmb.schema.cmb.TextureMinFilter;
 using CmbTextureMagFilter = cmb.schema.cmb.TextureMagFilter;
 using FinTextureMinFilter = fin.model.TextureMinFilter;
 using FinTextureMagFilter = fin.model.TextureMagFilter;
+using Version = cmb.schema.cmb.Version;
 
 
 namespace cmb.api {
@@ -363,7 +364,7 @@ namespace cmb.api {
         // Gets flags
         var inc = 1;
         var hasNrm = shape.vertFlags.GetBit(inc++);
-        if (cmb.header.version > CmbVersion.OCARINA_OF_TIME_3D) {
+        if (cmb.header.version > Version.OCARINA_OF_TIME_3D) {
           // Skip "HasTangents" for now
           inc++;
         }

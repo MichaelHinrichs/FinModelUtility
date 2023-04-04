@@ -5,6 +5,7 @@ using fin.io;
 using fin.util.strings;
 using schema.binary.testing;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
+using Version = cmb.schema.cmb.Version;
 
 
 namespace cmb {
@@ -31,9 +32,9 @@ namespace cmb {
       var goldenGameDirs = goldensDir.GetExistingSubdirs();
       foreach (var goldenGameDir in goldenGameDirs) {
         CmbHeader.Version = goldenGameDir.Name switch {
-            "luigis_mansion_3d" => CmbVersion.LUIGIS_MANSION_3D,
-            "majoras_mask_3d" => CmbVersion.MAJORAS_MASK_3D,
-            "ocarina_of_time_3d" => CmbVersion.OCARINA_OF_TIME_3D
+            "luigis_mansion_3d" => Version.LUIGIS_MANSION_3D,
+            "majoras_mask_3d" => Version.MAJORAS_MASK_3D,
+            "ocarina_of_time_3d" => Version.OCARINA_OF_TIME_3D
         };
 
         var goldenFiles = goldenGameDir.GetExistingFiles();

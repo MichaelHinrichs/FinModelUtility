@@ -11,10 +11,10 @@ namespace cmb.schema.cmb {
 
     [Ignore]
     private int unknownLength_ => CmbHeader.Version switch {
-        CmbVersion.OCARINA_OF_TIME_3D => 0,
-        CmbVersion.MAJORAS_MASK_3D    => 0x8,
-        CmbVersion.EVER_OASIS         => 0xC,
-        CmbVersion.LUIGIS_MANSION_3D  => 0x54,
+        Version.OCARINA_OF_TIME_3D => 0,
+        Version.MAJORAS_MASK_3D    => 0x8,
+        Version.EVER_OASIS         => 0xC,
+        Version.LUIGIS_MANSION_3D  => 0x54,
     };
 
     [ArrayLengthSource(nameof(unknownLength_))]

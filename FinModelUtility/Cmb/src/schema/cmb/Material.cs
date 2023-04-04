@@ -94,7 +94,7 @@ namespace cmb.schema.cmb {
       this.isPolygonOffsetEnabled = r.ReadByte() != 0;
       this.polygonOffset = r.ReadInt16() / 65534f;
 
-      if (CmbHeader.Version > CmbVersion.MAJORAS_MASK_3D) {
+      if (CmbHeader.Version > Version.MAJORAS_MASK_3D) {
         this.unk0 = r.ReadUInt32();
         this.textureMappersUsed = (uint) r.ReadInt16();
         this.textureCoordsUsed = (uint) r.ReadInt16();
@@ -166,7 +166,7 @@ namespace cmb.schema.cmb {
       this.colorEquation = (BlendEquation) (r.ReadUInt32());
       r.ReadSingles(this.blendColor);
 
-      if (CmbHeader.Version > CmbVersion.OCARINA_OF_TIME_3D) {
+      if (CmbHeader.Version.SupportsStencilBuffer()) {
         this.stencilEnabled = r.ReadByte() != 0;
         this.stencilReferenceValue = r.ReadByte();
         this.bufferMask = r.ReadByte();

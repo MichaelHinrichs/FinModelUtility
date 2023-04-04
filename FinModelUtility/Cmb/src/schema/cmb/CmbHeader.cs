@@ -9,10 +9,10 @@ using schema.binary;
 namespace cmb.schema.cmb {
   public class CmbHeader : IBinaryDeserializable {
     // TODO: Better way to do this?
-    public static CmbVersion Version { get; set; }
+    public static Version Version { get; set; }
 
     public uint fileSize { get; private set; }
-    public CmbVersion version { get; private set; }
+    public Version version { get; private set; }
     public string name { get; private set; }
     public uint faceIndicesCount { get; private set; }
     public uint sklOffset { get; private set; }
@@ -31,7 +31,7 @@ namespace cmb.schema.cmb {
 
       this.fileSize = r.ReadUInt32();
 
-      this.version = CmbHeader.Version = (CmbVersion) r.ReadUInt32();
+      this.version = CmbHeader.Version = (Version) r.ReadUInt32();
 
 
       Asserts.Equal(0, r.ReadInt32());
@@ -39,7 +39,7 @@ namespace cmb.schema.cmb {
       this.faceIndicesCount = r.ReadUInt32();
       this.sklOffset = r.ReadUInt32();
 
-      if (CmbHeader.Version > CmbVersion.OCARINA_OF_TIME_3D) {
+      if (this.version.SupportsQtrs()) {
         this.qtrsOffset = r.ReadUInt32();
       }
 
@@ -51,7 +51,7 @@ namespace cmb.schema.cmb {
       this.faceIndicesOffset = r.ReadUInt32();
       this.textureDataOffset = r.ReadUInt32();
 
-      if (this.version > CmbVersion.OCARINA_OF_TIME_3D) {
+      if (this.version > Version.OCARINA_OF_TIME_3D) {
         this.unk0 = r.ReadUInt32();
       }
     }
