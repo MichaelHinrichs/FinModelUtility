@@ -94,7 +94,8 @@ namespace fin.testing {
                     new FinFile(Path.Combine(targetDirectory.FullName,
                                              $"{modelBundle.MainFile.NameWithoutExtension}.foo")),
             },
-            extensions);
+            extensions,
+            true);
 
         if (hasGoldenExport) {
           AssertFilesInDirectoriesAreIdentical_(

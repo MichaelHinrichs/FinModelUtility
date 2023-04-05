@@ -38,4 +38,9 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="goldens\at1\output\" />
+    <Folder Include="goldens\joff\output\" />
+  </ItemGroup>
+
 </Project>

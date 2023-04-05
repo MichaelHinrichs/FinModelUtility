@@ -301,12 +301,6 @@ namespace uni.games {
       try {
         var model = loaderHandler();
 
-        if (Config.Instance.ExportAllTextures) {
-          foreach (var texture in model.MaterialManager.Textures) {
-            texture.SaveInDirectory(outputDirectory);
-          }
-        }
-
         new AssimpIndirectExporter {
             LowLevel = modelFileBundle.UseLowLevelExporter,
             ForceGarbageCollection = modelFileBundle.ForceGarbageCollection,
@@ -321,7 +315,8 @@ namespace uni.games {
                                     model,
                                     modelFileBundle)
                         },
-                        formats);
+                        formats,
+                        Config.Instance.ExportAllTextures);
 
         if (Config.Instance.ThirdParty.ExportBoneScaleAnimationsSeparately) {
           new BoneScaleAnimationExporter().Export(

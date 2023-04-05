@@ -1,9 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+
 using Assimp;
+
 using fin.exporter.gltf;
 using fin.exporter.gltf.lowlevel;
+using fin.gl.material;
+using fin.io;
 using fin.util.asserts;
 using fin.util.gc;
 using fin.util.linq;
@@ -21,10 +25,14 @@ namespace fin.exporter.assimp.indirect {
 
     public void Export(IExporterParams exporterParams)
       => ExportExtensions(exporterParams,
-                          !LowLevel ? new[] { ".fbx", ".glb" } : new[] { ".gltf" });
+                          !LowLevel
+                              ? new[] { ".fbx", ".glb" }
+                              : new[] { ".gltf" },
+                          false);
 
     public void ExportExtensions(IExporterParams exporterParams,
-                                 IReadOnlyList<string> exportedExtensions) {
+                                 IReadOnlyList<string> exportedExtensions,
+                                 bool exportAllTextures) {
       var supportedExportFormats = AssimpUtil.SupportedExportFormats;
       var exportedFormats =
           exportedExtensions
@@ -34,15 +42,18 @@ namespace fin.exporter.assimp.indirect {
                               .Where(exportFormat
                                          => exportedExtension ==
                                             $".{exportFormat.FileExtension}")
-                              .First($"'{exportedExtension}' is not a supported export format!"))
-          .ToArray();
-      this.ExportFormats(exporterParams, exportedFormats);
+                              .First(
+                                  $"'{exportedExtension}' is not a supported export format!"))
+              .ToArray();
+      this.ExportFormats(exporterParams, exportedFormats, exportAllTextures);
     }
 
     public void ExportFormats(IExporterParams exporterParams,
                               IReadOnlyList<ExportFormatDescription>
-                                  exportedFormats) {
+                                  exportedFormats,
+                              bool exportAllTextures) {
       var outputFile = exporterParams.OutputFile;
+      var outputDirectory = outputFile.GetParent();
       var model = exporterParams.Model;
       var scale = exporterParams.Scale;
 
@@ -50,10 +61,9 @@ namespace fin.exporter.assimp.indirect {
         return;
       }
 
-
       IGltfExporter gltfExporter = !this.LowLevel
-                                       ? new GltfExporter()
-                                       : new LowLevelGltfExporter();
+          ? new GltfExporter()
+          : new LowLevelGltfExporter();
 
       var isGltfFormat = (ExportFormatDescription format)
           => format.FileExtension is "gltf" or "glb";
@@ -64,6 +74,28 @@ namespace fin.exporter.assimp.indirect {
                            .Where(exportedFormat =>
                                       !isGltfFormat(exportedFormat))
                            .ToArray();
+
+      if (exportAllTextures) {
+        foreach (var texture in model.MaterialManager.Textures) {
+          texture.SaveInDirectory(outputDirectory);
+        }
+      }
+
+      var finMaterials = model.MaterialManager.All;
+      for (var i = 0; i < finMaterials.Count; ++i) {
+        var finMaterial = finMaterials[i];
+        var materialName = finMaterial.Name ?? $"material{i}";
+        
+        var shaderSource = finMaterial.ToShaderSource();
+        var vertexShaderFile = (IFile) new FinFile(
+            Path.Combine(outputDirectory.FullName,
+                         $"{materialName}_vertex_shader.glsl"));
+        var fragmentShaderFile = (IFile) new FinFile(
+            Path.Combine(outputDirectory.FullName,
+                         $"{materialName}_fragment_shader.glsl"));
+        vertexShaderFile.WriteAllText(shaderSource.VertexShaderSource);
+        fragmentShaderFile.WriteAllText(shaderSource.FragmentShaderSource);
+      }
 
       if (gltfFormats.Length > 0) {
         gltfExporter.UvIndices = false;
@@ -79,7 +111,7 @@ namespace fin.exporter.assimp.indirect {
               outputFile.CloneWithExtension($".{gltfFormat.FileExtension}");
 
           var gltfWriteSettings =
-            WriteContext.CreateFromFile(gltfOutputFile.FullName);
+              WriteContext.CreateFromFile(gltfOutputFile.FullName);
           gltfWriteSettings.ImageWriting = gltfExporter.Embedded
               ? ResourceWriteMode.EmbeddedAsBase64
               : ResourceWriteMode.SatelliteFile;
@@ -90,8 +122,8 @@ namespace fin.exporter.assimp.indirect {
           }
 
           var name =
-            Path.GetFileNameWithoutExtension(gltfOutputFile
-              .FullNameWithoutExtension);
+              Path.GetFileNameWithoutExtension(gltfOutputFile
+                                                   .FullNameWithoutExtension);
           if (gltfFormat.FileExtension == "glb") {
             gltfWriteSettings.WriteBinarySchema2(name, gltfModelRoot);
           } else {
@@ -112,9 +144,7 @@ namespace fin.exporter.assimp.indirect {
         var inputFile = outputFile.CloneWithExtension(".tmp.glb");
         var inputPath = inputFile.FullName;
         gltfExporter.Export(new ExporterParams {
-            OutputFile = inputFile,
-            Model = model,
-            Scale = scale * 100,
+            OutputFile = inputFile, Model = model, Scale = scale * 100,
         });
         if (ForceGarbageCollection) {
           GcUtil.ForceCollectEverything();
@@ -149,7 +179,9 @@ namespace fin.exporter.assimp.indirect {
               PostProcessSteps.JoinIdenticalVertices;
 
           var success =
-              ctx.ExportFile(assScene, outputPath, nonGltfFormat.FormatId,
+              ctx.ExportFile(assScene,
+                             outputPath,
+                             nonGltfFormat.FormatId,
                              preProcessing);
           Asserts.True(success, "Failed to export model.");
 
