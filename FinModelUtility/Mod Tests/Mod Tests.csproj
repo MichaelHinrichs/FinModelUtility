@@ -28,4 +28,10 @@
     <ProjectReference Include="..\Mod\Mod.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="goldens\chappy\output\" />
+    <Folder Include="goldens\king\output\" />
+    <Folder Include="goldens\snake\output\" />
+  </ItemGroup>
+
 </Project>
