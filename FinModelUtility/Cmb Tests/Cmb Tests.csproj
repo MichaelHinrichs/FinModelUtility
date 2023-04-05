@@ -30,8 +30,4 @@
     <ProjectReference Include="..\Fin\Fin.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="goldens\cmb\majoras_mask_3d\zelda_cow\output\" />
-  </ItemGroup>
-
 </Project>

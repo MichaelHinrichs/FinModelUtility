@@ -29,4 +29,9 @@
     <ProjectReference Include="..\Fin\Fin.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="goldens\pikmin_2_Chappy\output\" />
+    <Folder Include="goldens\pikmin_2_Armor\output\" />
+  </ItemGroup>
+
 </Project>
