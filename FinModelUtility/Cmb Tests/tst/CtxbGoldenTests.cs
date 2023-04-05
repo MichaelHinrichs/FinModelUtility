@@ -9,7 +9,7 @@ using Version = cmb.schema.cmb.Version;
 
 
 namespace cmb {
-  public class GoldenTests {
+  public class CtxbGoldenTests {
     [Test]
     public async Task TestEachCtxbGolden() {
       var executingAssembly = Assembly.GetExecutingAssembly();
