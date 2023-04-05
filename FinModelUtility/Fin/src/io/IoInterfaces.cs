@@ -146,6 +146,17 @@ namespace fin.io {
     bool Delete(bool recursive = false)
       => FinDirectoryStatic.Delete(this.FullName, recursive);
 
+    bool DeleteContents() {
+      var didDeleteAnything = false;
+      foreach (var file in this.GetExistingFiles()) {
+        didDeleteAnything |= file.Delete();
+      }
+      foreach (var directory in this.GetExistingSubdirs()) {
+        didDeleteAnything |= directory.Delete(true);
+      }
+      return didDeleteAnything;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     void MoveTo(string path) => FinDirectoryStatic.MoveTo(this.FullName, path);
 
