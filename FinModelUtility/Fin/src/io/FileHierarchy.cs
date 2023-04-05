@@ -66,7 +66,7 @@ namespace fin.io {
         params string[] rest);
   }
 
-  public interface IFileHierarchyFile 
+  public interface IFileHierarchyFile
       : IFileHierarchyInstance, IGenericFile {
     IFile Impl { get; }
 
@@ -210,7 +210,6 @@ namespace fin.io {
         var didChange = false;
 
         var actualSubdirs = this.Impl.GetExistingSubdirs()
-                                .CastTo<FinDirectory, IDirectory>()
                                 .ToArray();
         didChange |=
             ListUtil.RemoveWhere(this.subdirs_,
@@ -227,9 +226,7 @@ namespace fin.io {
           }
         }
 
-        var actualFiles = this.Impl.GetExistingFiles()
-                              .CastTo<FinFile, IFile>()
-                              .ToArray();
+        var actualFiles = this.Impl.GetExistingFiles().ToArray();
         didChange |=
             ListUtil.RemoveWhere(this.files_,
                                  file => !actualFiles.Contains(file.Impl));

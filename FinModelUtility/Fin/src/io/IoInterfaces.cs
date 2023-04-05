@@ -73,12 +73,7 @@ namespace fin.io {
       => this.WriteAllText(JsonUtil.Serialize(instance));
   }
 
-  public interface IIoObject<TSelf, TFile, TDirectory> : IEquatable<TSelf>
-      where TSelf : IIoObject<TSelf, TFile, TDirectory>
-      where TFile : IFile<TFile, TDirectory>
-      where TDirectory : IDirectory<TFile, TDirectory> {
-    static abstract TSelf FromFullName(string fullName);
-
+  public interface IIoObject : IEquatable<IIoObject> {
     string Name => FinIoStatic.GetName(this.FullName);
     string FullName { get; }
 
@@ -86,7 +81,7 @@ namespace fin.io {
 
     string? GetParentFullName() => FinIoStatic.GetParentFullName(this.FullName);
 
-    TDirectory GetParent() {
+    IDirectory GetParent() {
       if (this.TryGetParent(out var parent)) {
         return parent;
       }
@@ -94,10 +89,10 @@ namespace fin.io {
       throw new Exception("Expected parent directory to exist!");
     }
 
-    bool TryGetParent(out TDirectory parent) {
+    bool TryGetParent(out IDirectory parent) {
       var parentName = this.GetParentFullName();
       if (parentName != null) {
-        parent = TDirectory.FromFullName(parentName);
+        parent = new FinDirectory(parentName);
         return true;
       }
 
@@ -105,12 +100,12 @@ namespace fin.io {
       return false;
     }
 
-    TDirectory[] GetAncestry() {
+    IDirectory[] GetAncestry() {
       if (!this.TryGetParent(out var firstParent)) {
-        return Array.Empty<TDirectory>();
+        return Array.Empty<IDirectory>();
       }
 
-      var parents = new LinkedList<TDirectory>();
+      var parents = new LinkedList<IDirectory>();
       var current = firstParent;
       while (current.TryGetParent(out var parent)) {
         parents.AddLast(parent);
@@ -127,32 +122,22 @@ namespace fin.io {
         return true;
       }
 
-      if (other is not TSelf otherSelf) {
+      if (other is not IIoObject otherSelf) {
         return false;
       }
 
       return this.Equals(otherSelf);
     }
 
-    bool IEquatable<TSelf>.Equals(TSelf? other)
+    bool IEquatable<IIoObject>.Equals(IIoObject? other)
       => this.FullName == other?.FullName;
   }
 
 
   // Directory
 
-  public interface IDirectory : IDirectory<FinFile, FinDirectory> {
-    static FinDirectory
-        IIoObject<FinDirectory, FinFile, FinDirectory>.
-        FromFullName(string fullName) => new(fullName);
-  }
-
-  public interface IDirectory<TFile, TDirectory>
-      : IIoObject<TDirectory, TFile, TDirectory>
-      where TFile : IFile<TFile, TDirectory>
-      where TDirectory : IDirectory<TFile, TDirectory> {
-    bool IIoObject<TDirectory, TFile, TDirectory>.Exists
-      => FinDirectoryStatic.Exists(this.FullName);
+  public interface IDirectory : IIoObject {
+    bool IIoObject.Exists => FinDirectoryStatic.Exists(this.FullName);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     bool Create() => FinDirectoryStatic.Create(this.FullName);
@@ -165,34 +150,35 @@ namespace fin.io {
     void MoveTo(string path) => FinDirectoryStatic.MoveTo(this.FullName, path);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    IEnumerable<TDirectory> GetExistingSubdirs()
-      => FinDirectoryStatic.GetExistingSubdirs(this.FullName)
-                           .Select(TDirectory.FromFullName);
+    IEnumerable<IDirectory> GetExistingSubdirs()
+      => FinDirectoryStatic
+         .GetExistingSubdirs(this.FullName)
+         .Select(fullName => (IDirectory) new FinDirectory(fullName));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    TDirectory GetSubdir(string relativePath, bool create = false)
-      => TDirectory.FromFullName(
+    IDirectory GetSubdir(string relativePath, bool create = false)
+      => new FinDirectory(
           FinDirectoryStatic.GetSubdir(this.FullName, relativePath, create));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    IEnumerable<TFile> GetExistingFiles()
+    IEnumerable<IFile> GetExistingFiles()
       => FinDirectoryStatic.GetExistingFiles(this.FullName)
-                           .Select(TFile.FromFullName);
+                           .Select(fullName => (IFile) new FinFile(fullName));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    IEnumerable<TFile> SearchForFiles(
+    IEnumerable<IFile> SearchForFiles(
         string searchPattern,
         bool includeSubdirs = false)
       => FinDirectoryStatic
          .SearchForFiles(this.FullName, searchPattern, includeSubdirs)
-         .Select(TFile.FromFullName);
+         .Select(fullName => (IFile) new FinFile(fullName));
 
-    bool TryToGetExistingFile(string path, out TFile outFile) {
+    bool TryToGetExistingFile(string path, out IFile outFile) {
       if (FinDirectoryStatic.TryToGetExistingFile(
               this.FullName,
               path,
               out var fileFullName)) {
-        outFile = TFile.FromFullName(fileFullName);
+        outFile = new FinFile(fileFullName);
         return true;
       }
 
@@ -201,20 +187,19 @@ namespace fin.io {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    TFile GetExistingFile(string path)
-      => TFile.FromFullName(
-          FinDirectoryStatic.GetExistingFile(this.FullName, path));
+    IFile GetExistingFile(string path)
+      => new FinFile(FinDirectoryStatic.GetExistingFile(this.FullName, path));
 
     bool PossiblyAssertExistingFile(string relativePath,
                                     bool assert,
-                                    out TFile outFile) {
+                                    out IFile outFile) {
       var fileFullName =
           FinDirectoryStatic.PossiblyAssertExistingFile(
               this.FullName,
               relativePath,
               assert);
       if (fileFullName != null) {
-        outFile = TFile.FromFullName(fileFullName);
+        outFile = new FinFile(fileFullName);
         return true;
       }
 
@@ -223,27 +208,18 @@ namespace fin.io {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    IEnumerable<TFile> GetFilesWithExtension(
+    IEnumerable<IFile> GetFilesWithExtension(
         string extension,
         bool includeSubdirs = false)
       => FinDirectoryStatic
          .GetFilesWithExtension(this.FullName, extension, includeSubdirs)
-         .Select(TFile.FromFullName);
+         .Select(fullName => (IFile) new FinFile(fullName));
   }
 
 
   // File 
-  public interface IFile : IFile<FinFile, FinDirectory> {
-    static FinFile IIoObject<FinFile, FinFile, FinDirectory>.FromFullName(
-        string fullName) => new(fullName);
-  }
-
-  public interface IFile<TFile, TDirectory>
-      : IIoObject<TFile, TFile, TDirectory>, IGenericFile
-      where TFile : IFile<TFile, TDirectory>
-      where TDirectory : IDirectory<TFile, TDirectory> {
-    bool IIoObject<TFile, TFile, TDirectory>.Exists
-      => FinFileStatic.Exists(this.FullName);
+  public interface IFile : IIoObject, IGenericFile {
+    bool IIoObject.Exists => FinFileStatic.Exists(this.FullName);
 
     string IGenericFile.DisplayPath => this.FullName;
 
@@ -258,10 +234,10 @@ namespace fin.io {
     string NameWithoutExtension
       => FinFileStatic.GetNameWithoutExtension(this.Name);
 
-    TFile CloneWithExtension(string newExtension) {
+    IFile CloneWithExtension(string newExtension) {
       Asserts.True(newExtension.StartsWith("."),
                    $"'{newExtension}' is not a valid extension!");
-      return TFile.FromFullName(this.FullNameWithoutExtension + newExtension);
+      return new FinFile(this.FullNameWithoutExtension + newExtension);
     }
   }
 }

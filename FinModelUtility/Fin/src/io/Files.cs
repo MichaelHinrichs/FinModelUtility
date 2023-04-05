@@ -48,7 +48,6 @@ namespace fin.io {
         string extension,
         bool includeSubdirs = false)
       => directory.GetFilesWithExtension(extension, includeSubdirs)
-                  .CastTo<FinFile, IFile>()
                   .ToArray();
 
     public static IFile GetFileWithExtension(

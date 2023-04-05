@@ -49,9 +49,9 @@ namespace j3d.cli {
   public class ModelFilesInDirectory {
     public ModelFilesInDirectory(IDirectory directory) {
       this.Impl = new ModelFiles(directory.Name,
-                                 directory.SearchForFiles("*.bmd").CastTo<FinFile, IFile>(),
-                                 directory.SearchForFiles("*.bc?").CastTo<FinFile, IFile>(),
-                                 directory.SearchForFiles("*.bti").CastTo<FinFile, IFile>());
+                                 directory.SearchForFiles("*.bmd"),
+                                 directory.SearchForFiles("*.bc?"),
+                                 directory.SearchForFiles("*.bti"));
     }
 
     public ModelFiles Impl { get; }

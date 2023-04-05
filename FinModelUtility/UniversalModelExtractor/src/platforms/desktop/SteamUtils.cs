@@ -49,13 +49,11 @@ namespace uni.platforms.desktop {
             .Select(
                 libraryFolder => libraryFolder.GetSubdir("steamapps"))
             .Select(steamApps => steamApps.GetSubdir("common"))
-            .CastTo<FinDirectory, IDirectory>()
             .ToArray();
 
     public static IDirectory[] GameDirectories { get; }
       = CommonDirectories
         .SelectMany(common => common.GetExistingSubdirs())
-        .CastTo<FinDirectory, IDirectory>()
         .ToArray();
 
     public static bool TryGetGameDirectory(

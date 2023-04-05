@@ -31,10 +31,9 @@ namespace glo {
       this.GetGloGoldenBundles_(out var gloGoldensDirectory,
                                 out var gloGoldenBundles);
 
-      var tmpDirectory =
-          (IDirectory) gloGoldensDirectory.Impl.GetSubdir("tmp", true);
+      var tmpDirectory = gloGoldensDirectory.Impl.GetSubdir("tmp", true);
 
-      var extensions = new[] {".glb"};
+      var extensions = new[] { ".glb" };
 
       foreach (var goldenBundle in gloGoldenBundles) {
         foreach (var file in tmpDirectory.GetExistingFiles()) {
@@ -68,10 +67,13 @@ namespace glo {
     }
 
     private void AssertSameFiles_(IDirectory lhs, IDirectory rhs) {
-      var lhsFiles = lhs.GetExistingFiles().ToDictionary(file => (string) file.Name);
-      var rhsFiles = rhs.GetExistingFiles().ToDictionary(file => (string) file.Name);
+      var lhsFiles = lhs.GetExistingFiles()
+                        .ToDictionary(file => (string) file.Name);
+      var rhsFiles = rhs.GetExistingFiles()
+                        .ToDictionary(file => (string) file.Name);
 
-      Assert.IsTrue(lhsFiles.Keys.ToHashSet().SetEquals(rhsFiles.Keys.ToHashSet()));
+      Assert.IsTrue(lhsFiles.Keys.ToHashSet()
+                            .SetEquals(rhsFiles.Keys.ToHashSet()));
 
       foreach (var (name, lhsFile) in lhsFiles) {
         var rhsFile = rhsFiles[name];
@@ -105,6 +107,7 @@ namespace glo {
       while (currentDir.Name != assemblyName) {
         currentDir = currentDir.GetParent();
       }
+
       Assert.IsNotNull(currentDir);
 
       var gloTestsDir = currentDir;
@@ -114,12 +117,22 @@ namespace glo {
 
       gloGoldensDirectory = hierarchy.Root;
       gloGoldenBundles = gloGoldensDirectory.Subdirs.Select(subdir => {
-        if (subdir.TryToGetExistingSubdir("input", out var inputDir)) {
-          var gloFile = inputDir.FilesWithExtension(".glo").Single();
-          return new GloModelFileBundle(gloFile, new[] { inputDir });
-        }
-        return null;
-      }).Where(bundle => bundle != null);
+                                              if (subdir.TryToGetExistingSubdir(
+                                                      "input",
+                                                      out var inputDir)) {
+                                                var gloFile =
+                                                    inputDir
+                                                        .FilesWithExtension(
+                                                            ".glo")
+                                                        .Single();
+                                                return new GloModelFileBundle(
+                                                    gloFile,
+                                                    new[] { inputDir });
+                                              }
+
+                                              return null;
+                                            })
+                                            .Where(bundle => bundle != null);
     }
   }
 }
