@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 
 using fin.exporter;
 using fin.exporter.assimp.indirect;
 using fin.io;
 using fin.model;
+using fin.util.strings;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -15,12 +17,38 @@ namespace fin.testing {
   public static class ModelGoldenAssert {
     private const string TMP_NAME = "tmp";
 
+    public static IDirectory
+        GetRootGoldensDirectory(Assembly executingAssembly) {
+      var assemblyName =
+          StringUtil.UpTo(executingAssembly.ManifestModule.Name, ".dll");
+
+      var executingAssemblyDll = new FinFile(executingAssembly.Location);
+      var executingAssemblyDir = executingAssemblyDll.GetParent();
+
+      var currentDir = executingAssemblyDir;
+      while (currentDir.Name != assemblyName) {
+        currentDir = currentDir.GetParent();
+      }
+
+      Assert.IsNotNull(currentDir);
+
+      var gloTestsDir = currentDir;
+      var goldensDirectory = gloTestsDir.GetSubdir("goldens");
+
+      return goldensDirectory;
+    }
+
     public static IEnumerable<IFileHierarchyDirectory> GetGoldenDirectories(
         IDirectory rootGoldenDirectory) {
       var hierarchy = new FileHierarchy(rootGoldenDirectory);
       return hierarchy.Root.Subdirs.Where(
           subdir => subdir.Name != TMP_NAME);
     }
+
+    public static IEnumerable<IFileHierarchyDirectory>
+        GetGoldenInputDirectories(IDirectory rootGoldenDirectory)
+      => GetGoldenDirectories(rootGoldenDirectory)
+          .Select(subdir => subdir.GetExistingSubdir("input"));
 
     /// <summary>
     ///   Asserts model goldens. Assumes that directories will be stored as the following:

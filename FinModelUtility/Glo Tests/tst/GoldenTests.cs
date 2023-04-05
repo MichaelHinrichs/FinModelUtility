@@ -2,7 +2,6 @@
 
 using fin.io;
 using fin.testing;
-using fin.util.strings;
 
 using glo.api;
 using glo.schema;
@@ -11,15 +10,13 @@ using NUnit.Framework;
 
 using schema.binary.testing;
 
-using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
-
 
 namespace glo {
   public class GoldenTests {
     [Test]
     public async Task TestReadsAndWritesIdentically() {
       foreach (var goldenBundle in ModelGoldenAssert
-                                   .GetGoldenDirectories(
+                                   .GetGoldenInputDirectories(
                                        this.GetGloGoldensDirectory_())
                                    .Select(
                                        GetGloModelFileBundleInDirectory_)) {
@@ -35,27 +32,9 @@ namespace glo {
           new GloModelLoader(),
           GetGloModelFileBundleInDirectory_);
 
-    private IDirectory GetGloGoldensDirectory_() {
-      var executingAssembly = Assembly.GetExecutingAssembly();
-      var assemblyName =
-          StringUtil.UpTo(executingAssembly.ManifestModule.Name, ".dll");
-
-      var executingAssemblyDll =
-          new FinFile(Assembly.GetExecutingAssembly().Location);
-      var executingAssemblyDir = executingAssemblyDll.GetParent();
-
-      var currentDir = executingAssemblyDir;
-      while (currentDir.Name != assemblyName) {
-        currentDir = currentDir.GetParent();
-      }
-
-      Assert.IsNotNull(currentDir);
-
-      var gloTestsDir = currentDir;
-      var goldensDirectory = gloTestsDir.GetSubdir("goldens");
-
-      return goldensDirectory;
-    }
+    private IDirectory GetGloGoldensDirectory_()
+      => ModelGoldenAssert.GetRootGoldensDirectory(
+          Assembly.GetExecutingAssembly());
 
     private GloModelFileBundle GetGloModelFileBundleInDirectory_(
         IFileHierarchyDirectory directory) {
