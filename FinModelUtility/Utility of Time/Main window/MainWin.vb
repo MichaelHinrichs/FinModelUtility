@@ -3226,7 +3226,7 @@ Public Class MainWin
 
     If Not DlModel.IsComplete Then
       DlModel.IsComplete = True
-      DlModel.SaveAsGlTf(ObjectDisplayName, animationTab_.AnimationBanks.Animations)
+      'DlModel.SaveAsGlTf(ObjectDisplayName, animationTab_.AnimationBanks.Animations)
 
       Dim modelConverter = New ModelConverter()
       modelConverter.Convert()

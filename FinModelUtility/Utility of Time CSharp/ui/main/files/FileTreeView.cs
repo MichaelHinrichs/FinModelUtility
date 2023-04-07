@@ -82,7 +82,7 @@ namespace UoT.ui.main.files {
       public TFile? File { get; set; }
 
       public FileNode? Parent => this.filterNode_.Parent?.Data;
-      public float MatchPercentage => this.filterNode_.MatchPercentage;
+      public float MatchPercentage => this.filterNode_.Similarity;
       public IReadOnlySet<string> Keywords => this.filterNode_.Keywords;
 
       public FileNode AddChild(TFile file) => new(this, file);

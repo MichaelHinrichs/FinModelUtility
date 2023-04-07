@@ -93,7 +93,7 @@ namespace UoT.displaylist {
 
       vertexShaderLines += 
           @"void main() {
-              gl_Position = gl_ModelViewProjectionMatrix * vec4(in_position, 1f);
+              gl_Position = gl_ModelViewProjectionMatrix * vec4(in_position, 1);
 
               // in_position should already be in world space, since we
               // project the points w/ software matrices.
@@ -105,7 +105,7 @@ namespace UoT.displaylist {
               //v_uv1 = calculateUv(in_uv1, textureParams1, projectedNormal);
 
               v_normal = in_normal;
-              v_projectedNormal = normalize(gl_ModelViewProjectionMatrix * vec4(in_normal, 0f)).xyz;
+              v_projectedNormal = normalize(gl_ModelViewProjectionMatrix * vec4(in_normal, 0)).xyz;
 
               v_shade = in_color;
             }";

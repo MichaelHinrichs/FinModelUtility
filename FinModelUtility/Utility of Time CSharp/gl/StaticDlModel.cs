@@ -603,7 +603,7 @@ namespace UoT {
         var glTexture = this.allTextures_[i];
 
         var texturePath = $"{basePath}/{glTexture.TileDescriptor.Uuid}.png";
-        glTexture.SaveToFile(texturePath);
+        //glTexture.SaveToFile(texturePath);
 
         var glTfImage = new MemoryImage(texturePath);
         // TODO: Need to handle wrapping in the shader?

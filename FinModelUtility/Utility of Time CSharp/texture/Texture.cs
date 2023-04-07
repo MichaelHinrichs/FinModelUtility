@@ -26,7 +26,7 @@ namespace UoT {
                        "_" +
                        address.ToString("X8") +
                        ".png";
-        this.SaveToFile(filename);
+        //this.SaveToFile(filename);
       }
     }
 

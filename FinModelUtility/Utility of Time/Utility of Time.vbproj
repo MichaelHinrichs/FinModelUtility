@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net7.0-windows</TargetFramework>
     <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
     <GenerateResourceNeverLockTypeAssemblies>true</GenerateResourceNeverLockTypeAssemblies>
     <PlatformTarget>x86</PlatformTarget>
@@ -35,7 +35,6 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <GenerateResourceNeverLockTypeAssemblies>true</GenerateResourceNeverLockTypeAssemblies>
     <RemoveIntegerChecks>true</RemoveIntegerChecks>
-    <OutputPath>R:\Compiled\Utility of Time\</OutputPath>
     <DocumentationFile></DocumentationFile>
     <NoWarn>41998,41999,42004,42016,42017,42018,42019,42020,42021,42022,42025,42026,42029,42031,42032,42036,42105,42106,42107,42353,42354,42355</NoWarn>
     <WarningsAsErrors></WarningsAsErrors>
@@ -46,7 +45,6 @@
     <DefineDebug>true</DefineDebug>
     <RemoveIntegerChecks>true</RemoveIntegerChecks>
     <IntegerChecks>false</IntegerChecks>
-    <OutputPath>..\..\..\Compiled\Utility of Time\</OutputPath>
     <DocumentationFile></DocumentationFile>
     <NoWarn>41998,41999,42004,42016,42017,42018,42019,42020,42021,42022,42025,42026,42029,42031,42032,42036,42105,42106,42107,42353,42354,42355</NoWarn>
     <WarningsAsErrors></WarningsAsErrors>
@@ -55,7 +53,6 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
     <GenerateResourceNeverLockTypeAssemblies>true</GenerateResourceNeverLockTypeAssemblies>
-    <OutputPath>..\..\..\Compiled\Utility of Time\</OutputPath>
     <RemoveIntegerChecks>true</RemoveIntegerChecks>
     <DocumentationFile></DocumentationFile>
     <NoWarn>41998,41999,42004,42016,42017,42018,42019,42020,42021,42022,42025,42026,42029,42031,42032,42036,42105,42106,42107,42353,42354,42355</NoWarn>
@@ -64,7 +61,6 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
     <GenerateResourceNeverLockTypeAssemblies>true</GenerateResourceNeverLockTypeAssemblies>
-    <OutputPath>bin\x64\Release\</OutputPath>
     <RemoveIntegerChecks>true</RemoveIntegerChecks>
     <DocumentationFile></DocumentationFile>
     <NoWarn>41998,41999,42004,42016,42017,42018,42019,42020,42021,42022,42025,42026,42029,42031,42032,42036,42105,42106,42107,42353,42354,42355</NoWarn>
@@ -74,7 +70,6 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <OutputPath>..\..\..\Compiled\Utility of Time\</OutputPath>
     <RemoveIntegerChecks>true</RemoveIntegerChecks>
     <DocumentationFile></DocumentationFile>
     <NoWarn>41998,41999,42004,42016,42017,42018,42019,42020,42021,42022,42025,42026,42029,42031,42032,42036,42105,42106,42107,42353,42354,42355</NoWarn>
@@ -83,7 +78,6 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugSymbols>true</DebugSymbols>
     <DefineDebug>true</DefineDebug>
-    <OutputPath>..\..\..\Compiled\Utility of Time\</OutputPath>
     <RemoveIntegerChecks>true</RemoveIntegerChecks>
     <DocumentationFile></DocumentationFile>
     <NoWarn>41998,41999,42004,42016,42017,42018,42019,42020,42021,42022,42025,42026,42029,42031,42032,42036,42105,42106,42107,42353,42354,42355</NoWarn>
@@ -148,7 +142,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Main window\uoticon64.ico" />
-    <Content Include="Tao GL Libs\freeglut.dll" />
+    <Content Include="freeglut.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Tao GL Libs\Tao.DevIl.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
