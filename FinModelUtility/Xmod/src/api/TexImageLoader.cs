@@ -10,7 +10,7 @@ using IImage = fin.image.IImage;
 
 namespace xmod.api {
   public class TexImageLoader {
-    public IImage LoadImage(IFile texFile) {
+    public IImage LoadImage(IReadOnlyGenericFile texFile) {
       using var er = new EndianBinaryReader(texFile.OpenRead());
       var width = er.ReadUInt16();
       var height = er.ReadUInt16();

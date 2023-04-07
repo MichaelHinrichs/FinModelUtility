@@ -124,7 +124,9 @@ namespace fin.testing {
       }
     }
 
-    private static void AssertFilesAreIdentical_(IFile lhs, IFile rhs) {
+    private static void AssertFilesAreIdentical_(
+        IReadOnlyGenericFile lhs,
+        IReadOnlyGenericFile rhs) {
       using var lhsStream = lhs.OpenRead();
       using var rhsStream = rhs.OpenRead();
 

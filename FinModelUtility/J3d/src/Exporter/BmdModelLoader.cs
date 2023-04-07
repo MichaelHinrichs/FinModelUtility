@@ -31,7 +31,7 @@ namespace j3d.exporter {
     public required string GameName { get; init; }
     public IFileHierarchyFile MainFile => this.BmdFile;
 
-    public IEnumerable<IGenericFile> Files
+    public IEnumerable<IReadOnlyGenericFile> Files
       => this.BmdFile.Yield()
              .ConcatIfNonnull(this.BcxFiles)
              .ConcatIfNonnull(this.BtiFiles);

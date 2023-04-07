@@ -18,7 +18,7 @@ namespace level5.api {
     public string? BetterName { get; set; }
     public required string GameName { get; init; }
     public IFileHierarchyFile MainFile => this.ModelXcFile;
-    public IEnumerable<IGenericFile> Files
+    public IEnumerable<IReadOnlyGenericFile> Files
       => this.ModelXcFile.Yield()
              .ConcatIfNonnull(this.AnimationXcFiles);
 

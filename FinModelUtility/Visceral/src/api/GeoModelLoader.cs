@@ -20,20 +20,14 @@ namespace visceral.api {
     public IFileHierarchyFile? MainFile
       => this.RcbFile ?? this.GeoFiles.First();
 
-    public IEnumerable<IGenericFile> Files => this.GeoFiles
-                                                  .ConcatIfNonnull(this.RcbFile)
-                                                  .ConcatIfNonnull(
-                                                      this.Tg4ImageFileBundles
-                                                          ?.SelectMany(
-                                                              tg4Bundle
-                                                                  => new
-                                                                      IGenericFile
-                                                                      [] {
-                                                                          tg4Bundle
-                                                                              .Tg4hFile,
-                                                                          tg4Bundle
-                                                                              .Tg4dFile
-                                                                      }));
+    public IEnumerable<IReadOnlyGenericFile> Files
+      => this.GeoFiles
+             .ConcatIfNonnull(this.RcbFile)
+             .ConcatIfNonnull(
+                 this.Tg4ImageFileBundles
+                     ?.SelectMany(tg4Bundle => new IReadOnlyGenericFile[] {
+                         tg4Bundle.Tg4hFile, tg4Bundle.Tg4dFile
+                     }));
 
     public required IReadOnlyList<IFileHierarchyFile> GeoFiles { get; init; }
     public required IFileHierarchyFile? RcbFile { get; init; }
@@ -78,7 +72,7 @@ namespace visceral.api {
 
     private void AddRcbFileToModel_(
         IModel finModel,
-        IGenericFile rcbFile,
+        IReadOnlyGenericFile rcbFile,
         out IBone[] finBones) {
       finBones = Array.Empty<IBone>();
 
@@ -173,10 +167,13 @@ namespace visceral.api {
 
         var finVertices = geoMesh.Vertices
                                  .Select(geoVertex
-                                             => finSkin.AddVertex(geoVertex.Position)
-                                                 .SetLocalNormal(geoVertex.Normal)
-                                                 .SetLocalTangent(geoVertex.Tangent)
-                                                 .SetUv(geoVertex.Uv))
+                                             => finSkin
+                                                .AddVertex(geoVertex.Position)
+                                                .SetLocalNormal(
+                                                    geoVertex.Normal)
+                                                .SetLocalTangent(
+                                                    geoVertex.Tangent)
+                                                .SetUv(geoVertex.Uv))
                                  .ToArray();
 
         var triangles = geoMesh.Faces.Select(geoFace => {

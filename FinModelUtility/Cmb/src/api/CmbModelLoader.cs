@@ -47,7 +47,7 @@ namespace cmb.api {
     public string GameName { get; }
 
     public IFileHierarchyFile MainFile => this.CmbFile;
-    public IEnumerable<IGenericFile> Files
+    public IEnumerable<IReadOnlyGenericFile> Files
       => this.CmbFile.Yield()
              .ConcatIfNonnull(this.CsabFiles)
              .ConcatIfNonnull(this.CtxbFiles)

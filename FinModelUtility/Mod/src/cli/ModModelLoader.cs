@@ -27,7 +27,7 @@ namespace mod.cli {
     public required string GameName { get; init; }
 
     public IFileHierarchyFile MainFile => this.ModFile;
-    public IEnumerable<IGenericFile> Files
+    public IEnumerable<IReadOnlyGenericFile> Files
       => this.ModFile.Yield().ConcatIfNonnull(this.AnmFile);
 
     public required IFileHierarchyFile ModFile { get; init; }

@@ -23,7 +23,7 @@ namespace modl.api {
     public required string GameName { get; init; }
 
     public IFileHierarchyFile MainFile => this.ModlFile;
-    public IEnumerable<IGenericFile> Files
+    public IEnumerable<IReadOnlyGenericFile> Files
       => this.ModlFile.Yield().ConcatIfNonnull(this.AnimFiles);
 
     public required GameVersion GameVersion { get; init; }

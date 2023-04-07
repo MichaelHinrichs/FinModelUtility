@@ -12,18 +12,13 @@ using schema.binary;
 
 
 namespace fin.io {
-  public interface IGenericFile {
+  public interface IReadOnlyGenericFile {
     string DisplayPath { get; }
 
     FileSystemStream OpenRead();
-    FileSystemStream OpenWrite();
-
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     StreamReader OpenReadAsText() => new(this.OpenRead());
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    StreamWriter OpenWriteAsText() => new(this.OpenWrite());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     T ReadNew<T>() where T : IBinaryDeserializable, new() {
@@ -51,6 +46,15 @@ namespace fin.io {
       using var sr = this.OpenReadAsText();
       return sr.ReadToEnd();
     }
+  }
+
+  public interface IGenericFile : IReadOnlyGenericFile {
+    FileSystemStream OpenWrite();
+
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    StreamWriter OpenWriteAsText() => new(this.OpenWrite());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     void WriteAllBytes(byte[] bytes) {
@@ -232,7 +236,7 @@ namespace fin.io {
   public interface IFile : IIoObject, IGenericFile {
     bool IIoObject.Exists => FinFileStatic.Exists(this.FullName);
 
-    string IGenericFile.DisplayPath => this.FullName;
+    string IReadOnlyGenericFile.DisplayPath => this.FullName;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     bool Delete() => FinFileStatic.Delete(FullName);

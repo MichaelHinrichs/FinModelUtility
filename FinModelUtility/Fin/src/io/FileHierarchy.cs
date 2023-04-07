@@ -76,7 +76,7 @@ namespace fin.io {
     string FullNameWithoutExtension => this.Impl.FullNameWithoutExtension;
     string NameWithoutExtension => this.Impl.NameWithoutExtension;
 
-    FileSystemStream IGenericFile.OpenRead() => this.Impl.OpenRead();
+    FileSystemStream IReadOnlyGenericFile.OpenRead() => this.Impl.OpenRead();
     FileSystemStream IGenericFile.OpenWrite() => this.Impl.OpenWrite();
   }
 
