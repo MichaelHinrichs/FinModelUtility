@@ -11,7 +11,7 @@ namespace fin.image.io {
   /// </summary>
   public class Rgba32PixelReader : IPixelReader<Rgba32> {
     public IImage<Rgba32> CreateImage(int width, int height)
-      => new Rgba32Image(width, height);
+      => new Rgba32Image(PixelFormat.RGBA8888, width, height);
 
     public unsafe void Decode(IEndianBinaryReader er,
                               Rgba32* scan0,

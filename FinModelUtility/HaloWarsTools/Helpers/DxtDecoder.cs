@@ -296,7 +296,7 @@ namespace Dxt {
         int width,
         int height,
         float max) {
-      var bitmap = new Rgba32Image(width, height);
+      var bitmap = new Rgba32Image(PixelFormat.RGBA16161616, width, height);
       bitmap.Mutate((_, setHandler) => {
         var offset = 0;
         for (var y = 0; y < height; ++y) {
@@ -333,7 +333,7 @@ namespace Dxt {
       Span<Rgb24> buffer = stackalloc Rgb24[16];
       Span<Rgb24> colors = stackalloc Rgb24[4];
 
-      var bitmap = new Rgb24Image(width, height);
+      var bitmap = new Rgb24Image(PixelFormat.DXT1, width, height);
       using var imageLock = bitmap.Lock();
       var ptr = imageLock.pixelScan0;
 
@@ -380,7 +380,7 @@ namespace Dxt {
         byte[] input,
         int width,
         int height) {
-      var image = new Rgba32Image(width, height);
+      var image = new Rgba32Image(PixelFormat.DXT3, width, height);
       using var imageLock = image.Lock();
       var dstPtr = imageLock.pixelScan0;
 
@@ -525,7 +525,7 @@ namespace Dxt {
       var monoTable = new byte[8];
       var rIndices = new byte[16];
 
-      var bitmap = new I8Image(width, height);
+      var bitmap = new L8Image(PixelFormat.DXT5A, width, height);
       using var imageLock = bitmap.Lock();
       var ptr = imageLock.pixelScan0;
 

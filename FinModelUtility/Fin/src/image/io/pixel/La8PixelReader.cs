@@ -9,7 +9,7 @@ namespace fin.image.io {
   /// </summary>
   public class La8PixelReader : IPixelReader<La16> {
     public IImage<La16> CreateImage(int width, int height)
-      => new Ia16Image(width, height);
+      => new La16Image(PixelFormat.LA44, width, height);
 
     public unsafe void Decode(IEndianBinaryReader er,
                               La16* scan0,

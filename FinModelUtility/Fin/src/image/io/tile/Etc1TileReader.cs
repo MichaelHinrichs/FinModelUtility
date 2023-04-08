@@ -36,7 +36,9 @@ namespace fin.image.io.tile {
     }
 
     public IImage<Rgba32> CreateImage(int width, int height)
-      => new Rgba32Image(width, height);
+      => new Rgba32Image(this.hasAlpha_ ? PixelFormat.ETC1A : PixelFormat.ETC1,
+                         width,
+                         height);
 
     public int TileWidth => 8;
     public int TileHeight => 8;

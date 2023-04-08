@@ -44,6 +44,7 @@
       splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
       splitContainer.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
       splitContainer.Location = new System.Drawing.Point(0, 0);
+      splitContainer.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
       splitContainer.Name = "splitContainer";
       splitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
       // 
@@ -54,17 +55,19 @@
       // splitContainer.Panel2
       // 
       splitContainer.Panel2.Controls.Add(this.splitContainer1);
-      splitContainer.Size = new System.Drawing.Size(218, 366);
-      splitContainer.SplitterDistance = 203;
+      splitContainer.Size = new System.Drawing.Size(249, 488);
+      splitContainer.SplitterDistance = 233;
+      splitContainer.SplitterWidth = 5;
       splitContainer.TabIndex = 0;
       // 
       // textureSelectorBox_
       // 
       this.textureSelectorBox_.Dock = System.Windows.Forms.DockStyle.Fill;
       this.textureSelectorBox_.Location = new System.Drawing.Point(0, 0);
+      this.textureSelectorBox_.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
       this.textureSelectorBox_.Name = "textureSelectorBox_";
       this.textureSelectorBox_.SelectedTexture = null;
-      this.textureSelectorBox_.Size = new System.Drawing.Size(218, 203);
+      this.textureSelectorBox_.Size = new System.Drawing.Size(249, 233);
       this.textureSelectorBox_.TabIndex = 0;
       // 
       // splitContainer1
@@ -73,6 +76,7 @@
       this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
       this.splitContainer1.IsSplitterFixed = true;
       this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+      this.splitContainer1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
       this.splitContainer1.Name = "splitContainer1";
       this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
       // 
@@ -83,33 +87,37 @@
       // splitContainer1.Panel2
       // 
       this.splitContainer1.Panel2.Controls.Add(this.textureInfoSection_);
-      this.splitContainer1.Size = new System.Drawing.Size(218, 159);
-      this.splitContainer1.SplitterDistance = 73;
+      this.splitContainer1.Size = new System.Drawing.Size(249, 250);
+      this.splitContainer1.SplitterDistance = 125;
+      this.splitContainer1.SplitterWidth = 5;
       this.splitContainer1.TabIndex = 1;
       // 
       // texturePanel_
       // 
       this.texturePanel_.Dock = System.Windows.Forms.DockStyle.Fill;
       this.texturePanel_.Location = new System.Drawing.Point(0, 0);
+      this.texturePanel_.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
       this.texturePanel_.Name = "texturePanel_";
-      this.texturePanel_.Size = new System.Drawing.Size(218, 73);
+      this.texturePanel_.Size = new System.Drawing.Size(249, 125);
       this.texturePanel_.TabIndex = 0;
       // 
       // textureInfoSection_
       // 
       this.textureInfoSection_.Dock = System.Windows.Forms.DockStyle.Fill;
       this.textureInfoSection_.Location = new System.Drawing.Point(0, 0);
+      this.textureInfoSection_.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
       this.textureInfoSection_.Name = "textureInfoSection_";
-      this.textureInfoSection_.Size = new System.Drawing.Size(218, 82);
+      this.textureInfoSection_.Size = new System.Drawing.Size(249, 120);
       this.textureInfoSection_.TabIndex = 0;
       // 
       // TexturesTab
       // 
-      this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.Controls.Add(splitContainer);
+      this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
       this.Name = "TexturesTab";
-      this.Size = new System.Drawing.Size(218, 366);
+      this.Size = new System.Drawing.Size(249, 488);
       splitContainer.Panel1.ResumeLayout(false);
       splitContainer.Panel2.ResumeLayout(false);
       ((System.ComponentModel.ISupportInitialize)(splitContainer)).EndInit();

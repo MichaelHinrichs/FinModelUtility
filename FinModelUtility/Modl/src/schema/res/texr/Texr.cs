@@ -1,12 +1,8 @@
-﻿using System.Drawing;
-
-using fin.color;
+﻿using fin.color;
 using fin.data;
 using fin.image;
-using fin.schema.color;
 using fin.util.asserts;
 using fin.util.color;
-using fin.util.image;
 
 using schema.binary;
 
@@ -124,7 +120,8 @@ namespace modl.schema.res.texr {
                   "_bump", "_normal",
                   StringComparison.CurrentCultureIgnoreCase);
 
-              var normalImage = new Rgb24Image(image.Width, image.Height);
+              var normalImage =
+                  new Rgb24Image(PixelFormat.RGB888, image.Width, image.Height);
               normalImage.Mutate((_, normalSetHandler) => {
                 image.Access(bumpGetHandler => {
                   for (var y = 0; y < image.Height; ++y) {
@@ -168,7 +165,7 @@ namespace modl.schema.res.texr {
       SectionHeaderUtil.AssertNameAndSize(
           er, "MIP ", width * height * 4);
 
-      var image = new Rgba32Image((int) width, (int) height);
+      var image = new Rgba32Image(PixelFormat.RGBA8888, (int) width, (int) height);
       image.Mutate((_, setHandler) => {
         var blockWidth = 4;
         var blockHeight = 4;
@@ -224,7 +221,7 @@ namespace modl.schema.res.texr {
 
       IColor[] colors = new IColor[4];
 
-      var image = new Rgba32Image((int) width, (int) height);
+      var image = new Rgba32Image(PixelFormat.DXT1, (int) width, (int) height);
       image.Mutate((_, setHandler) => {
         var x = 0;
         var y = 0;
@@ -300,7 +297,7 @@ namespace modl.schema.res.texr {
 
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height);
 
-      var image = new Rgba32Image((int) width, (int) height);
+      var image = new Rgba32Image(PixelFormat.P8, (int) width, (int) height);
       image.Mutate((_, setHandler) => {
         var blockWidth = 8;
         var blockHeight = 4;
@@ -350,7 +347,7 @@ namespace modl.schema.res.texr {
 
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height / 2);
 
-      var image = new Rgba32Image((int) width, (int) height);
+      var image = new Rgba32Image(PixelFormat.P4, (int) width, (int) height);
       image.Mutate((_, setHandler) => {
         var blockWidth = 8;
         var blockHeight = 8;
@@ -394,7 +391,7 @@ namespace modl.schema.res.texr {
     private IImage ReadIA8_(IEndianBinaryReader er, uint width, uint height) {
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", 2 * width * height);
 
-      var image = new Ia16Image((int) width, (int) height);
+      var image = new La16Image(PixelFormat.LA88, (int) width, (int) height);
       image.Mutate((_, setHandler) => {
         var blockWidth = 4;
         var blockHeight = 4;
@@ -425,7 +422,7 @@ namespace modl.schema.res.texr {
     private IImage ReadIA4_(IEndianBinaryReader er, uint width, uint height) {
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height);
 
-      var image = new Ia16Image((int) width, (int) height);
+      var image = new La16Image(PixelFormat.LA44, (int) width, (int) height);
       image.Mutate((_, setHandler) => {
         var blockWidth = 8;
         var blockHeight = 4;
@@ -458,7 +455,7 @@ namespace modl.schema.res.texr {
     private IImage ReadI8_(IEndianBinaryReader er, uint width, uint height) {
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height);
 
-      var image = new I8Image((int) width, (int) height);
+      var image = new L8Image(PixelFormat.L8, (int) width, (int) height);
       image.Mutate((_, setHandler) => {
         var blockWidth = 8;
         var blockHeight = 4;
@@ -487,7 +484,7 @@ namespace modl.schema.res.texr {
     private IImage ReadI4_(IEndianBinaryReader er, uint width, uint height) {
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height / 2);
 
-      var image = new I8Image((int) width, (int) height);
+      var image = new L8Image(PixelFormat.L4, (int) width, (int) height);
       image.Mutate((_, setHandler) => {
         var blockWidth = 8;
         var blockHeight = 8;

@@ -17,6 +17,7 @@ namespace fin.image {
 
 
   public interface IImage : IDisposable {
+    PixelFormat PixelFormat { get; }
     int Width { get; }
     int Height { get; }
 

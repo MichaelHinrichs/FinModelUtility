@@ -1,6 +1,4 @@
-﻿using Assimp;
-
-using SixLabors.ImageSharp.PixelFormats;
+﻿using SixLabors.ImageSharp.PixelFormats;
 using System.IO;
 
 namespace fin.image.io {

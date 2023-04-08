@@ -8,6 +8,7 @@ using System.Buffers;
 using System.Collections.Generic;
 
 using FinTextureMinFilter = fin.model.TextureMinFilter;
+using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
 using TextureMagFilter = fin.model.TextureMagFilter;
 using TextureMinFilter = OpenTK.Graphics.OpenGL.TextureMinFilter;
 
@@ -133,14 +134,14 @@ namespace fin.gl {
             rgb24Image.GetRgb24Bytes(pixelBytes);
             break;
           }
-        case Ia16Image ia16Image: {
+        case La16Image ia16Image: {
             pixelBytes = pool_.Rent(2 * imageWidth * imageHeight);
             pixelInternalFormat = PixelInternalFormat.LuminanceAlpha;
             pixelFormat = PixelFormat.LuminanceAlpha;
             ia16Image.GetIa16Bytes(pixelBytes);
             break;
           }
-        case I8Image i8Image: {
+        case L8Image i8Image: {
             pixelBytes = pool_.Rent(imageWidth * imageHeight);
             pixelInternalFormat = PixelInternalFormat.Luminance;
             pixelFormat = PixelFormat.Luminance;

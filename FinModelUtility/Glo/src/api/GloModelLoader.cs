@@ -374,7 +374,8 @@ namespace glo.api {
       var width = rawImage.Width;
       var height = rawImage.Height;
 
-      var textureImageWithAlpha = new Rgba32Image(width, height);
+      var textureImageWithAlpha =
+          new Rgba32Image(rawImage.PixelFormat, width, height);
       textureImageWithAlpha.Mutate((_, setHandler) => {
         rawImage.Access(getHandler => {
           for (var y = 0; y < height; ++y) {

@@ -19,55 +19,59 @@ namespace xmod.api {
       ColorRgba32[] loadedDxt;
 
       IImage image;
+      PixelFormat pixelFormat;
       switch (dxtType) {
         // DXT1
         case 22: {
-            var expectedLength = width * height / 16 * (2 + 2 + 4);
+          pixelFormat = PixelFormat.DXT1;
+          var expectedLength = width * height / 16 * (2 + 2 + 4);
 
-            er.Position = 0xe;
-            var bytes = er.ReadBytes(expectedLength);
+          er.Position = 0xe;
+          var bytes = er.ReadBytes(expectedLength);
 
-            loadedDxt =
-                new BcDecoder().DecodeRaw(bytes,
-                                          width,
-                                          height,
-                                          CompressionFormat.Bc1);
-            break;
-          }
+          loadedDxt =
+              new BcDecoder().DecodeRaw(bytes,
+                                        width,
+                                        height,
+                                        CompressionFormat.Bc1);
+          break;
+        }
         // DXT3
         case 14: {
-            var expectedLength = width * height / 16 * (8 + 2 + 2 + 4);
+          pixelFormat = PixelFormat.DXT3;
+          var expectedLength = width * height / 16 * (8 + 2 + 2 + 4);
 
-            er.Position = 0xe;
-            var bytes = er.ReadBytes(expectedLength);
+          er.Position = 0xe;
+          var bytes = er.ReadBytes(expectedLength);
 
-            loadedDxt =
-                new BcDecoder().DecodeRaw(bytes,
-                                          width,
-                                          height,
-                                          CompressionFormat.Bc2);
-            break;
-          }
+          loadedDxt =
+              new BcDecoder().DecodeRaw(bytes,
+                                        width,
+                                        height,
+                                        CompressionFormat.Bc2);
+          break;
+        }
         // DXT5
         case 26: {
-            var expectedLength = width * height / 16 * (8 + 2 + 2 + 4);
+          pixelFormat = PixelFormat.DXT5;
+          var expectedLength = width * height / 16 * (8 + 2 + 2 + 4);
 
-            er.Position = 0xe;
-            var bytes = er.ReadBytes(expectedLength);
+          er.Position = 0xe;
+          var bytes = er.ReadBytes(expectedLength);
 
-            loadedDxt =
-                new BcDecoder().DecodeRaw(bytes,
-                                          width,
-                                          height,
-                                          CompressionFormat.Bc3);
-            break;
-          }
+          loadedDxt =
+              new BcDecoder().DecodeRaw(bytes,
+                                        width,
+                                        height,
+                                        CompressionFormat.Bc3);
+          break;
+        }
         default:
           throw new NotImplementedException();
       }
 
       unsafe {
-        var rgbaImage = new Rgba32Image(width, height);
+        var rgbaImage = new Rgba32Image(pixelFormat, width, height);
         image = rgbaImage;
         using var imageLock = rgbaImage.Lock();
         var ptr = imageLock.pixelScan0;

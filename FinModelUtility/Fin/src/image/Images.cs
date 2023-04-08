@@ -57,13 +57,17 @@ namespace fin.image {
 
       var pixelFormat = image.GetType().GenericTypeArguments[0];
       if (pixelFormat == typeof(Rgba32)) {
-        return new Rgba32Image(Asserts.CastNonnull(image as Image<Rgba32>));
+        return new Rgba32Image(PixelFormat.RGBA8888,
+                               Asserts.CastNonnull(image as Image<Rgba32>));
       } else if (pixelFormat == typeof(Rgb24)) {
-        return new Rgb24Image(Asserts.CastNonnull(image as Image<Rgb24>));
+        return new Rgb24Image(PixelFormat.RGB888,
+                              Asserts.CastNonnull(image as Image<Rgb24>));
       } else if (pixelFormat == typeof(L8)) {
-        return new I8Image(Asserts.CastNonnull(image as Image<L8>));
+        return new L8Image(PixelFormat.L8,
+                           Asserts.CastNonnull(image as Image<L8>));
       } else if (pixelFormat == typeof(La16)) {
-        return new Ia16Image(Asserts.CastNonnull(image as Image<La16>));
+        return new La16Image(PixelFormat.LA88,
+                             Asserts.CastNonnull(image as Image<La16>));
       }
 
       throw new ArgumentOutOfRangeException(
@@ -76,7 +80,7 @@ namespace fin.image {
       var width = bitmap.Width;
       var height = bitmap.Height;
 
-      var image = new Rgba32Image(width, height);
+      var image = new Rgba32Image(PixelFormat.RGBA8888, width, height);
       BitmapUtil.InvokeAsLocked(bitmap,
                                 bmpData => {
                                   var ptr = (byte*) bmpData.Scan0;
@@ -102,7 +106,7 @@ namespace fin.image {
       => CreateFromColor(color, 1, 1);
 
     public static IImage CreateFromColor(Color color, int width, int height) {
-      var bmp = new Rgba32Image(width, height);
+      var bmp = new Rgba32Image(PixelFormat.RGBA8888, width, height);
       bmp.Mutate((_, setHandler) => {
         for (var y = 0; y < height; ++y) {
           for (var x = 0; x < width; ++x) {
@@ -131,7 +135,7 @@ namespace fin.image {
       var width = image.Width;
       var height = image.Height;
 
-      var bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+      var bitmap = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
       using var fastBitmap = bitmap.FastLock();
       var dstPtr = (int*) fastBitmap.Scan0;
 
@@ -163,7 +167,7 @@ namespace fin.image {
 
           break;
         }
-        case I8Image i8Image: {
+        case L8Image i8Image: {
           using var imageLock = i8Image.Lock();
           var srcPtr = imageLock.pixelScan0;
           for (var y = 0; y < height; ++y) {
@@ -258,6 +262,10 @@ namespace fin.image {
 
   public abstract class BImage<TPixel> : IImage<TPixel>
       where TPixel : unmanaged, IPixel<TPixel> {
+    protected BImage(PixelFormat format) {
+      this.PixelFormat = format;
+    }
+
     ~BImage() => this.ReleaseUnmanagedResources_();
 
     public void Dispose() {
@@ -269,6 +277,7 @@ namespace fin.image {
 
     protected abstract Image<TPixel> Impl { get; }
 
+    public PixelFormat PixelFormat { get; }
     public int Width => this.Impl.Width;
     public int Height => this.Impl.Height;
 
@@ -286,10 +295,12 @@ namespace fin.image {
   }
 
   public class Rgba32Image : BImage<Rgba32> {
-    public Rgba32Image(int width, int height) : this(
+    public Rgba32Image(PixelFormat format, int width, int height) : this(
+        format,
         new Image<Rgba32>(FinImage.ImageSharpConfig, width, height)) { }
 
-    internal Rgba32Image(Image<Rgba32> impl) {
+    internal Rgba32Image(PixelFormat format, Image<Rgba32> impl) : base(
+        format) {
       this.Impl = impl;
     }
 
@@ -364,10 +375,12 @@ namespace fin.image {
   }
 
   public class Rgb24Image : BImage<Rgb24> {
-    public Rgb24Image(int width, int height) : this(
+    public Rgb24Image(PixelFormat format, int width, int height) : this(
+        format,
         new Image<Rgb24>(FinImage.ImageSharpConfig, width, height)) { }
 
-    internal Rgb24Image(Image<Rgb24> impl) {
+    internal Rgb24Image(PixelFormat format, Image<Rgb24> impl) : base(
+        format) {
       this.Impl = impl;
     }
 
@@ -440,11 +453,13 @@ namespace fin.image {
       => this.Impl.CopyPixelDataTo(bytes);
   }
 
-  public class Ia16Image : BImage<La16> {
-    public Ia16Image(int width, int height) : this(
+  public class La16Image : BImage<La16> {
+    public La16Image(PixelFormat format, int width, int height) : this(
+        format,
         new Image<La16>(FinImage.ImageSharpConfig, width, height)) { }
 
-    internal Ia16Image(Image<La16> impl) {
+    internal La16Image(PixelFormat format, Image<La16> impl) : base(
+        format) {
       this.Impl = impl;
     }
 
@@ -510,11 +525,13 @@ namespace fin.image {
       => this.Impl.CopyPixelDataTo(bytes);
   }
 
-  public class I8Image : BImage<L8> {
-    public I8Image(int width, int height) : this(
+  public class L8Image : BImage<L8> {
+    public L8Image(PixelFormat format, int width, int height) : this(
+        format,
         new Image<L8>(FinImage.ImageSharpConfig, width, height)) { }
 
-    internal I8Image(Image<L8> impl) {
+    internal L8Image(PixelFormat format, Image<L8> impl) : base(
+        format) {
       this.Impl = impl;
     }
 

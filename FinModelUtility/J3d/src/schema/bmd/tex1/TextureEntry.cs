@@ -134,7 +134,9 @@ namespace j3d.schema.bmd.tex1 {
       var isIndex4 = this.Format == TextureFormat.INDEX4;
       var isIndex8 = this.Format == TextureFormat.INDEX8;
       if (isIndex4 || isIndex8) {
-        bitmap = new Rgba32Image(width, height);
+        bitmap = new Rgba32Image(isIndex4 ? PixelFormat.P4 : PixelFormat.P8,
+                                 width,
+                                 height);
         using var imageLock = bitmap.Lock();
         var ptr = imageLock.pixelScan0;
 

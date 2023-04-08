@@ -14,7 +14,7 @@ namespace fin.io.image.tile {
   /// </summary>
   public class CmprTileReader : ITileReader<Rgba32> {
     public IImage<Rgba32> CreateImage(int width, int height)
-      => new Rgba32Image(width, height);
+      => new Rgba32Image(PixelFormat.DXT1, width, height);
 
     private const int SUB_TILE_COUNT_IN_AXIS = 2;
     private const int SUB_TILE_SIZE_IN_AXIS = 4;

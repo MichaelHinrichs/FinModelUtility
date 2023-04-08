@@ -14,6 +14,7 @@ using SixLabors.ImageSharp.PixelFormats;
 
 using Color = System.Drawing.Color;
 using IImage = SixLabors.ImageSharp.IImage;
+using PixelFormat = System.Drawing.Imaging.PixelFormat;
 using Rectangle = System.Drawing.Rectangle;
 
 namespace benchmarks {

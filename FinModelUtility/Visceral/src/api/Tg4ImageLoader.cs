@@ -33,15 +33,22 @@ namespace visceral.api {
           "DXT5_NM" => CompressionFormat.Bc3,
       };
 
+      var imageFormat = compressionFormat switch {
+          CompressionFormat.Bc1          => PixelFormat.DXT1,
+          CompressionFormat.Bc1WithAlpha => PixelFormat.DXT1A,
+          CompressionFormat.Bc3          => PixelFormat.DXT5,
+      };
+
       var loadedDxt = new BcDecoder().DecodeRaw(bytes,
                                                 width,
                                                 height,
                                                 compressionFormat);
 
       // TODO: Is there a better way to detect this???
+      // TODO: Is this _NM?
       var isNormal = headerFile.NameWithoutExtension.EndsWith("_n");
 
-      var rgbaImage = new Rgba32Image(width, height);
+      var rgbaImage = new Rgba32Image(imageFormat, width, height);
       using var imageLock = rgbaImage.Lock();
       var ptr = imageLock.pixelScan0;
 

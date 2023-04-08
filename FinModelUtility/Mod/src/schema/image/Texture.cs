@@ -1,10 +1,6 @@
-﻿using System;
-
-using fin.image;
-using fin.util.asserts;
+﻿using fin.image;
 
 using mod.image;
-using mod.schema.image;
 using schema.binary;
 using schema.binary.attributes.ignore;
 

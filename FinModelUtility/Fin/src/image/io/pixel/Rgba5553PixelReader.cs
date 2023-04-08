@@ -9,7 +9,7 @@ using SixLabors.ImageSharp.PixelFormats;
 namespace fin.image.io {
   public class Rgba5553PixelReader : IPixelReader<Rgba32> {
     public IImage<Rgba32> CreateImage(int width, int height)
-      => new Rgba32Image(width, height);
+      => new Rgba32Image(PixelFormat.RGBA5553, width, height);
 
     public unsafe void Decode(IEndianBinaryReader er,
                               Rgba32* scan0,

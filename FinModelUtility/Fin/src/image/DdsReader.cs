@@ -26,7 +26,7 @@ namespace fin.image {
                          case ImageFormat.Rgba32: {
                            var intSrcPtr = (int*) byteSrcPtr;
                            
-                           var image = new Rgba32Image(mmWidth, mmHeight);
+                           var image = new Rgba32Image(PixelFormat.RGBA8888, mmWidth, mmHeight);
                            using var imageLock = image.Lock();
                            var dstPtr = imageLock.pixelScan0;
 
@@ -41,7 +41,7 @@ namespace fin.image {
                            return image as IImage;
                          }
                          case ImageFormat.Rgb24: {
-                           var image = new Rgb24Image(mmWidth, mmHeight);
+                           var image = new Rgb24Image(PixelFormat.RGB888, mmWidth, mmHeight);
                            using var imageLock = image.Lock();
                            var ptr = imageLock.pixelScan0;
                            for (var y = 0; y < mmHeight; ++y) {

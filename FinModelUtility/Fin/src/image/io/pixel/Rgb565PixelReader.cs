@@ -12,7 +12,7 @@ namespace fin.image.io {
   /// </summary>
   public class Rgb565PixelReader : IPixelReader<Rgb24> {
     public IImage<Rgb24> CreateImage(int width, int height)
-      => new Rgb24Image(width, height);
+      => new Rgb24Image(PixelFormat.RGB565, width, height);
 
     public unsafe void Decode(IEndianBinaryReader er,
                               Rgb24* scan0,

@@ -120,9 +120,27 @@ namespace level5.schema {
             imageFormat);
       }
 
+      var pixelFormat = imageFormat switch {
+          _3dsImageTools.TexFormat.RGBA8    => PixelFormat.RGBA8888,
+          _3dsImageTools.TexFormat.RGB8     => PixelFormat.RGB888,
+          _3dsImageTools.TexFormat.RGBA5551 => PixelFormat.RGBA5551,
+          _3dsImageTools.TexFormat.RGB565   => PixelFormat.RGB565,
+          _3dsImageTools.TexFormat.RGBA4444 => PixelFormat.RGBA4444,
+          _3dsImageTools.TexFormat.LA8      => PixelFormat.LA88,
+          _3dsImageTools.TexFormat.HILO8    => PixelFormat.HILO88,
+          _3dsImageTools.TexFormat.L8       => PixelFormat.L8,
+          _3dsImageTools.TexFormat.A8       => PixelFormat.A8,
+          _3dsImageTools.TexFormat.LA4      => PixelFormat.LA44,
+          _3dsImageTools.TexFormat.L4       => PixelFormat.L4,
+          _3dsImageTools.TexFormat.A4       => PixelFormat.A4,
+          _3dsImageTools.TexFormat.ETC1     => PixelFormat.ETC1,
+          _3dsImageTools.TexFormat.ETC1a4   => PixelFormat.ETC1A,
+          _                                 => throw new ArgumentOutOfRangeException()
+      };
+
       var tileSheetWidth = tileSheet.Width;
 
-      var img = new Rgba32Image(Width, Height);
+      var img = new Rgba32Image(pixelFormat, Width, Height);
 
       using var inputBmpData = tileSheet.FastLock();
       var inputPtr = (byte*) inputBmpData.Scan0;
