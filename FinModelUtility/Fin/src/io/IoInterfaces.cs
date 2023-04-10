@@ -51,8 +51,6 @@ namespace fin.io {
   public interface IGenericFile : IReadOnlyGenericFile {
     FileSystemStream OpenWrite();
 
-
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     StreamWriter OpenWriteAsText() => new(this.OpenWrite());
 
@@ -77,7 +75,7 @@ namespace fin.io {
       => this.WriteAllText(JsonUtil.Serialize(instance));
   }
 
-  public interface IIoObject : IEquatable<IIoObject> {
+  public interface ISystemIoObject : IEquatable<ISystemIoObject> {
     string Name => FinIoStatic.GetName(this.FullName);
     string FullName { get; }
 
@@ -126,22 +124,22 @@ namespace fin.io {
         return true;
       }
 
-      if (other is not IIoObject otherSelf) {
+      if (other is not ISystemIoObject otherSelf) {
         return false;
       }
 
       return this.Equals(otherSelf);
     }
 
-    bool IEquatable<IIoObject>.Equals(IIoObject? other)
+    bool IEquatable<ISystemIoObject>.Equals(ISystemIoObject? other)
       => this.FullName == other?.FullName;
   }
 
 
   // Directory
 
-  public interface ISystemDirectory : IIoObject {
-    bool IIoObject.Exists => FinDirectoryStatic.Exists(this.FullName);
+  public interface ISystemDirectory : ISystemIoObject {
+    bool ISystemIoObject.Exists => FinDirectoryStatic.Exists(this.FullName);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     bool Create() => FinDirectoryStatic.Create(this.FullName);
@@ -233,8 +231,8 @@ namespace fin.io {
 
 
   // File 
-  public interface ISystemFile : IIoObject, IGenericFile {
-    bool IIoObject.Exists => FinFileStatic.Exists(this.FullName);
+  public interface ISystemFile : ISystemIoObject, IGenericFile {
+    bool ISystemIoObject.Exists => FinFileStatic.Exists(this.FullName);
 
     string IReadOnlyGenericFile.DisplayPath => this.FullName;
 
