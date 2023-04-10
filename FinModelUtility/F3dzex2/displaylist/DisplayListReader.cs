@@ -1,7 +1,5 @@
 ﻿using f3dzex2.io;
 
-using fin.util.optional;
-
 namespace f3dzex2.displaylist {
   public class DisplayListReader {
     public IDisplayList ReadDisplayList(
@@ -27,12 +25,11 @@ namespace f3dzex2.displaylist {
         if (instruction == null) {
           displayList.Root = nextInstruction;
         } else  {
-          instruction.NextSibling =
-              Optional<IDisplayListInstruction>.Of(nextInstruction);
+          instruction.NextSibling = nextInstruction;
         }
         instruction = nextInstruction;
 
-        if (instruction.Opcode == F3dzexOpcode.ENDDL) {
+        if (instruction.Opcode == F3dzexOpcode.F3DEX_ENDDL) {
           break;
         }
 
@@ -67,8 +64,8 @@ namespace f3dzex2.displaylist {
       public uint Low { get; }
       public uint High { get; }
 
-      public Optional<IDisplayListInstruction> FirstChild { get; set; }
-      public Optional<IDisplayListInstruction> NextSibling { get; set; }
+      public IDisplayListInstruction? FirstChild { get; set; }
+      public IDisplayListInstruction? NextSibling { get; set; }
     }
   }
 }

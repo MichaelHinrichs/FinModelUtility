@@ -1,6 +1,4 @@
-﻿using fin.util.optional;
-
-namespace f3dzex2.displaylist {
+﻿namespace f3dzex2.displaylist {
   public interface IDisplayList {
     public IDisplayListInstruction Root { get; set; }
   }
@@ -13,7 +11,7 @@ namespace f3dzex2.displaylist {
 
     F3dzexOpcode Opcode => (F3dzexOpcode)(this.Low >> 24);
 
-    Optional<IDisplayListInstruction> FirstChild { get; set; }
-    Optional<IDisplayListInstruction> NextSibling { get; set; }
+    IDisplayListInstruction? FirstChild { get; set; }
+    IDisplayListInstruction? NextSibling { get; set; }
   }
 }
