@@ -7,7 +7,7 @@ using uni.util.cmd;
 
 namespace uni.platforms.wii.tools {
   public class Wit {
-    public bool Run(IFile romFile, out IFileHierarchy hierarchy) {
+    public bool Run(ISystemFile romFile, out IFileHierarchy hierarchy) {
       Asserts.Equal(
           ".iso",
           romFile
@@ -33,7 +33,7 @@ namespace uni.platforms.wii.tools {
       return didChange;
     }
 
-    private void DumpRom_(IFile romFile) {
+    private void DumpRom_(ISystemFile romFile) {
       var logger = Logging.Create<Wit>();
       logger.LogInformation($"Dumping ROM {romFile}...");
 

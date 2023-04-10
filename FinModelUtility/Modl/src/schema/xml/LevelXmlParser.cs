@@ -34,7 +34,7 @@ namespace modl.schema.xml {
   }
 
   public class LevelXmlParser {
-    public IScene Parse(IFile mainXmlFile,
+    public IScene Parse(ISystemFile mainXmlFile,
                         GameVersion gameVersion) {
       var scene = new SceneImpl();
       var sceneArea = scene.AddArea();
@@ -65,7 +65,7 @@ namespace modl.schema.xml {
     }
 
     private void AddTerrain_(ISceneArea sceneArea,
-                             IFile outFile,
+                             ISystemFile outFile,
                              GameVersion gameVersion,
                              out IBwTerrain bwTerrain) {
       sceneArea.AddObject()
@@ -75,7 +75,7 @@ namespace modl.schema.xml {
     }
 
     private void AddObjects_(ISceneArea sceneArea,
-                             IFile levelXmlFile,
+                             ISystemFile levelXmlFile,
                              GameVersion gameVersion,
                              IBwTerrain bwTerrain) {
       var levelDirectory =
@@ -111,7 +111,7 @@ namespace modl.schema.xml {
           async (modelFile, _) => {
             var modelId = modelFile.NameWithoutExtension;
 
-            IList<IFile>? animFiles = null;
+            IList<ISystemFile>? animFiles = null;
             if (gameVersion == GameVersion.BW1) {
               if (modelId.Length == 4 && modelId.EndsWith("VET")) {
                 var firstTwoCharactersInModelId = modelId.Substring(0, 2);
@@ -186,7 +186,7 @@ namespace modl.schema.xml {
     }
 
     private IDictionary<string, LevelObject> ReadObjectMap_(
-        IFile levelXmlFile,
+        ISystemFile levelXmlFile,
         GameVersion gameVersion) {
       Stream levelXmlStream;
       if (gameVersion == GameVersion.BW2) {

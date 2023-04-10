@@ -25,8 +25,8 @@ namespace uni.games {
     private static readonly ILogger logger_;
 
     public static bool CheckIfFilesAlreadyExist(
-        IEnumerable<IFile> outputFiles,
-        out IReadOnlyList<IFile> existingOutputFiles) {
+        IEnumerable<ISystemFile> outputFiles,
+        out IReadOnlyList<ISystemFile> existingOutputFiles) {
       existingOutputFiles =
           outputFiles.Where(file => file.Exists).ToArray();
       return existingOutputFiles.Count > 0;
@@ -75,7 +75,7 @@ namespace uni.games {
     }
 
     public static ExtractorPromptChoice PromptIfFilesAlreadyExist(
-        IReadOnlyList<IFile> outputFiles) {
+        IReadOnlyList<ISystemFile> outputFiles) {
       if (CheckIfFilesAlreadyExist(outputFiles, out var existingOutputFiles)) {
         if (outputFiles.Count == 1) {
           var result =
@@ -259,7 +259,7 @@ namespace uni.games {
 
     public static void Extract<T>(T modelFileBundle,
                                   Func<IModel> loaderHandler,
-                                  IDirectory outputDirectory,
+                                  ISystemDirectory outputDirectory,
                                   IReadOnlyList<string> extensions,
                                   bool overwriteExistingFile,
                                   string? overrideName = null)
@@ -276,7 +276,7 @@ namespace uni.games {
     public static void Extract<T>(
         T modelFileBundle,
         Func<IModel> loaderHandler,
-        IDirectory outputDirectory,
+        ISystemDirectory outputDirectory,
         IReadOnlyList<ExportFormatDescription> formats,
         bool overwriteExistingFile,
         string? overrideName = null)

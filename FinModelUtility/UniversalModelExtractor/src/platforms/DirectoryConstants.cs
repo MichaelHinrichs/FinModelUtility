@@ -3,10 +3,10 @@ using fin.util.asserts;
 
 namespace uni.platforms {
   public static class DirectoryConstants {
-    public static IDirectory BASE_DIRECTORY { get; } =
+    public static ISystemDirectory BASE_DIRECTORY { get; } =
       DirectoryConstants.GetBaseDirectory_();
 
-    private static IDirectory GetBaseDirectory_() {
+    private static ISystemDirectory GetBaseDirectory_() {
       var cwd = Files.GetCwd();
       if (cwd.Name == "FinModelUtility") {
         return cwd;
@@ -37,24 +37,24 @@ namespace uni.platforms {
               .Single();
     }
 
-    public static IDirectory CLI_DIRECTORY =
+    public static ISystemDirectory CLI_DIRECTORY =
         DirectoryConstants.BASE_DIRECTORY.GetSubdir("cli");
 
 
-    public static IDirectory GAME_CONFIG_DIRECTORY { get; } =
+    public static ISystemDirectory GAME_CONFIG_DIRECTORY { get; } =
       CLI_DIRECTORY.GetSubdir("config");
 
-    public static IFile CONFIG_FILE { get; } =
+    public static ISystemFile CONFIG_FILE { get; } =
       DirectoryConstants.CLI_DIRECTORY.GetExistingFile("config.json");
 
 
-    public static IDirectory ROMS_DIRECTORY =
+    public static ISystemDirectory ROMS_DIRECTORY =
         DirectoryConstants.CLI_DIRECTORY.GetSubdir("roms");
 
-    public static IDirectory TOOLS_DIRECTORY =
+    public static ISystemDirectory TOOLS_DIRECTORY =
         DirectoryConstants.CLI_DIRECTORY.GetSubdir("tools");
 
-    public static IDirectory OUT_DIRECTORY =
+    public static ISystemDirectory OUT_DIRECTORY =
         DirectoryConstants.CLI_DIRECTORY.GetSubdir("out");
   }
 }

@@ -11,7 +11,7 @@ namespace uni.platforms.gcn.tools {
   ///   Shamelessly ported from version 1.0 (20050213) of gcmdump by thakis.
   /// </summary>
   public partial class GcmDump {
-    public bool Run(IFile romFile, out IFileHierarchy hierarchy)
+    public bool Run(ISystemFile romFile, out IFileHierarchy hierarchy)
       => Run(romFile.OpenRead(),
              romFile.FullNameWithoutExtension,
              out hierarchy);
@@ -52,11 +52,11 @@ namespace uni.platforms.gcn.tools {
       var rootDirectory = new FinDirectory(directoryPath);
       rootDirectory.Create();
 
-      var directories = new IDirectory[fileEntries.Count];
+      var directories = new ISystemDirectory[fileEntries.Count];
       directories[0] = rootDirectory;
 
       var directoryStack =
-          new FinStack<(IDirectory directory, uint lastChildIndex)>(
+          new FinStack<(ISystemDirectory directory, uint lastChildIndex)>(
               (rootDirectory, (uint) fileEntries.Count));
 
       var fileTableOffset = 12 * fileEntries.Count;

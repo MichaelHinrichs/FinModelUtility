@@ -59,7 +59,7 @@ namespace j3d.exporter {
 
     public ColorType ColorType { get; }
 
-    public void SaveInDirectory(IDirectory directory) {
+    public void SaveInDirectory(ISystemDirectory directory) {
       var stream = new MemoryStream();
       this.Image.ExportToStream(stream, LocalImageFormat.PNG);
 

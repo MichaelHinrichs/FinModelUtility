@@ -9,7 +9,7 @@ using fin.util.asserts;
 namespace uni.util.cmd {
   public class ProcessUtil {
     public static Process ExecuteBlocking(
-        IFile exeFile,
+        ISystemFile exeFile,
         params string[] args) {
       var processSetup = new ProcessSetup(exeFile, args) {
           Method = ProcessExecutionMethod.BLOCK,
@@ -18,7 +18,7 @@ namespace uni.util.cmd {
     }
 
     public static Process ExecuteBlockingSilently(
-        IFile exeFile,
+        ISystemFile exeFile,
         params string[] args) {
       var processSetup = new ProcessSetup(exeFile, args) {
           Method = ProcessExecutionMethod.BLOCK,
@@ -35,7 +35,7 @@ namespace uni.util.cmd {
     }
 
     public class ProcessSetup {
-      public IFile ExeFile { get; set; }
+      public ISystemFile ExeFile { get; set; }
       public string[] Args { get; set; }
 
       public ProcessExecutionMethod Method { get; set; } =
@@ -43,7 +43,7 @@ namespace uni.util.cmd {
 
       public bool WithLogging { get; set; } = true;
 
-      public ProcessSetup(IFile exeFile, params string[] args) {
+      public ProcessSetup(ISystemFile exeFile, params string[] args) {
         this.ExeFile = exeFile;
         this.Args = args;
       }

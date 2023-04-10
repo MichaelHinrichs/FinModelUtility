@@ -25,14 +25,14 @@ namespace uni.platforms.desktop {
                          "InstallPath",
                          null)) as string;
 
-    public static IDirectory? InstallDirectory { get; } =
+    public static ISystemDirectory? InstallDirectory { get; } =
       SteamUtils.InstallPath != null
           ? new FinDirectory(SteamUtils.InstallPath)
           : null;
 
-    public static IDirectory[] CommonDirectories { get; } =
+    public static ISystemDirectory[] CommonDirectories { get; } =
       SteamUtils.InstallDirectory == null
-          ? Array.Empty<IDirectory>()
+          ? Array.Empty<ISystemDirectory>()
           : VdfConvert
             .Deserialize(
                 SteamUtils.InstallDirectory
@@ -51,14 +51,14 @@ namespace uni.platforms.desktop {
             .Select(steamApps => steamApps.GetSubdir("common"))
             .ToArray();
 
-    public static IDirectory[] GameDirectories { get; }
+    public static ISystemDirectory[] GameDirectories { get; }
       = CommonDirectories
         .SelectMany(common => common.GetExistingSubdirs())
         .ToArray();
 
     public static bool TryGetGameDirectory(
         string name,
-        out IDirectory directory,
+        out ISystemDirectory directory,
         bool assert = false) {
       if (GameDirectories.TryGetFirst(game => game.Name == name,
                                       out directory)) {
@@ -69,7 +69,7 @@ namespace uni.platforms.desktop {
       return false;
     }
 
-    public static IDirectory? GetGameDirectory(
+    public static ISystemDirectory? GetGameDirectory(
         string name,
         bool assert = false)
       => TryGetGameDirectory(name, out var directory, assert)

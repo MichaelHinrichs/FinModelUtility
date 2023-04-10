@@ -68,7 +68,7 @@ namespace HaloWarsTools {
 
     private IList<IMaterial> GetMaterials(IMaterialManager materialManager,
                                           byte[] bytes) {
-      var textureFiles = new List<IFile>();
+      var textureFiles = new List<ISystemFile>();
       HWBinaryResourceChunk materialChunk =
           GetFirstChunkOfType(HWBinaryResourceChunkType.UGX_MaterialChunk);
 

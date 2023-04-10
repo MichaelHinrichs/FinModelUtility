@@ -36,13 +36,13 @@ namespace visceral.api {
   public class StrExtractor {
     private readonly ILogger logger_ = Logging.Create<StrExtractor>();
 
-    public void Extract(IFileHierarchyFile strFile, IDirectory outputDir) {
+    public void Extract(IFileHierarchyFile strFile, ISystemDirectory outputDir) {
       var task = ExtractAsync(strFile, outputDir);
       task.Wait();
     }
 
     public async Task ExtractAsync(IFileHierarchyFile strFile,
-                                   IDirectory outputDir) {
+                                   ISystemDirectory outputDir) {
       this.logger_.LogInformation($"Extracting {strFile.LocalPath}...");
 
       ContentBlock[] contentBlocks;
@@ -71,7 +71,7 @@ namespace visceral.api {
                           var (fileInfo, initialIndex) = tuple;
 
                           var i = initialIndex + 1;
-                          IFile outputFile =
+                          ISystemFile outputFile =
                               new FinFile(
                                   Path.Join(outputDir.FullName, fileInfo.FileName));
                           if (outputFile.Exists) {

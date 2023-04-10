@@ -43,7 +43,7 @@ namespace fin.io {
       return this;
     }
 
-    public void WriteToFile(IFile outputFile)
+    public void WriteToFile(ISystemFile outputFile)
       => File.WriteAllText(outputFile.FullName, this.impl_.ToString());
   }
 }

@@ -41,8 +41,8 @@ namespace modl.api {
                         modelFileBundle.GameVersion);
 
     public async Task<IModel> LoadModelAsync(
-        IFile modlFile,
-        IList<IFile>? animFiles,
+        ISystemFile modlFile,
+        IList<ISystemFile>? animFiles,
         GameVersion gameVersion) {
       var flipSign = ModlFlags.FLIP_HORIZONTALLY ? -1 : 1;
 
@@ -103,7 +103,7 @@ namespace modl.api {
           }
         }
 
-        foreach (var animFile in animFiles ?? Array.Empty<IFile>()) {
+        foreach (var animFile in animFiles ?? Array.Empty<ISystemFile>()) {
           var anim = gameVersion switch {
               GameVersion.BW1 => (IAnim) animFile.ReadNew<Bw1Anim>(
                   Endianness.BigEndian),

@@ -2,7 +2,7 @@
 
 namespace fin.io {
   [IncludeDefaultInterfaceMethods]
-  public readonly partial struct FinDirectory : IDirectory {
+  public readonly partial struct FinDirectory : ISystemDirectory {
     public string FullName { get; }
 
     public FinDirectory(string fullName) {

@@ -9,7 +9,7 @@ namespace uni.platforms.threeDs {
     private readonly GarExtractor garExtractor_ = new();
 
     public IFileHierarchy ExtractFromRom(
-        IFile romFile,
+        ISystemFile romFile,
         ISet<string>? junkTerms = null) {
       new HackingToolkit9ds().Run(romFile, out var fileHierarchy);
 

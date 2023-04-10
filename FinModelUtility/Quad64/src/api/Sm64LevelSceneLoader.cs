@@ -17,7 +17,7 @@ namespace sm64.api {
       ISceneFileBundle {
     public Sm64LevelSceneFileBundle(
         IFileHierarchyDirectory directory,
-        IFile sm64Rom,
+        ISystemFile sm64Rom,
         LevelId levelId) : base(directory, sm64Rom, levelId) { }
   }
 

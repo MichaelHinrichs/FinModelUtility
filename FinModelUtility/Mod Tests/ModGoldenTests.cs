@@ -18,7 +18,7 @@ namespace mod {
           this.GetModModelFileBundleInDirectory_);
     }
 
-    private IDirectory GetGoldensDirectory_()
+    private ISystemDirectory GetGoldensDirectory_()
       => ModelGoldenAssert.GetRootGoldensDirectory(
           Assembly.GetExecutingAssembly());
 

@@ -32,7 +32,7 @@ namespace glo {
           new GloModelLoader(),
           GetGloModelFileBundleInDirectory_);
 
-    private IDirectory GetGloGoldensDirectory_()
+    private ISystemDirectory GetGloGoldensDirectory_()
       => ModelGoldenAssert.GetRootGoldensDirectory(
           Assembly.GetExecutingAssembly());
 

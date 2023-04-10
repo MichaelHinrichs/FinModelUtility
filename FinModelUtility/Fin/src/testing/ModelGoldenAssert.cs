@@ -17,7 +17,7 @@ namespace fin.testing {
   public static class ModelGoldenAssert {
     private const string TMP_NAME = "tmp";
 
-    public static IDirectory
+    public static ISystemDirectory
         GetRootGoldensDirectory(Assembly executingAssembly) {
       var assemblyName =
           StringUtil.UpTo(executingAssembly.ManifestModule.Name, ".dll");
@@ -39,14 +39,14 @@ namespace fin.testing {
     }
 
     public static IEnumerable<IFileHierarchyDirectory> GetGoldenDirectories(
-        IDirectory rootGoldenDirectory) {
+        ISystemDirectory rootGoldenDirectory) {
       var hierarchy = new FileHierarchy(rootGoldenDirectory);
       return hierarchy.Root.Subdirs.Where(
           subdir => subdir.Name != TMP_NAME);
     }
 
     public static IEnumerable<IFileHierarchyDirectory>
-        GetGoldenInputDirectories(IDirectory rootGoldenDirectory)
+        GetGoldenInputDirectories(ISystemDirectory rootGoldenDirectory)
       => GetGoldenDirectories(rootGoldenDirectory)
           .Select(subdir => subdir.GetExistingSubdir("input"));
 
@@ -63,7 +63,7 @@ namespace fin.testing {
     ///       ... 
     /// </summary>
     public static void AssertExportGoldens<TModelBundle>(
-        IDirectory rootGoldenDirectory,
+        ISystemDirectory rootGoldenDirectory,
         IModelLoader<TModelBundle> modelLoader,
         Func<IFileHierarchyDirectory, TModelBundle>
             gatherModelBundleFromInputDirectory)
@@ -108,8 +108,8 @@ namespace fin.testing {
     }
 
     private static void AssertFilesInDirectoriesAreIdentical_(
-        IDirectory lhs,
-        IDirectory rhs) {
+        ISystemDirectory lhs,
+        ISystemDirectory rhs) {
       var lhsFiles = lhs.GetExistingFiles()
                         .ToDictionary(file => (string) file.Name);
       var rhsFiles = rhs.GetExistingFiles()

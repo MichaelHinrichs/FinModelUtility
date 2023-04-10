@@ -12,7 +12,7 @@ namespace uni.platforms.threeDs.tools {
   public class HackingToolkit9ds {
     private static readonly object HACKING_TOOLKIT_9DS_LOCK_ = new();
 
-    public bool Run(IFile romFile, out IFileHierarchy hierarchy) {
+    public bool Run(ISystemFile romFile, out IFileHierarchy hierarchy) {
       Asserts.Equal(
           ".cia",
           romFile.Extension,
@@ -83,7 +83,7 @@ namespace uni.platforms.threeDs.tools {
       return didChange;
     }
 
-    private void DumpRom_(IFile romFile) {
+    private void DumpRom_(ISystemFile romFile) {
       var logger = Logging.Create<HackingToolkit9ds>();
       logger.LogInformation($"Dumping ROM {romFile}...");
 

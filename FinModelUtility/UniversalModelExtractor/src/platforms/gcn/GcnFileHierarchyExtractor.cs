@@ -14,7 +14,7 @@ namespace uni.platforms.gcn {
 
     public IFileHierarchy ExtractFromRom(
         Options options,
-        IFile romFile) {
+        ISystemFile romFile) {
       var logger = Logging.Create<GcnFileHierarchyExtractor>();
 
       this.gcmDump_.Run(romFile, out var fileHierarchy);

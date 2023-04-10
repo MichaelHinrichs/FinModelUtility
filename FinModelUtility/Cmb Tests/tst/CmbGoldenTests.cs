@@ -16,7 +16,7 @@ namespace cmb {
           this.GetModelFileBundleInDirectory_);
     }
 
-    private IDirectory GetCmbGoldensDirectory_()
+    private ISystemDirectory GetCmbGoldensDirectory_()
       => ModelGoldenAssert.GetRootGoldensDirectory(
                               Assembly.GetExecutingAssembly())
                           .GetSubdir("cmb");

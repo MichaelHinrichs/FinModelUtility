@@ -7,12 +7,12 @@ using fin.util.linq;
 
 namespace fin.io {
   public static class Files {
-    public static IDirectory GetCwd()
+    public static ISystemDirectory GetCwd()
       => new FinDirectory(FinFileSystem.Directory.GetCurrentDirectory());
 
     private static readonly object RUN_IN_DIRECTORY_LOCK_ = new();
 
-    public static void RunInDirectory(IDirectory directory, Action handler) {
+    public static void RunInDirectory(ISystemDirectory directory, Action handler) {
       lock (RUN_IN_DIRECTORY_LOCK_) {
         var cwd = FinFileSystem.Directory.GetCurrentDirectory();
 
@@ -33,7 +33,7 @@ namespace fin.io {
 
 
     // Getting Files
-    public static IFile[] GetFilesWithExtension(
+    public static ISystemFile[] GetFilesWithExtension(
         string extension,
         bool includeSubdirs = false)
       => Files.GetFilesWithExtension(Files.GetCwd(), extension, includeSubdirs);
@@ -43,15 +43,15 @@ namespace fin.io {
       return extension;
     }
 
-    public static IFile[] GetFilesWithExtension(
-        IDirectory directory,
+    public static ISystemFile[] GetFilesWithExtension(
+        ISystemDirectory directory,
         string extension,
         bool includeSubdirs = false)
       => directory.GetFilesWithExtension(extension, includeSubdirs)
                   .ToArray();
 
-    public static IFile GetFileWithExtension(
-        IDirectory directory,
+    public static ISystemFile GetFileWithExtension(
+        ISystemDirectory directory,
         string extension,
         bool includeSubdirs = false)
       => new FinFile(
@@ -59,7 +59,7 @@ namespace fin.io {
 
 
     public static string[] GetPathsWithExtension(
-        IDirectory directory,
+        ISystemDirectory directory,
         string extension,
         bool includeSubdirs = false)
       => Files.GetFilesWithExtension(directory, extension, includeSubdirs)
@@ -67,7 +67,7 @@ namespace fin.io {
               .ToArray();
 
     public static string GetPathWithExtension(
-        IDirectory directory,
+        ISystemDirectory directory,
         string extension,
         bool includeSubdirs = false) {
       var paths =

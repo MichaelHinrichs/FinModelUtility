@@ -14,12 +14,12 @@ namespace uni.games {
       return Path.GetFileName(baseDirectoryPath);
     }
 
-    public static IDirectory GetWorkingDirectoryForFile(
+    public static ISystemDirectory GetWorkingDirectoryForFile(
         IFileHierarchyFile fileHierarchyFile,
         string? romName = null)
       => GetWorkingDirectoryForDirectory(fileHierarchyFile.Parent!, romName);
 
-    public static IDirectory GetWorkingDirectoryForDirectory(
+    public static ISystemDirectory GetWorkingDirectoryForDirectory(
         IFileHierarchyDirectory fileHierarchyDirectory,
         string? romName = null) {
       romName ??= GameFileHierarchyUtil.GetRomName(fileHierarchyDirectory);
@@ -31,11 +31,11 @@ namespace uni.games {
     }
 
 
-    public static IDirectory GetOutputDirectoryForFile(
+    public static ISystemDirectory GetOutputDirectoryForFile(
         IFileHierarchyFile fileHierarchyFile)
       => GetOutputDirectoryForDirectory(fileHierarchyFile.Parent!);
 
-    public static IDirectory GetOutputDirectoryForDirectory(
+    public static ISystemDirectory GetOutputDirectoryForDirectory(
         IFileHierarchyDirectory fileHierarchyDirectory) {
       var romName = GameFileHierarchyUtil.GetRomName(fileHierarchyDirectory);
 

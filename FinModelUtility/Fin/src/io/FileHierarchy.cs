@@ -30,7 +30,7 @@ namespace fin.io {
   }
 
   public interface IFileHierarchyDirectory : IFileHierarchyInstance {
-    IDirectory Impl { get; }
+    ISystemDirectory Impl { get; }
 
     string IFileHierarchyInstance.FullName => this.Impl.FullName;
     string IFileHierarchyInstance.Name => this.Impl.Name;
@@ -68,7 +68,7 @@ namespace fin.io {
 
   public interface IFileHierarchyFile
       : IFileHierarchyInstance, IGenericFile {
-    IFile Impl { get; }
+    ISystemFile Impl { get; }
 
     string Extension => this.Impl.Extension;
     string IFileHierarchyInstance.FullName => this.Impl.FullName;
@@ -82,7 +82,7 @@ namespace fin.io {
 
 
   public partial class FileHierarchy : IFileHierarchy {
-    public FileHierarchy(IDirectory directory) {
+    public FileHierarchy(ISystemDirectory directory) {
       var populatedSubdirs =
           SharpFileLister.FindNextFilePInvokeRecursiveParalleled(
               directory.FullName);
@@ -94,13 +94,13 @@ namespace fin.io {
 
     [IncludeDefaultInterfaceMethods]
     private partial class FileHierarchyDirectory : IFileHierarchyDirectory {
-      private readonly IDirectory baseDirectory_;
+      private readonly ISystemDirectory baseDirectory_;
 
       private List<IFileHierarchyDirectory> subdirs_ = new();
       private List<IFileHierarchyFile> files_ = new();
 
       public FileHierarchyDirectory(
-          IDirectory directory,
+          ISystemDirectory directory,
           ISubdirPaths paths) {
         this.Root = this;
         this.baseDirectory_ = this.Impl = directory;
@@ -133,8 +133,8 @@ namespace fin.io {
       private FileHierarchyDirectory(
           IFileHierarchyDirectory root,
           IFileHierarchyDirectory parent,
-          IDirectory directory,
-          IDirectory baseDirectory,
+          ISystemDirectory directory,
+          ISystemDirectory baseDirectory,
           ISubdirPaths paths) {
         this.baseDirectory_ = baseDirectory;
 
@@ -171,8 +171,8 @@ namespace fin.io {
       private FileHierarchyDirectory(
           IFileHierarchyDirectory root,
           IFileHierarchyDirectory parent,
-          IDirectory directory,
-          IDirectory baseDirectory) {
+          ISystemDirectory directory,
+          ISystemDirectory baseDirectory) {
         this.baseDirectory_ = baseDirectory;
 
         this.Root = root;
@@ -192,7 +192,7 @@ namespace fin.io {
       public IFileHierarchyDirectory Root { get; }
       public IFileHierarchyDirectory? Parent { get; }
 
-      public IDirectory Impl { get; }
+      public ISystemDirectory Impl { get; }
 
 
       public bool Exists => this.Impl.Exists;
@@ -352,8 +352,8 @@ namespace fin.io {
     private partial class FileHierarchyFile : IFileHierarchyFile {
       public FileHierarchyFile(IFileHierarchyDirectory root,
                                IFileHierarchyDirectory parent,
-                               IFile? file,
-                               IDirectory baseDirectory) {
+                               ISystemFile? file,
+                               ISystemDirectory baseDirectory) {
         this.Root = root;
         this.Parent = parent;
         this.Impl = file;
@@ -364,7 +364,7 @@ namespace fin.io {
       public IFileHierarchyDirectory Root { get; }
       public IFileHierarchyDirectory Parent { get; }
 
-      public IFile Impl { get; }
+      public ISystemFile Impl { get; }
 
       public bool Exists => this.Impl.Exists;
 

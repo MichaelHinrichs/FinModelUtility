@@ -30,7 +30,7 @@ namespace modl.api {
                    modelFileBundle.GameVersion,
                    out _);
 
-    public IModel LoadModel(IFile outFile,
+    public IModel LoadModel(ISystemFile outFile,
                             GameVersion gameVersion,
                             out IBwTerrain bwTerrain) {
       var isBw2 = gameVersion == GameVersion.BW2;

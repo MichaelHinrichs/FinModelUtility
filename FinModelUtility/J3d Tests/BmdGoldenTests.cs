@@ -16,7 +16,7 @@ namespace j3d {
           this.GetModelFileBundleInDirectory_);
     }
 
-    private IDirectory GetGoldensDirectory_()
+    private ISystemDirectory GetGoldensDirectory_()
       => ModelGoldenAssert.GetRootGoldensDirectory(
           Assembly.GetExecutingAssembly());
 

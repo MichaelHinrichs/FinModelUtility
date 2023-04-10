@@ -311,7 +311,7 @@ namespace fin.model {
 
     IImage Image { get; }
     Bitmap ImageData { get; }
-    IFile SaveInDirectory(IDirectory directory);
+    ISystemFile SaveInDirectory(ISystemDirectory directory);
     ImageTransparencyType TransparencyType { get; }
 
     WrapMode WrapModeU { get; set; }
