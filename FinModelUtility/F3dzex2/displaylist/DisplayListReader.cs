@@ -1,4 +1,7 @@
-﻿using f3dzex2.io;
+﻿using System.Collections.Generic;
+
+using f3dzex2.displaylist.opcodes;
+using f3dzex2.io;
 
 namespace f3dzex2.displaylist {
   public class DisplayListReader {
@@ -11,7 +14,7 @@ namespace f3dzex2.displaylist {
       bankReader.Position = offset;
 
       var displayList = new DisplayList();
-      IDisplayListInstruction? instruction = null;
+      /*IDisplayListInstruction? instruction = null;
 
       while (true) {
         var low = bankReader.ReadUInt32();
@@ -29,11 +32,11 @@ namespace f3dzex2.displaylist {
         }
         instruction = nextInstruction;
 
-        if (instruction.Opcode == F3dzexOpcode.F3DEX_ENDDL) {
+        if (instruction.Opcode == F3dzex2Opcode.G_ENDDL) {
           break;
         }
 
-        if (instruction.Opcode == F3dzexOpcode.DL) {
+        if (instruction.Opcode == F3dzex2Opcode.G_DL) {
           address = high;
 
           // TODO: Support branching offsets.
@@ -41,31 +44,13 @@ namespace f3dzex2.displaylist {
           bankReader = bankManager[bankIndex];
           bankReader.Position = offset;
         }
-      }
+      }*/
 
       return displayList;
     }
 
     private class DisplayList : IDisplayList {
-      public IDisplayListInstruction Root { get; set; }
-    }
-
-    private class DisplayListInstruction : IDisplayListInstruction {
-      public DisplayListInstruction(
-          long address,
-          uint low,
-          uint high) {
-        this.Address = address;
-        this.Low = low;
-        this.High = high;
-      }
-
-      public long Address { get; }
-      public uint Low { get; }
-      public uint High { get; }
-
-      public IDisplayListInstruction? FirstChild { get; set; }
-      public IDisplayListInstruction? NextSibling { get; set; }
+      public IReadOnlyList<IOpcodeCommand> OpcodeCommands { get; set; }
     }
   }
 }

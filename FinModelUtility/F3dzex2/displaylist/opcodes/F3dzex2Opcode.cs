@@ -1,8 +1,8 @@
-﻿namespace f3dzex2.displaylist {
+﻿namespace f3dzex2.displaylist.opcodes {
   /**
    * https://wiki.cloudmodding.com/oot/F3DZEX2
    */
-  public enum F3dexOpcode : byte {
+  public enum F3dzex2Opcode : byte {
     G_NOOP = 0x00,
     G_VTX = 0x01,
     G_MODIFYVTX = 0x02,
@@ -12,7 +12,7 @@
     G_TRI2 = 0x06,
     G_QUAD = 0x07,
 
-    G_SPECIAL_3 = 0xD3
+    G_SPECIAL_3 = 0xD3,
     G_SPECIAL_2 = 0xD4,
     G_SPECIAL_1 = 0xD5,
     G_DMA_IO = 0xD6,

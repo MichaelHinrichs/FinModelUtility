@@ -1,4 +1,4 @@
-﻿namespace f3dzex2.displaylist {
+﻿namespace f3dzex2.displaylist.opcodes {
   /**
    * https://hack64.net/wiki/doku.php?id=super_mario_64:fast3d_display_list_commands
    */
