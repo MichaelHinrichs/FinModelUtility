@@ -1,52 +1,63 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 using f3dzex2.displaylist.opcodes;
 using f3dzex2.io;
 
+
 namespace f3dzex2.displaylist {
-  public class DisplayListReader {
-    public IDisplayList ReadDisplayList(
-        IBankManager bankManager,
+  public interface IDisplayListReader {
+    IDisplayList ReadDisplayList(
+        IN64Memory n64Memory,
+        IOpcodeParser opcodeParser,
+        uint address);
+
+    IReadOnlyList<IDisplayList> ReadPossibleDisplayLists(
+        IN64Memory n64Memory,
+        IOpcodeParser opcodeParser,
+        uint address);
+
+    IDisplayList ReadDisplayList(IN64Memory n64Memory,
+                                 IOpcodeParser opcodeParser,
+                                 IEndianBinaryReader er);
+  }
+
+  public class DisplayListReader : IDisplayListReader {
+    public IDisplayList ReadDisplayList(IN64Memory n64Memory,
+                                        IOpcodeParser opcodeParser,
+                                        uint address)
+      => this.ReadPossibleDisplayLists(n64Memory, opcodeParser, address)
+             .Single();
+
+    public IReadOnlyList<IDisplayList> ReadPossibleDisplayLists(
+        IN64Memory n64Memory,
+        IOpcodeParser opcodeParser,
         uint address) {
-      // TODO: Support branching offsets.
-      IoUtil.SplitAddress(address, out var bankIndex, out var offset);
-      var bankReader = bankManager[bankIndex];
-      bankReader.Position = offset;
+      var options = new LinkedList<IDisplayList>();
+      foreach (var impl in n64Memory.OpenPossibilitiesAtAddress(address)) {
+        using var er = impl;
+        options.AddLast(this.ReadDisplayList(n64Memory, opcodeParser, er));
+      }
+      return options.ToArray();
+    }
 
-      var displayList = new DisplayList();
-      /*IDisplayListInstruction? instruction = null;
-
+    public IDisplayList ReadDisplayList(IN64Memory n64Memory,
+                                        IOpcodeParser opcodeParser,
+                                        IEndianBinaryReader er) {
+      var opcodeCommands = new LinkedList<IOpcodeCommand>();
       while (true) {
-        var low = bankReader.ReadUInt32();
-        var high = bankReader.ReadUInt32();
+        var opcodeCommand = opcodeParser.Parse(n64Memory, this, er);
+        opcodeCommands.AddLast(opcodeCommand);
 
-        var nextInstruction =
-            new DisplayListInstruction(bankReader.Position,
-                                       low,
-                                       high);
-
-        if (instruction == null) {
-          displayList.Root = nextInstruction;
-        } else  {
-          instruction.NextSibling = nextInstruction;
-        }
-        instruction = nextInstruction;
-
-        if (instruction.Opcode == F3dzex2Opcode.G_ENDDL) {
+        if (opcodeCommand is DlOpcodeCommand {PushCurrentDlToStack: false}) {
           break;
         }
-
-        if (instruction.Opcode == F3dzex2Opcode.G_DL) {
-          address = high;
-
-          // TODO: Support branching offsets.
-          IoUtil.SplitAddress(address, out bankIndex, out offset);
-          bankReader = bankManager[bankIndex];
-          bankReader.Position = offset;
+        if (opcodeCommand is EndDlOpcodeCommand) {
+          break;
         }
-      }*/
-
-      return displayList;
+      }
+      return new DisplayList {OpcodeCommands = opcodeCommands.ToArray()};
     }
 
     private class DisplayList : IDisplayList {

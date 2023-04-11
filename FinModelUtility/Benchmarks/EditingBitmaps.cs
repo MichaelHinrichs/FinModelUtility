@@ -14,21 +14,22 @@ using SixLabors.ImageSharp.PixelFormats;
 
 using Color = System.Drawing.Color;
 using IImage = SixLabors.ImageSharp.IImage;
-using PixelFormat = System.Drawing.Imaging.PixelFormat;
+using PixelFormat = fin.image.PixelFormat;
 using Rectangle = System.Drawing.Rectangle;
+
 
 namespace benchmarks {
   public unsafe class EditingBitmaps {
     private const int SIZE = 4000;
 
     private Bitmap bitmap_ =
-        new(SIZE, SIZE, PixelFormat.Format32bppArgb);
+        new(SIZE, SIZE, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
     private BitmapData bmpData_;
 
     public static readonly Configuration ImageSharpConfig;
 
-    private Rgba32Image finImage_ = new(SIZE, SIZE);
+    private Rgba32Image finImage_ = new(PixelFormat.RGBA8888, SIZE, SIZE);
 
     static EditingBitmaps() {
       ImageSharpConfig = Configuration.Default.Clone();
@@ -45,7 +46,7 @@ namespace benchmarks {
       this.bmpData_ = this.bitmap_.LockBits(
           new Rectangle(0, 0, SIZE, SIZE),
           ImageLockMode.ReadWrite,
-          PixelFormat.Format32bppArgb);
+          System.Drawing.Imaging.PixelFormat.Format32bppArgb);
     }
 
     public void UnlockBitmap() {

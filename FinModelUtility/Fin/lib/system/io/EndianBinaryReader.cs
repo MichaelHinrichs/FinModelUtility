@@ -152,6 +152,18 @@ namespace System.IO {
       return value;
     }
 
+    public T[] ReadNewArrayAtOffset<T>(long position, int length)
+        where T : IBinaryDeserializable, new() {
+      var startingOffset = this.Position;
+      this.Position = position;
+
+      var values = this.ReadNewArray<T>(length);
+
+      this.Position = startingOffset;
+
+      return values;
+    }
+
 
 
     public void Subread(long position,
@@ -509,11 +521,17 @@ namespace System.IO {
 
     public void ReadNewArray<T>(out T[] array, int length)
         where T : IBinaryDeserializable, new() {
-      array = new T[length];
+      array = ReadNewArray<T>(length);
+    }
+
+    public T[] ReadNewArray<T>(int length)
+        where T : IBinaryDeserializable, new() {
+      var array = new T[length];
       for (var i = 0; i < length; ++i) {
         this.AssertNotEof();
         array[i] = this.ReadNew<T>();
       }
+      return array;
     }
   }
 }

@@ -31,11 +31,30 @@ namespace f3dzex2.displaylist.opcodes {
     public bool ModelView => !Projection;
   }
 
+  public class PopMtxOpcodeCommand : IOpcodeCommand {
+    public uint NumberOfMatrices { get; set; }
+  }
+
+
+  public interface IVtx {
+    short X { get; }
+    short Y { get; }
+    short Z { get; }
+
+    short Flag { get; }
+    short U { get; }
+    short V { get; }
+
+    byte NormalXOrR { get; }
+    byte NormalYOrG { get; }
+    byte NormalZOrB { get; }
+    byte A { get; }
+  }
+
 
   public class VtxOpcodeCommand : IOpcodeCommand {
-    public byte NumVertices { get; set; }
+    public IReadOnlyList<IVtx> Vertices { get; set; }
     public byte IndexToBeginStoringVertices { get; set; }
-    public uint AddressOfVertices { get; set; }
   }
 
 
