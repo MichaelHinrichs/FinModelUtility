@@ -457,28 +457,6 @@ namespace Quad64 {
     //    return newArr;
     //}
 
-    public void printArray(byte[] arr) {
-      Console.WriteLine(BitConverter.ToString(arr.Take(arr.Length).ToArray())
-                                    .Replace("-", " "));
-    }
-
-    public void printArray(byte[] arr, int size) {
-      Console.WriteLine(BitConverter.ToString(arr.Take(size).ToArray())
-                                    .Replace("-", " "));
-    }
-
-    public void printArraySection(byte[] arr, int offset, int size) {
-      Console.WriteLine(BitConverter
-                        .ToString(arr.Skip(offset).Take(size).ToArray())
-                        .Replace("-", " "));
-    }
-
-    public void printROMSection(int start, int end) {
-      Console.WriteLine(BitConverter
-                        .ToString(this.Bytes.Skip(start).Take(end - start).ToArray())
-                        .Replace("-", " "));
-    }
-
     public int getLevelIndexById(ushort Id) {
       int index = 0;
       foreach (KeyValuePair<string, ushort> entry in levelIDs) {

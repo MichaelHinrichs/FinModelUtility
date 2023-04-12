@@ -152,13 +152,6 @@ namespace Quad64.src.Scripts {
       lastMesh.texCoords.Add(uv);
       lastMesh.colors.Add(color);
     }
-    /*
-    private void AddFinalVertex(Vector3 pos, Vector2 uv, Vector4 color)
-    {
-        finalMesh.vertices.Add(pos);
-        finalMesh.texCoords.Add(uv);
-        finalMesh.colors.Add(color);
-    }*/
 
     private int doesVertexAlreadyExist(int index,
                                        Vector3 pos,

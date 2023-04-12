@@ -28,7 +28,6 @@ namespace Quad64 {
     public static bool useSignedHex = false;
 
     // Advanced Options
-    public static string pathToEmulator = "";
     public static bool autoSaveWhenClickEmulator = false;
 
     // Speed multipliers

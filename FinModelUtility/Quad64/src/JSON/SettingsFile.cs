@@ -13,7 +13,6 @@ namespace Quad64.src.JSON {
       s["LastROMFile"] = Globals.pathToAutoLoadROM;
       s["EnableHex"] = Globals.useHexadecimal.ToString();
       s["SignedHex"] = Globals.useSignedHex.ToString();
-      s["EmulatorPath"] = Globals.pathToEmulator;
       s["AutoSaveOnLaunchROM"] = Globals.autoSaveWhenClickEmulator.ToString();
       s["FieldOfView"] = Globals.FOV.ToString();
       s["Theme"] = Theme.lastThemePath;
@@ -49,8 +48,6 @@ namespace Quad64.src.JSON {
           Globals.useHexadecimal = bool.Parse(o["EnableHex"].ToString());
         if (o["SignedHex"] != null)
           Globals.useSignedHex = bool.Parse(o["SignedHex"].ToString());
-        if (o["EmulatorPath"] != null)
-          Globals.pathToEmulator = o["EmulatorPath"].ToString();
         if (o["AutoSaveOnLaunchROM"] != null)
           Globals.autoSaveWhenClickEmulator =
               bool.Parse(o["AutoSaveOnLaunchROM"].ToString());

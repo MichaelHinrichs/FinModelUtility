@@ -5,11 +5,6 @@ using System.Drawing.Imaging;
 
 namespace Quad64 {
   class ContentPipe {
-    public static Texture2D LoadTexture(string filepath) {
-      Bitmap bitmap = new Bitmap(filepath);
-      return LoadTexture(ref bitmap);
-    }
-
     public static Texture2D LoadTexture(ref Bitmap bitmap) {
       int id = GL.GenTexture();
       BitmapData bmpData = bitmap.LockBits(
