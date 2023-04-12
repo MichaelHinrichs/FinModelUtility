@@ -8,6 +8,7 @@ namespace Quad64.src.Scripts {
       public List<Vector3> vertices;
       public List<Vector2> texCoords;
       public List<Vector4> colors;
+      public List<Vector3?> normals;
       public List<uint> indices;
 
       public ModelBuilderMaterial Material { get; set; }
@@ -17,6 +18,7 @@ namespace Quad64.src.Scripts {
       public List<Vector3> vertices;
       public List<Vector2> texCoords;
       public List<Vector4> colors;
+      public List<Vector3?> normals;
       public FinalMesh final;
 
       public ModelBuilderMaterial Material { get; set; }
@@ -50,6 +52,7 @@ namespace Quad64.src.Scripts {
       m.vertices = new List<Vector3>();
       m.texCoords = new List<Vector2>();
       m.colors = new List<Vector4>();
+      m.normals = new List<Vector3?>();
       m.indices = new List<uint>();
       return m;
     }
@@ -59,6 +62,7 @@ namespace Quad64.src.Scripts {
       m.vertices = new List<Vector3>();
       m.texCoords = new List<Vector2>();
       m.colors = new List<Vector4>();
+      m.normals = new List<Vector3?>();
       m.final = newFinalMesh();
       return m;
     }
@@ -119,16 +123,17 @@ namespace Quad64.src.Scripts {
       CurrentMaterial = material;
     }
 
-    public void AddTempVertex(Vector3 pos, Vector2 uv, Vector4 color) {
+    public void AddTempVertex(Vector3 pos, Vector2 uv, Vector4 color, Vector3? normal) {
       if (this.model_.Node != null) {
-        var x = pos.X;
-        var y = pos.Y;
-        var z = pos.Z;
-        GlMatrixUtil.ProjectPosition(this.model_.Node.GetTotalMatrix().Impl,
-                                   ref pos);
-        pos.X = x;
-        pos.Y = y;
-        pos.Z = z;
+        var totalMatrix = this.model_.Node.GetTotalMatrix().Impl;
+
+        GlMatrixUtil.ProjectPosition(totalMatrix, ref pos);
+
+        if (normal != null) {
+          var n = normal.Value;
+          GlMatrixUtil.ProjectNormal(totalMatrix, ref n);
+          normal = n;
+        }
       }
 
       //Console.WriteLine("currentMaterial = " + currentMaterial + ", totalCount = " + textureImages.Count);
@@ -145,12 +150,14 @@ namespace Quad64.src.Scripts {
       lastMesh.vertices.Add(pos);
       lastMesh.texCoords.Add(uv);
       lastMesh.colors.Add(color);
+      lastMesh.normals.Add(normal);
     }
 
     private int doesVertexAlreadyExist(int index,
                                        Vector3 pos,
                                        Vector2 uv,
-                                       Vector4 col) {
+                                       Vector4 col,
+                                       Vector3? normal) {
       TempMesh tmp = TempMeshes[index];
       for (int i = 0; i < tmp.final.vertices.Count; i++) {
         Vector3 v = tmp.final.vertices[i];
@@ -159,7 +166,13 @@ namespace Quad64.src.Scripts {
           if (uv.X == t.X && uv.Y == t.Y) {
             Vector4 c = tmp.final.colors[i];
             if (col.X == c.X && col.Y == c.Y && col.Z == c.Z && col.W == c.W) {
-              return i;
+              Vector3? n = tmp.final.normals[i];
+              if ((n == null && normal == null) ||
+                  (n != null && normal != null && n.Value.X == normal.Value.X &&
+                   n.Value.Y == normal.Value.Y &&
+                   n.Value.Z == normal.Value.Z)) {
+                return i;
+              }
             }
           }
         }
@@ -184,8 +197,10 @@ namespace Quad64.src.Scripts {
 
         for (int i = 0; i < temp.vertices.Count; i++) {
           int vExists =
-              doesVertexAlreadyExist(t, temp.vertices[i], temp.texCoords[i],
-                                     temp.colors[i]);
+              doesVertexAlreadyExist(t, temp.vertices[i],
+                                     temp.texCoords[i],
+                                     temp.colors[i],
+                                     temp.normals[i]);
           if (vExists < 0) {
             Vector2 texCoord = temp.texCoords[i];
             texCoord.X /= (float) bmp.Width * 32.0f;
@@ -193,6 +208,7 @@ namespace Quad64.src.Scripts {
             temp.final.vertices.Add(temp.vertices[i]);
             temp.final.texCoords.Add(texCoord);
             temp.final.colors.Add(temp.colors[i]);
+            temp.final.normals.Add(temp.normals[i]);
             temp.final.indices.Add(indexCount);
             indexCount++;
           } else {
@@ -217,6 +233,10 @@ namespace Quad64.src.Scripts {
 
     public Vector4[] getColors(int i) {
       return TempMeshes[i].final.colors.ToArray();
+    }
+
+    public Vector3?[] getNormals(int i) {
+      return TempMeshes[i].final.normals.ToArray();
     }
 
     public uint[] getIndices(int i) {

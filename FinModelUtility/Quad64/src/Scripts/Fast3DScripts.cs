@@ -316,33 +316,49 @@ namespace Quad64.src.Scripts {
                                  ref TempMaterial temp,
                                  byte[] cmd) {
       var a = vertices[cmd[5] / 0x0A];
-      Vector3 a_pos = new Vector3(a.X, a.Y, a.Z);
+      var a_pos = GetPos_(a!);
       Vector2 a_uv = new Vector2(a.U * temp.texScaleX, a.V * temp.texScaleY);
       Vector4 a_color = new Vector4(a.NormalXOrR / 255.0f, a.NormalYOrG / 255.0f,
-                                    a.NormalZOrB / 255.0f, 1.0f);
+                                    a.NormalZOrB / 255.0f, a.A / 255.0f);
+      var a_normal = GetNormal_(a);
+      
       var b = vertices[cmd[6] / 0x0A];
-      Vector3 b_pos = new Vector3(b.X, b.Y, b.Z);
+      var b_pos = GetPos_(b!);
       Vector2 b_uv = new Vector2(b.U * temp.texScaleX, b.V * temp.texScaleY);
       Vector4 b_color = new Vector4(b.NormalXOrR / 255.0f, b.NormalYOrG / 255.0f,
-                                    b.NormalZOrB / 255.0f, 1.0f);
+                                    b.NormalZOrB / 255.0f, b.A / 255.0f);
+      var b_normal = GetNormal_(b);
+
       var c = vertices[cmd[7] / 0x0A];
-      Vector3 c_pos = new Vector3(c.X, c.Y, c.Z);
+      var c_pos = GetPos_(c!);
       Vector2 c_uv = new Vector2(c.U * temp.texScaleX, c.V * temp.texScaleY);
       Vector4 c_color = new Vector4(c.NormalXOrR / 255.0f, c.NormalYOrG / 255.0f,
-                                    c.NormalZOrB / 255.0f, 1.0f);
+                                    c.NormalZOrB / 255.0f, c.A / 255.0f);
+      var c_normal = GetNormal_(c);
 
       //System.Console.WriteLine("Adding new Triangle: " + a_pos + "," + b_pos + "," + c_pos);
 
       if (temp.geometryMode.HasFlag(RspGeometryMode.G_LIGHTING)) {
-        mdl.builder.AddTempVertex(a_pos, a_uv, getColor(temp.color));
-        mdl.builder.AddTempVertex(b_pos, b_uv, getColor(temp.color));
-        mdl.builder.AddTempVertex(c_pos, c_uv, getColor(temp.color));
+        mdl.builder.AddTempVertex(a_pos, a_uv, getColor(temp.color), a_normal);
+        mdl.builder.AddTempVertex(b_pos, b_uv, getColor(temp.color), b_normal);
+        mdl.builder.AddTempVertex(c_pos, c_uv, getColor(temp.color), c_normal);
       } else {
-        mdl.builder.AddTempVertex(a_pos, a_uv, a_color);
-        mdl.builder.AddTempVertex(b_pos, b_uv, b_color);
-        mdl.builder.AddTempVertex(c_pos, c_uv, c_color);
+        mdl.builder.AddTempVertex(a_pos, a_uv, a_color, null);
+        mdl.builder.AddTempVertex(b_pos, b_uv, b_color, null);
+        mdl.builder.AddTempVertex(c_pos, c_uv, c_color, null);
       }
     }
+
+    private static Vector3 GetPos_(IVtx vtx) => new Vector3(vtx.X, vtx.Y, vtx.Z);
+
+    private static Vector3 GetNormal_(IVtx vtx) => new Vector3(
+        GetNormalChannel_(vtx.NormalXOrR),
+        GetNormalChannel_(vtx.NormalYOrG),
+        GetNormalChannel_(vtx.NormalZOrB));
+
+    private static float GetNormalChannel_(byte value)
+      => ((sbyte) value) / (byte.MaxValue * .5f);
+
 
     private static void G_LOADTLUT(byte[] cmd,
                                    ref TempMaterial temp,

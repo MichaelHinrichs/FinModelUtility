@@ -43,6 +43,7 @@ namespace Quad64 {
       public Vector3[] vertices;
       public Vector2[] texCoord;
       public Vector4[] colors;
+      public Vector3?[] normals;
       public uint[] indices;
       public Texture2D texture;
       public ModelBuilder.ModelBuilderMaterial Material;
@@ -82,6 +83,7 @@ namespace Quad64 {
         m.vertices = builder.getVertices(i);
         m.texCoord = builder.getTexCoords(i);
         m.colors = builder.getColors(i);
+        m.normals = builder.getNormals(i);
         m.indices = builder.getIndices(i);
       }
     }

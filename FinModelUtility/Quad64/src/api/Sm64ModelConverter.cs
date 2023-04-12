@@ -100,24 +100,22 @@ namespace sm64.api {
               lazyMaterialDictionary[(sm64Mesh.Material, sm64Mesh.texture)];
 
           var indices = sm64Mesh.indices;
-          var colors = sm64Mesh.colors;
           var vertices = sm64Mesh.vertices;
           var uvs = sm64Mesh.texCoord;
+          var colors = sm64Mesh.colors;
+          var normals = sm64Mesh.normals;
 
           var finVertices = new List<IVertex>();
           foreach (var vertexIndex in indices) {
+            var vertex = vertices[vertexIndex];
             var uv = uvs[vertexIndex];
             var color = colors[vertexIndex];
-            var vertex = vertices[vertexIndex];
+            var normal = normals[vertexIndex];
 
             finVertices.Add(
-                finModel.Skin.AddVertex(vertex.X, vertex.Y, vertex.Z)
-                        .SetUv(uv.X, uv.Y)
-                        .SetColorBytes(
-                            (byte)(255 * color.X),
-                            (byte)(255 * color.Y),
-                            (byte)(255 * color.Z),
-                            (byte)(255 * color.W)));
+                finModel.Skin.AddVertex(vertex)
+                        .SetUv(uv)
+                        .SetColor(color));
           }
 
           var finMesh = finModel.Skin.AddMesh();
