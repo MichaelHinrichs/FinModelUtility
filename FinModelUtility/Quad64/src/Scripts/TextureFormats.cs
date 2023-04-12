@@ -1,55 +1,44 @@
 ﻿using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 
+using f3dzex2.image;
+
 using fin.image;
-using fin.image.io;
 
 
 namespace Quad64.src.Scripts {
   class TextureFormats {
-    public static IImage decodeTexture(byte format,
+    public static IImage decodeTexture(N64ImageFormat format,
                                        byte[] data,
                                        int width,
                                        int height,
                                        ushort[] palette,
                                        bool isPaletteRGBA16) {
-      switch (format) {
-        case 0x10:
-          return PixelImageReader.New(width,
-                                      height,
-                                      new Argb1555PixelReader(),
-                                      Endianness.BigEndian)
-                                 .Read(data);
-        case 0x68:
-          return PixelImageReader.New(width,
-                                      height,
-                                      new La8PixelReader(),
-                                      Endianness.BigEndian)
-                                 .Read(data);
-        case 0x70:
-          return PixelImageReader.New(width,
-                                      height,
-                                      new La16PixelReader(),
-                                      Endianness.BigEndian)
-                                 .Read(data);
-      }
+      try {
+        return new N64ImageParser().Parse(format,
+                                          data,
+                                          width,
+                                          height,
+                                          palette,
+                                          isPaletteRGBA16);
+      } catch {}
 
       switch (format) {
         default:
-        case 0x00: // Note: "1 bit per pixel" is not a Fast3D format.
+        case N64ImageFormat._1BPP: // Note: "1 bit per pixel" is not a Fast3D format.
           return decode1BPP(data, width, height).ToImage();
-        case 0x18:
+        case N64ImageFormat.RGBA8888:
           return decodeRGBA32(data, width, height).ToImage();
-        case 0x40:
+        case N64ImageFormat.CI4:
           return decodeCI4(data, width, height, palette, isPaletteRGBA16).ToImage();
-        case 0x48:
+        case N64ImageFormat.CI8:
           return decodeCI8(data, width, height, palette, isPaletteRGBA16).ToImage();
-        case 0x60:
+        case N64ImageFormat.LA4:
           return decodeIA4(data, width, height).ToImage();
-        case 0x80:
-        case 0x90:
+        case N64ImageFormat.I4i:
+        case N64ImageFormat.I4ii:
           return decodeI4(data, width, height).ToImage();
-        case 0x88:
+        case N64ImageFormat.I8:
           return decodeI8(data, width, height).ToImage();
       }
     }

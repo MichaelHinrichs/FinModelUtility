@@ -4,6 +4,7 @@ using Quad64.src.LevelInfo;
 using System.Numerics;
 
 using f3dzex2.displaylist.opcodes;
+using f3dzex2.image;
 
 using fin.image;
 
@@ -393,7 +394,7 @@ namespace Quad64.src.Scripts {
             then you will have issues with 4-bit textures. This is because the N64 4-bit 
             textures use 16-bit formats to load data.
         */
-        temp.format = cmd[1];
+        temp.format = (N64ImageFormat) cmd[1];
       }
 
       temp.wrapT = getWrap((cmd[5] >> 2) & 0x2);
@@ -420,7 +421,7 @@ namespace Quad64.src.Scripts {
     public uint id = 0;
     public ushort w = 0, h = 0;
     public uint segOff = 0, color = 0xFFFFFFFF;
-    public byte format = 0x10;
+    public N64ImageFormat format = N64ImageFormat.ARGB1555;
     public RspGeometryMode geometryMode = (RspGeometryMode) 0x22205;
     public float texScaleX = 1.0f, texScaleY = 1.0f;
 
