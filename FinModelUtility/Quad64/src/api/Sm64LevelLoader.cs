@@ -1,4 +1,5 @@
 ﻿using Quad64;
+using Quad64.memory;
 using Quad64.Scripts;
 using Quad64.src.JSON;
 using Quad64.src.LevelInfo;
@@ -23,8 +24,10 @@ namespace sm64.api {
                      rom.isSegmentMIO0(0x02, null), rom.Seg02_isFakeMIO0,
                      rom.Seg02_uncompressedOffset, null);
 
+      var sm64Memory = new Sm64Memory();
+
       var level = new Level((ushort)levelFileBundle.LevelId, 1);
-      LevelScripts.parse(ref level, 0x15, 0);
+      LevelScripts.parse(sm64Memory, ref level, 0x15, 0);
       level.sortAndAddNoModelEntries();
       level.CurrentAreaID = level.Areas[0].AreaID;
 

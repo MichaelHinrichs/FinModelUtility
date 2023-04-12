@@ -40,11 +40,11 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           var numVerticesMinusOneAndWriteOffset = er.ReadByte();
           var numVertices = BitLogic.ExtractFromRight(
               numVerticesMinusOneAndWriteOffset,
-              0,
+              4,
               4) + 1;
           var writeOffset = BitLogic.ExtractFromRight(
               numVerticesMinusOneAndWriteOffset,
-              4,
+              0,
               4);
           er.AssertUInt16((ushort)(numVertices * 0x10));
 
@@ -73,6 +73,15 @@ namespace f3dzex2.displaylist.opcodes.f3d {
         }
         // TODO: Implement these
         case F3dOpcode.G_TEXTURE:
+        case F3dOpcode.G_CLEARGEOMETRYMODE:
+        case F3dOpcode.G_SETGEOMETRYMODE:
+        case F3dOpcode.G_SETCOMBINE:
+        case F3dOpcode.G_SETTIMG:
+        case F3dOpcode.G_SETTILE:
+        case F3dOpcode.G_SETTILESIZE:
+        case F3dOpcode.G_LOADBLOCK:
+        case F3dOpcode.G_TRI1:
+        case F3dOpcode.G_MOVEMEM:
           return new NoopOpcodeCommand();
         case F3dOpcode.G_RDPLOADSYNC:
         case F3dOpcode.G_RDPPIPESYNC:
