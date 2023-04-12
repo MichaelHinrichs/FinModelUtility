@@ -14,47 +14,6 @@ namespace Quad64 {
   }
 
   public class Globals {
-    // Render Options
-    public static bool doWireframe = false;
-    public static bool drawObjectModels = true;
-    public static bool renderCollisionMap = false;
-    public static bool doBackfaceCulling = false;
-    public static int FOV = 60; // field of view (in degrees)
-
-    // Editor Options
-    public static bool autoLoadROMOnStartup = false;
-    public static string pathToAutoLoadROM = "";
-    public static bool useHexadecimal = false;
-    public static bool useSignedHex = false;
-
-    // Advanced Options
-    public static bool autoSaveWhenClickEmulator = false;
-
-    // Speed multipliers
-    public static float camSpeedMultiplier = 1.0f;
-    public static float objSpeedMultiplier = 1.0f;
-
-    // TreeView selection
-    public static int list_selected = -1;
-    public static int item_selected = -1;
-    public static bool isMultiSelected = false;
-    public static bool isMultiSelectedFromMultipleLists = false;
-    public static bool isMultiSelectedFromSpecialObjects = false;
-
-    public static bool isMultiSelectedFromBothNormalWarpsAndInstantWarps =
-        false;
-
-    public static List<List<int>> multi_selected_nodes = new List<List<int>>();
-
-    // Keeps track if the user needs to save their changes.
-    public static bool needToSave = false;
-
-    // For the bounding boxes in the area
-    public static Color ObjectColor = Color.Red;
-    public static Color MacroObjectColor = Color.Blue;
-    public static Color SpecialObjectColor = Color.Lime;
-    public static Color SelectedObjectColor = Color.Yellow;
-
     public static bool DEBUG_PLG = false; // parsing level geometry flag
     public static uint DEBUG_PDL = 0x00000000; // parsing display list value
     public static bool DEBUG_PARSING_LEVEL_AREA = false;
@@ -131,16 +90,6 @@ namespace Quad64 {
       }
     }
 
-    public static string getDefaultOtherTexturesPath() {
-      // Console.WriteLine("ROM.Instance.Region = " + ROM.Instance.Region.ToString());
-      switch (ROM.Instance.Region) {
-        case ROM_Region.NORTH_AMERICA:
-          return "./data/OtherTextures_NA.json";
-        default:
-          return "";
-      }
-    }
-
     public static string getDefaultBehaviorNamesPath() {
       // Console.WriteLine("ROM.Instance.Region = " + ROM.Instance.Region.ToString());
       switch (ROM.Instance.Region) {
@@ -154,21 +103,6 @@ namespace Quad64 {
         case ROM_Region.JAPAN_SHINDOU:
             return "./data/ObjectCombos_JS.json";*/
       }
-    }
-
-    public static void insertNewEntry(ObjectComboEntry newEntry) {
-      for (int i = 0; i < objectComboEntries.Count; i++) {
-        if (newEntry.ModelID == objectComboEntries[i].ModelID &&
-            newEntry.ModelSegmentAddress ==
-            objectComboEntries[i].ModelSegmentAddress &&
-            newEntry.Behavior == objectComboEntries[i].Behavior) {
-          objectComboEntries[i].Name =
-              newEntry.Name; // Update name if it already exists
-          return;
-        }
-      }
-      // Add new entry if it doesn't exist
-      objectComboEntries.Add(newEntry);
     }
   }
 }

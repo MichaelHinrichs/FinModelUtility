@@ -101,7 +101,6 @@ namespace Quad64 {
     [Browsable(true)]
     [Description("Model identifer used by the object")]
     [DisplayName("Model ID")]
-    [TypeConverter(typeof(HexNumberTypeConverter))]
     public byte ModelID {
       get { return m_data.ModelId; }
       set { m_data.ModelId = value; }
@@ -111,7 +110,6 @@ namespace Quad64 {
     [Browsable(false)]
     [Description("Model identifer used by the object")]
     [DisplayName("Model ID")]
-    [TypeConverter(typeof(HexNumberTypeConverter))]
     [ReadOnly(true)]
     public byte ModelID_ReadOnly {
       get { return m_data.ModelId; }
@@ -120,7 +118,6 @@ namespace Quad64 {
     [CustomSortedCategory("Position", 3, NUM_OF_CATERGORIES)]
     [Browsable(true)]
     [DisplayName("X")]
-    [TypeConverter(typeof(HexNumberTypeConverter))]
     public short xPos {
       get { return m_data.X; }
       set { m_data.X = value; }
@@ -129,7 +126,6 @@ namespace Quad64 {
     [CustomSortedCategory("Position", 3, NUM_OF_CATERGORIES)]
     [Browsable(true)]
     [DisplayName("Y")]
-    [TypeConverter(typeof(HexNumberTypeConverter))]
     public short yPos {
       get { return m_data.Y; }
       set { m_data.Y = value; }
@@ -138,7 +134,6 @@ namespace Quad64 {
     [CustomSortedCategory("Position", 3, NUM_OF_CATERGORIES)]
     [Browsable(true)]
     [DisplayName("Z")]
-    [TypeConverter(typeof(HexNumberTypeConverter))]
     public short zPos {
       get { return m_data.Z; }
       set { m_data.Z = value; }
@@ -147,7 +142,6 @@ namespace Quad64 {
     [CustomSortedCategory("Rotation", 4, NUM_OF_CATERGORIES)]
     [Browsable(true)]
     [DisplayName("RX")]
-    [TypeConverter(typeof(HexNumberTypeConverter))]
     public short xRot {
       get { return m_data.RX; }
       set { m_data.RX = value; }
@@ -156,7 +150,6 @@ namespace Quad64 {
     [CustomSortedCategory("Rotation", 4, NUM_OF_CATERGORIES)]
     [Browsable(true)]
     [DisplayName("RY")]
-    [TypeConverter(typeof(HexNumberTypeConverter))]
     public short yRot {
       get { return m_data.RY; }
       set { m_data.RY = value; }
@@ -165,7 +158,6 @@ namespace Quad64 {
     [CustomSortedCategory("Rotation", 4, NUM_OF_CATERGORIES)]
     [Browsable(true)]
     [DisplayName("RZ")]
-    [TypeConverter(typeof(HexNumberTypeConverter))]
     public short zRot {
       get { return m_data.RZ; }
       set { m_data.RZ = value; }
@@ -208,7 +200,6 @@ namespace Quad64 {
     [CustomSortedCategory("Behavior", 5, NUM_OF_CATERGORIES)]
     [Browsable(true)]
     [DisplayName(BP1DNAME)]
-    [TypeConverter(typeof(HexNumberTypeConverter))]
     [Description("")]
     public byte BehaviorParameter1 {
       get { return m_data.BehaviourArgs[0]; }
@@ -218,7 +209,6 @@ namespace Quad64 {
     [CustomSortedCategory("Behavior", 5, NUM_OF_CATERGORIES)]
     [Browsable(true)]
     [DisplayName(BP2DNAME)]
-    [TypeConverter(typeof(HexNumberTypeConverter))]
     [Description("")]
     public byte BehaviorParameter2 {
       get { return m_data.BehaviourArgs[1]; }
@@ -228,7 +218,6 @@ namespace Quad64 {
     [CustomSortedCategory("Behavior", 5, NUM_OF_CATERGORIES)]
     [Browsable(true)]
     [DisplayName(BP3DNAME)]
-    [TypeConverter(typeof(HexNumberTypeConverter))]
     [Description("")]
     public byte BehaviorParameter3 {
       get { return m_data.BehaviourArgs[2]; }
@@ -238,7 +227,6 @@ namespace Quad64 {
     [CustomSortedCategory("Behavior", 5, NUM_OF_CATERGORIES)]
     [Browsable(true)]
     [DisplayName(BP4DNAME)]
-    [TypeConverter(typeof(HexNumberTypeConverter))]
     [Description("")]
     public byte BehaviorParameter4 {
       get { return m_data.BehaviourArgs[3]; }
@@ -353,53 +341,6 @@ namespace Quad64 {
       var script = new List<ScriptDumpCommandInfo>();
       BehaviorScripts.parse(ref script, this.getBehaviorAddress());
       return script;
-    }
-
-    public void updateROMData() {
-      if (Address.Equals("N/A")) return;
-      ROM rom = ROM.Instance;
-      uint romAddr = getROMUnsignedAddress();
-      if (Globals.list_selected == 0) // Regular Object
-      {
-        rom.writeByte(romAddr + 2, getActMask());
-        rom.writeByte(romAddr + 3, ModelID);
-        rom.writeHalfword(romAddr + 4, xPos);
-        rom.writeHalfword(romAddr + 6, yPos);
-        rom.writeHalfword(romAddr + 8, zPos);
-        rom.writeHalfword(romAddr + 10, xRot);
-        rom.writeHalfword(romAddr + 12, yRot);
-        rom.writeHalfword(romAddr + 14, zRot);
-        rom.writeByte(romAddr + 16, BehaviorParameter1);
-        rom.writeByte(romAddr + 17, BehaviorParameter2);
-        rom.writeByte(romAddr + 18, BehaviorParameter3);
-        rom.writeByte(romAddr + 19, BehaviorParameter4);
-        rom.writeWord(romAddr + 20, getBehaviorAddress());
-      } else if (Globals.list_selected == 1) // Macro Object
-      {
-        //Console.WriteLine("Preset ID = 0x" + presetID.ToString("X"));
-        ushort first = (ushort) ((((ushort) (yRot / 2.8125f) & 0x7F) << 9) |
-                                 (presetID & 0x1FF));
-        rom.writeHalfword(romAddr, first);
-        rom.writeHalfword(romAddr + 2, xPos);
-        rom.writeHalfword(romAddr + 4, yPos);
-        rom.writeHalfword(romAddr + 6, zPos);
-        rom.writeByte(romAddr + 8, BehaviorParameter1);
-        rom.writeByte(romAddr + 9, BehaviorParameter2);
-      } else if (Globals.list_selected == 2) // Special Object
-      {
-        //Console.WriteLine("Special Preset ID = 0x" + presetID.ToString("X"));
-        rom.writeHalfword(romAddr, presetID);
-        rom.writeHalfword(romAddr + 2, xPos);
-        rom.writeHalfword(romAddr + 4, yPos);
-        rom.writeHalfword(romAddr + 6, zPos);
-        if (!isHidden(FLAGS.ROTATION_Y)) {
-          rom.writeHalfword(romAddr + 8, (short) (yRot / 1.40625f));
-          if (!isHidden(FLAGS.BPARAM_1)) {
-            rom.writeByte(romAddr + 10, BehaviorParameter1);
-            rom.writeByte(romAddr + 11, BehaviorParameter2);
-          }
-        }
-      }
     }
 
     public void MakeBehaviorReadOnly(bool isReadOnly) {

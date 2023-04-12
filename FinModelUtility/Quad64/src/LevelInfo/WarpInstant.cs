@@ -12,7 +12,6 @@ namespace Quad64.src.LevelInfo {
     [CustomSortedCategory("Instant Warp", 1, NUM_OF_CATERGORIES)]
     [Browsable(true)]
     [DisplayName("Trigger ID")]
-    [TypeConverter(typeof(HexNumberTypeConverter))]
     public byte TriggerID {
       get { return triggerID; }
       set { triggerID = value; }
@@ -23,7 +22,6 @@ namespace Quad64.src.LevelInfo {
     [CustomSortedCategory("Instant Warp", 1, NUM_OF_CATERGORIES)]
     [Browsable(true)]
     [DisplayName("To Area")]
-    [TypeConverter(typeof(HexNumberTypeConverter))]
     public byte AreaID {
       get { return areaID; }
       set { areaID = value; }
@@ -34,7 +32,6 @@ namespace Quad64.src.LevelInfo {
     [CustomSortedCategory("Instant Warp", 1, NUM_OF_CATERGORIES)]
     [Browsable(true)]
     [DisplayName("Teleport X")]
-    [TypeConverter(typeof(HexNumberTypeConverter))]
     public short TeleX {
       get { return teleX; }
       set { teleX = value; }
@@ -45,7 +42,6 @@ namespace Quad64.src.LevelInfo {
     [CustomSortedCategory("Instant Warp", 1, NUM_OF_CATERGORIES)]
     [Browsable(true)]
     [DisplayName("Teleport Y")]
-    [TypeConverter(typeof(HexNumberTypeConverter))]
     public short TeleY {
       get { return teleY; }
       set { teleY = value; }
@@ -56,7 +52,6 @@ namespace Quad64.src.LevelInfo {
     [CustomSortedCategory("Instant Warp", 1, NUM_OF_CATERGORIES)]
     [Browsable(true)]
     [DisplayName("Teleport Z")]
-    [TypeConverter(typeof(HexNumberTypeConverter))]
     public short TeleZ {
       get { return teleZ; }
       set { teleZ = value; }

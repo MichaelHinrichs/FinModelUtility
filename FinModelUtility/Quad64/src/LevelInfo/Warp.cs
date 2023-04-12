@@ -17,7 +17,6 @@ namespace Quad64.src.LevelInfo {
     [CustomSortedCategory("Connect Warps", 1, NUM_OF_CATERGORIES)]
     [Browsable(true)]
     [DisplayName("From ID")]
-    [TypeConverter(typeof(HexNumberTypeConverter))]
     public byte WarpFrom_ID {
       get { return warpFrom_ID; }
       set { warpFrom_ID = value; }
@@ -28,7 +27,6 @@ namespace Quad64.src.LevelInfo {
     [CustomSortedCategory("Connect Warps", 1, NUM_OF_CATERGORIES)]
     [Browsable(true)]
     [DisplayName("To Level")]
-    [TypeConverter(typeof(HexNumberTypeConverter))]
     public byte WarpTo_LevelID {
       get { return warpTo_LevelID; }
       set { warpTo_LevelID = value; }
@@ -39,7 +37,6 @@ namespace Quad64.src.LevelInfo {
     [CustomSortedCategory("Connect Warps", 1, NUM_OF_CATERGORIES)]
     [Browsable(true)]
     [DisplayName("To Area")]
-    [TypeConverter(typeof(HexNumberTypeConverter))]
     public byte WarpTo_AreaID {
       get { return warpTo_AreaID; }
       set { warpTo_AreaID = value; }
@@ -50,7 +47,6 @@ namespace Quad64.src.LevelInfo {
     [CustomSortedCategory("Connect Warps", 1, NUM_OF_CATERGORIES)]
     [Browsable(true)]
     [DisplayName("To ID")]
-    [TypeConverter(typeof(HexNumberTypeConverter))]
     public byte WarpTo_WarpID {
       get { return warpTo_WarpID; }
       set { warpTo_WarpID = value; }

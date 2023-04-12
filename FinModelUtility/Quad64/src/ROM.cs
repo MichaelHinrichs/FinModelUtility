@@ -173,109 +173,11 @@ namespace Quad64 {
       areaSegData.Clear();
     }
 
-    public string getROMFileName() {
-      string name = this.Filepath.Replace("\\", "/");
-      if (name.Contains("/"))
-        name = name.Substring(name.LastIndexOf("/") + 1);
-
-      return name;
-    }
-
-    public string getRegionText() {
-      switch (Region) {
-        case ROM_Region.NORTH_AMERICA:
-          return "North America";
-        case ROM_Region.EUROPE:
-          return "Europe";
-        case ROM_Region.JAPAN:
-          return "Japan";
-        case ROM_Region.JAPAN_SHINDOU:
-          return "Japan (Shindou edition)";
-        case ROM_Region.CHINESE_IQUE:
-          return "Chinese (IQue Player)";
-        default:
-          return "Unknown";
-      }
-    }
-
-    public string getEndianText() {
-      switch (Endian) {
-        case ROM_Endian.BIG:
-          return "Big Endian";
-        case ROM_Endian.MIXED:
-          return "Middle Endian";
-        case ROM_Endian.LITTLE:
-          return "Little Endian";
-        default:
-          return "Unknown";
-      }
-    }
-
-    public string getInternalName() {
-      return System.Text.Encoding.Default.GetString(
-          getSubArray_safe(Bytes, 0x20, (long) 20));
-    }
-
-    public void WriteToFileEx() {
-      FileStream stream = File.OpenWrite(this.Filepath);
-      for (int i = 0; i < this.Bytes.Length; i++) {
-        if (writeMask[i] != 0) {
-          writeMask[i] = 0;
-          stream.Seek(i, SeekOrigin.Begin);
-          stream.WriteByte(this.Bytes[i]);
-        }
-      }
-      stream.Close();
-    }
-
     public void readFile(string filename) {
       this.Filepath = filename;
       this.Bytes = File.ReadAllBytes(filename);
       writeMask = new byte[this.Bytes.Length];
       checkROM();
-      Globals.pathToAutoLoadROM = this.Filepath;
-      Globals.needToSave = false;
-      SettingsFile.SaveGlobalSettings("default");
-    }
-
-    public void saveFile() {
-      if (Endian == ROM_Endian.MIXED) {
-        swapMixedBig();
-        WriteToFileEx();
-        swapMixedBig();
-      } else if (Endian == ROM_Endian.LITTLE) {
-        swapLittleBig();
-        WriteToFileEx();
-        swapLittleBig();
-      } else // Save as big endian by default
-      {
-        WriteToFileEx();
-      }
-      Globals.pathToAutoLoadROM = this.Filepath;
-      Globals.needToSave = false;
-      SettingsFile.SaveGlobalSettings("default");
-    }
-
-    public void saveFileAs(string filename, ROM_Endian saveType) {
-      if (saveType == ROM_Endian.MIXED) {
-        swapMixedBig();
-        File.WriteAllBytes(filename, this.Bytes);
-        swapMixedBig();
-        this.Endian = ROM_Endian.MIXED;
-      } else if (saveType == ROM_Endian.LITTLE) {
-        swapLittleBig();
-        File.WriteAllBytes(filename, this.Bytes);
-        swapLittleBig();
-        this.Endian = ROM_Endian.LITTLE;
-      } else // Save as big endian by default
-      {
-        File.WriteAllBytes(filename, this.Bytes);
-        this.Endian = ROM_Endian.BIG;
-      }
-      Globals.needToSave = false;
-      this.Filepath = filename;
-      Globals.pathToAutoLoadROM = this.Filepath;
-      SettingsFile.SaveGlobalSettings("default");
     }
 
     public void setSegment(uint index,
@@ -339,21 +241,6 @@ namespace Quad64 {
       }
     }
 
-    public byte[] getROMSection(uint start, uint end) {
-      byte[] data = new byte[end - start];
-      Array.Copy(this.Bytes, start, data, 0, end - start);
-      return data;
-    }
-
-    public byte[]? cloneSegment(byte segment, byte? areaID) {
-      SegBank seg = GetSegBank(segment, areaID);
-      if (seg == null) return null;
-
-      byte[] copy = new byte[seg.Data.Length];
-      Array.Copy(seg.Data, copy, seg.Data.Length);
-      return copy;
-    }
-
     public byte[]? getSegment(ushort seg, byte? areaID)
       => GetSegBank(seg, areaID)?.Data;
 
@@ -392,15 +279,6 @@ namespace Quad64 {
             offset.ToString("X6") +
             ") from MIO0 data. (decodeSegmentAddress 2)");
       return seg.SegStart + offset;
-    }
-
-    public uint decodeSegmentAddress_safe(uint segOffset, byte? areaID) {
-      // Console.WriteLine("Decoding segment address: " + segOffset.ToString("X8"));
-      byte seg = (byte) (segOffset >> 24);
-      if (GetSegBank(seg, areaID).IsMIO0)
-        return 0xFFFFFFFF;
-      uint off = segOffset & 0x00FFFFFF;
-      return GetSegBank(seg, areaID).SegStart + off;
     }
 
     public uint decodeSegmentAddress_safe(byte segment,
@@ -450,13 +328,6 @@ namespace Quad64 {
       return newArr;
     }
 
-    //public byte[] getSubArray_safe(byte[] arr, uint offset, uint size)
-    //{
-    //    byte[] newArr = new byte[size];
-    //    Array.Copy(arr, offset, newArr, 0, size);
-    //    return newArr;
-    //}
-
     public int getLevelIndexById(ushort Id) {
       int index = 0;
       foreach (KeyValuePair<string, ushort> entry in levelIDs) {
@@ -474,65 +345,15 @@ namespace Quad64 {
       return levelIDs.Values.ElementAt<ushort>(index);
     }
 
-    // From: https://stackoverflow.com/a/26880541
-    private int SearchBytes(byte[] haystack, byte[] needle) {
-      var len = needle.Length;
-      var limit = haystack.Length - len;
-      for (var i = 0; i <= limit; i++) {
-        var k = 0;
-        for (; k < len; k++) {
-          if (needle[k] != haystack[i + k]) break;
-        }
-        if (k == len) return i;
-      }
-      return -1;
-    }
-
     private void addToWriteMask(uint start, int length) {
       for (int i = 0; i < length; i++)
         writeMask[i + start] = 1;
-    }
-
-    public void writeByteArray(uint offset, byte[] arr) {
-      addToWriteMask(offset, arr.Length);
-      Array.Copy(arr, 0, this.Bytes, offset, arr.Length);
-    }
-
-    public void writeByteArray(uint offset,
-                               byte[] arr,
-                               int arr_offset,
-                               int arr_length) {
-      addToWriteMask(offset, arr.Length);
-      Array.Copy(arr, arr_offset, this.Bytes, offset, arr_length);
-    }
-
-    public void
-        writeByteArrayToSegment(uint segAddr, byte[] arr, byte? areaID) {
-      byte segment = (byte) ((segAddr >> 24) & 0xFF);
-      uint off = segAddr & 0x00FFFFFF;
-      Array.Copy(arr, 0, GetSegBank(segment, areaID).Data, off, arr.Length);
-    }
-
-    public void writeWord(uint offset, int word) {
-      addToWriteMask(offset, 4);
-      this.Bytes[offset + 0] = (byte) (word >> 24);
-      this.Bytes[offset + 1] = (byte) (word >> 16);
-      this.Bytes[offset + 2] = (byte) (word >> 8);
-      this.Bytes[offset + 3] = (byte) (word);
-    }
-
-    public void writeWord(uint offset, uint word) {
-      writeWord(offset, (int) word);
     }
 
     public void writeHalfword(uint offset, short half) {
       addToWriteMask(offset, 2);
       this.Bytes[offset + 0] = (byte) (half >> 8);
       this.Bytes[offset + 1] = (byte) (half);
-    }
-
-    public void writeHalfword(uint offset, ushort word) {
-      writeHalfword(offset, (short) word);
     }
 
     public void writeByte(uint offset, byte b) {
