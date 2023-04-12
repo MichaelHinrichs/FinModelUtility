@@ -5,11 +5,9 @@ using f3dzex2.io;
 
 using fin.math;
 
-using schema.binary;
 
-
-namespace f3dzex2.displaylist.opcodes {
-  public partial class F3dOpcodeParser : IOpcodeParser {
+namespace f3dzex2.displaylist.opcodes.f3d {
+  public class F3dOpcodeParser : IOpcodeParser {
     public IOpcodeCommand Parse(IN64Memory n64Memory,
                                 IDisplayListReader dlr,
                                 IEndianBinaryReader er) {
@@ -89,23 +87,6 @@ namespace f3dzex2.displaylist.opcodes {
         default:
           throw new ArgumentOutOfRangeException(nameof(opcode), opcode, null);
       }
-    }
-
-    [BinarySchema]
-    private partial class F3dVtx : IVtx, IBinaryConvertible {
-      public short X { get; }
-      public short Y { get; }
-      public short Z { get; }
-
-      public short Flag { get; }
-      
-      public short U { get; }
-      public short V { get; }
-      
-      public byte NormalXOrR { get; }
-      public byte NormalYOrG { get; }
-      public byte NormalZOrB { get; }
-      public byte A { get; }
     }
 
     private int GetCommandLength_(F3dOpcode opcode) {

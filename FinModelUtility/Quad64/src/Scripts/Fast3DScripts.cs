@@ -1,5 +1,9 @@
-﻿using Quad64.src.LevelInfo;
+﻿using f3dzex2.displaylist.opcodes.f3d;
+
+using Quad64.src.LevelInfo;
 using System.Numerics;
+
+using f3dzex2.displaylist.opcodes;
 
 
 namespace Quad64.src.Scripts {
@@ -17,11 +21,6 @@ namespace Quad64.src.Scripts {
   }
 
   class Fast3DScripts {
-    private struct F3D_Vertex {
-      public short x, y, z, f, u, v; // f = flag (Not sure what it does)
-      public byte nx_r, ny_g, nz_b, a;
-    }
-
     private static uint bytesToInt(byte[] b, int offset, int length) {
       switch (length) {
         case 1: return b[0 + offset];
@@ -87,7 +86,7 @@ namespace Quad64.src.Scripts {
     }
 
     static TempMaterial tempMaterial = new TempMaterial();
-    static F3D_Vertex[] vertices = new F3D_Vertex[16];
+    static IVtx[] vertices = new IVtx[16];
 
     public static void parse(ref Model3D mdl,
                              ref Level lvl,
@@ -240,7 +239,7 @@ namespace Quad64.src.Scripts {
       }
     }
 
-    private static bool F3D_VTX(F3D_Vertex[] vertices,
+    private static bool F3D_VTX(IVtx[] vertices,
                                 ref Level lvl,
                                 byte[] cmd,
                                 byte? areaID) {
@@ -255,23 +254,9 @@ namespace Quad64.src.Scripts {
       byte[] vData =
           rom.getSubArray_safe(rom.getSegment(seg, areaID), off,
                                (uint) amount * 0x10);
+      using var er = new EndianBinaryReader(vData, Endianness.BigEndian);
       for (int i = 0; i < amount; i++) {
-        vertices[i].x =
-            (short) ((vData[i * 0x10 + 0] << 8) | vData[i * 0x10 + 1]);
-        vertices[i].y =
-            (short) ((vData[i * 0x10 + 2] << 8) | vData[i * 0x10 + 3]);
-        vertices[i].z =
-            (short) ((vData[i * 0x10 + 4] << 8) | vData[i * 0x10 + 5]);
-        vertices[i].f =
-            (short) ((vData[i * 0x10 + 9] << 8) | vData[i * 0x10 + 7]);
-        vertices[i].u =
-            (short) ((vData[i * 0x10 + 8] << 8) | vData[i * 0x10 + 9]);
-        vertices[i].v =
-            (short) ((vData[i * 0x10 + 10] << 8) | vData[i * 0x10 + 11]);
-        vertices[i].nx_r = vData[i * 0x10 + 12];
-        vertices[i].ny_g = vData[i * 0x10 + 13];
-        vertices[i].nz_b = vData[i * 0x10 + 14];
-        vertices[i].a = vData[i * 0x10 + 15];
+        vertices[i] = er.ReadNew<F3dVtx>();
       }
       return true;
     }
@@ -318,27 +303,27 @@ namespace Quad64.src.Scripts {
       }
     }
 
-    private static void F3D_TRI1(F3D_Vertex[] vertices,
+    private static void F3D_TRI1(IVtx[] vertices,
                                  ref Model3D mdl,
                                  ref Level lvl,
                                  ref TempMaterial temp,
                                  byte[] cmd) {
       mdl.builder.numTriangles++;
-      F3D_Vertex a = vertices[cmd[5] / 0x0A];
-      Vector3 a_pos = new Vector3(a.x, a.y, a.z);
-      Vector2 a_uv = new Vector2(a.u * temp.texScaleX, a.v * temp.texScaleY);
-      Vector4 a_color = new Vector4(a.nx_r / 255.0f, a.ny_g / 255.0f,
-                                    a.nz_b / 255.0f, 1.0f);
-      F3D_Vertex b = vertices[cmd[6] / 0x0A];
-      Vector3 b_pos = new Vector3(b.x, b.y, b.z);
-      Vector2 b_uv = new Vector2(b.u * temp.texScaleX, b.v * temp.texScaleY);
-      Vector4 b_color = new Vector4(b.nx_r / 255.0f, b.ny_g / 255.0f,
-                                    b.nz_b / 255.0f, 1.0f);
-      F3D_Vertex c = vertices[cmd[7] / 0x0A];
-      Vector3 c_pos = new Vector3(c.x, c.y, c.z);
-      Vector2 c_uv = new Vector2(c.u * temp.texScaleX, c.v * temp.texScaleY);
-      Vector4 c_color = new Vector4(c.nx_r / 255.0f, c.ny_g / 255.0f,
-                                    c.nz_b / 255.0f, 1.0f);
+      var a = vertices[cmd[5] / 0x0A];
+      Vector3 a_pos = new Vector3(a.X, a.Y, a.Z);
+      Vector2 a_uv = new Vector2(a.U * temp.texScaleX, a.V * temp.texScaleY);
+      Vector4 a_color = new Vector4(a.NormalXOrR / 255.0f, a.NormalYOrG / 255.0f,
+                                    a.NormalZOrB / 255.0f, 1.0f);
+      var b = vertices[cmd[6] / 0x0A];
+      Vector3 b_pos = new Vector3(b.X, b.Y, b.Z);
+      Vector2 b_uv = new Vector2(b.U * temp.texScaleX, b.V * temp.texScaleY);
+      Vector4 b_color = new Vector4(b.NormalXOrR / 255.0f, b.NormalYOrG / 255.0f,
+                                    b.NormalZOrB / 255.0f, 1.0f);
+      var c = vertices[cmd[7] / 0x0A];
+      Vector3 c_pos = new Vector3(c.X, c.Y, c.Z);
+      Vector2 c_uv = new Vector2(c.U * temp.texScaleX, c.V * temp.texScaleY);
+      Vector4 c_color = new Vector4(c.NormalXOrR / 255.0f, c.NormalYOrG / 255.0f,
+                                    c.NormalZOrB / 255.0f, 1.0f);
 
       //System.Console.WriteLine("Adding new Triangle: " + a_pos + "," + b_pos + "," + c_pos);
 
