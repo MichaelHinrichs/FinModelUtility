@@ -9,6 +9,7 @@ using fin.image;
 
 using Quad64.memory;
 using Quad64.Scripts;
+using f3dzex2.io;
 
 
 namespace Quad64.src.Scripts {
@@ -94,8 +95,7 @@ namespace Quad64.src.Scripts {
     static F3dVertex[] vertices = new F3dVertex[16];
 
     public static void parse(IReadOnlySm64Memory n64Memory,
-                             ref Model3D mdl,
-                             ref Level lvl,
+                             Model3DLods mdl,
                              byte seg,
                              uint off,
                              int current_depth) {
@@ -125,29 +125,29 @@ namespace Quad64.src.Scripts {
               return;
             break;
           case CMD.F3D_MOVEMEM:
-            switchTextureStatus(ref mdl, ref tempMaterial, true, n64Memory.AreaId);
-            F3D_MOVEMEM(ref tempMaterial, ref lvl, cmd, n64Memory.AreaId);
+            switchTextureStatus(mdl.Current, ref tempMaterial, true, n64Memory.AreaId);
+            F3D_MOVEMEM(ref tempMaterial, cmd, n64Memory.AreaId);
             break;
           case CMD.F3D_VTX:
-            switchTextureStatus(ref mdl, ref tempMaterial, false, n64Memory.AreaId);
+            switchTextureStatus(mdl.Current, ref tempMaterial, false, n64Memory.AreaId);
             //if (tempMaterial.id != 0) return;
-            if (!F3D_VTX(vertices, ref lvl, cmd, n64Memory.AreaId))
+            if (!F3D_VTX(vertices, cmd, n64Memory.AreaId))
               return;
             break;
           case CMD.F3D_DL:
-            F3D_DL(n64Memory, ref mdl, ref lvl, cmd, current_depth);
+            F3D_DL(n64Memory, mdl, cmd, current_depth);
             if (cmd[1] == 1)
               end = true;
             break;
           case CMD.F3D_CLEARGEOMETRYMODE:
             tempMaterial.geometryMode &=
                 (RspGeometryMode) ~bytesToInt(cmd, 4, 4);
-            mdl.builder.AddGeometryMode(tempMaterial.geometryMode);
+            mdl.Current.builder.AddGeometryMode(tempMaterial.geometryMode);
             break;
           case CMD.F3D_SETGEOMETRYMODE:
             tempMaterial.geometryMode |=
                 (RspGeometryMode) bytesToInt(cmd, 4, 4);
-            mdl.builder.AddGeometryMode(tempMaterial.geometryMode);
+            mdl.Current.builder.AddGeometryMode(tempMaterial.geometryMode);
             break;
           case CMD.F3D_ENDDL:
             end = true;
@@ -156,33 +156,33 @@ namespace Quad64.src.Scripts {
             F3D_TEXTURE(ref tempMaterial, cmd);
             break;
           case CMD.F3D_TRI1:
-            switchTextureStatus(ref mdl, ref tempMaterial, false, n64Memory.AreaId);
+            switchTextureStatus(mdl.Current, ref tempMaterial, false, n64Memory.AreaId);
             //if (tempMaterial.id != 0) return;
-            F3D_TRI1(vertices, ref mdl, ref lvl, ref tempMaterial, cmd);
+            F3D_TRI1(vertices, mdl.Current, ref tempMaterial, cmd);
             break;
           case CMD.G_LOADTLUT:
             G_LOADTLUT(cmd, ref tempMaterial, n64Memory.AreaId);
             break;
           case CMD.G_SETTILESIZE:
-            switchTextureStatus(ref mdl, ref tempMaterial, true, n64Memory.AreaId);
+            switchTextureStatus(mdl.Current, ref tempMaterial, true, n64Memory.AreaId);
             G_SETTILESIZE(cmd, ref tempMaterial);
             break;
           case CMD.G_SETTILE:
             G_SETTILE(ref tempMaterial, cmd);
             break;
           case CMD.G_SETFOGCOLOR:
-            mdl.builder.UsesFog = true;
-            mdl.builder.FogColor = Color.FromArgb(cmd[4], cmd[5], cmd[6]);
-            mdl.builder.FogColor_romLocation.Add(
+            mdl.Current.builder.UsesFog = true;
+            mdl.Current.builder.FogColor = Color.FromArgb(cmd[4], cmd[5], cmd[6]);
+            mdl.Current.builder.FogColor_romLocation.Add(
                 rom.getSegmentStart(seg, n64Memory.AreaId) + off);
             //Console.WriteLine("Fog color = 0x{0}", bytesToInt(cmd, 4, 4).ToString("X8"));
             break;
           case CMD.G_SETCOMBINE:
             if (G_SETCOMBINE(ref tempMaterial, cmd))
-              switchTextureStatus(ref mdl, ref tempMaterial, true, n64Memory.AreaId);
+              switchTextureStatus(mdl.Current, ref tempMaterial, true, n64Memory.AreaId);
             break;
           case CMD.G_SETTIMG:
-            switchTextureStatus(ref mdl, ref tempMaterial, true, n64Memory.AreaId);
+            switchTextureStatus(mdl.Current, ref tempMaterial, true, n64Memory.AreaId);
             G_SETTIMG(ref tempMaterial, cmd);
             break;
         }
@@ -190,7 +190,7 @@ namespace Quad64.src.Scripts {
       }
     }
 
-    private static void switchTextureStatus(ref Model3D mdl,
+    private static void switchTextureStatus(Model3D mdl,
                                             ref TempMaterial temp,
                                             bool status,
                                             byte? areaID) {
@@ -231,7 +231,6 @@ namespace Quad64.src.Scripts {
     }
 
     private static void F3D_MOVEMEM(ref TempMaterial temp,
-                                    ref Level lvl,
                                     byte[] cmd,
                                     byte? areaID) {
       if (cmd[1] == 0x86) {
@@ -245,7 +244,6 @@ namespace Quad64.src.Scripts {
     }
 
     private static bool F3D_VTX(F3dVertex[] vertices,
-                                ref Level lvl,
                                 byte[] cmd,
                                 byte? areaID) {
       ROM rom = ROM.Instance;
@@ -268,15 +266,11 @@ namespace Quad64.src.Scripts {
 
     private static void F3D_DL(
         IReadOnlySm64Memory sm64Memory,
-        ref Model3D mdl,
-        ref Level lvl,
+        Model3DLods mdl,
         byte[] cmd,
         int current_depth) {
       var address = bytesToInt(cmd, 4, 4);
-      byte seg = cmd[4];
-      uint off = bytesToInt(cmd, 5, 3);
-      parse(sm64Memory, ref mdl, ref lvl, seg, off, current_depth + 1);
-      new F3dParser().Parse(sm64Memory, address);
+      mdl.AddDl(sm64Memory, address, current_depth);
     }
 
     private static Vector4 getColor(uint color) {
@@ -312,8 +306,7 @@ namespace Quad64.src.Scripts {
     }
 
     private static void F3D_TRI1(F3dVertex[] vertices,
-                                 ref Model3D mdl,
-                                 ref Level lvl,
+                                 Model3D mdl,
                                  ref TempMaterial temp,
                                  byte[] cmd) {
       var a = vertices[cmd[5] / 0x0A];

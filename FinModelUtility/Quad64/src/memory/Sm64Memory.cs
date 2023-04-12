@@ -3,6 +3,7 @@
 using fin.util.asserts;
 using fin.util.enumerables;
 
+using sm64.scripts.geo;
 
 namespace Quad64.memory {
   public interface IReadOnlySm64Memory : IN64Memory {
@@ -21,8 +22,9 @@ namespace Quad64.memory {
       => OpenAtAddress(address).Yield();
 
     public IEndianBinaryReader OpenAtAddress(uint address) {
-      var segment = (byte) (address >> 24);
-      var offset = address & 0xFFFFFF;
+      GeoUtils.SplitAddress(address,
+                            out var segment,
+                            out var offset);
       var er = new EndianBinaryReader(
           Asserts.CastNonnull(ROM.Instance.getSegment(segment, this.AreaId)),
           Endianness.BigEndian);

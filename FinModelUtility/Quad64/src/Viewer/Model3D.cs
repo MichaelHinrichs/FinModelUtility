@@ -2,26 +2,56 @@
 
 using System.Numerics;
 
+using f3dzex2.model;
+
+using Quad64.memory;
+using f3dzex2.io;
+using System.Net;
+
+using Quad64.Scripts;
+
+using sm64.scripts.geo;
+
 
 namespace Quad64 {
   public class Model3DLods {
     private List<Model3D> lods_ = new();
+    private List<DlModelBuilder> lods2_ = new();
 
     public Model3DLods() {
-      this.Lods = this.lods_;
-      this.Add(null);
+      this.AddLod(null);
     }
 
-    public IReadOnlyList<Model3D> Lods { get; }
+    public IReadOnlyList<Model3D> Lods => this.lods_;
+    public IReadOnlyList<DlModelBuilder> Lods2 => this.lods2_;
 
     public Model3D HighestLod
       => this.Lods.OrderBy(lod => lod.getNumberOfTrianglesInModel())
              .Last();
 
-    public Model3D Current => this.Lods.LastOrDefault()!;
+    public DlModelBuilder HighestLod2
+      => this.Lods2.OrderBy(lod => lod.GetNumberOfTriangles())
+             .Last();
 
-    public void Add(GeoScriptNode? node) {
+
+    public Model3D Current => this.Lods.LastOrDefault()!;
+    public DlModelBuilder Current2 => this.Lods2.LastOrDefault()!;
+
+
+    public void AddLod(GeoScriptNode? node) {
       this.lods_.Add(new(node));
+      this.lods2_.Add(new());
+    }
+
+    public void AddDl(IReadOnlySm64Memory sm64Memory,
+                      uint address,
+                      int currentDepth = 0) {
+      GeoUtils.SplitAddress(address,
+                            out var seg,
+                            out var off);
+      Fast3DScripts.parse(sm64Memory, this, seg, off, currentDepth);
+
+      var displayList = new F3dParser().Parse(sm64Memory, address);
     }
 
     public void BuildBuffers() {

@@ -5,6 +5,8 @@ using f3dzex2.displaylist;
 using f3dzex2.displaylist.opcodes;
 using f3dzex2.io;
 
+using fin.math;
+using fin.math.matrix;
 using fin.model;
 using fin.model.impl;
 
@@ -16,7 +18,10 @@ namespace f3dzex2.model {
     private GeometryMode geometryMode_;
 
     private const int VERTEX_COUNT = 32;
-    private readonly F3dVertex[] vertexDefinitions_ = new F3dVertex[VERTEX_COUNT];
+
+    private readonly F3dVertex[] vertexDefinitions_ =
+        new F3dVertex[VERTEX_COUNT];
+
     private readonly IVertex?[] vertices = new IVertex?[VERTEX_COUNT];
 
     public DlModelBuilder() {
@@ -24,6 +29,14 @@ namespace f3dzex2.model {
     }
 
     public IModel Model { get; } = new ModelImpl();
+
+    public IReadOnlyFinMatrix4x4 Matrix { get; set; } = FinMatrix4x4.IDENTITY;
+
+    public int GetNumberOfTriangles() =>
+        this.Model.Skin.Meshes
+            .SelectMany(mesh => mesh.Primitives)
+            .Select(primitive => primitive.Vertices.Count / 3)
+            .Sum();
 
     public void AddDl(IDisplayList dl, IN64Memory n64Memory) {
       foreach (var opcodeCommand in dl.OpcodeCommands) {
@@ -99,7 +112,11 @@ namespace f3dzex2.model {
       }
 
       var definition = this.vertexDefinitions_[index];
-      var newVertex = this.Model.Skin.AddVertex(definition.GetPosition());
+
+      var position = definition.GetPosition();
+      GlMatrixUtil.ProjectPosition(Matrix.Impl, ref position);
+
+      var newVertex = this.Model.Skin.AddVertex(position);
 
       // TODO: Add UV, color, normal
 

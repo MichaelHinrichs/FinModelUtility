@@ -37,19 +37,17 @@ namespace f3dzex2.model {
     public Vector4 GetColor()
       => new(NormalXOrR / 255f, NormalYOrG / 255f, NormalZOrB / 255f, A / 255f);
 
-    public override int GetHashCode() {
-      return FluentHash.Start()
-                       .With(X)
-                       .With(Y)
-                       .With(Z)
-                       .With(Flag)
-                       .With(U)
-                       .With(V)
-                       .With(NormalXOrR)
-                       .With(NormalYOrG)
-                       .With(NormalZOrB)
-                       .With(A);
-    }
+    public override int GetHashCode() => FluentHash.Start()
+                                                   .With(X)
+                                                   .With(Y)
+                                                   .With(Z)
+                                                   .With(Flag)
+                                                   .With(U)
+                                                   .With(V)
+                                                   .With(NormalXOrR)
+                                                   .With(NormalYOrG)
+                                                   .With(NormalZOrB)
+                                                   .With(A);
 
     public override bool Equals(object? other) {
       if (object.ReferenceEquals(this, other)) {

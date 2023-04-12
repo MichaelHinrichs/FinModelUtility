@@ -125,7 +125,7 @@ namespace Quad64.src.Scripts {
             break;
           }
           case GeoSetRenderRangeCommand geoSetRenderRangeCommand: {
-            mdlLods.Add(nodeCurrent!);
+            mdlLods.AddLod(nodeCurrent!);
             break;
           }
           case GeoShadowCommand geoShadowCommand: break;
@@ -198,13 +198,8 @@ namespace Quad64.src.Scripts {
 
       // Don't bother processing duplicate display lists.
       if ((displayListAddress ?? 0) != 0) {
-        GeoUtils.SplitAddress(displayListAddress!.Value,
-                              out var seg,
-                              out var off);
-
         if (!mdl.hasGeoDisplayList(displayListAddress!.Value)) {
-          Fast3DScripts.parse(n64Memory, ref mdl, ref lvl, seg, off, 0);
-          new F3dParser().Parse(n64Memory, displayListAddress.Value);
+          mdlLods.AddDl(n64Memory, displayListAddress.Value);
         }
         lvl.temp_bgInfo.usesFog = mdl.builder.UsesFog;
         lvl.temp_bgInfo.fogColor = mdl.builder.FogColor;

@@ -545,11 +545,8 @@ namespace Quad64.Scripts {
       newModel.Current.GeoDataSegAddress = bytesToInt(cmd, 4, 4);
       lvl.AddObjectCombos(modelID, newModel.Current.GeoDataSegAddress);
 
-      var model = newModel.Current;
-
       if (rom.getSegment(seg, sm64Memory.AreaId) != null) {
-        Fast3DScripts.parse(sm64Memory, ref model, ref lvl, seg, off, 0);
-        var displayList = new F3dParser().Parse(sm64Memory, address);
+        newModel.AddDl(sm64Memory, address);
       }
 
       if (lvl.ModelIDs.ContainsKey(modelID))
