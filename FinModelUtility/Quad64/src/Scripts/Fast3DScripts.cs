@@ -4,6 +4,9 @@ using Quad64.src.LevelInfo;
 using System.Numerics;
 
 using f3dzex2.displaylist.opcodes;
+using f3dzex2.io;
+
+using Quad64.Scripts;
 
 
 namespace Quad64.src.Scripts {
@@ -88,7 +91,8 @@ namespace Quad64.src.Scripts {
     static TempMaterial tempMaterial = new TempMaterial();
     static IVtx[] vertices = new IVtx[16];
 
-    public static void parse(ref Model3D mdl,
+    public static void parse(IN64Memory n64Memory,
+                             ref Model3D mdl,
                              ref Level lvl,
                              byte seg,
                              uint off,
@@ -130,7 +134,7 @@ namespace Quad64.src.Scripts {
               return;
             break;
           case CMD.F3D_DL:
-            F3D_DL(ref mdl, ref lvl, cmd, areaID, current_depth);
+            F3D_DL(n64Memory, ref mdl, ref lvl, cmd, areaID, current_depth);
             if (cmd[1] == 1)
               end = true;
             break;
@@ -261,14 +265,18 @@ namespace Quad64.src.Scripts {
       return true;
     }
 
-    private static void F3D_DL(ref Model3D mdl,
-                               ref Level lvl,
-                               byte[] cmd,
-                               byte? areaID,
-                               int current_depth) {
+    private static void F3D_DL(
+        IN64Memory n64Memory,
+        ref Model3D mdl,
+        ref Level lvl,
+        byte[] cmd,
+        byte? areaID,
+        int current_depth) {
+      var address = bytesToInt(cmd, 4, 4);
       byte seg = cmd[4];
       uint off = bytesToInt(cmd, 5, 3);
-      parse(ref mdl, ref lvl, seg, off, areaID, current_depth + 1);
+      parse(n64Memory, ref mdl, ref lvl, seg, off, areaID, current_depth + 1);
+      new F3dParser().Parse(n64Memory, address);
     }
 
     private static Vector4 getColor(uint color) {

@@ -161,7 +161,7 @@ namespace Quad64.Scripts {
           case 0x1F: {
             var areaId = sm64Memory.AreaId;
             //Globals.DEBUG_PLG = true;                       
-            CMD_1F(ref lvl, ref desc, cmd, data, ref areaId);
+            CMD_1F(sm64Memory, ref lvl, ref desc, cmd, data, ref areaId);
             sm64Memory.AreaId = areaId;
             break;
           }
@@ -175,7 +175,7 @@ namespace Quad64.Scripts {
             break;
           case 0x22:
             //Globals.DEBUG_PLG = false;
-            CMD_22(ref lvl, ref desc, cmd, sm64Memory.AreaId);
+            CMD_22(sm64Memory, ref lvl, ref desc, cmd, sm64Memory.AreaId);
             break;
           case 0x24:
             CMD_24(ref lvl, ref desc, cmd, seg, off, sm64Memory.AreaId);
@@ -493,7 +493,8 @@ namespace Quad64.Scripts {
       }
     }
 
-    private static void CMD_1F(ref Level lvl,
+    private static void CMD_1F(IN64Memory n64Memory,
+                               ref Level lvl,
                                ref string desc,
                                byte[] cmd,
                                byte[] data,
@@ -515,7 +516,7 @@ namespace Quad64.Scripts {
       // Globals.DEBUG_PARSING_LEVEL_AREA = true;
       // Stopwatch stopWatch = new Stopwatch();
       // stopWatch.Start();
-      new GeoScriptsWrapper().parse(newArea.AreaModel, ref lvl, seg, off, areaID);
+      new GeoScriptsWrapper().parse(n64Memory, newArea.AreaModel, ref lvl, seg, off, areaID);
       lvl.setAreaBackgroundInfo(ref newArea);
       lvl.Areas.Add(newArea);
       lvl.CurrentAreaID = areaID;
@@ -554,7 +555,7 @@ namespace Quad64.Scripts {
       var model = newModel.Current;
 
       if (rom.getSegment(seg, areaID) != null) {
-        Fast3DScripts.parse(ref model, ref lvl, seg, off, areaID, 0);
+        Fast3DScripts.parse(n64Memory, ref model, ref lvl, seg, off, areaID, 0);
         var displayList = new F3dParser().Parse(n64Memory, address);
       }
 
@@ -564,7 +565,8 @@ namespace Quad64.Scripts {
       lvl.ModelIDs.Add(modelID, newModel);
     }
 
-    private static void CMD_22(ref Level lvl,
+    private static void CMD_22(IN64Memory n64Memory,
+                               ref Level lvl,
                                ref string desc,
                                byte[] cmd,
                                byte? areaID) {
@@ -584,7 +586,7 @@ namespace Quad64.Scripts {
       Model3DLods newModel = new Model3DLods();
       if (rom.getSegment(seg, areaID) != null) {
         try {
-          new GeoScriptsWrapper().parse(newModel, ref lvl, seg, off, areaID);
+          new GeoScriptsWrapper().parse(n64Memory, newModel, ref lvl, seg, off, areaID);
         } catch (Exception e) {
           Console.WriteLine(e.Message);
           Console.WriteLine(e.StackTrace);

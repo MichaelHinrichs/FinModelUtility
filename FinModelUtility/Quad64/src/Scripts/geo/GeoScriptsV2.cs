@@ -1,7 +1,11 @@
-﻿using fin.math.matrix;
+﻿using f3dzex2.io;
+
+using fin.math.matrix;
 using fin.model;
 using fin.model.impl;
 using fin.schema.vector;
+
+using Quad64.Scripts;
 using Quad64.src.LevelInfo;
 using sm64.scripts;
 using sm64.scripts.geo;
@@ -17,11 +21,13 @@ namespace Quad64.src.Scripts {
       nodeCurrent = rootNode;
     }
 
-    public void parse(Model3DLods mdlLods,
-                      ref Level lvl,
-                      byte seg,
-                      uint off,
-                      byte? areaID) {
+    public void parse(
+        IN64Memory n64Memory,
+        Model3DLods mdlLods,
+        ref Level lvl,
+        byte seg,
+        uint off,
+        byte? areaID) {
       var commandList =
           new GeoScriptParser().Parse(GeoUtils.MergeAddress(seg, off),
                                       areaID);
@@ -31,13 +37,15 @@ namespace Quad64.src.Scripts {
 
       mdlLods.Current.Node = nodeCurrent;
 
-      Add_(mdlLods, lvl, areaID, commandList);
+      Add_(n64Memory, mdlLods, lvl, areaID, commandList);
     }
 
-    private void Add_(Model3DLods mdlLods,
-                      Level lvl,
-                      byte? areaID,
-                      IGeoCommandList commandList) {
+    private void Add_(
+        IN64Memory n64Memory,
+        Model3DLods mdlLods,
+        Level lvl,
+        byte? areaID,
+        IGeoCommandList commandList) {
       foreach (var command in commandList.Commands) {
         switch (command) {
           case GeoAnimatedPartCommand geoAnimatedPartCommand: {
@@ -45,6 +53,7 @@ namespace Quad64.src.Scripts {
             this.nodeCurrent.matrix.MultiplyInPlace(
                 CreateTranslationMatrix_(translation));
             AddDisplayList(
+                n64Memory,
                 mdlLods,
                 lvl,
                 geoAnimatedPartCommand.DisplayListSegmentedAddress,
@@ -55,7 +64,7 @@ namespace Quad64.src.Scripts {
           case GeoBranchAndStoreCommand geoBranchAndStoreCommand: {
             if (geoBranchAndStoreCommand.GeoCommandList != null) {
               var currentNode = nodeCurrent;
-              Add_(mdlLods, lvl, areaID,
+              Add_(n64Memory, mdlLods, lvl, areaID,
                    geoBranchAndStoreCommand.GeoCommandList);
               mdlLods.Current.Node = currentNode;
             }
@@ -64,7 +73,7 @@ namespace Quad64.src.Scripts {
           case GeoBranchCommand geoBranchCommand: {
             if (geoBranchCommand.GeoCommandList != null) {
               var currentNode = nodeCurrent;
-              Add_(mdlLods, lvl, areaID, geoBranchCommand.GeoCommandList);
+              Add_(n64Memory, mdlLods, lvl, areaID, geoBranchCommand.GeoCommandList);
               if (geoBranchCommand.StoreReturnAddress) {
                 mdlLods.Current.Node = currentNode;
               }
@@ -80,6 +89,7 @@ namespace Quad64.src.Scripts {
           }
           case GeoDisplayListCommand geoDisplayListCommand: {
             AddDisplayList(
+                n64Memory,
                 mdlLods,
                 lvl,
                 geoDisplayListCommand.DisplayListSegmentedAddress,
@@ -102,6 +112,7 @@ namespace Quad64.src.Scripts {
             this.nodeCurrent.matrix.MultiplyInPlace(
                 CreateRotationMatrix_(rotation));
             AddDisplayList(
+                n64Memory,
                 mdlLods,
                 lvl,
                 geoRotationCommand.DisplayListSegmentedAddress,
@@ -113,6 +124,7 @@ namespace Quad64.src.Scripts {
             this.nodeCurrent.matrix.MultiplyInPlace(
                 MatrixTransformUtil.FromScale(new Scale (scale)));
             AddDisplayList(
+                n64Memory,
                 mdlLods,
                 lvl,
                 geoScaleCommand.DisplayListSegmentedAddress,
@@ -131,6 +143,7 @@ namespace Quad64.src.Scripts {
             this.nodeCurrent.matrix.MultiplyInPlace(
                 CreateTranslationAndRotationMatrix_(translation, rotation));
             AddDisplayList(
+                n64Memory,
                 mdlLods,
                 lvl,
                 geoTranslateAndRotateCommand.DisplayListSegmentedAddress,
@@ -142,6 +155,7 @@ namespace Quad64.src.Scripts {
             this.nodeCurrent.matrix.MultiplyInPlace(
                 CreateTranslationMatrix_(translation));
             AddDisplayList(
+                n64Memory,
                 mdlLods,
                 lvl,
                 geoTranslationCommand.DisplayListSegmentedAddress,
@@ -184,10 +198,12 @@ namespace Quad64.src.Scripts {
              MatrixTransformUtil.FromRotation(
                  new ModelImpl.RotationImpl().SetDegrees(0, rotation.Y, 0)));
 
-    public void AddDisplayList(Model3DLods mdlLods,
-                               Level lvl,
-                               uint? displayListAddress,
-                               byte? areaID) {
+    public void AddDisplayList(
+        IN64Memory n64Memory,
+        Model3DLods mdlLods,
+        Level lvl,
+        uint? displayListAddress,
+        byte? areaID) {
       var mdl = mdlLods.Current;
 
       // Don't bother processing duplicate display lists.
@@ -197,7 +213,8 @@ namespace Quad64.src.Scripts {
                               out var off);
 
         if (!mdl.hasGeoDisplayList(displayListAddress!.Value)) {
-          Fast3DScripts.parse(ref mdl, ref lvl, seg, off, areaID, 0);
+          Fast3DScripts.parse(n64Memory, ref mdl, ref lvl, seg, off, areaID, 0);
+          new F3dParser().Parse(n64Memory, displayListAddress.Value);
         }
         lvl.temp_bgInfo.usesFog = mdl.builder.UsesFog;
         lvl.temp_bgInfo.fogColor = mdl.builder.FogColor;

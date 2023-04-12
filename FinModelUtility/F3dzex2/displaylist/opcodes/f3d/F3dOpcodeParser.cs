@@ -82,6 +82,11 @@ namespace f3dzex2.displaylist.opcodes.f3d {
         case F3dOpcode.G_LOADBLOCK:
         case F3dOpcode.G_TRI1:
         case F3dOpcode.G_MOVEMEM:
+        case F3dOpcode.G_MOVEWORD:
+        case F3dOpcode.G_SETENVCOLOR:
+        case F3dOpcode.G_SETOTHERMODE_L:
+        case F3dOpcode.G_SETOTHERMODE_H:
+        case F3dOpcode.G_SETFOGCOLOR:
           return new NoopOpcodeCommand();
         case F3dOpcode.G_RDPLOADSYNC:
         case F3dOpcode.G_RDPPIPESYNC:
@@ -112,6 +117,7 @@ namespace f3dzex2.displaylist.opcodes.f3d {
         case F3dOpcode.G_SETGEOMETRYMODE:
         case F3dOpcode.G_ENDDL:
         case F3dOpcode.G_SETOTHERMODE_H:
+        case F3dOpcode.G_SETOTHERMODE_L:
         case F3dOpcode.G_TEXTURE:
         case F3dOpcode.G_MOVEWORD:
         case F3dOpcode.G_POPMTX:
