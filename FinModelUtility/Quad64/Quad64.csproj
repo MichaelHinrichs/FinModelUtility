@@ -103,6 +103,7 @@
     <None Include="Resources\icon_Star1.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\F3dzex2\F3dzex2.csproj" />
     <ProjectReference Include="..\Schema\Schema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
     <ProjectReference Include="..\Fin\Fin.csproj" />
   </ItemGroup>
