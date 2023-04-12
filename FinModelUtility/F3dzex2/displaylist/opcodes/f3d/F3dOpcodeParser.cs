@@ -107,25 +107,57 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           return new SetTimgOpcodeCommand {
               ColorFormat = colorFormat,
               BitSize = bitSize,
-              SegmentedAddressToTexture = er.ReadUInt32(),
+              TextureSegmentedAddress = er.ReadUInt32(),
           };
         }
         case F3dOpcode.G_SETGEOMETRYMODE: {
           er.AssertUInt24(0);
-          return new SetGeometryMode {
+          return new SetGeometryModeOpcodeCommand {
               FlagsToEnable = (GeometryMode) er.ReadUInt32()
           };
         }
         case F3dOpcode.G_CLEARGEOMETRYMODE: {
           er.AssertUInt24(0);
-          return new ClearGeometryMode {
+          return new ClearGeometryModeOpcodeCommand {
               FlagsToDisable = (GeometryMode) er.ReadUInt32()
           };
         }
+        case F3dOpcode.G_TEXTURE: {
+          er.AssertByte(0);
+
+          var mipmapLevelsAndTileDescriptor = er.ReadByte();
+          var tileDescriptorIndex =
+              (byte) BitLogic.ExtractFromRight(mipmapLevelsAndTileDescriptor, 0, 3);
+          var maximumNumberOfMipmaps =
+              (byte) BitLogic.ExtractFromRight(mipmapLevelsAndTileDescriptor, 3, 3);
+          var newTileDescriptorState = (TileDescriptorState) er.ReadByte();
+          var horizontalScale = er.ReadUInt16();
+          var verticalScale = er.ReadUInt16();
+
+          return new TextureOpcodeCommand {
+              TileDescriptorIndex = tileDescriptorIndex,
+              NewTileDescriptorState = newTileDescriptorState,
+              HorizontalScaling = horizontalScale,
+              VerticalScaling = verticalScale,
+              MaximumNumberOfMipmaps = maximumNumberOfMipmaps,
+          };
+        }
+        case F3dOpcode.G_SETTILE: {
+          var first = er.ReadUInt24();
+          var second = er.ReadUInt32();
+
+          var colorFormat =
+              (N64ColorFormat) BitLogic.ExtractFromRight(first, 25, 3);
+          var bitSize =
+              (BitSize) BitLogic.ExtractFromRight(first, 23, 2);
+
+          return new SetTileOpcodeCommand {
+              ColorFormat = colorFormat,
+              BitSize = bitSize,
+          };
+        }
         // TODO: Implement these
-        case F3dOpcode.G_TEXTURE:
         case F3dOpcode.G_SETCOMBINE:
-        case F3dOpcode.G_SETTILE:
         case F3dOpcode.G_SETTILESIZE:
         case F3dOpcode.G_LOADBLOCK:
         case F3dOpcode.G_MOVEMEM:

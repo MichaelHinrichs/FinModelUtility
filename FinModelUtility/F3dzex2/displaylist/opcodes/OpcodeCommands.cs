@@ -107,8 +107,8 @@ namespace f3dzex2.displaylist.opcodes {
 
 
   public enum TileDescriptorState {
-    ENABLED,
-    DISABLED,
+    DISABLED = 0,
+    ENABLED = 1,
   }
 
   public class TextureOpcodeCommand : IOpcodeCommand {
@@ -122,7 +122,7 @@ namespace f3dzex2.displaylist.opcodes {
   public class SetTimgOpcodeCommand : IOpcodeCommand {
     public N64ColorFormat ColorFormat { get; set; }
     public BitSize BitSize { get; set; }
-    public uint SegmentedAddressToTexture { get; set; }
+    public uint TextureSegmentedAddress { get; set; }
   }
 
   [Flags]
@@ -142,11 +142,18 @@ namespace f3dzex2.displaylist.opcodes {
     G_CLIPPING_EX2 = 1 << 23,
   }
 
-  public class SetGeometryMode : IOpcodeCommand {
+  public class SetGeometryModeOpcodeCommand : IOpcodeCommand {
     public GeometryMode FlagsToEnable { get; set; }
   }
 
-  public class ClearGeometryMode : IOpcodeCommand {
+  public class ClearGeometryModeOpcodeCommand : IOpcodeCommand {
     public GeometryMode FlagsToDisable { get; set; }
+  }
+
+  public class SetTileOpcodeCommand : IOpcodeCommand {
+    public N64ColorFormat ColorFormat { get; set; }
+    public BitSize BitSize { get; set; }
+
+    // TODO: Support the rest
   }
 }
