@@ -308,7 +308,6 @@ namespace Quad64.src.Scripts {
                                  ref Level lvl,
                                  ref TempMaterial temp,
                                  byte[] cmd) {
-      mdl.builder.numTriangles++;
       var a = vertices[cmd[5] / 0x0A];
       Vector3 a_pos = new Vector3(a.X, a.Y, a.Z);
       Vector2 a_uv = new Vector2(a.U * temp.texScaleX, a.V * temp.texScaleY);

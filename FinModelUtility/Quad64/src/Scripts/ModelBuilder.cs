@@ -28,12 +28,9 @@ namespace Quad64.src.Scripts {
 
     public bool processingTexture = false;
 
-    public int numTriangles = 0;
-
     public ModelBuilderMaterial? CurrentMaterial { get; set; }
 
     private List<TempMesh> TempMeshes = new List<TempMesh>();
-    private FinalMesh finalMesh;
 
     public readonly Model3D model_;
 
@@ -47,9 +44,6 @@ namespace Quad64.src.Scripts {
 
     public HashSet<(Bitmap image, uint segmentAddr, TextureInfo info)>
         TextureData { get; } = new();
-
-    public IEnumerable<Bitmap> TextureImages =>
-        this.TextureData.Select(data => data.image);
 
     private FinalMesh newFinalMesh() {
       FinalMesh m = new FinalMesh();
@@ -174,7 +168,6 @@ namespace Quad64.src.Scripts {
     }
 
     public void BuildData(ref List<Model3D.MeshData> meshes) {
-      finalMesh = newFinalMesh();
       for (int t = 0; t < TempMeshes.Count; t++) {
         TempMesh temp = TempMeshes[t];
 
