@@ -4,7 +4,6 @@ using Quad64.src.LevelInfo;
 using System.Numerics;
 
 using f3dzex2.displaylist.opcodes;
-using f3dzex2.io;
 
 using Quad64.memory;
 using Quad64.Scripts;
@@ -316,25 +315,22 @@ namespace Quad64.src.Scripts {
                                  ref TempMaterial temp,
                                  byte[] cmd) {
       var a = vertices[cmd[5] / 0x0A];
-      var a_pos = GetPos_(a!);
-      Vector2 a_uv = new Vector2(a.U * temp.texScaleX, a.V * temp.texScaleY);
-      Vector4 a_color = new Vector4(a.NormalXOrR / 255.0f, a.NormalYOrG / 255.0f,
-                                    a.NormalZOrB / 255.0f, a.A / 255.0f);
-      var a_normal = GetNormal_(a);
+      var a_pos = a.GetPosition();
+      Vector2 a_uv = a.GetUv(temp.texScaleX, temp.texScaleY);
+      Vector4 a_color = a.GetColor();
+      var a_normal = a.GetNormal();
       
       var b = vertices[cmd[6] / 0x0A];
-      var b_pos = GetPos_(b!);
-      Vector2 b_uv = new Vector2(b.U * temp.texScaleX, b.V * temp.texScaleY);
-      Vector4 b_color = new Vector4(b.NormalXOrR / 255.0f, b.NormalYOrG / 255.0f,
-                                    b.NormalZOrB / 255.0f, b.A / 255.0f);
-      var b_normal = GetNormal_(b);
+      var b_pos = b.GetPosition();
+      Vector2 b_uv = b.GetUv(temp.texScaleX, temp.texScaleY);
+      Vector4 b_color = b.GetColor();
+      var b_normal = b.GetNormal();
 
       var c = vertices[cmd[7] / 0x0A];
-      var c_pos = GetPos_(c!);
-      Vector2 c_uv = new Vector2(c.U * temp.texScaleX, c.V * temp.texScaleY);
-      Vector4 c_color = new Vector4(c.NormalXOrR / 255.0f, c.NormalYOrG / 255.0f,
-                                    c.NormalZOrB / 255.0f, c.A / 255.0f);
-      var c_normal = GetNormal_(c);
+      var c_pos = c.GetPosition();
+      Vector2 c_uv = c.GetUv(temp.texScaleX, temp.texScaleY);
+      Vector4 c_color = c.GetColor();
+      var c_normal = c.GetNormal();
 
       //System.Console.WriteLine("Adding new Triangle: " + a_pos + "," + b_pos + "," + c_pos);
 
@@ -348,17 +344,6 @@ namespace Quad64.src.Scripts {
         mdl.builder.AddTempVertex(c_pos, c_uv, c_color, null);
       }
     }
-
-    private static Vector3 GetPos_(IVtx vtx) => new Vector3(vtx.X, vtx.Y, vtx.Z);
-
-    private static Vector3 GetNormal_(IVtx vtx) => new Vector3(
-        GetNormalChannel_(vtx.NormalXOrR),
-        GetNormalChannel_(vtx.NormalYOrG),
-        GetNormalChannel_(vtx.NormalZOrB));
-
-    private static float GetNormalChannel_(byte value)
-      => ((sbyte) value) / (byte.MaxValue * .5f);
-
 
     private static void G_LOADTLUT(byte[] cmd,
                                    ref TempMaterial temp,

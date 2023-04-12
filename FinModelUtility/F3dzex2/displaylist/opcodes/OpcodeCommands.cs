@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
 
 
 namespace f3dzex2.displaylist.opcodes {
@@ -40,15 +41,19 @@ namespace f3dzex2.displaylist.opcodes {
     short X { get; }
     short Y { get; }
     short Z { get; }
+    Vector3 GetPosition();
 
     short Flag { get; }
     short U { get; }
     short V { get; }
+    Vector2 GetUv(float scaleX, float scaleY);
 
     byte NormalXOrR { get; }
     byte NormalYOrG { get; }
     byte NormalZOrB { get; }
     byte A { get; }
+    Vector3 GetNormal();
+    Vector4 GetColor();
   }
 
 
