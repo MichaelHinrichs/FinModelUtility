@@ -534,7 +534,6 @@ namespace Quad64.Scripts {
              "; Load Fast3D from 0x" + seg.ToString("X2") + off.ToString("X6");
 
       Model3DLods newModel = new Model3DLods();
-      newModel.Current.Fast3DCommands_ForDump.Add(new List<ScriptDumpCommandInfo>());
       newModel.Current.GeoDataSegAddress = bytesToInt(cmd, 4, 4);
       lvl.AddObjectCombos(modelID, newModel.Current.GeoDataSegAddress);
 

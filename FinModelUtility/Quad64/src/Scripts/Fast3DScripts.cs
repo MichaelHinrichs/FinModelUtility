@@ -109,41 +109,28 @@ namespace Quad64.src.Scripts {
           return;
           //throw new Exception("UNDEFINED FAST3D COMMAND: 0x"+cmd[0].ToString("X2"));
         }
-        string desc = ((CMD) cmd[0]).ToString();
-        bool alreadyAdded = false;
 
         switch ((CMD) cmd[0]) {
           case CMD.F3D_NOOP:
-            desc = "Do nothing";
             if (bytesToInt(cmd, 0, 4) != 0)
               return;
             break;
           case CMD.F3D_MTX:
-            desc = "G_MTX";
             // Detect if empty data has been found.
             if (bytesToLong(cmd, 0) == 0x0101010101010101)
               return;
             break;
           case CMD.F3D_MOVEMEM:
             switchTextureStatus(ref mdl, ref tempMaterial, true, areaID);
-            F3D_MOVEMEM(ref tempMaterial, ref lvl, cmd, ref desc, areaID);
+            F3D_MOVEMEM(ref tempMaterial, ref lvl, cmd, areaID);
             break;
           case CMD.F3D_VTX:
             switchTextureStatus(ref mdl, ref tempMaterial, false, areaID);
             //if (tempMaterial.id != 0) return;
-            if (!F3D_VTX(vertices, ref lvl, cmd, ref desc, areaID))
+            if (!F3D_VTX(vertices, ref lvl, cmd, areaID))
               return;
             break;
           case CMD.F3D_DL:
-            alreadyAdded = true;
-            if (cmd[1] == 0x00)
-              desc = "Jump and link to display list at 0x" +
-                     bytesToInt(cmd, 4, 4).ToString("X8");
-            else
-              desc = "Jump to display list at 0x" +
-                     bytesToInt(cmd, 4, 4).ToString("X8");
-
-            addF3DCommandToDump(ref mdl, cmd, seg, off, desc, areaID);
             F3D_DL(ref mdl, ref lvl, cmd, areaID, current_depth);
             if (cmd[1] == 1)
               end = true;
@@ -159,7 +146,6 @@ namespace Quad64.src.Scripts {
             mdl.builder.AddGeometryMode(tempMaterial.geometryMode);
             break;
           case CMD.F3D_ENDDL:
-            desc = "End of display list";
             end = true;
             break;
           case CMD.F3D_TEXTURE:
@@ -168,31 +154,14 @@ namespace Quad64.src.Scripts {
           case CMD.F3D_TRI1:
             switchTextureStatus(ref mdl, ref tempMaterial, false, areaID);
             //if (tempMaterial.id != 0) return;
-            F3D_TRI1(vertices, ref mdl, ref lvl, ref tempMaterial, cmd,
-                     ref desc);
-            break;
-          case CMD.G_RDPLOADSYNC:
-            desc = "RDP Load sync";
-            break;
-          case CMD.G_RDPPIPESYNC:
-            desc = "RDP Pipe sync";
-            break;
-          case CMD.G_RDPTILESYNC:
-            desc = "RDP Tile sync";
-            break;
-          case CMD.G_RDPFULLSYNC:
-            desc = "RDP Full sync";
+            F3D_TRI1(vertices, ref mdl, ref lvl, ref tempMaterial, cmd);
             break;
           case CMD.G_LOADTLUT:
-            G_LOADTLUT(cmd, ref tempMaterial, ref desc, areaID);
+            G_LOADTLUT(cmd, ref tempMaterial, areaID);
             break;
           case CMD.G_SETTILESIZE:
             switchTextureStatus(ref mdl, ref tempMaterial, true, areaID);
-            G_SETTILESIZE(cmd, ref tempMaterial, ref desc);
-            break;
-          case CMD.G_LOADBLOCK:
-            desc = "Load " + (((bytesToInt(cmd, 4, 4) >> 12) & 0xFFF) + 1) +
-                   " texels into texture memory cache";
+            G_SETTILESIZE(cmd, ref tempMaterial);
             break;
           case CMD.G_SETTILE:
             G_SETTILE(ref tempMaterial, cmd);
@@ -210,33 +179,11 @@ namespace Quad64.src.Scripts {
             break;
           case CMD.G_SETTIMG:
             switchTextureStatus(ref mdl, ref tempMaterial, true, areaID);
-            G_SETTIMG(ref tempMaterial, cmd, ref desc);
+            G_SETTIMG(ref tempMaterial, cmd);
             break;
         }
-        if (!alreadyAdded)
-          addF3DCommandToDump(ref mdl, cmd, seg, off, desc, areaID);
         off += 8;
       }
-    }
-
-
-    private static void addF3DCommandToDump(ref Model3D mdl,
-                                            byte[] cmd,
-                                            byte seg,
-                                            uint offset,
-                                            string description,
-                                            byte? areaID) {
-      ScriptDumpCommandInfo info = new ScriptDumpCommandInfo();
-      info.data = cmd;
-      info.description = description;
-      info.segAddress = (uint) (seg << 24) | offset;
-
-      info.romAddress =
-          ROM.Instance.decodeSegmentAddress_safe(seg, offset, areaID);
-      //Console.WriteLine("Adding to dump " + (mdl.Fast3DCommands_ForDump.Count - 1));
-      if (mdl.Fast3DCommands_ForDump.Count > 0)
-        mdl.Fast3DCommands_ForDump[mdl.Fast3DCommands_ForDump.Count - 1]
-           .Add(info);
     }
 
     private static void switchTextureStatus(ref Model3D mdl,
@@ -282,34 +229,26 @@ namespace Quad64.src.Scripts {
     private static void F3D_MOVEMEM(ref TempMaterial temp,
                                     ref Level lvl,
                                     byte[] cmd,
-                                    ref string desc,
                                     byte? areaID) {
       if (cmd[1] == 0x86) {
         ROM rom = ROM.Instance;
         byte[] colData =
             rom.getDataFromSegmentAddress(bytesToInt(cmd, 4, 4), 4, areaID);
         temp.color = (bytesToInt(colData, 0, 3) | 0xFF000000);
-        desc = "Load light values for normal shading from address 0x" +
-               bytesToInt(cmd, 4, 4).ToString("X8");
         //rom.printArray(colData, 4);
       } else if (cmd[1] == 0x88) {
-        desc = "Load dark values for normal shading from address 0x" +
-               bytesToInt(cmd, 4, 4).ToString("X8");
       }
     }
 
     private static bool F3D_VTX(F3D_Vertex[] vertices,
                                 ref Level lvl,
                                 byte[] cmd,
-                                ref string desc,
                                 byte? areaID) {
       ROM rom = ROM.Instance;
       int amount = ((cmd[2] << 8) | cmd[3]) / 0x10;
       byte seg = cmd[4];
       uint off = bytesToInt(cmd, 5, 3);
 
-      desc = "Load " + amount + " vertices from address 0x" +
-             bytesToInt(cmd, 4, 4).ToString("X8");
       // Console.WriteLine("04: Amt = " + amount + ", Seg = " + seg.ToString("X2")+", Off = "+off.ToString("X6"));
       if (rom.getSegment(seg, areaID) == null)
         return false;
@@ -383,10 +322,7 @@ namespace Quad64.src.Scripts {
                                  ref Model3D mdl,
                                  ref Level lvl,
                                  ref TempMaterial temp,
-                                 byte[] cmd,
-                                 ref string desc) {
-      desc = "Draw triangle using vertices (" + (cmd[5] / 0x0A) + "," +
-             cmd[6] / 0x0A + "," + cmd[7] / 0x0A + ")";
+                                 byte[] cmd) {
       mdl.builder.numTriangles++;
       F3D_Vertex a = vertices[cmd[5] / 0x0A];
       Vector3 a_pos = new Vector3(a.x, a.y, a.z);
@@ -419,13 +355,10 @@ namespace Quad64.src.Scripts {
 
     private static void G_LOADTLUT(byte[] cmd,
                                    ref TempMaterial temp,
-                                   ref string desc,
                                    byte? areaID) {
       byte paletteTileDescriptor = cmd[4];
       ushort numColorsToLoadInPalette =
           (ushort) ((bytesToInt(cmd, 5, 2) >> 6) + 1);
-      desc = "Load " + numColorsToLoadInPalette +
-             " colors into texture memory cache";
       byte[] segmentData =
           ROM.Instance.getSegment((byte) (temp.segOff >> 24), areaID);
       uint offset = temp.segOff & 0x00FFFFFF;
@@ -436,12 +369,9 @@ namespace Quad64.src.Scripts {
     }
 
     private static void G_SETTILESIZE(byte[] cmd,
-                                      ref TempMaterial temp,
-                                      ref string desc) {
+                                      ref TempMaterial temp) {
       temp.w = (ushort) ((((cmd[5] << 8) | (cmd[6] & 0xF0)) >> 6) + 1);
       temp.h = (ushort) ((((cmd[6] & 0x0F) << 8 | cmd[7]) >> 2) + 1);
-      desc = "Set texture size (width = " + temp.w + ", height = " + temp.h +
-             ")";
     }
 
     private static int getWrap(int flag) {
@@ -485,14 +415,9 @@ namespace Quad64.src.Scripts {
     }
 
     private static void G_SETTIMG(ref TempMaterial temp,
-                                  byte[] cmd,
-                                  ref string desc) {
+                                  byte[] cmd) {
       temp.segOff = bytesToInt(cmd, 4, 4);
       byte format = (byte) (cmd[1] & 0xF8);
-      desc = "Set load format to " +
-             TextureFormats.ConvertFormatToString(
-                 (byte) (format >> 5), (byte) (format >> 3)) +
-             " & address to 0x" + temp.segOff.ToString("X8");
       temp.isPaletteRGBA16 = (format != 0x70);
     }
   }
