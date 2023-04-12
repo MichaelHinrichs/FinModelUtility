@@ -71,6 +71,33 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           er.AssertUInt32(0);
           return new EndDlOpcodeCommand();
         }
+        case F3dOpcode.G_TRI1: {
+          er.AssertUInt32(0);
+          return new Tri1OpcodeCommand {
+              VertexOrder  = TriVertexOrder.ABC,
+              VertexIndexA = er.ReadByte(),
+              VertexIndexB = er.ReadByte(),
+              VertexIndexC = er.ReadByte(),
+          };
+        }
+        case F3dOpcode.G_SETENVCOLOR: {
+          er.AssertUInt24(0);
+          return new SetEnvColorOpcodeCommand {
+              R = er.ReadByte(),
+              G = er.ReadByte(),
+              B = er.ReadByte(),
+              A = er.ReadByte(),
+          };
+        }
+        case F3dOpcode.G_SETFOGCOLOR: {
+          er.AssertUInt24(0);
+          return new SetFogColorOpcodeCommand {
+              R = er.ReadByte(),
+              G = er.ReadByte(),
+              B = er.ReadByte(),
+              A = er.ReadByte(),
+          };
+        }
         // TODO: Implement these
         case F3dOpcode.G_TEXTURE:
         case F3dOpcode.G_CLEARGEOMETRYMODE:
@@ -80,13 +107,10 @@ namespace f3dzex2.displaylist.opcodes.f3d {
         case F3dOpcode.G_SETTILE:
         case F3dOpcode.G_SETTILESIZE:
         case F3dOpcode.G_LOADBLOCK:
-        case F3dOpcode.G_TRI1:
         case F3dOpcode.G_MOVEMEM:
         case F3dOpcode.G_MOVEWORD:
-        case F3dOpcode.G_SETENVCOLOR:
         case F3dOpcode.G_SETOTHERMODE_L:
         case F3dOpcode.G_SETOTHERMODE_H:
-        case F3dOpcode.G_SETFOGCOLOR:
           return new NoopOpcodeCommand();
         case F3dOpcode.G_RDPLOADSYNC:
         case F3dOpcode.G_RDPPIPESYNC:

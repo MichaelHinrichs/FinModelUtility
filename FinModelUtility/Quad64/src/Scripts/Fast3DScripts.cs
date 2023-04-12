@@ -6,6 +6,7 @@ using System.Numerics;
 using f3dzex2.displaylist.opcodes;
 using f3dzex2.io;
 
+using Quad64.memory;
 using Quad64.Scripts;
 
 
@@ -91,17 +92,16 @@ namespace Quad64.src.Scripts {
     static TempMaterial tempMaterial = new TempMaterial();
     static IVtx[] vertices = new IVtx[16];
 
-    public static void parse(IN64Memory n64Memory,
+    public static void parse(IReadOnlySm64Memory n64Memory,
                              ref Model3D mdl,
                              ref Level lvl,
                              byte seg,
                              uint off,
-                             byte? areaID,
                              int current_depth) {
       if (seg == 0 || current_depth >= 300)
         return; // depth was added to prevent infinite loops with 0x06 command.
       ROM rom = ROM.Instance;
-      byte[] data = rom.getSegment(seg, areaID);
+      byte[] data = rom.getSegment(seg, n64Memory.AreaId);
       if (data == null) return;
       bool end = false;
       while (!end) {
@@ -124,17 +124,17 @@ namespace Quad64.src.Scripts {
               return;
             break;
           case CMD.F3D_MOVEMEM:
-            switchTextureStatus(ref mdl, ref tempMaterial, true, areaID);
-            F3D_MOVEMEM(ref tempMaterial, ref lvl, cmd, areaID);
+            switchTextureStatus(ref mdl, ref tempMaterial, true, n64Memory.AreaId);
+            F3D_MOVEMEM(ref tempMaterial, ref lvl, cmd, n64Memory.AreaId);
             break;
           case CMD.F3D_VTX:
-            switchTextureStatus(ref mdl, ref tempMaterial, false, areaID);
+            switchTextureStatus(ref mdl, ref tempMaterial, false, n64Memory.AreaId);
             //if (tempMaterial.id != 0) return;
-            if (!F3D_VTX(vertices, ref lvl, cmd, areaID))
+            if (!F3D_VTX(vertices, ref lvl, cmd, n64Memory.AreaId))
               return;
             break;
           case CMD.F3D_DL:
-            F3D_DL(n64Memory, ref mdl, ref lvl, cmd, areaID, current_depth);
+            F3D_DL(n64Memory, ref mdl, ref lvl, cmd, current_depth);
             if (cmd[1] == 1)
               end = true;
             break;
@@ -155,15 +155,15 @@ namespace Quad64.src.Scripts {
             F3D_TEXTURE(ref tempMaterial, cmd);
             break;
           case CMD.F3D_TRI1:
-            switchTextureStatus(ref mdl, ref tempMaterial, false, areaID);
+            switchTextureStatus(ref mdl, ref tempMaterial, false, n64Memory.AreaId);
             //if (tempMaterial.id != 0) return;
             F3D_TRI1(vertices, ref mdl, ref lvl, ref tempMaterial, cmd);
             break;
           case CMD.G_LOADTLUT:
-            G_LOADTLUT(cmd, ref tempMaterial, areaID);
+            G_LOADTLUT(cmd, ref tempMaterial, n64Memory.AreaId);
             break;
           case CMD.G_SETTILESIZE:
-            switchTextureStatus(ref mdl, ref tempMaterial, true, areaID);
+            switchTextureStatus(ref mdl, ref tempMaterial, true, n64Memory.AreaId);
             G_SETTILESIZE(cmd, ref tempMaterial);
             break;
           case CMD.G_SETTILE:
@@ -173,15 +173,15 @@ namespace Quad64.src.Scripts {
             mdl.builder.UsesFog = true;
             mdl.builder.FogColor = Color.FromArgb(cmd[4], cmd[5], cmd[6]);
             mdl.builder.FogColor_romLocation.Add(
-                rom.getSegmentStart(seg, areaID) + off);
+                rom.getSegmentStart(seg, n64Memory.AreaId) + off);
             //Console.WriteLine("Fog color = 0x{0}", bytesToInt(cmd, 4, 4).ToString("X8"));
             break;
           case CMD.G_SETCOMBINE:
             if (G_SETCOMBINE(ref tempMaterial, cmd))
-              switchTextureStatus(ref mdl, ref tempMaterial, true, areaID);
+              switchTextureStatus(ref mdl, ref tempMaterial, true, n64Memory.AreaId);
             break;
           case CMD.G_SETTIMG:
-            switchTextureStatus(ref mdl, ref tempMaterial, true, areaID);
+            switchTextureStatus(ref mdl, ref tempMaterial, true, n64Memory.AreaId);
             G_SETTIMG(ref tempMaterial, cmd);
             break;
         }
@@ -266,17 +266,16 @@ namespace Quad64.src.Scripts {
     }
 
     private static void F3D_DL(
-        IN64Memory n64Memory,
+        IReadOnlySm64Memory sm64Memory,
         ref Model3D mdl,
         ref Level lvl,
         byte[] cmd,
-        byte? areaID,
         int current_depth) {
       var address = bytesToInt(cmd, 4, 4);
       byte seg = cmd[4];
       uint off = bytesToInt(cmd, 5, 3);
-      parse(n64Memory, ref mdl, ref lvl, seg, off, areaID, current_depth + 1);
-      new F3dParser().Parse(n64Memory, address);
+      parse(sm64Memory, ref mdl, ref lvl, seg, off, current_depth + 1);
+      new F3dParser().Parse(sm64Memory, address);
     }
 
     private static Vector4 getColor(uint color) {

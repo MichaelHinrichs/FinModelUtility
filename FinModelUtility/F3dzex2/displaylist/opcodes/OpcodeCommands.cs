@@ -81,6 +81,19 @@ namespace f3dzex2.displaylist.opcodes {
     public byte VertexIndexA1 { get; set; }
     public byte VertexIndexB1 { get; set; }
     public byte VertexIndexC1 { get; set; }
+  }
 
+  public class SetEnvColorOpcodeCommand : IOpcodeCommand {
+    public byte R { get; set; }
+    public byte G { get; set; }
+    public byte B { get; set; }
+    public byte A { get; set; }
+  }
+
+  public class SetFogColorOpcodeCommand : IOpcodeCommand {
+    public byte R { get; set; }
+    public byte G { get; set; }
+    public byte B { get; set; }
+    public byte A { get; set; }
   }
 }

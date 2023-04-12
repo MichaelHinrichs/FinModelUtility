@@ -5,6 +5,7 @@ using fin.model;
 using fin.model.impl;
 using fin.schema.vector;
 
+using Quad64.memory;
 using Quad64.Scripts;
 using Quad64.src.LevelInfo;
 using sm64.scripts;
@@ -22,29 +23,27 @@ namespace Quad64.src.Scripts {
     }
 
     public void parse(
-        IN64Memory n64Memory,
+        IReadOnlySm64Memory n64Memory,
         Model3DLods mdlLods,
         ref Level lvl,
         byte seg,
-        uint off,
-        byte? areaID) {
+        uint off) {
       var commandList =
           new GeoScriptParser().Parse(GeoUtils.MergeAddress(seg, off),
-                                      areaID);
+                                      n64Memory.AreaId);
       if (commandList == null) {
         return;
       }
 
       mdlLods.Current.Node = nodeCurrent;
 
-      Add_(n64Memory, mdlLods, lvl, areaID, commandList);
+      Add_(n64Memory, mdlLods, lvl, commandList);
     }
 
     private void Add_(
-        IN64Memory n64Memory,
+        IReadOnlySm64Memory n64Memory,
         Model3DLods mdlLods,
         Level lvl,
-        byte? areaID,
         IGeoCommandList commandList) {
       foreach (var command in commandList.Commands) {
         switch (command) {
@@ -56,15 +55,14 @@ namespace Quad64.src.Scripts {
                 n64Memory,
                 mdlLods,
                 lvl,
-                geoAnimatedPartCommand.DisplayListSegmentedAddress,
-                areaID);
+                geoAnimatedPartCommand.DisplayListSegmentedAddress);
             break;
           }
           case GeoBillboardCommand geoBillboardCommand: break;
           case GeoBranchAndStoreCommand geoBranchAndStoreCommand: {
             if (geoBranchAndStoreCommand.GeoCommandList != null) {
               var currentNode = nodeCurrent;
-              Add_(n64Memory, mdlLods, lvl, areaID,
+              Add_(n64Memory, mdlLods, lvl,
                    geoBranchAndStoreCommand.GeoCommandList);
               mdlLods.Current.Node = currentNode;
             }
@@ -73,7 +71,7 @@ namespace Quad64.src.Scripts {
           case GeoBranchCommand geoBranchCommand: {
             if (geoBranchCommand.GeoCommandList != null) {
               var currentNode = nodeCurrent;
-              Add_(n64Memory, mdlLods, lvl, areaID, geoBranchCommand.GeoCommandList);
+              Add_(n64Memory, mdlLods, lvl, geoBranchCommand.GeoCommandList);
               if (geoBranchCommand.StoreReturnAddress) {
                 mdlLods.Current.Node = currentNode;
               }
@@ -92,8 +90,7 @@ namespace Quad64.src.Scripts {
                 n64Memory,
                 mdlLods,
                 lvl,
-                geoDisplayListCommand.DisplayListSegmentedAddress,
-                areaID);
+                geoDisplayListCommand.DisplayListSegmentedAddress);
             break;
           }
           case GeoDisplayListFromAsm geoDisplayListFromAsm: break;
@@ -115,8 +112,7 @@ namespace Quad64.src.Scripts {
                 n64Memory,
                 mdlLods,
                 lvl,
-                geoRotationCommand.DisplayListSegmentedAddress,
-                areaID);
+                geoRotationCommand.DisplayListSegmentedAddress);
             break;
           }
           case GeoScaleCommand geoScaleCommand: {
@@ -127,8 +123,7 @@ namespace Quad64.src.Scripts {
                 n64Memory,
                 mdlLods,
                 lvl,
-                geoScaleCommand.DisplayListSegmentedAddress,
-                areaID);
+                geoScaleCommand.DisplayListSegmentedAddress);
             break;
           }
           case GeoSetRenderRangeCommand geoSetRenderRangeCommand: {
@@ -146,8 +141,7 @@ namespace Quad64.src.Scripts {
                 n64Memory,
                 mdlLods,
                 lvl,
-                geoTranslateAndRotateCommand.DisplayListSegmentedAddress,
-                areaID);
+                geoTranslateAndRotateCommand.DisplayListSegmentedAddress);
             break;
           }
           case GeoTranslationCommand geoTranslationCommand: {
@@ -158,8 +152,7 @@ namespace Quad64.src.Scripts {
                 n64Memory,
                 mdlLods,
                 lvl,
-                geoTranslationCommand.DisplayListSegmentedAddress,
-                areaID);
+                geoTranslationCommand.DisplayListSegmentedAddress);
             break;
           }
           case GeoBackgroundCommand geoBackgroundCommand: break;
@@ -199,11 +192,10 @@ namespace Quad64.src.Scripts {
                  new ModelImpl.RotationImpl().SetDegrees(0, rotation.Y, 0)));
 
     public void AddDisplayList(
-        IN64Memory n64Memory,
+        IReadOnlySm64Memory n64Memory,
         Model3DLods mdlLods,
         Level lvl,
-        uint? displayListAddress,
-        byte? areaID) {
+        uint? displayListAddress) {
       var mdl = mdlLods.Current;
 
       // Don't bother processing duplicate display lists.
@@ -213,7 +205,7 @@ namespace Quad64.src.Scripts {
                               out var off);
 
         if (!mdl.hasGeoDisplayList(displayListAddress!.Value)) {
-          Fast3DScripts.parse(n64Memory, ref mdl, ref lvl, seg, off, areaID, 0);
+          Fast3DScripts.parse(n64Memory, ref mdl, ref lvl, seg, off, 0);
           new F3dParser().Parse(n64Memory, displayListAddress.Value);
         }
         lvl.temp_bgInfo.usesFog = mdl.builder.UsesFog;

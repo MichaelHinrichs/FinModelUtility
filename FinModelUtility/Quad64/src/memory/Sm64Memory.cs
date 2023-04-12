@@ -5,7 +5,15 @@ using fin.util.enumerables;
 
 
 namespace Quad64.memory {
-  public class Sm64Memory : IN64Memory {
+  public interface IReadOnlySm64Memory : IN64Memory {
+    byte? AreaId { get; }
+  }
+
+  public interface ISm64Memory : IReadOnlySm64Memory {
+    new byte? AreaId { get; set; }
+  }
+
+  public class Sm64Memory : ISm64Memory {
     public byte? AreaId { get; set; }
 
     public IEnumerable<IEndianBinaryReader> OpenPossibilitiesAtAddress(
