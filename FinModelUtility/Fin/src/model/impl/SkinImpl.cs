@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.Toolkit.HighPerformance.Helpers;
 
 using System;
+using System.Numerics;
 
 
 namespace fin.model.impl {
@@ -66,6 +67,9 @@ namespace fin.model.impl {
           return vertex;
         }
       }
+
+      public IVertex AddVertex(Vector3 position)
+        => this.AddVertex(new Position(position.X, position.Y, position.Z));
 
       public IVertex AddVertex(IVector3 position)
         => this.AddVertex(new Position(position.X, position.Y, position.Z));
@@ -232,6 +236,11 @@ namespace fin.model.impl {
           return this;
         }
 
+        public IVertex SetLocalPosition(Vector3 localPosition)
+          => this.SetLocalPosition(new Position(localPosition.X,
+                                                localPosition.Y,
+                                                localPosition.Z));
+
         public IVertex SetLocalPosition(IVector3 localPosition)
           => this.SetLocalPosition(new Position(localPosition.X,
                                                 localPosition.Y,
@@ -248,6 +257,13 @@ namespace fin.model.impl {
           this.LocalNormal = localNormal;
           return this;
         }
+
+        public IVertex SetLocalNormal(Vector3? localNormal)
+          => this.SetLocalNormal(localNormal != null
+                                     ? new Normal(localNormal.Value.X,
+                                                  localNormal.Value.Y,
+                                                  localNormal.Value.Z)
+                                     : null);
 
         public IVertex SetLocalNormal(IVector3? localNormal)
           => this.SetLocalNormal(localNormal != null
@@ -266,6 +282,14 @@ namespace fin.model.impl {
           this.LocalTangent = localTangent;
           return this;
         }
+
+        public IVertex SetLocalTangent(Vector4? localTangent)
+          => this.SetLocalTangent(localTangent != null
+                                      ? new Tangent(localTangent.Value.X,
+                                                    localTangent.Value.Y,
+                                                    localTangent.Value.Z,
+                                                    localTangent.Value.W)
+                                      : null);
 
         public IVertex SetLocalTangent(IVector4? localTangent)
           => this.SetLocalTangent(localTangent != null
@@ -294,6 +318,15 @@ namespace fin.model.impl {
 
           return this;
         }
+
+        public IVertex SetColor(Vector4? color)
+          => this.SetColor(color != null
+                               ? FinColor.FromRgbaFloats(
+                                   color.Value.X,
+                                   color.Value.Y,
+                                   color.Value.Z,
+                                   color.Value.W)
+                               : null);
 
         public IVertex SetColor(IVector4? color)
           => this.SetColor(color != null
@@ -346,6 +379,11 @@ namespace fin.model.impl {
 
           return this;
         }
+
+        public IVertex SetUv(Vector2? uv)
+          => this.SetUv(uv != null
+                            ? new TexCoordImpl { U = uv.Value.X, V = uv.Value.Y }
+                            : null);
 
         public IVertex SetUv(IVector2? uv)
           => this.SetUv(uv != null

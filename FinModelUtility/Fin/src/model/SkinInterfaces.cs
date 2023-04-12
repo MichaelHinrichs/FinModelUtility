@@ -4,14 +4,15 @@ using fin.color;
 using fin.data;
 using fin.math.matrix;
 using fin.model.impl;
-using SharpGLTF.Schema2;
 using System;
+using System.Numerics;
 
 
 namespace fin.model {
   public interface ISkin {
     IReadOnlyList<IVertex> Vertices { get; }
     IVertex AddVertex(Position position);
+    IVertex AddVertex(Vector3 position);
     IVertex AddVertex(IVector3 position);
     IVertex AddVertex(float x, float y, float z);
 
@@ -105,21 +106,25 @@ namespace fin.model {
 
     Position LocalPosition { get; }
     IVertex SetLocalPosition(Position localPosition);
+    IVertex SetLocalPosition(Vector3 localPosition);
     IVertex SetLocalPosition(IVector3 localPosition);
     IVertex SetLocalPosition(float x, float y, float z);
 
     Normal? LocalNormal { get; }
     IVertex SetLocalNormal(Normal? localNormal);
+    IVertex SetLocalNormal(Vector3? localNormal);
     IVertex SetLocalNormal(IVector3? localNormal);
     IVertex SetLocalNormal(float x, float y, float z);
 
     Tangent? LocalTangent { get; }
     IVertex SetLocalTangent(Tangent? localTangent);
+    IVertex SetLocalTangent(Vector4? localTangent);
     IVertex SetLocalTangent(IVector4? localTangent);
     IVertex SetLocalTangent(float x, float y, float z, float w);
 
     IVertexAttributeArray<IColor>? Colors { get; }
     IVertex SetColor(IColor? color);
+    IVertex SetColor(Vector4? color);
     IVertex SetColor(IVector4? color);
     IVertex SetColor(int colorIndex, IColor? color);
     IVertex SetColorBytes(byte r, byte g, byte b, byte a);
@@ -129,6 +134,7 @@ namespace fin.model {
 
     IVertexAttributeArray<ITexCoord>? Uvs { get; }
     IVertex SetUv(ITexCoord? uv);
+    IVertex SetUv(Vector2? uv);
     IVertex SetUv(IVector2? uv);
     IVertex SetUv(float u, float v);
     IVertex SetUv(int uvIndex, ITexCoord? uv);
