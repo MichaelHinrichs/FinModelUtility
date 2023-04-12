@@ -1,6 +1,4 @@
-﻿using f3dzex2.io;
-
-using fin.math.matrix;
+﻿using fin.math.matrix;
 using fin.model;
 using fin.model.impl;
 using fin.schema.vector;

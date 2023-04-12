@@ -2753,7 +2753,8 @@ Public Class MainWin
       UoTRender.Invalidate()
     End While
     UoTRender.DestroyContexts()
-    End
+    ' TODO: Uncomment this to run program
+    'End
   End Sub
 
   Private Sub SyncCameraToActor(ByVal ActorType As Integer, ByVal Actor As Integer)
