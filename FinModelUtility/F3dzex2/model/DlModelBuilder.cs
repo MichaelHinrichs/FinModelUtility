@@ -4,7 +4,6 @@ using System.Linq;
 using f3dzex2.displaylist;
 using f3dzex2.displaylist.opcodes;
 using f3dzex2.io;
-using f3dzex2.model;
 
 using fin.model;
 using fin.model.impl;
@@ -17,7 +16,7 @@ namespace f3dzex2.model {
     private GeometryMode geometryMode_;
 
     private const int VERTEX_COUNT = 32;
-    private readonly N64Vertex[] vertexDefinitions_ = new N64Vertex[VERTEX_COUNT];
+    private readonly F3dVertex[] vertexDefinitions_ = new F3dVertex[VERTEX_COUNT];
     private readonly IVertex?[] vertices = new IVertex?[VERTEX_COUNT];
 
     public DlModelBuilder() {

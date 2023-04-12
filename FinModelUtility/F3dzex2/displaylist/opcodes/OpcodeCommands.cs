@@ -42,7 +42,7 @@ namespace f3dzex2.displaylist.opcodes {
 
 
   public class VtxOpcodeCommand : IOpcodeCommand {
-    public IReadOnlyList<N64Vertex> Vertices { get; set; }
+    public IReadOnlyList<F3dVertex> Vertices { get; set; }
     public byte IndexToBeginStoringVertices { get; set; }
   }
 

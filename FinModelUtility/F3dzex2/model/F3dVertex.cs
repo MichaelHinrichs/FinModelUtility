@@ -7,7 +7,7 @@ using schema.binary;
 
 namespace f3dzex2.model {
   [BinarySchema]
-  public partial struct N64Vertex : IBinaryConvertible {
+  public partial struct F3dVertex : IBinaryConvertible {
     public short X { get; set; }
     public short Y { get; set; }
     public short Z { get; set; }
@@ -56,7 +56,7 @@ namespace f3dzex2.model {
         return true;
       }
 
-      if (other is N64Vertex) {
+      if (other is F3dVertex) {
         return this.GetHashCode() == other.GetHashCode();
       }
 

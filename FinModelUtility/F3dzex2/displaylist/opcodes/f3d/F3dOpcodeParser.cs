@@ -54,7 +54,7 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           using var ser = n64Memory.OpenAtAddress(address);
 
           return new VtxOpcodeCommand {
-              Vertices = ser.ReadNewArray<N64Vertex>((int) numVertices),
+              Vertices = ser.ReadNewArray<F3dVertex>((int) numVertices),
               IndexToBeginStoringVertices = (byte) writeOffset,
           };
         }

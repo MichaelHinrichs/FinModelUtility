@@ -91,7 +91,7 @@ namespace Quad64.src.Scripts {
     }
 
     static TempMaterial tempMaterial = new TempMaterial();
-    static N64Vertex[] vertices = new N64Vertex[16];
+    static F3dVertex[] vertices = new F3dVertex[16];
 
     public static void parse(IReadOnlySm64Memory n64Memory,
                              ref Model3D mdl,
@@ -244,7 +244,7 @@ namespace Quad64.src.Scripts {
       }
     }
 
-    private static bool F3D_VTX(N64Vertex[] vertices,
+    private static bool F3D_VTX(F3dVertex[] vertices,
                                 ref Level lvl,
                                 byte[] cmd,
                                 byte? areaID) {
@@ -261,7 +261,7 @@ namespace Quad64.src.Scripts {
                                (uint) amount * 0x10);
       using var er = new EndianBinaryReader(vData, Endianness.BigEndian);
       for (int i = 0; i < amount; i++) {
-        vertices[i] = er.ReadNew<N64Vertex>();
+        vertices[i] = er.ReadNew<F3dVertex>();
       }
       return true;
     }
@@ -311,7 +311,7 @@ namespace Quad64.src.Scripts {
       }
     }
 
-    private static void F3D_TRI1(N64Vertex[] vertices,
+    private static void F3D_TRI1(F3dVertex[] vertices,
                                  ref Model3D mdl,
                                  ref Level lvl,
                                  ref TempMaterial temp,
