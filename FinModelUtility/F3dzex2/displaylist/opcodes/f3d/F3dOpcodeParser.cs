@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 
+using f3dzex2.image;
 using f3dzex2.io;
 
 using fin.math;
@@ -98,12 +99,32 @@ namespace f3dzex2.displaylist.opcodes.f3d {
               A = er.ReadByte(),
           };
         }
+        case F3dOpcode.G_SETTIMG: {
+          N64ImageParser.SplitN64ImageFormat(er.ReadByte(),
+                                             out var colorFormat,
+                                             out var bitSize);
+          er.AssertUInt16(0);
+          return new SetTimgOpcodeCommand {
+              ColorFormat = colorFormat,
+              BitSize = bitSize,
+              SegmentedAddressToTexture = er.ReadUInt32(),
+          };
+        }
+        case F3dOpcode.G_SETGEOMETRYMODE: {
+          er.AssertUInt24(0);
+          return new SetGeometryMode {
+              FlagsToEnable = (GeometryMode) er.ReadUInt32()
+          };
+        }
+        case F3dOpcode.G_CLEARGEOMETRYMODE: {
+          er.AssertUInt24(0);
+          return new ClearGeometryMode {
+              FlagsToDisable = (GeometryMode) er.ReadUInt32()
+          };
+        }
         // TODO: Implement these
         case F3dOpcode.G_TEXTURE:
-        case F3dOpcode.G_CLEARGEOMETRYMODE:
-        case F3dOpcode.G_SETGEOMETRYMODE:
         case F3dOpcode.G_SETCOMBINE:
-        case F3dOpcode.G_SETTIMG:
         case F3dOpcode.G_SETTILE:
         case F3dOpcode.G_SETTILESIZE:
         case F3dOpcode.G_LOADBLOCK:

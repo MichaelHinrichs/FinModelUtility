@@ -3,6 +3,7 @@ using System.IO;
 
 using fin.image;
 using fin.image.io;
+using fin.math;
 
 namespace f3dzex2.image {
   public enum N64ImageFormat : byte {
@@ -20,34 +21,92 @@ namespace f3dzex2.image {
     I8 = 0x88,
   }
 
+  public enum N64ColorFormat {
+    RGBA = 0,
+    YUV = 1,
+    CI = 2,
+    LA = 3,
+    L = 4,
+  }
+
+  public enum BitSize {
+    _4BPP = 0,
+    _8BPP = 1,
+    _16BPP = 2,
+    _32BPP = 3,
+  }
+
   public class N64ImageParser {
+    public static void SplitN64ImageFormat(byte imageFormat,
+                                           out N64ColorFormat colorFormat,
+                                           out BitSize bitSize) {
+      colorFormat =
+          (N64ColorFormat) BitLogic.ExtractFromRight(imageFormat, 5, 3);
+      bitSize =
+          (BitSize) BitLogic.ExtractFromRight(imageFormat, 3, 2);
+    }
+
     public IImage Parse(N64ImageFormat format,
                         byte[] data,
                         int width,
                         int height,
                         ushort[] palette,
                         bool isPaletteRGBA16) {
-      switch (format) {
-        case N64ImageFormat.ARGB1555:
-          return PixelImageReader.New(width,
-                                      height,
-                                      new Argb1555PixelReader(),
-                                      Endianness.BigEndian)
-                                 .Read(data);
-        case N64ImageFormat.LA8:
-          return PixelImageReader.New(width,
-                                      height,
-                                      new La8PixelReader(),
-                                      Endianness.BigEndian)
-                                 .Read(data);
-        case N64ImageFormat.LA16:
-          return PixelImageReader.New(width,
-                                      height,
-                                      new La16PixelReader(),
-                                      Endianness.BigEndian)
-                                 .Read(data);
+      SplitN64ImageFormat((byte) format, out var colorFormat, out var bitSize);
+      return Parse(colorFormat,
+                   bitSize,
+                   data,
+                   width,
+                   height,
+                   palette,
+                   isPaletteRGBA16);
+    }
+
+    public IImage Parse(N64ColorFormat colorFormat,
+                        BitSize bitSize,
+                        byte[] data,
+                        int width,
+                        int height,
+                        ushort[] palette,
+                        bool isPaletteRGBA16) {
+      switch (colorFormat) {
+        case N64ColorFormat.RGBA: {
+          switch (bitSize) {
+            case BitSize._16BPP:
+              return PixelImageReader.New(width,
+                                          height,
+                                          new Argb1555PixelReader(),
+                                          Endianness.BigEndian)
+                                     .Read(data);
+            default:
+              throw new ArgumentOutOfRangeException(
+                  nameof(bitSize),
+                  bitSize,
+                  null);
+          }
+        }
+        case N64ColorFormat.LA: {
+          switch (bitSize) {
+            case BitSize._8BPP:
+              return PixelImageReader.New(width,
+                                          height,
+                                          new La8PixelReader(),
+                                          Endianness.BigEndian)
+                                     .Read(data);
+            case BitSize._16BPP:
+              return PixelImageReader.New(width,
+                                          height,
+                                          new La16PixelReader(),
+                                          Endianness.BigEndian)
+                                     .Read(data);
+            default:
+              throw new ArgumentOutOfRangeException(nameof(bitSize), bitSize, null);
+          }
+        }
         default:
-          throw new NotImplementedException();
+          throw new ArgumentOutOfRangeException(nameof(colorFormat),
+                                                colorFormat,
+                                                null);
       }
     }
   }

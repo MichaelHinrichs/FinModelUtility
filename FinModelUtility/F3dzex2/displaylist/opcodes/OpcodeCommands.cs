@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
+
+using f3dzex2.image;
 
 
 namespace f3dzex2.displaylist.opcodes {
@@ -100,5 +103,50 @@ namespace f3dzex2.displaylist.opcodes {
     public byte G { get; set; }
     public byte B { get; set; }
     public byte A { get; set; }
+  }
+
+
+  public enum TileDescriptorState {
+    ENABLED,
+    DISABLED,
+  }
+
+  public class TextureOpcodeCommand : IOpcodeCommand {
+    public byte TileDescriptorIndex { get; set; }
+    public TileDescriptorState NewTileDescriptorState { get; set; }
+    public byte MaximumNumberOfMipmaps { get; set; }
+    public ushort HorizontalScaling { get; set; } 
+    public ushort VerticalScaling { get; set; }
+  }
+
+  public class SetTimgOpcodeCommand : IOpcodeCommand {
+    public N64ColorFormat ColorFormat { get; set; }
+    public BitSize BitSize { get; set; }
+    public uint SegmentedAddressToTexture { get; set; }
+  }
+
+  [Flags]
+  public enum GeometryMode : uint {
+    G_ZBUFFER = 1 << 0,
+    G_SHADE = 1 << 2,
+    G_CULL_FRONT_EX2 = 1 << 9,
+    G_SHADING_SMOOTH_NONEX2 = 1 << 9,
+    G_CULL_BACK_EX2 = 1 << 10,
+    G_CULL_FRONT_NONEX2 = 1 << 12,
+    G_CULL_BACK_NONEX2 = 1 << 13,
+    G_FOG = 1 << 16,
+    G_LIGHTING = 1 << 17,
+    G_TEXTURE_GEN = 1 << 18,
+    G_TEXTURE_GEN_LINEAR = 1 << 19,
+    G_SHADING_SMOOTH_EX2 = 1 << 21,
+    G_CLIPPING_EX2 = 1 << 23,
+  }
+
+  public class SetGeometryMode : IOpcodeCommand {
+    public GeometryMode FlagsToEnable { get; set; }
+  }
+
+  public class ClearGeometryMode : IOpcodeCommand {
+    public GeometryMode FlagsToDisable { get; set; }
   }
 }
