@@ -15,7 +15,6 @@ using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Formats.Tga;
 using SixLabors.ImageSharp.PixelFormats;
 
-using System.Drawing.Imaging;
 using System.Threading.Tasks;
 
 using FastBitmapLib;
@@ -75,6 +74,9 @@ namespace fin.image {
           pixelFormat,
           null);
     }
+
+    public static IImage ToImage(this Bitmap bitmap)
+      => FromBitmap(bitmap);
 
     public static unsafe IImage FromBitmap(Bitmap bitmap) {
       var width = bitmap.Width;

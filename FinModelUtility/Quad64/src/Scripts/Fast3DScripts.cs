@@ -5,6 +5,8 @@ using System.Numerics;
 
 using f3dzex2.displaylist.opcodes;
 
+using fin.image;
+
 using Quad64.memory;
 using Quad64.Scripts;
 
@@ -216,8 +218,8 @@ namespace Quad64.src.Scripts {
               );
             } else {
               mdl.builder.AddTexture(
-                  TextureFormats.createColorTexture(
-                      System.Drawing.Color.FromArgb((int) temp.color)),
+                  FinImage.Create1x1FromColor(
+                      Color.FromArgb((int) temp.color)),
                   mdl.builder.newTexInfo(temp.wrapS, temp.wrapT),
                   temp.segOff
               );

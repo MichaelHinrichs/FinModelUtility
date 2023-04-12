@@ -17,7 +17,7 @@ namespace sm64.api {
           sm64TextureAndUvType => {
             var (sm64Texture, uvType) = sm64TextureAndUvType;
             var finTexture = finModel.MaterialManager.CreateTexture(
-                FinImage.FromBitmap(sm64Texture.Bmp));
+                sm64Texture.Bmp);
             finTexture.Name = $"{sm64Texture.Id}";
 
             finTexture.UvType = uvType;

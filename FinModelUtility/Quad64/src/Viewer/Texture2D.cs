@@ -1,20 +1,19 @@
-﻿namespace Quad64 {
+﻿using fin.image;
+
+namespace Quad64 {
   public class Texture2D {
-    public Bitmap Bmp { get; set; }
+    public IImage Bmp { get; set; }
 
     public int Id { get; }
 
-    public int Width { get; }
-    public int Height { get; }
+    public int Width => Bmp.Width;
+    public int Height => Bmp.Height;
 
     public int TextureParamS { get; set; }
     public int TextureParamT { get; set; }
 
-    public Texture2D(Bitmap bmp, int id, int width, int height) {
+    public Texture2D(IImage bmp) {
       this.Bmp = bmp;
-      this.Id = id;
-      this.Width = width;
-      this.Height = height;
     }
 
     public override int GetHashCode() {

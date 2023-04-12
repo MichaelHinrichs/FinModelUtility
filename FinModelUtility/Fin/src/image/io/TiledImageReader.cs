@@ -18,7 +18,7 @@ namespace fin.image.io {
              height,
              tileWidth,
              tileHeight,
-             new BasicTilePixelIndexer(tileWidth),
+             new BasicPixelIndexer(tileWidth),
              pixelReader,
              endianness);
 
@@ -27,7 +27,7 @@ namespace fin.image.io {
         int height,
         int tileWidth,
         int tileHeight,
-        ITilePixelIndexer tilePixelIndexer,
+        IPixelIndexer pixelIndexer,
         IPixelReader<TPixel> pixelReader,
         Endianness endianness = Endianness.LittleEndian)
         where TPixel : unmanaged, IPixel<TPixel>
@@ -36,7 +36,7 @@ namespace fin.image.io {
              new BasicTileReader<TPixel>(
                  tileWidth,
                  tileHeight,
-                 tilePixelIndexer,
+                 pixelIndexer,
                  pixelReader),
              endianness);
 

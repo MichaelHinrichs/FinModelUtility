@@ -13,6 +13,7 @@
     RGB888,
 
     RGBA5551,
+    ARGB1555,
     RGBA4444,
     RGBA5553,
     RGBA8888,

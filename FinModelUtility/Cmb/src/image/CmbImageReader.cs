@@ -32,7 +32,7 @@ namespace cmb.image {
 
       var blockWidth = 8;
       var blockHeight = 8;
-      var tilePixelIndexer = new MortonTilePixelIndexer();
+      var tilePixelIndexer = new MortonPixelIndexer();
 
       if (format.IsRgb()) {
         IPixelReader<Rgb24> pixelReader = format switch {

@@ -90,6 +90,27 @@ namespace fin.util.color {
       }
     }
 
+    public static void SplitArgb1555(
+        ushort color,
+        out byte r,
+        out byte g,
+        out byte b,
+        out byte a) {
+      var alphaFlag = BitLogic.ExtractFromRight(color, 0, 1);
+
+      if (alphaFlag == 1) {
+        a = 255;
+        r = ColorUtil.ExtractScaled(color, 11, 5);
+        g = ColorUtil.ExtractScaled(color, 6, 5);
+        b = ColorUtil.ExtractScaled(color, 1, 5);
+      } else {
+        a = 0;
+        r = ColorUtil.ExtractScaled(color, 11, 5);
+        g = ColorUtil.ExtractScaled(color, 6, 5);
+        b = ColorUtil.ExtractScaled(color, 1, 5);
+      }
+    }
+
     public static void SplitRgba4444(
         ushort color,
         out byte r,

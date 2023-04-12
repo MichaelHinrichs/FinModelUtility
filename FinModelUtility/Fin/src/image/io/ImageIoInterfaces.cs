@@ -13,8 +13,8 @@ namespace fin.image.io {
     int PixelsPerRead => 1;
   }
 
-  public interface ITilePixelIndexer {
-    void GetPixelInTile(int index, out int x, out int y);
+  public interface IPixelIndexer {
+    void GetPixelCoordinates(int index, out int x, out int y);
   }
 
   public interface ITileReader<TPixel>

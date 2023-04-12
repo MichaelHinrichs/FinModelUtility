@@ -1,6 +1,8 @@
 ﻿using fin.math;
 using System.Numerics;
 
+using fin.image;
+
 
 namespace Quad64.src.Scripts {
   public class ModelBuilder {
@@ -44,7 +46,7 @@ namespace Quad64.src.Scripts {
     public Color FogColor { get; set; }
     public List<uint> FogColor_romLocation = new List<uint>();
 
-    public HashSet<(Bitmap image, uint segmentAddr, TextureInfo info)>
+    public HashSet<(IImage image, uint segmentAddr, TextureInfo info)>
         TextureData { get; } = new();
 
     private FinalMesh newFinalMesh() {
@@ -82,7 +84,7 @@ namespace Quad64.src.Scripts {
       this.TryToStartNewMesh(newMaterial);
     }
 
-    public void AddTexture(Bitmap bmp, TextureInfo info, uint segmentAddress) {
+    public void AddTexture(IImage bmp, TextureInfo info, uint segmentAddress) {
       var newMaterial =
           this.CurrentMaterial?.Clone() ?? new ModelBuilderMaterial();
       newMaterial.Bitmap = bmp;
@@ -104,7 +106,7 @@ namespace Quad64.src.Scripts {
         };
       }
 
-      public Bitmap Bitmap { get; set; }
+      public IImage Bitmap { get; set; }
       public TextureInfo TextureInfo { get; set; }
       public uint SegmentAddress { get; set; }
       public RspGeometryMode GeometryMode { get; set; }
@@ -139,7 +141,7 @@ namespace Quad64.src.Scripts {
       //Console.WriteLine("currentMaterial = " + currentMaterial + ", totalCount = " + textureImages.Count);
       if (CurrentMaterial?.Bitmap == null) {
         AddTexture(
-            TextureFormats.createColorTexture(System.Drawing.Color.White),
+            FinImage.Create1x1FromColor(Color.White),
             newTexInfo((int) OpenTK.Graphics.OpenGL.All.Repeat,
                        (int) OpenTK.Graphics.OpenGL.All.Repeat),
             0x00000000
@@ -188,7 +190,7 @@ namespace Quad64.src.Scripts {
         Model3D.MeshData md = new Model3D.MeshData();
 
         var material = temp.Material;
-        Bitmap bmp = material.Bitmap;
+        var bmp = material.Bitmap;
         md.texture = ContentPipe.LoadTexture(ref bmp);
         md.texture.TextureParamS = material.TextureInfo.wrapS;
         md.texture.TextureParamT = material.TextureInfo.wrapT;

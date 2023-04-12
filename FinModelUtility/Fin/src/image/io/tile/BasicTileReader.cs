@@ -5,17 +5,17 @@ using SixLabors.ImageSharp.PixelFormats;
 namespace fin.image.io.tile {
   public class BasicTileReader<TPixel>
       : ITileReader<TPixel> where TPixel : unmanaged, IPixel<TPixel> {
-    private readonly ITilePixelIndexer tilePixelIndexer_;
+    private readonly IPixelIndexer pixelIndexer_;
     private readonly IPixelReader<TPixel> pixelReader_;
 
     public BasicTileReader(
         int tileWidth,
         int tileHeight,
-        ITilePixelIndexer tilePixelIndexer,
+        IPixelIndexer pixelIndexer,
         IPixelReader<TPixel> pixelReader) {
       this.TileWidth = tileWidth;
       this.TileHeight = tileHeight;
-      this.tilePixelIndexer_ = tilePixelIndexer;
+      this.pixelIndexer_ = pixelIndexer;
       this.pixelReader_ = pixelReader;
     }
 
@@ -37,7 +37,7 @@ namespace fin.image.io.tile {
       for (var i = 0;
            i < this.TileWidth * this.TileHeight;
            i += this.pixelReader_.PixelsPerRead) {
-        this.tilePixelIndexer_.GetPixelInTile(i, out var x, out var y);
+        this.pixelIndexer_.GetPixelCoordinates(i, out var x, out var y);
         var dstOffs = (yy + y) * imageWidth + xx + x;
         this.pixelReader_.Decode(er, scan0, dstOffs);
       }

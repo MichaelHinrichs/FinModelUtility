@@ -1,18 +1,17 @@
 ﻿namespace fin.image.io {
   /// <summary>
-  ///   Basic indexer for tiles, where it assumes the tile pixels are laid out
-  ///   row-wise.
+  ///   Basic pixels indexer, where it assumes the pixels are laid out row-wise.
   /// </summary>
-  public class BasicTilePixelIndexer : ITilePixelIndexer {
-    private readonly int tileWidth_;
+  public class BasicPixelIndexer : IPixelIndexer {
+    private readonly int width_;
 
-    public BasicTilePixelIndexer(int tileWidth) {
-      this.tileWidth_ = tileWidth;
+    public BasicPixelIndexer(int width) {
+      this.width_ = width;
     }
 
-    public void GetPixelInTile(int index, out int x, out int y) {
-      x = index % this.tileWidth_;
-      y = index / this.tileWidth_;
+    public void GetPixelCoordinates(int index, out int x, out int y) {
+      x = index % this.width_;
+      y = index / this.width_;
     }
   }
 }
