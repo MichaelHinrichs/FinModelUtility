@@ -1,10 +1,9 @@
-﻿using f3dzex2.displaylist.opcodes.f3d;
-
-using Quad64.src.LevelInfo;
+﻿using Quad64.src.LevelInfo;
 using System.Numerics;
 
 using f3dzex2.displaylist.opcodes;
 using f3dzex2.image;
+using f3dzex2.model;
 
 using fin.image;
 
@@ -92,7 +91,7 @@ namespace Quad64.src.Scripts {
     }
 
     static TempMaterial tempMaterial = new TempMaterial();
-    static IVtx[] vertices = new IVtx[16];
+    static N64Vertex[] vertices = new N64Vertex[16];
 
     public static void parse(IReadOnlySm64Memory n64Memory,
                              ref Model3D mdl,
@@ -245,7 +244,7 @@ namespace Quad64.src.Scripts {
       }
     }
 
-    private static bool F3D_VTX(IVtx[] vertices,
+    private static bool F3D_VTX(N64Vertex[] vertices,
                                 ref Level lvl,
                                 byte[] cmd,
                                 byte? areaID) {
@@ -262,7 +261,7 @@ namespace Quad64.src.Scripts {
                                (uint) amount * 0x10);
       using var er = new EndianBinaryReader(vData, Endianness.BigEndian);
       for (int i = 0; i < amount; i++) {
-        vertices[i] = er.ReadNew<F3dVtx>();
+        vertices[i] = er.ReadNew<N64Vertex>();
       }
       return true;
     }
@@ -312,7 +311,7 @@ namespace Quad64.src.Scripts {
       }
     }
 
-    private static void F3D_TRI1(IVtx[] vertices,
+    private static void F3D_TRI1(N64Vertex[] vertices,
                                  ref Model3D mdl,
                                  ref Level lvl,
                                  ref TempMaterial temp,

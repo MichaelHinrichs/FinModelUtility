@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 
 using f3dzex2.image;
+using f3dzex2.model;
 
 
 namespace f3dzex2.displaylist.opcodes {
@@ -40,28 +41,8 @@ namespace f3dzex2.displaylist.opcodes {
   }
 
 
-  public interface IVtx {
-    short X { get; }
-    short Y { get; }
-    short Z { get; }
-    Vector3 GetPosition();
-
-    short Flag { get; }
-    short U { get; }
-    short V { get; }
-    Vector2 GetUv(float scaleX, float scaleY);
-
-    byte NormalXOrR { get; }
-    byte NormalYOrG { get; }
-    byte NormalZOrB { get; }
-    byte A { get; }
-    Vector3 GetNormal();
-    Vector4 GetColor();
-  }
-
-
   public class VtxOpcodeCommand : IOpcodeCommand {
-    public IReadOnlyList<IVtx> Vertices { get; set; }
+    public IReadOnlyList<N64Vertex> Vertices { get; set; }
     public byte IndexToBeginStoringVertices { get; set; }
   }
 
@@ -77,6 +58,27 @@ namespace f3dzex2.displaylist.opcodes {
     public byte VertexIndexA { get; set; }
     public byte VertexIndexB { get; set; }
     public byte VertexIndexC { get; set; }
+
+    public IEnumerable<byte> VertexIndicesInOrder {
+      get {
+        var startOffset = VertexOrder switch {
+            TriVertexOrder.ABC => 0,
+            TriVertexOrder.BCA => 1,
+            TriVertexOrder.CAB => 2,
+            _                  => throw new ArgumentOutOfRangeException()
+        };
+
+        for (var i = 0; i < 3; ++i) {
+          var current = (startOffset + i) % 3;
+          yield return current switch {
+              0 => VertexIndexA,
+              1 => VertexIndexB,
+              2 => VertexIndexC,
+              _ => throw new ArgumentOutOfRangeException()
+          };
+        }
+      }
+    }
   }
 
   public class Tri2OpcodeCommand : IOpcodeCommand {

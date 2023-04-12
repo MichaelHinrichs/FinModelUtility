@@ -3,6 +3,7 @@ using System.IO;
 
 using f3dzex2.image;
 using f3dzex2.io;
+using f3dzex2.model;
 
 using fin.math;
 
@@ -53,7 +54,7 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           using var ser = n64Memory.OpenAtAddress(address);
 
           return new VtxOpcodeCommand {
-              Vertices = ser.ReadNewArray<F3dVtx>((int) numVertices),
+              Vertices = ser.ReadNewArray<N64Vertex>((int) numVertices),
               IndexToBeginStoringVertices = (byte) writeOffset,
           };
         }

@@ -1,11 +1,13 @@
 ﻿using System.Numerics;
 
+using fin.util.hash;
+
 using schema.binary;
 
 
-namespace f3dzex2.displaylist.opcodes.f3d {
+namespace f3dzex2.model {
   [BinarySchema]
-  public partial class F3dVtx : IVtx, IBinaryConvertible {
+  public partial struct N64Vertex : IBinaryConvertible {
     public short X { get; set; }
     public short Y { get; set; }
     public short Z { get; set; }
@@ -34,5 +36,31 @@ namespace f3dzex2.displaylist.opcodes.f3d {
 
     public Vector4 GetColor()
       => new(NormalXOrR / 255f, NormalYOrG / 255f, NormalZOrB / 255f, A / 255f);
+
+    public override int GetHashCode() {
+      return FluentHash.Start()
+                       .With(X)
+                       .With(Y)
+                       .With(Z)
+                       .With(Flag)
+                       .With(U)
+                       .With(V)
+                       .With(NormalXOrR)
+                       .With(NormalYOrG)
+                       .With(NormalZOrB)
+                       .With(A);
+    }
+
+    public override bool Equals(object? other) {
+      if (object.ReferenceEquals(this, other)) {
+        return true;
+      }
+
+      if (other is N64Vertex) {
+        return this.GetHashCode() == other.GetHashCode();
+      }
+
+      return false;
+    }
   }
 }
