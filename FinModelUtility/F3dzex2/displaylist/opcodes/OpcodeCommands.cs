@@ -113,8 +113,13 @@ namespace f3dzex2.displaylist.opcodes {
     ENABLED = 1,
   }
 
+  public enum TileDescriptor : byte {
+    TX_RENDERTILE = 0x0,
+    TX_LOADTILE = 0x7,
+  }
+
   public class TextureOpcodeCommand : IOpcodeCommand {
-    public byte TileDescriptorIndex { get; set; }
+    public TileDescriptor TileDescriptor { get; set; }
     public TileDescriptorState NewTileDescriptorState { get; set; }
     public byte MaximumNumberOfMipmaps { get; set; }
     public ushort HorizontalScaling { get; set; } 
@@ -153,9 +158,20 @@ namespace f3dzex2.displaylist.opcodes {
   }
 
   public class SetTileOpcodeCommand : IOpcodeCommand {
+    public TileDescriptor TileDescriptor { get; set; }
     public N64ColorFormat ColorFormat { get; set; }
     public BitSize BitSize { get; set; }
 
     // TODO: Support the rest
+  }
+
+  public class SetTileSizeOpcodeCommand : IOpcodeCommand {
+    public ushort Width { get; set; }
+    public ushort Height { get; set; }
+    // TODO: Support the rest
+  }
+
+  public class SetCombineOpcodeCommand : IOpcodeCommand {
+    public bool ClearTextureSegmentedAddress { get; set; }
   }
 }

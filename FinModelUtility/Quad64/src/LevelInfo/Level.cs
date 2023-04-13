@@ -1,4 +1,6 @@
-﻿using Quad64.schema;
+﻿using f3dzex2.io;
+
+using Quad64.schema;
 using Quad64.src.JSON;
 using Quad64.src.Scripts;
 
@@ -30,7 +32,7 @@ namespace Quad64.src.LevelInfo {
 
     public AreaBackgroundInfo bgInfo = new AreaBackgroundInfo();
 
-    public Model3DLods AreaModel = new Model3DLods();
+    public Model3DLods AreaModel;
     public CollisionMap collision = new CollisionMap();
 
     public List<Object3D> Objects = new List<Object3D>();
@@ -52,7 +54,8 @@ namespace Quad64.src.LevelInfo {
       }
     }
 
-    public Area(ushort areaID, uint geoLayoutPointer, Level parent) {
+    public Area(IN64Memory n64Memory, ushort areaID, uint geoLayoutPointer, Level parent) {
+      this.AreaModel = new Model3DLods(n64Memory);
       this.areaID = areaID;
       this.geoLayoutPointer = geoLayoutPointer;
       this.parent = parent;

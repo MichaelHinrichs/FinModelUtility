@@ -504,7 +504,7 @@ namespace Quad64.Scripts {
       desc = "Start area " + areaID + "; Load area geo layout from 0x" +
              seg.ToString("X2") + off.ToString("X6");
 
-      Area newArea = new Area(areaID, bytesToInt(cmd, 4, 4), lvl);
+      Area newArea = new Area(n64Memory, areaID, bytesToInt(cmd, 4, 4), lvl);
       newArea.AreaModel.Current.GeoDataSegAddress = bytesToInt(cmd, 4, 4);
 
       // Globals.DEBUG_PARSING_LEVEL_AREA = true;
@@ -541,7 +541,7 @@ namespace Quad64.Scripts {
       desc = "Define Model ID 0x" + modelID.ToString("X2") +
              "; Load Fast3D from 0x" + seg.ToString("X2") + off.ToString("X6");
 
-      Model3DLods newModel = new Model3DLods();
+      Model3DLods newModel = new Model3DLods(sm64Memory);
       newModel.Current.GeoDataSegAddress = bytesToInt(cmd, 4, 4);
       lvl.AddObjectCombos(modelID, newModel.Current.GeoDataSegAddress);
 
@@ -572,7 +572,7 @@ namespace Quad64.Scripts {
              off.ToString("X6");
 
       //Console.WriteLine("Size of seg 0x"+seg.ToString("X2")+" = " + rom.getSegment(seg).Length);
-      Model3DLods newModel = new Model3DLods();
+      Model3DLods newModel = new Model3DLods(n64Memory);
       if (rom.getSegment(seg, n64Memory.AreaId) != null) {
         try {
           new GeoScriptsWrapper().parse(n64Memory, newModel, ref lvl, seg, off);

@@ -19,9 +19,9 @@ namespace Quad64.memory {
 
     public IEnumerable<IEndianBinaryReader> OpenPossibilitiesAtAddress(
         uint address)
-      => OpenAtAddress(address).Yield();
+      => this.OpenAtSegmentedAddress(address).Yield();
 
-    public IEndianBinaryReader OpenAtAddress(uint address) {
+    public IEndianBinaryReader OpenAtSegmentedAddress(uint address) {
       GeoUtils.SplitAddress(address,
                             out var segment,
                             out var offset);

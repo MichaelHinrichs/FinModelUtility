@@ -51,7 +51,7 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           er.AssertUInt16((ushort)(numVertices * 0x10));
 
           var address = er.ReadUInt32();
-          using var ser = n64Memory.OpenAtAddress(address);
+          using var ser = n64Memory.OpenAtSegmentedAddress(address);
 
           return new VtxOpcodeCommand {
               Vertices = ser.ReadNewArray<F3dVertex>((int) numVertices),
@@ -127,8 +127,11 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           er.AssertByte(0);
 
           var mipmapLevelsAndTileDescriptor = er.ReadByte();
-          var tileDescriptorIndex =
-              (byte) BitLogic.ExtractFromRight(mipmapLevelsAndTileDescriptor, 0, 3);
+          var tileDescriptor =
+              (TileDescriptor) BitLogic.ExtractFromRight(
+                  mipmapLevelsAndTileDescriptor,
+                  0,
+                  3);
           var maximumNumberOfMipmaps =
               (byte) BitLogic.ExtractFromRight(mipmapLevelsAndTileDescriptor, 3, 3);
           var newTileDescriptorState = (TileDescriptorState) er.ReadByte();
@@ -136,7 +139,7 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           var verticalScale = er.ReadUInt16();
 
           return new TextureOpcodeCommand {
-              TileDescriptorIndex = tileDescriptorIndex,
+              TileDescriptor = tileDescriptor,
               NewTileDescriptorState = newTileDescriptorState,
               HorizontalScaling = horizontalScale,
               VerticalScaling = verticalScale,
@@ -144,22 +147,45 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           };
         }
         case F3dOpcode.G_SETTILE: {
-          var first = er.ReadUInt24();
+          er.Position -= 1;
+          var first = er.ReadUInt32();
           var second = er.ReadUInt32();
 
+          if (second == 0x07000000) {
+            return new NoopOpcodeCommand();
+          }
+
           var colorFormat =
-              (N64ColorFormat) BitLogic.ExtractFromRight(first, 25, 3);
+              (N64ColorFormat) BitLogic.ExtractFromRight(first, 21, 3);
           var bitSize =
-              (BitSize) BitLogic.ExtractFromRight(first, 23, 2);
+              (BitSize) BitLogic.ExtractFromRight(first, 19, 2);
+          var tileDescriptor =
+              (TileDescriptor) BitLogic.ExtractFromRight(second, 24, 3);
 
           return new SetTileOpcodeCommand {
+              TileDescriptor = tileDescriptor,
               ColorFormat = colorFormat,
               BitSize = bitSize,
           };
         }
+        case F3dOpcode.G_SETTILESIZE: {
+          er.Position += 4;
+          var widthAndHeight = er.ReadUInt24();
+          var width = (ushort) (((widthAndHeight >> 12) >> 2) + 1);
+          var height = (ushort) (((widthAndHeight & 0xFFF) >> 2) + 1);
+          return new SetTileSizeOpcodeCommand {
+              Width = width, Height = height,
+          };
+        }
+        case F3dOpcode.G_SETCOMBINE: {
+            er.Position -= 1 ;
+          var wholeCommand = er.ReadUInt64();
+          return new SetCombineOpcodeCommand {
+              // TODO: Look into what the heck this means
+              ClearTextureSegmentedAddress = wholeCommand == 0xFCFFFFFFFFFE793C
+          };
+        }
         // TODO: Implement these
-        case F3dOpcode.G_SETCOMBINE:
-        case F3dOpcode.G_SETTILESIZE:
         case F3dOpcode.G_LOADBLOCK:
         case F3dOpcode.G_MOVEMEM:
         case F3dOpcode.G_MOVEWORD:

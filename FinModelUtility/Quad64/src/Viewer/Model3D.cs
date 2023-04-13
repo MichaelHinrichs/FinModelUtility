@@ -17,10 +17,12 @@ using sm64.scripts.geo;
 
 namespace Quad64 {
   public class Model3DLods {
+    private readonly IN64Memory n64Memory_;
     private List<Model3D> lods_ = new();
     private List<DlModelBuilder> lods2_ = new();
 
-    public Model3DLods() {
+    public Model3DLods(IN64Memory n64Memory) {
+      this.n64Memory_ = n64Memory;
       this.AddLod(null);
     }
 
@@ -42,7 +44,7 @@ namespace Quad64 {
 
     public void AddLod(GeoScriptNode? node) {
       this.lods_.Add(new(node));
-      this.lods2_.Add(new());
+      this.lods2_.Add(new(this.n64Memory_));
     }
 
     public void AddDl(IReadOnlySm64Memory sm64Memory,
