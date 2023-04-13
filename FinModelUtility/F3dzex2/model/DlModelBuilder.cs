@@ -9,6 +9,7 @@ using fin.math;
 using fin.math.matrix;
 using fin.model;
 using fin.model.impl;
+using fin.util.enums;
 
 namespace f3dzex2.model {
   public class DlModelBuilder {
@@ -26,6 +27,7 @@ namespace f3dzex2.model {
 
     public DlModelBuilder() {
       this.currentMesh_ = this.Model.Skin.AddMesh();
+      this.currentMaterial_ = this.Model.MaterialManager.AddNullMaterial();
     }
 
     public IModel Model { get; } = new ModelImpl();
@@ -95,8 +97,9 @@ namespace f3dzex2.model {
             var vertices =
                 tri1OpcodeCommand.VertexIndicesInOrder.Select(
                     GetOrCreateVertexAtIndex_);
-            var triangle = this.currentMesh_.AddTriangles(vertices.ToArray());
-            triangle.SetMaterial(this.currentMaterial_);
+            this.currentMesh_.AddTriangles(vertices.ToArray())
+                .SetMaterial(this.currentMaterial_)
+                .SetVertexOrder(VertexOrder.NORMAL);
             break;
           }
           default:
@@ -118,7 +121,13 @@ namespace f3dzex2.model {
 
       var newVertex = this.Model.Skin.AddVertex(position);
 
-      // TODO: Add UV, color, normal
+      // TODO: Add UV, color
+
+      if (this.geometryMode_.CheckFlag(GeometryMode.G_LIGHTING)) {
+        var normal = definition.GetNormal();
+        GlMatrixUtil.ProjectNormal(Matrix.Impl, ref normal);
+        newVertex.SetLocalNormal(normal);
+      }
 
       this.vertices[index] = newVertex;
       return newVertex;

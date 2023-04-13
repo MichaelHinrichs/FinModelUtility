@@ -36,8 +36,6 @@ namespace uni.ui {
               => new ModModelLoader().LoadModel(modModelFileBundle),
           PedModelFileBundle pedModelFileBundle
               => new PedModelLoader().LoadModel(pedModelFileBundle),
-          Sm64LevelModelFileBundle sm64LevelModelFileBundle
-              => new Sm64LevelModelLoader().LoadModel(sm64LevelModelFileBundle),
           XcModelFileBundle xcModelFileBundle
               => new XcModelLoader().LoadModel(xcModelFileBundle),
           XmodModelFileBundle xmodModelFileBundle

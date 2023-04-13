@@ -8,6 +8,8 @@ using Quad64.memory;
 using f3dzex2.io;
 using System.Net;
 
+using fin.math;
+
 using Quad64.Scripts;
 
 using sm64.scripts.geo;
@@ -52,6 +54,8 @@ namespace Quad64 {
       Fast3DScripts.parse(sm64Memory, this, seg, off, currentDepth);
 
       var displayList = new F3dParser().Parse(sm64Memory, address);
+      this.Current2.Matrix = this.Current.Node?.matrix ?? FinMatrix4x4.IDENTITY;
+      this.Current2.AddDl(displayList, sm64Memory);
     }
 
     public void BuildBuffers() {

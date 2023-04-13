@@ -77,9 +77,9 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           er.AssertUInt32(0);
           return new Tri1OpcodeCommand {
               VertexOrder  = TriVertexOrder.ABC,
-              VertexIndexA = er.ReadByte(),
-              VertexIndexB = er.ReadByte(),
-              VertexIndexC = er.ReadByte(),
+              VertexIndexA = (byte) (er.ReadByte() / 0xA),
+              VertexIndexB = (byte) (er.ReadByte() / 0xA),
+              VertexIndexC = (byte) (er.ReadByte() / 0xA),
           };
         }
         case F3dOpcode.G_SETENVCOLOR: {

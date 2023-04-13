@@ -27,7 +27,6 @@ namespace uni.games.super_mario_64 {
       var levelIds = Enum.GetValues<LevelId>().ToList();
       levelIds.Sort((lhs, rhs) => lhs.ToString().CompareTo(rhs.ToString()));
       foreach (var levelId in levelIds) {
-        yield return new Sm64LevelModelFileBundle(root, superMario64Rom, levelId);
         yield return new Sm64LevelSceneFileBundle(root, superMario64Rom, levelId);
       }
     }
