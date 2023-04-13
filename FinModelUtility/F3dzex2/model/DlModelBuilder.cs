@@ -16,7 +16,7 @@ namespace f3dzex2.model {
     private IMesh currentMesh_;
     private IMaterial currentMaterial_;
 
-    private GeometryMode geometryMode_;
+    private GeometryMode geometryMode_ = (GeometryMode) 0x22205;
 
     private const int VERTEX_COUNT = 32;
 
@@ -73,7 +73,7 @@ namespace f3dzex2.model {
             break;
           }
           case ClearGeometryModeOpcodeCommand clearGeometryModeOpcodeCommand: {
-            this.geometryMode_ ^= clearGeometryModeOpcodeCommand.FlagsToDisable;
+            this.geometryMode_ &= ~clearGeometryModeOpcodeCommand.FlagsToDisable;
             break;
           }
           case SetTileOpcodeCommand setTileOpcodeCommand:
@@ -127,6 +127,8 @@ namespace f3dzex2.model {
         var normal = definition.GetNormal();
         GlMatrixUtil.ProjectNormal(Matrix.Impl, ref normal);
         newVertex.SetLocalNormal(normal);
+      } else {
+        newVertex.SetColor(definition.GetColor());
       }
 
       this.vertices[index] = newVertex;

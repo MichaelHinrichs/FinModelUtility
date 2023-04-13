@@ -1,15 +1,11 @@
-﻿using Quad64.src.LevelInfo;
-using System.Numerics;
+﻿using System.Numerics;
 
-using f3dzex2.displaylist.opcodes;
 using f3dzex2.image;
 using f3dzex2.model;
 
 using fin.image;
 
 using Quad64.memory;
-using Quad64.Scripts;
-using f3dzex2.io;
 
 
 namespace Quad64.src.Scripts {
