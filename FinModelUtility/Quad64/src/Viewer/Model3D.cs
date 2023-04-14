@@ -56,7 +56,8 @@ namespace Quad64 {
       Fast3DScripts.parse(sm64Memory, this, seg, off, currentDepth);
 
       var displayList = new F3dParser().Parse(sm64Memory, address);
-      this.Current2.Matrix = this.Current.Node?.matrix ?? FinMatrix4x4.IDENTITY;
+      this.Current2.Matrix = this.Current.Node?.GetTotalMatrix() ??
+                             FinMatrix4x4.IDENTITY;
       this.Current2.AddDl(displayList, sm64Memory);
     }
 

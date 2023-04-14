@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 using f3dzex2.image;
 using f3dzex2.model;
+
+using fin.model;
 
 
 namespace f3dzex2.displaylist.opcodes {
@@ -17,7 +20,6 @@ namespace f3dzex2.displaylist.opcodes {
   ///   Stops executing current DL and returns to one at top of stack.
   /// </summary>
   public class EndDlOpcodeCommand : IOpcodeCommand { }
-
 
 
   public class MtxOpcodeCommand : IOpcodeCommand {
@@ -121,7 +123,7 @@ namespace f3dzex2.displaylist.opcodes {
     public TileDescriptor TileDescriptor { get; set; }
     public TileDescriptorState NewTileDescriptorState { get; set; }
     public byte MaximumNumberOfMipmaps { get; set; }
-    public ushort HorizontalScaling { get; set; } 
+    public ushort HorizontalScaling { get; set; }
     public ushort VerticalScaling { get; set; }
   }
 
@@ -156,10 +158,32 @@ namespace f3dzex2.displaylist.opcodes {
     public GeometryMode FlagsToDisable { get; set; }
   }
 
+  public enum F3dWrapMode : byte {
+    REPEAT = 0,
+    MIRROR_REPEAT = 1,
+    CLAMP = 2,
+  }
+
+  public static class F3dWrapModeExtensions {
+    public static WrapMode AsFinWrapMode(this F3dWrapMode f3dWrapMode)
+      => f3dWrapMode switch {
+          F3dWrapMode.REPEAT        => WrapMode.REPEAT,
+          F3dWrapMode.MIRROR_REPEAT => WrapMode.MIRROR_REPEAT,
+          F3dWrapMode.CLAMP         => WrapMode.CLAMP,
+          _ => throw new ArgumentOutOfRangeException(
+              nameof(f3dWrapMode),
+              f3dWrapMode,
+              null)
+      };
+  }
+
   public class SetTileOpcodeCommand : IOpcodeCommand {
     public TileDescriptor TileDescriptor { get; set; }
     public N64ColorFormat ColorFormat { get; set; }
     public BitsPerPixel BitsPerPixel { get; set; }
+
+    public F3dWrapMode WrapModeT { get; set; }
+    public F3dWrapMode WrapModeS { get; set; }
 
     // TODO: Support the rest
   }
@@ -167,6 +191,7 @@ namespace f3dzex2.displaylist.opcodes {
   public class SetTileSizeOpcodeCommand : IOpcodeCommand {
     public ushort Width { get; set; }
     public ushort Height { get; set; }
+
     // TODO: Support the rest
   }
 

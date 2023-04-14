@@ -162,17 +162,24 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           var tileDescriptor =
               (TileDescriptor) BitLogic.ExtractFromRight(second, 24, 3);
 
+          var wrapModeT = (F3dWrapMode) BitLogic.ExtractFromRight(second, 18, 2);
+          var wrapModeS = (F3dWrapMode) BitLogic.ExtractFromRight(second, 8, 2);
+
           return new SetTileOpcodeCommand {
               TileDescriptor = tileDescriptor,
               ColorFormat = colorFormat,
               BitsPerPixel = bitSize,
+              WrapModeT = wrapModeT,
+              WrapModeS = wrapModeS,
           };
         }
         case F3dOpcode.G_SETTILESIZE: {
           er.Position += 4;
+          
           var widthAndHeight = er.ReadUInt24();
           var width = (ushort) (((widthAndHeight >> 12) >> 2) + 1);
           var height = (ushort) (((widthAndHeight & 0xFFF) >> 2) + 1);
+
           return new SetTileSizeOpcodeCommand {
               Width = width, Height = height,
           };
