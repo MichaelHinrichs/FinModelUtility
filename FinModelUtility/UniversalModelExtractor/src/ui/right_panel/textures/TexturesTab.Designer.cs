@@ -56,7 +56,7 @@
       // 
       splitContainer.Panel2.Controls.Add(this.splitContainer1);
       splitContainer.Size = new System.Drawing.Size(249, 488);
-      splitContainer.SplitterDistance = 233;
+      splitContainer.SplitterDistance = 149;
       splitContainer.SplitterWidth = 5;
       splitContainer.TabIndex = 0;
       // 
@@ -67,7 +67,7 @@
       this.textureSelectorBox_.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
       this.textureSelectorBox_.Name = "textureSelectorBox_";
       this.textureSelectorBox_.SelectedTexture = null;
-      this.textureSelectorBox_.Size = new System.Drawing.Size(249, 233);
+      this.textureSelectorBox_.Size = new System.Drawing.Size(249, 149);
       this.textureSelectorBox_.TabIndex = 0;
       // 
       // splitContainer1
@@ -87,8 +87,8 @@
       // splitContainer1.Panel2
       // 
       this.splitContainer1.Panel2.Controls.Add(this.textureInfoSection_);
-      this.splitContainer1.Size = new System.Drawing.Size(249, 250);
-      this.splitContainer1.SplitterDistance = 125;
+      this.splitContainer1.Size = new System.Drawing.Size(249, 334);
+      this.splitContainer1.SplitterDistance = 152;
       this.splitContainer1.SplitterWidth = 5;
       this.splitContainer1.TabIndex = 1;
       // 
@@ -98,7 +98,7 @@
       this.texturePanel_.Location = new System.Drawing.Point(0, 0);
       this.texturePanel_.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
       this.texturePanel_.Name = "texturePanel_";
-      this.texturePanel_.Size = new System.Drawing.Size(249, 125);
+      this.texturePanel_.Size = new System.Drawing.Size(249, 152);
       this.texturePanel_.TabIndex = 0;
       // 
       // textureInfoSection_
@@ -107,7 +107,7 @@
       this.textureInfoSection_.Location = new System.Drawing.Point(0, 0);
       this.textureInfoSection_.Margin = new System.Windows.Forms.Padding(3, 5, 3, 5);
       this.textureInfoSection_.Name = "textureInfoSection_";
-      this.textureInfoSection_.Size = new System.Drawing.Size(249, 120);
+      this.textureInfoSection_.Size = new System.Drawing.Size(249, 177);
       this.textureInfoSection_.TabIndex = 0;
       // 
       // TexturesTab

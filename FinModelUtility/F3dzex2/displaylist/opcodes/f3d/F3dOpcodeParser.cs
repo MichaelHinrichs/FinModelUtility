@@ -107,7 +107,7 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           er.AssertUInt16(0);
           return new SetTimgOpcodeCommand {
               ColorFormat = colorFormat,
-              BitSize = bitSize,
+              BitsPerPixel = bitSize,
               TextureSegmentedAddress = er.ReadUInt32(),
           };
         }
@@ -158,14 +158,14 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           var colorFormat =
               (N64ColorFormat) BitLogic.ExtractFromRight(first, 21, 3);
           var bitSize =
-              (BitSize) BitLogic.ExtractFromRight(first, 19, 2);
+              (BitsPerPixel) BitLogic.ExtractFromRight(first, 19, 2);
           var tileDescriptor =
               (TileDescriptor) BitLogic.ExtractFromRight(second, 24, 3);
 
           return new SetTileOpcodeCommand {
               TileDescriptor = tileDescriptor,
               ColorFormat = colorFormat,
-              BitSize = bitSize,
+              BitsPerPixel = bitSize,
           };
         }
         case F3dOpcode.G_SETTILESIZE: {

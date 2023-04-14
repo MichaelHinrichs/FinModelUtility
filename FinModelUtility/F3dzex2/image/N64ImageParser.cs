@@ -29,7 +29,7 @@ namespace f3dzex2.image {
     L = 4,
   }
 
-  public enum BitSize {
+  public enum BitsPerPixel {
     _4BPP = 0,
     _8BPP = 1,
     _16BPP = 2,
@@ -39,11 +39,11 @@ namespace f3dzex2.image {
   public class N64ImageParser {
     public static void SplitN64ImageFormat(byte imageFormat,
                                            out N64ColorFormat colorFormat,
-                                           out BitSize bitSize) {
+                                           out BitsPerPixel bitsPerPixel) {
       colorFormat =
           (N64ColorFormat) BitLogic.ExtractFromRight(imageFormat, 5, 3);
-      bitSize =
-          (BitSize) BitLogic.ExtractFromRight(imageFormat, 3, 2);
+      bitsPerPixel =
+          (BitsPerPixel) BitLogic.ExtractFromRight(imageFormat, 3, 2);
     }
 
     public IImage Parse(N64ImageFormat format,
@@ -63,7 +63,7 @@ namespace f3dzex2.image {
     }
 
     public IImage Parse(N64ColorFormat colorFormat,
-                        BitSize bitSize,
+                        BitsPerPixel bitsPerPixel,
                         byte[] data,
                         int width,
                         int height,
@@ -71,8 +71,8 @@ namespace f3dzex2.image {
                         bool isPaletteRGBA16) {
       switch (colorFormat) {
         case N64ColorFormat.RGBA: {
-          switch (bitSize) {
-            case BitSize._16BPP:
+          switch (bitsPerPixel) {
+            case BitsPerPixel._16BPP:
               return PixelImageReader.New(width,
                                           height,
                                           new Argb1555PixelReader(),
@@ -80,27 +80,27 @@ namespace f3dzex2.image {
                                      .Read(data);
             default:
               throw new ArgumentOutOfRangeException(
-                  nameof(bitSize),
-                  bitSize,
+                  nameof(bitsPerPixel),
+                  bitsPerPixel,
                   null);
           }
         }
         case N64ColorFormat.LA: {
-          switch (bitSize) {
-            case BitSize._8BPP:
+          switch (bitsPerPixel) {
+            case BitsPerPixel._8BPP:
               return PixelImageReader.New(width,
                                           height,
                                           new La8PixelReader(),
                                           Endianness.BigEndian)
                                      .Read(data);
-            case BitSize._16BPP:
+            case BitsPerPixel._16BPP:
               return PixelImageReader.New(width,
                                           height,
                                           new La16PixelReader(),
                                           Endianness.BigEndian)
                                      .Read(data);
             default:
-              throw new ArgumentOutOfRangeException(nameof(bitSize), bitSize, null);
+              throw new ArgumentOutOfRangeException(nameof(bitsPerPixel), bitsPerPixel, null);
           }
         }
         default:

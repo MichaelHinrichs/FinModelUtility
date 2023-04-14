@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Numerics;
 
 using f3dzex2.image;
 using f3dzex2.model;
@@ -128,7 +127,7 @@ namespace f3dzex2.displaylist.opcodes {
 
   public class SetTimgOpcodeCommand : IOpcodeCommand {
     public N64ColorFormat ColorFormat { get; set; }
-    public BitSize BitSize { get; set; }
+    public BitsPerPixel BitsPerPixel { get; set; }
     public uint TextureSegmentedAddress { get; set; }
   }
 
@@ -160,7 +159,7 @@ namespace f3dzex2.displaylist.opcodes {
   public class SetTileOpcodeCommand : IOpcodeCommand {
     public TileDescriptor TileDescriptor { get; set; }
     public N64ColorFormat ColorFormat { get; set; }
-    public BitSize BitSize { get; set; }
+    public BitsPerPixel BitsPerPixel { get; set; }
 
     // TODO: Support the rest
   }

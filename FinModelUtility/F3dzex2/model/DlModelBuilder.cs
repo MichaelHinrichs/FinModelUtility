@@ -78,8 +78,13 @@ namespace f3dzex2.model {
       }
     }
 
-    public WrapMode WrapModeU { get; set; }
-    public WrapMode WrapModeV { get; set; }
+    public WrapMode WrapModeU { get; set; } = WrapMode.REPEAT;
+    public WrapMode WrapModeV { get; set; } = WrapMode.REPEAT;
+
+    public TextureParams() {
+      WrapModeU = WrapMode.REPEAT;
+      WrapModeV = WrapMode.REPEAT;
+    }
 
     public override int GetHashCode() => FluentHash.Start()
                                                    .With(this.ImageParams)
@@ -107,10 +112,10 @@ namespace f3dzex2.model {
     private IMaterial? currentMaterial_;
 
     private GeometryMode geometryMode_ = (GeometryMode) 0x22205;
-    private TextureParams textureParams_;
+    private TextureParams textureParams_ = new();
     private float texScaleX_ = 1f, texScaleY_ = 1f;
-    private N64ColorFormat textureColorFormat_;
-    private BitSize textureBitSize_;
+    private N64ColorFormat textureColorFormat_ = N64ColorFormat.RGBA;
+    private BitsPerPixel textureBitsPerPixel_ = BitsPerPixel._16BPP;
 
     private readonly LazyDictionary<ImageParams, IImage>
         lazyImageDictionary_;
@@ -147,7 +152,7 @@ namespace f3dzex2.model {
                              this.textureParams_.Height * 4);
 
             return new N64ImageParser().Parse(this.textureColorFormat_,
-                                              this.textureBitSize_,
+                                              this.textureBitsPerPixel_,
                                               imageData,
                                               this.textureParams_.Width,
                                               this.textureParams_.Height,
@@ -171,10 +176,46 @@ namespace f3dzex2.model {
           new(textureParams
                   => {
                 var texture = this.lazyTextureDictionary_[textureParams];
-                var material =
-                    this.Model.MaterialManager.AddTextureMaterial(texture);
-                material.Name = texture.Name;
-                return material;
+                var finMaterial =
+                    Model.MaterialManager.AddFixedFunctionMaterial();
+                finMaterial.Name = texture.Name;
+
+                var equations = finMaterial.Equations;
+
+                finMaterial.SetTextureSource(0, texture);
+
+                var color0 = equations.CreateColorConstant(0);
+                var scalar1 = equations.CreateScalarConstant(1);
+
+                var vertexColor0 = equations.CreateColorInput(
+                    FixedFunctionSource.VERTEX_COLOR_0,
+                    color0);
+                var textureColor0 = equations.CreateColorInput(
+                    FixedFunctionSource.TEXTURE_COLOR_0,
+                    color0);
+
+                var vertexAlpha0 =
+                    equations.CreateScalarInput(
+                        FixedFunctionSource.VERTEX_ALPHA_0,
+                        scalar1);
+                var textureAlpha0 = equations.CreateScalarInput(
+                    FixedFunctionSource.TEXTURE_ALPHA_0,
+                    scalar1);
+
+                equations.CreateColorOutput(
+                    FixedFunctionSource.OUTPUT_COLOR,
+                    vertexColor0.Multiply(textureColor0));
+                equations.CreateScalarOutput(FixedFunctionSource.OUTPUT_ALPHA,
+                                             vertexAlpha0.Multiply(
+                                                 textureAlpha0));
+
+                finMaterial.SetAlphaCompare(AlphaOp.Or,
+                                            AlphaCompareType.Greater,
+                                            .5f,
+                                            AlphaCompareType.Never,
+                                            0);
+
+                return finMaterial;
               });
     }
 
@@ -230,7 +271,7 @@ namespace f3dzex2.model {
             if (setTileOpcodeCommand.TileDescriptor ==
                 TileDescriptor.TX_RENDERTILE) {
               this.textureColorFormat_ = setTileOpcodeCommand.ColorFormat;
-              this.textureBitSize_ = setTileOpcodeCommand.BitSize;
+              this.textureBitsPerPixel_ = setTileOpcodeCommand.BitsPerPixel;
               this.currentMaterial_ = null;
             }
             // TODO: Support wrap modes
@@ -239,6 +280,7 @@ namespace f3dzex2.model {
           case SetTileSizeOpcodeCommand setTileSizeOpcodeCommand: {
             this.textureParams_.Width = setTileSizeOpcodeCommand.Width;
             this.textureParams_.Height = setTileSizeOpcodeCommand.Height;
+            this.ClearVertices_();
             this.currentMaterial_ = null;
             break;
           }
@@ -269,6 +311,8 @@ namespace f3dzex2.model {
               else
                 texScaleY_ = 1.0f;
             }
+
+            this.ClearVertices_();
             break;
           }
           case SetCombineOpcodeCommand setCombineOpcodeCommand: {
@@ -281,26 +325,33 @@ namespace f3dzex2.model {
           case VtxOpcodeCommand vtxOpcodeCommand: {
             var newVertices = vtxOpcodeCommand.Vertices;
             for (var i = 0; i < newVertices.Count; ++i) {
-              this.vertexDefinitions_[
-                      vtxOpcodeCommand.IndexToBeginStoringVertices + i] =
+              var index = vtxOpcodeCommand.IndexToBeginStoringVertices + i;
+              this.vertexDefinitions_[index] =
                   newVertices[i];
-              this.vertices_[i] = null;
+              this.vertices_[index] = null;
             }
 
             break;
           }
           case Tri1OpcodeCommand tri1OpcodeCommand: {
+            var material = this.GetOrCreateMaterial_();
             var vertices =
                 tri1OpcodeCommand.VertexIndicesInOrder.Select(
                     GetOrCreateVertexAtIndex_);
             this.currentMesh_.AddTriangles(vertices.ToArray())
-                .SetMaterial(this.GetOrCreateMaterial_())
+                .SetMaterial(material)
                 .SetVertexOrder(VertexOrder.NORMAL);
             break;
           }
           default:
             throw new ArgumentOutOfRangeException(nameof(opcodeCommand));
         }
+      }
+    }
+
+    private void ClearVertices_() {
+      for (var i = 0; i < vertices_.Length; ++i) {
+        this.vertices_[i] = null;
       }
     }
 
@@ -315,10 +366,19 @@ namespace f3dzex2.model {
       var position = definition.GetPosition();
       GlMatrixUtil.ProjectPosition(Matrix.Impl, ref position);
 
+      var bmp = this.currentMaterial_?.Textures.First().Image;
+      var bmpWidth = bmp?.Width ?? 1;
+      var bmpHeight = bmp?.Height ?? 1;
+
       var newVertex = this.Model.Skin.AddVertex(position)
                           .SetUv(definition.GetUv(
-                                     this.texScaleX_,
-                                     this.texScaleY_));
+                                     this.texScaleX_ / (bmpWidth * 32),
+                                     this.texScaleY_ / (bmpHeight * 32)));
+
+      var uv = newVertex.GetUv();
+      if (uv.U != 0 || uv.V != 0) {
+        ;
+      }
 
       if (this.geometryMode_.CheckFlag(GeometryMode.G_LIGHTING)) {
         var normal = definition.GetNormal();
@@ -339,7 +399,8 @@ namespace f3dzex2.model {
         return this.currentMaterial_;
       }
 
-      return this.lazyMaterialDictionary_[this.textureParams_];
+      return this.currentMaterial_ =
+          this.lazyMaterialDictionary_[this.textureParams_];
     }
   }
 }

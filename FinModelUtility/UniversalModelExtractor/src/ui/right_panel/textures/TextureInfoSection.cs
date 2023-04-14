@@ -40,6 +40,14 @@ namespace uni.ui.right_panel.textures {
       [Display(Order = 3)]
       [Category("Metadata")]
       public int? Height => this.impl_?.Image.Height;
+
+      [Display(Order = 4)]
+      [Category("Metadata")]
+      public WrapMode? HorizontalWrapMode => this.impl_?.WrapModeU;
+
+      [Display(Order = 5)]
+      [Category("Metadata")]
+      public WrapMode? VerticalWrapMode => this.impl_?.WrapModeV;
     }
   }
 }
