@@ -107,7 +107,7 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           er.AssertUInt16(0);
           return new SetTimgOpcodeCommand {
               ColorFormat = colorFormat,
-              BitsPerPixel = bitSize,
+              BitsPerTexel = bitSize,
               TextureSegmentedAddress = er.ReadUInt32(),
           };
         }
@@ -151,14 +151,10 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           var first = er.ReadUInt32();
           var second = er.ReadUInt32();
 
-          if (second == 0x07000000) {
-            return new NoopOpcodeCommand();
-          }
-
           var colorFormat =
               (N64ColorFormat) BitLogic.ExtractFromRight(first, 21, 3);
           var bitSize =
-              (BitsPerPixel) BitLogic.ExtractFromRight(first, 19, 2);
+              (BitsPerTexel) BitLogic.ExtractFromRight(first, 19, 2);
           var tileDescriptor =
               (TileDescriptor) BitLogic.ExtractFromRight(second, 24, 3);
 
@@ -168,20 +164,22 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           return new SetTileOpcodeCommand {
               TileDescriptor = tileDescriptor,
               ColorFormat = colorFormat,
-              BitsPerPixel = bitSize,
+              BitsPerTexel = bitSize,
               WrapModeT = wrapModeT,
               WrapModeS = wrapModeS,
           };
         }
         case F3dOpcode.G_SETTILESIZE: {
-          er.Position += 4;
-          
+          er.Position += 3;
+
+          var tileDescriptor = (TileDescriptor) er.ReadByte();
+
           var widthAndHeight = er.ReadUInt24();
           var width = (ushort) (((widthAndHeight >> 12) >> 2) + 1);
           var height = (ushort) (((widthAndHeight & 0xFFF) >> 2) + 1);
 
           return new SetTileSizeOpcodeCommand {
-              Width = width, Height = height,
+              TileDescriptor = tileDescriptor, Width = width, Height = height,
           };
         }
         case F3dOpcode.G_SETCOMBINE: {
@@ -192,9 +190,19 @@ namespace f3dzex2.displaylist.opcodes.f3d {
               ClearTextureSegmentedAddress = wholeCommand == 0xFCFFFFFFFFFE793C
           };
         }
+        case F3dOpcode.G_LOADBLOCK: {
+          return new LoadBlockOpcodeCommand();
+        }
+        case F3dOpcode.G_MOVEMEM: {
+          var commandType = (MoveMemType) er.ReadByte();
+          var sizeInBytes = er.ReadUInt16();
+          var segmentedAddress = er.ReadUInt32();
+
+          return new MoveMemOpcodeCommand {
+              MoveMemType = commandType, SegmentedAddress = segmentedAddress,
+          };
+        }
         // TODO: Implement these
-        case F3dOpcode.G_LOADBLOCK:
-        case F3dOpcode.G_MOVEMEM:
         case F3dOpcode.G_MOVEWORD:
         case F3dOpcode.G_SETOTHERMODE_L:
         case F3dOpcode.G_SETOTHERMODE_H:

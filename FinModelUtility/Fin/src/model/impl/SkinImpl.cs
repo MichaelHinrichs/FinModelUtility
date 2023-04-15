@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.Toolkit.HighPerformance.Helpers;
 
 using System;
+using System.Drawing;
 using System.Numerics;
 
 
@@ -304,6 +305,21 @@ namespace fin.model.impl {
 
 
         public IVertexAttributeArray<IColor>? Colors { get; private set; }
+
+
+        public IVertex SetColor(Color? color) {
+          if (color != null) {
+            this.Colors ??= new SingleVertexAttribute<IColor>();
+            this.Colors[0] = FinColor.FromSystemColor(color.Value);
+          } else {
+            this.Colors?.Set(0, null);
+            if (this.Colors?.Count == 0) {
+              this.Colors = null;
+            }
+          }
+
+          return this;
+        }
 
         public IVertex SetColor(IColor? color) {
           if (color != null) {

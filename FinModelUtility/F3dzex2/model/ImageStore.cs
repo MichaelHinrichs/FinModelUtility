@@ -12,7 +12,8 @@ namespace f3dzex2.model {
     public ImageParams() { }
 
     public N64ColorFormat ColorFormat { get; set; } = N64ColorFormat.RGBA;
-    public BitsPerPixel BitsPerPixel { get; set; } = BitsPerPixel._16BPP;
+    public BitsPerTexel BitsPerTexel { get; set; } = BitsPerTexel._16BPT;
+    public Color Color { get; set; }
 
     public ushort Width { get; set; }
     public ushort Height { get; set; }
@@ -20,7 +21,8 @@ namespace f3dzex2.model {
 
     public override int GetHashCode() => FluentHash.Start()
                                                    .With(this.ColorFormat)
-                                                   .With(this.BitsPerPixel)
+                                                   .With(this.BitsPerTexel)
+                                                   .With(this.Color.ToArgb())
                                                    .With(this.Width)
                                                    .With(this.Height)
                                                    .With(this.SegmentedAddress);
@@ -35,7 +37,8 @@ namespace f3dzex2.model {
 
       if (other is ImageParams otherImageParams) {
         return this.ColorFormat == otherImageParams.ColorFormat &&
-               this.BitsPerPixel == otherImageParams.BitsPerPixel &&
+               this.BitsPerTexel == otherImageParams.BitsPerTexel &&
+               this.Color.ToArgb() == otherImageParams.Color.ToArgb() &&
                this.Width == otherImageParams.Width &&
                this.Height == otherImageParams.Height &&
                this.SegmentedAddress == otherImageParams.SegmentedAddress;
@@ -53,7 +56,7 @@ namespace f3dzex2.model {
       this.lazyImageDictionary_ =
           new(imageParams => {
             if (imageParams.IsInvalid) {
-              return FinImage.Create1x1FromColor(Color.White);
+              return FinImage.Create1x1FromColor(imageParams.Color);
             }
 
             using var er =
@@ -62,7 +65,7 @@ namespace f3dzex2.model {
                 er.ReadBytes(imageParams.Width * imageParams.Height * 4);
 
             return new N64ImageParser().Parse(imageParams.ColorFormat,
-                                              imageParams.BitsPerPixel,
+                                              imageParams.BitsPerTexel,
                                               imageData,
                                               imageParams.Width,
                                               imageParams.Height,

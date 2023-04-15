@@ -5,6 +5,7 @@ using fin.data;
 using fin.math.matrix;
 using fin.model.impl;
 using System;
+using System.Drawing;
 using System.Numerics;
 
 
@@ -123,6 +124,7 @@ namespace fin.model {
     IVertex SetLocalTangent(float x, float y, float z, float w);
 
     IVertexAttributeArray<IColor>? Colors { get; }
+    IVertex SetColor(Color? color);
     IVertex SetColor(IColor? color);
     IVertex SetColor(Vector4? color);
     IVertex SetColor(IVector4? color);

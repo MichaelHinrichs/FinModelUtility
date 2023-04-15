@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 using f3dzex2.image;
 using f3dzex2.model;
@@ -129,7 +128,7 @@ namespace f3dzex2.displaylist.opcodes {
 
   public class SetTimgOpcodeCommand : IOpcodeCommand {
     public N64ColorFormat ColorFormat { get; set; }
-    public BitsPerPixel BitsPerPixel { get; set; }
+    public BitsPerTexel BitsPerTexel { get; set; }
     public uint TextureSegmentedAddress { get; set; }
   }
 
@@ -180,7 +179,7 @@ namespace f3dzex2.displaylist.opcodes {
   public class SetTileOpcodeCommand : IOpcodeCommand {
     public TileDescriptor TileDescriptor { get; set; }
     public N64ColorFormat ColorFormat { get; set; }
-    public BitsPerPixel BitsPerPixel { get; set; }
+    public BitsPerTexel BitsPerTexel { get; set; }
 
     public F3dWrapMode WrapModeT { get; set; }
     public F3dWrapMode WrapModeS { get; set; }
@@ -189,6 +188,7 @@ namespace f3dzex2.displaylist.opcodes {
   }
 
   public class SetTileSizeOpcodeCommand : IOpcodeCommand {
+    public TileDescriptor TileDescriptor { get; set; }
     public ushort Width { get; set; }
     public ushort Height { get; set; }
 
@@ -197,5 +197,18 @@ namespace f3dzex2.displaylist.opcodes {
 
   public class SetCombineOpcodeCommand : IOpcodeCommand {
     public bool ClearTextureSegmentedAddress { get; set; }
+  }
+
+  public class LoadBlockOpcodeCommand : IOpcodeCommand { }
+
+
+  public enum MoveMemType {
+    COLOR = 0x86
+  }
+
+  public class MoveMemOpcodeCommand : IOpcodeCommand {
+    public MoveMemType MoveMemType { get; set; }
+
+    public uint SegmentedAddress { get; set; }
   }
 }
