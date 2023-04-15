@@ -14,111 +14,23 @@ using fin.math.matrix;
 using fin.model;
 using fin.model.impl;
 using fin.util.enums;
-using fin.util.hash;
 
 using IImage = fin.image.IImage;
 using TileDescriptor = f3dzex2.displaylist.opcodes.TileDescriptor;
 
 
 namespace f3dzex2.model {
-  public struct TextureParams {
-    public TextureParams() { }
-
-    public ImageParams ImageParams { get; private set; } = new();
-
-    public N64ColorFormat ColorFormat {
-      get => this.ImageParams.ColorFormat;
-      set {
-        ImageParams imageParams = this.ImageParams;
-        imageParams.ColorFormat = value;
-        this.ImageParams = imageParams;
-      }
-    }
-
-    public Color Color {
-      get => this.ImageParams.Color;
-      set {
-        ImageParams imageParams = this.ImageParams;
-        imageParams.Color = value;
-        this.ImageParams = imageParams;
-      }
-    }
-
-    public BitsPerTexel BitsPerTexel {
-      get => this.ImageParams.BitsPerTexel;
-      set {
-        ImageParams imageParams = this.ImageParams;
-        imageParams.BitsPerTexel = value;
-        this.ImageParams = imageParams;
-      }
-    }
-
-    public ushort Width {
-      get => this.ImageParams.Width;
-      set {
-        ImageParams imageParams = this.ImageParams;
-        imageParams.Width = value;
-        this.ImageParams = imageParams;
-      }
-    }
-
-    public ushort Height {
-      get => this.ImageParams.Height;
-      set {
-        ImageParams imageParams = this.ImageParams;
-        imageParams.Height = value;
-        this.ImageParams = imageParams;
-      }
-    }
-
-    public uint SegmentedAddress {
-      get => this.ImageParams.SegmentedAddress;
-      set {
-        ImageParams imageParams = this.ImageParams;
-        imageParams.SegmentedAddress = value;
-        this.ImageParams = imageParams;
-      }
-    }
-
-    public F3dWrapMode WrapModeT { get; set; } = F3dWrapMode.REPEAT;
-    public F3dWrapMode WrapModeS { get; set; } = F3dWrapMode.REPEAT;
-
-    public float TexScaleX { get; set; } = 1;
-    public float TexScaleY { get; set; } = 1;
-
-    public override int GetHashCode() => FluentHash.Start()
-                                                   .With(this.ImageParams)
-                                                   .With(this.WrapModeT)
-                                                   .With(this.WrapModeS)
-                                                   .With(TexScaleX)
-                                                   .With(TexScaleY);
-
-    public override bool Equals(object? other) {
-      if (ReferenceEquals(this, other)) {
-        return true;
-      }
-
-      if (other is TextureParams otherTextureParams) {
-        return ImageParams.Equals(otherTextureParams.ImageParams) &&
-               this.WrapModeT == otherTextureParams.WrapModeT &&
-               this.WrapModeS == otherTextureParams.WrapModeS &&
-               this.TexScaleX == otherTextureParams.TexScaleX &&
-               this.TexScaleY == otherTextureParams.TexScaleY;
-      }
-
-      return false;
-    }
-  }
-
   public class DlModelBuilder {
     private readonly IN64Memory n64Memory_;
     private IMesh currentMesh_;
 
     private IMaterial? activeMaterial_;
+    private GeometryMode geometryMode_ = (GeometryMode) 0x22205;
     private TextureParams textureParamsForActiveMaterial_ = new();
 
-    private GeometryMode geometryMode_ = (GeometryMode) 0x22205;
-    private TextureParams textureParams_ = new();
+    private bool hasActiveMaterialParams_ = false;
+    private MaterialParams activeMaterialParams_ = new();
+    private MaterialParams wipMaterialParams_ = new();
 
     private readonly LazyDictionary<ImageParams, IImage>
         lazyImageDictionary_;
@@ -126,7 +38,7 @@ namespace f3dzex2.model {
     private readonly LazyDictionary<TextureParams, ITexture>
         lazyTextureDictionary_;
 
-    private readonly LazyDictionary<TextureParams, IMaterial>
+    private readonly LazyDictionary<MaterialParams, IMaterial>
         lazyMaterialDictionary_;
 
     private const int VERTEX_COUNT = 32;
@@ -171,16 +83,20 @@ namespace f3dzex2.model {
                     String.Format("0x{0:X8}", textureParams.SegmentedAddress);
                 texture.WrapModeU = textureParams.WrapModeS.AsFinWrapMode();
                 texture.WrapModeV = textureParams.WrapModeT.AsFinWrapMode();
+                texture.UvType = textureParams.UvType;
                 return texture;
               });
 
       lazyMaterialDictionary_ =
-          new(textureParams
+          new(materialParams
                   => {
-                var texture = this.lazyTextureDictionary_[textureParams];
+                var texture =
+                    this.lazyTextureDictionary_[materialParams.TextureParams];
                 var finMaterial =
                     Model.MaterialManager.AddFixedFunctionMaterial();
+
                 finMaterial.Name = texture.Name;
+                finMaterial.CullingMode = materialParams.CullingMode;
 
                 var equations = finMaterial.Equations;
 
@@ -260,24 +176,34 @@ namespace f3dzex2.model {
             break;
           // Geometry mode commands
           case SetGeometryModeOpcodeCommand setGeometryModeOpcodeCommand: {
-            this.geometryMode_ |= setGeometryModeOpcodeCommand.FlagsToEnable;
+            var flagsToEnable = setGeometryModeOpcodeCommand.FlagsToEnable;
+            this.geometryMode_ |= flagsToEnable;
+            if (flagsToEnable.CheckFlag(GeometryMode.G_CULL_FRONT_NONEX2) ||
+                flagsToEnable.CheckFlag(GeometryMode.G_CULL_BACK_NONEX2)) {
+              this.MarkMaterialDirty_(false);
+            }
+
             break;
           }
           case ClearGeometryModeOpcodeCommand clearGeometryModeOpcodeCommand: {
-            this.geometryMode_ &=
-                ~clearGeometryModeOpcodeCommand.FlagsToDisable;
+            var flagsToEnable = clearGeometryModeOpcodeCommand.FlagsToDisable;
+            this.geometryMode_ &= ~flagsToEnable;
+            if (flagsToEnable.CheckFlag(GeometryMode.G_CULL_FRONT_NONEX2) ||
+                flagsToEnable.CheckFlag(GeometryMode.G_CULL_BACK_NONEX2)) {
+              this.MarkMaterialDirty_(false);
+            }
             break;
           }
           case SetTileOpcodeCommand setTileOpcodeCommand: {
             if (setTileOpcodeCommand.TileDescriptor ==
                 TileDescriptor.TX_RENDERTILE) {
-              this.textureParams_.ColorFormat =
+              this.wipMaterialParams_.ColorFormat =
                   setTileOpcodeCommand.ColorFormat;
-              this.textureParams_.BitsPerTexel =
+              this.wipMaterialParams_.BitsPerTexel =
                   setTileOpcodeCommand.BitsPerTexel;
 
-              this.textureParams_.WrapModeT = setTileOpcodeCommand.WrapModeT;
-              this.textureParams_.WrapModeS = setTileOpcodeCommand.WrapModeS;
+              this.wipMaterialParams_.WrapModeT = setTileOpcodeCommand.WrapModeT;
+              this.wipMaterialParams_.WrapModeS = setTileOpcodeCommand.WrapModeS;
             }
 
             break;
@@ -285,14 +211,14 @@ namespace f3dzex2.model {
           case SetTileSizeOpcodeCommand setTileSizeOpcodeCommand: {
             if (setTileSizeOpcodeCommand.TileDescriptor ==
                 TileDescriptor.TX_RENDERTILE) {
-              this.textureParams_.Width = setTileSizeOpcodeCommand.Width;
-              this.textureParams_.Height = setTileSizeOpcodeCommand.Height;
+              this.wipMaterialParams_.Width = setTileSizeOpcodeCommand.Width;
+              this.wipMaterialParams_.Height = setTileSizeOpcodeCommand.Height;
             }
 
             break;
           }
           case SetTimgOpcodeCommand setTimgOpcodeCommand: {
-            this.textureParams_.SegmentedAddress =
+            this.wipMaterialParams_.SegmentedAddress =
                 setTimgOpcodeCommand.TextureSegmentedAddress;
             break;
           }
@@ -302,34 +228,21 @@ namespace f3dzex2.model {
               var tsX = textureOpcodeCommand.HorizontalScaling;
               var tsY = textureOpcodeCommand.VerticalScaling;
 
-              if (this.geometryMode_.HasFlag(GeometryMode.G_TEXTURE_GEN)) {
-                /*this.textureParams_.Width = (ushort) ((tsX >> 6));
-                this.textureParams_.Height = (ushort) ((tsY >> 6));
-                if (this.textureParams_.Width == 31)
-                  this.textureParams_.Width = 32;
-                else if (this.textureParams_.Width == 62)
-                  this.textureParams_.Width = 64;
-                if (this.textureParams_.Height == 31)
-                  this.textureParams_.Height = 32;
-                else if (this.textureParams_.Height == 62)
-                  this.textureParams_.Height = 64;*/
-              } else {
-                if (tsX != 0xFFFF)
-                  textureParams_.TexScaleX = (float) tsX / 65536.0f;
-                else
-                  textureParams_.TexScaleX = 1.0f;
-                if (tsY != 0xFFFF)
-                  textureParams_.TexScaleY = (float) tsY / 65536.0f;
-                else
-                  textureParams_.TexScaleY = 1.0f;
-              }
+              if (tsX != 0xFFFF)
+                this.wipMaterialParams_.TexScaleX = (float) tsX / 65536.0f;
+              else
+                this.wipMaterialParams_.TexScaleX = 1.0f;
+              if (tsY != 0xFFFF)
+                this.wipMaterialParams_.TexScaleY = (float) tsY / 65536.0f;
+              else
+                this.wipMaterialParams_.TexScaleY = 1.0f;
             }
 
             break;
           }
           case SetCombineOpcodeCommand setCombineOpcodeCommand: {
             if (setCombineOpcodeCommand.ClearTextureSegmentedAddress) {
-              this.textureParams_.SegmentedAddress = 0;
+              this.wipMaterialParams_.SegmentedAddress = 0;
             }
 
             break;
@@ -356,7 +269,7 @@ namespace f3dzex2.model {
             break;
           }
           case LoadBlockOpcodeCommand: {
-            this.MarkMaterialDirty_();
+            this.MarkMaterialDirty_(true);
             break;
           }
           case MoveMemOpcodeCommand moveMemOpcodeCommand: {
@@ -368,7 +281,7 @@ namespace f3dzex2.model {
                 var r = er.ReadByte();
                 var g = er.ReadByte();
                 var b = er.ReadByte();
-                this.textureParams_.Color = Color.FromArgb(r, g, b);
+                this.wipMaterialParams_.Color = Color.FromArgb(r, g, b);
 
                 break;
               }
@@ -400,23 +313,24 @@ namespace f3dzex2.model {
       GlMatrixUtil.ProjectPosition(Matrix.Impl, ref position);
 
       var bmpWidth =
-          Math.Max(textureParamsForActiveMaterial_.Width, (ushort) 0);
+          Math.Max(this.activeMaterialParams_.Width, (ushort) 0);
       var bmpHeight =
-          Math.Max(textureParamsForActiveMaterial_.Height, (ushort) 0);
+          Math.Max(this.activeMaterialParams_.Height, (ushort) 0);
 
       var newVertex = this.Model.Skin.AddVertex(position)
                           .SetUv(definition.GetUv(
-                                     textureParamsForActiveMaterial_.TexScaleX /
+                                     this.activeMaterialParams_.TexScaleX /
                                      (bmpWidth * 32),
-                                     textureParamsForActiveMaterial_.TexScaleY /
+                                     this.activeMaterialParams_.TexScaleY /
                                      (bmpHeight * 32)));
 
-      if (this.geometryMode_.CheckFlag(GeometryMode.G_LIGHTING)) {
+      if (this.geometryMode_.CheckFlag(
+              GeometryMode.G_LIGHTING)) {
         var normal = definition.GetNormal();
         GlMatrixUtil.ProjectNormal(Matrix.Impl, ref normal);
         newVertex.SetLocalNormal(normal)
                  // TODO: Get rid of this, seems to come from combiner instead
-                 .SetColor(this.textureParamsForActiveMaterial_.Color);
+                 .SetColor(this.activeMaterialParams_.Color);
       } else {
         newVertex.SetColor(definition.GetColor());
       }
@@ -425,8 +339,11 @@ namespace f3dzex2.model {
       return newVertex;
     }
 
-    public void MarkMaterialDirty_() {
+    public void MarkMaterialDirty_(bool includeParams) {
       this.activeMaterial_ = null;
+      if (includeParams) {
+        this.hasActiveMaterialParams_ = false;
+      }
       this.ClearVertices_();
     }
 
@@ -435,9 +352,15 @@ namespace f3dzex2.model {
         return this.activeMaterial_;
       }
 
-      this.textureParamsForActiveMaterial_ = this.textureParams_;
+      if (!this.hasActiveMaterialParams_) {
+        this.activeMaterialParams_ = this.wipMaterialParams_;
+      }
+      this.activeMaterialParams_.CullingMode =
+          this.geometryMode_.GetCullingModeNonEx2();
+
+      this.hasActiveMaterialParams_ = true;
       return this.activeMaterial_ =
-          this.lazyMaterialDictionary_[this.textureParams_];
+          this.lazyMaterialDictionary_[this.activeMaterialParams_];
     }
   }
 }

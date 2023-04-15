@@ -5,6 +5,7 @@ using f3dzex2.image;
 using f3dzex2.model;
 
 using fin.model;
+using fin.util.enums;
 
 
 namespace f3dzex2.displaylist.opcodes {
@@ -147,6 +148,29 @@ namespace f3dzex2.displaylist.opcodes {
     G_TEXTURE_GEN_LINEAR = 1 << 19,
     G_SHADING_SMOOTH_EX2 = 1 << 21,
     G_CLIPPING_EX2 = 1 << 23,
+  }
+
+  public static class GeometryModeExtensions {
+    public static CullingMode GetCullingModeNonEx2(
+        this GeometryMode geometryMode)
+      => GetCullingMode_(
+          geometryMode.CheckFlag(GeometryMode.G_CULL_BACK_NONEX2),
+          geometryMode.CheckFlag(GeometryMode.G_CULL_FRONT_NONEX2));
+
+    public static CullingMode GetCullingModeEx2(
+        this GeometryMode geometryMode)
+      => GetCullingMode_(
+          geometryMode.CheckFlag(GeometryMode.G_CULL_BACK_EX2),
+          geometryMode.CheckFlag(GeometryMode.G_CULL_FRONT_EX2));
+
+    private static CullingMode GetCullingMode_(bool cullBack, bool cullFront) {
+      return (cullBack, cullFront) switch {
+          (false, false) => CullingMode.SHOW_BOTH,
+          (false, true)  => CullingMode.SHOW_BACK_ONLY,
+          (true, false)  => CullingMode.SHOW_FRONT_ONLY,
+          (true, true)   => CullingMode.SHOW_NEITHER,
+      };
+    }
   }
 
   public class SetGeometryModeOpcodeCommand : IOpcodeCommand {
