@@ -114,25 +114,25 @@ namespace f3dzex2.displaylist.opcodes {
     ENABLED = 1,
   }
 
-  public enum TileDescriptor : byte {
+  public enum TileDescriptorIndex : byte {
     TX_RENDERTILE = 0x0,
     TX_LOADTILE = 0x7,
   }
 
   public static class TileDescriptorExtensions {
     public static bool IsRenderAndAssertNotLoad(
-        this TileDescriptor tileDescriptor) => tileDescriptor switch {
-        TileDescriptor.TX_RENDERTILE => true,
-        TileDescriptor.TX_LOADTILE   => false,
+        this TileDescriptorIndex tileDescriptorIndex) => tileDescriptorIndex switch {
+        TileDescriptorIndex.TX_RENDERTILE => true,
+        TileDescriptorIndex.TX_LOADTILE   => false,
         _                            => throw new ArgumentOutOfRangeException(
-            nameof(tileDescriptor),
-            tileDescriptor,
+            nameof(tileDescriptorIndex),
+            tileDescriptorIndex,
             null)
     };
   }
 
   public class TextureOpcodeCommand : IOpcodeCommand {
-    public TileDescriptor TileDescriptor { get; set; }
+    public TileDescriptorIndex TileDescriptorIndex { get; set; }
     public TileDescriptorState NewTileDescriptorState { get; set; }
     public byte MaximumNumberOfMipmaps { get; set; }
     public ushort HorizontalScaling { get; set; }
@@ -221,7 +221,7 @@ namespace f3dzex2.displaylist.opcodes {
   }
 
   public class SetTileOpcodeCommand : IOpcodeCommand {
-    public TileDescriptor TileDescriptor { get; set; }
+    public TileDescriptorIndex TileDescriptorIndex { get; set; }
     public N64ColorFormat ColorFormat { get; set; }
     public BitsPerTexel BitsPerTexel { get; set; }
 
@@ -232,7 +232,7 @@ namespace f3dzex2.displaylist.opcodes {
   }
 
   public class SetTileSizeOpcodeCommand : IOpcodeCommand {
-    public TileDescriptor TileDescriptor { get; set; }
+    public TileDescriptorIndex TileDescriptorIndex { get; set; }
     public ushort Width { get; set; }
     public ushort Height { get; set; }
 
@@ -244,7 +244,7 @@ namespace f3dzex2.displaylist.opcodes {
   }
 
   public class LoadBlockOpcodeCommand : IOpcodeCommand {
-    public TileDescriptor TileDescriptor { get; set; }
+    public TileDescriptorIndex TileDescriptorIndex { get; set; }
   }
 
 
