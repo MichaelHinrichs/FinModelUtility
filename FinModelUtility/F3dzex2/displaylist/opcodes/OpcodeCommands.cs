@@ -171,6 +171,14 @@ namespace f3dzex2.displaylist.opcodes {
           (true, true)   => CullingMode.SHOW_NEITHER,
       };
     }
+
+
+    public static UvType GetUvType(this GeometryMode geometryMode)
+      => geometryMode.CheckFlag(GeometryMode.G_TEXTURE_GEN)
+          ? UvType.SPHERICAL
+          : geometryMode.CheckFlag(GeometryMode.G_TEXTURE_GEN_LINEAR)
+              ? UvType.LINEAR
+              : UvType.STANDARD;
   }
 
   public class SetGeometryModeOpcodeCommand : IOpcodeCommand {

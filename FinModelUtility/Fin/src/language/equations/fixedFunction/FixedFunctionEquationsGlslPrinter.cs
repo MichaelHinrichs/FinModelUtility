@@ -618,7 +618,7 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
       var texture = this.textures_[textureIndex];
 
       var uvText = texture?.UvType switch {
-          UvType.NORMAL    => $"uv{texture.UvIndex}",
+          UvType.STANDARD    => $"uv{texture.UvIndex}",
           UvType.SPHERICAL => "asin(normalUv) / 3.14159 + 0.5",
           UvType.LINEAR    => "acos(normalUv) / 3.14159",
           _                => throw new ArgumentOutOfRangeException()

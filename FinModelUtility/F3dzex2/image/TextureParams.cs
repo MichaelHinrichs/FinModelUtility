@@ -67,7 +67,7 @@ namespace f3dzex2.image {
     public F3dWrapMode WrapModeT { get; set; } = F3dWrapMode.REPEAT;
     public F3dWrapMode WrapModeS { get; set; } = F3dWrapMode.REPEAT;
 
-    public UvType UvType { get; set; } = UvType.NORMAL;
+    public UvType UvType { get; set; } = UvType.STANDARD;
 
     public float TexScaleX { get; set; } = 1;
     public float TexScaleY { get; set; } = 1;

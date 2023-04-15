@@ -55,7 +55,7 @@ namespace sm64.api {
                 var uvType =
                   geometryMode.CheckFlag(RspGeometryMode.G_TEXTURE_GEN_LINEAR)
                     ? UvType.LINEAR
-                    : UvType.NORMAL;
+                    : UvType.STANDARD;
 
                 var finMaterial =
                   finModel.MaterialManager.AddFixedFunctionMaterial();

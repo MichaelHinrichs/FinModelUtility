@@ -272,7 +272,7 @@ namespace fin.model {
 
 
   public enum UvType {
-    NORMAL,
+    STANDARD,
     SPHERICAL,
     LINEAR,
   }

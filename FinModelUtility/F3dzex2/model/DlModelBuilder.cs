@@ -26,7 +26,6 @@ namespace f3dzex2.model {
 
     private IMaterial? activeMaterial_;
     private GeometryMode geometryMode_ = (GeometryMode) 0x22205;
-    private TextureParams textureParamsForActiveMaterial_ = new();
 
     private bool hasActiveMaterialParams_ = false;
     private MaterialParams activeMaterialParams_ = new();
@@ -355,8 +354,10 @@ namespace f3dzex2.model {
       if (!this.hasActiveMaterialParams_) {
         this.activeMaterialParams_ = this.wipMaterialParams_;
       }
+
       this.activeMaterialParams_.CullingMode =
           this.geometryMode_.GetCullingModeNonEx2();
+      this.activeMaterialParams_.UvType = this.geometryMode_.GetUvType();
 
       this.hasActiveMaterialParams_ = true;
       return this.activeMaterial_ =
