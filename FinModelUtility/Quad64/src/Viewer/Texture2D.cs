@@ -1,4 +1,5 @@
 ﻿using fin.image;
+using fin.util.hash;
 
 namespace Quad64 {
   public class Texture2D {
@@ -16,16 +17,14 @@ namespace Quad64 {
       this.Bmp = bmp;
     }
 
-    public override int GetHashCode() {
-      var hash = 17;
-      hash = hash * 23 + this.Id.GetHashCode();
-      hash = hash * 23 + this.Bmp.GetHashCode();
-      hash = hash * 23 + this.Width.GetHashCode();
-      hash = hash * 23 + this.Height.GetHashCode();
-      hash = hash * 23 + this.TextureParamS.GetHashCode();
-      hash = hash * 23 + this.TextureParamT.GetHashCode();
-      return hash;
-    }
+    public override int GetHashCode()
+      => FluentHash.Start()
+                   .With(Id)
+                   .With(Bmp)
+                   .With(Width)
+                   .With(Height)
+                   .With(TextureParamS)
+                   .With(TextureParamT);
 
     public override bool Equals(object? other) {
       if (object.ReferenceEquals(this, other)) {

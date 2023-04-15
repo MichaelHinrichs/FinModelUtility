@@ -6,6 +6,8 @@ using fin.util.asserts;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
+using fin.util.hash;
+
 
 namespace fin.math {
   using SystemMatrix = System.Numerics.Matrix4x4;
@@ -274,11 +276,11 @@ namespace fin.math {
     }
 
     public override int GetHashCode() {
-      int hash = 17;
+      var hash = new FluentHash();
       for (var i = 0; i < 16; ++i) {
         var value = this[i];
         value = MathF.Round(value / ERROR) * ERROR;
-        hash = hash * 31 + value.GetHashCode();
+        hash = hash.With(value.GetHashCode());
       }
       return hash;
     }

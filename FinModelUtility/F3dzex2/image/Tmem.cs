@@ -1,12 +1,35 @@
-﻿namespace f3dzex2.image {
+﻿using f3dzex2.displaylist.opcodes;
+
+using fin.model;
+using fin.util.hash;
+
+namespace f3dzex2.image {
   /// <summary>
   ///   http://ultra64.ca/files/documentation/online-manuals/man/pro-man/pro13/index13.4.html
   /// </summary>
   public struct TileDescriptor {
-    public TileDescriptor() {}
+    public TileDescriptor() { }
 
+    public TileDescriptorState State { get; set; }
     public N64ColorFormat ColorFormat { get; set; } = N64ColorFormat.RGBA;
     public BitsPerTexel BitsPerTexel { get; set; } = BitsPerTexel._16BPT;
+
+    public override int GetHashCode()
+      => FluentHash.Start().With(State).With(ColorFormat).With(BitsPerTexel);
+
+    public override bool Equals(object? obj) {
+      if (ReferenceEquals(this, obj)) {
+        return true;
+      }
+
+      if (obj is TileDescriptor otherTileDescriptor) {
+        return this.State == otherTileDescriptor.State &&
+               this.ColorFormat == otherTileDescriptor.ColorFormat &&
+               this.BitsPerTexel == otherTileDescriptor.BitsPerTexel;
+      }
+
+      return false;
+    }
   }
 
   /// <summary>
@@ -27,6 +50,31 @@
     private readonly TileDescriptor[] tileDescriptors_ =
         new TileDescriptor[TILE_DESCRIPTOR_COUNT];
 
-    // Loads tile from TMEM into tile descriptor.
+    public void gsDPLoadBlock(ushort uls,
+                              ushort ult,
+                              TileDescriptor tileDescriptor,
+                              ushort texels,
+                              ushort deltaTPerScanline) { }
+
+
+    public void gsDPSetTile(N64ColorFormat colorFormat,
+                            BitsPerTexel bitsPerTexel,
+                            uint num64BitValuesPerRow,
+                            uint offsetOfTextureInTmem,
+                            TileDescriptor tileDescriptor,
+                            WrapMode wrapModeS,
+                            WrapMode wrapModeT) { }
+
+    public void gsSPTexture(
+        ushort scaleS,
+        ushort scaleT,
+        uint maxExtraMipmapLevels,
+        TileDescriptor tileDescriptor,
+        TileDescriptorState tileDescriptorState) { }
+
+    public void gsDPSetTextureImage(N64ColorFormat colorFormat,
+                                    BitsPerTexel bitsPerTexel,
+                                    ushort width,
+                                    uint imageSegmentedAddress) { }
   }
 }
