@@ -119,6 +119,18 @@ namespace f3dzex2.displaylist.opcodes {
     TX_LOADTILE = 0x7,
   }
 
+  public static class TileDescriptorExtensions {
+    public static bool IsRenderAndAssertNotLoad(
+        this TileDescriptor tileDescriptor) => tileDescriptor switch {
+        TileDescriptor.TX_RENDERTILE => true,
+        TileDescriptor.TX_LOADTILE   => false,
+        _                            => throw new ArgumentOutOfRangeException(
+            nameof(tileDescriptor),
+            tileDescriptor,
+            null)
+    };
+  }
+
   public class TextureOpcodeCommand : IOpcodeCommand {
     public TileDescriptor TileDescriptor { get; set; }
     public TileDescriptorState NewTileDescriptorState { get; set; }
@@ -231,15 +243,18 @@ namespace f3dzex2.displaylist.opcodes {
     public bool ClearTextureSegmentedAddress { get; set; }
   }
 
-  public class LoadBlockOpcodeCommand : IOpcodeCommand { }
+  public class LoadBlockOpcodeCommand : IOpcodeCommand {
+    public TileDescriptor TileDescriptor { get; set; }
+  }
 
 
-  public enum MoveMemType {
-    COLOR = 0x86
+  public enum DmemAddress {
+    G_MV_L0 = 0x86,
+    G_MV_L1 = 0x88,
   }
 
   public class MoveMemOpcodeCommand : IOpcodeCommand {
-    public MoveMemType MoveMemType { get; set; }
+    public DmemAddress DmemAddress { get; set; }
 
     public uint SegmentedAddress { get; set; }
   }

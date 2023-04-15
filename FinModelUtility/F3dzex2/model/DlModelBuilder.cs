@@ -20,12 +20,18 @@ using TileDescriptor = f3dzex2.displaylist.opcodes.TileDescriptor;
 
 
 namespace f3dzex2.model {
+  public class Rsp {
+    public GeometryMode GeometryMode { get; set; } = (GeometryMode) 0x22205;
+    public float TexScaleX { get; set; } = 1;
+    public float TexScaleY { get; set; } = 1;
+  }
+
   public class DlModelBuilder {
     private readonly IN64Memory n64Memory_;
     private IMesh currentMesh_;
 
     private IMaterial? activeMaterial_;
-    private GeometryMode geometryMode_ = (GeometryMode) 0x22205;
+    private readonly Rsp rsp_ = new();
 
     private bool hasActiveMaterialParams_ = false;
     private MaterialParams activeMaterialParams_ = new();
@@ -76,10 +82,15 @@ namespace f3dzex2.model {
       lazyTextureDictionary_ =
           new(textureParams
                   => {
+                var imageParams = textureParams.ImageParams;
                 var texture = this.Model.MaterialManager.CreateTexture(
-                    this.lazyImageDictionary_[textureParams.ImageParams]);
-                texture.Name =
-                    String.Format("0x{0:X8}", textureParams.SegmentedAddress);
+                    this.lazyImageDictionary_[imageParams]);
+
+                var color = imageParams.Color;
+                texture.Name = !imageParams.IsInvalid
+                    ? String.Format("0x{0:X8}", textureParams.SegmentedAddress)
+                    : $"rgb({color.R}, {color.G}, {color.B})";
+
                 texture.WrapModeU = textureParams.WrapModeS.AsFinWrapMode();
                 texture.WrapModeV = textureParams.WrapModeT.AsFinWrapMode();
                 texture.UvType = textureParams.UvType;
@@ -148,6 +159,7 @@ namespace f3dzex2.model {
 
     public void AddDl(IDisplayList dl, IN64Memory n64Memory) {
       foreach (var opcodeCommand in dl.OpcodeCommands) {
+        
         switch (opcodeCommand) {
           case NoopOpcodeCommand _:
             break;
@@ -176,7 +188,7 @@ namespace f3dzex2.model {
           // Geometry mode commands
           case SetGeometryModeOpcodeCommand setGeometryModeOpcodeCommand: {
             var flagsToEnable = setGeometryModeOpcodeCommand.FlagsToEnable;
-            this.geometryMode_ |= flagsToEnable;
+            this.rsp_.GeometryMode |= flagsToEnable;
             if (flagsToEnable.CheckFlag(GeometryMode.G_CULL_FRONT_NONEX2) ||
                 flagsToEnable.CheckFlag(GeometryMode.G_CULL_BACK_NONEX2)) {
               this.MarkMaterialDirty_(false);
@@ -186,7 +198,7 @@ namespace f3dzex2.model {
           }
           case ClearGeometryModeOpcodeCommand clearGeometryModeOpcodeCommand: {
             var flagsToEnable = clearGeometryModeOpcodeCommand.FlagsToDisable;
-            this.geometryMode_ &= ~flagsToEnable;
+            this.rsp_.GeometryMode &= ~flagsToEnable;
             if (flagsToEnable.CheckFlag(GeometryMode.G_CULL_FRONT_NONEX2) ||
                 flagsToEnable.CheckFlag(GeometryMode.G_CULL_BACK_NONEX2)) {
               this.MarkMaterialDirty_(false);
@@ -194,22 +206,20 @@ namespace f3dzex2.model {
             break;
           }
           case SetTileOpcodeCommand setTileOpcodeCommand: {
-            if (setTileOpcodeCommand.TileDescriptor ==
-                TileDescriptor.TX_RENDERTILE) {
+            if (setTileOpcodeCommand.TileDescriptor.IsRenderAndAssertNotLoad()) {
               this.wipMaterialParams_.ColorFormat =
                   setTileOpcodeCommand.ColorFormat;
               this.wipMaterialParams_.BitsPerTexel =
                   setTileOpcodeCommand.BitsPerTexel;
-
-              this.wipMaterialParams_.WrapModeT = setTileOpcodeCommand.WrapModeT;
-              this.wipMaterialParams_.WrapModeS = setTileOpcodeCommand.WrapModeS;
             }
+
+            this.wipMaterialParams_.WrapModeT = setTileOpcodeCommand.WrapModeT;
+            this.wipMaterialParams_.WrapModeS = setTileOpcodeCommand.WrapModeS;
 
             break;
           }
           case SetTileSizeOpcodeCommand setTileSizeOpcodeCommand: {
-            if (setTileSizeOpcodeCommand.TileDescriptor ==
-                TileDescriptor.TX_RENDERTILE) {
+            if (setTileSizeOpcodeCommand.TileDescriptor.IsRenderAndAssertNotLoad()) {
               this.wipMaterialParams_.Width = setTileSizeOpcodeCommand.Width;
               this.wipMaterialParams_.Height = setTileSizeOpcodeCommand.Height;
             }
@@ -222,19 +232,18 @@ namespace f3dzex2.model {
             break;
           }
           case TextureOpcodeCommand textureOpcodeCommand: {
-            if (textureOpcodeCommand.TileDescriptor ==
-                TileDescriptor.TX_RENDERTILE) {
+            if (textureOpcodeCommand.TileDescriptor.IsRenderAndAssertNotLoad()) {
               var tsX = textureOpcodeCommand.HorizontalScaling;
               var tsY = textureOpcodeCommand.VerticalScaling;
 
               if (tsX != 0xFFFF)
-                this.wipMaterialParams_.TexScaleX = (float) tsX / 65536.0f;
+                this.rsp_.TexScaleX = (float) tsX / 65536.0f;
               else
-                this.wipMaterialParams_.TexScaleX = 1.0f;
+                this.rsp_.TexScaleX = 1.0f;
               if (tsY != 0xFFFF)
-                this.wipMaterialParams_.TexScaleY = (float) tsY / 65536.0f;
+                this.rsp_.TexScaleY = (float) tsY / 65536.0f;
               else
-                this.wipMaterialParams_.TexScaleY = 1.0f;
+                this.rsp_.TexScaleY = 1.0f;
             }
 
             break;
@@ -267,21 +276,30 @@ namespace f3dzex2.model {
                 .SetVertexOrder(VertexOrder.NORMAL);
             break;
           }
-          case LoadBlockOpcodeCommand: {
+          case LoadBlockOpcodeCommand loadBlockOpcodeCommand: {
             this.MarkMaterialDirty_(true);
             break;
           }
           case MoveMemOpcodeCommand moveMemOpcodeCommand: {
-            switch (moveMemOpcodeCommand.MoveMemType) {
-              case MoveMemType.COLOR: {
+            // TODO: How to handle this in a more generalized way?
+            switch (moveMemOpcodeCommand.DmemAddress) {
+              // Diffuse light
+              // https://hack64.net/wiki/doku.php?id=super_mario_64:fast3d_display_list_commands
+              case DmemAddress.G_MV_L0: {
                 using var er =
                     n64Memory.OpenAtSegmentedAddress(
                         moveMemOpcodeCommand.SegmentedAddress);
                 var r = er.ReadByte();
                 var g = er.ReadByte();
                 var b = er.ReadByte();
-                this.wipMaterialParams_.Color = Color.FromArgb(r, g, b);
 
+                // TODO: Support normalized light direction
+
+                this.wipMaterialParams_.DiffuseColor = Color.FromArgb(r, g, b);
+                break;
+              }
+              // Ambient light
+              case DmemAddress.G_MV_L1: {
                 break;
               }
             }
@@ -318,18 +336,18 @@ namespace f3dzex2.model {
 
       var newVertex = this.Model.Skin.AddVertex(position)
                           .SetUv(definition.GetUv(
-                                     this.activeMaterialParams_.TexScaleX /
+                                     this.rsp_.TexScaleX /
                                      (bmpWidth * 32),
-                                     this.activeMaterialParams_.TexScaleY /
+                                     this.rsp_.TexScaleY /
                                      (bmpHeight * 32)));
 
-      if (this.geometryMode_.CheckFlag(
+      if (this.rsp_.GeometryMode.CheckFlag(
               GeometryMode.G_LIGHTING)) {
         var normal = definition.GetNormal();
         GlMatrixUtil.ProjectNormal(Matrix.Impl, ref normal);
         newVertex.SetLocalNormal(normal)
                  // TODO: Get rid of this, seems to come from combiner instead
-                 .SetColor(this.activeMaterialParams_.Color);
+                 .SetColor(this.activeMaterialParams_.DiffuseColor);
       } else {
         newVertex.SetColor(definition.GetColor());
       }
@@ -356,8 +374,8 @@ namespace f3dzex2.model {
       }
 
       this.activeMaterialParams_.CullingMode =
-          this.geometryMode_.GetCullingModeNonEx2();
-      this.activeMaterialParams_.UvType = this.geometryMode_.GetUvType();
+          this.rsp_.GeometryMode.GetCullingModeNonEx2();
+      this.activeMaterialParams_.UvType = this.rsp_.GeometryMode.GetUvType();
 
       this.hasActiveMaterialParams_ = true;
       return this.activeMaterial_ =

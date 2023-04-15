@@ -118,7 +118,7 @@ namespace uni.ui {
       // 
       splitContainer2.Panel2.Controls.Add(this.modelTabs_);
       splitContainer2.Size = new System.Drawing.Size(928, 631);
-      splitContainer2.SplitterDistance = 706;
+      splitContainer2.SplitterDistance = 658;
       splitContainer2.SplitterWidth = 6;
       splitContainer2.TabIndex = 1;
       // 
@@ -139,8 +139,8 @@ namespace uni.ui {
       // splitContainer4.Panel2
       // 
       this.splitContainer4.Panel2.Controls.Add(this.audioPlayerPanel_);
-      this.splitContainer4.Size = new System.Drawing.Size(706, 631);
-      this.splitContainer4.SplitterDistance = 569;
+      this.splitContainer4.Size = new System.Drawing.Size(658, 631);
+      this.splitContainer4.SplitterDistance = 568;
       this.splitContainer4.SplitterWidth = 5;
       this.splitContainer4.TabIndex = 0;
       // 
@@ -153,7 +153,7 @@ namespace uni.ui {
       this.sceneViewerPanel_.Location = new System.Drawing.Point(0, 0);
       this.sceneViewerPanel_.Margin = new System.Windows.Forms.Padding(3, 7, 3, 7);
       this.sceneViewerPanel_.Name = "sceneViewerPanel_";
-      this.sceneViewerPanel_.Size = new System.Drawing.Size(706, 569);
+      this.sceneViewerPanel_.Size = new System.Drawing.Size(658, 568);
       this.sceneViewerPanel_.TabIndex = 0;
       // 
       // audioPlayerPanel_
@@ -165,7 +165,7 @@ namespace uni.ui {
       this.audioPlayerPanel_.Location = new System.Drawing.Point(0, 0);
       this.audioPlayerPanel_.Margin = new System.Windows.Forms.Padding(3, 7, 3, 7);
       this.audioPlayerPanel_.Name = "audioPlayerPanel_";
-      this.audioPlayerPanel_.Size = new System.Drawing.Size(706, 57);
+      this.audioPlayerPanel_.Size = new System.Drawing.Size(658, 58);
       this.audioPlayerPanel_.TabIndex = 2;
       // 
       // modelTabs_
@@ -175,7 +175,7 @@ namespace uni.ui {
       this.modelTabs_.Location = new System.Drawing.Point(0, 0);
       this.modelTabs_.Margin = new System.Windows.Forms.Padding(3, 7, 3, 7);
       this.modelTabs_.Name = "modelTabs_";
-      this.modelTabs_.Size = new System.Drawing.Size(216, 631);
+      this.modelTabs_.Size = new System.Drawing.Size(264, 631);
       this.modelTabs_.TabIndex = 0;
       // 
       // menuStrip

@@ -69,15 +69,10 @@ namespace f3dzex2.image {
 
     public UvType UvType { get; set; } = UvType.STANDARD;
 
-    public float TexScaleX { get; set; } = 1;
-    public float TexScaleY { get; set; } = 1;
-
     public override int GetHashCode() => FluentHash.Start()
                                                    .With(this.ImageParams)
                                                    .With(this.WrapModeT)
                                                    .With(this.WrapModeS)
-                                                   .With(TexScaleX)
-                                                   .With(TexScaleY)
                                                    .With(UvType);
 
     public override bool Equals(object? other) {
@@ -89,8 +84,6 @@ namespace f3dzex2.image {
         return ImageParams.Equals(otherTextureParams.ImageParams) &&
                this.WrapModeT == otherTextureParams.WrapModeT &&
                this.WrapModeS == otherTextureParams.WrapModeS &&
-               this.TexScaleX == otherTextureParams.TexScaleX &&
-               this.TexScaleY == otherTextureParams.TexScaleY &&
                UvType == otherTextureParams.UvType;
       }
 

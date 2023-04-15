@@ -191,15 +191,21 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           };
         }
         case F3dOpcode.G_LOADBLOCK: {
-          return new LoadBlockOpcodeCommand();
+          er.Position += 3;
+
+          var tileDescriptor = (TileDescriptor) er.ReadByte();
+
+          return new LoadBlockOpcodeCommand {
+            TileDescriptor = tileDescriptor,
+          };
         }
         case F3dOpcode.G_MOVEMEM: {
-          var commandType = (MoveMemType) er.ReadByte();
+          var commandType = (DmemAddress) er.ReadByte();
           var sizeInBytes = er.ReadUInt16();
           var segmentedAddress = er.ReadUInt32();
 
           return new MoveMemOpcodeCommand {
-              MoveMemType = commandType, SegmentedAddress = segmentedAddress,
+              DmemAddress = commandType, SegmentedAddress = segmentedAddress,
           };
         }
         // TODO: Implement these

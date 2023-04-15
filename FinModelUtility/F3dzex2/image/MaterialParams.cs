@@ -20,7 +20,7 @@ namespace f3dzex2.image {
       }
     }
 
-    public Color Color {
+    public Color DiffuseColor {
       get => this.TextureParams.Color;
       set {
         TextureParams textureParams = this.TextureParams;
@@ -88,24 +88,6 @@ namespace f3dzex2.image {
       set {
         TextureParams textureParams = this.TextureParams;
         textureParams.UvType = value;
-        this.TextureParams = textureParams;
-      }
-    }
-
-    public float TexScaleX {
-      get => this.TextureParams.TexScaleX;
-      set {
-        TextureParams textureParams = this.TextureParams;
-        textureParams.TexScaleX = value;
-        this.TextureParams = textureParams;
-      }
-    }
-
-    public float TexScaleY {
-      get => this.TextureParams.TexScaleY;
-      set {
-        TextureParams textureParams = this.TextureParams;
-        textureParams.TexScaleY = value;
         this.TextureParams = textureParams;
       }
     }
