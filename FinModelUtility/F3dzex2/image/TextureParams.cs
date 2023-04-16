@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-using f3dzex2.displaylist.opcodes;
+﻿using f3dzex2.displaylist.opcodes;
 using fin.model;
 using fin.util.hash;
 
@@ -15,15 +13,6 @@ namespace f3dzex2.image {
       set {
         ImageParams imageParams = this.ImageParams;
         imageParams.ColorFormat = value;
-        this.ImageParams = imageParams;
-      }
-    }
-
-    public Color Color {
-      get => this.ImageParams.Color;
-      set {
-        ImageParams imageParams = this.ImageParams;
-        imageParams.Color = value;
         this.ImageParams = imageParams;
       }
     }
@@ -68,12 +57,14 @@ namespace f3dzex2.image {
     public F3dWrapMode WrapModeS { get; set; } = F3dWrapMode.REPEAT;
 
     public UvType UvType { get; set; } = UvType.STANDARD;
+    public int UvIndex { get; set; }
 
     public override int GetHashCode() => FluentHash.Start()
                                                    .With(this.ImageParams)
                                                    .With(this.WrapModeT)
                                                    .With(this.WrapModeS)
-                                                   .With(UvType);
+                                                   .With(UvType)
+                                                   .With(UvIndex);
 
     public override bool Equals(object? other) {
       if (ReferenceEquals(this, other)) {
@@ -84,7 +75,8 @@ namespace f3dzex2.image {
         return ImageParams.Equals(otherTextureParams.ImageParams) &&
                this.WrapModeT == otherTextureParams.WrapModeT &&
                this.WrapModeS == otherTextureParams.WrapModeS &&
-               UvType == otherTextureParams.UvType;
+               UvType == otherTextureParams.UvType &&
+               UvIndex == otherTextureParams.UvIndex;
       }
 
       return false;

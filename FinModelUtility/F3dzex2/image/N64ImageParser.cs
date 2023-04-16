@@ -39,6 +39,17 @@ namespace f3dzex2.image {
     _32BPT = 3,
   }
 
+  public static class BitsPerTexelExtensions {
+    public static int GetWordShift(this BitsPerTexel bitsPerTexel)
+      => bitsPerTexel switch {
+          BitsPerTexel._4BPT  => -1,
+          BitsPerTexel._8BPT  => 0,
+          BitsPerTexel._16BPT => 1,
+          BitsPerTexel._32BPT => 2,
+          _                   => throw new ArgumentOutOfRangeException(nameof(bitsPerTexel), bitsPerTexel, null)
+      };
+  }
+
   public class N64ImageParser {
     public static void SplitN64ImageFormat(byte imageFormat,
                                            out N64ColorFormat colorFormat,

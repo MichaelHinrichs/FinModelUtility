@@ -6,8 +6,5 @@ namespace f3dzex2.image {
   /// </summary>
   public interface IReadOnlyTileDescriptor {
     TileDescriptorState State { get; }
-
-    N64ColorFormat ColorFormat { get; }
-    BitsPerTexel BitsPerTexel { get; }
   }
 }

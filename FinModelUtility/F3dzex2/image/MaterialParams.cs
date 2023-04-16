@@ -1,101 +1,18 @@
-﻿using System.Drawing;
-
-using f3dzex2.displaylist.opcodes;
-using fin.model;
+﻿using fin.model;
 using fin.util.hash;
 
 namespace f3dzex2.image {
   public struct MaterialParams {
     public MaterialParams() { }
 
-    public ImageParams ImageParams => TextureParams.ImageParams;
-    public TextureParams TextureParams { get; private set; } = new();
-
-    public N64ColorFormat ColorFormat {
-      get => this.TextureParams.ColorFormat;
-      set {
-        TextureParams textureParams = this.TextureParams;
-        textureParams.ColorFormat = value;
-        this.TextureParams = textureParams;
-      }
-    }
-
-    public Color DiffuseColor {
-      get => this.TextureParams.Color;
-      set {
-        TextureParams textureParams = this.TextureParams;
-        textureParams.Color = value;
-        this.TextureParams = textureParams;
-      }
-    }
-
-    public BitsPerTexel BitsPerTexel {
-      get => this.TextureParams.BitsPerTexel;
-      set {
-        TextureParams textureParams = this.TextureParams;
-        textureParams.BitsPerTexel = value;
-        this.TextureParams = textureParams;
-      }
-    }
-
-    public ushort Width {
-      get => this.TextureParams.Width;
-      set {
-        TextureParams textureParams = this.TextureParams;
-        textureParams.Width = value;
-        this.TextureParams = textureParams;
-      }
-    }
-
-    public ushort Height {
-      get => this.TextureParams.Height;
-      set {
-        TextureParams textureParams = this.TextureParams;
-        textureParams.Height = value;
-        this.TextureParams = textureParams;
-      }
-    }
-
-    public uint SegmentedAddress {
-      get => this.TextureParams.SegmentedAddress;
-      set {
-        TextureParams textureParams = this.TextureParams;
-        textureParams.SegmentedAddress = value;
-        this.TextureParams = textureParams;
-      }
-    }
-
-    public F3dWrapMode WrapModeT {
-      get => this.TextureParams.WrapModeT;
-      set {
-        TextureParams textureParams = this.TextureParams;
-        textureParams.WrapModeT = value;
-        this.TextureParams = textureParams;
-      }
-    }
-
-    public F3dWrapMode WrapModeS {
-      get => this.TextureParams.WrapModeS;
-      set {
-        TextureParams textureParams = this.TextureParams;
-        textureParams.WrapModeS = value;
-        this.TextureParams = textureParams;
-      }
-    }
-
-    public UvType UvType {
-      get => this.TextureParams.UvType;
-      set {
-        TextureParams textureParams = this.TextureParams;
-        textureParams.UvType = value;
-        this.TextureParams = textureParams;
-      }
-    }
+    public TextureParams TextureParams0 { get; set; } = new();
+    public TextureParams TextureParams1 { get; set; } = new();
 
     public CullingMode CullingMode { get; set; }
 
     public override int GetHashCode() => FluentHash.Start()
-                                                   .With(this.TextureParams)
+                                                   .With(this.TextureParams0)
+                                                   .With(this.TextureParams1)
                                                    .With(CullingMode);
 
     public override bool Equals(object? other) {
@@ -104,7 +21,8 @@ namespace f3dzex2.image {
       }
 
       if (other is MaterialParams otherMaterialParams) {
-        return TextureParams.Equals(otherMaterialParams.TextureParams) &&
+        return TextureParams0.Equals(otherMaterialParams.TextureParams0) &&
+               TextureParams1.Equals(otherMaterialParams.TextureParams1) &&
                CullingMode == otherMaterialParams.CullingMode;
       }
 

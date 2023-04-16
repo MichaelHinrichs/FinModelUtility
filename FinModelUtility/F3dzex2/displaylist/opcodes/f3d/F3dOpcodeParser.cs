@@ -155,9 +155,11 @@ namespace f3dzex2.displaylist.opcodes.f3d {
               (N64ColorFormat) BitLogic.ExtractFromRight(first, 21, 3);
           var bitSize =
               (BitsPerTexel) BitLogic.ExtractFromRight(first, 19, 2);
+          var num64BitValuesPerRow = (ushort) BitLogic.ExtractFromRight(first, 9, 9);
+          var offsetOfTextureInTmem = (ushort) BitLogic.ExtractFromRight(first, 0, 9);
+
           var tileDescriptor =
               (TileDescriptorIndex) BitLogic.ExtractFromRight(second, 24, 3);
-
           var wrapModeT = (F3dWrapMode) BitLogic.ExtractFromRight(second, 18, 2);
           var wrapModeS = (F3dWrapMode) BitLogic.ExtractFromRight(second, 8, 2);
 
@@ -167,6 +169,8 @@ namespace f3dzex2.displaylist.opcodes.f3d {
               BitsPerTexel = bitSize,
               WrapModeT = wrapModeT,
               WrapModeS = wrapModeS,
+              Num64BitValuesPerRow = num64BitValuesPerRow,
+              OffsetOfTextureInTmem = offsetOfTextureInTmem,
           };
         }
         case F3dOpcode.G_SETTILESIZE: {
@@ -175,8 +179,8 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           var tileDescriptor = (TileDescriptorIndex) er.ReadByte();
 
           var widthAndHeight = er.ReadUInt24();
-          var width = (ushort) (((widthAndHeight >> 12) >> 2) + 1);
-          var height = (ushort) (((widthAndHeight & 0xFFF) >> 2) + 1);
+          var width = (ushort) (widthAndHeight >> 12); // (ushort) (((widthAndHeight >> 12) >> 2) + 1);
+          var height = (ushort) (widthAndHeight & 0xFFF); // (ushort) (((widthAndHeight & 0xFFF) >> 2) + 1);
 
           return new SetTileSizeOpcodeCommand {
               TileDescriptorIndex = tileDescriptor, Width = width, Height = height,
@@ -194,9 +198,12 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           er.Position += 3;
 
           var tileDescriptor = (TileDescriptorIndex) er.ReadByte();
+          var texelsAndDxt = er.ReadUInt24();
+          var texels = texelsAndDxt >> 12;
 
           return new LoadBlockOpcodeCommand {
             TileDescriptorIndex = tileDescriptor,
+            Texels = (ushort) texels,
           };
         }
         case F3dOpcode.G_MOVEMEM: {

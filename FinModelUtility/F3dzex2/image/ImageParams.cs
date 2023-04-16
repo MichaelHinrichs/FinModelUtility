@@ -8,7 +8,6 @@ namespace f3dzex2.image {
 
     public N64ColorFormat ColorFormat { get; set; } = N64ColorFormat.RGBA;
     public BitsPerTexel BitsPerTexel { get; set; } = BitsPerTexel._16BPT;
-    public Color Color { get; set; }
 
     public ushort Width { get; set; }
     public ushort Height { get; set; }
@@ -17,7 +16,6 @@ namespace f3dzex2.image {
     public override int GetHashCode() => FluentHash.Start()
                                                    .With(this.ColorFormat)
                                                    .With(this.BitsPerTexel)
-                                                   .With(this.Color.ToArgb())
                                                    .With(this.Width)
                                                    .With(this.Height)
                                                    .With(this.SegmentedAddress);
@@ -33,7 +31,6 @@ namespace f3dzex2.image {
       if (other is ImageParams otherImageParams) {
         return this.ColorFormat == otherImageParams.ColorFormat &&
                this.BitsPerTexel == otherImageParams.BitsPerTexel &&
-               this.Color.ToArgb() == otherImageParams.Color.ToArgb() &&
                this.Width == otherImageParams.Width &&
                this.Height == otherImageParams.Height &&
                this.SegmentedAddress == otherImageParams.SegmentedAddress;

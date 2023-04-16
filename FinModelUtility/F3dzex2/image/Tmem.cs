@@ -62,7 +62,7 @@ namespace f3dzex2.image {
       set => this.tile0_ = value;
     }
 
-    public IMaterial GetOrCreateMaterialForTile0() {
+    public IMaterial GetOrCreateMaterial() {
       throw new System.NotImplementedException();
     }
 

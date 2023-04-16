@@ -65,7 +65,7 @@ namespace f3dzex2.model {
                                    ref position);
 
       var img =
-          this.n64Hardware_.Rdp.Tmem.GetOrCreateMaterialForTile0()
+          this.n64Hardware_.Rdp.Tmem.GetOrCreateMaterial()
               .Textures.First()
               .Image;
       var bmpWidth = Math.Max(img.Width, (ushort) 0);
@@ -85,8 +85,7 @@ namespace f3dzex2.model {
                                    ref normal);
         newVertex.SetLocalNormal(normal)
                  // TODO: Get rid of this, seems to come from combiner instead
-                 .SetColor(this.n64Hardware_.Rdp.JankTmem?.RenderTileParams
-                               .DiffuseColor ??
+                 .SetColor(this.n64Hardware_.Rdp.JankTmem?.DiffuseColor ??
                            Color.White);
       } else {
         newVertex.SetColor(definition.GetColor());

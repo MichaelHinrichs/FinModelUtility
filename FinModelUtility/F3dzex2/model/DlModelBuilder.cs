@@ -98,8 +98,8 @@ namespace f3dzex2.model {
             this.n64Hardware_.Rdp.Tmem.GsDpSetTile(
                 setTileOpcodeCommand.ColorFormat,
                 setTileOpcodeCommand.BitsPerTexel,
-                0,
-                0,
+                setTileOpcodeCommand.Num64BitValuesPerRow,
+                setTileOpcodeCommand.OffsetOfTextureInTmem,
                 setTileOpcodeCommand.TileDescriptorIndex,
                 setTileOpcodeCommand.WrapModeS,
                 setTileOpcodeCommand.WrapModeT);
@@ -143,7 +143,7 @@ namespace f3dzex2.model {
           }
           case Tri1OpcodeCommand tri1OpcodeCommand: {
             var material =
-                this.n64Hardware_.Rdp.Tmem.GetOrCreateMaterialForTile0();
+                this.n64Hardware_.Rdp.Tmem.GetOrCreateMaterial();
             var vertices =
                 tri1OpcodeCommand.VertexIndicesInOrder.Select(
                     this.n64Hardware_.Rdp.F3dVertices.GetOrCreateVertexAtIndex);
@@ -156,7 +156,7 @@ namespace f3dzex2.model {
             this.n64Hardware_.Rdp.Tmem.GsDpLoadBlock(0,
               0,
               loadBlockOpcodeCommand.TileDescriptorIndex,
-              0,
+              loadBlockOpcodeCommand.Texels,
               0);
             break;
           }
@@ -177,9 +177,7 @@ namespace f3dzex2.model {
 
                 var jankTmem = this.n64Hardware_.Rdp.JankTmem;
                 if (jankTmem != null) {
-                  var loadingTileParams = jankTmem.LoadingTileParams;
-                  loadingTileParams.DiffuseColor = Color.FromArgb(r, g, b);
-                  jankTmem.LoadingTileParams = loadingTileParams;
+                  jankTmem.DiffuseColor = Color.FromArgb(r, g, b);
                 }
 
                 break;

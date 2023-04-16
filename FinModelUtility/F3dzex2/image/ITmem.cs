@@ -50,9 +50,7 @@ namespace f3dzex2.image {
                              ushort width,
                              uint imageSegmentedAddress);
 
-    IReadOnlyTileDescriptor Tile0 { get; }
-
-    IMaterial GetOrCreateMaterialForTile0();
+    IMaterial GetOrCreateMaterial();
 
     CullingMode CullingMode { set; }
   }

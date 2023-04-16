@@ -120,15 +120,8 @@ namespace f3dzex2.displaylist.opcodes {
   }
 
   public static class TileDescriptorExtensions {
-    public static bool IsRenderAndAssertNotLoad(
-        this TileDescriptorIndex tileDescriptorIndex) => tileDescriptorIndex switch {
-        TileDescriptorIndex.TX_RENDERTILE => true,
-        TileDescriptorIndex.TX_LOADTILE   => false,
-        _                            => throw new ArgumentOutOfRangeException(
-            nameof(tileDescriptorIndex),
-            tileDescriptorIndex,
-            null)
-    };
+    public static bool IsRender(this TileDescriptorIndex tileDescriptorIndex) 
+      => tileDescriptorIndex == TileDescriptorIndex.TX_RENDERTILE;
   }
 
   public class TextureOpcodeCommand : IOpcodeCommand {
@@ -228,6 +221,9 @@ namespace f3dzex2.displaylist.opcodes {
     public F3dWrapMode WrapModeT { get; set; }
     public F3dWrapMode WrapModeS { get; set; }
 
+    public ushort Num64BitValuesPerRow { get; set; }
+    public ushort OffsetOfTextureInTmem { get; set; }
+
     // TODO: Support the rest
   }
 
@@ -244,7 +240,8 @@ namespace f3dzex2.displaylist.opcodes {
   }
 
   public class LoadBlockOpcodeCommand : IOpcodeCommand {
-    public TileDescriptorIndex TileDescriptorIndex { get; set; }
+    public required TileDescriptorIndex TileDescriptorIndex { get; init; }
+    public required ushort Texels { get; init; }
   }
 
 
