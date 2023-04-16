@@ -229,20 +229,20 @@ namespace f3dzex2.displaylist.opcodes.f3d {
                   ColorMuxB = GetColorMuxB_(b),
                   ColorMuxC = GetColorMuxC_(c),
                   ColorMuxD = GetColorMuxD_(d),
-                  AlphaMuxA = this.GetAlphaMuxA_(e),
-                  AlphaMuxB = this.GetAlphaMuxB_(f),
+                  AlphaMuxA = this.GetAlphaMuxABD_(e),
+                  AlphaMuxB = this.GetAlphaMuxABD_(f),
                   AlphaMuxC = this.GetAlphaMuxC_(g),
-                  AlphaMuxD = this.GetAlphaMuxD_(h),
+                  AlphaMuxD = this.GetAlphaMuxABD_(h),
               },
               CombinerCycleParams1 = new CombinerCycleParams {
                   ColorMuxA = GetColorMuxA_(i),
                   ColorMuxB = GetColorMuxB_(j),
                   ColorMuxC = GetColorMuxC_(k),
                   ColorMuxD = GetColorMuxD_(l),
-                  AlphaMuxA = this.GetAlphaMuxA_(m),
-                  AlphaMuxB = this.GetAlphaMuxB_(n),
+                  AlphaMuxA = this.GetAlphaMuxABD_(m),
+                  AlphaMuxB = this.GetAlphaMuxABD_(n),
                   AlphaMuxC = this.GetAlphaMuxC_(o),
-                  AlphaMuxD = this.GetAlphaMuxD_(p),
+                  AlphaMuxD = this.GetAlphaMuxABD_(p),
               }
           };
         }
@@ -398,7 +398,7 @@ namespace f3dzex2.displaylist.opcodes.f3d {
         _  => GenericColorMux.G_CCMUX_0,
     };
 
-    private GenericAlphaMux GetAlphaMuxA_(uint value) => value switch {
+    private GenericAlphaMux GetAlphaMuxABD_(uint value) => value switch {
       0 => GenericAlphaMux.G_ACMUX_COMBINED,
       1 => GenericAlphaMux.G_ACMUX_TEXEL0,
       2 => GenericAlphaMux.G_ACMUX_TEXEL1,
@@ -409,17 +409,6 @@ namespace f3dzex2.displaylist.opcodes.f3d {
       _ => GenericAlphaMux.G_ACMUX_0,
     };
 
-    private GenericAlphaMux GetAlphaMuxB_(uint value) => value switch {
-        0 => GenericAlphaMux.G_ACMUX_COMBINED,
-        1 => GenericAlphaMux.G_ACMUX_TEXEL0,
-        2 => GenericAlphaMux.G_ACMUX_TEXEL1,
-        3 => GenericAlphaMux.G_ACMUX_PRIMITIVE,
-        4 => GenericAlphaMux.G_ACMUX_SHADE,
-        5 => GenericAlphaMux.G_ACMUX_ENVIRONMENT,
-        6 => GenericAlphaMux.G_ACMUX_1,
-        _ => GenericAlphaMux.G_ACMUX_0,
-    };
-
     private GenericAlphaMux GetAlphaMuxC_(uint value) => value switch {
         0 => GenericAlphaMux.G_ACMUX_LOD_FRACTION,
         1 => GenericAlphaMux.G_ACMUX_TEXEL0,
@@ -428,17 +417,6 @@ namespace f3dzex2.displaylist.opcodes.f3d {
         4 => GenericAlphaMux.G_ACMUX_SHADE,
         5 => GenericAlphaMux.G_ACMUX_ENVIRONMENT,
         6 => GenericAlphaMux.G_ACMUX_PRIM_LOD_FRAC,
-        _ => GenericAlphaMux.G_ACMUX_0,
-    };
-
-    private GenericAlphaMux GetAlphaMuxD_(uint value) => value switch {
-        0 => GenericAlphaMux.G_ACMUX_COMBINED,
-        1 => GenericAlphaMux.G_ACMUX_TEXEL0,
-        2 => GenericAlphaMux.G_ACMUX_TEXEL1,
-        3 => GenericAlphaMux.G_ACMUX_PRIMITIVE,
-        4 => GenericAlphaMux.G_ACMUX_SHADE,
-        5 => GenericAlphaMux.G_ACMUX_ENVIRONMENT,
-        6 => GenericAlphaMux.G_ACMUX_1,
         _ => GenericAlphaMux.G_ACMUX_0,
     };
   }
