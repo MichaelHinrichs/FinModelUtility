@@ -35,9 +35,7 @@ namespace f3dzex2.model {
     public IModel Model { get; } = new ModelImpl();
 
     public IReadOnlyFinMatrix4x4 Matrix {
-      set {
-        this.n64Hardware_.Rsp.Matrix = value;
-      }
+      set => this.n64Hardware_.Rsp.Matrix = value;
     }
 
     public int GetNumberOfTriangles() =>

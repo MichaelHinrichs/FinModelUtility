@@ -54,8 +54,17 @@ namespace f3dzex2.model {
         return true;
       }
 
-      if (other is F3dVertex) {
-        return this.GetHashCode() == other.GetHashCode();
+      if (other is F3dVertex otherVertex) {
+        return this.X == otherVertex.X && 
+               this.Y == otherVertex.Y &&
+               this.Z == otherVertex.Z && 
+               this.Flag == otherVertex.Flag &&
+               this.U == otherVertex.U && 
+               this.V == otherVertex.V &&
+               this.NormalXOrR == otherVertex.NormalXOrR && 
+               this.NormalYOrG == otherVertex.NormalYOrG &&
+               this.NormalZOrB == otherVertex.NormalZOrB &&
+               this.A == otherVertex.A;
       }
 
       return false;
