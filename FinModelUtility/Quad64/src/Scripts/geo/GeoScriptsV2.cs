@@ -5,6 +5,7 @@ using fin.schema.vector;
 
 using Quad64.memory;
 using Quad64.src.LevelInfo;
+
 using sm64.scripts;
 using sm64.scripts.geo;
 
@@ -32,7 +33,7 @@ namespace Quad64.src.Scripts {
         return;
       }
 
-      mdlLods.Current.Node = nodeCurrent;
+      mdlLods.Node = nodeCurrent;
 
       Add_(mdlLods, lvl, commandList);
     }
@@ -57,10 +58,12 @@ namespace Quad64.src.Scripts {
           case GeoBranchAndStoreCommand geoBranchAndStoreCommand: {
             if (geoBranchAndStoreCommand.GeoCommandList != null) {
               var currentNode = nodeCurrent;
-              Add_(mdlLods, lvl,
+              Add_(mdlLods,
+                   lvl,
                    geoBranchAndStoreCommand.GeoCommandList);
-              mdlLods.Current.Node = currentNode;
+              mdlLods.Node = currentNode;
             }
+
             break;
           }
           case GeoBranchCommand geoBranchCommand: {
@@ -68,16 +71,18 @@ namespace Quad64.src.Scripts {
               var currentNode = nodeCurrent;
               Add_(mdlLods, lvl, geoBranchCommand.GeoCommandList);
               if (geoBranchCommand.StoreReturnAddress) {
-                mdlLods.Current.Node = currentNode;
+                mdlLods.Node = currentNode;
               }
             }
+
             break;
           }
           case GeoCloseNodeCommand geoCloseNodeCommand: {
             if (nodeCurrent != rootNode) {
               nodeCurrent = nodeCurrent.parent;
-              mdlLods.Current.Node = nodeCurrent;
+              mdlLods.Node = nodeCurrent;
             }
+
             break;
           }
           case GeoDisplayListCommand geoDisplayListCommand: {
@@ -95,7 +100,7 @@ namespace Quad64.src.Scripts {
             newNode.ID = nodeCurrent.ID + 1;
             newNode.parent = nodeCurrent;
             nodeCurrent = newNode;
-            mdlLods.Current.Node = nodeCurrent;
+            mdlLods.Node = nodeCurrent;
             break;
           }
           case GeoRotationCommand geoRotationCommand: {
@@ -111,7 +116,7 @@ namespace Quad64.src.Scripts {
           case GeoScaleCommand geoScaleCommand: {
             var scale = (geoScaleCommand.Scale / 65536.0f);
             this.nodeCurrent.matrix.MultiplyInPlace(
-                MatrixTransformUtil.FromScale(new Scale (scale)));
+                MatrixTransformUtil.FromScale(new Scale(scale)));
             AddDisplayList(
                 mdlLods,
                 lvl,
@@ -168,7 +173,8 @@ namespace Quad64.src.Scripts {
           .MultiplyInPlace(CreateTranslationMatrix_(position));
 
     public IFinMatrix4x4 CreateTranslationMatrix_(Vector3s position)
-      => MatrixTransformUtil.FromTranslation(new Position(position.X, position.Y, position.Z));
+      => MatrixTransformUtil.FromTranslation(
+          new Position(position.X, position.Y, position.Z));
 
     public IFinMatrix4x4 CreateRotationMatrix_(Vector3s rotation)
       => MatrixTransformUtil
@@ -185,16 +191,8 @@ namespace Quad64.src.Scripts {
         Model3DLods mdlLods,
         Level lvl,
         uint? displayListAddress) {
-      var mdl = mdlLods.Current;
-
-      // Don't bother processing duplicate display lists.
       if ((displayListAddress ?? 0) != 0) {
-        if (!mdl.hasGeoDisplayList(displayListAddress!.Value)) {
-          mdlLods.AddDl(displayListAddress.Value);
-        }
-        lvl.temp_bgInfo.usesFog = mdl.builder.UsesFog;
-        lvl.temp_bgInfo.fogColor = mdl.builder.FogColor;
-        lvl.temp_bgInfo.fogColor_romLocation = mdl.builder.FogColor_romLocation;
+        mdlLods.AddDl(displayListAddress.Value);
       }
     }
   }

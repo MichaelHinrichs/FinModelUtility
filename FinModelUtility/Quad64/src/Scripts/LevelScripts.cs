@@ -536,7 +536,6 @@ namespace Quad64.Scripts {
              seg.ToString("X2") + off.ToString("X6");
 
       Area newArea = new Area(sm64Hardware, areaID, bytesToInt(cmd, 4, 4), lvl);
-      newArea.AreaModel.Current.GeoDataSegAddress = bytesToInt(cmd, 4, 4);
 
       // Globals.DEBUG_PARSING_LEVEL_AREA = true;
       // Stopwatch stopWatch = new Stopwatch();
@@ -554,7 +553,6 @@ namespace Quad64.Scripts {
 
       //stopWatch = new Stopwatch();
       // stopWatch.Start();
-      newArea.AreaModel.BuildBuffers();
       //if(areaID == 1) newArea.AreaModel.dumpModelToOBJ(1.0f/500.0f);
       //stopWatch.Stop();
       //Console.WriteLine("RunTime (newArea.AreaModel.buildBuffers): " + stopWatch.Elapsed.Milliseconds + "ms");
@@ -577,8 +575,6 @@ namespace Quad64.Scripts {
              "; Load Fast3D from 0x" + seg.ToString("X2") + off.ToString("X6");
 
       Model3DLods newModel = new Model3DLods(sm64Hardware);
-      newModel.Current.GeoDataSegAddress = bytesToInt(cmd, 4, 4);
-      lvl.AddObjectCombos(modelID, newModel.Current.GeoDataSegAddress);
 
       if (rom.getSegment(seg, sm64Hardware.Memory.AreaId) != null) {
         newModel.AddDl(address);
@@ -586,7 +582,6 @@ namespace Quad64.Scripts {
 
       if (lvl.ModelIDs.ContainsKey(modelID))
         lvl.ModelIDs.Remove(modelID);
-      newModel.BuildBuffers();
       lvl.ModelIDs.Add(modelID, newModel);
     }
 
@@ -623,11 +618,9 @@ namespace Quad64.Scripts {
 
       var geoDataSegAddress = bytesToInt(cmd, 4, 4);
       lvl.AddObjectCombos(modelID, geoDataSegAddress);
-      newModel.Current.GeoDataSegAddress = geoDataSegAddress;
 
       if (lvl.ModelIDs.ContainsKey(modelID))
         lvl.ModelIDs.Remove(modelID);
-      newModel.BuildBuffers();
       lvl.ModelIDs.Add(modelID, newModel);
 
       if (modelID == 0x7A)

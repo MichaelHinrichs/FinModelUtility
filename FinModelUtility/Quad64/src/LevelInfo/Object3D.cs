@@ -622,8 +622,6 @@ namespace Quad64 {
           objectComboEntry.Name = newName;
       } else {
         uint modelAddress = 0;
-        if (level.ModelIDs.ContainsKey(ModelID))
-          modelAddress = level.ModelIDs[ModelID].Current.GeoDataSegAddress;
         ObjectComboEntry newOCE =
             new ObjectComboEntry(newName, ModelID, modelAddress,
                                  getBehaviorAddress());
@@ -641,8 +639,6 @@ namespace Quad64 {
       for (int i = 0; i < Globals.objectComboEntries.Count; i++) {
         ObjectComboEntry entry = Globals.objectComboEntries[i];
         modelSegmentAddress = 0;
-        if (level.ModelIDs.ContainsKey(ModelID))
-          modelSegmentAddress = level.ModelIDs[ModelID].Current.GeoDataSegAddress;
         if (entry.ModelID == ModelID && entry.Behavior == behaviorAddr
                                      && entry.ModelSegmentAddress ==
                                      modelSegmentAddress) {

@@ -11,7 +11,6 @@ using fin.data.lazy;
 using fin.image;
 using fin.language.equations.fixedFunction;
 using fin.language.equations.fixedFunction.impl;
-using fin.math;
 using fin.math.matrix;
 using fin.model;
 using fin.model.impl;
