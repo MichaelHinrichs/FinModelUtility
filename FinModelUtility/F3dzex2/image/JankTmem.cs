@@ -2,10 +2,14 @@
 using System.Drawing;
 using System.Linq;
 
+using f3dzex2.combiner;
 using f3dzex2.displaylist.opcodes;
 
+using fin.color;
 using fin.data.lazy;
 using fin.image;
+using fin.language.equations.fixedFunction;
+using fin.language.equations.fixedFunction.impl;
 using fin.model;
 using fin.util.hash;
 using fin.util.image;
@@ -131,7 +135,6 @@ namespace f3dzex2.image {
                 texture.WrapModeU = textureParams.WrapModeS.AsFinWrapMode();
                 texture.WrapModeV = textureParams.WrapModeT.AsFinWrapMode();
                 texture.UvType = textureParams.UvType;
-                texture.UvIndex = textureParams.UvIndex;
                 return texture;
               });
 
@@ -142,41 +145,142 @@ namespace f3dzex2.image {
                     this.lazyTextureDictionary_[materialParams.TextureParams0];
                 var texture1 =
                     this.lazyTextureDictionary_[materialParams.TextureParams1];
-                var finMaterial =
-                    this.model_.MaterialManager.AddFixedFunctionMaterial();
+
+                var finMaterial = this.model_.MaterialManager.AddFixedFunctionMaterial();
 
                 finMaterial.Name = $"[{texture0.Name}]/[{texture1.Name}]";
                 finMaterial.CullingMode = materialParams.CullingMode;
 
-                var equations = finMaterial.Equations;
-
                 finMaterial.SetTextureSource(0, texture0);
                 finMaterial.SetTextureSource(1, texture1);
 
+                var equations = finMaterial.Equations;
                 var color0 = equations.CreateColorConstant(0);
+                var color1 = equations.CreateColorConstant(1);
                 var scalar1 = equations.CreateScalarConstant(1);
+                var scalar0 = equations.CreateScalarConstant(0);
 
-                var vertexColor0 = equations.CreateColorInput(
+                var colorFixedFunctionOps =
+                    new ColorFixedFunctionOps(equations);
+                var scalarFixedFunctionOps =
+                    new ScalarFixedFunctionOps(equations);
+
+                var shadeColor = equations.CreateColorInput(
                     FixedFunctionSource.VERTEX_COLOR_0,
                     color0);
-                var textureColor0 = equations.CreateColorInput(
-                    FixedFunctionSource.TEXTURE_COLOR_0,
-                    color0);
-
-                var vertexAlpha0 =
+                var shadeAlpha =
                     equations.CreateScalarInput(
                         FixedFunctionSource.VERTEX_ALPHA_0,
                         scalar1);
+
+                var textureColor0 = equations.CreateColorInput(
+                    FixedFunctionSource.TEXTURE_COLOR_0,
+                    color0);
                 var textureAlpha0 = equations.CreateScalarInput(
                     FixedFunctionSource.TEXTURE_ALPHA_0,
                     scalar1);
+                var textureColor1 = equations.CreateColorInput(
+                    FixedFunctionSource.TEXTURE_COLOR_1,
+                    color0);
+                var textureAlpha1 = equations.CreateScalarInput(
+                    FixedFunctionSource.TEXTURE_ALPHA_1,
+                    scalar1);
 
-                equations.CreateColorOutput(
-                    FixedFunctionSource.OUTPUT_COLOR,
-                    vertexColor0.Multiply(textureColor0));
+                var rsp = this.n64Hardware_.Rsp;
+                var environmentColor = equations.CreateColorConstant(
+                    rsp.EnvironmentColor.R / 255.0,
+                    rsp.EnvironmentColor.G / 255.0,
+                    rsp.EnvironmentColor.B / 255.0);
+                var environmentAlpha = equations.CreateScalarConstant(
+                    rsp.EnvironmentColor.A / 255.0);
+
+                IColorValue combinedColor = color0;
+                IScalarValue combinedAlpha = scalar0;
+
+                Func<GenericColorMux, IColorValue> getColorValue =
+                    (colorMux) => colorMux switch {
+                        GenericColorMux.G_CCMUX_COMBINED    => combinedColor,
+                        GenericColorMux.G_CCMUX_TEXEL0      => textureColor0,
+                        GenericColorMux.G_CCMUX_TEXEL1      => textureColor1,
+                        GenericColorMux.G_CCMUX_PRIMITIVE   => color1,
+                        GenericColorMux.G_CCMUX_SHADE       => shadeColor,
+                        GenericColorMux.G_CCMUX_ENVIRONMENT => environmentColor,
+                        GenericColorMux.G_CCMUX_1           => color1,
+                        GenericColorMux.G_CCMUX_0           => color0,
+                        GenericColorMux.G_CCMUX_NOISE       => color1,
+                        GenericColorMux.G_CCMUX_CENTER      => color1,
+                        GenericColorMux.G_CCMUX_K4          => color1,
+                        GenericColorMux.G_CCMUX_COMBINED_ALPHA =>
+                            equations.CreateColor(combinedAlpha),
+                        GenericColorMux.G_CCMUX_TEXEL0_ALPHA =>
+                            equations.CreateColor(textureAlpha0),
+                        GenericColorMux.G_CCMUX_TEXEL1_ALPHA =>
+                            equations.CreateColor(textureAlpha1),
+                        GenericColorMux.G_CCMUX_PRIMITIVE_ALPHA => color1,
+                        GenericColorMux.G_CCMUX_SHADE_ALPHA =>
+                            equations.CreateColor(shadeAlpha),
+                        GenericColorMux.G_CCMUX_ENV_ALPHA =>
+                            equations.CreateColor(environmentAlpha),
+                        GenericColorMux.G_CCMUX_PRIM_LOD_FRAC => color1,
+                        GenericColorMux.G_CCMUX_SCALE         => color1,
+                        GenericColorMux.G_CCMUX_K5            => color1,
+                        _ => throw new ArgumentOutOfRangeException(
+                            nameof(colorMux),
+                            colorMux,
+                            null)
+                    };
+
+                Func<GenericAlphaMux, IScalarValue> getAlphaValue =
+                    (alphaMux) => alphaMux switch {
+                        GenericAlphaMux.G_ACMUX_COMBINED      => combinedAlpha,
+                        GenericAlphaMux.G_ACMUX_TEXEL0        => textureAlpha0,
+                        GenericAlphaMux.G_ACMUX_TEXEL1        => textureAlpha1,
+                        GenericAlphaMux.G_ACMUX_PRIMITIVE     => scalar1,
+                        GenericAlphaMux.G_ACMUX_SHADE         => shadeAlpha,
+                        GenericAlphaMux.G_ACMUX_ENVIRONMENT   => environmentAlpha,
+                        GenericAlphaMux.G_ACMUX_1             => scalar1,
+                        GenericAlphaMux.G_ACMUX_0             => scalar0,
+                        GenericAlphaMux.G_ACMUX_PRIM_LOD_FRAC => scalar1,
+                        GenericAlphaMux.G_ACMUX_LOD_FRACTION  => scalar1,
+                        _ => throw new ArgumentOutOfRangeException(
+                            nameof(alphaMux),
+                            alphaMux,
+                            null)
+                    };
+
+                foreach (var combinerCycleParams in new[] {
+                             materialParams.CombinerCycleParams0,
+                             materialParams.CombinerCycleParams1
+                         }) {
+                  var cA = getColorValue(combinerCycleParams.ColorMuxA);
+                  var cB = getColorValue(combinerCycleParams.ColorMuxB);
+                  var cC = getColorValue(combinerCycleParams.ColorMuxC);
+                  var cD = getColorValue(combinerCycleParams.ColorMuxD);
+
+                  /*combinedColor = colorFixedFunctionOps.Add(
+                      colorFixedFunctionOps.Multiply(
+                          colorFixedFunctionOps.Subtract(cA, cB),
+                          cC),
+                      cD) ?? colorFixedFunctionOps.Zero;*/
+                  combinedColor = cA.Subtract(cB).Multiply(cC).Add(cD);
+
+                  var aA = getAlphaValue(combinerCycleParams.AlphaMuxA);
+                  var aB = getAlphaValue(combinerCycleParams.AlphaMuxB);
+                  var aC = getAlphaValue(combinerCycleParams.AlphaMuxC);
+                  var aD = getAlphaValue(combinerCycleParams.AlphaMuxD);
+
+                  combinedAlpha = aA.Subtract(aB).Multiply(aC).Add(aD);
+                  /*combinedAlpha = scalarFixedFunctionOps.Add(
+                      scalarFixedFunctionOps.Multiply(
+                          scalarFixedFunctionOps.Subtract(aA, aB),
+                          aC),
+                      aD) ?? scalarFixedFunctionOps.Zero;*/
+                }
+
+                equations.CreateColorOutput(FixedFunctionSource.OUTPUT_COLOR,
+                                            combinedColor);
                 equations.CreateScalarOutput(FixedFunctionSource.OUTPUT_ALPHA,
-                                             vertexAlpha0.Multiply(
-                                                 textureAlpha0));
+                                             combinedAlpha);
 
                 if (finMaterial.Textures.Any(
                         texture
@@ -282,6 +386,10 @@ namespace f3dzex2.image {
       var materialParams = new MaterialParams();
       materialParams.TextureParams0 = GetTextureParamsForTile_(0);
       materialParams.TextureParams1 = GetTextureParamsForTile_(1);
+      materialParams.CombinerCycleParams0 =
+          this.n64Hardware_.Rsp.CombinerCycleParams0;
+      materialParams.CombinerCycleParams1 =
+          this.n64Hardware_.Rsp.CombinerCycleParams1;
       materialParams.CullingMode = this.cullingMode_;
 
       this.texturesChanged_[0] = false;
@@ -300,7 +408,6 @@ namespace f3dzex2.image {
 
       textureParams.UvType =
           this.n64Hardware_.Rsp.GeometryMode.GetUvType();
-      textureParams.UvIndex = index;
       textureParams.SegmentedAddress = loadedTexture.SegmentedAddress;
       textureParams.WrapModeS = this.textureTile_.WrapModeS;
       textureParams.WrapModeT = this.textureTile_.WrapModeT;

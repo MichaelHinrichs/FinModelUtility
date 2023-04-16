@@ -7,7 +7,6 @@ using f3dzex2.displaylist.opcodes;
 using f3dzex2.image;
 using f3dzex2.io;
 
-using fin.math;
 using fin.math.matrix;
 using fin.model;
 using fin.model.impl;
@@ -67,8 +66,14 @@ namespace f3dzex2.model {
             break;
           case PopMtxOpcodeCommand popMtxOpcodeCommand:
             break;
-          case SetEnvColorOpcodeCommand setEnvColorOpcodeCommand:
+          case SetEnvColorOpcodeCommand setEnvColorOpcodeCommand: {
+            this.n64Hardware_.Rsp.EnvironmentColor = Color.FromArgb(
+                setEnvColorOpcodeCommand.A,
+                setEnvColorOpcodeCommand.R,
+                setEnvColorOpcodeCommand.G,
+                setEnvColorOpcodeCommand.B);
             break;
+          }
           case SetFogColorOpcodeCommand setFogColorOpcodeCommand:
             break;
           // Geometry mode commands
@@ -133,6 +138,10 @@ namespace f3dzex2.model {
             break;
           }
           case SetCombineOpcodeCommand setCombineOpcodeCommand: {
+            this.n64Hardware_.Rsp.CombinerCycleParams0 =
+                setCombineOpcodeCommand.CombinerCycleParams0;
+            this.n64Hardware_.Rsp.CombinerCycleParams1 =
+                setCombineOpcodeCommand.CombinerCycleParams1;
             break;
           }
           case VtxOpcodeCommand vtxOpcodeCommand: {

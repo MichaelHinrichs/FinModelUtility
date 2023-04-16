@@ -1,4 +1,7 @@
-﻿using f3dzex2.displaylist.opcodes;
+﻿using System.Drawing;
+
+using f3dzex2.combiner;
+using f3dzex2.displaylist.opcodes;
 
 using fin.math;
 using fin.math.matrix;
@@ -14,6 +17,11 @@ namespace f3dzex2.image {
     float TexScaleYFloat { get; }
 
     IReadOnlyFinMatrix4x4 Matrix { get; set; }
+
+    Color EnvironmentColor { get; set; }
+
+    CombinerCycleParams CombinerCycleParams0 { get; set; }
+    CombinerCycleParams CombinerCycleParams1 { get; set; }
   }
 
   public class Rsp : IRsp {
@@ -46,5 +54,10 @@ namespace f3dzex2.image {
     public float TexScaleYFloat => this.texScaleYFloat_;
 
     public IReadOnlyFinMatrix4x4 Matrix { get; set; } = FinMatrix4x4.IDENTITY;
+
+    public Color EnvironmentColor { get; set; }
+
+    public CombinerCycleParams CombinerCycleParams0 { get; set; }
+    public CombinerCycleParams CombinerCycleParams1 { get; set; }
   }
 }

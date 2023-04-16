@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using f3dzex2.combiner;
 using f3dzex2.image;
 using f3dzex2.model;
 
@@ -236,7 +237,8 @@ namespace f3dzex2.displaylist.opcodes {
   }
 
   public class SetCombineOpcodeCommand : IOpcodeCommand {
-    public bool ClearTextureSegmentedAddress { get; set; }
+    public required CombinerCycleParams CombinerCycleParams0 { get; init; }
+    public required CombinerCycleParams CombinerCycleParams1 { get; init; }
   }
 
   public class LoadBlockOpcodeCommand : IOpcodeCommand {

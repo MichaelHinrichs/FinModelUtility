@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 
+using f3dzex2.combiner;
 using f3dzex2.image;
 using f3dzex2.io;
 using f3dzex2.model;
@@ -36,7 +37,7 @@ namespace f3dzex2.displaylist.opcodes.f3d {
         case F3dOpcode.G_POPMTX: {
           er.AssertUInt24(0);
           er.AssertUInt32(0);
-          return new PopMtxOpcodeCommand {NumberOfMatrices = 1};
+          return new PopMtxOpcodeCommand { NumberOfMatrices = 1 };
         }
         case F3dOpcode.G_VTX: {
           var numVerticesMinusOneAndWriteOffset = er.ReadByte();
@@ -48,7 +49,7 @@ namespace f3dzex2.displaylist.opcodes.f3d {
               numVerticesMinusOneAndWriteOffset,
               0,
               4);
-          er.AssertUInt16((ushort)(numVertices * 0x10));
+          er.AssertUInt16((ushort) (numVertices * 0x10));
 
           var address = er.ReadUInt32();
           using var ser = n64Memory.OpenAtSegmentedAddress(address);
@@ -76,7 +77,7 @@ namespace f3dzex2.displaylist.opcodes.f3d {
         case F3dOpcode.G_TRI1: {
           er.AssertUInt32(0);
           return new Tri1OpcodeCommand {
-              VertexOrder  = TriVertexOrder.ABC,
+              VertexOrder = TriVertexOrder.ABC,
               VertexIndexA = (byte) (er.ReadByte() / 0xA),
               VertexIndexB = (byte) (er.ReadByte() / 0xA),
               VertexIndexC = (byte) (er.ReadByte() / 0xA),
@@ -133,7 +134,9 @@ namespace f3dzex2.displaylist.opcodes.f3d {
                   0,
                   3);
           var maximumNumberOfMipmaps =
-              (byte) BitLogic.ExtractFromRight(mipmapLevelsAndTileDescriptor, 3, 3);
+              (byte) BitLogic.ExtractFromRight(mipmapLevelsAndTileDescriptor,
+                                               3,
+                                               3);
           var newTileDescriptorState = (TileDescriptorState) er.ReadByte();
           var horizontalScale = er.ReadUInt16();
           var verticalScale = er.ReadUInt16();
@@ -155,12 +158,15 @@ namespace f3dzex2.displaylist.opcodes.f3d {
               (N64ColorFormat) BitLogic.ExtractFromRight(first, 21, 3);
           var bitSize =
               (BitsPerTexel) BitLogic.ExtractFromRight(first, 19, 2);
-          var num64BitValuesPerRow = (ushort) BitLogic.ExtractFromRight(first, 9, 9);
-          var offsetOfTextureInTmem = (ushort) BitLogic.ExtractFromRight(first, 0, 9);
+          var num64BitValuesPerRow =
+              (ushort) BitLogic.ExtractFromRight(first, 9, 9);
+          var offsetOfTextureInTmem =
+              (ushort) BitLogic.ExtractFromRight(first, 0, 9);
 
           var tileDescriptor =
               (TileDescriptorIndex) BitLogic.ExtractFromRight(second, 24, 3);
-          var wrapModeT = (F3dWrapMode) BitLogic.ExtractFromRight(second, 18, 2);
+          var wrapModeT =
+              (F3dWrapMode) BitLogic.ExtractFromRight(second, 18, 2);
           var wrapModeS = (F3dWrapMode) BitLogic.ExtractFromRight(second, 8, 2);
 
           return new SetTileOpcodeCommand {
@@ -179,19 +185,65 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           var tileDescriptor = (TileDescriptorIndex) er.ReadByte();
 
           var widthAndHeight = er.ReadUInt24();
-          var width = (ushort) (widthAndHeight >> 12); // (ushort) (((widthAndHeight >> 12) >> 2) + 1);
-          var height = (ushort) (widthAndHeight & 0xFFF); // (ushort) (((widthAndHeight & 0xFFF) >> 2) + 1);
+          var width =
+              (ushort) (widthAndHeight >>
+                        12); // (ushort) (((widthAndHeight >> 12) >> 2) + 1);
+          var height =
+              (ushort) (widthAndHeight &
+                        0xFFF); // (ushort) (((widthAndHeight & 0xFFF) >> 2) + 1);
 
           return new SetTileSizeOpcodeCommand {
-              TileDescriptorIndex = tileDescriptor, Width = width, Height = height,
+              TileDescriptorIndex = tileDescriptor,
+              Width = width,
+              Height = height,
           };
         }
         case F3dOpcode.G_SETCOMBINE: {
-            er.Position -= 1 ;
-          var wholeCommand = er.ReadUInt64();
+          //           aaaa cccc ceee gggi iiik kkkk 
+          // bbbb jjjj mmmo oodd dfff hhhl llnn nppp
+
+          var first = er.ReadUInt24();
+          var second = er.ReadUInt32();
+
+          var a = BitLogic.ExtractFromRight(first, 20, 4);
+          var c = BitLogic.ExtractFromRight(first, 15, 5);
+          var e = BitLogic.ExtractFromRight(first, 12, 3);
+          var g = BitLogic.ExtractFromRight(first, 9, 3);
+          var i = BitLogic.ExtractFromRight(first, 5, 4);
+          var k = BitLogic.ExtractFromRight(first, 0, 5);
+
+          var b = BitLogic.ExtractFromRight(second, 28, 4);
+          var j = BitLogic.ExtractFromRight(second, 24, 4);
+          var m = BitLogic.ExtractFromRight(second, 21, 3);
+          var o = BitLogic.ExtractFromRight(second, 18, 3);
+          var d = BitLogic.ExtractFromRight(second, 15, 3);
+          var f = BitLogic.ExtractFromRight(second, 12, 3);
+          var h = BitLogic.ExtractFromRight(second, 9, 3);
+          var l = BitLogic.ExtractFromRight(second, 6, 3);
+          var n = BitLogic.ExtractFromRight(second, 3, 3);
+          var p = BitLogic.ExtractFromRight(second, 0, 3);
+
           return new SetCombineOpcodeCommand {
-              // TODO: Look into what the heck this means
-              ClearTextureSegmentedAddress = wholeCommand == 0xFCFFFFFFFFFE793C
+              CombinerCycleParams0 = new CombinerCycleParams {
+                  ColorMuxA = GetColorMuxA_(a),
+                  ColorMuxB = GetColorMuxB_(b),
+                  ColorMuxC = GetColorMuxC_(c),
+                  ColorMuxD = GetColorMuxD_(d),
+                  AlphaMuxA = this.GetAlphaMuxA_(e),
+                  AlphaMuxB = this.GetAlphaMuxB_(f),
+                  AlphaMuxC = this.GetAlphaMuxC_(g),
+                  AlphaMuxD = this.GetAlphaMuxD_(h),
+              },
+              CombinerCycleParams1 = new CombinerCycleParams {
+                  ColorMuxA = GetColorMuxA_(i),
+                  ColorMuxB = GetColorMuxB_(j),
+                  ColorMuxC = GetColorMuxC_(k),
+                  ColorMuxD = GetColorMuxD_(l),
+                  AlphaMuxA = this.GetAlphaMuxA_(m),
+                  AlphaMuxB = this.GetAlphaMuxB_(n),
+                  AlphaMuxC = this.GetAlphaMuxC_(o),
+                  AlphaMuxD = this.GetAlphaMuxD_(p),
+              }
           };
         }
         case F3dOpcode.G_LOADBLOCK: {
@@ -202,8 +254,7 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           var texels = texelsAndDxt >> 12;
 
           return new LoadBlockOpcodeCommand {
-            TileDescriptorIndex = tileDescriptor,
-            Texels = (ushort) texels,
+              TileDescriptorIndex = tileDescriptor, Texels = (ushort) texels,
           };
         }
         case F3dOpcode.G_MOVEMEM: {
@@ -288,5 +339,107 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           throw new ArgumentOutOfRangeException(nameof(opcode), opcode, null);
       }
     }
+
+    /// <summary>
+    ///   http://ultra64.ca/files/documentation/online-manuals/man/pro-man/pro12/index12.6.html#:~:text=Color%20Combiner%20(CC)%20can%20perform,in%20one%2Dcycle%20mode).
+    /// </summary>
+    private GenericColorMux GetColorMuxA_(uint value) => value switch {
+        0 => GenericColorMux.G_CCMUX_COMBINED,
+        1 => GenericColorMux.G_CCMUX_TEXEL0,
+        2 => GenericColorMux.G_CCMUX_TEXEL1,
+        3 => GenericColorMux.G_CCMUX_PRIMITIVE,
+        4 => GenericColorMux.G_CCMUX_SHADE,
+        5 => GenericColorMux.G_CCMUX_ENVIRONMENT,
+        6 => GenericColorMux.G_CCMUX_1,
+        7 => GenericColorMux.G_CCMUX_NOISE,
+        _ => GenericColorMux.G_CCMUX_0,
+    };
+
+    private GenericColorMux GetColorMuxB_(uint value) => value switch {
+        0 => GenericColorMux.G_CCMUX_COMBINED,
+        1 => GenericColorMux.G_CCMUX_TEXEL0,
+        2 => GenericColorMux.G_CCMUX_TEXEL1,
+        3 => GenericColorMux.G_CCMUX_PRIMITIVE,
+        4 => GenericColorMux.G_CCMUX_SHADE,
+        5 => GenericColorMux.G_CCMUX_ENVIRONMENT,
+        6 => GenericColorMux.G_CCMUX_CENTER,
+        7 => GenericColorMux.G_CCMUX_K4,
+        _ => GenericColorMux.G_CCMUX_0,
+    };
+
+    private GenericColorMux GetColorMuxC_(uint value) => value switch {
+        0  => GenericColorMux.G_CCMUX_COMBINED,
+        1  => GenericColorMux.G_CCMUX_TEXEL0,
+        2  => GenericColorMux.G_CCMUX_TEXEL1,
+        3  => GenericColorMux.G_CCMUX_PRIMITIVE,
+        4  => GenericColorMux.G_CCMUX_SHADE,
+        5  => GenericColorMux.G_CCMUX_ENVIRONMENT,
+        6  => GenericColorMux.G_CCMUX_SCALE,
+        7  => GenericColorMux.G_CCMUX_COMBINED_ALPHA,
+        8  => GenericColorMux.G_CCMUX_TEXEL0_ALPHA,
+        9  => GenericColorMux.G_CCMUX_TEXEL1_ALPHA,
+        10 => GenericColorMux.G_CCMUX_PRIMITIVE_ALPHA,
+        11 => GenericColorMux.G_CCMUX_SHADE_ALPHA,
+        12 => GenericColorMux.G_CCMUX_ENV_ALPHA,
+        13 => GenericColorMux.G_CCMUX_LOD_FRAC,
+        14 => GenericColorMux.G_CCMUX_PRIM_LOD_FRAC,
+        15 => GenericColorMux.G_CCMUX_K5,
+        _  => GenericColorMux.G_CCMUX_0,
+    };
+
+    private GenericColorMux GetColorMuxD_(uint value) => value switch {
+        0  => GenericColorMux.G_CCMUX_COMBINED,
+        1  => GenericColorMux.G_CCMUX_TEXEL0,
+        2  => GenericColorMux.G_CCMUX_TEXEL1,
+        3  => GenericColorMux.G_CCMUX_PRIMITIVE,
+        4  => GenericColorMux.G_CCMUX_SHADE,
+        5  => GenericColorMux.G_CCMUX_ENVIRONMENT,
+        6 => GenericColorMux.G_CCMUX_1,
+        _  => GenericColorMux.G_CCMUX_0,
+    };
+
+    private GenericAlphaMux GetAlphaMuxA_(uint value) => value switch {
+      0 => GenericAlphaMux.G_ACMUX_COMBINED,
+      1 => GenericAlphaMux.G_ACMUX_TEXEL0,
+      2 => GenericAlphaMux.G_ACMUX_TEXEL1,
+      3 => GenericAlphaMux.G_ACMUX_PRIMITIVE,
+      4 => GenericAlphaMux.G_ACMUX_SHADE,
+      5 => GenericAlphaMux.G_ACMUX_ENVIRONMENT,
+      6 => GenericAlphaMux.G_ACMUX_1,
+      _ => GenericAlphaMux.G_ACMUX_0,
+    };
+
+    private GenericAlphaMux GetAlphaMuxB_(uint value) => value switch {
+        0 => GenericAlphaMux.G_ACMUX_COMBINED,
+        1 => GenericAlphaMux.G_ACMUX_TEXEL0,
+        2 => GenericAlphaMux.G_ACMUX_TEXEL1,
+        3 => GenericAlphaMux.G_ACMUX_PRIMITIVE,
+        4 => GenericAlphaMux.G_ACMUX_SHADE,
+        5 => GenericAlphaMux.G_ACMUX_ENVIRONMENT,
+        6 => GenericAlphaMux.G_ACMUX_1,
+        _ => GenericAlphaMux.G_ACMUX_0,
+    };
+
+    private GenericAlphaMux GetAlphaMuxC_(uint value) => value switch {
+        0 => GenericAlphaMux.G_ACMUX_LOD_FRACTION,
+        1 => GenericAlphaMux.G_ACMUX_TEXEL0,
+        2 => GenericAlphaMux.G_ACMUX_TEXEL1,
+        3 => GenericAlphaMux.G_ACMUX_PRIMITIVE,
+        4 => GenericAlphaMux.G_ACMUX_SHADE,
+        5 => GenericAlphaMux.G_ACMUX_ENVIRONMENT,
+        6 => GenericAlphaMux.G_ACMUX_PRIM_LOD_FRAC,
+        _ => GenericAlphaMux.G_ACMUX_0,
+    };
+
+    private GenericAlphaMux GetAlphaMuxD_(uint value) => value switch {
+        0 => GenericAlphaMux.G_ACMUX_COMBINED,
+        1 => GenericAlphaMux.G_ACMUX_TEXEL0,
+        2 => GenericAlphaMux.G_ACMUX_TEXEL1,
+        3 => GenericAlphaMux.G_ACMUX_PRIMITIVE,
+        4 => GenericAlphaMux.G_ACMUX_SHADE,
+        5 => GenericAlphaMux.G_ACMUX_ENVIRONMENT,
+        6 => GenericAlphaMux.G_ACMUX_1,
+        _ => GenericAlphaMux.G_ACMUX_0,
+    };
   }
 }

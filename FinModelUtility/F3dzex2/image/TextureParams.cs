@@ -57,14 +57,12 @@ namespace f3dzex2.image {
     public F3dWrapMode WrapModeS { get; set; } = F3dWrapMode.REPEAT;
 
     public UvType UvType { get; set; } = UvType.STANDARD;
-    public int UvIndex { get; set; }
 
     public override int GetHashCode() => FluentHash.Start()
                                                    .With(this.ImageParams)
                                                    .With(this.WrapModeT)
                                                    .With(this.WrapModeS)
-                                                   .With(UvType)
-                                                   .With(UvIndex);
+                                                   .With(UvType);
 
     public override bool Equals(object? other) {
       if (ReferenceEquals(this, other)) {
@@ -75,8 +73,7 @@ namespace f3dzex2.image {
         return ImageParams.Equals(otherTextureParams.ImageParams) &&
                this.WrapModeT == otherTextureParams.WrapModeT &&
                this.WrapModeS == otherTextureParams.WrapModeS &&
-               UvType == otherTextureParams.UvType &&
-               UvIndex == otherTextureParams.UvIndex;
+               UvType == otherTextureParams.UvType;
       }
 
       return false;
