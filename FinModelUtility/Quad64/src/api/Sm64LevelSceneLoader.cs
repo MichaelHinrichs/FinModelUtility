@@ -22,8 +22,6 @@ namespace sm64.api {
   }
 
   public class Sm64LevelSceneLoader : ISceneLoader<Sm64LevelSceneFileBundle> {
-    // TODO: Load this as a scene instead
-
     public IScene LoadScene(Sm64LevelSceneFileBundle levelModelFileBundle) {
       var sm64Level = Sm64LevelLoader.LoadLevel(levelModelFileBundle);
 
@@ -33,7 +31,7 @@ namespace sm64.api {
           sm64ModelId => {
             if (sm64Level.ModelIDs.TryGetValue(sm64ModelId,
                                                out var sm64Model)) {
-              return Sm64ModelConverter.ConvertModels(sm64Model.HighestLod);
+              return sm64Model.HighestLod2.Model;
             }
             return null;
           });
@@ -67,9 +65,7 @@ namespace sm64.api {
 
     private static void AddAreaModelToScene_(ISceneArea finArea, Area sm64Area)
       => finArea.AddObject()
-                .AddSceneModel(
-                    Sm64ModelConverter.ConvertModels(
-                        sm64Area.AreaModel.HighestLod));
+                .AddSceneModel(sm64Area.AreaModel.HighestLod2.Model);
 
     private static void AddAreaObjectToScene_(
         ISceneArea finArea,
