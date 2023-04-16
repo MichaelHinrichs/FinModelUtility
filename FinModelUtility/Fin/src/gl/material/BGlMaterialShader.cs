@@ -8,17 +8,17 @@ using OpenTK.Graphics.OpenGL;
 namespace fin.gl.material {
   public abstract class BGlMaterialShader<TMaterial> : IGlMaterialShader
       where TMaterial : IReadOnlyMaterial {
-    private readonly IModel model_;
+    private readonly ILighting? lighting_;
     private readonly GlShaderProgram impl_;
 
     private readonly int modelViewMatrixLocation_;
     private readonly int projectionMatrixLocation_;
     private readonly int useLightingLocation_;
 
-    protected BGlMaterialShader(IModel model,
-                                TMaterial material) {
-      this.model_ = model;
+    protected BGlMaterialShader(TMaterial material,
+                                ILighting? lighting) {
       this.Material = material;
+      this.lighting_ = lighting;
 
       var shaderSource = this.GenerateShaderSource(material);
       this.impl_ = GlShaderProgram.FromShaders(
@@ -63,6 +63,7 @@ namespace fin.gl.material {
     public IReadOnlyMaterial Material { get; }
 
     public bool UseLighting { get; set; }
+    public bool DisposeTextures { get; set; } = true;
 
     public void Use() {
       this.impl_.Use();
@@ -75,12 +76,16 @@ namespace fin.gl.material {
       GlTransform.UniformMatrix4(this.projectionMatrixLocation_,
                                  projectionMatrix);
 
-      GL.Uniform1(this.useLightingLocation_, this.UseLighting ? 1f : 0f);
+      GL.Uniform1(this.useLightingLocation_,
+                  this.UseLighting && this.lighting_ != null ? 1f : 0f);
 
-      this.SetUpLightUniforms_(this.impl_,
-                               this.model_.Lighting.Lights,
-                               "lights",
-                               MaterialConstants.MAX_LIGHTS);
+
+      if (this.lighting_ != null) {
+        this.SetUpLightUniforms_(this.impl_,
+                                 this.lighting_.Lights,
+                                 "lights",
+                                 MaterialConstants.MAX_LIGHTS);
+      }
 
       this.PassUniformsAndBindTextures(this.impl_);
     }

@@ -3,6 +3,8 @@ using CommandLine.Text;
 
 using level5.debug;
 
+using OpenTK.Graphics;
+
 using uni.ui;
 
 
@@ -31,6 +33,7 @@ namespace uni.cli {
                         => extractorOptions.CreateExtractor().ExtractAll())
                 .WithParsed((UiOptions _) => {
                   DesignModeUtil.InDesignMode = false;
+                  GraphicsContext.ShareContexts = true;
                   ApplicationConfiguration.Initialize();
                     Application.Run(new UniversalModelExtractorForm());
                 })

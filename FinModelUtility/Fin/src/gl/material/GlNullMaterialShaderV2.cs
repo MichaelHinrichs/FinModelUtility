@@ -16,7 +16,8 @@ void main() {
   }
 
   public class GlNullMaterialShaderV2 : BGlMaterialShader<IReadOnlyMaterial?> {
-    public GlNullMaterialShaderV2(IModel model) : base(model, null) { }
+    public GlNullMaterialShaderV2(ILighting? lighting) :
+        base(null, lighting) { }
 
     protected override void DisposeInternal() { }
 

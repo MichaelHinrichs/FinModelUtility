@@ -86,16 +86,20 @@ void main() {{
     private int diffuseTextureLocation_;
     private readonly GlTexture primaryGlTexture_;
 
-    public GlSimpleMaterialShaderV2(IModel model, IReadOnlyMaterial material) :
-        base(model, material) {
+    public GlSimpleMaterialShaderV2(IReadOnlyMaterial material,
+                                    ILighting? lighting) :
+        base(material, lighting) {
       var primaryFinTexture = PrimaryTextureFinder.GetFor(material);
       this.primaryGlTexture_ = primaryFinTexture != null
           ? GlTexture.FromTexture(primaryFinTexture)
           : GlMaterialConstants.NULL_WHITE_TEXTURE;
     }
 
-    protected override void DisposeInternal()
-      => GlMaterialConstants.DisposeIfNotCommon(this.primaryGlTexture_);
+    protected override void DisposeInternal() {
+      if (this.DisposeTextures) {
+        GlMaterialConstants.DisposeIfNotCommon(this.primaryGlTexture_);
+      }
+    }
 
     protected override void Setup(
         IReadOnlyMaterial material,

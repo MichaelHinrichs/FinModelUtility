@@ -117,6 +117,10 @@
     <Compile Update="src\ui\right_panel\info\InfoTab.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="src\ui\right_panel\materials\MaterialViewerGlPanel.cs" />
+    <Compile Update="src\ui\right_panel\materials\MaterialViewerPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="src\ui\right_panel\materials\MaterialsTab.cs">
       <SubType>UserControl</SubType>
     </Compile>

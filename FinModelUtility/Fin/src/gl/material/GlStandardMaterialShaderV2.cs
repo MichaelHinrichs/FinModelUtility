@@ -128,15 +128,17 @@ vec3 normal_viewSpace = tbn * normalize((fragNormal * 2.0) - 1.0);
     private GlTexture ambientOcclusionTexture_;
     private GlTexture emissiveTexture_;
 
-    public GlStandardMaterialShaderV2(IModel model,
-                                      IStandardMaterial standardMaterial) :
-        base(model, standardMaterial) {}
+    public GlStandardMaterialShaderV2(IStandardMaterial standardMaterial,
+                                      ILighting? lighting) :
+        base(standardMaterial, lighting) {}
 
     protected override void DisposeInternal() {
-      GlMaterialConstants.DisposeIfNotCommon(this.diffuseTexture_);
-      GlMaterialConstants.DisposeIfNotCommon(this.normalTexture_);
-      GlMaterialConstants.DisposeIfNotCommon(this.ambientOcclusionTexture_);
-      GlMaterialConstants.DisposeIfNotCommon(this.emissiveTexture_);
+      if (this.DisposeTextures) {
+        GlMaterialConstants.DisposeIfNotCommon(this.diffuseTexture_);
+        GlMaterialConstants.DisposeIfNotCommon(this.normalTexture_);
+        GlMaterialConstants.DisposeIfNotCommon(this.ambientOcclusionTexture_);
+        GlMaterialConstants.DisposeIfNotCommon(this.emissiveTexture_);
+      }
     }
 
     protected override void Setup(IStandardMaterial material,

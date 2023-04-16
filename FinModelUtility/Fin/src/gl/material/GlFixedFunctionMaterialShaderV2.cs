@@ -26,13 +26,15 @@ namespace fin.gl.material {
     private IList<GlTexture> textures_;
 
     public GlFixedFunctionMaterialShaderV2(
-        IModel model,
-        IReadOnlyFixedFunctionMaterial fixedFunctionMaterial)
-        : base(model, fixedFunctionMaterial) { }
+        IReadOnlyFixedFunctionMaterial fixedFunctionMaterial,
+        ILighting? lighting)
+        : base(fixedFunctionMaterial, lighting) { }
 
     protected override void DisposeInternal() {
-      foreach (var texture in this.textures_) {
-        GlMaterialConstants.DisposeIfNotCommon(texture);
+      if (this.DisposeTextures) {
+        foreach (var texture in this.textures_) {
+          GlMaterialConstants.DisposeIfNotCommon(texture);
+        }
       }
     }
 

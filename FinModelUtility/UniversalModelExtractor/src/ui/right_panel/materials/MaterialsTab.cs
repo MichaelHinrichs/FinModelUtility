@@ -7,6 +7,7 @@ namespace uni.ui.right_panel.materials {
       InitializeComponent();
 
       this.materialSelector_.OnMaterialSelected += material => {
+        this.materialViewerPanel1.Material = material;
         this.shaderSection_.Material = material;
         this.textureSection_.Material = material;
       };

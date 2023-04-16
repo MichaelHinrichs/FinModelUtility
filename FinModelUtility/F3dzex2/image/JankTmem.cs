@@ -257,24 +257,22 @@ namespace f3dzex2.image {
                   var cC = getColorValue(combinerCycleParams.ColorMuxC);
                   var cD = getColorValue(combinerCycleParams.ColorMuxD);
 
-                  /*combinedColor = colorFixedFunctionOps.Add(
+                  combinedColor = colorFixedFunctionOps.Add(
                       colorFixedFunctionOps.Multiply(
                           colorFixedFunctionOps.Subtract(cA, cB),
                           cC),
-                      cD) ?? colorFixedFunctionOps.Zero;*/
-                  combinedColor = cA.Subtract(cB).Multiply(cC).Add(cD);
+                      cD) ?? colorFixedFunctionOps.Zero;
 
                   var aA = getAlphaValue(combinerCycleParams.AlphaMuxA);
                   var aB = getAlphaValue(combinerCycleParams.AlphaMuxB);
                   var aC = getAlphaValue(combinerCycleParams.AlphaMuxC);
                   var aD = getAlphaValue(combinerCycleParams.AlphaMuxD);
 
-                  combinedAlpha = aA.Subtract(aB).Multiply(aC).Add(aD);
-                  /*combinedAlpha = scalarFixedFunctionOps.Add(
+                  combinedAlpha = scalarFixedFunctionOps.Add(
                       scalarFixedFunctionOps.Multiply(
                           scalarFixedFunctionOps.Subtract(aA, aB),
                           aC),
-                      aD) ?? scalarFixedFunctionOps.Zero;*/
+                      aD) ?? scalarFixedFunctionOps.Zero;
                 }
 
                 equations.CreateColorOutput(FixedFunctionSource.OUTPUT_COLOR,

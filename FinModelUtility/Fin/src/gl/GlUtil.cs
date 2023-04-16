@@ -1,6 +1,7 @@
 ﻿using System;
 using fin.model;
 using OpenTK.Graphics.OpenGL;
+
 using FinLogicOp = fin.model.LogicOp;
 using GlLogicOp = OpenTK.Graphics.OpenGL.LogicOp;
 

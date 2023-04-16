@@ -13,6 +13,7 @@ namespace fin.gl.material {
     IReadOnlyMaterial Material { get; }
 
     bool UseLighting { get; set; }
+    bool DisposeTextures { get; set; }
 
     void Use();
   }

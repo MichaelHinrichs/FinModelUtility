@@ -221,7 +221,7 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           var h = BitLogic.ExtractFromRight(second, 9, 3);
           var l = BitLogic.ExtractFromRight(second, 6, 3);
           var n = BitLogic.ExtractFromRight(second, 3, 3);
-          var p = BitLogic.ExtractFromRight(second, 0, 3);
+          var p = BitLogic.ExtractFromRight(second, 0, 3);  
 
           return new SetCombineOpcodeCommand {
               CombinerCycleParams0 = new CombinerCycleParams {

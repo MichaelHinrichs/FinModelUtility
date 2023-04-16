@@ -27,19 +27,8 @@ namespace fin.gl.model {
         IList<IPrimitive> primitives) {
       this.material_ = material;
 
-      if (DebugFlags.ENABLE_FIXED_FUNCTION_SHADER
-          && !DebugFlags.ENABLE_WEIGHT_COLORS
-          && material is IFixedFunctionMaterial fixedFunctionMaterial) {
-        this.materialShader_ =
-            new GlFixedFunctionMaterialShaderV2(model, fixedFunctionMaterial);
-      } else if (material is IStandardMaterial standardMaterial) {
-        this.materialShader_ =
-            new GlStandardMaterialShaderV2(model, standardMaterial);
-      } else if (material != null) {
-        this.materialShader_ = new GlSimpleMaterialShaderV2(model, material);
-      } else {
-        this.materialShader_ = new GlNullMaterialShaderV2(model);
-      }
+      this.materialShader_ =
+          GlMaterialShader.FromMaterial(material, model.Lighting);
 
       IReadOnlyList<IVertex> triangleVertices;
       if (primitives is [{ Type: PrimitiveType.TRIANGLES, VertexOrder:
