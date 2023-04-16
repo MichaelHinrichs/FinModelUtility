@@ -80,8 +80,6 @@ namespace f3dzex2.image {
     private readonly TextureParams[] textureParams_ = new TextureParams[2];
     private readonly bool[] texturesChanged_ = { true, true };
 
-    private bool hasMaterial_;
-
     public JankTmem(IN64Hardware n64Hardware) {
       this.n64Hardware_ = n64Hardware;
     }
@@ -99,6 +97,7 @@ namespace f3dzex2.image {
             sizeBytes;
         this.loadedTextures_[this.setTextureImageParams_.TileNumber].SegmentedAddress =
             this.setTextureImageParams_.SegmentedAddress;
+        this.texturesChanged_[this.setTextureImageParams_.TileNumber] = true;
       }
     }
 

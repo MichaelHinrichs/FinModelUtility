@@ -36,7 +36,13 @@ namespace f3dzex2.model {
     private MaterialParams cachedMaterialParams_;
     private IMaterial cachedMaterial_;
     private readonly IF3dVertices vertices_;
+    private bool isMaterialTransparent_ = false;
 
+    /// <summary>
+    ///   Each model gets its own DlModelBuilder, but they all need to share
+    ///   the same N64 hardware state (RSP/RDP). If they don't, you'll run into
+    ///   weird graphical bugs that you'll spend ages debugging. :(
+    /// </summary>
     public DlModelBuilder(IN64Hardware n64Hardware) {
       this.n64Hardware_ = n64Hardware;
       this.currentMesh_ = this.Model.Skin.AddMesh();
@@ -233,6 +239,10 @@ namespace f3dzex2.model {
                                                   .5f,
                                                   AlphaCompareType.Always,
                                                   0);
+                      finMaterial.SetBlending(BlendMode.ADD,
+                                              BlendFactor.SRC_ALPHA,
+                                              BlendFactor.ONE_MINUS_SRC_ALPHA,
+                                              LogicOp.UNDEFINED);
                     } else {
                       finMaterial.SetAlphaCompare(AlphaOp.Or,
                                                   AlphaCompareType.Greater,
@@ -258,13 +268,6 @@ namespace f3dzex2.model {
             .Sum();
 
     public void AddDl(IDisplayList dl) {
-      if (dl.OpcodeCommands.Any(command => command is LoadBlockOpcodeCommand
-                                    or SetTileOpcodeCommand
-                                    or SetTileSizeOpcodeCommand
-                                    or SetTimgOpcodeCommand)) {
-        ;
-      }
-
       foreach (var opcodeCommand in dl.OpcodeCommands) {
         switch (opcodeCommand) {
           case NoopOpcodeCommand _:
@@ -376,9 +379,16 @@ namespace f3dzex2.model {
             var vertices =
                 tri1OpcodeCommand.VertexIndicesInOrder.Select(
                     this.vertices_.GetOrCreateVertexAtIndex);
-            this.currentMesh_.AddTriangles(vertices.ToArray())
-                .SetMaterial(material)
-                .SetVertexOrder(VertexOrder.NORMAL);
+            var triangles = this.currentMesh_.AddTriangles(vertices.ToArray())
+                                .SetMaterial(material)
+                                .SetVertexOrder(VertexOrder.NORMAL);
+
+            if (isMaterialTransparent_) {
+              triangles.SetInversePriority(1);
+            } else {
+              triangles.SetInversePriority(0);
+            }
+
             break;
           }
           case LoadBlockOpcodeCommand loadBlockOpcodeCommand: {
@@ -427,6 +437,10 @@ namespace f3dzex2.model {
       if (!cachedMaterialParams_.Equals(newMaterialParams)) {
         this.cachedMaterialParams_ = newMaterialParams;
         this.cachedMaterial_ = this.lazyMaterialDictionary_[newMaterialParams];
+        this.isMaterialTransparent_ =
+            ImageUtil.GetTransparencyType(
+                this.cachedMaterial_.Textures.First().Image) ==
+            ImageTransparencyType.TRANSPARENT;
       }
 
       return this.cachedMaterial_;
