@@ -128,7 +128,7 @@ namespace f3dzex2.displaylist.opcodes.f3d {
 
           var mipmapLevelsAndTileDescriptor = er.ReadByte();
           var tileDescriptor =
-              (TileDescriptor) BitLogic.ExtractFromRight(
+              (TileDescriptorIndex) BitLogic.ExtractFromRight(
                   mipmapLevelsAndTileDescriptor,
                   0,
                   3);
@@ -139,7 +139,7 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           var verticalScale = er.ReadUInt16();
 
           return new TextureOpcodeCommand {
-              TileDescriptor = tileDescriptor,
+              TileDescriptorIndex = tileDescriptor,
               NewTileDescriptorState = newTileDescriptorState,
               HorizontalScaling = horizontalScale,
               VerticalScaling = verticalScale,
@@ -156,13 +156,13 @@ namespace f3dzex2.displaylist.opcodes.f3d {
           var bitSize =
               (BitsPerTexel) BitLogic.ExtractFromRight(first, 19, 2);
           var tileDescriptor =
-              (TileDescriptor) BitLogic.ExtractFromRight(second, 24, 3);
+              (TileDescriptorIndex) BitLogic.ExtractFromRight(second, 24, 3);
 
           var wrapModeT = (F3dWrapMode) BitLogic.ExtractFromRight(second, 18, 2);
           var wrapModeS = (F3dWrapMode) BitLogic.ExtractFromRight(second, 8, 2);
 
           return new SetTileOpcodeCommand {
-              TileDescriptor = tileDescriptor,
+              TileDescriptorIndex = tileDescriptor,
               ColorFormat = colorFormat,
               BitsPerTexel = bitSize,
               WrapModeT = wrapModeT,
@@ -172,14 +172,14 @@ namespace f3dzex2.displaylist.opcodes.f3d {
         case F3dOpcode.G_SETTILESIZE: {
           er.Position += 3;
 
-          var tileDescriptor = (TileDescriptor) er.ReadByte();
+          var tileDescriptor = (TileDescriptorIndex) er.ReadByte();
 
           var widthAndHeight = er.ReadUInt24();
           var width = (ushort) (((widthAndHeight >> 12) >> 2) + 1);
           var height = (ushort) (((widthAndHeight & 0xFFF) >> 2) + 1);
 
           return new SetTileSizeOpcodeCommand {
-              TileDescriptor = tileDescriptor, Width = width, Height = height,
+              TileDescriptorIndex = tileDescriptor, Width = width, Height = height,
           };
         }
         case F3dOpcode.G_SETCOMBINE: {
@@ -193,10 +193,10 @@ namespace f3dzex2.displaylist.opcodes.f3d {
         case F3dOpcode.G_LOADBLOCK: {
           er.Position += 3;
 
-          var tileDescriptor = (TileDescriptor) er.ReadByte();
+          var tileDescriptor = (TileDescriptorIndex) er.ReadByte();
 
           return new LoadBlockOpcodeCommand {
-            TileDescriptor = tileDescriptor,
+            TileDescriptorIndex = tileDescriptor,
           };
         }
         case F3dOpcode.G_MOVEMEM: {

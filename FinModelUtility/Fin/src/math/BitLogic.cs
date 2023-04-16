@@ -72,5 +72,8 @@ namespace fin.math {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool GetBit(this long number, int offset)
       => ((number >> offset) & 1) != 0;
+
+    public static double ConvertBinaryFractionToDouble(ushort binaryFraction)
+      => binaryFraction / (ushort.MaxValue + 1.0);
   }
 }

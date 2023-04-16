@@ -1,0 +1,50 @@
+﻿using f3dzex2.displaylist.opcodes;
+
+using fin.math;
+using fin.math.matrix;
+
+namespace f3dzex2.image {
+  public interface IRsp {
+    GeometryMode GeometryMode { get; set; }
+
+    ushort TexScaleXShort { get; set; }
+    ushort TexScaleYShort { get; set; }
+
+    float TexScaleXFloat { get; }
+    float TexScaleYFloat { get; }
+
+    IReadOnlyFinMatrix4x4 Matrix { get; set; }
+  }
+
+  public class Rsp : IRsp {
+    private float texScaleXFloat_ = 1;
+    private float texScaleYFloat_ = 1;
+    private ushort texScaleXShort_ = 0xFFFF;
+    private ushort texScaleYShort_ = 0xFFFF;
+
+    public GeometryMode GeometryMode { get; set; } = (GeometryMode) 0x22205;
+
+    public ushort TexScaleXShort {
+      get => this.texScaleXShort_;
+      set {
+        this.texScaleXShort_ = value;
+        this.texScaleXFloat_ =
+            (float) BitLogic.ConvertBinaryFractionToDouble(value);
+      }
+    }
+
+    public ushort TexScaleYShort {
+      get => this.texScaleYShort_;
+      set {
+        this.texScaleYShort_ = value;
+        this.texScaleYFloat_ =
+            (float) BitLogic.ConvertBinaryFractionToDouble(value);
+      }
+    }
+
+    public float TexScaleXFloat => this.texScaleXFloat_;
+    public float TexScaleYFloat => this.texScaleYFloat_;
+
+    public IReadOnlyFinMatrix4x4 Matrix { get; set; } = FinMatrix4x4.IDENTITY;
+  }
+}

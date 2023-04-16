@@ -43,8 +43,8 @@ namespace f3dzex2.image {
   ///   of works for general cases, but isn't very accurate in general.
   /// </summary>
   public class JankTmem : ITmem {
+    private readonly IN64Hardware n64Hardware_;
     private readonly IModel model_;
-    private readonly Rsp rsp_;
 
     private IMaterial? activeMaterial_;
     private bool hasRenderTileParams_ = false;
@@ -62,9 +62,9 @@ namespace f3dzex2.image {
         lazyMaterialDictionary_;
 
 
-    public JankTmem(IN64Memory n64Memory, IModel model, Rsp rsp) {
+    public JankTmem(IN64Hardware n64Hardware, IModel model) {
+      this.n64Hardware_ = n64Hardware;
       this.model_ = model;
-      this.rsp_ = rsp;
 
       lazyImageDictionary_ =
           new(imageParams => {
@@ -72,7 +72,7 @@ namespace f3dzex2.image {
               return FinImage.Create1x1FromColor(imageParams.Color);
             }
 
-            using var er = n64Memory.OpenAtSegmentedAddress(
+            using var er = this.n64Hardware_.Memory.OpenAtSegmentedAddress(
                 imageParams.SegmentedAddress);
             var imageData =
                 er.ReadBytes(imageParams.Width *
@@ -187,6 +187,8 @@ namespace f3dzex2.image {
       if (tileDescriptor.IsRenderAndAssertNotLoad()) {
         this.loadingTileParams_.Width = width;
         this.loadingTileParams_.Height = height;
+
+        this.n64Hardware_.Rdp.F3dVertices.ClearVertices();
       }
     }
 
@@ -196,17 +198,10 @@ namespace f3dzex2.image {
                             TileDescriptorIndex tileDescriptor,
                             TileDescriptorState tileDescriptorState) {
       if (tileDescriptor.IsRenderAndAssertNotLoad()) {
-        var tsX = scaleS;
-        var tsY = scaleT;
+        this.n64Hardware_.Rsp.TexScaleXShort = scaleS;        
+        this.n64Hardware_.Rsp.TexScaleYShort = scaleT;
 
-        if (tsX != 0xFFFF)
-          this.rsp_.TexScaleX = tsX / 65536.0f;
-        else
-          this.rsp_.TexScaleX = 1.0f;
-        if (tsY != 0xFFFF)
-          this.rsp_.TexScaleY = tsY / 65536.0f;
-        else
-          this.rsp_.TexScaleY = 1.0f;
+        this.n64Hardware_.Rdp.F3dVertices.ClearVertices();
       }
     }
 
@@ -236,8 +231,9 @@ namespace f3dzex2.image {
       }
 
       this.renderTileParams_.CullingMode =
-          this.rsp_.GeometryMode.GetCullingModeNonEx2();
-      this.renderTileParams_.UvType = this.rsp_.GeometryMode.GetUvType();
+          this.n64Hardware_.Rsp.GeometryMode.GetCullingModeNonEx2();
+      this.renderTileParams_.UvType =
+          this.n64Hardware_.Rsp.GeometryMode.GetUvType();
 
       this.hasRenderTileParams_ = true;
       return this.activeMaterial_ =

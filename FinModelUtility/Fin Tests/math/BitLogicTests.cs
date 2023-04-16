@@ -28,5 +28,17 @@ namespace fin.math {
     [TestCase(4, 0b1111)]
     public void TestMask(int numBits, int expectedMask)
       => Assert.AreEqual(expectedMask, (int) BitLogic.GetMask(numBits));
+
+    [Test]
+    [TestCase((ushort) 0, 0)]
+    [TestCase((ushort) 0x1, 0.0000152587890625)]
+    [TestCase((ushort) 0x0080, 0.001953125)]
+    [TestCase((ushort) 0x8000, .5)]
+    [TestCase((ushort) 0xFFFF, 0.9999847412109375)]
+    public void TestConvertBinaryFractionToFloat(ushort inputBinaryFraction,
+                                                 double expected)
+      => Assert.AreEqual(expected,
+                         BitLogic.ConvertBinaryFractionToDouble(
+                             inputBinaryFraction), .00000001);
   }
 }
