@@ -1,5 +1,7 @@
-﻿using f3dzex2.io;
+﻿using f3dzex2.image;
+using f3dzex2.io;
 
+using Quad64.memory;
 using Quad64.schema;
 using Quad64.src.JSON;
 using Quad64.src.Scripts;
@@ -54,8 +56,8 @@ namespace Quad64.src.LevelInfo {
       }
     }
 
-    public Area(IN64Memory n64Memory, ushort areaID, uint geoLayoutPointer, Level parent) {
-      this.AreaModel = new Model3DLods(n64Memory);
+    public Area(IN64Hardware<ISm64Memory> sm64Hardware, ushort areaID, uint geoLayoutPointer, Level parent) {
+      this.AreaModel = new Model3DLods(sm64Hardware);
       this.areaID = areaID;
       this.geoLayoutPointer = geoLayoutPointer;
       this.parent = parent;

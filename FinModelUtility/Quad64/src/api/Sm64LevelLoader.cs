@@ -1,4 +1,7 @@
-﻿using Quad64;
+﻿using f3dzex2.image;
+using f3dzex2.model;
+
+using Quad64;
 using Quad64.memory;
 using Quad64.Scripts;
 using Quad64.src.JSON;
@@ -24,10 +27,15 @@ namespace sm64.api {
                      rom.isSegmentMIO0(0x02, null), rom.Seg02_isFakeMIO0,
                      rom.Seg02_uncompressedOffset, null);
 
-      var sm64Memory = new Sm64Memory();
+      var sm64Hardware = new N64Hardware<ISm64Memory>();
+      sm64Hardware.Memory = new Sm64Memory();
+      sm64Hardware.Rdp = new Rdp {
+          Tmem = new JankTmem(sm64Hardware)
+      };
+      sm64Hardware.Rsp = new Rsp();
 
-      var level = new Level((ushort)levelFileBundle.LevelId, 1);
-      LevelScripts.parse(sm64Memory, ref level, 0x15, 0);
+        var level = new Level((ushort)levelFileBundle.LevelId, 1);
+      LevelScripts.parse(sm64Hardware, ref level, 0x15, 0);
       level.sortAndAddNoModelEntries();
       level.CurrentAreaID = level.Areas[0].AreaID;
 

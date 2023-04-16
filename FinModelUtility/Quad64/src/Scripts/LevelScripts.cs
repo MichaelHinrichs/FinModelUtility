@@ -1,4 +1,5 @@
-﻿using f3dzex2.io;
+﻿using f3dzex2.image;
+using f3dzex2.io;
 
 using Quad64.memory;
 using Quad64.src.LevelInfo;
@@ -22,7 +23,12 @@ namespace Quad64.Scripts {
       }
     }
 
-    public static int parse(ISm64Memory sm64Memory, ref Level lvl, byte seg, uint off) {
+    public static int parse(IN64Hardware<ISm64Memory> sm64Hardware,
+                            ref Level lvl,
+                            byte seg,
+                            uint off) {
+      var sm64Memory = sm64Hardware.Memory;
+
       if (seg == 0) return -1;
       ROM rom = ROM.Instance;
       byte[] data = rom.getSegment(seg, null);
@@ -40,7 +46,7 @@ namespace Quad64.Scripts {
         switch (cmd[0]) {
           case 0x00:
           case 0x01:
-            CMD_00(sm64Memory, ref lvl, ref desc, cmd, seg, off, sm64Memory.AreaId);
+            CMD_00(sm64Hardware, ref lvl, ref desc, cmd, seg, off);
             alreadyAdded = true;
             break;
           case 0x02:
@@ -53,12 +59,12 @@ namespace Quad64.Scripts {
             desc = "Delay frames";
             break;
           case 0x05:
-            endCmd = CMD_05(sm64Memory, ref lvl, ref desc, cmd, seg, off);
+            endCmd = CMD_05(sm64Hardware, ref lvl, ref desc, cmd, seg, off);
             alreadyAdded = true;
             end = true;
             break;
           case 0x06:
-            if (CMD_06(sm64Memory, ref lvl, ref desc, cmd, seg, off) == 0x02) {
+            if (CMD_06(sm64Hardware, ref lvl, ref desc, cmd, seg, off) == 0x02) {
               end = true;
               endCmd = 2;
             }
@@ -84,7 +90,7 @@ namespace Quad64.Scripts {
             alreadyAdded = true;
             break;
           case 0x0C:
-            CMD_0C(sm64Memory, ref lvl, ref desc, cmd, seg, off);
+            CMD_0C(sm64Hardware, ref lvl, ref desc, cmd, seg, off);
             alreadyAdded = true;
             break;
           case 0x0D:
@@ -160,7 +166,7 @@ namespace Quad64.Scripts {
             break;
           case 0x1F: {
             //Globals.DEBUG_PLG = true;                       
-            CMD_1F(sm64Memory, ref lvl, ref desc, cmd, data);
+            CMD_1F(sm64Hardware, ref lvl, ref desc, cmd, data);
             break;
           }
           case 0x20: {
@@ -169,11 +175,11 @@ namespace Quad64.Scripts {
             break;
           }
           case 0x21:
-            CMD_21(sm64Memory, ref lvl, ref desc, cmd);
+            CMD_21(sm64Hardware, ref lvl, ref desc, cmd);
             break;
           case 0x22:
             //Globals.DEBUG_PLG = false;
-            CMD_22(sm64Memory, ref lvl, ref desc, cmd);
+            CMD_22(sm64Hardware, ref lvl, ref desc, cmd);
             break;
           case 0x24:
             CMD_24(sm64Memory, ref lvl, ref desc, cmd, seg, off);
@@ -301,13 +307,12 @@ namespace Quad64.Scripts {
     }
 
     private static void CMD_00(
-        ISm64Memory sm64Memory,
+        IN64Hardware<ISm64Memory> sm64Hardware,
         ref Level lvl,
         ref string desc,
         byte[] cmd,
         byte org_seg,
-        uint org_off,
-        byte? areaID) {
+        uint org_off) {
       ROM rom = ROM.Instance;
       byte seg = cmd[3];
       uint start = bytesToInt(cmd, 4, 4);
@@ -319,14 +324,25 @@ namespace Quad64.Scripts {
       if (seg == 0x14) {
         desc +=
             " (This gets skipped in Quad64, since it's just the star select screen data)";
-        addLSCommandToDump(ref lvl, cmd, org_seg, org_off, desc, areaID);
+        addLSCommandToDump(ref lvl,
+                           cmd,
+                           org_seg,
+                           org_off,
+                           desc,
+                           sm64Hardware.Memory.AreaId);
         return;
       }
-      addLSCommandToDump(ref lvl, cmd, org_seg, org_off, desc, areaID);
-      parse(sm64Memory, ref lvl, seg, off);
+
+      addLSCommandToDump(ref lvl,
+                         cmd,
+                         org_seg,
+                         org_off,
+                         desc,
+                         sm64Hardware.Memory.AreaId);
+      parse(sm64Hardware, ref lvl, seg, off);
     }
 
-    private static int CMD_05(ISm64Memory sm64Memory,
+    private static int CMD_05(IN64Hardware<ISm64Memory> sm64Hardware,
                               ref Level lvl,
                               ref string desc,
                               byte[] cmd,
@@ -336,17 +352,22 @@ namespace Quad64.Scripts {
       uint off = bytesToInt(cmd, 5, 3);
       desc = "Jump to segment address 0x" + seg.ToString("X2") +
              off.ToString("X6");
-      addLSCommandToDump(ref lvl, cmd, currentSeg, currentOff, desc, sm64Memory.AreaId);
+      addLSCommandToDump(ref lvl,
+                         cmd,
+                         currentSeg,
+                         currentOff,
+                         desc,
+                         sm64Hardware.Memory.AreaId);
       if (seg == currentSeg) {
         if ((long) off - (long) currentOff == -4) {
           Console.WriteLine("Infinite loop detected!");
           return 0x02;
         }
       }
-      return parse(sm64Memory, ref lvl, seg, off);
+      return parse(sm64Hardware, ref lvl, seg, off);
     }
 
-    private static int CMD_06(ISm64Memory sm64Memory,
+    private static int CMD_06(IN64Hardware<ISm64Memory> sm64Hardware,
                               ref Level lvl,
                               ref string desc,
                               byte[] cmd,
@@ -356,8 +377,13 @@ namespace Quad64.Scripts {
       uint off = bytesToInt(cmd, 5, 3);
       desc = "Push script stack and jump to address 0x" + seg.ToString("X2") +
              off.ToString("X6");
-      addLSCommandToDump(ref lvl, cmd, org_seg, org_off, desc, sm64Memory.AreaId);
-      return parse(sm64Memory, ref lvl, seg, off);
+      addLSCommandToDump(ref lvl,
+                         cmd,
+                         org_seg,
+                         org_off,
+                         desc,
+                         sm64Hardware.Memory.AreaId);
+      return parse(sm64Hardware, ref lvl, seg, off);
     }
 
     private static string getCondition(byte operation,
@@ -407,7 +433,7 @@ namespace Quad64.Scripts {
       addLSCommandToDump(ref lvl, cmd, org_seg, org_off, desc, areaID);
     }
 
-    private static void CMD_0C(ISm64Memory sm64Memory,
+    private static void CMD_0C(IN64Hardware<ISm64Memory> sm64Hardware,
                                ref Level lvl,
                                ref string desc,
                                byte[] cmd,
@@ -417,12 +443,17 @@ namespace Quad64.Scripts {
       byte operation = cmd[2];
       desc = "Jump to address 0x" + bytesToInt(cmd, 8, 4).ToString("X8") + " " +
              getCondition(operation, lvlcheck, false);
-      addLSCommandToDump(ref lvl, cmd, org_seg, org_off, desc, sm64Memory.AreaId);
+      addLSCommandToDump(ref lvl,
+                         cmd,
+                         org_seg,
+                         org_off,
+                         desc,
+                         sm64Hardware.Memory.AreaId);
       if (org_seg == 0x15) {
         if (lvlcheck == lvl.LevelID) {
           byte seg = cmd[8];
           uint off = bytesToInt(cmd, 9, 3);
-          parse(sm64Memory, ref lvl, seg, off);
+          parse(sm64Hardware, ref lvl, seg, off);
         }
 
         if (!ROM.Instance.hasLookedAtLevelIDs) {
@@ -488,7 +519,7 @@ namespace Quad64.Scripts {
       }
     }
 
-    private static void CMD_1F(ISm64Memory n64Memory,
+    private static void CMD_1F(IN64Hardware<ISm64Memory> sm64Hardware,
                                ref Level lvl,
                                ref string desc,
                                byte[] cmd,
@@ -497,20 +528,24 @@ namespace Quad64.Scripts {
       byte seg = cmd[4];
       uint off = bytesToInt(cmd, 5, 3);
 
-      n64Memory.AreaId = areaID;
+      sm64Hardware.Memory.AreaId = areaID;
 
       setAreaSegmented0xE(areaID, data);
 
       desc = "Start area " + areaID + "; Load area geo layout from 0x" +
              seg.ToString("X2") + off.ToString("X6");
 
-      Area newArea = new Area(n64Memory, areaID, bytesToInt(cmd, 4, 4), lvl);
+      Area newArea = new Area(sm64Hardware, areaID, bytesToInt(cmd, 4, 4), lvl);
       newArea.AreaModel.Current.GeoDataSegAddress = bytesToInt(cmd, 4, 4);
 
       // Globals.DEBUG_PARSING_LEVEL_AREA = true;
       // Stopwatch stopWatch = new Stopwatch();
       // stopWatch.Start();
-      new GeoScriptsWrapper().parse(n64Memory, newArea.AreaModel, ref lvl, seg, off);
+      new GeoScriptsWrapper().parse(sm64Hardware.Memory,
+                                    newArea.AreaModel,
+                                    ref lvl,
+                                    seg,
+                                    off);
       lvl.setAreaBackgroundInfo(ref newArea);
       lvl.Areas.Add(newArea);
       lvl.CurrentAreaID = areaID;
@@ -528,7 +563,7 @@ namespace Quad64.Scripts {
     }
 
     private static void CMD_21(
-        IReadOnlySm64Memory sm64Memory,
+        IN64Hardware<ISm64Memory> sm64Hardware,
         ref Level lvl,
         ref string desc,
         byte[] cmd) {
@@ -541,12 +576,12 @@ namespace Quad64.Scripts {
       desc = "Define Model ID 0x" + modelID.ToString("X2") +
              "; Load Fast3D from 0x" + seg.ToString("X2") + off.ToString("X6");
 
-      Model3DLods newModel = new Model3DLods(sm64Memory);
+      Model3DLods newModel = new Model3DLods(sm64Hardware);
       newModel.Current.GeoDataSegAddress = bytesToInt(cmd, 4, 4);
       lvl.AddObjectCombos(modelID, newModel.Current.GeoDataSegAddress);
 
-      if (rom.getSegment(seg, sm64Memory.AreaId) != null) {
-        newModel.AddDl(sm64Memory, address);
+      if (rom.getSegment(seg, sm64Hardware.Memory.AreaId) != null) {
+        newModel.AddDl(address);
       }
 
       if (lvl.ModelIDs.ContainsKey(modelID))
@@ -555,7 +590,7 @@ namespace Quad64.Scripts {
       lvl.ModelIDs.Add(modelID, newModel);
     }
 
-    private static void CMD_22(IReadOnlySm64Memory n64Memory,
+    private static void CMD_22(IN64Hardware<ISm64Memory> sm64Hardware,
                                ref Level lvl,
                                ref string desc,
                                byte[] cmd) {
@@ -572,10 +607,14 @@ namespace Quad64.Scripts {
              off.ToString("X6");
 
       //Console.WriteLine("Size of seg 0x"+seg.ToString("X2")+" = " + rom.getSegment(seg).Length);
-      Model3DLods newModel = new Model3DLods(n64Memory);
-      if (rom.getSegment(seg, n64Memory.AreaId) != null) {
+      Model3DLods newModel = new Model3DLods(sm64Hardware);
+      if (rom.getSegment(seg, sm64Hardware.Memory.AreaId) != null) {
         try {
-          new GeoScriptsWrapper().parse(n64Memory, newModel, ref lvl, seg, off);
+          new GeoScriptsWrapper().parse(sm64Hardware.Memory,
+                                        newModel,
+                                        ref lvl,
+                                        seg,
+                                        off);
         } catch (Exception e) {
           Console.WriteLine(e.Message);
           Console.WriteLine(e.StackTrace);

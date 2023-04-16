@@ -2,15 +2,21 @@
 using System.Drawing;
 using System.Linq;
 
+using f3dzex2.combiner;
 using f3dzex2.displaylist;
 using f3dzex2.displaylist.opcodes;
 using f3dzex2.image;
-using f3dzex2.io;
 
+using fin.data.lazy;
+using fin.image;
+using fin.language.equations.fixedFunction;
+using fin.language.equations.fixedFunction.impl;
+using fin.math;
 using fin.math.matrix;
 using fin.model;
 using fin.model.impl;
 using fin.util.enums;
+using fin.util.image;
 
 
 namespace f3dzex2.model {
@@ -18,17 +24,225 @@ namespace f3dzex2.model {
     private readonly IN64Hardware n64Hardware_;
     private IMesh currentMesh_;
 
-    public DlModelBuilder(IN64Memory n64Memory) {
-      var n64Hardware = new N64Hardware { Memory = n64Memory, };
+    private readonly LazyDictionary<ImageParams, IImage>
+        lazyImageDictionary_;
+
+    private readonly LazyDictionary<TextureParams, ITexture>
+        lazyTextureDictionary_;
+
+    private readonly LazyDictionary<MaterialParams, IMaterial>
+        lazyMaterialDictionary_;
+
+    private MaterialParams cachedMaterialParams_;
+    private IMaterial cachedMaterial_;
+    private readonly IF3dVertices vertices_;
+
+    public DlModelBuilder(IN64Hardware n64Hardware) {
       this.n64Hardware_ = n64Hardware;
-
-      n64Hardware.Rdp = new Rdp {
-          F3dVertices = new F3dVertices(n64Hardware, this.Model),
-          Tmem = new JankTmem(n64Hardware, this.Model)
-      };
-      n64Hardware.Rsp = new Rsp();
-
       this.currentMesh_ = this.Model.Skin.AddMesh();
+      this.vertices_ = new F3dVertices(n64Hardware, this.Model);
+
+      lazyImageDictionary_ =
+          new(imageParams => {
+            if (imageParams.IsInvalid) {
+              return FinImage.Create1x1FromColor(this.vertices_.DiffuseColor);
+            }
+
+            using var er = this.n64Hardware_.Memory.OpenAtSegmentedAddress(
+                imageParams.SegmentedAddress);
+            var imageData =
+                er.ReadBytes(imageParams.Width *
+                             imageParams.Height * 4);
+
+            return new N64ImageParser().Parse(imageParams.ColorFormat,
+                                              imageParams.BitsPerTexel,
+                                              imageData,
+                                              imageParams.Width,
+                                              imageParams.Height,
+                                              new ushort[] { },
+                                              false);
+          });
+
+      lazyTextureDictionary_ =
+          new(textureParams
+                  => {
+                    var imageParams = textureParams.ImageParams;
+                    var texture = this.Model.MaterialManager.CreateTexture(
+                        this.lazyImageDictionary_[imageParams]);
+
+                    var color = this.vertices_.DiffuseColor;
+                    texture.Name = !imageParams.IsInvalid
+                        ? String.Format("0x{0:X8}", textureParams.SegmentedAddress)
+                        : $"rgb({color.R}, {color.G}, {color.B})";
+
+                    texture.WrapModeU = textureParams.WrapModeS.AsFinWrapMode();
+                    texture.WrapModeV = textureParams.WrapModeT.AsFinWrapMode();
+                    texture.UvType = textureParams.UvType;
+                    return texture;
+                  });
+
+      lazyMaterialDictionary_ =
+          new(materialParams
+                  => {
+                    var texture0 =
+                        this.lazyTextureDictionary_[materialParams.TextureParams0];
+                    var texture1 =
+                        this.lazyTextureDictionary_[materialParams.TextureParams1];
+
+                    var finMaterial = this.Model.MaterialManager
+                                          .AddFixedFunctionMaterial();
+
+                    finMaterial.Name = $"[{texture0.Name}]/[{texture1.Name}]";
+                    finMaterial.CullingMode = materialParams.CullingMode;
+
+                    finMaterial.SetTextureSource(0, texture0);
+                    finMaterial.SetTextureSource(1, texture1);
+
+                    var equations = finMaterial.Equations;
+                    var color0 = equations.CreateColorConstant(0);
+                    var color1 = equations.CreateColorConstant(1);
+                    var scalar1 = equations.CreateScalarConstant(1);
+                    var scalar0 = equations.CreateScalarConstant(0);
+
+                    var colorFixedFunctionOps =
+                        new ColorFixedFunctionOps(equations);
+                    var scalarFixedFunctionOps =
+                        new ScalarFixedFunctionOps(equations);
+
+                    var shadeColor = equations.CreateColorInput(
+                        FixedFunctionSource.VERTEX_COLOR_0,
+                        color0);
+                    var shadeAlpha =
+                        equations.CreateScalarInput(
+                            FixedFunctionSource.VERTEX_ALPHA_0,
+                            scalar1);
+
+                    var textureColor0 = equations.CreateColorInput(
+                        FixedFunctionSource.TEXTURE_COLOR_0,
+                        color0);
+                    var textureAlpha0 = equations.CreateScalarInput(
+                        FixedFunctionSource.TEXTURE_ALPHA_0,
+                        scalar1);
+                    var textureColor1 = equations.CreateColorInput(
+                        FixedFunctionSource.TEXTURE_COLOR_1,
+                        color0);
+                    var textureAlpha1 = equations.CreateScalarInput(
+                        FixedFunctionSource.TEXTURE_ALPHA_1,
+                        scalar1);
+
+                    var rsp = this.n64Hardware_.Rsp;
+                    var environmentColor = equations.CreateColorConstant(
+                        rsp.EnvironmentColor.R / 255.0,
+                        rsp.EnvironmentColor.G / 255.0,
+                        rsp.EnvironmentColor.B / 255.0);
+                    var environmentAlpha = equations.CreateScalarConstant(
+                        rsp.EnvironmentColor.A / 255.0);
+
+                    IColorValue combinedColor = color0;
+                    IScalarValue combinedAlpha = scalar0;
+
+                    Func<GenericColorMux, IColorValue> getColorValue =
+                        (colorMux) => colorMux switch {
+                          GenericColorMux.G_CCMUX_COMBINED => combinedColor,
+                          GenericColorMux.G_CCMUX_TEXEL0 => textureColor0,
+                          GenericColorMux.G_CCMUX_TEXEL1 => textureColor1,
+                          GenericColorMux.G_CCMUX_PRIMITIVE => color1,
+                          GenericColorMux.G_CCMUX_SHADE => shadeColor,
+                          GenericColorMux.G_CCMUX_ENVIRONMENT => environmentColor,
+                          GenericColorMux.G_CCMUX_1 => color1,
+                          GenericColorMux.G_CCMUX_0 => color0,
+                          GenericColorMux.G_CCMUX_NOISE => color1,
+                          GenericColorMux.G_CCMUX_CENTER => color1,
+                          GenericColorMux.G_CCMUX_K4 => color1,
+                          GenericColorMux.G_CCMUX_COMBINED_ALPHA =>
+                          equations.CreateColor(combinedAlpha),
+                          GenericColorMux.G_CCMUX_TEXEL0_ALPHA =>
+                          equations.CreateColor(textureAlpha0),
+                          GenericColorMux.G_CCMUX_TEXEL1_ALPHA =>
+                          equations.CreateColor(textureAlpha1),
+                          GenericColorMux.G_CCMUX_PRIMITIVE_ALPHA => color1,
+                          GenericColorMux.G_CCMUX_SHADE_ALPHA =>
+                          equations.CreateColor(shadeAlpha),
+                          GenericColorMux.G_CCMUX_ENV_ALPHA =>
+                          equations.CreateColor(environmentAlpha),
+                          GenericColorMux.G_CCMUX_PRIM_LOD_FRAC => color1,
+                          GenericColorMux.G_CCMUX_SCALE => color1,
+                          GenericColorMux.G_CCMUX_K5 => color1,
+                          _ => throw new ArgumentOutOfRangeException(
+                          nameof(colorMux),
+                          colorMux,
+                          null)
+                        };
+
+                    Func<GenericAlphaMux, IScalarValue> getAlphaValue =
+                        (alphaMux) => alphaMux switch {
+                          GenericAlphaMux.G_ACMUX_COMBINED => combinedAlpha,
+                          GenericAlphaMux.G_ACMUX_TEXEL0 => textureAlpha0,
+                          GenericAlphaMux.G_ACMUX_TEXEL1 => textureAlpha1,
+                          GenericAlphaMux.G_ACMUX_PRIMITIVE => scalar1,
+                          GenericAlphaMux.G_ACMUX_SHADE => shadeAlpha,
+                          GenericAlphaMux.G_ACMUX_ENVIRONMENT => environmentAlpha,
+                          GenericAlphaMux.G_ACMUX_1 => scalar1,
+                          GenericAlphaMux.G_ACMUX_0 => scalar0,
+                          GenericAlphaMux.G_ACMUX_PRIM_LOD_FRAC => scalar1,
+                          GenericAlphaMux.G_ACMUX_LOD_FRACTION => scalar1,
+                          _ => throw new ArgumentOutOfRangeException(
+                          nameof(alphaMux),
+                          alphaMux,
+                          null)
+                        };
+
+                    foreach (var combinerCycleParams in new[] {
+                             materialParams.CombinerCycleParams0,
+                             materialParams.CombinerCycleParams1
+                         }) {
+                      var cA = getColorValue(combinerCycleParams.ColorMuxA);
+                      var cB = getColorValue(combinerCycleParams.ColorMuxB);
+                      var cC = getColorValue(combinerCycleParams.ColorMuxC);
+                      var cD = getColorValue(combinerCycleParams.ColorMuxD);
+
+                      combinedColor = colorFixedFunctionOps.Add(
+                          colorFixedFunctionOps.Multiply(
+                              colorFixedFunctionOps.Subtract(cA, cB),
+                              cC),
+                          cD) ?? colorFixedFunctionOps.Zero;
+
+                      var aA = getAlphaValue(combinerCycleParams.AlphaMuxA);
+                      var aB = getAlphaValue(combinerCycleParams.AlphaMuxB);
+                      var aC = getAlphaValue(combinerCycleParams.AlphaMuxC);
+                      var aD = getAlphaValue(combinerCycleParams.AlphaMuxD);
+
+                      combinedAlpha = scalarFixedFunctionOps.Add(
+                          scalarFixedFunctionOps.Multiply(
+                              scalarFixedFunctionOps.Subtract(aA, aB),
+                              aC),
+                          aD) ?? scalarFixedFunctionOps.Zero;
+                    }
+
+                    equations.CreateColorOutput(FixedFunctionSource.OUTPUT_COLOR,
+                                                combinedColor);
+                    equations.CreateScalarOutput(FixedFunctionSource.OUTPUT_ALPHA,
+                                                 combinedAlpha);
+
+                    if (finMaterial.Textures.Any(
+                            texture
+                                => ImageUtil.GetTransparencyType(texture.Image) ==
+                                   ImageTransparencyType.TRANSPARENT)) {
+                      finMaterial.SetAlphaCompare(AlphaOp.Or,
+                                                  AlphaCompareType.Always,
+                                                  .5f,
+                                                  AlphaCompareType.Always,
+                                                  0);
+                    } else {
+                      finMaterial.SetAlphaCompare(AlphaOp.Or,
+                                                  AlphaCompareType.Greater,
+                                                  .5f,
+                                                  AlphaCompareType.Never,
+                                                  0);
+                    }
+
+                    return finMaterial;
+                  });
     }
 
     public IModel Model { get; } = new ModelImpl();
@@ -43,14 +257,21 @@ namespace f3dzex2.model {
             .Select(primitive => primitive.Vertices.Count / 3)
             .Sum();
 
-    public void AddDl(IDisplayList dl, IN64Memory n64Memory) {
+    public void AddDl(IDisplayList dl) {
+      if (dl.OpcodeCommands.Any(command => command is LoadBlockOpcodeCommand
+                                    or SetTileOpcodeCommand
+                                    or SetTileSizeOpcodeCommand
+                                    or SetTimgOpcodeCommand)) {
+        ;
+      }
+
       foreach (var opcodeCommand in dl.OpcodeCommands) {
         switch (opcodeCommand) {
           case NoopOpcodeCommand _:
             break;
           case DlOpcodeCommand dlOpcodeCommand: {
             foreach (var childDl in dlOpcodeCommand.PossibleBranches) {
-              AddDl(childDl, n64Memory);
+              AddDl(childDl);
             }
 
             if (!dlOpcodeCommand.PushCurrentDlToStack) {
@@ -138,24 +359,23 @@ namespace f3dzex2.model {
             break;
           }
           case SetCombineOpcodeCommand setCombineOpcodeCommand: {
-            this.n64Hardware_.Rsp.CombinerCycleParams0 =
+            this.n64Hardware_.Rdp.CombinerCycleParams0 =
                 setCombineOpcodeCommand.CombinerCycleParams0;
-            this.n64Hardware_.Rsp.CombinerCycleParams1 =
+            this.n64Hardware_.Rdp.CombinerCycleParams1 =
                 setCombineOpcodeCommand.CombinerCycleParams1;
             break;
           }
           case VtxOpcodeCommand vtxOpcodeCommand: {
-            this.n64Hardware_.Rdp.F3dVertices.LoadVertices(
+            this.vertices_.LoadVertices(
                 vtxOpcodeCommand.Vertices,
                 vtxOpcodeCommand.IndexToBeginStoringVertices);
             break;
           }
           case Tri1OpcodeCommand tri1OpcodeCommand: {
-            var material =
-                this.n64Hardware_.Rdp.Tmem.GetOrCreateMaterial();
+            var material = this.GetOrCreateMaterial_();
             var vertices =
                 tri1OpcodeCommand.VertexIndicesInOrder.Select(
-                    this.n64Hardware_.Rdp.F3dVertices.GetOrCreateVertexAtIndex);
+                    this.vertices_.GetOrCreateVertexAtIndex);
             this.currentMesh_.AddTriangles(vertices.ToArray())
                 .SetMaterial(material)
                 .SetVertexOrder(VertexOrder.NORMAL);
@@ -176,7 +396,7 @@ namespace f3dzex2.model {
               // https://hack64.net/wiki/doku.php?id=super_mario_64:fast3d_display_list_commands
               case DmemAddress.G_MV_L0: {
                 using var er =
-                    n64Memory.OpenAtSegmentedAddress(
+                    this.n64Hardware_.Memory.OpenAtSegmentedAddress(
                         moveMemOpcodeCommand.SegmentedAddress);
                 var r = er.ReadByte();
                 var g = er.ReadByte();
@@ -184,10 +404,7 @@ namespace f3dzex2.model {
 
                 // TODO: Support normalized light direction
 
-                var jankTmem = this.n64Hardware_.Rdp.JankTmem;
-                if (jankTmem != null) {
-                  jankTmem.DiffuseColor = Color.FromArgb(r, g, b);
-                }
+                this.vertices_.DiffuseColor = Color.FromArgb(r, g, b);
 
                 break;
               }
@@ -203,6 +420,16 @@ namespace f3dzex2.model {
             throw new ArgumentOutOfRangeException(nameof(opcodeCommand));
         }
       }
+    }
+
+    private IMaterial GetOrCreateMaterial_() {
+      var newMaterialParams = this.n64Hardware_.Rdp.Tmem.GetMaterialParams();
+      if (!cachedMaterialParams_.Equals(newMaterialParams)) {
+        this.cachedMaterialParams_ = newMaterialParams;
+        this.cachedMaterial_ = this.lazyMaterialDictionary_[newMaterialParams];
+      }
+
+      return this.cachedMaterial_;
     }
   }
 }

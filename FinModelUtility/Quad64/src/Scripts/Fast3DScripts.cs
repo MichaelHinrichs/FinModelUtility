@@ -131,7 +131,7 @@ namespace Quad64.src.Scripts {
               return;
             break;
           case CMD.F3D_DL:
-            F3D_DL(n64Memory, mdl, cmd, current_depth);
+            F3D_DL(mdl, cmd, current_depth);
             if (cmd[1] == 1)
               end = true;
             break;
@@ -261,12 +261,11 @@ namespace Quad64.src.Scripts {
     }
 
     private static void F3D_DL(
-        IReadOnlySm64Memory sm64Memory,
         Model3DLods mdl,
         byte[] cmd,
         int current_depth) {
       var address = bytesToInt(cmd, 4, 4);
-      mdl.AddDl(sm64Memory, address, current_depth);
+      mdl.AddDl(address, current_depth);
     }
 
     private static Vector4 getColor(uint color) {

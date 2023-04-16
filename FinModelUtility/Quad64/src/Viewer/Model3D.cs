@@ -2,11 +2,10 @@
 
 using System.Numerics;
 
+using f3dzex2.image;
 using f3dzex2.model;
 
 using Quad64.memory;
-using f3dzex2.io;
-using System.Net;
 
 using fin.math;
 
@@ -17,12 +16,12 @@ using sm64.scripts.geo;
 
 namespace Quad64 {
   public class Model3DLods {
-    private readonly IN64Memory n64Memory_;
+    private readonly IN64Hardware<ISm64Memory> sm64Hardware_;
     private List<Model3D> lods_ = new();
     private List<DlModelBuilder> lods2_ = new();
 
-    public Model3DLods(IN64Memory n64Memory) {
-      this.n64Memory_ = n64Memory;
+    public Model3DLods(IN64Hardware<ISm64Memory> sm64Hardware) {
+      this.sm64Hardware_ = sm64Hardware;
       this.AddLod(null);
     }
 
@@ -44,21 +43,15 @@ namespace Quad64 {
 
     public void AddLod(GeoScriptNode? node) {
       this.lods_.Add(new(node));
-      this.lods2_.Add(new(this.n64Memory_));
+      this.lods2_.Add(new(this.sm64Hardware_));
     }
 
-    public void AddDl(IReadOnlySm64Memory sm64Memory,
-                      uint address,
+    public void AddDl(uint address,
                       int currentDepth = 0) {
-      GeoUtils.SplitAddress(address,
-                            out var seg,
-                            out var off);
-      Fast3DScripts.parse(sm64Memory, this, seg, off, currentDepth);
-
-      var displayList = new F3dParser().Parse(sm64Memory, address);
+      var displayList = new F3dParser().Parse(this.sm64Hardware_.Memory, address);
       this.Current2.Matrix = this.Current.Node?.GetTotalMatrix() ??
                              FinMatrix4x4.IDENTITY;
-      this.Current2.AddDl(displayList, sm64Memory);
+      this.Current2.AddDl(displayList);
     }
 
     public void BuildBuffers() {

@@ -19,9 +19,6 @@ namespace f3dzex2.image {
     IReadOnlyFinMatrix4x4 Matrix { get; set; }
 
     Color EnvironmentColor { get; set; }
-
-    CombinerCycleParams CombinerCycleParams0 { get; set; }
-    CombinerCycleParams CombinerCycleParams1 { get; set; }
   }
 
   public class Rsp : IRsp {

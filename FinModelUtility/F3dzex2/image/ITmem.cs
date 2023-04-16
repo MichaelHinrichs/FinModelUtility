@@ -50,7 +50,7 @@ namespace f3dzex2.image {
                              ushort width,
                              uint imageSegmentedAddress);
 
-    IMaterial GetOrCreateMaterial();
+    MaterialParams GetMaterialParams();
 
     CullingMode CullingMode { set; }
   }

@@ -4,7 +4,6 @@ using fin.model.impl;
 using fin.schema.vector;
 
 using Quad64.memory;
-using Quad64.Scripts;
 using Quad64.src.LevelInfo;
 using sm64.scripts;
 using sm64.scripts.geo;
@@ -35,11 +34,10 @@ namespace Quad64.src.Scripts {
 
       mdlLods.Current.Node = nodeCurrent;
 
-      Add_(n64Memory, mdlLods, lvl, commandList);
+      Add_(mdlLods, lvl, commandList);
     }
 
     private void Add_(
-        IReadOnlySm64Memory n64Memory,
         Model3DLods mdlLods,
         Level lvl,
         IGeoCommandList commandList) {
@@ -50,7 +48,6 @@ namespace Quad64.src.Scripts {
             this.nodeCurrent.matrix.MultiplyInPlace(
                 CreateTranslationMatrix_(translation));
             AddDisplayList(
-                n64Memory,
                 mdlLods,
                 lvl,
                 geoAnimatedPartCommand.DisplayListSegmentedAddress);
@@ -60,7 +57,7 @@ namespace Quad64.src.Scripts {
           case GeoBranchAndStoreCommand geoBranchAndStoreCommand: {
             if (geoBranchAndStoreCommand.GeoCommandList != null) {
               var currentNode = nodeCurrent;
-              Add_(n64Memory, mdlLods, lvl,
+              Add_(mdlLods, lvl,
                    geoBranchAndStoreCommand.GeoCommandList);
               mdlLods.Current.Node = currentNode;
             }
@@ -69,7 +66,7 @@ namespace Quad64.src.Scripts {
           case GeoBranchCommand geoBranchCommand: {
             if (geoBranchCommand.GeoCommandList != null) {
               var currentNode = nodeCurrent;
-              Add_(n64Memory, mdlLods, lvl, geoBranchCommand.GeoCommandList);
+              Add_(mdlLods, lvl, geoBranchCommand.GeoCommandList);
               if (geoBranchCommand.StoreReturnAddress) {
                 mdlLods.Current.Node = currentNode;
               }
@@ -85,7 +82,6 @@ namespace Quad64.src.Scripts {
           }
           case GeoDisplayListCommand geoDisplayListCommand: {
             AddDisplayList(
-                n64Memory,
                 mdlLods,
                 lvl,
                 geoDisplayListCommand.DisplayListSegmentedAddress);
@@ -107,7 +103,6 @@ namespace Quad64.src.Scripts {
             this.nodeCurrent.matrix.MultiplyInPlace(
                 CreateRotationMatrix_(rotation));
             AddDisplayList(
-                n64Memory,
                 mdlLods,
                 lvl,
                 geoRotationCommand.DisplayListSegmentedAddress);
@@ -118,7 +113,6 @@ namespace Quad64.src.Scripts {
             this.nodeCurrent.matrix.MultiplyInPlace(
                 MatrixTransformUtil.FromScale(new Scale (scale)));
             AddDisplayList(
-                n64Memory,
                 mdlLods,
                 lvl,
                 geoScaleCommand.DisplayListSegmentedAddress);
@@ -136,7 +130,6 @@ namespace Quad64.src.Scripts {
             this.nodeCurrent.matrix.MultiplyInPlace(
                 CreateTranslationAndRotationMatrix_(translation, rotation));
             AddDisplayList(
-                n64Memory,
                 mdlLods,
                 lvl,
                 geoTranslateAndRotateCommand.DisplayListSegmentedAddress);
@@ -147,7 +140,6 @@ namespace Quad64.src.Scripts {
             this.nodeCurrent.matrix.MultiplyInPlace(
                 CreateTranslationMatrix_(translation));
             AddDisplayList(
-                n64Memory,
                 mdlLods,
                 lvl,
                 geoTranslationCommand.DisplayListSegmentedAddress);
@@ -190,7 +182,6 @@ namespace Quad64.src.Scripts {
                  new ModelImpl.RotationImpl().SetDegrees(0, rotation.Y, 0)));
 
     public void AddDisplayList(
-        IReadOnlySm64Memory n64Memory,
         Model3DLods mdlLods,
         Level lvl,
         uint? displayListAddress) {
@@ -199,7 +190,7 @@ namespace Quad64.src.Scripts {
       // Don't bother processing duplicate display lists.
       if ((displayListAddress ?? 0) != 0) {
         if (!mdl.hasGeoDisplayList(displayListAddress!.Value)) {
-          mdlLods.AddDl(n64Memory, displayListAddress.Value);
+          mdlLods.AddDl(displayListAddress.Value);
         }
         lvl.temp_bgInfo.usesFog = mdl.builder.UsesFog;
         lvl.temp_bgInfo.fogColor = mdl.builder.FogColor;

@@ -1,4 +1,5 @@
-﻿using f3dzex2.model;
+﻿using f3dzex2.combiner;
+using f3dzex2.model;
 
 namespace f3dzex2.image {
   /// <summary>
@@ -6,13 +7,15 @@ namespace f3dzex2.image {
   /// </summary>
   public interface IRdp {
     ITmem Tmem { get; }
-    JankTmem? JankTmem => this.Tmem as JankTmem;
 
-    IF3dVertices F3dVertices { get; }
+    CombinerCycleParams CombinerCycleParams0 { get; set; }
+    CombinerCycleParams CombinerCycleParams1 { get; set; }
   }
 
   public class Rdp : IRdp {
     public ITmem Tmem { get; set; }
-    public IF3dVertices F3dVertices { get; set; }
+
+    public CombinerCycleParams CombinerCycleParams0 { get; set; }
+    public CombinerCycleParams CombinerCycleParams1 { get; set; }
   }
 }
