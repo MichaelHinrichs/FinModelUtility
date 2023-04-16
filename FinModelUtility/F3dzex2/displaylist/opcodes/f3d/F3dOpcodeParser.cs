@@ -344,27 +344,29 @@ namespace f3dzex2.displaylist.opcodes.f3d {
     ///   http://ultra64.ca/files/documentation/online-manuals/man/pro-man/pro12/index12.6.html#:~:text=Color%20Combiner%20(CC)%20can%20perform,in%20one%2Dcycle%20mode).
     /// </summary>
     private GenericColorMux GetColorMuxA_(uint value) => value switch {
-        0 => GenericColorMux.G_CCMUX_COMBINED,
-        1 => GenericColorMux.G_CCMUX_TEXEL0,
-        2 => GenericColorMux.G_CCMUX_TEXEL1,
-        3 => GenericColorMux.G_CCMUX_PRIMITIVE,
-        4 => GenericColorMux.G_CCMUX_SHADE,
-        5 => GenericColorMux.G_CCMUX_ENVIRONMENT,
-        6 => GenericColorMux.G_CCMUX_1,
-        7 => GenericColorMux.G_CCMUX_NOISE,
-        _ => GenericColorMux.G_CCMUX_0,
+        0              => GenericColorMux.G_CCMUX_COMBINED,
+        1              => GenericColorMux.G_CCMUX_TEXEL0,
+        2              => GenericColorMux.G_CCMUX_TEXEL1,
+        3              => GenericColorMux.G_CCMUX_PRIMITIVE,
+        4              => GenericColorMux.G_CCMUX_SHADE,
+        5              => GenericColorMux.G_CCMUX_ENVIRONMENT,
+        6              => GenericColorMux.G_CCMUX_1,
+        7              => GenericColorMux.G_CCMUX_NOISE,
+        >= 8 and <= 15 => GenericColorMux.G_CCMUX_0,
+        _              => throw new ArgumentOutOfRangeException(nameof(value), value, null)
     };
 
     private GenericColorMux GetColorMuxB_(uint value) => value switch {
-        0 => GenericColorMux.G_CCMUX_COMBINED,
-        1 => GenericColorMux.G_CCMUX_TEXEL0,
-        2 => GenericColorMux.G_CCMUX_TEXEL1,
-        3 => GenericColorMux.G_CCMUX_PRIMITIVE,
-        4 => GenericColorMux.G_CCMUX_SHADE,
-        5 => GenericColorMux.G_CCMUX_ENVIRONMENT,
-        6 => GenericColorMux.G_CCMUX_CENTER,
-        7 => GenericColorMux.G_CCMUX_K4,
-        _ => GenericColorMux.G_CCMUX_0,
+        0              => GenericColorMux.G_CCMUX_COMBINED,
+        1              => GenericColorMux.G_CCMUX_TEXEL0,
+        2              => GenericColorMux.G_CCMUX_TEXEL1,
+        3              => GenericColorMux.G_CCMUX_PRIMITIVE,
+        4              => GenericColorMux.G_CCMUX_SHADE,
+        5              => GenericColorMux.G_CCMUX_ENVIRONMENT,
+        6              => GenericColorMux.G_CCMUX_CENTER,
+        7              => GenericColorMux.G_CCMUX_K4,
+        >= 8 and <= 15 => GenericColorMux.G_CCMUX_0,
+        _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
     };
 
     private GenericColorMux GetColorMuxC_(uint value) => value switch {
@@ -384,18 +386,20 @@ namespace f3dzex2.displaylist.opcodes.f3d {
         13 => GenericColorMux.G_CCMUX_LOD_FRAC,
         14 => GenericColorMux.G_CCMUX_PRIM_LOD_FRAC,
         15 => GenericColorMux.G_CCMUX_K5,
-        _  => GenericColorMux.G_CCMUX_0,
+        >= 16 and <= 31 => GenericColorMux.G_CCMUX_0,
+        _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
     };
 
     private GenericColorMux GetColorMuxD_(uint value) => value switch {
-        0  => GenericColorMux.G_CCMUX_COMBINED,
-        1  => GenericColorMux.G_CCMUX_TEXEL0,
-        2  => GenericColorMux.G_CCMUX_TEXEL1,
-        3  => GenericColorMux.G_CCMUX_PRIMITIVE,
-        4  => GenericColorMux.G_CCMUX_SHADE,
-        5  => GenericColorMux.G_CCMUX_ENVIRONMENT,
+        0 => GenericColorMux.G_CCMUX_COMBINED,
+        1 => GenericColorMux.G_CCMUX_TEXEL0,
+        2 => GenericColorMux.G_CCMUX_TEXEL1,
+        3 => GenericColorMux.G_CCMUX_PRIMITIVE,
+        4 => GenericColorMux.G_CCMUX_SHADE,
+        5 => GenericColorMux.G_CCMUX_ENVIRONMENT,
         6 => GenericColorMux.G_CCMUX_1,
-        _  => GenericColorMux.G_CCMUX_0,
+        7 => GenericColorMux.G_CCMUX_0,
+        _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
     };
 
     private GenericAlphaMux GetAlphaMuxABD_(uint value) => value switch {
@@ -406,7 +410,8 @@ namespace f3dzex2.displaylist.opcodes.f3d {
       4 => GenericAlphaMux.G_ACMUX_SHADE,
       5 => GenericAlphaMux.G_ACMUX_ENVIRONMENT,
       6 => GenericAlphaMux.G_ACMUX_1,
-      _ => GenericAlphaMux.G_ACMUX_0,
+      7 => GenericAlphaMux.G_ACMUX_0,
+      _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
     };
 
     private GenericAlphaMux GetAlphaMuxC_(uint value) => value switch {
@@ -417,7 +422,8 @@ namespace f3dzex2.displaylist.opcodes.f3d {
         4 => GenericAlphaMux.G_ACMUX_SHADE,
         5 => GenericAlphaMux.G_ACMUX_ENVIRONMENT,
         6 => GenericAlphaMux.G_ACMUX_PRIM_LOD_FRAC,
-        _ => GenericAlphaMux.G_ACMUX_0,
+        7 => GenericAlphaMux.G_ACMUX_0,
+        _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
     };
   }
 }
