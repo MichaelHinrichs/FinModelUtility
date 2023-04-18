@@ -12,16 +12,18 @@ using mod.schema.collision;
 using schema.binary;
 
 namespace mod.schema {
-  public class DateTime {
-    public ushort year = 2021;
-    public byte month = 9;
-    public byte day = 18;
+  [BinarySchema]
+  public partial class DateTime : IBinaryConvertible {
+    public ushort year { get; set; } = 2021;
+    public byte month { get; set; } = 9;
+    public byte day { get; set; } = 18;
   }
 
-  public class ModHeader {
+  [BinarySchema]
+  public partial class ModHeader : IBinaryConvertible {
     public readonly DateTime dateTime = new();
 
-    public uint flags = 0;
+    public uint flags { get; set; }
   }
 
   public enum ModFlags {
@@ -90,10 +92,7 @@ namespace mod.schema {
         switch (chunkId) {
           case ChunkId.HEADER:
             reader.Align(0x20);
-            this.header.dateTime.year = reader.ReadUInt16();
-            this.header.dateTime.month = reader.ReadByte();
-            this.header.dateTime.day = reader.ReadByte();
-            this.header.flags = reader.ReadUInt32();
+            this.header.Read(reader);
             reader.Align(0x20);
             break;
           case ChunkId.VERTICES:

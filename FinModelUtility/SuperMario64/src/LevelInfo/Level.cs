@@ -177,36 +177,6 @@ namespace SuperMario64.LevelInfo {
       LevelObjectCombos.Sort((x, y) => string.Compare(x.Name, y.Name));
     }
 
-    public void printLevelObjectCombos() {
-      for (int i = 0; i < LevelObjectCombos.Count; i++)
-        Console.WriteLine(LevelObjectCombos[i].ToString());
-    }
-
-    public bool hasArea(ushort areaID) {
-      foreach (Area a in Areas)
-        if (a.AreaID == areaID)
-          return true;
-      return false;
-    }
-
-    public HashSet<ushort> getModelIDsUsedByObjects() {
-      HashSet<ushort> modelIDs = new HashSet<ushort>();
-
-      foreach (Area area in Areas) {
-        foreach (Object3D obj in area.Objects)
-          if (obj.ModelID > 0)
-            modelIDs.Add(obj.ModelID);
-        foreach (Object3D obj in area.MacroObjects)
-          if (obj.ModelID > 0)
-            modelIDs.Add(obj.ModelID);
-        foreach (Object3D obj in area.SpecialObjects)
-          if (obj.ModelID > 0)
-            modelIDs.Add(obj.ModelID);
-      }
-
-      return modelIDs;
-    }
-
     public Area getCurrentArea() {
       foreach (Area a in Areas)
         if (a.AreaID == currentAreaID)

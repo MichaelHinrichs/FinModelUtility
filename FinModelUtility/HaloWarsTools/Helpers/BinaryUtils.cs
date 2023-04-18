@@ -158,10 +158,8 @@ namespace HaloWarsTools {
          (endianness == BinaryEndianness.BigEndian &&
           !BitConverter.IsLittleEndian);
 
-    public static float ReadHalfLittleEndian(byte[] buffer, int offset) {
-      ushort hf = ReadUInt16LittleEndian(buffer, offset);
-      return SystemHalf.Half.ToHalf(hf);
-    }
+    public static float ReadHalfLittleEndian(byte[] buffer, int offset)
+      => (float) BitConverter.ToHalf(buffer, offset);
   }
 
   public enum BinaryEndianness {
