@@ -39,6 +39,10 @@ namespace fin.language.equations.fixedFunction {
     }
 
     public IScalarInput<TIdentifier> CreateOrGetScalarInput(
+        TIdentifier identifier)
+      => CreateOrGetScalarInput(identifier, this.CreateScalarConstant(0));
+
+    public IScalarInput<TIdentifier> CreateOrGetScalarInput(
         TIdentifier identifier,
         IScalarConstant defaultValue) {
       Asserts.False(this.scalarOutputs_.ContainsKey(identifier));

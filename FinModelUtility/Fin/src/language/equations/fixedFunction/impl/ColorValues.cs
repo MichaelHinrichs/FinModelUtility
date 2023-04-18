@@ -85,6 +85,10 @@ namespace fin.language.equations.fixedFunction {
     }
 
     public IColorInput<TIdentifier> CreateOrGetColorInput(
+        TIdentifier identifier)
+      => CreateOrGetColorInput(identifier, this.CreateColorConstant(0));
+
+    public IColorInput<TIdentifier> CreateOrGetColorInput(
         TIdentifier identifier,
         IColorConstant defaultValue) {
       Asserts.False(this.colorOutputs_.ContainsKey(identifier));

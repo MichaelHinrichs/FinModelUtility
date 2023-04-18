@@ -114,27 +114,6 @@ namespace f3dzex2.model {
                     var scalarFixedFunctionOps =
                         new ScalarFixedFunctionOps(equations);
 
-                    var shadeColor = equations.CreateColorInput(
-                        FixedFunctionSource.VERTEX_COLOR_0,
-                        color0);
-                    var shadeAlpha =
-                        equations.CreateScalarInput(
-                            FixedFunctionSource.VERTEX_ALPHA_0,
-                            scalar1);
-
-                    var textureColor0 = equations.CreateColorInput(
-                        FixedFunctionSource.TEXTURE_COLOR_0,
-                        color0);
-                    var textureAlpha0 = equations.CreateScalarInput(
-                        FixedFunctionSource.TEXTURE_ALPHA_0,
-                        scalar1);
-                    var textureColor1 = equations.CreateColorInput(
-                        FixedFunctionSource.TEXTURE_COLOR_1,
-                        color0);
-                    var textureAlpha1 = equations.CreateScalarInput(
-                        FixedFunctionSource.TEXTURE_ALPHA_1,
-                        scalar1);
-
                     var rsp = this.n64Hardware_.Rsp;
                     var environmentColor = equations.CreateColorConstant(
                         rsp.EnvironmentColor.R / 255.0,
@@ -149,10 +128,16 @@ namespace f3dzex2.model {
                     Func<GenericColorMux, IColorValue> getColorValue =
                         (colorMux) => colorMux switch {
                           GenericColorMux.G_CCMUX_COMBINED => combinedColor,
-                          GenericColorMux.G_CCMUX_TEXEL0 => textureColor0,
-                          GenericColorMux.G_CCMUX_TEXEL1 => textureColor1,
+                          GenericColorMux.G_CCMUX_TEXEL0
+                              => equations.CreateOrGetColorInput(
+                                  FixedFunctionSource.TEXTURE_COLOR_0),
+                          GenericColorMux.G_CCMUX_TEXEL1
+                              => equations.CreateOrGetColorInput(
+                                  FixedFunctionSource.TEXTURE_COLOR_1),
                           GenericColorMux.G_CCMUX_PRIMITIVE => color1,
-                          GenericColorMux.G_CCMUX_SHADE => shadeColor,
+                          GenericColorMux.G_CCMUX_SHADE
+                              => equations.CreateOrGetColorInput(
+                                  FixedFunctionSource.VERTEX_COLOR_0),
                           GenericColorMux.G_CCMUX_ENVIRONMENT => environmentColor,
                           GenericColorMux.G_CCMUX_1 => color1,
                           GenericColorMux.G_CCMUX_0 => color0,
@@ -161,13 +146,16 @@ namespace f3dzex2.model {
                           GenericColorMux.G_CCMUX_K4 => color1,
                           GenericColorMux.G_CCMUX_COMBINED_ALPHA =>
                           equations.CreateColor(combinedAlpha),
-                          GenericColorMux.G_CCMUX_TEXEL0_ALPHA =>
-                          equations.CreateColor(textureAlpha0),
-                          GenericColorMux.G_CCMUX_TEXEL1_ALPHA =>
-                          equations.CreateColor(textureAlpha1),
+                          GenericColorMux.G_CCMUX_TEXEL0_ALPHA
+                              => equations.CreateOrGetColorInput(
+                                  FixedFunctionSource.TEXTURE_ALPHA_0),
+                          GenericColorMux.G_CCMUX_TEXEL1_ALPHA
+                              => equations.CreateOrGetColorInput(
+                              FixedFunctionSource.TEXTURE_ALPHA_1),
                           GenericColorMux.G_CCMUX_PRIMITIVE_ALPHA => color1,
-                          GenericColorMux.G_CCMUX_SHADE_ALPHA =>
-                          equations.CreateColor(shadeAlpha),
+                          GenericColorMux.G_CCMUX_SHADE_ALPHA
+                              => equations.CreateOrGetColorInput(
+                                  FixedFunctionSource.VERTEX_ALPHA_0),
                           GenericColorMux.G_CCMUX_ENV_ALPHA =>
                           equations.CreateColor(environmentAlpha),
                           GenericColorMux.G_CCMUX_PRIM_LOD_FRAC => color1,
@@ -182,10 +170,16 @@ namespace f3dzex2.model {
                     Func<GenericAlphaMux, IScalarValue> getAlphaValue =
                         (alphaMux) => alphaMux switch {
                           GenericAlphaMux.G_ACMUX_COMBINED => combinedAlpha,
-                          GenericAlphaMux.G_ACMUX_TEXEL0 => textureAlpha0,
-                          GenericAlphaMux.G_ACMUX_TEXEL1 => textureAlpha1,
+                          GenericAlphaMux.G_ACMUX_TEXEL0 =>                      
+                              equations.CreateOrGetScalarInput(
+                        FixedFunctionSource.TEXTURE_ALPHA_0),
+                          GenericAlphaMux.G_ACMUX_TEXEL1 =>
+                              equations.CreateOrGetScalarInput(
+                                  FixedFunctionSource.TEXTURE_ALPHA_1),
                           GenericAlphaMux.G_ACMUX_PRIMITIVE => scalar1,
-                          GenericAlphaMux.G_ACMUX_SHADE => shadeAlpha,
+                          GenericAlphaMux.G_ACMUX_SHADE
+                              => equations.CreateOrGetScalarInput(
+                                  FixedFunctionSource.VERTEX_ALPHA_0),
                           GenericAlphaMux.G_ACMUX_ENVIRONMENT => environmentAlpha,
                           GenericAlphaMux.G_ACMUX_1 => scalar1,
                           GenericAlphaMux.G_ACMUX_0 => scalar0,

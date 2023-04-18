@@ -11,14 +11,10 @@ struct Light {
 
 uniform Light lights[8];
 
-in vec2 normalUv;
 in vec3 vertexNormal;
 in vec4 vertexColor0;
 in vec4 vertexColor1;
 in vec2 uv0;
-in vec2 uv1;
-in vec2 uv2;
-in vec2 uv3;
 
 out vec4 fragColor;
 

@@ -108,14 +108,7 @@ namespace mod.schema {
           case ChunkId.VERTEX_COLOURS:
             Mod.ReadGenericChunk_(reader, this.vcolours);
             break;
-          case ChunkId.TEX_COORD_0:
-          case ChunkId.TEX_COORD_1:
-          case ChunkId.TEX_COORD_2:
-          case ChunkId.TEX_COORD_3:
-          case ChunkId.TEX_COORD_4:
-          case ChunkId.TEX_COORD_5:
-          case ChunkId.TEX_COORD_6:
-          case ChunkId.TEX_COORD_7:
+          case >= ChunkId.TEX_COORD_0 and <= ChunkId.TEX_COORD_7:
             Mod.ReadGenericChunk_(reader, this.texcoords[(uint) chunkId - 0x18]);
             break;
           case ChunkId.TEXTURES:

@@ -66,13 +66,26 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
 ");
       }
 
-      os.WriteLine("in vec2 normalUv;");
-      os.WriteLine("in vec3 vertexNormal;");
+      if (material.TextureSources.Any(
+              texture => texture?.UvType is UvType.SPHERICAL
+                                            or UvType.LINEAR)) {
+        os.WriteLine("in vec2 normalUv;");
+      }
+      if (dependsOnAnIndividualLight) {
+        os.WriteLine("in vec3 vertexNormal;");
+      }
       for (var i = 0; i < MaterialConstants.MAX_COLORS; ++i) {
-        os.WriteLine($"in vec4 vertexColor{i};");
+        if (new[] {
+                FixedFunctionSource.VERTEX_COLOR_0 + i,
+                FixedFunctionSource.VERTEX_ALPHA_0 + i
+            }.Any(equations.HasInput)) {
+          os.WriteLine($"in vec4 vertexColor{i};");
+        }
       }
       for (var i = 0; i < MaterialConstants.MAX_UVS; ++i) {
-        os.WriteLine($"in vec2 uv{i};");
+        if (material.TextureSources.Any(texture => texture?.UvIndex == i)) {
+          os.WriteLine($"in vec2 uv{i};");
+        }
       }
       os.WriteLine();
       os.WriteLine("out vec4 fragColor;");
