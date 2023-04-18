@@ -71,7 +71,7 @@
     <ProjectReference Include="..\Level5\Level5.csproj" />
     <ProjectReference Include="..\Mod\Mod.csproj" />
     <ProjectReference Include="..\Modl\Modl.csproj" />
-    <ProjectReference Include="..\Quad64\Quad64.csproj" />
+    <ProjectReference Include="..\SuperMario64\SuperMario64.csproj" />
     <ProjectReference Include="..\Xmod\Xmod.csproj" />
   </ItemGroup>
 

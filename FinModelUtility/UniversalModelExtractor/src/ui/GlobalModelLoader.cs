@@ -10,7 +10,7 @@ using hw.api;
 using level5.api;
 using mod.cli;
 using modl.api;
-using sm64.api;
+using SuperMario64.api;
 using xmod.api;
 
 
