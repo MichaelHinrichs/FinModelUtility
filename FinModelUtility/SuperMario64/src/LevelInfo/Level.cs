@@ -1,4 +1,6 @@
-﻿using f3dzex2.image;
+﻿using System.Drawing;
+
+using f3dzex2.image;
 
 using SuperMario64.memory;
 using SuperMario64.schema;
