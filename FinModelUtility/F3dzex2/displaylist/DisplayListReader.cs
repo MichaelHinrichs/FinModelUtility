@@ -57,11 +57,15 @@ namespace f3dzex2.displaylist {
           break;
         }
       }
-      return new DisplayList {OpcodeCommands = opcodeCommands.ToArray()};
+      return new DisplayList {
+          OpcodeCommands = opcodeCommands.ToArray(),
+          Type = opcodeParser.Type,
+      };
     }
 
     private class DisplayList : IDisplayList {
-      public IReadOnlyList<IOpcodeCommand> OpcodeCommands { get; set; }
+      public required IReadOnlyList<IOpcodeCommand> OpcodeCommands { get; init; }
+      public required DisplayListType Type { get; init; }
     }
   }
 }

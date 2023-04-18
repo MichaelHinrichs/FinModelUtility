@@ -297,24 +297,37 @@ namespace f3dzex2.model {
           case SetGeometryModeOpcodeCommand setGeometryModeOpcodeCommand: {
             var flagsToEnable = setGeometryModeOpcodeCommand.FlagsToEnable;
             this.n64Hardware_.Rsp.GeometryMode |= flagsToEnable;
-            if (flagsToEnable.CheckFlag(GeometryMode.G_CULL_FRONT_NONEX2) ||
-                flagsToEnable.CheckFlag(GeometryMode.G_CULL_BACK_NONEX2)) {
+            if (dl.Type != DisplayListType.F3DZEX2 && 
+                (flagsToEnable.CheckFlag(GeometryMode.G_CULL_FRONT_NONEX2) ||
+                flagsToEnable.CheckFlag(GeometryMode.G_CULL_BACK_NONEX2))) {
               this.n64Hardware_.Rdp.Tmem.CullingMode =
                   this.n64Hardware_.Rsp.GeometryMode.GetCullingModeNonEx2();
             }
-
+            if (dl.Type == DisplayListType.F3DZEX2 &&
+                (flagsToEnable.CheckFlag(GeometryMode.G_CULL_FRONT_EX2) ||
+                 flagsToEnable.CheckFlag(GeometryMode.G_CULL_BACK_EX2))) {
+              this.n64Hardware_.Rdp.Tmem.CullingMode =
+                  this.n64Hardware_.Rsp.GeometryMode.GetCullingModeEx2();
+            }
             break;
           }
           case ClearGeometryModeOpcodeCommand clearGeometryModeOpcodeCommand: {
-            var flagsToEnable = clearGeometryModeOpcodeCommand.FlagsToDisable;
-            this.n64Hardware_.Rsp.GeometryMode &= ~flagsToEnable;
-            if (flagsToEnable.CheckFlag(GeometryMode.G_CULL_FRONT_NONEX2) ||
-                flagsToEnable.CheckFlag(GeometryMode.G_CULL_BACK_NONEX2)) {
+            var flagsToDisable = clearGeometryModeOpcodeCommand.FlagsToDisable;
+            this.n64Hardware_.Rsp.GeometryMode &= ~flagsToDisable;
+            if (dl.Type != DisplayListType.F3DZEX2 &&
+                (flagsToDisable.CheckFlag(GeometryMode.G_CULL_FRONT_NONEX2) ||
+                 flagsToDisable.CheckFlag(GeometryMode.G_CULL_BACK_NONEX2))) {
               this.n64Hardware_.Rdp.Tmem.CullingMode =
                   this.n64Hardware_.Rsp.GeometryMode.GetCullingModeNonEx2();
             }
+            if (dl.Type == DisplayListType.F3DZEX2 &&
+                (flagsToDisable.CheckFlag(GeometryMode.G_CULL_FRONT_EX2) ||
+                 flagsToDisable.CheckFlag(GeometryMode.G_CULL_BACK_EX2))) {
+              this.n64Hardware_.Rdp.Tmem.CullingMode =
+                  this.n64Hardware_.Rsp.GeometryMode.GetCullingModeEx2();
+            }
 
-            break;
+              break;
           }
           case SetTileOpcodeCommand setTileOpcodeCommand: {
             this.n64Hardware_.Rdp.Tmem.GsDpSetTile(

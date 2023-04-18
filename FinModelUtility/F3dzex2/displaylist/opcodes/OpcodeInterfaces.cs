@@ -10,5 +10,7 @@ namespace f3dzex2.displaylist.opcodes {
     IOpcodeCommand Parse(IN64Memory n64Memory,
                          IDisplayListReader dlr,
                          IEndianBinaryReader er);
+
+    DisplayListType Type { get; }
   }
 }

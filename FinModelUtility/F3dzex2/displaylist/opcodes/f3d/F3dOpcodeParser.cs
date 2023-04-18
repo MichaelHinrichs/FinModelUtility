@@ -21,6 +21,8 @@ namespace f3dzex2.displaylist.opcodes.f3d {
       return opcodeCommand;
     }
 
+    public DisplayListType Type => DisplayListType.FAST3D;
+
     private IOpcodeCommand ParseOpcodeCommand_(IN64Memory n64Memory,
                                                IDisplayListReader dlr,
                                                IEndianBinaryReader er,
