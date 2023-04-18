@@ -3,6 +3,8 @@
 using fin.util.asserts;
 using fin.util.enumerables;
 
+using Quad64.schema;
+
 using sm64.scripts.geo;
 
 namespace Quad64.memory {
@@ -27,7 +29,7 @@ namespace Quad64.memory {
                             out var offset);
       var er = new EndianBinaryReader(
           Asserts.CastNonnull(ROM.Instance.getSegment(segment, this.AreaId)),
-          Endianness.BigEndian);
+          SchemaConstants.SM64_ENDIANNESS);
       er.Position = offset;
       return er;
     }

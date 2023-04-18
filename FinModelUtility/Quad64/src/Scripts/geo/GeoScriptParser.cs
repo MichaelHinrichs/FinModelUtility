@@ -1,4 +1,6 @@
 ﻿using Quad64;
+using Quad64.schema;
+
 using schema.binary.util;
 
 
@@ -41,7 +43,7 @@ namespace sm64.scripts.geo {
       {
         var d = new byte[] {1, 2, 3, 4};
 
-        var r = new EndianBinaryReader(d, GeoUtils.Endianness);
+        var r = new EndianBinaryReader(d, SchemaConstants.SM64_ENDIANNESS);
 
         var adr = r.ReadUInt32();
 
@@ -51,7 +53,7 @@ namespace sm64.scripts.geo {
       }
 
 
-      using var er = new EndianBinaryReader(data, GeoUtils.Endianness);
+      using var er = new EndianBinaryReader(data, SchemaConstants.SM64_ENDIANNESS);
       er.Position = off;
 
       var commands = new GeoCommandList();

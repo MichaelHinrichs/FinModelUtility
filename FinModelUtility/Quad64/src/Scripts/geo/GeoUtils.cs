@@ -1,7 +1,5 @@
 ﻿namespace sm64.scripts.geo {
   public static class GeoUtils {
-    public static Endianness Endianness => Endianness.BigEndian;
-
     public static void SplitAddress(uint address,
                                     out byte segment,
                                     out uint offset) {
