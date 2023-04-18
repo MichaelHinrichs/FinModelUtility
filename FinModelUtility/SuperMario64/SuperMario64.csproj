@@ -59,47 +59,14 @@
     <None Include="data\OtherTextures_NA.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="data\themes\light.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="data\themes\dark.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="images\MoveCamera.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="images\MoveCamera_Y.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="images\MoveObject.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="images\MoveObject_Y.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="images\RotateObject.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="images\RotateObject_Y.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="data\themes\Making Themes.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="icon_KtQ_icon.ico" />
-    <None Include="Resources\icon_Star1_gray.png" />
-    <None Include="Resources\icon_Star1.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\F3dzex2\F3dzex2.csproj" />
