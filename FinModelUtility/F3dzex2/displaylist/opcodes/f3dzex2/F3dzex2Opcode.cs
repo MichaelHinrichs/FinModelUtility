@@ -1,4 +1,4 @@
-﻿namespace f3dzex2.displaylist.opcodes {
+﻿namespace f3dzex2.displaylist.opcodes.f3dzex2 {
   /**
    * https://wiki.cloudmodding.com/oot/F3DZEX2
    */
@@ -45,6 +45,7 @@
     G_RDPHALF_2 = 0xF1,
     G_SETTILESIZE = 0xF2,
     G_LOADBLOCK = 0xF3,
+    G_LOADTILE = 0xF4,
     G_SETTILE = 0xF5,
     G_FILLRECT = 0xF6,
     G_SETFILLCOLOR = 0xF7,
