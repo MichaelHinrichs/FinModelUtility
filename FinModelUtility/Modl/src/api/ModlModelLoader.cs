@@ -16,6 +16,7 @@ using modl.schema.modl;
 using modl.schema.modl.bw1;
 using modl.schema.modl.bw1.node;
 using modl.schema.modl.bw2;
+using modl.schema.res.texr;
 
 
 namespace modl.api {
@@ -182,9 +183,12 @@ namespace modl.api {
             async textureName => {
               var textureFile =
                   modlFile.GetParent()
-                          .GetExistingFile($"{textureName}.png");
+                          .GetExistingFile($"{textureName}.texr");
 
-              var image = await FinImage.FromFileAsync(textureFile);
+              var texr = gameVersion == GameVersion.BW2
+                  ? (ITexr) textureFile.ReadNew<Gtxd>()
+                  : textureFile.ReadNew<Text>();
+              var image = texr.Image;
 
               var finTexture =
                   model.MaterialManager.CreateTexture(image);

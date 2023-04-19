@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+
+using fin.log;
 
 using Microsoft.Toolkit.HighPerformance.Helpers;
 
@@ -47,6 +50,7 @@ namespace fin.io.bundles {
           this.results_[i] = this.gatherers_[i].GatherFileBundles(this.assert_);
         } catch (Exception e) {
           this.results_[i] = Enumerable.Empty<IFileBundle>();
+          Console.Error.WriteLine(e.ToString());
         }
       }
     }

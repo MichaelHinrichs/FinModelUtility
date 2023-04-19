@@ -61,11 +61,10 @@ namespace uni.games.battalion_wars_1 {
           }
         }
 
-        foreach (var texture in bwArchive.Texr.Textures) {
-          using var fw =
-              File.OpenWrite(Path.Join(directory.FullName,
-                                       $"{texture.Name}.png"));
-          texture.Image.ExportToStream(fw, LocalImageFormat.PNG);
+        foreach (var texture in bwArchive.TexrSection.Textures) {
+          FinFileSystem.File.WriteAllBytes(
+              Path.Join(directory.FullName, $"{texture.Name}.texr"),
+              texture.Data);
         }
 
         return true;

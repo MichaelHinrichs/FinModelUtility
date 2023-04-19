@@ -1,164 +1,18 @@
 ﻿using fin.color;
 using fin.data;
 using fin.image;
-using fin.util.asserts;
 using fin.util.color;
 
 using schema.binary;
 
-
 namespace modl.schema.res.texr {
-  public class Texr : IBinaryConvertible {
-    private enum TexrMode {
-      BW1,
-      BW2
-    }
+  public interface ITexr : IBinaryDeserializable {
+    IImage Image { get; }
+  }
 
-    public string FileName { get; private set; }
+  public abstract class BTexr {
 
-    public List<BwTexture> Textures { get; } = new();
-
-    public void Read(IEndianBinaryReader er) {
-      SectionHeaderUtil.AssertNameAndReadSize(
-          er, "TEXR", out var texrLength);
-      var expectedTexrEnd = er.Position + texrLength;
-
-      this.FileName = er.ReadString(er.ReadInt32());
-
-      SectionHeaderUtil.ReadNameAndSize(
-          er, out var textureSectionName, out var btfLength);
-      var mode = textureSectionName switch {
-          "XBTF" => TexrMode.BW1,
-          "GBTF" => TexrMode.BW2,
-          _      => throw new NotSupportedException(),
-      };
-
-      var expectedBtfEnd = er.Position + btfLength;
-
-      Asserts.Equal(expectedTexrEnd, expectedBtfEnd);
-
-      this.Textures.Clear();
-      var textureCount = er.ReadUInt32();
-      for (var i = 0; i < textureCount; ++i) {
-        switch (mode) {
-          case TexrMode.BW1: {
-            SectionHeaderUtil.AssertNameAndReadSize(
-                er, "TEXT", out var textureLength);
-            var expectedTextureEnd = er.Position + textureLength;
-
-            var textureName = er.ReadString(0x10);
-
-            var width = er.ReadUInt32();
-            var height = er.ReadUInt32();
-
-            var unknowns0 = er.ReadUInt32s(2);
-
-            var textureType = er.ReadString(8);
-            var drawType = er.ReadString(8);
-
-            var unknowns1 = er.ReadUInt32s(8);
-
-            var unknowns2 = er.ReadUInt32s(1);
-
-            er.PushMemberEndianness(Endianness.BigEndian);
-            var image = textureType switch {
-                "A8R8G8B8" => this.ReadA8R8G8B8_(er, width, height),
-                "DXT1"     => this.ReadDxt1_(er, width, height),
-                "P8"       => this.ReadP8_(er, width, height),
-                _          => throw new NotImplementedException(),
-            };
-            er.PopEndianness();
-
-            this.Textures.Add(new BwTexture(textureName, image));
-
-            er.Position = expectedTextureEnd;
-            Asserts.Equal(expectedTextureEnd, er.Position);
-            break;
-          }
-          case TexrMode.BW2: {
-            SectionHeaderUtil.AssertNameAndReadSize(
-                er, "GTXD", out var textureLength);
-            var expectedTextureEnd = er.Position + textureLength;
-
-            var textureName = er.ReadString(0x20);
-
-            er.PushMemberEndianness(Endianness.BigEndian);
-            var width = er.ReadUInt32();
-            var height = er.ReadUInt32();
-
-            var unknowns0 = er.ReadUInt32s(2);
-
-            var rawTextureType = er.ReadString(8)
-                                   .Replace("\0", "")
-                                   .ToCharArray();
-            Array.Reverse(rawTextureType);
-            var textureType = new string(rawTextureType);
-            var drawType = er.ReadString(8);
-
-            var unknown = er.ReadChars(48);
-
-            var image = textureType switch {
-                "A8R8G8B8" => this.ReadA8R8G8B8_(er, width, height),
-                "DXT1"     => this.ReadDxt1_(er, width, height),
-                "P8"       => this.ReadP8_(er, width, height),
-                "P4"       => this.ReadP4_(er, width, height),
-                "IA8"      => this.ReadIA8_(er, width, height),
-                "IA4"      => this.ReadIA4_(er, width, height),
-                "I8"       => this.ReadI8_(er, width, height),
-                "I4"       => this.ReadI4_(er, width, height),
-                _          => throw new NotImplementedException(),
-            };
-            er.PopEndianness();
-
-            this.Textures.Add(new BwTexture(textureName, image));
-
-            er.Position = expectedTextureEnd;
-            Asserts.Equal(expectedTextureEnd, er.Position);
-
-            if (textureName.ToLower().EndsWith("_bump")) {
-              var normalTextureName = textureName.Replace(
-                  "_bump", "_normal",
-                  StringComparison.CurrentCultureIgnoreCase);
-
-              var normalImage =
-                  new Rgb24Image(PixelFormat.RGB888, image.Width, image.Height);
-              normalImage.Mutate((_, normalSetHandler) => {
-                image.Access(bumpGetHandler => {
-                  for (var y = 0; y < image.Height; ++y) {
-                    for (var x = 0; x < image.Width; ++x) {
-                      bumpGetHandler(
-                          x, y,
-                          out var bumpIntensity,
-                          out var _,
-                          out var _,
-                          out var bumpAlpha);
-
-                      normalSetHandler(
-                          x, y,
-                          bumpIntensity,
-                          bumpAlpha,
-                          255);
-                    }
-                  }
-                });
-              });
-
-              this.Textures.Add(
-                  new BwTexture(normalTextureName, normalImage));
-            }
-
-            break;
-          }
-        }
-      }
-
-      Asserts.Equal(expectedTexrEnd, er.Position);
-    }
-
-    public void Write(ISubEndianBinaryWriter ew) =>
-        throw new NotImplementedException();
-
-    private IImage
+    protected IImage
         ReadA8R8G8B8_(IEndianBinaryReader er,
                       uint width,
                       uint height) {
@@ -208,7 +62,7 @@ namespace modl.schema.res.texr {
       return image;
     }
 
-    private IImage ReadDxt1_(IEndianBinaryReader er, uint width, uint height) {
+    protected IImage ReadDxt1_(IEndianBinaryReader er, uint width, uint height) {
       // TODO: Trim this little bit off?
       width = (uint) (MathF.Ceiling(width / 8f) * 8);
       height = (uint) (MathF.Ceiling(height / 8f) * 8);
@@ -288,7 +142,7 @@ namespace modl.schema.res.texr {
       return image;
     }
 
-    private IImage ReadP8_(IEndianBinaryReader er, uint width, uint height) {
+    protected IImage ReadP8_(IEndianBinaryReader er, uint width, uint height) {
       SectionHeaderUtil.AssertNameAndSize(er, "PAL ", 512);
 
       var palette = er.ReadUInt16s(256)
@@ -325,7 +179,7 @@ namespace modl.schema.res.texr {
       return image;
     }
 
-    private IImage ReadP4_(IEndianBinaryReader er, uint width, uint height) {
+    protected IImage ReadP4_(IEndianBinaryReader er, uint width, uint height) {
       // TODO: This method seems incorrect...
 
       SectionHeaderUtil.AssertNameAndSize(er, "PAL ", 32);
@@ -388,7 +242,7 @@ namespace modl.schema.res.texr {
       return image;
     }
 
-    private IImage ReadIA8_(IEndianBinaryReader er, uint width, uint height) {
+    protected IImage ReadIA8_(IEndianBinaryReader er, uint width, uint height) {
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", 2 * width * height);
 
       var image = new La16Image(PixelFormat.LA88, (int) width, (int) height);
@@ -419,7 +273,7 @@ namespace modl.schema.res.texr {
       return image;
     }
 
-    private IImage ReadIA4_(IEndianBinaryReader er, uint width, uint height) {
+    protected IImage ReadIA4_(IEndianBinaryReader er, uint width, uint height) {
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height);
 
       var image = new La16Image(PixelFormat.LA44, (int) width, (int) height);
@@ -452,7 +306,7 @@ namespace modl.schema.res.texr {
       return image;
     }
 
-    private IImage ReadI8_(IEndianBinaryReader er, uint width, uint height) {
+    protected IImage ReadI8_(IEndianBinaryReader er, uint width, uint height) {
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height);
 
       var image = new L8Image(PixelFormat.L8, (int) width, (int) height);
@@ -481,7 +335,7 @@ namespace modl.schema.res.texr {
       return image;
     }
 
-    private IImage ReadI4_(IEndianBinaryReader er, uint width, uint height) {
+    protected IImage ReadI4_(IEndianBinaryReader er, uint width, uint height) {
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height / 2);
 
       var image = new L8Image(PixelFormat.L4, (int) width, (int) height);
@@ -515,6 +369,4 @@ namespace modl.schema.res.texr {
       return image;
     }
   }
-
-  public record BwTexture(string Name, IImage Image);
 }

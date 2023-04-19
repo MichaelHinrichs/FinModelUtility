@@ -10,6 +10,7 @@ using fin.model.impl;
 using fin.util.asserts;
 using fin.util.linq;
 
+using modl.schema.res.texr;
 using modl.schema.terrain;
 using modl.schema.terrain.bw1;
 
@@ -80,12 +81,14 @@ namespace modl.api {
                        // Some of the maps use textures from other directories...
                        var allMapsDirectory = outDirectory.GetParent();
                        textureFile = allMapsDirectory
-                                     .SearchForFiles($"{textureName}.png", true)
+                                     .SearchForFiles($"{textureName}.texr", true)
                                      .First();
                      }
 
-                     imageDictionary[textureName] =
-                         await FinImage.FromFileAsync(textureFile);
+                     var texr = isBw2
+                         ? (ITexr) textureFile.ReadNew<Gtxd>()
+                         : textureFile.ReadNew<Text>();
+                     imageDictionary[textureName] = texr.Image;
                    }))
           .Wait();
 

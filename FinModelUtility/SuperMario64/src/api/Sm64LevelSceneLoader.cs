@@ -1,14 +1,11 @@
 ﻿using fin.io;
 using fin.model;
 using fin.scene;
-using SuperMario64;
 using SuperMario64.LevelInfo;
 using SuperMario64.Scripts;
 using System.Numerics;
 
 using fin.data.lazy;
-
-using BitLogic = SuperMario64.BitLogic;
 
 
 namespace SuperMario64.api {

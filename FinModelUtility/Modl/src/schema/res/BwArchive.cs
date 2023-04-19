@@ -7,13 +7,13 @@ using schema.binary;
 
 namespace modl.schema.res {
   public class BwArchive : IBinaryDeserializable {
-    public Texr Texr { get; } = new();
+    public TexrSection TexrSection { get; } = new();
     public Sond Sond { get; } = new();
 
     public ListDictionary<string, BwFile> Files { get; } = new();
 
     public void Read(IEndianBinaryReader er) {
-      this.Texr.Read(er);
+      this.TexrSection.Read(er);
       this.Sond.Read(er);
 
       this.Files.Clear();
