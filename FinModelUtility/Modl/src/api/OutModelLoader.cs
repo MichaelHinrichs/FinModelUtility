@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.IO.Compression;
+using System.Runtime.CompilerServices;
 
 using fin.data;
 using fin.data.lazy;
@@ -192,9 +193,6 @@ namespace modl.api {
             continue;
           }
 
-          Func<ushort, double> loadUOrV = value
-              => value / Math.Pow(2, 12);
-
           for (var tileY = 0; tileY < tiles.Height; ++tileY) {
             for (var tileX = 0; tileX < tiles.Width; ++tileX) {
               var tile = tiles[tileX, tileY];
@@ -203,8 +201,8 @@ namespace modl.api {
               var surfaceTextureUvsFromFirstRow = tile.Schema
                   .SurfaceTextureUvsFromFirstRow
                   .Select(weirdUv => {
-                    var u = (float) loadUOrV(weirdUv.U);
-                    var v = (float) loadUOrV(weirdUv.V);
+                    var u = LoadUOrV_(weirdUv.U);
+                    var v = LoadUOrV_(weirdUv.V);
                     return (u, v);
                   })
                   .ToArray();
@@ -284,13 +282,13 @@ namespace modl.api {
 
                   var (u0, v0) = surfaceTextureUvsInRow[pointX];
                   var uv0 = new ModelImpl.TexCoordImpl {
-                      U = (float) u0, V = (float) v0,
+                      U = u0, V = v0,
                   };
 
-                  var u1 = loadUOrV(detailTextureUvs.U);
-                  var v1 = loadUOrV(detailTextureUvs.V);
+                  var u1 = LoadUOrV_(detailTextureUvs.U);
+                  var v1 = LoadUOrV_(detailTextureUvs.V);
                   var uv1 = new ModelImpl.TexCoordImpl {
-                      U = (float) u1, V = (float) v1
+                      U = u1, V = v1
                   };
 
                   var finVertex =
@@ -332,7 +330,13 @@ namespace modl.api {
       return finModel;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static float Lerp_(float from, float to, float frac)
       => from + (to - from) * frac;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static float LoadUOrV_(float value) {
+      return value / 4096;
+    }
   }
 }

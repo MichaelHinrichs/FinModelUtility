@@ -1,4 +1,6 @@
-﻿using fin.image;
+﻿using System.IO;
+
+using fin.image;
 
 using mod.image;
 using schema.binary;
@@ -36,7 +38,7 @@ namespace mod.schema {
 
     public IImage ToImage() {
       return new ModImageReader(this.width, this.height, this.format).Read(
-          this.imageData);
+          this.imageData, Endianness.BigEndian);
     }
   }
 

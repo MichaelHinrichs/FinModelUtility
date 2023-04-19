@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 using cmb.schema.cmb;
 
@@ -108,6 +109,6 @@ namespace cmb.image {
       throw new NotImplementedException();
     }
 
-    public IImage Read(byte[] srcBytes) => this.impl_.Read(srcBytes);
+    public IImage Read(IEndianBinaryReader er) => this.impl_.Read(er);
   }
 }

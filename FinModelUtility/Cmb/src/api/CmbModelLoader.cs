@@ -47,6 +47,7 @@ namespace cmb.api {
     public string GameName { get; }
 
     public IFileHierarchyFile MainFile => this.CmbFile;
+
     public IEnumerable<IReadOnlyGenericFile> Files
       => this.CmbFile.Yield()
              .ConcatIfNonnull(this.CsabFiles)
@@ -211,10 +212,7 @@ namespace cmb.api {
             IImage image;
             if (position != 0) {
               r.Position = position;
-              var data =
-                  r.ReadBytes((int) cmbTexture.dataLength);
-              image =
-                  ctrTexture.DecodeImage(data, cmbTexture);
+              image = ctrTexture.DecodeImage(cmbTexture).Read(r);
             } else {
               var ctxb =
                   filesAndCtxbs
@@ -223,10 +221,8 @@ namespace cmb.api {
                       .Single(
                           ctxb => ctxb.Chunk.Entry.name ==
                                   cmbTexture.name);
-              image =
-                  ctrTexture.DecodeImage(
-                      ctxb.Chunk.Entry.Data,
-                      cmbTexture);
+              image = ctrTexture.DecodeImage(cmbTexture)
+                                .Read(ctxb.Chunk.Entry.Data);
             }
 
             return image;

@@ -1,5 +1,7 @@
 ﻿using SixLabors.ImageSharp.PixelFormats;
+
 using System.IO;
+
 
 namespace fin.image.io {
   public interface IPixelReader<TPixel>
@@ -33,12 +35,29 @@ namespace fin.image.io {
   }
 
   public interface IImageReader {
-    IImage Read(byte[] srcBytes);
+    IImage Read(byte[] srcBytes,
+                Endianness endianness = Endianness.LittleEndian) {
+      using var er = new EndianBinaryReader(srcBytes, endianness);
+      return Read(er);
+    }
+
+    IImage Read(IEndianBinaryReader er);
   }
 
   public interface IImageReader<out TImage> : IImageReader
       where TImage : IImage {
-    new TImage Read(byte[] srcBytes);
-    IImage IImageReader.Read(byte[] srcBytes) => Read(srcBytes);
+    IImage IImageReader.Read(byte[] srcBytes,
+                             Endianness endianness = Endianness.LittleEndian)
+      => Read(srcBytes, endianness);
+
+    new TImage Read(byte[] srcBytes,
+                Endianness endianness = Endianness.LittleEndian) {
+      using var er = new EndianBinaryReader(srcBytes, endianness);
+      return Read(er);
+    }
+
+    IImage IImageReader.Read(IEndianBinaryReader er) => Read(er);
+
+    new TImage Read(IEndianBinaryReader er);
   }
 }

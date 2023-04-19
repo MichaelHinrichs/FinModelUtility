@@ -24,58 +24,53 @@ namespace mod.image {
               height,
               8,
               8,
-              new L4PixelReader(),
-              Endianness.BigEndian),
+              new L4PixelReader()),
           TextureFormat.I8 => TiledImageReader.New(
               width,
               height,
               8,
               4,
-              new L8PixelReader(),
-              Endianness.BigEndian),
+              new L8PixelReader()),
           TextureFormat.IA4 => TiledImageReader.New(
               width,
               height,
               8,
               4,
-              new La8PixelReader(),
-              Endianness.BigEndian),
+              new La8PixelReader()),
           TextureFormat.IA8 => TiledImageReader.New(
               width,
               height,
               4,
               4,
-              new La16PixelReader(),
-              Endianness.BigEndian),
+              new La16PixelReader()),
           TextureFormat.RGB565 => TiledImageReader.New(
               width,
               height,
               4,
               4,
-              new Rgb565PixelReader(),
-              Endianness.BigEndian),
+              new Rgb565PixelReader()),
           TextureFormat.RGB5A3 => TiledImageReader.New(
               width,
               height,
               4,
               4,
-              new Rgba5553PixelReader(),
-              Endianness.BigEndian),
+              new Rgba5553PixelReader()),
           TextureFormat.RGBA32 => TiledImageReader.New(
               width,
               height,
               4,
               4,
-              new Rgba32PixelReader(),
-              Endianness.BigEndian),
+              new Rgba32PixelReader()),
           TextureFormat.CMPR => TiledImageReader.New(
               width,
               height,
-              new CmprTileReader(),
-              Endianness.BigEndian),
+              new CmprTileReader()),
       };
     }
 
-    public IImage Read(byte[] srcBytes) => this.impl_.Read(srcBytes);
+    public IImage Read(IEndianBinaryReader er) => this.impl_.Read(er);
+
+    public IImage Read(byte[] data, Endianness endianness)
+      => this.impl_.Read(data, endianness);
   }
 }

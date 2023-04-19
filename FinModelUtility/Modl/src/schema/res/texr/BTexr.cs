@@ -77,8 +77,8 @@ namespace modl.schema.res.texr {
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", mipSize);
 
       return TiledImageReader
-             .New((int) width, (int) height, new CmprTileReader(), er.Endianness)
-             .Read(er.ReadBytes(mipSize));
+             .New((int) width, (int) height, new CmprTileReader())
+             .Read(er);
     }
 
     protected IImage ReadP8_(IEndianBinaryReader er, uint width, uint height) {
@@ -188,9 +188,8 @@ namespace modl.schema.res.texr {
                   (int) height,
                   4,
                   4,
-                  new La16PixelReader(),
-                  er.Endianness)
-             .Read(er.ReadBytes(2 * width * height));
+                  new La16PixelReader())
+             .Read(er);
     }
 
     protected IImage ReadIA4_(IEndianBinaryReader er, uint width, uint height) {
@@ -200,9 +199,8 @@ namespace modl.schema.res.texr {
                   (int) height,
                   8,
                   4,
-                  new La8PixelReader(),
-                  er.Endianness)
-             .Read(er.ReadBytes(width * height));
+                  new La8PixelReader())
+             .Read(er);
     }
 
     protected IImage ReadI8_(IEndianBinaryReader er, uint width, uint height) {
@@ -212,8 +210,7 @@ namespace modl.schema.res.texr {
                   (int) height,
                   8,
                   4,
-                  new L8PixelReader(),
-                  er.Endianness)
+                  new L8PixelReader())
              .Read(er.ReadBytes(width * height));
     }
 
@@ -224,9 +221,8 @@ namespace modl.schema.res.texr {
                   (int) height,
                   8,
                   8,
-                  new L8PixelReader(),
-                  er.Endianness)
-             .Read(er.ReadBytes(width * height / 2));
+                  new L8PixelReader())
+             .Read(er);
     }
   }
 }

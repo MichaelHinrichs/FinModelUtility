@@ -1,6 +1,9 @@
-﻿using cmb.image;
+﻿using System.IO;
+
+using cmb.image;
 
 using fin.image;
+using fin.image.io;
 
 
 namespace cmb.schema.cmb {
@@ -17,12 +20,9 @@ namespace cmb.schema.cmb {
       return format;
     }
 
-    public IImage DecodeImage(
-        byte[] input,
-        Texture texture)
+    public IImageReader DecodeImage(Texture texture)
       => new CmbImageReader(texture.width,
                             texture.height,
-                            CollapseFormat_(texture.imageFormat))
-          .Read(input);
+                            CollapseFormat_(texture.imageFormat));
   }
 }

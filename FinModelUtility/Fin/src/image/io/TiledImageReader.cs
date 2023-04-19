@@ -11,16 +11,14 @@ namespace fin.image.io {
         int height,
         int tileWidth,
         int tileHeight,
-        IPixelReader<TPixel> pixelReader,
-        Endianness endianness = Endianness.LittleEndian)
+        IPixelReader<TPixel> pixelReader)
         where TPixel : unmanaged, IPixel<TPixel>
       => New(width,
              height,
              tileWidth,
              tileHeight,
              new BasicPixelIndexer(tileWidth),
-             pixelReader,
-             endianness);
+             pixelReader);
 
     public static TiledImageReader<TPixel> New<TPixel>(
         int width,
@@ -28,8 +26,7 @@ namespace fin.image.io {
         int tileWidth,
         int tileHeight,
         IPixelIndexer pixelIndexer,
-        IPixelReader<TPixel> pixelReader,
-        Endianness endianness = Endianness.LittleEndian)
+        IPixelReader<TPixel> pixelReader)
         where TPixel : unmanaged, IPixel<TPixel>
       => New(width,
              height,
@@ -37,19 +34,16 @@ namespace fin.image.io {
                  tileWidth,
                  tileHeight,
                  pixelIndexer,
-                 pixelReader),
-             endianness);
+                 pixelReader));
 
     public static TiledImageReader<TPixel> New<TPixel>(
         int width,
         int height,
-        ITileReader<TPixel> tileReader,
-        Endianness endianness = Endianness.LittleEndian)
+        ITileReader<TPixel> tileReader)
         where TPixel : unmanaged, IPixel<TPixel>
       => new(width,
              height,
-             tileReader,
-             endianness);
+             tileReader);
   }
 
   public class TiledImageReader<TPixel> : IImageReader<IImage<TPixel>>
@@ -69,9 +63,14 @@ namespace fin.image.io {
       this.endianness_ = endianness;
     }
 
-    public unsafe IImage<TPixel> Read(byte[] srcBytes) {
-      using var er = new EndianBinaryReader(srcBytes, this.endianness_);
+    public IImage<TPixel> Read(
+        byte[] srcBytes,
+        Endianness endianness = Endianness.LittleEndian) {
+      using var er = new EndianBinaryReader(srcBytes, endianness);
+      return Read(er);
+    }
 
+    public unsafe IImage<TPixel> Read(IEndianBinaryReader er) {
       var image = this.tileReader_.CreateImage(this.width_, this.height_);
       using var imageLock = image.Lock();
       var scan0 = imageLock.pixelScan0;

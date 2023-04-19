@@ -25,59 +25,54 @@ namespace j3d.image {
               height,
               8,
               8,
-              new L2a4PixelReader(),
-              Endianness.BigEndian),
+              new L2a4PixelReader()),
           // TODO: For some reason, this has to include alpha to look correct, but is this actually right??
           TextureFormat.I8 => TiledImageReader.New(
               width,
               height,
               8,
               4,
-              new L2a8PixelReader(),
-              Endianness.BigEndian),
+              new L2a8PixelReader()),
           TextureFormat.A4_I4 => TiledImageReader.New(
               width,
               height,
               8,
               4,
-              new La8PixelReader(),
-              Endianness.BigEndian),
+              new La8PixelReader()),
           TextureFormat.A8_I8 => TiledImageReader.New(
               width,
               height,
               4,
               4,
-              new La16PixelReader(),
-              Endianness.BigEndian),
+              new La16PixelReader()),
           TextureFormat.R5_G6_B5 => TiledImageReader.New(
               width,
               height,
               4,
               4,
-              new Rgb565PixelReader(),
-              Endianness.BigEndian),
+              new Rgb565PixelReader()),
           TextureFormat.A3_RGB5 => TiledImageReader.New(
               width,
               height,
               4,
               4,
-              new Rgba5553PixelReader(),
-              Endianness.BigEndian),
+              new Rgba5553PixelReader()),
           TextureFormat.ARGB8 => TiledImageReader.New(
               width,
               height,
               4,
               4,
-              new Rgba32PixelReader(),
-              Endianness.BigEndian),
+              new Rgba32PixelReader()),
           TextureFormat.S3TC1 => TiledImageReader.New(
               width,
               height,
-              new CmprTileReader(),
-              Endianness.BigEndian),
+              new CmprTileReader()),
       };
     }
 
-    public IImage Read(byte[] srcBytes) => this.impl_.Read(srcBytes);
+    public IImage Read(IEndianBinaryReader er) => this.impl_.Read(er);
+
+    public IImage Read(byte[] data, Endianness endianness)
+      => this.impl_.Read(data, endianness);
   }
 }
