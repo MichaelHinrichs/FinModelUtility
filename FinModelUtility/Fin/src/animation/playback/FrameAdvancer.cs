@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Diagnostics;
+
+using fin.util.time;
 
 namespace fin.animation.playback {
   public class FrameAdvancer : IAnimationPlaybackManager {
-    private readonly Stopwatch impl_ = new Stopwatch();
+    private readonly IStopwatch impl_ = new FrameStopwatch();
 
     public double SpeedMultiplier { get; set; } = 1;
     public double Frame { get; set; }

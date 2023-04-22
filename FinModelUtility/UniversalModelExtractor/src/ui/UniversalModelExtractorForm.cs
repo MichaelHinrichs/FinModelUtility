@@ -9,6 +9,7 @@ using fin.io;
 using fin.model;
 using fin.scene;
 using fin.util.enumerables;
+using fin.util.time;
 
 using MathNet.Numerics;
 
@@ -105,12 +106,9 @@ public partial class UniversalModelExtractorForm : Form {
            .SetColor(FinColor.FromRgbFloats(1, 1, 1));
     }
 
-    var start = DateTime.Now;
+    var stopwatch = new FrameStopwatch();
     obj.SetOnTickHandler(_ => {
-      var current = DateTime.Now;
-      var elapsed = current - start;
-      
-      var time = elapsed.TotalMilliseconds;
+      var time = stopwatch.Elapsed.TotalMilliseconds;
       var baseAngleInRadians = time / 400;
 
       var enabledCount = 0;

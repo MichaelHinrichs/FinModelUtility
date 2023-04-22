@@ -6,6 +6,8 @@ using fin.io.bundles;
 using fin.model;
 using fin.scene;
 using fin.ui;
+using fin.util.time;
+
 using OpenTK.Graphics.OpenGL;
 using uni.config;
 using uni.model;
@@ -207,6 +209,9 @@ namespace uni.ui.common.scene {
     }
 
     protected override void RenderGl() {
+      FrameTime.MarkStartOfFrame();
+      this.Scene?.Tick();
+
       var forwardVector =
           (this.isForwardDown_ ? 1 : 0) - (this.isBackwardDown_ ? 1 : 0);
       var rightwardVector =
@@ -263,7 +268,6 @@ namespace uni.ui.common.scene {
         GlTransform.Scale(this.viewerScale_, this.viewerScale_, this.viewerScale_);
       }
 
-      this.Scene?.Tick();
       this.Scene?.Render();
     }
   }
