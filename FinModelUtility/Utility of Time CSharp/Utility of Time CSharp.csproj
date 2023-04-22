@@ -48,31 +48,34 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="ui\common\component\fields\DiscreteFieldControl.cs">
+    <Compile Update="old\ui\common\component\fields\DiscreteFieldControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="ui\common\component\fields\FieldControlList.cs">
+    <Compile Update="old\ui\common\component\fields\FieldControlList.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="ui\common\component\tabs\HostPanel.cs">
+    <Compile Update="old\ui\common\component\tabs\HostPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="ui\main\files\FileTreeView.cs">
+    <Compile Update="old\ui\main\files\FileTreeView.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="ui\main\tabs\animation\AnimationTab.cs">
+    <Compile Update="old\ui\main\tabs\animation\AnimationTab.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="ui\main\tabs\animation\AnimationSelectorPanel.cs">
+    <Compile Update="old\ui\main\tabs\animation\AnimationSelectorPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Update="ui\common\component\fields\HostPanel - Copy.resx">
+    <EmbeddedResource Update="old\ui\common\component\fields\HostPanel - Copy.resx">
       <DependentUpon>FieldControlList.resx</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Fin\Fin.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="schema\" />
   </ItemGroup>
 </Project>

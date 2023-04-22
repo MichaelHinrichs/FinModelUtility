@@ -3242,11 +3242,11 @@ Public Class MainWin
       ' CurrLimb = id
       'End If
 
-      Dim dlIndex As Integer = - 1
+      Dim dlIndex As Integer = -1
       If .DisplayListAddress > Nothing Then
         dlIndex = DlManager.GetIndexByAddress(.DisplayListAddress)
       End If
-      Dim validDl As Boolean = dlIndex > - 1
+      Dim validDl As Boolean = dlIndex > -1
 
       If animationTab_.AnimationBanks.ShowBones Then
         Dim xI As Double = 0
@@ -3266,7 +3266,7 @@ Public Class MainWin
         Gl.glVertex3f(xI, yI, zI)
         Gl.glVertex3f(xF, yF, zF)
         Gl.glEnd()
-        Gl.glDepthRange(0, - 0.5)
+        Gl.glDepthRange(0, -0.5)
         Gl.glPointSize(11)
         Gl.glBegin(Gl.GL_POINTS)
         Gl.glColor3f(0, 0, 0)
@@ -3290,7 +3290,7 @@ Public Class MainWin
         DrawDL(dlIndex, False)
       End If
 
-      If .firstChild > - 1 Then
+      If .firstChild > -1 Then
         BoneColorFactor.r = 255
         BoneColorFactor.g = 0
         BoneColorFactor.b = 0
@@ -3303,7 +3303,7 @@ Public Class MainWin
 
       ModelViewMatrixTransformer.Pop()
 
-      If .nextSibling > - 1 Then
+      If .nextSibling > -1 Then
         BoneColorFactor.r = 0
         BoneColorFactor.g = 0
         BoneColorFactor.b = 255
@@ -3362,7 +3362,7 @@ Public Class MainWin
       Gl.glEnable(Gl.GL_POLYGON_OFFSET_LINE)
       Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_LINE)
 
-      Gl.glPolygonOffset(- 5.0, - 5.0)
+      Gl.glPolygonOffset(-5.0, -5.0)
 
       Gl.glBegin(Gl.GL_TRIANGLES)
       Gl.glColor3f(0, 0, 0)
@@ -3383,7 +3383,7 @@ Public Class MainWin
       Gl.glDisable(Gl.GL_POLYGON_OFFSET_LINE)
       Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_FILL)
 
-      Gl.glPolygonOffset(- 6, - 6)
+      Gl.glPolygonOffset(-6, -6)
       Gl.glEnable(Gl.GL_POLYGON_OFFSET_FILL)
       Gl.glBegin(Gl.GL_TRIANGLES)
       For i As Integer = 0 To Polygons.Length - 1
@@ -3434,7 +3434,7 @@ Public Class MainWin
           Dim curedge As Integer = 0
           Gl.glEnable(Gl.GL_POLYGON_OFFSET_LINE)
           Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_LINE)
-          Gl.glPolygonOffset(- 8.0, - 8.0)
+          Gl.glPolygonOffset(-8.0, -8.0)
           Gl.glLineWidth(10)
           Gl.glBegin(Gl.GL_TRIANGLES)
           For i As Integer = 0 To Vertices.EdgeR.Count - 1
@@ -3449,7 +3449,7 @@ Public Class MainWin
           Gl.glDisable(Gl.GL_POLYGON_OFFSET_LINE)
           Gl.glPolygonMode(Gl.GL_FRONT_AND_BACK, Gl.GL_FILL)
         Case ToolID.COLTRI
-          Gl.glPolygonOffset(- 8, - 8)
+          Gl.glPolygonOffset(-8, -8)
           Gl.glEnable(Gl.GL_POLYGON_OFFSET_FILL)
           Gl.glBegin(Gl.GL_TRIANGLES)
           For i As Integer = 0 To Polygons.Length - 1
@@ -3593,17 +3593,17 @@ Public Class MainWin
     Gl.glBegin(Gl.GL_LINES)
     Gl.glColor3f(0, 0, 1)
     Gl.glVertex3f(420, 0.1, 0.1)
-    Gl.glVertex3f(- 420, 0.1, 0.1)
+    Gl.glVertex3f(-420, 0.1, 0.1)
     Gl.glEnd()
     Gl.glBegin(Gl.GL_LINES)
     Gl.glColor3f(1, 0, 0)
     Gl.glVertex3f(0.1, 420, 0.1)
-    Gl.glVertex3f(0.1, - 420, 0.1)
+    Gl.glVertex3f(0.1, -420, 0.1)
     Gl.glEnd()
     Gl.glBegin(Gl.GL_LINES)
     Gl.glColor3f(0, 1, 0)
     Gl.glVertex3f(0.1, 0.1, 420)
-    Gl.glVertex3f(0.1, 0.1, - 420)
+    Gl.glVertex3f(0.1, 0.1, -420)
     Gl.glVertex3f(0.1, 0.1, 420)
     Gl.glEnd()
     Gl.glEndList()
@@ -3615,40 +3615,40 @@ Public Class MainWin
     Gl.glBegin(Gl.GL_QUADS)
     'top
     Gl.glColor3f(1, 1, 1)
-    Gl.glVertex3f(1.0F, 1.0F, - 1.0F)
-    Gl.glVertex3f(- 1.0F, 1.0F, - 1.0F)
-    Gl.glVertex3f(- 1.0F, 1.0F, 1.0F)
+    Gl.glVertex3f(1.0F, 1.0F, -1.0F)
+    Gl.glVertex3f(-1.0F, 1.0F, -1.0F)
+    Gl.glVertex3f(-1.0F, 1.0F, 1.0F)
     Gl.glVertex3f(1.0F, 1.0F, 1.0F)
     'bottom
     Gl.glColor3f(0, 0, 0)
-    Gl.glVertex3f(1.0F, - 1.0F, 1.0F)
-    Gl.glVertex3f(- 1.0F, - 1.0F, 1.0F)
-    Gl.glVertex3f(- 1.0F, - 1.0F, - 1.0F)
-    Gl.glVertex3f(1.0F, - 1.0F, - 1.0F)
+    Gl.glVertex3f(1.0F, -1.0F, 1.0F)
+    Gl.glVertex3f(-1.0F, -1.0F, 1.0F)
+    Gl.glVertex3f(-1.0F, -1.0F, -1.0F)
+    Gl.glVertex3f(1.0F, -1.0F, -1.0F)
     'front
     Gl.glColor3f(1, 0, 0)
     Gl.glVertex3f(1.0F, 1.0F, 1.0F)
-    Gl.glVertex3f(- 1.0F, 1.0F, 1.0F)
-    Gl.glVertex3f(- 1.0F, - 1.0F, 1.0F)
-    Gl.glVertex3f(1.0F, - 1.0F, 1.0F)
+    Gl.glVertex3f(-1.0F, 1.0F, 1.0F)
+    Gl.glVertex3f(-1.0F, -1.0F, 1.0F)
+    Gl.glVertex3f(1.0F, -1.0F, 1.0F)
     'back
     Gl.glColor3f(0, 1, 0)
-    Gl.glVertex3f(1.0F, - 1.0F, - 1.0F)
-    Gl.glVertex3f(- 1.0F, - 1.0F, - 1.0F)
-    Gl.glVertex3f(- 1.0F, 1.0F, - 1.0F)
-    Gl.glVertex3f(1.0F, 1.0F, - 1.0F)
+    Gl.glVertex3f(1.0F, -1.0F, -1.0F)
+    Gl.glVertex3f(-1.0F, -1.0F, -1.0F)
+    Gl.glVertex3f(-1.0F, 1.0F, -1.0F)
+    Gl.glVertex3f(1.0F, 1.0F, -1.0F)
     'left
     Gl.glColor3f(1, 1, 0)
-    Gl.glVertex3f(- 1.0F, 1.0F, 1.0F)
-    Gl.glVertex3f(- 1.0F, 1.0F, - 1.0F)
-    Gl.glVertex3f(- 1.0F, - 1.0F, - 1.0F)
-    Gl.glVertex3f(- 1.0F, - 1.0F, 1.0F)
+    Gl.glVertex3f(-1.0F, 1.0F, 1.0F)
+    Gl.glVertex3f(-1.0F, 1.0F, -1.0F)
+    Gl.glVertex3f(-1.0F, -1.0F, -1.0F)
+    Gl.glVertex3f(-1.0F, -1.0F, 1.0F)
     'right
     Gl.glColor3f(0, 0, 1)
-    Gl.glVertex3f(1.0F, 1.0F, - 1.0F)
+    Gl.glVertex3f(1.0F, 1.0F, -1.0F)
     Gl.glVertex3f(1.0F, 1.0F, 1.0F)
-    Gl.glVertex3f(1.0F, - 1.0F, 1.0F)
-    Gl.glVertex3f(1.0F, - 1.0F, - 1.0F)
+    Gl.glVertex3f(1.0F, -1.0F, 1.0F)
+    Gl.glVertex3f(1.0F, -1.0F, -1.0F)
     Gl.glEnd()
     Gl.glEndList()
   End Sub
@@ -3797,8 +3797,8 @@ Public Class MainWin
       Dim nextTokens() As String
       Dim actorCnt As Integer = 0
       Dim varCnt As Integer = 0
-      ReDim tDB(- 1)
-      readMain: While tReader.Peek <> - 1
+      ReDim tDB(-1)
+readMain: While tReader.Peek <> -1
         Tokens = tReader.ReadLine.Split(" ")
         If Tokens.Length > 1 Then
           Dim testOne As String = Tokens(0)
@@ -3809,7 +3809,7 @@ Public Class MainWin
             GoTo readMain
           End If
 
-          readActor: ReDim Preserve tDB(actorCnt)
+readActor: ReDim Preserve tDB(actorCnt)
           With tDB(actorCnt)
             .no = Int32.Parse(Tokens(0), Globalization.NumberStyles.HexNumber)
 
@@ -3829,7 +3829,7 @@ Public Class MainWin
           End With
           nextTokens = tReader.ReadLine.Split(" ")
           If nextTokens.Length > 1 Then
-            readVars: While nextTokens(0) = "" And nextTokens(1) = "-"
+readVars:   While nextTokens(0) = "" And nextTokens(1) = "-"
 
               ReDim Preserve tDB(actorCnt).var(varCnt)
               With tDB(actorCnt).var(varCnt)
@@ -3837,7 +3837,7 @@ Public Class MainWin
                 Int32.TryParse(nextTokens(2), .var)
 
                 .desc = ""
-                If .var > - 1 And nextTokens(3) = "=" Then
+                If .var > -1 And nextTokens(3) = "=" Then
                   For I As Integer = 4 To nextTokens.Length - 1
                     .desc += nextTokens(I) & " "
                   Next
@@ -3879,7 +3879,7 @@ Public Class MainWin
     If File.Exists(AppDirectory & ExtraDataPrefix & "\oot_actors_human.txt") Then
       ActorDataBase = ReadActorDBHuman(AppDirectory & ExtraDataPrefix & "\oot_actors_human.txt")
     Else
-      ReDim ActorDataBase(- 1)
+      ReDim ActorDataBase(-1)
     End If
 
     ActorDBGroups.Clear()
@@ -3891,7 +3891,7 @@ Public Class MainWin
     ObjectsDesc.Clear()
     If File.Exists(AppDirectory & ExtraDataPrefix & "\objlist.txt") Then
       Dim objfile As New StreamReader(AppDirectory & ExtraDataPrefix & "\objlist.txt")
-      While objfile.Peek <> - 1
+      While objfile.Peek <> -1
         curline = objfile.ReadLine
         Objects.Add(Mid(curline, 1, 4))
         ObjectsDesc.Add(Mid(curline, 28))
@@ -3901,7 +3901,7 @@ Public Class MainWin
   End Sub
 
   Private Sub ScanCollisionPresets()
-    ReDim ColPresets(- 1)
+    ReDim ColPresets(-1)
     Dim curline As String = ""
     If File.Exists(AppDirectory & ExtraDataPrefix & "\CollisionPresets.txt") Then
       Dim presLines(2) As String
@@ -3909,7 +3909,7 @@ Public Class MainWin
       Dim endpos As Integer = 0
       Dim no As Integer = 0
       Dim type As String = ""
-      While colpres.Peek <> - 1
+      While colpres.Peek <> -1
         curline = colpres.ReadLine
         presLines = curline.Split(ControlChars.Tab)
         If presLines(0) = "g" Then
@@ -4294,8 +4294,8 @@ Public Class MainWin
       Dim ObjSetStart As Integer = 0
       Dim CurObjSet As Integer = 0
 
-      ReDim RoomActors(- 1)
-      ReDim UsedGroupIndex(- 1)
+      ReDim RoomActors(-1)
+      ReDim UsedGroupIndex(-1)
 
       ComboBox6.SelectedIndex = 0
       rmActorCount = 0
@@ -4364,7 +4364,7 @@ Public Class MainWin
               ActorGroups.Add(gr)
               objind = Objects.IndexOf(gr.ToString("X4"))
               desc = "?"
-              If objind > - 1 Then
+              If objind > -1 Then
                 desc = ObjectsDesc(objind)
               End If
               'Group.Items.Add((i + 1).ToString & " - " & desc)
@@ -4459,10 +4459,10 @@ Public Class MainWin
           tSegOff = i + &H20
 
           Dim CodeOff As Integer = 0
-          ReDim Z64Code(- 1)
+          ReDim Z64Code(-1)
           Select Case BuildDate
             Case "00-07-31 17:04:16"
-              tNameOff = - 1
+              tNameOff = -1
               ROMType = "Majora's Mask (U)"
               SwitchGame(1)
             Case "03-02-21 00:16:31"
