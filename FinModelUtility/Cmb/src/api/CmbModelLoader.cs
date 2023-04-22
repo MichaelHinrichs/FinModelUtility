@@ -563,7 +563,7 @@ namespace cmb.api {
                                                finBones[boneIndex]));
           }
 
-          finVertex.SetColor(FinColor.FromSystemColor(Color.White));
+          finVertex.SetColor(Color.White);
         }
 
         // Adds faces. Thankfully, it's all just triangles!

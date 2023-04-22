@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using MathNet.Numerics;
-
 namespace fin.util.linq {
   public static class LinqExtensions {
     public static IEnumerable<TTo> CastTo<TFrom, TTo>(
