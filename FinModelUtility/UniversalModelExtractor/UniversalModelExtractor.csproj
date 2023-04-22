@@ -58,6 +58,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Utility of Time CSharp\Utility of Time CSharp.csproj" />
     <ProjectReference Include="..\Visceral\Visceral.csproj" />
     <ProjectReference Include="..\Schema\Schema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
     <ProjectReference Include="..\Ast\Ast.csproj" />

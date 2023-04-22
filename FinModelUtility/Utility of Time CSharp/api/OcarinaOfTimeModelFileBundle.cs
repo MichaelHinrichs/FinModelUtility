@@ -1,17 +1,20 @@
 ﻿using fin.io;
 using fin.model;
-using fin.util.hex;
 
 
 namespace UoT.api {
-  public class OotModelFileBundle : IModelFileBundle {
-    public OotModelFileBundle(
+  public class OcarinaOfTimeModelFileBundle : IModelFileBundle {
+    public OcarinaOfTimeModelFileBundle(
         IFileHierarchyDirectory directory,
         ISystemFile ootRom,
-        uint offset) {
+        string fileName,
+        uint offset,
+        uint length) {
       this.Directory = directory;
       this.OotRom = ootRom;
+      this.FileName = fileName;
       this.Offset = offset;
+      this.Length = length;
     }
 
     public string GameName => "ocarina_of_time";
@@ -20,9 +23,11 @@ namespace UoT.api {
     public IFileHierarchyDirectory Directory { get; }
 
     public ISystemFile OotRom { get; }
+    public string FileName { get; }
     public uint Offset { get; }
+    public uint Length { get; }
 
-    string IUiFile.BetterName => this.Offset.ToHex();
+    string IUiFile.BetterName => FileName;
     public string TrueFullName => this.OotRom.FullName;
   }
 }

@@ -80,10 +80,6 @@ namespace uni.cli {
   public class MidnightClub2Options
       : IExtractorOptions<MidnightClub2Extractor> { }
 
-  [Verb("ocarina_of_time", HelpText = "Extract models from Ocarina of Time.")]
-  public class OcarinaOfTimeOptions
-      : IExtractorOptions<OcarinaOfTimeExtractor> { }
-
   [Verb("ocarina_of_time_3d",
         HelpText = "Extract models from Ocarina of Time 3D.")]
   public class OcarinaOfTime3dOptions
