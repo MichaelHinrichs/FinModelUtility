@@ -1,4 +1,5 @@
 ﻿using schema.binary.util;
+
 using System.Collections;
 using System.Collections.Generic;
 
@@ -13,7 +14,6 @@ namespace fin.data {
 
     public void Clear() {
       this.impl_.Clear();
-
       this.hasNull_ = false;
     }
 
@@ -38,6 +38,9 @@ namespace fin.data {
         }
       }
     }
+
+    public bool ContainsKey(TKey key)
+      => key == null ? this.hasNull_ : this.impl_.ContainsKey(key);
 
     public void Add(TKey key, TValue value) {
       if (key == null) {
@@ -70,6 +73,20 @@ namespace fin.data {
       }
 
       return this.impl_.TryGetValue(key, out value);
+    }
+
+    public bool Remove(TKey key) => this.Remove(key, out _);
+
+    public bool Remove(TKey key, out TValue value) {
+      bool didRemove;
+      if (key == null) {
+        didRemove = this.hasNull_;
+        value = this.nullValue_;
+        this.hasNull_ = false;
+      } else {
+        didRemove = this.impl_.Remove(key, out value);
+      }
+      return didRemove;
     }
 
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();

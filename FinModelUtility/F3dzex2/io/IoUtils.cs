@@ -5,14 +5,14 @@ namespace f3dzex2.io {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void SplitSegmentedAddress(
         uint address,
-        out byte bank,
+        out byte segmentIndex,
         out uint offset) {
-      bank = (byte) (address >> 24);
+      segmentIndex = (byte) (address >> 24);
       offset = address << 8 >> 8;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static uint MergeSegmentedAddress(byte bank, uint offset)
-      => (uint) ((bank << 24) | (offset & 0x00ffffff));
+    public static uint MergeSegmentedAddress(byte segmentIndex, uint offset)
+      => (uint) ((segmentIndex << 24) | (offset & 0x00ffffff));
   }
 }

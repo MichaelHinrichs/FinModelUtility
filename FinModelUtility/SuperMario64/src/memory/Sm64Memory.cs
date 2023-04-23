@@ -18,9 +18,13 @@ namespace SuperMario64.memory {
   public class Sm64Memory : ISm64Memory {
     public byte? AreaId { get; set; }
 
-    public IEnumerable<IEndianBinaryReader> OpenPossibilitiesAtAddress(
+    public IEnumerable<IEndianBinaryReader> OpenPossibilitiesAtSegmentedAddress(
         uint address)
       => this.OpenAtSegmentedAddress(address).Yield();
+
+    public IEnumerable<IEndianBinaryReader> OpenPossibilitiesForSegment(uint segmentIndex) {
+      throw new NotImplementedException();
+    }
 
     public bool IsValidSegment(uint segmentIndex) {
       throw new NotImplementedException();
@@ -49,11 +53,7 @@ namespace SuperMario64.memory {
       throw new NotImplementedException();
     }
 
-    public uint GetSegmentLength(uint segmentIndex) {
-      throw new NotImplementedException();
-    }
-
-    public void SetSegment(uint segmentIndex,
+    public void AddSegment(uint segmentIndex,
                            uint offset,
                            uint length,
                            IDecompressor? decompressor = null) {

@@ -9,11 +9,14 @@ namespace fin.data {
     private readonly NullFriendlyDictionary<TKey, IList<TValue>> impl_ = new();
 
     public void Clear() => this.impl_.Clear();
+    public void ClearList(TKey key) => this.impl_.Remove(key);
 
     public int Count
       => this.impl_.Values
              .Select(list => list.Count)
              .Sum();
+
+    public bool HasList(TKey key) => this.impl_.ContainsKey(key);
 
     public void Add(TKey key, TValue value) {
       IList<TValue> list;
