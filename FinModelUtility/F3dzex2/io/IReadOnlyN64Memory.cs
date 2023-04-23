@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Intrinsics.Arm;
 
 using fin.data;
 using fin.decompression;
-using fin.util.enumerables;
 
+using static schema.binary.BinarySchemaStructureParser;
 
 namespace f3dzex2.io {
   public interface IReadOnlyN64Memory {
@@ -31,17 +29,20 @@ namespace f3dzex2.io {
                     uint offset,
                     uint length,
                     IDecompressor? decompressor = null);
+
+    byte[] Bytes { get; }
   }
 
   public class N64Memory : IN64Memory {
-    private readonly byte[] data_;
     private readonly Endianness endianness_;
     private readonly ListDictionary<uint, Segment> segments_ = new();
 
     public N64Memory(byte[] data, Endianness endianness) {
-      this.data_ = data;
+      this.Bytes = data;
       this.endianness_ = endianness;
     }
+
+    public byte[] Bytes { get; }
 
     public IEndianBinaryReader OpenAtSegmentedAddress(uint segmentedAddress)
       => this.OpenPossibilitiesAtSegmentedAddress(segmentedAddress).Single();
@@ -52,7 +53,7 @@ namespace f3dzex2.io {
          .GetSegmentsAtSegmentedAddress_(segmentedAddress, out var offset)
          .Select(segment => {
            var memoryStream =
-               new MemoryStream(this.data_,
+               new MemoryStream(this.Bytes,
                                 (int) segment.Offset,
                                 (int) segment.Length);
            var er = new EndianBinaryReader(memoryStream, this.endianness_);
@@ -69,7 +70,7 @@ namespace f3dzex2.io {
          .segments_[segmentIndex]
          .Select(segment => {
            var memoryStream =
-               new MemoryStream(this.data_,
+               new MemoryStream(this.Bytes,
                                 (int) segment.Offset,
                                 (int) segment.Length);
            var er = new EndianBinaryReader(memoryStream, this.endianness_);
@@ -80,9 +81,17 @@ namespace f3dzex2.io {
     public bool IsValidSegment(uint segmentIndex)
       => this.segments_.HasList(segmentIndex);
 
-    public bool IsValidSegmentedAddress(uint segmentedAddress)
-      => this.GetSegmentsAtSegmentedAddress_(segmentedAddress, out _)
-             .Any();
+    public bool IsValidSegmentedAddress(uint segmentedAddress) {
+      IoUtils.SplitSegmentedAddress(segmentedAddress,
+                                    out var segmentIndex,
+                                    out var offset);
+      if (!this.segments_.TryGetList(segmentIndex, out var segments)) {
+        return false;
+      }
+
+      var offsetInSegment = offset;
+      return segments!.Any(segment => offsetInSegment < segment.Length);
+    }
 
     public bool IsSegmentCompressed(uint segmentIndex)
       => this.segments_[segmentIndex].Single().Decompressor != null;
@@ -106,7 +115,7 @@ namespace f3dzex2.io {
                                     out offset);
       var offsetInSegment = offset;
       var segments = this.segments_[segmentIndex];
-      return segments.Where(segment => segment.Length < offsetInSegment);
+      return segments.Where(segment => offsetInSegment < segment.Length);
     }
 
     private class Segment {

@@ -35,7 +35,7 @@ namespace f3dzex2.displaylist {
         IOpcodeParser opcodeParser,
         uint address) {
       var options = new LinkedList<IDisplayList>();
-      foreach (var impl in n64Memory.OpenPossibilitiesAtAddress(address)) {
+      foreach (var impl in n64Memory.OpenPossibilitiesAtSegmentedAddress(address)) {
         using var er = impl;
         options.AddLast(this.ReadDisplayList(n64Memory, opcodeParser, er));
       }

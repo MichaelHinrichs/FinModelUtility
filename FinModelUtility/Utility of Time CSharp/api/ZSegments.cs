@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 using fin.io;
 
@@ -198,7 +199,7 @@ namespace UoT.api {
     private static IEnumerable<Segment> GetSegments_(
         IEndianBinaryReader er,
         int segmentOffset,
-        int nameOffset) {
+        long nameOffset) {
       var segments = new LinkedList<Segment>();
 
       er.Subread(
@@ -215,9 +216,26 @@ namespace UoT.api {
               var unk0 = ser.ReadUInt32();
               var unk1 = ser.ReadUInt32();
 
-              // TODO: Do we need to skip terminators?
-              var fileName = ser.ReadStringNTAtOffset(nameOffset);
-              nameOffset += fileName.Length + 1;
+              var fileNameBuilder = new StringBuilder();
+              var pos = ser.Position;
+              ser.Position = nameOffset;
+              var inName = false;
+              while (true) {
+                var c = ser.ReadChar();
+
+                if (c == '\0') {
+                  if (inName) {
+                    break;
+                  }
+                } else {
+                  inName = true;
+                  fileNameBuilder.Append(c);
+                }
+              }
+              nameOffset = ser.Position;
+              ser.Position = pos;
+
+              var fileName = fileNameBuilder.ToString();
 
               segments.AddLast(new Segment {
                   FileName = fileName,

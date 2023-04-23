@@ -4,6 +4,7 @@ using fin.io.bundles;
 using uni.platforms;
 
 using UoT.api;
+using UoT.memory;
 
 
 namespace uni.games.ocarina_of_time {
@@ -25,11 +26,24 @@ namespace uni.games.ocarina_of_time {
       var zSegments = ZSegments.GetFiles(ocarinaOfTimeRom);
       foreach (var zObject in zSegments.Objects) {
         yield return new OotModelFileBundle(root,
-          ocarinaOfTimeRom,
-          zObject.FileName,
-          zObject.Offset,
-          zObject.Length);
+                                            ocarinaOfTimeRom,
+                                            zObject.FileName,
+                                            zObject.Offset,
+                                            zObject.Length);
       }
+
+      var gameplayKeep =
+          zSegments.Others.Single(other => other.FileName is "gameplay_keep");
+      Segments.GAMEPLAY_KEEP = new Segment {
+          Offset = gameplayKeep.Offset, Length = gameplayKeep.Length
+      };
+
+      var gameplayFieldKeep =
+          zSegments.Others.Single(
+              other => other.FileName is "gameplay_field_keep");
+      Segments.GAMEPLAY_FIELD_KEEP = new Segment {
+          Offset = gameplayFieldKeep.Offset, Length = gameplayFieldKeep.Length
+      };
     }
   }
 }

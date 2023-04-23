@@ -1,22 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Forms;
 
 using f3dzex2.io;
 
-using fin.proto;
-
 using schema.binary;
 
-using UoT.limbs;
-using UoT.util;
+using UoT.api;
+
 
 namespace UoT.model {
-  public interface ILimb : IBinaryDeserializable {
-    ushort X { get; }
-    ushort Y { get; }
-    ushort Z { get; }
+  public interface ILimb2 : IBinaryDeserializable {
+    short X { get; }
+    short Y { get; }
+    short Z { get; }
 
     sbyte FirstChildIndex { get; }
     sbyte NextSiblingIndex { get; }
@@ -25,10 +21,10 @@ namespace UoT.model {
   }
 
   [BinarySchema]
-  public partial class NonLinkLimb : ILimb {
-    public ushort X { get; set; }
-    public ushort Y { get; set; }
-    public ushort Z { get; set; }
+  public partial class NonLinkLimb : ILimb2 {
+    public short X { get; set; }
+    public short Y { get; set; }
+    public short Z { get; set; }
 
     public sbyte FirstChildIndex { get; set; }
     public sbyte NextSiblingIndex { get; set; }
@@ -37,10 +33,10 @@ namespace UoT.model {
   }
 
   [BinarySchema]
-  public partial class LinkLimb : ILimb {
-    public ushort X { get; set; }
-    public ushort Y { get; set; }
-    public ushort Z { get; set; }
+  public partial class LinkLimb : ILimb2 {
+    public short X { get; set; }
+    public short Y { get; set; }
+    public short Z { get; set; }
 
     public sbyte FirstChildIndex { get; set; }
     public sbyte NextSiblingIndex { get; set; }
@@ -49,16 +45,15 @@ namespace UoT.model {
     public uint LowLodDisplayListSegmentedAddress { get; set; }
   }
 
-  public static class LimbHierarchyReader2 {
+  public class LimbHierarchyReader2 {
     /// <summary>
     ///   Parses a limb hierarchy according to the following spec:
     ///   https://wiki.cloudmodding.com/oot/Animation_Format#Hierarchy
     /// </summary>
-    public static IList<ILimb>? GetHierarchies(
+    public IList<ILimb2>? GetHierarchies(
         IReadOnlyN64Memory n64Memory,
-        uint segmentIndex,
         bool isLink) {
-      using var entryEr = n64Memory.OpenSegment(segmentIndex);
+      using var entryEr = n64Memory.OpenSegment((uint) OotSegmentIndex.ZOBJECT);
 
       var limbSize = isLink ? 16 : 12;
 
@@ -111,7 +106,7 @@ namespace UoT.model {
           using var limbEr =
               n64Memory.OpenAtSegmentedAddress(possibleLimbSegmentedAddress);
 
-          if (limbEr.Position + limbSize >= limbEr.Position) {
+          if (limbEr.Position + limbSize >= limbEr.Length) {
             areLimbsValid = false;
             break;
           }
@@ -152,7 +147,7 @@ namespace UoT.model {
                      n64Memory.OpenAtSegmentedAddress(limbSegmentedAddress);
 
                  return isLink
-                     ? (ILimb) limbEr.ReadNew<LinkLimb>()
+                     ? (ILimb2) limbEr.ReadNew<LinkLimb>()
                      : limbEr.ReadNew<NonLinkLimb>();
                })
                .ToArray();

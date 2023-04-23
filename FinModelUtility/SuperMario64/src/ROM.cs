@@ -119,8 +119,6 @@ namespace SuperMario64 {
       else
         this.Type = ROM_Type.VANILLA;
 
-      hasLookedAtLevelIDs = false;
-
       Console.WriteLine("ROM = " + this.Filepath);
       Console.WriteLine("ROM Endian = " + this.Endian);
       Console.WriteLine("ROM Region = " + this.Region);
@@ -327,23 +325,6 @@ namespace SuperMario64 {
       return newArr;
     }
 
-    public int getLevelIndexById(ushort Id) {
-      int index = 0;
-      foreach (KeyValuePair<string, ushort> entry in levelIDs) {
-        if (entry.Value == Id)
-          return index;
-        index++;
-      }
-      return 0;
-    }
-
-    public ushort getLevelIdFromIndex(int index) {
-      if (index >= levelIDs.Count) {
-        return extra_levelIDs[index - levelIDs.Count];
-      }
-      return levelIDs.Values.ElementAt<ushort>(index);
-    }
-
     private void addToWriteMask(uint start, int length) {
       for (int i = 0; i < length; i++)
         writeMask[i + start] = 1;
@@ -448,21 +429,6 @@ namespace SuperMario64 {
 
       setSegment(0x2, seg, null);
     }
-
-    public bool hasLookedAtLevelIDs = false;
-
-    public void checkIfLevelIDIsInDictionary(ushort id) {
-      foreach (KeyValuePair<string, ushort> level_id in levelIDs) {
-        if (level_id.Value == id)
-          return;
-      }
-
-      Console.WriteLine("Found an extra level ID! 0x" + id.ToString("X8"));
-
-      extra_levelIDs.Add(id);
-    }
-
-    public List<ushort> extra_levelIDs = new List<ushort>();
 
     public Dictionary<string, ushort> levelIDs = new Dictionary<string, ushort> {
         {"[C01] Bob-omb Battlefield", 0x09},

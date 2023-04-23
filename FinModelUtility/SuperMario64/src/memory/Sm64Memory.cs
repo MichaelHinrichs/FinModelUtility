@@ -18,6 +18,8 @@ namespace SuperMario64.memory {
   public class Sm64Memory : ISm64Memory {
     public byte? AreaId { get; set; }
 
+    public byte[] Bytes => ROM.Instance.Bytes;
+
     public IEnumerable<IEndianBinaryReader> OpenPossibilitiesAtSegmentedAddress(
         uint address)
       => this.OpenAtSegmentedAddress(address).Yield();

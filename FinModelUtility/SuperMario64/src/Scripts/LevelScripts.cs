@@ -453,10 +453,6 @@ namespace SuperMario64.Scripts {
           uint off = bytesToInt(cmd, 9, 3);
           parse(sm64Hardware, ref lvl, seg, off);
         }
-
-        if (!ROM.Instance.hasLookedAtLevelIDs) {
-          ROM.Instance.checkIfLevelIDIsInDictionary((ushort) lvlcheck);
-        }
       }
     }
 

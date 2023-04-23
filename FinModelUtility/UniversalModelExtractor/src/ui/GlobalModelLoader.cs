@@ -11,6 +11,9 @@ using level5.api;
 using mod.cli;
 using modl.api;
 using SuperMario64.api;
+
+using UoT.api;
+
 using xmod.api;
 
 
@@ -34,6 +37,8 @@ namespace uni.ui {
               => new HaloWarsModelLoader().LoadModel(haloWarsModelFileBundle),
           ModModelFileBundle modModelFileBundle
               => new ModModelLoader().LoadModel(modModelFileBundle),
+          OotModelFileBundle ootModelFileBundle
+              => new OotModelLoader().LoadModel(ootModelFileBundle),
           PedModelFileBundle pedModelFileBundle
               => new PedModelLoader().LoadModel(pedModelFileBundle),
           XcModelFileBundle xcModelFileBundle
