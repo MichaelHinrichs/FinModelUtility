@@ -75,9 +75,10 @@
   <ItemGroup>
     <ProjectReference Include="..\F3dzex2\F3dzex2.csproj" />
     <ProjectReference Include="..\Fin\Fin.csproj" />
-    <ProjectReference Include="..\Schema\Schema.csproj" />
+    <ProjectReference Include="..\Schema\Schema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="memory\" />
     <Folder Include="schema\" />
   </ItemGroup>
 </Project>
