@@ -73,6 +73,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\F3dzex2\F3dzex2.csproj" />
     <ProjectReference Include="..\Fin\Fin.csproj" />
     <ProjectReference Include="..\Schema\Schema.csproj" />
   </ItemGroup>

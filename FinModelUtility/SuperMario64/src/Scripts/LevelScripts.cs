@@ -1,9 +1,7 @@
 ﻿using f3dzex2.image;
-using f3dzex2.io;
 
 using SuperMario64.memory;
 using SuperMario64.LevelInfo;
-using SuperMario64.Scripts;
 
 
 namespace SuperMario64.Scripts {
@@ -271,7 +269,7 @@ namespace SuperMario64.Scripts {
             desc = "Set music (Seq = 0x" + cmd[3].ToString("X2") + ")";
             break;
           case 0x39:
-            CMD_39(ref lvl, ref desc, cmd, sm64Memory.AreaId);
+            CMD_39(sm64Memory, ref lvl, ref desc, cmd);
             break;
           case 0x3B:
             desc = "Add jet stream; Position = (" +
@@ -954,32 +952,35 @@ namespace SuperMario64.Scripts {
       return 8;
     }
 
-    private static void CMD_39(ref Level lvl,
-                               ref string desc,
-                               byte[] cmd,
-                               byte? areaID) {
+    private static void CMD_39(
+        IReadOnlySm64Memory sm64Memory,
+        ref Level lvl,
+        ref string desc,
+        byte[] cmd) {
       if (cmd.Length < 8)
         return;
-      ROM rom = ROM.Instance;
       uint pos = bytesToInt(cmd, 4, 4);
 
       desc = "Place macro objects loaded from address 0x" + pos.ToString("X8");
 
-      byte[] data = rom.getDataFromSegmentAddress_safe(pos, 10, null);
+      ROM rom = ROM.Instance;
+      using var er = sm64Memory.OpenAtSegmentedAddress(pos);
 
       lvl.getCurrentArea().MacroObjects.Clear();
       bool endList = false;
       while (!endList) {
         //rom.printArray(data, 10);
-        uint id = bytesToInt(data, 0, 2) & 0x1FF;
+        var firstAndSecond = er.ReadUInt16();
+        uint id = (uint) (firstAndSecond & 0x1FF);
         if (id == 0 || id == 0x1E) break;
         Object3D newObj = new Object3D();
-        if (rom.isSegmentMIO0(cmd[4], areaID)) {
+        if (rom.isSegmentMIO0(cmd[4], sm64Memory.AreaId)) {
           newObj.MakeReadOnly();
           newObj.Address = "N/A";
         } else {
           newObj.Address =
-              "0x" + rom.decodeSegmentAddress(pos, areaID).ToString("X");
+              "0x" + rom.decodeSegmentAddress(pos, sm64Memory.AreaId)
+                        .ToString("X");
         }
 
         uint table_off = (id - 0x1F) * 8;
@@ -994,30 +995,30 @@ namespace SuperMario64.Scripts {
         newObj.HideProperty(Object3D.FLAGS.BPARAM_3);
         newObj.HideProperty(Object3D.FLAGS.BPARAM_4);
         newObj.ModelID = entryData[5];
-        ushort firstAndSecond = (ushort) bytesToInt(data, 0, 2);
-        newObj.setPresetID((ushort) (firstAndSecond & 0x1FF));
+        newObj.setPresetID((ushort) id);
         newObj.yRot = (short) ((firstAndSecond >> 9) * 2.8125);
-        newObj.xPos = (short) bytesToInt(data, 2, 2);
-        newObj.yPos = (short) bytesToInt(data, 4, 2);
-        newObj.zPos = (short) bytesToInt(data, 6, 2);
+        newObj.xPos = er.ReadInt16();
+        newObj.yPos = er.ReadInt16();
+        newObj.zPos = er.ReadInt16();
         newObj.DontShowActs();
         newObj.MakeBehaviorReadOnly(true);
         newObj.MakeModelIDReadOnly(true);
-        ushort bp = (ushort) bytesToInt(data, 8, 2);
-        if (data[8] != 0)
-          newObj.BehaviorParameter1 = data[8];
+
+        var bp1 = er.ReadByte();
+        if (bp1 != 0)
+          newObj.BehaviorParameter1 = bp1;
         else
           newObj.BehaviorParameter1 = entryData[6];
 
-        if (data[9] != 0)
-          newObj.BehaviorParameter2 = data[9];
+        var bp2 = er.ReadByte();
+        if (bp2 != 0)
+          newObj.BehaviorParameter2 = bp2;
         else
           newObj.BehaviorParameter2 = entryData[7];
 
         lvl.getCurrentArea().MacroObjects.Add(newObj);
-        pos += 10;
-        data = rom.getDataFromSegmentAddress_safe(pos, 10, null);
       }
+
       //uint end = bytesToInt(cmd, 8, 4);
       //rom.setSegment(seg, start, end, false);
     }

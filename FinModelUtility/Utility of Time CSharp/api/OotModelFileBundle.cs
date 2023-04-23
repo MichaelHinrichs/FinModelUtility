@@ -3,8 +3,8 @@ using fin.model;
 
 
 namespace UoT.api {
-  public class OcarinaOfTimeModelFileBundle : IModelFileBundle {
-    public OcarinaOfTimeModelFileBundle(
+  public class OotModelFileBundle : IModelFileBundle {
+    public OotModelFileBundle(
         IFileHierarchyDirectory directory,
         ISystemFile ootRom,
         string fileName,

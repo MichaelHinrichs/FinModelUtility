@@ -1,5 +1,7 @@
 ﻿using System;
 
+using f3dzex2.io;
+
 using UoT.util;
 
 namespace UoT {
@@ -57,7 +59,9 @@ namespace UoT {
 
       byte imageBank;
       uint offset;
-      IoUtil.SplitAddress(timgImageAddress, out imageBank, out offset);
+      IoUtils.SplitSegmentedAddress(timgImageAddress,
+                                    out imageBank,
+                                    out offset);
       tileDescriptor.ImageBank = imageBank;
       tileDescriptor.Offset = (int) offset;
 
@@ -203,7 +207,7 @@ namespace UoT {
       var line = tileDescriptor.LineSize << 2;
       var tbase = tileDescriptor.TmemOffset << 2;
 
-      IoUtil.SplitAddress(timgArgs.Address, out var bank, out var offset);
+      IoUtils.SplitSegmentedAddress(timgArgs.Address, out var bank, out var offset);
 
       var targetBank = Asserts.Assert(RamBanks.GetBankByIndex(bank));
 
@@ -360,7 +364,7 @@ namespace UoT {
       var timgBpl = timgWidth << (int) timgBitSize >> 1;
 
 
-      IoUtil.SplitAddress(timgAddress, out var bank, out var offset);
+      IoUtils.SplitSegmentedAddress(timgAddress, out var bank, out var offset);
       tileDescriptor.Address = (int) timgAddress;
       tileDescriptor.ImageBank = (int) bank;
       tileDescriptor.Offset = (int) offset;
@@ -393,7 +397,7 @@ namespace UoT {
       uint address = (uint) (timgAddress +
                              ult * timgBpl +
                              (uls << (int) timgBitSize >> 1));
-      IoUtil.SplitAddress(address, out var specBank, out var specOffset);
+      IoUtils.SplitSegmentedAddress(address, out var specBank, out var specOffset);
 
 
 

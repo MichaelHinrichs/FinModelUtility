@@ -1,4 +1,6 @@
-﻿using fin.math.matrix;
+﻿using f3dzex2.io;
+
+using fin.math.matrix;
 using fin.model;
 using fin.model.impl;
 using fin.schema.vector;
@@ -26,7 +28,7 @@ namespace SuperMario64.Scripts {
         byte seg,
         uint off) {
       var commandList =
-          new GeoScriptParser().Parse(GeoUtils.MergeAddress(seg, off),
+          new GeoScriptParser().Parse(IoUtils.MergeSegmentedAddress(seg, off),
                                       n64Memory.AreaId);
       if (commandList == null) {
         return;

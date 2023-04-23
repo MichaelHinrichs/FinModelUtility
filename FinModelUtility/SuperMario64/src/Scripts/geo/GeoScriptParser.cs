@@ -1,4 +1,6 @@
-﻿using SuperMario64;
+﻿using f3dzex2.io;
+
+using SuperMario64;
 using SuperMario64.schema;
 
 using schema.binary.util;
@@ -26,7 +28,7 @@ namespace SuperMario64.scripts.geo {
 
     private (IGeoCommandList, ReturnType)?
         ParseImpl_(uint address, byte? areaId) {
-      GeoUtils.SplitAddress(address, out var seg, out var off);
+      IoUtils.SplitSegmentedAddress(address, out var seg, out var off);
 
       ROM rom = ROM.Instance;
       byte[] data = rom.getSegment(seg, areaId)!;
@@ -41,19 +43,20 @@ namespace SuperMario64.scripts.geo {
 
 
       {
-        var d = new byte[] {1, 2, 3, 4};
+        var d = new byte[] { 1, 2, 3, 4 };
 
         var r = new EndianBinaryReader(d, SchemaConstants.SM64_ENDIANNESS);
 
         var adr = r.ReadUInt32();
 
-        GeoUtils.SplitAddress(adr, out var sgm, out var ofst);
+        IoUtils.SplitSegmentedAddress(adr, out var sgm, out var ofst);
 
         ;
       }
 
 
-      using var er = new EndianBinaryReader(data, SchemaConstants.SM64_ENDIANNESS);
+      using var er =
+          new EndianBinaryReader(data, SchemaConstants.SM64_ENDIANNESS);
       er.Position = off;
 
       var commands = new GeoCommandList();
@@ -61,7 +64,7 @@ namespace SuperMario64.scripts.geo {
       var returnType = ReturnType.UNDEFINED;
       while (returnType == ReturnType.UNDEFINED) {
         var cmdIdByte = er.ReadByte();
-        var cmdId = (GeoCommandId)cmdIdByte;
+        var cmdId = (GeoCommandId) cmdIdByte;
         er.Position--;
 
         var startPos = er.Position;
@@ -76,7 +79,8 @@ namespace SuperMario64.scripts.geo {
 
             ReturnType branchReturnType = ReturnType.UNDEFINED;
             var commandListAndReturnValue = this.ParseImpl_(
-                branchAndStoreCommand.GeoCommandSegmentedAddress, areaId);
+                branchAndStoreCommand.GeoCommandSegmentedAddress,
+                areaId);
             if (commandListAndReturnValue != null) {
               (branchAndStoreCommand.GeoCommandList, branchReturnType) =
                   commandListAndReturnValue.Value;
@@ -85,6 +89,7 @@ namespace SuperMario64.scripts.geo {
             if (branchReturnType == ReturnType.TERMINATED) {
               returnType = ReturnType.TERMINATED;
             }
+
             break;
           }
           case GeoCommandId.TERMINATE: {
@@ -113,6 +118,7 @@ namespace SuperMario64.scripts.geo {
             if (!branchCommand.StoreReturnAddress) {
               returnType = ReturnType.RETURNED;
             }
+
             break;
           }
           case GeoCommandId.RETURN_FROM_BRANCH: {

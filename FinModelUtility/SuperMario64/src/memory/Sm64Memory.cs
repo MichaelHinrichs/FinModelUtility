@@ -23,9 +23,9 @@ namespace SuperMario64.memory {
       => this.OpenAtSegmentedAddress(address).Yield();
 
     public IEndianBinaryReader OpenAtSegmentedAddress(uint address) {
-      GeoUtils.SplitAddress(address,
-                            out var segment,
-                            out var offset);
+      IoUtils.SplitSegmentedAddress(address,
+                                   out var segment,
+                                   out var offset);
       var er = new EndianBinaryReader(
           Asserts.CastNonnull(ROM.Instance.getSegment(segment, this.AreaId)),
           SchemaConstants.SM64_ENDIANNESS);

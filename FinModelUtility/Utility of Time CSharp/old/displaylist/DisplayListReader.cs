@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Windows.Forms;
 
+using f3dzex2.io;
+
 using Microsoft.VisualBasic;
 
 using UoT.util;
@@ -12,7 +14,7 @@ namespace UoT {
         DlManager dlManager,
         uint address,
         ComboBox dListSelection) {
-      IoUtil.SplitAddress(address, out var bank, out var offset);
+      IoUtils.SplitSegmentedAddress(address, out var bank, out var offset);
       var data = Asserts.Assert(RamBanks.GetBankByIndex(bank));
       try {
         if (offset < data.Count) {

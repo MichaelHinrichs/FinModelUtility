@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
+
+using f3dzex2.io;
+
 using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace UoT.limbs {
@@ -28,7 +31,7 @@ namespace UoT.limbs {
     /// </summary>
     private readonly Matrix identity_ = new DiagonalMatrix(4, 4, 1);
     public Matrix GetMatrixAtAddress(uint address) {
-      IoUtil.SplitAddress(address, out var bank, out var offset);
+      IoUtils.SplitSegmentedAddress(address, out var bank, out var offset);
 
       if (bank == 0x0d) {
         var visibleLimbIndex = offset / 0x40;

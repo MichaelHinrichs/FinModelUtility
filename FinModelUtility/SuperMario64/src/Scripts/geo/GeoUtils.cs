@@ -1,15 +1,5 @@
 ﻿namespace SuperMario64.scripts.geo {
   public static class GeoUtils {
-    public static void SplitAddress(uint address,
-                                    out byte segment,
-                                    out uint offset) {
-      segment = (byte)(address >> 24);
-      offset = address & 0xFFFFFF;
-    }
-
-    public static uint MergeAddress(byte segment, uint offset)
-      => (uint)((segment << 24) | (offset & 0xFFFFFF));
-
     public static bool IsDisplayListAndDrawingLayerEnabled(byte param)
       => (param & 0x80) != 0;
 

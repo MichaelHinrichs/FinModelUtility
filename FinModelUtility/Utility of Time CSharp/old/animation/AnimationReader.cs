@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 
+using f3dzex2.io;
+
 using Microsoft.VisualBasic;
 
 using UoT.util;
@@ -39,9 +41,9 @@ namespace UoT {
         var rotationValuesAddress = IoUtil.ReadUInt32(
             bank,
             attemptOffset + 4);
-        IoUtil.SplitAddress(rotationValuesAddress,
-                            out var rotationValuesBank,
-                            out var rotationValuesOffset);
+        IoUtils.SplitSegmentedAddress(rotationValuesAddress,
+                                      out var rotationValuesBank,
+                                      out var rotationValuesOffset);
 
         // Verifies the rotation values address has a valid bank.
         if (!RamBanks.IsValidBank(rotationValuesBank)) {
@@ -52,9 +54,9 @@ namespace UoT {
         var rotationIndicesAddress = IoUtil.ReadUInt32(
             bank,
             attemptOffset + 8);
-        IoUtil.SplitAddress(rotationIndicesAddress,
-                            out var rotationIndicesBank,
-                            out var rotationIndicesOffset);
+        IoUtils.SplitSegmentedAddress(rotationIndicesAddress,
+                                      out var rotationIndicesBank,
+                                      out var rotationIndicesOffset);
         if (!RamBanks.IsValidBank(rotationIndicesBank)) {
           continue;
         }
@@ -243,9 +245,9 @@ namespace UoT {
         }
 
         var animationAddress = IoUtil.ReadUInt32(HeaderData, i + 4);
-        IoUtil.SplitAddress(animationAddress,
-                            out var animationBank,
-                            out var animationOffset);
+        IoUtils.SplitSegmentedAddress(animationAddress,
+                                      out var animationBank,
+                                      out var animationOffset);
 
         // Should use link_animetion bank.
         var validAnimationBank = animationBank == 7;

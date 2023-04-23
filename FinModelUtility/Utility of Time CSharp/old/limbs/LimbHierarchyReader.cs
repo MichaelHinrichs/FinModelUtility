@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 
+using f3dzex2.io;
+
 using fin.proto;
 
 using UoT.util;
@@ -23,7 +25,7 @@ namespace UoT.limbs {
       int j = 0;
       for (int i = 0, loopTo = Data.Count - 8; i <= loopTo; i += 4) {
         limbIndexAddress = IoUtil.ReadUInt32(Data, (uint) i);
-        IoUtil.SplitAddress(limbIndexAddress,
+        IoUtils.SplitSegmentedAddress(limbIndexAddress,
                             out var limbIndexBank,
                             out var limbIndexOffset);
         uint limbCount = Data[i + 4];
@@ -52,7 +54,7 @@ namespace UoT.limbs {
               limbAddress = IoUtil.ReadUInt32(limbIndexBankBuffer,
                                               (uint) (limbIndexOffset + j * 4));
 
-              IoUtil.SplitAddress(limbAddress,
+              IoUtils.SplitSegmentedAddress(limbAddress,
                                   out var limbBank,
                                   out var limbOffset);
 
@@ -81,9 +83,9 @@ namespace UoT.limbs {
 
               var displayListAddress =
                   IoUtil.ReadUInt32(limbBankBuffer, (uint) (limbOffset + 8L));
-              IoUtil.SplitAddress(displayListAddress,
-                                  out var displayListBank,
-                                  out var displayListOffset);
+              IoUtils.SplitSegmentedAddress(displayListAddress,
+                                            out var displayListBank,
+                                            out var displayListOffset);
 
               if (displayListBank != 0L) {
                 somethingVisible = true;
@@ -106,9 +108,9 @@ namespace UoT.limbs {
                 limbAddress = IoUtil.ReadUInt32(limbIndexBankBuffer,
                                                 (uint) (limbIndexOffset +
                                                       4 * k));
-                IoUtil.SplitAddress(limbAddress,
-                                    out var limbBank,
-                                    out var limbOffset);
+                IoUtils.SplitSegmentedAddress(limbAddress,
+                                              out var limbBank,
+                                              out var limbOffset);
                 var limbBankBuffer =
                     Asserts.Assert(RamBanks.GetBankByIndex(limbBank));
 
@@ -122,7 +124,7 @@ namespace UoT.limbs {
                   var limb = tmpHierarchy[k] = new Limb(limbData);
 
                   var displayListAddress = limbData.displayListAddress;
-                  IoUtil.SplitAddress(displayListAddress,
+                  IoUtils.SplitSegmentedAddress(displayListAddress,
                                       out var displayListBank,
                                       out var displayListOffset);
 

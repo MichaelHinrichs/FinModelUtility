@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
+using f3dzex2.io;
+
 namespace UoT {
   /// <summary>
   ///   Class that manages a group of display lists. Parses models/animations,
@@ -36,7 +38,7 @@ namespace UoT {
       => this.impl_[index];
 
     public int GetIndexByAddress(uint address) {
-      IoUtil.SplitAddress(address, out var bank, out var offset);
+      IoUtils.SplitSegmentedAddress(address, out var bank, out var offset);
       
       for (var i = 0; i < this.impl_.Count; ++i) {
         var zSegment = this.impl_[i].StartPos;

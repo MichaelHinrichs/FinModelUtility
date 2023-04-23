@@ -1,20 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using UoT.util.array;
-
 namespace UoT {
   public static class IoUtil {
-    public static void SplitAddress(uint address, out byte bank, out uint offset) {
-      bank = (byte) (address >> 24);
-      offset = address << 8 >> 8;
-    }
-
-    public static uint MergeAddress(byte bank, uint offset) {
-      return (uint) ((bank << 24) | (offset & 0x00ffffff));
-    }
-
-
     // TODO: Rename params.
     /// <summary>
     ///   Gets multiple bits from the right-hand side of a value.

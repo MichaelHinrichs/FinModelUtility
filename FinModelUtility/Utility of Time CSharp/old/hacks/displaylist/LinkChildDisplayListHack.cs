@@ -1,4 +1,4 @@
-﻿namespace UoT.hacks.displaylist {
+﻿ namespace UoT.hacks.displaylist {
   public class LinkChildDisplayListHack {
     /// <summary>
     ///   The offset of the display list to render for Link's left hand. For

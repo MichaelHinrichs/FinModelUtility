@@ -8,8 +8,8 @@ using UoT.api;
 
 namespace uni.games.ocarina_of_time {
   public class OcarinaOfTimeFileBundleGatherer
-      : IFileBundleGatherer<OcarinaOfTimeModelFileBundle> {
-    public IEnumerable<OcarinaOfTimeModelFileBundle> GatherFileBundles(
+      : IFileBundleGatherer<OotModelFileBundle> {
+    public IEnumerable<OotModelFileBundle> GatherFileBundles(
         bool assert) {
       if (!DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
               "ocarina_of_time.z64",
@@ -24,7 +24,7 @@ namespace uni.games.ocarina_of_time {
 
       var zSegments = ZSegments.GetFiles(ocarinaOfTimeRom);
       foreach (var zObject in zSegments.Objects) {
-        yield return new OcarinaOfTimeModelFileBundle(root,
+        yield return new OotModelFileBundle(root,
           ocarinaOfTimeRom,
           zObject.FileName,
           zObject.Offset,

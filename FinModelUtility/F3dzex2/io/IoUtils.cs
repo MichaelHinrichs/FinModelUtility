@@ -1,9 +1,9 @@
 ﻿using System.Runtime.CompilerServices;
 
 namespace f3dzex2.io {
-  public static class IoUtil {
+  public static class IoUtils {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void SplitAddress(
+    public static void SplitSegmentedAddress(
         uint address,
         out byte bank,
         out uint offset) {
@@ -12,7 +12,7 @@ namespace f3dzex2.io {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static uint MergeAddress(byte bank, uint offset)
+    public static uint MergeSegmentedAddress(byte bank, uint offset)
       => (uint) ((bank << 24) | (offset & 0x00ffffff));
   }
 }
