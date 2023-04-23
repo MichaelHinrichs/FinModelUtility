@@ -9,29 +9,29 @@ using f3dzex2.io;
 namespace f3dzex2.displaylist {
   public interface IDisplayListReader {
     IDisplayList ReadDisplayList(
-        IN64Memory n64Memory,
+        IReadOnlyN64Memory n64Memory,
         IOpcodeParser opcodeParser,
         uint address);
 
     IReadOnlyList<IDisplayList> ReadPossibleDisplayLists(
-        IN64Memory n64Memory,
+        IReadOnlyN64Memory n64Memory,
         IOpcodeParser opcodeParser,
         uint address);
 
-    IDisplayList ReadDisplayList(IN64Memory n64Memory,
+    IDisplayList ReadDisplayList(IReadOnlyN64Memory n64Memory,
                                  IOpcodeParser opcodeParser,
                                  IEndianBinaryReader er);
   }
 
   public class DisplayListReader : IDisplayListReader {
-    public IDisplayList ReadDisplayList(IN64Memory n64Memory,
+    public IDisplayList ReadDisplayList(IReadOnlyN64Memory n64Memory,
                                         IOpcodeParser opcodeParser,
                                         uint address)
       => this.ReadPossibleDisplayLists(n64Memory, opcodeParser, address)
              .Single();
 
     public IReadOnlyList<IDisplayList> ReadPossibleDisplayLists(
-        IN64Memory n64Memory,
+        IReadOnlyN64Memory n64Memory,
         IOpcodeParser opcodeParser,
         uint address) {
       var options = new LinkedList<IDisplayList>();
@@ -42,7 +42,7 @@ namespace f3dzex2.displaylist {
       return options.ToArray();
     }
 
-    public IDisplayList ReadDisplayList(IN64Memory n64Memory,
+    public IDisplayList ReadDisplayList(IReadOnlyN64Memory n64Memory,
                                         IOpcodeParser opcodeParser,
                                         IEndianBinaryReader er) {
       var opcodeCommands = new LinkedList<IOpcodeCommand>();

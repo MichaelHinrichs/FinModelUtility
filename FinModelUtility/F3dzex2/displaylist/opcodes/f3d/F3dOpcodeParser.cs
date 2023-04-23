@@ -11,7 +11,7 @@ using fin.math;
 
 namespace f3dzex2.displaylist.opcodes.f3d {
   public class F3dOpcodeParser : IOpcodeParser {
-    public IOpcodeCommand Parse(IN64Memory n64Memory,
+    public IOpcodeCommand Parse(IReadOnlyN64Memory n64Memory,
                                 IDisplayListReader dlr,
                                 IEndianBinaryReader er) {
       var baseOffset = er.Position;
@@ -23,7 +23,7 @@ namespace f3dzex2.displaylist.opcodes.f3d {
 
     public DisplayListType Type => DisplayListType.FAST3D;
 
-    private IOpcodeCommand ParseOpcodeCommand_(IN64Memory n64Memory,
+    private IOpcodeCommand ParseOpcodeCommand_(IReadOnlyN64Memory n64Memory,
                                                IDisplayListReader dlr,
                                                IEndianBinaryReader er,
                                                F3dOpcode opcode) {
@@ -53,8 +53,8 @@ namespace f3dzex2.displaylist.opcodes.f3d {
               4);
           er.AssertUInt16((ushort) (numVertices * 0x10));
 
-          var address = er.ReadUInt32();
-          using var ser = n64Memory.OpenAtSegmentedAddress(address);
+          var segmentedAddress = er.ReadUInt32();
+          using var ser = n64Memory.OpenAtSegmentedAddress(segmentedAddress);
 
           return new VtxOpcodeCommand {
               Vertices = ser.ReadNewArray<F3dVertex>((int) numVertices),

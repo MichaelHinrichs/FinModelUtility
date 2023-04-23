@@ -7,7 +7,7 @@ using System;
 
 namespace f3dzex2.displaylist.opcodes.f3dzex2 {
   public class F3dzex2OpcodeParser : IOpcodeParser {
-    public IOpcodeCommand Parse(IN64Memory n64Memory,
+    public IOpcodeCommand Parse(IReadOnlyN64Memory n64Memory,
                                 IDisplayListReader dlr,
                                 IEndianBinaryReader er) {
       var baseOffset = er.Position;
@@ -19,7 +19,7 @@ namespace f3dzex2.displaylist.opcodes.f3dzex2 {
 
     public DisplayListType Type => DisplayListType.F3DZEX2;
 
-    private IOpcodeCommand ParseOpcodeCommand_(IN64Memory n64Memory,
+    private IOpcodeCommand ParseOpcodeCommand_(IReadOnlyN64Memory n64Memory,
                                                IDisplayListReader dlr,
                                                IEndianBinaryReader er,
                                                F3dzex2Opcode opcode) {
