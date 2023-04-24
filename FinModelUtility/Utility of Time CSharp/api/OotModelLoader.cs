@@ -4,7 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 
+using f3dzex2.displaylist.opcodes.f3dzex2;
+using f3dzex2.image;
 using f3dzex2.io;
+using f3dzex2.model;
 
 using fin.data.queue;
 using fin.model;
@@ -31,6 +34,12 @@ namespace UoT.api {
 
       var n64Memory = new N64Memory(modelFileBundle.OotRom.ReadAllBytes(),
                                     Endianness.BigEndian);
+
+
+      var n64Hardware = new N64Hardware<N64Memory>();
+      n64Hardware.Memory = n64Memory;
+      n64Hardware.Rdp = new Rdp { Tmem = new JankTmem(n64Hardware) };
+      n64Hardware.Rsp = new Rsp();
 
       var zSegments = ZSegments.Instance;
 
@@ -61,12 +70,13 @@ namespace UoT.api {
                              linkAnimetion.Length);
       }
 
-      var finModel = new ModelImpl();
+      var dlModelBuilder = new DlModelBuilder(n64Hardware);
+      var finModel = dlModelBuilder.Model;
 
       var ootLimbs =
           new LimbHierarchyReader2().GetHierarchies(n64Memory, isLink);
-      var finBones = new IBone[ootLimbs?.Count ?? 0];
       if (ootLimbs != null) {
+        var finBones = new IBone[ootLimbs.Count];
         var ootLimbQueue =
             new FinTuple2Queue<IBone, int>((finModel.Skeleton.Root, 0));
         while (ootLimbQueue.TryDequeue(out var parentFinBone,
@@ -87,6 +97,28 @@ namespace UoT.api {
           if (nextSiblingIndex != -1) {
             ootLimbQueue.Enqueue((parentFinBone, nextSiblingIndex));
           }
+        }
+
+        var finBonesWithDisplayLists = new List<IBone>();
+        for (var i = 0; i < finBones.Length; ++i) {
+          var ootLimb = ootLimbs[i];
+          IoUtils.SplitSegmentedAddress(ootLimb.DisplayListSegmentedAddress,
+                                        out var dlSegmentIndex,
+                                        out _);
+
+          if (dlSegmentIndex == 0) {
+            continue;
+          }
+
+          var finBone = finBones[i];
+          finBonesWithDisplayLists.Add(finBone);
+
+          var displayList =
+              new f3dzex2.displaylist.DisplayListReader().ReadDisplayList(
+                  n64Memory,
+                  new F3dzex2OpcodeParser(),
+                  ootLimb.DisplayListSegmentedAddress);
+          dlModelBuilder.AddDl(displayList);
         }
 
         var animationReader = new AnimationReader2();

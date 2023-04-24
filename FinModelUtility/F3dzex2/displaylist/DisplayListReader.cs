@@ -11,12 +11,12 @@ namespace f3dzex2.displaylist {
     IDisplayList ReadDisplayList(
         IReadOnlyN64Memory n64Memory,
         IOpcodeParser opcodeParser,
-        uint address);
+        uint segmentedAddress);
 
     IReadOnlyList<IDisplayList> ReadPossibleDisplayLists(
         IReadOnlyN64Memory n64Memory,
         IOpcodeParser opcodeParser,
-        uint address);
+        uint segmentedAddress);
 
     IDisplayList ReadDisplayList(IReadOnlyN64Memory n64Memory,
                                  IOpcodeParser opcodeParser,
@@ -26,16 +26,16 @@ namespace f3dzex2.displaylist {
   public class DisplayListReader : IDisplayListReader {
     public IDisplayList ReadDisplayList(IReadOnlyN64Memory n64Memory,
                                         IOpcodeParser opcodeParser,
-                                        uint address)
-      => this.ReadPossibleDisplayLists(n64Memory, opcodeParser, address)
+                                        uint segmentedAddress)
+      => this.ReadPossibleDisplayLists(n64Memory, opcodeParser, segmentedAddress)
              .Single();
 
     public IReadOnlyList<IDisplayList> ReadPossibleDisplayLists(
         IReadOnlyN64Memory n64Memory,
         IOpcodeParser opcodeParser,
-        uint address) {
+        uint segmentedAddress) {
       var options = new LinkedList<IDisplayList>();
-      foreach (var impl in n64Memory.OpenPossibilitiesAtSegmentedAddress(address)) {
+      foreach (var impl in n64Memory.OpenPossibilitiesAtSegmentedAddress(segmentedAddress)) {
         using var er = impl;
         options.AddLast(this.ReadDisplayList(n64Memory, opcodeParser, er));
       }

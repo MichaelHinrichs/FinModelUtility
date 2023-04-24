@@ -93,6 +93,48 @@ namespace f3dzex2.displaylist.opcodes {
     public byte VertexIndexA1 { get; set; }
     public byte VertexIndexB1 { get; set; }
     public byte VertexIndexC1 { get; set; }
+
+    public IEnumerable<byte> VertexIndicesInOrder0 {
+      get {
+        var startOffset = VertexOrder0 switch {
+            TriVertexOrder.ABC => 0,
+            TriVertexOrder.BCA => 1,
+            TriVertexOrder.CAB => 2,
+            _                  => throw new ArgumentOutOfRangeException()
+        };
+
+        for (var i = 0; i < 3; ++i) {
+          var current = (startOffset + i) % 3;
+          yield return current switch {
+              0 => VertexIndexA0,
+              1 => VertexIndexB0,
+              2 => VertexIndexC0,
+              _ => throw new ArgumentOutOfRangeException()
+          };
+        }
+      }
+    }
+
+    public IEnumerable<byte> VertexIndicesInOrder1 {
+      get {
+        var startOffset = VertexOrder1 switch {
+            TriVertexOrder.ABC => 0,
+            TriVertexOrder.BCA => 1,
+            TriVertexOrder.CAB => 2,
+            _                  => throw new ArgumentOutOfRangeException()
+        };
+
+        for (var i = 0; i < 3; ++i) {
+          var current = (startOffset + i) % 3;
+          yield return current switch {
+              0 => VertexIndexA1,
+              1 => VertexIndexB1,
+              2 => VertexIndexC1,
+              _ => throw new ArgumentOutOfRangeException()
+          };
+        }
+      }
+    }
   }
 
   public class SetEnvColorOpcodeCommand : IOpcodeCommand {

@@ -397,6 +397,25 @@ namespace f3dzex2.model {
 
             break;
           }
+          case Tri2OpcodeCommand tri2OpcodeCommand: {
+            var material = this.GetOrCreateMaterial_();
+            var vertices =
+                tri2OpcodeCommand
+                    .VertexIndicesInOrder0
+                    .Concat(tri2OpcodeCommand.VertexIndicesInOrder1)
+                    .Select(this.vertices_.GetOrCreateVertexAtIndex);
+            var triangles = this.currentMesh_.AddTriangles(vertices.ToArray())
+                                .SetMaterial(material)
+                                .SetVertexOrder(VertexOrder.NORMAL);
+
+            if (isMaterialTransparent_) {
+              triangles.SetInversePriority(1);
+            } else {
+              triangles.SetInversePriority(0);
+            }
+
+            break;
+          }
           case LoadBlockOpcodeCommand loadBlockOpcodeCommand: {
             this.n64Hardware_.Rdp.Tmem.GsDpLoadBlock(0,
               0,
