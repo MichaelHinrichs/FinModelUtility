@@ -19,10 +19,16 @@ namespace UoT.api {
     GAMEPLAY_KEEP = 4,
     GAMEPLAY_FIELD_KEEP = 5,
     ZOBJECT = 6,
+    LINK_ANIMETION = 7,
   }
 
   public class OotModelLoader : IModelLoader<OotModelFileBundle> {
     public IModel LoadModel(OotModelFileBundle modelFileBundle) {
+      var zFile = modelFileBundle.ZFile;
+      var isLink = zFile.FileName is "object_link_boy"
+                                     or "object_link_child"
+                                     or "object_torch2";
+
       var n64Memory = new N64Memory(modelFileBundle.OotRom.ReadAllBytes(),
                                     Endianness.BigEndian);
 
@@ -42,16 +48,21 @@ namespace UoT.api {
                            gameplayFieldKeep.Offset,
                            gameplayFieldKeep.Length);
 
-      var zFile = modelFileBundle.ZFile;
       n64Memory.AddSegment((uint) OotSegmentIndex.ZOBJECT,
                            zFile.Offset,
                            zFile.Length);
 
+      var linkAnimetion =
+          zSegments.Others.SingleOrDefault(
+              other => other.FileName is "link_animetion");
+      if (isLink) {
+        n64Memory.AddSegment((uint) OotSegmentIndex.LINK_ANIMETION,
+                             linkAnimetion.Offset,
+                             linkAnimetion.Length);
+      }
+
       var finModel = new ModelImpl();
 
-      var isLink = zFile.FileName is "object_link_boy"
-                                     or "object_link_child"
-                                     or "object_torch2";
       var ootLimbs =
           new LimbHierarchyReader2().GetHierarchies(n64Memory, isLink);
       var finBones = new IBone[ootLimbs?.Count ?? 0];
@@ -78,21 +89,19 @@ namespace UoT.api {
           }
         }
 
-
-        var animationFiles = new List<IZFile> {zFile};
-        if (isLink) {
-          animationFiles.Add(
-              zSegments.Others.Single(
-                  other => other.FileName is "link_animetion"));
-        }
-
         var animationReader = new AnimationReader2();
-        var ootAnimations = isLink
-            ? null
-            : animationReader.GetCommonAnimations(
-                n64Memory,
-                animationFiles,
-                ootLimbs.Count);
+        IList<IAnimation>? ootAnimations;
+        if (isLink) {
+          ootAnimations = animationReader.GetLinkAnimations(n64Memory,
+            gameplayKeep,
+            ootLimbs.Count);
+        } else {
+          var animationFiles = new List<IZFile> {zFile};
+          ootAnimations = animationReader.GetCommonAnimations(
+              n64Memory,
+              animationFiles,
+              ootLimbs.Count);
+        }
 
         var animationIndex = 0;
         if (ootAnimations != null) {
@@ -142,7 +151,8 @@ namespace UoT.api {
       for (var f = 0; f < ootAnimationTrack.Frames.Count; ++f) {
         boneTracks.Rotations.Set(f,
                                  axis,
-                                 (float) ((ootAnimationTrack.Frames[f] * 360.0) / 0xFFFF));
+                                 (float) ((ootAnimationTrack.Frames[f] *
+                                           360.0) / 0xFFFF));
       }
     }
 

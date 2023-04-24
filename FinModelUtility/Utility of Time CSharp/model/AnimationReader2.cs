@@ -4,7 +4,11 @@ using System.IO;
 
 using f3dzex2.io;
 
+using Microsoft.VisualBasic;
+
 using UoT.memory;
+
+using static Assimp.Metadata;
 
 #pragma warning disable CS8603
 
@@ -174,44 +178,37 @@ namespace UoT.model {
     ///   Parses a set of animations according to the spec at:
     ///   https://wiki.cloudmodding.com/oot/Animation_Format#C_code
     /// </summary>
-    /*public IList<IAnimation>? GetLinkAnimations(
-        IBank HeaderData,
-        int LimbCount,
-        IBank animationData,
-        ListBox animationList) {
-      animationList.Items.Clear();
+    public IList<IAnimation>? GetLinkAnimations(
+        IN64Memory n64Memory,
+        IZFile headerFile,
+        int limbCount) {
       var animations = new List<IAnimation>();
 
-      var trackCount = (uint) (LimbCount * 3);
+      using var headerEr = new EndianBinaryReader(
+          new MemoryStream(n64Memory.Bytes,
+                           (int) headerFile.Offset,
+                           (int) headerFile.Length),
+          n64Memory.Endianness);
+
+      var trackCount = (uint) (limbCount * 3);
       var frameSize = 2 * (3 + trackCount) + 2;
       for (uint i = 0x2310; i <= 0x34F8; i += 4) {
+        headerEr.Position = i;
+
+        var frameCount = headerEr.ReadUInt16();
+        var pad0 = headerEr.ReadUInt16();
+        var animationAddress = headerEr.ReadUInt32();
+
+        if (pad0 != 0) {
+          continue;
+        }
+
         // Verifies the frame count is positive.
-        var frameCount = IoUtil.ReadUInt16(HeaderData, i);
         if (frameCount == 0) {
           continue;
         }
 
-        var animationAddress = IoUtil.ReadUInt32(HeaderData, i + 4);
-        IoUtils.SplitSegmentedAddress(animationAddress,
-                                      out var animationBank,
-                                      out var animationOffset);
-
-        // Should use link_animetion bank.
-        var validAnimationBank = animationBank == 7;
-        if (!validAnimationBank) {
-          continue;
-        }
-
-        // Should have zeroes in the expected bytes of the header.
-        var hasZeroes = IoUtil.ReadUInt16(HeaderData, i + 2) == 0;
-        if (!hasZeroes) {
-          continue;
-        }
-
-        // Should be within the bounds of the bank.
-        var validOffset = animationOffset + frameSize * frameCount <
-                          animationData.Count;
-        if (!validOffset) {
+        if (!n64Memory.IsValidSegmentedAddress(animationAddress)) {
           continue;
         }
 
@@ -228,25 +225,27 @@ namespace UoT.model {
           tracks[t] = new LinkAnimetionTrack(1, new ushort[frameCount]);
         }
 
-        for (int f = 0, loopTo1 = frameCount - 1; f <= loopTo1; f++) {
-          var frameOffset = (uint) (animationOffset + f * frameSize);
+        using var animationEr = n64Memory.OpenAtSegmentedAddress(animationAddress);
+        var originalAnimationOffset = animationEr.Position;
+        for (int f = 0; f < frameCount; f++) {
+          var frameOffset = animationEr.Position = (uint) (originalAnimationOffset + f * frameSize);
 
-          // TODO: This should be ReadInt16() instead.
           positions[f] = new Vec3s {
-              X = (short) IoUtil.ReadUInt16(animationData, frameOffset),
-              Y = (short) IoUtil.ReadUInt16(animationData, frameOffset + 2),
-              Z = (short) IoUtil.ReadUInt16(animationData, frameOffset + 4),
+              X = animationEr.ReadInt16(),
+              Y = animationEr.ReadInt16(),
+              Z = animationEr.ReadInt16(),
           };
           for (int t = 0, loopTo2 = (int) (trackCount - 1L);
                t <= loopTo2;
                t++) {
-            var trackOffset = (uint) (frameOffset + 2 * (3 + t));
-            tracks[t].Frames[f] = IoUtil.ReadUInt16(animationData, trackOffset);
+            animationEr.Position = (uint) (frameOffset + 2 * (3 + t));
+            tracks[t].Frames[f] = animationEr.ReadUInt16();
           }
 
-          var facialStateOffset =
+          animationEr.Position =
               (int) (frameOffset + 2 * (3 + trackCount));
-          var facialState = animationData[facialStateOffset + 1];
+          var unk = animationEr.ReadByte();
+          var facialState = animationEr.ReadByte();
           var mouthState = IoUtil.ShiftR(facialState, 4, 4);
           var eyeState = IoUtil.ShiftR(facialState, 0, 4);
 
@@ -257,11 +256,9 @@ namespace UoT.model {
         var animation =
             new LinkAnimetion(frameCount, tracks, positions, facialStates);
         animations.Add(animation);
-
-        animationList.Items.Add("0x" + Conversion.Hex(i));
       }
 
       return animations.Count > 0 ? animations : null;
-    }*/
+    }
   }
 }
