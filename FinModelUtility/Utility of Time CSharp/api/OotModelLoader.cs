@@ -142,7 +142,7 @@ namespace UoT.api {
       for (var f = 0; f < ootAnimationTrack.Frames.Count; ++f) {
         boneTracks.Rotations.Set(f,
                                  axis,
-                                 (ootAnimationTrack.Frames[f] * 360f) / 0xFFFF);
+                                 (float) ((ootAnimationTrack.Frames[f] * 360.0) / 0xFFFF));
       }
     }
 

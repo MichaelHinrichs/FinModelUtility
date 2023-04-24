@@ -33,8 +33,8 @@ namespace UoT.model {
 
         // Guesstimating the index by looking for an spot where the header's angle
         // address and track address have the same bank as the param at the top.
-        for (var i = 4; i < entryEr.Length - 12; i += 4) {
-          entryEr.Position = i - 4;
+        for (var i = 0; i < entryEr.Length - 16; ++i) {
+          entryEr.Position = i;
 
           var frameCount = entryEr.ReadUInt16();
           var pad0 = entryEr.ReadUInt16();
@@ -77,7 +77,7 @@ namespace UoT.model {
 
           // All values of "tTrack" should be within the bounds of .Angles.
           var validTTracks = true;
-          for (var i1 = 0; i1 < 3 + trackCount; i1++) {
+          for (var i1 = 0; i1 < 3 + (trackCount + 1); i1++) {
             var tTrack = rotationIndicesEr.ReadUInt16();
             if (tTrack < limit) {
               if (tTrack >= angleCount) {
@@ -101,10 +101,7 @@ namespace UoT.model {
               AngleCount = (uint) angleCount
           };
 
-          animation.Angles = new ushort[animation.AngleCount];
-          for (var i1 = 0; i1 < animation.AngleCount; ++i1) {
-            animation.Angles[i1] = rotationValuesEr.ReadUInt16();
-          }
+          animation.Angles = rotationValuesEr.ReadUInt16s(animation.AngleCount);
 
           // Translation is at the start.
           rotationIndicesEr.Position = originalRotationIndicesOffset;
@@ -137,21 +134,8 @@ namespace UoT.model {
 
           for (var i1 = 0; i1 < trackCount; ++i1) {
             var track = animation.Tracks[i1] = new NormalAnimationTrack();
-
-            var tTrack = rotationIndicesEr.ReadUInt16();
-            if (tTrack < limit) {
-              // Constant (single value)
-              track.Type = 0;
-              track.Frames = new ushort[1];
-              track.Frames[0] = animation.Angles[tTrack];
-            } else {
-              // Keyframes
-              track.Type = 1;
-              track.Frames = new ushort[animation.FrameCount];
-              for (var i2 = 0; i2 < animation.FrameCount; ++i2) {
-                track.Frames[i2] = animation.Angles[tTrack + i2];
-              }
-            }
+            track.Frames =
+                ReadFrames_(rotationIndicesEr.ReadUInt16(), limit, animation);
           }
 
           animations.Add(animation);

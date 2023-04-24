@@ -1,6 +1,7 @@
 ﻿using System;
 
 using fin.data;
+
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -16,7 +17,8 @@ namespace fin.model.impl {
     public class RadiansRotationTrack3dImpl : IRadiansRotationTrack3d {
       private readonly TrackImpl<float>[] axisTracks_;
 
-      public RadiansRotationTrack3dImpl(ReadOnlySpan<int> initialCapacityPerAxis) {
+      public RadiansRotationTrack3dImpl(
+          ReadOnlySpan<int> initialCapacityPerAxis) {
         this.axisTracks_ = new TrackImpl<float>[3];
         for (var i = 0; i < 3; ++i) {
           this.axisTracks_[i] =
@@ -62,7 +64,8 @@ namespace fin.model.impl {
                     optionalOutgoingTangent);
 
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      public Keyframe<ValueAndTangents<float>>?[] GetAxisListAtKeyframe(int keyframe)
+      public Keyframe<ValueAndTangents<float>>?[] GetAxisListAtKeyframe(
+          int keyframe)
         => this.axisTracks_.Select(axis => axis.GetKeyframe(keyframe))
                .ToArray();
 
@@ -74,7 +77,7 @@ namespace fin.model.impl {
         var yTrack = this.axisTracks_[1];
         var zTrack = this.axisTracks_[2];
 
-        var keyframe = (int)frame;
+        var keyframe = (int) frame;
 
         // TODO: Properly interpolate between first and final keyframe
         // TODO: Fix gimbal lock
@@ -133,30 +136,40 @@ namespace fin.model.impl {
             useLoopingInterpolation);
 
         if (!RadiansRotationTrack3dImpl.CanInterpolateWithQuaternions_(
-                fromXFrame, fromYFrame, fromZFrame,
-                toXFrame, toYFrame, toZFrame)) {
+                fromXFrame,
+                fromYFrame,
+                fromZFrame,
+                toXFrame,
+                toYFrame,
+                toZFrame)) {
           var xRadians =
-              xTrack.GetInterpolatedFrame(frame, defaultX, useLoopingInterpolation);
+              xTrack.GetInterpolatedFrame(frame,
+                                          defaultX,
+                                          useLoopingInterpolation);
           var yRadians =
-              yTrack.GetInterpolatedFrame(frame, defaultY, useLoopingInterpolation);
+              yTrack.GetInterpolatedFrame(frame,
+                                          defaultY,
+                                          useLoopingInterpolation);
           var zRadians =
-              zTrack.GetInterpolatedFrame(frame, defaultZ, useLoopingInterpolation);
+              zTrack.GetInterpolatedFrame(frame,
+                                          defaultZ,
+                                          useLoopingInterpolation);
 
           return ConvertRadiansToQuaternionImpl(xRadians, yRadians, zRadians);
         }
 
-        var fromFrame = fromXFrame.Value.frame;
-        var toFrame = toXFrame.Value.frame;
+        var fromFrame = fromXFrame?.frame ?? fromYFrame?.frame ?? fromZFrame.Value.frame;
+        var toFrame = toXFrame?.frame ?? toYFrame?.frame ?? toZFrame.Value.frame;
         var frameDelta = (frame - fromFrame) / (toFrame - fromFrame);
 
         var q1 = ConvertRadiansToQuaternionImpl(
-            fromXFrame.Value.value,
-            fromYFrame.Value.value,
-            fromZFrame.Value.value);
+            fromXFrame?.value ?? defaultX,
+            fromYFrame?.value ?? defaultY,
+            fromZFrame?.value ?? defaultZ);
         var q2 = ConvertRadiansToQuaternionImpl(
-            toXFrame.Value.value,
-            toYFrame.Value.value,
-            toZFrame.Value.value);
+            toXFrame?.value ?? defaultX,
+            toYFrame?.value ?? defaultY,
+            toZFrame?.value ?? defaultZ);
 
         if (Quaternion.Dot(q1, q2) < 0) {
           q2 = -q2;
@@ -170,32 +183,48 @@ namespace fin.model.impl {
       private static bool CanInterpolateWithQuaternions_(
           params (float frame, float value, float? tangent)?[]
               fromsAndTos) {
-        if (fromsAndTos.Any(frameData => {
-              if (frameData == null) {
-                return true;
-              }
+        Span<bool> okAxes = stackalloc bool[3];
+        for (var i = 0; i < 3; ++i) {
+          var from = fromsAndTos[i];
+          var to = fromsAndTos[3 + i];
 
-              // TODO: Use tangents if all fromFrames have the same tangent and all
-              // toFrames have the same tangent.
-              return (frameData.Value.tangent ?? 0) != 0;
-            })) {
-          return false;
+          okAxes[i] = (from == null && to == null) ||
+                      Math.Abs(from.Value.value - to.Value.value) < .0001;
         }
 
-        var firstFromFrame = fromsAndTos[0].Value.frame;
-        if (fromsAndTos.Skip(1)
-                       .Take(2)
-                       .Any(frame => frame.Value.frame != firstFromFrame)) {
-          return false;
+        for (var i = 0; i < 6; ++i) {
+          if (okAxes[i % 3]) {
+            continue;
+          }
+
+          if (fromsAndTos[i] == null) {
+            return false;
+          }
+
+          // TODO: Use tangents if all fromFrames have the same tangent and all
+          // toFrames have the same tangent.
+          if ((fromsAndTos[i].Value.tangent ?? 0) != 0) {
+            return false;
+          }
         }
 
-        var firstToFrame = fromsAndTos[3].Value.frame;
-        if (fromsAndTos.Skip(3)
-                       .Skip(1)
-                       .Take(2)
-                       .Any(frame =>
-                                frame.Value.frame != firstToFrame)) {
-          return false;
+        for (var i = 0; i < 3; ++i) {
+          if (okAxes[i]) {
+            continue;
+          }
+
+          for (var oi = 0; oi < 3; ++oi) {
+            if (oi == i || okAxes[oi]) {
+              continue;
+            }
+
+            if (fromsAndTos[i].Value.frame != fromsAndTos[oi].Value.frame) {
+              return false;
+            }
+            if (fromsAndTos[3 + i].Value.frame != fromsAndTos[3 + oi].Value.frame) {
+              return false;
+            }
+          }
         }
 
         return true;
