@@ -142,18 +142,18 @@ namespace fin.model.impl {
           var zRadians =
               zTrack.GetInterpolatedFrame(frame, defaultZ, useLoopingInterpolation);
 
-          return QuaternionUtil.Create(xRadians, yRadians, zRadians);
+          return ConvertRadiansToQuaternionImpl(xRadians, yRadians, zRadians);
         }
 
         var fromFrame = fromXFrame.Value.frame;
         var toFrame = toXFrame.Value.frame;
         var frameDelta = (frame - fromFrame) / (toFrame - fromFrame);
 
-        var q1 = QuaternionUtil.Create(
+        var q1 = ConvertRadiansToQuaternionImpl(
             fromXFrame.Value.value,
             fromYFrame.Value.value,
             fromZFrame.Value.value);
-        var q2 = QuaternionUtil.Create(
+        var q2 = ConvertRadiansToQuaternionImpl(
             toXFrame.Value.value,
             toYFrame.Value.value,
             toZFrame.Value.value);
@@ -200,6 +200,10 @@ namespace fin.model.impl {
 
         return true;
       }
+
+      public IRadiansRotationTrack3d.ConvertRadiansToQuaternion
+          ConvertRadiansToQuaternionImpl { get; set; } =
+        QuaternionUtil.CreateZyx;
     }
   }
 }

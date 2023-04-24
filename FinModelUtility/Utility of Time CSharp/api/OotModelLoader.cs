@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 
 using f3dzex2.io;
 
@@ -52,9 +54,10 @@ namespace UoT.api {
                                      or "object_torch2";
       var ootLimbs =
           new LimbHierarchyReader2().GetHierarchies(n64Memory, isLink);
-      var finBones = new IBone[ootLimbs.Count];
+      var finBones = new IBone[ootLimbs?.Count ?? 0];
       if (ootLimbs != null) {
-        var ootLimbQueue = new FinTuple2Queue<IBone, int>((finModel.Skeleton.Root, 0));
+        var ootLimbQueue =
+            new FinTuple2Queue<IBone, int>((finModel.Skeleton.Root, 0));
         while (ootLimbQueue.TryDequeue(out var parentFinBone,
                                        out var ootLimbIndex)) {
           var ootLimb = ootLimbs[ootLimbIndex];
@@ -117,6 +120,9 @@ namespace UoT.api {
                   ? rootAnimationTracks
                   : finAnimation.AddBoneTracks(finBone);
 
+              animationTracks.Rotations.ConvertRadiansToQuaternionImpl =
+                  ConvertRadiansToQuaternionOot_;
+
               for (var a = 0; a < 3; ++a) {
                 AddOotAnimationTrackToFin_(ootAnimation.GetTrack(i * 3 + a),
                                            a,
@@ -138,6 +144,22 @@ namespace UoT.api {
                                  axis,
                                  (ootAnimationTrack.Frames[f] * 360f) / 0xFFFF);
       }
+    }
+
+    private static Quaternion ConvertRadiansToQuaternionOot_(
+        float xRadians,
+        float yRadians,
+        float zRadians) {
+      var r2d = MathF.PI / 180;
+      var xDegrees = xRadians * r2d;
+      var yDegrees = yRadians * r2d;
+      var zDegrees = zRadians * r2d;
+
+      var qz = Quaternion.CreateFromYawPitchRoll(0, 0, zDegrees);
+      var qy = Quaternion.CreateFromYawPitchRoll(yDegrees, 0, 0);
+      var qx = Quaternion.CreateFromYawPitchRoll(0, xDegrees, 0);
+
+      return Quaternion.Normalize(qz * qy * qx);
     }
   }
 }

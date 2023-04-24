@@ -20,7 +20,7 @@ namespace fin.math {
 
     [Test]
     public void TestRotation() {
-      var expectedRotation = QuaternionUtil.Create(1.2f, 2.3f, 3.4f);
+      var expectedRotation = QuaternionUtil.CreateZyx(1.2f, 2.3f, 3.4f);
 
       var matrix = MatrixTransformUtil.FromRotation(
           expectedRotation);
@@ -50,7 +50,7 @@ namespace fin.math {
     [Test]
     public void TestTrs() {
       var expectedTranslation = new Position(2, 3, 4);
-      var expectedRotation = QuaternionUtil.Create(1.2f, 2.3f, 3.4f);
+      var expectedRotation = QuaternionUtil.CreateZyx(1.2f, 2.3f, 3.4f);
       var expectedScale = new Scale(3, 4, 5);
 
       var trs = MatrixTransformUtil.FromTrs(

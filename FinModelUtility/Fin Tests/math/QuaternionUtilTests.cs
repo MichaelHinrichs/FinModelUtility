@@ -15,7 +15,7 @@ namespace fin.math {
       var y = 2 * 20 * degToRad;
       var z = 3 * 20 * degToRad;
 
-      var q = QuaternionUtil.Create(x, y, z);
+      var q = QuaternionUtil.CreateZyx(x, y, z);
 
       var v = QuaternionUtil.ToEulerRadians(q);
 

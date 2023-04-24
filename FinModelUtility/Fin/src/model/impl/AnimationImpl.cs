@@ -178,7 +178,7 @@ namespace fin.model.impl {
           IRotation lhs,
           IRotation rhs,
           float progress)
-        => QuaternionUtil.Create(lhs.XRadians, lhs.YRadians, lhs.ZRadians);
+        => QuaternionUtil.CreateZyx(lhs.XRadians, lhs.YRadians, lhs.ZRadians);
 
       public static Scale ScaleInterpolator(
           Scale lhs,

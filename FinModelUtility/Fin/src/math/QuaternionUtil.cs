@@ -7,11 +7,11 @@ using fin.model;
 namespace fin.math {
   public static class QuaternionUtil {
     public static Quaternion Create(IRotation rotation)
-      => QuaternionUtil.Create(rotation.XRadians,
+      => QuaternionUtil.CreateZyx(rotation.XRadians,
                                rotation.YRadians,
                                rotation.ZRadians);
 
-    public static Quaternion Create(
+    public static Quaternion CreateZyx(
         float xRadians,
         float yRadians,
         float zRadians) {

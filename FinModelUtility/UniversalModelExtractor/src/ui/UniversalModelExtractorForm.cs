@@ -107,6 +107,8 @@ public partial class UniversalModelExtractorForm : Form {
     }
 
     var stopwatch = new FrameStopwatch();
+    stopwatch.Start();
+
     obj.SetOnTickHandler(_ => {
       var time = stopwatch.Elapsed.TotalMilliseconds;
       var baseAngleInRadians = time / 400;

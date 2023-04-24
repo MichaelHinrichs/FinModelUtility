@@ -1,4 +1,6 @@
-﻿using fin.model.impl;
+﻿using System;
+
+using fin.model.impl;
 using System.Numerics;
 
 
@@ -24,6 +26,13 @@ namespace fin.model {
   }
 
   public interface IPositionTrack3d : IAxes3fTrack<Position> { }
-  public interface IRadiansRotationTrack3d : IAxes3fTrack<Quaternion> { }
+
+  public interface IRadiansRotationTrack3d : IAxes3fTrack<Quaternion> {
+    ConvertRadiansToQuaternion ConvertRadiansToQuaternionImpl { get; set; }
+
+    delegate Quaternion ConvertRadiansToQuaternion(float xRadians,
+                                                   float yRadians,
+                                                   float zRadians);
+  }
   public interface IScale3dTrack : IAxes3fTrack<Scale> { }
 }
