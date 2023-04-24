@@ -7,83 +7,10 @@ using System.Text;
 
 using fin.io;
 
-namespace UoT.api {
-  public enum ZFileType {
-    OBJECT,
-    CODE,
-    SCENE,
-    MAP,
-
-    /// <summary>
-    ///   A set of objects in a given map. These seem to be used to switch
-    ///   between different versions of rooms.
-    /// </summary>
-    OBJECT_SET,
-    OTHER,
-  }
-
-  public interface IZFile {
-    ZFileType Type { get; }
-
-    uint Offset { get; }
-    uint Length { get; }
-  }
-
-
-  public abstract class BZFile : IZFile {
-    protected BZFile(uint offset, uint length) {
-      this.Offset = offset;
-      this.Length = length;
-    }
-
-    public abstract ZFileType Type { get; }
-
-    public string FileName { get; set; }
-
-    public uint Offset { get; }
-    public uint Length { get; }
-  }
-
-
-  public class ZObject : BZFile {
-    public ZObject(uint offset, uint length) : base(offset, length) { }
-    public override ZFileType Type => ZFileType.OBJECT;
-  }
-
-
-  public class ZCodeFiles : BZFile {
-    public ZCodeFiles(uint offset, uint length) : base(offset, length) { }
-    public override ZFileType Type => ZFileType.CODE;
-  }
-
-
-  public class ZScene : BZFile {
-    public ZScene(uint offset, uint length) : base(offset, length) { }
-    public override ZFileType Type => ZFileType.SCENE;
-
-    // TODO: Make nonnull via init, C#9.
-    public ZMap[]? Maps;
-  }
-
-  public class ZMap : BZFile {
-    public ZMap(uint offset, uint length) : base(offset, length) { }
-    public override ZFileType Type => ZFileType.MAP;
-
-    // TODO: Make nonnull via init, C#9.
-    public ZScene? Scene { get; set; }
-  }
-
-  public class ZObjectSet : BZFile {
-    public ZObjectSet(uint offset, uint length) : base(offset, length) { }
-    public override ZFileType Type => ZFileType.OBJECT_SET;
-  }
-
-  public class ZOtherData : BZFile {
-    public ZOtherData(uint offset, uint length) : base(offset, length) { }
-    public override ZFileType Type => ZFileType.OTHER;
-  }
-
+namespace UoT.memory {
   public class ZSegments {
+    public static ZSegments Instance { get; private set; }
+
     public IReadOnlyList<ZObject> Objects { get; }
     public IReadOnlyList<ZCodeFiles> ActorCode { get; }
     public IReadOnlyList<ZScene> Scenes { get; }
@@ -100,7 +27,7 @@ namespace UoT.api {
       this.Others = new ReadOnlyCollection<ZOtherData>(others);
     }
 
-    public static ZSegments GetFiles(IGenericFile romFile) {
+    public static ZSegments InitializeFromFile(IGenericFile romFile) {
       using var er =
           new EndianBinaryReader(romFile.OpenRead(), Endianness.BigEndian);
 
@@ -136,13 +63,13 @@ namespace UoT.api {
           default: throw new NotSupportedException();
         }
 
-        return ZSegments.GetFiles(er, segmentOffset, nameOffset);
+        return ZSegments.InitializeFromEndianBinaryReader(er, segmentOffset, nameOffset);
       }
 
       throw new NotSupportedException();
     }
 
-    public static ZSegments GetFiles(
+    public static ZSegments InitializeFromEndianBinaryReader(
         IEndianBinaryReader er,
         int segmentOffset,
         int nameOffset) {
@@ -193,7 +120,7 @@ namespace UoT.api {
         file.FileName = fileName;
       }
 
-      return new ZSegments(objects, actorCode, scenes.ToArray(), others);
+      return Instance = new ZSegments(objects, actorCode, scenes.ToArray(), others);
     }
 
     private static IEnumerable<Segment> GetSegments_(

@@ -6,7 +6,7 @@ namespace UoT {
     ushort FrameCount { get; }
 
     int PositionCount { get; }
-    Vec3s GetPosition(int i);
+    Vec3s GetPosition(int frameIndex);
 
     int TrackCount { get; }
     IAnimationTrack GetTrack(int i);

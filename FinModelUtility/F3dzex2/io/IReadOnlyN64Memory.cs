@@ -5,10 +5,9 @@ using System.Linq;
 using fin.data;
 using fin.decompression;
 
-using static schema.binary.BinarySchemaStructureParser;
-
 namespace f3dzex2.io {
   public interface IReadOnlyN64Memory {
+    Endianness Endianness { get; }
     IEndianBinaryReader OpenAtSegmentedAddress(uint segmentedAddress);
 
     IEnumerable<IEndianBinaryReader> OpenPossibilitiesAtSegmentedAddress(
@@ -34,13 +33,14 @@ namespace f3dzex2.io {
   }
 
   public class N64Memory : IN64Memory {
-    private readonly Endianness endianness_;
     private readonly ListDictionary<uint, Segment> segments_ = new();
 
     public N64Memory(byte[] data, Endianness endianness) {
       this.Bytes = data;
-      this.endianness_ = endianness;
+      this.Endianness = endianness;
     }
+
+    public Endianness Endianness { get; }
 
     public byte[] Bytes { get; }
 
@@ -56,7 +56,7 @@ namespace f3dzex2.io {
                new MemoryStream(this.Bytes,
                                 (int) segment.Offset,
                                 (int) segment.Length);
-           var er = new EndianBinaryReader(memoryStream, this.endianness_);
+           var er = new EndianBinaryReader(memoryStream, this.Endianness);
            er.Position = offset;
            return er;
          });
@@ -73,7 +73,7 @@ namespace f3dzex2.io {
                new MemoryStream(this.Bytes,
                                 (int) segment.Offset,
                                 (int) segment.Length);
-           var er = new EndianBinaryReader(memoryStream, this.endianness_);
+           var er = new EndianBinaryReader(memoryStream, this.Endianness);
            return er;
          });
 

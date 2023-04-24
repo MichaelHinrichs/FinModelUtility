@@ -1,20 +1,18 @@
 ﻿using fin.io;
 using fin.model;
 
+using UoT.memory;
+
 
 namespace UoT.api {
   public class OotModelFileBundle : IModelFileBundle {
     public OotModelFileBundle(
         IFileHierarchyDirectory directory,
         ISystemFile ootRom,
-        string fileName,
-        uint offset,
-        uint length) {
+        IZFile zFile) {
       this.Directory = directory;
       this.OotRom = ootRom;
-      this.FileName = fileName;
-      this.Offset = offset;
-      this.Length = length;
+      this.ZFile = zFile;
     }
 
     public string GameName => "ocarina_of_time";
@@ -23,11 +21,9 @@ namespace UoT.api {
     public IFileHierarchyDirectory Directory { get; }
 
     public ISystemFile OotRom { get; }
-    public string FileName { get; }
-    public uint Offset { get; }
-    public uint Length { get; }
+    public IZFile ZFile { get; }
 
-    string IUiFile.BetterName => FileName;
+    string IUiFile.BetterName => ZFile.FileName;
     public string TrueFullName => this.OotRom.FullName;
   }
 }

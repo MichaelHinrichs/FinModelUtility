@@ -23,27 +23,12 @@ namespace uni.games.ocarina_of_time {
       var fileHierarchy = new FileHierarchy(ocarinaOfTimeDirectory);
       var root = fileHierarchy.Root;
 
-      var zSegments = ZSegments.GetFiles(ocarinaOfTimeRom);
+      var zSegments = ZSegments.InitializeFromFile(ocarinaOfTimeRom);
       foreach (var zObject in zSegments.Objects) {
         yield return new OotModelFileBundle(root,
                                             ocarinaOfTimeRom,
-                                            zObject.FileName,
-                                            zObject.Offset,
-                                            zObject.Length);
+                                            zObject);
       }
-
-      var gameplayKeep =
-          zSegments.Others.Single(other => other.FileName is "gameplay_keep");
-      Segments.GAMEPLAY_KEEP = new Segment {
-          Offset = gameplayKeep.Offset, Length = gameplayKeep.Length
-      };
-
-      var gameplayFieldKeep =
-          zSegments.Others.Single(
-              other => other.FileName is "gameplay_field_keep");
-      Segments.GAMEPLAY_FIELD_KEEP = new Segment {
-          Offset = gameplayFieldKeep.Offset, Length = gameplayFieldKeep.Length
-      };
     }
   }
 }
