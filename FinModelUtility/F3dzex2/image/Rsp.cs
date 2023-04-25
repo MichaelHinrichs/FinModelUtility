@@ -19,6 +19,7 @@ namespace f3dzex2.image {
     IReadOnlyFinMatrix4x4 Matrix { get; set; }
 
     Color EnvironmentColor { get; set; }
+    Color PrimColor { get; set; }
   }
 
   public class Rsp : IRsp {
@@ -53,6 +54,7 @@ namespace f3dzex2.image {
     public IReadOnlyFinMatrix4x4 Matrix { get; set; } = FinMatrix4x4.IDENTITY;
 
     public Color EnvironmentColor { get; set; }
+    public Color PrimColor { get; set; }
 
     public CombinerCycleParams CombinerCycleParams0 { get; set; }
     public CombinerCycleParams CombinerCycleParams1 { get; set; }

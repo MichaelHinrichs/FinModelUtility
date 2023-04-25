@@ -152,6 +152,16 @@ namespace f3dzex2.displaylist.opcodes {
   }
 
 
+  public class SetPrimColorOpcodeCommand : IOpcodeCommand {
+    public byte R { get; set; }
+    public byte G { get; set; }
+    public byte B { get; set; }
+    public byte A { get; set; }
+
+    // TODO: Handle LOD values
+  }
+
+
   public enum TileDescriptorState {
     DISABLED = 0,
     ENABLED = 1,
@@ -235,6 +245,11 @@ namespace f3dzex2.displaylist.opcodes {
 
   public class ClearGeometryModeOpcodeCommand : IOpcodeCommand {
     public GeometryMode FlagsToDisable { get; set; }
+  }
+
+  public class GeometryModeOpcodeCommand : IOpcodeCommand {
+    public GeometryMode FlagsToDisable { get; set; }
+    public GeometryMode FlagsToEnable { get; set; }
   }
 
   public enum F3dWrapMode : byte {

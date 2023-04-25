@@ -4,6 +4,10 @@ using System.Linq;
 
 using fin.data;
 using fin.decompression;
+using fin.util.hex;
+
+using schema.binary.util;
+
 
 namespace f3dzex2.io {
   public interface IReadOnlyN64Memory {
@@ -12,6 +16,10 @@ namespace f3dzex2.io {
 
     IEnumerable<IEndianBinaryReader> OpenPossibilitiesAtSegmentedAddress(
         uint segmentedAddress);
+
+    bool TryToOpenPossibilitiesAtSegmentedAddress(
+        uint segmentedAddress,
+        out IEnumerable<IEndianBinaryReader> possibilities);
 
     IEndianBinaryReader OpenSegment(uint segmentIndex);
 
@@ -48,18 +56,37 @@ namespace f3dzex2.io {
       => this.OpenPossibilitiesAtSegmentedAddress(segmentedAddress).Single();
 
     public IEnumerable<IEndianBinaryReader> OpenPossibilitiesAtSegmentedAddress(
-        uint segmentedAddress)
-      => this
-         .GetSegmentsAtSegmentedAddress_(segmentedAddress, out var offset)
-         .Select(segment => {
-           var memoryStream =
-               new MemoryStream(this.Bytes,
-                                (int) segment.Offset,
-                                (int) segment.Length);
-           var er = new EndianBinaryReader(memoryStream, this.Endianness);
-           er.Position = offset;
-           return er;
-         });
+        uint segmentedAddress) {
+      Asserts.True(
+          this.TryToOpenPossibilitiesAtSegmentedAddress(
+              segmentedAddress,
+              out var possibilities),
+          $"Expected 0x{segmentedAddress.ToHex()} to be a valid segmented address.");
+      return possibilities;
+    }
+
+    public bool TryToOpenPossibilitiesAtSegmentedAddress(
+        uint segmentedAddress,
+        out IEnumerable<IEndianBinaryReader> possibilities) {
+      if (!this.TryToGetSegmentsAtSegmentedAddress_(
+              segmentedAddress,
+              out var offset,
+              out var validSegments)) {
+        possibilities = default;
+        return false;
+      }
+
+      possibilities = validSegments.Select(segment => {
+        var memoryStream =
+            new MemoryStream(this.Bytes,
+                             (int) segment.Offset,
+                             (int) segment.Length);
+        var er = new EndianBinaryReader(memoryStream, this.Endianness);
+        er.Position = offset;
+        return er;
+      });
+      return true;
+    }
 
     public IEndianBinaryReader OpenSegment(uint segmentIndex)
       => this.OpenPossibilitiesForSegment(segmentIndex).Single();
@@ -107,15 +134,23 @@ namespace f3dzex2.io {
                                 Decompressor = decompressor,
                             });
 
-    private IEnumerable<Segment> GetSegmentsAtSegmentedAddress_(
+    private bool TryToGetSegmentsAtSegmentedAddress_(
         uint segmentedAddress,
-        out uint offset) {
+        out uint offset,
+        out IEnumerable<Segment> validSegments) {
       IoUtils.SplitSegmentedAddress(segmentedAddress,
                                     out var segmentIndex,
                                     out offset);
       var offsetInSegment = offset;
-      var segments = this.segments_[segmentIndex];
-      return segments.Where(segment => offsetInSegment < segment.Length);
+
+      if (!this.segments_.TryGetList(segmentIndex, out var segments)) {
+        validSegments = default;
+        return false;
+      }
+
+      validSegments =
+          segments!.Where(segment => offsetInSegment < segment.Length);
+      return segments!.Any();
     }
 
     private class Segment {

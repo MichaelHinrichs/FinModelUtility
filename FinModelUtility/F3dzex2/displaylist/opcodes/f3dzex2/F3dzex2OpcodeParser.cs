@@ -202,12 +202,54 @@ namespace f3dzex2.displaylist.opcodes.f3dzex2 {
               OffsetOfTextureInTmem = offsetOfTextureInTmem,
           };
         }
+        case F3dzex2Opcode.G_SETPRIMCOLOR: {
+          var lodInfo = er.ReadUInt24();
+          return new SetPrimColorOpcodeCommand {
+              R = er.ReadByte(),
+              G = er.ReadByte(),
+              B = er.ReadByte(),
+              A = er.ReadByte(),
+          };
+        }
+        case F3dzex2Opcode.G_SETTILESIZE: {
+          er.Position += 3;
+
+          var tileDescriptor = (TileDescriptorIndex) er.ReadByte();
+
+          var widthAndHeight = er.ReadUInt24();
+          var width =
+              (ushort) (widthAndHeight >>
+                        12); // (ushort) (((widthAndHeight >> 12) >> 2) + 1);
+          var height =
+              (ushort) (widthAndHeight &
+                        0xFFF); // (ushort) (((widthAndHeight & 0xFFF) >> 2) + 1);
+
+          return new SetTileSizeOpcodeCommand {
+              TileDescriptorIndex = tileDescriptor,
+              Width = width,
+              Height = height,
+          };
+        }
+        case F3dzex2Opcode.G_LOADBLOCK: {
+          er.Position += 3;
+
+          var tileDescriptor = (TileDescriptorIndex) er.ReadByte();
+          var texelsAndDxt = er.ReadUInt24();
+          var texels = texelsAndDxt >> 12;
+
+          return new LoadBlockOpcodeCommand {
+              TileDescriptorIndex = tileDescriptor,
+              Texels = (ushort) texels,
+          };
+        }
+        case F3dzex2Opcode.G_GEOMETRYMODE: {
+          return new GeometryModeOpcodeCommand {
+              FlagsToDisable = (GeometryMode) er.ReadUInt24(),
+              FlagsToEnable = (GeometryMode) er.ReadUInt32(),
+          };
+        }
         // TODO: Especially implement these
         case F3dzex2Opcode.G_LOADTLUT:
-        case F3dzex2Opcode.G_LOADBLOCK:
-        case F3dzex2Opcode.G_SETTILESIZE:
-        case F3dzex2Opcode.G_SETPRIMCOLOR:
-        case F3dzex2Opcode.G_GEOMETRYMODE:
         case F3dzex2Opcode.G_MTX:
         case F3dzex2Opcode.G_SETCIMG:
         case F3dzex2Opcode.G_SETZIMG:

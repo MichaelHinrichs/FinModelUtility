@@ -11,7 +11,6 @@ using f3dzex2.model;
 
 using fin.data.queue;
 using fin.model;
-using fin.model.impl;
 
 using UoT.memory;
 using UoT.model;

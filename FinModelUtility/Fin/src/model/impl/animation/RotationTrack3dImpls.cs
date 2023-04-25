@@ -158,8 +158,10 @@ namespace fin.model.impl {
           return ConvertRadiansToQuaternionImpl(xRadians, yRadians, zRadians);
         }
 
-        var fromFrame = fromXFrame?.frame ?? fromYFrame?.frame ?? fromZFrame.Value.frame;
-        var toFrame = toXFrame?.frame ?? toYFrame?.frame ?? toZFrame.Value.frame;
+        var fromFrame = fromXFrame?.frame ??
+                        fromYFrame?.frame ?? fromZFrame.Value.frame;
+        var toFrame =
+            toXFrame?.frame ?? toYFrame?.frame ?? toZFrame.Value.frame;
         var frameDelta = (frame - fromFrame) / (toFrame - fromFrame);
 
         var q1 = ConvertRadiansToQuaternionImpl(
@@ -188,8 +190,7 @@ namespace fin.model.impl {
           var from = fromsAndTos[i];
           var to = fromsAndTos[3 + i];
 
-          okAxes[i] = (from == null && to == null) ||
-                      Math.Abs(from.Value.value - to.Value.value) < .0001;
+          okAxes[i] = from == null && to == null;
         }
 
         for (var i = 0; i < 6; ++i) {
@@ -199,6 +200,20 @@ namespace fin.model.impl {
 
           if (fromsAndTos[i] == null) {
             return false;
+          }
+        }
+
+        for (var i = 0; i < 3; ++i) {
+          var from = fromsAndTos[i];
+          var to = fromsAndTos[3 + i];
+
+          okAxes[i] = okAxes[i] ||
+                      Math.Abs(from.Value.value - to.Value.value) < .0001;
+        }
+
+        for (var i = 0; i < 6; ++i) {
+          if (okAxes[i % 3]) {
+            continue;
           }
 
           // TODO: Use tangents if all fromFrames have the same tangent and all
@@ -221,7 +236,8 @@ namespace fin.model.impl {
             if (fromsAndTos[i].Value.frame != fromsAndTos[oi].Value.frame) {
               return false;
             }
-            if (fromsAndTos[3 + i].Value.frame != fromsAndTos[3 + oi].Value.frame) {
+            if (fromsAndTos[3 + i].Value.frame !=
+                fromsAndTos[3 + oi].Value.frame) {
               return false;
             }
           }

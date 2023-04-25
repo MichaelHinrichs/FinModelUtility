@@ -6,6 +6,7 @@ using fin.util.enumerables;
 
 using SuperMario64.schema;
 
+
 namespace SuperMario64.memory {
   public interface IReadOnlySm64Memory : IReadOnlyN64Memory {
     byte? AreaId { get; }
@@ -25,7 +26,14 @@ namespace SuperMario64.memory {
         uint address)
       => this.OpenAtSegmentedAddress(address).Yield();
 
-    public IEnumerable<IEndianBinaryReader> OpenPossibilitiesForSegment(uint segmentIndex) {
+    public bool TryToOpenPossibilitiesAtSegmentedAddress(uint segmentedAddress,
+      out IEnumerable<IEndianBinaryReader> possibilities) {
+      possibilities = OpenPossibilitiesAtSegmentedAddress(segmentedAddress);
+      return true;
+    }
+
+    public IEnumerable<IEndianBinaryReader> OpenPossibilitiesForSegment(
+        uint segmentIndex) {
       throw new NotImplementedException();
     }
 
@@ -39,8 +47,8 @@ namespace SuperMario64.memory {
 
     public IEndianBinaryReader OpenAtSegmentedAddress(uint segmentedAddress) {
       IoUtils.SplitSegmentedAddress(segmentedAddress,
-                                   out var segment,
-                                   out var offset);
+                                    out var segment,
+                                    out var offset);
       var er = new EndianBinaryReader(
           Asserts.CastNonnull(ROM.Instance.getSegment(segment, this.AreaId)),
           SchemaConstants.SM64_ENDIANNESS);

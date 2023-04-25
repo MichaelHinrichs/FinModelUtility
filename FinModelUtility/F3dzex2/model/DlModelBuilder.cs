@@ -14,7 +14,6 @@ using fin.language.equations.fixedFunction.impl;
 using fin.math.matrix;
 using fin.model;
 using fin.model.impl;
-using fin.util.enums;
 using fin.util.image;
 
 
@@ -71,181 +70,188 @@ namespace f3dzex2.model {
       lazyTextureDictionary_ =
           new(textureParams
                   => {
-                    var imageParams = textureParams.ImageParams;
-                    var texture = this.Model.MaterialManager.CreateTexture(
-                        this.lazyImageDictionary_[imageParams]);
+                var imageParams = textureParams.ImageParams;
+                var texture = this.Model.MaterialManager.CreateTexture(
+                    this.lazyImageDictionary_[imageParams]);
 
-                    var color = this.vertices_.DiffuseColor;
-                    texture.Name = !imageParams.IsInvalid
-                        ? String.Format("0x{0:X8}", textureParams.SegmentedAddress)
-                        : $"rgb({color.R}, {color.G}, {color.B})";
+                var color = this.vertices_.DiffuseColor;
+                texture.Name = !imageParams.IsInvalid
+                    ? String.Format("0x{0:X8}", textureParams.SegmentedAddress)
+                    : $"rgb({color.R}, {color.G}, {color.B})";
 
-                    texture.WrapModeU = textureParams.WrapModeS.AsFinWrapMode();
-                    texture.WrapModeV = textureParams.WrapModeT.AsFinWrapMode();
-                    texture.UvType = textureParams.UvType;
-                    return texture;
-                  });
+                texture.WrapModeU = textureParams.WrapModeS.AsFinWrapMode();
+                texture.WrapModeV = textureParams.WrapModeT.AsFinWrapMode();
+                texture.UvType = textureParams.UvType;
+                return texture;
+              });
 
       lazyMaterialDictionary_ =
           new(materialParams
                   => {
-                    var texture0 =
-                        this.lazyTextureDictionary_[materialParams.TextureParams0];
-                    var texture1 =
-                        this.lazyTextureDictionary_[materialParams.TextureParams1];
+                var texture0 =
+                    this.lazyTextureDictionary_[materialParams.TextureParams0];
+                var texture1 =
+                    this.lazyTextureDictionary_[materialParams.TextureParams1];
 
-                    var finMaterial = this.Model.MaterialManager
-                                          .AddFixedFunctionMaterial();
+                var finMaterial = this.Model.MaterialManager
+                                      .AddFixedFunctionMaterial();
 
-                    finMaterial.Name = $"[{texture0.Name}]/[{texture1.Name}]";
-                    finMaterial.CullingMode = materialParams.CullingMode;
+                finMaterial.Name = $"[{texture0.Name}]/[{texture1.Name}]";
+                finMaterial.CullingMode = materialParams.CullingMode;
 
-                    finMaterial.SetTextureSource(0, texture0);
-                    finMaterial.SetTextureSource(1, texture1);
+                finMaterial.SetTextureSource(0, texture0);
+                finMaterial.SetTextureSource(1, texture1);
 
-                    var equations = finMaterial.Equations;
-                    var color0 = equations.CreateColorConstant(0);
-                    var color1 = equations.CreateColorConstant(1);
-                    var scalar1 = equations.CreateScalarConstant(1);
-                    var scalar0 = equations.CreateScalarConstant(0);
+                var equations = finMaterial.Equations;
+                var color0 = equations.CreateColorConstant(0);
+                var color1 = equations.CreateColorConstant(1);
+                var scalar1 = equations.CreateScalarConstant(1);
+                var scalar0 = equations.CreateScalarConstant(0);
 
-                    var colorFixedFunctionOps =
-                        new ColorFixedFunctionOps(equations);
-                    var scalarFixedFunctionOps =
-                        new ScalarFixedFunctionOps(equations);
+                var colorFixedFunctionOps =
+                    new ColorFixedFunctionOps(equations);
+                var scalarFixedFunctionOps =
+                    new ScalarFixedFunctionOps(equations);
 
-                    var rsp = this.n64Hardware_.Rsp;
-                    var environmentColor = equations.CreateColorConstant(
-                        rsp.EnvironmentColor.R / 255.0,
-                        rsp.EnvironmentColor.G / 255.0,
-                        rsp.EnvironmentColor.B / 255.0);
-                    var environmentAlpha = equations.CreateScalarConstant(
-                        rsp.EnvironmentColor.A / 255.0);
+                var rsp = this.n64Hardware_.Rsp;
+                var environmentColor = equations.CreateColorConstant(
+                    rsp.EnvironmentColor.R / 255.0,
+                    rsp.EnvironmentColor.G / 255.0,
+                    rsp.EnvironmentColor.B / 255.0);
+                var environmentAlpha = equations.CreateScalarConstant(
+                    rsp.EnvironmentColor.A / 255.0);
+                var primColor = equations.CreateColorConstant(
+                    rsp.PrimColor.R / 255.0,
+                    rsp.PrimColor.G / 255.0,
+                    rsp.PrimColor.B / 255.0);
+                var primAlpha = equations.CreateScalarConstant(
+                    rsp.PrimColor.A / 255.0);
 
-                    IColorValue combinedColor = color0;
-                    IScalarValue combinedAlpha = scalar0;
+                IColorValue combinedColor = color0;
+                IScalarValue combinedAlpha = scalar0;
 
-                    Func<GenericColorMux, IColorValue> getColorValue =
-                        (colorMux) => colorMux switch {
-                          GenericColorMux.G_CCMUX_COMBINED => combinedColor,
-                          GenericColorMux.G_CCMUX_TEXEL0
-                              => equations.CreateOrGetColorInput(
-                                  FixedFunctionSource.TEXTURE_COLOR_0),
-                          GenericColorMux.G_CCMUX_TEXEL1
-                              => equations.CreateOrGetColorInput(
-                                  FixedFunctionSource.TEXTURE_COLOR_1),
-                          GenericColorMux.G_CCMUX_PRIMITIVE => color1,
-                          GenericColorMux.G_CCMUX_SHADE
-                              => equations.CreateOrGetColorInput(
-                                  FixedFunctionSource.VERTEX_COLOR_0),
-                          GenericColorMux.G_CCMUX_ENVIRONMENT => environmentColor,
-                          GenericColorMux.G_CCMUX_1 => color1,
-                          GenericColorMux.G_CCMUX_0 => color0,
-                          GenericColorMux.G_CCMUX_NOISE => color1,
-                          GenericColorMux.G_CCMUX_CENTER => color1,
-                          GenericColorMux.G_CCMUX_K4 => color1,
-                          GenericColorMux.G_CCMUX_COMBINED_ALPHA =>
-                          equations.CreateColor(combinedAlpha),
-                          GenericColorMux.G_CCMUX_TEXEL0_ALPHA
-                              => equations.CreateOrGetColorInput(
-                                  FixedFunctionSource.TEXTURE_ALPHA_0),
-                          GenericColorMux.G_CCMUX_TEXEL1_ALPHA
-                              => equations.CreateOrGetColorInput(
-                              FixedFunctionSource.TEXTURE_ALPHA_1),
-                          GenericColorMux.G_CCMUX_PRIMITIVE_ALPHA => color1,
-                          GenericColorMux.G_CCMUX_SHADE_ALPHA
-                              => equations.CreateOrGetColorInput(
-                                  FixedFunctionSource.VERTEX_ALPHA_0),
-                          GenericColorMux.G_CCMUX_ENV_ALPHA =>
-                          equations.CreateColor(environmentAlpha),
-                          GenericColorMux.G_CCMUX_PRIM_LOD_FRAC => color1,
-                          GenericColorMux.G_CCMUX_SCALE => color1,
-                          GenericColorMux.G_CCMUX_K5 => color1,
-                          _ => throw new ArgumentOutOfRangeException(
-                          nameof(colorMux),
-                          colorMux,
-                          null)
-                        };
+                Func<GenericColorMux, IColorValue> getColorValue =
+                    (colorMux) => colorMux switch {
+                        GenericColorMux.G_CCMUX_COMBINED => combinedColor,
+                        GenericColorMux.G_CCMUX_TEXEL0
+                            => equations.CreateOrGetColorInput(
+                                FixedFunctionSource.TEXTURE_COLOR_0),
+                        GenericColorMux.G_CCMUX_TEXEL1
+                            => equations.CreateOrGetColorInput(
+                                FixedFunctionSource.TEXTURE_COLOR_1),
+                        GenericColorMux.G_CCMUX_PRIMITIVE => primColor,
+                        GenericColorMux.G_CCMUX_SHADE
+                            => equations.CreateOrGetColorInput(
+                                FixedFunctionSource.VERTEX_COLOR_0),
+                        GenericColorMux.G_CCMUX_ENVIRONMENT => environmentColor,
+                        GenericColorMux.G_CCMUX_1           => color1,
+                        GenericColorMux.G_CCMUX_0           => color0,
+                        GenericColorMux.G_CCMUX_NOISE       => color1,
+                        GenericColorMux.G_CCMUX_CENTER      => color1,
+                        GenericColorMux.G_CCMUX_K4          => color1,
+                        GenericColorMux.G_CCMUX_COMBINED_ALPHA =>
+                            equations.CreateColor(combinedAlpha),
+                        GenericColorMux.G_CCMUX_TEXEL0_ALPHA
+                            => equations.CreateOrGetColorInput(
+                                FixedFunctionSource.TEXTURE_ALPHA_0),
+                        GenericColorMux.G_CCMUX_TEXEL1_ALPHA
+                            => equations.CreateOrGetColorInput(
+                                FixedFunctionSource.TEXTURE_ALPHA_1),
+                        GenericColorMux.G_CCMUX_PRIMITIVE_ALPHA =>
+                            equations.CreateColor(primAlpha),
+                        GenericColorMux.G_CCMUX_SHADE_ALPHA
+                            => equations.CreateOrGetColorInput(
+                                FixedFunctionSource.VERTEX_ALPHA_0),
+                        GenericColorMux.G_CCMUX_ENV_ALPHA =>
+                            equations.CreateColor(environmentAlpha),
+                        GenericColorMux.G_CCMUX_PRIM_LOD_FRAC => color1,
+                        GenericColorMux.G_CCMUX_SCALE         => color1,
+                        GenericColorMux.G_CCMUX_K5            => color1,
+                        _ => throw new ArgumentOutOfRangeException(
+                            nameof(colorMux),
+                            colorMux,
+                            null)
+                    };
 
-                    Func<GenericAlphaMux, IScalarValue> getAlphaValue =
-                        (alphaMux) => alphaMux switch {
-                          GenericAlphaMux.G_ACMUX_COMBINED => combinedAlpha,
-                          GenericAlphaMux.G_ACMUX_TEXEL0 =>                      
-                              equations.CreateOrGetScalarInput(
-                        FixedFunctionSource.TEXTURE_ALPHA_0),
-                          GenericAlphaMux.G_ACMUX_TEXEL1 =>
-                              equations.CreateOrGetScalarInput(
-                                  FixedFunctionSource.TEXTURE_ALPHA_1),
-                          GenericAlphaMux.G_ACMUX_PRIMITIVE => scalar1,
-                          GenericAlphaMux.G_ACMUX_SHADE
-                              => equations.CreateOrGetScalarInput(
-                                  FixedFunctionSource.VERTEX_ALPHA_0),
-                          GenericAlphaMux.G_ACMUX_ENVIRONMENT => environmentAlpha,
-                          GenericAlphaMux.G_ACMUX_1 => scalar1,
-                          GenericAlphaMux.G_ACMUX_0 => scalar0,
-                          GenericAlphaMux.G_ACMUX_PRIM_LOD_FRAC => scalar1,
-                          GenericAlphaMux.G_ACMUX_LOD_FRACTION => scalar1,
-                          _ => throw new ArgumentOutOfRangeException(
-                          nameof(alphaMux),
-                          alphaMux,
-                          null)
-                        };
+                Func<GenericAlphaMux, IScalarValue> getAlphaValue =
+                    (alphaMux) => alphaMux switch {
+                        GenericAlphaMux.G_ACMUX_COMBINED => combinedAlpha,
+                        GenericAlphaMux.G_ACMUX_TEXEL0 =>
+                            equations.CreateOrGetScalarInput(
+                                FixedFunctionSource.TEXTURE_ALPHA_0),
+                        GenericAlphaMux.G_ACMUX_TEXEL1 =>
+                            equations.CreateOrGetScalarInput(
+                                FixedFunctionSource.TEXTURE_ALPHA_1),
+                        GenericAlphaMux.G_ACMUX_PRIMITIVE => primAlpha,
+                        GenericAlphaMux.G_ACMUX_SHADE
+                            => equations.CreateOrGetScalarInput(
+                                FixedFunctionSource.VERTEX_ALPHA_0),
+                        GenericAlphaMux.G_ACMUX_ENVIRONMENT => environmentAlpha,
+                        GenericAlphaMux.G_ACMUX_1 => scalar1,
+                        GenericAlphaMux.G_ACMUX_0 => scalar0,
+                        GenericAlphaMux.G_ACMUX_PRIM_LOD_FRAC => scalar1,
+                        GenericAlphaMux.G_ACMUX_LOD_FRACTION => scalar1,
+                        _ => throw new ArgumentOutOfRangeException(
+                            nameof(alphaMux),
+                            alphaMux,
+                            null)
+                    };
 
-                    foreach (var combinerCycleParams in new[] {
+                foreach (var combinerCycleParams in new[] {
                              materialParams.CombinerCycleParams0,
                              materialParams.CombinerCycleParams1
                          }) {
-                      var cA = getColorValue(combinerCycleParams.ColorMuxA);
-                      var cB = getColorValue(combinerCycleParams.ColorMuxB);
-                      var cC = getColorValue(combinerCycleParams.ColorMuxC);
-                      var cD = getColorValue(combinerCycleParams.ColorMuxD);
+                  var cA = getColorValue(combinerCycleParams.ColorMuxA);
+                  var cB = getColorValue(combinerCycleParams.ColorMuxB);
+                  var cC = getColorValue(combinerCycleParams.ColorMuxC);
+                  var cD = getColorValue(combinerCycleParams.ColorMuxD);
 
-                      combinedColor = colorFixedFunctionOps.Add(
-                          colorFixedFunctionOps.Multiply(
-                              colorFixedFunctionOps.Subtract(cA, cB),
-                              cC),
-                          cD) ?? colorFixedFunctionOps.Zero;
+                  combinedColor = colorFixedFunctionOps.Add(
+                      colorFixedFunctionOps.Multiply(
+                          colorFixedFunctionOps.Subtract(cA, cB),
+                          cC),
+                      cD) ?? colorFixedFunctionOps.Zero;
 
-                      var aA = getAlphaValue(combinerCycleParams.AlphaMuxA);
-                      var aB = getAlphaValue(combinerCycleParams.AlphaMuxB);
-                      var aC = getAlphaValue(combinerCycleParams.AlphaMuxC);
-                      var aD = getAlphaValue(combinerCycleParams.AlphaMuxD);
+                  var aA = getAlphaValue(combinerCycleParams.AlphaMuxA);
+                  var aB = getAlphaValue(combinerCycleParams.AlphaMuxB);
+                  var aC = getAlphaValue(combinerCycleParams.AlphaMuxC);
+                  var aD = getAlphaValue(combinerCycleParams.AlphaMuxD);
 
-                      combinedAlpha = scalarFixedFunctionOps.Add(
-                          scalarFixedFunctionOps.Multiply(
-                              scalarFixedFunctionOps.Subtract(aA, aB),
-                              aC),
-                          aD) ?? scalarFixedFunctionOps.Zero;
-                    }
+                  combinedAlpha = scalarFixedFunctionOps.Add(
+                      scalarFixedFunctionOps.Multiply(
+                          scalarFixedFunctionOps.Subtract(aA, aB),
+                          aC),
+                      aD) ?? scalarFixedFunctionOps.Zero;
+                }
 
-                    equations.CreateColorOutput(FixedFunctionSource.OUTPUT_COLOR,
-                                                combinedColor);
-                    equations.CreateScalarOutput(FixedFunctionSource.OUTPUT_ALPHA,
-                                                 combinedAlpha);
+                equations.CreateColorOutput(FixedFunctionSource.OUTPUT_COLOR,
+                                            combinedColor);
+                equations.CreateScalarOutput(FixedFunctionSource.OUTPUT_ALPHA,
+                                             combinedAlpha);
 
-                    if (finMaterial.Textures.Any(
-                            texture
-                                => ImageUtil.GetTransparencyType(texture.Image) ==
-                                   ImageTransparencyType.TRANSPARENT)) {
-                      finMaterial.SetAlphaCompare(AlphaOp.Or,
-                                                  AlphaCompareType.Always,
-                                                  .5f,
-                                                  AlphaCompareType.Always,
-                                                  0);
-                      finMaterial.SetBlending(BlendMode.ADD,
-                                              BlendFactor.SRC_ALPHA,
-                                              BlendFactor.ONE_MINUS_SRC_ALPHA,
-                                              LogicOp.UNDEFINED);
-                    } else {
-                      finMaterial.SetAlphaCompare(AlphaOp.Or,
-                                                  AlphaCompareType.Greater,
-                                                  .5f,
-                                                  AlphaCompareType.Never,
-                                                  0);
-                    }
+                if (finMaterial.Textures.Any(
+                        texture
+                            => ImageUtil.GetTransparencyType(texture.Image) ==
+                               ImageTransparencyType.TRANSPARENT)) {
+                  finMaterial.SetAlphaCompare(AlphaOp.Or,
+                                              AlphaCompareType.Always,
+                                              .5f,
+                                              AlphaCompareType.Always,
+                                              0);
+                  finMaterial.SetBlending(BlendMode.ADD,
+                                          BlendFactor.SRC_ALPHA,
+                                          BlendFactor.ONE_MINUS_SRC_ALPHA,
+                                          LogicOp.UNDEFINED);
+                } else {
+                  finMaterial.SetAlphaCompare(AlphaOp.Or,
+                                              AlphaCompareType.Greater,
+                                              .5f,
+                                              AlphaCompareType.Never,
+                                              0);
+                }
 
-                    return finMaterial;
-                  });
+                return finMaterial;
+              });
     }
 
     public IModel Model { get; } = new ModelImpl();
@@ -291,43 +297,37 @@ namespace f3dzex2.model {
                 setEnvColorOpcodeCommand.B);
             break;
           }
+          case SetPrimColorOpcodeCommand setPrimColorOpcodeCommand: {
+            this.n64Hardware_.Rsp.PrimColor = Color.FromArgb(
+                setPrimColorOpcodeCommand.A,
+                setPrimColorOpcodeCommand.R,
+                setPrimColorOpcodeCommand.G,
+                setPrimColorOpcodeCommand.B);
+            break;
+          }
           case SetFogColorOpcodeCommand setFogColorOpcodeCommand:
             break;
           // Geometry mode commands
           case SetGeometryModeOpcodeCommand setGeometryModeOpcodeCommand: {
-            var flagsToEnable = setGeometryModeOpcodeCommand.FlagsToEnable;
-            this.n64Hardware_.Rsp.GeometryMode |= flagsToEnable;
-            if (dl.Type != DisplayListType.F3DZEX2 && 
-                (flagsToEnable.CheckFlag(GeometryMode.G_CULL_FRONT_NONEX2) ||
-                flagsToEnable.CheckFlag(GeometryMode.G_CULL_BACK_NONEX2))) {
-              this.n64Hardware_.Rdp.Tmem.CullingMode =
-                  this.n64Hardware_.Rsp.GeometryMode.GetCullingModeNonEx2();
-            }
-            if (dl.Type == DisplayListType.F3DZEX2 &&
-                (flagsToEnable.CheckFlag(GeometryMode.G_CULL_FRONT_EX2) ||
-                 flagsToEnable.CheckFlag(GeometryMode.G_CULL_BACK_EX2))) {
-              this.n64Hardware_.Rdp.Tmem.CullingMode =
-                  this.n64Hardware_.Rsp.GeometryMode.GetCullingModeEx2();
-            }
-            break;
+            this.UpdateGeometryMode_(
+                dl.Type,
+                default,
+                setGeometryModeOpcodeCommand.FlagsToEnable);
+              break;
           }
           case ClearGeometryModeOpcodeCommand clearGeometryModeOpcodeCommand: {
-            var flagsToDisable = clearGeometryModeOpcodeCommand.FlagsToDisable;
-            this.n64Hardware_.Rsp.GeometryMode &= ~flagsToDisable;
-            if (dl.Type != DisplayListType.F3DZEX2 &&
-                (flagsToDisable.CheckFlag(GeometryMode.G_CULL_FRONT_NONEX2) ||
-                 flagsToDisable.CheckFlag(GeometryMode.G_CULL_BACK_NONEX2))) {
-              this.n64Hardware_.Rdp.Tmem.CullingMode =
-                  this.n64Hardware_.Rsp.GeometryMode.GetCullingModeNonEx2();
-            }
-            if (dl.Type == DisplayListType.F3DZEX2 &&
-                (flagsToDisable.CheckFlag(GeometryMode.G_CULL_FRONT_EX2) ||
-                 flagsToDisable.CheckFlag(GeometryMode.G_CULL_BACK_EX2))) {
-              this.n64Hardware_.Rdp.Tmem.CullingMode =
-                  this.n64Hardware_.Rsp.GeometryMode.GetCullingModeEx2();
-            }
-
-              break;
+            this.UpdateGeometryMode_(
+                dl.Type,
+                clearGeometryModeOpcodeCommand.FlagsToDisable,
+                default);
+            break;
+          }
+          case GeometryModeOpcodeCommand geometryModeOpcodeCommand: {
+            this.UpdateGeometryMode_(
+                dl.Type,
+                geometryModeOpcodeCommand.FlagsToDisable,
+                geometryModeOpcodeCommand.FlagsToEnable);
+            break;
           }
           case SetTileOpcodeCommand setTileOpcodeCommand: {
             this.n64Hardware_.Rdp.Tmem.GsDpSetTile(
@@ -456,6 +456,30 @@ namespace f3dzex2.model {
         }
       }
     }
+
+    private void UpdateGeometryMode_(
+        DisplayListType displayListType,
+        GeometryMode flagsToDisable,
+        GeometryMode flagsToEnable) {
+      var originalCullingMode = this.GetCullingMode_(displayListType);
+
+      this.n64Hardware_.Rsp.GeometryMode =
+          (this.n64Hardware_.Rsp.GeometryMode & ~flagsToDisable) |
+          flagsToEnable;
+
+      var newCullingMode = this.GetCullingMode_(displayListType);
+
+      if (newCullingMode != originalCullingMode) {
+        this.n64Hardware_.Rdp.Tmem.CullingMode = newCullingMode;
+      }
+    }
+
+    private CullingMode GetCullingMode_(DisplayListType displayListType)
+      => displayListType switch {
+          DisplayListType.F3DZEX2 => this.n64Hardware_.Rsp.GeometryMode
+                                         .GetCullingModeEx2(),
+          _ => this.n64Hardware_.Rsp.GeometryMode.GetCullingModeNonEx2()
+      };
 
     private IMaterial GetOrCreateMaterial_() {
       var newMaterialParams = this.n64Hardware_.Rdp.Tmem.GetMaterialParams();

@@ -111,15 +111,18 @@ namespace UoT.model {
             break;
           }
 
-          limbEr.Position += 6;
-          var firstChild = limbEr.ReadByte();
-          var nextSibling = limbEr.ReadByte();
+          var possibleLimb = isLink
+              ? (ILimb2) limbEr.ReadNew<LinkLimb>()
+              : limbEr.ReadNew<NonLinkLimb>();
+          var firstChild = possibleLimb.FirstChildIndex;
+          var nextSibling = possibleLimb.NextSiblingIndex;
+
           if (firstChild == limbI || nextSibling == limbI) {
             areLimbsValid = false;
             break;
           }
 
-          var displayListAddress = limbEr.ReadUInt32();
+          var displayListAddress = possibleLimb.DisplayListSegmentedAddress;
           IoUtils.SplitSegmentedAddress(displayListAddress,
                                         out var displayListBank,
                                         out _);

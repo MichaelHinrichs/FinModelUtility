@@ -1,4 +1,5 @@
 ﻿Imports System.Math
+Imports f3dzex2.io
 Imports MathNet.Numerics.LinearAlgebra
 Imports MathNet.Numerics.LinearAlgebra.Double
 Imports Tao.OpenGl
@@ -17,7 +18,7 @@ Public Class F3DEX2_Parser
     EVERYTHING = 0
   End Enum
 
-  Public ParseMode As Integer = - 1
+  Public ParseMode As Integer = -1
 
 #Region "SHADERS & TEXTURE RELATED"
 
@@ -232,7 +233,7 @@ dl:
 
               Dim bank As Byte
               Dim offset As UInteger
-              IoUtil.SplitAddress(address, bank, offset)
+              IoUtils.SplitSegmentedAddress(address, bank, offset)
 
               ' TODO: Attempting to jump to addresses w/ bank 0x00 and 0x0c.
               ' One of these is probably held items!
@@ -570,7 +571,7 @@ enddisplaylist:
 
     Dim VertBufferOff As UInteger
     Dim VertexSeg As UInteger
-    IoUtil.SplitAddress(w1, VertexSeg, VertBufferOff)
+    IoUtils.SplitSegmentedAddress(w1, VertexSeg, VertBufferOff)
 
     Select Case VertexSeg
       Case RamBanks.CurrentBank
@@ -880,7 +881,7 @@ enddisplaylist:
 
     Dim tmpBank As Integer
     Dim tmpOff As Integer
-    IoUtil.SplitAddress(address, tmpBank, tmpOff)
+    IoUtils.SplitSegmentedAddress(address, tmpBank, tmpOff)
 
     TimgArgs.ColorFormat = ColorFormatUtil.Parse(IoUtil.ShiftR(w0, 21, 3))
     TimgArgs.BitSize = BitSizeUtil.Parse(IoUtil.ShiftR(w0, 19, 2))

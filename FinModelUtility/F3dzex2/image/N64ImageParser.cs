@@ -5,6 +5,12 @@ using fin.image;
 using fin.image.io;
 using fin.math;
 
+using SixLabors.ImageSharp;
+
+using Color = System.Drawing.Color;
+using IImage = fin.image.IImage;
+
+
 namespace f3dzex2.image {
   public enum N64ImageFormat : byte {
     // Note: "1 bit per pixel" is not a Fast3D format.
@@ -113,6 +119,10 @@ namespace f3dzex2.image {
             default:
               throw new ArgumentOutOfRangeException(nameof(bitsPerTexel), bitsPerTexel, null);
           }
+        }
+        case N64ColorFormat.CI: {
+          // TODO: Implement this
+          return FinImage.Create1x1FromColor(Color.White);
         }
         default:
           throw new ArgumentOutOfRangeException(nameof(colorFormat),

@@ -2,6 +2,7 @@ Imports Tao.OpenGl
 Imports Tao.Platform.Windows
 Imports System.Math
 Imports System.IO
+Imports f3dzex2.io
 Imports Tao.FreeGlut
 Imports UoT.animation
 Imports UoT.limbs
@@ -4210,7 +4211,7 @@ readVars:   While nextTokens(0) = "" And nextTokens(1) = "-"
          And buffer(i + 3) = 0 And buffer(i + 4) = 0 And buffer(i + 5) = 0 _
          And buffer(i + 6) = 0 And buffer(i + 7) = 0 Then
 
-        Dim address As UInteger = IoUtil.MergeAddress(buffer.Segment, i)
+        Dim address As UInteger = IoUtils.MergeSegmentedAddress(buffer.Segment, i)
         i = DisplayListReader.ReadInDL(DlManager, address, DListSelection)
         DLCnt += 1
       End If
