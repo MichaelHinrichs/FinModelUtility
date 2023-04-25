@@ -79,6 +79,14 @@ namespace f3dzex2.model {
                                      this.n64Hardware_.Rsp.TexScaleYFloat /
                                      (bmpHeight * 32)));
 
+      var activeBone = this.n64Hardware_.Rsp.ActiveBone;
+      if (activeBone != null) {
+        newVertex.SetBoneWeights(
+            this.model_.Skin.GetOrCreateBoneWeights(
+                PreprojectMode.BONE,
+                activeBone));
+      }
+
       if (this.n64Hardware_.Rsp.GeometryMode.CheckFlag(
               GeometryMode.G_LIGHTING)) {
         var normal = definition.GetNormal();

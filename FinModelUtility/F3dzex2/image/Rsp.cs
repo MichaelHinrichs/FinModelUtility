@@ -2,9 +2,12 @@
 
 using f3dzex2.combiner;
 using f3dzex2.displaylist.opcodes;
+using f3dzex2.rsp;
 
 using fin.math;
 using fin.math.matrix;
+using fin.model;
+
 
 namespace f3dzex2.image {
   public interface IRsp {
@@ -17,6 +20,9 @@ namespace f3dzex2.image {
     float TexScaleYFloat { get; }
 
     IReadOnlyFinMatrix4x4 Matrix { get; set; }
+
+    IBoneMapper BoneMapper { get; }
+    IBone? ActiveBone { get; set; }
 
     Color EnvironmentColor { get; set; }
     Color PrimColor { get; set; }
@@ -52,6 +58,8 @@ namespace f3dzex2.image {
     public float TexScaleYFloat => this.texScaleYFloat_;
 
     public IReadOnlyFinMatrix4x4 Matrix { get; set; } = FinMatrix4x4.IDENTITY;
+    public IBoneMapper BoneMapper { get; } = new BoneMapper();
+    public IBone? ActiveBone { get; set; }
 
     public Color EnvironmentColor { get; set; }
     public Color PrimColor { get; set; }

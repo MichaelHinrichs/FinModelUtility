@@ -37,7 +37,7 @@ namespace UoT.api {
 
       var n64Hardware = new N64Hardware<N64Memory>();
       n64Hardware.Memory = n64Memory;
-      n64Hardware.Rdp = new Rdp { Tmem = new JankTmem(n64Hardware) };
+      n64Hardware.Rdp = new Rdp {Tmem = new JankTmem(n64Hardware)};
       n64Hardware.Rsp = new Rsp();
 
       var zSegments = ZSegments.Instance;
@@ -98,7 +98,7 @@ namespace UoT.api {
           }
         }
 
-        var finBonesWithDisplayLists = new List<IBone>();
+        var visibleFinBonesAndOotLimbs = new List<(IBone, ILimb2)>();
         for (var i = 0; i < finBones.Length; ++i) {
           var ootLimb = ootLimbs[i];
           IoUtils.SplitSegmentedAddress(ootLimb.DisplayListSegmentedAddress,
@@ -110,7 +110,16 @@ namespace UoT.api {
           }
 
           var finBone = finBones[i];
-          finBonesWithDisplayLists.Add(finBone);
+
+          n64Hardware.Rsp.BoneMapper.SetBoneAtSegmentedAddress(
+              (uint) 0x0d000000 +
+              (uint) (0x40 * visibleFinBonesAndOotLimbs.Count),
+              finBone);
+          visibleFinBonesAndOotLimbs.Add((finBone, ootLimb));
+        }
+
+        foreach (var (finBone, ootLimb) in visibleFinBonesAndOotLimbs) {
+          n64Hardware.Rsp.ActiveBone = finBone;
 
           var displayList =
               new f3dzex2.displaylist.DisplayListReader().ReadDisplayList(

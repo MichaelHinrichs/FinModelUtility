@@ -5,7 +5,6 @@ using System.IO;
 using System;
 
 using f3dzex2.combiner;
-using f3dzex2.displaylist.opcodes.f3d;
 using f3dzex2.image;
 
 using fin.math;
@@ -248,9 +247,17 @@ namespace f3dzex2.displaylist.opcodes.f3dzex2 {
               FlagsToEnable = (GeometryMode) er.ReadUInt32(),
           };
         }
+        case F3dzex2Opcode.G_MTX: {
+          er.AssertUInt16(0x3800);
+          var mtxParams = (byte) (er.ReadByte() ^ 0x01);
+          var address = er.ReadUInt32();
+          return new MtxOpcodeCommand {
+              Params = mtxParams,
+              RamAddress = address,
+          };
+        }
         // TODO: Especially implement these
         case F3dzex2Opcode.G_LOADTLUT:
-        case F3dzex2Opcode.G_MTX:
         case F3dzex2Opcode.G_SETCIMG:
         case F3dzex2Opcode.G_SETZIMG:
         case F3dzex2Opcode.G_MODIFYVTX:

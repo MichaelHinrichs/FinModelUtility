@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 
 using f3dzex2.combiner;
@@ -19,6 +20,8 @@ using fin.util.image;
 
 namespace f3dzex2.model {
   public class DlModelBuilder {
+    private const bool STRICT = false;
+
     private readonly IN64Hardware n64Hardware_;
     private IMesh currentMesh_;
 
@@ -52,19 +55,34 @@ namespace f3dzex2.model {
               return FinImage.Create1x1FromColor(this.vertices_.DiffuseColor);
             }
 
-            using var er = this.n64Hardware_.Memory.OpenAtSegmentedAddress(
-                imageParams.SegmentedAddress);
-            var imageData =
-                er.ReadBytes(imageParams.Width *
-                             imageParams.Height * 4);
+            IEndianBinaryReader? er = null;
+            if (STRICT) {
+              er = this.n64Hardware_.Memory.OpenAtSegmentedAddress(
+                  imageParams.SegmentedAddress);
+            } else {
+              if (this.n64Hardware_.Memory
+                      .TryToOpenPossibilitiesAtSegmentedAddress(
+                          imageParams.SegmentedAddress,
+                          out var possibilities)) {
+                er = possibilities.First();
+              }
+            }
 
-            return new N64ImageParser().Parse(imageParams.ColorFormat,
-                                              imageParams.BitsPerTexel,
-                                              imageData,
-                                              imageParams.Width,
-                                              imageParams.Height,
-                                              new ushort[] { },
-                                              false);
+            if (er != null) {
+              var imageData =
+                  er.ReadBytes(imageParams.Width *
+                               imageParams.Height * 4);
+              er.Dispose();
+              return new N64ImageParser().Parse(imageParams.ColorFormat,
+                                                imageParams.BitsPerTexel,
+                                                imageData,
+                                                imageParams.Width,
+                                                imageParams.Height,
+                                                new ushort[] { },
+                                                false);
+            } else {
+              return FinImage.Create1x1FromColor(Color.Magenta);
+            }
           });
 
       lazyTextureDictionary_ =
@@ -285,8 +303,16 @@ namespace f3dzex2.model {
           case EndDlOpcodeCommand _: {
             return;
           }
-          case MtxOpcodeCommand mtxOpcodeCommand:
+          case MtxOpcodeCommand mtxOpcodeCommand: {
+            if (mtxOpcodeCommand.ModelView && mtxOpcodeCommand.Load) {
+              if (this.n64Hardware_.Rsp.BoneMapper
+                      .TryToGetBoneAtSegmentedAddress(mtxOpcodeCommand.RamAddress, out var bone)) {
+                this.n64Hardware_.Rsp.ActiveBone = bone;
+              }
+            }
+
             break;
+          }
           case PopMtxOpcodeCommand popMtxOpcodeCommand:
             break;
           case SetEnvColorOpcodeCommand setEnvColorOpcodeCommand: {
@@ -313,7 +339,7 @@ namespace f3dzex2.model {
                 dl.Type,
                 default,
                 setGeometryModeOpcodeCommand.FlagsToEnable);
-              break;
+            break;
           }
           case ClearGeometryModeOpcodeCommand clearGeometryModeOpcodeCommand: {
             this.UpdateGeometryMode_(
