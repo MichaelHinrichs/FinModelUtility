@@ -90,32 +90,11 @@ namespace modl.schema.res.texr {
 
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height);
 
-      var image = new Rgba32Image(PixelFormat.P8, (int) width, (int) height);
-      image.Mutate((_, setHandler) => {
-        var blockWidth = 8;
-        var blockHeight = 4;
+      var indexImage = TiledImageReader
+                       .New((int) width, (int) height, 8, 4, new L8PixelReader())
+                       .Read(er);
 
-        var blockCountX = width / blockWidth;
-        var blockCountY = height / blockHeight;
-
-        for (var blockY = 0; blockY < blockCountY; ++blockY) {
-          for (var blockX = 0; blockX < blockCountX; ++blockX) {
-            for (var yInBlock = 0; yInBlock < blockHeight; ++yInBlock) {
-              var y = blockY * blockHeight + yInBlock;
-              for (var xInBlock = 0; xInBlock < blockWidth; ++xInBlock) {
-                var x = blockX * blockWidth + xInBlock;
-
-                var paletteIndex = er.ReadByte();
-                var color = palette[paletteIndex];
-
-                setHandler(x, y, color.Rb, color.Gb, color.Bb, color.Ab);
-              }
-            }
-          }
-        }
-      });
-
-      return image;
+      return new IndexedImage8(PixelFormat.P8, indexImage, palette);
     }
 
     protected IImage ReadP4_(IEndianBinaryReader er, uint width, uint height) {
@@ -123,62 +102,29 @@ namespace modl.schema.res.texr {
 
       SectionHeaderUtil.AssertNameAndSize(er, "PAL ", 32);
 
-      var paletteShorts = er.ReadUInt16s(16);
+      var palette = er.ReadUInt16s(16)
+                      .Select(value => {
+                        var r = ColorUtil.ExtractScaled(value, 0, 4);
+                        var g = ColorUtil.ExtractScaled(value, 4, 4);
+                        var b = ColorUtil.ExtractScaled(value, 8, 4);
+                        var a = ColorUtil.ExtractScaled(value, 12, 4);
 
-      var palette = paletteShorts
-                    .Select(value => {
-                      var r = ColorUtil.ExtractScaled(value, 0, 4);
-                      var g = ColorUtil.ExtractScaled(value, 4, 4);
-                      var b = ColorUtil.ExtractScaled(value, 8, 4);
-                      var a = ColorUtil.ExtractScaled(value, 12, 4);
-
-                      // TODO: Is this correct??? Textures don't look quite right
-                      return FinColor.FromRgbaBytes(
-                          (byte) r, (byte) g, (byte) b, (byte) a);
-                    })
-                    .ToArray();
+                        // TODO: Is this correct??? Textures don't look quite right
+                        return FinColor.FromRgbaBytes(
+                            (byte) r,
+                            (byte) g,
+                            (byte) b,
+                            (byte) a);
+                      })
+                      .ToArray();
 
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height / 2);
 
-      var image = new Rgba32Image(PixelFormat.P4, (int) width, (int) height);
-      image.Mutate((_, setHandler) => {
-        var blockWidth = 8;
-        var blockHeight = 8;
+      var indexImage = TiledImageReader
+                       .New((int) width, (int) height, 8, 8, new L4PixelReader())
+                       .Read(er);
 
-        var blockCountX = width / blockWidth;
-        var blockCountY = height / blockHeight;
-
-        for (var blockY = 0; blockY < blockCountY; ++blockY) {
-          for (var blockX = 0; blockX < blockCountX; ++blockX) {
-            for (var yInBlock = 0; yInBlock < blockHeight; ++yInBlock) {
-              var y = blockY * blockHeight + yInBlock;
-              for (var xInBlock = 0; xInBlock < blockWidth; xInBlock += 2) {
-                var x = blockX * blockWidth + xInBlock;
-
-                var paletteIndex = er.ReadByte();
-
-                var upperPaletteIndex = paletteIndex >> 4;
-                var color0 = palette[upperPaletteIndex];
-                setHandler(x, y,
-                           color0.Rb,
-                           color0.Gb,
-                           color0.Bb,
-                           color0.Ab);
-
-                var lowerPaletteIndex = paletteIndex & 0xf;
-                var color1 = palette[lowerPaletteIndex];
-                setHandler(x + 1, y,
-                           color1.Rb,
-                           color1.Gb, 
-                           color1.Bb, 
-                           color1.Ab);
-              }
-            }
-          }
-        }
-      });
-
-      return image;
+      return new IndexedImage8(PixelFormat.P4, indexImage, palette);
     }
 
     protected IImage ReadIA8_(IEndianBinaryReader er, uint width, uint height) {

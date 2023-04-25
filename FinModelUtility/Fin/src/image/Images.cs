@@ -3,8 +3,11 @@ using fin.util.asserts;
 using fin.util.image;
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices.JavaScript;
 
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
@@ -23,6 +26,8 @@ using fin.color;
 
 using Color = System.Drawing.Color;
 using Image = SixLabors.ImageSharp.Image;
+
+using Assimp;
 
 
 namespace fin.image {
@@ -137,7 +142,10 @@ namespace fin.image {
       var width = image.Width;
       var height = image.Height;
 
-      var bitmap = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+      var bitmap = new Bitmap(width,
+                              height,
+                              System.Drawing.Imaging.PixelFormat
+                                    .Format32bppArgb);
       using var fastBitmap = bitmap.FastLock();
       var dstPtr = (int*) fastBitmap.Scan0;
 
@@ -595,5 +603,110 @@ namespace fin.image {
 
     public void GetI8Bytes(Span<byte> bytes)
       => this.Impl.CopyPixelDataTo(bytes);
+  }
+
+
+  public abstract class BIndexedImage : IImage {
+    private readonly IImage impl_;
+
+    protected BIndexedImage(PixelFormat pixelFormat,
+                            IImage impl,
+                            IReadOnlyList<IColor> palette) {
+      this.PixelFormat = pixelFormat;
+      this.impl_ = impl;
+      this.Palette = palette;
+    }
+
+    ~BIndexedImage() => this.Dispose();
+
+    public void Dispose() {
+      this.impl_.Dispose();
+      GC.SuppressFinalize(this);
+    }
+
+    public IReadOnlyList<IColor> Palette { get; }
+    public PixelFormat PixelFormat { get; }
+    public int Width => this.impl_.Width;
+    public int Height => this.impl_.Height;
+
+    public abstract void Access(IImage.AccessHandler accessHandler);
+
+    public bool HasAlphaChannel =>
+        this.Palette.Any(color => Math.Abs(color.Af - 1) > .0001);
+
+    public Bitmap AsBitmap() => FinImage.ConvertToBitmap(this);
+
+    public void ExportToStream(Stream stream, LocalImageFormat imageFormat)
+      => throw new NotImplementedException();
+  }
+
+  public class IndexedImage8 : BIndexedImage {
+    private readonly IImage<L8> impl_;
+
+    public IndexedImage8(PixelFormat pixelFormat,
+                         IImage<L8> impl,
+                         IReadOnlyList<IColor> palette) : base(
+        pixelFormat,
+        impl,
+        palette) {
+      this.impl_ = impl;
+    }
+
+    public override unsafe void Access(IImage.AccessHandler accessHandler) {
+      using var bytes = this.impl_.Lock();
+      var ptr = bytes.pixelScan0;
+
+      void InternalGetHandler(
+          int x,
+          int y,
+          out byte r,
+          out byte g,
+          out byte b,
+          out byte a) {
+        var index = ptr[y * this.Width + x];
+        var color = this.Palette[index.PackedValue];
+        r = color.Rb;
+        g = color.Gb;
+        b = color.Bb;
+        a = color.Ab;
+      }
+
+      accessHandler(InternalGetHandler);
+    }
+  }
+
+  public class IndexedImage16 : BIndexedImage {
+    private readonly IImage<L16> impl_;
+
+    public IndexedImage16(PixelFormat pixelFormat,
+                          IImage<L16> impl,
+                          IReadOnlyList<IColor> palette) : base(
+        pixelFormat,
+        impl,
+        palette) {
+      this.impl_ = impl;
+    }
+
+    public override unsafe void Access(IImage.AccessHandler accessHandler) {
+      using var bytes = this.impl_.Lock();
+      var ptr = bytes.pixelScan0;
+
+      void InternalGetHandler(
+          int x,
+          int y,
+          out byte r,
+          out byte g,
+          out byte b,
+          out byte a) {
+        var index = ptr[y * this.Width + x];
+        var color = this.Palette[index.PackedValue];
+        r = color.Rb;
+        g = color.Gb;
+        b = color.Bb;
+        a = color.Ab;
+      }
+
+      accessHandler(InternalGetHandler);
+    }
   }
 }
