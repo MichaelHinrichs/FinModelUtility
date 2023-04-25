@@ -31,6 +31,9 @@ namespace f3dzex2.model {
         new F3dVertex[VERTEX_COUNT];
 
     private readonly IVertex?[] vertices_ = new IVertex?[VERTEX_COUNT];
+
+    private readonly IBone?[] bones_ = new IBone?[VERTEX_COUNT];
+
     private Color diffuseColor_;
 
 
@@ -47,8 +50,8 @@ namespace f3dzex2.model {
         var index = startIndex + i;
         this.vertexDefinitions_[index] = newVertices[i];
         this.vertices_[index] = null;
+        this.bones_[index] = this.n64Hardware_.Rsp.ActiveBone;
       }
-
     }
 
 
@@ -79,7 +82,7 @@ namespace f3dzex2.model {
                                      this.n64Hardware_.Rsp.TexScaleYFloat /
                                      (bmpHeight * 32)));
 
-      var activeBone = this.n64Hardware_.Rsp.ActiveBone;
+      var activeBone = this.bones_[index];
       if (activeBone != null) {
         newVertex.SetBoneWeights(
             this.model_.Skin.GetOrCreateBoneWeights(
