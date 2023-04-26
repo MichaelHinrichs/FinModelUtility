@@ -1,11 +1,17 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 
+using fin.color;
 using fin.image;
 using fin.image.io;
 using fin.math;
+using fin.util.color;
+
+using Newtonsoft.Json.Linq;
 
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 using Color = System.Drawing.Color;
 using IImage = fin.image.IImage;
@@ -52,11 +58,20 @@ namespace f3dzex2.image {
           BitsPerTexel._8BPT  => 0,
           BitsPerTexel._16BPT => 1,
           BitsPerTexel._32BPT => 2,
-          _                   => throw new ArgumentOutOfRangeException(nameof(bitsPerTexel), bitsPerTexel, null)
+          _ => throw new ArgumentOutOfRangeException(
+              nameof(bitsPerTexel),
+              bitsPerTexel,
+              null)
       };
   }
 
   public class N64ImageParser {
+    private readonly IN64Hardware n64Hardware_;
+
+    public N64ImageParser(IN64Hardware n64Hardware) {
+      this.n64Hardware_ = n64Hardware;
+    }
+
     public static void SplitN64ImageFormat(byte imageFormat,
                                            out N64ColorFormat colorFormat,
                                            out BitsPerTexel bitsPerTexel) {
@@ -69,26 +84,20 @@ namespace f3dzex2.image {
     public IImage Parse(N64ImageFormat format,
                         byte[] data,
                         int width,
-                        int height,
-                        ushort[] palette,
-                        bool isPaletteRGBA16) {
+                        int height) {
       SplitN64ImageFormat((byte) format, out var colorFormat, out var bitSize);
       return Parse(colorFormat,
                    bitSize,
                    data,
                    width,
-                   height,
-                   palette,
-                   isPaletteRGBA16);
+                   height);
     }
 
-    public IImage Parse(N64ColorFormat colorFormat,
-                        BitsPerTexel bitsPerTexel,
-                        byte[] data,
-                        int width,
-                        int height,
-                        ushort[] palette,
-                        bool isPaletteRGBA16) {
+    public unsafe IImage Parse(N64ColorFormat colorFormat,
+                               BitsPerTexel bitsPerTexel,
+                               byte[] data,
+                               int width,
+                               int height) {
       switch (colorFormat) {
         case N64ColorFormat.RGBA: {
           switch (bitsPerTexel) {
@@ -117,12 +126,55 @@ namespace f3dzex2.image {
                                           new La16PixelReader())
                                      .Read(data, Endianness.BigEndian);
             default:
-              throw new ArgumentOutOfRangeException(nameof(bitsPerTexel), bitsPerTexel, null);
+              throw new ArgumentOutOfRangeException(
+                  nameof(bitsPerTexel),
+                  bitsPerTexel,
+                  null);
           }
         }
         case N64ColorFormat.CI: {
+          var indexedImage = bitsPerTexel switch {
+              BitsPerTexel._4BPT => PixelImageReader
+                                    .New(width, height, new L4PixelReader())
+                                    .Read(data, Endianness.BigEndian),
+              BitsPerTexel._8BPT => PixelImageReader
+                                    .New(width, height, new L8PixelReader())
+                                    .Read(data, Endianness.BigEndian),
+              _ => throw new ArgumentOutOfRangeException(
+                  nameof(bitsPerTexel),
+                  bitsPerTexel,
+                  null)
+          };
+
+          uint maxIndex = 0;
+          {
+            using var imgLock = indexedImage.Lock();
+            var ptr = imgLock.pixelScan0;
+            for (var i = 0; i < width * height; ++i) {
+              maxIndex = Math.Max(maxIndex, ptr[i].PackedValue);
+            }
+          }
+
+          using var paletteEr =
+              this.n64Hardware_.Memory.OpenAtSegmentedAddress(
+                  this.n64Hardware_.Rdp.PaletteSegmentedAddress);
+          var palette = paletteEr
+                        .ReadUInt16s(maxIndex + 1)
+                        .Select(value => {
+                          ColorUtil.SplitArgb1555(
+                              value,
+                              out var r,
+                              out var g,
+                              out var b,
+                              out var a);
+                          return FinColor.FromRgbaBytes(r, g, b, a);
+                        }).ToArray();
+
           // TODO: Implement this
-          return FinImage.Create1x1FromColor(Color.White);
+          return new IndexedImage8(bitsPerTexel switch {
+              BitsPerTexel._4BPT => PixelFormat.P4,
+              BitsPerTexel._8BPT => PixelFormat.P8,
+          }, indexedImage, palette);
         }
         default:
           throw new ArgumentOutOfRangeException(nameof(colorFormat),

@@ -101,7 +101,15 @@ namespace f3dzex2.image {
       }
     }
 
-    public void GsDpSetTile(N64ColorFormat colorFormat,
+    public void GsDpLoadTlut(TileDescriptorIndex tileDescriptor,
+                             uint numColorsToLoad) {
+      if (tileDescriptor == TileDescriptorIndex.TX_LOADTILE) {
+        this.n64Hardware_.Rdp.PaletteSegmentedAddress =
+            this.setTextureImageParams_.SegmentedAddress;
+      }
+    }
+
+      public void GsDpSetTile(N64ColorFormat colorFormat,
                             BitsPerTexel bitsPerTexel,
                             uint num64BitValuesPerRow,
                             uint offsetOfTextureInTmem,

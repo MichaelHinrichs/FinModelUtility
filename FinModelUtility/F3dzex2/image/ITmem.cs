@@ -24,6 +24,9 @@ namespace f3dzex2.image {
                        ushort texels,
                        ushort deltaTPerScanline);
 
+    void GsDpLoadTlut(TileDescriptorIndex tileDescriptor,
+                      uint numColorsToLoad);
+
     void GsDpSetTile(N64ColorFormat colorFormat,
                      BitsPerTexel bitsPerTexel,
                      uint num64BitValuesPerRow,

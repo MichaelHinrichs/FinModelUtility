@@ -303,6 +303,12 @@ namespace f3dzex2.displaylist.opcodes {
     public required ushort Texels { get; init; }
   }
 
+  public class LoadTlutOpcodeCommand : IOpcodeCommand {
+    public required TileDescriptorIndex TileDescriptorIndex { get; init; }
+    public required ushort NumColorsToLoad { get; init; }
+  }
+
+
 
   public enum DmemAddress {
     G_MV_L0 = 0x86,

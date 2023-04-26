@@ -256,8 +256,20 @@ namespace f3dzex2.displaylist.opcodes.f3dzex2 {
               RamAddress = address,
           };
         }
+        case F3dzex2Opcode.G_LOADTLUT: {
+          er.AssertUInt24(0);
+
+          var tileDescriptor = (TileDescriptorIndex) er.ReadByte();
+
+          var rawNumColorsToLoad = er.ReadUInt16() >> 4;
+          var numColorsToLoad = (rawNumColorsToLoad >> 2) + 1;
+
+          return new LoadTlutOpcodeCommand {
+              TileDescriptorIndex = tileDescriptor,
+              NumColorsToLoad = (ushort) numColorsToLoad,
+          };
+        }
         // TODO: Especially implement these
-        case F3dzex2Opcode.G_LOADTLUT:
         case F3dzex2Opcode.G_SETCIMG:
         case F3dzex2Opcode.G_SETZIMG:
         case F3dzex2Opcode.G_MODIFYVTX:

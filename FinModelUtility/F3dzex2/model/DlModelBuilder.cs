@@ -73,13 +73,12 @@ namespace f3dzex2.model {
                   er.ReadBytes(imageParams.Width *
                                imageParams.Height * 4);
               er.Dispose();
-              return new N64ImageParser().Parse(imageParams.ColorFormat,
-                                                imageParams.BitsPerTexel,
-                                                imageData,
-                                                imageParams.Width,
-                                                imageParams.Height,
-                                                new ushort[] { },
-                                                false);
+              return new N64ImageParser(this.n64Hardware_).Parse(
+                  imageParams.ColorFormat,
+                  imageParams.BitsPerTexel,
+                  imageData,
+                  imageParams.Width,
+                  imageParams.Height);
             } else {
               return FinImage.Create1x1FromColor(Color.Magenta);
             }
@@ -448,6 +447,12 @@ namespace f3dzex2.model {
               loadBlockOpcodeCommand.TileDescriptorIndex,
               loadBlockOpcodeCommand.Texels,
               0);
+            break;
+          }
+          case LoadTlutOpcodeCommand loadTlutOpcodeCommand: {
+            this.n64Hardware_.Rdp.Tmem.GsDpLoadTlut(
+                loadTlutOpcodeCommand.TileDescriptorIndex,
+                loadTlutOpcodeCommand.NumColorsToLoad);
             break;
           }
           case MoveMemOpcodeCommand moveMemOpcodeCommand: {
