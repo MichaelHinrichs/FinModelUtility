@@ -15,13 +15,11 @@ using fin.language.equations.fixedFunction.impl;
 using fin.math.matrix;
 using fin.model;
 using fin.model.impl;
-using fin.util.enums;
 using fin.util.image;
 
 
 namespace f3dzex2.model {
   public class DlModelBuilder {
-    private const bool STRICT = false;
 
     private readonly IN64Hardware n64Hardware_;
     private IMesh currentMesh_;
@@ -57,7 +55,7 @@ namespace f3dzex2.model {
             }
 
             IEndianBinaryReader? er = null;
-            if (STRICT) {
+            if (Constants.STRICT) {
               er = this.n64Hardware_.Memory.OpenAtSegmentedAddress(
                   imageParams.SegmentedAddress);
             } else {

@@ -113,6 +113,25 @@ namespace f3dzex2.image {
                   null);
           }
         }
+        case N64ColorFormat.L: {
+          switch (bitsPerTexel) {
+            case BitsPerTexel._4BPT:
+              return PixelImageReader.New(width,
+                                          height,
+                                          new L4PixelReader())
+                                     .Read(data, Endianness.BigEndian);
+            case BitsPerTexel._8BPT:
+              return PixelImageReader.New(width,
+                                          height,
+                                          new L8PixelReader())
+                                     .Read(data, Endianness.BigEndian);
+            default:
+              throw new ArgumentOutOfRangeException(
+                  nameof(bitsPerTexel),
+                  bitsPerTexel,
+                  null);
+          }
+        }
         case N64ColorFormat.LA: {
           switch (bitsPerTexel) {
             case BitsPerTexel._8BPT:
