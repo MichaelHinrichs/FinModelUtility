@@ -243,8 +243,8 @@ namespace f3dzex2.displaylist.opcodes.f3dzex2 {
         }
         case F3dzex2Opcode.G_GEOMETRYMODE: {
           return new GeometryModeOpcodeCommand {
-              FlagsToDisable = (GeometryMode) er.ReadUInt24(),
-              FlagsToEnable = (GeometryMode) er.ReadUInt32(),
+              FlagsToDisable = (GeometryMode) ((~er.ReadUInt24()) & 0xFFFFFF),
+              FlagsToEnable = (GeometryMode) (er.ReadUInt32() & 0xFFFFFF),
           };
         }
         case F3dzex2Opcode.G_MTX: {
@@ -269,10 +269,11 @@ namespace f3dzex2.displaylist.opcodes.f3dzex2 {
               NumColorsToLoad = (ushort) numColorsToLoad,
           };
         }
+        case F3dzex2Opcode.G_MODIFYVTX:
+          return new ModifyVtxOpcodeCommand();
         // TODO: Especially implement these
         case F3dzex2Opcode.G_SETCIMG:
         case F3dzex2Opcode.G_SETZIMG:
-        case F3dzex2Opcode.G_MODIFYVTX:
         // TODO: Implement these
         case F3dzex2Opcode.G_SETOTHERMODE_L:
         case F3dzex2Opcode.G_SETOTHERMODE_H:

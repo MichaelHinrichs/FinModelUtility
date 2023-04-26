@@ -34,7 +34,7 @@ namespace f3dzex2.model {
 
     private readonly IBone?[] bones_ = new IBone?[VERTEX_COUNT];
 
-    private Color diffuseColor_;
+    private Color diffuseColor_ = Color.White;
 
 
     public F3dVertices(IN64Hardware n64Hardware, IModel model) {

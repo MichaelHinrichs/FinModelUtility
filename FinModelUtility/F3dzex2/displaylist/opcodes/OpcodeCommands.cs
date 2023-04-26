@@ -48,6 +48,8 @@ namespace f3dzex2.displaylist.opcodes {
     public byte IndexToBeginStoringVertices { get; set; }
   }
 
+  public class ModifyVtxOpcodeCommand : IOpcodeCommand { }
+
 
   public enum TriVertexOrder {
     ABC = 0,
@@ -173,7 +175,7 @@ namespace f3dzex2.displaylist.opcodes {
   }
 
   public static class TileDescriptorExtensions {
-    public static bool IsRender(this TileDescriptorIndex tileDescriptorIndex) 
+    public static bool IsRender(this TileDescriptorIndex tileDescriptorIndex)
       => tileDescriptorIndex == TileDescriptorIndex.TX_RENDERTILE;
   }
 
@@ -307,7 +309,6 @@ namespace f3dzex2.displaylist.opcodes {
     public required TileDescriptorIndex TileDescriptorIndex { get; init; }
     public required ushort NumColorsToLoad { get; init; }
   }
-
 
 
   public enum DmemAddress {

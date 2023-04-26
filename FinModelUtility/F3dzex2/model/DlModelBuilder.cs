@@ -15,6 +15,7 @@ using fin.language.equations.fixedFunction.impl;
 using fin.math.matrix;
 using fin.model;
 using fin.model.impl;
+using fin.util.enums;
 using fin.util.image;
 
 
@@ -480,6 +481,9 @@ namespace f3dzex2.model {
               }
             }
 
+            break;
+          }
+          case ModifyVtxOpcodeCommand: {
             break;
           }
           default:

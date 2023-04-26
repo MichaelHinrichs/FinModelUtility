@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 
+using f3dzex2.displaylist.opcodes;
 using f3dzex2.displaylist.opcodes.f3dzex2;
 using f3dzex2.image;
 using f3dzex2.io;
@@ -39,6 +40,8 @@ namespace UoT.api {
       n64Hardware.Memory = n64Memory;
       n64Hardware.Rdp = new Rdp {Tmem = new JankTmem(n64Hardware)};
       n64Hardware.Rsp = new Rsp();
+
+      n64Hardware.Rsp.GeometryMode = (GeometryMode) 0x22405;
 
       var zSegments = ZSegments.Instance;
 
