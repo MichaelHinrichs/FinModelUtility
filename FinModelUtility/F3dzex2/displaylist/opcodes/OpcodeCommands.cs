@@ -266,6 +266,8 @@ namespace f3dzex2.displaylist.opcodes {
           F3dWrapMode.REPEAT        => WrapMode.REPEAT,
           F3dWrapMode.MIRROR_REPEAT => WrapMode.MIRROR_REPEAT,
           F3dWrapMode.CLAMP         => WrapMode.CLAMP,
+          // TODO: What does this actually mean?
+          (F3dWrapMode) 3 => WrapMode.MIRROR_REPEAT,
           _ => throw new ArgumentOutOfRangeException(
               nameof(f3dWrapMode),
               f3dWrapMode,

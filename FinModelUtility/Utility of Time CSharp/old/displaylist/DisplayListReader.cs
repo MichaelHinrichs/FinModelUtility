@@ -41,9 +41,6 @@ namespace UoT {
           displayList.StartPos.Bank = data.Segment;
           displayList.Skip = false;
 
-          PickerUtil.NextRgb(out var r, out var g, out var b);
-          displayList.PickCol = new Color3UByte {r = r, g = g, b = b};
-
           do {
             var commands = displayList.Commands;
             Array.Resize(ref commands, displayList.CommandCount + 1);

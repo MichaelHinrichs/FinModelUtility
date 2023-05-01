@@ -1,5 +1,4 @@
 ﻿using UoT.memory.map;
-using UoT.ui.main.files;
 
 namespace UoT.memory.files {
   public enum ZFileType {
@@ -16,7 +15,7 @@ namespace UoT.memory.files {
     OTHER,
   }
 
-  public interface IZFile : IUiFile {
+  public interface IZFile {
     ZFileType Type { get; }
 
     IShardedMemory Region { get; }

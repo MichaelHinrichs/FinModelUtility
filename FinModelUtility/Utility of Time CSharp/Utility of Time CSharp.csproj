@@ -48,31 +48,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="old\ui\common\component\fields\DiscreteFieldControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="old\ui\common\component\fields\FieldControlList.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="old\ui\common\component\tabs\HostPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="old\ui\main\files\FileTreeView.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="old\ui\main\tabs\animation\AnimationTab.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="old\ui\main\tabs\animation\AnimationSelectorPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="old\ui\common\component\fields\HostPanel - Copy.resx">
-      <DependentUpon>FieldControlList.resx</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\F3dzex2\F3dzex2.csproj" />
     <ProjectReference Include="..\Fin\Fin.csproj" />
     <ProjectReference Include="..\Schema\Schema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />

@@ -143,9 +143,6 @@ namespace UoT.memory.files {
 
           others.Add(other);
         }
-
-        file.FileName = fileName;
-        file.BetterFileName = betterFileName;
       }
 
       return new ZFiles(objects, actorCode, scenes.ToArray(), others);

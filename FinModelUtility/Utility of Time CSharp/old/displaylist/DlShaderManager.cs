@@ -2,9 +2,6 @@
 
 using Tao.OpenGl;
 
-using UoT.ui.main.viewer;
-using UoT.util;
-
 namespace UoT.displaylist {
   /// <summary>
   ///   Helper class for managing shader-specific fields and passing them into
@@ -242,11 +239,6 @@ namespace UoT.displaylist {
     public void PassValuesToShader() {
       if (this.Params.EnableCombiner) {
         Gl.glUniform1f(this.timeLocation_, (float) Time.Current);
-        var camera = Asserts.Assert(Camera.Instance);
-        Gl.glUniform3f(this.cameraPositionLocation_,
-                       (float) camera.X,
-                       (float) camera.Y,
-                       (float) camera.Z);
 
         Gl.glUniform1f(this.lightingEnabledLocation_,
                        this.Params.EnableLighting ? 1 : 0);

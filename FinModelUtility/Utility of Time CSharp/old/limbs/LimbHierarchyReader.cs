@@ -149,12 +149,6 @@ namespace UoT.limbs {
                   // ReDim Preserve N64DList(N64DList.Length)
                   // ReadInDL(Data, N64DList, .DisplayListLow, N64DList.Length - 1)
                   // Else
-
-                  // End If
-                  PickerUtil.NextRgb(out var r, out var g, out var b);
-                  limb.r = r;
-                  limb.g = g;
-                  limb.b = b;
                 }
               }
 
