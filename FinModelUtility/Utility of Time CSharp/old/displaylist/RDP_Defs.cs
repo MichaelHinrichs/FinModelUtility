@@ -188,23 +188,5 @@ namespace UoT {
         0xFF0FF3FF, 0xFFFFFFF8, 0x1F0CFFFF,
         0x350CF37F, 0xFFFFF9F8, 0x1FFCFDF8
     };
-
-    public static IDisplayListInstruction? FindLinkedCommand(
-        N64DisplayList DL,
-        byte Command,
-        int StartIndex) {
-      var commands = Asserts.Assert(DL.Commands);
-      for (var i = 0; i < commands.Length; ++i) {
-        var command = commands[i];
-        if (command.CMDParams[0] == Command) {
-          return command;
-        }
-        
-        if (i > StartIndex && command.CMDParams[0] == (int)F3DZEX.VTX) {
-          return null;
-        }
-      }
-      return null;
-    }
   }
 }
