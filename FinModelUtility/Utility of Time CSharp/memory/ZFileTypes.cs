@@ -1,4 +1,6 @@
-﻿namespace UoT.memory {
+﻿using f3dzex2.io;
+
+namespace UoT.memory {
   public enum ZFileType {
     OBJECT,
     CODE,
@@ -17,42 +19,39 @@
     ZFileType Type { get; }
 
     string FileName { get; }
-    uint Offset { get; }
-    uint Length { get; }
+    Segment Segment { get; }
   }
 
 
   public abstract class BZFile : IZFile {
-    protected BZFile(uint offset, uint length) {
-      this.Offset = offset;
-      this.Length = length;
+    protected BZFile(Segment segment) {
+      this.Segment = segment;
     }
 
     public abstract ZFileType Type { get; }
 
     public string FileName { get; set; }
 
-    public uint Offset { get; }
-    public uint Length { get; }
+    public Segment Segment { get; }
 
     public override string ToString() => this.FileName;
   }
 
 
   public class ZObject : BZFile {
-    public ZObject(uint offset, uint length) : base(offset, length) { }
+    public ZObject(Segment segment) : base(segment) { }
     public override ZFileType Type => ZFileType.OBJECT;
   }
 
 
   public class ZCodeFiles : BZFile {
-    public ZCodeFiles(uint offset, uint length) : base(offset, length) { }
+    public ZCodeFiles(Segment segment) : base(segment) { }
     public override ZFileType Type => ZFileType.CODE;
   }
 
 
   public class ZScene : BZFile {
-    public ZScene(uint offset, uint length) : base(offset, length) { }
+    public ZScene(Segment segment) : base(segment) { }
     public override ZFileType Type => ZFileType.SCENE;
 
     // TODO: Make nonnull via init, C#9.
@@ -60,7 +59,7 @@
   }
 
   public class ZMap : BZFile {
-    public ZMap(uint offset, uint length) : base(offset, length) { }
+    public ZMap(Segment segment) : base(segment) { }
     public override ZFileType Type => ZFileType.MAP;
 
     // TODO: Make nonnull via init, C#9.
@@ -68,12 +67,12 @@
   }
 
   public class ZObjectSet : BZFile {
-    public ZObjectSet(uint offset, uint length) : base(offset, length) { }
+    public ZObjectSet(Segment segment) : base(segment) { }
     public override ZFileType Type => ZFileType.OBJECT_SET;
   }
 
   public class ZOtherData : BZFile {
-    public ZOtherData(uint offset, uint length) : base(offset, length) { }
+    public ZOtherData(Segment segment) : base(segment) { }
     public override ZFileType Type => ZFileType.OTHER;
   }
 }

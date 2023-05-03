@@ -30,11 +30,7 @@ namespace UoT.model {
       var animations = new List<IAnimation>();
 
       foreach (var animationFile in animationFiles) {
-        using var entryEr = new EndianBinaryReader(
-            new MemoryStream(n64Memory.Bytes,
-                             (int) animationFile.Offset,
-                             (int) animationFile.Length),
-            n64Memory.Endianness);
+        using var entryEr = n64Memory.OpenSegment(animationFile.Segment);
 
         // Guesstimating the index by looking for an spot where the header's angle
         // address and track address have the same bank as the param at the top.
@@ -203,11 +199,7 @@ namespace UoT.model {
         int limbCount) {
       var animations = new List<IAnimation>();
 
-      using var headerEr = new EndianBinaryReader(
-          new MemoryStream(n64Memory.Bytes,
-                           (int) headerFile.Offset,
-                           (int) headerFile.Length),
-          n64Memory.Endianness);
+      using var headerEr = n64Memory.OpenSegment(headerFile.Segment);
 
       var trackCount = (uint) (limbCount * 3);
       var frameSize = 2 * (3 + trackCount) + 2;

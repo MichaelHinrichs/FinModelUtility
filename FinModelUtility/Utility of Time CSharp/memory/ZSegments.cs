@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
+using f3dzex2.io;
+
 using fin.io;
 
 namespace UoT.memory {
@@ -73,45 +75,44 @@ namespace UoT.memory {
         IEndianBinaryReader er,
         int segmentOffset,
         int nameOffset) {
-      var segments = ZSegments.GetSegments_(er, segmentOffset, nameOffset);
+      var zSegments = ZSegments.GetZSegments_(er, segmentOffset, nameOffset);
 
       var objects = new List<ZObject>();
       var actorCode = new List<ZCodeFiles>();
       var scenes = new LinkedList<ZScene>();
       var others = new List<ZOtherData>();
 
-      foreach (var segment in segments) {
-        var fileName = segment.FileName;
-        var offset = segment.Offset;
-        var length = segment.Length;
+      foreach (var zSegment in zSegments) {
+        var fileName = zSegment.FileName;
+        var segment = zSegment.Segment;
 
         BZFile file;
         if (fileName.StartsWith("object_")) {
-          var obj = new ZObject(offset, length);
+          var obj = new ZObject(segment);
           file = obj;
 
           objects.Add(obj);
         } else if (fileName.StartsWith("ovl_")) {
-          var ovl = new ZCodeFiles(offset, length);
+          var ovl = new ZCodeFiles(segment);
           file = ovl;
 
           actorCode.Add(ovl);
         } else if (fileName.EndsWith("_scene")) {
-          var scene = new ZScene(offset, length);
+          var scene = new ZScene(segment);
           file = scene;
 
           scenes.AddLast(scene);
         } else if (fileName.Contains("_room")) {
           var scene = scenes.Last.Value;
 
-          var map = new ZMap(offset, length) { Scene = scene };
+          var map = new ZMap(segment) { Scene = scene };
           file = map;
 
           var mapCount = scene.Maps?.Length ?? 0;
           Array.Resize(ref scene.Maps, mapCount + 1);
           scene.Maps[mapCount] = map;
         } else {
-          var other = new ZOtherData(offset, length);
+          var other = new ZOtherData(segment);
           file = other;
 
           others.Add(other);
@@ -123,11 +124,11 @@ namespace UoT.memory {
       return Instance = new ZSegments(objects, actorCode, scenes.ToArray(), others);
     }
 
-    private static IEnumerable<Segment> GetSegments_(
+    private static IEnumerable<ZSegment> GetZSegments_(
         IEndianBinaryReader er,
         int segmentOffset,
         long nameOffset) {
-      var segments = new LinkedList<Segment>();
+      var segments = new LinkedList<ZSegment>();
 
       er.Subread(
           segmentOffset,
@@ -164,10 +165,12 @@ namespace UoT.memory {
 
               var fileName = fileNameBuilder.ToString();
 
-              segments.AddLast(new Segment {
+              segments.AddLast(new ZSegment {
                   FileName = fileName,
-                  Offset = startAddress,
-                  Length = endAddress - startAddress,
+                  Segment = new Segment {
+                    Offset = startAddress,
+                    Length = endAddress - startAddress,
+                  }
               });
             }
           });
@@ -175,10 +178,9 @@ namespace UoT.memory {
       return segments;
     }
 
-    private class Segment {
+    private class ZSegment {
       public required string FileName { get; init; }
-      public required uint Offset { get; init; }
-      public required uint Length { get; init; }
+      public required Segment Segment { get; init; }
     }
   }
 }

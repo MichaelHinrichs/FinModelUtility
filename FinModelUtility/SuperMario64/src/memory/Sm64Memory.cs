@@ -33,6 +33,10 @@ namespace SuperMario64.memory {
       return true;
     }
 
+    public IEndianBinaryReader OpenSegment(Segment segment) {
+      throw new NotImplementedException();
+    }
+
     public IEnumerable<IEndianBinaryReader> OpenPossibilitiesForSegment(
         uint segmentIndex) {
       throw new NotImplementedException();

@@ -48,28 +48,24 @@ namespace UoT.api {
       var gameplayKeep =
           zSegments.Others.Single(other => other.FileName is "gameplay_keep");
       n64Memory.AddSegment((uint) OotSegmentIndex.GAMEPLAY_KEEP,
-                           gameplayKeep.Offset,
-                           gameplayKeep.Length);
+                           gameplayKeep.Segment);
 
       // TODO: Use "gameplay dangeon keep" when applicable
       var gameplayFieldKeep =
           zSegments.Others.Single(
               other => other.FileName is "gameplay_field_keep");
       n64Memory.AddSegment((uint) OotSegmentIndex.GAMEPLAY_FIELD_KEEP,
-                           gameplayFieldKeep.Offset,
-                           gameplayFieldKeep.Length);
+                           gameplayFieldKeep.Segment);
 
       n64Memory.AddSegment((uint) OotSegmentIndex.ZOBJECT,
-                           zFile.Offset,
-                           zFile.Length);
+                           zFile.Segment);
 
       var linkAnimetion =
           zSegments.Others.SingleOrDefault(
               other => other.FileName is "link_animetion");
       if (isLink) {
         n64Memory.AddSegment((uint) OotSegmentIndex.LINK_ANIMETION,
-                             linkAnimetion.Offset,
-                             linkAnimetion.Length);
+                             linkAnimetion.Segment);
       }
 
       var dlModelBuilder = new DlModelBuilder(n64Hardware);

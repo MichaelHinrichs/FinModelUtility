@@ -22,6 +22,7 @@ namespace f3dzex2.io {
         out IEnumerable<IEndianBinaryReader> possibilities);
 
     IEndianBinaryReader OpenSegment(uint segmentIndex);
+    IEndianBinaryReader OpenSegment(Segment segment);
 
     IEnumerable<IEndianBinaryReader> OpenPossibilitiesForSegment(
         uint segmentIndex);
@@ -78,33 +79,25 @@ namespace f3dzex2.io {
         return false;
       }
 
-      possibilities = validSegments.Select(segment => {
-        var memoryStream =
-            new MemoryStream(this.Bytes,
-                             (int) segment.Offset,
-                             (int) segment.Length);
-        var er = new EndianBinaryReader(memoryStream, this.Endianness);
-        er.Position = offset;
-        return er;
-      });
+      possibilities = validSegments.Select(this.OpenSegment);
       return true;
     }
 
     public IEndianBinaryReader OpenSegment(uint segmentIndex)
       => this.OpenPossibilitiesForSegment(segmentIndex).Single();
 
+    public IEndianBinaryReader OpenSegment(Segment segment)
+      => new EndianBinaryReader(
+          new MemoryStream(this.Bytes,
+                           (int) segment.Offset,
+                           (int) segment.Length),
+          this.Endianness);
+
     public IEnumerable<IEndianBinaryReader> OpenPossibilitiesForSegment(
         uint segmentIndex)
       => this
          .segments_[segmentIndex]
-         .Select(segment => {
-           var memoryStream =
-               new MemoryStream(this.Bytes,
-                                (int) segment.Offset,
-                                (int) segment.Length);
-           var er = new EndianBinaryReader(memoryStream, this.Endianness);
-           return er;
-         });
+         .Select(this.OpenSegment);
 
 
     public bool IsValidSegment(uint segmentIndex)
