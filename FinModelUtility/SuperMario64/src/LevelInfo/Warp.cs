@@ -1,6 +1,4 @@
 ﻿using System.ComponentModel;
-using System.Globalization;
-using System.Reflection;
 
 
 namespace SuperMario64.LevelInfo {
@@ -62,37 +60,6 @@ namespace SuperMario64.LevelInfo {
     public void MakeReadOnly() {
       TypeDescriptor.AddAttributes(
           this, new Attribute[] {new ReadOnlyAttribute(true)});
-    }
-
-    public int getROMAddress() {
-      return int.Parse(Address.Substring(2), NumberStyles.HexNumber);
-    }
-
-    public uint getROMUnsignedAddress() {
-      return uint.Parse(Address.Substring(2), NumberStyles.HexNumber);
-    }
-
-    private void HideShowProperty(string property, bool show) {
-      PropertyDescriptor descriptor =
-          TypeDescriptor.GetProperties(this.GetType())[property];
-      BrowsableAttribute attrib =
-          (BrowsableAttribute) descriptor.Attributes[
-              typeof(BrowsableAttribute)];
-      FieldInfo isBrow =
-          attrib.GetType()
-                .GetField("browsable",
-                          BindingFlags.NonPublic | BindingFlags.Instance);
-      isBrow.SetValue(attrib, show);
-    }
-
-    public void updateROMData() {
-      if (Address.Equals("N/A")) return;
-      ROM rom = ROM.Instance;
-      uint romAddr = getROMUnsignedAddress();
-      rom.writeByte(romAddr + 2, WarpFrom_ID);
-      rom.writeByte(romAddr + 3, WarpTo_LevelID);
-      rom.writeByte(romAddr + 4, WarpTo_AreaID);
-      rom.writeByte(romAddr + 5, WarpTo_WarpID);
     }
 
     private string getLevelName() {

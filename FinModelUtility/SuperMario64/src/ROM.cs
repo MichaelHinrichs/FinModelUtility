@@ -252,9 +252,6 @@ namespace SuperMario64 {
       return null;
     }
 
-    public uint getSegmentStart(ushort seg, byte? areaID)
-      => GetSegBank(seg, areaID)?.SegStart ?? 0;
-
     public uint decodeSegmentAddress(uint segOffset, byte? areaID) {
       // Console.WriteLine("Decoding segment address: " + segOffset.ToString("X8"));
       byte seg = (byte) (segOffset >> 24);
@@ -289,32 +286,6 @@ namespace SuperMario64 {
       return seg.SegStart + offset;
     }
 
-    public byte[] getDataFromSegmentAddress(uint segOffset,
-                                            uint size,
-                                            byte? areaID) {
-      byte seg = (byte) (segOffset >> 24);
-      uint off = segOffset & 0x00FFFFFF;
-
-      if (GetSegBank(seg, areaID).Data.Length < off + size)
-        return new byte[size];
-
-      return getSubArray_safe(GetSegBank(seg, areaID).Data, off, size);
-    }
-
-    public byte[] getDataFromSegmentAddress_safe(
-        uint segOffset,
-        uint size,
-        byte? areaID) {
-      byte seg = (byte) (segOffset >> 24);
-      uint off = segOffset & 0x00FFFFFF;
-
-      SegBank segBank = GetSegBank(seg, areaID);
-      if (segBank != null)
-        return getSubArray_safe(segBank.Data, off, (long) size);
-      else
-        return new byte[size];
-    }
-
     public byte[] getSubArray_safe(byte[]? arr, uint offset, long size) {
       if (arr == null || arr.Length <= offset)
         return new byte[size];
@@ -323,26 +294,6 @@ namespace SuperMario64 {
       byte[] newArr = new byte[size];
       Array.Copy(arr, offset, newArr, 0, size);
       return newArr;
-    }
-
-    private void addToWriteMask(uint start, int length) {
-      for (int i = 0; i < length; i++)
-        writeMask[i + start] = 1;
-    }
-
-    public void writeHalfword(uint offset, short half) {
-      addToWriteMask(offset, 2);
-      this.Bytes[offset + 0] = (byte) (half >> 8);
-      this.Bytes[offset + 1] = (byte) (half);
-    }
-
-    public void writeByte(uint offset, byte b) {
-      addToWriteMask(offset, 1);
-      this.Bytes[offset] = b;
-    }
-
-    public byte readByte(uint offset) {
-      return this.Bytes[offset];
     }
 
     public short readHalfword(uint offset) {
