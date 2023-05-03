@@ -1,13 +1,10 @@
-﻿using fin.model;
-using System;
+﻿using System;
 using System.Numerics;
 
 
 namespace fin.audio {
-  public interface IAudioManager<TNumber> : IDisposable 
-    where TNumber : INumber<TNumber> {
-    // TODO: Add method for creating mutable buffer
-    // TODO: Add method for creating mutable circular buffers
+  public interface IAudioManager<TNumber> : IDisposable
+      where TNumber : INumber<TNumber> {
     // TODO: Add support for looping a certain section of audio
 
     IMutableAudioBuffer<TNumber> CreateMutableBuffer();
@@ -16,6 +13,11 @@ namespace fin.audio {
         IAudioBuffer<TNumber> buffer);
 
     IAudioSource<TNumber> CreateAudioSource();
+
+    ICircularQueueActiveSound<TNumber> CreateBufferedSound(
+        AudioChannelsType audioChannelsType,
+        int frequency,
+        int bufferCount);
   }
 
 
@@ -36,10 +38,15 @@ namespace fin.audio {
   public interface IAudioFormat<out TNumber> where TNumber : INumber<TNumber> {
     AudioChannelsType AudioChannelsType { get; }
     int Frequency { get; }
+  }
+
+  public interface IStaticAudioFormat<out TNumber>
+      : IAudioFormat<TNumber> where TNumber : INumber<TNumber> {
     int SampleCount { get; }
   }
 
-  public interface IAudioData<out TNumber> : IAudioFormat<TNumber>
+
+  public interface IAudioData<out TNumber> : IStaticAudioFormat<TNumber>
       where TNumber : INumber<TNumber> {
     TNumber GetPcm(AudioChannelType channelType, int sampleOffset);
   }
@@ -79,34 +86,17 @@ namespace fin.audio {
     bool Reversed { get; set; }
   }
 
-  public interface IEffectAudioStream<TNumber> : IAudioStream<TNumber>
-      where TNumber : INumber<TNumber> {
-    IAudioStream<TNumber> InputStream { get; set; }
-  }
-
-  public interface IVolumeEffectAudioStream<TNumber>
-      : IEffectAudioStream<TNumber> where TNumber : INumber<TNumber> {
-    float Volume { get; set; }
-  }
-
-  public interface ISpeedEffectAudioStream<TNumber>
-      : IEffectAudioStream<TNumber> where TNumber : INumber<TNumber> {
-    float Speed { get; set; }
-  }
-
-  public interface IDopplerEffectAudioStream<TNumber>
-      : IEffectAudioStream<TNumber> where TNumber : INumber<TNumber> {
-    IVector3 RelativePosition { get; set; }
-    IVector3 RelativeVelocity { get; set; }
-  }
-
 
   public interface IAudioSource<TNumber> where TNumber : INumber<TNumber> {
     IActiveSound<TNumber> Create(IAudioBuffer<TNumber> buffer);
-    IActiveSound<TNumber> Play(IAudioBuffer<TNumber> buffer);
-
     IActiveSound<TNumber> Create(IAudioStream<TNumber> stream);
-    IActiveSound<TNumber> Play(IAudioStream<TNumber> stream);
+
+
+    IActiveMusic<TNumber> CreateMusic(IAudioBuffer<TNumber> introBuffer,
+                                      IAudioBuffer<TNumber> loopBuffer);
+
+    IActiveMusic<TNumber> CreateMusic(IAudioStream<TNumber> introStream,
+                                      IAudioStream<TNumber> loopStream);
   }
 
   public enum SoundState {
@@ -118,7 +108,8 @@ namespace fin.audio {
   }
 
   public interface IActiveSound<out TNumber>
-      : IAudioFormat<TNumber>, IDisposable where TNumber : INumber<TNumber> {
+      : IStaticAudioFormat<TNumber>, IDisposable
+      where TNumber : INumber<TNumber> {
     IAudioStream<TNumber> Stream { get; }
 
     SoundState State { get; }
@@ -132,5 +123,35 @@ namespace fin.audio {
 
     float Volume { get; set; }
     bool Looping { get; set; }
+  }
+
+  public interface IActiveMusic<out TNumber>
+      : IStaticAudioFormat<TNumber>, IDisposable
+      where TNumber : INumber<TNumber> {
+    IAudioStream<TNumber> IntroStream { get; }
+    IAudioStream<TNumber> LoopStream { get; }
+
+    SoundState State { get; }
+
+    void Play();
+    void Pause();
+
+    float Volume { get; set; }
+  }
+
+  public interface ICircularQueueActiveSound<TNumber>
+      : IAudioFormat<TNumber>, IDisposable where TNumber : INumber<TNumber> {
+    SoundState State { get; }
+
+    void Play();
+    void Stop();
+    void Pause();
+
+    float Volume { get; set; }
+
+    uint QueuedSamples { get; }
+    int BufferCount { get; }
+
+    void PopulateNextBufferPcm(TNumber[] data);
   }
 }
