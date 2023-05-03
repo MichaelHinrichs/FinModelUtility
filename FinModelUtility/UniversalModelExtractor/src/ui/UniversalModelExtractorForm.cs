@@ -33,8 +33,6 @@ public partial class UniversalModelExtractorForm : Form {
       }
     };
 
-    Config.Instance.SaveSettings();
-
     this.modelToolStrip_.Progress.ProgressChanged +=
         (_, currentProgress) => {
           var fractionalProgress = currentProgress.Item1;
