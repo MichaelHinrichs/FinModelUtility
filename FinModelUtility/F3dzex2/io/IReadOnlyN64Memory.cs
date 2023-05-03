@@ -39,21 +39,18 @@ namespace f3dzex2.io {
                     IDecompressor? decompressor = null);
 
     void AddSegment(uint segmentIndex, Segment segment);
-
-    byte[] Bytes { get; }
   }
 
   public class N64Memory : IN64Memory {
+    private readonly byte[] bytes_;
     private readonly ListDictionary<uint, Segment> segments_ = new();
 
     public N64Memory(byte[] data, Endianness endianness) {
-      this.Bytes = data;
+      this.bytes_ = data;
       this.Endianness = endianness;
     }
 
     public Endianness Endianness { get; }
-
-    public byte[] Bytes { get; }
 
     public IEndianBinaryReader OpenAtSegmentedAddress(uint segmentedAddress)
       => this.OpenPossibilitiesAtSegmentedAddress(segmentedAddress).Single();
@@ -88,7 +85,7 @@ namespace f3dzex2.io {
 
     public IEndianBinaryReader OpenSegment(Segment segment)
       => new EndianBinaryReader(
-          new MemoryStream(this.Bytes,
+          new MemoryStream(this.bytes_,
                            (int) segment.Offset,
                            (int) segment.Length),
           this.Endianness);

@@ -21,8 +21,6 @@ namespace SuperMario64.memory {
 
     public Endianness Endianness => Endianness.BigEndian;
 
-    public byte[] Bytes => ROM.Instance.Bytes;
-
     public IEnumerable<IEndianBinaryReader> OpenPossibilitiesAtSegmentedAddress(
         uint address)
       => this.OpenAtSegmentedAddress(address).Yield();
