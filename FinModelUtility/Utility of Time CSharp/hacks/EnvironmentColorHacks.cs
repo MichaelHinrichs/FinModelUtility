@@ -1,4 +1,6 @@
-﻿namespace UoT {
+﻿using System.Drawing;
+
+namespace UoT {
   /// <summary>
   ///   Hack class for setting specific environment colors for given models.
   /// </summary>
@@ -6,7 +8,7 @@
     // TODO: Add a tab for these toggles.
     // TODO: Add toggle for Link's tunic.
 
-    public static byte[]? GetColorForObject(string filename) {
+    public static Color? GetColorForObject(string filename) {
       if (filename == "object_link_boy" || filename == "object_link_child") {
         return TunicConstants.TUNIC_COLOR_KOKIRI;
       }

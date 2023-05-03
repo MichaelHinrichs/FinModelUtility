@@ -13,6 +13,7 @@ using f3dzex2.model;
 using fin.data.queue;
 using fin.model;
 
+using UoT.hacks;
 using UoT.memory;
 using UoT.model;
 
@@ -67,6 +68,8 @@ namespace UoT.api {
         n64Memory.AddSegment((uint) OotSegmentIndex.LINK_ANIMETION,
                              linkAnimetion.Segment);
       }
+
+      Hacks.ApplyHacks(n64Hardware, modelFileBundle.ZFile.FileName);
 
       var dlModelBuilder = new DlModelBuilder(n64Hardware);
       var finModel = dlModelBuilder.Model;

@@ -31,7 +31,7 @@ namespace SuperMario64.memory {
       return true;
     }
 
-    public IEndianBinaryReader OpenSegment(Segment segment) {
+    public IEndianBinaryReader OpenSegment(Segment segment, uint? offset = null) {
       throw new NotImplementedException();
     }
 
