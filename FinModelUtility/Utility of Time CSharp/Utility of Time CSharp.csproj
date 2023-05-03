@@ -52,7 +52,4 @@
     <ProjectReference Include="..\Fin\Fin.csproj" />
     <ProjectReference Include="..\Schema\Schema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="schema\" />
-  </ItemGroup>
 </Project>
