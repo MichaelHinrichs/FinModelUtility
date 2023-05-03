@@ -13,6 +13,8 @@ using FinTextureMagFilter = fin.model.TextureMagFilter;
 
 namespace cmb.material {
   public class CmbFixedFunctionMaterial {
+    private const bool USE_FIXED_FUNCTION = false;
+
     public CmbFixedFunctionMaterial(
         IModel finModel,
         Cmb cmb,
@@ -57,8 +59,7 @@ namespace cmb.material {
       }).ToArray();
 
       // Create material
-      var inaccurate = true;
-      if (inaccurate) {
+      if (!USE_FIXED_FUNCTION) {
         var firstTexture = finTextures.FirstOrDefault();
         var finMaterial = firstTexture != null
             ? (IMaterial) finModel.MaterialManager.AddTextureMaterial(firstTexture)
