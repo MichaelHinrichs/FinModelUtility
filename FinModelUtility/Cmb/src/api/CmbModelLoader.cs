@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 
+using cmb.material;
 using cmb.schema.cmb;
 using cmb.schema.csab;
 using cmb.schema.ctxb;
@@ -228,106 +229,16 @@ namespace cmb.api {
             return image;
           });
 
-      // TODO: Emulate fixed-function materials
       var cmbMaterials = cmb.mat.materials;
+
       var finMaterials = new LazyArray<IMaterial>(
           cmbMaterials.Length,
           index => {
             var cmbMaterial = cmbMaterials[index];
 
-            // Get associated texture
-            var finTextures = cmbMaterial.texMappers.Select(texMapper => {
-                                           var textureId = texMapper.textureId;
-
-                                           ITexture? finTexture = null;
-                                           if (textureId != -1) {
-                                             var cmbTexture =
-                                                 cmbTextures[textureId];
-                                             var textureImage =
-                                                 textureImages[textureId];
-
-                                             finTexture =
-                                                 finModel.MaterialManager
-                                                     .CreateTexture(
-                                                         textureImage);
-                                             finTexture.Name = cmbTexture.name;
-                                             finTexture.WrapModeU =
-                                                 this.CmbToFinWrapMode(texMapper
-                                                     .wrapS);
-                                             finTexture.WrapModeV =
-                                                 this.CmbToFinWrapMode(texMapper
-                                                     .wrapT);
-                                             finTexture.MinFilter =
-                                                 texMapper.minFilter switch {
-                                                     CmbTextureMinFilter.Nearest
-                                                         =>
-                                                         FinTextureMinFilter
-                                                             .NEAR,
-                                                     CmbTextureMinFilter.Linear
-                                                         =>
-                                                         FinTextureMinFilter
-                                                             .LINEAR,
-                                                     CmbTextureMinFilter
-                                                             .NearestMipmapNearest
-                                                         =>
-                                                         FinTextureMinFilter
-                                                             .NEAR_MIPMAP_NEAR,
-                                                     CmbTextureMinFilter
-                                                             .LinearMipmapNearest
-                                                         =>
-                                                         FinTextureMinFilter
-                                                             .LINEAR_MIPMAP_NEAR,
-                                                     CmbTextureMinFilter
-                                                             .NearestMipmapLinear
-                                                         =>
-                                                         FinTextureMinFilter
-                                                             .NEAR_MIPMAP_LINEAR,
-                                                     CmbTextureMinFilter
-                                                             .LinearMipmapLinear
-                                                         =>
-                                                         FinTextureMinFilter
-                                                             .LINEAR_MIPMAP_LINEAR,
-                                                 };
-                                             finTexture.MagFilter =
-                                                 texMapper.magFilter switch {
-                                                     CmbTextureMagFilter.Nearest
-                                                         =>
-                                                         FinTextureMagFilter
-                                                             .NEAR,
-                                                     CmbTextureMagFilter.Linear
-                                                         =>
-                                                         FinTextureMagFilter
-                                                             .LINEAR,
-                                                 };
-
-                                             var cmbBorderColor =
-                                                 texMapper.BorderColor;
-                                             finTexture.BorderColor =
-                                                 cmbBorderColor;
-                                           }
-
-                                           return finTexture;
-                                         })
-                                         .ToArray();
-
-            // Create material
-            var finTexture =
-                finTextures.FirstOrDefault(finTexture => finTexture != null);
-            IMaterial finMaterial = finTexture != null
-                ? finModel.MaterialManager
-                          .AddTextureMaterial(
-                              finTexture)
-                : finModel.MaterialManager
-                          .AddNullMaterial();
-            finMaterial.Name = $"material{index}";
-            finMaterial.CullingMode = cmbMaterial.faceCulling switch {
-                CullMode.FrontAndBack => CullingMode.SHOW_BOTH,
-                CullMode.Front        => CullingMode.SHOW_FRONT_ONLY,
-                CullMode.BackFace     => CullingMode.SHOW_BACK_ONLY,
-                CullMode.Never        => CullingMode.SHOW_NEITHER,
-            };
-
-            return finMaterial;
+            var cmbFixedFunctionMaterial =
+                new CmbFixedFunctionMaterial(finModel, cmb, cmbMaterial, index, textureImages);
+            return cmbFixedFunctionMaterial.Material;
           });
 
       // Creates meshes

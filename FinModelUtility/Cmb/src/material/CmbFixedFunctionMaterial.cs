@@ -18,7 +18,7 @@ namespace cmb.material {
         Cmb cmb,
         Material cmbMaterial,
         int materialIndex,
-        LazyDictionary<int, IImage> textureImages) {
+        ILazyArray<IImage> textureImages) {
       // Get associated texture
       var finTextures = cmbMaterial.texMappers.Select(texMapper => {
         var textureId = texMapper.textureId;
@@ -57,40 +57,52 @@ namespace cmb.material {
       }).ToArray();
 
       // Create material
-      var finMaterial = finModel.MaterialManager.AddFixedFunctionMaterial();
-      Material = finMaterial;
-
-      finMaterial.Name = $"material{materialIndex}";
-      finMaterial.CullingMode = cmbMaterial.faceCulling switch {
-        CullMode.FrontAndBack => CullingMode.SHOW_BOTH,
-        CullMode.Front => CullingMode.SHOW_FRONT_ONLY,
-        CullMode.BackFace => CullingMode.SHOW_BACK_ONLY,
-        CullMode.Never => CullingMode.SHOW_NEITHER,
-      };
-
-      if (!cmbMaterial.alphaTestEnabled) {
-        finMaterial.SetAlphaCompare(AlphaOp.Or,
-                                    AlphaCompareType.Always,
-                                    0,
-                                    AlphaCompareType.Always,
-                                    0);
+      var inaccurate = true;
+      if (inaccurate) {
+        var firstTexture = finTextures.FirstOrDefault();
+        var finMaterial = firstTexture != null
+            ? (IMaterial) finModel.MaterialManager.AddTextureMaterial(firstTexture)
+            : finModel.MaterialManager.AddNullMaterial();
+        this.Material = finMaterial;
       } else {
-        finMaterial.SetAlphaCompare(
-            AlphaOp.Or,
-            cmbMaterial.alphaTestFunction switch {
-              TestFunc.Always   => AlphaCompareType.Always,
-              TestFunc.Equal    => AlphaCompareType.Equal,
-              TestFunc.Gequal   => AlphaCompareType.GEqual,
-              TestFunc.Greater  => AlphaCompareType.Greater,
-              TestFunc.Never    => AlphaCompareType.Never,
-              TestFunc.Less     => AlphaCompareType.Less,
-              TestFunc.Lequal   => AlphaCompareType.LEqual,
-              TestFunc.Notequal => AlphaCompareType.NEqual,
-            },
-            cmbMaterial.alphaTestReferenceValue,
-            AlphaCompareType.Never,
-            0);
+        var finMaterial = finModel.MaterialManager.AddFixedFunctionMaterial();
+        this.Material = finMaterial;
+
+        // TODO: Implement fixed-function material logic
+
+        if (!cmbMaterial.alphaTestEnabled) {
+          finMaterial.SetAlphaCompare(AlphaOp.Or,
+                                      AlphaCompareType.Always,
+                                      0,
+                                      AlphaCompareType.Always,
+                                      0);
+        } else {
+          finMaterial.SetAlphaCompare(
+              AlphaOp.Or,
+              cmbMaterial.alphaTestFunction switch {
+                  TestFunc.Always   => AlphaCompareType.Always,
+                  TestFunc.Equal    => AlphaCompareType.Equal,
+                  TestFunc.Gequal   => AlphaCompareType.GEqual,
+                  TestFunc.Greater  => AlphaCompareType.Greater,
+                  TestFunc.Never    => AlphaCompareType.Never,
+                  TestFunc.Less     => AlphaCompareType.Less,
+                  TestFunc.Lequal   => AlphaCompareType.LEqual,
+                  TestFunc.Notequal => AlphaCompareType.NEqual,
+              },
+              cmbMaterial.alphaTestReferenceValue,
+              AlphaCompareType.Never,
+              0);
+        }
+
       }
+
+      this.Material.Name = $"material{materialIndex}";
+      this.Material.CullingMode = cmbMaterial.faceCulling switch {
+          CullMode.FrontAndBack => CullingMode.SHOW_BOTH,
+          CullMode.Front        => CullingMode.SHOW_FRONT_ONLY,
+          CullMode.BackFace     => CullingMode.SHOW_BACK_ONLY,
+          CullMode.Never        => CullingMode.SHOW_NEITHER,
+      };
     }
 
     public IMaterial Material { get; }
