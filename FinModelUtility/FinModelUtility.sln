@@ -101,8 +101,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xmod", "Xmod\Xmod.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Visceral", "Visceral\Visceral.csproj", "{81FDE95E-2E17-4B16-8CD7-8104BAEC39FC}"
 EndProject
-Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "Utility of Time", "Utility of Time\Utility of Time.vbproj", "{312E5AAB-98DF-47D5-9D74-6FB669544700}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utility of Time CSharp", "Utility of Time CSharp\Utility of Time CSharp.csproj", "{089C1412-5CCA-4E35-A3A9-13BB34071E8C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SuperMario64", "SuperMario64", "{F00A8105-3678-4D79-841E-7F75D3DD7635}"
@@ -115,11 +113,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ast Tests", "Ast Tests\Ast 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Visceral", "Visceral", "{16E172B0-48E0-4F15-80E0-36A69EAE5876}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Visceral Tests", "Visceral Tests\Visceral Tests.csproj", "{4A26CA2D-CA84-475A-906A-FDDADFEA2705}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Visceral Tests", "Visceral Tests\Visceral Tests.csproj", "{4A26CA2D-CA84-475A-906A-FDDADFEA2705}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HaloWars", "HaloWars", "{03F66C13-3F83-44C1-8968-CF7589D48D59}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HaloWars Tests", "HaloWars Tests\HaloWars Tests.csproj", "{5AB1E50C-65BE-4849-85A1-419A5759CF3B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HaloWars Tests", "HaloWars Tests\HaloWars Tests.csproj", "{5AB1E50C-65BE-4849-85A1-419A5759CF3B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -491,18 +489,6 @@ Global
 		{81FDE95E-2E17-4B16-8CD7-8104BAEC39FC}.Release|x64.Build.0 = Release|Any CPU
 		{81FDE95E-2E17-4B16-8CD7-8104BAEC39FC}.Release|x86.ActiveCfg = Release|Any CPU
 		{81FDE95E-2E17-4B16-8CD7-8104BAEC39FC}.Release|x86.Build.0 = Release|Any CPU
-		{312E5AAB-98DF-47D5-9D74-6FB669544700}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{312E5AAB-98DF-47D5-9D74-6FB669544700}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{312E5AAB-98DF-47D5-9D74-6FB669544700}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{312E5AAB-98DF-47D5-9D74-6FB669544700}.Debug|x64.Build.0 = Debug|Any CPU
-		{312E5AAB-98DF-47D5-9D74-6FB669544700}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{312E5AAB-98DF-47D5-9D74-6FB669544700}.Debug|x86.Build.0 = Debug|Any CPU
-		{312E5AAB-98DF-47D5-9D74-6FB669544700}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{312E5AAB-98DF-47D5-9D74-6FB669544700}.Release|Any CPU.Build.0 = Release|Any CPU
-		{312E5AAB-98DF-47D5-9D74-6FB669544700}.Release|x64.ActiveCfg = Release|Any CPU
-		{312E5AAB-98DF-47D5-9D74-6FB669544700}.Release|x64.Build.0 = Release|Any CPU
-		{312E5AAB-98DF-47D5-9D74-6FB669544700}.Release|x86.ActiveCfg = Release|Any CPU
-		{312E5AAB-98DF-47D5-9D74-6FB669544700}.Release|x86.Build.0 = Release|Any CPU
 		{089C1412-5CCA-4E35-A3A9-13BB34071E8C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{089C1412-5CCA-4E35-A3A9-13BB34071E8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{089C1412-5CCA-4E35-A3A9-13BB34071E8C}.Debug|x64.ActiveCfg = Debug|Any CPU
