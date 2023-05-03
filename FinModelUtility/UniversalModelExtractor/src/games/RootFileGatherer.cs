@@ -29,7 +29,7 @@ namespace uni.games {
   public class RootModelFileGatherer {
     public IFileBundleDirectory GatherAllModelFiles() {
       IFileBundleGathererAccumulator accumulator =
-          Config.Instance.UseMultithreadingToExtractRoms
+          Config.Instance.ExtractorSettings.UseMultithreadingToExtractRoms
               ? new ParallelFileBundleGathererAccumulator()
               : new FileBundleGathererAccumulator();
 

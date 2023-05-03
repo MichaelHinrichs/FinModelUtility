@@ -34,6 +34,8 @@
 
     public uint Offset { get; }
     public uint Length { get; }
+
+    public override string ToString() => this.FileName;
   }
 
 

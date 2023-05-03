@@ -155,7 +155,7 @@ namespace uni.games {
         where T : IModelFileBundle {
       ExtractorUtil.ExtractAll(gatherer.GatherFileBundles(true),
                                loader,
-                               Config.Instance.ExportedFormats,
+                               Config.Instance.ExporterSettings.ExportedFormats,
                                false);
     }
 
@@ -179,7 +179,7 @@ namespace uni.games {
         where T : IModelFileBundle {
       ExtractorUtil.ExtractAll(gatherer.GatherFileBundles(true),
                                loader,
-                               Config.Instance.ExportedFormats,
+                               Config.Instance.ExporterSettings.ExportedFormats,
                                false);
     }
 
@@ -310,15 +310,15 @@ namespace uni.games {
                                           name + ".foo")),
                             Model = model,
                             Scale = new ScaleSource(
-                                    Config.Instance.ExportedModelScaleSource)
+                                    Config.Instance.ExporterSettings.ExportedModelScaleSource)
                                 .GetScale(
                                     model,
                                     modelFileBundle)
                         },
                         formats,
-                        Config.Instance.ExportAllTextures);
+                        Config.Instance.ExporterSettings.ExportAllTextures);
 
-        if (Config.Instance.ThirdParty.ExportBoneScaleAnimationsSeparately) {
+        if (Config.Instance.ThirdPartySettings.ExportBoneScaleAnimationsSeparately) {
           new BoneScaleAnimationExporter().Export(
               new FinFile(Path.Join(outputDirectory.FullName,
                                     name + "_bone_scale_animations.lua")),

@@ -44,7 +44,7 @@ namespace uni.ui.common.scene {
           this.fileBundle_ = value.Value.Item1;
           this.scene_ = value.Value.Item2;
           this.viewerScale_ = this.scene_.ViewerScale =
-              new ScaleSource(Config.Instance.ViewerModelScaleSource).GetScale(
+              new ScaleSource(Config.Instance.ViewerSettings.ViewerModelScaleSource).GetScale(
                   this.scene_,
                   this.fileBundle_);
         }
@@ -258,7 +258,7 @@ namespace uni.ui.common.scene {
                DebugFlags.GLOBAL_SCALE,
                DebugFlags.GLOBAL_SCALE);
 
-      if (Config.Instance.ShowGrid) {
+      if (Config.Instance.ViewerSettings.ShowGrid) {
         CommonShaderPrograms.TEXTURELESS_SHADER_PROGRAM.Use();
         this.gridRenderer_.Render();
       }

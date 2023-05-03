@@ -103,7 +103,7 @@ namespace uni.platforms.threeDs.tools {
             var process = Asserts.CastNonnull(Process.Start(processStartInfo));
             ChildProcessTracker.AddProcess(process);
 
-            var verbose = Config.Instance.VerboseConsole;
+            var verbose = Config.Instance.DebugSettings.VerboseConsole;
             var singleChar = new char[1];
 
             var output = "";

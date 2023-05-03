@@ -17,9 +17,20 @@ namespace uni.config {
     public static Config Instance { get; } =
       DirectoryConstants.CONFIG_FILE.Deserialize<Config>();
 
-    public bool ExportAllTextures { get; set; }
-    public string[] ExportedFormats { get; set; } = Array.Empty<string>();
+    public ExporterSettings ExporterSettings { get; } = new();
+    public ExtractorSettings ExtractorSettings { get; } = new();
+    public ViewerSettings ViewerSettings { get; } = new();
+    public ThirdPartySettings ThirdPartySettings { get; } = new();
+    public DebugSettings DebugSettings { get; } = new();
+
+    public void SaveSettings()
+      => DirectoryConstants.CONFIG_FILE.Serialize(Config.Instance);
+  }
+
+  public class ViewerSettings {
     public bool AutomaticallyPlayGameAudioForModel { get; set; }
+    
+    public bool ShowGrid { get; set; }
 
     public bool ShowSkeleton {
       get => FinConfig.ShowSkeleton;
@@ -29,24 +40,26 @@ namespace uni.config {
     [JsonConverter(typeof(StringEnumConverter))]
     public ScaleSourceType ViewerModelScaleSource { get; set; } =
       ScaleSourceType.MIN_MAX_BOUNDS;
+    }
+
+  public class ExtractorSettings {
+    public bool UseMultithreadingToExtractRoms { get; set; }
+  }
+
+  public class ExporterSettings {
+    public string[] ExportedFormats { get; set; } = Array.Empty<string>();
+    public bool ExportAllTextures { get; set; }
 
     [JsonConverter(typeof(StringEnumConverter))]
     public ScaleSourceType ExportedModelScaleSource { get; set; } =
       ScaleSourceType.NONE;
-
-
-    public bool ShowGrid { get; set; }
-
-    public ThirdPartyConfig ThirdParty { get; } = new();
-
-    public bool UseMultithreadingToExtractRoms { get; set; }
-    public bool VerboseConsole { get; set; }
-
-    public void SaveSettings()
-      => DirectoryConstants.CONFIG_FILE.Serialize(Config.Instance);
   }
 
-  public class ThirdPartyConfig {
+  public class DebugSettings {
+    public bool VerboseConsole { get; set; }
+  }
+
+  public class ThirdPartySettings {
     public bool ExportBoneScaleAnimationsSeparately { get; set; }
   }
 }

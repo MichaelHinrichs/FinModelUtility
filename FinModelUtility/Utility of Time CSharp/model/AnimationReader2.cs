@@ -4,6 +4,7 @@ using System.IO;
 
 using f3dzex2.io;
 
+using Microsoft.Toolkit.HighPerformance;
 using Microsoft.VisualBasic;
 
 using UoT.memory;
@@ -47,13 +48,25 @@ namespace UoT.model {
           var limit = entryEr.ReadUInt16();
           var pad1 = entryEr.ReadUInt16();
 
+
+          IoUtils.SplitSegmentedAddress(rotationValuesAddress, out var rotationValueSegment, out var rotationValueOffset);
+          IoUtils.SplitSegmentedAddress(rotationIndicesAddress, out var rotationIndicesSegment, out var rotationIndicesOffset);
+
           if (pad0 != 0 || pad1 != 0) {
             continue;
           }
 
+          if (rotationValueSegment == 6 && rotationIndicesSegment == 6) {
+            ;
+          }
+          
           // Verifies the frame count is positive.
           if (frameCount == 0) {
             continue;
+          }
+
+          if (frameCount < 100) {
+           ;
           }
 
           if (!n64Memory.IsValidSegmentedAddress(rotationValuesAddress)) {
@@ -128,9 +141,9 @@ namespace UoT.model {
           animation.Positions = new Vec3s[animation.FrameCount];
           for (var pi = 0; pi < animation.FrameCount; ++pi) {
             animation.Positions[pi] = new Vec3s {
-                X = (short) xList[Math.Min(pi, xList.Length - 1)],
-                Y = (short) yList[Math.Min(pi, yList.Length - 1)],
-                Z = (short) zList[Math.Min(pi, zList.Length - 1)],
+                X = ConvertUShortToShort_(xList[Math.Min(pi, xList.Length - 1)]),
+                Y = ConvertUShortToShort_(yList[Math.Min(pi, yList.Length - 1)]),
+                Z = ConvertUShortToShort_(zList[Math.Min(pi, zList.Length - 1)]),
             };
           }
 
@@ -147,6 +160,12 @@ namespace UoT.model {
       }
 
       return animations.Count > 0 ? animations : null;
+    }
+
+    private short ConvertUShortToShort_(ushort value) {
+      Span<ushort> ptr = stackalloc ushort[1];
+      ptr[0] = value;
+      return ptr.Cast<ushort, short>()[0];
     }
 
     private static ushort[] ReadFrames_(

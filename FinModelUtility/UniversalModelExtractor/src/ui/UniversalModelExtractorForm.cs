@@ -33,6 +33,8 @@ public partial class UniversalModelExtractorForm : Form {
       }
     };
 
+    Config.Instance.SaveSettings();
+
     this.modelToolStrip_.Progress.ProgressChanged +=
         (_, currentProgress) => {
           var fractionalProgress = currentProgress.Item1;
@@ -156,7 +158,7 @@ public partial class UniversalModelExtractorForm : Form {
     this.modelToolStrip_.FileNodeAndModel = (fileNode, model);
     this.exportAsToolStripMenuItem.Enabled = fileBundle is IModelFileBundle;
 
-    if (Config.Instance.AutomaticallyPlayGameAudioForModel) {
+    if (Config.Instance.ViewerSettings.AutomaticallyPlayGameAudioForModel) {
       var gameDirectory = fileNode.Parent;
       while (gameDirectory?.Parent?.Parent != null) {
         gameDirectory = gameDirectory.Parent;

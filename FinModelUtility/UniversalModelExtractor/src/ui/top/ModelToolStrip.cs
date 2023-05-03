@@ -23,24 +23,25 @@ namespace uni.ui.top {
       InitializeComponent();
 
       var config = Config.Instance;
+      var viewerSettings = config.ViewerSettings;
 
       var showBonesButton = this.showBonesButton_;
-      showBonesButton.Checked = config.ShowSkeleton;
+      showBonesButton.Checked = viewerSettings.ShowSkeleton;
       showBonesButton.CheckedChanged += (_, e) => {
-        config.ShowSkeleton = showBonesButton.Checked;
+        viewerSettings.ShowSkeleton = showBonesButton.Checked;
       };
 
       var showGridButton = this.showGridButton_;
-      showGridButton.Checked = config.ShowGrid;
+      showGridButton.Checked = viewerSettings.ShowGrid;
       showGridButton.CheckedChanged += (_, e) => {
-        config.ShowGrid = showGridButton.Checked;
+        viewerSettings.ShowGrid = showGridButton.Checked;
       };
 
       var automaticallyPlayMusicButton = this.automaticallyPlayMusicButton_;
       automaticallyPlayMusicButton.Checked =
-          config.AutomaticallyPlayGameAudioForModel;
+          viewerSettings.AutomaticallyPlayGameAudioForModel;
       automaticallyPlayMusicButton.CheckedChanged += (_, e) => {
-        config.AutomaticallyPlayGameAudioForModel = showGridButton.Checked;
+        viewerSettings.AutomaticallyPlayGameAudioForModel = showGridButton.Checked;
       };
 
       this.Progress.ProgressChanged += (_, e) => {
@@ -152,7 +153,7 @@ namespace uni.ui.top {
       var extractorPromptChoice =
           ExtractorUtil.PromptIfModelFileBundlesAlreadyExtracted(
               modelFileBundles,
-              Config.Instance.ExportedFormats);
+              Config.Instance.ExporterSettings.ExportedFormats);
       if (extractorPromptChoice != ExtractorPromptChoice.CANCEL) {
         this.CancellationToken = new CancellationTokenSource();
 
@@ -161,7 +162,7 @@ namespace uni.ui.top {
                                    new GlobalModelLoader(),
                                    this.Progress,
                                    this.CancellationToken,
-                                   Config.Instance.ExportedFormats,
+                                   Config.Instance.ExporterSettings.ExportedFormats,
                                    extractorPromptChoice == ExtractorUtil
                                        .ExtractorPromptChoice.OVERWRITE_EXISTING);
         });
