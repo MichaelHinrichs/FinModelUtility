@@ -1,5 +1,10 @@
-﻿using LIBMIO0;
+﻿using System.Drawing;
 
+using f3dzex2.io;
+
+using LIBMIO0;
+
+using SuperMario64.memory;
 using SuperMario64.src;
 
 
@@ -77,53 +82,31 @@ namespace SuperMario64 {
         this.Region = ROM_Region.CHINESE_IQUE;
       }
 
-      // Setup segment 0x02 & segment 0x15 addresses
-      if (this.Region == ROM_Region.NORTH_AMERICA) {
-        Globals.macro_preset_table = 0xEC7E0;
-        Globals.special_preset_table = 0xED350;
-        // Globals.seg02_location = new[] { (uint)0x108A40, (uint)0x114750 };
-        //Globals.seg15_location = new[] { (uint)0x2ABCA0, (uint)0x2AC6B0 };
-        Globals.seg15_location = new[] {
-            readWordUnsigned(0x2A622C),
-            readWordUnsigned(0x2A6230)
-        };
-      } else if (this.Region == ROM_Region.EUROPE) {
-        Globals.macro_preset_table = 0xBD590;
-        Globals.special_preset_table = 0xBE100;
-        // Globals.seg02_location = new[] { (uint)0xDE190, (uint)0xE49F0 };
-        Globals.seg15_location = new[] {(uint) 0x28CEE0, (uint) 0x28D8F0};
-      } else if (this.Region == ROM_Region.JAPAN) {
-        Globals.macro_preset_table = 0xEB6D0;
-        Globals.special_preset_table = 0xEC240;
-        // Globals.seg02_location = new[] { (uint)0x1076D0, (uint)0x112B50 };
-        Globals.seg15_location = new[] {(uint) 0x2AA240, (uint) 0x2AAC50};
-      } else if (this.Region == ROM_Region.JAPAN_SHINDOU) {
-        Globals.macro_preset_table = 0xC8D60;
-        Globals.special_preset_table = 0xC98D0;
-        //Globals.seg02_location = new[] { (uint)0xE42F0, (uint)0xEF770 };
-        Globals.seg15_location = new[] {(uint) 0x286AC0, (uint) 0x2874D0};
-      } else if (this.Region == ROM_Region.CHINESE_IQUE) {
-        Globals.macro_preset_table = 0xCB220;
-        Globals.special_preset_table = 0xCBD90;
-        //Globals.seg02_location = new[] { (uint)0xE42F0, (uint)0xEF770 };
-        Globals.seg15_location = new[] {(uint) 0x298AE0, (uint) 0x2994F0};
-      }
+      Globals.MemoryConstants = this.GetMemoryConstantsForRegion_(this.Region);
 
       findAndSetSegment02();
-      Console.WriteLine("Segment2 location: 0x" +
-                        Globals.seg02_location[0].ToString("X8") +
-                        " to 0x" + Globals.seg02_location[1].ToString("X8"));
 
-      if (this.Bytes[Globals.seg15_location[0]] == 0x17)
+      if (this.Bytes[Globals.MemoryConstants.Segment15.Offset] == 0x17)
         this.Type = ROM_Type.EXTENDED;
       else
         this.Type = ROM_Type.VANILLA;
+    }
 
-      Console.WriteLine("ROM = " + this.Filepath);
-      Console.WriteLine("ROM Endian = " + this.Endian);
-      Console.WriteLine("ROM Region = " + this.Region);
-      Console.WriteLine("ROM Type = " + this.Type);
-      Console.WriteLine("-----------------------");
+    private MemoryConstants GetMemoryConstantsForRegion_(ROM_Region region) {
+      switch (region) {
+        case ROM_Region.NORTH_AMERICA: {
+          var segment15Start = readWordUnsigned(0x2A622C);
+          var segment15End = readWordUnsigned(0x2A6230);
+          return MemoryConstants.NA_CONSTANTS with {
+              Segment15 = new Segment {
+                  Offset = segment15Start,
+                  Length = segment15End - segment15Start,
+              }
+          };
+        }
+        default:
+          throw new NotImplementedException();
+      }
     }
 
     private void swapMixedBig() {
@@ -364,7 +347,12 @@ namespace SuperMario64 {
       func_calls = ar.findJALsInFunction(seg02_init, RAMtoROM);
       for (int i = 0; i < func_calls.Count; i++) {
         if (func_calls[i].a0 == 0x2) {
-          Globals.seg02_location = new[] {func_calls[i].a1, func_calls[i].a2};
+          Globals.MemoryConstants = Globals.MemoryConstants with {
+              Segment2 = new Segment {
+                  Offset = func_calls[i].a1,
+                  Length = func_calls[i].a2 - func_calls[i].a1,
+              }
+          };
           if (readWordUnsigned(func_calls[i].a1) == 0x4D494F30) {
             seg.IsMIO0 = true;
             this.Seg02_isFakeMIO0 = testIfMIO0IsFake(

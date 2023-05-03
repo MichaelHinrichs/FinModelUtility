@@ -37,6 +37,8 @@ namespace f3dzex2.io {
                     uint length,
                     IDecompressor? decompressor = null);
 
+    void AddSegment(uint segmentIndex, Segment segment);
+
     byte[] Bytes { get; }
   }
 
@@ -127,12 +129,15 @@ namespace f3dzex2.io {
                            uint offset,
                            uint length,
                            IDecompressor? decompressor = null)
-      => this.segments_.Add(segmentIndex,
-                            new Segment {
-                                Offset = offset,
-                                Length = length,
-                                Decompressor = decompressor,
-                            });
+      => this.AddSegment(segmentIndex,
+                         new Segment {
+                             Offset = offset,
+                             Length = length,
+                             Decompressor = decompressor,
+                         });
+
+    public void AddSegment(uint segmentIndex, Segment segment)
+      => this.segments_.Add(segmentIndex, segment);
 
     private bool TryToGetSegmentsAtSegmentedAddress_(
         uint segmentedAddress,
@@ -152,11 +157,11 @@ namespace f3dzex2.io {
           segments!.Where(segment => offsetInSegment < segment.Length);
       return segments!.Any();
     }
+  }
 
-    private class Segment {
-      public uint Offset { get; set; }
-      public uint Length { get; set; }
-      public IDecompressor? Decompressor { get; set; }
-    }
+  public readonly struct Segment {
+    public required uint Offset { get; init; }
+    public required uint Length { get; init; }
+    public IDecompressor? Decompressor { get; init; }
   }
 }

@@ -19,14 +19,15 @@ namespace SuperMario64.api {
       BehaviorNameFile.parseBehaviorNames(
           Globals.getDefaultBehaviorNamesPath());
       ModelComboFile.parseObjectCombos(Globals.getDefaultObjectComboPath());
+      var memoryConstants = Globals.MemoryConstants;
       rom.setSegment(0x15,
-                     Globals.seg15_location[0],
-                     Globals.seg15_location[1],
+                     memoryConstants.Segment15.Offset,
+                     memoryConstants.Segment15.Offset + memoryConstants.Segment15.Length,
                      false,
                      null);
       rom.setSegment(0x02,
-                     Globals.seg02_location[0],
-                     Globals.seg02_location[1],
+                     memoryConstants.Segment2.Offset,
+                     memoryConstants.Segment2.Offset + memoryConstants.Segment2.Length,
                      rom.isSegmentMIO0(0x02, null),
                      rom.Seg02_isFakeMIO0,
                      rom.Seg02_uncompressedOffset,

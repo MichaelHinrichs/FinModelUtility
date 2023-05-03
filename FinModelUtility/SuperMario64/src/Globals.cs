@@ -1,4 +1,5 @@
 ﻿using SuperMario64.JSON;
+using SuperMario64.memory;
 using SuperMario64.Scripts;
 
 
@@ -19,11 +20,7 @@ namespace SuperMario64 {
     public static bool DEBUG_PARSING_LEVEL_AREA = false;
     public static bool DEBUG_PARSING_DL = false;
 
-    // Locations in the Vanilla North American ROM (default)
-    public static uint[] seg02_location = {0x108A40, 0x114750};
-    public static uint[] seg15_location = {0x2ABCA0, 0x2AC6B0};
-    public static uint macro_preset_table = 0xEC7E0;
-    public static uint special_preset_table = 0xED350;
+    public static MemoryConstants MemoryConstants { get; set; }
 
     // RAM to ROM conversion for assembly functions in each region
     public static uint RAMtoROM_JP = 0x80245000; // Japan

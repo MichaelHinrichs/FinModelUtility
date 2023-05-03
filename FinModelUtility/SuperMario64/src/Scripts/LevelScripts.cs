@@ -919,7 +919,7 @@ namespace SuperMario64.Scripts {
     private static byte[] getSpecialObjectEntry(byte presetID) {
       ROM rom = ROM.Instance;
       byte[] data = new byte[8];
-      uint offset = Globals.special_preset_table;
+      uint offset = Globals.MemoryConstants.SpecialPresetTable;
       byte got = rom.Bytes[offset];
       while (got != 0xFF) {
         if (got == presetID) {
@@ -982,7 +982,7 @@ namespace SuperMario64.Scripts {
         uint table_off = (id - 0x1F) * 8;
         byte[] entryData =
             rom.getSubArray_safe(rom.Bytes,
-                                 Globals.macro_preset_table + table_off, 8);
+                                 Globals.MemoryConstants.MacroPresetTable + table_off, 8);
         newObj.level = lvl;
         newObj.createdFromLevelScriptCommand = Object3D.FROM_LS_CMD.CMD_39;
         newObj.setBehaviorFromAddress(bytesToInt(entryData, 0, 4));

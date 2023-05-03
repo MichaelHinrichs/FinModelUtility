@@ -20,6 +20,7 @@ namespace SuperMario64.memory {
     public byte? AreaId { get; set; }
 
     public Endianness Endianness => Endianness.BigEndian;
+
     public byte[] Bytes => ROM.Instance.Bytes;
 
     public IEnumerable<IEndianBinaryReader> OpenPossibilitiesAtSegmentedAddress(
@@ -68,6 +69,10 @@ namespace SuperMario64.memory {
                            uint offset,
                            uint length,
                            IDecompressor? decompressor = null) {
+      throw new NotImplementedException();
+    }
+
+    public void AddSegment(uint segmentIndex, Segment segment) {
       throw new NotImplementedException();
     }
   }

@@ -126,7 +126,7 @@ namespace SuperMario64.LevelInfo {
       ROM rom = ROM.Instance;
 
       using var er = new EndianBinaryReader(rom.Bytes);
-      er.Position = Globals.macro_preset_table;
+      er.Position = Globals.MemoryConstants.MacroPresetTable;
 
       ushort pID = 0x1F;
       for (int i = 0; i < 366; i++) {
