@@ -135,13 +135,20 @@ namespace fin.model.impl {
             out var toZFrame,
             useLoopingInterpolation);
 
+        Span<(float frame, float value, float? tangent)?> fromsAndTos =
+            stackalloc (float frame, float value, float? tangent)?[6];
+        fromsAndTos[0] = fromXFrame;
+        fromsAndTos[1] = fromYFrame;
+        fromsAndTos[2] = fromZFrame;
+        fromsAndTos[3] = toXFrame;
+        fromsAndTos[4] = toYFrame;
+        fromsAndTos[5] = toZFrame;
+
+        Span<bool> areAxesStatic = stackalloc bool[3];
+
+        RadiansRotationTrack3dImpl.AreAxesStatic_(fromsAndTos, areAxesStatic);
         if (!RadiansRotationTrack3dImpl.CanInterpolateWithQuaternions_(
-                fromXFrame,
-                fromYFrame,
-                fromZFrame,
-                toXFrame,
-                toYFrame,
-                toZFrame)) {
+                fromsAndTos, areAxesStatic)) {
           var xRadians =
               xTrack.GetInterpolatedFrame(frame,
                                           defaultX,
@@ -158,10 +165,10 @@ namespace fin.model.impl {
           return ConvertRadiansToQuaternionImpl(xRadians, yRadians, zRadians);
         }
 
-        var fromFrame = fromXFrame?.frame ??
-                        fromYFrame?.frame ?? fromZFrame.Value.frame;
-        var toFrame =
-            toXFrame?.frame ?? toYFrame?.frame ?? toZFrame.Value.frame;
+        RadiansRotationTrack3dImpl.GetFromAndToFrameIndex_(fromsAndTos,
+                                     areAxesStatic,
+                                     out var fromFrame,
+                                     out var toFrame);
         var frameDelta = (frame - fromFrame) / (toFrame - fromFrame);
 
         var q1 = ConvertRadiansToQuaternionImpl(
@@ -181,39 +188,49 @@ namespace fin.model.impl {
         return Quaternion.Normalize(interp);
       }
 
-      // TODO: Might be able to use this for euler-interpolated keyframe i and i+1
-      private static bool CanInterpolateWithQuaternions_(
-          params (float frame, float value, float? tangent)?[]
-              fromsAndTos) {
-        Span<bool> okAxes = stackalloc bool[3];
+      private static void AreAxesStatic_(
+          ReadOnlySpan<(float frame, float value, float? tangent)?> fromsAndTos,
+          Span<bool> areAxesStatic) {
         for (var i = 0; i < 3; ++i) {
           var from = fromsAndTos[i];
           var to = fromsAndTos[3 + i];
 
-          okAxes[i] = from == null && to == null;
+          if (from == null && to == null) {
+            areAxesStatic[i] = true;
+          } else if (from != null && to != null) {
+            areAxesStatic[i] =
+                Math.Abs(from.Value.value - to.Value.value) < .0001;
+          }
         }
+      }
 
+      private static void GetFromAndToFrameIndex_(
+          ReadOnlySpan<(float frame, float value, float? tangent)?> fromsAndTos,
+          Span<bool> areAxesStatic,
+          out float fromFrameIndex,
+          out float toFrameIndex) {
+        fromFrameIndex = 0;
+        toFrameIndex = 1;
+        for (var i = 0; i < 3; ++i) {
+          if (!areAxesStatic[i]) {
+            fromFrameIndex = fromsAndTos[i].Value.frame;
+            toFrameIndex = fromsAndTos[3 + i].Value.frame;
+            return;
+          }
+        }
+      }
+
+      // TODO: Might be able to use this for euler-interpolated keyframe i and i+1
+      private static bool CanInterpolateWithQuaternions_(
+          ReadOnlySpan<(float frame, float value, float? tangent)?> fromsAndTos,
+          ReadOnlySpan<bool> areAxesStatic) {
         for (var i = 0; i < 6; ++i) {
-          if (okAxes[i % 3]) {
+          if (areAxesStatic[i % 3]) {
             continue;
           }
 
           if (fromsAndTos[i] == null) {
             return false;
-          }
-        }
-
-        for (var i = 0; i < 3; ++i) {
-          var from = fromsAndTos[i];
-          var to = fromsAndTos[3 + i];
-
-          okAxes[i] = okAxes[i] ||
-                      Math.Abs(from.Value.value - to.Value.value) < .0001;
-        }
-
-        for (var i = 0; i < 6; ++i) {
-          if (okAxes[i % 3]) {
-            continue;
           }
 
           // TODO: Use tangents if all fromFrames have the same tangent and all
@@ -224,12 +241,12 @@ namespace fin.model.impl {
         }
 
         for (var i = 0; i < 3; ++i) {
-          if (okAxes[i]) {
+          if (areAxesStatic[i]) {
             continue;
           }
 
-          for (var oi = 0; oi < 3; ++oi) {
-            if (oi == i || okAxes[oi]) {
+          for (var oi = i + 1; oi < 3; ++oi) {
+            if (areAxesStatic[oi]) {
               continue;
             }
 
