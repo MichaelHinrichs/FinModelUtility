@@ -77,41 +77,6 @@ namespace fin.model.impl {
         var yTrack = this.axisTracks_[1];
         var zTrack = this.axisTracks_[2];
 
-        var keyframe = (int) frame;
-
-        // TODO: Properly interpolate between first and final keyframe
-        // TODO: Fix gimbal lock
-        /*xTrack.FindIndexOfKeyframe(keyframe,
-                                   out var xKeyframeIndex,
-                                   out var xRadiansKeyframe,
-                                   out var xKeyframeDefined,
-                                   out var xPastEnd);
-        yTrack.FindIndexOfKeyframe(keyframe,
-                                   out var yKeyframeIndex,
-                                   out var yRadiansKeyframe,
-                                   out var yKeyframeDefined,
-                                   out var yPastEnd);
-        zTrack.FindIndexOfKeyframe(keyframe,
-                                   out var zKeyframeIndex,
-                                   out var zRadiansKeyframe,
-                                   out var zKeyframeDefined,
-                                   out var zPastEnd);
-
-        var fromXRadians = xRadiansKeyframe.Pluck(keyframe => keyframe.Value)
-                                       .Or(this.defaultRotation_)
-                                       .Assert();
-        var fromYRadians = yRadiansKeyframe.Pluck(keyframe => keyframe.Value)
-                                       .Or(this.defaultRotation_)
-                                       .Assert();
-        var fromZRadians = zRadiansKeyframe.Pluck(keyframe => keyframe.Value)
-                                       .Or(this.defaultRotation_)
-                                       .Assert();
-
-        var xKeyframes = this.axisTracks_[0].Keyframes;
-        if (xKeyframeIndex < xKeyframes.Count) {
-
-        }*/
-
         var defaultX = defaultValue[0];
         var defaultY = defaultValue[1];
         var defaultZ = defaultValue[2];
