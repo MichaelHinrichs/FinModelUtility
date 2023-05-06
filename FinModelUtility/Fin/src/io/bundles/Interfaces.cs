@@ -21,8 +21,9 @@ namespace fin.io.bundles {
 
 
     IFileHierarchyDirectory Directory => MainFile.Parent!;
-    string IUiFile.Name => this.MainFile?.Name ?? "(n/a)";
+    string IUiFile.RawName => this.MainFile?.Name ?? "(n/a)";
 
+    string DisplayShortName => this.BetterName ?? this.RawName;
 
     string DisplayFullName {
       get {
@@ -35,7 +36,7 @@ namespace fin.io.bundles {
                      .Replace('\\', '/');
         }
 
-        return this.BetterName ?? this.Name;
+        return this.BetterName ?? this.RawName;
       }
     }
 

@@ -10,7 +10,6 @@ using cmb.schema.csab;
 using cmb.schema.ctxb;
 using cmb.schema.shpa;
 
-using fin.color;
 using fin.data;
 using fin.data.lazy;
 using fin.data.queue;
@@ -24,15 +23,20 @@ using fin.util.enumerables;
 
 using Microsoft.Toolkit.HighPerformance.Helpers;
 
-using CmbTextureMinFilter = cmb.schema.cmb.TextureMinFilter;
-using CmbTextureMagFilter = cmb.schema.cmb.TextureMagFilter;
-using FinTextureMinFilter = fin.model.TextureMinFilter;
-using FinTextureMagFilter = fin.model.TextureMagFilter;
 using Version = cmb.schema.cmb.Version;
 
 
 namespace cmb.api {
   public class CmbModelFileBundle : IModelFileBundle {
+    public CmbModelFileBundle(string gameName,
+                              IFileHierarchyFile cmbFile) :
+        this(gameName, cmbFile, null, null, null) { }
+
+    public CmbModelFileBundle(string gameName,
+                              IFileHierarchyFile cmbFile,
+                              IReadOnlyList<IFileHierarchyFile>? csabFiles) :
+        this(gameName, cmbFile, csabFiles, null, null) { }
+
     public CmbModelFileBundle(string gameName,
                               IFileHierarchyFile cmbFile,
                               IReadOnlyList<IFileHierarchyFile>? csabFiles,

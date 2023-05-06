@@ -1,6 +1,6 @@
 ﻿namespace fin.io {
   public interface IUiFile {
-    string Name { get; }
+    string RawName { get; }
     string? BetterName => null;
   }
 }

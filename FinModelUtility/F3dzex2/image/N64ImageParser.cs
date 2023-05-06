@@ -8,12 +8,6 @@ using fin.image.io;
 using fin.math;
 using fin.util.color;
 
-using Newtonsoft.Json.Linq;
-
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-
-using Color = System.Drawing.Color;
 using IImage = fin.image.IImage;
 
 
@@ -189,7 +183,6 @@ namespace f3dzex2.image {
                           return FinColor.FromRgbaBytes(r, g, b, a);
                         }).ToArray();
 
-          // TODO: Implement this
           return new IndexedImage8(bitsPerTexel switch {
               BitsPerTexel._4BPT => PixelFormat.P4,
               BitsPerTexel._8BPT => PixelFormat.P8,

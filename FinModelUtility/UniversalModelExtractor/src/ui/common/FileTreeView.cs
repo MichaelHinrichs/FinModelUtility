@@ -1,9 +1,7 @@
 ﻿using System.Diagnostics;
-using System.Reflection;
 
 using fin.data.fuzzy;
 using fin.data.queue;
-using fin.io;
 using fin.io.bundles;
 using fin.util.actions;
 using fin.util.asserts;
@@ -54,7 +52,7 @@ namespace uni.ui.common {
 
           var file = fileNode.File;
           if (file != null) {
-            var fileName = file.Name;
+            var fileName = file.RawName;
             keywords.Add(fileName);
 
             var betterFileName = file.BetterName;
@@ -105,7 +103,7 @@ namespace uni.ui.common {
 
         this.treeview_ = parent.treeview_;
         this.treeNode_ =
-            parent.treeNode_.Add(file.BetterName ?? file.Name);
+            parent.treeNode_.Add(file.DisplayShortName);
         this.treeNode_.Data = this;
 
         this.filterNode_ = parent.filterNode_.AddChild(this);

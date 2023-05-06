@@ -32,5 +32,8 @@ namespace fin.util.enumerables {
     public static IEnumerable<T> Yield<T>(this T item) {
       yield return item;
     }
+
+    public static List<T> AsList<T>(this T item)
+      => item.Yield().ToList();
   }
 }
