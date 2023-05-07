@@ -2,7 +2,6 @@
 using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 
@@ -14,7 +13,12 @@ namespace fin.data {
   public interface
       IReadOnlyIndexableDictionary<TIndexable, TValue> : IEnumerable<TValue>
       where TIndexable : IIndexable {
+    int Length { get; }
+
+    TValue this[int index] { get; }
     TValue this[TIndexable key] { get; }
+
+    bool TryGetValue(int index, out TValue value);
     bool TryGetValue(TIndexable key, out TValue value);
   }
 
@@ -22,6 +26,7 @@ namespace fin.data {
       IReadOnlyIndexableDictionary<TIndexable, TValue>
       where TIndexable : IIndexable {
     void Clear();
+    new TValue this[int index] { get; set; }
     new TValue this[TIndexable key] { get; set; }
   }
 
@@ -33,14 +38,14 @@ namespace fin.data {
     private bool[] hasKeys_ = Array.Empty<bool>();
     private TValue[] impl_ = Array.Empty<TValue>();
 
-    private int length_;
-
     public IndexableDictionary() : this(0) { }
 
     public IndexableDictionary(int length) => this.ResizeLength_(length);
 
+    public int Length { get; private set; }
+
     public void Clear() {
-      for (var i = 0; i < this.length_; i++) {
+      for (var i = 0; i < this.Length; i++) {
         hasKeys_[i] = false;
         this.impl_[i] = default;
       }
@@ -51,13 +56,13 @@ namespace fin.data {
       pool_.Return(this.impl_);
       this.impl_ = Array.Empty<TValue>();
 
-      this.length_ = 0;
+      this.Length = 0;
     }
 
     private void ResizeLength_(int newLength) {
-      var oldCount = this.length_;
+      var oldCount = this.Length;
       if (oldCount < newLength) {
-        this.length_ = newLength;
+        this.Length = newLength;
 
         {
           var oldImpl = this.hasKeys_;
@@ -97,22 +102,27 @@ namespace fin.data {
       }
     }
 
-    public TValue this[TIndexable key] {
+    public TValue this[int index] {
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      get => impl_[key.Index];
+      get => impl_[index];
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
       set {
-        var id = key.Index;
-        ResizeLength_(Math.Max(this.length_, id + 1));
+        ResizeLength_(Math.Max(this.Length, index + 1));
 
-        this.impl_[id] = value;
-        this.hasKeys_[id] = true;
+        this.impl_[index] = value;
+        this.hasKeys_[index] = true;
       }
     }
 
-    public bool TryGetValue(TIndexable key, out TValue value) {
-      var index = key.Index;
+    public TValue this[TIndexable key] {
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
+      get => this[key.Index];
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
+      set => this[key.Index] = value;
+    }
 
-      if (index >= this.length_) {
+    public bool TryGetValue(int index, out TValue value) {
+      if (index >= this.Length) {
         value = default!;
         return false;
       }
@@ -121,12 +131,15 @@ namespace fin.data {
       return this.hasKeys_[index];
     }
 
+    public bool TryGetValue(TIndexable key, out TValue value)
+      => TryGetValue(key.Index, out value);
+
 
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
     public IEnumerator<TValue> GetEnumerator() {
       if (this.impl_ != null) {
-        for (var i = 0; i < this.length_; i++) {
+        for (var i = 0; i < this.Length; i++) {
           if (this.hasKeys_[i]) {
             yield return this.impl_[i];
           }
