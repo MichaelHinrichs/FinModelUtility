@@ -90,26 +90,28 @@ namespace uni.games.ocarina_of_time_3d {
           .Register("zelda_kdodongo",
                     new PrimaryModelSeparatorMethod("kingdodongo.cmb"))
           .Register("zelda_mag", new NoAnimationsModelSeparatorMethod())
-          .Register("zelda_mb", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_mizu_objects",
                     new NoAnimationsModelSeparatorMethod())
           .Register("zelda_mu", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_nw", new NoAnimationsModelSeparatorMethod())
-          .Register("zelda_oc2", new PrimaryModelSeparatorMethod("octarock.cmb"))
+          .Register("zelda_oc2",
+                    new PrimaryModelSeparatorMethod("octarock.cmb"))
           .Register("zelda_oF1d", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_ph", new PrimaryModelSeparatorMethod("peehat.cmb"))
-          .Register("zelda_po", new NoAnimationsModelSeparatorMethod())
+          .Register("zelda_po", new PrimaryModelSeparatorMethod("poh.cmb"))
           .Register("zelda_po_composer",
                     new PrimaryModelSeparatorMethod("pohmusic.cmb"))
-          .Register("zelda_po_field", new NoAnimationsModelSeparatorMethod())
-          .Register("zelda_po_sisters", new NoAnimationsModelSeparatorMethod())
-          .Register("zelda_ps", new NoAnimationsModelSeparatorMethod())
+          .Register("zelda_po_field",
+                    new PrimaryModelSeparatorMethod("bigpoh.cmb"))
+          .Register("zelda_po_sisters",
+                    new PrimaryModelSeparatorMethod("pohsisters.cmb"))
+          .Register("zelda_ps",
+                    new PrimaryModelSeparatorMethod("gostbuyer.cmb"))
           .Register("zelda_sd", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_shopnuts", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_skj", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_spot02_objects",
                     new NoAnimationsModelSeparatorMethod())
-          .Register("zelda_sst", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_st", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_tw", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_vali", new NoAnimationsModelSeparatorMethod())
@@ -137,6 +139,8 @@ namespace uni.games.ocarina_of_time_3d {
              .Add(this.GetGanondorfModels_)
              .Add(this.GetOwlModels_)
              .Add(this.GetVolvagiaModels_)
+             .Add(this.GetMoblinModels_)
+             .Add(this.GetBongoBongoModels_)
              .GatherFileBundles(assert);
     }
 
@@ -241,8 +245,8 @@ namespace uni.games.ocarina_of_time_3d {
           capeAnimations.ToArray());
 
       foreach (var otherModel in modelDir.Files.Where(
-                   file => file.Name is not "ganondorf.cmb"
-                                        or "ganon_mant_model.cmb")) {
+                   file => file.Name != "ganondorf.cmb"
+                           && file.Name != "ganon_mant_model.cmb")) {
         yield return new CmbModelFileBundle("ocarina_of_time_3d", otherModel);
       }
     }
@@ -288,6 +292,67 @@ namespace uni.games.ocarina_of_time_3d {
       }
 
       // TODO: What does vb_FWDtest.csab belong to?
+    }
+
+    private IEnumerable<CmbModelFileBundle> GetMoblinModels_(
+        IFileHierarchy fileHierarchy) {
+      var baseDir = fileHierarchy.Root.GetExistingSubdir("actor/zelda_mb");
+      var modelDir = baseDir.GetExistingSubdir("Model");
+      var animDir = baseDir.GetExistingSubdir("Anim");
+
+      // Moblin
+      yield return new CmbModelFileBundle(
+          "ocarina_of_time_3d",
+          modelDir.GetExistingFile("molblin.cmb"),
+          animDir.FilesWithExtension(".csab")
+                 .Where(file => file.Name.StartsWith("mn_"))
+                 .ToList());
+
+      // Boss Moblin
+      yield return new CmbModelFileBundle(
+          "ocarina_of_time_3d",
+          modelDir.GetExistingFile("bossblin.cmb"),
+          animDir.FilesWithExtension(".csab")
+                 .Where(file => file.Name.StartsWith("mbV_"))
+                 .ToList());
+    }
+
+    private IEnumerable<CmbModelFileBundle> GetBongoBongoModels_(
+        IFileHierarchy fileHierarchy) {
+      var baseDir = fileHierarchy.Root.GetExistingSubdir("actor/zelda_sst");
+      var modelDir = baseDir.GetExistingSubdir("Model");
+      var animDir = baseDir.GetExistingSubdir("Anim");
+
+      // Body
+      yield return new CmbModelFileBundle(
+          "ocarina_of_time_3d",
+          modelDir.GetExistingFile("bongobongo.cmb"),
+          animDir.FilesWithExtension(".csab")
+                 .Where(file => file.Name.StartsWith("ss_"))
+                 .ToList());
+
+      // Left hand
+      yield return new CmbModelFileBundle(
+          "ocarina_of_time_3d",
+          modelDir.GetExistingFile("bongolhand.cmb"),
+          animDir.FilesWithExtension(".csab")
+                 .Where(file => file.Name.StartsWith("slh_"))
+                 .ToList());
+
+      // Right hand
+      yield return new CmbModelFileBundle(
+          "ocarina_of_time_3d",
+          modelDir.GetExistingFile("bongorhand.cmb"),
+          animDir.FilesWithExtension(".csab")
+                 .Where(file => file.Name.StartsWith("srh_"))
+                 .ToList());
+
+      foreach (var otherModel in modelDir.Files.Where(
+                   file => file.Name != "bongobongo.cmb"
+                           && file.Name != "bongolhand.cmb"
+                           && file.Name != "bongorhand.cmb")) {
+        yield return new CmbModelFileBundle("ocarina_of_time_3d", otherModel);
+      }
     }
   }
 }

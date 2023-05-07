@@ -71,6 +71,12 @@ namespace cmb.material {
 
         // TODO: Implement fixed-function material logic
 
+        var combinerGenerator = new CmbCombinerGenerator(finMaterial);
+
+        foreach (var texEnvStage in cmbMaterial.texEnvStages) {
+          combinerGenerator.AddCombiner(cmbMaterial, texEnvStage);
+        }
+
         if (!cmbMaterial.alphaTestEnabled) {
           finMaterial.SetAlphaCompare(AlphaOp.Or,
                                       AlphaCompareType.Always,
