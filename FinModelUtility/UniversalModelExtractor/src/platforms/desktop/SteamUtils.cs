@@ -46,9 +46,8 @@ namespace uni.platforms.desktop {
             .Where(steamDirectory
                        => steamDirectory
                            .Exists) // A steam directory may not exist if it corresponds to an external hard drive
-            .Select(
-                libraryFolder => libraryFolder.GetSubdir("steamapps"))
-            .Select(steamApps => steamApps.GetSubdir("common"))
+            .SelectMany(libraryFolder => libraryFolder.GetExistingSubdirs().Where(dir => dir.Name == "steamapps"))
+            .SelectMany(steamApps => steamApps.GetExistingSubdirs().Where(dir => dir.Name == "common"))
             .ToArray();
 
     public static ISystemDirectory[] GameDirectories { get; }
