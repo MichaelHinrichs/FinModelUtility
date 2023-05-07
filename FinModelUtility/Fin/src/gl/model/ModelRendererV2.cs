@@ -112,7 +112,7 @@ namespace fin.gl.model {
       this.GenerateModelIfNull_();
 
       if (!this.valid_) {
-        this.bufferManager_.UpdateTransforms(this.boneTransformManager_);
+        this.bufferManager_.UpdateDynamic(this.boneTransformManager_);
         this.valid_ = true;
       }
 

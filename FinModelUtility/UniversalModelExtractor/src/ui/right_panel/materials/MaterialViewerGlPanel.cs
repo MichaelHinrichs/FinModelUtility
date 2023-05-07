@@ -117,7 +117,7 @@ namespace uni.ui.right_panel.materials {
       
       this.materialShader_.Use();
 
-      this.bufferManager_.UpdateTransforms(null);
+      this.bufferManager_.UpdateDynamic(null);
       this.bufferRenderer_.Render();
     }
   }
