@@ -23,7 +23,7 @@ namespace fin.gl.model {
     private readonly IGlMaterialShader? materialShader_;
 
     public MaterialMeshRendererV2(
-        IBoneTransformManager boneTransformManager,
+        IBoneTransformManager? boneTransformManager,
         GlBufferManager bufferManager,
         IModel model,
         IMaterial? material,

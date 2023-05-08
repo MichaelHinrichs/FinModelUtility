@@ -14,9 +14,12 @@ namespace uni.games.majoras_mask_3d {
       : IFileBundleGatherer<CmbModelFileBundle> {
     private readonly IModelSeparator separator_
         = new ModelSeparator(directory => directory.Name)
-          .Register(new SameNameSeparatorMethod(), "zelda2_zoraband")
           .Register(new AllAnimationsModelSeparatorMethod(),
-                    "zelda_cow");
+                    "zelda_cow",
+                    "zelda2_jso")
+          .Register(new SameNameSeparatorMethod(), "zelda2_zoraband")
+          .Register(new PrimaryModelSeparatorMethod("eyegoal.cmb"),
+                    "zelda2_eg");
 
 
     public IEnumerable<CmbModelFileBundle> GatherFileBundles(

@@ -62,7 +62,7 @@ public partial class UniversalModelExtractorForm : Form {
 
 
     this.fpsCallback_ = TimedCallback.WithPeriod(() => {
-      if (!this.Created) {
+      if (!this.Created || this.IsDisposed) {
         return;
       }
 
