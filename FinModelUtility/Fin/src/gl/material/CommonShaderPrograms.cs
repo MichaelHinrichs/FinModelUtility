@@ -35,8 +35,6 @@ void main() {
       }
     }
 
-    public static string VERTEX_SRC { get; }
-
     public static TNumber UseThenAdd<TNumber>(ref TNumber value, TNumber delta)
         where TNumber : INumber<TNumber> {
       var initialValue = value;
@@ -44,17 +42,20 @@ void main() {
       return initialValue;
     }
 
-    static CommonShaderPrograms() {
+    // TODO: Only include uvs/colors as needed
+    public static string GetVertexSrc(IModel model) {
       var location = 0;
       var vertexSrc = $@"
 # version 330
 
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
+uniform mat4 boneMatrices[{1 + model.Skin.BoneWeights.Count}];
 
 layout(location = {location++}) in vec3 in_Position;
 layout(location = {location++}) in vec3 in_Normal;
 layout(location = {location++}) in vec4 in_Tangent;
+layout(location = {location++}) in int in_MatrixId;
 layout(location = {UseThenAdd(ref location, MaterialConstants.MAX_UVS)}) in vec2 in_Uvs[{MaterialConstants.MAX_UVS}];
 layout(location = {UseThenAdd(ref location, MaterialConstants.MAX_COLORS)}) in vec4 in_Colors[{MaterialConstants.MAX_COLORS}];
 
@@ -75,11 +76,16 @@ out vec4 vertexColor{i};";
 
       vertexSrc += @"
 void main() {
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(in_Position, 1);
-  vertexNormal = normalize(modelViewMatrix * vec4(in_Normal, 0)).xyz;
-  tangent = normalize(modelViewMatrix * vec4(in_Tangent)).xyz;
+  mat4 vertexMatrix = boneMatrices[in_MatrixId];
+
+  mat4 vertexModelMatrix = modelViewMatrix * vertexMatrix;
+  mat4 projectionVertexModelMatrix = projectionMatrix * vertexModelMatrix;
+
+  gl_Position = projectionVertexModelMatrix * vec4(in_Position, 1);
+  vertexNormal = normalize(vertexModelMatrix * vec4(in_Normal, 0)).xyz;
+  tangent = normalize(vertexModelMatrix * vec4(in_Tangent)).xyz;
   binormal = cross(vertexNormal, tangent); 
-  normalUv = normalize(projectionMatrix * modelViewMatrix * vec4(in_Normal, 0)).xy;";
+  normalUv = normalize(projectionVertexModelMatrix * vec4(in_Normal, 0)).xy;";
 
       for (var i = 0; i < MaterialConstants.MAX_UVS; ++i) {
         vertexSrc += $@"
@@ -94,7 +100,7 @@ void main() {
       vertexSrc += @"
 }";
 
-      VERTEX_SRC = vertexSrc;
+      return vertexSrc;
     }
   }
 }

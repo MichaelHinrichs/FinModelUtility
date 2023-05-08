@@ -28,6 +28,7 @@ namespace fin.math {
     public IReadOnlyFinMatrix4x4 GetWorldMatrix(IBone bone);
 
     public IReadOnlyFinMatrix4x4? GetTransformMatrix(IVertex vertex);
+    public IReadOnlyFinMatrix4x4 GetTransformMatrix(IBoneWeights boneWeights);
 
     void ProjectVertexPosition(
         IVertex vertex,
@@ -306,6 +307,9 @@ namespace fin.math {
 
     public IReadOnlyFinMatrix4x4? GetTransformMatrix(IVertex vertex)
       => this.verticesToWorldMatrices_[vertex];
+
+    public IReadOnlyFinMatrix4x4 GetTransformMatrix(IBoneWeights boneWeights)
+      => this.boneWeightsToWorldMatrices_[boneWeights];
 
     private IReadOnlyFinMatrix4x4? DetermineTransformMatrix_(
         IVertex vertex,

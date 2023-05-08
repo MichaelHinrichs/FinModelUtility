@@ -16,7 +16,8 @@ namespace uni.ui.right_panel {
 
         this.infoTab_.FileBundle = modelFileBundle;
         this.animationsTab_.Model = model;
-        this.materialsTab_.Materials = model?.MaterialManager.All;
+        this.materialsTab_.ModelAndMaterials =
+            model != null ? (model, model.MaterialManager.All) : null;
         this.skeletonTab_.Model = model;
         this.texturesTab_.Model = model;
       }

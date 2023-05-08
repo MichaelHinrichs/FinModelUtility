@@ -88,7 +88,8 @@ namespace uni.ui.right_panel.materials {
         this.materialShader_ = null;
       } else {
         if (this.materialShader_ == null) {
-          this.materialShader_ = GlMaterialShader.FromMaterial(this.Material);
+          this.materialShader_ =
+              GlMaterialShader.FromMaterial(this.viewerModel_, this.Material);
           this.materialShader_.DisposeTextures = false;
         }
 
@@ -117,7 +118,6 @@ namespace uni.ui.right_panel.materials {
       
       this.materialShader_.Use();
 
-      this.bufferManager_.UpdateDynamic(null);
       this.bufferRenderer_.Render();
     }
   }

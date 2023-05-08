@@ -1,26 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 
+using fin.math;
 using fin.model;
 
 using OpenTK.Graphics.OpenGL;
 
+
 namespace fin.gl.material {
   public abstract class BGlMaterialShader<TMaterial> : IGlMaterialShader
       where TMaterial : IReadOnlyMaterial {
+    private readonly IModel model_;
     private readonly ILighting? lighting_;
+    private readonly IBoneTransformManager? boneTransformManager_;
     private readonly GlShaderProgram impl_;
 
     private readonly int modelViewMatrixLocation_;
     private readonly int projectionMatrixLocation_;
+
+    private readonly int matricesLocation_;
+    private readonly Matrix4x4[] matrices_;
+    
     private readonly int useLightingLocation_;
 
-    protected BGlMaterialShader(TMaterial material,
-                                ILighting? lighting) {
+    protected BGlMaterialShader(
+        IModel model,
+        TMaterial material,
+        IBoneTransformManager? boneTransformManager,
+        ILighting? lighting) {
+      this.model_ = model;
       this.Material = material;
+      this.boneTransformManager_ = boneTransformManager;
       this.lighting_ = lighting;
 
-      var shaderSource = this.GenerateShaderSource(material);
+      var shaderSource = this.GenerateShaderSource(model, material);
       this.impl_ = GlShaderProgram.FromShaders(
           shaderSource.VertexShaderSource,
           shaderSource.FragmentShaderSource);
@@ -29,6 +44,8 @@ namespace fin.gl.material {
           this.impl_.GetUniformLocation("modelViewMatrix");
       this.projectionMatrixLocation_ =
           this.impl_.GetUniformLocation("projectionMatrix");
+      this.matricesLocation_ = this.impl_.GetUniformLocation("boneMatrices");
+      this.matrices_ = new Matrix4x4[1 + model.Skin.BoneWeights.Count];
       this.useLightingLocation_ = this.impl_.GetUniformLocation("useLighting");
 
       this.Setup(material, this.impl_);
@@ -49,7 +66,8 @@ namespace fin.gl.material {
     protected abstract void DisposeInternal();
 
     protected virtual IGlMaterialShaderSource GenerateShaderSource(
-        TMaterial material) => material.ToShaderSource();
+        IModel model,
+        TMaterial material) => material.ToShaderSource(model);
 
     protected abstract void Setup(TMaterial material,
                                   GlShaderProgram shaderProgram);
@@ -76,9 +94,15 @@ namespace fin.gl.material {
       GlTransform.UniformMatrix4(this.projectionMatrixLocation_,
                                  projectionMatrix);
 
+      this.matrices_[0] = Matrix4x4.Identity;
+      foreach (var boneWeights in this.model_.Skin.BoneWeights) {
+        this.matrices_[1 + boneWeights.Index] = this.boneTransformManager_?.GetTransformMatrix(boneWeights)
+                                                .Impl ?? Matrix4x4.Identity;
+      }
+      GlTransform.UniformMatrix4s(this.matricesLocation_, this.matrices_);
+
       GL.Uniform1(this.useLightingLocation_,
                   this.UseLighting && this.lighting_ != null ? 1f : 0f);
-
 
       if (this.lighting_ != null) {
         this.SetUpLightUniforms_(this.impl_,

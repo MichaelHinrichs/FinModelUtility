@@ -1,4 +1,5 @@
-﻿using fin.model;
+﻿using fin.math;
+using fin.model;
 using fin.model.util;
 
 using OpenTK.Graphics.OpenGL;
@@ -6,7 +7,9 @@ using OpenTK.Graphics.OpenGL;
 
 namespace fin.gl.material {
   public class GlSimpleMaterialShaderSource : IGlMaterialShaderSource {
-    public GlSimpleMaterialShaderSource() {
+    public GlSimpleMaterialShaderSource(IModel model) {
+      this.VertexShaderSource = CommonShaderPrograms.GetVertexSrc(model);
+
       this.FragmentShaderSource = @$"# version 330
 
 struct Light {{
@@ -78,7 +81,7 @@ void main() {{
 }}";
     }
 
-    public string VertexShaderSource => CommonShaderPrograms.VERTEX_SRC;
+    public string VertexShaderSource { get; }
     public string FragmentShaderSource { get; }
   }
 
@@ -86,9 +89,12 @@ void main() {{
     private int diffuseTextureLocation_;
     private readonly GlTexture primaryGlTexture_;
 
-    public GlSimpleMaterialShaderV2(IReadOnlyMaterial material,
-                                    ILighting? lighting) :
-        base(material, lighting) {
+    public GlSimpleMaterialShaderV2(
+        IModel model,
+        IReadOnlyMaterial material,
+        IBoneTransformManager? boneTransformManager,
+        ILighting? lighting) :
+        base(model, material, boneTransformManager, lighting) {
       var primaryFinTexture = PrimaryTextureFinder.GetFor(material);
       this.primaryGlTexture_ = primaryFinTexture != null
           ? GlTexture.FromTexture(primaryFinTexture)

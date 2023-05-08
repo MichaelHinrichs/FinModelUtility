@@ -1,5 +1,6 @@
 ﻿using System.Text;
 
+using fin.math;
 using fin.model;
 
 using OpenTK.Graphics.OpenGL;
@@ -7,7 +8,10 @@ using OpenTK.Graphics.OpenGL;
 
 namespace fin.gl.material {
   public class GlStandardMaterialShaderSource : IGlMaterialShaderSource {
-    public GlStandardMaterialShaderSource(IStandardMaterial material) {
+    public GlStandardMaterialShaderSource(IModel model,
+                                          IStandardMaterial material) {
+      this.VertexShaderSource = CommonShaderPrograms.GetVertexSrc(model);
+
       var hasNormalTexture = material.NormalTexture != null;
 
       var fragmentShaderSrc = new StringBuilder();
@@ -117,20 +121,23 @@ vec3 normal_viewSpace = tbn * normalize((fragNormal * 2.0) - 1.0);
       this.FragmentShaderSource = fragmentShaderSrc.ToString();
     }
 
-    public string VertexShaderSource => CommonShaderPrograms.VERTEX_SRC;
+    public string VertexShaderSource { get; }
     public string FragmentShaderSource { get; set; }
   }
 
-  public class GlStandardMaterialShaderV2 
+  public class GlStandardMaterialShaderV2
       : BGlMaterialShader<IStandardMaterial> {
     private GlTexture diffuseTexture_;
     private GlTexture normalTexture_;
     private GlTexture ambientOcclusionTexture_;
     private GlTexture emissiveTexture_;
 
-    public GlStandardMaterialShaderV2(IStandardMaterial standardMaterial,
-                                      ILighting? lighting) :
-        base(standardMaterial, lighting) {}
+    public GlStandardMaterialShaderV2(
+        IModel model,
+        IStandardMaterial standardMaterial,
+        IBoneTransformManager? boneTransformManager,
+        ILighting? lighting) :
+        base(model, standardMaterial, boneTransformManager, lighting) { }
 
     protected override void DisposeInternal() {
       if (this.DisposeTextures) {
@@ -145,13 +152,13 @@ vec3 normal_viewSpace = tbn * normalize((fragNormal * 2.0) - 1.0);
                                   GlShaderProgram shaderProgram) {
       var diffuseTexture = material.DiffuseTexture;
       this.diffuseTexture_ = diffuseTexture != null
-                                 ? GlTexture.FromTexture(diffuseTexture)
-                                 : GlMaterialConstants.NULL_WHITE_TEXTURE;
+          ? GlTexture.FromTexture(diffuseTexture)
+          : GlMaterialConstants.NULL_WHITE_TEXTURE;
 
       var normalTexture = material.NormalTexture;
       this.normalTexture_ = normalTexture != null
-                                ? GlTexture.FromTexture(normalTexture)
-                                : GlMaterialConstants.NULL_GRAY_TEXTURE;
+          ? GlTexture.FromTexture(normalTexture)
+          : GlMaterialConstants.NULL_GRAY_TEXTURE;
 
       var ambientOcclusionTexture = material.AmbientOcclusionTexture;
       this.ambientOcclusionTexture_ =
@@ -161,8 +168,8 @@ vec3 normal_viewSpace = tbn * normalize((fragNormal * 2.0) - 1.0);
 
       var emissiveTexture = material.EmissiveTexture;
       this.emissiveTexture_ = emissiveTexture != null
-                                  ? GlTexture.FromTexture(emissiveTexture)
-                                  : GlMaterialConstants.NULL_BLACK_TEXTURE;
+          ? GlTexture.FromTexture(emissiveTexture)
+          : GlMaterialConstants.NULL_BLACK_TEXTURE;
     }
 
     protected override void PassUniformsAndBindTextures(GlShaderProgram impl) {

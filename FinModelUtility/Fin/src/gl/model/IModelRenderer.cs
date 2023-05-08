@@ -9,7 +9,5 @@ namespace fin.gl.model {
     ISet<IMesh> HiddenMeshes { get; }
 
     bool UseLighting { get; set; }
-
-    void InvalidateDisplayLists();
   }
 }

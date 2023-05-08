@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 
 using fin.language.equations.fixedFunction;
+using fin.math;
 using fin.model;
 
 using OpenTK.Graphics.OpenGL;
@@ -9,12 +10,15 @@ using OpenTK.Graphics.OpenGL;
 namespace fin.gl.material {
   public class GlFixedFunctionMaterialShaderSource : IGlMaterialShaderSource {
     public GlFixedFunctionMaterialShaderSource(
-        IFixedFunctionMaterial material)
-      => this.FragmentShaderSource =
+        IModel model,
+        IFixedFunctionMaterial material) {
+      this.VertexShaderSource = CommonShaderPrograms.GetVertexSrc(model);
+      this.FragmentShaderSource =
           new FixedFunctionEquationsGlslPrinter(material.TextureSources)
               .Print(material);
+    }
 
-    public string VertexShaderSource => CommonShaderPrograms.VERTEX_SRC;
+    public string VertexShaderSource { get; }
     public string FragmentShaderSource { get; }
   }
 
@@ -26,9 +30,11 @@ namespace fin.gl.material {
     private IList<GlTexture> textures_;
 
     public GlFixedFunctionMaterialShaderV2(
+        IModel model,
         IReadOnlyFixedFunctionMaterial fixedFunctionMaterial,
+        IBoneTransformManager? boneTransformManager,
         ILighting? lighting)
-        : base(fixedFunctionMaterial, lighting) { }
+        : base(model, fixedFunctionMaterial, boneTransformManager, lighting) { }
 
     protected override void DisposeInternal() {
       if (this.DisposeTextures) {

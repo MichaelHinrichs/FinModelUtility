@@ -1,8 +1,14 @@
-﻿using fin.model;
+﻿using fin.math;
+using fin.model;
+
 
 namespace fin.gl.material {
   public class GlNullMaterialShaderSource : IGlMaterialShaderSource {
-    public string VertexShaderSource => CommonShaderPrograms.VERTEX_SRC;
+    public GlNullMaterialShaderSource(IModel model) {
+      this.VertexShaderSource = CommonShaderPrograms.GetVertexSrc(model);
+    }
+
+    public string VertexShaderSource { get; }
 
     public string FragmentShaderSource => @"# version 130 
 
@@ -16,14 +22,18 @@ void main() {
   }
 
   public class GlNullMaterialShaderV2 : BGlMaterialShader<IReadOnlyMaterial?> {
-    public GlNullMaterialShaderV2(ILighting? lighting) :
-        base(null, lighting) { }
+    public GlNullMaterialShaderV2(
+        IModel model,
+        IBoneTransformManager? boneTransformManager,
+        ILighting? lighting) :
+        base(model, null, boneTransformManager, lighting) { }
 
     protected override void DisposeInternal() { }
 
     protected override IGlMaterialShaderSource GenerateShaderSource(
+        IModel model,
         IReadOnlyMaterial? material)
-      => new GlNullMaterialShaderSource();
+      => new GlNullMaterialShaderSource(model);
 
     protected override void Setup(IReadOnlyMaterial? material,
                                   GlShaderProgram shaderProgram) { }

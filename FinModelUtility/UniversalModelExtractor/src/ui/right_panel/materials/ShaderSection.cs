@@ -8,10 +8,15 @@ namespace uni.ui.right_panel.materials {
       InitializeComponent();
     }
 
-    public IMaterial? Material {
+    public (IModel, IMaterial)? ModelAndMaterial {
       set {
-        this.richTextBox_.Text =
-            value?.ToShaderSource().FragmentShaderSource ?? "(n/a)";
+        if (value == null) {
+          this.richTextBox_.Text = "(n/a)";
+        } else {
+          var (model, material) = value.Value;
+          this.richTextBox_.Text =
+              material.ToShaderSource(model).FragmentShaderSource;
+        }
       }
     }
   }

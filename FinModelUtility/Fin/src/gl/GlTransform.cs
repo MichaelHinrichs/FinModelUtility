@@ -21,6 +21,12 @@ namespace fin.gl {
       GL.UniformMatrix4(location, 1, false, ptr);
     }
 
+    public unsafe static void UniformMatrix4s(int location, Matrix4x4[] matrices) {
+      fixed (float* ptr = &(matrices[0].M11)) {
+        GL.UniformMatrix4(location, matrices.Length, false, ptr);
+      }
+    }
+
     public static void PushMatrix() => currentMatrix_.Push();
     public static void PopMatrix() => currentMatrix_.Pop();
 

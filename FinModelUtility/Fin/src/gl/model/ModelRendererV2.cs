@@ -55,6 +55,7 @@ namespace fin.gl.model {
           this.materialMeshRenderers_.Add(
               mesh,
               new MaterialMeshRendererV2(
+                  this.boneTransformManager_,
                   this.bufferManager_,
                   this.Model,
                   material,
@@ -102,19 +103,8 @@ namespace fin.gl.model {
       }
     }
 
-    private bool valid_ = false;
-
-    public void InvalidateDisplayLists() {
-      this.valid_ = false;
-    }
-
     public void Render() {
       this.GenerateModelIfNull_();
-
-      if (!this.valid_) {
-        this.bufferManager_.UpdateDynamic(this.boneTransformManager_);
-        this.valid_ = true;
-      }
 
       foreach (var (mesh, materialMeshRenderers) in
                this.materialMeshRenderers_) {

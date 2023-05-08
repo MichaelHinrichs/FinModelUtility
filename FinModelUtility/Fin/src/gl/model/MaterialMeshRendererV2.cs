@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using fin.math;
+
 using PrimitiveType = fin.model.PrimitiveType;
 
 
@@ -21,6 +23,7 @@ namespace fin.gl.model {
     private readonly IGlMaterialShader? materialShader_;
 
     public MaterialMeshRendererV2(
+        IBoneTransformManager boneTransformManager,
         GlBufferManager bufferManager,
         IModel model,
         IMaterial? material,
@@ -28,7 +31,10 @@ namespace fin.gl.model {
       this.material_ = material;
 
       this.materialShader_ =
-          GlMaterialShader.FromMaterial(material, model.Lighting);
+          GlMaterialShader.FromMaterial(model,
+                                        material,
+                                        boneTransformManager,
+                                        model.Lighting);
 
       IReadOnlyList<IVertex> triangleVertices;
       if (primitives is [{ Type: PrimitiveType.TRIANGLES, VertexOrder:

@@ -303,8 +303,6 @@ namespace fin.scene {
               (this.Animation, frame),
               this.AnimationPlaybackManager.ShouldLoop);
 
-          this.ModelRenderer.InvalidateDisplayLists();
-
           var hiddenMeshes = this.ModelRenderer.HiddenMeshes;
 
           hiddenMeshes.Clear();
