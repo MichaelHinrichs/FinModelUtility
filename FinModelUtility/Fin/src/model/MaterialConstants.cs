@@ -4,5 +4,7 @@
     public const int MAX_TEXTURES = 8;
     public const int MAX_COLORS = 2;
     public const int MAX_UVS = 4;
+
+    public const string LIGHTS_NAME = "lights";
   }
 }

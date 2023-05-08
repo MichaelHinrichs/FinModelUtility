@@ -2,11 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Xml.Linq;
 
+using Assimp;
+
+using fin.data.lazy;
 using fin.math;
 using fin.model;
 
 using OpenTK.Graphics.OpenGL;
+
+using Matrix4x4 = System.Numerics.Matrix4x4;
 
 
 namespace fin.gl.material {
@@ -22,8 +28,13 @@ namespace fin.gl.material {
 
     private readonly int matricesLocation_;
     private readonly Matrix4x4[] matrices_;
-    
+
     private readonly int useLightingLocation_;
+
+    private readonly int[] lightEnabledLocations_;
+    private readonly int[] lightPositionLocations_;
+    private readonly int[] lightNormalLocations_;
+    private readonly int[] lightColorLocations_;
 
     protected BGlMaterialShader(
         IModel model,
@@ -47,6 +58,18 @@ namespace fin.gl.material {
       this.matricesLocation_ = this.impl_.GetUniformLocation("boneMatrices");
       this.matrices_ = new Matrix4x4[1 + model.Skin.BoneWeights.Count];
       this.useLightingLocation_ = this.impl_.GetUniformLocation("useLighting");
+
+      this.lightEnabledLocations_ = new int[MaterialConstants.MAX_LIGHTS];
+      this.lightPositionLocations_ = new int[MaterialConstants.MAX_LIGHTS];
+      this.lightNormalLocations_ = new int[MaterialConstants.MAX_LIGHTS];
+      this.lightColorLocations_ = new int[MaterialConstants.MAX_LIGHTS];
+      for (var i = 0; i < MaterialConstants.MAX_LIGHTS; ++i) {
+        this.lightEnabledLocations_[i] = this.impl_.GetUniformLocation($"{MaterialConstants.LIGHTS_NAME}[{i}].enabled");
+        this.lightPositionLocations_[i] = this.impl_.GetUniformLocation($"{MaterialConstants.LIGHTS_NAME}[{i}].position");
+        this.lightNormalLocations_[i] = this.impl_.GetUniformLocation($"{MaterialConstants.LIGHTS_NAME}[{i}].normal");
+        this.lightColorLocations_[i] = this.impl_.GetUniformLocation($"{MaterialConstants.LIGHTS_NAME}[{i}].color");
+      }
+
 
       this.Setup(material, this.impl_);
     }
@@ -96,7 +119,10 @@ namespace fin.gl.material {
 
       this.matrices_[0] = Matrix4x4.Identity;
       foreach (var boneWeights in this.model_.Skin.BoneWeights) {
-        this.matrices_[1 + boneWeights.Index] = this.boneTransformManager_?.GetTransformMatrix(boneWeights)
+        this.matrices_[1 + boneWeights.Index] = this
+                                                .boneTransformManager_
+                                                ?.GetTransformMatrix(
+                                                    boneWeights)
                                                 .Impl ?? Matrix4x4.Identity;
       }
       GlTransform.UniformMatrix4s(this.matricesLocation_, this.matrices_);
@@ -107,7 +133,7 @@ namespace fin.gl.material {
       if (this.lighting_ != null) {
         this.SetUpLightUniforms_(this.impl_,
                                  this.lighting_.Lights,
-                                 "lights",
+                                 MaterialConstants.LIGHTS_NAME,
                                  MaterialConstants.MAX_LIGHTS);
       }
 
@@ -120,8 +146,7 @@ namespace fin.gl.material {
                                      int max) {
       for (var i = 0; i < max; ++i) {
         var isEnabled = i < lights.Count && lights[i].Enabled;
-        var enabledLocation = impl.GetUniformLocation($"{name}[{i}].enabled");
-        GL.Uniform1(enabledLocation, isEnabled ? 1 : 0);
+        GL.Uniform1(this.lightEnabledLocations_[i], isEnabled ? 1 : 0);
 
         if (!isEnabled) {
           continue;
@@ -130,16 +155,13 @@ namespace fin.gl.material {
         var light = lights[i];
 
         var position = light.Position;
-        var positionLocation = impl.GetUniformLocation($"{name}[{i}].position");
-        GL.Uniform3(positionLocation, position.X, position.Y, position.Z);
+        GL.Uniform3(this.lightPositionLocations_[i], position.X, position.Y, position.Z);
 
         var normal = light.Normal;
-        var normalLocation = impl.GetUniformLocation($"{name}[{i}].normal");
-        GL.Uniform3(normalLocation, normal.X, normal.Y, normal.Z);
+        GL.Uniform3(this.lightNormalLocations_[i], normal.X, normal.Y, normal.Z);
 
         var color = light.Color;
-        var colorLocation = impl.GetUniformLocation($"{name}[{i}].color");
-        GL.Uniform4(colorLocation, color.Rf, color.Gf, color.Bf, color.Af);
+        GL.Uniform4(this.lightColorLocations_[i], color.Rf, color.Gf, color.Bf, color.Af);
       }
     }
   }
