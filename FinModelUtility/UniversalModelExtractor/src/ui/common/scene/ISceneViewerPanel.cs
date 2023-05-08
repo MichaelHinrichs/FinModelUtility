@@ -12,5 +12,7 @@ namespace uni.ui.common.scene {
     IAnimationPlaybackManager? AnimationPlaybackManager { get; }
     IAnimation? Animation { get; set; }
     ISkeletonRenderer? SkeletonRenderer { get; }
+
+    TimeSpan FrameTime { get; }
   }
 }

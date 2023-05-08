@@ -146,12 +146,11 @@ namespace fin.gl.material {
                                      int max) {
       for (var i = 0; i < max; ++i) {
         var isEnabled = i < lights.Count && lights[i].Enabled;
-        GL.Uniform1(this.lightEnabledLocations_[i], isEnabled ? 1 : 0);
-
         if (!isEnabled) {
           continue;
         }
 
+        GL.Uniform1(this.lightEnabledLocations_[i], 1);
         var light = lights[i];
 
         var position = light.Position;

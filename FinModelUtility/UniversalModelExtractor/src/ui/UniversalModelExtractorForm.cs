@@ -20,6 +20,7 @@ namespace uni.ui;
 
 public partial class UniversalModelExtractorForm : Form {
   private IFileTreeNode<IFileBundle>? gameDirectory_;
+  private TimedCallback fpsCallback_;
 
   public UniversalModelExtractorForm() {
     this.InitializeComponent();
@@ -59,6 +60,19 @@ public partial class UniversalModelExtractorForm : Form {
     this.fileBundleTreeView_.Populate(
         new RootModelFileGatherer().GatherAllModelFiles());
 
+
+    this.fpsCallback_ = TimedCallback.WithPeriod(() => {
+      if (!this.Created) {
+        return;
+      }
+
+      this.Invoke(() => {
+        var frameTime = this.sceneViewerPanel_.FrameTime;
+        var fps = (frameTime == TimeSpan.Zero) ? 0 : 1 / frameTime.TotalSeconds;
+        this.Text = $"Universal Model Extractor ({fps:0.0} fps)";
+      });
+    }, .25f);
+ 
     this.fileBundleTreeView_.DirectorySelected += this.OnDirectorySelect_;
     this.fileBundleTreeView_.FileSelected += this.OnFileBundleSelect_;
   }

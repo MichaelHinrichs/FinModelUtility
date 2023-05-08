@@ -6,7 +6,6 @@ using fin.io.bundles;
 using fin.model;
 using fin.scene;
 using fin.ui;
-using fin.util.time;
 
 using OpenTK.Graphics.OpenGL;
 using uni.config;
@@ -29,6 +28,8 @@ namespace uni.ui.common.scene {
 
     private IScene? scene_;
     private IFileBundle? fileBundle_;
+
+    public TimeSpan FrameTime { get; private set; }
 
     public (IFileBundle, IScene)? FileBundleAndScene {
       get {
@@ -209,7 +210,9 @@ namespace uni.ui.common.scene {
     }
 
     protected override void RenderGl() {
-      FrameTime.MarkStartOfFrame();
+      var start = DateTime.Now;
+
+      fin.util.time.FrameTime.MarkStartOfFrame();
       this.Scene?.Tick();
 
       var forwardVector =
@@ -227,6 +230,9 @@ namespace uni.ui.common.scene {
       GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
       this.RenderPerspective_();
+
+      var end = DateTime.Now;
+      this.FrameTime = end - start;
     }
 
     private void RenderPerspective_() {

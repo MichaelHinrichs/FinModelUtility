@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 using fin.model;
+
+using MathNet.Numerics;
 
 
 namespace fin.math {
   public static class QuaternionUtil {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Quaternion Create(IRotation rotation)
       => QuaternionUtil.CreateZyx(rotation.XRadians,
                                rotation.YRadians,
@@ -15,11 +19,21 @@ namespace fin.math {
         float xRadians,
         float yRadians,
         float zRadians) {
-      var qz = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, zRadians);
-      var qy = Quaternion.CreateFromAxisAngle(Vector3.UnitY, yRadians);
-      var qx = Quaternion.CreateFromAxisAngle(Vector3.UnitX, xRadians);
+      var q = Quaternion.Identity;
 
-      return Quaternion.Normalize(qz * qy * qx);
+      if (!zRadians.AlmostEqual(0, .001)) {
+        q *= Quaternion.CreateFromAxisAngle(Vector3.UnitZ, zRadians);
+      }
+
+      if (!yRadians.AlmostEqual(0, .001)) {
+        q *= Quaternion.CreateFromAxisAngle(Vector3.UnitY, yRadians);
+      }
+
+      if (!xRadians.AlmostEqual(0, .001)) {
+        q *= Quaternion.CreateFromAxisAngle(Vector3.UnitX, xRadians);
+      }
+
+      return Quaternion.Normalize(q);
     }
 
     public static Vector3 ToEulerRadians(Quaternion q) {
