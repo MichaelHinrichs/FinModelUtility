@@ -2,7 +2,6 @@
 
 using fin.data.lazy;
 using fin.data.queue;
-using fin.image;
 using fin.io;
 using fin.math;
 using fin.model;
@@ -202,7 +201,7 @@ namespace modl.api {
             });
 
         foreach (var modlNode in bwModel.Nodes) {
-          if (modlNode.IsLowLodModel) {
+          if (modlNode.IsHidden) {
             continue;
           }
 

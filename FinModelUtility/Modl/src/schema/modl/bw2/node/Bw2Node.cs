@@ -25,7 +25,9 @@ namespace modl.schema.modl.bw2.node {
 
     public WeirdFlag WeirdFlag { get; set; }
 
-    public bool IsLowLodModel => false;
+    public bool IsHidden => this.Name.StartsWith("PHYSICS_COLLIDE") ||
+                            this.Name.StartsWith("COLLISION_") ||
+                            this.Name.StartsWith("NODRAW");
 
     public BwTransform Transform { get; } = new();
 

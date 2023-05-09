@@ -11,7 +11,7 @@ namespace modl.schema.modl {
 
   public interface IBwNode {
     string GetIdentifier();
-    bool IsLowLodModel { get; }
+    bool IsHidden { get; }
 
     BwTransform Transform { get; }
     float Scale { get; set; }
