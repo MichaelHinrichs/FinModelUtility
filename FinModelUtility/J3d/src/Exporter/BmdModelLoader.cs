@@ -20,6 +20,7 @@ using j3d.schema.bmd.mat3;
 using j3d.schema.bti;
 using System.Numerics;
 
+using fin;
 using fin.util.enumerables;
 
 
@@ -43,6 +44,8 @@ namespace j3d.exporter {
   }
 
   public class BmdModelLoader : IModelLoader<BmdModelFileBundle> {
+    private const bool STRICT = false;
+
     public IModel LoadModel(BmdModelFileBundle modelFileBundle) {
       var logger = Logging.Create<BmdModelLoader>();
 
@@ -182,6 +185,12 @@ namespace j3d.exporter {
         // Writes translation/rotation/scale for each joint.
         foreach (var (joint, bone) in jointsAndBones) {
           var jointIndex = bmd.JNT1.StringTable[joint.Name];
+
+          if (FinConstants.ALLOW_INVALID_JOINT_INDICES &&
+              (jointIndex < 0 || jointIndex >= bcx.Anx1.Joints.Length)) {
+            // TODO: What does this mean???
+            continue;
+          }
           var bcxJoint = bcx.Anx1.Joints[jointIndex];
 
           var boneTracks = animation.AddBoneTracks(bone);
