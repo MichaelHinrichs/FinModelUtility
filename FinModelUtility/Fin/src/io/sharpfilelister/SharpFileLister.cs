@@ -18,92 +18,55 @@ namespace fins.io.sharpDirLister {
     public LinkedList<DirectoryInformation> SubdirsImpl { get; } = new();
   }
 
-  public class SharpFileLister {
-    static IntPtr INVALID_HANDLE_VALUE = new IntPtr(-1);
+  public interface IFileLister {
+    DirectoryInformation FindNextFilePInvokeRecursiveParalleled(
+        string path);
+  }
+
+  public class SharpFileLister : IFileLister {
+    public const IntPtr INVALID_HANDLE_VALUE = -1;
+
+    public DirectoryInformation FindNextFilePInvokeRecursiveParalleled(
+        string path) {
+      var directoryInfo = new DirectoryInformation { AbsoluteSubdirPath = path };
+      this.FindNextFilePInvokeRecursive_(directoryInfo);
+      return directoryInfo;
+    }
 
     //Code based heavily on https://stackoverflow.com/q/47471744
-    static void FindNextFilePInvokeRecursive(
+    private void FindNextFilePInvokeRecursive_(
         DirectoryInformation directoryInfo) {
       var path = directoryInfo.AbsoluteSubdirPath;
       var fileList = directoryInfo.AbsoluteFilePathsImpl;
       var directoryList = directoryInfo.SubdirsImpl;
 
-      IntPtr findHandle = INVALID_HANDLE_VALUE;
-      List<Tuple<string, DateTime>> info = new List<Tuple<string, DateTime>>();
+      IntPtr fileSearchHandle = INVALID_HANDLE_VALUE;
 
       try {
-        findHandle =
+        fileSearchHandle =
             FindFirstFileW(path + @"\*", out WIN32_FIND_DATAW findData);
 
-        if (findHandle != INVALID_HANDLE_VALUE) {
+        if (fileSearchHandle != INVALID_HANDLE_VALUE) {
           do {
             if (findData.cFileName != "." && findData.cFileName != "..") {
               string fullPath = path + @"\" + findData.cFileName;
 
-              if (findData.dwFileAttributes.HasFlag(FileAttributes.Directory) &&
-                  !findData.dwFileAttributes.HasFlag(
-                      FileAttributes.ReparsePoint)) {
+              if (!findData.dwFileAttributes.HasFlag(FileAttributes.Directory)) {
+                fileList.AddLast(fullPath);
+              } else if (!findData.dwFileAttributes.HasFlag(FileAttributes.ReparsePoint)) {
                 var dirdata =
                     new DirectoryInformation { AbsoluteSubdirPath = fullPath, };
                 directoryList.AddLast(dirdata);
-
-                FindNextFilePInvokeRecursive(dirdata);
-              } else if (!findData.dwFileAttributes.HasFlag(
-                             FileAttributes.Directory)) {
-                fileList.AddLast(fullPath);
-              }
+                this.FindNextFilePInvokeRecursive_(dirdata);
+              } 
             }
-          } while (FindNextFile(findHandle, out findData));
+          } while (FindNextFile(fileSearchHandle, out findData));
         }
       } finally {
-        if (findHandle != INVALID_HANDLE_VALUE) {
-          FindClose(findHandle);
+        if (fileSearchHandle != INVALID_HANDLE_VALUE) {
+          FindClose(fileSearchHandle);
         }
       }
-    }
-
-    public static DirectoryInformation FindNextFilePInvokeRecursiveParalleled(
-        string path) {
-      var directoryInfo = new DirectoryInformation { AbsoluteSubdirPath = path };
-      var fileList = directoryInfo.AbsoluteFilePathsImpl;
-      var directoryList = directoryInfo.SubdirsImpl;
-
-      object fileListLock = new object();
-      object directoryListLock = new object();
-      IntPtr findHandle = INVALID_HANDLE_VALUE;
-      List<Tuple<string, DateTime>> info = new List<Tuple<string, DateTime>>();
-
-      try {
-        path = path.EndsWith(@"\") ? path : path + @"\";
-        findHandle = FindFirstFileW(path + @"*", out WIN32_FIND_DATAW findData);
-
-        if (findHandle != INVALID_HANDLE_VALUE) {
-          do {
-            if (findData.cFileName != "." && findData.cFileName != "..") {
-              string fullPath = path + findData.cFileName;
-
-              if (findData.dwFileAttributes.HasFlag(FileAttributes.Directory) &&
-                  !findData.dwFileAttributes.HasFlag(
-                      FileAttributes.ReparsePoint)) {
-                var dirdata = new DirectoryInformation { AbsoluteSubdirPath = fullPath, };
-                directoryList.AddLast(dirdata);
-              } else if (!findData.dwFileAttributes.HasFlag(
-                             FileAttributes.Directory)) {
-                fileList.AddLast(fullPath);
-              }
-            }
-          } while (FindNextFile(findHandle, out findData));
-
-          directoryList.AsParallel()
-                       .ForAll(x => FindNextFilePInvokeRecursive(x));
-        }
-      } finally {
-        if (findHandle != INVALID_HANDLE_VALUE) {
-          FindClose(findHandle);
-        }
-      }
-
-      return directoryInfo;
     }
   }
 }
