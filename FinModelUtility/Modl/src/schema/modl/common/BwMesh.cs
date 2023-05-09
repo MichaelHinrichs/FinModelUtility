@@ -1,4 +1,6 @@
-﻿namespace modl.schema.modl.common {
+﻿using modl.schema.modl.bw2.node;
+
+namespace modl.schema.modl.common {
   public class BwMesh {
     public uint Flags { get; set; }
     public uint MaterialIndex { get; set; }

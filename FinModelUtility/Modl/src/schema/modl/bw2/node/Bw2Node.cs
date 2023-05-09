@@ -1,6 +1,4 @@
-﻿using System.Reflection.PortableExecutable;
-
-using fin.schema.matrix;
+﻿using fin.schema.matrix;
 using fin.util.asserts;
 
 using gx;
@@ -11,11 +9,21 @@ using schema.binary;
 
 
 namespace modl.schema.modl.bw2.node {
+  public enum WeirdFlag {
+    VALUE_0,
+    VALUE_1, 
+    VALUE_2, 
+    VALUE_3, 
+    VALUE_4, 
+  }
+
   public class Bw2Node : IBwNode, IBinaryDeserializable {
     private int additionalDataCount_;
 
     public string GetIdentifier() => this.Name;
     public string Name { get; set; }
+
+    public WeirdFlag WeirdFlag { get; set; }
 
     public bool IsLowLodModel => false;
 
@@ -51,6 +59,9 @@ namespace modl.schema.modl.bw2.node {
         // TODO: unknown, probably enum values
         var unknowns0 = er.ReadUInt32s(2);
 
+        var flagValue = unknowns0[0] >> (6 * 4);
+        this.WeirdFlag = (WeirdFlag) flagValue;
+
         {
           er.PushMemberEndianness(Endianness.LittleEndian);
           this.Transform.Read(er);
@@ -66,10 +77,8 @@ namespace modl.schema.modl.bw2.node {
       // TODO: additional data
       var additionalData = er.ReadUInt32s(this.additionalDataCount_);
 
-      {
-        SectionHeaderUtil.AssertNameAndSize(er, "BBOX", 4 * 6);
-        er.ReadNew<BwBoundingBox>();
-      }
+      SectionHeaderUtil.AssertNameAndSize(er, "BBOX", 4 * 6);
+      var bbox = er.ReadNew<BwBoundingBox>();
 
       string sectionName;
       uint sectionSize;
