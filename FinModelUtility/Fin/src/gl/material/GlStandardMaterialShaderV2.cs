@@ -39,7 +39,7 @@ uniform sampler2D diffuseTexture;");
       fragmentShaderSrc.Append(@$"
 uniform sampler2D ambientOcclusionTexture;
 uniform sampler2D emissiveTexture;
-uniform float useLighting;
+uniform float {ShaderConstants.UNIFORM_USE_LIGHTING_NAME};
 
 out vec4 fragColor;
 
@@ -99,7 +99,7 @@ void main() {{
 
       // TODO: Is this right?
       fragmentShaderSrc.Append(@$"
-    fragColor.rgb = mix(fragColor.rgb, applyLightingColor(fragColor.rgb, ambientOcclusionColor.r, fragNormal), useLighting);
+    fragColor.rgb = mix(fragColor.rgb, applyLightingColor(fragColor.rgb, ambientOcclusionColor.r, fragNormal), {ShaderConstants.UNIFORM_USE_LIGHTING_NAME});
     fragColor.rgb += emissiveColor.rgb;
 
     fragColor.rgb = min(fragColor.rgb, 1);

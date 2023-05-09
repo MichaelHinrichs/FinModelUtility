@@ -1,12 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Xml.Linq;
 
-using Assimp;
-
-using fin.data.lazy;
 using fin.math;
 using fin.model;
 
@@ -52,12 +46,17 @@ namespace fin.gl.material {
           shaderSource.FragmentShaderSource);
 
       this.modelViewMatrixLocation_ =
-          this.impl_.GetUniformLocation("modelViewMatrix");
+          this.impl_.GetUniformLocation(
+              ShaderConstants.UNIFORM_MODEL_VIEW_MATRIX_NAME);
       this.projectionMatrixLocation_ =
-          this.impl_.GetUniformLocation("projectionMatrix");
-      this.matricesLocation_ = this.impl_.GetUniformLocation("boneMatrices");
+          this.impl_.GetUniformLocation(
+              ShaderConstants.UNIFORM_PROJECTION_MATRIX_NAME);
+      this.matricesLocation_ = this.impl_.GetUniformLocation(
+          ShaderConstants.UNIFORM_BONE_MATRICES_NAME);
       this.matrices_ = new Matrix4x4[1 + model.Skin.BoneWeights.Count];
-      this.useLightingLocation_ = this.impl_.GetUniformLocation("useLighting");
+      this.useLightingLocation_ =
+          this.impl_.GetUniformLocation(
+              ShaderConstants.UNIFORM_USE_LIGHTING_NAME);
 
       this.lightEnabledLocations_ = new int[MaterialConstants.MAX_LIGHTS];
       this.lightPositionLocations_ = new int[MaterialConstants.MAX_LIGHTS];

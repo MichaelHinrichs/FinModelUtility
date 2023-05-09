@@ -2,9 +2,6 @@
 
 using fin.model;
 
-using MathNet.Numerics.Distributions;
-using Microsoft.CodeAnalysis.Text;
-
 namespace fin.gl.material {
   public static class CommonShaderPrograms {
     private static GlShaderProgram? texturelessShaderProgram_;
@@ -51,12 +48,12 @@ void main() {
       var vertexSrc = $@"
 # version 330
 
-uniform mat4 modelViewMatrix;
-uniform mat4 projectionMatrix;";
+uniform mat4 {ShaderConstants.UNIFORM_MODEL_VIEW_MATRIX_NAME};
+uniform mat4 {ShaderConstants.UNIFORM_PROJECTION_MATRIX_NAME};";
 
       if (useBoneMatrices) {
         vertexSrc += @$"
-uniform mat4 boneMatrices[{1 + model.Skin.BoneWeights.Count}];";
+uniform mat4 {ShaderConstants.UNIFORM_BONE_MATRICES_NAME}[{1 + model.Skin.BoneWeights.Count}];";
       }
 
       vertexSrc += @$"
@@ -93,11 +90,11 @@ out vec4 vertexColor{i};";
 void main() {";
 
       if (useBoneMatrices) {
-        vertexSrc += @"
-  mat4 vertexMatrix = boneMatrices[in_MatrixId];
+        vertexSrc += $@"
+  mat4 vertexMatrix = {ShaderConstants.UNIFORM_BONE_MATRICES_NAME}[in_MatrixId];
 
-  mat4 vertexModelMatrix = modelViewMatrix * vertexMatrix;
-  mat4 projectionVertexModelMatrix = projectionMatrix * vertexModelMatrix;
+  mat4 vertexModelMatrix = {ShaderConstants.UNIFORM_MODEL_VIEW_MATRIX_NAME} * vertexMatrix;
+  mat4 projectionVertexModelMatrix = {ShaderConstants.UNIFORM_PROJECTION_MATRIX_NAME} * vertexModelMatrix;
 
   gl_Position = projectionVertexModelMatrix * vec4(in_Position, 1);
   vertexNormal = normalize(vertexModelMatrix * vec4(in_Normal, 0)).xyz;
@@ -105,12 +102,12 @@ void main() {";
   binormal = cross(vertexNormal, tangent);
   normalUv = normalize(projectionVertexModelMatrix * vec4(in_Normal, 0)).xy;";
       } else {
-        vertexSrc += @"
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(in_Position, 1);
-  vertexNormal = normalize(modelViewMatrix * vec4(in_Normal, 0)).xyz;
-  tangent = normalize(modelViewMatrix * vec4(in_Tangent)).xyz;
+        vertexSrc += $@"
+  gl_Position = {ShaderConstants.UNIFORM_PROJECTION_MATRIX_NAME} * {ShaderConstants.UNIFORM_MODEL_VIEW_MATRIX_NAME} * vec4(in_Position, 1);
+  vertexNormal = normalize({ShaderConstants.UNIFORM_MODEL_VIEW_MATRIX_NAME} * vec4(in_Normal, 0)).xyz;
+  tangent = normalize({ShaderConstants.UNIFORM_MODEL_VIEW_MATRIX_NAME} * vec4(in_Tangent)).xyz;
   binormal = cross(vertexNormal, tangent); 
-  normalUv = normalize(projectionMatrix * modelViewMatrix * vec4(in_Normal, 0)).xy;";
+  normalUv = normalize({ShaderConstants.UNIFORM_PROJECTION_MATRIX_NAME} * {ShaderConstants.UNIFORM_MODEL_VIEW_MATRIX_NAME} * vec4(in_Normal, 0)).xy;";
       }
 
       for (var i = 0; i < MaterialConstants.MAX_UVS; ++i) {

@@ -24,7 +24,7 @@ struct Light {{
 uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
 
 uniform sampler2D diffuseTexture;
-uniform float useLighting;
+uniform float {ShaderConstants.UNIFORM_USE_LIGHTING_NAME};
 
 out vec4 fragColor;
 
@@ -75,7 +75,7 @@ void main() {{
 
   float lightAmount = min(ambientLightAmount + diffuseLightAmount, 1);
 
-  fragColor.rgb = mix(fragColor.rgb, applyLightingColor(fragColor.rgb, vertexNormal), useLighting);
+  fragColor.rgb = mix(fragColor.rgb, applyLightingColor(fragColor.rgb, vertexNormal), {ShaderConstants.UNIFORM_USE_LIGHTING_NAME});
 
   if (fragColor.a < .95) {{
     discard;
