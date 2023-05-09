@@ -2,6 +2,9 @@
 
 using fin.model;
 
+using MathNet.Numerics.Distributions;
+using Microsoft.CodeAnalysis.Text;
+
 namespace fin.gl.material {
   public static class CommonShaderPrograms {
     private static GlShaderProgram? texturelessShaderProgram_;
@@ -43,19 +46,31 @@ void main() {
     }
 
     // TODO: Only include uvs/colors as needed
-    public static string GetVertexSrc(IModel model) {
+    public static string GetVertexSrc(IModel model, bool useBoneMatrices) {
       var location = 0;
       var vertexSrc = $@"
 # version 330
 
 uniform mat4 modelViewMatrix;
-uniform mat4 projectionMatrix;
-uniform mat4 boneMatrices[{1 + model.Skin.BoneWeights.Count}];
+uniform mat4 projectionMatrix;";
+
+      if (useBoneMatrices) {
+        vertexSrc += @$"
+uniform mat4 boneMatrices[{1 + model.Skin.BoneWeights.Count}];";
+      }
+
+      vertexSrc += @$"
 
 layout(location = {location++}) in vec3 in_Position;
 layout(location = {location++}) in vec3 in_Normal;
-layout(location = {location++}) in vec4 in_Tangent;
-layout(location = {location++}) in int in_MatrixId;
+layout(location = {location++}) in vec4 in_Tangent;";
+
+      if (useBoneMatrices) {
+        vertexSrc += @$"
+layout(location = {location++}) in int in_MatrixId;";
+      }
+
+      vertexSrc += @$"
 layout(location = {UseThenAdd(ref location, MaterialConstants.MAX_UVS)}) in vec2 in_Uvs[{MaterialConstants.MAX_UVS}];
 layout(location = {UseThenAdd(ref location, MaterialConstants.MAX_COLORS)}) in vec4 in_Colors[{MaterialConstants.MAX_COLORS}];
 
@@ -75,7 +90,10 @@ out vec4 vertexColor{i};";
       }
 
       vertexSrc += @"
-void main() {
+void main() {";
+
+      if (useBoneMatrices) {
+        vertexSrc += @"
   mat4 vertexMatrix = boneMatrices[in_MatrixId];
 
   mat4 vertexModelMatrix = modelViewMatrix * vertexMatrix;
@@ -84,8 +102,16 @@ void main() {
   gl_Position = projectionVertexModelMatrix * vec4(in_Position, 1);
   vertexNormal = normalize(vertexModelMatrix * vec4(in_Normal, 0)).xyz;
   tangent = normalize(vertexModelMatrix * vec4(in_Tangent)).xyz;
-  binormal = cross(vertexNormal, tangent); 
+  binormal = cross(vertexNormal, tangent);
   normalUv = normalize(projectionVertexModelMatrix * vec4(in_Normal, 0)).xy;";
+      } else {
+        vertexSrc += @"
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(in_Position, 1);
+  vertexNormal = normalize(modelViewMatrix * vec4(in_Normal, 0)).xyz;
+  tangent = normalize(modelViewMatrix * vec4(in_Tangent)).xyz;
+  binormal = cross(vertexNormal, tangent); 
+  normalUv = normalize(projectionMatrix * modelViewMatrix * vec4(in_Normal, 0)).xy;";
+      }
 
       for (var i = 0; i < MaterialConstants.MAX_UVS; ++i) {
         vertexSrc += $@"

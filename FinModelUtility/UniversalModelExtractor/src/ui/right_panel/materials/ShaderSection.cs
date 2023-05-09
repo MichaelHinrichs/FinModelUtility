@@ -15,7 +15,7 @@ namespace uni.ui.right_panel.materials {
         } else {
           var (model, material) = value.Value;
           this.richTextBox_.Text =
-              material.ToShaderSource(model).FragmentShaderSource;
+              material.ToShaderSource(model, false).FragmentShaderSource;
         }
       }
     }

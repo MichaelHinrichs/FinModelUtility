@@ -4,8 +4,9 @@ using fin.model;
 
 namespace fin.gl.material {
   public class GlNullMaterialShaderSource : IGlMaterialShaderSource {
-    public GlNullMaterialShaderSource(IModel model) {
-      this.VertexShaderSource = CommonShaderPrograms.GetVertexSrc(model);
+    public GlNullMaterialShaderSource(IModel model, bool useBoneMatrices) {
+      this.VertexShaderSource =
+          CommonShaderPrograms.GetVertexSrc(model, useBoneMatrices);
     }
 
     public string VertexShaderSource { get; }
@@ -33,7 +34,7 @@ void main() {
     protected override IGlMaterialShaderSource GenerateShaderSource(
         IModel model,
         IReadOnlyMaterial? material)
-      => new GlNullMaterialShaderSource(model);
+      => new GlNullMaterialShaderSource(model, true);
 
     protected override void Setup(IReadOnlyMaterial? material,
                                   GlShaderProgram shaderProgram) { }

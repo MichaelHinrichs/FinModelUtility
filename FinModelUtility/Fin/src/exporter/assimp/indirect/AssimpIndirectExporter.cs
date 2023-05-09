@@ -86,7 +86,7 @@ namespace fin.exporter.assimp.indirect {
         var finMaterial = finMaterials[i];
         var materialName = finMaterial.Name ?? $"material{i}";
         
-        var shaderSource = finMaterial.ToShaderSource(model);
+        var shaderSource = finMaterial.ToShaderSource(model, false);
         var vertexShaderFile = (ISystemFile) new FinFile(
             Path.Combine(outputDirectory.FullName,
                          $"{materialName}_vertex_shader.glsl"));

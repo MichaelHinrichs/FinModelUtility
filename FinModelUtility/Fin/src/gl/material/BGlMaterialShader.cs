@@ -90,7 +90,7 @@ namespace fin.gl.material {
 
     protected virtual IGlMaterialShaderSource GenerateShaderSource(
         IModel model,
-        TMaterial material) => material.ToShaderSource(model);
+        TMaterial material) => material.ToShaderSource(model, true);
 
     protected abstract void Setup(TMaterial material,
                                   GlShaderProgram shaderProgram);

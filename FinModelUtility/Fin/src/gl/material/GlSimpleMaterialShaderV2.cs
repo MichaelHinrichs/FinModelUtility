@@ -7,8 +7,10 @@ using OpenTK.Graphics.OpenGL;
 
 namespace fin.gl.material {
   public class GlSimpleMaterialShaderSource : IGlMaterialShaderSource {
-    public GlSimpleMaterialShaderSource(IModel model) {
-      this.VertexShaderSource = CommonShaderPrograms.GetVertexSrc(model);
+    public GlSimpleMaterialShaderSource(IModel model,
+                                        bool useBoneMatrices) {
+      this.VertexShaderSource =
+          CommonShaderPrograms.GetVertexSrc(model, useBoneMatrices);
 
       this.FragmentShaderSource = @$"# version 330
 

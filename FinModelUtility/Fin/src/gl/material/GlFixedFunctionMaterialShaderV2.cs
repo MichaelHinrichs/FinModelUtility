@@ -11,8 +11,9 @@ namespace fin.gl.material {
   public class GlFixedFunctionMaterialShaderSource : IGlMaterialShaderSource {
     public GlFixedFunctionMaterialShaderSource(
         IModel model,
-        IFixedFunctionMaterial material) {
-      this.VertexShaderSource = CommonShaderPrograms.GetVertexSrc(model);
+        IFixedFunctionMaterial material,
+        bool useBoneMatrices) {
+      this.VertexShaderSource = CommonShaderPrograms.GetVertexSrc(model, useBoneMatrices);
       this.FragmentShaderSource =
           new FixedFunctionEquationsGlslPrinter(material.TextureSources)
               .Print(material);

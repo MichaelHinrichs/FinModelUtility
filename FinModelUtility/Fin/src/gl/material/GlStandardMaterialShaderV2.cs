@@ -8,9 +8,12 @@ using OpenTK.Graphics.OpenGL;
 
 namespace fin.gl.material {
   public class GlStandardMaterialShaderSource : IGlMaterialShaderSource {
-    public GlStandardMaterialShaderSource(IModel model,
-                                          IStandardMaterial material) {
-      this.VertexShaderSource = CommonShaderPrograms.GetVertexSrc(model);
+    public GlStandardMaterialShaderSource(
+        IModel model,
+        IStandardMaterial material,
+        bool useBoneMatrices) {
+      this.VertexShaderSource =
+          CommonShaderPrograms.GetVertexSrc(model, useBoneMatrices);
 
       var hasNormalTexture = material.NormalTexture != null;
 
