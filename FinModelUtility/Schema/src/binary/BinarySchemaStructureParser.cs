@@ -346,8 +346,13 @@ namespace schema.binary {
       IIfBoolean? ifBoolean = null;
       {
         var ifBooleanAttribute =
-            SymbolTypeUtil.GetAttribute<IfBooleanAttribute>(
-                diagnostics, memberSymbol);
+            (IIfBooleanAttribute?) SymbolTypeUtil
+                .GetAttribute<IfBooleanAttribute>(
+                    diagnostics,
+                    memberSymbol) ??
+            SymbolTypeUtil.GetAttribute<RIfBooleanAttribute>(
+                diagnostics,
+                memberSymbol);
         if (ifBooleanAttribute != null) {
           if (memberTypeInfo.IsNullable) {
             SchemaMember? booleanMember = null;

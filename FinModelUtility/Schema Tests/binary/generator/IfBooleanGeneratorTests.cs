@@ -17,7 +17,7 @@ namespace foo.bar {
     [IntegerFormat(SchemaIntegerType.BYTE)]
     private bool Field { get; set; }
 
-    [IfBoolean(nameof(Field))]
+    [RIfBoolean(nameof(Field))]
     public int? OtherValue { get; set; }
   }
 
@@ -80,7 +80,7 @@ namespace foo.bar {
     [IntegerFormat(SchemaIntegerType.BYTE)]
     public bool Field { get; private set; }
 
-    [IfBoolean(nameof(Field))]
+    [RIfBoolean(nameof(Field))]
     public int? OtherValue { get; set; }
   }
 
@@ -128,7 +128,7 @@ namespace foo.bar {
   public partial class ByteWrapper : IBinaryConvertible {
     public ClassWith1Bool Field { get; set; }
 
-    [IfBoolean($""{nameof(Field)}.{nameof(Field.Bool)}"")]
+    [RIfBoolean($""{nameof(Field)}.{nameof(Field.Bool)}"")]
     public int? OtherValue { get; set; }
   }
 }",

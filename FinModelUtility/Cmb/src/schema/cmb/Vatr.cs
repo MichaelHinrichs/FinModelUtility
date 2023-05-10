@@ -20,7 +20,7 @@ namespace cmb.schema.cmb {
     private bool hasTangent_ 
       => CmbHeader.Version > Version.OCARINA_OF_TIME_3D;
 
-    [IfBoolean(nameof(hasTangent_))]
+    [RIfBoolean(nameof(hasTangent_))]
     public AttributeSlice? tangent;
     
     public readonly AttributeSlice color = new();

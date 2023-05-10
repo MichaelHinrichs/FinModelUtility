@@ -45,7 +45,7 @@ using schema.binary;
 namespace foo.bar {
   [BinarySchema]
   public partial class ByteWrapper : IBinaryConvertible {
-    [IfBoolean(nameof(Field))]
+    [RIfBoolean(nameof(Field))]
     public int? OtherValue { get; set; }
 
     [IntegerFormat(SchemaIntegerType.BYTE)]
@@ -69,7 +69,7 @@ namespace foo.bar {
     [IntegerFormat(SchemaIntegerType.BYTE)]
     public bool Field { get; set; }
 
-    [IfBoolean(nameof(Field))]
+    [RIfBoolean(nameof(Field))]
     public int? OtherValue { get; set; }
   }
 
@@ -90,7 +90,7 @@ namespace foo.bar {
     [IntegerFormat(SchemaIntegerType.BYTE)]
     protected bool Field { get; set; }
 
-    [IfBoolean(nameof(Field))]
+    [RIfBoolean(nameof(Field))]
     public int? OtherValue { get; set; }
   }
 
@@ -111,7 +111,7 @@ namespace foo.bar {
     [IntegerFormat(SchemaIntegerType.BYTE)]
     internal bool Field { get; set; }
 
-    [IfBoolean(nameof(Field))]
+    [RIfBoolean(nameof(Field))]
     public int? OtherValue { get; set; }
   }
 
@@ -132,7 +132,7 @@ namespace foo.bar {
     [IntegerFormat(SchemaIntegerType.BYTE)]
     public bool Field;
 
-    [IfBoolean(nameof(Field))]
+    [RIfBoolean(nameof(Field))]
     public int? OtherValue { get; set; }
   }
 
@@ -153,7 +153,7 @@ namespace foo.bar {
     [IntegerFormat(SchemaIntegerType.BYTE)]
     protected bool Field;
 
-    [IfBoolean(nameof(Field))]
+    [RIfBoolean(nameof(Field))]
     public int? OtherValue { get; set; }
   }
 
@@ -174,7 +174,7 @@ namespace foo.bar {
     [IntegerFormat(SchemaIntegerType.BYTE)]
     internal bool Field;
 
-    [IfBoolean(nameof(Field))]
+    [RIfBoolean(nameof(Field))]
     public int? OtherValue { get; set; }
   }
 

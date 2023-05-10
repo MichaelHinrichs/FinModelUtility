@@ -32,7 +32,7 @@ namespace cmb.schema.cmb {
     [Ignore]
     private bool HasUnk => CmbHeader.Version > Version.OCARINA_OF_TIME_3D;
 
-    [IfBoolean(nameof(HasUnk))]
+    [RIfBoolean(nameof(HasUnk))]
     public uint? unk0;
   }
 }

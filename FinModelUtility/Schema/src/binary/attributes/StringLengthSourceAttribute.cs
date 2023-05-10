@@ -5,11 +5,11 @@ using schema.binary.attributes;
 
 namespace schema.binary {
   public interface IStringLengthSourceAttribute {
-    public StringLengthSourceType Method { get; }
+    StringLengthSourceType Method { get; }
 
-    public SchemaIntegerType LengthType { get; }
-    public IMemberReference? OtherMember { get; }
-    public int ConstLength { get; }
+    SchemaIntegerType LengthType { get; }
+    IMemberReference? OtherMember { get; }
+    int ConstLength { get; }
   }
 
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]

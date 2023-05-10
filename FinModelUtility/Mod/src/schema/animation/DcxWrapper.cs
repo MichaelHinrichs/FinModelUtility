@@ -17,13 +17,13 @@ namespace mod.schema.animation {
     [Ignore]
     private bool IsDca => this.AnimationFormat == AnimationFormat.DCA;
 
-    [IfBoolean(nameof(IsDca))]
+    [RIfBoolean(nameof(IsDca))]
     public Dca? Dca { get; set; }
 
     [Ignore]
     private bool IsDck => this.AnimationFormat == AnimationFormat.DCK;
 
-    [IfBoolean(nameof(IsDck))]
+    [RIfBoolean(nameof(IsDck))]
     public Dck? Dck { get; set; }
 
     [Ignore]

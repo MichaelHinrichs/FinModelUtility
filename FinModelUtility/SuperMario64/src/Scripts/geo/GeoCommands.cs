@@ -155,7 +155,7 @@ namespace SuperMario64.scripts {
     public short Near { get; set; }
     public short Far { get; set; }
 
-    [IfBoolean(nameof(EnableFrustumFunc))]
+    [RIfBoolean(nameof(EnableFrustumFunc))]
     public uint? FrustumFuncSegmentedAddress { get; set; }
   }
 
@@ -255,7 +255,7 @@ namespace SuperMario64.scripts {
     public bool HasDisplayList
       => GeoUtils.IsDisplayListAndDrawingLayerEnabled(Params);
 
-    [IfBoolean(nameof(HasDisplayList))]
+    [RIfBoolean(nameof(HasDisplayList))]
     public uint? DisplayListSegmentedAddress { get; set; }
   }
 
@@ -278,7 +278,7 @@ namespace SuperMario64.scripts {
     public bool HasDisplayList
       => GeoUtils.IsDisplayListAndDrawingLayerEnabled(Params);
 
-    [IfBoolean(nameof(HasDisplayList))]
+    [RIfBoolean(nameof(HasDisplayList))]
     public uint? DisplayListSegmentedAddress { get; set; }
   }
 
@@ -313,7 +313,7 @@ namespace SuperMario64.scripts {
     public bool HasDisplayList
       => GeoUtils.IsDisplayListAndDrawingLayerEnabled(Params);
 
-    [IfBoolean(nameof(HasDisplayList))]
+    [RIfBoolean(nameof(HasDisplayList))]
     public uint? DisplayListSegmentedAddress { get; set; }
   }
 
@@ -407,7 +407,7 @@ namespace SuperMario64.scripts {
     public bool HasDisplayList
       => GeoUtils.IsDisplayListAndDrawingLayerEnabled(Params);
 
-    [IfBoolean(nameof(HasDisplayList))]
+    [RIfBoolean(nameof(HasDisplayList))]
     public uint? DisplayListSegmentedAddress { get; set; }
   }
 

@@ -32,12 +32,12 @@ namespace cmb.schema.cmb {
     private bool hasMinAndMax_ => CmbHeader.Version.SupportsMinAndMaxInSepd();
 
     // Min coordinate of the shape
-    [IfBoolean(nameof(hasMinAndMax_))]
+    [RIfBoolean(nameof(hasMinAndMax_))]
     [ArrayLengthSource(3)]
     public float[]? min { get; private set; }
 
     // Max coordinate of the shape
-    [IfBoolean(nameof(hasMinAndMax_))]
+    [RIfBoolean(nameof(hasMinAndMax_))]
     [ArrayLengthSource(3)]
     public float[]? max { get; private set; }
 
@@ -47,7 +47,7 @@ namespace cmb.schema.cmb {
     [Ignore]
     private bool hasTangents_ => CmbHeader.Version.SupportsInSepd();
 
-    [IfBoolean(nameof(hasTangents_))]
+    [RIfBoolean(nameof(hasTangents_))]
     public VertexAttribute? tangents;
 
     public readonly VertexAttribute color = new();

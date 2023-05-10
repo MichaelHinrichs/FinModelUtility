@@ -23,11 +23,11 @@ namespace foo.bar {
     [Ignore]
     private bool Toggle { get; set; }
 
-    [IfBoolean(nameof(Toggle))]
+    [RIfBoolean(nameof(Toggle))]
     [ArrayLengthSource(3)]
     public int[]? IfBooleanArray { get; set; }
 
-    [IfBoolean(nameof(Toggle))]
+    [RIfBoolean(nameof(Toggle))]
     [ArrayLengthSource(3)]
     public List<int>? IfBooleanList { get; set; }
   }

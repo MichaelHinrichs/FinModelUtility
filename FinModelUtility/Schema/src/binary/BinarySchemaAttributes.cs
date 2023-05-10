@@ -18,11 +18,11 @@ namespace schema.binary {
 
 
   public interface IArrayLengthSourceAttribute {
-    public SequenceLengthSourceType Method { get; }
+    SequenceLengthSourceType Method { get; }
 
-    public SchemaIntegerType LengthType { get; }
-    public IMemberReference OtherMember { get; }
-    public uint ConstLength { get; }
+    SchemaIntegerType LengthType { get; }
+    IMemberReference OtherMember { get; }
+    uint ConstLength { get; }
 
   }
 
@@ -104,16 +104,30 @@ namespace schema.binary {
   }
 
 
-  [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-  public class IfBooleanAttribute : BMemberAttribute {
-    private readonly string? otherMemberName_;
+  public interface IIfBooleanAttribute {
+    IfBooleanSourceType Method { get; }
 
+    SchemaIntegerType BooleanType { get; }
+    IMemberReference? OtherMember { get; }
+  }
+
+  [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+  public class IfBooleanAttribute : Attribute, IIfBooleanAttribute {
     public IfBooleanAttribute(SchemaIntegerType lengthType) {
       this.Method = IfBooleanSourceType.IMMEDIATE_VALUE;
       this.BooleanType = lengthType;
     }
 
-    public IfBooleanAttribute(string otherMemberName) {
+    public IfBooleanSourceType Method { get; }
+
+    public SchemaIntegerType BooleanType { get; }
+    public IMemberReference? OtherMember { get; }
+  }
+
+  public class RIfBooleanAttribute : BMemberAttribute, IIfBooleanAttribute {
+    private readonly string? otherMemberName_;
+
+    public RIfBooleanAttribute(string otherMemberName) {
       this.Method = IfBooleanSourceType.OTHER_MEMBER;
       this.otherMemberName_ = otherMemberName;
     }
