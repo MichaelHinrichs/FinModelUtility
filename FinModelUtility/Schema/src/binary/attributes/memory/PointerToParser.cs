@@ -11,7 +11,7 @@ namespace schema.binary.attributes.memory {
                       ISymbol memberSymbol,
                       ITypeInfo memberTypeInfo,
                       IMemberType memberType) {
-      var pointerToAttribute = SymbolTypeUtil.GetAttribute<PointerToAttribute>(
+      var pointerToAttribute = SymbolTypeUtil.GetAttribute<WPointerToAttribute>(
           diagnostics, memberSymbol);
       if (pointerToAttribute == null) {
         return;

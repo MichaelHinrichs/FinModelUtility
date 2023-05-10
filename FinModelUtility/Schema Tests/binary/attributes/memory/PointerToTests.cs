@@ -20,7 +20,7 @@ namespace schema.binary.attributes.memory {
     public partial class Child : IChildOf<ParentImpl>, IBinaryConvertible {
       public ParentImpl Parent { get; set; }
 
-      [PointerTo($"{nameof(Parent)}.{nameof(ParentImpl.Field)}")]
+      [WPointerTo($"{nameof(Parent)}.{nameof(ParentImpl.Field)}")]
       private byte fieldPointer_;
     }
 

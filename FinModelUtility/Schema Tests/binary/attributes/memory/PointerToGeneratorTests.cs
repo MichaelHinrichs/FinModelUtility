@@ -12,7 +12,7 @@ using schema.binary.attributes.memory;
 namespace foo.bar {
   [BinarySchema]
   public partial class SizeWrapper : IBinaryConvertible {
-    [PointerTo(nameof(Foo)]
+    [WPointerTo(nameof(Foo)]
     public uint FooSize { get; set; }
 
     public byte Foo;
@@ -54,7 +54,7 @@ using schema.binary.attributes.memory;
 namespace foo.bar {
   [BinarySchema]
   public partial class SizeWrapper : IBinaryConvertible {
-    [PointerTo($""{nameof(Foo)}.{nameof(Foo.Bar}"")]
+    [WPointerTo($""{nameof(Foo)}.{nameof(Foo.Bar}"")]
     public uint FooBarSize { get; set; }
 
     public Child Foo;
@@ -104,7 +104,7 @@ namespace foo.bar {
   public partial class SizeWrapper : IChildOf<ParentImpl>, IBinaryConvertible {
     public ParentImpl Parent;
 
-    [PointerTo($""{nameof(Parent)}.{nameof(Parent.Foo}"")]
+    [WPointerTo($""{nameof(Parent)}.{nameof(Parent.Foo}"")]
     public uint FooSize { get; set; }
   }
 

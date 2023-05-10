@@ -29,10 +29,10 @@ namespace cmb.schema.ctxb {
     private readonly uint texCount_ = 1;
     private readonly uint padding_ = 0;
 
-    [PointerTo($"{nameof(Parent)}.{nameof(Ctxb.Chunk)}")]
+    [WPointerTo($"{nameof(Parent)}.{nameof(Ctxb.Chunk)}")]
     public int ChunkOffset { get; private set; }
 
-    [PointerTo($"{nameof(Parent)}.{nameof(Ctxb.Chunk)}.{nameof(CtxbTexChunk.Entry)}.{nameof(CtxbTexEntry.Data)}")]
+    [WPointerTo($"{nameof(Parent)}.{nameof(Ctxb.Chunk)}.{nameof(CtxbTexChunk.Entry)}.{nameof(CtxbTexEntry.Data)}")]
     public int DataOffset { get; private set; }
   }
 
