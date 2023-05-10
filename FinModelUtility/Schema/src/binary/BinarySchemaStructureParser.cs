@@ -530,8 +530,13 @@ namespace schema.binary {
       {
         // TODO: Implement this, support strings in arrays?
         var stringLengthSourceAttribute =
-            SymbolTypeUtil.GetAttribute<StringLengthSourceAttribute>(
-                diagnostics, memberSymbol);
+            (IStringLengthSourceAttribute?) SymbolTypeUtil
+                .GetAttribute<StringLengthSourceAttribute>(
+                    diagnostics,
+                    memberSymbol) ?? SymbolTypeUtil
+                .GetAttribute<RStringLengthSourceAttribute>(
+                    diagnostics,
+                    memberSymbol);
         var nullTerminatedStringAttribute =
             SymbolTypeUtil.GetAttribute<NullTerminatedStringAttribute>(
                 diagnostics, memberSymbol);

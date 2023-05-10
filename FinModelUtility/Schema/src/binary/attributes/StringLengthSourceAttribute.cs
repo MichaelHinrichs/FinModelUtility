@@ -4,10 +4,17 @@ using schema.binary.attributes;
 
 
 namespace schema.binary {
-  [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-  public class StringLengthSourceAttribute : BMemberAttribute<string> {
-    private string? otherMemberName_;
+  public interface IStringLengthSourceAttribute {
+    public StringLengthSourceType Method { get; }
 
+    public SchemaIntegerType LengthType { get; }
+    public IMemberReference? OtherMember { get; }
+    public int ConstLength { get; }
+  }
+
+  [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+  public class StringLengthSourceAttribute : Attribute,
+                                             IStringLengthSourceAttribute {
     /// <summary>
     ///   Parses a length with the given format immediately before the string.
     /// </summary>
@@ -16,18 +23,30 @@ namespace schema.binary {
       this.LengthType = lengthType;
     }
 
+    public StringLengthSourceAttribute(int constLength) {
+      this.Method = StringLengthSourceType.CONST;
+      this.ConstLength = constLength;
+    }
+
+    public StringLengthSourceType Method { get; }
+
+    public SchemaIntegerType LengthType { get; }
+    public IMemberReference? OtherMember { get; }
+    public int ConstLength { get; }
+  }
+
+  [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+  public class RStringLengthSourceAttribute : BMemberAttribute<string>,
+                                              IStringLengthSourceAttribute {
+    private string? otherMemberName_;
+
     /// <summary>
     ///   Uses another field for the length. This separate field will only be used when
     ///   reading/writing.
     /// </summary>
-    public StringLengthSourceAttribute(string otherMemberName) {
+    public RStringLengthSourceAttribute(string otherMemberName) {
       this.Method = StringLengthSourceType.OTHER_MEMBER;
       this.otherMemberName_ = otherMemberName;
-    }
-
-    public StringLengthSourceAttribute(int constLength) {
-      this.Method = StringLengthSourceType.CONST;
-      this.ConstLength = constLength;
     }
 
     protected override void InitFields() {
