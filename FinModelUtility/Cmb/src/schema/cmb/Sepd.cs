@@ -1,4 +1,5 @@
 ﻿using schema.binary;
+using schema.binary.attributes;
 using schema.binary.attributes.align;
 using schema.binary.attributes.ignore;
 

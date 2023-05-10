@@ -4,11 +4,11 @@ using Microsoft.CodeAnalysis;
 
 using System.IO;
 
+using schema.binary.attributes;
 using schema.binary.attributes.align;
 using schema.binary.attributes.child_of;
 using schema.binary.attributes.endianness;
 using schema.binary.attributes.ignore;
-using schema.binary.attributes.length;
 using schema.binary.attributes.memory;
 using schema.binary.attributes.offset;
 using schema.binary.attributes.position;
@@ -307,7 +307,7 @@ namespace schema.binary {
 
       new WSizeOfMemberInBytesParser().Parse(diagnostics, memberSymbol,
                                             memberTypeInfo, memberType);
-      new PointerToParser().Parse(diagnostics, memberSymbol, memberTypeInfo,
+      new WPointerToParser().Parse(diagnostics, memberSymbol, memberTypeInfo,
                                   memberType);
       {
         var sizeOfStreamAttribute =

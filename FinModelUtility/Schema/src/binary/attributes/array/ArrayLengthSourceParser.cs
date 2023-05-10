@@ -7,7 +7,7 @@ using schema.binary.attributes.array;
 using schema.binary.parser;
 
 
-namespace schema.binary.attributes.length {
+namespace schema.binary.attributes {
   internal class ArrayLengthSourceParser {
     public void Parse(IList<Diagnostic> diagnostics,
                       ISymbol memberSymbol,

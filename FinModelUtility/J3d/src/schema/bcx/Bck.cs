@@ -13,6 +13,8 @@ using schema.binary.attributes.endianness;
 using schema.binary.attributes.size;
 using System.Linq;
 
+using schema.binary.attributes;
+
 
 namespace j3d.schema.bcx {
   /// <summary>

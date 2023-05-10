@@ -3,6 +3,7 @@
 using fin.util.enumerables;
 
 using schema.binary;
+using schema.binary.attributes;
 using schema.binary.attributes.child_of;
 using schema.binary.attributes.ignore;
 using schema.binary.attributes.offset;

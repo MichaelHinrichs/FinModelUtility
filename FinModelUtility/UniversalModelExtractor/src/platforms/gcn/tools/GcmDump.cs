@@ -5,6 +5,7 @@ using fin.io;
 using fin.util.asserts;
 
 using schema.binary;
+using schema.binary.attributes;
 
 namespace uni.platforms.gcn.tools {
   /// <summary>

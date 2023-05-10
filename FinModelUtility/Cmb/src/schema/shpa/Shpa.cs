@@ -4,6 +4,7 @@ using fin.model;
 using fin.util.asserts;
 
 using schema.binary;
+using schema.binary.attributes;
 
 namespace cmb.schema.shpa {
   public class Shpa : IBinaryDeserializable {

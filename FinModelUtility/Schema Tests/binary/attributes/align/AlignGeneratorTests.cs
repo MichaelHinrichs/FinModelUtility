@@ -44,6 +44,7 @@ namespace foo.bar {
     public void TestAlignWithImmediate() {
       BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
+using schema.binary.attributes;
 using schema.binary.attributes.align;
 
 namespace foo.bar {

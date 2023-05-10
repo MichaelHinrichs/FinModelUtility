@@ -103,6 +103,7 @@ namespace foo.bar {
     public void TestArrayOtherMemberLength() {
       this.AssertGenerated_(@"
 using schema.binary;
+using schema.binary.attributes;
 
 namespace foo.bar {
   [BinarySchema]
@@ -283,6 +284,7 @@ namespace foo.bar {
     public void TestEverything() {
       this.AssertGenerated_(@"
 using schema.binary;
+using schema.binary.attributes;
 
 namespace foo {
   namespace bar {

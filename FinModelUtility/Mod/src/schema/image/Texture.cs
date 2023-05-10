@@ -4,6 +4,7 @@ using fin.image;
 
 using mod.image;
 using schema.binary;
+using schema.binary.attributes;
 using schema.binary.attributes.ignore;
 
 

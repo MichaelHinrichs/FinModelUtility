@@ -6,7 +6,7 @@ using schema.binary.parser;
 
 
 namespace schema.binary.attributes.memory {
-  internal class PointerToParser {
+  internal class WPointerToParser {
     public void Parse(IList<Diagnostic> diagnostics,
                       ISymbol memberSymbol,
                       ITypeInfo memberTypeInfo,

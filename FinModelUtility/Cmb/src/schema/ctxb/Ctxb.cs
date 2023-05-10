@@ -8,6 +8,8 @@ using schema.binary.attributes.memory;
 using schema.binary.attributes.size;
 using System.IO;
 
+using schema.binary.attributes;
+
 
 namespace cmb.schema.ctxb {
   [BinarySchema]

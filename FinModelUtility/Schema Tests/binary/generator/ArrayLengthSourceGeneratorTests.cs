@@ -9,6 +9,7 @@ namespace schema.binary.text {
 using System.Collections.Generic;
 
 using schema.binary;
+using schema.binary.attributes;
 using schema.binary.attributes.ignore;
 
 namespace foo.bar {

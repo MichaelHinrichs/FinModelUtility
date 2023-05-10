@@ -130,6 +130,7 @@ namespace foo.bar {
     public void TestParentOfArray() {
       BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
+using schema.binary.attributes;
 using schema.binary.attributes.child_of;
 
 namespace foo.bar {
