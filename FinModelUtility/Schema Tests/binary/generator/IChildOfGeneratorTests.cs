@@ -130,15 +130,15 @@ namespace foo.bar {
     public void TestParentOfArray() {
       BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
-using schema.binary.attributes;
 using schema.binary.attributes.child_of;
+using schema.binary.attributes.sequence;
 
 namespace foo.bar {
   [BinarySchema]
   public partial class Parent {
     private uint Length { get; set; }
 
-    [RArrayLengthSource(nameof(Length))]
+    [RSequenceLengthSource(nameof(Length))]
     public ChildOfWrapper[] Child { get; set; }
   }
 

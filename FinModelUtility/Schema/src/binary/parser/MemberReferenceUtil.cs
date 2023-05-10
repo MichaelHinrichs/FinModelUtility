@@ -1,7 +1,7 @@
-﻿using static schema.binary.BinarySchemaStructureParser;
-using System;
+﻿using System;
 
 using schema.binary.attributes;
+using schema.binary.attributes.sequence;
 using schema.binary.util;
 
 namespace schema.binary.parser {
@@ -50,11 +50,11 @@ namespace schema.binary.parser {
               LengthSourceType =
                     sequenceTypeInfo.IsLengthConst
                         ? SequenceLengthSourceType.READONLY
-                        : ((IArrayLengthSourceAttribute?) SymbolTypeUtil
-                            .GetAttribute<ArrayLengthSourceAttribute>(
+                        : ((ISequenceLengthSourceAttribute?) SymbolTypeUtil
+                            .GetAttribute<SequenceLengthSourceAttribute>(
                                 null,
                                 sequenceTypeInfo.TypeSymbol) ?? SymbolTypeUtil
-                            .GetAttribute<RArrayLengthSourceAttribute>(
+                            .GetAttribute<RSequenceLengthSourceAttribute>(
                                 null,
                                 sequenceTypeInfo.TypeSymbol)) == null
                             ? SequenceLengthSourceType.UNSPECIFIED

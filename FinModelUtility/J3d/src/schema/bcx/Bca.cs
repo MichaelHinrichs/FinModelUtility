@@ -8,12 +8,11 @@ using j3d.G3D_Binary_File_Format;
 using schema.binary;
 using System;
 using System.IO;
-using System.Text;
 using schema.binary.attributes.endianness;
 using schema.binary.attributes.size;
 using System.Linq;
 
-using schema.binary.attributes;
+using schema.binary.attributes.sequence;
 
 
 namespace j3d.schema.bcx {
@@ -44,7 +43,7 @@ namespace j3d.schema.bcx {
 
       private readonly uint sectionCount_ = 1;
 
-      [ArrayLengthSource(16)]
+      [SequenceLengthSource(16)]
       private byte[] padding_;
     }
 

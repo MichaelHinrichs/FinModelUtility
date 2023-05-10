@@ -25,8 +25,8 @@ using fin.schema.data;
 using visceral.schema.str.content;
 
 using schema.binary;
-using schema.binary.attributes.array;
 using schema.binary.attributes.endianness;
+using schema.binary.attributes.sequence;
 
 namespace visceral.schema.str {
   [Endianness(Endianness.LittleEndian)]
@@ -50,7 +50,7 @@ namespace visceral.schema.str {
     public ushort Unknown00 { get; set; }
     public ushort Unknown02 { get; set; }
 
-    [RArrayUntilEndOfStream]
+    [RSequenceUntilEndOfStream]
     public List<BlockWrapper> Contents { get; } = new();
 
     [BinarySchema]

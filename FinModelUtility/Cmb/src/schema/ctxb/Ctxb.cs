@@ -8,7 +8,7 @@ using schema.binary.attributes.memory;
 using schema.binary.attributes.size;
 using System.IO;
 
-using schema.binary.attributes;
+using schema.binary.attributes.sequence;
 
 
 namespace cmb.schema.ctxb {
@@ -73,10 +73,10 @@ namespace cmb.schema.ctxb {
       => CmbHeader.Version >= Version.LUIGIS_MANSION_3D;
 
     [RIfBoolean(nameof(includeExtraPadding_))]
-    [ArrayLengthSource(56)]
+    [SequenceLengthSource(56)]
     private byte[]? extraPadding_;
 
-    [RArrayLengthSource(nameof(DataLength))]
+    [RSequenceLengthSource(nameof(DataLength))]
     public byte[] Data { get; private set; }
   }
 }

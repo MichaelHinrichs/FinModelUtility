@@ -1,7 +1,7 @@
 ﻿using schema.binary;
-using schema.binary.attributes;
 using schema.binary.attributes.align;
 using schema.binary.attributes.ignore;
+using schema.binary.attributes.sequence;
 
 
 namespace cmb.schema.cmb {
@@ -34,12 +34,12 @@ namespace cmb.schema.cmb {
 
     // Min coordinate of the shape
     [RIfBoolean(nameof(hasMinAndMax_))]
-    [ArrayLengthSource(3)]
+    [SequenceLengthSource(3)]
     public float[]? min { get; private set; }
 
     // Max coordinate of the shape
     [RIfBoolean(nameof(hasMinAndMax_))]
-    [ArrayLengthSource(3)]
+    [SequenceLengthSource(3)]
     public float[]? max { get; private set; }
 
     public readonly VertexAttribute position = new();
@@ -76,11 +76,11 @@ namespace cmb.schema.cmb {
     */
     public ushort constantFlags;
 
-    [RArrayLengthSource(nameof(primSetCount))]
+    [RSequenceLengthSource(nameof(primSetCount))]
     private short[] primitiveSetOffsets_;
 
     [Align(4)]
-    [RArrayLengthSource(nameof(primSetCount))]
+    [RSequenceLengthSource(nameof(primSetCount))]
     public PrimitiveSet[] primitiveSets;
   }
 }

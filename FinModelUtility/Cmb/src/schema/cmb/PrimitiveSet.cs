@@ -1,6 +1,6 @@
 ﻿using schema.binary;
-using schema.binary.attributes;
 using schema.binary.attributes.align;
+using schema.binary.attributes.sequence;
 
 
 namespace cmb.schema.cmb {
@@ -18,7 +18,7 @@ namespace cmb.schema.cmb {
     public uint boneTableOffset;
     public uint primitiveOffset;
 
-    [RArrayLengthSource(nameof(boneTableCount))]
+    [RSequenceLengthSource(nameof(boneTableCount))]
     public short[] boneTable;
 
     [Align(4)] public readonly Primitive primitive = new();

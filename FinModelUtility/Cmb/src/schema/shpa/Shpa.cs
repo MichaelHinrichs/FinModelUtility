@@ -4,7 +4,7 @@ using fin.model;
 using fin.util.asserts;
 
 using schema.binary;
-using schema.binary.attributes;
+using schema.binary.attributes.sequence;
 
 namespace cmb.schema.shpa {
   public class Shpa : IBinaryDeserializable {
@@ -78,7 +78,7 @@ namespace cmb.schema.shpa {
     /// <summary>
     ///   The corresponding indices in the original model to update?
     /// </summary>
-    [ArrayLengthSource(SchemaIntegerType.INT32)]
+    [SequenceLengthSource(SchemaIntegerType.INT32)]
     public ushort[] Indices { get; private set; }
   }
 }

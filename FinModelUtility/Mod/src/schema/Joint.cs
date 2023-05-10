@@ -1,7 +1,7 @@
 ﻿using fin.schema.vector;
 
 using schema.binary;
-using schema.binary.attributes;
+using schema.binary.attributes.sequence;
 
 namespace mod.schema {
   [BinarySchema]
@@ -21,7 +21,7 @@ namespace mod.schema {
     public readonly Vector3f rotation = new();
     public readonly Vector3f position = new();
 
-    [ArrayLengthSource(SchemaIntegerType.UINT32)]
+    [SequenceLengthSource(SchemaIntegerType.UINT32)]
     public JointMatPoly[] matpolys;
   }
 }

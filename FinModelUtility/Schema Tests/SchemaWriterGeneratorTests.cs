@@ -103,14 +103,14 @@ namespace foo.bar {
     public void TestArrayOtherMemberLength() {
       this.AssertGenerated_(@"
 using schema.binary;
-using schema.binary.attributes;
+using schema.binary.attributes.sequence;
 
 namespace foo.bar {
   [BinarySchema]
   public partial class ArrayWrapper {
     private int length;
 
-    [RArrayLengthSource(nameof(ArrayWrapper.length))]
+    [RSequenceLengthSource(nameof(ArrayWrapper.length))]
     public int[] field;
   }
 }",
@@ -284,7 +284,7 @@ namespace foo.bar {
     public void TestEverything() {
       this.AssertGenerated_(@"
 using schema.binary;
-using schema.binary.attributes;
+using schema.binary.attributes.sequence;
 
 namespace foo {
   namespace bar {
@@ -305,11 +305,11 @@ namespace foo {
       public readonly ShortEnum constIntField;
 
       public readonly int[] constLengthIntValues;
-      [ArrayLengthSource(SchemaIntegerType.UINT32)]
+      [SequenceLengthSource(SchemaIntegerType.UINT32)]
       public int[] intValues;
 
       public Other other;
-      [ArrayLengthSource(SchemaIntegerType.INT32)]
+      [SequenceLengthSource(SchemaIntegerType.INT32)]
       public Other[] others;
 
       [NumberFormat(SchemaNumberType.UN16)]

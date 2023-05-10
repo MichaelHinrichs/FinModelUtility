@@ -1,6 +1,6 @@
 ﻿using schema.binary;
-using schema.binary.attributes;
 using schema.binary.attributes.ignore;
+using schema.binary.attributes.sequence;
 using schema.binary.attributes.size;
 
 
@@ -24,16 +24,16 @@ namespace mod.schema.animation {
     public uint JointCount { get; private set; }
     public uint FrameCount { get; set; }
 
-    [ArrayLengthSource(SchemaIntegerType.INT32)]
+    [SequenceLengthSource(SchemaIntegerType.INT32)]
     public float[] ScaleValues { get; set; }
 
-    [ArrayLengthSource(SchemaIntegerType.INT32)]
+    [SequenceLengthSource(SchemaIntegerType.INT32)]
     public float[] RotationValues { get; set; }
 
-    [ArrayLengthSource(SchemaIntegerType.INT32)]
+    [SequenceLengthSource(SchemaIntegerType.INT32)]
     public float[] PositionValues { get; set; }
 
-    [RArrayLengthSource(nameof(JointCount))]
+    [RSequenceLengthSource(nameof(JointCount))]
     public DcaJointData[] JointDataList { get; set; }
 
     [Ignore]

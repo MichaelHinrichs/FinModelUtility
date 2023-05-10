@@ -2,34 +2,34 @@
 
 
 namespace schema.binary.text {
-  internal class ArrayLengthSourceGeneratorTests {
+  internal class SequencceLengthSourceGeneratorTests {
     [Test]
     public void TestConstLength() {
       BinarySchemaTestUtil.AssertGenerated(@"
 using System.Collections.Generic;
 
 using schema.binary;
-using schema.binary.attributes;
 using schema.binary.attributes.ignore;
+using schema.binary.attributes.sequence;
 
 namespace foo.bar {
   [BinarySchema]
   public partial class ConstLengthWrapper : IBinaryConvertible {
-    [ArrayLengthSource(3)]
+    [SequenceLengthSource(3)]
     public int[] Field { get; set; }
 
-    [ArrayLengthSource(3)]
+    [SequenceLengthSource(3)]
     public int[]? NullableField { get; set; }
 
     [Ignore]
     private bool Toggle { get; set; }
 
     [RIfBoolean(nameof(Toggle))]
-    [ArrayLengthSource(3)]
+    [SequenceLengthSource(3)]
     public int[]? IfBooleanArray { get; set; }
 
     [RIfBoolean(nameof(Toggle))]
-    [ArrayLengthSource(3)]
+    [SequenceLengthSource(3)]
     public List<int>? IfBooleanList { get; set; }
   }
 }",

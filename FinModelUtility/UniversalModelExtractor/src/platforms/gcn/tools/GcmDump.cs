@@ -5,7 +5,7 @@ using fin.io;
 using fin.util.asserts;
 
 using schema.binary;
-using schema.binary.attributes;
+using schema.binary.attributes.sequence;
 
 namespace uni.platforms.gcn.tools {
   /// <summary>
@@ -130,7 +130,7 @@ namespace uni.platforms.gcn.tools {
       public byte AudioStreaming { get; set; }
       public byte StreamBufferSize { get; set; }
 
-      [ArrayLengthSource(0x12)]
+      [SequenceLengthSource(0x12)]
       public byte[] Unused { get; set; }
 
       [StringLengthSource(4)]
@@ -142,7 +142,7 @@ namespace uni.platforms.gcn.tools {
       public uint DebugMonitorOffset { get; set; }
       public uint DebugLoadAddress { get; set; }
 
-      [ArrayLengthSource(0x18)]
+      [SequenceLengthSource(0x18)]
       public byte[] Unused2 { get; set; }
 
       public uint DolOffset { get; set; }

@@ -2,7 +2,7 @@
 using System.IO;
 
 using schema.binary;
-using schema.binary.attributes;
+using schema.binary.attributes.sequence;
 
 namespace mod.schema {
   public enum ChunkId {
@@ -76,7 +76,7 @@ namespace mod.schema {
   public partial class ChunkData : IBinaryConvertible {
     [IntegerFormat(SchemaIntegerType.UINT32)]
     public ChunkId Id { get; private set; }
-    [ArrayLengthSource(SchemaIntegerType.INT32)]
+    [SequenceLengthSource(SchemaIntegerType.INT32)]
     public byte[] Data { get; private set; }
   }
 

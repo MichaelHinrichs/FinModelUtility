@@ -1,8 +1,8 @@
 ﻿using fin.util.strings;
 
 using schema.binary;
-using schema.binary.attributes;
 using schema.binary.attributes.align;
+using schema.binary.attributes.sequence;
 
 
 namespace cmb.schema.cmb {
@@ -18,11 +18,11 @@ namespace cmb.schema.cmb {
     // Set to 0x58 on "link_v2.cmb"
     public uint flags;
 
-    [RArrayLengthSource(nameof(shapeCount_))]
+    [RSequenceLengthSource(nameof(shapeCount_))]
     private ushort[] shapeOffsets_;
     
     [Align(4)]
-    [RArrayLengthSource(nameof(shapeCount_))]
+    [RSequenceLengthSource(nameof(shapeCount_))]
     public Sepd[] shapes;
   }
 }

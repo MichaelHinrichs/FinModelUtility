@@ -1,5 +1,5 @@
 ﻿using schema.binary;
-using schema.binary.attributes;
+using schema.binary.attributes.sequence;
 
 
 namespace j3d.schema.bmd.mat3 {
@@ -9,15 +9,15 @@ namespace j3d.schema.bmd.mat3 {
     public byte Unknown1 { get; set; }
     private readonly ushort padding_ = ushort.MaxValue;
 
-    [ArrayLengthSource(4)]
+    [SequenceLengthSource(4)]
     public IndTexOrder[] IndTexOrder { get; set; }
-    [ArrayLengthSource(3)]
+    [SequenceLengthSource(3)]
     public IndTexMatrix[] IndTexMatrix { get; set; }
 
-    [ArrayLengthSource(4)]
+    [SequenceLengthSource(4)]
     public IndTexCoordScale[] IndTexCoordScale { get; set; }
 
-    [ArrayLengthSource(16)]
+    [SequenceLengthSource(16)]
     public TevIndirect[] TevIndirect { get; set; }
   }
 

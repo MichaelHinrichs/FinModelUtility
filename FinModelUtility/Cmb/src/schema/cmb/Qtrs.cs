@@ -1,10 +1,10 @@
 ﻿using schema.binary;
-using schema.binary.attributes;
+using schema.binary.attributes.sequence;
 
 namespace cmb.schema.cmb {
   [BinarySchema]
   public partial class Qtrs : IBinaryConvertible {
-    [ArrayLengthSource(SchemaIntegerType.UINT32)]
+    [SequenceLengthSource(SchemaIntegerType.UINT32)]
     public BoundingBox[] boundingBoxes { get; private set; }
   }
 }

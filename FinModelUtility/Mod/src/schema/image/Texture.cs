@@ -4,8 +4,8 @@ using fin.image;
 
 using mod.image;
 using schema.binary;
-using schema.binary.attributes;
 using schema.binary.attributes.ignore;
+using schema.binary.attributes.sequence;
 
 
 namespace mod.schema {
@@ -34,7 +34,7 @@ namespace mod.schema {
 
     public readonly uint[] unknowns = new uint[5];
 
-    [ArrayLengthSource(SchemaIntegerType.UINT32)]
+    [SequenceLengthSource(SchemaIntegerType.UINT32)]
     public byte[] imageData { get; set; }
 
     public IImage ToImage() {

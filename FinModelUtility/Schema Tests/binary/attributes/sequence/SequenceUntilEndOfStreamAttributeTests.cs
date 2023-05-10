@@ -1,17 +1,17 @@
 ﻿using NUnit.Framework;
 
 
-namespace schema.binary.attributes.array {
-  internal class ArrayUntilEndOfStreamAttribute {
+namespace schema.binary.attributes.sequence {
+  internal class SequenceUntilEndOfStreamAttribute {
     [Test] public void TestArrayUntilEndOfStream() {
       BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
-using schema.binary.attributes.array;
+using schema.binary.attributes.sequence;
 
 namespace foo.bar {
   [BinarySchema]
   public partial class Wrapper : IBinaryConvertible {
-    [RArrayUntilEndOfStream]
+    [RSequenceUntilEndOfStream]
     public byte[] Field { get; set; }
   }
 }",
@@ -44,12 +44,12 @@ namespace foo.bar {
 using System.Collections.Generic;
 
 using schema.binary;
-using schema.binary.attributes.array;
+using schema.binary.attributes.sequence;
 
 namespace foo.bar {
   [BinarySchema]
   public partial class Wrapper : IBinaryConvertible {
-    [RArrayUntilEndOfStream]
+    [RSequenceUntilEndOfStream]
     public List<byte> Field { get; } = new();
   }
 }",

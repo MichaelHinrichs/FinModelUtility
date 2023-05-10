@@ -1,5 +1,5 @@
 ﻿using schema.binary;
-using schema.binary.attributes;
+using schema.binary.attributes.sequence;
 
 namespace cmb.schema.cmb {
   /// <summary>
@@ -10,10 +10,10 @@ namespace cmb.schema.cmb {
     private uint LutSetCount;
     public uint unk;
 
-    [RArrayLengthSource(nameof(Luts.LutSetCount))]
+    [RSequenceLengthSource(nameof(Luts.LutSetCount))]
     public uint[] Offset;
 
-    [RArrayLengthSource(nameof(Luts.LutSetCount))]
+    [RSequenceLengthSource(nameof(Luts.LutSetCount))]
     public LutSet[] luts;
   }
 
@@ -23,7 +23,7 @@ namespace cmb.schema.cmb {
     private ushort KeyCount; //Keyframes
     public short Start;
     public short End;
-    [RArrayLengthSource(nameof(LutSet.KeyCount))]
+    [RSequenceLengthSource(nameof(LutSet.KeyCount))]
     public LutKeyframe[] Frame;
     public float unk1;
     public float unk2;

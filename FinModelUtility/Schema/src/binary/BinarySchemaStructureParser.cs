@@ -4,7 +4,6 @@ using Microsoft.CodeAnalysis;
 
 using System.IO;
 
-using schema.binary.attributes;
 using schema.binary.attributes.align;
 using schema.binary.attributes.child_of;
 using schema.binary.attributes.endianness;
@@ -12,6 +11,7 @@ using schema.binary.attributes.ignore;
 using schema.binary.attributes.memory;
 using schema.binary.attributes.offset;
 using schema.binary.attributes.position;
+using schema.binary.attributes.sequence;
 using schema.binary.attributes.size;
 using schema.binary.parser;
 using schema.binary.parser.asserts;
@@ -600,7 +600,7 @@ namespace schema.binary {
         }
       }
 
-      new ArrayLengthSourceParser().Parse(
+      new SequenceLengthSourceParser().Parse(
           diagnostics,
           memberSymbol,
           memberType);

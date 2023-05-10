@@ -1,5 +1,5 @@
 ﻿using schema.binary;
-using schema.binary.attributes;
+using schema.binary.attributes.sequence;
 
 namespace cmb.schema.cmb {
   [BinarySchema]
@@ -13,7 +13,7 @@ namespace cmb.schema.cmb {
     public ushort idCount;
     
     // Note: Mesh order = draw order
-    [RArrayLengthSource(nameof(Mshs.meshCount))]
+    [RSequenceLengthSource(nameof(Mshs.meshCount))]
     public Mesh[] meshes;
   }
 }

@@ -5,7 +5,7 @@ using fin.schema.color;
 using fin.schema.vector;
 using gx;
 using schema.binary;
-using schema.binary.attributes;
+using schema.binary.attributes.sequence;
 
 namespace mod.schema {
   ////////////////////////////////////////////////////////////////////
@@ -75,9 +75,9 @@ namespace mod.schema {
     public int unknown2 = 0;
     public float unknown3 = 0;
 
-    [ArrayLengthSource(SchemaIntegerType.UINT32)]
+    [SequenceLengthSource(SchemaIntegerType.UINT32)]
     public PCI_Unk1[] unknown4;
-    [ArrayLengthSource(SchemaIntegerType.UINT32)]
+    [SequenceLengthSource(SchemaIntegerType.UINT32)]
     public PCI_Unk2[] unknown5;
   }
 
@@ -139,11 +139,11 @@ namespace mod.schema {
     public float unknown16 = 0;
     public float unknown17 = 0;
 
-    [ArrayLengthSource(SchemaIntegerType.UINT32)]
+    [SequenceLengthSource(SchemaIntegerType.UINT32)]
     public TXD_Unk1[] unknown18;
-    [ArrayLengthSource(SchemaIntegerType.UINT32)]
+    [SequenceLengthSource(SchemaIntegerType.UINT32)]
     public TXD_Unk1[] unknown19;
-    [ArrayLengthSource(SchemaIntegerType.UINT32)]
+    [SequenceLengthSource(SchemaIntegerType.UINT32)]
     public TXD_Unk1[] unknown20;
   };
 
@@ -153,9 +153,9 @@ namespace mod.schema {
     public readonly Vector3f unknown2 = new();
 
     // TODO: These appear to be referenced before they're read? Try removing the {}
-    [ArrayLengthSource(SchemaIntegerType.UINT32)]
+    [SequenceLengthSource(SchemaIntegerType.UINT32)]
     public TexGenData[] unknown3 = { };
-    [ArrayLengthSource(SchemaIntegerType.UINT32)]
+    [SequenceLengthSource(SchemaIntegerType.UINT32)]
     public TextureData[] TexturesInMaterial = { };
   }
 
@@ -218,9 +218,9 @@ namespace mod.schema {
     public readonly Rgba64 unknown1 = new();
     public int unknown2 = 0;
     public float unknown3 = 0;
-    [ArrayLengthSource(SchemaIntegerType.UINT32)]
+    [SequenceLengthSource(SchemaIntegerType.UINT32)]
     public TCR_Unk1[] unknown4;
-    [ArrayLengthSource(SchemaIntegerType.UINT32)]
+    [SequenceLengthSource(SchemaIntegerType.UINT32)]
     public TCR_Unk2[] unknown5;
   }
 
@@ -285,15 +285,15 @@ namespace mod.schema {
   public partial class TEVInfo : IBinaryConvertible {
     // These are probably default values for the 3 color registers.
     // TODO: This is a guess
-    [ArrayLengthSource(3)]
+    [SequenceLengthSource(3)]
     public TEVColReg[] ColorRegisters { get; set; }
 
     // These are probably konst colors.
     // TODO: This is a guess
-    [ArrayLengthSource(4)]
+    [SequenceLengthSource(4)]
     public Rgba32[] KonstColors { get; set; }
 
-    [ArrayLengthSource(SchemaIntegerType.UINT32)]
+    [SequenceLengthSource(SchemaIntegerType.UINT32)]
     public TEVStage[] TevStages;
   }
 

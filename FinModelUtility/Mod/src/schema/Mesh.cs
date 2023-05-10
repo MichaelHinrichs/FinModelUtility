@@ -1,9 +1,9 @@
 ﻿using fin.math;
 
 using schema.binary;
-using schema.binary.attributes;
 using schema.binary.attributes.align;
 using schema.binary.attributes.ignore;
+using schema.binary.attributes.sequence;
 
 
 namespace mod.schema {
@@ -41,16 +41,16 @@ namespace mod.schema {
     public uint cmdCount = 0;
 
     [Align(0x20)]
-    [ArrayLengthSource(SchemaIntegerType.INT32)]
+    [SequenceLengthSource(SchemaIntegerType.INT32)]
     public byte[] dlistData { get; set; }
   }
 
   [BinarySchema]
   public partial class MeshPacket : IBinaryConvertible {
-    [ArrayLengthSource(SchemaIntegerType.UINT32)]
+    [SequenceLengthSource(SchemaIntegerType.UINT32)]
     public short[] indices;
 
-    [ArrayLengthSource(SchemaIntegerType.UINT32)]
+    [SequenceLengthSource(SchemaIntegerType.UINT32)]
     public DisplayList[] displaylists;
   }
 
@@ -59,7 +59,7 @@ namespace mod.schema {
     public uint boneIndex = 0;
     public uint vtxDescriptor = 0;
 
-    [ArrayLengthSource(SchemaIntegerType.UINT32)]
+    [SequenceLengthSource(SchemaIntegerType.UINT32)]
     public MeshPacket[] packets;
   }
 }

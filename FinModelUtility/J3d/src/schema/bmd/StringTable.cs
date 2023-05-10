@@ -3,11 +3,11 @@
 using fin.util.enumerables;
 
 using schema.binary;
-using schema.binary.attributes;
 using schema.binary.attributes.child_of;
 using schema.binary.attributes.ignore;
 using schema.binary.attributes.offset;
 using schema.binary.attributes.position;
+using schema.binary.attributes.sequence;
 
 
 namespace j3d.schema.bmd {
@@ -19,7 +19,7 @@ namespace j3d.schema.bmd {
     private ushort NrStrings;
     private readonly ushort padding_ = ushort.MaxValue;
 
-    [RArrayLengthSource(nameof(NrStrings))]
+    [RSequenceLengthSource(nameof(NrStrings))]
     public StringTableEntry[] Entries;
 
     public string this[int index] => this.Entries[index].Entry;

@@ -3,25 +3,24 @@
 using System;
 using System.Collections.Generic;
 
-using schema.binary.attributes.array;
 using schema.binary.parser;
 
 
-namespace schema.binary.attributes {
-  internal class ArrayLengthSourceParser {
+namespace schema.binary.attributes.sequence {
+  internal class SequenceLengthSourceParser {
     public void Parse(IList<Diagnostic> diagnostics,
                       ISymbol memberSymbol,
                       IMemberType memberType) {
       var lengthSourceAttribute =
-          (IArrayLengthSourceAttribute?) SymbolTypeUtil
-              .GetAttribute<ArrayLengthSourceAttribute>(
+          (ISequenceLengthSourceAttribute?) SymbolTypeUtil
+              .GetAttribute<SequenceLengthSourceAttribute>(
                   diagnostics,
                   memberSymbol) ?? SymbolTypeUtil
-              .GetAttribute<RArrayLengthSourceAttribute>(
+              .GetAttribute<RSequenceLengthSourceAttribute>(
                   diagnostics,
                   memberSymbol);
       var untilEndOfStreamAttribute =
-          SymbolTypeUtil.GetAttribute<RArrayUntilEndOfStreamAttribute>(
+          SymbolTypeUtil.GetAttribute<RSequenceUntilEndOfStreamAttribute>(
               diagnostics,
               memberSymbol);
 

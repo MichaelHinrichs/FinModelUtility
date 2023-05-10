@@ -1,5 +1,5 @@
 ﻿using schema.binary;
-using schema.binary.attributes;
+using schema.binary.attributes.sequence;
 
 namespace mod.schema {
   [BinarySchema]
@@ -10,7 +10,7 @@ namespace mod.schema {
 
   [BinarySchema]
   public partial class Envelope : IBinaryConvertible {
-    [ArrayLengthSource(SchemaIntegerType.UINT16)]
+    [SequenceLengthSource(SchemaIntegerType.UINT16)]
     public IndexAndWeight[] indicesAndWeights;
   }
 }

@@ -44,14 +44,14 @@ namespace foo.bar {
     public void TestAlignWithImmediate() {
       BinarySchemaTestUtil.AssertGenerated(@"
 using schema.binary;
-using schema.binary.attributes;
 using schema.binary.attributes.align;
+using schema.binary.attributes.sequence;
 
 namespace foo.bar {
   [BinarySchema]
   public partial class AlignWrapper : IBinaryConvertible {
     [Align(0x2)]
-    [ArrayLengthSource(SchemaIntegerType.UINT32)]
+    [SequenceLengthSource(SchemaIntegerType.UINT32)]
     public int[] Field { get; set; }
   }
 }",

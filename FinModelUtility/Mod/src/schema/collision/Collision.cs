@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using fin.schema.vector;
 
 using schema.binary;
-using schema.binary.attributes;
 using schema.binary.attributes.align;
 using schema.binary.attributes.ignore;
+using schema.binary.attributes.sequence;
 
 
 namespace mod.schema.collision {
@@ -90,10 +90,10 @@ namespace mod.schema.collision {
     private ushort NumUnknown1 { get; set; }
     private ushort NumUnknown2 { get; set; }
 
-    [RArrayLengthSource(nameof(NumUnknown2))]
+    [RSequenceLengthSource(nameof(NumUnknown2))]
     public uint[] unknown2 = Array.Empty<uint>();
 
-    [RArrayLengthSource(nameof(NumUnknown1))]
+    [RSequenceLengthSource(nameof(NumUnknown1))]
     public byte[] unknown1 = Array.Empty<byte>();
   }
 
@@ -107,13 +107,13 @@ namespace mod.schema.collision {
     public uint gridX = 0;
     public uint gridY = 0;
 
-    [ArrayLengthSource(SchemaIntegerType.UINT32)]
+    [SequenceLengthSource(SchemaIntegerType.UINT32)]
     public readonly List<CollGroup> groups = new();
 
     [Ignore]
     private uint gridSize_ => this.gridX * this.gridY;
 
-    [RArrayLengthSource(nameof(gridSize_))]
+    [RSequenceLengthSource(nameof(gridSize_))]
     public readonly List<int> unknown2 = new();
 
     [Align(0x20)]

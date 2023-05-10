@@ -1,5 +1,5 @@
 ﻿using schema.binary;
-using schema.binary.attributes;
+using schema.binary.attributes.sequence;
 
 namespace cmb.schema.cmb {
   [BinarySchema]
@@ -10,7 +10,7 @@ namespace cmb.schema.cmb {
     // flag (I can't find a change in-game)
     public uint unkFlags;
 
-    [RArrayLengthSource(nameof(boneCount_))]
+    [RSequenceLengthSource(nameof(boneCount_))]
     public Bone[] bones;
   }
 }

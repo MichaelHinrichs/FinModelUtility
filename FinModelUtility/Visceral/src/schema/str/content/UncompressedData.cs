@@ -1,10 +1,10 @@
 ﻿using schema.binary;
-using schema.binary.attributes.array;
+using schema.binary.attributes.sequence;
 
 namespace visceral.schema.str.content {
   [BinarySchema]
   public partial class UncompressedData : IContent {
-    [RArrayUntilEndOfStream]
+    [RSequenceUntilEndOfStream]
     public byte[] Bytes { get; set; }
   }
 }

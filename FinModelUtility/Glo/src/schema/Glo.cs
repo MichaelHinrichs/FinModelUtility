@@ -2,8 +2,8 @@
 using fin.schema.vector;
 
 using schema.binary;
-using schema.binary.attributes;
 using schema.binary.attributes.endianness;
+using schema.binary.attributes.sequence;
 
 
 namespace glo.schema {
@@ -14,17 +14,17 @@ namespace glo.schema {
 
     public ushort Version { get; set; }
 
-    [ArrayLengthSource(SchemaIntegerType.UINT16)]
+    [SequenceLengthSource(SchemaIntegerType.UINT16)]
     public GloObject[] Objects { get; set; }
   }
 
 
   [BinarySchema]
   public sealed partial class GloObject : IBinaryConvertible {
-    [ArrayLengthSource(SchemaIntegerType.UINT16)]
+    [SequenceLengthSource(SchemaIntegerType.UINT16)]
     public GloAnimSeg[] AnimSegs { get; set; }
 
-    [ArrayLengthSource(SchemaIntegerType.UINT16)]
+    [SequenceLengthSource(SchemaIntegerType.UINT16)]
     public GloMesh[] Meshes { get; set; }
   }
 
@@ -52,22 +52,22 @@ namespace glo.schema {
     [StringLengthSource(24)]
     public string Name { get; set; }
 
-    [ArrayLengthSource(SchemaIntegerType.UINT16)]
+    [SequenceLengthSource(SchemaIntegerType.UINT16)]
     public GloXyzKey[] MoveKeys { get; set; }
 
-    [ArrayLengthSource(SchemaIntegerType.UINT16)]
+    [SequenceLengthSource(SchemaIntegerType.UINT16)]
     public GloScaleKey[] ScaleKeys { get; set; }
 
-    [ArrayLengthSource(SchemaIntegerType.UINT16)]
+    [SequenceLengthSource(SchemaIntegerType.UINT16)]
     public GloQuaternionKey[] RotateKeys { get; set; }
 
-    [ArrayLengthSource(SchemaIntegerType.UINT16)]
+    [SequenceLengthSource(SchemaIntegerType.UINT16)]
     public Vector3f[] Vertices { get; set; }
 
-    [ArrayLengthSource(SchemaIntegerType.UINT16)]
+    [SequenceLengthSource(SchemaIntegerType.UINT16)]
     public GloFace[] Faces { get; set; }
 
-    [ArrayLengthSource(SchemaIntegerType.UINT16)]
+    [SequenceLengthSource(SchemaIntegerType.UINT16)]
     public GloSprite[] Sprites { get; set; }
 
     [NumberFormat(SchemaNumberType.UN8)]

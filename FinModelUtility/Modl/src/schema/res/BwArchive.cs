@@ -3,7 +3,7 @@
 using modl.schema.res.texr;
 
 using schema.binary;
-using schema.binary.attributes;
+using schema.binary.attributes.sequence;
 
 
 namespace modl.schema.res {
@@ -30,7 +30,7 @@ namespace modl.schema.res {
   public partial class Sond : IBinaryConvertible {
     private readonly string magic_ = "DNOS"; // SOND backwards
 
-    [ArrayLengthSource(SchemaIntegerType.UINT32)]
+    [SequenceLengthSource(SchemaIntegerType.UINT32)]
     public byte[] Data { get; private set; }
   }
 
