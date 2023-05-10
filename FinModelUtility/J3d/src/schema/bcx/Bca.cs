@@ -37,7 +37,7 @@ namespace j3d.schema.bcx {
     public partial class BcaHeader : IBinaryConvertible {
       private readonly string magic_ = "J3D1bca1";
 
-      [SizeOfStreamInBytes]
+      [WSizeOfStreamInBytes]
       private uint fileSize_;
 
       private readonly uint sectionCount_ = 1;

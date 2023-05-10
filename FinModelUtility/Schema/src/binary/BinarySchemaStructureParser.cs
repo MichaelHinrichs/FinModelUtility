@@ -236,7 +236,7 @@ namespace schema.binary {
       structureByNamedTypeSymbol[structureSymbol] = schemaStructure;
       {
         var sizeOfMemberInBytesDependencyFixer =
-            new SizeOfMemberInBytesDependencyFixer();
+            new WSizeOfMemberInBytesDependencyFixer();
         foreach (var member in fields) {
           if (member.MemberType is IPrimitiveMemberType primitiveMemberType) {
             if (primitiveMemberType.AccessChainToSizeOf != null) {
@@ -305,13 +305,13 @@ namespace schema.binary {
       var align = new AlignAttributeParser().GetAlignForMember(
           diagnostics, memberSymbol);
 
-      new SizeOfMemberInBytesParser().Parse(diagnostics, memberSymbol,
+      new WSizeOfMemberInBytesParser().Parse(diagnostics, memberSymbol,
                                             memberTypeInfo, memberType);
       new PointerToParser().Parse(diagnostics, memberSymbol, memberTypeInfo,
                                   memberType);
       {
         var sizeOfStreamAttribute =
-            SymbolTypeUtil.GetAttribute<SizeOfStreamInBytesAttribute>(
+            SymbolTypeUtil.GetAttribute<WSizeOfStreamInBytesAttribute>(
                 diagnostics, memberSymbol);
         if (sizeOfStreamAttribute != null) {
           if (memberTypeInfo is IIntegerTypeInfo &&

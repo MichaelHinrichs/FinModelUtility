@@ -23,7 +23,7 @@ namespace cmb.schema.ctxb {
 
     private readonly string magic_ = "ctxb";
 
-    [SizeOfStreamInBytes]
+    [WSizeOfStreamInBytes]
     public int CtxbSize { get; private set; }
 
     private readonly uint texCount_ = 1;

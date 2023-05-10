@@ -1,7 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
 
-using static schema.binary.BinarySchemaStructureParser;
-
 using System;
 using System.Collections.Generic;
 
@@ -19,7 +17,7 @@ namespace schema.binary.attributes.length {
               diagnostics,
               memberSymbol);
       var untilEndOfStreamAttribute =
-          SymbolTypeUtil.GetAttribute<ArrayUntilEndOfStreamAttribute>(
+          SymbolTypeUtil.GetAttribute<RArrayUntilEndOfStreamAttribute>(
               diagnostics,
               memberSymbol);
 

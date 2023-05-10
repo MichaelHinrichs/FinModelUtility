@@ -6,7 +6,7 @@ using schema.binary.attributes.size;
 namespace mod.schema.animation {
   [BinarySchema]
   public partial class Dca : IDcx {
-    [SizeOfMemberInBytes(nameof(AnimationData))]
+    [WSizeOfMemberInBytes(nameof(AnimationData))]
     private uint animationLength_;
 
     [StringLengthSource(SchemaIntegerType.INT32)]

@@ -11,7 +11,7 @@ namespace fin.schema.data {
     [Ignore]
     private readonly int tweakSize_;
 
-    [SizeOfMemberInBytes(nameof(Data))]
+    [WSizeOfMemberInBytes(nameof(Data))]
     private uint size_;
 
     public T Data { get; }

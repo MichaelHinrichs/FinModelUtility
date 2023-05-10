@@ -20,7 +20,7 @@ namespace schema.binary.attributes.size {
     public partial class Child : IChildOf<ParentImpl>, IBinaryConvertible {
       public ParentImpl Parent { get; set; }
 
-      [SizeOfMemberInBytes($"{nameof(Parent)}.{nameof(ParentImpl.Field)}")]
+      [WSizeOfMemberInBytes($"{nameof(Parent)}.{nameof(ParentImpl.Field)}")]
       private byte fieldSize_;
     }
 

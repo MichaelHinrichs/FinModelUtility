@@ -50,7 +50,7 @@ namespace visceral.schema.str {
     public ushort Unknown00 { get; set; }
     public ushort Unknown02 { get; set; }
 
-    [ArrayUntilEndOfStream]
+    [RArrayUntilEndOfStream]
     public List<BlockWrapper> Contents { get; } = new();
 
     [BinarySchema]

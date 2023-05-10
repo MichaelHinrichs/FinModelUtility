@@ -7,7 +7,7 @@ namespace j3d.schema.bmd {
   public partial class BmdHeader : IBinaryConvertible {
     private readonly string magic_ = "J3D2bmd3";
 
-    [SizeOfStreamInBytes]
+    [WSizeOfStreamInBytes]
     public uint FileSize;
 
     public uint NrSections;

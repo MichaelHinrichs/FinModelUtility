@@ -88,7 +88,7 @@ namespace schema.binary {
       }
 
       var sizeOfMemberInBytesDependencyFixer =
-          new SizeOfMemberInBytesDependencyFixer();
+          new WSizeOfMemberInBytesDependencyFixer();
       foreach (var structure in structures) {
         foreach (var member in structure.Members) {
           if (member.MemberType is IPrimitiveMemberType primitiveMemberType) {

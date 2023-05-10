@@ -39,7 +39,7 @@ namespace j3d.schema.bcx {
     public partial class BckHeader : IBinaryConvertible {
       private readonly string magic_ = "J3D1bck1";
 
-      [SizeOfStreamInBytes]
+      [WSizeOfStreamInBytes]
       private uint fileSize_;
 
       private readonly uint sectionCount_ = 1;

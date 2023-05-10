@@ -6,13 +6,13 @@ using schema.binary.parser;
 
 
 namespace schema.binary.attributes.size {
-  internal class SizeOfMemberInBytesParser {
+  internal class WSizeOfMemberInBytesParser {
     public void Parse(IList<Diagnostic> diagnostics,
                       ISymbol memberSymbol,
                       ITypeInfo memberTypeInfo,
                       IMemberType memberType) {
       var sizeOfAttribute =
-          SymbolTypeUtil.GetAttribute<SizeOfMemberInBytesAttribute>(
+          SymbolTypeUtil.GetAttribute<WSizeOfMemberInBytesAttribute>(
               diagnostics, memberSymbol);
       if (sizeOfAttribute == null) {
         return;

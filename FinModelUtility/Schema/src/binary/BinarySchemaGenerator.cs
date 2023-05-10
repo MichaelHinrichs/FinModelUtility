@@ -116,7 +116,7 @@ namespace schema.binary {
       // Hooks up size of dependencies.
       {
         var sizeOfMemberInBytesDependencyFixer =
-            new SizeOfMemberInBytesDependencyFixer();
+            new WSizeOfMemberInBytesDependencyFixer();
         foreach (var structure in this.queue_) {
           foreach (var member in structure.Members) {
             if (member.MemberType is IPrimitiveMemberType primitiveMemberType) {

@@ -25,10 +25,10 @@ namespace schema.binary.attributes {
   ///   </para>
   /// </summary>
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-  public class LengthOfStringAttribute : BMemberAttribute {
+  public class WLengthOfStringAttribute : BMemberAttribute {
     private string otherMemberName_;
 
-    public LengthOfStringAttribute(string otherMemberName) {
+    public WLengthOfStringAttribute(string otherMemberName) {
       this.otherMemberName_ = otherMemberName;
     }
 
@@ -63,10 +63,10 @@ namespace schema.binary.attributes {
   ///   </para>
   /// </summary>
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-  public class LengthOfSequenceAttribute : BMemberAttribute {
+  public class WLengthOfSequenceAttribute : BMemberAttribute {
     private string otherMemberName_;
 
-    public LengthOfSequenceAttribute(string otherMemberName) {
+    public WLengthOfSequenceAttribute(string otherMemberName) {
       this.otherMemberName_ = otherMemberName;
     }
 

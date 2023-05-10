@@ -4,7 +4,7 @@ using System.Linq;
 
 
 namespace schema.binary.attributes.size {
-  public class SizeOfMemberInBytesDependencyFixer {
+  public class WSizeOfMemberInBytesDependencyFixer {
     public void AddDependenciesForStructure(
         IDictionary<INamedTypeSymbol, IBinarySchemaStructure>
             structureByNamedTypeSymbol,

@@ -11,7 +11,7 @@ using schema.binary.attributes.array;
 namespace foo.bar {
   [BinarySchema]
   public partial class Wrapper : IBinaryConvertible {
-    [ArrayUntilEndOfStream]
+    [RArrayUntilEndOfStream]
     public byte[] Field { get; set; }
   }
 }",
@@ -49,7 +49,7 @@ using schema.binary.attributes.array;
 namespace foo.bar {
   [BinarySchema]
   public partial class Wrapper : IBinaryConvertible {
-    [ArrayUntilEndOfStream]
+    [RArrayUntilEndOfStream]
     public List<byte> Field { get; } = new();
   }
 }",

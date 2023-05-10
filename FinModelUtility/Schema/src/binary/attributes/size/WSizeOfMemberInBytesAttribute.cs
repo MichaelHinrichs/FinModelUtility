@@ -16,10 +16,10 @@ namespace schema.binary.attributes.size {
   ///   </para>
   /// </summary>
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-  public class SizeOfMemberInBytesAttribute : BMemberAttribute {
+  public class WSizeOfMemberInBytesAttribute : BMemberAttribute {
     private string otherMemberName_;
 
-    public SizeOfMemberInBytesAttribute(string otherMemberName) {
+    public WSizeOfMemberInBytesAttribute(string otherMemberName) {
       this.otherMemberName_ = otherMemberName;
     }
 

@@ -16,7 +16,7 @@ namespace j3d.schema.btk {
   public partial class Btk : IBinaryConvertible {
     private readonly string magic1_ = "J3D1btk1";
 
-    [SizeOfStreamInBytes]
+    [WSizeOfStreamInBytes]
     private uint fileSize_;
 
     private readonly uint padding1_ = 1;
