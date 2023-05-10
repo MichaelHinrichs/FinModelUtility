@@ -586,11 +586,11 @@ namespace HaloWarsTools {
 
               finVertex.SetBoneWeights(
                   finSkin.GetOrCreateBoneWeights(
-                      PreprojectMode.ROOT, finBoneWeights));
+                      VertexSpace.WORLD_RELATIVE_TO_ROOT, finBoneWeights));
             } else {
               finVertex.SetBoneWeights(
                   finSkin.GetOrCreateBoneWeights(
-                      PreprojectMode.ROOT, localFinBones[0].Item1));
+                      VertexSpace.WORLD_RELATIVE_TO_ROOT, localFinBones[0].Item1));
             }
 
             finVertices.Add(finVertex);

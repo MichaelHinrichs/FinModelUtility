@@ -96,11 +96,11 @@ namespace fin.model.impl {
         => this.boneWeightsDictionary_.List;
 
       public IBoneWeights GetOrCreateBoneWeights(
-          PreprojectMode preprojectMode,
+          VertexSpace vertexSpace,
           IBone bone) {
         if (!this.boneWeightsByBone_.TryGetValue(bone, out var boneWeights)) {
           boneWeights = this.CreateBoneWeights(
-              preprojectMode,
+              vertexSpace,
               new BoneWeight(bone, FinMatrix4x4.IDENTITY, 1));
           this.boneWeightsByBone_[bone] = boneWeights;
         }
@@ -108,13 +108,13 @@ namespace fin.model.impl {
         return boneWeights;
       }
 
-      public IBoneWeights GetOrCreateBoneWeights(PreprojectMode preprojectMode,
+      public IBoneWeights GetOrCreateBoneWeights(VertexSpace vertexSpace,
                                                  params IBoneWeight[] weights)
-        => boneWeightsDictionary_.GetOrCreate(preprojectMode, weights);
+        => boneWeightsDictionary_.GetOrCreate(vertexSpace, weights);
 
-      public IBoneWeights CreateBoneWeights(PreprojectMode preprojectMode,
+      public IBoneWeights CreateBoneWeights(VertexSpace vertexSpace,
                                             params IBoneWeight[] weights)
-        => this.boneWeightsDictionary_.Create(preprojectMode, weights);
+        => this.boneWeightsDictionary_.Create(vertexSpace, weights);
 
 
       private class MeshImpl : IMesh {

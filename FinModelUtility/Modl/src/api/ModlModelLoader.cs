@@ -250,13 +250,13 @@ namespace modl.api {
                   vertex.SetBoneWeights(
                       model.Skin
                            .GetOrCreateBoneWeights(
-                               PreprojectMode.NONE,
+                               VertexSpace.WORLD,
                                new BoneWeight(finBone, null, 1)));
                 } else {
                   var finBone = finBonesByModlNode[modlNode];
                   vertex.SetBoneWeights(
                       model.Skin.GetOrCreateBoneWeights(
-                          PreprojectMode.BONE,
+                          VertexSpace.BONE,
                           finBone));
                 }
 

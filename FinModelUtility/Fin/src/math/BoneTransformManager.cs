@@ -317,7 +317,7 @@ namespace fin.math {
       var boneWeights = vertex.BoneWeights;
       var weights = vertex.BoneWeights?.Weights;
       var preproject =
-          (boneWeights?.PreprojectMode != PreprojectMode.NONE ||
+          (boneWeights?.VertexSpace != VertexSpace.WORLD ||
            forcePreproject) &&
           weights?.Count > 0;
 
@@ -325,17 +325,14 @@ namespace fin.math {
         return null;
       }
 
-      return boneWeights.PreprojectMode switch {
-          // If preproject mode is none, then the vertices are already in the same position as the bones.
-          // To calculate the animation, we have to first "undo" the root pose via an inverted matrix. 
-          PreprojectMode.NONE => this.boneWeightsToWorldMatrices_[
-              vertex.BoneWeights!],
+      return boneWeights.VertexSpace switch {
+          // If vertex space mode is world, we have to first "undo" the root pose via an inverted matrix. 
+          VertexSpace.WORLD => this.boneWeightsToWorldMatrices_[vertex.BoneWeights!],
           // If preproject mode is bone, then we need to transform the vertex by one or more bones.
-          PreprojectMode.BONE => this.boneWeightsToWorldMatrices_[
-              vertex.BoneWeights!],
+          VertexSpace.BONE => this.boneWeightsToWorldMatrices_[vertex.BoneWeights!],
           // If preproject mode is root, then the vertex needs to be transformed relative to
           // some root bone.
-          PreprojectMode.ROOT => this.GetWorldMatrix(weights[0].Bone.Root),
+          VertexSpace.WORLD_RELATIVE_TO_ROOT => this.GetWorldMatrix(weights[0].Bone.Root),
           _                   => throw new ArgumentOutOfRangeException()
       };
     }

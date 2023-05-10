@@ -23,15 +23,15 @@ namespace fin.model {
     IReadOnlyList<IBoneWeights> BoneWeights { get; }
 
     IBoneWeights GetOrCreateBoneWeights(
-        PreprojectMode preprojectMode,
+        VertexSpace vertexSpace,
         IBone bone);
 
     IBoneWeights GetOrCreateBoneWeights(
-        PreprojectMode preprojectMode,
+        VertexSpace vertexSpace,
         params IBoneWeight[] weights);
 
     IBoneWeights CreateBoneWeights(
-        PreprojectMode preprojectMode,
+        VertexSpace vertexSpace,
         params IBoneWeight[] weights);
   }
 
@@ -57,10 +57,10 @@ namespace fin.model {
 
 
   public interface IBoneWeights : IIndexable, IEquatable<IBoneWeights> {
-    PreprojectMode PreprojectMode { get; }
+    VertexSpace VertexSpace { get; }
     IReadOnlyList<IBoneWeight> Weights { get; }
 
-    bool Equals(PreprojectMode preprojectMode, IReadOnlyList<IBoneWeight> weights);
+    bool Equals(VertexSpace vertexSpace, IReadOnlyList<IBoneWeight> weights);
   }
 
   public interface IBoneWeight {
@@ -93,9 +93,9 @@ namespace fin.model {
     float V { get; }
   }
 
-  public enum PreprojectMode {
-    NONE,
-    ROOT,
+  public enum VertexSpace {
+    WORLD,
+    WORLD_RELATIVE_TO_ROOT,
     BONE,
   }
 

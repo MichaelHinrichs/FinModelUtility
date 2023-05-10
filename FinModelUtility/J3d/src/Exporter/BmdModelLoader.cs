@@ -338,7 +338,7 @@ namespace j3d.exporter {
                 }
                 weightsTable[i] =
                     finSkin.GetOrCreateBoneWeights(
-                        PreprojectMode.BONE, weights);
+                        VertexSpace.BONE, weights);
               }
 
               foreach (var primitive in packet.Primitives) {

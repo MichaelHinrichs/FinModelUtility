@@ -8,17 +8,17 @@ namespace fin.model.impl {
       => this.boneWeightsByHashcode_[boneWeights.GetHashCode()] = boneWeights;
 
     public bool TryGetExisting(
-      PreprojectMode preprojectMode,
+      VertexSpace vertexSpace,
       IReadOnlyList<IBoneWeight> weights,
       out IBoneWeights boneWeights) {
-      var hashcode = GetHashCode(preprojectMode, weights);
+      var hashcode = GetHashCode(vertexSpace, weights);
       return this.boneWeightsByHashcode_.TryGetValue(hashcode, out boneWeights);
     }
 
-    public static int GetHashCode(PreprojectMode preprojectMode, IReadOnlyList<IBoneWeight> weights) {
+    public static int GetHashCode(VertexSpace vertexSpace, IReadOnlyList<IBoneWeight> weights) {
       int hash = 216613626;
       var sub = 16780669;
-      hash = hash * sub ^ preprojectMode.GetHashCode();
+      hash = hash * sub ^ vertexSpace.GetHashCode();
       foreach (var weight in weights) {
         hash = hash * sub ^ weight.GetHashCode();
       }

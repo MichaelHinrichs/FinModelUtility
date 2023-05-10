@@ -425,8 +425,8 @@ namespace cmb.api {
           }
 
           var preprojectMode = preproject[i].Value
-              ? PreprojectMode.BONE
-              : PreprojectMode.NONE;
+              ? VertexSpace.BONE
+              : VertexSpace.WORLD;
 
           if (hasBw) {
             r.Position = cmb.startOffset +

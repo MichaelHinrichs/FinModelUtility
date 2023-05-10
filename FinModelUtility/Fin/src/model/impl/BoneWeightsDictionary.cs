@@ -12,7 +12,7 @@ namespace fin.model.impl {
     public IReadOnlyList<IBoneWeights> List => boneWeights_;
 
     public IBoneWeights GetOrCreate(
-      PreprojectMode preprojectMode,
+      VertexSpace vertexSpace,
       params IBoneWeight[] weights
     ) {
       var error = .0001;
@@ -31,16 +31,16 @@ namespace fin.model.impl {
           new BoneWeightsSet();
       }
 
-      if (!allBoneWeightsWithCount.TryGetExisting(preprojectMode, weights,
+      if (!allBoneWeightsWithCount.TryGetExisting(vertexSpace, weights,
             out var boneWeights)) {
-        allBoneWeightsWithCount.Add(boneWeights = CreateInstance_(preprojectMode, weights));
+        allBoneWeightsWithCount.Add(boneWeights = CreateInstance_(vertexSpace, weights));
       }
 
       return boneWeights;
     }
 
     public IBoneWeights Create(
-      PreprojectMode preprojectMode,
+      VertexSpace vertexSpace,
       params IBoneWeight[] weights
     ) {
       var error = .0001;
@@ -59,14 +59,14 @@ namespace fin.model.impl {
           new BoneWeightsSet();
       }
 
-      var boneWeights = CreateInstance_(preprojectMode, weights);
+      var boneWeights = CreateInstance_(vertexSpace, weights);
       allBoneWeightsWithCount.Add(boneWeights);
 
       return boneWeights;
     }
 
     private IBoneWeights CreateInstance_(
-      PreprojectMode preprojectMode,
+      VertexSpace vertexSpace,
       params IBoneWeight[] weights) {
       var error = .0001;
       if (weights.Length > 1) {
@@ -79,7 +79,7 @@ namespace fin.model.impl {
 
       var boneWeights = new BoneWeightsImpl {
         Index = boneWeights_.Count,
-        PreprojectMode = preprojectMode,
+        VertexSpace = vertexSpace,
         Weights = weights,
       };
 
@@ -88,10 +88,10 @@ namespace fin.model.impl {
       return boneWeights;
     }
 
-    public static int GetHashCode(PreprojectMode preprojectMode, IReadOnlyList<IBoneWeight> weights) {
+    public static int GetHashCode(VertexSpace vertexSpace, IReadOnlyList<IBoneWeight> weights) {
       int hash = 216613626;
       var sub = 16780669;
-      hash = hash * sub ^ preprojectMode.GetHashCode();
+      hash = hash * sub ^ vertexSpace.GetHashCode();
       foreach (var weight in weights) {
         hash = hash * sub ^ weight.GetHashCode();
       }
@@ -100,11 +100,11 @@ namespace fin.model.impl {
 
     private class BoneWeightsImpl : IBoneWeights {
       public int Index { get; init; }
-      public PreprojectMode PreprojectMode { get; init; }
+      public VertexSpace VertexSpace { get; init; }
       public IReadOnlyList<IBoneWeight> Weights { get; init; }
 
       public override int GetHashCode()
-        => BoneWeightsSet.GetHashCode(PreprojectMode, Weights);
+        => BoneWeightsSet.GetHashCode(this.VertexSpace, Weights);
 
       public override bool Equals(object? obj) {
         if (obj is not BoneWeightsImpl other) {
@@ -115,10 +115,10 @@ namespace fin.model.impl {
       }
 
       public bool Equals(IBoneWeights? weights)
-        => weights != null && this.Equals(weights.PreprojectMode, weights.Weights);
+        => weights != null && this.Equals(weights.VertexSpace, weights.Weights);
 
-      public bool Equals(PreprojectMode preprojectMode, IReadOnlyList<IBoneWeight> weights) {
-        if (preprojectMode != PreprojectMode) {
+      public bool Equals(VertexSpace vertexSpace, IReadOnlyList<IBoneWeight> weights) {
+        if (vertexSpace != this.VertexSpace) {
           return false;
         }
 
