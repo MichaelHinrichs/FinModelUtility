@@ -8,6 +8,8 @@ using System;
 using System.Drawing;
 using System.Numerics;
 
+using fin.util.hash;
+
 
 namespace fin.model {
   public interface ISkin {
@@ -65,22 +67,23 @@ namespace fin.model {
 
   public interface IBoneWeight {
     IBone Bone { get; }
-    IReadOnlyFinMatrix4x4? SkinToBone { get; }
+    IReadOnlyFinMatrix4x4? InverseBindMatrix { get; }
     float Weight { get; }
   }
 
   public record BoneWeight(
     IBone Bone,
     // TODO: This should be moved to the bone interface instead.
-    IReadOnlyFinMatrix4x4? SkinToBone,
+    IReadOnlyFinMatrix4x4? InverseBindMatrix,
     float Weight) : IBoneWeight {
+
     public override int GetHashCode() {
       int hash = 216613626;
       var sub = 16780669;
 
       hash = hash * sub ^ Bone.Index.GetHashCode();
-      if (SkinToBone != null) {
-        hash = hash * sub ^ SkinToBone.GetHashCode();
+      if (InverseBindMatrix != null) {
+        hash = hash * sub ^ InverseBindMatrix.GetHashCode();
       }
       hash = hash * sub ^ Weight.GetHashCode();
       

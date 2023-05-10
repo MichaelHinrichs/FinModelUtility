@@ -122,7 +122,7 @@ namespace fin.math {
       var boneQueue = new Queue<(IBone, IReadOnlyFinMatrix4x4)>();
       boneQueue.Enqueue((rootBone, this.ManagerMatrix));
       while (boneQueue.Count > 0) {
-        var (bone, parentMatrix) = boneQueue.Dequeue();
+        var (bone, parentBoneToWorldMatrix) = boneQueue.Dequeue();
 
         if (!this.bonesToLocalMatrices_.TryGetValue(
                 bone,
@@ -130,12 +130,12 @@ namespace fin.math {
           this.bonesToLocalMatrices_[bone] = localMatrix = new FinMatrix4x4();
         }
 
-        if (!this.bonesToWorldMatrices_.TryGetValue(bone, out var matrix)) {
-          this.bonesToWorldMatrices_[bone] = matrix = new FinMatrix4x4();
+        if (!this.bonesToWorldMatrices_.TryGetValue(bone, out var boneToWorldMatrix)) {
+          this.bonesToWorldMatrices_[bone] = boneToWorldMatrix = new FinMatrix4x4();
         }
 
         localMatrix.SetIdentity();
-        matrix.CopyFrom(parentMatrix);
+        boneToWorldMatrix.CopyFrom(parentBoneToWorldMatrix);
 
         // The root pose of the bone.
         var boneLocalPosition = bone.LocalPosition;
@@ -199,15 +199,15 @@ namespace fin.math {
                                       localRotation,
                                       localScale,
                                       localMatrix);
-          matrix.MultiplyInPlace(localMatrix);
+          boneToWorldMatrix.MultiplyInPlace(localMatrix);
         } else {
           // Applies translation first, so it's affected by parent rotation/scale.
           var localTranslationMatrix =
               MatrixTransformUtil.FromTranslation(localPosition);
-          matrix.MultiplyInPlace(localTranslationMatrix);
+          boneToWorldMatrix.MultiplyInPlace(localTranslationMatrix);
 
           // Extracts translation/rotation/scale.
-          matrix.CopyTranslationInto(out var translationBuffer);
+          boneToWorldMatrix.CopyTranslationInto(out var translationBuffer);
           Quaternion rotationBuffer;
           if (bone.FaceTowardsCamera) {
             var camera = Camera.Instance;
@@ -218,14 +218,14 @@ namespace fin.math {
 
             rotationBuffer = rotateYaw * bone.FaceTowardsCameraAdjustment;
           } else {
-            matrix.CopyRotationInto(out rotationBuffer);
+            boneToWorldMatrix.CopyRotationInto(out rotationBuffer);
           }
 
           Scale scaleBuffer;
           if (bone.IgnoreParentScale) {
             scaleBuffer = new Scale(1);
           } else {
-            matrix.CopyScaleInto(out scaleBuffer);
+            boneToWorldMatrix.CopyScaleInto(out scaleBuffer);
           }
 
           // Creates child matrix.
@@ -239,21 +239,21 @@ namespace fin.math {
               translationBuffer,
               rotationBuffer,
               scaleBuffer,
-              matrix);
-          matrix.MultiplyInPlace(MatrixTransformUtil.FromTrs(null,
+              boneToWorldMatrix);
+          boneToWorldMatrix.MultiplyInPlace(MatrixTransformUtil.FromTrs(null,
                                    localRotation,
                                    localScale));
         }
 
         if (isFirstPass) {
-          this.bonesToInverseBindMatrices_[bone] = matrix.CloneAndInvert();
+          this.bonesToInverseBindMatrices_[bone] = boneToWorldMatrix.CloneAndInvert();
         }
 
         bonesToIndex[bone] = boneIndex++;
 
         foreach (var child in bone.Children) {
           // TODO: Use a pool of matrices to prevent unneeded instantiations.
-          boneQueue.Enqueue((child, matrix.Clone()));
+          boneQueue.Enqueue((child, boneToWorldMatrix.Clone()));
         }
       }
 
@@ -272,7 +272,7 @@ namespace fin.math {
           var weight = weights[0];
           var bone = weight.Bone;
 
-          var skinToBoneMatrix = weight.SkinToBone ??
+          var skinToBoneMatrix = weight.InverseBindMatrix ??
                                  this.bonesToInverseBindMatrices_[bone];
           var boneMatrix = this.GetWorldMatrix(bone);
 
@@ -281,7 +281,7 @@ namespace fin.math {
           foreach (var weight in weights) {
             var bone = weight.Bone;
 
-            var skinToBoneMatrix = weight.SkinToBone ??
+            var skinToBoneMatrix = weight.InverseBindMatrix ??
                                    this.bonesToInverseBindMatrices_[bone];
             var boneMatrix = this.GetWorldMatrix(bone);
 

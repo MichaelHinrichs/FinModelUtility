@@ -139,9 +139,9 @@ namespace fin.model.impl {
             return false;
           }
 
-          if (!(weight.SkinToBone == null &&
-                existingWeight.SkinToBone == null) ||
-              !(weight.SkinToBone?.Equals(existingWeight.SkinToBone) ??
+          if (!(weight.InverseBindMatrix == null &&
+                existingWeight.InverseBindMatrix == null) ||
+              !(weight.InverseBindMatrix?.Equals(existingWeight.InverseBindMatrix) ??
                 false)) {
             return false;
           }
