@@ -12,7 +12,7 @@ namespace cmb.schema.cmb {
     public ushort idCount;
     
     // Note: Mesh order = draw order
-    [ArrayLengthSource(nameof(Mshs.meshCount))]
+    [RArrayLengthSource(nameof(Mshs.meshCount))]
     public Mesh[] meshes;
   }
 }

@@ -137,7 +137,7 @@ namespace foo.bar {
   public partial class Parent {
     private uint Length { get; set; }
 
-    [ArrayLengthSource(nameof(Length))]
+    [RArrayLengthSource(nameof(Length))]
     public ChildOfWrapper[] Child { get; set; }
   }
 

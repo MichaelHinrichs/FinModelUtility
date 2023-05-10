@@ -32,7 +32,7 @@ namespace mod.schema.animation {
     [ArrayLengthSource(SchemaIntegerType.INT32)]
     public float[] PositionValues { get; set; }
 
-    [ArrayLengthSource(nameof(JointCount))]
+    [RArrayLengthSource(nameof(JointCount))]
     public DckJointData[] JointDataList { get; set; }
 
     [Ignore]

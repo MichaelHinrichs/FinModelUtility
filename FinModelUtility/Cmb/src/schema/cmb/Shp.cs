@@ -17,11 +17,11 @@ namespace cmb.schema.cmb {
     // Set to 0x58 on "link_v2.cmb"
     public uint flags;
 
-    [ArrayLengthSource(nameof(shapeCount_))]
+    [RArrayLengthSource(nameof(shapeCount_))]
     private ushort[] shapeOffsets_;
     
     [Align(4)]
-    [ArrayLengthSource(nameof(shapeCount_))]
+    [RArrayLengthSource(nameof(shapeCount_))]
     public Sepd[] shapes;
   }
 }

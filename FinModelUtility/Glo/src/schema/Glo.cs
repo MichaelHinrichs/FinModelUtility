@@ -13,7 +13,8 @@ namespace glo.schema {
 
     public ushort Version { get; set; }
 
-    [ArrayLengthSource(SchemaIntegerType.UINT16)] public GloObject[] Objects { get; set; }
+    [ArrayLengthSource(SchemaIntegerType.UINT16)]
+    public GloObject[] Objects { get; set; }
   }
 
 
@@ -22,13 +23,15 @@ namespace glo.schema {
     [ArrayLengthSource(SchemaIntegerType.UINT16)]
     public GloAnimSeg[] AnimSegs { get; set; }
 
-    [ArrayLengthSource(SchemaIntegerType.UINT16)] public GloMesh[] Meshes { get; set; }
+    [ArrayLengthSource(SchemaIntegerType.UINT16)]
+    public GloMesh[] Meshes { get; set; }
   }
 
   [BinarySchema]
   public sealed partial class GloAnimSeg : IBinaryConvertible {
     [StringLengthSource(24)]
     public string Name { get; set; }
+
     public uint StartFrame { get; set; }
     public uint EndFrame { get; set; }
     public uint Flags { get; set; }
@@ -60,11 +63,15 @@ namespace glo.schema {
     [ArrayLengthSource(SchemaIntegerType.UINT16)]
     public Vector3f[] Vertices { get; set; }
 
-    [ArrayLengthSource(SchemaIntegerType.UINT16)] public GloFace[] Faces { get; set; }
+    [ArrayLengthSource(SchemaIntegerType.UINT16)]
+    public GloFace[] Faces { get; set; }
 
-    [ArrayLengthSource(SchemaIntegerType.UINT16)] public GloSprite[] Sprites { get; set; }
+    [ArrayLengthSource(SchemaIntegerType.UINT16)]
+    public GloSprite[] Sprites { get; set; }
 
-    [NumberFormat(SchemaNumberType.UN8)] public float MeshTranslucency { get; set; }
+    [NumberFormat(SchemaNumberType.UN8)]
+    public float MeshTranslucency { get; set; }
+
     private readonly byte padding_ = 0;
 
     public GloMeshFlags MeshFlags { get; set; }
@@ -74,9 +81,11 @@ namespace glo.schema {
 
   [BinarySchema]
   public sealed partial class GloMeshPointers : IBinaryConvertible {
-    [IfBoolean(SchemaIntegerType.UINT16)] public GloMesh? Child { get; set; }
+    [IfBoolean(SchemaIntegerType.UINT16)]
+    public GloMesh? Child { get; set; }
 
-    [IfBoolean(SchemaIntegerType.UINT16)] public GloMesh? Next { get; set; }
+    [IfBoolean(SchemaIntegerType.UINT16)]
+    public GloMesh? Next { get; set; }
   }
 
   [BinarySchema]
@@ -109,11 +118,7 @@ namespace glo.schema {
     public Rgba32 Color { get; } = new();
     public ushort Flags { get; set; }
 
-    public GloVertexRef[] VertexRefs { get; } = {
-        new(),
-        new(),
-        new(),
-    };
+    public GloVertexRef[] VertexRefs { get; } = { new(), new(), new(), };
   }
 
   [BinarySchema]

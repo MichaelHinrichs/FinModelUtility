@@ -9,7 +9,7 @@ namespace cmb.schema.cmb {
     // flag (I can't find a change in-game)
     public uint unkFlags;
 
-    [ArrayLengthSource(nameof(boneCount_))]
+    [RArrayLengthSource(nameof(boneCount_))]
     public Bone[] bones;
   }
 }

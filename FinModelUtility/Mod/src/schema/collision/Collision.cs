@@ -89,10 +89,10 @@ namespace mod.schema.collision {
     private ushort NumUnknown1 { get; set; }
     private ushort NumUnknown2 { get; set; }
 
-    [ArrayLengthSource(nameof(NumUnknown2))]
+    [RArrayLengthSource(nameof(NumUnknown2))]
     public uint[] unknown2 = Array.Empty<uint>();
 
-    [ArrayLengthSource(nameof(NumUnknown1))]
+    [RArrayLengthSource(nameof(NumUnknown1))]
     public byte[] unknown1 = Array.Empty<byte>();
   }
 
@@ -112,7 +112,7 @@ namespace mod.schema.collision {
     [Ignore]
     private uint gridSize_ => this.gridX * this.gridY;
 
-    [ArrayLengthSource(nameof(gridSize_))]
+    [RArrayLengthSource(nameof(gridSize_))]
     public readonly List<int> unknown2 = new();
 
     [Align(0x20)]

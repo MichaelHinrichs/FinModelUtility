@@ -75,11 +75,11 @@ namespace cmb.schema.cmb {
     */
     public ushort constantFlags;
 
-    [ArrayLengthSource(nameof(primSetCount))]
+    [RArrayLengthSource(nameof(primSetCount))]
     private short[] primitiveSetOffsets_;
 
     [Align(4)]
-    [ArrayLengthSource(nameof(primSetCount))]
+    [RArrayLengthSource(nameof(primSetCount))]
     public PrimitiveSet[] primitiveSets;
   }
 }

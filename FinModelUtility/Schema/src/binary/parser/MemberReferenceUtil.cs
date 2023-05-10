@@ -50,10 +50,13 @@ namespace schema.binary.parser {
               LengthSourceType =
                     sequenceTypeInfo.IsLengthConst
                         ? SequenceLengthSourceType.READONLY
-                        : SymbolTypeUtil
+                        : ((IArrayLengthSourceAttribute?) SymbolTypeUtil
                             .GetAttribute<ArrayLengthSourceAttribute>(
                                 null,
-                                sequenceTypeInfo.TypeSymbol) == null
+                                sequenceTypeInfo.TypeSymbol) ?? SymbolTypeUtil
+                            .GetAttribute<RArrayLengthSourceAttribute>(
+                                null,
+                                sequenceTypeInfo.TypeSymbol)) == null
                             ? SequenceLengthSourceType.UNSPECIFIED
                             : SequenceLengthSourceType.UNTIL_END_OF_STREAM,
             };

@@ -17,10 +17,17 @@ namespace schema.binary {
   public class BinarySchemaAttribute : Attribute { }
 
 
-  [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
-  public class ArrayLengthSourceAttribute : BMemberAttribute {
-    private string? otherMemberName_;
+  public interface IArrayLengthSourceAttribute {
+    public SequenceLengthSourceType Method { get; }
 
+    public SchemaIntegerType LengthType { get; }
+    public IMemberReference OtherMember { get; }
+    public uint ConstLength { get; }
+
+  }
+
+  [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+  public class ArrayLengthSourceAttribute : Attribute, IArrayLengthSourceAttribute {
     /// <summary>
     ///   Parses an integer length with the given format immediately before the array.
     /// </summary>
@@ -30,20 +37,32 @@ namespace schema.binary {
     }
 
     /// <summary>
-    ///   Uses another integer field for the length. This separate field will only be used when
-    ///   reading/writing.
-    /// </summary>
-    public ArrayLengthSourceAttribute(string otherMemberName) {
-      this.Method = SequenceLengthSourceType.OTHER_MEMBER;
-      this.otherMemberName_ = otherMemberName;
-    }
-
-    /// <summary>
     ///   Uses a constant integer for the length.
     /// </summary>
     public ArrayLengthSourceAttribute(uint constLength) {
       this.Method = SequenceLengthSourceType.CONST_LENGTH;
       this.ConstLength = constLength;
+    }
+
+    public SequenceLengthSourceType Method { get; }
+
+    public SchemaIntegerType LengthType { get; }
+    public IMemberReference OtherMember { get; }
+    public uint ConstLength { get; }
+  }
+
+  [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+  public class RArrayLengthSourceAttribute : BMemberAttribute,
+                                            IArrayLengthSourceAttribute {
+    private string? otherMemberName_;
+
+    /// <summary>
+    ///   Uses another integer field for the length. This separate field will
+    ///   only be used when reading.
+    /// </summary>
+    public RArrayLengthSourceAttribute(string otherMemberName) {
+      this.Method = SequenceLengthSourceType.OTHER_MEMBER;
+      this.otherMemberName_ = otherMemberName;
     }
 
     protected override void InitFields() {
@@ -58,7 +77,7 @@ namespace schema.binary {
 
     public SchemaIntegerType LengthType { get; }
     public IMemberReference OtherMember { get; private set; }
-    public uint ConstLength { get; private set; }
+    public uint ConstLength { get; }
   }
 
   [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]

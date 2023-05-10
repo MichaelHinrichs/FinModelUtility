@@ -13,9 +13,13 @@ namespace schema.binary.attributes.length {
                       ISymbol memberSymbol,
                       IMemberType memberType) {
       var lengthSourceAttribute =
-          SymbolTypeUtil.GetAttribute<ArrayLengthSourceAttribute>(
-              diagnostics,
-              memberSymbol);
+          (IArrayLengthSourceAttribute?) SymbolTypeUtil
+              .GetAttribute<ArrayLengthSourceAttribute>(
+                  diagnostics,
+                  memberSymbol) ?? SymbolTypeUtil
+              .GetAttribute<RArrayLengthSourceAttribute>(
+                  diagnostics,
+                  memberSymbol);
       var untilEndOfStreamAttribute =
           SymbolTypeUtil.GetAttribute<RArrayUntilEndOfStreamAttribute>(
               diagnostics,

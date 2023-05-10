@@ -17,7 +17,7 @@ namespace cmb.schema.cmb {
     public uint boneTableOffset;
     public uint primitiveOffset;
 
-    [ArrayLengthSource(nameof(boneTableCount))]
+    [RArrayLengthSource(nameof(boneTableCount))]
     public short[] boneTable;
 
     [Align(4)] public readonly Primitive primitive = new();

@@ -18,7 +18,7 @@ namespace j3d.schema.bmd {
     private ushort NrStrings;
     private readonly ushort padding_ = ushort.MaxValue;
 
-    [ArrayLengthSource(nameof(NrStrings))]
+    [RArrayLengthSource(nameof(NrStrings))]
     public StringTableEntry[] Entries;
 
     public string this[int index] => this.Entries[index].Entry;

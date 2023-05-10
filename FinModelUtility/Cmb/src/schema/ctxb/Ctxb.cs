@@ -74,7 +74,7 @@ namespace cmb.schema.ctxb {
     [ArrayLengthSource(56)]
     private byte[]? extraPadding_;
 
-    [ArrayLengthSource(nameof(DataLength))]
+    [RArrayLengthSource(nameof(DataLength))]
     public byte[] Data { get; private set; }
   }
 }

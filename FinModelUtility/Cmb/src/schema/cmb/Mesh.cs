@@ -17,7 +17,7 @@ namespace cmb.schema.cmb {
         Version.LUIGIS_MANSION_3D  => 0x54,
     };
 
-    [ArrayLengthSource(nameof(unknownLength_))]
+    [RArrayLengthSource(nameof(unknownLength_))]
     private byte[] unknown_;
   }
 }
