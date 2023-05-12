@@ -1,9 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
+using schema.binary.util;
+
 
 namespace fin.util.enumerables {
   public static class EnumerableExtensions {
+    public static int IndexOf<T>(this IEnumerable<T> enumerable,
+                                 T value) {
+      var index = enumerable.IndexOfOrNegativeOne(value);
+      Asserts.True(index > -1);
+      return index;
+    }
+
     public static int IndexOfOrNegativeOne<T>(
         this IEnumerable<T> enumerable,
         T value) {

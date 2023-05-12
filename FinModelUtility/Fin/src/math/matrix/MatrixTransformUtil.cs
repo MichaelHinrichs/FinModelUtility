@@ -27,7 +27,15 @@ namespace fin.math.matrix {
       => new FinMatrix4x4(Matrix4x4.CreateFromQuaternion(rotation));
 
     public static IFinMatrix4x4 FromScale(Scale scale)
-      => new FinMatrix4x4(Matrix4x4.CreateScale(scale.X, scale.Y, scale.Z));
+      => FromScale(scale.X, scale.Y, scale.Z);
+
+    public static IFinMatrix4x4 FromScale(float scale)
+      => FromScale(scale, scale, scale);
+
+    public static IFinMatrix4x4 FromScale(float scaleX,
+                                          float scaleY,
+                                          float scaleZ)
+      => new FinMatrix4x4(Matrix4x4.CreateScale(scaleX, scaleY, scaleZ));
 
     public static IFinMatrix4x4 FromTrs(
         Position? translation,
