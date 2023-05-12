@@ -71,6 +71,14 @@ namespace modl.api {
           var transform = modlNode.Transform;
           var bonePosition = transform.Position;
 
+          // TODO: This is a major, dumb hack to fix alignment of the rig with vertices for a single model.
+          // It seems like this might be possible to fix by using the inverse binding matrices from RNOD matrices?
+          if (gameVersion == GameVersion.BW2 &&
+              modlFile.Name == "SG_HI_LOD.modl" &&
+              modlNodeId == 0) {
+            bonePosition.Z = 0;
+          }
+
           var modlRotation = transform.Rotation;
           var rotation = new Quaternion(
               flipSign * modlRotation.X,
