@@ -1,0 +1,19 @@
+# Output
+bin/
+obj/
+artifacts/
+
+# IDE
+*.userprefs
+*.user
+*.vs
+
+# Cake
+tools/*
+
+# Docs
+docs/_site/
+docs/api/
+
+# Benchmarks
+BenchmarkDotNet.Artifacts/

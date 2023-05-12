@@ -1,0 +1,18 @@
+# Build outputs
+obj/
+bin/
+artifacts/
+.vs/
+
+# Build system
+tools/
+
+# Test results
+test_results/
+BenchmarkDotNet.Artifacts/
+resources/
+
+# Documentation output
+docs/_site
+docs/api
+docs/_site_pdf
