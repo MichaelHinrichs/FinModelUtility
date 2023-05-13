@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Fin\Fin.csproj" />
-    <ProjectReference Include="..\Schema\Schema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\Schema\Schema\Schema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
   </ItemGroup>
 
 </Project>

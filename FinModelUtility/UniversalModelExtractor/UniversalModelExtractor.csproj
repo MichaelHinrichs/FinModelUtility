@@ -61,7 +61,7 @@
     <ProjectReference Include="..\SceneGate\Ekona\src\Ekona\Ekona.csproj" />
     <ProjectReference Include="..\Utility of Time CSharp\Utility of Time CSharp.csproj" />
     <ProjectReference Include="..\Visceral\Visceral.csproj" />
-    <ProjectReference Include="..\Schema\Schema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\Schema\Schema\Schema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
     <ProjectReference Include="..\Ast\Ast.csproj" />
     <ProjectReference Include="..\J3d\J3d.csproj" />
     <ProjectReference Include="..\Cmb\Cmb.csproj" />

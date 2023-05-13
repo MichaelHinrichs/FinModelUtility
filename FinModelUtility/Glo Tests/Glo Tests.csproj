@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Schema\Schema.csproj" />
+    <ProjectReference Include="..\Schema\Schema\Schema.csproj" />
     <ProjectReference Include="..\Fin\Fin.csproj" />
     <ProjectReference Include="..\Glo\Glo.csproj" />
   </ItemGroup>

@@ -47,7 +47,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Schema\Schema.csproj" />
+    <ProjectReference Include="..\Schema\Schema\Schema.csproj" />
     <ProjectReference Include="..\Fin\Fin.csproj" />
     <ProjectReference Include="..\Granny3d\Granny3d.csproj" />
   </ItemGroup>

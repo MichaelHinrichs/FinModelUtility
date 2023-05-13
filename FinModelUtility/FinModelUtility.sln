@@ -43,9 +43,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "F3dzex2", "F3dzex2\F3dzex2.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mdl2Fbx", "Mdl2Fbx\Mdl2Fbx.csproj", "{45228CB1-B212-4779-949E-4B8FCC001F71}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Schema", "Schema\Schema.csproj", "{7E2E1FEE-0A02-4FB6-8C3B-9C4080D3758A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Schema", "Schema\Schema\Schema.csproj", "{7E2E1FEE-0A02-4FB6-8C3B-9C4080D3758A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Schema Tests", "Schema Tests\Schema Tests.csproj", "{67444A5C-48C3-4004-8BC5-3947BF323921}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Schema Tests", "Schema\Schema Tests\Schema Tests.csproj", "{67444A5C-48C3-4004-8BC5-3947BF323921}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Modl", "Modl\Modl.csproj", "{0077C934-E53D-4881-83B6-011D2F080FB9}"
 EndProject
