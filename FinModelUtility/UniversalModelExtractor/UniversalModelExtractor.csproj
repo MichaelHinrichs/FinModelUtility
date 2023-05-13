@@ -63,7 +63,7 @@
     <ProjectReference Include="..\Visceral\Visceral.csproj" />
     <ProjectReference Include="..\Schema\Schema\Schema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
     <ProjectReference Include="..\Ast\Ast.csproj" />
-    <ProjectReference Include="..\J3d\J3d.csproj" />
+    <ProjectReference Include="..\J3d\J3d\J3d.csproj" />
     <ProjectReference Include="..\Cmb\Cmb\Cmb.csproj" />
     <ProjectReference Include="..\Dat\Dat.csproj" />
     <ProjectReference Include="..\F3dzex2\F3dzex2.csproj" />
