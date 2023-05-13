@@ -1,0 +1,3 @@
+[submodule "FinModelUtility/Schema"]
+	path = FinModelUtility/Schema
+	url = https://github.com/MeltyPlayer/Schema.git
