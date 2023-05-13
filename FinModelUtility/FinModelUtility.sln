@@ -51,7 +51,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Modl", "Modl\Modl.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HaloWarsTools", "HaloWarsTools\HaloWarsTools.csproj", "{4B38BE06-C129-4406-AAA8-8185249F32C3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Glo", "Glo\Glo.csproj", "{A5EB1658-A4ED-4AD0-BAEB-917A74D9D180}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Glo", "Glo\Glo\Glo.csproj", "{A5EB1658-A4ED-4AD0-BAEB-917A74D9D180}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dat", "Dat\Dat.csproj", "{E97647AB-CDFF-4DDA-A516-79AF2CAEEB59}"
 EndProject
@@ -61,7 +61,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Asserts", "Asserts\Asserts.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Granny3d", "Granny3d\Granny3d.csproj", "{45DDB2A3-3AC0-43A9-AA11-F93FF020B218}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Glo Tests", "Glo Tests\Glo Tests.csproj", "{3071C4CC-A1CE-4211-9612-C366AA0CCE3D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Glo Tests", "Glo\Glo Tests\Glo Tests.csproj", "{3071C4CC-A1CE-4211-9612-C366AA0CCE3D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmarks", "Benchmarks\Benchmarks.csproj", "{A0CFC24D-3C11-49F8-BF35-0ED04E82583F}"
 EndProject
