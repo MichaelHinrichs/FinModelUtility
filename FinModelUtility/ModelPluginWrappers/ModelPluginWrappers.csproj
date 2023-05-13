@@ -18,10 +18,10 @@
 
   <ItemGroup>
     <PackageReference Include="IronPython" Version="3.4.0" />
+    <PackageReference Include="schema" Version="0.0.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Schema\Schema\Schema.csproj" />
     <ProjectReference Include="..\Fin\Fin\Fin.csproj" />
   </ItemGroup>
 

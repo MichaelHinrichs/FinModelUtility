@@ -41,7 +41,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Schema\Schema\Schema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
+    <PackageReference Include="schema" Version="0.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\Fin\Fin\Fin.csproj" />
   </ItemGroup>
 </Project>

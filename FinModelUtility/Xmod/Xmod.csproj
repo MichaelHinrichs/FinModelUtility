@@ -10,12 +10,12 @@
 
   <ItemGroup>
     <PackageReference Include="BCnEncoder.Net" Version="2.1.0" />
+    <PackageReference Include="schema" Version="0.0.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Fin\Fin\Fin.csproj" />
     <ProjectReference Include="..\HaloWarsTools\HaloWarsTools.csproj" />
-    <ProjectReference Include="..\Schema\Schema\Schema.csproj" PrivateAssets="all" OutputItemType="Analyzer" />
   </ItemGroup>
 
   <ItemGroup>
