@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Schema\Schema\Schema.csproj" />
-    <ProjectReference Include="..\Fin\Fin.csproj" />
+    <ProjectReference Include="..\Fin\Fin\Fin.csproj" />
   </ItemGroup>
 
   <ItemGroup>

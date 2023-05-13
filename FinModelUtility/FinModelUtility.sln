@@ -7,9 +7,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fin", "Fin\Fin.csproj", "{48B6183A-CF51-42A4-889E-A75DA704D71D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fin", "Fin\Fin\Fin.csproj", "{48B6183A-CF51-42A4-889E-A75DA704D71D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fin Tests", "Fin Tests\Fin Tests.csproj", "{8D0572E4-4867-4AB4-B0C3-AE0BDDD3FEC6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fin Tests", "Fin\Fin Tests\Fin Tests.csproj", "{8D0572E4-4867-4AB4-B0C3-AE0BDDD3FEC6}"
 	ProjectSection(ProjectDependencies) = postProject
 		{48B6183A-CF51-42A4-889E-A75DA704D71D} = {48B6183A-CF51-42A4-889E-A75DA704D71D}
 	EndProjectSection

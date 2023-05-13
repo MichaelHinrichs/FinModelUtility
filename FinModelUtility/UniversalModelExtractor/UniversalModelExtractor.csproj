@@ -67,7 +67,7 @@
     <ProjectReference Include="..\Cmb\Cmb.csproj" />
     <ProjectReference Include="..\Dat\Dat.csproj" />
     <ProjectReference Include="..\F3dzex2\F3dzex2.csproj" />
-    <ProjectReference Include="..\Fin\Fin.csproj" />
+    <ProjectReference Include="..\Fin\Fin\Fin.csproj" />
     <ProjectReference Include="..\Glo\Glo.csproj" />
     <ProjectReference Include="..\HaloWarsTools\HaloWarsTools.csproj" />
     <ProjectReference Include="..\Level5\Level5.csproj" />
