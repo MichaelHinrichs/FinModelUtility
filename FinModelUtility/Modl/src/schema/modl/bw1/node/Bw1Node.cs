@@ -97,7 +97,7 @@ namespace modl.schema.modl.bw1.node {
 
       er.PopEndianness();
 
-      var vertexDescriptorValue = (uint) 0;
+      var vertexDescriptor = new GxVertexDescriptor();
       while (er.Position < expectedNodeEnd) {
         SectionHeaderUtil.ReadNameAndSize(er,
                                           out sectionName,
@@ -149,7 +149,7 @@ namespace modl.schema.modl.bw1.node {
             break;
           }
           case "XBST": {
-            this.ReadOpcodes_(er, sectionSize, ref vertexDescriptorValue);
+            this.ReadOpcodes_(er, sectionSize, ref vertexDescriptor);
             break;
           }
           case "SCNT": {
@@ -227,7 +227,7 @@ namespace modl.schema.modl.bw1.node {
 
     private void ReadOpcodes_(IEndianBinaryReader er,
                               uint sectionSize,
-                              ref uint vertexDescriptorValue) {
+                              ref GxVertexDescriptor vertexDescriptor) {
       var start = er.Position;
       var expectedEnd = start + sectionSize;
 
@@ -276,12 +276,15 @@ namespace modl.schema.modl.bw1.node {
           var value = er.ReadUInt32();
 
           if (command == 0x50) {
-            vertexDescriptorValue &= ~((uint) 0x1FFFF);
-            vertexDescriptorValue |= value;
+            vertexDescriptor =
+                new GxVertexDescriptor(
+                    (vertexDescriptor.Value & ~((uint) 0x1FFFF)) |
+                    value);
           } else if (command == 0x60) {
-            value <<= 17;
-            vertexDescriptorValue &= 0x1FFFF;
-            vertexDescriptorValue |= value;
+            vertexDescriptor =
+                new GxVertexDescriptor(
+                    (vertexDescriptor.Value & 0x1FFFF) |
+                    (value << 17));
           } else {
             throw new NotImplementedException();
           }
@@ -296,9 +299,6 @@ namespace modl.schema.modl.bw1.node {
           // TODO: Implement
         } else if (opcodeEnum == GxOpcode.DRAW_TRIANGLE_STRIP) {
           var vertexAttributeIndicesList = new List<BwVertexAttributeIndices>();
-
-          var vertexDescriptor = new GxVertexDescriptor();
-          vertexDescriptor.FromValue(vertexDescriptorValue);
 
           var triangleStrip = new BwTriangleStrip {
               VertexAttributeIndicesList = vertexAttributeIndicesList,

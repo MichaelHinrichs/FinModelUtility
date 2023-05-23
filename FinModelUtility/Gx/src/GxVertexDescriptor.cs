@@ -1,77 +1,86 @@
 ﻿using System.Collections;
 
-
 namespace gx {
-  public class GxVertexDescriptor :
+  public struct GxVertexDescriptor :
       IEnumerable<(GxVertexAttribute, GxAttributeType?)> {
-    public bool HasPosMat { get; set; }
-    public bool[] HasTexMats { get; } = new bool[8];
-    public GxAttributeType PositionFormat { get; set; }
-    public GxAttributeType NormalFormat { get; set; }
-    public GxAttributeType[] ColorFormats { get; } = new GxAttributeType[2];
-    public bool[] HasTexCoord { get; } = new bool[8];
+    public GxVertexDescriptor(uint value) {
+      this.Value = value;
+    }
 
-    public void FromValue(uint value) {
+    public uint Value { get; }
+
+    IEnumerator IEnumerable.GetEnumerator()
+      => this.cachedEnumerator_ ??= this.GetEnumerator();
+
+    private IEnumerator<(GxVertexAttribute, GxAttributeType?)>?
+        cachedEnumerator_;
+
+    public IEnumerator<(GxVertexAttribute, GxAttributeType?)> GetEnumerator() {
+      // Read flags from value
+      var value = this.Value;
+
       var posMatFlag = value & 1;
-      this.HasPosMat = posMatFlag == 1;
+      var hasPosMat = posMatFlag == 1;
       value >>= 1;
 
+      byte hasTexMatBits = 0;
       for (var i = 0; i < 8; ++i) {
-        this.HasTexMats[i] = (value & 1) == 1;
+        hasTexMatBits |= (byte) ((value & 1) << i);
         value >>= 1;
       }
 
       var positionFormatFlag = value & 3;
-      this.PositionFormat = (GxAttributeType) positionFormatFlag;
+      var positionFormat = (GxAttributeType) positionFormatFlag;
       value >>= 2;
 
       var normalFormatFlag = value & 3;
-      this.NormalFormat = (GxAttributeType) normalFormatFlag;
+      var normalFormat = (GxAttributeType) normalFormatFlag;
       value >>= 2;
 
-      for (var i = 0; i < 2; ++i) {
-        this.ColorFormats[i] = (GxAttributeType) (value & 3);
-        value >>= 2;
-      }
+      var colorFormat0 = (GxAttributeType) (value & 3);
+      value >>= 2;
+      var colorFormat1 = (GxAttributeType) (value & 3);
+      value >>= 2;
 
+      byte hasTexCoordBits = 0;
       for (var i = 0; i < 8; ++i) {
-        this.HasTexCoord[i] = (value & 1) == 1;
+        hasTexCoordBits |= (byte) ((value & 1) << i);
         value >>= 1;
       }
 
       if (value != 0) {
         throw new NotImplementedException();
       }
-    }
 
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<(GxVertexAttribute, GxAttributeType?)> GetEnumerator() {
-      if (this.HasPosMat) {
+      // Generate enumerator
+      if (hasPosMat) {
         yield return (GxVertexAttribute.PosMatIdx, null);
       }
 
-      for (var i = 0; i < this.HasTexMats.Length; ++i) {
-        if (this.HasTexMats[i]) {
+      for (var i = 0; i < 8; ++i) {
+        if (((hasTexMatBits >> i) & 1) != 0) {
           yield return (GxVertexAttribute.Tex0MatIdx + i, null);
         }
       }
 
-      if (this.PositionFormat != GxAttributeType.NOT_PRESENT) {
-        yield return (GxVertexAttribute.Position, this.PositionFormat);
-      }
-      if (this.NormalFormat != GxAttributeType.NOT_PRESENT) {
-        yield return (GxVertexAttribute.Normal, this.NormalFormat);
-      }
-      for (var i = 0; i < this.ColorFormats.Length; ++i) {
-        var colorFormat = this.ColorFormats[i];
-        if (colorFormat != GxAttributeType.NOT_PRESENT) {
-          yield return (GxVertexAttribute.Color0 + i, colorFormat);
-        }
+      if (positionFormat != GxAttributeType.NOT_PRESENT) {
+        yield return (GxVertexAttribute.Position, positionFormat);
       }
 
-      for (var i = 0; i < this.HasTexCoord.Length; ++i) {
-        if (this.HasTexCoord[i]) {
+      if (normalFormat != GxAttributeType.NOT_PRESENT) {
+        yield return (GxVertexAttribute.Normal, normalFormat);
+      }
+
+      if (colorFormat0 != GxAttributeType.NOT_PRESENT) {
+        yield return (GxVertexAttribute.Color0, colorFormat0);
+      }
+      if (colorFormat1 != GxAttributeType.NOT_PRESENT) {
+        yield return (GxVertexAttribute.Color1, colorFormat1);
+      }
+
+      for (var i = 0; i < 8; ++i) {
+        if (((hasTexCoordBits >> i) & 1) != 0) {
           yield return (GxVertexAttribute.Tex0Coord + i, null);
         }
       }
