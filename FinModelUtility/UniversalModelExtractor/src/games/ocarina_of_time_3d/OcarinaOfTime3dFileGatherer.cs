@@ -64,7 +64,8 @@ namespace uni.games.ocarina_of_time_3d {
                     new PrimaryModelSeparatorMethod("choronuts.cmb"))
           .Register("zelda_dns",
                     new PrimaryModelSeparatorMethod("eldernuts.cmb"))
-          .Register("zelda_dy_obj", new NoAnimationsModelSeparatorMethod())
+          .Register("zelda_dy_obj",
+                    new PrimaryModelSeparatorMethod("fairy.cmb"))
           .Register("zelda_ec", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_ec2", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_efc_tw", new NoAnimationsModelSeparatorMethod())
