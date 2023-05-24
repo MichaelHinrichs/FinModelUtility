@@ -18,12 +18,9 @@ namespace uni.platforms.desktop {
 
 
     public static string? InstallPath { get; } =
-      (Registry.GetValue(SteamUtils.INSTALL_PATH_64_BIT_REGISTRY_KEY,
-                         "InstallPath",
-                         null) ??
-       Registry.GetValue(SteamUtils.INSTALL_PATH_32_BIT_REGISTRY_KEY,
-                         "InstallPath",
-                         null)) as string;
+      RegistryExtensions.GetSoftwareValueEither32Or64Bit(
+          @"Valve\Steam",
+          "InstallPath") as string;
 
     public static ISystemDirectory? InstallDirectory { get; } =
       SteamUtils.InstallPath != null
@@ -46,8 +43,11 @@ namespace uni.platforms.desktop {
             .Where(steamDirectory
                        => steamDirectory
                            .Exists) // A steam directory may not exist if it corresponds to an external hard drive
-            .SelectMany(libraryFolder => libraryFolder.GetExistingSubdirs().Where(dir => dir.Name == "steamapps"))
-            .SelectMany(steamApps => steamApps.GetExistingSubdirs().Where(dir => dir.Name == "common"))
+            .SelectMany(libraryFolder => libraryFolder.GetExistingSubdirs()
+                            .Where(dir => dir.Name == "steamapps"))
+            .SelectMany(steamApps => steamApps.GetExistingSubdirs()
+                                              .Where(
+                                                  dir => dir.Name == "common"))
             .ToArray();
 
     public static ISystemDirectory[] GameDirectories { get; }
@@ -67,12 +67,5 @@ namespace uni.platforms.desktop {
       Asserts.False(assert, $"Could not find \"{name}\" installed in Steam.");
       return false;
     }
-
-    public static ISystemDirectory? GetGameDirectory(
-        string name,
-        bool assert = false)
-      => TryGetGameDirectory(name, out var directory, assert)
-          ? directory
-          : null;
   }
 }

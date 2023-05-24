@@ -5,6 +5,8 @@ using uni.games.battalion_wars_1;
 using uni.games.battalion_wars_2;
 using uni.games.chibi_robo;
 using uni.games.dead_space_1;
+using uni.games.dead_space_2;
+using uni.games.dead_space_3;
 using uni.games.doshin_the_giant;
 using uni.games.glover;
 using uni.games.great_ace_attorney;
@@ -39,6 +41,8 @@ namespace uni.games {
           new BattalionWars2FileGatherer(),
           new ChibiRoboFileGatherer(),
           new DeadSpace1FileGatherer(),
+          new DeadSpace2FileGatherer(),
+          new DeadSpace3FileGatherer(),
           new DoshinTheGiantFileGatherer(),
           new GloverModelFileGatherer(),
           new GreatAceAttorneyModelFileGatherer(),
