@@ -10,6 +10,12 @@ Model viewer and command-line tools for extracting models from games en-masse. S
 
 ![image](https://user-images.githubusercontent.com/15970939/204156969-084cc1a4-1824-45c9-becc-e44ad69668d6.png)
 
+## Suggestions
+
+If you'd like to vote on new games or features that should be supported, please fill out the following Google Form:
+
+[Suggesting Games/Features for Fin Model Utility](https://docs.google.com/forms/d/e/1FAIpQLSfWviQFZxCAuZHYmrcIRvYy3SXRRXo6TmhJVCDsGKR5zvXJvw/viewform)
+
 ## Credits
 
 - Acewell, whose [Noesis script](https://forum.xentax.com/viewtopic.php?p=122302#p122302) was used as the basis for reading Dead Space textures.
