@@ -55,7 +55,8 @@ namespace modl.api {
       var terrain = bwTerrain =
           isBw2 ? er.ReadNew<Bw2Terrain>() : er.ReadNew<Bw1Terrain>();
 
-      var finModel = new ModelImpl();
+      var finModel = new ModelImpl<OneColor2UvVertexImpl>(
+          (index, position) => new OneColor2UvVertexImpl(index, position));
 
       var imageDictionary = new ConcurrentDictionary<string, IImage>();
       Task.WhenAll(terrain
@@ -281,13 +282,13 @@ namespace modl.api {
                       tile.Schema.DetailTextureUvs[4 * pointY + pointX];
 
                   var (u0, v0) = surfaceTextureUvsInRow[pointX];
-                  var uv0 = new TexCoordImpl {
+                  var uv0 = new TexCoord {
                       U = u0, V = v0,
                   };
 
                   var u1 = LoadUOrV_(detailTextureUvs.U);
                   var v1 = LoadUOrV_(detailTextureUvs.V);
-                  var uv1 = new TexCoordImpl {
+                  var uv1 = new TexCoord {
                       U = u1, V = v1
                   };
 

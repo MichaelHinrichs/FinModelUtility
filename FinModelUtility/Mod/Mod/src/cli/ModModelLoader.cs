@@ -429,7 +429,7 @@ namespace mod.cli {
       public IColor Default { get; } =
         FinColor.FromRgbaBytes(255, 255, 255, 255);
 
-      public ITexCoord[][] TexCoordsByIndex { get; }
+      public TexCoord[][] TexCoordsByIndex { get; }
 
       public FinModCache(Mod mod) {
         this.PositionsByIndex =
@@ -468,7 +468,7 @@ namespace mod.cli {
             mod.texcoords.Select(
                    texcoords
                        => texcoords.Select(
-                                       texcoord => new TexCoordImpl {
+                                       texcoord => new TexCoord {
                                          U = texcoord.X,
                                          V = texcoord.Y,
                                        })

@@ -128,7 +128,7 @@ namespace fin.exporter.gltf {
                 vertexBuilder =
                     vertexBuilder.WithMaterial(assColor0,
                                                assColor1,
-                                               new Vector2(uv.U, uv.V));
+                                               new Vector2(uv.Value.U, uv.Value.V));
               } else if (hasColor) {
                 vertexBuilder =
                     vertexBuilder.WithMaterial(assColor0, assColor1);

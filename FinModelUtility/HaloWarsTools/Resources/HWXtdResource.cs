@@ -90,7 +90,9 @@ namespace HaloWarsTools {
               .ReadVector3BigEndian(bytes, (int) atlasChunk.Offset + 16)
               .ReverseComponents();
 
-      var finModel = new ModelImpl(gridSize * gridSize);
+      var finModel = new ModelImpl<NormalUvVertexImpl>(
+          gridSize * gridSize,
+          (index, position) => new NormalUvVertexImpl(index, position));
       var finMesh = finModel.Skin.AddMesh();
 
       var finVertices = finModel.Skin.Vertices;
@@ -100,7 +102,7 @@ namespace HaloWarsTools {
                          finVertices.Count,
                          new GridVertexGenerator(
                              bytes,
-                             finVertices.Cast<VertexImpl>().ToArray(),
+                             finVertices.Cast<NormalUvVertexImpl>().ToArray(),
                              gridSize,
                              tileScale,
                              positionOffset,
@@ -138,7 +140,7 @@ namespace HaloWarsTools {
 
     private readonly struct GridVertexGenerator : IAction {
       private readonly byte[] bytes_;
-      private readonly IReadOnlyList<VertexImpl> vertices_;
+      private readonly IReadOnlyList<NormalUvVertexImpl> vertices_;
       private readonly int gridSize_;
       private readonly float tileScale_;
       private readonly int positionOffset_;
@@ -148,7 +150,7 @@ namespace HaloWarsTools {
 
       public GridVertexGenerator(
           byte[] bytes,
-          IReadOnlyList<VertexImpl> vertices,
+          IReadOnlyList<NormalUvVertexImpl> vertices,
           int gridSize,
           float tileScale,
           int positionOffset,

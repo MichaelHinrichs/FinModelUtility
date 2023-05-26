@@ -54,7 +54,8 @@ namespace glo.api {
       new VertexCsvWriter().WriteToFile(
           glo, new FinFile(Path.Join(outputDirectory.FullName, "vertex.csv")));*/
 
-      var finModel = new ModelImpl();
+      var finModel = new ModelImpl<Normal1Color1UvVertexImpl>(
+          (index, position) => new Normal1Color1UvVertexImpl(index, position));
       var finSkin = finModel.Skin;
 
       var finRootBone = finModel.Skeleton.Root;

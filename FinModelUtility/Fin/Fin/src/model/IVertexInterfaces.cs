@@ -65,13 +65,12 @@ namespace fin.model {
   }
 
 
-  public interface IReadOnlyMultiColorVertex : IReadOnlySingleColorVertex {
+  public interface IReadOnlyMultiColorVertex : IReadOnlyVertex {
     int ColorCount { get; }
     IColor? GetColor(int colorIndex);
   }
 
-  public interface IMultiColorVertex : IReadOnlyMultiColorVertex,
-                                       ISingleColorVertex {
+  public interface IMultiColorVertex : IReadOnlyMultiColorVertex, IVertex {
     void SetColor(int colorIndex, IColor? color);
 
     void SetColorBytes(int colorIndex,
@@ -83,24 +82,24 @@ namespace fin.model {
 
 
   public interface IReadOnlySingleUvVertex : IReadOnlyVertex {
-    ITexCoord? GetUv();
+    TexCoord? GetUv();
   }
 
   public interface ISingleUvVertex : IReadOnlySingleUvVertex, IVertex {
-    void SetUv(ITexCoord? uv);
+    void SetUv(TexCoord? uv);
     void SetUv(Vector2? uv);
     void SetUv(IVector2? uv);
     void SetUv(float u, float v);
   }
 
 
-  public interface IReadOnlyMultiUvVertex : IReadOnlySingleUvVertex {
+  public interface IReadOnlyMultiUvVertex : IReadOnlyVertex {
     int UvCount { get; }
-    ITexCoord? GetUv(int uvIndex);
+    TexCoord? GetUv(int uvIndex);
   }
 
-  public interface IMultiUvVertex : IReadOnlyMultiUvVertex, ISingleUvVertex {
-    void SetUv(int uvIndex, ITexCoord? uv);
+  public interface IMultiUvVertex : IReadOnlyMultiUvVertex, IVertex {
+    void SetUv(int uvIndex, TexCoord? uv);
     void SetUv(int uvIndex, float u, float v);
   }
 }

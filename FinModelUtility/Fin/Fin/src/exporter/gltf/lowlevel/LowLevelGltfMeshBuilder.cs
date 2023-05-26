@@ -98,8 +98,8 @@ namespace fin.exporter.gltf.lowlevel {
 
         var finUv = point.GetUv(0);
         var uv = uvArray[p];
-        uv.X = finUv.U;
-        uv.Y = finUv.V;
+        uv.X = finUv.Value.U;
+        uv.Y = finUv.Value.V;
         uvArray[p] = uv;
 
         /*if (point.Weights != null) {

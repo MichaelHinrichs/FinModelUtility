@@ -132,10 +132,11 @@ namespace visceral.api {
       }
     }
 
-    private void AddGeoFileToModel_(IModel<ISkin<VertexImpl>> finModel,
-                                    IFileHierarchyFile geoFile,
-                                    IBone[] finBones,
-                                    IList<ITexture> textures) {
+    private void AddGeoFileToModel_(
+        ModelImpl finModel,
+        IFileHierarchyFile geoFile,
+        IBone[] finBones,
+        IList<ITexture> textures) {
       var colorTextures = textures.Where(texture => texture.Name.EndsWith("_c"))
                                   .ToArray();
       IMaterial material;

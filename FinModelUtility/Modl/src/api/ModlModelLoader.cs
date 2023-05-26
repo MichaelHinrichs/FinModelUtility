@@ -53,7 +53,8 @@ namespace modl.api {
           GameVersion.BW2 => er.ReadNew<Bw2Modl>(),
       };
 
-      var model = new ModelImpl();
+      var model = new ModelImpl<Normal1Color1UvVertexImpl>(
+          (index, position) => new Normal1Color1UvVertexImpl(index, position));
       var finMesh = model.Skin.AddMesh();
 
       var finBones = new IBone[bwModel.Nodes.Count];

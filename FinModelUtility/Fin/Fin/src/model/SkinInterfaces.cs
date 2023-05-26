@@ -99,9 +99,11 @@ namespace fin.model {
     }
   }
 
-  public interface ITexCoord {
-    float U { get; }
-    float V { get; }
+  public readonly struct TexCoord {
+    public float U { get; init; }
+    public float V { get; init; }
+
+    public override string ToString() => $"{{{this.U}, {this.V}}}";
   }
 
   public enum VertexSpace {

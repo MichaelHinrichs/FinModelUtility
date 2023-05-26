@@ -37,7 +37,7 @@ namespace fin.exporter.assimp.indirect {
 
           var finVertex = assUvIndex != -1 ? finVertices[assUvIndex] : null;
           for (var t = 0; t < 8; ++t) {
-            ITexCoord? uv = null;
+            TexCoord? uv = null;
             if (finVertex != null) {
               vertexAccessor.Target(finVertex);
               uv = vertexAccessor.GetUv(t);
@@ -45,7 +45,7 @@ namespace fin.exporter.assimp.indirect {
 
             if (uv != null) {
               hadUv[t] = true;
-              assUvs[t].Add(new Vector3D(uv.U, 1 - uv.V, 0));
+              assUvs[t].Add(new Vector3D(uv.Value.U, 1 - uv.Value.V, 0));
             } else {
               assUvs[t].Add(nullUv);
             }
