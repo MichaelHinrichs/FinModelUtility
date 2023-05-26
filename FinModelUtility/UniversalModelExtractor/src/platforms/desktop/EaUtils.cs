@@ -11,16 +11,18 @@ namespace uni.platforms.desktop {
         bool assert = false) {
       using (var eaGamesKey =
              RegistryExtensions.OpenSoftwareSubkeyEither32Or64Bit("EA Games")) {
-        foreach (var gameKeyName in eaGamesKey.GetSubKeyNames()) {
-          if (gameKeyName != name) {
-            continue;
-          }
+        if (eaGamesKey != null) {
+          foreach (var gameKeyName in eaGamesKey.GetSubKeyNames()) {
+            if (gameKeyName != name) {
+              continue;
+            }
 
-          using var gameKey = eaGamesKey.OpenSubKey(gameKeyName);
-          if (gameKey.GetValue("Install Dir") is string gameInstallPath &&
-              Directory.Exists(gameInstallPath)) {
-            directory = new FinDirectory(gameInstallPath);
-            return true;
+            using var gameKey = eaGamesKey.OpenSubKey(gameKeyName);
+            if (gameKey.GetValue("Install Dir") is string gameInstallPath &&
+                Directory.Exists(gameInstallPath)) {
+              directory = new FinDirectory(gameInstallPath);
+              return true;
+            }
           }
         }
       }
