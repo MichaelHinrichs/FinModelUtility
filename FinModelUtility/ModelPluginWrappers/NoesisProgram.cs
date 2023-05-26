@@ -27,7 +27,7 @@ namespace ModelPluginWrappers {
     }
 
     public class Rpg {
-      private readonly IModel model_ = new ModelImpl();
+      private readonly ModelImpl model_ = new();
 
       private string name_;
 

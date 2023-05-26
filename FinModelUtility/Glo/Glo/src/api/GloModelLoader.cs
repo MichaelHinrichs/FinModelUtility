@@ -290,14 +290,14 @@ namespace glo.api {
                             ? FinColor.FromRgbaBytes(255, 0, 0, 255)
                             : FinColor.FromRgbaBytes(0, 255, 0, 255);
 
-            var finFaceVertices = new IVertex[3];
+            var finFaceVertices = new IReadOnlyVertex[3];
             for (var v = 0; v < 3; ++v) {
               var gloVertexRef = gloFace.VertexRefs[v];
               var gloVertex = gloVertices[gloVertexRef.Index];
 
-              var finVertex = finSkin
-                              .AddVertex(gloVertex.X, gloVertex.Y, gloVertex.Z)
-                              .SetUv(gloVertexRef.U, gloVertexRef.V);
+              var finVertex =
+                  finSkin.AddVertex(gloVertex.X, gloVertex.Y, gloVertex.Z);
+              finVertex.SetUv(gloVertexRef.U, gloVertexRef.V);
               //.SetColor(color);
               finVertex.SetBoneWeights(finSkin.GetOrCreateBoneWeights(
                                            VertexSpace.BONE, finBone));
@@ -305,7 +305,8 @@ namespace glo.api {
             }
 
             // TODO: Merge triangles together
-            var finTriangles = new (IVertex, IVertex, IVertex)[1];
+            var finTriangles =
+                new (IReadOnlyVertex, IReadOnlyVertex, IReadOnlyVertex)[1];
             finTriangles[0] = (finFaceVertices[0], finFaceVertices[2],
                                finFaceVertices[1]);
             finMesh.AddTriangles(finTriangles).SetMaterial(finMaterial!);
@@ -342,22 +343,21 @@ namespace glo.api {
             var w = gloSprite.SpriteSize.X / 4;
             var h = gloSprite.SpriteSize.Y / 4;
 
-            var v1 = finSkin
-                     .AddVertex(0, -h / 2, -w / 2)
-                     .SetUv(0, 0)
-                     .SetBoneWeights(finSpriteBoneWeights);
-            var v2 = finSkin
-                     .AddVertex(0, -h / 2, w / 2)
-                     .SetUv(1, 0)
-                     .SetBoneWeights(finSpriteBoneWeights);
-            var v3 = finSkin
-                     .AddVertex(0, h / 2, -w / 2)
-                     .SetUv(0, 1)
-                     .SetBoneWeights(finSpriteBoneWeights);
-            var v4 = finSkin
-                     .AddVertex(0, h / 2, w / 2)
-                     .SetUv(1, 1)
-                     .SetBoneWeights(finSpriteBoneWeights);
+            var v1 = finSkin.AddVertex(0, -h / 2, -w / 2);
+            v1.SetUv(0, 0);
+            v1.SetBoneWeights(finSpriteBoneWeights);
+
+            var v2 = finSkin.AddVertex(0, -h / 2, w / 2);
+            v2.SetUv(1, 0);
+            v2.SetBoneWeights(finSpriteBoneWeights);
+
+            var v3 = finSkin.AddVertex(0, h / 2, -w / 2);
+            v3.SetUv(0, 1);
+            v3.SetBoneWeights(finSpriteBoneWeights);
+
+            var v4 = finSkin.AddVertex(0, h / 2, w / 2);
+            v4.SetUv(1, 1);
+            v4.SetBoneWeights(finSpriteBoneWeights);
 
             finMesh.AddTriangles((v1, v3, v2), (v4, v2, v3))
                    .SetMaterial(finMaterial!);

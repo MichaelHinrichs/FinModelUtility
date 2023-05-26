@@ -31,6 +31,7 @@ namespace fin.exporter.gltf {
         Dictionary<IMaterial, (IList<byte>, MaterialBuilder)>
             finToTexCoordAndGltfMaterial) {
       var skin = model.Skin;
+      var vertexAccessor = ConsistentVertexAccessor.GetAccessorForModel(model);
 
       var boneTransformManager = new BoneTransformManager();
       var boneToIndex = boneTransformManager.CalculateMatrices(
@@ -65,7 +66,8 @@ namespace fin.exporter.gltf {
           var vertices = new VERTEX[pointsCount];
 
           for (var p = 0; p < pointsCount; ++p) {
-            var point = points[p];
+            vertexAccessor.Target(points[p]);
+            var point = vertexAccessor;
 
             boneTransformManager.ProjectVertexPositionNormal(point, out var outPosition, out var outNormal);
 
@@ -119,11 +121,10 @@ namespace fin.exporter.gltf {
 
             var hasColor = hasColor0 || hasColor1;
 
-            var uvs = point.Uvs;
-            var hasUvs = (uvs?.Count ?? 0) > 0;
+            var hasUvs = vertexAccessor.UvCount > 0;
             if (!this.UvIndices) {
               if (hasUvs) {
-                var uv = uvs[0];
+                var uv = vertexAccessor.GetUv();
                 vertexBuilder =
                     vertexBuilder.WithMaterial(assColor0,
                                                assColor1,

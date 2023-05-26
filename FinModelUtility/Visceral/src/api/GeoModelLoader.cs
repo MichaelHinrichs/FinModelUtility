@@ -132,7 +132,7 @@ namespace visceral.api {
       }
     }
 
-    private void AddGeoFileToModel_(IModel finModel,
+    private void AddGeoFileToModel_(IModel<ISkin<VertexImpl>> finModel,
                                     IFileHierarchyFile geoFile,
                                     IBone[] finBones,
                                     IList<ITexture> textures) {
@@ -165,16 +165,16 @@ namespace visceral.api {
         var finMesh = finSkin.AddMesh();
         finMesh.Name = geoMesh.Name;
 
-        var finVertices = geoMesh.Vertices
-                                 .Select(geoVertex
-                                             => finSkin
-                                                .AddVertex(geoVertex.Position)
-                                                .SetLocalNormal(
-                                                    geoVertex.Normal)
-                                                .SetLocalTangent(
-                                                    geoVertex.Tangent)
-                                                .SetUv(geoVertex.Uv))
-                                 .ToArray();
+        var finVertices =
+            geoMesh.Vertices
+                   .Select(geoVertex => {
+                     var vertex = finSkin.AddVertex(geoVertex.Position);
+                     vertex.SetLocalNormal(geoVertex.Normal);
+                     vertex.SetLocalTangent(geoVertex.Tangent);
+                     vertex.SetUv(geoVertex.Uv);
+                     return vertex as IReadOnlyVertex;
+                   })
+                   .ToArray();
 
         var triangles = geoMesh.Faces.Select(geoFace => {
                                  var indices = geoFace.Indices

@@ -13,7 +13,7 @@ using fin.math.interpolation;
 
 
 namespace fin.model.impl {
-  public partial class ModelImpl {
+  public partial class ModelImpl<TVertex> {
     public class RadiansRotationTrack3dImpl : IRadiansRotationTrack3d {
       private readonly TrackImpl<float>[] axisTracks_;
 

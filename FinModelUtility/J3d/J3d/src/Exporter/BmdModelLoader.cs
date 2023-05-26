@@ -230,7 +230,7 @@ namespace j3d.exporter {
     }
 
     private void ConvertMesh_(
-        IModel model,
+        ModelImpl model,
         BMD bmd,
         (MkdsNode, IBone)[] jointsAndBones,
         BmdMaterialManager materialManager) {

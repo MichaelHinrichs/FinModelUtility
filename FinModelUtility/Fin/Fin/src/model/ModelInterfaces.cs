@@ -6,4 +6,8 @@
     IAnimationManager AnimationManager { get; }
     ILighting Lighting { get; }
   }
+
+  public interface IModel<out TSkin> : IModel where TSkin : ISkin {
+    new TSkin Skin { get; }
+  }
 }

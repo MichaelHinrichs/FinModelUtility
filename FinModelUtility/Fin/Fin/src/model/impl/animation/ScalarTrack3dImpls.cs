@@ -7,7 +7,7 @@ using fin.math.interpolation;
 using System.Runtime.CompilerServices;
 
 namespace fin.model.impl {
-  public partial class ModelImpl {
+  public partial class ModelImpl<TVertex> {
     // TODO: Rethink this, this is all getting way too complicated.
 
     public class PositionTrack3dImpl : IPositionTrack3d {

@@ -8,7 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace fin.model.impl {
-  public partial class ModelImpl {
+  public partial class ModelImpl<TVertex> {
     private class ScalarAxesTrack<TAxes, TAxis> :
           ScalarAxesTrack<TAxes, TAxis, TAxes> {
       public ScalarAxesTrack(

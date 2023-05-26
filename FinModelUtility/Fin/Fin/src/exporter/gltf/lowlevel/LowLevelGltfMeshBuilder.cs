@@ -25,6 +25,7 @@ namespace fin.exporter.gltf.lowlevel {
         Dictionary<IMaterial, (IList<byte>, Material)>
             finToTexCoordAndGltfMaterial) {
       var skin = model.Skin;
+      var vertexAccessor = ConsistentVertexAccessor.GetAccessorForModel(model);
 
       var boneTransformManager = new BoneTransformManager();
       var boneToIndex = boneTransformManager.CalculateMatrices(
@@ -63,7 +64,8 @@ namespace fin.exporter.gltf.lowlevel {
       var uvArray = new Vector2Array(uvView.Content);
 
       for (var p = 0; p < pointsCount; ++p) {
-        var point = points[p];
+        vertexAccessor.Target(points[p]);
+        var point = vertexAccessor;
 
         boneTransformManager.ProjectVertexPositionNormal(point, out var outPosition, out var outNormal);
         var pos = positionArray[p];

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 using Dxt;
@@ -99,7 +100,7 @@ namespace HaloWarsTools {
                          finVertices.Count,
                          new GridVertexGenerator(
                              bytes,
-                             finVertices,
+                             finVertices.Cast<VertexImpl>().ToArray(),
                              gridSize,
                              tileScale,
                              positionOffset,
@@ -109,7 +110,7 @@ namespace HaloWarsTools {
 
       // Generate faces based on terrain grid
       var triangleGridSize = gridSize - 1;
-      var triangles = new IVertex[2 * 3 * triangleGridSize * triangleGridSize];
+      var triangles = new IReadOnlyVertex[2 * 3 * triangleGridSize * triangleGridSize];
       for (int x = 0; x < triangleGridSize; ++x) {
         for (int z = 0; z < triangleGridSize; ++z) {
           var a = finVertices[GetVertexIndex(x, z, gridSize)];
@@ -137,7 +138,7 @@ namespace HaloWarsTools {
 
     private readonly struct GridVertexGenerator : IAction {
       private readonly byte[] bytes_;
-      private readonly IReadOnlyList<IVertex> vertices_;
+      private readonly IReadOnlyList<VertexImpl> vertices_;
       private readonly int gridSize_;
       private readonly float tileScale_;
       private readonly int positionOffset_;
@@ -147,7 +148,7 @@ namespace HaloWarsTools {
 
       public GridVertexGenerator(
           byte[] bytes,
-          IReadOnlyList<IVertex> vertices,
+          IReadOnlyList<VertexImpl> vertices,
           int gridSize,
           float tileScale,
           int positionOffset,
@@ -194,9 +195,9 @@ namespace HaloWarsTools {
                                        0);
 
         var vertex = this.vertices_[index];
-        vertex.SetLocalPosition(Unsafe.As<Vector3, Position>(ref position))
-              .SetLocalNormal(Unsafe.As<Vector3, Normal>(ref normal))
-              .SetUv(texCoord.X, texCoord.Y);
+        vertex.SetLocalPosition(Unsafe.As<Vector3, Position>(ref position));
+        vertex.SetLocalNormal(Unsafe.As<Vector3, Normal>(ref normal));
+        vertex.SetUv(texCoord.X, texCoord.Y);
       }
     }
 

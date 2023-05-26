@@ -6,7 +6,7 @@ using fin.schema.vector;
 
 
 namespace fin.model.impl {
-  public partial class ModelImpl {
+  public partial class ModelImpl<TVertex> {
     public ILighting Lighting { get; } = new LightingImpl();
 
     private class LightingImpl : ILighting {

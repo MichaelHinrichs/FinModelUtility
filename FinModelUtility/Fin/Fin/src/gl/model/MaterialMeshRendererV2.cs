@@ -36,13 +36,13 @@ namespace fin.gl.model {
                                         boneTransformManager,
                                         model.Lighting);
 
-      IReadOnlyList<IVertex> triangleVertices;
+      IReadOnlyList<IReadOnlyVertex> triangleVertices;
       if (primitives is [{ Type: PrimitiveType.TRIANGLES, VertexOrder:
               VertexOrder.NORMAL }]) {
         triangleVertices = primitives[0].Vertices;
       } else {
         triangleVertices = primitives.SelectMany(primitive => {
-          var triangleVertices = new List<IVertex>();
+          var triangleVertices = new List<IReadOnlyVertex>();
 
           var vertices = primitive.Vertices;
           var pointsCount = vertices.Count;
@@ -64,7 +64,7 @@ namespace fin.gl.model {
               }
             case fin.model.PrimitiveType.TRIANGLE_STRIP: {
                 for (var v = 0; v < pointsCount - 2; ++v) {
-                  IVertex v1, v2, v3;
+                  IReadOnlyVertex v1, v2, v3;
                   if (v % 2 == 0) {
                     v1 = vertices[v + 0];
                     v2 = vertices[v + 1];

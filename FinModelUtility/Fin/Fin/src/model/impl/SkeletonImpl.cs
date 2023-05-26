@@ -7,7 +7,7 @@ using System.Numerics;
 
 
 namespace fin.model.impl {
-  public partial class ModelImpl {
+  public partial class ModelImpl<TVertex> {
     public ISkeleton Skeleton { get; } = new SkeletonImpl();
 
     private class SkeletonImpl : ISkeleton {

@@ -64,11 +64,12 @@ namespace xmod.api {
                                            xmod.Colors[adjunct.ColorIndex];
                                        var uv1 = xmod.Uv1s[adjunct.Uv1Index];
 
-                                       return finSkin
-                                              .AddVertex(position)
-                                              .SetLocalNormal(normal)
-                                              .SetColor(color)
-                                              .SetUv(uv1);
+                                       var vertex = finSkin.AddVertex(position);
+                                       vertex.SetLocalNormal(normal);
+                                       vertex.SetColor(color);
+                                       vertex.SetUv(uv1);
+                                       
+                                       return vertex;
                                      })
                                      .ToArray();
 

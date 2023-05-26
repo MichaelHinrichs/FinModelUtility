@@ -3,11 +3,13 @@ using System.Linq;
 
 using Assimp;
 
+using fin.color;
 using fin.model;
 
 namespace fin.exporter.assimp.indirect {
   public class AssimpIndirectUvFixer {
     public void Fix(IModel model, Scene sc) {
+      var vertexAccessor = ConsistentVertexAccessor.GetAccessorForModel(model);
       var assMeshes = sc.Meshes;
 
       // Fix the UVs.
@@ -35,7 +37,12 @@ namespace fin.exporter.assimp.indirect {
 
           var finVertex = assUvIndex != -1 ? finVertices[assUvIndex] : null;
           for (var t = 0; t < 8; ++t) {
-            var uv = finVertex?.GetUv(t);
+            ITexCoord? uv = null;
+            if (finVertex != null) {
+              vertexAccessor.Target(finVertex);
+              uv = vertexAccessor.GetUv(t);
+            }
+
             if (uv != null) {
               hadUv[t] = true;
               assUvs[t].Add(new Vector3D(uv.U, 1 - uv.V, 0));
@@ -57,17 +64,23 @@ namespace fin.exporter.assimp.indirect {
           var finVertex =
               assColorIndex != -1 ? finVertices[assColorIndex] : null;
           for (var c = 0; c < 2; ++c) {
-            var finColor = finVertex?.GetColor(c);
+            IColor? finColor = null;
+            if (finVertex != null) {
+              vertexAccessor.Target(finVertex);
+              finColor = vertexAccessor.GetColor(c);
+            }
+
             if (finColor != null) {
               hadColor[c] = true;
-              assColors[c].Add(new Color4D(finColor.Rf,
-                                           finColor.Gf,
-                                           finColor.Bf,
-                                           finColor.Af));
+              assColors[c]
+                  .Add(new Color4D(finColor.Rf,
+                                   finColor.Gf,
+                                   finColor.Bf,
+                                   finColor.Af));
             } else {
               assColors[c].Add(nullColor);
             }
-          } 
+          }
         }
 
 

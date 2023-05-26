@@ -7,6 +7,7 @@ using f3dzex2.image;
 
 using fin.math;
 using fin.model;
+using fin.model.impl;
 using fin.util.enums;
 
 
@@ -23,7 +24,7 @@ namespace f3dzex2.model {
 
   public class F3dVertices : IF3dVertices {
     private readonly IN64Hardware n64Hardware_;
-    private readonly IModel model_;
+    private readonly ModelImpl model_;
 
     private const int VERTEX_COUNT = 32;
 
@@ -37,7 +38,7 @@ namespace f3dzex2.model {
     private Color diffuseColor_ = Color.White;
 
 
-    public F3dVertices(IN64Hardware n64Hardware, IModel model) {
+    public F3dVertices(IN64Hardware n64Hardware, ModelImpl model) {
       this.n64Hardware_ = n64Hardware;
       this.model_ = model;
     }
@@ -75,12 +76,12 @@ namespace f3dzex2.model {
       var bmpWidth = Math.Max(textureParams.Width, (ushort) 0);
       var bmpHeight = Math.Max(textureParams.Height, (ushort) 0);
 
-      var newVertex = this.model_.Skin.AddVertex(position)
-                          .SetUv(definition.GetUv(
-                                     this.n64Hardware_.Rsp.TexScaleXFloat /
-                                     (bmpWidth * 32),
-                                     this.n64Hardware_.Rsp.TexScaleYFloat /
-                                     (bmpHeight * 32)));
+      var newVertex = this.model_.Skin.AddVertex(position);
+      newVertex.SetUv(definition.GetUv(
+                          this.n64Hardware_.Rsp.TexScaleXFloat /
+                          (bmpWidth * 32),
+                          this.n64Hardware_.Rsp.TexScaleYFloat /
+                          (bmpHeight * 32)));
 
       var activeBone = this.bones_[index];
       if (activeBone != null) {
@@ -95,9 +96,9 @@ namespace f3dzex2.model {
         var normal = definition.GetNormal();
         GlMatrixUtil.ProjectNormal(this.n64Hardware_.Rsp.Matrix.Impl,
                                    ref normal);
-        newVertex.SetLocalNormal(normal)
-                 // TODO: Get rid of this, seems to come from combiner instead
-                 .SetColor(this.DiffuseColor);
+        newVertex.SetLocalNormal(normal);
+        // TODO: Get rid of this, seems to come from combiner instead
+        newVertex.SetColor(this.DiffuseColor);
       } else {
         newVertex.SetColor(definition.GetColor());
       }

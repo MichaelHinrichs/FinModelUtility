@@ -184,7 +184,7 @@ namespace modl.api {
       var chunkFinVertices = new Grid<IVertex?>(heightmapSizeX, heightmapSizeY);
 
       var trianglesByMaterial =
-          new ListDictionary<IMaterial, (IVertex, IVertex, IVertex)>();
+          new ListDictionary<IMaterial, (IReadOnlyVertex, IReadOnlyVertex, IReadOnlyVertex)>();
 
       for (var chunkY = 0; chunkY < chunks.Height; ++chunkY) {
         for (var chunkX = 0; chunkX < chunks.Width; ++chunkX) {
@@ -281,21 +281,21 @@ namespace modl.api {
                       tile.Schema.DetailTextureUvs[4 * pointY + pointX];
 
                   var (u0, v0) = surfaceTextureUvsInRow[pointX];
-                  var uv0 = new ModelImpl.TexCoordImpl {
+                  var uv0 = new TexCoordImpl {
                       U = u0, V = v0,
                   };
 
                   var u1 = LoadUOrV_(detailTextureUvs.U);
                   var v1 = LoadUOrV_(detailTextureUvs.V);
-                  var uv1 = new ModelImpl.TexCoordImpl {
+                  var uv1 = new TexCoordImpl {
                       U = u1, V = v1
                   };
 
                   var finVertex =
-                      finSkin.AddVertex(point.X, point.Height, point.Y)
-                             .SetColor(lightColor)
-                             .SetUv(0, uv0)
-                             .SetUv(1, uv1);
+                      finSkin.AddVertex(point.X, point.Height, point.Y);
+                  finVertex.SetColor(lightColor);
+                  finVertex.SetUv(0, uv0);
+                  finVertex.SetUv(1, uv1);
 
                   chunkFinVertices[heightmapX, heightmapY] = finVertex;
                 }

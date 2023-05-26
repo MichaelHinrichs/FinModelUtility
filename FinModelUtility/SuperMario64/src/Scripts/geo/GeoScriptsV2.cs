@@ -180,13 +180,13 @@ namespace SuperMario64.Scripts {
     public IFinMatrix4x4 CreateRotationMatrix_(Vector3s rotation)
       => MatrixTransformUtil
          .FromRotation(
-             new ModelImpl.RotationImpl().SetDegrees(0, 0, rotation.Z))
+             new RotationImpl().SetDegrees(0, 0, rotation.Z))
          .MultiplyInPlace(
              MatrixTransformUtil.FromRotation(
-                 new ModelImpl.RotationImpl().SetDegrees(rotation.X, 0, 0)))
+                 new RotationImpl().SetDegrees(rotation.X, 0, 0)))
          .MultiplyInPlace(
              MatrixTransformUtil.FromRotation(
-                 new ModelImpl.RotationImpl().SetDegrees(0, rotation.Y, 0)));
+                 new RotationImpl().SetDegrees(0, rotation.Y, 0)));
 
     public void AddDisplayList(
         Model3DLods mdlLods,

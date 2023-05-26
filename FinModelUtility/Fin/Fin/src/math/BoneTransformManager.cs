@@ -27,20 +27,20 @@ namespace fin.math {
 
     public IReadOnlyFinMatrix4x4 GetWorldMatrix(IBone bone);
 
-    public IReadOnlyFinMatrix4x4? GetTransformMatrix(IVertex vertex);
+    public IReadOnlyFinMatrix4x4? GetTransformMatrix(IReadOnlyVertex vertex);
     public IReadOnlyFinMatrix4x4 GetTransformMatrix(IBoneWeights boneWeights);
 
     void ProjectVertexPosition(
-        IVertex vertex,
+        IReadOnlyVertex vertex,
         out Position outPosition);
 
     void ProjectVertexPositionNormal(
-        IVertex vertex,
+        IReadOnlyNormalVertex vertex,
         out Position outPosition,
         out Normal outNormal);
 
     void ProjectVertexPositionNormalTangent(
-        IVertex vertex,
+        IReadOnlyNormalTangentVertex vertex,
         out Position outPosition,
         out Normal outNormal,
         out Tangent outTangent);
@@ -65,7 +65,7 @@ namespace fin.math {
     private readonly IndexableDictionary<IBoneWeights, IFinMatrix4x4>
         boneWeightsToWorldMatrices_ = new();
 
-    private IndexableDictionary<IVertex, IReadOnlyFinMatrix4x4?>
+    private IndexableDictionary<IReadOnlyVertex, IReadOnlyFinMatrix4x4?>
         verticesToWorldMatrices_ = new();
 
     public (IBoneTransformManager, IBone)? Parent { get; }
@@ -96,7 +96,7 @@ namespace fin.math {
     public void InitModelVertices(IModel model, bool forcePreproject = false) {
       var vertices = model.Skin.Vertices;
       this.verticesToWorldMatrices_ =
-          new IndexableDictionary<IVertex, IReadOnlyFinMatrix4x4?>(
+          new IndexableDictionary<IReadOnlyVertex, IReadOnlyFinMatrix4x4?>(
               vertices.Count);
       foreach (var vertex in vertices) {
         this.verticesToWorldMatrices_[vertex] =
@@ -305,14 +305,14 @@ namespace fin.math {
     public IReadOnlyFinMatrix4x4 GetWorldMatrix(IBone bone)
       => this.bonesToWorldMatrices_[bone];
 
-    public IReadOnlyFinMatrix4x4? GetTransformMatrix(IVertex vertex)
+    public IReadOnlyFinMatrix4x4? GetTransformMatrix(IReadOnlyVertex vertex)
       => this.verticesToWorldMatrices_[vertex];
 
     public IReadOnlyFinMatrix4x4 GetTransformMatrix(IBoneWeights boneWeights)
       => this.boneWeightsToWorldMatrices_[boneWeights];
 
     private IReadOnlyFinMatrix4x4? DetermineTransformMatrix_(
-        IVertex vertex,
+        IReadOnlyVertex vertex,
         bool forcePreproject = false) {
       var boneWeights = vertex.BoneWeights;
       var weights = vertex.BoneWeights?.Weights;
@@ -338,7 +338,7 @@ namespace fin.math {
     }
 
     public void ProjectVertexPosition(
-        IVertex vertex,
+        IReadOnlyVertex vertex,
         out Position outPosition) {
       outPosition = vertex.LocalPosition;
 
@@ -352,7 +352,7 @@ namespace fin.math {
     }
 
     public void ProjectVertexPositionNormal(
-        IVertex vertex,
+        IReadOnlyNormalVertex vertex,
         out Position outPosition,
         out Normal outNormal) {
       outPosition = vertex.LocalPosition;
@@ -371,11 +371,12 @@ namespace fin.math {
     }
 
     public void ProjectVertexPositionNormalTangent(
-        IVertex vertex,
+        IReadOnlyNormalTangentVertex vertex,
         out Position outPosition,
         out Normal outNormal,
         out Tangent outTangent) {
       outPosition = vertex.LocalPosition;
+
       outNormal = vertex.LocalNormal.GetValueOrDefault();
       outTangent = vertex.LocalTangent.GetValueOrDefault();
 

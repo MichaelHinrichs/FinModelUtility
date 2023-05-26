@@ -1,7 +1,5 @@
-﻿using fin.util.asserts;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace fin.model.impl {
   public interface IVertexAttributeArray<T> : IEnumerable<(int, T)>

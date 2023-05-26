@@ -60,12 +60,13 @@ namespace uni.ui.gl {
           var xComponent1 = xyComponent1 * FinTrig.Cos(yawTheta);
           var yComponent1 = xyComponent1 * FinTrig.Sin(yawTheta);
 
-          var vertex0 = model
-                        .Skin.AddVertex(xComponent0, yComponent0, zComponent0)
-                        .SetColor(color0);
-          var vertex1 = model
-                        .Skin.AddVertex(xComponent1, yComponent1, zComponent1)
-                        .SetColor(color1);
+          var vertex0 =
+              model.Skin.AddVertex(xComponent0, yComponent0, zComponent0);
+          vertex0.SetColor(color0);
+
+          var vertex1 =
+              model.Skin.AddVertex(xComponent1, yComponent1, zComponent1);
+          vertex1.SetColor(color1);
 
           triangles.Add(vertex0);
           triangles.Add(vertex1);

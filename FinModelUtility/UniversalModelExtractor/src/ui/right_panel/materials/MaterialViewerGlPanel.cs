@@ -23,7 +23,7 @@ namespace uni.ui.right_panel.materials {
       }
     }
 
-    private IModel viewerModel_;
+    private ModelImpl viewerModel_;
     private GlBufferManager bufferManager_;
     private GlBufferManager.GlBufferRenderer bufferRenderer_;
 
@@ -32,10 +32,17 @@ namespace uni.ui.right_panel.materials {
 
       this.viewerModel_ = new ModelImpl(4);
 
-      var ul = this.viewerModel_.Skin.AddVertex(0, 0, 0).SetUv(0, 0);
-      var ur = this.viewerModel_.Skin.AddVertex(1, 0, 0).SetUv(1, 0);
-      var ll = this.viewerModel_.Skin.AddVertex(0, 1, 0).SetUv(0, 1);
-      var lr = this.viewerModel_.Skin.AddVertex(1, 1, 0).SetUv(1, 1);
+      var ul = this.viewerModel_.Skin.AddVertex(0, 0, 0);
+      ul.SetUv(0, 0);
+
+      var ur = this.viewerModel_.Skin.AddVertex(1, 0, 0);
+      ur.SetUv(1, 0);
+
+      var ll = this.viewerModel_.Skin.AddVertex(0, 1, 0);
+      ll.SetUv(0, 1);
+
+      var lr = this.viewerModel_.Skin.AddVertex(1, 1, 0);
+      lr.SetUv(1, 1);
 
       this.bufferManager_ = new GlBufferManager(this.viewerModel_);
       this.bufferRenderer_ = this.bufferManager_.CreateRenderer(new[] {

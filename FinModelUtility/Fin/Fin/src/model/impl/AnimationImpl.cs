@@ -9,7 +9,7 @@ using fin.math.interpolation;
 
 
 namespace fin.model.impl {
-  public partial class ModelImpl {
+  public partial class ModelImpl<TVertex> {
     public IAnimationManager AnimationManager { get; } =
       new AnimationManagerImpl();
 

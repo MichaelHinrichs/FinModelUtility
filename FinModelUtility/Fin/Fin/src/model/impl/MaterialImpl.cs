@@ -10,12 +10,11 @@ using fin.image;
 using fin.io;
 using fin.language.equations.fixedFunction;
 using fin.schema.vector;
-using fin.util.enumerables;
 using fin.util.image;
 
 
 namespace fin.model.impl {
-  public partial class ModelImpl {
+  public partial class ModelImpl<TVertex> {
     public IMaterialManager MaterialManager { get; } =
       new MaterialManagerImpl();
 

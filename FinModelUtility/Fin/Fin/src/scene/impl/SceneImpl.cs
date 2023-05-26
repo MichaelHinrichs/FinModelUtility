@@ -7,9 +7,11 @@ using fin.math;
 using fin.math.matrix;
 using fin.model;
 using fin.model.impl;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using Camera = fin.ui.Camera;
 using Quaternion = System.Numerics.Quaternion;
 
@@ -33,7 +35,7 @@ namespace fin.scene {
     public IReadOnlyList<ISceneArea> Areas => this.areas_;
 
     public ISceneArea AddArea() {
-      var area = new SceneAreaImpl {ViewerScale = this.viewerScale_};
+      var area = new SceneAreaImpl { ViewerScale = this.viewerScale_ };
       this.areas_.Add(area);
       return area;
     }
@@ -80,7 +82,7 @@ namespace fin.scene {
       public IReadOnlyList<ISceneObject> Objects => this.objects_;
 
       public ISceneObject AddObject() {
-        var obj = new SceneObjectImpl {ViewerScale = this.ViewerScale};
+        var obj = new SceneObjectImpl { ViewerScale = this.ViewerScale };
         this.objects_.Add(obj);
         return obj;
       }
@@ -129,7 +131,7 @@ namespace fin.scene {
       }
 
       public Position Position { get; private set; }
-      public IRotation Rotation { get; } = new ModelImpl.RotationImpl();
+      public IRotation Rotation { get; } = new RotationImpl();
 
       public Scale Scale { get; private set; } = new Scale(1, 1, 1);
 
@@ -172,7 +174,7 @@ namespace fin.scene {
 
       public ISceneModel AddSceneModel(IModel model) {
         var sceneModel =
-            new SceneModelImpl(model) {ViewerScale = this.ViewerScale};
+            new SceneModelImpl(model) { ViewerScale = this.ViewerScale };
         this.models_.Add(sceneModel);
         return sceneModel;
       }
@@ -188,7 +190,8 @@ namespace fin.scene {
         GlTransform.PushMatrix();
 
         var trsMatrix =
-            MatrixTransformUtil.FromTrs(this.Position, this.Rotation,
+            MatrixTransformUtil.FromTrs(this.Position,
+                                        this.Rotation,
                                         this.Scale);
         GlTransform.MultMatrix(trsMatrix);
 
@@ -244,14 +247,15 @@ namespace fin.scene {
 
         var hasNormals = false;
         foreach (var vertex in this.Model.Skin.Vertices) {
-          if (vertex.LocalNormal != null) {
+          if (vertex is IReadOnlyNormalVertex { LocalNormal: { } }) {
             hasNormals = true;
             break;
           }
         }
+
         this.ModelRenderer.UseLighting = hasNormals;
 
-        this.AnimationPlaybackManager = new FrameAdvancer {ShouldLoop = true};
+        this.AnimationPlaybackManager = new FrameAdvancer { ShouldLoop = true };
         this.Animation =
             this.Model.AnimationManager.Animations.FirstOrDefault();
         this.AnimationPlaybackManager.IsPlaying = true;
@@ -296,7 +300,7 @@ namespace fin.scene {
         if (this.Animation != null) {
           this.AnimationPlaybackManager.Tick();
 
-          var frame = (float)this.AnimationPlaybackManager.Frame;
+          var frame = (float) this.AnimationPlaybackManager.Frame;
           this.BoneTransformManager.CalculateMatrices(
               this.Model.Skeleton.Root,
               this.Model.Skin.BoneWeights,
@@ -309,7 +313,9 @@ namespace fin.scene {
           var defaultDisplayState = MeshDisplayState.VISIBLE;
           foreach (var (mesh, meshTracks) in this.Animation.MeshTracks) {
             var displayState =
-                meshTracks.DisplayStates.GetInterpolatedFrame(frame, defaultDisplayState);
+                meshTracks.DisplayStates.GetInterpolatedFrame(
+                    frame,
+                    defaultDisplayState);
             if (displayState == MeshDisplayState.HIDDEN) {
               hiddenMeshes.Add(mesh);
             }
@@ -354,7 +360,7 @@ namespace fin.scene {
 
           this.AnimationPlaybackManager.Frame = 0;
           this.AnimationPlaybackManager.FrameRate =
-              (int)(value?.FrameRate ?? 20);
+              (int) (value?.FrameRate ?? 20);
           this.AnimationPlaybackManager.TotalFrames =
               value?.FrameCount ?? 0;
         }

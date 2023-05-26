@@ -27,14 +27,14 @@ using KSoft.Shell;
 namespace HaloWarsTools {
   public class HWUgxResource : HWBinaryResource {
     private IDictionary<string, IBone>? boneMap_;
-    public IModel Mesh { get; private set; }
+    public ModelImpl Mesh { get; private set; }
     public HWVisResource.VisSubModelRef? VisSubModelRef { get; private set; }
     private bool FlipFaces_ { get; set; }
 
     public static HWUgxResource? FromFile(
         HWContext context,
         string filename,
-        (IModel mesh,
+        (ModelImpl mesh,
             HWVisResource.VisSubModelRef? subModelRef,
             bool flipFaces,
             IDictionary<string, IBone> boneMap)?
@@ -180,7 +180,7 @@ namespace HaloWarsTools {
       return current.ToString();
     }
 
-    private void ImportMesh(byte[] bytes, IModel finModel) {
+    private void ImportMesh(byte[] bytes, ModelImpl finModel) {
       var finSkin = finModel.Skin;
 
       var finMaterials = GetMaterials(finModel.MaterialManager, bytes);
@@ -560,9 +560,9 @@ namespace HaloWarsTools {
             }
 
             var finVertex =
-                finSkin.AddVertex(position.X, position.Y, position.Z)
-                       .SetLocalNormal(normal.X, normal.Y, normal.Z)
-                       .SetUv(texcoord.X, texcoord.Y);
+                finSkin.AddVertex(position.X, position.Y, position.Z);
+            finVertex.SetLocalNormal(normal.X, normal.Y, normal.Z);
+            finVertex.SetUv(texcoord.X, texcoord.Y);
 
             if (hasBones) {
               var finBoneWeights =
@@ -597,7 +597,7 @@ namespace HaloWarsTools {
           }
 
           var triangles =
-              new (IVertex, IVertex, IVertex)[polygonInfo.FaceCount];
+              new (IReadOnlyVertex, IReadOnlyVertex, IReadOnlyVertex)[polygonInfo.FaceCount];
 
           offset = ((polygonInfo.FaceOffset * 2) + faceStart);
           for (var j = 0; j < polygonInfo.FaceCount; j++) {

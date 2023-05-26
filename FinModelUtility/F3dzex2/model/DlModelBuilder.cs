@@ -20,7 +20,6 @@ using fin.util.image;
 
 namespace f3dzex2.model {
   public class DlModelBuilder {
-
     private readonly IN64Hardware n64Hardware_;
     private IMesh currentMesh_;
 
@@ -270,7 +269,7 @@ namespace f3dzex2.model {
               });
     }
 
-    public IModel Model { get; } = new ModelImpl();
+    public ModelImpl Model { get; } = new();
 
     public IReadOnlyFinMatrix4x4 Matrix {
       set => this.n64Hardware_.Rsp.Matrix = value;
@@ -304,7 +303,9 @@ namespace f3dzex2.model {
           case MtxOpcodeCommand mtxOpcodeCommand: {
             if (mtxOpcodeCommand.ModelView && mtxOpcodeCommand.Load) {
               if (this.n64Hardware_.Rsp.BoneMapper
-                      .TryToGetBoneAtSegmentedAddress(mtxOpcodeCommand.RamAddress, out var bone)) {
+                      .TryToGetBoneAtSegmentedAddress(
+                          mtxOpcodeCommand.RamAddress,
+                          out var bone)) {
                 this.n64Hardware_.Rsp.ActiveBone = bone;
               }
             }

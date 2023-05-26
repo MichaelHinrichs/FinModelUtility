@@ -253,7 +253,7 @@ namespace mod.cli {
         Mod mod,
         Mesh mesh,
         IMaterial material,
-        IModel model,
+        ModelImpl model,
         IBone[] bones,
         IBoneWeights[] envelopeBoneWeights,
         FinModCache finModCache) {
@@ -360,7 +360,7 @@ namespace mod.cli {
               }
             }
 
-            var finVertexList = new List<IVertex>();
+            var finVertexList = new List<IReadOnlyVertex>();
             for (var v = 0; v < positionIndices.Count; ++v) {
               var position = finModCache.PositionsByIndex[positionIndices[v]];
               var finVertex =
@@ -382,8 +382,8 @@ namespace mod.cli {
                 } else {
                   var normal = finModCache.NbtNormalsByIndex[normalIndex];
                   var tangent = finModCache.TangentsByIndex[normalIndex];
-                  finVertex.SetLocalNormal(normal)
-                           .SetLocalTangent(tangent);
+                  finVertex.SetLocalNormal(normal);
+                  finVertex.SetLocalTangent(tangent);
                 }
               }
 
@@ -468,7 +468,7 @@ namespace mod.cli {
             mod.texcoords.Select(
                    texcoords
                        => texcoords.Select(
-                                       texcoord => new ModelImpl.TexCoordImpl {
+                                       texcoord => new TexCoordImpl {
                                          U = texcoord.X,
                                          V = texcoord.Y,
                                        })

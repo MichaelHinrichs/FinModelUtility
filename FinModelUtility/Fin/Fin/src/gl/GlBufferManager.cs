@@ -9,7 +9,8 @@ using System.Linq;
 
 namespace fin.gl {
   public class GlBufferManager : IDisposable {
-    private readonly IReadOnlyList<IVertex> vertices_;
+    private readonly IReadOnlyList<IReadOnlyVertex> vertices_;
+    private readonly IVertexAccessor vertexAccessor_;
 
     private readonly Position[] positionData_;
     private readonly Normal[] normalData_;
@@ -49,6 +50,7 @@ namespace fin.gl {
 
     public GlBufferManager(IModel model) {
       this.vertices_ = model.Skin.Vertices;
+      this.vertexAccessor_ = ConsistentVertexAccessor.GetAccessorForModel(model);
 
       this.positionData_ = new Position[this.vertices_.Count];
       this.normalData_ = new Normal[this.vertices_.Count];
@@ -89,14 +91,15 @@ namespace fin.gl {
 
     private void InitializeStatic_() {
       for (var i = 0; i < this.vertices_.Count; ++i) {
-        var vertex = this.vertices_[i];
+        this.vertexAccessor_.Target(this.vertices_[i]);
+        var vertex = this.vertexAccessor_;
 
         this.positionData_[i] = vertex.LocalPosition;
         this.normalData_[i] = vertex.LocalNormal.GetValueOrDefault();
         this.tangentData_[i] = vertex.LocalTangent.GetValueOrDefault();
         this.matrixIdData_[i] = (vertex.BoneWeights?.Index ?? -1) + 1;
 
-        var uvCount = Math.Min(this.uvData_.Length, vertex.Uvs?.Count ?? 0);
+        var uvCount = Math.Min(this.uvData_.Length, vertex.UvCount);
         for (var u = 0; u < uvCount; ++u) {
           var uv = vertex.GetUv(u);
           if (uv != null) {
@@ -107,8 +110,7 @@ namespace fin.gl {
           }
         }
 
-        var colorCount = Math.Min(this.colorData_.Length,
-                                  vertex.Colors?.Count ?? 0);
+        var colorCount = Math.Min(this.colorData_.Length, vertex.ColorCount);
         for (var c = 0; c < colorCount; ++c) {
           var color = vertex.GetColor(c);
           if (color != null) {
@@ -235,7 +237,7 @@ namespace fin.gl {
     }
 
     public GlBufferRenderer CreateRenderer(
-        IReadOnlyList<IVertex> triangleVertices)
+        IReadOnlyList<IReadOnlyVertex> triangleVertices)
       => new(this.vaoId_, triangleVertices);
 
     public class GlBufferRenderer : IDisposable {
@@ -246,7 +248,7 @@ namespace fin.gl {
 
       public GlBufferRenderer(
           int vaoId,
-          IReadOnlyList<IVertex> triangleVertices) {
+          IReadOnlyList<IReadOnlyVertex> triangleVertices) {
         this.vaoId_ = vaoId;
 
         GL.BindVertexArray(this.vaoId_);

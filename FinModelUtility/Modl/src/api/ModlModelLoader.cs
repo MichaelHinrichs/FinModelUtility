@@ -238,10 +238,11 @@ namespace modl.api {
 
                 var position =
                     modlNode.Positions[vertexAttributeIndices.PositionIndex];
-                var vertex = vertices[i] = model.Skin.AddVertex(
+                var vertex = model.Skin.AddVertex(
                     flipSign * position.X * modlNode.Scale,
                     position.Y * modlNode.Scale,
                     position.Z * modlNode.Scale);
+                vertices[i] = vertex;
 
                 if (vertexAttributeIndices.NormalIndex != null) {
                   var normal =

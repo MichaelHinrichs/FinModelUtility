@@ -11,7 +11,7 @@ using fin.model.impl;
 
 namespace HaloWarsTools {
   public class HWVisResource : HWXmlResource {
-    public IModel Model { get; private set; }
+    public ModelImpl Model { get; private set; }
     public HWModel[] Models { get; private set; }
 
     public static new HWVisResource
