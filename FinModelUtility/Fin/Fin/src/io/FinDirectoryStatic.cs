@@ -90,10 +90,8 @@ namespace fin.io {
         string fullName,
         string path,
         out string file) {
-      // TODO: Handle subdirectories automatically.
-      var fileInfo = FinFileSystem.Directory.GetFiles(fullName, path)
-                                  .SingleOrDefault();
-      if (fileInfo != null) {
+      var fileInfo = Path.Join(fullName, path);
+      if (FinFileSystem.File.Exists(fileInfo)) {
         file = fileInfo;
         return true;
       }
