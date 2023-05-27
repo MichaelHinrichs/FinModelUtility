@@ -1,12 +1,15 @@
 ﻿using System;
 
 using fin.data;
+using fin.data.lazy;
 
 using OpenTK.Graphics.OpenGL;
 
 
 namespace fin.gl {
   public class GlShaderProgram : IDisposable {
+    private readonly CachedShaderProgram cachedShaderProgram_;
+
     private static ReferenceCountCacheDictionary<string, int>
         vertexShaderCache_ =
             new(src =>
@@ -33,7 +36,7 @@ namespace fin.gl {
 
     private static
         ReferenceCountCacheDictionary<(string vertexSrc, string fragmentSrc),
-            int> programCache_ =
+            CachedShaderProgram> programCache_ =
             new(vertexAndFragmentSrc => {
                   var (vertexSrc, fragmentSrc) = vertexAndFragmentSrc;
                   var vertexShaderId =
@@ -49,10 +52,14 @@ namespace fin.gl {
                   GL.AttachShader(programId, fragmentShaderId);
                   GL.LinkProgram(programId);
 
-                  return programId;
+                  return new CachedShaderProgram {
+                      ProgramId = programId,
+                      VertexShaderSource = vertexSrc,
+                      FragmentShaderSource = fragmentSrc,
+                  };
                 },
-                (vertexAndFragmentSrc, programId) => {
-                  GL.DeleteProgram(programId);
+                (vertexAndFragmentSrc, cachedShaderProgram) => {
+                  GL.DeleteProgram(cachedShaderProgram.ProgramId);
 
                   var (vertexSrc, fragmentSrc) = vertexAndFragmentSrc;
                   GlShaderProgram.vertexShaderCache_.DecrementAndMaybeDispose(
@@ -69,9 +76,7 @@ namespace fin.gl {
 
     private GlShaderProgram(string vertexShaderSrc,
                             string fragmentShaderSrc) {
-      this.VertexShaderSource = vertexShaderSrc;
-      this.FragmentShaderSource = fragmentShaderSrc;
-      this.ProgramId =
+      this.cachedShaderProgram_ =
           GlShaderProgram.programCache_.GetAndIncrement(
               (vertexShaderSrc, fragmentShaderSrc));
     }
@@ -83,11 +88,9 @@ namespace fin.gl {
       GC.SuppressFinalize(this);
     }
 
-    private void ReleaseUnmanagedResources_() {
-      GlShaderProgram.programCache_.DecrementAndMaybeDispose(
+    private void ReleaseUnmanagedResources_()
+      => GlShaderProgram.programCache_.DecrementAndMaybeDispose(
           (this.VertexShaderSource, this.FragmentShaderSource));
-      this.ProgramId = UNDEFINED_ID;
-    }
 
     private static int CreateAndCompileShader_(string src,
                                                ShaderType shaderType) {
@@ -110,17 +113,36 @@ namespace fin.gl {
       return shaderId;
     }
 
-    public string VertexShaderSource { get; }
-    public string FragmentShaderSource { get; }
+    public int ProgramId => this.cachedShaderProgram_.ProgramId;
 
-    public int ProgramId { get; private set; } = UNDEFINED_ID;
+    public string VertexShaderSource
+      => this.cachedShaderProgram_.VertexShaderSource;
+
+    public string FragmentShaderSource
+      => this.cachedShaderProgram_.FragmentShaderSource;
+
 
     public void Use() => GL.UseProgram(this.ProgramId);
 
-    public int GetUniformLocation(string name) =>
-        GL.GetUniformLocation(this.ProgramId, name);
+    public int GetUniformLocation(string uniformName)
+      => this.cachedShaderProgram_.GetUniformLocation(uniformName);
 
-    public int GetAttribLocation(string name) =>
-        GL.GetAttribLocation(this.ProgramId, name);
+    private class CachedShaderProgram {
+      private readonly LazyDictionary<string, int> lazyUniforms_;
+
+      public CachedShaderProgram() {
+        this.lazyUniforms_ = new(uniformName
+                                     => GL.GetUniformLocation(
+                                         this.ProgramId,
+                                         uniformName));
+      }
+
+      public required int ProgramId { get; init; }
+      public required string VertexShaderSource { get; init; }
+      public required string FragmentShaderSource { get; init; }
+
+      public int GetUniformLocation(string uniformName)
+        => this.lazyUniforms_[uniformName];
+    }
   }
 }
