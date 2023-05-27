@@ -110,7 +110,7 @@ namespace fin.model {
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public void Target(IReadOnlyVertex vertex) { }
 
-      public Normal? LocalNormal => new Normal();
+      public Normal? LocalNormal => null;
     }
 
     private sealed class NormalAccessor : BAccessor, IVertexNormalAccessor {
@@ -130,7 +130,7 @@ namespace fin.model {
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public void Target(IReadOnlyVertex vertex) { }
 
-      public Tangent? LocalTangent => new Tangent();
+      public Tangent? LocalTangent => null;
     }
 
     private sealed class TangentAccessor : BAccessor, IVertexTangentAccessor {

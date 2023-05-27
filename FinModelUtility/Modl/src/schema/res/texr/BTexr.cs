@@ -73,7 +73,7 @@ namespace modl.schema.res.texr {
       width = (uint) (MathF.Ceiling(width / 8f) * 8);
       height = (uint) (MathF.Ceiling(height / 8f) * 8);
 
-      var mipSize = width * height / 2;
+      var mipSize = width * height >> 1;
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", mipSize);
 
       return TiledImageReader

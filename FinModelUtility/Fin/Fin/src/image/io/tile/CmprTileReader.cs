@@ -91,8 +91,7 @@ namespace fin.io.image.tile {
             (byte) (((int) g1 + (int) g2) >> 1),
             (byte) (((int) b1 + (int) b2) >> 1),
             byte.MaxValue);
-        // 4th color in palette is transparency.
-        palette[3] = new Rgba32(0, 0, 0, 0);
+        // 4th color in palette is transparency, automatically 0.
       }
     }
   }

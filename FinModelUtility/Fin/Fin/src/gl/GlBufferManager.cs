@@ -16,6 +16,7 @@ namespace fin.gl {
     private readonly Normal[] normalData_;
     private readonly Tangent[] tangentData_;
     private readonly int[] matrixIdData_;
+
     private readonly float[][] uvData_;
     private readonly float[][] colorData_;
 
