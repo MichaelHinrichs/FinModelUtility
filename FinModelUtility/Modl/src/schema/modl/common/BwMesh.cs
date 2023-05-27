@@ -14,11 +14,10 @@ namespace modl.schema.modl.common {
     }
   }
 
-  public class BwVertexAttributeIndices {
-    public double Fraction { get; set; }
+  public struct BwVertexAttributeIndices {
     public ushort PositionIndex { get; set; }
     public ushort? NormalIndex { get; set; }
     public int? NodeIndex { get; set; }
-    public ushort?[] TexCoordIndices { get; } = new ushort?[8];
+    public required ushort?[] TexCoordIndices { get; init; }
   }
 }

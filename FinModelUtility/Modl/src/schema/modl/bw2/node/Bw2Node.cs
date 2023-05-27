@@ -314,19 +314,19 @@ namespace modl.schema.modl.bw2.node {
           var values = er.ReadUInt32s(length);
           // TODO: Implement
         } else if (opcodeEnum == GxOpcode.DRAW_TRIANGLE_STRIP) {
-          var vertexAttributeIndicesList = new List<BwVertexAttributeIndices>();
+          var vertexCount = er.ReadUInt16();
+          var vertexAttributeIndicesList =
+              new List<BwVertexAttributeIndices>(vertexCount);
 
           var triangleStrip = new BwTriangleStrip {
               VertexAttributeIndicesList = vertexAttributeIndicesList,
           };
           triangleStrips.Add(triangleStrip);
 
-          var vertexCount = er.ReadUInt16();
           for (var i = 0; i < vertexCount; ++i) {
             var vertexAttributeIndices = new BwVertexAttributeIndices {
-                Fraction = 1d * i / vertexCount
+                TexCoordIndices = new ushort?[8],
             };
-            vertexAttributeIndicesList.Add(vertexAttributeIndices);
 
             foreach (var (vertexAttribute, vertexFormat) in
                      vertexDescriptor) {
@@ -373,6 +373,8 @@ namespace modl.schema.modl.bw2.node {
                 }
               }
             }
+
+            vertexAttributeIndicesList.Add(vertexAttributeIndices);
           }
         } else if (opcodeEnum == GxOpcode.NOP) { } else {
           throw new NotImplementedException();

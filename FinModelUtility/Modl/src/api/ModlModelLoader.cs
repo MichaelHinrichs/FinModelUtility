@@ -113,78 +113,7 @@ namespace modl.api {
         }
 
         foreach (var animFile in animFiles ?? Array.Empty<ISystemFile>()) {
-          var anim = gameVersion switch {
-              GameVersion.BW1 => (IAnim) animFile.ReadNew<Bw1Anim>(
-                  Endianness.BigEndian),
-              GameVersion.BW2 => animFile.ReadNew<Bw2Anim>(
-                  Endianness.BigEndian)
-          };
-
-          var maxFrameCount = -1;
-          foreach (var animBone in anim.AnimBones) {
-            maxFrameCount = (int) Math.Max(maxFrameCount,
-                                           Math.Max(
-                                               animBone
-                                                   .PositionKeyframeCount,
-                                               animBone
-                                                   .RotationKeyframeCount));
-          }
-
-          var finAnimation = model.AnimationManager.AddAnimation();
-          finAnimation.Name = animFile.NameWithoutExtension;
-          finAnimation.FrameRate = 30;
-          finAnimation.FrameCount = maxFrameCount;
-
-          for (var b = 0; b < anim.AnimBones.Count; ++b) {
-            var animBone = anim.AnimBones[b];
-            var animBoneFrames = anim.AnimBoneFrames[b];
-
-            var animNodeIdentifier = animBone.GetIdentifier();
-            if (!finBonesByIdentifier.TryGetValue(
-                    animNodeIdentifier,
-                    out var finBone)) {
-              // TODO: Gross hack for the vet models, what's the real fix???
-              if (animNodeIdentifier == Bw1Node.GetIdentifier(33)) {
-                finBone = finBonesByIdentifier[Bw1Node.GetIdentifier(34)];
-              } else if (finBonesByIdentifier.TryGetValue(
-                             animNodeIdentifier + 'X',
-                             out var xBone)) {
-                finBone = xBone;
-              } else if (finBonesByIdentifier.TryGetValue(
-                             "BONE_" + animNodeIdentifier,
-                             out var prefixBone)) {
-                finBone = prefixBone;
-              } else if (animNodeIdentifier == "WF_GRUNT_BACKPAC") {
-                // TODO: Is this right?????
-                finBone = finBonesByIdentifier["BONE_BCK_MISC"];
-              } else {
-                ;
-              }
-            }
-
-            var finBoneTracks = finAnimation.AddBoneTracks(finBone!);
-
-            var fbtPositions = finBoneTracks.Positions;
-            for (var f = 0; f < animBone.PositionKeyframeCount; ++f) {
-              var (fPX, fPY, fPZ) = animBoneFrames.PositionFrames[f];
-
-              fbtPositions.Set(f, 0, flipSign * fPX);
-              fbtPositions.Set(f, 1, fPY);
-              fbtPositions.Set(f, 2, fPZ);
-            }
-
-            var fbtRotations = finBoneTracks.Rotations;
-            for (var f = 0; f < animBone.RotationKeyframeCount; ++f) {
-              var (fRX, fRY, fRZ, frW) = animBoneFrames.RotationFrames[f];
-
-              var animationQuaternion =
-                  new Quaternion(flipSign * fRX, fRY, fRZ, flipSign * frW);
-              var eulerRadians =
-                  QuaternionUtil.ToEulerRadians(animationQuaternion);
-
-              fbtRotations.Set(f, eulerRadians);
-            }
-          }
+          AddAnimFileToModel_(model, animFile, gameVersion, flipSign, finBonesByIdentifier);
         }
 
         var textureDictionary = new LazyDictionary<string, Task<ITexture>>(
@@ -296,6 +225,98 @@ namespace modl.api {
       }
 
       return model;
+    }
+
+    private static void AddAnimFileToModel_(IModel model,
+                                            ISystemFile animFile,
+                                            GameVersion gameVersion,
+                                            int flipSign,
+                                            IDictionary<string, IBone> finBonesByIdentifier) {
+      var anim = gameVersion switch {
+        GameVersion.BW1 => (IAnim) animFile.ReadNew<Bw1Anim>(
+            Endianness.BigEndian),
+        GameVersion.BW2 => animFile.ReadNew<Bw2Anim>(
+            Endianness.BigEndian)
+      };
+
+      var maxFrameCount = -1;
+      foreach (var animBone in anim.AnimBones) {
+        maxFrameCount = (int) Math.Max(maxFrameCount,
+                                       Math.Max(
+                                           animBone
+                                               .PositionKeyframeCount,
+                                           animBone
+                                               .RotationKeyframeCount));
+      }
+
+      var finAnimation = model.AnimationManager.AddAnimation();
+      finAnimation.Name = animFile.NameWithoutExtension;
+      finAnimation.FrameRate = 30;
+      finAnimation.FrameCount = maxFrameCount;
+
+      Span<int> positionCapacities = stackalloc int[3];
+      Span<int> rotationCapacities = stackalloc int[3];
+      Span<int> scaleCapacities = stackalloc int[3];
+
+      for (var b = 0; b < anim.AnimBones.Count; ++b) {
+        var animBone = anim.AnimBones[b];
+        var animBoneFrames = anim.AnimBoneFrames[b];
+
+        var animNodeIdentifier = animBone.GetIdentifier();
+        if (!finBonesByIdentifier.TryGetValue(
+                animNodeIdentifier,
+                out var finBone)) {
+          // TODO: Gross hack for the vet models, what's the real fix???
+          if (animNodeIdentifier == Bw1Node.GetIdentifier(33)) {
+            finBone = finBonesByIdentifier[Bw1Node.GetIdentifier(34)];
+          } else if (finBonesByIdentifier.TryGetValue(
+                         animNodeIdentifier + 'X',
+                         out var xBone)) {
+            finBone = xBone;
+          } else if (finBonesByIdentifier.TryGetValue(
+                         "BONE_" + animNodeIdentifier,
+                         out var prefixBone)) {
+            finBone = prefixBone;
+          } else if (animNodeIdentifier == "WF_GRUNT_BACKPAC") {
+            // TODO: Is this right?????
+            finBone = finBonesByIdentifier["BONE_BCK_MISC"];
+          } else {
+            ;
+          }
+        }
+
+        positionCapacities[0] = positionCapacities[1] =
+            positionCapacities[2] = (int) animBone.PositionKeyframeCount;
+        rotationCapacities[0] = rotationCapacities[1] =
+            rotationCapacities[2] = (int) animBone.RotationKeyframeCount;
+
+        var finBoneTracks = finAnimation.AddBoneTracks(
+            finBone,
+            positionCapacities,
+            rotationCapacities,
+            scaleCapacities);
+
+        var fbtPositions = finBoneTracks.Positions;
+        for (var f = 0; f < animBone.PositionKeyframeCount; ++f) {
+          var (fPX, fPY, fPZ) = animBoneFrames.PositionFrames[f];
+
+          fbtPositions.Set(f, 0, flipSign * fPX);
+          fbtPositions.Set(f, 1, fPY);
+          fbtPositions.Set(f, 2, fPZ);
+        }
+
+        var fbtRotations = finBoneTracks.Rotations;
+        for (var f = 0; f < animBone.RotationKeyframeCount; ++f) {
+          var (fRX, fRY, fRZ, frW) = animBoneFrames.RotationFrames[f];
+
+          var animationQuaternion =
+              new Quaternion(flipSign * fRX, fRY, fRZ, flipSign * frW);
+          var eulerRadians =
+              QuaternionUtil.ToEulerRadians(animationQuaternion);
+
+          fbtRotations.Set(f, eulerRadians);
+        }
+      }
     }
   }
 }

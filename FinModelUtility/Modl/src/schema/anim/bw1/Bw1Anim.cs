@@ -1,14 +1,15 @@
-﻿using fin.util.asserts;
+﻿using System.Runtime.CompilerServices;
+
+using fin.util.asserts;
 
 using schema.binary;
 
 
 namespace modl.schema.anim.bw1 {
   public class Bw1Anim : IAnim, IBinaryDeserializable {
-    public List<IBwAnimBone> AnimBones { get; } = new();
-    public List<AnimBoneFrames> AnimBoneFrames { get; } = new();
+    public List<IBwAnimBone> AnimBones { get; private set; }
+    public List<AnimBoneFrames> AnimBoneFrames { get; private set; }
 
-    private readonly double[] buffer_ = new double[4];
     public void Read(IEndianBinaryReader er) {
       string name0;
       {
@@ -42,6 +43,8 @@ namespace modl.schema.anim.bw1 {
 
       er.ReadUInt32s(2);
 
+      this.AnimBones = new List<IBwAnimBone>((int) boneCount);
+      this.AnimBoneFrames = new List<AnimBoneFrames>((int) boneCount);
       for (var i = 0; i < boneCount; ++i) {
         var bone = new Bw1AnimBone();
         bone.Read(er);
@@ -56,6 +59,7 @@ namespace modl.schema.anim.bw1 {
                                          bone.RotationKeyframeCount * 6)
                                  .ToArray();
 
+      // TODO: Remove this list allocation
       var boneBytes = new List<byte[]>();
       for (var i = 0; i < this.AnimBones.Count; ++i) {
         var currentBuffer = er.ReadBytes((int)estimatedLengths[i]);
@@ -66,6 +70,7 @@ namespace modl.schema.anim.bw1 {
         }
       }
 
+      Span<double> parseBuffer = stackalloc double[4];
       for (var i = 0; i < boneCount; ++i) {
         var bone = this.AnimBones[i];
 
@@ -73,29 +78,31 @@ namespace modl.schema.anim.bw1 {
         using var ber =
             new EndianBinaryReader(buffer, Endianness.BigEndian);
 
-        var animBoneFrames = new AnimBoneFrames();
+        var animBoneFrames = new AnimBoneFrames(
+            (int) bone.PositionKeyframeCount,
+            (int) bone.RotationKeyframeCount);
         this.AnimBoneFrames.Add(animBoneFrames);
 
         for (var p = 0; p < bone.PositionKeyframeCount; ++p) {
-          Parse3PositionValuesFrom2UShorts_(bone, ber, buffer_);
-          animBoneFrames.PositionFrames.Add(((float)buffer_[0],
-                                             (float)buffer_[1],
-                                             (float)buffer_[2]));
+          Parse3PositionValuesFrom2UShorts_(bone, ber, parseBuffer);
+          animBoneFrames.PositionFrames.Add(((float)parseBuffer[0],
+                                             (float)parseBuffer[1],
+                                             (float)parseBuffer[2]));
         }
 
         for (var p = 0; p < bone.RotationKeyframeCount; ++p) {
           var flipSigns =
-              Parse4RotationValuesFrom3UShorts_(ber, buffer_);
+              Parse4RotationValuesFrom3UShorts_(ber, parseBuffer);
           if (flipSigns) {
-            for (var f = 0; f < buffer_.Length; f++) {
-              buffer_[f] *= -1;
+            for (var f = 0; f < parseBuffer.Length; f++) {
+              parseBuffer[f] *= -1;
             }
           }
 
-          animBoneFrames.RotationFrames.Add(((float)-buffer_[0],
-                                             (float)-buffer_[1],
-                                             (float)-buffer_[2],
-                                             (float)buffer_[3]));
+          animBoneFrames.RotationFrames.Add(((float)-parseBuffer[0],
+                                             (float)-parseBuffer[1],
+                                             (float)-parseBuffer[2],
+                                             (float)parseBuffer[3]));
         }
       }
     }
@@ -103,7 +110,7 @@ namespace modl.schema.anim.bw1 {
     public void Parse3PositionValuesFrom2UShorts_(
         IBwAnimBone animBone,
         IEndianBinaryReader er,
-        double[] outValues) {
+        Span<double> outValues) {
       var first_uint = er.ReadUInt32();
       er.Position -= 2;
       var second_ushort = er.ReadUInt16();
@@ -125,8 +132,8 @@ namespace modl.schema.anim.bw1 {
           animBone.ZPosDelta + animBone.ZPosMin;
     }
 
-    public bool Parse4RotationValuesFrom3UShorts_(IEndianBinaryReader er, 
-                                                  double[] outValues) {
+    public bool Parse4RotationValuesFrom3UShorts_(IEndianBinaryReader er,
+                                                  Span<double> outValues) {
       var first_ushort = er.ReadUInt16();
       var second_ushort = er.ReadUInt16();
       var third_ushort = er.ReadUInt16();
@@ -189,12 +196,15 @@ namespace modl.schema.anim.bw1 {
       return (short)second_ushort < 0;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static ulong CONCAT44_(uint first, uint second) =>
         ((ulong)first << 32) | second;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static unsafe double INTERPRET_AS_DOUBLE_(ulong ulongValue)
       => *(double*)&ulongValue;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static unsafe float INTERPRET_AS_SINGLE_(uint uintValue)
       => *(float*)&uintValue;
   }
