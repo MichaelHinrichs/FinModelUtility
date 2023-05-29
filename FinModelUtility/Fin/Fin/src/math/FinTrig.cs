@@ -1,21 +1,26 @@
-﻿using FastMath;
-using System;
+﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace fin.math {
   public static class FinTrig {
-    public const float PRECISION = .001f;
+    // At this point, native C# approach is faster than FastMath.
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static float Cos(float radians) => MathF.Cos(radians);
 
-    private static readonly MemoizedCos MEMOIZED_COS = MemoizedCos.ConstructByMaxError(PRECISION);
-    private static readonly MemoizedSin MEMOIZED_SIN = MemoizedSin.ConstructByMaxError(PRECISION);
-    private static readonly MemoizedAcos MEMOIZED_ACOS = MemoizedAcos.ConstructByMaxError(PRECISION);
-    private static readonly MemoizedAsin MEMOIZED_ASIN = MemoizedAsin.ConstructByMaxError(PRECISION);
-    private static readonly MemoizedAtan2 MEMOIZED_ATAN2 = MemoizedAtan2.ConstructByMaxError(PRECISION);
+    // At this point, native C# approach is faster than FastMath.
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static float Sin(float radians) => MathF.Sin(radians);
 
-    public static Func<float, float> Cos => MEMOIZED_COS.CalculateUnbound;
-    public static Func<float, float> Sin => MEMOIZED_SIN.CalculateUnbound;
+    // At this point, native C# approach is faster than FastMath.
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static float Acos(float value) => MathF.Acos(value);
 
-    public static Func<float, float> Acos => MEMOIZED_ACOS.Calculate;
-    public static Func<float, float> Asin => MEMOIZED_ASIN.Calculate;
-    public static Func<float, float, float> Atan2 => MEMOIZED_ATAN2.Calculate;
+    // At this point, native C# approach is faster than FastMath.
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static float Asin(float value) => MathF.Asin(value);
+
+    // At this point, native C# approach is faster than FastMath.
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static float Atan2(float y, float x) => MathF.Atan2(y, x);
   }
 }
