@@ -41,11 +41,13 @@ namespace fin.math {
         return Vector3.Zero;
       }
 
-      Vector3 angles = new();
+      Vector3 angles;
+
+      var qy2 = q.Y * q.Y;
 
       // roll / x
       var sinr_cosp = 2 * (q.W * q.X + q.Y * q.Z);
-      var cosr_cosp = 1 - 2 * (q.X * q.X + q.Y * q.Y);
+      var cosr_cosp = 1 - 2 * (q.X * q.X + qy2);
       angles.X = FinTrig.Atan2(sinr_cosp, cosr_cosp);
 
       // pitch / y
@@ -58,7 +60,7 @@ namespace fin.math {
 
       // yaw / z
       var siny_cosp = 2 * (q.W * q.Z + q.X * q.Y);
-      var cosy_cosp = 1 - 2 * (q.Y * q.Y + q.Z * q.Z);
+      var cosy_cosp = 1 - 2 * (qy2 + q.Z * q.Z);
       angles.Z = FinTrig.Atan2(siny_cosp, cosy_cosp);
 
       return angles;
