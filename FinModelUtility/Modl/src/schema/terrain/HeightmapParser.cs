@@ -2,6 +2,7 @@
 using fin.schema.color;
 using fin.util.array;
 using schema.binary;
+using schema.binary.attributes.sequence;
 
 
 namespace modl.schema.terrain {
@@ -158,20 +159,20 @@ namespace modl.schema.terrain {
     public partial class SchemaTile : IBinaryConvertible {
       public ushort[] Heights { get; } = new ushort[16];
 
-      public Rgba32[] LightColors { get; } =
-        Arrays.From(16, () => new Rgba32());
+      [SequenceLengthSource(16)]
+      public Rgba32[] LightColors { get; set; }
 
-      public TileUvs[] SurfaceTextureUvsFromFirstRow { get; } =
-        Arrays.From(4, () => new TileUvs());
+      [SequenceLengthSource(4)]
+      public TileUvs[] SurfaceTextureUvsFromFirstRow { get; set; }
 
-      public TileUvs[] DetailTextureUvs { get; } =
-        Arrays.From(16, () => new TileUvs());
+      [SequenceLengthSource(16)]
+      public TileUvs[] DetailTextureUvs { get; set; }
 
       public uint MatlIndex { get; private set; }
     }
 
     [BinarySchema]
-    public partial class TileUvs : IBinaryConvertible {
+    public partial struct TileUvs : IBinaryConvertible {
       public ushort U { get; private set; }
       public ushort V { get; private set; }
     }

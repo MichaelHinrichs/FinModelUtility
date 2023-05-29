@@ -75,11 +75,9 @@ namespace modl.api {
                                 .Single(
                                     dir => dir.Name == outName + "_Level");
 
-                     if (!outDirectory
-                         .GetExistingFiles()
-                         .Where(file => file.Name.ToLower() ==
-                                        $"{textureName}.png")
-                         .TryGetFirst(out var textureFile)) {
+                     if (!outDirectory.TryToGetExistingFile(
+                             $"{textureName}.png",
+                             out var textureFile)) {
                        // Some of the maps use textures from other directories...
                        var allMapsDirectory = outDirectory.GetParent();
                        textureFile = allMapsDirectory
