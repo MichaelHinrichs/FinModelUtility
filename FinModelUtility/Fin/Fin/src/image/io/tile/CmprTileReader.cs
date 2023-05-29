@@ -32,11 +32,14 @@ namespace fin.io.image.tile {
                               int tileY,
                               int imageWidth,
                               int imageHeight) {
+      Span<Rgba32> paletteBuffer = stackalloc Rgba32[4];
+
       for (var j = 0; j < SUB_TILE_COUNT_IN_AXIS; ++j) {
         for (var i = 0; i < SUB_TILE_COUNT_IN_AXIS; ++i) {
           DecodeCmprSubblock_(
-              er, 
+              er,
               scan0,
+              paletteBuffer,
               tileX * TileWidth + i * SUB_TILE_SIZE_IN_AXIS,
               tileY * TileHeight + j * SUB_TILE_SIZE_IN_AXIS,
               imageWidth);
@@ -47,17 +50,17 @@ namespace fin.io.image.tile {
     private static unsafe void DecodeCmprSubblock_(
         IEndianBinaryReader er,
         Rgba32* scan0,
+        Span<Rgba32> paletteBuffer,
         int imageX,
         int imageY,
         int imageWidth) {
-      Span<Rgba32> palette = stackalloc Rgba32[4];
-      DecodeCmprPalette_(palette, er.ReadUInt16(), er.ReadUInt16());
+      DecodeCmprPalette_(paletteBuffer, er.ReadUInt16(), er.ReadUInt16());
 
       for (var j = 0; j < 4; ++j) {
         var indices = er.ReadByte();
         for (var i = 0; i < 4; ++i) {
           var index = (indices >> (2 * (3 - i))) & 0b11;
-          scan0[(imageY + j) * imageWidth + imageX + i] = palette[index];
+          scan0[(imageY + j) * imageWidth + imageX + i] = paletteBuffer[index];
         }
       }
     }
@@ -68,29 +71,26 @@ namespace fin.io.image.tile {
       ColorUtil.SplitRgb565(color1Value, out var r1, out var g1, out var b1);
       ColorUtil.SplitRgb565(color2Value, out var r2, out var g2, out var b2);
 
-      palette[0] = new Rgba32(r1, g1, b1, 255);
-      palette[1] = new Rgba32(r2, g2, b2, 255);
+      palette[0] = new Rgba32(r1, g1, b1);
+      palette[1] = new Rgba32(r2, g2, b2);
 
       if (color1Value > color2Value) {
         // 3rd color in palette is 1/3 from 1st to 2nd.
         palette[2] = new Rgba32(
             (byte) ((((int) r1 << 1) + (int) r2) / 3),
             (byte) ((((int) g1 << 1) + (int) g2) / 3),
-            (byte) ((((int) b1 << 1) + (int) b2) / 3),
-            byte.MaxValue);
+            (byte) ((((int) b1 << 1) + (int) b2) / 3));
         // 4th color in palette is 2/3 from 1st to 2nd.
         palette[3] = new Rgba32(
             (byte) (((int) r1 + ((int) r2 << 1)) / 3),
             (byte) (((int) g1 + ((int) g2 << 1)) / 3),
-            (byte) (((int) b1 + ((int) b2 << 1)) / 3),
-            byte.MaxValue);
+            (byte) (((int) b1 + ((int) b2 << 1)) / 3));
       } else {
         // 3rd color in palette is halfway between 1st and 2nd.
         palette[2] = new Rgba32(
             (byte) (((int) r1 + (int) r2) >> 1),
             (byte) (((int) g1 + (int) g2) >> 1),
-            (byte) (((int) b1 + (int) b2) >> 1),
-            byte.MaxValue);
+            (byte) (((int) b1 + (int) b2) >> 1));
         // 4th color in palette is transparency, automatically 0.
       }
     }

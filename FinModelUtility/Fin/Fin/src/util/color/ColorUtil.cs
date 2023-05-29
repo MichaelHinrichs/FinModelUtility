@@ -30,12 +30,9 @@ namespace fin.util.color {
         out byte r,
         out byte g,
         out byte b) {
-      var upper = (byte) (color >> 8);
-      var lower = (byte) (color);
-
-      r = (byte) ((uint) upper & 248U);
-      b = (byte) ((int) lower << 3 & 248);
-      g = (byte) ((int) upper << 5 & 224 | (int) lower >> 3 & 28);
+      r = (byte) ((color >> 8) & 0b11111000);
+      g = (byte) ((color >> 3) & 0b11111100);
+      b = (byte) (color << 3 & 0b11111000);
     }
 
     public static IColor ParseRgb565(ushort color) {
