@@ -25,7 +25,7 @@ namespace level5.decompression {
           break;
         default:
           dst = new byte[src.Length - 4];
-          Array.Copy(src, 4, dst, 0, src.Length - 4);
+          src.AsSpan(4).CopyTo(dst);
           break;
       }
 

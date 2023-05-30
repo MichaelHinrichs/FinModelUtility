@@ -19,18 +19,18 @@ namespace level5.decompression {
       var decomLength = (b[0] & 0xFF) | ((b[1] & 0xFF) << 8) |
                         ((b[2] & 0xFF) << 16) | ((b[3] & 0xFF) << 24);
       var data = new byte[b.Length - 4];
-      Array.Copy(b, 4, data, 0, b.Length - 4);
+      b.AsSpan(4).CopyTo(data);
 
       var stream = new MemoryStream();
       var ms = new MemoryStream(data);
       ms.ReadByte();
       ms.ReadByte();
       var zlibStream = new DeflateStream(ms, CompressionMode.Decompress);
-      byte[] buffer = new byte[2048];
+      Span<byte> buffer = stackalloc byte[2048];
       while (true) {
-        int size = zlibStream.Read(buffer, 0, buffer.Length);
+        int size = zlibStream.Read(buffer);
         if (size > 0)
-          stream.Write(buffer, 0, buffer.Length);
+          stream.Write(buffer.Slice(0, size));
         else
           break;
       }
