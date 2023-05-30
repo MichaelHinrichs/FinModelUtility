@@ -9,7 +9,6 @@ using fin.io;
 using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
-using fin.util.linq;
 
 using modl.schema.res.texr;
 using modl.schema.terrain;
@@ -185,6 +184,7 @@ namespace modl.api {
       var trianglesByMaterial =
           new ListDictionary<IMaterial, (IReadOnlyVertex, IReadOnlyVertex, IReadOnlyVertex)>();
 
+      Span<(float, float)> surfaceTextureUvsInRow = stackalloc (float, float)[4];
       for (var chunkY = 0; chunkY < chunks.Height; ++chunkY) {
         for (var chunkX = 0; chunkX < chunks.Width; ++chunkX) {
           var tiles = chunks[chunkX, chunkY]?.Tiles;
@@ -212,7 +212,6 @@ namespace modl.api {
                 var twoThirds = 2 * oneThird;
                 var currentMultipleOfThird = pointY * oneThird;
 
-                var surfaceTextureUvsInRow = new (float, float)[4];
                 surfaceTextureUvsInRow[0] =
                     (Lerp_(surfaceTextureUvsFromFirstRow[0].u,
                            surfaceTextureUvsFromFirstRow[2].u,

@@ -463,7 +463,7 @@ namespace mod.cli {
                                         0
                                       )).ToArray();
         this.ColorsByIndex =
-            mod.vcolours.ToArray();
+            mod.vcolours.Select(color => (IColor) color).ToArray();
         this.TexCoordsByIndex =
             mod.texcoords.Select(
                    texcoords

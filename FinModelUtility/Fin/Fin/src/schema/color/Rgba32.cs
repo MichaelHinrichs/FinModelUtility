@@ -6,11 +6,11 @@ using schema.binary.attributes.ignore;
 
 namespace fin.schema.color {
   [BinarySchema]
-  public partial class Rgba32 : IColor, IBinaryConvertible {
-    public byte Rb { get; set; }
-    public byte Gb { get; set; }
-    public byte Bb { get; set; }
-    public byte Ab { get; set; }
+  public partial struct Rgba32 : IColor, IBinaryConvertible {
+    public byte Rb { get; private set; }
+    public byte Gb { get; private set; }
+    public byte Bb { get; private set; }
+    public byte Ab { get; private set; }
 
     [Ignore]
     public float Rf => this.Rb / 255f;
@@ -24,4 +24,6 @@ namespace fin.schema.color {
     [Ignore]
     public float Af => this.Ab / 255f;
   }
+
+
 }

@@ -81,7 +81,6 @@ namespace modl.schema.terrain {
               for (var pointY = 0; pointY < pointsPerTileAxis; ++pointY) {
                 for (var pointX = 0; pointX < pointsPerTileAxis; ++pointX) {
                   var point = new BwHeightmapPoint();
-                  tile.Points[pointX, pointY] = point;
 
                   GetWorldPosition(terrData.ChunkCountX, terrData.ChunkCountY, chunkX, chunkY, tileX, tileY, pointX, pointY, out var worldX, out var worldY);
                   point.X = worldX;
@@ -91,6 +90,8 @@ namespace modl.schema.terrain {
 
                   point.Height = zScale * schemaTile.Heights[pointOffset];
                   point.LightColor = schemaTile.LightColors[pointOffset];
+
+                  tile.Points[pointX, pointY] = point;
                 }
               }
             }
@@ -147,8 +148,10 @@ namespace modl.schema.terrain {
     }
 
     [BinarySchema]
-    private partial class SchemaTilemapDefinition : IBinaryConvertible {
+    private partial struct SchemaTilemapDefinition : IBinaryConvertible {
       private readonly byte padding_ = 0;
+
+      public SchemaTilemapDefinition() {}
 
       public byte Unknown { get; private set; }
 
@@ -156,7 +159,9 @@ namespace modl.schema.terrain {
     }
 
     [BinarySchema]
-    public partial class SchemaTile : IBinaryConvertible {
+    public partial struct SchemaTile : IBinaryConvertible {
+      public SchemaTile() {}
+      
       public ushort[] Heights { get; } = new ushort[16];
 
       [SequenceLengthSource(16)]
@@ -188,7 +193,7 @@ namespace modl.schema.terrain {
       public SchemaTile Schema { get; set; }
     }
 
-    private class BwHeightmapPoint : IBwHeightmapPoint {
+    private struct BwHeightmapPoint : IBwHeightmapPoint {
       public float X { get; set; }
       public float Y { get; set; }
       public float Height { get; set; }

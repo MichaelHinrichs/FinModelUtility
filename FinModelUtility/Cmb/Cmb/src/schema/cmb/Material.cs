@@ -22,11 +22,11 @@ namespace cmb.schema.cmb {
     public readonly TexMapper[] texMappers = new TexMapper[3];
     public readonly TexCoords[] texCoords = new TexCoords[3];
 
-    public Rgba32 emissionColor { get; } = new();
-    public Rgba32 ambientColor { get; } = new();
-    public Rgba32 diffuseColor { get; } = new();
-    public Rgba32 specular0Color { get; } = new();
-    public Rgba32 specular1Color { get; } = new();
+    public Rgba32 emissionColor { get; private set; } = new();
+    public Rgba32 ambientColor { get; private set; } = new();
+    public Rgba32 diffuseColor { get; private set; } = new();
+    public Rgba32 specular0Color { get; private set; } = new();
+    public Rgba32 specular1Color { get; private set; } = new();
 
     public Rgba32[] constantColors { get; } =
       Arrays.From(6, () => new Rgba32());

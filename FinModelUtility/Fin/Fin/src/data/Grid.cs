@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 using fin.util.asserts;
 
@@ -44,10 +45,13 @@ namespace fin.data {
     public int Height { get; }
 
     public T this[int x, int y] {
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
       get => this.impl_[this.GetIndex_(x, y)];
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
       set => this.impl_[this.GetIndex_(x, y)] = value;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int GetIndex_(int x, int y) {
       if (!(x >= 0 && x < this.Width && y >= 0 && y < this.Height)) {
         Asserts.Fail(
@@ -56,7 +60,9 @@ namespace fin.data {
       return y * this.Width + x;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerator<T> GetEnumerator() => this.impl_.GetEnumerator();
   }
 }

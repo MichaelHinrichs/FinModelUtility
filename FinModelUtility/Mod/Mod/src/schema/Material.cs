@@ -71,7 +71,7 @@ namespace mod.schema {
 
   [BinarySchema]
   public partial class PolygonColourInfo : IBinaryConvertible {
-    public readonly Rgba32 diffuseColour = new();
+    public Rgba32 diffuseColour = new();
     public int unknown2 = 0;
     public float unknown3 = 0;
 

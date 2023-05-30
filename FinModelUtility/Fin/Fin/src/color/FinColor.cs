@@ -58,7 +58,7 @@ namespace fin.color {
     public static IColor FromSystemColor(Color color)
       => FromRgbaBytes(color.R, color.G, color.B, color.A);
 
-    public static Color ToSystemColor(IColor color)
+    public static Color ToSystemColor<TColor>(TColor color) where TColor : IColor
       => Color.FromArgb(color.Ab, color.Rb, color.Gb, color.Bb);
 
     public static IColor FromHsv(

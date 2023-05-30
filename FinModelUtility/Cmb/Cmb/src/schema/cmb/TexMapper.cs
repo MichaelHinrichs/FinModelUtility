@@ -13,6 +13,6 @@ namespace cmb.schema.cmb {
     public TextureWrapMode wrapT;
     public float minLodBias;
     public float lodBias;
-    public Rgba32 BorderColor { get; } = new();
+    public Rgba32 BorderColor { get; private set; } = new();
   }
 }
