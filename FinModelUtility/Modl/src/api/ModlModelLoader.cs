@@ -291,7 +291,7 @@ namespace modl.api {
             rotationCapacities[2] = (int) animBone.RotationKeyframeCount;
 
         var finBoneTracks = finAnimation.AddBoneTracks(
-            finBone,
+            finBone!,
             positionCapacities,
             rotationCapacities,
             scaleCapacities);
