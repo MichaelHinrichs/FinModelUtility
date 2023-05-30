@@ -11,22 +11,26 @@ for /d %%p in (*) do (
   pushd "./"
 
   cd "%%p"
+
+  if exist "%%p Tests" (
+    cd "%%p Tests"
     
-  if exist goldens\ (
-    for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
-      pushd "./"
-	
-      cd "%%d"
-	
-      if exist input\ (
-      	if exist output\ (
-          cd output\
-		  del /q *.*
-  	    )
+    if exist goldens\ (
+      for /f "tokens=*" %%d in ('%hierarchyListCmd%') do (
+        pushd "./"
+
+        cd "%%d"
+
+        if exist input\ (
+          if exist output\ (
+            cd output\
+            del /q *.*
+          )
+        )
+
+        popd
       )
-	  
-	  popd
-	)
+    )
   )
 
   popd
