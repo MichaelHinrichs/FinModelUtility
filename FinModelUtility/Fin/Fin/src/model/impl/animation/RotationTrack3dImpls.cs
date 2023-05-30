@@ -110,8 +110,8 @@ namespace fin.model.impl {
         fromsAndTos[5] = toZFrame;
 
         Span<bool> areAxesStatic = stackalloc bool[3];
-
         RadiansRotationTrack3dImpl.AreAxesStatic_(fromsAndTos, areAxesStatic);
+        
         if (!RadiansRotationTrack3dImpl.CanInterpolateWithQuaternions_(
                 fromsAndTos, areAxesStatic)) {
           var xRadians =
@@ -130,27 +130,33 @@ namespace fin.model.impl {
           return ConvertRadiansToQuaternionImpl(xRadians, yRadians, zRadians);
         }
 
-        RadiansRotationTrack3dImpl.GetFromAndToFrameIndex_(fromsAndTos,
-                                     areAxesStatic,
-                                     out var fromFrame,
-                                     out var toFrame);
-        var frameDelta = (frame - fromFrame) / (toFrame - fromFrame);
+        if (RadiansRotationTrack3dImpl.GetFromAndToFrameIndex_(fromsAndTos,
+              areAxesStatic,
+              out var fromFrame,
+              out var toFrame)) {
+          var frameDelta = (frame - fromFrame) / (toFrame - fromFrame);
 
-        var q1 = ConvertRadiansToQuaternionImpl(
-            fromXFrame?.value ?? defaultX,
-            fromYFrame?.value ?? defaultY,
-            fromZFrame?.value ?? defaultZ);
-        var q2 = ConvertRadiansToQuaternionImpl(
-            toXFrame?.value ?? defaultX,
-            toYFrame?.value ?? defaultY,
-            toZFrame?.value ?? defaultZ);
+          var q1 = ConvertRadiansToQuaternionImpl(
+              fromXFrame?.value ?? defaultX,
+              fromYFrame?.value ?? defaultY,
+              fromZFrame?.value ?? defaultZ);
+          var q2 = ConvertRadiansToQuaternionImpl(
+              toXFrame?.value ?? defaultX,
+              toYFrame?.value ?? defaultY,
+              toZFrame?.value ?? defaultZ);
 
-        if (Quaternion.Dot(q1, q2) < 0) {
-          q2 = -q2;
+          if (Quaternion.Dot(q1, q2) < 0) {
+            q2 = -q2;
+          }
+
+          var interp = Quaternion.Slerp(q1, q2, frameDelta);
+          return Quaternion.Normalize(interp);
         }
 
-        var interp = Quaternion.Slerp(q1, q2, frameDelta);
-        return Quaternion.Normalize(interp);
+        return Quaternion.Normalize(ConvertRadiansToQuaternionImpl(
+            fromXFrame?.value ?? defaultX,
+            fromYFrame?.value ?? defaultY,
+            fromZFrame?.value ?? defaultZ));
       }
 
       private static void AreAxesStatic_(
@@ -169,20 +175,22 @@ namespace fin.model.impl {
         }
       }
 
-      private static void GetFromAndToFrameIndex_(
+      private static bool GetFromAndToFrameIndex_(
           ReadOnlySpan<(float frame, float value, float? tangent)?> fromsAndTos,
-          Span<bool> areAxesStatic,
+          ReadOnlySpan<bool> areAxesStatic,
           out float fromFrameIndex,
           out float toFrameIndex) {
-        fromFrameIndex = 0;
-        toFrameIndex = 1;
         for (var i = 0; i < 3; ++i) {
           if (!areAxesStatic[i]) {
             fromFrameIndex = fromsAndTos[i].Value.frame;
             toFrameIndex = fromsAndTos[3 + i].Value.frame;
-            return;
+            return true;
           }
         }
+
+        fromFrameIndex = 0;
+        toFrameIndex = 1;
+        return false;
       }
 
       // TODO: Might be able to use this for euler-interpolated keyframe i and i+1
