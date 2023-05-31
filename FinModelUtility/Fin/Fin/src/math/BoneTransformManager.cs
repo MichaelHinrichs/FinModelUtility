@@ -89,10 +89,6 @@ namespace fin.math {
       this.verticesToWorldMatrices_.Clear();
     }
 
-    private readonly float[] defaultPosition_ = new float[3];
-    private readonly float[] defaultRotation_ = new float[3];
-    private readonly float[] defaultScale_ = new float[3];
-
     public void InitModelVertices(IModel model, bool forcePreproject = false) {
       var vertices = model.Skin.Vertices;
       this.verticesToWorldMatrices_ =
@@ -152,39 +148,23 @@ namespace fin.math {
         IBoneTracks? boneTracks = null;
         animation?.BoneTracks.TryGetValue(bone, out boneTracks);
         if (boneTracks != null) {
-          // Need to pass in default pose of the bone to fill in for any axes that may be undefined.
-          defaultPosition_[0] = boneLocalPosition.X;
-          defaultPosition_[1] = boneLocalPosition.Y;
-          defaultPosition_[2] = boneLocalPosition.Z;
-
-          this.defaultRotation_[0] = bone.LocalRotation?.XRadians ?? 0;
-          this.defaultRotation_[1] = bone.LocalRotation?.YRadians ?? 0;
-          this.defaultRotation_[2] = bone.LocalRotation?.ZRadians ?? 0;
-
-          this.defaultScale_[0] = boneLocalScale?.X ?? 0;
-          this.defaultScale_[1] = boneLocalScale?.Y ?? 0;
-          this.defaultScale_[2] = boneLocalScale?.Z ?? 0;
-
           // Only gets the values from the animation if the frame is at least partially defined.
           animationLocalPosition =
               boneTracks?.Positions.IsDefined ?? false
                   ? boneTracks?.Positions.GetInterpolatedFrame(
                       (float) frame,
-                      defaultPosition_,
                       useLoopingInterpolation)
                   : null;
           animationLocalRotation =
               boneTracks?.Rotations.IsDefined ?? false
                   ? boneTracks?.Rotations.GetInterpolatedFrame(
                       (float) frame,
-                      defaultRotation_,
                       useLoopingInterpolation)
                   : null;
           animationLocalScale =
               boneTracks?.Scales.IsDefined ?? false
                   ? boneTracks?.Scales.GetInterpolatedFrame(
                       (float) frame,
-                      defaultScale_,
                       useLoopingInterpolation)
                   : null;
         }

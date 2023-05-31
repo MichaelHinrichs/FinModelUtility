@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-using fin.data;
 using fin.math.interpolation;
 
 namespace fin.model.impl {
@@ -12,22 +10,30 @@ namespace fin.model.impl {
     public class PositionTrack3dImpl
         : BScalarAxesTrack<Position, float, FloatInterpolator>,
           IPositionTrack3d {
-      public PositionTrack3dImpl(ReadOnlySpan<int> initialCapacityPerAxis) :
-          base(3, initialCapacityPerAxis, new FloatInterpolator()) { }
+      private readonly IBone bone_;
+
+      public PositionTrack3dImpl(IBone bone,
+                                 ReadOnlySpan<int> initialCapacityPerAxis) :
+          base(3, initialCapacityPerAxis, new FloatInterpolator()) {
+        this.bone_ = bone;
+      }
 
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public override Position GetInterpolatedFrame(
           float frame,
-          float[] defaultValue,
           bool useLoopingInterpolation = false) {
+        var localPosition = this.bone_.LocalPosition;
+
         if (!this.axisTracks[0].TryGetInterpolatedFrame(frame, out var x)) {
-          x = defaultValue[0];
+          x = localPosition.X;
         }
+
         if (!this.axisTracks[1].TryGetInterpolatedFrame(frame, out var y)) {
-          y = defaultValue[1];
+          y = localPosition.Y;
         }
+
         if (!this.axisTracks[2].TryGetInterpolatedFrame(frame, out var z)) {
-          z = defaultValue[2];
+          z = localPosition.Z;
         }
 
         return new(x, y, z);
@@ -37,22 +43,30 @@ namespace fin.model.impl {
     public class ScaleTrackImpl
         : BScalarAxesTrack<Scale, float, FloatInterpolator>,
           IScale3dTrack {
-      public ScaleTrackImpl(ReadOnlySpan<int> initialCapacityPerAxis) :
-          base(3, initialCapacityPerAxis, new FloatInterpolator()) { }
+      private readonly IBone bone_;
+
+      public ScaleTrackImpl(IBone bone,
+                            ReadOnlySpan<int> initialCapacityPerAxis) :
+          base(3, initialCapacityPerAxis, new FloatInterpolator()) {
+        this.bone_ = bone;
+      }
 
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public override Scale GetInterpolatedFrame(
           float frame,
-          float[] defaultValue,
           bool useLoopingInterpolation = false) {
+        var localScale = this.bone_.LocalScale;
+
         if (!this.axisTracks[0].TryGetInterpolatedFrame(frame, out var x)) {
-          x = defaultValue[0];
+          x = localScale?.X ?? 1;
         }
+
         if (!this.axisTracks[1].TryGetInterpolatedFrame(frame, out var y)) {
-          y = defaultValue[1];
+          y = localScale?.Y ?? 1;
         }
+
         if (!this.axisTracks[2].TryGetInterpolatedFrame(frame, out var z)) {
-          z = defaultValue[2];
+          z = localScale?.Z ?? 1;
         }
 
         return new(x, y, z);

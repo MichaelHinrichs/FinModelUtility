@@ -11,11 +11,14 @@ using fin.math.interpolation;
 namespace fin.model.impl {
   public partial class ModelImpl<TVertex> {
     public class RadiansRotationTrack3dImpl : IEulerRadiansRotationTrack3d {
+      private readonly IBone bone_;
       private readonly IInputOutputTrack<float, RadianInterpolator>[]
           axisTracks_;
 
       public RadiansRotationTrack3dImpl(
+          IBone bone,
           ReadOnlySpan<int> initialCapacityPerAxis) {
+        this.bone_ = bone;
         this.axisTracks_ = new InputOutputTrackImpl<float, RadianInterpolator>[3];
         for (var i = 0; i < 3; ++i) {
           this.axisTracks_[i] = new InputOutputTrackImpl<float, RadianInterpolator>
@@ -54,15 +57,15 @@ namespace fin.model.impl {
 
       public Quaternion GetInterpolatedFrame(
           float frame,
-          float[] defaultValue,
           bool useLoopingInterpolation = false) {
         var xTrack = this.axisTracks_[0];
         var yTrack = this.axisTracks_[1];
         var zTrack = this.axisTracks_[2];
 
-        var defaultX = defaultValue[0];
-        var defaultY = defaultValue[1];
-        var defaultZ = defaultValue[2];
+        var localRotation = this.bone_.LocalRotation;
+        var defaultX = localRotation?.XRadians ?? 0;
+        var defaultY = localRotation?.YRadians ?? 0;
+        var defaultZ = localRotation?.ZRadians ?? 0;
 
         xTrack.TryGetInterpolationData(
             frame,

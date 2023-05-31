@@ -16,7 +16,6 @@ namespace uni.thirdparty {
       fw.WriteLine(
           "ScalerKeysTable = { // Animation name => Bone names => frame scale keys. The keys are in frame order so 1,2,3,4 etc");
 
-      var defaultValues = new float[] { 1, 1, 1 };
       foreach (var animation in animations) {
         var definedBones = new Dictionary<IBone, IBoneTracks>();
         foreach (var bone in model.Skeleton) {
@@ -30,7 +29,7 @@ namespace uni.thirdparty {
           }
 
           for (var f = 0; f < animation.FrameCount; ++f) {
-            var scale = scales.GetInterpolatedFrame(f, defaultValues, true);
+            var scale = scales.GetInterpolatedFrame(f, true);
 
             if (!IsScaleOne(scale)) {
               definedBones[bone] = boneTracks;
@@ -51,7 +50,7 @@ namespace uni.thirdparty {
           fw.WriteLine($"    [\"{bone.Name}\"] = {{");
 
           for (var f = 0; f < animation.FrameCount; ++f) {
-            var scale = scales.GetInterpolatedFrame(f, defaultValues, true);
+            var scale = scales.GetInterpolatedFrame(f, true);
 
             if (IsScaleOne(scale)) {
               fw.WriteLine("      defScale,");

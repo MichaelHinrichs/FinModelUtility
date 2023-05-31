@@ -75,15 +75,13 @@ namespace fin.model.impl {
             IBone bone,
             ReadOnlySpan<int> initialCapacityPerPositionAxis,
             ReadOnlySpan<int> initialCapacityPerRotationAxis,
-            ReadOnlySpan<int> initialCapacityPerScaleAxis) {
-          var boneTracks = new BoneTracksImpl(
+            ReadOnlySpan<int> initialCapacityPerScaleAxis)
+          => this.boneTracks_[bone] = new BoneTracksImpl(
+              bone,
               initialCapacityPerPositionAxis,
               initialCapacityPerRotationAxis,
               initialCapacityPerScaleAxis
           ) { FrameCount = this.FrameCount, };
-          this.boneTracks_[bone] = boneTracks;
-          return boneTracks;
-        }
 
         public IReadOnlyDictionary<IMesh, IMeshTracks> MeshTracks { get; }
 
@@ -130,13 +128,17 @@ namespace fin.model.impl {
     }
 
     public class BoneTracksImpl : IBoneTracks {
-      public BoneTracksImpl(ReadOnlySpan<int> initialCapacityPerPositionAxis,
-                            ReadOnlySpan<int> initialCapacityPerRotationAxis,
-                            ReadOnlySpan<int> initialCapacityPerScaleAxis) {
-        Positions = new PositionTrack3dImpl(initialCapacityPerPositionAxis);
+      public BoneTracksImpl(
+          IBone bone,
+          ReadOnlySpan<int> initialCapacityPerPositionAxis,
+          ReadOnlySpan<int> initialCapacityPerRotationAxis,
+          ReadOnlySpan<int> initialCapacityPerScaleAxis) {
+        Positions =
+            new PositionTrack3dImpl(bone, initialCapacityPerPositionAxis);
         Rotations =
-            new RadiansRotationTrack3dImpl(initialCapacityPerRotationAxis);
-        Scales = new ScaleTrackImpl(initialCapacityPerScaleAxis);
+            new RadiansRotationTrack3dImpl(bone,
+                                           initialCapacityPerRotationAxis);
+        Scales = new ScaleTrackImpl(bone, initialCapacityPerScaleAxis);
       }
 
       public int FrameCount {

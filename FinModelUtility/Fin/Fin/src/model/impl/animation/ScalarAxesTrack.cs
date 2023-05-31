@@ -65,7 +65,6 @@ namespace fin.model.impl {
 
       public abstract TInterpolated GetInterpolatedFrame(
           float frame,
-          TAxis[] defaultValue,
           bool useLoopingInterpolation = false
       );
     }

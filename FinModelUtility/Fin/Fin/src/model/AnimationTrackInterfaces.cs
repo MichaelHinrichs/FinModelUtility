@@ -106,7 +106,6 @@ namespace fin.model {
 
     TInterpolated GetInterpolatedFrame(
         float frame,
-        TAxis[] defaultValue,
         bool useLoopingInterpolation = false
     );
   }
