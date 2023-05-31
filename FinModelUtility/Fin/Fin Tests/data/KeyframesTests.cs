@@ -27,11 +27,11 @@ namespace fin.data {
     public void TestReplace() {
       var impl = new Keyframes<string>();
 
-      impl.SetKeyframe(0, "first");
-      impl.SetKeyframe(0, "second");
-      impl.SetKeyframe(0, "third");
+      impl.SetKeyframe(1, "first");
+      impl.SetKeyframe(1, "second");
+      impl.SetKeyframe(1, "third");
 
-      AssertKeyframes_(impl, new Keyframe<string>(0, "third"));
+      AssertKeyframes_(impl, new Keyframe<string>(1, "third"));
     }
 
     [Test]
@@ -184,6 +184,7 @@ namespace fin.data {
         Assert.True(isKeyframeDefined);
         Assert.AreEqual(sI / s, keyframeIndex);
         Assert.AreEqual(sI, keyframe.Frame);
+        Assert.AreEqual(i == n - 1, isLastKeyframe);
       }
     }
 

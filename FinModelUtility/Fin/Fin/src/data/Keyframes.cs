@@ -54,7 +54,7 @@ namespace fin.data {
       var newKeyframe = new Keyframe<T>(frame, value);
 
       if (keyframeExists && existingKeyframe.Frame == frame) {
-        this.impl_[frame] = newKeyframe;
+        this.impl_[keyframeIndex] = newKeyframe;
       } else if (isLastKeyframe) {
         this.impl_.Add(newKeyframe);
       } else if (keyframeExists && existingKeyframe.Frame < frame) {
