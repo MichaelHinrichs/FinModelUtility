@@ -150,13 +150,13 @@ namespace fin.math {
         if (boneTracks != null) {
           // Only gets the values from the animation if the frame is at least partially defined.
           animationLocalPosition =
-              boneTracks?.Positions.IsDefined ?? false
+              boneTracks?.Positions?.IsDefined ?? false
                   ? boneTracks?.Positions.GetInterpolatedFrame(
                       (float) frame,
                       useLoopingInterpolation)
                   : null;
 
-          if (boneTracks?.Rotations.IsDefined ?? false) {
+          if (boneTracks?.Rotations?.IsDefined ?? false) {
             if (boneTracks.Rotations.TryGetInterpolatedFrame(
                     (float) frame,
                     out var outAnimationLocalRotation,
