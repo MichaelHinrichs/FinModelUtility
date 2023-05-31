@@ -27,8 +27,6 @@ using fin.color;
 using Color = System.Drawing.Color;
 using Image = SixLabors.ImageSharp.Image;
 
-using Assimp;
-
 
 namespace fin.image {
   public static class FinImage {

@@ -37,6 +37,7 @@ namespace fin.model.impl {
 
       private TrackImpl<TAxis>[] axisTracks_;
 
+      // TODO: Slow! Switch to a different approach here
       private readonly GetInterpolatedFromAxesTrack
           getInterpolatedFromAxesTrack_;
 

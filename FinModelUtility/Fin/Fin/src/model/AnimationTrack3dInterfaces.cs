@@ -28,6 +28,7 @@ namespace fin.model {
   public interface IPositionTrack3d : IAxes3fTrack<Position> { }
 
   public interface IRadiansRotationTrack3d : IAxes3fTrack<Quaternion> {
+    // TODO: Slow! Switch to using generics/structs for a speedup here
     ConvertRadiansToQuaternion ConvertRadiansToQuaternionImpl { get; set; }
 
     delegate Quaternion ConvertRadiansToQuaternion(float xRadians,
