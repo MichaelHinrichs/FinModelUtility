@@ -121,9 +121,9 @@ namespace fin.model.impl {
         }
       }
 
-      public TInterpolated GetInterpolatedFrame(
+      public bool TryGetInterpolatedFrame(
           float frame,
-          TInterpolated defaultValue,
+          out TInterpolated interpolatedValue,
           bool useLoopingInterpolation = false) {
         var keyframeDefined = this.impl.FindIndexOfKeyframe((int) frame,
           out var fromKeyframeIndex,
@@ -131,14 +131,16 @@ namespace fin.model.impl {
           out var isLastKeyframe);
 
         if (!keyframeDefined) {
-          return defaultValue;
+          interpolatedValue = default;
+          return false;
         }
 
         var fromValue = fromKeyframe.Value.Value;
 
         // TODO: Make this an option?
         if (isLastKeyframe && !useLoopingInterpolation) {
-          return this.Interpolator.Interpolate(fromValue, fromValue, 0);
+          interpolatedValue = this.Interpolator.Interpolate(fromValue, fromValue, 0);
+          return true;
         }
 
         var fromTime = fromKeyframe.Frame;
@@ -166,7 +168,7 @@ namespace fin.model.impl {
         var progress = (frame - fromTime) / duration;
 
         var useTangents = fromTangent != null && toTangent != null;
-        return !useTangents
+        interpolatedValue = !useTangents
             ? this.Interpolator.Interpolate(fromValue, toValue, progress)
             : this.Interpolator.Interpolate(
                 fromTime,
@@ -176,6 +178,7 @@ namespace fin.model.impl {
                 toValue,
                 toTangent.Value,
                 frame);
+        return true;
       }
     }
   }

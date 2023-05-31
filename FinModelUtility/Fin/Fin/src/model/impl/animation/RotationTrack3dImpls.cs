@@ -97,18 +97,21 @@ namespace fin.model.impl {
         
         if (!RadiansRotationTrack3dImpl.CanInterpolateWithQuaternions_(
                 fromsAndTos, areAxesStatic)) {
-          var xRadians =
-              xTrack.GetInterpolatedFrame(frame,
-                                          defaultX,
-                                          useLoopingInterpolation);
-          var yRadians =
-              yTrack.GetInterpolatedFrame(frame,
-                                          defaultY,
-                                          useLoopingInterpolation);
-          var zRadians =
-              zTrack.GetInterpolatedFrame(frame,
-                                          defaultZ,
-                                          useLoopingInterpolation);
+          if (!xTrack.TryGetInterpolatedFrame(frame,
+                                              out var xRadians,
+                                              useLoopingInterpolation)) {
+            xRadians = defaultX;
+          }
+          if (!yTrack.TryGetInterpolatedFrame(frame,
+                                              out var yRadians,
+                                              useLoopingInterpolation)) {
+            yRadians = defaultY;
+          }
+          if (!zTrack.TryGetInterpolatedFrame(frame,
+                                              out var zRadians,
+                                              useLoopingInterpolation)) {
+            zRadians = defaultZ;
+          }
 
           return ConvertRadiansToQuaternionImpl(xRadians, yRadians, zRadians);
         }

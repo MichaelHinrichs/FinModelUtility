@@ -29,9 +29,9 @@ namespace fin.model {
   }
 
   public interface IReadOnlyInterpolatedTrack<TInterpolated> : ITrack {
-    TInterpolated GetInterpolatedFrame(
+    bool TryGetInterpolatedFrame(
         float frame,
-        TInterpolated defaultValue,
+        out TInterpolated interpolatedValue,
         bool useLoopingInterpolation = false
     );
   }

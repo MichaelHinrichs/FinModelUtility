@@ -19,11 +19,19 @@ namespace fin.model.impl {
       public override Position GetInterpolatedFrame(
           float frame,
           float[] defaultValue,
-          bool useLoopingInterpolation = false)
-        => new(
-            this.axisTracks[0].GetInterpolatedFrame(frame, defaultValue[0]),
-            this.axisTracks[1].GetInterpolatedFrame(frame, defaultValue[1]),
-            this.axisTracks[2].GetInterpolatedFrame(frame, defaultValue[2]));
+          bool useLoopingInterpolation = false) {
+        if (!this.axisTracks[0].TryGetInterpolatedFrame(frame, out var x)) {
+          x = defaultValue[0];
+        }
+        if (!this.axisTracks[1].TryGetInterpolatedFrame(frame, out var y)) {
+          y = defaultValue[1];
+        }
+        if (!this.axisTracks[2].TryGetInterpolatedFrame(frame, out var z)) {
+          z = defaultValue[2];
+        }
+
+        return new(x, y, z);
+      }
     }
 
     public class ScaleTrackImpl
@@ -36,11 +44,19 @@ namespace fin.model.impl {
       public override Scale GetInterpolatedFrame(
           float frame,
           float[] defaultValue,
-          bool useLoopingInterpolation = false)
-        => new(
-            this.axisTracks[0].GetInterpolatedFrame(frame, defaultValue[0]),
-            this.axisTracks[1].GetInterpolatedFrame(frame, defaultValue[1]),
-            this.axisTracks[2].GetInterpolatedFrame(frame, defaultValue[2]));
+          bool useLoopingInterpolation = false) {
+        if (!this.axisTracks[0].TryGetInterpolatedFrame(frame, out var x)) {
+          x = defaultValue[0];
+        }
+        if (!this.axisTracks[1].TryGetInterpolatedFrame(frame, out var y)) {
+          y = defaultValue[1];
+        }
+        if (!this.axisTracks[2].TryGetInterpolatedFrame(frame, out var z)) {
+          z = defaultValue[2];
+        }
+
+        return new(x, y, z);
+      }
     }
   }
 }
