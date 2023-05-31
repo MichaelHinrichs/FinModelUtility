@@ -45,7 +45,7 @@ namespace uni.ui.right_panel.materials {
       lr.SetUv(1, 1);
 
       this.bufferManager_ = new GlBufferManager(this.viewerModel_);
-      this.bufferRenderer_ = this.bufferManager_.CreateRenderer(new[] {
+      this.bufferRenderer_ = this.bufferManager_.CreateRenderer(fin.model.PrimitiveType.TRIANGLES, new[] {
           ll,
           ur,
           ul,

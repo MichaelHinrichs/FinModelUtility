@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 using fin.color;
@@ -217,20 +218,9 @@ namespace fin.exporter.gltf.lowlevel {
                 BufferMode.ELEMENT_ARRAY_BUFFER);
               var indexArray = new IntegerArray(indexView.Content);
 
-              for (var v = 0; v < primitivePoints.Count; v += 3) {
-                var v1 = primitivePoints[v + 0].Index;
-                var v2 = primitivePoints[v + 1].Index;
-                var v3 = primitivePoints[v + 2].Index;
-
-                if (primitive.VertexOrder == VertexOrder.FLIP) {
-                  indexArray[v + 0] = (uint) v1;
-                  indexArray[v + 1] = (uint) v3;
-                  indexArray[v + 2] = (uint) v2;
-                } else {
-                  indexArray[v + 0] = (uint) v1;
-                  indexArray[v + 1] = (uint) v2;
-                  indexArray[v + 2] = (uint) v3;
-                }
+              int i = 0;
+              foreach (var v in primitive.GetOrderedTriangleVertexIndices()) {
+                indexArray[i++] = (uint) v;
               }
 
               var indexAccessor = gltfModel.CreateAccessor();

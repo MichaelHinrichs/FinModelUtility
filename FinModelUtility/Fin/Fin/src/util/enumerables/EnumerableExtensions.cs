@@ -44,5 +44,35 @@ namespace fin.util.enumerables {
 
     public static List<T> AsList<T>(this T item)
       => item.Yield().ToList();
+
+
+    public static IEnumerable<(T, T)> SeparatePairs<T>(
+        this IEnumerable<T> enumerable) {
+      using var iterator = enumerable.GetEnumerator();
+      while (iterator.MoveNext()) {
+        var v1 = iterator.Current;
+
+        iterator.MoveNext();
+        var v2 = iterator.Current;
+
+        yield return (v1, v2);
+      }
+    }
+
+    public static IEnumerable<(T, T, T)> SeparateTriplets<T>(
+        this IEnumerable<T> enumerable) {
+      using var iterator = enumerable.GetEnumerator();
+      while (iterator.MoveNext()) {
+        var v1 = iterator.Current;
+
+        iterator.MoveNext();
+        var v2 = iterator.Current;
+
+        iterator.MoveNext();
+        var v3 = iterator.Current;
+
+        yield return (v1, v2, v3);
+      }
+    }
   }
 }

@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using PrimitiveType = fin.model.PrimitiveType;
+
 
 namespace fin.gl {
   public class GlBufferManager : IDisposable {
@@ -51,7 +53,8 @@ namespace fin.gl {
 
     public GlBufferManager(IModel model) {
       this.vertices_ = model.Skin.Vertices;
-      this.vertexAccessor_ = ConsistentVertexAccessor.GetAccessorForModel(model);
+      this.vertexAccessor_ =
+          ConsistentVertexAccessor.GetAccessorForModel(model);
 
       this.positionData_ = new Position[this.vertices_.Count];
       this.normalData_ = new Normal[this.vertices_.Count];
@@ -182,9 +185,11 @@ namespace fin.gl {
 
       // Matrix id
       var vertexAttribMatrixId = MATRIX_ID_VERTEX_ATTRIB_INDEX;
-      GL.BindBuffer(BufferTarget.ArrayBuffer, this.vboIds_[vertexAttribMatrixId]);
+      GL.BindBuffer(BufferTarget.ArrayBuffer,
+                    this.vboIds_[vertexAttribMatrixId]);
       GL.BufferData(BufferTarget.ArrayBuffer,
-                    new IntPtr(sizeof(int) * MATRIX_ID_SIZE * this.matrixIdData_.Length),
+                    new IntPtr(sizeof(int) * MATRIX_ID_SIZE *
+                               this.matrixIdData_.Length),
                     this.matrixIdData_,
                     BufferUsageHint.StaticDraw);
       GL.EnableVertexAttribArray(vertexAttribMatrixId);
@@ -238,19 +243,30 @@ namespace fin.gl {
     }
 
     public GlBufferRenderer CreateRenderer(
+        PrimitiveType primitiveType,
         IReadOnlyList<IReadOnlyVertex> triangleVertices)
-      => new(this.vaoId_, triangleVertices);
+      => new(this.vaoId_, primitiveType, triangleVertices);
 
     public class GlBufferRenderer : IDisposable {
       private readonly int vaoId_;
       private int eboId_;
+      private BeginMode beginMode_;
 
       private readonly int[] indices_;
 
       public GlBufferRenderer(
           int vaoId,
+          PrimitiveType primitiveType,
           IReadOnlyList<IReadOnlyVertex> triangleVertices) {
         this.vaoId_ = vaoId;
+        this.beginMode_ = primitiveType switch {
+            PrimitiveType.POINTS         => BeginMode.Points,
+            PrimitiveType.LINES          => BeginMode.Lines,
+            PrimitiveType.TRIANGLES      => BeginMode.Triangles,
+            PrimitiveType.TRIANGLE_FAN   => BeginMode.TriangleFan,
+            PrimitiveType.TRIANGLE_STRIP => BeginMode.TriangleStrip,
+            PrimitiveType.QUADS          => BeginMode.Quads,
+        };
 
         GL.BindVertexArray(this.vaoId_);
         GL.GenBuffers(1, out this.eboId_);
@@ -282,10 +298,11 @@ namespace fin.gl {
         GL.BindVertexArray(this.vaoId_);
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, this.eboId_);
 
-        GL.DrawElements(BeginMode.Triangles,
-                        this.indices_.Length,
-                        DrawElementsType.UnsignedInt,
-                        0);
+        GL.DrawElements(
+            this.beginMode_,
+            this.indices_.Length,
+            DrawElementsType.UnsignedInt,
+            0);
 
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
         GL.BindVertexArray(0);

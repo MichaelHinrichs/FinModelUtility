@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 
 using fin.data;
 using fin.math;
 
 using System.Numerics;
+
+using fin.util.enumerables;
 
 
 namespace fin.model.impl {
@@ -135,7 +138,8 @@ namespace fin.model.impl {
         public IPrimitive AddTriangles(params IReadOnlyVertex[] vertices)
           => this.AddTriangles(vertices as IReadOnlyList<IReadOnlyVertex>);
 
-        public IPrimitive AddTriangles(IReadOnlyList<IReadOnlyVertex> vertices) {
+        public IPrimitive
+            AddTriangles(IReadOnlyList<IReadOnlyVertex> vertices) {
           Debug.Assert(vertices.Count % 3 == 0);
           var primitive = new PrimitiveImpl(PrimitiveType.TRIANGLES, vertices);
           this.primitives_.Add(primitive);
@@ -192,7 +196,7 @@ namespace fin.model.impl {
 
         public IPrimitive AddQuads(params IReadOnlyVertex[] vertices)
           => this.AddQuads(vertices as IReadOnlyList<IReadOnlyVertex>);
-        
+
         public IPrimitive AddQuads(IReadOnlyList<IReadOnlyVertex> vertices) {
           Debug.Assert(vertices.Count % 4 == 0);
           var primitive = new PrimitiveImpl(PrimitiveType.QUADS, vertices);
@@ -233,7 +237,7 @@ namespace fin.model.impl {
           => this.AddPoints(points as IReadOnlyList<IReadOnlyVertex>);
 
         public IPointsPrimitive AddPoints(
-          IReadOnlyList<IReadOnlyVertex> points) {
+            IReadOnlyList<IReadOnlyVertex> points) {
           var primitive = new PointsPrimitiveImpl(points);
           this.primitives_.Add(primitive);
           return primitive;
@@ -279,6 +283,87 @@ namespace fin.model.impl {
 
         public PrimitiveType Type { get; }
         public IReadOnlyList<IReadOnlyVertex> Vertices { get; }
+
+
+        public IEnumerable<int> GetOrderedTriangleVertexIndices() {
+          var pointsCount = Vertices.Count;
+          switch (Type) {
+            case PrimitiveType.TRIANGLES: {
+              for (var v = 0; v < pointsCount; v += 3) {
+                if (VertexOrder == VertexOrder.FLIP) {
+                  yield return v + 0;
+                  yield return v + 2;
+                  yield return v + 1;
+                } else {
+                  yield return v + 0;
+                  yield return v + 1;
+                  yield return v + 2;
+                }
+              }
+
+              break;
+            }
+            case PrimitiveType.TRIANGLE_STRIP: {
+              for (var v = 0; v < pointsCount - 2; ++v) {
+                int v1, v2, v3;
+                if (v % 2 == 0) {
+                  v1 = v + 0;
+                  v2 = v + 1;
+                  v3 = v + 2;
+                } else {
+                  // Switches drawing order to maintain proper winding:
+                  // https://www.khronos.org/opengl/wiki/Primitive
+                  v1 = v + 1;
+                  v2 = v + 0;
+                  v3 = v + 2;
+                }
+
+                if (VertexOrder == VertexOrder.FLIP) {
+                  yield return v1;
+                  yield return v3;
+                  yield return v2;
+                } else {
+                  yield return v1;
+                  yield return v2;
+                  yield return v3;
+                }
+              }
+
+              break;
+            }
+            case PrimitiveType.TRIANGLE_FAN: {
+              // https://stackoverflow.com/a/8044252
+              var firstVertex = 0;
+              for (var v = 2; v < pointsCount; ++v) {
+                var v1 = firstVertex;
+                var v2 = v - 1;
+                var v3 = v;
+
+                if (VertexOrder == VertexOrder.FLIP) {
+                  yield return v1;
+                  yield return v3;
+                  yield return v2;
+                } else {
+                  yield return v1;
+                  yield return v2;
+                  yield return v3;
+                }
+              }
+
+              break;
+            }
+            default: throw new NotImplementedException();
+          }
+        }
+
+        public IEnumerable<(int, int, int)>
+            GetOrderedTriangleVertexIndexTriplets()
+          => this.GetOrderedTriangleVertexIndices().SeparateTriplets();
+
+        public IEnumerable<IReadOnlyVertex> GetOrderedTriangleVertices()
+          => this.GetOrderedTriangleVertexIndices()
+                 .Select(index => this.Vertices[index]);
+
 
         public IMaterial Material { get; private set; }
 

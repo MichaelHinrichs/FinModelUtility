@@ -7,6 +7,7 @@ using fin.color;
 using fin.data;
 using fin.math;
 using fin.model;
+using fin.util.enumerables;
 
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
@@ -46,7 +47,7 @@ namespace fin.exporter.gltf {
 
       var DEFAULT_SKINNING = SparseWeight8.Create((0, 1));
       var skinningByBoneWeights =
-        new IndexableDictionary<IBoneWeights, (int, float)[]>();
+          new IndexableDictionary<IBoneWeights, (int, float)[]>();
 
       var gltfMeshes = new List<Mesh>();
       foreach (var finMesh in skin.Meshes) {
@@ -69,7 +70,10 @@ namespace fin.exporter.gltf {
             vertexAccessor.Target(points[p]);
             var point = vertexAccessor;
 
-            boneTransformManager.ProjectVertexPositionNormal(point, out var outPosition, out var outNormal);
+            boneTransformManager.ProjectVertexPositionNormal(
+                point,
+                out var outPosition,
+                out var outNormal);
 
             var position =
                 new Vector3(outPosition.X * scale,
@@ -82,12 +86,14 @@ namespace fin.exporter.gltf {
             if (boneWeights != null) {
               if (!skinningByBoneWeights.TryGetValue(boneWeights,
                     out var skinning)) {
-                skinningByBoneWeights[boneWeights] = skinning = boneWeights.Weights.Select(
-                    boneWeight
-                      => (boneToIndex[boneWeight.Bone],
-                        boneWeight.Weight))
-                  .ToArray();
+                skinningByBoneWeights[boneWeights] = skinning = boneWeights
+                    .Weights.Select(
+                        boneWeight
+                            => (boneToIndex[boneWeight.Bone],
+                                boneWeight.Weight))
+                    .ToArray();
               }
+
               vertexBuilder = vertexBuilder.WithSkinning(skinning);
             } else {
               vertexBuilder = vertexBuilder.WithSkinning(DEFAULT_SKINNING);
@@ -104,20 +110,23 @@ namespace fin.exporter.gltf {
                 vertexBuilder = vertexBuilder.WithGeometry(
                     position,
                     new Vector3(outNormal.X, outNormal.Y, outNormal.Z),
-                    new Vector4(tangent.Value.X, tangent.Value.Y, tangent.Value.Z, tangent.Value.W));
+                    new Vector4(tangent.Value.X,
+                                tangent.Value.Y,
+                                tangent.Value.Z,
+                                tangent.Value.W));
               }
             }
 
             var finColor0 = point.GetColor(0);
             var hasColor0 = finColor0 != null;
             var assColor0 = hasColor0
-                                ? GltfMeshBuilder.FinToGltfColor_(finColor0)
-                                : new Vector4(1, 1, 1, 1);
+                ? GltfMeshBuilder.FinToGltfColor_(finColor0)
+                : new Vector4(1, 1, 1, 1);
             var finColor1 = point.GetColor(1);
             var hasColor1 = finColor1 != null;
             var assColor1 = hasColor1
-                                ? GltfMeshBuilder.FinToGltfColor_(finColor1)
-                                : new Vector4(1, 1, 1, 1);
+                ? GltfMeshBuilder.FinToGltfColor_(finColor1)
+                : new Vector4(1, 1, 1, 1);
 
             var hasColor = hasColor0 || hasColor1;
 
@@ -128,7 +137,9 @@ namespace fin.exporter.gltf {
                 vertexBuilder =
                     vertexBuilder.WithMaterial(assColor0,
                                                assColor1,
-                                               new Vector2(uv.Value.U, uv.Value.V));
+                                               new Vector2(
+                                                   uv.Value.U,
+                                                   uv.Value.V));
               } else if (hasColor) {
                 vertexBuilder =
                     vertexBuilder.WithMaterial(assColor0, assColor1);
@@ -147,64 +158,19 @@ namespace fin.exporter.gltf {
           }
 
           switch (primitive.Type) {
-            case PrimitiveType.TRIANGLES: {
+            case PrimitiveType.TRIANGLES:
+            case PrimitiveType.TRIANGLE_STRIP:
+            case PrimitiveType.TRIANGLE_FAN: {
               var triangles =
                   gltfMeshBuilder.UsePrimitive(materialBuilder, 3);
-              for (var v = 0; v < pointsCount; v += 3) {
-                var v1 = vertices[v + 0];
-                var v2 = vertices[v + 1];
-                var v3 = vertices[v + 2];
 
-                if (primitive.VertexOrder == VertexOrder.FLIP) {
-                  triangles.AddTriangle(v1, v3, v2);
-                } else {
-                  triangles.AddTriangle(v1, v2, v3);
-                }
+              foreach (var (v1, v2, v3) in primitive
+                           .GetOrderedTriangleVertexIndices()
+                           .Select(i => vertices[i])
+                           .SeparateTriplets()) {
+                triangles.AddTriangle(v1, v2, v3);
               }
-              break;
-            }
-            case PrimitiveType.TRIANGLE_STRIP: {
-              var triangleStrip =
-                  gltfMeshBuilder.UsePrimitive(materialBuilder, 3);
-              for (var v = 0; v < pointsCount - 2; ++v) {
-                VERTEX v1, v2, v3;
-                if (v % 2 == 0) {
-                  v1 = vertices[v + 0];
-                  v2 = vertices[v + 1];
-                  v3 = vertices[v + 2];
-                } else {
-                  // Switches drawing order to maintain proper winding:
-                  // https://www.khronos.org/opengl/wiki/Primitive
-                  v1 = vertices[v + 1];
-                  v2 = vertices[v + 0];
-                  v3 = vertices[v + 2];
-                }
 
-                if (primitive.VertexOrder == VertexOrder.FLIP) {
-                  triangleStrip.AddTriangle(v1, v3, v2);
-                } else {
-                  triangleStrip.AddTriangle(v1, v2, v3);
-                }
-              }
-              break;
-            }
-            case PrimitiveType.TRIANGLE_FAN: {
-              var triangleFan =
-                  gltfMeshBuilder.UsePrimitive(materialBuilder, 3);
-
-              // https://stackoverflow.com/a/8044252
-              var firstVertex = vertices[0];
-              for (var v = 2; v < pointsCount; ++v) {
-                var v1 = firstVertex;
-                var v2 = vertices[v - 1];
-                var v3 = vertices[v];
-
-                if (primitive.VertexOrder == VertexOrder.FLIP) {
-                  triangleFan.AddTriangle(v1, v3, v2);
-                } else {
-                  triangleFan.AddTriangle(v1, v2, v3);
-                }
-              }
               break;
             }
             case PrimitiveType.QUADS: {
@@ -218,18 +184,20 @@ namespace fin.exporter.gltf {
                                     vertices[v + 2],
                                     vertices[v + 3]);
               }
+
               break;
             }
             case PrimitiveType.POINTS: {
-                var pointPrimitive =
-                    gltfMeshBuilder.UsePrimitive(
-                        materialBuilder,
-                        1);
-                for (var v = 0; v < pointsCount; v += 4) {
-                  pointPrimitive.AddPoint(vertices[v]);
-                }
-                break;
+              var pointPrimitive =
+                  gltfMeshBuilder.UsePrimitive(
+                      materialBuilder,
+                      1);
+              for (var v = 0; v < pointsCount; v += 4) {
+                pointPrimitive.AddPoint(vertices[v]);
               }
+
+              break;
+            }
             default: throw new NotSupportedException();
           }
         }

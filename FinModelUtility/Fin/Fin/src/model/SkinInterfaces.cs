@@ -142,6 +142,10 @@ namespace fin.model {
     PrimitiveType Type { get; }
     IReadOnlyList<IReadOnlyVertex> Vertices { get; }
 
+    IEnumerable<int> GetOrderedTriangleVertexIndices();
+    IEnumerable<(int, int, int)> GetOrderedTriangleVertexIndexTriplets();
+    IEnumerable<IReadOnlyVertex> GetOrderedTriangleVertices();
+
     IMaterial Material { get; }
     IPrimitive SetMaterial(IMaterial material);
 
