@@ -118,7 +118,8 @@ void main() {{
 
     protected override void PassUniformsAndBindTextures(
         GlShaderProgram shaderProgram) {
-      GL.Uniform1(this.diffuseTextureLocation_, 0);
+      // 0 is inferred, and therefore unnecessary to pass in.
+      // GL.Uniform1(this.diffuseTextureLocation_, 0);
       this.primaryGlTexture_.Bind();
     }
   }

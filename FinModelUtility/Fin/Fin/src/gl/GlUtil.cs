@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
+
 using fin.model;
 using OpenTK.Graphics.OpenGL;
 
@@ -28,28 +30,46 @@ namespace fin.gl {
       }
     }
 
-    public static void SetCulling(CullingMode cullingMode) {
-      if (cullingMode == CullingMode.SHOW_BOTH) {
-        GL.Disable(EnableCap.CullFace);
-        return;
+    private static CullingMode currentCullingMode_ = CullingMode.SHOW_FRONT_ONLY;
+
+    public static bool SetCulling(CullingMode cullingMode) {
+      if (GlUtil.currentCullingMode_ == cullingMode) {
+        return false;
       }
 
-      GL.Enable(EnableCap.CullFace);
-      GL.CullFace(cullingMode switch {
-          CullingMode.SHOW_FRONT_ONLY => CullFaceMode.Back,
-          CullingMode.SHOW_BACK_ONLY  => CullFaceMode.Front,
-          CullingMode.SHOW_NEITHER    => CullFaceMode.FrontAndBack,
-          _ => throw new ArgumentOutOfRangeException(
-                   nameof(cullingMode), cullingMode, null)
-      });
+      GlUtil.currentCullingMode_ = cullingMode;
+
+      if (cullingMode == CullingMode.SHOW_BOTH) {
+        GL.Disable(EnableCap.CullFace);
+      } else {
+        GL.Enable(EnableCap.CullFace);
+        GL.CullFace(cullingMode switch {
+            CullingMode.SHOW_FRONT_ONLY => CullFaceMode.Back,
+            CullingMode.SHOW_BACK_ONLY  => CullFaceMode.Front,
+            CullingMode.SHOW_NEITHER    => CullFaceMode.FrontAndBack,
+            _ => throw new ArgumentOutOfRangeException(
+                nameof(cullingMode), cullingMode, null)
+        });
+      }
+
+      return true;
     }
 
     public static void ResetDepth()
       => SetDepth(DepthMode.USE_DEPTH_BUFFER, DepthCompareType.LEqual);
 
-    public static void SetDepth(
+    private static (DepthMode, DepthCompareType) depthModeAndCompareType =
+        (DepthMode.USE_DEPTH_BUFFER, DepthCompareType.LEqual);
+
+    public static bool SetDepth(
         DepthMode depthMode,
         DepthCompareType depthCompareType) {
+      if (GlUtil.depthModeAndCompareType == (depthMode, depthCompareType)) {
+        return false;
+      }
+
+      GlUtil.depthModeAndCompareType = (depthMode, depthCompareType);
+
       switch (depthMode) {
         case DepthMode.USE_DEPTH_BUFFER: {
           GL.DepthFunc(ConvertFinDepthCompareTypeToGl_(depthCompareType));
@@ -72,6 +92,8 @@ namespace fin.gl {
           throw new ArgumentOutOfRangeException(nameof(depthMode), depthMode,
                                                 null);
       }
+
+      return true;
     }
 
     public static void ResetBlending() {
@@ -81,11 +103,23 @@ namespace fin.gl {
       GL.Disable(EnableCap.ColorLogicOp);
     }
 
-    public static void SetBlending(
+    private static (BlendMode, BlendFactor, BlendFactor, FinLogicOp)
+        currentBlending_ = (BlendMode.ADD, BlendFactor.SRC_ALPHA,
+                            BlendFactor.ONE_MINUS_SRC_ALPHA,
+                            FinLogicOp.UNDEFINED);
+
+    public static bool SetBlending(
         BlendMode blendMode,
         BlendFactor srcFactor,
         BlendFactor dstFactor,
         FinLogicOp logicOp) {
+      if (GlUtil.currentBlending_ ==
+          (blendMode, srcFactor, dstFactor, logicOp)) {
+        return false;
+      }
+
+      GlUtil.currentBlending_ = (blendMode, srcFactor, dstFactor, logicOp);
+
       if (blendMode is BlendMode.NONE) {
         GL.Disable(EnableCap.Blend);
         GL.BlendEquation(BlendEquationMode.FuncAdd);
@@ -103,6 +137,8 @@ namespace fin.gl {
         GL.Enable(EnableCap.ColorLogicOp);
         GL.LogicOp(GlUtil.ConvertFinLogicOpToGl_(logicOp));
       }
+
+      return true;
     }
 
     private static DepthFunction ConvertFinDepthCompareTypeToGl_(
@@ -166,5 +202,31 @@ namespace fin.gl {
           _ => throw new ArgumentOutOfRangeException(
                    nameof(finLogicOp), finLogicOp, null)
       };
+
+
+    private static int activeTexture_ = -1;
+
+    private static int[] currentTextureBindings_ =
+        new int[] { -1, -1, -1, -1, -1, -1, -1, -1 };
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void BindTexture(int textureIndex, int value) {
+      if (GlUtil.currentTextureBindings_[textureIndex] == value) {
+        return;
+      }
+
+      if (GlUtil.activeTexture_ != textureIndex) {
+        GlUtil.activeTexture_ = textureIndex;
+        GL.ActiveTexture(TextureUnit.Texture0 + textureIndex);
+      }
+
+      GlUtil.currentTextureBindings_[textureIndex] = value;
+      GL.BindTexture(TextureTarget.Texture2D, value);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void UnbindTexture(int textureIndex)
+      => BindTexture(textureIndex, -1);
   }
 }

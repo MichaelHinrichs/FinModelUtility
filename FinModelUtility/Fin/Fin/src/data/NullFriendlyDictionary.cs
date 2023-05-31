@@ -2,6 +2,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 
 namespace fin.data {
@@ -39,6 +40,7 @@ namespace fin.data {
       }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ContainsKey(TKey key)
       => key == null ? this.hasNull_ : this.impl_.ContainsKey(key);
 
@@ -75,6 +77,7 @@ namespace fin.data {
       return this.impl_.TryGetValue(key, out value);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Remove(TKey key) => this.Remove(key, out _);
 
     public bool Remove(TKey key, out TValue value) {
@@ -89,8 +92,10 @@ namespace fin.data {
       return didRemove;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() {
       foreach (var value in this.impl_) {
         yield return value;

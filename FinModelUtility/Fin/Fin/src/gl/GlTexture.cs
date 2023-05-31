@@ -6,6 +6,7 @@ using fin.model;
 using OpenTK.Graphics.OpenGL;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 using FinTextureMinFilter = fin.model.TextureMinFilter;
 using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
@@ -195,15 +196,13 @@ namespace fin.gl {
       this.id_ = UNDEFINED_ID;
     }
 
-    public void Bind(int textureIndex = 0) {
-      GL.ActiveTexture(TextureUnit.Texture0 + textureIndex);
-      GL.BindTexture(TextureTarget.Texture2D, this.id_);
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Bind(int textureIndex = 0)
+      => GlUtil.BindTexture(textureIndex, this.id_);
 
-    public void Unbind(int textureIndex = 0) {
-      GL.ActiveTexture(TextureUnit.Texture0 + textureIndex);
-      GL.BindTexture(TextureTarget.Texture2D, UNDEFINED_ID);
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Unbind(int textureIndex = 0)
+      => GlUtil.UnbindTexture(textureIndex);
 
     private static TextureWrapMode ConvertFinWrapToGlWrap_(
         WrapMode wrapMode,

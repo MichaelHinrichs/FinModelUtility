@@ -86,6 +86,8 @@ namespace fin.gl.model {
       this.bufferRenderer_.Dispose();
     }
 
+    public IMesh Mesh { get; }
+
     public bool UseLighting {
       get => this.materialShader_?.UseLighting ?? false;
       set {
@@ -99,30 +101,34 @@ namespace fin.gl.model {
       this.materialShader_?.Use();
 
       var fixedFunctionMaterial = this.material_ as IFixedFunctionMaterial;
+
+      bool changedBlending = false;
       if (fixedFunctionMaterial != null) {
-        GlUtil.SetBlending(fixedFunctionMaterial.BlendMode,
-                           fixedFunctionMaterial.SrcFactor,
-                           fixedFunctionMaterial.DstFactor,
-                           fixedFunctionMaterial.LogicOp);
+        changedBlending = GlUtil.SetBlending(fixedFunctionMaterial.BlendMode,
+                                             fixedFunctionMaterial.SrcFactor,
+                                             fixedFunctionMaterial.DstFactor,
+                                             fixedFunctionMaterial.LogicOp);
       }
 
       GlUtil.SetCulling(this.material_?.CullingMode ?? CullingMode.SHOW_BOTH);
-      GlUtil.SetDepth(this.material_?.DepthMode ?? DepthMode.USE_DEPTH_BUFFER,
-                      this.material_?.DepthCompareType ??
-                      DepthCompareType.LEqual);
+      var changedDepth = GlUtil.SetDepth(
+          this.material_?.DepthMode ?? DepthMode.USE_DEPTH_BUFFER,
+          this.material_?.DepthCompareType ??
+          DepthCompareType.LEqual);
 
       this.bufferRenderer_.Render();
 
       for (var i = 0; i < 8; ++i) {
-        GL.ActiveTexture(TextureUnit.Texture0 + i);
-        GL.BindTexture(TextureTarget.Texture2D, -1);
+        GlUtil.UnbindTexture(i);
       }
 
-      if (fixedFunctionMaterial != null) {
+      if (changedBlending) {
         GlUtil.ResetBlending();
       }
 
-      GlUtil.ResetDepth();
+      if (changedDepth) {
+        GlUtil.ResetDepth();
+      }
     }
   }
 }
