@@ -157,13 +157,11 @@ namespace UoT.api {
             finAnimation.Name = $"Animation {animationIndex++}";
 
             var rootAnimationTracks = finAnimation.AddBoneTracks(rootBone);
-            var positions = rootAnimationTracks.UsePositionsTrack(frameCount);
+            var positions =
+                rootAnimationTracks.UseCombinedPositionAxesTrack(frameCount);
             for (var f = 0; f < frameCount; ++f) {
               var pos = ootAnimation.GetPosition(f);
-
-              positions.Set(f, 0, pos.X);
-              positions.Set(f, 1, pos.Y);
-              positions.Set(f, 2, pos.Z);
+              positions.Set(f, new Position(pos.X, pos.Y, pos.Z));
             }
 
             for (var i = 0; i < ootLimbs.Count; ++i) {

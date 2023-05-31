@@ -43,8 +43,9 @@ namespace fin.model {
     IRotationTrack3d? Rotations { get; }
     IScale3dTrack? Scales { get; }
 
-    IPositionTrack3d UsePositionsTrack(int initialCapacity = 0);
-    IPositionTrack3d UsePositionsTrack(
+    ICombinedPositionAxesTrack3d UseCombinedPositionAxesTrack(int initialCapacity = 0);
+    ISeparatePositionAxesTrack3d UseSeparatePositionAxesTrack(int initialCapacity = 0);
+    ISeparatePositionAxesTrack3d UseSeparatePositionAxesTrack(
         int initialXCapacity,
         int initialYCapacity,
         int initialZCapacity);

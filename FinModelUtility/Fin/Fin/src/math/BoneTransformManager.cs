@@ -142,12 +142,14 @@ namespace fin.math {
         animation?.BoneTracks.TryGetValue(bone, out boneTracks);
         if (boneTracks != null) {
           // Only gets the values from the animation if the frame is at least partially defined.
-          animationLocalPosition =
-              boneTracks?.Positions?.IsDefined ?? false
-                  ? boneTracks?.Positions.GetInterpolatedFrame(
-                      (float) frame,
-                      useLoopingInterpolation)
-                  : null;
+          if (boneTracks?.Positions?.IsDefined ?? false) {
+            if (boneTracks.Positions.TryGetInterpolatedFrame(
+                    (float) frame,
+                    out var outAnimationLocalPosition,
+                    useLoopingInterpolation)) {
+              animationLocalPosition = outAnimationLocalPosition;
+            }
+          }
 
           if (boneTracks?.Rotations?.IsDefined ?? false) {
             if (boneTracks.Rotations.TryGetInterpolatedFrame(

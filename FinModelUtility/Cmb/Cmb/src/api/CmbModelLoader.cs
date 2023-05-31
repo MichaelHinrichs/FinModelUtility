@@ -156,7 +156,7 @@ namespace cmb.api {
               finBones[boneIndex]);
 
           var positionsTrack =
-              boneTracks.UsePositionsTrack(
+              boneTracks.UseSeparatePositionAxesTrack(
                   anod.TranslationAxes[0].Keyframes.Count,
                   anod.TranslationAxes[1].Keyframes.Count,
                   anod.TranslationAxes[2].Keyframes.Count);

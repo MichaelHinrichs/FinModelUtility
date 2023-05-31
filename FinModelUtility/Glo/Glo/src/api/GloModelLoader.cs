@@ -169,7 +169,7 @@ namespace glo.api {
             var finBoneTracks = finAnimation.AddBoneTracks(finBone);
 
             var positions =
-                finBoneTracks.UsePositionsTrack(gloMesh.MoveKeys.Length);
+                finBoneTracks.UseCombinedPositionAxesTrack(gloMesh.MoveKeys.Length);
             long prevTime = -1;
             foreach (var moveKey in gloMesh.MoveKeys) {
               Asserts.True(moveKey.Time > prevTime);
@@ -188,7 +188,10 @@ namespace glo.api {
               }
               Asserts.True(time >= 0 && time < finAnimation.FrameCount);
 
-              positions.Set(time, moveKey.Xyz);
+              positions.Set(time,
+                            new Position(moveKey.Xyz.X,
+                                         moveKey.Xyz.Y,
+                                         moveKey.Xyz.Z));
 
               if (isLast) {
                 break;

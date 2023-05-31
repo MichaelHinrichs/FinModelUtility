@@ -285,14 +285,11 @@ namespace modl.api {
             finBone!);
 
         var fbtPositions =
-            finBoneTracks.UsePositionsTrack(
+            finBoneTracks.UseCombinedPositionAxesTrack(
                 (int) animBone.PositionKeyframeCount);
         for (var f = 0; f < animBone.PositionKeyframeCount; ++f) {
           var (fPX, fPY, fPZ) = animBoneFrames.PositionFrames[f];
-
-          fbtPositions.Set(f, 0, flipSign * fPX);
-          fbtPositions.Set(f, 1, fPY);
-          fbtPositions.Set(f, 2, fPZ);
+          fbtPositions.Set(f, new Position(flipSign * fPX, fPY, fPZ));
         }
 
         var fbtRotations =

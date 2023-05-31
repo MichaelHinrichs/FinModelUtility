@@ -266,7 +266,7 @@ namespace level5.api {
                 }
 
                 var finBoneTracks = finAnimation.AddBoneTracks(finBone);
-                var positions = finBoneTracks.UsePositionsTrack();
+                var positions = finBoneTracks.UseSeparatePositionAxesTrack();
                 var rotations = finBoneTracks.UseEulerRadiansRotationTrack();
                 var scales = finBoneTracks.UseScaleTrack();
 

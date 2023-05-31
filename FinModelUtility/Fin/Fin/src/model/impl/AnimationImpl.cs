@@ -141,12 +141,18 @@ namespace fin.model.impl {
       public IRotationTrack3d? Rotations { get; private set; }
       public IScale3dTrack? Scales { get; private set; }
 
-      public IPositionTrack3d UsePositionsTrack(int initialCapacity)
-        => this.UsePositionsTrack(initialCapacity,
+      public ICombinedPositionAxesTrack3d UseCombinedPositionAxesTrack(int initialCapacity)
+        => (ICombinedPositionAxesTrack3d) (this.Positions =
+            new CombinedPositionAxesTrack3dImpl(initialCapacity) {
+                FrameCount = this.frameCount_
+            });
+
+      public ISeparatePositionAxesTrack3d UseSeparatePositionAxesTrack(int initialCapacity)
+        => this.UseSeparatePositionAxesTrack(initialCapacity,
                                   initialCapacity,
                                   initialCapacity);
 
-      public IPositionTrack3d UsePositionsTrack(
+      public ISeparatePositionAxesTrack3d UseSeparatePositionAxesTrack(
           int initialXCapacity,
           int initialYCapacity,
           int initialZCapacity) {
@@ -155,10 +161,10 @@ namespace fin.model.impl {
         initialAxisCapacities[1] = initialYCapacity;
         initialAxisCapacities[2] = initialZCapacity;
 
-        return this.Positions =
-            new PositionTrack3dImpl(this.bone_, initialAxisCapacities) {
+        return (ISeparatePositionAxesTrack3d) (this.Positions =
+            new SeparatePositionAxesTrack3dImpl(this.bone_, initialAxisCapacities) {
                 FrameCount = this.frameCount_
-            };
+            });
       }
 
 

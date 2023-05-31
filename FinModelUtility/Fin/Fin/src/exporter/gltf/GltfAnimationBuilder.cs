@@ -42,11 +42,14 @@ namespace fin.exporter.gltf {
             var time = i / fps;
 
             if (translationDefined) {
-              var position = boneTracks.Positions.GetInterpolatedFrame(i);
-              translationKeyframes[time] =
-                  new Vector3(position.X * modelScale,
-                              position.Y * modelScale,
-                              position.Z * modelScale);
+              if (boneTracks.Positions.TryGetInterpolatedFrame(
+                      i,
+                      out var position)) {
+                translationKeyframes[time] =
+                    new Vector3(position.X * modelScale,
+                                position.Y * modelScale,
+                                position.Z * modelScale);
+              }
             }
 
             if (rotationDefined) {
@@ -68,11 +71,13 @@ namespace fin.exporter.gltf {
                 node,
                 translationKeyframes);
           }
+
           if (rotationDefined) {
             gltfAnimation.CreateRotationChannel(
                 node,
                 rotationKeyframes);
           }
+
           if (scaleDefined) {
             gltfAnimation.CreateScaleChannel(
                 node,

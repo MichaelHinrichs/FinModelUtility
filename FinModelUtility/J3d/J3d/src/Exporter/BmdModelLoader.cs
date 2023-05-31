@@ -196,7 +196,7 @@ namespace j3d.exporter {
           var boneTracks = animation.AddBoneTracks(bone);
 
           // TODO: Handle mirrored animations
-          var positions = boneTracks.UsePositionsTrack(
+          var positions = boneTracks.UseSeparatePositionAxesTrack(
               bcxJoint.Values.Translations[0].Length,
               bcxJoint.Values.Translations[1].Length,
               bcxJoint.Values.Translations[2].Length);
