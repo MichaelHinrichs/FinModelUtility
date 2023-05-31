@@ -15,6 +15,10 @@ namespace benchmarks {
     private const float Y_RADIANS = 0;
     private const float Z_RADIANS = 0;
 
+
+
+
+
     [GlobalSetup]
     public void Setup() {
       FinTrig.Cos(0);

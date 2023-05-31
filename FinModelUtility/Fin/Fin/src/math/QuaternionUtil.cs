@@ -19,21 +19,18 @@ namespace fin.math {
         float xRadians,
         float yRadians,
         float zRadians) {
-      var q = Quaternion.Identity;
+      var cr = FinTrig.Cos(xRadians * 0.5f);
+      var sr = FinTrig.Sin(xRadians * 0.5f);
+      var cp = FinTrig.Cos(yRadians * 0.5f);
+      var sp = FinTrig.Sin(yRadians * 0.5f);
+      var cy = FinTrig.Cos(zRadians * 0.5f);
+      var sy = FinTrig.Sin(zRadians * 0.5f);
 
-      if (!zRadians.AlmostEqual(0, .001)) {
-        q *= Quaternion.CreateFromAxisAngle(Vector3.UnitZ, zRadians);
-      }
-
-      if (!yRadians.AlmostEqual(0, .001)) {
-        q *= Quaternion.CreateFromAxisAngle(Vector3.UnitY, yRadians);
-      }
-
-      if (!xRadians.AlmostEqual(0, .001)) {
-        q *= Quaternion.CreateFromAxisAngle(Vector3.UnitX, xRadians);
-      }
-
-      return Quaternion.Normalize(q);
+      return new Quaternion(
+          sr * cp * cy - cr * sp * sy,
+          cr * sp * cy + sr * cp * sy,
+          cr * cp * sy - sr * sp * cy,
+          cr * cp * cy + sr * sp * sy);
     }
 
     public static Vector3 ToEulerRadians(Quaternion q) {

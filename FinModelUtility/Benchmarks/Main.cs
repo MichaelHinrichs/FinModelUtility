@@ -5,7 +5,7 @@ using BenchmarkDotNet.Running;
 namespace benchmarks {
   public class Program {
     public static void Main(string[] args) {
-      var summary = BenchmarkRunner.Run<CopyingMemory>(
+      var summary = BenchmarkRunner.Run<QuaternionCreation>(
           ManualConfig.Create(DefaultConfig.Instance)
                       .WithOptions(ConfigOptions
                                        .DisableOptimizationsValidator));
