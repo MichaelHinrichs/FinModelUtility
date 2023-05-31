@@ -33,6 +33,7 @@ namespace fin.math {
           cr * cp * cy + sr * sp * sy);
     }
 
+    // TODO: Slow! Figure out how to populate animations with raw quaternions instead
     public static Vector3 ToEulerRadians(Quaternion q) {
       if (q.IsIdentity) {
         return Vector3.Zero;

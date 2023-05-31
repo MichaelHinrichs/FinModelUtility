@@ -136,7 +136,7 @@ namespace mod.schema.animation {
 
     public static void MergeKeyframesToRotationTrack(
         Keyframe<ValueAndTangents<float>>[][] rotationKeyframes,
-        IRadiansRotationTrack3d rotationTrack) {
+        IEulerRadiansRotationTrack3d rotationTrack) {
       for (var i = 0; i < 3; ++i) {
         foreach (var keyframe in rotationKeyframes[i]) {
           rotationTrack.Set(keyframe.Frame,

@@ -47,7 +47,7 @@ namespace fin.model {
 
     // TODO: Should these be null if empty?
     IPositionTrack3d Positions { get; }
-    IRadiansRotationTrack3d Rotations { get; }
+    IEulerRadiansRotationTrack3d Rotations { get; }
     IScale3dTrack Scales { get; }
   }
 

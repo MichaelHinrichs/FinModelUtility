@@ -152,7 +152,7 @@ namespace fin.model.impl {
       }
 
       public IPositionTrack3d Positions { get; }
-      public IRadiansRotationTrack3d Rotations { get; }
+      public IEulerRadiansRotationTrack3d Rotations { get; }
       public IScale3dTrack Scales { get; }
 
       // TODO: Add pattern for specifying WITH given tracks
