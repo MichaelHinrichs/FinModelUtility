@@ -157,12 +157,13 @@ namespace UoT.api {
             finAnimation.Name = $"Animation {animationIndex++}";
 
             var rootAnimationTracks = finAnimation.AddBoneTracks(rootBone);
+            var positions = rootAnimationTracks.UsePositionsTrack(frameCount);
             for (var f = 0; f < frameCount; ++f) {
               var pos = ootAnimation.GetPosition(f);
 
-              rootAnimationTracks.Positions.Set(f, 0, pos.X);
-              rootAnimationTracks.Positions.Set(f, 1, pos.Y);
-              rootAnimationTracks.Positions.Set(f, 2, pos.Z);
+              positions.Set(f, 0, pos.X);
+              positions.Set(f, 1, pos.Y);
+              positions.Set(f, 2, pos.Z);
             }
 
             for (var i = 0; i < ootLimbs.Count; ++i) {
@@ -170,14 +171,16 @@ namespace UoT.api {
               var animationTracks = i == 0
                   ? rootAnimationTracks
                   : finAnimation.AddBoneTracks(finBone);
+              var rotations =
+                  animationTracks.UseEulerRadiansRotationTrack(frameCount);
 
-              animationTracks.Rotations.ConvertRadiansToQuaternionImpl =
+              rotations.ConvertRadiansToQuaternionImpl =
                   ConvertRadiansToQuaternionOot_;
 
               for (var a = 0; a < 3; ++a) {
                 AddOotAnimationTrackToFin_(ootAnimation.GetTrack(i * 3 + a),
                                            a,
-                                           animationTracks);
+                                           rotations);
               }
             }
           }
@@ -189,12 +192,12 @@ namespace UoT.api {
 
     private void AddOotAnimationTrackToFin_(IAnimationTrack ootAnimationTrack,
                                             int axis,
-                                            IBoneTracks boneTracks) {
+                                            IEulerRadiansRotationTrack3d rotations) {
       for (var f = 0; f < ootAnimationTrack.Frames.Count; ++f) {
-        boneTracks.Rotations.Set(f,
-                                 axis,
-                                 (float) ((ootAnimationTrack.Frames[f] *
-                                           360.0) / 0xFFFF));
+        rotations.Set(f,
+                      axis,
+                      (float) ((ootAnimationTrack.Frames[f] *
+                                360.0) / 0xFFFF));
       }
     }
 

@@ -29,11 +29,6 @@ namespace fin.model {
     IReadOnlyIndexableDictionary<IBone, IBoneTracks> BoneTracks { get; }
     IBoneTracks AddBoneTracks(IBone bone);
 
-    IBoneTracks AddBoneTracks(IBone bone,
-                              ReadOnlySpan<int> initialCapacityPerPositionAxis,
-                              ReadOnlySpan<int> initialCapacityPerRotationAxis,
-                              ReadOnlySpan<int> initialCapacityPerScaleAxis);
-
     IReadOnlyDictionary<IMesh, IMeshTracks> MeshTracks { get; }
     IMeshTracks AddMeshTracks(IMesh mesh);
 
@@ -44,10 +39,30 @@ namespace fin.model {
   }
 
   public interface IBoneTracks {
-    // TODO: Should these be null if empty?
-    IPositionTrack3d Positions { get; }
-    IEulerRadiansRotationTrack3d Rotations { get; }
-    IScale3dTrack Scales { get; }
+    IPositionTrack3d? Positions { get; }
+    IRotationTrack3d? Rotations { get; }
+    IScale3dTrack? Scales { get; }
+
+    IPositionTrack3d UsePositionsTrack(int initialCapacity = 0);
+    IPositionTrack3d UsePositionsTrack(
+        int initialXCapacity,
+        int initialYCapacity,
+        int initialZCapacity);
+
+    IQuaternionRotationTrack3d UseQuaternionRotationTrack(int initialCapacity = 0);
+
+    IEulerRadiansRotationTrack3d UseEulerRadiansRotationTrack(int initialCapacity = 0);
+
+    IEulerRadiansRotationTrack3d UseEulerRadiansRotationTrack(
+        int initialXCapacity,
+        int initialYCapacity,
+        int initialZCapacity);
+
+    IScale3dTrack UseScaleTrack(int initialCapacity = 0);
+    IScale3dTrack UseScaleTrack(
+        int initialXCapacity,
+        int initialYCapacity,
+        int initialZCapacity);
   }
 
 

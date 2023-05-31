@@ -168,6 +168,8 @@ namespace glo.api {
                    finAndGloAnimations) {
             var finBoneTracks = finAnimation.AddBoneTracks(finBone);
 
+            var positions =
+                finBoneTracks.UsePositionsTrack(gloMesh.MoveKeys.Length);
             long prevTime = -1;
             foreach (var moveKey in gloMesh.MoveKeys) {
               Asserts.True(moveKey.Time > prevTime);
@@ -186,13 +188,16 @@ namespace glo.api {
               }
               Asserts.True(time >= 0 && time < finAnimation.FrameCount);
 
-              finBoneTracks.Positions.Set(time, moveKey.Xyz);
+              positions.Set(time, moveKey.Xyz);
 
               if (isLast) {
                 break;
               }
             }
 
+            var rotations =
+                finBoneTracks.UseQuaternionRotationTrack(
+                    gloMesh.RotateKeys.Length);
             prevTime = -1;
             foreach (var rotateKey in gloMesh.RotateKeys) {
               Asserts.True(rotateKey.Time > prevTime);
@@ -214,14 +219,14 @@ namespace glo.api {
               var quaternionKey =
                   new Quaternion(rotateKey.X, rotateKey.Y, rotateKey.Z,
                                  rotateKey.W);
-              var xyzRadiansKey = QuaternionUtil.ToEulerRadians(quaternionKey);
-              finBoneTracks.Rotations.Set(time, xyzRadiansKey);
+              rotations.Set(time, quaternionKey);
 
               if (isLast) {
                 break;
               }
             }
 
+            var scales = finBoneTracks.UseScaleTrack(gloMesh.ScaleKeys.Length);
             prevTime = -1;
             foreach (var scaleKey in gloMesh.ScaleKeys) {
               Asserts.True(scaleKey.Time > prevTime);
@@ -241,7 +246,7 @@ namespace glo.api {
               Asserts.True(time >= 0 && time < finAnimation.FrameCount);
 
               // TODO: Does this also need to be out of order?
-              finBoneTracks.Scales.Set(time, scaleKey.Scale);
+              scales.Set(time, scaleKey.Scale);
 
               if (isLast) {
                 break;

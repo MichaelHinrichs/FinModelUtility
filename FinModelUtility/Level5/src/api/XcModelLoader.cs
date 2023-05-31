@@ -266,6 +266,10 @@ namespace level5.api {
                 }
 
                 var finBoneTracks = finAnimation.AddBoneTracks(finBone);
+                var positions = finBoneTracks.UsePositionsTrack();
+                var rotations = finBoneTracks.UsePositionsTrack();
+                var scales = finBoneTracks.UseScaleTrack();
+
                 foreach (var mtnTrack in transformNode.Tracks.Values) {
                   foreach (var mtnKey in mtnTrack.Keys.Keys) {
                     var frame = (int) mtnKey.Frame;
@@ -275,21 +279,21 @@ namespace level5.api {
                     var outTan = mtnKey.OutTan;
 
                     if (mtnTrack.Type.IsTranslation(out var translationAxis)) {
-                      finBoneTracks.Positions.Set(
+                      positions.Set(
                           frame,
                           translationAxis,
                           value,
                           inTan,
                           outTan);
                     } else if (mtnTrack.Type.IsRotation(out var rotationAxis)) {
-                      finBoneTracks.Rotations.Set(
+                      rotations.Set(
                           frame,
                           rotationAxis,
                           value,
                           inTan,
                           outTan);
                     } else if (mtnTrack.Type.IsScale(out var scaleAxis)) {
-                      finBoneTracks.Scales.Set(
+                      scales.Set(
                           frame,
                           scaleAxis,
                           value,

@@ -254,10 +254,6 @@ namespace modl.api {
       finAnimation.FrameRate = 30;
       finAnimation.FrameCount = maxFrameCount;
 
-      Span<int> positionCapacities = stackalloc int[3];
-      Span<int> rotationCapacities = stackalloc int[3];
-      Span<int> scaleCapacities = stackalloc int[3];
-
       for (var b = 0; b < anim.AnimBones.Count; ++b) {
         var animBone = anim.AnimBones[b];
         var animBoneFrames = anim.AnimBoneFrames[b];
@@ -285,18 +281,12 @@ namespace modl.api {
           }
         }
 
-        positionCapacities[0] = positionCapacities[1] =
-            positionCapacities[2] = (int) animBone.PositionKeyframeCount;
-        rotationCapacities[0] = rotationCapacities[1] =
-            rotationCapacities[2] = (int) animBone.RotationKeyframeCount;
-
         var finBoneTracks = finAnimation.AddBoneTracks(
-            finBone!,
-            positionCapacities,
-            rotationCapacities,
-            scaleCapacities);
+            finBone!);
 
-        var fbtPositions = finBoneTracks.Positions;
+        var fbtPositions =
+            finBoneTracks.UsePositionsTrack(
+                (int) animBone.PositionKeyframeCount);
         for (var f = 0; f < animBone.PositionKeyframeCount; ++f) {
           var (fPX, fPY, fPZ) = animBoneFrames.PositionFrames[f];
 
@@ -305,16 +295,16 @@ namespace modl.api {
           fbtPositions.Set(f, 2, fPZ);
         }
 
-        var fbtRotations = finBoneTracks.Rotations;
+        var fbtRotations =
+            finBoneTracks.UseQuaternionRotationTrack(
+                (int) animBone.RotationKeyframeCount);
         for (var f = 0; f < animBone.RotationKeyframeCount; ++f) {
           var (fRX, fRY, fRZ, frW) = animBoneFrames.RotationFrames[f];
 
           var animationQuaternion =
               new Quaternion(flipSign * fRX, fRY, fRZ, flipSign * frW);
-          var eulerRadians =
-              QuaternionUtil.ToEulerRadians(animationQuaternion);
 
-          fbtRotations.Set(f, eulerRadians);
+          fbtRotations.Set(f, animationQuaternion);
         }
       }
     }

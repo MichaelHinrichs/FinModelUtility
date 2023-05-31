@@ -25,7 +25,7 @@ namespace fin.model {
 
   public interface ITrack {
     bool IsDefined { get; }
-    int FrameCount { get; }
+    int FrameCount { set; }
   }
 
   public interface IReadOnlyInterpolatedTrack<TInterpolated> : ITrack {
@@ -38,8 +38,6 @@ namespace fin.model {
 
 
   public interface IImplTrack<TValue> : ITrack {
-    new int FrameCount { get; set; }
-
     IReadOnlyList<Keyframe<ValueAndTangents<TValue>>> Keyframes { get; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -86,11 +84,7 @@ namespace fin.model {
   }
 
   // TODO: Rethink this, this is getting way too complicated.
-  public interface IAxesTrack<TAxis, TInterpolated> {
-    bool IsDefined { get; }
-
-    int FrameCount { set; }
-
+  public interface IAxesTrack<TAxis, TInterpolated> : ITrack {
     void Set(int frame, int axis, TAxis value)
       => this.Set(frame, axis, value, null);
 

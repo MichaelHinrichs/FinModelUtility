@@ -152,52 +152,51 @@ namespace cmb.api {
         finAnimation.FrameRate = fps;
 
         foreach (var (boneIndex, anod) in csab.BoneIndexToAnimationNode) {
-          Span<int> initialCapacityPerPositionAxis = stackalloc int[3];
-          Span<int> initialCapacityPerRotationAxis = stackalloc int[3];
-          Span<int> initialCapacityPerScaleAxis = stackalloc int[3];
-          for (var i = 0; i < 3; ++i) {
-            var translationAxis = anod.TranslationAxes[i];
-            initialCapacityPerPositionAxis[i] = translationAxis.Keyframes.Count;
-
-            var rotationAxis = anod.RotationAxes[i];
-            initialCapacityPerRotationAxis[i] = rotationAxis.Keyframes.Count;
-
-            var scaleAxis = anod.ScaleAxes[i];
-            initialCapacityPerScaleAxis[i] = scaleAxis.Keyframes.Count;
-          }
-
           var boneTracks = finAnimation.AddBoneTracks(
-              finBones[boneIndex],
-              initialCapacityPerPositionAxis,
-              initialCapacityPerRotationAxis,
-              initialCapacityPerScaleAxis);
+              finBones[boneIndex]);
+
+          var positionsTrack =
+              boneTracks.UsePositionsTrack(
+                  anod.TranslationAxes[0].Keyframes.Count,
+                  anod.TranslationAxes[1].Keyframes.Count,
+                  anod.TranslationAxes[2].Keyframes.Count);
+          var rotationsTrack =
+              boneTracks.UseEulerRadiansRotationTrack(
+                  anod.RotationAxes[0].Keyframes.Count,
+                  anod.RotationAxes[1].Keyframes.Count,
+                  anod.RotationAxes[2].Keyframes.Count);
+          var scalesTrack =
+              boneTracks.UseScaleTrack(
+                  anod.ScaleAxes[0].Keyframes.Count,
+                  anod.ScaleAxes[1].Keyframes.Count,
+                  anod.ScaleAxes[2].Keyframes.Count);
 
           for (var i = 0; i < 3; ++i) {
             var translationAxis = anod.TranslationAxes[i];
             foreach (var translation in translationAxis.Keyframes) {
-              boneTracks.Positions.Set((int) translation.Time,
-                                       i,
-                                       translation.Value,
-                                       translation.IncomingTangent,
-                                       translation.OutgoingTangent);
+              positionsTrack.Set((int) translation.Time,
+                                 i,
+                                 translation.Value,
+                                 translation.IncomingTangent,
+                                 translation.OutgoingTangent);
             }
 
             var rotationAxis = anod.RotationAxes[i];
             foreach (var rotation in rotationAxis.Keyframes) {
-              boneTracks.Rotations.Set((int) rotation.Time,
-                                       i,
-                                       rotation.Value,
-                                       rotation.IncomingTangent,
-                                       rotation.OutgoingTangent);
+              rotationsTrack.Set((int) rotation.Time,
+                                 i,
+                                 rotation.Value,
+                                 rotation.IncomingTangent,
+                                 rotation.OutgoingTangent);
             }
 
             var scaleAxis = anod.ScaleAxes[i];
             foreach (var scale in scaleAxis.Keyframes) {
-              boneTracks.Scales.Set((int) scale.Time,
-                                    i,
-                                    scale.Value,
-                                    scale.IncomingTangent,
-                                    scale.OutgoingTangent);
+              scalesTrack.Set((int) scale.Time,
+                              i,
+                              scale.Value,
+                              scale.IncomingTangent,
+                              scale.OutgoingTangent);
             }
           }
         }

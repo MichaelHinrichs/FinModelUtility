@@ -155,14 +155,18 @@ namespace fin.math {
                       (float) frame,
                       useLoopingInterpolation)
                   : null;
-          animationLocalRotation =
-              boneTracks?.Rotations.IsDefined ?? false
-                  ? boneTracks?.Rotations.GetInterpolatedFrame(
-                      (float) frame,
-                      useLoopingInterpolation)
-                  : null;
+
+          if (boneTracks?.Rotations.IsDefined ?? false) {
+            if (boneTracks.Rotations.TryGetInterpolatedFrame(
+                    (float) frame,
+                    out var outAnimationLocalRotation,
+                    useLoopingInterpolation)) {
+              animationLocalRotation = outAnimationLocalRotation;
+            }
+          }
+
           animationLocalScale =
-              boneTracks?.Scales.IsDefined ?? false
+              boneTracks?.Scales?.IsDefined ?? false
                   ? boneTracks?.Scales.GetInterpolatedFrame(
                       (float) frame,
                       useLoopingInterpolation)

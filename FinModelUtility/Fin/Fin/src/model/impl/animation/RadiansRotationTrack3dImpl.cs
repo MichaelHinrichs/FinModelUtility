@@ -10,12 +10,12 @@ using fin.math.interpolation;
 
 namespace fin.model.impl {
   public partial class ModelImpl<TVertex> {
-    public class RadiansRotationTrack3dImpl : IEulerRadiansRotationTrack3d {
+    public class EulerRadiansRotationTrack3dImpl : IEulerRadiansRotationTrack3d {
       private readonly IBone bone_;
       private readonly IInputOutputTrack<float, RadianInterpolator>[]
           axisTracks_;
 
-      public RadiansRotationTrack3dImpl(
+      public EulerRadiansRotationTrack3dImpl(
           IBone bone,
           ReadOnlySpan<int> initialCapacityPerAxis) {
         this.bone_ = bone;
@@ -55,6 +55,13 @@ namespace fin.model.impl {
         => this.axisTracks_.Select(axis => axis.GetKeyframe(keyframe))
                .ToArray();
 
+      public bool TryGetInterpolatedFrame(float frame,
+                                          out Quaternion interpolatedValue,
+                                          bool useLoopingInterpolation = false) {
+        interpolatedValue = GetInterpolatedFrame(frame, useLoopingInterpolation);
+        return true;
+      }
+
       public Quaternion GetInterpolatedFrame(
           float frame,
           bool useLoopingInterpolation = false) {
@@ -93,9 +100,9 @@ namespace fin.model.impl {
         fromsAndTos[5] = toZFrame;
 
         Span<bool> areAxesStatic = stackalloc bool[3];
-        RadiansRotationTrack3dImpl.AreAxesStatic_(fromsAndTos, areAxesStatic);
+        EulerRadiansRotationTrack3dImpl.AreAxesStatic_(fromsAndTos, areAxesStatic);
         
-        if (!RadiansRotationTrack3dImpl.CanInterpolateWithQuaternions_(
+        if (!EulerRadiansRotationTrack3dImpl.CanInterpolateWithQuaternions_(
                 fromsAndTos, areAxesStatic)) {
           if (!xTrack.TryGetInterpolatedFrame(frame,
                                               out var xRadians,
@@ -116,7 +123,7 @@ namespace fin.model.impl {
           return ConvertRadiansToQuaternionImpl(xRadians, yRadians, zRadians);
         }
 
-        if (RadiansRotationTrack3dImpl.GetFromAndToFrameIndex_(fromsAndTos,
+        if (EulerRadiansRotationTrack3dImpl.GetFromAndToFrameIndex_(fromsAndTos,
               areAxesStatic,
               out var fromFrame,
               out var toFrame)) {

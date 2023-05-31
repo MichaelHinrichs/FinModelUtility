@@ -30,7 +30,7 @@ namespace mod.schema.animation {
             dcxAnimationData.ScaleValues);
         DcxHelpers.MergeKeyframesToScaleTrack(
             frames,
-            jointKeyframes.Scales);
+            jointKeyframes.UseScaleTrack());
 
         frames = DcxHelpers.ReadKeyframes_(
             isDck,
@@ -39,7 +39,7 @@ namespace mod.schema.animation {
             dcxAnimationData.RotationValues);
         DcxHelpers.MergeKeyframesToRotationTrack(
             frames,
-            jointKeyframes.Rotations);
+            jointKeyframes.UseEulerRadiansRotationTrack());
 
         frames = DcxHelpers.ReadKeyframes_(
             isDck,
@@ -48,7 +48,7 @@ namespace mod.schema.animation {
             dcxAnimationData.PositionValues);
         DcxHelpers.MergeKeyframesToPositionTrack(
             frames,
-            jointKeyframes.Positions);
+            jointKeyframes.UsePositionsTrack());
       }
 
       return animation;

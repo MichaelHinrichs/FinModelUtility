@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Numerics;
 
 using fin.data;
-using fin.math;
 using fin.math.interpolation;
 
 
@@ -66,22 +64,8 @@ namespace fin.model.impl {
         }
 
         public IBoneTracks AddBoneTracks(IBone bone)
-          => AddBoneTracks(bone,
-                           AnimationImplConstants.EMPTY_CAPACITY_PER_AXIS,
-                           AnimationImplConstants.EMPTY_CAPACITY_PER_AXIS,
-                           AnimationImplConstants.EMPTY_CAPACITY_PER_AXIS);
-
-        public IBoneTracks AddBoneTracks(
-            IBone bone,
-            ReadOnlySpan<int> initialCapacityPerPositionAxis,
-            ReadOnlySpan<int> initialCapacityPerRotationAxis,
-            ReadOnlySpan<int> initialCapacityPerScaleAxis)
-          => this.boneTracks_[bone] = new BoneTracksImpl(
-              bone,
-              initialCapacityPerPositionAxis,
-              initialCapacityPerRotationAxis,
-              initialCapacityPerScaleAxis
-          ) { FrameCount = this.FrameCount, };
+          => this.boneTracks_[bone] =
+              new BoneTracksImpl(bone) { FrameCount = this.FrameCount };
 
         public IReadOnlyDictionary<IMesh, IMeshTracks> MeshTracks { get; }
 
@@ -128,70 +112,113 @@ namespace fin.model.impl {
     }
 
     public class BoneTracksImpl : IBoneTracks {
-      public BoneTracksImpl(
-          IBone bone,
-          ReadOnlySpan<int> initialCapacityPerPositionAxis,
-          ReadOnlySpan<int> initialCapacityPerRotationAxis,
-          ReadOnlySpan<int> initialCapacityPerScaleAxis) {
-        Positions =
-            new PositionTrack3dImpl(bone, initialCapacityPerPositionAxis);
-        Rotations =
-            new RadiansRotationTrack3dImpl(bone,
-                                           initialCapacityPerRotationAxis);
-        Scales = new ScaleTrackImpl(bone, initialCapacityPerScaleAxis);
+      private readonly IBone bone_;
+      private int frameCount_;
+
+      public BoneTracksImpl(IBone bone) {
+        this.bone_ = bone;
       }
 
       public int FrameCount {
         set {
-          this.Positions.FrameCount =
-              this.Rotations.FrameCount = this.Scales.FrameCount = value;
+          this.frameCount_ = value;
+
+          if (this.Positions != null) {
+            this.Positions.FrameCount = value;
+          }
+
+          if (this.Rotations != null) {
+            this.Rotations.FrameCount = value;
+          }
+
+          if (this.Scales != null) {
+            this.Scales.FrameCount = value;
+          }
         }
       }
 
-      public IPositionTrack3d Positions { get; }
-      public IEulerRadiansRotationTrack3d Rotations { get; }
-      public IScale3dTrack Scales { get; }
+      public IPositionTrack3d? Positions { get; private set; }
+      public IRotationTrack3d? Rotations { get; private set; }
+      public IScale3dTrack? Scales { get; private set; }
+
+      public IPositionTrack3d UsePositionsTrack(int initialCapacity)
+        => this.UsePositionsTrack(initialCapacity,
+                                  initialCapacity,
+                                  initialCapacity);
+
+      public IPositionTrack3d UsePositionsTrack(
+          int initialXCapacity,
+          int initialYCapacity,
+          int initialZCapacity) {
+        Span<int> initialAxisCapacities = stackalloc int[3];
+        initialAxisCapacities[0] = initialXCapacity;
+        initialAxisCapacities[1] = initialYCapacity;
+        initialAxisCapacities[2] = initialZCapacity;
+
+        return this.Positions =
+            new PositionTrack3dImpl(this.bone_, initialAxisCapacities) {
+                FrameCount = this.frameCount_
+            };
+      }
+
+
+      public IQuaternionRotationTrack3d UseQuaternionRotationTrack(
+          int initialCapacity)
+        => (IQuaternionRotationTrack3d) (this.Rotations =
+            new QuaternionRotationTrack3dImpl(initialCapacity) {
+                FrameCount = this.frameCount_
+            });
+
+
+      public IEulerRadiansRotationTrack3d UseEulerRadiansRotationTrack(
+          int initialCapacity)
+        => this.UseEulerRadiansRotationTrack(initialCapacity,
+                                             initialCapacity,
+                                             initialCapacity);
+
+      public IEulerRadiansRotationTrack3d UseEulerRadiansRotationTrack(
+          int initialXCapacity,
+          int initialYCapacity,
+          int initialZCapacity) {
+        Span<int> initialAxisCapacities = stackalloc int[3];
+        initialAxisCapacities[0] = initialXCapacity;
+        initialAxisCapacities[1] = initialYCapacity;
+        initialAxisCapacities[2] = initialZCapacity;
+
+        return (IEulerRadiansRotationTrack3d) (this.Rotations =
+            new EulerRadiansRotationTrack3dImpl(
+                this.bone_,
+                initialAxisCapacities) {
+                FrameCount = this.frameCount_
+            });
+      }
+
+
+      public IScale3dTrack UseScaleTrack(
+          int initialCapacity)
+        => this.UseScaleTrack(initialCapacity,
+                              initialCapacity,
+                              initialCapacity);
+
+      public IScale3dTrack UseScaleTrack(
+          int initialXCapacity,
+          int initialYCapacity,
+          int initialZCapacity) {
+        Span<int> initialAxisCapacities = stackalloc int[3];
+        initialAxisCapacities[0] = initialXCapacity;
+        initialAxisCapacities[1] = initialYCapacity;
+        initialAxisCapacities[2] = initialZCapacity;
+
+        return this.Scales = new ScaleTrackImpl(
+            this.bone_,
+            initialAxisCapacities) {
+            FrameCount = this.frameCount_
+        };
+      }
+
 
       // TODO: Add pattern for specifying WITH given tracks
     }
-
-    public static class TrackInterpolators {
-      public static Position PositionInterpolator(
-          Position lhs,
-          Position rhs,
-          float progress) {
-        var fromFrac = 1 - progress;
-        var toFrac = progress;
-
-        return new Position(
-            lhs.X * fromFrac + rhs.X * toFrac,
-            lhs.Y * fromFrac + rhs.Y * toFrac,
-            lhs.Z * fromFrac + rhs.Z * toFrac
-        );
-      }
-
-      // TODO: Implement this.
-      public static Quaternion RotationInterpolator(
-          IRotation lhs,
-          IRotation rhs,
-          float progress)
-        => QuaternionUtil.CreateZyx(lhs.XRadians, lhs.YRadians, lhs.ZRadians);
-
-      public static Scale ScaleInterpolator(
-          Scale lhs,
-          Scale rhs,
-          float progress) {
-        var fromFrac = 1 - progress;
-        var toFrac = progress;
-
-        return new Scale(
-            lhs.X * fromFrac + rhs.X * toFrac,
-            lhs.Y * fromFrac + rhs.Y * toFrac,
-            lhs.Z * fromFrac + rhs.Z * toFrac
-        );
-      }
-    }
-
 
     public class MeshTracksImpl : IMeshTracks {
       public IInputOutputTrack<MeshDisplayState,

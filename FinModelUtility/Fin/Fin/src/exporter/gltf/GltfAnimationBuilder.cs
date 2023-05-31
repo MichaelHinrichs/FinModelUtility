@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 
+using fin.math;
 using fin.model;
 
 using SharpGLTF.Schema2;
@@ -32,9 +33,9 @@ namespace fin.exporter.gltf {
           rotationKeyframes.Clear();
           scaleKeyframes.Clear();
 
-          var translationDefined = boneTracks.Positions.IsDefined;
-          var rotationDefined = boneTracks.Rotations.IsDefined;
-          var scaleDefined = boneTracks.Scales.IsDefined;
+          var translationDefined = boneTracks.Positions?.IsDefined ?? false;
+          var rotationDefined = boneTracks.Rotations?.IsDefined ?? false;
+          var scaleDefined = boneTracks.Scales?.IsDefined ?? false;
 
           // TODO: How to get keyframes for sparse tracks?
           for (var i = 0; i < animation.FrameCount; ++i) {
@@ -49,8 +50,11 @@ namespace fin.exporter.gltf {
             }
 
             if (rotationDefined) {
-              var rotation = boneTracks.Rotations.GetInterpolatedFrame(i);
-              rotationKeyframes[time] = rotation;
+              if (boneTracks.Rotations.TryGetInterpolatedFrame(
+                      i,
+                      out var rotation)) {
+                rotationKeyframes[time] = rotation;
+              }
             }
 
             if (scaleDefined) {

@@ -24,7 +24,7 @@ namespace uni.thirdparty {
           }
 
           var scales = boneTracks.Scales;
-          if (!scales.IsDefined) {
+          if (scales is not { IsDefined: true }) {
             continue;
           }
 

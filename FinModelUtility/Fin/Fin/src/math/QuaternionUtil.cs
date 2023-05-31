@@ -4,8 +4,6 @@ using System.Runtime.CompilerServices;
 
 using fin.model;
 
-using MathNet.Numerics;
-
 
 namespace fin.math {
   public static class QuaternionUtil {

@@ -1,8 +1,9 @@
 ﻿using System.Numerics;
 
+using fin.math.interpolation;
 
 namespace fin.model {
-  public interface IAxes3fTrack<TInterpolated> 
+  public interface IAxes3fTrack<TInterpolated>
       : IAxesTrack<float, TInterpolated> {
     void Set<TVector2>(int frame, float x, float y, float z) {
       Set(frame, 0, x);
@@ -25,9 +26,14 @@ namespace fin.model {
 
   public interface IPositionTrack3d : IAxes3fTrack<Position> { }
 
-  public interface IQuaternionRotationTrack3d : IAxes3fTrack<Quaternion> { }
+  public interface IRotationTrack3d : IReadOnlyInterpolatedTrack<Quaternion> { }
 
-  public interface IEulerRadiansRotationTrack3d : IAxes3fTrack<Quaternion> {
+  public interface IQuaternionRotationTrack3d
+      : IRotationTrack3d,
+        IInputOutputTrack<Quaternion, QuaternionInterpolator> { }
+
+  public interface IEulerRadiansRotationTrack3d : IRotationTrack3d,
+                                                  IAxes3fTrack<Quaternion> {
     // TODO: Slow! Switch to using generics/structs for a speedup here
     ConvertRadiansToQuaternion ConvertRadiansToQuaternionImpl { get; set; }
 

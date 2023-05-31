@@ -196,32 +196,44 @@ namespace j3d.exporter {
           var boneTracks = animation.AddBoneTracks(bone);
 
           // TODO: Handle mirrored animations
+          var positions = boneTracks.UsePositionsTrack(
+              bcxJoint.Values.Translations[0].Length,
+              bcxJoint.Values.Translations[1].Length,
+              bcxJoint.Values.Translations[2].Length);
           for (var i = 0; i < bcxJoint.Values.Translations.Length; ++i) {
             foreach (var key in bcxJoint.Values.Translations[i]) {
               if (key is Bck.ANK1Section.AnimatedJoint.JointAnim.Key bckKey) {
-                boneTracks.Positions.Set(bckKey.Frame, i, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
+                positions.Set(bckKey.Frame, i, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
               } else {
-                boneTracks.Positions.Set(key.Frame, i, key.Value);
+                positions.Set(key.Frame, i, key.Value);
               }
             }
           }
 
+          var rotations = boneTracks.UseEulerRadiansRotationTrack(
+              bcxJoint.Values.Rotations[0].Length,
+              bcxJoint.Values.Rotations[1].Length,
+              bcxJoint.Values.Rotations[2].Length);
           for (var i = 0; i < bcxJoint.Values.Rotations.Length; ++i) {
             foreach (var key in bcxJoint.Values.Rotations[i]) {
               if (key is Bck.ANK1Section.AnimatedJoint.JointAnim.Key bckKey) {
-                boneTracks.Rotations.Set(bckKey.Frame, i, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
+                rotations.Set(bckKey.Frame, i, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
               } else {
-                boneTracks.Rotations.Set(key.Frame, i, key.Value);
+                rotations.Set(key.Frame, i, key.Value);
               }
             }
           }
 
+          var scales = boneTracks.UseScaleTrack(
+              bcxJoint.Values.Scales[0].Length,
+              bcxJoint.Values.Scales[1].Length,
+              bcxJoint.Values.Scales[2].Length);
           for (var i = 0; i < bcxJoint.Values.Scales.Length; ++i) {
             foreach (var key in bcxJoint.Values.Scales[i]) {
               if (key is Bck.ANK1Section.AnimatedJoint.JointAnim.Key bckKey) {
-                boneTracks.Scales.Set(bckKey.Frame, i, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
+                scales.Set(bckKey.Frame, i, bckKey.Value, bckKey.IncomingTangent, bckKey.OutgoingTangent);
               } else {
-                boneTracks.Scales.Set(key.Frame, i, key.Value);
+                scales.Set(key.Frame, i, key.Value);
               }
             }
           }
