@@ -2,82 +2,47 @@
 using fin.math.interpolation;
 
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace fin.model.impl {
   public partial class ModelImpl<TVertex> {
-    private class ScalarAxesTrack<TAxes, TAxis> :
-          ScalarAxesTrack<TAxes, TAxis, TAxes> {
-      public ScalarAxesTrack(
+    public abstract class BScalarAxesTrack<TAxes, TAxis, TInterpolator> 
+        : BScalarAxesTrack<TAxes, TAxis, TAxes, TInterpolator>
+        where TInterpolator : IInterpolator<TAxis> {
+      public BScalarAxesTrack(
           int axisCount,
           ReadOnlySpan<int> initialKeyframeCapacitiesPerAxis,
-          TAxis defaultValue,
-          IInterpolator<TAxis> axisInterpolator,
-          IInterpolatorWithTangents<TAxis> axisInterpolatorWithTangent,
-          GetInterpolatedFromAxesTrack getInterpolatedFromAxesTrack)
+          TInterpolator interpolator)
           : base(axisCount,
                  initialKeyframeCapacitiesPerAxis,
-                 defaultValue,
-                 axisInterpolator,
-                 axisInterpolatorWithTangent,
-                 getInterpolatedFromAxesTrack) { }
+                 interpolator) { }
     }
 
-    private class ScalarAxesTrack<TAxes, TAxis, TInterpolated> :
-        IAxesTrack<TAxis, TInterpolated> {
-      private readonly TAxis defaultValue_;
+    public abstract class BScalarAxesTrack<TAxes, TAxis, TInterpolated, TInterpolator>
+        : IAxesTrack<TAxis, TInterpolated>
+        where TInterpolator : IInterpolator<TAxis> {
+      protected InputOutputTrackImpl<TAxis, TInterpolator>[] axisTracks;
 
-      public delegate TInterpolated GetInterpolatedFromAxesTrack(
-          IAxesTrack<TAxis, TInterpolated> axesTrack,
-          float frame,
-          TAxis[] defaultValue);
-
-      private TrackImpl<TAxis>[] axisTracks_;
-
-      // TODO: Slow! Switch to a different approach here
-      private readonly GetInterpolatedFromAxesTrack
-          getInterpolatedFromAxesTrack_;
-
-      public ScalarAxesTrack(
+      public BScalarAxesTrack(
           int axisCount,
           ReadOnlySpan<int> initialKeyframeCapacitiesPerAxis,
-          TAxis defaultValue,
-          IInterpolator<TAxis> axisInterpolator,
-          IInterpolatorWithTangents<TAxis> axisInterpolatorWithTangent,
-          GetInterpolatedFromAxesTrack getInterpolatedFromAxesTrack) {
-        this.axisTracks_ = new TrackImpl<TAxis>[axisCount];
+          TInterpolator interpolator) {
+        this.axisTracks = new InputOutputTrackImpl<TAxis, TInterpolator>[axisCount];
         for (var i = 0; i < axisCount; ++i) {
-          this.axisTracks_[i] =
-              new TrackImpl<TAxis>(initialKeyframeCapacitiesPerAxis[i],
-                                   axisInterpolator,
-                                   axisInterpolatorWithTangent);
+          this.axisTracks[i] =
+              new InputOutputTrackImpl<TAxis, TInterpolator>(initialKeyframeCapacitiesPerAxis[i],
+                                   interpolator);
         }
-
-        this.AxisTracks =
-            new ReadOnlyCollection<ITrack<TAxis>>(this.axisTracks_);
-
-        this.defaultValue_ = defaultValue;
-
-        this.getInterpolatedFromAxesTrack_ = getInterpolatedFromAxesTrack;
       }
 
-      public bool IsDefined => this.axisTracks_.Any(axis => axis.IsDefined);
+      public bool IsDefined => this.axisTracks.Any(axis => axis.IsDefined);
 
       public int FrameCount {
         set {
-          foreach (var axis in this.axisTracks_) {
+          foreach (var axis in this.axisTracks) {
             axis.FrameCount = value;
           }
-        }
-      }
-
-      public void Set(IAxesTrack<TAxis, TInterpolated> other) {
-        var otherAxisTracks = other.AxisTracks;
-        for (var i = 0; i < otherAxisTracks.Count; ++i) {
-          this.axisTracks_[i].Set(otherAxisTracks[i]);
         }
       }
 
@@ -88,7 +53,7 @@ namespace fin.model.impl {
           TAxis value,
           float? optionalIncomingTangent,
           float? optionalOutgoingTangent)
-        => this.axisTracks_[axis]
+        => this.axisTracks[axis]
                .Set(frame,
                     value,
                     optionalIncomingTangent,
@@ -96,24 +61,13 @@ namespace fin.model.impl {
 
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public Keyframe<ValueAndTangents<TAxis>>? GetKeyframe(int keyframe, int axis)
-        => this.axisTracks_[axis].GetKeyframe(keyframe);
+        => this.axisTracks[axis].GetKeyframe(keyframe);
 
-
-      public IReadOnlyList<ITrack<TAxis>> AxisTracks { get; }
-
-      [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      public Keyframe<ValueAndTangents<TAxis>>?[] GetAxisListAtKeyframe(int keyframe)
-        => this.axisTracks_.Select(axis => axis.GetKeyframe(keyframe))
-               .ToArray();
-
-
-      [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      public TInterpolated GetInterpolatedFrame(
+      public abstract TInterpolated GetInterpolatedFrame(
           float frame,
           TAxis[] defaultValue,
           bool useLoopingInterpolation = false
-      )
-        => this.getInterpolatedFromAxesTrack_(this, frame, defaultValue);
+      );
     }
   }
 }

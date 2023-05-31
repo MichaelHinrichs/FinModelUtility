@@ -1,6 +1,10 @@
 ﻿using fin.data;
 using fin.math.interpolation;
+
+using Newtonsoft.Json.Linq;
+
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 
 namespace fin.model {
@@ -18,25 +22,31 @@ namespace fin.model {
     }
   }
 
-  public interface ITrack<T> : ITrack<T, T> { }
 
-  public interface ITrack<TValue, TInterpolated> {
+  public interface ITrack {
     bool IsDefined { get; }
+    int FrameCount { get; }
+  }
 
-    int FrameCount { get; set; }
+  public interface IReadOnlyInterpolatedTrack<TInterpolated> : ITrack {
+    TInterpolated GetInterpolatedFrame(
+        float frame,
+        TInterpolated defaultValue,
+        bool useLoopingInterpolation = false
+    );
+  }
 
-    IInterpolator<TValue, TInterpolated> Interpolator { get; }
 
-    IInterpolatorWithTangents<TValue, TInterpolated>
-       InterpolatorWithTangents { get; }
+  public interface IImplTrack<TValue> : ITrack {
+    new int FrameCount { get; set; }
 
     IReadOnlyList<Keyframe<ValueAndTangents<TValue>>> Keyframes { get; }
 
-    void Set(ITrack<TValue, TInterpolated> other);
-
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     void Set(int frame, TValue value)
       => this.Set(frame, value, null);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     void Set(int frame, TValue value, float? tangent)
       => this.Set(frame, value, tangent, tangent);
 
@@ -46,14 +56,6 @@ namespace fin.model {
         float? incomingTangent,
         float? outgoingTangent);
 
-    Keyframe<ValueAndTangents<TValue>>? GetKeyframe(int frame);
-
-    TInterpolated GetInterpolatedFrame(
-        float frame,
-        TInterpolated defaultValue,
-        bool useLoopingInterpolation = false
-    );
-
     bool GetInterpolationData(
         float frame,
         TValue defaultValue,
@@ -61,6 +63,22 @@ namespace fin.model {
         out (float frame, TValue value, float? tangent)? toData,
         bool useLoopingInterpolation = false
     );
+
+    Keyframe<ValueAndTangents<TValue>>? GetKeyframe(int frame);
+  }
+
+
+  public interface IInputOutputTrack<T, TInterpolator>
+      : IInputOutputTrack<T, T, TInterpolator>
+      where TInterpolator : IInterpolator<T> { }
+
+  public interface IInputOutputTrack<TValue, TInterpolated, TInterpolator>
+      : IReadOnlyInterpolatedTrack<TInterpolated>,
+        IImplTrack<TValue>
+      where TInterpolator : IInterpolator<TValue, TInterpolated> {
+    TInterpolator Interpolator { get; }
+    
+    void Set(IInputOutputTrack<TValue, TInterpolated, TInterpolator> other) { }
 
     // TODO: Allow setting tangent(s) at each frame.
     // TODO: Allow setting easing at each frame.
@@ -74,8 +92,6 @@ namespace fin.model {
 
     int FrameCount { set; }
 
-    void Set(IAxesTrack<TAxis, TInterpolated> other);
-
     void Set(int frame, int axis, TAxis value)
       => this.Set(frame, axis, value, null);
 
@@ -88,10 +104,6 @@ namespace fin.model {
         TAxis value,
         float? optionalIncomingTangent,
         float? optionalOutgoingTangent);
-
-
-    IReadOnlyList<ITrack<TAxis>> AxisTracks { get; }
-    Keyframe<ValueAndTangents<TAxis>>?[] GetAxisListAtKeyframe(int keyframe);
 
     TInterpolated GetInterpolatedFrame(
         float frame,

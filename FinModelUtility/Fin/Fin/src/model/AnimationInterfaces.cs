@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using fin.data;
+using fin.math.interpolation;
 
 
 namespace fin.model {
@@ -43,8 +44,6 @@ namespace fin.model {
   }
 
   public interface IBoneTracks {
-    void Set(IBoneTracks other);
-
     // TODO: Should these be null if empty?
     IPositionTrack3d Positions { get; }
     IEulerRadiansRotationTrack3d Rotations { get; }
@@ -59,7 +58,8 @@ namespace fin.model {
   }
 
   public interface IMeshTracks {
-    ITrack<MeshDisplayState> DisplayStates { get; }
+    IInputOutputTrack<MeshDisplayState, StairStepInterpolator<MeshDisplayState>>
+        DisplayStates { get; }
   }
 
 

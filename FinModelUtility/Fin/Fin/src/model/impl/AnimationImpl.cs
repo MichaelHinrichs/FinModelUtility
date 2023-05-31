@@ -80,20 +80,20 @@ namespace fin.model.impl {
               initialCapacityPerPositionAxis,
               initialCapacityPerRotationAxis,
               initialCapacityPerScaleAxis
-              ) {
-              FrameCount = this.FrameCount,
-          };
+          ) { FrameCount = this.FrameCount, };
           this.boneTracks_[bone] = boneTracks;
           return boneTracks;
         }
 
         public IReadOnlyDictionary<IMesh, IMeshTracks> MeshTracks { get; }
+
         public IMeshTracks AddMeshTracks(IMesh mesh)
           => this.meshTracks_[mesh] = new MeshTracksImpl();
 
 
-        public IReadOnlyDictionary<ITexture, ITextureTracks> TextureTracks 
+        public IReadOnlyDictionary<ITexture, ITextureTracks> TextureTracks
           => throw new System.NotImplementedException();
+
         public ITextureTracks AddTextureTracks(ITexture texture) {
           throw new System.NotImplementedException();
         }
@@ -133,22 +133,17 @@ namespace fin.model.impl {
       public BoneTracksImpl(ReadOnlySpan<int> initialCapacityPerPositionAxis,
                             ReadOnlySpan<int> initialCapacityPerRotationAxis,
                             ReadOnlySpan<int> initialCapacityPerScaleAxis) {
-      Positions = new PositionTrack3dImpl(initialCapacityPerPositionAxis);
-      Rotations = new RadiansRotationTrack3dImpl(initialCapacityPerRotationAxis);
-      Scales = new ScaleTrackImpl(initialCapacityPerScaleAxis);
-    }
+        Positions = new PositionTrack3dImpl(initialCapacityPerPositionAxis);
+        Rotations =
+            new RadiansRotationTrack3dImpl(initialCapacityPerRotationAxis);
+        Scales = new ScaleTrackImpl(initialCapacityPerScaleAxis);
+      }
 
-    public int FrameCount {
+      public int FrameCount {
         set {
           this.Positions.FrameCount =
               this.Rotations.FrameCount = this.Scales.FrameCount = value;
         }
-      }
-
-      public void Set(IBoneTracks other) {
-        this.Positions.Set(other.Positions);
-        this.Rotations.Set(other.Rotations);
-        this.Scales.Set(other.Scales);
       }
 
       public IPositionTrack3d Positions { get; }
@@ -167,9 +162,9 @@ namespace fin.model.impl {
         var toFrac = progress;
 
         return new Position(
-          lhs.X * fromFrac + rhs.X * toFrac,
-          lhs.Y * fromFrac + rhs.Y * toFrac,
-          lhs.Z * fromFrac + rhs.Z * toFrac
+            lhs.X * fromFrac + rhs.X * toFrac,
+            lhs.Y * fromFrac + rhs.Y * toFrac,
+            lhs.Z * fromFrac + rhs.Z * toFrac
         );
       }
 
@@ -187,21 +182,22 @@ namespace fin.model.impl {
         var fromFrac = 1 - progress;
         var toFrac = progress;
 
-        return new Scale (
-          lhs.X * fromFrac + rhs.X * toFrac,
-          lhs.Y * fromFrac + rhs.Y * toFrac,
-          lhs.Z * fromFrac + rhs.Z * toFrac
+        return new Scale(
+            lhs.X * fromFrac + rhs.X * toFrac,
+            lhs.Y * fromFrac + rhs.Y * toFrac,
+            lhs.Z * fromFrac + rhs.Z * toFrac
         );
       }
     }
 
 
     public class MeshTracksImpl : IMeshTracks {
-      public ITrack<MeshDisplayState> DisplayStates { get; } =
-        new TrackImpl<MeshDisplayState>(
+      public IInputOutputTrack<MeshDisplayState,
+          StairStepInterpolator<MeshDisplayState>> DisplayStates { get; } =
+        new InputOutputTrackImpl<MeshDisplayState,
+            StairStepInterpolator<MeshDisplayState>>(
             0,
-            Interpolator.StairStep<MeshDisplayState>(),
-            InterpolatorWithTangents.StairStep<MeshDisplayState>());
+            new StairStepInterpolator<MeshDisplayState>());
     }
   }
 }

@@ -1,38 +1,27 @@
 ﻿using System;
-
-using fin.data;
-
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
+using fin.data;
 using fin.math;
 using fin.math.interpolation;
 
 
 namespace fin.model.impl {
   public partial class ModelImpl<TVertex> {
-    public class RadiansRotationTrack3dImpl : IRadiansRotationTrack3d {
-      private readonly TrackImpl<float>[] axisTracks_;
+    public class RadiansRotationTrack3dImpl : IEulerRadiansRotationTrack3d {
+      private readonly IInputOutputTrack<float, RadianInterpolator>[]
+          axisTracks_;
 
       public RadiansRotationTrack3dImpl(
           ReadOnlySpan<int> initialCapacityPerAxis) {
-        this.axisTracks_ = new TrackImpl<float>[3];
+        this.axisTracks_ = new InputOutputTrackImpl<float, RadianInterpolator>[3];
         for (var i = 0; i < 3; ++i) {
-          this.axisTracks_[i] =
-              new TrackImpl<float>(
-                  initialCapacityPerAxis[i],
-                  Interpolator.Float,
-                  InterpolatorWithTangents.Radians);
+          this.axisTracks_[i] = new InputOutputTrackImpl<float, RadianInterpolator>
+              (initialCapacityPerAxis[i], new RadianInterpolator());
         }
-
-        this.AxisTracks =
-            new ReadOnlyCollection<ITrack<float>>(this.axisTracks_);
       }
-
-      public IReadOnlyList<ITrack<float>> AxisTracks { get; }
 
       public bool IsDefined => this.axisTracks_.Any(axis => axis.IsDefined);
 
@@ -41,12 +30,6 @@ namespace fin.model.impl {
           foreach (var axis in this.axisTracks_) {
             axis.FrameCount = value;
           }
-        }
-      }
-
-      public void Set(IAxesTrack<float, Quaternion> other) {
-        for (var i = 0; i < 3; ++i) {
-          this.axisTracks_[i].Set(other.AxisTracks[i]);
         }
       }
 
@@ -236,7 +219,7 @@ namespace fin.model.impl {
         return true;
       }
 
-      public IRadiansRotationTrack3d.ConvertRadiansToQuaternion
+      public IEulerRadiansRotationTrack3d.ConvertRadiansToQuaternion
           ConvertRadiansToQuaternionImpl { get; set; } =
         QuaternionUtil.CreateZyx;
     }

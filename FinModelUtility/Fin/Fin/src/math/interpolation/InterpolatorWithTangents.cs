@@ -1,87 +1,12 @@
 ﻿using System.Numerics;
+using System.Runtime.CompilerServices;
 
 using MathNet.Numerics.Interpolation;
 
 
 namespace fin.math.interpolation {
-  public interface IInterpolatorWithTangents<T>
-      : IInterpolatorWithTangents<T, T> { }
-
-  public interface IInterpolatorWithTangents<in TIn, out TOut> {
-    public TOut Interpolate(
-        float fromTime,
-        TIn fromValue,
-        float fromTangent,
-        float toTime,
-        TIn toValue,
-        float toTangent,
-        float time);
-  }
-
-  public class WrappedInterpolatorWithTangents<T>
-      : WrappedInterpolatorWithTangents<T, T>, IInterpolatorWithTangents<T> {
-    public WrappedInterpolatorWithTangents(
-        InterpolateValuesWithTangents impl) :
-        base(impl) { }
-  }
-
-  public class WrappedInterpolatorWithTangents<TIn, TOut>
-      : IInterpolatorWithTangents<TIn, TOut> {
-    public delegate TOut InterpolateValuesWithTangents(
-        float fromTime,
-        TIn fromValue,
-        float fromTangent,
-        float toTime,
-        TIn toValue,
-        float toTangent,
-        float time);
-
-    private readonly InterpolateValuesWithTangents impl_;
-
-    public WrappedInterpolatorWithTangents(InterpolateValuesWithTangents impl) {
-      this.impl_ = impl;
-    }
-
-    public TOut Interpolate(
-        float fromTime,
-        TIn fromValue,
-        float fromTangent,
-        float toTime,
-        TIn toValue,
-        float toTangent,
-        float time)
-      => this.impl_(fromTime,
-                    fromValue,
-                    fromTangent,
-                    toTime,
-                    toValue,
-                    toTangent,
-                    time);
-  }
-
   public static class InterpolatorWithTangents {
-    public static IInterpolatorWithTangents<float> Float { get; } =
-      new WrappedInterpolatorWithTangents<float>(
-          InterpolatorWithTangents.InterpolateFloats);
-
-    public static IInterpolatorWithTangents<float> Radians { get; } =
-      new WrappedInterpolatorWithTangents<float>(
-          (fromTime, fromValue, fromTangent, toTime, toValue, toTangent, time)
-              => {
-                toValue = fromValue +
-                          RadiansUtil.angleDifference(toValue, fromValue);
-
-                return InterpolatorWithTangents.InterpolateFloats(
-                    fromTime, fromValue, fromTangent,
-                    toTime, toValue, toTangent,
-                    time);
-              });
-
-
-    public static IInterpolatorWithTangents<T> StairStep<T>()
-      => new WrappedInterpolatorWithTangents<T>((_, fromValue, _, _, _, _, _) => fromValue);
-
-
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float InterpolateFloats(
         float fromTime,
         float fromValue,
@@ -95,6 +20,7 @@ namespace fin.math.interpolation {
           toTime, toValue, toTangent,
           time);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float InterpolateFloatsGithub(
         float fromTime,
         float fromValue,
@@ -121,6 +47,7 @@ namespace fin.math.interpolation {
       return a * fromValue + b * m0 + c * m1 + d * toValue;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float InterpolateFloatsWithMathNet(
         float fromTime,
         float fromValue,
@@ -137,6 +64,8 @@ namespace fin.math.interpolation {
       return (float)spline.Interpolate(time);
     }
 
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float InterpolateFloatsWithMkds(
         float fromTime,
         float fromValue,

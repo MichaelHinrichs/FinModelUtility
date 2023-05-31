@@ -1,6 +1,5 @@
 ﻿using fin.data;
 using fin.model;
-using fin.util.optional;
 
 
 namespace mod.schema.animation {
@@ -50,8 +49,6 @@ namespace mod.schema.animation {
         DcxHelpers.MergeKeyframesToPositionTrack(
             frames,
             jointKeyframes.Positions);
-
-        animation.AddBoneTracks(bones[jointIndex]).Set(jointKeyframes);
       }
 
       return animation;
