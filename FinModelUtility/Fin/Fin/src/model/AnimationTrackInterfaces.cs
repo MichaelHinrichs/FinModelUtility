@@ -56,9 +56,8 @@ namespace fin.model {
         float? incomingTangent,
         float? outgoingTangent);
 
-    bool GetInterpolationData(
+    bool TryGetInterpolationData(
         float frame,
-        TValue defaultValue,
         out (float frame, TValue value, float? tangent)? fromData,
         out (float frame, TValue value, float? tangent)? toData,
         bool useLoopingInterpolation = false

@@ -35,9 +35,8 @@ namespace fin.model.impl {
       public Keyframe<ValueAndTangents<TValue>>? GetKeyframe(int frame)
         => this.impl.GetKeyframeAtFrame(frame);
 
-      public bool GetInterpolationData(
+      public bool TryGetInterpolationData(
           float frame,
-          TValue defaultValue,
           out (float frame, TValue value, float? tangent)? fromData,
           out (float frame, TValue value, float? tangent)? toData,
           bool useLoopingInterpolation = false

@@ -64,21 +64,18 @@ namespace fin.model.impl {
         var defaultY = defaultValue[1];
         var defaultZ = defaultValue[2];
 
-        xTrack.GetInterpolationData(
+        xTrack.TryGetInterpolationData(
             frame,
-            defaultX,
             out var fromXFrame,
             out var toXFrame,
             useLoopingInterpolation);
-        yTrack.GetInterpolationData(
+        yTrack.TryGetInterpolationData(
             frame,
-            defaultY,
             out var fromYFrame,
             out var toYFrame,
             useLoopingInterpolation);
-        zTrack.GetInterpolationData(
+        zTrack.TryGetInterpolationData(
             frame,
-            defaultZ,
             out var fromZFrame,
             out var toZFrame,
             useLoopingInterpolation);
