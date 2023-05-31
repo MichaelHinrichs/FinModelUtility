@@ -82,15 +82,43 @@ namespace fin.data {
     }
 
 
+    private int lastAccessedIndex_ = -1;
+
     public bool FindIndexOfKeyframe(
         int frame,
         out int keyframeIndex,
         out Keyframe<T> keyframe,
         out bool isLastKeyframe) {
-      var result = this.impl_.BinarySearch(new Keyframe<T>(frame, default!));
+      // Try to optimize the case where the next frame is being accessed.
       var keyframeCount = this.impl_.Count;
+      if (this.lastAccessedIndex_ >= 0 &&
+          this.lastAccessedIndex_ < keyframeCount) {
+        keyframeIndex = this.lastAccessedIndex_;
+        keyframe = this.impl_[keyframeIndex];
+
+        if (frame >= keyframe.Frame) {
+          isLastKeyframe = keyframeIndex == keyframeCount - 1;
+
+          if (isLastKeyframe || frame == keyframe.Frame) {
+            return true;
+          }
+
+          var nextKeyframe = this.impl_[this.lastAccessedIndex_ + 1];
+          if (nextKeyframe.Frame > frame) {
+            return true;
+          } else if (nextKeyframe.Frame == frame) {
+            this.lastAccessedIndex_ = ++keyframeIndex;
+            keyframe = nextKeyframe;
+            isLastKeyframe = keyframeIndex == keyframeCount - 1;
+            return true;
+          }
+        }
+      }
+
+      // Perform a binary search for the current frame.
+      var result = this.impl_.BinarySearch(new Keyframe<T>(frame, default!));
       if (result >= 0) {
-        keyframeIndex = result;
+        this.lastAccessedIndex_ = keyframeIndex = result;
         keyframe = this.impl_[keyframeIndex];
         isLastKeyframe = keyframeIndex == keyframeCount - 1;
         return true;
@@ -98,7 +126,7 @@ namespace fin.data {
 
       var i = ~result;
       if (i == keyframeCount) {
-        keyframeIndex = keyframeCount - 1;
+        this.lastAccessedIndex_ = keyframeIndex = keyframeCount - 1;
         isLastKeyframe = true;
         if (keyframeCount > 0) {
           keyframe = this.impl_[keyframeIndex];
@@ -109,12 +137,13 @@ namespace fin.data {
         return false;
       }
 
-      keyframeIndex = Math.Max(0, i - 1);
+      this.lastAccessedIndex_ = keyframeIndex = Math.Max(0, i - 1);
       keyframe = this.impl_[keyframeIndex];
       var keyframeExists = keyframe.Frame <= frame;
       if (!keyframeExists) {
         keyframe = default;
       }
+
       isLastKeyframe = false;
       return keyframeExists;
     }

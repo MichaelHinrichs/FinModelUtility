@@ -1,5 +1,8 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using fin.model;
+
+using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra.Complex;
 
 
@@ -60,12 +63,20 @@ namespace fin.math.matrix {
       dst.SetIdentity();
 
       if (translation != null) {
-        dst.MultiplyInPlace(MatrixTransformUtil.FromTranslation(translation.Value));
+        var translationValue = translation.Value;
+        if (Math.Abs(translationValue.X) > .001f ||
+            Math.Abs(translationValue.Y) > .001f ||
+            Math.Abs(translationValue.Z) > .001f) {
+          dst.MultiplyInPlace(MatrixTransformUtil.FromTranslation(translationValue));
+        }
       }
 
       if (rotation != null) {
-        dst.MultiplyInPlace(
-          MatrixTransformUtil.FromRotation(rotation.Value));
+        var rotationValue = rotation.Value;
+        if (!rotationValue.IsIdentity) {
+          dst.MultiplyInPlace(
+              MatrixTransformUtil.FromRotation(rotationValue));
+        }
       }
 
       if (scale != null) {
