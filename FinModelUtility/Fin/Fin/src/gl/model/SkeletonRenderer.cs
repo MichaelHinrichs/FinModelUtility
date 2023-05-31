@@ -7,9 +7,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 
 using PrimitiveType = OpenTK.Graphics.OpenGL.PrimitiveType;
-using MathNet.Numerics.Distributions;
-using MathNet.Numerics.Providers.LinearAlgebra;
-using Assimp;
 
 
 namespace fin.gl.model {
@@ -38,7 +35,7 @@ namespace fin.gl.model {
     public void Render() {
       GlTransform.PassMatricesIntoGl();
 
-      GL.Disable(EnableCap.DepthTest);
+      GlUtil.SetDepth(DepthMode.IGNORE_DEPTH_BUFFER, DepthCompareType.Always);
 
       var rootBone = this.Skeleton.Root;
 

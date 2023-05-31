@@ -56,32 +56,7 @@ namespace uni.ui.right_panel.materials {
       });
     }
 
-    private void ResetGl_() {
-      GL.ShadeModel(ShadingModel.Smooth);
-      GL.Enable(EnableCap.PointSmooth);
-      GL.Hint(HintTarget.PointSmoothHint, HintMode.Nicest);
-
-      GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-
-      GL.ClearDepth(5.0F);
-
-      GL.DepthFunc(DepthFunction.Lequal);
-      GL.Enable(EnableCap.DepthTest);
-      GL.DepthMask(true);
-
-      GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
-
-      GL.Enable(EnableCap.Normalize);
-
-      GL.Enable(EnableCap.CullFace);
-      GL.CullFace(CullFaceMode.Back);
-
-      GL.Enable(EnableCap.Blend);
-      GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
-
-      GL.ClearColor(this.backgroundColor_.R / 255f, this.backgroundColor_.G / 255f,
-                    this.backgroundColor_.B / 255f, 1);
-    }
+    private void ResetGl_() => GlUtil.ResetGl(this.backgroundColor_);
 
     protected override void RenderGl() {
       var width = this.Width;

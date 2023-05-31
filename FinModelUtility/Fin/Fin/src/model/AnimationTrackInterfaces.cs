@@ -1,8 +1,6 @@
 ﻿using fin.data;
 using fin.math.interpolation;
 
-using Newtonsoft.Json.Linq;
-
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 

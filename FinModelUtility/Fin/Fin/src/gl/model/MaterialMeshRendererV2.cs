@@ -121,14 +121,6 @@ namespace fin.gl.model {
       for (var i = 0; i < 8; ++i) {
         GlUtil.UnbindTexture(i);
       }
-
-      if (changedBlending) {
-        GlUtil.ResetBlending();
-      }
-
-      if (changedDepth) {
-        GlUtil.ResetDepth();
-      }
     }
   }
 }

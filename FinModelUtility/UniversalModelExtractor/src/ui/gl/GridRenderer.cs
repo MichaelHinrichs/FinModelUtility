@@ -10,6 +10,8 @@ namespace uni.ui.gl {
     public void Render() {
       GlTransform.PassMatricesIntoGl();
 
+      GlUtil.ResetDepth();
+
       var size = this.Size;
       var spacing = this.Spacing;
 
