@@ -133,13 +133,6 @@ namespace fin.math {
         localMatrix.SetIdentity();
         boneToWorldMatrix.CopyFrom(parentBoneToWorldMatrix);
 
-        // The root pose of the bone.
-        var boneLocalPosition = bone.LocalPosition;
-        var boneLocalRotation = bone.LocalRotation != null
-            ? QuaternionUtil.Create(bone.LocalRotation)
-            : (Quaternion?) null;
-        var boneLocalScale = bone.LocalScale;
-
         Position? animationLocalPosition = null;
         Quaternion? animationLocalRotation = null;
         Scale? animationLocalScale = null;
@@ -174,9 +167,12 @@ namespace fin.math {
         }
 
         // Uses the animation pose instead of the root pose when available.
-        var localPosition = animationLocalPosition ?? boneLocalPosition;
-        var localRotation = animationLocalRotation ?? boneLocalRotation;
-        var localScale = animationLocalScale ?? boneLocalScale;
+        var localPosition = animationLocalPosition ?? bone.LocalPosition;
+        var localRotation = animationLocalRotation ??
+                            (bone.LocalRotation != null
+                                ? QuaternionUtil.Create(bone.LocalRotation)
+                                : null);
+        var localScale = animationLocalScale ?? bone.LocalScale;
 
         if (!bone.IgnoreParentScale && !bone.FaceTowardsCamera) {
           MatrixTransformUtil.FromTrs(localPosition,

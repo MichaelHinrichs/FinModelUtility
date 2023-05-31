@@ -2,6 +2,7 @@
 using fin.model;
 
 using OpenTK.Graphics.OpenGL;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,11 +37,19 @@ namespace fin.gl.model {
                                         boneTransformManager,
                                         model.Lighting);
 
-      IReadOnlyList<IReadOnlyVertex> triangleVertices;
-      if (primitives is [{ Type: PrimitiveType.TRIANGLES, VertexOrder:
-              VertexOrder.NORMAL }]) {
-        triangleVertices = primitives[0].Vertices;
+      PrimitiveType primitiveType;
+      bool isFlipped;
+      IReadOnlyList<IReadOnlyVertex> primitiveVertices;
+
+      if (primitives.Count == 1) {
+        var firstPrimitive = primitives[0];
+        primitiveType = firstPrimitive.Type;
+        isFlipped = firstPrimitive.VertexOrder == VertexOrder.FLIP;
+        primitiveVertices = firstPrimitive.Vertices;
       } else {
+        primitiveType = PrimitiveType.TRIANGLES;
+        isFlipped = false;
+
         var totalVertexCount = primitives.Sum(primitive => {
           switch (primitive.Type) {
             case fin.model.PrimitiveType.TRIANGLES:
@@ -53,16 +62,16 @@ namespace fin.gl.model {
         });
 
         var allVertices = new List<IReadOnlyVertex>(totalVertexCount);
-        triangleVertices = allVertices;
+        primitiveVertices = allVertices;
 
         foreach (var primitive in primitives) {
           allVertices.AddRange(primitive.GetOrderedTriangleVertices());
         }
       }
 
-      this.bufferRenderer_ =
-          bufferManager.CreateRenderer(PrimitiveType.TRIANGLES,
-                                       triangleVertices);
+      this.bufferRenderer_ = bufferManager.CreateRenderer(primitiveType,
+        primitiveVertices,
+        isFlipped);
     }
 
     ~MaterialMeshRendererV2() => ReleaseUnmanagedResources_();
@@ -99,7 +108,8 @@ namespace fin.gl.model {
 
       GlUtil.SetCulling(this.material_?.CullingMode ?? CullingMode.SHOW_BOTH);
       GlUtil.SetDepth(this.material_?.DepthMode ?? DepthMode.USE_DEPTH_BUFFER,
-          this.material_?.DepthCompareType ?? DepthCompareType.LEqual);
+                      this.material_?.DepthCompareType ??
+                      DepthCompareType.LEqual);
 
       this.bufferRenderer_.Render();
 
@@ -107,6 +117,7 @@ namespace fin.gl.model {
         GL.ActiveTexture(TextureUnit.Texture0 + i);
         GL.BindTexture(TextureTarget.Texture2D, -1);
       }
+
       if (fixedFunctionMaterial != null) {
         GlUtil.ResetBlending();
       }

@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using GL = OpenTK.Graphics.OpenGL.GL;
 using PrimitiveType = fin.model.PrimitiveType;
 
 
@@ -244,19 +245,23 @@ namespace fin.gl {
 
     public GlBufferRenderer CreateRenderer(
         PrimitiveType primitiveType,
-        IReadOnlyList<IReadOnlyVertex> triangleVertices)
-      => new(this.vaoId_, primitiveType, triangleVertices);
+        IReadOnlyList<IReadOnlyVertex> triangleVertices,
+        bool isFlipped = false)
+      => new(this.vaoId_, primitiveType, isFlipped, triangleVertices);
+
 
     public class GlBufferRenderer : IDisposable {
       private readonly int vaoId_;
       private int eboId_;
       private BeginMode beginMode_;
+      private readonly bool isFlipped_;
 
       private readonly int[] indices_;
 
       public GlBufferRenderer(
           int vaoId,
           PrimitiveType primitiveType,
+          bool isFlipped,
           IReadOnlyList<IReadOnlyVertex> triangleVertices) {
         this.vaoId_ = vaoId;
         this.beginMode_ = primitiveType switch {
@@ -267,6 +272,7 @@ namespace fin.gl {
             PrimitiveType.TRIANGLE_STRIP => BeginMode.TriangleStrip,
             PrimitiveType.QUADS          => BeginMode.Quads,
         };
+        this.isFlipped_ = isFlipped;
 
         GL.BindVertexArray(this.vaoId_);
         GL.GenBuffers(1, out this.eboId_);
@@ -295,6 +301,10 @@ namespace fin.gl {
       }
 
       public void Render() {
+        if (this.isFlipped_) {
+          GL.FrontFace(FrontFaceDirection.Cw);
+        }
+
         GL.BindVertexArray(this.vaoId_);
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, this.eboId_);
 
@@ -306,6 +316,10 @@ namespace fin.gl {
 
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
         GL.BindVertexArray(0);
+
+        if (this.isFlipped_) {
+          GL.FrontFace(FrontFaceDirection.Ccw);
+        }
       }
     }
   }
