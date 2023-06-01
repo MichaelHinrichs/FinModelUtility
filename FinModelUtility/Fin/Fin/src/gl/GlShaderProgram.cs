@@ -122,7 +122,7 @@ namespace fin.gl {
       => this.cachedShaderProgram_.FragmentShaderSource;
 
 
-    public void Use() => GL.UseProgram(this.ProgramId);
+    public void Use() => GlUtil.UseProgram(this.ProgramId);
 
     public int GetUniformLocation(string uniformName)
       => this.cachedShaderProgram_.GetUniformLocation(uniformName);
