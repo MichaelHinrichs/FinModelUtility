@@ -45,14 +45,11 @@ namespace uni.ui.right_panel.materials {
       lr.SetUv(1, 1);
 
       this.bufferManager_ = new GlBufferManager(this.viewerModel_);
-      this.bufferRenderer_ = this.bufferManager_.CreateRenderer(fin.model.PrimitiveType.TRIANGLES, new[] {
-          ll,
+      this.bufferRenderer_ = this.bufferManager_.CreateRenderer(fin.model.PrimitiveType.QUADS, new[] {
           ur,
           ul,
-
           ll,
           lr,
-          ur
       });
     }
 
