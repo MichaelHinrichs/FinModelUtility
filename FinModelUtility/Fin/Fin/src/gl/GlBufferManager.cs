@@ -333,7 +333,6 @@ namespace fin.gl {
 
       public void Render() {
         GlUtil.SetFlipFaces(this.isFlipped_);
-
         GlUtil.BindVao(this.vaoId_);
 
         GL.BindBuffer(BufferTarget.ElementArrayBuffer, this.eboId_);

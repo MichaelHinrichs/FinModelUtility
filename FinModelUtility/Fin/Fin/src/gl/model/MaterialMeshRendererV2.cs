@@ -102,25 +102,20 @@ namespace fin.gl.model {
 
       var fixedFunctionMaterial = this.material_ as IFixedFunctionMaterial;
 
-      bool changedBlending = false;
       if (fixedFunctionMaterial != null) {
-        changedBlending = GlUtil.SetBlending(fixedFunctionMaterial.BlendMode,
-                                             fixedFunctionMaterial.SrcFactor,
-                                             fixedFunctionMaterial.DstFactor,
-                                             fixedFunctionMaterial.LogicOp);
+        GlUtil.SetBlending(fixedFunctionMaterial.BlendMode,
+                           fixedFunctionMaterial.SrcFactor,
+                           fixedFunctionMaterial.DstFactor,
+                           fixedFunctionMaterial.LogicOp);
       }
 
       GlUtil.SetCulling(this.material_?.CullingMode ?? CullingMode.SHOW_BOTH);
-      var changedDepth = GlUtil.SetDepth(
+      GlUtil.SetDepth(
           this.material_?.DepthMode ?? DepthMode.USE_DEPTH_BUFFER,
           this.material_?.DepthCompareType ??
           DepthCompareType.LEqual);
 
       this.bufferRenderer_.Render();
-
-      for (var i = 0; i < 8; ++i) {
-        GlUtil.UnbindTexture(i);
-      }
     }
   }
 }
