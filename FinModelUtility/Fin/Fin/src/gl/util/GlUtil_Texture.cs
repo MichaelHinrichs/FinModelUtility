@@ -4,27 +4,27 @@ using OpenTK.Graphics.OpenGL;
 
 
 namespace fin.gl {
-  public static partial class GlUtil {
+  public partial class GlState {
+    public int ActiveTexture { get; set; }= -1;
 
-    private static int activeTexture_ = -1;
-
-    private static int[] currentTextureBindings_ =
+    public int[] CurrentTextureBindings { get; set; } =
         new int[] { -1, -1, -1, -1, -1, -1, -1, -1 };
+  }
 
-
+  public static partial class GlUtil {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void BindTexture(int textureIndex, int value) {
-      if (GlUtil.currentTextureBindings_[textureIndex] == value) {
+      if (GlUtil.currentState_.CurrentTextureBindings[textureIndex] == value) {
         return;
       }
 
-      if (GlUtil.activeTexture_ != textureIndex) {
+      if (GlUtil.currentState_.ActiveTexture != textureIndex) {
         GL.ActiveTexture(TextureUnit.Texture0 +
-                         (GlUtil.activeTexture_ = textureIndex));
+                         (GlUtil.currentState_.ActiveTexture = textureIndex));
       }
 
       GL.BindTexture(TextureTarget.Texture2D,
-                     GlUtil.currentTextureBindings_[textureIndex] = value);
+                     GlUtil.currentState_.CurrentTextureBindings[textureIndex] = value);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

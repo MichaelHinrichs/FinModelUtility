@@ -63,7 +63,7 @@ namespace uni.ui.right_panel.materials {
       var height = this.Height;
       GL.Viewport(0, 0, width, height);
 
-      GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+      GlUtil.ClearColorAndDepth();
 
       if (this.Material == null) {
         this.materialShader_?.Dispose();

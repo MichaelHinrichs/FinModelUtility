@@ -117,7 +117,7 @@ void main() {
       var height = this.Height;
       GL.Viewport(0, 0, width, height);
 
-      GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+      GlUtil.ClearColorAndDepth();
 
       this.texturelessShaderProgram_.Use();
       this.RenderOrtho_();

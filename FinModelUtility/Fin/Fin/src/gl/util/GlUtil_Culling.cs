@@ -5,19 +5,23 @@ using OpenTK.Graphics.OpenGL;
 
 
 namespace fin.gl {
+  public partial class GlState {
+    public CullingMode CurrentCullingMode { get; set; } =
+      CullingMode.SHOW_NEITHER;
+  }
+
   public static partial class GlUtil {
-    private static CullingMode currentCullingMode_ = CullingMode.SHOW_NEITHER;
 
     public static void ResetCulling()
       => SetCulling(CullingMode.SHOW_FRONT_ONLY);
 
 
     public static bool SetCulling(CullingMode cullingMode) {
-      if (GlUtil.currentCullingMode_ == cullingMode) {
+      if (GlUtil.currentState_.CurrentCullingMode == cullingMode) {
         return false;
       }
 
-      GlUtil.currentCullingMode_ = cullingMode;
+      GlUtil.currentState_.CurrentCullingMode = cullingMode;
 
       if (cullingMode == CullingMode.SHOW_BOTH) {
         GL.Disable(EnableCap.CullFace);

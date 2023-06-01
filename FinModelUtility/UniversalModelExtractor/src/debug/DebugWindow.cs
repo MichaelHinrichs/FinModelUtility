@@ -33,7 +33,7 @@ void main() {
       this.shaderProgram_.Use();
 
       GL.ClearColor(0, 0, 1, 1);
-      GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+      GlUtil.ClearColorAndDepth();
 
       GL.Begin(PrimitiveType.Quads);
 

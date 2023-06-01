@@ -4,17 +4,18 @@ using OpenTK.Graphics.OpenGL;
 
 
 namespace fin.gl {
+  public partial class GlState {
+    public int CurrentShader { get; set; } = -1;
+  }
+
   public static partial class GlUtil {
-    private static int currentShader_ = -1;
-
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void UseProgram(int shader) {
-      if (GlUtil.currentShader_ == shader) {
+      if (GlUtil.currentState_.CurrentShader == shader) {
         return;
       }
 
-      GlUtil.currentShader_ = shader;
+      GlUtil.currentState_.CurrentShader = shader;
       GL.UseProgram(shader);
     }
   }

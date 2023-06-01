@@ -8,12 +8,14 @@ using GlLogicOp = OpenTK.Graphics.OpenGL.LogicOp;
 
 
 namespace fin.gl {
-  public static partial class GlUtil {
-    private static (BlendMode, BlendFactor, BlendFactor, FinLogicOp)
-        currentBlending_ = (BlendMode.ADD, BlendFactor.SRC_ALPHA,
-                            BlendFactor.ONE_MINUS_SRC_ALPHA,
-                            FinLogicOp.UNDEFINED);
+  public partial class GlState {
+    public (BlendMode, BlendFactor, BlendFactor, FinLogicOp)
+        CurrentBlending { get; set; } = (BlendMode.ADD, BlendFactor.SRC_ALPHA,
+                                         BlendFactor.ONE_MINUS_SRC_ALPHA,
+                                         FinLogicOp.UNDEFINED);
+  }
 
+  public static partial class GlUtil {
     public static void ResetBlending() => SetBlending(BlendMode.ADD,
       BlendFactor.SRC_ALPHA,
       BlendFactor.ONE_MINUS_SRC_ALPHA,
@@ -25,12 +27,13 @@ namespace fin.gl {
         BlendFactor srcFactor,
         BlendFactor dstFactor,
         FinLogicOp logicOp) {
-      if (GlUtil.currentBlending_ ==
+      if (GlUtil.currentState_.CurrentBlending ==
           (blendMode, srcFactor, dstFactor, logicOp)) {
         return false;
       }
 
-      GlUtil.currentBlending_ = (blendMode, srcFactor, dstFactor, logicOp);
+      GlUtil.currentState_.CurrentBlending =
+          (blendMode, srcFactor, dstFactor, logicOp);
 
       if (blendMode is BlendMode.NONE) {
         GL.Disable(EnableCap.Blend);

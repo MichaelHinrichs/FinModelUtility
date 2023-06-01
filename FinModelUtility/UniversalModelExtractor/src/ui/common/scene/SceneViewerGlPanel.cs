@@ -201,8 +201,7 @@ namespace uni.ui.common.scene {
       var height = this.Height;
       GL.Viewport(0, 0, width, height);
 
-      GlUtil.ResetDepth();
-      GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+      GlUtil.ClearColorAndDepth();
 
       this.RenderPerspective_();
 

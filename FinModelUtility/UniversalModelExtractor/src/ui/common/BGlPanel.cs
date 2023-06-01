@@ -19,6 +19,7 @@ namespace uni.ui.common {
         this.impl_.CreateGraphics();
         this.impl_.MakeCurrent();
 
+        GlUtil.SwitchContext(this.impl_.Context);
         this.InitGl();
 
         this.timedCallback =
@@ -41,6 +42,7 @@ namespace uni.ui.common {
         // TODO: This may not actually be needed? The concern is whether or not
         // makeCurrent is potentially a race condition
         GlUtil.RunLockedGl(() => {
+          GlUtil.SwitchContext(this.impl_.Context);
           this.impl_.MakeCurrent();
 
           this.RenderGl();

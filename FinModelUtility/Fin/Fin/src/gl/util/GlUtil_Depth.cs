@@ -5,9 +5,12 @@ using OpenTK.Graphics.OpenGL;
 
 
 namespace fin.gl {
+  public partial class GlState {
+    public (DepthMode, DepthCompareType) DepthModeAndCompareType { get; set; }
+        = (DepthMode.USE_DEPTH_BUFFER, DepthCompareType.LEqual);
+  }
+
   public static partial class GlUtil {
-    private static (DepthMode, DepthCompareType) depthModeAndCompareType =
-        (DepthMode.USE_DEPTH_BUFFER, DepthCompareType.LEqual);
     
     public static void ResetDepth()
       => SetDepth(DepthMode.USE_DEPTH_BUFFER, DepthCompareType.LEqual);
@@ -15,11 +18,12 @@ namespace fin.gl {
     public static bool SetDepth(
         DepthMode depthMode,
         DepthCompareType depthCompareType) {
-      if (GlUtil.depthModeAndCompareType == (depthMode, depthCompareType)) {
+      if (GlUtil.currentState_.DepthModeAndCompareType ==
+          (depthMode, depthCompareType)) {
         return false;
       }
 
-      GlUtil.depthModeAndCompareType = (depthMode, depthCompareType);
+      GlUtil.currentState_.DepthModeAndCompareType = (depthMode, depthCompareType);
 
       switch (depthMode) {
         case DepthMode.USE_DEPTH_BUFFER: {

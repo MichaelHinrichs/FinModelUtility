@@ -107,6 +107,8 @@ namespace fin.gl.model {
                            fixedFunctionMaterial.SrcFactor,
                            fixedFunctionMaterial.DstFactor,
                            fixedFunctionMaterial.LogicOp);
+      } else {
+        GlUtil.ResetBlending();
       }
 
       GlUtil.SetCulling(this.material_?.CullingMode ?? CullingMode.SHOW_BOTH);

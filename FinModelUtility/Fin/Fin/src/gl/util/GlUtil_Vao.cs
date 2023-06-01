@@ -2,15 +2,17 @@
 
 
 namespace fin.gl {
-  public static partial class GlUtil {
-    private static int currentVaoId_ = -1;
+  public partial class GlState {
+    public int CurrentVaoId { get; set; } = -1;
+  }
 
+  public static partial class GlUtil {
     public static void BindVao(int vaoId) {
-      if (GlUtil.currentVaoId_ == vaoId) {
+      if (GlUtil.currentState_.CurrentVaoId == vaoId) {
         return;
       }
 
-      GL.BindVertexArray(GlUtil.currentVaoId_ = vaoId);
+      GL.BindVertexArray(GlUtil.currentState_.CurrentVaoId = vaoId);
     }
   }
 }
