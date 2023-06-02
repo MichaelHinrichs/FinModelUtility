@@ -115,8 +115,8 @@ namespace fin.math {
       var bonesToIndex = new Dictionary<IBone, int>();
       var boneIndex = -1;
 
-      var boneQueue = new Queue<(IBone, IReadOnlyFinMatrix4x4)>();
-      boneQueue.Enqueue((rootBone, this.ManagerMatrix));
+      var boneQueue = new Queue<(IBone, Matrix4x4)>();
+      boneQueue.Enqueue((rootBone, this.ManagerMatrix.Impl));
       while (boneQueue.Count > 0) {
         var (bone, parentBoneToWorldMatrix) = boneQueue.Dequeue();
 
@@ -236,7 +236,7 @@ namespace fin.math {
 
         foreach (var child in bone.Children) {
           // TODO: Use a pool of matrices to prevent unneeded instantiations.
-          boneQueue.Enqueue((child, boneToWorldMatrix.Clone()));
+          boneQueue.Enqueue((child, boneToWorldMatrix.Impl));
         }
       }
 
