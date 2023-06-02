@@ -35,7 +35,7 @@ namespace uni.cli {
                   DesignModeUtil.InDesignMode = false;
                   GraphicsContext.ShareContexts = true;
                   ApplicationConfiguration.Initialize();
-                    Application.Run(new UniversalModelExtractorForm());
+                  Application.Run(new UniversalModelExtractorForm());
                 })
                 .WithParsed((DebugOptions _) => {
                   /*var window = new DebugWindow();

@@ -1,14 +1,17 @@
 ﻿using fin.gl;
 using fin.util.time;
 
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
+
+using uni.util.windows;
 
 
 namespace uni.ui.common {
   public abstract partial class BGlPanel : UserControl {
     private readonly TimedCallback timedCallback;
-    private const float DEFAULT_FRAMERATE_ = 30;
+
+    private static float DEFAULT_FRAMERATE_ { get; } = 
+      EnumDisplaySettingsUtil.GetDisplayFrequency();
 
     protected BGlPanel() {
       InitializeComponent();
