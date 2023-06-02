@@ -2,7 +2,7 @@
 using System.Numerics;
 
 namespace fin.model {
-  public struct Position {
+  public readonly struct Position {
     public Position() : this(0, 0, 0) { }
 
     public Position(float x, float y, float z) {
@@ -11,9 +11,9 @@ namespace fin.model {
       Z = z;
     }
 
-    public float X { get; set; }
-    public float Y { get; set; }
-    public float Z { get; set; }
+    public float X { get; }
+    public float Y { get; }
+    public float Z { get; }
 
 
     public override string ToString() =>
@@ -31,7 +31,7 @@ namespace fin.model {
     }
   }
 
-  public struct Scale {
+  public readonly struct Scale {
     public Scale() : this(0, 0, 0) { }
 
     public Scale(float scale) : this(scale, scale, scale) { }
@@ -42,9 +42,9 @@ namespace fin.model {
       Z = z;
     }
 
-    public float X { get; set; }
-    public float Y { get; set; }
-    public float Z { get; set; }
+    public float X { get; }
+    public float Y { get; }
+    public float Z { get; }
 
     public override string ToString() =>
         $"{{{this.X}, {this.Y}, {this.Z}}}";
@@ -61,7 +61,7 @@ namespace fin.model {
     }
   }
 
-  public struct Normal {
+  public readonly struct Normal {
     public Normal() : this(0, 0, 0) { }
 
     public Normal(float x, float y, float z) {
@@ -70,9 +70,9 @@ namespace fin.model {
       Z = z;
     }
 
-    public float X { get; set; }
-    public float Y { get; set; }
-    public float Z { get; set; }
+    public float X { get; }
+    public float Y { get; }
+    public float Z { get; }
 
     public override string ToString() =>
         $"{{{this.X}, {this.Y}, {this.Z}}}";
@@ -89,7 +89,7 @@ namespace fin.model {
     }
   }
 
-  public struct Tangent {
+  public readonly struct Tangent {
     public Tangent() : this(0, 0, 0, 0) { }
 
     public Tangent(float x, float y, float z, float w) {
@@ -99,10 +99,10 @@ namespace fin.model {
       W = w;
     }
 
-    public float X { get; set; }
-    public float Y { get; set; }
-    public float Z { get; set; }
-    public float W { get; set; }
+    public float X { get; }
+    public float Y { get; }
+    public float Z { get; }
+    public float W { get; }
 
 
     public override string ToString() =>

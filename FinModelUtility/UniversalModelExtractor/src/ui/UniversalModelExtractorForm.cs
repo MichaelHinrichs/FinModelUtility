@@ -62,12 +62,15 @@ public partial class UniversalModelExtractorForm : Form {
 
 
     this.fpsCallback_ = TimedCallback.WithPeriod(() => {
-      if (!this.Created || this.IsDisposed ||
-          this.sceneViewerPanel_.IsDisposed) {
+      if (!this.Created || this.IsDisposed) {
         return;
       }
 
       this.Invoke(() => {
+        if (this.IsDisposed || this.sceneViewerPanel_.IsDisposed) {
+          return;
+        }
+
         var frameTime = this.sceneViewerPanel_.FrameTime;
         var fps = (frameTime == TimeSpan.Zero) ? 0 : 1 / frameTime.TotalSeconds;
         this.Text = $"Universal Model Extractor ({fps:0.0} fps)";
@@ -78,9 +81,8 @@ public partial class UniversalModelExtractorForm : Form {
     this.fileBundleTreeView_.FileSelected += this.OnFileBundleSelect_;
   }
 
-  private void OnDirectorySelect_(IFileTreeNode<IFileBundle> directoryNode) {
-    this.modelToolStrip_.DirectoryNode = directoryNode;
-  }
+  private void OnDirectorySelect_(IFileTreeNode<IFileBundle> directoryNode)
+    => this.modelToolStrip_.DirectoryNode = directoryNode;
 
   private void OnFileBundleSelect_(IFileTreeNode<IFileBundle> fileNode) {
     switch (fileNode.File) {
@@ -202,9 +204,8 @@ public partial class UniversalModelExtractorForm : Form {
   }
 
   private void SelectAudio_(IFileTreeNode<IFileBundle> fileNode,
-                            IAudioFileBundle audioFileBundle) {
-    this.audioPlayerPanel_.AudioFileBundles = new[] {audioFileBundle};
-  }
+                            IAudioFileBundle audioFileBundle)
+    => this.audioPlayerPanel_.AudioFileBundles = new[] {audioFileBundle};
 
   private void exportAsToolStripMenuItem_Click(object sender, EventArgs e) {
     var fileBundleAndScene = this.sceneViewerPanel_.FileBundleAndScene;
@@ -244,18 +245,15 @@ public partial class UniversalModelExtractorForm : Form {
     }
   }
 
-  private void exitToolStripMenuItem_Click(object sender, EventArgs e) {
-    this.Close();
-  }
+  private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+    => this.Close();
 
-  private void gitHubToolStripMenuItem_Click(object sender, EventArgs e) {
-    Process.Start("explorer",
-                  "https://github.com/MeltyPlayer/FinModelUtility");
-  }
+  private void gitHubToolStripMenuItem_Click(object sender, EventArgs e)
+    => Process.Start("explorer",
+                     "https://github.com/MeltyPlayer/FinModelUtility");
 
   private void
-      reportAnIssueToolStripMenuItem_Click(object sender, EventArgs e) {
-    Process.Start("explorer",
-                  "https://github.com/MeltyPlayer/FinModelUtility/issues/new");
-  }
+      reportAnIssueToolStripMenuItem_Click(object sender, EventArgs e)
+    => Process.Start("explorer",
+                     "https://github.com/MeltyPlayer/FinModelUtility/issues/new");
 }

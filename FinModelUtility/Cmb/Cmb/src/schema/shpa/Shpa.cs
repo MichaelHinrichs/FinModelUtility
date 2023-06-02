@@ -44,11 +44,8 @@ namespace cmb.schema.shpa {
       var count = (r.ReadInt32() - 8) / 4 / 3;
       this.Values = new Position[count];
       for (var i = 0; i < count; ++i) {
-        this.Values[i] = new Position {
-            X = r.ReadSingle(),
-            Y = r.ReadSingle(),
-            Z = r.ReadSingle()
-        };
+        this.Values[i] =
+            new Position(r.ReadSingle(), r.ReadSingle(), r.ReadSingle());
       }
     }
   }
@@ -62,11 +59,7 @@ namespace cmb.schema.shpa {
       var count = (r.ReadInt32() - 8) / 2 / 3;
       this.Values = new Normal[count];
       for (var i = 0; i < count; ++i) {
-        this.Values[i] = new Normal {
-            X = r.ReadSn16(),
-            Y = r.ReadSn16(),
-            Z = r.ReadSn16()
-        };
+        this.Values[i] = new Normal(r.ReadSn16(), r.ReadSn16(), r.ReadSn16());
       }
     }
   }
