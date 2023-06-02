@@ -40,13 +40,15 @@ namespace fin.math {
     public FinMatrix4x4(IReadOnlyFinMatrix4x4 other) => this.CopyFrom(other);
     public FinMatrix4x4(SystemMatrix other) => this.CopyFrom(other);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IFinMatrix4x4 Clone() => new FinMatrix4x4(this);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void CopyFrom(IReadOnlyFinMatrix4x4 other) {
       Asserts.Different(this, other, "Copying into same matrix!");
 
       if (other is FinMatrix4x4 otherImpl) {
-        impl_ = otherImpl.Impl;
+        this.CopyFrom(otherImpl.Impl);
       } else {
         for (var r = 0; r < 4; ++r) {
           for (var c = 0; c < 4; ++c) {
@@ -56,15 +58,16 @@ namespace fin.math {
       }
     }
 
-    public void CopyFrom(SystemMatrix other) {
-      impl_ = other;
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void CopyFrom(SystemMatrix other) => impl_ = other;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IFinMatrix4x4 SetIdentity() {
       impl_ = SystemMatrix.Identity;
       return this;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IFinMatrix4x4 SetZero() {
       impl_ = new SystemMatrix();
       return this;

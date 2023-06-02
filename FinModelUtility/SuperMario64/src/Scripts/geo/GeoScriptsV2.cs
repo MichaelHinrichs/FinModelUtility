@@ -117,7 +117,7 @@ namespace SuperMario64.Scripts {
           case GeoScaleCommand geoScaleCommand: {
             var scale = (geoScaleCommand.Scale / 65536.0f);
             this.nodeCurrent.matrix.MultiplyInPlace(
-                MatrixTransformUtil.FromScale(new Scale(scale)));
+                FinMatrixUtil.FromScale(new Scale(scale)));
             AddDisplayList(
                 mdlLods,
                 lvl,
@@ -174,18 +174,18 @@ namespace SuperMario64.Scripts {
           .MultiplyInPlace(CreateTranslationMatrix_(position));
 
     public IFinMatrix4x4 CreateTranslationMatrix_(Vector3s position)
-      => MatrixTransformUtil.FromTranslation(
+      => FinMatrixUtil.FromTranslation(
           new Position(position.X, position.Y, position.Z));
 
     public IFinMatrix4x4 CreateRotationMatrix_(Vector3s rotation)
-      => MatrixTransformUtil
+      => FinMatrixUtil
          .FromRotation(
              new RotationImpl().SetDegrees(0, 0, rotation.Z))
          .MultiplyInPlace(
-             MatrixTransformUtil.FromRotation(
+             FinMatrixUtil.FromRotation(
                  new RotationImpl().SetDegrees(rotation.X, 0, 0)))
          .MultiplyInPlace(
-             MatrixTransformUtil.FromRotation(
+             FinMatrixUtil.FromRotation(
                  new RotationImpl().SetDegrees(0, rotation.Y, 0)));
 
     public void AddDisplayList(

@@ -189,11 +189,10 @@ namespace fin.scene {
       public void Render() {
         GlTransform.PushMatrix();
 
-        var trsMatrix =
-            MatrixTransformUtil.FromTrs(this.Position,
-                                        this.Rotation,
-                                        this.Scale);
-        GlTransform.MultMatrix(trsMatrix);
+        GlTransform.MultMatrix(
+            SystemMatrixUtil.FromTrs(this.Position,
+                                     this.Rotation,
+                                     this.Scale));
 
         foreach (var model in this.Models) {
           model.Render();
@@ -293,8 +292,7 @@ namespace fin.scene {
               Quaternion.CreateFromYawPitchRoll(angle, 0, 0);
 
           var rotationBuffer = rotateYaw * rootBone.FaceTowardsCameraAdjustment;
-          var rotationMatrix = MatrixTransformUtil.FromRotation(rotationBuffer);
-          GlTransform.MultMatrix(rotationMatrix);
+          GlTransform.MultMatrix(SystemMatrixUtil.FromRotation(rotationBuffer));
         }
 
         if (this.Animation != null) {

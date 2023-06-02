@@ -12,6 +12,7 @@ namespace fin.math.matrix {
 
   public interface IFinMatrix4x4 : IReadOnlyFinMatrix4x4 {
     void CopyFrom(IReadOnlyFinMatrix4x4 other);
+    void CopyFrom(Matrix4x4 other);
 
     IFinMatrix4x4 SetIdentity();
     IFinMatrix4x4 SetZero();

@@ -177,15 +177,15 @@ namespace fin.math {
         var localScale = animationLocalScale ?? bone.LocalScale;
 
         if (!bone.IgnoreParentScale && !bone.FaceTowardsCamera) {
-          MatrixTransformUtil.FromTrs(localPosition,
-                                      localRotation,
-                                      localScale,
-                                      localMatrix);
+          FinMatrixUtil.FromTrs(localPosition,
+                                localRotation,
+                                localScale,
+                                localMatrix);
           boneToWorldMatrix.MultiplyInPlace(localMatrix);
         } else {
           // Applies translation first, so it's affected by parent rotation/scale.
           var localTranslationMatrix =
-              MatrixTransformUtil.FromTranslation(localPosition);
+              SystemMatrixUtil.FromTranslation(localPosition);
           boneToWorldMatrix.MultiplyInPlace(localTranslationMatrix);
 
           // Extracts translation/rotation/scale.
@@ -211,20 +211,21 @@ namespace fin.math {
           }
 
           // Creates child matrix.
-          MatrixTransformUtil.FromTrs(localPosition,
-                                      localRotation,
-                                      localScale,
-                                      localMatrix);
+          FinMatrixUtil.FromTrs(localPosition,
+                                localRotation,
+                                localScale,
+                                localMatrix);
 
           // Gets final matrix.
-          MatrixTransformUtil.FromTrs(
+          FinMatrixUtil.FromTrs(
               translationBuffer,
               rotationBuffer,
               scaleBuffer,
               boneToWorldMatrix);
-          boneToWorldMatrix.MultiplyInPlace(MatrixTransformUtil.FromTrs(null,
-                                   localRotation,
-                                   localScale));
+          boneToWorldMatrix.MultiplyInPlace(
+              SystemMatrixUtil.FromTrs(null,
+                                       localRotation,
+                                       localScale));
         }
 
         if (isFirstPass) {

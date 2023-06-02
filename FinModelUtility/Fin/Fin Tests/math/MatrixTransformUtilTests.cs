@@ -5,12 +5,12 @@ using NUnit.Framework;
 
 
 namespace fin.math {
-  public class MatrixTransformUtilTests {
+  public class FinMatrixUtilTests {
     [Test]
     public void TestTranslation() {
       var expectedTranslation = new Position(2, 3, 4);
 
-      var matrix = MatrixTransformUtil.FromTranslation(
+      var matrix = FinMatrixUtil.FromTranslation(
           expectedTranslation);
 
       matrix.CopyTranslationInto(out var actualTranslation);
@@ -22,7 +22,7 @@ namespace fin.math {
     public void TestRotation() {
       var expectedRotation = QuaternionUtil.CreateZyx(1.2f, 2.3f, 3.4f);
 
-      var matrix = MatrixTransformUtil.FromRotation(
+      var matrix = FinMatrixUtil.FromRotation(
           expectedRotation);
 
       matrix.CopyRotationInto(out var actualRotation);
@@ -38,7 +38,7 @@ namespace fin.math {
     public void TestScale() {
       var expectedScale = new Scale(3, 4, 5);
 
-      var matrix = MatrixTransformUtil.FromScale(
+      var matrix = FinMatrixUtil.FromScale(
           expectedScale);
 
       matrix.CopyScaleInto(out var actualScale);
@@ -53,7 +53,7 @@ namespace fin.math {
       var expectedRotation = QuaternionUtil.CreateZyx(1.2f, 2.3f, 3.4f);
       var expectedScale = new Scale(3, 4, 5);
 
-      var trs = MatrixTransformUtil.FromTrs(
+      var trs = FinMatrixUtil.FromTrs(
           expectedTranslation,
           expectedRotation,
           expectedScale);
