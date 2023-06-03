@@ -54,23 +54,40 @@ namespace fin.ui {
     public float ZNormal => this.VerticalNormal;
 
 
+    public float XUp
+      => -this.VerticalNormal * FinTrig.Cos(this.YawDegrees * FinTrig.DEG_2_RAD);
+
+    public float YUp
+      => -this.VerticalNormal * FinTrig.Sin(this.YawDegrees * FinTrig.DEG_2_RAD);
+
+    public float ZUp => this.HorizontalNormal;
+
+
     // TODO: These negative signs and flipped cos/sin don't look right but they
     // work???
-    public void Move(float forwardVector, float rightVector, float speed) {
-      this.Z += speed * this.VerticalNormal * forwardVector;
+    public void Move(float forwardVector,
+                     float rightVector,
+                     float upVector,
+                     float speed) {
+      this.Z += speed * (this.VerticalNormal * forwardVector +
+                         this.HorizontalNormal * upVector);
 
       var forwardYawRads = this.YawDegrees * FinTrig.DEG_2_RAD;
       var rightYawRads = (this.YawDegrees - 90) * FinTrig.DEG_2_RAD;
 
-      this.X += speed *
-                this.HorizontalNormal *
-                (forwardVector * FinTrig.Cos(forwardYawRads) +
-                 rightVector * FinTrig.Cos(rightYawRads));
+      this.X +=
+          speed *
+          (this.HorizontalNormal *
+           (forwardVector * FinTrig.Cos(forwardYawRads) +
+            rightVector * FinTrig.Cos(rightYawRads)) +
+           -this.VerticalNormal * upVector * FinTrig.Cos(forwardYawRads));
 
-      this.Y += speed *
-                this.HorizontalNormal *
-                (forwardVector * FinTrig.Sin(forwardYawRads) +
-                 rightVector * FinTrig.Sin(rightYawRads));
+      this.Y +=
+          speed *
+          (this.HorizontalNormal *
+           (forwardVector * FinTrig.Sin(forwardYawRads) +
+            rightVector * FinTrig.Sin(rightYawRads)) +
+           -this.VerticalNormal * upVector * FinTrig.Sin(forwardYawRads));
     }
   }
 }
