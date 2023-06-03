@@ -287,7 +287,7 @@ namespace fin.scene {
         var rootBone = this.Model.Skeleton.Root;
         if (rootBone.FaceTowardsCamera) {
           var camera = Camera.Instance;
-          var angle = camera.Yaw / 180f * MathF.PI;
+          var angle = camera.YawDegrees / 180f * MathF.PI;
           var rotateYaw =
               Quaternion.CreateFromYawPitchRoll(angle, 0, 0);
 

@@ -12,8 +12,9 @@
   },
   "ViewerSettings": {
     "AutomaticallyPlayGameAudioForModel": false,
+    "RotateLight": false,
     "ShowGrid": true,
-    "ShowSkeleton": true,
+    "ShowSkeleton": false,
     "ViewerModelScaleSource": "MIN_MAX_BOUNDS"
   },
   "ThirdPartySettings": {

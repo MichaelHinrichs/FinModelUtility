@@ -87,21 +87,23 @@ namespace fin.gl {
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Rotate(double angle, double x, double y, double z)
-      => Rotate((float)angle, (float)x, (float)y, (float)z);
+    public static void Rotate(double degrees, double x, double y, double z)
+      => Rotate((float) degrees, (float) x, (float) y, (float) z);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Rotate(float angle, float x, float y, float z)
-      => MultMatrix(Matrix4x4.CreateFromAxisAngle(new Vector3(x, y, z), angle / 180 * MathF.PI));
+    public static void Rotate(float degrees, float x, float y, float z)
+      => MultMatrix(
+          Matrix4x4.CreateFromAxisAngle(new Vector3(x, y, z),
+                                        degrees * FinTrig.DEG_2_RAD));
 
 
     public static void Perspective(double fovYDegrees,
-                                 double aspectRatio,
-                                 double zNear,
-                                 double zFar) {
+                                   double aspectRatio,
+                                   double zNear,
+                                   double zFar) {
       var matrix = new Matrix4x4();
 
-      var f = 1.0 / Math.Tan(fovYDegrees / 180 * Math.PI / 2);
+      var f = 1.0 / Math.Tan(fovYDegrees * FinTrig.DEG_2_RAD * .5f);
 
       SetInMatrix(ref matrix, 0, 0, f / aspectRatio);
       SetInMatrix(ref matrix, 1, 1, f);

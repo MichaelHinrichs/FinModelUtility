@@ -8,6 +8,6 @@
     float YNormal { get; }
     float ZNormal { get; }
 
-    float Yaw { get; }
+    float YawDegrees { get; }
   }
 }

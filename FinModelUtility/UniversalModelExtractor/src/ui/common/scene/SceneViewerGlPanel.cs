@@ -118,8 +118,8 @@ namespace uni.ui.common.scene {
 
             var mouseSpeed = 3;
 
-            this.camera_.Pitch -= deltaYFrac * fovY * mouseSpeed;
-            this.camera_.Yaw -= deltaXFrac * fovX * mouseSpeed;
+            this.camera_.PitchDegrees -= deltaYFrac * fovY * mouseSpeed;
+            this.camera_.YawDegrees -= deltaXFrac * fovX * mouseSpeed;
           }
 
           this.prevMousePosition_ = mouseLocation;

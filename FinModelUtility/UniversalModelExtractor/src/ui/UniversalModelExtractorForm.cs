@@ -16,6 +16,10 @@ using MathNet.Numerics;
 using uni.config;
 using uni.games;
 using uni.ui.common;
+using Assimp;
+
+using fin.math;
+
 namespace uni.ui;
 
 public partial class UniversalModelExtractorForm : Form {
@@ -67,13 +71,15 @@ public partial class UniversalModelExtractorForm : Form {
       }
 
       this.Invoke(() => {
-        if (this.IsDisposed || this.sceneViewerPanel_.IsDisposed) {
-          return;
+        try {
+          var frameTime = this.sceneViewerPanel_.FrameTime;
+          var fps = (frameTime == TimeSpan.Zero)
+              ? 0
+              : 1 / frameTime.TotalSeconds;
+          this.Text = $"Universal Model Extractor ({fps:0.0} fps)";
+        } catch {
+          // ignored, throws after window is closed
         }
-
-        var frameTime = this.sceneViewerPanel_.FrameTime;
-        var fps = (frameTime == TimeSpan.Zero) ? 0 : 1 / frameTime.TotalSeconds;
-        this.Text = $"Universal Model Extractor ({fps:0.0} fps)";
       });
     }, .25f);
  
@@ -120,40 +126,57 @@ public partial class UniversalModelExtractorForm : Form {
     IReadOnlyList<ILight> lights = model.Lighting.Lights;
     if (lights.Count == 0) {
       model.Lighting.CreateLight()
-           .SetColor(FinColor.FromRgbFloats(1, 1, 1));
+                       .SetColor(FinColor.FromRgbFloats(1, 1, 1));
     }
 
-    var stopwatch = new FrameStopwatch();
-    stopwatch.Start();
+    // Initializes first light if uninitialized
+    var firstLight = lights[0];
+    var normal = firstLight.Normal;
+    if (normal.X.AlmostEqual(0) &&
+        normal.Y.AlmostEqual(0) &&
+        normal.Z.AlmostEqual(0)) {
+      FinTrig.FromPitchYawDegrees(-45,
+                                  45,
+                                  out var normalX,
+                                  out var normalY,
+                                  out var normalZ);
+      normal.X = normalX;
+      normal.Y = normalY;
+      normal.Z = normalZ;
+    }
 
-    obj.SetOnTickHandler(_ => {
-      var time = stopwatch.Elapsed.TotalMilliseconds;
-      var baseAngleInRadians = time / 400;
+    if (Config.Instance.ViewerSettings.RotateLight) {
+      var stopwatch = new FrameStopwatch();
+      stopwatch.Start();
 
-      var enabledCount = 0;
-      foreach (var light in lights) {
-        if (light.Enabled) {
-          enabledCount++;
+      obj.SetOnTickHandler(_ => {
+        var time = stopwatch.Elapsed.TotalMilliseconds;
+        var baseAngleInRadians = time / 400;
+
+        var enabledCount = 0;
+        foreach (var light in lights) {
+          if (light.Enabled) {
+            enabledCount++;
+          }
         }
-      }
 
-      var currentIndex = 0;
-      foreach (var light in lights) {
-        if (light.Enabled) {
-          var angleInRadians = baseAngleInRadians +
-                               2 * MathF.PI *
-                               (1f * currentIndex / enabledCount);
+        var currentIndex = 0;
+        foreach (var light in lights) {
+          if (light.Enabled) {
+            var angleInRadians = baseAngleInRadians +
+                                 2 * MathF.PI *
+                                 (1f * currentIndex / enabledCount);
 
-          var normal = light.Normal;
-          normal.X = (float) (.5f * Math.Cos(angleInRadians));
-          normal.Y = (float) (.5f * Math.Sin(angleInRadians));
-          normal.Z = (float) (.5f * Math.Cos(2 * angleInRadians));
+            var normal = light.Normal;
+            normal.X = (float) (.5f * Math.Cos(angleInRadians));
+            normal.Y = (float) (.5f * Math.Sin(angleInRadians));
+            normal.Z = (float) (.5f * Math.Cos(2 * angleInRadians));
 
-          currentIndex++;
+            currentIndex++;
+          }
         }
-      }
-
-    });
+      });
+    }
 
     this.UpdateScene_(fileNode, modelFileBundle, scene);
   }

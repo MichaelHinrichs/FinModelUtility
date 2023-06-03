@@ -193,12 +193,12 @@ namespace fin.math {
           Quaternion rotationBuffer;
           if (bone.FaceTowardsCamera) {
             var camera = Camera.Instance;
-            var yaw = camera?.Yaw ?? 0;
-            var angle = yaw / 180f * MathF.PI;
-            var rotateYaw =
-                Quaternion.CreateFromYawPitchRoll(angle, 0, 0);
+            var yawDegrees = camera?.YawDegrees ?? 0;
+            var yawRadians = yawDegrees * FinTrig.DEG_2_RAD;
+            var yawRotation =
+                Quaternion.CreateFromYawPitchRoll(yawRadians, 0, 0);
 
-            rotationBuffer = rotateYaw * bone.FaceTowardsCameraAdjustment;
+            rotationBuffer = yawRotation * bone.FaceTowardsCameraAdjustment;
           } else {
             boneToWorldMatrix.CopyRotationInto(out rotationBuffer);
           }

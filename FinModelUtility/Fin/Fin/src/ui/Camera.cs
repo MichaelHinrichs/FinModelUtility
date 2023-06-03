@@ -12,7 +12,7 @@ namespace fin.ui {
                                       float yaw,
                                       float pitch,
                                       float distance) {
-      var camera = new Camera { Yaw = yaw, Pitch = pitch };
+      var camera = new Camera { YawDegrees = yaw, PitchDegrees = pitch };
       camera.X = x - camera.XNormal * distance;
       camera.Y = y - camera.YNormal * distance;
       camera.Z = z - camera.ZNormal * distance;
@@ -33,23 +33,23 @@ namespace fin.ui {
     /// <summary>
     ///   The left-right angle of the camera, in degrees.
     /// </summary>
-    public float Yaw { get; set; }
+    public float YawDegrees { get; set; }
 
     /// <summary>
     ///   The up-down angle of the camera, in degrees.
     /// </summary>
-    public float Pitch { get; set; }
+    public float PitchDegrees { get; set; }
 
 
-    public float HorizontalNormal => FinTrig.Cos(this.Pitch / 180 * MathF.PI);
-    public float VerticalNormal => FinTrig.Sin(this.Pitch / 180 * MathF.PI);
+    public float HorizontalNormal => FinTrig.Cos(this.PitchDegrees * FinTrig.DEG_2_RAD);
+    public float VerticalNormal => FinTrig.Sin(this.PitchDegrees * FinTrig.DEG_2_RAD);
 
 
     public float XNormal
-      => this.HorizontalNormal * FinTrig.Cos(this.Yaw / 180 * MathF.PI);
+      => this.HorizontalNormal * FinTrig.Cos(this.YawDegrees * FinTrig.DEG_2_RAD);
 
     public float YNormal
-      => this.HorizontalNormal * FinTrig.Sin(this.Yaw / 180 * MathF.PI);
+      => this.HorizontalNormal * FinTrig.Sin(this.YawDegrees * FinTrig.DEG_2_RAD);
 
     public float ZNormal => this.VerticalNormal;
 
@@ -59,8 +59,8 @@ namespace fin.ui {
     public void Move(float forwardVector, float rightVector, float speed) {
       this.Z += speed * this.VerticalNormal * forwardVector;
 
-      var forwardYawRads = this.Yaw / 180 * MathF.PI;
-      var rightYawRads = (this.Yaw - 90) / 180 * MathF.PI;
+      var forwardYawRads = this.YawDegrees * FinTrig.DEG_2_RAD;
+      var rightYawRads = (this.YawDegrees - 90) * FinTrig.DEG_2_RAD;
 
       this.X += speed *
                 this.HorizontalNormal *

@@ -30,6 +30,8 @@ namespace uni.config {
   public class ViewerSettings {
     public bool AutomaticallyPlayGameAudioForModel { get; set; }
     
+    public bool RotateLight { get; set; }
+
     public bool ShowGrid { get; set; }
 
     public bool ShowSkeleton {
