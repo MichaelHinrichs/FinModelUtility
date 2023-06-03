@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Drawing;
 using System.IO.Compression;
 using System.Runtime.CompilerServices;
 
@@ -57,39 +58,35 @@ namespace modl.api {
       var finModel = new ModelImpl<OneColor2UvVertexImpl>(
           (index, position) => new OneColor2UvVertexImpl(index, position));
 
-      var imageDictionary = new ConcurrentDictionary<string, IImage>();
-      Task.WhenAll(terrain
-                   .Materials
-                   .SelectMany(material
-                                   => new[] {
-                                       material.Texture1, material.Texture2
-                                   })
-                   .Where(textureName => textureName != "Dummy")
-                   .Select(async textureName => {
-                     var outName = outFile.Name.Replace(".out.gz", "")
-                                          .Replace(".out", "");
-                     var outDirectory =
-                         outFile.GetParent()
-                                .GetExistingSubdirs()
-                                .Single(
-                                    dir => dir.Name == outName + "_Level");
+      var lazyImageDictionary = new LazyDictionary<string, IImage>(
+          imageName => {
+            if (imageName == "Dummy") {
+              return FinImage.Create1x1FromColor(Color.Magenta);
+            }
 
-                     if (!outDirectory.TryToGetExistingFile(
-                             $"{textureName}.png",
-                             out var textureFile)) {
-                       // Some of the maps use textures from other directories...
-                       var allMapsDirectory = outDirectory.GetParent();
-                       textureFile = allMapsDirectory
-                                     .SearchForFiles($"{textureName}.texr", true)
-                                     .First();
-                     }
+            var outName = outFile.Name.Replace(".out.gz", "")
+                                 .Replace(".out", "");
+            var outDirectory =
+                outFile.GetParent()
+                       .GetExistingSubdirs()
+                       .Single(
+                           dir => dir.Name == outName + "_Level");
 
-                     var texr = isBw2
-                         ? (ITexr) textureFile.ReadNew<Gtxd>()
-                         : textureFile.ReadNew<Text>();
-                     imageDictionary[textureName] = texr.Image;
-                   }))
-          .Wait();
+            if (!outDirectory.TryToGetExistingFile(
+                    $"{imageName}.png",
+                    out var textureFile)) {
+              // Some of the maps use textures from other directories...
+              var allMapsDirectory = outDirectory.GetParent();
+              textureFile = allMapsDirectory
+                            .SearchForFiles($"{imageName}.texr", true)
+                            .First();
+            }
+
+            var texr = isBw2
+                ? (ITexr) textureFile.ReadNew<Gtxd>()
+                : textureFile.ReadNew<Text>();
+            return texr.Image;
+          });
 
       var textureDictionary = new LazyDictionary<(int, string), ITexture?>(
           uvIndexAndTextureName => {
@@ -99,7 +96,7 @@ namespace modl.api {
               return null;
             }
 
-            var image = imageDictionary[textureName];
+            var image = lazyImageDictionary[textureName];
 
             var finTexture =
                 finModel.MaterialManager.CreateTexture(image);
