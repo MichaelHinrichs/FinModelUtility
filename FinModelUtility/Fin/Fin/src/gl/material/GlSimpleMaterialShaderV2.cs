@@ -28,13 +28,13 @@ namespace fin.gl.material {
 ");
 
       if (hasNormals) {
-        fragmentSrc.Append(@"
-struct Light {
+        fragmentSrc.Append($@"
+struct Light {{
   bool enabled;
   vec3 position;
   vec3 normal;
   vec4 color;
-};
+}};
 
 uniform vec3 ambientLightColor;
 uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
@@ -60,7 +60,7 @@ in vec2 uv0;
 
       if (hasNormals) {
         fragmentSrc.Append($@"
-        vec3 getDiffuseLightColor(Light light, vec3 vertexNormal) {{
+vec3 getDiffuseLightColor(Light light, vec3 vertexNormal) {{
   vec3 diffuseLightNormal = normalize(light.normal);
   float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);
   float lightAmount = min(diffuseLightAmount, 1);
