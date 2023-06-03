@@ -1,4 +1,7 @@
-﻿using fin.math;
+﻿using System.Linq;
+using System.Text;
+
+using fin.math;
 using fin.model;
 using fin.model.util;
 
@@ -6,32 +9,58 @@ using fin.model.util;
 namespace fin.gl.material {
   public class GlSimpleMaterialShaderSource : IGlMaterialShaderSource {
     public GlSimpleMaterialShaderSource(IModel model,
+                                        IReadOnlyMaterial material,
                                         bool useBoneMatrices) {
       this.VertexShaderSource =
           CommonShaderPrograms.GetVertexSrc(model, useBoneMatrices);
 
-      this.FragmentShaderSource = @$"# version 330
+      var hasNormals =
+          model.Skin.Meshes
+               .SelectMany(mesh => mesh.Primitives)
+               .Where(primitive => primitive.Material == material)
+               .SelectMany(primitive => primitive.Vertices)
+               .Any(vertex => vertex is IReadOnlyNormalVertex {
+                   LocalNormal: { }
+               });
 
-struct Light {{
+      var fragmentSrc = new StringBuilder();
+      fragmentSrc.Append(@"# version 330
+");
+
+      if (hasNormals) {
+        fragmentSrc.Append(@"
+struct Light {
   bool enabled;
   vec3 position;
   vec3 normal;
   vec4 color;
-}};
+};
 
 uniform vec3 ambientLightColor;
 uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
+");
+      }
 
+      fragmentSrc.Append(@$"
 uniform sampler2D diffuseTexture;
 uniform float {ShaderConstants.UNIFORM_USE_LIGHTING_NAME};
 
 out vec4 fragColor;
 
-in vec4 vertexColor0;
-in vec3 vertexNormal;
-in vec2 uv0;
+in vec4 vertexColor0;");
 
-vec3 getDiffuseLightColor(Light light, vec3 vertexNormal) {{
+      if (hasNormals) {
+        fragmentSrc.Append(@"
+in vec3 vertexNormal;");
+      }
+
+      fragmentSrc.Append(@"
+in vec2 uv0;
+");
+
+      if (hasNormals) {
+        fragmentSrc.Append($@"
+        vec3 getDiffuseLightColor(Light light, vec3 vertexNormal) {{
   vec3 diffuseLightNormal = normalize(light.normal);
   float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);
   float lightAmount = min(diffuseLightAmount, 1);
@@ -58,18 +87,29 @@ vec3 applyLightingColor(vec3 diffuseColor, vec3 vertexNormal) {{
   vec3 mergedLightColor = min(ambientLightColor + mergedDiffuseLightColor, 1);
   return diffuseColor * mergedLightColor;
 }}
+");
+      }
 
-void main() {{
+      fragmentSrc.Append(@"
+void main() {
   vec4 diffuseColor = texture(diffuseTexture, uv0);
 
-  fragColor = diffuseColor * vertexColor0;
+  fragColor = diffuseColor * vertexColor0;");
 
-  fragColor.rgb = mix(fragColor.rgb, applyLightingColor(fragColor.rgb, vertexNormal), {ShaderConstants.UNIFORM_USE_LIGHTING_NAME});
+      if (hasNormals) {
+        fragmentSrc.Append($@"
+  fragColor.rgb =
+      mix(fragColor.rgb, applyLightingColor(fragColor.rgb, vertexNormal),  {ShaderConstants.UNIFORM_USE_LIGHTING_NAME});
+");
+      }
 
-  if (fragColor.a < .95) {{
+      fragmentSrc.Append(@"
+  if (fragColor.a < .95) {
     discard;
-  }}
-}}";
+  }
+}");
+
+      this.FragmentShaderSource = fragmentSrc.ToString();
     }
 
     public string VertexShaderSource { get; }
@@ -77,7 +117,6 @@ void main() {{
   }
 
   public class GlSimpleMaterialShaderV2 : BGlMaterialShader<IReadOnlyMaterial> {
-    private int diffuseTextureLocation_;
     private readonly GlTexture primaryGlTexture_;
 
     public GlSimpleMaterialShaderV2(
@@ -100,10 +139,7 @@ void main() {{
 
     protected override void Setup(
         IReadOnlyMaterial material,
-        GlShaderProgram shaderProgram) {
-      this.diffuseTextureLocation_ =
-          shaderProgram.GetUniformLocation("diffuseTexture");
-    }
+        GlShaderProgram shaderProgram) { }
 
     protected override void PassUniformsAndBindTextures(
         GlShaderProgram shaderProgram) {

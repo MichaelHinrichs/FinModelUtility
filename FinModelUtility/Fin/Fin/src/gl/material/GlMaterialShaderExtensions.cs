@@ -22,7 +22,7 @@ namespace fin.gl.material {
             useBoneMatrices);
       }
 
-      return new GlSimpleMaterialShaderSource(model, useBoneMatrices);
+      return new GlSimpleMaterialShaderSource(model, material, useBoneMatrices);
     }
   }
 }
