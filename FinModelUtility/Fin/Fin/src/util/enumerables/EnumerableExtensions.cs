@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 using schema.binary.util;
 
 
 namespace fin.util.enumerables {
   public static class EnumerableExtensions {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int IndexOf<T>(this IEnumerable<T> enumerable,
                                  T value) {
       var index = enumerable.IndexOfOrNegativeOne(value);
@@ -28,20 +30,29 @@ namespace fin.util.enumerables {
       return -1;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IEnumerable<T> ConcatIfNonnull<T>(
         this IEnumerable<T> enumerable,
         IEnumerable<T>? other)
       => other == null ? enumerable : enumerable.Concat(other);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IEnumerable<T> ConcatIfNonnull<T>(
         this IEnumerable<T> enumerable,
         T? other)
-      => other == null ? enumerable : enumerable.Concat(other.Yield());
+      => other == null ? enumerable : enumerable.Concat(other);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IEnumerable<T> Yield<T>(this T item) {
       yield return item;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IEnumerable<T> Concat<T>(this IEnumerable<T> enumerable,
+                                           T item)
+      => enumerable.Concat(item.Yield());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static List<T> AsList<T>(this T item)
       => item.Yield().ToList();
 

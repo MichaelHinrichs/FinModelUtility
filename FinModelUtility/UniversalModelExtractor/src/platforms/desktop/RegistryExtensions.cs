@@ -32,8 +32,6 @@ namespace uni.platforms.desktop {
         string relativeKeyName)
       => Path.Join(@"SOFTWARE", relativeKeyName)
              .Yield()
-             .Concat(Path.Join(@"SOFTWARE\Wow6432Node",
-                               relativeKeyName)
-                         .Yield());
+             .Concat(Path.Join(@"SOFTWARE\Wow6432Node", relativeKeyName));
   }
 }

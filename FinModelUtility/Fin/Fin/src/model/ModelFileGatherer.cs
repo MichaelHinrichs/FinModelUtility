@@ -27,7 +27,12 @@ namespace fin.model {
   }
 
   public interface IAsyncModelLoader<in TModelFileBundle>
+      : IModelLoader<TModelFileBundle>
       where TModelFileBundle : IModelFileBundle {
+    IModel IModelLoader<TModelFileBundle>.LoadModel(
+        TModelFileBundle modelFileBundle)
+      => this.LoadModelAsync(modelFileBundle).Result;
+
     Task<IModel> LoadModelAsync(TModelFileBundle modelFileBundle);
   }
 }

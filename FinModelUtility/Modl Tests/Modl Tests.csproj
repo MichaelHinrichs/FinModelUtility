@@ -30,4 +30,11 @@
     <ProjectReference Include="..\Modl\Modl.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="goldens\modl\battalion_wars_1\input\" />
+    <Folder Include="goldens\modl\battalion_wars_1\output\" />
+    <Folder Include="goldens\out\battalion_wars_1\input\" />
+    <Folder Include="goldens\out\battalion_wars_1\output\" />
+  </ItemGroup>
+
 </Project>

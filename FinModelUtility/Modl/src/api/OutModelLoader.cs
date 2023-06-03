@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Drawing;
+﻿using System.Drawing;
 using System.IO.Compression;
 using System.Runtime.CompilerServices;
 
@@ -10,6 +9,8 @@ using fin.io;
 using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
+using fin.util.enumerables;
+using fin.util.linq;
 
 using modl.schema.res.texr;
 using modl.schema.terrain;
@@ -35,6 +36,26 @@ namespace modl.api {
     public IModel LoadModel(ISystemFile outFile,
                             GameVersion gameVersion,
                             out IBwTerrain bwTerrain) {
+      var outName = outFile.Name.Replace(".out.gz", "")
+                           .Replace(".out", "");
+      var outDirectory =
+          outFile.GetParent()
+                 .GetExistingSubdirs()
+                 .Single(
+                     dir => dir.Name == outName + "_Level");
+      var allMapsDirectory = outDirectory.GetParent();
+
+      return this.LoadModel(outFile,
+                            outDirectory.Yield().Concat(allMapsDirectory),
+                            gameVersion,
+                            out bwTerrain);
+    }
+
+    public IModel LoadModel(ISystemFile outFile,
+                            IEnumerable<ISystemDirectory>
+                                textureDirectoriesEnumerable,
+                            GameVersion gameVersion,
+                            out IBwTerrain bwTerrain) {
       var isBw2 = gameVersion == GameVersion.BW2;
 
       Stream stream;
@@ -58,28 +79,23 @@ namespace modl.api {
       var finModel = new ModelImpl<OneColor2UvVertexImpl>(
           (index, position) => new OneColor2UvVertexImpl(index, position));
 
+      var textureDirectories = textureDirectoriesEnumerable.ToArray();
       var lazyImageDictionary = new LazyDictionary<string, IImage>(
           imageName => {
             if (imageName == "Dummy") {
               return FinImage.Create1x1FromColor(Color.Magenta);
             }
 
-            var outName = outFile.Name.Replace(".out.gz", "")
-                                 .Replace(".out", "");
-            var outDirectory =
-                outFile.GetParent()
-                       .GetExistingSubdirs()
-                       .Single(
-                           dir => dir.Name == outName + "_Level");
+            ISystemFile? textureFile = null;
+            foreach (var textureDirectory in textureDirectories) {
+              if (textureDirectory.SearchForFiles($"{imageName}.texr", true)
+                                  .TryGetFirst(out textureFile)) {
+                break;
+              }
+            }
 
-            if (!outDirectory.TryToGetExistingFile(
-                    $"{imageName}.png",
-                    out var textureFile)) {
-              // Some of the maps use textures from other directories...
-              var allMapsDirectory = outDirectory.GetParent();
-              textureFile = allMapsDirectory
-                            .SearchForFiles($"{imageName}.texr", true)
-                            .First();
+            if (textureFile == null) {
+              return FinImage.Create1x1FromColor(Color.Magenta);
             }
 
             var texr = isBw2
@@ -179,9 +195,11 @@ namespace modl.api {
       var chunkFinVertices = new Grid<IVertex?>(heightmapSizeX, heightmapSizeY);
 
       var trianglesByMaterial =
-          new ListDictionary<IMaterial, (IReadOnlyVertex, IReadOnlyVertex, IReadOnlyVertex)>();
+          new ListDictionary<IMaterial, (IReadOnlyVertex, IReadOnlyVertex,
+              IReadOnlyVertex)>();
 
-      Span<(float, float)> surfaceTextureUvsInRow = stackalloc (float, float)[4];
+      Span<(float, float)> surfaceTextureUvsInRow =
+          stackalloc (float, float)[4];
       for (var chunkY = 0; chunkY < chunks.Height; ++chunkY) {
         for (var chunkX = 0; chunkX < chunks.Width; ++chunkX) {
           var tiles = chunks[chunkX, chunkY]?.Tiles;
@@ -276,15 +294,11 @@ namespace modl.api {
                       tile.Schema.DetailTextureUvs[4 * pointY + pointX];
 
                   var (u0, v0) = surfaceTextureUvsInRow[pointX];
-                  var uv0 = new TexCoord {
-                      U = u0, V = v0,
-                  };
+                  var uv0 = new TexCoord { U = u0, V = v0, };
 
                   var u1 = LoadUOrV_(detailTextureUvs.U);
                   var v1 = LoadUOrV_(detailTextureUvs.V);
-                  var uv1 = new TexCoord {
-                      U = u1, V = v1
-                  };
+                  var uv1 = new TexCoord { U = u1, V = v1 };
 
                   var finVertex =
                       finSkin.AddVertex(point.X, point.Height, point.Y);
