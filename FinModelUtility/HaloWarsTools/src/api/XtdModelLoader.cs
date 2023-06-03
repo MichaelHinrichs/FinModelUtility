@@ -6,11 +6,9 @@ using HaloWarsTools;
 namespace hw.api {
   public class XtdModelFileBundle : IHaloWarsModelFileBundle {
     public XtdModelFileBundle(IFileHierarchyFile xtdFile,
-                              IFileHierarchyFile xttFile,
-                              HWContext context) {
+                              IFileHierarchyFile xttFile) {
       this.XtdFile = xtdFile;
       this.XttFile = xttFile;
-      this.Context = context;
     }
 
     public string GameName => "halo_wars";
@@ -18,22 +16,19 @@ namespace hw.api {
     public IFileHierarchyFile XttFile { get; }
     public IFileHierarchyFile XtdFile { get; }
 
-    public HWContext Context { get; }
-
     public bool UseLowLevelExporter => true;
     public bool ForceGarbageCollection => true;
   }
 
   public class XtdModelLoader : IModelLoader<XtdModelFileBundle> {
     public IModel LoadModel(XtdModelFileBundle modelFileBundle) {
-      var context = modelFileBundle.Context;
       var xtdFile = modelFileBundle.XtdFile;
       var xttFile = modelFileBundle.XttFile;
 
       var mapName = xtdFile.Parent.Name;
 
-      var xtd = HWXtdResource.FromFile(context, xtdFile.FullName);
-      var xtt = HWXttResource.FromFile(context, xttFile.FullName);
+      var xtd = HWXtdResource.FromFile(null, xtdFile.FullName);
+      var xtt = HWXttResource.FromFile(null, xttFile.FullName);
 
       var finModel = xtd.Mesh;
       var xttMaterial = finModel.MaterialManager.AddStandardMaterial();

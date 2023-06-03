@@ -80,7 +80,7 @@ namespace HaloWarsTools {
       return GetOrCreateFromFile(context, filename);
     }
 
-    protected static HWResource GetOrCreateFromFile(HWContext context,
+    protected static HWResource GetOrCreateFromFile(HWContext? context,
                                                     string filename,
                                                     HWResourceType
                                                         expectedType =
@@ -93,13 +93,13 @@ namespace HaloWarsTools {
       }
 
       var resource = CreateResource(context, filename);
-      resource?.Load(File.ReadAllBytes(resource.AbsolutePath));
+      resource?.Load(File.ReadAllBytes(filename));
 
       return resource;
     }
 
     protected static HWResource
-        CreateResource(HWContext context, string filename) {
+        CreateResource(HWContext? context, string filename) {
       string extension = Path.GetExtension(filename).ToLowerInvariant();
 
       if (TypeDefinitions.TryGetValue(extension,

@@ -38,7 +38,7 @@ namespace uni.games.halo_wars {
       foreach (var srcMapDirectory in mapDirectories) {
         var xtdFile = srcMapDirectory.FilesWithExtension(".xtd").Single();
         var xttFile = srcMapDirectory.FilesWithExtension(".xtt").Single();
-        yield return new XtdModelFileBundle(xtdFile, xttFile, context);
+        yield return new XtdModelFileBundle(xtdFile, xttFile);
       }
 
       var artDirectory = fileHierarchy.Root.GetExistingSubdir("art");
