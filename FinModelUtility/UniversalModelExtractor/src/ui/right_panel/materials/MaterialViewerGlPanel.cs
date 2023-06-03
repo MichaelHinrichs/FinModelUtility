@@ -9,8 +9,6 @@ using uni.ui.common;
 
 namespace uni.ui.right_panel.materials {
   public class MaterialViewerGlPanel : BGlPanel, IMaterialViewerPanel {
-    private readonly Color backgroundColor_ = Color.FromArgb(51, 128, 179);
-
     private IMaterial? material_;
     private IGlMaterialShader? materialShader_;
 
@@ -53,7 +51,7 @@ namespace uni.ui.right_panel.materials {
       });
     }
 
-    private void ResetGl_() => GlUtil.ResetGl(this.backgroundColor_);
+    private void ResetGl_() => GlUtil.ResetGl();
 
     protected override void RenderGl() {
       var width = this.Width;

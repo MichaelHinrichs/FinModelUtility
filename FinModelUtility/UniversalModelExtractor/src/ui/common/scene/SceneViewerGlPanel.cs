@@ -8,6 +8,7 @@ using fin.scene;
 using fin.ui;
 
 using OpenTK.Graphics.OpenGL;
+
 using uni.config;
 using uni.model;
 using uni.ui.gl;
@@ -15,11 +16,10 @@ using uni.ui.gl;
 
 namespace uni.ui.common.scene {
   public class SceneViewerGlPanel : BGlPanel, ISceneViewerPanel {
-    private readonly Camera camera_ = Camera.NewLookingAt(0, 0, 0, 45, -10, 1.5f);
+    private readonly Camera camera_ =
+        Camera.NewLookingAt(0, 0, 0, 45, -10, 1.5f);
 
     private float fovY_ = 30;
-
-    private readonly Color backgroundColor_ = Color.FromArgb(51, 128, 179);
 
     private BackgroundSphereRenderer backgroundRenderer_ = new();
     private GridRenderer gridRenderer_ = new();
@@ -27,6 +27,7 @@ namespace uni.ui.common.scene {
     private float viewerScale_ = 1;
 
     private IScene? scene_;
+    private ISceneArea? singleArea_;
     private IFileBundle? fileBundle_;
 
     public TimeSpan FrameTime { get; private set; }
@@ -40,12 +41,18 @@ namespace uni.ui.common.scene {
         if (value == null) {
           this.fileBundle_ = null;
           this.scene_ = null;
+          this.singleArea_ = null;
           this.viewerScale_ = 1;
         } else {
           this.fileBundle_ = value.Value.Item1;
           this.scene_ = value.Value.Item2;
+
+          var areas = this.scene_?.Areas;
+          this.singleArea_ = areas is { Count: 1 } ? areas[0] : null;
+
           this.viewerScale_ = this.scene_.ViewerScale =
-              new ScaleSource(Config.Instance.ViewerSettings.ViewerModelScaleSource).GetScale(
+              new ScaleSource(Config.Instance.ViewerSettings
+                                    .ViewerModelScaleSource).GetScale(
                   this.scene_,
                   this.fileBundle_);
         }
@@ -202,12 +209,13 @@ namespace uni.ui.common.scene {
       ResetGl_();
     }
 
-    private void ResetGl_() => GlUtil.ResetGl(this.backgroundColor_);
+    private void ResetGl_() => GlUtil.ResetGl();
 
     protected override void RenderGl() {
       var start = DateTime.Now;
 
       fin.util.time.FrameTime.MarkStartOfFrame();
+      this.singleArea_?.CustomSkyboxObject?.Tick();
       this.Scene?.Tick();
 
       var forwardVector =
@@ -226,6 +234,10 @@ namespace uni.ui.common.scene {
       var height = this.Height;
       GL.Viewport(0, 0, width, height);
 
+      if (this.singleArea_?.BackgroundColor != null) {
+        GlUtil.SetClearColor(this.singleArea_.BackgroundColor.Value);
+      }
+
       GlUtil.ClearColorAndDepth();
 
       this.RenderPerspective_();
@@ -241,8 +253,10 @@ namespace uni.ui.common.scene {
       {
         GlTransform.MatrixMode(MatrixMode.Projection);
         GlTransform.LoadIdentity();
-        GlTransform.Perspective(this.fovY_, 1.0 * width / height,
-                           DebugFlags.NEAR_PLANE, DebugFlags.FAR_PLANE);
+        GlTransform.Perspective(this.fovY_,
+                                1.0 * width / height,
+                                DebugFlags.NEAR_PLANE,
+                                DebugFlags.FAR_PLANE);
         GlTransform.LookAt(this.camera_.X,
                            this.camera_.Y,
                            this.camera_.Z,
@@ -257,15 +271,19 @@ namespace uni.ui.common.scene {
         GlTransform.LoadIdentity();
       }
 
-      {
-        GlTransform.Translate(this.camera_.X, this.camera_.Y, this.camera_.Z * .995f);
+      GlTransform.Translate(this.camera_.X,
+                            this.camera_.Y,
+                            this.camera_.Z * .995f);
+      if (this.singleArea_?.CustomSkyboxObject != null) {
+        this.singleArea_?.CustomSkyboxObject.Render();
+      } else {
         this.backgroundRenderer_.Render();
-        GlTransform.LoadIdentity();
       }
+      GlTransform.LoadIdentity();
 
       GlTransform.Scale(DebugFlags.GLOBAL_SCALE,
-               DebugFlags.GLOBAL_SCALE,
-               DebugFlags.GLOBAL_SCALE);
+                        DebugFlags.GLOBAL_SCALE,
+                        DebugFlags.GLOBAL_SCALE);
 
       if (Config.Instance.ViewerSettings.ShowGrid) {
         CommonShaderPrograms.TEXTURELESS_SHADER_PROGRAM.Use();
@@ -274,7 +292,9 @@ namespace uni.ui.common.scene {
 
       {
         GlTransform.Rotate(90, 1, 0, 0);
-        GlTransform.Scale(this.viewerScale_, this.viewerScale_, this.viewerScale_);
+        GlTransform.Scale(this.viewerScale_,
+                          this.viewerScale_,
+                          this.viewerScale_);
       }
 
       this.Scene?.Render();

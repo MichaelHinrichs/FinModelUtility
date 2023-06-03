@@ -1,25 +1,28 @@
 ﻿using System.Collections.Concurrent;
+using System.Drawing;
 
-using fin.data;
 using fin.data.queue;
 using fin.io;
 using fin.math;
 using fin.math.matrix;
 using fin.model;
 using fin.scene;
+
 using modl.api;
 using modl.schema.terrain;
+
 using System.IO.Compression;
 using System.Xml;
 
-using fin.util.linq;
-
-using Microsoft.Toolkit.HighPerformance.Helpers;
-
 
 namespace modl.schema.xml {
-  public class LevelObject {
+  public interface IBwObject {
+    string? ModelName { get; set; }
+  }
+
+  public class LevelObject : IBwObject {
     public string? ModelName { get; set; }
+
     public IReadOnlyFinMatrix4x4? Matrix { get; set; }
 
     public LinkedList<string> Children { get; } = new();
@@ -31,6 +34,10 @@ namespace modl.schema.xml {
 
       this.Children.AddLast(child);
     }
+  }
+
+  public class SkydomeObject : IBwObject {
+    public string? ModelName { get; set; }
   }
 
   public class LevelXmlParser {
@@ -45,6 +52,7 @@ namespace modl.schema.xml {
       var mainXmlDirectory = mainXmlFile.GetParent();
 
       var levelfilesTag = mainXml["levelfiles"];
+
 
       IBwTerrain bwTerrain;
       {
@@ -71,7 +79,9 @@ namespace modl.schema.xml {
       sceneArea.AddObject()
                .AddSceneModel(
                    new OutModelLoader().LoadModel(
-                       outFile, gameVersion, out bwTerrain));
+                       outFile,
+                       gameVersion,
+                       out bwTerrain));
     }
 
     private void AddObjects_(ISceneArea sceneArea,
@@ -85,20 +95,20 @@ namespace modl.schema.xml {
                        .Where(file => file.Name.EndsWith(".modl"))
                        .ToArray();
       var animationFiles = levelDirectory
-        .GetExistingFiles()
-        .Where(file => file.Name.EndsWith(".anim"))
-        .ToArray();
+                           .GetExistingFiles()
+                           .Where(file => file.Name.EndsWith(".anim"))
+                           .ToArray();
 
       var fvAnimFiles =
-        animationFiles.Where(
-            animFile =>
-              animFile.NameWithoutExtension.StartsWith("FV"))
-          .ToArray();
+          animationFiles.Where(
+                            animFile =>
+                                animFile.NameWithoutExtension.StartsWith("FV"))
+                        .ToArray();
       var fgAnimFiles =
-        animationFiles.Where(
-            animFile =>
-              animFile.NameWithoutExtension.StartsWith("FG"))
-          .ToArray();
+          animationFiles.Where(
+                            animFile =>
+                                animFile.NameWithoutExtension.StartsWith("FG"))
+                        .ToArray();
 
 
       var modlLoader = new ModlModelLoader();
@@ -140,52 +150,85 @@ namespace modl.schema.xml {
       task.Wait();
 
       foreach (var obj in objectMap.Values) {
-        var rootMatrix = obj.Matrix;
-        if (rootMatrix == null) {
-          continue;
-        }
+        switch (obj) {
+          case SkydomeObject skyboxObj: {
+            if (skyboxObj.ModelName != null) {
+              sceneArea.BackgroundColor = Color.Black;
 
-        var childIdQueue = new FinTuple2Queue<string, IReadOnlyFinMatrix4x4>(obj.Children.Select(child => (child, rootMatrix)));
-        while (childIdQueue.TryDequeue(out var childId, out var parentMatrix)) {
-          objectMap.TryGetValue(childId, out var child);
-          if (child == null) {
-            continue;
-          }
+              var skydomeModel = modelMap[skyboxObj.ModelName];
+              foreach (var finMaterial in skydomeModel.MaterialManager.All) {
+                finMaterial.DepthMode = DepthMode.IGNORE_DEPTH_BUFFER;
+                finMaterial.DepthCompareType = DepthCompareType.Always;
+              }
 
-          IReadOnlyFinMatrix4x4 childMatrix;
-          if (child.Matrix == null) {
-            childMatrix = parentMatrix;
-          } else {
-            childMatrix = parentMatrix.CloneAndMultiply(child.Matrix);
-          }
-
-          if (child.ModelName != null) {
-            var sceneObject = sceneArea.AddObject();
-
-            childMatrix.Decompose(out var translation, out var rotation, out var scale);
-            sceneObject.SetPosition(
-              translation.X,
-              translation.Y,
-              translation.Z);
-            if (sceneObject.Position.Y == 0) {
-              sceneObject.SetPosition(sceneObject.Position.X, 
-                bwTerrain.Heightmap.GetHeightAtPosition(
-                  sceneObject.Position.X, sceneObject.Position.Z),
-                sceneObject.Position.Z);
+              var skydomeObject = sceneArea.CreateCustomSkyboxObject();
+              skydomeObject.AddSceneModel(skydomeModel);
+              skydomeObject.Rotation.SetDegrees(90, 0, 0);
             }
 
-            sceneObject.Rotation.SetQuaternion(rotation);
-            sceneObject.SetScale(scale.X, scale.Y, scale.Z);
-
-            sceneObject.AddSceneModel(modelMap[child.ModelName]);
+            break;
           }
+          case LevelObject levelObj: {
+            var rootMatrix = levelObj.Matrix;
+            if (rootMatrix == null) {
+              continue;
+            }
 
-          childIdQueue.Enqueue(child.Children.Select(grandchild => (grandchild, childMatrix)));
+            var childIdQueue =
+                new FinTuple2Queue<string, IReadOnlyFinMatrix4x4>(
+                    levelObj.Children.Select(child => (child, rootMatrix)));
+            while (childIdQueue.TryDequeue(out var childId,
+                                           out var parentMatrix)) {
+              objectMap.TryGetValue(childId, out var genericChild);
+              var child = genericChild as LevelObject;
+              if (child == null) {
+                continue;
+              }
+
+              IReadOnlyFinMatrix4x4 childMatrix;
+              if (child.Matrix == null) {
+                childMatrix = parentMatrix;
+              } else {
+                childMatrix = parentMatrix.CloneAndMultiply(child.Matrix);
+              }
+
+              if (child.ModelName != null) {
+                var sceneObject = sceneArea.AddObject();
+
+                childMatrix.Decompose(out var translation,
+                                      out var rotation,
+                                      out var scale);
+                sceneObject.SetPosition(
+                    translation.X,
+                    translation.Y,
+                    translation.Z);
+                if (sceneObject.Position.Y == 0) {
+                  sceneObject.SetPosition(sceneObject.Position.X,
+                                          bwTerrain.Heightmap
+                                                   .GetHeightAtPosition(
+                                                       sceneObject.Position.X,
+                                                       sceneObject.Position.Z),
+                                          sceneObject.Position.Z);
+                }
+
+                sceneObject.Rotation.SetQuaternion(rotation);
+                sceneObject.SetScale(scale.X, scale.Y, scale.Z);
+
+                sceneObject.AddSceneModel(modelMap[child.ModelName]);
+              }
+
+              childIdQueue.Enqueue(
+                  child.Children.Select(grandchild
+                                            => (grandchild, childMatrix)));
+            }
+
+            break;
+          }
         }
       }
     }
 
-    private IDictionary<string, LevelObject> ReadObjectMap_(
+    private IDictionary<string, IBwObject> ReadObjectMap_(
         ISystemFile levelXmlFile,
         GameVersion gameVersion) {
       Stream levelXmlStream;
@@ -207,7 +250,7 @@ namespace modl.schema.xml {
 
       var instances = levelXml["Instances"];
 
-      var objectsById = new Dictionary<string, LevelObject>();
+      var objectsById = new Dictionary<string, IBwObject>();
       var types = new HashSet<string>();
 
       var objectTags = instances.GetElementsByTagName("Object");
@@ -219,6 +262,27 @@ namespace modl.schema.xml {
         var objectType = objectTag.Attributes["type"].Value;
         types.Add(objectType);
 
+        if (objectType == "cRenderParams") {
+          // TODO: Handle fog color
+          // TODO: Handle sky color
+          // TODO: Handle sun
+
+          var mpWorldSkydomeResource =
+              objectTag
+                  .Children()
+                  .Single(child => child.Attributes?["name"].Value ==
+                                  "mpWorldSkydome");
+          var skydomeId = mpWorldSkydomeResource.FirstChild?.InnerText!;
+          if (objectsById.TryGetValue(skydomeId, out var skydomeModelObject)) {
+            var skydomeModelName = skydomeModelObject.ModelName;
+            objectsById[skydomeId] = new SkydomeObject {
+                ModelName = skydomeModelName,
+            };
+          }
+
+          continue;
+        }
+
         var isUsefulNode = false;
 
         var childTags = objectTag.ChildNodes;
@@ -228,61 +292,64 @@ namespace modl.schema.xml {
 
           switch (childTag.Name) {
             case "Attribute": {
-                if (childNameAttribute is "mMatrix" or "Mat") {
-                  var floats = new float[16];
-                  var floatsText = childTag["Item"].InnerText;
+              if (childNameAttribute is "mMatrix" or "Mat") {
+                var floats = new float[16];
+                var floatsText = childTag["Item"].InnerText;
 
-                  var currentIndex = 0;
-                  for (var fI = 0; fI < floats.Length; ++fI) {
-                    var nextCommaIndex = floatsText.IndexOf(',', currentIndex);
+                var currentIndex = 0;
+                for (var fI = 0; fI < floats.Length; ++fI) {
+                  var nextCommaIndex = floatsText.IndexOf(',', currentIndex);
 
-                    var subText =
-                        nextCommaIndex > 0
-                            ? floatsText.Substring(currentIndex,
-                                                   nextCommaIndex - currentIndex)
-                            : floatsText.Substring(currentIndex);
-                    floats[fI] = float.Parse(subText);
+                  var subText =
+                      nextCommaIndex > 0
+                          ? floatsText.Substring(currentIndex,
+                                                 nextCommaIndex - currentIndex)
+                          : floatsText.Substring(currentIndex);
+                  floats[fI] = float.Parse(subText);
 
-                    currentIndex = nextCommaIndex + 1;
-                  }
-
-                  isUsefulNode = true;
-                  node ??= new LevelObject();
-                  node.Matrix = new FinMatrix4x4(floats);
-                } else if (objectType is "cNodeHierarchyResource" &&
-                           childNameAttribute is "mName") {
-                  isUsefulNode = true;
-                  node ??= new LevelObject();
-                  node.ModelName = childTag["Item"].InnerText;
+                  currentIndex = nextCommaIndex + 1;
                 }
-                break;
+
+                isUsefulNode = true;
+                node ??= new LevelObject();
+                node.Matrix = new FinMatrix4x4(floats);
+              } else if (objectType is "cNodeHierarchyResource" &&
+                         childNameAttribute is "mName") {
+                isUsefulNode = true;
+                node ??= new LevelObject();
+                node.ModelName = childTag["Item"].InnerText;
               }
+
+              break;
+            }
             case "Pointer": {
-                if (childNameAttribute is "mBase") {
-                  isUsefulNode = true;
-                  node ??= new LevelObject();
-                  node.AddChild(childTag["Item"].InnerText);
-                }
-                break;
+              if (childNameAttribute is "mBase") {
+                isUsefulNode = true;
+                node ??= new LevelObject();
+                node.AddChild(childTag["Item"].InnerText);
               }
+
+              break;
+            }
             case "Resource": {
-                if (childNameAttribute is "mModel"
-                                          or "mBAN_Model"
-                                          or "Model"
-                                          or "model") {
-                  isUsefulNode = true;
-                  node ??= new LevelObject();
-                  node.AddChild(childTag["Item"].InnerText);
-                } else if (childNameAttribute is "Element") {
-                  isUsefulNode = true;
-                  node ??= new LevelObject();
-                  var itemNodes = childTag.ChildNodes;
-                  for (var itemI = 0; itemI < itemNodes.Count; ++itemI) {
-                    node.AddChild(itemNodes[itemI].InnerText);
-                  }
+              if (childNameAttribute is "mModel"
+                                        or "mBAN_Model"
+                                        or "Model"
+                                        or "model") {
+                isUsefulNode = true;
+                node ??= new LevelObject();
+                node.AddChild(childTag["Item"].InnerText);
+              } else if (childNameAttribute is "Element") {
+                isUsefulNode = true;
+                node ??= new LevelObject();
+                var itemNodes = childTag.ChildNodes;
+                for (var itemI = 0; itemI < itemNodes.Count; ++itemI) {
+                  node.AddChild(itemNodes[itemI].InnerText);
                 }
-                break;
               }
+
+              break;
+            }
           }
         }
 
@@ -294,5 +361,13 @@ namespace modl.schema.xml {
 
       return objectsById;
     }
+  }
+
+  public static class XmlExtensions {
+    public static IEnumerable<XmlNode> Children(
+        this XmlNode xmlNode) => xmlNode.Cast<XmlNode>();
+
+    public static IEnumerable<XmlNode> Children(
+        this XmlNodeList xmlNodeList) => xmlNodeList.Cast<XmlNode>();
   }
 }

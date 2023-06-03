@@ -28,7 +28,7 @@ namespace fin.gl {
     }
 
 
-    public static void ResetGl(Color backgroundColor) {
+    public static void ResetGl() {
       GL.ShadeModel(ShadingModel.Smooth);
       GL.Enable(EnableCap.PointSmooth);
       GL.Hint(HintTarget.PointSmoothHint, HintMode.Nicest);
@@ -37,19 +37,15 @@ namespace fin.gl {
 
       GL.ClearDepth(5.0F);
 
-      GlUtil.ResetDepth();
-
       GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
 
       GL.Enable(EnableCap.Normalize);
 
-      GlUtil.ResetFlipFaces();
-      GlUtil.ResetCulling();
       GlUtil.ResetBlending();
-
-      GL.ClearColor(backgroundColor.R / 255f, 
-                    backgroundColor.G / 255f,
-                    backgroundColor.B / 255f, 1);
+      GlUtil.ResetClearColor();
+      GlUtil.ResetCulling();
+      GlUtil.ResetDepth();
+      GlUtil.ResetFlipFaces();
     }
   }
 }

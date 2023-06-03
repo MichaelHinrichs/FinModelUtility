@@ -4,9 +4,11 @@ using fin.gl.model;
 using fin.io.bundles;
 using fin.math;
 using fin.model;
-using fin.model.impl;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+
+using fin.color;
 
 
 namespace fin.scene {
@@ -39,6 +41,10 @@ namespace fin.scene {
     ISceneObject AddObject();
 
     float ViewerScale { get; set; }
+
+    Color? BackgroundColor { get; set; }
+    ISceneObject? CustomSkyboxObject { get; set; }
+    ISceneObject CreateCustomSkyboxObject();
   }
 
   /// <summary>

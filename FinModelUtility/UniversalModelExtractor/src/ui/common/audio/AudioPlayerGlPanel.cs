@@ -9,8 +9,6 @@ using uni.ui.gl;
 
 namespace uni.ui.common.audio {
   public class AudioPlayerGlPanel : BGlPanel, IAudioPlayerPanel {
-    private readonly Color backgroundColor_ = Color.FromArgb(51, 128, 179);
-
     private IReadOnlyList<IAudioFileBundle>? audioFileBundles_;
     private ShuffledListView<IAudioFileBundle>? shuffledListView_;
     private readonly IAudioManager<short> audioManager_ = new AlAudioManager();
@@ -110,7 +108,7 @@ void main() {
       this.ResetGl_();
     }
 
-    private void ResetGl_() => GlUtil.ResetGl(this.backgroundColor_);
+    private void ResetGl_() => GlUtil.ResetGl();
 
     protected override void RenderGl() {
       var width = this.Width;

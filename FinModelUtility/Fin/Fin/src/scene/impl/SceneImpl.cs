@@ -10,6 +10,7 @@ using fin.model.impl;
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 
 using Camera = fin.ui.Camera;
@@ -73,12 +74,14 @@ namespace fin.scene {
       }
 
       private void ReleaseUnmanagedResources_() {
+        this.CustomSkyboxObject?.Dispose();
         foreach (var obj in this.objects_) {
           obj.Dispose();
         }
       }
 
       private readonly List<ISceneObject> objects_ = new();
+
       public IReadOnlyList<ISceneObject> Objects => this.objects_;
 
       public ISceneObject AddObject() {
@@ -95,7 +98,9 @@ namespace fin.scene {
 
       public void Render() {
         foreach (var obj in this.objects_) {
-          obj.Render();
+          if (obj != this.CustomSkyboxObject) {
+            obj.Render();
+          }
         }
       }
 
@@ -111,6 +116,13 @@ namespace fin.scene {
           }
         }
       }
+
+      public Color? BackgroundColor { get; set; }
+      public ISceneObject? CustomSkyboxObject { get; set; }
+
+      public ISceneObject CreateCustomSkyboxObject()
+        => this.CustomSkyboxObject =
+            new SceneObjectImpl { ViewerScale = 1 };
     }
 
     private class SceneObjectImpl : ISceneObject {
