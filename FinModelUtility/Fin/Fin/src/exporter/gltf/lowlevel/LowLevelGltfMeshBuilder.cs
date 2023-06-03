@@ -6,13 +6,13 @@ using System.Numerics;
 using fin.color;
 using fin.math;
 using fin.model;
-using fin.model.impl;
 
 using SharpGLTF.Memory;
 using SharpGLTF.Schema2;
 using SharpGLTF.Transforms;
 
-using PrimitiveType = fin.model.PrimitiveType;
+using FinPrimitiveType = fin.model.PrimitiveType;
+using GltfPrimitiveType = SharpGLTF.Schema2.PrimitiveType;
 
 
 namespace fin.exporter.gltf.lowlevel {
@@ -45,22 +45,26 @@ namespace fin.exporter.gltf.lowlevel {
       var pointsCount = points.Count;
 
       var positionView = gltfModel.CreateBufferView(
-          4 * 3 * pointsCount, 0,
+          4 * 3 * pointsCount,
+          0,
           BufferMode.ARRAY_BUFFER);
       var positionArray = new Vector3Array(positionView.Content);
 
       var normalView = gltfModel.CreateBufferView(
-          4 * 3 * pointsCount, 0,
+          4 * 3 * pointsCount,
+          0,
           BufferMode.ARRAY_BUFFER);
       var normalArray = new Vector3Array(normalView.Content);
 
       var colorView = gltfModel.CreateBufferView(
-          4 * 4 * pointsCount, 0,
+          4 * 4 * pointsCount,
+          0,
           BufferMode.ARRAY_BUFFER);
       var colorArray = new ColorArray(colorView.Content);
 
       var uvView = gltfModel.CreateBufferView(
-          4 * 2 * pointsCount, 0,
+          4 * 2 * pointsCount,
+          0,
           BufferMode.ARRAY_BUFFER);
       var uvArray = new Vector2Array(uvView.Content);
 
@@ -68,7 +72,10 @@ namespace fin.exporter.gltf.lowlevel {
         vertexAccessor.Target(points[p]);
         var point = vertexAccessor;
 
-        boneTransformManager.ProjectVertexPositionNormal(point, out var outPosition, out var outNormal);
+        boneTransformManager.ProjectVertexPositionNormal(
+            point,
+            out var outPosition,
+            out var outNormal);
         var pos = positionArray[p];
         pos.X = outPosition.X * scale;
         pos.Y = outPosition.Y * scale;
@@ -87,9 +94,9 @@ namespace fin.exporter.gltf.lowlevel {
         var finColor0 = point.GetColor(0);
         var hasColor0 = finColor0 != null;
         var assColor0 = hasColor0
-                            ? LowLevelGltfMeshBuilder.FinToGltfColor_(
-                                finColor0)
-                            : new Vector4(1, 1, 1, 1);
+            ? LowLevelGltfMeshBuilder.FinToGltfColor_(
+                finColor0)
+            : new Vector4(1, 1, 1, 1);
         var col = colorArray[p];
         col.X = assColor0.X;
         col.Y = assColor0.Y;
@@ -174,11 +181,11 @@ namespace fin.exporter.gltf.lowlevel {
       foreach (var finMesh in skin.Meshes) {
         var gltfMesh = gltfModel.CreateMesh(finMesh.Name);
 
-        foreach (var primitive in finMesh.Primitives) {
+        foreach (var finPrimitive in finMesh.Primitives) {
           Material material;
-          if (primitive.Material != null) {
+          if (finPrimitive.Material != null) {
             (_, material) =
-                finToTexCoordAndGltfMaterial[primitive.Material];
+                finToTexCoordAndGltfMaterial[finPrimitive.Material];
           } else {
             material = nullMaterial;
           }
@@ -189,92 +196,96 @@ namespace fin.exporter.gltf.lowlevel {
           // TODO: Use shared position/normal accessors?
           var positionAccessor = gltfModel.CreateAccessor();
           positionAccessor.SetVertexData(
-              positionView, 0, pointsCount);
+              positionView,
+              0,
+              pointsCount);
           gltfPrimitive.SetVertexAccessor("POSITION", positionAccessor);
 
           var normalAccessor = gltfModel.CreateAccessor();
           normalAccessor.SetVertexData(
-              normalView, 0, pointsCount);
+              normalView,
+              0,
+              pointsCount);
           gltfPrimitive.SetVertexAccessor("NORMAL", normalAccessor);
 
           var colorAccessor = gltfModel.CreateAccessor();
           colorAccessor.SetVertexData(
-              colorView, 0, pointsCount, DimensionType.VEC4);
+              colorView,
+              0,
+              pointsCount,
+              DimensionType.VEC4);
           gltfPrimitive.SetVertexAccessor("COLOR_0", colorAccessor);
 
           var uvAccessor = gltfModel.CreateAccessor();
           uvAccessor.SetVertexData(
-              uvView, 0, pointsCount, DimensionType.VEC2);
+              uvView,
+              0,
+              pointsCount,
+              DimensionType.VEC2);
           gltfPrimitive.SetVertexAccessor("TEXCOORD_0", uvAccessor);
 
-          var primitivePoints = primitive.Vertices;
+          if (finPrimitive.Type != FinPrimitiveType.QUADS &&
+              finPrimitive.VertexOrder == VertexOrder.NORMAL) {
+            gltfPrimitive.DrawPrimitiveType = finPrimitive.Type switch {
+                FinPrimitiveType.TRIANGLES => GltfPrimitiveType.TRIANGLES,
+                FinPrimitiveType.TRIANGLE_STRIP => GltfPrimitiveType
+                    .TRIANGLE_STRIP,
+                FinPrimitiveType.TRIANGLE_FAN => GltfPrimitiveType.TRIANGLE_FAN,
+                FinPrimitiveType.LINES        => GltfPrimitiveType.LINES,
+                FinPrimitiveType.POINTS       => GltfPrimitiveType.POINTS,
+            };
 
-          switch (primitive.Type) {
-            case PrimitiveType.TRIANGLES: {
-              gltfPrimitive.DrawPrimitiveType =
-                  SharpGLTF.Schema2.PrimitiveType.TRIANGLES;
-
-              var indexView = gltfModel.CreateBufferView(4 * primitivePoints.Count, 0,
+            var finPrimitiveVertices = finPrimitive.Vertices;
+            var indexView = gltfModel.CreateBufferView(
+                4 * finPrimitiveVertices.Count,
+                0,
                 BufferMode.ELEMENT_ARRAY_BUFFER);
-              var indexArray = new IntegerArray(indexView.Content);
+            var indexArray = new IntegerArray(indexView.Content);
 
-              int i = 0;
-              foreach (var v in primitive.GetOrderedTriangleVertexIndices()) {
-                indexArray[i++] = (uint) v;
-              }
-
-              var indexAccessor = gltfModel.CreateAccessor();
-              indexAccessor.SetIndexData(indexView, 0, primitivePoints.Count,
-                                         IndexEncodingType.UNSIGNED_INT);
-
-              gltfPrimitive.SetIndexAccessor(indexAccessor);
-
-              break;
+            int i = 0;
+            foreach (var v in finPrimitiveVertices) {
+              indexArray[i++] = (uint) v.Index;
             }
-            case PrimitiveType.TRIANGLE_STRIP: {
-              /*var triangleStrip =
-                  gltfMeshBuilder.UsePrimitive(materialBuilder, 3);
-              for (var v = 0; v < pointsCount - 2; ++v) {
-                VERTEX v1, v2, v3;
-                if (v % 2 == 0) {
-                  v1 = vertices[v + 0];
-                  v2 = vertices[v + 1];
-                  v3 = vertices[v + 2];
-                } else {
-                  // Switches drawing order to maintain proper winding:
-                  // https://www.khronos.org/opengl/wiki/Primitive
-                  v1 = vertices[v + 1];
-                  v2 = vertices[v + 0];
-                  v3 = vertices[v + 2];
-                }
-  
-                // Intentionally flipped to fix bug where faces were backwards.
-                triangleStrip.AddTriangle(v1, v3, v2);
-              }*/
-              break;
+
+            var indexAccessor = gltfModel.CreateAccessor();
+            indexAccessor.SetIndexData(indexView,
+                                       0,
+                                       finPrimitiveVertices.Count,
+                                       IndexEncodingType.UNSIGNED_INT);
+
+            gltfPrimitive.SetIndexAccessor(indexAccessor);
+          } else {
+            var finTriangleVertexIndices =
+                finPrimitive.GetOrderedTriangleVertexIndices().ToArray();
+
+            gltfPrimitive.DrawPrimitiveType = GltfPrimitiveType.TRIANGLES;
+
+            var indexView = gltfModel.CreateBufferView(
+                4 * finTriangleVertexIndices.Length,
+                0,
+                BufferMode.ELEMENT_ARRAY_BUFFER);
+            var indexArray = new IntegerArray(indexView.Content);
+
+            int i = 0;
+            foreach (var v in finTriangleVertexIndices) {
+              indexArray[i++] = (uint) v;
             }
-            case PrimitiveType.TRIANGLE_FAN: {
-              /*var triangleStrip =
-                  gltfMeshBuilder.UsePrimitive(materialBuilder, 3);
-  
-              // https://stackoverflow.com/a/8044252
-              var firstVertex = vertices[0];
-              for (var v = 2; v < pointsCount; ++v) {
-                var v1 = firstVertex;
-                var v2 = vertices[v - 1];
-                var v3 = vertices[v];
-  
-                // Intentionally flipped to fix bug where faces were backwards.
-                triangleStrip.AddTriangle(v1, v3, v2);
-              }*/
-              break;
-            }
-            default: throw new NotImplementedException();
+
+            var indexAccessor = gltfModel.CreateAccessor();
+            indexAccessor.SetIndexData(indexView,
+                                       0,
+                                       finTriangleVertexIndices.Length,
+                                       IndexEncodingType.UNSIGNED_INT);
+
+            gltfPrimitive.SetIndexAccessor(indexAccessor);
+
+            break;
           }
         }
 
         gltfMeshes.Add(gltfMesh);
       }
+
       return gltfMeshes;
     }
 

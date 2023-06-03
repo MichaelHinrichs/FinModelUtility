@@ -4,10 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
+using CommunityToolkit.HighPerformance;
+
 using fin.exporter;
 using fin.exporter.assimp.indirect;
 using fin.io;
 using fin.model;
+using fin.util.asserts;
 using fin.util.strings;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -70,7 +73,7 @@ namespace fin.testing {
         where TModelBundle : IModelFileBundle {
       var tmpDirectory = rootGoldenDirectory.GetSubdir(TMP_NAME, true);
 
-      var extensions = new[] {".glb"};
+      var extensions = new[] { ".glb" };
 
       foreach (var goldenSubdir in GetGoldenDirectories(rootGoldenDirectory)) {
         tmpDirectory.DeleteContents();
@@ -87,7 +90,10 @@ namespace fin.testing {
             hasGoldenExport ? tmpDirectory : outputDirectory.Impl;
 
         var model = modelLoader.LoadModel(modelBundle);
-        new AssimpIndirectExporter().ExportExtensions(
+        new AssimpIndirectExporter() {
+            LowLevel = modelBundle.UseLowLevelExporter,
+            ForceGarbageCollection = modelBundle.ForceGarbageCollection,
+        }.ExportExtensions(
             new ExporterParams {
                 Model = model,
                 OutputFile =
@@ -124,7 +130,7 @@ namespace fin.testing {
       }
     }
 
-    private static void AssertFilesAreIdentical_(
+    private static unsafe void AssertFilesAreIdentical_(
         IReadOnlyGenericFile lhs,
         IReadOnlyGenericFile rhs) {
       using var lhsStream = lhs.OpenRead();
@@ -132,10 +138,24 @@ namespace fin.testing {
 
       Assert.AreEqual(lhsStream.Length, rhsStream.Length);
 
-      for (var i = 0; i < lhsStream.Length; i++) {
-        Assert.AreEqual(lhsStream.ReadByte(),
-                        rhsStream.ReadByte(),
-                        $"Files differed at byte #:{i}");
+      var bytesToRead = sizeof(long);
+      int iterations =
+          (int) Math.Ceiling((double) lhsStream.Length / bytesToRead);
+
+      long lhsLong = 0;
+      long rhsLong = 0;
+
+      var lhsSpan = new Span<long>(ref lhsLong).AsBytes();
+      var rhsSpan = new Span<long>(ref rhsLong).AsBytes();
+
+      for (int i = 0; i < iterations; i++) {
+        lhsStream.Read(lhsSpan);
+        rhsStream.Read(rhsSpan);
+
+        if (lhsLong != rhsLong) {
+          Asserts.Fail(
+              $"Files are different around byte #: {i * bytesToRead}");
+        }
       }
     }
   }
