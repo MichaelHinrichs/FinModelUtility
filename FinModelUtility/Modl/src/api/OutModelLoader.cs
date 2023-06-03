@@ -25,13 +25,23 @@ namespace modl.api {
 
     public required GameVersion GameVersion { get; init; }
     public required IFileHierarchyFile OutFile { get; init; }
+
+    public IEnumerable<IFileHierarchyDirectory>? TextureDirectories {
+      get;
+      init;
+    } = null;
   }
 
   public class OutModelLoader : IModelLoader<OutModelFileBundle> {
     public IModel LoadModel(OutModelFileBundle modelFileBundle)
-      => LoadModel(modelFileBundle.OutFile.Impl,
-                   modelFileBundle.GameVersion,
-                   out _);
+      => modelFileBundle.TextureDirectories != null
+          ? LoadModel(modelFileBundle.OutFile.Impl,
+                      modelFileBundle.TextureDirectories.Select(dir => dir.Impl),
+                      modelFileBundle.GameVersion,
+                      out _)
+          : LoadModel(modelFileBundle.OutFile.Impl,
+                      modelFileBundle.GameVersion,
+                      out _);
 
     public IModel LoadModel(ISystemFile outFile,
                             GameVersion gameVersion,
