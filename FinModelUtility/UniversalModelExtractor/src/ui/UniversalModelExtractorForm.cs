@@ -70,17 +70,17 @@ public partial class UniversalModelExtractorForm : Form {
         return;
       }
 
-      this.Invoke(() => {
-        try {
+      try {
+        this.Invoke(() => {
           var frameTime = this.sceneViewerPanel_.FrameTime;
           var fps = (frameTime == TimeSpan.Zero)
               ? 0
               : 1 / frameTime.TotalSeconds;
           this.Text = $"Universal Model Extractor ({fps:0.0} fps)";
-        } catch {
-          // ignored, throws after window is closed
-        }
-      });
+        });
+      } catch {
+        // ignored, throws after window is closed
+      }
     }, .25f);
  
     this.fileBundleTreeView_.DirectorySelected += this.OnDirectorySelect_;
