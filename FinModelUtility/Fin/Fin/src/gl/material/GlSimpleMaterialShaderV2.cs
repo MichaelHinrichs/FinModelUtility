@@ -2,8 +2,6 @@
 using fin.model;
 using fin.model.util;
 
-using OpenTK.Graphics.OpenGL;
-
 
 namespace fin.gl.material {
   public class GlSimpleMaterialShaderSource : IGlMaterialShaderSource {
@@ -21,6 +19,7 @@ struct Light {{
   vec4 color;
 }};
 
+uniform vec3 ambientLightColor;
 uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
 
 uniform sampler2D diffuseTexture;
@@ -56,10 +55,7 @@ vec3 getMergedDiffuseLightColor(vec3 vertexNormal) {{
 vec3 applyLightingColor(vec3 diffuseColor, vec3 vertexNormal) {{
   vec3 mergedDiffuseLightColor = getMergedDiffuseLightColor(vertexNormal);
 
-  vec3 ambientLightColor = vec3(1);
-  float ambientLightAmount = .3;
-
-  vec3 mergedLightColor = min(ambientLightAmount * ambientLightColor + mergedDiffuseLightColor, 1);
+  vec3 mergedLightColor = min(ambientLightColor + mergedDiffuseLightColor, 1);
   return diffuseColor * mergedLightColor;
 }}
 
@@ -67,13 +63,6 @@ void main() {{
   vec4 diffuseColor = texture(diffuseTexture, uv0);
 
   fragColor = diffuseColor * vertexColor0;
-
-  vec3 diffuseLightNormal = normalize(vec3(.5, .5, -1));
-  float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);
-
-  float ambientLightAmount = .3;
-
-  float lightAmount = min(ambientLightAmount + diffuseLightAmount, 1);
 
   fragColor.rgb = mix(fragColor.rgb, applyLightingColor(fragColor.rgb, vertexNormal), {ShaderConstants.UNIFORM_USE_LIGHTING_NAME});
 

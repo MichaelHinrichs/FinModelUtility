@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 using fin.math;
 using fin.model;
@@ -25,6 +24,7 @@ namespace fin.gl.material {
 
     private readonly int useLightingLocation_;
 
+    private readonly int ambientLightColorLocation_;
     private readonly int[] lightEnabledLocations_;
     private readonly int[] lightPositionLocations_;
     private readonly int[] lightNormalLocations_;
@@ -58,15 +58,25 @@ namespace fin.gl.material {
           this.impl_.GetUniformLocation(
               ShaderConstants.UNIFORM_USE_LIGHTING_NAME);
 
+      this.ambientLightColorLocation_ =
+          this.impl_.GetUniformLocation("ambientLightColor");
       this.lightEnabledLocations_ = new int[MaterialConstants.MAX_LIGHTS];
       this.lightPositionLocations_ = new int[MaterialConstants.MAX_LIGHTS];
       this.lightNormalLocations_ = new int[MaterialConstants.MAX_LIGHTS];
       this.lightColorLocations_ = new int[MaterialConstants.MAX_LIGHTS];
       for (var i = 0; i < MaterialConstants.MAX_LIGHTS; ++i) {
-        this.lightEnabledLocations_[i] = this.impl_.GetUniformLocation($"{MaterialConstants.LIGHTS_NAME}[{i}].enabled");
-        this.lightPositionLocations_[i] = this.impl_.GetUniformLocation($"{MaterialConstants.LIGHTS_NAME}[{i}].position");
-        this.lightNormalLocations_[i] = this.impl_.GetUniformLocation($"{MaterialConstants.LIGHTS_NAME}[{i}].normal");
-        this.lightColorLocations_[i] = this.impl_.GetUniformLocation($"{MaterialConstants.LIGHTS_NAME}[{i}].color");
+        this.lightEnabledLocations_[i] =
+            this.impl_.GetUniformLocation(
+                $"{MaterialConstants.LIGHTS_NAME}[{i}].enabled");
+        this.lightPositionLocations_[i] =
+            this.impl_.GetUniformLocation(
+                $"{MaterialConstants.LIGHTS_NAME}[{i}].position");
+        this.lightNormalLocations_[i] =
+            this.impl_.GetUniformLocation(
+                $"{MaterialConstants.LIGHTS_NAME}[{i}].normal");
+        this.lightColorLocations_[i] =
+            this.impl_.GetUniformLocation(
+                $"{MaterialConstants.LIGHTS_NAME}[{i}].color");
       }
 
 
@@ -124,25 +134,27 @@ namespace fin.gl.material {
                                                     boneWeights)
                                                 .Impl ?? Matrix4x4.Identity;
       }
+
       GlTransform.UniformMatrix4s(this.matricesLocation_, this.matrices_);
 
       GL.Uniform1(this.useLightingLocation_,
                   this.UseLighting && this.lighting_ != null ? 1f : 0f);
 
       if (this.lighting_ != null) {
-        this.SetUpLightUniforms_(this.impl_,
-                                 this.lighting_.Lights,
-                                 MaterialConstants.LIGHTS_NAME,
-                                 MaterialConstants.MAX_LIGHTS);
+        this.SetUpLightUniforms_(this.lighting_, MaterialConstants.MAX_LIGHTS);
       }
 
       this.PassUniformsAndBindTextures(this.impl_);
     }
 
-    private void SetUpLightUniforms_(GlShaderProgram impl,
-                                     IReadOnlyList<ILight> lights,
-                                     string name,
-                                     int max) {
+    private void SetUpLightUniforms_(ILighting lighting, int max) {
+      var ambientLightColor = lighting.AmbientLightColor;
+      GL.Uniform3(this.ambientLightColorLocation_,
+                  ambientLightColor.Rf,
+                  ambientLightColor.Gf,
+                  ambientLightColor.Bf);
+
+      var lights = lighting.Lights;
       for (var i = 0; i < max; ++i) {
         var isEnabled = i < lights.Count && lights[i].Enabled;
         if (!isEnabled) {
@@ -153,13 +165,23 @@ namespace fin.gl.material {
         var light = lights[i];
 
         var position = light.Position;
-        GL.Uniform3(this.lightPositionLocations_[i], position.X, position.Y, position.Z);
+        GL.Uniform3(this.lightPositionLocations_[i],
+                    position.X,
+                    position.Y,
+                    position.Z);
 
         var normal = light.Normal;
-        GL.Uniform3(this.lightNormalLocations_[i], normal.X, normal.Y, normal.Z);
+        GL.Uniform3(this.lightNormalLocations_[i],
+                    normal.X,
+                    normal.Y,
+                    normal.Z);
 
         var color = light.Color;
-        GL.Uniform4(this.lightColorLocations_[i], color.Rf, color.Gf, color.Bf, color.Af);
+        GL.Uniform4(this.lightColorLocations_[i],
+                    color.Rf,
+                    color.Gf,
+                    color.Bf,
+                    color.Af);
       }
     }
   }

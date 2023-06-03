@@ -6,6 +6,7 @@ namespace fin.model {
   public interface ILighting {
     IReadOnlyList<ILight> Lights { get; }
     ILight CreateLight();
+    IColor AmbientLightColor { get; set; }
   }
 
   public enum AttenuationFunction {

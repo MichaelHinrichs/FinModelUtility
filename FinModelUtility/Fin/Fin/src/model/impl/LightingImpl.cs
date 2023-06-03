@@ -7,19 +7,22 @@ using fin.schema.vector;
 
 namespace fin.model.impl {
   public partial class ModelImpl<TVertex> {
-    public ILighting Lighting { get; } = new LightingImpl();
+    public ILighting Lighting { get; }
+  }
 
-    private class LightingImpl : ILighting {
-      private readonly List<ILight> lights_ = new();
+  public class LightingImpl : ILighting {
+    private readonly List<ILight> lights_ = new();
 
-      public IReadOnlyList<ILight> Lights => lights_;
+    public IReadOnlyList<ILight> Lights => lights_;
 
-      public ILight CreateLight() {
-        var light = new LightImpl();
-        this.lights_.Add(light);
-        return light;
-      }
+    public ILight CreateLight() {
+      var light = new LightImpl();
+      this.lights_.Add(light);
+      return light;
     }
+
+    public IColor AmbientLightColor { get; set; } =
+      FinColor.FromIntensityFloat(.3f);
 
     private class LightImpl : ILight {
       public string Name { get; private set; }
