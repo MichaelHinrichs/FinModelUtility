@@ -7,6 +7,7 @@ struct Light {
   vec4 color;
 };
 
+uniform vec3 ambientLightColor;
 uniform Light lights[8];
 
 uniform sampler2D diffuseTexture;
@@ -46,10 +47,7 @@ vec3 getMergedDiffuseLightColor(vec3 vertexNormal) {
 vec3 applyLightingColor(vec3 diffuseColor, float ambientOcclusionAmount, vec3 vertexNormal) {
   vec3 mergedDiffuseLightColor = getMergedDiffuseLightColor(vertexNormal);
 
-  vec3 ambientLightColor = vec3(1);
-  float ambientLightAmount = .3;
-
-  vec3 mergedLightColor = ambientOcclusionAmount * min(ambientLightAmount * ambientLightColor + mergedDiffuseLightColor, 1);
+  vec3 mergedLightColor = ambientOcclusionAmount * min(ambientLightColor + mergedDiffuseLightColor, 1);
   return diffuseColor * mergedLightColor;
 }
 
