@@ -1,4 +1,4 @@
-# version 330 
+# version 330
 
 struct Light {
   bool enabled;
@@ -58,13 +58,14 @@ void main() {
 
   fragColor = diffuseColor * vertexColor0;
 
-    vec3 fragNormal = vertexNormal;
-    fragColor.rgb = mix(fragColor.rgb, applyLightingColor(fragColor.rgb, ambientOcclusionColor.r, fragNormal), useLighting);
-    fragColor.rgb += emissiveColor.rgb;
+  vec3 fragNormal = vertexNormal;
+  fragColor.rgb = mix(fragColor.rgb, applyLightingColor(fragColor.rgb, ambientOcclusionColor.r, fragNormal), useLighting);
 
-    fragColor.rgb = min(fragColor.rgb, 1);
+  fragColor.rgb += emissiveColor.rgb;
 
-    if (fragColor.a < .95) {
-      discard;
-    }
+  fragColor.rgb = min(fragColor.rgb, 1);
+
+  if (fragColor.a < .95) {
+    discard;
+  }
 }

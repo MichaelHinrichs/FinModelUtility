@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Linq;
+using System.Text;
 
 using fin.math;
 using fin.model;
@@ -16,11 +17,21 @@ namespace fin.gl.material {
           CommonShaderPrograms.GetVertexSrc(model, useBoneMatrices);
 
       var hasNormalTexture = material.NormalTexture != null;
+      var hasNormals = hasNormalTexture ||
+                       model.Skin.Meshes
+                            .SelectMany(mesh => mesh.Primitives)
+                            .Where(primitive => primitive.Material == material)
+                            .SelectMany(primitive => primitive.Vertices)
+                            .Any(vertex => vertex is IReadOnlyNormalVertex {
+                                LocalNormal: { }
+                            });
 
       var fragmentShaderSrc = new StringBuilder();
+      fragmentShaderSrc.Append(@"# version 330
+");
 
-      fragmentShaderSrc.Append(@$"# version 330 
-
+      if (hasNormals) {
+        fragmentShaderSrc.Append($@"
 struct Light {{
   bool enabled;
   vec3 position;
@@ -30,7 +41,10 @@ struct Light {{
 
 uniform vec3 ambientLightColor;
 uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
+");
+      }
 
+      fragmentShaderSrc.Append(@"
 uniform sampler2D diffuseTexture;");
 
       if (hasNormalTexture) {
@@ -44,12 +58,21 @@ uniform float {ShaderConstants.UNIFORM_USE_LIGHTING_NAME};
 
 out vec4 fragColor;
 
-in vec4 vertexColor0;
+in vec4 vertexColor0;");
+
+      if (hasNormals) {
+        fragmentShaderSrc.Append(@"
 in vec3 vertexNormal;
 in vec3 tangent;
-in vec3 binormal;
-in vec2 uv0;
+in vec3 binormal;");
+      }
 
+      fragmentShaderSrc.Append(@$"
+in vec2 uv0;
+");
+
+      if (hasNormals) {
+        fragmentShaderSrc.Append($@"
 vec3 getDiffuseLightColor(Light light, vec3 vertexNormal) {{
   vec3 diffuseLightNormal = normalize(light.normal);
   float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);
@@ -77,8 +100,11 @@ vec3 applyLightingColor(vec3 diffuseColor, float ambientOcclusionAmount, vec3 ve
   vec3 mergedLightColor = ambientOcclusionAmount * min(ambientLightColor + mergedDiffuseLightColor, 1);
   return diffuseColor * mergedLightColor;
 }}
+");
+      }
 
-void main() {{
+      fragmentShaderSrc.Append(@"
+void main() {
   vec4 diffuseColor = texture(diffuseTexture, uv0);
   vec4 ambientOcclusionColor = texture(ambientOcclusionTexture, uv0);
   vec4 emissiveColor = texture(emissiveTexture, uv0);
@@ -86,38 +112,32 @@ void main() {{
   fragColor = diffuseColor * vertexColor0;
 ");
 
-      if (!hasNormalTexture) {
-        fragmentShaderSrc.Append(@"
-    vec3 fragNormal = vertexNormal;");
-      } else {
-        fragmentShaderSrc.Append(@"
-    vec3 textureNormal = texture(normalTexture, uv0).xyz * 2 - 1;    
-    vec3 fragNormal = normalize(mat3(tangent, binormal, vertexNormal) * textureNormal);");
+      if (hasNormals) {
+        if (!hasNormalTexture) {
+          fragmentShaderSrc.Append(@"
+  vec3 fragNormal = vertexNormal;");
+        } else {
+          fragmentShaderSrc.Append(@"
+  vec3 textureNormal = texture(normalTexture, uv0).xyz * 2 - 1;    
+  vec3 fragNormal = normalize(mat3(tangent, binormal, vertexNormal) * textureNormal);");
+        }
+
+        // TODO: Is this right?
+        fragmentShaderSrc.Append(@$"
+  fragColor.rgb = mix(fragColor.rgb, applyLightingColor(fragColor.rgb, ambientOcclusionColor.r, fragNormal), {ShaderConstants.UNIFORM_USE_LIGHTING_NAME});
+");
       }
 
       // TODO: Is this right?
-      fragmentShaderSrc.Append(@$"
-    fragColor.rgb = mix(fragColor.rgb, applyLightingColor(fragColor.rgb, ambientOcclusionColor.r, fragNormal), {ShaderConstants.UNIFORM_USE_LIGHTING_NAME});
-    fragColor.rgb += emissiveColor.rgb;
+      fragmentShaderSrc.Append(@"
+  fragColor.rgb += emissiveColor.rgb;
 
-    fragColor.rgb = min(fragColor.rgb, 1);
+  fragColor.rgb = min(fragColor.rgb, 1);
 
-    if (fragColor.a < .95) {{
-      discard;
-    }}
-}}");
-
-      /*
-
-vec4 diffuseColor = texture(diffuseTexture, uv);
-
-fragColor = diffuseColor * vertexColor;
-
-vec3 normalColor = texture(normalTexture, uv).rgb;
-vec3 fragNormal = normalize(2 * (normalColor - .5));
-vec3 normal_viewSpace = tbn * normalize((fragNormal * 2.0) - 1.0);
-
- */
+  if (fragColor.a < .95) {
+    discard;
+  }
+}");
 
       this.FragmentShaderSource = fragmentShaderSrc.ToString();
     }
