@@ -167,6 +167,10 @@ namespace modl.schema.modl.bw1.node {
             er.Position += sectionSize;
             break;
           }
+          case "FACE": {
+            // TODO: Support this
+            break;
+          }
           default: throw new NotImplementedException();
         }
 
