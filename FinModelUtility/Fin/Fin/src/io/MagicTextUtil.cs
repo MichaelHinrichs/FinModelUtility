@@ -1,6 +1,7 @@
-﻿using fin.io;
+﻿using System.IO;
+using System.Linq;
 
-namespace uni.platforms.gcn.tools {
+namespace fin.io {
   public static class MagicTextUtil {
     public static bool Verify(IReadOnlyGenericFile file, string expected) {
       using var r = file.OpenRead();
