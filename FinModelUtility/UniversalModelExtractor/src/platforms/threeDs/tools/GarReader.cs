@@ -1,32 +1,33 @@
 ﻿using fin.io;
-using fin.log;
+using fin.io.archive;
 using fin.util.asserts;
 using fin.util.strings;
 
 
 namespace uni.platforms.threeDs.tools {
-  public class GarExtractor {
-    public bool Extract(IFileHierarchyFile garFile) {
-      Asserts.True(garFile.Exists,
-                   $"Could not extract GAR because it does not exist: {garFile.FullName}");
+  public class GarReader : IArchiveReader<SubArchiveContentFile> {
+    public bool IsValidArchive(Stream archive) => true;
 
-      var directoryPath = StringUtil.UpTo(garFile.FullName, ".gar");
-      var directory = new FinDirectory(directoryPath);
-
-      if (directory.Exists) {
-        return false;
+    public IArchiveStream<SubArchiveContentFile> Decompress(Stream archive) {
+      if (!MagicTextUtil.Verify(archive, "LzS" + AsciiUtil.GetChar(0x1))) {
+        return new SubArchiveStream(archive);
       }
 
-      var logger = Logging.Create<GarExtractor>();
-      logger.LogInformation($"Extracting GAR {garFile.LocalPath}...");
+      var er = new EndianBinaryReader(archive);
+      var isCompressed =
+          new LzssDecompressor().TryToDecompress(er, out var decompressedGar);
 
-      Gar gar;
-      {
-        using var er =
-            new EndianBinaryReader(garFile.OpenRead(),
-                                   Endianness.LittleEndian);
-        gar = new Gar(er);
-      }
+      archive.Position = 0;
+
+      return new SubArchiveStream(
+          isCompressed ? new MemoryStream(decompressedGar!) : archive);
+    }
+
+    public IEnumerable<SubArchiveContentFile> GetFiles(
+        IArchiveStream<SubArchiveContentFile> archiveStream) {
+      var er =
+          archiveStream.AsEndianBinaryReader(Endianness.LittleEndian);
+      var gar = new Gar(er);
 
       foreach (var fileType in gar.FileTypes) {
         foreach (var file in fileType.Files) {
@@ -36,15 +37,13 @@ namespace uni.platforms.threeDs.tools {
             fileName = $"{fileName}.{fileType.TypeName}";
           }
 
-          var filePath = Path.Join(directoryPath, fileName);
-          Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
-          File.WriteAllBytes(filePath, file.Bytes);
+          yield return new SubArchiveContentFile {
+              RelativeName = fileName,
+              Position = file.Position,
+              Length = file.Length,
+          };
         }
       }
-
-      garFile.Impl.Delete();
-
-      return true;
     }
 
     /// <summary>
@@ -57,12 +56,6 @@ namespace uni.platforms.threeDs.tools {
       public IGarFileType[] FileTypes { get; }
 
       public Gar(IEndianBinaryReader er) {
-        var isCompressed =
-            new LzssDecompressor().TryToDecompress(er, out var decompressedGar);
-        if (isCompressed) {
-          er = new EndianBinaryReader(decompressedGar!, er.Endianness);
-        }
-
         this.Header = new GarHeader(er);
 
         this.FileTypes = new IGarFileType[this.Header.FileTypeCount];
@@ -72,10 +65,6 @@ namespace uni.platforms.threeDs.tools {
               5 => new Gar5FileType(er, this.Header, i),
               _ => throw new NotImplementedException()
           };
-        }
-
-        if (isCompressed) {
-          er.Close();
         }
       }
     }
@@ -116,7 +105,8 @@ namespace uni.platforms.threeDs.tools {
 
     public interface IGarSubfile {
       string FileName { get; }
-      byte[] Bytes { get; }
+      int Position { get; }
+      int Length { get; }
     }
 
     private class Gar2FileType : IGarFileType {
@@ -151,7 +141,9 @@ namespace uni.platforms.threeDs.tools {
     private class Gar2Subfile : IGarSubfile {
       public string FileName { get; }
       public string FullPath { get; }
-      public byte[] Bytes { get; }
+
+      public int Position { get; }
+      public int Length { get; }
 
       public Gar2Subfile(
           IEndianBinaryReader er,
@@ -175,8 +167,8 @@ namespace uni.platforms.threeDs.tools {
         er.Position = header.DataOffset + 4 * fileIndex;
         var fileOffset = er.ReadInt32();
 
-        er.Position = fileOffset;
-        this.Bytes = er.ReadBytes(Math.Max(fileSize, 0));
+        this.Position = fileOffset;
+        this.Length = Math.Max(fileSize, 0);
       }
     }
 
@@ -215,7 +207,9 @@ namespace uni.platforms.threeDs.tools {
 
     private class Gar5Subfile : IGarSubfile {
       public string FileName { get; }
-      public byte[] Bytes { get; }
+
+      public int Position { get; }
+      public int Length { get; }
 
       public Gar5Subfile(
           IEndianBinaryReader er,
@@ -236,8 +230,8 @@ namespace uni.platforms.threeDs.tools {
           this.FileName += $".{fileType.TypeName}";
         }
 
-        er.Position = fileOffset;
-        this.Bytes = er.ReadBytes(fileSize);
+        this.Position = (int) fileOffset;
+        this.Length = fileSize;
       }
     }
   }

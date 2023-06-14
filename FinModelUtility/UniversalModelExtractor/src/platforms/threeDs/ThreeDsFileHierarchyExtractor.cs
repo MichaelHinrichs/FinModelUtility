@@ -1,13 +1,12 @@
 ﻿using fin.io;
 using fin.io.archive;
+using fin.util.strings;
 
 using uni.platforms.threeDs.tools;
 
 
 namespace uni.platforms.threeDs {
   public class ThreeDsFileHierarchyExtractor {
-    private readonly GarExtractor garExtractor_ = new();
-
     public IFileHierarchy ExtractFromRom(
         ISystemFile romFile,
         ISet<string>? junkTerms = null) {
@@ -25,11 +24,23 @@ namespace uni.platforms.threeDs {
                   new FinDirectory(zarFile.FullNameWithoutExtension)) ==
               ArchiveExtractionResult.NEWLY_EXTRACTED;
         }
+
         foreach (var garFile in directory.FilesWithExtension(".gar")) {
-          didChange |= this.garExtractor_.Extract(garFile);
+          didChange |=
+              archiveExtractor.TryToExtractIntoNewDirectory<GarReader>(
+                  garFile,
+                  new FinDirectory(garFile.FullNameWithoutExtension)) ==
+              ArchiveExtractionResult.NEWLY_EXTRACTED;
         }
-        foreach (var garFile in directory.Files.Where(file => file.Name.EndsWith(".gar.lzs"))) {
-          didChange |= this.garExtractor_.Extract(garFile);
+
+        foreach (var garFile in directory.Files.Where(
+                     file => file.Name.EndsWith(".gar.lzs"))) {
+          didChange |=
+              archiveExtractor.TryToExtractIntoNewDirectory<GarReader>(
+                  garFile,
+                  new FinDirectory(
+                      StringUtil.UpTo(garFile.FullName, ".gar"))) ==
+              ArchiveExtractionResult.NEWLY_EXTRACTED;
         }
 
         if (didChange) {
