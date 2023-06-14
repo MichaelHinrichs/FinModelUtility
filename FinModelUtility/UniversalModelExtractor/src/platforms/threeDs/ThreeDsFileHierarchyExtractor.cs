@@ -1,6 +1,7 @@
 ﻿using fin.io;
 
 using uni.platforms.threeDs.tools;
+using uni.platforms.threeDs.tools.cia;
 
 
 namespace uni.platforms.threeDs {
@@ -11,6 +12,8 @@ namespace uni.platforms.threeDs {
     public IFileHierarchy ExtractFromRom(
         ISystemFile romFile,
         ISet<string>? junkTerms = null) {
+      new CiaExtractor().Extract(romFile);
+
       new HackingToolkit9ds().Run(romFile, out var fileHierarchy);
 
       var didDecompress = false;

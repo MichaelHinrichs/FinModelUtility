@@ -2,11 +2,6 @@
 using fin.log;
 using fin.util.asserts;
 
-using schema.binary;
-using schema.binary.attributes.align;
-using schema.binary.attributes.child_of;
-using schema.binary.attributes.sequence;
-
 
 namespace uni.platforms.threeDs.tools.cia {
   public partial class CiaExtractor {

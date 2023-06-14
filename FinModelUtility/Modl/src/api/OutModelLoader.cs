@@ -2,10 +2,12 @@
 using System.IO.Compression;
 using System.Runtime.CompilerServices;
 
+using fin.color;
 using fin.data;
 using fin.data.lazy;
 using fin.image;
 using fin.io;
+using fin.math;
 using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
@@ -45,7 +47,8 @@ namespace modl.api {
 
     public IModel LoadModel(ISystemFile outFile,
                             GameVersion gameVersion,
-                            out IBwTerrain bwTerrain) {
+                            out IBwTerrain bwTerrain,
+                            float terrainLightScale = 1) {
       var outName = outFile.Name.Replace(".out.gz", "")
                            .Replace(".out", "");
       var outDirectory =
@@ -58,14 +61,16 @@ namespace modl.api {
       return this.LoadModel(outFile,
                             outDirectory.Yield().Concat(allMapsDirectory),
                             gameVersion,
-                            out bwTerrain);
+                            out bwTerrain,
+                            terrainLightScale);
     }
 
     public IModel LoadModel(ISystemFile outFile,
                             IEnumerable<ISystemDirectory>
                                 textureDirectoriesEnumerable,
                             GameVersion gameVersion,
-                            out IBwTerrain bwTerrain) {
+                            out IBwTerrain bwTerrain,
+                            float terrainLightScale = 1) {
       var isBw2 = gameVersion == GameVersion.BW2;
 
       Stream stream;
@@ -300,6 +305,19 @@ namespace modl.api {
 
                   var lightColor = point.LightColor;
 
+                  var scaledLightColor =
+                      FinColor.FromRgbaFloats(
+                          ApplyTerrainLightScale_(
+                              lightColor.Rf,
+                              terrainLightScale),
+                          ApplyTerrainLightScale_(
+                              lightColor.Gf,
+                              terrainLightScale),
+                          ApplyTerrainLightScale_(
+                              lightColor.Bf,
+                              terrainLightScale),
+                          lightColor.Af);
+
                   var detailTextureUvs =
                       tile.Schema.DetailTextureUvs[4 * pointY + pointX];
 
@@ -312,7 +330,7 @@ namespace modl.api {
 
                   var finVertex =
                       finSkin.AddVertex(point.X, point.Height, point.Y);
-                  finVertex.SetColor(lightColor);
+                  finVertex.SetColor(scaledLightColor);
                   finVertex.SetUv(0, uv0);
                   finVertex.SetUv(1, uv1);
 
@@ -348,6 +366,12 @@ namespace modl.api {
 
       return finModel;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static float ApplyTerrainLightScale_(
+        float channel,
+        float terrainLightScale)
+      => channel * FinMath.MapRange(terrainLightScale, 0f, 1f, .5f, 1.5f);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static float Lerp_(float from, float to, float frac)

@@ -2,6 +2,7 @@
 
 using fin.data.stack;
 using fin.io;
+using fin.io.archive;
 using fin.util.asserts;
 
 using schema.binary;
@@ -11,11 +12,16 @@ namespace uni.platforms.gcn.tools {
   /// <summary>
   ///   Shamelessly ported from version 1.0 (20050213) of gcmdump by thakis.
   /// </summary>
-  public partial class GcmDump {
+  public partial class GcmDump : IArchiveReader {
     public bool Run(ISystemFile romFile, out IFileHierarchy hierarchy)
       => Run(romFile.OpenRead(),
              romFile.FullNameWithoutExtension,
              out hierarchy);
+
+    public bool TryToGetFiles(IReadOnlyGenericFile file,
+                              out IEnumerable<ArchiveFile> archiveFiles) {
+      throw new NotImplementedException();
+    }
 
     public bool Run(Stream romStream,
                     string directoryPath,

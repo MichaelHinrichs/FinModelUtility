@@ -1,16 +1,17 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 
 using fin.util.asserts;
 using fin.util.data;
-using fin.util.linq;
 
 using fins.io.sharpDirLister;
 
-using schema.defaultinterface;
+using schema.binary;
 
 
 namespace fin.io {
@@ -31,9 +32,6 @@ namespace fin.io {
 
   public interface IFileHierarchyDirectory : IFileHierarchyInstance {
     ISystemDirectory Impl { get; }
-
-    string IFileHierarchyInstance.FullName => this.Impl.FullName;
-    string IFileHierarchyInstance.Name => this.Impl.Name;
 
     IReadOnlyList<IFileHierarchyDirectory> Subdirs { get; }
     IReadOnlyList<IFileHierarchyFile> Files { get; }
@@ -70,14 +68,9 @@ namespace fin.io {
       : IFileHierarchyInstance, IGenericFile {
     ISystemFile Impl { get; }
 
-    string Extension => this.Impl.Extension;
-    string IFileHierarchyInstance.FullName => this.Impl.FullName;
-    string IFileHierarchyInstance.Name => this.Impl.Name;
-    string FullNameWithoutExtension => this.Impl.FullNameWithoutExtension;
-    string NameWithoutExtension => this.Impl.NameWithoutExtension;
-
-    FileSystemStream IReadOnlyGenericFile.OpenRead() => this.Impl.OpenRead();
-    FileSystemStream IGenericFile.OpenWrite() => this.Impl.OpenWrite();
+    string Extension { get; }
+    string FullNameWithoutExtension { get; }
+    string NameWithoutExtension { get; }
   }
 
 
@@ -92,8 +85,7 @@ namespace fin.io {
 
     public IFileHierarchyDirectory Root { get; }
 
-    [IncludeDefaultInterfaceMethods]
-    private partial class FileHierarchyDirectory : IFileHierarchyDirectory {
+    private class FileHierarchyDirectory : IFileHierarchyDirectory {
       private readonly ISystemDirectory baseDirectory_;
 
       private List<IFileHierarchyDirectory> subdirs_ = new();
@@ -348,8 +340,7 @@ namespace fin.io {
       public override string ToString() => this.LocalPath;
     }
 
-    [IncludeDefaultInterfaceMethods]
-    private partial class FileHierarchyFile : IFileHierarchyFile {
+    private class FileHierarchyFile : IFileHierarchyFile {
       public FileHierarchyFile(IFileHierarchyDirectory root,
                                IFileHierarchyDirectory parent,
                                ISystemFile? file,
@@ -361,17 +352,54 @@ namespace fin.io {
             file.FullName.Substring(baseDirectory.FullName.Length);
       }
 
+      public override string ToString() => this.LocalPath;
+
       public IFileHierarchyDirectory Root { get; }
       public IFileHierarchyDirectory Parent { get; }
 
       public ISystemFile Impl { get; }
 
+
+      // File fields
+      public string FullName => this.Impl.FullName;
+      public string Name => this.Impl.Name;
+      public string Extension => this.Impl.Extension;
+      public string FullNameWithoutExtension => this.Impl.FullNameWithoutExtension;
+      public string NameWithoutExtension => this.Impl.NameWithoutExtension;
+
       public bool Exists => this.Impl.Exists;
 
       public string LocalPath { get; }
       public string DisplayPath => this.LocalPath;
+      
+      public FileSystemStream OpenRead() => this.Impl.OpenRead();
+      public StreamReader OpenReadAsText() => this.Impl.OpenReadAsText();
 
-      public override string ToString() => this.LocalPath;
+      public T ReadNew<T>() where T : IBinaryDeserializable, new()
+        => this.Impl.ReadNew<T>();
+
+      public T ReadNew<T>(Endianness endianness)
+          where T : IBinaryDeserializable, new()
+        => this.Impl.ReadNew<T>(endianness);
+
+      public byte[] ReadAllBytes() => this.Impl.ReadAllBytes();
+
+      public string ReadAllText() => this.Impl.ReadAllText();
+
+      public FileSystemStream OpenWrite() => this.Impl.OpenWrite();
+      public StreamWriter OpenWriteAsText() => this.Impl.OpenWriteAsText();
+
+      public void WriteAllBytes(ReadOnlyMemory<byte> bytes)
+        => this.Impl.WriteAllBytes(bytes);
+
+      public void WriteAllBytes(ReadOnlySpan<byte> bytes)
+        => this.Impl.WriteAllBytes(bytes);
+
+      public void WriteAllText(string text) => this.Impl.WriteAllText(text);
+
+      public T Deserialize<T>() => this.Impl.Deserialize<T>();
+      public void Serialize<T>(T instance) where T : notnull
+        => this.Impl.Serialize(instance);
     }
 
     public IEnumerator<IFileHierarchyDirectory> GetEnumerator() {

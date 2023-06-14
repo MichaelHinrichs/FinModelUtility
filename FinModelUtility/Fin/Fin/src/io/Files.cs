@@ -2,7 +2,6 @@
 using System.Linq;
 
 using fin.util.asserts;
-using fin.util.linq;
 
 
 namespace fin.io {

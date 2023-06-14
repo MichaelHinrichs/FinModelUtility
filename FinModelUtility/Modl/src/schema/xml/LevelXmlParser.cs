@@ -14,18 +14,28 @@ using modl.schema.terrain;
 using System.IO.Compression;
 using System.Xml;
 
+using fin.color;
+using fin.model.impl;
+using fin.schema.vector;
+using fin.util.asserts;
+
 
 namespace modl.schema.xml {
   public interface IBwObject {
+    string Id { get; }
     string? ModelName { get; set; }
   }
 
   public class LevelObject : IBwObject {
+    public required string Id { get; init; }
     public string? ModelName { get; set; }
 
     public IReadOnlyFinMatrix4x4? Matrix { get; set; }
 
     public LinkedList<string> Children { get; } = new();
+
+    public string? NextLinkId { get; set; } = null;
+    public bool? StickToFloor { get; set; } = null;
 
     public void AddChild(string child) {
       if (child == "0") {
@@ -37,6 +47,7 @@ namespace modl.schema.xml {
   }
 
   public class SkydomeObject : IBwObject {
+    public required string Id { get; init; }
     public string? ModelName { get; set; }
   }
 
@@ -53,20 +64,35 @@ namespace modl.schema.xml {
 
       var levelfilesTag = mainXml["levelfiles"];
 
+      var levelFilename =
+          levelfilesTag["level"]["objectfiles"]["file"].GetAttribute("name");
+      var levelXmlFile = mainXmlDirectory.GetExistingFile(levelFilename);
+      ILighting? lighting = null;
+      var objectMap =
+          this.ReadObjectMap_(levelXmlFile,
+                              gameVersion,
+                              ref lighting,
+                              out var terrainLightScale);
 
       IBwTerrain bwTerrain;
       {
         var terrainFilename =
             levelfilesTag["terrain"]["file"].GetAttribute("name");
         var outFile = mainXmlDirectory.GetExistingFile(terrainFilename);
-        this.AddTerrain_(sceneArea, outFile, gameVersion, out bwTerrain);
+        this.AddTerrain_(sceneArea,
+                         outFile,
+                         gameVersion,
+                         out bwTerrain,
+                         terrainLightScale);
       }
 
       {
-        var levelFilename =
-            levelfilesTag["level"]["objectfiles"]["file"].GetAttribute("name");
-        var levelXmlFile = mainXmlDirectory.GetExistingFile(levelFilename);
-        AddObjects_(sceneArea, levelXmlFile, gameVersion, bwTerrain);
+        AddObjects_(sceneArea,
+                    levelXmlFile,
+                    gameVersion,
+                    bwTerrain,
+                    objectMap,
+                    lighting);
       }
 
       return scene;
@@ -75,19 +101,23 @@ namespace modl.schema.xml {
     private void AddTerrain_(ISceneArea sceneArea,
                              ISystemFile outFile,
                              GameVersion gameVersion,
-                             out IBwTerrain bwTerrain) {
+                             out IBwTerrain bwTerrain,
+                             float terrainLightScale) {
       sceneArea.AddObject()
                .AddSceneModel(
                    new OutModelLoader().LoadModel(
                        outFile,
                        gameVersion,
-                       out bwTerrain));
+                       out bwTerrain,
+                       terrainLightScale));
     }
 
     private void AddObjects_(ISceneArea sceneArea,
                              ISystemFile levelXmlFile,
                              GameVersion gameVersion,
-                             IBwTerrain bwTerrain) {
+                             IBwTerrain bwTerrain,
+                             IDictionary<string, IBwObject> objectMap,
+                             ILighting? lighting) {
       var levelDirectory =
           new FinDirectory(levelXmlFile.FullNameWithoutExtension);
       var modelFiles = levelDirectory
@@ -110,10 +140,7 @@ namespace modl.schema.xml {
                                 animFile.NameWithoutExtension.StartsWith("FG"))
                         .ToArray();
 
-
       var modlLoader = new ModlModelLoader();
-
-      var objectMap = this.ReadObjectMap_(levelXmlFile, gameVersion);
 
       var modelMap = new ConcurrentDictionary<string, IModel>();
       var task = Parallel.ForEachAsync(
@@ -144,10 +171,13 @@ namespace modl.schema.xml {
                 await modlLoader.LoadModelAsync(
                     modelFile,
                     animFiles,
-                    gameVersion);
+                    gameVersion,
+                    lighting);
           });
       task.ConfigureAwait(false);
       task.Wait();
+
+      var levelObjMap = new Dictionary<string, ISceneObject>();
 
       foreach (var obj in objectMap.Values) {
         switch (obj) {
@@ -175,15 +205,24 @@ namespace modl.schema.xml {
             }
 
             var childIdQueue =
-                new FinTuple2Queue<string, IReadOnlyFinMatrix4x4>(
-                    levelObj.Children.Select(child => (child, rootMatrix)));
+                new FinTuple3Queue<string, (bool?, string?),
+                    IReadOnlyFinMatrix4x4>(
+                    levelObj.Children.Select(
+                        child => (
+                            child, (levelObj.StickToFloor, levelObj.NextLinkId),
+                            rootMatrix)));
             while (childIdQueue.TryDequeue(out var childId,
+                                           out var stickToFloorAndNextLinkId,
                                            out var parentMatrix)) {
               objectMap.TryGetValue(childId, out var genericChild);
               var child = genericChild as LevelObject;
               if (child == null) {
                 continue;
               }
+
+              var (stickToFloor, nextLinkId) = stickToFloorAndNextLinkId;
+              stickToFloor ??= child.StickToFloor;
+              nextLinkId ??= child.NextLinkId;
 
               IReadOnlyFinMatrix4x4 childMatrix;
               if (child.Matrix == null) {
@@ -198,28 +237,59 @@ namespace modl.schema.xml {
                 childMatrix.Decompose(out var translation,
                                       out var rotation,
                                       out var scale);
-                sceneObject.SetPosition(
-                    translation.X,
-                    translation.Y,
-                    translation.Z);
-                if (sceneObject.Position.Y == 0) {
-                  sceneObject.SetPosition(sceneObject.Position.X,
-                                          bwTerrain.Heightmap
-                                                   .GetHeightAtPosition(
-                                                       sceneObject.Position.X,
-                                                       sceneObject.Position.Z),
-                                          sceneObject.Position.Z);
+
+                if (stickToFloor != false && nextLinkId != null) {
+                  // Should be an invalid case...?
                 }
 
-                sceneObject.Rotation.SetQuaternion(rotation);
-                sceneObject.SetScale(scale.X, scale.Y, scale.Z);
+                if (stickToFloor != false) {
+                  sceneObject.SetPosition(
+                      translation.X,
+                      translation.Y + bwTerrain.Heightmap
+                                               .GetHeightAtPosition(
+                                                   translation.X,
+                                                   translation.Z),
+                      translation.Z);
+                } else if (nextLinkId != null) {
+                  sceneObject.SetPosition(
+                      translation.X,
+                      levelObjMap[nextLinkId].Position.Y,
+                      translation.Z);
+                } else {
+                  sceneObject.SetPosition(
+                      translation.X,
+                      translation.Y,
+                      translation.Z);
+                }
+
+                levelObjMap[levelObj.Id] = sceneObject;
+
+                if (nextLinkId != null) {
+                  var nextLinkObj = levelObjMap[nextLinkId];
+
+                  var nextLinkRotation = nextLinkObj.Rotation;
+                  sceneObject.Rotation.SetDegrees(
+                      nextLinkRotation.XDegrees,
+                      nextLinkRotation.YDegrees,
+                      nextLinkRotation.ZDegrees);
+
+                  var nextLinkScale = nextLinkObj.Scale;
+                  sceneObject.SetScale(nextLinkScale.X,
+                                       nextLinkScale.Y,
+                                       nextLinkScale.Z);
+                } else {
+                  sceneObject.Rotation.SetQuaternion(rotation);
+                  sceneObject.SetScale(scale.X, scale.Y, scale.Z);
+                }
 
                 sceneObject.AddSceneModel(modelMap[child.ModelName]);
               }
 
               childIdQueue.Enqueue(
                   child.Children.Select(grandchild
-                                            => (grandchild, childMatrix)));
+                                            => (grandchild,
+                                                (stickToFloor, nextLinkId),
+                                                childMatrix)));
             }
 
             break;
@@ -230,7 +300,9 @@ namespace modl.schema.xml {
 
     private IDictionary<string, IBwObject> ReadObjectMap_(
         ISystemFile levelXmlFile,
-        GameVersion gameVersion) {
+        GameVersion gameVersion,
+        ref ILighting? lighting,
+        out float terrainLightScale) {
       Stream levelXmlStream;
       if (gameVersion == GameVersion.BW2) {
         using var gZipStream =
@@ -253,6 +325,7 @@ namespace modl.schema.xml {
       var objectsById = new Dictionary<string, IBwObject>();
       var types = new HashSet<string>();
 
+      terrainLightScale = 1;
       var objectTags = instances.GetElementsByTagName("Object");
       for (var i = 0; i < objectTags.Count; ++i) {
         var objectTag = objectTags[i];
@@ -264,19 +337,61 @@ namespace modl.schema.xml {
 
         if (objectType == "cRenderParams") {
           // TODO: Handle fog color
-          // TODO: Handle sky color
-          // TODO: Handle sun
 
-          var mpWorldSkydomeResource =
-              objectTag
-                  .Children()
-                  .Single(child => child.Attributes?["name"].Value ==
-                                  "mpWorldSkydome");
-          var skydomeId = mpWorldSkydomeResource.FirstChild?.InnerText!;
+          terrainLightScale =
+              float.Parse(objectTag.GetAttributeValue("mTerrainLightScale"));
+
+          lighting = new LightingImpl();
+          lighting.AmbientLightColor =
+              objectTag.GetAttributeLightColor("mSunAmbientColor");
+
+          {
+            var sunLight = lighting.CreateLight();
+            sunLight.SetColor(
+                objectTag.GetAttributeLightColor("mSunDirectionalColor"));
+
+            var sunYawRadians =
+                float.Parse(objectTag.GetAttributeValue("mSunRotation"));
+            var sunPitchRadians =
+                MathF.Asin(
+                    float.Parse(objectTag.GetAttributeValue("mSunElevation")));
+            FinTrig.FromPitchYawRadians(sunPitchRadians,
+                                        sunYawRadians,
+                                        out var sunXNormal,
+                                        out var sunYNormal,
+                                        out var sunZNormal);
+            sunLight.SetNormal(new Vector3f {
+                X = -sunXNormal, Y = -sunYNormal, Z = -sunZNormal,
+            });
+          }
+
+          {
+            var antiSunLight = lighting.CreateLight();
+            antiSunLight.SetColor(
+                objectTag.GetAttributeLightColor("mAntiSunDirectionalColor"));
+
+            var antiSunYawRadians =
+                float.Parse(objectTag.GetAttributeValue("mAntiSunRotation"));
+            var antiSunPitchRadians =
+                MathF.Asin(
+                    float.Parse(
+                        objectTag.GetAttributeValue("mAntiSunElevation")));
+            FinTrig.FromPitchYawRadians(antiSunPitchRadians,
+                                        antiSunYawRadians,
+                                        out var antiSunXNormal,
+                                        out var antiSunYNormal,
+                                        out var antiSunZNormal);
+            antiSunLight.SetNormal(new Vector3f {
+                X = -antiSunXNormal, Y = -antiSunYNormal, Z = -antiSunZNormal,
+            });
+          }
+
+
+          var skydomeId = objectTag.GetAttributeValue("mpWorldSkydome");
           if (objectsById.TryGetValue(skydomeId, out var skydomeModelObject)) {
             var skydomeModelName = skydomeModelObject.ModelName;
             objectsById[skydomeId] = new SkydomeObject {
-                ModelName = skydomeModelName,
+                Id = skydomeId, ModelName = skydomeModelName,
             };
           }
 
@@ -285,9 +400,8 @@ namespace modl.schema.xml {
 
         var isUsefulNode = false;
 
-        var childTags = objectTag.ChildNodes;
-        for (var childIndex = 0; childIndex < childTags.Count; ++childIndex) {
-          var childTag = childTags[childIndex];
+        var objId = objectTag.Attributes["id"].Value;
+        foreach (var childTag in objectTag.Children()) {
           var childNameAttribute = childTag.Attributes["name"]?.Value;
 
           switch (childTag.Name) {
@@ -311,13 +425,21 @@ namespace modl.schema.xml {
                 }
 
                 isUsefulNode = true;
-                node ??= new LevelObject();
+                node ??= new LevelObject { Id = objId };
                 node.Matrix = new FinMatrix4x4(floats);
               } else if (objectType is "cNodeHierarchyResource" &&
                          childNameAttribute is "mName") {
                 isUsefulNode = true;
-                node ??= new LevelObject();
+                node ??= new LevelObject { Id = objId };
                 node.ModelName = childTag["Item"].InnerText;
+              }
+
+              break;
+            }
+            case "Enum": {
+              if (childNameAttribute is "mStickToFloor") {
+                node ??= new LevelObject { Id = objId };
+                node.StickToFloor = childTag["Item"].InnerText == "eTrue";
               }
 
               break;
@@ -325,8 +447,16 @@ namespace modl.schema.xml {
             case "Pointer": {
               if (childNameAttribute is "mBase") {
                 isUsefulNode = true;
-                node ??= new LevelObject();
+                node ??= new LevelObject { Id = objId };
                 node.AddChild(childTag["Item"].InnerText);
+              }
+
+              if (childNameAttribute is "NextLinkObject") {
+                var nextLinkId = childTag["Item"].InnerText;
+                if (nextLinkId != "0") {
+                  node ??= new LevelObject { Id = objId };
+                  node.NextLinkId = nextLinkId;
+                }
               }
 
               break;
@@ -337,11 +467,11 @@ namespace modl.schema.xml {
                                         or "Model"
                                         or "model") {
                 isUsefulNode = true;
-                node ??= new LevelObject();
+                node ??= new LevelObject { Id = objId };
                 node.AddChild(childTag["Item"].InnerText);
               } else if (childNameAttribute is "Element") {
                 isUsefulNode = true;
-                node ??= new LevelObject();
+                node ??= new LevelObject { Id = objId };
                 var itemNodes = childTag.ChildNodes;
                 for (var itemI = 0; itemI < itemNodes.Count; ++itemI) {
                   node.AddChild(itemNodes[itemI].InnerText);
@@ -354,10 +484,12 @@ namespace modl.schema.xml {
         }
 
         if (isUsefulNode) {
-          var id = objectTag.Attributes["id"].Value;
-          objectsById[id] = node;
+          objectsById[objId] = node;
         }
       }
+
+      var ids = objectsById.Keys.Select(ulong.Parse).ToList();
+      ids.Sort();
 
       return objectsById;
     }
@@ -369,5 +501,27 @@ namespace modl.schema.xml {
 
     public static IEnumerable<XmlNode> Children(
         this XmlNodeList xmlNodeList) => xmlNodeList.Cast<XmlNode>();
+
+    public static string GetAttributeValue(this XmlNode xmlNode, string name)
+      => xmlNode.Children()
+                .Single(child => child.Attributes?["name"].Value == name)
+                .FirstChild?.InnerText!;
+
+    public static IColor GetAttributeColor(this XmlNode xmlNode, string name) {
+      var bytes = GetAttributeValue(xmlNode, name)
+                  .Split(',')
+                  .Select(byte.Parse)
+                  .ToArray();
+
+      return FinColor.FromRgbaBytes(bytes[0], bytes[1], bytes[2], bytes[3]);
+    }
+
+    public static IColor GetAttributeLightColor(this XmlNode xmlNode,
+                                                string name) {
+      var rgbaColor = GetAttributeColor(xmlNode, name);
+      return FinColor.FromRgbFloats(rgbaColor.Rf * rgbaColor.Af,
+                                    rgbaColor.Gf * rgbaColor.Af,
+                                    rgbaColor.Bf * rgbaColor.Af);
+    }
   }
 }

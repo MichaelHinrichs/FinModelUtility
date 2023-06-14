@@ -43,7 +43,8 @@ namespace modl.api {
     public async Task<IModel> LoadModelAsync(
         ISystemFile modlFile,
         IList<ISystemFile>? animFiles,
-        GameVersion gameVersion) {
+        GameVersion gameVersion,
+        ILighting? lighting = null) {
       var flipSign = ModlFlags.FLIP_HORIZONTALLY ? -1 : 1;
 
       using var er = new EndianBinaryReader(modlFile.OpenRead(),
@@ -54,7 +55,8 @@ namespace modl.api {
       };
 
       var model = new ModelImpl<Normal1Color1UvVertexImpl>(
-          (index, position) => new Normal1Color1UvVertexImpl(index, position));
+          (index, position) => new Normal1Color1UvVertexImpl(index, position),
+          lighting);
       var finMesh = model.Skin.AddMesh();
 
       var finBones = new IBone[bwModel.Nodes.Count];
