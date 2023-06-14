@@ -20,7 +20,7 @@
     <PackageReference Include="NUnit" Version="3.13.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.2.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0-preview-20211130-02" />
-    <PackageReference Include="schema" Version="0.0.8" />
+    <PackageReference Include="schema" Version="0.0.9" />
   </ItemGroup>
 
   <ItemGroup>

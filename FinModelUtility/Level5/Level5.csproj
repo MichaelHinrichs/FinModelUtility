@@ -8,7 +8,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="schema" Version="0.0.8" />
+    <PackageReference Include="schema" Version="0.0.9" />
   </ItemGroup>
 
   <ItemGroup>
