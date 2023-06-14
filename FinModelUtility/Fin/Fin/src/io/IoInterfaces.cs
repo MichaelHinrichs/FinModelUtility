@@ -2,11 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
-using System.Linq;
-using System.Runtime.CompilerServices;
-
-using fin.util.asserts;
-using fin.util.json;
 
 using schema.binary;
 
@@ -23,6 +18,7 @@ namespace fin.io {
 
     byte[] ReadAllBytes();
     string ReadAllText();
+    T Deserialize<T>();
   }
 
   public interface IGenericFile : IReadOnlyGenericFile {
@@ -33,7 +29,6 @@ namespace fin.io {
     void WriteAllBytes(ReadOnlySpan<byte> bytes);
     void WriteAllText(string text);
 
-    T Deserialize<T>();
     void Serialize<T>(T instance) where T : notnull;
   }
 

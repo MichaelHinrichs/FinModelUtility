@@ -65,7 +65,7 @@ namespace fin.io {
   }
 
   public interface IFileHierarchyFile
-      : IFileHierarchyInstance, IGenericFile {
+      : IFileHierarchyInstance, IReadOnlyGenericFile {
     ISystemFile Impl { get; }
 
     string Extension { get; }
@@ -383,23 +383,8 @@ namespace fin.io {
         => this.Impl.ReadNew<T>(endianness);
 
       public byte[] ReadAllBytes() => this.Impl.ReadAllBytes();
-
       public string ReadAllText() => this.Impl.ReadAllText();
-
-      public FileSystemStream OpenWrite() => this.Impl.OpenWrite();
-      public StreamWriter OpenWriteAsText() => this.Impl.OpenWriteAsText();
-
-      public void WriteAllBytes(ReadOnlyMemory<byte> bytes)
-        => this.Impl.WriteAllBytes(bytes);
-
-      public void WriteAllBytes(ReadOnlySpan<byte> bytes)
-        => this.Impl.WriteAllBytes(bytes);
-
-      public void WriteAllText(string text) => this.Impl.WriteAllText(text);
-
       public T Deserialize<T>() => this.Impl.Deserialize<T>();
-      public void Serialize<T>(T instance) where T : notnull
-        => this.Impl.Serialize(instance);
     }
 
     public IEnumerator<IFileHierarchyDirectory> GetEnumerator() {

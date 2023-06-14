@@ -11,7 +11,7 @@ namespace fin.io.bundles {
     string? GameName { get; }
     IFileHierarchyFile? MainFile { get; }
 
-    IEnumerable<IGenericFile> Files {
+    IEnumerable<IReadOnlyGenericFile> Files {
       get {
         if (this.MainFile != null) {
           yield return this.MainFile;
