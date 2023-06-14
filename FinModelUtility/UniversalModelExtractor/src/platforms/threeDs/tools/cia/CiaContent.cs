@@ -28,7 +28,7 @@ namespace uni.platforms.threeDs.tools.cia {
       this.ContentInfos = new[] {
           new ContentInfo {
               Offset = er.Position,
-              Size = this.Parent.Header.Content.Length,
+              Size = this.Parent.Header.ContentSize,
               Id = 0,
               Index = 0,
               IsEncrypted = false,

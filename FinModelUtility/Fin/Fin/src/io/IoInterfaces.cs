@@ -26,7 +26,6 @@ namespace fin.io {
     StreamWriter OpenWriteAsText();
 
     void WriteAllBytes(ReadOnlyMemory<byte> bytes);
-    void WriteAllBytes(ReadOnlySpan<byte> bytes);
     void WriteAllText(string text);
 
     void Serialize<T>(T instance) where T : notnull;

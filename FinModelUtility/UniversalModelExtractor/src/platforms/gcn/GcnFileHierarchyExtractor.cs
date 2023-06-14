@@ -1,12 +1,13 @@
 ﻿using fin.io;
-using fin.log;
+using fin.io.archive;
 using fin.util.strings;
+
+using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 
 using uni.platforms.gcn.tools;
 
 namespace uni.platforms.gcn {
   public class GcnFileHierarchyExtractor {
-    private readonly GcmDump gcmDump_ = new();
     private readonly RarcDump rarcDump_ = new();
     private readonly RelDump relDump_ = new();
     private readonly Yay0Dec yay0Dec_ = new();
@@ -15,9 +16,13 @@ namespace uni.platforms.gcn {
     public IFileHierarchy ExtractFromRom(
         Options options,
         ISystemFile romFile) {
-      var logger = Logging.Create<GcnFileHierarchyExtractor>();
+      var directory = new FinDirectory(romFile.FullNameWithoutExtension);
 
-      this.gcmDump_.Run(romFile, out var fileHierarchy);
+      using var romFileStream = romFile.OpenRead();
+      new SubArchiveExtractor().TryToExtractIntoNewDirectory<GcmDump>(
+          romFileStream,
+          directory,
+          out var fileHierarchy);
 
       var hasChanged = false;
 
@@ -27,12 +32,13 @@ namespace uni.platforms.gcn {
 
         // Decompresses files
         foreach (var file in subdir.FilesWithExtensions(
-            options.Yay0DecExtensions)) {
+                     options.Yay0DecExtensions)) {
           didDecompress |=
               this.yay0Dec_.Run(file, options.ContainerCleanupEnabled);
         }
+
         foreach (var file in subdir.FilesWithExtensions(
-            options.Yaz0DecExtensions)) {
+                     options.Yaz0DecExtensions)) {
           didDecompress |=
               this.yaz0Dec_.Run(file, options.ContainerCleanupEnabled);
         }
@@ -125,6 +131,7 @@ namespace uni.platforms.gcn {
         foreach (var o in rest) {
           this.rarcDumpExtensions_.Add(o);
         }
+
         return this;
       }
 
@@ -135,6 +142,7 @@ namespace uni.platforms.gcn {
         foreach (var o in rest) {
           this.rarcDumpPruneNames_.Add(o);
         }
+
         return this;
       }
 
@@ -145,6 +153,7 @@ namespace uni.platforms.gcn {
         foreach (var o in rest) {
           this.yay0DecExtensions_.Add(o);
         }
+
         return this;
       }
 
@@ -155,6 +164,7 @@ namespace uni.platforms.gcn {
         foreach (var o in rest) {
           this.yaz0DecExtensions_.Add(o);
         }
+
         return this;
       }
 

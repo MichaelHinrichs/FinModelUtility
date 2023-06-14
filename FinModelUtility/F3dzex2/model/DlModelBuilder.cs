@@ -53,7 +53,7 @@ namespace f3dzex2.model {
               return FinImage.Create1x1FromColor(this.vertices_.DiffuseColor);
             }
 
-            IEndianBinaryReader? er = null;
+            EndianBinaryReader? er = null;
             if (Constants.STRICT) {
               er = this.n64Hardware_.Memory.OpenAtSegmentedAddress(
                   imageParams.SegmentedAddress);

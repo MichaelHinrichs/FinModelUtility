@@ -16,9 +16,6 @@ namespace uni.platforms.threeDs.tools.cia {
     public uint TicketSize { get; set; }
     public uint TmdSize { get; set; }
     public uint FooterSize { get; set; }
-    private uint ContentSize { get; set; }
-
-    [RSequenceLengthSource(nameof(ContentSize))]
-    public byte[] Content { get; set; }
+    public uint ContentSize { get; set; }
   }
 }

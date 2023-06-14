@@ -28,7 +28,7 @@ namespace j3d.schema.bcx {
     public ANK1Section ANK1;
 
     public Bck(byte[] file) {
-      using IEndianBinaryReader er =
+      using var er =
           new EndianBinaryReader((Stream)new MemoryStream(file),
                                  Endianness.BigEndian);
       this.Header = er.ReadNew<BckHeader>();

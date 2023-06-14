@@ -157,13 +157,9 @@ namespace fin.io {
     public StreamWriter OpenWriteAsText() => new(this.OpenWrite());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void WriteAllBytes(ReadOnlyMemory<byte> bytes)
-      => this.WriteAllBytes(bytes.Span);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void WriteAllBytes(ReadOnlySpan<byte> bytes) {
+    public void WriteAllBytes(ReadOnlyMemory<byte> bytes) {
       using var s = this.OpenWrite();
-      s.Write(bytes);
+      s.Write(bytes.Span);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

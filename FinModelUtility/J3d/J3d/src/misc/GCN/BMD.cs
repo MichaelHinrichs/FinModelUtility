@@ -46,7 +46,7 @@ namespace j3d.GCN {
 
     public BMD(byte[] file)
     {
-      using IEndianBinaryReader er = new EndianBinaryReader((Stream) new MemoryStream(file), Endianness.BigEndian);
+      using var er = new EndianBinaryReader((Stream) new MemoryStream(file), Endianness.BigEndian);
       this.Header = er.ReadNew<BmdHeader>();
 
       bool OK;

@@ -25,9 +25,8 @@ namespace j3d.schema.bcx {
     public ANF1Section ANF1;
 
     public Bca(byte[] file) {
-      using IEndianBinaryReader er =
-          new EndianBinaryReader((Stream)new MemoryStream(file),
-                                 Endianness.BigEndian);
+      using var er = new EndianBinaryReader((Stream)new MemoryStream(file),
+                                            Endianness.BigEndian);
       this.Header = er.ReadNew<BcaHeader>();
       this.ANF1 = new Bca.ANF1Section(er, out _);
     }

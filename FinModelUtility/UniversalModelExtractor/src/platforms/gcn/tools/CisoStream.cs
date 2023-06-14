@@ -84,17 +84,25 @@ namespace uni.platforms.gcn.tools {
     }
 
     public override long Seek(long offset, SeekOrigin origin)
-      => throw new NotImplementedException();
+      => this.Position = origin switch {
+          SeekOrigin.Begin   => offset,
+          SeekOrigin.Current => this.Position + offset,
+          SeekOrigin.End     => this.Length + offset,
+          _ => throw new ArgumentOutOfRangeException(
+              nameof(origin),
+              origin,
+              null)
+      };
 
     public override void SetLength(long value)
-      => throw new NotImplementedException();
+      => throw new NotSupportedException();
 
     public override void Write(byte[] buffer, int offset, int count)
-      => throw new NotImplementedException();
+      => throw new NotSupportedException();
 
     public override bool CanRead => this.impl_.CanRead;
     public override bool CanSeek => this.impl_.CanSeek;
-    public override bool CanWrite => this.impl_.CanWrite;
+    public override bool CanWrite => false;
     public override long Length => ROM_SIZE;
 
     public override long Position { get; set; }

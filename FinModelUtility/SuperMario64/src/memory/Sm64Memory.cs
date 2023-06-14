@@ -21,21 +21,21 @@ namespace SuperMario64.memory {
 
     public Endianness Endianness => Endianness.BigEndian;
 
-    public IEnumerable<IEndianBinaryReader> OpenPossibilitiesAtSegmentedAddress(
+    public IEnumerable<EndianBinaryReader> OpenPossibilitiesAtSegmentedAddress(
         uint address)
       => this.OpenAtSegmentedAddress(address).Yield();
 
     public bool TryToOpenPossibilitiesAtSegmentedAddress(uint segmentedAddress,
-      out IEnumerable<IEndianBinaryReader> possibilities) {
+      out IEnumerable<EndianBinaryReader> possibilities) {
       possibilities = OpenPossibilitiesAtSegmentedAddress(segmentedAddress);
       return true;
     }
 
-    public IEndianBinaryReader OpenSegment(Segment segment, uint? offset = null) {
+    public EndianBinaryReader OpenSegment(Segment segment, uint? offset = null) {
       throw new NotImplementedException();
     }
 
-    public IEnumerable<IEndianBinaryReader> OpenPossibilitiesForSegment(
+    public IEnumerable<EndianBinaryReader> OpenPossibilitiesForSegment(
         uint segmentIndex) {
       throw new NotImplementedException();
     }
@@ -48,7 +48,7 @@ namespace SuperMario64.memory {
       throw new NotImplementedException();
     }
 
-    public IEndianBinaryReader OpenAtSegmentedAddress(uint segmentedAddress) {
+    public EndianBinaryReader OpenAtSegmentedAddress(uint segmentedAddress) {
       IoUtils.SplitSegmentedAddress(segmentedAddress,
                                     out var segment,
                                     out var offset);
@@ -59,7 +59,7 @@ namespace SuperMario64.memory {
       return er;
     }
 
-    public IEndianBinaryReader OpenSegment(uint segmentIndex) {
+    public EndianBinaryReader OpenSegment(uint segmentIndex) {
       throw new NotImplementedException();
     }
 
