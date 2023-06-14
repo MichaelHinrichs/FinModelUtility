@@ -25,7 +25,7 @@ namespace fin.io {
       return this.Equals(otherSelf);
     }
 
-    bool IEquatable<ISystemIoObject>.Equals(ISystemIoObject? other)
+    public bool Equals(ISystemIoObject? other)
       => this.FullName == other?.FullName;
 
 

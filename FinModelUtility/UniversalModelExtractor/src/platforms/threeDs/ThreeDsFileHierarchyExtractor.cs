@@ -1,11 +1,11 @@
 ﻿using fin.io;
+using fin.io.archive;
 
 using uni.platforms.threeDs.tools;
 
 
 namespace uni.platforms.threeDs {
   public class ThreeDsFileHierarchyExtractor {
-    private readonly ZarExtractor zarExtractor_ = new();
     private readonly GarExtractor garExtractor_ = new();
 
     public IFileHierarchy ExtractFromRom(
@@ -13,11 +13,17 @@ namespace uni.platforms.threeDs {
         ISet<string>? junkTerms = null) {
       new HackingToolkit9ds().Run(romFile, out var fileHierarchy);
 
+      var archiveExtractor = new SubArchiveExtractor();
+
       var didDecompress = false;
       foreach (var directory in fileHierarchy) {
         var didChange = false;
         foreach (var zarFile in directory.FilesWithExtension(".zar")) {
-          didChange |= this.zarExtractor_.Extract(zarFile);
+          didChange |=
+              archiveExtractor.TryToExtractIntoNewDirectory<ZarReader>(
+                  zarFile,
+                  new FinDirectory(zarFile.FullNameWithoutExtension)) ==
+              ArchiveExtractionResult.NEWLY_EXTRACTED;
         }
         foreach (var garFile in directory.FilesWithExtension(".gar")) {
           didChange |= this.garExtractor_.Extract(garFile);

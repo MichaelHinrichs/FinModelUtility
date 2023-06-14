@@ -27,12 +27,22 @@ namespace fin.io.archive {
         IArchiveStream<TArchiveContentFile> archiveStream);
   }
 
+  public enum ArchiveExtractionResult {
+    FAILED,
+    ALREADY_EXISTS,
+    NEWLY_EXTRACTED,
+  }
+
   public interface IArchiveExtractor<TArchiveContentFile>
       where TArchiveContentFile : IArchiveContentFile {
-    bool TryToExtractIntoNewDirectory<TArchiveReader>(
+    ArchiveExtractionResult TryToExtractIntoNewDirectory<TArchiveReader>(
+        IReadOnlyGenericFile archive,
+        ISystemDirectory newDirectory)
+        where TArchiveReader : IArchiveReader<TArchiveContentFile>, new();
+
+    ArchiveExtractionResult TryToExtractIntoNewDirectory<TArchiveReader>(
         Stream archive,
-        ISystemDirectory newDirectory,
-        out IFileHierarchy outFileHierarchy)
+        ISystemDirectory newDirectory)
         where TArchiveReader : IArchiveReader<TArchiveContentFile>, new();
   }
 }

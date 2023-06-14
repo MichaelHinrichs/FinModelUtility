@@ -47,26 +47,50 @@ namespace fin.io.archive {
   }
 
   public class SubArchiveExtractor : IArchiveExtractor<SubArchiveContentFile> {
-    public bool TryToExtractIntoNewDirectory<TArchiveReader>(
-        Stream archive,
-        ISystemDirectory systemDirectory,
-        out IFileHierarchy outFileHierarchy)
+    public ArchiveExtractionResult TryToExtractIntoNewDirectory<TArchiveReader>(
+        IReadOnlyGenericFile archive,
+        ISystemDirectory systemDirectory)
         where TArchiveReader : IArchiveReader<SubArchiveContentFile>, new() {
       if (systemDirectory.Exists) {
-        outFileHierarchy = new FileHierarchy(systemDirectory);
-        return true;
+        return ArchiveExtractionResult.ALREADY_EXISTS;
       }
 
+      systemDirectory.Create();
+
+      using var fs = archive.OpenRead();
+      return this.TryToExtractIntoExistingDirectory_<TArchiveReader>(
+          fs,
+          systemDirectory);
+    }
+
+    public ArchiveExtractionResult TryToExtractIntoNewDirectory<TArchiveReader>(
+        Stream archive,
+        ISystemDirectory systemDirectory)
+        where TArchiveReader : IArchiveReader<SubArchiveContentFile>, new() {
+      if (systemDirectory.Exists) {
+        return ArchiveExtractionResult.ALREADY_EXISTS;
+      }
+
+      systemDirectory.Create();
+
+      return this.TryToExtractIntoExistingDirectory_<TArchiveReader>(
+          archive,
+          systemDirectory);
+    }
+
+    private ArchiveExtractionResult TryToExtractIntoExistingDirectory_<
+        TArchiveReader>(
+        Stream archive,
+        ISystemDirectory systemDirectory)
+        where TArchiveReader : IArchiveReader<SubArchiveContentFile>, new() {
       var archiveReader = new TArchiveReader();
       if (!archiveReader.IsValidArchive(archive)) {
-        outFileHierarchy = default;
-        return false;
+        return ArchiveExtractionResult.FAILED;
       }
 
       var archiveStream = archiveReader.Decompress(archive);
 
       var archiveContentFiles = archiveReader.GetFiles(archiveStream);
-      systemDirectory.Create();
 
       var createdDirectories = new HashSet<string>();
       foreach (var archiveContentFile in archiveContentFiles) {
@@ -82,8 +106,7 @@ namespace fin.io.archive {
         archiveStream.CopyContentFileInto(archiveContentFile, dstFileStream);
       }
 
-      outFileHierarchy = new FileHierarchy(systemDirectory);
-      return true;
+      return ArchiveExtractionResult.NEWLY_EXTRACTED;
     }
   }
 }

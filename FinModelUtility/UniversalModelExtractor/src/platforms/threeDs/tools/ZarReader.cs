@@ -1,53 +1,34 @@
 ﻿using System.Text;
 
 using fin.io;
-using fin.log;
-using fin.util.asserts;
+using fin.io.archive;
 using fin.util.strings;
+
+using schema.binary;
 
 
 namespace uni.platforms.threeDs.tools {
-  public class ZarExtractor {
-    public bool Extract(IFileHierarchyFile zarFile) {
-      Asserts.True(zarFile.Exists,
-                   $"Could not extract ZAR because it does not exist: {zarFile.FullName}");
-      Asserts.Equal(".zar",
-                    zarFile.Extension,
-                    $"Could not extract file because it is not a ZAR: {zarFile.FullName}");
+  public partial class ZarReader : IArchiveReader<SubArchiveContentFile> {
+    public bool IsValidArchive(Stream archive)
+      => MagicTextUtil.Verify(archive, "ZAR" + AsciiUtil.GetChar(1));
 
-      var directoryPath =
-          zarFile.FullName.Substring(0,
-                                     zarFile.FullName.Length - ".zar".Length);
-      var directory = new FinDirectory(directoryPath);
+    public IArchiveStream<SubArchiveContentFile> Decompress(Stream archive)
+      => new SubArchiveStream(archive);
 
-      if (directory.Exists) {
-        return false;
-      }
-
-      var logger = Logging.Create<ZarExtractor>();
-      logger.LogInformation($"Extracting ZAR {zarFile.LocalPath}...");
-
-      Zar zar;
-      {
-        using var er =
-            new EndianBinaryReader(zarFile.OpenRead(),
-                                   Endianness.LittleEndian);
-        zar = new Zar(er);
-      }
+    public IEnumerable<SubArchiveContentFile> GetFiles(
+        IArchiveStream<SubArchiveContentFile> archiveStream) {
+      var er = archiveStream.AsEndianBinaryReader(Endianness.LittleEndian);
+      var zar = new Zar(er);
 
       foreach (var fileType in zar.FileTypes) {
         foreach (var file in fileType.Files) {
-          var filePath = Path.Join(directoryPath, file.FileName);
-
-          Directory.CreateDirectory(
-              Asserts.CastNonnull(Path.GetDirectoryName(filePath)));
-          File.WriteAllBytes(filePath, file.Bytes);
+          yield return new SubArchiveContentFile {
+              RelativeName = file.FileName,
+              Position = file.Position,
+              Length = file.Length,
+          };
         }
       }
-
-      zarFile.Impl.Delete();
-
-      return true;
     }
 
     private class Zar {
@@ -55,7 +36,7 @@ namespace uni.platforms.threeDs.tools {
       public ZarFileType[] FileTypes { get; }
 
       public Zar(IEndianBinaryReader er) {
-        this.Header = new ZarHeader(er);
+        this.Header = er.ReadNew<ZarHeader>();
 
         this.FileTypes = new ZarFileType[this.Header.FileTypeCount];
         for (var i = 0; i < this.FileTypes.Length; ++i) {
@@ -64,28 +45,18 @@ namespace uni.platforms.threeDs.tools {
       }
     }
 
-    private class ZarHeader {
-      public int Size { get; }
+    [BinarySchema]
+    private partial class ZarHeader : IBinaryConvertible {
+      private readonly string magic_ = "ZAR" + AsciiUtil.GetChar(1);
 
-      public short FileTypeCount { get; }
-      public short FileCount { get; }
+      public int Size { get; set; }
 
-      public int FileTypesOffset { get; }
-      public int FileMetadataOffset { get; }
-      public int DataOffset { get; }
+      public short FileTypeCount { get; set; }
+      public short FileCount { get; set; }
 
-      public ZarHeader(IEndianBinaryReader er) {
-        er.AssertMagicText("ZAR" + AsciiUtil.GetChar(1));
-
-        this.Size = er.ReadInt32();
-
-        this.FileTypeCount = er.ReadInt16();
-        this.FileCount = er.ReadInt16();
-
-        this.FileTypesOffset = er.ReadInt32();
-        this.FileMetadataOffset = er.ReadInt32();
-        this.DataOffset = er.ReadInt32();
-      }
+      public int FileTypesOffset { get; set; }
+      public int FileMetadataOffset { get; set; }
+      public int DataOffset { get; set; }
     }
 
     private class ZarFileType {
@@ -119,7 +90,9 @@ namespace uni.platforms.threeDs.tools {
 
     private class ZarSubfile {
       public string FileName { get; }
-      public byte[] Bytes { get; }
+
+      public int Position { get; }
+      public int Length { get; }
 
       public ZarSubfile(
           IEndianBinaryReader er,
@@ -139,8 +112,8 @@ namespace uni.platforms.threeDs.tools {
         er.Position = header.DataOffset + 4 * fileIndex;
         var fileOffset = er.ReadInt32();
 
-        er.Position = fileOffset;
-        this.Bytes = er.ReadBytes(fileSize);
+        this.Position = fileOffset;
+        this.Length = fileSize;
       }
     }
   }

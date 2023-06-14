@@ -8,7 +8,11 @@ namespace fin.io {
       return Verify(r, expected);
     }
 
-    public static bool Verify(Stream stream, string expected)
-      => expected.All(c => (byte) c == stream.ReadByte());
+    public static bool Verify(Stream stream, string expected) {
+      var tmp = stream.Position;
+      var match = expected.All(c => (byte) c == stream.ReadByte());
+      stream.Position = tmp;
+      return match;
+    }
   }
 }

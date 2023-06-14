@@ -17,7 +17,7 @@ namespace uni.platforms.threeDs.tools {
         return false;
       }
 
-      var logger = Logging.Create<ZarExtractor>();
+      var logger = Logging.Create<GarExtractor>();
       logger.LogInformation($"Extracting GAR {garFile.LocalPath}...");
 
       Gar gar;

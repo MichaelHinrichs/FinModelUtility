@@ -74,7 +74,7 @@ namespace fin.io {
   }
 
 
-  public partial class FileHierarchy : IFileHierarchy {
+  public class FileHierarchy : IFileHierarchy {
     public FileHierarchy(ISystemDirectory directory) {
       var populatedSubdirs =
           new SharpFileLister().FindNextFilePInvokeRecursiveParalleled(

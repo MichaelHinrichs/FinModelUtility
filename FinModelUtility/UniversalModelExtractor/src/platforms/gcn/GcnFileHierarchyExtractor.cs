@@ -18,12 +18,13 @@ namespace uni.platforms.gcn {
         ISystemFile romFile) {
       var directory = new FinDirectory(romFile.FullNameWithoutExtension);
 
-      using var romFileStream = romFile.OpenRead();
-      new SubArchiveExtractor().TryToExtractIntoNewDirectory<GcmReader>(
-          romFileStream,
-          directory,
-          out var fileHierarchy);
+      if (new SubArchiveExtractor().TryToExtractIntoNewDirectory<GcmReader>(
+              romFile,
+              directory) == ArchiveExtractionResult.FAILED) {
+        throw new Exception();
+      }
 
+      var fileHierarchy = new FileHierarchy(directory);
       var hasChanged = false;
 
       // Decompresses all of the archives,
