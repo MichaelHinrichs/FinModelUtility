@@ -10,7 +10,7 @@ namespace uni.platforms.gcn.tools {
   /// <summary>
   ///   Shamelessly ported from version 1.0 (20050213) of gcmdump by thakis.
   /// </summary>
-  public partial class GcmDump : IArchiveReader<SubArchiveContentFile> {
+  public partial class GcmReader : IArchiveReader<SubArchiveContentFile> {
     public IArchiveStream<SubArchiveContentFile> Decompress(
         Stream romStream) {
       var isCiso = MagicTextUtil.Verify(romStream, "CISO");

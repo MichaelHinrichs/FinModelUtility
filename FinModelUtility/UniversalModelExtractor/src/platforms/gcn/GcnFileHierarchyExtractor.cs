@@ -19,7 +19,7 @@ namespace uni.platforms.gcn {
       var directory = new FinDirectory(romFile.FullNameWithoutExtension);
 
       using var romFileStream = romFile.OpenRead();
-      new SubArchiveExtractor().TryToExtractIntoNewDirectory<GcmDump>(
+      new SubArchiveExtractor().TryToExtractIntoNewDirectory<GcmReader>(
           romFileStream,
           directory,
           out var fileHierarchy);
