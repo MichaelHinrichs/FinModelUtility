@@ -58,33 +58,32 @@ namespace fin.io.archive {
       }
 
       var archiveReader = new TArchiveReader();
-      var archiveStream = archiveReader.Decompress(archive);
-
-      var createdDirectories = new HashSet<string>();
-
-      if (archiveReader.TryToGetFiles(archiveStream,
-                                      out var archiveContentFiles)) {
-        systemDirectory.Create();
-
-        foreach (var archiveContentFile in archiveContentFiles) {
-          var dstFile = new FinFile(Path.Join(systemDirectory.FullName,
-                                              archiveContentFile.RelativeName));
-
-          var dstDirectory = dstFile.GetParentFullName()!;
-          if (createdDirectories.Add(dstDirectory)) {
-            FinFileSystem.Directory.CreateDirectory(dstDirectory);
-          }
-
-          using var dstFileStream = dstFile.OpenWrite();
-          archiveStream.CopyContentFileInto(archiveContentFile, dstFileStream);
-        }
-
-        outFileHierarchy = new FileHierarchy(systemDirectory);
-        return true;
+      if (!archiveReader.IsValidArchive(archive)) {
+        outFileHierarchy = default;
+        return false;
       }
 
-      outFileHierarchy = default;
-      return false;
+      var archiveStream = archiveReader.Decompress(archive);
+
+      var archiveContentFiles = archiveReader.GetFiles(archiveStream);
+      systemDirectory.Create();
+
+      var createdDirectories = new HashSet<string>();
+      foreach (var archiveContentFile in archiveContentFiles) {
+        var dstFile = new FinFile(Path.Join(systemDirectory.FullName,
+                                            archiveContentFile.RelativeName));
+
+        var dstDirectory = dstFile.GetParentFullName()!;
+        if (createdDirectories.Add(dstDirectory)) {
+          FinFileSystem.Directory.CreateDirectory(dstDirectory);
+        }
+
+        using var dstFileStream = dstFile.OpenWrite();
+        archiveStream.CopyContentFileInto(archiveContentFile, dstFileStream);
+      }
+
+      outFileHierarchy = new FileHierarchy(systemDirectory);
+      return true;
     }
   }
 }

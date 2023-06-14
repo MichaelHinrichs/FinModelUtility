@@ -12,6 +12,8 @@ namespace uni.platforms.gcn.tools {
   ///   Shamelessly ported from version 1.0 (20050213) of gcmdump by thakis.
   /// </summary>
   public partial class GcmReader : IArchiveReader<SubArchiveContentFile> {
+    public bool IsValidArchive(Stream archive) => true;
+
     public IArchiveStream<SubArchiveContentFile> Decompress(
         Stream romStream) {
       var isCiso = MagicTextUtil.Verify(romStream, "CISO");
@@ -21,88 +23,75 @@ namespace uni.platforms.gcn.tools {
           !isCiso ? romStream : new CisoStream(romStream));
     }
 
-    public bool TryToGetFiles(
-        IArchiveStream<SubArchiveContentFile> archiveStream,
-        out IEnumerable<SubArchiveContentFile> archiveContentFiles) {
-      try {
-        archiveContentFiles = this.EnumerateFiles(archiveStream);
-          return true;
-        } catch { }
+    public IEnumerable<SubArchiveContentFile> GetFiles(
+        IArchiveStream<SubArchiveContentFile> archiveStream) {
+      var er = archiveStream.AsEndianBinaryReader(Endianness.BigEndian);
 
-        archiveContentFiles = default;
-        return false;
+      var diskHeader = er.ReadNew<DiskHeader>();
+      var fileEntries = this.ReadFileSystemTable_(er, diskHeader);
+
+      var rootDirectoryFullName = "";
+
+      var directories = new string[fileEntries.Count];
+      directories[0] = rootDirectoryFullName;
+
+      //for now, dump directory structure
+      var directoryStack =
+          new FinStack<(string fullName, uint lastChildIndex)>(
+              (rootDirectoryFullName, (uint) fileEntries.Count));
+
+      var fileTableOffset = 12 * fileEntries.Count;
+      for (int i = 1; i < fileEntries.Count; ++i) {
+        var e = fileEntries[i];
+
+        // Pop to reach parent directory
+        while (i >= directoryStack.Top.lastChildIndex) {
+          directoryStack.Pop();
+        }
+
+        // Get name
+        er.Position = diskHeader.FileSystemTableOffset + fileTableOffset +
+                      e.FileNameOffset;
+        var name = er.ReadStringNT(Encoding.UTF8);
+
+        // Push new directory
+        if (e.IsDirectory) {
+          var parentDir = directories[e.FileOrParentOffset];
+          var childDir = Path.Join(parentDir, name);
+
+          directories[i] = childDir;
+          directoryStack.Push((childDir, e.FileLengthOrNextOffset));
+        }
+        // Export file
+        else {
+          yield return new SubArchiveContentFile {
+              RelativeName = Path.Join(directoryStack.Top.fullName, name),
+              Position = (int) e.FileOrParentOffset,
+              Length = (int) e.FileLengthOrNextOffset,
+          };
+        }
       }
+    }
 
-      public IEnumerable<SubArchiveContentFile> EnumerateFiles(
-          IArchiveStream<SubArchiveContentFile> archiveStream) {
-        var er = archiveStream.AsEndianBinaryReader(Endianness.BigEndian);
+    private IList<FileEntry> ReadFileSystemTable_(IEndianBinaryReader er,
+                                                  DiskHeader diskHeader) {
+      var entries = new List<FileEntry>();
 
-        var diskHeader = er.ReadNew<DiskHeader>();
-        var fileEntries = this.ReadFileSystemTable_(er, diskHeader);
-
-        var rootDirectoryFullName = "";
-
-        var directories = new string[fileEntries.Count];
-        directories[0] = rootDirectoryFullName;
-
-        //for now, dump directory structure
-        var directoryStack =
-            new FinStack<(string fullName, uint lastChildIndex)>(
-                (rootDirectoryFullName, (uint) fileEntries.Count));
-
-        var fileTableOffset = 12 * fileEntries.Count;
-        for (int i = 1; i < fileEntries.Count; ++i) {
-          var e = fileEntries[i];
-
-          // Pop to reach parent directory
-          while (i >= directoryStack.Top.lastChildIndex) {
-            directoryStack.Pop();
-          }
-
-          // Get name
-          er.Position = diskHeader.FileSystemTableOffset + fileTableOffset +
-                        e.FileNameOffset;
-          var name = er.ReadStringNT(Encoding.UTF8);
-
-          // Push new directory
-          if (e.IsDirectory) {
-            var parentDir = directories[e.FileOrParentOffset];
-            var childDir = Path.Join(parentDir, name);
-
-            directories[i] = childDir;
-            directoryStack.Push((childDir, e.FileLengthOrNextOffset));
-          }
-          // Export file
-          else {
-            yield return new SubArchiveContentFile {
-                RelativeName = Path.Join(directoryStack.Top.fullName, name),
-                Position = (int) e.FileOrParentOffset,
-                Length = (int) e.FileLengthOrNextOffset,
-            };
-          }
+      //read files
+      er.Position = diskHeader.FileSystemTableOffset;
+      uint numFiles = 1;
+      for (int i = 0; i < numFiles; ++i) {
+        var entry = er.ReadNew<FileEntry>();
+        entries.Add(entry);
+        if (i == 0) {
+          numFiles = entry.FileLengthOrNextOffset;
         }
       }
 
-      private IList<FileEntry> ReadFileSystemTable_(IEndianBinaryReader er,
-                                                    DiskHeader diskHeader) {
-        var entries = new List<FileEntry>();
+      return entries;
+    }
 
-        //read files
-        er.Position = diskHeader.FileSystemTableOffset;
-        uint numFiles = 1;
-        for (int i = 0; i < numFiles; ++i) {
-          var entry = er.ReadNew<FileEntry>();
-          entries.Add(entry);
-          if (i == 0) {
-            numFiles = entry.FileLengthOrNextOffset;
-          }
-        }
-
-        return entries;
-      }
-
-      [BinarySchema]
-
+    [BinarySchema]
     private partial class Ids : IBinaryConvertible {
       public byte ConsoleId { get; set; }
       public ushort GameId { get; set; }

@@ -12,17 +12,19 @@ namespace fin.io.archive {
     IEndianBinaryReader AsEndianBinaryReader(Endianness endianness);
 
     Stream GetContentFileStream(TArchiveContentFile archiveContentFile);
+
     void CopyContentFileInto(TArchiveContentFile archiveContentFile,
                              Stream dstStream);
   }
 
   public interface IArchiveReader<TArchiveContentFile>
       where TArchiveContentFile : IArchiveContentFile {
+    bool IsValidArchive(Stream archive);
+
     IArchiveStream<TArchiveContentFile> Decompress(Stream archive);
 
-    bool TryToGetFiles(
-        IArchiveStream<TArchiveContentFile> archiveStream,
-        out IEnumerable<TArchiveContentFile> archiveContentFiles);
+    IEnumerable<TArchiveContentFile> GetFiles(
+        IArchiveStream<TArchiveContentFile> archiveStream);
   }
 
   public interface IArchiveExtractor<TArchiveContentFile>
