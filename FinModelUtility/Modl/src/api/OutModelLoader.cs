@@ -37,7 +37,7 @@ namespace modl.api {
   public class OutModelLoader : IModelLoader<OutModelFileBundle> {
     public IModel LoadModel(OutModelFileBundle modelFileBundle)
       => modelFileBundle.TextureDirectories != null
-          ? LoadModel(modelFileBundle.OutFile.Impl,
+          ? LoadModel(modelFileBundle.OutFile,
                       modelFileBundle.TextureDirectories.Select(dir => dir.Impl),
                       modelFileBundle.GameVersion,
                       out _)
@@ -65,7 +65,7 @@ namespace modl.api {
                             terrainLightScale);
     }
 
-    public IModel LoadModel(ISystemFile outFile,
+    public IModel LoadModel(IReadOnlyGenericFile outFile,
                             IEnumerable<ISystemDirectory>
                                 textureDirectoriesEnumerable,
                             GameVersion gameVersion,

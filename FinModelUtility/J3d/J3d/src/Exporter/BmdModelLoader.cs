@@ -49,7 +49,7 @@ namespace j3d.exporter {
     public IModel LoadModel(BmdModelFileBundle modelFileBundle) {
       var logger = Logging.Create<BmdModelLoader>();
 
-      var bmd = new BMD(modelFileBundle.BmdFile.Impl.ReadAllBytes());
+      var bmd = new BMD(modelFileBundle.BmdFile.ReadAllBytes());
 
       List<(string, IBcx)>? pathsAndBcxs;
       try {
