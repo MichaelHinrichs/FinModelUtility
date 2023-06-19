@@ -99,7 +99,6 @@ Download a release via the Releases tab (for stability), or via the green "Code"
 
 Then, follow the steps below.
 
-0) For any 3DS titles, you must first install HackingToolkit9DS or else you won't be able to extract the contents of ROMs. This can be done by running `cli\tools\HackingToolkit9DSv12\SetupUS.exe`.
 1) Drop ROM(s) in the `cli/roms/` directory. Make sure their names match the corresponding name above!
 
 ### Viewing/extracting models via the UI
