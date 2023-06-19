@@ -12,18 +12,13 @@ namespace uni.games.super_mario_sunshine {
   public class SuperMarioSunshineModelFileGatherer
       : IFileBundleGatherer<BmdModelFileBundle> {
     public IEnumerable<BmdModelFileBundle> GatherFileBundles(bool assert) {
-      if (!DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
-              "super_mario_sunshine.gcm",
-              assert,
-              out var superMarioSunshineRom)) {
+      if (!new GcnFileHierarchyExtractor().TryToExtractFromGame(
+              "super_mario_sunshine",
+              GcnFileHierarchyExtractor.Options.Standard()
+                                       .PruneRarcDumpNames("scene"),
+              out var fileHierarchy)) {
         return Enumerable.Empty<BmdModelFileBundle>();
       }
-
-      var options = GcnFileHierarchyExtractor.Options.Standard()
-                                             .PruneRarcDumpNames("scene");
-      var fileHierarchy =
-          new GcnFileHierarchyExtractor()
-              .ExtractFromRom(options, superMarioSunshineRom);
 
       return this.ExtractMario_(fileHierarchy)
                  .Concat(this.ExtractFludd_(fileHierarchy))

@@ -11,17 +11,11 @@ namespace uni.games.super_smash_bros_melee {
     public string Name => "super_smash_bros_melee";
 
     public IEnumerable<DatModelFileBundle>? GatherFileBundles(bool assert) {
-      if (!DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
-              "super_smash_bros_melee.gcm",
-              assert,
-              out var superSmashBrosMeleeRom)) {
+      if (!new GcnFileHierarchyExtractor().TryToExtractFromGame(
+              "super_smash_bros_melee",
+              out var fileHierarchy)) {
         yield break;
       }
-
-      var options = GcnFileHierarchyExtractor.Options.Standard();
-      var fileHierarchy =
-          new GcnFileHierarchyExtractor()
-              .ExtractFromRom(options, superSmashBrosMeleeRom);
 
       foreach (var datFile in fileHierarchy.Root.FilesWithExtension(".dat")) {
         var datFileName = datFile.NameWithoutExtension;

@@ -72,9 +72,9 @@ If you'd like to vote on new games or features that should be supported, please 
 *Not all of the models for each game are currently supported, and not every feature of each model will be accurately recreated in the output GLTF/FBX files. To flag any broken/missing models that you'd like to see fixed, please feel free to file feedback via the Issues tab above.*
 
 - J3D (.bmd/.bdl) (GCN)
-  - Mario Kart: Double Dash (`mario_kart_double_dash.gcm`)
-  - Pikmin 2 (`pikmin_2.gcm`)
-  - Super Mario Sunshine (`super_mario_sunshine.gcm`)
+  - Mario Kart: Double Dash (`mario_kart_double_dash.[ciso/gcm/iso/nkit.iso]`)
+  - Pikmin 2 (`pikmin_2.[ciso/gcm/iso/nkit.iso]`)
+  - Super Mario Sunshine (`super_mario_sunshine.[ciso/gcm/iso/nkit.iso]`)
 - .cmb (3DS)
   - Luigi's Mansion 3D (`luigis_mansion_3d.[3ds/cci/cia]`)
   - Majora's Mask 3D (`majoras_mask_3d.[3ds/cci/cia]`)
@@ -82,9 +82,9 @@ If you'd like to vote on new games or features that should be supported, please 
 - .glo (PC)
   - Glover (Steam)
 - .mod (GCN)
-  - Pikmin 1 (`pikmin_1.gcm`)
+  - Pikmin 1 (`pikmin_1.[ciso/gcm/iso/nkit.iso]`)
 - .modl/.out (GCN/WII)
-  - Battalion Wars 1 (`battalion_wars_1.gcm`)
+  - Battalion Wars 1 (`battalion_wars_1.[ciso/gcm/iso/nkit.iso]`)
   - Battalion Wars 2 (`battalion_wars_2.iso`)
 - .vis/.xtd (PC)
   - Halo Wars (Steam)
@@ -92,7 +92,7 @@ If you'd like to vote on new games or features that should be supported, please 
   - Professor Layton vs. Phoenix Wright (`professor_layton_vs_phoenix_wright.[3ds/cci/cia]`)
 
 *Note:*
-- For GameCube ROMs, files with `.iso`, `.nkit.iso`, or `.ciso` extensions should work as long as they are renamed to `[game_name].gcm`.
+- For GameCube ROMs, files with `.ciso`, `.gcm`, `.iso`, or `.nkit.iso` extensions should work.
 - For 3DS ROMs, files with `.3ds`, `.cci`, or `.cia` extensions should work.
 
 ## Usage guide
@@ -101,7 +101,7 @@ Download a release via the Releases tab (for stability), or via the green "Code"
 
 Then, follow the steps below.
 
-1) Drop ROM(s) in the `cli/roms/` directory. Make sure their names match the corresponding name above!
+1) Drop ROM(s) in the `cli/roms/` directory. Make sure their names match the corresponding name above! (Games with brackets should accept any of the listed extensions.)
 
 ### Viewing/extracting models via the UI
 

@@ -19,13 +19,14 @@ namespace uni.platforms.threeDs {
       return true;
     }
 
-    private bool TryToFindRom_(string gameName, out ISystemFile romFile) {
-      var romsDirectory = DirectoryConstants.ROMS_DIRECTORY;
-      return
-          romsDirectory.TryToGetExistingFile($"{gameName}.cci", out romFile) ||
-          romsDirectory.TryToGetExistingFile($"{gameName}.3ds", out romFile) ||
-          romsDirectory.TryToGetExistingFile($"{gameName}.cia", out romFile);
-    }
+    private bool TryToFindRom_(string gameName, out ISystemFile romFile)
+      => DirectoryConstants.ROMS_DIRECTORY
+                           .TryToGetExistingFileWithExtension(
+                               gameName,
+                               out romFile,
+                               ".cci",
+                               ".3ds",
+                               ".cia");
 
     private IFileHierarchy ExtractFromRom_(ISystemFile romFile) {
       IFileHierarchy fileHierarchy;

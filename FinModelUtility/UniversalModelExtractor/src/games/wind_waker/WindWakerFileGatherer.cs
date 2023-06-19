@@ -7,8 +7,6 @@ using fin.util.strings;
 
 using j3d.exporter;
 
-using uni.msg;
-using uni.platforms;
 using uni.platforms.gcn;
 using uni.platforms.gcn.tools;
 
@@ -21,17 +19,11 @@ namespace uni.games.wind_waker {
         Logging.Create<WindWakerFileGatherer>();
 
     public IEnumerable<BmdModelFileBundle> GatherFileBundles(bool assert) {
-      if (!DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
-              "wind_waker.gcm",
-              assert,
-              out var windWakerRom)) {
+      if (!new GcnFileHierarchyExtractor().TryToExtractFromGame(
+              "wind_waker",
+              out var fileHierarchy)) {
         return Enumerable.Empty<BmdModelFileBundle>();
       }
-
-      var options = GcnFileHierarchyExtractor.Options.Standard();
-      var fileHierarchy =
-          new GcnFileHierarchyExtractor()
-              .ExtractFromRom(options, windWakerRom);
 
       var objectDirectory = fileHierarchy.Root.GetExistingSubdir(@"res\Object");
       {

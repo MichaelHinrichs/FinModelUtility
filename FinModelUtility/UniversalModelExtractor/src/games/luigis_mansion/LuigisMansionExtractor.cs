@@ -1,5 +1,7 @@
 ﻿using fin.log;
 
+using j3d.exporter;
+
 using uni.platforms;
 using uni.platforms.gcn;
 
@@ -9,20 +11,17 @@ namespace uni.games.luigis_mansion {
         Logging.Create<LuigisMansionExtractor>();
 
     public void ExtractAll() {
-      var luigisMansionRom =
-          DirectoryConstants.ROMS_DIRECTORY.GetExistingFile(
-              "luigis_mansion.gcm");
-
-      var options =
-          GcnFileHierarchyExtractor.Options.Standard()
-                                   .UseRarcDumpForExtensions(
-                                       // For some reason, some MDL files are compressed as RARC.
-                                       ".mdl");
-
-      var fileHierarchy =
-          new GcnFileHierarchyExtractor().ExtractFromRom(
-              options,
-              luigisMansionRom);
+      if (!new GcnFileHierarchyExtractor().TryToExtractFromGame(
+              "luigis_mansion",
+              GcnFileHierarchyExtractor
+                  .Options
+                  .Standard()
+                  .UseRarcDumpForExtensions(
+                      // For some reason, some MDL files are compressed as RARC.
+                      ".mdl"),
+              out var fileHierarchy)) {
+        return;
+      }
 
       // TODO: Use Mdl2Fbx
     }

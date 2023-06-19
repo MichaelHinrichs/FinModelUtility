@@ -140,6 +140,21 @@ namespace fin.io {
       return false;
     }
 
+    public bool TryToGetExistingFileWithExtension(string pathWithoutExtension,
+                                                  out ISystemFile outFile,
+                                                  params string[] extensions) {
+      foreach (var extension in extensions) {
+        if (this.TryToGetExistingFile($"{pathWithoutExtension}{extension}",
+                                      out outFile)) {
+          return true;
+        }
+      }
+
+      outFile = default;
+      return false;
+    }
+
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ISystemFile GetExistingFile(string path)
       => new FinFile(FinDirectoryStatic.GetExistingFile(this.FullName, path));

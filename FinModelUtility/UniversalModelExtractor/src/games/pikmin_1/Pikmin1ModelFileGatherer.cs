@@ -2,7 +2,6 @@
 
 using mod.cli;
 
-using uni.platforms;
 using uni.platforms.gcn;
 
 
@@ -10,16 +9,12 @@ namespace uni.games.pikmin_1 {
   public class Pikmin1ModelFileGatherer
       : IFileBundleGatherer<ModModelFileBundle> {
     public IEnumerable<ModModelFileBundle> GatherFileBundles(bool assert) {
-      if (!DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
-              "pikmin_1.gcm",
-              assert,
-              out var pikmin1Rom)) {
+      if (!new GcnFileHierarchyExtractor().TryToExtractFromGame(
+              "pikmin_1",
+              GcnFileHierarchyExtractor.Options.Empty(),
+              out var fileHierarchy)) {
         return Enumerable.Empty<ModModelFileBundle>();
       }
-
-      var options = GcnFileHierarchyExtractor.Options.Empty();
-      var fileHierarchy =
-          new GcnFileHierarchyExtractor().ExtractFromRom(options, pikmin1Rom);
 
       return fileHierarchy.SelectMany(directory => {
         // TODO: Handle special cases:

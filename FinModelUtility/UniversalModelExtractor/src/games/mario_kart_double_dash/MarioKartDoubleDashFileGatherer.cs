@@ -6,27 +6,20 @@ using fin.io;
 using fin.io.bundles;
 using fin.util.asserts;
 
-using uni.platforms;
 using uni.platforms.gcn;
 
 
 namespace uni.games.mario_kart_double_dash {
   public class MarioKartDoubleDashFileGatherer
       : IFileBundleGatherer<IFileBundle> {
-    public IEnumerable<IFileBundle> GatherFileBundles(
-        bool assert) {
-      if (!DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
-              "mario_kart_double_dash.gcm",
-              assert,
-              out var marioKartDoubleDashRom)) {
+    public IEnumerable<IFileBundle> GatherFileBundles(bool assert) {
+      if (!new GcnFileHierarchyExtractor().TryToExtractFromGame(
+              "mario_kart_double_dash",
+              GcnFileHierarchyExtractor.Options.Standard()
+                                       .UseRarcDumpForExtensions(".arc"),
+              out var fileHierarchy)) {
         return Enumerable.Empty<IFileBundle>();
       }
-
-      var options = GcnFileHierarchyExtractor.Options.Standard()
-                                             .UseRarcDumpForExtensions(".arc");
-      var fileHierarchy =
-          new GcnFileHierarchyExtractor()
-              .ExtractFromRom(options, marioKartDoubleDashRom);
 
       // TODO: Extract "enemies"
       // TODO: Extract "objects"

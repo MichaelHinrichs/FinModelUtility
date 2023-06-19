@@ -2,8 +2,6 @@
 using fin.io.archive;
 using fin.util.strings;
 
-using Microsoft.CodeAnalysis.VisualBasic.Syntax;
-
 using uni.platforms.gcn.tools;
 
 namespace uni.platforms.gcn {
@@ -13,9 +11,39 @@ namespace uni.platforms.gcn {
     private readonly Yay0Dec yay0Dec_ = new();
     private readonly Yaz0Dec yaz0Dec_ = new();
 
-    public IFileHierarchy ExtractFromRom(
+    public bool TryToExtractFromGame(
+        string gameName,
+        out IFileHierarchy fileHierarchy)
+      => this.TryToExtractFromGame(gameName,
+                                   Options.Standard(),
+                                   out fileHierarchy);
+
+    public bool TryToExtractFromGame(
+        string gameName,
         Options options,
-        ISystemFile romFile) {
+        out IFileHierarchy fileHierarchy) {
+      if (!this.TryToFindRom_(gameName, out var romFile)) {
+        fileHierarchy = default;
+        return false;
+      }
+
+      fileHierarchy = this.ExtractFromRom_(romFile, options);
+      return true;
+    }
+
+    private bool TryToFindRom_(string gameName, out ISystemFile romFile)
+      => DirectoryConstants.ROMS_DIRECTORY
+                           .TryToGetExistingFileWithExtension(
+                               gameName,
+                               out romFile,
+                               ".ciso",
+                               ".nkit.iso",
+                               ".iso",
+                               ".gcm");
+
+    public IFileHierarchy ExtractFromRom_(
+        ISystemFile romFile,
+        Options options) {
       var directory = new FinDirectory(romFile.FullNameWithoutExtension);
 
       if (new SubArchiveExtractor().TryToExtractIntoNewDirectory<GcmReader>(

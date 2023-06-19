@@ -65,6 +65,10 @@ namespace fin.io {
     IEnumerable<ISystemFile> GetExistingFiles();
     ISystemFile GetExistingFile(string path);
     bool TryToGetExistingFile(string path, out ISystemFile outFile);
+
+    bool TryToGetExistingFileWithExtension(string pathWithoutExtension,
+                                           out ISystemFile outFile,
+                                           params string[] extensions);
     IEnumerable<ISystemFile> SearchForFiles(
         string searchPattern,
         bool includeSubdirs = false);

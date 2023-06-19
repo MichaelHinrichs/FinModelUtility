@@ -13,19 +13,13 @@ namespace uni.games.pikmin_2 {
   public class Pikmin2FileGatherer : IFileBundleGatherer<IFileBundle> {
     public IEnumerable<IFileBundle> GatherFileBundles(
         bool assert) {
-      if (!DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
-              "pikmin_2.gcm",
-              assert,
-              out var pikmin2Rom)) {
+      if (!new GcnFileHierarchyExtractor().TryToExtractFromGame(
+              "pikmin_2",
+              GcnFileHierarchyExtractor.Options.Standard()
+                                       .PruneRarcDumpNames("arc", "data"),
+              out var fileHierarchy)) {
         return Enumerable.Empty<IFileBundle>();
       }
-
-      var options = GcnFileHierarchyExtractor.Options.Standard()
-                                             .PruneRarcDumpNames("arc", "data");
-      var fileHierarchy =
-          new GcnFileHierarchyExtractor().ExtractFromRom(
-              options,
-              pikmin2Rom);
 
       return
           this.ExtractPikminAndCaptainModels_(fileHierarchy)

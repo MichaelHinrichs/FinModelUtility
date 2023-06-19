@@ -9,19 +9,11 @@ using uni.util.io;
 namespace uni.games.battalion_wars_1 {
   public class BattalionWars1FileGatherer : IFileBundleGatherer<IFileBundle> {
     public IEnumerable<IFileBundle> GatherFileBundles(bool assert) {
-      if (!DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
-              "battalion_wars_1.gcm",
-              assert,
-              out var battalionWarsRom)) {
+      if (!new GcnFileHierarchyExtractor().TryToExtractFromGame(
+              "battalion_wars_1",
+              out var fileHierarchy)) {
         return Enumerable.Empty<IFileBundle>();
       }
-
-      var options = GcnFileHierarchyExtractor.Options.Standard();
-
-      var fileHierarchy =
-          new GcnFileHierarchyExtractor().ExtractFromRom(
-              options,
-              battalionWarsRom);
 
       foreach (var directory in fileHierarchy) {
         var didUpdate = false;
