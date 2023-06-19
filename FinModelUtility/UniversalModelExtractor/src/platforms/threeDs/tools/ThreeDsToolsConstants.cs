@@ -2,6 +2,14 @@
 
 namespace uni.platforms.gcn.tools {
   public static class ThreeDsToolsConstants {
+    public static ISystemDirectory CTRTOOL_DIRECTORY =
+        DirectoryConstants.TOOLS_DIRECTORY.GetSubdir("ctrtool");
+
+    public static ISystemFile EXTRACT_CIA_BAT =
+        ThreeDsToolsConstants.CTRTOOL_DIRECTORY.GetExistingFile(
+            "extract_cia.bat");
+
+
     public static ISystemDirectory HACKING_TOOLKIT_9DS_DIRECTORY =
         DirectoryConstants.TOOLS_DIRECTORY.GetSubdir(
             "HackingToolkit9DSv12");

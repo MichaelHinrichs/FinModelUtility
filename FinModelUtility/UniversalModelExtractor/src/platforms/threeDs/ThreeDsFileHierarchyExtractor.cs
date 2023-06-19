@@ -10,7 +10,7 @@ namespace uni.platforms.threeDs {
     public IFileHierarchy ExtractFromRom(
         ISystemFile romFile,
         ISet<string>? junkTerms = null) {
-      new HackingToolkit9ds().Run(romFile, out var fileHierarchy);
+      new CtrtoolCiaExtractor().Run(romFile, out var fileHierarchy);
 
       var archiveExtractor = new SubArchiveExtractor();
 
