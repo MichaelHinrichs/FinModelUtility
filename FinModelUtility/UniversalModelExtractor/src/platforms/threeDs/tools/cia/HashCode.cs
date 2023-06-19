@@ -3,5 +3,7 @@
     private readonly byte[] hash_ = new byte[32];
 
     public HashCode() { }
+
+    public IReadOnlyList<byte> Bytes => this.hash_;
   }
 }
