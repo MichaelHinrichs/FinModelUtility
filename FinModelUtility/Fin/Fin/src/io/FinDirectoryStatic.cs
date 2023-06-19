@@ -12,6 +12,10 @@ namespace fin.io {
     public static bool Exists(string fullName)
       => FinFileSystem.Directory.Exists(fullName);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsEmpty(string fullName)
+      => !FinFileSystem.Directory.EnumerateFileSystemEntries(fullName).Any();
+
     public static bool Create(string fullName)
       => FinFileSystem.Directory.CreateDirectory(fullName).Exists;
 
@@ -127,10 +131,10 @@ namespace fin.io {
         string extension,
         bool includeSubdirs = false)
       => FinFileSystem.Directory.GetFiles(
-                          fullName,
-                          $"*{Files.AssertValidExtension(extension)}",
-                          includeSubdirs
-                              ? SearchOption.AllDirectories
-                              : SearchOption.TopDirectoryOnly);
+          fullName,
+          $"*{Files.AssertValidExtension(extension)}",
+          includeSubdirs
+              ? SearchOption.AllDirectories
+              : SearchOption.TopDirectoryOnly);
   }
 }

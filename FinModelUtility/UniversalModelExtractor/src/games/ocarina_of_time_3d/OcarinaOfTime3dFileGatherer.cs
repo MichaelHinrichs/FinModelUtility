@@ -120,16 +120,11 @@ namespace uni.games.ocarina_of_time_3d {
           .Register("zelda_xc", new NoAnimationsModelSeparatorMethod());
 
     public IEnumerable<CmbModelFileBundle> GatherFileBundles(bool assert) {
-      if (!DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
-              "ocarina_of_time_3d.cia",
-              assert,
-              out var ocarinaOfTime3dRom)) {
+      if (!new ThreeDsFileHierarchyExtractor().TryToExtractFromGame(
+              "ocarina_of_time_3d",
+              out var fileHierarchy)) {
         return Enumerable.Empty<CmbModelFileBundle>();
       }
-
-      var fileHierarchy =
-          new ThreeDsFileHierarchyExtractor()
-              .ExtractFromRom(ocarinaOfTime3dRom);
 
       return new FileBundleGathererAccumulatorWithInput<CmbModelFileBundle,
                  IFileHierarchy>(

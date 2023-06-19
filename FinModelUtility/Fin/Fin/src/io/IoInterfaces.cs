@@ -50,6 +50,8 @@ namespace fin.io {
   // Directory
 
   public interface ISystemDirectory : ISystemIoObject {
+    bool IsEmpty { get; }
+
     bool Create();
     
     bool Delete(bool recursive = false);

@@ -28,7 +28,7 @@ namespace fin.io {
       for (int i = length; --i >= 0;) {
         char ch = fullName[i];
         if (ch == '.')
-          return fullName.Substring(i, length - i);
+          return fullName.Substring(i, length - i).ToLower();
         if (ch == '\\' || ch == '/' || ch == Path.VolumeSeparatorChar)
           break;
       }

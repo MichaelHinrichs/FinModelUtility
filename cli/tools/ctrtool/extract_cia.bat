@@ -16,7 +16,7 @@ goto end
 ctrtool --contents=contents %~1
 if not exist contents.0000.00000000 (goto ciaextractfailed)
 rename contents.0000.00000000 nsmb2.cxi
-ctrtool --romfsdir=romfs --exefsdir=exefs --exheader=exheader.bin nsmb2.cxi
+ctrtool --romfsdir=%~2 nsmb2.cxi
 for %%f in (contents.000*) do (del "%%f")
 goto end
 

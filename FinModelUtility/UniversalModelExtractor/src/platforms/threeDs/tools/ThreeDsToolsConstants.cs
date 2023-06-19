@@ -9,6 +9,11 @@ namespace uni.platforms.gcn.tools {
         ThreeDsToolsConstants.CTRTOOL_DIRECTORY.GetExistingFile(
             "extract_cia.bat");
 
+    public static ISystemFile EXTRACT_CCI_BAT =
+        ThreeDsToolsConstants.CTRTOOL_DIRECTORY.GetExistingFile(
+            "extract_cci.bat");
+
+
 
     public static ISystemDirectory THREEDS_XSFATOOL_DIRECTORY =
         DirectoryConstants.TOOLS_DIRECTORY.GetSubdir(

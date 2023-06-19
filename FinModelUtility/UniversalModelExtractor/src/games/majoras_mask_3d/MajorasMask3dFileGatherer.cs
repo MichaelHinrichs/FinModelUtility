@@ -24,16 +24,11 @@ namespace uni.games.majoras_mask_3d {
 
     public IEnumerable<CmbModelFileBundle> GatherFileBundles(
         bool assert) {
-      if (!DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
-              "majoras_mask_3d.cia",
-              assert,
-              out var majorasMask3dRom)) {
+      if (!new ThreeDsFileHierarchyExtractor().TryToExtractFromGame(
+              "majoras_mask_3d",
+              out var fileHierarchy)) {
         return Enumerable.Empty<CmbModelFileBundle>();
       }
-
-      var fileHierarchy =
-          new ThreeDsFileHierarchyExtractor()
-              .ExtractFromRom(majorasMask3dRom);
 
       return new FileBundleGathererAccumulatorWithInput<CmbModelFileBundle,
                  IFileHierarchy>(fileHierarchy)

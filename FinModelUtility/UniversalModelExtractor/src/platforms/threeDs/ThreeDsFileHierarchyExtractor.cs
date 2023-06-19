@@ -3,14 +3,44 @@ using fin.io.archive;
 using fin.util.strings;
 
 using uni.platforms.threeDs.tools;
+using uni.platforms.threeDs.tools.ctrtool;
 
 
 namespace uni.platforms.threeDs {
   public class ThreeDsFileHierarchyExtractor {
-    public IFileHierarchy ExtractFromRom(
-        ISystemFile romFile,
-        ISet<string>? junkTerms = null) {
-      new CtrtoolCiaExtractor().Run(romFile, out var fileHierarchy);
+    public bool TryToExtractFromGame(string gameName,
+                                     out IFileHierarchy fileHierarchy) {
+      if (!this.TryToFindRom_(gameName, out var romFile)) {
+        fileHierarchy = default;
+        return false;
+      }
+
+      fileHierarchy = this.ExtractFromRom_(romFile);
+      return true;
+    }
+
+    private bool TryToFindRom_(string gameName, out ISystemFile romFile) {
+      var romsDirectory = DirectoryConstants.ROMS_DIRECTORY;
+      return
+          romsDirectory.TryToGetExistingFile($"{gameName}.cci", out romFile) ||
+          romsDirectory.TryToGetExistingFile($"{gameName}.3ds", out romFile) ||
+          romsDirectory.TryToGetExistingFile($"{gameName}.cia", out romFile);
+    }
+
+    private IFileHierarchy ExtractFromRom_(ISystemFile romFile) {
+      IFileHierarchy fileHierarchy;
+      switch (romFile.Extension) {
+        case ".cia": {
+          new Ctrtool.CiaExtractor().Run(romFile, out fileHierarchy);
+          break;
+        }
+        case ".3ds":
+        case ".cci": {
+          new Ctrtool.CciExtractor().Run(romFile, out fileHierarchy);
+          break;
+        }
+        default: throw new NotSupportedException();
+      }
 
       var archiveExtractor = new SubArchiveExtractor();
 

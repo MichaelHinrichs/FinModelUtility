@@ -75,6 +75,7 @@ namespace fin.io {
 
 
     // Directory methods
+    public bool IsEmpty => FinDirectoryStatic.IsEmpty(this.FullName);
     public bool Exists => FinDirectoryStatic.Exists(this.FullName);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -76,9 +76,9 @@ If you'd like to vote on new games or features that should be supported, please 
   - Pikmin 2 (`pikmin_2.gcm`)
   - Super Mario Sunshine (`super_mario_sunshine.gcm`)
 - .cmb (3DS)
-  - Luigi's Mansion 3D (`luigis_mansion_3d.cia`)
-  - Majora's Mask 3D (`majoras_mask_3d.cia`)
-  - Ocarina of Time 3D (`ocarina_of_time_3d.cia`)
+  - Luigi's Mansion 3D (`luigis_mansion_3d.[3ds/cci/cia]`)
+  - Majora's Mask 3D (`majoras_mask_3d.[3ds/cci/cia]`)
+  - Ocarina of Time 3D (`ocarina_of_time_3d.[3ds/cci/cia]`)
 - .glo (PC)
   - Glover (Steam)
 - .mod (GCN)
@@ -89,9 +89,11 @@ If you'd like to vote on new games or features that should be supported, please 
 - .vis/.xtd (PC)
   - Halo Wars (Steam)
 - .xc (3DS)
-  - Professor Layton vs. Phoenix Wright (`professor_layton_vs_phoenix_wright.cia`)
+  - Professor Layton vs. Phoenix Wright (`professor_layton_vs_phoenix_wright.[3ds/cci/cia]`)
 
-*Note:* For GameCube ROMs, files with `.iso`, `.nkit.iso`, or `.ciso` extensions should work as long as they are renamed to `[game_name].gcm`.
+*Note:*
+- For GameCube ROMs, files with `.iso`, `.nkit.iso`, or `.ciso` extensions should work as long as they are renamed to `[game_name].gcm`.
+- For 3DS ROMs, files with `.3ds`, `.cci`, or `.cia` extensions should work.
 
 ## Usage guide
 

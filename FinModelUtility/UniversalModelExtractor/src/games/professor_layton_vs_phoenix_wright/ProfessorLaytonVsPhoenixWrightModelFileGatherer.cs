@@ -1,8 +1,9 @@
-﻿using fin.io;
+﻿using cmb.api;
+
+using fin.io;
 using fin.io.bundles;
 
 using level5.api;
-using level5.schema;
 
 using uni.platforms;
 using uni.platforms.threeDs;
@@ -14,16 +15,11 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
   public class ProfessorLaytonVsPhoenixWrightModelFileGatherer
       : IFileBundleGatherer<XcModelFileBundle> {
     public IEnumerable<XcModelFileBundle> GatherFileBundles(bool assert) {
-      if (!DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
-              "professor_layton_vs_phoenix_wright.cia",
-              assert,
-              out var professorLaytonVsPhoenixWrightRom)) {
+      if (!new ThreeDsFileHierarchyExtractor().TryToExtractFromGame(
+              "professor_layton_vs_phoenix_wright",
+              out var fileHierarchy)) {
         return Enumerable.Empty<XcModelFileBundle>();
       }
-
-      var fileHierarchy =
-          new ThreeDsFileHierarchyExtractor().ExtractFromRom(
-              professorLaytonVsPhoenixWrightRom);
 
       if (new ThreeDsXfsaTool().Extract(
               fileHierarchy.Root.Files.Single(file => file.Name == "vs1.fa"))) {
