@@ -17,7 +17,7 @@ local uint i, ii;
 
 
 typedef struct {
-  uint fileSize;
+  uint pointersOffset;
   uint maybeVersion;
   uint primarySkeletonId;
   uint unk[3];
@@ -30,6 +30,13 @@ typedef struct {
 } FileHeader;
 
 FileHeader fileHeader;
+
+
+
+FSeek(fileHeader.pointersOffset);
+local uint pointerCount = (FileSize() - fileHeader.pointersOffset) >> 2;
+uint pointers[pointerCount];
+
 
 
 typedef struct {
@@ -84,3 +91,13 @@ typedef struct {
 
 FSeek(fileHeader.skeletonsOffset);
 Skeleton skeleton[fileHeader.skeletonCount];
+
+
+
+typedef struct {
+  uint someHash;
+  uint somePointer;
+} Unk;
+
+FSeek(fileHeader.unkOffset);
+Unk unk[fileHeader.unkCount];

@@ -17,7 +17,7 @@ local uint i, ii;
 
 
 typedef struct {
-  uint fileSize;
+  uint pointersOffset;
   uint maybeVersion;
   uint unk1;
   uint skeletonId; // Matches a value from the associated RCB file
@@ -36,60 +36,78 @@ typedef struct {
 FileHeader fileHeader;
 
 
+FSeek(fileHeader.pointersOffset);
+local uint pointerCount = (FileSize() - fileHeader.pointersOffset) >> 2;
+uint pointers[pointerCount];
+
+
+
+
+
 typedef struct {
+  uint ptr;
+
+  local uint tmp = FTell();
+  FSeek(ptr);
+
   uint nameOffset;
   uint unkOffset;
 
   FSeek(nameOffset);
   string name;
+
+  FSeek(tmp);
 } AnimationHeader;
 
-for(i = 0; i < fileHeader.animationHeaderCount; i++) {
-  FSeek(fileHeader.animationHeaderOffsetTableOffset + 4 * i);
-  uint animationHeaderOffset;
-
-  FSeek(animationHeaderOffset);
-  AnimationHeader animationHeader;
-}
+FSeek(fileHeader.animationHeaderOffsetTableOffset);
+AnimationHeader animationHeaders[fileHeader.animationHeaderCount];
 
 
 typedef struct {
+  uint ptr;
+
+
+  local uint tmp = FTell();
+  FSeek(ptr);
+
+
   uint someId; // Looks like a hash, matches something at the bottom of RCB files
   uint unk1[9];
 
   uint someCount;
   uint someOffset;
-} AnimationData;
-
-typedef struct {
-  ushort maybePadding;
-  ushort maybeOffsetToData;
-  uint commandOffset;
-  uint someFlags;
-  uint paramsOffset;
-
-  FSeek(commandOffset);
-  string command;
-} SomeData;
-
-typedef struct {
-  uint someEnum;
-  uint someValue;
-} Params;
 
 
-for(i = 0; i < fileHeader.animationDataCount; i++) {
-  FSeek(fileHeader.animationDataOffsetTableOffset + 4 * i);
-  uint animationDataOffset;
+  typedef struct {
+    ushort maybePadding;
+    ushort maybeOffsetToData;
+    uint commandOffset;
+    uint someFlags;
+    uint paramsOffset;
+    
+    FSeek(commandOffset);
+    string command;
+  } SomeData;
 
-  FSeek(animationDataOffset);
-  AnimationData animationData;
+  typedef struct {
+    uint someEnum;
+    uint someValue;
+  } Params;
 
-  for(ii = 0; ii < animationData.someCount; ii++) {
-    FSeek(animationData.someOffset + 16 * ii);
+
+  for(ii = 0; ii < someCount; ii++) {
+    FSeek(someOffset + 16 * ii);
     SomeData someData;
 
     FSeek(someData.paramsOffset);
     Params params;
   }
-}
+
+
+  FSeek(tmp);
+} AnimationData;
+
+
+
+FSeek(fileHeader.animationDataOffsetTableOffset);
+AnimationData animationDatas[fileHeader.animationDataCount];
