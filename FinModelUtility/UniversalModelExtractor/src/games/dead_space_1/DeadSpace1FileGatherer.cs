@@ -31,8 +31,11 @@ namespace uni.games.dead_space_1 {
 
       var assetFileHierarchy = new FileHierarchy(baseOutputDirectory);
 
-      var charsDirectory = assetFileHierarchy.Root.GetExistingSubdir("chars");
-      foreach (var charSubdir in charsDirectory.Subdirs) {
+
+      foreach (var charSubdir in
+               new[] { "animated_props", "chars", "weapons" }
+                   .Select(assetFileHierarchy.Root.GetExistingSubdir)
+                   .SelectMany(subdir => subdir.Subdirs)) {
         IFileHierarchyFile[] geoFiles = Array.Empty<IFileHierarchyFile>();
         if (charSubdir.TryToGetExistingSubdir("rigged/export",
                                               out var riggedSubdir)) {
@@ -42,8 +45,10 @@ namespace uni.games.dead_space_1 {
         }
 
         IFileHierarchyFile? rcbFile = null;
-        if (charSubdir.TryToGetExistingSubdir("cct/export", out var cctSubdir)) {
-          rcbFile = cctSubdir.Files.Single(file => file.Name.EndsWith(".rcb.WIN"));
+        if (charSubdir.TryToGetExistingSubdir("cct/export",
+                                              out var cctSubdir)) {
+          rcbFile =
+              cctSubdir.Files.Single(file => file.Name.EndsWith(".rcb.WIN"));
         }
 
         Tg4ImageFileBundle[]? textureFiles = null;
@@ -58,7 +63,8 @@ namespace uni.games.dead_space_1 {
                              .Select(tg4dFile => new Tg4ImageFileBundle {
                                  Tg4dFile = tg4dFile,
                                  Tg4hFile =
-                                     tg4hFiles[tg4dFile.NameWithoutExtension]
+                                     tg4hFiles[
+                                         tg4dFile.NameWithoutExtension]
                              })
                              .ToArray();
         }

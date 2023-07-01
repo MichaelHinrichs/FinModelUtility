@@ -51,7 +51,63 @@ typedef struct {
   FSeek(ptr);
 
   uint nameOffset;
-  uint unkOffset;
+
+  typedef struct {
+    uint ptr;
+
+    local uint tmp = FTell();
+    FSeek(ptr);
+
+    enum <byte> BoneType {
+      ROOT = 0x2,
+      PARENT = 0x5,
+      ANIMATED = 0x16,
+    } type;
+
+    byte childCount;
+    byte maybeId;
+    byte unk1;
+
+    uint someOffset;
+    {
+      local uint tmp2 = FTell();
+      FSeek(someOffset);
+
+      switch (type) {
+        case PARENT: {
+          uint unk3;
+          float unk4;
+          float unk5;
+          uint unk6;
+
+          break;
+        }
+        case ANIMATED: {
+          uint unk7;
+          float unk8;
+          float unk9;
+
+          break;
+        }
+      }
+
+      FSeek(tmp2);
+    }
+
+    uint maybePadding;
+    
+    if (childCount > 0) {
+      struct MaybeBone children[childCount] <optimize=false>;
+    }
+
+    if (type == ANIMATED) {
+      uint pointerToAnimationData;
+    }
+
+    FSeek(tmp);
+  } MaybeBone;
+
+  MaybeBone root;
 
   FSeek(nameOffset);
   string name;
@@ -60,7 +116,7 @@ typedef struct {
 } AnimationHeader;
 
 FSeek(fileHeader.animationHeaderOffsetTableOffset);
-AnimationHeader animationHeaders[fileHeader.animationHeaderCount];
+AnimationHeader animationHeaders[fileHeader.animationHeaderCount] <optimize=false>;
 
 
 typedef struct {
@@ -110,4 +166,4 @@ typedef struct {
 
 
 FSeek(fileHeader.animationDataOffsetTableOffset);
-AnimationData animationDatas[fileHeader.animationDataCount];
+AnimationData animationDatas[fileHeader.animationDataCount] <optimize=false>;

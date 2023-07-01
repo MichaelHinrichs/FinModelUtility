@@ -69,7 +69,7 @@ namespace visceral.schema.geo {
 
       var meshes = new List<Mesh>();
       for (var i = 0; i < meshCount; i++) {
-        er.Position = tableOffset + 0xC0 * i;
+        er.Position = tableOffset + 0xA0 * i;
 
         var meshName = er.ReadStringNTAtOffset(er.ReadUInt32());
 

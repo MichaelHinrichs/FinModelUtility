@@ -94,7 +94,7 @@ typedef struct {
 
   local uint tempOffset = FTell();
 
-  Assert(someId >= 1 && someId <= fileHeader.boneCount);
+  Assert(someId >= 0 && someId <= fileHeader.boneCount);
 
   // This might not be the right use of "someId"
   FSeek(fileHeader.boneOffset + 16 * (someId - 1));
@@ -149,19 +149,19 @@ typedef struct {
     ushort weights[4];
   } Vertex;
   FSeek(vertOffset);
-  Vertex vertices[polyInfo.vertCount];
+  Vertex vertices[polyInfo.vertCount] <optimize=false>;
 
   FSeek(fileHeader.uvBufferOffset + polyInfo.baseVertexIndex * fileHeader.uvSize);
-  Vec2f uvs[polyInfo.vertCount];
+  Vec2f uvs[polyInfo.vertCount] <optimize=false>;
 
   typedef struct {
     ushort vertexIndices[3];
   } Face;
   FSeek(faceOffset);
-  Face faces[polyInfo.faceCount / 3];
+  Face faces[polyInfo.faceCount / 3] <optimize=false>;
 
-  FSeek(baseOffset + 0xC0); 
+  FSeek(baseOffset + 0xA0); 
 } Mesh;
 
 FSeek(fileHeader.tableOffset);
-Mesh meshes[fileHeader.meshCount];
+Mesh meshes[fileHeader.meshCount] <optimize=false>;
