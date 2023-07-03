@@ -39,6 +39,11 @@ namespace fin.model {
       : IRotationTrack3d,
         IInputOutputTrack<Quaternion, QuaternionInterpolator> { }
 
+  public interface IQuaternionAxesRotationTrack3d
+      : IRotationTrack3d,
+        IAxesTrack<float, Quaternion> { }
+
+
   public interface IEulerRadiansRotationTrack3d : IRotationTrack3d,
                                                   IAxes3fTrack<Quaternion> {
     // TODO: Slow! Switch to using generics/structs for a speedup here

@@ -45,10 +45,14 @@ namespace uni.games.dead_space_1 {
         }
 
         IFileHierarchyFile? rcbFile = null;
+        IFileHierarchyFile[] bnkFiles = Array.Empty<IFileHierarchyFile>();
         if (charSubdir.TryToGetExistingSubdir("cct/export",
                                               out var cctSubdir)) {
           rcbFile =
               cctSubdir.Files.Single(file => file.Name.EndsWith(".rcb.WIN"));
+          bnkFiles =
+              cctSubdir.Files.Where(file => file.Name.EndsWith(".bnk.WIN"))
+                       .ToArray();
         }
 
         Tg4ImageFileBundle[]? textureFiles = null;
@@ -73,6 +77,7 @@ namespace uni.games.dead_space_1 {
           yield return new GeoModelFileBundle {
               GameName = "dead_space_1",
               GeoFiles = geoFiles,
+              BnkFiles = bnkFiles,
               RcbFile = rcbFile,
               Tg4ImageFileBundles = textureFiles
           };

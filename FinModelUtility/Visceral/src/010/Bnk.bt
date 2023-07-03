@@ -127,9 +127,21 @@ typedef struct {
   FSeek(ptr);
 
 
-  uint someId; // Looks like a hash, matches something at the bottom of RCB files
-  uint unk1[9];
+  uint someId; // Looks like a hash, might be for some kind of name?
+  uint maybeVersion;
+  uint unk1;
+  uint unk2;
 
+  uint unk3;
+  // Matches something at the bottom of the RCB file, which seems to point to
+  // the number of bones that will be stored in this animation as well as the 
+  // bits choosing which bones will be active (i.e. FF or F7)
+  uint boneMapId; 
+  uint unk4;
+  uint unk5;
+
+  uint unk6;
+  uint unk7;
   uint someCount;
   uint someOffset;
 

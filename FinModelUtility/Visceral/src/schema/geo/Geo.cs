@@ -1,6 +1,8 @@
-﻿using fin.math;
+﻿using fin.data;
+using fin.math;
 using fin.schema.matrix;
 using fin.schema.vector;
+using fin.util.binary;
 
 using schema.binary;
 
@@ -85,6 +87,8 @@ namespace visceral.schema.geo {
         var faceOffset = er.ReadUInt32();
         er.Position += 0x4;
 
+        var boneIdMappingOffset = er.ReadUInt32();
+
 
         er.Position = polyInfoOffset;
         var faceCount = er.ReadUInt32();
@@ -101,7 +105,11 @@ namespace visceral.schema.geo {
           var normal = this.Read32BitNormal_(er);
           var tangent = this.Read32BitTangent_(er);
 
-          var boneIds = er.ReadBytes(4);
+          var boneIds = er.ReadBytes(4)
+                          .Select(id => er.SubreadReturn(
+                                      boneIdMappingOffset + 2 * id,
+                                      ser => ser.ReadByte()))
+                          .ToArray();
           var weights = er.ReadUn16s(4);
 
           vertices.Add(new Vertex {

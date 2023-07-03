@@ -52,6 +52,8 @@ namespace fin.model {
 
     IQuaternionRotationTrack3d UseQuaternionRotationTrack(int initialCapacity = 0);
 
+    IQuaternionAxesRotationTrack3d UseQuaternionAxesRotationTrack();
+
     IEulerRadiansRotationTrack3d UseEulerRadiansRotationTrack(int initialCapacity = 0);
 
     IEulerRadiansRotationTrack3d UseEulerRadiansRotationTrack(

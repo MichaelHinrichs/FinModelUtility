@@ -175,6 +175,12 @@ namespace fin.model.impl {
                 FrameCount = this.frameCount_
             });
 
+      public IQuaternionAxesRotationTrack3d UseQuaternionAxesRotationTrack()
+        => (IQuaternionAxesRotationTrack3d) (this.Rotations =
+            new QuaternionAxesRotationTrack3dImpl(this.bone_) {
+                FrameCount = this.frameCount_
+            });
+
 
       public IEulerRadiansRotationTrack3d UseEulerRadiansRotationTrack(
           int initialCapacity)

@@ -30,6 +30,7 @@ namespace visceral.api {
                      }));
 
     public required IReadOnlyList<IFileHierarchyFile> GeoFiles { get; init; }
+    public required IReadOnlyList<IFileHierarchyFile> BnkFiles { get; init; }
     public required IFileHierarchyFile? RcbFile { get; init; }
 
     public IReadOnlyList<Tg4ImageFileBundle>? Tg4ImageFileBundles { get; init; }
@@ -59,6 +60,10 @@ namespace visceral.api {
       var rcbFile = modelFileBundle.RcbFile;
       if (rcbFile != null) {
         AddRcbFileToModel_(finModel, rcbFile, out finBones);
+      }
+
+      foreach (var bnkFile in modelFileBundle.BnkFiles) {
+        new BnkLoader().LoadBnk(finModel, bnkFile.Impl, rcbFile.Impl, finBones);
       }
 
       // Builds meshes
@@ -170,6 +175,24 @@ namespace visceral.api {
             geoMesh.Vertices
                    .Select(geoVertex => {
                      var vertex = finSkin.AddVertex(geoVertex.Position);
+
+                     var boneWeights =
+                         geoVertex.Weights
+                                  .Select((weight, i)
+                                              => (geoVertex.Bones[i], weight))
+                                  .Where(boneWeight => boneWeight.weight > 0)
+                                  .Select(boneWeight
+                                              => new BoneWeight(
+                                                  finBones[geo.Bones[boneWeight.Item1].Id],
+                                                  null,
+                                                  boneWeight.Item2))
+                                  .ToArray();
+
+                     vertex.SetBoneWeights(
+                         finSkin.GetOrCreateBoneWeights(
+                             VertexSpace.WORLD,
+                             boneWeights));
+
                      vertex.SetLocalNormal(geoVertex.Normal);
                      vertex.SetLocalTangent(geoVertex.Tangent);
                      vertex.SetUv(geoVertex.Uv);

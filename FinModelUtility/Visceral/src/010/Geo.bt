@@ -134,6 +134,7 @@ typedef struct {
     uint faceOffset;
     ushort baseVertexIndex;
     ushort vertCount;
+    uint unk;
   } PolyInfo;  
   FSeek(polyInfoOffset);
   PolyInfo polyInfo;
