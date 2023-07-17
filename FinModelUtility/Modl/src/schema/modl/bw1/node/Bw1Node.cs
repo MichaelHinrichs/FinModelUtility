@@ -140,12 +140,11 @@ namespace modl.schema.modl.bw1.node {
             var nbtCount = sectionSize / nbtSize;
             for (var i = 0; i < nbtCount; ++i) {
               this.Normals.Add(new VertexNormal {
-                  X = er.ReadSingle(),
-                  Y = er.ReadSingle(),
-                  Z = er.ReadSingle(),
+                  X = er.ReadSingle(), Y = er.ReadSingle(), Z = er.ReadSingle(),
               });
               er.Position += 24;
             }
+
             break;
           }
           case "XBST": {
@@ -185,12 +184,8 @@ namespace modl.schema.modl.bw1.node {
     public Matrix4x4f[] RnodMatrices { get; set; }
 
     private void ReadRnod_(IEndianBinaryReader er) {
-      var size = er.ReadUInt32();
-      this.RnodMatrices = new Matrix4x4f[size];
-
-      for (var i = 0; i < this.RnodMatrices.Length; ++i) {
-        this.RnodMatrices[i] = er.ReadNew<Matrix4x4f>();
-      }
+      var size = er.ReadInt32();
+      this.RnodMatrices = er.ReadNewArray<Matrix4x4f>(size);
     }
 
 
@@ -203,8 +198,7 @@ namespace modl.schema.modl.bw1.node {
       var uvMap = this.UvMaps[uvMapIndex] = new VertexUv[uvCount];
       for (var i = 0; i < uvCount; ++i) {
         uvMap[i] = new VertexUv {
-            U = er.ReadInt16() / scale,
-            V = er.ReadInt16() / scale,
+            U = er.ReadInt16() / scale, V = er.ReadInt16() / scale,
         };
       }
     }
@@ -212,20 +206,16 @@ namespace modl.schema.modl.bw1.node {
 
     public List<VertexPosition> Positions { get; } = new();
 
-    private void ReadPositions_(IEndianBinaryReader er, uint vertexCount) {
-      for (var i = 0; i < vertexCount; ++i) {
-        this.Positions.Add(er.ReadNew<VertexPosition>());
-      }
-    }
+    private void ReadPositions_(IEndianBinaryReader er, uint vertexCount)
+      => this.Positions.AddRange(
+          er.ReadNewArray<VertexPosition>((int) vertexCount));
 
 
     public List<VertexNormal> Normals { get; } = new();
 
-    private void ReadNormals_(IEndianBinaryReader er, uint vertexCount) {
-      for (var i = 0; i < vertexCount; ++i) {
-        this.Normals.Add(er.ReadNew<VertexNormal>());
-      }
-    }
+    private void ReadNormals_(IEndianBinaryReader er, uint vertexCount)
+      => this.Normals.AddRange(
+          er.ReadNewArray<VertexNormal>((int) vertexCount));
 
     public List<BwMesh> Meshes { get; } = new();
 
@@ -237,37 +227,14 @@ namespace modl.schema.modl.bw1.node {
 
       var materialIndex = er.ReadUInt32();
 
-      // This may look simple, but it was an ABSOLUTE nightmare to reverse engineer, lol.
-      var posMatIdxMap = new int[10];
-      {
-        var posMatIdxOffsetFlags = er.ReadUInt32();
-
-        var currentOffset = 0;
-        var currentPosMatIdx = 0;
-
-        // Loops over each bit in the offset.
-        for (var i = 0; i < 32; ++i) {
-          var currentBit = ((posMatIdxOffsetFlags >> i) & 1) == 1;
-
-          // If bit is true, then we increment the current posMatIdx.
-          if (currentBit) {
-            posMatIdxMap[currentPosMatIdx] = currentPosMatIdx + currentOffset;
-            currentPosMatIdx++;
-          }
-          // Otherwise, if bit is false, then we increment the current offset.
-          else {
-            currentOffset++;
-          }
-        }
-      }
+      var posMatIdxMap = er.ReadNew<Bw1PosMatIdxMap>();
 
       var gxDataSize = er.ReadUInt32();
       Asserts.Equal(expectedEnd, er.Position + gxDataSize);
 
       var triangleStrips = new List<BwTriangleStrip>();
       var mesh = new BwMesh {
-          MaterialIndex = materialIndex,
-          TriangleStrips = triangleStrips
+          MaterialIndex = materialIndex, TriangleStrips = triangleStrips
       };
       this.Meshes.Add(mesh);
 
@@ -303,7 +270,8 @@ namespace modl.schema.modl.bw1.node {
           // TODO: Implement
         } else if (opcodeEnum == GxOpcode.DRAW_TRIANGLE_STRIP) {
           var vertexCount = er.ReadUInt16();
-          var vertexAttributeIndicesList = new List<BwVertexAttributeIndices>(vertexCount);
+          var vertexAttributeIndicesList =
+              new List<BwVertexAttributeIndices>(vertexCount);
 
           var triangleStrip = new BwTriangleStrip {
               VertexAttributeIndicesList = vertexAttributeIndicesList,

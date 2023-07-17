@@ -22,7 +22,7 @@ namespace j3d.exporter {
 
       this.textures_ = bmd.TEX1.TextureHeaders.Select((textureHeader, i) => {
                             var textureName =
-                                bmd.TEX1.StringTable.Entries[i].Entry;
+                                bmd.TEX1.StringTable[i];
 
                             return (IGxTexture) new BmdGxTexture(
                                 textureName,
