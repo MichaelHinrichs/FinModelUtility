@@ -19,7 +19,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="schema" Version="0.0.14" />
+    <PackageReference Include="schema" Version="0.0.15" />
   </ItemGroup>
 
   <ItemGroup>

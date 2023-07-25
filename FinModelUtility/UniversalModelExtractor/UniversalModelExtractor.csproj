@@ -53,7 +53,7 @@
     <PackageReference Include="NullFX.CRC" Version="1.1.5" />
     <PackageReference Include="OpenTK" Version="3.3.3" />
     <PackageReference Include="OpenTK.GLControl" Version="3.1.0" />
-    <PackageReference Include="schema" Version="0.0.14" />
+    <PackageReference Include="schema" Version="0.0.15" />
     <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
     <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.1" />
   </ItemGroup>
