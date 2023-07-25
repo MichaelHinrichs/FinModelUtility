@@ -11,6 +11,6 @@ namespace cmb.schema.cmb {
     public uint unkFlags;
 
     [RSequenceLengthSource(nameof(boneCount_))]
-    public Bone[] bones;
+    public Bone[] bones { get; set; }
   }
 }

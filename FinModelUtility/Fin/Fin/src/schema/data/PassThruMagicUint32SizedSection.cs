@@ -25,6 +25,9 @@ namespace fin.schema.data {
     }
 
     [Ignore]
+    public uint Size => this.impl_.Size;
+
+    [Ignore]
     public T Data => this.impl_.Data;
   }
 }

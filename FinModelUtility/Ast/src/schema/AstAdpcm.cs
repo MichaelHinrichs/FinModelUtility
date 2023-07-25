@@ -124,9 +124,7 @@ namespace ast.schema {
           sample = ((sample * scale) << 11);
           sample = (sample + coef1 * hist1 + coef2 * hist2) >> 11;
 
-          sample = Clamp16_(sample);
-
-          channelData[sampleIndex] = (short) sample;
+          channelData[sampleIndex] = Clamp.Int16(sample);
 
           hist2 = hist1;
           hist1 = sample;
@@ -143,12 +141,5 @@ namespace ast.schema {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int GetLowNibbleSigned_(byte n) => nibbleToInt_[n & 0xf];
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static int Clamp16_(int val) {
-      if (val > 32767) return 32767;
-      else if (val < -32768) return -32768;
-      else return val;
-    }
   }
 }

@@ -11,7 +11,7 @@ namespace cmb.schema.cmb {
     // i.e., vertex count of model
     public uint maxIndex;
 
-    // Basically just used to get each attibute into it's own byte[] (We won't
+    // Basically just used to get each attribute into it's own byte[] (We won't
     // be doing that here)
     public readonly AttributeSlice position = new();
     public readonly AttributeSlice normal = new();

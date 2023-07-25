@@ -14,6 +14,9 @@ namespace fin.schema.data {
     [WSizeOfMemberInBytes(nameof(Data))]
     private uint size_;
 
+    [Ignore]
+    public uint Size => this.size_;
+
     public T Data { get; }
 
     public PassThruUInt32SizedSection(T data) {

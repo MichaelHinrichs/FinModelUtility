@@ -4,7 +4,7 @@ using System.IO;
 using schema.binary;
 
 namespace cmb.schema.cmb {
-  public class Mat : IBinaryDeserializable {
+  public class Mats : IBinaryDeserializable {
     public uint chunkSize;
     public Material[] materials;
 

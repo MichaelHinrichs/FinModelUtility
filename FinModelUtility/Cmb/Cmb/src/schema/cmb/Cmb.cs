@@ -1,7 +1,10 @@
 ﻿using fin.schema.data;
+
 using System;
 using System.IO;
+
 using fin.util.strings;
+
 using schema.binary;
 using schema.binary.attributes.endianness;
 
@@ -16,18 +19,22 @@ namespace cmb.schema.cmb {
     private const int TWEAK_AUTO_SIZE = -8;
 
     public readonly AutoMagicUInt32SizedSection<Skl> skl
-        = new("skl" + AsciiUtil.GetChar(0x20), TWEAK_AUTO_SIZE);
+        = new("skl" + AsciiUtil.GetChar(0x20));
 
-    public readonly AutoMagicUInt32SizedSection<Qtrs> qtrs 
-        = new("qtrs", TWEAK_AUTO_SIZE);
-    public readonly Mat mat = new();
+    public readonly AutoMagicUInt32SizedSection<Qtrs> qtrs
+        = new("qtrs");
+
+    public readonly Mats mats = new();
 
     public readonly AutoMagicUInt32SizedSection<Tex> tex
-        = new("tex" + AsciiUtil.GetChar(0x20), TWEAK_AUTO_SIZE);
+        = new("tex" + AsciiUtil.GetChar(0x20));
 
-    public readonly Sklm sklm = new();
-    public readonly AutoMagicUInt32SizedSection<Luts> luts 
-        = new("luts", TWEAK_AUTO_SIZE);
+    public readonly AutoMagicUInt32SizedSection<Sklm> sklm =
+        new("sklm");
+
+    public readonly AutoMagicUInt32SizedSection<Luts> luts
+        = new("luts");
+
     public readonly Vatr vatr = new();
 
     public Cmb(IEndianBinaryReader r) => this.Read(r);
@@ -47,6 +54,7 @@ namespace cmb.schema.cmb {
           if (cmdType == 0x14) {
             break;
           }
+
           if (cmdType == 0x0A) {
             r.Position = cmd1 + 20;
 
@@ -65,15 +73,22 @@ namespace cmb.schema.cmb {
       this.startOffset = r.Position = startOff;
 
       this.header.Read(r);
+
+      r.Position = startOff + this.header.sklOffset;
       this.skl.Read(r);
 
       if (CmbHeader.Version > Version.OCARINA_OF_TIME_3D) {
+        r.Position = startOff + this.header.qtrsOffset;
         this.qtrs.Read(r);
       }
 
       r.Position = startOff + this.header.matsOffset;
-      this.mat.Read(r);
+      this.mats.Read(r);
+
+      r.Position = startOff + this.header.texOffset;
       this.tex.Read(r);
+
+      r.Position = startOff + this.header.sklmOffset;
       this.sklm.Read(r);
 
       r.Position = startOff + this.header.lutsOffset;
@@ -83,7 +98,8 @@ namespace cmb.schema.cmb {
       this.vatr.Read(r);
 
       // Add face indices to primitive sets
-      foreach (var shape in this.sklm.shapes.shapes) {
+      var sklm = this.sklm.Data;
+      foreach (var shape in sklm.shapes.shapes) {
         foreach (var pset in shape.primitiveSets) {
           var primitive = pset.primitive;
           // # Always * 2 even if ubyte is used...

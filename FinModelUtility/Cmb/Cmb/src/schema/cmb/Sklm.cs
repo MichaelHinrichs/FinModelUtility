@@ -1,13 +1,8 @@
-﻿using System.IO;
-
-using schema.binary;
+﻿using schema.binary;
 
 namespace cmb.schema.cmb {
   [BinarySchema]
-  public partial class Sklm : IBinaryDeserializable {
-    public readonly string magic = "sklm";
-    
-    public uint chunkSize;
+  public partial class Sklm : IBinaryConvertible {
     public uint mshOffset;
     public uint shpOffset;
 

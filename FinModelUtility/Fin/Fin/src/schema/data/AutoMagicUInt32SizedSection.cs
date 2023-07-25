@@ -26,6 +26,9 @@ namespace fin.schema.data {
     public string Magic => this.impl_.Magic;
 
     [Ignore]
+    public uint Size => this.impl_.Size;
+
+    [Ignore]
     public T Data => this.impl_.Data;
   }
 }

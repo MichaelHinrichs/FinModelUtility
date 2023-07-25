@@ -232,7 +232,7 @@ namespace cmb.api {
             return image;
           });
 
-      var cmbMaterials = cmb.mat.materials;
+      var cmbMaterials = cmb.mats.materials;
 
       var finMaterials = new LazyArray<IMaterial>(
           cmbMaterials.Length,
@@ -248,8 +248,9 @@ namespace cmb.api {
       var verticesByIndex = new ListDictionary<int, IVertex>();
 
       // Adds meshes
-      foreach (var cmbMesh in cmb.sklm.meshes.meshes) {
-        var shape = cmb.sklm.shapes.shapes[cmbMesh.shapeIndex];
+      var sklm = cmb.sklm.Data;
+      foreach (var cmbMesh in sklm.meshes.meshes) {
+        var shape = sklm.shapes.shapes[cmbMesh.shapeIndex];
 
         uint vertexCount = 0;
         var meshIndices = new List<uint>();
