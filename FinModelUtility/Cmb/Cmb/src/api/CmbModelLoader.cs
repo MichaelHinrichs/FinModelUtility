@@ -232,17 +232,15 @@ namespace cmb.api {
             return image;
           });
 
-      var cmbMaterials = cmb.mats.materials;
+      var cmbMaterials = cmb.mats.Data.Materials;
 
       var finMaterials = new LazyArray<IMaterial>(
           cmbMaterials.Length,
-          index => {
-            var cmbMaterial = cmbMaterials[index];
-
-            var cmbFixedFunctionMaterial =
-                new CmbFixedFunctionMaterial(finModel, cmb, cmbMaterial, index, textureImages);
-            return cmbFixedFunctionMaterial.Material;
-          });
+          index => new CmbFixedFunctionMaterial(
+              finModel,
+              cmb,
+              index,
+              textureImages).Material);
 
       // Creates meshes
       var verticesByIndex = new ListDictionary<int, IVertex>();

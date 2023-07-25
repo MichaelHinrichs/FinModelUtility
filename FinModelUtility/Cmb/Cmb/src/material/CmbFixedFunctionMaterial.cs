@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 using cmb.schema.cmb;
 
@@ -18,9 +19,12 @@ namespace cmb.material {
     public CmbFixedFunctionMaterial(
         IModel finModel,
         Cmb cmb,
-        Material cmbMaterial,
         int materialIndex,
         ILazyArray<IImage> textureImages) {
+      var mats = cmb.mats.Data;
+      var cmbMaterials = mats.Materials;
+      var cmbMaterial = cmbMaterials[materialIndex];
+
       // Get associated texture
       var finTextures = cmbMaterial.texMappers.Select(texMapper => {
         var textureId = texMapper.textureId;
@@ -73,7 +77,17 @@ namespace cmb.material {
 
         var combinerGenerator = new CmbCombinerGenerator(finMaterial);
 
-        foreach (var texEnvStage in cmbMaterial.texEnvStages) {
+        var texEnvStageOffset =
+            cmbMaterials.Take(materialIndex)
+                        .Sum(material => material.texEnvStageCount);
+        var combiners =
+            mats.Combiners.Skip((int) texEnvStageOffset)
+                .Take((int) cmbMaterial.texEnvStageCount)
+                .ToArray();
+        var texEnvStages =
+            cmbMaterial.texEnvStagesIndices.Select(i => combiners[i]);
+
+        foreach (var texEnvStage in texEnvStages) {
           combinerGenerator.AddCombiner(cmbMaterial, texEnvStage);
         }
 

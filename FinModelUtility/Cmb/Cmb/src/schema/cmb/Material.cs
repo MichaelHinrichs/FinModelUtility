@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.IO;
 
 using fin.schema.color;
@@ -8,7 +8,7 @@ using schema.binary;
 
 
 namespace cmb.schema.cmb {
-  public class Material : IBinaryDeserializable {
+  public class Material : IBinaryConvertible {
     public bool isFragmentLightingEnabled;
     public bool isVertexLightingEnabled;
     public bool isHemiSphereLightingEnabled;
@@ -55,7 +55,6 @@ namespace cmb.schema.cmb {
 
     public uint texEnvStageCount;
     public short[] texEnvStagesIndices = new short[6];
-    public readonly IList<Combiner> texEnvStages = new List<Combiner>();
 
     public bool alphaTestEnabled;
     public float alphaTestReferenceValue;
@@ -177,6 +176,10 @@ namespace cmb.schema.cmb {
         this.zPassOP = (StencilTestOp) r.ReadUInt16();
         this.unk1 = r.ReadUInt32();
       }
+    }
+
+    public void Write(ISubEndianBinaryWriter ew) {
+      throw new NotImplementedException();
     }
   }
 }

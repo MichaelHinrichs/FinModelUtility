@@ -24,7 +24,8 @@ namespace cmb.schema.cmb {
     public readonly AutoMagicUInt32SizedSection<Qtrs> qtrs
         = new("qtrs");
 
-    public readonly Mats mats = new();
+    public AutoMagicUInt32SizedSection<Mats> mats { get; set; } =
+      new("mats", TWEAK_AUTO_SIZE);
 
     public readonly AutoMagicUInt32SizedSection<Tex> tex
         = new("tex" + AsciiUtil.GetChar(0x20));
