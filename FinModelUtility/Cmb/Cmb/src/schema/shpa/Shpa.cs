@@ -1,15 +1,18 @@
 ﻿using System.IO;
 
-using fin.model;
+using cmb.schema.shpa.norm;
+using cmb.schema.shpa.posi;
+
+using fin.schema.data;
 using fin.util.asserts;
 
 using schema.binary;
 using schema.binary.attributes.sequence;
 
 namespace cmb.schema.shpa {
-  public class Shpa : IBinaryDeserializable {
-    public Posi Posi { get; } = new();
-    public Norm Norm { get; } = new();
+  public partial class Shpa : IBinaryDeserializable {
+    public AutoMagicUInt32SizedSection<Posi> Posi { get; } = new("posi", -8);
+    public AutoMagicUInt32SizedSection<Norm> Norm { get; } = new("norm", -8);
     public Idxs Idxs { get; } = new();
 
     public void Read(IEndianBinaryReader r) {
@@ -32,35 +35,6 @@ namespace cmb.schema.shpa {
 
       Asserts.Equal(idxsOffset, r.Position);
       this.Idxs.Read(r);
-    }
-  }
-
-  public class Posi : IBinaryDeserializable {
-    public Position[] Values { get; private set; }
-
-    public void Read(IEndianBinaryReader r) {
-      r.AssertMagicText("posi");
-
-      var count = (r.ReadInt32() - 8) / 4 / 3;
-      this.Values = new Position[count];
-      for (var i = 0; i < count; ++i) {
-        this.Values[i] =
-            new Position(r.ReadSingle(), r.ReadSingle(), r.ReadSingle());
-      }
-    }
-  }
-
-  public class Norm : IBinaryDeserializable {
-    public Normal[] Values { get; private set; }
-
-    public void Read(IEndianBinaryReader r) {
-      r.AssertMagicText("norm");
-
-      var count = (r.ReadInt32() - 8) / 2 / 3;
-      this.Values = new Normal[count];
-      for (var i = 0; i < count; ++i) {
-        this.Values[i] = new Normal(r.ReadSn16(), r.ReadSn16(), r.ReadSn16());
-      }
     }
   }
 

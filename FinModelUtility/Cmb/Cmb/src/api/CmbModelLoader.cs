@@ -491,7 +491,8 @@ namespace cmb.api {
       // Adds morph targets
       foreach (var (shpaFile, shpa) in filesAndShpas) {
         var shpaIndexToPosi =
-            shpa?.Posi.Values.Select((posi, i) => (shpa.Idxs.Indices[i], posi))
+            shpa?.Posi.Data.Values
+                .Select((posi, i) => (shpa.Idxs.Indices[i], posi))
                 .ToDictionary(indexAndPosi => indexAndPosi.Item1,
                               indexAndPosi => indexAndPosi.posi);
 
@@ -504,7 +505,10 @@ namespace cmb.api {
           }
 
           foreach (var finVertex in finVertices) {
-            morphTarget.MoveTo(finVertex, position);
+            morphTarget.MoveTo(finVertex,
+                               new Position(position.X,
+                                            position.Y,
+                                            position.Z));
           }
         }
       }
