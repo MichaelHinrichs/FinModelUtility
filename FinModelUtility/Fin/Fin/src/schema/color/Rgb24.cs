@@ -1,7 +1,7 @@
 ﻿using fin.color;
 
 using schema.binary;
-using schema.binary.attributes.ignore;
+using schema.binary.attributes;
 
 
 namespace fin.schema.color {

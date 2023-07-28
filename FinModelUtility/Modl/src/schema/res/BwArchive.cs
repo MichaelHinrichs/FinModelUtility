@@ -3,7 +3,7 @@
 using modl.schema.res.texr;
 
 using schema.binary;
-using schema.binary.attributes.sequence;
+using schema.binary.attributes;
 
 
 namespace modl.schema.res {

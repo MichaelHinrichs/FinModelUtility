@@ -1,5 +1,4 @@
-﻿using schema.binary.attributes.sequence;
-using schema.binary;
+﻿using schema.binary;
 
 namespace uni.platforms.threeDs.tools.cia {
   public enum CiaFormatVersion : ushort {

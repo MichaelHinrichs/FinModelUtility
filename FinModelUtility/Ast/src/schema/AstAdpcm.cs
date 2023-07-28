@@ -1,9 +1,7 @@
-using System;
 using System.Runtime.CompilerServices;
 
 using fin.math;
-
-using schema.binary.util;
+using fin.util.asserts;
 
 namespace ast.schema {
   /// <summary>

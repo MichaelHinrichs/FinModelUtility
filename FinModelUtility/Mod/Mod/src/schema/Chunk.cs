@@ -2,7 +2,7 @@
 using System.IO;
 
 using schema.binary;
-using schema.binary.attributes.sequence;
+using schema.binary.attributes;
 
 namespace mod.schema {
   public enum ChunkId {

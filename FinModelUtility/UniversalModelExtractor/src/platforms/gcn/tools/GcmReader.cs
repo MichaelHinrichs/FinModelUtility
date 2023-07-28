@@ -5,7 +5,7 @@ using fin.io;
 using fin.io.archive;
 
 using schema.binary;
-using schema.binary.attributes.sequence;
+using schema.binary.attributes;
 
 namespace uni.platforms.gcn.tools {
   /// <summary>

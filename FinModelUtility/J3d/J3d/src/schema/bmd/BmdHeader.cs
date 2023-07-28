@@ -1,5 +1,5 @@
 ﻿using schema.binary;
-using schema.binary.attributes.size;
+using schema.binary.attributes;
 
 
 namespace j3d.schema.bmd {

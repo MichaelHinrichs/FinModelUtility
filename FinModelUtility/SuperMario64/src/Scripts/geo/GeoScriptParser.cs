@@ -1,9 +1,8 @@
 ﻿using f3dzex2.io;
 
-using SuperMario64;
-using SuperMario64.schema;
+using fin.util.asserts;
 
-using schema.binary.util;
+using SuperMario64.schema;
 
 
 namespace SuperMario64.scripts.geo {

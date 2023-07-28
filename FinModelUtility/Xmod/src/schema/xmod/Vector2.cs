@@ -1,7 +1,7 @@
 ﻿using fin.model;
 
-using schema.binary.util;
 using schema.text;
+using schema.util;
 
 namespace xmod.schema.xmod {
   public class Vector2 : ITextDeserializable, IVector2 {

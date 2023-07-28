@@ -7,7 +7,7 @@ using fin.schema.data;
 using fin.util.asserts;
 
 using schema.binary;
-using schema.binary.attributes.sequence;
+using schema.binary.attributes;
 
 namespace cmb.schema.shpa {
   public partial class Shpa : IBinaryDeserializable {

@@ -1,4 +1,4 @@
-﻿using schema.binary.util;
+﻿using fin.util.asserts;
 
 namespace uni.platforms.gcn.tools {
   public class CisoStream : Stream {

@@ -8,11 +8,9 @@ using j3d.G3D_Binary_File_Format;
 using schema.binary;
 using System;
 using System.IO;
-using schema.binary.attributes.endianness;
-using schema.binary.attributes.size;
 using System.Linq;
 
-using schema.binary.attributes.sequence;
+using schema.binary.attributes;
 
 
 namespace j3d.schema.bcx {

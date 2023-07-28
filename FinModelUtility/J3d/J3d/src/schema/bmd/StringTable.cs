@@ -4,7 +4,7 @@ using fin.schema.sequences;
 using fin.util.enumerables;
 
 using schema.binary;
-using schema.binary.attributes.sequence;
+using schema.binary.attributes;
 
 
 namespace j3d.schema.bmd {

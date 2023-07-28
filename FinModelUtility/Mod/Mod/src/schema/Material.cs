@@ -5,7 +5,7 @@ using fin.schema.color;
 using fin.schema.vector;
 using gx;
 using schema.binary;
-using schema.binary.attributes.sequence;
+using schema.binary.attributes;
 
 namespace mod.schema {
   ////////////////////////////////////////////////////////////////////

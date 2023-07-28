@@ -4,9 +4,8 @@ using System.Linq;
 
 using fin.data;
 using fin.decompression;
+using fin.util.asserts;
 using fin.util.hex;
-
-using schema.binary.util;
 
 
 namespace f3dzex2.io {

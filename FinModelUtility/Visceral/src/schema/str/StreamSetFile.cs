@@ -25,8 +25,7 @@ using fin.schema.data;
 using visceral.schema.str.content;
 
 using schema.binary;
-using schema.binary.attributes.endianness;
-using schema.binary.attributes.sequence;
+using schema.binary.attributes;
 
 namespace visceral.schema.str {
   [Endianness(Endianness.LittleEndian)]

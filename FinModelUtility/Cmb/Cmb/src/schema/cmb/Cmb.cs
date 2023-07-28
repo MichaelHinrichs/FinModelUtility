@@ -6,7 +6,7 @@ using System.IO;
 using fin.util.strings;
 
 using schema.binary;
-using schema.binary.attributes.endianness;
+using schema.binary.attributes;
 
 
 namespace cmb.schema.cmb {

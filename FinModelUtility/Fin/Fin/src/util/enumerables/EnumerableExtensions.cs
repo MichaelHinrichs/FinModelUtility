@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Runtime.CompilerServices;
 
-using schema.binary.util;
+using fin.util.asserts;
 
 
 namespace fin.util.enumerables {

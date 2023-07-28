@@ -4,8 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using schema.binary;
-using schema.binary.attributes.ignore;
-using schema.binary.attributes.sequence;
+using schema.binary.attributes;
 using schema.util.enumerables;
 using schema.util.sequences;
 

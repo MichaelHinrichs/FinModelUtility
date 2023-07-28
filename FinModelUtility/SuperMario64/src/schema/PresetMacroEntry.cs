@@ -1,6 +1,5 @@
 ﻿using schema.binary;
-using schema.binary.attributes.endianness;
-using schema.binary.attributes.ignore;
+using schema.binary.attributes;
 
 
 namespace SuperMario64.schema {

@@ -1,6 +1,5 @@
 ﻿using schema.binary;
-using schema.binary.attributes.align;
-using schema.binary.attributes.sequence;
+using schema.binary.attributes;
 
 
 namespace cmb.schema.cmb {

@@ -6,9 +6,7 @@ using System.Threading.Tasks;
 using fin.schema.vector;
 
 using schema.binary;
-using schema.binary.attributes.align;
-using schema.binary.attributes.ignore;
-using schema.binary.attributes.sequence;
+using schema.binary.attributes;
 
 
 namespace mod.schema.collision {

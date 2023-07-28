@@ -1,4 +1,4 @@
-﻿using schema.binary.util;
+﻿using fin.util.asserts;
 
 namespace ast.schema {
   public partial class Ast {

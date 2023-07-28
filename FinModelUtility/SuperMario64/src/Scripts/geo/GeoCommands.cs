@@ -1,6 +1,6 @@
 ﻿using fin.schema.vector;
 using schema.binary;
-using schema.binary.attributes.ignore;
+using schema.binary.attributes;
 
 using SuperMario64.scripts.geo;
 

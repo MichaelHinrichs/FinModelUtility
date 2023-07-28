@@ -1,5 +1,5 @@
 ﻿using schema.binary;
-using schema.binary.attributes.align;
+using schema.binary.attributes;
 
 namespace uni.platforms.threeDs.tools.cia {
   [BinarySchema]

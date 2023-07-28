@@ -4,7 +4,7 @@ using fin.util.enums;
 using gx;
 
 using schema.binary;
-using schema.binary.attributes.ignore;
+using schema.binary.attributes;
 
 
 namespace dat.schema {

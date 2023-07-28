@@ -1,14 +1,9 @@
 ﻿using cmb.schema.cmb;
 using fin.util.strings;
 using schema.binary;
-using schema.binary.attributes.child_of;
-using schema.binary.attributes.endianness;
-using schema.binary.attributes.ignore;
-using schema.binary.attributes.memory;
-using schema.binary.attributes.size;
 using System.IO;
 
-using schema.binary.attributes.sequence;
+using schema.binary.attributes;
 
 
 namespace cmb.schema.ctxb {
@@ -31,10 +26,10 @@ namespace cmb.schema.ctxb {
     private readonly uint texCount_ = 1;
     private readonly uint padding_ = 0;
 
-    [WPointerTo($"{nameof(Parent)}.{nameof(Ctxb.Chunk)}")]
+    [WPointerTo(nameof(Parent.Chunk))]
     public int ChunkOffset { get; private set; }
 
-    [WPointerTo($"{nameof(Parent)}.{nameof(Ctxb.Chunk)}.{nameof(CtxbTexChunk.Entry)}.{nameof(CtxbTexEntry.Data)}")]
+    [WPointerTo(nameof(Parent.Chunk.Entry.Data))]
     public int DataOffset { get; private set; }
   }
 

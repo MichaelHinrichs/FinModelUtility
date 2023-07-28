@@ -1,8 +1,7 @@
 ﻿using System.IO;
 
-using schema.binary.attributes.size;
 using schema.binary;
-using schema.binary.attributes.ignore;
+using schema.binary.attributes;
 
 namespace fin.schema.data {
   [BinarySchema]

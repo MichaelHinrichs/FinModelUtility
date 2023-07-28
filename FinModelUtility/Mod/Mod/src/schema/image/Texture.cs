@@ -4,8 +4,7 @@ using fin.image;
 
 using mod.image;
 using schema.binary;
-using schema.binary.attributes.ignore;
-using schema.binary.attributes.sequence;
+using schema.binary.attributes;
 
 
 namespace mod.schema {

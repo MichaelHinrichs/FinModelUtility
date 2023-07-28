@@ -1,4 +1,5 @@
-﻿using schema.binary.util;
+﻿using fin.util.asserts;
+
 using schema.text;
 
 namespace xmod.schema.xmod {

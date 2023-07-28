@@ -1,6 +1,7 @@
 ﻿using modl.schema.modl.bw1.node;
 
 using schema.binary;
+using schema.binary.attributes;
 
 
 namespace modl.schema.anim.bw1 {

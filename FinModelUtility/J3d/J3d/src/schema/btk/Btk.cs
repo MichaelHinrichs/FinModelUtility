@@ -1,7 +1,7 @@
 ﻿using schema.binary;
-using schema.binary.attributes.endianness;
-using schema.binary.attributes.size;
 using System.IO;
+
+using schema.binary.attributes;
 
 
 namespace j3d.schema.btk {

@@ -1,6 +1,6 @@
 ﻿using fin.model;
+using fin.util.asserts;
 
-using schema.binary.util;
 using schema.text;
 
 namespace xmod.schema.xmod {
