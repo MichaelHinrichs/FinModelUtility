@@ -1,6 +1,6 @@
-﻿using NUnit.Framework;
+﻿using fin.util.asserts;
 
-using schema.binary.util;
+using NUnit.Framework;
 
 namespace fin.data {
   public class KeyframesTests {
