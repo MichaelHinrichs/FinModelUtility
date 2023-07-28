@@ -1,8 +1,5 @@
 ﻿using fin.log;
 
-using j3d.exporter;
-
-using uni.platforms;
 using uni.platforms.gcn;
 
 namespace uni.games.luigis_mansion {
