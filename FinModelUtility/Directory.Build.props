@@ -4,4 +4,7 @@
     <CoverletOutput>TestResults/</CoverletOutput>
     <CoverletOutputFormat>lcov</CoverletOutputFormat>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="schema" Version="0.1.1" />
+  </ItemGroup>
 </Project>

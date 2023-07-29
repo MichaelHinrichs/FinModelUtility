@@ -7,9 +7,6 @@
     <LangVersion>preview</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="schema" Version="0.1.1" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Fin\Fin\Fin.csproj" />
