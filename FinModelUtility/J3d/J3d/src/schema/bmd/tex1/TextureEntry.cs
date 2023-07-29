@@ -36,8 +36,8 @@ namespace j3d.schema.bmd.tex1 {
     PAL_A3_RGB5,
   }
 
-  [LocalPositions]
   [BinarySchema]
+  [LocalPositions]
   public partial class TextureEntry : IBinaryConvertible {
     public TextureFormat Format;
     public byte AlphaSetting;
@@ -65,9 +65,6 @@ namespace j3d.schema.bmd.tex1 {
 
     [WPointerTo(nameof(Data))]
     public uint DataOffset;
-
-    [SequenceLengthSource(32)]
-    public byte[] Unknown { get; set; }
 
     [RAtPosition(nameof(DataOffset))]
     [RSequenceLengthSource(nameof(CompressedBufferSize_))]
