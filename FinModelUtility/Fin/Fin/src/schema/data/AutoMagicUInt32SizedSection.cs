@@ -17,10 +17,17 @@ namespace fin.schema.data {
       this.impl_ = new(magic, new T());
     }
 
-    public AutoMagicUInt32SizedSection(string magic, int tweakSize) {
-      this.impl_ = new(magic, new T(), tweakSize);
+    [Ignore]
+    public int TweakReadSize {
+      get => this.impl_.TweakReadSize;
+      set => this.impl_.TweakReadSize = value;
     }
 
+    [Ignore]
+    public bool UseLocalSpace {
+      get => this.impl_.UseLocalSpace;
+      set => this.impl_.UseLocalSpace = value;
+    }
 
     [Ignore]
     public string Magic => this.impl_.Magic;

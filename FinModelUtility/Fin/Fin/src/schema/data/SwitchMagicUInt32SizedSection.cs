@@ -19,7 +19,7 @@ namespace fin.schema.data {
     private readonly Action<ISubEndianBinaryWriter, TMagic> writeMagicHandler_;
     private readonly Func<TMagic, TData> createTypeHandler_;
 
-    private PassThruUInt32SizedSection<TData> impl_;
+    private readonly PassThruUInt32SizedSection<TData> impl_ = new(default!);
 
     public SwitchMagicUInt32SizedSection(
         Func<IEndianBinaryReader, TMagic> readMagicHandler,
@@ -41,16 +41,23 @@ namespace fin.schema.data {
       this.createTypeHandler_ = createTypeHandler;
     }
 
+    public int TweakReadSize {
+      get => this.impl_.TweakReadSize;
+      set => this.impl_.TweakReadSize = value;
+    }
+
+    public bool UseLocalSpace {
+      get => this.impl_.UseLocalSpace;
+      set => this.impl_.UseLocalSpace = value;
+    }
+
     public TMagic Magic { get; private set; }
 
     public TData Data => this.impl_.Data;
 
     public void Read(IEndianBinaryReader er) {
       this.Magic = this.readMagicHandler_(er);
-      this.impl_ =
-          new PassThruUInt32SizedSection<TData>(
-              this.createTypeHandler_(this.Magic),
-              this.tweakSize_);
+      this.impl_.Data = this.createTypeHandler_(this.Magic);
       this.impl_.Read(er);
     }
 

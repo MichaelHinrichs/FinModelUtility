@@ -3,7 +3,9 @@ using System.Linq;
 
 using fin.color;
 using fin.model;
+
 using gx;
+
 using j3d.GCN;
 using j3d.schema.bti;
 
@@ -20,16 +22,17 @@ namespace j3d.exporter {
         IList<(string, Bti)>? pathsAndBtis = null) {
       this.bmd_ = bmd;
 
-      this.textures_ = bmd.TEX1.TextureHeaders.Select((textureHeader, i) => {
-                            var textureName =
-                                bmd.TEX1.StringTable[i];
+      var tex1 = bmd.TEX1.Data;
+      this.textures_ = tex1.TextureHeaders.Select((textureHeader, i) => {
+                             var textureName =
+                                 tex1.StringTable[i];
 
-                            return (IGxTexture) new BmdGxTexture(
-                                textureName,
-                                textureHeader,
-                                pathsAndBtis);
-                          })
-                          .ToList();
+                             return (IGxTexture) new BmdGxTexture(
+                                 textureName,
+                                 textureHeader,
+                                 pathsAndBtis);
+                           })
+                           .ToList();
 
       this.materials_ = this.GetMaterials_(model, bmd);
 

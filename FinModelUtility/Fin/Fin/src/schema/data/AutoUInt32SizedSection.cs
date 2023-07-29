@@ -14,14 +14,22 @@ namespace fin.schema.data {
     private readonly PassThruUInt32SizedSection<T> impl_;
 
     [Ignore]
+    public int TweakReadSize {
+      get => this.impl_.TweakReadSize;
+      set => this.impl_.TweakReadSize = value;
+    }
+
+    [Ignore]
+    public bool UseLocalSpace {
+      get => this.impl_.UseLocalSpace;
+      set => this.impl_.UseLocalSpace = value;
+    }
+
+    [Ignore]
     public T Data => this.impl_.Data;
 
     public AutoUInt32SizedSection() {
       this.impl_ = new(new T());
-    }
-
-    public AutoUInt32SizedSection(int tweakSize) {
-      this.impl_ = new(new T(), tweakSize);
     }
   }
 }

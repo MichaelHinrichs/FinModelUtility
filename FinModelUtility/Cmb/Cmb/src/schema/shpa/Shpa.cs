@@ -11,8 +11,12 @@ using schema.binary.attributes;
 
 namespace cmb.schema.shpa {
   public partial class Shpa : IBinaryDeserializable {
-    public AutoMagicUInt32SizedSection<Posi> Posi { get; } = new("posi", -8);
-    public AutoMagicUInt32SizedSection<Norm> Norm { get; } = new("norm", -8);
+    public AutoMagicUInt32SizedSection<Posi> Posi { get; } =
+      new("posi") { TweakReadSize = -8, };
+
+    public AutoMagicUInt32SizedSection<Norm> Norm { get; } =
+      new("norm") { TweakReadSize = -8, };
+
     public Idxs Idxs { get; } = new();
 
     public void Read(IEndianBinaryReader r) {

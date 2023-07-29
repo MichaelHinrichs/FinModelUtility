@@ -18,12 +18,10 @@ namespace fin.schema.data {
     private readonly int magicLength_;
 
     [Ignore]
-    private readonly int tweakSize_;
-
-    [Ignore]
     private readonly Func<string, T> createTypeHandler_;
 
-    private PassThruMagicUInt32SizedSection<T> impl_;
+    private readonly PassThruMagicUInt32SizedSection<T> impl_ =
+        new(default, default!);
 
     public SwitchMagicStringUInt32SizedSection(
         int magicLength,
@@ -32,13 +30,16 @@ namespace fin.schema.data {
       this.createTypeHandler_ = createTypeHandler;
     }
 
-    public SwitchMagicStringUInt32SizedSection(
-        int magicLength,
-        int tweakSize,
-        Func<string, T> createTypeHandler) {
-      this.magicLength_ = magicLength;
-      this.tweakSize_ = tweakSize;
-      this.createTypeHandler_ = createTypeHandler;
+    [Ignore]
+    public int TweakReadSize {
+      get => this.impl_.TweakReadSize;
+      set => this.impl_.TweakReadSize = value;
+    }
+
+    [Ignore]
+    public bool UseLocalSpace {
+      get => this.impl_.UseLocalSpace;
+      set => this.impl_.UseLocalSpace = value;
     }
 
     [Ignore]
@@ -51,11 +52,8 @@ namespace fin.schema.data {
       var baseOffset = er.Position;
 
       var magic = er.ReadString(this.magicLength_);
-      this.impl_ =
-          new PassThruMagicUInt32SizedSection<T>(
-              magic,
-              this.createTypeHandler_(magic),
-              this.tweakSize_);
+      this.impl_.Magic = magic;
+      this.impl_.Data = this.createTypeHandler_(magic);
 
       er.Position = baseOffset;
       this.impl_.Read(er);

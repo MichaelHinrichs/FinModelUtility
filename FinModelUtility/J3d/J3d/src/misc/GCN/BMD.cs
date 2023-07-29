@@ -11,7 +11,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Drawing;
 using System.Numerics;
 using fin.schema.matrix;
@@ -42,7 +41,7 @@ namespace j3d.GCN {
     public JNT1Section JNT1;
     public SHP1Section SHP1;
     public MAT3Section MAT3;
-    public TEX1Section TEX1;
+    public Tex1 TEX1;
 
     public BMD(byte[] file)
     {
@@ -129,14 +128,8 @@ namespace j3d.GCN {
               break;
           case nameof (TEX1):
             er.Position -= 4L;
-            this.TEX1 = new BMD.TEX1Section(er, out OK);
-            if (!OK)
-            {
-              // TODO: Message box
-              //int num2 = (int) System.Windows.Forms.MessageBox.Show("Error 9");
-              return;
-            } else
-              break;
+            this.TEX1 = er.ReadNew<Tex1>();
+            break;
           default:
             return;
         }
@@ -1100,43 +1093,6 @@ label_7:
           numArray[index1] = num1;
         }
         return numArray;
-      }
-    }
-
-    public class TEX1Section
-    {
-      public const string Signature = "TEX1";
-      public DataBlockHeader Header;
-      public ushort NrTextures;
-      public ushort Padding;
-      public uint TextureHeaderOffset;
-      public uint StringTableOffset;
-      public StringTable StringTable;
-      public TextureEntry[] TextureHeaders;
-
-      public TEX1Section(IEndianBinaryReader er, out bool OK)
-      {
-        long position1 = er.Position;
-        bool OK1;
-        this.Header = new DataBlockHeader(er, "TEX1", out OK1);
-        if (!OK1)
-        {
-          OK = false;
-        }
-        else
-        {
-          this.NrTextures = er.ReadUInt16();
-          this.Padding = er.ReadUInt16();
-          this.TextureHeaderOffset = er.ReadUInt32();
-          this.StringTableOffset = er.ReadUInt32();
-          long position2 = er.Position;
-          er.Position = position1 + (long) this.StringTableOffset;
-          this.StringTable = er.ReadNew<StringTable>();
-          er.Position = position1 + (long) this.TextureHeaderOffset;
-          this.TextureHeaders = er.ReadNewArray<TextureEntry>(this.NrTextures);
-          er.Position = position1 + (long) this.Header.size;
-          OK = true;
-        }
       }
     }
   }
