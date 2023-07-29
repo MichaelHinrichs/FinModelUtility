@@ -5,6 +5,6 @@
     <CoverletOutputFormat>lcov</CoverletOutputFormat>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="schema" Version="0.1.1" />
+    <PackageReference Include="schema" Version="0.1.5" />
   </ItemGroup>
 </Project>

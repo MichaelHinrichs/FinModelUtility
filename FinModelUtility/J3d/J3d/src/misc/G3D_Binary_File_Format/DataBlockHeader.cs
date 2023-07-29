@@ -16,7 +16,7 @@ namespace j3d.G3D_Binary_File_Format
 
     public DataBlockHeader(IEndianBinaryReader er, string Signature, out bool OK)
     {
-      this.kind = er.ReadString(Encoding.ASCII, 4);
+      this.kind = er.ReadString(4);
       if (this.kind != Signature)
       {
         OK = false;

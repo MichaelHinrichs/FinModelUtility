@@ -161,7 +161,7 @@ namespace mod.schema {
 
               var jointNameBuilder = new StringBuilder((int) jointNameLength);
               for (var c = 0; c < jointNameLength; ++c) {
-                jointNameBuilder.Append(reader.ReadChar(Encoding.ASCII));
+                jointNameBuilder.Append(reader.ReadChar());
               }
             }
             reader.Align(0x20);

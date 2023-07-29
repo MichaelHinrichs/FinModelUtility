@@ -4,6 +4,8 @@ using fin.io;
 using fin.log;
 using fin.util.asserts;
 
+using schema.binary.attributes;
+
 using uni.util.cmd;
 
 
@@ -70,7 +72,7 @@ namespace uni.platforms.gcn.tools {
                                  Endianness.BigEndian);
 
       var header = new RarcHeader();
-      header.type = er.ReadString(Encoding.ASCII, 4);
+      header.type = er.ReadString(4);
 
       if (header.type != "RARC") {
         return false;
@@ -115,7 +117,7 @@ namespace uni.platforms.gcn.tools {
     private RarcNode GetNode_(IEndianBinaryReader er, RarcHeader h, int i) {
       var node = new RarcNode();
 
-      node.type = er.ReadString(Encoding.UTF8, 4);
+      node.type = er.ReadString(StringEncodingType.UTF8, 4);
 
       var fileNameOffset = er.ReadUInt32();
       var expectedFileNameHash = er.ReadUInt16();
@@ -125,7 +127,7 @@ namespace uni.platforms.gcn.tools {
       var position = er.Position;
       {
         er.Position = 0x20 + h.stringTableOffset + fileNameOffset;
-        node.fileName = er.ReadStringNT(Encoding.UTF8);
+        node.fileName = er.ReadStringNT(StringEncodingType.UTF8);
 
         var actualFileNameHash = 0;
         foreach (var c in node.fileName) {

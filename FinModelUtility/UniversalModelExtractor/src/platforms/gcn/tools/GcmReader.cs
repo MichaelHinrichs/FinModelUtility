@@ -52,7 +52,7 @@ namespace uni.platforms.gcn.tools {
         // Get name
         er.Position = diskHeader.FileSystemTableOffset + fileTableOffset +
                       e.FileNameOffset;
-        var name = er.ReadStringNT(Encoding.UTF8);
+        var name = er.ReadStringNT(StringEncodingType.UTF8);
 
         // Push new directory
         if (e.IsDirectory) {

@@ -5,6 +5,7 @@ using fin.io.archive;
 using fin.util.strings;
 
 using schema.binary;
+using schema.binary.attributes;
 
 
 namespace uni.platforms.threeDs.tools {
@@ -107,7 +108,7 @@ namespace uni.platforms.threeDs.tools {
         var fileNameOffset = er.ReadInt32();
 
         er.Position = fileNameOffset;
-        this.FileName = er.ReadStringNT(Encoding.UTF8);
+        this.FileName = er.ReadStringNT(StringEncodingType.UTF8);
 
         er.Position = header.DataOffset + 4 * fileIndex;
         var fileOffset = er.ReadInt32();

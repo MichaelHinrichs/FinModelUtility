@@ -52,7 +52,7 @@ namespace j3d.GCN {
       bool OK;
       while (!er.Eof)
       {
-        switch (er.ReadString(Encoding.ASCII, 4))
+        switch (er.ReadString(4))
         {
           case nameof (INF1):
             er.Position -= 4L;
@@ -1133,11 +1133,7 @@ label_7:
           er.Position = position1 + (long) this.StringTableOffset;
           this.StringTable = er.ReadNew<StringTable>();
           er.Position = position1 + (long) this.TextureHeaderOffset;
-          this.TextureHeaders = new TextureEntry[(int) this.NrTextures];
-          for (int idx = 0; idx < (int)this.NrTextures; ++idx) {
-            this.TextureHeaders[idx] = new TextureEntry(position1 + 32 * (idx + 1));
-            this.TextureHeaders[idx].Read(er);
-          }
+          this.TextureHeaders = er.ReadNewArray<TextureEntry>(this.NrTextures);
           er.Position = position1 + (long) this.Header.size;
           OK = true;
         }

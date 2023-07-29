@@ -9,6 +9,8 @@ using Force.Crc32;
 
 using NullFX.CRC;
 
+using schema.binary.attributes;
+
 
 namespace uni.debug {
   public class DebugProgram {
@@ -305,7 +307,7 @@ namespace uni.debug {
             var langName = "";
             er.Subread(stringsOffset + langOffset,
                        ser => {
-                         langName = ser.ReadStringNT(Encoding.Unicode);
+                         langName = ser.ReadStringNT(StringEncodingType.UTF16);
                        });
 
             var lang = new Lang {
