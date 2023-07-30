@@ -28,6 +28,7 @@ using j3d.schema.bmd.mat3;
 using j3d.schema.bmd.shp1;
 using j3d.schema.bmd.tex1;
 using j3d.schema.bmd.vtx1;
+using j3d.schema.bmd.drw1;
 
 #pragma warning disable CS8604
 
@@ -37,7 +38,7 @@ namespace j3d.GCN {
     public Inf1 INF1 { get; set; }
     public VTX1Section VTX1;
     public EVP1Section EVP1;
-    public DRW1Section DRW1;
+    public Drw1 DRW1 { get; set; }
     public Jnt1 JNT1 { get; set; }
     public SHP1Section SHP1;
     public MAT3Section MAT3;
@@ -79,14 +80,8 @@ namespace j3d.GCN {
               break;
           case nameof (DRW1):
             er.Position -= 4L;
-            this.DRW1 = new BMD.DRW1Section(er, out OK);
-            if (!OK)
-            {
-              // TODO: Message box
-              //int num2 = (int) System.Windows.Forms.MessageBox.Show("Error 5");
-              return;
-            } else
-              break;
+            this.DRW1 = er.ReadNew<Drw1>();
+            break;
           case nameof (JNT1):
             er.Position -= 4L;
             this.JNT1 = er.ReadNew<Jnt1>();
@@ -496,47 +491,6 @@ label_7:
       {
         public float[] Weights;
         public ushort[] Indices;
-      }
-    }
-
-    public class DRW1Section
-    {
-      public const string Signature = "DRW1";
-      public DataBlockHeader Header;
-      public ushort Count;
-      public ushort Padding;
-      public uint IsWeightedOffset;
-      public uint DataOffset;
-      public bool[] IsWeighted;
-      public ushort[] Data;
-
-      public DRW1Section(IEndianBinaryReader er, out bool OK)
-      {
-        long position1 = er.Position;
-        bool OK1;
-        this.Header = new DataBlockHeader(er, "DRW1", out OK1);
-        if (!OK1)
-        {
-          OK = false;
-        }
-        else
-        {
-          this.Count = er.ReadUInt16();
-          this.Padding = er.ReadUInt16();
-          this.IsWeightedOffset = er.ReadUInt32();
-          this.DataOffset = er.ReadUInt32();
-
-          er.Position = position1 + (long) this.IsWeightedOffset;
-          this.IsWeighted = new bool[(int) this.Count];
-          for (int index = 0; index < (int) this.Count; ++index)
-            this.IsWeighted[index] = er.ReadByte() == (byte) 1;
-          
-          er.Position = position1 + (long) this.DataOffset;
-          this.Data = er.ReadUInt16s((int) this.Count);
-
-          er.Position = position1 + (long) this.Header.size;
-          OK = true;
-        }
       }
     }
 

@@ -312,8 +312,9 @@ namespace j3d.exporter {
                   continue;
                 }
 
-                var isWeighted = bmd.DRW1.IsWeighted[matrixTableIndex];
-                var drw1Index = bmd.DRW1.Data[matrixTableIndex];
+                var drw1 = bmd.DRW1.Data;
+                var isWeighted = drw1.IsWeighted[matrixTableIndex];
+                var drw1Index = drw1.Data[matrixTableIndex];
 
                 BoneWeight[] weights;
                 if (isWeighted) {

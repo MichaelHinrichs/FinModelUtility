@@ -26,6 +26,6 @@ namespace j3d.schema.bmd.inf1 {
 
     [RSequenceUntilEndOfStream]
     [RAtPosition(nameof(entryoffset_))]
-    public Inf1Entry[] Entries;
+    public Inf1Entry[] Entries { get; set; }
   }
 }

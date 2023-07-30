@@ -10,7 +10,9 @@ using schema.binary.attributes;
 namespace j3d.schema.bmd {
   [BinarySchema]
   public partial class StringTable : IBinaryConvertible {
+    [WLengthOfSequence(nameof(EntriesAndStrings))]
     private ushort entryCount_;
+
     private readonly ushort padding_ = ushort.MaxValue;
 
     [RSequenceLengthSource(nameof(entryCount_))]
