@@ -4,7 +4,6 @@ using j3d.schema.bmd.mat3;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using static j3d.GCN.BMD;
 
 namespace j3d.misc.GCN {
 

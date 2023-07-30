@@ -184,7 +184,7 @@ namespace j3d.exporter {
 
         // Writes translation/rotation/scale for each joint.
         foreach (var (joint, bone) in jointsAndBones) {
-          var jointIndex = bmd.JNT1.StringTable[joint.Name];
+          var jointIndex = bmd.JNT1.Data.StringTable[joint.Name];
 
           if (FinConstants.ALLOW_INVALID_JOINT_INDICES &&
               (jointIndex < 0 || jointIndex >= bcx.Anx1.Joints.Length)) {

@@ -34,14 +34,14 @@ using j3d.schema.bmd.vtx1;
 namespace j3d.GCN {
   public partial class BMD {
     public BmdHeader Header;
-    public Inf1 INF1;
+    public Inf1 INF1 { get; set; }
     public VTX1Section VTX1;
     public EVP1Section EVP1;
     public DRW1Section DRW1;
-    public JNT1Section JNT1;
+    public Jnt1 JNT1 { get; set; }
     public SHP1Section SHP1;
     public MAT3Section MAT3;
-    public Tex1 TEX1;
+    public Tex1 TEX1 { get; set; }
 
     public BMD(byte[] file)
     {
@@ -89,14 +89,8 @@ namespace j3d.GCN {
               break;
           case nameof (JNT1):
             er.Position -= 4L;
-            this.JNT1 = new BMD.JNT1Section(er, out OK);
-            if (!OK)
-            {
-              // TODO: Message box
-              //int num2 = (int) System.Windows.Forms.MessageBox.Show("Error 6");
-              return;
-            } else
-              break;
+            this.JNT1 = er.ReadNew<Jnt1>();
+            break;
           case nameof (SHP1):
             er.Position -= 4L;
             this.SHP1 = new BMD.SHP1Section(er, out OK);
@@ -148,10 +142,11 @@ namespace j3d.GCN {
             nodeIndexStack.Pop();
             break;
           case Inf1EntryType.JOINT:
-            var jointIndex = this.JNT1.RemapTable[entry.Index];
+            var jnt1 = this.JNT1.Data;
+            var jointIndex = jnt1.RemapTable[entry.Index];
             nodeList.Add(new MA.Node(
-                             this.JNT1.Joints[jointIndex],
-                             this.JNT1.StringTable[jointIndex],
+                             jnt1.Joints[jointIndex],
+                             jnt1.StringTable[jointIndex],
                              nodeIndexStack.Peek()));
             nodeIndex = entry.Index;
             break;
@@ -545,48 +540,6 @@ label_7:
       }
     }
 
-    public partial class JNT1Section {
-      public const string Signature = "JNT1";
-      public DataBlockHeader Header;
-      public ushort NrJoints;
-      public ushort Padding;
-      public uint JointEntryOffset;
-      public uint RemapTableOffset;
-      public uint StringTableOffset;
-      public Jnt1Entry[] Joints;
-      public ushort[] RemapTable { get; }
-      public StringTable StringTable;
-
-      public JNT1Section(IEndianBinaryReader er, out bool OK)
-      {
-        long position = er.Position;
-        bool OK1;
-        this.Header = new DataBlockHeader(er, "JNT1", out OK1);
-        if (!OK1)
-        {
-          OK = false;
-        }
-        else
-        {
-          this.NrJoints = er.ReadUInt16();
-          this.Padding = er.ReadUInt16();
-          this.JointEntryOffset = er.ReadUInt32();
-          this.RemapTableOffset = er.ReadUInt32();
-          this.StringTableOffset = er.ReadUInt32();
-          er.Position = position + (long) this.StringTableOffset;
-          this.StringTable = er.ReadNew<StringTable>();
-          
-          er.Position = position + (long) this.JointEntryOffset;
-          er.ReadNewArray(out this.Joints, this.NrJoints);
-
-          er.Position = position + (long)this.RemapTableOffset;
-          this.RemapTable = er.ReadUInt16s(this.NrJoints);
-
-          er.Position = position + (long) this.Header.size;
-          OK = true;
-        }
-      }
-    }
 
     public partial class SHP1Section {
       public const string Signature = "SHP1";
