@@ -13,4 +13,8 @@
     <ProjectReference Include="..\Gx\Gx.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="schema" Version="0.1.7" />
+  </ItemGroup>
+
 </Project>

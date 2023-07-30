@@ -7,6 +7,5 @@ namespace fin.schema.data {
     T Data { get; }
 
     int TweakReadSize { get; set; }
-    bool UseLocalSpace { get; set; }
   }
 }

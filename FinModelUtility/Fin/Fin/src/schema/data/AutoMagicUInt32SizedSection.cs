@@ -24,12 +24,6 @@ namespace fin.schema.data {
     }
 
     [Ignore]
-    public bool UseLocalSpace {
-      get => this.impl_.UseLocalSpace;
-      set => this.impl_.UseLocalSpace = value;
-    }
-
-    [Ignore]
     public string Magic => this.impl_.Magic;
 
     [Ignore]

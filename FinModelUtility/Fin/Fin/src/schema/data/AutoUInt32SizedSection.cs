@@ -20,12 +20,6 @@ namespace fin.schema.data {
     }
 
     [Ignore]
-    public bool UseLocalSpace {
-      get => this.impl_.UseLocalSpace;
-      set => this.impl_.UseLocalSpace = value;
-    }
-
-    [Ignore]
     public T Data => this.impl_.Data;
 
     public AutoUInt32SizedSection() {

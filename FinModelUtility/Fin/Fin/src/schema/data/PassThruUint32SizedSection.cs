@@ -1,43 +1,47 @@
 ﻿using System.IO;
+using System.Threading.Tasks;
+
+using fin.util.tasks;
 
 using schema.binary;
-using schema.binary.attributes;
 
 namespace fin.schema.data {
-  [BinarySchema]
-  public partial class PassThruUInt32SizedSection<T> : ISizedSection<T>
+  public class PassThruUInt32SizedSection<T> : ISizedSection<T>
       where T : IBinaryConvertible {
-    [WSizeOfMemberInBytes(nameof(Data))]
-    private uint size_;
-
-    [Ignore]
-    public uint Size => this.size_;
-
-    public T Data { get; set; }
-
     public PassThruUInt32SizedSection(T data) {
       this.Data = data;
     }
 
-    [Ignore]
+    public uint Size { get; private set; }
+    public T Data { get; set; }
+
     public int TweakReadSize { get; set; }
 
-    [Ignore]
-    public bool UseLocalSpace { get; set; } = true;
-
-
     public void Read(IEndianBinaryReader er) {
-      this.size_ = er.ReadUInt32();
+      this.Size = er.ReadUInt32();
 
-      var useSize = this.size_ + this.TweakReadSize;
+      var tweakedSize = this.Size + this.TweakReadSize;
       var basePosition = er.Position;
-      if (this.UseLocalSpace) {
-        er.Subread(er.Position, (int) useSize, this.Data.Read);
-      } else {
-        this.Data.Read(er);
-      }
+      er.Subread(er.Position, (int) tweakedSize, this.Data.Read);
 
-      er.Position = basePosition + useSize;
+      er.Position = basePosition + tweakedSize;
+    }
+
+    public void Write(ISubEndianBinaryWriter ew) {
+      var sizeSource = new TaskCompletionSource<uint>();
+      ew.WriteUInt32Delayed(sizeSource.Task);
+
+      var startingPositionTask = ew.GetAbsolutePosition();
+      this.Data.Write(ew);
+      var endPositionTask = ew.GetAbsolutePosition();
+
+      var sizeTask = endPositionTask.Subtract(startingPositionTask);
+      var tweakedSizeTask = sizeTask.Subtract(this.TweakReadSize);
+
+      tweakedSizeTask.ContinueWith(task => {
+        var tweakedSize = task.Result;
+        sizeSource.SetResult((uint) tweakedSize);
+      });
     }
   }
 }

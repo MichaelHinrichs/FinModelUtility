@@ -34,7 +34,7 @@ using j3d.schema.bmd.vtx1;
 namespace j3d.GCN {
   public partial class BMD {
     public BmdHeader Header;
-    public INF1Section INF1;
+    public Inf1 INF1;
     public VTX1Section VTX1;
     public EVP1Section EVP1;
     public DRW1Section DRW1;
@@ -53,17 +53,10 @@ namespace j3d.GCN {
       {
         switch (er.ReadString(4))
         {
-          case nameof (INF1):
+          case nameof(INF1):
             er.Position -= 4L;
-            this.INF1 = new BMD.INF1Section(er, out OK);
-            if (!OK)
-            {
-              // TODO: Message box
-              //int num2 = (int) System.Windows.Forms.MessageBox.Show("Error 2");
-              return;
-            }
-            else
-              break;
+            this.INF1 = er.ReadNew<Inf1>();
+            break;
           case nameof (VTX1):
             er.Position -= 4L;
             this.VTX1 = new BMD.VTX1Section(er, out OK);
@@ -142,7 +135,7 @@ namespace j3d.GCN {
       nodeIndexStack.Push(-1);
       var nodeList = new List<MA.Node>();
       int nodeIndex = -1;
-      foreach (Inf1Entry entry in this.INF1.Entries)
+      foreach (Inf1Entry entry in this.INF1.Data.Entries)
       {
         switch (entry.Type)
         {
@@ -170,46 +163,6 @@ namespace j3d.GCN {
       }
 label_7:
       return nodeList.ToArray();
-    }
-
-    public class INF1Section
-    {
-      public const string Signature = "INF1";
-      public DataBlockHeader Header;
-      public ushort ScalingRule;
-      public ushort Padding;
-      public uint Unknown2;
-      public uint NrVertex;
-      public uint EntryOffset;
-      public Inf1Entry[] Entries;
-
-      public INF1Section(IEndianBinaryReader er, out bool OK)
-      {
-        long position1 = er.Position;
-        bool OK1;
-        this.Header = new DataBlockHeader(er, "INF1", out OK1);
-        if (!OK1)
-        {
-          OK = false;
-        }
-        else
-        {
-          this.ScalingRule = er.ReadUInt16();
-          this.Padding = er.ReadUInt16();
-          this.Unknown2 = er.ReadUInt32();
-          this.NrVertex = er.ReadUInt32();
-          this.EntryOffset = er.ReadUInt32();
-          long position2 = er.Position;
-          er.Position = position1 + (long) this.EntryOffset;
-          List<Inf1Entry> source = new List<Inf1Entry>();
-          source.Add(er.ReadNew<Inf1Entry>());
-          while (source.Last<Inf1Entry>().Type != (ushort) 0)
-            source.Add(er.ReadNew<Inf1Entry>());
-          er.Position = position1 + (long) this.Header.size;
-          this.Entries = source.ToArray();
-          OK = true;
-        }
-      }
     }
 
     public partial class VTX1Section {

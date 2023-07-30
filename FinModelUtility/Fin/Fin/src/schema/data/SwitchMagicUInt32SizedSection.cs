@@ -46,11 +46,6 @@ namespace fin.schema.data {
       set => this.impl_.TweakReadSize = value;
     }
 
-    public bool UseLocalSpace {
-      get => this.impl_.UseLocalSpace;
-      set => this.impl_.UseLocalSpace = value;
-    }
-
     public TMagic Magic { get; private set; }
 
     public TData Data => this.impl_.Data;

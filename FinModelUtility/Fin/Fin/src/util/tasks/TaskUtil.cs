@@ -1,10 +1,27 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace fin.util.tasks {
   public static class TaskUtil {
+    public static Task<TNumber> Subtract<TNumber>(
+        this Task<TNumber> lhsTask,
+        Task<TNumber> rhsTask)
+        where TNumber : INumber<TNumber>
+      => Task.WhenAll(lhsTask, rhsTask)
+             .ContinueWith(tasks => tasks.Result[0] - tasks.Result[1]);
+
+    public static async Task<TNumber> Subtract<TNumber>(
+        this Task<TNumber> lhsTask,
+        TNumber rhs)
+        where TNumber : INumber<TNumber> {
+      var lhs = await lhsTask;
+      return lhs - rhs;
+    }
+
+
     public static Task RunExpensiveButAccurateTickHandler(
         double frequency,
         Action handler,

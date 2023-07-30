@@ -256,7 +256,7 @@ namespace j3d.exporter {
       var vertexNormals = bmd.VTX1.Normals;
       var vertexColors = bmd.VTX1.Colors;
       var vertexUvs = bmd.VTX1.Texcoords;
-      var entries = bmd.INF1.Entries;
+      var entries = bmd.INF1.Data.Entries;
       var batches = bmd.SHP1.Batches;
 
       var scheduledDrawOnWayDownPrimitives = new List<IPrimitive>();
