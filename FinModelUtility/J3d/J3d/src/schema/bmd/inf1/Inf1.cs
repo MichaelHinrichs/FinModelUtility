@@ -1,4 +1,6 @@
-﻿using fin.schema.data;
+﻿using System.IO;
+
+using fin.schema.data;
 
 using schema.binary;
 using schema.binary.attributes;
@@ -6,6 +8,7 @@ using schema.binary.attributes;
 namespace j3d.schema.bmd.inf1 {
   [BinarySchema]
   [LocalPositions]
+  [Endianness(Endianness.BigEndian)]
   public partial class Inf1 : IBinaryConvertible {
     private readonly AutoMagicUInt32SizedSection<Inf1Data> impl_ =
         new("INF1") { TweakReadSize = -8 };

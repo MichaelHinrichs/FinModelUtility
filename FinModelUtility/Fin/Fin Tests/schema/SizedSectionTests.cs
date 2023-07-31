@@ -25,13 +25,39 @@ namespace fin.schema {
       sizedSection.Data.Field2 = 23;
       sizedSection.Data.Field3 = 34;
 
-      await BinarySchemaAssert.WritesAndReadsIdentically(sizedSection);
-
       var ew = new EndianBinaryWriter(Endianness.LittleEndian);
       sizedSection.Write(ew);
       var bytes = await BinarySchemaAssert.GetEndianBinaryWriterBytes(ew);
       BinarySchemaAssert.AssertSequence(bytes,
                                         new byte[] { 3, 0, 0, 0, 12, 23, 34 });
+
+      await BinarySchemaAssert.WritesAndReadsIdentically(sizedSection);
+    }
+
+
+    [BinarySchema]
+    public partial class TweakedASection : IBinaryConvertible {
+      public AutoUInt32SizedSection<A> Section { get; } = new() {
+          TweakReadSize = -4,
+      };
+    }
+
+    [Test]
+    public async Task TestSizedSectionWithTweakedLength() {
+      var sizedSection = new TweakedASection();
+      
+      var data = sizedSection.Section.Data;
+      data.Field1 = 12;
+      data.Field2 = 23;
+      data.Field3 = 34;
+
+      var ew = new EndianBinaryWriter(Endianness.LittleEndian);
+      sizedSection.Write(ew);
+      var bytes = await BinarySchemaAssert.GetEndianBinaryWriterBytes(ew);
+      BinarySchemaAssert.AssertSequence(bytes,
+                                        new byte[] { 7, 0, 0, 0, 12, 23, 34 });
+
+      await BinarySchemaAssert.WritesAndReadsIdentically(sizedSection);
     }
   }
 }

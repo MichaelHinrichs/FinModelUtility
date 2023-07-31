@@ -8,6 +8,7 @@ using schema.binary.attributes;
 namespace j3d.schema.bmd.jnt1 {
   [BinarySchema]
   [LocalPositions]
+  [Endianness(Endianness.BigEndian)]
   public partial class Jnt1 : IBinaryConvertible {
     private readonly AutoMagicUInt32SizedSection<Jnt1Data> impl_ =
         new("JNT1") { TweakReadSize = -8 };

@@ -1,4 +1,6 @@
-﻿using fin.schema.data;
+﻿using System.IO;
+
+using fin.schema.data;
 
 using schema.binary;
 using schema.binary.attributes;
@@ -6,6 +8,7 @@ using schema.binary.attributes;
 namespace j3d.schema.bmd.drw1 {
   [BinarySchema]
   [LocalPositions]
+  [Endianness(Endianness.BigEndian)]
   public partial class Drw1 : IBinaryConvertible {
     private readonly AutoMagicUInt32SizedSection<Drw1Data> impl_ =
         new("DRW1") { TweakReadSize = -8 };
@@ -31,10 +34,10 @@ namespace j3d.schema.bmd.drw1 {
     [IntegerFormat(SchemaIntegerType.BYTE)]
     [RSequenceLengthSource(nameof(count_))]
     [RAtPosition(nameof(isWeightedOffset_))]
-    public bool[] IsWeighted;
+    public bool[] IsWeighted { get; set; }
 
     [RSequenceLengthSource(nameof(count_))]
     [RAtPosition(nameof(dataOffset_))]
-    public ushort[] Data;
+    public ushort[] Data { get; set; }
   }
 }

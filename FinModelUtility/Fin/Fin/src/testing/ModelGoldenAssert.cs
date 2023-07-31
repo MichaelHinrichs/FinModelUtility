@@ -53,6 +53,19 @@ namespace fin.testing {
       => GetGoldenDirectories(rootGoldenDirectory)
           .Select(subdir => subdir.GetExistingSubdir("input"));
 
+    public static IEnumerable<TModelBundle> GetGoldenModelBundles<TModelBundle>(
+        ISystemDirectory rootGoldenDirectory,
+        Func<IFileHierarchyDirectory, TModelBundle>
+            gatherModelBundleFromInputDirectory)
+        where TModelBundle : IModelFileBundle {
+      foreach (var goldenSubdir in GetGoldenDirectories(rootGoldenDirectory)) {
+        var inputDirectory = goldenSubdir.GetExistingSubdir("input");
+        var modelBundle = gatherModelBundleFromInputDirectory(inputDirectory);
+
+        yield return modelBundle;
+      }
+    }
+
     /// <summary>
     ///   Asserts model goldens. Assumes that directories will be stored as the following:
     ///

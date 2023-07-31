@@ -36,12 +36,10 @@ namespace fin.schema.data {
       var endPositionTask = ew.GetAbsolutePosition();
 
       var sizeTask = endPositionTask.Subtract(startingPositionTask);
-      var tweakedSizeTask = sizeTask.Subtract(this.TweakReadSize);
+      var tweakedSizeTask = sizeTask.Subtract(this.TweakReadSize)
+                                    .CastChecked<long, uint>();
 
-      tweakedSizeTask.ContinueWith(task => {
-        var tweakedSize = task.Result;
-        sizeSource.SetResult((uint) tweakedSize);
-      });
+      tweakedSizeTask.ThenSetResult(sizeSource);
     }
   }
 }

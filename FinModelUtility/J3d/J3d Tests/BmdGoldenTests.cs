@@ -4,6 +4,10 @@ using fin.io;
 using fin.testing;
 
 using j3d.exporter;
+using j3d.GCN;
+using j3d.schema.bmd.tex1;
+
+using schema.binary.testing;
 
 
 namespace j3d {
@@ -11,23 +15,52 @@ namespace j3d {
     [Test]
     public void TestExportsExactModel() {
       ModelGoldenAssert.AssertExportGoldens(
-          this.GetGoldensDirectory_(),
+          GetGoldensDirectory_(),
           new BmdModelLoader(),
-          this.GetModelFileBundleInDirectory_);
+          GetModelFileBundleInDirectory_);
     }
 
-    private ISystemDirectory GetGoldensDirectory_()
+    [Test]
+    public async Task TestExportBmdDrw1s() {
+      foreach (var bmd in GetBmds_()) {
+        await SchemaTesting.WritesAndReadsIdentically(bmd.DRW1);
+      }
+    }
+
+    [Test]
+    public async Task TestExportBmdInf1s() {
+      foreach (var bmd in GetBmds_()) {
+        await SchemaTesting.WritesAndReadsIdentically(bmd.INF1);
+      }
+    }
+
+    [Test]
+    public async Task TestExportBmdJnt1s() {
+      foreach (var bmd in GetBmds_()) {
+        await SchemaTesting.WritesAndReadsIdentically(bmd.JNT1);
+      }
+    }
+
+    private static IEnumerable<BmdModelFileBundle> GetBundles()
+      => ModelGoldenAssert.GetGoldenModelBundles(
+          GetGoldensDirectory_(),
+          GetModelFileBundleInDirectory_);
+
+    private static IEnumerable<BMD> GetBmds_()
+      => GetBundles().Select(bundle => new BMD(bundle.BmdFile.ReadAllBytes()));
+
+
+    private static ISystemDirectory GetGoldensDirectory_()
       => ModelGoldenAssert.GetRootGoldensDirectory(
           Assembly.GetExecutingAssembly());
 
-    private BmdModelFileBundle GetModelFileBundleInDirectory_(
-        IFileHierarchyDirectory directory) {
-      return new BmdModelFileBundle {
+    private static BmdModelFileBundle GetModelFileBundleInDirectory_(
+        IFileHierarchyDirectory directory)
+      => new() {
           GameName = "foobar",
           BmdFile = directory.FilesWithExtension(".bmd").Single(),
           BcxFiles = directory.FilesWithExtensions(".bca", ".bck").ToArray(),
           BtiFiles = directory.FilesWithExtension(".bti").ToArray(),
       };
-    }
   }
 }
