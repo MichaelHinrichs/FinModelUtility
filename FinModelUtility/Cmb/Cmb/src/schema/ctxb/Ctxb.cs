@@ -45,23 +45,24 @@ namespace cmb.schema.ctxb {
 
   [BinarySchema]
   public partial class CtxbTexEntry : IBinaryConvertible {
-    public uint DataLength { get; private set; }
+    [WLengthOfSequence(nameof(Data))]
+    private uint dataLength_;
     public ushort mimapCount { get; private set; }
 
     [IntegerFormat(SchemaIntegerType.BYTE)]
-    public bool isEtc1 { get; private set; }
+    public bool IsEtc1 { get; private set; }
 
     [IntegerFormat(SchemaIntegerType.BYTE)]
-    public bool isCubemap { get; private set; }
+    public bool IsCubemap { get; private set; }
 
-    public ushort width { get; private set; }
-    public ushort height { get; private set; }
-    public GlTextureFormat imageFormat { get; private set; }
+    public ushort Width { get; private set; }
+    public ushort Height { get; private set; }
+    public GlTextureFormat ImageFormat { get; private set; }
 
     [StringLengthSource(16)]
-    public string name { get; private set; }
+    public string Name { get; private set; }
 
-    private uint padding_;
+    private readonly uint padding_ = 0;
 
     [Ignore]
     private bool includeExtraPadding_ 
@@ -71,7 +72,7 @@ namespace cmb.schema.ctxb {
     [SequenceLengthSource(56)]
     private byte[]? extraPadding_;
 
-    [RSequenceLengthSource(nameof(DataLength))]
+    [RSequenceLengthSource(nameof(dataLength_))]
     public byte[] Data { get; private set; }
   }
 }

@@ -19,7 +19,9 @@ namespace mod.schema.animation {
 
   [BinarySchema]
   public partial class DckAnimationData : IDcxAnimationData {
-    public uint JointCount { get; private set; }
+    [WLengthOfSequence(nameof(JointDataList))]
+    private uint jointCount_ { get; private set; }
+
     public uint FrameCount { get; set; }
 
     [SequenceLengthSource(SchemaIntegerType.INT32)]
@@ -31,7 +33,7 @@ namespace mod.schema.animation {
     [SequenceLengthSource(SchemaIntegerType.INT32)]
     public float[] PositionValues { get; set; }
 
-    [RSequenceLengthSource(nameof(JointCount))]
+    [RSequenceLengthSource(nameof(jointCount_))]
     public DckJointData[] JointDataList { get; set; }
 
     [Ignore]
@@ -54,9 +56,7 @@ namespace mod.schema.animation {
   [BinarySchema]
   public partial class DckAxes : IDcxAxes {
     public IDcxAxis[] Axes { get; } = {
-        new DckAxis(),
-        new DckAxis(),
-        new DckAxis(),
+        new DckAxis(), new DckAxis(), new DckAxis(),
     };
   }
 

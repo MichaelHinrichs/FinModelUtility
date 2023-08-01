@@ -225,7 +225,7 @@ namespace cmb.api {
                       .Select(
                           fileAndCtxb => fileAndCtxb.Item2)
                       .Single(
-                          ctxb => ctxb.Chunk.Entry.name ==
+                          ctxb => ctxb.Chunk.Entry.Name ==
                                   cmbTexture.name);
               image = ctrTexture.DecodeImage(cmbTexture)
                                 .Read(ctxb.Chunk.Entry.Data);

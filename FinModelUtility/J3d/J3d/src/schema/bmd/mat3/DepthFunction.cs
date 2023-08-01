@@ -14,6 +14,6 @@ namespace j3d.schema.bmd.mat3 {
     [IntegerFormat(SchemaIntegerType.BYTE)]
     public bool WriteNewValueIntoDepthBuffer { get; set; }
 
-    private readonly byte padding_ = 0xff;
+    private readonly byte padding_ = byte.MaxValue;
   }
 }

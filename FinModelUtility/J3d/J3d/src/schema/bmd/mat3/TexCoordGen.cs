@@ -8,6 +8,6 @@ namespace j3d.schema.bmd.mat3 {
     public GxTexGenType TexGenType { get; set; }
     public GxTexGenSrc TexGenSrc { get; set; }
     public GxTexMatrix TexMatrix { get; set; }
-    private readonly byte padding_ = 0xff;
+    private readonly byte padding_ = byte.MaxValue;
   }
 }

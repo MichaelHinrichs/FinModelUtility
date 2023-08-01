@@ -7,7 +7,7 @@ using schema.binary.attributes;
 namespace j3d.schema.bmd.mat3 {
   [BinarySchema]
   public partial class TevStageProps : ITevStageProps, IBinaryConvertible {
-    private byte padding0_;
+    private readonly byte padding0_ = byte.MaxValue;
 
     public GxCc color_a { get; set; }
     public GxCc color_b { get; set; }
@@ -31,6 +31,6 @@ namespace j3d.schema.bmd.mat3 {
     public bool alpha_clamp { get; set; }
     public ColorRegister alpha_regid { get; set; }
 
-    private byte padding1_;
+    private readonly byte padding1_ = byte.MaxValue;
   }
 }

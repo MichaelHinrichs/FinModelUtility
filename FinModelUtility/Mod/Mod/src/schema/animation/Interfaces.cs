@@ -8,7 +8,7 @@ namespace mod.schema.animation {
   }
 
   public interface IDcxAnimationData : IBinaryConvertible {
-    uint JointCount { get; }
+    uint joints_ { get; }
     uint FrameCount { get; set; }
 
     float[] ScaleValues { get; set; }

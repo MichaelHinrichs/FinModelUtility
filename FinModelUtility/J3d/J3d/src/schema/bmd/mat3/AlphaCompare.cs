@@ -17,8 +17,8 @@ namespace j3d.schema.bmd.mat3 {
     [NumberFormat(SchemaNumberType.UN8)]
     public float Reference1 { get; set; }
 
-    public readonly byte padding1_ = 0xff;
-    public readonly byte padding2_ = 0xff;
-    public readonly byte padding3_ = 0xff;
+    public readonly byte padding1_ = byte.MaxValue;
+    public readonly byte padding2_ = byte.MaxValue;
+    public readonly byte padding3_ = byte.MaxValue;
   }
 }

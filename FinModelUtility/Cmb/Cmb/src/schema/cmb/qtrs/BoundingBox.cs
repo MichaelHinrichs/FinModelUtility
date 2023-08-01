@@ -1,5 +1,4 @@
 ﻿using fin.schema.vector;
-using System.IO;
 using schema.binary;
 
 namespace cmb.schema.cmb.qtrs {

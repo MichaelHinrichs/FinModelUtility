@@ -76,6 +76,7 @@ namespace mod.schema {
   public partial class ChunkData : IBinaryConvertible {
     [IntegerFormat(SchemaIntegerType.UINT32)]
     public ChunkId Id { get; private set; }
+
     [SequenceLengthSource(SchemaIntegerType.INT32)]
     public byte[] Data { get; private set; }
   }

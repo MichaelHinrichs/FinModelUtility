@@ -55,8 +55,8 @@ namespace j3d.schema.bmd.mat3 {
     public byte AddPrev { get; set; }
     public byte UtcLod { get; set; }
     public byte A { get; set; }
-    private readonly byte padding1_ = 0xff;
-    private readonly byte padding2_ = 0xff;
-    private readonly byte padding3_ = 0xff;
+    private readonly byte padding1_ = byte.MaxValue;
+    private readonly byte padding2_ = byte.MaxValue;
+    private readonly byte padding3_ = byte.MaxValue;
   }
 }
