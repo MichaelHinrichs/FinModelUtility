@@ -17,6 +17,7 @@
     <Compile Remove="src\exporter\assimp\AssimpDirectExporter.cs" />
     <Compile Remove="src\exporter\assimp\AssimpMeshBuilder.cs" />
     <Compile Remove="src\exporter\assimp\AssimpSkeletonBuilder.cs" />
+    <Compile Remove="src\schema\sequences\PointerSections.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -43,6 +44,6 @@
     <PackageReference Include="SubstreamSharp" Version="1.0.3" />
     <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
     <PackageReference Include="System.IO.Abstractions" Version="19.1.5" />
-    <PackageReference Include="schema" Version="0.1.9" />
+    <PackageReference Include="schema" Version="0.1.10" />
   </ItemGroup>
 </Project>

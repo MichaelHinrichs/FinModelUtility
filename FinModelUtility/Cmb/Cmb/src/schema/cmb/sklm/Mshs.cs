@@ -1,19 +1,21 @@
 ﻿using schema.binary;
 using schema.binary.attributes;
 
-namespace cmb.schema.cmb {
+namespace cmb.schema.cmb.sklm {
   [BinarySchema]
   public partial class Mshs : IBinaryConvertible {
     public readonly string magic = "mshs";
     public uint chunkSize;
 
-    private uint meshCount;
+    [WLengthOfSequence(nameof(Meshes))]
+    private uint meshCount_;
+
     // The remainder are translucent meshes and always packed at the end
     public ushort opaqueMeshCount; 
     public ushort idCount;
     
     // Note: Mesh order = draw order
-    [RSequenceLengthSource(nameof(meshCount))]
-    public Mesh[] meshes;
+    [RSequenceLengthSource(nameof(meshCount_))]
+    public Mesh[] Meshes { get; set; }
   }
 }

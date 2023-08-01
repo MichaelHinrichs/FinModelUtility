@@ -7,7 +7,7 @@ using fin.util.array;
 using schema.binary;
 
 
-namespace cmb.schema.cmb {
+namespace cmb.schema.cmb.mats {
   public class Material : IBinaryConvertible {
     public bool isFragmentLightingEnabled;
     public bool isVertexLightingEnabled;

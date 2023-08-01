@@ -1,7 +1,7 @@
 ﻿using schema.binary;
 using schema.binary.attributes;
 
-namespace cmb.schema.cmb {
+namespace cmb.schema.cmb.sklm {
   [BinarySchema]
   public partial class VertexAttribute : IBinaryConvertible {
     public uint Start { get; private set; }

@@ -4,7 +4,7 @@ using schema.binary;
 using schema.binary.attributes;
 
 
-namespace cmb.schema.cmb {
+namespace cmb.schema.cmb.sklm {
   [BinarySchema]
   public partial class Shp : IBinaryConvertible {
     private readonly string magic_ = "shp" + AsciiUtil.GetChar(0x20);

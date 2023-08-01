@@ -5,7 +5,7 @@ using fin.util.strings;
 
 using schema.binary;
 
-namespace cmb.schema.cmb {
+namespace cmb.schema.cmb.sklm {
   public class Primitive : IBinaryConvertible {
     public uint chunkSize;
     public bool isVisible;
@@ -13,7 +13,7 @@ namespace cmb.schema.cmb {
     public DataType dataType;
     public ushort indicesCount;
     public uint[] indices;
-    public ushort offset;
+    public ushort offset { get; set; }
 
     public void Read(IEndianBinaryReader r) {
       r.AssertMagicText("prm" + AsciiUtil.GetChar(0x20));

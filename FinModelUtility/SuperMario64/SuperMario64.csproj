@@ -68,6 +68,6 @@
     <ProjectReference Include="..\Fin\Fin\Fin.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="schema" Version="0.1.9" />
+    <PackageReference Include="schema" Version="0.1.10" />
   </ItemGroup>
 </Project>

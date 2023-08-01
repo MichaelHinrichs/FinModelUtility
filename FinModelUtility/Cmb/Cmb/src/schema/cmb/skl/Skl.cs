@@ -1,7 +1,7 @@
 ﻿using schema.binary;
 using schema.binary.attributes;
 
-namespace cmb.schema.cmb {
+namespace cmb.schema.cmb.skl {
   [BinarySchema]
   public partial class Skl : IBinaryConvertible {
     private uint boneCount_;

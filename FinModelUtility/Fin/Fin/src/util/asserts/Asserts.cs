@@ -94,7 +94,7 @@ namespace fin.util.asserts {
         var currentB = enumeratorB.Current;
 
         if (!object.Equals(currentA, currentB)) {
-          Asserts.Fail($"Expected {currentA} to equal {currentB} at index ${index}.");
+          Asserts.Fail($"Expected {currentA} to equal {currentB} at index {index}.");
         }
         index++;
 

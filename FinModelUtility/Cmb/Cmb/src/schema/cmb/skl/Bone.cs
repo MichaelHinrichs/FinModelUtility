@@ -4,7 +4,7 @@ using schema.binary;
 using schema.binary.attributes;
 
 
-namespace cmb.schema.cmb {
+namespace cmb.schema.cmb.skl {
   [BinarySchema]
   public partial class Bone : IBinaryConvertible {
     // Because only 12 bits are used, 4095 is the max bone count. (In

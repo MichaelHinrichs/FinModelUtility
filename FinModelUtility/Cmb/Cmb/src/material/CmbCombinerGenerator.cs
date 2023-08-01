@@ -1,4 +1,4 @@
-﻿using cmb.schema.cmb;
+﻿using cmb.schema.cmb.mats;
 
 using fin.language.equations.fixedFunction;
 using fin.language.equations.fixedFunction.impl;

@@ -1,7 +1,7 @@
 ﻿using schema.binary;
 using schema.binary.attributes;
 
-namespace cmb.schema.cmb {
+namespace cmb.schema.cmb.mats {
   [BinarySchema]
   public partial class Sampler : IBinaryConvertible {
     [IntegerFormat(SchemaIntegerType.BYTE)]

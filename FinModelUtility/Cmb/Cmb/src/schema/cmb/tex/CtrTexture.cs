@@ -1,12 +1,9 @@
-﻿using System.IO;
+﻿using cmb.image;
 
-using cmb.image;
-
-using fin.image;
 using fin.image.io;
 
 
-namespace cmb.schema.cmb {
+namespace cmb.schema.cmb.tex {
   public class CtrTexture {
     private GlTextureFormat CollapseFormat_(GlTextureFormat format) {
       var lowerFormat = (GlTextureFormat) ((int) format & 0xFFFF);

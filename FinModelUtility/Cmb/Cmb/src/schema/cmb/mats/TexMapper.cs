@@ -2,7 +2,7 @@
 
 using schema.binary;
 
-namespace cmb.schema.cmb {
+namespace cmb.schema.cmb.mats {
   [BinarySchema]
   public partial class TexMapper : IBinaryConvertible {
     public short textureId { get; set; }

@@ -1,7 +1,7 @@
 ﻿using schema.binary;
 using schema.binary.attributes;
 
-namespace cmb.schema.cmb {
+namespace cmb.schema.cmb.tex {
   [BinarySchema]
   public partial class Texture : IBinaryConvertible {
     public uint dataLength { get; private set; }

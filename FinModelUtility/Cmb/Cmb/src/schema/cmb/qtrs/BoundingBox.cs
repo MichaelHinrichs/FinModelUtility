@@ -2,7 +2,7 @@
 using System.IO;
 using schema.binary;
 
-namespace cmb.schema.cmb {
+namespace cmb.schema.cmb.qtrs {
   [BinarySchema]
   public partial class BoundingBox : IBinaryConvertible {
     // M-1 checked all files, and Min/Max are the only values to ever change

@@ -6,6 +6,8 @@ using System.Linq;
 
 using cmb.material;
 using cmb.schema.cmb;
+using cmb.schema.cmb.skl;
+using cmb.schema.cmb.tex;
 using cmb.schema.csab;
 using cmb.schema.ctxb;
 using cmb.schema.shpa;
@@ -247,7 +249,7 @@ namespace cmb.api {
 
       // Adds meshes
       var sklm = cmb.sklm.Data;
-      foreach (var cmbMesh in sklm.meshes.meshes) {
+      foreach (var cmbMesh in sklm.mshs.Meshes) {
         var shape = sklm.shapes.shapes[cmbMesh.shapeIndex];
 
         uint vertexCount = 0;

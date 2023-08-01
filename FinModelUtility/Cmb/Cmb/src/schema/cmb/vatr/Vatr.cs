@@ -2,7 +2,7 @@
 using schema.binary.attributes;
 
 
-namespace cmb.schema.cmb {
+namespace cmb.schema.cmb.vatr {
   [BinarySchema]
   public partial class Vatr : IBinaryConvertible {
     private readonly string magic_ = "vatr";

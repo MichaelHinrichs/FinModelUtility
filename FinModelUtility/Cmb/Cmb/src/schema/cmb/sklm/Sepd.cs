@@ -2,13 +2,16 @@
 using schema.binary.attributes;
 
 
-namespace cmb.schema.cmb {
+namespace cmb.schema.cmb.sklm {
   [BinarySchema]
   public partial class Sepd : IBinaryConvertible {
     private readonly string magic_ = "sepd";
 
     public uint chunkSize;
-    private ushort primSetCount;
+
+    [WLengthOfSequence(nameof(primitiveSetOffsets_))]
+    [WLengthOfSequence(nameof(primitiveSets))]
+    private ushort primSetCount_;
 
     /**
       Bit Flags: (HasTangents was added in versions > OoT:3D (aka 6))
@@ -74,11 +77,11 @@ namespace cmb.schema.cmb {
     */
     public ushort constantFlags;
 
-    [RSequenceLengthSource(nameof(primSetCount))]
+    [RSequenceLengthSource(nameof(primSetCount_))]
     private short[] primitiveSetOffsets_;
 
     [Align(4)]
-    [RSequenceLengthSource(nameof(primSetCount))]
-    public PrimitiveSet[] primitiveSets;
+    [RSequenceLengthSource(nameof(primSetCount_))]
+    public PrimitiveSet[] primitiveSets { get; set; }
   }
 }

@@ -3,6 +3,14 @@
 using System;
 using System.IO;
 
+using cmb.schema.cmb.luts;
+using cmb.schema.cmb.mats;
+using cmb.schema.cmb.qtrs;
+using cmb.schema.cmb.skl;
+using cmb.schema.cmb.sklm;
+using cmb.schema.cmb.tex;
+using cmb.schema.cmb.vatr;
+
 using fin.util.strings;
 
 using schema.binary;
