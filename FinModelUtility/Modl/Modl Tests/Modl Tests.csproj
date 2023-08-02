@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <RootNamespace>level5</RootNamespace>
+    <RootNamespace>modl</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
@@ -25,8 +25,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Fin\Fin\Fin.csproj" />
-    <ProjectReference Include="..\Level5\Level5.csproj" />
+    <ProjectReference Include="..\..\Asserts\Asserts.csproj" />
+    <ProjectReference Include="..\..\Fin\Fin\Fin.csproj" />
+    <ProjectReference Include="..\Modl\Modl.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="goldens\modl\battalion_wars_1\input\" />
+    <Folder Include="goldens\modl\battalion_wars_1\output\" />
+    <Folder Include="goldens\out\battalion_wars_1\input\" />
+    <Folder Include="goldens\out\battalion_wars_1\output\" />
   </ItemGroup>
 
 </Project>

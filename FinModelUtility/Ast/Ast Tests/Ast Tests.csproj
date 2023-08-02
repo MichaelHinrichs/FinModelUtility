@@ -26,7 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Ast\Ast.csproj" />
-    <ProjectReference Include="..\Fin\Fin\Fin.csproj" />
+    <ProjectReference Include="..\..\Fin\Fin\Fin.csproj" />
   </ItemGroup>
 
 </Project>

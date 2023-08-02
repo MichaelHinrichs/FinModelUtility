@@ -64,8 +64,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\F3dzex2\F3dzex2.csproj" />
-    <ProjectReference Include="..\Fin\Fin\Fin.csproj" />
+    <ProjectReference Include="..\..\F3dzex2\F3dzex2.csproj" />
+    <ProjectReference Include="..\..\Fin\Fin\Fin.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="schema" Version="0.1.12" />

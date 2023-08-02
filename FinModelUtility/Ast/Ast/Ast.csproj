@@ -4,20 +4,14 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>visceral</RootNamespace>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RootNamespace>ast</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="src\schema\str\Str.cs" />
+    <ProjectReference Include="..\..\Fin\Fin\Fin.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BCnEncoder.Net" Version="2.1.0" />
     <PackageReference Include="schema" Version="0.1.12" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Fin\Fin\Fin.csproj" />
   </ItemGroup>
 </Project>
