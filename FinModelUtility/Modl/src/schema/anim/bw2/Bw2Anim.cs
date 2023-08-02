@@ -30,6 +30,7 @@ namespace modl.schema.anim.bw2 {
       while (er.ReadByte() == 0xcd) {
         cdCount++;
       }
+
       --er.Position;
 
       var single1 = er.ReadSingle();
@@ -117,19 +118,22 @@ namespace modl.schema.anim.bw2 {
 
       outValues = new double[3];
       outValues[0] =
-          (INTERPRET_AS_DOUBLE_(
-               CONCAT44_(0x43300000, (uint) (first_uint >> 0x15))) -
-           INTERPRET_AS_DOUBLE_(0x4330000000000000)) *
+          (WeirdFloatMath.INTERPRET_AS_DOUBLE_(
+               WeirdFloatMath.CONCAT44_(0x43300000,
+                                        (uint) (first_uint >> 0x15))) -
+           WeirdFloatMath.INTERPRET_AS_DOUBLE_(0x4330000000000000)) *
           animBone.XPosDelta + animBone.XPosMin;
       outValues[1] =
-          (INTERPRET_AS_DOUBLE_(
-               CONCAT44_(0x43300000, (uint) ((first_uint >> 10) & 0x7ff))) -
-           INTERPRET_AS_DOUBLE_(0x4330000000000000)) *
+          (WeirdFloatMath.INTERPRET_AS_DOUBLE_(
+               WeirdFloatMath.CONCAT44_(0x43300000,
+                                        (uint) ((first_uint >> 10) & 0x7ff))) -
+           WeirdFloatMath.INTERPRET_AS_DOUBLE_(0x4330000000000000)) *
           animBone.YPosDelta + animBone.YPosMin;
       outValues[2] =
-          (INTERPRET_AS_DOUBLE_(
-               CONCAT44_(0x43300000, (uint) (second_ushort & 0x3ff))) -
-           INTERPRET_AS_DOUBLE_(0x4330000000000000)) *
+          (WeirdFloatMath.INTERPRET_AS_DOUBLE_(
+               WeirdFloatMath.CONCAT44_(0x43300000,
+                                        (uint) (second_ushort & 0x3ff))) -
+           WeirdFloatMath.INTERPRET_AS_DOUBLE_(0x4330000000000000)) *
           animBone.ZPosDelta + animBone.ZPosMin;
     }
 
@@ -143,35 +147,42 @@ namespace modl.schema.anim.bw2 {
       const double DOUBLE_80600f40 = 4.503601774854144E15;
       const double FLOAT_80603708 = 3.0517578E-5;
 
-      var outX = (float) (INTERPRET_AS_DOUBLE_(CONCAT44_(0x43300000,
-                                                 ((first_ushort & 0x3fffU) <<
-                                                  1) ^
-                                                 0x80000000)) -
+      var outX = (float) (WeirdFloatMath.INTERPRET_AS_DOUBLE_(
+                              WeirdFloatMath.CONCAT44_(0x43300000,
+                                ((first_ushort & 0x3fffU) <<
+                                 1) ^
+                                0x80000000)) -
                           DOUBLE_80600f40) * FLOAT_80603708;
-      var outY = (float) (INTERPRET_AS_DOUBLE_(CONCAT44_(0x43300000,
-                                                 (uint) ((second_ushort &
-                                                             0x3fff) <<
-                                                       1) ^
-                                                 0x80000000)) -
+      var outY = (float) (WeirdFloatMath.INTERPRET_AS_DOUBLE_(
+                              WeirdFloatMath.CONCAT44_(0x43300000,
+                                (uint) ((second_ushort &
+                                         0x3fff) <<
+                                        1) ^
+                                0x80000000)) -
                           DOUBLE_80600f40)
                  * FLOAT_80603708;
-      var outZ = (float) (INTERPRET_AS_DOUBLE_(CONCAT44_(0x43300000,
-                                                 third_ushort & 0x7fffU ^
-                                                 0x80000000)) -
+      var outZ = (float) (WeirdFloatMath.INTERPRET_AS_DOUBLE_(
+                              WeirdFloatMath.CONCAT44_(0x43300000,
+                                third_ushort & 0x7fffU ^
+                                0x80000000)) -
                           DOUBLE_80600f40) * FLOAT_80603708;
-      var outW = (float) (INTERPRET_AS_DOUBLE_(CONCAT44_(0x43300000,
-                                                 fourth_ushort & 0x7fffU ^
-                                                 0x80000000)) -
+      var outW = (float) (WeirdFloatMath.INTERPRET_AS_DOUBLE_(
+                              WeirdFloatMath.CONCAT44_(0x43300000,
+                                fourth_ushort & 0x7fffU ^
+                                0x80000000)) -
                           DOUBLE_80600f40) * FLOAT_80603708;
       if (((int) first_ushort & 0x4000U) != 0) {
         outX = -outX;
       }
+
       if (((int) (short) (second_ushort << 1) & 0x8000U) != 0) {
         outY = -outY;
       }
+
       if (((int) third_ushort & 0x8000U) != 0) {
         outZ = -outZ;
       }
+
       if (((int) fourth_ushort & 0x8000U) != 0) {
         outW = -outW;
       }
@@ -183,19 +194,6 @@ namespace modl.schema.anim.bw2 {
       outValues[3] = outW;
 
       return (-(second_ushort >> 0xf & 1) >> 0x1f) != 0;
-    }
-
-    static ulong CONCAT44_(uint first, uint second) =>
-        ((ulong) first << 32) | second;
-
-    static double INTERPRET_AS_DOUBLE_(ulong value) {
-      var bytes = BitConverter.GetBytes(value);
-      return BitConverter.ToDouble(bytes);
-    }
-
-    static float INTERPRET_AS_SINGLE_(uint value) {
-      var bytes = BitConverter.GetBytes(value);
-      return BitConverter.ToSingle(bytes);
     }
   }
 }

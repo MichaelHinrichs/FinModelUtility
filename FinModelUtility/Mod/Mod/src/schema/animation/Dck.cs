@@ -20,7 +20,7 @@ namespace mod.schema.animation {
   [BinarySchema]
   public partial class DckAnimationData : IDcxAnimationData {
     [WLengthOfSequence(nameof(JointDataList))]
-    private uint jointCount_ { get; private set; }
+    private uint jointCount_;
 
     public uint FrameCount { get; set; }
 
