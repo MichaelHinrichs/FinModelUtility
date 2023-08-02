@@ -118,22 +118,22 @@ namespace modl.schema.anim.bw2 {
 
       outValues = new double[3];
       outValues[0] =
-          (WeirdFloatMath.INTERPRET_AS_DOUBLE_(
-               WeirdFloatMath.CONCAT44_(0x43300000,
+          (WeirdFloatMath.InterpretAsDouble(
+               WeirdFloatMath.Concat44(0x43300000,
                                         (uint) (first_uint >> 0x15))) -
-           WeirdFloatMath.INTERPRET_AS_DOUBLE_(0x4330000000000000)) *
+           WeirdFloatMath.InterpretAsDouble(0x4330000000000000)) *
           animBone.XPosDelta + animBone.XPosMin;
       outValues[1] =
-          (WeirdFloatMath.INTERPRET_AS_DOUBLE_(
-               WeirdFloatMath.CONCAT44_(0x43300000,
+          (WeirdFloatMath.InterpretAsDouble(
+               WeirdFloatMath.Concat44(0x43300000,
                                         (uint) ((first_uint >> 10) & 0x7ff))) -
-           WeirdFloatMath.INTERPRET_AS_DOUBLE_(0x4330000000000000)) *
+           WeirdFloatMath.InterpretAsDouble(0x4330000000000000)) *
           animBone.YPosDelta + animBone.YPosMin;
       outValues[2] =
-          (WeirdFloatMath.INTERPRET_AS_DOUBLE_(
-               WeirdFloatMath.CONCAT44_(0x43300000,
+          (WeirdFloatMath.InterpretAsDouble(
+               WeirdFloatMath.Concat44(0x43300000,
                                         (uint) (second_ushort & 0x3ff))) -
-           WeirdFloatMath.INTERPRET_AS_DOUBLE_(0x4330000000000000)) *
+           WeirdFloatMath.InterpretAsDouble(0x4330000000000000)) *
           animBone.ZPosDelta + animBone.ZPosMin;
     }
 
@@ -147,27 +147,27 @@ namespace modl.schema.anim.bw2 {
       const double DOUBLE_80600f40 = 4.503601774854144E15;
       const double FLOAT_80603708 = 3.0517578E-5;
 
-      var outX = (float) (WeirdFloatMath.INTERPRET_AS_DOUBLE_(
-                              WeirdFloatMath.CONCAT44_(0x43300000,
+      var outX = (float) (WeirdFloatMath.InterpretAsDouble(
+                              WeirdFloatMath.Concat44(0x43300000,
                                 ((first_ushort & 0x3fffU) <<
                                  1) ^
                                 0x80000000)) -
                           DOUBLE_80600f40) * FLOAT_80603708;
-      var outY = (float) (WeirdFloatMath.INTERPRET_AS_DOUBLE_(
-                              WeirdFloatMath.CONCAT44_(0x43300000,
+      var outY = (float) (WeirdFloatMath.InterpretAsDouble(
+                              WeirdFloatMath.Concat44(0x43300000,
                                 (uint) ((second_ushort &
                                          0x3fff) <<
                                         1) ^
                                 0x80000000)) -
                           DOUBLE_80600f40)
                  * FLOAT_80603708;
-      var outZ = (float) (WeirdFloatMath.INTERPRET_AS_DOUBLE_(
-                              WeirdFloatMath.CONCAT44_(0x43300000,
+      var outZ = (float) (WeirdFloatMath.InterpretAsDouble(
+                              WeirdFloatMath.Concat44(0x43300000,
                                 third_ushort & 0x7fffU ^
                                 0x80000000)) -
                           DOUBLE_80600f40) * FLOAT_80603708;
-      var outW = (float) (WeirdFloatMath.INTERPRET_AS_DOUBLE_(
-                              WeirdFloatMath.CONCAT44_(0x43300000,
+      var outW = (float) (WeirdFloatMath.InterpretAsDouble(
+                              WeirdFloatMath.Concat44(0x43300000,
                                 fourth_ushort & 0x7fffU ^
                                 0x80000000)) -
                           DOUBLE_80600f40) * FLOAT_80603708;

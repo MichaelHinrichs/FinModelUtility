@@ -12,6 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="schema" Version="0.1.11" />
+    <PackageReference Include="schema" Version="0.1.12" />
   </ItemGroup>
 </Project>
