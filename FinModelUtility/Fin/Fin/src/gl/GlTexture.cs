@@ -4,6 +4,7 @@ using fin.image;
 using fin.model;
 
 using OpenTK.Graphics.OpenGL;
+
 using System.Buffers;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -16,19 +17,17 @@ using TextureMinFilter = OpenTK.Graphics.OpenGL.TextureMinFilter;
 
 namespace fin.gl {
   public class GlTexture : IDisposable {
-    private static readonly Dictionary<ITexture, WeakReference<GlTexture>> cache_ = new();
+    private static readonly Dictionary<ITexture, GlTexture> cache_ = new();
 
 
     private const int UNDEFINED_ID = -1;
-
     private int id_ = UNDEFINED_ID;
+    private readonly ITexture texture_;
 
     public static GlTexture FromTexture(ITexture texture) {
-      if (!(cache_.TryGetValue(texture, out var glTextureReference) &&
-          glTextureReference.TryGetTarget(out var glTexture))) {
+      if (!cache_.TryGetValue(texture, out var glTexture)) {
         glTexture = new GlTexture(texture);
-        (glTextureReference ??= new WeakReference<GlTexture>(default)).SetTarget(glTexture);
-        cache_[texture] = glTextureReference;
+        cache_[texture] = glTexture;
       }
 
       return glTexture;
@@ -47,6 +46,8 @@ namespace fin.gl {
     }
 
     private GlTexture(ITexture texture) {
+      this.texture_ = texture;
+
       GL.GenTextures(1, out int id);
       this.id_ = id;
 
@@ -58,24 +59,27 @@ namespace fin.gl {
         var finBorderColor = texture.BorderColor;
         var hasBorderColor = finBorderColor != null;
         GL.TexParameter(target,
-          TextureParameterName.TextureWrapS,
-          (int)GlTexture.ConvertFinWrapToGlWrap_(
-            texture.WrapModeU, hasBorderColor));
+                        TextureParameterName.TextureWrapS,
+                        (int) GlTexture.ConvertFinWrapToGlWrap_(
+                            texture.WrapModeU,
+                            hasBorderColor));
         GL.TexParameter(target,
-          TextureParameterName.TextureWrapT,
-          (int)GlTexture.ConvertFinWrapToGlWrap_(
-            texture.WrapModeV, hasBorderColor));
+                        TextureParameterName.TextureWrapT,
+                        (int) GlTexture.ConvertFinWrapToGlWrap_(
+                            texture.WrapModeV,
+                            hasBorderColor));
 
         if (hasBorderColor) {
           var glBorderColor = new[] {
-            finBorderColor.Rf,
-            finBorderColor.Gf,
-            finBorderColor.Bf,
-            finBorderColor.Af
+              finBorderColor.Rf,
+              finBorderColor.Gf,
+              finBorderColor.Bf,
+              finBorderColor.Af
           };
 
-          GL.TexParameter(target, TextureParameterName.TextureBorderColor,
-            glBorderColor);
+          GL.TexParameter(target,
+                          TextureParameterName.TextureBorderColor,
+                          glBorderColor);
         }
 
         if (texture.MinFilter is FinTextureMinFilter.NEAR_MIPMAP_NEAR
@@ -101,10 +105,13 @@ namespace fin.gl {
                     .LinearMipmapLinear,
             }));
         GL.TexParameter(
-            target, TextureParameterName.TextureMagFilter,
+            target,
+            TextureParameterName.TextureMagFilter,
             (int) (texture.MagFilter switch {
-                TextureMagFilter.NEAR   => OpenTK.Graphics.OpenGL.TextureMagFilter.Nearest,
-                TextureMagFilter.LINEAR => OpenTK.Graphics.OpenGL.TextureMagFilter.Linear,
+                TextureMagFilter.NEAR => OpenTK.Graphics.OpenGL.TextureMagFilter
+                                               .Nearest,
+                TextureMagFilter.LINEAR => OpenTK.Graphics.OpenGL
+                                                 .TextureMagFilter.Linear,
             }));
       }
       GL.BindTexture(target, UNDEFINED_ID);
@@ -122,58 +129,59 @@ namespace fin.gl {
       byte[] pixelBytes;
       switch (image) {
         case Rgba32Image rgba32Image: {
-            pixelBytes = pool_.Rent(4 * imageWidth * imageHeight);
-            pixelInternalFormat = PixelInternalFormat.Rgba;
-            pixelFormat = PixelFormat.Rgba;
-            rgba32Image.GetRgba32Bytes(pixelBytes);
-            break;
-          }
+          pixelBytes = pool_.Rent(4 * imageWidth * imageHeight);
+          pixelInternalFormat = PixelInternalFormat.Rgba;
+          pixelFormat = PixelFormat.Rgba;
+          rgba32Image.GetRgba32Bytes(pixelBytes);
+          break;
+        }
         case Rgb24Image rgb24Image: {
-            pixelBytes = pool_.Rent(3 * imageWidth * imageHeight);
-            pixelInternalFormat = PixelInternalFormat.Rgb;
-            pixelFormat = PixelFormat.Rgb;
-            rgb24Image.GetRgb24Bytes(pixelBytes);
-            break;
-          }
+          pixelBytes = pool_.Rent(3 * imageWidth * imageHeight);
+          pixelInternalFormat = PixelInternalFormat.Rgb;
+          pixelFormat = PixelFormat.Rgb;
+          rgb24Image.GetRgb24Bytes(pixelBytes);
+          break;
+        }
         case La16Image ia16Image: {
-            pixelBytes = pool_.Rent(2 * imageWidth * imageHeight);
-            pixelInternalFormat = PixelInternalFormat.LuminanceAlpha;
-            pixelFormat = PixelFormat.LuminanceAlpha;
-            ia16Image.GetIa16Bytes(pixelBytes);
-            break;
-          }
+          pixelBytes = pool_.Rent(2 * imageWidth * imageHeight);
+          pixelInternalFormat = PixelInternalFormat.LuminanceAlpha;
+          pixelFormat = PixelFormat.LuminanceAlpha;
+          ia16Image.GetIa16Bytes(pixelBytes);
+          break;
+        }
         case L8Image i8Image: {
-            pixelBytes = pool_.Rent(imageWidth * imageHeight);
-            pixelInternalFormat = PixelInternalFormat.Luminance;
-            pixelFormat = PixelFormat.Luminance;
-            i8Image.GetI8Bytes(pixelBytes);
-            break;
-          }
+          pixelBytes = pool_.Rent(imageWidth * imageHeight);
+          pixelInternalFormat = PixelInternalFormat.Luminance;
+          pixelFormat = PixelFormat.Luminance;
+          i8Image.GetI8Bytes(pixelBytes);
+          break;
+        }
         default: {
-            pixelBytes = pool_.Rent(4 * imageWidth * imageHeight);
-            pixelInternalFormat = PixelInternalFormat.Rgba;
-            pixelFormat = PixelFormat.Rgba;
-            image.Access(getHandler => {
-              for (var y = 0; y < imageHeight; y++) {
-                for (var x = 0; x < imageWidth; x++) {
-                  getHandler(x, y, out var r, out var g, out var b, out var a);
+          pixelBytes = pool_.Rent(4 * imageWidth * imageHeight);
+          pixelInternalFormat = PixelInternalFormat.Rgba;
+          pixelFormat = PixelFormat.Rgba;
+          image.Access(getHandler => {
+            for (var y = 0; y < imageHeight; y++) {
+              for (var x = 0; x < imageWidth; x++) {
+                getHandler(x, y, out var r, out var g, out var b, out var a);
 
-                  var outI = 4 * (y * imageWidth + x);
-                  pixelBytes[outI] = r;
-                  pixelBytes[outI + 1] = g;
-                  pixelBytes[outI + 2] = b;
-                  pixelBytes[outI + 3] = a;
-                }
+                var outI = 4 * (y * imageWidth + x);
+                pixelBytes[outI] = r;
+                pixelBytes[outI + 1] = g;
+                pixelBytes[outI + 2] = b;
+                pixelBytes[outI + 3] = a;
               }
-            });
-            break;
-          }
+            }
+          });
+          break;
+        }
       }
 
       GL.TexImage2D(TextureTarget.Texture2D,
                     0,
                     pixelInternalFormat,
-                    imageWidth, imageHeight,
+                    imageWidth,
+                    imageHeight,
                     0,
                     pixelFormat,
                     PixelType.UnsignedByte,
@@ -190,6 +198,8 @@ namespace fin.gl {
     }
 
     private void ReleaseUnmanagedResources_() {
+      GlTexture.cache_.Remove(this.texture_);
+
       var id = this.id_;
       GL.DeleteTextures(1, ref id);
 
@@ -208,13 +218,15 @@ namespace fin.gl {
         WrapMode wrapMode,
         bool hasBorderColor) =>
         wrapMode switch {
-          WrapMode.CLAMP => hasBorderColor
-                                ? TextureWrapMode.ClampToBorder
-                                : TextureWrapMode.ClampToEdge,
-          WrapMode.REPEAT => TextureWrapMode.Repeat,
-          WrapMode.MIRROR_REPEAT => TextureWrapMode.MirroredRepeat,
-          _ => throw new ArgumentOutOfRangeException(
-                   nameof(wrapMode), wrapMode, null)
+            WrapMode.CLAMP => hasBorderColor
+                ? TextureWrapMode.ClampToBorder
+                : TextureWrapMode.ClampToEdge,
+            WrapMode.REPEAT        => TextureWrapMode.Repeat,
+            WrapMode.MIRROR_REPEAT => TextureWrapMode.MirroredRepeat,
+            _ => throw new ArgumentOutOfRangeException(
+                nameof(wrapMode),
+                wrapMode,
+                null)
         };
   }
 }

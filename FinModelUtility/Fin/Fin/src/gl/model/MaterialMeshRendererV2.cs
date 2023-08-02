@@ -1,8 +1,6 @@
 ﻿using fin.gl.material;
 using fin.model;
 
-using OpenTK.Graphics.OpenGL;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
