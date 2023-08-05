@@ -36,11 +36,11 @@ namespace cmb.schema.shpa {
 
 
     [RAtPosition(nameof(posiOffset_))]
-    public AutoMagicUInt32SizedSection<Posi> Posi { get; } =
+    public AutoStringMagicUInt32SizedSection<Posi> Posi { get; } =
       new("posi") { TweakReadSize = -8, };
 
     [RAtPosition(nameof(normOffset_))]
-    public AutoMagicUInt32SizedSection<Norm> Norm { get; } =
+    public AutoStringMagicUInt32SizedSection<Norm> Norm { get; } =
       new("norm") { TweakReadSize = -8, };
 
     [RAtPosition(nameof(idxsOffset_))]

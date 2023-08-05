@@ -26,24 +26,24 @@ namespace cmb.schema.cmb {
 
     private const int TWEAK_AUTO_SIZE = -8;
 
-    public readonly AutoMagicUInt32SizedSection<Skl> skl
+    public readonly AutoStringMagicUInt32SizedSection<Skl> skl
         = new("skl" + AsciiUtil.GetChar(0x20));
 
-    public readonly AutoMagicUInt32SizedSection<Qtrs> qtrs
+    public readonly AutoStringMagicUInt32SizedSection<Qtrs> qtrs
         = new("qtrs");
 
-    public AutoMagicUInt32SizedSection<Mats> mats { get; set; } =
+    public AutoStringMagicUInt32SizedSection<Mats> mats { get; set; } =
       new("mats") {
           TweakReadSize = TWEAK_AUTO_SIZE,
       };
 
-    public readonly AutoMagicUInt32SizedSection<Tex> tex
+    public readonly AutoStringMagicUInt32SizedSection<Tex> tex
         = new("tex" + AsciiUtil.GetChar(0x20));
 
-    public readonly AutoMagicUInt32SizedSection<Sklm> sklm =
+    public readonly AutoStringMagicUInt32SizedSection<Sklm> sklm =
         new("sklm");
 
-    public readonly AutoMagicUInt32SizedSection<Luts> luts
+    public readonly AutoStringMagicUInt32SizedSection<Luts> luts
         = new("luts");
 
     public readonly Vatr vatr = new();

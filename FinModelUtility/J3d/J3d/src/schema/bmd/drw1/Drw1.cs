@@ -10,7 +10,7 @@ namespace j3d.schema.bmd.drw1 {
   [LocalPositions]
   [Endianness(Endianness.BigEndian)]
   public partial class Drw1 : IBinaryConvertible {
-    private readonly AutoMagicUInt32SizedSection<Drw1Data> impl_ =
+    private readonly AutoStringMagicUInt32SizedSection<Drw1Data> impl_ =
         new("DRW1") { TweakReadSize = -8 };
 
     [Ignore]

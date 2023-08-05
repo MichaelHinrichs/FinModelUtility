@@ -19,7 +19,7 @@ namespace modl.schema.modl.bw1.node {
 
     public BwTransform Transform { get; } = new();
 
-    public AutoMagicUInt32SizedSection<BwBoundingBox> BoundingBox { get; } =
+    public AutoStringMagicUInt32SizedSection<BwBoundingBox> BoundingBox { get; } =
       new("BBOX".Reverse());
 
     public float Scale { get; set; }

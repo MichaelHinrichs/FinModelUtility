@@ -7,7 +7,7 @@ namespace j3d.schema.bmd.tex1 {
   [BinarySchema]
   [LocalPositions]
   public partial class Tex1 : IBinaryConvertible {
-    private readonly AutoMagicUInt32SizedSection<Tex1Data> impl_ =
+    private readonly AutoStringMagicUInt32SizedSection<Tex1Data> impl_ =
         new("TEX1") { TweakReadSize = -8 };
 
     [Ignore]

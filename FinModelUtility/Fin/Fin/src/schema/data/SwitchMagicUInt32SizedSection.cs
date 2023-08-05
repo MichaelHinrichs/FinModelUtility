@@ -1,9 +1,15 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
 using schema.binary;
 
 namespace fin.schema.data {
+  public interface ISwitchMagicConfig<TMagic, TData>
+      : IMagicConfig<TMagic, TData>
+      where TMagic : notnull
+      where TData : IBinaryConvertible {
+    TData CreateData(TMagic magic);
+  }
+
   /// <summary>
   ///   Schema class that implements a uint32-sized section without needing to
   ///   worry about passing in an instance of the contained data. This should
@@ -12,33 +18,14 @@ namespace fin.schema.data {
   /// </summary>
   public class SwitchMagicUInt32SizedSection<TMagic, TData>
       : IMagicSection<TMagic, TData>
+      where TMagic : notnull
       where TData : IBinaryConvertible {
-    private readonly int tweakSize_;
-
-    private readonly Func<IEndianBinaryReader, TMagic> readMagicHandler_;
-    private readonly Action<ISubEndianBinaryWriter, TMagic> writeMagicHandler_;
-    private readonly Func<TMagic, TData> createTypeHandler_;
-
+    private readonly ISwitchMagicConfig<TMagic, TData> config_;
     private readonly PassThruUInt32SizedSection<TData> impl_ = new(default!);
 
     public SwitchMagicUInt32SizedSection(
-        Func<IEndianBinaryReader, TMagic> readMagicHandler,
-        Action<ISubEndianBinaryWriter, TMagic> writeMagicHandler,
-        Func<TMagic, TData> createTypeHandler) : this(
-        0,
-        readMagicHandler,
-        writeMagicHandler,
-        createTypeHandler) { }
-
-    public SwitchMagicUInt32SizedSection(
-        int tweakSize,
-        Func<IEndianBinaryReader, TMagic> readMagicHandler,
-        Action<ISubEndianBinaryWriter, TMagic> writeMagicHandler,
-        Func<TMagic, TData> createTypeHandler) {
-      this.tweakSize_ = tweakSize;
-      this.readMagicHandler_ = readMagicHandler;
-      this.writeMagicHandler_ = writeMagicHandler;
-      this.createTypeHandler_ = createTypeHandler;
+        ISwitchMagicConfig<TMagic, TData> config) {
+      this.config_ = config;
     }
 
     public int TweakReadSize {
@@ -51,13 +38,13 @@ namespace fin.schema.data {
     public TData Data => this.impl_.Data;
 
     public void Read(IEndianBinaryReader er) {
-      this.Magic = this.readMagicHandler_(er);
-      this.impl_.Data = this.createTypeHandler_(this.Magic);
+      this.Magic = this.config_.ReadMagic(er);
+      this.impl_.Data = this.config_.CreateData(this.Magic);
       this.impl_.Read(er);
     }
 
     public void Write(ISubEndianBinaryWriter ew) {
-      this.writeMagicHandler_(ew, this.Magic);
+      this.config_.WriteMagic(ew, this.Magic);
       this.impl_.Write(ew);
     }
 

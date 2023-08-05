@@ -17,15 +17,17 @@ namespace modl.schema.res.texr {
   }
 
   public abstract class BTexr {
-
     protected IImage
         ReadA8R8G8B8_(IEndianBinaryReader er,
                       uint width,
                       uint height) {
       SectionHeaderUtil.AssertNameAndSize(
-          er, "MIP ", width * height * 4);
+          er,
+          "MIP ",
+          width * height * 4);
 
-      var image = new Rgba32Image(PixelFormat.RGBA8888, (int) width, (int) height);
+      var image =
+          new Rgba32Image(PixelFormat.RGBA8888, (int) width, (int) height);
       image.Mutate((_, setHandler) => {
         var blockWidth = 4;
         var blockHeight = 4;
@@ -68,7 +70,8 @@ namespace modl.schema.res.texr {
       return image;
     }
 
-    protected IImage ReadDxt1_(IEndianBinaryReader er, uint width, uint height) {
+    protected IImage
+        ReadDxt1_(IEndianBinaryReader er, uint width, uint height) {
       // TODO: Trim this little bit off?
       width = (uint) (MathF.Ceiling(width / 8f) * 8);
       height = (uint) (MathF.Ceiling(height / 8f) * 8);
@@ -110,11 +113,7 @@ namespace modl.schema.res.texr {
                         var a = ColorUtil.ExtractScaled(value, 12, 4);
 
                         // TODO: Is this correct??? Textures don't look quite right
-                        return FinColor.FromRgbaBytes(
-                            (byte) r,
-                            (byte) g,
-                            (byte) b,
-                            (byte) a);
+                        return FinColor.FromRgbaBytes(r, g, b, a);
                       })
                       .ToArray();
 
@@ -130,44 +129,28 @@ namespace modl.schema.res.texr {
     protected IImage ReadIA8_(IEndianBinaryReader er, uint width, uint height) {
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", 2 * width * height);
       return TiledImageReader
-             .New((int) width,
-                  (int) height,
-                  4,
-                  4,
-                  new La16PixelReader())
+             .New((int) width, (int) height, 4, 4, new La16PixelReader())
              .Read(er);
     }
 
     protected IImage ReadIA4_(IEndianBinaryReader er, uint width, uint height) {
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height);
       return TiledImageReader
-             .New((int) width,
-                  (int) height,
-                  8,
-                  4,
-                  new La8PixelReader())
+             .New((int) width, (int) height, 8, 4, new La8PixelReader())
              .Read(er);
     }
 
     protected IImage ReadI8_(IEndianBinaryReader er, uint width, uint height) {
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height);
       return TiledImageReader
-             .New((int) width,
-                  (int) height,
-                  8,
-                  4,
-                  new L8PixelReader())
+             .New((int) width, (int) height, 8, 4, new L8PixelReader())
              .Read(er.ReadBytes(width * height));
     }
 
     protected IImage ReadI4_(IEndianBinaryReader er, uint width, uint height) {
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height / 2);
       return TiledImageReader
-             .New((int) width,
-                  (int) height,
-                  8,
-                  8,
-                  new L8PixelReader())
+             .New((int) width, (int) height, 8, 8, new L8PixelReader())
              .Read(er);
     }
   }

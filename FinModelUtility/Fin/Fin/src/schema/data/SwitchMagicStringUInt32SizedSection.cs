@@ -20,7 +20,7 @@ namespace fin.schema.data {
     [Ignore]
     private readonly Func<string, T> createTypeHandler_;
 
-    private readonly PassThruMagicUInt32SizedSection<T> impl_ =
+    private readonly PassThruStringMagicUInt32SizedSection<T> impl_ =
         new(default, default!);
 
     public SwitchMagicStringUInt32SizedSection(

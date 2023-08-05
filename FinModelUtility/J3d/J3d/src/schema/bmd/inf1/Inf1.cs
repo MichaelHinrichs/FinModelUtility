@@ -10,7 +10,7 @@ namespace j3d.schema.bmd.inf1 {
   [LocalPositions]
   [Endianness(Endianness.BigEndian)]
   public partial class Inf1 : IBinaryConvertible {
-    private readonly AutoMagicUInt32SizedSection<Inf1Data> impl_ =
+    private readonly AutoStringMagicUInt32SizedSection<Inf1Data> impl_ =
         new("INF1") { TweakReadSize = -8 };
 
     [Ignore]
