@@ -1,5 +1,5 @@
-﻿using fin.graphics.gl.material;
-using fin.model;
+﻿using fin.model;
+using fin.shaders.glsl;
 
 
 namespace uni.ui.right_panel.materials {

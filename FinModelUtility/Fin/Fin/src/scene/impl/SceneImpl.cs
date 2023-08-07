@@ -1,5 +1,4 @@
 ﻿using fin.animation.playback;
-using fin.graphics.gl.model;
 using fin.math;
 using fin.model;
 using fin.model.impl;

@@ -19,6 +19,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0-preview-20211130-02" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Fin.Graphics\Fin.Graphics.csproj" />
     <ProjectReference Include="..\Fin\Fin.csproj" />
     <ProjectReference Include="..\..\Asserts\Asserts.csproj" />
   </ItemGroup>

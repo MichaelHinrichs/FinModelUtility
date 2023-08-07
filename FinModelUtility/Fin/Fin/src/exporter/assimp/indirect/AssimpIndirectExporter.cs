@@ -6,8 +6,8 @@ using Assimp;
 
 using fin.exporter.gltf;
 using fin.exporter.gltf.lowlevel;
-using fin.graphics.gl.material;
 using fin.io;
+using fin.shaders.glsl;
 using fin.util.asserts;
 using fin.util.gc;
 using fin.util.linq;

@@ -1,6 +1,4 @@
 ﻿using fin.animation.playback;
-using fin.graphics;
-using fin.graphics.gl.model;
 using fin.io.bundles;
 using fin.math;
 using fin.model;
@@ -87,5 +85,9 @@ namespace fin.scene {
     IAnimationPlaybackManager AnimationPlaybackManager { get; }
 
     float ViewerScale { get; set; }
+  }
+
+  public interface ITickable {
+    void Tick();
   }
 }
