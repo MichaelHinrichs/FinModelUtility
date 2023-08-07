@@ -1,7 +1,7 @@
-﻿using SuperMario64.Scripts;
+﻿using sm64.Scripts;
 
 
-namespace SuperMario64.Scripts {
+namespace sm64.Scripts {
   public static class CollisionMapLoader {
     public enum CollisionSubCommand : ushort {
       TERRAIN_LOAD_VERTICES =

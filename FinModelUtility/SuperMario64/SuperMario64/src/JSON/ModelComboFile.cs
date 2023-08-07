@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 
 
-namespace SuperMario64.JSON {
+namespace sm64.JSON {
   public class ModelComboFile {
     private static byte parseByte(string str) {
       bool isHex = false;

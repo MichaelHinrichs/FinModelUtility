@@ -1,4 +1,4 @@
-﻿namespace SuperMario64.JSON {
+﻿namespace sm64.JSON {
   class ModelCombo {
     byte modelId = 0;
     uint segmentAddress = 0;

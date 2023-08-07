@@ -1,4 +1,4 @@
-﻿namespace SuperMario64.src {
+﻿namespace sm64.src {
   class AssemblyReader {
     public List<JAL_CALL> findJALsInFunction(uint RAMFunc, uint RAMtoROM) {
       List<JAL_CALL> calls = new List<JAL_CALL>();

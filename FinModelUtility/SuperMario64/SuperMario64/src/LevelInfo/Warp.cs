@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 
 
-namespace SuperMario64.LevelInfo {
+namespace sm64.LevelInfo {
   public class Warp {
     public Warp(bool isPaintingWarp) {
       this.isPaintingWarp = isPaintingWarp;

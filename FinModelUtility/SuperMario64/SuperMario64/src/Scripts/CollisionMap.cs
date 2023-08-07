@@ -2,7 +2,7 @@
 using OpenTK.Graphics.OpenGL;
 
 
-namespace SuperMario64.Scripts {
+namespace sm64.Scripts {
   public class CollisionTriangleList {
     public int id = 0;
     public List<uint> indicesList;

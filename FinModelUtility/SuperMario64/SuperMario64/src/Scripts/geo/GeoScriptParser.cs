@@ -4,10 +4,10 @@ using fin.util.asserts;
 
 using schema.binary;
 
-using SuperMario64.schema;
+using sm64.schema;
 
 
-namespace SuperMario64.scripts.geo {
+namespace sm64.scripts.geo {
   public class GeoScriptParser {
     private class GeoCommandList : IGeoCommandList {
       private readonly List<IGeoCommand> commands_ = new();

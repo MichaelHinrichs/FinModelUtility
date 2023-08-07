@@ -2,10 +2,10 @@
 using schema.binary;
 using schema.binary.attributes;
 
-using SuperMario64.scripts.geo;
+using sm64.scripts.geo;
 
 
-namespace SuperMario64.scripts {
+namespace sm64.scripts {
   public enum GeoCommandId : byte {
     BRANCH_AND_STORE = 0x00,
     TERMINATE = 0x01,

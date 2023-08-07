@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 
 
-namespace SuperMario64.LevelInfo {
+namespace sm64.LevelInfo {
   public class WarpInstant {
     private const ushort NUM_OF_CATERGORIES = 2;
 

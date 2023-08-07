@@ -5,13 +5,13 @@ using fin.model;
 using fin.model.impl;
 using fin.schema.vector;
 
-using SuperMario64.memory;
-using SuperMario64.scripts;
-using SuperMario64.scripts.geo;
-using SuperMario64.LevelInfo;
+using sm64.LevelInfo;
+using sm64.memory;
+using sm64.scripts;
+using sm64.scripts.geo;
 
 
-namespace SuperMario64.Scripts {
+namespace sm64.Scripts {
   public class GeoScriptsV2 : IGeoScripts {
     private GeoScriptNode rootNode;
     private GeoScriptNode nodeCurrent;

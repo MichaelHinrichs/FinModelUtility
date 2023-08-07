@@ -6,10 +6,10 @@ using fin.util.enumerables;
 
 using schema.binary;
 
-using SuperMario64.schema;
+using sm64.schema;
 
 
-namespace SuperMario64.memory {
+namespace sm64.memory {
   public interface IReadOnlySm64Memory : IReadOnlyN64Memory {
     byte? AreaId { get; }
   }

@@ -4,13 +4,13 @@ using f3dzex2.image;
 
 using schema.binary;
 
-using SuperMario64.memory;
-using SuperMario64.schema;
-using SuperMario64.JSON;
-using SuperMario64.Scripts;
+using sm64.JSON;
+using sm64.memory;
+using sm64.schema;
+using sm64.Scripts;
 
 
-namespace SuperMario64.LevelInfo {
+namespace sm64.LevelInfo {
   public class AreaBackgroundInfo {
     public uint address = 0;
     public ushort id_or_color = 0;

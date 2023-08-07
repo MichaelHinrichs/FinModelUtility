@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 
 
-namespace SuperMario64.JSON {
+namespace sm64.JSON {
   public class BehaviorNameFile {
     private static uint parseUInt(string str) {
       bool isHex = false;

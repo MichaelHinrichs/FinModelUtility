@@ -1,4 +1,4 @@
-﻿namespace SuperMario64.api {
+﻿namespace sm64.api {
   public enum LevelId {
     BOBOMB_BATTLEFIELD = 0x09,
     WHOMPS_FORTRESS = 0x18,

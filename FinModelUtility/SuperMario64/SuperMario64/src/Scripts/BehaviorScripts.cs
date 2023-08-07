@@ -1,4 +1,4 @@
-﻿namespace SuperMario64.Scripts {
+﻿namespace sm64.Scripts {
   public enum BehaviorCommand : byte {
     BEGIN = 0x00,
     DELAY,

@@ -1,6 +1,6 @@
 ﻿using fin.scene;
 using modl.api;
-using SuperMario64.api;
+using sm64.api;
 
 
 namespace uni.ui {

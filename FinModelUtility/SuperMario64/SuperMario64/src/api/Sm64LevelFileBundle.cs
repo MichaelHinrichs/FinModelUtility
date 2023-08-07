@@ -1,7 +1,7 @@
 ﻿using fin.io;
 
 
-namespace SuperMario64.api {
+namespace sm64.api {
   public class Sm64LevelFileBundle : BSm64FileBundle, IUiFile {
     public Sm64LevelFileBundle(
         IFileHierarchyDirectory directory,

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 
 
-namespace SuperMario64.LevelInfo {
+namespace sm64.LevelInfo {
   public class CustomSortedCategoryAttribute : CategoryAttribute {
     private const char NonPrintableChar = '\t';
 

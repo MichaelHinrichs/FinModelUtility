@@ -2,12 +2,12 @@
 using System.Globalization;
 using System.Reflection;
 
-using SuperMario64.JSON;
-using SuperMario64.LevelInfo;
-using SuperMario64.Scripts;
+using sm64.JSON;
+using sm64.LevelInfo;
+using sm64.Scripts;
 
 
-namespace SuperMario64 {
+namespace sm64 {
   public class Object3D {
     public enum FLAGS {
       POSITION_X = 0x1,

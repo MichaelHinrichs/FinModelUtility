@@ -1,4 +1,4 @@
-﻿namespace SuperMario64 {
+﻿namespace sm64 {
   public static class BitLogic {
     public static uint BytesToInt(byte[] b, int offset, int length) {
       switch (length) {

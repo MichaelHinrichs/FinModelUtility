@@ -1,10 +1,10 @@
 ﻿using f3dzex2.image;
 
-using SuperMario64.memory;
-using SuperMario64.LevelInfo;
+using sm64.LevelInfo;
+using sm64.memory;
 
 
-namespace SuperMario64.Scripts {
+namespace sm64.Scripts {
   using CollisionSubCommand = CollisionMapLoader.CollisionSubCommand;
 
   public class LevelScripts {

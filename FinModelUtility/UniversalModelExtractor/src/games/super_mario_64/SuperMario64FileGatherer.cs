@@ -4,7 +4,7 @@ using uni.platforms;
 
 using fin.io.bundles;
 
-using SuperMario64.api;
+using sm64.api;
 
 
 namespace uni.games.super_mario_64 {

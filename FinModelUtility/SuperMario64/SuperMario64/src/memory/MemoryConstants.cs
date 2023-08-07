@@ -1,6 +1,6 @@
 ﻿using f3dzex2.io;
 
-namespace SuperMario64.memory {
+namespace sm64.memory {
   public struct MemoryConstants {
     public required uint MacroPresetTable { get; init; }
     public required uint SpecialPresetTable { get; init; }

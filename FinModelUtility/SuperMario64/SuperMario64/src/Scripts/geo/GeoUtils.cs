@@ -1,4 +1,4 @@
-﻿namespace SuperMario64.scripts.geo {
+﻿namespace sm64.scripts.geo {
   public static class GeoUtils {
     public static bool IsDisplayListAndDrawingLayerEnabled(byte param)
       => (param & 0x80) != 0;

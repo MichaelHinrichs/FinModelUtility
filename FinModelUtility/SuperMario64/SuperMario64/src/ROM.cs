@@ -4,11 +4,11 @@ using f3dzex2.io;
 
 using LIBMIO0;
 
-using SuperMario64.memory;
-using SuperMario64.src;
+using sm64.memory;
+using sm64.src;
 
 
-namespace SuperMario64 {
+namespace sm64 {
   public enum ROM_Region {
     JAPAN,
     JAPAN_SHINDOU,

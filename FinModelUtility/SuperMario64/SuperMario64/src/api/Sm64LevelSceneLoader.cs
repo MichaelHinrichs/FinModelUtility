@@ -1,14 +1,16 @@
 ﻿using fin.io;
 using fin.model;
 using fin.scene;
-using SuperMario64.LevelInfo;
-using SuperMario64.Scripts;
+
 using System.Numerics;
 
 using fin.data.lazy;
 
+using sm64.LevelInfo;
+using sm64.Scripts;
 
-namespace SuperMario64.api {
+
+namespace sm64.api {
   public class Sm64LevelSceneFileBundle :
       Sm64LevelFileBundle,
       ISceneFileBundle {

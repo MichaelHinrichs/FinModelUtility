@@ -1,9 +1,9 @@
-﻿using SuperMario64.JSON;
-using SuperMario64.memory;
-using SuperMario64.Scripts;
+﻿using sm64.JSON;
+using sm64.memory;
+using sm64.Scripts;
 
 
-namespace SuperMario64 {
+namespace sm64 {
   public class ScriptDumpCommandInfo {
     public byte[] data;
     public uint romAddress, segAddress;

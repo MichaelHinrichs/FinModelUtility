@@ -2,7 +2,7 @@
 using fin.math.matrix;
 
 
-namespace SuperMario64.Scripts {
+namespace sm64.Scripts {
   public class GeoScriptNode {
     public GeoScriptNode(GeoScriptNode? parent) {
       this.parent = parent;

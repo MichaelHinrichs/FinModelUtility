@@ -2,7 +2,7 @@
 using schema.binary.attributes;
 
 
-namespace SuperMario64.schema {
+namespace sm64.schema {
   [Endianness(SchemaConstants.SM64_ENDIANNESS)]
   [BinarySchema]
   public partial class PresetMacroEntry : IBinaryConvertible {

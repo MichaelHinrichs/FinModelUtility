@@ -1,12 +1,12 @@
 ﻿using f3dzex2.image;
 
-using SuperMario64.memory;
-using SuperMario64.Scripts;
-using SuperMario64.JSON;
-using SuperMario64.LevelInfo;
+using sm64.JSON;
+using sm64.LevelInfo;
+using sm64.memory;
+using sm64.Scripts;
 
 
-namespace SuperMario64.api {
+namespace sm64.api {
   public static class Sm64LevelLoader {
     public static Level LoadLevel(Sm64LevelFileBundle levelFileBundle) {
       ROM rom = ROM.Instance;

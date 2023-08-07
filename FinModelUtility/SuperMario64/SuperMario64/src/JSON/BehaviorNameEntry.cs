@@ -1,4 +1,4 @@
-﻿namespace SuperMario64.JSON {
+﻿namespace sm64.JSON {
   public class BehaviorNameEntry {
     string name = "";
     uint behavior = 0;

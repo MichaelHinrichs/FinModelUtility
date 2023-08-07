@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 
 
-namespace SuperMario64.JSON {
+namespace sm64.JSON {
   [JsonObject]
   public sealed class ObjectData {
     public byte ModelId { get; set; }
