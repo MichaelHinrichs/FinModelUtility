@@ -1,5 +1,4 @@
-﻿using System;
-using fin.math;
+﻿using fin.math;
 
 
 namespace fin.ui {
