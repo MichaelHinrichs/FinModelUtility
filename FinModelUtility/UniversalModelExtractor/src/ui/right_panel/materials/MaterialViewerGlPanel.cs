@@ -1,5 +1,5 @@
-﻿using fin.gl;
-using fin.gl.material;
+﻿using fin.graphics.gl;
+using fin.graphics.gl.material;
 using fin.model;
 using fin.model.impl;
 

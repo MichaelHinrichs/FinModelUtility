@@ -1,8 +1,8 @@
 ﻿using fin.animation.playback;
 using fin.config;
-using fin.gl;
-using fin.gl.material;
-using fin.gl.model;
+using fin.graphics.gl;
+using fin.graphics.gl.material;
+using fin.graphics.gl.model;
 using fin.math;
 using fin.math.matrix;
 using fin.model;

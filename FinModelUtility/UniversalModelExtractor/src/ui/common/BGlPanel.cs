@@ -1,4 +1,4 @@
-﻿using fin.gl;
+﻿using fin.graphics.gl;
 using fin.util.time;
 
 using OpenTK.Graphics.OpenGL;

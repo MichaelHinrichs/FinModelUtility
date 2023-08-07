@@ -6,7 +6,7 @@ using Assimp;
 
 using fin.exporter.gltf;
 using fin.exporter.gltf.lowlevel;
-using fin.gl.material;
+using fin.graphics.gl.material;
 using fin.io;
 using fin.util.asserts;
 using fin.util.gc;

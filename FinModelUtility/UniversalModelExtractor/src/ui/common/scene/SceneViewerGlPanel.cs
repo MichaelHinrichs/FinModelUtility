@@ -1,7 +1,7 @@
 ﻿using fin.animation.playback;
-using fin.gl;
-using fin.gl.material;
-using fin.gl.model;
+using fin.graphics.gl;
+using fin.graphics.gl.material;
+using fin.graphics.gl.model;
 using fin.io.bundles;
 using fin.model;
 using fin.scene;

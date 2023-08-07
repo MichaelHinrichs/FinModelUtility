@@ -1,4 +1,4 @@
-﻿using fin.gl.material;
+﻿using fin.graphics.gl.material;
 using fin.model;
 
 

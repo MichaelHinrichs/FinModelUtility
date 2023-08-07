@@ -1,5 +1,5 @@
 ﻿using fin.audio;
-using fin.gl;
+using fin.graphics.gl;
 using OpenTK.Graphics.OpenGL;
 
 

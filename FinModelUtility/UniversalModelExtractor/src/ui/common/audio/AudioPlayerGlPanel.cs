@@ -1,7 +1,7 @@
 ﻿using fin.audio.al;
 using fin.audio;
 using fin.data;
-using fin.gl;
+using fin.graphics.gl;
 using fin.util.time;
 using OpenTK.Graphics.OpenGL;
 using uni.ui.gl;

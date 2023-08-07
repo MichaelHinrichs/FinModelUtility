@@ -1,14 +1,12 @@
 ﻿using fin.animation.playback;
-using fin.gl;
-using fin.gl.model;
+using fin.graphics;
+using fin.graphics.gl.model;
 using fin.io.bundles;
 using fin.math;
 using fin.model;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-
-using fin.color;
 
 
 namespace fin.scene {
