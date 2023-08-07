@@ -266,13 +266,10 @@ namespace mod.cli {
 
       foreach (var meshPacket in mesh.packets) {
         foreach (var dlist in meshPacket.displaylists) {
-          var reader =
-              new VectorReader(dlist.dlistData, 0, Endianness.BigEndian);
+          var er = new EndianBinaryReader(dlist.dlistData, Endianness.BigEndian);
 
-          while (reader.GetRemaining() != 0) {
-            var opcodeByte = reader.ReadU8();
-            var opcode = (GxOpcode)opcodeByte;
-
+          while (!er.Eof) {
+            var opcode = (GxOpcode) er.ReadByte();
             if (opcode == GxOpcode.NOP) {
               continue;
             }
@@ -282,7 +279,7 @@ namespace mod.cli {
               continue;
             }
 
-            var faceCount = reader.ReadU16();
+            var faceCount = er.ReadUInt16();
             var positionIndices = new List<ushort>();
             var allVertexWeights = new List<IBoneWeights>();
             var normalIndices = new List<ushort>();
@@ -296,7 +293,7 @@ namespace mod.cli {
             for (var f = 0; f < faceCount; f++) {
               foreach (var (attr, format) in vertexDescriptorValues) {
                 if (format == null) {
-                  var unused = reader.ReadU8();
+                  var unused = er.ReadByte();
 
                   if (attr == GxAttribute.PNMTXIDX) {
                     // Internally, this represents which of the 10 active
@@ -342,17 +339,17 @@ namespace mod.cli {
                 }
 
                 if (attr == GxAttribute.POS) {
-                  positionIndices.Add(ModModelLoader.Read_(reader, format));
+                  positionIndices.Add(ModModelLoader.Read_(er, format));
                 } else if (attr == GxAttribute.NRM) {
-                  normalIndices.Add(ModModelLoader.Read_(reader, format));
+                  normalIndices.Add(ModModelLoader.Read_(er, format));
                 } else if (attr == GxAttribute.CLR0) {
-                  color0Indices.Add(ModModelLoader.Read_(reader, format));
+                  color0Indices.Add(ModModelLoader.Read_(er, format));
                 } else if (attr is >= GxAttribute.TEX0
                                    and <= GxAttribute.TEX7) {
                   texCoordIndices[attr - GxAttribute.TEX0]
-                      .Add(ModModelLoader.Read_(reader, format));
+                      .Add(ModModelLoader.Read_(er, format));
                 } else if (format == GxAttributeType.INDEX_16) {
-                  reader.ReadU16();
+                  er.ReadUInt16();
                 } else {
                   Asserts.Fail(
                       $"Unexpected attribute/format ({attr}/{format})");
@@ -477,12 +474,16 @@ namespace mod.cli {
       }
     }
 
-    private static ushort Read_(VectorReader reader, GxAttributeType? format) {
+    private static ushort Read_(IEndianBinaryReader reader,
+                                GxAttributeType? format) {
       if (format == GxAttributeType.INDEX_16) {
-        return reader.ReadU16();
-      } else if (format == GxAttributeType.INDEX_8) {
-        return reader.ReadU8();
+        return reader.ReadUInt16();
       }
+
+      if (format == GxAttributeType.INDEX_8) {
+        return reader.ReadByte();
+      }
+
       Asserts.Fail($"Unsupported format: {format}");
       return 0;
     }
