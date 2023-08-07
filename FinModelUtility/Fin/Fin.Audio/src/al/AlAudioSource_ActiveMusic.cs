@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using OpenTK.Audio.OpenAL;
 
 
-namespace fin.audio.impl.al {
+namespace fin.audio.al {
   public partial class AlAudioManager {
     private partial class AlAudioSource : IAudioSource<short> {
       public IActiveMusic<short> CreateMusic(

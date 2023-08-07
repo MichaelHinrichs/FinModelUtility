@@ -1,4 +1,4 @@
-﻿namespace fin.audio.impl.al {
+﻿namespace fin.audio.al {
   public partial class AlAudioManager {
     public IBufferAudioStream<short> CreateBufferAudioStream(
         IAudioBuffer<short> buffer)

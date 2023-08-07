@@ -1,9 +1,7 @@
-﻿using System;
-
-using OpenTK.Audio;
+﻿using OpenTK.Audio;
 
 
-namespace fin.audio.impl.al {
+namespace fin.audio.al {
   public partial class AlAudioManager : IAudioManager<short> {
     private readonly AudioContext context_ = new();
 

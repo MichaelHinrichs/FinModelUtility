@@ -3,8 +3,6 @@ using fin.util.asserts;
 
 using NVorbis;
 
-using System;
-
 
 namespace fin.audio {
   public class OggAudioFileBundle : IAudioFileBundle {

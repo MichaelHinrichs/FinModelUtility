@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Fin\Fin.Audio\Fin.Audio.csproj" />
     <ProjectReference Include="..\..\Fin\Fin\Fin.csproj" />
   </ItemGroup>
 
