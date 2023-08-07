@@ -1,10 +1,6 @@
 ﻿using fin.animation.playback;
-using fin.config;
-using fin.graphics.gl;
-using fin.graphics.gl.material;
 using fin.graphics.gl.model;
 using fin.math;
-using fin.math.matrix;
 using fin.model;
 using fin.model.impl;
 
@@ -12,9 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-
-using Camera = fin.ui.Camera;
-using Quaternion = System.Numerics.Quaternion;
 
 
 namespace fin.scene {
@@ -44,12 +37,6 @@ namespace fin.scene {
     public void Tick() {
       foreach (var area in this.areas_) {
         area.Tick();
-      }
-    }
-
-    public void Render() {
-      foreach (var area in this.areas_) {
-        area.Render();
       }
     }
 
@@ -95,15 +82,6 @@ namespace fin.scene {
           obj.Tick();
         }
       }
-
-      public void Render() {
-        foreach (var obj in this.objects_) {
-          if (obj != this.CustomSkyboxObject) {
-            obj.Render();
-          }
-        }
-      }
-
 
       private float viewerScale_ = 1;
 
@@ -198,21 +176,6 @@ namespace fin.scene {
 
       public void Tick() => this.tickHandler_?.Invoke(this);
 
-      public void Render() {
-        GlTransform.PushMatrix();
-
-        GlTransform.MultMatrix(
-            SystemMatrixUtil.FromTrs(this.Position,
-                                     this.Rotation,
-                                     this.Scale));
-
-        foreach (var model in this.Models) {
-          model.Render();
-        }
-
-        GlTransform.PopMatrix();
-      }
-
 
       private float viewerScale_ = 1;
 
@@ -253,29 +216,10 @@ namespace fin.scene {
             null);
         this.BoneTransformManager.InitModelVertices(this.Model, true);
 
-        this.ModelRenderer =
-            new ModelRendererV2(this.Model, this.BoneTransformManager);
-
-        var hasNormals = false;
-        foreach (var vertex in this.Model.Skin.Vertices) {
-          if (vertex is IReadOnlyNormalVertex { LocalNormal: { } }) {
-            hasNormals = true;
-            break;
-          }
-        }
-
-        this.ModelRenderer.UseLighting = hasNormals;
-
         this.AnimationPlaybackManager = new FrameAdvancer { ShouldLoop = true };
         this.Animation =
             this.Model.AnimationManager.Animations.FirstOrDefault();
         this.AnimationPlaybackManager.IsPlaying = true;
-
-        this.SkeletonRenderer =
-            new SkeletonRenderer(this.Model.Skeleton,
-                                 this.BoneTransformManager) {
-                Scale = this.ViewerScale
-            };
       }
 
       ~SceneModelImpl() => ReleaseUnmanagedResources_();
@@ -286,66 +230,9 @@ namespace fin.scene {
       }
 
       private void ReleaseUnmanagedResources_() {
-        this.ModelRenderer.Dispose();
-
         foreach (var child in this.children_) {
           child.Dispose();
         }
-      }
-
-      public void Render() {
-        GlTransform.PushMatrix();
-
-        var rootBone = this.Model.Skeleton.Root;
-        if (rootBone.FaceTowardsCamera) {
-          var camera = Camera.Instance;
-          var angle = camera.YawDegrees / 180f * MathF.PI;
-          var rotateYaw =
-              Quaternion.CreateFromYawPitchRoll(angle, 0, 0);
-
-          var rotationBuffer = rotateYaw * rootBone.FaceTowardsCameraAdjustment;
-          GlTransform.MultMatrix(SystemMatrixUtil.FromRotation(rotationBuffer));
-        }
-
-        if (this.Animation != null) {
-          this.AnimationPlaybackManager.Tick();
-
-          var frame = (float) this.AnimationPlaybackManager.Frame;
-          this.BoneTransformManager.CalculateMatrices(
-              this.Model.Skeleton.Root,
-              this.Model.Skin.BoneWeights,
-              (this.Animation, frame),
-              this.AnimationPlaybackManager.ShouldLoop);
-
-          var hiddenMeshes = this.ModelRenderer.HiddenMeshes;
-
-          hiddenMeshes.Clear();
-          var defaultDisplayState = MeshDisplayState.VISIBLE;
-          foreach (var (mesh, meshTracks) in this.Animation.MeshTracks) {
-            if (!meshTracks.DisplayStates.TryGetInterpolatedFrame(
-                    frame,
-                    out var displayState)) {
-              displayState = defaultDisplayState;
-            }
-
-            if (displayState == MeshDisplayState.HIDDEN) {
-              hiddenMeshes.Add(mesh);
-            }
-          }
-        }
-
-        this.ModelRenderer.Render();
-
-        if (FinConfig.ShowSkeleton) {
-          CommonShaderPrograms.TEXTURELESS_SHADER_PROGRAM.Use();
-          this.SkeletonRenderer.Render();
-        }
-
-        foreach (var child in this.children_) {
-          child.Render();
-        }
-
-        GlTransform.PopMatrix();
       }
 
       public IReadOnlyList<ISceneModel> Children => this.children_;
@@ -357,7 +244,6 @@ namespace fin.scene {
       }
 
       public IModel Model { get; }
-      public IModelRenderer ModelRenderer { get; private set; }
 
       public IBoneTransformManager BoneTransformManager { get; }
 
@@ -383,15 +269,8 @@ namespace fin.scene {
         private set;
       }
 
-      public ISkeletonRenderer SkeletonRenderer { get; private set; }
 
-
-      private float viewerScale_ = 1;
-
-      public float ViewerScale {
-        get => this.viewerScale_;
-        set => this.viewerScale_ = this.SkeletonRenderer.Scale = value;
-      }
+      public float ViewerScale { get; set; } = 1;
     }
   }
 }

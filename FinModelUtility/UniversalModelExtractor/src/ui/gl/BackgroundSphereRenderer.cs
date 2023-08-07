@@ -1,4 +1,5 @@
 ﻿using fin.color;
+using fin.graphics;
 using fin.graphics.gl.model;
 using fin.math;
 using fin.model;
@@ -6,7 +7,7 @@ using fin.model.impl;
 
 
 namespace uni.ui.gl {
-  internal class BackgroundSphereRenderer {
+  internal class BackgroundSphereRenderer : IRenderable {
     private IModelRenderer? impl_;
 
     public void Render() {

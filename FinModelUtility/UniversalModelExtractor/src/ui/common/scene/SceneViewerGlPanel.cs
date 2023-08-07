@@ -1,7 +1,9 @@
 ﻿using fin.animation.playback;
+using fin.graphics;
 using fin.graphics.gl;
 using fin.graphics.gl.material;
 using fin.graphics.gl.model;
+using fin.graphics.gl.scene;
 using fin.io.bundles;
 using fin.model;
 using fin.scene;
@@ -27,7 +29,11 @@ namespace uni.ui.common.scene {
     private float viewerScale_ = 1;
 
     private IScene? scene_;
+    private SceneRenderer? sceneRenderer_;
+
     private ISceneArea? singleArea_;
+    private SceneAreaRenderer? singleAreaRenderer_;
+
     private IFileBundle? fileBundle_;
 
     public TimeSpan FrameTime { get; private set; }
@@ -38,17 +44,28 @@ namespace uni.ui.common.scene {
         return scene != null ? (this.fileBundle_!, scene) : null;
       }
       set {
+        this.sceneRenderer_?.Dispose();
+
         if (value == null) {
           this.fileBundle_ = null;
           this.scene_ = null;
+          this.sceneRenderer_ = null;
           this.singleArea_ = null;
+          this.singleAreaRenderer_ = null;
           this.viewerScale_ = 1;
         } else {
           this.fileBundle_ = value.Value.Item1;
+
           this.scene_ = value.Value.Item2;
+          this.sceneRenderer_ = new SceneRenderer(this.scene_);
 
           var areas = this.scene_?.Areas;
           this.singleArea_ = areas is { Count: 1 } ? areas[0] : null;
+
+          var areaRenderers = this.sceneRenderer_.AreaRenderers;
+          this.singleAreaRenderer_ = areaRenderers is { Count: 1 }
+              ? areaRenderers[0]
+              : null;
 
           this.viewerScale_ = this.scene_.ViewerScale =
               new ScaleSource(Config.Instance.ViewerSettings
@@ -62,7 +79,8 @@ namespace uni.ui.common.scene {
     private IScene? Scene => this.FileBundleAndScene?.Item2;
 
     public ISceneModel? FirstSceneModel
-      => this.Scene?.Areas.FirstOrDefault()
+      => this.Scene
+             ?.Areas.FirstOrDefault()
              ?.Objects.FirstOrDefault()
              ?.Models.FirstOrDefault();
 
@@ -70,7 +88,11 @@ namespace uni.ui.common.scene {
       => this.FirstSceneModel?.AnimationPlaybackManager;
 
     public ISkeletonRenderer? SkeletonRenderer
-      => this.FirstSceneModel?.SkeletonRenderer;
+      => this.sceneRenderer_
+             ?.AreaRenderers.FirstOrDefault()
+             ?.ObjectRenderers.FirstOrDefault()
+             ?.ModelRenderers.FirstOrDefault()
+             ?.SkeletonRenderer;
 
     public IAnimation? Animation {
       get => this.FirstSceneModel?.Animation;
@@ -271,15 +293,18 @@ namespace uni.ui.common.scene {
         GlTransform.LoadIdentity();
       }
 
-      GlTransform.Translate(this.camera_.X,
-                            this.camera_.Y,
-                            this.camera_.Z * .995f);
-      if (this.singleArea_?.CustomSkyboxObject != null) {
-        this.singleArea_?.CustomSkyboxObject.Render();
-      } else {
-        this.backgroundRenderer_.Render();
+      {
+        GlTransform.Translate(this.camera_.X,
+                              this.camera_.Y,
+                              this.camera_.Z * .995f);
+
+        var skyboxRenderer =
+            (IRenderable?) this.singleAreaRenderer_?.CustomSkyboxRenderer ??
+            this.backgroundRenderer_;
+        skyboxRenderer.Render();
+
+        GlTransform.LoadIdentity();
       }
-      GlTransform.LoadIdentity();
 
       GlTransform.Scale(DebugFlags.GLOBAL_SCALE,
                         DebugFlags.GLOBAL_SCALE,
@@ -297,7 +322,7 @@ namespace uni.ui.common.scene {
                           this.viewerScale_);
       }
 
-      this.Scene?.Render();
+      this.sceneRenderer_?.Render();
     }
   }
 }

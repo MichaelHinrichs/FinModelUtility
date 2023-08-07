@@ -21,7 +21,7 @@ namespace fin.scene {
   ///   A single scene from a game. These can be thought of as the parts of the
   ///   game that are each separated by a loading screen.
   /// </summary>
-  public interface IScene : ITickable, IRenderable, IDisposable {
+  public interface IScene : ITickable, IDisposable {
     IReadOnlyList<ISceneArea> Areas { get; }
     ISceneArea AddArea();
 
@@ -34,7 +34,7 @@ namespace fin.scene {
   ///   example, in Ocarina of Time, this is used to represent a single room in
   ///   a dungeon.
   /// </summary>
-  public interface ISceneArea : ITickable, IRenderable, IDisposable {
+  public interface ISceneArea : ITickable, IDisposable {
     IReadOnlyList<ISceneObject> Objects { get; }
     ISceneObject AddObject();
 
@@ -50,7 +50,7 @@ namespace fin.scene {
   ///   appears in the scene, such as the level geometry, scenery, or
   ///   characters.
   /// </summary>
-  public interface ISceneObject : ITickable, IRenderable, IDisposable {
+  public interface ISceneObject : ITickable, IDisposable {
     Position Position { get; }
     IRotation Rotation { get; }
     Scale Scale { get; }
@@ -75,19 +75,17 @@ namespace fin.scene {
   ///   take care of rendering animations, and also supports adding sub-models
   ///   onto bones.
   /// </summary>
-  public interface ISceneModel : IRenderable, IDisposable {
+  public interface ISceneModel : IDisposable {
     IReadOnlyList<ISceneModel> Children { get; }
     ISceneModel AddModelOntoBone(IModel model, IBone bone);
 
     IModel Model { get; }
-    IModelRenderer ModelRenderer { get; }
 
     IBoneTransformManager BoneTransformManager { get; }
 
     IAnimation? Animation { get; set; }
     IAnimationPlaybackManager AnimationPlaybackManager { get; }
 
-    ISkeletonRenderer SkeletonRenderer { get; }
     float ViewerScale { get; set; }
   }
 }
