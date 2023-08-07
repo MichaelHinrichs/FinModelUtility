@@ -4,6 +4,8 @@ using fin.data.queue;
 using fin.io;
 using fin.model;
 
+using schema.binary;
+
 
 namespace visceral.api {
   public class BnkLoader {
@@ -52,7 +54,8 @@ namespace visceral.api {
 
         {
           var animationNameOffset = bnkEr.ReadUInt32();
-          finAnimation.Name = bnkEr.ReadStringNTAtOffset(animationNameOffset);
+          finAnimation.Name =
+              bnkEr.Subread(animationNameOffset, ser => ser.ReadStringNT());
         }
 
         var totalFrames = 1;

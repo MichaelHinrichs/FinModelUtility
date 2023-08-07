@@ -2,6 +2,8 @@
 
 using f3dzex2.image;
 
+using schema.binary;
+
 using SuperMario64.memory;
 using SuperMario64.schema;
 using SuperMario64.JSON;

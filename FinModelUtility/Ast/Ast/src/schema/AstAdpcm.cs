@@ -3,6 +3,8 @@ using System.Runtime.CompilerServices;
 using fin.math;
 using fin.util.asserts;
 
+using schema.binary;
+
 namespace ast.schema {
   /// <summary>
   ///   Cobbled together from various sources:

@@ -16,7 +16,7 @@ namespace cmb.schema.cmb.sklm {
     public ushort offset { get; set; }
 
     public void Read(IEndianBinaryReader r) {
-      r.AssertMagicText("prm" + AsciiUtil.GetChar(0x20));
+      r.AssertString("prm" + AsciiUtil.GetChar(0x20));
 
       this.chunkSize = r.ReadUInt32();
       this.isVisible = r.ReadUInt32() != 0;

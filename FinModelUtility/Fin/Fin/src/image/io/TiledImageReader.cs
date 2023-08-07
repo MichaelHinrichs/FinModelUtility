@@ -1,6 +1,6 @@
-﻿using System.IO;
+﻿using fin.image.io.tile;
 
-using fin.image.io.tile;
+using schema.binary;
 
 using SixLabors.ImageSharp.PixelFormats;
 

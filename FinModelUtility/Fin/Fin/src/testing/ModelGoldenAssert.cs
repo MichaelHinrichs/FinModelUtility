@@ -23,7 +23,7 @@ namespace fin.testing {
     public static ISystemDirectory
         GetRootGoldensDirectory(Assembly executingAssembly) {
       var assemblyName =
-          StringUtil.UpTo(executingAssembly.ManifestModule.Name, ".dll");
+          StringUtil.SubstringUpTo(executingAssembly.ManifestModule.Name, ".dll");
 
       var executingAssemblyDll = new FinFile(executingAssembly.Location);
       var executingAssemblyDir = executingAssemblyDll.GetParent();

@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Text;
 
 using f3dzex2.io;
 
 using fin.io;
+
+using schema.binary;
 
 namespace UoT.memory {
   public class ZSegments {
@@ -34,7 +35,7 @@ namespace UoT.memory {
           new EndianBinaryReader(romFile.OpenRead(), Endianness.BigEndian);
 
       for (long i = 0; i < er.Length; i += 16) {
-        var romId = er.ReadStringAtOffset(i, 6);
+        var romId = er.Subread(i, ser => ser.ReadString(6));
         if (romId != "zelda@") {
           continue;
         }
@@ -48,7 +49,7 @@ namespace UoT.memory {
 
         i = (er.Position -= 1);
 
-        var buildDate = er.ReadStringAtOffset(i, 17);
+        var buildDate = er.Subread(i, ser => ser.ReadString(17));
         var segmentOffset = (int) (i + 0x20);
 
         int nameOffset;

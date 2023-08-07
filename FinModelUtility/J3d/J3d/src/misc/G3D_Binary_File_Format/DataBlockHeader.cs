@@ -4,8 +4,7 @@
 // MVID: DAEF8B62-698B-42D0-BEDD-3770EB8C9FE8
 // Assembly location: R:\Documents\CSharpWorkspace\Pikmin2Utility\MKDS Course Modifier\MKDS Course Modifier.exe
 
-using System.IO;
-using System.Text;
+using schema.binary;
 
 namespace j3d.G3D_Binary_File_Format
 {

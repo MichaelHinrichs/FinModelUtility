@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 
 using cmb.material;
@@ -24,6 +23,8 @@ using fin.util.asserts;
 using fin.util.enumerables;
 
 using Microsoft.Toolkit.HighPerformance.Helpers;
+
+using schema.binary;
 
 using Version = cmb.schema.cmb.Version;
 

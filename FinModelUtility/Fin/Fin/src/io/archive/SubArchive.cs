@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 
+using schema.binary;
+
 using SubstreamSharp;
 
 namespace fin.io.archive {

@@ -1,6 +1,7 @@
 ﻿using System;
-using System.IO;
 using System.Runtime.CompilerServices;
+
+using schema.binary;
 
 using SixLabors.ImageSharp.PixelFormats;
 

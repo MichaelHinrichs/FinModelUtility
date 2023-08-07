@@ -18,6 +18,8 @@ using modl.schema.res.texr;
 using modl.schema.terrain;
 using modl.schema.terrain.bw1;
 
+using schema.binary;
+
 
 namespace modl.api {
   public class OutModelFileBundle : IBattalionWarsModelFileBundle {

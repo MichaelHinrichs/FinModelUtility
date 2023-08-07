@@ -1,4 +1,6 @@
-﻿namespace granny3d {
+﻿using schema.binary;
+
+namespace granny3d {
   public static class GrannyUtils {
     public static void SubreadRef(
         IEndianBinaryReader er,

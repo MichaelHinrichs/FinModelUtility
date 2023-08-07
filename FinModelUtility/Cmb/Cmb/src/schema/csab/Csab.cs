@@ -21,7 +21,7 @@ namespace cmb.schema.csab {
     public void Read(IEndianBinaryReader r) {
       var basePosition = r.Position;
 
-      r.AssertMagicText("csab");
+      r.AssertString("csab");
       var size = r.ReadUInt32();
 
       // Subversion?

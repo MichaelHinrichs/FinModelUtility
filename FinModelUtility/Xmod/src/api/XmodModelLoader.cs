@@ -1,7 +1,8 @@
-﻿using fin.color;
-using fin.io;
+﻿using fin.io;
 using fin.model;
 using fin.model.impl;
+
+using schema.text;
 
 using xmod.schema.xmod;
 

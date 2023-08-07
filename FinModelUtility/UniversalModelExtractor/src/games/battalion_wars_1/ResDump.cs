@@ -1,13 +1,12 @@
 ﻿using System.IO.Compression;
 
-using fin.image;
 using fin.io;
 using fin.log;
 using fin.util.asserts;
 
 using modl.schema.res;
 
-using uni.platforms.gcn.tools;
+using schema.binary;
 
 
 namespace uni.games.battalion_wars_1 {

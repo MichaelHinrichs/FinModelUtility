@@ -1,6 +1,6 @@
-﻿using System.IO;
+﻿using f3dzex2.io;
 
-using f3dzex2.io;
+using schema.binary;
 
 
 namespace f3dzex2.displaylist.opcodes {

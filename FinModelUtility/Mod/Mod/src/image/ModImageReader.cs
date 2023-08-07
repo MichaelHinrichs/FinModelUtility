@@ -4,6 +4,8 @@ using fin.image;
 using fin.image.io;
 using fin.io.image.tile;
 
+using schema.binary;
+
 using TextureFormat = mod.schema.Texture.TextureFormat;
 
 

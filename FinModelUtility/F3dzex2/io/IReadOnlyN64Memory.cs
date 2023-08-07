@@ -7,6 +7,8 @@ using fin.decompression;
 using fin.util.asserts;
 using fin.util.hex;
 
+using schema.binary;
+
 
 namespace f3dzex2.io {
   public interface IReadOnlyN64Memory {

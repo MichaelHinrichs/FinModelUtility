@@ -10,6 +10,8 @@ using ModelPluginWrappers.src.noesis;
 using fin.model.impl;
 using fin.exporter.assimp.indirect;
 
+using schema.binary;
+
 namespace ModelPluginWrappers {
   public enum NoeFormat {
     RPGEODATA_FLOAT,

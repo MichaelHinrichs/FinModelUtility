@@ -17,6 +17,8 @@ using modl.schema.modl.bw1.node;
 using modl.schema.modl.bw2;
 using modl.schema.res.texr;
 
+using schema.binary;
+
 
 namespace modl.api {
   public class ModlModelFileBundle : IBattalionWarsModelFileBundle {

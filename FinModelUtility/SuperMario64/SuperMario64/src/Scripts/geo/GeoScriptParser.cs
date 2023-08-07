@@ -2,6 +2,8 @@
 
 using fin.util.asserts;
 
+using schema.binary;
+
 using SuperMario64.schema;
 
 

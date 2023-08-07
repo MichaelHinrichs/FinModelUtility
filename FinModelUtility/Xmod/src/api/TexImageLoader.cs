@@ -4,6 +4,8 @@ using BCnEncoder.Shared;
 using fin.image;
 using fin.io;
 
+using schema.binary;
+
 using SixLabors.ImageSharp.PixelFormats;
 
 using IImage = fin.image.IImage;

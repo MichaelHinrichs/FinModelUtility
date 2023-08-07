@@ -1,11 +1,12 @@
 ﻿using System;
-using System.IO;
 
 using cmb.schema.cmb;
 
 using fin.image;
 using fin.image.io;
 using fin.image.io.tile;
+
+using schema.binary;
 
 using SixLabors.ImageSharp.PixelFormats;
 

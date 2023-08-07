@@ -3,6 +3,8 @@ using cmb.schema.ctxb;
 using System.Reflection;
 using fin.io;
 using fin.util.strings;
+
+using schema.binary;
 using schema.binary.testing;
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 using Version = cmb.schema.cmb.Version;
@@ -14,7 +16,7 @@ namespace cmb {
     public async Task TestEachCtxbGolden() {
       var executingAssembly = Assembly.GetExecutingAssembly();
       var assemblyName =
-          StringUtil.UpTo(executingAssembly.ManifestModule.Name, ".dll");
+          StringUtil.SubstringUpTo(executingAssembly.ManifestModule.Name, ".dll");
 
       var executingAssemblyDll =
           new FinFile(Assembly.GetExecutingAssembly().Location);

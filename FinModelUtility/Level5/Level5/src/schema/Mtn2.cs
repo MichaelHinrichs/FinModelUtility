@@ -4,6 +4,8 @@ using fin.util.asserts;
 using level5.decompression;
 using System.Numerics;
 
+using schema.binary;
+
 
 namespace level5.schema {
   public class Mtn2 {
@@ -45,8 +47,8 @@ namespace level5.schema {
         this.Anim.Name = r.ReadStringNT();
 
         var data = new Level5Decompressor().Decompress(
-            r.ReadBytesAtOffset(compDataOffset,
-                                (int)(r.Length - compDataOffset)));
+            r.Subread(compDataOffset, ser => ser.ReadBytes(
+                                (int)(r.Length - compDataOffset))));
 
         using (var d =
                new EndianBinaryReader(new MemoryStream(data), endianness)) {

@@ -1,4 +1,6 @@
-﻿#pragma warning disable IDE1006 // Naming Styles
+﻿using schema.binary;
+
+#pragma warning disable IDE1006 // Naming Styles
 
 
 namespace ModelPluginWrappers.src.noesis {

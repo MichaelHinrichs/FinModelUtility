@@ -1,10 +1,10 @@
-﻿using System.IO;
-
-using fin.image;
+﻿using fin.image;
 using fin.image.io;
 using fin.io.image.tile;
 
 using j3d.schema.bmd.tex1;
+
+using schema.binary;
 
 
 namespace j3d.image {

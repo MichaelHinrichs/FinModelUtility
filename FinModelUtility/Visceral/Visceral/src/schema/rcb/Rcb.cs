@@ -37,7 +37,8 @@ namespace visceral.schema.rcb {
         // Read skeleton header
         var unk7 = er.ReadUInt32();
 
-        this.SkeletonName = er.ReadStringNTAtOffset(er.ReadUInt32());
+        this.SkeletonName =
+            er.Subread(er.ReadUInt32(), ser => ser.ReadStringNT());
         var boneCount = er.ReadUInt32();
         var boneIdTableOffset = er.ReadUInt32();
         var boneStart = er.ReadUInt32();

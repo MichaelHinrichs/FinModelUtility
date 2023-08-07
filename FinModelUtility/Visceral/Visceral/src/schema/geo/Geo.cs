@@ -1,5 +1,4 @@
-﻿using fin.data;
-using fin.math;
+﻿using fin.math;
 using fin.schema.matrix;
 using fin.schema.vector;
 using fin.util.binary;
@@ -22,7 +21,7 @@ namespace visceral.schema.geo {
 
       er.Position += 0x10;
 
-      this.ModelName = er.ReadStringNTAtOffset(er.ReadUInt32());
+      this.ModelName = er.Subread(er.ReadUInt32(), ser => ser.ReadStringNT());
 
       er.Position += 0x10;
       var meshCount = er.ReadUInt32();
@@ -56,12 +55,12 @@ namespace visceral.schema.geo {
       er.Position = boneDataOffset;
       var bones = new List<Bone>();
       for (var i = 0; i < boneCount; ++i) {
-        var boneName = er.ReadStringNTAtOffset(er.ReadUInt32());
+        var boneName = er.Subread(er.ReadUInt32(), ser => ser.ReadStringNT());
         er.Position += 8;
         var someId = er.ReadUInt32();
 
-        var matrix =
-            er.ReadNewAtOffset<Matrix4x4f>(boneOffset + 16 * (someId - 1));
+        var matrix = er.Subread(boneOffset + 16 * (someId - 1),
+                                ser => ser.ReadNew<Matrix4x4f>());
 
         bones.Add(new Bone { Name = boneName, Matrix = matrix, Id = someId, });
       }
@@ -73,7 +72,7 @@ namespace visceral.schema.geo {
       for (var i = 0; i < meshCount; i++) {
         er.Position = tableOffset + 0xA0 * i;
 
-        var meshName = er.ReadStringNTAtOffset(er.ReadUInt32());
+        var meshName = er.Subread(er.ReadUInt32(), ser => ser.ReadStringNT());
 
         er.Position += 0x1c;
         er.Position += 0x10;

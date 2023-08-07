@@ -1,5 +1,6 @@
 ﻿using System;
-using System.IO;
+
+using schema.binary;
 
 namespace cmb.schema.cmb {
   public static class DataTypeUtil {

@@ -1,5 +1,7 @@
 ﻿using fin.image;
 
+using schema.binary;
+
 namespace modl.schema.res.texr {
   public class Text : BTexr, ITexr {
     public IImage Image { get; private set; }

@@ -70,7 +70,7 @@ namespace uni.platforms.threeDs {
               archiveExtractor.TryToExtractIntoNewDirectory<GarReader>(
                   garFile,
                   new FinDirectory(
-                      StringUtil.UpTo(garFile.FullName, ".gar"))) ==
+                      garFile.FullName.SubstringUpTo(".gar"))) ==
               ArchiveExtractionResult.NEWLY_EXTRACTED;
         }
 

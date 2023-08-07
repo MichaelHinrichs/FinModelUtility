@@ -12,6 +12,8 @@ using System.Numerics;
 using fin.data.lazy;
 using fin.util.enumerables;
 
+using schema.binary;
+
 
 namespace level5.api {
   public class XcModelFileBundle : IModelFileBundle {

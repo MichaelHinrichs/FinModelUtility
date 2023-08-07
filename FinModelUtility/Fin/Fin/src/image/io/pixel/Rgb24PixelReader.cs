@@ -1,6 +1,6 @@
-﻿using System.IO;
+﻿using fin.color;
 
-using fin.color;
+using schema.binary;
 
 using SixLabors.ImageSharp.PixelFormats;
 

@@ -1,10 +1,11 @@
 ﻿using System;
-using System.IO;
 using System.Runtime.CompilerServices;
 
 using fin.image;
 using fin.image.io;
 using fin.util.color;
+
+using schema.binary;
 
 using SixLabors.ImageSharp.PixelFormats;
 

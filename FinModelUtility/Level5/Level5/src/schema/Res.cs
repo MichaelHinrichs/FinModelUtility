@@ -1,5 +1,7 @@
 ﻿using level5.decompression;
 
+using schema.binary;
+
 
 namespace level5.schema {
   public class Resource {

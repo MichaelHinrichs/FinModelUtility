@@ -34,10 +34,10 @@ namespace level5.schema {
         size |= sizeExt << 16;
         offset = (uint)(offset * 4 + dataOffset);
 
-        hashToData.Add(nameCrc, er.ReadBytesAtOffset(offset, (int) size));
+        hashToData.Add(nameCrc, er.Subread(offset, ser => ser.ReadBytes((int) size)));
       }
 
-      var inNameTable = er.ReadBytesAtOffset(fileTableOffset, filenameTableSize);
+      var inNameTable = er.Subread(fileTableOffset, ser => ser.ReadBytes(filenameTableSize));
       if (!new ZlibDecompressor().TryDecompress(inNameTable, out var nameTable)) {
         nameTable = new LzssDecompressor().Decompress(inNameTable);
       }

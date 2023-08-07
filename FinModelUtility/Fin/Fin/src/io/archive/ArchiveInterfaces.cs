@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
+using schema.binary;
+
 namespace fin.io.archive {
   public interface IArchiveContentFile {
     string RelativeName { get; }

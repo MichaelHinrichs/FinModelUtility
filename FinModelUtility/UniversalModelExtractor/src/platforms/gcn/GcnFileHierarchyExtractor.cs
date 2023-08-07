@@ -44,7 +44,8 @@ namespace uni.platforms.gcn {
     public IFileHierarchy ExtractFromRom_(
         ISystemFile romFile,
         Options options) {
-      var directory = new FinDirectory(romFile.FullNameWithoutExtension);
+      var directory = romFile.GetParent()
+                             .GetSubdir(romFile.Name.SubstringUpTo("."));
 
       if (new SubArchiveExtractor().TryToExtractIntoNewDirectory<GcmReader>(
               romFile,
@@ -87,7 +88,7 @@ namespace uni.platforms.gcn {
                               file.Extension == ".rarc")
                   .ToArray();
         foreach (var relFile in relFiles) {
-          var prefix = StringUtil.UpTo(relFile.Name, ".rel");
+          var prefix = StringUtil.SubstringUpTo(relFile.Name, ".rel");
           var mapFile =
               subdir.Files.Single(
                   file => file.Name.StartsWith(prefix) &&

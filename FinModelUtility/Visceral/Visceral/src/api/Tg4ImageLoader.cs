@@ -4,6 +4,8 @@ using BCnEncoder.Shared;
 using fin.image;
 using fin.io;
 
+using schema.binary;
+
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace visceral.api {
@@ -21,7 +23,7 @@ namespace visceral.api {
       headerEr.Position = 0x20;
       var width = headerEr.ReadUInt16();
       var height = headerEr.ReadUInt16();
-      var format = headerEr.ReadStringNTAtOffset(0x4b);
+      var format = headerEr.Subread(0x4b, ser => ser.ReadStringNT());
 
       var dataFile = bundle.Tg4dFile;
       var bytes = dataFile.ReadAllBytes();

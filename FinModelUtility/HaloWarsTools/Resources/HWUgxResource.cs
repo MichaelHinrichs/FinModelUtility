@@ -23,6 +23,8 @@ using KSoft.IO;
 using KSoft.Phoenix.Xmb;
 using KSoft.Shell;
 
+using schema.binary;
+
 
 namespace HaloWarsTools {
   public class HWUgxResource : HWBinaryResource {

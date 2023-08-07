@@ -1,5 +1,7 @@
 ﻿using fin.util.asserts;
 
+using schema.binary;
+
 namespace ast.schema {
   public partial class Ast {
     private void ReadPcm16_(IEndianBinaryReader er) {

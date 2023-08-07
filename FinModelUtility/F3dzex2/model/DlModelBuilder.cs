@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 
 using f3dzex2.combiner;
@@ -16,6 +15,8 @@ using fin.math.matrix;
 using fin.model;
 using fin.model.impl;
 using fin.util.image;
+
+using schema.binary;
 
 
 namespace f3dzex2.model {

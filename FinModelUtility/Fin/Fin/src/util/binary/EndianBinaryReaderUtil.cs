@@ -1,5 +1,6 @@
 ﻿using System;
-using System.IO;
+
+using schema.binary;
 
 namespace fin.util.binary {
   public static class EndianBinaryReaderUtil {

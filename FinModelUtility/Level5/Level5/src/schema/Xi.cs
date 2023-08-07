@@ -9,6 +9,8 @@ using FastBitmapLib;
 
 using fin.image.io.tile;
 
+using schema.binary;
+
 using SixLabors.ImageSharp.PixelFormats;
 
 
@@ -46,7 +48,7 @@ namespace level5.schema {
         var level5Decompressor = new Level5Decompressor();
         byte[] tileBytes =
             level5Decompressor.Decompress(
-                r.ReadBytesAtOffset((uint) someTable, someTableSize));
+                r.Subread((uint) someTable, ser => ser.ReadBytes(someTableSize)));
 
         if (tileBytes.Length > 2 && tileBytes[0] == 0x53 &&
             tileBytes[1] == 0x04)
@@ -90,8 +92,8 @@ namespace level5.schema {
         ImageFormat = (byte) type;
 
         ImageData = level5Decompressor.Decompress(
-            r.ReadBytesAtOffset((uint) imageDataOffset,
-                                (int) (r.Length - imageDataOffset)));
+            r.Subread((uint) imageDataOffset,
+                                ser => ser.ReadBytes((int) (r.Length - imageDataOffset))));
       }
     }
     

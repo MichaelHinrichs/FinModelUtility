@@ -30,8 +30,6 @@ using visceral.schema.str.content;
 using visceral.decompression;
 using visceral.schema.str;
 
-using FileInfo = visceral.schema.str.content.FileInfo;
-
 namespace visceral.api {
   public class StrExtractor {
     private readonly ILogger logger_ = Logging.Create<StrExtractor>();

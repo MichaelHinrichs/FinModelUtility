@@ -8,6 +8,7 @@ using glo.schema;
 
 using NUnit.Framework;
 
+using schema.binary;
 using schema.binary.testing;
 
 

@@ -1,5 +1,7 @@
 ﻿using fin.util.strings;
 
+using schema.binary;
+
 
 namespace modl.schema {
   public static class SectionHeaderUtil {

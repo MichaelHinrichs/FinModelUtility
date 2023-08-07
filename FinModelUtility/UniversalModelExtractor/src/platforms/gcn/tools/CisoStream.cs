@@ -1,5 +1,7 @@
 ﻿using fin.util.asserts;
 
+using schema.binary;
+
 namespace uni.platforms.gcn.tools {
   public class CisoStream : Stream {
     private readonly Stream impl_;

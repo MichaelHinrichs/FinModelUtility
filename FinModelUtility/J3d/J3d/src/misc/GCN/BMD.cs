@@ -30,6 +30,8 @@ using j3d.schema.bmd.tex1;
 using j3d.schema.bmd.vtx1;
 using j3d.schema.bmd.drw1;
 
+using schema.binary;
+
 #pragma warning disable CS8604
 
 namespace j3d.GCN {

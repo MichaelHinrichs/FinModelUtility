@@ -23,6 +23,8 @@ using System.Numerics;
 using fin;
 using fin.util.enumerables;
 
+using schema.binary;
+
 
 namespace j3d.exporter {
   using MkdsNode = MA.Node;

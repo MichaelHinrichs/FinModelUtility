@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
@@ -19,7 +18,7 @@ using mod.schema;
 using mod.schema.animation;
 using mod.util;
 
-using Endianness = mod.util.Endianness;
+using schema.binary;
 
 
 namespace mod.cli {
@@ -58,9 +57,9 @@ namespace mod.cli {
 
     public IModel LoadModel(ModModelFileBundle modelFileBundle) {
       var mod =
-          modelFileBundle.ModFile.ReadNew<Mod>(System.IO.Endianness.BigEndian);
+          modelFileBundle.ModFile.ReadNew<Mod>(Endianness.BigEndian);
       var anm =
-          modelFileBundle.AnmFile?.ReadNew<Anm>(System.IO.Endianness.BigEndian);
+          modelFileBundle.AnmFile?.ReadNew<Anm>(Endianness.BigEndian);
 
       // Resets the active matrices to -1. This lets us catch issues when
       // attempting to use an invalid active matrix.
@@ -267,7 +266,8 @@ namespace mod.cli {
 
       foreach (var meshPacket in mesh.packets) {
         foreach (var dlist in meshPacket.displaylists) {
-          var reader = new VectorReader(dlist.dlistData, 0, Endianness.Big);
+          var reader =
+              new VectorReader(dlist.dlistData, 0, Endianness.BigEndian);
 
           while (reader.GetRemaining() != 0) {
             var opcodeByte = reader.ReadU8();

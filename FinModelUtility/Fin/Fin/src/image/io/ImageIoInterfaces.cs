@@ -1,6 +1,6 @@
 ﻿using SixLabors.ImageSharp.PixelFormats;
 
-using System.IO;
+using schema.binary;
 
 
 namespace fin.image.io {

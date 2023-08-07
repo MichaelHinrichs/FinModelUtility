@@ -36,7 +36,7 @@ namespace cmb.schema.csab {
     public void Read(IEndianBinaryReader r) {
       var basePosition = r.Position;
 
-      r.AssertMagicText("anod");
+      r.AssertString("anod");
 
       this.BoneIndex = r.ReadUInt16();
 

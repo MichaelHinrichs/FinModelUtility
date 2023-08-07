@@ -153,7 +153,7 @@ namespace uni.games.wind_waker {
       public IReadOnlyList<IFileHierarchyFile> GetBcksForBmd(
           IFileHierarchyFile bmdFile,
           IReadOnlyList<IFileHierarchyFile> bckFiles) {
-        var prefix = StringUtil.UpTo(bmdFile.NameWithoutExtension, "_");
+        var prefix = StringUtil.SubstringUpTo(bmdFile.NameWithoutExtension, "_");
         return bckFiles.Where(file => file.Name.StartsWith(prefix)).ToArray();
       }
     }
@@ -202,7 +202,7 @@ namespace uni.games.wind_waker {
       if (organizeMethod is PrefixOrganizeMethod) {
         bmdFiles.OrderByDescending(
             file => StringUtil
-                    .UpTo(file.NameWithoutExtension, "_")
+                    .SubstringUpTo(file.NameWithoutExtension, "_")
                     .Length);
       }
 

@@ -1,5 +1,7 @@
 ﻿using fin.io.archive;
 
+using schema.binary;
+
 
 namespace uni.platforms.threeDs.tools.cia {
   public class CiaReader : IArchiveReader<SubArchiveContentFile> {

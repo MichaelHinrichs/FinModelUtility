@@ -4,6 +4,8 @@ using fin.decompression;
 using fin.util.asserts;
 using fin.util.enumerables;
 
+using schema.binary;
+
 using SuperMario64.schema;
 
 

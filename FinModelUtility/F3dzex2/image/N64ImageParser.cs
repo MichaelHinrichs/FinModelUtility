@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 
 using fin.color;
@@ -7,6 +6,8 @@ using fin.image;
 using fin.image.io;
 using fin.math;
 using fin.util.color;
+
+using schema.binary;
 
 using IImage = fin.image.IImage;
 

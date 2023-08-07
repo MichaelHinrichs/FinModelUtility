@@ -5,7 +5,6 @@ using j3d.exporter;
 using fin.io;
 using fin.io.bundles;
 
-using uni.platforms;
 using uni.platforms.gcn;
 
 

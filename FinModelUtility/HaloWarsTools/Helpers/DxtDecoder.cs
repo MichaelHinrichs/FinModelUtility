@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
@@ -9,11 +8,9 @@ using fin.image;
 using fin.io;
 using fin.util.color;
 
+using schema.binary;
+
 using SixLabors.ImageSharp.PixelFormats;
-
-using static System.Runtime.InteropServices.JavaScript.JSType;
-
-using static schema.binary.BinarySchemaStructureParser;
 
 
 // From https://github.com/mafaca/Dxt

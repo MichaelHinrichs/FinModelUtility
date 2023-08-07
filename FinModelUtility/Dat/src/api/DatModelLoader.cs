@@ -4,6 +4,8 @@ using fin.io;
 using fin.model;
 using fin.model.impl;
 
+using schema.binary;
+
 
 namespace dat.api {
   public class DatModelFileBundle : IModelFileBundle {

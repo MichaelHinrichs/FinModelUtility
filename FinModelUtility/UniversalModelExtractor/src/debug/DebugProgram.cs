@@ -9,6 +9,7 @@ using Force.Crc32;
 
 using NullFX.CRC;
 
+using schema.binary;
 using schema.binary.attributes;
 
 

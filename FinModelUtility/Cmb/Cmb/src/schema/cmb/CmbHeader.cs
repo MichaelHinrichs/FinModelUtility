@@ -27,7 +27,7 @@ namespace cmb.schema.cmb {
     public uint unk0 { get; private set; }
 
     public void Read(IEndianBinaryReader r) {
-      r.AssertMagicText("cmb" + AsciiUtil.GetChar(0x20));
+      r.AssertString("cmb" + AsciiUtil.GetChar(0x20));
 
       this.fileSize = r.ReadUInt32();
 

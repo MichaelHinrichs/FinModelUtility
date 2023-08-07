@@ -3,6 +3,8 @@ using fin.io.archive;
 using fin.util.asserts;
 using fin.util.strings;
 
+using schema.binary;
+
 
 namespace uni.platforms.threeDs.tools {
   public class GarReader : IArchiveReader<SubArchiveContentFile> {
@@ -82,7 +84,7 @@ namespace uni.platforms.threeDs.tools {
       public int DataOffset { get; }
 
       public GarHeader(IEndianBinaryReader er) {
-        er.AssertMagicText("GAR");
+        er.AssertString("GAR");
 
         this.Version = er.ReadByte();
         Asserts.True(this.Version is 2 or 5);

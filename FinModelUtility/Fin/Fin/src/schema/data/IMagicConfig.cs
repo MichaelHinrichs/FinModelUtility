@@ -9,6 +9,6 @@ namespace fin.schema.data {
     TMagic ReadMagic(IEndianBinaryReader er);
     void WriteMagic(ISubEndianBinaryWriter ew, TMagic magic);
 
-    TMagic GetMagic(TData magic);
+    TMagic GetMagic(TData data);
   }
 }

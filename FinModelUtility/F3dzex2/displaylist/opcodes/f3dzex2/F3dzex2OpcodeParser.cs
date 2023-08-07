@@ -1,13 +1,14 @@
 ﻿using f3dzex2.io;
 using f3dzex2.model;
 
-using System.IO;
 using System;
 
 using f3dzex2.combiner;
 using f3dzex2.image;
 
 using fin.math;
+
+using schema.binary;
 
 
 namespace f3dzex2.displaylist.opcodes.f3dzex2 {

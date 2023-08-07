@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 
 using f3dzex2.combiner;
 using f3dzex2.image;
@@ -7,6 +6,8 @@ using f3dzex2.io;
 using f3dzex2.model;
 
 using fin.math;
+
+using schema.binary;
 
 
 namespace f3dzex2.displaylist.opcodes.f3d {

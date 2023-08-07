@@ -1,6 +1,8 @@
 ﻿using level5.decompression;
 using OpenTK;
 
+using schema.binary;
+
 namespace level5.schema {
   public class Prm {
     public string Name { get; private set; }
@@ -33,11 +35,13 @@ namespace level5.schema {
 
       uint pvbOffset = r.ReadUInt32();
       int pvbSize = r.ReadInt32();
+      var polygonVertexBuffer =
+          r.Subread(pvbOffset + prmOffset, ser => ser.ReadBytes(pvbSize));
+
       uint pviOffset = r.ReadUInt32();
       int pviSize = r.ReadInt32();
-
-      var polygonVertexBuffer = r.ReadBytesAtOffset(pvbOffset + prmOffset, pvbSize);
-      var polygonVertexIndexBuffer = r.ReadBytesAtOffset(pviOffset + prmOffset, pviSize);
+      var polygonVertexIndexBuffer =
+          r.Subread(pviOffset + prmOffset, ser => ser.ReadBytes(pviSize));
 
       // node table-------------------------------------------
 
@@ -53,9 +57,16 @@ namespace level5.schema {
 
       // name and material-------------------------------------------
       r.Position = 0x30;
-      string name = r.ReadStringAtOffset(r.ReadUInt32(), r.ReadInt32());
-      MaterialName = r.ReadStringAtOffset(r.ReadUInt32(), r.ReadInt32());
+
+      var nameOffset = r.ReadUInt32();
+      var nameLength = r.ReadUInt32();
+      var name = r.Subread(nameOffset, ser => ser.ReadString(nameLength));
       Name = name;
+
+      var mtlNameOffset = r.ReadUInt32();
+      var mtlNameLength = r.ReadUInt32();
+      var mtlName = r.Subread(mtlNameOffset, ser => ser.ReadString(mtlNameLength));
+      MaterialName = mtlName;
 
       Triangles = this.ParseIndexBuffer_(polygonVertexIndexBuffer);
       Vertices = this.ParseBuffer_(polygonVertexBuffer);
@@ -80,7 +91,7 @@ namespace level5.schema {
         faceCount = r.ReadInt32();
 
         buffer = new Level5Decompressor().Decompress(
-            r.ReadBytesAtOffset(faceOffset, (int)(r.Length - faceOffset)));
+            r.Subread(faceOffset, ser => ser.ReadBytes((int)(r.Length - faceOffset))));
       }
 
       if (primitiveType != 2 && primitiveType != 0)
@@ -156,9 +167,9 @@ namespace level5.schema {
         var level5Decompressor = new Level5Decompressor();
         attributeBuffer =
             level5Decompressor.Decompress(
-                r.ReadBytesAtOffset(attOffset, attSomething));
+                r.Subread(attOffset, ser => ser.ReadBytes(attSomething)));
         buffer = level5Decompressor.Decompress(
-            r.ReadBytesAtOffset(verOffset, (int)(r.Length - verOffset)));
+            r.Subread(verOffset, ser => ser.ReadBytes((int)(r.Length - verOffset))));
       }
 
       int[] aCount = new int[10];

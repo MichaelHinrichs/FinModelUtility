@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 using f3dzex2.displaylist.opcodes;
 using f3dzex2.io;
+
+using schema.binary;
 
 
 namespace f3dzex2.displaylist {

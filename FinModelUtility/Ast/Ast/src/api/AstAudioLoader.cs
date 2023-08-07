@@ -2,6 +2,8 @@
 using fin.audio;
 using fin.io;
 
+using schema.binary;
+
 
 namespace ast.api {
   public class AstAudioFileBundle : IAudioFileBundle {

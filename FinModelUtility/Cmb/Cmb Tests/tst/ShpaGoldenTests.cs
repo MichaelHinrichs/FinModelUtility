@@ -9,6 +9,8 @@ using fin.io;
 using fin.testing;
 using fin.util.strings;
 
+using schema.binary;
+
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 using Version = cmb.schema.cmb.Version;
 
@@ -19,7 +21,7 @@ namespace cmb {
     public async Task TestEachShpaGolden() {
       var executingAssembly = Assembly.GetExecutingAssembly();
       var assemblyName =
-          StringUtil.UpTo(executingAssembly.ManifestModule.Name, ".dll");
+          StringUtil.SubstringUpTo(executingAssembly.ManifestModule.Name, ".dll");
 
       var executingAssemblyDll =
           new FinFile(Assembly.GetExecutingAssembly().Location);

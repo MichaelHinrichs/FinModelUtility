@@ -13,6 +13,8 @@ using f3dzex2.model;
 using fin.data.queue;
 using fin.model;
 
+using schema.binary;
+
 using UoT.hacks;
 using UoT.memory;
 using UoT.model;

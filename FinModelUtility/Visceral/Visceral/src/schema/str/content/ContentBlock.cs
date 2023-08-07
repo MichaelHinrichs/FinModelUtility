@@ -1,6 +1,7 @@
 ﻿using fin.schema.data;
 
 using schema.binary;
+using schema.binary.attributes;
 
 namespace visceral.schema.str.content {
   [BinarySchema]
@@ -13,6 +14,9 @@ namespace visceral.schema.str.content {
                 ContentType.Data           => new UncompressedData(),
                 ContentType.CompressedData => new RefPackCompressedData(),
             });
+
+    [Ignore]
+    public BlockType Type => BlockType.Content;
 
     public override string ToString() => this.Impl.ToString();
   }
