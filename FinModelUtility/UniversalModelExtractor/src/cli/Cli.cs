@@ -39,7 +39,6 @@ namespace uni.cli {
                   /*var window = new DebugWindow();
                   window.Run();*/
                   //new DebugProgram().Run();
-                  new DebugLevel5().Run();
                 })
                 .WithNotParsed(parseErrors => errors = parseErrors);
 
