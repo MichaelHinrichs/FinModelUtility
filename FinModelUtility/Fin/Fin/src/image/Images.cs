@@ -78,35 +78,6 @@ namespace fin.image {
           null);
     }
 
-    public static IImage ToImage(this Bitmap bitmap)
-      => FromBitmap(bitmap);
-
-    public static unsafe IImage FromBitmap(Bitmap bitmap) {
-      var width = bitmap.Width;
-      var height = bitmap.Height;
-
-      var image = new Rgba32Image(PixelFormat.RGBA8888, width, height);
-      BitmapUtil.InvokeAsLocked(bitmap,
-                                bmpData => {
-                                  var ptr = (byte*) bmpData.Scan0;
-
-                                  image.Mutate((_, setHandler) => {
-                                    for (var y = 0; y < height; ++y) {
-                                      for (var x = 0; x < width; ++x) {
-                                        var index = 4 * (y * width + x);
-                                        var b = ptr[index];
-                                        var g = ptr[index + 1];
-                                        var r = ptr[index + 2];
-                                        var a = ptr[index + 3];
-
-                                        setHandler(x, y, r, g, b, a);
-                                      }
-                                    }
-                                  });
-                                });
-      return image;
-    }
-
     public static IImage Create1x1FromColor(Color color)
       => CreateFromColor(color, 1, 1);
 
