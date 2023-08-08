@@ -22,6 +22,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ast", "Ast\Ast\Ast.csproj",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ast Tests", "Ast\Ast Tests\Ast Tests.csproj", "{DE4EC779-18FF-44DB-94AE-1A38CD497EC5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BanjoKazooie", "BanjoKazooie\BanjoKazooie.csproj", "{BCFEB85F-BAF2-4E49-BCC0-798308A3C37E}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmarks", "Benchmarks\Benchmarks.csproj", "{A0CFC24D-3C11-49F8-BF35-0ED04E82583F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Cmb", "Cmb", "{7E95704D-43F3-4187-97B6-8FA621F8230E}"
@@ -42,6 +44,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fin Tests", "Fin\Fin Tests\
 	ProjectSection(ProjectDependencies) = postProject
 		{48B6183A-CF51-42A4-889E-A75DA704D71D} = {48B6183A-CF51-42A4-889E-A75DA704D71D}
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fin.Ui", "Fin\Fin.Ui\Fin.Ui.csproj", "{67376177-19DB-4684-AE31-52E98F62D363}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Glo", "Glo", "{7E57743A-6B22-4706-80F6-A0A0B6D0F64A}"
 EndProject
@@ -122,12 +126,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lemon", "SceneGate\Lemon\src\Lemon\Lemon.csproj", "{4398587E-0B7B-4302-8344-EA41AFABA43A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Yarhl", "SceneGate\Yarhl\src\Yarhl\Yarhl.csproj", "{77676319-66D9-4EAC-AD6E-CE05BBC49CCC}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fin.Audio", "Fin\Fin.Audio\Fin.Audio.csproj", "{67376177-19DB-4684-AE31-52E98F62D363}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fin.Graphics", "Fin\Fin.Graphics\Fin.Graphics.csproj", "{344BCFAF-5FE4-4EB8-8997-F5AF3DCE38F4}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BanjoKazooie", "BanjoKazooie\BanjoKazooie.csproj", "{BCFEB85F-BAF2-4E49-BCC0-798308A3C37E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

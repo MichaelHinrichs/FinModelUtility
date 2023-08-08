@@ -1,9 +1,9 @@
 ﻿using fin.animation.playback;
-using fin.graphics;
-using fin.graphics.gl;
-using fin.graphics.gl.material;
-using fin.graphics.gl.model;
-using fin.graphics.gl.scene;
+using fin.ui.graphics;
+using fin.ui.graphics.gl;
+using fin.ui.graphics.gl.material;
+using fin.ui.graphics.gl.model;
+using fin.ui.graphics.gl.scene;
 using fin.io.bundles;
 using fin.model;
 using fin.scene;

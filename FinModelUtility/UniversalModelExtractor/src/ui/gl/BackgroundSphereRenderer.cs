@@ -1,6 +1,6 @@
 ﻿using fin.color;
-using fin.graphics;
-using fin.graphics.gl.model;
+using fin.ui.graphics;
+using fin.ui.graphics.gl.model;
 using fin.math;
 using fin.model;
 using fin.model.impl;

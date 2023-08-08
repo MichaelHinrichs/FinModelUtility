@@ -63,9 +63,8 @@
     <ProjectReference Include="..\Cmb\Cmb\Cmb.csproj" />
     <ProjectReference Include="..\Dat\Dat.csproj" />
     <ProjectReference Include="..\F3dzex2\F3dzex2.csproj" />
-    <ProjectReference Include="..\Fin\Fin.Audio\Fin.Audio.csproj" />
-    <ProjectReference Include="..\Fin\Fin.Graphics\Fin.Graphics.csproj" />
     <ProjectReference Include="..\Fin\Fin\Fin.csproj" />
+    <ProjectReference Include="..\Fin\Fin.Ui\Fin.Ui.csproj" />
     <ProjectReference Include="..\Glo\Glo\Glo.csproj" />
     <ProjectReference Include="..\HaloWarsTools\HaloWarsTools.csproj" />
     <ProjectReference Include="..\J3d\J3d\J3d.csproj" />
