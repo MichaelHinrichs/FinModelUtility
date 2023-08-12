@@ -77,7 +77,7 @@ namespace HaloWarsTools {
     }
 
     public static HWResource FromFile(HWContext context, string filename) {
-      return GetOrCreateFromFile(context, filename);
+      return HWResource.GetOrCreateFromFile(context, filename);
     }
 
     protected static HWResource GetOrCreateFromFile(HWContext? context,

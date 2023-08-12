@@ -1,4 +1,5 @@
-﻿using fin.math;
+﻿using fin.image.formats;
+using fin.math;
 using fin.util.color;
 
 using schema.binary;
@@ -6,7 +7,7 @@ using schema.binary;
 using SixLabors.ImageSharp.PixelFormats;
 
 
-namespace fin.image.io {
+namespace fin.image.io.pixel {
   public class Rgba5553PixelReader : IPixelReader<Rgba32> {
     public IImage<Rgba32> CreateImage(int width, int height)
       => new Rgba32Image(PixelFormat.RGBA5553, width, height);

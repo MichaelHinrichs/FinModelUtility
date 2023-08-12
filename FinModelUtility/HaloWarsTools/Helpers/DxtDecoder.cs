@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 
 using fin.color;
 using fin.image;
+using fin.image.formats;
 using fin.io;
 using fin.util.color;
 

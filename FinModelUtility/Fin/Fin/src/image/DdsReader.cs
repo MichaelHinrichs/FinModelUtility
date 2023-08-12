@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 
 using fin.color;
+using fin.image.formats;
 
 using SixLabors.ImageSharp.PixelFormats;
 

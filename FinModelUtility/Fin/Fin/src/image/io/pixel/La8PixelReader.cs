@@ -1,9 +1,11 @@
-﻿using schema.binary;
+﻿using fin.image.formats;
+
+using schema.binary;
 
 using SixLabors.ImageSharp.PixelFormats;
 
 
-namespace fin.image.io {
+namespace fin.image.io.pixel {
   /// <summary>
   ///   Helper class for reading 8-bit luminance/alpha pixels.
   /// </summary>

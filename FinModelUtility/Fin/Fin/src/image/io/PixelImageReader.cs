@@ -1,4 +1,6 @@
-﻿using schema.binary;
+﻿using fin.image.io.tile;
+
+using schema.binary;
 
 using SixLabors.ImageSharp.PixelFormats;
 

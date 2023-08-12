@@ -1,8 +1,7 @@
-﻿using System.IO;
-
-using fin.image;
+﻿using fin.image;
 using fin.image.io;
-using fin.io.image.tile;
+using fin.image.io.pixel;
+using fin.image.io.tile;
 
 using schema.binary;
 

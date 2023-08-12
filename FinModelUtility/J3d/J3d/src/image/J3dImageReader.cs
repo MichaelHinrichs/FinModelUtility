@@ -1,6 +1,7 @@
 ﻿using fin.image;
 using fin.image.io;
-using fin.io.image.tile;
+using fin.image.io.pixel;
+using fin.image.io.tile;
 
 using j3d.schema.bmd.tex1;
 

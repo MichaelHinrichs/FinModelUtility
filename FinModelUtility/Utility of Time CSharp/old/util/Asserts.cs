@@ -19,12 +19,6 @@ namespace UoT.util {
       }
     }
 
-    public static void Assert(bool value, string? message = null) {
-      if (!value) {
-        Asserts.Fail(message);
-      }
-    }
-
     public static T Assert<T>(T? value, string? message = null)
         where T : class {
       if (value == null) {

@@ -4,6 +4,7 @@ using cmb.schema.cmb;
 
 using fin.image;
 using fin.image.io;
+using fin.image.io.pixel;
 using fin.image.io.tile;
 
 using schema.binary;

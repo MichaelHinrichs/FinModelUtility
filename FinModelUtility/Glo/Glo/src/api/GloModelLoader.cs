@@ -1,5 +1,4 @@
 ﻿using fin.io;
-using fin.math;
 using fin.model;
 using fin.model.impl;
 using glo.schema;
@@ -8,6 +7,7 @@ using fin.color;
 using fin.data.lazy;
 using fin.data.queue;
 using fin.image;
+using fin.image.formats;
 using fin.util.asserts;
 
 

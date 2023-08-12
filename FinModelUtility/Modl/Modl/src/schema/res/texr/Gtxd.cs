@@ -1,4 +1,5 @@
 ﻿using fin.image;
+using fin.image.formats;
 
 using schema.binary;
 

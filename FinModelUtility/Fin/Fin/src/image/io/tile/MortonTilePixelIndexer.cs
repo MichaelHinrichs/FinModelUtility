@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace fin.image.io {
+namespace fin.image.io.tile {
   /// <summary>
   ///   Stolen from:
   ///   https://github.com/magcius/noclip.website/blob/master/src/oot3d/pica_texture.ts

@@ -1,11 +1,12 @@
-﻿using fin.util.color;
+﻿using fin.image.formats;
+using fin.util.color;
 
 using schema.binary;
 
 using SixLabors.ImageSharp.PixelFormats;
 
 
-namespace fin.image.io {
+namespace fin.image.io.pixel {
   /// <summary>
   ///   Helper class for reading 16-bit RGBA pixels, where each channel has 4
   ///   bits.

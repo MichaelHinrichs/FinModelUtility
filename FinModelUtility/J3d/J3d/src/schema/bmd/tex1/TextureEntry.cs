@@ -6,7 +6,8 @@ using gx;
 using schema.binary;
 
 using System;
-using System.IO;
+
+using fin.image.formats;
 
 using j3d.image;
 

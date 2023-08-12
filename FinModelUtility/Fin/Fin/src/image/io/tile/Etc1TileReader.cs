@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
+using fin.image.formats;
+
 using schema.binary;
 
 using SixLabors.ImageSharp.PixelFormats;

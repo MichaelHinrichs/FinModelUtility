@@ -1,4 +1,4 @@
-﻿namespace fin.image.io {
+﻿namespace fin.image.io.tile {
   /// <summary>
   ///   Basic pixels indexer, where it assumes the pixels are laid out row-wise.
   /// </summary>

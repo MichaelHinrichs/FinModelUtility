@@ -1,11 +1,12 @@
 ﻿using fin.color;
+using fin.image.formats;
 
 using schema.binary;
 
 using SixLabors.ImageSharp.PixelFormats;
 
 
-namespace fin.image.io {
+namespace fin.image.io.pixel {
   /// <summary>
   ///   Helper class for reading 24-bit RGB pixels.
   /// </summary>

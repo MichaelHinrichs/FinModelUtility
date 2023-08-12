@@ -6,6 +6,8 @@ using OpenTK.Graphics.OpenGL;
 using System.Buffers;
 using System.Runtime.CompilerServices;
 
+using fin.image.formats;
+
 using FinTextureMinFilter = fin.model.TextureMinFilter;
 using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
 using TextureMagFilter = fin.model.TextureMagFilter;

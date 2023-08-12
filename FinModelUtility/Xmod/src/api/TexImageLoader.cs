@@ -2,6 +2,7 @@
 using BCnEncoder.Shared;
 
 using fin.image;
+using fin.image.formats;
 using fin.io;
 
 using schema.binary;

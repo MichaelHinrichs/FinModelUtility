@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-using fin.image;
-using fin.image.io;
+using fin.image.formats;
 using fin.util.color;
 
 using schema.binary;
 
 using SixLabors.ImageSharp.PixelFormats;
 
-namespace fin.io.image.tile {
+namespace fin.image.io.tile {
   /// <summary>
   ///   Seems EERILY similar to the DXT1 format--they might actually be exactly
   ///   the same.

@@ -7,6 +7,7 @@ using System.Drawing;
 
 using FastBitmapLib;
 
+using fin.image.formats;
 using fin.image.io.tile;
 
 using schema.binary;
