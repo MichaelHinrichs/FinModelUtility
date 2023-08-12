@@ -8,6 +8,7 @@ using BenchmarkDotNet.Attributes;
 using FastBitmapLib;
 
 using fin.image;
+using fin.image.formats;
 
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
