@@ -1,5 +1,6 @@
 ﻿using ast.schema;
-using fin.ui.audio;
+
+using fin.audio;
 using fin.io;
 
 using schema.binary;

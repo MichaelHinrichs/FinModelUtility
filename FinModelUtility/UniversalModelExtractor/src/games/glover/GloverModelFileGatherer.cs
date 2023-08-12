@@ -1,4 +1,4 @@
-﻿using fin.ui.audio;
+﻿using fin.audio;
 using fin.io;
 using fin.io.bundles;
 

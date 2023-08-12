@@ -1,5 +1,5 @@
 ﻿using fin.animation.playback;
-using fin.ui.graphics.gl.model;
+using fin.ui.rendering.gl.model;
 using fin.io.bundles;
 using fin.model;
 using fin.scene;

@@ -2,7 +2,7 @@
 
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
-namespace fin.ui.graphics.gl {
+namespace fin.ui.rendering.gl {
   public class GlTransformTests {
     [Test]
     public void CrossProduct() {
