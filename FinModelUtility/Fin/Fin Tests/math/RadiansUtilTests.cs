@@ -13,11 +13,9 @@ namespace fin.math {
     [TestCase(0, 0, 0)]
     [TestCase(0, PI, PI)]
     [TestCase(0, 2 * PI, 0)]
+    [TestCase(0, -2 * PI, 0)]
     [TestCase(0, 4 * PI, 0)]
     [TestCase(0, PI, -PI)]
-    // Arbitrary (half-circle rotations)
-    [TestCase(-PI, 0, PI)]
-    [TestCase(PI, PI, 0)]
     // Clockwise (positive)
     [TestCase(PI / 2, -PI / 4, PI / 4)]
     [TestCase(PI / 2, PI / 4, PI * 3 / 4)]
@@ -28,8 +26,25 @@ namespace fin.math {
     [TestCase(-PI / 2, PI * 3 / 4, PI / 4)]
     [TestCase(-PI / 2, -PI * 3 / 4, PI * 3 / 4)]
     [TestCase(-PI / 2, PI / 4, PI * 7 / 4)]
-     public void TestCalculateRadiansTowards(float expected, float from, float to)
+    public void TestCalculateRadiansTowardsExact(
+        float expected,
+        float from,
+        float to)
       => AreEqual(expected, RadiansUtil.CalculateRadiansTowards(from, to));
+
+    [Test]
+    // Clockwise (positive)
+    [TestCase(PI, 0, PI)]
+    [TestCase(PI, PI, 2 * PI)]
+    // Counterclockwise (Negative)
+    [TestCase(-PI, PI, 0)]
+    [TestCase(-PI, 2 * PI, PI)]
+    public void TestCalculateRadiansTowardsHalfRotation(
+        float expected,
+        float from,
+        float to)
+      => AreEqual(expected, RadiansUtil.CalculateRadiansTowards(from, to));
+
 
     public void AreEqual(float expected, float actual)
       => Assert.AreEqual(expected, actual, .0001);
