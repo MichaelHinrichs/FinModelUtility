@@ -5,7 +5,7 @@ namespace fin.math.interpolation {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public float Interpolate(float fromValue, float toValue, float progress) {
       toValue = fromValue +
-                RadiansUtil.angleDifference(toValue, fromValue);
+                RadiansUtil.CalculateRadiansTowards(fromValue, toValue);
       
       return (1 - progress) * fromValue + progress * toValue;
     }
@@ -19,7 +19,7 @@ namespace fin.math.interpolation {
                              float toTangent,
                              float time) {
       toValue = fromValue +
-                RadiansUtil.angleDifference(toValue, fromValue);
+                RadiansUtil.CalculateRadiansTowards(fromValue, toValue);
 
       return InterpolatorWithTangents.InterpolateFloats(
           fromTime,
