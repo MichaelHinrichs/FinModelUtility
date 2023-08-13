@@ -2,11 +2,12 @@
 
 namespace fin.math {
   public static class RadiansUtil {
+    private const float PI = MathF.PI;
+    private const float PI2 = 2 * PI;
+    private const float PI3 = 3 * PI;
+
     public static float CalculateRadiansTowards(float from, float to) {
-      var pi = MathF.PI;
-      var pi2 = 2 * MathF.PI;
-      var pi3 = 3 * MathF.PI;
-      return ((((from - to) % pi2) + pi3) % pi2) - pi;
+      return ((((from - to) % PI2) + PI3) % PI2) - PI;
     }
   }
 }
