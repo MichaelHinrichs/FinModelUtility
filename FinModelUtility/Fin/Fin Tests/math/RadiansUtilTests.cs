@@ -23,6 +23,8 @@ namespace fin.math {
     [TestCase(PI / 2, PI * 3 / 4, PI / 4)]
     [TestCase(-PI / 2, PI * 3 / 4, -PI * 3 / 4)]
     [TestCase(PI / 2, -PI * 3 / 4, PI * 3 / 4)]
+    [TestCase(-PI / 2, PI * 7 / 4, PI / 4)]
+    [TestCase(PI / 2, PI / 4, PI * 7 / 4)]
      public void TestAngleDifference(float expected, float lhs, float rhs)
       => AreEqual(expected, RadiansUtil.angleDifference(lhs, rhs));
 
