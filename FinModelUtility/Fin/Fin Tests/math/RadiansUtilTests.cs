@@ -7,27 +7,26 @@ using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
 namespace fin.math {
   public class RadiansUtilTests {
+    private const float PI = MathF.PI;
+
     [Test]
-    public void TestAngleDifference() {
-      var pi = MathF.PI;
+    [TestCase(0, 0, 0)]
+    [TestCase(0, PI, PI)]
+    [TestCase(0, 2 * PI, 0)]
+    [TestCase(0, 4 * PI, 0)]
+    [TestCase(0, PI, -PI)]
+    [TestCase(PI, 0, PI)]
+    [TestCase(-PI, PI, 0)]
+    [TestCase(-PI / 2, -PI / 4, PI / 4)]
+    [TestCase(-PI / 2, PI / 4, PI * 3 / 4)]
+    [TestCase(PI / 2, PI / 4, -PI / 4)]
+    [TestCase(PI / 2, PI * 3 / 4, PI / 4)]
+    [TestCase(-PI / 2, PI * 3 / 4, -PI * 3 / 4)]
+    [TestCase(PI / 2, -PI * 3 / 4, PI * 3 / 4)]
+     public void TestAngleDifference(float expected, float lhs, float rhs)
+      => AreEqual(expected, RadiansUtil.angleDifference(lhs, rhs));
 
-      AreEqual(0, RadiansUtil.angleDifference(0, 0));
-      AreEqual(0, RadiansUtil.angleDifference(pi, pi));
-      AreEqual(0, RadiansUtil.angleDifference(2 * pi, 0));
-      AreEqual(0, RadiansUtil.angleDifference(4 * pi, 0));
-      AreEqual(0, RadiansUtil.angleDifference(pi, -pi));
-
-      AreEqual(pi, RadiansUtil.angleDifference(0, pi));
-      AreEqual(-pi, RadiansUtil.angleDifference(pi, 0));
-
-      AreEqual(pi / 2, RadiansUtil.angleDifference(pi / 4, -pi / 4));
-      AreEqual(pi / 2, RadiansUtil.angleDifference(pi / 4, pi * 7 / 4));
-      AreEqual(-pi / 2, RadiansUtil.angleDifference(-pi / 4, pi / 4));
-      AreEqual(-pi / 2, RadiansUtil.angleDifference(pi * 7 / 4, pi / 4));
-    }
-
-    public void AreEqual(float expected, float actual) {
-      Assert.AreEqual(expected, actual, .0001);
-    }
+    public void AreEqual(float expected, float actual)
+      => Assert.AreEqual(expected, actual, .0001);
   }
 }
