@@ -15,16 +15,19 @@ namespace fin.math {
     [TestCase(0, 2 * PI, 0)]
     [TestCase(0, 4 * PI, 0)]
     [TestCase(0, PI, -PI)]
-    [TestCase(PI, 0, PI)]
-    [TestCase(-PI, PI, 0)]
-    [TestCase(-PI / 2, -PI / 4, PI / 4)]
-    [TestCase(-PI / 2, PI / 4, PI * 3 / 4)]
-    [TestCase(PI / 2, PI / 4, -PI / 4)]
-    [TestCase(PI / 2, PI * 3 / 4, PI / 4)]
-    [TestCase(-PI / 2, PI * 3 / 4, -PI * 3 / 4)]
-    [TestCase(PI / 2, -PI * 3 / 4, PI * 3 / 4)]
-    [TestCase(-PI / 2, PI * 7 / 4, PI / 4)]
-    [TestCase(PI / 2, PI / 4, PI * 7 / 4)]
+    // Arbitrary (half-circle rotations)
+    [TestCase(-PI, 0, PI)]
+    [TestCase(PI, PI, 0)]
+    // Clockwise (positive)
+    [TestCase(PI / 2, -PI / 4, PI / 4)]
+    [TestCase(PI / 2, PI / 4, PI * 3 / 4)]
+    [TestCase(PI / 2, PI * 3 / 4, -PI * 3 / 4)]
+    [TestCase(PI / 2, PI * 7 / 4, PI / 4)]
+    // Counterclockwise (Negative)
+    [TestCase(-PI / 2, PI / 4, -PI / 4)]
+    [TestCase(-PI / 2, PI * 3 / 4, PI / 4)]
+    [TestCase(-PI / 2, -PI * 3 / 4, PI * 3 / 4)]
+    [TestCase(-PI / 2, PI / 4, PI * 7 / 4)]
      public void TestCalculateRadiansTowards(float expected, float from, float to)
       => AreEqual(expected, RadiansUtil.CalculateRadiansTowards(from, to));
 
