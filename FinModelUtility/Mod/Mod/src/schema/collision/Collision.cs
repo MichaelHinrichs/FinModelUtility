@@ -34,11 +34,11 @@ namespace mod.schema.collision {
     [WLengthOfSequence(nameof(roominfo))]
     private uint roomInfoCount_;
 
-    [RSequenceLengthSource(nameof(colInfoCount_))]
+    [RSequenceLengthSource(nameof(roomInfoCount_))]
     [Align(0x20)]
     public readonly List<BaseRoomInfo> roominfo = new();
 
-    [RSequenceLengthSource(nameof(roomInfoCount_))]
+    [RSequenceLengthSource(nameof(colInfoCount_))]
     [Align(0x20)]
     public readonly List<BaseCollTriInfo> collinfo = new();
 
