@@ -9,15 +9,19 @@ using fin.model;
 namespace fin.exporter.assimp.indirect {
   public class AssimpIndirectUvFixer {
     public void Fix(IModel model, Scene sc) {
-      var vertexAccessor = ConsistentVertexAccessor.GetAccessorForModel(model);
-      var assMeshes = sc.Meshes;
-
-      // Fix the UVs.
       var finVertices = model.Skin.Vertices;
+
+      var vertexAccessor = ConsistentVertexAccessor.GetAccessorForModel(model);
+      vertexAccessor.Target(finVertices[0]);
+      var uvCount = vertexAccessor.UvCount;
+      var colorCount = vertexAccessor.ColorCount;
 
       // Has to have a value or it will get deleted. 
       var nullUv = new Vector3D(0, 0, 0);
       var nullColor = new Color4D(1, 1, 1, 1);
+
+      // Fix the UVs.
+      var assMeshes = sc.Meshes;
       foreach (var assMesh in assMeshes) {
         var assUvIndices =
             assMesh.TextureCoordinateChannels[0].Select(uv => uv.X).ToList();
@@ -27,16 +31,16 @@ namespace fin.exporter.assimp.indirect {
                    .ToList();
 
         var assUvs = assMesh.TextureCoordinateChannels;
-        for (var t = 0; t < 8; ++t) {
-          assUvs[t].Clear();
+        foreach (var e in assUvs) {
+          e.Clear();
         }
 
-        var hadUv = new bool[8];
+        var hadUv = new bool[uvCount];
         foreach (var assUvIndexFloat in assUvIndices) {
           var assUvIndex = (int) Math.Round(assUvIndexFloat);
 
           var finVertex = assUvIndex != -1 ? finVertices[assUvIndex] : null;
-          for (var t = 0; t < 8; ++t) {
+          for (var t = 0; t < uvCount; ++t) {
             TexCoord? uv = null;
             if (finVertex != null) {
               vertexAccessor.Target(finVertex);
@@ -53,17 +57,17 @@ namespace fin.exporter.assimp.indirect {
         }
 
         var assColors = assMesh.VertexColorChannels;
-        for (var c = 0; c < 8; ++c) {
-          assColors[c].Clear();
+        foreach (var e in assColors) {
+          e.Clear();
         }
 
-        var hadColor = new bool[2];
+        var hadColor = new bool[colorCount];
         foreach (var assColorIndexFloat in assColorIndices) {
           var assColorIndex = (int) Math.Round(assColorIndexFloat);
 
           var finVertex =
               assColorIndex != -1 ? finVertices[assColorIndex] : null;
-          for (var c = 0; c < 2; ++c) {
+          for (var c = 0; c < colorCount; ++c) {
             IColor? finColor = null;
             if (finVertex != null) {
               vertexAccessor.Target(finVertex);
@@ -84,7 +88,7 @@ namespace fin.exporter.assimp.indirect {
         }
 
 
-        for (var t = 0; t < 8; ++t) {
+        for (var t = 0; t < uvCount; ++t) {
           // Deletes the channels that had no UVs.
           // UV component count has to be updated to work in Blender!
           if (!hadUv[t]) {
@@ -95,7 +99,7 @@ namespace fin.exporter.assimp.indirect {
           }
         }
 
-        for (var c = 0; c < 2; ++c) {
+        for (var c = 0; c < colorCount; ++c) {
           if (!hadColor[c]) {
             assColors[c].Clear();
           }

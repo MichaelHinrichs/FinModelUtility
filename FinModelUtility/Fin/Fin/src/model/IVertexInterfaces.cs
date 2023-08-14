@@ -3,7 +3,6 @@ using System.Numerics;
 
 using fin.color;
 using fin.data;
-using fin.model.impl;
 
 namespace fin.model {
   public interface IReadOnlyVertex : IIndexable {
