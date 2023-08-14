@@ -19,7 +19,7 @@ namespace fin.math {
     IDictionary<IBone, int> CalculateMatrices(
         IBone rootBone,
         IReadOnlyList<IBoneWeights> boneWeightsList,
-        (IAnimation, float)? animationAndFrame,
+        (IModelAnimation, float)? animationAndFrame,
         bool useLoopingInterpolation = false
     );
 
@@ -103,7 +103,7 @@ namespace fin.math {
     public IDictionary<IBone, int> CalculateMatrices(
         IBone rootBone,
         IReadOnlyList<IBoneWeights> boneWeightsList,
-        (IAnimation, float)? animationAndFrame,
+        (IModelAnimation, float)? animationAndFrame,
         bool useLoopingInterpolation = false
     ) {
       var isFirstPass = animationAndFrame == null;

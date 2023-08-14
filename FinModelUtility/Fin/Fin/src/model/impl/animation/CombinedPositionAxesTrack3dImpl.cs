@@ -5,7 +5,9 @@ namespace fin.model.impl {
     public class CombinedPositionAxesTrack3dImpl
         : InputOutputTrackImpl<Position, PositionInterpolator>,
           ICombinedPositionAxesTrack3d {
-      public CombinedPositionAxesTrack3dImpl(int initialCapacity) : base(
+      public CombinedPositionAxesTrack3dImpl(IAnimation animation,
+                                             int initialCapacity) : base(
+          animation,
           initialCapacity,
           new PositionInterpolator()) { }
     }

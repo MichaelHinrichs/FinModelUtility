@@ -12,50 +12,42 @@ namespace fin.model.impl {
       new AnimationManagerImpl();
 
     private class AnimationManagerImpl : IAnimationManager {
-      private readonly IList<IAnimation> animations_ = new List<IAnimation>();
+      private readonly IList<IModelAnimation> animations_ =
+          new List<IModelAnimation>();
 
       private readonly IList<IMorphTarget> morphTargets_ =
           new List<IMorphTarget>();
 
       public AnimationManagerImpl() {
-        this.Animations = new ReadOnlyCollection<IAnimation>(this.animations_);
+        this.Animations =
+            new ReadOnlyCollection<IModelAnimation>(this.animations_);
         this.MorphTargets =
             new ReadOnlyCollection<IMorphTarget>(this.morphTargets_);
       }
 
 
-      public IReadOnlyList<IAnimation> Animations { get; }
+      public IReadOnlyList<IModelAnimation> Animations { get; }
 
-      public IAnimation AddAnimation() {
-        var animation = new AnimationImpl();
+      public IModelAnimation AddAnimation() {
+        var animation = new ModelAnimationImpl();
         this.animations_.Add(animation);
         return animation;
       }
 
-      private class AnimationImpl : IAnimation {
-        private int frameCount_;
-
+      private class ModelAnimationImpl : IModelAnimation {
         private readonly IndexableDictionary<IBone, IBoneTracks> boneTracks_ =
             new();
 
         private readonly Dictionary<IMesh, IMeshTracks> meshTracks_ = new();
 
-        public AnimationImpl() {
+        public ModelAnimationImpl() {
           this.BoneTracks = this.boneTracks_;
           this.MeshTracks = this.meshTracks_;
         }
 
         public string Name { get; set; }
 
-        public int FrameCount {
-          get => this.frameCount_;
-          set {
-            this.frameCount_ = value;
-            foreach (var boneTracks in this.boneTracks_) {
-              (boneTracks as BoneTracksImpl).FrameCount = value;
-            }
-          }
-        }
+        public int FrameCount { get; set; }
 
         public float FrameRate { get; set; }
 
@@ -64,13 +56,12 @@ namespace fin.model.impl {
         }
 
         public IBoneTracks AddBoneTracks(IBone bone)
-          => this.boneTracks_[bone] =
-              new BoneTracksImpl(bone) { FrameCount = this.FrameCount };
+          => this.boneTracks_[bone] = new BoneTracksImpl(this, bone);
 
         public IReadOnlyDictionary<IMesh, IMeshTracks> MeshTracks { get; }
 
         public IMeshTracks AddMeshTracks(IMesh mesh)
-          => this.meshTracks_[mesh] = new MeshTracksImpl();
+          => this.meshTracks_[mesh] = new MeshTracksImpl(this);
 
 
         public IReadOnlyDictionary<ITexture, ITextureTracks> TextureTracks
@@ -112,45 +103,32 @@ namespace fin.model.impl {
     }
 
     public class BoneTracksImpl : IBoneTracks {
-      private readonly IBone bone_;
-      private int frameCount_;
-
-      public BoneTracksImpl(IBone bone) {
-        this.bone_ = bone;
+      public BoneTracksImpl(IAnimation animation, IBone bone) {
+        this.Animation = animation;
+        this.Bone = bone;
       }
 
-      public int FrameCount {
-        set {
-          this.frameCount_ = value;
+      public override string ToString() => $"BoneTracks[{Bone}]";
 
-          if (this.Positions != null) {
-            this.Positions.FrameCount = value;
-          }
-
-          if (this.Rotations != null) {
-            this.Rotations.FrameCount = value;
-          }
-
-          if (this.Scales != null) {
-            this.Scales.FrameCount = value;
-          }
-        }
-      }
+      public IAnimation Animation { get; }
+      public IBone Bone { get; }
 
       public IPositionTrack3d? Positions { get; private set; }
       public IRotationTrack3d? Rotations { get; private set; }
       public IScale3dTrack? Scales { get; private set; }
 
-      public ICombinedPositionAxesTrack3d UseCombinedPositionAxesTrack(int initialCapacity)
+      public ICombinedPositionAxesTrack3d UseCombinedPositionAxesTrack(
+          int initialCapacity)
         => (ICombinedPositionAxesTrack3d) (this.Positions =
-            new CombinedPositionAxesTrack3dImpl(initialCapacity) {
-                FrameCount = this.frameCount_
-            });
+            new CombinedPositionAxesTrack3dImpl(
+                this.Animation,
+                initialCapacity));
 
-      public ISeparatePositionAxesTrack3d UseSeparatePositionAxesTrack(int initialCapacity)
+      public ISeparatePositionAxesTrack3d UseSeparatePositionAxesTrack(
+          int initialCapacity)
         => this.UseSeparatePositionAxesTrack(initialCapacity,
-                                  initialCapacity,
-                                  initialCapacity);
+                                             initialCapacity,
+                                             initialCapacity);
 
       public ISeparatePositionAxesTrack3d UseSeparatePositionAxesTrack(
           int initialXCapacity,
@@ -162,24 +140,21 @@ namespace fin.model.impl {
         initialAxisCapacities[2] = initialZCapacity;
 
         return (ISeparatePositionAxesTrack3d) (this.Positions =
-            new SeparatePositionAxesTrack3dImpl(this.bone_, initialAxisCapacities) {
-                FrameCount = this.frameCount_
-            });
+            new SeparatePositionAxesTrack3dImpl(
+                this.Animation,
+                this.Bone,
+                initialAxisCapacities));
       }
 
 
       public IQuaternionRotationTrack3d UseQuaternionRotationTrack(
           int initialCapacity)
         => (IQuaternionRotationTrack3d) (this.Rotations =
-            new QuaternionRotationTrack3dImpl(initialCapacity) {
-                FrameCount = this.frameCount_
-            });
+            new QuaternionRotationTrack3dImpl(this.Animation, initialCapacity));
 
       public IQuaternionAxesRotationTrack3d UseQuaternionAxesRotationTrack()
         => (IQuaternionAxesRotationTrack3d) (this.Rotations =
-            new QuaternionAxesRotationTrack3dImpl(this.bone_) {
-                FrameCount = this.frameCount_
-            });
+            new QuaternionAxesRotationTrack3dImpl(this.Animation, this.Bone));
 
 
       public IEulerRadiansRotationTrack3d UseEulerRadiansRotationTrack(
@@ -199,10 +174,9 @@ namespace fin.model.impl {
 
         return (IEulerRadiansRotationTrack3d) (this.Rotations =
             new EulerRadiansRotationTrack3dImpl(
-                this.bone_,
-                initialAxisCapacities) {
-                FrameCount = this.frameCount_
-            });
+                this.Animation,
+                this.Bone,
+                initialAxisCapacities));
       }
 
 
@@ -222,10 +196,9 @@ namespace fin.model.impl {
         initialAxisCapacities[2] = initialZCapacity;
 
         return this.Scales = new ScaleTrackImpl(
-            this.bone_,
-            initialAxisCapacities) {
-            FrameCount = this.frameCount_
-        };
+            this.Animation,
+            this.Bone,
+            initialAxisCapacities);
       }
 
 
@@ -234,11 +207,20 @@ namespace fin.model.impl {
 
     public class MeshTracksImpl : IMeshTracks {
       public IInputOutputTrack<MeshDisplayState,
-          StairStepInterpolator<MeshDisplayState>> DisplayStates { get; } =
-        new InputOutputTrackImpl<MeshDisplayState,
-            StairStepInterpolator<MeshDisplayState>>(
-            0,
-            new StairStepInterpolator<MeshDisplayState>());
+          StairStepInterpolator<MeshDisplayState>> DisplayStates { get; }
+
+
+      public MeshTracksImpl(IAnimation animation) {
+        this.Animation = animation;
+        this.DisplayStates =
+            new InputOutputTrackImpl<MeshDisplayState,
+                StairStepInterpolator<MeshDisplayState>>(
+                animation,
+                0,
+                new StairStepInterpolator<MeshDisplayState>());
+      }
+
+      public IAnimation Animation { get; }
     }
   }
 }

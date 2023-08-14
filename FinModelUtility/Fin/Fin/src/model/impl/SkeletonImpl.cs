@@ -42,6 +42,8 @@ namespace fin.model.impl {
         public string Name { get; set; }
         public int Index { get; set; }
 
+        public override string ToString() => this.Name;
+
         public IBone Root { get; }
         public IBone? Parent { get; }
         public IReadOnlyList<IBone> Children { get; }

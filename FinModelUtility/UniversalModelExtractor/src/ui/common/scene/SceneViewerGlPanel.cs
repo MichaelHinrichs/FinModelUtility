@@ -94,7 +94,7 @@ namespace uni.ui.common.scene {
              ?.ModelRenderers.FirstOrDefault()
              ?.SkeletonRenderer;
 
-    public IAnimation? Animation {
+    public IModelAnimation? Animation {
       get => this.FirstSceneModel?.Animation;
       set {
         if (this.FirstSceneModel == null) {

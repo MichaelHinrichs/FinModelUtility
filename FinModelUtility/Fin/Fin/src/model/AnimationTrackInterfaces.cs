@@ -21,9 +21,8 @@ namespace fin.model {
   }
 
 
-  public interface ITrack {
+  public interface ITrack : IAnimationData {
     bool IsDefined { get; }
-    int FrameCount { set; }
   }
 
   public interface IReadOnlyInterpolatedTrack<TInterpolated> : ITrack {
@@ -72,7 +71,7 @@ namespace fin.model {
         IImplTrack<TValue>
       where TInterpolator : IInterpolator<TValue, TInterpolated> {
     TInterpolator Interpolator { get; }
-    
+
     void Set(IInputOutputTrack<TValue, TInterpolated, TInterpolator> other) { }
 
     // TODO: Allow setting tangent(s) at each frame.

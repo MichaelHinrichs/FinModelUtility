@@ -81,7 +81,7 @@ namespace fin.scene {
 
     IBoneTransformManager BoneTransformManager { get; }
 
-    IAnimation? Animation { get; set; }
+    IModelAnimation? Animation { get; set; }
     IAnimationPlaybackManager AnimationPlaybackManager { get; }
 
     float ViewerScale { get; set; }

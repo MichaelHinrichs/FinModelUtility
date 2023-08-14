@@ -191,7 +191,7 @@ namespace fin.scene {
 
     private class SceneModelImpl : ISceneModel {
       private readonly List<ISceneModel> children_ = new();
-      private IAnimation? animation_;
+      private IModelAnimation? animation_;
 
       public SceneModelImpl(IModel model) {
         this.Model = model;
@@ -246,7 +246,7 @@ namespace fin.scene {
 
       public IBoneTransformManager BoneTransformManager { get; }
 
-      public IAnimation? Animation {
+      public IModelAnimation? Animation {
         get => this.animation_;
         set {
           if (this.animation_ == value) {

@@ -7,7 +7,9 @@ namespace fin.model.impl {
     public class QuaternionRotationTrack3dImpl
         : InputOutputTrackImpl<Quaternion, QuaternionInterpolator>,
           IQuaternionRotationTrack3d {
-      public QuaternionRotationTrack3dImpl(int initialCapacity) : base(
+      public QuaternionRotationTrack3dImpl(IAnimation animation,
+                                           int initialCapacity) : base(
+          animation,
           initialCapacity,
           new QuaternionInterpolator()) { }
     }

@@ -9,11 +9,12 @@ namespace fin.model.impl {
     public class ImplTrackImpl<TValue> : IImplTrack<TValue> {
       protected readonly Keyframes<ValueAndTangents<TValue>> impl;
 
-      public ImplTrackImpl(int initialCapacity) {
+      public ImplTrackImpl(IAnimation animation, int initialCapacity) {
+        this.Animation = animation;
         this.impl = new Keyframes<ValueAndTangents<TValue>>(initialCapacity);
       }
 
-      public int FrameCount { get; set; }
+      public IAnimation Animation { get; }
 
       public IReadOnlyList<Keyframe<ValueAndTangents<TValue>>> Keyframes
         => this.impl.Definitions;
@@ -74,9 +75,9 @@ namespace fin.model.impl {
 
         if (wrapsAround) {
           if (frame >= fromTime) {
-            toTime += this.FrameCount;
+            toTime += this.Animation.FrameCount;
           } else {
-            fromTime -= this.FrameCount;
+            fromTime -= this.Animation.FrameCount;
             fromData = (fromTime, fromValue, fromOutgoingTangent);
           }
         }
@@ -91,9 +92,10 @@ namespace fin.model.impl {
           IInputOutputTrack<T, TInterpolator>
         where TInterpolator : IInterpolator<T> {
       public InputOutputTrackImpl(
+          IAnimation animation,
           int initialCapacity,
           TInterpolator interpolator) :
-          base(initialCapacity, interpolator) { }
+          base(animation, initialCapacity, interpolator) { }
     }
 
     public class InputOutputTrackImpl<TValue, TInterpolated, TInterpolator>
@@ -101,8 +103,9 @@ namespace fin.model.impl {
           IInputOutputTrack<TValue, TInterpolated, TInterpolator>
         where TInterpolator : IInterpolator<TValue, TInterpolated> {
       public InputOutputTrackImpl(
+          IAnimation animation,
           int initialCapacity,
-          TInterpolator interpolator) : base(initialCapacity) {
+          TInterpolator interpolator) : base(animation, initialCapacity) {
         this.Interpolator = interpolator;
       }
 
@@ -155,9 +158,9 @@ namespace fin.model.impl {
 
         if (wrapsAround) {
           if (frame >= fromTime) {
-            toTime += this.FrameCount;
+            toTime += this.Animation.FrameCount;
           } else {
-            fromTime -= this.FrameCount;
+            fromTime -= this.Animation.FrameCount;
           }
         }
 

@@ -5,9 +5,6 @@ using fin.testing;
 
 using j3d.exporter;
 using j3d.GCN;
-using j3d.schema.bmd.tex1;
-
-using schema.binary.testing;
 
 
 namespace j3d {

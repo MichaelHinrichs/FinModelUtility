@@ -117,7 +117,7 @@ namespace glo.api {
                                         => (topLevelGloMesh,
                                             finObjectRootBone)));
 
-        List<(IAnimation, int, int)> finAndGloAnimations = new();
+        List<(IModelAnimation, int, int)> finAndGloAnimations = new();
         foreach (var animSeg in gloObject.AnimSegs) {
           var startFrame = (int)animSeg.StartFrame;
           var endFrame = (int)animSeg.EndFrame;

@@ -11,10 +11,12 @@ namespace fin.model.impl {
           IQuaternionAxesRotationTrack3d {
       private readonly IBone bone_;
 
-      public QuaternionAxesRotationTrack3dImpl(IBone bone) : base(
-          4,
-          new[] { 0, 0, 0, 0 },
-          new FloatInterpolator()) {
+      public QuaternionAxesRotationTrack3dImpl(IAnimation animation, IBone bone)
+          : base(
+              animation,
+              4,
+              new[] { 0, 0, 0, 0 },
+              new FloatInterpolator()) {
         this.bone_ = bone;
       }
 
@@ -36,19 +38,31 @@ namespace fin.model.impl {
             ? QuaternionUtil.Create(this.bone_.LocalRotation)
             : Quaternion.Identity;
 
-        if (!this.axisTracks[0].TryGetInterpolatedFrame(frame, out var x, useLoopingInterpolation)) {
+        if (!this.axisTracks[0]
+                 .TryGetInterpolatedFrame(frame,
+                                          out var x,
+                                          useLoopingInterpolation)) {
           x = defaultRotation.X;
         }
 
-        if (!this.axisTracks[1].TryGetInterpolatedFrame(frame, out var y, useLoopingInterpolation)) {
+        if (!this.axisTracks[1]
+                 .TryGetInterpolatedFrame(frame,
+                                          out var y,
+                                          useLoopingInterpolation)) {
           y = defaultRotation.Y;
         }
 
-        if (!this.axisTracks[2].TryGetInterpolatedFrame(frame, out var z, useLoopingInterpolation)) {
+        if (!this.axisTracks[2]
+                 .TryGetInterpolatedFrame(frame,
+                                          out var z,
+                                          useLoopingInterpolation)) {
           z = defaultRotation.Z;
         }
 
-        if (!this.axisTracks[3].TryGetInterpolatedFrame(frame, out var w, useLoopingInterpolation)) {
+        if (!this.axisTracks[3]
+                 .TryGetInterpolatedFrame(frame,
+                                          out var w,
+                                          useLoopingInterpolation)) {
           w = defaultRotation.W;
         }
 

@@ -14,7 +14,7 @@ namespace fin.exporter.gltf {
         ModelRoot gltfModel,
         (GltfNode, IBone)[] skinNodesAndBones,
         float modelScale,
-        IReadOnlyList<IAnimation> animations) {
+        IReadOnlyList<IModelAnimation> animations) {
       foreach (var animation in animations) {
         var gltfAnimation = gltfModel.UseAnimation(animation.Name);
 

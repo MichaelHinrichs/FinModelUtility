@@ -5,36 +5,38 @@ using System.Runtime.CompilerServices;
 
 using fin.data;
 using fin.math;
+using fin.math.floats;
 using fin.math.interpolation;
 
 
 namespace fin.model.impl {
   public partial class ModelImpl<TVertex> {
-    public class EulerRadiansRotationTrack3dImpl : IEulerRadiansRotationTrack3d {
+    public class EulerRadiansRotationTrack3dImpl
+        : IEulerRadiansRotationTrack3d {
       private readonly IBone bone_;
+
       private readonly IInputOutputTrack<float, RadianInterpolator>[]
           axisTracks_;
 
       public EulerRadiansRotationTrack3dImpl(
+          IAnimation animation,
           IBone bone,
           ReadOnlySpan<int> initialCapacityPerAxis) {
+        this.Animation = animation;
         this.bone_ = bone;
-        this.axisTracks_ = new InputOutputTrackImpl<float, RadianInterpolator>[3];
+        this.axisTracks_ =
+            new InputOutputTrackImpl<float, RadianInterpolator>[3];
         for (var i = 0; i < 3; ++i) {
-          this.axisTracks_[i] = new InputOutputTrackImpl<float, RadianInterpolator>
-              (initialCapacityPerAxis[i], new RadianInterpolator());
+          this.axisTracks_[i] =
+              new InputOutputTrackImpl<float, RadianInterpolator>(
+                  animation,
+                  initialCapacityPerAxis[i],
+                  new RadianInterpolator());
         }
       }
 
+      public IAnimation Animation { get; }
       public bool IsDefined => this.axisTracks_.Any(axis => axis.IsDefined);
-
-      public int FrameCount {
-        set {
-          foreach (var axis in this.axisTracks_) {
-            axis.FrameCount = value;
-          }
-        }
-      }
 
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public void Set(
@@ -57,8 +59,10 @@ namespace fin.model.impl {
 
       public bool TryGetInterpolatedFrame(float frame,
                                           out Quaternion interpolatedValue,
-                                          bool useLoopingInterpolation = false) {
-        interpolatedValue = GetInterpolatedFrame(frame, useLoopingInterpolation);
+                                          bool useLoopingInterpolation =
+                                              false) {
+        interpolatedValue =
+            GetInterpolatedFrame(frame, useLoopingInterpolation);
         return true;
       }
 
@@ -100,20 +104,27 @@ namespace fin.model.impl {
         fromsAndTos[5] = toZFrame;
 
         Span<bool> areAxesStatic = stackalloc bool[3];
-        EulerRadiansRotationTrack3dImpl.AreAxesStatic_(fromsAndTos, areAxesStatic);
-        
-        if (!EulerRadiansRotationTrack3dImpl.CanInterpolateWithQuaternions_(
-                fromsAndTos, areAxesStatic)) {
+        AreAxesStatic_(fromsAndTos, areAxesStatic);
+
+        if (this.bone_.Name == "base") {
+          ;
+        }
+
+        if (!CanInterpolateWithQuaternions_(
+                fromsAndTos,
+                areAxesStatic)) {
           if (!xTrack.TryGetInterpolatedFrame(frame,
                                               out var xRadians,
                                               useLoopingInterpolation)) {
             xRadians = defaultX;
           }
+
           if (!yTrack.TryGetInterpolatedFrame(frame,
                                               out var yRadians,
                                               useLoopingInterpolation)) {
             yRadians = defaultY;
           }
+
           if (!zTrack.TryGetInterpolatedFrame(frame,
                                               out var zRadians,
                                               useLoopingInterpolation)) {
@@ -123,10 +134,14 @@ namespace fin.model.impl {
           return ConvertRadiansToQuaternionImpl(xRadians, yRadians, zRadians);
         }
 
-        if (EulerRadiansRotationTrack3dImpl.GetFromAndToFrameIndex_(fromsAndTos,
-              areAxesStatic,
-              out var fromFrame,
-              out var toFrame)) {
+        if (GetFromAndToFrameIndex_(fromsAndTos,
+                                    areAxesStatic,
+                                    out var fromFrame,
+                                    out var toFrame)) {
+          if (toFrame < fromFrame) {
+            toFrame += this.Animation.FrameCount;
+          }
+
           var frameDelta = (frame - fromFrame) / (toFrame - fromFrame);
 
           var q1 = ConvertRadiansToQuaternionImpl(
@@ -147,23 +162,40 @@ namespace fin.model.impl {
         }
 
         return Quaternion.Normalize(ConvertRadiansToQuaternionImpl(
-            fromXFrame?.value ?? defaultX,
-            fromYFrame?.value ?? defaultY,
-            fromZFrame?.value ?? defaultZ));
+                                        fromXFrame?.value ?? defaultX,
+                                        fromYFrame?.value ?? defaultY,
+                                        fromZFrame?.value ?? defaultZ));
       }
 
       private static void AreAxesStatic_(
           ReadOnlySpan<(float frame, float value, float? tangent)?> fromsAndTos,
           Span<bool> areAxesStatic) {
         for (var i = 0; i < 3; ++i) {
-          var from = fromsAndTos[i];
-          var to = fromsAndTos[3 + i];
+          var fromOrNull = fromsAndTos[i];
+          var toOrNull = fromsAndTos[3 + i];
 
-          if (from == null && to == null) {
+          if (fromOrNull == null && toOrNull == null) {
             areAxesStatic[i] = true;
-          } else if (from != null && to != null) {
-            areAxesStatic[i] =
-                Math.Abs(from.Value.value - to.Value.value) < .0001;
+          } else if (fromOrNull != null && toOrNull != null) {
+            var from = fromOrNull.Value;
+            var to = toOrNull.Value;
+
+            if (from.value.IsRoughly(to.value)) {
+              if (!SUPPORTS_TANGENTS_IN_QUATERNIONS) {
+                areAxesStatic[i] = true;
+              } else {
+                var fromTangentOrNull = from.tangent;
+                var toTangentOrNull = from.tangent;
+                if (fromTangentOrNull == null && toTangentOrNull == null) {
+                  areAxesStatic[i] = true;
+                } else if (fromTangentOrNull != null &&
+                           toTangentOrNull != null) {
+                  var fromTangent = fromTangentOrNull.Value;
+                  var toTangent = toTangentOrNull.Value;
+                  areAxesStatic[i] = fromTangent.IsRoughly(toTangent);
+                }
+              }
+            }
           }
         }
       }
@@ -181,12 +213,11 @@ namespace fin.model.impl {
           }
         }
 
-        fromFrameIndex = 0;
-        toFrameIndex = 1;
+        fromFrameIndex = default;
+        toFrameIndex = default;
         return false;
       }
 
-      // TODO: Might be able to use this for euler-interpolated keyframe i and i+1
       private static bool CanInterpolateWithQuaternions_(
           ReadOnlySpan<(float frame, float value, float? tangent)?> fromsAndTos,
           ReadOnlySpan<bool> areAxesStatic) {
@@ -199,10 +230,10 @@ namespace fin.model.impl {
             return false;
           }
 
-          // TODO: Use tangents if all fromFrames have the same tangent and all
-          // toFrames have the same tangent.
-          if ((fromsAndTos[i].Value.tangent ?? 0) != 0) {
-            return false;
+          if (!SUPPORTS_TANGENTS_IN_QUATERNIONS) {
+            if ((fromsAndTos[i].Value.tangent ?? 0) != 0) {
+              return false;
+            }
           }
         }
 
@@ -211,17 +242,28 @@ namespace fin.model.impl {
             continue;
           }
 
+          var from = fromsAndTos[i].Value;
           for (var oi = i + 1; oi < 3; ++oi) {
             if (areAxesStatic[oi]) {
               continue;
             }
 
-            if (fromsAndTos[i].Value.frame != fromsAndTos[oi].Value.frame) {
+            var to = fromsAndTos[oi].Value;
+            if (!from.frame.IsRoughly(to.frame)) {
               return false;
             }
-            if (fromsAndTos[3 + i].Value.frame !=
-                fromsAndTos[3 + oi].Value.frame) {
-              return false;
+
+            if (SUPPORTS_TANGENTS_IN_QUATERNIONS) {
+              var fromTangentOrNull = from.tangent;
+              var toTangentOrNull = to.tangent;
+              if ((fromTangentOrNull == null) != (toTangentOrNull == null)) {
+                return false;
+              }
+
+              if (fromTangentOrNull != null && toTangentOrNull != null &&
+                  !fromTangentOrNull.Value.IsRoughly(toTangentOrNull.Value)) {
+                return false;
+              }
             }
           }
         }
@@ -232,6 +274,10 @@ namespace fin.model.impl {
       public IEulerRadiansRotationTrack3d.ConvertRadiansToQuaternion
           ConvertRadiansToQuaternionImpl { get; set; } =
         QuaternionUtil.CreateZyx;
+
+
+      // TODO: Add support for tangents in quaternions
+      private const bool SUPPORTS_TANGENTS_IN_QUATERNIONS = false;
     }
   }
 }

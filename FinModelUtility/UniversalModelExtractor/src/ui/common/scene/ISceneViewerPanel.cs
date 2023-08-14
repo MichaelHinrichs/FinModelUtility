@@ -10,7 +10,7 @@ namespace uni.ui.common.scene {
     (IFileBundle, IScene)? FileBundleAndScene { get; set; }
     ISceneModel? FirstSceneModel { get; }
     IAnimationPlaybackManager? AnimationPlaybackManager { get; }
-    IAnimation? Animation { get; set; }
+    IModelAnimation? Animation { get; set; }
     ISkeletonRenderer? SkeletonRenderer { get; }
 
     TimeSpan FrameTime { get; }

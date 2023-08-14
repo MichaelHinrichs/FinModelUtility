@@ -6,8 +6,8 @@ using fin.math.interpolation;
 
 namespace fin.model {
   public interface IAnimationManager {
-    IReadOnlyList<IAnimation> Animations { get; }
-    IAnimation AddAnimation();
+    IReadOnlyList<IModelAnimation> Animations { get; }
+    IModelAnimation AddAnimation();
 
     IReadOnlyList<IMorphTarget> MorphTargets { get; }
     IMorphTarget AddMorphTarget();
@@ -25,7 +25,9 @@ namespace fin.model {
 
     int FrameCount { get; set; }
     float FrameRate { get; set; }
+  }
 
+  public interface IModelAnimation : IAnimation {
     IReadOnlyIndexableDictionary<IBone, IBoneTracks> BoneTracks { get; }
     IBoneTracks AddBoneTracks(IBone bone);
 
@@ -38,7 +40,15 @@ namespace fin.model {
     // TODO: Allow setting looping behavior (once, back and forth, etc.)
   }
 
-  public interface IBoneTracks {
+
+
+  public interface IAnimationData {
+    IAnimation Animation { get; }
+  }
+
+  public interface IBoneTracks : IAnimationData {
+    IBone Bone { get; }
+
     IPositionTrack3d? Positions { get; }
     IRotationTrack3d? Rotations { get; }
     IScale3dTrack? Scales { get; }
@@ -75,14 +85,14 @@ namespace fin.model {
     VISIBLE,
   }
 
-  public interface IMeshTracks {
+  public interface IMeshTracks : IAnimationData {
     IInputOutputTrack<MeshDisplayState, StairStepInterpolator<MeshDisplayState>>
         DisplayStates { get; }
   }
 
 
 
-  public interface ITextureTracks {
+  public interface ITextureTracks : IAnimationData {
   }
 
 

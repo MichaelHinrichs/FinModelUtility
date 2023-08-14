@@ -10,9 +10,11 @@ namespace fin.model.impl {
           ISeparatePositionAxesTrack3d {
       private readonly IBone bone_;
 
-      public SeparatePositionAxesTrack3dImpl(IBone bone,
-                                 ReadOnlySpan<int> initialCapacityPerAxis) :
-          base(3, initialCapacityPerAxis, new FloatInterpolator()) {
+      public SeparatePositionAxesTrack3dImpl(IAnimation animation,
+                                             IBone bone,
+                                             ReadOnlySpan<int>
+                                                 initialCapacityPerAxis) :
+          base(animation, 3, initialCapacityPerAxis, new FloatInterpolator()) {
         this.bone_ = bone;
       }
 
@@ -21,7 +23,8 @@ namespace fin.model.impl {
                                           out Position interpolatedValue,
                                           bool useLoopingInterpolation =
                                               false) {
-        interpolatedValue = GetInterpolatedFrame(frame, useLoopingInterpolation);
+        interpolatedValue =
+            GetInterpolatedFrame(frame, useLoopingInterpolation);
         return true;
       }
 

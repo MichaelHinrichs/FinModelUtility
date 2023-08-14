@@ -47,10 +47,18 @@ namespace j3d.schema.bcx {
       private byte[] padding_;
     }
 
+    public enum LoopMode : byte {
+      ONCE = 0,
+      ONCE_AND_RESET = 1,
+      LOOP = 2,
+      MIRRORED_ONCE = 3,
+      MIRRORED_LOOP = 4,
+    }
+
     public partial class ANK1Section : IAnx1 {
       public const string Signature = "ANK1";
       public DataBlockHeader Header;
-      public byte LoopFlags;
+      public LoopMode LoopMode;
       public byte AngleMultiplier;
       public ushort AnimLength;
       public ushort NrJoints;
@@ -71,7 +79,7 @@ namespace j3d.schema.bcx {
         if (!OK1) {
           OK = false;
         } else {
-          this.LoopFlags = er.ReadByte();
+          this.LoopMode = (LoopMode) er.ReadByte();
           this.AngleMultiplier = er.ReadByte();
           this.AnimLength = er.ReadUInt16();
           this.NrJoints = er.ReadUInt16();
@@ -88,10 +96,7 @@ namespace j3d.schema.bcx {
           this.Rotation = er.ReadInt16s((int)this.NrRot);
           er.Position = (long)(32U + this.TransOffset);
           this.Translation = er.ReadSingles((int)this.NrTrans);
-          float RotScale =
-              (float)(Math.Pow(2.0, (double)this.AngleMultiplier) *
-                      Math.PI /
-                      32768.0);
+          var rotScale = MathF.Pow(2, this.AngleMultiplier - 15) * MathF.PI;
           er.Position = (long)(32U + this.JointOffset);
           this.Joints = new AnimatedJoint[(int)this.NrJoints];
           for (int index = 0; index < (int)this.NrJoints; ++index) {
@@ -99,7 +104,7 @@ namespace j3d.schema.bcx {
             animatedJoint.SetValues(this.Scale,
                                     this.Rotation,
                                     this.Translation,
-                                    RotScale);
+                                    rotScale);
             this.Joints[index] = animatedJoint;
           }
           OK = true;
@@ -134,52 +139,6 @@ namespace j3d.schema.bcx {
                   Rotations,
                   Translations,
                   RotScale);
-        }
-
-        private float Interpolate(
-            float v1,
-            float d1,
-            float v2,
-            float d2,
-            float t) {
-          float num1 = (float)(2.0 * ((double)v1 - (double)v2)) + d1 + d2;
-          float num2 =
-              (float)(-3.0 * (double)v1 +
-                      3.0 * (double)v2 -
-                      2.0 * (double)d1) -
-              d2;
-          float num3 = d1;
-          float num4 = v1;
-          return ((num1 * t + num2) * t + num3) * t + num4;
-        }
-
-        public float GetAnimValue(JointAnim.Key[] keys, float t) {
-          if (keys.Length == 0)
-            return 0.0f;
-          if (keys.Length == 1)
-            return keys[0].Value;
-          int index = 1;
-
-          while ((double)keys[index].Frame < (double)t
-                 // Don't shoot past the end of the keys list!
-                 &&
-                 index + 1 < keys.Length)
-            ++index;
-
-          if (index + 1 == keys.Length && keys[index].Frame < t) {
-            return keys[0].Value;
-          }
-
-          float t1 = (float)(((double)t - (double)keys[index - 1].Frame) /
-                             ((double)keys[index].Frame -
-                              (double)keys[index - 1].Frame));
-
-
-          return this.Interpolate(keys[index - 1].Value,
-                                  keys[index - 1].OutgoingTangent,
-                                  keys[index].Value,
-                                  keys[index].IncomingTangent,
-                                  t1);
         }
 
         [BinarySchema]

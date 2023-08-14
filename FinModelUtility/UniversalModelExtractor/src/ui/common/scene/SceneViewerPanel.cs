@@ -32,7 +32,7 @@ namespace uni.ui.common.scene {
 
     public ISkeletonRenderer? SkeletonRenderer => this.impl_.SkeletonRenderer;
 
-    public IAnimation? Animation {
+    public IModelAnimation? Animation {
       get => this.impl_.Animation;
       set => this.impl_.Animation = value;
     }

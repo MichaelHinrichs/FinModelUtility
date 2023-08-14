@@ -4,7 +4,7 @@ using fin.model;
 
 namespace mod.schema.animation {
   public static class DcxHelpers {
-    public static IAnimation AddAnimation(
+    public static IModelAnimation AddAnimation(
         IBone[] bones,
         IAnimationManager animationManager,
         IDcx dcx) {

@@ -24,16 +24,18 @@ namespace fin.model {
     }
   }
 
-  public interface IPositionTrack3d : IReadOnlyInterpolatedTrack<Position> { }
+  public interface IPositionTrack3d : IReadOnlyInterpolatedTrack<Position>,
+                                      IAnimationData { }
 
   public interface ICombinedPositionAxesTrack3d
       : IPositionTrack3d,
         IInputOutputTrack<Position, PositionInterpolator> { }
 
   public interface ISeparatePositionAxesTrack3d : IPositionTrack3d,
-                                            IAxes3fTrack<Position> { }
+                                                  IAxes3fTrack<Position> { }
 
-  public interface IRotationTrack3d : IReadOnlyInterpolatedTrack<Quaternion> { }
+  public interface IRotationTrack3d : IReadOnlyInterpolatedTrack<Quaternion>,
+                                      IAnimationData { }
 
   public interface IQuaternionRotationTrack3d
       : IRotationTrack3d,
@@ -54,5 +56,6 @@ namespace fin.model {
                                                    float zRadians);
   }
 
-  public interface IScale3dTrack : IAxes3fTrack<Scale> { }
+  public interface IScale3dTrack : IAxes3fTrack<Scale>,
+                                   IAnimationData { }
 }

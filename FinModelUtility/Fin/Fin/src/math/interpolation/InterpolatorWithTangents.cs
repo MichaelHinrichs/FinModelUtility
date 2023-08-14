@@ -16,8 +16,12 @@ namespace fin.math.interpolation {
         float toTangent,
         float time)
       => InterpolateFloatsGithub(
-          fromTime, fromValue, fromTangent,
-          toTime, toValue, toTangent,
+          fromTime,
+          fromValue,
+          fromTangent,
+          toTime,
+          toValue,
+          toTangent,
           time);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -44,10 +48,14 @@ namespace fin.math.interpolation {
       var c = t3 - t2;
       var d = -2 * t3 + 3 * t2;
 
-      return a * fromValue + b * m0 + c * m1 + d * toValue;
+      var interpolated = a * fromValue + b * m0 + c * m1 + d * toValue;
+      return interpolated;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static OpenTK.Matrix4 m_hermiteMatrix =
+        new OpenTK.Matrix4(2, -2, 1, 1, -3, 3, -2, -1, 0, 0, 1, 0, 1, 0, 0, 0);
+
+    /*[MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float InterpolateFloatsWithMathNet(
         float fromTime,
         float fromValue,
@@ -61,7 +69,7 @@ namespace fin.math.interpolation {
                                     new double[] { fromValue, toValue },
                                     new double[] { fromTangent, toTangent });
 
-      return (float)spline.Interpolate(time);
+      return (float) spline.Interpolate(time);
     }
 
 
@@ -86,7 +94,7 @@ namespace fin.math.interpolation {
       var num2 = -3.0 * v1 + 3.0 * v2 - 2.0 * d1 - d2;
       var num3 = d1;
       var num4 = v1;
-      return (float)(((num1 * t + num2) * t + num3) * t + num4);
+      return (float) (((num1 * t + num2) * t + num3) * t + num4);
     }
 
     public static float InterpolateFloatsWithRandom(float fromTime,
@@ -133,7 +141,8 @@ namespace fin.math.interpolation {
       var t = (time - fromTime) / (toTime - fromTime);
 
       Vector4 s = new Vector4(t * t * t, t * t, t, 1);
-      Vector4 c = new Vector4(fromValue, toValue,
+      Vector4 c = new Vector4(fromValue,
+                              toValue,
                               fromTangent * numFramesBetweenKeys,
                               toTangent * numFramesBetweenKeys);
       Vector4 result = Vector4.Transform(s, m_hermiteMatrix);
@@ -190,6 +199,6 @@ namespace fin.math.interpolation {
       var cf3 = (p0 * 1) + (p1 * 0) + (p2 * 0) + (p3 * 0);
 
       return (((cf0 * t + cf1) * t + cf2) * t + cf3);
-    }
+    }*/
   }
 }

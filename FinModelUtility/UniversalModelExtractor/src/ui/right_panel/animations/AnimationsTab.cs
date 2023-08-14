@@ -4,7 +4,7 @@ using fin.model;
 
 namespace uni.ui.right_panel {
   public partial class AnimationsTab : UserControl {
-    private IAnimation[]? animations_;
+    private IModelAnimation[]? animations_;
 
     public AnimationsTab() {
       InitializeComponent();
@@ -49,7 +49,7 @@ namespace uni.ui.right_panel {
       set => this.animationPlaybackPanel_.Impl = value;
     }
 
-    public delegate void AnimationSelected(IAnimation? animation);
+    public delegate void AnimationSelected(IModelAnimation? animation);
 
     public event AnimationSelected OnAnimationSelected;
   }
