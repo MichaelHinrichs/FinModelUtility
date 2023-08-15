@@ -1,5 +1,7 @@
 ﻿using System;
 
+using fin.math.rotations;
+
 using NUnit.Framework;
 
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;

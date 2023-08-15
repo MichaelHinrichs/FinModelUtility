@@ -3,6 +3,8 @@ using fin.math.matrix;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
+using fin.math.rotations;
+
 using OpenTK.Graphics.OpenGL;
 
 using GlMatrixMode = OpenTK.Graphics.OpenGL.MatrixMode;

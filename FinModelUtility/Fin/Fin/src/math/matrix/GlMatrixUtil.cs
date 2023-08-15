@@ -4,8 +4,8 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 
 
-namespace fin.math {
-  public class GlMatrixUtil {
+namespace fin.math.matrix {
+  public static class GlMatrixUtil {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ProjectPosition(
         Matrix4x4 matrix,

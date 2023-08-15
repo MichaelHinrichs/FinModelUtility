@@ -10,6 +10,7 @@ using level5.schema;
 using System.Numerics;
 
 using fin.data.lazy;
+using fin.math.rotations;
 using fin.util.enumerables;
 
 using schema.binary;

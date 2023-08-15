@@ -1,5 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 
+using fin.math.rotations;
+
 namespace fin.math.interpolation {
   public readonly struct RadianInterpolator : IInterpolator<float> {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace fin.math {
+namespace fin.math.rotations {
   public static class FinTrig {
     public const float DEG_2_RAD = MathF.PI / 180;
     public const float RAD_2_DEG = 1 / FinTrig.DEG_2_RAD;
@@ -48,10 +48,10 @@ namespace fin.math {
                                            out float xNormal,
                                            out float yNormal,
                                            out float zNormal)
-      => FromPitchYawRadians(pitchDegrees * FinTrig.DEG_2_RAD,
-                             yawDegrees * FinTrig.DEG_2_RAD,
-                             out xNormal,
-                             out yNormal,
-                             out zNormal);
+      => FinTrig.FromPitchYawRadians(pitchDegrees * FinTrig.DEG_2_RAD,
+                                     yawDegrees * FinTrig.DEG_2_RAD,
+                                     out xNormal,
+                                     out yNormal,
+                                     out zNormal);
   }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Numerics;
 
+using fin.math.rotations;
+
 using MathNet.Numerics;
 
 using NUnit.Framework;

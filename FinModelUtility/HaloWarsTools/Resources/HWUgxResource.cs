@@ -13,6 +13,7 @@ using Dxt;
 using fin.data.lazy;
 using fin.io;
 using fin.math;
+using fin.math.rotations;
 using fin.model;
 using fin.model.impl;
 using fin.util.asserts;

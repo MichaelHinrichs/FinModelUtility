@@ -15,6 +15,7 @@ using System.IO.Compression;
 using System.Xml;
 
 using fin.color;
+using fin.math.rotations;
 using fin.model.impl;
 using fin.schema.vector;
 using fin.util.asserts;

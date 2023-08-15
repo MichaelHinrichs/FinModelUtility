@@ -2,7 +2,7 @@
 
 using fin.util.time;
 
-namespace fin.animation.playback {
+namespace fin.animation {
   public class FrameAdvancer : IAnimationPlaybackManager {
     private readonly IStopwatch impl_ = new FrameStopwatch();
 

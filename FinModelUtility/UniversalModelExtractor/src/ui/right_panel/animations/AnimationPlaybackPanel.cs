@@ -1,4 +1,4 @@
-﻿using fin.animation.playback;
+﻿using fin.animation;
 
 
 namespace uni.ui.right_panel {

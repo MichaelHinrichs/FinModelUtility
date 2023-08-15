@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 
 using fin.data;
 using fin.math.matrix;
+using fin.math.rotations;
 using fin.model;
 using fin.ui;
 

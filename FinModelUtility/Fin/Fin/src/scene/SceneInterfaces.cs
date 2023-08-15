@@ -1,4 +1,4 @@
-﻿using fin.animation.playback;
+﻿using fin.animation;
 using fin.io.bundles;
 using fin.math;
 using fin.model;

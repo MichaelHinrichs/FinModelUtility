@@ -6,6 +6,7 @@ using f3dzex2.displaylist.opcodes;
 using f3dzex2.image;
 
 using fin.math;
+using fin.math.matrix;
 using fin.model;
 using fin.model.impl;
 using fin.util.enums;

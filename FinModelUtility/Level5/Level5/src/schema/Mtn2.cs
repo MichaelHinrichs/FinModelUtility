@@ -4,6 +4,8 @@ using fin.util.asserts;
 using level5.decompression;
 using System.Numerics;
 
+using fin.math.rotations;
+
 using schema.binary;
 
 

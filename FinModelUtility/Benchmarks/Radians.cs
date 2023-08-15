@@ -1,6 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 
 using fin.math;
+using fin.math.rotations;
 
 
 namespace benchmarks {

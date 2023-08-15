@@ -18,6 +18,7 @@ using uni.ui.common;
 
 using fin.audio;
 using fin.math;
+using fin.math.rotations;
 
 namespace uni.ui;
 

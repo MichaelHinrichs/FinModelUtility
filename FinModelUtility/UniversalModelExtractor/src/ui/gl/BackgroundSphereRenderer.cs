@@ -2,6 +2,7 @@
 using fin.ui.rendering;
 using fin.ui.rendering.gl.model;
 using fin.math;
+using fin.math.rotations;
 using fin.model;
 using fin.model.impl;
 

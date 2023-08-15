@@ -7,6 +7,7 @@ using fin.data;
 using fin.math;
 using fin.math.floats;
 using fin.math.interpolation;
+using fin.math.rotations;
 
 
 namespace fin.model.impl {

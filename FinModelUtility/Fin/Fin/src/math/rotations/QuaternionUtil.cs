@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using fin.model;
 
 
-namespace fin.math {
+namespace fin.math.rotations {
   public static class QuaternionUtil {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Quaternion Create(IRotation rotation)
