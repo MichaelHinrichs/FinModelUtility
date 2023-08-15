@@ -1,20 +1,14 @@
 ﻿using System.Buffers;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Runtime.CompilerServices;
 
 using BenchmarkDotNet.Attributes;
 
 using FastBitmapLib;
 
-using fin.image;
 using fin.image.formats;
 
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-
 using Color = System.Drawing.Color;
-using IImage = SixLabors.ImageSharp.IImage;
 using PixelFormat = fin.image.PixelFormat;
 using Rectangle = System.Drawing.Rectangle;
 

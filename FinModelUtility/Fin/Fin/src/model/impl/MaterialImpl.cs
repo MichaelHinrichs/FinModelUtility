@@ -81,7 +81,10 @@ namespace fin.model.impl {
 
       public ISystemFile SaveInDirectory(ISystemDirectory directory) {
         ISystemFile outFile =
-            new FinFile(Path.Combine(directory.FullName, this.Name + ".png"));
+            new FinFile(
+                Path.Combine(directory.FullName,
+                             this.Name.ReplaceInvalidFilenameCharacters() +
+                             ".png"));
         using var writer = outFile.OpenWrite();
         this.Image.ExportToStream(writer, LocalImageFormat.PNG);
         return outFile;
@@ -219,7 +222,7 @@ namespace fin.model.impl {
       public ITexture? SpecularTexture { get; set; }
     }
 
-    private class FixedFunctionMaterialImpl 
+    private class FixedFunctionMaterialImpl
         : BMaterialImpl, IFixedFunctionMaterial {
       private readonly List<ITexture> textures_ = new();
 

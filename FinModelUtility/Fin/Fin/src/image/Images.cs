@@ -4,6 +4,7 @@ using fin.util.asserts;
 using System;
 using System.Drawing;
 using System.IO;
+using System.Text;
 
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
@@ -38,7 +39,7 @@ namespace fin.image {
     }
 
 
-    public static readonly Configuration ImageSharpConfig;
+    public static Configuration ImageSharpConfig { get; }
 
     static FinImage() {
       ImageSharpConfig = Configuration.Default.Clone();
@@ -52,7 +53,9 @@ namespace fin.image {
     }
 
     public static async Task<IImage> FromStreamAsync(Stream stream) {
-      var image = Image.Load(ImageSharpConfig, stream);
+      var decoderOptions =
+          new DecoderOptions { Configuration = ImageSharpConfig };
+      var image = Image.Load(decoderOptions, stream);
 
       var pixelFormat = image.GetType().GenericTypeArguments[0];
       if (pixelFormat == typeof(Rgba32)) {

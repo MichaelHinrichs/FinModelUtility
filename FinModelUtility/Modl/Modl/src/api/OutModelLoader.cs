@@ -159,7 +159,7 @@ namespace modl.api {
                 finModel.MaterialManager.AddFixedFunctionMaterial();
             finMaterial.Name = texture2 == null
                 ? texture1.Name
-                : $"{texture1.Name} / {texture2.Name}";
+                : $"{texture1.Name}/{texture2.Name}";
 
             finMaterial.SetTextureSource(0, Asserts.CastNonnull(texture1));
             finMaterial.SetTextureSource(1, Asserts.CastNonnull(texture2));

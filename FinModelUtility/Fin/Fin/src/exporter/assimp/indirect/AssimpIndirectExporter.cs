@@ -84,15 +84,17 @@ namespace fin.exporter.assimp.indirect {
       var finMaterials = model.MaterialManager.All;
       for (var i = 0; i < finMaterials.Count; ++i) {
         var finMaterial = finMaterials[i];
-        var materialName = finMaterial.Name ?? $"material{i}";
-        
+        var materialName =
+            finMaterial.Name?.ReplaceInvalidFilenameCharacters() ??
+            $"material{i}";
+
         var shaderSource = finMaterial.ToShaderSource(model, false);
         var vertexShaderFile = (ISystemFile) new FinFile(
             Path.Combine(outputDirectory.FullName,
-                         $"{materialName}_vertex_shader.glsl"));
+                         $"{materialName}.vertex.glsl"));
         var fragmentShaderFile = (ISystemFile) new FinFile(
             Path.Combine(outputDirectory.FullName,
-                         $"{materialName}_fragment_shader.glsl"));
+                         $"{materialName}.fragment.glsl"));
         vertexShaderFile.WriteAllText(shaderSource.VertexShaderSource);
         fragmentShaderFile.WriteAllText(shaderSource.FragmentShaderSource);
       }
