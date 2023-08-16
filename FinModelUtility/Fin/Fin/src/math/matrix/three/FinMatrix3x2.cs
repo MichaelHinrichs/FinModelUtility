@@ -91,7 +91,8 @@ namespace fin.math.matrix.three {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static int GetIndex_(int row, int column) => 4 * row + column;
+    private static int GetIndex_(int row, int column)
+      => COLUMN_COUNT * row + column;
 
 
     // Addition

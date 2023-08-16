@@ -24,6 +24,7 @@ namespace fin.math.matrix {
     TMutable MultiplyInPlace(TReadOnly other);
     TMutable MultiplyInPlace(TImpl other);
     TMutable MultiplyInPlace(float other);
+
     TMutable InvertInPlace();
   }
 
@@ -56,6 +57,7 @@ namespace fin.math.matrix {
     TMutable CloneAndInvert();
     void InvertIntoBuffer(TMutable buffer);
 
+    
     void CopyTranslationInto(out TPosition dst);
     void CopyRotationInto(out TRotation dst);
     void CopyScaleInto(out TScale dst);

@@ -1,64 +1,66 @@
 ﻿using fin.math.floats;
-using fin.math.matrix.four;
 using fin.util.asserts;
 
 using NUnit.Framework;
 
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
-namespace fin.math {
-  public class MatrixTests {
+namespace fin.math.matrix.four {
+  public class Matrix4x4Tests {
     [Test]
     public void TestFloatArrayConstructor() {
-      var values = new float[16];
-      for (var r = 0; r < 4; ++r) {
-        for (var c = 0; c < 4; ++c) {
-          values[4 * r + c] = 4 * r + c;
+      var values = new float[FinMatrix4x4.CELL_COUNT];
+      for (var r = 0; r < FinMatrix4x4.ROW_COUNT; ++r) {
+        for (var c = 0; c < FinMatrix4x4.COLUMN_COUNT; ++c) {
+          values[FinMatrix4x4.COLUMN_COUNT * r + c] =
+              FinMatrix4x4.COLUMN_COUNT * r + c;
         }
       }
 
       var mat = new FinMatrix4x4(values);
 
-      for (var r = 0; r < 4; ++r) {
-        for (var c = 0; c < 4; ++c) {
-          Assert.AreEqual(4 * r + c, mat[r, c]);
+      for (var r = 0; r < FinMatrix4x4.ROW_COUNT; ++r) {
+        for (var c = 0; c < FinMatrix4x4.COLUMN_COUNT; ++c) {
+          Assert.AreEqual(FinMatrix4x4.COLUMN_COUNT * r + c, mat[r, c]);
         }
       }
     }
 
     [Test]
     public void TestDoubleArrayConstructor() {
-      var values = new double[16];
-      for (var r = 0; r < 4; ++r) {
-        for (var c = 0; c < 4; ++c) {
-          values[4 * r + c] = 4 * r + c;
+      var values = new double[FinMatrix4x4.CELL_COUNT];
+      for (var r = 0; r < FinMatrix4x4.ROW_COUNT; ++r) {
+        for (var c = 0; c < FinMatrix4x4.COLUMN_COUNT; ++c) {
+          values[FinMatrix4x4.COLUMN_COUNT * r + c] =
+              FinMatrix4x4.COLUMN_COUNT * r + c;
         }
       }
 
       var mat = new FinMatrix4x4(values);
 
-      for (var r = 0; r < 4; ++r) {
-        for (var c = 0; c < 4; ++c) {
-          Assert.AreEqual(4 * r + c, mat[r, c]);
+      for (var r = 0; r < FinMatrix4x4.ROW_COUNT; ++r) {
+        for (var c = 0; c < FinMatrix4x4.COLUMN_COUNT; ++c) {
+          Assert.AreEqual(FinMatrix4x4.COLUMN_COUNT * r + c, mat[r, c]);
         }
       }
     }
 
     [Test]
     public void TestCopyConstructor() {
-      var values = new float[16];
-      for (var r = 0; r < 4; ++r) {
-        for (var c = 0; c < 4; ++c) {
-          values[4 * r + c] = 4 * r + c;
+      var values = new float[FinMatrix4x4.CELL_COUNT];
+      for (var r = 0; r < FinMatrix4x4.ROW_COUNT; ++r) {
+        for (var c = 0; c < FinMatrix4x4.COLUMN_COUNT; ++c) {
+          values[FinMatrix4x4.COLUMN_COUNT * r + c] =
+              FinMatrix4x4.COLUMN_COUNT * r + c;
         }
       }
 
       var first = new FinMatrix4x4(values);
       var second = new FinMatrix4x4(first);
 
-      for (var r = 0; r < 4; ++r) {
-        for (var c = 0; c < 4; ++c) {
-          Assert.AreEqual(4 * r + c, second[r, c]);
+      for (var r = 0; r < FinMatrix4x4.ROW_COUNT; ++r) {
+        for (var c = 0; c < FinMatrix4x4.COLUMN_COUNT; ++c) {
+          Assert.AreEqual(FinMatrix4x4.COLUMN_COUNT * r + c, second[r, c]);
         }
       }
     }
@@ -201,9 +203,9 @@ namespace fin.math {
       expectedMatrix[3, 2] = -11f / 179;
       expectedMatrix[3, 3] = 65f / 179;
 
-      for (var r = 0; r < 4; r++) {
-        for (var c = 0; c < 4; c++) {
-          Assert.AreEqual(expectedMatrix[r, c], actualMatrix[r, c], .0001f);
+      for (var r = 0; r < FinMatrix4x4.ROW_COUNT; r++) {
+        for (var c = 0; c < FinMatrix4x4.COLUMN_COUNT; c++) {
+          Asserts.IsRoughly(expectedMatrix[r, c], actualMatrix[r, c]);
         }
       }
     }
@@ -233,8 +235,8 @@ namespace fin.math {
       var actualMatrix = inputMatrix.CloneAndMultiply(inverseMatrix);
       var expectedMatrix = FinMatrix4x4.IDENTITY;
 
-      for (var r = 0; r < 4; r++) {
-        for (var c = 0; c < 4; c++) {
+      for (var r = 0; r < FinMatrix4x4.ROW_COUNT; r++) {
+        for (var c = 0; c < FinMatrix4x4.COLUMN_COUNT; c++) {
           Asserts.IsRoughly(expectedMatrix[r, c], actualMatrix[r, c]);
         }
       }
@@ -274,7 +276,7 @@ namespace fin.math {
     private IReadOnlyFinMatrix4x4 GetCloseToIdentityMatrix_() {
       var closeToIdentityMatrix = new FinMatrix4x4().SetZero();
 
-      var error = .00001f;
+      var error = FloatsExtensions.ROUGHLY_EQUAL_ERROR * .1f;
       closeToIdentityMatrix[0, 0] = 1 + error;
       closeToIdentityMatrix[0, 1] = error;
       closeToIdentityMatrix[0, 2] = -error;
@@ -298,7 +300,7 @@ namespace fin.math {
     private IReadOnlyFinMatrix4x4 GetDifferentFromIdentityMatrix_() {
       var closeToIdentityMatrix = new FinMatrix4x4().SetZero();
 
-      var error = FloatsExtensions.ROUGHLY_EQUAL_ERROR;
+      var error = FloatsExtensions.ROUGHLY_EQUAL_ERROR * 10;
       closeToIdentityMatrix[0, 0] = 1 + error;
       closeToIdentityMatrix[0, 1] = error;
       closeToIdentityMatrix[0, 2] = -error;
