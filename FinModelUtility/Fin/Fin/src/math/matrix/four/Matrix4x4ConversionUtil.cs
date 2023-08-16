@@ -4,7 +4,7 @@ namespace fin.math.matrix.four {
   using AssimpMatrix = Matrix4x4;
   using SystemMatrix = System.Numerics.Matrix4x4;
 
-  public static class MatrixConversionUtil {
+  public static class Matrix4x4ConversionUtil {
     public static void CopySystemIntoFin(
         SystemMatrix other,
         IFinMatrix4x4 finMatrix) {

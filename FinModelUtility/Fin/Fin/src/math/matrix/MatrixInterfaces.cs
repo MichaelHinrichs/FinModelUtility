@@ -1,6 +1,9 @@
 ﻿using System;
 
 namespace fin.math.matrix {
+  // The type parameters on these matrices are kind of janky, but they allow us
+  // to have consistent interfaces between 3x3 and 4x4 matrices.
+
   public interface IFinMatrix<TMutable, TReadOnly, TImpl,
                               TPosition, TRotation, TScale>
       : IReadOnlyFinMatrix<TMutable, TReadOnly, TImpl,
@@ -22,7 +25,6 @@ namespace fin.math.matrix {
     TMutable MultiplyInPlace(TImpl other);
     TMutable MultiplyInPlace(float other);
     TMutable InvertInPlace();
-    TMutable TransposeInPlace();
   }
 
   public interface IReadOnlyFinMatrix<TMutable, TReadOnly, TImpl,
@@ -53,9 +55,6 @@ namespace fin.math.matrix {
 
     TMutable CloneAndInvert();
     void InvertIntoBuffer(TMutable buffer);
-
-    TMutable CloneAndTranspose();
-    void TransposeIntoBuffer(TMutable buffer);
 
     void CopyTranslationInto(out TPosition dst);
     void CopyRotationInto(out TRotation dst);

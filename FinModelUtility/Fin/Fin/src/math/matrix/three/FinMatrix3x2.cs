@@ -4,54 +4,53 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 
 using fin.math.floats;
-using fin.model;
+using fin.math.rotations;
 using fin.util.asserts;
 using fin.util.hash;
 
-namespace fin.math.matrix.four {
-  using SystemMatrix = Matrix4x4;
+namespace fin.math.matrix.three {
+  using SystemMatrix = Matrix3x2;
 
-
-  public sealed class FinMatrix4x4 : IFinMatrix4x4 {
-    public const int ROW_COUNT = 4;
-    public const int COLUMN_COUNT = 4;
+  public sealed class FinMatrix3x2 : IFinMatrix3x2 {
+    public const int ROW_COUNT = 3;
+    public const int COLUMN_COUNT = 2;
     public const int CELL_COUNT = ROW_COUNT * COLUMN_COUNT;
 
     internal SystemMatrix impl_;
     public SystemMatrix Impl => this.impl_;
 
-    public static IReadOnlyFinMatrix4x4 IDENTITY =
-        new FinMatrix4x4().SetIdentity();
+    public static IReadOnlyFinMatrix3x2 IDENTITY =
+        new FinMatrix3x2().SetIdentity();
 
-    public FinMatrix4x4() {
+    public FinMatrix3x2() {
       this.SetZero();
     }
 
-    public FinMatrix4x4(IReadOnlyList<float> data) {
+    public FinMatrix3x2(IReadOnlyList<float> data) {
       Asserts.Equal(CELL_COUNT, data.Count);
       for (var i = 0; i < CELL_COUNT; ++i) {
         this[i] = data[i];
       }
     }
 
-    public FinMatrix4x4(IReadOnlyList<double> data) {
+    public FinMatrix3x2(IReadOnlyList<double> data) {
       Asserts.Equal(CELL_COUNT, data.Count);
       for (var i = 0; i < CELL_COUNT; ++i) {
         this[i] = (float) data[i];
       }
     }
 
-    public FinMatrix4x4(IReadOnlyFinMatrix4x4 other) => this.CopyFrom(other);
-    public FinMatrix4x4(SystemMatrix other) => this.CopyFrom(other);
+    public FinMatrix3x2(IReadOnlyFinMatrix3x2 other) => this.CopyFrom(other);
+    public FinMatrix3x2(SystemMatrix other) => this.CopyFrom(other);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IFinMatrix4x4 Clone() => new FinMatrix4x4(this);
+    public IFinMatrix3x2 Clone() => new FinMatrix3x2(this);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void CopyFrom(IReadOnlyFinMatrix4x4 other) {
+    public void CopyFrom(IReadOnlyFinMatrix3x2 other) {
       Asserts.Different(this, other, "Copying into same matrix!");
 
-      if (other is FinMatrix4x4 otherImpl) {
+      if (other is FinMatrix3x2 otherImpl) {
         this.CopyFrom(otherImpl.Impl);
       } else {
         for (var r = 0; r < ROW_COUNT; ++r) {
@@ -66,13 +65,13 @@ namespace fin.math.matrix.four {
     public void CopyFrom(SystemMatrix other) => impl_ = other;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IFinMatrix4x4 SetIdentity() {
+    public IFinMatrix3x2 SetIdentity() {
       impl_ = SystemMatrix.Identity;
       return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IFinMatrix4x4 SetZero() {
+    public IFinMatrix3x2 SetZero() {
       impl_ = new SystemMatrix();
       return this;
     }
@@ -86,9 +85,9 @@ namespace fin.math.matrix.four {
 
     public float this[int row, int column] {
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      get => this[FinMatrix4x4.GetIndex_(row, column)];
+      get => this[FinMatrix3x2.GetIndex_(row, column)];
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      set => this[FinMatrix4x4.GetIndex_(row, column)] = value;
+      set => this[FinMatrix3x2.GetIndex_(row, column)] = value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -97,21 +96,21 @@ namespace fin.math.matrix.four {
 
     // Addition
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IFinMatrix4x4 CloneAndAdd(IReadOnlyFinMatrix4x4 other)
+    public IFinMatrix3x2 CloneAndAdd(IReadOnlyFinMatrix3x2 other)
       => this.Clone().AddInPlace(other);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IFinMatrix4x4 AddInPlace(IReadOnlyFinMatrix4x4 other) {
+    public IFinMatrix3x2 AddInPlace(IReadOnlyFinMatrix3x2 other) {
       this.AddIntoBuffer(other, this);
       return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddIntoBuffer(
-        IReadOnlyFinMatrix4x4 other,
-        IFinMatrix4x4 buffer) {
-      if (other is FinMatrix4x4 otherImpl &&
-          buffer is FinMatrix4x4 bufferImpl) {
+        IReadOnlyFinMatrix3x2 other,
+        IFinMatrix3x2 buffer) {
+      if (other is FinMatrix3x2 otherImpl &&
+          buffer is FinMatrix3x2 bufferImpl) {
         bufferImpl.impl_ = SystemMatrix.Add(impl_, otherImpl.impl_);
         return;
       }
@@ -126,21 +125,21 @@ namespace fin.math.matrix.four {
 
     // Matrix Multiplication
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IFinMatrix4x4 CloneAndMultiply(IReadOnlyFinMatrix4x4 other)
+    public IFinMatrix3x2 CloneAndMultiply(IReadOnlyFinMatrix3x2 other)
       => this.Clone().MultiplyInPlace(other);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IFinMatrix4x4 MultiplyInPlace(IReadOnlyFinMatrix4x4 other) {
+    public IFinMatrix3x2 MultiplyInPlace(IReadOnlyFinMatrix3x2 other) {
       this.MultiplyIntoBuffer(other, this);
       return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void MultiplyIntoBuffer(
-        IReadOnlyFinMatrix4x4 other,
-        IFinMatrix4x4 buffer) {
-      if (other is FinMatrix4x4 otherImpl &&
-          buffer is FinMatrix4x4 bufferImpl) {
+        IReadOnlyFinMatrix3x2 other,
+        IFinMatrix3x2 buffer) {
+      if (other is FinMatrix3x2 otherImpl &&
+          buffer is FinMatrix3x2 bufferImpl) {
         bufferImpl.impl_ = SystemMatrix.Multiply(otherImpl.impl_, impl_);
         return;
       }
@@ -160,11 +159,11 @@ namespace fin.math.matrix.four {
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IFinMatrix4x4 CloneAndMultiply(SystemMatrix other)
+    public IFinMatrix3x2 CloneAndMultiply(SystemMatrix other)
       => this.Clone().MultiplyInPlace(other);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IFinMatrix4x4 MultiplyInPlace(SystemMatrix other) {
+    public IFinMatrix3x2 MultiplyInPlace(SystemMatrix other) {
       this.MultiplyIntoBuffer(other, this);
       return this;
     }
@@ -172,8 +171,8 @@ namespace fin.math.matrix.four {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void MultiplyIntoBuffer(
         SystemMatrix other,
-        IFinMatrix4x4 buffer) {
-      if (buffer is FinMatrix4x4 bufferImpl) {
+        IFinMatrix3x2 buffer) {
+      if (buffer is FinMatrix3x2 bufferImpl) {
         bufferImpl.impl_ = SystemMatrix.Multiply(other, impl_);
         return;
       }
@@ -193,18 +192,18 @@ namespace fin.math.matrix.four {
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IFinMatrix4x4 CloneAndMultiply(float other)
+    public IFinMatrix3x2 CloneAndMultiply(float other)
       => this.Clone().MultiplyInPlace(other);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IFinMatrix4x4 MultiplyInPlace(float other) {
+    public IFinMatrix3x2 MultiplyInPlace(float other) {
       this.MultiplyIntoBuffer(other, this);
       return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void MultiplyIntoBuffer(float other, IFinMatrix4x4 buffer) {
-      if (buffer is FinMatrix4x4 bufferImpl) {
+    public void MultiplyIntoBuffer(float other, IFinMatrix3x2 buffer) {
+      if (buffer is FinMatrix3x2 bufferImpl) {
         bufferImpl.impl_ = SystemMatrix.Multiply(impl_, other);
         return;
       }
@@ -217,80 +216,49 @@ namespace fin.math.matrix.four {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IFinMatrix4x4 CloneAndInvert()
+    public IFinMatrix3x2 CloneAndInvert()
       => this.Clone().InvertInPlace();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IFinMatrix4x4 InvertInPlace() {
+    public IFinMatrix3x2 InvertInPlace() {
       this.InvertIntoBuffer(this);
       return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void InvertIntoBuffer(IFinMatrix4x4 buffer) {
-      if (buffer is FinMatrix4x4 bufferImpl) {
+    public void InvertIntoBuffer(IFinMatrix3x2 buffer) {
+      if (buffer is FinMatrix3x2 bufferImpl) {
         SystemMatrix.Invert(impl_, out bufferImpl.impl_);
         return;
       }
 
       SystemMatrix.Invert(impl_, out var invertedSystemMatrix);
-      Matrix4x4ConversionUtil.CopySystemIntoFin(invertedSystemMatrix, buffer);
-    }
-
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IFinMatrix4x4 CloneAndTranspose()
-      => this.Clone().TransposeInPlace();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IFinMatrix4x4 TransposeInPlace() {
-      impl_ = Matrix4x4.Transpose(impl_);
-      return this;
+      Matrix3x2ConversionUtil.CopySystemIntoFin(invertedSystemMatrix, buffer);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void TransposeIntoBuffer(IFinMatrix4x4 buffer) {
-      Asserts.Different(this, buffer);
-      for (var r = 0; r < ROW_COUNT; ++r) {
-        for (var c = 0; c < COLUMN_COUNT; ++c) {
-          buffer[r, c] = this[c, r];
-        }
-      }
-    }
-
-    // Shamelessly copied from https://math.stackexchange.com/a/1463487
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void CopyTranslationInto(out Position dst) {
-      dst = default;
-      this.CopyTranslationInto(out Unsafe.As<Position, Vector3>(ref dst));
-    }
+    public void CopyTranslationInto(out Vector2 dst) => dst = impl_.Translation;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void CopyTranslationInto(out Vector3 dst) => dst = impl_.Translation;
+    public void CopyRotationInto(out float dst)
+      => dst = FinTrig.Atan2(this.impl_.M12, this.impl_.M11);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void CopyRotationInto(out Quaternion dst) {
-      this.Decompose(out _, out dst, out _);
-      dst = -dst;
-    }
+    public void CopyScaleInto(out Vector2 dst)
+      => dst = new Vector2(
+          MathF.Sqrt(this.impl_.M11 * this.impl_.M11 +
+                     this.impl_.M12 * this.impl_.M12),
+          MathF.Sqrt(this.impl_.M21 * this.impl_.M21 +
+                     this.impl_.M22 * this.impl_.M22));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void CopyScaleInto(out Scale dst) {
-      dst = default;
-      this.CopyScaleInto(out Unsafe.As<Scale, Vector3>(ref dst));
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void CopyScaleInto(out Vector3 dst)
-      => this.Decompose(out _, out _, out dst);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Decompose(out Vector3 translation,
-                          out Quaternion rotation,
-                          out Vector3 scale) {
-      Asserts.True(
-          Matrix4x4.Decompose(impl_, out scale, out rotation, out translation),
-          "Failed to decompose matrix!");
+    public void Decompose(out Vector2 translation,
+                          out float rotation,
+                          out Vector2 scale) {
+      // Stolen from https://stackoverflow.com/questions/45159314/decompose-2d-transformation-matrix
+      this.CopyTranslationInto(out translation);
+      this.CopyRotationInto(out rotation);
+      this.CopyScaleInto(out scale);
     }
 
 
@@ -299,7 +267,7 @@ namespace fin.math.matrix.four {
       => ReferenceEquals(this, obj) || this.Equals(obj);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(IReadOnlyFinMatrix4x4? other) {
+    public bool Equals(IReadOnlyFinMatrix3x2? other) {
       if (other == null) {
         return false;
       }

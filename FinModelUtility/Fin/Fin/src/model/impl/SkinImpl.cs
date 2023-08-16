@@ -6,7 +6,7 @@ using System.Linq;
 using System.Numerics;
 
 using fin.data;
-using fin.math;
+using fin.math.matrix.four;
 using fin.util.enumerables;
 
 namespace fin.model.impl {

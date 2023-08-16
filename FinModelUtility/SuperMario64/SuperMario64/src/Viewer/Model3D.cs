@@ -1,7 +1,7 @@
 ﻿using f3dzex2.image;
 using f3dzex2.model;
 
-using fin.math;
+using fin.math.matrix.four;
 
 using sm64.memory;
 using sm64.Scripts;
