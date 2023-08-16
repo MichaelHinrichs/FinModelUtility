@@ -12,7 +12,7 @@ namespace fin.ui.rendering.gl.material {
       if (DebugFlags.ENABLE_FIXED_FUNCTION_SHADER
           && !DebugFlags.ENABLE_WEIGHT_COLORS
           && material is IFixedFunctionMaterial fixedFunctionMaterial) {
-        return new GlFixedFunctionMaterialShaderV2(
+        return new GlFixedFunctionMaterialShader(
             model,
             fixedFunctionMaterial,
             boneTransformManager,
@@ -20,20 +20,20 @@ namespace fin.ui.rendering.gl.material {
       }
 
       if (material is IStandardMaterial standardMaterial) {
-        return new GlStandardMaterialShaderV2(model,
+        return new GlStandardMaterialShader(model,
                                               standardMaterial,
                                               boneTransformManager,
                                               lighting);
       }
 
       if (material != null) {
-        return new GlSimpleMaterialShaderV2(model,
+        return new GlSimpleMaterialShader(model,
                                             material,
                                             boneTransformManager,
                                             lighting);
       }
 
-      return new GlNullMaterialShaderV2(model, boneTransformManager, lighting);
+      return new GlNullMaterialShader(model, boneTransformManager, lighting);
     }
   }
 }

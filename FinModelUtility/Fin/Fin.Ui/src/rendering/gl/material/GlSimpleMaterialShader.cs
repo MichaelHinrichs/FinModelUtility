@@ -4,10 +4,10 @@ using fin.model.util;
 
 
 namespace fin.ui.rendering.gl.material {
-  public class GlSimpleMaterialShaderV2 : BGlMaterialShader<IReadOnlyMaterial> {
+  public class GlSimpleMaterialShader : BGlMaterialShader<IReadOnlyMaterial> {
     private readonly GlTexture primaryGlTexture_;
 
-    public GlSimpleMaterialShaderV2(
+    public GlSimpleMaterialShader(
         IModel model,
         IReadOnlyMaterial material,
         IBoneTransformManager? boneTransformManager,

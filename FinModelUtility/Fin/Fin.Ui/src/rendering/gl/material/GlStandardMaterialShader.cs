@@ -5,14 +5,14 @@ using OpenTK.Graphics.OpenGL;
 
 
 namespace fin.ui.rendering.gl.material {
-  public class GlStandardMaterialShaderV2
+  public class GlStandardMaterialShader
       : BGlMaterialShader<IStandardMaterial> {
     private GlTexture diffuseTexture_;
     private GlTexture normalTexture_;
     private GlTexture ambientOcclusionTexture_;
     private GlTexture emissiveTexture_;
 
-    public GlStandardMaterialShaderV2(
+    public GlStandardMaterialShader(
         IModel model,
         IStandardMaterial standardMaterial,
         IBoneTransformManager? boneTransformManager,

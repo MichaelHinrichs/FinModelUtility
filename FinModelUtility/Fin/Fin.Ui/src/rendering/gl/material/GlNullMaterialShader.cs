@@ -4,8 +4,8 @@ using fin.shaders.glsl;
 
 
 namespace fin.ui.rendering.gl.material {
-  public class GlNullMaterialShaderV2 : BGlMaterialShader<IReadOnlyMaterial?> {
-    public GlNullMaterialShaderV2(
+  public class GlNullMaterialShader : BGlMaterialShader<IReadOnlyMaterial?> {
+    public GlNullMaterialShader(
         IModel model,
         IBoneTransformManager? boneTransformManager,
         ILighting? lighting) :

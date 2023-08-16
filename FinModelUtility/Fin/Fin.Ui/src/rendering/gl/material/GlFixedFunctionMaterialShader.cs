@@ -5,14 +5,14 @@ using OpenTK.Graphics.OpenGL;
 
 
 namespace fin.ui.rendering.gl.material {
-  public class GlFixedFunctionMaterialShaderV2
+  public class GlFixedFunctionMaterialShader
       : BGlMaterialShader<IReadOnlyFixedFunctionMaterial> {
     private int[] textureLocations_ =
         new int[MaterialConstants.MAX_TEXTURES];
 
     private IList<GlTexture> textures_;
 
-    public GlFixedFunctionMaterialShaderV2(
+    public GlFixedFunctionMaterialShader(
         IModel model,
         IReadOnlyFixedFunctionMaterial fixedFunctionMaterial,
         IBoneTransformManager? boneTransformManager,
