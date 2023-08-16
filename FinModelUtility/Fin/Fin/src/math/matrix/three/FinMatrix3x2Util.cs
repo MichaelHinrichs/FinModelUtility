@@ -38,17 +38,28 @@ namespace fin.math.matrix.three {
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IFinMatrix3x2 FromTrs(Vector2? translation,
-                                        float? rotation,
-                                        Vector2? scale)
-      => FromTrs(translation, rotation, scale, new FinMatrix3x2());
+    public static IFinMatrix3x2 FromSkewXRadians(float skewXRadians)
+      => new FinMatrix3x2(SystemMatrix3x2Util.FromSkewXRadians(skewXRadians));
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IFinMatrix3x2 FromTrs(Vector2? translation,
+    public static IFinMatrix3x2 FromTrss(Vector2? translation,
+                                         float? rotation,
+                                         Vector2? scale,
+                                         float? skewXRadians)
+      => FinMatrix3x2Util.FromTrss(translation, rotation, scale, skewXRadians, new FinMatrix3x2());
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IFinMatrix3x2 FromTrss(Vector2? translation,
                                         float? rotation,
                                         Vector2? scale,
+                                        float? skewXRadians,
                                         IFinMatrix3x2 dst) {
-      dst.CopyFrom(SystemMatrix3x2Util.FromTrs(translation, rotation, scale));
+      dst.CopyFrom(
+          SystemMatrix3x2Util.FromTrss(translation,
+                                       rotation,
+                                       scale,
+                                       skewXRadians));
       return dst;
     }
   }

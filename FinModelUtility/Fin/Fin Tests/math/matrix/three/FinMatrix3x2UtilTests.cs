@@ -44,19 +44,22 @@ namespace fin.math.matrix.three {
 
 
     [Test]
-    public void TestTrs() {
+    public void TestTrss() {
       var expectedTranslation = new Vector2(2, 3);
       var expectedRotation = 1.23f;
       var expectedScale = new Vector2(3, 4);
+      var expectedSkew = 1.56f;
 
-      var trs = FinMatrix3x2Util.FromTrs(
+      var trs = FinMatrix3x2Util.FromTrss(
           expectedTranslation,
           expectedRotation,
-          expectedScale);
+          expectedScale,
+          expectedSkew);
 
       trs.CopyTranslationInto(out var actualTranslation);
       trs.CopyRotationInto(out var actualRotation);
       trs.CopyScaleInto(out var actualScale);
+      trs.CopySkewXRadiansInto(out var actualSkew);
 
       Assert.AreEqual(expectedTranslation, actualTranslation);
       
@@ -64,6 +67,8 @@ namespace fin.math.matrix.three {
 
       Asserts.IsRoughly(expectedScale.X, actualScale.X);
       Asserts.IsRoughly(expectedScale.Y, actualScale.Y);
+
+      Asserts.IsRoughly(expectedSkew, actualSkew);
     }
   }
 }

@@ -4,14 +4,10 @@ namespace fin.math.matrix {
   // The type parameters on these matrices are kind of janky, but they allow us
   // to have consistent interfaces between 3x3 and 4x4 matrices.
 
-  public interface IFinMatrix<TMutable, TReadOnly, TImpl,
-                              TPosition, TRotation, TScale>
-      : IReadOnlyFinMatrix<TMutable, TReadOnly, TImpl,
-          TPosition, TRotation, TScale>
-      where TMutable : IFinMatrix<TMutable, TReadOnly, TImpl,
-          TPosition, TRotation, TScale>, TReadOnly
-      where TReadOnly : IReadOnlyFinMatrix<TMutable, TReadOnly, TImpl,
-          TPosition, TRotation, TScale> {
+  public interface IFinMatrix<TMutable, TReadOnly, TImpl>
+      : IReadOnlyFinMatrix<TMutable, TReadOnly, TImpl>
+      where TMutable : IFinMatrix<TMutable, TReadOnly, TImpl>, TReadOnly
+      where TReadOnly : IReadOnlyFinMatrix<TMutable, TReadOnly, TImpl> {
     void CopyFrom(TReadOnly other);
     void CopyFrom(TImpl other);
 
@@ -28,13 +24,10 @@ namespace fin.math.matrix {
     TMutable InvertInPlace();
   }
 
-  public interface IReadOnlyFinMatrix<TMutable, TReadOnly, TImpl,
-                                      TPosition, TRotation, TScale>
+  public interface IReadOnlyFinMatrix<TMutable, TReadOnly, TImpl>
       : IEquatable<TReadOnly>
-      where TMutable : IFinMatrix<TMutable, TReadOnly, TImpl,
-          TPosition, TRotation, TScale>, TReadOnly
-      where TReadOnly : IReadOnlyFinMatrix<TMutable, TReadOnly, TImpl,
-          TPosition, TRotation, TScale> {
+      where TMutable : IFinMatrix<TMutable, TReadOnly, TImpl>, TReadOnly
+      where TReadOnly : IReadOnlyFinMatrix<TMutable, TReadOnly, TImpl> {
     TImpl Impl { get; }
 
     TMutable Clone();
@@ -56,14 +49,5 @@ namespace fin.math.matrix {
 
     TMutable CloneAndInvert();
     void InvertIntoBuffer(TMutable buffer);
-
-    
-    void CopyTranslationInto(out TPosition dst);
-    void CopyRotationInto(out TRotation dst);
-    void CopyScaleInto(out TScale dst);
-
-    void Decompose(out TPosition translation,
-                   out TRotation rotation,
-                   out TScale scale);
   }
 }

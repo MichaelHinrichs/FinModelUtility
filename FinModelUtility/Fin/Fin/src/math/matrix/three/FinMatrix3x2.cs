@@ -240,26 +240,40 @@ namespace fin.math.matrix.three {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void CopyTranslationInto(out Vector2 dst) => dst = impl_.Translation;
 
+    // Stolen from https://stackoverflow.com/a/32125700
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void CopyRotationInto(out float dst)
       => dst = FinTrig.Atan2(this.impl_.M12, this.impl_.M11);
 
+    // Stolen from https://stackoverflow.com/a/32125700
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void CopyScaleInto(out Vector2 dst)
-      => dst = new Vector2(
-          MathF.Sqrt(this.impl_.M11 * this.impl_.M11 +
-                     this.impl_.M12 * this.impl_.M12),
-          MathF.Sqrt(this.impl_.M21 * this.impl_.M21 +
-                     this.impl_.M22 * this.impl_.M22));
+    public void CopyScaleInto(out Vector2 dst) {
+      var scaleX = MathF.Sqrt(this.impl_.M11 * this.impl_.M11 +
+                              this.impl_.M12 * this.impl_.M12);
+      var scaleY =
+              (this.impl_.M11 * this.impl_.M22 -
+               this.impl_.M21 * this.impl_.M12) / scaleX;
+      dst = new Vector2(scaleX, scaleY);
+    }
+
+    // Stolen from https://stackoverflow.com/a/32125700
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void CopySkewXRadiansInto(out float dst) 
+      => dst = MathF.Atan2(this.impl_.M11 * this.impl_.M21 +
+                           this.impl_.M12 * this.impl_.M22,
+                           this.impl_.M11 * this.impl_.M11 +
+                           this.impl_.M12 * this.impl_.M12);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Decompose(out Vector2 translation,
                           out float rotation,
-                          out Vector2 scale) {
-      // Stolen from https://stackoverflow.com/questions/45159314/decompose-2d-transformation-matrix
+                          out Vector2 scale,
+                          out float skewXRadians) {
+      // Stolen from https://stackoverflow.com/a/32125700
       this.CopyTranslationInto(out translation);
       this.CopyRotationInto(out rotation);
       this.CopyScaleInto(out scale);
+      this.CopySkewXRadiansInto(out skewXRadians);
     }
 
 

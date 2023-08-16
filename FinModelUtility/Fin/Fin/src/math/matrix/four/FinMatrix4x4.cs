@@ -263,11 +263,8 @@ namespace fin.math.matrix.four {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void CopyTranslationInto(out Position dst) {
       dst = default;
-      this.CopyTranslationInto(out Unsafe.As<Position, Vector3>(ref dst));
+      Unsafe.As<Position, Vector3>(ref dst) = this.impl_.Translation;
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void CopyTranslationInto(out Vector3 dst) => dst = impl_.Translation;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void CopyRotationInto(out Quaternion dst) {
@@ -276,21 +273,21 @@ namespace fin.math.matrix.four {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void CopyScaleInto(out Scale dst) {
-      dst = default;
-      this.CopyScaleInto(out Unsafe.As<Scale, Vector3>(ref dst));
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void CopyScaleInto(out Vector3 dst)
+    public void CopyScaleInto(out Scale dst)
       => this.Decompose(out _, out _, out dst);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Decompose(out Vector3 translation,
+    public void Decompose(out Position translation,
                           out Quaternion rotation,
-                          out Vector3 scale) {
+                          out Scale scale) {
+      translation = default;
+      scale = default;
       Asserts.True(
-          Matrix4x4.Decompose(impl_, out scale, out rotation, out translation),
+          Matrix4x4.Decompose(
+              impl_,
+              out Unsafe.As<Scale, Vector3>(ref scale),
+              out rotation,
+              out Unsafe.As<Position, Vector3>(ref translation)),
           "Failed to decompose matrix!");
     }
 
