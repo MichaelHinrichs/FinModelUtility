@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using fin.util.asserts;
+
 using Microsoft.Extensions.Logging;
 
 namespace fin.log {
@@ -28,9 +30,7 @@ namespace fin.log {
                            Logging.verboseExceptions_.Contains(logLevel)));
 
     private static readonly IList<LogLevel> verboseExceptions_ = new[] {
-        LogLevel.Critical,
-        LogLevel.Error,
-        LogLevel.Warning,
+        LogLevel.Critical, LogLevel.Error, LogLevel.Warning,
     };
 
 
@@ -53,7 +53,7 @@ namespace fin.log {
       }
 
       public IDisposable BeginScope(string scope)
-        => this.impl_.BeginScope(scope);
+        => Asserts.CastNonnull(this.impl_.BeginScope(scope));
 
       public void LogInformation(string message)
         => this.impl_.LogInformation(message);
