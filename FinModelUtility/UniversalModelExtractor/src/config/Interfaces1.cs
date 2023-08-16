@@ -1,6 +1,5 @@
 ﻿using System.Text.RegularExpressions;
 
-
 namespace uni.config {
   public interface IExtractorConfig {
     IExtractorHeader Header { get; }

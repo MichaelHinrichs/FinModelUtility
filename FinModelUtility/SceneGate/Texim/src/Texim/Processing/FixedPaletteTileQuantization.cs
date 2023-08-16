@@ -20,19 +20,20 @@
 namespace Texim.Processing
 {
     using System;
+    using System.Drawing;
     using System.Linq;
-    using Texim.Colors;
-    using Texim.Palettes;
-    using Texim.Pixels;
+    using Colors;
+    using Palettes;
+    using Pixels;
 
     public class FixedPaletteTileQuantization : IQuantization
     {
         private readonly IPaletteCollection paletteCollection;
         private readonly Rgb[][] palettes;
-        private readonly System.Drawing.Size tileSize;
+        private readonly Size tileSize;
         private readonly int width;
 
-        public FixedPaletteTileQuantization(IPaletteCollection palettes, System.Drawing.Size tileSize, int width)
+        public FixedPaletteTileQuantization(IPaletteCollection palettes, Size tileSize, int width)
         {
             if (palettes == null)
                 throw new ArgumentNullException(nameof(palettes));

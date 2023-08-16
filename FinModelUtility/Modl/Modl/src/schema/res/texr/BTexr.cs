@@ -10,7 +10,6 @@ using fin.util.color;
 
 using schema.binary;
 
-
 namespace modl.schema.res.texr {
   public interface ITexr : IBinaryDeserializable {
     IImage Image { get; }

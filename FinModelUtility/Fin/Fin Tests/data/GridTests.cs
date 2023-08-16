@@ -2,7 +2,6 @@
 
 using NUnit.Framework;
 
-
 namespace fin.data {
   public class GridTests {
     [Test]

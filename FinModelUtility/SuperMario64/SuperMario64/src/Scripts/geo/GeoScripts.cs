@@ -1,7 +1,6 @@
 ﻿using fin.math;
 using fin.math.matrix;
 
-
 namespace sm64.Scripts {
   public class GeoScriptNode {
     public GeoScriptNode(GeoScriptNode? parent) {

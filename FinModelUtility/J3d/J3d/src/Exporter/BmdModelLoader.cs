@@ -2,15 +2,21 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
+
+using fin;
+using fin.io;
+using fin.log;
 using fin.math;
 using fin.math.matrix;
 using fin.model;
 using fin.model.impl;
-using fin.util.asserts;
-using fin.io;
-using fin.log;
 using fin.schema.matrix;
+using fin.util.asserts;
+using fin.util.enumerables;
+
 using gx;
+
 using j3d._3D_Formats;
 using j3d.GCN;
 using j3d.schema.bcx;
@@ -18,13 +24,8 @@ using j3d.schema.bmd.inf1;
 using j3d.schema.bmd.jnt1;
 using j3d.schema.bmd.mat3;
 using j3d.schema.bti;
-using System.Numerics;
-
-using fin;
-using fin.util.enumerables;
 
 using schema.binary;
-
 
 namespace j3d.exporter {
   using MkdsNode = MA.Node;

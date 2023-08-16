@@ -1,6 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
 
-
 namespace benchmarks {
   public class ReturningTuple {
     private const int n = 100000;

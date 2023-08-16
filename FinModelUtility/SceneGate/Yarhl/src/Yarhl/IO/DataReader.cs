@@ -26,7 +26,8 @@ namespace Yarhl.IO
     using System.Linq;
     using System.Reflection;
     using System.Text;
-    using Yarhl.IO.Serialization.Attributes;
+    using Serialization.Attributes;
+    using SerializableAttribute = Serialization.Attributes.SerializableAttribute;
 
     /// <summary>
     /// Binary DataReader for DataStreams.
@@ -422,7 +423,7 @@ namespace Yarhl.IO
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 
-            bool serializable = Attribute.IsDefined(type, typeof(Serialization.Attributes.SerializableAttribute));
+            bool serializable = Attribute.IsDefined(type, typeof(SerializableAttribute));
             if (serializable)
                 return ReadUsingReflection(type);
 

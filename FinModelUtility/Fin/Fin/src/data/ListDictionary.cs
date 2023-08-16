@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 
-
 namespace fin.data {
   public class ListDictionary<TKey, TValue>
       : IEnumerable<KeyValuePair<TKey, IList<TValue>>> {

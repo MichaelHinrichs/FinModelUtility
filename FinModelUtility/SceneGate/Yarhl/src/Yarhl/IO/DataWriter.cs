@@ -25,7 +25,8 @@ namespace Yarhl.IO
     using System.Linq;
     using System.Reflection;
     using System.Text;
-    using Yarhl.IO.Serialization.Attributes;
+    using Serialization.Attributes;
+    using SerializableAttribute = Serialization.Attributes.SerializableAttribute;
 
     /// <summary>
     /// Binary writer for DataStreams.
@@ -437,7 +438,7 @@ namespace Yarhl.IO
 
             val = Convert.ChangeType(val, type, CultureInfo.InvariantCulture);
 
-            bool serializable = Attribute.IsDefined(type, typeof(Serialization.Attributes.SerializableAttribute));
+            bool serializable = Attribute.IsDefined(type, typeof(SerializableAttribute));
             if (serializable) {
                 WriteUsingReflection(type, val);
             } else {

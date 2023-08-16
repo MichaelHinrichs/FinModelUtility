@@ -1,6 +1,5 @@
 ﻿using fin.io;
 
-
 namespace sm64.api {
   public class Sm64LevelFileBundle : BSm64FileBundle, IUiFile {
     public Sm64LevelFileBundle(

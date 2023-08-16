@@ -1,13 +1,12 @@
 ﻿using ast.api;
 
-using j3d.exporter;
-
 using fin.io;
 using fin.io.bundles;
 using fin.util.asserts;
 
-using uni.platforms.gcn;
+using j3d.exporter;
 
+using uni.platforms.gcn;
 
 namespace uni.games.mario_kart_double_dash {
   public class MarioKartDoubleDashFileGatherer

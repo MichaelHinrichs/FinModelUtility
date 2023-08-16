@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+
 using fin.util.asserts;
 using fin.util.data;
-
 
 namespace fin.language.equations.scalar {
   // TODO: Optimize this.

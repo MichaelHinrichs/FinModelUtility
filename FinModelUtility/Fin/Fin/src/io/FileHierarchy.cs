@@ -12,7 +12,6 @@ using fins.io.sharpDirLister;
 
 using schema.binary;
 
-
 namespace fin.io {
   public interface IFileHierarchy : IEnumerable<IFileHierarchyDirectory> {
     IFileHierarchyDirectory Root { get; }

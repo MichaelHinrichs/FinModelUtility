@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 
 using fin.color;
-using fin.image.formats;
 using fin.image;
+using fin.image.formats;
+
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace fin.src.image.formats {

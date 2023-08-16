@@ -6,7 +6,6 @@ using fin.util.asserts;
 
 using schema.binary;
 
-
 namespace fin.io {
   public static class FileUtil {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

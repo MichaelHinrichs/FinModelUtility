@@ -1,6 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
 
-
 namespace benchmarks {
   public class TrimmingStrings {
     private const string TEXT =

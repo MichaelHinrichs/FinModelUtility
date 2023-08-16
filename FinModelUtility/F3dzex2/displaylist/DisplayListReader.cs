@@ -6,7 +6,6 @@ using f3dzex2.io;
 
 using schema.binary;
 
-
 namespace f3dzex2.displaylist {
   public interface IDisplayListReader {
     IDisplayList ReadDisplayList(

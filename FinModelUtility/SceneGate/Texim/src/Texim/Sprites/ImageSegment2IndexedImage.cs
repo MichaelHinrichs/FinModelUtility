@@ -20,8 +20,9 @@
 namespace Texim.Sprites;
 
 using System;
-using Texim.Images;
-using Texim.Pixels;
+using System.Drawing;
+using Images;
+using Pixels;
 using Yarhl.FileFormat;
 
 public class ImageSegment2IndexedImage :
@@ -60,11 +61,11 @@ public class ImageSegment2IndexedImage :
         // We flip treating the full image unswizzle as a tile
         Span<IndexedPixel> spanSegment = segmentTiles;
         if (source.HorizontalFlip) {
-            spanSegment.FlipHorizontal(new System.Drawing.Size(source.Width, source.Height));
+            spanSegment.FlipHorizontal(new Size(source.Width, source.Height));
         }
 
         if (source.VerticalFlip) {
-            spanSegment.FlipVertical(new System.Drawing.Size(source.Width, source.Height));
+            spanSegment.FlipVertical(new Size(source.Width, source.Height));
         }
 
         return new IndexedImage {

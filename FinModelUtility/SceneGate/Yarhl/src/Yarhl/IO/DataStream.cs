@@ -26,8 +26,8 @@ namespace Yarhl.IO
     using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Linq;
-    using Yarhl.FileFormat;
-    using Yarhl.IO.StreamFormat;
+    using FileFormat;
+    using StreamFormat;
 
     /// <summary>
     /// Virtual <see cref="Stream" /> with substream capabilities and read/write

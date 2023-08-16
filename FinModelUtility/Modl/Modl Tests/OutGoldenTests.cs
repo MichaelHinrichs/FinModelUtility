@@ -6,7 +6,6 @@ using fin.util.enumerables;
 
 using modl.api;
 
-
 namespace modl {
   public class OutGoldenTests {
     [Test]

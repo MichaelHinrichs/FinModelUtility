@@ -3,7 +3,6 @@ using fin.math.matrix;
 
 using schema.binary;
 
-
 namespace granny3d {
   public class GrannySkeleton : IGrannySkeleton, IBinaryDeserializable {
     public string Name { get; private set; }

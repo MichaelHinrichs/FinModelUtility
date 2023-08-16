@@ -16,10 +16,8 @@ using Microsoft.Toolkit.HighPerformance.Helpers;
 
 using mod.schema;
 using mod.schema.animation;
-using mod.util;
 
 using schema.binary;
-
 
 namespace mod.cli {
   public class ModModelFileBundle : IModelFileBundle {

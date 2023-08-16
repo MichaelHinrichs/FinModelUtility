@@ -1,14 +1,15 @@
 ﻿using fin.exporter;
+using fin.exporter.assimp.indirect;
 using fin.io;
 using fin.model;
+using fin.model.impl;
 
-using Microsoft.Scripting.Hosting;
 using IronPython.Hosting;
 using IronPython.Runtime;
 
+using Microsoft.Scripting.Hosting;
+
 using ModelPluginWrappers.src.noesis;
-using fin.model.impl;
-using fin.exporter.assimp.indirect;
 
 using schema.binary;
 

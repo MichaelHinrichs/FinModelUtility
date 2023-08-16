@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-
 namespace fin.data.queue {
   public interface IQueue<T> : IEnumerable<T> {
     int Count { get; }

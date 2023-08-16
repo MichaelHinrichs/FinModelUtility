@@ -1,7 +1,7 @@
 ﻿using fin.io;
 using fin.scene;
-using modl.schema.xml;
 
+using modl.schema.xml;
 
 namespace modl.api {
   public class BwSceneFileBundle : IBattalionWarsFileBundle, ISceneFileBundle {

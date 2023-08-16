@@ -7,7 +7,6 @@ using schema.binary;
 
 using UoT.api;
 
-
 namespace UoT.model {
   public interface ILimb2 : IBinaryDeserializable {
     short X { get; }

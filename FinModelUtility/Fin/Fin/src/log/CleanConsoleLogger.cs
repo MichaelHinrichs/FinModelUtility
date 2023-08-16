@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Concurrent;
+
 using Crayon;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace fin.log {
   using MicrosoftLogger = Microsoft.Extensions.Logging.ILogger;
-  using MicrosoftLoggerProvider = Microsoft.Extensions.Logging.ILoggerProvider;
+  using MicrosoftLoggerProvider = ILoggerProvider;
 
   /// <summary>
   ///   From https://stackoverflow.com/questions/55924730/is-it-possible-to-disable-category-output-in-net-core-consolelogger-and-debuglo

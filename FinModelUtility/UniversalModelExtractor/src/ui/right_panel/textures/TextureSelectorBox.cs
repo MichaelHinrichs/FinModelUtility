@@ -1,7 +1,6 @@
 ﻿using fin.model;
 using fin.util.lists;
 
-
 namespace uni.ui.right_panel.textures {
   public partial class TextureSelectorBox : UserControl {
     private IReadOnlyList<ITexture>? textures_;

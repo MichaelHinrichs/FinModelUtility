@@ -5,7 +5,6 @@ using gx;
 
 using schema.binary;
 
-
 namespace j3d.schema.bmd.mat3 {
   [BinarySchema]
   public partial class TextureMatrixInfo : ITextureMatrixInfo,

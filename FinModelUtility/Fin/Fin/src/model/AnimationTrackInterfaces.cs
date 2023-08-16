@@ -1,9 +1,8 @@
-﻿using fin.data;
-using fin.math.interpolation;
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
+using fin.data;
+using fin.math.interpolation;
 
 namespace fin.model {
   public readonly struct ValueAndTangents<T> {

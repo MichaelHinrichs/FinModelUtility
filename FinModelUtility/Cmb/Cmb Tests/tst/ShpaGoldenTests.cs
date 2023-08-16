@@ -1,8 +1,6 @@
-﻿using cmb.schema.cmb;
-using cmb.schema.ctxb;
+﻿using System.Reflection;
 
-using System.Reflection;
-
+using cmb.schema.cmb;
 using cmb.schema.shpa;
 
 using fin.io;
@@ -13,7 +11,6 @@ using schema.binary;
 
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 using Version = cmb.schema.cmb.Version;
-
 
 namespace cmb {
   public class ShpaGoldenTests {

@@ -1,7 +1,6 @@
 ﻿using fin.io;
 using fin.model;
 
-
 namespace uni.thirdparty {
   public class BoneScaleAnimationExporter {
     public void Export(IGenericFile luaFile, IModel model) {

@@ -1,6 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL;
 
-
 namespace fin.ui.rendering.gl {
   public partial class GlState {
     public bool FlipFaces { get; set; }

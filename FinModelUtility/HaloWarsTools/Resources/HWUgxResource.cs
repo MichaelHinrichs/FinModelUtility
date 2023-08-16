@@ -12,7 +12,6 @@ using Dxt;
 
 using fin.data.lazy;
 using fin.io;
-using fin.math;
 using fin.math.rotations;
 using fin.model;
 using fin.model.impl;
@@ -25,7 +24,6 @@ using KSoft.Phoenix.Xmb;
 using KSoft.Shell;
 
 using schema.binary;
-
 
 namespace HaloWarsTools {
   public class HWUgxResource : HWBinaryResource {

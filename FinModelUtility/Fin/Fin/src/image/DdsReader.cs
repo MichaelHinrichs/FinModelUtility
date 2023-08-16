@@ -5,10 +5,9 @@ using System.Linq;
 using fin.color;
 using fin.image.formats;
 
+using Pfim;
+
 using SixLabors.ImageSharp.PixelFormats;
-
-using ImageFormat = Pfim.ImageFormat;
-
 
 namespace fin.image {
   public class DdsReader {

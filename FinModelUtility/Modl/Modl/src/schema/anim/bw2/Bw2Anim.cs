@@ -2,7 +2,6 @@
 
 using schema.binary;
 
-
 namespace modl.schema.anim.bw2 {
   public class Bw2Anim : IAnim, IBinaryDeserializable {
     public List<IBwAnimBone> AnimBones { get; } = new();

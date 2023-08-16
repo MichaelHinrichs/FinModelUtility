@@ -20,8 +20,8 @@
 namespace Texim.Images
 {
     using System.Collections.ObjectModel;
-    using Texim.Palettes;
-    using Texim.Pixels;
+    using Palettes;
+    using Pixels;
 
     public class IndexedPaletteImage : IIndexedImage, IPaletteCollection
     {

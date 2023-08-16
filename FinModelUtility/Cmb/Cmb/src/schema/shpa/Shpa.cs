@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-using cmb.schema.shpa.norm;
+﻿using cmb.schema.shpa.norm;
 using cmb.schema.shpa.posi;
 
 using fin.schema.data;

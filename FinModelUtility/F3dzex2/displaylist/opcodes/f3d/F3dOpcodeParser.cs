@@ -9,7 +9,6 @@ using fin.math;
 
 using schema.binary;
 
-
 namespace f3dzex2.displaylist.opcodes.f3d {
   public class F3dOpcodeParser : IOpcodeParser {
     public IOpcodeCommand Parse(IReadOnlyN64Memory n64Memory,

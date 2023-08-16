@@ -1,14 +1,16 @@
-﻿using cmb.schema.cmb;
+﻿using System.Reflection;
+
+using cmb.schema.cmb;
 using cmb.schema.ctxb;
-using System.Reflection;
+
 using fin.io;
 using fin.util.strings;
 
 using schema.binary;
 using schema.binary.testing;
+
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 using Version = cmb.schema.cmb.Version;
-
 
 namespace cmb {
   public class CtxbGoldenTests {

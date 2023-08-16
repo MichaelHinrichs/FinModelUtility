@@ -1,9 +1,6 @@
-﻿using fin.model;
-using fin.math;
+﻿using fin.math;
+using fin.model;
 using fin.ui.rendering.gl.material;
-
-using PrimitiveType = fin.model.PrimitiveType;
-
 
 namespace fin.ui.rendering.gl.model {
   public class MaterialMeshRendererV2 : IDisposable {
@@ -45,10 +42,10 @@ namespace fin.ui.rendering.gl.model {
 
         var totalVertexCount = primitives.Sum(primitive => {
           switch (primitive.Type) {
-            case fin.model.PrimitiveType.TRIANGLES:
+            case PrimitiveType.TRIANGLES:
               return primitive.Vertices.Count;
-            case fin.model.PrimitiveType.TRIANGLE_STRIP:
-            case fin.model.PrimitiveType.TRIANGLE_FAN:
+            case PrimitiveType.TRIANGLE_STRIP:
+            case PrimitiveType.TRIANGLE_FAN:
               return (primitive.Vertices.Count - 2) * 3;
             default: throw new NotImplementedException();
           }

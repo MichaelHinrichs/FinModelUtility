@@ -1,7 +1,7 @@
-﻿using fin.data.queue;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
+using fin.data.queue;
 using fin.math.matrix;
 using fin.model;
 

@@ -1,9 +1,9 @@
 ﻿using fin.schema.vector;
+
 using schema.binary;
 using schema.binary.attributes;
 
 using sm64.scripts.geo;
-
 
 namespace sm64.scripts {
   public enum GeoCommandId : byte {

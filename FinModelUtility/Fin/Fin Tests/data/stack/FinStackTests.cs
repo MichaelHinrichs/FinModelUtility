@@ -1,6 +1,5 @@
 ﻿using NUnit.Framework;
 
-
 namespace fin.data.stack {
   public class FinStackTests {
     [Test]

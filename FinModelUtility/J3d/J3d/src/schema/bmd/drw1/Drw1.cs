@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-using fin.schema.data;
+﻿using fin.schema.data;
 
 using schema.binary;
 using schema.binary.attributes;

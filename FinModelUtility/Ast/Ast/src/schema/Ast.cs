@@ -1,6 +1,5 @@
 ﻿using schema.binary;
 
-
 namespace ast.schema {
   public partial class Ast : IBinaryDeserializable {
     public StrmHeader StrmHeader { get; } = new();

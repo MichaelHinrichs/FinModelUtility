@@ -22,9 +22,9 @@ namespace Texim.Processing
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Texim.Colors;
-    using Texim.Palettes;
-    using Texim.Pixels;
+    using Colors;
+    using Palettes;
+    using Pixels;
 
     public class MedianCutQuantization : IQuantization
     {

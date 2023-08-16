@@ -6,7 +6,6 @@ using fin.testing;
 using j3d.exporter;
 using j3d.GCN;
 
-
 namespace j3d {
   public class BmdGoldenTests {
     [Test]

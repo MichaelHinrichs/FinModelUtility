@@ -1,7 +1,6 @@
 ﻿using schema.binary;
 using schema.binary.attributes;
 
-
 namespace ast.schema {
   public enum AstAudioFormat : ushort {
     ADPCM = 0,

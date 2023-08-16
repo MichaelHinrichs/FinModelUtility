@@ -2,7 +2,6 @@
 using fin.math;
 using fin.model;
 
-
 namespace fin.ui.rendering.gl.model {
   /// <summary>
   ///   A renderer for a Fin model.

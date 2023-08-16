@@ -3,7 +3,6 @@ using fin.ui.rendering.gl;
 
 using OpenTK.Graphics.OpenGL;
 
-
 namespace uni.ui.gl {
   public class WaveformRenderer {
     public IActiveSound<short>? ActiveSound { get; set; }

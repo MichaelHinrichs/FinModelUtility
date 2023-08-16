@@ -1,6 +1,6 @@
-﻿using fin.decompression;
-using System.IO.Compression;
+﻿using System.IO.Compression;
 
+using fin.decompression;
 
 namespace level5.decompression {
   public class ZlibDecompressor : BDecompressor {

@@ -1,10 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-
-using fin.data;
 using System.Numerics;
 
+using fin.data;
 
 namespace fin.model.impl {
   public partial class ModelImpl<TVertex> {

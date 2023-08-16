@@ -1,7 +1,6 @@
 ﻿using fin.model;
 using fin.util.lists;
 
-
 namespace uni.ui.right_panel.materials {
   public partial class MaterialSelector : UserControl {
     private IReadOnlyList<IMaterial>? materials_;

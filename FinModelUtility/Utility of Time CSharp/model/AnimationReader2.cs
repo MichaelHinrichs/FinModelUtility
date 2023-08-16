@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 
 using f3dzex2.io;
 
 using Microsoft.Toolkit.HighPerformance;
-using Microsoft.VisualBasic;
 
 using UoT.memory;
-
-using static Assimp.Metadata;
 
 #pragma warning disable CS8603
 

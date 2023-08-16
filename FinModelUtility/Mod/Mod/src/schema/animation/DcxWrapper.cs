@@ -3,7 +3,6 @@
 using schema.binary;
 using schema.binary.attributes;
 
-
 namespace mod.schema.animation {
   public enum AnimationFormat : uint {
     DCA = 2,

@@ -3,7 +3,6 @@
 using fin.io.bundles;
 using fin.language.equations.fixedFunction;
 
-
 namespace fin.model {
   public interface IModelFileBundle : IFileBundle {
     /// <summary>

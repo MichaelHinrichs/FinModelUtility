@@ -1,8 +1,8 @@
-﻿using Assimp;
+﻿using System.Collections.Generic;
+
+using Assimp;
 
 using fin.model;
-
-using System.Collections.Generic;
 
 namespace fin.exporter.assimp.indirect {
   public class AssimpIndirectAnimationFixer {

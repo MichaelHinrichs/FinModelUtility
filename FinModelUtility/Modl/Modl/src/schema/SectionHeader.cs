@@ -2,7 +2,6 @@
 
 using schema.binary;
 
-
 namespace modl.schema {
   public static class SectionHeaderUtil {
     public static void ReadName(

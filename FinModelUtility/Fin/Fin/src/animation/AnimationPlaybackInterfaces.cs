@@ -1,6 +1,5 @@
 ﻿using System;
 
-
 namespace fin.animation {
   /// <summary>
   ///   Helper interface for managing the dirty details of playing back an

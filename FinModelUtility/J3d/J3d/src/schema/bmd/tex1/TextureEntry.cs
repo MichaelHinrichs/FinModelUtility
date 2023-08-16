@@ -1,20 +1,17 @@
-﻿using fin.image;
+﻿using System;
+
+using fin.image;
+using fin.image.formats;
 using fin.util.color;
 
 using gx;
 
-using schema.binary;
-
-using System;
-
-using fin.image.formats;
-
 using j3d.image;
 
+using schema.binary;
 using schema.binary.attributes;
 
 using SixLabors.ImageSharp.PixelFormats;
-
 
 namespace j3d.schema.bmd.tex1 {
   public enum TextureFormat : byte {

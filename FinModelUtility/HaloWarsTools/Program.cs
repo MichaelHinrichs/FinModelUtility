@@ -7,8 +7,8 @@ using fin.exporter;
 using fin.exporter.assimp.indirect;
 using fin.io;
 using fin.util.gc;
-using HaloWarsTools.Helpers;
 
+using HaloWarsTools.Helpers;
 
 namespace HaloWarsTools {
   public class Program {

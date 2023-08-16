@@ -21,7 +21,7 @@ namespace Texim.Processing
 {
     using System.Collections.Generic;
     using System.Linq;
-    using Texim.Colors;
+    using Colors;
 
     public class ExhaustiveColorSearch
     {

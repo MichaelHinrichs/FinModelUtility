@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 
-
 namespace HaloWarsTools {
   // TODO put value cache in HWContext
 

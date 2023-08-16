@@ -1,10 +1,9 @@
 ﻿using fin.io;
 using fin.io.bundles;
 
-using visceral.api;
-
 using uni.platforms.desktop;
 
+using visceral.api;
 
 namespace uni.games.dead_space_1 {
   public class DeadSpace1FileGatherer : IFileBundleGatherer<IFileBundle> {

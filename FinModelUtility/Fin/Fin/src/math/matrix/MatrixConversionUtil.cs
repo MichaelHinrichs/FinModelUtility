@@ -1,5 +1,7 @@
-﻿namespace fin.math.matrix {
-  using AssimpMatrix = Assimp.Matrix4x4;
+﻿using Assimp;
+
+namespace fin.math.matrix {
+  using AssimpMatrix = Matrix4x4;
   using SystemMatrix = System.Numerics.Matrix4x4;
 
   public static class MatrixConversionUtil {

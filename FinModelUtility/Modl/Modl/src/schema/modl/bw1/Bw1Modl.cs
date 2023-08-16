@@ -5,7 +5,6 @@ using modl.schema.modl.bw1.node;
 
 using schema.binary;
 
-
 namespace modl.schema.modl.bw1 {
   public class Bw1Modl : IModl, IBinaryDeserializable {
     public List<IBwNode> Nodes { get; } = new();

@@ -1,6 +1,5 @@
 ﻿using fin.model;
 
-
 namespace hw.api {
   public class HaloWarsModelLoader : IModelLoader<IHaloWarsModelFileBundle> {
     public IModel LoadModel(IHaloWarsModelFileBundle modelFileBundle)

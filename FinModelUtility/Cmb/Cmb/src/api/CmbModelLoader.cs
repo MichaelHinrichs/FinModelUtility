@@ -28,7 +28,6 @@ using schema.binary;
 
 using Version = cmb.schema.cmb.Version;
 
-
 namespace cmb.api {
   public class CmbModelFileBundle : IModelFileBundle {
     public CmbModelFileBundle(string gameName,

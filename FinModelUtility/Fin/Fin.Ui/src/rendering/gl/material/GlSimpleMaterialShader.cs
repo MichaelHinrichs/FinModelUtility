@@ -2,7 +2,6 @@
 using fin.model;
 using fin.model.util;
 
-
 namespace fin.ui.rendering.gl.material {
   public class GlSimpleMaterialShader : BGlMaterialShader<IReadOnlyMaterial> {
     private readonly GlTexture primaryGlTexture_;

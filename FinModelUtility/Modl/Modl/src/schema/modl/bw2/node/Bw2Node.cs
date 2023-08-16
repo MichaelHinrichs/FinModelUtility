@@ -7,7 +7,6 @@ using modl.schema.modl.common;
 
 using schema.binary;
 
-
 namespace modl.schema.modl.bw2.node {
   public enum WeirdFlag {
     VALUE_0,

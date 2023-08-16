@@ -18,7 +18,6 @@ using fin.util.image;
 
 using schema.binary;
 
-
 namespace f3dzex2.model {
   public class DlModelBuilder {
     private readonly IN64Hardware n64Hardware_;

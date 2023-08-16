@@ -19,10 +19,12 @@
 // SOFTWARE.
 namespace Yarhl.FileFormat
 {
+    using System.Diagnostics.CodeAnalysis;
+
     /// <summary>
     /// Non-generic converter interface.
     /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage(
+    [SuppressMessage(
         "Microsoft.Design",
         "CA1040:AvoidEmptyInterfaces",
         Justification = "We use the interface as a compile time marker.")]

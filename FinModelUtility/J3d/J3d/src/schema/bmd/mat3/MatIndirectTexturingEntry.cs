@@ -1,7 +1,6 @@
 ﻿using schema.binary;
 using schema.binary.attributes;
 
-
 namespace j3d.schema.bmd.mat3 {
   [BinarySchema]
   public partial class MatIndirectTexturingEntry : IBinaryConvertible {

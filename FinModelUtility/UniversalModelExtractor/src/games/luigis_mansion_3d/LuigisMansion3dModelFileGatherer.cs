@@ -1,12 +1,10 @@
-﻿using fin.io;
+﻿using cmb.api;
+
+using fin.io;
+using fin.io.bundles;
 
 using uni.platforms.threeDs;
 using uni.util.bundles;
-
-using cmb.api;
-
-using fin.io.bundles;
-
 
 namespace uni.games.luigis_mansion_3d {
   public class LuigisMansion3dModelFileGatherer

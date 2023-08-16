@@ -1,6 +1,5 @@
 ﻿using schema.binary;
 
-
 namespace dat.schema {
   [BinarySchema]
   public partial class DObjData : IBinaryConvertible {

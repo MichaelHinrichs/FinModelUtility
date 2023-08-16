@@ -1,6 +1,5 @@
 ﻿using System;
 
-
 namespace fin.decompression {
   public interface IDecompressor {
     bool TryDecompress(byte[] src, out byte[] dst);

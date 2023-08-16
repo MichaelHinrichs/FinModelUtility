@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 
 using fin.util.asserts;
 
 using schema.binary;
 using schema.binary.attributes;
-
 
 namespace cmb.schema.csab {
   [Endianness(Endianness.LittleEndian)]

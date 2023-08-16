@@ -1,6 +1,5 @@
 ﻿using fin.model;
 
-
 namespace modl.api {
   public class BattalionWarsModelLoader 
       : IModelLoader<IBattalionWarsModelFileBundle> {

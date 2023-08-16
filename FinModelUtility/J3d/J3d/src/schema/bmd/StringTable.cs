@@ -6,7 +6,6 @@ using fin.util.enumerables;
 using schema.binary;
 using schema.binary.attributes;
 
-
 namespace j3d.schema.bmd {
   [BinarySchema]
   public partial class StringTable : IBinaryConvertible {

@@ -1,6 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
 
-
 namespace level5.decompression {
   public class LzssDecompressor {
     public byte[] Decompress(ReadOnlySpan<byte> src) {

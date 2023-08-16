@@ -6,7 +6,6 @@ using uni.platforms;
 using UoT.api;
 using UoT.memory;
 
-
 namespace uni.games.ocarina_of_time {
   public class OcarinaOfTimeFileBundleGatherer
       : IFileBundleGatherer<OotModelFileBundle> {

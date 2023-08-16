@@ -1,11 +1,10 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
 using System.Collections.Generic;
-
-using static fin.io.sharpfilelister.Interop;
+using System.IO;
 
 using fin.io;
+
+using static fin.io.sharpfilelister.Interop;
 
 namespace fins.io.sharpDirLister {
   public class DirectoryInformation : ISubdirPaths {

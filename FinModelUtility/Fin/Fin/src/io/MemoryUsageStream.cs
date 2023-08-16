@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 
-
 namespace fin.io {
   public class MemoryUsageStream : Stream {
     private readonly MemoryStream impl_;
@@ -49,11 +48,11 @@ namespace fin.io {
       => this.impl_.Seek(offset, origin);
 
     public override void SetLength(long value) {
-      throw new System.NotImplementedException();
+      throw new NotImplementedException();
     }
 
     public override void Write(byte[] buffer, int offset, int count) {
-      throw new System.NotImplementedException();
+      throw new NotImplementedException();
     }
 
     public override bool CanRead => this.impl_.CanRead;

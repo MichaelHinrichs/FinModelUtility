@@ -5,7 +5,6 @@ using OpenTK.Graphics;
 
 using uni.ui;
 
-
 namespace uni.cli {
   public class Cli {
     [STAThread]

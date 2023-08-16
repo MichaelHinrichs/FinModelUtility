@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 
-
 namespace fin.data.fuzzy {
   public class
       LevenshteinTreeFuzzySearchDictionary<T> : IFuzzySearchDictionary<T> {

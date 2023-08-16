@@ -1,7 +1,6 @@
 ﻿using schema.binary;
 using schema.binary.attributes;
 
-
 namespace mod.schema.animation {
   [BinarySchema]
   public partial class Dck : IDcx {

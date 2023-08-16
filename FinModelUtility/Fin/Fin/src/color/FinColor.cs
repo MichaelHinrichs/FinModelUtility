@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 
 using SixLabors.ImageSharp.PixelFormats;
 
-
 namespace fin.color {
   public interface IColor {
     float Rf { get; }

@@ -20,7 +20,6 @@
 namespace Texim.Compressions.Nitro
 {
     using System;
-    using System.IO;
     using Yarhl.FileFormat;
     using Yarhl.IO;
 

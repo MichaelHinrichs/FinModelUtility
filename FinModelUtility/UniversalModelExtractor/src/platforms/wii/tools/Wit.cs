@@ -4,7 +4,6 @@ using fin.util.asserts;
 
 using uni.util.cmd;
 
-
 namespace uni.platforms.wii.tools {
   public class Wit {
     public bool Run(ISystemFile romFile, out IFileHierarchy hierarchy) {

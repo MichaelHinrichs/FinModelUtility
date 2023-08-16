@@ -2,7 +2,6 @@
 
 using schema.binary;
 
-
 namespace granny3d {
   /// <summary>
   ///   Based on HaloWarsDocs file template:

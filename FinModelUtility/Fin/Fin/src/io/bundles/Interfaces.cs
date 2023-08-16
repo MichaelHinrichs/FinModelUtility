@@ -5,7 +5,6 @@ using System.IO;
 using fin.util.asserts;
 using fin.util.linq;
 
-
 namespace fin.io.bundles {
   public interface IFileBundle : IUiFile {
     string? GameName { get; }

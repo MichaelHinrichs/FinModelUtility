@@ -19,7 +19,7 @@
 // SOFTWARE.
 namespace Texim.Compressions.Nitro
 {
-    using Texim.Palettes;
+    using Palettes;
 
     public class FullImageMapCompressionParams : MapCompressionParams
     {

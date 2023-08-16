@@ -19,11 +19,13 @@
 // SOFTWARE.
 namespace Texim.Compressions.Nitro
 {
+    using System.Drawing;
+
     public class MapDecompressionParams
     {
         public IScreenMap Map { get; set; }
 
-        public System.Drawing.Size TileSize { get; set; } = new System.Drawing.Size(8, 8);
+        public Size TileSize { get; set; } = new Size(8, 8);
 
         public int OutOfBoundsTileIndex { get; set; } = -1; // megaman
     }

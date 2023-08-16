@@ -74,7 +74,7 @@ namespace benchmarks {
     }
 
     private MemoizedAtan2 memoizedLowError =
-        FastMath.MemoizedAtan2.ConstructByMaxError(.01f);
+        MemoizedAtan2.ConstructByMaxError(.01f);
 
 
     [Benchmark]
@@ -85,7 +85,7 @@ namespace benchmarks {
     }
 
     private MemoizedAtan2 memoizedHighError =
-        FastMath.MemoizedAtan2.ConstructByMaxError(.1f);
+        MemoizedAtan2.ConstructByMaxError(.1f);
 
   }
 }

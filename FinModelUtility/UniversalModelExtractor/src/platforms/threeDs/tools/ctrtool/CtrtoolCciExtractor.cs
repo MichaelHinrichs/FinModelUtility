@@ -1,12 +1,9 @@
-﻿using System.IO;
-
-using fin.io;
+﻿using fin.io;
 using fin.log;
 using fin.util.asserts;
 
 using uni.platforms.gcn.tools;
 using uni.util.cmd;
-
 
 namespace uni.platforms.threeDs.tools.ctrtool {
   public static partial class Ctrtool {

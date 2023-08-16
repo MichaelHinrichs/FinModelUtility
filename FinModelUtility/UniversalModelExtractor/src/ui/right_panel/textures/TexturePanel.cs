@@ -2,7 +2,6 @@
 
 using uni.ui.common;
 
-
 namespace uni.ui.right_panel.textures {
   public partial class TexturePanel : UserControl {
     public TexturePanel() {

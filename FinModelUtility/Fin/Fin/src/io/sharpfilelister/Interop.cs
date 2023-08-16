@@ -1,18 +1,19 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace fin.io.sharpfilelister {
   public class Interop {
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     public struct WIN32_FIND_DATAW {
       public FileAttributes dwFileAttributes;
-      internal System.Runtime.InteropServices.ComTypes.FILETIME ftCreationTime;
+      internal FILETIME ftCreationTime;
 
-      internal System.Runtime.InteropServices.ComTypes.FILETIME
+      internal FILETIME
           ftLastAccessTime;
 
-      internal System.Runtime.InteropServices.ComTypes.FILETIME ftLastWriteTime;
+      internal FILETIME ftLastWriteTime;
       public int nFileSizeHigh;
       public int nFileSizeLow;
       public int dwReserved0;

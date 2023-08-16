@@ -27,7 +27,6 @@ using uni.games.super_smash_bros_melee;
 using uni.games.wind_waker;
 using uni.util.io;
 
-
 namespace uni.games {
   public class RootModelFileGatherer {
     public IFileBundleDirectory GatherAllModelFiles() {

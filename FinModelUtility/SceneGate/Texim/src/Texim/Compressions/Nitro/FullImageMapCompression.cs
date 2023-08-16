@@ -20,9 +20,9 @@
 namespace Texim.Compressions.Nitro
 {
     using System;
-    using Texim.Images;
-    using Texim.Pixels;
-    using Texim.Processing;
+    using Images;
+    using Pixels;
+    using Processing;
     using Yarhl.FileFormat;
     using Yarhl.FileSystem;
 

@@ -20,6 +20,7 @@
 namespace Yarhl.IO
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.IO;
 
     /// <summary>
@@ -61,7 +62,7 @@ namespace Yarhl.IO
     /// <summary>
     /// Extensions for the FileOpenMode enumeration.
     /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage(
+    [SuppressMessage(
         "Microsoft.StyleCop.CSharp.MaintainabilityRules",
         "SA1649:FileNameMustMatchTypeName",
         Justification = "Extension class for the enum.")]

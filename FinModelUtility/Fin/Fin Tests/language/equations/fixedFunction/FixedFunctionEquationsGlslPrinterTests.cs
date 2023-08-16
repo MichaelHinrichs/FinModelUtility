@@ -1,14 +1,4 @@
-﻿using System.IO;
-using System.Linq;
-using System.Text;
-
-using fin.model;
-using fin.util.strings;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-
-namespace fin.language.equations.fixedFunction {
+﻿namespace fin.language.equations.fixedFunction {
   /*
   public class FixedFunctionEquationsGlslPrinterTest {
     [Test]

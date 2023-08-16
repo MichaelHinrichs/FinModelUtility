@@ -19,7 +19,7 @@
 // SOFTWARE.
 namespace Texim.Images
 {
-    using Texim.Pixels;
+    using Pixels;
     using Yarhl.FileFormat;
 
     public interface IIndexedImage : IFormat

@@ -4,7 +4,6 @@ using fin.math.rotations;
 
 using NUnit.Framework;
 
-
 namespace fin.math {
   public class FinTrigTests {
     private float PRECISION = .0001f;

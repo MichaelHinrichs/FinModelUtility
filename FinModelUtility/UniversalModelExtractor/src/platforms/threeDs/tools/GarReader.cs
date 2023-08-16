@@ -5,7 +5,6 @@ using fin.util.strings;
 
 using schema.binary;
 
-
 namespace uni.platforms.threeDs.tools {
   public class GarReader : IArchiveReader<SubArchiveContentFile> {
     public bool IsValidArchive(Stream archive) => true;

@@ -1,8 +1,7 @@
-﻿using fin.model;
-
-using System.Numerics;
+﻿using System.Numerics;
 using System.Runtime.CompilerServices;
 
+using fin.model;
 
 namespace fin.math.matrix {
   public static class GlMatrixUtil {

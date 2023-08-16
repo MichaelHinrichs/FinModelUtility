@@ -1,7 +1,7 @@
 ﻿using fin.io;
 using fin.model;
-using HaloWarsTools;
 
+using HaloWarsTools;
 
 namespace hw.api {
   public class XtdModelFileBundle : IHaloWarsModelFileBundle {

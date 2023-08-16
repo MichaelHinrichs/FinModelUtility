@@ -4,7 +4,6 @@ using schema.binary;
 
 using SixLabors.ImageSharp.PixelFormats;
 
-
 namespace fin.image.io {
   public static class PixelImageReader {
     public static PixelImageReader<TPixel> New<TPixel>(

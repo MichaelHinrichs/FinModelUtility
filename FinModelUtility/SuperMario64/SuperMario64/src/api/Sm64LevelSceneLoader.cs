@@ -1,14 +1,12 @@
-﻿using fin.io;
+﻿using System.Numerics;
+
+using fin.data.lazy;
+using fin.io;
 using fin.model;
 using fin.scene;
 
-using System.Numerics;
-
-using fin.data.lazy;
-
 using sm64.LevelInfo;
 using sm64.Scripts;
-
 
 namespace sm64.api {
   public class Sm64LevelSceneFileBundle :

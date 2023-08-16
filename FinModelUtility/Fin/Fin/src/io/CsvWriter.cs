@@ -1,8 +1,7 @@
-﻿using fin.util.asserts;
-
-using System.IO;
+﻿using System.IO;
 using System.Text;
 
+using fin.util.asserts;
 
 namespace fin.io {
   public class CsvWriter {

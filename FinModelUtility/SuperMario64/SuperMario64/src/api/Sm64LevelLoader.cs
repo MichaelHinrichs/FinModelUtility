@@ -5,7 +5,6 @@ using sm64.LevelInfo;
 using sm64.memory;
 using sm64.Scripts;
 
-
 namespace sm64.api {
   public static class Sm64LevelLoader {
     public static Level LoadLevel(Sm64LevelFileBundle levelFileBundle) {

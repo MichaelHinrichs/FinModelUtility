@@ -9,8 +9,6 @@ using schema.binary;
 
 using SixLabors.ImageSharp.PixelFormats;
 
-using IImage = fin.image.IImage;
-
 namespace xmod.api {
   public class TexImageLoader {
     public IImage LoadImage(IReadOnlyGenericFile texFile) {

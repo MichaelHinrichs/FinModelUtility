@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Numerics;
 
-
 namespace fin.audio {
   public interface IAudioManager<TNumber> : IDisposable
       where TNumber : INumber<TNumber> {

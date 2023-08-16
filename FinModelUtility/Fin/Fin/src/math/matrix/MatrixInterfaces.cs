@@ -1,7 +1,7 @@
-﻿using fin.model;
-using System;
+﻿using System;
 using System.Numerics;
 
+using fin.model;
 
 namespace fin.math.matrix {
   public enum MatrixState {

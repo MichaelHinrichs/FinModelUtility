@@ -20,10 +20,10 @@
 namespace Texim.Formats;
 
 using System;
+using Animations;
+using Images;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using Texim.Animations;
-using Texim.Images;
 using Yarhl.FileFormat;
 using Yarhl.IO;
 

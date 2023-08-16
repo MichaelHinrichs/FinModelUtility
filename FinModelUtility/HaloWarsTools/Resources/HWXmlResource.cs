@@ -1,7 +1,6 @@
 ﻿using System.Numerics;
 using System.Xml.Linq;
 
-
 namespace HaloWarsTools {
   public class HWXmlResource : HWResource {
     protected XElement XmlData { get; private set; }

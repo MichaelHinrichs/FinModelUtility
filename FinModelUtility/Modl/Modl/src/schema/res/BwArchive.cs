@@ -5,7 +5,6 @@ using modl.schema.res.texr;
 using schema.binary;
 using schema.binary.attributes;
 
-
 namespace modl.schema.res {
   public class BwArchive : IBinaryDeserializable {
     public TexrSection TexrSection { get; } = new();

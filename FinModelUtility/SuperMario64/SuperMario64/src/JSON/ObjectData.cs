@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 
-
 namespace sm64.JSON {
   [JsonObject]
   public sealed class ObjectData {

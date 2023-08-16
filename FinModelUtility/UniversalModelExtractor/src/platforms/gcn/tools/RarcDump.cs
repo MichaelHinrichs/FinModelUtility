@@ -4,7 +4,6 @@ using fin.util.asserts;
 
 using uni.util.cmd;
 
-
 namespace uni.platforms.gcn.tools {
   public class RarcDump {
     public bool Run(

@@ -1,8 +1,6 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 using BenchmarkDotNet.Attributes;
-
 
 namespace benchmarks {
   public class CopyingAndReversingValues {

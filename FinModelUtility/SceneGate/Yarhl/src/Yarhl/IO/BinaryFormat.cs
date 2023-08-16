@@ -21,7 +21,7 @@ namespace Yarhl.IO
 {
     using System;
     using System.IO;
-    using Yarhl.FileFormat;
+    using FileFormat;
 
     /// <summary>
     /// Binary format.

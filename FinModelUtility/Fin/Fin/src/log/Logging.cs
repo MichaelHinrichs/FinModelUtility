@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace fin.log {
   using MicrosoftLogger = Microsoft.Extensions.Logging.ILogger;
-  using FinLogger = fin.log.ILogger;
+  using FinLogger = ILogger;
 
   public interface ILogger {
     IDisposable BeginScope(string scope);

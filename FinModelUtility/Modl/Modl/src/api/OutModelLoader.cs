@@ -20,7 +20,6 @@ using modl.schema.terrain.bw1;
 
 using schema.binary;
 
-
 namespace modl.api {
   public class OutModelFileBundle : IBattalionWarsModelFileBundle {
     public required string GameName { get; init; }

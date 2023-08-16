@@ -1,20 +1,19 @@
 ﻿using fin.animation;
+using fin.io.bundles;
+using fin.model;
+using fin.scene;
+using fin.ui;
 using fin.ui.rendering;
 using fin.ui.rendering.gl;
 using fin.ui.rendering.gl.material;
 using fin.ui.rendering.gl.model;
 using fin.ui.rendering.gl.scene;
-using fin.io.bundles;
-using fin.model;
-using fin.scene;
-using fin.ui;
 
 using OpenTK.Graphics.OpenGL;
 
 using uni.config;
 using uni.model;
 using uni.ui.gl;
-
 
 namespace uni.ui.common.scene {
   public class SceneViewerGlPanel : BGlPanel, ISceneViewerPanel {

@@ -1,6 +1,4 @@
-﻿using fin.math;
-using fin.math.rotations;
-
+﻿using fin.math.rotations;
 
 namespace fin.ui {
   public class Camera : ICamera {

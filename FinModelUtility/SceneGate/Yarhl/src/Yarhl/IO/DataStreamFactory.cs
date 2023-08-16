@@ -21,7 +21,7 @@ namespace Yarhl.IO
 {
     using System;
     using System.IO;
-    using Yarhl.IO.StreamFormat;
+    using StreamFormat;
 
     /// <summary>
     /// Factory of DataStream.

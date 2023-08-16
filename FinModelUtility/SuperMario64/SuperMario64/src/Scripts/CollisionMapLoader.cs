@@ -1,5 +1,4 @@
-﻿using sm64.Scripts;
-
+﻿using OpenTK;
 
 namespace sm64.Scripts {
   public static class CollisionMapLoader {
@@ -40,7 +39,7 @@ namespace sm64.Scripts {
         short x = (short) BitLogic.BytesToInt(data, (int) off + 0, 2);
         short y = (short) BitLogic.BytesToInt(data, (int) off + 2, 2);
         short z = (short) BitLogic.BytesToInt(data, (int) off + 4, 2);
-        cmap.AddVertex(new OpenTK.Vector3(x, y, z));
+        cmap.AddVertex(new Vector3(x, y, z));
         off += 6;
       }
 

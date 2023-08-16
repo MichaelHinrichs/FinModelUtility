@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+
 using fin.data;
 using fin.math.interpolation;
-
 
 namespace fin.model {
   public interface IAnimationManager {

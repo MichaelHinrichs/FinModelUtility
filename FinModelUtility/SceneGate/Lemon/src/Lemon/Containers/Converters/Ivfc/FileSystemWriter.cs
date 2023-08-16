@@ -22,7 +22,7 @@ namespace SceneGate.Lemon.Containers.Converters.Ivfc
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-    using SceneGate.Lemon.Logging;
+    using Logging;
     using Yarhl.FileSystem;
     using Yarhl.IO;
 

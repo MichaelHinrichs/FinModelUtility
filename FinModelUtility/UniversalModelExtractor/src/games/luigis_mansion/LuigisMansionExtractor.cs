@@ -10,12 +10,11 @@ namespace uni.games.luigis_mansion {
     public void ExtractAll() {
       if (!new GcnFileHierarchyExtractor().TryToExtractFromGame(
               "luigis_mansion",
-              GcnFileHierarchyExtractor
-                  .Options
-                  .Standard()
-                  .UseRarcDumpForExtensions(
-                      // For some reason, some MDL files are compressed as RARC.
-                      ".mdl"),
+              GcnFileHierarchyExtractor.Options
+                                       .Standard()
+                                       .UseRarcDumpForExtensions(
+                                           // For some reason, some MDL files are compressed as RARC.
+                                           ".mdl"),
               out var fileHierarchy)) {
         return;
       }

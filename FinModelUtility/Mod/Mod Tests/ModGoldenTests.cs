@@ -7,7 +7,6 @@ using mod.cli;
 
 using NUnit.Framework;
 
-
 namespace mod {
   public class ModGoldenTests {
     [Test]

@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 
-using fin.math;
 using fin.math.interpolation;
 using fin.math.rotations;
 using fin.util.asserts;

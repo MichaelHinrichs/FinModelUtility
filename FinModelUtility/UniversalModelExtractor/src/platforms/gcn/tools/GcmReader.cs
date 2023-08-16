@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-using fin.data.stack;
+﻿using fin.data.stack;
 using fin.io;
 using fin.io.archive;
 

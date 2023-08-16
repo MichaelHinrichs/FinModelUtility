@@ -19,9 +19,11 @@
 // SOFTWARE.
 namespace Texim.Colors
 {
+    using System.Drawing;
+
     public readonly struct Rgb
     {
-        public Rgb(System.Drawing.Color color)
+        public Rgb(Color color)
         {
             Alpha = color.A;
             Red = color.R;
@@ -69,8 +71,8 @@ namespace Texim.Colors
 
         public byte Alpha { get; init; }
 
-        public readonly System.Drawing.Color ToColor() =>
-            System.Drawing.Color.FromArgb(Alpha, Red, Green, Blue);
+        public readonly Color ToColor() =>
+            Color.FromArgb(Alpha, Red, Green, Blue);
 
         public readonly SixLabors.ImageSharp.PixelFormats.Rgba32 ToImageSharpColor() =>
             new SixLabors.ImageSharp.PixelFormats.Rgba32(Red, Green, Blue, Alpha);

@@ -2,7 +2,6 @@
 using fin.model;
 using fin.shaders.glsl;
 
-
 namespace fin.ui.rendering.gl.material {
   public class GlNullMaterialShader : BGlMaterialShader<IReadOnlyMaterial?> {
     public GlNullMaterialShader(

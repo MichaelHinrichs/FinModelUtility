@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using schema.binary;
 using schema.binary.attributes;
@@ -102,7 +103,7 @@ namespace mod.schema {
     }
 
     public void Write(ISubEndianBinaryWriter writer) {
-      throw new System.NotImplementedException();
+      throw new NotImplementedException();
     }
   }
 }

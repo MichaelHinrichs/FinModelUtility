@@ -27,7 +27,7 @@ namespace Yarhl
     using System.IO;
     using System.Linq;
     using System.Reflection;
-    using Yarhl.FileFormat;
+    using FileFormat;
 
     /// <summary>
     /// Plugin manager.

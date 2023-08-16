@@ -8,7 +8,6 @@ using fin.math;
 using fin.math.matrix;
 using fin.model;
 
-
 namespace f3dzex2.image {
   public interface IRsp {
     GeometryMode GeometryMode { get; set; }

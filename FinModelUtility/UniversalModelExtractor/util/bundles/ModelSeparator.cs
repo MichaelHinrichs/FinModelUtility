@@ -1,6 +1,5 @@
-﻿using fin.util.asserts;
-using fin.io;
-
+﻿using fin.io;
+using fin.util.asserts;
 
 namespace uni.util.bundles {
   public interface IModelBundle {

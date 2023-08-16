@@ -21,9 +21,9 @@ namespace Texim.Formats
 {
     using System;
     using System.Linq;
+    using Images;
+    using Palettes;
     using SixLabors.ImageSharp;
-    using Texim.Images;
-    using Texim.Palettes;
     using Yarhl.FileFormat;
     using Yarhl.IO;
     using SixRgb = SixLabors.ImageSharp.PixelFormats.Rgba32;
@@ -55,7 +55,7 @@ namespace Texim.Formats
                 ? parameters.Palettes.Palettes.Select(PaletteToColors).ToArray()
                 : new[] { PaletteToColors(parameters.Palette) };
 
-            using var bitmap = new Image<SixLabors.ImageSharp.PixelFormats.Rgba32>(source.Width, source.Height);
+            using var bitmap = new Image<SixRgb>(source.Width, source.Height);
 
             for (int x = 0; x < source.Width; x++) {
                 for (int y = 0; y < source.Height; y++) {

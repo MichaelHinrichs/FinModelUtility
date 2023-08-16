@@ -1,6 +1,5 @@
 ﻿using fin.model;
 
-
 namespace uni.ui.right_panel.textures {
   public partial class TexturesTab : UserControl {
     public TexturesTab() {

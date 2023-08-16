@@ -1,12 +1,10 @@
-﻿using j3d.exporter;
-
-using fin.io;
+﻿using fin.io;
 using fin.io.bundles;
 using fin.util.asserts;
 
-using uni.platforms;
-using uni.platforms.gcn;
+using j3d.exporter;
 
+using uni.platforms.gcn;
 
 namespace uni.games.super_mario_sunshine {
   public class SuperMarioSunshineModelFileGatherer

@@ -3,7 +3,6 @@
 using fin.data.lazy;
 using fin.data.queue;
 using fin.io;
-using fin.math;
 using fin.math.rotations;
 using fin.model;
 using fin.model.impl;
@@ -19,7 +18,6 @@ using modl.schema.modl.bw2;
 using modl.schema.res.texr;
 
 using schema.binary;
-
 
 namespace modl.api {
   public class ModlModelFileBundle : IBattalionWarsModelFileBundle {

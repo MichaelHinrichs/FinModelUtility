@@ -1,6 +1,5 @@
-﻿using System.Runtime.CompilerServices;
-using Vector4 = System.Numerics.Vector4;
-
+﻿using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace fin.math.matrix {
   public class FinVector4 {

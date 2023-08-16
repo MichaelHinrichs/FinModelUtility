@@ -3,14 +3,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 
 using fin.data;
 using fin.math;
-
-using System.Numerics;
-
 using fin.util.enumerables;
-
 
 namespace fin.model.impl {
   public partial class ModelImpl<TVertex> {

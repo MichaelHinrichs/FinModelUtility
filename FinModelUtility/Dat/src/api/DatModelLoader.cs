@@ -6,7 +6,6 @@ using fin.model.impl;
 
 using schema.binary;
 
-
 namespace dat.api {
   public class DatModelFileBundle : IModelFileBundle {
     public required string GameName { get; init; }

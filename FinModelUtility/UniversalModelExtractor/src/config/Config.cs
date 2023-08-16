@@ -5,7 +5,6 @@ using Newtonsoft.Json.Converters;
 
 using uni.platforms;
 
-
 namespace uni.config {
   public enum ScaleSourceType {
     NONE,

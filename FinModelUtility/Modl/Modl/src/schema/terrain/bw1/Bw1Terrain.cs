@@ -2,7 +2,6 @@
 
 using schema.binary;
 
-
 namespace modl.schema.terrain.bw1 {
   public class Bw1Terrain : IBwTerrain, IBinaryDeserializable {
     public IBwHeightmap Heightmap { get; private set; }

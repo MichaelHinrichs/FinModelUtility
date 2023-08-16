@@ -19,7 +19,7 @@
 // SOFTWARE.
 namespace Texim.Formats
 {
-    using Texim.Pixels;
+    using Pixels;
 
     public class RawIndexedImageParams
     {

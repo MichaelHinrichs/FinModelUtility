@@ -7,7 +7,6 @@ using schema.binary;
 
 using SixLabors.ImageSharp.PixelFormats;
 
-
 namespace fin.image.io.tile {
   /// <summary>
   ///   Stolen from:

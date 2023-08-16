@@ -7,7 +7,6 @@ using NUnit.Framework;
 
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
-
 namespace fin.data.lazy {
   public class LazyAsyncDictionaryTests {
     [Test]

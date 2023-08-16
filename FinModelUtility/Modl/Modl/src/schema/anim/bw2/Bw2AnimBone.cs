@@ -1,6 +1,5 @@
 ﻿using schema.binary;
 
-
 namespace modl.schema.anim.bw2 {
   public class Bw2AnimBone : IBwAnimBone, IBinaryDeserializable {
     public string GetIdentifier() => this.Name;

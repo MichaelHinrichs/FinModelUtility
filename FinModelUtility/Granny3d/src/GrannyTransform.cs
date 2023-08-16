@@ -4,7 +4,6 @@ using fin.schema.vector;
 
 using schema.binary;
 
-
 namespace granny3d {
   public class GrannyTransform : IGrannyTransform, IBinaryDeserializable {
     public GrannyTransformFlags Flags { get; private set; }

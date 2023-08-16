@@ -1,7 +1,6 @@
-﻿using SixLabors.ImageSharp.PixelFormats;
+﻿using schema.binary;
 
-using schema.binary;
-
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace fin.image.io {
   public interface IPixelReader<TPixel>

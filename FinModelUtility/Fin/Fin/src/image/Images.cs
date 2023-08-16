@@ -1,10 +1,14 @@
-﻿using fin.io;
-using fin.util.asserts;
-
-using System;
+﻿using System;
 using System.Drawing;
 using System.IO;
-using System.Text;
+using System.Threading.Tasks;
+
+using FastBitmapLib;
+
+using fin.color;
+using fin.image.formats;
+using fin.io;
+using fin.util.asserts;
 
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
@@ -15,16 +19,8 @@ using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Formats.Tga;
 using SixLabors.ImageSharp.PixelFormats;
 
-using System.Threading.Tasks;
-
-using FastBitmapLib;
-
-using fin.color;
-using fin.image.formats;
-
 using Color = System.Drawing.Color;
 using Image = SixLabors.ImageSharp.Image;
-
 
 namespace fin.image {
   public static class FinImage {

@@ -6,7 +6,6 @@ using fin.model;
 
 using schema.binary;
 
-
 namespace visceral.api {
   public class BnkLoader {
     public enum MaybeBoneType {

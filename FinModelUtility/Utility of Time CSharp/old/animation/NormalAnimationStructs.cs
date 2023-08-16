@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 
-using UoT.util;
-
 namespace UoT {
   // Based on the structs at:
   // https://wiki.cloudmodding.com/oot/Animation_Format#Normal_Animations

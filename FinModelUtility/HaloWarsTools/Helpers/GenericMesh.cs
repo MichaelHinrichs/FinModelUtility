@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Numerics;
-using System.Linq;
 using System.IO;
-
+using System.Linq;
+using System.Numerics;
+using System.Text;
 
 namespace HaloWarsTools {
   public enum MeshNormalExportMode {

@@ -22,7 +22,7 @@ namespace SceneGate.Lemon.Containers.Converters
     using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
-    using SceneGate.Lemon.Containers.Formats;
+    using Formats;
     using Yarhl.FileFormat;
     using Yarhl.FileSystem;
     using Yarhl.IO;

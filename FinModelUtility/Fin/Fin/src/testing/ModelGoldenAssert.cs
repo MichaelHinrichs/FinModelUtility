@@ -15,7 +15,6 @@ using fin.util.strings;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-
 namespace fin.testing {
   public static class ModelGoldenAssert {
     private const string TMP_NAME = "tmp";

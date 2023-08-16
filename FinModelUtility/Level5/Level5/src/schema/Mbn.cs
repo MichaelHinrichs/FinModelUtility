@@ -1,4 +1,5 @@
 ﻿using fin.schema.vector;
+
 using schema.binary;
 
 namespace level5.schema {

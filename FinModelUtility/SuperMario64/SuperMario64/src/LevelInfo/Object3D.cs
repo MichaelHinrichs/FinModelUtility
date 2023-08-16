@@ -6,7 +6,6 @@ using sm64.JSON;
 using sm64.LevelInfo;
 using sm64.Scripts;
 
-
 namespace sm64 {
   public class Object3D {
     public enum FLAGS {

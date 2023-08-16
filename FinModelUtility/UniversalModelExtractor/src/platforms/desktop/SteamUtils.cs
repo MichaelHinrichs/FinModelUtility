@@ -5,9 +5,6 @@ using fin.util.linq;
 using Gameloop.Vdf;
 using Gameloop.Vdf.Linq;
 
-using Microsoft.Win32;
-
-
 namespace uni.platforms.desktop {
   internal static class SteamUtils {
     public const string INSTALL_PATH_32_BIT_REGISTRY_KEY =

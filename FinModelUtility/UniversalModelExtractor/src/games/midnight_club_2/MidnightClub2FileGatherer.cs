@@ -7,7 +7,6 @@ using uni.util.io;
 
 using xmod.api;
 
-
 namespace uni.games.midnight_club_2 {
   public class MidnightClub2FileGatherer
       : IFileBundleGatherer<IModelFileBundle> {

@@ -1,7 +1,4 @@
-﻿using fin.util.strings;
-
-using schema.binary;
-
+﻿using schema.binary;
 
 namespace modl.schema.terrain {
   [BinarySchema]

@@ -1,5 +1,3 @@
-using System.IO;
-
 using fin.schema.vector;
 
 using mod.schema.collision;
@@ -9,7 +7,6 @@ using NUnit.Framework;
 using schema.binary;
 
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
-
 
 namespace mod.schema {
   public class GcnSerializablesTests {

@@ -1,12 +1,11 @@
-﻿using uni.platforms.threeDs;
-using uni.util.io;
-using uni.util.bundles;
-
-using cmb.api;
+﻿using cmb.api;
 
 using fin.io;
 using fin.io.bundles;
 
+using uni.platforms.threeDs;
+using uni.util.bundles;
+using uni.util.io;
 
 namespace uni.games.majoras_mask_3d {
   public class MajorasMask3dFileGatherer

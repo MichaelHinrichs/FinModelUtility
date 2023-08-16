@@ -1,14 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-using fin.color;
 using fin.model;
 
 using gx;
 
 using j3d.GCN;
 using j3d.schema.bti;
-
 
 namespace j3d.exporter {
   public class BmdMaterialManager {

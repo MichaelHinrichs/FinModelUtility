@@ -1,13 +1,12 @@
-﻿using fin.animation;
-using fin.math;
-using fin.model;
-using fin.model.impl;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 
+using fin.animation;
+using fin.math;
+using fin.model;
+using fin.model.impl;
 
 namespace fin.scene {
   public class SceneImpl : IScene {

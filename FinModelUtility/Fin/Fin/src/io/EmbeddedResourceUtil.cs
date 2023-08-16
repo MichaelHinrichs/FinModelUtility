@@ -5,7 +5,6 @@ using System.Reflection;
 
 using fin.util.asserts;
 
-
 namespace fin.io {
   public static class EmbeddedResourceUtil {
     public static Stream GetStream(Assembly assembly, string embeddedResourceName) {

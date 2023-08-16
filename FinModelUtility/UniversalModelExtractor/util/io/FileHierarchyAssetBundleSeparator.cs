@@ -1,7 +1,6 @@
 ﻿using fin.io;
 using fin.io.bundles;
 
-
 namespace uni.util.io {
   public class FileHierarchyAssetBundleSeparator<TFileBundle>
       : IFileBundleGatherer<TFileBundle>

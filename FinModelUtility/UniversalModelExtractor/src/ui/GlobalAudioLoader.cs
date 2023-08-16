@@ -2,7 +2,6 @@
 
 using fin.audio;
 
-
 namespace uni.ui {
   public class GlobalAudioLoader : IAudioLoader<IAudioFileBundle> {
     public IAudioBuffer<short> LoadAudio(IAudioManager<short> audioManager,

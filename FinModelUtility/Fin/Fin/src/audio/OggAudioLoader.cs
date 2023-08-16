@@ -5,7 +5,6 @@ using fin.util.asserts;
 
 using NVorbis;
 
-
 namespace fin.audio {
   public class OggAudioFileBundle : IAudioFileBundle {
     public OggAudioFileBundle(IFileHierarchyFile oggFile) {

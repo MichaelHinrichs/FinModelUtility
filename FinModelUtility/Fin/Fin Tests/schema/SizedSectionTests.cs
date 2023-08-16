@@ -1,13 +1,11 @@
-﻿using fin.schema.data;
+﻿using System.Threading.Tasks;
+
+using fin.schema.data;
 
 using NUnit.Framework;
 
 using schema.binary;
 using schema.binary.testing;
-
-using System.IO;
-using System.Threading.Tasks;
-
 
 namespace fin.schema {
   internal partial class SizedSectionTests {

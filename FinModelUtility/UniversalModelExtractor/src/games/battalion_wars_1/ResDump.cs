@@ -8,7 +8,6 @@ using modl.schema.res;
 
 using schema.binary;
 
-
 namespace uni.games.battalion_wars_1 {
   public class ResDump {
     public bool Run(IFileHierarchyFile resFile) {

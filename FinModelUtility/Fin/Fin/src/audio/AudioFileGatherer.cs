@@ -1,6 +1,5 @@
 ﻿using fin.io.bundles;
 
-
 namespace fin.audio {
   public interface IAudioFileBundle : IFileBundle { }
 

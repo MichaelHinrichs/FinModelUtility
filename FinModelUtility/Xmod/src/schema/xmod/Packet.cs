@@ -1,6 +1,5 @@
 ﻿using schema.text;
 
-
 namespace xmod.schema.xmod {
   public class Packet : ITextDeserializable {
     public IReadOnlyList<Adjunct> Adjuncts { get; set; }

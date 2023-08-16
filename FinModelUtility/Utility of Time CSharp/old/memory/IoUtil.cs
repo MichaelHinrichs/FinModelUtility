@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace UoT {
+﻿namespace UoT {
   public static class IoUtil {
     // TODO: Rename params.
     /// <summary>

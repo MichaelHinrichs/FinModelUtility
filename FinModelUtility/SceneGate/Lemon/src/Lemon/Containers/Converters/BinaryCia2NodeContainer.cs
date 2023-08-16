@@ -20,7 +20,7 @@
 namespace SceneGate.Lemon.Containers.Converters
 {
     using System;
-    using SceneGate.Lemon.Titles;
+    using Titles;
     using Yarhl.FileFormat;
     using Yarhl.FileSystem;
     using Yarhl.IO;

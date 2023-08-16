@@ -1,20 +1,19 @@
 ﻿using fin.data;
+using fin.data.lazy;
 using fin.data.queue;
 using fin.io;
-using fin.math;
+using fin.math.rotations;
 using fin.model;
 using fin.model.impl;
+using fin.util.enumerables;
 
 using level5.schema;
 
-using System.Numerics;
-
-using fin.data.lazy;
-using fin.math.rotations;
-using fin.util.enumerables;
+using OpenTK;
 
 using schema.binary;
 
+using Quaternion = System.Numerics.Quaternion;
 
 namespace level5.api {
   public class XcModelFileBundle : IModelFileBundle {
@@ -85,15 +84,15 @@ namespace level5.api {
             bone.Name = modelResourceFile.GetResourceName(mbn.Id);
 
             var mat3 = mbn.RotationMatrix3;
-            var matrix = new OpenTK.Matrix3(mat3[0],
-                                            mat3[1],
-                                            mat3[2],
-                                            mat3[3],
-                                            mat3[4],
-                                            mat3[5],
-                                            mat3[6],
-                                            mat3[7],
-                                            mat3[8]);
+            var matrix = new Matrix3(mat3[0],
+                                     mat3[1],
+                                     mat3[2],
+                                     mat3[3],
+                                     mat3[4],
+                                     mat3[5],
+                                     mat3[6],
+                                     mat3[7],
+                                     mat3[8]);
             var openTkQuaternion = matrix.ExtractRotation();
             var quaternion = new Quaternion(openTkQuaternion.X,
                                             openTkQuaternion.Y,

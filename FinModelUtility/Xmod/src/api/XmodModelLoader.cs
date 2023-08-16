@@ -8,7 +8,6 @@ using xmod.schema.xmod;
 
 using PrimitiveType = xmod.schema.xmod.PrimitiveType;
 
-
 namespace xmod.api {
   public class XmodModelFileBundle : IModelFileBundle {
     public required string GameName { get; init; }

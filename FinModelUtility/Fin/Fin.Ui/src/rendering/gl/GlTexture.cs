@@ -1,12 +1,11 @@
-﻿using fin.image;
+﻿using System.Buffers;
+using System.Runtime.CompilerServices;
+
+using fin.image;
+using fin.image.formats;
 using fin.model;
 
 using OpenTK.Graphics.OpenGL;
-
-using System.Buffers;
-using System.Runtime.CompilerServices;
-
-using fin.image.formats;
 
 using FinTextureMinFilter = fin.model.TextureMinFilter;
 using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
@@ -109,8 +108,7 @@ namespace fin.ui.rendering.gl {
             (int) (texture.MagFilter switch {
                 TextureMagFilter.NEAR => OpenTK.Graphics.OpenGL.TextureMagFilter
                                                .Nearest,
-                TextureMagFilter.LINEAR => OpenTK.Graphics.OpenGL
-                                                 .TextureMagFilter.Linear,
+                TextureMagFilter.LINEAR => OpenTK.Graphics.OpenGL.TextureMagFilter.Linear,
             }));
       }
       GL.BindTexture(target, UNDEFINED_ID);

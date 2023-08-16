@@ -2,7 +2,6 @@
 
 using schema.binary;
 
-
 namespace level5.schema {
   public class Resource {
     public class Material {
@@ -29,7 +28,7 @@ namespace level5.schema {
 
     public Resource(byte[] data) {
       data = new Level5Decompressor().Decompress(data);
-      using (var r = new EndianBinaryReader(new System.IO.MemoryStream(data),
+      using (var r = new EndianBinaryReader(new MemoryStream(data),
                                             Endianness.LittleEndian)) {
         var magic = new string(r.ReadChars(6));
         if (magic != "CHRC00" && magic != "CHRN01")

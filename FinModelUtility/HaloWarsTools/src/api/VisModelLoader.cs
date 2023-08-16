@@ -3,7 +3,6 @@ using fin.model;
 
 using HaloWarsTools;
 
-
 namespace hw.api {
   public class VisModelFileBundle : IHaloWarsModelFileBundle {
     public VisModelFileBundle(IFileHierarchyFile visFile, HWContext context) {

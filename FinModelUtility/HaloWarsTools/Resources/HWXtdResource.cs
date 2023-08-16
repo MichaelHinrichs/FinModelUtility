@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 using Dxt;
 
@@ -9,10 +10,7 @@ using fin.image;
 using fin.model;
 using fin.model.impl;
 
-using System.Runtime.CompilerServices;
-
 using Microsoft.Toolkit.HighPerformance.Helpers;
-
 
 namespace HaloWarsTools {
   public class HWXtdResource : HWBinaryResource {

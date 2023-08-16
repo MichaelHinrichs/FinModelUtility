@@ -1,6 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
 
-
 namespace benchmarks {
   public class PassingInStructs {
     private const int n = 100000;

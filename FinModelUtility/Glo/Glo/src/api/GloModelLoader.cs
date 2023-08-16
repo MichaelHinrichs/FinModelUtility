@@ -1,15 +1,16 @@
-﻿using fin.io;
-using fin.model;
-using fin.model.impl;
-using glo.schema;
-using System.Numerics;
+﻿using System.Numerics;
+
 using fin.color;
 using fin.data.lazy;
 using fin.data.queue;
 using fin.image;
 using fin.image.formats;
+using fin.io;
+using fin.model;
+using fin.model.impl;
 using fin.util.asserts;
 
+using glo.schema;
 
 namespace glo.api {
   public class GloModelFileBundle : IModelFileBundle {

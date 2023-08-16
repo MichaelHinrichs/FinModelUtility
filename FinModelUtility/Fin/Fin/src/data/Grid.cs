@@ -5,7 +5,6 @@ using System.Runtime.CompilerServices;
 
 using fin.util.asserts;
 
-
 namespace fin.data {
   public interface IReadOnlyGrid<out T> : IEnumerable<T> {
     int Width { get; }

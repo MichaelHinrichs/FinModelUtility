@@ -1,12 +1,9 @@
-﻿using System.Text;
-
-using fin.io;
+﻿using fin.io;
 using fin.io.archive;
 using fin.util.strings;
 
 using schema.binary;
 using schema.binary.attributes;
-
 
 namespace uni.platforms.threeDs.tools {
   public partial class ZarReader : IArchiveReader<SubArchiveContentFile> {

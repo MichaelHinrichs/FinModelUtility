@@ -1,7 +1,6 @@
 ﻿using fin.audio;
 using fin.util.asserts;
 
-
 namespace fin.ui.playback.al {
   public partial class AlAudioManager {
     public IMutableAudioBuffer<short> CreateMutableBuffer()

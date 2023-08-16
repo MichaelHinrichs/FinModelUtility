@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 
-
 namespace fin.util.time {
   public class TimedCallback {
     private readonly Timer impl_;

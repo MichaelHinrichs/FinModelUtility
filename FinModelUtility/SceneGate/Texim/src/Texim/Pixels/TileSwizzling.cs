@@ -21,6 +21,7 @@ namespace Texim.Pixels
 {
     using System;
     using System.Collections.Generic;
+    using System.Drawing;
     using System.Linq;
     using Yarhl.IO;
 
@@ -28,23 +29,23 @@ namespace Texim.Pixels
     {
         public TileSwizzling()
         {
-            TileSize = new System.Drawing.Size(8, 8);
+            TileSize = new Size(8, 8);
             Width = 256;
         }
 
         public TileSwizzling(int width)
         {
-            TileSize = new System.Drawing.Size(8, 8);
+            TileSize = new Size(8, 8);
             Width = width;
         }
 
-        public TileSwizzling(System.Drawing.Size tileSize, int width)
+        public TileSwizzling(Size tileSize, int width)
         {
             TileSize = tileSize;
             Width = width;
         }
 
-        public System.Drawing.Size TileSize { get; set; }
+        public Size TileSize { get; set; }
 
         public int Width { get; set; }
 
@@ -93,8 +94,8 @@ namespace Texim.Pixels
             int tileLength = TileSize.Width * TileSize.Height;
             int numTilesX = Width / TileSize.Width;
 
-            var pixelPos = new System.Drawing.Point(x % TileSize.Width, y % TileSize.Height);
-            var tilePos = new System.Drawing.Point(x / TileSize.Width, y / TileSize.Height);
+            var pixelPos = new Point(x % TileSize.Width, y % TileSize.Height);
+            var tilePos = new Point(x / TileSize.Width, y / TileSize.Height);
 
             return (tilePos.Y * numTilesX * tileLength) // Start row of tile
                 + (tilePos.X * tileLength) // plus start column of tile

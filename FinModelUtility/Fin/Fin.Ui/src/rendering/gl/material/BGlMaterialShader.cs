@@ -1,11 +1,10 @@
-﻿using fin.math;
+﻿using System.Numerics;
+
+using fin.math;
 using fin.model;
 using fin.shaders.glsl;
 
 using OpenTK.Graphics.OpenGL;
-
-using Matrix4x4 = System.Numerics.Matrix4x4;
-
 
 namespace fin.ui.rendering.gl.material {
   public abstract class BGlMaterialShader<TMaterial> : IGlMaterialShader

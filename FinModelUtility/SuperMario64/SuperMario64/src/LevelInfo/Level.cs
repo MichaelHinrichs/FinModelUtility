@@ -9,7 +9,6 @@ using sm64.memory;
 using sm64.schema;
 using sm64.Scripts;
 
-
 namespace sm64.LevelInfo {
   public class AreaBackgroundInfo {
     public uint address = 0;

@@ -1,7 +1,6 @@
 ﻿using fin.io;
 using fin.util.asserts;
 
-
 namespace uni.platforms.desktop {
   public static class EaUtils {
     public static bool TryGetGameDirectory(

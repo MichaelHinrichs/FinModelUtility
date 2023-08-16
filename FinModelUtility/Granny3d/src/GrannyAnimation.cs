@@ -2,7 +2,6 @@
 
 using schema.binary;
 
-
 namespace granny3d {
   public class GrannyAnimation : IGrannyAnimation, IBinaryDeserializable {
     public string Name { get; private set; }

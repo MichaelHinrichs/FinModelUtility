@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 
@@ -10,9 +9,10 @@ using fin.image;
 using fin.model;
 using fin.model.util;
 
+using BlendMode = fin.model.BlendMode;
+
 namespace fin.exporter.assimp.indirect {
-  using WrapMode = fin.model.WrapMode;
-  using FinBlendMode = fin.model.BlendMode;
+  using FinBlendMode = BlendMode;
 
   public class AssimpIndirectTextureFixer {
     public void Fix(IModel model, Scene sc) {
@@ -67,7 +67,7 @@ namespace fin.exporter.assimp.indirect {
               WrapModeV = this.ConvertWrapMode_(finTexture.WrapModeV)
           };
 
-          assTextureSlot.TextureType = Assimp.TextureType.Diffuse;
+          assTextureSlot.TextureType = TextureType.Diffuse;
           assTextureSlot.UVIndex = finTexture.UvIndex;
 
           assMaterial.AddMaterialTexture(assTextureSlot);

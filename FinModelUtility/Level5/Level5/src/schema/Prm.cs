@@ -1,4 +1,5 @@
 ﻿using level5.decompression;
+
 using OpenTK;
 
 using schema.binary;
@@ -17,7 +18,7 @@ namespace level5.schema {
     public List<GenericVertex> Vertices { get; set; }
 
     public Prm(byte[] data) {
-      using (var r = new EndianBinaryReader(new System.IO.MemoryStream(data), Endianness.LittleEndian)) {
+      using (var r = new EndianBinaryReader(new MemoryStream(data), Endianness.LittleEndian)) {
         Open(r);
       }
     }
@@ -104,7 +105,7 @@ namespace level5.schema {
             indices.Add(r.ReadUInt16());
         }
       if (primitiveType == 2)
-        using (var r = new EndianBinaryReader(new System.IO.MemoryStream(buffer), endianness)) {
+        using (var r = new EndianBinaryReader(new MemoryStream(buffer), endianness)) {
           //Console.WriteLine(PrimitiveType + " " + FaceCount + " " + r.BaseStream.Length / 2);
           r.Position = 0;
           int f1 = r.ReadInt16();
@@ -156,7 +157,7 @@ namespace level5.schema {
 
       var endianness = Endianness.LittleEndian;
 
-      using (var r = new EndianBinaryReader(new System.IO.MemoryStream(buffer), endianness)) {
+      using (var r = new EndianBinaryReader(new MemoryStream(buffer), endianness)) {
         r.Position = 0x4;
         uint attOffset = r.ReadUInt16();
         int attSomething = r.ReadInt16();
@@ -176,7 +177,7 @@ namespace level5.schema {
       int[] aOffset = new int[10];
       int[] aSize = new int[10];
       int[] aType = new int[10];
-      using (var r = new EndianBinaryReader(new System.IO.MemoryStream(attributeBuffer), endianness)) {
+      using (var r = new EndianBinaryReader(new MemoryStream(attributeBuffer), endianness)) {
         for (int i = 0; i < 10; i++) {
           aCount[i] = r.ReadByte();
           aOffset[i] = r.ReadByte();
@@ -189,7 +190,7 @@ namespace level5.schema {
         }
       }
 
-      using (var r = new EndianBinaryReader(new System.IO.MemoryStream(buffer), endianness)) {
+      using (var r = new EndianBinaryReader(new MemoryStream(buffer), endianness)) {
         for (int i = 0; i < vertexCount; i++) {
           GenericVertex vert = new GenericVertex();
           vert.Clr = new Vector4(1, 1, 1, 1);

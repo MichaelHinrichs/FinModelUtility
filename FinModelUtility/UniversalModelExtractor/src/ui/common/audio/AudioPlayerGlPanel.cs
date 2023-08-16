@@ -1,11 +1,12 @@
 ﻿using fin.audio;
-using fin.ui.playback.al;
 using fin.data;
+using fin.ui.playback.al;
 using fin.ui.rendering.gl;
 using fin.util.time;
-using OpenTK.Graphics.OpenGL;
-using uni.ui.gl;
 
+using OpenTK.Graphics.OpenGL;
+
+using uni.ui.gl;
 
 namespace uni.ui.common.audio {
   public class AudioPlayerGlPanel : BGlPanel, IAudioPlayerPanel {

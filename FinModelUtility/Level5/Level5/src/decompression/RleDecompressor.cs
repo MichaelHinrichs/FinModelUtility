@@ -1,6 +1,5 @@
 ﻿using fin.decompression;
 
-
 namespace level5.decompression {
   public class RleDecompressor : BDecompressor {
     public override bool TryDecompress(byte[] src, out byte[] dst) {

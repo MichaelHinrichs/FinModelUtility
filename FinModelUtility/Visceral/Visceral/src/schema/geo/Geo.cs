@@ -5,7 +5,6 @@ using fin.util.binary;
 
 using schema.binary;
 
-
 namespace visceral.schema.geo {
   public class Geo : IBinaryDeserializable {
     public string ModelName { get; set; }

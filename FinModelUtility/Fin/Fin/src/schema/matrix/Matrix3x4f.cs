@@ -1,6 +1,5 @@
 ﻿using schema.binary;
 
-
 namespace fin.schema.matrix {
   [BinarySchema]
   public partial class Matrix3x4f : IBinaryConvertible {

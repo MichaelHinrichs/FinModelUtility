@@ -1,9 +1,6 @@
-﻿using System.Runtime.CompilerServices;
-
-using fin.util.asserts;
+﻿using fin.util.asserts;
 
 using schema.binary;
-
 
 namespace modl.schema.anim.bw1 {
   public class Bw1Anim : IAnim, IBinaryDeserializable {

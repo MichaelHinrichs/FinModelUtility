@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace UoT {
+﻿namespace UoT {
   public enum BitSize {
     S_4B = 0,
     S_8B = 1,

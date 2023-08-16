@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 
+using KSoft.Phoenix.Resource;
 
 namespace HaloWarsTools {
   public class HWContext {
@@ -61,20 +62,20 @@ namespace HaloWarsTools {
 
       var absoluteEraPath = GetAbsoluteGamePath(relativeEraPath);
       var expander =
-          new KSoft.Phoenix.Resource.EraFileExpander(absoluteEraPath);
+          new EraFileExpander(absoluteEraPath);
 
-      expander.Options.Set(KSoft.Phoenix.Resource.EraFileUtilOptions.x64);
-      expander.Options.Set(KSoft.Phoenix.Resource.EraFileUtilOptions
-                                .SkipVerification);
+      expander.Options.Set(EraFileUtilOptions.x64);
+      expander.Options.Set(EraFileUtilOptions
+                                   .SkipVerification);
 
-      expander.ExpanderOptions.Set(KSoft.Phoenix.Resource.EraFileExpanderOptions
-                                        .Decrypt);
-      expander.ExpanderOptions.Set(KSoft.Phoenix.Resource.EraFileExpanderOptions
-                                        .DontOverwriteExistingFiles);
-      expander.ExpanderOptions.Set(KSoft.Phoenix.Resource.EraFileExpanderOptions
-                                        .DecompressUIFiles);
-      expander.ExpanderOptions.Set(KSoft.Phoenix.Resource.EraFileExpanderOptions
-                                        .TranslateGfxFiles);
+      expander.ExpanderOptions.Set(EraFileExpanderOptions
+                                           .Decrypt);
+      expander.ExpanderOptions.Set(EraFileExpanderOptions
+                                           .DontOverwriteExistingFiles);
+      expander.ExpanderOptions.Set(EraFileExpanderOptions
+                                           .DecompressUIFiles);
+      expander.ExpanderOptions.Set(EraFileExpanderOptions
+                                           .TranslateGfxFiles);
 
       if (!expander.Read()) {
         return false;

@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 
-
 namespace fin.io {
   public interface ISubdirPaths {
     string AbsoluteSubdirPath { get; }

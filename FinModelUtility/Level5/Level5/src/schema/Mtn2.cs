@@ -1,13 +1,12 @@
-﻿using fin.data;
-using fin.math;
-using fin.util.asserts;
-using level5.decompression;
-using System.Numerics;
+﻿using System.Numerics;
 
+using fin.data;
 using fin.math.rotations;
+using fin.util.asserts;
+
+using level5.decompression;
 
 using schema.binary;
-
 
 namespace level5.schema {
   public class Mtn2 {

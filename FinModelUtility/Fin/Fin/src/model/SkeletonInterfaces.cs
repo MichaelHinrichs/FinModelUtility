@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using fin.data;
 using System.Numerics;
 
+using fin.data;
 
 namespace fin.model {
   public interface ISkeleton : IEnumerable<IBone> {

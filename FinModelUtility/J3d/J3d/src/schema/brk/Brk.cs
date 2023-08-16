@@ -1,6 +1,5 @@
 ﻿using schema.binary;
 
-
 namespace j3d.schema.btk {
   /// <summary>
   ///   BRK files define color register animations.

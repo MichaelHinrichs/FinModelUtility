@@ -10,7 +10,6 @@ using sm64.memory;
 using sm64.scripts;
 using sm64.scripts.geo;
 
-
 namespace sm64.Scripts {
   public class GeoScriptsV2 : IGeoScripts {
     private GeoScriptNode rootNode;

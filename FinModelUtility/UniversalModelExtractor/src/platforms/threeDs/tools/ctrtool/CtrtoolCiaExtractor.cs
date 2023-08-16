@@ -5,7 +5,6 @@ using fin.util.asserts;
 using uni.platforms.gcn.tools;
 using uni.util.cmd;
 
-
 namespace uni.platforms.threeDs.tools.ctrtool {
   public static partial class Ctrtool {
     public class CiaExtractor {

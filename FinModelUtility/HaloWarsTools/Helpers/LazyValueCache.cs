@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-
 namespace HaloWarsTools {
   public class LazyValueCache {
     public LazyValueCache() {

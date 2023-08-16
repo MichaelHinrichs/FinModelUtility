@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 
-
 namespace fin.image {
   public interface IDxt<TImage> : IEnumerable<IMipMap<TImage>>
       where TImage : notnull {

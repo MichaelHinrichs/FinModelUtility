@@ -1,6 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL;
 
-
 namespace fin.ui.rendering.gl {
   public class GlDisplayList : IDisposable {
     private readonly int displayListId_;

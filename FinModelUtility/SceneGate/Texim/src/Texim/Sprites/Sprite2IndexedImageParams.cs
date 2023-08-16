@@ -19,13 +19,14 @@
 // SOFTWARE.
 namespace Texim.Sprites;
 
-using Texim.Images;
+using System.Drawing;
+using Images;
 
 public class Sprite2IndexedImageParams
 {
     public SpriteRelativeCoordinatesKind RelativeCoordinates { get; set; } = SpriteRelativeCoordinatesKind.Center;
 
-    public System.Drawing.Size TileSize { get; set; } = new System.Drawing.Size(8, 8);
+    public Size TileSize { get; set; } = new Size(8, 8);
 
     public bool IsTiled { get; set; } = true;
 

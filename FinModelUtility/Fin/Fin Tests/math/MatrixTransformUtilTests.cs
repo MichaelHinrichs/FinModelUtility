@@ -4,7 +4,6 @@ using fin.model;
 
 using NUnit.Framework;
 
-
 namespace fin.math {
   public class FinMatrixUtilTests {
     [Test]

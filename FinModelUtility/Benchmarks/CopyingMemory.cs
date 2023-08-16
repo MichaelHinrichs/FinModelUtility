@@ -1,6 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
 
-
 namespace benchmarks {
   public class CopyingMemory {
     private readonly int n_ = 100000;

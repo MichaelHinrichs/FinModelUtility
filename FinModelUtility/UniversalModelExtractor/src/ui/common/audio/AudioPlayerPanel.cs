@@ -1,6 +1,5 @@
 ﻿using fin.audio;
 
-
 namespace uni.ui.common.audio {
   public partial class AudioPlayerPanel : UserControl, IAudioPlayerPanel {
     public AudioPlayerPanel() {

@@ -1,7 +1,6 @@
 ﻿using fin.io;
 using fin.model;
 
-
 namespace xmod.api {
   public class PedModelFileBundle : IModelFileBundle {
     public string GameName => "midnight_club_2";

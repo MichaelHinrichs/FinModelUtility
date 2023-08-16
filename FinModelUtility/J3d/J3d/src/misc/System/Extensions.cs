@@ -8,7 +8,6 @@ using System.Drawing;
 
 using schema.binary;
 
-
 namespace System {
   public static class Extensions {
     public static Color ReadColor16(this IEndianBinaryReader er) {

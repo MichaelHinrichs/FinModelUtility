@@ -5,7 +5,6 @@ using schema.binary;
 
 using SixLabors.ImageSharp.PixelFormats;
 
-
 namespace fin.image.io.pixel {
   /// <summary>
   ///   Helper class for reading 16-bit RGB pixels, where the red channel has 5

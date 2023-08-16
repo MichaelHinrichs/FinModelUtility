@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-
 namespace fin.data {
   public class CounterArray : IEnumerable<int> {
     private readonly List<int> impl_ = new();

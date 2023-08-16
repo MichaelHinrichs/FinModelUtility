@@ -19,9 +19,9 @@
 // SOFTWARE.
 namespace Texim.Processing
 {
-    using Texim.Colors;
-    using Texim.Palettes;
-    using Texim.Pixels;
+    using Colors;
+    using Palettes;
+    using Pixels;
 
     public class FixedPaletteQuantization : IQuantization
     {

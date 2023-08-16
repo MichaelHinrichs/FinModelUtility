@@ -1,6 +1,5 @@
 ﻿using schema.binary;
 
-
 namespace ast.schema {
   [BinarySchema]
   public partial class BlckHeader : IBinaryConvertible {

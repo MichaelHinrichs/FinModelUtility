@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 
-
 namespace fin.data {
   public interface INode<out T, TSelf> where TSelf : INode<T, TSelf> {
     T Value { get; }

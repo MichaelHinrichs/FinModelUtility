@@ -19,7 +19,7 @@
 // SOFTWARE.
 namespace Yarhl.IO
 {
-    using Yarhl.FileFormat;
+    using FileFormat;
 
     /// <summary>
     /// Binary format.

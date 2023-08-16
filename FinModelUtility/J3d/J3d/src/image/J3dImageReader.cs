@@ -7,7 +7,6 @@ using j3d.schema.bmd.tex1;
 
 using schema.binary;
 
-
 namespace j3d.image {
   public class J3dImageReader : IImageReader {
     private readonly IImageReader impl_;

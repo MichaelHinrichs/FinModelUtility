@@ -1,10 +1,11 @@
-﻿using fin.color;
-using gx;
-using mod.schema;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Linq;
 
-using Material = mod.schema.Material;
+using fin.color;
+
+using gx;
+
+using mod.schema;
 
 namespace mod.util {
   internal class ModPopulatedMaterial : IPopulatedMaterial {

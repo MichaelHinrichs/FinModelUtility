@@ -1,9 +1,11 @@
-﻿using gx;
-using j3d.GCN;
-using j3d.schema.bmd.mat3;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+
+using gx;
+
+using j3d.GCN;
+using j3d.schema.bmd.mat3;
 
 namespace j3d.misc.GCN {
 

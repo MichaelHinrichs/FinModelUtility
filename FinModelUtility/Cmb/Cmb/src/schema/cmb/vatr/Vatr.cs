@@ -1,7 +1,6 @@
 ﻿using schema.binary;
 using schema.binary.attributes;
 
-
 namespace cmb.schema.cmb.vatr {
   [BinarySchema]
   public partial class Vatr : IBinaryConvertible {

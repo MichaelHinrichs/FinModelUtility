@@ -1,6 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL;
 
-
 namespace fin.ui.rendering.gl {
   public static partial class GlUtil {
     public static bool IsInitialized { get; private set; }

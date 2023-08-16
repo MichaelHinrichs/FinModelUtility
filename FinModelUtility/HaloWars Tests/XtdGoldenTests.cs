@@ -5,7 +5,6 @@ using fin.testing;
 
 using hw.api;
 
-
 namespace hw {
   public class XtdGoldenTests {
     [Test]

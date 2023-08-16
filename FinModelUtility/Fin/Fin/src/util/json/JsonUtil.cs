@@ -4,7 +4,6 @@ using fin.util.asserts;
 
 using Newtonsoft.Json;
 
-
 namespace fin.util.json {
   public static class JsonUtil {
     public static string Serialize(object obj) {

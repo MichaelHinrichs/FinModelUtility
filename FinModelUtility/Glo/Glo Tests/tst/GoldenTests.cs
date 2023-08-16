@@ -11,7 +11,6 @@ using NUnit.Framework;
 using schema.binary;
 using schema.binary.testing;
 
-
 namespace glo {
   public class GoldenTests {
     [Test]

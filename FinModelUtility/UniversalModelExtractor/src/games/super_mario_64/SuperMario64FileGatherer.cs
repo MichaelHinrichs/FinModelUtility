@@ -1,11 +1,9 @@
 ﻿using fin.io;
-
-using uni.platforms;
-
 using fin.io.bundles;
 
 using sm64.api;
 
+using uni.platforms;
 
 namespace uni.games.super_mario_64 {
   public class SuperMario64FileGatherer :

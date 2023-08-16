@@ -20,8 +20,9 @@
 namespace SceneGate.Lemon.Containers.Converters
 {
     using System;
+    using System.IO;
     using System.Security.Cryptography;
-    using SceneGate.Lemon.Titles;
+    using Titles;
     using Yarhl.FileFormat;
     using Yarhl.FileSystem;
     using Yarhl.IO;
@@ -128,7 +129,7 @@ namespace SceneGate.Lemon.Containers.Converters
         void WriteFile(DataWriter writer, Node file, bool isRequired = true)
         {
             if (file == null && isRequired) {
-                throw new System.IO.FileNotFoundException("Missing CIA file");
+                throw new FileNotFoundException("Missing CIA file");
             }
 
             if (file.Format is not IBinary) {

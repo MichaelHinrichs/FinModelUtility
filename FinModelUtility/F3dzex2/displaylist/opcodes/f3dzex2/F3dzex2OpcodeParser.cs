@@ -1,15 +1,13 @@
-﻿using f3dzex2.io;
-using f3dzex2.model;
-
-using System;
+﻿using System;
 
 using f3dzex2.combiner;
 using f3dzex2.image;
+using f3dzex2.io;
+using f3dzex2.model;
 
 using fin.math;
 
 using schema.binary;
-
 
 namespace f3dzex2.displaylist.opcodes.f3dzex2 {
   public class F3dzex2OpcodeParser : IOpcodeParser {

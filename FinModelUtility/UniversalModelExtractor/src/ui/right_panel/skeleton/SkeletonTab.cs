@@ -1,6 +1,5 @@
 ﻿using fin.model;
 
-
 namespace uni.ui.right_panel.skeleton {
   public partial class SkeletonTab : UserControl {
     private IBone[]? bones_;

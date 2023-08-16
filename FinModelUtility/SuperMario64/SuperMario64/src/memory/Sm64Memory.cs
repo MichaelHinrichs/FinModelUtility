@@ -8,7 +8,6 @@ using schema.binary;
 
 using sm64.schema;
 
-
 namespace sm64.memory {
   public interface IReadOnlySm64Memory : IReadOnlyN64Memory {
     byte? AreaId { get; }

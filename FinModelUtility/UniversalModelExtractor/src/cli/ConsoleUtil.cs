@@ -1,6 +1,5 @@
 ﻿using System.Runtime.InteropServices;
 
-
 namespace uni.cli {
   public static class ConsoleUtil {
     public static void ShowConsole() => AllocConsole();

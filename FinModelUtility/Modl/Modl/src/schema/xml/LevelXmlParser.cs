@@ -1,25 +1,21 @@
 ﻿using System.Collections.Concurrent;
 using System.Drawing;
-
-using fin.data.queue;
-using fin.io;
-using fin.math;
-using fin.math.matrix;
-using fin.model;
-using fin.scene;
-
-using modl.api;
-using modl.schema.terrain;
-
 using System.IO.Compression;
 using System.Xml;
 
 using fin.color;
+using fin.data.queue;
+using fin.io;
+using fin.math;
+using fin.math.matrix;
 using fin.math.rotations;
+using fin.model;
 using fin.model.impl;
+using fin.scene;
 using fin.schema.vector;
-using fin.util.asserts;
 
+using modl.api;
+using modl.schema.terrain;
 
 namespace modl.schema.xml {
   public interface IBwObject {

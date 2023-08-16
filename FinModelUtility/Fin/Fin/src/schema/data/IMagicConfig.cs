@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-using schema.binary;
+﻿using schema.binary;
 
 namespace fin.schema.data {
   public interface IMagicConfig<TMagic, in TData>

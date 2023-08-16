@@ -6,7 +6,6 @@ using NUnit.Framework;
 
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
-
 namespace fin.math {
   public class RadiansUtilTests {
     private const float PI = MathF.PI;

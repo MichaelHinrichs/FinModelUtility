@@ -7,7 +7,6 @@ using NUnit.Framework;
 
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
-
 namespace fin.data {
   public class IndexableDictionaryTests {
     private class IndexableImpl : IIndexable {

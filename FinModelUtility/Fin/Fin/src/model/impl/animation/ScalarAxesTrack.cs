@@ -1,9 +1,9 @@
-﻿using fin.data;
-using fin.math.interpolation;
-
-using System;
+﻿using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
+
+using fin.data;
+using fin.math.interpolation;
 
 namespace fin.model.impl {
   public partial class ModelImpl<TVertex> {

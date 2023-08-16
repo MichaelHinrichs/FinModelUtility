@@ -21,8 +21,8 @@ namespace Texim.Sprites;
 
 using System;
 using System.Linq;
-using Texim.Images;
-using Texim.Pixels;
+using Images;
+using Pixels;
 using Yarhl.FileFormat;
 
 public class Sprite2IndexedImage :

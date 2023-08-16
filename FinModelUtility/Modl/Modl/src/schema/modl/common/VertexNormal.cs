@@ -1,7 +1,6 @@
 ﻿using schema.binary;
 using schema.binary.attributes;
 
-
 namespace modl.schema.modl.common {
   [BinarySchema]
   public partial struct VertexNormal : IBinaryConvertible {

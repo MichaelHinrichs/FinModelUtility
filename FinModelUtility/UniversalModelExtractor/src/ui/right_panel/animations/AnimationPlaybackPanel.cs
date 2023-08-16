@@ -1,6 +1,5 @@
 ﻿using fin.animation;
 
-
 namespace uni.ui.right_panel {
   public partial class AnimationPlaybackPanel : UserControl {
     // TODO: Add tests.

@@ -1,6 +1,5 @@
 ﻿using fin.model;
 
-
 namespace uni.ui.right_panel.materials {
   public partial class TextureSection : UserControl {
     public TextureSection() {

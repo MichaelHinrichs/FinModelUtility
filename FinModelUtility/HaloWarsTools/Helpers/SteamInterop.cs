@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 
 using Microsoft.Win32;
 
-
 namespace HaloWarsTools.Helpers {
   public class SteamInterop {
     [SupportedOSPlatform("windows")]

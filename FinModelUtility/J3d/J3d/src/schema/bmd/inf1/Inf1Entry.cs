@@ -1,6 +1,5 @@
 ﻿using schema.binary;
 
-
 namespace j3d.schema.bmd.inf1 {
   public enum Inf1EntryType : ushort {
     TERMINATOR = 0,

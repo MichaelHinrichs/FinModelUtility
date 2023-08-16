@@ -21,8 +21,8 @@ namespace Yarhl.FileSystem
 {
     using System;
     using System.Collections.Generic;
-    using Yarhl.FileFormat;
-    using Yarhl.IO;
+    using FileFormat;
+    using IO;
 
     /// <summary>
     /// Node in the FileSystem with an associated format.

@@ -1,6 +1,5 @@
 ﻿using schema.text;
 
-
 namespace xmod.schema.ped {
   public class Ped : ITextDeserializable {
     public string SkelName { get; set; }

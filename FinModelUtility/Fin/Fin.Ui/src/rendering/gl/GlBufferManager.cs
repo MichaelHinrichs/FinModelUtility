@@ -1,12 +1,9 @@
-﻿using fin.model;
+﻿using fin.data;
+using fin.model;
 
 using OpenTK.Graphics.OpenGL;
 
-using fin.data;
-
-using GL = OpenTK.Graphics.OpenGL.GL;
 using PrimitiveType = fin.model.PrimitiveType;
-
 
 namespace fin.ui.rendering.gl {
   public class GlBufferManager : IDisposable {

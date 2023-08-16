@@ -20,7 +20,7 @@
 namespace Texim.Palettes
 {
     using System.Collections.ObjectModel;
-    using Texim.Colors;
+    using Colors;
     using Yarhl.FileFormat;
 
     public interface IPalette : IFormat

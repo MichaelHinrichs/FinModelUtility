@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 
-
 namespace sm64.LevelInfo {
   public class CustomSortedCategoryAttribute : CategoryAttribute {
     private const char NonPrintableChar = '\t';

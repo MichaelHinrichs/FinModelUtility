@@ -2,7 +2,6 @@
 
 using Microsoft.Win32;
 
-
 namespace uni.platforms.desktop {
   public static class RegistryExtensions {
     public static object? GetSoftwareValueEither32Or64Bit(

@@ -1,7 +1,4 @@
-﻿using fin.schema.data;
-
-using System;
-using System.IO;
+﻿using System;
 
 using cmb.schema.cmb.luts;
 using cmb.schema.cmb.mats;
@@ -11,11 +8,11 @@ using cmb.schema.cmb.sklm;
 using cmb.schema.cmb.tex;
 using cmb.schema.cmb.vatr;
 
+using fin.schema.data;
 using fin.util.strings;
 
 using schema.binary;
 using schema.binary.attributes;
-
 
 namespace cmb.schema.cmb {
   [Endianness(Endianness.LittleEndian)]

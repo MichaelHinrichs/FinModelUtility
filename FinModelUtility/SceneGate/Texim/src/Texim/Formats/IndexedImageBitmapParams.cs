@@ -19,9 +19,9 @@
 // SOFTWARE.
 namespace Texim.Formats
 {
+    using Palettes;
     using SixLabors.ImageSharp.Formats;
     using SixLabors.ImageSharp.Formats.Png;
-    using Texim.Palettes;
 
     public class IndexedImageBitmapParams
     {

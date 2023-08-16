@@ -1,6 +1,5 @@
 ﻿using fin.image;
 
-
 namespace fin.util.image {
   public enum ImageTransparencyType {
     OPAQUE,

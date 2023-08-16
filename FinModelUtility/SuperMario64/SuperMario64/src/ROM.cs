@@ -1,12 +1,9 @@
-﻿using System.Drawing;
-
-using f3dzex2.io;
+﻿using f3dzex2.io;
 
 using LIBMIO0;
 
 using sm64.memory;
 using sm64.src;
-
 
 namespace sm64 {
   public enum ROM_Region {
@@ -240,7 +237,7 @@ namespace sm64 {
       byte seg = (byte) (segOffset >> 24);
 
       if (GetSegBank(seg, areaID).IsMIO0)
-        throw new System.ArgumentException(
+        throw new ArgumentException(
             "Cannot decode segment address (0x" + segOffset.ToString("X8") +
             ") from MIO0 data. (decodeSegmentAddress 1)");
       uint off = segOffset & 0x00FFFFFF;
@@ -251,7 +248,7 @@ namespace sm64 {
       SegBank seg = GetSegBank(segment, areaID);
 
       if (seg.IsMIO0)
-        throw new System.ArgumentException(
+        throw new ArgumentException(
             "Cannot decode segment address (0x" + segment.ToString("X2") +
             offset.ToString("X6") +
             ") from MIO0 data. (decodeSegmentAddress 2)");

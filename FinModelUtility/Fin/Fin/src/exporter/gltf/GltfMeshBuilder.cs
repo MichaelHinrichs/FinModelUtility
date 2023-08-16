@@ -17,7 +17,6 @@ using SharpGLTF.Transforms;
 
 using PrimitiveType = fin.model.PrimitiveType;
 
-
 namespace fin.exporter.gltf {
   using VERTEX =
       VertexBuilder<VertexPositionNormal, VertexColor2Texture2, VertexJoints4>;

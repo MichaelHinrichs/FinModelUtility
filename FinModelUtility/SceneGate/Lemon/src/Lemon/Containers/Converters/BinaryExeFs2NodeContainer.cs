@@ -25,7 +25,7 @@ namespace SceneGate.Lemon.Containers.Converters
     using System.Linq;
     using System.Security.Cryptography;
     using System.Text;
-    using SceneGate.Lemon.Logging;
+    using Logging;
     using Yarhl.FileFormat;
     using Yarhl.FileSystem;
     using Yarhl.IO;

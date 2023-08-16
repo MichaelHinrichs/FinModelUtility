@@ -4,7 +4,6 @@ using mod.cli;
 
 using uni.platforms.gcn;
 
-
 namespace uni.games.pikmin_1 {
   public class Pikmin1ModelFileGatherer
       : IFileBundleGatherer<ModModelFileBundle> {

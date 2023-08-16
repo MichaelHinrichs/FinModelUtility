@@ -22,7 +22,7 @@ namespace Texim.Palettes
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
-    using Texim.Colors;
+    using Colors;
 
     public class Palette : IPalette
     {

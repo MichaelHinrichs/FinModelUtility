@@ -1,16 +1,15 @@
-﻿using System.Text;
-using System.Drawing;
+﻿using System.Drawing;
+using System.Text;
 
-using fin.color;
-using fin.model;
 using fin.image;
 using fin.language.equations.fixedFunction;
 using fin.language.equations.fixedFunction.impl;
+using fin.model;
 using fin.util.asserts;
+
 using FinBlendFactor = fin.model.BlendFactor;
 using FinLogicOp = fin.model.LogicOp;
 using FinAlphaOp = fin.model.AlphaOp;
-using BlendMode = fin.model.BlendMode;
 
 namespace gx {
   /// <summary>

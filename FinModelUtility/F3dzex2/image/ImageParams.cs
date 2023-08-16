@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-using fin.util.hash;
+﻿using fin.util.hash;
 
 namespace f3dzex2.image {
   public struct ImageParams {

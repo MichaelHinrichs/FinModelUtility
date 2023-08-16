@@ -4,7 +4,6 @@ using schema.binary;
 
 using SixLabors.ImageSharp.PixelFormats;
 
-
 namespace fin.image.io.pixel {
   /// <summary>
   ///   Helper class for reading 4-bit luminance pixels to both luminance and

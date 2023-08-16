@@ -1,6 +1,4 @@
 ﻿using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Running;
-
 
 namespace benchmarks {
   public class FetchDirectories {

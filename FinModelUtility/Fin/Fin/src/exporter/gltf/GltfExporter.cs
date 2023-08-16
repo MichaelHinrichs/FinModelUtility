@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
-using fin.io;
 using fin.log;
 using fin.model;
 using fin.model.util;
@@ -14,7 +13,6 @@ using SharpGLTF.Materials;
 using SharpGLTF.Schema2;
 
 using AlphaMode = SharpGLTF.Materials.AlphaMode;
-
 
 namespace fin.exporter.gltf {
   public interface IGltfExporter : IExporter {

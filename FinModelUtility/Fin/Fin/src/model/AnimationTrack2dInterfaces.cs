@@ -2,7 +2,6 @@
 
 using fin.math.interpolation;
 
-
 namespace fin.model {
   public interface
       IAxes2fTrack<TInterpolated> : IAxesTrack<float, TInterpolated> {

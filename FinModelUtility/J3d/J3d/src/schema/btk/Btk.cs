@@ -1,8 +1,5 @@
 ﻿using schema.binary;
-using System.IO;
-
 using schema.binary.attributes;
-
 
 namespace j3d.schema.btk {
   /// <summary>

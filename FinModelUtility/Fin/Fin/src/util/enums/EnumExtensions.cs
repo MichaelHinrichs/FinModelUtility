@@ -1,6 +1,5 @@
 ﻿using System;
 
-
 namespace fin.util.enums {
   public static class EnumExtensions {
     public static bool CheckFlag<TEnum>(this TEnum instance, TEnum value)

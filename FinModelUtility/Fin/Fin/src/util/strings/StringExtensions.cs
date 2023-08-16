@@ -1,6 +1,5 @@
 ﻿using System.Text;
 
-
 namespace fin.util.strings {
   public static class StringExtensions {
     public static string Reverse(this string str) {

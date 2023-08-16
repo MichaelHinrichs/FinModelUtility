@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 
 using fin.util.asserts;
 
-
 namespace fin.util.enumerables {
   public static class EnumerableExtensions {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -2,7 +2,6 @@
 
 using schema.binary;
 
-
 namespace modl.schema.res.texr {
   public class TexrSection : IBinaryConvertible {
     private enum TexrMode {

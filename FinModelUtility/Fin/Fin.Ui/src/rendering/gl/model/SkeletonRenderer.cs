@@ -1,11 +1,12 @@
-﻿using fin.math;
-using fin.model;
-using System.Numerics;
-using OpenTK.Graphics.OpenGL;
+﻿using System.Numerics;
 using System.Runtime.CompilerServices;
 
-using PrimitiveType = OpenTK.Graphics.OpenGL.PrimitiveType;
+using fin.math;
+using fin.model;
 
+using OpenTK.Graphics.OpenGL;
+
+using PrimitiveType = OpenTK.Graphics.OpenGL.PrimitiveType;
 
 namespace fin.ui.rendering.gl.model {
   public interface ISkeletonRenderer : IRenderable {

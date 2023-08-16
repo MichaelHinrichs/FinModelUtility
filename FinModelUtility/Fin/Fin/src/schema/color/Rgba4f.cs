@@ -3,7 +3,6 @@
 using schema.binary;
 using schema.binary.attributes;
 
-
 namespace fin.schema.color {
   [BinarySchema]
   public partial class Rgba4f : IColor, IBinaryConvertible {

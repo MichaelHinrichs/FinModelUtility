@@ -1,7 +1,6 @@
 ﻿using schema.binary;
 using schema.binary.attributes;
 
-
 namespace modl.schema.modl.bw2.node {
   [BinarySchema]
   public partial class Bw2Material : IBwMaterial, IBinaryConvertible {

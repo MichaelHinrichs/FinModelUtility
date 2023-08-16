@@ -7,28 +7,31 @@
 //using MKDS_Course_Modifier.Converters._3D;
 //using MKDS_Course_Modifier.Converters.Colission;
 //using MKDS_Course_Modifier.UI;
+
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Drawing;
 using System.Numerics;
+
 using fin.schema.matrix;
 using fin.util.asserts;
 using fin.util.color;
 
 using gx;
+
 using j3d._3D_Formats;
 using j3d.G3D_Binary_File_Format;
 using j3d.misc.GCN;
 using j3d.schema.bmd;
+using j3d.schema.bmd.drw1;
 using j3d.schema.bmd.inf1;
 using j3d.schema.bmd.jnt1;
 using j3d.schema.bmd.mat3;
 using j3d.schema.bmd.shp1;
 using j3d.schema.bmd.tex1;
 using j3d.schema.bmd.vtx1;
-using j3d.schema.bmd.drw1;
 
 using schema.binary;
 
@@ -62,7 +65,7 @@ namespace j3d.GCN {
             break;
           case nameof (VTX1):
             er.Position -= 4L;
-            this.VTX1 = new BMD.VTX1Section(er, out OK);
+            this.VTX1 = new VTX1Section(er, out OK);
             if (!OK)
             {
               // TODO: Message box
@@ -72,7 +75,7 @@ namespace j3d.GCN {
               break;
           case nameof (EVP1):
             er.Position -= 4L;
-            this.EVP1 = new BMD.EVP1Section(er, out OK);
+            this.EVP1 = new EVP1Section(er, out OK);
             if (!OK)
             {
               // TODO: Message box
@@ -90,7 +93,7 @@ namespace j3d.GCN {
             break;
           case nameof (SHP1):
             er.Position -= 4L;
-            this.SHP1 = new BMD.SHP1Section(er, out OK);
+            this.SHP1 = new SHP1Section(er, out OK);
             if (!OK)
             {
               // TODO: Message box
@@ -102,7 +105,7 @@ namespace j3d.GCN {
           case "MAT2":
           case nameof (MAT3):
             er.Position -= 4L;
-            this.MAT3 = new BMD.MAT3Section(er, out OK);
+            this.MAT3 = new MAT3Section(er, out OK);
             if (!OK)
             {
               // TODO: Message box
@@ -158,8 +161,8 @@ label_7:
     }
 
     public partial class VTX1Section {
-      public BMD.VTX1Section.Color[][] Colors = new BMD.VTX1Section.Color[2][];
-      public BMD.VTX1Section.Texcoord[][] Texcoords = new BMD.VTX1Section.Texcoord[8][];
+      public Color[][] Colors = new Color[2][];
+      public Texcoord[][] Texcoords = new Texcoord[8][];
       public const string Signature = "VTX1";
       public DataBlockHeader Header;
       public uint ArrayFormatOffset;
@@ -289,10 +292,10 @@ label_7:
                 return;
               case 1:
                 this.Texcoords[texCoordIndex] =
-                    new BMD.VTX1Section.Texcoord[floatList.Count / 2];
+                    new Texcoord[floatList.Count / 2];
                 for (int index = 0; index < floatList.Count - 1; index += 2)
                   this.Texcoords[texCoordIndex][index / 2] =
-                      new BMD.VTX1Section.Texcoord(
+                      new Texcoord(
                           floatList[index],
                           floatList[index + 1]);
                 return;
@@ -409,7 +412,7 @@ label_7:
           this.A = a;
         }
 
-        public static implicit operator System.Drawing.Color(BMD.VTX1Section.Color c)
+        public static implicit operator System.Drawing.Color(Color c)
         {
           return System.Drawing.Color.FromArgb((int) c.A, (int) c.R, (int) c.G, (int) c.B);
         }
@@ -437,7 +440,7 @@ label_7:
       public uint[] Offsets;
       public byte[] Counts;
       public Matrix3x4f[] InverseBindMatrices { get; set; }
-      public BMD.EVP1Section.MultiMatrix[] WeightedIndices;
+      public MultiMatrix[] WeightedIndices;
 
       public EVP1Section(IEndianBinaryReader er, out bool OK)
       {
@@ -458,11 +461,11 @@ label_7:
           this.Counts = er.ReadBytes((int) this.Count);
 
           er.Position = position1 + (long) this.Offsets[1];
-          this.WeightedIndices = new BMD.EVP1Section.MultiMatrix[(int) this.Count];
+          this.WeightedIndices = new MultiMatrix[(int) this.Count];
           int val1 = 0;
           for (int index1 = 0; index1 < (int) this.Count; ++index1)
           {
-            this.WeightedIndices[index1] = new BMD.EVP1Section.MultiMatrix();
+            this.WeightedIndices[index1] = new MultiMatrix();
             this.WeightedIndices[index1].Indices = new ushort[(int) this.Counts[index1]];
             for (int index2 = 0; index2 < (int) this.Counts[index1]; ++index2)
             {
@@ -511,7 +514,7 @@ label_7:
       public uint DataOffset;
       public uint MatrixDataOffset;
       public uint PacketLocationsOffset;
-      public BMD.SHP1Section.Batch[] Batches;
+      public Batch[] Batches;
 
       public SHP1Section(IEndianBinaryReader er, out bool OK)
       {
@@ -537,9 +540,9 @@ label_7:
           long position2 = er.Position;
           {
             er.Position = position1 + (long)this.BatchesOffset;
-            this.Batches = new BMD.SHP1Section.Batch[(int)this.NrBatch];
+            this.Batches = new Batch[(int)this.NrBatch];
             for (int index = 0; index < (int)this.NrBatch; ++index) {
-              this.Batches[index] = new BMD.SHP1Section.Batch(er, position1, this);
+              this.Batches[index] = new Batch(er, position1, this);
             }
           }
           {
@@ -576,12 +579,12 @@ label_7:
         public bool HasPositions;
         public bool HasNormals;
         public PacketLocation[] PacketLocations;
-        public BMD.SHP1Section.Batch.Packet[] Packets;
+        public Packet[] Packets;
 
         public Batch(
             IEndianBinaryReader er,
             long baseoffset,
-            BMD.SHP1Section Parent) {
+            SHP1Section Parent) {
           this.MatrixType = (MatrixType) er.ReadByte();
           this.Unknown1 = er.ReadByte();
           this.NrPacket = er.ReadUInt16();
@@ -642,7 +645,7 @@ label_7:
                 break;
             }
           }
-          this.Packets = new BMD.SHP1Section.Batch.Packet[(int) this.NrPacket];
+          this.Packets = new Packet[(int) this.NrPacket];
           this.PacketLocations = new PacketLocation[(int) this.NrPacket];
           for (int index = 0; index < (int) this.NrPacket; ++index)
           {
@@ -652,7 +655,7 @@ label_7:
             this.PacketLocations[index] = packetLocation;
 
             er.Position = baseoffset + (long) Parent.DataOffset + (long) this.PacketLocations[index].Offset;
-            this.Packets[index] = new BMD.SHP1Section.Batch.Packet(er, (int) this.PacketLocations[index].Size, this.BatchAttributes);
+            this.Packets[index] = new Packet(er, (int) this.PacketLocations[index].Size, this.BatchAttributes);
             er.Position = baseoffset + (long) Parent.MatrixDataOffset + (long) (((int) this.FirstMatrixData + index) * 8);
             this.Packets[index].MatrixData = er.ReadNew<MatrixData>();
             er.Position = baseoffset + (long) Parent.MatrixTableOffset + (long) (2U * this.Packets[index].MatrixData.FirstIndex);
@@ -663,7 +666,7 @@ label_7:
 
         public class Packet
         {
-          public BMD.SHP1Section.Batch.Packet.Primitive[] Primitives;
+          public Primitive[] Primitives;
           public ushort[] MatrixTable;
           public MatrixData MatrixData;
 
@@ -672,15 +675,15 @@ label_7:
             int Length,
             BatchAttribute[] Attributes)
           {
-            List<BMD.SHP1Section.Batch.Packet.Primitive> primitiveList = new List<BMD.SHP1Section.Batch.Packet.Primitive>();
+            List<Primitive> primitiveList = new List<Primitive>();
             bool flag = false;
             int num1 = 0;
             while (!flag)
             {
-              BMD.SHP1Section.Batch.Packet.Primitive primitive = new BMD.SHP1Section.Batch.Packet.Primitive();
-              primitive.Type = (BMD.SHP1Section.Batch.Packet.Primitive.GXPrimitive) er.ReadByte();
+              Primitive primitive = new Primitive();
+              primitive.Type = (Primitive.GXPrimitive) er.ReadByte();
               ++num1;
-              if (primitive.Type == (BMD.SHP1Section.Batch.Packet.Primitive.GXPrimitive) 0 || num1 >= Length)
+              if (primitive.Type == (Primitive.GXPrimitive) 0 || num1 >= Length)
               {
                 flag = true;
               }
@@ -688,10 +691,10 @@ label_7:
               {
                 ushort num2 = er.ReadUInt16();
                 num1 += 2;
-                primitive.Points = new BMD.SHP1Section.Batch.Packet.Primitive.Index[(int) num2];
+                primitive.Points = new Primitive.Index[(int) num2];
                 for (int index1 = 0; index1 < (int) num2; ++index1)
                 {
-                  primitive.Points[index1] = new BMD.SHP1Section.Batch.Packet.Primitive.Index();
+                  primitive.Points[index1] = new Primitive.Index();
                   for (int index2 = 0; index2 < Attributes.Length; ++index2)
                   {
                     ushort num3 = 0;
@@ -747,8 +750,8 @@ label_7:
 
           public class Primitive
           {
-            public BMD.SHP1Section.Batch.Packet.Primitive.GXPrimitive Type;
-            public BMD.SHP1Section.Batch.Packet.Primitive.Index[] Points;
+            public GXPrimitive Type;
+            public Index[] Points;
 
             public enum GXPrimitive
             {
@@ -785,11 +788,11 @@ label_7:
       public ushort[] MaterialEntryIndieces;
       public short[] TextureIndices;
       public GxCullMode[] CullModes;
-      public System.Drawing.Color[] MaterialColor;
-      public System.Drawing.Color[] LightColors;
-      public System.Drawing.Color[] AmbientColors;
-      public System.Drawing.Color[] TevColors;
-      public System.Drawing.Color[] TevKonstColors;
+      public Color[] MaterialColor;
+      public Color[] LightColors;
+      public Color[] AmbientColors;
+      public Color[] TevColors;
+      public Color[] TevKonstColors;
       public AlphaCompare[] AlphaCompares;
       public BlendFunction[] BlendFunctions;
       public DepthFunction[] DepthFunctions;
@@ -852,7 +855,7 @@ label_7:
             this.CullModes[index] = (GxCullMode) er.ReadInt32();
 
           er.Position = position1 + (long) this.Offsets[5];
-          this.MaterialColor = new System.Drawing.Color[sectionLengths[5] / 4];
+          this.MaterialColor = new Color[sectionLengths[5] / 4];
           for (int index = 0; index < sectionLengths[5] / 4; ++index)
             this.MaterialColor[index] = er.ReadColor8();
 
@@ -864,7 +867,7 @@ label_7:
           }
 
           er.Position = position1 + (long) this.Offsets[8];
-          this.AmbientColors = new System.Drawing.Color[sectionLengths[8] / 4];
+          this.AmbientColors = new Color[sectionLengths[8] / 4];
           for (int index = 0; index < sectionLengths[8] / 4; ++index)
             this.AmbientColors[index] = er.ReadColor8();
 
@@ -893,12 +896,12 @@ label_7:
           er.ReadNewArray(out this.TevOrders, sectionLengths[16] / 4);
 
           er.Position = position1 + (long) this.Offsets[17];
-          this.TevColors = new System.Drawing.Color[sectionLengths[17] / 8];
+          this.TevColors = new Color[sectionLengths[17] / 8];
           for (int index = 0; index < this.TevColors.Length; ++index)
             this.TevColors[index] = er.ReadColor16();
           
           er.Position = position1 + (long) this.Offsets[18];
-          this.TevKonstColors = new System.Drawing.Color[sectionLengths[18] / 4];
+          this.TevKonstColors = new Color[sectionLengths[18] / 4];
           for (int index = 0; index < this.TevKonstColors.Length; ++index)
             this.TevKonstColors[index] = er.ReadColor8();
 

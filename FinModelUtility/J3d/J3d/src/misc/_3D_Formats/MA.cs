@@ -7,7 +7,6 @@
 
 using j3d.schema.bmd.jnt1;
 
-
 namespace j3d._3D_Formats {
   public class MA {
     public class Node {

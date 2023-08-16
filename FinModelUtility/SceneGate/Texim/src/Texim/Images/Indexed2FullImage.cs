@@ -20,9 +20,9 @@
 namespace Texim.Images
 {
     using System;
-    using Texim.Colors;
-    using Texim.Palettes;
-    using Texim.Pixels;
+    using Colors;
+    using Palettes;
+    using Pixels;
     using Yarhl.FileFormat;
 
     public class Indexed2FullImage :

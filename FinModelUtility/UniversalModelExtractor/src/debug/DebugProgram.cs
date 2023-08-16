@@ -12,7 +12,6 @@ using NullFX.CRC;
 using schema.binary;
 using schema.binary.attributes;
 
-
 namespace uni.debug {
   public class DebugProgram {
     public void Run() {

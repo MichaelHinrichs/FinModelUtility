@@ -1,9 +1,8 @@
 using fin.math;
-﻿using fin.util.asserts;
+using fin.util.asserts;
 using fin.util.strings;
 
 using schema.binary;
-
 
 namespace uni.platforms.threeDs.tools {
   public class LzssDecompressor {

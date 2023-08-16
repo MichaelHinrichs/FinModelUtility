@@ -3,7 +3,6 @@
 using schema.binary;
 using schema.binary.attributes;
 
-
 namespace modl.schema.anim.bw1 {
   [BinarySchema]
   public partial class Bw1AnimBone : IBwAnimBone, IBinaryConvertible {

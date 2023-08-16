@@ -2,7 +2,6 @@
 
 using fin.image;
 
-
 namespace fin.ui.rendering.gl.material {
   public static class GlMaterialConstants {
     public static GlTexture NULL_WHITE_TEXTURE;

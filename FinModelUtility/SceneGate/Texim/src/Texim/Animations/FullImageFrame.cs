@@ -19,7 +19,7 @@
 // SOFTWARE.
 namespace Texim.Animations;
 
-using Texim.Images;
+using Images;
 
 public class FullImageFrame : IFullImageFrame
 {

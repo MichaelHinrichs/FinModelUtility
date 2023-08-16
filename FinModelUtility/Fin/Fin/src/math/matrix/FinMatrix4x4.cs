@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using fin.math.matrix;
-using fin.model;
-using fin.util.asserts;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
+using fin.math.matrix;
+using fin.model;
+using fin.util.asserts;
 using fin.util.hash;
 
-
 namespace fin.math {
-  using SystemMatrix = System.Numerics.Matrix4x4;
+  using SystemMatrix = Matrix4x4;
 
   public sealed class FinMatrix4x4 : IFinMatrix4x4 {
     internal SystemMatrix impl_;

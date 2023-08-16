@@ -11,7 +11,6 @@ using schema.binary;
 
 using SixLabors.ImageSharp.PixelFormats;
 
-
 namespace cmb.image {
   /// <summary>
   ///   Stolen from:

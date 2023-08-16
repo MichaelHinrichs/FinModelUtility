@@ -4,7 +4,6 @@ using fin.util.hash;
 
 using schema.binary;
 
-
 namespace f3dzex2.model {
   [BinarySchema]
   public partial struct F3dVertex : IBinaryConvertible {

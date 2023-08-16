@@ -1,6 +1,5 @@
 ﻿using fin.io.bundles;
 
-
 namespace uni.ui.right_panel.info {
   public partial class InfoTab : UserControl {
     public InfoTab() {

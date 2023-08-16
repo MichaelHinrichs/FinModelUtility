@@ -1,6 +1,5 @@
 ﻿using fin.decompression;
 
-
 namespace level5.decompression {
   public class HuffmanDecompressor : BDecompressor {
     private readonly byte aType_;

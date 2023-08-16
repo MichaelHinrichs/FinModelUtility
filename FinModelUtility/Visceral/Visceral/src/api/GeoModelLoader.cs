@@ -12,7 +12,6 @@ using fin.util.enumerables;
 using visceral.schema.geo;
 using visceral.schema.rcb;
 
-
 namespace visceral.api {
   public class GeoModelFileBundle : IModelFileBundle {
     // TODO: Is there a better thing to rely on?

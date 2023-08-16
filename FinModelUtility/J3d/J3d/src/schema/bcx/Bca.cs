@@ -4,14 +4,14 @@
 // MVID: DAEF8B62-698B-42D0-BEDD-3770EB8C9FE8
 // Assembly location: R:\Documents\CSharpWorkspace\Pikmin2Utility\MKDS Course Modifier\MKDS Course Modifier.exe
 
-using j3d.G3D_Binary_File_Format;
-using schema.binary;
 using System;
 using System.IO;
 using System.Linq;
 
-using schema.binary.attributes;
+using j3d.G3D_Binary_File_Format;
 
+using schema.binary;
+using schema.binary.attributes;
 
 namespace j3d.schema.bcx {
   /// <summary>
@@ -26,7 +26,7 @@ namespace j3d.schema.bcx {
       using var er = new EndianBinaryReader((Stream)new MemoryStream(file),
                                             Endianness.BigEndian);
       this.Header = er.ReadNew<BcaHeader>();
-      this.ANF1 = new Bca.ANF1Section(er, out _);
+      this.ANF1 = new ANF1Section(er, out _);
     }
 
     public IAnx1 Anx1 => this.ANF1;
@@ -89,9 +89,9 @@ namespace j3d.schema.bcx {
           this.Translation = er.ReadSingles((int)this.NrTrans);
           float rotScale = (float)(1 * Math.PI / 32768f);
           er.Position = (long)(32U + this.JointOffset);
-          this.Joints = new Bca.ANF1Section.AnimatedJoint[(int)this.NrJoints];
+          this.Joints = new AnimatedJoint[(int)this.NrJoints];
           for (int index = 0; index < (int)this.NrJoints; ++index) {
-            var animatedJoint = new Bca.ANF1Section.AnimatedJoint(er);
+            var animatedJoint = new AnimatedJoint(er);
             animatedJoint.SetValues(this.Scale,
                                     this.Rotation,
                                     this.Translation,

@@ -1,6 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
 
-
 namespace benchmarks {
   public class EditingClassVsStruct {
     private const int n = 100000;

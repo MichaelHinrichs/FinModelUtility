@@ -2,11 +2,9 @@
 
 using BenchmarkDotNet.Attributes;
 
-using fin.math;
 using fin.math.rotations;
 
 using MathNet.Numerics;
-
 
 namespace benchmarks {
   public class QuaternionCreation {

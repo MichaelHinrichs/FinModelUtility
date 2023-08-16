@@ -1,7 +1,6 @@
 ﻿using fin.animation;
 using fin.model;
 
-
 namespace uni.ui.right_panel {
   public partial class AnimationsTab : UserControl {
     private IModelAnimation[]? animations_;

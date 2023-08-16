@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 
-
 namespace HaloWarsTools {
   public abstract class HWBinaryResource : HWResource {
     protected HWBinaryResourceChunk[] Chunks { get; private set; }

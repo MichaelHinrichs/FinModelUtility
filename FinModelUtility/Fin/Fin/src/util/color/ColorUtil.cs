@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 using fin.color;
 using fin.math;
 
-
 namespace fin.util.color {
   public static class ColorUtil {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -1,6 +1,6 @@
 ﻿using fin.ui.rendering.gl;
-using OpenTK.Graphics.OpenGL;
 
+using OpenTK.Graphics.OpenGL;
 
 namespace uni.ui.gl {
   public class GridRenderer {

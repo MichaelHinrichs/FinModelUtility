@@ -1,11 +1,11 @@
-﻿using fin.animation;
-using fin.io.bundles;
-using fin.math;
-using fin.model;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 
+using fin.animation;
+using fin.io.bundles;
+using fin.math;
+using fin.model;
 
 namespace fin.scene {
   public interface ISceneFileBundle : IFileBundle { }

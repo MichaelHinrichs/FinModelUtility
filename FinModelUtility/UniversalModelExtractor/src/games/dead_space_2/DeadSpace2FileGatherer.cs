@@ -3,7 +3,6 @@ using fin.io.bundles;
 
 using uni.platforms.desktop;
 
-
 namespace uni.games.dead_space_2 {
   public class DeadSpace2FileGatherer : IFileBundleGatherer<IFileBundle> {
     public IEnumerable<IFileBundle> GatherFileBundles(bool assert) {

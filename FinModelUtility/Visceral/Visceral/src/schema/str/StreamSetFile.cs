@@ -22,10 +22,10 @@
 
 using fin.schema.data;
 
-using visceral.schema.str.content;
-
 using schema.binary;
 using schema.binary.attributes;
+
+using visceral.schema.str.content;
 
 namespace visceral.schema.str {
   [Endianness(Endianness.LittleEndian)]

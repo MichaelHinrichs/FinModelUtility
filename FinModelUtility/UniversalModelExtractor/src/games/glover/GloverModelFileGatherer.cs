@@ -6,7 +6,6 @@ using glo.api;
 
 using uni.platforms.desktop;
 
-
 namespace uni.games.glover {
   public class GloverModelFileGatherer : IFileBundleGatherer<IFileBundle> {
     public IEnumerable<IFileBundle> GatherFileBundles(

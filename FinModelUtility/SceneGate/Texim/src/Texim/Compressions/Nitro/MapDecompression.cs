@@ -20,8 +20,9 @@
 namespace Texim.Compressions.Nitro
 {
     using System;
-    using Texim.Images;
-    using Texim.Pixels;
+    using System.Drawing;
+    using Images;
+    using Pixels;
     using Yarhl.FileFormat;
 
     public class MapDecompression :
@@ -29,7 +30,7 @@ namespace Texim.Compressions.Nitro
         IConverter<IIndexedImage, IndexedImage>,
         IConverter<IndexedPixel[], IndexedPixel[]>
     {
-        private System.Drawing.Size tileSize;
+        private Size tileSize;
         private IScreenMap map;
         private int outOfBoundsIndex = -1;
 

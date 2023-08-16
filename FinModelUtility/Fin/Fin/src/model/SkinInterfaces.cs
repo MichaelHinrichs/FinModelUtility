@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
 
 using fin.data;
 using fin.math.matrix;
-
-using System;
-using System.Numerics;
-
 
 namespace fin.model {
   public interface ISkin {

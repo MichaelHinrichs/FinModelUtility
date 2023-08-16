@@ -1,7 +1,6 @@
 ﻿using fin.image;
 using fin.model;
 
-
 namespace gx {
   public enum GX_WRAP_TAG : byte {
     GX_CLAMP,

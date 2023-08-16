@@ -15,7 +15,6 @@ using uni.model;
 using uni.msg;
 using uni.thirdparty;
 
-
 namespace uni.games {
   public static class ExtractorUtil {
     static ExtractorUtil() {

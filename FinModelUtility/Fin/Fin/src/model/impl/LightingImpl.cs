@@ -1,9 +1,7 @@
-﻿using fin.color;
+﻿using System.Collections.Generic;
 
-using System.Collections.Generic;
-
+using fin.color;
 using fin.schema.vector;
-
 
 namespace fin.model.impl {
   public partial class ModelImpl<TVertex> {

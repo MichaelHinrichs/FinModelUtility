@@ -2,7 +2,6 @@
 using sm64.memory;
 using sm64.Scripts;
 
-
 namespace sm64 {
   public class ScriptDumpCommandInfo {
     public byte[] data;

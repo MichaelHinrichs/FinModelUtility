@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Numerics;
 
+using f3dzex2.displaylist;
 using f3dzex2.displaylist.opcodes;
 using f3dzex2.displaylist.opcodes.f3dzex2;
 using f3dzex2.image;
@@ -18,7 +18,6 @@ using schema.binary;
 using UoT.hacks;
 using UoT.memory;
 using UoT.model;
-
 
 namespace UoT.api {
   public enum OotSegmentIndex : uint {
@@ -126,7 +125,7 @@ namespace UoT.api {
           n64Hardware.Rsp.ActiveBone = finBone;
 
           var displayList =
-              new f3dzex2.displaylist.DisplayListReader().ReadDisplayList(
+              new DisplayListReader().ReadDisplayList(
                   n64Memory,
                   new F3dzex2OpcodeParser(),
                   ootLimb.DisplayListSegmentedAddress);

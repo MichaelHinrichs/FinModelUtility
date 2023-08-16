@@ -2,7 +2,6 @@
 
 using uni.platforms.wii.tools;
 
-
 namespace uni.platforms.wii {
   public class WiiFileHierarchyExtractor {
     private readonly Wit wit_ = new();

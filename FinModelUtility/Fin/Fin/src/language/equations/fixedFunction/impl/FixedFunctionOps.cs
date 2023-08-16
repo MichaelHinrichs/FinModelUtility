@@ -1,6 +1,5 @@
 ﻿using fin.model;
 
-
 namespace fin.language.equations.fixedFunction.impl {
   public class FixedFunctionOpsConstants {
     public const bool SIMPLIFY = true;

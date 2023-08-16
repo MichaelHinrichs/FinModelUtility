@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 
 using fin.util.asserts;
 
-
 namespace fin.data {
   public class NullFriendlyDictionary<TKey, TValue>
       : IEnumerable<KeyValuePair<TKey, TValue>> {

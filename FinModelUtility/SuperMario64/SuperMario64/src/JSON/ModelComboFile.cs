@@ -1,5 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using System.Globalization;
 
+using Newtonsoft.Json.Linq;
 
 namespace sm64.JSON {
   public class ModelComboFile {
@@ -15,7 +16,7 @@ namespace sm64.JSON {
       if (!isHex)
         return byte.Parse(str);
       else
-        return byte.Parse(str, System.Globalization.NumberStyles.HexNumber);
+        return byte.Parse(str, NumberStyles.HexNumber);
     }
 
     private static uint parseUInt(string str) {
@@ -30,7 +31,7 @@ namespace sm64.JSON {
       if (!isHex)
         return uint.Parse(str);
       else
-        return uint.Parse(str, System.Globalization.NumberStyles.HexNumber);
+        return uint.Parse(str, NumberStyles.HexNumber);
     }
 
     public static void writeObjectCombosFile(string filename) {

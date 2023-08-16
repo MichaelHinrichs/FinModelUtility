@@ -4,7 +4,6 @@ using fin.schema.vector;
 using schema.binary;
 using schema.binary.attributes;
 
-
 namespace glo.schema {
   [BinarySchema]
   [Endianness(Endianness.LittleEndian)]

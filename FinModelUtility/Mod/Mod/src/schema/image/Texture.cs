@@ -1,11 +1,9 @@
-﻿using System.IO;
-
-using fin.image;
+﻿using fin.image;
 
 using mod.image;
+
 using schema.binary;
 using schema.binary.attributes;
-
 
 namespace mod.schema {
   [BinarySchema]

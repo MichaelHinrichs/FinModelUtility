@@ -6,7 +6,6 @@ using fin.math;
 using sm64.memory;
 using sm64.Scripts;
 
-
 namespace sm64 {
   public class Model3DLods {
     private readonly IN64Hardware<ISm64Memory> sm64Hardware_;

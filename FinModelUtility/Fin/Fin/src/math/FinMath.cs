@@ -1,8 +1,4 @@
-﻿using FastMath;
-
-using System;
-using System.Numerics;
-
+﻿using System.Numerics;
 
 namespace fin.math {
   public static class FinMath {

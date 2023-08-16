@@ -1,4 +1,5 @@
 ﻿using fin.model;
+
 using OpenTK.Graphics.OpenGL;
 
 using FinLogicOp = fin.model.LogicOp;

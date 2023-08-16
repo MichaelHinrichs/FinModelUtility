@@ -1,7 +1,6 @@
 ﻿using fin.math;
 using fin.model;
 
-
 namespace fin.ui.rendering.gl.material {
   public static class GlMaterialShader {
     public static IGlMaterialShader FromMaterial(

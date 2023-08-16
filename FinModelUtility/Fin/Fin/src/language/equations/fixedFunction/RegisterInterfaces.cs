@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 
-
 namespace fin.language.equations.fixedFunction {
   public interface IFixedFunctionRegisters {
     IReadOnlyList<IColorRegister> ColorRegisters { get; }

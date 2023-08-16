@@ -1,6 +1,5 @@
 ﻿using schema.binary;
 
-
 namespace fin.schema.color {
   [BinarySchema]
   public partial class Rgba64 : IBinaryConvertible {

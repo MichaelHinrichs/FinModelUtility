@@ -1,6 +1,6 @@
 ﻿using fin.model;
-using OpenTK.Graphics.OpenGL;
 
+using OpenTK.Graphics.OpenGL;
 
 namespace fin.ui.rendering.gl {
   public partial class GlState {

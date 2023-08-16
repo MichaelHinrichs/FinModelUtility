@@ -5,7 +5,6 @@ using System.Collections.ObjectModel;
 using fin.data;
 using fin.math.interpolation;
 
-
 namespace fin.model.impl {
   public partial class ModelImpl<TVertex> {
     public IAnimationManager AnimationManager { get; } =
@@ -65,10 +64,10 @@ namespace fin.model.impl {
 
 
         public IReadOnlyDictionary<ITexture, ITextureTracks> TextureTracks
-          => throw new System.NotImplementedException();
+          => throw new NotImplementedException();
 
         public ITextureTracks AddTextureTracks(ITexture texture) {
-          throw new System.NotImplementedException();
+          throw new NotImplementedException();
         }
 
 

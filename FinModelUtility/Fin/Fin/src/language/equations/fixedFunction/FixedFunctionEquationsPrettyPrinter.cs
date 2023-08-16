@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text;
-using fin.util.asserts;
 
+using fin.util.asserts;
 
 namespace fin.language.equations.fixedFunction {
   public class FixedFunctionEquationsPrettyPrinter<TIdentifier> {

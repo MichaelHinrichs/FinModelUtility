@@ -6,12 +6,14 @@
 
 using System;
 using System.IO;
-using fin.util.asserts;
-using j3d.G3D_Binary_File_Format;
-using schema.binary;
-using schema.binary.attributes;
 using System.Linq;
 
+using fin.util.asserts;
+
+using j3d.G3D_Binary_File_Format;
+
+using schema.binary;
+using schema.binary.attributes;
 
 namespace j3d.schema.bcx {
   /// <summary>
@@ -237,7 +239,7 @@ namespace j3d.schema.bcx {
             if (component.Count <= 0)
               throw new Exception("Count <= 0");
             if (component.Count == 1) {
-              dst[0] = new JointAnim.Key(
+              dst[0] = new Key(
                   0,
                   src[component.Index] * rotScale,
                   0,

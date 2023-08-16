@@ -1,10 +1,10 @@
-﻿using fin.util.json;
+﻿using System.IO;
+using System.IO.Abstractions;
+using System.Runtime.CompilerServices;
+
+using fin.util.json;
 
 using schema.binary;
-
-using System.IO.Abstractions;
-using System.IO;
-using System.Runtime.CompilerServices;
 
 namespace fin.io {
   public static class FinFileStatic {

@@ -11,9 +11,6 @@ using fin.util.color;
 
 using schema.binary;
 
-using IImage = fin.image.IImage;
-
-
 namespace f3dzex2.image {
   public enum N64ImageFormat : byte {
     // Note: "1 bit per pixel" is not a Fast3D format.

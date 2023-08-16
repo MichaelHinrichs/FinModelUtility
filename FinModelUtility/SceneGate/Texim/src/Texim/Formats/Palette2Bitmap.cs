@@ -20,11 +20,11 @@
 namespace Texim.Formats
 {
     using System;
+    using Palettes;
     using SixLabors.ImageSharp;
     using SixLabors.ImageSharp.Formats;
     using SixLabors.ImageSharp.Formats.Png;
     using SixLabors.ImageSharp.PixelFormats;
-    using Texim.Palettes;
     using Yarhl.FileFormat;
     using Yarhl.IO;
 

@@ -1,11 +1,9 @@
 ﻿using fin.color;
-using fin.ui.rendering;
-using fin.ui.rendering.gl.model;
-using fin.math;
 using fin.math.rotations;
 using fin.model;
 using fin.model.impl;
-
+using fin.ui.rendering;
+using fin.ui.rendering.gl.model;
 
 namespace uni.ui.gl {
   internal class BackgroundSphereRenderer : IRenderable {

@@ -5,7 +5,6 @@ using OpenTK.Graphics.OpenGL;
 
 using uni.util.windows;
 
-
 namespace uni.ui.common {
   public abstract partial class BGlPanel : UserControl {
     private readonly TimedCallback timedCallback;

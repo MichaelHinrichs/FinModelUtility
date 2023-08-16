@@ -1,6 +1,5 @@
 ﻿using fin.data;
 
-
 namespace fin.image {
   public interface IImageChannels<T> {
     int ChannelCount { get; }

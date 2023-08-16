@@ -1,7 +1,6 @@
 ﻿using fin.model;
 using fin.shaders.glsl;
 
-
 namespace uni.ui.right_panel.materials {
   public partial class ShaderSection : UserControl {
     public ShaderSection() {

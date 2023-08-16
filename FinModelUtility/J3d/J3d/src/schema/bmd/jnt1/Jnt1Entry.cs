@@ -1,7 +1,7 @@
 ﻿using fin.schema.vector;
+
 using schema.binary;
 using schema.binary.attributes;
-
 
 namespace j3d.schema.bmd.jnt1 {
   public enum JointType : ushort {

@@ -1,9 +1,8 @@
-﻿using System.Text.RegularExpressions;
-using System.Globalization;
+﻿using System.Globalization;
+using System.Text.RegularExpressions;
 
-using fin.util.asserts;
 using fin.io;
-
+using fin.util.asserts;
 
 namespace uni.platforms.gcn.tools {
   /// <summary>

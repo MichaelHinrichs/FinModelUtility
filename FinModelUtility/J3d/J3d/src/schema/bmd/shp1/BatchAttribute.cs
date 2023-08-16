@@ -2,7 +2,6 @@
 
 using schema.binary;
 
-
 namespace j3d.schema.bmd.shp1 {
   [BinarySchema]
   public partial class BatchAttribute : IBinaryDeserializable {

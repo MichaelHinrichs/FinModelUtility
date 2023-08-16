@@ -9,7 +9,6 @@ using modl.schema.modl.common;
 
 using schema.binary;
 
-
 namespace modl.schema.modl.bw1.node {
   public class Bw1Node : IBwNode, IBinaryDeserializable {
     private int additionalDataCount_;

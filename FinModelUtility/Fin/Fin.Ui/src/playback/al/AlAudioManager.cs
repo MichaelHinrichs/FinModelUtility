@@ -2,7 +2,6 @@
 
 using OpenTK.Audio;
 
-
 namespace fin.ui.playback.al {
   public partial class AlAudioManager : IAudioManager<short> {
     private readonly AudioContext context_ = new();

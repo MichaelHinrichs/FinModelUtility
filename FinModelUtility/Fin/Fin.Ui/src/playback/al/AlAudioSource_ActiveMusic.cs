@@ -2,7 +2,6 @@
 
 using OpenTK.Audio.OpenAL;
 
-
 namespace fin.ui.playback.al {
   public partial class AlAudioManager {
     private partial class AlAudioSource : IAudioSource<short> {

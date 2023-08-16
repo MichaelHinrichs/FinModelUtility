@@ -2,7 +2,6 @@
 
 using schema.binary;
 
-
 namespace dat.schema {
   [Flags]
   public enum JObjFlags : uint {

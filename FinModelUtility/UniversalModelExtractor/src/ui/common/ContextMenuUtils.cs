@@ -1,6 +1,4 @@
-﻿using fin.util.asserts;
-
-namespace uni.ui.common {
+﻿namespace uni.ui.common {
   public static class ContextMenuUtils {
     public static bool IsValidRightClickEvent(object? sender,
                                               EventArgs e,

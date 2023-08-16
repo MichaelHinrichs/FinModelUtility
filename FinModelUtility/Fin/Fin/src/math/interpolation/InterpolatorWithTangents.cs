@@ -1,8 +1,6 @@
-﻿using System.Numerics;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
-using MathNet.Numerics.Interpolation;
-
+using OpenTK;
 
 namespace fin.math.interpolation {
   public static class InterpolatorWithTangents {
@@ -52,8 +50,8 @@ namespace fin.math.interpolation {
       return interpolated;
     }
 
-    static OpenTK.Matrix4 m_hermiteMatrix =
-        new OpenTK.Matrix4(2, -2, 1, 1, -3, 3, -2, -1, 0, 0, 1, 0, 1, 0, 0, 0);
+    static Matrix4 m_hermiteMatrix =
+        new Matrix4(2, -2, 1, 1, -3, 3, -2, -1, 0, 0, 1, 0, 1, 0, 0, 0);
 
     /*[MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float InterpolateFloatsWithMathNet(

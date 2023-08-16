@@ -3,7 +3,6 @@ using System.Linq;
 
 using fin.util.image;
 
-
 namespace fin.model.util {
   public static class PrimaryTextureFinder {
     public static ITexture? GetFor(IReadOnlyMaterial material) {

@@ -5,7 +5,6 @@ using fin.testing;
 
 using modl.api;
 
-
 namespace modl {
   public class ModlGoldenTests {
     [Test]

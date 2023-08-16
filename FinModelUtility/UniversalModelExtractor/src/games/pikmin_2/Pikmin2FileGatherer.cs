@@ -1,12 +1,11 @@
 ﻿using ast.api;
 
-using j3d.exporter;
-
 using fin.io;
 using fin.io.bundles;
 
-using uni.platforms.gcn;
+using j3d.exporter;
 
+using uni.platforms.gcn;
 
 namespace uni.games.pikmin_2 {
   public class Pikmin2FileGatherer : IFileBundleGatherer<IFileBundle> {

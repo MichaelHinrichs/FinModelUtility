@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System;
+using System.Collections.Generic;
 
 using fin.schema.color;
 using fin.schema.vector;
+
 using gx;
+
 using schema.binary;
 using schema.binary.attributes;
 
@@ -189,7 +191,7 @@ namespace mod.schema {
     }
 
     public void Write(ISubEndianBinaryWriter writer) {
-      throw new System.NotImplementedException();
+      throw new NotImplementedException();
     }
   }
 

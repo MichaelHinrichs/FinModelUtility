@@ -15,7 +15,6 @@ using fin.util.linq;
 using SharpGLTF.Schema2;
 using SharpGLTF.Validation;
 
-
 namespace fin.exporter.assimp.indirect {
   public class AssimpIndirectExporter : IExporter {
     // You can bet your ass I'm gonna prefix everything with ass.

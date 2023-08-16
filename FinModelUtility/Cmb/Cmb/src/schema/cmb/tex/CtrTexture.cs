@@ -2,7 +2,6 @@
 
 using fin.image.io;
 
-
 namespace cmb.schema.cmb.tex {
   public class CtrTexture {
     private GlTextureFormat CollapseFormat_(GlTextureFormat format) {

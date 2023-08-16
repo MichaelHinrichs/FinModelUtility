@@ -5,7 +5,6 @@ using System.IO.Abstractions;
 
 using schema.binary;
 
-
 namespace fin.io {
   public interface IReadOnlyGenericFile {
     string DisplayPath { get; }

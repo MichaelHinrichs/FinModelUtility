@@ -21,8 +21,8 @@ namespace Texim.Formats
 {
     using System;
     using System.IO;
-    using Texim.Images;
-    using Texim.Pixels;
+    using Images;
+    using Pixels;
     using Yarhl.FileFormat;
     using Yarhl.IO;
 

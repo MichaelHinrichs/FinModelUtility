@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-
 namespace fin.data {
   public class ShuffledListView<T> {
     private readonly IReadOnlyList<T> impl_;

@@ -1,10 +1,7 @@
-﻿using System.IO;
-
-using fin.util.asserts;
+﻿using fin.util.asserts;
 using fin.util.strings;
 
 using schema.binary;
-
 
 namespace cmb.schema.cmb {
   public class CmbHeader : IBinaryDeserializable {

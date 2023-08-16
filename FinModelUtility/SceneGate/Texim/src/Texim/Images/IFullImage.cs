@@ -19,7 +19,7 @@
 // SOFTWARE.
 namespace Texim.Images
 {
-    using Texim.Colors;
+    using Colors;
     using Yarhl.FileFormat;
 
     public interface IFullImage : IFormat

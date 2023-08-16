@@ -1,6 +1,6 @@
 ﻿using gx;
-using schema.binary;
 
+using schema.binary;
 
 namespace j3d.schema.bmd.mat3 {
   public enum RenderOrder : byte {

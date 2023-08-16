@@ -25,8 +25,9 @@
 namespace SceneGate.Lemon.Containers.Converters
 {
     using System;
+    using System.IO;
     using System.Security.Cryptography;
-    using SceneGate.Lemon.Containers.Formats;
+    using Formats;
     using Yarhl.FileFormat;
     using Yarhl.FileSystem;
     using Yarhl.IO;
@@ -143,7 +144,7 @@ namespace SceneGate.Lemon.Containers.Converters
         void WriteFile(DataWriter writer, Node file, bool isRequired = true)
         {
             if (file == null && isRequired) {
-                throw new System.IO.FileNotFoundException("Missing NCCH file");
+                throw new FileNotFoundException("Missing NCCH file");
             } else if (file == null) {
                 return;
             }

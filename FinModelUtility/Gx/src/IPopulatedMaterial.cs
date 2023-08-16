@@ -1,6 +1,5 @@
 ﻿using System.Drawing;
 
-
 namespace gx {
   public enum GxCullMode {
     None = 0,  // Do not cull any primitives

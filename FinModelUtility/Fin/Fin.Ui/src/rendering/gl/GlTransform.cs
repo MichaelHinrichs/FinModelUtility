@@ -1,8 +1,7 @@
-﻿using fin.math;
-using fin.math.matrix;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Runtime.CompilerServices;
 
+using fin.math.matrix;
 using fin.math.rotations;
 
 using OpenTK.Graphics.OpenGL;

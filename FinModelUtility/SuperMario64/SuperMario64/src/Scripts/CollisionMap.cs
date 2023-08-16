@@ -1,7 +1,6 @@
 ﻿using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-
 namespace sm64.Scripts {
   public class CollisionTriangleList {
     public int id = 0;

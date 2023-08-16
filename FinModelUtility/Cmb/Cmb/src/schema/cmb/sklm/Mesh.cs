@@ -1,7 +1,6 @@
 ﻿using schema.binary;
 using schema.binary.attributes;
 
-
 namespace cmb.schema.cmb.sklm {
   [BinarySchema]
   public partial class Mesh : IBinaryConvertible {

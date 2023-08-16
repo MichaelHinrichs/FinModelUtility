@@ -163,8 +163,7 @@ namespace uni.ui.top {
                                    this.Progress,
                                    this.CancellationToken,
                                    Config.Instance.ExporterSettings.ExportedFormats,
-                                   extractorPromptChoice == ExtractorUtil
-                                       .ExtractorPromptChoice.OVERWRITE_EXISTING);
+                                   extractorPromptChoice == ExtractorPromptChoice.OVERWRITE_EXISTING);
         });
       }
     }

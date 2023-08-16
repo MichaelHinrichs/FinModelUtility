@@ -1,10 +1,7 @@
-﻿using fin.math;
-
-using System;
+﻿using System;
 using System.Numerics;
 
 using fin.math.rotations;
-
 
 namespace fin.model.impl {
   /*public class QuaternionImpl : IQuaternion {

@@ -3,7 +3,6 @@ using System.Linq;
 
 using fin.util.asserts;
 
-
 namespace fin.io {
   public static class Files {
     public static ISystemDirectory GetCwd()

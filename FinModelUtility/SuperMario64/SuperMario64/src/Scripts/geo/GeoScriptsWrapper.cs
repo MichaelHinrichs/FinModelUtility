@@ -1,8 +1,5 @@
-﻿using f3dzex2.io;
-
-using sm64.LevelInfo;
+﻿using sm64.LevelInfo;
 using sm64.memory;
-
 
 namespace sm64.Scripts {
   public interface IGeoScripts {

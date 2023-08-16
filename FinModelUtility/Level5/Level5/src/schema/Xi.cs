@@ -1,19 +1,17 @@
-﻿using fin.image;
-using fin.image.io;
-
-using level5.decompression;
-
-using System.Drawing;
+﻿using System.Drawing;
 
 using FastBitmapLib;
 
+using fin.image;
 using fin.image.formats;
+using fin.image.io;
 using fin.image.io.tile;
+
+using level5.decompression;
 
 using schema.binary;
 
 using SixLabors.ImageSharp.PixelFormats;
-
 
 namespace level5.schema {
   public class Xi {
@@ -111,8 +109,7 @@ namespace level5.schema {
         tileSheet = TiledImageReader.New(Tiles.Count * 8,
                                          8,
                                          new Etc1TileReader(
-                                             imageFormat is _3dsImageTools
-                                                 .TexFormat.ETC1a4))
+                                             imageFormat is _3dsImageTools.TexFormat.ETC1a4))
                                     .Read(ImageData)
                                     .AsBitmap();
       } else {

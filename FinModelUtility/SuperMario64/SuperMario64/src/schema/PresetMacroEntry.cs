@@ -1,7 +1,6 @@
 ﻿using schema.binary;
 using schema.binary.attributes;
 
-
 namespace sm64.schema {
   [Endianness(SchemaConstants.SM64_ENDIANNESS)]
   [BinarySchema]

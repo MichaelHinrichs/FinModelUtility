@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 
-
 namespace uni.ui.common {
   public static class BetterTreeUtil {
     public static void ForEach<T, S>(TreeNodeCollection collection,

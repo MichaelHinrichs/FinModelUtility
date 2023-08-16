@@ -3,7 +3,6 @@
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 
-
 namespace uni.debug {
   public class DebugWindow : GameWindow {
     private GlShaderProgram shaderProgram_;

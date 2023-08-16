@@ -3,7 +3,6 @@
 using fin.math.matrix;
 using fin.schema.vector;
 
-
 namespace granny3d {
   public interface IGrannyFileInfo {
     string FromFileName { get; }

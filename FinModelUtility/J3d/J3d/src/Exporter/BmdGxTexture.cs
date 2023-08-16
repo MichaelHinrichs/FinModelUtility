@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
+using fin.image;
 using fin.io;
 using fin.model;
-using fin.image;
 
 using gx;
+
 using j3d.schema.bmd.tex1;
 using j3d.schema.bti;
-
 
 namespace j3d.exporter {
   public class BmdGxTexture : IGxTexture {

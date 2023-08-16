@@ -2,8 +2,8 @@
 using System.Drawing;
 using System.IO;
 
-using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace fin.image.formats {
   public abstract class BImage<TPixel> : IImage<TPixel>

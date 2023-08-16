@@ -3,7 +3,6 @@ using System.Buffers.Binary;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
-
 namespace HaloWarsTools {
   public static class BinaryUtils {
     public static byte ReadByteLittleEndian(byte[] buffer, int startIndex) =>

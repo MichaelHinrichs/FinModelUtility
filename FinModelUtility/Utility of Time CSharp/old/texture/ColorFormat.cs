@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace UoT {
+﻿namespace UoT {
   public enum ColorFormat {
     RGBA = 0,
     YUV = 1,

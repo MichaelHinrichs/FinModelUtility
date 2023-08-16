@@ -7,7 +7,6 @@ using fin.io;
 using fin.language.equations.fixedFunction;
 using fin.util.image;
 
-
 namespace fin.model {
   public interface IMaterialManager {
     IReadOnlyList<IMaterial> All { get; }

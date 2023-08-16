@@ -1,11 +1,13 @@
-﻿using fin.ui.rendering.gl;
-using fin.ui.rendering.gl.material;
-using fin.model;
+﻿using fin.model;
 using fin.model.impl;
+using fin.ui.rendering.gl;
+using fin.ui.rendering.gl.material;
 
 using OpenTK.Graphics.OpenGL;
 
 using uni.ui.common;
+
+using PrimitiveType = fin.model.PrimitiveType;
 
 namespace uni.ui.right_panel.materials {
   public class MaterialViewerGlPanel : BGlPanel, IMaterialViewerPanel {
@@ -43,7 +45,7 @@ namespace uni.ui.right_panel.materials {
       lr.SetUv(1, 1);
 
       this.bufferManager_ = new GlBufferManager(this.viewerModel_);
-      this.bufferRenderer_ = this.bufferManager_.CreateRenderer(fin.model.PrimitiveType.QUADS, new[] {
+      this.bufferRenderer_ = this.bufferManager_.CreateRenderer(PrimitiveType.QUADS, new[] {
           ur,
           ul,
           ll,

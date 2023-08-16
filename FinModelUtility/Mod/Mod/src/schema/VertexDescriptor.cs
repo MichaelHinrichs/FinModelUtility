@@ -6,7 +6,6 @@ using fin.util.asserts;
 
 using gx;
 
-
 namespace mod.schema {
   public class VertexDescriptor : IEnumerable<(GxAttribute, GxAttributeType?)> {
     public bool posMat = false;

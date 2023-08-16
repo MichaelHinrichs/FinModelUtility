@@ -1,7 +1,8 @@
-﻿using fin.model;
-using schema.binary;
-using System;
+﻿using System;
 
+using fin.model;
+
+using schema.binary;
 
 namespace fin.schema.vector {
   public abstract class BVector3<T> {

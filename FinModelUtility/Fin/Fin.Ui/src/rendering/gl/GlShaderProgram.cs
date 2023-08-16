@@ -3,7 +3,6 @@ using fin.data.lazy;
 
 using OpenTK.Graphics.OpenGL;
 
-
 namespace fin.ui.rendering.gl {
   public class GlShaderProgram : IDisposable {
     private readonly CachedShaderProgram cachedShaderProgram_;

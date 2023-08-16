@@ -20,8 +20,8 @@
 namespace Texim.Formats
 {
     using System;
-    using Texim.Colors;
-    using Texim.Palettes;
+    using Colors;
+    using Palettes;
     using Yarhl.FileFormat;
     using Yarhl.IO;
 

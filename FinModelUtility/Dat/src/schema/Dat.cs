@@ -6,7 +6,6 @@ using gx;
 using schema.binary;
 using schema.binary.attributes;
 
-
 namespace dat.schema {
   // AObj: animation
   // CObj: camera

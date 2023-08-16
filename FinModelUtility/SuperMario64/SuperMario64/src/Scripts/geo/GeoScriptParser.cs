@@ -6,7 +6,6 @@ using schema.binary;
 
 using sm64.schema;
 
-
 namespace sm64.scripts.geo {
   public class GeoScriptParser {
     private class GeoCommandList : IGeoCommandList {

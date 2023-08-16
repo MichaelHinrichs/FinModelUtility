@@ -5,7 +5,6 @@ using fin.image;
 using fin.model;
 using fin.util.image;
 
-
 namespace uni.ui.right_panel.textures {
   public partial class TextureInfoSection : UserControl {
     public TextureInfoSection() {

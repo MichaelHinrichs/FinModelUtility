@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Numerics;
 
 using fin.image;
-using fin.io;
 using fin.log;
 using fin.model;
 using fin.model.util;
@@ -19,7 +16,6 @@ using SharpGLTF.Schema2;
 using SharpGLTF.Validation;
 
 using AlphaMode = SharpGLTF.Materials.AlphaMode;
-
 
 namespace fin.exporter.gltf.lowlevel {
   public class LowLevelGltfExporter : IGltfExporter {

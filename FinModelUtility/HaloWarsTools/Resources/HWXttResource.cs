@@ -2,7 +2,6 @@
 
 using fin.image;
 
-
 namespace HaloWarsTools {
   public class HWXttResource : HWBinaryResource {
     public IImage AlbedoTexture { get; private set; }

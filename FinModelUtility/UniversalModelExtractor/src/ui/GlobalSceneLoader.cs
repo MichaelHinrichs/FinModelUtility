@@ -1,7 +1,8 @@
 ﻿using fin.scene;
-using modl.api;
-using sm64.api;
 
+using modl.api;
+
+using sm64.api;
 
 namespace uni.ui {
   public class GlobalSceneLoader : ISceneLoader<ISceneFileBundle> {

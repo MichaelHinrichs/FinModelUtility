@@ -17,12 +17,13 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using System;
+
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Security;
 using Yarhl.IO;
 
@@ -67,8 +68,8 @@ public class TwilightSigner
     /// <returns>The validity of the signature.</returns>
     public HashStatus VerifySignature(byte[] signature, Stream romStream)
     {
-        var exponent = new Org.BouncyCastle.Math.BigInteger(Exponent);
-        var modulus = new Org.BouncyCastle.Math.BigInteger(PublicModulus);
+        var exponent = new BigInteger(Exponent);
+        var modulus = new BigInteger(PublicModulus);
         AsymmetricKeyParameter pubKey = new RsaKeyParameters(false, modulus, exponent);
 
         // We can't use standard libraries or methods because the signature

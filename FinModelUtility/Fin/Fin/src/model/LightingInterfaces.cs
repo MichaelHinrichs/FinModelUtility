@@ -1,6 +1,6 @@
-﻿using fin.color;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
+using fin.color;
 
 namespace fin.model {
   public interface ILighting {

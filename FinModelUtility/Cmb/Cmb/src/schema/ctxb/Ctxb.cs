@@ -1,10 +1,9 @@
 ﻿using cmb.schema.cmb;
+
 using fin.util.strings;
+
 using schema.binary;
-using System.IO;
-
 using schema.binary.attributes;
-
 
 namespace cmb.schema.ctxb {
   [BinarySchema]

@@ -5,7 +5,6 @@ using fin.util.strings;
 using uni.platforms.threeDs.tools;
 using uni.platforms.threeDs.tools.ctrtool;
 
-
 namespace uni.platforms.threeDs {
   public class ThreeDsFileHierarchyExtractor {
     public bool TryToExtractFromGame(string gameName,

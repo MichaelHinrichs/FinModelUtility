@@ -8,7 +8,6 @@ using f3dzex2.model;
 using fin.model;
 using fin.util.enums;
 
-
 namespace f3dzex2.displaylist.opcodes {
   public class NoopOpcodeCommand : IOpcodeCommand { }
 

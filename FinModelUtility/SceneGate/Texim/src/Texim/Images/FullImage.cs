@@ -19,7 +19,7 @@
 // SOFTWARE.
 namespace Texim.Images
 {
-    using Texim.Colors;
+    using Colors;
 
     public class FullImage : IFullImage
     {

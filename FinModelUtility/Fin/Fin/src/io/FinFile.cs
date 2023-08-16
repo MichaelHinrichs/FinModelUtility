@@ -1,15 +1,14 @@
-﻿using System.IO;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.IO.Abstractions;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 using fin.util.asserts;
 using fin.util.json;
 
 using schema.binary;
-
-using System.Collections.Generic;
-using System.Linq;
 
 namespace fin.io {
   public readonly struct FinFile : ISystemFile {

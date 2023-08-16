@@ -2,7 +2,6 @@
 
 using NUnit.Framework;
 
-
 namespace fin.util.reflection {
   public class CallbackUtilTests {
     [Test]

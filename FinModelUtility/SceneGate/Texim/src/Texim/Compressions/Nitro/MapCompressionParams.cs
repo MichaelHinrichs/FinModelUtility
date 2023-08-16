@@ -19,11 +19,12 @@
 // SOFTWARE.
 namespace Texim.Compressions.Nitro
 {
-    using Texim.Images;
+    using System.Drawing;
+    using Images;
 
     public class MapCompressionParams
     {
-        public System.Drawing.Size TileSize { get; set; } = new System.Drawing.Size(8, 8);
+        public Size TileSize { get; set; } = new Size(8, 8);
 
         public IIndexedImage MergeImage { get; set; }
     }

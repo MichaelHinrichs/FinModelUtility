@@ -1,6 +1,6 @@
 ﻿using fin.schema.vector;
-using schema.binary;
 
+using schema.binary;
 
 namespace modl.schema.modl.common {
 

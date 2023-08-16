@@ -1,7 +1,5 @@
 ﻿using schema.text;
 
-using xmod.schema;
-
 namespace xmod.schema.xmod {
   public class Material : ITextDeserializable {
     public string Name { get; set; }

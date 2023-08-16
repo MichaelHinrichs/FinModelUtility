@@ -2,6 +2,7 @@
 using fin.io.bundles;
 using fin.model;
 
+using uni.ui.right_panel.skeleton;
 
 namespace uni.ui.right_panel {
   public partial class ModelTabs : UserControl {
@@ -33,7 +34,7 @@ namespace uni.ui.right_panel {
       remove => this.animationsTab_.OnAnimationSelected -= value;
     }
 
-    public event skeleton.SkeletonTab.BoneSelected OnBoneSelected {
+    public event SkeletonTab.BoneSelected OnBoneSelected {
       add => this.skeletonTab_.OnBoneSelected += value;
       remove => this.skeletonTab_.OnBoneSelected -= value;
     }

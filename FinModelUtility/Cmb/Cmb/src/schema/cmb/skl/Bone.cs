@@ -1,8 +1,8 @@
 ﻿using fin.math;
 using fin.schema.vector;
+
 using schema.binary;
 using schema.binary.attributes;
-
 
 namespace cmb.schema.cmb.skl {
   [BinarySchema]

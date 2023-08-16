@@ -1,12 +1,11 @@
 ﻿using f3dzex2.image;
 
+using OpenTK;
+
 using sm64.LevelInfo;
 using sm64.memory;
 
-
 namespace sm64.Scripts {
-  using CollisionSubCommand = CollisionMapLoader.CollisionSubCommand;
-
   public class LevelScripts {
     private static uint bytesToInt(byte[] b, int offset, int length) {
       switch (length) {
@@ -782,7 +781,7 @@ namespace sm64.Scripts {
       byte segment = cmd[4];
       uint off = bytesToInt(cmd, 5, 3);
       byte[] data = rom.getSegment(segment, areaID)!;
-      var sub_cmd = (CollisionSubCommand) bytesToInt(data, (int) off, 2);
+      var sub_cmd = (CollisionMapLoader.CollisionSubCommand) bytesToInt(data, (int) off, 2);
 
       // Check if the data is actually collision data.
       if (data[off] != 0x00 || data[off + 1] != 0x40)
@@ -796,14 +795,14 @@ namespace sm64.Scripts {
         short x = (short) bytesToInt(data, (int) off + 0, 2);
         short y = (short) bytesToInt(data, (int) off + 2, 2);
         short z = (short) bytesToInt(data, (int) off + 4, 2);
-        cmap.AddVertex(new OpenTK.Vector3(x, y, z));
+        cmap.AddVertex(new Vector3(x, y, z));
         off += 6;
       }
 
-      while (sub_cmd != CollisionSubCommand.TERRAIN_LOAD_CONTINUE) {
-        sub_cmd = (CollisionSubCommand) bytesToInt(data, (int) off, 2);
+      while (sub_cmd != CollisionMapLoader.CollisionSubCommand.TERRAIN_LOAD_CONTINUE) {
+        sub_cmd = (CollisionMapLoader.CollisionSubCommand) bytesToInt(data, (int) off, 2);
         //Console.WriteLine(sub_cmd.ToString("X8"));
-        if (sub_cmd == CollisionSubCommand.TERRAIN_LOAD_CONTINUE) break;
+        if (sub_cmd == CollisionMapLoader.CollisionSubCommand.TERRAIN_LOAD_CONTINUE) break;
         //rom.printArraySection(data, (int)off, 4 + (int)collisionLength(sub_cmd));
         cmap.NewTriangleList((int) bytesToInt(data, (int) off, 2));
         uint num_tri = (ushort) bytesToInt(data, (int) off + 2, 2);
@@ -821,12 +820,12 @@ namespace sm64.Scripts {
       off += 2;
       bool end = false;
       while (!end) {
-        sub_cmd = (CollisionSubCommand) bytesToInt(data, (int) off, 2);
+        sub_cmd = (CollisionMapLoader.CollisionSubCommand) bytesToInt(data, (int) off, 2);
         switch (sub_cmd) {
-          case CollisionSubCommand.TERRAIN_LOAD_END:
+          case CollisionMapLoader.CollisionSubCommand.TERRAIN_LOAD_END:
             end = true;
             break;
-          case CollisionSubCommand.TERRAIN_LOAD_OBJECTS:
+          case CollisionMapLoader.CollisionSubCommand.TERRAIN_LOAD_OBJECTS:
             uint num_obj = (ushort) bytesToInt(data, (int) off + 2, 2);
             off += 4;
             for (int i = 0; i < num_obj; i++) {
@@ -893,7 +892,7 @@ namespace sm64.Scripts {
               off += obj_len;
             }
             break;
-          case CollisionSubCommand.TERRAIN_LOAD_ENVIRONMENT:
+          case CollisionMapLoader.CollisionSubCommand.TERRAIN_LOAD_ENVIRONMENT:
             // Also skipping water boxes. Will come back to it later.
             uint num_boxes = (ushort) bytesToInt(data, (int) off + 2, 2);
             off += 4 + (num_boxes * 0xC);

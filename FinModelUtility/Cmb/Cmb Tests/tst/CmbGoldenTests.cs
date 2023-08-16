@@ -5,7 +5,6 @@ using cmb.api;
 using fin.io;
 using fin.testing;
 
-
 namespace cmb {
   public class CmbGoldenTests {
     [Test]

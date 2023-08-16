@@ -19,8 +19,8 @@
 // SOFTWARE.
 namespace Texim.Images
 {
-    using Texim.Palettes;
-    using Texim.Pixels;
+    using Palettes;
+    using Pixels;
 
     public class IndexedImage : IIndexedImage
     {

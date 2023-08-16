@@ -2,7 +2,6 @@
 
 using OpenTK.Graphics.OpenGL;
 
-
 namespace fin.ui.rendering.gl {
   public partial class GlState {
     public int CurrentShader { get; set; } = -1;

@@ -2,7 +2,6 @@
 
 using fin.model;
 
-
 namespace f3dzex2.rsp {
   public interface IBoneMapper {
     bool TryToGetBoneAtSegmentedAddress(uint ramAddress, out IBone? bone);

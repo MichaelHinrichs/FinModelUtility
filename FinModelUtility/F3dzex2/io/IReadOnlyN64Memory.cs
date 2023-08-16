@@ -9,7 +9,6 @@ using fin.util.hex;
 
 using schema.binary;
 
-
 namespace f3dzex2.io {
   public interface IReadOnlyN64Memory {
     Endianness Endianness { get; }

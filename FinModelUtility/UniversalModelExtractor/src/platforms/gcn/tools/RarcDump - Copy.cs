@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-using fin.io;
+﻿using fin.io;
 using fin.log;
 using fin.util.asserts;
 
@@ -8,7 +6,6 @@ using schema.binary;
 using schema.binary.attributes;
 
 using uni.util.cmd;
-
 
 namespace uni.platforms.gcn.tools {
   public class RarcDump2 {

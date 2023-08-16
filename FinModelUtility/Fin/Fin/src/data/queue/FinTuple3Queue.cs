@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-
 namespace fin.data.queue {
   public interface ITuple3Queue<T1, T2, T3> : IEnumerable<(T1, T2, T3)> {
     int Count { get; }

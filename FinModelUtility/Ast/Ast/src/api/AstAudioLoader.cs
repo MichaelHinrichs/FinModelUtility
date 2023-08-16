@@ -5,7 +5,6 @@ using fin.io;
 
 using schema.binary;
 
-
 namespace ast.api {
   public class AstAudioFileBundle : IAudioFileBundle {
     public required string GameName { get; init; }

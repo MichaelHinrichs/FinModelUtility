@@ -1,6 +1,5 @@
 ﻿using schema.binary;
 
-
 namespace modl.schema.modl.common {
 
   [BinarySchema]

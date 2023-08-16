@@ -1,7 +1,5 @@
 ﻿using schema.text;
 
-using xmod.schema;
-
 namespace xmod.schema.xmod {
   public class Xmod : ITextDeserializable {
     public IReadOnlyList<Vector3> Positions { get; set; }

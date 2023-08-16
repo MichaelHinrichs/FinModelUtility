@@ -1,7 +1,6 @@
 ﻿using fin.data;
 using fin.model;
 
-
 namespace mod.schema.animation {
   public static class DcxHelpers {
     public static IModelAnimation AddAnimation(

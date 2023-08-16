@@ -3,7 +3,6 @@
 using schema.binary;
 using schema.binary.attributes;
 
-
 namespace fin.schema.color {
   [BinarySchema]
   public partial struct Rgba32 : IColor, IBinaryConvertible {

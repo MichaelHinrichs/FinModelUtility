@@ -1,6 +1,5 @@
 ﻿using schema.binary;
 
-
 namespace mod.schema.animation {
   public interface IDcx : IBinaryConvertible {
     string Name { get; set; }

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 
 using fin.scene;
-
-using System.Numerics;
 
 namespace fin.model.util {
   public class SceneMinMaxBoundsScaleCalculator

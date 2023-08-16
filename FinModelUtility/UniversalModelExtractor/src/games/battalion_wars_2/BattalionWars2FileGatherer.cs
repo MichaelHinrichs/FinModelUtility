@@ -1,11 +1,12 @@
 ﻿using fin.io;
 using fin.io.bundles;
+
 using modl.api;
+
 using uni.games.battalion_wars_1;
 using uni.platforms;
 using uni.platforms.wii;
 using uni.util.io;
-
 
 namespace uni.games.battalion_wars_2 {
   public class BattalionWars2FileGatherer : IFileBundleGatherer<IFileBundle> {

@@ -9,7 +9,6 @@ using hw.api;
 using uni.platforms;
 using uni.platforms.desktop;
 
-
 namespace uni.games.halo_wars {
   public class HaloWarsModelFileGatherer 
       : IFileBundleGatherer<IHaloWarsModelFileBundle> {

@@ -1,8 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 
-using fin.math;
 using fin.math.rotations;
-
 
 namespace benchmarks {
   public class Radians {
