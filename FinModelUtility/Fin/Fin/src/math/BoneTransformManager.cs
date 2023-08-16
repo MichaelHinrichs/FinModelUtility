@@ -4,7 +4,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 
 using fin.data;
-using fin.math.matrix;
+using fin.math.matrix.four;
 using fin.math.rotations;
 using fin.model;
 using fin.ui;
@@ -332,7 +332,7 @@ namespace fin.math {
       }
 
       var transformMatrix = finTransformMatrix.Impl;
-      GlMatrixUtil.ProjectPosition(transformMatrix, ref outPosition);
+      ProjectionUtil.ProjectPosition(transformMatrix, ref outPosition);
     }
 
     public void ProjectVertexPositionNormal(
@@ -348,9 +348,9 @@ namespace fin.math {
       }
 
       var transformMatrix = finTransformMatrix.Impl;
-      GlMatrixUtil.ProjectPosition(transformMatrix, ref outPosition);
+      ProjectionUtil.ProjectPosition(transformMatrix, ref outPosition);
       if (vertex.LocalNormal.HasValue) {
-        GlMatrixUtil.ProjectNormal(transformMatrix, ref outNormal);
+        ProjectionUtil.ProjectNormal(transformMatrix, ref outNormal);
       }
     }
 
@@ -370,31 +370,31 @@ namespace fin.math {
       }
 
       var transformMatrix = finTransformMatrix.Impl;
-      GlMatrixUtil.ProjectPosition(transformMatrix, ref outPosition);
+      ProjectionUtil.ProjectPosition(transformMatrix, ref outPosition);
       if (vertex.LocalNormal.HasValue) {
-        GlMatrixUtil.ProjectNormal(transformMatrix, ref outNormal);
+        ProjectionUtil.ProjectNormal(transformMatrix, ref outNormal);
       }
 
       if (vertex.LocalTangent.HasValue) {
-        GlMatrixUtil.ProjectTangent(transformMatrix, ref outTangent);
+        ProjectionUtil.ProjectTangent(transformMatrix, ref outTangent);
       }
     }
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ProjectPosition(IBone bone, ref Position xyz)
-      => GlMatrixUtil.ProjectPosition(this.GetWorldMatrix(bone).Impl, ref xyz);
+      => ProjectionUtil.ProjectPosition(this.GetWorldMatrix(bone).Impl, ref xyz);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ProjectPosition(IBone bone, ref Vector3 xyz)
-      => GlMatrixUtil.ProjectPosition(this.GetWorldMatrix(bone).Impl, ref xyz);
+      => ProjectionUtil.ProjectPosition(this.GetWorldMatrix(bone).Impl, ref xyz);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ProjectNormal(IBone bone, ref Normal xyz)
-      => GlMatrixUtil.ProjectNormal(this.GetWorldMatrix(bone).Impl, ref xyz);
+      => ProjectionUtil.ProjectNormal(this.GetWorldMatrix(bone).Impl, ref xyz);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void ProjectNormal(IBone bone, ref Vector3 xyz)
-      => GlMatrixUtil.ProjectNormal(this.GetWorldMatrix(bone).Impl, ref xyz);
+      => ProjectionUtil.ProjectNormal(this.GetWorldMatrix(bone).Impl, ref xyz);
   }
 }

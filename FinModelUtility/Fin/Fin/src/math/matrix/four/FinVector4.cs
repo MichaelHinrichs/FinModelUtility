@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using System.Runtime.CompilerServices;
 
-namespace fin.math.matrix {
+namespace fin.math.matrix.four {
   public class FinVector4 {
     private Vector4 impl_;
 

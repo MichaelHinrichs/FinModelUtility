@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using fin.math.rotations;
 using fin.model;
 
-namespace fin.math.matrix {
+namespace fin.math.matrix.four {
   public static class FinMatrixUtil {
     public static IReadOnlyFinMatrix4x4 IDENTITY { get; } =
       FinMatrixUtil.FromIdentity();

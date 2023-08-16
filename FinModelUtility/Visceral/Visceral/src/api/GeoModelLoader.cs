@@ -2,7 +2,7 @@
 using fin.data.queue;
 using fin.io;
 using fin.math;
-using fin.math.matrix;
+using fin.math.matrix.four;
 using fin.math.rotations;
 using fin.model;
 using fin.model.impl;

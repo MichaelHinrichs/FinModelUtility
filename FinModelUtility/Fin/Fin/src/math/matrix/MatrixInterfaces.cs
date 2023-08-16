@@ -1,60 +1,68 @@
 ﻿using System;
-using System.Numerics;
-
-using fin.model;
 
 namespace fin.math.matrix {
-  public enum MatrixState {
-    UNDEFINED,
-    IDENTITY,
-    ZERO,
-  }
+  public interface IFinMatrix<TMutable, TReadOnly, TImpl,
+                              TPosition, TRotation, TScale>
+      : IReadOnlyFinMatrix<TMutable, TReadOnly, TImpl,
+          TPosition, TRotation, TScale>
+      where TMutable : IFinMatrix<TMutable, TReadOnly, TImpl,
+          TPosition, TRotation, TScale>, TReadOnly
+      where TReadOnly : IReadOnlyFinMatrix<TMutable, TReadOnly, TImpl,
+          TPosition, TRotation, TScale> {
+    void CopyFrom(TReadOnly other);
+    void CopyFrom(TImpl other);
 
-  public interface IFinMatrix4x4 : IReadOnlyFinMatrix4x4 {
-    void CopyFrom(IReadOnlyFinMatrix4x4 other);
-    void CopyFrom(Matrix4x4 other);
-
-    IFinMatrix4x4 SetIdentity();
-    IFinMatrix4x4 SetZero();
+    TMutable SetIdentity();
+    TMutable SetZero();
 
     new float this[int row, int column] { get; set; }
 
-    IFinMatrix4x4 AddInPlace(IReadOnlyFinMatrix4x4 other);
-    IFinMatrix4x4 MultiplyInPlace(IReadOnlyFinMatrix4x4 other);
-    IFinMatrix4x4 MultiplyInPlace(Matrix4x4 other);
-    IFinMatrix4x4 MultiplyInPlace(float other);
-    IFinMatrix4x4 InvertInPlace();
-    IFinMatrix4x4 TransposeInPlace();
+    TMutable AddInPlace(TReadOnly other);
+    TMutable MultiplyInPlace(TReadOnly other);
+    TMutable MultiplyInPlace(TImpl other);
+    TMutable MultiplyInPlace(float other);
+    TMutable InvertInPlace();
+    TMutable TransposeInPlace();
   }
 
-  public interface IReadOnlyFinMatrix4x4 : IEquatable<IReadOnlyFinMatrix4x4> {
-    Matrix4x4 Impl { get; }
+  public interface IReadOnlyFinMatrix<TMutable, TReadOnly, TImpl,
+                                      TPosition, TRotation, TScale>
+      : IEquatable<TReadOnly>
+      where TMutable : IFinMatrix<TMutable, TReadOnly, TImpl,
+          TPosition, TRotation, TScale>, TReadOnly
+      where TReadOnly : IReadOnlyFinMatrix<TMutable, TReadOnly, TImpl,
+          TPosition, TRotation, TScale> {
+    TImpl Impl { get; }
 
-    IFinMatrix4x4 Clone();
+    TMutable Clone();
 
     float this[int row, int column] { get; }
 
-    IFinMatrix4x4 CloneAndAdd(IReadOnlyFinMatrix4x4 other);
-    void AddIntoBuffer(IReadOnlyFinMatrix4x4 other, IFinMatrix4x4 buffer);
+    TMutable CloneAndAdd(TReadOnly other);
+    void AddIntoBuffer(TReadOnly other, TMutable buffer);
 
-    IFinMatrix4x4 CloneAndMultiply(IReadOnlyFinMatrix4x4 other);
-    void MultiplyIntoBuffer(IReadOnlyFinMatrix4x4 other, IFinMatrix4x4 buffer);
+    TMutable CloneAndMultiply(TReadOnly other);
 
-    IFinMatrix4x4 CloneAndMultiply(Matrix4x4 other);
-    void MultiplyIntoBuffer(Matrix4x4 other, IFinMatrix4x4 buffer);
+    void MultiplyIntoBuffer(TReadOnly other, TMutable buffer);
 
-    IFinMatrix4x4 CloneAndMultiply(float other);
-    void MultiplyIntoBuffer(float other, IFinMatrix4x4 buffer);
+    TMutable CloneAndMultiply(TImpl other);
+    void MultiplyIntoBuffer(TImpl other, TMutable buffer);
 
-    IFinMatrix4x4 CloneAndInvert();
-    void InvertIntoBuffer(IFinMatrix4x4 buffer);
+    TMutable CloneAndMultiply(float other);
+    void MultiplyIntoBuffer(float other, TMutable buffer);
 
-    IFinMatrix4x4 CloneAndTranspose();
-    void TransposeIntoBuffer(IFinMatrix4x4 buffer);
+    TMutable CloneAndInvert();
+    void InvertIntoBuffer(TMutable buffer);
 
-    void CopyTranslationInto(out Position dst);
-    void CopyRotationInto(out Quaternion dst);
-    void CopyScaleInto(out Scale dst);
-    void Decompose(out Vector3 translation, out Quaternion rotation, out Vector3 scale);
+    TMutable CloneAndTranspose();
+    void TransposeIntoBuffer(TMutable buffer);
+
+    void CopyTranslationInto(out TPosition dst);
+    void CopyRotationInto(out TRotation dst);
+    void CopyScaleInto(out TScale dst);
+
+    void Decompose(out TPosition translation,
+                   out TRotation rotation,
+                   out TScale scale);
   }
 }

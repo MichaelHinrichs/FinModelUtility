@@ -3,13 +3,13 @@ using System.Runtime.CompilerServices;
 
 using fin.model;
 
-namespace fin.math.matrix {
-  public static class GlMatrixUtil {
+namespace fin.math.matrix.four {
+  public static class ProjectionUtil {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ProjectPosition(
         Matrix4x4 matrix,
         ref Position xyz) 
-      => GlMatrixUtil.ProjectPosition(
+      => ProjectionUtil.ProjectPosition(
           matrix,
           ref Unsafe.As<Position, Vector3>(ref xyz));
 
@@ -24,7 +24,7 @@ namespace fin.math.matrix {
     public static void ProjectNormal(
         Matrix4x4 matrix,
         ref Normal xyz)
-      => GlMatrixUtil.ProjectNormal(
+      => ProjectionUtil.ProjectNormal(
           matrix,
           ref Unsafe.As<Normal, Vector3>(ref xyz));
 
@@ -36,7 +36,7 @@ namespace fin.math.matrix {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ProjectTangent(Matrix4x4 matrix, ref Tangent xyzw)
-      => GlMatrixUtil.ProjectTangent(
+      => ProjectionUtil.ProjectTangent(
           matrix,
           ref Unsafe.As<Tangent, Vector4>(ref xyzw));
 

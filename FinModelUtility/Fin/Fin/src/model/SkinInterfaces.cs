@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 
 using fin.data;
-using fin.math.matrix;
+using fin.math.matrix.four;
 
 namespace fin.model {
   public interface ISkin {

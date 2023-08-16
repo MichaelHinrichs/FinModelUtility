@@ -4,7 +4,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 
 using fin.math.floats;
-using fin.math.matrix;
+using fin.math.matrix.four;
 using fin.model;
 using fin.util.asserts;
 using fin.util.hash;
@@ -17,7 +17,7 @@ namespace fin.math {
     public SystemMatrix Impl => this.impl_;
 
     public static IReadOnlyFinMatrix4x4 IDENTITY =
-      new FinMatrix4x4().SetIdentity();
+        new FinMatrix4x4().SetIdentity();
 
     public FinMatrix4x4() {
       this.SetZero();
@@ -33,7 +33,7 @@ namespace fin.math {
     public FinMatrix4x4(IReadOnlyList<double> data) {
       Asserts.Equal(4 * 4, data.Count);
       for (var i = 0; i < 4 * 4; ++i) {
-        this[i] = (float)data[i];
+        this[i] = (float) data[i];
       }
     }
 
@@ -257,9 +257,12 @@ namespace fin.math {
     // Shamelessly copied from https://math.stackexchange.com/a/1463487
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void CopyTranslationInto(out Position dst) {
-      var translation = impl_.Translation;
-      dst = Unsafe.As<Vector3, Position>(ref translation);
+      dst = default;
+      this.CopyTranslationInto(out Unsafe.As<Position, Vector3>(ref dst));
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void CopyTranslationInto(out Vector3 dst) => dst = impl_.Translation;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void CopyRotationInto(out Quaternion dst) {
@@ -269,14 +272,21 @@ namespace fin.math {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void CopyScaleInto(out Scale dst) {
-      this.Decompose(out _, out _, out var scale);
-      dst = Unsafe.As<Vector3, Scale>(ref scale);
+      dst = default;
+      this.CopyScaleInto(out Unsafe.As<Scale, Vector3>(ref dst));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Decompose(out Vector3 translation, out Quaternion rotation,
+    public void CopyScaleInto(out Vector3 dst)
+      => this.Decompose(out _, out _, out dst);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Decompose(out Vector3 translation,
+                          out Quaternion rotation,
                           out Vector3 scale) {
-      Asserts.True(Matrix4x4.Decompose(impl_, out scale, out rotation, out translation), "Failed to decompose matrix!");
+      Asserts.True(
+          Matrix4x4.Decompose(impl_, out scale, out rotation, out translation),
+          "Failed to decompose matrix!");
     }
 
 
@@ -297,6 +307,7 @@ namespace fin.math {
           }
         }
       }
+
       return true;
     }
 
@@ -310,6 +321,7 @@ namespace fin.math {
         value = MathF.Round(value / error) * error;
         hash = hash.With(value.GetHashCode());
       }
+
       return hash;
     }
   }

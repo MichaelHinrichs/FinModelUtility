@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-using fin.math.matrix;
+using fin.math.matrix.four;
 using fin.schema.vector;
 
 namespace granny3d {

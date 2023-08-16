@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 
 using fin.config;
-using fin.math.matrix;
+using fin.math.matrix.four;
 using fin.model;
 using fin.scene;
 using fin.ui.rendering.gl.material;

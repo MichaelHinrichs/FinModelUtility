@@ -2,7 +2,7 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
-namespace fin.math.matrix {
+namespace fin.math.matrix.four {
   public interface IMatrix4x4Stack {
     Matrix4x4 Top { get; set; }
 

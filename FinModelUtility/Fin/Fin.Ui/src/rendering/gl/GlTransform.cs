@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using System.Runtime.CompilerServices;
 
-using fin.math.matrix;
+using fin.math.matrix.four;
 using fin.math.rotations;
 
 using OpenTK.Graphics.OpenGL;

@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using fin.math.rotations;
 using fin.model;
 
-namespace fin.math.matrix {
+namespace fin.math.matrix.four {
   public static class SystemMatrixUtil {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Matrix4x4 FromTranslation(Position translation)

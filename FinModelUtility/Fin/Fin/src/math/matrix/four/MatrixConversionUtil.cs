@@ -1,6 +1,6 @@
 ﻿using Assimp;
 
-namespace fin.math.matrix {
+namespace fin.math.matrix.four {
   using AssimpMatrix = Matrix4x4;
   using SystemMatrix = System.Numerics.Matrix4x4;
 

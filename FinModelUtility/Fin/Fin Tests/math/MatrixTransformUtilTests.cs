@@ -1,4 +1,4 @@
-﻿using fin.math.matrix;
+﻿using fin.math.matrix.four;
 using fin.math.rotations;
 using fin.model;
 

@@ -2,7 +2,7 @@
 using System.Linq;
 
 using fin.data.queue;
-using fin.math.matrix;
+using fin.math.matrix.four;
 using fin.model;
 
 using SharpGLTF.Schema2;

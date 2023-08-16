@@ -5,7 +5,7 @@ using System.Drawing;
 using f3dzex2.displaylist.opcodes;
 using f3dzex2.image;
 
-using fin.math.matrix;
+using fin.math.matrix.four;
 using fin.model;
 using fin.model.impl;
 using fin.util.enums;
@@ -67,7 +67,7 @@ namespace f3dzex2.model {
       var definition = this.vertexDefinitions_[index];
 
       var position = definition.GetPosition();
-      GlMatrixUtil.ProjectPosition(this.n64Hardware_.Rsp.Matrix.Impl,
+      ProjectionUtil.ProjectPosition(this.n64Hardware_.Rsp.Matrix.Impl,
                                    ref position);
 
       var textureParams = this.n64Hardware_.Rdp.Tmem.GetMaterialParams()
@@ -93,7 +93,7 @@ namespace f3dzex2.model {
       if (this.n64Hardware_.Rsp.GeometryMode.CheckFlag(
               GeometryMode.G_LIGHTING)) {
         var normal = definition.GetNormal();
-        GlMatrixUtil.ProjectNormal(this.n64Hardware_.Rsp.Matrix.Impl,
+        ProjectionUtil.ProjectNormal(this.n64Hardware_.Rsp.Matrix.Impl,
                                    ref normal);
         newVertex.SetLocalNormal(normal);
         // TODO: Get rid of this, seems to come from combiner instead

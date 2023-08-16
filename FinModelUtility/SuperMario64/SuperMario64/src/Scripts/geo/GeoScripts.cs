@@ -1,5 +1,5 @@
 ﻿using fin.math;
-using fin.math.matrix;
+using fin.math.matrix.four;
 
 namespace sm64.Scripts {
   public class GeoScriptNode {

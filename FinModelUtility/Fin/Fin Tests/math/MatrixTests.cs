@@ -1,5 +1,5 @@
 ﻿using fin.math.floats;
-using fin.math.matrix;
+using fin.math.matrix.four;
 using fin.util.asserts;
 
 using NUnit.Framework;
