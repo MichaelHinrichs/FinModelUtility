@@ -74,7 +74,7 @@ namespace fin.ui.rendering.gl {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Translate(float x, float y, float z)
-      => MultMatrix(SystemMatrixUtil.FromTranslation(x, y, z));
+      => MultMatrix(SystemMatrix4x4Util.FromTranslation(x, y, z));
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -83,7 +83,7 @@ namespace fin.ui.rendering.gl {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Scale(float x, float y, float z)
-      => MultMatrix(SystemMatrixUtil.FromScale(x, y, z));
+      => MultMatrix(SystemMatrix4x4Util.FromScale(x, y, z));
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

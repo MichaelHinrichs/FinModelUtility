@@ -116,7 +116,7 @@ namespace sm64.Scripts {
           case GeoScaleCommand geoScaleCommand: {
             var scale = (geoScaleCommand.Scale / 65536.0f);
             this.nodeCurrent.matrix.MultiplyInPlace(
-                FinMatrixUtil.FromScale(new Scale(scale)));
+                FinMatrix4x4Util.FromScale(new Scale(scale)));
             AddDisplayList(
                 mdlLods,
                 lvl,
@@ -173,18 +173,18 @@ namespace sm64.Scripts {
           .MultiplyInPlace(CreateTranslationMatrix_(position));
 
     public IFinMatrix4x4 CreateTranslationMatrix_(Vector3s position)
-      => FinMatrixUtil.FromTranslation(
+      => FinMatrix4x4Util.FromTranslation(
           new Position(position.X, position.Y, position.Z));
 
     public IFinMatrix4x4 CreateRotationMatrix_(Vector3s rotation)
-      => FinMatrixUtil
+      => FinMatrix4x4Util
          .FromRotation(
              new RotationImpl().SetDegrees(0, 0, rotation.Z))
          .MultiplyInPlace(
-             FinMatrixUtil.FromRotation(
+             FinMatrix4x4Util.FromRotation(
                  new RotationImpl().SetDegrees(rotation.X, 0, 0)))
          .MultiplyInPlace(
-             FinMatrixUtil.FromRotation(
+             FinMatrix4x4Util.FromRotation(
                  new RotationImpl().SetDegrees(0, rotation.Y, 0)));
 
     public void AddDisplayList(

@@ -2,14 +2,13 @@
 using System.Numerics;
 
 using fin.math.floats;
-using fin.math.rotations;
 using fin.util.asserts;
 
 using NUnit.Framework;
 
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
-namespace fin.math {
+namespace fin.math.rotations {
   public class QuaternionUtilTests {
     [Test]
     [TestCase(0, 0, 0, 0, 0, 0, 1)]

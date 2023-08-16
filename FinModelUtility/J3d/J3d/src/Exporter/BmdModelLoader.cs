@@ -349,7 +349,7 @@ namespace j3d.exporter {
 
                   var bone = jointsAndBones[jointIndex].Item2;
                   weights = new[] {
-                      new BoneWeight(bone, FinMatrixUtil.IDENTITY, 1)
+                      new BoneWeight(bone, FinMatrix4x4Util.IDENTITY, 1)
                   };
                 }
                 weightsTable[i] =

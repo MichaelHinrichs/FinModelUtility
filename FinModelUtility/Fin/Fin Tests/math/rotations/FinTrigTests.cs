@@ -1,11 +1,10 @@
 ﻿using System;
 
-using fin.math.rotations;
 using fin.util.asserts;
 
 using NUnit.Framework;
 
-namespace fin.math {
+namespace fin.math.rotations {
   public class FinTrigTests {
     [Test]
     [TestCase(-.5f * MathF.PI)]

@@ -1,12 +1,10 @@
 ﻿using System;
 
-using fin.math.rotations;
-
 using NUnit.Framework;
 
 using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 
-namespace fin.math {
+namespace fin.math.rotations {
   public class RadiansUtilTests {
     private const float PI = MathF.PI;
 

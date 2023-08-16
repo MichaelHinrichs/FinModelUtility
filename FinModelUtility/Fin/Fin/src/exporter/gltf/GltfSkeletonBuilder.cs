@@ -55,7 +55,7 @@ namespace fin.exporter.gltf {
       var scaledPosition = new Position(bonePosition.X * scale,
                                         bonePosition.Y * scale,
                                         bonePosition.Z * scale);
-      node.LocalMatrix = SystemMatrixUtil.FromTrs(scaledPosition,
+      node.LocalMatrix = SystemMatrix4x4Util.FromTrs(scaledPosition,
                                                   bone.LocalRotation,
                                                   bone.LocalScale);
     }

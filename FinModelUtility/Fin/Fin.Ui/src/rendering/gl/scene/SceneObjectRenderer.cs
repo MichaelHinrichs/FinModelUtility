@@ -33,7 +33,7 @@ namespace fin.ui.rendering.gl.scene {
       GlTransform.PushMatrix();
 
       GlTransform.MultMatrix(
-          SystemMatrixUtil.FromTrs(this.sceneObject_.Position,
+          SystemMatrix4x4Util.FromTrs(this.sceneObject_.Position,
                                    this.sceneObject_.Rotation,
                                    this.sceneObject_.Scale));
 

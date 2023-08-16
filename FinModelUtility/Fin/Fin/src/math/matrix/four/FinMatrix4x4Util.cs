@@ -5,9 +5,9 @@ using fin.math.rotations;
 using fin.model;
 
 namespace fin.math.matrix.four {
-  public static class FinMatrixUtil {
+  public static class FinMatrix4x4Util {
     public static IReadOnlyFinMatrix4x4 IDENTITY { get; } =
-      FinMatrixUtil.FromIdentity();
+      FinMatrix4x4Util.FromIdentity();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IFinMatrix4x4 FromIdentity()
@@ -16,23 +16,23 @@ namespace fin.math.matrix.four {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IFinMatrix4x4 FromTranslation(Position translation)
-      => FinMatrixUtil.FromTranslation(
+      => FinMatrix4x4Util.FromTranslation(
           translation.X,
           translation.Y,
           translation.Z);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IFinMatrix4x4 FromTranslation(float x, float y, float z)
-      => new FinMatrix4x4(SystemMatrixUtil.FromTranslation(x, y, z));
+      => new FinMatrix4x4(SystemMatrix4x4Util.FromTranslation(x, y, z));
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IFinMatrix4x4 FromRotation(IRotation rotation)
-      => FinMatrixUtil.FromRotation(QuaternionUtil.Create(rotation));
+      => FinMatrix4x4Util.FromRotation(QuaternionUtil.Create(rotation));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IFinMatrix4x4 FromRotation(Quaternion rotation)
-      => new FinMatrix4x4(SystemMatrixUtil.FromRotation(rotation));
+      => new FinMatrix4x4(SystemMatrix4x4Util.FromRotation(rotation));
 
 
 
@@ -48,7 +48,7 @@ namespace fin.math.matrix.four {
     public static IFinMatrix4x4 FromScale(float scaleX,
                                           float scaleY,
                                           float scaleZ)
-      => new FinMatrix4x4(SystemMatrixUtil.FromScale(scaleX, scaleY, scaleZ));
+      => new FinMatrix4x4(SystemMatrix4x4Util.FromScale(scaleX, scaleY, scaleZ));
 
 
     
@@ -57,7 +57,7 @@ namespace fin.math.matrix.four {
         Position? translation,
         IRotation? rotation,
         Scale? scale)
-      => FinMatrixUtil.FromTrs(
+      => FinMatrix4x4Util.FromTrs(
           translation,
           rotation != null ? QuaternionUtil.Create(rotation) : null,
           scale);
@@ -75,7 +75,7 @@ namespace fin.math.matrix.four {
       Quaternion? rotation,
       Scale? scale,
       IFinMatrix4x4 dst) {
-      dst.CopyFrom(SystemMatrixUtil.FromTrs(translation, rotation, scale));
+      dst.CopyFrom(SystemMatrix4x4Util.FromTrs(translation, rotation, scale));
       return dst;
     }
   }

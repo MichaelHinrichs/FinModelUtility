@@ -1,16 +1,16 @@
-﻿using fin.math.matrix.four;
-using fin.math.rotations;
+﻿using fin.math.rotations;
 using fin.model;
+using fin.util.asserts;
 
 using NUnit.Framework;
 
-namespace fin.math {
-  public class FinMatrixUtilTests {
+namespace fin.math.matrix.four {
+  public class FinMatrix4x4UtilTests {
     [Test]
     public void TestTranslation() {
       var expectedTranslation = new Position(2, 3, 4);
 
-      var matrix = FinMatrixUtil.FromTranslation(
+      var matrix = FinMatrix4x4Util.FromTranslation(
           expectedTranslation);
 
       matrix.CopyTranslationInto(out var actualTranslation);
@@ -22,23 +22,22 @@ namespace fin.math {
     public void TestRotation() {
       var expectedRotation = QuaternionUtil.CreateZyx(1.2f, 2.3f, 3.4f);
 
-      var matrix = FinMatrixUtil.FromRotation(
+      var matrix = FinMatrix4x4Util.FromRotation(
           expectedRotation);
 
       matrix.CopyRotationInto(out var actualRotation);
 
-      var error = .0001;
-      Assert.AreEqual(expectedRotation.X, actualRotation.X, error);
-      Assert.AreEqual(expectedRotation.Y, actualRotation.Y, error);
-      Assert.AreEqual(expectedRotation.Z, actualRotation.Z, error);
-      Assert.AreEqual(expectedRotation.W, actualRotation.W, error);
+      Asserts.IsRoughly(expectedRotation.X, actualRotation.X);
+      Asserts.IsRoughly(expectedRotation.Y, actualRotation.Y);
+      Asserts.IsRoughly(expectedRotation.Z, actualRotation.Z);
+      Asserts.IsRoughly(expectedRotation.W, actualRotation.W);
     }
 
     [Test]
     public void TestScale() {
       var expectedScale = new Scale(3, 4, 5);
 
-      var matrix = FinMatrixUtil.FromScale(
+      var matrix = FinMatrix4x4Util.FromScale(
           expectedScale);
 
       matrix.CopyScaleInto(out var actualScale);
@@ -53,7 +52,7 @@ namespace fin.math {
       var expectedRotation = QuaternionUtil.CreateZyx(1.2f, 2.3f, 3.4f);
       var expectedScale = new Scale(3, 4, 5);
 
-      var trs = FinMatrixUtil.FromTrs(
+      var trs = FinMatrix4x4Util.FromTrs(
           expectedTranslation,
           expectedRotation,
           expectedScale);
@@ -66,11 +65,10 @@ namespace fin.math {
 
       Assert.AreEqual(expectedScale, actualScale);
 
-      var error = .0001;
-      Assert.AreEqual(expectedRotation.X, actualRotation.X, error);
-      Assert.AreEqual(expectedRotation.Y, actualRotation.Y, error);
-      Assert.AreEqual(expectedRotation.Z, actualRotation.Z, error);
-      Assert.AreEqual(expectedRotation.W, actualRotation.W, error);
+      Asserts.IsRoughly(expectedRotation.X, actualRotation.X);
+      Asserts.IsRoughly(expectedRotation.Y, actualRotation.Y);
+      Asserts.IsRoughly(expectedRotation.Z, actualRotation.Z);
+      Asserts.IsRoughly(expectedRotation.W, actualRotation.W);
     }
   }
 }

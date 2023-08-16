@@ -72,7 +72,7 @@ namespace fin.ui.rendering.gl.scene {
             Quaternion.CreateFromYawPitchRoll(angle, 0, 0);
 
         var rotationBuffer = rotateYaw * rootBone.FaceTowardsCameraAdjustment;
-        GlTransform.MultMatrix(SystemMatrixUtil.FromRotation(rotationBuffer));
+        GlTransform.MultMatrix(SystemMatrix4x4Util.FromRotation(rotationBuffer));
       }
 
       var animation = this.sceneModel_.Animation;

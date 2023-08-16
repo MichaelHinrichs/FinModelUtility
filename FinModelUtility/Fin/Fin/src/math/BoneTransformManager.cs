@@ -178,7 +178,7 @@ namespace fin.math {
         var localScale = animationLocalScale ?? bone.LocalScale;
 
         if (!bone.IgnoreParentScale && !bone.FaceTowardsCamera) {
-          FinMatrixUtil.FromTrs(localPosition,
+          FinMatrix4x4Util.FromTrs(localPosition,
                                 localRotation,
                                 localScale,
                                 localMatrix);
@@ -186,7 +186,7 @@ namespace fin.math {
         } else {
           // Applies translation first, so it's affected by parent rotation/scale.
           var localTranslationMatrix =
-              SystemMatrixUtil.FromTranslation(localPosition);
+              SystemMatrix4x4Util.FromTranslation(localPosition);
           boneToWorldMatrix.MultiplyInPlace(localTranslationMatrix);
 
           // Extracts translation/rotation/scale.
@@ -212,19 +212,19 @@ namespace fin.math {
           }
 
           // Creates child matrix.
-          FinMatrixUtil.FromTrs(localPosition,
+          FinMatrix4x4Util.FromTrs(localPosition,
                                 localRotation,
                                 localScale,
                                 localMatrix);
 
           // Gets final matrix.
-          FinMatrixUtil.FromTrs(
+          FinMatrix4x4Util.FromTrs(
               translationBuffer,
               rotationBuffer,
               scaleBuffer,
               boneToWorldMatrix);
           boneToWorldMatrix.MultiplyInPlace(
-              SystemMatrixUtil.FromTrs(null,
+              SystemMatrix4x4Util.FromTrs(null,
                                        localRotation,
                                        localScale));
         }
