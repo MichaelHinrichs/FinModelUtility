@@ -1,6 +1,6 @@
-﻿using asserts;
-
+﻿using fin.math.floats;
 using fin.math.matrix;
+using fin.util.asserts;
 
 using NUnit.Framework;
 
@@ -235,7 +235,7 @@ namespace fin.math {
 
       for (var r = 0; r < 4; r++) {
         for (var c = 0; c < 4; c++) {
-          Assert.AreEqual(expectedMatrix[r, c], actualMatrix[r, c], .0001f);
+          Asserts.IsRoughly(expectedMatrix[r, c], actualMatrix[r, c]);
         }
       }
     }
@@ -244,22 +244,22 @@ namespace fin.math {
     public void TestCloseEquals() {
       var identityMatrix = FinMatrix4x4.IDENTITY;
       var closeToIdentityMatrix = this.GetCloseToIdentityMatrix_();
-      Asserts.True(identityMatrix.Equals(closeToIdentityMatrix));
+      Assert.AreEqual(identityMatrix, closeToIdentityMatrix);
     }
 
     [Test]
     public void TestCloseHashCode() {
       var identityMatrix = FinMatrix4x4.IDENTITY;
       var closeToIdentityMatrix = this.GetCloseToIdentityMatrix_();
-      Asserts.Equal(identityMatrix.GetHashCode(),
-                    closeToIdentityMatrix.GetHashCode());
+      Assert.AreEqual(identityMatrix.GetHashCode(),
+                      closeToIdentityMatrix.GetHashCode());
     }
 
     [Test]
     public void TestDifferentEquals() {
       var identityMatrix = FinMatrix4x4.IDENTITY;
       var differentFromIdentityMatrix = this.GetDifferentFromIdentityMatrix_();
-      Asserts.False(identityMatrix.Equals(differentFromIdentityMatrix));
+      Assert.AreNotEqual(identityMatrix, differentFromIdentityMatrix);
     }
 
     [Test]
@@ -298,7 +298,7 @@ namespace fin.math {
     private IReadOnlyFinMatrix4x4 GetDifferentFromIdentityMatrix_() {
       var closeToIdentityMatrix = new FinMatrix4x4().SetZero();
 
-      var error = .001f;
+      var error = FloatsExtensions.ROUGHLY_EQUAL_ERROR;
       closeToIdentityMatrix[0, 0] = 1 + error;
       closeToIdentityMatrix[0, 1] = error;
       closeToIdentityMatrix[0, 2] = -error;

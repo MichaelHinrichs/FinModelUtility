@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using asserts;
+using fin.util.asserts;
 
 using NUnit.Framework;
 

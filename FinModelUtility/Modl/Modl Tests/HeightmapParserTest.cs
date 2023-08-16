@@ -1,5 +1,3 @@
-using asserts;
-
 namespace modl.schema.terrain {
   public class HeightmapParserTest {
     [Test]
@@ -14,25 +12,35 @@ namespace modl.schema.terrain {
       var expectedPointY = 2;
 
       HeightmapParser.GetWorldPosition(
-        chunkCountInAxis, chunkCountInAxis,
-        expectedChunkX, expectedChunkY,
-        expectedTileX, expectedTileY,
-        expectedPointX, expectedPointY,
-        out var worldX, out var worldY);
+          chunkCountInAxis,
+          chunkCountInAxis,
+          expectedChunkX,
+          expectedChunkY,
+          expectedTileX,
+          expectedTileY,
+          expectedPointX,
+          expectedPointY,
+          out var worldX,
+          out var worldY);
 
       HeightmapParser.GetIndices(
-        worldX, worldY,
-        chunkCountInAxis, chunkCountInAxis,
-        out var actualChunkX, out var actualChunkY,
-        out var actualTileX, out var actualTileY,
-        out var actualPointX, out var actualPointY );
+          worldX,
+          worldY,
+          chunkCountInAxis,
+          chunkCountInAxis,
+          out var actualChunkX,
+          out var actualChunkY,
+          out var actualTileX,
+          out var actualTileY,
+          out var actualPointX,
+          out var actualPointY);
 
-      Asserts.Equal((expectedPointX, expectedPointY),
-        (actualPointX, actualPointY));
-      Asserts.Equal((expectedTileX, expectedTileY),
-        (actualTileX, actualTileY));
-      Asserts.Equal((expectedChunkX, expectedChunkY),
-        (actualChunkX, actualChunkY));
+      Assert.AreEqual((expectedPointX, expectedPointY),
+                      (actualPointX, actualPointY));
+      Assert.AreEqual((expectedTileX, expectedTileY),
+                      (actualTileX, actualTileY));
+      Assert.AreEqual((expectedChunkX, expectedChunkY),
+                      (actualChunkX, actualChunkY));
     }
   }
 }

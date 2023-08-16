@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Linq;
 
-using asserts;
+using fin.util.asserts;
 
 using NUnit.Framework;
 
@@ -91,11 +91,7 @@ namespace fin.data {
 
       var values = dict.ToArray();
       Asserts.Equal(
-          new[] {
-              "string1",
-              "string3",
-              "string5",
-          },
+          new[] { "string1", "string3", "string5", },
           values);
     }
 

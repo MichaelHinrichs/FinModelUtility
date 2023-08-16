@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
+using fin.math.floats;
 using fin.math.matrix;
 using fin.model;
 using fin.util.asserts;
@@ -279,8 +280,6 @@ namespace fin.math {
     }
 
 
-    private const float ERROR = 0.0001f;
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool Equals(object? obj)
       => ReferenceEquals(this, obj) || this.Equals(obj);
@@ -293,7 +292,7 @@ namespace fin.math {
 
       for (var r = 0; r < 4; ++r) {
         for (var c = 0; c < 4; ++c) {
-          if (Math.Abs(this[r, c] - other[r, c]) > ERROR) {
+          if (!this[r, c].IsRoughly(other[r, c])) {
             return false;
           }
         }
@@ -303,10 +302,12 @@ namespace fin.math {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override int GetHashCode() {
+      var error = FloatsExtensions.ROUGHLY_EQUAL_ERROR;
+
       var hash = new FluentHash();
       for (var i = 0; i < 16; ++i) {
         var value = this[i];
-        value = MathF.Round(value / ERROR) * ERROR;
+        value = MathF.Round(value / error) * error;
         hash = hash.With(value.GetHashCode());
       }
       return hash;

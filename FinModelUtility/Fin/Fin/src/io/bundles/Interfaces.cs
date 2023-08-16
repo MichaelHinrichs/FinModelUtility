@@ -39,7 +39,7 @@ namespace fin.io.bundles {
       }
     }
 
-    string TrueFullName => Asserts.Assert(MainFile.FullName);
+    string TrueFullName => Asserts.CastNonnull(MainFile.FullName);
   }
 
   public interface IFileBundleGatherer {

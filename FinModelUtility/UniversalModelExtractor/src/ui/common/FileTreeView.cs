@@ -245,7 +245,7 @@ namespace uni.ui.common {
         this.filterImpl_.Filter(filterText, -1);
         this.betterTreeView_.Root.ResetChildrenRecursively(
             betterTreeNode =>
-                Asserts.Assert(betterTreeNode.Data).ChangeDistance <= 0);
+                Asserts.CastNonnull(betterTreeNode.Data).ChangeDistance <= 0);
         this.betterTreeView_.Comparer ??= new FuzzyTreeComparer();
 
         this.betterTreeView_.EndUpdate();
@@ -256,9 +256,9 @@ namespace uni.ui.common {
       public int Compare(
           IBetterTreeNode<FileNode> lhs,
           IBetterTreeNode<FileNode> rhs)
-        => -Asserts.Assert(lhs.Data)
+        => -Asserts.CastNonnull(lhs.Data)
                    .Similarity.CompareTo(
-                       Asserts.Assert(rhs.Data).Similarity);
+                       Asserts.CastNonnull(rhs.Data).Similarity);
     }
   }
 }

@@ -1,13 +1,12 @@
 ﻿using System;
 
 using fin.math.rotations;
+using fin.util.asserts;
 
 using NUnit.Framework;
 
 namespace fin.math {
   public class FinTrigTests {
-    private float PRECISION = .0001f;
-
     [Test]
     [TestCase(-.5f * MathF.PI)]
     [TestCase(0)]
@@ -17,7 +16,7 @@ namespace fin.math {
     [TestCase(2 * MathF.PI)]
     [TestCase(2.5f * MathF.PI)]
     public void TestSin(float radians)
-      => Assert.AreEqual(Math.Sin(radians), FinTrig.Sin(radians), PRECISION);
+      => Asserts.IsRoughly(MathF.Sin(radians), FinTrig.Sin(radians));
 
     [Test]
     [TestCase(-.5f * MathF.PI)]
@@ -28,7 +27,7 @@ namespace fin.math {
     [TestCase(2 * MathF.PI)]
     [TestCase(2.5f * MathF.PI)]
     public void TestCos(float radians)
-      => Assert.AreEqual(Math.Cos(radians), FinTrig.Cos(radians), PRECISION);
+      => Asserts.IsRoughly(MathF.Cos(radians), FinTrig.Cos(radians));
 
     [Test]
     [TestCase(-1)]
@@ -37,7 +36,7 @@ namespace fin.math {
     [TestCase(.5f)]
     [TestCase(1)]
     public void TestAsin(float radians)
-      => Assert.AreEqual(Math.Asin(radians), FinTrig.Asin(radians), PRECISION);
+      => Asserts.IsRoughly(MathF.Asin(radians), FinTrig.Asin(radians));
 
     [Test]
     [TestCase(-1)]
@@ -46,7 +45,7 @@ namespace fin.math {
     [TestCase(.5f)]
     [TestCase(1)]
     public void TestAcos(float radians)
-      => Assert.AreEqual(Math.Acos(radians), FinTrig.Acos(radians), PRECISION);
+      => Asserts.IsRoughly(MathF.Acos(radians), FinTrig.Acos(radians));
 
     [Test]
     [TestCase(-1, -1)]
@@ -54,6 +53,6 @@ namespace fin.math {
     [TestCase(1, -1)]
     [TestCase(1, 1)]
     public void TestAtan2(float x, float y)
-      => Assert.AreEqual(Math.Atan2(y, x), FinTrig.Atan2(y, x), PRECISION);
+      => Asserts.IsRoughly(MathF.Atan2(y, x), FinTrig.Atan2(y, x));
   }
 }

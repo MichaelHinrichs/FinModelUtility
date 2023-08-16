@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
+using fin.math.floats;
+
 namespace fin.util.asserts {
   /**
    * NOTE: Using $"" to define messages allocates strings, and can be expensive!
@@ -36,25 +38,6 @@ namespace fin.util.asserts {
     public static bool False(bool value, string? message = null)
       => Asserts.True(!value, message ?? "Expected to be false.");
 
-    public static bool Nonnull(
-        object? instance,
-        string? message = null)
-      => Asserts.True(instance != null,
-                      message ?? "Expected reference to be nonnull.");
-
-    public static T CastNonnull<T>(
-        T? instance,
-        string? message = null) {
-      Asserts.True(instance != null,
-                   message ?? "Expected reference to be nonnull.");
-      return instance!;
-    }
-
-    public static void Null(
-        object? instance,
-        string message = "Expected reference to be null.")
-      => Asserts.True(instance == null, message);
-
     public static bool Same(
         object instanceA,
         object instanceB,
@@ -75,6 +58,7 @@ namespace fin.util.asserts {
       if (expected?.Equals(actual) ?? false) {
         return true;
       }
+
       Asserts.Fail(message ?? $"Expected {actual} to equal {expected}.");
       return false;
     }
@@ -94,8 +78,10 @@ namespace fin.util.asserts {
         var currentB = enumeratorB.Current;
 
         if (!object.Equals(currentA, currentB)) {
-          Asserts.Fail($"Expected {currentA} to equal {currentB} at index {index}.");
+          Asserts.Fail(
+              $"Expected {currentA} to equal {currentB} at index {index}.");
         }
+
         index++;
 
         hasA = enumeratorA.MoveNext();
@@ -113,6 +99,7 @@ namespace fin.util.asserts {
       if (expected?.Equals(actual) ?? false) {
         return true;
       }
+
       Asserts.Fail(message ?? $"Expected {actual} to equal {expected}.");
       return false;
     }
@@ -123,6 +110,36 @@ namespace fin.util.asserts {
         string? message = null)
       => Asserts.Equal<string>(expected, actual, message);
 
+    public static bool IsRoughly(float expected, float actual, string? message = null) {
+      if (expected.IsRoughly(actual)) {
+        return true;
+      }
+
+      Asserts.Fail(message ?? $"Expected {actual} to roughly equal {expected}.");
+      return false;
+    }
+
+    // Null Checks
+    public static bool Nonnull(
+        object? instance,
+        string? message = null)
+      => Asserts.True(instance != null,
+                      message ?? "Expected reference to be nonnull.");
+
+    public static T CastNonnull<T>(
+        T? instance,
+        string? message = null) {
+      Asserts.True(instance != null,
+                   message ?? "Expected reference to be nonnull.");
+      return instance!;
+    }
+
+    public static void Null(
+        object? instance,
+        string message = "Expected reference to be null.")
+      => Asserts.True(instance == null, message);
+
+    // Type checks
     public static bool IsA<TExpected>(object? instance, string? message = null)
       => Asserts.IsA(instance, typeof(TExpected), message);
 
@@ -139,11 +156,6 @@ namespace fin.util.asserts {
       var cast = (TExpected) instance;
       Asserts.Nonnull(cast, message);
       return cast!;
-    }
-
-    public static T Assert<T>(T? value) where T : notnull {
-      Asserts.Nonnull(value);
-      return value!;
     }
   }
 }

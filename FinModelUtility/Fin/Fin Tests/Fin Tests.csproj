@@ -21,6 +21,5 @@
   <ItemGroup>
     <ProjectReference Include="..\Fin.Ui\Fin.Ui.csproj" />
     <ProjectReference Include="..\Fin\Fin.csproj" />
-    <ProjectReference Include="..\..\Asserts\Asserts.csproj" />
   </ItemGroup>
 </Project>

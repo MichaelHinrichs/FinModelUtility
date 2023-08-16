@@ -1,6 +1,4 @@
-﻿using asserts;
-
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace fin.util.color {
   public class ColorUtilTests {
@@ -21,8 +19,8 @@ namespace fin.util.color {
                             out var actualR,
                             out var actualG,
                             out var actualB);
-      Asserts.Equal((expectedR, expectedG, expectedB),
-                    (actualR, actualG, actualB));
+      Assert.AreEqual((expectedR, expectedG, expectedB),
+                      (actualR, actualG, actualB));
     }
   }
 }
