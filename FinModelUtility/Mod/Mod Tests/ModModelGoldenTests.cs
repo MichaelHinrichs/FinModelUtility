@@ -21,7 +21,7 @@ namespace mod {
       return new ModModelFileBundle {
           GameName = "pikmin_1",
           ModFile = directory.FilesWithExtension(".mod").Single(),
-          AnmFile = directory.FilesWithExtension(".anm").Single(),
+          AnmFile = directory.FilesWithExtension(".anm").SingleOrDefault(),
       };
     }
 
