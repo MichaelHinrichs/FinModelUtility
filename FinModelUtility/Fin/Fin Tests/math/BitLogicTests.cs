@@ -14,31 +14,27 @@ namespace fin.math {
     }
 
     [Test]
-    [TestCase(1, 0, true)]
-    [TestCase(2, 0, false)]
-    [TestCase(2, 1, true)]
-    public void TestGetBitInt(int value, int bit, bool expectedValue)
-      => Assert.AreEqual(expectedValue, value.GetBit(bit));
+    [TestCase(1, 0, ExpectedResult = true)]
+    [TestCase(2, 0, ExpectedResult = false)]
+    [TestCase(2, 1, ExpectedResult = true)]
+    public bool TestGetBitInt(int value, int bit) => value.GetBit(bit);
 
     [Test]
-    [TestCase(0, 0)]
-    [TestCase(1, 0b1)]
-    [TestCase(2, 0b11)]
-    [TestCase(3, 0b111)]
-    [TestCase(4, 0b1111)]
-    public void TestMask(int numBits, int expectedMask)
-      => Assert.AreEqual(expectedMask, (int) BitLogic.GetMask(numBits));
+    [TestCase(0, ExpectedResult = 0)]
+    [TestCase(1, ExpectedResult = 0b1)]
+    [TestCase(2, ExpectedResult = 0b11)]
+    [TestCase(3, ExpectedResult = 0b111)]
+    [TestCase(4, ExpectedResult = 0b1111)]
+    public int TestMask(int numBits) => (int) BitLogic.GetMask(numBits);
 
     [Test]
-    [TestCase((ushort) 0, 0)]
-    [TestCase((ushort) 0x1, 0.0000152587890625)]
-    [TestCase((ushort) 0x0080, 0.001953125)]
-    [TestCase((ushort) 0x8000, .5)]
-    [TestCase((ushort) 0xFFFF, 0.9999847412109375)]
-    public void TestConvertBinaryFractionToFloat(ushort inputBinaryFraction,
-                                                 double expected)
-      => Assert.AreEqual(expected,
-                         BitLogic.ConvertBinaryFractionToDouble(
-                             inputBinaryFraction), .00000001);
+    [DefaultFloatingPointTolerance(.00000001)]
+    [TestCase((ushort) 0, ExpectedResult = 0)]
+    [TestCase((ushort) 0x1, ExpectedResult = 0.0000152587890625)]
+    [TestCase((ushort) 0x0080, ExpectedResult = 0.001953125)]
+    [TestCase((ushort) 0x8000, ExpectedResult = .5)]
+    [TestCase((ushort) 0xFFFF, ExpectedResult = 0.9999847412109375)]
+    public double TestConvertBinaryFractionToFloat(ushort inputBinaryFraction)
+      => BitLogic.ConvertBinaryFractionToDouble(inputBinaryFraction);
   }
 }
