@@ -4,6 +4,7 @@ using cmb.schema.cmb;
 using cmb.schema.ctxb;
 
 using fin.io;
+using fin.testing.model;
 using fin.util.strings;
 
 using schema.binary;
@@ -15,38 +16,28 @@ using Version = cmb.schema.cmb.Version;
 namespace cmb {
   public class CtxbGoldenTests {
     [Test]
-    public async Task TestEachCtxbGolden() {
-      var executingAssembly = Assembly.GetExecutingAssembly();
-      var assemblyName =
-          StringUtil.SubstringUpTo(executingAssembly.ManifestModule.Name, ".dll");
+    [TestCaseSource(nameof(GetGoldenFiles_))]
+    public async Task TestExportsGoldenAsExpected(ISystemFile goldenFile) {
+      var goldenGameDir = goldenFile.GetParent();
 
-      var executingAssemblyDll =
-          new FinFile(Assembly.GetExecutingAssembly().Location);
-      var executingAssemblyDir = executingAssemblyDll.GetParent();
+      CmbHeader.Version = goldenGameDir.Name switch {
+          "luigis_mansion_3d"  => Version.LUIGIS_MANSION_3D,
+          "majoras_mask_3d"    => Version.MAJORAS_MASK_3D,
+          "ocarina_of_time_3d" => Version.OCARINA_OF_TIME_3D
+      };
 
-      var currentDir = executingAssemblyDir;
-      while (currentDir.Name != assemblyName) {
-        currentDir = currentDir.GetParent();
-      }
-      Assert.IsNotNull(currentDir);
+      var er = new EndianBinaryReader(goldenFile.OpenRead());
+      await BinarySchemaAssert.ReadsAndWritesIdentically<Ctxb>(er);
+    }
 
-      var cmbTestsDir = currentDir;
-      var goldensDir = cmbTestsDir.GetSubdir("goldens/ctxb");
-
-      var goldenGameDirs = goldensDir.GetExistingSubdirs();
-      foreach (var goldenGameDir in goldenGameDirs) {
-        CmbHeader.Version = goldenGameDir.Name switch {
-            "luigis_mansion_3d" => Version.LUIGIS_MANSION_3D,
-            "majoras_mask_3d" => Version.MAJORAS_MASK_3D,
-            "ocarina_of_time_3d" => Version.OCARINA_OF_TIME_3D
-        };
-
-        var goldenFiles = goldenGameDir.GetExistingFiles();
-        foreach (var goldenFile in goldenFiles) {
-          var er = new EndianBinaryReader(goldenFile.OpenRead());
-          await BinarySchemaAssert.ReadsAndWritesIdentically<Ctxb>(er);
-        }
-      }
+    private static ISystemFile[] GetGoldenFiles_() {
+      var rootGoldenDirectory
+          = ModelGoldenAssert
+            .GetRootGoldensDirectory(Assembly.GetExecutingAssembly())
+            .GetSubdir("ctxb");
+      return rootGoldenDirectory.GetExistingSubdirs()
+                                .SelectMany(dir => dir.GetExistingFiles())
+                                .ToArray();
     }
   }
 }

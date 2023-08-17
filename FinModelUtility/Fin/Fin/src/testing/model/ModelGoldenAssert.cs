@@ -15,14 +15,15 @@ using fin.util.strings;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace fin.testing {
+namespace fin.testing.model {
   public static class ModelGoldenAssert {
     private const string TMP_NAME = "tmp";
 
     public static ISystemDirectory
         GetRootGoldensDirectory(Assembly executingAssembly) {
       var assemblyName =
-          StringUtil.SubstringUpTo(executingAssembly.ManifestModule.Name, ".dll");
+          StringUtil.SubstringUpTo(executingAssembly.ManifestModule.Name,
+                                   ".dll");
 
       var executingAssemblyDll = new FinFile(executingAssembly.Location);
       var executingAssemblyDir = executingAssemblyDll.GetParent();
@@ -83,46 +84,59 @@ namespace fin.testing {
         Func<IFileHierarchyDirectory, TModelBundle>
             gatherModelBundleFromInputDirectory)
         where TModelBundle : IModelFileBundle {
-      var tmpDirectory = rootGoldenDirectory.GetSubdir(TMP_NAME, true);
-
-      var extensions = new[] { ".glb" };
-
-      foreach (var goldenSubdir in GetGoldenDirectories(rootGoldenDirectory)) {
-        tmpDirectory.DeleteContents();
-
-        var inputDirectory = goldenSubdir.GetExistingSubdir("input");
-        var modelBundle = gatherModelBundleFromInputDirectory(inputDirectory);
-
-        var outputDirectory = goldenSubdir.GetExistingSubdir("output");
-        var hasGoldenExport =
-            outputDirectory.Files
-                           .Any(file => extensions.Contains(file.Extension));
-
-        var targetDirectory =
-            hasGoldenExport ? tmpDirectory : outputDirectory.Impl;
-
-        var model = modelLoader.LoadModel(modelBundle);
-        new AssimpIndirectExporter() {
-            LowLevel = modelBundle.UseLowLevelExporter,
-            ForceGarbageCollection = modelBundle.ForceGarbageCollection,
-        }.ExportExtensions(
-            new ExporterParams {
-                Model = model,
-                OutputFile =
-                    new FinFile(Path.Combine(targetDirectory.FullName,
-                                             $"{modelBundle.MainFile.NameWithoutExtension}.foo")),
-            },
-            extensions,
-            true);
-
-        if (hasGoldenExport) {
-          AssertFilesInDirectoriesAreIdentical_(
-              tmpDirectory,
-              outputDirectory.Impl);
-        }
-
-        tmpDirectory.DeleteContents();
+      foreach (var goldenSubdir in
+               GetGoldenDirectories(rootGoldenDirectory)) {
+        ModelGoldenAssert.AssertGolden(goldenSubdir,
+                                       modelLoader,
+                                       gatherModelBundleFromInputDirectory);
       }
+    }
+
+    private static string[] EXTENSIONS = { ".glb" };
+
+    public static void AssertGolden<TModelBundle>(
+        IFileHierarchyDirectory goldenSubdir,
+        IModelLoader<TModelBundle> modelLoader,
+        Func<IFileHierarchyDirectory, TModelBundle>
+            gatherModelBundleFromInputDirectory)
+        where TModelBundle : IModelFileBundle {
+      var tmpDirectory = goldenSubdir.Impl.GetSubdir(TMP_NAME, true);
+
+      tmpDirectory.DeleteContents();
+
+      var inputDirectory = goldenSubdir.GetExistingSubdir("input");
+      var modelBundle = gatherModelBundleFromInputDirectory(inputDirectory);
+
+      var outputDirectory = goldenSubdir.GetExistingSubdir("output");
+      var hasGoldenExport =
+          outputDirectory.Files
+                         .Any(file => EXTENSIONS.Contains(file.Extension));
+
+      var targetDirectory =
+          hasGoldenExport ? tmpDirectory : outputDirectory.Impl;
+
+      var model = modelLoader.LoadModel(modelBundle);
+      new AssimpIndirectExporter() {
+          LowLevel = modelBundle.UseLowLevelExporter,
+          ForceGarbageCollection = modelBundle.ForceGarbageCollection,
+      }.ExportExtensions(
+          new ExporterParams {
+              Model = model,
+              OutputFile =
+                  new FinFile(Path.Combine(targetDirectory.FullName,
+                                           $"{modelBundle.MainFile.NameWithoutExtension}.foo")),
+          },
+          EXTENSIONS,
+          true);
+
+      if (hasGoldenExport) {
+        AssertFilesInDirectoriesAreIdentical_(
+            tmpDirectory,
+            outputDirectory.Impl);
+      }
+
+      tmpDirectory.DeleteContents();
+      tmpDirectory.Delete();
     }
 
     private static void AssertFilesInDirectoriesAreIdentical_(

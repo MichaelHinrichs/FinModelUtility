@@ -43,8 +43,10 @@ namespace glo.api {
       var textureFilesByName = new Dictionary<string, IFileHierarchyFile>();
       foreach (var textureDirectory in textureDirectories) {
         foreach (var textureFile in textureDirectory.Files) {
-          textureFilesByName[textureFile.NameWithoutExtension.ToLower()] =
-              textureFile;
+          if (FinImage.IsSupportedExtension(textureFile.Impl)) {
+            textureFilesByName[textureFile.NameWithoutExtension.ToLower()] =
+                textureFile;
+          }
         }
       }
 
@@ -260,6 +262,10 @@ namespace glo.api {
 
           // Anything with these names are debug objects and can be ignored.
           if (this.hiddenNames_.Contains(name)) {
+            if (idealMesh.Sprites.Length > 0) {
+              ;
+            }
+
             continue;
           }
 

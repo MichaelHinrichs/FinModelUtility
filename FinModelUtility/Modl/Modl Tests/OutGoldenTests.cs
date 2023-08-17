@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 
 using fin.io;
-using fin.testing;
+using fin.testing.model;
 using fin.util.enumerables;
 
 using modl.api;

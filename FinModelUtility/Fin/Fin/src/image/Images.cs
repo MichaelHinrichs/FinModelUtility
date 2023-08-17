@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 using FastBitmapLib;
@@ -24,9 +25,20 @@ using Image = SixLabors.ImageSharp.Image;
 
 namespace fin.image {
   public static class FinImage {
+    public static bool IsSupportedExtension(ISystemFile file) {
+      var extension = file.Extension.ToLower().Substring(1);
+      return ImageSharpConfig.ImageFormats.Any(
+          format => format.FileExtensions.Any(otherExtension =>
+                                                  extension == otherExtension));
+    }
+
     public static IImage FromFile(IReadOnlyGenericFile file) {
-      using var stream = file.OpenRead();
-      return FinImage.FromStream(stream);
+      try {
+        using var stream = file.OpenRead();
+        return FinImage.FromStream(stream);
+      } catch (Exception e) {
+        throw new Exception($"Failed to load image \"{file}\"!", e);
+      }
     }
 
     public static async Task<IImage> FromFileAsync(IReadOnlyGenericFile file) {
