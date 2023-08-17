@@ -37,49 +37,6 @@ namespace fin.image.formats {
             accessHandler(InternalGetHandler);
           });
 
-    public delegate void SetHandler(int x,
-                                    int y,
-                                    byte r,
-                                    byte g,
-                                    byte b,
-                                    byte a);
-
-    public delegate void MutateHandler(IImage.Rgba32GetHandler getHandler,
-                                       SetHandler setHandler);
-
-    public void Mutate(MutateHandler mutateHandler)
-      => FinImage.Mutate(
-          this.Impl,
-          (getHandler, setHandler) => {
-            void InternalGetHandler(
-                int x,
-                int y,
-                out byte r,
-                out byte g,
-                out byte b,
-                out byte a) {
-              getHandler(x, y, out var pixel);
-              r = pixel.R;
-              g = pixel.G;
-              b = pixel.B;
-              a = pixel.A;
-            }
-
-            void InternalSetHandler(
-                int x,
-                int y,
-                byte r,
-                byte g,
-                byte b,
-                byte a) {
-              var pixel = new Rgba32(r, g, b, a);
-              setHandler(x, y, pixel);
-            }
-
-            mutateHandler(InternalGetHandler,
-                          InternalSetHandler);
-          });
-
     public override bool HasAlphaChannel => true;
 
     public void GetRgba32Bytes(Span<byte> bytes)

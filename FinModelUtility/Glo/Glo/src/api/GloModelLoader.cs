@@ -12,6 +12,8 @@ using fin.util.asserts;
 
 using glo.schema;
 
+using SixLabors.ImageSharp.PixelFormats;
+
 namespace glo.api {
   public class GloModelFileBundle : IModelFileBundle {
     public GloModelFileBundle(IFileHierarchyFile gloFile,
@@ -95,17 +97,18 @@ namespace glo.api {
             if (finTexture == null) {
               return finModel.MaterialManager.AddStandardMaterial();
             }
+
             return finModel.MaterialManager.AddTextureMaterial(finTexture);
           });
       var withoutCullingMap = new LazyDictionary<string, IMaterial>(
           textureFilename => {
             var finTexture = finTextureMap[textureFilename];
             IMaterial finMaterial = finTexture == null
-                                        ? finModel.MaterialManager
-                                                  .AddStandardMaterial()
-                                        : finModel.MaterialManager
-                                                  .AddTextureMaterial(
-                                                      finTexture);
+                ? finModel.MaterialManager
+                          .AddStandardMaterial()
+                : finModel.MaterialManager
+                          .AddTextureMaterial(
+                              finTexture);
             finMaterial.CullingMode = CullingMode.SHOW_BOTH;
             return finMaterial;
           });
@@ -122,13 +125,13 @@ namespace glo.api {
 
         List<(IModelAnimation, int, int)> finAndGloAnimations = new();
         foreach (var animSeg in gloObject.AnimSegs) {
-          var startFrame = (int)animSeg.StartFrame;
-          var endFrame = (int)animSeg.EndFrame;
+          var startFrame = (int) animSeg.StartFrame;
+          var endFrame = (int) animSeg.EndFrame;
 
           var finAnimation = finModel.AnimationManager.AddAnimation();
           finAnimation.Name = animSeg.Name;
           finAnimation.FrameCount =
-              (int)(animSeg.EndFrame - animSeg.StartFrame + 1);
+              (int) (animSeg.EndFrame - animSeg.StartFrame + 1);
 
           finAnimation.FrameRate = fps * animSeg.Speed;
 
@@ -151,7 +154,9 @@ namespace glo.api {
           var finBone = parentFinBone
                         .AddChild(position.X, position.Y, position.Z)
                         .SetLocalRotationRadians(
-                            rotation.X, rotation.Y, rotation.Z)
+                            rotation.X,
+                            rotation.Y,
+                            rotation.Z)
                         // This is weird, but seems to be right for levels.
                         .SetLocalScale(scale.Y, scale.X, scale.Z);
           finBone.Name = name + "_bone";
@@ -172,7 +177,8 @@ namespace glo.api {
             var finBoneTracks = finAnimation.AddBoneTracks(finBone);
 
             var positions =
-                finBoneTracks.UseCombinedPositionAxesTrack(gloMesh.MoveKeys.Length);
+                finBoneTracks.UseCombinedPositionAxesTrack(
+                    gloMesh.MoveKeys.Length);
             long prevTime = -1;
             foreach (var moveKey in gloMesh.MoveKeys) {
               Asserts.True(moveKey.Time > prevTime);
@@ -186,9 +192,10 @@ namespace glo.api {
                 time = endFrame - startFrame;
                 isLast = true;
               } else {
-                time = (int)(moveKey.Time - startFrame);
+                time = (int) (moveKey.Time - startFrame);
                 isLast = moveKey.Time == endFrame;
               }
+
               Asserts.True(time >= 0 && time < finAnimation.FrameCount);
 
               positions.Set(time,
@@ -217,13 +224,16 @@ namespace glo.api {
                 time = endFrame - startFrame;
                 isLast = true;
               } else {
-                time = (int)(rotateKey.Time - startFrame);
+                time = (int) (rotateKey.Time - startFrame);
                 isLast = rotateKey.Time == endFrame;
               }
+
               Asserts.True(time >= 0 && time < finAnimation.FrameCount);
 
               var quaternionKey =
-                  new Quaternion(rotateKey.X, rotateKey.Y, rotateKey.Z,
+                  new Quaternion(rotateKey.X,
+                                 rotateKey.Y,
+                                 rotateKey.Z,
                                  rotateKey.W);
               rotations.Set(time, quaternionKey);
 
@@ -246,9 +256,10 @@ namespace glo.api {
                 time = endFrame - startFrame;
                 isLast = true;
               } else {
-                time = (int)(scaleKey.Time - startFrame);
+                time = (int) (scaleKey.Time - startFrame);
                 isLast = scaleKey.Time == endFrame;
               }
+
               Asserts.True(time >= 0 && time < finAnimation.FrameCount);
 
               // TODO: Does this also need to be out of order?
@@ -283,7 +294,9 @@ namespace glo.api {
 
             var gloFaceColor = gloFace.Color;
             var finFaceColor = FinColor.FromRgbaBytes(
-                gloFaceColor.Rb, gloFaceColor.Gb, gloFaceColor.Bb,
+                gloFaceColor.Rb,
+                gloFaceColor.Gb,
+                gloFaceColor.Bb,
                 gloFaceColor.Ab);
 
             var enableBackfaceCulling = (gloFace.Flags & 1 << 2) == 0;
@@ -294,8 +307,8 @@ namespace glo.api {
             } else {
               previousTextureName = textureFilename;
               finMaterial = enableBackfaceCulling
-                                ? withCullingMap[textureFilename]
-                                : withoutCullingMap[textureFilename];
+                  ? withCullingMap[textureFilename]
+                  : withoutCullingMap[textureFilename];
               previousMaterial = finMaterial;
             }
 
@@ -303,8 +316,8 @@ namespace glo.api {
             // 0: potentially some kind of repeat mode??
 
             var color = (gloFace.Flags & 1 << 6) != 0
-                            ? FinColor.FromRgbaBytes(255, 0, 0, 255)
-                            : FinColor.FromRgbaBytes(0, 255, 0, 255);
+                ? FinColor.FromRgbaBytes(255, 0, 0, 255)
+                : FinColor.FromRgbaBytes(0, 255, 0, 255);
 
             var finFaceVertices = new IReadOnlyVertex[3];
             for (var v = 0; v < 3; ++v) {
@@ -316,7 +329,8 @@ namespace glo.api {
               finVertex.SetUv(gloVertexRef.U, gloVertexRef.V);
               //.SetColor(color);
               finVertex.SetBoneWeights(finSkin.GetOrCreateBoneWeights(
-                                           VertexSpace.BONE, finBone));
+                                           VertexSpace.BONE,
+                                           finBone));
               finFaceVertices[v] = finVertex;
             }
 
@@ -344,7 +358,9 @@ namespace glo.api {
 
             var gloFaceColor = gloSprite.Color;
             var finFaceColor = FinColor.FromRgbaBytes(
-                gloFaceColor.Rb, gloFaceColor.Gb, gloFaceColor.Bb,
+                gloFaceColor.Rb,
+                gloFaceColor.Gb,
+                gloFaceColor.Bb,
                 gloFaceColor.Ab);
 
             IMaterial? finMaterial;
@@ -386,26 +402,27 @@ namespace glo.api {
       return finModel;
     }
 
-    private static IImage AddTransparencyToGloImage_(IImage rawImage) {
+    private static unsafe IImage AddTransparencyToGloImage_(IImage rawImage) {
       var width = rawImage.Width;
       var height = rawImage.Height;
 
       var textureImageWithAlpha =
           new Rgba32Image(rawImage.PixelFormat, width, height);
-      textureImageWithAlpha.Mutate((_, setHandler) => {
-        rawImage.Access(getHandler => {
-          for (var y = 0; y < height; ++y) {
-            for (var x = 0; x < width; ++x) {
-              getHandler(x, y, out var r, out var g, out var b, out var a);
+      using var alphaLock = textureImageWithAlpha.Lock();
+      var alphaScan0 = alphaLock.pixelScan0;
 
-              if (r == 255 && g == 0 && b == 255) {
-                a = 0;
-              }
+      rawImage.Access(getHandler => {
+        for (var y = 0; y < height; ++y) {
+          for (var x = 0; x < width; ++x) {
+            getHandler(x, y, out var r, out var g, out var b, out var a);
 
-              setHandler(x, y, r, g, b, a);
+            if (r == 255 && g == 0 && b == 255) {
+              a = 0;
             }
+
+            alphaScan0[y * width + x] = new Rgba32(r, g, b, a);
           }
-        });
+        }
       });
 
       return textureImageWithAlpha;

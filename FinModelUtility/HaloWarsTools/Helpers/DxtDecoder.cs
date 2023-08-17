@@ -295,22 +295,24 @@ namespace Dxt {
         int height,
         float max) {
       var bitmap = new Rgba32Image(PixelFormat.RGBA16161616, width, height);
-      bitmap.Mutate((_, setHandler) => {
-        var offset = 0;
-        for (var y = 0; y < height; ++y) {
-          for (var x = 0; x < width; ++x) {
-            var r = hdr[offset + 0] / max * 255;
-            var g = hdr[offset + 1] / max * 255;
-            var b = hdr[offset + 2] / max * 255;
+      using var imageLock = bitmap.Lock();
+      var scan0 = imageLock.pixelScan0;
 
-            // For some reason, alpha isn't used?
-            // TODO: How is this factored in?
-            var a = 255f; //hdrImage[offset + 3] / max * 255;
+      var offset = 0;
+      for (var y = 0; y < height; ++y) {
+        for (var x = 0; x < width; ++x) {
+          var r = hdr[offset + 0] / max * 255;
+          var g = hdr[offset + 1] / max * 255;
+          var b = hdr[offset + 2] / max * 255;
 
-            setHandler(x, y, (byte) r, (byte) g, (byte) b, (byte) a);
-          }
+          // For some reason, alpha isn't used?
+          // TODO: How is this factored in?
+          var a = 255f; //hdrImage[offset + 3] / max * 255;
+
+          scan0[y * width + x] =
+              new Rgba32((byte) r, (byte) g, (byte) b, (byte) a);
         }
-      });
+      }
 
       return bitmap;
     }
@@ -444,7 +446,6 @@ namespace Dxt {
                     new Rgba32(col.R, col.G, col.B, currentAlpha);
               }
             }
-
           }
         }
       } catch (Exception e) {
@@ -452,7 +453,6 @@ namespace Dxt {
       }
 
 
-     
       return image;
     }
 

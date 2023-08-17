@@ -34,42 +34,6 @@ namespace fin.image.formats {
       accessHandler(GetHandler);
     }
 
-    public delegate void GetHandler(int x,
-                                    int y,
-                                    out byte intensity,
-                                    out byte alpha);
-
-    public delegate void SetHandler(int x,
-                                    int y,
-                                    byte intensity,
-                                    byte alpha);
-
-    public delegate void MutateHandler(GetHandler getHandler,
-                                       SetHandler setHandler);
-
-    public void Mutate(MutateHandler mutateHandler) {
-      var frame = this.Impl.Frames[0];
-
-      void GetHandler(
-          int x,
-          int y,
-          out byte i,
-          out byte a) {
-        var pixel = frame[x, y];
-        i = pixel.L;
-        a = pixel.A;
-      }
-
-      void SetHandler(int x, int y, byte i, byte a) {
-        var pixel = frame[x, y];
-        pixel.L = i;
-        pixel.A = a;
-        frame[x, y] = pixel;
-      }
-
-      mutateHandler(GetHandler, SetHandler);
-    }
-
     public override bool HasAlphaChannel => true;
 
     public void GetIa16Bytes(Span<byte> bytes)

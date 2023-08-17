@@ -35,41 +35,6 @@ namespace fin.image.formats {
             accessHandler(InternalGetHandler);
           });
 
-    public delegate void GetHandler(int x,
-                                    int y,
-                                    out byte intensity);
-
-    public delegate void SetHandler(int x,
-                                    int y,
-                                    byte intensity);
-
-    public delegate void MutateHandler(GetHandler getHandler,
-                                       SetHandler setHandler);
-
-    public void Mutate(MutateHandler mutateHandler)
-      => FinImage.Mutate(
-          this.Impl,
-          (getHandler, setHandler) => {
-            void InternalGetHandler(
-                int x,
-                int y,
-                out byte i) {
-              getHandler(x, y, out var pixel);
-              i = pixel.PackedValue;
-            }
-
-            void InternalSetHandler(
-                int x,
-                int y,
-                byte i) {
-              var pixel = new L8(i);
-              setHandler(x, y, pixel);
-            }
-
-            mutateHandler(InternalGetHandler,
-                          InternalSetHandler);
-          });
-
     public override bool HasAlphaChannel => false;
 
     public void GetI8Bytes(Span<byte> bytes)

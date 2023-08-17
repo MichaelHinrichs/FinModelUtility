@@ -10,13 +10,15 @@ using fin.util.color;
 
 using schema.binary;
 
+using SixLabors.ImageSharp.PixelFormats;
+
 namespace modl.schema.res.texr {
   public interface ITexr : IBinaryDeserializable {
     IImage Image { get; }
   }
 
   public abstract class BTexr {
-    protected IImage
+    protected unsafe IImage
         ReadA8R8G8B8_(IEndianBinaryReader er,
                       uint width,
                       uint height) {
@@ -27,44 +29,45 @@ namespace modl.schema.res.texr {
 
       var image =
           new Rgba32Image(PixelFormat.RGBA8888, (int) width, (int) height);
-      image.Mutate((_, setHandler) => {
-        var blockWidth = 4;
-        var blockHeight = 4;
+      using var imageLock = image.Lock();
+      var scan0 = imageLock.pixelScan0;
 
-        var blockGrid = new Grid<(byte a, byte r)>(blockWidth, blockHeight);
+      var blockWidth = 4;
+      var blockHeight = 4;
 
-        for (var blockY = 0; blockY < height / blockHeight; blockY++) {
-          var availableBlockHeight =
-              Math.Min(blockHeight, height - blockHeight * blockY);
+      var blockGrid = new Grid<(byte a, byte r)>(blockWidth, blockHeight);
 
-          for (var blockX = 0; blockX < width / blockWidth; blockX++) {
-            var availableBlockWidth =
-                Math.Min(blockWidth, width - blockWidth * blockX);
+      for (var blockY = 0; blockY < height / blockHeight; blockY++) {
+        var availableBlockHeight =
+            Math.Min(blockHeight, height - blockHeight * blockY);
 
-            for (var iy = 0; iy < availableBlockHeight; ++iy) {
-              for (var ix = 0; ix < availableBlockWidth; ++ix) {
-                var a = er.ReadByte();
-                var r = er.ReadByte();
+        for (var blockX = 0; blockX < width / blockWidth; blockX++) {
+          var availableBlockWidth =
+              Math.Min(blockWidth, width - blockWidth * blockX);
 
-                blockGrid[ix, iy] = (a, r);
-              }
+          for (var iy = 0; iy < availableBlockHeight; ++iy) {
+            for (var ix = 0; ix < availableBlockWidth; ++ix) {
+              var a = er.ReadByte();
+              var r = er.ReadByte();
+
+              blockGrid[ix, iy] = (a, r);
             }
+          }
 
-            for (var iy = 0; iy < availableBlockHeight; ++iy) {
-              var imgY = blockY * blockHeight + iy;
-              for (var ix = 0; ix < availableBlockWidth; ++ix) {
-                var imgX = blockX * blockWidth + ix;
+          for (var iy = 0; iy < availableBlockHeight; ++iy) {
+            var imgY = blockY * blockHeight + iy;
+            for (var ix = 0; ix < availableBlockWidth; ++ix) {
+              var imgX = blockX * blockWidth + ix;
 
-                var (a, r) = blockGrid[ix, iy];
-                var g = er.ReadByte();
-                var b = er.ReadByte();
+              var (a, r) = blockGrid[ix, iy];
+              var g = er.ReadByte();
+              var b = er.ReadByte();
 
-                setHandler(imgX, imgY, r, g, b, a);
-              }
+              scan0[imgY * width + imgX] = new Rgba32(r, g, b, a);
             }
           }
         }
-      });
+      }
 
       return image;
     }
@@ -93,7 +96,11 @@ namespace modl.schema.res.texr {
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height);
 
       var indexImage = TiledImageReader
-                       .New((int) width, (int) height, 8, 4, new L8PixelReader())
+                       .New((int) width,
+                            (int) height,
+                            8,
+                            4,
+                            new L8PixelReader())
                        .Read(er);
 
       return new IndexedImage8(PixelFormat.P8, indexImage, palette);
@@ -119,7 +126,11 @@ namespace modl.schema.res.texr {
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height / 2);
 
       var indexImage = TiledImageReader
-                       .New((int) width, (int) height, 8, 8, new L4PixelReader())
+                       .New((int) width,
+                            (int) height,
+                            8,
+                            8,
+                            new L4PixelReader())
                        .Read(er);
 
       return new IndexedImage8(PixelFormat.P4, indexImage, palette);
