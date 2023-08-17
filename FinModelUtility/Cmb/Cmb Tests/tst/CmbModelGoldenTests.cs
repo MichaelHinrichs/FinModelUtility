@@ -17,7 +17,7 @@ namespace cmb {
         IFileHierarchyDirectory directory) {
       var cmbFile = directory.FilesWithExtension(".cmb").Single();
       return new CmbModelFileBundle(
-          "foobar",
+          directory.Parent.Name,
           cmbFile,
           directory.FilesWithExtension(".csab").ToArray(),
           null,
@@ -30,6 +30,7 @@ namespace cmb {
             .GetRootGoldensDirectory(Assembly.GetExecutingAssembly())
             .GetSubdir("cmb");
       return ModelGoldenAssert.GetGoldenDirectories(rootGoldenDirectory)
+                              .SelectMany(dir => dir.Subdirs)
                               .ToArray();
     }
   }
