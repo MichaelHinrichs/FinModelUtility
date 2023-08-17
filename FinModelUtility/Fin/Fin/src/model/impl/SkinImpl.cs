@@ -16,7 +16,7 @@ namespace fin.model.impl {
 
     private class SkinImpl : ISkin<TVertex> {
       private readonly Func<int, Position, TVertex> vertexCreator_;
-      private readonly IList<IReadOnlyVertex> vertices_;
+      private readonly IList<TVertex> vertices_;
       private readonly IList<IMesh> meshes_ = new List<IMesh>();
 
       private readonly BoneWeightsDictionary boneWeightsDictionary_ = new();
@@ -24,28 +24,28 @@ namespace fin.model.impl {
       private readonly IndexableDictionary<IBone, IBoneWeights>
           boneWeightsByBone_ = new();
 
-      public SkinImpl(Func<int, Position, TVertex> vertexCreator) {
-        this.vertexCreator_ = vertexCreator;
-        this.vertices_ = new List<IReadOnlyVertex>();
-        this.Vertices = new ReadOnlyCollection<IReadOnlyVertex>(this.vertices_);
-        this.Meshes = new ReadOnlyCollection<IMesh>(this.meshes_);
-      }
+      public SkinImpl(Func<int, Position, TVertex> vertexCreator)
+          : this(0, vertexCreator) { }
 
       public SkinImpl(int vertexCount,
                       Func<int, Position, TVertex> vertexCreator) {
         this.vertexCreator_ = vertexCreator;
-        this.vertices_ = new List<IReadOnlyVertex>(vertexCount);
+
+        this.vertices_ = new List<TVertex>();
+        this.TypedVertices = new ReadOnlyCollection<TVertex>(this.vertices_);
+        this.Vertices =
+            new CastListView<TVertex, IReadOnlyVertex>(this.TypedVertices);
 
         // TODO: Possible to speed this up?
         for (var i = 0; i < vertexCount; ++i) {
           this.vertices_.Add(vertexCreator(i, default));
         }
 
-        this.Vertices = new ReadOnlyCollection<IReadOnlyVertex>(this.vertices_);
         this.Meshes = new ReadOnlyCollection<IMesh>(this.meshes_);
       }
 
       public IReadOnlyList<IReadOnlyVertex> Vertices { get; }
+      public IReadOnlyList<TVertex> TypedVertices { get; }
 
       public TVertex AddVertex(Position position) {
         lock (this.vertices_) {

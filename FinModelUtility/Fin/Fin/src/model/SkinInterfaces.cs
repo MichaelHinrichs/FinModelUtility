@@ -28,6 +28,8 @@ namespace fin.model {
   }
 
   public interface ISkin<out TVertex> : ISkin where TVertex : IReadOnlyVertex {
+    IReadOnlyList<TVertex> TypedVertices { get; }
+
     TVertex AddVertex(Position position);
     TVertex AddVertex(Vector3 position);
     TVertex AddVertex(IVector3 position);

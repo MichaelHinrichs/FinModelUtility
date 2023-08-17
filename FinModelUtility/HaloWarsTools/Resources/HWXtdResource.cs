@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -93,14 +94,14 @@ namespace HaloWarsTools {
           (index, position) => new NormalUvVertexImpl(index, position));
       var finMesh = finModel.Skin.AddMesh();
 
-      var finVertices = finModel.Skin.Vertices;
+      var finVertices = finModel.Skin.TypedVertices;
 
       // Read vertex offsets/normals and add them to the mesh
       ParallelHelper.For(0,
                          finVertices.Count,
                          new GridVertexGenerator(
                              bytes,
-                             finVertices.Cast<NormalUvVertexImpl>().ToArray(),
+                             finVertices,
                              gridSize,
                              tileScale,
                              positionOffset,
@@ -174,7 +175,8 @@ namespace HaloWarsTools {
 
         // Get offset position and normal for this vertex
         Vector3 position =
-            ReadVector3Compressed(this.bytes_, this.positionOffset_ + offset) *
+            ReadVector3Compressed(
+                this.bytes_.AsSpan(this.positionOffset_ + offset, 4)) *
             this.posCompRange_ -
             this.posCompMin_;
 
@@ -184,8 +186,8 @@ namespace HaloWarsTools {
         Vector3 normal =
             ConvertDirectionVector(
                 Vector3.Normalize(
-                    ReadVector3Compressed(this.bytes_,
-                                          this.normalOffset_ + offset) *
+                    ReadVector3Compressed(
+                        this.bytes_.AsSpan(this.normalOffset_ + offset, 4)) *
                     2.0f -
                     Vector3.One));
 
@@ -211,16 +213,17 @@ namespace HaloWarsTools {
         1f / HWXtdResource.K_BIT_MASK_10;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static Vector3 ReadVector3Compressed(byte[] bytes, int offset) {
+    private static Vector3 ReadVector3Compressed(ReadOnlySpan<byte> bytes) {
       // Inexplicably, position and normal vectors are encoded inside 4 bytes. ~10 bits per component
       // This seems okay for directions, but positions suffer from stairstepping artifacts
-      uint v = BinaryUtils.ReadUInt32LittleEndian(bytes, offset);
+      uint v = BitConverter.ToUInt32(bytes);
       uint x = (v >> 0) & K_BIT_MASK_10;
       uint y = (v >> 10) & K_BIT_MASK_10;
       uint z = (v >> 20) & K_BIT_MASK_10;
       return new Vector3(x, y, z) * INVERSE_K_BIT_MASK_10;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static Vector3 ConvertPositionVector(Vector3 vector) {
       return new Vector3(vector.X, -vector.Z, vector.Y);
     }
