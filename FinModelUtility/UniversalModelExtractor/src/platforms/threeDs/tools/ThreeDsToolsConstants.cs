@@ -2,24 +2,24 @@
 
 namespace uni.platforms.gcn.tools {
   public static class ThreeDsToolsConstants {
-    public static ISystemDirectory CTRTOOL_DIRECTORY =
-        DirectoryConstants.TOOLS_DIRECTORY.AssertGetExistingSubdir("ctrtool");
+    public static ISystemDirectory CTRTOOL_DIRECTORY { get; } =
+      DirectoryConstants.TOOLS_DIRECTORY.AssertGetExistingSubdir("ctrtool");
 
-    public static ISystemFile EXTRACT_CIA_BAT =
-        ThreeDsToolsConstants.CTRTOOL_DIRECTORY.AssertGetExistingFile(
-            "extract_cia.bat");
+    public static IReadOnlySystemFile EXTRACT_CIA_BAT { get; } =
+      ThreeDsToolsConstants.CTRTOOL_DIRECTORY.AssertGetExistingFile(
+          "extract_cia.bat");
 
-    public static ISystemFile EXTRACT_CCI_BAT =
-        ThreeDsToolsConstants.CTRTOOL_DIRECTORY.AssertGetExistingFile(
-            "extract_cci.bat");
+    public static IReadOnlySystemFile EXTRACT_CCI_BAT { get; } =
+      ThreeDsToolsConstants.CTRTOOL_DIRECTORY.AssertGetExistingFile(
+          "extract_cci.bat");
 
 
-    public static ISystemDirectory THREEDS_XSFATOOL_DIRECTORY =
-        DirectoryConstants.TOOLS_DIRECTORY.AssertGetExistingSubdir(
-            "3ds-xfsatool");
+    public static IReadOnlySystemDirectory THREEDS_XSFATOOL_DIRECTORY { get; } =
+      DirectoryConstants.TOOLS_DIRECTORY.AssertGetExistingSubdir(
+          "3ds-xfsatool");
 
-    public static ISystemFile THREEDS_XSFATOOL_EXE =
-        ThreeDsToolsConstants.THREEDS_XSFATOOL_DIRECTORY.AssertGetExistingFile(
-            "3ds-xfsatool.exe");
+    public static IReadOnlySystemFile THREEDS_XSFATOOL_EXE { get; } =
+      ThreeDsToolsConstants.THREEDS_XSFATOOL_DIRECTORY.AssertGetExistingFile(
+          "3ds-xfsatool.exe");
   }
 }

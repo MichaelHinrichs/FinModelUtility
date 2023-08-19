@@ -9,11 +9,5 @@ namespace fin.io {
 
     public static IoFile File => FileSystem.File;
     public static IoDirectory Directory => FileSystem.Directory;
-
-    public static IDirectoryInfoFactory DirectoryInfoFactory
-      => FileSystem.DirectoryInfo;
-
-    public static IFileInfoFactory FileInfoFactory
-      => FileSystem.FileInfo;
   }
 }

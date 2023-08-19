@@ -5,12 +5,10 @@ using cmb.schema.ctxb;
 
 using fin.io;
 using fin.testing.model;
-using fin.util.strings;
 
 using schema.binary;
 using schema.binary.testing;
 
-using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 using Version = cmb.schema.cmb.Version;
 
 namespace cmb {
@@ -30,7 +28,7 @@ namespace cmb {
       await BinarySchemaAssert.ReadsAndWritesIdentically<Ctxb>(er);
     }
 
-    private static ISystemFile[] GetGoldenFiles_() {
+    private static IReadOnlySystemFile[] GetGoldenFiles_() {
       var rootGoldenDirectory
           = ModelGoldenAssert
             .GetRootGoldensDirectory(Assembly.GetExecutingAssembly())

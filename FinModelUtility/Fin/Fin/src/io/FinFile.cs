@@ -25,7 +25,7 @@ namespace fin.io {
         return true;
       }
 
-      if (other is not ISystemIoObject otherSelf) {
+      if (other is not IReadOnlySystemIoObject otherSelf) {
         return false;
       }
 
@@ -33,6 +33,9 @@ namespace fin.io {
     }
 
     public bool Equals(ISystemIoObject? other)
+      => this.Equals(other as IReadOnlySystemIoObject);
+
+    public bool Equals(IReadOnlySystemIoObject? other)
       => this.FullPath == other?.FullPath;
 
 
@@ -46,12 +49,24 @@ namespace fin.io {
     public string? GetParentFullPath()
       => FinIoStatic.GetParentFullName(this.FullPath);
 
+    IReadOnlySystemDirectory
+        ITreeIoObject<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
+            IReadOnlySystemFile, string>.AssertGetParent()
+      => this.AssertGetParent();
+
     public ISystemDirectory AssertGetParent() {
-      if (this.TryGetParent(out var parent)) {
+      if (this.TryGetParent(out ISystemDirectory parent)) {
         return parent;
       }
 
       throw new Exception("Expected parent directory to exist!");
+    }
+
+    public bool TryGetParent(out IReadOnlySystemDirectory parent) {
+      parent = default;
+      return this.TryGetParent(
+          out Unsafe
+              .As<IReadOnlySystemDirectory, ISystemDirectory>(ref parent));
     }
 
     public bool TryGetParent(out ISystemDirectory parent) {
@@ -65,19 +80,24 @@ namespace fin.io {
       return false;
     }
 
-    public ISystemDirectory[] GetAncestry() {
-      if (!this.TryGetParent(out var firstParent)) {
-        return Array.Empty<ISystemDirectory>();
+    IEnumerable<IReadOnlySystemDirectory>
+        ITreeIoObject<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
+            IReadOnlySystemFile, string>.GetAncestry()
+      => this.GetAncestry();
+
+    public IEnumerable<ISystemDirectory> GetAncestry()
+      => this.GetUpwardAncestry_().Reverse();
+
+    private IEnumerable<ISystemDirectory> GetUpwardAncestry_() {
+      if (!this.TryGetParent(out ISystemDirectory firstParent)) {
+        yield break;
       }
 
-      var parents = new LinkedList<ISystemDirectory>();
       var current = firstParent;
       while (current.TryGetParent(out var parent)) {
-        parents.AddLast(parent);
+        yield return parent;
         current = parent;
       }
-
-      return parents.ToArray();
     }
 
 
@@ -96,6 +116,11 @@ namespace fin.io {
 
     public string NameWithoutExtension
       => FinFileStatic.GetNameWithoutExtension(this.Name);
+
+    IReadOnlySystemFile
+        ITreeFile<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
+            IReadOnlySystemFile, string>.CloneWithFileType(string newFileType)
+      => this.CloneWithFileType(newFileType);
 
     public ISystemFile CloneWithFileType(string newExtension) {
       Asserts.True(newExtension.StartsWith("."),

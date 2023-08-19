@@ -47,7 +47,7 @@ namespace modl.api {
                       modelFileBundle.GameVersion,
                       out _);
 
-    public IModel LoadModel(ISystemFile outFile,
+    public IModel LoadModel(IReadOnlySystemFile outFile,
                             GameVersion gameVersion,
                             out IBwTerrain bwTerrain,
                             float terrainLightScale = 1) {
@@ -68,7 +68,7 @@ namespace modl.api {
     }
 
     public IModel LoadModel(IReadOnlyGenericFile outFile,
-                            IEnumerable<ISystemDirectory>
+                            IEnumerable<IReadOnlySystemDirectory>
                                 textureDirectoriesEnumerable,
                             GameVersion gameVersion,
                             out IBwTerrain bwTerrain,
@@ -103,7 +103,7 @@ namespace modl.api {
               return FinImage.Create1x1FromColor(Color.Magenta);
             }
 
-            ISystemFile? textureFile = null;
+            IReadOnlySystemFile? textureFile = null;
             foreach (var textureDirectory in textureDirectories) {
               if (textureDirectory.SearchForFiles($"{imageName}.texr", true)
                                   .TryGetFirst(out textureFile)) {

@@ -7,7 +7,7 @@ using fin.util.asserts;
 namespace uni.util.cmd {
   public class ProcessUtil {
     public static Process ExecuteBlocking(
-        ISystemFile exeFile,
+        IReadOnlySystemFile exeFile,
         params string[] args) {
       var processSetup = new ProcessSetup(exeFile, args) {
           Method = ProcessExecutionMethod.BLOCK,
@@ -16,11 +16,10 @@ namespace uni.util.cmd {
     }
 
     public static Process ExecuteBlockingSilently(
-        ISystemFile exeFile,
+        IReadOnlySystemFile exeFile,
         params string[] args) {
       var processSetup = new ProcessSetup(exeFile, args) {
-          Method = ProcessExecutionMethod.BLOCK,
-          WithLogging = false,
+          Method = ProcessExecutionMethod.BLOCK, WithLogging = false,
       };
       return ProcessUtil.Execute(processSetup);
     }
@@ -33,7 +32,7 @@ namespace uni.util.cmd {
     }
 
     public class ProcessSetup {
-      public ISystemFile ExeFile { get; set; }
+      public IReadOnlySystemFile ExeFile { get; set; }
       public string[] Args { get; set; }
 
       public ProcessExecutionMethod Method { get; set; } =
@@ -41,7 +40,7 @@ namespace uni.util.cmd {
 
       public bool WithLogging { get; set; } = true;
 
-      public ProcessSetup(ISystemFile exeFile, params string[] args) {
+      public ProcessSetup(IReadOnlySystemFile exeFile, params string[] args) {
         this.ExeFile = exeFile;
         this.Args = args;
       }
@@ -62,6 +61,7 @@ namespace uni.util.cmd {
         if (i > 0) {
           argString += " ";
         }
+
         argString += arg;
       }
 
@@ -90,8 +90,8 @@ namespace uni.util.cmd {
           }
         };
       } else {
-        process.OutputDataReceived += (_, _) => {};
-        process.ErrorDataReceived += (_, _) => {};
+        process.OutputDataReceived += (_, _) => { };
+        process.ErrorDataReceived += (_, _) => { };
       }
 
       process.BeginOutputReadLine();

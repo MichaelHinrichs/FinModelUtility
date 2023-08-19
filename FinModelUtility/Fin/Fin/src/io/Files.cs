@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 
 using fin.util.asserts;
 
@@ -31,70 +30,9 @@ namespace fin.io {
 
 
     // Getting Files
-    public static ISystemFile[] GetFilesWithExtension(
-        string extension,
-        bool includeSubdirs = false)
-      => Files.GetFilesWithExtension(Files.GetCwd(), extension, includeSubdirs);
-
     public static string AssertValidExtension(string extension) {
       Asserts.True(extension.StartsWith("."));
       return extension;
     }
-
-    public static ISystemFile[] GetFilesWithExtension(
-        ISystemDirectory directory,
-        string extension,
-        bool includeSubdirs = false)
-      => directory.GetFilesWithFileType(extension, includeSubdirs)
-                  .ToArray();
-
-    public static ISystemFile GetFileWithExtension(
-        ISystemDirectory directory,
-        string extension,
-        bool includeSubdirs = false)
-      => new FinFile(
-          Files.GetPathWithExtension(directory, extension, includeSubdirs));
-
-
-    public static string[] GetPathsWithExtension(
-        ISystemDirectory directory,
-        string extension,
-        bool includeSubdirs = false)
-      => Files.GetFilesWithExtension(directory, extension, includeSubdirs)
-              .Select(file => file.FullPath)
-              .ToArray();
-
-    public static string GetPathWithExtension(
-        ISystemDirectory directory,
-        string extension,
-        bool includeSubdirs = false) {
-      var paths =
-          Files.GetPathsWithExtension(directory, extension, includeSubdirs);
-
-      var errorMessage =
-          $"Expected to find a single '.{extension}' file within '{Files.GetCwd().FullPath}' but found {paths.Length}";
-      if (paths.Length == 0) {
-        errorMessage += ".";
-      } else {
-        errorMessage += ":\n";
-        errorMessage = paths.Aggregate(errorMessage,
-                                       (current, path)
-                                           => current + (path + "\n"));
-      }
-
-      Asserts.True(paths.Length == 1, errorMessage);
-
-      return paths[0];
-    }
-
-    public static string[] GetPathsWithExtension(
-        string extension,
-        bool includeSubdirs = false)
-      => Files.GetPathsWithExtension(Files.GetCwd(), extension, includeSubdirs);
-
-    public static string GetPathWithExtension(
-        string extension,
-        bool includeSubdirs = false)
-      => Files.GetPathWithExtension(Files.GetCwd(), extension, includeSubdirs);
   }
 }

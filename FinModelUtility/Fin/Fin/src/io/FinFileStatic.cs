@@ -2,10 +2,6 @@
 using System.IO.Abstractions;
 using System.Runtime.CompilerServices;
 
-using fin.util.json;
-
-using schema.binary;
-
 namespace fin.io {
   public static class FinFileStatic {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -42,53 +38,11 @@ namespace fin.io {
                         name.Length - FinFileStatic.GetExtension(name).Length);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static T ReadNew<T>(string fullName)
-        where T : IBinaryDeserializable, new()
-      => FileUtil.ReadNew<T>(fullName);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static T ReadNew<T>(string fullName, Endianness endianness)
-        where T : IBinaryDeserializable, new()
-      => FileUtil.ReadNew<T>(fullName, endianness);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static byte[] ReadAllBytes(string fullName)
-      => FinFileSystem.File.ReadAllBytes(fullName);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string ReadAllText(string fullName)
-      => FinFileSystem.File.ReadAllText(fullName);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void WriteAllBytes(string fullName, byte[] bytes)
-      => File.WriteAllBytes(fullName, bytes);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static StreamReader OpenReadAsText(string fullName)
-      => FileUtil.OpenReadAsText(fullName);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static StreamWriter OpenWriteAsText(string fullName)
-      => FileUtil.OpenWriteAsText(fullName);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static FileSystemStream OpenRead(string fullName)
       => FileUtil.OpenRead(fullName);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static FileSystemStream OpenWrite(string fullName)
       => FileUtil.OpenWrite(fullName);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static T Deserialize<T>(string fullName) {
-      var text = ReadAllText(fullName);
-      return JsonUtil.Deserialize<T>(text);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Serialize<T>(string fullName, T instance) where T : notnull {
-      using var writer = OpenWriteAsText(fullName);
-      writer.Write(JsonUtil.Serialize(instance));
-    }
   }
 }

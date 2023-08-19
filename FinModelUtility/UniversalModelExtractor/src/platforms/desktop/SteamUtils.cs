@@ -19,7 +19,7 @@ namespace uni.platforms.desktop {
           @"Valve\Steam",
           "InstallPath") as string;
 
-    public static ISystemDirectory? InstallDirectory { get; } =
+    public static IReadOnlySystemDirectory? InstallDirectory { get; } =
       SteamUtils.InstallPath != null
           ? new FinDirectory(SteamUtils.InstallPath)
           : null;

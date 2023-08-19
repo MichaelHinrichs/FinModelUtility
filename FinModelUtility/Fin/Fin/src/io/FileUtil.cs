@@ -2,8 +2,6 @@
 using System.IO.Abstractions;
 using System.Runtime.CompilerServices;
 
-using fin.util.asserts;
-
 using schema.binary;
 
 namespace fin.io {
@@ -11,10 +9,6 @@ namespace fin.io {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string ReplaceInvalidFilenameCharacters(this string path)
       => string.Join("_", path.Split(Path.GetInvalidFileNameChars()));
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void AssertExists(string path, string? message = null)
-      => Asserts.True(FinFileSystem.File.Exists(path), message);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T ReadNew<T>(string path)
@@ -29,14 +23,6 @@ namespace fin.io {
       using var er = new EndianBinaryReader(OpenRead(path), endianness);
       return er.ReadNew<T>();
     }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static byte[] ReadAllBytes(string path)
-      => FinFileSystem.File.ReadAllBytes(path);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string ReadAllText(string path)
-      => FinFileSystem.File.ReadAllText(path);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static StreamReader OpenReadAsText(string path)
