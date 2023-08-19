@@ -9,7 +9,7 @@ namespace uni.platforms.threeDs {
   public class ThreeDsFileHierarchyExtractor {
     public bool TryToExtractFromGame(string gameName,
                                      out IFileHierarchy fileHierarchy) {
-      if (!this.TryToFindRom_(gameName, out var romFile)) {
+      if (!TryToFindRom_(gameName, out var romFile)) {
         fileHierarchy = default;
         return false;
       }
@@ -18,7 +18,7 @@ namespace uni.platforms.threeDs {
       return true;
     }
 
-    private bool TryToFindRom_(string gameName, out ISystemFile romFile)
+    private static bool TryToFindRom_(string gameName, out IReadOnlySystemFile romFile)
       => DirectoryConstants.ROMS_DIRECTORY
                            .TryToGetExistingFileWithFileType(
                                gameName,
@@ -27,7 +27,7 @@ namespace uni.platforms.threeDs {
                                ".3ds",
                                ".cia");
 
-    private IFileHierarchy ExtractFromRom_(ISystemFile romFile) {
+    private IFileHierarchy ExtractFromRom_(IReadOnlySystemFile romFile) {
       IFileHierarchy fileHierarchy;
       switch (romFile.FileType) {
         case ".cia": {

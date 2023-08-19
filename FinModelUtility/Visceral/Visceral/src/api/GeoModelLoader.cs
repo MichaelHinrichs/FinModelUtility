@@ -63,7 +63,7 @@ namespace visceral.api {
       }
 
       foreach (var bnkFile in modelFileBundle.BnkFiles) {
-        new BnkLoader().LoadBnk(finModel, bnkFile.Impl, rcbFile.Impl, finBones);
+        new BnkLoader().LoadBnk(finModel, bnkFile, rcbFile, finBones);
       }
 
       // Builds meshes

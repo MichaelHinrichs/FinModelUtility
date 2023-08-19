@@ -8,7 +8,8 @@ using uni.util.cmd;
 namespace uni.platforms.threeDs.tools.ctrtool {
   public static partial class Ctrtool {
     public class CiaExtractor {
-      public bool Run(IReadOnlySystemFile romFile, out IFileHierarchy hierarchy) {
+      public bool Run(IReadOnlySystemFile romFile,
+                      out IFileHierarchy hierarchy) {
         Asserts.Equal(
             ".cia",
             romFile.FileType,
