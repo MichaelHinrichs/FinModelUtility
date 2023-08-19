@@ -28,7 +28,7 @@ namespace Dxt {
       NEGATIVE_Z,
     }
 
-    public static (string, IDxt<IImage>) ReadDds(ISystemFile ddsFile) {
+    public static (string, IDxt<IImage>) ReadDds(IReadOnlySystemFile ddsFile) {
       using var ddsStream = ddsFile.OpenRead();
       var er = new EndianBinaryReader(ddsStream, Endianness.LittleEndian);
       er.AssertString("DDS ");

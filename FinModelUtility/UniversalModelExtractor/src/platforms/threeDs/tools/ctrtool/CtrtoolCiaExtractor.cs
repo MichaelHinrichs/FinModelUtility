@@ -8,7 +8,7 @@ using uni.util.cmd;
 namespace uni.platforms.threeDs.tools.ctrtool {
   public static partial class Ctrtool {
     public class CiaExtractor {
-      public bool Run(ISystemFile romFile, out IFileHierarchy hierarchy) {
+      public bool Run(IReadOnlySystemFile romFile, out IFileHierarchy hierarchy) {
         Asserts.Equal(
             ".cia",
             romFile.FileType,
@@ -32,7 +32,7 @@ namespace uni.platforms.threeDs.tools.ctrtool {
         return didChange;
       }
 
-      private void DumpRom_(ISystemFile romFile,
+      private void DumpRom_(IReadOnlySystemFile romFile,
                             ISystemDirectory dstDirectory) {
         var logger = Logging.Create<CiaExtractor>();
         logger.LogInformation($"Dumping ROM {romFile}...");

@@ -8,7 +8,7 @@ using Yarhl.FileSystem;
 namespace uni.platforms.ds {
   internal class DsFileHierarchyExtractor {
     public IFileHierarchy ExtractFromRom(
-        ISystemFile romFile) {
+        IReadOnlySystemFile romFile) {
       var outDir = DirectoryConstants.ROMS_DIRECTORY.GetOrCreateSubdir(
           romFile.NameWithoutExtension);
 

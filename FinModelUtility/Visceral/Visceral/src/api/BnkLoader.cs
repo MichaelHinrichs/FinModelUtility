@@ -33,8 +33,8 @@ namespace visceral.api {
     }
 
     public void LoadBnk(IModel model,
-                        ISystemFile bnkFile,
-                        ISystemFile rcbFile,
+                        IReadOnlySystemFile bnkFile,
+                        IReadOnlySystemFile rcbFile,
                         IBone[] bones) {
       using var bnkEr =
           new EndianBinaryReader(bnkFile.OpenRead(), Endianness.LittleEndian);

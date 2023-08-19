@@ -42,8 +42,8 @@ namespace modl.api {
                         modelFileBundle.GameVersion);
 
     public async Task<IModel> LoadModelAsync(
-        ISystemFile modlFile,
-        IList<ISystemFile>? animFiles,
+        IReadOnlySystemFile modlFile,
+        IList<IReadOnlySystemFile>? animFiles,
         GameVersion gameVersion,
         ILighting? lighting = null) {
       var flipSign = ModlFlags.FLIP_HORIZONTALLY ? -1 : 1;
@@ -231,7 +231,7 @@ namespace modl.api {
     }
 
     private static void AddAnimFileToModel_(IModel model,
-                                            ISystemFile animFile,
+                                            IReadOnlySystemFile animFile,
                                             GameVersion gameVersion,
                                             int flipSign,
                                             IDictionary<string, IBone> finBonesByIdentifier) {

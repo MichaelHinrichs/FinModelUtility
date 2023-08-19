@@ -94,7 +94,7 @@ namespace HaloWarsTools {
 
       var artDirectory = scratchDirectory.AssertGetExistingSubdir("art");
 
-      var artSubdirQueue = new FinQueue<ISystemDirectory>(artDirectory);
+      var artSubdirQueue = new FinQueue<IReadOnlySystemDirectory>(artDirectory);
       // TODO: Switch to DFS instead, it's more intuitive as a user
       while (artSubdirQueue.TryDequeue(out var artSubdir)) {
         // TODO: Skip a file if it's already been extracted
