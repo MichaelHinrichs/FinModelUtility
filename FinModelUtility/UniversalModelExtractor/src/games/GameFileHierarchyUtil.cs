@@ -6,20 +6,15 @@ namespace uni.games {
   public static class GameFileHierarchyUtil {
     public static string GetRomName(
         IFileHierarchyInstance fileHierarchyInstance) {
-      var baseDirectoryPath = fileHierarchyInstance.FullName.Substring(
+      var baseDirectoryPath = fileHierarchyInstance.FullPath.Substring(
           0,
-          fileHierarchyInstance.FullName.Length -
+          fileHierarchyInstance.FullPath.Length -
           fileHierarchyInstance.LocalPath.Length);
 
       return Path.GetFileName(baseDirectoryPath);
     }
 
-    public static ISystemDirectory GetWorkingDirectoryForFile(
-        IFileHierarchyFile fileHierarchyFile,
-        string? romName = null)
-      => GetWorkingDirectoryForDirectory(fileHierarchyFile.Parent!, romName);
-
-    public static ISystemDirectory GetWorkingDirectoryForDirectory(
+    public static ISystemDirectory GetOrCreateWorkingDirectoryForDirectory(
         IFileHierarchyDirectory fileHierarchyDirectory,
         string? romName = null) {
       romName ??= GameFileHierarchyUtil.GetRomName(fileHierarchyDirectory);
@@ -27,7 +22,7 @@ namespace uni.games {
       var localDirectoryPath = fileHierarchyDirectory.LocalPath;
       var localOutPath = Path.Join(romName, localDirectoryPath);
 
-      return DirectoryConstants.ROMS_DIRECTORY.GetSubdir(localOutPath);
+      return DirectoryConstants.ROMS_DIRECTORY.GetOrCreateSubdir(localOutPath);
     }
 
 
@@ -43,7 +38,7 @@ namespace uni.games {
       var localOutPath = Path.Join(romName, localDirectoryPath);
 
       return DirectoryConstants.OUT_DIRECTORY
-                               .GetSubdir(localOutPath, true);
+                               .GetOrCreateSubdir(localOutPath);
     }
   }
 }

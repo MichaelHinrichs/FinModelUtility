@@ -22,7 +22,7 @@ namespace uni.platforms.threeDs.tools.ctrtool {
           if (!directory.Exists) {
             this.DumpRom_(romFile, directory);
             Asserts.False(directory.IsEmpty,
-                          $"Failed to extract contents from the ROM: {romFile.FullName}");
+                          $"Failed to extract contents from the ROM: {romFile.FullPath}");
           }
         }
 
@@ -41,8 +41,8 @@ namespace uni.platforms.threeDs.tools.ctrtool {
                   .ExecuteBlockingSilently(
                       ThreeDsToolsConstants
                           .EXTRACT_CCI_BAT,
-                      $"\"{romFile.FullName}\"",
-                      $"\"{dstDirectory.FullName}\"");
+                      $"\"{romFile.FullPath}\"",
+                      $"\"{dstDirectory.FullPath}\"");
             });
       }
     }

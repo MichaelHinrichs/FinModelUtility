@@ -53,7 +53,7 @@ namespace uni.games.battalion_wars_1 {
         foreach (var (bwFileExtension, bwFiles) in bwArchive.Files) {
           foreach (var bwFile in bwFiles) {
             var fileName = $"{bwFile.FileName}.{bwFileExtension.ToLower()}";
-            var file = new FinFile(Path.Join(directory.FullName, fileName));
+            var file = new FinFile(Path.Join(directory.FullPath, fileName));
             using var w = file.OpenWrite();
             w.Write(bwFile.Data);
           }
@@ -61,7 +61,7 @@ namespace uni.games.battalion_wars_1 {
 
         foreach (var texture in bwArchive.TexrSection.Textures) {
           FinFileSystem.File.WriteAllBytes(
-              Path.Join(directory.FullName, $"{texture.Name}.texr"),
+              Path.Join(directory.FullPath, $"{texture.Name}.texr"),
               texture.Data);
         }
 

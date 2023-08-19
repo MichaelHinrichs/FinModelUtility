@@ -13,7 +13,7 @@ using schema.binary;
 namespace fin.io {
   public readonly struct FinFile : ISystemFile {
     public FinFile(string fullName) {
-      this.FullName = fullName;
+      this.FullPath = fullName;
     }
 
     public override string ToString() => this.DisplayFullName;
@@ -33,20 +33,20 @@ namespace fin.io {
     }
 
     public bool Equals(ISystemIoObject? other)
-      => this.FullName == other?.FullName;
+      => this.FullPath == other?.FullPath;
 
 
     // File fields
-    public string Name => FinIoStatic.GetName(this.FullName);
-    public string FullName { get; }
-    public string DisplayFullName => this.FullName;
+    public string Name => FinIoStatic.GetName(this.FullPath);
+    public string FullPath { get; }
+    public string DisplayFullName => this.FullPath;
 
 
     // Ancestry methods
-    public string? GetParentFullName()
-      => FinIoStatic.GetParentFullName(this.FullName);
+    public string? GetParentFullPath()
+      => FinIoStatic.GetParentFullName(this.FullPath);
 
-    public ISystemDirectory GetParent() {
+    public ISystemDirectory AssertGetParent() {
       if (this.TryGetParent(out var parent)) {
         return parent;
       }
@@ -55,7 +55,7 @@ namespace fin.io {
     }
 
     public bool TryGetParent(out ISystemDirectory parent) {
-      var parentName = this.GetParentFullName();
+      var parentName = this.GetParentFullPath();
       if (parentName != null) {
         parent = new FinDirectory(parentName);
         return true;
@@ -82,22 +82,22 @@ namespace fin.io {
 
 
     // File methods
-    public bool Exists => FinFileStatic.Exists(this.FullName);
+    public bool Exists => FinFileStatic.Exists(this.FullPath);
 
-    string IReadOnlyGenericFile.DisplayPath => this.FullName;
+    string IReadOnlyGenericFile.DisplayPath => this.FullPath;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Delete() => FinFileStatic.Delete(FullName);
+    public bool Delete() => FinFileStatic.Delete(this.FullPath);
 
-    public string Extension => FinFileStatic.GetExtension(FullName);
+    public string FileType => FinFileStatic.GetExtension(this.FullPath);
 
     public string FullNameWithoutExtension
-      => FinFileStatic.GetNameWithoutExtension(this.FullName);
+      => FinFileStatic.GetNameWithoutExtension(this.FullPath);
 
     public string NameWithoutExtension
       => FinFileStatic.GetNameWithoutExtension(this.Name);
 
-    public ISystemFile CloneWithExtension(string newExtension) {
+    public ISystemFile CloneWithFileType(string newExtension) {
       Asserts.True(newExtension.StartsWith("."),
                    $"'{newExtension}' is not a valid extension!");
       return new FinFile(this.FullNameWithoutExtension + newExtension);
@@ -114,7 +114,7 @@ namespace fin.io {
     // Read methods
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public FileSystemStream OpenRead()
-      => FinFileStatic.OpenRead(this.FullName);
+      => FinFileStatic.OpenRead(this.FullPath);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public StreamReader OpenReadAsText() => new(this.OpenRead());
@@ -150,7 +150,7 @@ namespace fin.io {
     // Write methods
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public FileSystemStream OpenWrite()
-      => FinFileStatic.OpenWrite(this.FullName);
+      => FinFileStatic.OpenWrite(this.FullPath);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public StreamWriter OpenWriteAsText() => new(this.OpenWrite());

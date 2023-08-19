@@ -17,10 +17,10 @@ namespace uni.games.dead_space_1 {
       var originalGameFileHierarchy = new FileHierarchy(deadSpaceDir);
 
       var baseOutputDirectory =
-          GameFileHierarchyUtil.GetWorkingDirectoryForDirectory(
+          GameFileHierarchyUtil.GetOrCreateWorkingDirectoryForDirectory(
               originalGameFileHierarchy.Root,
               "dead_space_1");
-      if (!baseOutputDirectory.Exists) {
+      if (baseOutputDirectory.IsEmpty) {
         var strExtractor = new StrExtractor();
         foreach (var strFile in originalGameFileHierarchy.SelectMany(
                      dir => dir.FilesWithExtensionRecursive(".str"))) {

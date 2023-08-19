@@ -29,31 +29,31 @@ namespace HaloWarsTools {
 
       var scratchDirectory = new FinDirectory(scratchDirectoryPath);
       var mapDirectories = scratchDirectory
-                           .GetSubdir("scenario/skirmish/design")
+                           .AssertGetExistingSubdir("scenario/skirmish/design")
                            .GetExistingSubdirs();
 
       var outputDirectory = new FinDirectory(outputDirectoryPath);
 
       var baseDstMapDirectory =
-          outputDirectory.GetSubdir("scenario/skirmish/design", true);
+          outputDirectory.GetOrCreateSubdir("scenario/skirmish/design");
       foreach (var srcMapDirectory in mapDirectories) {
         var mapName = srcMapDirectory.Name;
 
-        var dstMapDirectory = baseDstMapDirectory.GetSubdir(mapName, true);
+        var dstMapDirectory = baseDstMapDirectory.GetOrCreateSubdir(mapName);
 
         var gltfFile = new FinFile(
-            Path.Combine(dstMapDirectory.FullName, $"{mapName}.gltf"));
+            Path.Combine(dstMapDirectory.FullPath, $"{mapName}.gltf"));
         if (gltfFile.Exists) {
           continue;
         }
 
         var xttFile = srcMapDirectory.GetExistingFiles()
-                                     .Single(file => file.Extension == ".xtt");
+                                     .Single(file => file.FileType == ".xtt");
         var xtdFile = srcMapDirectory.GetExistingFiles()
-                                     .Single(file => file.Extension == ".xtd");
+                                     .Single(file => file.FileType == ".xtd");
 
-        var xtt = HWXttResource.FromFile(context, xttFile.FullName);
-        var xtd = HWXtdResource.FromFile(context, xtdFile.FullName);
+        var xtt = HWXttResource.FromFile(context, xttFile.FullPath);
+        var xtd = HWXtdResource.FromFile(context, xtdFile.FullPath);
 
         var finModel = xtd.Mesh;
         var xttMaterial = finModel.MaterialManager.AddStandardMaterial();
@@ -74,17 +74,15 @@ namespace HaloWarsTools {
         GcUtil.ForceCollectEverything();
 
         var exporter = new AssimpIndirectExporter {
-          LowLevel = true,
-          ForceGarbageCollection = true,
+            LowLevel = true, ForceGarbageCollection = true,
         };
         exporter.Export(new ExporterParams {
-            OutputFile = gltfFile.CloneWithExtension(".fbx"),
-            Model = finModel,
+            OutputFile = gltfFile.CloneWithFileType(".fbx"), Model = finModel,
         });
 
         // Cleans up any remaining .bin files.
         var binFiles = dstMapDirectory.GetExistingFiles()
-                                      .Where(file => file.Extension == ".bin");
+                                      .Where(file => file.FileType == ".bin");
         foreach (var binFile in binFiles) {
           binFile.Delete();
         }
@@ -94,7 +92,7 @@ namespace HaloWarsTools {
         GcUtil.ForceCollectEverything();
       }
 
-      var artDirectory = scratchDirectory.GetSubdir("art");
+      var artDirectory = scratchDirectory.AssertGetExistingSubdir("art");
 
       var artSubdirQueue = new FinQueue<ISystemDirectory>(artDirectory);
       // TODO: Switch to DFS instead, it's more intuitive as a user
@@ -103,27 +101,26 @@ namespace HaloWarsTools {
         // TODO: Parse UGX files instead, as long as they specify their own animations
         var visFiles =
             artSubdir.GetExistingFiles()
-                     .Where(f => f.Extension == ".vis")
+                     .Where(f => f.FileType == ".vis")
                      .ToList();
         foreach (var visFile in visFiles) {
-          var vis = HWVisResource.FromFile(context, visFile.FullName);
+          var vis = HWVisResource.FromFile(context, visFile.FullPath);
 
           var finModel = vis.Model;
 
           var outFilePath =
-              visFile.FullName.Replace(scratchDirectoryPath,
+              visFile.FullPath.Replace(scratchDirectoryPath,
                                        outputDirectoryPath);
-          var outFile = new FinFile(outFilePath).CloneWithExtension(".fbx");
+          var outFile = new FinFile(outFilePath).CloneWithFileType(".fbx");
           if (outFile.TryGetParent(out var parent)) {
             parent.Create();
           }
 
           var exporter = new AssimpIndirectExporter();
           exporter.Export(new ExporterParams {
-              OutputFile = outFile,
-              Model = finModel
+              OutputFile = outFile, Model = finModel
           });
-          Console.WriteLine($"Processed {visFile.FullName}");
+          Console.WriteLine($"Processed {visFile.FullPath}");
         }
 
         artSubdirQueue.Enqueue(artSubdir.GetExistingSubdirs());

@@ -12,9 +12,9 @@ namespace uni.games.midnight_club_2 {
       : IFileBundleGatherer<IModelFileBundle> {
     public IEnumerable<IModelFileBundle> GatherFileBundles(
         bool assert) {
-      var midnightClub2Directory =
-          DirectoryConstants.ROMS_DIRECTORY.GetSubdir("midnight_club_2");
-      if (!midnightClub2Directory.Exists) {
+      if (!DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingSubdir(
+              "midnight_club_2",
+              out var midnightClub2Directory)) {
         return Enumerable.Empty<IModelFileBundle>();
       }
 

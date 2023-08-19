@@ -9,7 +9,7 @@ namespace uni.platforms.threeDs.tools {
   public class ThreeDsXfsaTool {
     public bool Extract(IFileHierarchyFile xsfaFile) {
       Asserts.True(xsfaFile.Exists,
-                   $"Could not extract archive because it does not exist: {xsfaFile.FullName}");
+                   $"Could not extract archive because it does not exist: {xsfaFile.FullPath}");
 
       var directoryPath = xsfaFile.FullNameWithoutExtension;
       var directory = new FinDirectory(directoryPath);
@@ -26,8 +26,8 @@ namespace uni.platforms.threeDs.tools {
           () => {
             ProcessUtil.ExecuteBlockingSilently(
                 ThreeDsToolsConstants.THREEDS_XSFATOOL_EXE,
-                $"-i \"{xsfaFile.FullName}\" " +
-                $"-o \"{directory.FullName}\" " + "-q");
+                $"-i \"{xsfaFile.FullPath}\" " +
+                $"-o \"{directory.FullPath}\" " + "-q");
           });
 
       Asserts.True(directory.Exists);

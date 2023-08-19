@@ -135,7 +135,7 @@ namespace ModelPluginWrappers {
       engine.SetSearchPaths(new[] {
         "C:\\Users\\Ryan\\Documents\\CSharpWorkspace\\FinModelUtility\\FinModelUtility\\ModelPluginWrappers\\lib\\3.4",
         "C:\\Users\\Ryan\\Documents\\CSharpWorkspace\\FinModelUtility\\FinModelUtility\\ModelPluginWrappers\\lib\\noesis",
-        noesisDirectory.FullName,
+        noesisDirectory.FullPath,
       });
 
       // Hooks up missing Python imports

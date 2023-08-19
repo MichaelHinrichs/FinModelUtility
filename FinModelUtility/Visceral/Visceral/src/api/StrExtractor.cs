@@ -72,15 +72,15 @@ namespace visceral.api {
                           var i = initialIndex + 1;
                           ISystemFile outputFile =
                               new FinFile(
-                                  Path.Join(outputDir.FullName, fileInfo.FileName));
+                                  Path.Join(outputDir.FullPath, fileInfo.FileName));
                           if (outputFile.Exists) {
                             return;
                           }
 
-                          outputFile.GetParent().Create();
+                          outputFile.AssertGetParent().Create();
 
                           await using var output = FinFileSystem.File.Open(
-                              outputFile.FullName,
+                              outputFile.FullPath,
                               new FileStreamOptions {
                                   Mode = FileMode.Create,
                                   Access = FileAccess.Write,

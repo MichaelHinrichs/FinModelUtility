@@ -51,7 +51,7 @@ public partial class UniversalModelExtractorForm : Form {
             }
           } else {
             this.cancellableProgressBar_.Text =
-                $"Extracting {modelFileBundle.DisplayFullName}...";
+                $"Extracting {modelFileBundle.DisplayFullPath}...";
           }
         };
     this.cancellableProgressBar_.Clicked += (sender, args)
@@ -259,8 +259,8 @@ public partial class UniversalModelExtractorForm : Form {
       var outputFile = new FinFile(saveFileDialog.FileName);
       ExtractorUtil.Extract(modelFileBundle,
                             () => model,
-                            outputFile.GetParent(),
-                            new[] { outputFile.Extension },
+                            outputFile.AssertGetParent(),
+                            new[] { outputFile.FileType },
                             true,
                             outputFile.NameWithoutExtension);
     }

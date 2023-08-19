@@ -174,8 +174,8 @@ namespace fin.exporter.gltf {
       var scale = exporterParams.Scale;
 
       Asserts.True(
-          outputFile.Extension.EndsWith(".gltf") ||
-          outputFile.Extension.EndsWith(".glb"),
+          outputFile.FileType.EndsWith(".gltf") ||
+          outputFile.FileType.EndsWith(".glb"),
           "Target file is not a GLTF format!");
 
       this.logger_.BeginScope("Export");
@@ -188,7 +188,7 @@ namespace fin.exporter.gltf {
                              : ResourceWriteMode.SatelliteFile,
       };
 
-      var outputPath = outputFile.FullName;
+      var outputPath = outputFile.FullPath;
       this.logger_.LogInformation($"Writing to {outputPath}...");
       modelRoot.Save(outputPath, writeSettings);
     }

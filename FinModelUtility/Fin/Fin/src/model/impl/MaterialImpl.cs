@@ -81,7 +81,7 @@ namespace fin.model.impl {
       public ISystemFile SaveInDirectory(ISystemDirectory directory) {
         ISystemFile outFile =
             new FinFile(
-                Path.Combine(directory.FullName,
+                Path.Combine(directory.FullPath,
                              this.Name.ReplaceInvalidFilenameCharacters() +
                              ".png"));
         using var writer = outFile.OpenWrite();

@@ -20,7 +20,7 @@ namespace uni.platforms.threeDs {
 
     private bool TryToFindRom_(string gameName, out ISystemFile romFile)
       => DirectoryConstants.ROMS_DIRECTORY
-                           .TryToGetExistingFileWithExtension(
+                           .TryToGetExistingFileWithFileType(
                                gameName,
                                out romFile,
                                ".cci",
@@ -29,7 +29,7 @@ namespace uni.platforms.threeDs {
 
     private IFileHierarchy ExtractFromRom_(ISystemFile romFile) {
       IFileHierarchy fileHierarchy;
-      switch (romFile.Extension) {
+      switch (romFile.FileType) {
         case ".cia": {
           new Ctrtool.CiaExtractor().Run(romFile, out fileHierarchy);
           break;
@@ -69,7 +69,7 @@ namespace uni.platforms.threeDs {
               archiveExtractor.TryToExtractIntoNewDirectory<GarReader>(
                   garFile,
                   new FinDirectory(
-                      garFile.FullName.SubstringUpTo(".gar"))) ==
+                      garFile.FullPath.SubstringUpTo(".gar"))) ==
               ArchiveExtractionResult.NEWLY_EXTRACTED;
         }
 

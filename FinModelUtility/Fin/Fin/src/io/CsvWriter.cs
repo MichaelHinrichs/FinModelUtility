@@ -43,6 +43,6 @@ namespace fin.io {
     }
 
     public void WriteToFile(ISystemFile outputFile)
-      => File.WriteAllText(outputFile.FullName, this.impl_.ToString());
+      => File.WriteAllText(outputFile.FullPath, this.impl_.ToString());
   }
 }

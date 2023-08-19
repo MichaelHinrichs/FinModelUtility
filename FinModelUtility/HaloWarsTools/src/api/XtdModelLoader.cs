@@ -27,8 +27,8 @@ namespace hw.api {
 
       var mapName = xtdFile.Parent.Name;
 
-      var xtd = HWXtdResource.FromFile(null, xtdFile.FullName);
-      var xtt = HWXttResource.FromFile(null, xttFile.FullName);
+      var xtd = HWXtdResource.FromFile(null, xtdFile.FullPath);
+      var xtt = HWXttResource.FromFile(null, xttFile.FullPath);
 
       var finModel = xtd.Mesh;
       var xttMaterial = finModel.MaterialManager.AddStandardMaterial();

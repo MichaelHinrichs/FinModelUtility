@@ -11,7 +11,7 @@ namespace uni.platforms.threeDs.tools.ctrtool {
       public bool Run(ISystemFile romFile, out IFileHierarchy hierarchy) {
         Asserts.Equal(
             ".cia",
-            romFile.Extension,
+            romFile.FileType,
             $"Cannot dump ROM because it is not a CIA: {romFile}");
         Asserts.True(
             romFile.Exists,
@@ -25,7 +25,7 @@ namespace uni.platforms.threeDs.tools.ctrtool {
 
           this.DumpRom_(romFile, directory);
           Asserts.False(directory.IsEmpty,
-                        $"Failed to extract contents from the ROM: {romFile.FullName}");
+                        $"Failed to extract contents from the ROM: {romFile.FullPath}");
         }
 
         hierarchy = new FileHierarchy(directory);
@@ -42,8 +42,8 @@ namespace uni.platforms.threeDs.tools.ctrtool {
               .ExecuteBlockingSilently(
                   ThreeDsToolsConstants
                       .EXTRACT_CIA_BAT,
-                  $"\"{romFile.FullName}\"",
-                  $"\"{dstDirectory.FullName}\"");
+                  $"\"{romFile.FullPath}\"",
+                  $"\"{dstDirectory.FullPath}\"");
         });
       }
     }

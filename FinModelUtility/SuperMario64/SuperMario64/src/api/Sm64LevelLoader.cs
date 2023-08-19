@@ -11,7 +11,7 @@ namespace sm64.api {
       ROM rom = ROM.Instance;
 
       rom.clearSegments();
-      rom.readFile(levelFileBundle.Sm64Rom.FullName);
+      rom.readFile(levelFileBundle.Sm64Rom.FullPath);
 
       Globals.objectComboEntries.Clear();
       Globals.behaviorNameEntries.Clear();

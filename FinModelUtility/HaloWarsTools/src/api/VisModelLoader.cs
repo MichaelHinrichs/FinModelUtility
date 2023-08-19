@@ -21,7 +21,7 @@ namespace hw.api {
     public IModel LoadModel(VisModelFileBundle modelFileBundle) {
       var visResource =
           HWVisResource.FromFile(modelFileBundle.Context,
-                                 modelFileBundle.VisFile.FullName);
+                                 modelFileBundle.VisFile.FullPath);
       return visResource.Model;
     }
   }

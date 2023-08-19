@@ -52,14 +52,14 @@ namespace uni.games {
       var parentOutputDirectory =
           GameFileHierarchyUtil.GetOutputDirectoryForFile(mainFile);
       var outputDirectory = new FinDirectory(
-          Path.Join(parentOutputDirectory.FullName,
+          Path.Join(parentOutputDirectory.FullPath,
                     mainFile.NameWithoutExtension));
 
       if (outputDirectory.Exists) {
         return extensions.All(
             extension => outputDirectory
                          .GetExistingFiles()
-                         .Where(file => extensions.Contains(file.Extension))
+                         .Where(file => extensions.Contains(file.FileType))
                          .Any(file => file.NameWithoutExtension ==
                                       mainFile.NameWithoutExtension));
       }
@@ -119,7 +119,7 @@ namespace uni.games {
         if (totalCount == 1) {
           var result =
               MessageBox.Show(
-                  $"Model defined in \"{existingOutputFiles.First().DisplayFullName}\" has already been extracted. Would you like to overwrite it?",
+                  $"Model defined in \"{existingOutputFiles.First().DisplayFullPath}\" has already been extracted. Would you like to overwrite it?",
                   "Model has already been extracted!",
                   MessageBoxButtons.YesNo,
                   MessageBoxIcon.Warning,
@@ -246,7 +246,7 @@ namespace uni.games {
       var parentOutputDirectory =
           GameFileHierarchyUtil.GetOutputDirectoryForFile(mainFile);
       var outputDirectory = new FinDirectory(
-          Path.Join(parentOutputDirectory.FullName,
+          Path.Join(parentOutputDirectory.FullPath,
                     mainFile.NameWithoutExtension));
 
       Extract<T>(modelFileBundle,
@@ -305,7 +305,7 @@ namespace uni.games {
             ForceGarbageCollection = modelFileBundle.ForceGarbageCollection,
         }.ExportFormats(new ExporterParams {
                             OutputFile = new FinFile(
-                                Path.Join(outputDirectory.FullName,
+                                Path.Join(outputDirectory.FullPath,
                                           name + ".foo")),
                             Model = model,
                             Scale = new ScaleSource(
@@ -319,7 +319,7 @@ namespace uni.games {
 
         if (Config.Instance.ThirdPartySettings.ExportBoneScaleAnimationsSeparately) {
           new BoneScaleAnimationExporter().Export(
-              new FinFile(Path.Join(outputDirectory.FullName,
+              new FinFile(Path.Join(outputDirectory.FullPath,
                                     name + "_bone_scale_animations.lua")),
               model);
         }

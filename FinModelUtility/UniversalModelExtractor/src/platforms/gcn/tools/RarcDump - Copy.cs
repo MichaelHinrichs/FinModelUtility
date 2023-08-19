@@ -23,7 +23,7 @@ namespace uni.platforms.gcn.tools {
         return false;
       }
 
-      var directoryPath = rarcFile.FullName + "_dir";
+      var directoryPath = rarcFile.FullPath + "_dir";
       if (!Directory.Exists(directoryPath)) {
         var logger = Logging.Create<RarcDump>();
         logger.LogInformation($"Dumping RARC {rarcFile.LocalPath}...");
@@ -31,11 +31,11 @@ namespace uni.platforms.gcn.tools {
         // TODO: Is this implementation right? It *seems* to only export the
         // first node in a RARC.
         Files.RunInDirectory(
-            rarcFile.Impl.GetParent()!,
+            rarcFile.Impl.AssertGetParent()!,
             () => {
               ProcessUtil.ExecuteBlockingSilently(
                   GcnToolsConstants.RARCDUMP_EXE,
-                  $"\"{rarcFile.FullName}\"");
+                  $"\"{rarcFile.FullPath}\"");
             });
         Asserts.True(Directory.Exists(directoryPath),
                      $"Directory was not created: {directoryPath}");
@@ -52,7 +52,7 @@ namespace uni.platforms.gcn.tools {
     // Based on version 1 of rarcdump by thakis.
     // Expanded with information from: http://wiki.tockdom.com/wiki/RARC_(File_Format)
     private bool Impl_(IFileHierarchyFile rarcFile) {
-      var directoryPath = rarcFile.FullName + "_dir";
+      var directoryPath = rarcFile.FullPath + "_dir";
       if (Directory.Exists(directoryPath)) {
         //return false;
       }
@@ -92,7 +92,7 @@ namespace uni.platforms.gcn.tools {
 
       var cwd = Directory.GetCurrentDirectory();
 
-      var directoryPath = rarcFile.FullName + "_dir";
+      var directoryPath = rarcFile.FullPath + "_dir";
       {
         var nodes = new RarcNode[header.numNodes];
         for (var i = 0; i < header.numNodes; ++i) {

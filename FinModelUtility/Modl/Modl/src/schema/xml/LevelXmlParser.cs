@@ -57,13 +57,13 @@ namespace modl.schema.xml {
       var mainXml = new XmlDocument();
       mainXml.LoadXml(mainXmlFile.ReadAllText());
 
-      var mainXmlDirectory = mainXmlFile.GetParent();
+      var mainXmlDirectory = mainXmlFile.AssertGetParent();
 
       var levelfilesTag = mainXml["levelfiles"];
 
       var levelFilename =
           levelfilesTag["level"]["objectfiles"]["file"].GetAttribute("name");
-      var levelXmlFile = mainXmlDirectory.GetExistingFile(levelFilename);
+      var levelXmlFile = mainXmlDirectory.AssertGetExistingFile(levelFilename);
       ILighting? lighting = null;
       var objectMap =
           this.ReadObjectMap_(levelXmlFile,
@@ -75,7 +75,7 @@ namespace modl.schema.xml {
       {
         var terrainFilename =
             levelfilesTag["terrain"]["file"].GetAttribute("name");
-        var outFile = mainXmlDirectory.GetExistingFile(terrainFilename);
+        var outFile = mainXmlDirectory.AssertGetExistingFile(terrainFilename);
         this.AddTerrain_(sceneArea,
                          outFile,
                          gameVersion,

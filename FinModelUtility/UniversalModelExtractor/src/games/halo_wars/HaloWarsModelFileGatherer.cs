@@ -21,10 +21,10 @@ namespace uni.games.halo_wars {
       }
 
       var scratchDirectory = DirectoryConstants.ROMS_DIRECTORY
-                                               .GetSubdir("halo_wars", true);
+                                               .GetOrCreateSubdir("halo_wars");
       
-      var context = new HWContext(haloWarsSteamDirectory.FullName,
-                                  scratchDirectory.FullName);
+      var context = new HWContext(haloWarsSteamDirectory.FullPath,
+                                  scratchDirectory.FullPath);
       // Expand all compressed/encrypted game files. This also handles the .xmb -> .xml conversion
       context.ExpandAllEraFiles();
 

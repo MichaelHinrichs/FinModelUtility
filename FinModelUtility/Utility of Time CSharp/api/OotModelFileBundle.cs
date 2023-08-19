@@ -22,7 +22,7 @@ namespace UoT.api {
     public ISystemFile OotRom { get; }
     public IZFile ZFile { get; }
 
-    string IUiFile.BetterName => ZFile.FileName;
-    public string TrueFullName => this.OotRom.FullName;
+    string IUiFile.HumanReadableName => ZFile.FileName;
+    public string TrueFullPath => this.OotRom.FullPath;
   }
 }

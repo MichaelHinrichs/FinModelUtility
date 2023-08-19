@@ -18,14 +18,14 @@ namespace fin.io {
   }
 
   public interface IFileHierarchyInstance {
-    string FullName { get; }
+    string FullPath { get; }
+    string LocalPath { get; }
+
     string Name { get; }
 
     IFileHierarchyDirectory Root { get; }
     IFileHierarchyDirectory? Parent { get; }
     bool Exists { get; }
-
-    string LocalPath { get; }
   }
 
   public interface IFileHierarchyDirectory : IFileHierarchyInstance {
@@ -76,7 +76,7 @@ namespace fin.io {
     public FileHierarchy(ISystemDirectory directory) {
       var populatedSubdirs =
           new SharpFileLister().FindNextFilePInvokeRecursiveParalleled(
-              directory.FullName);
+              directory.FullPath);
       this.Root = new FileHierarchyDirectory(directory,
                                              populatedSubdirs);
     }
@@ -132,7 +132,7 @@ namespace fin.io {
         this.Parent = parent;
         this.Impl = directory;
         this.LocalPath =
-            directory.FullName.Substring(baseDirectory.FullName.Length);
+            directory.FullPath.Substring(baseDirectory.FullPath.Length);
 
         this.Subdirs =
             new ReadOnlyCollection<IFileHierarchyDirectory>(this.subdirs_);
@@ -169,7 +169,7 @@ namespace fin.io {
         this.Parent = parent;
         this.Impl = directory;
         this.LocalPath =
-            directory.FullName.Substring(baseDirectory.FullName.Length);
+            directory.FullPath.Substring(baseDirectory.FullPath.Length);
 
         this.Subdirs =
             new ReadOnlyCollection<IFileHierarchyDirectory>(this.subdirs_);
@@ -187,7 +187,7 @@ namespace fin.io {
 
       public bool Exists => this.Impl.Exists;
 
-      public string FullName => this.Impl.FullName;
+      public string FullPath => this.Impl.FullPath;
       public string Name => this.Impl.Name;
 
       public string LocalPath { get; }
@@ -347,7 +347,7 @@ namespace fin.io {
         this.Parent = parent;
         this.Impl = file;
         this.LocalPath =
-            file.FullName.Substring(baseDirectory.FullName.Length);
+            file.FullPath.Substring(baseDirectory.FullPath.Length);
       }
 
       public override string ToString() => this.LocalPath;
@@ -359,9 +359,9 @@ namespace fin.io {
 
 
       // File fields
-      public string FullName => this.Impl.FullName;
+      public string FullPath => this.Impl.FullPath;
       public string Name => this.Impl.Name;
-      public string Extension => this.Impl.Extension;
+      public string Extension => this.Impl.FileType;
       public string FullNameWithoutExtension => this.Impl.FullNameWithoutExtension;
       public string NameWithoutExtension => this.Impl.NameWithoutExtension;
 

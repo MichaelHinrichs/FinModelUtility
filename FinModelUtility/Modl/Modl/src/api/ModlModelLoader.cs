@@ -122,8 +122,8 @@ namespace modl.api {
         var textureDictionary = new LazyDictionary<string, Task<ITexture>>(
             async textureName => {
               var textureFile =
-                  modlFile.GetParent()
-                          .GetExistingFile($"{textureName}.texr");
+                  modlFile.AssertGetParent()
+                          .AssertGetExistingFile($"{textureName}.texr");
 
               var texr = gameVersion == GameVersion.BW2
                   ? (ITexr) textureFile.ReadNew<Gtxd>()

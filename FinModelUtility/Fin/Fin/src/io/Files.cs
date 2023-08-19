@@ -16,7 +16,7 @@ namespace fin.io {
 
         Asserts.True(directory.Exists,
                      $"Attempted to run in nonexistent directory: {directory}");
-        FinFileSystem.Directory.SetCurrentDirectory(directory.FullName);
+        FinFileSystem.Directory.SetCurrentDirectory(directory.FullPath);
 
         try {
           handler();
@@ -45,7 +45,7 @@ namespace fin.io {
         ISystemDirectory directory,
         string extension,
         bool includeSubdirs = false)
-      => directory.GetFilesWithExtension(extension, includeSubdirs)
+      => directory.GetFilesWithFileType(extension, includeSubdirs)
                   .ToArray();
 
     public static ISystemFile GetFileWithExtension(
@@ -61,7 +61,7 @@ namespace fin.io {
         string extension,
         bool includeSubdirs = false)
       => Files.GetFilesWithExtension(directory, extension, includeSubdirs)
-              .Select(file => file.FullName)
+              .Select(file => file.FullPath)
               .ToArray();
 
     public static string GetPathWithExtension(
@@ -72,7 +72,7 @@ namespace fin.io {
           Files.GetPathsWithExtension(directory, extension, includeSubdirs);
 
       var errorMessage =
-          $"Expected to find a single '.{extension}' file within '{Files.GetCwd().FullName}' but found {paths.Length}";
+          $"Expected to find a single '.{extension}' file within '{Files.GetCwd().FullPath}' but found {paths.Length}";
       if (paths.Length == 0) {
         errorMessage += ".";
       } else {

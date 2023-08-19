@@ -42,7 +42,7 @@ namespace xmod.api {
           var textureName = textureId.Name;
 
           var texFile = modelFileBundle
-                        .XmodFile.Root.Impl.GetSubdir("texture_x")
+                        .XmodFile.Root.Impl.AssertGetExistingSubdir("texture_x")
                         .SearchForFiles($"{textureName}.tex", true)
                         .Single();
           var image = new TexImageLoader().LoadImage(texFile);

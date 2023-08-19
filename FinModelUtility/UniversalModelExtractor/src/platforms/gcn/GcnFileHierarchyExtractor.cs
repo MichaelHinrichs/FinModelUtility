@@ -33,7 +33,7 @@ namespace uni.platforms.gcn {
 
     private bool TryToFindRom_(string gameName, out ISystemFile romFile)
       => DirectoryConstants.ROMS_DIRECTORY
-                           .TryToGetExistingFileWithExtension(
+                           .TryToGetExistingFileWithFileType(
                                gameName,
                                out romFile,
                                ".ciso",
@@ -44,8 +44,8 @@ namespace uni.platforms.gcn {
     public IFileHierarchy ExtractFromRom_(
         ISystemFile romFile,
         Options options) {
-      var directory = romFile.GetParent()
-                             .GetSubdir(romFile.Name.SubstringUpTo("."));
+      var directory = romFile.AssertGetParent()
+                             .GetOrCreateSubdir(romFile.Name.SubstringUpTo("."));
 
       if (new SubArchiveExtractor().TryToExtractIntoNewDirectory<GcmReader>(
               romFile,

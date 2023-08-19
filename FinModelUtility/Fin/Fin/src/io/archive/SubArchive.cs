@@ -53,7 +53,7 @@ namespace fin.io.archive {
         IReadOnlyGenericFile archive,
         ISystemDirectory systemDirectory)
         where TArchiveReader : IArchiveReader<SubArchiveContentFile>, new() {
-      if (systemDirectory.Exists) {
+      if (systemDirectory is { Exists: true, IsEmpty: false }) {
         return ArchiveExtractionResult.ALREADY_EXISTS;
       }
 
@@ -96,10 +96,10 @@ namespace fin.io.archive {
 
       var createdDirectories = new HashSet<string>();
       foreach (var archiveContentFile in archiveContentFiles) {
-        var dstFile = new FinFile(Path.Join(systemDirectory.FullName,
+        var dstFile = new FinFile(Path.Join(systemDirectory.FullPath,
                                             archiveContentFile.RelativeName));
 
-        var dstDirectory = dstFile.GetParentFullName()!;
+        var dstDirectory = dstFile.GetParentFullPath()!;
         if (createdDirectories.Add(dstDirectory)) {
           FinFileSystem.Directory.CreateDirectory(dstDirectory);
         }

@@ -52,7 +52,7 @@ namespace fin.exporter.assimp.indirect {
                                   exportedFormats,
                               bool exportAllTextures) {
       var outputFile = exporterParams.OutputFile;
-      var outputDirectory = outputFile.GetParent();
+      var outputDirectory = outputFile.AssertGetParent();
       var model = exporterParams.Model;
       var scale = exporterParams.Scale;
 
@@ -89,10 +89,10 @@ namespace fin.exporter.assimp.indirect {
 
         var shaderSource = finMaterial.ToShaderSource(model, false);
         var vertexShaderFile = (ISystemFile) new FinFile(
-            Path.Combine(outputDirectory.FullName,
+            Path.Combine(outputDirectory.FullPath,
                          $"{materialName}.vertex.glsl"));
         var fragmentShaderFile = (ISystemFile) new FinFile(
-            Path.Combine(outputDirectory.FullName,
+            Path.Combine(outputDirectory.FullPath,
                          $"{materialName}.fragment.glsl"));
         vertexShaderFile.WriteAllText(shaderSource.VertexShaderSource);
         fragmentShaderFile.WriteAllText(shaderSource.FragmentShaderSource);
@@ -109,10 +109,10 @@ namespace fin.exporter.assimp.indirect {
 
         foreach (var gltfFormat in gltfFormats) {
           var gltfOutputFile =
-              outputFile.CloneWithExtension($".{gltfFormat.FileExtension}");
+              outputFile.CloneWithFileType($".{gltfFormat.FileExtension}");
 
           var gltfWriteSettings =
-              WriteContext.CreateFromFile(gltfOutputFile.FullName);
+              WriteContext.CreateFromFile(gltfOutputFile.FullPath);
           gltfWriteSettings.ImageWriting = gltfExporter.Embedded
               ? ResourceWriteMode.EmbeddedAsBase64
               : ResourceWriteMode.SatelliteFile;
@@ -142,8 +142,8 @@ namespace fin.exporter.assimp.indirect {
         gltfExporter.UvIndices = true;
         gltfExporter.Embedded = true;
 
-        var inputFile = outputFile.CloneWithExtension(".tmp.glb");
-        var inputPath = inputFile.FullName;
+        var inputFile = outputFile.CloneWithFileType(".tmp.glb");
+        var inputPath = inputFile.FullPath;
         gltfExporter.Export(new ExporterParams {
             OutputFile = inputFile, Model = model, Scale = scale * 100,
         });
@@ -167,10 +167,10 @@ namespace fin.exporter.assimp.indirect {
 
         foreach (var nonGltfFormat in nonGltfFormats) {
           var nonGltfOutputFile =
-              outputFile.CloneWithExtension($".{nonGltfFormat.FileExtension}");
+              outputFile.CloneWithFileType($".{nonGltfFormat.FileExtension}");
 
-          var outputPath = nonGltfOutputFile.FullName;
-          var outputExtension = nonGltfOutputFile.Extension;
+          var outputPath = nonGltfOutputFile.FullPath;
+          var outputExtension = nonGltfOutputFile.FileType;
 
           var supportedExportFormats = ctx.GetSupportedExportFormats();
 

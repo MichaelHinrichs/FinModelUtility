@@ -31,7 +31,7 @@ namespace modl {
          .GetGoldenDirectories(
              ModelGoldenAssert
                  .GetRootGoldensDirectory(Assembly.GetExecutingAssembly())
-                 .GetSubdir("modl"))
+                 .AssertGetExistingSubdir("modl"))
          .SelectMany(dir => dir.Subdirs)
          .ToArray();
   }

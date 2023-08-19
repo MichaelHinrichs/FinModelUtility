@@ -24,7 +24,7 @@ namespace hw {
          .GetGoldenDirectories(
              ModelGoldenAssert
                  .GetRootGoldensDirectory(Assembly.GetExecutingAssembly())
-                 .GetSubdir("xtd"))
+                 .AssertGetExistingSubdir("xtd"))
          .ToArray();
   }
 }

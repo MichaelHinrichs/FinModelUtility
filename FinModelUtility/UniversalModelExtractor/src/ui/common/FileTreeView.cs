@@ -55,7 +55,7 @@ namespace uni.ui.common {
             var fileName = file.RawName;
             keywords.Add(fileName);
 
-            var betterFileName = file.BetterName;
+            var betterFileName = file.HumanReadableName;
             if (!string.IsNullOrEmpty(betterFileName)) {
               keywords.Add(betterFileName);
             }
@@ -99,11 +99,11 @@ namespace uni.ui.common {
 
       private FileNode(FileNode parent, TFile file) {
         this.File = file;
-        this.FullName = file.TrueFullName;
+        this.FullName = file.TrueFullPath;
 
         this.treeview_ = parent.treeview_;
         this.treeNode_ =
-            parent.treeNode_.Add(file.DisplayShortName);
+            parent.treeNode_.Add(file.DisplayName);
         this.treeNode_.Data = this;
 
         this.filterNode_ = parent.filterNode_.AddChild(this);

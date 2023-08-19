@@ -13,13 +13,13 @@ namespace uni.platforms {
       }
 
       if (cwd.Name == "cli") {
-        return cwd.GetParent();
+        return cwd.AssertGetParent();
       }
 
       if (cwd.Name == "universal_model_extractor") {
-        return cwd.GetParent() // tools
-                  .GetParent() // cli
-                  .GetParent(); // FinModelUtility
+        return cwd.AssertGetParent() // tools
+                  .AssertGetParent() // cli
+                  .AssertGetParent(); // FinModelUtility
       }
 
       return
@@ -38,23 +38,23 @@ namespace uni.platforms {
     }
 
     public static ISystemDirectory CLI_DIRECTORY =
-        DirectoryConstants.BASE_DIRECTORY.GetSubdir("cli");
+        DirectoryConstants.BASE_DIRECTORY.AssertGetExistingSubdir("cli");
 
 
     public static ISystemDirectory GAME_CONFIG_DIRECTORY { get; } =
-      CLI_DIRECTORY.GetSubdir("config");
+      CLI_DIRECTORY.AssertGetExistingSubdir("config");
 
     public static ISystemFile CONFIG_FILE { get; } =
-      DirectoryConstants.CLI_DIRECTORY.GetExistingFile("config.json");
+      DirectoryConstants.CLI_DIRECTORY.AssertGetExistingFile("config.json");
 
 
     public static ISystemDirectory ROMS_DIRECTORY =
-        DirectoryConstants.CLI_DIRECTORY.GetSubdir("roms");
+        DirectoryConstants.CLI_DIRECTORY.AssertGetExistingSubdir("roms");
 
     public static ISystemDirectory TOOLS_DIRECTORY =
-        DirectoryConstants.CLI_DIRECTORY.GetSubdir("tools");
+        DirectoryConstants.CLI_DIRECTORY.AssertGetExistingSubdir("tools");
 
     public static ISystemDirectory OUT_DIRECTORY =
-        DirectoryConstants.CLI_DIRECTORY.GetSubdir("out");
+        DirectoryConstants.CLI_DIRECTORY.AssertGetExistingSubdir("out");
   }
 }

@@ -18,17 +18,17 @@ namespace uni.platforms.gcn.tools {
         return false;
       }
 
-      var directoryPath = rarcFile.FullName + "_dir";
+      var directoryPath = rarcFile.FullPath + "_dir";
       if (!Directory.Exists(directoryPath)) {
         var logger = Logging.Create<RarcDump>();
         logger.LogInformation($"Dumping RARC {rarcFile.LocalPath}...");
 
         Files.RunInDirectory(
-            rarcFile.Impl.GetParent()!,
+            rarcFile.Impl.AssertGetParent()!,
             () => {
               ProcessUtil.ExecuteBlockingSilently(
                   GcnToolsConstants.RARCDUMP_EXE,
-                  $"\"{rarcFile.FullName}\"");
+                  $"\"{rarcFile.FullPath}\"");
             });
         Asserts.True(Directory.Exists(directoryPath),
                      $"Directory was not created: {directoryPath}");

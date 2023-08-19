@@ -22,9 +22,9 @@ namespace fin.io.bundles {
     IFileHierarchyDirectory Directory => MainFile.Parent!;
     string IUiFile.RawName => this.MainFile?.Name ?? "(n/a)";
 
-    string DisplayShortName => this.BetterName ?? this.RawName;
+    string DisplayName => this.HumanReadableName ?? this.RawName;
 
-    string DisplayFullName {
+    string DisplayFullPath {
       get {
         var mainFile = this.MainFile;
         if (mainFile != null) {
@@ -35,11 +35,11 @@ namespace fin.io.bundles {
                      .Replace('\\', '/');
         }
 
-        return this.BetterName ?? this.RawName;
+        return this.HumanReadableName ?? this.RawName;
       }
     }
 
-    string TrueFullName => Asserts.CastNonnull(MainFile.FullName);
+    string TrueFullPath => Asserts.CastNonnull(MainFile.FullPath);
   }
 
   public interface IFileBundleGatherer {

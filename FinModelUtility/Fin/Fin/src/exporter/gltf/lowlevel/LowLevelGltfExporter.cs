@@ -162,8 +162,8 @@ namespace fin.exporter.gltf.lowlevel {
       var scale = exporterParams.Scale;
 
       Asserts.True(
-          outputFile.Extension.EndsWith(".gltf") ||
-          outputFile.Extension.EndsWith(".glb"),
+          outputFile.FileType.EndsWith(".gltf") ||
+          outputFile.FileType.EndsWith(".glb"),
           "Target file is not a GLTF format!");
 
       this.logger_.BeginScope("Export");
@@ -178,7 +178,7 @@ namespace fin.exporter.gltf.lowlevel {
           Validation = ValidationMode.Skip,
       };
 
-      var outputPath = outputFile.FullName;
+      var outputPath = outputFile.FullPath;
       this.logger_.LogInformation($"Writing to {outputPath}...");
       modelRoot.Save(outputPath, writeSettings);
     }

@@ -54,11 +54,11 @@ namespace modl.api {
       var outName = outFile.Name.Replace(".out.gz", "")
                            .Replace(".out", "");
       var outDirectory =
-          outFile.GetParent()
+          outFile.AssertGetParent()
                  .GetExistingSubdirs()
                  .Single(
                      dir => dir.Name == outName + "_Level");
-      var allMapsDirectory = outDirectory.GetParent();
+      var allMapsDirectory = outDirectory.AssertGetParent();
 
       return this.LoadModel(outFile,
                             outDirectory.Yield().Concat(allMapsDirectory),

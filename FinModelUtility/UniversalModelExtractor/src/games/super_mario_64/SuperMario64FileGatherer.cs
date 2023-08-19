@@ -18,7 +18,7 @@ namespace uni.games.super_mario_64 {
       }
 
       var superMario64Directory =
-          DirectoryConstants.ROMS_DIRECTORY.GetSubdir("super_mario_64", true);
+          DirectoryConstants.ROMS_DIRECTORY.GetOrCreateSubdir("super_mario_64");
       var fileHierarchy = new FileHierarchy(superMario64Directory);
       var root = fileHierarchy.Root;
 

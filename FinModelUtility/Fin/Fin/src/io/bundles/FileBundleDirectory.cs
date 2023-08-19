@@ -65,8 +65,8 @@ namespace fin.io.bundles {
 
       this.subdirs_.Sort((lhs, rhs) => lhs.Name.CompareTo(rhs.Name));
       this.fileBundles_.Sort((lhs, rhs)
-                                 => lhs.DisplayShortName.CompareTo(
-                                     rhs.DisplayShortName));
+                                 => lhs.DisplayName.CompareTo(
+                                     rhs.DisplayName));
     }
   }
 }

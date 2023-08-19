@@ -18,7 +18,7 @@ namespace cmb {
     [Test]
     [TestCaseSource(nameof(GetGoldenFiles_))]
     public async Task TestExportsGoldenAsExpected(ISystemFile goldenFile) {
-      var goldenGameDir = goldenFile.GetParent();
+      var goldenGameDir = goldenFile.AssertGetParent();
 
       CmbHeader.Version = goldenGameDir.Name switch {
           "luigis_mansion_3d"  => Version.LUIGIS_MANSION_3D,
@@ -34,7 +34,7 @@ namespace cmb {
       var rootGoldenDirectory
           = ModelGoldenAssert
             .GetRootGoldensDirectory(Assembly.GetExecutingAssembly())
-            .GetSubdir("ctxb");
+            .AssertGetExistingSubdir("ctxb");
       return rootGoldenDirectory.GetExistingSubdirs()
                                 .SelectMany(dir => dir.GetExistingFiles())
                                 .ToArray();

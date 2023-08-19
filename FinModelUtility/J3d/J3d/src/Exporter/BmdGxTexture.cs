@@ -69,7 +69,7 @@ namespace j3d.exporter {
       // - e.g. 256??256.png, which are meant to be dimensions
       var name = this.Name.Replace("??", "x");
 
-      File.WriteAllBytes(Path.Join(directory.FullName, $"{name}.png"),
+      File.WriteAllBytes(Path.Join(directory.FullPath, $"{name}.png"),
                          imageBytes);
     }
 

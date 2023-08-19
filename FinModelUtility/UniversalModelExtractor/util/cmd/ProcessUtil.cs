@@ -66,7 +66,7 @@ namespace uni.util.cmd {
       }
 
       var processStartInfo =
-          new ProcessStartInfo($"\"{exeFile.FullName}\"", argString) {
+          new ProcessStartInfo($"\"{exeFile.FullPath}\"", argString) {
               CreateNoWindow = true,
               RedirectStandardOutput = true,
               RedirectStandardError = true,
@@ -77,7 +77,7 @@ namespace uni.util.cmd {
       var process = Asserts.CastNonnull(Process.Start(processStartInfo));
       ChildProcessTracker.AddProcess(process);
 
-      var logger = Logging.Create(exeFile.FullName);
+      var logger = Logging.Create(exeFile.FullPath);
       if (processSetup.WithLogging) {
         process.OutputDataReceived += (_, args) => {
           if (args.Data != null) {

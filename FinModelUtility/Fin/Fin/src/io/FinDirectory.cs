@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
+using fin.util.asserts;
+
 namespace fin.io {
   public readonly struct FinDirectory : ISystemDirectory {
     public FinDirectory(string fullName) {
-      this.FullName = fullName;
+      this.FullPath = fullName;
     }
 
     public override string ToString() => this.DisplayFullName;
@@ -26,20 +28,20 @@ namespace fin.io {
     }
 
     public bool Equals(ISystemIoObject? other)
-      => this.FullName == other?.FullName;
+      => this.FullPath == other?.FullPath;
 
 
     // Directory fields
-    public string Name => FinIoStatic.GetName(this.FullName);
-    public string FullName { get; }
-    public string DisplayFullName => this.FullName;
+    public string Name => FinIoStatic.GetName(this.FullPath);
+    public string FullPath { get; }
+    public string DisplayFullName => this.FullPath;
 
 
     // Ancestry methods
-    public string? GetParentFullName()
-      => FinIoStatic.GetParentFullName(this.FullName);
+    public string? GetParentFullPath()
+      => FinIoStatic.GetParentFullName(this.FullPath);
 
-    public ISystemDirectory GetParent() {
+    public ISystemDirectory AssertGetParent() {
       if (this.TryGetParent(out var parent)) {
         return parent;
       }
@@ -48,7 +50,7 @@ namespace fin.io {
     }
 
     public bool TryGetParent(out ISystemDirectory parent) {
-      var parentName = this.GetParentFullName();
+      var parentName = this.GetParentFullPath();
       if (parentName != null) {
         parent = new FinDirectory(parentName);
         return true;
@@ -75,15 +77,15 @@ namespace fin.io {
 
 
     // Directory methods
-    public bool IsEmpty => FinDirectoryStatic.IsEmpty(this.FullName);
-    public bool Exists => FinDirectoryStatic.Exists(this.FullName);
+    public bool IsEmpty => FinDirectoryStatic.IsEmpty(this.FullPath);
+    public bool Exists => FinDirectoryStatic.Exists(this.FullPath);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Create() => FinDirectoryStatic.Create(this.FullName);
+    public bool Create() => FinDirectoryStatic.Create(this.FullPath);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool Delete(bool recursive = false)
-      => FinDirectoryStatic.Delete(this.FullName, recursive);
+      => FinDirectoryStatic.Delete(this.FullPath, recursive);
 
     public bool DeleteContents() {
       var didDeleteAnything = false;
@@ -100,22 +102,37 @@ namespace fin.io {
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void MoveTo(string path)
-      => FinDirectoryStatic.MoveTo(this.FullName, path);
+      => FinDirectoryStatic.MoveTo(this.FullPath, path);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerable<ISystemDirectory> GetExistingSubdirs()
       => FinDirectoryStatic
-         .GetExistingSubdirs(this.FullName)
+         .GetExistingSubdirs(this.FullPath)
          .Select(fullName => (ISystemDirectory) new FinDirectory(fullName));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ISystemDirectory GetSubdir(string relativePath, bool create = false)
+    public bool TryToGetExistingSubdir(string relativePath,
+                                        out ISystemDirectory subdir) {
+      subdir = new FinDirectory(
+          FinDirectoryStatic.GetSubdir(this.FullPath, relativePath));
+      return subdir.Exists;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ISystemDirectory AssertGetExistingSubdir(string relativePath) {
+      Asserts.True(this.TryToGetExistingSubdir(relativePath, out var subdir));
+      return subdir;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ISystemDirectory GetOrCreateSubdir(string relativePath)
       => new FinDirectory(
-          FinDirectoryStatic.GetSubdir(this.FullName, relativePath, create));
+          FinDirectoryStatic.GetSubdir(this.FullPath, relativePath, true));
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerable<ISystemFile> GetExistingFiles()
-      => FinDirectoryStatic.GetExistingFiles(this.FullName)
+      => FinDirectoryStatic.GetExistingFiles(this.FullPath)
                            .Select(fullName
                                        => (ISystemFile) new FinFile(fullName));
 
@@ -124,12 +141,12 @@ namespace fin.io {
         string searchPattern,
         bool includeSubdirs = false)
       => FinDirectoryStatic
-         .SearchForFiles(this.FullName, searchPattern, includeSubdirs)
+         .SearchForFiles(this.FullPath, searchPattern, includeSubdirs)
          .Select(fullName => (ISystemFile) new FinFile(fullName));
 
     public bool TryToGetExistingFile(string path, out ISystemFile outFile) {
       if (FinDirectoryStatic.TryToGetExistingFile(
-              this.FullName,
+              this.FullPath,
               path,
               out var fileFullName)) {
         outFile = new FinFile(fileFullName);
@@ -140,9 +157,9 @@ namespace fin.io {
       return false;
     }
 
-    public bool TryToGetExistingFileWithExtension(string pathWithoutExtension,
-                                                  out ISystemFile outFile,
-                                                  params string[] extensions) {
+    public bool TryToGetExistingFileWithFileType(string pathWithoutExtension,
+                                                 out ISystemFile outFile,
+                                                 params string[] extensions) {
       foreach (var extension in extensions) {
         if (this.TryToGetExistingFile($"{pathWithoutExtension}{extension}",
                                       out outFile)) {
@@ -156,15 +173,15 @@ namespace fin.io {
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ISystemFile GetExistingFile(string path)
-      => new FinFile(FinDirectoryStatic.GetExistingFile(this.FullName, path));
+    public ISystemFile AssertGetExistingFile(string path)
+      => new FinFile(FinDirectoryStatic.GetExistingFile(this.FullPath, path));
 
     public bool PossiblyAssertExistingFile(string relativePath,
                                            bool assert,
                                            out ISystemFile outFile) {
       var fileFullName =
           FinDirectoryStatic.PossiblyAssertExistingFile(
-              this.FullName,
+              this.FullPath,
               relativePath,
               assert);
       if (fileFullName != null) {
@@ -177,11 +194,11 @@ namespace fin.io {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IEnumerable<ISystemFile> GetFilesWithExtension(
+    public IEnumerable<ISystemFile> GetFilesWithFileType(
         string extension,
         bool includeSubdirs = false)
       => FinDirectoryStatic
-         .GetFilesWithExtension(this.FullName, extension, includeSubdirs)
+         .GetFilesWithExtension(this.FullPath, extension, includeSubdirs)
          .Select(fullName => (ISystemFile) new FinFile(fullName));
   }
 }

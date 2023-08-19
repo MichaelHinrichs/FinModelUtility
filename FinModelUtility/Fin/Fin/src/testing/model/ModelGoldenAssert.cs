@@ -19,24 +19,24 @@ namespace fin.testing.model {
   public static class ModelGoldenAssert {
     private const string TMP_NAME = "tmp";
 
-    public static ISystemDirectory
-        GetRootGoldensDirectory(Assembly executingAssembly) {
+    public static ISystemDirectory GetRootGoldensDirectory(
+        Assembly executingAssembly) {
       var assemblyName =
           StringUtil.SubstringUpTo(executingAssembly.ManifestModule.Name,
                                    ".dll");
 
       var executingAssemblyDll = new FinFile(executingAssembly.Location);
-      var executingAssemblyDir = executingAssemblyDll.GetParent();
+      var executingAssemblyDir = executingAssemblyDll.AssertGetParent();
 
       var currentDir = executingAssemblyDir;
       while (currentDir.Name != assemblyName) {
-        currentDir = currentDir.GetParent();
+        currentDir = currentDir.AssertGetParent();
       }
 
       Assert.IsNotNull(currentDir);
 
       var gloTestsDir = currentDir;
-      var goldensDirectory = gloTestsDir.GetSubdir("goldens");
+      var goldensDirectory = gloTestsDir.AssertGetExistingSubdir("goldens");
 
       return goldensDirectory;
     }
@@ -100,8 +100,7 @@ namespace fin.testing.model {
         Func<IFileHierarchyDirectory, TModelBundle>
             gatherModelBundleFromInputDirectory)
         where TModelBundle : IModelFileBundle {
-      var tmpDirectory = goldenSubdir.Impl.GetSubdir(TMP_NAME, true);
-
+      var tmpDirectory = goldenSubdir.Impl.GetOrCreateSubdir(TMP_NAME);
       tmpDirectory.DeleteContents();
 
       var inputDirectory = goldenSubdir.GetExistingSubdir("input");
@@ -123,7 +122,7 @@ namespace fin.testing.model {
           new ExporterParams {
               Model = model,
               OutputFile =
-                  new FinFile(Path.Combine(targetDirectory.FullName,
+                  new FinFile(Path.Combine(targetDirectory.FullPath,
                                            $"{modelBundle.MainFile.NameWithoutExtension}.foo")),
           },
           EXTENSIONS,

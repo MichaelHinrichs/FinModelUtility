@@ -30,7 +30,7 @@ namespace uni.platforms.desktop {
           : VdfConvert
             .Deserialize(
                 SteamUtils.InstallDirectory
-                          .GetExistingFile("config/libraryfolders.vdf")
+                          .AssertGetExistingFile("config/libraryfolders.vdf")
                           .OpenReadAsText())
             .Value
             .Children()

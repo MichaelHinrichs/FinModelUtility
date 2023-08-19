@@ -22,8 +22,8 @@ namespace uni.platforms.gcn.tools {
       Asserts.True(relFile.Exists);
       Asserts.True(mapFile.Exists);
 
-      string REL_Location = relFile.FullName;
-      string MAP_Location = mapFile.FullName;
+      string REL_Location = relFile.FullPath;
+      string MAP_Location = mapFile.FullPath;
 
       string Data_Dir = Path.GetDirectoryName(REL_Location) +
                         "\\" +

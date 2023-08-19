@@ -68,7 +68,7 @@ namespace j3d.exporter {
                         new Bck(bcxFile.ReadAllBytes()),
                     _ => throw new NotSupportedException(),
                   };
-                  return (bcxFile.FullName, bcx);
+                  return (FullName: bcxFile.FullPath, bcx);
                 })
                 .ToList();
       } catch {
@@ -82,7 +82,7 @@ namespace j3d.exporter {
             modelFileBundle
                 .BtiFiles?
                 .Select(btiFile
-                            => (btiFile.FullName,
+                            => (FullName: btiFile.FullPath,
                                 btiFile.ReadNew<Bti>(
                                     Endianness.BigEndian)))
                 .ToList();

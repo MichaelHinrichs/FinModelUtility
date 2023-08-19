@@ -10,7 +10,7 @@ namespace uni.platforms.wii.tools {
       Asserts.Equal(
           ".iso",
           romFile
-              .Extension,
+              .FileType,
           $"Cannot dump ROM because it is not an ISO: {romFile}");
       Asserts.True(
           romFile.Exists,
@@ -37,11 +37,11 @@ namespace uni.platforms.wii.tools {
       logger.LogInformation($"Dumping ROM {romFile}...");
 
       Files.RunInDirectory(
-          romFile.GetParent()!,
+          romFile.AssertGetParent()!,
           () => {
             ProcessUtil.ExecuteBlockingSilently(
                 WiiToolsConstants.WIT_EXE,
-                $"extract \"{romFile.FullName}\" \"./{romFile.NameWithoutExtension}\"");
+                $"extract \"{romFile.FullPath}\" \"./{romFile.NameWithoutExtension}\"");
           });
     }
   }

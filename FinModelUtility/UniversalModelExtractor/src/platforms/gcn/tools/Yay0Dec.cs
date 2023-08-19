@@ -20,15 +20,15 @@ namespace uni.platforms.gcn.tools {
         return false;
       }
 
-      var rarcPath = file.FullName + " 0.rarc";
+      var rarcPath = file.FullPath + " 0.rarc";
       if (!File.Exists(rarcPath)) {
         var logger = Logging.Create<Yay0Dec>();
         Files.RunInDirectory(
-            file.Impl.GetParent()!,
+            file.Impl.AssertGetParent()!,
             () => {
               ProcessUtil.ExecuteBlockingSilently(
                   GcnToolsConstants.YAY0DEC_EXE,
-                  $"\"{file.FullName}\"");
+                  $"\"{file.FullPath}\"");
             });
         Asserts.True(File.Exists(rarcPath),
                      $"File was not created: {rarcPath}");

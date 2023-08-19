@@ -17,7 +17,7 @@ using Quaternion = System.Numerics.Quaternion;
 
 namespace level5.api {
   public class XcModelFileBundle : IModelFileBundle {
-    public string? BetterName { get; set; }
+    public string? HumanReadableName { get; set; }
     public required string GameName { get; init; }
     public IFileHierarchyFile MainFile => this.ModelXcFile;
     public IEnumerable<IReadOnlyGenericFile> Files
