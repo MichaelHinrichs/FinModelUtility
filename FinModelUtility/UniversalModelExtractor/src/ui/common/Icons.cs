@@ -2,6 +2,8 @@
 
 using fin.io;
 
+using uni.util.image;
+
 namespace uni.ui.common {
   public static class Icons {
     private static readonly Assembly assembly_ =
@@ -23,6 +25,6 @@ namespace uni.ui.common {
         LoadIcon_("uni.img.music.png");
 
     private static Image LoadIcon_(string embeddedResourceName)
-      => EmbeddedResourceUtil.Load(Icons.assembly_, embeddedResourceName);
+      => EmbeddedResourceImageUtil.Load(Icons.assembly_, embeddedResourceName);
   }
 }
