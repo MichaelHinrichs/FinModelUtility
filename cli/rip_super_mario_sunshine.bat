@@ -1,3 +1,3 @@
-tools\universal_model_extractor\universal_model_extractor.exe super_mario_sunshine
+tools\universal_asset_tool\universal_asset_tool.exe super_mario_sunshine
 
 pause

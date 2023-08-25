@@ -1,3 +1,3 @@
-tools\universal_model_extractor\universal_model_extractor.exe ocarina_of_time_3d
+tools\universal_asset_tool\universal_asset_tool.exe ocarina_of_time_3d
 
 pause

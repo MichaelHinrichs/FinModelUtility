@@ -1,3 +1,3 @@
-tools\universal_model_extractor\universal_model_extractor.exe majoras_mask_3d
+tools\universal_asset_tool\universal_asset_tool.exe majoras_mask_3d
 
 pause

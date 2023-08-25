@@ -1,3 +1,3 @@
-tools\universal_model_extractor\universal_model_extractor.exe professor_layton_vs_phoenix_wright
+tools\universal_asset_tool\universal_asset_tool.exe professor_layton_vs_phoenix_wright
 
 pause

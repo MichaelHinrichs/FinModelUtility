@@ -1,3 +1,3 @@
-tools\universal_model_extractor\universal_model_extractor.exe mario_kart_double_dash
+tools\universal_asset_tool\universal_asset_tool.exe mario_kart_double_dash
 
 pause

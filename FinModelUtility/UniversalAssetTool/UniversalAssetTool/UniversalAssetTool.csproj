@@ -1,0 +1,153 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <RootNamespace>uni</RootNamespace>
+    <LangVersion>preview</LangVersion>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DebugType>full</DebugType>
+    <SelfContained>true</SelfContained>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+    <PublishSingleFile Condition="'$(Configuration)' == 'Release'">true</PublishSingleFile>
+    <!--<PublishTrimmed>true</PublishTrimmed>-->
+    <Product>universal_asset_tool</Product>
+    <AssemblyName>universal_asset_tool</AssemblyName>
+    <StartupObject>uni.cli.Cli</StartupObject>
+    <UserSecretsId>7016d56f-b424-467d-8b3a-40e5d0483f29</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="util\separator\**" />
+    <EmbeddedResource Remove="util\separator\**" />
+    <None Remove="util\separator\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="src\ui\gl\ModelRenderer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove=".editorconfig" />
+    <None Remove="img\file.png" />
+    <None Remove="img\folder_closed.png" />
+    <None Remove="img\folder_open.png" />
+    <None Remove="img\model.png" />
+    <None Remove="img\music.png" />
+    <None Remove="img\scene.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Crc32.NET" Version="1.2.0" />
+    <PackageReference Include="Gameloop.Vdf" Version="0.6.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.6.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Toolkit.Uwp.UI.Controls" Version="7.1.3" />
+    <PackageReference Include="NullFX.CRC" Version="1.1.5" />
+    <PackageReference Include="OpenTK" Version="3.3.3" />
+    <PackageReference Include="OpenTK.GLControl" Version="3.3.3" />
+    <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
+    <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.1" />
+    <PackageReference Include="schema" Version="0.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Ast\Ast\Ast.csproj" />
+    <ProjectReference Include="..\..\Cmb\Cmb\Cmb.csproj" />
+    <ProjectReference Include="..\..\Dat\Dat.csproj" />
+    <ProjectReference Include="..\..\F3dzex2\F3dzex2.csproj" />
+    <ProjectReference Include="..\..\Fin\Fin\Fin.csproj" />
+    <ProjectReference Include="..\..\Fin\Fin.Ui\Fin.Ui.csproj" />
+    <ProjectReference Include="..\..\Glo\Glo\Glo.csproj" />
+    <ProjectReference Include="..\..\HaloWarsTools\HaloWarsTools.csproj" />
+    <ProjectReference Include="..\..\J3d\J3d\J3d.csproj" />
+    <ProjectReference Include="..\..\Level5\Level5\Level5.csproj" />
+    <ProjectReference Include="..\..\Mod\Mod\Mod.csproj" />
+    <ProjectReference Include="..\..\Modl\Modl\Modl.csproj" />
+    <ProjectReference Include="..\..\SceneGate\Ekona\src\Ekona\Ekona.csproj" />
+    <ProjectReference Include="..\..\SuperMario64\SuperMario64\SuperMario64.csproj" />
+    <ProjectReference Include="..\..\Utility of Time CSharp\Utility of Time CSharp.csproj" />
+    <ProjectReference Include="..\..\Visceral\Visceral\Visceral.csproj" />
+    <ProjectReference Include="..\..\Xmod\Xmod.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="img\folder_closed.png" />
+    <EmbeddedResource Include="img\folder_open.png" />
+    <EmbeddedResource Include="img\model.png" />
+    <EmbeddedResource Include="img\music.png" />
+    <EmbeddedResource Include="img\scene.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Update="src\ui\common\audio\AudioPlayerPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="src\ui\common\BGlPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="src\ui\common\FileTreeView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="src\ui\common\audio\AudioPlayerGlPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="src\ui\common\KeyValueTable.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="src\ui\common\TransparentTrackBar.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="src\ui\common\WaterMarkTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="src\ui\common\FileBundleTreeView.cs" />
+    <Compile Update="src\ui\right_panel\animations\AnimationPlaybackPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="src\ui\right_panel\info\InfoTab.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="src\ui\right_panel\materials\MaterialViewerGlPanel.cs" />
+    <Compile Update="src\ui\right_panel\materials\MaterialViewerPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="src\ui\right_panel\materials\MaterialsTab.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="src\ui\right_panel\materials\TextureSection.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="src\ui\right_panel\registers\RegistersTab.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="src\ui\right_panel\skeleton\SkeletonTreeView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="src\ui\right_panel\skeleton\SkeletonTab.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="src\ui\right_panel\textures\TextureInfoSection.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>
