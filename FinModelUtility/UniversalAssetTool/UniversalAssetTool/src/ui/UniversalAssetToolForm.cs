@@ -60,7 +60,7 @@ public partial class UniversalAssetToolForm : Form {
 
   private void UniversalAssetToolForm_Load(object sender, EventArgs e) {
     this.fileBundleTreeView_.Populate(
-        new RootModelFileGatherer().GatherAllModelFiles());
+        new RootFileGatherer().GatherAllFiles());
 
 
     this.fpsCallback_ = TimedCallback.WithPeriod(() => {

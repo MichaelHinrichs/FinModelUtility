@@ -28,8 +28,8 @@ using uni.games.wind_waker;
 using uni.util.io;
 
 namespace uni.games {
-  public class RootModelFileGatherer {
-    public IFileBundleDirectory GatherAllModelFiles() {
+  public class RootFileGatherer {
+    public IFileBundleDirectory GatherAllFiles() {
       IFileBundleGathererAccumulator accumulator =
           Config.Instance.ExtractorSettings.UseMultithreadingToExtractRoms
               ? new ParallelFileBundleGathererAccumulator()

@@ -7,29 +7,29 @@ using Gameloop.Vdf.Linq;
 
 namespace uni.platforms.desktop {
   internal static class SteamUtils {
-    public const string INSTALL_PATH_32_BIT_REGISTRY_KEY =
-        @"HKEY_LOCAL_MACHINE\SOFTWARE\Valve\Steam";
-
-    public const string INSTALL_PATH_64_BIT_REGISTRY_KEY =
-        @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Valve\Steam";
-
-
-    public static string? InstallPath { get; } =
+    private static string? InstallPath_ { get; } =
       RegistryExtensions.GetSoftwareValueEither32Or64Bit(
           @"Valve\Steam",
           "InstallPath") as string;
 
-    public static IReadOnlySystemDirectory? InstallDirectory { get; } =
-      SteamUtils.InstallPath != null
-          ? new FinDirectory(SteamUtils.InstallPath)
+    private static IReadOnlySystemDirectory? InstallDirectory_ { get; } =
+      SteamUtils.InstallPath_ != null
+          ? new FinDirectory(SteamUtils.InstallPath_)
           : null;
 
-    public static ISystemDirectory[] CommonDirectories { get; } =
-      SteamUtils.InstallDirectory == null
+    private static IReadOnlySystemFile? LibraryFoldersVdf_
+      => (InstallDirectory_?.TryToGetExistingFile(
+          "config/libraryfolders.vdf",
+          out var libraryFoldersVdf) ?? false)
+          ? libraryFoldersVdf
+          : null;
+
+    private static ISystemDirectory[] Libraries_ { get; } =
+      (LibraryFoldersVdf_ == null)
           ? Array.Empty<ISystemDirectory>()
           : VdfConvert
             .Deserialize(
-                SteamUtils.InstallDirectory
+                SteamUtils.InstallDirectory_
                           .AssertGetExistingFile("config/libraryfolders.vdf")
                           .OpenReadAsText())
             .Value
@@ -37,18 +37,26 @@ namespace uni.platforms.desktop {
             .Select(section => section.Value<VProperty>().Value)
             .Select(section => section["path"])
             .Select(path => new FinDirectory(path.ToString()))
-            .Where(steamDirectory
-                       => steamDirectory
-                           .Exists) // A steam directory may not exist if it corresponds to an external hard drive
-            .SelectMany(libraryFolder => libraryFolder.GetExistingSubdirs()
-                            .Where(dir => dir.Name == "steamapps"))
-            .SelectMany(steamApps => steamApps.GetExistingSubdirs()
-                                              .Where(
-                                                  dir => dir.Name == "common"))
+            .CastTo<FinDirectory, ISystemDirectory>()
+            // A steam library directory may not exist if it lives on an
+            // external hard drive
+            .Where(steamDirectory => steamDirectory.Exists)
             .ToArray();
 
+    private static ISystemDirectory[] CommonDirectories_ { get; } =
+      Libraries_
+          .SelectMany(
+              libraryFolder
+                  => libraryFolder.GetExistingSubdirs()
+                                  .Where(dir => dir.Name == "steamapps"))
+          .SelectMany(
+              steamApps
+                  => steamApps.GetExistingSubdirs()
+                              .Where(dir => dir.Name == "common"))
+          .ToArray();
+
     public static ISystemDirectory[] GameDirectories { get; }
-      = CommonDirectories
+      = CommonDirectories_
         .SelectMany(common => common.GetExistingSubdirs())
         .ToArray();
 
