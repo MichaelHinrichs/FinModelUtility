@@ -1,5 +1,6 @@
 ﻿using fin.io;
 using fin.util.asserts;
+using fin.util.enumerables;
 using fin.util.linq;
 
 using Gameloop.Vdf;
@@ -25,15 +26,26 @@ namespace uni.platforms.desktop {
           : null;
 
     private static ISystemDirectory[] Libraries_ { get; } =
-      (LibraryFoldersVdf_ == null)
+      !(LibraryFoldersVdf_?.Exists ?? false)
           ? Array.Empty<ISystemDirectory>()
           : VdfConvert
             .Deserialize(LibraryFoldersVdf_.OpenReadAsText())
             .Value
             .Children()
-            .Select(section => section.Value<VProperty>().Value)
-            .Select(section => section["path"])
-            .Select(path => new FinDirectory(path.ToString()))
+            .SelectMany(section => {
+              try {
+                return
+                    section
+                        .Value<VProperty>()
+                        .Value
+                        .Select(section => section["path"])
+                        .Nonnull()
+                        .Select(token => token.ToString());
+              } catch {
+                return Enumerable.Empty<string>();
+              }
+            })
+            .Select(path => new FinDirectory(path))
             .CastTo<FinDirectory, ISystemDirectory>()
             // A steam library directory may not exist if it lives on an
             // external hard drive

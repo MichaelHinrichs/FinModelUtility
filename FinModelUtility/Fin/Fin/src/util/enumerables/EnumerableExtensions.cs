@@ -7,6 +7,10 @@ using fin.util.asserts;
 namespace fin.util.enumerables {
   public static class EnumerableExtensions {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IEnumerable<T> Nonnull<T>(this IEnumerable<T?> enumerable)
+      => enumerable.Where(value => value != null)!;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int IndexOf<T>(this IEnumerable<T> enumerable,
                                  T value) {
       var index = enumerable.IndexOfOrNegativeOne(value);
