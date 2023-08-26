@@ -7,19 +7,14 @@ namespace uni.platforms.desktop {
     public static object? GetSoftwareValueEither32Or64Bit(
         string relativeKeyName,
         string valueName,
-        object? defaultValue = null) {
-      var softwareKeyNames =
-          GetSoftwareKeyNames32Or64Bit(relativeKeyName).ToArray();
-      var values = softwareKeyNames
-                   .Select(
-                       keyName => {
-                         using var subkey =
-                             Registry.LocalMachine.OpenSubKey(keyName);
-                         return subkey.GetValue(valueName);
-                       })
-                   .ToArray();
-      return values.Where(value => value != null).FirstOrDefault(defaultValue);
-    }
+        object? defaultValue = null)
+      => GetSoftwareKeyNames32Or64Bit(relativeKeyName)
+         .Select(keyName => {
+           using var subkey = Registry.LocalMachine.OpenSubKey(keyName);
+           return subkey?.GetValue(valueName);
+         })
+         .Nonnull()
+         .FirstOrDefault(defaultValue);
 
     public static RegistryKey? OpenSoftwareSubkeyEither32Or64Bit(
         string relativeKeyName)
