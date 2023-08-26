@@ -18,39 +18,46 @@ namespace uni.platforms.desktop {
           ? new FinDirectory(SteamUtils.InstallPath_)
           : null;
 
-    private static IReadOnlySystemFile? LibraryFoldersVdf_
-      => (InstallDirectory_?.TryToGetExistingFile(
+    private static IReadOnlySystemFile? LibraryFoldersVdf_ { get; } =
+      (InstallDirectory_?.TryToGetExistingFile(
           "config/libraryfolders.vdf",
           out var libraryFoldersVdf) ?? false)
           ? libraryFoldersVdf
           : null;
 
     private static ISystemDirectory[] Libraries_ { get; } =
-      !(LibraryFoldersVdf_?.Exists ?? false)
-          ? Array.Empty<ISystemDirectory>()
-          : VdfConvert
-            .Deserialize(LibraryFoldersVdf_.OpenReadAsText())
-            .Value
-            .Children()
-            .SelectMany(section => {
-              try {
-                return
-                    section
-                        .Value<VProperty>()
-                        .Value
-                        .Select(section => section["path"])
-                        .Nonnull()
-                        .Select(token => token.ToString());
-              } catch {
-                return Enumerable.Empty<string>();
-              }
-            })
-            .Select(path => new FinDirectory(path))
-            .CastTo<FinDirectory, ISystemDirectory>()
-            // A steam library directory may not exist if it lives on an
-            // external hard drive
-            .Where(steamDirectory => steamDirectory.Exists)
-            .ToArray();
+      InitializeLibraries_();
+
+    private static ISystemDirectory[] InitializeLibraries_() {
+      if (!(LibraryFoldersVdf_?.Exists ?? false)) {
+        return Array.Empty<ISystemDirectory>();
+      }
+
+      using var ls = LibraryFoldersVdf_.OpenReadAsText();
+      var root = VdfConvert.Deserialize(ls);
+
+      if (root.Key != "libraryfolders") {
+        return Array.Empty<ISystemDirectory>();
+      }
+
+      return root.Value.Children()
+                 .Select(section => {
+                   try {
+                     return section.Value<VProperty>()
+                                   .Value["path"]
+                                   ?.ToString();
+                   } catch {
+                     return null;
+                   }
+                 })
+                 .Nonnull()
+                 .Select(path => new FinDirectory(path))
+                 .CastTo<FinDirectory, ISystemDirectory>()
+                 // A steam library directory may not exist if it lives on an
+                 // external hard drive
+                 .Where(steamDirectory => steamDirectory.Exists)
+                 .ToArray();
+    }
 
     private static ISystemDirectory[] CommonDirectories_ { get; } =
       Libraries_

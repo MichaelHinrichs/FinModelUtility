@@ -91,56 +91,26 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Update="src\ui\common\audio\AudioPlayerPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="src\ui\common\BGlPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="src\ui\common\FileTreeView.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="src\ui\common\audio\AudioPlayerGlPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Update="src\ui\common\audio\AudioPlayerPanel.cs" />
+    <Compile Update="src\ui\common\BGlPanel.cs" />
+    <Compile Update="src\ui\common\FileTreeView.cs" />
+    <Compile Update="src\ui\common\audio\AudioPlayerGlPanel.cs" />
     <Compile Update="src\ui\common\KeyValueTable.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="src\ui\common\TransparentTrackBar.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Update="src\ui\common\WaterMarkTextBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Update="src\ui\common\TransparentTrackBar.cs" />
+    <Compile Update="src\ui\common\WaterMarkTextBox.cs" />
     <Compile Update="src\ui\common\FileBundleTreeView.cs" />
-    <Compile Update="src\ui\right_panel\animations\AnimationPlaybackPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="src\ui\right_panel\info\InfoTab.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Update="src\ui\right_panel\animations\AnimationPlaybackPanel.cs" />
+    <Compile Update="src\ui\right_panel\info\InfoTab.cs" />
     <Compile Update="src\ui\right_panel\materials\MaterialViewerGlPanel.cs" />
-    <Compile Update="src\ui\right_panel\materials\MaterialViewerPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="src\ui\right_panel\materials\MaterialsTab.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="src\ui\right_panel\materials\TextureSection.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="src\ui\right_panel\registers\RegistersTab.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="src\ui\right_panel\skeleton\SkeletonTreeView.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="src\ui\right_panel\skeleton\SkeletonTab.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="src\ui\right_panel\textures\TextureInfoSection.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Update="src\ui\right_panel\materials\MaterialViewerPanel.cs" />
+    <Compile Update="src\ui\right_panel\materials\MaterialsTab.cs" />
+    <Compile Update="src\ui\right_panel\materials\TextureSection.cs" />
+    <Compile Update="src\ui\right_panel\registers\RegistersTab.cs" />
+    <Compile Update="src\ui\right_panel\skeleton\SkeletonTreeView.cs" />
+    <Compile Update="src\ui\right_panel\skeleton\SkeletonTab.cs" />
+    <Compile Update="src\ui\right_panel\textures\TextureInfoSection.cs" />
   </ItemGroup>
 
   <ItemGroup>
