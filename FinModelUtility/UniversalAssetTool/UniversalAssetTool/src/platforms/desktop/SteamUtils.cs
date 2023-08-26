@@ -28,10 +28,7 @@ namespace uni.platforms.desktop {
       (LibraryFoldersVdf_ == null)
           ? Array.Empty<ISystemDirectory>()
           : VdfConvert
-            .Deserialize(
-                SteamUtils.InstallDirectory_
-                          .AssertGetExistingFile("config/libraryfolders.vdf")
-                          .OpenReadAsText())
+            .Deserialize(LibraryFoldersVdf_.OpenReadAsText())
             .Value
             .Children()
             .Select(section => section.Value<VProperty>().Value)

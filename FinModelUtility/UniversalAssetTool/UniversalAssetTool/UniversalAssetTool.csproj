@@ -54,7 +54,7 @@
     <PackageReference Include="OpenTK.GLControl" Version="3.3.3" />
     <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
     <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.1" />
-    <PackageReference Include="schema" Version="0.2.2" />
+    <PackageReference Include="schema" Version="0.2.3" />
   </ItemGroup>
 
   <ItemGroup>
