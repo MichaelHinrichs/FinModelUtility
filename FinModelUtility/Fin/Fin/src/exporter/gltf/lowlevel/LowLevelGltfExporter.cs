@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Numerics;
 
-using fin.image;
 using fin.log;
 using fin.model;
 using fin.model.util;
@@ -11,7 +9,6 @@ using fin.util.asserts;
 using fin.util.image;
 
 using SharpGLTF.Materials;
-using SharpGLTF.Memory;
 using SharpGLTF.Schema2;
 using SharpGLTF.Validation;
 
@@ -82,10 +79,7 @@ namespace fin.exporter.gltf.lowlevel {
                 if (diffuseTexture != null) {
                   gltfMaterial
                       .UseChannel(KnownChannel.Diffuse)
-                      .UseTexture()
-                      .WithPrimaryImage(
-                          LowLevelGltfExporter
-                              .GetGltfImageFromFinTexture_(diffuseTexture));
+                      .UseTexture(diffuseTexture);
                 }
 
                 var ambientOcclusionTexture =
@@ -93,11 +87,7 @@ namespace fin.exporter.gltf.lowlevel {
                 if (ambientOcclusionTexture != null) {
                   gltfMaterial
                       .UseChannel(KnownChannel.Occlusion)
-                      .UseTexture()
-                      .WithPrimaryImage(
-                          LowLevelGltfExporter
-                              .GetGltfImageFromFinTexture_(
-                                  ambientOcclusionTexture));
+                      .UseTexture(ambientOcclusionTexture);
                 }
 
                 break;
@@ -115,14 +105,7 @@ namespace fin.exporter.gltf.lowlevel {
 
                   gltfMaterial
                       .UseChannel(KnownChannel.Diffuse)
-                      .UseTexture()
-                      .WithPrimaryImage(
-                          LowLevelGltfExporter.GetGltfImageFromFinTexture_(
-                              texture))
-                      .WithCoordinateSet(0)
-                      .WithSampler(
-                          this.ConvertWrapMode_(texture.WrapModeU),
-                          this.ConvertWrapMode_(texture.WrapModeV));
+                      .UseTexture(texture);
                 }
                 break;
               }
@@ -182,24 +165,5 @@ namespace fin.exporter.gltf.lowlevel {
       this.logger_.LogInformation($"Writing to {outputPath}...");
       modelRoot.Save(outputPath, writeSettings);
     }
-
-    private static MemoryImage
-        GetGltfImageFromFinTexture_(ITexture finTexture) {
-      using var imageStream = new MemoryStream();
-      finTexture.Image.ExportToStream(imageStream, LocalImageFormat.PNG);
-      var imageBytes = imageStream.ToArray();
-      return new MemoryImage(imageBytes);
-    }
-
-    private TextureWrapMode ConvertWrapMode_(WrapMode wrapMode)
-      => wrapMode switch {
-          WrapMode.CLAMP         => TextureWrapMode.CLAMP_TO_EDGE,
-          WrapMode.REPEAT        => TextureWrapMode.REPEAT,
-          WrapMode.MIRROR_REPEAT => TextureWrapMode.MIRRORED_REPEAT,
-          _ => throw new ArgumentOutOfRangeException(
-                   nameof(wrapMode),
-                   wrapMode,
-                   null)
-      };
   }
 }

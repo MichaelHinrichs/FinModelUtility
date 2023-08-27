@@ -303,6 +303,8 @@ namespace fin.model {
 
   public interface ITexture {
     string Name { get; set; }
+
+    LocalImageFormat BestImageFormat { get; }
     string ValidFileName { get; }
 
     int UvIndex { get; set; }

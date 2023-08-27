@@ -71,8 +71,12 @@ namespace fin.model.impl {
 
       public string Name { get; set; }
 
+
+      public LocalImageFormat BestImageFormat => LocalImageFormat.PNG;
+
       public string ValidFileName
-        => this.Name.ReplaceInvalidFilenameCharacters() + ".png";
+        => this.Name.ReplaceInvalidFilenameCharacters() +
+           BestImageFormat.GetExtension();
 
       public int UvIndex { get; set; }
       public UvType UvType { get; set; }

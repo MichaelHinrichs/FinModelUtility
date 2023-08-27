@@ -315,7 +315,7 @@ namespace uni.games {
                                     modelFileBundle)
                         },
                         formats,
-                        Config.Instance.ExporterSettings.ExportAllTextures);
+                        Config.Instance.ExporterSettings.ExportAllTextures);  
 
         if (Config.Instance.ThirdPartySettings.ExportBoneScaleAnimationsSeparately) {
           new BoneScaleAnimationExporter().Export(

@@ -30,11 +30,13 @@ namespace fin.exporter.assimp.indirect {
       sc.Textures.Clear();
 
       foreach (var finTexture in finTextures) {
+        var format = finTexture.BestImageFormat;
+
         using var imageBytes = new MemoryStream();
-        finTexture.Image.ExportToStream(imageBytes, LocalImageFormat.PNG);
+        finTexture.Image.ExportToStream(imageBytes, format);
 
         var assTexture =
-            new EmbeddedTexture("png",
+            new EmbeddedTexture(format.GetExtension()[1..],
                                 imageBytes.ToArray(),
                                 finTexture.Name) {
                 Filename = finTexture.ValidFileName

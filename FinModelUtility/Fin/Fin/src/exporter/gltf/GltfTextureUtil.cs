@@ -2,7 +2,6 @@
 using System.IO;
 using System.Numerics;
 
-using fin.image;
 using fin.model;
 
 using SharpGLTF.Materials;
@@ -10,33 +9,32 @@ using SharpGLTF.Memory;
 using SharpGLTF.Schema2;
 
 namespace fin.exporter.gltf {
-  public static class FinGltfExtensions {
+  public static class GltfTextureUtil {
     public static TextureBuilder UseTexture(this ChannelBuilder channelBuilder,
                                             ITexture finTexture) {
       var textureBuilder = channelBuilder.UseTexture();
       textureBuilder
           .WithPrimaryImage(
-              FinGltfExtensions.GetGltfImageFromFinTexture_(finTexture))
+              GltfTextureUtil.GetGltfImageFromFinTexture_(finTexture))
           .WithCoordinateSet(0)
           .WithSampler(
-              FinGltfExtensions.ConvertWrapMode_(finTexture.WrapModeU),
-              FinGltfExtensions.ConvertWrapMode_(finTexture.WrapModeV),
-              FinGltfExtensions.ConvertMinFilter_(finTexture.MinFilter),
-              FinGltfExtensions.ConvertMagFilter_(finTexture.MagFilter));
+              GltfTextureUtil.ConvertWrapMode_(finTexture.WrapModeU),
+              GltfTextureUtil.ConvertWrapMode_(finTexture.WrapModeV),
+              GltfTextureUtil.ConvertMinFilter_(finTexture.MinFilter),
+              GltfTextureUtil.ConvertMagFilter_(finTexture.MagFilter));
 
       textureBuilder.WithTransform(
           new Vector2(finTexture.Offset.X, finTexture.Offset.Y),
-          new Vector2(finTexture.Scale.X,
-                      finTexture.Scale.Y),
+          new Vector2(finTexture.Scale.X, finTexture.Scale.Y),
           finTexture.RotationDegrees);
 
       return textureBuilder;
     }
 
-    private static MemoryImage
-        GetGltfImageFromFinTexture_(ITexture finTexture) {
+    private static MemoryImage GetGltfImageFromFinTexture_(
+        ITexture finTexture) {
       using var imageStream = new MemoryStream();
-      finTexture.Image.ExportToStream(imageStream, LocalImageFormat.PNG);
+      finTexture.Image.ExportToStream(imageStream, finTexture.BestImageFormat);
       var imageBytes = imageStream.ToArray();
       return new MemoryImage(imageBytes);
     }

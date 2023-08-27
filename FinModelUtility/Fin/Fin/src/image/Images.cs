@@ -108,10 +108,12 @@ namespace fin.image {
       => imageFormat switch {
           LocalImageFormat.BMP => new BmpEncoder(),
           LocalImageFormat.PNG => new PngEncoder {
-              TransparentColorMode = PngTransparentColorMode.Clear,
+              SkipMetadata = true,
+            TransparentColorMode = PngTransparentColorMode.Clear,
+          },
+          LocalImageFormat.JPEG => new JpegEncoder() {
               SkipMetadata = true,
           },
-          LocalImageFormat.JPEG => new JpegEncoder(),
           LocalImageFormat.GIF  => new GifEncoder(),
           LocalImageFormat.TGA  => new TgaEncoder(),
           LocalImageFormat.WEBP => new WebpEncoder {

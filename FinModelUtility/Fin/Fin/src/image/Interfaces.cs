@@ -17,6 +17,19 @@ namespace fin.image {
   }
 
 
+  public static class LocalImageFormatExtensions {
+    public static string GetExtension(this LocalImageFormat format)
+      => format switch {
+          LocalImageFormat.BMP  => ".bmp",
+          LocalImageFormat.PNG  => ".png",
+          LocalImageFormat.JPEG => ".jpg",
+          LocalImageFormat.GIF  => ".gif",
+          LocalImageFormat.TGA  => ".tga",
+          LocalImageFormat.WEBP => ".webp",
+      };
+  }
+
+
   public interface IImage : IDisposable {
     PixelFormat PixelFormat { get; }
     int Width { get; }
