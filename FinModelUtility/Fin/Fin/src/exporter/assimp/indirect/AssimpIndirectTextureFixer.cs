@@ -31,10 +31,10 @@ namespace fin.exporter.assimp.indirect {
 
       foreach (var finTexture in finTextures) {
         using var imageBytes = new MemoryStream();
-        finTexture.Image.ExportToStream(imageBytes, LocalImageFormat.WEBP);
+        finTexture.Image.ExportToStream(imageBytes, LocalImageFormat.PNG);
 
         var assTexture =
-            new EmbeddedTexture("webp",
+            new EmbeddedTexture("png",
                                 imageBytes.ToArray(),
                                 finTexture.Name) {
                 Filename = finTexture.ValidFileName

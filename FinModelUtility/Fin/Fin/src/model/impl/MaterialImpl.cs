@@ -72,7 +72,7 @@ namespace fin.model.impl {
       public string Name { get; set; }
 
       public string ValidFileName
-        => this.Name.ReplaceInvalidFilenameCharacters() + ".webp";
+        => this.Name.ReplaceInvalidFilenameCharacters() + ".png";
 
       public int UvIndex { get; set; }
       public UvType UvType { get; set; }
@@ -86,7 +86,7 @@ namespace fin.model.impl {
         ISystemFile outFile =
             new FinFile(Path.Combine(directory.FullPath, this.ValidFileName));
         using var writer = outFile.OpenWrite();
-        this.Image.ExportToStream(writer, LocalImageFormat.WEBP);
+        this.Image.ExportToStream(writer, LocalImageFormat.PNG);
         return outFile;
       }
 
