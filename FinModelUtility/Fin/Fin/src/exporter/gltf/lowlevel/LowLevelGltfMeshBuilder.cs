@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
@@ -38,8 +39,6 @@ namespace fin.exporter.gltf.lowlevel {
       nullMaterial.DoubleSided = false;
       nullMaterial.WithPBRSpecularGlossiness();
 
-      var DEFAULT_SKINNING = SparseWeight8.Create((0, 1));
-
       var points = model.Skin.Vertices;
       var pointsCount = points.Count;
 
@@ -54,18 +53,6 @@ namespace fin.exporter.gltf.lowlevel {
           0,
           BufferMode.ARRAY_BUFFER);
       var normalArray = new Vector3Array(normalView.Content);
-
-      var colorView = gltfModel.CreateBufferView(
-          4 * 4 * pointsCount,
-          0,
-          BufferMode.ARRAY_BUFFER);
-      var colorArray = new ColorArray(colorView.Content);
-
-      var uvView = gltfModel.CreateBufferView(
-          4 * 2 * pointsCount,
-          0,
-          BufferMode.ARRAY_BUFFER);
-      var uvArray = new Vector2Array(uvView.Content);
 
       for (var p = 0; p < pointsCount; ++p) {
         vertexAccessor.Target(points[p]);
@@ -89,25 +76,6 @@ namespace fin.exporter.gltf.lowlevel {
           norm.Z = outNormal.Z;
           normalArray[p] = norm;
         }
-
-        var finColor0 = point.GetColor(0);
-        var hasColor0 = finColor0 != null;
-        var assColor0 = hasColor0
-            ? LowLevelGltfMeshBuilder.FinToGltfColor_(
-                finColor0)
-            : new Vector4(1, 1, 1, 1);
-        var col = colorArray[p];
-        col.X = assColor0.X;
-        col.Y = assColor0.Y;
-        col.Z = assColor0.Z;
-        col.W = assColor0.W;
-        colorArray[p] = col;
-
-        var finUv = point.GetUv(0);
-        var uv = uvArray[p];
-        uv.X = finUv.Value.U;
-        uv.Y = finUv.Value.V;
-        uvArray[p] = uv;
 
         /*if (point.Weights != null) {
           vertexBuilder = vertexBuilder.WithSkinning(
@@ -207,22 +175,6 @@ namespace fin.exporter.gltf.lowlevel {
               pointsCount);
           gltfPrimitive.SetVertexAccessor("NORMAL", normalAccessor);
 
-          var colorAccessor = gltfModel.CreateAccessor();
-          colorAccessor.SetVertexData(
-              colorView,
-              0,
-              pointsCount,
-              DimensionType.VEC4);
-          gltfPrimitive.SetVertexAccessor("COLOR_0", colorAccessor);
-
-          var uvAccessor = gltfModel.CreateAccessor();
-          uvAccessor.SetVertexData(
-              uvView,
-              0,
-              pointsCount,
-              DimensionType.VEC2);
-          gltfPrimitive.SetVertexAccessor("TEXCOORD_0", uvAccessor);
-
           if (finPrimitive.Type != FinPrimitiveType.QUADS &&
               finPrimitive.VertexOrder == VertexOrder.NORMAL) {
             gltfPrimitive.DrawPrimitiveType = finPrimitive.Type switch {
@@ -235,49 +187,20 @@ namespace fin.exporter.gltf.lowlevel {
             };
 
             var finPrimitiveVertices = finPrimitive.Vertices;
-            var indexView = gltfModel.CreateBufferView(
-                4 * finPrimitiveVertices.Count,
-                0,
-                BufferMode.ELEMENT_ARRAY_BUFFER);
-            var indexArray = new IntegerArray(indexView.Content);
-
-            int i = 0;
-            foreach (var v in finPrimitiveVertices) {
-              indexArray[i++] = (uint) v.Index;
-            }
-
-            var indexAccessor = gltfModel.CreateAccessor();
-            indexAccessor.SetIndexData(indexView,
-                                       0,
-                                       finPrimitiveVertices.Count,
-                                       IndexEncodingType.UNSIGNED_INT);
-
-            gltfPrimitive.SetIndexAccessor(indexAccessor);
+            gltfPrimitive.SetIndexAccessor(
+                CreateIndexAccessor_(
+                    gltfModel,
+                    finPrimitiveVertices.Select(vertex => vertex.Index)
+                                        .ToArray()));
           } else {
-            var finTriangleVertexIndices =
-                finPrimitive.GetOrderedTriangleVertexIndices().ToArray();
-
             gltfPrimitive.DrawPrimitiveType = GltfPrimitiveType.TRIANGLES;
 
-            var indexView = gltfModel.CreateBufferView(
-                4 * finTriangleVertexIndices.Length,
-                0,
-                BufferMode.ELEMENT_ARRAY_BUFFER);
-            var indexArray = new IntegerArray(indexView.Content);
-
-            int i = 0;
-            foreach (var v in finTriangleVertexIndices) {
-              indexArray[i++] = (uint) v;
-            }
-
-            var indexAccessor = gltfModel.CreateAccessor();
-            indexAccessor.SetIndexData(indexView,
-                                       0,
-                                       finTriangleVertexIndices.Length,
-                                       IndexEncodingType.UNSIGNED_INT);
-
-            gltfPrimitive.SetIndexAccessor(indexAccessor);
-
+            var finTriangleVertexIndices =
+                finPrimitive.GetOrderedTriangleVertexIndices().ToArray();
+            gltfPrimitive.SetIndexAccessor(
+                CreateIndexAccessor_(
+                    gltfModel,
+                    finTriangleVertexIndices));
             break;
           }
         }
@@ -285,10 +208,118 @@ namespace fin.exporter.gltf.lowlevel {
         gltfMeshes.Add(gltfMesh);
       }
 
+      // Vertex colors
+      if (vertexAccessor.ColorCount > 0) {
+        var colorView = gltfModel.CreateBufferView(
+            4 * 4 * pointsCount,
+            0,
+            BufferMode.ARRAY_BUFFER);
+        var colorArray = new ColorArray(colorView.Content);
+
+        for (var p = 0; p < pointsCount; ++p) {
+          vertexAccessor.Target(points[p]);
+          var point = vertexAccessor;
+
+          var finColor0 = point.GetColor(0);
+          var hasColor0 = finColor0 != null;
+          var assColor0 = hasColor0
+              ? LowLevelGltfMeshBuilder.FinToGltfColor_(
+                  finColor0)
+              : new Vector4(1, 1, 1, 1);
+          var col = colorArray[p];
+          col.X = assColor0.X;
+          col.Y = assColor0.Y;
+          col.Z = assColor0.Z;
+          col.W = assColor0.W;
+          colorArray[p] = col;
+        }
+
+        var colorAccessor = gltfModel.CreateAccessor();
+        colorAccessor.SetVertexData(
+            colorView,
+            0,
+            pointsCount,
+            DimensionType.VEC4);
+
+        foreach (var gltfMesh in gltfMeshes) {
+          foreach (var gltfPrimitive in gltfMesh.Primitives) {
+            gltfPrimitive.SetVertexAccessor("COLOR_0", colorAccessor);
+          }
+        }
+      }
+
+      // UVs
+      if (vertexAccessor.UvCount > 0) {
+        var uvView = gltfModel.CreateBufferView(
+            4 * 2 * pointsCount,
+            0,
+            BufferMode.ARRAY_BUFFER);
+        var uvArray = new Vector2Array(uvView.Content);
+
+        for (var p = 0; p < pointsCount; ++p) {
+          vertexAccessor.Target(points[p]);
+          var point = vertexAccessor;
+
+          var finUv = point.GetUv(0);
+          var uv = uvArray[p];
+          uv.X = finUv.Value.U;
+          uv.Y = finUv.Value.V;
+          uvArray[p] = uv;
+        }
+
+        var uvAccessor = gltfModel.CreateAccessor();
+        uvAccessor.SetVertexData(
+            uvView,
+            0,
+            pointsCount,
+            DimensionType.VEC2);
+
+        foreach (var gltfMesh in gltfMeshes) {
+          foreach (var gltfPrimitive in gltfMesh.Primitives) {
+            gltfPrimitive.SetVertexAccessor("TEXCOORD_0", uvAccessor);
+          }
+        }
+      }
+
       return gltfMeshes;
     }
 
     private static Vector4 FinToGltfColor_(IColor? color)
       => new(color?.Rf ?? 1, color?.Gf ?? 0, color?.Bf ?? 1, color?.Af ?? 1);
+
+    private static Accessor CreateIndexAccessor_(
+        ModelRoot gltfModelRoot,
+        int[] vertexIndices) {
+      int bytesPerIndex = vertexIndices.Max() switch {
+          < byte.MaxValue   => 1,
+          < ushort.MaxValue => 2,
+          _                 => 4
+      };
+
+      var indexEncodingType = bytesPerIndex switch {
+          1 => IndexEncodingType.UNSIGNED_BYTE,
+          2 => IndexEncodingType.UNSIGNED_SHORT,
+          4 => IndexEncodingType.UNSIGNED_INT,
+      };
+
+      var indexView = gltfModelRoot.CreateBufferView(
+          bytesPerIndex * vertexIndices.Length,
+          0,
+          BufferMode.ELEMENT_ARRAY_BUFFER);
+      var indexArray = new IntegerArray(indexView.Content, indexEncodingType);
+
+      int i = 0;
+      foreach (var v in vertexIndices) {
+        indexArray[i++] = (uint) v;
+      }
+
+      var indexAccessor = gltfModelRoot.CreateAccessor();
+      indexAccessor.SetIndexData(indexView,
+                                 0,
+                                 vertexIndices.Length,
+                                 indexEncodingType);
+
+      return indexAccessor;
+    }
   }
 }
