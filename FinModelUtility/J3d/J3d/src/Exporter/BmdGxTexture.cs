@@ -59,20 +59,6 @@ namespace j3d.exporter {
 
     public ColorType ColorType { get; }
 
-    public void SaveInDirectory(ISystemDirectory directory) {
-      var stream = new MemoryStream();
-      this.Image.ExportToStream(stream, LocalImageFormat.PNG);
-
-      var imageBytes = stream.ToArray();
-
-      // Some names have invalid characters, so we need to process them out.
-      // - e.g. 256??256.png, which are meant to be dimensions
-      var name = this.Name.Replace("??", "x");
-
-      File.WriteAllBytes(Path.Join(directory.FullPath, $"{name}.png"),
-                         imageBytes);
-    }
-
     private static ColorType GetColorType_(TextureFormat textureFormat) {
       switch (textureFormat) {
         case TextureFormat.I4:

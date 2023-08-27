@@ -31,13 +31,13 @@ namespace fin.exporter.assimp.indirect {
 
       foreach (var finTexture in finTextures) {
         using var imageBytes = new MemoryStream();
-        finTexture.Image.ExportToStream(imageBytes, LocalImageFormat.PNG);
+        finTexture.Image.ExportToStream(imageBytes, LocalImageFormat.WEBP);
 
         var assTexture =
-            new EmbeddedTexture("png",
+            new EmbeddedTexture("webp",
                                 imageBytes.ToArray(),
                                 finTexture.Name) {
-                Filename = finTexture.Name + ".png"
+                Filename = finTexture.ValidFileName
             };
 
         sc.Textures.Add(assTexture);
@@ -61,7 +61,7 @@ namespace fin.exporter.assimp.indirect {
         var finTexture = PrimaryTextureFinder.GetFor(finMaterial);
         if (finTexture != null) {
           var assTextureSlot = new TextureSlot {
-              FilePath = finTexture.Name + ".png",
+              FilePath = finTexture.ValidFileName,
               // TODO: FBX doesn't support mirror. Blegh
               WrapModeU = this.ConvertWrapMode_(finTexture.WrapModeU),
               WrapModeV = this.ConvertWrapMode_(finTexture.WrapModeV)

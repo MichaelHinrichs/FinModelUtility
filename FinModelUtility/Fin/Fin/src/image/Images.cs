@@ -18,6 +18,7 @@ using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Formats.Tga;
+using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.PixelFormats;
 
 using Color = System.Drawing.Color;
@@ -105,11 +106,18 @@ namespace fin.image {
     public static IImageEncoder ConvertFinImageFormatToImageSharpEncoder(
         LocalImageFormat imageFormat)
       => imageFormat switch {
-          LocalImageFormat.BMP  => new BmpEncoder(),
-          LocalImageFormat.PNG  => new PngEncoder(),
+          LocalImageFormat.BMP => new BmpEncoder(),
+          LocalImageFormat.PNG => new PngEncoder {
+              TransparentColorMode = PngTransparentColorMode.Clear,
+              SkipMetadata = true,
+          },
           LocalImageFormat.JPEG => new JpegEncoder(),
           LocalImageFormat.GIF  => new GifEncoder(),
           LocalImageFormat.TGA  => new TgaEncoder(),
+          LocalImageFormat.WEBP => new WebpEncoder {
+              SkipMetadata = true,
+              FileFormat = WebpFileFormatType.Lossless,
+          },
           _ => throw new ArgumentOutOfRangeException(
               nameof(imageFormat),
               imageFormat,

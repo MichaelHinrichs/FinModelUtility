@@ -13,6 +13,7 @@ namespace fin.image {
     JPEG,
     GIF,
     TGA,
+    WEBP,
   }
 
 
