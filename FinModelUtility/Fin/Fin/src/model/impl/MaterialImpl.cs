@@ -90,7 +90,7 @@ namespace fin.model.impl {
         ISystemFile outFile =
             new FinFile(Path.Combine(directory.FullPath, this.ValidFileName));
         using var writer = outFile.OpenWrite();
-        this.Image.ExportToStream(writer, LocalImageFormat.PNG);
+        this.Image.ExportToStream(writer, BestImageFormat);
         return outFile;
       }
 
