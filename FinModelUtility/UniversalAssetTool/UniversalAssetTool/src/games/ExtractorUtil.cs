@@ -1,8 +1,8 @@
 ﻿using Assimp;
 
-using fin.exporter;
-using fin.exporter.assimp;
-using fin.exporter.assimp.indirect;
+using fin.model.io.exporter;
+using fin.model.io.exporter.assimp;
+using fin.model.io.exporter.assimp.indirect;
 using fin.io;
 using fin.io.bundles;
 using fin.log;
@@ -300,10 +300,10 @@ namespace uni.games {
       try {
         var model = loaderHandler();
 
-        new AssimpIndirectExporter {
+        new AssimpIndirectModelExporter {
             LowLevel = modelFileBundle.UseLowLevelExporter,
             ForceGarbageCollection = modelFileBundle.ForceGarbageCollection,
-        }.ExportFormats(new ExporterParams {
+        }.ExportFormats(new ModelExporterParams {
                             OutputFile = new FinFile(
                                 Path.Join(outputDirectory.FullPath,
                                           name + ".foo")),

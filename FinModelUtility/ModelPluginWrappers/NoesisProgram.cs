@@ -1,5 +1,5 @@
-﻿using fin.exporter;
-using fin.exporter.assimp.indirect;
+﻿using fin.model.io.exporter;
+using fin.model.io.exporter.assimp.indirect;
 using fin.io;
 using fin.model;
 using fin.model.impl;
@@ -201,8 +201,8 @@ import {name}
       }
 
       foreach (var model in models) {
-        new AssimpIndirectExporter().Export(
-            new ExporterParams {
+        new AssimpIndirectModelExporter().ExportModel(
+            new ModelExporterParams {
               OutputFile = new FinFile("C:\\Users\\Ryan\\Documents\\CSharpWorkspace\\FinModelUtility\\FinModelUtility\\ModelPluginWrappers\\test.fbx"),
               Model = model as IModel,
             });

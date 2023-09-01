@@ -3,8 +3,8 @@ using System.IO;
 using System.Linq;
 
 using fin.data.queue;
-using fin.exporter;
-using fin.exporter.assimp.indirect;
+using fin.model.io.exporter;
+using fin.model.io.exporter.assimp.indirect;
 using fin.io;
 using fin.util.gc;
 
@@ -73,10 +73,10 @@ namespace HaloWarsTools {
 
         GcUtil.ForceCollectEverything();
 
-        var exporter = new AssimpIndirectExporter {
+        var exporter = new AssimpIndirectModelExporter {
             LowLevel = true, ForceGarbageCollection = true,
         };
-        exporter.Export(new ExporterParams {
+        exporter.ExportModel(new ModelExporterParams {
             OutputFile = gltfFile.CloneWithFileType(".fbx"), Model = finModel,
         });
 
@@ -116,8 +116,8 @@ namespace HaloWarsTools {
             parent.Create();
           }
 
-          var exporter = new AssimpIndirectExporter();
-          exporter.Export(new ExporterParams {
+          var exporter = new AssimpIndirectModelExporter();
+          exporter.ExportModel(new ModelExporterParams {
               OutputFile = outFile, Model = finModel
           });
           Console.WriteLine($"Processed {visFile.FullPath}");

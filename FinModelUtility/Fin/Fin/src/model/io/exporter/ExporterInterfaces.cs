@@ -1,20 +1,19 @@
 ﻿using fin.io;
-using fin.model;
 
-namespace fin.exporter {
-  public interface IExporterParams {
+namespace fin.model.io.exporter {
+  public interface IModelExporterParams {
     ISystemFile OutputFile { get; }
     IModel Model { get; }
     float Scale { get; }
   }
 
-  public class ExporterParams : IExporterParams {
+  public class ModelExporterParams : IModelExporterParams {
     public required ISystemFile OutputFile { get; set; }
     public required IModel Model { get; set; }
     public float Scale { get; set; } = 1;
   }
 
-  public interface IExporter {
-    void Export(IExporterParams exporterParams);
+  public interface IModelExporter {
+    void ExportModel(IModelExporterParams modelExporterParams);
   }
 }

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Numerics;
 
 using fin.log;
-using fin.model;
 using fin.model.util;
 using fin.util.asserts;
 using fin.util.image;
@@ -14,16 +13,16 @@ using SharpGLTF.Schema2;
 
 using AlphaMode = SharpGLTF.Materials.AlphaMode;
 
-namespace fin.exporter.gltf {
-  public interface IGltfExporter : IExporter {
+namespace fin.model.io.exporter.gltf {
+  public interface IGltfModelExporter : IModelExporter {
     bool UvIndices { get; set; }
     bool Embedded { get; set; }
 
     ModelRoot CreateModelRoot(IModel model, float scale);
   }
 
-  public class GltfExporter : IGltfExporter {
-    private readonly ILogger logger_ = Logging.Create<GltfExporter>();
+  public class GltfModelExporter : IGltfModelExporter {
+    private readonly ILogger logger_ = Logging.Create<GltfModelExporter>();
 
     public bool UvIndices { get; set; }
     public bool Embedded { get; set; }
@@ -103,7 +102,7 @@ namespace fin.exporter.gltf {
                 /*var specularTexture = standardMaterial.SpecularTexture;
                 if (specularTexture != null) {
                   gltfMaterial.WithSpecularGlossiness(
-                      GltfExporter.GetGltfImageFromFinTexture_(
+                      GltfModelExporter.GetGltfImageFromFinTexture_(
                           specularTexture), new Vector3(.1f), .1f);
                 }*/
 
@@ -168,10 +167,10 @@ namespace fin.exporter.gltf {
       return modelRoot;
     }
 
-    public void Export(IExporterParams exporterParams) {
-      var outputFile = exporterParams.OutputFile;
-      var model = exporterParams.Model;
-      var scale = exporterParams.Scale;
+    public void ExportModel(IModelExporterParams modelExporterParams) {
+      var outputFile = modelExporterParams.OutputFile;
+      var model = modelExporterParams.Model;
+      var scale = modelExporterParams.Scale;
 
       Asserts.True(
           outputFile.FileType.EndsWith(".gltf") ||

@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 
-using fin.model;
-
 using SharpGLTF.Schema2;
 
-namespace fin.exporter.gltf {
+namespace fin.model.io.exporter.gltf {
   using GltfNode = Node;
 
   public class GltfAnimationBuilder {

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Numerics;
 
 using fin.log;
-using fin.model;
 using fin.model.util;
 using fin.util.asserts;
 using fin.util.image;
@@ -14,9 +13,9 @@ using SharpGLTF.Validation;
 
 using AlphaMode = SharpGLTF.Materials.AlphaMode;
 
-namespace fin.exporter.gltf.lowlevel {
-  public class LowLevelGltfExporter : IGltfExporter {
-    private readonly ILogger logger_ = Logging.Create<GltfExporter>();
+namespace fin.model.io.exporter.gltf.lowlevel {
+  public class LowLevelGltfModelExporter : IGltfModelExporter {
+    private readonly ILogger logger_ = Logging.Create<GltfModelExporter>();
 
     public bool UvIndices { get; set; }
     public bool Embedded { get; set; }
@@ -139,10 +138,10 @@ namespace fin.exporter.gltf.lowlevel {
       return modelRoot;
     }
 
-    public void Export(IExporterParams exporterParams) {
-      var outputFile = exporterParams.OutputFile;
-      var model = exporterParams.Model;
-      var scale = exporterParams.Scale;
+    public void ExportModel(IModelExporterParams modelExporterParams) {
+      var outputFile = modelExporterParams.OutputFile;
+      var model = modelExporterParams.Model;
+      var scale = modelExporterParams.Scale;
 
       Asserts.True(
           outputFile.FileType.EndsWith(".gltf") ||

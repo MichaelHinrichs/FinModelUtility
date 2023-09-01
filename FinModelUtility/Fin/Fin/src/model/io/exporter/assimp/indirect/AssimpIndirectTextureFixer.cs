@@ -6,14 +6,9 @@ using System.Linq;
 using Assimp;
 
 using fin.image;
-using fin.model;
 using fin.model.util;
 
-using BlendMode = fin.model.BlendMode;
-
-namespace fin.exporter.assimp.indirect {
-  using FinBlendMode = BlendMode;
-
+namespace fin.model.io.exporter.assimp.indirect {
   public class AssimpIndirectTextureFixer {
     public void Fix(IModel model, Scene sc) {
       // Imports the textures

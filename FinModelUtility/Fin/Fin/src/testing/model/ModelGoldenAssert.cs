@@ -6,8 +6,8 @@ using System.Reflection;
 
 using CommunityToolkit.HighPerformance;
 
-using fin.exporter;
-using fin.exporter.assimp.indirect;
+using fin.model.io.exporter;
+using fin.model.io.exporter.assimp.indirect;
 using fin.io;
 using fin.model;
 using fin.util.asserts;
@@ -115,11 +115,11 @@ namespace fin.testing.model {
           hasGoldenExport ? tmpDirectory : outputDirectory.Impl;
 
       var model = modelReader.ReadModel(modelBundle);
-      new AssimpIndirectExporter() {
+      new AssimpIndirectModelExporter() {
           LowLevel = modelBundle.UseLowLevelExporter,
           ForceGarbageCollection = modelBundle.ForceGarbageCollection,
       }.ExportExtensions(
-          new ExporterParams {
+          new ModelExporterParams {
               Model = model,
               OutputFile =
                   new FinFile(Path.Combine(targetDirectory.FullPath,

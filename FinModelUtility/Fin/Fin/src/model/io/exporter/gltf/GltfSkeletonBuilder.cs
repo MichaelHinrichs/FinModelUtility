@@ -3,11 +3,10 @@ using System.Linq;
 
 using fin.data.queue;
 using fin.math.matrix.four;
-using fin.model;
 
 using SharpGLTF.Schema2;
 
-namespace fin.exporter.gltf {
+namespace fin.model.io.exporter.gltf {
   using GltfNode = Node;
   using GltfSkin = Skin;
 

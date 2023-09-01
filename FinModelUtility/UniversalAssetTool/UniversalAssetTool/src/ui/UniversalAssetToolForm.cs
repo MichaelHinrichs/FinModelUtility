@@ -3,7 +3,7 @@ using System.Diagnostics;
 using fin.audio;
 using fin.color;
 using fin.data.queue;
-using fin.exporter.assimp;
+using fin.model.io.exporter.assimp;
 using fin.io;
 using fin.io.bundles;
 using fin.math.rotations;

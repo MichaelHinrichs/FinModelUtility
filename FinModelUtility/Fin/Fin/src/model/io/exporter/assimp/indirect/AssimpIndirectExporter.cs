@@ -4,9 +4,9 @@ using System.Linq;
 
 using Assimp;
 
-using fin.exporter.gltf;
-using fin.exporter.gltf.lowlevel;
 using fin.io;
+using fin.model.io.exporter.gltf;
+using fin.model.io.exporter.gltf.lowlevel;
 using fin.shaders.glsl;
 using fin.util.asserts;
 using fin.util.gc;
@@ -15,21 +15,21 @@ using fin.util.linq;
 using SharpGLTF.Schema2;
 using SharpGLTF.Validation;
 
-namespace fin.exporter.assimp.indirect {
-  public class AssimpIndirectExporter : IExporter {
+namespace fin.model.io.exporter.assimp.indirect {
+  public class AssimpIndirectModelExporter : IModelExporter {
     // You can bet your ass I'm gonna prefix everything with ass.
 
     public bool LowLevel { get; set; }
     public bool ForceGarbageCollection { get; set; }
 
-    public void Export(IExporterParams exporterParams)
-      => ExportExtensions(exporterParams,
+    public void ExportModel(IModelExporterParams modelExporterParams)
+      => ExportExtensions(modelExporterParams,
                           !LowLevel
                               ? new[] { ".fbx", ".glb" }
                               : new[] { ".gltf" },
                           false);
 
-    public void ExportExtensions(IExporterParams exporterParams,
+    public void ExportExtensions(IModelExporterParams modelExporterParams,
                                  IReadOnlyList<string> exportedExtensions,
                                  bool exportAllTextures) {
       var supportedExportFormats = AssimpUtil.SupportedExportFormats;
@@ -44,25 +44,25 @@ namespace fin.exporter.assimp.indirect {
                               .First(
                                   $"'{exportedExtension}' is not a supported export format!"))
               .ToArray();
-      this.ExportFormats(exporterParams, exportedFormats, exportAllTextures);
+      this.ExportFormats(modelExporterParams, exportedFormats, exportAllTextures);
     }
 
-    public void ExportFormats(IExporterParams exporterParams,
+    public void ExportFormats(IModelExporterParams modelExporterParams,
                               IReadOnlyList<ExportFormatDescription>
                                   exportedFormats,
                               bool exportAllTextures) {
-      var outputFile = exporterParams.OutputFile;
+      var outputFile = modelExporterParams.OutputFile;
       var outputDirectory = outputFile.AssertGetParent();
-      var model = exporterParams.Model;
-      var scale = exporterParams.Scale;
+      var model = modelExporterParams.Model;
+      var scale = modelExporterParams.Scale;
 
       if (exportedFormats.Count == 0) {
         return;
       }
 
-      IGltfExporter gltfExporter = !this.LowLevel
-          ? new GltfExporter()
-          : new LowLevelGltfExporter();
+      IGltfModelExporter gltfModelExporter = !this.LowLevel
+          ? new GltfModelExporter()
+          : new LowLevelGltfModelExporter();
 
       var isGltfFormat = (ExportFormatDescription format)
           => format.FileExtension is "gltf" or "glb";
@@ -99,10 +99,10 @@ namespace fin.exporter.assimp.indirect {
       }
 
       if (gltfFormats.Length > 0) {
-        gltfExporter.UvIndices = false;
-        gltfExporter.Embedded = false;
+        gltfModelExporter.UvIndices = false;
+        gltfModelExporter.Embedded = false;
 
-        var gltfModelRoot = gltfExporter.CreateModelRoot(model, scale);
+        var gltfModelRoot = gltfModelExporter.CreateModelRoot(model, scale);
         if (ForceGarbageCollection) {
           GcUtil.ForceCollectEverything();
         }
@@ -113,7 +113,7 @@ namespace fin.exporter.assimp.indirect {
 
           var gltfWriteSettings =
               WriteContext.CreateFromFile(gltfOutputFile.FullPath);
-          gltfWriteSettings.ImageWriting = gltfExporter.Embedded
+          gltfWriteSettings.ImageWriting = gltfModelExporter.Embedded
               ? ResourceWriteMode.EmbeddedAsBase64
               : ResourceWriteMode.SatelliteFile;
 
@@ -139,12 +139,12 @@ namespace fin.exporter.assimp.indirect {
       }
 
       if (!LowLevel && nonGltfFormats.Length > 0) {
-        gltfExporter.UvIndices = true;
-        gltfExporter.Embedded = true;
+        gltfModelExporter.UvIndices = true;
+        gltfModelExporter.Embedded = true;
 
         var inputFile = outputFile.CloneWithFileType(".tmp.glb");
         var inputPath = inputFile.FullPath;
-        gltfExporter.Export(new ExporterParams {
+        gltfModelExporter.ExportModel(new ModelExporterParams {
             OutputFile = inputFile, Model = model, Scale = scale * 100,
         });
         if (ForceGarbageCollection) {

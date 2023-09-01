@@ -1,21 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
 using fin.color;
 using fin.math;
-using fin.model;
 
 using SharpGLTF.Memory;
 using SharpGLTF.Schema2;
-using SharpGLTF.Transforms;
 
 using FinPrimitiveType = fin.model.PrimitiveType;
 using GltfPrimitiveType = SharpGLTF.Schema2.PrimitiveType;
 
 
-namespace fin.exporter.gltf.lowlevel {
+namespace fin.model.io.exporter.gltf.lowlevel {
   public class LowLevelGltfMeshBuilder {
     public bool UvIndices { get; set; }
 

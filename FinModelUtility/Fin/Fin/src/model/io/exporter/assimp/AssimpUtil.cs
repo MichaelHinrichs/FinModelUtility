@@ -3,7 +3,7 @@ using System.Linq;
 
 using Assimp;
 
-namespace fin.exporter.assimp {
+namespace fin.model.io.exporter.assimp {
   public static class AssimpUtil {
     static AssimpUtil() {
       using var ctx = new AssimpContext();

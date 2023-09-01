@@ -2,13 +2,11 @@
 using System.IO;
 using System.Numerics;
 
-using fin.model;
-
 using SharpGLTF.Materials;
 using SharpGLTF.Memory;
 using SharpGLTF.Schema2;
 
-namespace fin.exporter.gltf {
+namespace fin.model.io.exporter.gltf {
   public static class GltfTextureUtil {
     public static TextureBuilder UseTexture(this ChannelBuilder channelBuilder,
                                             ITexture finTexture) {
