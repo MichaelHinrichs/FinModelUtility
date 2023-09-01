@@ -368,7 +368,9 @@ namespace fin.io {
       public bool Exists => this.Impl.Exists;
 
       public string LocalPath { get; }
-      public string DisplayPath => this.LocalPath;
+
+      public string DisplayFullPath
+        => $"//{this.Root.Name}/{this.LocalPath.Replace('\\', '/')}";
       
       public FileSystemStream OpenRead() => this.Impl.OpenRead();
       public StreamReader OpenReadAsText() => this.Impl.OpenReadAsText();

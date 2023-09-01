@@ -24,20 +24,9 @@ namespace fin.io.bundles {
 
     string DisplayName => this.HumanReadableName ?? this.RawName;
 
-    string DisplayFullPath {
-      get {
-        var mainFile = this.MainFile;
-        if (mainFile != null) {
-          return Path.Join("//",
-                           mainFile.Root.Name,
-                           mainFile.Parent!.LocalPath,
-                           mainFile.Name)
-                     .Replace('\\', '/');
-        }
-
-        return this.HumanReadableName ?? this.RawName;
-      }
-    }
+    string DisplayFullPath
+      => this.MainFile?.DisplayFullPath ??
+         this.HumanReadableName ?? this.RawName;
 
     string TrueFullPath => Asserts.CastNonnull(MainFile.FullPath);
   }

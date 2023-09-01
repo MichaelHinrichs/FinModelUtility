@@ -6,7 +6,7 @@ using schema.binary;
 
 namespace fin.io {
   public interface IReadOnlyGenericFile {
-    string DisplayPath { get; }
+    string DisplayFullPath { get; }
 
     FileSystemStream OpenRead();
     StreamReader OpenReadAsText();
