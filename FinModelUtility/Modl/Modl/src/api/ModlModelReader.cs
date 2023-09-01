@@ -33,15 +33,15 @@ namespace modl.api {
     public required IList<IFileHierarchyFile>? AnimFiles { get; init; }
   }
 
-  public class ModlModelLoader : IAsyncModelLoader<ModlModelFileBundle> {
-    public Task<IModel> LoadModelAsync(ModlModelFileBundle modelFileBundle)
-      => LoadModelAsync(modelFileBundle.ModlFile.Impl,
-                        modelFileBundle.AnimFiles
-                                       ?.Select(file => file.Impl)
-                                       .ToArray(),
-                        modelFileBundle.GameVersion);
+  public class ModlModelReader : IAsyncModelReader<ModlModelFileBundle> {
+    public Task<IModel> ReadModelAsync(ModlModelFileBundle modelFileBundle)
+      => this.ReadModelAsync(modelFileBundle.ModlFile.Impl,
+                             modelFileBundle.AnimFiles
+                                            ?.Select(file => file.Impl)
+                                            .ToArray(),
+                             modelFileBundle.GameVersion);
 
-    public async Task<IModel> LoadModelAsync(
+    public async Task<IModel> ReadModelAsync(
         IReadOnlySystemFile modlFile,
         IList<IReadOnlySystemFile>? animFiles,
         GameVersion gameVersion,

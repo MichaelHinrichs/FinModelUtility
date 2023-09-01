@@ -20,18 +20,18 @@ namespace fin.model {
     IFixedFunctionRegisters? Registers { get; }
   }
 
-  public interface IModelLoader<in TModelFileBundle>
+  public interface IModelReader<in TModelFileBundle>
       where TModelFileBundle : IModelFileBundle {
-    IModel LoadModel(TModelFileBundle modelFileBundle);
+    IModel ReadModel(TModelFileBundle modelFileBundle);
   }
 
-  public interface IAsyncModelLoader<in TModelFileBundle>
-      : IModelLoader<TModelFileBundle>
+  public interface IAsyncModelReader<in TModelFileBundle>
+      : IModelReader<TModelFileBundle>
       where TModelFileBundle : IModelFileBundle {
-    IModel IModelLoader<TModelFileBundle>.LoadModel(
+    IModel IModelReader<TModelFileBundle>.ReadModel(
         TModelFileBundle modelFileBundle)
-      => this.LoadModelAsync(modelFileBundle).Result;
+      => this.ReadModelAsync(modelFileBundle).Result;
 
-    Task<IModel> LoadModelAsync(TModelFileBundle modelFileBundle);
+    Task<IModel> ReadModelAsync(TModelFileBundle modelFileBundle);
   }
 }

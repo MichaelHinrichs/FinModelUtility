@@ -35,7 +35,7 @@ namespace mod.schema {
     public byte[] imageData { get; set; }
 
     public IImage ToImage() {
-      return new ModImageReader(this.width, this.height, this.format).Read(
+      return new ModImageReader(this.width, this.height, this.format).ReadImage(
           this.imageData, Endianness.BigEndian);
     }
   }

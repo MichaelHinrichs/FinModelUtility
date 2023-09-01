@@ -36,18 +36,18 @@ namespace visceral.api {
     public IReadOnlyList<Tg4ImageFileBundle>? Tg4ImageFileBundles { get; init; }
   }
 
-  public class GeoModelLoader : IModelLoader<GeoModelFileBundle> {
-    public IModel LoadModel(GeoModelFileBundle modelFileBundle) {
+  public class GeoModelReader : IModelReader<GeoModelFileBundle> {
+    public IModel ReadModel(GeoModelFileBundle modelFileBundle) {
       var finModel = new ModelImpl();
 
       // Builds textures
       var textureBundles = modelFileBundle.Tg4ImageFileBundles;
       var textures = new List<ITexture>();
       if (textureBundles != null) {
-        var tg4ImageLoader = new Tg4ImageLoader();
+        var tg4ImageReader = new Tg4ImageReader();
 
         foreach (var textureBundle in textureBundles) {
-          var image = tg4ImageLoader.LoadImage(textureBundle);
+          var image = tg4ImageReader.ReadImage(textureBundle);
           var finTexture = finModel.MaterialManager.CreateTexture(image);
           finTexture.Name = textureBundle.Tg4hFile.NameWithoutExtension;
 
@@ -63,7 +63,7 @@ namespace visceral.api {
       }
 
       foreach (var bnkFile in modelFileBundle.BnkFiles) {
-        new BnkLoader().LoadBnk(finModel, bnkFile, rcbFile, finBones);
+        new BnkReader().ReadBnk(finModel, bnkFile, rcbFile, finBones);
       }
 
       // Builds meshes

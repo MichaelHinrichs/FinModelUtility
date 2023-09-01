@@ -35,19 +35,19 @@ namespace modl.api {
     } = null;
   }
 
-  public class OutModelLoader : IModelLoader<OutModelFileBundle> {
-    public IModel LoadModel(OutModelFileBundle modelFileBundle)
+  public class OutModelReader : IModelReader<OutModelFileBundle> {
+    public IModel ReadModel(OutModelFileBundle modelFileBundle)
       => modelFileBundle.TextureDirectories != null
-          ? LoadModel(modelFileBundle.OutFile,
-                      modelFileBundle.TextureDirectories
-                                     .Select(dir => dir.Impl),
-                      modelFileBundle.GameVersion,
-                      out _)
-          : LoadModel(modelFileBundle.OutFile.Impl,
-                      modelFileBundle.GameVersion,
-                      out _);
+          ? this.ReadModel(modelFileBundle.OutFile,
+                           modelFileBundle.TextureDirectories
+                                          .Select(dir => dir.Impl),
+                           modelFileBundle.GameVersion,
+                           out _)
+          : this.ReadModel(modelFileBundle.OutFile.Impl,
+                           modelFileBundle.GameVersion,
+                           out _);
 
-    public IModel LoadModel(IReadOnlySystemFile outFile,
+    public IModel ReadModel(IReadOnlySystemFile outFile,
                             GameVersion gameVersion,
                             out IBwTerrain bwTerrain,
                             float terrainLightScale = 1) {
@@ -60,14 +60,14 @@ namespace modl.api {
                      dir => dir.Name == outName + "_Level");
       var allMapsDirectory = outDirectory.AssertGetParent();
 
-      return this.LoadModel(outFile,
+      return this.ReadModel(outFile,
                             outDirectory.Yield().Concat(allMapsDirectory),
                             gameVersion,
                             out bwTerrain,
                             terrainLightScale);
     }
 
-    public IModel LoadModel(IReadOnlyGenericFile outFile,
+    public IModel ReadModel(IReadOnlyGenericFile outFile,
                             IEnumerable<IReadOnlySystemDirectory>
                                 textureDirectoriesEnumerable,
                             GameVersion gameVersion,

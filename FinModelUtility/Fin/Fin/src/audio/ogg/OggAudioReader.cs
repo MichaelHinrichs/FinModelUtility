@@ -1,24 +1,12 @@
 ﻿using System;
 
-using fin.io;
 using fin.util.asserts;
 
 using NVorbis;
 
-namespace fin.audio {
-  public class OggAudioFileBundle : IAudioFileBundle {
-    public OggAudioFileBundle(IFileHierarchyFile oggFile) {
-      this.OggFile = oggFile;
-    }
-
-    public string? GameName { get; init; }
-    public IFileHierarchyFile MainFile => this.OggFile;
-
-    public IFileHierarchyFile OggFile { get; }
-  }
-
-  public class OggAudioLoader : IAudioLoader<OggAudioFileBundle> {
-    public IAudioBuffer<short> LoadAudio(
+namespace fin.audio.ogg {
+  public class OggAudioReader : IAudioReader<OggAudioFileBundle> {
+    public IAudioBuffer<short> ReadAudio(
         IAudioManager<short> audioManager,
         OggAudioFileBundle audioFileBundle) {
       var oggFile = audioFileBundle.OggFile;

@@ -7,7 +7,7 @@ using fin.testing.model;
 
 namespace cmb {
   public class CmbModelGoldenTests
-      : BModelGoldenTests<CmbModelFileBundle, CmbModelLoader> {
+      : BModelGoldenTests<CmbModelFileBundle, CmbModelReader> {
     [Test]
     [TestCaseSource(nameof(GetGoldenDirectories_))]
     public void TestExportsGoldenAsExpected(IFileHierarchyDirectory goldenDirectory)

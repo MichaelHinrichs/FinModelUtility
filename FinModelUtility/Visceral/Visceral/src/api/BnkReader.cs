@@ -7,7 +7,7 @@ using fin.model;
 using schema.binary;
 
 namespace visceral.api {
-  public class BnkLoader {
+  public class BnkReader {
     public enum MaybeBoneType {
       ROOT = 0x2,
       PARENT = 0x5,
@@ -32,7 +32,7 @@ namespace visceral.api {
       COMMAND_7 = 0x7,
     }
 
-    public void LoadBnk(IModel model,
+    public void ReadBnk(IModel model,
                         IReadOnlyGenericFile bnkFile,
                         IReadOnlyGenericFile? rcbFile,
                         IBone[] bones) {

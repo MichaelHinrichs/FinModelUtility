@@ -28,8 +28,8 @@ namespace level5.api {
     public IList<IFileHierarchyFile>? AnimationXcFiles { get; set; }
   }
 
-  public class XcModelLoader : IModelLoader<XcModelFileBundle> {
-    public IModel LoadModel(XcModelFileBundle modelFileBundle) {
+  public class XcModelReader : IModelReader<XcModelFileBundle> {
+    public IModel ReadModel(XcModelFileBundle modelFileBundle) {
       var endianness = Endianness.LittleEndian;
 
       var modelXcFile = modelFileBundle.ModelXcFile;

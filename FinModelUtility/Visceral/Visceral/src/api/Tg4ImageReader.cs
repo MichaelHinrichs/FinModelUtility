@@ -15,8 +15,8 @@ namespace visceral.api {
     public required IFileHierarchyFile Tg4dFile { get; init; }
   }
 
-  public class Tg4ImageLoader {
-    public unsafe IImage LoadImage(Tg4ImageFileBundle bundle) {
+  public class Tg4ImageReader {
+    public unsafe IImage ReadImage(Tg4ImageFileBundle bundle) {
       var headerFile = bundle.Tg4hFile;
       using var headerEr =
           new EndianBinaryReader(headerFile.OpenRead(),

@@ -8,8 +8,8 @@ namespace xmod.api {
     public required IFileHierarchyFile PedFile { get; init; }
   }
 
-  public class PedModelLoader : IModelLoader<PedModelFileBundle> {
-    public IModel LoadModel(PedModelFileBundle modelFileBundle) {
+  public class PedModelReader : IModelReader<PedModelFileBundle> {
+    public IModel ReadModel(PedModelFileBundle modelFileBundle) {
       throw new NotImplementedException();
     }
   }

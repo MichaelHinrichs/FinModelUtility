@@ -80,14 +80,14 @@ namespace fin.testing.model {
     /// </summary>
     public static void AssertExportGoldens<TModelBundle>(
         ISystemDirectory rootGoldenDirectory,
-        IModelLoader<TModelBundle> modelLoader,
+        IModelReader<TModelBundle> modelReader,
         Func<IFileHierarchyDirectory, TModelBundle>
             gatherModelBundleFromInputDirectory)
         where TModelBundle : IModelFileBundle {
       foreach (var goldenSubdir in
                GetGoldenDirectories(rootGoldenDirectory)) {
         ModelGoldenAssert.AssertGolden(goldenSubdir,
-                                       modelLoader,
+                                       modelReader,
                                        gatherModelBundleFromInputDirectory);
       }
     }
@@ -96,7 +96,7 @@ namespace fin.testing.model {
 
     public static void AssertGolden<TModelBundle>(
         IFileHierarchyDirectory goldenSubdir,
-        IModelLoader<TModelBundle> modelLoader,
+        IModelReader<TModelBundle> modelReader,
         Func<IFileHierarchyDirectory, TModelBundle>
             gatherModelBundleFromInputDirectory)
         where TModelBundle : IModelFileBundle {
@@ -114,7 +114,7 @@ namespace fin.testing.model {
       var targetDirectory =
           hasGoldenExport ? tmpDirectory : outputDirectory.Impl;
 
-      var model = modelLoader.LoadModel(modelBundle);
+      var model = modelReader.ReadModel(modelBundle);
       new AssimpIndirectExporter() {
           LowLevel = modelBundle.UseLowLevelExporter,
           ForceGarbageCollection = modelBundle.ForceGarbageCollection,

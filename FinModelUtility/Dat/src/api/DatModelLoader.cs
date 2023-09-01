@@ -14,8 +14,8 @@ namespace dat.api {
     public required IFileHierarchyFile DatFile { get; init; }
   }
 
-  public class DatModelLoader : IModelLoader<DatModelFileBundle> {
-    public IModel LoadModel(DatModelFileBundle modelFileBundle) {
+  public class DatModelReader : IModelReader<DatModelFileBundle> {
+    public IModel ReadModel(DatModelFileBundle modelFileBundle) {
       var dat = modelFileBundle.DatFile.ReadNew<Dat>(Endianness.BigEndian);
 
       var finModel = new ModelImpl();

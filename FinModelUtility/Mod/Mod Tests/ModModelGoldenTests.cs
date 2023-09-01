@@ -9,7 +9,7 @@ using NUnit.Framework;
 
 namespace mod {
   public class ModModelGoldenTests
-      : BModelGoldenTests<ModModelFileBundle, ModModelLoader> {
+      : BModelGoldenTests<ModModelFileBundle, ModModelReader> {
     [Test]
     [TestCaseSource(nameof(GetGoldenDirectories_))]
     public void TestExportsGoldenAsExpected(

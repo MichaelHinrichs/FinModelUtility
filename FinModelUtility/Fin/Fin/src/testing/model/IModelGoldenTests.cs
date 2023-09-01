@@ -9,13 +9,13 @@ namespace fin.testing.model {
         IFileHierarchyDirectory directory);
   }
 
-  public abstract class BModelGoldenTests<TModelFileBundle, TModelLoader>
+  public abstract class BModelGoldenTests<TModelFileBundle, TModelReader>
       : BGoldenTests<TModelFileBundle>
       where TModelFileBundle : IModelFileBundle
-      where TModelLoader : IModelLoader<TModelFileBundle>, new() {
+      where TModelReader : IModelReader<TModelFileBundle>, new() {
     public void AssertGolden(IFileHierarchyDirectory goldenDirectory)
       => ModelGoldenAssert.AssertGolden(goldenDirectory,
-                                        new TModelLoader(),
+                                        new TModelReader(),
                                         this.GetFileBundleFromDirectory);
   }
 }

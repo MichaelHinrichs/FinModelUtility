@@ -8,7 +8,7 @@ using modl.api;
 
 namespace modl {
   public class OutModelGoldenTests
-      : BModelGoldenTests<OutModelFileBundle, OutModelLoader> {
+      : BModelGoldenTests<OutModelFileBundle, OutModelReader> {
     [Test]
     [TestCaseSource(nameof(GetGoldenDirectories_))]
     public void TestExportsGoldenAsExpected(

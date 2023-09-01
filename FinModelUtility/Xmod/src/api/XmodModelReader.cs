@@ -15,8 +15,8 @@ namespace xmod.api {
     public required IFileHierarchyFile XmodFile { get; init; }
   }
 
-  public class XmodModelLoader : IModelLoader<XmodModelFileBundle> {
-    public IModel LoadModel(XmodModelFileBundle modelFileBundle) {
+  public class XmodModelReader : IModelReader<XmodModelFileBundle> {
+    public IModel ReadModel(XmodModelFileBundle modelFileBundle) {
       using var tr =
           new FinTextReader(modelFileBundle.XmodFile.OpenRead());
 
@@ -45,7 +45,7 @@ namespace xmod.api {
                         .XmodFile.Root.Impl.AssertGetExistingSubdir("texture_x")
                         .SearchForFiles($"{textureName}.tex", true)
                         .Single();
-          var image = new TexImageLoader().LoadImage(texFile);
+          var image = new TexImageReader().ReadImage(texFile);
 
           var finTexture = finMaterialManager.CreateTexture(image);
           finMaterial = finMaterialManager.AddTextureMaterial(finTexture);

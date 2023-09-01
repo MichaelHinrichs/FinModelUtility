@@ -1,21 +1,12 @@
 ﻿using ast.schema;
 
 using fin.audio;
-using fin.io;
 
 using schema.binary;
 
 namespace ast.api {
-  public class AstAudioFileBundle : IAudioFileBundle {
-    public required string GameName { get; init; }
-
-    public IFileHierarchyFile MainFile => this.AstFile;
-
-    public required IFileHierarchyFile AstFile { get; init; }
-  }
-
-  public class AstAudioLoader : IAudioLoader<AstAudioFileBundle> {
-    public IAudioBuffer<short> LoadAudio(
+  public class AstAudioReader : IAudioReader<AstAudioFileBundle> {
+    public IAudioBuffer<short> ReadAudio(
         IAudioManager<short> audioManager,
         AstAudioFileBundle audioFileBundle) {
       var astFile = audioFileBundle.AstFile;

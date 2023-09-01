@@ -10,7 +10,7 @@ using j3d.GCN;
 namespace j3d {
   [TestFixtureSource(nameof(GetGoldenDirectories_))]
   public class BmdModelGoldenTests
-      : BModelGoldenTests<BmdModelFileBundle, BmdModelLoader> {
+      : BModelGoldenTests<BmdModelFileBundle, BmdModelReader> {
     private readonly IFileHierarchyDirectory goldenDirectory_;
     private readonly BMD bmd_;
 

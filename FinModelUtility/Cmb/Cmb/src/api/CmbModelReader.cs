@@ -20,7 +20,6 @@ using fin.math;
 using fin.model;
 using fin.model.impl;
 using fin.util.asserts;
-using fin.util.enumerables;
 
 using Microsoft.Toolkit.HighPerformance.Helpers;
 
@@ -29,48 +28,10 @@ using schema.binary;
 using Version = cmb.schema.cmb.Version;
 
 namespace cmb.api {
-  public class CmbModelFileBundle : IModelFileBundle {
-    public CmbModelFileBundle(string gameName,
-                              IFileHierarchyFile cmbFile) :
-        this(gameName, cmbFile, null, null, null) { }
-
-    public CmbModelFileBundle(string gameName,
-                              IFileHierarchyFile cmbFile,
-                              IReadOnlyList<IFileHierarchyFile>? csabFiles) :
-        this(gameName, cmbFile, csabFiles, null, null) { }
-
-    public CmbModelFileBundle(string gameName,
-                              IFileHierarchyFile cmbFile,
-                              IReadOnlyList<IFileHierarchyFile>? csabFiles,
-                              IReadOnlyList<IFileHierarchyFile>? ctxbFiles,
-                              IReadOnlyList<IFileHierarchyFile>? shpaFiles) {
-      this.GameName = gameName;
-      this.CmbFile = cmbFile;
-      this.CsabFiles = csabFiles;
-      this.CtxbFiles = ctxbFiles;
-      this.ShpaFiles = shpaFiles;
-    }
-
-    public string GameName { get; }
-
-    public IFileHierarchyFile MainFile => this.CmbFile;
-
-    public IEnumerable<IReadOnlyGenericFile> Files
-      => this.CmbFile.Yield()
-             .ConcatIfNonnull(this.CsabFiles)
-             .ConcatIfNonnull(this.CtxbFiles)
-             .ConcatIfNonnull(this.ShpaFiles);
-
-    public IFileHierarchyFile CmbFile { get; }
-    public IReadOnlyList<IFileHierarchyFile>? CsabFiles { get; }
-    public IReadOnlyList<IFileHierarchyFile>? CtxbFiles { get; }
-    public IReadOnlyList<IFileHierarchyFile>? ShpaFiles { get; }
-  }
-
-  public class CmbModelLoader : IModelLoader<CmbModelFileBundle> {
+  public class CmbModelReader : IModelReader<CmbModelFileBundle> {
     // TODO: Split these out into separate classes
     // TODO: Reading from the file here is gross
-    public IModel LoadModel(CmbModelFileBundle modelFileBundle) {
+    public IModel ReadModel(CmbModelFileBundle modelFileBundle) {
       var cmbFile = modelFileBundle.CmbFile;
       var csabFiles = modelFileBundle.CsabFiles;
       var ctxbFiles = modelFileBundle.CtxbFiles;
@@ -92,7 +53,7 @@ namespace cmb.api {
         filesAndCsabs = new (IFileHierarchyFile, Csab)[csabFiles.Count];
         ParallelHelper.For(0,
                            csabFiles.Count,
-                           new CsabLoader(csabFiles, filesAndCsabs));
+                           new CsabReader(csabFiles, filesAndCsabs));
       }
 
       var filesAndCtxbs =
@@ -218,7 +179,7 @@ namespace cmb.api {
             IImage image;
             if (position != 0) {
               r.Position = position;
-              image = ctrTexture.DecodeImage(cmbTexture).Read(r);
+              image = ctrTexture.DecodeImage(cmbTexture).ReadImage(r);
             } else {
               var ctxb =
                   filesAndCtxbs
@@ -228,7 +189,7 @@ namespace cmb.api {
                           ctxb => ctxb.Chunk.Entry.Name ==
                                   cmbTexture.name);
               image = ctrTexture.DecodeImage(cmbTexture)
-                                .Read(ctxb.Chunk.Entry.Data);
+                                .ReadImage(ctxb.Chunk.Entry.Data);
             }
 
             return image;
@@ -528,11 +489,11 @@ namespace cmb.api {
           _ => throw new ArgumentOutOfRangeException()
       };
 
-    public readonly struct CsabLoader : IAction {
+    public readonly struct CsabReader : IAction {
       private readonly IReadOnlyList<IFileHierarchyFile> src_;
       private readonly (IFileHierarchyFile, Csab)[] dst_;
 
-      public CsabLoader(
+      public CsabReader(
           IReadOnlyList<IFileHierarchyFile> src,
           (IFileHierarchyFile, Csab)[] dst) {
         this.src_ = src;

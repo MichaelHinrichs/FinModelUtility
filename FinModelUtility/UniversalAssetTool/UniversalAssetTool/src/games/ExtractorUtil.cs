@@ -150,23 +150,23 @@ namespace uni.games {
 
     public static void ExtractAll<T>(
         IFileBundleGatherer<T> gatherer,
-        IModelLoader<T> loader)
+        IModelReader<T> reader)
         where T : IModelFileBundle {
       ExtractorUtil.ExtractAll(gatherer.GatherFileBundles(true),
-                               loader,
+                               reader,
                                Config.Instance.ExporterSettings.ExportedFormats,
                                false);
     }
 
     public static void ExtractAll<T>(
         IEnumerable<T> modelFileBundles,
-        IModelLoader<T> loader,
+        IModelReader<T> reader,
         IReadOnlyList<string> extensions,
         bool overwriteExistingFiles)
         where T : IModelFileBundle {
       foreach (var modelFileBundle in modelFileBundles) {
         ExtractorUtil.Extract(modelFileBundle,
-                              loader,
+                              reader,
                               extensions,
                               overwriteExistingFiles);
       }
@@ -174,17 +174,17 @@ namespace uni.games {
 
     public static void ExtractAll<T>(
         IFileBundleGatherer<IFileBundle> gatherer,
-        IModelLoader<T> loader)
+        IModelReader<T> reader)
         where T : IModelFileBundle {
       ExtractorUtil.ExtractAll(gatherer.GatherFileBundles(true),
-                               loader,
+                               reader,
                                Config.Instance.ExporterSettings.ExportedFormats,
                                false);
     }
 
     public static void ExtractAll<T>(
         IEnumerable<IFileBundle> fileBundles,
-        IModelLoader<T> loader,
+        IModelReader<T> reader,
         IReadOnlyList<string> extensions,
         bool overwriteExistingFiles)
         where T : IModelFileBundle {
@@ -193,7 +193,7 @@ namespace uni.games {
       for (var i = 0; i < fileBundleArray.Length; ++i) {
         var modelFileBundle = fileBundleArray[i];
         ExtractorUtil.Extract(modelFileBundle,
-                              loader,
+                              reader,
                               extensions,
                               overwriteExistingFiles);
       }
@@ -201,7 +201,7 @@ namespace uni.games {
 
     public static void ExtractAll<T>(
         IEnumerable<IFileBundle> fileBundles,
-        IModelLoader<T> loader,
+        IModelReader<T> reader,
         IProgress<(float, T?)> progress,
         CancellationTokenSource cancellationTokenSource,
         IReadOnlyList<string> extensions,
@@ -217,7 +217,7 @@ namespace uni.games {
         var modelFileBundle = fileBundleArray[i];
         progress.Report((i * 1f / fileBundleArray.Length, modelFileBundle));
         ExtractorUtil.Extract(modelFileBundle,
-                              loader,
+                              reader,
                               extensions,
                               overwriteExistingFiles);
       }
@@ -226,12 +226,12 @@ namespace uni.games {
     }
 
     public static void Extract<T>(T modelFileBundle,
-                                  IModelLoader<T> loader,
+                                  IModelReader<T> reader,
                                   IReadOnlyList<string> extensions,
                                   bool overwriteExistingFile)
         where T : IModelFileBundle {
       ExtractorUtil.Extract(modelFileBundle,
-                            () => loader.LoadModel(modelFileBundle),
+                            () => reader.ReadModel(modelFileBundle),
                             extensions,
                             overwriteExistingFile);
     }

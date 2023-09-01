@@ -159,7 +159,7 @@ namespace uni.ui.top {
 
         Task.Run(() => {
           ExtractorUtil.ExtractAll(modelFileBundles,
-                                   new GlobalModelLoader(),
+                                   new GlobalModelReader(),
                                    this.Progress,
                                    this.CancellationToken,
                                    Config.Instance.ExporterSettings.ExportedFormats,

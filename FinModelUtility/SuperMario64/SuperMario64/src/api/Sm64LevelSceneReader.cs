@@ -18,9 +18,9 @@ namespace sm64.api {
         LevelId levelId) : base(directory, sm64Rom, levelId) { }
   }
 
-  public class Sm64LevelSceneLoader : ISceneLoader<Sm64LevelSceneFileBundle> {
-    public IScene LoadScene(Sm64LevelSceneFileBundle levelModelFileBundle) {
-      var sm64Level = Sm64LevelLoader.LoadLevel(levelModelFileBundle);
+  public class Sm64LevelSceneReader : ISceneReader<Sm64LevelSceneFileBundle> {
+    public IScene ReadScene(Sm64LevelSceneFileBundle levelModelFileBundle) {
+      var sm64Level = Sm64LevelReader.LoadLevel(levelModelFileBundle);
 
       var finScene = new SceneImpl();
 
@@ -34,7 +34,7 @@ namespace sm64.api {
           });
 
       foreach (var sm64Area in sm64Level.Areas) {
-        Sm64LevelSceneLoader.AddAreaToScene_(
+        Sm64LevelSceneReader.AddAreaToScene_(
             finScene,
             lazyModelDictionary,
             sm64Area);

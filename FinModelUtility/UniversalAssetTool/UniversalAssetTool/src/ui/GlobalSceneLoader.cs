@@ -5,13 +5,13 @@ using modl.api;
 using sm64.api;
 
 namespace uni.ui {
-  public class GlobalSceneLoader : ISceneLoader<ISceneFileBundle> {
-    public IScene LoadScene(ISceneFileBundle sceneFileBundle)
+  public class GlobalSceneReader : ISceneReader<ISceneFileBundle> {
+    public IScene ReadScene(ISceneFileBundle sceneFileBundle)
       => sceneFileBundle switch {
           BwSceneFileBundle bwSceneFileBundle
-              => new BwSceneLoader().LoadScene(bwSceneFileBundle),
+              => new BwSceneReader().ReadScene(bwSceneFileBundle),
           Sm64LevelSceneFileBundle sm64LevelSceneFileBundle
-              => new Sm64LevelSceneLoader().LoadScene(sm64LevelSceneFileBundle),
+              => new Sm64LevelSceneReader().ReadScene(sm64LevelSceneFileBundle),
           _ => throw new ArgumentOutOfRangeException(nameof(sceneFileBundle))
       };
   }

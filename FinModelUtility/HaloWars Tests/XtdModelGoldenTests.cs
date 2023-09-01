@@ -7,7 +7,7 @@ using hw.api;
 
 namespace hw {
   public class XtdModelGoldenTests
-      : BModelGoldenTests<XtdModelFileBundle, XtdModelLoader> {
+      : BModelGoldenTests<XtdModelFileBundle, XtdModelReader> {
     [Test]
     [TestCaseSource(nameof(GetGoldenDirectories_))]
     public void TestExportsGoldenAsExpected(

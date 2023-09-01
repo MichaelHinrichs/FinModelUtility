@@ -44,7 +44,7 @@ namespace uni.ui.common.audio {
 
           if (this.shuffledListView_.TryGetNext(out var audioFileBundle)) {
             var audioBuffer =
-                new GlobalAudioLoader().LoadAudio(this.audioManager_,
+                new GlobalAudioReader().ReadAudio(this.audioManager_,
                                                   audioFileBundle);
             var audioStream =
                 this.audioManager_.CreateBufferAudioStream(audioBuffer);

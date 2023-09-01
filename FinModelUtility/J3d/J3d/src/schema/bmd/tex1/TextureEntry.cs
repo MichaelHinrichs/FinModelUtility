@@ -114,7 +114,7 @@ namespace j3d.schema.bmd.tex1 {
 
     public unsafe IImage ToBitmap() {
       try {
-        return new J3dImageReader(this.Width, this.Height, this.Format).Read(
+        return new J3dImageReader(this.Width, this.Height, this.Format).ReadImage(
             this.Data,
             Endianness.BigEndian);
       } catch { }

@@ -1,17 +1,18 @@
 ﻿using ast.api;
 
 using fin.audio;
+using fin.audio.ogg;
 
 namespace uni.ui {
-  public class GlobalAudioLoader : IAudioLoader<IAudioFileBundle> {
-    public IAudioBuffer<short> LoadAudio(IAudioManager<short> audioManager,
+  public class GlobalAudioReader : IAudioReader<IAudioFileBundle> {
+    public IAudioBuffer<short> ReadAudio(IAudioManager<short> audioManager,
                                          IAudioFileBundle audioFileBundle)
       => audioFileBundle switch {
           AstAudioFileBundle astAudioFileBundle
-              => new AstAudioLoader().LoadAudio(
+              => new AstAudioReader().ReadAudio(
                   audioManager, astAudioFileBundle),
           OggAudioFileBundle oggAudioFileBundle
-              => new OggAudioLoader().LoadAudio(
+              => new OggAudioReader().ReadAudio(
                   audioManager, oggAudioFileBundle),
           _ => throw new ArgumentOutOfRangeException(nameof(audioFileBundle))
       };

@@ -31,7 +31,7 @@ namespace mod.cli {
     public required IFileHierarchyFile? AnmFile { get; init; }
   }
 
-  public class ModModelLoader : IModelLoader<ModModelFileBundle> {
+  public class ModModelReader : IModelReader<ModModelFileBundle> {
     /// <summary>
     ///   GX's active matrices. These are deferred to when a vertex matrix is
     ///   -1, which corresponds to using an active matrix from a previous
@@ -53,7 +53,7 @@ namespace mod.cli {
         _ => GX_WRAP_TAG.GX_REPEAT,
       };
 
-    public IModel LoadModel(ModModelFileBundle modelFileBundle) {
+    public IModel ReadModel(ModModelFileBundle modelFileBundle) {
       var mod =
           modelFileBundle.ModFile.ReadNew<Mod>(Endianness.BigEndian);
       var anm =
@@ -90,7 +90,7 @@ namespace mod.cli {
       var textureImages = new IImage[mod.textures.Count];
       ParallelHelper.For(0,
                          textureImages.Length,
-                         new TextureImageLoader(mod.textures, textureImages));
+                         new TextureImageReader(mod.textures, textureImages));
 
       // Writes textures
       var gxTextures = new IGxTexture[mod.texattrs.Count];
@@ -107,9 +107,9 @@ namespace mod.cli {
         finTexture.Name = $"texattr {i}";
 
         finTexture.WrapModeU =
-            ModModelLoader.ConvertGcnToFin(textureAttr.TilingModeS);
+            ModModelReader.ConvertGcnToFin(textureAttr.TilingModeS);
         finTexture.WrapModeV =
-            ModModelLoader.ConvertGcnToFin(textureAttr.TilingModeT);
+            ModModelReader.ConvertGcnToFin(textureAttr.TilingModeT);
         // TODO: Set attributes
 
         gxTextures[i] = new GxTexture2d {
@@ -337,15 +337,15 @@ namespace mod.cli {
                 }
 
                 if (attr == GxAttribute.POS) {
-                  positionIndices.Add(ModModelLoader.Read_(er, format));
+                  positionIndices.Add(ModModelReader.Read_(er, format));
                 } else if (attr == GxAttribute.NRM) {
-                  normalIndices.Add(ModModelLoader.Read_(er, format));
+                  normalIndices.Add(ModModelReader.Read_(er, format));
                 } else if (attr == GxAttribute.CLR0) {
-                  color0Indices.Add(ModModelLoader.Read_(er, format));
+                  color0Indices.Add(ModModelReader.Read_(er, format));
                 } else if (attr is >= GxAttribute.TEX0
                                    and <= GxAttribute.TEX7) {
                   texCoordIndices[attr - GxAttribute.TEX0]
-                      .Add(ModModelLoader.Read_(er, format));
+                      .Add(ModModelReader.Read_(er, format));
                 } else if (format == GxAttributeType.INDEX_16) {
                   er.ReadUInt16();
                 } else {
@@ -486,11 +486,11 @@ namespace mod.cli {
       return 0;
     }
 
-    private readonly struct TextureImageLoader : IAction {
+    private readonly struct TextureImageReader : IAction {
       private readonly IList<Texture> srcTextures_;
       private readonly IList<IImage> dstImages_;
 
-      public TextureImageLoader(
+      public TextureImageReader(
           IList<Texture> srcTextures,
           IList<IImage> dstImages) {
         this.srcTextures_ = srcTextures;

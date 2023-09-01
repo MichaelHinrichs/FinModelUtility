@@ -17,8 +17,8 @@ namespace hw.api {
     public HWContext Context { get; }
   }
 
-  public class VisModelLoader : IModelLoader<VisModelFileBundle> {
-    public IModel LoadModel(VisModelFileBundle modelFileBundle) {
+  public class VisModelReader : IModelReader<VisModelFileBundle> {
+    public IModel ReadModel(VisModelFileBundle modelFileBundle) {
       var visResource =
           HWVisResource.FromFile(modelFileBundle.Context,
                                  modelFileBundle.VisFile.FullPath);

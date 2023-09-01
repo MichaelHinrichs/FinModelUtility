@@ -107,13 +107,13 @@ public partial class UniversalAssetToolForm : Form {
 
   private void SelectScene_(IFileTreeNode<IFileBundle> fileNode,
                             ISceneFileBundle sceneFileBundle) {
-    var scene = new GlobalSceneLoader().LoadScene(sceneFileBundle);
+    var scene = new GlobalSceneReader().ReadScene(sceneFileBundle);
     this.UpdateScene_(fileNode, sceneFileBundle, scene);
   }
 
   private void SelectModel_(IFileTreeNode<IFileBundle> fileNode,
                             IModelFileBundle modelFileBundle) {
-    var model = new GlobalModelLoader().LoadModel(modelFileBundle);
+    var model = new GlobalModelReader().ReadModel(modelFileBundle);
 
     var scene = new SceneImpl();
     var area = scene.AddArea();

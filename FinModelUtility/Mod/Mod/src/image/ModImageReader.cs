@@ -68,9 +68,9 @@ namespace mod.image {
       };
     }
 
-    public IImage Read(IEndianBinaryReader er) => this.impl_.Read(er);
+    public IImage ReadImage(IEndianBinaryReader er) => this.impl_.ReadImage(er);
 
-    public IImage Read(byte[] data, Endianness endianness)
-      => this.impl_.Read(data, endianness);
+    public IImage ReadImage(byte[] data, Endianness endianness)
+      => this.impl_.ReadImage(data, endianness);
   }
 }

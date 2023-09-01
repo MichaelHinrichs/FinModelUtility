@@ -27,8 +27,8 @@ namespace UoT.api {
     LINK_ANIMETION = 7,
   }
 
-  public class OotModelLoader : IModelLoader<OotModelFileBundle> {
-    public IModel LoadModel(OotModelFileBundle modelFileBundle) {
+  public class OotModelReader : IModelReader<OotModelFileBundle> {
+    public IModel ReadModel(OotModelFileBundle modelFileBundle) {
       var zFile = modelFileBundle.ZFile;
       var isLink = zFile.FileName is "object_link_boy"
                                      or "object_link_child"

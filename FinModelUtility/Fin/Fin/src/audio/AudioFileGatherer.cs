@@ -3,9 +3,9 @@
 namespace fin.audio {
   public interface IAudioFileBundle : IFileBundle { }
 
-  public interface IAudioLoader<in TAudioFileBundle>
+  public interface IAudioReader<in TAudioFileBundle>
       where TAudioFileBundle : IAudioFileBundle {
-    IAudioBuffer<short> LoadAudio(
+    IAudioBuffer<short> ReadAudio(
         IAudioManager<short> audioManager,
         TAudioFileBundle audioFileBundle);
   }

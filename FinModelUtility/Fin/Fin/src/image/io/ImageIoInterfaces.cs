@@ -34,18 +34,18 @@ namespace fin.image.io {
   }
 
   public interface IImageReader {
-    IImage Read(byte[] srcBytes,
+    IImage ReadImage(byte[] srcBytes,
                 Endianness endianness = Endianness.LittleEndian) {
       using var er = new EndianBinaryReader(srcBytes, endianness);
-      return Read(er);
+      return this.ReadImage(er);
     }
 
-    IImage Read(IEndianBinaryReader er);
+    IImage ReadImage(IEndianBinaryReader er);
   }
 
   public interface IImageReader<out TImage> : IImageReader
       where TImage : IImage {
-    IImage IImageReader.Read(byte[] srcBytes,
+    IImage IImageReader.ReadImage(byte[] srcBytes,
                              Endianness endianness = Endianness.LittleEndian)
       => Read(srcBytes, endianness);
 
@@ -55,7 +55,7 @@ namespace fin.image.io {
       return Read(er);
     }
 
-    IImage IImageReader.Read(IEndianBinaryReader er) => Read(er);
+    IImage IImageReader.ReadImage(IEndianBinaryReader er) => Read(er);
 
     new TImage Read(IEndianBinaryReader er);
   }

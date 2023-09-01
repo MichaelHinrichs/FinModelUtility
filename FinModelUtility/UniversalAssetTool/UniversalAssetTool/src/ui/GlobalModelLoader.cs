@@ -23,33 +23,33 @@ using visceral.api;
 using xmod.api;
 
 namespace uni.ui {
-  public class GlobalModelLoader : IModelLoader<IModelFileBundle> {
-    public IModel LoadModel(IModelFileBundle modelFileBundle)
+  public class GlobalModelReader : IModelReader<IModelFileBundle> {
+    public IModel ReadModel(IModelFileBundle modelFileBundle)
       => modelFileBundle switch {
           IBattalionWarsModelFileBundle battalionWarsModelFileBundle
-              => new BattalionWarsModelLoader().LoadModel(battalionWarsModelFileBundle),
+              => new BattalionWarsModelReader().ReadModel(battalionWarsModelFileBundle),
           BmdModelFileBundle bmdModelFileBundle
-              => new BmdModelLoader().LoadModel(bmdModelFileBundle),
+              => new BmdModelReader().ReadModel(bmdModelFileBundle),
           CmbModelFileBundle cmbModelFileBundle
-              => new CmbModelLoader().LoadModel(cmbModelFileBundle),
+              => new CmbModelReader().ReadModel(cmbModelFileBundle),
           DatModelFileBundle datModelFileBundle
-              => new DatModelLoader().LoadModel(datModelFileBundle),
+              => new DatModelReader().ReadModel(datModelFileBundle),
           GeoModelFileBundle geoModelFileBundle
-              => new GeoModelLoader().LoadModel(geoModelFileBundle),
+              => new GeoModelReader().ReadModel(geoModelFileBundle),
           GloModelFileBundle gloModelFileBundle
-              => new GloModelLoader().LoadModel(gloModelFileBundle),
+              => new GloModelReader().ReadModel(gloModelFileBundle),
           IHaloWarsModelFileBundle haloWarsModelFileBundle 
-              => new HaloWarsModelLoader().LoadModel(haloWarsModelFileBundle),
+              => new HaloWarsModelReader().ReadModel(haloWarsModelFileBundle),
           ModModelFileBundle modModelFileBundle
-              => new ModModelLoader().LoadModel(modModelFileBundle),
+              => new ModModelReader().ReadModel(modModelFileBundle),
           OotModelFileBundle ootModelFileBundle
-              => new OotModelLoader().LoadModel(ootModelFileBundle),
+              => new OotModelReader().ReadModel(ootModelFileBundle),
           PedModelFileBundle pedModelFileBundle
-              => new PedModelLoader().LoadModel(pedModelFileBundle),
+              => new PedModelReader().ReadModel(pedModelFileBundle),
           XcModelFileBundle xcModelFileBundle
-              => new XcModelLoader().LoadModel(xcModelFileBundle),
+              => new XcModelReader().ReadModel(xcModelFileBundle),
           XmodModelFileBundle xmodModelFileBundle
-              => new XmodModelLoader().LoadModel(xmodModelFileBundle),
+              => new XmodModelReader().ReadModel(xmodModelFileBundle),
           _ => throw new ArgumentOutOfRangeException(nameof(modelFileBundle))
       };
   }

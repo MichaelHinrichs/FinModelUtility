@@ -30,12 +30,12 @@ namespace glo.api {
     public IReadOnlyList<IFileHierarchyDirectory> TextureDirectories { get; }
   }
 
-  public class GloModelLoader : IModelLoader<GloModelFileBundle> {
+  public class GloModelReader : IModelReader<GloModelFileBundle> {
     private readonly string[] hiddenNames_ = new[] { "Box01", "puzzle" };
 
     private readonly string[] mirrorTextures_ = new[] { "Badg2.bmp" };
 
-    public IModel LoadModel(GloModelFileBundle gloModelFileBundle) {
+    public IModel ReadModel(GloModelFileBundle gloModelFileBundle) {
       var gloFile = gloModelFileBundle.GloFile;
       var textureDirectories = gloModelFileBundle.TextureDirectories;
       var fps = 20;
@@ -75,7 +75,7 @@ namespace glo.api {
 
             using var rawTextureImage = FinImage.FromFile(textureFile);
             var textureImageWithAlpha =
-                GloModelLoader.AddTransparencyToGloImage_(rawTextureImage);
+                GloModelReader.AddTransparencyToGloImage_(rawTextureImage);
 
             var finTexture = finModel.MaterialManager.CreateTexture(
                 textureImageWithAlpha);

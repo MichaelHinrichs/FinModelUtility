@@ -1,7 +1,7 @@
 ﻿using OpenTK;
 
 namespace sm64.Scripts {
-  public static class CollisionMapLoader {
+  public static class CollisionMapReader {
     public enum CollisionSubCommand : ushort {
       TERRAIN_LOAD_VERTICES =
           0x0040, // Begins vertices list for collision triangles

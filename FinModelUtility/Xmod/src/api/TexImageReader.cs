@@ -10,8 +10,8 @@ using schema.binary;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace xmod.api {
-  public class TexImageLoader {
-    public IImage LoadImage(IReadOnlyGenericFile texFile) {
+  public class TexImageReader {
+    public IImage ReadImage(IReadOnlyGenericFile texFile) {
       using var er = new EndianBinaryReader(texFile.OpenRead());
       var width = er.ReadUInt16();
       var height = er.ReadUInt16();

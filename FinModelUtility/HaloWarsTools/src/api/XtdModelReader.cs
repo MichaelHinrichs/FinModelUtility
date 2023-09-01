@@ -20,8 +20,8 @@ namespace hw.api {
     public bool ForceGarbageCollection => true;
   }
 
-  public class XtdModelLoader : IModelLoader<XtdModelFileBundle> {
-    public IModel LoadModel(XtdModelFileBundle modelFileBundle) {
+  public class XtdModelReader : IModelReader<XtdModelFileBundle> {
+    public IModel ReadModel(XtdModelFileBundle modelFileBundle) {
       var xtdFile = modelFileBundle.XtdFile;
       var xttFile = modelFileBundle.XttFile;
 

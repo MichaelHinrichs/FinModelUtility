@@ -7,7 +7,6 @@ using System.Numerics;
 using fin;
 using fin.io;
 using fin.log;
-using fin.math;
 using fin.math.matrix.four;
 using fin.model;
 using fin.model.impl;
@@ -27,7 +26,7 @@ using j3d.schema.bti;
 
 using schema.binary;
 
-namespace j3d.exporter {
+namespace j3d.api {
   using MkdsNode = MA.Node;
   using GxPrimitiveType = BMD.SHP1Section.Batch.Packet.Primitive.GXPrimitive;
 
@@ -46,11 +45,11 @@ namespace j3d.exporter {
     public float FrameRate { get; set; } = 30;
   }
 
-  public class BmdModelLoader : IModelLoader<BmdModelFileBundle> {
+  public class BmdModelReader : IModelReader<BmdModelFileBundle> {
     private const bool STRICT = false;
 
-    public IModel LoadModel(BmdModelFileBundle modelFileBundle) {
-      var logger = Logging.Create<BmdModelLoader>();
+    public IModel ReadModel(BmdModelFileBundle modelFileBundle) {
+      var logger = Logging.Create<BmdModelReader>();
 
       var bmd = new BMD(modelFileBundle.BmdFile.ReadAllBytes());
 
@@ -332,7 +331,7 @@ namespace j3d.exporter {
                     }
 
                     var skinToBoneMatrix =
-                        BmdModelLoader.ConvertSchemaToFin_(
+                        BmdModelReader.ConvertSchemaToFin_(
                             bmd.EVP1.InverseBindMatrices[jointIndex]);
 
                     var bone = jointsAndBones[jointIndex].Item2;
