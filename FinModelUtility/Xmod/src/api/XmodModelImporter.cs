@@ -1,6 +1,8 @@
 ﻿using fin.io;
 using fin.model;
 using fin.model.impl;
+using fin.model.io;
+using fin.model.io.importer;
 
 using schema.text;
 
@@ -15,8 +17,8 @@ namespace xmod.api {
     public required IFileHierarchyFile XmodFile { get; init; }
   }
 
-  public class XmodModelReader : IModelReader<XmodModelFileBundle> {
-    public IModel ReadModel(XmodModelFileBundle modelFileBundle) {
+  public class XmodModelImporter : IModelImporter<XmodModelFileBundle> {
+    public IModel ImportModel(XmodModelFileBundle modelFileBundle) {
       using var tr =
           new FinTextReader(modelFileBundle.XmodFile.OpenRead());
 

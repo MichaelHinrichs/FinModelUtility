@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
 using fin.io;
-using fin.model;
+using fin.model.io;
 using fin.util.enumerables;
 
 namespace cmb.api {

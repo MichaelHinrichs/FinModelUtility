@@ -1,5 +1,6 @@
 ﻿using fin.io;
 using fin.model;
+using fin.model.io.importer;
 
 using HaloWarsTools;
 
@@ -20,8 +21,8 @@ namespace hw.api {
     public bool ForceGarbageCollection => true;
   }
 
-  public class XtdModelReader : IModelReader<XtdModelFileBundle> {
-    public IModel ReadModel(XtdModelFileBundle modelFileBundle) {
+  public class XtdModelImporter : IModelImporter<XtdModelFileBundle> {
+    public IModel ImportModel(XtdModelFileBundle modelFileBundle) {
       var xtdFile = modelFileBundle.XtdFile;
       var xttFile = modelFileBundle.XttFile;
 

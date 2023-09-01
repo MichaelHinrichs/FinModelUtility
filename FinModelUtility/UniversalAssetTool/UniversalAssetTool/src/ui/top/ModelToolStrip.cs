@@ -1,6 +1,7 @@
 ﻿using fin.data.queue;
 using fin.io.bundles;
 using fin.model;
+using fin.model.io;
 using fin.util.progress;
 
 using MathNet.Numerics;
@@ -159,7 +160,7 @@ namespace uni.ui.top {
 
         Task.Run(() => {
           ExtractorUtil.ExtractAll(modelFileBundles,
-                                   new GlobalModelReader(),
+                                   new GlobalModelImporter(),
                                    this.Progress,
                                    this.CancellationToken,
                                    Config.Instance.ExporterSettings.ExportedFormats,

@@ -10,6 +10,8 @@ using fin.log;
 using fin.math.matrix.four;
 using fin.model;
 using fin.model.impl;
+using fin.model.io;
+using fin.model.io.importer;
 using fin.schema.matrix;
 using fin.util.asserts;
 using fin.util.enumerables;
@@ -46,11 +48,11 @@ namespace j3d.api {
     public float FrameRate { get; set; } = 30;
   }
 
-  public class BmdModelReader : IModelReader<BmdModelFileBundle> {
+  public class BmdModelImporter : IModelImporter<BmdModelFileBundle> {
     private const bool STRICT = false;
 
-    public IModel ReadModel(BmdModelFileBundle modelFileBundle) {
-      var logger = Logging.Create<BmdModelReader>();
+    public IModel ImportModel(BmdModelFileBundle modelFileBundle) {
+      var logger = Logging.Create<BmdModelImporter>();
 
       var bmd = new BMD(modelFileBundle.BmdFile.ReadAllBytes());
 
@@ -332,7 +334,7 @@ namespace j3d.api {
                     }
 
                     var skinToBoneMatrix =
-                        BmdModelReader.ConvertSchemaToFin_(
+                        BmdModelImporter.ConvertSchemaToFin_(
                             bmd.EVP1.InverseBindMatrices[jointIndex]);
 
                     var bone = jointsAndBones[jointIndex].Item2;

@@ -6,6 +6,7 @@ using fin.io;
 using fin.math.rotations;
 using fin.model;
 using fin.model.impl;
+using fin.model.io.importer;
 using fin.util.enumerables;
 
 using modl.schema.anim;
@@ -33,15 +34,15 @@ namespace modl.api {
     public required IList<IFileHierarchyFile>? AnimFiles { get; init; }
   }
 
-  public class ModlModelReader : IAsyncModelReader<ModlModelFileBundle> {
-    public Task<IModel> ReadModelAsync(ModlModelFileBundle modelFileBundle)
-      => this.ReadModelAsync(modelFileBundle.ModlFile.Impl,
+  public class ModlModelImporter : IAsyncModelImporter<ModlModelFileBundle> {
+    public Task<IModel> ImportModelAsync(ModlModelFileBundle modelFileBundle)
+      => this.ImportModelAsync(modelFileBundle.ModlFile.Impl,
                              modelFileBundle.AnimFiles
                                             ?.Select(file => file.Impl)
                                             .ToArray(),
                              modelFileBundle.GameVersion);
 
-    public async Task<IModel> ReadModelAsync(
+    public async Task<IModel> ImportModelAsync(
         IReadOnlySystemFile modlFile,
         IList<IReadOnlySystemFile>? animFiles,
         GameVersion gameVersion,

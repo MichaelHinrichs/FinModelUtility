@@ -8,6 +8,7 @@ using fin.io;
 using fin.io.bundles;
 using fin.math.rotations;
 using fin.model;
+using fin.model.io;
 using fin.scene;
 using fin.util.enumerables;
 using fin.util.time;
@@ -107,13 +108,13 @@ public partial class UniversalAssetToolForm : Form {
 
   private void SelectScene_(IFileTreeNode<IFileBundle> fileNode,
                             ISceneFileBundle sceneFileBundle) {
-    var scene = new GlobalSceneReader().ReadScene(sceneFileBundle);
+    var scene = new GlobalSceneImporter().ImportScene(sceneFileBundle);
     this.UpdateScene_(fileNode, sceneFileBundle, scene);
   }
 
   private void SelectModel_(IFileTreeNode<IFileBundle> fileNode,
                             IModelFileBundle modelFileBundle) {
-    var model = new GlobalModelReader().ReadModel(modelFileBundle);
+    var model = new GlobalModelImporter().ImportModel(modelFileBundle);
 
     var scene = new SceneImpl();
     var area = scene.AddArea();

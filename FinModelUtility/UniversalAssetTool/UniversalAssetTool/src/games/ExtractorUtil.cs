@@ -1,12 +1,14 @@
 ﻿using Assimp;
 
-using fin.model.io.exporter;
 using fin.model.io.exporter.assimp;
-using fin.model.io.exporter.assimp.indirect;
 using fin.io;
 using fin.io.bundles;
 using fin.log;
 using fin.model;
+using fin.model.io;
+using fin.model.io.exporter;
+using fin.model.io.exporter.assimp.indirect;
+using fin.model.io.importer;
 using fin.util.asserts;
 using fin.util.linq;
 
@@ -150,7 +152,7 @@ namespace uni.games {
 
     public static void ExtractAll<T>(
         IFileBundleGatherer<T> gatherer,
-        IModelReader<T> reader)
+        IModelImporter<T> reader)
         where T : IModelFileBundle {
       ExtractorUtil.ExtractAll(gatherer.GatherFileBundles(true),
                                reader,
@@ -160,7 +162,7 @@ namespace uni.games {
 
     public static void ExtractAll<T>(
         IEnumerable<T> modelFileBundles,
-        IModelReader<T> reader,
+        IModelImporter<T> reader,
         IReadOnlyList<string> extensions,
         bool overwriteExistingFiles)
         where T : IModelFileBundle {
@@ -174,7 +176,7 @@ namespace uni.games {
 
     public static void ExtractAll<T>(
         IFileBundleGatherer<IFileBundle> gatherer,
-        IModelReader<T> reader)
+        IModelImporter<T> reader)
         where T : IModelFileBundle {
       ExtractorUtil.ExtractAll(gatherer.GatherFileBundles(true),
                                reader,
@@ -184,7 +186,7 @@ namespace uni.games {
 
     public static void ExtractAll<T>(
         IEnumerable<IFileBundle> fileBundles,
-        IModelReader<T> reader,
+        IModelImporter<T> reader,
         IReadOnlyList<string> extensions,
         bool overwriteExistingFiles)
         where T : IModelFileBundle {
@@ -201,7 +203,7 @@ namespace uni.games {
 
     public static void ExtractAll<T>(
         IEnumerable<IFileBundle> fileBundles,
-        IModelReader<T> reader,
+        IModelImporter<T> reader,
         IProgress<(float, T?)> progress,
         CancellationTokenSource cancellationTokenSource,
         IReadOnlyList<string> extensions,
@@ -226,12 +228,12 @@ namespace uni.games {
     }
 
     public static void Extract<T>(T modelFileBundle,
-                                  IModelReader<T> reader,
+                                  IModelImporter<T> reader,
                                   IReadOnlyList<string> extensions,
                                   bool overwriteExistingFile)
         where T : IModelFileBundle {
       ExtractorUtil.Extract(modelFileBundle,
-                            () => reader.ReadModel(modelFileBundle),
+                            () => reader.ImportModel(modelFileBundle),
                             extensions,
                             overwriteExistingFile);
     }

@@ -19,6 +19,7 @@ using fin.io;
 using fin.math;
 using fin.model;
 using fin.model.impl;
+using fin.model.io.importer;
 using fin.util.asserts;
 
 using Microsoft.Toolkit.HighPerformance.Helpers;
@@ -28,10 +29,10 @@ using schema.binary;
 using Version = cmb.schema.cmb.Version;
 
 namespace cmb.api {
-  public class CmbModelReader : IModelReader<CmbModelFileBundle> {
+  public class CmbModelImporter : IModelImporter<CmbModelFileBundle> {
     // TODO: Split these out into separate classes
     // TODO: Reading from the file here is gross
-    public IModel ReadModel(CmbModelFileBundle modelFileBundle) {
+    public IModel ImportModel(CmbModelFileBundle modelFileBundle) {
       var cmbFile = modelFileBundle.CmbFile;
       var csabFiles = modelFileBundle.CsabFiles;
       var ctxbFiles = modelFileBundle.CtxbFiles;

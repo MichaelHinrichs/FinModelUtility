@@ -102,7 +102,7 @@ namespace modl.schema.xml {
                              float terrainLightScale) {
       sceneArea.AddObject()
                .AddSceneModel(
-                   new OutModelReader().ReadModel(
+                   new OutModelImporter().ImportModel(
                        outFile,
                        gameVersion,
                        out bwTerrain,
@@ -137,7 +137,7 @@ namespace modl.schema.xml {
                                 animFile.NameWithoutExtension.StartsWith("FG"))
                         .ToArray();
 
-      var modlReader = new ModlModelReader();
+      var modlReader = new ModlModelImporter();
 
       var modelMap = new ConcurrentDictionary<string, IModel>();
       var task = Parallel.ForEachAsync(
@@ -165,7 +165,7 @@ namespace modl.schema.xml {
             }
 
             modelMap[modelId] =
-                await modlReader.ReadModelAsync(
+                await modlReader.ImportModelAsync(
                     modelFile,
                     animFiles,
                     gameVersion,

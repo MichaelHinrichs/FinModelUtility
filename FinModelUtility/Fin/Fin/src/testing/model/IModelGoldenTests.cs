@@ -1,6 +1,7 @@
 ﻿using fin.io;
 using fin.io.bundles;
-using fin.model;
+using fin.model.io;
+using fin.model.io.importer;
 
 namespace fin.testing.model {
   public abstract class BGoldenTests<TFileBundle>
@@ -9,13 +10,13 @@ namespace fin.testing.model {
         IFileHierarchyDirectory directory);
   }
 
-  public abstract class BModelGoldenTests<TModelFileBundle, TModelReader>
+  public abstract class BModelGoldenTests<TModelFileBundle, TModelImporter>
       : BGoldenTests<TModelFileBundle>
       where TModelFileBundle : IModelFileBundle
-      where TModelReader : IModelReader<TModelFileBundle>, new() {
+      where TModelImporter : IModelImporter<TModelFileBundle>, new() {
     public void AssertGolden(IFileHierarchyDirectory goldenDirectory)
       => ModelGoldenAssert.AssertGolden(goldenDirectory,
-                                        new TModelReader(),
+                                        new TModelImporter(),
                                         this.GetFileBundleFromDirectory);
   }
 }

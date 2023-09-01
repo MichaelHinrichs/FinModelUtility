@@ -3,6 +3,8 @@
 using fin.io;
 using fin.model;
 using fin.model.impl;
+using fin.model.io;
+using fin.model.io.importer;
 
 using schema.binary;
 
@@ -14,8 +16,8 @@ namespace dat.api {
     public required IFileHierarchyFile DatFile { get; init; }
   }
 
-  public class DatModelReader : IModelReader<DatModelFileBundle> {
-    public IModel ReadModel(DatModelFileBundle modelFileBundle) {
+  public class DatModelImporter : IModelImporter<DatModelFileBundle> {
+    public IModel ImportModel(DatModelFileBundle modelFileBundle) {
       var dat = modelFileBundle.DatFile.ReadNew<Dat>(Endianness.BigEndian);
 
       var finModel = new ModelImpl();

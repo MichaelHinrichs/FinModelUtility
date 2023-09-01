@@ -4,6 +4,6 @@ namespace uni.games.battalion_wars_2 {
   public class BattalionWars2Extractor : IExtractor {
     public void ExtractAll()
       => ExtractorUtil.ExtractAll(new BattalionWars2FileGatherer(),
-                                  new BattalionWarsModelReader());
+                                  new BattalionWarsModelImporter());
   }
 }

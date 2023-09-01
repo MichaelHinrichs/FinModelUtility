@@ -7,6 +7,8 @@ using fin.image;
 using fin.io;
 using fin.model;
 using fin.model.impl;
+using fin.model.io;
+using fin.model.io.importer;
 using fin.util.asserts;
 using fin.util.enumerables;
 
@@ -31,7 +33,7 @@ namespace mod.cli {
     public required IFileHierarchyFile? AnmFile { get; init; }
   }
 
-  public class ModModelReader : IModelReader<ModModelFileBundle> {
+  public class ModModelImporter : IModelImporter<ModModelFileBundle> {
     /// <summary>
     ///   GX's active matrices. These are deferred to when a vertex matrix is
     ///   -1, which corresponds to using an active matrix from a previous
@@ -53,7 +55,7 @@ namespace mod.cli {
         _ => GX_WRAP_TAG.GX_REPEAT,
       };
 
-    public IModel ReadModel(ModModelFileBundle modelFileBundle) {
+    public IModel ImportModel(ModModelFileBundle modelFileBundle) {
       var mod =
           modelFileBundle.ModFile.ReadNew<Mod>(Endianness.BigEndian);
       var anm =
@@ -107,9 +109,9 @@ namespace mod.cli {
         finTexture.Name = $"texattr {i}";
 
         finTexture.WrapModeU =
-            ModModelReader.ConvertGcnToFin(textureAttr.TilingModeS);
+            ModModelImporter.ConvertGcnToFin(textureAttr.TilingModeS);
         finTexture.WrapModeV =
-            ModModelReader.ConvertGcnToFin(textureAttr.TilingModeT);
+            ModModelImporter.ConvertGcnToFin(textureAttr.TilingModeT);
         // TODO: Set attributes
 
         gxTextures[i] = new GxTexture2d {
@@ -337,15 +339,15 @@ namespace mod.cli {
                 }
 
                 if (attr == GxAttribute.POS) {
-                  positionIndices.Add(ModModelReader.Read_(er, format));
+                  positionIndices.Add(ModModelImporter.Read_(er, format));
                 } else if (attr == GxAttribute.NRM) {
-                  normalIndices.Add(ModModelReader.Read_(er, format));
+                  normalIndices.Add(ModModelImporter.Read_(er, format));
                 } else if (attr == GxAttribute.CLR0) {
-                  color0Indices.Add(ModModelReader.Read_(er, format));
+                  color0Indices.Add(ModModelImporter.Read_(er, format));
                 } else if (attr is >= GxAttribute.TEX0
                                    and <= GxAttribute.TEX7) {
                   texCoordIndices[attr - GxAttribute.TEX0]
-                      .Add(ModModelReader.Read_(er, format));
+                      .Add(ModModelImporter.Read_(er, format));
                 } else if (format == GxAttributeType.INDEX_16) {
                   er.ReadUInt16();
                 } else {

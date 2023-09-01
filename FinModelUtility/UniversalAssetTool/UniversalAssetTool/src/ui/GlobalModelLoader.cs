@@ -3,6 +3,8 @@
 using dat.api;
 
 using fin.model;
+using fin.model.io;
+using fin.model.io.importer;
 
 using glo.api;
 
@@ -23,33 +25,33 @@ using visceral.api;
 using xmod.api;
 
 namespace uni.ui {
-  public class GlobalModelReader : IModelReader<IModelFileBundle> {
-    public IModel ReadModel(IModelFileBundle modelFileBundle)
+  public class GlobalModelImporter : IModelImporter<IModelFileBundle> {
+    public IModel ImportModel(IModelFileBundle modelFileBundle)
       => modelFileBundle switch {
           IBattalionWarsModelFileBundle battalionWarsModelFileBundle
-              => new BattalionWarsModelReader().ReadModel(battalionWarsModelFileBundle),
+              => new BattalionWarsModelImporter().ImportModel(battalionWarsModelFileBundle),
           BmdModelFileBundle bmdModelFileBundle
-              => new BmdModelReader().ReadModel(bmdModelFileBundle),
+              => new BmdModelImporter().ImportModel(bmdModelFileBundle),
           CmbModelFileBundle cmbModelFileBundle
-              => new CmbModelReader().ReadModel(cmbModelFileBundle),
+              => new CmbModelImporter().ImportModel(cmbModelFileBundle),
           DatModelFileBundle datModelFileBundle
-              => new DatModelReader().ReadModel(datModelFileBundle),
+              => new DatModelImporter().ImportModel(datModelFileBundle),
           GeoModelFileBundle geoModelFileBundle
-              => new GeoModelReader().ReadModel(geoModelFileBundle),
+              => new GeoModelImporter().ImportModel(geoModelFileBundle),
           GloModelFileBundle gloModelFileBundle
-              => new GloModelReader().ReadModel(gloModelFileBundle),
+              => new GloModelImporter().ImportModel(gloModelFileBundle),
           IHaloWarsModelFileBundle haloWarsModelFileBundle 
-              => new HaloWarsModelReader().ReadModel(haloWarsModelFileBundle),
+              => new HaloWarsModelImporter().ImportModel(haloWarsModelFileBundle),
           ModModelFileBundle modModelFileBundle
-              => new ModModelReader().ReadModel(modModelFileBundle),
+              => new ModModelImporter().ImportModel(modModelFileBundle),
           OotModelFileBundle ootModelFileBundle
-              => new OotModelReader().ReadModel(ootModelFileBundle),
+              => new OotModelImporter().ImportModel(ootModelFileBundle),
           PedModelFileBundle pedModelFileBundle
-              => new PedModelReader().ReadModel(pedModelFileBundle),
+              => new PedModelImporter().ImportModel(pedModelFileBundle),
           XcModelFileBundle xcModelFileBundle
-              => new XcModelReader().ReadModel(xcModelFileBundle),
+              => new XcModelImporter().ImportModel(xcModelFileBundle),
           XmodModelFileBundle xmodModelFileBundle
-              => new XmodModelReader().ReadModel(xmodModelFileBundle),
+              => new XmodModelImporter().ImportModel(xmodModelFileBundle),
           _ => throw new ArgumentOutOfRangeException(nameof(modelFileBundle))
       };
   }

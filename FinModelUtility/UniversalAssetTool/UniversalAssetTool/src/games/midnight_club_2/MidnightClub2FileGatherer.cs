@@ -1,6 +1,6 @@
 ﻿using fin.io;
 using fin.io.bundles;
-using fin.model;
+using fin.model.io;
 
 using uni.platforms;
 using uni.util.io;

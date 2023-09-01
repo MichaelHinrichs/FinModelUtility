@@ -1,6 +1,6 @@
 ﻿using fin.audio;
 using fin.io.bundles;
-using fin.model;
+using fin.model.io;
 using fin.scene;
 
 namespace uni.ui.common {

@@ -12,6 +12,7 @@ using f3dzex2.model;
 
 using fin.data.queue;
 using fin.model;
+using fin.model.io.importer;
 
 using schema.binary;
 
@@ -27,8 +28,8 @@ namespace UoT.api {
     LINK_ANIMETION = 7,
   }
 
-  public class OotModelReader : IModelReader<OotModelFileBundle> {
-    public IModel ReadModel(OotModelFileBundle modelFileBundle) {
+  public class OotModelImporter : IModelImporter<OotModelFileBundle> {
+    public IModel ImportModel(OotModelFileBundle modelFileBundle) {
       var zFile = modelFileBundle.ZFile;
       var isLink = zFile.FileName is "object_link_boy"
                                      or "object_link_child"

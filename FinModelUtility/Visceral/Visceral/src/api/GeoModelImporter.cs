@@ -1,11 +1,12 @@
 ﻿using fin.data;
 using fin.data.queue;
 using fin.io;
-using fin.math;
 using fin.math.matrix.four;
 using fin.math.rotations;
 using fin.model;
 using fin.model.impl;
+using fin.model.io;
+using fin.model.io.importer;
 using fin.schema.matrix;
 using fin.util.enumerables;
 
@@ -36,8 +37,8 @@ namespace visceral.api {
     public IReadOnlyList<Tg4ImageFileBundle>? Tg4ImageFileBundles { get; init; }
   }
 
-  public class GeoModelReader : IModelReader<GeoModelFileBundle> {
-    public IModel ReadModel(GeoModelFileBundle modelFileBundle) {
+  public class GeoModelImporter : IModelImporter<GeoModelFileBundle> {
+    public IModel ImportModel(GeoModelFileBundle modelFileBundle) {
       var finModel = new ModelImpl();
 
       // Builds textures

@@ -10,9 +10,9 @@ using fin.model;
 namespace fin.scene {
   public interface ISceneFileBundle : IFileBundle { }
 
-  public interface ISceneReader<in TSceneFileBundle>
+  public interface ISceneImporter<in TSceneFileBundle>
       where TSceneFileBundle : ISceneFileBundle {
-    IScene ReadScene(TSceneFileBundle sceneFileBundle);
+    IScene ImportScene(TSceneFileBundle sceneFileBundle);
   }
 
   /// <summary>

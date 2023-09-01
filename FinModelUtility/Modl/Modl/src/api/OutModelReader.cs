@@ -10,6 +10,7 @@ using fin.io;
 using fin.math;
 using fin.model;
 using fin.model.impl;
+using fin.model.io.importer;
 using fin.util.asserts;
 using fin.util.enumerables;
 using fin.util.linq;
@@ -35,19 +36,19 @@ namespace modl.api {
     } = null;
   }
 
-  public class OutModelReader : IModelReader<OutModelFileBundle> {
-    public IModel ReadModel(OutModelFileBundle modelFileBundle)
+  public class OutModelImporter : IModelImporter<OutModelFileBundle> {
+    public IModel ImportModel(OutModelFileBundle modelFileBundle)
       => modelFileBundle.TextureDirectories != null
-          ? this.ReadModel(modelFileBundle.OutFile,
+          ? this.ImportModel(modelFileBundle.OutFile,
                            modelFileBundle.TextureDirectories
                                           .Select(dir => dir.Impl),
                            modelFileBundle.GameVersion,
                            out _)
-          : this.ReadModel(modelFileBundle.OutFile.Impl,
+          : this.ImportModel(modelFileBundle.OutFile.Impl,
                            modelFileBundle.GameVersion,
                            out _);
 
-    public IModel ReadModel(IReadOnlySystemFile outFile,
+    public IModel ImportModel(IReadOnlySystemFile outFile,
                             GameVersion gameVersion,
                             out IBwTerrain bwTerrain,
                             float terrainLightScale = 1) {
@@ -60,14 +61,14 @@ namespace modl.api {
                      dir => dir.Name == outName + "_Level");
       var allMapsDirectory = outDirectory.AssertGetParent();
 
-      return this.ReadModel(outFile,
+      return this.ImportModel(outFile,
                             outDirectory.Yield().Concat(allMapsDirectory),
                             gameVersion,
                             out bwTerrain,
                             terrainLightScale);
     }
 
-    public IModel ReadModel(IReadOnlyGenericFile outFile,
+    public IModel ImportModel(IReadOnlyGenericFile outFile,
                             IEnumerable<IReadOnlySystemDirectory>
                                 textureDirectoriesEnumerable,
                             GameVersion gameVersion,

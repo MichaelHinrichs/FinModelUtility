@@ -9,7 +9,8 @@ using CommunityToolkit.HighPerformance;
 using fin.model.io.exporter;
 using fin.model.io.exporter.assimp.indirect;
 using fin.io;
-using fin.model;
+using fin.model.io;
+using fin.model.io.importer;
 using fin.util.asserts;
 using fin.util.strings;
 
@@ -80,14 +81,14 @@ namespace fin.testing.model {
     /// </summary>
     public static void AssertExportGoldens<TModelBundle>(
         ISystemDirectory rootGoldenDirectory,
-        IModelReader<TModelBundle> modelReader,
+        IModelImporter<TModelBundle> modelImporter,
         Func<IFileHierarchyDirectory, TModelBundle>
             gatherModelBundleFromInputDirectory)
         where TModelBundle : IModelFileBundle {
       foreach (var goldenSubdir in
                GetGoldenDirectories(rootGoldenDirectory)) {
         ModelGoldenAssert.AssertGolden(goldenSubdir,
-                                       modelReader,
+                                       modelImporter,
                                        gatherModelBundleFromInputDirectory);
       }
     }
@@ -96,7 +97,7 @@ namespace fin.testing.model {
 
     public static void AssertGolden<TModelBundle>(
         IFileHierarchyDirectory goldenSubdir,
-        IModelReader<TModelBundle> modelReader,
+        IModelImporter<TModelBundle> modelImporter,
         Func<IFileHierarchyDirectory, TModelBundle>
             gatherModelBundleFromInputDirectory)
         where TModelBundle : IModelFileBundle {
@@ -114,7 +115,7 @@ namespace fin.testing.model {
       var targetDirectory =
           hasGoldenExport ? tmpDirectory : outputDirectory.Impl;
 
-      var model = modelReader.ReadModel(modelBundle);
+      var model = modelImporter.ImportModel(modelBundle);
       new AssimpIndirectModelExporter() {
           LowLevel = modelBundle.UseLowLevelExporter,
           ForceGarbageCollection = modelBundle.ForceGarbageCollection,

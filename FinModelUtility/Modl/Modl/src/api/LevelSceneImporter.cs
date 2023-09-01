@@ -12,8 +12,8 @@ namespace modl.api {
     public required IFileHierarchyFile MainXmlFile { get; init; }
   }
 
-  public class BwSceneReader : ISceneReader<BwSceneFileBundle> {
-    public IScene ReadScene(BwSceneFileBundle sceneFileBundle)
+  public class BwSceneImporter : ISceneImporter<BwSceneFileBundle> {
+    public IScene ImportScene(BwSceneFileBundle sceneFileBundle)
       => new LevelXmlParser().Parse(sceneFileBundle.MainXmlFile.Impl,
                                     sceneFileBundle.GameVersion);
   }

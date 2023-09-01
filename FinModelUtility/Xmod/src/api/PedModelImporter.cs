@@ -1,5 +1,7 @@
 ﻿using fin.io;
 using fin.model;
+using fin.model.io;
+using fin.model.io.importer;
 
 namespace xmod.api {
   public class PedModelFileBundle : IModelFileBundle {
@@ -8,8 +10,8 @@ namespace xmod.api {
     public required IFileHierarchyFile PedFile { get; init; }
   }
 
-  public class PedModelReader : IModelReader<PedModelFileBundle> {
-    public IModel ReadModel(PedModelFileBundle modelFileBundle) {
+  public class PedModelImporter : IModelImporter<PedModelFileBundle> {
+    public IModel ImportModel(PedModelFileBundle modelFileBundle) {
       throw new NotImplementedException();
     }
   }

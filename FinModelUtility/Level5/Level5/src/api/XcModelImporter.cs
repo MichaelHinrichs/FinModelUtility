@@ -5,6 +5,8 @@ using fin.io;
 using fin.math.rotations;
 using fin.model;
 using fin.model.impl;
+using fin.model.io;
+using fin.model.io.importer;
 using fin.util.enumerables;
 
 using level5.schema;
@@ -28,8 +30,8 @@ namespace level5.api {
     public IList<IFileHierarchyFile>? AnimationXcFiles { get; set; }
   }
 
-  public class XcModelReader : IModelReader<XcModelFileBundle> {
-    public IModel ReadModel(XcModelFileBundle modelFileBundle) {
+  public class XcModelImporter : IModelImporter<XcModelFileBundle> {
+    public IModel ImportModel(XcModelFileBundle modelFileBundle) {
       var endianness = Endianness.LittleEndian;
 
       var modelXcFile = modelFileBundle.ModelXcFile;
