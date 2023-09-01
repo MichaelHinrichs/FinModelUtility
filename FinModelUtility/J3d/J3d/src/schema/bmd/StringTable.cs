@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 
+using fin.schema;
 using fin.schema.sequences;
 using fin.util.enumerables;
 
@@ -28,6 +29,7 @@ namespace j3d.schema.bmd {
 
   [BinarySchema]
   public partial class StringTableEntry : IBinaryConvertible {
+    [Unknown]
     public ushort unknown;
     private ushort offset;
   }

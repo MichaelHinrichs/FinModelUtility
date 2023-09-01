@@ -1,4 +1,6 @@
-﻿using gx;
+﻿using fin.schema;
+
+using gx;
 
 using schema.binary;
 
@@ -41,10 +43,15 @@ namespace j3d.schema.bmd.mat3 {
     public short[] TevStageInfoIndexes { get; } = new short[16];
     public short[] TevSwapModeInfo { get; } = new short[16];
     public short[] TevSwapModeTable { get; } = new short[4];
+
+    [Unknown]
     public ushort[] Unknown2 { get; } = new ushort[12];
+
     public short FogInfoIndex;
     public short AlphaCompareIndex;
     public short BlendModeIndex;
+
+    [Unknown]
     public short UnknownIndex;
   }
 }

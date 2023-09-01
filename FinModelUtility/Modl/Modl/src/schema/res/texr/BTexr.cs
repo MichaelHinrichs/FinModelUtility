@@ -83,7 +83,7 @@ namespace modl.schema.res.texr {
 
       return TiledImageReader
              .New((int) width, (int) height, new CmprTileReader())
-             .Read(er);
+             .ReadImage(er);
     }
 
     protected IImage ReadP8_(IEndianBinaryReader er, uint width, uint height) {
@@ -101,7 +101,7 @@ namespace modl.schema.res.texr {
                             8,
                             4,
                             new L8PixelReader())
-                       .Read(er);
+                       .ReadImage(er);
 
       return new IndexedImage8(PixelFormat.P8, indexImage, palette);
     }
@@ -131,7 +131,7 @@ namespace modl.schema.res.texr {
                             8,
                             8,
                             new L4PixelReader())
-                       .Read(er);
+                       .ReadImage(er);
 
       return new IndexedImage8(PixelFormat.P4, indexImage, palette);
     }
@@ -140,28 +140,28 @@ namespace modl.schema.res.texr {
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", 2 * width * height);
       return TiledImageReader
              .New((int) width, (int) height, 4, 4, new La16PixelReader())
-             .Read(er);
+             .ReadImage(er);
     }
 
     protected IImage ReadIA4_(IEndianBinaryReader er, uint width, uint height) {
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height);
       return TiledImageReader
              .New((int) width, (int) height, 8, 4, new La8PixelReader())
-             .Read(er);
+             .ReadImage(er);
     }
 
     protected IImage ReadI8_(IEndianBinaryReader er, uint width, uint height) {
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height);
       return TiledImageReader
              .New((int) width, (int) height, 8, 4, new L8PixelReader())
-             .Read(er.ReadBytes(width * height));
+             .ReadImage(er.ReadBytes(width * height));
     }
 
     protected IImage ReadI4_(IEndianBinaryReader er, uint width, uint height) {
       SectionHeaderUtil.AssertNameAndSize(er, "MIP ", width * height / 2);
       return TiledImageReader
              .New((int) width, (int) height, 8, 8, new L8PixelReader())
-             .Read(er);
+             .ReadImage(er);
     }
   }
 }

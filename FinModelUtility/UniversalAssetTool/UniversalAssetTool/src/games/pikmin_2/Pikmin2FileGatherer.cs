@@ -3,7 +3,7 @@
 using fin.io;
 using fin.io.bundles;
 
-using j3d.exporter;
+using j3d.api;
 
 using uni.platforms.gcn;
 

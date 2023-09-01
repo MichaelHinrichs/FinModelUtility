@@ -7,6 +7,7 @@ using System.Text;
 using f3dzex2.io;
 
 using fin.io;
+using fin.schema;
 
 using schema.binary;
 
@@ -125,6 +126,7 @@ namespace UoT.memory {
       return Instance = new ZSegments(objects, actorCode, scenes.ToArray(), others);
     }
 
+    [Unknown]
     private static IEnumerable<ZSegment> GetZSegments_(
         IEndianBinaryReader er,
         int segmentOffset,

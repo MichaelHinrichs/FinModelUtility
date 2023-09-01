@@ -1,4 +1,6 @@
-﻿using schema.binary;
+﻿using fin.schema;
+
+using schema.binary;
 using schema.binary.attributes;
 
 namespace sm64.schema {
@@ -9,6 +11,7 @@ namespace sm64.schema {
     public ushort PresetId { get; set; }
 
     public uint Behavior { get; set; }
+    [Unknown]
     public byte Unknown { get; set; }
     public byte ModelId { get; set; }
     public byte BehaviorParameter1 { get; set; }

@@ -1,4 +1,5 @@
-﻿using fin.schema.data;
+﻿using fin.schema;
+using fin.schema.data;
 
 using schema.binary;
 using schema.binary.attributes;
@@ -19,7 +20,10 @@ namespace j3d.schema.bmd.inf1 {
   public partial class Inf1Data : IBinaryConvertible {
     public ushort ScalingRule;
     private readonly ushort padding_ = ushort.MaxValue;
+
+    [Unknown]
     public uint Unknown2;
+
     public uint NrVertex;
 
     [WPointerTo(nameof(Entries))]

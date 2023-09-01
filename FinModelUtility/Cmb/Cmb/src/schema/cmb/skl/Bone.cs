@@ -1,4 +1,5 @@
 ﻿using fin.math;
+using fin.schema;
 using fin.schema.vector;
 
 using schema.binary;
@@ -32,6 +33,7 @@ namespace cmb.schema.cmb.skl {
     [Ignore]
     private bool HasUnk => CmbHeader.Version > Version.OCARINA_OF_TIME_3D;
 
+    [Unknown]
     [RIfBoolean(nameof(HasUnk))]
     public uint? unk0;
   }

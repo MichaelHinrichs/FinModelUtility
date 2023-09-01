@@ -3,6 +3,7 @@
 using fin.data.queue;
 using fin.io;
 using fin.model;
+using fin.schema;
 
 using schema.binary;
 
@@ -32,6 +33,7 @@ namespace visceral.api {
       COMMAND_7 = 0x7,
     }
 
+    [Unknown]
     public void ReadBnk(IModel model,
                         IReadOnlyGenericFile bnkFile,
                         IReadOnlyGenericFile? rcbFile,

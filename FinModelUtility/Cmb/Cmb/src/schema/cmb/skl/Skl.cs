@@ -1,4 +1,6 @@
-﻿using schema.binary;
+﻿using fin.schema;
+
+using schema.binary;
 using schema.binary.attributes;
 
 namespace cmb.schema.cmb.skl {
@@ -8,6 +10,7 @@ namespace cmb.schema.cmb.skl {
 
     // M-1: Only value found is "2", possibly "IsTranslateAnimationEnabled"
     // flag (I can't find a change in-game)
+    [Unknown]
     public uint unkFlags;
 
     [RSequenceLengthSource(nameof(boneCount_))]

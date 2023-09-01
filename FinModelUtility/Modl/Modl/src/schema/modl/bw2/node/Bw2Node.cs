@@ -1,4 +1,5 @@
-﻿using fin.schema.matrix;
+﻿using fin.schema;
+using fin.schema.matrix;
 using fin.util.asserts;
 
 using gx;
@@ -38,6 +39,7 @@ namespace modl.schema.modl.bw2.node {
       this.additionalDataCount_ = additionalDataCount;
     }
 
+    [Unknown]
     public void Read(IEndianBinaryReader er) {
       SectionHeaderUtil.AssertNameAndReadSize(
           er,

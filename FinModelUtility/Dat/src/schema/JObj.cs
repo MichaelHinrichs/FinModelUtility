@@ -1,4 +1,5 @@
-﻿using fin.schema.vector;
+﻿using fin.schema;
+using fin.schema.vector;
 
 using schema.binary;
 
@@ -60,6 +61,7 @@ namespace dat.schema {
     public Vector3f Scale { get; } = new();
     public Vector3f Position { get; } = new();
     public uint InverseBindMatrixOffset { get; set; }
+    [Unknown]
     public uint UnknownPointer { get; set; }
   }
 

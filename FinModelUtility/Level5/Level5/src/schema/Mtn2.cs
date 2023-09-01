@@ -2,6 +2,7 @@
 
 using fin.data;
 using fin.math.rotations;
+using fin.schema;
 using fin.util.asserts;
 
 using level5.decompression;
@@ -17,7 +18,10 @@ namespace level5.schema {
     public class AnimTrack {
       public int Type { get; set; }
       public int DataType { get; set; }
+
+      [Unknown]
       public int Unk { get; set; }
+
       public int DataCount { get; set; }
       public int Start { get; set; }
       public int End { get; set; }

@@ -1,4 +1,6 @@
-﻿using gx;
+﻿using fin.schema;
+
+using gx;
 
 using schema.binary;
 
@@ -9,7 +11,9 @@ namespace j3d.schema.bmd.vtx1 {
     public uint ComponentCount;
     public uint DataType;
     public byte DecimalPoint;
+    [Unknown]
     public byte Unknown1;
+    [Unknown]
     public ushort Unknown2;
   }
 }

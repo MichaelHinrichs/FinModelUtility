@@ -4,7 +4,7 @@ using fin.io;
 using fin.testing;
 using fin.testing.model;
 
-using j3d.exporter;
+using j3d.api;
 using j3d.GCN;
 
 namespace j3d {

@@ -20,6 +20,7 @@
  *    distribution.
  */
 
+using fin.schema;
 using fin.schema.data;
 
 using schema.binary;
@@ -46,7 +47,10 @@ namespace visceral.schema.str {
      * unknown00 = 2
      * unknown02 = 1537
      */
+    [Unknown]
     public ushort Unknown00 { get; set; }
+
+    [Unknown]
     public ushort Unknown02 { get; set; }
 
     [RSequenceUntilEndOfStream]

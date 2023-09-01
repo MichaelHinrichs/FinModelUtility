@@ -1,4 +1,5 @@
-﻿using fin.schema.data;
+﻿using fin.schema;
+using fin.schema.data;
 using fin.schema.matrix;
 using fin.util.asserts;
 using fin.util.strings;
@@ -33,6 +34,7 @@ namespace modl.schema.modl.bw1.node {
 
     public string GetIdentifier() => Bw1Node.GetIdentifier(this.WeirdId);
 
+    [Unknown]
     public void Read(IEndianBinaryReader er) {
       SectionHeaderUtil.AssertNameAndReadSize(er, "NODE", out var nodeSize);
       var nodeStart = er.Position;

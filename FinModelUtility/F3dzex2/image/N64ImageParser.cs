@@ -99,7 +99,7 @@ namespace f3dzex2.image {
               return PixelImageReader.New(width,
                                           height,
                                           new Argb1555PixelReader())
-                                     .Read(data, Endianness.BigEndian);
+                                     .ReadImage(data, Endianness.BigEndian);
             default:
               throw new ArgumentOutOfRangeException(
                   nameof(bitsPerTexel),
@@ -113,12 +113,12 @@ namespace f3dzex2.image {
               return PixelImageReader.New(width,
                                           height,
                                           new L4PixelReader())
-                                     .Read(data, Endianness.BigEndian);
+                                     .ReadImage(data, Endianness.BigEndian);
             case BitsPerTexel._8BPT:
               return PixelImageReader.New(width,
                                           height,
                                           new L8PixelReader())
-                                     .Read(data, Endianness.BigEndian);
+                                     .ReadImage(data, Endianness.BigEndian);
             default:
               throw new ArgumentOutOfRangeException(
                   nameof(bitsPerTexel),
@@ -132,12 +132,12 @@ namespace f3dzex2.image {
               return PixelImageReader.New(width,
                                           height,
                                           new La8PixelReader())
-                                     .Read(data, Endianness.BigEndian);
+                                     .ReadImage(data, Endianness.BigEndian);
             case BitsPerTexel._16BPT:
               return PixelImageReader.New(width,
                                           height,
                                           new La16PixelReader())
-                                     .Read(data, Endianness.BigEndian);
+                                     .ReadImage(data, Endianness.BigEndian);
             default:
               throw new ArgumentOutOfRangeException(
                   nameof(bitsPerTexel),
@@ -149,10 +149,10 @@ namespace f3dzex2.image {
           var indexedImage = bitsPerTexel switch {
               BitsPerTexel._4BPT => PixelImageReader
                                     .New(width, height, new L4PixelReader())
-                                    .Read(data, Endianness.BigEndian),
+                                    .ReadImage(data, Endianness.BigEndian),
               BitsPerTexel._8BPT => PixelImageReader
                                     .New(width, height, new L8PixelReader())
-                                    .Read(data, Endianness.BigEndian),
+                                    .ReadImage(data, Endianness.BigEndian),
               _ => throw new ArgumentOutOfRangeException(
                   nameof(bitsPerTexel),
                   bitsPerTexel,

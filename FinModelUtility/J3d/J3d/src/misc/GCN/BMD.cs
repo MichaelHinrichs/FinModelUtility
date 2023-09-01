@@ -15,6 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 
+using fin.schema;
 using fin.schema.matrix;
 using fin.util.asserts;
 using fin.util.color;
@@ -565,12 +566,18 @@ label_7:
         public bool[] HasColors = new bool[2];
         public bool[] HasTexCoords = new bool[8];
         public MatrixType MatrixType;
+
+        [Unknown]
         public byte Unknown1;
+
         public ushort NrPacket;
         public ushort AttribsOffset;
         public ushort FirstMatrixData;
         public ushort FirstPacketLocation;
+
+        [Unknown]
         public ushort Unknown2;
+
         public float BoundingSphereReadius;
         public float[] BoundingBoxMin;
         public float[] BoundingBoxMax;

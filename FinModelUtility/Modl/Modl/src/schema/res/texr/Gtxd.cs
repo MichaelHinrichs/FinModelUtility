@@ -1,5 +1,6 @@
 ﻿using fin.image;
 using fin.image.formats;
+using fin.schema;
 
 using schema.binary;
 
@@ -9,6 +10,7 @@ namespace modl.schema.res.texr {
   public class Gtxd : BTexr, ITexr {
     public IImage Image { get; private set; }
 
+    [Unknown]
     public unsafe void Read(IEndianBinaryReader er) {
       SectionHeaderUtil.AssertNameAndReadSize(er, "GTXD", out _);
       var textureName = er.ReadString(0x20);

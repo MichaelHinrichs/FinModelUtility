@@ -20,6 +20,8 @@
  *    distribution.
  */
 
+using fin.schema;
+
 using schema.binary;
 using schema.binary.attributes;
 
@@ -32,12 +34,16 @@ namespace visceral.schema.str.content {
 
     public uint Type { get; set; }
 
+    [Unknown]
     public uint Unknown0C { get; set; }
+
     public uint Type2 { get; set; }
 
+    [Unknown]
     public uint Unknown14 { get; set; }
 
     // seems to be some kind of hash of the file name
+    [Unknown]
     public uint Unknown18 { get; set; }
 
     public uint TotalSize { get; set; }

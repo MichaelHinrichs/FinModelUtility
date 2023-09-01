@@ -1,4 +1,6 @@
-﻿using schema.binary;
+﻿using fin.schema;
+
+using schema.binary;
 using schema.binary.attributes;
 
 namespace cmb.schema.cmb.sklm {
@@ -16,6 +18,7 @@ namespace cmb.schema.cmb.sklm {
         Version.LUIGIS_MANSION_3D  => 0x54,
     };
 
+    [Unknown]
     [RSequenceLengthSource(nameof(unknownLength_))]
     private byte[] unknown_;
   }

@@ -1,4 +1,5 @@
 ﻿using fin.data;
+using fin.schema;
 using fin.schema.color;
 
 using schema.binary;
@@ -15,6 +16,7 @@ namespace modl.schema.terrain {
     [StringLengthSource(16)]
     public string Texture2 { get; private set; }
 
+    [Unknown]
     public uint[] Unknown { get; } = new uint[4];
   }
 

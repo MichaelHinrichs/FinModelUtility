@@ -1,4 +1,5 @@
 ﻿using fin.image;
+using fin.schema;
 
 using schema.binary;
 
@@ -6,6 +7,7 @@ namespace modl.schema.res.texr {
   public class Text : BTexr, ITexr {
     public IImage Image { get; private set; }
 
+    [Unknown]
     public void Read(IEndianBinaryReader er) {
       SectionHeaderUtil.AssertNameAndReadSize(er, "TEXT", out _);
 

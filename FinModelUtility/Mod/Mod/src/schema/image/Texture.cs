@@ -1,4 +1,5 @@
 ﻿using fin.image;
+using fin.schema;
 
 using mod.image;
 
@@ -29,6 +30,7 @@ namespace mod.schema {
     public ushort height = 0;
     public TextureFormat format = 0;
 
+    [Unknown]
     public readonly uint[] unknowns = new uint[5];
 
     [SequenceLengthSource(SchemaIntegerType.UINT32)]
@@ -52,7 +54,11 @@ namespace mod.schema {
     private readonly ushort padding_ = 0;
     public TilingMode TilingModeS { get; set; }
     public TilingMode TilingModeT { get; set; }
+
+    [Unknown]
     public ushort unknown1 = 0;
+
+    [Unknown]
     public float unknown2 = 0;
   }
 }

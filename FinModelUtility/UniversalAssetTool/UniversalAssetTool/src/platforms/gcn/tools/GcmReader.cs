@@ -1,6 +1,7 @@
 ﻿using fin.data.stack;
 using fin.io;
 using fin.io.archive;
+using fin.schema;
 
 using schema.binary;
 using schema.binary.attributes;
@@ -105,6 +106,7 @@ namespace uni.platforms.gcn.tools {
       public byte AudioStreaming { get; set; }
       public byte StreamBufferSize { get; set; }
 
+      [Unknown]
       [SequenceLengthSource(0x12)]
       public byte[] Unused { get; set; }
 
@@ -117,6 +119,7 @@ namespace uni.platforms.gcn.tools {
       public uint DebugMonitorOffset { get; set; }
       public uint DebugLoadAddress { get; set; }
 
+      [Unknown]
       [SequenceLengthSource(0x18)]
       public byte[] Unused2 { get; set; }
 
@@ -129,7 +132,9 @@ namespace uni.platforms.gcn.tools {
       public uint UserPosition { get; set; }
       public uint UserLength { get; set; }
 
+      [Unknown]
       public uint Unknown { get; set; }
+      [Unknown]
       public uint Unused3 { get; set; }
     }
 

@@ -110,7 +110,7 @@ namespace level5.schema {
                                          8,
                                          new Etc1TileReader(
                                              imageFormat is _3dsImageTools.TexFormat.ETC1a4))
-                                    .Read(ImageData)
+                                    .ReadImage(ImageData)
                                     .AsBitmap();
       } else {
         tileSheet = _3dsImageTools.DecodeImage(

@@ -17,6 +17,7 @@ using fin.util.enumerables;
 using gx;
 
 using j3d._3D_Formats;
+using j3d.exporter;
 using j3d.GCN;
 using j3d.schema.bcx;
 using j3d.schema.bmd.inf1;

@@ -6,6 +6,7 @@ using f3dzex2.io;
 using f3dzex2.model;
 
 using fin.math;
+using fin.schema;
 
 using schema.binary;
 
@@ -23,6 +24,7 @@ namespace f3dzex2.displaylist.opcodes.f3dzex2 {
 
     public DisplayListType Type => DisplayListType.F3DZEX2;
 
+    [Unknown]
     private IOpcodeCommand ParseOpcodeCommand_(IReadOnlyN64Memory n64Memory,
                                                IDisplayListReader dlr,
                                                IEndianBinaryReader er,
@@ -63,6 +65,7 @@ namespace f3dzex2.displaylist.opcodes.f3dzex2 {
           var a0 = (byte) (er.ReadByte() >> 1);
           var b0 = (byte) (er.ReadByte() >> 1);
           var c0 = (byte) (er.ReadByte() >> 1);
+
           var unk0 = er.ReadByte();
           var a1 = (byte) (er.ReadByte() >> 1);
           var b1 = (byte) (er.ReadByte() >> 1);
@@ -109,7 +112,7 @@ namespace f3dzex2.displaylist.opcodes.f3dzex2 {
           er.AssertByte(2);
 
           var numMatrices = er.ReadUInt32() / 64;
-          return new PopMtxOpcodeCommand {NumberOfMatrices = numMatrices};
+          return new PopMtxOpcodeCommand { NumberOfMatrices = numMatrices };
         }
         case F3dzex2Opcode.G_SETCOMBINE: {
           //           aaaa cccc ceee gggi iiik kkkk 
@@ -236,8 +239,7 @@ namespace f3dzex2.displaylist.opcodes.f3dzex2 {
           var texels = texelsAndDxt >> 12;
 
           return new LoadBlockOpcodeCommand {
-              TileDescriptorIndex = tileDescriptor,
-              Texels = (ushort) texels,
+              TileDescriptorIndex = tileDescriptor, Texels = (ushort) texels,
           };
         }
         case F3dzex2Opcode.G_GEOMETRYMODE: {
@@ -251,8 +253,7 @@ namespace f3dzex2.displaylist.opcodes.f3dzex2 {
           var mtxParams = (byte) (er.ReadByte() ^ 0x01);
           var address = er.ReadUInt32();
           return new MtxOpcodeCommand {
-              Params = mtxParams,
-              RamAddress = address,
+              Params = mtxParams, RamAddress = address,
           };
         }
         case F3dzex2Opcode.G_LOADTLUT: {

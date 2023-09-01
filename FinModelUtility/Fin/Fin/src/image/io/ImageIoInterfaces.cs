@@ -47,16 +47,16 @@ namespace fin.image.io {
       where TImage : IImage {
     IImage IImageReader.ReadImage(byte[] srcBytes,
                              Endianness endianness = Endianness.LittleEndian)
-      => Read(srcBytes, endianness);
+      => this.ReadImage(srcBytes, endianness);
 
-    new TImage Read(byte[] srcBytes,
+    new TImage ReadImage(byte[] srcBytes,
                 Endianness endianness = Endianness.LittleEndian) {
       using var er = new EndianBinaryReader(srcBytes, endianness);
-      return Read(er);
+      return this.ReadImage(er);
     }
 
-    IImage IImageReader.ReadImage(IEndianBinaryReader er) => Read(er);
+    IImage IImageReader.ReadImage(IEndianBinaryReader er) => this.ReadImage(er);
 
-    new TImage Read(IEndianBinaryReader er);
+    new TImage ReadImage(IEndianBinaryReader er);
   }
 }

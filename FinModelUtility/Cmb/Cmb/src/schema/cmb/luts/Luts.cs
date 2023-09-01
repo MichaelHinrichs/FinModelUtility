@@ -1,4 +1,6 @@
-﻿using schema.binary;
+﻿using fin.schema;
+
+using schema.binary;
 using schema.binary.attributes;
 
 namespace cmb.schema.cmb.luts {
@@ -11,6 +13,7 @@ namespace cmb.schema.cmb.luts {
     [WLengthOfSequence(nameof(luts))]
     private uint lutSetCount_;
 
+    [Unknown]
     public uint unk;
 
     [RSequenceLengthSource(nameof(lutSetCount_))]

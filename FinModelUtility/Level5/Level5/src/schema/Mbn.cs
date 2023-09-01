@@ -1,4 +1,5 @@
-﻿using fin.schema.vector;
+﻿using fin.schema;
+using fin.schema.vector;
 
 using schema.binary;
 
@@ -9,6 +10,7 @@ namespace level5.schema {
 
     public uint ParentId { get; private set; }
 
+    [Unknown]
     public int Unknown0 { get; private set; }
 
     public Vector3f Position { get; } = new();

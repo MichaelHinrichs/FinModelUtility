@@ -2,6 +2,8 @@
 using System.Drawing;
 using System.Linq;
 
+using fin.schema;
+
 using gx;
 
 using j3d.GCN;
@@ -45,10 +47,15 @@ namespace j3d.misc.GCN {
     public ITevStageProps?[] TevStageInfos { get; set; }
     public ITevSwapMode?[] TevSwapModes { get; set; }
     public ITevSwapModeTable?[] TevSwapModeTables { get; set; }
+
+    [Unknown]
     public ushort[] Unknown2;
+
     public short FogInfoIndex;
     public IAlphaCompare AlphaCompare { get; set; }
     public IBlendFunction BlendMode { get; set; }
+
+    [Unknown]
     public short UnknownIndex;
 
     public IDepthFunction DepthFunction { get; }

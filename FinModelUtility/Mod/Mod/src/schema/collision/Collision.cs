@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using fin.schema;
 using fin.schema.vector;
 
 using schema.binary;
@@ -17,9 +18,16 @@ namespace mod.schema.collision {
     public uint mapCode = 0;
     public readonly Vector3i indice = new();
 
+    [Unknown]
     public ushort unknown2 = 0;
+
+    [Unknown]
     public ushort unknown3 = 0;
+
+    [Unknown]
     public ushort unknown4 = 0;
+
+    [Unknown]
     public ushort unknown5 = 0;
 
     public readonly Plane plane = new();
@@ -47,15 +55,19 @@ namespace mod.schema.collision {
 
   [BinarySchema]
   public partial class CollGroup : IBinaryConvertible {
+    [Unknown]
     [WLengthOfSequence(nameof(unknown1))]
     private ushort NumUnknown1 { get; set; }
 
+    [Unknown]
     [WLengthOfSequence(nameof(unknown2))]
     private ushort NumUnknown2 { get; set; }
 
+    [Unknown]
     [RSequenceLengthSource(nameof(NumUnknown2))]
     public uint[] unknown2 = Array.Empty<uint>();
 
+    [Unknown]
     [RSequenceLengthSource(nameof(NumUnknown1))]
     public byte[] unknown1 = Array.Empty<byte>();
   }
@@ -67,6 +79,7 @@ namespace mod.schema.collision {
 
     public readonly Vector3f boundsMax = new();
 
+    [Unknown]
     public float unknown1 = 0;
 
     public uint gridX = 0;
@@ -78,6 +91,7 @@ namespace mod.schema.collision {
     [Ignore]
     private uint gridSize_ => this.gridX * this.gridY;
 
+    [Unknown]
     [RSequenceLengthSource(nameof(gridSize_))]
     public readonly List<int> unknown2 = new();
 

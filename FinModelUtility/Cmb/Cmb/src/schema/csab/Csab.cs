@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 
+using fin.schema;
 using fin.util.asserts;
 
 using schema.binary;
@@ -16,6 +17,7 @@ namespace cmb.schema.csab {
     public Dictionary<int, AnimationNode>
         BoneIndexToAnimationNode { get; set; } = new();
 
+    [Unknown]
     public void Read(IEndianBinaryReader r) {
       var basePosition = r.Position;
 

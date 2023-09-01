@@ -1,4 +1,6 @@
-﻿using schema.binary;
+﻿using fin.schema;
+
+using schema.binary;
 using schema.binary.attributes;
 
 namespace mod.schema.animation {
@@ -63,6 +65,8 @@ namespace mod.schema.animation {
   public partial class DckAxis : IDcxAxis {
     public int FrameCount { get; set; }
     public int FrameOffset { get; set; }
+
+    [Unknown]
     public int Unknown { get; set; } // Usually 0, but sometimes 1 (e.g. intro/countdwn)
   }
 }

@@ -1,4 +1,6 @@
-﻿using level5.decompression;
+﻿using fin.schema;
+
+using level5.decompression;
 
 using schema.binary;
 
@@ -26,6 +28,7 @@ namespace level5.schema {
       return "";
     }
 
+    [Unknown]
     public Resource(byte[] data) {
       data = new Level5Decompressor().Decompress(data);
       using (var r = new EndianBinaryReader(new MemoryStream(data),

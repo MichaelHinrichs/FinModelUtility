@@ -1,8 +1,9 @@
-﻿using schema.binary;
+﻿using fin.schema;
+
+using schema.binary;
 using schema.binary.attributes;
 
 namespace cmb.schema.cmb.luts {
-
   [BinarySchema]
   public partial class LutSet : IBinaryConvertible {
     public ushort BitFlags; //Not sure
@@ -16,7 +17,10 @@ namespace cmb.schema.cmb.luts {
     [RSequenceLengthSource(nameof(keyframeCount_))]
     public LutKeyframe[] Keyframes;
 
+    [Unknown]
     public float unk1;
+
+    [Unknown]
     public float unk2;
   }
 }

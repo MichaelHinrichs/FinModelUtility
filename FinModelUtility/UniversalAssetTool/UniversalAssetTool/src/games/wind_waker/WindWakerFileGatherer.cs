@@ -5,7 +5,7 @@ using fin.util.asserts;
 using fin.util.data;
 using fin.util.strings;
 
-using j3d.exporter;
+using j3d.api;
 
 using uni.platforms.gcn;
 using uni.platforms.gcn.tools;

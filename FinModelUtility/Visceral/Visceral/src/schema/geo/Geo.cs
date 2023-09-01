@@ -1,4 +1,5 @@
 ﻿using fin.math;
+using fin.schema;
 using fin.schema.matrix;
 using fin.schema.vector;
 using fin.util.binary;
@@ -12,6 +13,7 @@ namespace visceral.schema.geo {
     public IReadOnlyList<Bone> Bones { get; set; }
     public IReadOnlyList<Mesh> Meshes { get; set; }
 
+    [Unknown]
     public void Read(IEndianBinaryReader er) {
       er.AssertString("MGAE");
 

@@ -1,11 +1,17 @@
-﻿using schema.binary;
+﻿using fin.schema;
+
+using schema.binary;
 using schema.binary.attributes;
 
 namespace j3d.schema.bmd.mat3 {
   [BinarySchema]
   public partial class MatIndirectTexturingEntry : IBinaryConvertible {
+    [Unknown]
     public byte Unknown0 { get; set; }
+
+    [Unknown]
     public byte Unknown1 { get; set; }
+
     private readonly ushort padding_ = ushort.MaxValue;
 
     [SequenceLengthSource(4)]

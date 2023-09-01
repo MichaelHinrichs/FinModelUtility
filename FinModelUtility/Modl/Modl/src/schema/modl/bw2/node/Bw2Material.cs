@@ -1,4 +1,6 @@
-﻿using schema.binary;
+﻿using fin.schema;
+
+using schema.binary;
 using schema.binary.attributes;
 
 namespace modl.schema.modl.bw2.node {
@@ -16,6 +18,7 @@ namespace modl.schema.modl.bw2.node {
     [StringLengthSource(0x20)]
     public string Texture4 { get; set; } = "";
 
+    [Unknown]
     public byte[] Data { get; } = new byte[0x24];
   }
 }

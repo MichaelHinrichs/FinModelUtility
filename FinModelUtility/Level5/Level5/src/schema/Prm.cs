@@ -1,4 +1,6 @@
-﻿using level5.decompression;
+﻿using fin.schema;
+
+using level5.decompression;
 
 using OpenTK;
 
@@ -23,6 +25,7 @@ namespace level5.schema {
       }
     }
 
+    [Unknown]
     public void Open(IEndianBinaryReader r) {
       r.AssertString("XMPR");
       var prmOffset = r.ReadUInt32();

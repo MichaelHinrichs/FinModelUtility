@@ -1,4 +1,5 @@
-﻿using fin.schema.vector;
+﻿using fin.schema;
+using fin.schema.vector;
 
 using schema.binary;
 using schema.binary.attributes;
@@ -379,6 +380,7 @@ namespace sm64.scripts {
   public partial class GeoHeldObjectCommand : IGeoCommand, IBinaryDeserializable {
     public GeoCommandId Id => GeoCommandId.HELD_OBJECT;
 
+    [Unknown]
     public byte Unk { get; set; }
 
     public Vector3s Offset { get; } = new();

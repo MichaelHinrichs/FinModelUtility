@@ -2,6 +2,7 @@
 
 using fin.image;
 using fin.image.formats;
+using fin.schema;
 using fin.util.color;
 
 using gx;
@@ -56,8 +57,10 @@ namespace j3d.schema.bmd.tex1 {
     public uint BorderColor;
     public GX_MIN_TEXTURE_FILTER MinFilter;
     public GX_MAG_TEXTURE_FILTER MagFilter;
+    [Unknown]
     public ushort Unknown4;
     public byte NrMipMap;
+    [Unknown]
     public byte Unknown5;
     public ushort LodBias;
 

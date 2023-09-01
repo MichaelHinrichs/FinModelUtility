@@ -1,5 +1,6 @@
 ﻿using fin.io;
 using fin.log;
+using fin.schema;
 using fin.util.asserts;
 
 using schema.binary;
@@ -64,6 +65,7 @@ namespace uni.platforms.gcn.tools {
       return this.ReadFile_(rarcFile);
     }
 
+    [Unknown]
     private bool ReadFile_(IFileHierarchyFile rarcFile) {
       using var er =
           new EndianBinaryReader(rarcFile.OpenRead(),
@@ -178,6 +180,7 @@ string nodeName = getString(0x20 + n.filenameOffset + h.stringTableOffset, f);
         _chdir("..");       */
     }
 
+    [Unknown]
     private FileEntry GetFileEntry_(
         IEndianBinaryReader er,
         RarcHeader header,
@@ -205,8 +208,10 @@ string nodeName = getString(0x20 + n.filenameOffset + h.stringTableOffset, f);
     public class RarcHeader {
       public string type; //'RARC'
       public uint size; //size of the file
+      [Unknown]
       public uint unknown;
       public uint dataStartOffset; //where does the actual data start?
+      [Unknown]
       public uint[] unknown2 = new uint[4];
 
       public uint numNodes;
@@ -215,6 +220,7 @@ string nodeName = getString(0x20 + n.filenameOffset + h.stringTableOffset, f);
       public uint fileEntriesOffset;
       public uint stringTableLength;
       public uint stringTableOffset; //where is the string table stored?
+      [Unknown]
       public uint[] unknown5 = new uint[2];
     }
 
@@ -231,7 +237,9 @@ string nodeName = getString(0x20 + n.filenameOffset + h.stringTableOffset, f);
       public ushort
           id; //file id. If this is 0xFFFF, then this entry is a subdirectory link
 
+      [Unknown]
       public ushort unknown;
+      [Unknown]
       public ushort unknown2;
       public ushort filenameOffset; //file/subdir name, offset into string table
 

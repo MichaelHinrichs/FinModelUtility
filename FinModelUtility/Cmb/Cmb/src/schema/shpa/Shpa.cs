@@ -1,6 +1,7 @@
 ﻿using cmb.schema.shpa.norm;
 using cmb.schema.shpa.posi;
 
+using fin.schema;
 using fin.schema.data;
 
 using schema.binary;
@@ -13,6 +14,7 @@ namespace cmb.schema.shpa {
     private readonly string magic_ = "shpa";
     private readonly uint headerLength_ = 48;
 
+    [Unknown]
     public uint unk0;
 
     private readonly uint animationCount_ = 1;
@@ -20,6 +22,7 @@ namespace cmb.schema.shpa {
     [StringLengthSource(16)]
     public string Name { get; set; }
 
+    [Unknown]
     public uint unk1;
 
 

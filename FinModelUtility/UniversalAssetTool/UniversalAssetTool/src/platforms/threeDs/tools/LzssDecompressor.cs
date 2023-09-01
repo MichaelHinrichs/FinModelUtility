@@ -1,4 +1,5 @@
 using fin.math;
+using fin.schema;
 using fin.util.asserts;
 using fin.util.strings;
 
@@ -46,6 +47,7 @@ namespace uni.platforms.threeDs.tools {
             }
           }
         }
+
         Asserts.Equal(header.DecompressedSize, (uint) dI);
 
         return true;
@@ -59,7 +61,10 @@ namespace uni.platforms.threeDs.tools {
   [BinarySchema]
   public partial class LzssHeader : IBinaryConvertible {
     private readonly string magic_ = "LzS" + AsciiUtil.GetChar(0x1);
+
+    [Unknown]
     public uint Unknown { get; set; }
+
     public uint DecompressedSize { get; set; }
     public uint CompressedSize { get; set; }
   }

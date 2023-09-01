@@ -45,14 +45,14 @@ namespace fin.image.io {
       this.pixelReader_ = pixelReader;
     }
 
-    public IImage<TPixel> Read(
+    public IImage<TPixel> ReadImage(
         byte[] srcBytes,
         Endianness endianness = Endianness.LittleEndian) {
       using var er = new EndianBinaryReader(srcBytes, endianness);
-      return Read(er);
+      return this.ReadImage(er);
     }
 
-    public unsafe IImage<TPixel> Read(IEndianBinaryReader er) {
+    public unsafe IImage<TPixel> ReadImage(IEndianBinaryReader er) {
       var image = this.pixelReader_.CreateImage(this.width_, this.height_);
       using var imageLock = image.Lock();
       var scan0 = imageLock.pixelScan0;

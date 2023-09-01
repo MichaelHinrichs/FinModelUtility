@@ -1,5 +1,6 @@
 ﻿using System;
 
+using fin.schema;
 using fin.schema.color;
 using fin.util.array;
 
@@ -14,7 +15,10 @@ namespace cmb.schema.cmb.mats {
     public CullMode faceCulling;
     public bool isPolygonOffsetEnabled;
     public float polygonOffset;
+
+    [Unknown]
     public uint unk0;
+
     public uint textureMappersUsed;
     public uint textureCoordsUsed;
     public readonly TexMapper[] texMappers = new TexMapper[3];
@@ -78,6 +82,8 @@ namespace cmb.schema.cmb.mats {
     public StencilTestOp failOP;
     public StencilTestOp zFailOP;
     public StencilTestOp zPassOP;
+
+    [Unknown]
     public uint unk1; // CRC32 of something
 
     public void Read(IEndianBinaryReader r) {
@@ -105,6 +111,7 @@ namespace cmb.schema.cmb.mats {
         texMapper.Read(r);
         this.texMappers[i] = texMapper;
       }
+
       for (var i = 0; i < 3; ++i) {
         var texCoord = new TexCoords();
         texCoord.Read(r);
@@ -119,6 +126,7 @@ namespace cmb.schema.cmb.mats {
       foreach (var constantColor in this.constantColors) {
         constantColor.Read(r);
       }
+
       r.ReadSingles(this.bufferColor);
 
       this.bumpTexture = (BumpTexture) r.ReadUInt16();

@@ -1,4 +1,5 @@
 ﻿using fin.data;
+using fin.schema;
 using fin.util.asserts;
 
 using modl.schema.modl.bw1.node;
@@ -10,6 +11,7 @@ namespace modl.schema.modl.bw1 {
     public List<IBwNode> Nodes { get; } = new();
     public ListDictionary<ushort, ushort> CnctParentToChildren { get; } = new();
 
+    [Unknown]
     public void Read(IEndianBinaryReader er) {
       {
         er.PushMemberEndianness(Endianness.LittleEndian);

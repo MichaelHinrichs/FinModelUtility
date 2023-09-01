@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 using f3dzex2.io;
 
+using fin.schema;
+
 using Microsoft.Toolkit.HighPerformance;
 
 using UoT.memory;
@@ -189,6 +191,7 @@ namespace UoT.model {
     ///   Parses a set of animations according to the spec at:
     ///   https://wiki.cloudmodding.com/oot/Animation_Format#C_code
     /// </summary>
+    [Unknown]
     public IList<IAnimation>? GetLinkAnimations(
         IN64Memory n64Memory,
         IZFile headerFile,

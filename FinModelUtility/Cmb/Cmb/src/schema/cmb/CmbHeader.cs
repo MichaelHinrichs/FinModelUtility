@@ -1,4 +1,5 @@
-﻿using fin.util.asserts;
+﻿using fin.schema;
+using fin.util.asserts;
 using fin.util.strings;
 
 using schema.binary;
@@ -21,6 +22,8 @@ namespace cmb.schema.cmb {
     public uint vatrOffset { get; private set; }
     public uint faceIndicesOffset { get; private set; }
     public uint textureDataOffset { get; private set; }
+
+    [Unknown]
     public uint unk0 { get; private set; }
 
     public void Read(IEndianBinaryReader r) {

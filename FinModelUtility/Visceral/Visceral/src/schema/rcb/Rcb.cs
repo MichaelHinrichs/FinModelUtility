@@ -1,4 +1,5 @@
-﻿using fin.schema.matrix;
+﻿using fin.schema;
+using fin.schema.matrix;
 
 using schema.binary;
 
@@ -8,6 +9,7 @@ namespace visceral.schema.rcb {
 
     public IReadOnlyList<Skeleton> Skeletons { get; private set; }
 
+    [Unknown]
     public void Read(IEndianBinaryReader er) {
       var fileLength = er.ReadUInt32();
       er.Position += 20;
@@ -33,6 +35,7 @@ namespace visceral.schema.rcb {
       public IReadOnlyList<int> BoneParentIdMap { get; private set; }
       public IReadOnlyList<Bone> Bones { get; private set; }
 
+      [Unknown]
       public void Read(IEndianBinaryReader er) {
         // Read skeleton header
         var unk7 = er.ReadUInt32();
