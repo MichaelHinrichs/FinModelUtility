@@ -11,6 +11,13 @@ using fin.util.json;
 using schema.binary;
 
 namespace fin.io {
+  using IROTreeIoObj =
+      ITreeIoObject<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
+          IReadOnlySystemFile, string>;
+  using IROTreeFile =
+      ITreeFile<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
+          IReadOnlySystemFile, string>;
+
   public readonly struct FinFile : ISystemFile {
     public FinFile(string fullName) {
       this.FullPath = fullName;
@@ -49,9 +56,7 @@ namespace fin.io {
     public string? GetParentFullPath()
       => FinIoStatic.GetParentFullName(this.FullPath);
 
-    IReadOnlySystemDirectory
-        ITreeIoObject<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
-            IReadOnlySystemFile, string>.AssertGetParent()
+    IReadOnlySystemDirectory IROTreeIoObj.AssertGetParent()
       => this.AssertGetParent();
 
     public ISystemDirectory AssertGetParent() {
@@ -80,9 +85,7 @@ namespace fin.io {
       return false;
     }
 
-    IEnumerable<IReadOnlySystemDirectory>
-        ITreeIoObject<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
-            IReadOnlySystemFile, string>.GetAncestry()
+    IEnumerable<IReadOnlySystemDirectory> IROTreeIoObj.GetAncestry()
       => this.GetAncestry();
 
     public IEnumerable<ISystemDirectory> GetAncestry()
@@ -117,9 +120,7 @@ namespace fin.io {
     public string NameWithoutExtension
       => FinFileStatic.GetNameWithoutExtension(this.Name);
 
-    IReadOnlySystemFile
-        ITreeFile<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
-            IReadOnlySystemFile, string>.CloneWithFileType(string newFileType)
+    IReadOnlySystemFile IROTreeFile.CloneWithFileType(string newFileType)
       => this.CloneWithFileType(newFileType);
 
     public ISystemFile CloneWithFileType(string newExtension) {

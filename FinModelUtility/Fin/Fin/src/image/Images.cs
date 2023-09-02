@@ -26,7 +26,7 @@ using Image = SixLabors.ImageSharp.Image;
 
 namespace fin.image {
   public static class FinImage {
-    public static bool IsSupportedExtension(IReadOnlySystemFile file) {
+    public static bool IsSupportedFileType(IReadOnlySystemFile file) {
       var extension = file.FileType.ToLower().Substring(1);
       return ImageSharpConfig.ImageFormats.Any(
           format => format.FileExtensions.Any(otherExtension =>

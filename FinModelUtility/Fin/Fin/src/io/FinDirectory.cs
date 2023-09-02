@@ -6,6 +6,13 @@ using System.Runtime.CompilerServices;
 using fin.util.asserts;
 
 namespace fin.io {
+  using IROTreeIoObj =
+      ITreeIoObject<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
+          IReadOnlySystemFile, string>;
+  using IROTreeDir =
+      ITreeDirectory<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
+          IReadOnlySystemFile, string>;
+
   public readonly struct FinDirectory : ISystemDirectory {
     public FinDirectory(string fullName) {
       this.FullPath = fullName;
@@ -44,9 +51,7 @@ namespace fin.io {
     public string? GetParentFullPath()
       => FinIoStatic.GetParentFullName(this.FullPath);
 
-    IReadOnlySystemDirectory
-        ITreeIoObject<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
-            IReadOnlySystemFile, string>.AssertGetParent()
+    IReadOnlySystemDirectory IROTreeIoObj.AssertGetParent()
       => this.AssertGetParent();
 
     public ISystemDirectory AssertGetParent() {
@@ -75,9 +80,7 @@ namespace fin.io {
       return false;
     }
 
-    IEnumerable<IReadOnlySystemDirectory>
-        ITreeIoObject<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
-            IReadOnlySystemFile, string>.GetAncestry()
+    IEnumerable<IReadOnlySystemDirectory> IROTreeIoObj.GetAncestry()
       => this.GetAncestry();
 
     public IEnumerable<ISystemDirectory> GetAncestry()
@@ -125,9 +128,7 @@ namespace fin.io {
       => FinDirectoryStatic.MoveTo(this.FullPath, path);
 
 
-    IEnumerable<IReadOnlySystemDirectory>
-        ITreeDirectory<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
-            IReadOnlySystemFile, string>.GetExistingSubdirs()
+    IEnumerable<IReadOnlySystemDirectory> IROTreeDir.GetExistingSubdirs()
       => this.GetExistingSubdirs();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -154,9 +155,7 @@ namespace fin.io {
       return subdir.Exists;
     }
 
-    IReadOnlySystemDirectory
-        ITreeDirectory<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
-            IReadOnlySystemFile, string>.AssertGetExistingSubdir(string path)
+    IReadOnlySystemDirectory IROTreeDir.AssertGetExistingSubdir(string path)
       => this.AssertGetExistingSubdir(path);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -173,9 +172,7 @@ namespace fin.io {
           FinDirectoryStatic.GetSubdir(this.FullPath, relativePath, true));
 
 
-    IEnumerable<IReadOnlySystemFile>
-        ITreeDirectory<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
-            IReadOnlySystemFile, string>.GetExistingFiles()
+    IEnumerable<IReadOnlySystemFile> IROTreeDir.GetExistingFiles()
       => this.GetExistingFiles();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -184,11 +181,9 @@ namespace fin.io {
                            .Select(fullName
                                        => (ISystemFile) new FinFile(fullName));
 
-    IEnumerable<IReadOnlySystemFile>
-        ITreeDirectory<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
-            IReadOnlySystemFile, string>.SearchForFiles(
-            string searchPattern,
-            bool includeSubdirs)
+    IEnumerable<IReadOnlySystemFile> IROTreeDir.SearchForFiles(
+        string searchPattern,
+        bool includeSubdirs)
       => this.SearchForFiles(searchPattern, includeSubdirs);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -245,9 +240,7 @@ namespace fin.io {
       return false;
     }
 
-    IReadOnlySystemFile
-        ITreeDirectory<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
-            IReadOnlySystemFile, string>.AssertGetExistingFile(string path)
+    IReadOnlySystemFile IROTreeDir.AssertGetExistingFile(string path)
       => this.AssertGetExistingFile(path);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -281,9 +274,7 @@ namespace fin.io {
       return false;
     }
 
-    IEnumerable<IReadOnlySystemFile>
-        ITreeDirectory<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
-            IReadOnlySystemFile, string>.GetFilesWithFileType(
+    IEnumerable<IReadOnlySystemFile> IROTreeDir.GetFilesWithFileType(
             string fileType,
             bool includeSubdirs)
       => this.GetFilesWithFileType(fileType, includeSubdirs);
