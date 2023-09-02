@@ -5,16 +5,13 @@ using System.Linq;
 using System.Numerics;
 
 using fin;
-using fin.io;
 using fin.log;
 using fin.math.matrix.four;
 using fin.model;
 using fin.model.impl;
-using fin.model.io;
 using fin.model.io.importer;
 using fin.schema.matrix;
 using fin.util.asserts;
-using fin.util.enumerables;
 
 using gx;
 
@@ -33,24 +30,7 @@ namespace j3d.api {
   using MkdsNode = MA.Node;
   using GxPrimitiveType = BMD.SHP1Section.Batch.Packet.Primitive.GXPrimitive;
 
-  public class BmdModelFileBundle : IModelFileBundle {
-    public required string GameName { get; init; }
-    public IFileHierarchyFile MainFile => this.BmdFile;
-
-    public IEnumerable<IReadOnlyGenericFile> Files
-      => this.BmdFile.Yield()
-             .ConcatIfNonnull(this.BcxFiles)
-             .ConcatIfNonnull(this.BtiFiles);
-
-    public IFileHierarchyFile BmdFile { get; set; }
-    public IReadOnlyList<IFileHierarchyFile>? BcxFiles { get; set; }
-    public IReadOnlyList<IFileHierarchyFile>? BtiFiles { get; set; }
-    public float FrameRate { get; set; } = 30;
-  }
-
   public class BmdModelImporter : IModelImporter<BmdModelFileBundle> {
-    private const bool STRICT = false;
-
     public IModel ImportModel(BmdModelFileBundle modelFileBundle) {
       var logger = Logging.Create<BmdModelImporter>();
 

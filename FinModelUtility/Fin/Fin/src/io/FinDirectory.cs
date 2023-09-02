@@ -15,7 +15,7 @@ namespace fin.io {
 
 
     // Equality
-    public bool Equals(object? other) {
+    public override bool Equals(object? other) {
       if (object.ReferenceEquals(this, other)) {
         return true;
       }

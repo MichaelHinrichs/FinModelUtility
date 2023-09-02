@@ -54,6 +54,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="src\api\BmdModelFileBundle.cs" />
     <Compile Include="src\api\BmdModelImporter.cs" />
   </ItemGroup>
 
