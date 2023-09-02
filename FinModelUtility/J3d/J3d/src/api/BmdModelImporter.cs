@@ -42,7 +42,7 @@ namespace j3d.api {
             modelFileBundle
                 .BcxFiles?
                 .Select(bcxFile => {
-                  var extension = bcxFile.Extension.ToLower();
+                  var extension = bcxFile.FileType.ToLower();
                   IBcx bcx = extension switch {
                     ".bca" =>
                         new Bca(bcxFile.ReadAllBytes()),

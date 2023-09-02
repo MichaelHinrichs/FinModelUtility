@@ -24,7 +24,7 @@ namespace uni.games.battalion_wars_2 {
       foreach (var directory in fileHierarchy) {
         var didUpdate = false;
         var resFiles =
-            directory.Files.Where(file => file.Name.EndsWith(".res.gz"));
+            directory.GetExistingFiles().Where(file => file.Name.EndsWith(".res.gz"));
         foreach (var resFile in resFiles) {
           didUpdate |= new ResDump().Run(resFile);
         }
@@ -99,7 +99,7 @@ namespace uni.games.battalion_wars_2 {
                                         AnimFiles = modlsAndAnims.Item2
                                     }));
             var outBundles =
-                directory.Files
+                directory.GetExistingFiles()
                          .Where(file => file.Name.EndsWith(".out.gz"))
                          .Select(outFile => new OutModelFileBundle {
                              GameName = "battalion_wars_2",

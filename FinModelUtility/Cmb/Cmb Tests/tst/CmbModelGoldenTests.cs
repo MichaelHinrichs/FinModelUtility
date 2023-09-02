@@ -30,7 +30,7 @@ namespace cmb {
             .GetRootGoldensDirectory(Assembly.GetExecutingAssembly())
             .AssertGetExistingSubdir("cmb");
       return ModelGoldenAssert.GetGoldenDirectories(rootGoldenDirectory)
-                              .SelectMany(dir => dir.Subdirs)
+                              .SelectMany(dir => dir.GetExistingSubdirs())
                               .ToArray();
     }
   }

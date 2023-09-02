@@ -35,9 +35,9 @@ namespace uni.games.pikmin_2 {
         IFileHierarchy fileHierarchy) {
       foreach (var subdir in fileHierarchy) {
         var modelSubdir =
-            subdir.Subdirs.SingleOrDefault(dir => dir.Name == "model");
+            subdir.GetExistingSubdirs().SingleOrDefault(dir => dir.Name == "model");
         var animSubdir =
-            subdir.Subdirs.SingleOrDefault(dir => dir.Name == "anim");
+            subdir.GetExistingSubdirs().SingleOrDefault(dir => dir.Name == "anim");
 
         if (modelSubdir != null && animSubdir != null) {
           var bmdFiles = modelSubdir.FilesWithExtension(".bmd").ToArray();
@@ -61,7 +61,7 @@ namespace uni.games.pikmin_2 {
         IFileHierarchy fileHierarchy) {
       foreach (var subdir in fileHierarchy) {
         var arcSubdir =
-            subdir.Subdirs.SingleOrDefault(dir => dir.Name == "arc");
+            subdir.GetExistingSubdirs().SingleOrDefault(dir => dir.Name == "arc");
 
         if (arcSubdir != null &&
             arcSubdir.FilesWithExtension(".bmd").Any()) {
@@ -76,36 +76,36 @@ namespace uni.games.pikmin_2 {
     private IEnumerable<IFileBundle> ExtractPikminAndCaptainModels_(
         IFileHierarchy fileHierarchy) {
       var pikminAndCaptainBaseDirectory =
-          fileHierarchy.Root.GetExistingSubdir(
+          fileHierarchy.Root.AssertGetExistingSubdir(
               @"user\Kando\piki\pikis_designer");
 
       var bcxFiles =
-          pikminAndCaptainBaseDirectory.GetExistingSubdir("motion")
-                                       .Files;
+          pikminAndCaptainBaseDirectory.AssertGetExistingSubdir("motion")
+                                       .GetExistingFiles();
 
       var captainSubdir =
-          pikminAndCaptainBaseDirectory.GetExistingSubdir("orima_model");
+          pikminAndCaptainBaseDirectory.AssertGetExistingSubdir("orima_model");
       var pikminSubdir =
-          pikminAndCaptainBaseDirectory.GetExistingSubdir("piki_model");
+          pikminAndCaptainBaseDirectory.AssertGetExistingSubdir("piki_model");
 
-      return this.ExtractModels_(captainSubdir.Files, bcxFiles)
-                 .Concat(this.ExtractModels_(pikminSubdir.Files, bcxFiles));
+      return this.ExtractModels_(captainSubdir.GetExistingFiles(), bcxFiles)
+                 .Concat(this.ExtractModels_(pikminSubdir.GetExistingFiles(), bcxFiles));
     }
 
     private IEnumerable<IFileBundle> ExtractAllTreasures_(
         IFileHierarchy fileHierarchy) {
       var treasureBaseDirectory =
-          fileHierarchy.Root.GetExistingSubdir(@"user\Abe\Pellet");
+          fileHierarchy.Root.AssertGetExistingSubdir(@"user\Abe\Pellet");
 
-      foreach (var locale in treasureBaseDirectory.Subdirs) {
-        foreach (var treasure in locale.Subdirs) {
-          var bmdFiles = treasure.Files.Where(file => file.Extension == ".bmd")
+      foreach (var locale in treasureBaseDirectory.GetExistingSubdirs()) {
+        foreach (var treasure in locale.GetExistingSubdirs()) {
+          var bmdFiles = treasure.GetExistingFiles().Where(file => file.FileType == ".bmd")
                                  .ToArray();
           if (bmdFiles.Length > 0) {
             var bcxFiles =
-                treasure.Files
-                        .Where(file => file.Extension == ".bca" ||
-                                       file.Extension == ".bck")
+                treasure.GetExistingFiles()
+                        .Where(file => file.FileType == ".bca" ||
+                                       file.FileType == ".bck")
                         .ToList();
             foreach (var bundle in this.ExtractModels_(bmdFiles, bcxFiles)) {
               yield return bundle;
@@ -117,7 +117,7 @@ namespace uni.games.pikmin_2 {
 
     private IEnumerable<IFileBundle> ExtractAudio_(
         IFileHierarchy fileHierarchy)
-      => fileHierarchy.Root.GetExistingSubdir(@"AudioRes\Stream")
+      => fileHierarchy.Root.AssertGetExistingSubdir(@"AudioRes\Stream")
                       .FilesWithExtension(".ast")
                       .Select(
                           astFile => new AstAudioFileBundle {
@@ -128,7 +128,7 @@ namespace uni.games.pikmin_2 {
     private IEnumerable<IFileBundle> ExtractLeafBudFlower_(
         IFileHierarchy fileHierarchy)
       => this.ExtractModelsInDirectoryAutomatically_(
-          fileHierarchy.Root.GetExistingSubdir(
+          fileHierarchy.Root.AssertGetExistingSubdir(
               @"user\Kando\piki\pikis_designer\happa_model"));
 
     private IEnumerable<IFileBundle> ExtractModelsInDirectoryAutomatically_(

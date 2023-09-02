@@ -45,14 +45,14 @@ namespace fin.testing.model {
     public static IEnumerable<IFileHierarchyDirectory> GetGoldenDirectories(
         ISystemDirectory rootGoldenDirectory) {
       var hierarchy = new FileHierarchy(rootGoldenDirectory);
-      return hierarchy.Root.Subdirs.Where(
+      return hierarchy.Root.GetExistingSubdirs().Where(
           subdir => subdir.Name != TMP_NAME);
     }
 
     public static IEnumerable<IFileHierarchyDirectory>
         GetGoldenInputDirectories(ISystemDirectory rootGoldenDirectory)
       => GetGoldenDirectories(rootGoldenDirectory)
-          .Select(subdir => subdir.GetExistingSubdir("input"));
+          .Select(subdir => subdir.AssertGetExistingSubdir("input"));
 
     public static IEnumerable<TModelBundle> GetGoldenModelBundles<TModelBundle>(
         ISystemDirectory rootGoldenDirectory,
@@ -60,7 +60,7 @@ namespace fin.testing.model {
             gatherModelBundleFromInputDirectory)
         where TModelBundle : IModelFileBundle {
       foreach (var goldenSubdir in GetGoldenDirectories(rootGoldenDirectory)) {
-        var inputDirectory = goldenSubdir.GetExistingSubdir("input");
+        var inputDirectory = goldenSubdir.AssertGetExistingSubdir("input");
         var modelBundle = gatherModelBundleFromInputDirectory(inputDirectory);
 
         yield return modelBundle;
@@ -104,13 +104,13 @@ namespace fin.testing.model {
       var tmpDirectory = goldenSubdir.Impl.GetOrCreateSubdir(TMP_NAME);
       tmpDirectory.DeleteContents();
 
-      var inputDirectory = goldenSubdir.GetExistingSubdir("input");
+      var inputDirectory = goldenSubdir.AssertGetExistingSubdir("input");
       var modelBundle = gatherModelBundleFromInputDirectory(inputDirectory);
 
-      var outputDirectory = goldenSubdir.GetExistingSubdir("output");
+      var outputDirectory = goldenSubdir.AssertGetExistingSubdir("output");
       var hasGoldenExport =
-          outputDirectory.Files
-                         .Any(file => EXTENSIONS.Contains(file.Extension));
+          outputDirectory.GetExistingFiles()
+                         .Any(file => EXTENSIONS.Contains(file.FileType));
 
       var targetDirectory =
           hasGoldenExport ? tmpDirectory : outputDirectory.Impl;

@@ -16,14 +16,14 @@ namespace uni.games.glover {
 
       var gloverFileHierarchy = new FileHierarchy(gloverSteamDirectory);
 
-      var dataDirectory = gloverFileHierarchy.Root.GetExistingSubdir("data");
-      var topLevelBgmDirectory = dataDirectory.GetExistingSubdir("bgm");
-      foreach (var bgmFile in topLevelBgmDirectory.Files) {
+      var dataDirectory = gloverFileHierarchy.Root.AssertGetExistingSubdir("data");
+      var topLevelBgmDirectory = dataDirectory.AssertGetExistingSubdir("bgm");
+      foreach (var bgmFile in topLevelBgmDirectory.GetExistingFiles()) {
         yield return new OggAudioFileBundle(bgmFile);
       }
 
-      var topLevelObjectDirectory = dataDirectory.GetExistingSubdir("objects");
-      foreach (var objectDirectory in topLevelObjectDirectory.Subdirs) {
+      var topLevelObjectDirectory = dataDirectory.AssertGetExistingSubdir("objects");
+      foreach (var objectDirectory in topLevelObjectDirectory.GetExistingSubdirs()) {
         foreach (var fileBundle in this.AddObjectDirectory_(
                      gloverFileHierarchy,
                      objectDirectory)) {
@@ -39,15 +39,15 @@ namespace uni.games.glover {
 
       var gloverSteamDirectory = gloverFileHierarchy.Root;
       var textureDirectories = gloverSteamDirectory
-                               .GetExistingSubdir("data/textures/generic")
-                               .Subdirs.ToList();
+                               .AssertGetExistingSubdir("data/textures/generic")
+                               .GetExistingSubdirs().ToList();
 
       try {
-        var levelTextureDirectory = gloverSteamDirectory.GetExistingSubdir(
+        var levelTextureDirectory = gloverSteamDirectory.AssertGetExistingSubdir(
             objectDirectory.LocalPath.Replace("data\\objects",
                                               "data\\textures"));
         textureDirectories.Add(levelTextureDirectory);
-        textureDirectories.AddRange(levelTextureDirectory.Subdirs);
+        textureDirectories.AddRange(levelTextureDirectory.GetExistingSubdirs());
       } catch {
         // ignored
       }

@@ -63,7 +63,7 @@ namespace uni.platforms.threeDs {
               ArchiveExtractionResult.NEWLY_EXTRACTED;
         }
 
-        foreach (var garFile in directory.Files.Where(
+        foreach (var garFile in directory.GetExistingFiles().Where(
                      file => file.Name.EndsWith(".gar.lzs"))) {
           didChange |=
               archiveExtractor.TryToExtractIntoNewDirectory<GarReader>(

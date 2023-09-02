@@ -31,13 +31,13 @@ namespace uni.games.dead_space_1 {
 
       foreach (var charSubdir in
                new[] { "animated_props", "chars", "weapons" }
-                   .Select(assetFileHierarchy.Root.GetExistingSubdir)
-                   .SelectMany(subdir => subdir.Subdirs)) {
+                   .Select(assetFileHierarchy.Root.AssertGetExistingSubdir)
+                   .SelectMany(subdir => subdir.GetExistingSubdirs())) {
         IFileHierarchyFile[] geoFiles = Array.Empty<IFileHierarchyFile>();
         if (charSubdir.TryToGetExistingSubdir("rigged/export",
                                               out var riggedSubdir)) {
           geoFiles =
-              riggedSubdir.Files.Where(file => file.Name.EndsWith(".geo"))
+              riggedSubdir.GetExistingFiles().Where(file => file.Name.EndsWith(".geo"))
                           .ToArray();
         }
 
@@ -46,21 +46,21 @@ namespace uni.games.dead_space_1 {
         if (charSubdir.TryToGetExistingSubdir("cct/export",
                                               out var cctSubdir)) {
           rcbFile =
-              cctSubdir.Files.Single(file => file.Name.EndsWith(".rcb.WIN"));
+              cctSubdir.GetExistingFiles().Single(file => file.Name.EndsWith(".rcb.WIN"));
           bnkFiles =
-              cctSubdir.Files.Where(file => file.Name.EndsWith(".bnk.WIN"))
+              cctSubdir.GetExistingFiles().Where(file => file.Name.EndsWith(".bnk.WIN"))
                        .ToArray();
         }
 
         Tg4ImageFileBundle[]? textureFiles = null;
         if (charSubdir.TryToGetExistingSubdir("rigged/textures",
                                               out var textureDir)) {
-          var textureDirFiles = textureDir.Files.ToArray();
+          var textureDirFiles = textureDir.GetExistingFiles().ToArray();
           var tg4hFiles =
-              textureDirFiles.Where(file => file.Extension == ".tg4h")
+              textureDirFiles.Where(file => file.FileType == ".tg4h")
                              .ToDictionary(file => file.NameWithoutExtension);
           textureFiles =
-              textureDirFiles.Where(file => file.Extension == ".tg4d")
+              textureDirFiles.Where(file => file.FileType == ".tg4d")
                              .Select(tg4dFile => new Tg4ImageFileBundle {
                                  Tg4dFile = tg4dFile,
                                  Tg4hFile =

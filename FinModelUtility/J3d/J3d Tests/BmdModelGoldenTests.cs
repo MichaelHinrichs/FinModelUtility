@@ -19,7 +19,7 @@ namespace j3d {
       this.goldenDirectory_ = goldenDirectory;
       this.bmd_ = new BMD(
           GetFileBundleFromDirectory(
-                  this.goldenDirectory_.GetExistingSubdir("input"))
+                  this.goldenDirectory_.AssertGetExistingSubdir("input"))
               .BmdFile.ReadAllBytes());
     }
 

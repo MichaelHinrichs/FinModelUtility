@@ -177,9 +177,9 @@ namespace uni.games.ocarina_of_time_3d {
 
     private IEnumerable<CmbModelFileBundle> GetAutomaticModels_(
         IFileHierarchy fileHierarchy) {
-      var actorsDir = fileHierarchy.Root.GetExistingSubdir("actor");
+      var actorsDir = fileHierarchy.Root.AssertGetExistingSubdir("actor");
 
-      foreach (var actorDir in actorsDir.Subdirs) {
+      foreach (var actorDir in actorsDir.GetExistingSubdirs()) {
         var animations =
             actorDir.FilesWithExtensionRecursive(".csab").ToArray();
         var models = actorDir.FilesWithExtensionRecursive(".cmb").ToArray();
@@ -197,33 +197,33 @@ namespace uni.games.ocarina_of_time_3d {
 
     private IEnumerable<CmbModelFileBundle> GetLinkModels_(
         IFileHierarchy fileHierarchy) {
-      var actorsDir = fileHierarchy.Root.GetExistingSubdir("actor");
+      var actorsDir = fileHierarchy.Root.AssertGetExistingSubdir("actor");
 
-      var childDir = actorsDir.GetExistingSubdir("zelda_link_child_new/child");
+      var childDir = actorsDir.AssertGetExistingSubdir("zelda_link_child_new/child");
       yield return new CmbModelFileBundle(
           "ocarina_of_time_3d",
-          childDir.GetExistingFile("model/childlink_v2.cmb"),
-          childDir.GetExistingSubdir("anim")
+          childDir.AssertGetExistingFile("model/childlink_v2.cmb"),
+          childDir.AssertGetExistingSubdir("anim")
                   .FilesWithExtension(".csab")
                   .ToArray());
 
-      var adultDir = actorsDir.GetExistingSubdir("zelda_link_boy_new/boy");
+      var adultDir = actorsDir.AssertGetExistingSubdir("zelda_link_boy_new/boy");
       yield return new CmbModelFileBundle(
           "ocarina_of_time_3d",
-          adultDir.GetExistingFile("model/link_v2.cmb"),
-          adultDir.GetExistingSubdir("anim")
+          adultDir.AssertGetExistingFile("model/link_v2.cmb"),
+          adultDir.AssertGetExistingSubdir("anim")
                   .FilesWithExtension(".csab")
                   .ToArray());
     }
 
     private IEnumerable<CmbModelFileBundle> GetGanondorfModels_(
         IFileHierarchy fileHierarchy) {
-      var baseDir = fileHierarchy.Root.GetExistingSubdir("actor/zelda_ganon");
+      var baseDir = fileHierarchy.Root.AssertGetExistingSubdir("actor/zelda_ganon");
 
-      var modelDir = baseDir.GetExistingSubdir("Model");
+      var modelDir = baseDir.AssertGetExistingSubdir("Model");
 
       var allAnimations =
-          baseDir.GetExistingSubdir("Anim").Files;
+          baseDir.AssertGetExistingSubdir("Anim").GetExistingFiles();
       var capeAnimations =
           allAnimations.Where(file => file.Name.EndsWith("_m.csab"));
       var ganondorfAnimations =
@@ -231,14 +231,14 @@ namespace uni.games.ocarina_of_time_3d {
 
       yield return new CmbModelFileBundle(
           "ocarina_of_time_3d",
-          modelDir.GetExistingFile("ganondorf.cmb"),
+          modelDir.AssertGetExistingFile("ganondorf.cmb"),
           ganondorfAnimations.ToArray());
       yield return new CmbModelFileBundle(
           "ocarina_of_time_3d",
-          modelDir.GetExistingFile("ganon_mant_model.cmb"),
+          modelDir.AssertGetExistingFile("ganon_mant_model.cmb"),
           capeAnimations.ToArray());
 
-      foreach (var otherModel in modelDir.Files.Where(
+      foreach (var otherModel in modelDir.GetExistingFiles().Where(
                    file => file.Name != "ganondorf.cmb"
                            && file.Name != "ganon_mant_model.cmb")) {
         yield return new CmbModelFileBundle("ocarina_of_time_3d", otherModel);
@@ -247,20 +247,20 @@ namespace uni.games.ocarina_of_time_3d {
 
     private IEnumerable<CmbModelFileBundle> GetOwlModels_(
         IFileHierarchy fileHierarchy) {
-      var owlDir = fileHierarchy.Root.GetExistingSubdir("actor/zelda_owl");
+      var owlDir = fileHierarchy.Root.AssertGetExistingSubdir("actor/zelda_owl");
 
       // Waiting
       yield return new CmbModelFileBundle(
           "ocarina_of_time_3d",
-          owlDir.GetExistingFile("Model/kaeporagaebora1.cmb"),
-          owlDir.GetExistingFile("Anim/owl_wait.csab").AsList());
+          owlDir.AssertGetExistingFile("Model/kaeporagaebora1.cmb"),
+          owlDir.AssertGetExistingFile("Anim/owl_wait.csab").AsList());
 
 
       // Flying
       yield return new CmbModelFileBundle(
           "ocarina_of_time_3d",
-          owlDir.GetExistingFile("Model/kaeporagaebora2.cmb"),
-          owlDir.GetExistingSubdir("Anim")
+          owlDir.AssertGetExistingFile("Model/kaeporagaebora2.cmb"),
+          owlDir.AssertGetExistingSubdir("Anim")
                 .FilesWithExtension(".csab")
                 .Where(file => file.Name != "owl_wait.csab")
                 .ToArray());
@@ -268,19 +268,19 @@ namespace uni.games.ocarina_of_time_3d {
 
     private IEnumerable<CmbModelFileBundle> GetVolvagiaModels_(
         IFileHierarchy fileHierarchy) {
-      var baseDir = fileHierarchy.Root.GetExistingSubdir("actor/zelda_fd");
-      var modelDir = baseDir.GetExistingSubdir("Model");
-      var animDir = baseDir.GetExistingSubdir("Anim");
+      var baseDir = fileHierarchy.Root.AssertGetExistingSubdir("actor/zelda_fd");
+      var modelDir = baseDir.AssertGetExistingSubdir("Model");
+      var animDir = baseDir.AssertGetExistingSubdir("Anim");
 
       // Body in ground
       yield return new CmbModelFileBundle(
           "ocarina_of_time_3d",
-          modelDir.GetExistingFile("valbasiagnd.cmb"),
+          modelDir.AssertGetExistingFile("valbasiagnd.cmb"),
           animDir.FilesWithExtension(".csab")
                  .Where(file => file.Name.StartsWith("vba_"))
                  .ToList());
 
-      foreach (var otherModel in modelDir.Files.Where(
+      foreach (var otherModel in modelDir.GetExistingFiles().Where(
                    file => file.Name is not "valbasiagnd.cmb")) {
         yield return new CmbModelFileBundle("ocarina_of_time_3d", otherModel);
       }
@@ -290,14 +290,14 @@ namespace uni.games.ocarina_of_time_3d {
 
     private IEnumerable<CmbModelFileBundle> GetMoblinModels_(
         IFileHierarchy fileHierarchy) {
-      var baseDir = fileHierarchy.Root.GetExistingSubdir("actor/zelda_mb");
-      var modelDir = baseDir.GetExistingSubdir("Model");
-      var animDir = baseDir.GetExistingSubdir("Anim");
+      var baseDir = fileHierarchy.Root.AssertGetExistingSubdir("actor/zelda_mb");
+      var modelDir = baseDir.AssertGetExistingSubdir("Model");
+      var animDir = baseDir.AssertGetExistingSubdir("Anim");
 
       // Moblin
       yield return new CmbModelFileBundle(
           "ocarina_of_time_3d",
-          modelDir.GetExistingFile("molblin.cmb"),
+          modelDir.AssertGetExistingFile("molblin.cmb"),
           animDir.FilesWithExtension(".csab")
                  .Where(file => file.Name.StartsWith("mn_"))
                  .ToList());
@@ -305,7 +305,7 @@ namespace uni.games.ocarina_of_time_3d {
       // Boss Moblin
       yield return new CmbModelFileBundle(
           "ocarina_of_time_3d",
-          modelDir.GetExistingFile("bossblin.cmb"),
+          modelDir.AssertGetExistingFile("bossblin.cmb"),
           animDir.FilesWithExtension(".csab")
                  .Where(file => file.Name.StartsWith("mbV_"))
                  .ToList());
@@ -313,14 +313,14 @@ namespace uni.games.ocarina_of_time_3d {
 
     private IEnumerable<CmbModelFileBundle> GetBongoBongoModels_(
         IFileHierarchy fileHierarchy) {
-      var baseDir = fileHierarchy.Root.GetExistingSubdir("actor/zelda_sst");
-      var modelDir = baseDir.GetExistingSubdir("Model");
-      var animDir = baseDir.GetExistingSubdir("Anim");
+      var baseDir = fileHierarchy.Root.AssertGetExistingSubdir("actor/zelda_sst");
+      var modelDir = baseDir.AssertGetExistingSubdir("Model");
+      var animDir = baseDir.AssertGetExistingSubdir("Anim");
 
       // Body
       yield return new CmbModelFileBundle(
           "ocarina_of_time_3d",
-          modelDir.GetExistingFile("bongobongo.cmb"),
+          modelDir.AssertGetExistingFile("bongobongo.cmb"),
           animDir.FilesWithExtension(".csab")
                  .Where(file => file.Name.StartsWith("ss_"))
                  .ToList());
@@ -328,7 +328,7 @@ namespace uni.games.ocarina_of_time_3d {
       // Left hand
       yield return new CmbModelFileBundle(
           "ocarina_of_time_3d",
-          modelDir.GetExistingFile("bongolhand.cmb"),
+          modelDir.AssertGetExistingFile("bongolhand.cmb"),
           animDir.FilesWithExtension(".csab")
                  .Where(file => file.Name.StartsWith("slh_"))
                  .ToList());
@@ -336,12 +336,12 @@ namespace uni.games.ocarina_of_time_3d {
       // Right hand
       yield return new CmbModelFileBundle(
           "ocarina_of_time_3d",
-          modelDir.GetExistingFile("bongorhand.cmb"),
+          modelDir.AssertGetExistingFile("bongorhand.cmb"),
           animDir.FilesWithExtension(".csab")
                  .Where(file => file.Name.StartsWith("srh_"))
                  .ToList());
 
-      foreach (var otherModel in modelDir.Files.Where(
+      foreach (var otherModel in modelDir.GetExistingFiles().Where(
                    file => file.Name != "bongobongo.cmb"
                            && file.Name != "bongolhand.cmb"
                            && file.Name != "bongorhand.cmb")) {

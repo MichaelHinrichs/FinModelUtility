@@ -10,7 +10,7 @@ namespace fin.audio.ogg {
         IAudioManager<short> audioManager,
         OggAudioFileBundle audioFileBundle) {
       var oggFile = audioFileBundle.OggFile;
-      Asserts.Equal(".ogg", oggFile.Extension.ToLower());
+      Asserts.Equal(".ogg", oggFile.FileType.ToLower());
 
       using var ogg = new VorbisReader(oggFile.OpenRead());
 

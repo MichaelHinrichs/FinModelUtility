@@ -25,7 +25,7 @@ namespace uni.games.wind_waker {
         return Enumerable.Empty<BmdModelFileBundle>();
       }
 
-      var objectDirectory = fileHierarchy.Root.GetExistingSubdir(@"res\Object");
+      var objectDirectory = fileHierarchy.Root.AssertGetExistingSubdir(@"res\Object");
       {
         var yaz0Dec = new Yaz0Dec();
         var didDecompress = false;
@@ -84,22 +84,22 @@ namespace uni.games.wind_waker {
 
     private IEnumerable<BmdModelFileBundle> ExtractObjects_(
         IFileHierarchyDirectory directory)
-      => directory.Subdirs.SelectMany(this.ExtractObject_);
+      => directory.GetExistingSubdirs().SelectMany(this.ExtractObject_);
 
     private IEnumerable<BmdModelFileBundle> ExtractObject_(
         IFileHierarchyDirectory directory) {
       // TODO: What the heck is the difference between these directories?
       // Is there any besides the model type within?
       var bdlSubdir =
-          directory.Subdirs.SingleOrDefault(subdir => subdir.Name == "bdl");
+          directory.GetExistingSubdirs().SingleOrDefault(subdir => subdir.Name == "bdl");
       var bdlmSubdir =
-          directory.Subdirs.SingleOrDefault(subdir => subdir.Name == "bdlm");
+          directory.GetExistingSubdirs().SingleOrDefault(subdir => subdir.Name == "bdlm");
       var bmdSubdir =
-          directory.Subdirs.SingleOrDefault(subdir => subdir.Name == "bmd");
+          directory.GetExistingSubdirs().SingleOrDefault(subdir => subdir.Name == "bmd");
       var bmdcSubdir =
-          directory.Subdirs.SingleOrDefault(subdir => subdir.Name == "bmdc");
+          directory.GetExistingSubdirs().SingleOrDefault(subdir => subdir.Name == "bmdc");
       var bmdmSubdir =
-          directory.Subdirs.SingleOrDefault(subdir => subdir.Name == "bmdm");
+          directory.GetExistingSubdirs().SingleOrDefault(subdir => subdir.Name == "bmdm");
 
       var bmdOrBdlFiles = ListUtil.ReadonlyConcat(
           //bdlSubdir?.FilesWithExtension(".bdl").ToArray(),
@@ -109,7 +109,7 @@ namespace uni.games.wind_waker {
           bmdmSubdir?.FilesWithExtension(".bmd").ToArray());
 
       var bckSubdir =
-          directory.Subdirs.SingleOrDefault(
+          directory.GetExistingSubdirs().SingleOrDefault(
               subdir => subdir.Name == "bck" || subdir.Name == "bcks");
       var bckFiles = bckSubdir?.FilesWithExtension(".bck").ToList();
 

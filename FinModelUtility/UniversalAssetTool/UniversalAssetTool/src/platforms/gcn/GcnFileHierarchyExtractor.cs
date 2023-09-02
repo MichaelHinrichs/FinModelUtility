@@ -83,16 +83,16 @@ namespace uni.platforms.gcn {
         // Dumps any REL files
         var didDump = false;
         var relFiles =
-            subdir.Files.Where(
+            subdir.GetExistingFiles().Where(
                       file => file.Name.Contains(".rel") &&
-                              file.Extension == ".rarc")
+                              file.FileType == ".rarc")
                   .ToArray();
         foreach (var relFile in relFiles) {
           var prefix = StringUtil.SubstringUpTo(relFile.Name, ".rel");
           var mapFile =
-              subdir.Files.Single(
+              subdir.GetExistingFiles().Single(
                   file => file.Name.StartsWith(prefix) &&
-                          file.Extension == ".map");
+                          file.FileType == ".map");
           didDump |=
               this.relDump_.Run(relFile,
                                 mapFile,
@@ -101,10 +101,10 @@ namespace uni.platforms.gcn {
 
         // Dumps any ARC/RARC files.
         var arcFiles =
-            subdir.Files
+            subdir.GetExistingFiles()
                   .Where(file => !relFiles.Contains(file))
                   .Where(file => options.RarcDumpExtensions.Contains(
-                             file.Extension))
+                             file.FileType))
                   .ToArray();
         foreach (var arcFile in arcFiles) {
           didDump |=

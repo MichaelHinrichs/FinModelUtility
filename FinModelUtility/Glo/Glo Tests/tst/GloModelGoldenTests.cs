@@ -21,7 +21,7 @@ namespace glo {
         IFileHierarchyDirectory goldenDirectory) {
       var goldenBundle =
           this.GetFileBundleFromDirectory(
-              goldenDirectory.GetExistingSubdir("input"));
+              goldenDirectory.AssertGetExistingSubdir("input"));
 
       var er = new EndianBinaryReader(goldenBundle.GloFile.OpenRead());
       await BinarySchemaAssert.ReadsAndWritesIdentically<Glo>(er);

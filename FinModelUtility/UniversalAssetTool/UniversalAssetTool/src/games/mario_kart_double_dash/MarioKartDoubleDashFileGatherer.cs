@@ -30,21 +30,21 @@ namespace uni.games.mario_kart_double_dash {
 
     private IEnumerable<IFileBundle> ExtractKarts_(
         IFileHierarchy fileHierarchy)
-      => fileHierarchy.Root.GetExistingSubdir(@"MRAM\kart")
-                      .Subdirs
+      => fileHierarchy.Root.AssertGetExistingSubdir(@"MRAM\kart")
+                      .GetExistingSubdirs()
                       .Select(subdir => subdir.FilesWithExtension(".bmd"))
                       .SelectMany(bmdFiles => this.ExtractModels_(bmdFiles));
 
     private IEnumerable<IFileBundle> ExtractDrivers_(
         IFileHierarchy fileHierarchy) {
-      var mramSubdir = fileHierarchy.Root.GetExistingSubdir(@"MRAM\driver");
+      var mramSubdir = fileHierarchy.Root.AssertGetExistingSubdir(@"MRAM\driver");
 
       {
         var plumberNames = new[] { "mario", "luigi", };
         var plumberSubdirs =
-            mramSubdir.Subdirs.Where(
+            mramSubdir.GetExistingSubdirs().Where(
                 subdir => plumberNames.Contains(subdir.Name));
-        var plumberCommon = mramSubdir.GetExistingSubdir("cmn_hige");
+        var plumberCommon = mramSubdir.AssertGetExistingSubdir("cmn_hige");
         foreach (var plumberSubdir in plumberSubdirs) {
           foreach (var bundle in this.ExtractFromSeparateDriverDirectories_(
                        plumberSubdir,
@@ -63,9 +63,9 @@ namespace uni.games.mario_kart_double_dash {
             "kinopico"
         };
         var babySubdirs =
-            mramSubdir.Subdirs.Where(
+            mramSubdir.GetExistingSubdirs().Where(
                 subdir => babyNames.Contains(subdir.Name));
-        var babyCommon = mramSubdir.GetExistingSubdir("cmn_baby");
+        var babyCommon = mramSubdir.AssertGetExistingSubdir("cmn_baby");
         foreach (var babySubdir in babySubdirs) {
           foreach (var bundle in this.ExtractFromSeparateDriverDirectories_(
                        babySubdir,
@@ -78,9 +78,9 @@ namespace uni.games.mario_kart_double_dash {
       {
         var princessNames = new[] { "daisy", "peach" };
         var princessSubdirs =
-            mramSubdir.Subdirs.Where(
+            mramSubdir.GetExistingSubdirs().Where(
                 subdir => princessNames.Contains(subdir.Name));
-        var princessCommon = mramSubdir.GetExistingSubdir("cmn_hime");
+        var princessCommon = mramSubdir.AssertGetExistingSubdir("cmn_hime");
         foreach (var princessSubdir in princessSubdirs) {
           foreach (var bundle in this.ExtractFromSeparateDriverDirectories_(
                        princessSubdir,
@@ -93,9 +93,9 @@ namespace uni.games.mario_kart_double_dash {
       {
         var lizardNames = new[] { "catherine", "yoshi" };
         var lizardSubdirs =
-            mramSubdir.Subdirs.Where(
+            mramSubdir.GetExistingSubdirs().Where(
                 subdir => lizardNames.Contains(subdir.Name));
-        var lizardCommon = mramSubdir.GetExistingSubdir("cmn_liz");
+        var lizardCommon = mramSubdir.AssertGetExistingSubdir("cmn_liz");
         foreach (var lizardSubdir in lizardSubdirs) {
           foreach (var bundle in this.ExtractFromSeparateDriverDirectories_(
                        lizardSubdir,
@@ -110,9 +110,9 @@ namespace uni.games.mario_kart_double_dash {
       {
         var koopaNames = new[] { "patapata", "nokonoko" };
         var koopaSubdirs =
-            mramSubdir.Subdirs.Where(
+            mramSubdir.GetExistingSubdirs().Where(
                 subdir => koopaNames.Contains(subdir.Name));
-        var koopaCommon = mramSubdir.GetExistingSubdir("cmn_zako");
+        var koopaCommon = mramSubdir.AssertGetExistingSubdir("cmn_zako");
         foreach (var koopaSubdir in koopaSubdirs) {
           foreach (var bundle in this.ExtractFromSeparateDriverDirectories_(
                        koopaSubdir,
@@ -134,7 +134,7 @@ namespace uni.games.mario_kart_double_dash {
             "wario",
         };
         var standaloneSubdirs =
-            mramSubdir.Subdirs.Where(
+            mramSubdir.GetExistingSubdirs().Where(
                 subdir => standaloneNames.Contains(subdir.Name));
         foreach (var standaloneSubdir in standaloneSubdirs) {
           foreach (var bundle in this.ExtractFromDriverDirectory_(
@@ -197,8 +197,8 @@ namespace uni.games.mario_kart_double_dash {
 
     private IEnumerable<IFileBundle> ExtractCourses_(
         IFileHierarchy fileHierarchy) {
-      var courseSubdir = fileHierarchy.Root.GetExistingSubdir("Course");
-      foreach (var subdir in courseSubdir.Subdirs) {
+      var courseSubdir = fileHierarchy.Root.AssertGetExistingSubdir("Course");
+      foreach (var subdir in courseSubdir.GetExistingSubdirs()) {
         var bmdFiles = subdir.FilesWithExtension(".bmd")
                              .ToArray();
         if (bmdFiles.Length == 0) {
@@ -212,7 +212,7 @@ namespace uni.games.mario_kart_double_dash {
           yield return bundle;
         }
 
-        var objectsSubdir = subdir.GetExistingSubdir("objects");
+        var objectsSubdir = subdir.AssertGetExistingSubdir("objects");
         foreach (var bundle in this.ExtractModelsAndAnimationsFromSceneObject_(
                      objectsSubdir)) {
           yield return bundle;
@@ -221,7 +221,7 @@ namespace uni.games.mario_kart_double_dash {
     }
 
     private IEnumerable<IFileBundle> ExtractAudio_(IFileHierarchy fileHierarchy)
-      => fileHierarchy.Root.GetExistingSubdir(@"AudioRes\Stream")
+      => fileHierarchy.Root.AssertGetExistingSubdir(@"AudioRes\Stream")
                       .FilesWithExtension(".ast")
                       .Select(astFile => new AstAudioFileBundle {
                           GameName = "mario_kart_double_dash",
@@ -230,14 +230,14 @@ namespace uni.games.mario_kart_double_dash {
 
     private IEnumerable<IFileBundle> ExtractModelsAndAnimationsFromSceneObject_(
         IFileHierarchyDirectory directory) {
-      var bmdFiles = directory.Files.Where(
-                                  file => file.Extension == ".bmd")
+      var bmdFiles = directory.GetExistingFiles().Where(
+                                  file => file.FileType == ".bmd")
                               .OrderByDescending(file => file.Name.Length)
                               .ToArray();
       var allBcxFiles = directory
-                        .Files.Where(
-                            file => file.Extension == ".bck" ||
-                                    file.Extension == ".bca")
+                        .GetExistingFiles().Where(
+                            file => file.FileType == ".bck" ||
+                                    file.FileType == ".bca")
                         .ToArray();
       var btiFiles = directory.FilesWithExtension(".bti")
                               .ToArray();

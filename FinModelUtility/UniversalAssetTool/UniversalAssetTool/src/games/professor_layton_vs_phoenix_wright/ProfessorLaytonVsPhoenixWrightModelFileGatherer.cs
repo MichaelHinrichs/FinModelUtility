@@ -18,7 +18,7 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
       }
 
       if (new ThreeDsXfsaTool().Extract(
-              fileHierarchy.Root.Files.Single(file => file.Name == "vs1.fa"))) {
+              fileHierarchy.Root.GetExistingFiles().Single(file => file.Name == "vs1.fa"))) {
         fileHierarchy.Root.Refresh(true);
       }
 
@@ -102,17 +102,17 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
                                    IFileHierarchyDirectory directory,
                                    string modelFileName)
       => new ModelOnly(name,
-                       directory.Files.Single(
+                       directory.GetExistingFiles().Single(
                            file => file.Name == modelFileName));
 
     internal IXcFiles GetSameFile(string name,
                                   IFileHierarchyDirectory directory,
                                   string modelFileName) {
       var modelFile =
-          directory.Files.Single(file => file.NameWithoutExtension ==
-                                         modelFileName);
+          directory.GetExistingFiles().Single(file => file.NameWithoutExtension ==
+                                                  modelFileName);
       var animationFiles =
-          directory.Files.Where(
+          directory.GetExistingFiles().Where(
               file => file.NameWithoutExtension != modelFileName &&
                       file.NameWithoutExtension.StartsWith(modelFileName));
       return new ModelAndAnimations(
@@ -127,9 +127,9 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
                                             params string[] animationFileNames)
       => new ModelAndAnimations(
           name,
-          directory.Files.Single(file => file.Name == modelFileName),
+          directory.GetExistingFiles().Single(file => file.Name == modelFileName),
           animationFileNames.Select(animationFileName
-                                        => directory.Files.Single(
+                                        => directory.GetExistingFiles().Single(
                                             file => file.Name ==
                                                     animationFileName))
                             .ToArray());

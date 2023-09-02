@@ -37,9 +37,9 @@ namespace uni.games.majoras_mask_3d {
 
     private IEnumerable<CmbModelFileBundle> GetAutomaticModels_(
         IFileHierarchy fileHierarchy) {
-      var actorsDir = fileHierarchy.Root.GetExistingSubdir("actors");
+      var actorsDir = fileHierarchy.Root.AssertGetExistingSubdir("actors");
 
-      foreach (var actorDir in actorsDir.Subdirs) {
+      foreach (var actorDir in actorsDir.GetExistingSubdirs()) {
         if (actorDir.Name.StartsWith("zelda2_link_")) {
           continue;
         }
@@ -100,19 +100,19 @@ namespace uni.games.majoras_mask_3d {
 
     private IEnumerable<CmbModelFileBundle> GetLinkModels_(
         IFileHierarchy fileHierarchy) {
-      var actorsDir = fileHierarchy.Root.GetExistingSubdir("actors");
+      var actorsDir = fileHierarchy.Root.AssertGetExistingSubdir("actors");
 
       var cmbFiles =
           new[] {
-              actorsDir.GetExistingFile("zelda2_link_child_new/link_child.cmb"),
-              actorsDir.GetExistingFile("zelda2_link_goron_new/link_goron.cmb"),
-              actorsDir.GetExistingFile(
+              actorsDir.AssertGetExistingFile("zelda2_link_child_new/link_child.cmb"),
+              actorsDir.AssertGetExistingFile("zelda2_link_goron_new/link_goron.cmb"),
+              actorsDir.AssertGetExistingFile(
                   "zelda2_link_nuts_new/link_deknuts.cmb"),
-              actorsDir.GetExistingFile("zelda2_link_zora_new/link_zora.cmb"),
+              actorsDir.AssertGetExistingFile("zelda2_link_zora_new/link_zora.cmb"),
           };
 
       var csabFiles = fileHierarchy
-                      .Root.GetExistingSubdir("actors/zelda2_link_new")
+                      .Root.AssertGetExistingSubdir("actors/zelda2_link_new")
                       .FilesWithExtension(".csab")
                       .ToArray();
 
