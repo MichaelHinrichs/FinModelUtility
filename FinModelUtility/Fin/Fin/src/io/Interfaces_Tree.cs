@@ -67,7 +67,6 @@ namespace fin.io {
       IReadOnlyTreeDirectory<TIoObject, TDirectory, TFile, TFileType>
       where TFile : IReadOnlyTreeFile<TIoObject, TDirectory, TFile, TFileType> {
     TFileType FileType { get; }
-    TFile CloneWithFileType(string newFileType);
   }
 
 

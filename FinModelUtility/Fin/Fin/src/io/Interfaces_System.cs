@@ -35,6 +35,8 @@
         GROSysFile {
     string FullNameWithoutExtension { get; }
     string NameWithoutExtension { get; }
+
+    ISystemFile CloneWithFileType(string newFileType);
   }
 
 

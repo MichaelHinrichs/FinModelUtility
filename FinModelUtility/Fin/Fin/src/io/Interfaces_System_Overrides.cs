@@ -135,12 +135,6 @@ namespace fin.io {
     // FileType
     string GROSysFile.FileType => this.FileType;
     new string FileType { get; }
-
-    // CloneWithFileType
-    IReadOnlyTreeFile GROTreeFile.CloneWithFileType(string fileType)
-      => this.CloneWithFileType(fileType);
-
-    new IReadOnlySystemFile CloneWithFileType(string fileType);
   }
 
 
@@ -217,14 +211,17 @@ namespace fin.io {
 
     new ISystemFile AssertGetExistingFile(string path);
 
+    // TryToGetExistingFile
+    bool IReadOnlySystemDirectory.TryToGetExistingFile(string path,
+      out IReadOnlySystemFile outFile) {
+      var returnValue = this.TryToGetExistingFile(path, out var outSystemFile);
+      outFile = outSystemFile;
+      return returnValue;
+    }
+
     new bool TryToGetExistingFile(string path, out ISystemFile outFile);
 
-
     // TryToGetExistingFileWithFileType
-    bool IReadOnlySystemDirectory.TryToGetExistingFile(string path,
-      out IReadOnlySystemFile outFile)
-      => this.TryToGetExistingFile(path, out outFile);
-
     bool GROTreeDir.TryToGetExistingFileWithFileType(
         string pathWithoutExtension,
         out IReadOnlyTreeFile outFile,
@@ -237,11 +234,14 @@ namespace fin.io {
     bool GROSysDir.TryToGetExistingFileWithFileType(
         string pathWithoutExtension,
         out IReadOnlySystemFile outFile,
-        params string[] fileTypes)
-      => this.TryToGetExistingFileWithFileType(
+        params string[] fileTypes) {
+      var returnValue = this.TryToGetExistingFileWithFileType(
           pathWithoutExtension,
-          out outFile,
+          out var outSystemFile,
           fileTypes);
+      outFile = outSystemFile;
+      return returnValue;
+    }
 
     new bool TryToGetExistingFileWithFileType(string pathWithoutExtension,
                                               out ISystemFile outFile,
@@ -285,15 +285,5 @@ namespace fin.io {
     string GROSysFile.FileType => this.FileType;
     string IReadOnlySystemFile.FileType => this.FileType;
     new string FileType { get; }
-
-    // CloneWithFileType
-    IReadOnlySystemFile GROSysFile.CloneWithFileType(string newFileType)
-      => this.CloneWithFileType(newFileType);
-
-    IReadOnlySystemFile IReadOnlySystemFile.CloneWithFileType(
-        string newFileType)
-      => this.CloneWithFileType(newFileType);
-
-    new ISystemFile CloneWithFileType(string newFileType);
   }
 }
