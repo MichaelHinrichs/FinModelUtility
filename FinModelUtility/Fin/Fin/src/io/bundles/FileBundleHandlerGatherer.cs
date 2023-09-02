@@ -11,7 +11,7 @@ namespace fin.io.bundles {
       this.impl_ = impl;
     }
 
-    public IEnumerable<TFileBundle> GatherFileBundles(bool assert)
+    public IEnumerable<TFileBundle> GatherFileBundles()
       => this.impl_();
   }
 
@@ -28,7 +28,7 @@ namespace fin.io.bundles {
       this.input_ = input;
     }
 
-    public IEnumerable<TFileBundle> GatherFileBundles(bool assert)
+    public IEnumerable<TFileBundle> GatherFileBundles()
       => this.impl_(this.input_);
   }
 }

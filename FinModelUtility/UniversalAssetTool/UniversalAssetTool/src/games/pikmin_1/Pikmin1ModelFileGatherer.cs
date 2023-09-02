@@ -7,7 +7,7 @@ using uni.platforms.gcn;
 namespace uni.games.pikmin_1 {
   public class Pikmin1ModelFileGatherer
       : IFileBundleGatherer<ModModelFileBundle> {
-    public IEnumerable<ModModelFileBundle> GatherFileBundles(bool assert) {
+    public IEnumerable<ModModelFileBundle> GatherFileBundles() {
       if (!new GcnFileHierarchyExtractor().TryToExtractFromGame(
               "pikmin_1",
               GcnFileHierarchyExtractor.Options.Empty(),

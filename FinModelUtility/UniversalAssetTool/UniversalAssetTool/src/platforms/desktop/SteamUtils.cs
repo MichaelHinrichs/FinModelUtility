@@ -78,15 +78,7 @@ namespace uni.platforms.desktop {
 
     public static bool TryGetGameDirectory(
         string name,
-        out ISystemDirectory directory,
-        bool assert = false) {
-      if (GameDirectories.TryGetFirst(game => game.Name == name,
-                                      out directory)) {
-        return true;
-      }
-
-      Asserts.False(assert, $"Could not find \"{name}\" installed in Steam.");
-      return false;
-    }
+        out ISystemDirectory directory)
+      => GameDirectories.TryGetFirst(game => game.Name == name, out directory);
   }
 }

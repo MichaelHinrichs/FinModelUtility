@@ -15,9 +15,9 @@ namespace fin.io.bundles {
         Func<IEnumerable<IFileBundle>> handler)
       => Add(new FileBundleHandlerGatherer<IFileBundle>(handler));
 
-    public IEnumerable<IFileBundle> GatherFileBundles(bool assert)
+    public IEnumerable<IFileBundle> GatherFileBundles()
       => this.gatherers_
-             .SelectMany(gatherer => gatherer.GatherFileBundles(assert))
+             .SelectMany(gatherer => gatherer.GatherFileBundles())
              .ToList();
   }
 
@@ -36,9 +36,9 @@ namespace fin.io.bundles {
         Func<IEnumerable<TFileBundle>> handler)
       => Add(new FileBundleHandlerGatherer<TFileBundle>(handler));
 
-    public IEnumerable<TFileBundle> GatherFileBundles(bool assert)
+    public IEnumerable<TFileBundle> GatherFileBundles()
       => this.gatherers_
-             .SelectMany(gatherer => gatherer.GatherFileBundles(assert))
+             .SelectMany(gatherer => gatherer.GatherFileBundles())
              .ToList();
   }
 
@@ -68,9 +68,9 @@ namespace fin.io.bundles {
                  handler,
                  this.input_));
 
-    public IEnumerable<TFileBundle> GatherFileBundles(bool assert)
+    public IEnumerable<TFileBundle> GatherFileBundles()
       => this.gatherers_
-             .SelectMany(gatherer => gatherer.GatherFileBundles(assert))
+             .SelectMany(gatherer => gatherer.GatherFileBundles())
              .ToList();
   }
 }

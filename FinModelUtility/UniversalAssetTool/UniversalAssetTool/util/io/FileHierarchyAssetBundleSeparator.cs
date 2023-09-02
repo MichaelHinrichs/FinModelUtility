@@ -17,7 +17,7 @@ namespace uni.util.io {
       this.handler_ = handler;
     }
 
-    public IEnumerable<TFileBundle> GatherFileBundles(bool _)
+    public IEnumerable<TFileBundle> GatherFileBundles()
       => this.fileHierarchy_.SelectMany(directory => this.handler_(directory));
   }
 }

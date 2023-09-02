@@ -9,8 +9,7 @@ using UoT.memory;
 namespace uni.games.ocarina_of_time {
   public class OcarinaOfTimeFileBundleGatherer
       : IFileBundleGatherer<OotModelFileBundle> {
-    public IEnumerable<OotModelFileBundle> GatherFileBundles(
-        bool assert) {
+    public IEnumerable<OotModelFileBundle> GatherFileBundles() {
       if (!DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
               "ocarina_of_time.z64",
               out var ocarinaOfTimeRom)) {

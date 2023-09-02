@@ -20,8 +20,7 @@ namespace uni.games.majoras_mask_3d {
                     "zelda2_eg");
 
 
-    public IEnumerable<CmbModelFileBundle> GatherFileBundles(
-        bool assert) {
+    public IEnumerable<CmbModelFileBundle> GatherFileBundles() {
       if (!new ThreeDsFileHierarchyExtractor().TryToExtractFromGame(
               "majoras_mask_3d",
               out var fileHierarchy)) {
@@ -33,7 +32,7 @@ namespace uni.games.majoras_mask_3d {
              .Add(this.GetAutomaticModels_)
              .Add(this.GetModelsViaSeparator_)
              .Add(this.GetLinkModels_)
-             .GatherFileBundles(assert);
+             .GatherFileBundles();
     }
 
     private IEnumerable<CmbModelFileBundle> GetAutomaticModels_(
@@ -97,7 +96,7 @@ namespace uni.games.majoras_mask_3d {
               return Enumerable.Empty<CmbModelFileBundle>();
             }
           }
-      ).GatherFileBundles(false);
+      ).GatherFileBundles();
 
     private IEnumerable<CmbModelFileBundle> GetLinkModels_(
         IFileHierarchy fileHierarchy) {

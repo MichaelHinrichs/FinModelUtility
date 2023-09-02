@@ -32,16 +32,15 @@ namespace fin.io.bundles {
   }
 
   public interface IFileBundleGatherer {
-    IEnumerable<IFileBundle> GatherFileBundles(bool assert);
+    IEnumerable<IFileBundle> GatherFileBundles();
   }
 
   public interface IFileBundleGatherer<TFileBundle> : IFileBundleGatherer
       where TFileBundle : IFileBundle {
-    new IEnumerable<TFileBundle> GatherFileBundles(bool assert);
+    new IEnumerable<TFileBundle> GatherFileBundles();
 
-    IEnumerable<IFileBundle> IFileBundleGatherer.
-        GatherFileBundles(bool assert)
-      => this.GatherFileBundles(assert).CastTo<TFileBundle, IFileBundle>();
+    IEnumerable<IFileBundle> IFileBundleGatherer.GatherFileBundles()
+      => this.GatherFileBundles().CastTo<TFileBundle, IFileBundle>();
   }
 
   public interface IFileBundleGathererAccumulator : IFileBundleGatherer {

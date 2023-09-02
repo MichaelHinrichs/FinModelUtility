@@ -8,11 +8,9 @@ using uni.platforms.desktop;
 
 namespace uni.games.glover {
   public class GloverModelFileGatherer : IFileBundleGatherer<IFileBundle> {
-    public IEnumerable<IFileBundle> GatherFileBundles(
-        bool assert) {
+    public IEnumerable<IFileBundle> GatherFileBundles() {
       if (!SteamUtils.TryGetGameDirectory("Glover",
-                                          out var gloverSteamDirectory,
-                                          assert)) {
+                                          out var gloverSteamDirectory)) {
         yield break;
       }
 

@@ -11,7 +11,7 @@ using uni.platforms.gcn;
 namespace uni.games.mario_kart_double_dash {
   public class MarioKartDoubleDashFileGatherer
       : IFileBundleGatherer<IFileBundle> {
-    public IEnumerable<IFileBundle> GatherFileBundles(bool assert) {
+    public IEnumerable<IFileBundle> GatherFileBundles() {
       if (!new GcnFileHierarchyExtractor().TryToExtractFromGame(
               "mario_kart_double_dash",
               GcnFileHierarchyExtractor.Options.Standard()

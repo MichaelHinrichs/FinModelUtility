@@ -150,23 +150,47 @@ namespace uni.games {
       return ExtractorPromptChoice.SKIP_EXISTING;
     }
 
-    public static void ExtractAll<T>(
+    public static void ExtractAllForCli<T>(
         IFileBundleGatherer<T> gatherer,
         IModelImporter<T> reader)
-        where T : IModelFileBundle {
-      ExtractorUtil.ExtractAll(gatherer.GatherFileBundles(true),
-                               reader,
-                               Config.Instance.ExporterSettings.ExportedFormats,
-                               false);
-    }
+        where T : IModelFileBundle
+      => ExtractorUtil.ExtractAllForCli_(gatherer.GatherFileBundles(),
+                                        reader,
+                                        Config.Instance.ExporterSettings
+                                              .ExportedFormats,
+                                        false);
 
-    public static void ExtractAll<T>(
+    public static void ExtractAllForCli<T>(
+        IFileBundleGatherer<IFileBundle> gatherer,
+        IModelImporter<T> reader)
+        where T : IModelFileBundle
+      => ExtractorUtil.ExtractAllForCli_(
+          gatherer.GatherFileBundles(),
+          reader,
+          Config.Instance.ExporterSettings.ExportedFormats,
+          false);
+
+    private static void ExtractAllForCli_<T>(
+        IEnumerable<IFileBundle> fileBundles,
+        IModelImporter<T> reader,
+        IReadOnlyList<string> extensions,
+        bool overwriteExistingFiles)
+        where T : IModelFileBundle
+      => ExtractorUtil.ExtractAllForCli_(fileBundles.WhereIs<IFileBundle, T>(),
+                                        reader,
+                                        extensions,
+                                        overwriteExistingFiles);
+
+    private static void ExtractAllForCli_<T>(
         IEnumerable<T> modelFileBundles,
         IModelImporter<T> reader,
         IReadOnlyList<string> extensions,
         bool overwriteExistingFiles)
         where T : IModelFileBundle {
-      foreach (var modelFileBundle in modelFileBundles) {
+      var bundlesArray = modelFileBundles.ToArray();
+      Asserts.True(bundlesArray.Length > 0, "Expected to find bundles for the current ROM. Does the file exist, and was it extracted correctly?");
+
+      foreach (var modelFileBundle in bundlesArray) {
         ExtractorUtil.Extract(modelFileBundle,
                               reader,
                               extensions,
@@ -174,32 +198,6 @@ namespace uni.games {
       }
     }
 
-    public static void ExtractAll<T>(
-        IFileBundleGatherer<IFileBundle> gatherer,
-        IModelImporter<T> reader)
-        where T : IModelFileBundle {
-      ExtractorUtil.ExtractAll(gatherer.GatherFileBundles(true),
-                               reader,
-                               Config.Instance.ExporterSettings.ExportedFormats,
-                               false);
-    }
-
-    public static void ExtractAll<T>(
-        IEnumerable<IFileBundle> fileBundles,
-        IModelImporter<T> reader,
-        IReadOnlyList<string> extensions,
-        bool overwriteExistingFiles)
-        where T : IModelFileBundle {
-      var fileBundleArray = fileBundles.WhereIs<IFileBundle, T>()
-                                       .ToArray();
-      for (var i = 0; i < fileBundleArray.Length; ++i) {
-        var modelFileBundle = fileBundleArray[i];
-        ExtractorUtil.Extract(modelFileBundle,
-                              reader,
-                              extensions,
-                              overwriteExistingFiles);
-      }
-    }
 
     public static void ExtractAll<T>(
         IEnumerable<IFileBundle> fileBundles,
@@ -311,15 +309,17 @@ namespace uni.games {
                                           name + ".foo")),
                             Model = model,
                             Scale = new ScaleSource(
-                                    Config.Instance.ExporterSettings.ExportedModelScaleSource)
+                                    Config.Instance.ExporterSettings
+                                          .ExportedModelScaleSource)
                                 .GetScale(
                                     model,
                                     modelFileBundle)
                         },
                         formats,
-                        Config.Instance.ExporterSettings.ExportAllTextures);  
+                        Config.Instance.ExporterSettings.ExportAllTextures);
 
-        if (Config.Instance.ThirdPartySettings.ExportBoneScaleAnimationsSeparately) {
+        if (Config.Instance.ThirdPartySettings
+                  .ExportBoneScaleAnimationsSeparately) {
           new BoneScaleAnimationExporter().Export(
               new FinFile(Path.Join(outputDirectory.FullPath,
                                     name + "_bone_scale_animations.lua")),

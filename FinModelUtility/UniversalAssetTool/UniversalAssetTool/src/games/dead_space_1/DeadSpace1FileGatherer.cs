@@ -7,10 +7,8 @@ using visceral.api;
 
 namespace uni.games.dead_space_1 {
   public class DeadSpace1FileGatherer : IFileBundleGatherer<IFileBundle> {
-    public IEnumerable<IFileBundle> GatherFileBundles(bool assert) {
-      if (!SteamUtils.TryGetGameDirectory("Dead Space",
-                                          out var deadSpaceDir,
-                                          assert)) {
+    public IEnumerable<IFileBundle> GatherFileBundles() {
+      if (!SteamUtils.TryGetGameDirectory("Dead Space", out var deadSpaceDir)) {
         yield break;
       }
 

@@ -66,7 +66,7 @@ namespace uni.games {
       }
 
       return new FileBundleHierarchyOrganizer().Organize(
-          accumulator.GatherFileBundles(false));
+          accumulator.GatherFileBundles());
     }
   }
 }

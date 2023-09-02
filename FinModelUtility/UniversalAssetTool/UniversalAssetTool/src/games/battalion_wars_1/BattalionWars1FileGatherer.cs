@@ -8,7 +8,7 @@ using uni.util.io;
 
 namespace uni.games.battalion_wars_1 {
   public class BattalionWars1FileGatherer : IFileBundleGatherer<IFileBundle> {
-    public IEnumerable<IFileBundle> GatherFileBundles(bool assert) {
+    public IEnumerable<IFileBundle> GatherFileBundles() {
       if (!new GcnFileHierarchyExtractor().TryToExtractFromGame(
               "battalion_wars_1",
               out var fileHierarchy)) {
@@ -203,7 +203,7 @@ namespace uni.games.battalion_wars_1 {
 
             return bundles;
           }
-      ).GatherFileBundles(assert);
+      ).GatherFileBundles();
     }
   }
 }

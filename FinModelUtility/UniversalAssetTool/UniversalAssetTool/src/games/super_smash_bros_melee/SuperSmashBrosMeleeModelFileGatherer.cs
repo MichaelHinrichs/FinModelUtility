@@ -9,7 +9,7 @@ namespace uni.games.super_smash_bros_melee {
       : IFileBundleGatherer<DatModelFileBundle> {
     public string Name => "super_smash_bros_melee";
 
-    public IEnumerable<DatModelFileBundle>? GatherFileBundles(bool assert) {
+    public IEnumerable<DatModelFileBundle>? GatherFileBundles() {
       if (!new GcnFileHierarchyExtractor().TryToExtractFromGame(
               "super_smash_bros_melee",
               out var fileHierarchy)) {

@@ -3,7 +3,7 @@
 namespace uni.games.battalion_wars_1 {
   public class BattalionWars1Extractor : IExtractor {
     public void ExtractAll()
-      => ExtractorUtil.ExtractAll(new BattalionWars1FileGatherer(),
+      => ExtractorUtil.ExtractAllForCli(new BattalionWars1FileGatherer(),
                                   new BattalionWarsModelImporter());
   }
 }

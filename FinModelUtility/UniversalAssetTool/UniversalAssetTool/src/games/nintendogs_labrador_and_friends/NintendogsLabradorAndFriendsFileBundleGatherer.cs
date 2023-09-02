@@ -9,10 +9,9 @@ using Yarhl.FileSystem;
 namespace uni.games.nintendogs_labrador_and_friends {
   public class NintendogsLabradorAndFriendsFileBundleGatherer
       : IFileBundleGatherer<IFileBundle> {
-    public IEnumerable<IFileBundle> GatherFileBundles(bool assert) {
-      if (!DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
+    public IEnumerable<IFileBundle> GatherFileBundles() {
+      if (!DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
               "nintendogs_labrador_and_friends.nds",
-              assert,
               out var nintendogsRom)) {
         yield break;
       }

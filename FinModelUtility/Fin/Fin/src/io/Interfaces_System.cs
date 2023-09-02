@@ -1,11 +1,26 @@
 ﻿using System.Collections.Generic;
 
 namespace fin.io {
+  using IROTreeIoObj =
+      IReadOnlyTreeIoObject<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
+          IReadOnlySystemFile, string>;
+  using IROTreeDir =
+      IReadOnlyTreeDirectory<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
+          IReadOnlySystemFile, string>;
+  using IROTreeFile =
+      IReadOnlyTreeFile<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
+          IReadOnlySystemFile, string>;
+  using ITreeIoObj =
+      IReadOnlyTreeIoObject<ISystemIoObject, ISystemDirectory, ISystemFile,
+          string>;
+  using ITreeDir =
+      IReadOnlyTreeDirectory<ISystemIoObject, ISystemDirectory, ISystemFile,
+          string>;
+  using ITreeFile =
+      IReadOnlyTreeFile<ISystemIoObject, ISystemDirectory, ISystemFile, string>;
+
   // ReadOnly
-  public interface IReadOnlySystemIoObject
-      : ITreeIoObject<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
-          IReadOnlySystemFile,
-          string> {
+  public interface IReadOnlySystemIoObject : IROTreeIoObj {
     bool Exists { get; }
 
     string? GetParentFullPath();
@@ -13,24 +28,20 @@ namespace fin.io {
 
   public interface IReadOnlySystemDirectory
       : IReadOnlySystemIoObject,
-        ITreeDirectory<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
-            IReadOnlySystemFile,
-            string> { }
+        IROTreeDir { }
+
 
   public interface IReadOnlySystemFile
       : IReadOnlySystemIoObject,
-        ITreeFile<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
-            IReadOnlySystemFile, string> {
+        IROTreeFile {
     string FullNameWithoutExtension { get; }
     string NameWithoutExtension { get; }
   }
 
 
   // Mutable
-  public interface ISystemIoObject
-      : IReadOnlySystemIoObject,
-        ITreeIoObject<ISystemIoObject, ISystemDirectory, ISystemFile,
-            string> {
+
+  public interface ISystemIoObject : IReadOnlySystemIoObject, ITreeIoObj {
     new string FullPath { get; }
     new string Name { get; }
     new bool Exists { get; }
@@ -40,11 +51,9 @@ namespace fin.io {
     new IEnumerable<ISystemDirectory> GetAncestry();
   }
 
+
   public interface ISystemDirectory
-      : ISystemIoObject,
-        IReadOnlySystemDirectory,
-        ITreeDirectory<ISystemIoObject, ISystemDirectory, ISystemFile,
-            string> {
+      : ISystemIoObject, IReadOnlySystemDirectory, ITreeDir {
     bool Create();
 
     bool Delete(bool recursive = false);
@@ -71,28 +80,35 @@ namespace fin.io {
                                               out ISystemFile outFile,
                                               params string[] fileTypes);
 
+    
     new IEnumerable<ISystemFile> SearchForFiles(
         string searchPattern,
         bool includeSubdirs = false);
 
-    // TODO: Delete this method
-    new bool PossiblyAssertExistingFile(string relativePath,
-                                        bool assert,
-                                        out ISystemFile outFile);
+
+    IEnumerable<IReadOnlySystemFile> IROTreeDir.GetFilesWithFileType(
+        string fileType,
+        bool includeSubdirs = false)
+      => this.GetFilesWithFileType(fileType, includeSubdirs);
 
     new IEnumerable<ISystemFile> GetFilesWithFileType(
         string fileType,
         bool includeSubdirs = false);
   }
 
+
   public interface ISystemFile
-      : ISystemIoObject,
-        IReadOnlySystemFile,
-        IGenericFile,
-        ITreeFile<ISystemIoObject, ISystemDirectory, ISystemFile, string> {
+      : ISystemIoObject, IReadOnlySystemFile, IGenericFile, ITreeFile {
     bool Delete();
 
+
+    string IROTreeFile.FileType => this.FileType;
     new string FileType { get; }
+
+
+    IReadOnlySystemFile IROTreeFile.CloneWithFileType(string newFileType)
+      => this.CloneWithFileType(newFileType);
+
     new ISystemFile CloneWithFileType(string newFileType);
   }
 }

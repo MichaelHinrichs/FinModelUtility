@@ -3,7 +3,7 @@
 namespace uni.games.super_mario_sunshine {
   public class SuperMarioSunshineExtractor : IExtractor {
     public void ExtractAll()
-      => ExtractorUtil.ExtractAll(new SuperMarioSunshineModelFileGatherer(),
+      => ExtractorUtil.ExtractAllForCli(new SuperMarioSunshineModelFileGatherer(),
                                   new BmdModelImporter());
   }
 }

@@ -117,7 +117,7 @@ namespace uni.games.ocarina_of_time_3d {
           .Register("zelda_wm2", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_xc", new NoAnimationsModelSeparatorMethod());
 
-    public IEnumerable<CmbModelFileBundle> GatherFileBundles(bool assert) {
+    public IEnumerable<CmbModelFileBundle> GatherFileBundles() {
       if (!new ThreeDsFileHierarchyExtractor().TryToExtractFromGame(
               "ocarina_of_time_3d",
               out var fileHierarchy)) {
@@ -135,7 +135,7 @@ namespace uni.games.ocarina_of_time_3d {
              .Add(this.GetVolvagiaModels_)
              .Add(this.GetMoblinModels_)
              .Add(this.GetBongoBongoModels_)
-             .GatherFileBundles(assert);
+             .GatherFileBundles();
     }
 
     private IEnumerable<CmbModelFileBundle> GetModelsViaSeparator_(
@@ -173,7 +173,7 @@ namespace uni.games.ocarina_of_time_3d {
               return Enumerable.Empty<CmbModelFileBundle>();
             }
           }
-      ).GatherFileBundles(false);
+      ).GatherFileBundles();
 
     private IEnumerable<CmbModelFileBundle> GetAutomaticModels_(
         IFileHierarchy fileHierarchy) {

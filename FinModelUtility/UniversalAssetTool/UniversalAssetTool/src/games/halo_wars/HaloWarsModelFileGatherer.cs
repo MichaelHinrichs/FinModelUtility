@@ -12,11 +12,9 @@ using uni.platforms.desktop;
 namespace uni.games.halo_wars {
   public class HaloWarsModelFileGatherer 
       : IFileBundleGatherer<IHaloWarsModelFileBundle> {
-    public IEnumerable<IHaloWarsModelFileBundle> GatherFileBundles(
-        bool assert) {
+    public IEnumerable<IHaloWarsModelFileBundle> GatherFileBundles() {
       if (!SteamUtils.TryGetGameDirectory("HaloWarsDE",
-                                          out var haloWarsSteamDirectory,
-                                          assert)) {
+                                          out var haloWarsSteamDirectory)) {
         yield break;
       }
 

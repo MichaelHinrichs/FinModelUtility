@@ -10,7 +10,7 @@ using uni.util.io;
 namespace uni.games.professor_layton_vs_phoenix_wright {
   public class ProfessorLaytonVsPhoenixWrightModelFileGatherer
       : IFileBundleGatherer<XcModelFileBundle> {
-    public IEnumerable<XcModelFileBundle> GatherFileBundles(bool assert) {
+    public IEnumerable<XcModelFileBundle> GatherFileBundles() {
       if (!new ThreeDsFileHierarchyExtractor().TryToExtractFromGame(
               "professor_layton_vs_phoenix_wright",
               out var fileHierarchy)) {
@@ -95,7 +95,7 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
                                       bundle.MainFile.Name)
                    .ToArray();
           }
-      ).GatherFileBundles(assert);
+      ).GatherFileBundles();
     }
 
     internal IXcFiles GetModelOnly(string name,

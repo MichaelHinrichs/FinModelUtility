@@ -2,13 +2,22 @@
 using System.Collections.Generic;
 
 namespace fin.io {
-  public interface ITreeIoObject<TIoObject, TDirectory, TFile, TFileType>
+  // TODO: Come up with a better name for these "tree" interfaces?
+  // The idea is that:
+  // - generic files are just standalone files, don't necessarily have parents
+  //   - can be readonly or mutable
+  // - "tree" files are files that exist in a hierarchy, these may be within a file system or an archive
+  //   - due to the ambiguity, these are always readonly
+  // - system files refer to real files that exist within the file system
+  //   - these can be readonly or mutable
+
+  public interface IReadOnlyTreeIoObject<TIoObject, TDirectory, TFile, TFileType>
       : IEquatable<TIoObject>
       where TIoObject :
-      ITreeIoObject<TIoObject, TDirectory, TFile, TFileType>
+      IReadOnlyTreeIoObject<TIoObject, TDirectory, TFile, TFileType>
       where TDirectory :
-      ITreeDirectory<TIoObject, TDirectory, TFile, TFileType>
-      where TFile : ITreeFile<TIoObject, TDirectory, TFile, TFileType> {
+      IReadOnlyTreeDirectory<TIoObject, TDirectory, TFile, TFileType>
+      where TFile : IReadOnlyTreeFile<TIoObject, TDirectory, TFile, TFileType> {
     string FullPath { get; }
     string Name { get; }
 
@@ -17,13 +26,13 @@ namespace fin.io {
     IEnumerable<TDirectory> GetAncestry();
   }
 
-  public interface ITreeDirectory<TIoObject, TDirectory, TFile, TFileType>
-      : ITreeIoObject<TIoObject, TDirectory, TFile, TFileType>
+  public interface IReadOnlyTreeDirectory<TIoObject, TDirectory, TFile, TFileType>
+      : IReadOnlyTreeIoObject<TIoObject, TDirectory, TFile, TFileType>
       where TIoObject :
-      ITreeIoObject<TIoObject, TDirectory, TFile, TFileType>
+      IReadOnlyTreeIoObject<TIoObject, TDirectory, TFile, TFileType>
       where TDirectory :
-      ITreeDirectory<TIoObject, TDirectory, TFile, TFileType>
-      where TFile : ITreeFile<TIoObject, TDirectory, TFile, TFileType> {
+      IReadOnlyTreeDirectory<TIoObject, TDirectory, TFile, TFileType>
+      where TFile : IReadOnlyTreeFile<TIoObject, TDirectory, TFile, TFileType> {
     bool IsEmpty { get; }
 
     IEnumerable<TDirectory> GetExistingSubdirs();
@@ -42,24 +51,19 @@ namespace fin.io {
         string searchPattern,
         bool includeSubdirs = false);
 
-    // TODO: Delete this method
-    bool PossiblyAssertExistingFile(string relativePath,
-                                    bool assert,
-                                    out TFile outFile);
-
     IEnumerable<TFile> GetFilesWithFileType(
         TFileType fileType,
         bool includeSubdirs = false);
   }
 
-  public interface ITreeFile<TIoObject, TDirectory, TFile, TFileType>
-      : ITreeIoObject<TIoObject, TDirectory, TFile, TFileType>,
+  public interface IReadOnlyTreeFile<TIoObject, TDirectory, TFile, TFileType>
+      : IReadOnlyTreeIoObject<TIoObject, TDirectory, TFile, TFileType>,
         IReadOnlyGenericFile
       where TIoObject :
-      ITreeIoObject<TIoObject, TDirectory, TFile, TFileType>
+      IReadOnlyTreeIoObject<TIoObject, TDirectory, TFile, TFileType>
       where TDirectory :
-      ITreeDirectory<TIoObject, TDirectory, TFile, TFileType>
-      where TFile : ITreeFile<TIoObject, TDirectory, TFile, TFileType> {
+      IReadOnlyTreeDirectory<TIoObject, TDirectory, TFile, TFileType>
+      where TFile : IReadOnlyTreeFile<TIoObject, TDirectory, TFile, TFileType> {
     TFileType FileType { get; }
     TFile CloneWithFileType(string newFileType);
   }

@@ -12,10 +12,10 @@ using schema.binary;
 
 namespace fin.io {
   using IROTreeIoObj =
-      ITreeIoObject<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
+      IReadOnlyTreeIoObject<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
           IReadOnlySystemFile, string>;
   using IROTreeFile =
-      ITreeFile<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
+      IReadOnlyTreeFile<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
           IReadOnlySystemFile, string>;
 
   public readonly struct FinFile : ISystemFile {
@@ -119,9 +119,6 @@ namespace fin.io {
 
     public string NameWithoutExtension
       => FinFileStatic.GetNameWithoutExtension(this.Name);
-
-    IReadOnlySystemFile IROTreeFile.CloneWithFileType(string newFileType)
-      => this.CloneWithFileType(newFileType);
 
     public ISystemFile CloneWithFileType(string newExtension) {
       Asserts.True(newExtension.StartsWith("."),

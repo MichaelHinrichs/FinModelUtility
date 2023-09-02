@@ -7,10 +7,10 @@ using fin.util.asserts;
 
 namespace fin.io {
   using IROTreeIoObj =
-      ITreeIoObject<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
+      IReadOnlyTreeIoObject<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
           IReadOnlySystemFile, string>;
   using IROTreeDir =
-      ITreeDirectory<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
+      IReadOnlyTreeDirectory<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
           IReadOnlySystemFile, string>;
 
   public readonly struct FinDirectory : ISystemDirectory {
@@ -246,38 +246,6 @@ namespace fin.io {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ISystemFile AssertGetExistingFile(string path)
       => new FinFile(FinDirectoryStatic.GetExistingFile(this.FullPath, path));
-
-    public bool PossiblyAssertExistingFile(string relativePath,
-                                           bool assert,
-                                           out IReadOnlySystemFile outFile) {
-      outFile = default;
-      return this.PossiblyAssertExistingFile(
-          relativePath,
-          assert,
-          out Unsafe.As<IReadOnlySystemFile, ISystemFile>(ref outFile));
-    }
-
-    public bool PossiblyAssertExistingFile(string relativePath,
-                                           bool assert,
-                                           out ISystemFile outFile) {
-      var fileFullName =
-          FinDirectoryStatic.PossiblyAssertExistingFile(
-              this.FullPath,
-              relativePath,
-              assert);
-      if (fileFullName != null) {
-        outFile = new FinFile(fileFullName);
-        return true;
-      }
-
-      outFile = default;
-      return false;
-    }
-
-    IEnumerable<IReadOnlySystemFile> IROTreeDir.GetFilesWithFileType(
-            string fileType,
-            bool includeSubdirs)
-      => this.GetFilesWithFileType(fileType, includeSubdirs);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerable<ISystemFile> GetFilesWithFileType(

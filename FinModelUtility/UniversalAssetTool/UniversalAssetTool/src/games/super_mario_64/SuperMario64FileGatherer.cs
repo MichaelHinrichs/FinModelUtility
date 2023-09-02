@@ -8,11 +8,9 @@ using uni.platforms;
 namespace uni.games.super_mario_64 {
   public class SuperMario64FileGatherer :
       IFileBundleGatherer<Sm64LevelFileBundle> {
-    public IEnumerable<Sm64LevelFileBundle> GatherFileBundles(
-        bool assert) {
-      if (!DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
+    public IEnumerable<Sm64LevelFileBundle> GatherFileBundles() {
+      if (!DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
               "super_mario_64.z64",
-              assert,
               out var superMario64Rom)) {
         yield break;
       }

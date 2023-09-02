@@ -10,10 +10,10 @@ using uni.util.io;
 
 namespace uni.games.battalion_wars_2 {
   public class BattalionWars2FileGatherer : IFileBundleGatherer<IFileBundle> {
-    public IEnumerable<IFileBundle> GatherFileBundles(bool assert) {
-      if (!DirectoryConstants.ROMS_DIRECTORY.PossiblyAssertExistingFile(
+    public IEnumerable<IFileBundle> GatherFileBundles() {
+      if (!DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
               "battalion_wars_2.iso",
-              assert, out var battalionWarsRom)) {
+              out var battalionWarsRom)) {
         return Enumerable.Empty<IFileBundle>();
       }
 
@@ -81,7 +81,8 @@ namespace uni.games.battalion_wars_2 {
                     [] {
                         (svetModlFile, fvAnimFiles),
                         (gruntModlFiles, wgruntAnimFiles),
-                        (vetModlFiles, fvAnimFiles), (otherModlFiles, null),
+                        (vetModlFiles, fvAnimFiles),
+                        (otherModlFiles, null),
                     };
 
             var modlBundles =
@@ -102,7 +103,7 @@ namespace uni.games.battalion_wars_2 {
                          .Where(file => file.Name.EndsWith(".out.gz"))
                          .Select(outFile => new OutModelFileBundle {
                              GameName = "battalion_wars_2",
-                             OutFile = outFile, 
+                             OutFile = outFile,
                              GameVersion = GameVersion.BW2,
                          });
             var sceneBundles =
@@ -112,7 +113,8 @@ namespace uni.games.battalion_wars_2 {
                       .Where(file =>
                                  !file.NameWithoutExtension.EndsWith("_Level"))
                       .Where(file =>
-                                 !file.NameWithoutExtension.EndsWith("_preload"))
+                                 !file.NameWithoutExtension
+                                      .EndsWith("_preload"))
                       .Select(file => new BwSceneFileBundle {
                           GameName = "battalion_wars_2",
                           MainXmlFile = file,
@@ -130,7 +132,7 @@ namespace uni.games.battalion_wars_2 {
 
             return bundles;
           }
-      ).GatherFileBundles(assert);
+      ).GatherFileBundles();
     }
   }
 }

@@ -9,8 +9,7 @@ using uni.platforms.gcn;
 
 namespace uni.games.pikmin_2 {
   public class Pikmin2FileGatherer : IFileBundleGatherer<IFileBundle> {
-    public IEnumerable<IFileBundle> GatherFileBundles(
-        bool assert) {
+    public IEnumerable<IFileBundle> GatherFileBundles() {
       if (!new GcnFileHierarchyExtractor().TryToExtractFromGame(
               "pikmin_2",
               GcnFileHierarchyExtractor.Options.Standard()

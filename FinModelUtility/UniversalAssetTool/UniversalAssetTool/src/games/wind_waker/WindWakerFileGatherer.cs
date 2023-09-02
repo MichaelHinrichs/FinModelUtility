@@ -18,7 +18,7 @@ namespace uni.games.wind_waker {
     private readonly ILogger logger_ =
         Logging.Create<WindWakerFileGatherer>();
 
-    public IEnumerable<BmdModelFileBundle> GatherFileBundles(bool assert) {
+    public IEnumerable<BmdModelFileBundle> GatherFileBundles() {
       if (!new GcnFileHierarchyExtractor().TryToExtractFromGame(
               "wind_waker",
               out var fileHierarchy)) {

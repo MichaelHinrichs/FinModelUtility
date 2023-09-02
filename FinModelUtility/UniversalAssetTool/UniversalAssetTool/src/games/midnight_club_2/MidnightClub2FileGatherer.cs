@@ -10,8 +10,7 @@ using xmod.api;
 namespace uni.games.midnight_club_2 {
   public class MidnightClub2FileGatherer
       : IFileBundleGatherer<IModelFileBundle> {
-    public IEnumerable<IModelFileBundle> GatherFileBundles(
-        bool assert) {
+    public IEnumerable<IModelFileBundle> GatherFileBundles() {
       if (!DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingSubdir(
               "midnight_club_2",
               out var midnightClub2Directory)) {
@@ -32,7 +31,7 @@ namespace uni.games.midnight_club_2 {
                                     .Select(
                                         file => new PedModelFileBundle {
                                             PedFile = file,
-                                        }))).GatherFileBundles(assert);
+                                        }))).GatherFileBundles();
     }
   }
 }

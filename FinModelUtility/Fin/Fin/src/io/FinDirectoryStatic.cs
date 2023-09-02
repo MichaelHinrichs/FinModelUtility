@@ -113,18 +113,6 @@ namespace fin.io {
           $"Expected to find file: '{path}' in directory '{fullName}'");
     }
 
-    public static string? PossiblyAssertExistingFile(
-        string fullName,
-        string relativePath,
-        bool assert) {
-      if (assert) {
-        return GetExistingFile(fullName, relativePath);
-      }
-
-      TryToGetExistingFile(fullName, relativePath, out var file);
-      return file;
-    }
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IEnumerable<string> GetFilesWithExtension(
         string fullName,

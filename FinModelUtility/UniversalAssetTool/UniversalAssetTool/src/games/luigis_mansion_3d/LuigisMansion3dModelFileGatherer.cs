@@ -21,7 +21,7 @@ namespace uni.games.luigis_mansion_3d {
             .Register(@"\model\luige",
                       new NameModelSeparatorMethod("Luigi.cmb"));
 
-    public IEnumerable<CmbModelFileBundle> GatherFileBundles(bool assert) {
+    public IEnumerable<CmbModelFileBundle> GatherFileBundles() {
       if (!new ThreeDsFileHierarchyExtractor().TryToExtractFromGame(
               "luigis_mansion_3d",
               out var fileHierarchy)) {

@@ -9,7 +9,7 @@ using uni.platforms.gcn;
 namespace uni.games.super_mario_sunshine {
   public class SuperMarioSunshineModelFileGatherer
       : IFileBundleGatherer<BmdModelFileBundle> {
-    public IEnumerable<BmdModelFileBundle> GatherFileBundles(bool assert) {
+    public IEnumerable<BmdModelFileBundle> GatherFileBundles() {
       if (!new GcnFileHierarchyExtractor().TryToExtractFromGame(
               "super_mario_sunshine",
               GcnFileHierarchyExtractor.Options.Standard()

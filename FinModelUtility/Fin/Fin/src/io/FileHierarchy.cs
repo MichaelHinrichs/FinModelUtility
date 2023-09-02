@@ -338,40 +338,37 @@ namespace fin.io {
       public override string ToString() => this.LocalPath;
     }
 
-    private class FileHierarchyFile : IFileHierarchyFile {
-      public FileHierarchyFile(IFileHierarchyDirectory root,
-                               IFileHierarchyDirectory parent,
-                               ISystemFile? file,
-                               ISystemDirectory baseDirectory) {
-        this.Root = root;
-        this.Parent = parent;
-        this.Impl = file;
-        this.LocalPath =
-            file.FullPath.Substring(baseDirectory.FullPath.Length);
-      }
-
+    private class FileHierarchyFile(
+        IFileHierarchyDirectory root,
+        IFileHierarchyDirectory parent,
+        ISystemFile? file,
+        ISystemDirectory baseDirectory) : IFileHierarchyFile {
       public override string ToString() => this.LocalPath;
 
-      public IFileHierarchyDirectory Root { get; }
-      public IFileHierarchyDirectory Parent { get; }
+      public IFileHierarchyDirectory Root { get; } = root;
+      public IFileHierarchyDirectory Parent { get; } = parent;
 
-      public ISystemFile Impl { get; }
+      public ISystemFile Impl { get; } = file;
 
 
       // File fields
       public string FullPath => this.Impl.FullPath;
       public string Name => this.Impl.Name;
       public string Extension => this.Impl.FileType;
-      public string FullNameWithoutExtension => this.Impl.FullNameWithoutExtension;
+
+      public string FullNameWithoutExtension
+        => this.Impl.FullNameWithoutExtension;
+
       public string NameWithoutExtension => this.Impl.NameWithoutExtension;
 
       public bool Exists => this.Impl.Exists;
 
-      public string LocalPath { get; }
+      public string LocalPath { get; } =
+        file.FullPath.Substring(baseDirectory.FullPath.Length);
 
       public string DisplayFullPath
         => $"//{this.Root.Name}/{this.LocalPath.Replace('\\', '/')}";
-      
+
       public FileSystemStream OpenRead() => this.Impl.OpenRead();
       public StreamReader OpenReadAsText() => this.Impl.OpenReadAsText();
 
