@@ -47,7 +47,7 @@ namespace glo.api {
       var textureFilesByName = new Dictionary<string, IFileHierarchyFile>();
       foreach (var textureDirectory in textureDirectories) {
         foreach (var textureFile in textureDirectory.Files) {
-          if (FinImage.IsSupportedExtension(textureFile.Impl)) {
+          if (FinImage.IsSupportedFileType(textureFile.Impl)) {
             textureFilesByName[textureFile.NameWithoutExtension.ToLower()] =
                 textureFile;
           }
