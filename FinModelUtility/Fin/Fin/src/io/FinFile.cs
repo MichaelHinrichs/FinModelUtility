@@ -11,13 +11,6 @@ using fin.util.json;
 using schema.binary;
 
 namespace fin.io {
-  using IROTreeIoObj =
-      IReadOnlyTreeIoObject<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
-          IReadOnlySystemFile, string>;
-  using IROTreeFile =
-      IReadOnlyTreeFile<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
-          IReadOnlySystemFile, string>;
-
   public readonly struct FinFile : ISystemFile {
     public FinFile(string fullName) {
       this.FullPath = fullName;
@@ -40,9 +33,12 @@ namespace fin.io {
     }
 
     public bool Equals(ISystemIoObject? other)
-      => this.Equals(other as IReadOnlySystemIoObject);
+      => this.Equals(other as IReadOnlyTreeIoObject);
 
     public bool Equals(IReadOnlySystemIoObject? other)
+      => this.Equals(other as IReadOnlyTreeIoObject);
+
+    public bool Equals(IReadOnlyTreeIoObject? other)
       => this.FullPath == other?.FullPath;
 
 
@@ -56,22 +52,12 @@ namespace fin.io {
     public string? GetParentFullPath()
       => FinIoStatic.GetParentFullName(this.FullPath);
 
-    IReadOnlySystemDirectory IROTreeIoObj.AssertGetParent()
-      => this.AssertGetParent();
-
     public ISystemDirectory AssertGetParent() {
       if (this.TryGetParent(out ISystemDirectory parent)) {
         return parent;
       }
 
       throw new Exception("Expected parent directory to exist!");
-    }
-
-    public bool TryGetParent(out IReadOnlySystemDirectory parent) {
-      parent = default;
-      return this.TryGetParent(
-          out Unsafe
-              .As<IReadOnlySystemDirectory, ISystemDirectory>(ref parent));
     }
 
     public bool TryGetParent(out ISystemDirectory parent) {
@@ -84,9 +70,6 @@ namespace fin.io {
       parent = default;
       return false;
     }
-
-    IEnumerable<IReadOnlySystemDirectory> IROTreeIoObj.GetAncestry()
-      => this.GetAncestry();
 
     public IEnumerable<ISystemDirectory> GetAncestry()
       => this.GetUpwardAncestry_().Reverse();

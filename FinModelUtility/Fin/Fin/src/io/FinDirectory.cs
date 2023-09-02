@@ -6,13 +6,6 @@ using System.Runtime.CompilerServices;
 using fin.util.asserts;
 
 namespace fin.io {
-  using IROTreeIoObj =
-      IReadOnlyTreeIoObject<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
-          IReadOnlySystemFile, string>;
-  using IROTreeDir =
-      IReadOnlyTreeDirectory<IReadOnlySystemIoObject, IReadOnlySystemDirectory,
-          IReadOnlySystemFile, string>;
-
   public readonly struct FinDirectory : ISystemDirectory {
     public FinDirectory(string fullName) {
       this.FullPath = fullName;
@@ -35,9 +28,12 @@ namespace fin.io {
     }
 
     public bool Equals(ISystemIoObject? other)
-      => this.Equals(other as IReadOnlySystemIoObject);
+      => this.Equals(other as IReadOnlyTreeIoObject);
 
     public bool Equals(IReadOnlySystemIoObject? other)
+      => this.Equals(other as IReadOnlyTreeIoObject);
+
+    public bool Equals(IReadOnlyTreeIoObject? other)
       => this.FullPath == other?.FullPath;
 
 
@@ -51,22 +47,12 @@ namespace fin.io {
     public string? GetParentFullPath()
       => FinIoStatic.GetParentFullName(this.FullPath);
 
-    IReadOnlySystemDirectory IROTreeIoObj.AssertGetParent()
-      => this.AssertGetParent();
-
     public ISystemDirectory AssertGetParent() {
       if (this.TryGetParent(out ISystemDirectory parent)) {
         return parent;
       }
 
       throw new Exception("Expected parent directory to exist!");
-    }
-
-    public bool TryGetParent(out IReadOnlySystemDirectory parent) {
-      parent = default;
-      return this.TryGetParent(
-          out Unsafe
-              .As<IReadOnlySystemDirectory, ISystemDirectory>(ref parent));
     }
 
     public bool TryGetParent(out ISystemDirectory parent) {
@@ -79,9 +65,6 @@ namespace fin.io {
       parent = default;
       return false;
     }
-
-    IEnumerable<IReadOnlySystemDirectory> IROTreeIoObj.GetAncestry()
-      => this.GetAncestry();
 
     public IEnumerable<ISystemDirectory> GetAncestry()
       => this.GetUpwardAncestry_().Reverse();
@@ -128,9 +111,6 @@ namespace fin.io {
       => FinDirectoryStatic.MoveTo(this.FullPath, path);
 
 
-    IEnumerable<IReadOnlySystemDirectory> IROTreeDir.GetExistingSubdirs()
-      => this.GetExistingSubdirs();
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerable<ISystemDirectory> GetExistingSubdirs()
       => FinDirectoryStatic
@@ -155,9 +135,6 @@ namespace fin.io {
       return subdir.Exists;
     }
 
-    IReadOnlySystemDirectory IROTreeDir.AssertGetExistingSubdir(string path)
-      => this.AssertGetExistingSubdir(path);
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ISystemDirectory AssertGetExistingSubdir(string relativePath) {
       Asserts.True(
@@ -172,19 +149,11 @@ namespace fin.io {
           FinDirectoryStatic.GetSubdir(this.FullPath, relativePath, true));
 
 
-    IEnumerable<IReadOnlySystemFile> IROTreeDir.GetExistingFiles()
-      => this.GetExistingFiles();
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerable<ISystemFile> GetExistingFiles()
       => FinDirectoryStatic.GetExistingFiles(this.FullPath)
                            .Select(fullName
                                        => (ISystemFile) new FinFile(fullName));
-
-    IEnumerable<IReadOnlySystemFile> IROTreeDir.SearchForFiles(
-        string searchPattern,
-        bool includeSubdirs)
-      => this.SearchForFiles(searchPattern, includeSubdirs);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerable<ISystemFile> SearchForFiles(
@@ -193,14 +162,6 @@ namespace fin.io {
       => FinDirectoryStatic
          .SearchForFiles(this.FullPath, searchPattern, includeSubdirs)
          .Select(fullName => (ISystemFile) new FinFile(fullName));
-
-    public bool TryToGetExistingFile(string path,
-                                     out IReadOnlySystemFile outFile) {
-      outFile = default;
-      return TryToGetExistingFile(
-          path,
-          out Unsafe.As<IReadOnlySystemFile, ISystemFile>(ref outFile));
-    }
 
     public bool TryToGetExistingFile(string path, out ISystemFile outFile) {
       if (FinDirectoryStatic.TryToGetExistingFile(
@@ -213,17 +174,6 @@ namespace fin.io {
 
       outFile = default;
       return false;
-    }
-
-    public bool TryToGetExistingFileWithFileType(
-        string pathWithoutExtension,
-        out IReadOnlySystemFile outFile,
-        params string[] fileTypes) {
-      outFile = default;
-      return TryToGetExistingFileWithFileType(
-          pathWithoutExtension,
-          out Unsafe.As<IReadOnlySystemFile, ISystemFile>(ref outFile),
-          fileTypes);
     }
 
     public bool TryToGetExistingFileWithFileType(string pathWithoutExtension,
@@ -239,9 +189,6 @@ namespace fin.io {
       outFile = default;
       return false;
     }
-
-    IReadOnlySystemFile IROTreeDir.AssertGetExistingFile(string path)
-      => this.AssertGetExistingFile(path);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ISystemFile AssertGetExistingFile(string path)

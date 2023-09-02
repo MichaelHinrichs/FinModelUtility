@@ -11,7 +11,8 @@ namespace fin.io {
   // - system files refer to real files that exist within the file system
   //   - these can be readonly or mutable
 
-  public interface IReadOnlyTreeIoObject<TIoObject, TDirectory, TFile, TFileType>
+  public interface IReadOnlyTreeIoObject<TIoObject, TDirectory, TFile,
+                                         TFileType>
       : IEquatable<TIoObject>
       where TIoObject :
       IReadOnlyTreeIoObject<TIoObject, TDirectory, TFile, TFileType>
@@ -26,7 +27,8 @@ namespace fin.io {
     IEnumerable<TDirectory> GetAncestry();
   }
 
-  public interface IReadOnlyTreeDirectory<TIoObject, TDirectory, TFile, TFileType>
+  public interface IReadOnlyTreeDirectory<TIoObject, TDirectory, TFile,
+                                          TFileType>
       : IReadOnlyTreeIoObject<TIoObject, TDirectory, TFile, TFileType>
       where TIoObject :
       IReadOnlyTreeIoObject<TIoObject, TDirectory, TFile, TFileType>
@@ -67,4 +69,19 @@ namespace fin.io {
     TFileType FileType { get; }
     TFile CloneWithFileType(string newFileType);
   }
+
+
+  public interface IReadOnlyTreeIoObject
+      : IReadOnlyTreeIoObject<IReadOnlyTreeIoObject, IReadOnlyTreeDirectory,
+          IReadOnlyTreeFile, string> { }
+
+  public interface IReadOnlyTreeDirectory
+      : IReadOnlyTreeIoObject,
+        IReadOnlyTreeDirectory<IReadOnlyTreeIoObject, IReadOnlyTreeDirectory,
+            IReadOnlyTreeFile, string> { }
+
+  public interface IReadOnlyTreeFile
+      : IReadOnlyTreeIoObject,
+        IReadOnlyTreeFile<IReadOnlyTreeIoObject, IReadOnlyTreeDirectory,
+            IReadOnlyTreeFile, string> { }
 }
