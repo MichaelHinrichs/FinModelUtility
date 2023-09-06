@@ -1,4 +1,4 @@
-﻿namespace uni.ui.common {
+﻿namespace uni.ui.common.fileTreeView {
   partial class FileTreeView<TFile, TFiles> {
     /// <summary> 
     /// Required designer variable.

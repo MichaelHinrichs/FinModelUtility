@@ -3,6 +3,8 @@ using fin.io.bundles;
 using fin.model.io;
 using fin.scene;
 
+using uni.ui.common.fileTreeView;
+
 namespace uni.ui.common {
   public class FileBundleTreeView
       : FileTreeView<IFileBundle, IFileBundleDirectory> {

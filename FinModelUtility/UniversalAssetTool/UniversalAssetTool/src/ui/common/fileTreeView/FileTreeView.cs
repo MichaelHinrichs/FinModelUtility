@@ -6,34 +6,8 @@ using fin.io.bundles;
 using fin.util.actions;
 using fin.util.asserts;
 
-#pragma warning disable CS8604
 
-
-namespace uni.ui.common {
-  public interface IFileTreeView<TFile> {
-    public delegate void FileSelectedHandler(IFileTreeNode<TFile> fileNode);
-
-    event FileSelectedHandler FileSelected;
-
-
-    public delegate void DirectorySelectedHandler(
-        IFileTreeNode<TFile> directoryNode);
-
-    event DirectorySelectedHandler DirectorySelected;
-
-    Image GetImageForFile(TFile file);
-  }
-
-  public interface IFileTreeNode<TFile> {
-    string Text { get; }
-
-    TFile? File { get; }
-
-    IFileTreeNode<TFile>? Parent { get; }
-    IEnumerable<IFileTreeNode<TFile>> Children { get; }
-  }
-
-
+namespace uni.ui.common.fileTreeView {
   public abstract partial class FileTreeView<TFile, TFiles> : UserControl,
     IFileTreeView<TFile>
       where TFile : notnull, IFileBundle
@@ -79,76 +53,6 @@ namespace uni.ui.common {
 
     public event IFileTreeView<TFile>.DirectorySelectedHandler
         DirectorySelected = delegate { };
-
-
-    // TODO: Clean this up.
-    protected class FileNode : IFileTreeNode<TFile> {
-      private readonly IFileTreeView<TFile> treeview_;
-      private readonly IBetterTreeNode<FileNode> treeNode_;
-      private readonly IFuzzyNode<FileNode> filterNode_;
-
-      public FileNode(FileTreeView<TFile, TFiles> treeView) {
-        this.treeview_ = treeView;
-        this.treeNode_ = treeView.betterTreeView_.Root;
-        this.treeNode_.Data = this;
-
-        this.filterNode_ = treeView.filterImpl_.Root.AddChild(this);
-
-        this.InitDirectory_();
-      }
-
-      private FileNode(FileNode parent, TFile file) {
-        this.File = file;
-        this.FullName = file.TrueFullPath;
-
-        this.treeview_ = parent.treeview_;
-        this.treeNode_ =
-            parent.treeNode_.Add(file.DisplayName);
-        this.treeNode_.Data = this;
-
-        this.filterNode_ = parent.filterNode_.AddChild(this);
-
-        this.InitFile_();
-      }
-
-      private FileNode(FileNode parent, string text) {
-        this.treeview_ = parent.treeview_;
-        this.treeNode_ = parent.treeNode_.Add(text);
-        this.treeNode_.Data = this;
-
-        this.filterNode_ = parent.filterNode_.AddChild(this);
-
-        this.InitDirectory_();
-      }
-
-      private void InitDirectory_() {
-        this.treeNode_.ClosedImage = Icons.folderClosedImage;
-        this.treeNode_.OpenImage = Icons.folderOpenImage;
-      }
-
-      private void InitFile_()
-        => this.treeNode_.ClosedImage =
-            this.treeNode_.OpenImage =
-                this.treeview_.GetImageForFile(this.File!);
-
-      public string Text => this.treeNode_.Text ?? "n/a";
-
-      public TFile? File { get; set; }
-      public string FullName { get; set; }
-
-      public IFileTreeNode<TFile>? Parent => this.treeNode_.Parent?.Data;
-      public float Similarity => this.filterNode_.Similarity;
-      public float ChangeDistance => this.filterNode_.ChangeDistance;
-      public IReadOnlySet<string> Keywords => this.filterNode_.Keywords;
-
-      public FileNode AddChild(TFile file) => new(this, file);
-      public FileNode AddChild(string text) => new(this, text);
-
-      public IEnumerable<IFileTreeNode<TFile>> Children
-        => this.filterNode_.Children.Select(fuzzyNode => fuzzyNode.Data);
-
-      public void Expand() => this.treeNode_.Expand();
-    }
 
     public FileTreeView() {
       this.InitializeComponent();
@@ -250,15 +154,6 @@ namespace uni.ui.common {
 
         this.betterTreeView_.EndUpdate();
       }
-    }
-
-    private class FuzzyTreeComparer : IComparer<IBetterTreeNode<FileNode>> {
-      public int Compare(
-          IBetterTreeNode<FileNode> lhs,
-          IBetterTreeNode<FileNode> rhs)
-        => -Asserts.CastNonnull(lhs.Data)
-                   .Similarity.CompareTo(
-                       Asserts.CastNonnull(rhs.Data).Similarity);
     }
   }
 }

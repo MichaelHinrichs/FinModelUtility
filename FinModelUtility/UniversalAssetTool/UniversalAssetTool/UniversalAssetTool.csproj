@@ -93,7 +93,7 @@
     </Compile>
     <Compile Update="src\ui\common\audio\AudioPlayerPanel.cs" />
     <Compile Update="src\ui\common\BGlPanel.cs" />
-    <Compile Update="src\ui\common\FileTreeView.cs" />
+    <Compile Update="src\ui\common\fileTreeView\FileTreeView.cs" />
     <Compile Update="src\ui\common\audio\AudioPlayerGlPanel.cs" />
     <Compile Update="src\ui\common\KeyValueTable.cs">
       <SubType>UserControl</SubType>
