@@ -1,9 +1,10 @@
 ﻿using fin.io;
+using fin.io.bundles;
 
 namespace uni.ui.common.fileTreeView {
-  public abstract partial class FileTreeView<TFile, TFiles> {
-    protected class ParentFileNode : BFileNode, IFileTreeParentNode<TFile> {
-      public ParentFileNode(FileTreeView<TFile, TFiles> treeView) : base(
+  public abstract partial class FileTreeView<TFiles> {
+    protected class ParentFileNode : BFileNode, IFileTreeParentNode {
+      public ParentFileNode(FileTreeView<TFiles> treeView) : base(
           treeView) {
         this.InitializeFilterNode(treeView.filterImpl_.Root);
         this.InitDirectory_();
@@ -25,20 +26,20 @@ namespace uni.ui.common.fileTreeView {
       public override string? FullName => this.Directory?.FullPath;
 
       public ParentFileNode AddChild(string text) => new(this, text);
-      public LeafFileNode AddChild(TFile file) => new(this, file);
+      public LeafFileNode AddChild(IFileBundle file) => new(this, file);
 
-      public IEnumerable<IFileTreeNode<TFile>> ChildNodes
+      public IEnumerable<IFileTreeNode> ChildNodes
         => this.filterNode.Children.Select(fuzzyNode => fuzzyNode.Data);
 
-      public IEnumerable<TFile> GetFiles(
+      public IEnumerable<IFileBundle> GetFiles(
           bool recursive) {
-        var children = this.ChildNodes.OfType<IFileTreeLeafNode<TFile>>()
+        var children = this.ChildNodes.OfType<IFileTreeLeafNode>()
                            .Select(fileNode => fileNode.File);
         return !recursive
             ? children
             : children.Concat(
                 this.ChildNodes
-                    .OfType<IFileTreeParentNode<TFile>>()
+                    .OfType<IFileTreeParentNode>()
                     .SelectMany(parentNode
                                     => parentNode
                                         .GetFiles(
@@ -46,7 +47,7 @@ namespace uni.ui.common.fileTreeView {
       }
 
       public IEnumerable<TSpecificFile> GetFilesOfType<TSpecificFile>(
-          bool recursive)
+          bool recursive) where TSpecificFile : IFileBundle
         => this.GetFiles(recursive).OfType<TSpecificFile>();
 
       public void Expand() => this.treeNode.Expand();

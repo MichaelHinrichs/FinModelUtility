@@ -21,7 +21,7 @@ using uni.ui.common.fileTreeView;
 namespace uni.ui;
 
 public partial class UniversalAssetToolForm : Form {
-  private IFileTreeNode<IFileBundle>? gameDirectory_;
+  private IFileTreeNode? gameDirectory_;
   private TimedCallback fpsCallback_;
 
   public UniversalAssetToolForm() {
@@ -85,10 +85,10 @@ public partial class UniversalAssetToolForm : Form {
     this.fileBundleTreeView_.FileSelected += this.OnFileBundleSelect_;
   }
 
-  private void OnDirectorySelect_(IFileTreeParentNode<IFileBundle> directoryNode)
+  private void OnDirectorySelect_(IFileTreeParentNode directoryNode)
     => this.modelToolStrip_.DirectoryNode = directoryNode;
 
-  private void OnFileBundleSelect_(IFileTreeLeafNode<IFileBundle> fileNode) {
+  private void OnFileBundleSelect_(IFileTreeLeafNode fileNode) {
     switch (fileNode.File) {
       case IModelFileBundle modelFileBundle: {
         this.SelectModel_(fileNode, modelFileBundle);
@@ -105,13 +105,13 @@ public partial class UniversalAssetToolForm : Form {
     }
   }
 
-  private void SelectScene_(IFileTreeLeafNode<IFileBundle> fileNode,
+  private void SelectScene_(IFileTreeLeafNode fileNode,
                             ISceneFileBundle sceneFileBundle) {
     var scene = new GlobalSceneImporter().ImportScene(sceneFileBundle);
     this.UpdateScene_(fileNode, sceneFileBundle, scene);
   }
 
-  private void SelectModel_(IFileTreeLeafNode<IFileBundle> fileNode,
+  private void SelectModel_(IFileTreeLeafNode fileNode,
                             IModelFileBundle modelFileBundle) {
     var model = new GlobalModelImporter().ImportModel(modelFileBundle);
 
@@ -179,7 +179,7 @@ public partial class UniversalAssetToolForm : Form {
     this.UpdateScene_(fileNode, modelFileBundle, scene);
   }
 
-  private void UpdateScene_(IFileTreeLeafNode<IFileBundle> fileNode,
+  private void UpdateScene_(IFileTreeLeafNode fileNode,
                             IFileBundle fileBundle,
                             IScene scene) {
     this.sceneViewerPanel_.FileBundleAndScene?.Item2.Dispose();

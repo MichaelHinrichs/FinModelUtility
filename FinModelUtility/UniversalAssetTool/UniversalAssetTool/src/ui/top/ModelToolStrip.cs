@@ -14,8 +14,8 @@ using static uni.games.ExtractorUtil;
 
 namespace uni.ui.top {
   public partial class ModelToolStrip : UserControl {
-    private IFileTreeParentNode<IFileBundle>? directoryNode_;
-    private (IFileTreeLeafNode<IFileBundle>, IModel)? fileNodeAndModel_;
+    private IFileTreeParentNode? directoryNode_;
+    private (IFileTreeLeafNode, IModel)? fileNodeAndModel_;
 
     private bool hasModelsInDirectory_;
     private bool isModelSelected_;
@@ -63,7 +63,7 @@ namespace uni.ui.top {
     public bool IsInProgress
       => this.IsStarted && !this.Progress.Current.Item1.AlmostEqual(1, .000001);
 
-    public IFileTreeParentNode<IFileBundle>? DirectoryNode {
+    public IFileTreeParentNode? DirectoryNode {
       set {
         var hasDirectory = value != null;
         this.directoryNode_ = value;
@@ -88,7 +88,7 @@ namespace uni.ui.top {
       }
     }
 
-    public (IFileTreeLeafNode<IFileBundle>, IModel?) FileNodeAndModel {
+    public (IFileTreeLeafNode, IModel?) FileNodeAndModel {
       set {
         var (fileNode, model) = value;
 
@@ -163,7 +163,7 @@ namespace uni.ui.top {
       }
     }
 
-    private string GetTotalNodeText_(IFileTreeNode<IFileBundle> node) {
+    private string GetTotalNodeText_(IFileTreeNode node) {
       var totalText = "";
       var directory = node;
       while (true) {

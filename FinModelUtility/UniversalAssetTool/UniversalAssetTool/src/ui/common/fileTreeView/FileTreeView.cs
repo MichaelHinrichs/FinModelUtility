@@ -8,9 +8,8 @@ using fin.util.asserts;
 
 
 namespace uni.ui.common.fileTreeView {
-  public abstract partial class FileTreeView<TFile, TFiles> : UserControl,
-    IFileTreeView<TFile>
-      where TFile : notnull, IFileBundle
+  public abstract partial class FileTreeView<TFiles> 
+      : UserControl, IFileTreeView
       where TFiles : notnull {
     // TODO: Add tests.
     // TODO: Move the fuzzy logic to a separate reusable component.
@@ -35,7 +34,7 @@ namespace uni.ui.common.fileTreeView {
             }
 
             var uiPath = "";
-            IFileTreeNode<TFile>? current = fileNode;
+            IFileTreeNode? current = fileNode;
             while (current != null) {
               uiPath = $"{current.Text}/{uiPath}";
               current = current.Parent;
@@ -47,11 +46,11 @@ namespace uni.ui.common.fileTreeView {
           return keywords;
         });
 
-    public event IFileTreeView<TFile>.FileSelectedHandler FileSelected =
+    public event IFileTreeView.FileSelectedHandler FileSelected =
         delegate { };
 
 
-    public event IFileTreeView<TFile>.DirectorySelectedHandler
+    public event IFileTreeView.DirectorySelectedHandler
         DirectorySelected = delegate { };
 
     public FileTreeView() {
@@ -104,7 +103,7 @@ namespace uni.ui.common.fileTreeView {
 
     protected abstract void PopulateImpl(TFiles files, ParentFileNode root);
 
-    public abstract Image GetImageForFile(TFile file);
+    public abstract Image GetImageForFile(IFileBundle file);
 
 
     private void InitializeAutocomplete_() {

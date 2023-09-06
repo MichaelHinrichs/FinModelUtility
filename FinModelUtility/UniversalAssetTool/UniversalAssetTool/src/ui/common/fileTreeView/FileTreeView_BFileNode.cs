@@ -2,13 +2,13 @@
 
 
 namespace uni.ui.common.fileTreeView {
-  public abstract partial class FileTreeView<TFile, TFiles> {
-    protected abstract class BFileNode : IFileTreeNode<TFile> {
-      protected readonly IFileTreeView<TFile> treeView;
+  public abstract partial class FileTreeView<TFiles> {
+    protected abstract class BFileNode : IFileTreeNode {
+      protected readonly IFileTreeView treeView;
       protected readonly IBetterTreeNode<BFileNode> treeNode;
       protected IFuzzyNode<BFileNode> filterNode;
 
-      protected BFileNode(FileTreeView<TFile, TFiles> treeView) {
+      protected BFileNode(FileTreeView<TFiles> treeView) {
         this.treeView = treeView;
         this.treeNode = treeView.betterTreeView_.Root;
         this.treeNode.Data = this;
@@ -31,7 +31,7 @@ namespace uni.ui.common.fileTreeView {
       public string Text => this.treeNode.Text ?? "n/a";
       public abstract string? FullName { get; }
 
-      public IFileTreeParentNode<TFile>? Parent
+      public IFileTreeParentNode? Parent
         => this.treeNode.Parent?.Data as ParentFileNode;
 
       public float Similarity => this.filterNode.Similarity;

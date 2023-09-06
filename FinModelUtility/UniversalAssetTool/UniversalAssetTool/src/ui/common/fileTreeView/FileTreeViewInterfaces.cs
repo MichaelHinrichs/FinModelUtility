@@ -1,31 +1,35 @@
-﻿namespace uni.ui.common.fileTreeView {
-  public interface IFileTreeView<TFile> {
-    public delegate void FileSelectedHandler(IFileTreeLeafNode<TFile> fileNode);
+﻿using fin.io.bundles;
+
+namespace uni.ui.common.fileTreeView {
+  public interface IFileTreeView {
+    public delegate void FileSelectedHandler(IFileTreeLeafNode fileNode);
 
     event FileSelectedHandler FileSelected;
 
 
     public delegate void DirectorySelectedHandler(
-        IFileTreeParentNode<TFile> directoryNode);
+        IFileTreeParentNode directoryNode);
 
     event DirectorySelectedHandler DirectorySelected;
 
-    Image GetImageForFile(TFile file);
+    Image GetImageForFile(IFileBundle file);
   }
 
-  public interface IFileTreeNode<TFile> {
+  public interface IFileTreeNode {
     string Text { get; }
-    IFileTreeParentNode<TFile>? Parent { get; }
+    IFileTreeParentNode? Parent { get; }
   }
 
-  public interface IFileTreeParentNode<TFile> : IFileTreeNode<TFile> {
-    IEnumerable<IFileTreeNode<TFile>> ChildNodes { get; }
+  public interface IFileTreeParentNode : IFileTreeNode {
+    IEnumerable<IFileTreeNode> ChildNodes { get; }
 
-    IEnumerable<TFile> GetFiles(bool recursive);
-    IEnumerable<TSpecificFile> GetFilesOfType<TSpecificFile>(bool recursive);
+    IEnumerable<IFileBundle> GetFiles(bool recursive);
+
+    IEnumerable<TSpecificFile> GetFilesOfType<TSpecificFile>(bool recursive)
+        where TSpecificFile : IFileBundle;
   }
 
-  public interface IFileTreeLeafNode<TFile> : IFileTreeNode<TFile> {
-    TFile File { get; }
+  public interface IFileTreeLeafNode : IFileTreeNode {
+    IFileBundle File { get; }
   }
 }

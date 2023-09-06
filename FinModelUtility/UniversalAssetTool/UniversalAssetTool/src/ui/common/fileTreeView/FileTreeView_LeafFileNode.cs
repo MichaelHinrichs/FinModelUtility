@@ -1,7 +1,9 @@
-﻿namespace uni.ui.common.fileTreeView {
-  public abstract partial class FileTreeView<TFile, TFiles> {
-    protected class LeafFileNode : BFileNode, IFileTreeLeafNode<TFile> {
-      public LeafFileNode(ParentFileNode parent, TFile file) : base(
+﻿using fin.io.bundles;
+
+namespace uni.ui.common.fileTreeView {
+  public abstract partial class FileTreeView<TFiles> {
+    protected class LeafFileNode : BFileNode, IFileTreeLeafNode {
+      public LeafFileNode(ParentFileNode parent, IFileBundle file) : base(
           parent,
           file.DisplayName) {
         this.File = file;
@@ -12,7 +14,7 @@
                 this.treeView.GetImageForFile(this.File);
       }
 
-      public TFile File { get; }
+      public IFileBundle File { get; }
       public override string FullName => this.File.TrueFullPath;
     }
   }
