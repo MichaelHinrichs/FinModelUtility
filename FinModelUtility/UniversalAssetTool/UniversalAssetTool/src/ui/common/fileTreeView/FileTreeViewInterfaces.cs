@@ -1,12 +1,12 @@
 ﻿namespace uni.ui.common.fileTreeView {
   public interface IFileTreeView<TFile> {
-    public delegate void FileSelectedHandler(IFileTreeNode<TFile> fileNode);
+    public delegate void FileSelectedHandler(IFileTreeLeafNode<TFile> fileNode);
 
     event FileSelectedHandler FileSelected;
 
 
     public delegate void DirectorySelectedHandler(
-        IFileTreeNode<TFile> directoryNode);
+        IFileTreeParentNode<TFile> directoryNode);
 
     event DirectorySelectedHandler DirectorySelected;
 
@@ -15,10 +15,17 @@
 
   public interface IFileTreeNode<TFile> {
     string Text { get; }
+    IFileTreeParentNode<TFile>? Parent { get; }
+  }
 
-    TFile? File { get; }
+  public interface IFileTreeParentNode<TFile> : IFileTreeNode<TFile> {
+    IEnumerable<IFileTreeNode<TFile>> ChildNodes { get; }
 
-    IFileTreeNode<TFile>? Parent { get; }
-    IEnumerable<IFileTreeNode<TFile>> Children { get; }
+    IEnumerable<TFile> GetFiles(bool recursive);
+    IEnumerable<TSpecificFile> GetFilesOfType<TSpecificFile>(bool recursive);
+  }
+
+  public interface IFileTreeLeafNode<TFile> : IFileTreeNode<TFile> {
+    TFile File { get; }
   }
 }

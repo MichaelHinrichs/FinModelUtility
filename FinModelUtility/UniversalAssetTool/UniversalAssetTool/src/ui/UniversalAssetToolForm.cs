@@ -2,7 +2,6 @@ using System.Diagnostics;
 
 using fin.audio;
 using fin.color;
-using fin.data.queue;
 using fin.model.io.exporter.assimp;
 using fin.io;
 using fin.io.bundles;
@@ -86,17 +85,17 @@ public partial class UniversalAssetToolForm : Form {
     this.fileBundleTreeView_.FileSelected += this.OnFileBundleSelect_;
   }
 
-  private void OnDirectorySelect_(IFileTreeNode<IFileBundle> directoryNode)
+  private void OnDirectorySelect_(IFileTreeParentNode<IFileBundle> directoryNode)
     => this.modelToolStrip_.DirectoryNode = directoryNode;
 
-  private void OnFileBundleSelect_(IFileTreeNode<IFileBundle> fileNode) {
+  private void OnFileBundleSelect_(IFileTreeLeafNode<IFileBundle> fileNode) {
     switch (fileNode.File) {
       case IModelFileBundle modelFileBundle: {
         this.SelectModel_(fileNode, modelFileBundle);
         break;
       }
       case IAudioFileBundle audioFileBundle: {
-        this.SelectAudio_(fileNode, audioFileBundle);
+        this.SelectAudio_(audioFileBundle);
         break;
       }
       case ISceneFileBundle sceneFileBundle: {
@@ -106,13 +105,13 @@ public partial class UniversalAssetToolForm : Form {
     }
   }
 
-  private void SelectScene_(IFileTreeNode<IFileBundle> fileNode,
+  private void SelectScene_(IFileTreeLeafNode<IFileBundle> fileNode,
                             ISceneFileBundle sceneFileBundle) {
     var scene = new GlobalSceneImporter().ImportScene(sceneFileBundle);
     this.UpdateScene_(fileNode, sceneFileBundle, scene);
   }
 
-  private void SelectModel_(IFileTreeNode<IFileBundle> fileNode,
+  private void SelectModel_(IFileTreeLeafNode<IFileBundle> fileNode,
                             IModelFileBundle modelFileBundle) {
     var model = new GlobalModelImporter().ImportModel(modelFileBundle);
 
@@ -180,7 +179,7 @@ public partial class UniversalAssetToolForm : Form {
     this.UpdateScene_(fileNode, modelFileBundle, scene);
   }
 
-  private void UpdateScene_(IFileTreeNode<IFileBundle> fileNode,
+  private void UpdateScene_(IFileTreeLeafNode<IFileBundle> fileNode,
                             IFileBundle fileBundle,
                             IScene scene) {
     this.sceneViewerPanel_.FileBundleAndScene?.Item2.Dispose();
@@ -202,22 +201,9 @@ public partial class UniversalAssetToolForm : Form {
       }
 
       if (this.gameDirectory_ != gameDirectory) {
-        var audioFileBundles = new List<IAudioFileBundle>();
-
-        var nodeQueue =
-            new FinQueue<IFileTreeNode<IFileBundle>?>(gameDirectory);
-        while (nodeQueue.TryDequeue(out var node)) {
-          if (node == null) {
-            continue;
-          }
-
-          if (node.File is IAudioFileBundle audioFileBundle) {
-            audioFileBundles.Add(audioFileBundle);
-          }
-
-          nodeQueue.Enqueue(node.Children);
-        }
-
+        var audioFileBundles = gameDirectory
+                               .GetFilesOfType<IAudioFileBundle>(true)
+                               .ToArray();
         this.audioPlayerPanel_.AudioFileBundles = audioFileBundles;
       }
 
@@ -225,8 +211,7 @@ public partial class UniversalAssetToolForm : Form {
     }
   }
 
-  private void SelectAudio_(IFileTreeNode<IFileBundle> fileNode,
-                            IAudioFileBundle audioFileBundle)
+  private void SelectAudio_(IAudioFileBundle audioFileBundle)
     => this.audioPlayerPanel_.AudioFileBundles = new[] {audioFileBundle};
 
   private void exportAsToolStripMenuItem_Click(object sender, EventArgs e) {

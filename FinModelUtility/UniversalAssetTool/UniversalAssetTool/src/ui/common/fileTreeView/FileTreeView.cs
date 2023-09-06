@@ -18,14 +18,14 @@ namespace uni.ui.common.fileTreeView {
     // TODO: Add support for different hierarchies.
     // TODO: Clean up the logic here.
 
-    private readonly BetterTreeView<FileNode> betterTreeView_;
+    private readonly BetterTreeView<BFileNode> betterTreeView_;
 
-    private readonly IFuzzyFilterTree<FileNode> filterImpl_ =
-        new FuzzyFilterTree<FileNode>(fileNode => {
+    private readonly IFuzzyFilterTree<BFileNode> filterImpl_ =
+        new FuzzyFilterTree<BFileNode>(fileNode => {
           var keywords = new HashSet<string>();
 
-          var file = fileNode.File;
-          if (file != null) {
+          if (fileNode is LeafFileNode leafFileNode) {
+            var file = leafFileNode.File;
             var fileName = file.RawName;
             keywords.Add(fileName);
 
@@ -61,18 +61,19 @@ namespace uni.ui.common.fileTreeView {
       this.filterDebounced_ = callFilterFromMainThread.Debounce();
       this.filterTextBox_.TextChanged += (_, _) => this.filterDebounced_();
 
-      this.betterTreeView_ = new BetterTreeView<FileNode>(this.fileTreeView_);
+      this.betterTreeView_ = new BetterTreeView<BFileNode>(this.fileTreeView_);
       this.betterTreeView_.Selected += betterTreeNode => {
         var fileNode = betterTreeNode.Data;
-        if (fileNode == null) {
-          return;
-        }
-
-        var selectedFile = fileNode.File;
-        if (selectedFile != null) {
-          this.FileSelected.Invoke(fileNode);
-        } else {
-          this.DirectorySelected.Invoke(fileNode);
+        switch (fileNode) {
+          case ParentFileNode parentFileNode: {
+            this.DirectorySelected.Invoke(parentFileNode);
+            break;
+          }
+          case LeafFileNode leafFileNode: {
+            this.FileSelected.Invoke(leafFileNode);
+            break;
+          }
+          default: throw new NotImplementedException();
         }
       };
       this.betterTreeView_.ContextMenuItemsGenerator =
@@ -80,21 +81,19 @@ namespace uni.ui.common.fileTreeView {
     }
 
     private IEnumerable<(string, Action)> GenerateContextMenuItems_(
-        IBetterTreeNode<FileNode> betterNode) {
-      var fullName = betterNode.Data?.FullName;
-      if (fullName == null) {
-        yield break;
+        IBetterTreeNode<BFileNode> betterNode) {
+      if (betterNode.Data is LeafFileNode leafFileNode) {
+        var fullName = leafFileNode.FullName;
+        yield return (
+            "Show in explorer",
+            () => Process.Start("explorer.exe", $"/select,\"{fullName}\""));
       }
-
-      yield return (
-          "Show in explorer",
-          () => Process.Start("explorer.exe", $"/select,\"{fullName}\""));
     }
 
     public void Populate(TFiles files) {
       this.betterTreeView_.BeginUpdate();
 
-      this.PopulateImpl(files, new FileNode(this));
+      this.PopulateImpl(files, new ParentFileNode(this));
 
       this.betterTreeView_.ScrollToTop();
 
@@ -103,9 +102,7 @@ namespace uni.ui.common.fileTreeView {
       this.betterTreeView_.EndUpdate();
     }
 
-    protected abstract void PopulateImpl(
-        TFiles files,
-        FileNode root);
+    protected abstract void PopulateImpl(TFiles files, ParentFileNode root);
 
     public abstract Image GetImageForFile(TFile file);
 
@@ -113,7 +110,7 @@ namespace uni.ui.common.fileTreeView {
     private void InitializeAutocomplete_() {
       var allAutocompleteKeywords = new AutoCompleteStringCollection();
 
-      var queue = new FinQueue<IFuzzyNode<FileNode>>(this.filterImpl_.Root);
+      var queue = new FinQueue<IFuzzyNode<BFileNode>>(this.filterImpl_.Root);
       while (queue.TryDequeue(out var filterNode)) {
         foreach (var keyword in filterNode.Keywords) {
           allAutocompleteKeywords.Add(keyword);

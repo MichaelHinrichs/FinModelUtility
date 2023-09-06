@@ -9,16 +9,16 @@ namespace uni.ui.common {
   public class FileBundleTreeView
       : FileTreeView<IFileBundle, IFileBundleDirectory> {
     protected override void PopulateImpl(IFileBundleDirectory directoryRoot,
-                                         FileNode uiRoot) {
+                                         ParentFileNode uiRoot) {
       foreach (var subdir in directoryRoot.Subdirs) {
         this.AddDirectoryToNode_(subdir, uiRoot);
       }
     }
 
-    private FileNode AddDirectoryToNode_(IFileBundleDirectory directory,
-                                         FileNode parentNode) {
+    private void AddDirectoryToNode_(IFileBundleDirectory directory,
+                                               ParentFileNode parentNode) {
       var uiNode = parentNode.AddChild(directory.Name);
-      uiNode.FullName = directory.Directory?.FullPath;
+      uiNode.Directory = directory.Directory;
 
       foreach (var subdirectory in directory.Subdirs) {
         this.AddDirectoryToNode_(subdirectory, uiNode);
@@ -31,8 +31,6 @@ namespace uni.ui.common {
       if (DebugFlags.OPEN_DIRECTORIES_BY_DEFAULT) {
         uiNode.Expand();
       }
-
-      return uiNode;
     }
 
     public override Image GetImageForFile(IFileBundle file)
