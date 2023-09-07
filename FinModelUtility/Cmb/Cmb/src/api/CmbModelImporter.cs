@@ -436,8 +436,6 @@ namespace cmb.api {
                 finSkin.GetOrCreateBoneWeights(preprojectMode,
                                                finBones[boneIndex]));
           }
-
-          finVertex.SetColor(Color.White);
         }
 
         // Adds faces. Thankfully, it's all just triangles!

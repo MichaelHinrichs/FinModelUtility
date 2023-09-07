@@ -264,9 +264,10 @@ namespace fin.io {
 
       public IEnumerable<IFileHierarchyFile> GetFilesWithNameRecursive(
           string name) {
+        name = name.ToLower();
         var stack = new FinStack<IFileHierarchyDirectory>(this);
         while (stack.TryPop(out var next)) {
-          var match = next.GetExistingFiles().FirstOrDefault(file => file.Name == name);
+          var match = next.GetExistingFiles().FirstOrDefault(file => file.Name.ToLower() == name);
           if (match != null) {
             yield return match;
           }

@@ -168,11 +168,17 @@ namespace fin.io {
     new ISystemDirectory AssertGetParent();
 
     // TryGetParent
-    bool GROTreeIoObj.TryGetParent(out IReadOnlyTreeDirectory parent)
-      => this.TryGetParent(out parent);
+    bool GROTreeIoObj.TryGetParent(out IReadOnlyTreeDirectory outParent) {
+      var returnValue = this.TryGetParent(out var oParent);
+      outParent = oParent;
+      return returnValue;
+    }
 
-    bool GROSysIoObj.TryGetParent(out IReadOnlySystemDirectory parent)
-      => this.TryGetParent(out parent);
+    bool GROSysIoObj.TryGetParent(out IReadOnlySystemDirectory outParent) {
+      var returnValue = this.TryGetParent(out var oParent);
+      outParent = oParent;
+      return returnValue;
+    }
 
     new bool TryGetParent(out ISystemDirectory parent);
 
