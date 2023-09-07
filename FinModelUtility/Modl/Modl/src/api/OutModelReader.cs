@@ -13,7 +13,6 @@ using fin.model.impl;
 using fin.model.io.importer;
 using fin.util.asserts;
 using fin.util.enumerables;
-using fin.util.linq;
 
 using modl.schema.res.texr;
 using modl.schema.terrain;
@@ -22,20 +21,6 @@ using modl.schema.terrain.bw1;
 using schema.binary;
 
 namespace modl.api {
-  public class OutModelFileBundle : IBattalionWarsModelFileBundle {
-    public required string GameName { get; init; }
-
-    public IReadOnlyTreeFile MainFile => this.OutFile;
-
-    public required GameVersion GameVersion { get; init; }
-    public required IReadOnlyTreeFile OutFile { get; init; }
-
-    public IEnumerable<IReadOnlyTreeDirectory>? TextureDirectories {
-      get;
-      init;
-    } = null;
-  }
-
   public class OutModelImporter : IModelImporter<OutModelFileBundle> {
     public IModel ImportModel(OutModelFileBundle modelFileBundle)
       => modelFileBundle.TextureDirectories != null

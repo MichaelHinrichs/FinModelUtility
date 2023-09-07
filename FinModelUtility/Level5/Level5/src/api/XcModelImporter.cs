@@ -1,13 +1,10 @@
 ﻿using fin.data;
 using fin.data.lazy;
 using fin.data.queue;
-using fin.io;
 using fin.math.rotations;
 using fin.model;
 using fin.model.impl;
-using fin.model.io;
 using fin.model.io.importer;
-using fin.util.enumerables;
 
 using level5.schema;
 
@@ -18,18 +15,6 @@ using schema.binary;
 using Quaternion = System.Numerics.Quaternion;
 
 namespace level5.api {
-  public class XcModelFileBundle : IModelFileBundle {
-    public string? HumanReadableName { get; set; }
-    public required string GameName { get; init; }
-    public IReadOnlyTreeFile MainFile => this.ModelXcFile;
-    public IEnumerable<IReadOnlyGenericFile> Files
-      => this.ModelXcFile.Yield()
-             .ConcatIfNonnull(this.AnimationXcFiles);
-
-    public IReadOnlyTreeFile ModelXcFile { get; set; }
-    public IList<IReadOnlyTreeFile>? AnimationXcFiles { get; set; }
-  }
-
   public class XcModelImporter : IModelImporter<XcModelFileBundle> {
     public IModel ImportModel(XcModelFileBundle modelFileBundle) {
       var endianness = Endianness.LittleEndian;

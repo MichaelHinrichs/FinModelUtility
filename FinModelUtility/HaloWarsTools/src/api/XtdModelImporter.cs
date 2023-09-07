@@ -1,26 +1,9 @@
-﻿using fin.io;
-using fin.model;
+﻿using fin.model;
 using fin.model.io.importer;
 
 using HaloWarsTools;
 
 namespace hw.api {
-  public class XtdModelFileBundle : IHaloWarsModelFileBundle {
-    public XtdModelFileBundle(IReadOnlyTreeFile xtdFile,
-                              IReadOnlyTreeFile xttFile) {
-      this.XtdFile = xtdFile;
-      this.XttFile = xttFile;
-    }
-
-    public string GameName => "halo_wars";
-    public IReadOnlyTreeFile MainFile => this.XtdFile;
-    public IReadOnlyTreeFile XttFile { get; }
-    public IReadOnlyTreeFile XtdFile { get; }
-
-    public bool UseLowLevelExporter => true;
-    public bool ForceGarbageCollection => true;
-  }
-
   public class XtdModelImporter : IModelImporter<XtdModelFileBundle> {
     public IModel ImportModel(XtdModelFileBundle modelFileBundle) {
       var xtdFile = modelFileBundle.XtdFile;

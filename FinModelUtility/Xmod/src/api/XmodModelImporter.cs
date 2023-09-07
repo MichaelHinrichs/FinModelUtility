@@ -1,7 +1,5 @@
-﻿using fin.io;
-using fin.model;
+﻿using fin.model;
 using fin.model.impl;
-using fin.model.io;
 using fin.model.io.importer;
 
 using schema.text;
@@ -11,13 +9,6 @@ using xmod.schema.xmod;
 using PrimitiveType = xmod.schema.xmod.PrimitiveType;
 
 namespace xmod.api {
-  public class XmodModelFileBundle : IModelFileBundle {
-    public required string GameName { get; init; }
-    public IReadOnlyTreeFile MainFile => this.XmodFile;
-    public required IReadOnlyTreeFile XmodFile { get; init; }
-    public required IReadOnlyTreeDirectory TextureDirectory { get; init; }
-  }
-
   public class XmodModelImporter : IModelImporter<XmodModelFileBundle> {
     public IModel ImportModel(XmodModelFileBundle modelFileBundle) {
       using var tr =

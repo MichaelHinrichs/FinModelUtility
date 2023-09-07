@@ -1,21 +1,12 @@
 ﻿using dat.schema;
 
-using fin.io;
 using fin.model;
 using fin.model.impl;
-using fin.model.io;
 using fin.model.io.importer;
 
 using schema.binary;
 
 namespace dat.api {
-  public class DatModelFileBundle : IModelFileBundle {
-    public required string GameName { get; init; }
-
-    public IReadOnlyTreeFile MainFile => this.DatFile;
-    public required IReadOnlyTreeFile DatFile { get; init; }
-  }
-
   public class DatModelImporter : IModelImporter<DatModelFileBundle> {
     public IModel ImportModel(DatModelFileBundle modelFileBundle) {
       var dat = modelFileBundle.DatFile.ReadNew<Dat>(Endianness.BigEndian);

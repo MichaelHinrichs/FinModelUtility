@@ -7,7 +7,6 @@ using fin.math.rotations;
 using fin.model;
 using fin.model.impl;
 using fin.model.io.importer;
-using fin.util.enumerables;
 
 using modl.schema.anim;
 using modl.schema.anim.bw1;
@@ -21,19 +20,6 @@ using modl.schema.res.texr;
 using schema.binary;
 
 namespace modl.api {
-  public class ModlModelFileBundle : IBattalionWarsModelFileBundle {
-    public required string GameName { get; init; }
-
-    public IReadOnlyTreeFile MainFile => this.ModlFile;
-    public IEnumerable<IReadOnlyGenericFile> Files
-      => this.ModlFile.Yield().ConcatIfNonnull(this.AnimFiles);
-
-    public required GameVersion GameVersion { get; init; }
-    public required IReadOnlyTreeFile ModlFile { get; init; }
-
-    public required IList<IReadOnlyTreeFile>? AnimFiles { get; init; }
-  }
-
   public class ModlModelImporter : IAsyncModelImporter<ModlModelFileBundle> {
     public Task<IModel> ImportModelAsync(ModlModelFileBundle modelFileBundle)
       => this.ImportModelAsync(modelFileBundle.ModlFile,
