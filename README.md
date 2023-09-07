@@ -99,25 +99,6 @@ Download a release via the Releases tab (for stability), or via the green "Code"
 
 Then, follow the steps below.
 
-### Converting models
-
-The tool can be used to convert models via the command-line like so:
-```
-  cli/tools/universal_model_utility/universal_model_utility.exe convert -i [input files] -o [output file]
-```
-
-Here's an example with some files from Pikmin 1:
-```
-  cli/tools/universal_model_utility/universal_model_utility.exe convert -i chappy.mod chappy.anm -o chappy.fbx
-```
-
-The best plugin will automatically be detected based on the list of input files. For a list of supported plugins, use the following command:
-```
-  cli/tools/universal_model_utility/universal_model_utility.exe list_plugins
-```
-
-
-
 ### Viewing/extracting models from ROMs automatically
 
 1) Drop ROM(s) in the `cli/roms/` directory. Make sure their names match the corresponding name above! (	Games with brackets should accept any of the listed extensions.)
@@ -133,6 +114,23 @@ The best plugin will automatically be detected based on the list of input files.
 
 2) Double-click the corresponding `rip_[game_name].bat` file in the `cli/` directory. This will first rip all of the files from the game, and then the currently supported models. This can take a while on the first execution, but future executions will reuse the exported files.
 3) Extracted models will appear within the corresponding `cli/out/[game_name]/` directory.  
+
+### Converting models
+
+The tool can also be used to convert models via the command-line like so:
+```
+  cli/tools/universal_model_utility/universal_model_utility.exe convert -i [input files] -o [output file]
+```
+
+Here's an example with some files from Pikmin 1:
+```
+  cli/tools/universal_model_utility/universal_model_utility.exe convert -i chappy.mod chappy.anm -o chappy.fbx
+```
+
+The best plugin will automatically be detected based on the list of input files. For a list of supported plugins, use the following command:
+```
+  cli/tools/universal_model_utility/universal_model_utility.exe list_plugins
+```
 
 ## Notes about exported models
 
