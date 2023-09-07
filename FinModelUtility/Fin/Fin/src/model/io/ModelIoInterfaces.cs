@@ -25,6 +25,9 @@ namespace fin.model.io {
 
   public interface IModelPlugin {
     string DisplayName { get; }
+    string Description { get; }
+    IReadOnlyList<string> KnownPlatforms { get; }
+    IReadOnlyList<string> KnownGames { get; }
 
     IReadOnlyList<string> MainFileExtensions { get; }
     IReadOnlyList<string> FileExtensions { get; }
@@ -35,7 +38,8 @@ namespace fin.model.io {
       => files.Select(file => file.FileType).All(FileExtensions.Contains);
 
     bool TryToImportModels(IEnumerable<IReadOnlySystemFile> files,
-                           out IModel[] models);
+                           out IModel[] outModels,
+                           float frameRate = 30);
   }
 
   public interface IModelExporterPlugin : IModelPlugin {

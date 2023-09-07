@@ -4,13 +4,10 @@ using System.Runtime.CompilerServices;
 
 using fin.color;
 using fin.image;
-using fin.io;
 using fin.model;
 using fin.model.impl;
-using fin.model.io;
 using fin.model.io.importer;
 using fin.util.asserts;
-using fin.util.enumerables;
 
 using gx;
 
@@ -22,17 +19,6 @@ using mod.schema.animation;
 using schema.binary;
 
 namespace mod.cli {
-  public class ModModelFileBundle : IModelFileBundle {
-    public required string GameName { get; init; }
-
-    public IReadOnlyTreeFile MainFile => this.ModFile;
-    public IEnumerable<IReadOnlyGenericFile> Files
-      => this.ModFile.Yield().ConcatIfNonnull(this.AnmFile);
-
-    public required IReadOnlyTreeFile ModFile { get; init; }
-    public required IReadOnlyTreeFile? AnmFile { get; init; }
-  }
-
   public class ModModelImporter : IModelImporter<ModModelFileBundle> {
     /// <summary>
     ///   GX's active matrices. These are deferred to when a vertex matrix is
