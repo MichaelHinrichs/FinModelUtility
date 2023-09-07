@@ -79,6 +79,10 @@
     "Debug": {
       "commandName": "Project",
       "commandLineArgs": "debug"
+    },
+    "List Plugins": {
+      "commandName": "Project",
+      "commandLineArgs": "list_plugins"
     }
   }
 }

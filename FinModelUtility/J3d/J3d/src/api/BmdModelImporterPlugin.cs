@@ -24,39 +24,26 @@ namespace j3d.api {
     public IReadOnlyList<string> FileExtensions { get; } =
       new[] { ".bca", ".bck", ".bmd", ".bti" };
 
-    public bool TryToImportModels(
+    public IModel ImportModel(
         IEnumerable<IReadOnlySystemFile> files,
-        out IModel[] outModels,
         float frameRate = 30) {
-      outModels = default;
-
       var filesArray = files.ToArray();
       var bcxFiles = filesArray.Where(file => file.FileType is ".bca" or ".bck")
                                .ToArray();
-      var bmdFiles =
-          filesArray.Where(file => file.FileType == ".bmd").ToArray();
+      var bmdFile = filesArray.Single(file => file.FileType == ".bmd");
       var btiFiles =
           filesArray.Where(file => file.FileType == ".bti").ToArray();
 
-      var bmdBundles = bmdFiles.Select(bmdFiles => new BmdModelFileBundle {
-                                   GameName = "",
-                                   BmdFile = bmdFiles,
-                                   BcxFiles = bcxFiles,
-                                   BtiFiles = btiFiles,
-                                   FrameRate = frameRate,
-                               })
-                               .ToArray();
-      if (bmdBundles.Length == 0) {
-        return false;
-      }
+      var bmdBundle = new BmdModelFileBundle {
+          GameName = "",
+          BmdFile = bmdFile,
+          BcxFiles = bcxFiles,
+          BtiFiles = btiFiles,
+          FrameRate = frameRate,
+      };
 
-      try {
-        var bmdImporter = new BmdModelImporter();
-        outModels = bmdBundles.Select(bmdImporter.ImportModel).ToArray();
-        return true;
-      } catch {
-        return false;
-      }
+      var bmdImporter = new BmdModelImporter();
+      return bmdImporter.ImportModel(bmdBundle);
     }
   }
 }

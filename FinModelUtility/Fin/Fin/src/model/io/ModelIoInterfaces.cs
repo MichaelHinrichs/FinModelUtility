@@ -4,6 +4,7 @@ using System.Linq;
 using fin.io;
 using fin.io.bundles;
 using fin.language.equations.fixedFunction;
+using fin.util.linq;
 
 namespace fin.model.io {
   public interface IModelFileBundle : IFileBundle {
@@ -34,12 +35,18 @@ namespace fin.model.io {
   }
 
   public interface IModelImporterPlugin : IModelPlugin {
-    bool SupportsFiles(IEnumerable<IReadOnlySystemFile> files)
-      => files.Select(file => file.FileType).All(FileExtensions.Contains);
+    bool SupportsFiles(IEnumerable<IReadOnlySystemFile> files) {
+      var fileTypes = files.Select(file => file.FileType).ToArray();
 
-    bool TryToImportModels(IEnumerable<IReadOnlySystemFile> files,
-                           out IModel[] outModels,
-                           float frameRate = 30);
+      if (!fileTypes.All(this.FileExtensions.Contains)) {
+        return false;
+      }
+
+      return fileTypes.Where(this.MainFileExtensions.Contains).Count() == 1;
+    }
+
+    IModel ImportModel(IEnumerable<IReadOnlySystemFile> files,
+                       float frameRate = 30);
   }
 
   public interface IModelExporterPlugin : IModelPlugin {

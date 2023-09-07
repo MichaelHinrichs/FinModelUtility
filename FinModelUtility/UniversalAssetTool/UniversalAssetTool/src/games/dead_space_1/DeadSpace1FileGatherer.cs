@@ -82,7 +82,7 @@ namespace uni.games.dead_space_1 {
               BnkFiles = bnkFiles,
               RcbFile = rcbFile,
               Tg4ImageFileBundles = textureFiles
-          }.Annotate(geoFiles.FirstOrDefault() ?? rcbFile);
+          }.Annotate(geoFiles.FirstOrDefault() ?? rcbFile!);
         } else {
           ;
         }

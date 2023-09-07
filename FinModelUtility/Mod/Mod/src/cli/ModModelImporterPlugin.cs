@@ -11,7 +11,7 @@ namespace mod.api {
   public class ModModelImporterPlugin : IModelImporterPlugin {
     public string DisplayName => "Mod";
 
-    public string Description => "Pikmin 1 models format";
+    public string Description => "Pikmin 1 model format.";
 
     public IReadOnlyList<string> KnownPlatforms { get; } =
       new[] { "GameCube" };
@@ -24,37 +24,22 @@ namespace mod.api {
     public IReadOnlyList<string> FileExtensions { get; } =
       new[] { ".anm", ".mod" };
 
-    public bool TryToImportModels(
+    public IModel ImportModel(
         IEnumerable<IReadOnlySystemFile> files,
-        out IModel[] outModels,
         float frameRate = 30) {
-      outModels = default;
-
       var filesArray = files.ToArray();
       var anmFile =
           filesArray.Where(file => file.FileType == ".anm")
                     .ToArray()
                     .SingleOrDefault();
-      var modFiles = filesArray.Where(file => file.FileType is ".mod")
-                               .ToArray();
+      var modFile = filesArray.Single(file => file.FileType is ".mod");
 
-      var modBundles = modFiles
-          .Select(modFile => new ModModelFileBundle {
-              GameName = "",
-              AnmFile = anmFile,
-              ModFile = modFile,
-          }).ToArray();
-      if (modBundles.Length == 0) {
-        return false;
-      }
+      var modBundle = new ModModelFileBundle {
+          GameName = "", AnmFile = anmFile, ModFile = modFile,
+      };
 
-      try {
-        var modImporter = new ModModelImporter();
-        outModels = modBundles.Select(modImporter.ImportModel).ToArray();
-        return true;
-      } catch {
-        return false;
-      }
+      var modImporter = new ModModelImporter();
+      return modImporter.ImportModel(modBundle);
     }
   }
 }

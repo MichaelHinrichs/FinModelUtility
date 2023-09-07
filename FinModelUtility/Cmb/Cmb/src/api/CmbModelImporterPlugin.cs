@@ -9,7 +9,7 @@ namespace cmb.api {
   public class CmbModelImporterPlugin : IModelImporterPlugin {
     public string DisplayName => "Cmb";
 
-    public string Description => "Grezzo's models format";
+    public string Description => "Grezzo's model format.";
 
     public IReadOnlyList<string> KnownPlatforms { get; } =
       new[] { "3DS" };
@@ -27,41 +27,26 @@ namespace cmb.api {
     public IReadOnlyList<string> FileExtensions { get; } =
       new[] { ".cmb", ".csab", ".ctxb", ".shpa" };
 
-    public bool TryToImportModels(
-        IEnumerable<IReadOnlySystemFile> files,
-        out IModel[] outModels,
-        float frameRate = 30) {
-      outModels = default;
-
+    public IModel ImportModel(IEnumerable<IReadOnlySystemFile> files,
+                              float frameRate = 30) {
       var filesArray = files.ToArray();
       var csabFiles = filesArray.Where(file => file.FileType is ".csab")
-                               .ToArray();
-      var cmbFiles =
-          filesArray.Where(file => file.FileType == ".cmb").ToArray();
+                                .ToArray();
+      var cmbFile = filesArray.Single(file => file.FileType == ".cmb");
       var ctxbFiles =
           filesArray.Where(file => file.FileType == ".ctxb").ToArray();
       var shpaFiles =
           filesArray.Where(file => file.FileType == ".shpa").ToArray();
 
-      var cmbBundles = cmbFiles
-                       .Select(cmbFile => new CmbModelFileBundle(
-                                   "",
-                                   cmbFile,
-                                   csabFiles,
-                                   ctxbFiles,
-                                   shpaFiles))
-                       .ToArray();
-      if (cmbBundles.Length == 0) {
-        return false;
-      }
+      var cmbBundle = new CmbModelFileBundle(
+          "",
+          cmbFile,
+          csabFiles,
+          ctxbFiles,
+          shpaFiles);
 
-      try {
-        var cmbImporter = new CmbModelImporter();
-        outModels = cmbBundles.Select(cmbImporter.ImportModel).ToArray();
-        return true;
-      } catch {
-        return false;
-      }
+      var cmbImporter = new CmbModelImporter();
+      return cmbImporter.ImportModel(cmbBundle);
     }
   }
 }
