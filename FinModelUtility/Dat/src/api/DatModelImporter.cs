@@ -12,8 +12,8 @@ namespace dat.api {
   public class DatModelFileBundle : IModelFileBundle {
     public required string GameName { get; init; }
 
-    public IFileHierarchyFile MainFile => this.DatFile;
-    public required IFileHierarchyFile DatFile { get; init; }
+    public IReadOnlyTreeFile MainFile => this.DatFile;
+    public required IReadOnlyTreeFile DatFile { get; init; }
   }
 
   public class DatModelImporter : IModelImporter<DatModelFileBundle> {

@@ -6,21 +6,21 @@ using System.Runtime.CompilerServices;
 using Microsoft.Toolkit.HighPerformance.Helpers;
 
 namespace fin.io.bundles {
-  public class ParallelFileBundleGathererAccumulator :
-      IFileBundleGathererAccumulator {
-    private readonly List<IFileBundleGatherer> gatherers_ = new();
+  public class ParallelAnnotatedFileBundleGathererAccumulator :
+      IAnnotatedFileBundleGathererAccumulator {
+    private readonly List<IAnnotatedFileBundleGatherer> gatherers_ = new();
 
-    public IFileBundleGathererAccumulator Add(IFileBundleGatherer gatherer) {
+    public IAnnotatedFileBundleGathererAccumulator Add(IAnnotatedFileBundleGatherer gatherer) {
       this.gatherers_.Add(gatherer);
       return this;
     }
 
-    public IFileBundleGathererAccumulator Add(
-        Func<IEnumerable<IFileBundle>> handler)
-      => this.Add(new FileBundleHandlerGatherer<IFileBundle>(handler));
+    public IAnnotatedFileBundleGathererAccumulator Add(
+        Func<IEnumerable<IAnnotatedFileBundle>> handler)
+      => this.Add(new AnnotatedFileBundleHandlerGatherer(handler));
 
-    public IEnumerable<IFileBundle> GatherFileBundles() {
-      var results = new IEnumerable<IFileBundle>[this.gatherers_.Count];
+    public IEnumerable<IAnnotatedFileBundle> GatherFileBundles() {
+      var results = new IEnumerable<IAnnotatedFileBundle>[this.gatherers_.Count];
       ParallelHelper.For(0,
                          this.gatherers_.Count,
                          new GathererRunner(this.gatherers_, results));
@@ -28,15 +28,15 @@ namespace fin.io.bundles {
     }
 
     private readonly struct GathererRunner(
-        IReadOnlyList<IFileBundleGatherer> gatherers,
-        IList<IEnumerable<IFileBundle>> results) : IAction {
+        IReadOnlyList<IAnnotatedFileBundleGatherer> gatherers,
+        IList<IEnumerable<IAnnotatedFileBundle>> results) : IAction {
 
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       public void Invoke(int i) {
         try {
           results[i] = gatherers[i].GatherFileBundles();
         } catch (Exception e) {
-          results[i] = Enumerable.Empty<IFileBundle>();
+          results[i] = Enumerable.Empty<IAnnotatedFileBundle>();
           Console.Error.WriteLine(e.ToString());
         }
       }

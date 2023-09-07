@@ -6,9 +6,12 @@ using sm64.api;
 using uni.platforms;
 
 namespace uni.games.super_mario_64 {
-  public class SuperMario64FileGatherer :
-      IFileBundleGatherer<Sm64LevelFileBundle> {
-    public IEnumerable<Sm64LevelFileBundle> GatherFileBundles() {
+  using IAnnotatedSm64Bundle = IAnnotatedFileBundle<Sm64LevelFileBundle>;
+
+  public class SuperMario64AnnotatedFileGatherer :
+      IAnnotatedFileBundleGatherer<Sm64LevelFileBundle> {
+    public IEnumerable<IAnnotatedSm64Bundle>
+        GatherFileBundles() {
       if (!DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
               "super_mario_64.z64",
               out var superMario64Rom)) {
@@ -20,10 +23,30 @@ namespace uni.games.super_mario_64 {
       var fileHierarchy = new FileHierarchy(superMario64Directory);
       var root = fileHierarchy.Root;
 
+      var rootSysDir = root.Impl;
+      var levelsDir = rootSysDir.GetOrCreateSubdir("levels");
+
       var levelIds = Enum.GetValues<LevelId>().ToList();
       levelIds.Sort((lhs, rhs) => lhs.ToString().CompareTo(rhs.ToString()));
-      foreach (var levelId in levelIds) {
-        yield return new Sm64LevelSceneFileBundle(root, superMario64Rom, levelId);
+      var levelIdsAndPaths = levelIds.Select(levelId => {
+        var path = Path.Join(levelsDir.Name, levelId.ToString());
+        return (levelId, path);
+      });
+
+      foreach (var (_, path) in levelIdsAndPaths) {
+        var zObjectFile = new FinFile(Path.Join(rootSysDir.FullPath, path));
+
+        // TODO: Write the actual data here
+        FinFileSystem.File.Create(zObjectFile.FullPath);
+      }
+
+      root.Refresh(true);
+      foreach (var (levelId, path) in levelIdsAndPaths) {
+        var levelFile = root.AssertGetExistingFile(path);
+        yield return new Sm64LevelSceneFileBundle(
+            root,
+            superMario64Rom,
+            levelId).Annotate(levelFile);
       }
     }
   }

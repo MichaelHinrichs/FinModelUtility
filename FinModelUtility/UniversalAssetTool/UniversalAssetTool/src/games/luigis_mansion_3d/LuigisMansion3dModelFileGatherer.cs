@@ -7,8 +7,10 @@ using uni.platforms.threeDs;
 using uni.util.bundles;
 
 namespace uni.games.luigis_mansion_3d {
-  public class LuigisMansion3dModelFileGatherer
-      : IFileBundleGatherer<CmbModelFileBundle> {
+  using IAnnotatedCmbBundle = IAnnotatedFileBundle<CmbModelFileBundle>;
+
+  public class LuigisMansion3dModelAnnotatedFileGatherer
+      : IAnnotatedFileBundleGatherer<CmbModelFileBundle> {
     private readonly IModelSeparator separator_ =
         new ModelSeparator(directory => directory.LocalPath)
             .Register(@"\effect\effect_mdl", new PrefixModelSeparatorMethod())
@@ -21,21 +23,21 @@ namespace uni.games.luigis_mansion_3d {
             .Register(@"\model\luige",
                       new NameModelSeparatorMethod("Luigi.cmb"));
 
-    public IEnumerable<CmbModelFileBundle> GatherFileBundles() {
+    public IEnumerable<IAnnotatedCmbBundle> GatherFileBundles() {
       if (!new ThreeDsFileHierarchyExtractor().TryToExtractFromGame(
               "luigis_mansion_3d",
               out var fileHierarchy)) {
-        return Enumerable.Empty<CmbModelFileBundle>();
+        return Enumerable.Empty<IAnnotatedCmbBundle>();
       }
 
       return fileHierarchy.SelectMany(this.ExtractModel_);
     }
 
-    public IEnumerable<CmbModelFileBundle> ExtractModel_(
+    public IEnumerable<IAnnotatedCmbBundle> ExtractModel_(
         IFileHierarchyDirectory subdir) {
       var cmbFiles = subdir.FilesWithExtension(".cmb").ToArray();
       if (cmbFiles.Length == 0) {
-        return Enumerable.Empty<CmbModelFileBundle>();
+        return Enumerable.Empty<IAnnotatedCmbBundle>();
       }
 
       var csabFiles = subdir.FilesWithExtension(".csab").ToArray();
@@ -50,9 +52,9 @@ namespace uni.games.luigis_mansion_3d {
                                bundle.AnimationFiles.ToArray(),
                                ctxbFiles,
                                shpaFiles
-                           ));
+                           ).Annotate(bundle.ModelFile));
       } catch {
-        return Enumerable.Empty<CmbModelFileBundle>();
+        return Enumerable.Empty<IAnnotatedCmbBundle>();
       }
     }
   }

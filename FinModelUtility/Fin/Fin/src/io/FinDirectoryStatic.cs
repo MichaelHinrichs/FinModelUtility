@@ -58,16 +58,12 @@ namespace fin.io {
           current = Asserts.CastNonnull(Path.GetDirectoryName(current));
           continue;
         }
+        
+        current = Path.Join(current, subdir);
+      }
 
-        var matches = FinFileSystem.Directory.GetDirectories(current, subdir);
-        if (matches.Length == 1) {
-          current = matches.Single();
-        } else {
-          current = Path.Join(current, subdir);
-          if (create) {
-            FinFileSystem.Directory.CreateDirectory(current);
-          }
-        }
+      if (create) {
+        FinFileSystem.Directory.CreateDirectory(current);
       }
 
       return current;

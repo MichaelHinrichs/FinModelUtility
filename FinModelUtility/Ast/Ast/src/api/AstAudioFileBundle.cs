@@ -5,8 +5,8 @@ namespace ast.api {
   public class AstAudioFileBundle : IAudioFileBundle {
     public required string GameName { get; init; }
 
-    public IFileHierarchyFile MainFile => this.AstFile;
+    public IReadOnlyTreeFile MainFile => this.AstFile;
 
-    public required IFileHierarchyFile AstFile { get; init; }
+    public required IReadOnlyTreeFile AstFile { get; init; }
   }
 }

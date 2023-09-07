@@ -3,7 +3,7 @@
 namespace uni.games.glover {
   internal class GloverExtractor : IExtractor {
     public void ExtractAll()
-      => ExtractorUtil.ExtractAllForCli(new GloverModelFileGatherer(),
+      => ExtractorUtil.ExtractAllForCli(new GloverModelAnnotatedFileGatherer(),
                                   new GloModelImporter());
   }
 }

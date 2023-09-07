@@ -13,8 +13,8 @@ namespace sm64.api {
       Sm64LevelFileBundle,
       ISceneFileBundle {
     public Sm64LevelSceneFileBundle(
-        IFileHierarchyDirectory directory,
-        IReadOnlySystemFile sm64Rom,
+        IReadOnlyTreeDirectory directory,
+        IReadOnlyTreeFile sm64Rom,
         LevelId levelId) : base(directory, sm64Rom, levelId) { }
   }
 

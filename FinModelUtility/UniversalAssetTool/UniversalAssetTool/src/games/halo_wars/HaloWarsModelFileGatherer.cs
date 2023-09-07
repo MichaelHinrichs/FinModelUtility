@@ -10,9 +10,12 @@ using uni.platforms;
 using uni.platforms.desktop;
 
 namespace uni.games.halo_wars {
-  public class HaloWarsModelFileGatherer 
-      : IFileBundleGatherer<IHaloWarsModelFileBundle> {
-    public IEnumerable<IHaloWarsModelFileBundle> GatherFileBundles() {
+  using IAnnotatedHaloWarsBundle =
+      IAnnotatedFileBundle<IHaloWarsModelFileBundle>;
+
+  public class HaloWarsModelAnnotatedFileGatherer
+      : IAnnotatedFileBundleGatherer<IHaloWarsModelFileBundle> {
+    public IEnumerable<IAnnotatedHaloWarsBundle> GatherFileBundles() {
       if (!SteamUtils.TryGetGameDirectory("HaloWarsDE",
                                           out var haloWarsSteamDirectory)) {
         yield break;
@@ -20,7 +23,7 @@ namespace uni.games.halo_wars {
 
       var scratchDirectory = DirectoryConstants.ROMS_DIRECTORY
                                                .GetOrCreateSubdir("halo_wars");
-      
+
       var context = new HWContext(haloWarsSteamDirectory.FullPath,
                                   scratchDirectory.FullPath);
       // Expand all compressed/encrypted game files. This also handles the .xmb -> .xml conversion
@@ -35,7 +38,7 @@ namespace uni.games.halo_wars {
       foreach (var srcMapDirectory in mapDirectories) {
         var xtdFile = srcMapDirectory.FilesWithExtension(".xtd").Single();
         var xttFile = srcMapDirectory.FilesWithExtension(".xtt").Single();
-        yield return new XtdModelFileBundle(xtdFile, xttFile);
+        yield return new XtdModelFileBundle(xtdFile, xttFile).Annotate(xtdFile);
       }
 
       var artDirectory = fileHierarchy.Root.AssertGetExistingSubdir("art");
@@ -46,7 +49,8 @@ namespace uni.games.halo_wars {
         // TODO: Parse UGX files instead, as long as they specify their own animations
         var visFiles = artSubdir.FilesWithExtension(".vis");
         foreach (var visFile in visFiles) {
-          yield return new VisModelFileBundle(visFile, context);
+          yield return new VisModelFileBundle(visFile, context).Annotate(
+              visFile);
         }
 
         artSubdirQueue.Enqueue(artSubdir.GetExistingSubdirs());

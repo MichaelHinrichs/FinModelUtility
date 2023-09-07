@@ -9,6 +9,7 @@ using fin.math.rotations;
 using fin.model;
 using fin.model.io;
 using fin.scene;
+using fin.util.asserts;
 using fin.util.enumerables;
 using fin.util.time;
 
@@ -64,23 +65,32 @@ public partial class UniversalAssetToolForm : Form {
 
 
     this.fpsCallback_ = TimedCallback.WithPeriod(() => {
-      if (!this.Created || this.IsDisposed) {
-        return;
-      }
+                                                   if (!this.Created || this
+                                                       .IsDisposed) {
+                                                     return;
+                                                   }
 
-      try {
-        this.Invoke(() => {
-          var frameTime = this.sceneViewerPanel_.FrameTime;
-          var fps = (frameTime == TimeSpan.Zero)
-              ? 0
-              : 1 / frameTime.TotalSeconds;
-          this.Text = $"Universal Asset Tool ({fps:0.0} fps)";
-        });
-      } catch {
-        // ignored, throws after window is closed
-      }
-    }, .25f);
- 
+                                                   try {
+                                                     this.Invoke(() => {
+                                                       var frameTime =
+                                                           this
+                                                               .sceneViewerPanel_
+                                                               .FrameTime;
+                                                       var fps =
+                                                           (frameTime ==
+                                                               TimeSpan.Zero)
+                                                               ? 0
+                                                               : 1 / frameTime
+                                                                   .TotalSeconds;
+                                                       this.Text =
+                                                           $"Universal Asset Tool ({fps:0.0} fps)";
+                                                     });
+                                                   } catch {
+                                                     // ignored, throws after window is closed
+                                                   }
+                                                 },
+                                                 .25f);
+
     this.fileBundleTreeView_.DirectorySelected += this.OnDirectorySelect_;
     this.fileBundleTreeView_.FileSelected += this.OnFileBundleSelect_;
   }
@@ -90,30 +100,36 @@ public partial class UniversalAssetToolForm : Form {
 
   private void OnFileBundleSelect_(IFileTreeLeafNode fileNode) {
     switch (fileNode.File) {
-      case IModelFileBundle modelFileBundle: {
+      case IAnnotatedFileBundle<IModelFileBundle> modelFileBundle: {
         this.SelectModel_(fileNode, modelFileBundle);
         break;
       }
-      case IAudioFileBundle audioFileBundle: {
-        this.SelectAudio_(audioFileBundle);
+      case IAnnotatedFileBundle<IAudioFileBundle> audioFileBundle: {
+        this.SelectAudio_(audioFileBundle.TypedFileBundle);
         break;
       }
-      case ISceneFileBundle sceneFileBundle: {
+      case IAnnotatedFileBundle<ISceneFileBundle> sceneFileBundle: {
         this.SelectScene_(fileNode, sceneFileBundle);
         break;
       }
+      default:
+        throw new NotImplementedException();
     }
   }
 
-  private void SelectScene_(IFileTreeLeafNode fileNode,
-                            ISceneFileBundle sceneFileBundle) {
-    var scene = new GlobalSceneImporter().ImportScene(sceneFileBundle);
+  private void SelectScene_(
+      IFileTreeLeafNode fileNode,
+      IAnnotatedFileBundle<ISceneFileBundle> sceneFileBundle) {
+    var scene =
+        new GlobalSceneImporter().ImportScene(sceneFileBundle.TypedFileBundle);
     this.UpdateScene_(fileNode, sceneFileBundle, scene);
   }
 
-  private void SelectModel_(IFileTreeLeafNode fileNode,
-                            IModelFileBundle modelFileBundle) {
-    var model = new GlobalModelImporter().ImportModel(modelFileBundle);
+  private void SelectModel_(
+      IFileTreeLeafNode fileNode,
+      IAnnotatedFileBundle<IModelFileBundle> modelFileBundle) {
+    var model =
+        new GlobalModelImporter().ImportModel(modelFileBundle.TypedFileBundle);
 
     var scene = new SceneImpl();
     var area = scene.AddArea();
@@ -124,7 +140,7 @@ public partial class UniversalAssetToolForm : Form {
     IReadOnlyList<ILight> lights = model.Lighting.Lights;
     if (lights.Count == 0) {
       model.Lighting.CreateLight()
-                       .SetColor(FinColor.FromRgbFloats(1, 1, 1));
+           .SetColor(FinColor.FromRgbFloats(1, 1, 1));
     }
 
     // Initializes first light if uninitialized
@@ -180,7 +196,7 @@ public partial class UniversalAssetToolForm : Form {
   }
 
   private void UpdateScene_(IFileTreeLeafNode fileNode,
-                            IFileBundle fileBundle,
+                            IAnnotatedFileBundle fileBundle,
                             IScene scene) {
     this.sceneViewerPanel_.FileBundleAndScene?.Item2.Dispose();
     this.sceneViewerPanel_.FileBundleAndScene = (fileBundle, scene);
@@ -192,7 +208,8 @@ public partial class UniversalAssetToolForm : Form {
 
     this.modelToolStrip_.DirectoryNode = fileNode.Parent;
     this.modelToolStrip_.FileNodeAndModel = (fileNode, model);
-    this.exportAsToolStripMenuItem.Enabled = fileBundle is IModelFileBundle;
+    this.exportAsToolStripMenuItem.Enabled =
+        fileBundle.IsOfType<IModelFileBundle>(out _);
 
     if (Config.Instance.ViewerSettings.AutomaticallyPlayGameAudioForModel) {
       var gameDirectory = fileNode.Parent;
@@ -203,6 +220,7 @@ public partial class UniversalAssetToolForm : Form {
       if (this.gameDirectory_ != gameDirectory) {
         var audioFileBundles = gameDirectory
                                .GetFilesOfType<IAudioFileBundle>(true)
+                               .Select(bundle => bundle.TypedFileBundle)
                                .ToArray();
         this.audioPlayerPanel_.AudioFileBundles = audioFileBundles;
       }
@@ -212,7 +230,7 @@ public partial class UniversalAssetToolForm : Form {
   }
 
   private void SelectAudio_(IAudioFileBundle audioFileBundle)
-    => this.audioPlayerPanel_.AudioFileBundles = new[] {audioFileBundle};
+    => this.audioPlayerPanel_.AudioFileBundles = new[] { audioFileBundle };
 
   private void exportAsToolStripMenuItem_Click(object sender, EventArgs e) {
     var fileBundleAndScene = this.sceneViewerPanel_.FileBundleAndScene;
@@ -221,7 +239,8 @@ public partial class UniversalAssetToolForm : Form {
     }
 
     var (fileBundle, scene) = fileBundleAndScene.Value;
-    var modelFileBundle = fileBundle as IModelFileBundle;
+    var modelFileBundle =
+        Asserts.AsA<IAnnotatedFileBundle<IModelFileBundle>>(fileBundle);
     var model = this.sceneViewerPanel_.FirstSceneModel!.Model;
 
     var allSupportedExportFormats = AssimpUtil.SupportedExportFormats
@@ -229,8 +248,12 @@ public partial class UniversalAssetToolForm : Form {
                                               .ToArray();
     var mergedFormat =
         $"Model files|{string.Join(';', allSupportedExportFormats.Select(ef => $"*.{ef.FileExtension}"))}";
-    var filter = string.Join('|', mergedFormat.Yield().Concat(allSupportedExportFormats.Select(
-                                 ef => $"{ef.Description}|*.{ef.FileExtension}")));
+    var filter = string.Join('|',
+                             mergedFormat.Yield()
+                                         .Concat(
+                                             allSupportedExportFormats.Select(
+                                                 ef
+                                                     => $"{ef.Description}|*.{ef.FileExtension}")));
 
     var fbxIndex = allSupportedExportFormats.Select(ef => ef.FormatId)
                                             .IndexOfOrNegativeOne("fbx");

@@ -8,14 +8,14 @@ using j3d.api;
 using uni.platforms.gcn;
 
 namespace uni.games.pikmin_2 {
-  public class Pikmin2FileGatherer : IFileBundleGatherer<IFileBundle> {
-    public IEnumerable<IFileBundle> GatherFileBundles() {
+  public class Pikmin2AnnotatedFileGatherer : IAnnotatedFileBundleGatherer {
+    public IEnumerable<IAnnotatedFileBundle> GatherFileBundles() {
       if (!new GcnFileHierarchyExtractor().TryToExtractFromGame(
               "pikmin_2",
               GcnFileHierarchyExtractor.Options.Standard()
                                        .PruneRarcDumpNames("arc", "data"),
               out var fileHierarchy)) {
-        return Enumerable.Empty<IFileBundle>();
+        return Enumerable.Empty<IAnnotatedFileBundle>();
       }
 
       return
@@ -31,7 +31,7 @@ namespace uni.games.pikmin_2 {
     /// <summary>
     ///   Gets from separate model/animation szs (e.g. Enemies)
     /// </summary>
-    private IEnumerable<IFileBundle> ExtractAllFromSeparateDirectories_(
+    private IEnumerable<IAnnotatedFileBundle> ExtractAllFromSeparateDirectories_(
         IFileHierarchy fileHierarchy) {
       foreach (var subdir in fileHierarchy) {
         var modelSubdir =
@@ -57,7 +57,7 @@ namespace uni.games.pikmin_2 {
     /// <summary>
     ///   Gets from model/animations in same szs (e.g. user\Kando)
     /// </summary>
-    private IEnumerable<IFileBundle> ExtractAllFromMergedDirectories_(
+    private IEnumerable<IAnnotatedFileBundle> ExtractAllFromMergedDirectories_(
         IFileHierarchy fileHierarchy) {
       foreach (var subdir in fileHierarchy) {
         var arcSubdir =
@@ -73,7 +73,7 @@ namespace uni.games.pikmin_2 {
       }
     }
 
-    private IEnumerable<IFileBundle> ExtractPikminAndCaptainModels_(
+    private IEnumerable<IAnnotatedFileBundle> ExtractPikminAndCaptainModels_(
         IFileHierarchy fileHierarchy) {
       var pikminAndCaptainBaseDirectory =
           fileHierarchy.Root.AssertGetExistingSubdir(
@@ -81,7 +81,8 @@ namespace uni.games.pikmin_2 {
 
       var bcxFiles =
           pikminAndCaptainBaseDirectory.AssertGetExistingSubdir("motion")
-                                       .GetExistingFiles();
+                                       .GetExistingFiles()
+                                       ;
 
       var captainSubdir =
           pikminAndCaptainBaseDirectory.AssertGetExistingSubdir("orima_model");
@@ -92,7 +93,7 @@ namespace uni.games.pikmin_2 {
                  .Concat(this.ExtractModels_(pikminSubdir.GetExistingFiles(), bcxFiles));
     }
 
-    private IEnumerable<IFileBundle> ExtractAllTreasures_(
+    private IEnumerable<IAnnotatedFileBundle> ExtractAllTreasures_(
         IFileHierarchy fileHierarchy) {
       var treasureBaseDirectory =
           fileHierarchy.Root.AssertGetExistingSubdir(@"user\Abe\Pellet");
@@ -115,7 +116,7 @@ namespace uni.games.pikmin_2 {
       }
     }
 
-    private IEnumerable<IFileBundle> ExtractAudio_(
+    private IEnumerable<IAnnotatedFileBundle> ExtractAudio_(
         IFileHierarchy fileHierarchy)
       => fileHierarchy.Root.AssertGetExistingSubdir(@"AudioRes\Stream")
                       .FilesWithExtension(".ast")
@@ -123,15 +124,15 @@ namespace uni.games.pikmin_2 {
                           astFile => new AstAudioFileBundle {
                                   GameName = "pikmin_2",
                                   AstFile = astFile
-                              });
+                              }.Annotate(astFile));
 
-    private IEnumerable<IFileBundle> ExtractLeafBudFlower_(
+    private IEnumerable<IAnnotatedFileBundle> ExtractLeafBudFlower_(
         IFileHierarchy fileHierarchy)
       => this.ExtractModelsInDirectoryAutomatically_(
           fileHierarchy.Root.AssertGetExistingSubdir(
               @"user\Kando\piki\pikis_designer\happa_model"));
 
-    private IEnumerable<IFileBundle> ExtractModelsInDirectoryAutomatically_(
+    private IEnumerable<IAnnotatedFileBundle> ExtractModelsInDirectoryAutomatically_(
         IFileHierarchyDirectory directory)
       => this.ExtractModels_(
           directory.FilesWithExtension(".bmd"),
@@ -139,7 +140,7 @@ namespace uni.games.pikmin_2 {
                    .ToList(),
           directory.FilesWithExtension(".bti").ToList());
 
-    private IEnumerable<IFileBundle> ExtractModels_(
+    private IEnumerable<IAnnotatedFileBundle> ExtractModels_(
         IEnumerable<IFileHierarchyFile> bmdFiles,
         IReadOnlyList<IFileHierarchyFile>? bcxFiles = null,
         IReadOnlyList<IFileHierarchyFile>? btiFiles = null
@@ -149,6 +150,6 @@ namespace uni.games.pikmin_2 {
           BmdFile = bmdFile,
           BcxFiles = bcxFiles,
           BtiFiles = btiFiles,
-      });
+      }.Annotate(bmdFile));
   }
 }

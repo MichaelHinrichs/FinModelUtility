@@ -3,19 +3,33 @@
 namespace uni.ui.common.fileTreeView {
   public abstract partial class FileTreeView<TFiles> {
     protected class LeafFileNode : BFileNode, IFileTreeLeafNode {
-      public LeafFileNode(ParentFileNode parent, IFileBundle file) : base(
-          parent,
-          file.DisplayName) {
+      public LeafFileNode(ParentFileNode parent, IAnnotatedFileBundle file) :
+          base(parent, file.FileBundle.DisplayName) {
         this.File = file;
         this.InitializeFilterNode(parent);
 
         this.treeNode.ClosedImage =
             this.treeNode.OpenImage =
-                this.treeView.GetImageForFile(this.File);
+                this.treeView.GetImageForFile(this.File.FileBundle);
       }
 
-      public IFileBundle File { get; }
-      public override string FullName => this.File.TrueFullPath;
+      public IAnnotatedFileBundle File { get; }
+      public override string FullName => this.File.FileBundle.TrueFullPath;
+    }
+  }
+
+  public static class AnnotatedFileBundleExtensions {
+    public static bool IsOfType<TSpecificFile>(
+        this IAnnotatedFileBundle file,
+        out IAnnotatedFileBundle<TSpecificFile> outFile)
+        where TSpecificFile : IFileBundle {
+      if (file is IAnnotatedFileBundle<TSpecificFile>) {
+        outFile = (IAnnotatedFileBundle<TSpecificFile>) file;
+        return true;
+      }
+
+      outFile = default;
+      return false;
     }
   }
 }

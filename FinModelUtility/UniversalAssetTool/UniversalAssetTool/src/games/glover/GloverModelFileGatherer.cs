@@ -7,8 +7,8 @@ using glo.api;
 using uni.platforms.desktop;
 
 namespace uni.games.glover {
-  public class GloverModelFileGatherer : IFileBundleGatherer<IFileBundle> {
-    public IEnumerable<IFileBundle> GatherFileBundles() {
+  public class GloverModelAnnotatedFileGatherer : IAnnotatedFileBundleGatherer {
+    public IEnumerable<IAnnotatedFileBundle> GatherFileBundles() {
       if (!SteamUtils.TryGetGameDirectory("Glover",
                                           out var gloverSteamDirectory)) {
         yield break;
@@ -16,14 +16,17 @@ namespace uni.games.glover {
 
       var gloverFileHierarchy = new FileHierarchy(gloverSteamDirectory);
 
-      var dataDirectory = gloverFileHierarchy.Root.AssertGetExistingSubdir("data");
+      var dataDirectory =
+          gloverFileHierarchy.Root.AssertGetExistingSubdir("data");
       var topLevelBgmDirectory = dataDirectory.AssertGetExistingSubdir("bgm");
       foreach (var bgmFile in topLevelBgmDirectory.GetExistingFiles()) {
-        yield return new OggAudioFileBundle(bgmFile);
+        yield return new OggAudioFileBundle(bgmFile).Annotate(bgmFile);
       }
 
-      var topLevelObjectDirectory = dataDirectory.AssertGetExistingSubdir("objects");
-      foreach (var objectDirectory in topLevelObjectDirectory.GetExistingSubdirs()) {
+      var topLevelObjectDirectory =
+          dataDirectory.AssertGetExistingSubdir("objects");
+      foreach (var objectDirectory in
+               topLevelObjectDirectory.GetExistingSubdirs()) {
         foreach (var fileBundle in this.AddObjectDirectory_(
                      gloverFileHierarchy,
                      objectDirectory)) {
@@ -32,7 +35,7 @@ namespace uni.games.glover {
       }
     }
 
-    private IEnumerable<IFileBundle> AddObjectDirectory_(
+    private IEnumerable<IAnnotatedFileBundle> AddObjectDirectory_(
         IFileHierarchy gloverFileHierarchy,
         IFileHierarchyDirectory objectDirectory) {
       var objectFiles = objectDirectory.FilesWithExtension(".glo");
@@ -40,12 +43,14 @@ namespace uni.games.glover {
       var gloverSteamDirectory = gloverFileHierarchy.Root;
       var textureDirectories = gloverSteamDirectory
                                .AssertGetExistingSubdir("data/textures/generic")
-                               .GetExistingSubdirs().ToList();
+                               .GetExistingSubdirs()
+                               .ToList();
 
       try {
-        var levelTextureDirectory = gloverSteamDirectory.AssertGetExistingSubdir(
-            objectDirectory.LocalPath.Replace("data\\objects",
-                                              "data\\textures"));
+        var levelTextureDirectory =
+            gloverSteamDirectory.AssertGetExistingSubdir(
+                objectDirectory.LocalPath.Replace("data\\objects",
+                                                  "data\\textures"));
         textureDirectories.Add(levelTextureDirectory);
         textureDirectories.AddRange(levelTextureDirectory.GetExistingSubdirs());
       } catch {
@@ -53,7 +58,8 @@ namespace uni.games.glover {
       }
 
       foreach (var objectFile in objectFiles) {
-        yield return new GloModelFileBundle(objectFile, textureDirectories);
+        yield return new GloModelFileBundle(objectFile, textureDirectories)
+            .Annotate(objectFile);
       }
     }
   }

@@ -25,12 +25,12 @@ namespace modl.api {
   public class OutModelFileBundle : IBattalionWarsModelFileBundle {
     public required string GameName { get; init; }
 
-    public IFileHierarchyFile MainFile => this.OutFile;
+    public IReadOnlyTreeFile MainFile => this.OutFile;
 
     public required GameVersion GameVersion { get; init; }
-    public required IFileHierarchyFile OutFile { get; init; }
+    public required IReadOnlyTreeFile OutFile { get; init; }
 
-    public IEnumerable<IFileHierarchyDirectory>? TextureDirectories {
+    public IEnumerable<IReadOnlyTreeDirectory>? TextureDirectories {
       get;
       init;
     } = null;
@@ -40,18 +40,18 @@ namespace modl.api {
     public IModel ImportModel(OutModelFileBundle modelFileBundle)
       => modelFileBundle.TextureDirectories != null
           ? this.ImportModel(modelFileBundle.OutFile,
-                           modelFileBundle.TextureDirectories
-                                          .Select(dir => dir.Impl),
-                           modelFileBundle.GameVersion,
-                           out _)
-          : this.ImportModel(modelFileBundle.OutFile.Impl,
-                           modelFileBundle.GameVersion,
-                           out _);
+                             modelFileBundle.TextureDirectories
+                                            .Select(dir => dir),
+                             modelFileBundle.GameVersion,
+                             out _)
+          : this.ImportModel(modelFileBundle.OutFile,
+                             modelFileBundle.GameVersion,
+                             out _);
 
-    public IModel ImportModel(IReadOnlySystemFile outFile,
-                            GameVersion gameVersion,
-                            out IBwTerrain bwTerrain,
-                            float terrainLightScale = 1) {
+    public IModel ImportModel(IReadOnlyTreeFile outFile,
+                              GameVersion gameVersion,
+                              out IBwTerrain bwTerrain,
+                              float terrainLightScale = 1) {
       var outName = outFile.Name.Replace(".out.gz", "")
                            .Replace(".out", "");
       var outDirectory =
@@ -62,18 +62,18 @@ namespace modl.api {
       var allMapsDirectory = outDirectory.AssertGetParent();
 
       return this.ImportModel(outFile,
-                            outDirectory.Yield().Concat(allMapsDirectory),
-                            gameVersion,
-                            out bwTerrain,
-                            terrainLightScale);
+                              outDirectory.Yield().Concat(allMapsDirectory),
+                              gameVersion,
+                              out bwTerrain,
+                              terrainLightScale);
     }
 
     public IModel ImportModel(IReadOnlyGenericFile outFile,
-                            IEnumerable<IReadOnlySystemDirectory>
-                                textureDirectoriesEnumerable,
-                            GameVersion gameVersion,
-                            out IBwTerrain bwTerrain,
-                            float terrainLightScale = 1) {
+                              IEnumerable<IReadOnlyTreeDirectory>
+                                  textureDirectoriesEnumerable,
+                              GameVersion gameVersion,
+                              out IBwTerrain bwTerrain,
+                              float terrainLightScale = 1) {
       var isBw2 = gameVersion == GameVersion.BW2;
 
       Stream stream;
@@ -104,13 +104,12 @@ namespace modl.api {
               return FinImage.Create1x1FromColor(Color.Magenta);
             }
 
-            IReadOnlySystemFile? textureFile = null;
-            foreach (var textureDirectory in textureDirectories) {
-              if (textureDirectory.SearchForFiles($"{imageName}.texr", true)
-                                  .TryGetFirst(out textureFile)) {
-                break;
-              }
-            }
+            var textureFile =
+                textureDirectories
+                    .SelectMany(
+                        dir => dir.GetFilesWithNameRecursive(
+                            $"{imageName}.texr"))
+                    .FirstOrDefault();
 
             if (textureFile == null) {
               return FinImage.Create1x1FromColor(Color.Magenta);

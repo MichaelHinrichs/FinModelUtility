@@ -9,12 +9,15 @@ using uni.platforms.wii;
 using uni.util.io;
 
 namespace uni.games.battalion_wars_2 {
-  public class BattalionWars2FileGatherer : IFileBundleGatherer<IFileBundle> {
-    public IEnumerable<IFileBundle> GatherFileBundles() {
+  using IAnnotatedBwBundle = IAnnotatedFileBundle<IBattalionWarsFileBundle>;
+
+  public class BattalionWars2AnnotatedFileGatherer
+      : IAnnotatedFileBundleGatherer<IBattalionWarsFileBundle> {
+    public IEnumerable<IAnnotatedBwBundle> GatherFileBundles() {
       if (!DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
               "battalion_wars_2.iso",
               out var battalionWarsRom)) {
-        return Enumerable.Empty<IFileBundle>();
+        return Enumerable.Empty<IAnnotatedBwBundle>();
       }
 
       var fileHierarchy =
@@ -24,7 +27,8 @@ namespace uni.games.battalion_wars_2 {
       foreach (var directory in fileHierarchy) {
         var didUpdate = false;
         var resFiles =
-            directory.GetExistingFiles().Where(file => file.Name.EndsWith(".res.gz"));
+            directory.GetExistingFiles()
+                     .Where(file => file.Name.EndsWith(".res.gz"));
         foreach (var resFile in resFiles) {
           didUpdate |= new ResDump().Run(resFile);
         }
@@ -34,7 +38,7 @@ namespace uni.games.battalion_wars_2 {
         }
       }
 
-      return new FileHierarchyAssetBundleSeparator<IFileBundle>(
+      return new FileHierarchyAssetBundleSeparator<IBattalionWarsFileBundle>(
           fileHierarchy,
           directory => {
             var modlFiles = directory.FilesWithExtension(".modl");
@@ -76,7 +80,7 @@ namespace uni.games.battalion_wars_2 {
                          .ToArray();
 
             var allModlsAndAnims =
-                new (IEnumerable<IFileHierarchyFile>, IList<IFileHierarchyFile>?
+                new (IEnumerable<IFileHierarchyFile>, IList<IReadOnlyTreeFile>?
                     )
                     [] {
                         (svetModlFile, fvAnimFiles),
@@ -97,7 +101,7 @@ namespace uni.games.battalion_wars_2 {
                                         ModlFile = modlFile,
                                         GameVersion = GameVersion.BW2,
                                         AnimFiles = modlsAndAnims.Item2
-                                    }));
+                                    }.Annotate(modlFile)));
             var outBundles =
                 directory.GetExistingFiles()
                          .Where(file => file.Name.EndsWith(".out.gz"))
@@ -105,7 +109,7 @@ namespace uni.games.battalion_wars_2 {
                              GameName = "battalion_wars_2",
                              OutFile = outFile,
                              GameVersion = GameVersion.BW2,
-                         });
+                         }.Annotate(outFile));
             var sceneBundles =
                 directory.Name == "CompoundFiles"
                     ? directory
@@ -119,16 +123,17 @@ namespace uni.games.battalion_wars_2 {
                           GameName = "battalion_wars_2",
                           MainXmlFile = file,
                           GameVersion = GameVersion.BW2,
-                      })
-                    : new List<BwSceneFileBundle>();
+                      }.Annotate(file))
+                    : Enumerable.Empty<IAnnotatedBwBundle>();
 
             var bundles =
-                modlBundles.Concat<IBattalionWarsFileBundle>(outBundles)
-                           .Concat(sceneBundles)
-                           .ToList();
+                modlBundles
+                    .Concat<IAnnotatedBwBundle>(outBundles)
+                    .Concat(sceneBundles)
+                    .ToList();
             bundles.Sort((lhs, rhs) =>
-                             lhs.MainFile.Name.CompareTo(
-                                 rhs.MainFile.Name));
+                             lhs.GameAndLocalPath.CompareTo(
+                                 rhs.GameAndLocalPath));
 
             return bundles;
           }

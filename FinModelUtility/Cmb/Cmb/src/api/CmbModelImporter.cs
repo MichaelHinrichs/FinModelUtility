@@ -47,11 +47,11 @@ namespace cmb.api {
       var cmb = new Cmb(r);
       r.Position = 0;
 
-      (IFileHierarchyFile, Csab)[] filesAndCsabs;
+      (IReadOnlyTreeFile, Csab)[] filesAndCsabs;
       if (csabFiles == null) {
-        filesAndCsabs = Array.Empty<(IFileHierarchyFile, Csab)>();
+        filesAndCsabs = Array.Empty<(IReadOnlyTreeFile, Csab)>();
       } else {
-        filesAndCsabs = new (IFileHierarchyFile, Csab)[csabFiles.Count];
+        filesAndCsabs = new (IReadOnlyTreeFile, Csab)[csabFiles.Count];
         ParallelHelper.For(0,
                            csabFiles.Count,
                            new CsabReader(csabFiles, filesAndCsabs));
@@ -63,7 +63,7 @@ namespace cmb.api {
                      return (ctxbFile, ctxb);
                    })
                    .ToList() ??
-          new List<(IFileHierarchyFile shpaFile, Ctxb ctxb)>();
+          new List<(IReadOnlyTreeFile shpaFile, Ctxb ctxb)>();
 
       var filesAndShpas =
           shpaFiles?.Select(shpaFile => {
@@ -72,7 +72,7 @@ namespace cmb.api {
                      return (shpaFile, shpa);
                    })
                    .ToList() ??
-          new List<(IFileHierarchyFile shpaFile, Shpa shpa)>();
+          new List<(IReadOnlyTreeFile shpaFile, Shpa shpa)>();
 
       var finModel = new ModelImpl();
       var finSkin = finModel.Skin;
@@ -184,11 +184,8 @@ namespace cmb.api {
             } else {
               var ctxb =
                   filesAndCtxbs
-                      .Select(
-                          fileAndCtxb => fileAndCtxb.Item2)
-                      .Single(
-                          ctxb => ctxb.Chunk.Entry.Name ==
-                                  cmbTexture.name);
+                      .Select(fileAndCtxb => fileAndCtxb.Item2)
+                      .Single(ctxb => ctxb.Chunk.Entry.Name == cmbTexture.name);
               image = ctrTexture.DecodeImage(cmbTexture)
                                 .ReadImage(ctxb.Chunk.Entry.Data);
             }
@@ -491,12 +488,12 @@ namespace cmb.api {
       };
 
     public readonly struct CsabReader : IAction {
-      private readonly IReadOnlyList<IFileHierarchyFile> src_;
-      private readonly (IFileHierarchyFile, Csab)[] dst_;
+      private readonly IReadOnlyList<IReadOnlyTreeFile> src_;
+      private readonly (IReadOnlyTreeFile, Csab)[] dst_;
 
       public CsabReader(
-          IReadOnlyList<IFileHierarchyFile> src,
-          (IFileHierarchyFile, Csab)[] dst) {
+          IReadOnlyList<IReadOnlyTreeFile> src,
+          (IReadOnlyTreeFile, Csab)[] dst) {
         this.src_ = src;
         this.dst_ = dst;
       }

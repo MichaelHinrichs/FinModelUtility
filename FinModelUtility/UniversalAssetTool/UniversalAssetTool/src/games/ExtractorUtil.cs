@@ -34,9 +34,9 @@ namespace uni.games {
     }
 
     public static bool CheckIfModelFileBundlesAlreadyExtracted(
-        IEnumerable<IModelFileBundle> modelFileBundles,
+        IEnumerable<IAnnotatedFileBundle> modelFileBundles,
         IReadOnlyList<string> extensions,
-        out IReadOnlyList<IModelFileBundle> existingModelFileBundles) {
+        out IReadOnlyList<IAnnotatedFileBundle> existingModelFileBundles) {
       existingModelFileBundles =
           modelFileBundles
               .Where(mfb => CheckIfModelFileBundleAlreadyExtracted(
@@ -47,12 +47,15 @@ namespace uni.games {
     }
 
     public static bool CheckIfModelFileBundleAlreadyExtracted(
-        IModelFileBundle modelFileBundle,
+        IAnnotatedFileBundle annotatedModelFileBundle,
         IEnumerable<string> extensions) {
-      var mainFile = Asserts.CastNonnull(modelFileBundle.MainFile);
+      // TODO: Clean this up!!
+      var bundle = annotatedModelFileBundle.FileBundle;
+      var mainFile = bundle.MainFile;
 
       var parentOutputDirectory =
-          GameFileHierarchyUtil.GetOutputDirectoryForFile(mainFile);
+          GameFileHierarchyUtil.GetOutputDirectoryForFileBundle(
+              annotatedModelFileBundle);
       var outputDirectory = new FinDirectory(
           Path.Join(parentOutputDirectory.FullPath,
                     mainFile.NameWithoutExtension));
@@ -111,7 +114,7 @@ namespace uni.games {
 
     public static ExtractorPromptChoice
         PromptIfModelFileBundlesAlreadyExtracted(
-            IReadOnlyList<IModelFileBundle> modelFileBundles,
+            IReadOnlyList<IAnnotatedFileBundle> modelFileBundles,
             IReadOnlyList<string> extensions) {
       if (ExtractorUtil.CheckIfModelFileBundlesAlreadyExtracted(
               modelFileBundles,
@@ -121,7 +124,7 @@ namespace uni.games {
         if (totalCount == 1) {
           var result =
               MessageBox.Show(
-                  $"Model defined in \"{existingOutputFiles.First().DisplayFullPath}\" has already been extracted. Would you like to overwrite it?",
+                  $"Model defined in \"{existingOutputFiles.First().FileBundle.DisplayFullPath}\" has already been extracted. Would you like to overwrite it?",
                   "Model has already been extracted!",
                   MessageBoxButtons.YesNo,
                   MessageBoxIcon.Warning,
@@ -151,17 +154,17 @@ namespace uni.games {
     }
 
     public static void ExtractAllForCli<T>(
-        IFileBundleGatherer<T> gatherer,
+        IAnnotatedFileBundleGatherer<T> gatherer,
         IModelImporter<T> reader)
         where T : IModelFileBundle
       => ExtractorUtil.ExtractAllForCli_(gatherer.GatherFileBundles(),
-                                        reader,
-                                        Config.Instance.ExporterSettings
-                                              .ExportedFormats,
-                                        false);
+                                         reader,
+                                         Config.Instance.ExporterSettings
+                                               .ExportedFormats,
+                                         false);
 
     public static void ExtractAllForCli<T>(
-        IFileBundleGatherer<IFileBundle> gatherer,
+        IAnnotatedFileBundleGatherer gatherer,
         IModelImporter<T> reader)
         where T : IModelFileBundle
       => ExtractorUtil.ExtractAllForCli_(
@@ -171,24 +174,26 @@ namespace uni.games {
           false);
 
     private static void ExtractAllForCli_<T>(
-        IEnumerable<IFileBundle> fileBundles,
+        IEnumerable<IAnnotatedFileBundle> fileBundles,
         IModelImporter<T> reader,
         IReadOnlyList<string> extensions,
         bool overwriteExistingFiles)
         where T : IModelFileBundle
-      => ExtractorUtil.ExtractAllForCli_(fileBundles.WhereIs<IFileBundle, T>(),
-                                        reader,
-                                        extensions,
-                                        overwriteExistingFiles);
+      => ExtractorUtil.ExtractAllForCli_(
+          fileBundles.WhereIs<IAnnotatedFileBundle, IAnnotatedFileBundle<T>>(),
+          reader,
+          extensions,
+          overwriteExistingFiles);
 
     private static void ExtractAllForCli_<T>(
-        IEnumerable<T> modelFileBundles,
+        IEnumerable<IAnnotatedFileBundle<T>> modelFileBundles,
         IModelImporter<T> reader,
         IReadOnlyList<string> extensions,
         bool overwriteExistingFiles)
         where T : IModelFileBundle {
       var bundlesArray = modelFileBundles.ToArray();
-      Asserts.True(bundlesArray.Length > 0, "Expected to find bundles for the current ROM. Does the file exist, and was it extracted correctly?");
+      Asserts.True(bundlesArray.Length > 0,
+                   "Expected to find bundles for the current ROM. Does the file exist, and was it extracted correctly?");
 
       foreach (var modelFileBundle in bundlesArray) {
         ExtractorUtil.Extract(modelFileBundle,
@@ -200,22 +205,25 @@ namespace uni.games {
 
 
     public static void ExtractAll<T>(
-        IEnumerable<IFileBundle> fileBundles,
+        IEnumerable<IAnnotatedFileBundle> fileBundles,
         IModelImporter<T> reader,
         IProgress<(float, T?)> progress,
         CancellationTokenSource cancellationTokenSource,
         IReadOnlyList<string> extensions,
         bool overwriteExistingFiles)
         where T : IModelFileBundle {
-      var fileBundleArray = fileBundles.WhereIs<IFileBundle, T>()
-                                       .ToArray();
+      var fileBundleArray = fileBundles
+                            .WhereIs<IAnnotatedFileBundle,
+                                IAnnotatedFileBundle<T>>()
+                            .ToArray();
       for (var i = 0; i < fileBundleArray.Length; ++i) {
         if (cancellationTokenSource.IsCancellationRequested) {
           break;
         }
 
         var modelFileBundle = fileBundleArray[i];
-        progress.Report((i * 1f / fileBundleArray.Length, modelFileBundle));
+        progress.Report((i * 1f / fileBundleArray.Length,
+                         modelFileBundle.TypedFileBundle));
         ExtractorUtil.Extract(modelFileBundle,
                               reader,
                               extensions,
@@ -225,26 +233,28 @@ namespace uni.games {
       progress.Report((1, default));
     }
 
-    public static void Extract<T>(T modelFileBundle,
+    public static void Extract<T>(IAnnotatedFileBundle<T> modelFileBundle,
                                   IModelImporter<T> reader,
                                   IReadOnlyList<string> extensions,
                                   bool overwriteExistingFile)
         where T : IModelFileBundle {
       ExtractorUtil.Extract(modelFileBundle,
-                            () => reader.ImportModel(modelFileBundle),
+                            () => reader.ImportModel(
+                                modelFileBundle.TypedFileBundle),
                             extensions,
                             overwriteExistingFile);
     }
 
-    public static void Extract<T>(T modelFileBundle,
+    public static void Extract<T>(IAnnotatedFileBundle<T> modelFileBundle,
                                   Func<IModel> loaderHandler,
                                   IReadOnlyList<string> extensions,
                                   bool overwriteExistingFile)
         where T : IModelFileBundle {
-      var mainFile = Asserts.CastNonnull(modelFileBundle.MainFile);
+      var mainFile = Asserts.CastNonnull(modelFileBundle.FileBundle.MainFile);
 
       var parentOutputDirectory =
-          GameFileHierarchyUtil.GetOutputDirectoryForFile(mainFile);
+          GameFileHierarchyUtil
+              .GetOutputDirectoryForFileBundle(modelFileBundle);
       var outputDirectory = new FinDirectory(
           Path.Join(parentOutputDirectory.FullPath,
                     mainFile.NameWithoutExtension));
@@ -256,7 +266,7 @@ namespace uni.games {
                  overwriteExistingFile);
     }
 
-    public static void Extract<T>(T modelFileBundle,
+    public static void Extract<T>(IAnnotatedFileBundle<T> modelFileBundle,
                                   Func<IModel> loaderHandler,
                                   ISystemDirectory outputDirectory,
                                   IReadOnlyList<string> extensions,
@@ -273,13 +283,14 @@ namespace uni.games {
 
 
     public static void Extract<T>(
-        T modelFileBundle,
+        IAnnotatedFileBundle<T> annotatedModelFileBundle,
         Func<IModel> loaderHandler,
         ISystemDirectory outputDirectory,
         IReadOnlyList<ExportFormatDescription> formats,
         bool overwriteExistingFile,
         string? overrideName = null)
         where T : IModelFileBundle {
+      var modelFileBundle = annotatedModelFileBundle.TypedFileBundle;
       var mainFile = Asserts.CastNonnull(modelFileBundle.MainFile);
       var name = overrideName ?? mainFile.NameWithoutExtension;
 
@@ -288,7 +299,7 @@ namespace uni.games {
       }
 
       if (!overwriteExistingFile && CheckIfModelFileBundleAlreadyExtracted(
-              modelFileBundle,
+              annotatedModelFileBundle,
               formats.Select(format => $".{format.FileExtension}"))) {
         MessageUtil.LogAlreadyProcessed(ExtractorUtil.logger_, mainFile);
         return;
@@ -311,9 +322,7 @@ namespace uni.games {
                             Scale = new ScaleSource(
                                     Config.Instance.ExporterSettings
                                           .ExportedModelScaleSource)
-                                .GetScale(
-                                    model,
-                                    modelFileBundle)
+                                .GetScale(model, annotatedModelFileBundle)
                         },
                         formats,
                         Config.Instance.ExporterSettings.ExportAllTextures);

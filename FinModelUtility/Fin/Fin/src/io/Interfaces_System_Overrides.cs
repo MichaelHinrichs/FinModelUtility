@@ -76,8 +76,11 @@ namespace fin.io {
     // TryToGetExistingSubdir
     bool GROTreeDir.TryToGetExistingSubdir(
         string path,
-        out IReadOnlyTreeDirectory outDirectory)
-      => this.TryToGetExistingSubdir(path, out outDirectory);
+        out IReadOnlyTreeDirectory outDirectory) {
+      var returnValue = this.TryToGetExistingSubdir(path, out var outDir);
+      outDirectory = outDir;
+      return returnValue;
+    }
 
     new bool TryToGetExistingSubdir(string path,
                                     out IReadOnlySystemDirectory outDirectory);
@@ -109,15 +112,12 @@ namespace fin.io {
 
     new bool TryToGetExistingFile(string path, out IReadOnlySystemFile outFile);
 
-    // SearchForFiles
-    IEnumerable<IReadOnlyTreeFile> GROTreeDir.SearchForFiles(
-        string searchPattern,
-        bool includeSubdirs)
-      => this.SearchForFiles(searchPattern, includeSubdirs);
+    // GetFilesWithNameRecursive
+    IEnumerable<IReadOnlyTreeFile> GROTreeDir.GetFilesWithNameRecursive(
+        string name)
+      => this.GetFilesWithNameRecursive(name);
 
-    new IEnumerable<IReadOnlySystemFile> SearchForFiles(
-        string searchPattern,
-        bool includeSubdirs = false);
+    new IEnumerable<IReadOnlySystemFile> GetFilesWithNameRecursive(string name);
 
     // GetFilesWithFileType
     IEnumerable<IReadOnlyTreeFile> GROTreeDir.GetFilesWithFileType(
@@ -133,8 +133,21 @@ namespace fin.io {
 
   public partial interface IReadOnlySystemFile {
     // FileType
+    string GROTreeFile.FileType => this.FileType;
     string GROSysFile.FileType => this.FileType;
     new string FileType { get; }
+
+    // FullNameWithoutExtension
+    string GROTreeFile.FullNameWithoutExtension
+      => this.FullNameWithoutExtension;
+
+    string GROSysFile.FullNameWithoutExtension => this.FullNameWithoutExtension;
+    new string FullNameWithoutExtension { get; }
+
+    // NameWithoutExtension
+    string GROTreeFile.NameWithoutExtension => this.NameWithoutExtension;
+    string GROSysFile.NameWithoutExtension => this.NameWithoutExtension;
+    new string NameWithoutExtension { get; }
   }
 
 
@@ -202,7 +215,8 @@ namespace fin.io {
     new IEnumerable<ISystemFile> GetExistingFiles();
 
     // AssertGetExistingFile
-    IReadOnlySystemFile GROSysDir.AssertGetExistingFile(string path)
+    IReadOnlySystemFile GROSysDir.AssertGetExistingFile(
+        string path)
       => this.AssertGetExistingFile(path);
 
     IReadOnlySystemFile IReadOnlySystemDirectory.AssertGetExistingFile(
@@ -214,7 +228,8 @@ namespace fin.io {
     // TryToGetExistingFile
     bool IReadOnlySystemDirectory.TryToGetExistingFile(string path,
       out IReadOnlySystemFile outFile) {
-      var returnValue = this.TryToGetExistingFile(path, out var outSystemFile);
+      var returnValue =
+          this.TryToGetExistingFile(path, out var outSystemFile);
       outFile = outSystemFile;
       return returnValue;
     }
@@ -247,20 +262,16 @@ namespace fin.io {
                                               out ISystemFile outFile,
                                               params string[] fileTypes);
 
-    // SearchForFiles
-    IEnumerable<IReadOnlySystemFile> IReadOnlySystemDirectory.SearchForFiles(
-        string searchPattern,
-        bool includeSubdirs)
-      => this.SearchForFiles(searchPattern, includeSubdirs);
+    // GetFilesWithNameRecursive
+    IEnumerable<IReadOnlySystemFile> IReadOnlySystemDirectory.
+        GetFilesWithNameRecursive(string name)
+      => this.GetFilesWithNameRecursive(name);
 
-    IEnumerable<IReadOnlySystemFile> GROSysDir.SearchForFiles(
-        string searchPattern,
-        bool includeSubdirs)
-      => this.SearchForFiles(searchPattern, includeSubdirs);
+    IEnumerable<IReadOnlySystemFile> GROSysDir.
+        GetFilesWithNameRecursive(string name)
+      => this.GetFilesWithNameRecursive(name);
 
-    new IEnumerable<ISystemFile> SearchForFiles(
-        string searchPattern,
-        bool includeSubdirs = false);
+    new IEnumerable<ISystemFile> GetFilesWithNameRecursive(string name);
 
     // GetFilesWithFileType
     IEnumerable<IReadOnlySystemFile>
@@ -282,8 +293,24 @@ namespace fin.io {
 
   public partial interface ISystemFile {
     // FileType
-    string GROSysFile.FileType => this.FileType;
+    string GMSysFile.FileType => this.FileType;
     string IReadOnlySystemFile.FileType => this.FileType;
     new string FileType { get; }
+
+    // FullNameWithoutExtension
+    string GMSysFile.FullNameWithoutExtension => this.FullNameWithoutExtension;
+
+    string IReadOnlySystemFile.FullNameWithoutExtension
+      => this.FullNameWithoutExtension;
+
+    new string FullNameWithoutExtension { get; }
+
+    // NameWithoutExtension
+    string GMSysFile.NameWithoutExtension => this.NameWithoutExtension;
+
+    string IReadOnlySystemFile.NameWithoutExtension
+      => this.NameWithoutExtension;
+
+    new string NameWithoutExtension { get; }
   }
 }

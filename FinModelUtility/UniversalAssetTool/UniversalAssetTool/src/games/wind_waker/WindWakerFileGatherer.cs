@@ -1,4 +1,6 @@
-﻿using fin.io;
+﻿using System.Collections;
+
+using fin.io;
 using fin.io.bundles;
 using fin.log;
 using fin.util.asserts;
@@ -14,15 +16,15 @@ using uni.platforms.gcn.tools;
 
 
 namespace uni.games.wind_waker {
-  public class WindWakerFileGatherer : IFileBundleGatherer<BmdModelFileBundle> {
+  public class WindWakerAnnotatedFileGatherer : IAnnotatedFileBundleGatherer<BmdModelFileBundle> {
     private readonly ILogger logger_ =
-        Logging.Create<WindWakerFileGatherer>();
+        Logging.Create<WindWakerAnnotatedFileGatherer>();
 
-    public IEnumerable<BmdModelFileBundle> GatherFileBundles() {
+    public IEnumerable<IAnnotatedFileBundle<BmdModelFileBundle>> GatherFileBundles() {
       if (!new GcnFileHierarchyExtractor().TryToExtractFromGame(
               "wind_waker",
               out var fileHierarchy)) {
-        return Enumerable.Empty<BmdModelFileBundle>();
+        return Enumerable.Empty<IAnnotatedFileBundle<BmdModelFileBundle>>();
       }
 
       var objectDirectory = fileHierarchy.Root.AssertGetExistingSubdir(@"res\Object");
@@ -82,11 +84,11 @@ namespace uni.games.wind_waker {
       }*/
     }
 
-    private IEnumerable<BmdModelFileBundle> ExtractObjects_(
+    private IEnumerable<IAnnotatedFileBundle<BmdModelFileBundle>> ExtractObjects_(
         IFileHierarchyDirectory directory)
       => directory.GetExistingSubdirs().SelectMany(this.ExtractObject_);
 
-    private IEnumerable<BmdModelFileBundle> ExtractObject_(
+    private IEnumerable<IAnnotatedFileBundle<BmdModelFileBundle>> ExtractObject_(
         IFileHierarchyDirectory directory) {
       // TODO: What the heck is the difference between these directories?
       // Is there any besides the model type within?
@@ -140,7 +142,7 @@ namespace uni.games.wind_waker {
                                               organizeMethod);
       }
 
-      return Enumerable.Empty<BmdModelFileBundle>();
+      return Enumerable.Empty<IAnnotatedFileBundle<BmdModelFileBundle>>();
     }
 
     public interface IOrganizeMethod {
@@ -195,7 +197,7 @@ namespace uni.games.wind_waker {
       }
     }
 
-    private IEnumerable<BmdModelFileBundle> ExtractFilesByOrganizing_(
+    private IEnumerable<IAnnotatedFileBundle<BmdModelFileBundle>> ExtractFilesByOrganizing_(
         IReadOnlyList<IFileHierarchyFile> bmdFiles,
         IReadOnlyList<IFileHierarchyFile> bckFiles,
         IOrganizeMethod organizeMethod) {
@@ -230,7 +232,7 @@ namespace uni.games.wind_waker {
       }
     }
 
-    private IEnumerable<BmdModelFileBundle> ExtractModels_(
+    private IEnumerable<IAnnotatedFileBundle<BmdModelFileBundle>> ExtractModels_(
         IReadOnlyList<IFileHierarchyFile> bmdFiles,
         IReadOnlyList<IFileHierarchyFile>? bcxFiles = null,
         IReadOnlyList<IFileHierarchyFile>? btiFiles = null
@@ -245,7 +247,7 @@ namespace uni.games.wind_waker {
             BcxFiles = bcxFiles,
             BtiFiles = btiFiles,
             FrameRate = 60
-        };
+        }.Annotate(bmdFile);
       }
     }
   }

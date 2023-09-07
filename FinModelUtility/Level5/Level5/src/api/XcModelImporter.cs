@@ -21,13 +21,13 @@ namespace level5.api {
   public class XcModelFileBundle : IModelFileBundle {
     public string? HumanReadableName { get; set; }
     public required string GameName { get; init; }
-    public IFileHierarchyFile MainFile => this.ModelXcFile;
+    public IReadOnlyTreeFile MainFile => this.ModelXcFile;
     public IEnumerable<IReadOnlyGenericFile> Files
       => this.ModelXcFile.Yield()
              .ConcatIfNonnull(this.AnimationXcFiles);
 
-    public IFileHierarchyFile ModelXcFile { get; set; }
-    public IList<IFileHierarchyFile>? AnimationXcFiles { get; set; }
+    public IReadOnlyTreeFile ModelXcFile { get; set; }
+    public IList<IReadOnlyTreeFile>? AnimationXcFiles { get; set; }
   }
 
   public class XcModelImporter : IModelImporter<XcModelFileBundle> {

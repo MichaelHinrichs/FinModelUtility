@@ -4,8 +4,8 @@ using fin.io.bundles;
 using uni.platforms.desktop;
 
 namespace uni.games.dead_space_3 {
-  public class DeadSpace3FileGatherer : IFileBundleGatherer<IFileBundle> {
-    public IEnumerable<IFileBundle> GatherFileBundles() {
+  public class DeadSpace3AnnotatedFileGatherer : IAnnotatedFileBundleGatherer {
+    public IEnumerable<IAnnotatedFileBundle> GatherFileBundles() {
       if (!EaUtils.TryGetGameDirectory("Dead Space 3", out var deadSpace3Dir)) {
         yield break;
       }

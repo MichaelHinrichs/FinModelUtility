@@ -4,7 +4,7 @@ namespace uni.games.halo_wars {
   internal class HaloWarsExtractor : IExtractor {
     public void ExtractAll()
       => ExtractorUtil.ExtractAllForCli(
-        new HaloWarsModelFileGatherer(),
+        new HaloWarsModelAnnotatedFileGatherer(),
         new HaloWarsModelImporter());
 
       /*new HaloWarsTools.Program().Run(

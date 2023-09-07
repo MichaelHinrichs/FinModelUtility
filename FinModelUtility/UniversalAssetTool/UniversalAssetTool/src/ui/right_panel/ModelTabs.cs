@@ -10,7 +10,7 @@ namespace uni.ui.right_panel {
       InitializeComponent();
     }
 
-    public (IFileBundle, IModel)? Model {
+    public (IAnnotatedFileBundle, IModel)? Model {
       set {
         var modelFileBundle = value?.Item1;
         var model = value?.Item2;

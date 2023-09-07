@@ -4,8 +4,8 @@ using fin.io.bundles;
 using uni.platforms.desktop;
 
 namespace uni.games.dead_space_2 {
-  public class DeadSpace2FileGatherer : IFileBundleGatherer<IFileBundle> {
-    public IEnumerable<IFileBundle> GatherFileBundles() {
+  public class DeadSpace2AnnotatedFileGatherer : IAnnotatedFileBundleGatherer {
+    public IEnumerable<IAnnotatedFileBundle> GatherFileBundles() {
       if (!EaUtils.TryGetGameDirectory("Dead Space 2", out var deadSpace2Dir)) {
         yield break;
       }

@@ -4,7 +4,7 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
   public class ProfessorLaytonVsPhoenixWrightExtractor : IExtractor {
     public void ExtractAll()
       => ExtractorUtil.ExtractAllForCli(
-          new ProfessorLaytonVsPhoenixWrightModelFileGatherer(),
+          new ProfessorLaytonVsPhoenixWrightModelAnnotatedFileGatherer(),
           new XcModelImporter());
   }
 }

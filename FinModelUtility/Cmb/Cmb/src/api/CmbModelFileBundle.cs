@@ -7,19 +7,19 @@ using fin.util.enumerables;
 namespace cmb.api {
   public class CmbModelFileBundle : IModelFileBundle {
     public CmbModelFileBundle(string gameName,
-                              IFileHierarchyFile cmbFile) :
+                              IReadOnlyTreeFile cmbFile) :
         this(gameName, cmbFile, null, null, null) { }
 
     public CmbModelFileBundle(string gameName,
-                              IFileHierarchyFile cmbFile,
-                              IReadOnlyList<IFileHierarchyFile>? csabFiles) :
+                              IReadOnlyTreeFile cmbFile,
+                              IReadOnlyList<IReadOnlyTreeFile>? csabFiles) :
         this(gameName, cmbFile, csabFiles, null, null) { }
 
     public CmbModelFileBundle(string gameName,
-                              IFileHierarchyFile cmbFile,
-                              IReadOnlyList<IFileHierarchyFile>? csabFiles,
-                              IReadOnlyList<IFileHierarchyFile>? ctxbFiles,
-                              IReadOnlyList<IFileHierarchyFile>? shpaFiles) {
+                              IReadOnlyTreeFile cmbFile,
+                              IReadOnlyList<IReadOnlyTreeFile>? csabFiles,
+                              IReadOnlyList<IReadOnlyTreeFile>? ctxbFiles,
+                              IReadOnlyList<IReadOnlyTreeFile>? shpaFiles) {
       this.GameName = gameName;
       this.CmbFile = cmbFile;
       this.CsabFiles = csabFiles;
@@ -29,7 +29,7 @@ namespace cmb.api {
 
     public string GameName { get; }
 
-    public IFileHierarchyFile MainFile => this.CmbFile;
+    public IReadOnlyTreeFile MainFile => this.CmbFile;
 
     public IEnumerable<IReadOnlyGenericFile> Files
       => this.CmbFile.Yield()
@@ -37,9 +37,9 @@ namespace cmb.api {
              .ConcatIfNonnull(this.CtxbFiles)
              .ConcatIfNonnull(this.ShpaFiles);
 
-    public IFileHierarchyFile CmbFile { get; }
-    public IReadOnlyList<IFileHierarchyFile>? CsabFiles { get; }
-    public IReadOnlyList<IFileHierarchyFile>? CtxbFiles { get; }
-    public IReadOnlyList<IFileHierarchyFile>? ShpaFiles { get; }
+    public IReadOnlyTreeFile CmbFile { get; }
+    public IReadOnlyList<IReadOnlyTreeFile>? CsabFiles { get; }
+    public IReadOnlyList<IReadOnlyTreeFile>? CtxbFiles { get; }
+    public IReadOnlyList<IReadOnlyTreeFile>? ShpaFiles { get; }
   }
 }

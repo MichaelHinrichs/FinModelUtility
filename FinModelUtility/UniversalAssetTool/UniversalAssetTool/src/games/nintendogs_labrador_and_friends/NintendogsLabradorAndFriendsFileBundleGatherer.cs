@@ -7,9 +7,9 @@ using uni.platforms;
 using Yarhl.FileSystem;
 
 namespace uni.games.nintendogs_labrador_and_friends {
-  public class NintendogsLabradorAndFriendsFileBundleGatherer
-      : IFileBundleGatherer<IFileBundle> {
-    public IEnumerable<IFileBundle> GatherFileBundles() {
+  public class NintendogsLabradorAndFriendsAnnotatedFileBundleGatherer
+      : IAnnotatedFileBundleGatherer {
+    public IEnumerable<IAnnotatedFileBundle> GatherFileBundles() {
       if (!DirectoryConstants.ROMS_DIRECTORY.TryToGetExistingFile(
               "nintendogs_labrador_and_friends.nds",
               out var nintendogsRom)) {

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 
 using fin.util.asserts;
 using fin.util.linq;
@@ -8,7 +7,7 @@ using fin.util.linq;
 namespace fin.io.bundles {
   public interface IFileBundle : IUiFile {
     string? GameName { get; }
-    IFileHierarchyFile? MainFile { get; }
+    IReadOnlyTreeFile? MainFile { get; }
 
     IEnumerable<IReadOnlyGenericFile> Files {
       get {
@@ -19,7 +18,7 @@ namespace fin.io.bundles {
     }
 
 
-    IFileHierarchyDirectory Directory => MainFile.Parent!;
+    IReadOnlyTreeDirectory Directory => MainFile.AssertGetParent();
     string IUiFile.RawName => this.MainFile?.Name ?? "(n/a)";
 
     string DisplayName => this.HumanReadableName ?? this.RawName;
@@ -31,42 +30,46 @@ namespace fin.io.bundles {
     string TrueFullPath => Asserts.CastNonnull(MainFile.FullPath);
   }
 
-  public interface IFileBundleGatherer {
-    IEnumerable<IFileBundle> GatherFileBundles();
+  public interface IAnnotatedFileBundleGatherer {
+    IEnumerable<IAnnotatedFileBundle> GatherFileBundles();
   }
 
-  public interface IFileBundleGatherer<TFileBundle> : IFileBundleGatherer
+  public interface IAnnotatedFileBundleGatherer<out TFileBundle> : IAnnotatedFileBundleGatherer
       where TFileBundle : IFileBundle {
-    new IEnumerable<TFileBundle> GatherFileBundles();
+    new IEnumerable<IAnnotatedFileBundle<TFileBundle>> GatherFileBundles();
 
-    IEnumerable<IFileBundle> IFileBundleGatherer.GatherFileBundles()
-      => this.GatherFileBundles().CastTo<TFileBundle, IFileBundle>();
+    IEnumerable<IAnnotatedFileBundle> IAnnotatedFileBundleGatherer.
+        GatherFileBundles()
+      => this.GatherFileBundles()
+             .CastTo<IAnnotatedFileBundle<TFileBundle>, IAnnotatedFileBundle>();
   }
 
-  public interface IFileBundleGathererAccumulator : IFileBundleGatherer {
-    IFileBundleGathererAccumulator Add(IFileBundleGatherer gatherer);
-    IFileBundleGathererAccumulator Add(Func<IEnumerable<IFileBundle>> handler);
+  public interface IAnnotatedFileBundleGathererAccumulator : IAnnotatedFileBundleGatherer {
+    IAnnotatedFileBundleGathererAccumulator Add(IAnnotatedFileBundleGatherer gatherer);
+
+    IAnnotatedFileBundleGathererAccumulator Add(
+        Func<IEnumerable<IAnnotatedFileBundle>> handler);
   }
 
-  public interface IFileBundleGathererAccumulator<TFileBundle>
-      : IFileBundleGatherer<TFileBundle> where TFileBundle : IFileBundle {
-    IFileBundleGathererAccumulator<TFileBundle> Add(
-        IFileBundleGatherer<TFileBundle> gatherer);
+  public interface IAnnotatedFileBundleGathererAccumulator<TFileBundle>
+      : IAnnotatedFileBundleGatherer<TFileBundle> where TFileBundle : IFileBundle {
+    IAnnotatedFileBundleGathererAccumulator<TFileBundle> Add(
+        IAnnotatedFileBundleGatherer<TFileBundle> gatherer);
 
-    IFileBundleGathererAccumulator<TFileBundle> Add(
-        Func<IEnumerable<TFileBundle>> handler);
+    IAnnotatedFileBundleGathererAccumulator<TFileBundle> Add(
+        Func<IEnumerable<IAnnotatedFileBundle<TFileBundle>>> handler);
   }
 
-  public interface IFileBundleGathererAccumulatorWithInput<TFileBundle, out T>
-      : IFileBundleGatherer<TFileBundle>
+  public interface IAnnotatedFileBundleGathererAccumulatorWithInput<TFileBundle, out T>
+      : IAnnotatedFileBundleGatherer<TFileBundle>
       where TFileBundle : IFileBundle {
-    IFileBundleGathererAccumulatorWithInput<TFileBundle, T> Add(
-        IFileBundleGatherer<TFileBundle> gatherer);
+    IAnnotatedFileBundleGathererAccumulatorWithInput<TFileBundle, T> Add(
+        IAnnotatedFileBundleGatherer<TFileBundle> gatherer);
 
-    IFileBundleGathererAccumulatorWithInput<TFileBundle, T> Add(
-        Func<IEnumerable<TFileBundle>> handler);
+    IAnnotatedFileBundleGathererAccumulatorWithInput<TFileBundle, T> Add(
+        Func<IEnumerable<IAnnotatedFileBundle<TFileBundle>>> handler);
 
-    IFileBundleGathererAccumulatorWithInput<TFileBundle, T> Add(
-        Func<T, IEnumerable<TFileBundle>> handler);
+    IAnnotatedFileBundleGathererAccumulatorWithInput<TFileBundle, T> Add(
+        Func<T, IEnumerable<IAnnotatedFileBundle<TFileBundle>>> handler);
   }
 }

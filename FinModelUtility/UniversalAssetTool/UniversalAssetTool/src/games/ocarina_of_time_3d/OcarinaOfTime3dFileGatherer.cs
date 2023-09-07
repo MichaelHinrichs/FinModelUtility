@@ -9,8 +9,10 @@ using uni.util.bundles;
 using uni.util.io;
 
 namespace uni.games.ocarina_of_time_3d {
-  public class OcarinaOfTime3dFileGatherer
-      : IFileBundleGatherer<CmbModelFileBundle> {
+  using IAnnotatedCmbBundle = IAnnotatedFileBundle<CmbModelFileBundle>;
+
+  public class OcarinaOfTime3dAnnotatedFileGatherer
+      : IAnnotatedFileBundleGatherer<CmbModelFileBundle> {
     // TODO: Add support for Link
     // TODO: Add support for faceb
     // TODO: Add support for cmab
@@ -117,14 +119,15 @@ namespace uni.games.ocarina_of_time_3d {
           .Register("zelda_wm2", new NoAnimationsModelSeparatorMethod())
           .Register("zelda_xc", new NoAnimationsModelSeparatorMethod());
 
-    public IEnumerable<CmbModelFileBundle> GatherFileBundles() {
+    public IEnumerable<IAnnotatedCmbBundle> GatherFileBundles() {
       if (!new ThreeDsFileHierarchyExtractor().TryToExtractFromGame(
               "ocarina_of_time_3d",
               out var fileHierarchy)) {
-        return Enumerable.Empty<CmbModelFileBundle>();
+        return Enumerable.Empty<IAnnotatedCmbBundle>();
       }
 
-      return new FileBundleGathererAccumulatorWithInput<CmbModelFileBundle,
+      return new AnnotatedFileBundleGathererAccumulatorWithInput<
+                 CmbModelFileBundle,
                  IFileHierarchy>(
                  fileHierarchy)
              .Add(this.GetAutomaticModels_)
@@ -138,19 +141,19 @@ namespace uni.games.ocarina_of_time_3d {
              .GatherFileBundles();
     }
 
-    private IEnumerable<CmbModelFileBundle> GetModelsViaSeparator_(
+    private IEnumerable<IAnnotatedCmbBundle> GetModelsViaSeparator_(
         IFileHierarchy fileHierarchy)
       => new FileHierarchyAssetBundleSeparator<CmbModelFileBundle>(
           fileHierarchy,
           subdir => {
             if (!separator_.Contains(subdir)) {
-              return Enumerable.Empty<CmbModelFileBundle>();
+              return Enumerable.Empty<IAnnotatedCmbBundle>();
             }
 
             var cmbFiles =
                 subdir.FilesWithExtensionsRecursive(".cmb").ToArray();
             if (cmbFiles.Length == 0) {
-              return Enumerable.Empty<CmbModelFileBundle>();
+              return Enumerable.Empty<IAnnotatedCmbBundle>();
             }
 
             var csabFiles =
@@ -168,14 +171,14 @@ namespace uni.games.ocarina_of_time_3d {
                                         bundle.AnimationFiles.ToArray(),
                                         ctxbFiles,
                                         null
-                                    ));
+                                    ).Annotate(bundle.ModelFile));
             } catch {
-              return Enumerable.Empty<CmbModelFileBundle>();
+              return Enumerable.Empty<IAnnotatedCmbBundle>();
             }
           }
       ).GatherFileBundles();
 
-    private IEnumerable<CmbModelFileBundle> GetAutomaticModels_(
+    private IEnumerable<IAnnotatedCmbBundle> GetAutomaticModels_(
         IFileHierarchy fileHierarchy) {
       var actorsDir = fileHierarchy.Root.AssertGetExistingSubdir("actor");
 
@@ -189,36 +192,42 @@ namespace uni.games.ocarina_of_time_3d {
             yield return new CmbModelFileBundle(
                 "ocarina_of_time_3d",
                 model,
-                animations);
+                animations).Annotate(model);
           }
         }
       }
     }
 
-    private IEnumerable<CmbModelFileBundle> GetLinkModels_(
+    private IEnumerable<IAnnotatedCmbBundle> GetLinkModels_(
         IFileHierarchy fileHierarchy) {
       var actorsDir = fileHierarchy.Root.AssertGetExistingSubdir("actor");
 
-      var childDir = actorsDir.AssertGetExistingSubdir("zelda_link_child_new/child");
+      var childDir =
+          actorsDir.AssertGetExistingSubdir("zelda_link_child_new/child");
+      var childModel =
+          childDir.AssertGetExistingFile("model/childlink_v2.cmb");
       yield return new CmbModelFileBundle(
           "ocarina_of_time_3d",
-          childDir.AssertGetExistingFile("model/childlink_v2.cmb"),
+          childModel,
           childDir.AssertGetExistingSubdir("anim")
                   .FilesWithExtension(".csab")
-                  .ToArray());
+                  .ToArray()).Annotate(childModel);
 
-      var adultDir = actorsDir.AssertGetExistingSubdir("zelda_link_boy_new/boy");
+      var adultDir =
+          actorsDir.AssertGetExistingSubdir("zelda_link_boy_new/boy");
+      var adultModel = adultDir.AssertGetExistingFile("model/link_v2.cmb");
       yield return new CmbModelFileBundle(
           "ocarina_of_time_3d",
-          adultDir.AssertGetExistingFile("model/link_v2.cmb"),
+          adultModel,
           adultDir.AssertGetExistingSubdir("anim")
                   .FilesWithExtension(".csab")
-                  .ToArray());
+                  .ToArray()).Annotate(adultModel);
     }
 
-    private IEnumerable<CmbModelFileBundle> GetGanondorfModels_(
+    private IEnumerable<IAnnotatedCmbBundle> GetGanondorfModels_(
         IFileHierarchy fileHierarchy) {
-      var baseDir = fileHierarchy.Root.AssertGetExistingSubdir("actor/zelda_ganon");
+      var baseDir =
+          fileHierarchy.Root.AssertGetExistingSubdir("actor/zelda_ganon");
 
       var modelDir = baseDir.AssertGetExistingSubdir("Model");
 
@@ -229,123 +238,148 @@ namespace uni.games.ocarina_of_time_3d {
       var ganondorfAnimations =
           allAnimations.Where(file => !capeAnimations.Contains(file));
 
+      var ganondorfModel = modelDir.AssertGetExistingFile("ganondorf.cmb");
       yield return new CmbModelFileBundle(
           "ocarina_of_time_3d",
-          modelDir.AssertGetExistingFile("ganondorf.cmb"),
-          ganondorfAnimations.ToArray());
+          ganondorfModel,
+          ganondorfAnimations.ToArray()).Annotate(ganondorfModel);
+      var ganonModel = modelDir.AssertGetExistingFile("ganon_mant_model.cmb");
       yield return new CmbModelFileBundle(
           "ocarina_of_time_3d",
-          modelDir.AssertGetExistingFile("ganon_mant_model.cmb"),
-          capeAnimations.ToArray());
+          ganonModel,
+          capeAnimations.ToArray()).Annotate(ganonModel);
 
-      foreach (var otherModel in modelDir.GetExistingFiles().Where(
-                   file => file.Name != "ganondorf.cmb"
-                           && file.Name != "ganon_mant_model.cmb")) {
-        yield return new CmbModelFileBundle("ocarina_of_time_3d", otherModel);
+      foreach (var otherModel in modelDir.GetExistingFiles()
+                                         .Where(
+                                             file => file.Name !=
+                                                 "ganondorf.cmb"
+                                                 && file.Name !=
+                                                 "ganon_mant_model.cmb")) {
+        yield return new CmbModelFileBundle("ocarina_of_time_3d", otherModel)
+            .Annotate(otherModel);
       }
     }
 
-    private IEnumerable<CmbModelFileBundle> GetOwlModels_(
+    private IEnumerable<IAnnotatedCmbBundle> GetOwlModels_(
         IFileHierarchy fileHierarchy) {
-      var owlDir = fileHierarchy.Root.AssertGetExistingSubdir("actor/zelda_owl");
+      var owlDir =
+          fileHierarchy.Root.AssertGetExistingSubdir("actor/zelda_owl");
 
       // Waiting
+      var waitingModel =
+          owlDir.AssertGetExistingFile("Model/kaeporagaebora1.cmb");
       yield return new CmbModelFileBundle(
-          "ocarina_of_time_3d",
-          owlDir.AssertGetExistingFile("Model/kaeporagaebora1.cmb"),
-          owlDir.AssertGetExistingFile("Anim/owl_wait.csab").AsList());
-
+              "ocarina_of_time_3d",
+              waitingModel,
+              owlDir.AssertGetExistingFile("Anim/owl_wait.csab").AsList())
+          .Annotate(waitingModel);
 
       // Flying
+      var flyingModel =
+          owlDir.AssertGetExistingFile("Model/kaeporagaebora2.cmb");
       yield return new CmbModelFileBundle(
           "ocarina_of_time_3d",
-          owlDir.AssertGetExistingFile("Model/kaeporagaebora2.cmb"),
+          flyingModel,
           owlDir.AssertGetExistingSubdir("Anim")
                 .FilesWithExtension(".csab")
                 .Where(file => file.Name != "owl_wait.csab")
-                .ToArray());
+                .ToArray()).Annotate(flyingModel);
     }
 
-    private IEnumerable<CmbModelFileBundle> GetVolvagiaModels_(
+    private IEnumerable<IAnnotatedCmbBundle> GetVolvagiaModels_(
         IFileHierarchy fileHierarchy) {
-      var baseDir = fileHierarchy.Root.AssertGetExistingSubdir("actor/zelda_fd");
+      var baseDir =
+          fileHierarchy.Root.AssertGetExistingSubdir("actor/zelda_fd");
       var modelDir = baseDir.AssertGetExistingSubdir("Model");
       var animDir = baseDir.AssertGetExistingSubdir("Anim");
 
       // Body in ground
+      var inGroundModel = modelDir.AssertGetExistingFile("valbasiagnd.cmb");
       yield return new CmbModelFileBundle(
           "ocarina_of_time_3d",
-          modelDir.AssertGetExistingFile("valbasiagnd.cmb"),
+          inGroundModel,
           animDir.FilesWithExtension(".csab")
                  .Where(file => file.Name.StartsWith("vba_"))
-                 .ToList());
+                 .ToList()).Annotate(inGroundModel);
 
-      foreach (var otherModel in modelDir.GetExistingFiles().Where(
-                   file => file.Name is not "valbasiagnd.cmb")) {
-        yield return new CmbModelFileBundle("ocarina_of_time_3d", otherModel);
+      foreach (var otherModel in modelDir.GetExistingFiles()
+                                         .Where(
+                                             file => file.Name is not
+                                                 "valbasiagnd.cmb")) {
+        yield return new CmbModelFileBundle("ocarina_of_time_3d", otherModel).Annotate(otherModel);
       }
 
       // TODO: What does vb_FWDtest.csab belong to?
     }
 
-    private IEnumerable<CmbModelFileBundle> GetMoblinModels_(
+    private IEnumerable<IAnnotatedCmbBundle> GetMoblinModels_(
         IFileHierarchy fileHierarchy) {
-      var baseDir = fileHierarchy.Root.AssertGetExistingSubdir("actor/zelda_mb");
+      var baseDir =
+          fileHierarchy.Root.AssertGetExistingSubdir("actor/zelda_mb");
       var modelDir = baseDir.AssertGetExistingSubdir("Model");
       var animDir = baseDir.AssertGetExistingSubdir("Anim");
 
-      // Moblin
+      var moblinModel = modelDir.AssertGetExistingFile("molblin.cmb");
       yield return new CmbModelFileBundle(
           "ocarina_of_time_3d",
-          modelDir.AssertGetExistingFile("molblin.cmb"),
+          moblinModel,
           animDir.FilesWithExtension(".csab")
                  .Where(file => file.Name.StartsWith("mn_"))
-                 .ToList());
+                 .ToList()).Annotate(moblinModel);
 
-      // Boss Moblin
+      var bossMoblinModel = modelDir.AssertGetExistingFile("bossblin.cmb");
       yield return new CmbModelFileBundle(
           "ocarina_of_time_3d",
-          modelDir.AssertGetExistingFile("bossblin.cmb"),
+          bossMoblinModel,
           animDir.FilesWithExtension(".csab")
                  .Where(file => file.Name.StartsWith("mbV_"))
-                 .ToList());
+                 .ToList()).Annotate(bossMoblinModel);
     }
 
-    private IEnumerable<CmbModelFileBundle> GetBongoBongoModels_(
+    private IEnumerable<IAnnotatedCmbBundle> GetBongoBongoModels_(
         IFileHierarchy fileHierarchy) {
-      var baseDir = fileHierarchy.Root.AssertGetExistingSubdir("actor/zelda_sst");
+      var baseDir =
+          fileHierarchy.Root.AssertGetExistingSubdir("actor/zelda_sst");
       var modelDir = baseDir.AssertGetExistingSubdir("Model");
       var animDir = baseDir.AssertGetExistingSubdir("Anim");
 
       // Body
+      var bodyModel = modelDir.AssertGetExistingFile("bongobongo.cmb");
       yield return new CmbModelFileBundle(
           "ocarina_of_time_3d",
-          modelDir.AssertGetExistingFile("bongobongo.cmb"),
+          bodyModel,
           animDir.FilesWithExtension(".csab")
                  .Where(file => file.Name.StartsWith("ss_"))
-                 .ToList());
+                 .ToList()).Annotate(bodyModel);
 
       // Left hand
+      var leftHandModel = modelDir.AssertGetExistingFile("bongolhand.cmb");
       yield return new CmbModelFileBundle(
           "ocarina_of_time_3d",
-          modelDir.AssertGetExistingFile("bongolhand.cmb"),
+          leftHandModel,
           animDir.FilesWithExtension(".csab")
                  .Where(file => file.Name.StartsWith("slh_"))
-                 .ToList());
+                 .ToList()).Annotate(leftHandModel);
 
       // Right hand
-      yield return new CmbModelFileBundle(
+      var rightHandModel = modelDir.AssertGetExistingFile("bongorhand.cmb");
+                                    yield return new CmbModelFileBundle(
           "ocarina_of_time_3d",
-          modelDir.AssertGetExistingFile("bongorhand.cmb"),
+          rightHandModel,
           animDir.FilesWithExtension(".csab")
                  .Where(file => file.Name.StartsWith("srh_"))
-                 .ToList());
+                 .ToList()).Annotate(rightHandModel);
 
-      foreach (var otherModel in modelDir.GetExistingFiles().Where(
-                   file => file.Name != "bongobongo.cmb"
-                           && file.Name != "bongolhand.cmb"
-                           && file.Name != "bongorhand.cmb")) {
-        yield return new CmbModelFileBundle("ocarina_of_time_3d", otherModel);
+      foreach (var otherModel in modelDir.GetExistingFiles()
+                                         .Where(
+                                             file => file.Name !=
+                                                 "bongobongo.cmb"
+                                                 && file.Name !=
+                                                 "bongolhand.cmb"
+                                                 && file.Name !=
+                                                 "bongorhand.cmb")) {
+        yield return new CmbModelFileBundle("ocarina_of_time_3d", otherModel)
+            .Annotate(otherModel);
       }
     }
   }

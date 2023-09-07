@@ -1,5 +1,7 @@
 ﻿using fin.io;
 using fin.io.bundles;
+using fin.util.asserts;
+using fin.util.linq;
 
 namespace uni.ui.common.fileTreeView {
   public abstract partial class FileTreeView<TFiles> {
@@ -26,13 +28,14 @@ namespace uni.ui.common.fileTreeView {
       public override string? FullName => this.Directory?.FullPath;
 
       public ParentFileNode AddChild(string text) => new(this, text);
-      public LeafFileNode AddChild(IFileBundle file) => new(this, file);
+
+      public LeafFileNode AddChild(IAnnotatedFileBundle file)
+        => new(this, file);
 
       public IEnumerable<IFileTreeNode> ChildNodes
         => this.filterNode.Children.Select(fuzzyNode => fuzzyNode.Data);
 
-      public IEnumerable<IFileBundle> GetFiles(
-          bool recursive) {
+      public IEnumerable<IAnnotatedFileBundle> GetFiles(bool recursive) {
         var children = this.ChildNodes.OfType<IFileTreeLeafNode>()
                            .Select(fileNode => fileNode.File);
         return !recursive
@@ -46,9 +49,12 @@ namespace uni.ui.common.fileTreeView {
                                             true)));
       }
 
-      public IEnumerable<TSpecificFile> GetFilesOfType<TSpecificFile>(
-          bool recursive) where TSpecificFile : IFileBundle
-        => this.GetFiles(recursive).OfType<TSpecificFile>();
+      public IEnumerable<IAnnotatedFileBundle<TSpecificFile>> GetFilesOfType<
+          TSpecificFile>(bool recursive) where TSpecificFile : IFileBundle
+        => this.GetFiles(recursive)
+               .SelectWhere<IAnnotatedFileBundle,
+                   IAnnotatedFileBundle<TSpecificFile>>(
+                   AnnotatedFileBundleExtensions.IsOfType);
 
       public void Expand() => this.treeNode.Expand();
     }

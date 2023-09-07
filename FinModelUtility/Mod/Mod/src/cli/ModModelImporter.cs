@@ -25,12 +25,12 @@ namespace mod.cli {
   public class ModModelFileBundle : IModelFileBundle {
     public required string GameName { get; init; }
 
-    public IFileHierarchyFile MainFile => this.ModFile;
+    public IReadOnlyTreeFile MainFile => this.ModFile;
     public IEnumerable<IReadOnlyGenericFile> Files
       => this.ModFile.Yield().ConcatIfNonnull(this.AnmFile);
 
-    public required IFileHierarchyFile ModFile { get; init; }
-    public required IFileHierarchyFile? AnmFile { get; init; }
+    public required IReadOnlyTreeFile ModFile { get; init; }
+    public required IReadOnlyTreeFile? AnmFile { get; init; }
   }
 
   public class ModModelImporter : IModelImporter<ModModelFileBundle> {

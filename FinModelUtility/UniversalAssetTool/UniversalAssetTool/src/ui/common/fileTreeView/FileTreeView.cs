@@ -24,7 +24,7 @@ namespace uni.ui.common.fileTreeView {
           var keywords = new HashSet<string>();
 
           if (fileNode is LeafFileNode leafFileNode) {
-            var file = leafFileNode.File;
+            var file = leafFileNode.File.FileBundle;
             var fileName = file.RawName;
             keywords.Add(fileName);
 

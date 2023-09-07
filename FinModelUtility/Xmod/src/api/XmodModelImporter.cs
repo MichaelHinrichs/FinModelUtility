@@ -13,8 +13,9 @@ using PrimitiveType = xmod.schema.xmod.PrimitiveType;
 namespace xmod.api {
   public class XmodModelFileBundle : IModelFileBundle {
     public required string GameName { get; init; }
-    public IFileHierarchyFile MainFile => this.XmodFile;
-    public required IFileHierarchyFile XmodFile { get; init; }
+    public IReadOnlyTreeFile MainFile => this.XmodFile;
+    public required IReadOnlyTreeFile XmodFile { get; init; }
+    public required IReadOnlyTreeDirectory TextureDirectory { get; init; }
   }
 
   public class XmodModelImporter : IModelImporter<XmodModelFileBundle> {
@@ -43,10 +44,9 @@ namespace xmod.api {
           var textureId = textureIds[0];
           var textureName = textureId.Name;
 
-          var texFile = modelFileBundle
-                        .XmodFile.Root.Impl.AssertGetExistingSubdir("texture_x")
-                        .SearchForFiles($"{textureName}.tex", true)
-                        .Single();
+          var texFile =
+              modelFileBundle.TextureDirectory.GetFilesWithNameRecursive(
+                  $"{textureName}.tex").First();
           var image = new TexImageReader().ReadImage(texFile);
 
           var finTexture = finMaterialManager.CreateTexture(image);

@@ -1,5 +1,4 @@
-﻿using fin.data.queue;
-using fin.io.bundles;
+﻿using fin.io.bundles;
 using fin.model;
 using fin.model.io;
 using fin.util.progress;
@@ -92,7 +91,8 @@ namespace uni.ui.top {
       set {
         var (fileNode, model) = value;
 
-        this.isModelSelected_ = fileNode.File is IModelFileBundle;
+        this.isModelSelected_ = fileNode.File.IsOfType<IModelFileBundle>(out _);
+
         if (this.isModelSelected_) {
           this.fileNodeAndModel_ = (fileNode, model!);
         } else {
@@ -136,12 +136,14 @@ namespace uni.ui.top {
       }
 
       var (fileNode, _) = this.fileNodeAndModel_.Value;
-      var modelFileBundle = fileNode.File as IModelFileBundle;
-      this.StartExportingModelsInBackground_(new[] { modelFileBundle });
+      if (fileNode.File.IsOfType<IModelFileBundle>(out var modelFileBundle)) {
+        this.StartExportingModelsInBackground_(new[] { modelFileBundle });
+      }
     }
 
     private void StartExportingModelsInBackground_(
-        IReadOnlyList<IModelFileBundle> modelFileBundles) {
+        IReadOnlyList<IAnnotatedFileBundle<IModelFileBundle>>
+            modelFileBundles) {
       var extractorPromptChoice =
           ExtractorUtil.PromptIfModelFileBundlesAlreadyExtracted(
               modelFileBundles,

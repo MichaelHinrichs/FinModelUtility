@@ -6,8 +6,8 @@ using uni.platforms.desktop;
 using visceral.api;
 
 namespace uni.games.dead_space_1 {
-  public class DeadSpace1FileGatherer : IFileBundleGatherer<IFileBundle> {
-    public IEnumerable<IFileBundle> GatherFileBundles() {
+  public class DeadSpace1AnnotatedFileGatherer : IAnnotatedFileBundleGatherer {
+    public IEnumerable<IAnnotatedFileBundle> GatherFileBundles() {
       if (!SteamUtils.TryGetGameDirectory("Dead Space", out var deadSpaceDir)) {
         yield break;
       }
@@ -37,18 +37,21 @@ namespace uni.games.dead_space_1 {
         if (charSubdir.TryToGetExistingSubdir("rigged/export",
                                               out var riggedSubdir)) {
           geoFiles =
-              riggedSubdir.GetExistingFiles().Where(file => file.Name.EndsWith(".geo"))
+              riggedSubdir.GetExistingFiles()
+                          .Where(file => file.Name.EndsWith(".geo"))
                           .ToArray();
         }
 
         IFileHierarchyFile? rcbFile = null;
-        IFileHierarchyFile[] bnkFiles = Array.Empty<IFileHierarchyFile>();
+        IReadOnlyTreeFile[] bnkFiles = Array.Empty<IReadOnlyTreeFile>();
         if (charSubdir.TryToGetExistingSubdir("cct/export",
                                               out var cctSubdir)) {
           rcbFile =
-              cctSubdir.GetExistingFiles().Single(file => file.Name.EndsWith(".rcb.WIN"));
+              cctSubdir.GetExistingFiles()
+                       .Single(file => file.Name.EndsWith(".rcb.WIN"));
           bnkFiles =
-              cctSubdir.GetExistingFiles().Where(file => file.Name.EndsWith(".bnk.WIN"))
+              cctSubdir.GetExistingFiles()
+                       .Where(file => file.Name.EndsWith(".bnk.WIN"))
                        .ToArray();
         }
 
@@ -71,13 +74,15 @@ namespace uni.games.dead_space_1 {
         }
 
         if (geoFiles.Length > 0 || rcbFile != null) {
+          
+          
           yield return new GeoModelFileBundle {
               GameName = "dead_space_1",
               GeoFiles = geoFiles,
               BnkFiles = bnkFiles,
               RcbFile = rcbFile,
               Tg4ImageFileBundles = textureFiles
-          };
+          }.Annotate(geoFiles.FirstOrDefault() ?? rcbFile);
         } else {
           ;
         }

@@ -43,5 +43,11 @@ namespace fin.data.stack {
     public bool TryPop(out T item) => this.impl_.TryPop(out item);
     public T Pop() => this.impl_.Pop();
     public void Push(T item) => this.impl_.Push(item);
+
+    public void Push(IEnumerable<T> items) {
+      foreach (var item in items) {
+        this.Push(item);
+      }
+    } 
   }
 }

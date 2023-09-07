@@ -18,7 +18,7 @@ namespace visceral.api {
     // TODO: Is there a better thing to rely on?
     public required string GameName { get; init; }
 
-    public IFileHierarchyFile? MainFile
+    public IReadOnlyTreeFile? MainFile
       => this.RcbFile ?? this.GeoFiles.First();
 
     public IEnumerable<IReadOnlyGenericFile> Files
@@ -30,9 +30,9 @@ namespace visceral.api {
                          tg4Bundle.Tg4hFile, tg4Bundle.Tg4dFile
                      }));
 
-    public required IReadOnlyList<IFileHierarchyFile> GeoFiles { get; init; }
-    public required IReadOnlyList<IFileHierarchyFile> BnkFiles { get; init; }
-    public required IFileHierarchyFile? RcbFile { get; init; }
+    public required IReadOnlyList<IReadOnlyTreeFile> GeoFiles { get; init; }
+    public required IReadOnlyList<IReadOnlyTreeFile> BnkFiles { get; init; }
+    public required IReadOnlyTreeFile? RcbFile { get; init; }
 
     public IReadOnlyList<Tg4ImageFileBundle>? Tg4ImageFileBundles { get; init; }
   }
@@ -140,7 +140,7 @@ namespace visceral.api {
 
     private void AddGeoFileToModel_(
         ModelImpl finModel,
-        IFileHierarchyFile geoFile,
+        IReadOnlyTreeFile geoFile,
         IBone[] finBones,
         IList<ITexture> textures) {
       var colorTextures = textures.Where(texture => texture.Name.EndsWith("_c"))

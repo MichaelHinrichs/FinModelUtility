@@ -18,18 +18,18 @@ using SixLabors.ImageSharp.PixelFormats;
 
 namespace glo.api {
   public class GloModelFileBundle : IModelFileBundle {
-    public GloModelFileBundle(IFileHierarchyFile gloFile,
-                              IReadOnlyList<IFileHierarchyDirectory>
-                                  textureDirectories) {
+    public GloModelFileBundle(
+        IReadOnlyTreeFile gloFile,
+        IReadOnlyList<IReadOnlyTreeDirectory> textureDirectories) {
       this.GloFile = gloFile;
       this.TextureDirectories = textureDirectories;
     }
 
     public string GameName => "glover";
-    public IFileHierarchyFile MainFile => this.GloFile;
+    public IReadOnlyTreeFile MainFile => this.GloFile;
 
-    public IFileHierarchyFile GloFile { get; }
-    public IReadOnlyList<IFileHierarchyDirectory> TextureDirectories { get; }
+    public IReadOnlyTreeFile GloFile { get; }
+    public IReadOnlyList<IReadOnlyTreeDirectory> TextureDirectories { get; }
   }
 
   public class GloModelImporter : IModelImporter<GloModelFileBundle> {
@@ -44,10 +44,10 @@ namespace glo.api {
 
       var glo = gloFile.ReadNew<Glo>();
 
-      var textureFilesByName = new Dictionary<string, IFileHierarchyFile>();
+      var textureFilesByName = new Dictionary<string, IReadOnlyTreeFile>();
       foreach (var textureDirectory in textureDirectories) {
         foreach (var textureFile in textureDirectory.GetExistingFiles()) {
-          if (FinImage.IsSupportedFileType(textureFile.Impl)) {
+          if (FinImage.IsSupportedFileType(textureFile)) {
             textureFilesByName[textureFile.NameWithoutExtension.ToLower()] =
                 textureFile;
           }

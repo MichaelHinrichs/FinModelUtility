@@ -5,11 +5,13 @@ using fin.io.bundles;
 using uni.platforms.gcn;
 
 namespace uni.games.super_smash_bros_melee {
-  public class SuperSmashBrosMeleeModelFileGatherer 
-      : IFileBundleGatherer<DatModelFileBundle> {
+  using IAnnotatedDatBundle = IAnnotatedFileBundle<DatModelFileBundle>;
+
+  public class SuperSmashBrosMeleeModelAnnotatedFileGatherer 
+      : IAnnotatedFileBundleGatherer<DatModelFileBundle> {
     public string Name => "super_smash_bros_melee";
 
-    public IEnumerable<DatModelFileBundle>? GatherFileBundles() {
+    public IEnumerable<IAnnotatedDatBundle>? GatherFileBundles() {
       if (!new GcnFileHierarchyExtractor().TryToExtractFromGame(
               "super_smash_bros_melee",
               out var fileHierarchy)) {
@@ -44,7 +46,7 @@ namespace uni.games.super_smash_bros_melee {
           yield return new DatModelFileBundle {
               GameName = "super_smash_bros_melee",
               DatFile = datFile,
-          };
+          }.Annotate(datFile);
         }
       }
     }

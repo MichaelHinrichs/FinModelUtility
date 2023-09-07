@@ -23,13 +23,14 @@ namespace uni.ui.common.fileTreeView {
   public interface IFileTreeParentNode : IFileTreeNode {
     IEnumerable<IFileTreeNode> ChildNodes { get; }
 
-    IEnumerable<IFileBundle> GetFiles(bool recursive);
+    IEnumerable<IAnnotatedFileBundle> GetFiles(bool recursive);
 
-    IEnumerable<TSpecificFile> GetFilesOfType<TSpecificFile>(bool recursive)
+    IEnumerable<IAnnotatedFileBundle<TSpecificFile>>
+        GetFilesOfType<TSpecificFile>(bool recursive)
         where TSpecificFile : IFileBundle;
   }
 
   public interface IFileTreeLeafNode : IFileTreeNode {
-    IFileBundle File { get; }
+    IAnnotatedFileBundle File { get; }
   }
 }

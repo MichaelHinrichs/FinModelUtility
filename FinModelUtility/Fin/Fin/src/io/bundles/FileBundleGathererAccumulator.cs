@@ -3,72 +3,75 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace fin.io.bundles {
-  public class FileBundleGathererAccumulator : IFileBundleGathererAccumulator {
-    private readonly List<IFileBundleGatherer> gatherers_ = new();
+  public class AnnotatedFileBundleGathererAccumulator : IAnnotatedFileBundleGathererAccumulator {
+    private readonly List<IAnnotatedFileBundleGatherer> gatherers_ = new();
 
-    public IFileBundleGathererAccumulator Add(IFileBundleGatherer gatherer) {
+    public IAnnotatedFileBundleGathererAccumulator Add(IAnnotatedFileBundleGatherer gatherer) {
       this.gatherers_.Add(gatherer);
       return this;
     }
 
-    public IFileBundleGathererAccumulator Add(
-        Func<IEnumerable<IFileBundle>> handler)
-      => Add(new FileBundleHandlerGatherer<IFileBundle>(handler));
+    public IAnnotatedFileBundleGathererAccumulator Add(
+        Func<IEnumerable<IAnnotatedFileBundle>> handler)
+      => this.Add(new AnnotatedFileBundleHandlerGatherer(handler));
 
-    public IEnumerable<IFileBundle> GatherFileBundles()
+    public IEnumerable<IAnnotatedFileBundle> GatherFileBundles()
       => this.gatherers_
              .SelectMany(gatherer => gatherer.GatherFileBundles())
              .ToList();
   }
 
-  public class FileBundleGathererAccumulator<TFileBundle>
-      : IFileBundleGathererAccumulator<TFileBundle>
+  public class AnnotatedFileBundleGathererAccumulator<TFileBundle>
+      : IAnnotatedFileBundleGathererAccumulator<TFileBundle>
       where TFileBundle : IFileBundle {
-    private readonly List<IFileBundleGatherer<TFileBundle>> gatherers_ = new();
+    private readonly List<IAnnotatedFileBundleGatherer<TFileBundle>>
+        gatherers_ = new();
 
-    public IFileBundleGathererAccumulator<TFileBundle> Add(
-        IFileBundleGatherer<TFileBundle> gatherer) {
+    public IAnnotatedFileBundleGathererAccumulator<TFileBundle> Add(
+        IAnnotatedFileBundleGatherer<TFileBundle> gatherer) {
       this.gatherers_.Add(gatherer);
       return this;
     }
 
-    public IFileBundleGathererAccumulator<TFileBundle> Add(
-        Func<IEnumerable<TFileBundle>> handler)
-      => Add(new FileBundleHandlerGatherer<TFileBundle>(handler));
+    public IAnnotatedFileBundleGathererAccumulator<TFileBundle> Add(
+        Func<IEnumerable<IAnnotatedFileBundle<TFileBundle>>> handler)
+      => Add(new AnnotatedFileBundleHandlerGatherer<TFileBundle>(handler));
 
-    public IEnumerable<TFileBundle> GatherFileBundles()
+    public IEnumerable<IAnnotatedFileBundle<TFileBundle>> GatherFileBundles()
       => this.gatherers_
              .SelectMany(gatherer => gatherer.GatherFileBundles())
              .ToList();
   }
 
-  public class FileBundleGathererAccumulatorWithInput<TFileBundle, T>
-      : IFileBundleGathererAccumulatorWithInput<TFileBundle, T>
+  public class AnnotatedFileBundleGathererAccumulatorWithInput<TFileBundle, T>
+      : IAnnotatedFileBundleGathererAccumulatorWithInput<TFileBundle, T>
       where TFileBundle : IFileBundle {
-    private readonly List<IFileBundleGatherer<TFileBundle>> gatherers_ = new();
+    private readonly List<IAnnotatedFileBundleGatherer<TFileBundle>>
+        gatherers_ = new();
+
     private readonly T input_;
 
-    public FileBundleGathererAccumulatorWithInput(T input) {
+    public AnnotatedFileBundleGathererAccumulatorWithInput(T input) {
       this.input_ = input;
     }
 
-    public IFileBundleGathererAccumulatorWithInput<TFileBundle, T> Add(
-        IFileBundleGatherer<TFileBundle> gatherer) {
+    public IAnnotatedFileBundleGathererAccumulatorWithInput<TFileBundle, T> Add(
+        IAnnotatedFileBundleGatherer<TFileBundle> gatherer) {
       this.gatherers_.Add(gatherer);
       return this;
     }
 
-    public IFileBundleGathererAccumulatorWithInput<TFileBundle, T> Add(
-        Func<IEnumerable<TFileBundle>> handler)
-      => Add(new FileBundleHandlerGatherer<TFileBundle>(handler));
+    public IAnnotatedFileBundleGathererAccumulatorWithInput<TFileBundle, T> Add(
+        Func<IEnumerable<IAnnotatedFileBundle<TFileBundle>>> handler)
+      => Add(new AnnotatedFileBundleHandlerGatherer<TFileBundle>(handler));
 
-    public IFileBundleGathererAccumulatorWithInput<TFileBundle, T> Add(
-        Func<T, IEnumerable<TFileBundle>> handler)
-      => Add(new FileBundleHandlerGathererWithInput<TFileBundle, T>(
+    public IAnnotatedFileBundleGathererAccumulatorWithInput<TFileBundle, T> Add(
+        Func<T, IEnumerable<IAnnotatedFileBundle<TFileBundle>>> handler)
+      => Add(new AnnotatedFileBundleHandlerGathererWithInput<TFileBundle, T>(
                  handler,
                  this.input_));
 
-    public IEnumerable<TFileBundle> GatherFileBundles()
+    public IEnumerable<IAnnotatedFileBundle<TFileBundle>> GatherFileBundles()
       => this.gatherers_
              .SelectMany(gatherer => gatherer.GatherFileBundles())
              .ToList();

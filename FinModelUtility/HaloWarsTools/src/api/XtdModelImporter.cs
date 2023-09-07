@@ -6,16 +6,16 @@ using HaloWarsTools;
 
 namespace hw.api {
   public class XtdModelFileBundle : IHaloWarsModelFileBundle {
-    public XtdModelFileBundle(IFileHierarchyFile xtdFile,
-                              IFileHierarchyFile xttFile) {
+    public XtdModelFileBundle(IReadOnlyTreeFile xtdFile,
+                              IReadOnlyTreeFile xttFile) {
       this.XtdFile = xtdFile;
       this.XttFile = xttFile;
     }
 
     public string GameName => "halo_wars";
-    public IFileHierarchyFile MainFile => this.XtdFile;
-    public IFileHierarchyFile XttFile { get; }
-    public IFileHierarchyFile XtdFile { get; }
+    public IReadOnlyTreeFile MainFile => this.XtdFile;
+    public IReadOnlyTreeFile XttFile { get; }
+    public IReadOnlyTreeFile XtdFile { get; }
 
     public bool UseLowLevelExporter => true;
     public bool ForceGarbageCollection => true;
@@ -26,7 +26,7 @@ namespace hw.api {
       var xtdFile = modelFileBundle.XtdFile;
       var xttFile = modelFileBundle.XttFile;
 
-      var mapName = xtdFile.Parent.Name;
+      var mapName = xtdFile.AssertGetParent().Name;
 
       var xtd = HWXtdResource.FromFile(null, xtdFile.FullPath);
       var xtt = HWXttResource.FromFile(null, xttFile.FullPath);

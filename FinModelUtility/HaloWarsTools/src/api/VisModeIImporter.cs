@@ -6,14 +6,14 @@ using HaloWarsTools;
 
 namespace hw.api {
   public class VisModelFileBundle : IHaloWarsModelFileBundle {
-    public VisModelFileBundle(IFileHierarchyFile visFile, HWContext context) {
+    public VisModelFileBundle(IReadOnlyTreeFile visFile, HWContext context) {
       this.VisFile = visFile;
       this.Context = context;
     }
 
     public string GameName => "halo_wars";
-    public IFileHierarchyFile MainFile => this.VisFile;
-    public IFileHierarchyFile VisFile { get; }
+    public IReadOnlyTreeFile MainFile => this.VisFile;
+    public IReadOnlyTreeFile VisFile { get; }
 
     public HWContext Context { get; }
   }

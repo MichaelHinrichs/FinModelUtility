@@ -39,20 +39,19 @@ namespace fin.io {
 
     IEnumerable<TDirectory> GetExistingSubdirs();
     TDirectory AssertGetExistingSubdir(string path);
+
     bool TryToGetExistingSubdir(string path, out TDirectory outDirectory);
 
     IEnumerable<TFile> GetExistingFiles();
     TFile AssertGetExistingFile(string path);
+
     bool TryToGetExistingFile(string path, out TFile outFile);
 
     bool TryToGetExistingFileWithFileType(string pathWithoutExtension,
                                           out TFile outFile,
                                           params TFileType[] fileTypes);
 
-    IEnumerable<TFile> SearchForFiles(
-        string searchPattern,
-        bool includeSubdirs = false);
-
+    IEnumerable<TFile> GetFilesWithNameRecursive(string name);
     IEnumerable<TFile> GetFilesWithFileType(
         TFileType fileType,
         bool includeSubdirs = false);
@@ -67,6 +66,9 @@ namespace fin.io {
       IReadOnlyTreeDirectory<TIoObject, TDirectory, TFile, TFileType>
       where TFile : IReadOnlyTreeFile<TIoObject, TDirectory, TFile, TFileType> {
     TFileType FileType { get; }
+
+    string FullNameWithoutExtension { get; }
+    string NameWithoutExtension { get; }
   }
 
 

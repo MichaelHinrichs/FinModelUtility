@@ -7,15 +7,16 @@ using j3d.api;
 using uni.platforms.gcn;
 
 namespace uni.games.super_mario_sunshine {
-  public class SuperMarioSunshineModelFileGatherer
-      : IFileBundleGatherer<BmdModelFileBundle> {
-    public IEnumerable<BmdModelFileBundle> GatherFileBundles() {
+  public class SuperMarioSunshineModelAnnotatedFileGatherer
+      : IAnnotatedFileBundleGatherer<BmdModelFileBundle> {
+    public IEnumerable<IAnnotatedFileBundle<BmdModelFileBundle>>
+        GatherFileBundles() {
       if (!new GcnFileHierarchyExtractor().TryToExtractFromGame(
               "super_mario_sunshine",
               GcnFileHierarchyExtractor.Options.Standard()
                                        .PruneRarcDumpNames("scene"),
               out var fileHierarchy)) {
-        return Enumerable.Empty<BmdModelFileBundle>();
+        return Enumerable.Empty<IAnnotatedFileBundle<BmdModelFileBundle>>();
       }
 
       return this.ExtractMario_(fileHierarchy)
@@ -24,22 +25,24 @@ namespace uni.games.super_mario_sunshine {
                  .Concat(this.ExtractScenes_(fileHierarchy));
     }
 
-    private IEnumerable<BmdModelFileBundle> ExtractMario_(
+    private IEnumerable<IAnnotatedFileBundle<BmdModelFileBundle>> ExtractMario_(
         IFileHierarchy fileHierarchy) {
       var marioSubdir =
           fileHierarchy.Root.AssertGetExistingSubdir(@"data\mario");
       var bcxFiles = marioSubdir.AssertGetExistingSubdir("bck")
-                                .GetExistingFiles().Where(
+                                .GetExistingFiles()
+                                .Where(
                                     file => file.Name.StartsWith("ma_"))
                                 .ToArray();
       var bmdFile = marioSubdir.AssertGetExistingSubdir("bmd")
-                               .GetExistingFiles().Single(
+                               .GetExistingFiles()
+                               .Single(
                                    file => file.Name == "ma_mdl1.bmd");
 
       return this.ExtractModels_(new[] { bmdFile }, bcxFiles);
     }
 
-    private IEnumerable<BmdModelFileBundle> ExtractFludd_(
+    private IEnumerable<IAnnotatedFileBundle<BmdModelFileBundle>> ExtractFludd_(
         IFileHierarchy fileHierarchy) {
       var fluddSubdir =
           fileHierarchy.Root.AssertGetExistingSubdir(@"data\mario\watergun2");
@@ -52,50 +55,57 @@ namespace uni.games.super_mario_sunshine {
       }
     }
 
-    private IEnumerable<BmdModelFileBundle> ExtractYoshi_(
+    private IEnumerable<IAnnotatedFileBundle<BmdModelFileBundle>> ExtractYoshi_(
         IFileHierarchy fileHierarchy) {
       var yoshiSubdir =
           fileHierarchy.Root.AssertGetExistingSubdir(@"data\yoshi");
       var bcxFiles = yoshiSubdir
-                     .GetExistingFiles().Where(
+                     .GetExistingFiles()
+                     .Where(
                          file => file.FileType == ".bck")
                      // TODO: Look into this, this animation seems to need extra bone(s)?
                      .Where(file => !file.Name.StartsWith("yoshi_tongue"))
                      .ToArray();
-      var bmdFile = yoshiSubdir.GetExistingFiles().Single(
-          file => file.Name == "yoshi_model.bmd");
+      var bmdFile = yoshiSubdir.GetExistingFiles()
+                               .Single(
+                                   file => file.Name == "yoshi_model.bmd");
 
       return this.ExtractModels_(new[] { bmdFile }, bcxFiles);
     }
 
-    private IEnumerable<BmdModelFileBundle> ExtractScenes_(
-        IFileHierarchy fileHierarchy) {
+    private IEnumerable<IAnnotatedFileBundle<BmdModelFileBundle>>
+        ExtractScenes_(
+            IFileHierarchy fileHierarchy) {
       var sceneSubdir =
           fileHierarchy.Root.AssertGetExistingSubdir(@"data\scene");
 
       foreach (var subdir in sceneSubdir.GetExistingSubdirs()) {
         var mapSubdir = subdir.AssertGetExistingSubdir("map");
         var bmdFiles = mapSubdir.AssertGetExistingSubdir("map")
-                                .GetExistingFiles().Where(file => file.FileType == ".bmd")
+                                .GetExistingFiles()
+                                .Where(file => file.FileType == ".bmd")
                                 .ToArray();
         foreach (var bundle in this.ExtractModels_(bmdFiles)) {
           yield return bundle;
         }
 
         var montemcommon =
-            subdir.GetExistingSubdirs().SingleOrDefault(
-                subdir => subdir.Name == "montemcommon");
+            subdir.GetExistingSubdirs()
+                  .SingleOrDefault(
+                      subdir => subdir.Name == "montemcommon");
         var montewcommon =
-            subdir.GetExistingSubdirs().SingleOrDefault(
-                subdir => subdir.Name == "montewcommon");
+            subdir.GetExistingSubdirs()
+                  .SingleOrDefault(
+                      subdir => subdir.Name == "montewcommon");
         var hamukurianm =
-            subdir.GetExistingSubdirs().SingleOrDefault(
-                subdir => subdir.Name == "hamukurianm");
+            subdir.GetExistingSubdirs()
+                  .SingleOrDefault(
+                      subdir => subdir.Name == "hamukurianm");
 
         foreach (var objectSubdir in subdir.GetExistingSubdirs()) {
           var objName = objectSubdir.Name;
 
-          IEnumerable<BmdModelFileBundle>? bundles = null;
+          IEnumerable<IAnnotatedFileBundle<BmdModelFileBundle>>? bundles = null;
           if (objName.StartsWith("montem") && !objName.Contains("common")) {
             bundles = this.ExtractFromSeparateDirectories_(
                 objectSubdir,
@@ -125,9 +135,10 @@ namespace uni.games.super_mario_sunshine {
       }
     }
 
-    private IEnumerable<BmdModelFileBundle> ExtractFromSeparateDirectories_(
-        IFileHierarchyDirectory directory,
-        IFileHierarchyDirectory common) {
+    private IEnumerable<IAnnotatedFileBundle<BmdModelFileBundle>>
+        ExtractFromSeparateDirectories_(
+            IFileHierarchyDirectory directory,
+            IFileHierarchyDirectory common) {
       Asserts.Nonnull(common);
 
       var bmdFiles = directory.FilesWithExtension(".bmd")
@@ -157,19 +168,21 @@ namespace uni.games.super_mario_sunshine {
         ;
       }
 
-      return Enumerable.Empty<BmdModelFileBundle>();
+      return Enumerable.Empty<IAnnotatedFileBundle<BmdModelFileBundle>>();
     }
 
-    private IEnumerable<BmdModelFileBundle>
+    private IEnumerable<IAnnotatedFileBundle<BmdModelFileBundle>>
         ExtractModelsAndAnimationsFromSceneObject_(
             IFileHierarchyDirectory directory) {
-      var bmdFiles = directory.GetExistingFiles().Where(
+      var bmdFiles = directory.GetExistingFiles()
+                              .Where(
                                   file => file.FileType == ".bmd")
                               .OrderByDescending(file => file.Name.Length)
                               .ToArray();
 
       var allBcxFiles = directory
-                        .GetExistingFiles().Where(
+                        .GetExistingFiles()
+                        .Where(
                             file => file.FileType == ".bck" ||
                                     file.FileType == ".bca")
                         .ToArray();
@@ -244,15 +257,18 @@ namespace uni.games.super_mario_sunshine {
       });
     }
 
-    private IEnumerable<BmdModelFileBundle> ExtractPrimaryAndSecondaryModels_(
-        IFileHierarchyDirectory directory,
-        Func<IFileHierarchyFile, bool> primaryIdentifier
-    ) {
-      var bmdFiles = directory.GetExistingFiles().Where(
+    private IEnumerable<IAnnotatedFileBundle<BmdModelFileBundle>>
+        ExtractPrimaryAndSecondaryModels_(
+            IFileHierarchyDirectory directory,
+            Func<IFileHierarchyFile, bool> primaryIdentifier
+        ) {
+      var bmdFiles = directory.GetExistingFiles()
+                              .Where(
                                   file => file.FileType == ".bmd")
                               .ToArray();
       var bcxFiles = directory
-                     .GetExistingFiles().Where(
+                     .GetExistingFiles()
+                     .Where(
                          file => file.FileType == ".bck" ||
                                  file.FileType == ".bca")
                      .ToArray();
@@ -262,11 +278,12 @@ namespace uni.games.super_mario_sunshine {
                                                     bcxFiles);
     }
 
-    private IEnumerable<BmdModelFileBundle> ExtractPrimaryAndSecondaryModels_(
-        Func<IFileHierarchyFile, bool> primaryIdentifier,
-        IReadOnlyList<IFileHierarchyFile> bmdFiles,
-        IReadOnlyList<IFileHierarchyFile>? bcxFiles = null
-    ) {
+    private IEnumerable<IAnnotatedFileBundle<BmdModelFileBundle>>
+        ExtractPrimaryAndSecondaryModels_(
+            Func<IFileHierarchyFile, bool> primaryIdentifier,
+            IReadOnlyList<IFileHierarchyFile> bmdFiles,
+            IReadOnlyList<IFileHierarchyFile>? bcxFiles = null
+        ) {
       var primaryBmdFile =
           bmdFiles.Single(bmdFile => primaryIdentifier(bmdFile));
       foreach (var bundle in this.ExtractModels_(
@@ -285,17 +302,18 @@ namespace uni.games.super_mario_sunshine {
       }
     }
 
-    private IEnumerable<BmdModelFileBundle> ExtractModels_(
-        IEnumerable<IFileHierarchyFile> bmdFiles,
-        IReadOnlyList<IFileHierarchyFile>? bcxFiles = null,
-        IReadOnlyList<IFileHierarchyFile>? btiFiles = null
-    )
+    private IEnumerable<IAnnotatedFileBundle<BmdModelFileBundle>>
+        ExtractModels_(
+            IEnumerable<IFileHierarchyFile> bmdFiles,
+            IReadOnlyList<IFileHierarchyFile>? bcxFiles = null,
+            IReadOnlyList<IFileHierarchyFile>? btiFiles = null
+        )
       => bmdFiles.Select(bmdFile => new BmdModelFileBundle {
           GameName = "super_mario_sunshine",
           BmdFile = bmdFile,
           BcxFiles = bcxFiles,
           BtiFiles = btiFiles,
           FrameRate = 60
-      });
+      }.Annotate(bmdFile));
   }
 }

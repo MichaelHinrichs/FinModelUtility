@@ -3,8 +3,8 @@
 using uni.platforms.gcn;
 
 namespace uni.games.chibi_robo {
-  public class ChibiRoboFileGatherer : IFileBundleGatherer<IFileBundle> {
-    public IEnumerable<IFileBundle> GatherFileBundles() {
+  public class ChibiRoboAnnotatedFileGatherer : IAnnotatedFileBundleGatherer {
+    public IEnumerable<IAnnotatedFileBundle> GatherFileBundles() {
       if (!new GcnFileHierarchyExtractor().TryToExtractFromGame(
               "chibi_robo",
               out var fileHierarchy)) {

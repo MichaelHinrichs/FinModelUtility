@@ -6,7 +6,7 @@ namespace uni.ui.right_panel.info {
       InitializeComponent();
     }
 
-    public IFileBundle? FileBundle {
+    public IAnnotatedFileBundle? FileBundle {
       set {
         var items = this.filesListBox_.Items;
         items.Clear();
@@ -15,7 +15,7 @@ namespace uni.ui.right_panel.info {
           return;
         }
 
-        var files = value.Files.Select(file => file.DisplayFullPath)
+        var files = value.FileBundle.Files.Select(file => file.DisplayFullPath)
                          .Distinct()
                          .Order();
 

@@ -9,8 +9,8 @@ using uni.platforms;
 
 namespace uni.model {
   public interface IScaleSource {
-    float GetScale(IScene scene, IFileBundle fileBundle);
-    float GetScale(IModel model, IFileBundle fileBundle);
+    float GetScale(IScene scene, IAnnotatedFileBundle fileBundle);
+    float GetScale(IModel model, IAnnotatedFileBundle fileBundle);
   }
 
   public class ScaleSource : IScaleSource {
@@ -25,40 +25,40 @@ namespace uni.model {
       };
     }
 
-    public float GetScale(IScene scene, IFileBundle fileBundle)
+    public float GetScale(IScene scene, IAnnotatedFileBundle fileBundle)
       => this.impl_.GetScale(scene, fileBundle);
 
-    public float GetScale(IModel model, IFileBundle fileBundle)
+    public float GetScale(IModel model, IAnnotatedFileBundle fileBundle)
       => this.impl_.GetScale(model, fileBundle);
   }
 
   public class NullScaleSource : IScaleSource {
-    public float GetScale(IScene _1, IFileBundle _2) => 1;
-    public float GetScale(IModel _1, IFileBundle _2) => 1;
+    public float GetScale(IScene _1, IAnnotatedFileBundle _2) => 1;
+    public float GetScale(IModel _1, IAnnotatedFileBundle _2) => 1;
   }
 
   public class MinMaxBoundsScaleSource : IScaleSource {
-    public float GetScale(IScene scene, IFileBundle _)
+    public float GetScale(IScene scene, IAnnotatedFileBundle _)
       => new SceneMinMaxBoundsScaleCalculator().CalculateScale(scene);
 
-    public float GetScale(IModel model, IFileBundle _)
+    public float GetScale(IModel model, IAnnotatedFileBundle _)
       => new ModelMinMaxBoundsScaleCalculator().CalculateScale(model);
   }
 
   public class GameConfigScaleSource : IScaleSource {
-    public float GetScale(IScene scene, IFileBundle fileBundle)
+    public float GetScale(IScene scene, IAnnotatedFileBundle fileBundle)
       => this.TryToGetScaleFromGameConfig_(fileBundle, out float scale)
           ? scale
           : 1;
 
-    public float GetScale(IModel model, IFileBundle fileBundle)
+    public float GetScale(IModel model, IAnnotatedFileBundle fileBundle)
       => this.TryToGetScaleFromGameConfig_(fileBundle, out float scale)
           ? scale
           : 1;
 
-    private bool TryToGetScaleFromGameConfig_(IFileBundle fileBundle,
+    private bool TryToGetScaleFromGameConfig_(IAnnotatedFileBundle fileBundle,
                                               out float scale) {
-      var gameName = fileBundle.GameName;
+      var gameName = fileBundle.FileBundle.GameName;
       if (gameName != null &&
           DirectoryConstants.GAME_CONFIG_DIRECTORY.TryToGetExistingFile(
               $"{gameName}.json",

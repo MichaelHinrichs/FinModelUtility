@@ -30,36 +30,36 @@ using uni.util.io;
 namespace uni.games {
   public class RootFileGatherer {
     public IFileBundleDirectory GatherAllFiles() {
-      IFileBundleGathererAccumulator accumulator =
+      IAnnotatedFileBundleGathererAccumulator accumulator =
           Config.Instance.ExtractorSettings.UseMultithreadingToExtractRoms
-              ? new ParallelFileBundleGathererAccumulator()
-              : new FileBundleGathererAccumulator();
+              ? new ParallelAnnotatedFileBundleGathererAccumulator()
+              : new AnnotatedFileBundleGathererAccumulator();
 
-      var gatherers = new IFileBundleGatherer[] {
-          new BattalionWars1FileGatherer(),
-          new BattalionWars2FileGatherer(),
-          new ChibiRoboFileGatherer(),
-          new DeadSpace1FileGatherer(),
-          new DeadSpace2FileGatherer(),
-          new DeadSpace3FileGatherer(),
-          new DoshinTheGiantFileGatherer(),
-          new GloverModelFileGatherer(),
-          new GreatAceAttorneyModelFileGatherer(),
-          new HaloWarsModelFileGatherer(),
-          new LuigisMansion3dModelFileGatherer(),
-          new MajorasMask3dFileGatherer(),
-          new MarioKartDoubleDashFileGatherer(),
-          new MidnightClub2FileGatherer(),
-          new NintendogsLabradorAndFriendsFileBundleGatherer(),
-          new OcarinaOfTimeFileBundleGatherer(),
-          new OcarinaOfTime3dFileGatherer(),
-          new Pikmin1ModelFileGatherer(),
-          new Pikmin2FileGatherer(),
-          new ProfessorLaytonVsPhoenixWrightModelFileGatherer(),
-          new SuperMario64FileGatherer(),
-          new SuperMarioSunshineModelFileGatherer(),
-          new SuperSmashBrosMeleeModelFileGatherer(),
-          new WindWakerFileGatherer(),
+      var gatherers = new IAnnotatedFileBundleGatherer[] {
+          new BattalionWars1AnnotatedFileGatherer(),
+          new BattalionWars2AnnotatedFileGatherer(),
+          new ChibiRoboAnnotatedFileGatherer(),
+          new DeadSpace1AnnotatedFileGatherer(),
+          new DeadSpace2AnnotatedFileGatherer(),
+          new DeadSpace3AnnotatedFileGatherer(),
+          new DoshinTheGiantAnnotatedFileGatherer(),
+          new GloverModelAnnotatedFileGatherer(),
+          new GreatAceAttorneyModelAnnotatedFileGatherer(),
+          new HaloWarsModelAnnotatedFileGatherer(),
+          new LuigisMansion3dModelAnnotatedFileGatherer(),
+          new MajorasMask3dAnnotatedFileGatherer(),
+          new MarioKartDoubleDashAnnotatedFileGatherer(),
+          new MidnightClub2AnnotatedFileGatherer(),
+          new NintendogsLabradorAndFriendsAnnotatedFileBundleGatherer(),
+          new OcarinaOfTimeAnnotatedFileBundleGatherer(),
+          new OcarinaOfTime3dAnnotatedFileGatherer(),
+          new Pikmin1ModelAnnotatedFileGatherer(),
+          new Pikmin2AnnotatedFileGatherer(),
+          new ProfessorLaytonVsPhoenixWrightModelAnnotatedFileGatherer(),
+          new SuperMario64AnnotatedFileGatherer(),
+          new SuperMarioSunshineModelAnnotatedFileGatherer(),
+          new SuperSmashBrosMeleeModelAnnotatedFileGatherer(),
+          new WindWakerAnnotatedFileGatherer(),
       };
       foreach (var gatherer in gatherers) {
         accumulator.Add(gatherer);

@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
+using fin.data.stack;
 using fin.util.asserts;
+using fin.util.enumerables;
 
 namespace fin.io {
   public readonly struct FinDirectory : ISystemDirectory {
@@ -135,6 +137,7 @@ namespace fin.io {
       return subdir.Exists;
     }
 
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ISystemDirectory AssertGetExistingSubdir(string relativePath) {
       Asserts.True(
@@ -193,6 +196,19 @@ namespace fin.io {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ISystemFile AssertGetExistingFile(string path)
       => new FinFile(FinDirectoryStatic.GetExistingFile(this.FullPath, path));
+
+    public IEnumerable<ISystemFile> GetFilesWithNameRecursive(
+        string name) {
+      var stack = new FinStack<ISystemDirectory>(this);
+      while (stack.TryPop(out var next)) {
+        var match = next.GetExistingFiles().FirstOrDefault(file => file.Name == name);
+        if (match != null) {
+          yield return match;
+        }
+
+        stack.Push(next.GetExistingSubdirs());
+      }
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerable<ISystemFile> GetFilesWithFileType(

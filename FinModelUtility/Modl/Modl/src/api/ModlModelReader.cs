@@ -24,27 +24,25 @@ namespace modl.api {
   public class ModlModelFileBundle : IBattalionWarsModelFileBundle {
     public required string GameName { get; init; }
 
-    public IFileHierarchyFile MainFile => this.ModlFile;
+    public IReadOnlyTreeFile MainFile => this.ModlFile;
     public IEnumerable<IReadOnlyGenericFile> Files
       => this.ModlFile.Yield().ConcatIfNonnull(this.AnimFiles);
 
     public required GameVersion GameVersion { get; init; }
-    public required IFileHierarchyFile ModlFile { get; init; }
+    public required IReadOnlyTreeFile ModlFile { get; init; }
 
-    public required IList<IFileHierarchyFile>? AnimFiles { get; init; }
+    public required IList<IReadOnlyTreeFile>? AnimFiles { get; init; }
   }
 
   public class ModlModelImporter : IAsyncModelImporter<ModlModelFileBundle> {
     public Task<IModel> ImportModelAsync(ModlModelFileBundle modelFileBundle)
-      => this.ImportModelAsync(modelFileBundle.ModlFile.Impl,
-                             modelFileBundle.AnimFiles
-                                            ?.Select(file => file.Impl)
-                                            .ToArray(),
+      => this.ImportModelAsync(modelFileBundle.ModlFile,
+                             modelFileBundle.AnimFiles?.ToArray(),
                              modelFileBundle.GameVersion);
 
     public async Task<IModel> ImportModelAsync(
-        IReadOnlySystemFile modlFile,
-        IList<IReadOnlySystemFile>? animFiles,
+        IReadOnlyTreeFile modlFile,
+        IList<IReadOnlyTreeFile>? animFiles,
         GameVersion gameVersion,
         ILighting? lighting = null) {
       var flipSign = ModlFlags.FLIP_HORIZONTALLY ? -1 : 1;
@@ -232,7 +230,7 @@ namespace modl.api {
     }
 
     private static void AddAnimFileToModel_(IModel model,
-                                            IReadOnlySystemFile animFile,
+                                            IReadOnlyTreeFile animFile,
                                             GameVersion gameVersion,
                                             int flipSign,
                                             IDictionary<string, IBone> finBonesByIdentifier) {

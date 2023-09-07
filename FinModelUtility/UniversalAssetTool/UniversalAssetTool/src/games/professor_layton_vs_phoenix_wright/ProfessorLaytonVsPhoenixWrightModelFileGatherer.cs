@@ -2,19 +2,22 @@
 using fin.io.bundles;
 
 using level5.api;
+using level5.schema;
 
 using uni.platforms.threeDs;
 using uni.platforms.threeDs.tools;
 using uni.util.io;
 
 namespace uni.games.professor_layton_vs_phoenix_wright {
-  public class ProfessorLaytonVsPhoenixWrightModelFileGatherer
-      : IFileBundleGatherer<XcModelFileBundle> {
-    public IEnumerable<XcModelFileBundle> GatherFileBundles() {
+  using IAnnotatedXcBundle = IAnnotatedFileBundle<XcModelFileBundle>;
+
+  public class ProfessorLaytonVsPhoenixWrightModelAnnotatedFileGatherer
+      : IAnnotatedFileBundleGatherer<XcModelFileBundle> {
+    public IEnumerable<IAnnotatedXcBundle> GatherFileBundles() {
       if (!new ThreeDsFileHierarchyExtractor().TryToExtractFromGame(
               "professor_layton_vs_phoenix_wright",
               out var fileHierarchy)) {
-        return Enumerable.Empty<XcModelFileBundle>();
+        return Enumerable.Empty<IAnnotatedXcBundle>();
       }
 
       if (new ThreeDsXfsaTool().Extract(
@@ -53,14 +56,14 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
               };
             }
 
-            var bundles = new List<XcModelFileBundle>();
+            var bundles = new List<IAnnotatedXcBundle>();
             foreach (var xcBundle in xcBundles) {
               bundles.Add(new XcModelFileBundle {
                   GameName = "professor_layton_vs_phoenix_wright",
                   HumanReadableName = xcBundle.Name,
                   ModelXcFile = xcBundle.ModelFile,
                   AnimationXcFiles = xcBundle.AnimationFiles,
-              });
+              }.Annotate(xcBundle.ModelFile));
             }
 
             foreach (var xcFile in xcFiles) {
@@ -87,12 +90,14 @@ namespace uni.games.professor_layton_vs_phoenix_wright {
                   GameName = "professor_layton_vs_phoenix_wright",
                   ModelXcFile = xcFile,
                   AnimationXcFiles = new[] { xcFile },
-              });
+              }.Annotate(xcFile));
             }
 
             return bundles
-                   .OrderBy(bundle => bundle.HumanReadableName ??
-                                      bundle.MainFile.Name)
+                   .OrderBy(annotatedBundle => {
+                     var bundle = annotatedBundle.FileBundle;
+                     return bundle.HumanReadableName ?? bundle.MainFile.Name;
+                   })
                    .ToArray();
           }
       ).GatherFileBundles();

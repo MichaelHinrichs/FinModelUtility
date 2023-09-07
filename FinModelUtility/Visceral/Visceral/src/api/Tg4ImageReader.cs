@@ -11,8 +11,8 @@ using SixLabors.ImageSharp.PixelFormats;
 
 namespace visceral.api {
   public class Tg4ImageFileBundle {
-    public required IFileHierarchyFile Tg4hFile { get; init; }
-    public required IFileHierarchyFile Tg4dFile { get; init; }
+    public required IReadOnlyTreeFile Tg4hFile { get; init; }
+    public required IReadOnlyTreeFile Tg4dFile { get; init; }
   }
 
   public class Tg4ImageReader {

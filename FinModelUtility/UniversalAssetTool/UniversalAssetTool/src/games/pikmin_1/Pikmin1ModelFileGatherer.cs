@@ -5,14 +5,16 @@ using mod.cli;
 using uni.platforms.gcn;
 
 namespace uni.games.pikmin_1 {
-  public class Pikmin1ModelFileGatherer
-      : IFileBundleGatherer<ModModelFileBundle> {
-    public IEnumerable<ModModelFileBundle> GatherFileBundles() {
+  using IAnnotatedModBundle = IAnnotatedFileBundle<ModModelFileBundle>;
+
+  public class Pikmin1ModelAnnotatedFileGatherer
+      : IAnnotatedFileBundleGatherer<ModModelFileBundle> {
+    public IEnumerable<IAnnotatedModBundle> GatherFileBundles() {
       if (!new GcnFileHierarchyExtractor().TryToExtractFromGame(
               "pikmin_1",
               GcnFileHierarchyExtractor.Options.Empty(),
               out var fileHierarchy)) {
-        return Enumerable.Empty<ModModelFileBundle>();
+        return Enumerable.Empty<IAnnotatedModBundle>();
       }
 
       return fileHierarchy.SelectMany(directory => {
@@ -33,7 +35,7 @@ namespace uni.games.pikmin_1 {
                      GameName = "pikmin_1",
                      ModFile = modFile,
                      AnmFile = anmFile,
-                 };
+                 }.Annotate(modFile);
                });
       });
     }

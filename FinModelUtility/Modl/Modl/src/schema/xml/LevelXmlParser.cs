@@ -49,7 +49,7 @@ namespace modl.schema.xml {
   }
 
   public class LevelXmlParser {
-    public IScene Parse(IReadOnlySystemFile mainXmlFile,
+    public IScene Parse(IReadOnlyTreeFile mainXmlFile,
                         GameVersion gameVersion) {
       var scene = new SceneImpl();
       var sceneArea = scene.AddArea();
@@ -96,7 +96,7 @@ namespace modl.schema.xml {
     }
 
     private void AddTerrain_(ISceneArea sceneArea,
-                             IReadOnlySystemFile outFile,
+                             IReadOnlyTreeFile outFile,
                              GameVersion gameVersion,
                              out IBwTerrain bwTerrain,
                              float terrainLightScale) {
@@ -110,7 +110,7 @@ namespace modl.schema.xml {
     }
 
     private void AddObjects_(ISceneArea sceneArea,
-                             IReadOnlySystemFile levelXmlFile,
+                             IReadOnlyTreeFile levelXmlFile,
                              GameVersion gameVersion,
                              IBwTerrain bwTerrain,
                              IDictionary<string, IBwObject> objectMap,
@@ -145,7 +145,7 @@ namespace modl.schema.xml {
           async (modelFile, _) => {
             var modelId = modelFile.NameWithoutExtension;
 
-            IList<IReadOnlySystemFile>? animFiles = null;
+            IList<IReadOnlyTreeFile>? animFiles = null;
             if (gameVersion == GameVersion.BW1) {
               if (modelId.Length == 4 && modelId.EndsWith("VET")) {
                 var firstTwoCharactersInModelId = modelId.Substring(0, 2);
@@ -296,7 +296,7 @@ namespace modl.schema.xml {
     }
 
     private IDictionary<string, IBwObject> ReadObjectMap_(
-        IReadOnlySystemFile levelXmlFile,
+        IReadOnlyTreeFile levelXmlFile,
         GameVersion gameVersion,
         ref ILighting? lighting,
         out float terrainLightScale) {

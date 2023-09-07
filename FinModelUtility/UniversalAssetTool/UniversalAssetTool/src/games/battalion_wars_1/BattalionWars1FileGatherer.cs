@@ -7,12 +7,15 @@ using uni.platforms.gcn;
 using uni.util.io;
 
 namespace uni.games.battalion_wars_1 {
-  public class BattalionWars1FileGatherer : IFileBundleGatherer<IFileBundle> {
-    public IEnumerable<IFileBundle> GatherFileBundles() {
+  public class BattalionWars1AnnotatedFileGatherer
+      : IAnnotatedFileBundleGatherer<IBattalionWarsFileBundle> {
+    public IEnumerable<IAnnotatedFileBundle<IBattalionWarsFileBundle>>
+        GatherFileBundles() {
       if (!new GcnFileHierarchyExtractor().TryToExtractFromGame(
               "battalion_wars_1",
               out var fileHierarchy)) {
-        return Enumerable.Empty<IFileBundle>();
+        return Enumerable
+            .Empty<IAnnotatedFileBundle<IBattalionWarsFileBundle>>();
       }
 
       foreach (var directory in fileHierarchy) {
@@ -27,7 +30,7 @@ namespace uni.games.battalion_wars_1 {
         }
       }
 
-      return new FileHierarchyAssetBundleSeparator<IFileBundle>(
+      return new FileHierarchyAssetBundleSeparator<IBattalionWarsFileBundle>(
           fileHierarchy,
           directory => {
             var modlFiles = directory.FilesWithExtension(".modl");
@@ -138,7 +141,7 @@ namespace uni.games.battalion_wars_1 {
                          .ToArray();
 
             var allModlsAndAnims =
-                new (IEnumerable<IFileHierarchyFile>, IList<IFileHierarchyFile>?
+                new (IEnumerable<IFileHierarchyFile>, IList<IReadOnlyTreeFile>?
                     )
                     [] {
                         (sgruntModlFile,
@@ -146,12 +149,14 @@ namespace uni.games.battalion_wars_1 {
                         (svetModlFile, fvAnimFiles),
                         (tgruntModlFile, fgAnimFiles),
                         (tvetModlFile, fvAnimFiles),
-                        (ugruntModlFile, fgAnimFiles), (uvetModlFile,
-                              fvAnimFiles.Concat(uvAnimFiles).ToArray()),
+                        (ugruntModlFile, fgAnimFiles),
+                        (uvetModlFile,
+                         fvAnimFiles.Concat(uvAnimFiles).ToArray()),
                         (wgruntModlFile,
                          fgAnimFiles.Concat(wgruntAnimFiles).ToArray()),
-                        (wvetModlFile, fvAnimFiles), (xgruntModlFile,
-                              fgAnimFiles.Concat(xgAnimFiles).ToArray()),
+                        (wvetModlFile, fvAnimFiles),
+                        (xgruntModlFile,
+                         fgAnimFiles.Concat(xgAnimFiles).ToArray()),
                         (xvetModlFile,
                          fvAnimFiles.Concat(xvAnimFiles).ToArray()),
                         (otherModlFiles, null),
@@ -169,15 +174,15 @@ namespace uni.games.battalion_wars_1 {
                                         ModlFile = modlFile,
                                         GameVersion = GameVersion.BW1,
                                         AnimFiles = modlsAndAnims.Item2
-                                    }))
+                                    }.Annotate(modlFile)))
                     .ToList();
             var outBundles =
                 directory.FilesWithExtension(".out")
                          .Select(outFile => new OutModelFileBundle {
                              GameName = "battalion_wars_1",
-                             OutFile = outFile, 
+                             OutFile = outFile,
                              GameVersion = GameVersion.BW1,
-                         });
+                         }.Annotate(outFile));
             var sceneBundles =
                 directory.Name == "CompoundFiles"
                     ? directory
@@ -185,21 +190,25 @@ namespace uni.games.battalion_wars_1 {
                       .Where(file =>
                                  !file.NameWithoutExtension.EndsWith("_Level"))
                       .Where(file =>
-                                 !file.NameWithoutExtension.EndsWith("_preload"))
+                                 !file.NameWithoutExtension
+                                      .EndsWith("_preload"))
                       .Select(file => new BwSceneFileBundle {
                           GameName = "battalion_wars_1",
                           MainXmlFile = file,
                           GameVersion = GameVersion.BW1,
-                      })
-                    : new List<BwSceneFileBundle>();
+                      }.Annotate(file))
+                    : Enumerable
+                        .Empty<IAnnotatedFileBundle<BwSceneFileBundle>>();
 
             var bundles =
-                modlBundles.Concat<IBattalionWarsFileBundle>(outBundles)
-                           .Concat(sceneBundles)
-                           .ToList();
+                modlBundles
+                    .Concat<IAnnotatedFileBundle<IBattalionWarsFileBundle>>(
+                        outBundles)
+                    .Concat(sceneBundles)
+                    .ToList();
             bundles.Sort((lhs, rhs) =>
-                             lhs.MainFile.Name.CompareTo(
-                                 rhs.MainFile.Name));
+                             lhs.GameAndLocalPath.CompareTo(
+                                 rhs.GameAndLocalPath));
 
             return bundles;
           }

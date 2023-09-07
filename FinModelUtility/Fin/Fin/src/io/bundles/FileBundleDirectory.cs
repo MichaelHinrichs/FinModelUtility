@@ -7,18 +7,18 @@ namespace fin.io.bundles {
     string Name { get; }
 
     IReadOnlyList<IFileBundleDirectory> Subdirs { get; }
-    IReadOnlyList<IFileBundle> FileBundles { get; }
+    IReadOnlyList<IAnnotatedFileBundle> FileBundles { get; }
 
     IFileBundleDirectory AddSubdir(IFileHierarchyDirectory directory);
     IFileBundleDirectory AddSubdir(string name);
-    void AddFileBundle(IFileBundle fileBundle);
+    void AddFileBundle(IAnnotatedFileBundle fileBundle);
 
     void CleanUp();
   }
 
   public class FileBundleDirectory : IFileBundleDirectory {
     private readonly List<IFileBundleDirectory> subdirs_ = new();
-    private readonly List<IFileBundle> fileBundles_ = new();
+    private readonly List<IAnnotatedFileBundle> fileBundles_ = new();
 
     public FileBundleDirectory(IFileHierarchyDirectory? directory) {
       this.Directory = directory;
@@ -33,7 +33,7 @@ namespace fin.io.bundles {
     public string Name { get; }
 
     public IReadOnlyList<IFileBundleDirectory> Subdirs => this.subdirs_;
-    public IReadOnlyList<IFileBundle> FileBundles => this.fileBundles_;
+    public IReadOnlyList<IAnnotatedFileBundle> FileBundles => this.fileBundles_;
 
     public IFileBundleDirectory AddSubdir(IFileHierarchyDirectory directory) {
       var subdir = new FileBundleDirectory(directory);
@@ -47,7 +47,7 @@ namespace fin.io.bundles {
       return subdir;
     }
 
-    public void AddFileBundle(IFileBundle fileBundle)
+    public void AddFileBundle(IAnnotatedFileBundle fileBundle)
       => this.fileBundles_.Add(fileBundle);
 
     public void CleanUp() {
@@ -65,8 +65,8 @@ namespace fin.io.bundles {
 
       this.subdirs_.Sort((lhs, rhs) => lhs.Name.CompareTo(rhs.Name));
       this.fileBundles_.Sort((lhs, rhs)
-                                 => lhs.DisplayName.CompareTo(
-                                     rhs.DisplayName));
+                                 => lhs.GameAndLocalPath.CompareTo(
+                                     rhs.GameAndLocalPath));
     }
   }
 }
