@@ -63,9 +63,35 @@ namespace cmb.material {
 
       // Create material
       if (!USE_FIXED_FUNCTION) {
+        // TODO: Remove this hack
         var firstTexture = finTextures.FirstOrDefault();
-        var finMaterial = firstTexture != null
-            ? (IMaterial) finModel.MaterialManager.AddTextureMaterial(firstTexture)
+        var firstColorFinTexture = finTextures.First(tex => {
+          var image = tex?.Image;
+          if (image == null) {
+            return false;
+          }
+
+          var isAllBlank = true;
+
+          image.Access(getHandler => {
+            for (var y = 0; y < image.Height; ++y) {
+              for (var x = 0; x < image.Width; ++x) {
+                getHandler(x, y, out var r, out var g, out var b, out var a);
+                if (!(a == 0 || (r == 255 && g == 255 && b == 255))) {
+                  isAllBlank = false;
+                  return;
+                }
+              }
+            }
+          });
+
+          return !isAllBlank;
+        });
+
+
+        var bestTexture = firstColorFinTexture ?? firstTexture;
+        var finMaterial = bestTexture != null
+            ? (IMaterial) finModel.MaterialManager.AddTextureMaterial(bestTexture)
             : finModel.MaterialManager.AddNullMaterial();
         this.Material = finMaterial;
       } else {
