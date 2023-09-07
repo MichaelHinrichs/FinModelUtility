@@ -3,7 +3,7 @@
 using fin.io;
 using fin.testing.model;
 
-using mod.cli;
+using mod.api;
 
 using NUnit.Framework;
 

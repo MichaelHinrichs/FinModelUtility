@@ -1,6 +1,6 @@
 ﻿using fin.io.bundles;
 
-using mod.cli;
+using mod.api;
 
 using uni.platforms.gcn;
 

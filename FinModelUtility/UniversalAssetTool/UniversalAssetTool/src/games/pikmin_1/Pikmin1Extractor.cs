@@ -1,4 +1,4 @@
-﻿using mod.cli;
+﻿using mod.api;
 
 namespace uni.games.pikmin_1 {
   public class Pikmin1Extractor : IExtractor {
