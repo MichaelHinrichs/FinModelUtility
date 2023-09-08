@@ -52,5 +52,31 @@ namespace fin.math.matrix.four {
       assMatrix.C4 = (float) finMatrix[2, 3];
       assMatrix.D4 = (float) finMatrix[3, 3];
     }
+
+    public static IFinMatrix4x4 ConvertAssimpToFin(AssimpMatrix assMatrix) {
+      var finMatrix = new FinMatrix4x4();
+
+      finMatrix[0, 0] = assMatrix.A1;
+      finMatrix[1, 0] = assMatrix.B1;
+      finMatrix[2, 0] = assMatrix.C1;
+      finMatrix[3, 0] = assMatrix.D1;
+
+      finMatrix[0, 1] = assMatrix.A2;
+      finMatrix[1, 1] = assMatrix.B2;
+      finMatrix[2, 1] = assMatrix.C2;
+      finMatrix[3, 1] = assMatrix.D2;
+
+      finMatrix[0, 2] = assMatrix.A3;
+      finMatrix[1, 2] = assMatrix.B3;
+      finMatrix[2, 2] = assMatrix.C3;
+      finMatrix[3, 2] = assMatrix.D3;
+
+      finMatrix[0, 3] = assMatrix.A4;
+      finMatrix[1, 3] = assMatrix.B4;
+      finMatrix[2, 3] = assMatrix.C4;
+      finMatrix[3, 3] = assMatrix.D4;
+
+      return finMatrix;
+    }
   }
 }

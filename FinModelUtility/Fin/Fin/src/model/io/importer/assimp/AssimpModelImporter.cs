@@ -1,15 +1,20 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 using Assimp;
+using Assimp.Unmanaged;
 
 using fin.color;
 using fin.data.lazy;
 using fin.data.queue;
 using fin.image;
 using fin.image.formats;
+using fin.io;
 using fin.math.matrix.four;
 using fin.math.rotations;
 using fin.model.impl;
@@ -58,12 +63,20 @@ namespace fin.model.io.importer.assimp {
           });
       var lazyFinTextures = new LazyDictionary<TextureSlot, ITexture?>(
           assTextureSlot => {
+            var fileName =
+                assTextureSlot.FilePath ??
+                assScene.Textures[assTextureSlot.TextureIndex].Filename;
+            var file = new FinFile(fileName);
+            var name = file.NameWithoutExtension;
+
             var finImage = assTextureSlot.FilePath != null
                 ? lazyFinSatelliteImages[assTextureSlot.FilePath]
                 : lazyFinEmbeddedImages[
                     assScene.Textures[assTextureSlot.TextureIndex]];
 
             var finTexture = finModel.MaterialManager.CreateTexture(finImage);
+            finTexture.Name = name;
+
             finTexture.WrapModeU = ConvertWrapMode_(assTextureSlot.WrapModeU);
             finTexture.WrapModeV = ConvertWrapMode_(assTextureSlot.WrapModeV);
 
@@ -108,17 +121,18 @@ namespace fin.model.io.importer.assimp {
 
       // Adds rig
       var finSkeleton = finModel.Skeleton;
+      var finBoneByName = new Dictionary<string, IBone>();
       var nodeAndBoneQueue =
           new FinQueue<(Node, IBone)>((assScene.RootNode, finSkeleton.Root));
       while (nodeAndBoneQueue.TryDequeue(out var nodeAndBone)) {
         var (assNode, finBone) = nodeAndBone;
-        finBone.Name = assNode.Name;
 
-        var assTransform = assNode.Transform;
+        var name = assNode.Name;
+        finBone.Name = name;
+        finBoneByName[name] = finBone;
+
         var finMatrix =
-            new FinMatrix4x4(
-                Unsafe.As<Assimp.Matrix4x4, System.Numerics.Matrix4x4>(
-                    ref assTransform));
+            Matrix4x4ConversionUtil.ConvertAssimpToFin(assNode.Transform);
         finMatrix.Decompose(out var translation,
                             out var rotation,
                             out var scale);
@@ -134,6 +148,62 @@ namespace fin.model.io.importer.assimp {
             assNode.Children.Select(childNode
                                         => (childNode,
                                             finBone.AddChild(0, 0, 0))));
+      }
+
+      // Adds animations
+      foreach (var assAnimation in assScene.Animations) {
+        var finAnimation = finModel.AnimationManager.AddAnimation();
+        finAnimation.Name = assAnimation.Name;
+
+        var frameRate = finAnimation.FrameRate =
+            (float) Math.Round(assAnimation.TicksPerSecond);
+        finAnimation.FrameCount =
+            (int) Math.Round(assAnimation.DurationInTicks / frameRate);
+
+        if (assAnimation.HasNodeAnimations) {
+          foreach (var assNodeAnimationChannel in assAnimation
+                       .NodeAnimationChannels) {
+            var finBone = finBoneByName[assNodeAnimationChannel.NodeName];
+            var finBoneTracks = finAnimation.AddBoneTracks(finBone);
+
+            if (assNodeAnimationChannel.HasPositionKeys) {
+              var positionTrack = finBoneTracks.UseCombinedPositionAxesTrack();
+              foreach (var assPositionKey in assNodeAnimationChannel
+                           .PositionKeys) {
+                var frame = (int) Math.Round(assPositionKey.Time / frameRate);
+                var assPosition = assPositionKey.Value;
+                positionTrack.Set(
+                    frame,
+                    new Position(assPosition.X, assPosition.Y, assPosition.Z));
+              }
+            }
+
+            if (assNodeAnimationChannel.HasRotationKeys) {
+              var rotationTrack = finBoneTracks.UseQuaternionRotationTrack();
+              foreach (var assRotationKey in assNodeAnimationChannel
+                           .RotationKeys) {
+                var frame = (int) Math.Round(assRotationKey.Time / frameRate);
+                var assQuaternion = assRotationKey.Value;
+                rotationTrack.Set(frame,
+                                  new System.Numerics.Quaternion(
+                                      assQuaternion.X,
+                                      assQuaternion.Y,
+                                      assQuaternion.Z,
+                                      assQuaternion.W));
+              }
+            }
+
+            if (assNodeAnimationChannel.HasScalingKeys) {
+              var scaleTrack = finBoneTracks.UseScaleTrack();
+              foreach (var assScaleKey in assNodeAnimationChannel.ScalingKeys) {
+                var frame = (int) Math.Round(assScaleKey.Time / frameRate);
+                var assScale = assScaleKey.Value;
+                scaleTrack.Set(frame,
+                               new Vector3(assScale.X, assScale.Y, assScale.Z));
+              }
+            }
+          }
+        }
       }
 
       // Adds skin
@@ -158,7 +228,8 @@ namespace fin.model.io.importer.assimp {
           }
         }
 
-        for (var colorIndex = 0;
+        // TODO: Add support for colors
+        /*for (var colorIndex = 0;
              colorIndex < assMesh.VertexColorChannelCount;
              colorIndex++) {
           if (!assMesh.HasVertexColors(colorIndex)) {
@@ -176,7 +247,7 @@ namespace fin.model.io.importer.assimp {
                               assColor.B,
                               assColor.A));
           }
-        }
+        }*/
 
         for (var uvIndex = 0;
              uvIndex < assMesh.TextureCoordinateChannelCount;
@@ -188,7 +259,36 @@ namespace fin.model.io.importer.assimp {
           var assUvs = assMesh.TextureCoordinateChannels[uvIndex];
           for (var i = 0; i < finVertices.Length; ++i) {
             var assUv = assUvs[i];
-            finVertices[i].SetUv(uvIndex, assUv.X, assUv.Y);
+            finVertices[i].SetUv(uvIndex, assUv.X, 1 - assUv.Y);
+          }
+        }
+
+        // TODO: How to optimize this??
+        if (assMesh.HasBones) {
+          for (var i = 0; i < finVertices.Length; ++i) {
+            var boneWeights = new List<IBoneWeight>();
+            foreach (var assBone in assMesh.Bones) {
+              foreach (var vertexWeight in assBone.VertexWeights) {
+                if (vertexWeight.VertexID == i && vertexWeight.Weight > 0) {
+                  var finBone = finBoneByName[assBone.Name];
+
+                  var offsetMatrix = Matrix4x4ConversionUtil.ConvertAssimpToFin(
+                          assBone.OffsetMatrix)
+                      .TransposeInPlace();
+                  IFinMatrix4x4 finInverseBindMatrix = offsetMatrix;
+
+                  boneWeights.Add(new BoneWeight(finBone,
+                                                 finInverseBindMatrix,
+                                                 vertexWeight.Weight));
+                }
+              }
+            }
+
+            finVertices[i]
+                .SetBoneWeights(
+                    finSkin.GetOrCreateBoneWeights(
+                        VertexSpace.WORLD,
+                        boneWeights.ToArray()));
           }
         }
 
@@ -199,8 +299,8 @@ namespace fin.model.io.importer.assimp {
             Assimp.PrimitiveType.Line     => finMesh.AddLines(faceVertices),
             Assimp.PrimitiveType.Triangle => finMesh.AddTriangles(faceVertices),
         };
-
-        finPrimitive.SetMaterial(lazyFinMaterials[assMesh.MaterialIndex]);
+        finPrimitive.SetVertexOrder(VertexOrder.NORMAL)
+                    .SetMaterial(lazyFinMaterials[assMesh.MaterialIndex]);
       }
 
       return finModel;
