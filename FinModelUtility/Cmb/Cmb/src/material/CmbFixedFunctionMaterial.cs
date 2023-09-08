@@ -65,7 +65,7 @@ namespace cmb.material {
       if (!USE_FIXED_FUNCTION) {
         // TODO: Remove this hack
         var firstTexture = finTextures.FirstOrDefault();
-        var firstColorFinTexture = finTextures.First(tex => {
+        var firstColorFinTexture = finTextures.FirstOrDefault(tex => {
           var image = tex?.Image;
           if (image == null) {
             return false;

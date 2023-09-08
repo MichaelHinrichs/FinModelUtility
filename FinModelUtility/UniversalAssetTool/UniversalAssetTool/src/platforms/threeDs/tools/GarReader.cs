@@ -32,7 +32,7 @@ namespace uni.platforms.threeDs.tools {
 
       foreach (var fileType in gar.FileTypes) {
         foreach (var file in fileType.Files) {
-          var fileName = file.FileName;
+          var fileName = file.FullPath ?? file.FileName;
 
           if (!fileName.EndsWith($".{fileType.TypeName}")) {
             fileName = $"{fileName}.{fileType.TypeName}";
@@ -106,6 +106,8 @@ namespace uni.platforms.threeDs.tools {
 
     public interface IGarSubfile {
       string FileName { get; }
+      string? FullPath { get; }
+
       int Position { get; }
       int Length { get; }
     }
@@ -208,6 +210,7 @@ namespace uni.platforms.threeDs.tools {
 
     private class Gar5Subfile : IGarSubfile {
       public string FileName { get; }
+      public string? FullPath { get; }
 
       public int Position { get; }
       public int Length { get; }
@@ -224,11 +227,21 @@ namespace uni.platforms.threeDs.tools {
         var fileNameOffset = er.ReadInt32();
         var fullPathOffset = er.ReadInt32();
 
-        er.Position = fullPathOffset != -1 ? fullPathOffset : fileNameOffset;
+        
+        er.Position = fileNameOffset;
         this.FileName = er.ReadStringNT();
+
+        if (fullPathOffset != -1) {
+          er.Position = fullPathOffset;
+          this.FullPath = er.ReadStringNT();
+        }
 
         if (Path.GetExtension(this.FileName) == string.Empty) {
           this.FileName += $".{fileType.TypeName}";
+
+          if (this.FullPath != null) {
+            this.FullPath += $".{fileType.TypeName}";
+          }
         }
 
         this.Position = (int) fileOffset;

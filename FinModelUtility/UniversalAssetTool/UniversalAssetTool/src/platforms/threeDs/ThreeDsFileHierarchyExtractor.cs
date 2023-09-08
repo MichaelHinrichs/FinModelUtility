@@ -2,6 +2,9 @@
 using fin.io.archive;
 using fin.util.strings;
 
+using modl.schema.res;
+using schema.binary;
+
 using uni.platforms.threeDs.tools;
 using uni.platforms.threeDs.tools.ctrtool;
 

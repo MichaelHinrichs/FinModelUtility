@@ -105,29 +105,31 @@ namespace uni.games.majoras_mask_3d {
         IFileHierarchy fileHierarchy) {
       var actorsDir = fileHierarchy.Root.AssertGetExistingSubdir("actors");
 
-      var cmbFiles =
-          new[] {
-              actorsDir.AssertGetExistingFile(
-                  "zelda2_link_child_new/link_child.cmb"),
-              actorsDir.AssertGetExistingFile(
-                  "zelda2_link_goron_new/link_goron.cmb"),
-              actorsDir.AssertGetExistingFile(
-                  "zelda2_link_nuts_new/link_deknuts.cmb"),
-              actorsDir.AssertGetExistingFile(
-                  "zelda2_link_zora_new/link_zora.cmb"),
-          };
+      var modelsAndAnimations = new[] {
+          ("zelda2_link_boy_new/boy/model/link_demon.cmb", "boy"),
+          ("zelda2_link_child_new/child/model/link_child.cmb", "child"),
+          ("zelda2_link_goron_new/goron/model/link_goron.cmb", "goron"),
+          ("zelda2_link_nuts_new/nuts/model/link_deknuts.cmb", "nuts"),
+          ("zelda2_link_zora_new/zora/model/link_zora.cmb", "zora"),
+      };
 
-      var csabFiles = fileHierarchy
-                      .Root.AssertGetExistingSubdir("actors/zelda2_link_new")
-                      .FilesWithExtension(".csab")
-                      .ToArray();
+      return modelsAndAnimations.Select(modelPathAndAnimationDir => {
+        var (modelPath, animationDir) = modelPathAndAnimationDir;
 
-      return cmbFiles.Select(cmbFile => new CmbModelFileBundle(
-                                 "majoras_mask_3d",
-                                 cmbFile,
-                                 csabFiles,
-                                 null,
-                                 null).Annotate(cmbFile));
+        var cmbFile = actorsDir.AssertGetExistingFile(modelPath);
+        var csabFiles = fileHierarchy
+                        .Root.AssertGetExistingSubdir(
+                            $"actors/zelda2_link_new/{animationDir}/anim")
+                        .FilesWithExtension(".csab")
+                        .ToArray();
+
+        return new CmbModelFileBundle(
+            "majoras_mask_3d",
+            cmbFile,
+            csabFiles,
+            null,
+            null).Annotate(cmbFile);
+      });
     }
   }
 }

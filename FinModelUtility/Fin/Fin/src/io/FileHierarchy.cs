@@ -10,8 +10,6 @@ using fin.util.data;
 
 using fins.io.sharpDirLister;
 
-using NUnit.Framework.Interfaces;
-
 using schema.binary;
 
 namespace fin.io {
@@ -349,7 +347,7 @@ namespace fin.io {
       public string NameWithoutExtension => this.Impl.NameWithoutExtension;
 
       public string DisplayFullPath
-        => $"//{this.Root.Name}/{this.LocalPath.Replace('\\', '/')}";
+        => $"//{this.Root.Name}{this.LocalPath.Replace('\\', '/')}";
 
       public FileSystemStream OpenRead() => this.Impl.OpenRead();
       public StreamReader OpenReadAsText() => this.Impl.OpenReadAsText();
