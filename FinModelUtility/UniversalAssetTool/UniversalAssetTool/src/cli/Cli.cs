@@ -8,6 +8,7 @@ using fin.model;
 using fin.model.io;
 using fin.model.io.exporter;
 using fin.model.io.exporter.assimp.indirect;
+using fin.model.io.importer.assimp;
 
 using j3d.api;
 
@@ -29,6 +30,7 @@ namespace uni.cli {
                    .Where(typeof(IExtractorOptions).IsAssignableFrom);
 
       var plugins = new IModelImporterPlugin[] {
+          new AssimpModelImporterPlugin(),
           new BmdModelImporterPlugin(),
           new CmbModelImporterPlugin(),
           new ModModelImporterPlugin()
