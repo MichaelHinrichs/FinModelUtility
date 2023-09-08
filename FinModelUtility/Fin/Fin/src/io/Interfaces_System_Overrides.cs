@@ -102,13 +102,18 @@ namespace fin.io {
 
     // TryToGetExistingFile
     bool GROTreeDir.TryToGetExistingFile(string path,
-                                         out IReadOnlyTreeFile outFile)
-      => this.TryToGetExistingFile(path, out outFile);
+                                         out IReadOnlyTreeFile outFile) {
+      var returnValue = this.TryToGetExistingFile(path, out var oFile);
+      outFile = oFile;
+      return returnValue;
+    }
 
     bool GROSysDir.TryToGetExistingFile(string path,
-                                        out IReadOnlySystemFile outFile)
-      => this.TryToGetExistingFile(path, out outFile);
-
+                                        out IReadOnlySystemFile outFile) {
+      var returnValue = this.TryToGetExistingFile(path, out var oFile);
+      outFile = oFile;
+      return returnValue;
+    }
 
     new bool TryToGetExistingFile(string path, out IReadOnlySystemFile outFile);
 

@@ -322,7 +322,9 @@ namespace uni.games {
                             Scale = new ScaleSource(
                                     Config.Instance.ExporterSettings
                                           .ExportedModelScaleSource)
-                                .GetScale(model, annotatedModelFileBundle)
+                                .GetScale(model,
+                                          annotatedModelFileBundle
+                                              .TypedFileBundle)
                         },
                         formats,
                         Config.Instance.ExporterSettings.ExportAllTextures);

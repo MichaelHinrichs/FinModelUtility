@@ -10,12 +10,12 @@ namespace uni.ui.common.scene {
       this.InitializeComponent();
     }
 
-    public (IAnnotatedFileBundle, IScene)? FileBundleAndScene {
+    public (IFileBundle, IScene)? FileBundleAndScene {
       get => this.impl_.FileBundleAndScene;
       set {
         var fileBundle = value?.Item1;
         if (fileBundle != null) {
-          this.groupBox_.Text = fileBundle.FileBundle.DisplayFullPath;
+          this.groupBox_.Text = fileBundle.DisplayFullPath;
         } else {
           this.groupBox_.Text = "(Select a model)";
         }

@@ -26,6 +26,7 @@ namespace j3d.api {
 
     public IModel ImportModel(
         IEnumerable<IReadOnlySystemFile> files,
+        out IModelFileBundle outModelFileBundle,
         float frameRate = 30) {
       var filesArray = files.ToArray();
       var bcxFiles = filesArray.Where(file => file.FileType is ".bca" or ".bck")
@@ -41,6 +42,7 @@ namespace j3d.api {
           BtiFiles = btiFiles,
           FrameRate = frameRate,
       };
+      outModelFileBundle = bmdBundle;
 
       var bmdImporter = new BmdModelImporter();
       return bmdImporter.ImportModel(bmdBundle);

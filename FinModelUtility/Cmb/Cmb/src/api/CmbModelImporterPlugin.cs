@@ -28,6 +28,7 @@ namespace cmb.api {
       new[] { ".cmb", ".csab", ".ctxb", ".shpa" };
 
     public IModel ImportModel(IEnumerable<IReadOnlySystemFile> files,
+                              out IModelFileBundle outModelFileBundle,
                               float frameRate = 30) {
       var filesArray = files.ToArray();
       var csabFiles = filesArray.Where(file => file.FileType is ".csab")
@@ -44,6 +45,7 @@ namespace cmb.api {
           csabFiles,
           ctxbFiles,
           shpaFiles);
+      outModelFileBundle = cmbBundle;
 
       var cmbImporter = new CmbModelImporter();
       return cmbImporter.ImportModel(cmbBundle);

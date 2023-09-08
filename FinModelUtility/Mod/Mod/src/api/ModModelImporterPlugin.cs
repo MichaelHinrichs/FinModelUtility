@@ -5,8 +5,6 @@ using fin.io;
 using fin.model;
 using fin.model.io;
 
-using mod.api;
-
 namespace mod.api {
   public class ModModelImporterPlugin : IModelImporterPlugin {
     public string DisplayName => "Mod";
@@ -26,6 +24,7 @@ namespace mod.api {
 
     public IModel ImportModel(
         IEnumerable<IReadOnlySystemFile> files,
+        out IModelFileBundle outModelFileBundle,
         float frameRate = 30) {
       var filesArray = files.ToArray();
       var anmFile =
@@ -37,6 +36,7 @@ namespace mod.api {
       var modBundle = new ModModelFileBundle {
           GameName = "", AnmFile = anmFile, ModFile = modFile,
       };
+      outModelFileBundle = modBundle;
 
       var modImporter = new ModModelImporter();
       return modImporter.ImportModel(modBundle);

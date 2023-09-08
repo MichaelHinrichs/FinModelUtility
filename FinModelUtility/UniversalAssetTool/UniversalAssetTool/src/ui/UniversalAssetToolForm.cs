@@ -1,5 +1,7 @@
 using System.Diagnostics;
 
+using cmb.api;
+
 using fin.audio;
 using fin.color;
 using fin.model.io.exporter.assimp;
@@ -8,12 +10,17 @@ using fin.io.bundles;
 using fin.math.rotations;
 using fin.model;
 using fin.model.io;
+using fin.model.io.importer.assimp;
 using fin.scene;
 using fin.util.asserts;
 using fin.util.enumerables;
 using fin.util.time;
 
+using j3d.api;
+
 using MathNet.Numerics;
+
+using mod.api;
 
 using uni.config;
 using uni.games;
@@ -64,32 +71,26 @@ public partial class UniversalAssetToolForm : Form {
         new RootFileGatherer().GatherAllFiles());
 
 
-    this.fpsCallback_ = TimedCallback.WithPeriod(() => {
-                                                   if (!this.Created || this
-                                                       .IsDisposed) {
-                                                     return;
-                                                   }
+    this.fpsCallback_ =
+        TimedCallback.WithPeriod(
+            () => {
+              if (!this.Created || this.IsDisposed) {
+                return;
+              }
 
-                                                   try {
-                                                     this.Invoke(() => {
-                                                       var frameTime =
-                                                           this
-                                                               .sceneViewerPanel_
-                                                               .FrameTime;
-                                                       var fps =
-                                                           (frameTime ==
-                                                               TimeSpan.Zero)
-                                                               ? 0
-                                                               : 1 / frameTime
-                                                                   .TotalSeconds;
-                                                       this.Text =
-                                                           $"Universal Asset Tool ({fps:0.0} fps)";
-                                                     });
-                                                   } catch {
-                                                     // ignored, throws after window is closed
-                                                   }
-                                                 },
-                                                 .25f);
+              try {
+                this.Invoke(() => {
+                  var frameTime = this.sceneViewerPanel_.FrameTime;
+                  var fps = (frameTime == TimeSpan.Zero)
+                      ? 0
+                      : 1 / frameTime.TotalSeconds;
+                  this.Text = $"Universal Asset Tool ({fps:0.0} fps)";
+                });
+              } catch {
+                // ignored, throws after window is closed
+              }
+            },
+            .25f);
 
     this.fileBundleTreeView_.DirectorySelected += this.OnDirectorySelect_;
     this.fileBundleTreeView_.FileSelected += this.OnFileBundleSelect_;
@@ -99,16 +100,16 @@ public partial class UniversalAssetToolForm : Form {
     => this.modelToolStrip_.DirectoryNode = directoryNode;
 
   private void OnFileBundleSelect_(IFileTreeLeafNode fileNode) {
-    switch (fileNode.File) {
-      case IAnnotatedFileBundle<IModelFileBundle> modelFileBundle: {
+    switch (fileNode.File.FileBundle) {
+      case IModelFileBundle modelFileBundle: {
         this.SelectModel_(fileNode, modelFileBundle);
         break;
       }
-      case IAnnotatedFileBundle<IAudioFileBundle> audioFileBundle: {
-        this.SelectAudio_(audioFileBundle.TypedFileBundle);
+      case IAudioFileBundle audioFileBundle: {
+        this.SelectAudio_(audioFileBundle);
         break;
       }
-      case IAnnotatedFileBundle<ISceneFileBundle> sceneFileBundle: {
+      case ISceneFileBundle sceneFileBundle: {
         this.SelectScene_(fileNode, sceneFileBundle);
         break;
       }
@@ -117,20 +118,22 @@ public partial class UniversalAssetToolForm : Form {
     }
   }
 
-  private void SelectScene_(
-      IFileTreeLeafNode fileNode,
-      IAnnotatedFileBundle<ISceneFileBundle> sceneFileBundle) {
-    var scene =
-        new GlobalSceneImporter().ImportScene(sceneFileBundle.TypedFileBundle);
+  private void SelectScene_(IFileTreeLeafNode fileNode,
+                            ISceneFileBundle sceneFileBundle) {
+    var scene = new GlobalSceneImporter().ImportScene(sceneFileBundle);
     this.UpdateScene_(fileNode, sceneFileBundle, scene);
   }
 
   private void SelectModel_(
       IFileTreeLeafNode fileNode,
-      IAnnotatedFileBundle<IModelFileBundle> modelFileBundle) {
-    var model =
-        new GlobalModelImporter().ImportModel(modelFileBundle.TypedFileBundle);
+      IModelFileBundle modelFileBundle) {
+    var model = new GlobalModelImporter().ImportModel(modelFileBundle);
+    this.UpdateModel_(fileNode, modelFileBundle, model);
+  }
 
+  private void UpdateModel_(IFileTreeLeafNode? fileNode,
+                            IModelFileBundle modelFileBundle,
+                            IModel model) {
     var scene = new SceneImpl();
     var area = scene.AddArea();
     var obj = area.AddObject();
@@ -195,8 +198,8 @@ public partial class UniversalAssetToolForm : Form {
     this.UpdateScene_(fileNode, modelFileBundle, scene);
   }
 
-  private void UpdateScene_(IFileTreeLeafNode fileNode,
-                            IAnnotatedFileBundle fileBundle,
+  private void UpdateScene_(IFileTreeLeafNode? fileNode,
+                            IFileBundle fileBundle,
                             IScene scene) {
     this.sceneViewerPanel_.FileBundleAndScene?.Item2.Dispose();
     this.sceneViewerPanel_.FileBundleAndScene = (fileBundle, scene);
@@ -206,10 +209,9 @@ public partial class UniversalAssetToolForm : Form {
     this.modelTabs_.AnimationPlaybackManager =
         this.sceneViewerPanel_.AnimationPlaybackManager;
 
-    this.modelToolStrip_.DirectoryNode = fileNode.Parent;
+    this.modelToolStrip_.DirectoryNode = fileNode?.Parent;
     this.modelToolStrip_.FileNodeAndModel = (fileNode, model);
-    this.exportAsToolStripMenuItem.Enabled =
-        fileBundle.IsOfType<IModelFileBundle>(out _);
+    this.exportAsToolStripMenuItem.Enabled = fileBundle is IModelFileBundle;
 
     if (Config.Instance.ViewerSettings.AutomaticallyPlayGameAudioForModel) {
       var gameDirectory = fileNode.Parent;
@@ -231,6 +233,45 @@ public partial class UniversalAssetToolForm : Form {
 
   private void SelectAudio_(IAudioFileBundle audioFileBundle)
     => this.audioPlayerPanel_.AudioFileBundles = new[] { audioFileBundle };
+
+  private void importToolstripMenuItem_Click(object sender, EventArgs e) {
+    var plugins = new IModelImporterPlugin[] {
+        new AssimpModelImporterPlugin(),
+        new BmdModelImporterPlugin(),
+        new CmbModelImporterPlugin(),
+        new ModModelImporterPlugin()
+    };
+
+    var supportedExtensions =
+        plugins.SelectMany(plugin => plugin.FileExtensions).ToHashSet();
+
+
+    var dialog = new OpenFileDialog {
+        CheckFileExists = true,
+        Multiselect = true,
+        Title = "Select asset(s) for a single model",
+        Filter = $"All supported plugin extensions|{string.Join(';',
+          supportedExtensions
+              .Select(extension => $"*{extension}"))}",
+    };
+    dialog.FileOk += (o, args) => {
+      var inputFiles =
+          dialog.FileNames.Select(
+              fileName => (IReadOnlySystemFile) new FinFile(fileName));
+
+      var bestMatch =
+          plugins.FirstOrDefault(plugin => plugin.SupportsFiles(inputFiles));
+      if (bestMatch == null) {
+        // TODO: Show an error dialog
+        return;
+      }
+
+      var finModel = bestMatch.ImportModel(inputFiles, out var modelFileBundle);
+      this.UpdateModel_(null, modelFileBundle, finModel);
+    };
+
+    dialog.ShowDialog();
+  }
 
   private void exportAsToolStripMenuItem_Click(object sender, EventArgs e) {
     var fileBundleAndScene = this.sceneViewerPanel_.FileBundleAndScene;
@@ -282,8 +323,7 @@ public partial class UniversalAssetToolForm : Form {
     => Process.Start("explorer",
                      "https://github.com/MeltyPlayer/FinModelUtility");
 
-  private void
-      reportAnIssueToolStripMenuItem_Click(object sender, EventArgs e)
+  private void reportAnIssueToolStripMenuItem_Click(object sender, EventArgs e)
     => Process.Start("explorer",
                      "https://github.com/MeltyPlayer/FinModelUtility/issues/new");
 }

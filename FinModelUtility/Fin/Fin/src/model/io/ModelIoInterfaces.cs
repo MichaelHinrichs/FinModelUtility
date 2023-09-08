@@ -46,6 +46,7 @@ namespace fin.model.io {
     }
 
     IModel ImportModel(IEnumerable<IReadOnlySystemFile> files,
+                       out IModelFileBundle outModelFileBundle,
                        float frameRate = 30);
   }
 

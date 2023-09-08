@@ -33,11 +33,11 @@ namespace uni.ui.common.scene {
     private ISceneArea? singleArea_;
     private SceneAreaRenderer? singleAreaRenderer_;
 
-    private IAnnotatedFileBundle? fileBundle_;
+    private IFileBundle? fileBundle_;
 
     public TimeSpan FrameTime { get; private set; }
 
-    public (IAnnotatedFileBundle, IScene)? FileBundleAndScene {
+    public (IFileBundle, IScene)? FileBundleAndScene {
       get {
         var scene = this.scene_;
         return scene != null ? (this.fileBundle_!, scene) : null;

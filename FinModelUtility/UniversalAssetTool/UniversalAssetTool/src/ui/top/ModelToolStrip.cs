@@ -87,11 +87,12 @@ namespace uni.ui.top {
       }
     }
 
-    public (IFileTreeLeafNode, IModel?) FileNodeAndModel {
+    public (IFileTreeLeafNode?, IModel?) FileNodeAndModel {
       set {
         var (fileNode, model) = value;
 
-        this.isModelSelected_ = fileNode.File.IsOfType<IModelFileBundle>(out _);
+        this.isModelSelected_ =
+            fileNode?.File.IsOfType<IModelFileBundle>(out _) ?? false;
 
         if (this.isModelSelected_) {
           this.fileNodeAndModel_ = (fileNode, model!);
@@ -101,7 +102,7 @@ namespace uni.ui.top {
 
         var tooltipText = "Export selected model";
         if (this.isModelSelected_) {
-          var totalText = this.GetTotalNodeText_(fileNode);
+          var totalText = this.GetTotalNodeText_(fileNode!);
           tooltipText = $"Export '{totalText}'";
         }
 

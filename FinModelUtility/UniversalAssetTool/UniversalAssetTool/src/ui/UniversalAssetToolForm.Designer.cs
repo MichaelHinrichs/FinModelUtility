@@ -39,6 +39,7 @@ namespace uni.ui {
       this.audioPlayerPanel_ = new uni.ui.common.audio.AudioPlayerPanel();
       this.modelTabs_ = new uni.ui.right_panel.ModelTabs();
       this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.importToolStripMenuItem_ = new ToolStripMenuItem();
       this.exportAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -194,11 +195,19 @@ namespace uni.ui {
       // fileToolStripMenuItem
       // 
       this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.importToolStripMenuItem_,
             this.exportAsToolStripMenuItem,
             this.exitToolStripMenuItem});
       this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
       this.fileToolStripMenuItem.Size = new System.Drawing.Size(46, 24);
       this.fileToolStripMenuItem.Text = "File";
+      // 
+      // importToolStripMenuItem_
+      // 
+      this.importToolStripMenuItem_.Name = "importToolStripMenuItem_";
+      this.importToolStripMenuItem_.Size = new Size(224, 26);
+      this.importToolStripMenuItem_.Text = "Import";
+      this.importToolStripMenuItem_.Click += this.importToolstripMenuItem_Click;
       // 
       // exportAsToolStripMenuItem
       // 
@@ -341,6 +350,8 @@ namespace uni.ui {
     private SceneViewerPanel sceneViewerPanel_;
     private MenuStrip menuStrip;
     private ToolStripMenuItem fileToolStripMenuItem;
+    private ToolStripMenuItem importToolStripMenuItem_;
+    private ToolStripMenuItem exportAsToolStripMenuItem;
     private ToolStripMenuItem exitToolStripMenuItem;
     private ToolStripMenuItem helpToolStripMenuItem;
     private ToolStripMenuItem gitHubToolStripMenuItem;
@@ -351,7 +362,6 @@ namespace uni.ui {
     private top.ModelToolStrip modelToolStrip_;
     private SplitContainer splitContainer4;
     private AudioPlayerPanel audioPlayerPanel_;
-    private ToolStripMenuItem exportAsToolStripMenuItem;
     private SplitContainer splitContainer5;
     private CancellableProgressBar cancellableProgressBar_;
   }
