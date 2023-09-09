@@ -276,6 +276,9 @@ namespace fin.math.matrix.four {
     public void CopyScaleInto(out Scale dst)
       => this.Decompose(out _, out _, out dst);
 
+
+    private const bool STRICT_DECOMPOSITION = false;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Decompose(out Position translation,
                           out Quaternion rotation,
@@ -287,7 +290,8 @@ namespace fin.math.matrix.four {
               impl_,
               out Unsafe.As<Scale, Vector3>(ref scale),
               out rotation,
-              out Unsafe.As<Position, Vector3>(ref translation)),
+              out Unsafe.As<Position, Vector3>(ref translation)) ||
+          !STRICT_DECOMPOSITION,
           "Failed to decompose matrix!");
     }
 

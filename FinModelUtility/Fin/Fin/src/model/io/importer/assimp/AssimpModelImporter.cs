@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 using Assimp;
 
@@ -18,6 +19,8 @@ using fin.math.rotations;
 using fin.model.impl;
 
 using SixLabors.ImageSharp.PixelFormats;
+
+using Quaternion = System.Numerics.Quaternion;
 
 namespace fin.model.io.importer.assimp {
   public class AssimpModelImporter : IModelImporter<AssimpModelFileBundle> {
@@ -226,6 +229,11 @@ namespace fin.model.io.importer.assimp {
           }
         }
 
+        var usesColorBytes = assMesh.VertexColorChannels
+                                    .Where((_, i) => assMesh.HasVertexColors(i))
+                                    .SelectMany(a => a)
+                                    .Any(c => float.IsNaN(c.R));
+
         // TODO: Add support for colors
         for (var colorIndex = 0;
              colorIndex < assMesh.VertexColorChannelCount;
@@ -237,13 +245,29 @@ namespace fin.model.io.importer.assimp {
           var assColors = assMesh.VertexColorChannels[colorIndex];
           for (var i = 0; i < finVertices.Length; ++i) {
             var assColor = assColors[i];
-            finVertices[i]
-                .SetColor(colorIndex,
-                          FinColor.FromRgbaFloats(
-                              assColor.R,
-                              assColor.G,
-                              assColor.B,
-                              assColor.A));
+
+            // This is so janky, what the heck is wrong with Assimp???
+            if (usesColorBytes) {
+              var floatValue = assColor.R;
+
+              var intValue = Unsafe.As<float, int>(ref floatValue);
+              FinColor.SplitRgba(intValue,
+                                 out var r,
+                                 out var g,
+                                 out var b,
+                                 out var a);
+
+              finVertices[i]
+                  .SetColor(colorIndex, FinColor.FromRgbaBytes(r, g, b, a));
+            } else {
+              finVertices[i]
+                  .SetColor(colorIndex,
+                            FinColor.FromRgbaFloats(
+                                assColor.R,
+                                assColor.G,
+                                assColor.B,
+                                assColor.A));
+            }
           }
         }
 
