@@ -32,7 +32,7 @@ namespace fin.model {
 
     TVertex AddVertex(Position position);
     TVertex AddVertex(Vector3 position);
-    TVertex AddVertex(IVector3 position);
+    TVertex AddVertex(IReadOnlyVector3 position);
     TVertex AddVertex(float x, float y, float z);
   }
 

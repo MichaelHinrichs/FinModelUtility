@@ -12,6 +12,7 @@ using f3dzex2.model;
 
 using fin.data.queue;
 using fin.model;
+using fin.model.io;
 using fin.model.io.importer;
 
 using schema.binary;
@@ -29,7 +30,8 @@ namespace UoT.api {
   }
 
   public class OotModelImporter : IModelImporter<OotModelFileBundle> {
-    public IModel ImportModel(OotModelFileBundle modelFileBundle) {
+    public IModel ImportModel(OotModelFileBundle modelFileBundle,
+                              IModelParameters? modelParameters = null) {
       var zFile = modelFileBundle.ZFile;
       var isLink = zFile.FileName is "object_link_boy"
                                      or "object_link_child"
@@ -41,7 +43,7 @@ namespace UoT.api {
 
       var n64Hardware = new N64Hardware<N64Memory>();
       n64Hardware.Memory = n64Memory;
-      n64Hardware.Rdp = new Rdp {Tmem = new JankTmem(n64Hardware)};
+      n64Hardware.Rdp = new Rdp { Tmem = new JankTmem(n64Hardware) };
       n64Hardware.Rsp = new Rsp();
 
       n64Hardware.Rsp.GeometryMode = (GeometryMode) 0x22405;
@@ -140,7 +142,7 @@ namespace UoT.api {
             gameplayKeep,
             ootLimbs.Count);
         } else {
-          var animationFiles = new List<IZFile> {zFile};
+          var animationFiles = new List<IZFile> { zFile };
           ootAnimations = animationReader.GetCommonAnimations(
               n64Memory,
               animationFiles,
@@ -192,7 +194,8 @@ namespace UoT.api {
 
     private void AddOotAnimationTrackToFin_(IAnimationTrack ootAnimationTrack,
                                             int axis,
-                                            IEulerRadiansRotationTrack3d rotations) {
+                                            IEulerRadiansRotationTrack3d
+                                                rotations) {
       for (var f = 0; f < ootAnimationTrack.Frames.Count; ++f) {
         rotations.Set(f,
                       axis,

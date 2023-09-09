@@ -12,6 +12,7 @@ using fin.model;
 using fin.model.io;
 using fin.model.io.importer.assimp;
 using fin.scene;
+using fin.schema.vector;
 using fin.util.asserts;
 using fin.util.enumerables;
 using fin.util.time;
@@ -158,9 +159,9 @@ public partial class UniversalAssetToolForm : Form {
                                   out var normalX,
                                   out var normalY,
                                   out var normalZ);
-      normal.X = normalX;
-      normal.Y = normalY;
-      normal.Z = normalZ;
+      firstLight.SetNormal(new Vector3f {
+          X = normalX, Y = normalY, Z = normalZ
+      });
     }
 
     if (Config.Instance.ViewerSettings.RotateLight) {
@@ -185,10 +186,11 @@ public partial class UniversalAssetToolForm : Form {
                                  2 * MathF.PI *
                                  (1f * currentIndex / enabledCount);
 
-            var normal = light.Normal;
-            normal.X = (float) (.5f * Math.Cos(angleInRadians));
-            normal.Y = (float) (.5f * Math.Sin(angleInRadians));
-            normal.Z = (float) (.5f * Math.Cos(2 * angleInRadians));
+            light.SetNormal(new Vector3f {
+                X = (float) (.5f * Math.Cos(angleInRadians)),
+                Y = (float) (.5f * Math.Sin(angleInRadians)),
+                Z = (float) (.5f * Math.Cos(2 * angleInRadians)),
+            });
 
             currentIndex++;
           }

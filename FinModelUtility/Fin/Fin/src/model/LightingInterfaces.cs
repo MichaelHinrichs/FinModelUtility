@@ -3,10 +3,10 @@
 using fin.color;
 
 namespace fin.model {
-  public interface ILighting {
-    IReadOnlyList<ILight> Lights { get; }
-    ILight CreateLight();
-    IColor AmbientLightColor { get; set; }
+  // Read only
+  public interface IReadOnlyLighting {
+    IReadOnlyList<IReadOnlyLight> Lights { get; }
+    IColor AmbientLightColor { get; }
   }
 
   public enum AttenuationFunction {
@@ -21,29 +21,46 @@ namespace fin.model {
     CLAMP,
   }
 
-  public interface ILight {
+  public interface IReadOnlyLight {
     string Name { get; }
-    ILight SetName(string name);
+    bool Enabled { get; }
 
-    bool Enabled { get; set; }
-
-    IVector3 Position { get; }
-    ILight SetPosition(IVector3 position);
-
-    IVector3 Normal { get; }
-    ILight SetNormal(IVector3 normal);
-
+    IReadOnlyVector3 Position { get; }
+    IReadOnlyVector3 Normal { get; }
     IColor Color { get; }
-    ILight SetColor(IColor color);
 
-    IVector3 CosineAttenuation { get; }
-    ILight SetCosineAttenuation(IVector3 cosineAttenuation);
-    IVector3 DistanceAttenuation { get; }
-    ILight SetDistanceAttenuation(IVector3 distanceAttenuation);
+    IReadOnlyVector3 CosineAttenuation { get; }
+    IReadOnlyVector3 DistanceAttenuation { get; }
 
     AttenuationFunction AttenuationFunction { get; }
-    ILight SetAttenuationFunction(AttenuationFunction attenuationFunction);
     DiffuseFunction DiffuseFunction { get; }
+  }
+
+  // Mutable
+  public interface ILighting: IReadOnlyLighting {
+    IReadOnlyList<IReadOnlyLight> IReadOnlyLighting.Lights => this.Lights;
+    new IReadOnlyList<ILight> Lights { get; }
+
+    ILight CreateLight();
+
+    IColor IReadOnlyLighting.AmbientLightColor => this.AmbientLightColor;
+    new IColor AmbientLightColor { get; set; }
+  }
+
+  public interface ILight : IReadOnlyLight {
+    ILight SetName(string name);
+
+    bool IReadOnlyLight.Enabled => this.Enabled;
+    new bool Enabled { get; set; }
+
+    ILight SetPosition(IReadOnlyVector3 position);
+    ILight SetNormal(IReadOnlyVector3 normal);
+    ILight SetColor(IColor color);
+
+    ILight SetCosineAttenuation(IReadOnlyVector3 cosineAttenuation);
+    ILight SetDistanceAttenuation(IReadOnlyVector3 distanceAttenuation);
+
+    ILight SetAttenuationFunction(AttenuationFunction attenuationFunction);
     ILight SetDiffuseFunction(DiffuseFunction diffuseFunction);
   }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 
 using cmb.material;
@@ -19,6 +18,7 @@ using fin.io;
 using fin.math;
 using fin.model;
 using fin.model.impl;
+using fin.model.io;
 using fin.model.io.importer;
 using fin.util.asserts;
 
@@ -32,7 +32,8 @@ namespace cmb.api {
   public class CmbModelImporter : IModelImporter<CmbModelFileBundle> {
     // TODO: Split these out into separate classes
     // TODO: Reading from the file here is gross
-    public IModel ImportModel(CmbModelFileBundle modelFileBundle) {
+    public IModel ImportModel(CmbModelFileBundle modelFileBundle,
+                              IModelParameters? modelParameters = null) {
       var cmbFile = modelFileBundle.CmbFile;
       var csabFiles = modelFileBundle.CsabFiles;
       var ctxbFiles = modelFileBundle.CtxbFiles;

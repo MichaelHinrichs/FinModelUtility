@@ -11,7 +11,8 @@ namespace fin.model {
       Set(frame, 2, z);
     }
 
-    void Set<TVector3>(int frame, TVector3 values) where TVector3 : IVector3 {
+    void Set<TVector3>(int frame, TVector3 values) where TVector3 :
+        IReadOnlyVector3 {
       Set(frame, 0, values.X);
       Set(frame, 1, values.Y);
       Set(frame, 2, values.Z);

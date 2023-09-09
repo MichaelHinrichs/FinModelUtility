@@ -4,6 +4,7 @@ using fin.data.queue;
 using fin.math.rotations;
 using fin.model;
 using fin.model.impl;
+using fin.model.io;
 using fin.model.io.importer;
 
 using level5.schema;
@@ -16,7 +17,8 @@ using Quaternion = System.Numerics.Quaternion;
 
 namespace level5.api {
   public class XcModelImporter : IModelImporter<XcModelFileBundle> {
-    public IModel ImportModel(XcModelFileBundle modelFileBundle) {
+    public IModel ImportModel(XcModelFileBundle modelFileBundle,
+                              IModelParameters? modelParameters = null) {
       var endianness = Endianness.LittleEndian;
 
       var modelXcFile = modelFileBundle.ModelXcFile;

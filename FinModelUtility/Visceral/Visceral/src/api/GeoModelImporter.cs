@@ -5,6 +5,7 @@ using fin.math.matrix.four;
 using fin.math.rotations;
 using fin.model;
 using fin.model.impl;
+using fin.model.io;
 using fin.model.io.importer;
 using fin.schema.matrix;
 
@@ -13,7 +14,8 @@ using visceral.schema.rcb;
 
 namespace visceral.api {
   public class GeoModelImporter : IModelImporter<GeoModelFileBundle> {
-    public IModel ImportModel(GeoModelFileBundle modelFileBundle) {
+    public IModel ImportModel(GeoModelFileBundle modelFileBundle,
+                              IModelParameters? modelParameters = null) {
       var finModel = new ModelImpl();
 
       // Builds textures

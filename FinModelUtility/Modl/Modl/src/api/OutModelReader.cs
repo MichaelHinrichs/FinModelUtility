@@ -10,6 +10,7 @@ using fin.io;
 using fin.math;
 using fin.model;
 using fin.model.impl;
+using fin.model.io;
 using fin.model.io.importer;
 using fin.util.asserts;
 using fin.util.enumerables;
@@ -22,7 +23,8 @@ using schema.binary;
 
 namespace modl.api {
   public class OutModelImporter : IModelImporter<OutModelFileBundle> {
-    public IModel ImportModel(OutModelFileBundle modelFileBundle)
+    public IModel ImportModel(OutModelFileBundle modelFileBundle,
+                              IModelParameters? modelParameters = null)
       => modelFileBundle.TextureDirectories != null
           ? this.ImportModel(modelFileBundle.OutFile,
                              modelFileBundle.TextureDirectories

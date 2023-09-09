@@ -1,5 +1,6 @@
 ﻿using fin.model;
 using fin.model.impl;
+using fin.model.io;
 using fin.model.io.importer;
 
 using schema.text;
@@ -10,7 +11,8 @@ using PrimitiveType = xmod.schema.xmod.PrimitiveType;
 
 namespace xmod.api {
   public class XmodModelImporter : IModelImporter<XmodModelFileBundle> {
-    public IModel ImportModel(XmodModelFileBundle modelFileBundle) {
+    public IModel ImportModel(XmodModelFileBundle modelFileBundle,
+                              IModelParameters? modelParameters = null) {
       using var tr =
           new FinTextReader(modelFileBundle.XmodFile.OpenRead());
 

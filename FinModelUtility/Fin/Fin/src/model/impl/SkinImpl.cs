@@ -58,7 +58,7 @@ namespace fin.model.impl {
       public TVertex AddVertex(Vector3 position)
         => this.AddVertex(new Position(position.X, position.Y, position.Z));
 
-      public TVertex AddVertex(IVector3 position)
+      public TVertex AddVertex(IReadOnlyVector3 position)
         => this.AddVertex(new Position(position.X, position.Y, position.Z));
 
       public TVertex AddVertex(float x, float y, float z)

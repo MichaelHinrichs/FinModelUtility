@@ -44,7 +44,7 @@ namespace fin.model.impl {
                                             localPosition.Y,
                                             localPosition.Z));
 
-    public void SetLocalPosition(IVector3 localPosition)
+    public void SetLocalPosition(IReadOnlyVector3 localPosition)
       => this.SetLocalPosition(new Position(localPosition.X,
                                             localPosition.Y,
                                             localPosition.Z));
@@ -135,7 +135,7 @@ namespace fin.model.impl {
                                             localPosition.Y,
                                             localPosition.Z));
 
-    public void SetLocalPosition(IVector3 localPosition)
+    public void SetLocalPosition(IReadOnlyVector3 localPosition)
       => this.SetLocalPosition(new Position(localPosition.X,
                                             localPosition.Y,
                                             localPosition.Z));
@@ -158,7 +158,7 @@ namespace fin.model.impl {
                                               localNormal.Value.Z)
                                  : null);
 
-    public void SetLocalNormal(IVector3? localNormal)
+    public void SetLocalNormal(IReadOnlyVector3? localNormal)
       => this.SetLocalNormal(localNormal != null
                                  ? new Normal(localNormal.X,
                                               localNormal.Y,
@@ -232,7 +232,7 @@ namespace fin.model.impl {
                                             localPosition.Y,
                                             localPosition.Z));
 
-    public void SetLocalPosition(IVector3 localPosition)
+    public void SetLocalPosition(IReadOnlyVector3 localPosition)
       => this.SetLocalPosition(new Position(localPosition.X,
                                             localPosition.Y,
                                             localPosition.Z));
@@ -255,7 +255,7 @@ namespace fin.model.impl {
                                               localNormal.Value.Z)
                                  : null);
 
-    public void SetLocalNormal(IVector3? localNormal)
+    public void SetLocalNormal(IReadOnlyVector3? localNormal)
       => this.SetLocalNormal(localNormal != null
                                  ? new Normal(localNormal.X,
                                               localNormal.Y,
@@ -358,7 +358,7 @@ namespace fin.model.impl {
                                             localPosition.Y,
                                             localPosition.Z));
 
-    public void SetLocalPosition(IVector3 localPosition)
+    public void SetLocalPosition(IReadOnlyVector3 localPosition)
       => this.SetLocalPosition(new Position(localPosition.X,
                                             localPosition.Y,
                                             localPosition.Z));
@@ -381,7 +381,7 @@ namespace fin.model.impl {
                                               localNormal.Value.Z)
                                  : null);
 
-    public void SetLocalNormal(IVector3? localNormal)
+    public void SetLocalNormal(IReadOnlyVector3? localNormal)
       => this.SetLocalNormal(localNormal != null
                                  ? new Normal(localNormal.X,
                                               localNormal.Y,
@@ -509,7 +509,7 @@ namespace fin.model.impl {
                                             localPosition.Y,
                                             localPosition.Z));
 
-    public void SetLocalPosition(IVector3 localPosition)
+    public void SetLocalPosition(IReadOnlyVector3 localPosition)
       => this.SetLocalPosition(new Position(localPosition.X,
                                             localPosition.Y,
                                             localPosition.Z));
@@ -532,7 +532,7 @@ namespace fin.model.impl {
                                               localNormal.Value.Z)
                                  : null);
 
-    public void SetLocalNormal(IVector3? localNormal)
+    public void SetLocalNormal(IReadOnlyVector3? localNormal)
       => this.SetLocalNormal(localNormal != null
                                  ? new Normal(localNormal.X,
                                               localNormal.Y,

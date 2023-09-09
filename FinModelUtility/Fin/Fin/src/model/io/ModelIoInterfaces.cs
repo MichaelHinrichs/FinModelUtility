@@ -4,7 +4,6 @@ using System.Linq;
 using fin.io;
 using fin.io.bundles;
 using fin.language.equations.fixedFunction;
-using fin.util.linq;
 
 namespace fin.model.io {
   public interface IModelFileBundle : IFileBundle {

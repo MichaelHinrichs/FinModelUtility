@@ -9,6 +9,7 @@ using fin.log;
 using fin.math.matrix.four;
 using fin.model;
 using fin.model.impl;
+using fin.model.io;
 using fin.model.io.importer;
 using fin.schema.matrix;
 using fin.util.asserts;
@@ -31,7 +32,8 @@ namespace j3d.api {
   using GxPrimitiveType = BMD.SHP1Section.Batch.Packet.Primitive.GXPrimitive;
 
   public class BmdModelImporter : IModelImporter<BmdModelFileBundle> {
-    public IModel ImportModel(BmdModelFileBundle modelFileBundle) {
+    public IModel ImportModel(BmdModelFileBundle modelFileBundle,
+                              IModelParameters? modelParameters = null) {
       var logger = Logging.Create<BmdModelImporter>();
 
       var bmd = new BMD(modelFileBundle.BmdFile.ReadAllBytes());

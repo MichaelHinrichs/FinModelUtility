@@ -6,6 +6,7 @@ using fin.io;
 using fin.math.rotations;
 using fin.model;
 using fin.model.impl;
+using fin.model.io;
 using fin.model.io.importer;
 
 using modl.schema.anim;
@@ -21,10 +22,12 @@ using schema.binary;
 
 namespace modl.api {
   public class ModlModelImporter : IAsyncModelImporter<ModlModelFileBundle> {
-    public Task<IModel> ImportModelAsync(ModlModelFileBundle modelFileBundle)
+    public Task<IModel> ImportModelAsync(
+        ModlModelFileBundle modelFileBundle,
+        IModelParameters? modelParameters = null)
       => this.ImportModelAsync(modelFileBundle.ModlFile,
-                             modelFileBundle.AnimFiles?.ToArray(),
-                             modelFileBundle.GameVersion);
+                               modelFileBundle.AnimFiles?.ToArray(),
+                               modelFileBundle.GameVersion);
 
     public async Task<IModel> ImportModelAsync(
         IReadOnlyTreeFile modlFile,
@@ -101,7 +104,11 @@ namespace modl.api {
         }
 
         foreach (var animFile in animFiles ?? Array.Empty<ISystemFile>()) {
-          AddAnimFileToModel_(model, animFile, gameVersion, flipSign, finBonesByIdentifier);
+          AddAnimFileToModel_(model,
+                              animFile,
+                              gameVersion,
+                              flipSign,
+                              finBonesByIdentifier);
         }
 
         var textureDictionary = new LazyDictionary<string, Task<ITexture>>(
@@ -134,15 +141,16 @@ namespace modl.api {
           var modlMaterials = modlNode.Materials;
           var finMaterials = new ITextureMaterial[modlMaterials.Count];
           await Task.WhenAll(modlMaterials.Select(async (modlMaterial, i) => {
-            var textureName = modlMaterial.Texture1.ToLower();
-            if (textureName == "") {
-              return;
-            }
+                      var textureName = modlMaterial.Texture1.ToLower();
+                      if (textureName == "") {
+                        return;
+                      }
 
-            var finTexture = await textureDictionary[textureName];
-            finMaterials[i] = model.MaterialManager
-                                  .AddTextureMaterial(finTexture);
-          })).ConfigureAwait(false);
+                      var finTexture = await textureDictionary[textureName];
+                      finMaterials[i] = model.MaterialManager
+                                             .AddTextureMaterial(finTexture);
+                    }))
+                    .ConfigureAwait(false);
 
           foreach (var modlMesh in modlNode.Meshes) {
             var finMaterial = finMaterials[modlMesh.MaterialIndex];
@@ -219,12 +227,13 @@ namespace modl.api {
                                             IReadOnlyTreeFile animFile,
                                             GameVersion gameVersion,
                                             int flipSign,
-                                            IDictionary<string, IBone> finBonesByIdentifier) {
+                                            IDictionary<string, IBone>
+                                                finBonesByIdentifier) {
       var anim = gameVersion switch {
-        GameVersion.BW1 => (IAnim) animFile.ReadNew<Bw1Anim>(
-            Endianness.BigEndian),
-        GameVersion.BW2 => animFile.ReadNew<Bw2Anim>(
-            Endianness.BigEndian)
+          GameVersion.BW1 => (IAnim) animFile.ReadNew<Bw1Anim>(
+              Endianness.BigEndian),
+          GameVersion.BW2 => animFile.ReadNew<Bw2Anim>(
+              Endianness.BigEndian)
       };
 
       var maxFrameCount = -1;
