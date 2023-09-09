@@ -108,20 +108,19 @@ namespace fin.model.impl {
         TextureMinFilter.LINEAR_MIPMAP_LINEAR;
 
 
-      public IVector2 Offset { get; } = new Vector2f();
+      public IReadOnlyVector2 Offset { get; private set; } = new Vector2f();
 
       public ITexture SetOffset(float x, float y) {
-        this.Offset.X = x;
-        this.Offset.Y = y;
+        this.Offset = new Vector2f { X = x, Y = y };
         return this;
       }
 
 
-      public IVector2 Scale { get; } = new Vector2f { X = 1, Y = 1 };
+      public IReadOnlyVector2 Scale { get; private set; } =
+        new Vector2f { X = 1, Y = 1 };
 
       public ITexture SetScale(float x, float y) {
-        this.Scale.X = x;
-        this.Scale.Y = y;
+        this.Scale = new Vector2f { X = x, Y = y };
         return this;
       }
 

@@ -122,9 +122,17 @@ namespace fin.model {
   }
 
 
-  public interface IVector2 {
-    float X { get; set; }
-    float Y { get; set; }
+  public interface IReadOnlyVector2 {
+    float X { get; }
+    float Y { get; }
+  }
+
+  public interface IVector2 : IReadOnlyVector2 {
+    float IReadOnlyVector2.X => this.X;
+    new float X { get; set; }
+
+    float IReadOnlyVector2.Y => this.Y;
+    new float Y { get; set; }
   }
 
 

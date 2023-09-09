@@ -87,7 +87,7 @@ namespace fin.model {
   public interface ISingleUvVertex : IReadOnlySingleUvVertex, IVertex {
     void SetUv(TexCoord? uv);
     void SetUv(Vector2? uv);
-    void SetUv(IVector2? uv);
+    void SetUv(IReadOnlyVector2? uv);
     void SetUv(float u, float v);
   }
 

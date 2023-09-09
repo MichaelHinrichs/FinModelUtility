@@ -324,10 +324,10 @@ namespace fin.model {
     TextureMagFilter MagFilter { get; set; }
     TextureMinFilter MinFilter { get; set; }
 
-    IVector2 Offset { get; }
+    IReadOnlyVector2 Offset { get; }
     ITexture SetOffset(float x, float y);
 
-    IVector2 Scale { get; }
+    IReadOnlyVector2 Scale { get; }
     ITexture SetScale(float x, float y);
 
     float RotationDegrees { get; }

@@ -178,7 +178,7 @@ namespace fin.model.impl {
                         ? new TexCoord { U = uv.Value.X, V = uv.Value.Y }
                         : null);
 
-    public void SetUv(IVector2? uv)
+    public void SetUv(IReadOnlyVector2? uv)
       => this.SetUv(uv != null
                         ? new TexCoord { U = uv.X, V = uv.Y }
                         : null);
@@ -306,7 +306,7 @@ namespace fin.model.impl {
                         ? new TexCoord { U = uv.Value.X, V = uv.Value.Y }
                         : null);
 
-    public void SetUv(IVector2? uv)
+    public void SetUv(IReadOnlyVector2? uv)
       => this.SetUv(uv != null
                         ? new TexCoord { U = uv.X, V = uv.Y }
                         : null);
@@ -457,7 +457,7 @@ namespace fin.model.impl {
                         ? new TexCoord { U = uv.Value.X, V = uv.Value.Y }
                         : null);
 
-    public void SetUv(IVector2? uv)
+    public void SetUv(IReadOnlyVector2? uv)
       => this.SetUv(uv != null
                         ? new TexCoord { U = uv.X, V = uv.Y }
                         : null);
@@ -655,7 +655,7 @@ namespace fin.model.impl {
                         ? new TexCoord { U = uv.Value.X, V = uv.Value.Y }
                         : null);
 
-    public void SetUv(IVector2? uv)
+    public void SetUv(IReadOnlyVector2? uv)
       => this.SetUv(uv != null
                         ? new TexCoord { U = uv.X, V = uv.Y }
                         : null);
