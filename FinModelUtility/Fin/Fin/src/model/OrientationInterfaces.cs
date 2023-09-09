@@ -145,10 +145,25 @@ namespace fin.model {
     new float Z { get; set; }
   }
 
-  public interface IVector4 {
+
+  public interface IReadOnlyVector4 {
+    float X { get; }
+    float Y { get; }
+    float Z { get; }
+    float W { get; }
+  }
+
+  public interface IVector4 : IReadOnlyVector4 {
+    float IReadOnlyVector4.X => this.X;
     float X { get; set; }
+
+    float IReadOnlyVector4.Y => this.Y;
     float Y { get; set; }
+    
+    float IReadOnlyVector4.Z => this.Z;
     float Z { get; set; }
+    
+    float IReadOnlyVector4.W => this.W;
     float W { get; set; }
   }
 

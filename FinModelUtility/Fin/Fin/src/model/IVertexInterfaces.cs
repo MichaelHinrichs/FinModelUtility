@@ -39,7 +39,7 @@ namespace fin.model {
   public interface ITangentVertex : IReadOnlyTangentVertex, IVertex {
     void SetLocalTangent(Tangent? localTangent);
     void SetLocalTangent(Vector4? localTangent);
-    void SetLocalTangent(IVector4? localTangent);
+    void SetLocalTangent(IReadOnlyVector4? localTangent);
     void SetLocalTangent(float x, float y, float z, float w);
   }
 
@@ -59,7 +59,7 @@ namespace fin.model {
     void SetColor(Color? color);
     void SetColor(IColor? color);
     void SetColor(Vector4? color);
-    void SetColor(IVector4? color);
+    void SetColor(IReadOnlyVector4? color);
     void SetColorBytes(byte r, byte g, byte b, byte a);
   }
 

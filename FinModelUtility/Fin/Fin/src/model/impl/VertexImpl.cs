@@ -70,7 +70,7 @@ namespace fin.model.impl {
                                color.Value.W)
                            : null);
 
-    public void SetColor(IVector4? color)
+    public void SetColor(IReadOnlyVector4? color)
       => this.SetColor(color != null
                            ? FinColor.FromRgbaFloats(
                                color.X,
@@ -282,7 +282,7 @@ namespace fin.model.impl {
                                color.Value.W)
                            : null);
 
-    public void SetColor(IVector4? color)
+    public void SetColor(IReadOnlyVector4? color)
       => this.SetColor(color != null
                            ? FinColor.FromRgbaFloats(
                                color.X,
@@ -406,7 +406,7 @@ namespace fin.model.impl {
                                                 localTangent.Value.W)
                                   : null);
 
-    public void SetLocalTangent(IVector4? localTangent)
+    public void SetLocalTangent(IReadOnlyVector4? localTangent)
       => this.SetLocalTangent(localTangent != null
                                   ? new Tangent(localTangent.X,
                                                 localTangent.Y,
@@ -433,7 +433,7 @@ namespace fin.model.impl {
                                color.Value.W)
                            : null);
 
-    public void SetColor(IVector4? color)
+    public void SetColor(IReadOnlyVector4? color)
       => this.SetColor(color != null
                            ? FinColor.FromRgbaFloats(
                                color.X,
@@ -557,7 +557,7 @@ namespace fin.model.impl {
                                                 localTangent.Value.W)
                                   : null);
 
-    public void SetLocalTangent(IVector4? localTangent)
+    public void SetLocalTangent(IReadOnlyVector4? localTangent)
       => this.SetLocalTangent(localTangent != null
                                   ? new Tangent(localTangent.X,
                                                 localTangent.Y,
@@ -601,7 +601,7 @@ namespace fin.model.impl {
                                color.Value.W)
                            : null);
 
-    public void SetColor(IVector4? color)
+    public void SetColor(IReadOnlyVector4? color)
       => this.SetColor(color != null
                            ? FinColor.FromRgbaFloats(
                                color.X,
