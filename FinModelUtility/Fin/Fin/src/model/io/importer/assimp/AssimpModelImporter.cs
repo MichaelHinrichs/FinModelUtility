@@ -4,10 +4,8 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 
 using Assimp;
-using Assimp.Unmanaged;
 
 using fin.color;
 using fin.data.lazy;
@@ -229,7 +227,7 @@ namespace fin.model.io.importer.assimp {
         }
 
         // TODO: Add support for colors
-        /*for (var colorIndex = 0;
+        for (var colorIndex = 0;
              colorIndex < assMesh.VertexColorChannelCount;
              colorIndex++) {
           if (!assMesh.HasVertexColors(colorIndex)) {
@@ -247,7 +245,7 @@ namespace fin.model.io.importer.assimp {
                               assColor.B,
                               assColor.A));
           }
-        }*/
+        }
 
         for (var uvIndex = 0;
              uvIndex < assMesh.TextureCoordinateChannelCount;

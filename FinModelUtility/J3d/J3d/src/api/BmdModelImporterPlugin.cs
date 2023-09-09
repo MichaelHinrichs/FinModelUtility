@@ -29,11 +29,10 @@ namespace j3d.api {
         out IModelFileBundle outModelFileBundle,
         float frameRate = 30) {
       var filesArray = files.ToArray();
-      var bcxFiles = filesArray.Where(file => file.FileType is ".bca" or ".bck")
-                               .ToArray();
-      var bmdFile = filesArray.Single(file => file.FileType == ".bmd");
-      var btiFiles =
-          filesArray.Where(file => file.FileType == ".bti").ToArray();
+
+      var bcxFiles = filesArray.WithFileTypes(".bca", ".bck").ToArray();
+      var bmdFile = filesArray.WithFileType(".bmd").Single();
+      var btiFiles = filesArray.WithFileType(".bti").ToArray();
 
       var bmdBundle = new BmdModelFileBundle {
           GameName = "",

@@ -31,13 +31,10 @@ namespace cmb.api {
                               out IModelFileBundle outModelFileBundle,
                               float frameRate = 30) {
       var filesArray = files.ToArray();
-      var csabFiles = filesArray.Where(file => file.FileType is ".csab")
-                                .ToArray();
-      var cmbFile = filesArray.Single(file => file.FileType == ".cmb");
-      var ctxbFiles =
-          filesArray.Where(file => file.FileType == ".ctxb").ToArray();
-      var shpaFiles =
-          filesArray.Where(file => file.FileType == ".shpa").ToArray();
+      var csabFiles = filesArray.WithFileType(".csab").ToArray();
+      var cmbFile = filesArray.WithFileType(".cmb").Single();
+      var ctxbFiles = filesArray.WithFileType(".ctxb").ToArray();
+      var shpaFiles = filesArray.WithFileType(".shpa").ToArray();
 
       var cmbBundle = new CmbModelFileBundle(
           "",

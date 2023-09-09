@@ -1,0 +1,51 @@
+﻿using fin.io;
+using fin.io.archive;
+using fin.util.strings;
+
+using schema.binary;
+
+using uni.platforms.threeDs.tools.gar.schema;
+
+namespace uni.platforms.threeDs.tools.gar {
+  public class GarReader : IArchiveReader<SubArchiveContentFile> {
+    public bool IsValidArchive(Stream archive) => true;
+
+    public IArchiveStream<SubArchiveContentFile> Decompress(Stream archive) {
+      if (!MagicTextUtil.Verify(archive, "LzS" + AsciiUtil.GetChar(0x1))) {
+        return new SubArchiveStream(archive);
+      }
+
+      var er = new EndianBinaryReader(archive);
+      var isCompressed =
+          new LzssDecompressor().TryToDecompress(er, out var decompressedGar);
+
+      archive.Position = 0;
+
+      return new SubArchiveStream(
+          isCompressed ? new MemoryStream(decompressedGar!) : archive);
+    }
+
+    public IEnumerable<SubArchiveContentFile> GetFiles(
+        IArchiveStream<SubArchiveContentFile> archiveStream) {
+      var er =
+          archiveStream.AsEndianBinaryReader(Endianness.LittleEndian);
+      var gar = new Gar(er);
+
+      foreach (var fileType in gar.FileTypes) {
+        foreach (var file in fileType.Files) {
+          var fileName = file.FullPath ?? file.FileName;
+
+          if (!fileName.EndsWith($".{fileType.TypeName}")) {
+            fileName = $"{fileName}.{fileType.TypeName}";
+          }
+
+          yield return new SubArchiveContentFile {
+              RelativeName = fileName,
+              Position = file.Position,
+              Length = file.Length,
+          };
+        }
+      }
+    }
+  }
+}

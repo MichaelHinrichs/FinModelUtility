@@ -16,5 +16,15 @@ namespace fin.io {
       fileType = fileType.ToLower();
       return files.Where(file => file.FileType.ToLower() == fileType);
     }
+
+    public static IEnumerable<TFile> WithFileTypes<TFile>(
+        this IEnumerable<TFile> files,
+        params string[] fileTypes) where TFile : IReadOnlyTreeFile {
+      for (var i = 0; i < fileTypes.Length; ++i) {
+        fileTypes[i] = fileTypes[i].ToLower();
+      }
+
+      return files.Where(file => fileTypes.Contains(file.FileType.ToLower()));
+    }
   }
 }

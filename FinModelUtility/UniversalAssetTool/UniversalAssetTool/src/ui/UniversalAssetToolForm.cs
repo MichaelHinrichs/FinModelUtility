@@ -22,6 +22,7 @@ using MathNet.Numerics;
 
 using mod.api;
 
+using uni.cli;
 using uni.config;
 using uni.games;
 using uni.ui.common.fileTreeView;
@@ -235,16 +236,9 @@ public partial class UniversalAssetToolForm : Form {
     => this.audioPlayerPanel_.AudioFileBundles = new[] { audioFileBundle };
 
   private void importToolstripMenuItem_Click(object sender, EventArgs e) {
-    var plugins = new IModelImporterPlugin[] {
-        new AssimpModelImporterPlugin(),
-        new BmdModelImporterPlugin(),
-        new CmbModelImporterPlugin(),
-        new ModModelImporterPlugin()
-    };
-
+    var plugins = PluginUtil.Plugins;
     var supportedExtensions =
         plugins.SelectMany(plugin => plugin.FileExtensions).ToHashSet();
-
 
     var dialog = new OpenFileDialog {
         CheckFileExists = true,

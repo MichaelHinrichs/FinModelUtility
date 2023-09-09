@@ -29,12 +29,7 @@ namespace uni.cli {
                    .SelectMany(s => s.GetTypes())
                    .Where(typeof(IExtractorOptions).IsAssignableFrom);
 
-      var plugins = new IModelImporterPlugin[] {
-          new AssimpModelImporterPlugin(),
-          new BmdModelImporterPlugin(),
-          new CmbModelImporterPlugin(),
-          new ModModelImporterPlugin()
-      };
+      var plugins = PluginUtil.Plugins;
 
       var verbTypes = extractorOptionTypes
                       .Concat(new[] {

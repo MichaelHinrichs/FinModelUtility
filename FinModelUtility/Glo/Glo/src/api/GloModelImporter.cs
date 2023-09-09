@@ -8,7 +8,6 @@ using fin.image.formats;
 using fin.io;
 using fin.model;
 using fin.model.impl;
-using fin.model.io;
 using fin.model.io.importer;
 using fin.util.asserts;
 
@@ -17,21 +16,6 @@ using glo.schema;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace glo.api {
-  public class GloModelFileBundle : IModelFileBundle {
-    public GloModelFileBundle(
-        IReadOnlyTreeFile gloFile,
-        IReadOnlyList<IReadOnlyTreeDirectory> textureDirectories) {
-      this.GloFile = gloFile;
-      this.TextureDirectories = textureDirectories;
-    }
-
-    public string GameName => "glover";
-    public IReadOnlyTreeFile MainFile => this.GloFile;
-
-    public IReadOnlyTreeFile GloFile { get; }
-    public IReadOnlyList<IReadOnlyTreeDirectory> TextureDirectories { get; }
-  }
-
   public class GloModelImporter : IModelImporter<GloModelFileBundle> {
     private readonly string[] hiddenNames_ = new[] { "Box01", "puzzle" };
 

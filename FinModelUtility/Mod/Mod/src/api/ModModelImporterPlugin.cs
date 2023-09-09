@@ -27,11 +27,8 @@ namespace mod.api {
         out IModelFileBundle outModelFileBundle,
         float frameRate = 30) {
       var filesArray = files.ToArray();
-      var anmFile =
-          filesArray.Where(file => file.FileType == ".anm")
-                    .ToArray()
-                    .SingleOrDefault();
-      var modFile = filesArray.Single(file => file.FileType is ".mod");
+      var anmFile = filesArray.WithFileType(".anm").SingleOrDefault();
+      var modFile = filesArray.WithFileType(".mod").Single();
 
       var modBundle = new ModModelFileBundle {
           GameName = "", AnmFile = anmFile, ModFile = modFile,
