@@ -14,6 +14,7 @@ using fin.language.equations.fixedFunction.impl;
 using fin.math.matrix.four;
 using fin.model;
 using fin.model.impl;
+using fin.model.io;
 using fin.util.image;
 
 using schema.binary;
@@ -44,6 +45,8 @@ namespace f3dzex2.model {
     /// </summary>
     public DlModelBuilder(IN64Hardware n64Hardware) {
       this.n64Hardware_ = n64Hardware;
+      this.Model = new ModelImpl();
+
       this.currentMesh_ = this.Model.Skin.AddMesh();
       this.vertices_ = new F3dVertices(n64Hardware, this.Model);
 
@@ -269,7 +272,7 @@ namespace f3dzex2.model {
               });
     }
 
-    public ModelImpl Model { get; } = new();
+    public ModelImpl Model { get; }
 
     public IReadOnlyFinMatrix4x4 Matrix {
       set => this.n64Hardware_.Rsp.Matrix = value;

@@ -1,16 +1,17 @@
 ﻿using fin.math.matrix.four;
+using fin.model;
 using fin.scene;
 
 namespace fin.ui.rendering.gl.scene {
   public class SceneObjectRenderer : IRenderable, IDisposable {
     private readonly ISceneObject sceneObject_;
 
-    public SceneObjectRenderer(ISceneObject sceneObject) {
+    public SceneObjectRenderer(ISceneObject sceneObject, ILighting? lighting) {
       this.sceneObject_ = sceneObject;
       this.ModelRenderers
           = sceneObject
             .Models
-            .Select(model => new SceneModelRenderer(model))
+            .Select(model => new SceneModelRenderer(model, lighting))
             .ToArray();
     }
 

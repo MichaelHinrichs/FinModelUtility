@@ -28,6 +28,7 @@ namespace uni.ui.common.scene {
     private float viewerScale_ = 1;
 
     private IScene? scene_;
+    private ILighting? lighting_;
     private SceneRenderer? sceneRenderer_;
 
     private ISceneArea? singleArea_;
@@ -37,10 +38,12 @@ namespace uni.ui.common.scene {
 
     public TimeSpan FrameTime { get; private set; }
 
-    public (IFileBundle, IScene)? FileBundleAndScene {
+    public (IFileBundle, IScene, ILighting?)? FileBundleAndSceneAndLighting {
       get {
         var scene = this.scene_;
-        return scene != null ? (this.fileBundle_!, scene) : null;
+        return scene != null
+            ? (this.fileBundle_!, scene, this.lighting_)
+            : null;
       }
       set {
         this.sceneRenderer_?.Dispose();
@@ -48,15 +51,15 @@ namespace uni.ui.common.scene {
         if (value == null) {
           this.fileBundle_ = null;
           this.scene_ = null;
+          this.lighting_ = null;
           this.sceneRenderer_ = null;
           this.singleArea_ = null;
           this.singleAreaRenderer_ = null;
           this.viewerScale_ = 1;
         } else {
-          this.fileBundle_ = value.Value.Item1;
+          (this.fileBundle_, this.scene_, this.lighting_) = value.Value;
 
-          this.scene_ = value.Value.Item2;
-          this.sceneRenderer_ = new SceneRenderer(this.scene_);
+          this.sceneRenderer_ = new SceneRenderer(this.scene_, this.lighting_);
 
           var areas = this.scene_?.Areas;
           this.singleArea_ = areas is { Count: 1 } ? areas[0] : null;
@@ -75,7 +78,7 @@ namespace uni.ui.common.scene {
       }
     }
 
-    private IScene? Scene => this.FileBundleAndScene?.Item2;
+    private IScene? Scene => this.scene_;
 
     public ISceneModel? FirstSceneModel
       => this.Scene

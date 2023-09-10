@@ -4,19 +4,16 @@ namespace fin.model.io.importer {
 
   public interface IModelImporter<in TModelFileBundle>
       where TModelFileBundle : IModelFileBundle {
-    IModel ImportModel(TModelFileBundle modelFileBundle,
-                       IModelParameters? modelParameters = null);
+    IModel ImportModel(TModelFileBundle modelFileBundle);
   }
 
   public interface IAsyncModelImporter<in TModelFileBundle>
       : IModelImporter<TModelFileBundle>
       where TModelFileBundle : IModelFileBundle {
     IModel IModelImporter<TModelFileBundle>.ImportModel(
-        TModelFileBundle modelFileBundle,
-        IModelParameters? modelParameters)
-      => this.ImportModelAsync(modelFileBundle, modelParameters).Result;
+        TModelFileBundle modelFileBundle)
+      => this.ImportModelAsync(modelFileBundle).Result;
 
-    Task<IModel> ImportModelAsync(TModelFileBundle modelFileBundle,
-                                  IModelParameters? modelParameters = null);
+    Task<IModel> ImportModelAsync(TModelFileBundle modelFileBundle);
   }
 }

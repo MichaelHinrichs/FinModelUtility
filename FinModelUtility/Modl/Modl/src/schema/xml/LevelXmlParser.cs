@@ -6,11 +6,11 @@ using System.Xml;
 using fin.color;
 using fin.data.queue;
 using fin.io;
-using fin.math;
 using fin.math.matrix.four;
 using fin.math.rotations;
 using fin.model;
 using fin.model.impl;
+using fin.model.io;
 using fin.scene;
 using fin.schema.vector;
 
@@ -49,8 +49,11 @@ namespace modl.schema.xml {
   }
 
   public class LevelXmlParser {
-    public IScene Parse(IReadOnlyTreeFile mainXmlFile,
-                        GameVersion gameVersion) {
+    public IScene Parse(BwSceneFileBundle bwSceneFileBundle,
+                        out ILighting? lighting) {
+      var mainXmlFile = bwSceneFileBundle.MainXmlFile;
+      var gameVersion = bwSceneFileBundle.GameVersion;
+
       var scene = new SceneImpl();
       var sceneArea = scene.AddArea();
 
@@ -64,12 +67,15 @@ namespace modl.schema.xml {
       var levelFilename =
           levelfilesTag["level"]["objectfiles"]["file"].GetAttribute("name");
       var levelXmlFile = mainXmlDirectory.AssertGetExistingFile(levelFilename);
-      ILighting? lighting = null;
-      var objectMap =
-          this.ReadObjectMap_(levelXmlFile,
-                              gameVersion,
-                              ref lighting,
-                              out var terrainLightScale);
+
+      var objectTags = this.ReadLevelXmlObjectTags_(levelXmlFile, gameVersion);
+
+      this.ParseLightingAndLightScale_(objectTags,
+                                       out lighting,
+                                       out var terrainLightScale);
+
+      var objectMap = this.ParseObjectMap_(objectTags);
+
 
       IBwTerrain bwTerrain;
       {
@@ -84,15 +90,220 @@ namespace modl.schema.xml {
       }
 
       {
-        AddObjects_(sceneArea,
-                    levelXmlFile,
-                    gameVersion,
-                    bwTerrain,
-                    objectMap,
-                    lighting);
+        AddObjects_(sceneArea, levelXmlFile, gameVersion, bwTerrain, objectMap);
       }
 
       return scene;
+    }
+
+    // TODO: Properly parse this into a structure, don't handle the raw XML
+    private XmlNode[] ReadLevelXmlObjectTags_(
+        IReadOnlyTreeFile levelXmlFile,
+        GameVersion gameVersion) {
+      Stream levelXmlStream;
+      if (gameVersion == GameVersion.BW2) {
+        using var gZipStream =
+            new GZipStream(levelXmlFile.OpenRead(),
+                           CompressionMode.Decompress);
+
+        levelXmlStream = new MemoryStream();
+        gZipStream.CopyTo(levelXmlStream);
+        levelXmlStream.Position = 0;
+      } else {
+        levelXmlStream = levelXmlFile.OpenRead();
+      }
+
+      using var levelXmlReader = new StreamReader(levelXmlStream);
+      var levelXml = new XmlDocument();
+      levelXml.LoadXml(levelXmlReader.ReadToEnd());
+
+      var instances = levelXml["Instances"];
+
+      var objectTags = instances.GetElementsByTagName("Object");
+      return objectTags.Cast<XmlNode>().ToArray();
+    }
+
+    private void ParseLightingAndLightScale_(
+        XmlNode[] objectTags,
+        out ILighting? lighting,
+        out float terrainLightScale) {
+      lighting = default;
+      terrainLightScale = 1;
+
+      foreach (var objectTag in objectTags) {
+        var objectType = objectTag.Attributes["type"].Value;
+
+        if (objectType == "cRenderParams") {
+          // TODO: Handle fog color
+
+          terrainLightScale =
+              float.Parse(objectTag.GetAttributeValue("mTerrainLightScale"));
+
+          lighting = new LightingImpl();
+          lighting.AmbientLightColor =
+              objectTag.GetAttributeLightColor("mSunAmbientColor");
+
+          {
+            var sunLight = lighting.CreateLight();
+            sunLight.SetColor(
+                objectTag.GetAttributeLightColor("mSunDirectionalColor"));
+
+            var sunYawRadians =
+                float.Parse(objectTag.GetAttributeValue("mSunRotation"));
+            var sunPitchRadians =
+                MathF.Asin(
+                    float.Parse(objectTag.GetAttributeValue("mSunElevation")));
+            FinTrig.FromPitchYawRadians(sunPitchRadians,
+                                        sunYawRadians,
+                                        out var sunXNormal,
+                                        out var sunYNormal,
+                                        out var sunZNormal);
+            sunLight.SetNormal(new Vector3f {
+                X = -sunXNormal, Y = -sunYNormal, Z = -sunZNormal,
+            });
+          }
+
+          {
+            var antiSunLight = lighting.CreateLight();
+            antiSunLight.SetColor(
+                objectTag.GetAttributeLightColor("mAntiSunDirectionalColor"));
+
+            var antiSunYawRadians =
+                float.Parse(objectTag.GetAttributeValue("mAntiSunRotation"));
+            var antiSunPitchRadians =
+                MathF.Asin(
+                    float.Parse(
+                        objectTag.GetAttributeValue("mAntiSunElevation")));
+            FinTrig.FromPitchYawRadians(antiSunPitchRadians,
+                                        antiSunYawRadians,
+                                        out var antiSunXNormal,
+                                        out var antiSunYNormal,
+                                        out var antiSunZNormal);
+            antiSunLight.SetNormal(new Vector3f {
+                X = -antiSunXNormal, Y = -antiSunYNormal, Z = -antiSunZNormal,
+            });
+          }
+        }
+      }
+    }
+
+    private IDictionary<string, IBwObject> ParseObjectMap_(
+        XmlNode[] objectTags) {
+      var objectsById = new Dictionary<string, IBwObject>();
+      var types = new HashSet<string>();
+
+      foreach (var objectTag in objectTags) {
+        LevelObject? node = null;
+
+        var objectType = objectTag.Attributes["type"].Value;
+        types.Add(objectType);
+
+        if (objectType == "cRenderParams") {
+          var skydomeId = objectTag.GetAttributeValue("mpWorldSkydome");
+          if (objectsById.TryGetValue(skydomeId, out var skydomeModelObject)) {
+            var skydomeModelName = skydomeModelObject.ModelName;
+            objectsById[skydomeId] = new SkydomeObject {
+                Id = skydomeId, ModelName = skydomeModelName,
+            };
+          }
+
+          continue;
+        }
+
+        var isUsefulNode = false;
+
+        var objId = objectTag.Attributes["id"].Value;
+        foreach (var childTag in objectTag.Children()) {
+          var childNameAttribute = childTag.Attributes["name"]?.Value;
+
+          switch (childTag.Name) {
+            case "Attribute": {
+              if (childNameAttribute is "mMatrix" or "Mat") {
+                var floats = new float[16];
+                var floatsText = childTag["Item"].InnerText;
+
+                var currentIndex = 0;
+                for (var fI = 0; fI < floats.Length; ++fI) {
+                  var nextCommaIndex = floatsText.IndexOf(',', currentIndex);
+
+                  var subText =
+                      nextCommaIndex > 0
+                          ? floatsText.Substring(currentIndex,
+                                                 nextCommaIndex - currentIndex)
+                          : floatsText.Substring(currentIndex);
+                  floats[fI] = float.Parse(subText);
+
+                  currentIndex = nextCommaIndex + 1;
+                }
+
+                isUsefulNode = true;
+                node ??= new LevelObject { Id = objId };
+                node.Matrix = new FinMatrix4x4(floats);
+              } else if (objectType is "cNodeHierarchyResource" &&
+                         childNameAttribute is "mName") {
+                isUsefulNode = true;
+                node ??= new LevelObject { Id = objId };
+                node.ModelName = childTag["Item"].InnerText;
+              }
+
+              break;
+            }
+            case "Enum": {
+              if (childNameAttribute is "mStickToFloor") {
+                node ??= new LevelObject { Id = objId };
+                node.StickToFloor = childTag["Item"].InnerText == "eTrue";
+              }
+
+              break;
+            }
+            case "Pointer": {
+              if (childNameAttribute is "mBase") {
+                isUsefulNode = true;
+                node ??= new LevelObject { Id = objId };
+                node.AddChild(childTag["Item"].InnerText);
+              }
+
+              if (childNameAttribute is "NextLinkObject") {
+                var nextLinkId = childTag["Item"].InnerText;
+                if (nextLinkId != "0") {
+                  node ??= new LevelObject { Id = objId };
+                  node.NextLinkId = nextLinkId;
+                }
+              }
+
+              break;
+            }
+            case "Resource": {
+              if (childNameAttribute is "mModel"
+                                        or "mBAN_Model"
+                                        or "Model"
+                                        or "model") {
+                isUsefulNode = true;
+                node ??= new LevelObject { Id = objId };
+                node.AddChild(childTag["Item"].InnerText);
+              } else if (childNameAttribute is "Element") {
+                isUsefulNode = true;
+                node ??= new LevelObject { Id = objId };
+                var itemNodes = childTag.ChildNodes;
+                for (var itemI = 0; itemI < itemNodes.Count; ++itemI) {
+                  node.AddChild(itemNodes[itemI].InnerText);
+                }
+              }
+
+              break;
+            }
+          }
+        }
+
+        if (isUsefulNode) {
+          objectsById[objId] = node;
+        }
+      }
+
+      var ids = objectsById.Keys.Select(ulong.Parse).ToList();
+      ids.Sort();
+
+      return objectsById;
     }
 
     private void AddTerrain_(ISceneArea sceneArea,
@@ -113,8 +324,7 @@ namespace modl.schema.xml {
                              IReadOnlyTreeFile levelXmlFile,
                              GameVersion gameVersion,
                              IBwTerrain bwTerrain,
-                             IDictionary<string, IBwObject> objectMap,
-                             ILighting? lighting) {
+                             IDictionary<string, IBwObject> objectMap) {
       var levelDirectory =
           new FinDirectory(levelXmlFile.FullNameWithoutExtension);
       var modelFiles = levelDirectory
@@ -168,8 +378,7 @@ namespace modl.schema.xml {
                 await modlReader.ImportModelAsync(
                     modelFile,
                     animFiles,
-                    gameVersion,
-                    lighting);
+                    gameVersion);
           });
       task.ConfigureAwait(false);
       task.Wait();
@@ -293,202 +502,6 @@ namespace modl.schema.xml {
           }
         }
       }
-    }
-
-    private IDictionary<string, IBwObject> ReadObjectMap_(
-        IReadOnlyTreeFile levelXmlFile,
-        GameVersion gameVersion,
-        ref ILighting? lighting,
-        out float terrainLightScale) {
-      Stream levelXmlStream;
-      if (gameVersion == GameVersion.BW2) {
-        using var gZipStream =
-            new GZipStream(levelXmlFile.OpenRead(),
-                           CompressionMode.Decompress);
-
-        levelXmlStream = new MemoryStream();
-        gZipStream.CopyTo(levelXmlStream);
-        levelXmlStream.Position = 0;
-      } else {
-        levelXmlStream = levelXmlFile.OpenRead();
-      }
-
-      using var levelXmlReader = new StreamReader(levelXmlStream);
-      var levelXml = new XmlDocument();
-      levelXml.LoadXml(levelXmlReader.ReadToEnd());
-
-      var instances = levelXml["Instances"];
-
-      var objectsById = new Dictionary<string, IBwObject>();
-      var types = new HashSet<string>();
-
-      terrainLightScale = 1;
-      var objectTags = instances.GetElementsByTagName("Object");
-      for (var i = 0; i < objectTags.Count; ++i) {
-        var objectTag = objectTags[i];
-
-        LevelObject? node = null;
-
-        var objectType = objectTag.Attributes["type"].Value;
-        types.Add(objectType);
-
-        if (objectType == "cRenderParams") {
-          // TODO: Handle fog color
-
-          terrainLightScale =
-              float.Parse(objectTag.GetAttributeValue("mTerrainLightScale"));
-
-          lighting = new LightingImpl();
-          lighting.AmbientLightColor =
-              objectTag.GetAttributeLightColor("mSunAmbientColor");
-
-          {
-            var sunLight = lighting.CreateLight();
-            sunLight.SetColor(
-                objectTag.GetAttributeLightColor("mSunDirectionalColor"));
-
-            var sunYawRadians =
-                float.Parse(objectTag.GetAttributeValue("mSunRotation"));
-            var sunPitchRadians =
-                MathF.Asin(
-                    float.Parse(objectTag.GetAttributeValue("mSunElevation")));
-            FinTrig.FromPitchYawRadians(sunPitchRadians,
-                                        sunYawRadians,
-                                        out var sunXNormal,
-                                        out var sunYNormal,
-                                        out var sunZNormal);
-            sunLight.SetNormal(new Vector3f {
-                X = -sunXNormal, Y = -sunYNormal, Z = -sunZNormal,
-            });
-          }
-
-          {
-            var antiSunLight = lighting.CreateLight();
-            antiSunLight.SetColor(
-                objectTag.GetAttributeLightColor("mAntiSunDirectionalColor"));
-
-            var antiSunYawRadians =
-                float.Parse(objectTag.GetAttributeValue("mAntiSunRotation"));
-            var antiSunPitchRadians =
-                MathF.Asin(
-                    float.Parse(
-                        objectTag.GetAttributeValue("mAntiSunElevation")));
-            FinTrig.FromPitchYawRadians(antiSunPitchRadians,
-                                        antiSunYawRadians,
-                                        out var antiSunXNormal,
-                                        out var antiSunYNormal,
-                                        out var antiSunZNormal);
-            antiSunLight.SetNormal(new Vector3f {
-                X = -antiSunXNormal, Y = -antiSunYNormal, Z = -antiSunZNormal,
-            });
-          }
-
-
-          var skydomeId = objectTag.GetAttributeValue("mpWorldSkydome");
-          if (objectsById.TryGetValue(skydomeId, out var skydomeModelObject)) {
-            var skydomeModelName = skydomeModelObject.ModelName;
-            objectsById[skydomeId] = new SkydomeObject {
-                Id = skydomeId, ModelName = skydomeModelName,
-            };
-          }
-
-          continue;
-        }
-
-        var isUsefulNode = false;
-
-        var objId = objectTag.Attributes["id"].Value;
-        foreach (var childTag in objectTag.Children()) {
-          var childNameAttribute = childTag.Attributes["name"]?.Value;
-
-          switch (childTag.Name) {
-            case "Attribute": {
-              if (childNameAttribute is "mMatrix" or "Mat") {
-                var floats = new float[16];
-                var floatsText = childTag["Item"].InnerText;
-
-                var currentIndex = 0;
-                for (var fI = 0; fI < floats.Length; ++fI) {
-                  var nextCommaIndex = floatsText.IndexOf(',', currentIndex);
-
-                  var subText =
-                      nextCommaIndex > 0
-                          ? floatsText.Substring(currentIndex,
-                                                 nextCommaIndex - currentIndex)
-                          : floatsText.Substring(currentIndex);
-                  floats[fI] = float.Parse(subText);
-
-                  currentIndex = nextCommaIndex + 1;
-                }
-
-                isUsefulNode = true;
-                node ??= new LevelObject { Id = objId };
-                node.Matrix = new FinMatrix4x4(floats);
-              } else if (objectType is "cNodeHierarchyResource" &&
-                         childNameAttribute is "mName") {
-                isUsefulNode = true;
-                node ??= new LevelObject { Id = objId };
-                node.ModelName = childTag["Item"].InnerText;
-              }
-
-              break;
-            }
-            case "Enum": {
-              if (childNameAttribute is "mStickToFloor") {
-                node ??= new LevelObject { Id = objId };
-                node.StickToFloor = childTag["Item"].InnerText == "eTrue";
-              }
-
-              break;
-            }
-            case "Pointer": {
-              if (childNameAttribute is "mBase") {
-                isUsefulNode = true;
-                node ??= new LevelObject { Id = objId };
-                node.AddChild(childTag["Item"].InnerText);
-              }
-
-              if (childNameAttribute is "NextLinkObject") {
-                var nextLinkId = childTag["Item"].InnerText;
-                if (nextLinkId != "0") {
-                  node ??= new LevelObject { Id = objId };
-                  node.NextLinkId = nextLinkId;
-                }
-              }
-
-              break;
-            }
-            case "Resource": {
-              if (childNameAttribute is "mModel"
-                                        or "mBAN_Model"
-                                        or "Model"
-                                        or "model") {
-                isUsefulNode = true;
-                node ??= new LevelObject { Id = objId };
-                node.AddChild(childTag["Item"].InnerText);
-              } else if (childNameAttribute is "Element") {
-                isUsefulNode = true;
-                node ??= new LevelObject { Id = objId };
-                var itemNodes = childTag.ChildNodes;
-                for (var itemI = 0; itemI < itemNodes.Count; ++itemI) {
-                  node.AddChild(itemNodes[itemI].InnerText);
-                }
-              }
-
-              break;
-            }
-          }
-        }
-
-        if (isUsefulNode) {
-          objectsById[objId] = node;
-        }
-      }
-
-      var ids = objectsById.Keys.Select(ulong.Parse).ToList();
-      ids.Sort();
-
-      return objectsById;
     }
   }
 

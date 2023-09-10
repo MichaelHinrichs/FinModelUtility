@@ -2,6 +2,7 @@ using System.Diagnostics;
 
 using fin.audio;
 using fin.color;
+using fin.data.queue;
 using fin.model.io.exporter.assimp;
 using fin.io;
 using fin.io.bundles;
@@ -20,6 +21,10 @@ using uni.cli;
 using uni.config;
 using uni.games;
 using uni.ui.common.fileTreeView;
+
+using fin.model.impl;
+
+using sm64.LevelInfo;
 
 namespace uni.ui;
 
@@ -115,16 +120,17 @@ public partial class UniversalAssetToolForm : Form {
 
   private void SelectScene_(IFileTreeLeafNode fileNode,
                             ISceneFileBundle sceneFileBundle) {
-    var scene = new GlobalSceneImporter().ImportScene(sceneFileBundle);
-    this.UpdateScene_(fileNode, sceneFileBundle, scene);
+    var scene = new GlobalSceneImporter().ImportScene(sceneFileBundle,
+      out var lighting);
+    this.UpdateScene_(fileNode, sceneFileBundle, scene, lighting);
   }
 
-  private void SelectModel_(
-      IFileTreeLeafNode fileNode,
-      IModelFileBundle modelFileBundle) {
-    var model = new GlobalModelImporter().ImportModel(modelFileBundle);
-    this.UpdateModel_(fileNode, modelFileBundle, model);
-  }
+  private void SelectModel_(IFileTreeLeafNode fileNode,
+                            IModelFileBundle modelFileBundle)
+    => this.UpdateModel_(
+        fileNode,
+        modelFileBundle,
+        new GlobalModelImporter().ImportModel(modelFileBundle));
 
   private void UpdateModel_(IFileTreeLeafNode? fileNode,
                             IModelFileBundle modelFileBundle,
@@ -132,73 +138,21 @@ public partial class UniversalAssetToolForm : Form {
     var scene = new SceneImpl();
     var area = scene.AddArea();
     var obj = area.AddObject();
-    var sceneModel = obj.AddSceneModel(model);
+    obj.AddSceneModel(model);
 
-    // TODO: Need to be able to pass lighting into model from scene
-    IReadOnlyList<ILight> lights = model.Lighting.Lights;
-    if (lights.Count == 0) {
-      model.Lighting.CreateLight()
-           .SetColor(FinColor.FromRgbFloats(1, 1, 1));
-    }
-
-    // Initializes first light if uninitialized
-    var firstLight = lights[0];
-    var normal = firstLight.Normal;
-    if (normal.X.AlmostEqual(0) &&
-        normal.Y.AlmostEqual(0) &&
-        normal.Z.AlmostEqual(0)) {
-      FinTrig.FromPitchYawDegrees(-45,
-                                  45,
-                                  out var normalX,
-                                  out var normalY,
-                                  out var normalZ);
-      firstLight.SetNormal(new Vector3f {
-          X = normalX, Y = normalY, Z = normalZ
-      });
-    }
-
-    if (Config.Instance.ViewerSettings.RotateLight) {
-      var stopwatch = new FrameStopwatch();
-      stopwatch.Start();
-
-      obj.SetOnTickHandler(_ => {
-        var time = stopwatch.Elapsed.TotalMilliseconds;
-        var baseAngleInRadians = time / 400;
-
-        var enabledCount = 0;
-        foreach (var light in lights) {
-          if (light.Enabled) {
-            enabledCount++;
-          }
-        }
-
-        var currentIndex = 0;
-        foreach (var light in lights) {
-          if (light.Enabled) {
-            var angleInRadians = baseAngleInRadians +
-                                 2 * MathF.PI *
-                                 (1f * currentIndex / enabledCount);
-
-            light.SetNormal(new Vector3f {
-                X = (float) (.5f * Math.Cos(angleInRadians)),
-                Y = (float) (.5f * Math.Sin(angleInRadians)),
-                Z = (float) (.5f * Math.Cos(2 * angleInRadians)),
-            });
-
-            currentIndex++;
-          }
-        }
-      });
-    }
-
-    this.UpdateScene_(fileNode, modelFileBundle, scene);
+    this.UpdateScene_(fileNode,
+                      modelFileBundle,
+                      scene,
+                      this.CreateDefaultLightingForScene_(scene));
   }
 
   private void UpdateScene_(IFileTreeLeafNode? fileNode,
                             IFileBundle fileBundle,
-                            IScene scene) {
-    this.sceneViewerPanel_.FileBundleAndScene?.Item2.Dispose();
-    this.sceneViewerPanel_.FileBundleAndScene = (fileBundle, scene);
+                            IScene scene,
+                            ILighting? lighting) {
+    this.sceneViewerPanel_.FileBundleAndSceneAndLighting?.Item2.Dispose();
+    this.sceneViewerPanel_.FileBundleAndSceneAndLighting =
+        (fileBundle, scene, lighting);
 
     var model = this.sceneViewerPanel_.FirstSceneModel?.Model;
     this.modelTabs_.Model = (fileBundle, model);
@@ -225,6 +179,90 @@ public partial class UniversalAssetToolForm : Form {
 
       this.gameDirectory_ = gameDirectory;
     }
+  }
+
+  private ILighting? CreateDefaultLightingForScene_(IScene scene) {
+    var needsLights = false;
+    var neededLightIndices = new HashSet<int>();
+
+    var sceneModelQueue = new FinQueue<ISceneModel>(
+        scene.Areas.SelectMany(
+            area => area.Objects.SelectMany(obj => obj.Models)));
+    while (sceneModelQueue.TryDequeue(out var sceneModel)) {
+      sceneModelQueue.Enqueue(sceneModel.Children);
+
+      var finModel = sceneModel.Model;
+
+      var hasNormals = finModel.Skin.Vertices.Any(
+          vertex => vertex is IReadOnlyNormalVertex { LocalNormal: { } });
+      if (!hasNormals) {
+        continue;
+      }
+
+      foreach (var finMaterial in finModel.MaterialManager.All) {
+        if (finMaterial.IgnoreLights) {
+          continue;
+        }
+
+        needsLights = true;
+
+        if (finMaterial is not IFixedFunctionMaterial
+            finFixedFunctionMaterial) {
+          continue;
+        }
+
+        var equations = finFixedFunctionMaterial.Equations;
+        for (var i = 0; i < 8; ++i) {
+          if (equations.HasInput(FixedFunctionSource.LIGHT_0_ALPHA + i) ||
+              equations.HasInput(FixedFunctionSource.LIGHT_0_COLOR + i)) {
+            neededLightIndices.Add(i);
+          }
+        }
+      }
+    }
+
+    if (!needsLights) {
+      return null;
+    }
+
+    if (neededLightIndices.Count == 0) {
+      neededLightIndices.Add(0);
+    }
+
+    var enabledCount = neededLightIndices.Count;
+    var lightColors = enabledCount == 1
+        ? new[] { Color.White }
+        : new[] {
+            Color.Pink,
+            Color.LightBlue,
+            Color.DarkSeaGreen,
+            Color.PaleGoldenrod,
+            Color.Lavender,
+            Color.Bisque
+        };
+
+    var maxLightIndex = neededLightIndices.Max();
+    var currentIndex = 0;
+    var lighting = new LightingImpl();
+    for (var i = 0; i <= maxLightIndex; ++i) {
+      var light = lighting.CreateLight();
+      if (!(light.Enabled = neededLightIndices.Contains(i))) {
+        continue;
+      }
+
+      light.SetColor(FinColor.FromSystemColor(lightColors[currentIndex]));
+
+      var angleInRadians = 2 * MathF.PI *
+                           (1f * currentIndex) / enabledCount;
+
+      light.SetNormal(new Vector3f {
+          X = (float) (.5f * Math.Cos(angleInRadians)),
+          Y = (float) (.5f * Math.Sin(angleInRadians)),
+          Z = -.5f,
+      });
+    }
+
+    return lighting;
   }
 
   private void SelectAudio_(IAudioFileBundle audioFileBundle)
@@ -255,7 +293,8 @@ public partial class UniversalAssetToolForm : Form {
         return;
       }
 
-      var finModel = bestMatch.ImportModel(inputFiles, out var modelFileBundle);
+      var finModel =
+          bestMatch.ImportModel(inputFiles, out var modelFileBundle);
       this.UpdateModel_(null, modelFileBundle, finModel);
     };
 
@@ -263,12 +302,13 @@ public partial class UniversalAssetToolForm : Form {
   }
 
   private void exportAsToolStripMenuItem_Click(object sender, EventArgs e) {
-    var fileBundleAndScene = this.sceneViewerPanel_.FileBundleAndScene;
+    var fileBundleAndScene =
+        this.sceneViewerPanel_.FileBundleAndSceneAndLighting;
     if (fileBundleAndScene == null) {
       return;
     }
 
-    var (fileBundle, scene) = fileBundleAndScene.Value;
+    var (fileBundle, _, _) = fileBundleAndScene.Value;
     var modelFileBundle =
         Asserts.AsA<IAnnotatedFileBundle<IModelFileBundle>>(fileBundle);
     var model = this.sceneViewerPanel_.FirstSceneModel!.Model;
@@ -312,7 +352,9 @@ public partial class UniversalAssetToolForm : Form {
     => Process.Start("explorer",
                      "https://github.com/MeltyPlayer/FinModelUtility");
 
-  private void reportAnIssueToolStripMenuItem_Click(object sender, EventArgs e)
+  private void reportAnIssueToolStripMenuItem_Click(
+      object sender,
+      EventArgs e)
     => Process.Start("explorer",
                      "https://github.com/MeltyPlayer/FinModelUtility/issues/new");
 }

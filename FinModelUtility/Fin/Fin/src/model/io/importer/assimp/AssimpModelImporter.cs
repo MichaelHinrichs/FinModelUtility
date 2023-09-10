@@ -20,12 +20,9 @@ using fin.model.impl;
 
 using SixLabors.ImageSharp.PixelFormats;
 
-using Quaternion = System.Numerics.Quaternion;
-
 namespace fin.model.io.importer.assimp {
   public class AssimpModelImporter : IModelImporter<AssimpModelFileBundle> {
-    public unsafe IModel ImportModel(AssimpModelFileBundle modelFileBundle,
-                                     IModelParameters? modelParameters = null) {
+    public unsafe IModel ImportModel(AssimpModelFileBundle modelFileBundle) {
       var mainFile = modelFileBundle.MainFile;
 
       var finModel = new ModelImpl();

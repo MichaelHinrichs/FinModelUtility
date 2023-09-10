@@ -14,8 +14,7 @@ using visceral.schema.rcb;
 
 namespace visceral.api {
   public class GeoModelImporter : IModelImporter<GeoModelFileBundle> {
-    public IModel ImportModel(GeoModelFileBundle modelFileBundle,
-                              IModelParameters? modelParameters = null) {
+    public IModel ImportModel(GeoModelFileBundle modelFileBundle) {
       var finModel = new ModelImpl();
 
       // Builds textures

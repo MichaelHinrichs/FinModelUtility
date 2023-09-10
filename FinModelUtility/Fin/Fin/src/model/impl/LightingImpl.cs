@@ -5,7 +5,7 @@ using fin.schema.vector;
 
 namespace fin.model.impl {
   public partial class ModelImpl<TVertex> {
-    public ILighting Lighting { get; }
+    public IReadOnlyLighting? Lighting { get; }
   }
 
   public class LightingImpl : ILighting {

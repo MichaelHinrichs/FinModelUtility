@@ -6,7 +6,6 @@ using fin.io;
 using fin.math.rotations;
 using fin.model;
 using fin.model.impl;
-using fin.model.io;
 using fin.model.io.importer;
 
 using modl.schema.anim;
@@ -22,9 +21,7 @@ using schema.binary;
 
 namespace modl.api {
   public class ModlModelImporter : IAsyncModelImporter<ModlModelFileBundle> {
-    public Task<IModel> ImportModelAsync(
-        ModlModelFileBundle modelFileBundle,
-        IModelParameters? modelParameters = null)
+    public Task<IModel> ImportModelAsync(ModlModelFileBundle modelFileBundle)
       => this.ImportModelAsync(modelFileBundle.ModlFile,
                                modelFileBundle.AnimFiles?.ToArray(),
                                modelFileBundle.GameVersion);
@@ -32,8 +29,7 @@ namespace modl.api {
     public async Task<IModel> ImportModelAsync(
         IReadOnlyTreeFile modlFile,
         IList<IReadOnlyTreeFile>? animFiles,
-        GameVersion gameVersion,
-        ILighting? lighting = null) {
+        GameVersion gameVersion) {
       var flipSign = ModlFlags.FLIP_HORIZONTALLY ? -1 : 1;
 
       using var er = new EndianBinaryReader(modlFile.OpenRead(),
@@ -44,8 +40,7 @@ namespace modl.api {
       };
 
       var model = new ModelImpl<Normal1Color1UvVertexImpl>(
-          (index, position) => new Normal1Color1UvVertexImpl(index, position),
-          lighting);
+          (index, position) => new Normal1Color1UvVertexImpl(index, position));
       var finMesh = model.Skin.AddMesh();
 
       var finBones = new IBone[bwModel.Nodes.Count];

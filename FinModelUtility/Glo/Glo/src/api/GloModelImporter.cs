@@ -8,7 +8,6 @@ using fin.image.formats;
 using fin.io;
 using fin.model;
 using fin.model.impl;
-using fin.model.io;
 using fin.model.io.importer;
 using fin.util.asserts;
 
@@ -22,8 +21,7 @@ namespace glo.api {
 
     private readonly string[] mirrorTextures_ = new[] { "Badg2.bmp" };
 
-    public IModel ImportModel(GloModelFileBundle gloModelFileBundle,
-                              IModelParameters? modelParameters = null) {
+    public IModel ImportModel(GloModelFileBundle gloModelFileBundle) {
       var gloFile = gloModelFileBundle.GloFile;
       var textureDirectories = gloModelFileBundle.TextureDirectories;
       var fps = 20;

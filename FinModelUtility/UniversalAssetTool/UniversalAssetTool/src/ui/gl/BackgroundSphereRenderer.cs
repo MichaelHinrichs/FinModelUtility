@@ -75,7 +75,7 @@ namespace uni.ui.gl {
         mesh.AddTriangleStrip(triangles.ToArray()).SetMaterial(material);
       }
 
-      return new ModelRendererV2(model);
+      return new ModelRendererV2(model, null);
     }
   }
 

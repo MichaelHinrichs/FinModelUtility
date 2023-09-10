@@ -13,12 +13,13 @@ namespace fin.ui.rendering.gl.scene {
     private readonly IModelRenderer modelRenderer_;
     private readonly IReadOnlyList<SceneModelRenderer> children_;
 
-    public SceneModelRenderer(ISceneModel sceneModel) {
+    public SceneModelRenderer(ISceneModel sceneModel, ILighting? lighting) {
       this.sceneModel_ = sceneModel;
 
       var model = sceneModel.Model;
       this.modelRenderer_ =
           new ModelRendererV2(model,
+                              lighting,
                               sceneModel.BoneTransformManager);
 
       var hasNormals = false;
@@ -37,9 +38,10 @@ namespace fin.ui.rendering.gl.scene {
               Scale = this.sceneModel_.ViewerScale
           };
 
-      this.children_ = sceneModel.Children
-                                 .Select(child => new SceneModelRenderer(child))
-                                 .ToArray();
+      this.children_
+          = sceneModel.Children
+                      .Select(child => new SceneModelRenderer(child, lighting))
+                      .ToArray();
     }
 
     ~SceneModelRenderer() => this.ReleaseUnmanagedResources_();
@@ -72,7 +74,8 @@ namespace fin.ui.rendering.gl.scene {
             Quaternion.CreateFromYawPitchRoll(angle, 0, 0);
 
         var rotationBuffer = rotateYaw * rootBone.FaceTowardsCameraAdjustment;
-        GlTransform.MultMatrix(SystemMatrix4x4Util.FromRotation(rotationBuffer));
+        GlTransform.MultMatrix(
+            SystemMatrix4x4Util.FromRotation(rotationBuffer));
       }
 
       var animation = this.sceneModel_.Animation;

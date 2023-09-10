@@ -19,7 +19,8 @@ namespace sm64.api {
   }
 
   public class Sm64LevelSceneImporter : ISceneImporter<Sm64LevelSceneFileBundle> {
-    public IScene ImportScene(Sm64LevelSceneFileBundle levelModelFileBundle) {
+    public IScene ImportScene(Sm64LevelSceneFileBundle levelModelFileBundle,
+                              out ILighting? lighting) {
       var sm64Level = Sm64LevelImporter.LoadLevel(levelModelFileBundle);
 
       var finScene = new SceneImpl();
@@ -30,6 +31,7 @@ namespace sm64.api {
                                                out var sm64Model)) {
               return sm64Model.HighestLod2.Model;
             }
+
             return null;
           });
 
@@ -40,6 +42,7 @@ namespace sm64.api {
             sm64Area);
       }
 
+      lighting = null;
       return finScene;
     }
 
@@ -76,7 +79,9 @@ namespace sm64.api {
       var finObject = finArea.AddObject();
       finObject.AddSceneModel(finModel);
       finObject.SetPosition(sm64Object.xPos, sm64Object.yPos, sm64Object.zPos);
-      finObject.SetRotationDegrees(sm64Object.xRot, sm64Object.yRot, sm64Object.zRot);
+      finObject.SetRotationDegrees(sm64Object.xRot,
+                                   sm64Object.yRot,
+                                   sm64Object.zRot);
 
       var scale = 1f;
       var billboard = false;

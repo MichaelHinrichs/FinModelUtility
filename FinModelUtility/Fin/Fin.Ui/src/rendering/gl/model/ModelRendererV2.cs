@@ -12,6 +12,7 @@ namespace fin.ui.rendering.gl.model {
     // TODO: Require passing in a GL context in the constructor.
 
     private GlBufferManager? bufferManager_;
+    private readonly ILighting? lighting_;
     private readonly IBoneTransformManager? boneTransformManager_;
 
     private readonly ListDictionary<IMesh, MaterialMeshRendererV2>
@@ -19,8 +20,10 @@ namespace fin.ui.rendering.gl.model {
 
     public ModelRendererV2(
         IModel model,
+        ILighting? lighting,
         IBoneTransformManager? boneTransformManager = null) {
       this.Model = model;
+      this.lighting_ = lighting;
       this.boneTransformManager_ = boneTransformManager;
     }
 
@@ -55,6 +58,7 @@ namespace fin.ui.rendering.gl.model {
                   this.bufferManager_,
                   this.Model,
                   material,
+                  this.lighting_,
                   primitives.OrderBy(primitive => primitive.InversePriority)
                             .ToArray()) {
                 UseLighting = UseLighting

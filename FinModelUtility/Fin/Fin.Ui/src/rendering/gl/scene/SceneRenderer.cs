@@ -1,11 +1,12 @@
-﻿using fin.scene;
+﻿using fin.model;
+using fin.scene;
 
 namespace fin.ui.rendering.gl.scene {
   public class SceneRenderer : IRenderable, IDisposable {
-    public SceneRenderer(IScene scene) {
+    public SceneRenderer(IScene scene, ILighting? lighting) {
       this.AreaRenderers
-          = scene.Areas
-                 .Select(area => new SceneAreaRenderer(area))
+      = scene.Areas
+                 .Select(area => new SceneAreaRenderer(area, lighting))
                  .ToArray();
     }
 

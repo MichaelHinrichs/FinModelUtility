@@ -1,4 +1,6 @@
 ﻿using fin.io;
+using fin.model;
+using fin.model.io;
 using fin.scene;
 
 using modl.schema.xml;
@@ -13,8 +15,8 @@ namespace modl.api {
   }
 
   public class BwSceneImporter : ISceneImporter<BwSceneFileBundle> {
-    public IScene ImportScene(BwSceneFileBundle sceneFileBundle)
-      => new LevelXmlParser().Parse(sceneFileBundle.MainXmlFile,
-                                    sceneFileBundle.GameVersion);
+    public IScene ImportScene(BwSceneFileBundle sceneFileBundle,
+                              out ILighting? lighting)
+      => new LevelXmlParser().Parse(sceneFileBundle, out lighting);
   }
 }

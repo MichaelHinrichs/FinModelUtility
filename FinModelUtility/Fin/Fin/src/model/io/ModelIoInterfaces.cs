@@ -3,7 +3,6 @@ using System.Linq;
 
 using fin.io;
 using fin.io.bundles;
-using fin.language.equations.fixedFunction;
 
 namespace fin.model.io {
   public interface IModelFileBundle : IFileBundle {
@@ -16,12 +15,6 @@ namespace fin.model.io {
 
     bool ForceGarbageCollection => false;
   }
-
-  public interface IModelParameters {
-    ILighting? Lighting { get; }
-    IFixedFunctionRegisters? Registers { get; }
-  }
-
 
   public interface IModelPlugin {
     string DisplayName { get; }

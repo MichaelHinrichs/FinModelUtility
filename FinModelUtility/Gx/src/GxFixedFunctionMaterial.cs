@@ -155,18 +155,7 @@ namespace gx {
           continue;
         }
 
-        var finLighting = model.Lighting;
-        var lights = model.Lighting.Lights;
         var activeLights = colorChannelControl.LitMask.GetActiveLights().ToArray();
-        foreach (var activeLight in activeLights) {
-          while (lights.Count <= activeLight) {
-            var newLight = finLighting.CreateLight();
-            newLight.Enabled = false;
-          }
-
-          var finLight = lights[activeLight];
-          finLight.Enabled = true;
-        }
 
         // TODO: Properly handle lights and attentuation and stuff
 

@@ -6,7 +6,6 @@ using fin.color;
 using fin.image;
 using fin.model;
 using fin.model.impl;
-using fin.model.io;
 using fin.model.io.importer;
 using fin.util.asserts;
 
@@ -42,8 +41,7 @@ namespace mod.api {
         _ => GX_WRAP_TAG.GX_REPEAT,
       };
 
-    public IModel ImportModel(ModModelFileBundle modelFileBundle,
-                              IModelParameters? modelParameters = null) {
+    public IModel ImportModel(ModModelFileBundle modelFileBundle) {
       var mod =
           modelFileBundle.ModFile.ReadNew<Mod>(Endianness.BigEndian);
       var anm =

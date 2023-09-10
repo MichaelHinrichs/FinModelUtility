@@ -6,7 +6,7 @@ using fin.ui.rendering.gl.model;
 
 namespace uni.ui.common.scene {
   public interface ISceneViewerPanel {
-    (IFileBundle, IScene)? FileBundleAndScene { get; set; }
+    (IFileBundle, IScene, ILighting?)? FileBundleAndSceneAndLighting { get; set; }
     ISceneModel? FirstSceneModel { get; }
     IAnimationPlaybackManager? AnimationPlaybackManager { get; }
     IModelAnimation? Animation { get; set; }

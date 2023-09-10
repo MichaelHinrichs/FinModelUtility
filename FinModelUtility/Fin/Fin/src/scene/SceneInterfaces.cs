@@ -12,7 +12,8 @@ namespace fin.scene {
 
   public interface ISceneImporter<in TSceneFileBundle>
       where TSceneFileBundle : ISceneFileBundle {
-    IScene ImportScene(TSceneFileBundle sceneFileBundle);
+    IScene ImportScene(TSceneFileBundle sceneFileBundle,
+                       out ILighting? lighting);
   }
 
   /// <summary>
@@ -54,8 +55,15 @@ namespace fin.scene {
     Scale Scale { get; }
 
     ISceneObject SetPosition(float x, float y, float z);
-    ISceneObject SetRotationRadians(float xRadians, float yRadians, float zRadians);
-    ISceneObject SetRotationDegrees(float xDegrees, float yDegrees, float zDegrees);
+
+    ISceneObject SetRotationRadians(float xRadians,
+                                    float yRadians,
+                                    float zRadians);
+
+    ISceneObject SetRotationDegrees(float xDegrees,
+                                    float yDegrees,
+                                    float zDegrees);
+
     ISceneObject SetScale(float x, float y, float z);
 
     public delegate void OnTick(ISceneObject self);

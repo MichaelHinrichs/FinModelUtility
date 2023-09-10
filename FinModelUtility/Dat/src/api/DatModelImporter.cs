@@ -2,15 +2,13 @@
 
 using fin.model;
 using fin.model.impl;
-using fin.model.io;
 using fin.model.io.importer;
 
 using schema.binary;
 
 namespace dat.api {
   public class DatModelImporter : IModelImporter<DatModelFileBundle> {
-    public IModel ImportModel(DatModelFileBundle modelFileBundle,
-                              IModelParameters? modelParameters = null) {
+    public IModel ImportModel(DatModelFileBundle modelFileBundle) {
       var dat = modelFileBundle.DatFile.ReadNew<Dat>(Endianness.BigEndian);
 
       var finModel = new ModelImpl();

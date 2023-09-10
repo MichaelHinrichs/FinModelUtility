@@ -18,14 +18,14 @@ namespace fin.ui.rendering.gl.model {
         GlBufferManager bufferManager,
         IModel model,
         IMaterial? material,
+        ILighting? lighting,
         IList<IPrimitive> primitives) {
       this.material_ = material;
 
-      this.materialShader_ =
-          GlMaterialShader.FromMaterial(model,
-                                        material,
-                                        boneTransformManager,
-                                        model.Lighting);
+      this.materialShader_ = GlMaterialShader.FromMaterial(model,
+        material,
+        boneTransformManager,
+        lighting);
 
       PrimitiveType primitiveType;
       bool isFlipped;

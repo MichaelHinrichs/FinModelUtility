@@ -10,8 +10,8 @@ namespace uni.ui.common.scene {
       this.InitializeComponent();
     }
 
-    public (IFileBundle, IScene)? FileBundleAndScene {
-      get => this.impl_.FileBundleAndScene;
+    public (IFileBundle, IScene, ILighting?)? FileBundleAndSceneAndLighting {
+      get => this.impl_.FileBundleAndSceneAndLighting;
       set {
         var fileBundle = value?.Item1;
         if (fileBundle != null) {
@@ -20,7 +20,7 @@ namespace uni.ui.common.scene {
           this.groupBox_.Text = "(Select a model)";
         }
 
-        this.impl_.FileBundleAndScene = value;
+        this.impl_.FileBundleAndSceneAndLighting = value;
       }
     }
 

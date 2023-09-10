@@ -1,13 +1,11 @@
 ﻿using fin.model;
-using fin.model.io;
 using fin.model.io.importer;
 
 using HaloWarsTools;
 
 namespace hw.api {
   public class XtdModelImporter : IModelImporter<XtdModelFileBundle> {
-    public IModel ImportModel(XtdModelFileBundle modelFileBundle,
-                              IModelParameters? modelParameters = null) {
+    public IModel ImportModel(XtdModelFileBundle modelFileBundle) {
       var xtdFile = modelFileBundle.XtdFile;
       var xttFile = modelFileBundle.XttFile;
 

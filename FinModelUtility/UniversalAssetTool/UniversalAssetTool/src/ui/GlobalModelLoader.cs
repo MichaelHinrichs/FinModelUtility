@@ -26,57 +26,34 @@ using xmod.api;
 
 namespace uni.ui {
   public class GlobalModelImporter : IModelImporter<IModelFileBundle> {
-    public IModel ImportModel(IModelFileBundle modelFileBundle,
-                              IModelParameters? modelParameters = null)
+    public IModel ImportModel(IModelFileBundle modelFileBundle)
       => modelFileBundle switch {
           IBattalionWarsModelFileBundle battalionWarsModelFileBundle
               => new BattalionWarsModelImporter().ImportModel(
-                  battalionWarsModelFileBundle,
-                  modelParameters),
+                  battalionWarsModelFileBundle),
           BmdModelFileBundle bmdModelFileBundle
-              => new BmdModelImporter().ImportModel(
-                  bmdModelFileBundle,
-                  modelParameters),
+              => new BmdModelImporter().ImportModel(bmdModelFileBundle),
           CmbModelFileBundle cmbModelFileBundle
-              => new CmbModelImporter().ImportModel(
-                  cmbModelFileBundle,
-                  modelParameters),
+              => new CmbModelImporter().ImportModel(cmbModelFileBundle),
           DatModelFileBundle datModelFileBundle
-              => new DatModelImporter().ImportModel(
-                  datModelFileBundle,
-                  modelParameters),
+              => new DatModelImporter().ImportModel(datModelFileBundle),
           GeoModelFileBundle geoModelFileBundle
-              => new GeoModelImporter().ImportModel(
-                  geoModelFileBundle,
-                  modelParameters),
+              => new GeoModelImporter().ImportModel(geoModelFileBundle),
           GloModelFileBundle gloModelFileBundle
-              => new GloModelImporter().ImportModel(
-                  gloModelFileBundle,
-                  modelParameters),
+              => new GloModelImporter().ImportModel(gloModelFileBundle),
           IHaloWarsModelFileBundle haloWarsModelFileBundle
               => new HaloWarsModelImporter().ImportModel(
-                  haloWarsModelFileBundle,
-                  modelParameters),
+                  haloWarsModelFileBundle),
           ModModelFileBundle modModelFileBundle
-              => new ModModelImporter().ImportModel(
-                  modModelFileBundle,
-                  modelParameters),
+              => new ModModelImporter().ImportModel(modModelFileBundle),
           OotModelFileBundle ootModelFileBundle
-              => new OotModelImporter().ImportModel(
-                  ootModelFileBundle,
-                  modelParameters),
+              => new OotModelImporter().ImportModel(ootModelFileBundle),
           PedModelFileBundle pedModelFileBundle
-              => new PedModelImporter().ImportModel(
-                  pedModelFileBundle,
-                  modelParameters),
+              => new PedModelImporter().ImportModel(pedModelFileBundle),
           XcModelFileBundle xcModelFileBundle
-              => new XcModelImporter().ImportModel(
-                  xcModelFileBundle,
-                  modelParameters),
+              => new XcModelImporter().ImportModel(xcModelFileBundle),
           XmodModelFileBundle xmodModelFileBundle
-              => new XmodModelImporter().ImportModel(
-                  xmodModelFileBundle,
-                  modelParameters),
+              => new XmodModelImporter().ImportModel(xmodModelFileBundle),
           _ => throw new ArgumentOutOfRangeException(nameof(modelFileBundle))
       };
   }
