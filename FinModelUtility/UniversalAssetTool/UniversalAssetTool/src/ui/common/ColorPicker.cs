@@ -2,7 +2,7 @@
   public partial class ColorPicker : UserControl {
     public ColorPicker() {
       InitializeComponent();
-     
+
       this.Value = Color.White;
 
       this.Click += (_, _) => this.ShowColorPickerDialog_();
@@ -10,13 +10,21 @@
 
     public Color Value {
       get => this.BackColor;
-      set => this.BackColor = value;
+      set {
+        if (this.BackColor == value) {
+          return;
+        }
+
+        this.BackColor = value;
+        this.ValueChanged.Invoke(value);
+      }
     }
+
+    public event Action<Color> ValueChanged = delegate { };
 
     private void ShowColorPickerDialog_() {
       var colorDialog = new ColorDialog {
-          Color = this.Value,
-          SolidColorOnly = true,
+          Color = this.Value, SolidColorOnly = true,
       };
 
       var result = colorDialog.ShowDialog();

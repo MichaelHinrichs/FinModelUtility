@@ -28,6 +28,7 @@ namespace fin.language.equations.fixedFunction {
         StringWriter os,
         IReadOnlyFixedFunctionMaterial material) {
       var equations = material.Equations;
+      var registers = material.Registers;
 
       os.WriteLine("# version 330");
       os.WriteLine();
@@ -65,6 +66,21 @@ namespace fin.language.equations.fixedFunction {
 
 uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
 ");
+      }
+
+      var outputIdentifiers = new [] {
+          FixedFunctionSource.OUTPUT_COLOR, FixedFunctionSource.OUTPUT_ALPHA,
+      };
+      foreach (var colorRegister in registers.ColorRegisters) {
+        if (equations.DoOutputsDependOn(outputIdentifiers, colorRegister)) {
+          os.WriteLine($"uniform vec3 color_{colorRegister.Name};");
+        }
+      }
+
+      foreach (var scalarRegister in registers.ScalarRegisters) {
+        if (equations.DoOutputsDependOn(outputIdentifiers, scalarRegister)) {
+          os.WriteLine($"uniform float scalar_{scalarRegister.Name};");
+        }
       }
 
       if (material.TextureSources.Any(
@@ -402,9 +418,7 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
           identifiedValue) {
         this.PrintScalarIdentifiedValue_(os, identifiedValue);
       } else if (factor is IScalarNamedValue namedValue) {
-        // TODO: Switch this over
-        this.PrintScalarValue_(os, namedValue.ScalarValue);
-        // this.PrintScalarNamedValue_(os, namedValue);
+        this.PrintScalarNamedValue_(os, namedValue);
       } else if (factor is IScalarConstant constant) {
         this.PrintScalarConstant_(os, constant);
       } else if
@@ -421,7 +435,7 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
     private void PrintScalarNamedValue_(
         StringWriter os,
         IScalarNamedValue namedValue)
-      => os.Write(namedValue.Name);
+      => os.Write($"scalar_{namedValue.Name}");
 
     private void PrintScalarIdentifiedValue_(
         StringWriter os,
@@ -573,12 +587,11 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
     private void PrintColorFactor_(
         StringWriter os,
         IColorFactor factor) {
-      if (factor is IColorIdentifiedValue<FixedFunctionSource> identifiedValue) {
+      if (factor is IColorIdentifiedValue<FixedFunctionSource>
+          identifiedValue) {
         this.PrintColorIdentifiedValue_(os, identifiedValue);
       } else if (factor is IColorNamedValue namedValue) {
-        // TODO: Switch this over
-        this.PrintColorValue_(os, namedValue.ColorValue);
-        //this.PrintColorNamedValue_(os, namedValue);
+        this.PrintColorNamedValue_(os, namedValue);
       } else {
         var useIntensity = factor.Intensity != null;
 
@@ -610,7 +623,7 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
     private void PrintColorNamedValue_(
         StringWriter os,
         IColorNamedValue namedValue)
-      => os.Write(namedValue.Name);
+      => os.Write($"color_{namedValue.Name}");
 
     private string GetColorNamedValue_(
         IColorIdentifiedValue<FixedFunctionSource> identifiedValue) {

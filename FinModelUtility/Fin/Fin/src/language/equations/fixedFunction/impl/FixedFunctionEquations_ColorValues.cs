@@ -149,8 +149,7 @@ namespace fin.language.equations.fixedFunction {
 
       public IColorValue ColorValue { get; }
 
-      public override IScalarValue? Intensity
-        => throw new NotSupportedException();
+      public override IScalarValue? Intensity => null;
 
       public override IScalarValue R
         => new ColorNamedValueSwizzle(this, ColorSwizzle.R);

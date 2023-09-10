@@ -19,7 +19,7 @@ namespace fin.language.equations.fixedFunction {
       : IScalarIdentifiedValue<TIdentifier> {}
 
 
-  public interface IScalarValue {
+  public interface IScalarValue : IValue {
     IScalarExpression Add(IScalarValue term1, params IScalarValue[] terms);
     IScalarExpression Subtract(IScalarValue term1, params IScalarValue[] terms);
     IScalarTerm Multiply(IScalarValue factor1, params IScalarValue[] factors);

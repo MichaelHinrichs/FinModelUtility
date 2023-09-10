@@ -49,7 +49,7 @@ namespace fin.model.impl {
 
       public IFixedFunctionMaterial AddFixedFunctionMaterial() {
         this.Registers ??= new FixedFunctionRegisters();
-        var material = new FixedFunctionMaterialImpl();
+        var material = new FixedFunctionMaterialImpl(this.Registers);
         this.materials_.Add(material);
         return material;
       }
@@ -235,8 +235,9 @@ namespace fin.model.impl {
       private readonly IColor?[] colors_ = new IColor[2];
       private readonly float?[] alphas_ = new float?[2];
 
-      public FixedFunctionMaterialImpl() {
+      public FixedFunctionMaterialImpl(IFixedFunctionRegisters registers) {
         this.Textures = new ReadOnlyCollection<ITexture>(this.textures_);
+        this.Registers = registers;
 
         this.TextureSources =
             new ReadOnlyCollection<ITexture?>(this.texturesSources_);
@@ -246,6 +247,8 @@ namespace fin.model.impl {
 
       public IFixedFunctionEquations<FixedFunctionSource> Equations { get; } =
         new FixedFunctionEquations<FixedFunctionSource>();
+
+      public IFixedFunctionRegisters Registers { get; }
 
       public IReadOnlyList<ITexture?> TextureSources { get; }
 

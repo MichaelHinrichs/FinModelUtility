@@ -231,6 +231,7 @@ namespace fin.model {
 
   public interface IReadOnlyFixedFunctionMaterial : IReadOnlyMaterial {
     IFixedFunctionEquations<FixedFunctionSource> Equations { get; }
+    IFixedFunctionRegisters Registers { get; }
 
     IReadOnlyList<ITexture?> TextureSources { get; }
 

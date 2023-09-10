@@ -65,13 +65,16 @@ namespace fin.language.equations.fixedFunction {
         IColorValue value);
 
     bool HasInput(TIdentifier identifier);
+    bool DoOutputsDependOn(TIdentifier[] outputIdentifiers, IValue value);
   }
 
-  public interface IIdentifiedValue<TIdentifier> {
+  public interface IIdentifiedValue<TIdentifier> : IValue {
     TIdentifier Identifier { get; }
   }
 
-  public interface INamedValue {
+  public interface IValue { }
+
+  public interface INamedValue : IValue {
     string Name { get; }
   }
 }

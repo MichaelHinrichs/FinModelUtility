@@ -4,18 +4,21 @@ namespace fin.language.equations.fixedFunction {
   public interface IColorNamedValue : INamedValue, IColorFactor {
     IColorValue ColorValue { get; }
   }
-  
-  public interface IColorIdentifiedValue<TIdentifier> : IIdentifiedValue<TIdentifier>,
-                                                   IColorFactor {
+
+  public interface IColorIdentifiedValue<TIdentifier> :
+      IIdentifiedValue<TIdentifier>,
+      IColorFactor {
     IColorValue ColorValue { get; }
   }
 
-  public interface IColorInput<TIdentifier> : IColorIdentifiedValue<TIdentifier> {
+  public interface
+      IColorInput<TIdentifier> : IColorIdentifiedValue<TIdentifier> {
     IColorConstant DefaultValue { get; }
     IColorConstant? CustomValue { get; set; }
   }
 
-  public interface IColorOutput<TIdentifier> : IColorIdentifiedValue<TIdentifier> {}
+  public interface
+      IColorOutput<TIdentifier> : IColorIdentifiedValue<TIdentifier> { }
 
   public enum ColorSwizzle {
     R,
@@ -34,7 +37,7 @@ namespace fin.language.equations.fixedFunction {
   }
 
 
-  public interface IColorValue {
+  public interface IColorValue : IValue {
     IColorExpression Add(IColorValue term1, params IColorValue[] terms);
     IColorExpression Subtract(IColorValue term1, params IColorValue[] terms);
     IColorTerm Multiply(IColorValue factor1, params IColorValue[] factors);
@@ -62,7 +65,7 @@ namespace fin.language.equations.fixedFunction {
     IReadOnlyList<IColorValue>? DenominatorFactors { get; }
   }
 
-  public interface IColorFactor : IColorValue {}
+  public interface IColorFactor : IColorValue { }
 
   public interface IColorConstant : IColorFactor {
     double? IntensityValue { get; }

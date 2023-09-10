@@ -18,11 +18,11 @@ namespace fin.language.equations.fixedFunction {
 
   public interface IColorRegister : IColorNamedValue {
     IColorConstant DefaultValue { get; }
-    IColor Value { get; }
+    IColor Value { get; set; }
   }
 
   public interface IScalarRegister : IScalarNamedValue {
     IScalarConstant DefaultValue { get; }
-    float Value { get; }
+    float Value { get; set; }
   }
 }
