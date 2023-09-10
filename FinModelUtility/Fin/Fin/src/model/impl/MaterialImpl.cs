@@ -27,6 +27,7 @@ namespace fin.model.impl {
       }
 
       public IReadOnlyList<IMaterial> All { get; }
+      public IFixedFunctionRegisters? Registers { get; private set; }
 
       public INullMaterial AddNullMaterial() {
         var material = new NullMaterialImpl();
@@ -47,6 +48,7 @@ namespace fin.model.impl {
       }
 
       public IFixedFunctionMaterial AddFixedFunctionMaterial() {
+        this.Registers ??= new FixedFunctionRegisters();
         var material = new FixedFunctionMaterialImpl();
         this.materials_.Add(material);
         return material;

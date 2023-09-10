@@ -19,6 +19,7 @@ namespace uni.ui.right_panel {
         this.animationsTab_.Model = model;
         this.materialsTab_.ModelAndMaterials =
             model != null ? (model, model.MaterialManager.All) : null;
+        this.registersTab_.Model = model;
         this.skeletonTab_.Model = model;
         this.texturesTab_.Model = model;
       }

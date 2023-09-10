@@ -10,6 +10,7 @@ using fin.util.image;
 namespace fin.model {
   public interface IMaterialManager {
     IReadOnlyList<IMaterial> All { get; }
+    IFixedFunctionRegisters? Registers { get; }
 
     // TODO: Name is actually required, should be required in the creation scripts?
     INullMaterial AddNullMaterial();

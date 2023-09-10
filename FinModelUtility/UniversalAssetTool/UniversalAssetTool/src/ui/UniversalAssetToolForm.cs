@@ -170,11 +170,11 @@ public partial class UniversalAssetToolForm : Form {
       }
 
       if (this.gameDirectory_ != gameDirectory) {
-        var audioFileBundles = gameDirectory
-                               .GetFilesOfType<IAudioFileBundle>(true)
-                               .Select(bundle => bundle.TypedFileBundle)
-                               .ToArray();
-        this.audioPlayerPanel_.AudioFileBundles = audioFileBundles;
+        this.audioPlayerPanel_.AudioFileBundles =
+            gameDirectory
+                .GetFilesOfType<IAudioFileBundle>(true)
+                .Select(bundle => bundle.TypedFileBundle)
+                .ToArray();
       }
 
       this.gameDirectory_ = gameDirectory;
@@ -253,7 +253,7 @@ public partial class UniversalAssetToolForm : Form {
       light.SetColor(FinColor.FromSystemColor(lightColors[currentIndex]));
 
       var angleInRadians = 2 * MathF.PI *
-                           (1f * currentIndex) / enabledCount;
+          (1f * currentIndex) / enabledCount;
 
       light.SetNormal(new Vector3f {
           X = (float) (.5f * Math.Cos(angleInRadians)),

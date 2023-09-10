@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
 namespace fin.language.equations.fixedFunction {
-  public interface IScalarNamedValue : INamedValue, IColorFactor {
+  public interface IScalarNamedValue : INamedValue, IScalarFactor {
     IScalarValue ScalarValue { get; }
   }
 

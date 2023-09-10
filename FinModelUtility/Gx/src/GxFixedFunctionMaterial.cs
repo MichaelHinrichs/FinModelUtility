@@ -116,6 +116,7 @@ namespace gx {
       var colorConstants = new List<Color>();
 
       var equations = material.Equations;
+      var registers = materialManager.Registers;
 
       var colorZero = equations.CreateColorConstant(0);
       var colorHalf = equations.CreateColorConstant(.5);
@@ -157,7 +158,7 @@ namespace gx {
 
         var activeLights = colorChannelControl.LitMask.GetActiveLights().ToArray();
 
-        // TODO: Properly handle lights and attentuation and stuff
+        // TODO: Properly handle lights and attenuation and stuff
 
         // TODO: Expose material/ambient registers to side panel
 
@@ -166,27 +167,34 @@ namespace gx {
 
           var vertexColor = vertexColors[colorIndex];
 
-          var materialRegister = populatedMaterial.MaterialColors[colorIndex];
-          var materialColor = colorChannelControl.MaterialSrc switch {
-            GxColorSrc.Register => equations.CreateColorConstant(
-                materialRegister.R / 255.0,
-                materialRegister.G / 255.0,
-                materialRegister.B / 255.0),
-            GxColorSrc.Vertex => vertexColor,
-          };
+          var materialColor = populatedMaterial.MaterialColors[colorIndex];
+          var materialColorRegisterValue =
+              colorChannelControl.MaterialSrc switch {
+                  GxColorSrc.Register => registers.GetOrCreateColorRegister(
+                      $"'GxMaterialColor{colorIndex}",
+                      equations.CreateColorConstant(
+                          materialColor.R / 255.0,
+                          materialColor.G / 255.0,
+                          materialColor.B / 255.0)
+                  ),
+                  GxColorSrc.Vertex => vertexColor,
+              };
 
-          var colorValue = materialColor;
+          var colorValue = materialColorRegisterValue;
 
           var isLightingEnabled = colorChannelControl.LightingEnabled;
           if (isLightingEnabled) {
-            var ambientRegister = populatedMaterial.AmbientColors[colorIndex];
-            var ambientColor = colorChannelControl.AmbientSrc switch {
-              GxColorSrc.Register => equations.CreateColorConstant(
-                  ambientRegister.R / 255.0,
-                  ambientRegister.G / 255.0,
-                  ambientRegister.B / 255.0),
-              GxColorSrc.Vertex => vertexColor,
-            };
+            var ambientColor = populatedMaterial.AmbientColors[colorIndex];
+            var ambientColorRegisterValue =
+                colorChannelControl.AmbientSrc switch {
+                    GxColorSrc.Register => registers.GetOrCreateColorRegister(
+                        $"'GxAmbientColor{colorIndex}",
+                        equations.CreateColorConstant(
+                            ambientColor.R / 255.0,
+                            ambientColor.G / 255.0,
+                            ambientColor.B / 255.0)),
+                    GxColorSrc.Vertex => vertexColor,
+                };
 
             // TODO: Factor in how colors are merged in channel control
             IColorValue? mergedLightColor = null;
@@ -200,13 +208,13 @@ namespace gx {
             }
 
             var illuminationColor =
-                colorFixedFunctionOps.Add(mergedLightColor, ambientColor);
+                colorFixedFunctionOps.Add(mergedLightColor, ambientColorRegisterValue);
             if (illuminationColor != null) {
               illuminationColor.Clamp = true;
             }
 
             colorValue =
-                colorFixedFunctionOps.Multiply(materialColor,
+                colorFixedFunctionOps.Multiply(materialColorRegisterValue,
                                                illuminationColor);
           }
 
@@ -228,23 +236,29 @@ namespace gx {
 
           var vertexAlpha = vertexAlphas[alphaIndex];
 
-          var materialRegister = populatedMaterial.MaterialColors[alphaIndex];
-          var materialAlpha = colorChannelControl.MaterialSrc switch {
-            GxColorSrc.Register => equations.CreateScalarConstant(
-                materialRegister.A / 255.0),
-            GxColorSrc.Vertex => vertexAlpha,
-          };
+          var materialColor = populatedMaterial.MaterialColors[alphaIndex];
+          var materialAlphaRegisterValue =
+              colorChannelControl.MaterialSrc switch {
+                  GxColorSrc.Register => registers.GetOrCreateScalarRegister(
+                      $"GxMaterialAlpha{alphaIndex}",
+                      equations.CreateScalarConstant(
+                          materialColor.A / 255.0)),
+                  GxColorSrc.Vertex => vertexAlpha,
+              };
 
-          var alphaValue = materialAlpha;
+          var alphaValue = materialAlphaRegisterValue;
 
           var isLightingEnabled = colorChannelControl.LightingEnabled;
           if (isLightingEnabled) {
-            var ambientRegister = populatedMaterial.AmbientColors[alphaIndex];
-            var ambientAlpha = colorChannelControl.AmbientSrc switch {
-              GxColorSrc.Register => equations.CreateScalarConstant(
-                  ambientRegister.A / 255.0),
-              GxColorSrc.Vertex => vertexAlpha,
-            };
+            var ambientColor = populatedMaterial.AmbientColors[alphaIndex];
+            var ambientAlphaRegisterValue =
+                colorChannelControl.AmbientSrc switch {
+                    GxColorSrc.Register => registers.GetOrCreateScalarRegister(
+                        $"GxAmbientAlpha{alphaIndex}",
+                        equations.CreateScalarConstant(
+                            ambientColor.A / 255.0)),
+                    GxColorSrc.Vertex => vertexAlpha,
+                };
 
             // TODO: Factor in how colors are merged in channel control
             IScalarValue? mergedLightAlpha = null;
@@ -258,14 +272,14 @@ namespace gx {
             }
 
             var illuminationAlpha =
-                scalarFixedFunctionOps.Add(mergedLightAlpha, ambientAlpha);
+                scalarFixedFunctionOps.Add(mergedLightAlpha, ambientAlphaRegisterValue);
             if (illuminationAlpha != null) {
               illuminationAlpha.Clamp = true;
             }
 
             alphaValue =
                 scalarFixedFunctionOps.Multiply(
-                    materialAlpha, illuminationAlpha);
+                    materialAlphaRegisterValue, illuminationAlpha);
           }
 
           var alpha = alphaValue ?? scZero;

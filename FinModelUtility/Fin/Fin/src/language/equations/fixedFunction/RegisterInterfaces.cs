@@ -5,11 +5,11 @@ namespace fin.language.equations.fixedFunction {
     IReadOnlyList<IColorRegister> ColorRegisters { get; }
     IReadOnlyList<IScalarRegister> ScalarRegisters { get; }
 
-    IColorRegister CreateColorRegister(
+    IColorRegister GetOrCreateColorRegister(
         string name,
         IColorConstant defaultValue);
 
-    IScalarRegister CreateScalarRegister(
+    IScalarRegister GetOrCreateScalarRegister(
         string name,
         IScalarConstant defaultValue);
   }

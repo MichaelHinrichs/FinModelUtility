@@ -40,6 +40,7 @@ namespace fin.language.equations.fixedFunction {
           os.WriteLine($"uniform sampler2D texture{t};");
         }
       }
+
       os.WriteLine();
 
       var hasIndividualLights = Enumerable
@@ -71,9 +72,11 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
                                             or UvType.LINEAR)) {
         os.WriteLine("in vec2 normalUv;");
       }
+
       if (dependsOnAnIndividualLight) {
         os.WriteLine("in vec3 vertexNormal;");
       }
+
       for (var i = 0; i < MaterialConstants.MAX_COLORS; ++i) {
         if (new[] {
                 FixedFunctionSource.VERTEX_COLOR_0 + i,
@@ -82,11 +85,13 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
           os.WriteLine($"in vec4 vertexColor{i};");
         }
       }
+
       for (var i = 0; i < MaterialConstants.MAX_UVS; ++i) {
         if (material.TextureSources.Any(texture => texture?.UvIndex == i)) {
           os.WriteLine($"in vec2 uv{i};");
         }
       }
+
       os.WriteLine();
       os.WriteLine("out vec4 fragColor;");
       os.WriteLine();
@@ -109,7 +114,8 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
 
       // Calculate lighting
       if (dependsOnAnIndividualLight) {
-        os.WriteLine($"  vec4 individualLightColors[{MaterialConstants.MAX_LIGHTS}];");
+        os.WriteLine(
+            $"  vec4 individualLightColors[{MaterialConstants.MAX_LIGHTS}];");
         os.WriteLine(
             @$"  for (int i = 0; i < {MaterialConstants.MAX_LIGHTS}; ++i) {{");
         os.WriteLine("    vec4 lightColor = getLightColor(lights[i]);");
@@ -138,12 +144,12 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
       os.WriteLine("  fragColor = vec4(colorComponent, alphaComponent);");
 
       var alphaOpValue =
-          DetermineAlphaOpValue(
+          this.DetermineAlphaOpValue_(
               material.AlphaOp,
-              DetermineAlphaCompareType(
+              this.DetermineAlphaCompareType_(
                   material.AlphaCompareType0,
                   material.AlphaReference0),
-              DetermineAlphaCompareType(
+              this.DetermineAlphaCompareType_(
                   material.AlphaCompareType1,
                   material.AlphaReference1));
 
@@ -198,6 +204,7 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
               }
               default: throw new ArgumentOutOfRangeException();
             }
+
             os.WriteLine(@") {
     discard;
   }");
@@ -227,7 +234,9 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
           AlphaCompareType.GEqual  => $"fragColor.a >= {reference}",
           AlphaCompareType.Always  => "true",
           _ => throw new ArgumentOutOfRangeException(
-                   nameof(alphaCompareType), alphaCompareType, null)
+              nameof(alphaCompareType),
+              alphaCompareType,
+              null)
       };
 
     private enum AlphaOpValue {
@@ -238,7 +247,7 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
       ALWAYS_FALSE,
     }
 
-    private AlphaOpValue DetermineAlphaOpValue(
+    private AlphaOpValue DetermineAlphaOpValue_(
         AlphaOp alphaOp,
         AlphaCompareValue compareValue0,
         AlphaCompareValue compareValue1) {
@@ -255,12 +264,15 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
         if (is0True && is1True) {
           return AlphaOpValue.ALWAYS_TRUE;
         }
+
         if (is0True) {
           return AlphaOpValue.ONLY_1_REQUIRED;
         }
+
         if (is1True) {
           return AlphaOpValue.ONLY_0_REQUIRED;
         }
+
         return AlphaOpValue.BOTH_REQUIRED;
       }
 
@@ -272,12 +284,15 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
         if (is0False && is1False) {
           return AlphaOpValue.ALWAYS_FALSE;
         }
+
         if (is0False) {
           return AlphaOpValue.ONLY_1_REQUIRED;
         }
+
         if (is1False) {
           return AlphaOpValue.ONLY_0_REQUIRED;
         }
+
         return AlphaOpValue.BOTH_REQUIRED;
       }
 
@@ -290,7 +305,7 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
       ALWAYS_FALSE,
     }
 
-    private AlphaCompareValue DetermineAlphaCompareType(
+    private AlphaCompareValue DetermineAlphaCompareType_(
         AlphaCompareType compareType,
         float reference) {
       var isReference0 = Math.Abs(reference - 0) < .001;
@@ -319,6 +334,7 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
         if (wrapExpressions) {
           os.Write("(");
         }
+
         this.PrintScalarExpression_(os, expression);
         if (wrapExpressions) {
           os.Write(")");
@@ -343,6 +359,7 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
         if (i > 0) {
           os.Write(" + ");
         }
+
         this.PrintScalarValue_(os, term);
       }
     }
@@ -381,8 +398,13 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
     private void PrintScalarFactor_(
         StringWriter os,
         IScalarFactor factor) {
-      if (factor is IScalarIdentifiedValue<FixedFunctionSource> namedValue) {
-        this.PrintScalarNamedValue_(os, namedValue);
+      if (factor is IScalarIdentifiedValue<FixedFunctionSource>
+          identifiedValue) {
+        this.PrintScalarIdentifiedValue_(os, identifiedValue);
+      } else if (factor is IScalarNamedValue namedValue) {
+        // TODO: Switch this over
+        this.PrintScalarValue_(os, namedValue.ScalarValue);
+        // this.PrintScalarNamedValue_(os, namedValue);
       } else if (factor is IScalarConstant constant) {
         this.PrintScalarConstant_(os, constant);
       } else if
@@ -398,10 +420,15 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
 
     private void PrintScalarNamedValue_(
         StringWriter os,
-        IScalarIdentifiedValue<FixedFunctionSource> identifiedValue)
-      => os.Write(this.GetScalarNamedValue_(identifiedValue));
+        IScalarNamedValue namedValue)
+      => os.Write(namedValue.Name);
 
-    private string GetScalarNamedValue_(
+    private void PrintScalarIdentifiedValue_(
+        StringWriter os,
+        IScalarIdentifiedValue<FixedFunctionSource> identifiedValue)
+      => os.Write(this.GetScalarIdentifiedValue_(identifiedValue));
+
+    private string GetScalarIdentifiedValue_(
         IScalarIdentifiedValue<FixedFunctionSource> identifiedValue) {
       var id = identifiedValue.Identifier;
       var isTextureAlpha = id is >= FixedFunctionSource.TEXTURE_ALPHA_0
@@ -409,7 +436,7 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
 
       if (isTextureAlpha) {
         var textureIndex =
-            (int)id - (int)FixedFunctionSource.TEXTURE_ALPHA_0;
+            (int) id - (int) FixedFunctionSource.TEXTURE_ALPHA_0;
 
         var textureText = this.GetTextureValue_(textureIndex);
         var textureValueText = $"{textureText}.a";
@@ -460,6 +487,7 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
         if (wrapExpressions) {
           os.Write("(");
         }
+
         this.PrintColorExpression_(os, expression);
         if (wrapExpressions) {
           os.Write(")");
@@ -469,6 +497,7 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
         if (wrapTerms) {
           os.Write("(");
         }
+
         this.PrintColorTerm_(os, term);
         if (wrapTerms) {
           os.Write(")");
@@ -478,6 +507,7 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
         if (wrapFactors) {
           os.Write("(");
         }
+
         this.PrintColorFactor_(os, factor);
         if (wrapFactors) {
           os.Write(")");
@@ -504,6 +534,7 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
         if (i > 0) {
           os.Write(" + ");
         }
+
         this.PrintColorValue_(os, term);
       }
     }
@@ -542,8 +573,12 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
     private void PrintColorFactor_(
         StringWriter os,
         IColorFactor factor) {
-      if (factor is IColorIdentifiedValue<FixedFunctionSource> namedValue) {
-        this.PrintColorNamedValue_(os, namedValue);
+      if (factor is IColorIdentifiedValue<FixedFunctionSource> identifiedValue) {
+        this.PrintColorIdentifiedValue_(os, identifiedValue);
+      } else if (factor is IColorNamedValue namedValue) {
+        // TODO: Switch this over
+        this.PrintColorValue_(os, namedValue.ColorValue);
+        //this.PrintColorNamedValue_(os, namedValue);
       } else {
         var useIntensity = factor.Intensity != null;
 
@@ -567,10 +602,15 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
       }
     }
 
-    private void PrintColorNamedValue_(
+    private void PrintColorIdentifiedValue_(
         StringWriter os,
         IColorIdentifiedValue<FixedFunctionSource> identifiedValue)
       => os.Write(this.GetColorNamedValue_(identifiedValue));
+
+    private void PrintColorNamedValue_(
+        StringWriter os,
+        IColorNamedValue namedValue)
+      => os.Write(namedValue.Name);
 
     private string GetColorNamedValue_(
         IColorIdentifiedValue<FixedFunctionSource> identifiedValue) {
@@ -583,13 +623,13 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
       if (isTextureColor || isTextureAlpha) {
         var textureIndex =
             isTextureColor
-                ? (int)id - (int)FixedFunctionSource.TEXTURE_COLOR_0
-                : (int)id - (int)FixedFunctionSource.TEXTURE_ALPHA_0;
+                ? (int) id - (int) FixedFunctionSource.TEXTURE_COLOR_0
+                : (int) id - (int) FixedFunctionSource.TEXTURE_ALPHA_0;
 
         var textureText = this.GetTextureValue_(textureIndex);
         var textureValueText = isTextureColor
-                                   ? $"{textureText}.rgb"
-                                   : $"vec3({textureText}.a)";
+            ? $"{textureText}.rgb"
+            : $"vec3({textureText}.a)";
 
         return textureValueText;
       }
@@ -600,6 +640,7 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
                      out var globalLightColorIndex)) {
         return $"individualLightColors[{globalLightColorIndex}].rgb";
       }
+
       if (IsInRange_(id,
                      FixedFunctionSource.LIGHT_0_ALPHA,
                      FixedFunctionSource.LIGHT_7_ALPHA,
@@ -631,7 +672,7 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
       var texture = this.textures_[textureIndex];
 
       var uvText = texture?.UvType switch {
-          UvType.STANDARD    => $"uv{texture.UvIndex}",
+          UvType.STANDARD  => $"uv{texture.UvIndex}",
           UvType.SPHERICAL => "asin(normalUv) / 3.14159 + 0.5",
           UvType.LINEAR    => "acos(normalUv) / 3.14159",
           _                => throw new ArgumentOutOfRangeException()
@@ -666,6 +707,7 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
           throw new ArgumentOutOfRangeException(
               nameof(ternaryOperator.ComparisonType));
       }
+
       os.Write(" ? ");
       this.PrintColorValue_(os, ternaryOperator.TrueValue);
       os.Write(" : ");
@@ -676,7 +718,7 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
     private void PrintColorNamedValueSwizzle_(
         StringWriter os,
         IColorNamedValueSwizzle<FixedFunctionSource> swizzle) {
-      this.PrintColorNamedValue_(os, swizzle.Source);
+      this.PrintColorIdentifiedValue_(os, swizzle.Source);
       os.Write(".");
       os.Write(swizzle.SwizzleType switch {
           ColorSwizzle.R => 'r',

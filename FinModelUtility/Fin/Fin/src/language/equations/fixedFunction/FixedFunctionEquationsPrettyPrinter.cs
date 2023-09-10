@@ -148,7 +148,9 @@ namespace fin.language.equations.fixedFunction {
     private void PrintScalarFactor_(
         StringWriter os,
         IScalarFactor factor) {
-      if (factor is IScalarIdentifiedValue<TIdentifier> namedValue) {
+      if (factor is IScalarIdentifiedValue<TIdentifier> identifiedValue) {
+        this.PrintScalarIdentifiedValue_(os, identifiedValue);
+      } else if (factor is IScalarNamedValue namedValue) {
         this.PrintScalarNamedValue_(os, namedValue);
       } else if (factor is IScalarConstant constant) {
         this.PrintScalarConstant_(os, constant);
@@ -161,10 +163,15 @@ namespace fin.language.equations.fixedFunction {
       }
     }
 
-    private void PrintScalarNamedValue_(
+    private void PrintScalarIdentifiedValue_(
         StringWriter os,
         IScalarIdentifiedValue<TIdentifier> identifiedValue)
       => os.Write("{" + identifiedValue.Identifier + "}");
+
+    private void PrintScalarNamedValue_(
+        StringWriter os,
+        IScalarNamedValue namedValue)
+      => os.Write("{" + namedValue.Name + "}");
 
     private void PrintScalarConstant_(
         StringWriter os,
@@ -266,7 +273,9 @@ namespace fin.language.equations.fixedFunction {
     private void PrintColorFactor_(
         StringWriter os,
         IColorFactor factor) {
-      if (factor is IColorIdentifiedValue<TIdentifier> namedValue) {
+      if (factor is IColorIdentifiedValue<TIdentifier> identifiedValue) {
+        this.PrintColorIdentifiedValue_(os, identifiedValue);
+      } else if (factor is IColorNamedValue namedValue) {
         this.PrintColorNamedValue_(os, namedValue);
       } else {
         var useIntensity = factor.Intensity != null;
@@ -287,10 +296,15 @@ namespace fin.language.equations.fixedFunction {
       }
     }
 
-    private void PrintColorNamedValue_(
+    private void PrintColorIdentifiedValue_(
         StringWriter os,
         IColorIdentifiedValue<TIdentifier> identifiedValue)
       => os.Write("<" + identifiedValue.Identifier + ">");
+
+    private void PrintColorNamedValue_(
+        StringWriter os,
+        IColorNamedValue namedValue)
+      => os.Write("<" + namedValue.Name + ">");
 
     private void PrintColorTernaryOperator_(
         StringWriter os,
@@ -316,7 +330,7 @@ namespace fin.language.equations.fixedFunction {
     private void PrintColorNamedValueSwizzle_(
         StringWriter os,
         IColorNamedValueSwizzle<TIdentifier> swizzle) {
-      this.PrintColorNamedValue_(os, swizzle.Source);
+      this.PrintColorIdentifiedValue_(os, swizzle.Source);
       os.Write(".");
       os.Write(swizzle.SwizzleType);
     }
