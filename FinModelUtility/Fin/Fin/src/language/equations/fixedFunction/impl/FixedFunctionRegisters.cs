@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 
+using fin.color;
+
 namespace fin.language.equations.fixedFunction {
   public class FixedFunctionRegisters : IFixedFunctionRegisters {
     private readonly Dictionary<string, IColorRegister> colorRegistersMap_ =
@@ -21,9 +23,7 @@ namespace fin.language.equations.fixedFunction {
         string name,
         IColorConstant defaultValue) {
       if (!this.colorRegistersMap_.TryGetValue(name, out var colorRegister)) {
-        colorRegister = new ColorRegister {
-            Name = name, ColorValue = defaultValue,
-        };
+        colorRegister = new ColorRegister(name, defaultValue);
 
         this.colorRegistersMap_[name] = colorRegister;
         this.colorRegisters_.Add(colorRegister);
@@ -36,9 +36,7 @@ namespace fin.language.equations.fixedFunction {
         string name,
         IScalarConstant defaultValue) {
       if (!this.scalarRegistersMap_.TryGetValue(name, out var scalarRegister)) {
-        scalarRegister = new ScalarRegisterImpl {
-            Name = name, ScalarValue = defaultValue,
-        };
+        scalarRegister = new ScalarRegister(name, defaultValue);
 
         this.scalarRegistersMap_[name] = scalarRegister;
         this.scalarRegisters_.Add(scalarRegister);
@@ -48,8 +46,24 @@ namespace fin.language.equations.fixedFunction {
     }
 
     private class ColorRegister : BColorValue, IColorRegister {
-      public required string Name { get; init; }
-      public required IColorValue ColorValue { get; init; }
+      public ColorRegister(string name, IColorConstant defaultValue) {
+        this.Name = name;
+        this.DefaultValue = defaultValue;
+
+        this.Value = defaultValue.IntensityValue != null
+            ? FinColor.FromIntensityFloat(
+                (float) defaultValue.IntensityValue!)
+            : FinColor.FromRgbFloats((float) defaultValue.RValue,
+                                     (float) defaultValue.GValue,
+                                     (float) defaultValue.BValue);
+      }
+
+      public string Name { get; }
+      // TODO: Consider switching this to a mutable color value and merging these fields
+      public IColorConstant DefaultValue { get; }
+      public IColor Value { get; set; }
+
+      public IColorValue ColorValue => this.DefaultValue;
 
       public override IScalarValue? Intensity => this.ColorValue.Intensity;
       public override IScalarValue R => this.ColorValue.R;
@@ -59,9 +73,19 @@ namespace fin.language.equations.fixedFunction {
       public override string ToString() => $"{Name} : {ColorValue}";
     }
 
-    private class ScalarRegisterImpl : BScalarValue, IScalarRegister {
-      public required string Name { get; init; }
-      public required IScalarValue ScalarValue { get; init; }
+    private class ScalarRegister : BScalarValue, IScalarRegister {
+      public ScalarRegister(string name, IScalarConstant defaultValue) {
+        this.Name = name;
+        this.DefaultValue = defaultValue;
+        this.Value = (float) defaultValue.Value;
+      }
+
+      public string Name { get; }
+      // TODO: Consider switching this to a mutable scalar value and merging these fields
+      public IScalarConstant DefaultValue { get; }
+      public float Value { get; set; }
+
+      public IScalarValue ScalarValue => this.DefaultValue;
 
       public override string ToString() => $"{Name} : {ScalarValue}";
     }

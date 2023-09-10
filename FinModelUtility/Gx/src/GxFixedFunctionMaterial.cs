@@ -171,7 +171,7 @@ namespace gx {
           var materialColorRegisterValue =
               colorChannelControl.MaterialSrc switch {
                   GxColorSrc.Register => registers.GetOrCreateColorRegister(
-                      $"'GxMaterialColor{colorIndex}",
+                      $"GxMaterialColor{colorIndex}",
                       equations.CreateColorConstant(
                           materialColor.R / 255.0,
                           materialColor.G / 255.0,
@@ -188,7 +188,7 @@ namespace gx {
             var ambientColorRegisterValue =
                 colorChannelControl.AmbientSrc switch {
                     GxColorSrc.Register => registers.GetOrCreateColorRegister(
-                        $"'GxAmbientColor{colorIndex}",
+                        $"GxAmbientColor{colorIndex}",
                         equations.CreateColorConstant(
                             ambientColor.R / 255.0,
                             ambientColor.G / 255.0,
