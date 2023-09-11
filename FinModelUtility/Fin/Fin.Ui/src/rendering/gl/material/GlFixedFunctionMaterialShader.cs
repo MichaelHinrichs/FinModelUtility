@@ -73,7 +73,12 @@ namespace fin.ui.rendering.gl.material {
     protected override void PassUniformsAndBindTextures(
         GlShaderProgram shaderProgram) {
       for (var t = 0; t < MaterialConstants.MAX_TEXTURES; ++t) {
-        GL.Uniform1(textureLocations_[t], t);
+        var location = this.textureLocations_[t];
+        if (location == -1) {
+          continue;
+        }
+
+        GL.Uniform1(location, t);
       }
 
       for (var i = 0; i < this.textures_.Count; ++i) {
@@ -81,16 +86,22 @@ namespace fin.ui.rendering.gl.material {
       }
 
       foreach (var colorRegister in this.registers_.ColorRegisters) {
+        var location = this.colorRegisterLocations_[colorRegister];
+        if (location == -1) {
+          continue;
+        }
+
         var value = colorRegister.Value;
-        GL.Uniform3(this.colorRegisterLocations_[colorRegister],
-                    value.Rf,
-                    value.Gf,
-                    value.Bf);
+        GL.Uniform3(location, value.Rf, value.Gf, value.Bf);
       }
 
       foreach (var scalarRegister in this.registers_.ScalarRegisters) {
-        GL.Uniform1(this.scalarRegisterLocations_[scalarRegister],
-                    scalarRegister.Value);
+        var location = this.scalarRegisterLocations_[scalarRegister];
+        if (location == -1) {
+          continue;
+        }
+
+        GL.Uniform1(location, scalarRegister.Value);
       }
     }
   }

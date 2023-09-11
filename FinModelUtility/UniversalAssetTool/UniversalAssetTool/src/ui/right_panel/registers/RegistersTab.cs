@@ -120,14 +120,16 @@ namespace uni.ui.right_panel.registers {
                 0,
                 row);
 
+            var scale = 100f;
             var trackBar = new TrackBar {
                 Minimum = 0,
-                Maximum = 100,
-                Value = (int) (scalarRegister.Value * 100),
+                Maximum = (int) scale,
+                TickFrequency = (int) (scale / 10),
+                Value = (int) (scalarRegister.Value * scale),
                 Dock = DockStyle.Fill,
             };
             trackBar.ValueChanged += (_, _) => {
-              scalarRegister.Value = trackBar.Value;
+              scalarRegister.Value = trackBar.Value / scale;
             };
 
             scalarRegistersSection.Controls.Add(trackBar, 1, row);
