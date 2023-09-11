@@ -2,8 +2,6 @@
 using fin.math;
 using fin.model;
 
-using Microsoft.Win32;
-
 using OpenTK.Graphics.OpenGL;
 
 namespace fin.ui.rendering.gl.material {

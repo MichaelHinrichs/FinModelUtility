@@ -117,6 +117,7 @@ namespace uni.ui.common.scene {
     private bool isUpwardDown_ = false;
     private bool isDownwardDown_ = false;
     private bool isSpeedupActive_ = false;
+    private bool isSlowdownActive_ = false;
 
     public SceneViewerGlPanel() {
       this.impl_.MouseDown += (_, args) => {
@@ -192,6 +193,10 @@ namespace uni.ui.common.scene {
             this.isSpeedupActive_ = true;
             break;
           }
+          case Keys.ControlKey: {
+            this.isSlowdownActive_ = true;
+            break;
+          }
         }
       };
 
@@ -225,6 +230,10 @@ namespace uni.ui.common.scene {
             this.isSpeedupActive_ = false;
             break;
           }
+          case Keys.ControlKey: {
+            this.isSlowdownActive_ = false;
+            break;
+          }
         }
       };
     }
@@ -248,11 +257,20 @@ namespace uni.ui.common.scene {
           (this.isRightwardDown_ ? 1 : 0) - (this.isLeftwardDown_ ? 1 : 0);
       var upwardVector =
           (this.isUpwardDown_ ? 1 : 0) - (this.isDownwardDown_ ? 1 : 0);
+
+      var cameraSpeed = DebugFlags.GLOBAL_SCALE * 15;
+      if (this.isSpeedupActive_) {
+        cameraSpeed *= 2;
+      }
+
+      if (this.isSlowdownActive_) {
+        cameraSpeed /= 2;
+      }
+
       this.camera_.Move(forwardVector,
                         rightwardVector,
                         upwardVector,
-                        DebugFlags.GLOBAL_SCALE *
-                        (this.isSpeedupActive_ ? 30 : 15));
+                        cameraSpeed);
 
       var width = this.Width;
       var height = this.Height;

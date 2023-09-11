@@ -90,9 +90,8 @@ namespace fin.ui.rendering.gl.model {
     public void Render() {
       this.materialShader_?.Use();
 
-      var fixedFunctionMaterial = this.material_ as IFixedFunctionMaterial;
-
-      if (fixedFunctionMaterial != null) {
+      if (this.material_ is IReadOnlyFixedFunctionMaterial
+          fixedFunctionMaterial) {
         GlUtil.SetBlending(fixedFunctionMaterial.BlendMode,
                            fixedFunctionMaterial.SrcFactor,
                            fixedFunctionMaterial.DstFactor,
