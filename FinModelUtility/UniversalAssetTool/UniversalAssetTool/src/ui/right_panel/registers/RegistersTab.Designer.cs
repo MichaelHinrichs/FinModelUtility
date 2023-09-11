@@ -23,29 +23,26 @@
     /// the contents of this method with the code editor.
     /// </summary>
     private void InitializeComponent() {
-      this.tableLayoutPanel_ = new TableLayoutPanel();
+      this.flowLayoutPanel_ = new FlowLayoutPanel();
       this.SuspendLayout();
       // 
-      // tableLayoutPanel_
+      // flowLayoutPanel_
       // 
-      this.tableLayoutPanel_.AutoSize = true;
-      this.tableLayoutPanel_.ColumnCount = 2;
-      this.tableLayoutPanel_.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 140F));
-      this.tableLayoutPanel_.ColumnStyles.Add(new ColumnStyle());
-      this.tableLayoutPanel_.Dock = DockStyle.Top;
-      this.tableLayoutPanel_.Location = new Point(0, 0);
-      this.tableLayoutPanel_.Name = "tableLayoutPanel_";
-      this.tableLayoutPanel_.RowCount = 1;
-      this.tableLayoutPanel_.RowStyles.Add(new RowStyle());
-      this.tableLayoutPanel_.Size = new Size(280, 0);
-      this.tableLayoutPanel_.TabIndex = 0;
+      this.flowLayoutPanel_.AutoScroll = true;
+      this.flowLayoutPanel_.AutoSize = true;
+      this.flowLayoutPanel_.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+      this.flowLayoutPanel_.Dock = DockStyle.Fill;
+      this.flowLayoutPanel_.FlowDirection = FlowDirection.TopDown;
+      this.flowLayoutPanel_.Location = new Point(0, 0);
+      this.flowLayoutPanel_.Name = "flowLayoutPanel_";
+      this.flowLayoutPanel_.Size = new Size(280, 451);
+      this.flowLayoutPanel_.TabIndex = 0;
       // 
       // RegistersTab
       // 
       this.AutoScaleDimensions = new SizeF(8F, 20F);
       this.AutoScaleMode = AutoScaleMode.Font;
-      this.AutoScroll = true;
-      this.Controls.Add(this.tableLayoutPanel_);
+      this.Controls.Add(this.flowLayoutPanel_);
       this.Margin = new Padding(3, 4, 3, 4);
       this.Name = "RegistersTab";
       this.Size = new Size(280, 451);
@@ -55,6 +52,6 @@
 
     #endregion
 
-    private TableLayoutPanel tableLayoutPanel_;
+    private FlowLayoutPanel flowLayoutPanel_;
   }
 }
