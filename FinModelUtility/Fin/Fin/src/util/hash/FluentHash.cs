@@ -3,7 +3,7 @@
     public int Hash { get; private set; }
     private readonly int primeCoefficient_;
 
-    public FluentHash(int startingPrimeHash, int primeCoefficient) {
+    private FluentHash(int startingPrimeHash, int primeCoefficient) {
       this.Hash = startingPrimeHash;
       this.primeCoefficient_ = primeCoefficient;
     }

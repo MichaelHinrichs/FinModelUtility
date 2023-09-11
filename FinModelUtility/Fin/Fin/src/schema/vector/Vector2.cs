@@ -1,6 +1,7 @@
 ﻿using System;
 
 using fin.model;
+using fin.util.hash;
 
 using schema.binary;
 
@@ -38,8 +39,29 @@ namespace fin.schema.vector {
   }
 
   [BinarySchema]
-  public sealed partial class Vector2f 
-      : BVector2<float>, IVector2, IBinaryConvertible { }
+  public sealed partial class Vector2f
+      : BVector2<float>, IVector2, IBinaryConvertible {
+    public static bool operator ==(Vector2f lhs, Vector2f rhs)
+      => lhs.Equals(rhs);
+
+    public static bool operator !=(Vector2f lhs, Vector2f rhs)
+      => !lhs.Equals(rhs);
+
+    public override bool Equals(object? obj) {
+      if (Object.ReferenceEquals(this, obj)) {
+        return true;
+      }
+
+      if (obj is Vector2f other) {
+        return this.X == other.X && this.Y == other.Y;
+      }
+
+      return false;
+    }
+
+    public override int GetHashCode()
+      => FluentHash.Start().With(X).With(Y).Hash;
+  }
 
   [BinarySchema]
   public sealed partial class Vector2i : BVector2<int>, IBinaryConvertible { }

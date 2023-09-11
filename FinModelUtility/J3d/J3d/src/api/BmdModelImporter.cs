@@ -44,11 +44,9 @@ namespace j3d.api {
                 .Select(bcxFile => {
                   var extension = bcxFile.FileType.ToLower();
                   IBcx bcx = extension switch {
-                    ".bca" =>
-                        new Bca(bcxFile.ReadAllBytes()),
-                    ".bck" =>
-                        new Bck(bcxFile.ReadAllBytes()),
-                    _ => throw new NotSupportedException(),
+                    ".bca" => new Bca(bcxFile.ReadAllBytes()),
+                    ".bck" => new Bck(bcxFile.ReadAllBytes()),
+                    _      => throw new NotSupportedException(),
                   };
                   return (FullName: bcxFile.FullPath, bcx);
                 })

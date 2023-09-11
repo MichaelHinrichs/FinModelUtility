@@ -4,8 +4,8 @@ using System.IO;
 using System.Linq;
 
 using fin.image;
-using fin.io;
 using fin.model;
+using fin.util.hash;
 
 using gx;
 
@@ -46,6 +46,7 @@ namespace j3d.exporter {
     }
 
     public string Name { get; }
+    public override string ToString() => this.Name;
 
     public IImage Image { get; }
     public TextureEntry Header => OverrideHeader ?? DefaultHeader;
@@ -80,5 +81,40 @@ namespace j3d.exporter {
           throw new NotImplementedException();
       }
     }
+
+    public static bool operator ==(BmdGxTexture lhs, BmdGxTexture rhs)
+      => lhs.Equals(rhs);
+
+    public static bool operator !=(BmdGxTexture lhs, BmdGxTexture rhs)
+      => !lhs.Equals(rhs);
+
+    public override bool Equals(object? obj) {
+      if (Object.ReferenceEquals(this, obj)) {
+        return true;
+      }
+
+      if (obj is BmdGxTexture other) {
+        return this.Name.Equals(other.Name) &&
+               this.Image.Equals(other.Image) &&
+               WrapModeS == other.WrapModeS &&
+               WrapModeT == other.WrapModeT &&
+               MinTextureFilter == other.MinTextureFilter &&
+               MagTextureFilter == other.MagTextureFilter &&
+               ColorType == other.ColorType;
+      }
+
+      return false;
+    }
+
+    public override int GetHashCode()
+      => FluentHash.Start()
+                   .With(Name)
+                   .With(Image)
+                   .With(WrapModeS)
+                   .With(WrapModeT)
+                   .With(MinTextureFilter)
+                   .With(MagTextureFilter)
+                   .With(ColorType)
+                   .Hash;
   }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using System.Text;
 
+using fin.data.lazy;
 using fin.image;
 using fin.language.equations.fixedFunction;
 using fin.language.equations.fixedFunction.impl;
@@ -27,7 +28,9 @@ namespace gx {
         IModel model,
         IMaterialManager materialManager,
         IPopulatedMaterial populatedMaterial,
-        IList<IGxTexture> tex1Textures) {
+        IList<IGxTexture> tex1Textures,
+        ILazyDictionary<(IGxTexture, ITexCoordGen?, ITextureMatrixInfo?),
+            ITexture> lazyTextureDictionary) {
       // TODO: materialEntry.Flag determines draw order
 
       var materialName = populatedMaterial.Name;
@@ -317,67 +320,17 @@ namespace gx {
         } else {
           var bmdTexture = textures[textureIndex];
 
-          // TODO: Share texture definitions between materials?
-          var texture = materialManager.CreateTexture(bmdTexture.Image);
-
-          texture.Name = bmdTexture.Name;
-          texture.WrapModeU = GetWrapMode_(bmdTexture.WrapModeS);
-          texture.WrapModeV = GetWrapMode_(bmdTexture.WrapModeT);
-          texture.MinFilter = bmdTexture.MinTextureFilter switch {
-              GX_MIN_TEXTURE_FILTER.GX_NEAR   => TextureMinFilter.NEAR,
-              GX_MIN_TEXTURE_FILTER.GX_LINEAR => TextureMinFilter.LINEAR,
-              GX_MIN_TEXTURE_FILTER.GX_NEAR_MIP_NEAR => TextureMinFilter
-                  .NEAR_MIPMAP_NEAR,
-              GX_MIN_TEXTURE_FILTER.GX_LIN_MIP_NEAR => TextureMinFilter
-                  .LINEAR_MIPMAP_NEAR,
-              GX_MIN_TEXTURE_FILTER.GX_NEAR_MIP_LIN => TextureMinFilter
-                  .NEAR_MIPMAP_LINEAR,
-              GX_MIN_TEXTURE_FILTER.GX_LIN_MIP_LIN => TextureMinFilter
-                  .LINEAR_MIPMAP_NEAR,
-              GX_MIN_TEXTURE_FILTER.GX_NEAR2 => TextureMinFilter.NEAR,
-              GX_MIN_TEXTURE_FILTER.GX_NEAR3 => TextureMinFilter.NEAR,
-          };
-          texture.MagFilter = bmdTexture.MagTextureFilter switch {
-              GX_MAG_TEXTURE_FILTER.GX_NEAR   => TextureMagFilter.NEAR,
-              GX_MAG_TEXTURE_FILTER.GX_LINEAR => TextureMagFilter.LINEAR,
-          };
-          texture.ColorType = bmdTexture.ColorType;
-
           var texCoordGen =
               populatedMaterial.TexCoordGens[tevOrder.TexCoordId]!;
-          var texGenSrc = texCoordGen.TexGenSrc;
-          switch (texGenSrc) {
-            case >= GxTexGenSrc.Tex0 and <= GxTexGenSrc.Tex7: {
-                var texCoordIndex = texGenSrc - GxTexGenSrc.Tex0;
-                texture.UvIndex = texCoordIndex;
-                break;
-              }
-            case GxTexGenSrc.Normal: {
-                texture.UvType = UvType.LINEAR;
-                break;
-              }
-            default: {
-                //Asserts.Fail($"Unsupported texGenSrc type: {texGenSrc}");
-                texture.UvIndex = 0;
-                break;
-              }
-          }
 
           var texMatrixType = texCoordGen.TexMatrix;
-          if (texMatrixType != GxTexMatrix.Identity) {
-            var texMatrixIndex = (texMatrixType - GxTexMatrix.TexMtx0) / 3;
-            var texMatrix = populatedMaterial.TextureMatrices[texMatrixIndex];
+          var texMatrixIndex = (texMatrixType - GxTexMatrix.TexMtx0) / 3;
+          var texMatrix = texMatrixType != GxTexMatrix.Identity
+              ? populatedMaterial.TextureMatrices[texMatrixIndex]
+              : null;
 
-            // TODO: handle special matrix types
-
-            var texTranslation = texMatrix.Translation;
-            var texScale = texMatrix.Scale;
-            var texRotationDegrees = texMatrix.Rotation / 32768f * 180;
-
-            texture.SetOffset(texTranslation.X, texTranslation.Y)
-                   .SetScale(texScale.X, texScale.Y)
-                   .SetRotationDegrees(texRotationDegrees);
-          }
+          var texture =
+              lazyTextureDictionary[(bmdTexture, texCoordGen, texMatrix)];
 
           valueManager.UpdateTextureColor(textureIndex);
           material.SetTextureSource(textureIndex, texture);
@@ -1169,20 +1122,5 @@ namespace gx {
                  nameof(gxDepthCompareType), gxDepthCompareType,
                  null)
       };
-
-    private static WrapMode GetWrapMode_(GX_WRAP_TAG wrapMode) {
-      var mirror = (wrapMode & GX_WRAP_TAG.GX_MIRROR) != 0;
-      var repeat = (wrapMode & GX_WRAP_TAG.GX_REPEAT) != 0;
-
-      if (mirror) {
-        return WrapMode.MIRROR_REPEAT;
-      }
-
-      if (repeat) {
-        return WrapMode.REPEAT;
-      }
-
-      return WrapMode.CLAMP;
-    }
   }
 }

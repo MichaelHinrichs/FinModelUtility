@@ -2,6 +2,10 @@
 using System.Drawing;
 using System.IO;
 
+using CommunityToolkit.HighPerformance;
+
+using fin.util.hash;
+
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
@@ -38,5 +42,88 @@ namespace fin.image.formats {
           FinImage.ConvertFinImageFormatToImageSharpEncoder(imageFormat));
 
     public FinImageLock<TPixel> Lock() => new(Impl);
+
+
+    public override unsafe bool Equals(object? obj) {
+      if (Object.ReferenceEquals(this, obj)) {
+        return true;
+      }
+
+      if (obj is IImage otherGeneric) {
+        if (this.Width != otherGeneric.Width ||
+            this.Height != otherGeneric.Height) {
+          return false;
+        }
+
+        if (obj is IImage<TPixel> otherSame) {
+          var pixelCount = this.Width * this.Height;
+
+          using var fastLock = this.Lock();
+          var ptr = fastLock.pixelScan0;
+          var span = new Span<TPixel>(ptr, pixelCount).AsBytes();
+
+          using var otherFastLock = otherSame.Lock();
+          var otherPtr = otherFastLock.pixelScan0;
+          var otherSpan = new Span<TPixel>(otherPtr, pixelCount).AsBytes();
+
+          for (var i = 0; i < span.Length; ++i) {
+            if (span[i] != otherSpan[i]) {
+              return false;
+            }
+          }
+
+          return true;
+        }
+
+        bool match = true;
+        this.Access(thisAccessor => {
+          otherGeneric.Access(otherAccessor => {
+            for (var y = 0; y < this.Height; ++y) {
+              for (var x = 0; x < this.Width; ++x) {
+                thisAccessor(x,
+                             y,
+                             out var thisR,
+                             out var thisG,
+                             out var thisB,
+                             out var thisA);
+                otherAccessor(x,
+                              y,
+                              out var otherR,
+                              out var otherG,
+                              out var otherB,
+                              out var otherA);
+
+                if (thisR != otherR || 
+                    thisG != otherG || 
+                    thisB != otherG ||
+                    thisA != otherA) {
+                  match = false;
+                  return;
+                }
+              }
+            }
+          });
+        });
+
+        return match;
+      }
+
+      return false;
+    }
+
+    public override unsafe int GetHashCode() {
+      var pixelCount = this.Width * this.Height;
+
+      using var fastLock = this.Lock();
+      var ptr = fastLock.pixelScan0;
+      var span = new Span<TPixel>(ptr, pixelCount).AsBytes();
+
+      var hash = FluentHash.Start();
+      for (var i = 0; i < span.Length; ++i) {
+        hash.With(span[i]);
+      }
+
+      return hash;
+    }
   }
 }

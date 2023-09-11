@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace fin.data.lazy {
   public class LazyArray<T> : ILazyArray<T> {
@@ -45,5 +47,8 @@ namespace fin.data.lazy {
         this.impl_[key] = value;
       }
     }
+
+    public IEnumerable<int> Keys => Enumerable.Range(0, this.Count);
+    public IEnumerable<T> Values => this.impl_;
   }
 }

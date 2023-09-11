@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace fin.data.lazy {
   public class LazyDictionary<TKey, TValue> : ILazyDictionary<TKey, TValue> {
@@ -31,5 +32,8 @@ namespace fin.data.lazy {
       }
       set => this.impl_[key] = value;
     }
+
+    public IEnumerable<TKey> Keys => this.impl_.Keys;
+    public IEnumerable<TValue> Values => this.impl_.Values;
   }
 }
