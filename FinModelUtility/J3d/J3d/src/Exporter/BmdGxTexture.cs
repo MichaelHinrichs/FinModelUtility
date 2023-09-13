@@ -49,7 +49,8 @@ namespace j3d.exporter {
       var image = this.Header.ToBitmap();
       this.Image = image;
 
-      if (true) {
+      // TODO: This is really weird, can this possibly be right???????
+      if (false) {
         var alphaSetting = header.AlphaSetting;
         var alphaAlreadyGood = alphaSetting == JutTransparency.TRANSLUCENT;
         if (!alphaAlreadyGood &&

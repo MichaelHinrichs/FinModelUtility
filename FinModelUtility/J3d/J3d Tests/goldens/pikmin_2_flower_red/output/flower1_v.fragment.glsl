@@ -10,6 +10,8 @@ struct Light {
 
 uniform Light lights[8];
 
+uniform vec3 color_GxAmbientColor0;
+uniform vec3 color_GxColor0;
 in vec3 vertexNormal;
 in vec4 vertexColor0;
 in vec4 vertexColor1;
@@ -34,7 +36,7 @@ void main() {
     individualLightColors[i] = lightColor;
   }
 
-  vec3 colorComponent = clamp(vertexColor0.rgb*clamp((individualLightColors[0].rgb + vec3(0.19607843137254902)), 0, 1)*vec3(0.9019607901573181)*vec3(4), 0, 1);
+  vec3 colorComponent = clamp(vertexColor0.rgb*clamp((individualLightColors[0].rgb + color_GxAmbientColor0), 0, 1)*color_GxColor0*vec3(4), 0, 1);
 
   float alphaComponent = vertexColor0.a;
 

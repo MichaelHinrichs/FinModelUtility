@@ -17,8 +17,8 @@ namespace fin.image.io.pixel {
                               int offset) {
       var value = er.ReadByte();
 
-      var luminance = (byte) ((value >> 4) * 17);
-      var alpha = (byte) ((value & 0xF) * 17);
+      var alpha = (byte) ((value >> 4) * 17);
+      var luminance = (byte) ((value & 0xF) * 17);
 
       scan0[offset] = new La16(luminance, alpha);
     }
