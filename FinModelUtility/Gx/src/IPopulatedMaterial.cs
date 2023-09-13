@@ -18,7 +18,7 @@ namespace gx {
     Color?[] LightColors { get; }
 
     Color[] KonstColors { get; }
-    Color[] ColorRegisters { get; }
+    IColorRegister?[] ColorRegisters { get; }
 
     ITevOrder?[] TevOrderInfos { get; }
     ITevStageProps?[] TevStageInfos { get; }

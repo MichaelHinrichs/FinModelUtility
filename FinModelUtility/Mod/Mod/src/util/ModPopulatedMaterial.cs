@@ -18,7 +18,10 @@ namespace mod.util {
       this.ColorRegisters =
         tevInfo.ColorRegisters
         .Select(reg => reg.unknown1)
-        .Select(rgba => Color.FromArgb(rgba.A, rgba.R, rgba.G, rgba.B))
+        .Select((rgba, i) => (IColorRegister) new GxColorRegister {
+            Color = Color.FromArgb(rgba.A, rgba.R, rgba.G, rgba.B),
+            Index = i,
+        })
         .ToArray();
 
       // TODO: This is a guess
@@ -83,7 +86,7 @@ namespace mod.util {
     public Color[] AmbientColors { get; }
     public Color?[] LightColors { get; } = { };
     public Color[] KonstColors { get; }
-    public Color[] ColorRegisters { get; }
+    public IColorRegister[] ColorRegisters { get; }
     public ITevOrder?[] TevOrderInfos { get; }
     public ITevStageProps?[] TevStageInfos { get; }
     public ITevSwapMode?[] TevSwapModes { get; }

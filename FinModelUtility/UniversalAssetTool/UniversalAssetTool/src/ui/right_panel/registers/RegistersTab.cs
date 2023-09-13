@@ -1,6 +1,9 @@
-﻿using fin.color;
+﻿using System.Text.RegularExpressions;
+
+using fin.color;
 using fin.model;
 using fin.util.linq;
+using fin.util.strings;
 
 using uni.ui.common;
 
@@ -65,8 +68,14 @@ namespace uni.ui.right_panel.registers {
                 .Select(mat => mat.Equations)
                 .ToArray();
 
-        var colorRegisters = registers.ColorRegisters.OrderBy(reg => reg.Name).ToArray();
-        var scalarRegisters = registers.ScalarRegisters.OrderBy(reg => reg.Name).ToArray();
+        var comparer = new StringNumberSuffixComparer();
+        var colorRegisters = registers.ColorRegisters
+                                      .OrderBy(reg => reg.Name, comparer)
+                                      .ToArray();
+        var scalarRegisters = registers
+                              .ScalarRegisters
+                              .OrderBy(reg => reg.Name, comparer)
+                              .ToArray();
 
         var outputIdentifiers = new[] {
             FixedFunctionSource.OUTPUT_COLOR, FixedFunctionSource.OUTPUT_ALPHA

@@ -27,7 +27,7 @@ namespace j3d.misc.GCN {
     public Color?[] LightColors { get; set; }
 
     public Color[] KonstColors { get; set; }
-    public Color[] ColorRegisters { get; set; }
+    public IColorRegister?[] ColorRegisters { get; set; }
 
 
     public ushort[] TexGenInfo;
@@ -84,7 +84,14 @@ namespace j3d.misc.GCN {
 
       this.ColorRegisters =
           entry.TevColorIndexes
-               .Select(i => GetOrNull_(mat3.TevColors, i))
+               .Select(i => {
+                 var color = GetOrNull_(mat3.TevColors, i);
+                 if (color != null) {
+                   return (IColorRegister) new GxColorRegister { Color = color, Index = i, };
+                 }
+
+                 return null;
+               })
                .ToArray();
       this.KonstColors =
           entry.TevKonstColorIndexes

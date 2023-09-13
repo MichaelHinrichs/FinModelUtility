@@ -118,7 +118,7 @@ namespace gx {
       var colorConstants = new List<Color>();
 
       var equations = material.Equations;
-      var registers = materialManager.Registers;
+      var registers = Asserts.CastNonnull(materialManager.Registers);
 
       var colorZero = equations.CreateColorConstant(0);
       var colorHalf = equations.CreateColorConstant(.5);
@@ -756,10 +756,10 @@ namespace gx {
         return alpha;
       }
 
-      private IList<Color> colorRegisterColors_;
+      private IList<IColorRegister> colorRegisterColors_;
       private IList<Color> konstColorImpls_;
 
-      public void SetColorRegisters(IList<Color> colorRegisterColors) {
+      public void SetColorRegisters(IList<IColorRegister> colorRegisterColors) {
         this.colorRegisterColors_ = colorRegisterColors;
       }
 
@@ -924,22 +924,26 @@ namespace gx {
 
         if (colorSource >= GxCc.GX_CC_C0 &&
             colorSource <= GxCc.GX_CC_A2) {
-          var (color, index, isColor) =
+          var (colorRegister, isColor) =
               this.GetColorRegisterColorForSource_(colorSource);
+          Asserts.Nonnull(colorRegister);
+          var color = colorRegister.Color;
+          var index = colorRegister.Index;
 
           if (isColor) {
             return this.registers_.GetOrCreateColorRegister(
                 $"GxColor{index}",
                 this.equations_.CreateColorConstant(
-                    (color?.R ?? 255) / 255f,
-                    (color?.G ?? 255) / 255f,
-                    (color?.B ?? 255) / 255f));
+                    color.R / 255f,
+                    color.G / 255f,
+                    color.B / 255f));
           }
 
-          return new ColorWrapper(this.registers_.GetOrCreateScalarRegister(
-              $"GxAlpha{index}",
-              this.equations_.CreateScalarConstant(
-                  (color?.A ?? 255) / 255f)));
+          return new ColorWrapper(
+              this.registers_.GetOrCreateScalarRegister(
+                  $"GxAlpha{index}",
+                  this.equations_.CreateScalarConstant(
+                      color.A / 255f)));
         }
 
         if (!GxFixedFunctionMaterial.STRICT) {
@@ -971,12 +975,14 @@ namespace gx {
                 GxCa.GX_CA_A0,
                 GxCa.GX_CA_A2,
                 out var caIndex)) {
-          var index = caIndex;
-          var color = this.GetColorRegisterColorForIndex_(index);
+          var colorRegister = this.GetColorRegisterColorForIndex_(caIndex);
+          Asserts.Nonnull(colorRegister);
+          var color = colorRegister.Color;
+          var index = colorRegister.Index;
 
           return this.registers_.GetOrCreateScalarRegister($"GxAlpha{index}",
             this.equations_.CreateScalarConstant(
-                (color?.A ?? 255) / 255f));
+                color.A / 255f));
         }
 
         if (!GxFixedFunctionMaterial.STRICT) {
@@ -986,18 +992,18 @@ namespace gx {
         throw new NotImplementedException();
       }
 
-      private (Color? color, int index, bool isAlpha)
+      private (IColorRegister? colorRegister, bool isAlpha)
           GetColorRegisterColorForSource_(
-          GxCc source) {
+              GxCc source) {
         var ccIndex = (int) source - (int) GxCc.GX_CC_C0;
 
         var isColor = ccIndex % 2 == 0;
         var index = isColor ? ccIndex / 2 : (ccIndex - 1) / 2;
 
-        return (this.GetColorRegisterColorForIndex_(index), index, isColor);
+        return (this.GetColorRegisterColorForIndex_(index), isColor);
       }
 
-      private Color? GetColorRegisterColorForIndex_(int index) {
+      private IColorRegister? GetColorRegisterColorForIndex_(int index) {
         if (this.colorRegisterColors_.Count > index) {
           return this.colorRegisterColors_[index];
         }
