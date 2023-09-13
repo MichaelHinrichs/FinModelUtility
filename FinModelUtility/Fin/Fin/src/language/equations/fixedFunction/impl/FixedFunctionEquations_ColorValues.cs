@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 
-using fin.language.equations.scalar;
 using fin.util.asserts;
 using fin.util.data;
 

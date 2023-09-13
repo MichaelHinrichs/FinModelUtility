@@ -48,7 +48,10 @@ namespace fin.data.lazy {
       }
     }
 
-    public IEnumerable<int> Keys => Enumerable.Range(0, this.Count);
-    public IEnumerable<T> Values => this.impl_;
+    public IEnumerable<int> Keys
+      => Enumerable.Range(0, this.Count).Where(this.ContainsKey);
+
+    public IEnumerable<T> Values
+      => this.impl_.Where((value, i) => ContainsKey(i));
   }
 }

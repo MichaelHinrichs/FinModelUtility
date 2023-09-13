@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 using fin.util.asserts;
@@ -11,6 +12,8 @@ namespace fin.data {
 
     private bool hasNull_;
     private TValue nullValue_;
+
+    public int Count => this.Keys.Count();
 
     public void Clear() {
       this.impl_.Clear();

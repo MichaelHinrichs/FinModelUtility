@@ -31,6 +31,15 @@ namespace fin.data.stack {
     }
 
     [Test]
+    public void TestPushMultiple() {
+      var stack = new FinStack<string>();
+      Assert.Zero(stack.Count);
+
+      stack.Push(new[] { "foo", "bar", "goo" });
+      Assert.AreEqual(3, stack.Count);
+    }
+
+    [Test]
     public void TestPop() {
       var stack = new FinStack<string>();
       stack.Push("foo");

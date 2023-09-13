@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
+using fin.util.asserts;
 using fin.util.strings;
 
 using NUnit.Framework;
@@ -100,6 +103,21 @@ namespace fin.data.lazy {
 
       lazyReverseMap.Clear();
       Assert.AreEqual(false, lazyReverseMap.ContainsKey("reverse"));
+    }
+
+    [Test]
+    public void TestEnumerators() {
+      var lazyReverseMap =
+          new LazyDictionary<string, string>(inStr => inStr.Reverse());
+
+      Assert.AreEqual("oof", lazyReverseMap["foo"]);
+      Assert.AreEqual("rab", lazyReverseMap["bar"]);
+      Assert.AreEqual("oog", lazyReverseMap["goo"]);
+
+      Asserts.Equal<IEnumerable<string>>(lazyReverseMap.Keys.Order(),
+                                         new[] { "bar", "foo", "goo" });
+      Asserts.Equal<IEnumerable<string>>(lazyReverseMap.Values.Order(),
+                                         new[] { "oof", "oog", "rab", });
     }
   }
 }
