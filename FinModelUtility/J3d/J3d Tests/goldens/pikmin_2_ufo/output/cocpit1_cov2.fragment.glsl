@@ -12,8 +12,8 @@ uniform Light lights[8];
 
 uniform vec3 color_GxMaterialColor0;
 uniform vec3 color_GxAmbientColor0;
-uniform vec3 color_GxColor2;
-uniform float scalar_GxAlpha2;
+uniform vec3 color_GxColor5;
+uniform float scalar_GxAlpha5;
 in vec3 vertexNormal;
 in vec4 vertexColor0;
 in vec4 vertexColor1;
@@ -38,9 +38,9 @@ void main() {
     individualLightColors[i] = lightColor;
   }
 
-  vec3 colorComponent = clamp(color_GxMaterialColor0*clamp((individualLightColors[0].rgb + color_GxAmbientColor0), 0, 1) + color_GxColor2, 0, 1);
+  vec3 colorComponent = clamp(color_GxMaterialColor0*clamp((individualLightColors[0].rgb + color_GxAmbientColor0), 0, 1) + color_GxColor5, 0, 1);
 
-  float alphaComponent = scalar_GxAlpha2;
+  float alphaComponent = scalar_GxAlpha5;
 
   fragColor = vec4(colorComponent, alphaComponent);
 }

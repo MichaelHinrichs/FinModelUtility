@@ -99,7 +99,12 @@ namespace fin.image.io.tile {
             (byte) ((g1 + g2) >> 1),
             (byte) ((b1 + b2) >> 1));
         // 4th color in palette is transparency.
-        palette[3] = default;
+        palette[3] = new Rgba32(
+            (byte) ((r1 + r2) >> 1),
+            (byte) ((g1 + g2) >> 1),
+            (byte) ((b1 + b2) >> 1),
+            0
+        );
       }
     }
   }
