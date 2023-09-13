@@ -65,8 +65,8 @@ namespace uni.ui.right_panel.registers {
                 .Select(mat => mat.Equations)
                 .ToArray();
 
-        var colorRegisters = registers.ColorRegisters;
-        var scalarRegisters = registers.ScalarRegisters;
+        var colorRegisters = registers.ColorRegisters.OrderBy(reg => reg.Name).ToArray();
+        var scalarRegisters = registers.ScalarRegisters.OrderBy(reg => reg.Name).ToArray();
 
         var outputIdentifiers = new[] {
             FixedFunctionSource.OUTPUT_COLOR, FixedFunctionSource.OUTPUT_ALPHA
