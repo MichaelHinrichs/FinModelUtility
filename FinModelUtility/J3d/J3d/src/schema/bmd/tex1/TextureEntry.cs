@@ -29,6 +29,29 @@ namespace j3d.schema.bmd.tex1 {
     S3TC1 = 14, // 0x0000000E
   }
 
+  /// <summary>
+  ///   Shamelessly stolen from Hack.io:
+  ///   https://github.com/SuperHackio/Hack.io/blob/6b06dc5829bcde6f41f04673fdd544eeef37a5c3/Hack.io.J3D/J3DTexture.cs#L1421
+  /// </summary>
+  public enum JutTransparency : byte {
+    /// <summary>
+    /// No Transperancy
+    /// </summary>
+    OPAQUE = 0x00,
+    /// <summary>
+    /// Only allows fully Transperant pixels to be see through
+    /// </summary>
+    CUTOUT = 0x01,
+    /// <summary>
+    /// Allows Partial Transperancy. Also known as XLUCENT
+    /// </summary>
+    TRANSLUCENT = 0x02,
+    /// <summary>
+    /// Unknown
+    /// </summary>
+    SPECIAL = 0xCC
+  }
+
   public enum PaletteFormat : byte {
     PAL_A8_I8,
     PAL_R5_G6_B5,
@@ -39,7 +62,7 @@ namespace j3d.schema.bmd.tex1 {
   [LocalPositions]
   public partial class TextureEntry : IBinaryConvertible {
     public TextureFormat Format;
-    public byte AlphaSetting;
+    public JutTransparency AlphaSetting;
     public ushort Width;
     public ushort Height;
     public GX_WRAP_TAG WrapS;

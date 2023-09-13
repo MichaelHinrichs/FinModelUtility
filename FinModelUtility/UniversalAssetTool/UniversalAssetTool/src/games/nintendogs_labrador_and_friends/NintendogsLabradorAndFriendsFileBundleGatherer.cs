@@ -16,7 +16,7 @@ namespace uni.games.nintendogs_labrador_and_friends {
         yield break;
       }
 
-      var game = NodeFactory.FromFile(nintendogsRom.FullPath);
+      using var game = NodeFactory.FromFile(nintendogsRom.FullPath);
       game.TransformWith<Binary2NitroRom>();
 
       var names = new List<string>();

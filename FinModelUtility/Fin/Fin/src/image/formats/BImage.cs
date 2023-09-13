@@ -111,7 +111,13 @@ namespace fin.image.formats {
       return false;
     }
 
+    private int? cachedHash_ = null;
+
     public override unsafe int GetHashCode() {
+      if (this.cachedHash_ != null) {
+        return this.cachedHash_.Value;
+      }
+
       var pixelCount = this.Width * this.Height;
 
       using var fastLock = this.Lock();
@@ -123,6 +129,7 @@ namespace fin.image.formats {
         hash.With(span[i]);
       }
 
+      this.cachedHash_ = hash;
       return hash;
     }
   }

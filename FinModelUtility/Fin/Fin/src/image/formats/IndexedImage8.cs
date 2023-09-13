@@ -12,7 +12,7 @@ namespace fin.src.image.formats {
 
     public IndexedImage8(PixelFormat pixelFormat,
                          IImage<L8> impl,
-                         IReadOnlyList<IColor> palette) : base(
+                         IColor[] palette) : base(
         pixelFormat,
         impl,
         palette) {

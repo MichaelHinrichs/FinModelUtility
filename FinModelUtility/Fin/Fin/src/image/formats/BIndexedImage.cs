@@ -12,7 +12,7 @@ namespace fin.image.formats {
 
     protected BIndexedImage(PixelFormat pixelFormat,
                             IImage impl,
-                            IReadOnlyList<IColor> palette) {
+                            IColor[] palette) {
       this.PixelFormat = pixelFormat;
       this.impl_ = impl;
       this.Palette = palette;
@@ -25,7 +25,7 @@ namespace fin.image.formats {
       GC.SuppressFinalize(this);
     }
 
-    public IReadOnlyList<IColor> Palette { get; }
+    public IColor[] Palette { get; }
     public PixelFormat PixelFormat { get; }
     public int Width => this.impl_.Width;
     public int Height => this.impl_.Height;

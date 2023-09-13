@@ -2,13 +2,12 @@
 using System.Linq;
 
 using fin.data.lazy;
-using fin.image;
 using fin.model;
+using fin.util.image;
 
 using gx;
 
 using j3d.GCN;
-using j3d.schema.bmd.mat3;
 using j3d.schema.bti;
 
 namespace j3d.exporter {
@@ -51,6 +50,7 @@ namespace j3d.exporter {
                 // TODO: Share texture definitions between materials?
                 var texture =
                     model.MaterialManager.CreateTexture(bmdTexture.Image);
+                var type = ImageUtil.GetTransparencyType(bmdTexture.Image);
 
                 texture.Name = bmdTexture.Name;
                 texture.WrapModeU = GetWrapMode_(bmdTexture.WrapModeS);

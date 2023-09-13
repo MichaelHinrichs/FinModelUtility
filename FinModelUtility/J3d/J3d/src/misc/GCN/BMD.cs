@@ -918,7 +918,7 @@ label_7:
           er.ReadNewArray(out this.TevStages, sectionLengths[20] / 20);
 
           er.Position = position1 + (long)this.Offsets[21];
-          er.ReadNewArray(out this.TevSwapModes, sectionLengths[21] / 2);
+          er.ReadNewArray(out this.TevSwapModes, sectionLengths[21] / 4);
 
           er.Position = position1 + (long)this.Offsets[22];
           er.ReadNewArray(out this.TevSwapModeTables, sectionLengths[22] / 4);

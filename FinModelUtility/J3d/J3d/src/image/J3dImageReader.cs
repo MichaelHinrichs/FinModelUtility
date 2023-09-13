@@ -19,14 +19,12 @@ namespace j3d.image {
                                      int height,
                                      TextureFormat format) {
       return format switch {
-          // TODO: For some reason, this has to include alpha to look correct, but is this actually right??
           TextureFormat.I4 => TiledImageReader.New(
               width,
               height,
               8,
               8,
               new L2a4PixelReader()),
-          // TODO: For some reason, this has to include alpha to look correct, but is this actually right??
           TextureFormat.I8 => TiledImageReader.New(
               width,
               height,
@@ -38,13 +36,13 @@ namespace j3d.image {
               height,
               8,
               4,
-              new La8PixelReader()),
+              new Al8PixelReader()),
           TextureFormat.A8_I8 => TiledImageReader.New(
               width,
               height,
               4,
               4,
-              new La16PixelReader()),
+              new Al16PixelReader()),
           TextureFormat.R5_G6_B5 => TiledImageReader.New(
               width,
               height,

@@ -1,4 +1,5 @@
 ﻿using fin.model;
+using fin.util.enumerables;
 
 namespace uni.ui.right_panel.materials {
   public partial class TextureSection : UserControl {
@@ -11,7 +12,9 @@ namespace uni.ui.right_panel.materials {
 
     public IMaterial? Material {
       set => this.textureSelectorBox_.Textures =
-                 value?.Textures.ToArray() ?? Array.Empty<ITexture>();
+          ((value is IReadOnlyFixedFunctionMaterial fixedFunctionMaterial)
+              ? fixedFunctionMaterial.TextureSources.Nonnull()
+              : value?.Textures)?.ToArray() ?? Array.Empty<ITexture>();
     }
   }
 }
