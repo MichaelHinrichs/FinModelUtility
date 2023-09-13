@@ -18,8 +18,6 @@ namespace fin.color {
   }
 
   public class FinColor : IColor {
-    private static Random RANDOM_ = new();
-
     private FinColor(byte rb, byte gb, byte bb, byte ab) {
       this.Rb = rb;
       this.Gb = gb;
@@ -60,33 +58,16 @@ namespace fin.color {
     public static Color ToSystemColor<TColor>(TColor color) where TColor : IColor
       => Color.FromArgb(color.Ab, color.Rb, color.Gb, color.Bb);
 
-    public static IColor FromHsv(
-        double hDegrees,
-        double sFraction,
-        double vFraction) {
-      var sharpColor = FinColor.ColorFromHSV(hDegrees, sFraction, vFraction);
-      return FinColor.FromRgbaBytes(sharpColor.R,
-                                    sharpColor.G,
-                                    sharpColor.B,
-                                    sharpColor.A);
-    }
-
-    public static IColor Random() {
-      return FinColor.FromHsv(360 * FinColor.RANDOM_.NextDouble(),
-                              1,
-                              1);
-    }
-
-    public static float Lerp(float from, float to, float frac)
-      => from * (1 - frac) + to * frac;
-
     public static IColor Lerp(IColor from, IColor to, float frac) {
-      var r = (byte)Math.Sqrt(Lerp(from.Rb * from.Rb, to.Rb * to.Rb, frac));
-      var g = (byte)Math.Sqrt(Lerp(from.Gb * from.Gb, to.Gb * to.Gb, frac));
-      var b = (byte)Math.Sqrt(Lerp(from.Bb * from.Bb, to.Bb * to.Bb, frac));
+      var r = (byte)Math.Sqrt(Lerp_(from.Rb * from.Rb, to.Rb * to.Rb, frac));
+      var g = (byte)Math.Sqrt(Lerp_(from.Gb * from.Gb, to.Gb * to.Gb, frac));
+      var b = (byte)Math.Sqrt(Lerp_(from.Bb * from.Bb, to.Bb * to.Bb, frac));
 
       return FinColor.FromRgbBytes(r, g, b);
     }
+
+    private static float Lerp_(float from, float to, float frac)
+      => from * (1 - frac) + to * frac;
 
     public float Rf => this.Rb / 255f;
     public float Gf => this.Gb / 255f;
@@ -97,46 +78,6 @@ namespace fin.color {
     public byte Gb { get; }
     public byte Bb { get; }
     public byte Ab { get; }
-
-    public static void ColorToHSV(
-        Color color,
-        out double hue,
-        out double saturation,
-        out double value) {
-      int max = Math.Max(color.R, Math.Max(color.G, color.B));
-      int min = Math.Min(color.R, Math.Min(color.G, color.B));
-
-      hue = color.GetHue();
-      saturation = (max == 0) ? 0 : 1d - (1d * min / max);
-      value = max / 255d;
-    }
-
-    public static Color ColorFromHSV(
-        double hue,
-        double saturation,
-        double value) {
-      int hi = Convert.ToInt32(Math.Floor(hue / 60)) % 6;
-      double f = hue / 60 - Math.Floor(hue / 60);
-
-      value = value * 255;
-      int v = Convert.ToInt32(value);
-      int p = Convert.ToInt32(value * (1 - saturation));
-      int q = Convert.ToInt32(value * (1 - f * saturation));
-      int t = Convert.ToInt32(value * (1 - (1 - f) * saturation));
-
-      if (hi == 0)
-        return Color.FromArgb(255, v, t, p);
-      else if (hi == 1)
-        return Color.FromArgb(255, q, v, p);
-      else if (hi == 2)
-        return Color.FromArgb(255, p, v, t);
-      else if (hi == 3)
-        return Color.FromArgb(255, p, q, v);
-      else if (hi == 4)
-        return Color.FromArgb(255, t, p, v);
-      else
-        return Color.FromArgb(255, v, p, q);
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void SplitBgra(int bgra, out byte r, out byte g, out byte b, out byte a) {
