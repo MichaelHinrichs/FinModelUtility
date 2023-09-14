@@ -1,32 +1,33 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 using fin.data.queue;
 using fin.util.asserts;
 
 using NUnit.Framework;
 
-namespace fin.data {
-  public class TreeTests {
+namespace fin.data.nodes {
+  public class TreeNodeTests {
     [Test]
     public void TestIterating() {
-      var nodeRoot = new Node<string> { Value = "root" };
+      var nodeRoot = new TreeNode<string> { Value = "root" };
 
-      var nodeFoo = new Node<string> { Value = "foo" };
+      var nodeFoo = new TreeNode<string> { Value = "foo" };
       nodeRoot.AddChild(nodeFoo);
-      var nodeBar = new Node<string> { Value = "bar" };
+      var nodeBar = new TreeNode<string> { Value = "bar" };
       nodeRoot.AddChild(nodeBar);
 
-      var node123 = new Node<string> { Value = "123" };
+      var node123 = new TreeNode<string> { Value = "123" };
       nodeFoo.AddChild(node123);
 
-      var nodeAbc = new Node<string> { Value = "abc" };
+      var nodeAbc = new TreeNode<string> { Value = "abc" };
       nodeBar.AddChild(nodeAbc);
 
       var actualValues = new List<string>();
-      var finQueue = new FinQueue<Node<string>>(nodeRoot);
+      var finQueue = new FinQueue<ITreeNode<string>>(nodeRoot);
       while (finQueue.TryDequeue(out var node)) {
         actualValues.Add(node.Value);
-        finQueue.Enqueue(node.Children);
+        finQueue.Enqueue(node.ChildNodes);
       }
 
       Asserts.Equal<IEnumerable<string>>(
@@ -36,16 +37,16 @@ namespace fin.data {
 
     [Test]
     public void TestAncestors() {
-      var nodeRoot = new Node<string> { Value = "root" };
+      var nodeRoot = new TreeNode<string> { Value = "root" };
 
-      var nodeFoo = new Node<string> { Value = "foo" };
+      var nodeFoo = new TreeNode<string> { Value = "foo" };
       nodeRoot.AddChild(nodeFoo);
 
-      var node123 = new Node<string> { Value = "123" };
+      var node123 = new TreeNode<string> { Value = "123" };
       nodeFoo.AddChild(node123);
 
       var actualValues = new List<string>();
-      var finQueue = new FinQueue<Node<string>>(node123);
+      var finQueue = new FinQueue<TreeNode<string>>(node123);
       while (finQueue.TryDequeue(out var node)) {
         actualValues.Add(node.Value);
 
@@ -61,29 +62,29 @@ namespace fin.data {
 
     [Test]
     public void TestReplacingParent() {
-      var nodeFoo = new Node<string> { Value = "foo" };
-      var nodeBar = new Node<string> { Value = "foo" };
+      var nodeFoo = new TreeNode<string> { Value = "foo" };
+      var nodeBar = new TreeNode<string> { Value = "foo" };
 
-      Assert.AreEqual(0, nodeFoo.Children.Count);
-      Assert.AreEqual(0, nodeBar.Children.Count);
+      Assert.AreEqual(0, nodeFoo.ChildNodes.Count());
+      Assert.AreEqual(0, nodeBar.ChildNodes.Count());
 
-      var nodeChild = new Node<string> { Value = "child" };
+      var nodeChild = new TreeNode<string> { Value = "child" };
       Assert.Null(nodeChild.Parent);
 
       nodeChild.Parent = nodeFoo;
       Assert.AreEqual(nodeFoo, nodeChild.Parent);
-      Asserts.Equal(nodeFoo.Children, new[] { nodeChild });
-      Assert.AreEqual(0, nodeBar.Children.Count);
+      Asserts.Equal(nodeFoo.ChildNodes, new[] { nodeChild });
+      Assert.AreEqual(0, nodeBar.ChildNodes.Count());
 
       nodeBar.AddChild(nodeChild);
       Assert.AreEqual(nodeBar, nodeChild.Parent);
-      Asserts.Equal(nodeBar.Children, new[] { nodeChild });
-      Assert.AreEqual(0, nodeFoo.Children.Count);
+      Asserts.Equal(nodeBar.ChildNodes, new[] { nodeChild });
+      Assert.AreEqual(0, nodeFoo.ChildNodes.Count());
 
       nodeChild.Parent = nodeFoo;
       Assert.AreEqual(nodeFoo, nodeChild.Parent);
-      Asserts.Equal(nodeFoo.Children, new[] { nodeChild });
-      Assert.AreEqual(0, nodeBar.Children.Count);
+      Asserts.Equal(nodeFoo.ChildNodes, new[] { nodeChild });
+      Assert.AreEqual(0, nodeBar.ChildNodes.Count());
     }
   }
 }

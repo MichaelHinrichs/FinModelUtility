@@ -1,10 +1,9 @@
-﻿using fin.data;
-using fin.data.lazy;
+﻿using fin.data.lazy;
+using fin.data.nodes;
 using fin.data.queue;
 using fin.math.rotations;
 using fin.model;
 using fin.model.impl;
-using fin.model.io;
 using fin.model.io.importer;
 
 using level5.schema;
@@ -42,7 +41,7 @@ namespace level5.api {
           var mbnNodeList =
               mbns.Where(mbn => mbn.Id != mbn.ParentId)
                   .DistinctBy(mbn => mbn.Id)
-                  .Select(mbn => new Node<Mbn> { Value = mbn })
+                  .Select(mbn => new TreeNode<Mbn> { Value = mbn })
                   .ToArray();
           var mbnByIndex =
               mbnNodeList.ToDictionary(node => node.Value.Id);
@@ -60,9 +59,9 @@ namespace level5.api {
               mbnNodeList.Where(node => node.Value.ParentId == 0);
 
           var mbnQueue =
-              new FinTuple2Queue<Node<Mbn>, IBone>(
+              new FinTuple2Queue<ITreeNode<Mbn>, IBone>(
                   rootMbnNodes.Select(
-                      node => (node, model.Skeleton.Root)));
+                      node => ((ITreeNode<Mbn>) node, model.Skeleton.Root)));
           while (mbnQueue.TryDequeue(out var mbnNode, out var parentBone)) {
             var mbn = mbnNode.Value;
 
@@ -98,7 +97,7 @@ namespace level5.api {
             finBoneByName[bone.Name] = bone;
 
             mbnQueue.Enqueue(
-                mbnNode.Children.Select(childNode => (childNode, bone)));
+                mbnNode.ChildNodes.Select(childNode => (childNode, bone)));
           }
         }
       }
