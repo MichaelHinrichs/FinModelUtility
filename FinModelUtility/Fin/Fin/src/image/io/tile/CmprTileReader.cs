@@ -99,6 +99,9 @@ namespace fin.image.io.tile {
             (byte) ((g1 + g2) >> 1),
             (byte) ((b1 + b2) >> 1));
         // 4th color in palette is transparency.
+        // It might seem odd that we set the RGB channels for a pixel with 0
+        // alpha, but occasionally the RGB channels will be selected for in
+        // the shader and in those instances we need color values set.
         palette[3] = new Rgba32(
             (byte) ((r1 + r2) >> 1),
             (byte) ((g1 + g2) >> 1),

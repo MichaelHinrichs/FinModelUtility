@@ -1,6 +1,9 @@
 ﻿
+using System.Reflection;
+
 using fin.io;
-using fin.testing.mod
+using fin.testing.model;
+
 using modl.api;
 
 namespace modl {

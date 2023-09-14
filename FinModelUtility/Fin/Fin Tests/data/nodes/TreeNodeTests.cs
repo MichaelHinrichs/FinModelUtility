@@ -46,7 +46,7 @@ namespace fin.data.nodes {
       nodeFoo.AddChild(node123);
 
       var actualValues = new List<string>();
-      var finQueue = new FinQueue<TreeNode<string>>(node123);
+      var finQueue = new FinQueue<ITreeNode<string>>(node123);
       while (finQueue.TryDequeue(out var node)) {
         actualValues.Add(node.Value);
 
