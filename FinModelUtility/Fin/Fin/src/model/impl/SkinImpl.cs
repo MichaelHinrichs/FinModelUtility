@@ -6,6 +6,7 @@ using System.Linq;
 using System.Numerics;
 
 using fin.data;
+using fin.data.indexable;
 using fin.math.matrix.four;
 using fin.util.enumerables;
 

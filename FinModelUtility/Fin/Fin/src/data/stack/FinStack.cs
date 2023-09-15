@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 
 namespace fin.data.stack {
+  /// <summary>
+  ///   Simpler interface for stacks that is easier to implement.
+  /// </summary>
   public interface IStack<T> {
     int Count { get; }
     T Top { get; set; }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
-using fin.data;
+using fin.data.indexable;
 using fin.math.matrix.four;
 using fin.math.rotations;
 using fin.model;

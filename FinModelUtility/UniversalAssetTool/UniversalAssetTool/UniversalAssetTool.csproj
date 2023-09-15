@@ -70,6 +70,7 @@
     <ProjectReference Include="..\..\Level5\Level5\Level5.csproj" />
     <ProjectReference Include="..\..\Mod\Mod\Mod.csproj" />
     <ProjectReference Include="..\..\Modl\Modl\Modl.csproj" />
+    <ProjectReference Include="..\..\Pikmin2\Pikmin2\Pikmin2.csproj" />
     <ProjectReference Include="..\..\SceneGate\Ekona\src\Ekona\Ekona.csproj" />
     <ProjectReference Include="..\..\SuperMario64\SuperMario64\SuperMario64.csproj" />
     <ProjectReference Include="..\..\Utility of Time CSharp\Utility of Time CSharp.csproj" />

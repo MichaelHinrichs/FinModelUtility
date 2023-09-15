@@ -2,7 +2,7 @@
 using System.Numerics;
 
 using fin.color;
-using fin.data;
+using fin.data.indexable;
 
 namespace fin.model {
   public interface IReadOnlyVertex : IIndexable {

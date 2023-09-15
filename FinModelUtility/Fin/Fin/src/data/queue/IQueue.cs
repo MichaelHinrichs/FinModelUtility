@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 
 namespace fin.data.queue {
+  /// <summary>
+  ///   Simpler interface for queues that is easier to implement.
+  /// </summary>
   public interface IQueue<T> : IEnumerable<T> {
     int Count { get; }
 

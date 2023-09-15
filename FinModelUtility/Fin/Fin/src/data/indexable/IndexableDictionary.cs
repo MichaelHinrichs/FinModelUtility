@@ -4,13 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace fin.data {
-  public interface IIndexable {
-    int Index { get; }
-  }
-
-  public interface
-      IReadOnlyIndexableDictionary<TIndexable, TValue> : IEnumerable<TValue>
+namespace fin.data.indexable {
+  public interface IReadOnlyIndexableDictionary<TIndexable, TValue>
+      : IEnumerable<TValue>
       where TIndexable : IIndexable {
     int Length { get; }
 

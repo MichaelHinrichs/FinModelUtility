@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 
 namespace fin.data.sets {
-  public class OrderedHashSet<T> : ISet<T> {
+  public class OrderedHashSet<T> : IFinSet<T> {
+    // TODO: Can this be optimized??
     private readonly LinkedList<T> list_ = new();
     private readonly HashSet<T> set_ = new();
 
     public int Count => this.list_.Count;
+
+    public bool Contains(T value) => this.set_.Contains(value);
 
     public void Clear() {
       this.list_.Clear();

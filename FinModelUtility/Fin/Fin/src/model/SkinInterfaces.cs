@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 
-using fin.data;
+using fin.data.indexable;
 using fin.math.matrix.four;
 
 namespace fin.model {

@@ -1,6 +1,6 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
+ <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -8,7 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Fin\Fin.Ui\Fin.Ui.csproj" />
     <ProjectReference Include="..\..\Fin\Fin\Fin.csproj" />
+    <ProjectReference Include="..\..\J3d\J3d\J3d.csproj" />
   </ItemGroup>
 
 </Project>

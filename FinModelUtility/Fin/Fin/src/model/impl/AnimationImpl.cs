@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-using fin.data;
+using fin.data.indexable;
 using fin.math.interpolation;
 
 namespace fin.model.impl {

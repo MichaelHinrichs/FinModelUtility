@@ -4,7 +4,7 @@ using System.Linq;
 using System.Numerics;
 
 using fin.color;
-using fin.data;
+using fin.data.indexable;
 using fin.math;
 using fin.util.enumerables;
 
@@ -13,8 +13,6 @@ using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
 using SharpGLTF.Schema2;
 using SharpGLTF.Transforms;
-
-using PrimitiveType = fin.model.PrimitiveType;
 
 namespace fin.model.io.exporter.gltf {
   using VERTEX =

@@ -1,19 +1,8 @@
 ﻿using fin.data.nodes;
-using fin.model;
 using fin.schema.vector;
 using fin.util.asserts;
 
-namespace games.pikmin2 {
-  public interface IRouteGraphNodeData {
-    IVector3 Position { get; }
-    float Radius { get; }
-  }
-
-  public class RouteGraphNodeData : IRouteGraphNodeData {
-    public required IVector3 Position { get; init; }
-    public required float Radius { get; init; }
-  }
-
+namespace games.pikmin2.route {
   public class RouteParser {
     public IGraphNode<IRouteGraphNodeData>[] Parse(StreamReader streamReader) {
       var lines = new List<string>();
@@ -60,6 +49,7 @@ namespace games.pikmin2 {
                      .Select(float.Parse)
                      .ToArray();
         node.Value = new RouteGraphNodeData {
+            Index = nodeIndex,
             Position =
                 new Vector3f { X = floats[0], Y = floats[1], Z = floats[2], },
             Radius = floats[3],

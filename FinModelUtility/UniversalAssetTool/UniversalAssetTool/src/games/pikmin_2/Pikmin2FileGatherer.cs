@@ -3,6 +3,8 @@
 using fin.io;
 using fin.io.bundles;
 
+using games.pikmin2.api;
+
 using j3d.api;
 
 using uni.platforms.gcn;
@@ -23,6 +25,7 @@ namespace uni.games.pikmin_2 {
               .Concat(
                   this.ExtractAllFromSeparateDirectories_(fileHierarchy))
               .Concat(this.ExtractAllFromMergedDirectories_(fileHierarchy))
+              .Concat(this.ExtractAllLevelScenes_(fileHierarchy))
               .Concat(this.ExtractLeafBudFlower_(fileHierarchy))
               .Concat(this.ExtractAllTreasures_(fileHierarchy))
               .Concat(this.ExtractAudio_(fileHierarchy));
@@ -70,6 +73,29 @@ namespace uni.games.pikmin_2 {
             yield return bundle;
           }
         }
+      }
+    }
+
+    private IEnumerable<IAnnotatedFileBundle> ExtractAllLevelScenes_(
+        IFileHierarchy fileHierarchy) {
+      var userDir = fileHierarchy.Root.AssertGetExistingSubdir("user");
+      var abeMapRootDir = userDir.AssertGetExistingSubdir("Abe/map");
+      var kandoMapRootDir = userDir.AssertGetExistingSubdir("Kando/map");
+
+      foreach (var abeMapDir in abeMapRootDir.GetExistingSubdirs()) {
+        var mapName = abeMapDir.Name;
+        if (mapName == "zukan") {
+          continue;
+        }
+
+        var kandoMapDir = kandoMapRootDir.AssertGetExistingSubdir(mapName);
+
+        var mapBmd = kandoMapDir.AssertGetExistingFile("arc/model.bmd");
+        var routeTxt = abeMapDir.AssertGetExistingFile("route.txt");
+
+        yield return new Pikmin2SceneFileBundle {
+            LevelBmd = mapBmd, RouteTxt = routeTxt,
+        }.Annotate(mapBmd);
       }
     }
 

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-using fin.data;
+using fin.data.indexable;
 using fin.math.interpolation;
 
 namespace fin.model {

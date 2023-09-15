@@ -31,32 +31,30 @@ namespace fin.ui.rendering.gl.model {
       bool isFlipped;
       IReadOnlyList<IReadOnlyVertex> primitiveVertices;
 
+      var primitiveTypes =
+          primitives.Select(primitive => primitive.Type).ToHashSet();
+
       if (primitives.Count == 1) {
         var firstPrimitive = primitives[0];
         primitiveType = firstPrimitive.Type;
         isFlipped = firstPrimitive.VertexOrder == VertexOrder.FLIP;
         primitiveVertices = firstPrimitive.Vertices;
+      } else if (primitiveTypes.Count == 1 &&
+                 primitiveTypes.First() is PrimitiveType.LINES
+                                           or PrimitiveType.POINTS) {
+        primitiveType = primitiveTypes.First();
+        isFlipped = false;
+        primitiveVertices = primitives
+                            .SelectMany(primitive => primitive.Vertices)
+                            .ToArray();
       } else {
         primitiveType = PrimitiveType.TRIANGLES;
         isFlipped = false;
-
-        var totalVertexCount = primitives.Sum(primitive => {
-          switch (primitive.Type) {
-            case PrimitiveType.TRIANGLES:
-              return primitive.Vertices.Count;
-            case PrimitiveType.TRIANGLE_STRIP:
-            case PrimitiveType.TRIANGLE_FAN:
-              return (primitive.Vertices.Count - 2) * 3;
-            default: throw new NotImplementedException();
-          }
-        });
-
-        var allVertices = new List<IReadOnlyVertex>(totalVertexCount);
-        primitiveVertices = allVertices;
-
-        foreach (var primitive in primitives) {
-          allVertices.AddRange(primitive.GetOrderedTriangleVertices());
-        }
+        primitiveVertices = primitives
+                            .SelectMany(primitive
+                                            => primitive
+                                                .GetOrderedTriangleVertices())
+                            .ToArray();
       }
 
       this.bufferRenderer_ = bufferManager.CreateRenderer(primitiveType,
