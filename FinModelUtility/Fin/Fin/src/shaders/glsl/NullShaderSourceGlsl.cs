@@ -8,14 +8,17 @@ namespace fin.shaders.glsl {
 
     public string VertexShaderSource { get; }
 
-    public string FragmentShaderSource => @"# version 130 
+    public string FragmentShaderSource
+      => """
+         # version 400
 
-out vec4 fragColor;
+         out vec4 fragColor;
 
-in vec4 vertexColor0;
+         in vec4 vertexColor0;
 
-void main() {
-  fragColor = vertexColor0;
-}";
+         void main() {
+           fragColor = vertexColor0;
+         }
+         """;
   }
 }

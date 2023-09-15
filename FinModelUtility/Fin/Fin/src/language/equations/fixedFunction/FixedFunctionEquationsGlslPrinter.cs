@@ -30,7 +30,7 @@ namespace fin.language.equations.fixedFunction {
       var equations = material.Equations;
       var registers = material.Registers;
 
-      os.WriteLine("# version 330");
+      os.WriteLine("# version 400");
       os.WriteLine();
 
       for (var t = 0; t < MaterialConstants.MAX_TEXTURES; ++t) {
