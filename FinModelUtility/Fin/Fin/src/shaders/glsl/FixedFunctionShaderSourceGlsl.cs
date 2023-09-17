@@ -2,18 +2,15 @@
 using fin.model;
 
 namespace fin.shaders.glsl {
-  public class FixedFunctionShaderSourceGlsl : IShaderSourceGlsl {
-    public FixedFunctionShaderSourceGlsl(
-        IModel model,
-        IFixedFunctionMaterial material,
-        bool useBoneMatrices) {
-      this.VertexShaderSource = GlslUtil.GetVertexSrc(model, useBoneMatrices);
-      this.FragmentShaderSource =
-          new FixedFunctionEquationsGlslPrinter(material.TextureSources)
-              .Print(material);
-    }
+  public class FixedFunctionShaderSourceGlsl(IModel model,
+                                             IFixedFunctionMaterial material,
+                                             bool useBoneMatrices)
+      : IShaderSourceGlsl {
+    public string VertexShaderSource { get; } =
+      GlslUtil.GetVertexSrc(model, useBoneMatrices);
 
-    public string VertexShaderSource { get; }
-    public string FragmentShaderSource { get; }
+    public string FragmentShaderSource { get; } =
+      new FixedFunctionEquationsGlslPrinter(material.TextureSources)
+          .Print(material);
   }
 }
