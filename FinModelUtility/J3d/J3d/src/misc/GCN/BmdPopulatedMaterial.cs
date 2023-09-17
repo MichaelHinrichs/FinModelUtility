@@ -6,11 +6,9 @@ using fin.schema;
 
 using gx;
 
-using j3d.GCN;
 using j3d.schema.bmd.mat3;
 
-namespace j3d.misc.GCN {
-
+namespace j3d.GCN {
   public class BmdPopulatedMaterial : IPopulatedMaterial {
     public string Name { get; set; }
     public GxCullMode CullMode { get; set; }
