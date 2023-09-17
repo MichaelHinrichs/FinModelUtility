@@ -4,8 +4,7 @@ using fin.model;
 using OpenTK.Graphics.OpenGL;
 
 namespace fin.ui.rendering.gl.material {
-  public class GlStandardMaterialShader
-      : BGlMaterialShader<IStandardMaterial> {
+  public class GlStandardMaterialShader : BGlMaterialShader<IStandardMaterial> {
     private GlTexture diffuseTexture_;
     private GlTexture normalTexture_;
     private GlTexture ambientOcclusionTexture_;
@@ -52,13 +51,11 @@ namespace fin.ui.rendering.gl.material {
     }
 
     protected override void PassUniformsAndBindTextures(GlShaderProgram impl) {
-      var diffuseTextureLocation =
-          impl.GetUniformLocation("diffuseTexture");
+      var diffuseTextureLocation = impl.GetUniformLocation("diffuseTexture");
       GL.Uniform1(diffuseTextureLocation, 0);
       this.diffuseTexture_.Bind(0);
 
-      var normalTextureLocation =
-          impl.GetUniformLocation("normalTexture");
+      var normalTextureLocation = impl.GetUniformLocation("normalTexture");
       GL.Uniform1(normalTextureLocation, 1);
       this.normalTexture_.Bind(1);
 
@@ -67,8 +64,7 @@ namespace fin.ui.rendering.gl.material {
       GL.Uniform1(ambientOcclusionTextureLocation, 2);
       this.ambientOcclusionTexture_.Bind(2);
 
-      var emissiveTextureLocation =
-          impl.GetUniformLocation("emissiveTexture");
+      var emissiveTextureLocation = impl.GetUniformLocation("emissiveTexture");
       GL.Uniform1(emissiveTextureLocation, 3);
       this.emissiveTexture_.Bind(3);
     }

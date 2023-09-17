@@ -20,16 +20,23 @@ namespace fin.ui.rendering.gl.material {
 
       if (material is IStandardMaterial standardMaterial) {
         return new GlStandardMaterialShader(model,
-                                              standardMaterial,
-                                              boneTransformManager,
-                                              lighting);
+                                            standardMaterial,
+                                            boneTransformManager,
+                                            lighting);
+      }
+
+      if (material is IColorMaterial colorMaterial) {
+        return new GlColorMaterialShader(model,
+                                         colorMaterial,
+                                         boneTransformManager,
+                                         lighting);
       }
 
       if (material != null) {
-        return new GlSimpleMaterialShader(model,
-                                            material,
-                                            boneTransformManager,
-                                            lighting);
+        return new GlTextureMaterialShader(model,
+                                           material,
+                                           boneTransformManager,
+                                           lighting);
       }
 
       return new GlNullMaterialShader(model, boneTransformManager, lighting);

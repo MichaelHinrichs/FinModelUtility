@@ -98,5 +98,55 @@ void main() {");
 
       return vertexSrc.ToString();
     }
+
+    public static string GetLightHeader(bool withAmbientLightColor) {
+      return
+          $$"""
+
+            struct Light {
+              bool enabled;
+              vec3 position;
+              vec3 normal;
+              vec4 color;
+            };
+
+            uniform Light lights[{{MaterialConstants.MAX_LIGHTS}}];
+            {{(withAmbientLightColor ? "uniform vec3 ambientLightColor;" : "")}}
+            """;
+    }
+
+    public static string GetLightFunctions(bool withAmbientOcclusion) {
+      return
+          $$"""
+
+            vec3 getDiffuseLightColor(Light light, vec3 vertexNormal) {
+              vec3 diffuseLightNormal = normalize(light.normal);
+              float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);
+              float lightAmount = min(diffuseLightAmount, 1);
+              return lightAmount * light.color.rgb;
+            }
+
+            vec3 getMergedDiffuseLightColor(vec3 vertexNormal) {
+              int enabledLightCount;
+            
+              vec3 mergedLightColor;
+              for (int i = 0; i < {{MaterialConstants.MAX_LIGHTS}}; ++i) {
+                if (lights[i].enabled) {
+                  enabledLightCount++;
+                  mergedLightColor += getDiffuseLightColor(lights[i], vertexNormal);
+                }
+              }
+            
+              return enabledLightCount == 0 ? vec3(1) : mergedLightColor / enabledLightCount;
+            }
+
+            vec3 applyLightingColor(vec3 diffuseColor,{{(withAmbientOcclusion ? " float ambientOcclusionAmount," : "")}} vec3 vertexNormal) {
+              vec3 mergedDiffuseLightColor = getMergedDiffuseLightColor(vertexNormal);
+            
+              vec3 mergedLightColor = {{(withAmbientOcclusion ? "ambientOcclusionAmount * " : "")}}min(ambientLightColor + mergedDiffuseLightColor, 1);
+              return diffuseColor * mergedLightColor;
+            }
+            """;
+    }
   }
 }

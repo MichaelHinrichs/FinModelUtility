@@ -1,7 +1,7 @@
-# version 330
-
+# version 400
 
 uniform vec3 color_GxMaterialColor0;
+
 in vec4 vertexColor0;
 in vec4 vertexColor1;
 

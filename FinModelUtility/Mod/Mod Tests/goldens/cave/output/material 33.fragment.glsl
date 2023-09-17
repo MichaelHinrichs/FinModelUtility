@@ -1,4 +1,4 @@
-# version 330
+# version 400
 
 struct Light {
   bool enabled;
@@ -7,8 +7,8 @@ struct Light {
   vec4 color;
 };
 
-uniform vec3 ambientLightColor;
 uniform Light lights[8];
+uniform vec3 ambientLightColor;
 
 uniform sampler2D diffuseTexture;
 uniform float useLighting;

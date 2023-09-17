@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.IO;
@@ -17,7 +16,7 @@ namespace fin.model.impl {
     public IMaterialManager MaterialManager { get; } =
       new MaterialManagerImpl();
 
-    private class MaterialManagerImpl : IMaterialManager {
+    private partial class MaterialManagerImpl : IMaterialManager {
       private IList<IMaterial> materials_ = new List<IMaterial>();
       private IList<ITexture> textures_ = new List<ITexture>();
 
@@ -28,24 +27,6 @@ namespace fin.model.impl {
 
       public IReadOnlyList<IMaterial> All { get; }
       public IFixedFunctionRegisters? Registers { get; private set; }
-
-      public INullMaterial AddNullMaterial() {
-        var material = new NullMaterialImpl();
-        this.materials_.Add(material);
-        return material;
-      }
-
-      public ITextureMaterial AddTextureMaterial(ITexture texture) {
-        var material = new TextureMaterialImpl(texture);
-        this.materials_.Add(material);
-        return material;
-      }
-
-      public IStandardMaterial AddStandardMaterial() {
-        var material = new StandardMaterialImpl();
-        this.materials_.Add(material);
-        return material;
-      }
 
       public IFixedFunctionMaterial AddFixedFunctionMaterial() {
         this.Registers ??= new FixedFunctionRegisters();
@@ -173,58 +154,6 @@ namespace fin.model.impl {
       public DepthCompareType DepthCompareType { get; set; }
 
       public bool IgnoreLights { get; set; }
-    }
-
-    private class NullMaterialImpl : BMaterialImpl, INullMaterial {
-      public override IEnumerable<ITexture> Textures { get; } =
-        Array.Empty<ITexture>();
-    }
-
-    private class TextureMaterialImpl : BMaterialImpl, ITextureMaterial {
-      public TextureMaterialImpl(ITexture texture) {
-        this.Texture = texture;
-        this.Textures = new ReadOnlyCollection<ITexture>(new[] { texture });
-      }
-
-      public ITexture Texture { get; }
-      public override IEnumerable<ITexture> Textures { get; }
-    }
-
-    private class StandardMaterialImpl : BMaterialImpl, IStandardMaterial {
-      public override IEnumerable<ITexture> Textures {
-        get {
-          if (this.DiffuseTexture != null) {
-            yield return this.DiffuseTexture;
-          }
-
-          if (this.MaskTexture != null) {
-            yield return this.MaskTexture;
-          }
-
-          if (this.AmbientOcclusionTexture != null) {
-            yield return this.AmbientOcclusionTexture;
-          }
-
-          if (this.NormalTexture != null) {
-            yield return this.NormalTexture;
-          }
-
-          if (this.EmissiveTexture != null) {
-            yield return this.EmissiveTexture;
-          }
-
-          if (this.SpecularTexture != null) {
-            yield return this.SpecularTexture;
-          }
-        }
-      }
-
-      public ITexture? DiffuseTexture { get; set; }
-      public ITexture? MaskTexture { get; set; }
-      public ITexture? AmbientOcclusionTexture { get; set; }
-      public ITexture? NormalTexture { get; set; }
-      public ITexture? EmissiveTexture { get; set; }
-      public ITexture? SpecularTexture { get; set; }
     }
 
     private class FixedFunctionMaterialImpl

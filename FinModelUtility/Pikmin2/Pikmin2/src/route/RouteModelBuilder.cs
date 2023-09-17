@@ -1,4 +1,6 @@
-﻿using fin.data.nodes;
+﻿using System.Drawing;
+
+using fin.data.nodes;
 using fin.model;
 using fin.model.impl;
 
@@ -10,8 +12,7 @@ namespace games.pikmin2.route {
       var skin = model.Skin;
       var mesh = skin.AddMesh();
 
-      var routeMaterial = model.MaterialManager.AddNullMaterial();
-      routeMaterial.CullingMode = CullingMode.SHOW_BOTH;
+      var routeMaterial = model.MaterialManager.AddColorMaterial(Color.Magenta);
       routeMaterial.DepthMode = DepthMode.IGNORE_DEPTH_BUFFER;
       routeMaterial.IgnoreLights = true;
 
@@ -52,29 +53,7 @@ namespace games.pikmin2.route {
         triangleFan.SetMaterial(routeMaterial);
       }
 
-      /*var lineMaterial = model.MaterialManager.AddNullMaterial();
-      lineMaterial.CullingMode = CullingMode.SHOW_BOTH;
-      lineMaterial.DepthMode = DepthMode.IGNORE_DEPTH_BUFFER;
-      lineMaterial.IgnoreLights = true;
-
-      var links = linkSet.ToArray();
-      var lineVertices = new IVertex[2 * links.Length];
-      for (var i = 0; i < links.Length; ++i) {
-        var (nodeI, otherI) = links[i];
-
-        var nodeValue = route[nodeI].Value;
-        var otherNodeValue = route[otherI].Value;
-
-        lineVertices[2 * i + 0] = skin.AddVertex(nodeValue.Position);
-        lineVertices[2 * i + 1] = skin.AddVertex(otherNodeValue.Position);
-      }
-
-      var lines = mesh.AddLines(lineVertices);
-      lines.SetLineWidth(5);
-      lines.SetMaterial(lineMaterial);*/
-
-      var lineMaterial = model.MaterialManager.AddNullMaterial();
-      lineMaterial.CullingMode = CullingMode.SHOW_BOTH;
+      var lineMaterial = model.MaterialManager.AddColorMaterial(Color.Magenta);
       lineMaterial.DepthMode = DepthMode.IGNORE_DEPTH_BUFFER;
       lineMaterial.IgnoreLights = true;
 
@@ -118,7 +97,8 @@ namespace games.pikmin2.route {
       }
 
       var lines = mesh.AddQuads(lineVertices);
-      lines.SetMaterial(lineMaterial);
+      lines.SetVertexOrder(VertexOrder.NORMAL)
+           .SetMaterial(lineMaterial);
 
       return model;
     }

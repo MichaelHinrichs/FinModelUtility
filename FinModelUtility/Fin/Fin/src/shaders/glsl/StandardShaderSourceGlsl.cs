@@ -1,7 +1,7 @@
-﻿using System.Linq;
-using System.Text;
+﻿using System.Text;
 
 using fin.model;
+using fin.model.extensions;
 
 namespace fin.shaders.glsl {
   public class StandardShaderSourceGlsl : IShaderSourceGlsl {
@@ -13,46 +13,33 @@ namespace fin.shaders.glsl {
 
       var hasNormalTexture = material.NormalTexture != null;
       var hasNormals = hasNormalTexture ||
-                       model.Skin.Meshes
-                            .SelectMany(mesh => mesh.Primitives)
-                            .Where(primitive => primitive.Material == material)
-                            .SelectMany(primitive => primitive.Vertices)
-                            .Any(vertex => vertex is IReadOnlyNormalVertex {
-                                LocalNormal: { }
-                            });
+                       model.Skin.HasNormalsForMaterial(material);
 
       var fragmentShaderSrc = new StringBuilder();
-      fragmentShaderSrc.Append(
-          """
-          # version 400
-
-          """);
+      fragmentShaderSrc.Append("# version 400");
 
       if (hasNormals) {
         fragmentShaderSrc.Append(
-            $$"""
+            $"""
 
-              struct Light {
-                bool enabled;
-                vec3 position;
-                vec3 normal;
-                vec4 color;
-              };
 
-              uniform vec3 ambientLightColor;
-              uniform Light lights[{{MaterialConstants.MAX_LIGHTS}}];
-
-              """);
+             {GlslUtil.GetLightHeader(true)}
+             """);
       }
 
       fragmentShaderSrc.Append(
           """
 
+
           uniform sampler2D diffuseTexture;
           """);
 
       if (hasNormalTexture) {
-        fragmentShaderSrc.Append("uniform sampler2D normalTexture;");
+        fragmentShaderSrc.Append(
+            """
+
+            uniform sampler2D normalTexture;
+            """);
       }
 
       fragmentShaderSrc.Append(
@@ -77,83 +64,72 @@ namespace fin.shaders.glsl {
             """);
       }
 
-      fragmentShaderSrc.Append(@$"
-in vec2 uv0;
-");
+      fragmentShaderSrc.Append(
+          """
+
+          in vec2 uv0;
+          """);
 
       if (hasNormals) {
         fragmentShaderSrc.Append(
-            $$"""
+            $"""
 
-              vec3 getDiffuseLightColor(Light light, vec3 vertexNormal) {
-                vec3 diffuseLightNormal = normalize(light.normal);
-                float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);
-                float lightAmount = min(diffuseLightAmount, 1);
-                return lightAmount * light.color.rgb;
-              }
 
-              vec3 getMergedDiffuseLightColor(vec3 vertexNormal) {
-                int enabledLightCount;
-              
-                vec3 mergedLightColor;
-                for (int i = 0; i < {{MaterialConstants.MAX_LIGHTS}}; ++i) {
-                  if (lights[i].enabled) {
-                    enabledLightCount++;
-                    mergedLightColor += getDiffuseLightColor(lights[i], vertexNormal);
-                  }
-                }
-              
-                return enabledLightCount == 0 ? vec3(1) : mergedLightColor / enabledLightCount;
-              }
-
-              vec3 applyLightingColor(vec3 diffuseColor, float ambientOcclusionAmount, vec3 vertexNormal) {
-                vec3 mergedDiffuseLightColor = getMergedDiffuseLightColor(vertexNormal);
-              
-                vec3 mergedLightColor = ambientOcclusionAmount * min(ambientLightColor + mergedDiffuseLightColor, 1);
-                return diffuseColor * mergedLightColor;
-              }
-
-              """);
+             {GlslUtil.GetLightFunctions(true)}
+             """);
       }
 
       fragmentShaderSrc.Append(
           """
 
+          
           void main() {
             vec4 diffuseColor = texture(diffuseTexture, uv0);
             vec4 ambientOcclusionColor = texture(ambientOcclusionTexture, uv0);
             vec4 emissiveColor = texture(emissiveTexture, uv0);
           
             fragColor = diffuseColor * vertexColor0;
-
           """);
 
       if (hasNormals) {
         if (!hasNormalTexture) {
-          fragmentShaderSrc.Append(@"
-  vec3 fragNormal = vertexNormal;");
+          fragmentShaderSrc.Append(
+              """
+
+                            
+                vec3 fragNormal = vertexNormal;
+              """);
         } else {
-          fragmentShaderSrc.Append(@"
-  vec3 textureNormal = texture(normalTexture, uv0).xyz * 2 - 1;    
-  vec3 fragNormal = normalize(mat3(tangent, binormal, vertexNormal) * textureNormal);");
+          fragmentShaderSrc.Append(
+              """
+
+              
+                vec3 textureNormal = texture(normalTexture, uv0).xyz * 2 - 1;
+                vec3 fragNormal = normalize(mat3(tangent, binormal, vertexNormal) * textureNormal);
+              """);
         }
 
         // TODO: Is this right?
-        fragmentShaderSrc.Append(@$"
-  fragColor.rgb = mix(fragColor.rgb, applyLightingColor(fragColor.rgb, ambientOcclusionColor.r, fragNormal), {GlslConstants.UNIFORM_USE_LIGHTING_NAME});
-");
+        fragmentShaderSrc.Append(
+            $"""
+             
+             
+               fragColor.rgb = mix(fragColor.rgb, applyLightingColor(fragColor.rgb, ambientOcclusionColor.r, fragNormal), {GlslConstants.UNIFORM_USE_LIGHTING_NAME});
+             """);
       }
 
       // TODO: Is this right?
-      fragmentShaderSrc.Append(@"
-  fragColor.rgb += emissiveColor.rgb;
-
-  fragColor.rgb = min(fragColor.rgb, 1);
-
-  if (fragColor.a < .95) {
-    discard;
-  }
-}");
+      fragmentShaderSrc.Append(
+          """
+          
+            fragColor.rgb += emissiveColor.rgb;
+            fragColor.rgb = min(fragColor.rgb, 1);
+          
+            if (fragColor.a < .95) {
+              discard;
+            }
+          }
+          """);
 
       this.FragmentShaderSource = fragmentShaderSrc.ToString();
     }

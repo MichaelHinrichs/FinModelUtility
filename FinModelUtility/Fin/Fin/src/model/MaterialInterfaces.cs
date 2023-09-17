@@ -15,6 +15,7 @@ namespace fin.model {
     // TODO: Name is actually required, should be required in the creation scripts?
     INullMaterial AddNullMaterial();
     ITextureMaterial AddTextureMaterial(ITexture texture);
+    IColorMaterial AddColorMaterial(Color color);
     IStandardMaterial AddStandardMaterial();
     IFixedFunctionMaterial AddFixedFunctionMaterial();
 
@@ -79,11 +80,14 @@ namespace fin.model {
   }
 
 
-  public interface INullMaterial : IMaterial {
-  }
+  public interface INullMaterial : IMaterial { }
 
   public interface ITextureMaterial : IMaterial {
     ITexture Texture { get; }
+  }
+
+  public interface IColorMaterial : IMaterial {
+    Color Color { get; set; }
   }
 
   public interface IStandardMaterial : IMaterial {

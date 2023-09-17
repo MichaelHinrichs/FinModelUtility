@@ -1,8 +1,5 @@
-# version 330
+# version 400
 
-uniform sampler2D texture0;
-uniform sampler2D texture2;
-uniform sampler2D texture3;
 
 struct Light {
   bool enabled;
@@ -13,9 +10,13 @@ struct Light {
 
 uniform Light lights[8];
 
+uniform sampler2D texture0;
+uniform sampler2D texture2;
+uniform sampler2D texture3;
 uniform vec3 color_GxMaterialColor0;
 uniform vec3 color_GxAmbientColor0;
 uniform float scalar_GxAlpha0;
+
 in vec2 normalUv;
 in vec3 vertexNormal;
 in vec4 vertexColor0;

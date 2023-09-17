@@ -1,9 +1,9 @@
-# version 330
+# version 400
 
 uniform sampler2D texture0;
-
 uniform vec3 color_GxMaterialColor0;
 uniform float scalar_GxMaterialAlpha0;
+
 in vec4 vertexColor0;
 in vec4 vertexColor1;
 in vec2 uv0;

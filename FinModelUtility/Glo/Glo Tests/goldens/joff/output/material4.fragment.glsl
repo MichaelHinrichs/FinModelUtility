@@ -1,4 +1,4 @@
-# version 330
+# version 400
 
 uniform sampler2D diffuseTexture;
 uniform sampler2D ambientOcclusionTexture;
@@ -16,9 +16,7 @@ void main() {
   vec4 emissiveColor = texture(emissiveTexture, uv0);
 
   fragColor = diffuseColor * vertexColor0;
-
   fragColor.rgb += emissiveColor.rgb;
-
   fragColor.rgb = min(fragColor.rgb, 1);
 
   if (fragColor.a < .95) {

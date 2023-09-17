@@ -4,7 +4,7 @@ namespace fin.shaders.glsl {
   public static class GlslMaterialExtensions {
     public static IShaderSourceGlsl ToShaderSource(
         this IReadOnlyMaterial material,
-        IModel model, 
+        IModel model,
         bool useBoneMatrices) {
       if (DebugFlags.ENABLE_FIXED_FUNCTION_SHADER
           && !DebugFlags.ENABLE_WEIGHT_COLORS
@@ -22,7 +22,11 @@ namespace fin.shaders.glsl {
             useBoneMatrices);
       }
 
-      return new SimpleShaderSourceGlsl(model, material, useBoneMatrices);
+      if (material is IColorMaterial) {
+        return new ColorShaderSourceGlsl(model, material, useBoneMatrices);
+      }
+
+      return new TextureShaderSourceGlsl(model, material, useBoneMatrices);
     }
   }
 }

@@ -1,4 +1,5 @@
-# version 330
+# version 400
+
 
 struct Light {
   bool enabled;
@@ -7,8 +8,8 @@ struct Light {
   vec4 color;
 };
 
-uniform vec3 ambientLightColor;
 uniform Light lights[8];
+uniform vec3 ambientLightColor;
 
 uniform sampler2D diffuseTexture;
 uniform sampler2D ambientOcclusionTexture;
@@ -22,6 +23,7 @@ in vec3 vertexNormal;
 in vec3 tangent;
 in vec3 binormal;
 in vec2 uv0;
+
 
 vec3 getDiffuseLightColor(Light light, vec3 vertexNormal) {
   vec3 diffuseLightNormal = normalize(light.normal);
@@ -57,12 +59,11 @@ void main() {
   vec4 emissiveColor = texture(emissiveTexture, uv0);
 
   fragColor = diffuseColor * vertexColor0;
-
+              
   vec3 fragNormal = vertexNormal;
+
   fragColor.rgb = mix(fragColor.rgb, applyLightingColor(fragColor.rgb, ambientOcclusionColor.r, fragNormal), useLighting);
-
   fragColor.rgb += emissiveColor.rgb;
-
   fragColor.rgb = min(fragColor.rgb, 1);
 
   if (fragColor.a < .95) {

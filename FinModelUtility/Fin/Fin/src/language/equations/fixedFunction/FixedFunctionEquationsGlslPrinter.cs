@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 
 using fin.model;
+using fin.shaders.glsl;
 using fin.util.asserts;
 
 namespace fin.language.equations.fixedFunction {
@@ -33,17 +34,6 @@ namespace fin.language.equations.fixedFunction {
       os.WriteLine("# version 400");
       os.WriteLine();
 
-      for (var t = 0; t < MaterialConstants.MAX_TEXTURES; ++t) {
-        if (new[] {
-                FixedFunctionSource.TEXTURE_COLOR_0 + t,
-                FixedFunctionSource.TEXTURE_ALPHA_0 + t
-            }.Any(equations.HasInput)) {
-          os.WriteLine($"uniform sampler2D texture{t};");
-        }
-      }
-
-      os.WriteLine();
-
       var hasIndividualLights = Enumerable
                                 .Range(0, MaterialConstants.MAX_LIGHTS)
                                 .Select(
@@ -52,44 +42,59 @@ namespace fin.language.equations.fixedFunction {
                                         FixedFunctionSource.LIGHT_0_ALPHA + i
                                     }.Any(equations.HasInput))
                                 .ToArray();
-
       var dependsOnAnIndividualLight =
           hasIndividualLights.Any(value => value);
 
       if (dependsOnAnIndividualLight) {
-        os.WriteLine($@"struct Light {{
-  bool enabled;
-  vec3 position;
-  vec3 normal;
-  vec4 color;
-}};
-
-uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
-");
+        os.WriteLine(GlslUtil.GetLightHeader(false));
       }
 
-      var outputIdentifiers = new [] {
+      var hadUniform = false;
+      for (var t = 0; t < MaterialConstants.MAX_TEXTURES; ++t) {
+        if (new[] {
+                FixedFunctionSource.TEXTURE_COLOR_0 + t,
+                FixedFunctionSource.TEXTURE_ALPHA_0 + t
+            }.Any(equations.HasInput)) {
+          hadUniform = true;
+          os.WriteLine($"uniform sampler2D texture{t};");
+        }
+      }
+
+      var outputIdentifiers = new[] {
           FixedFunctionSource.OUTPUT_COLOR, FixedFunctionSource.OUTPUT_ALPHA,
       };
       foreach (var colorRegister in registers.ColorRegisters) {
         if (equations.DoOutputsDependOn(outputIdentifiers, colorRegister)) {
+          hadUniform = true;
           os.WriteLine($"uniform vec3 color_{colorRegister.Name};");
         }
       }
 
       foreach (var scalarRegister in registers.ScalarRegisters) {
         if (equations.DoOutputsDependOn(outputIdentifiers, scalarRegister)) {
+          hadUniform = true;
           os.WriteLine($"uniform float scalar_{scalarRegister.Name};");
         }
       }
 
+      var hasWrittenLineBetweenUniformsAndIns = false;
+
+      Action writeLineBetweenUniformsAndIns = () => {
+        if (hadUniform && !hasWrittenLineBetweenUniformsAndIns) {
+          hasWrittenLineBetweenUniformsAndIns = true;
+          os.WriteLine();
+        }
+      };
+
       if (material.TextureSources.Any(
               texture => texture?.UvType is UvType.SPHERICAL
                                             or UvType.LINEAR)) {
+        writeLineBetweenUniformsAndIns();
         os.WriteLine("in vec2 normalUv;");
       }
 
       if (dependsOnAnIndividualLight) {
+        writeLineBetweenUniformsAndIns();
         os.WriteLine("in vec3 vertexNormal;");
       }
 
@@ -98,12 +103,14 @@ uniform Light lights[{MaterialConstants.MAX_LIGHTS}];
                 FixedFunctionSource.VERTEX_COLOR_0 + i,
                 FixedFunctionSource.VERTEX_ALPHA_0 + i
             }.Any(equations.HasInput)) {
+          writeLineBetweenUniformsAndIns();
           os.WriteLine($"in vec4 vertexColor{i};");
         }
       }
 
       for (var i = 0; i < MaterialConstants.MAX_UVS; ++i) {
         if (material.TextureSources.Any(texture => texture?.UvIndex == i)) {
+          writeLineBetweenUniformsAndIns();
           os.WriteLine($"in vec2 uv{i};");
         }
       }

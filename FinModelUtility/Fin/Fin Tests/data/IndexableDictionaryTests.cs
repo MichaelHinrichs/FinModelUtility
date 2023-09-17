@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Linq;
 
+using fin.data.indexable;
 using fin.util.asserts;
 
 using NUnit.Framework;

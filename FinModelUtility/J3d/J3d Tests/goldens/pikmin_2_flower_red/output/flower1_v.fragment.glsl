@@ -1,4 +1,4 @@
-# version 330
+# version 400
 
 
 struct Light {
@@ -12,6 +12,7 @@ uniform Light lights[8];
 
 uniform vec3 color_GxAmbientColor0;
 uniform vec3 color_GxColor0;
+
 in vec3 vertexNormal;
 in vec4 vertexColor0;
 in vec4 vertexColor1;

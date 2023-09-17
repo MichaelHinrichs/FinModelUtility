@@ -1,5 +1,4 @@
-# version 330
-
+# version 400
 
 in vec4 vertexColor0;
 in vec4 vertexColor1;
