@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <RootNamespace>bk</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Formats\F3dzex2\F3dzex2.csproj" />
+    <ProjectReference Include="..\..\Fin\Fin\Fin.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="schema" Version="0.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="src\schema\" />
+  </ItemGroup>
+</Project>

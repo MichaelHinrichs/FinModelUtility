@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>modl</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Fin\Fin\Fin.csproj" />
+    <ProjectReference Include="..\..\Gx\Gx.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="schema" Version="0.2.3" />
+  </ItemGroup>
+
+</Project>

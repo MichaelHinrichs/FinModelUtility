@@ -1,0 +1,69 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <RootNamespace>mod</RootNamespace>
+    <LangVersion>preview</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="common\**" />
+    <Compile Remove="done\**" />
+    <Compile Remove="src\api\**" />
+    <Compile Remove="util\**" />
+    <EmbeddedResource Remove="common\**" />
+    <EmbeddedResource Remove="done\**" />
+    <EmbeddedResource Remove="src\api\**" />
+    <EmbeddedResource Remove="util\**" />
+    <None Remove="common\**" />
+    <None Remove="done\**" />
+    <None Remove="src\api\**" />
+    <None Remove="util\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="src\schema\MaterialLeft.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="commands.cpp" />
+    <None Remove="commands.hpp" />
+    <None Remove="common.hpp" />
+    <None Remove="DMD.cpp" />
+    <None Remove="DMD.hpp" />
+    <None Remove="joint_render_decomp.txt" />
+    <None Remove="LICENSE" />
+    <None Remove="main.cpp" />
+    <None Remove="MOD.cpp" />
+    <None Remove="MOD.hpp" />
+    <None Remove="src\joint_render_decomp.cpp" />
+    <None Remove="types.hpp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="src\api\ModModelFileBundle.cs" />
+    <Compile Include="src\api\ModModelImporter.cs" />
+    <Compile Include="src\api\ModModelImporterPlugin.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.9.1" />
+    <PackageReference Include="schema" Version="0.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Fin\Fin\Fin.csproj" />
+    <ProjectReference Include="..\..\Gx\Gx.csproj" />
+  </ItemGroup>
+
+</Project>

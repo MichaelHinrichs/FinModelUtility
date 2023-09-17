@@ -48,7 +48,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\F3dzex2\F3dzex2.csproj" />
+    <ProjectReference Include="..\Formats\F3dzex2\F3dzex2.csproj" />
     <ProjectReference Include="..\Fin\Fin\Fin.csproj" />
   </ItemGroup>
 </Project>

@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <Platforms>AnyCPU;x86;x64</Platforms>
+    <RootNamespace>hw</RootNamespace>
+    <LangVersion>preview</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Resources\HWGlsResource.cs" />
+    <Compile Remove="Resources\HWObjectDefinition.cs" />
+    <Compile Remove="Resources\HWObjectInstance.cs" />
+    <Compile Remove="Resources\HWSc2Resource.cs" />
+    <Compile Remove="Resources\HWSc3Resource.cs" />
+    <Compile Remove="Resources\HWScnResource.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Toolkit.HighPerformance" Version="7.1.2" />
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+    <PackageReference Include="schema" Version="0.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Fin\Fin\Fin.csproj" />
+    <ProjectReference Include="..\..\Formats\Granny3d\Granny3d.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="KSoft">
+      <HintPath>lib\KSoft.dll</HintPath>
+    </Reference>
+    <Reference Include="KSoft.Phoenix">
+      <HintPath>lib\KSoft.Phoenix.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="lib\ICSharpCode.SharpZipLib.dll">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="lib\KSoft.Compression.dll">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
