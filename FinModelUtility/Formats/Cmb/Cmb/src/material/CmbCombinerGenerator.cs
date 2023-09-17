@@ -20,9 +20,11 @@ namespace cmb.material {
   public class CmbCombinerGenerator {
     private readonly Material cmbMaterial_;
     private readonly IFixedFunctionEquations<FixedFunctionSource> equations_;
+    private readonly IFixedFunctionRegisters registers_;
     private readonly ColorFixedFunctionOps cOps_;
     private readonly ScalarFixedFunctionOps sOps_;
 
+    private int constColorIndex_;
     private Rgba32 constColor_;
 
     private IColorValue? previousColor_;
@@ -37,6 +39,7 @@ namespace cmb.material {
                                 IFixedFunctionMaterial finMaterial) {
       this.cmbMaterial_ = cmbMaterial;
       this.equations_ = finMaterial.Equations;
+      this.registers_ = finMaterial.Registers;
       this.cOps_ = new ColorFixedFunctionOps(this.equations_);
       this.sOps_ = new ScalarFixedFunctionOps(this.equations_);
 
@@ -123,8 +126,9 @@ namespace cmb.material {
     }
 
     public void AddCombiner_(Combiner cmbCombiner) {
+      this.constColorIndex_ = cmbCombiner.constColorIndex;
       this.constColor_ =
-          this.cmbMaterial_.constantColors[cmbCombiner.constColorIndex];
+          this.cmbMaterial_.constantColors[this.constColorIndex_];
 
       // Combine values
       var colorSources =
@@ -203,10 +207,13 @@ namespace cmb.material {
               FixedFunctionSource.TEXTURE_COLOR_2),
           TexCombinerSource.Texture3 => this.equations_.CreateOrGetColorInput(
               FixedFunctionSource.TEXTURE_COLOR_3),
-          TexCombinerSource.Constant => this.equations_.CreateColorConstant(
-              this.constColor_.Rf,
-              this.constColor_.Gf,
-              this.constColor_.Bf),
+          TexCombinerSource.Constant =>
+              this.registers_.GetOrCreateColorRegister(
+                  $"3dsColor{this.constColorIndex_}",
+                  this.equations_.CreateColorConstant(
+                      this.constColor_.Rf,
+                      this.constColor_.Gf,
+                      this.constColor_.Bf)),
           TexCombinerSource.PrimaryColor
               => this.equations_.CreateOrGetColorInput(
                   FixedFunctionSource.VERTEX_COLOR_0),
@@ -244,8 +251,11 @@ namespace cmb.material {
             TexCombinerSource.Texture3 =>
                 this.equations_.CreateOrGetScalarInput(
                     FixedFunctionSource.TEXTURE_ALPHA_3),
-            TexCombinerSource.Constant => this.equations_.CreateScalarConstant(
-                this.constColor_.Af),
+            TexCombinerSource.Constant =>
+                this.registers_.GetOrCreateScalarRegister(
+                    $"3dsAlpha{this.constColorIndex_}",
+                    this.equations_.CreateScalarConstant(
+                        this.constColor_.Af)),
             TexCombinerSource.PrimaryColor
                 => this.equations_.CreateOrGetScalarInput(
                     FixedFunctionSource.VERTEX_ALPHA_0),

@@ -11,6 +11,7 @@ struct Light {
 uniform Light lights[8];
 
 uniform sampler2D texture0;
+uniform float scalar_3dsAlpha1;
 
 in vec3 vertexNormal;
 in vec4 vertexColor0;
@@ -38,7 +39,7 @@ void main() {
 
   vec3 colorComponent = texture(texture0, uv0).rgb*individualLightColors[0].rgb + individualLightColors[0].rgb*texture(texture0, uv0).rgb;
 
-  float alphaComponent = vertexColor0.a;
+  float alphaComponent = vertexColor0.a*scalar_3dsAlpha1;
 
   fragColor = vec4(colorComponent, alphaComponent);
 }

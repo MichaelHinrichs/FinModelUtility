@@ -12,6 +12,10 @@ uniform Light lights[8];
 
 uniform sampler2D texture0;
 uniform sampler2D texture1;
+uniform vec3 color_3dsColor3;
+uniform vec3 color_3dsColor2;
+uniform float scalar_3dsAlpha1;
+uniform float scalar_3dsAlpha2;
 
 in vec3 vertexNormal;
 in vec4 vertexColor0;
@@ -37,9 +41,9 @@ void main() {
     individualLightColors[i] = lightColor;
   }
 
-  vec3 colorComponent = individualLightColors[0].rgb + individualLightColors[0].rgb*texture(texture0, uv0).rgb*texture(texture1, uv0).rgb;
+  vec3 colorComponent = color_3dsColor2*individualLightColors[0].rgb + individualLightColors[0].rgb*(color_3dsColor3 + texture(texture0, uv0).rgb)*texture(texture1, uv0).rgb;
 
-  float alphaComponent = vertexColor0.a*texture(texture1, uv0).a;
+  float alphaComponent = vertexColor0.a*texture(texture1, uv0).a*scalar_3dsAlpha1*scalar_3dsAlpha2;
 
   fragColor = vec4(colorComponent, alphaComponent);
 }
