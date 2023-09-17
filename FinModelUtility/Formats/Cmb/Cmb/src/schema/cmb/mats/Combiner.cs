@@ -1,4 +1,5 @@
 ﻿using schema.binary;
+using schema.binary.attributes;
 
 namespace cmb.schema.cmb.mats {
   [BinarySchema]
@@ -7,20 +8,24 @@ namespace cmb.schema.cmb.mats {
     public TexCombineMode combinerModeAlpha;
     public TexCombineScale scaleColor;
     public TexCombineScale scaleAlpha;
-    public TexCombinerSource bufferColor;
-    public TexCombinerSource bufferAlpha;
-    public TexCombinerSource sourceColor0;
-    public TexCombinerSource sourceColor1;
-    public TexCombinerSource sourceColor2;
-    public TexCombinerColorOp operandColor0;
-    public TexCombinerColorOp operandColor1;
-    public TexCombinerColorOp operandColor2;
-    public TexCombinerSource sourceAlpha0;
-    public TexCombinerSource sourceAlpha1;
-    public TexCombinerSource sourceAlpha2;
-    public TexCombinerAlphaOp operandAlpha0;
-    public TexCombinerAlphaOp operandAlpha1;
-    public TexCombinerAlphaOp operandAlpha2;
+    public TexBufferSource bufferColor;
+    public TexBufferSource bufferAlpha;
+
+
+    [SequenceLengthSource(3)]
+    public TexCombinerSource[] colorSources;
+
+    [SequenceLengthSource(3)]
+    public TexCombinerColorOp[] colorOperands;
+
+
+    [SequenceLengthSource(3)]
+    public TexCombinerSource[] alphaSources;
+
+    [SequenceLengthSource(3)]
+    public TexCombinerAlphaOp[] alphaOperands;
+
+
     public int constColorIndex;
   }
 }

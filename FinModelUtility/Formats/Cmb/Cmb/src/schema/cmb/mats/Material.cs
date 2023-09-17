@@ -123,8 +123,9 @@ namespace cmb.schema.cmb.mats {
       this.diffuseColor.Read(r);
       this.specular0Color.Read(r);
       this.specular1Color.Read(r);
-      foreach (var constantColor in this.constantColors) {
-        constantColor.Read(r);
+
+      for (var i = 0; i < this.constantColors.Length; ++i) {
+        this.constantColors[i] = r.ReadNew<Rgba32>();
       }
 
       r.ReadSingles(this.bufferColor);

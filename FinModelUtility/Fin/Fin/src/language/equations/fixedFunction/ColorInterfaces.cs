@@ -1,24 +1,22 @@
-﻿using System.Collections.Generic;
-
-namespace fin.language.equations.fixedFunction {
+﻿namespace fin.language.equations.fixedFunction {
   public interface IColorNamedValue : INamedValue, IColorFactor {
     IColorValue ColorValue { get; }
   }
 
-  public interface IColorIdentifiedValue<TIdentifier> :
-      IIdentifiedValue<TIdentifier>,
-      IColorFactor {
+  public interface IColorIdentifiedValue<TIdentifier>
+      : IIdentifiedValue<TIdentifier>,
+        IColorFactor {
     IColorValue ColorValue { get; }
   }
 
-  public interface
-      IColorInput<TIdentifier> : IColorIdentifiedValue<TIdentifier> {
+  public interface IColorInput<TIdentifier>
+      : IColorIdentifiedValue<TIdentifier> {
     IColorConstant DefaultValue { get; }
     IColorConstant? CustomValue { get; set; }
   }
 
-  public interface
-      IColorOutput<TIdentifier> : IColorIdentifiedValue<TIdentifier> { }
+  public interface IColorOutput<TIdentifier>
+      : IColorIdentifiedValue<TIdentifier> { }
 
   public enum ColorSwizzle {
     R,
@@ -37,17 +35,8 @@ namespace fin.language.equations.fixedFunction {
   }
 
 
-  public interface IColorValue : IValue {
-    IColorExpression Add(IColorValue term1, params IColorValue[] terms);
-    IColorExpression Subtract(IColorValue term1, params IColorValue[] terms);
-    IColorTerm Multiply(IColorValue factor1, params IColorValue[] factors);
-    IColorTerm Divide(IColorValue factor1, params IColorValue[] factors);
-
-    IColorExpression Add(IScalarValue term1, params IScalarValue[] terms);
-    IColorExpression Subtract(IScalarValue term1, params IScalarValue[] terms);
-    IColorTerm Multiply(IScalarValue factor1, params IScalarValue[] factors);
-    IColorTerm Divide(IScalarValue factor1, params IScalarValue[] factors);
-
+  public interface IColorValue
+      : IValue<IColorValue, IColorTerm, IColorExpression> {
     IScalarValue? Intensity { get; }
     IScalarValue R { get; }
     IScalarValue G { get; }
@@ -56,14 +45,13 @@ namespace fin.language.equations.fixedFunction {
     bool Clamp { get; set; }
   }
 
-  public interface IColorExpression : IColorValue {
-    IReadOnlyList<IColorValue> Terms { get; }
-  }
+  public interface IColorTerm
+      : IColorValue,
+        ITerm<IColorValue, IColorTerm, IColorExpression> { }
 
-  public interface IColorTerm : IColorValue {
-    IReadOnlyList<IColorValue> NumeratorFactors { get; }
-    IReadOnlyList<IColorValue>? DenominatorFactors { get; }
-  }
+  public interface IColorExpression
+      : IColorValue,
+        IExpression<IColorValue, IColorTerm, IColorExpression> { }
 
   public interface IColorFactor : IColorValue { }
 

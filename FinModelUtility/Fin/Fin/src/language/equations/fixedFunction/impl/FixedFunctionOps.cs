@@ -5,39 +5,69 @@ namespace fin.language.equations.fixedFunction.impl {
     public const bool SIMPLIFY = true;
   }
 
-  public abstract class BFixedFunctionOps<T> where T : notnull {
-    public abstract T Zero { get; }
-    public abstract T One { get; }
+  public interface IFixedFunctionOps<TValue, TTerm, TExpression>
+      where TValue : IValue<TValue, TTerm, TExpression>
+      where TTerm : ITerm<TValue, TTerm, TExpression>
+      where TExpression : IExpression<TValue, TTerm, TExpression> {
+    TValue Zero { get; }
+    TValue Half { get; }
+    TValue One { get; }
 
-    public bool IsZero(T? value)
+    bool IsZero(TValue? value) => value == null || value.Equals(this.Zero);
+
+    TValue? Add(TValue? lhs, TValue? rhs);
+    TValue? Subtract(TValue? lhs, TValue? rhs);
+    TValue? Multiply(TValue? lhs, TValue? rhs);
+
+    TValue? AddWithConstant(TValue? lhs, double constant);
+    TValue? MultiplyWithConstant(TValue? lhs, double constant);
+  }
+
+  public abstract class BFixedFunctionOps<TValue, TTerm, TExpression>
+      : IFixedFunctionOps<TValue, TTerm, TExpression>
+      where TValue : IValue<TValue, TTerm, TExpression>
+      where TTerm : ITerm<TValue, TTerm, TExpression>
+      where TExpression : IExpression<TValue, TTerm, TExpression> {
+    public abstract TValue Zero { get; }
+    public abstract TValue Half { get; }
+    public abstract TValue One { get; }
+
+    public bool IsZero(TValue? value)
       => value == null || value.Equals(this.Zero);
 
-    public abstract T? Add(T? lhs, T? rhs);
-    public abstract T? AddWithScalar(T? lhs, IScalarValue? rhs);
+    public abstract TValue? Add(TValue? lhs, TValue? rhs);
+    public abstract TValue? AddWithScalar(TValue? lhs, IScalarValue? rhs);
 
-    public abstract T? Subtract(T? lhs, T? rhs);
+    public abstract TValue? Subtract(TValue? lhs, TValue? rhs);
 
-    public abstract T? Multiply(T? lhs, T? rhs);
-    public abstract T? MultiplyWithScalar(T? lhs, IScalarValue? rhs);
+    public abstract TValue? Multiply(TValue? lhs, TValue? rhs);
+    public abstract TValue? MultiplyWithScalar(TValue? lhs, IScalarValue? rhs);
 
-    public T? AddOrSubtractOp(
+    public TValue? AddWithConstant(TValue? lhs, double constant)
+      => this.AddWithScalar(lhs, new ScalarConstant(constant));
+
+    public TValue? MultiplyWithConstant(TValue? lhs, double constant)
+      => this.MultiplyWithScalar(lhs, new ScalarConstant(constant));
+
+    public TValue? AddOrSubtractOp(
         bool isAdd,
-        T? a,
-        T? b,
-        T? c,
-        T? d,
+        TValue? a,
+        TValue? b,
+        TValue? c,
+        TValue? d,
         IScalarValue? bias,
         IScalarValue? scale) {
       var aTimesOneMinusC = this.Multiply(
-          a, this.Subtract(this.One, c));
+          a,
+          this.Subtract(this.One, c));
 
       var bTimesC = this.Multiply(b, c);
 
       var rest = this.Add(aTimesOneMinusC, bTimesC);
 
       var value = isAdd
-                      ? this.Add(d, rest)
-                      : this.Subtract(d, rest);
+          ? this.Add(d, rest)
+          : this.Subtract(d, rest);
 
       value = this.AddWithScalar(value, bias);
       value = this.MultiplyWithScalar(value, scale);
@@ -46,7 +76,8 @@ namespace fin.language.equations.fixedFunction.impl {
     }
   }
 
-  public class ColorFixedFunctionOps : BFixedFunctionOps<IColorValue> {
+  public class ColorFixedFunctionOps
+      : BFixedFunctionOps<IColorValue, IColorTerm, IColorExpression> {
     private readonly IFixedFunctionEquations<FixedFunctionSource> equations_;
 
     private readonly IScalarValue scZero_;
@@ -58,6 +89,7 @@ namespace fin.language.equations.fixedFunction.impl {
       this.equations_ = equations;
 
       this.Zero = equations.CreateColorConstant(0);
+      this.Half = equations.CreateColorConstant(.5f);
       this.One = equations.CreateColorConstant(1);
 
       this.scZero_ = equations.CreateScalarConstant(0);
@@ -69,6 +101,7 @@ namespace fin.language.equations.fixedFunction.impl {
       => value == null || value == this.scZero_;
 
     public override IColorValue Zero { get; }
+    public override IColorValue Half { get; }
     public override IColorValue One { get; }
 
     public override IColorValue? Add(IColorValue? lhs, IColorValue? rhs) {
@@ -82,9 +115,11 @@ namespace fin.language.equations.fixedFunction.impl {
         if (lhsIsZero && rhsIsZero) {
           return null;
         }
+
         if (lhsIsZero) {
           return rhs;
         }
+
         if (rhsIsZero) {
           return lhs;
         }
@@ -105,9 +140,11 @@ namespace fin.language.equations.fixedFunction.impl {
         if (lhsIsZero && rhsIsZero) {
           return null;
         }
+
         if (lhsIsZero) {
           return this.equations_.CreateColor(rhs!);
         }
+
         if (rhsIsZero) {
           return lhs;
         }
@@ -127,9 +164,11 @@ namespace fin.language.equations.fixedFunction.impl {
         if ((lhsIsZero && rhsIsZero) || lhs == rhs) {
           return null;
         }
+
         if (lhsIsZero) {
           return rhs?.Multiply(this.scMinusOne_);
         }
+
         if (rhsIsZero) {
           return lhs;
         }
@@ -153,9 +192,11 @@ namespace fin.language.equations.fixedFunction.impl {
         if (lhsIsOne && rhsIsOne) {
           return this.One;
         }
+
         if (lhsIsOne) {
           return rhs;
         }
+
         if (rhsIsOne) {
           return lhs;
         }
@@ -181,9 +222,11 @@ namespace fin.language.equations.fixedFunction.impl {
         if (lhsIsOne && rhsIsOne) {
           return this.One;
         }
+
         if (lhsIsOne) {
           return this.equations_.CreateColor(rhs!);
         }
+
         if (rhsIsOne) {
           return lhs;
         }
@@ -193,7 +236,8 @@ namespace fin.language.equations.fixedFunction.impl {
     }
   }
 
-  public class ScalarFixedFunctionOps : BFixedFunctionOps<IScalarValue> {
+  public class ScalarFixedFunctionOps
+      : BFixedFunctionOps<IScalarValue, IScalarTerm, IScalarExpression> {
     private readonly IFixedFunctionEquations<FixedFunctionSource> equations_;
 
     private readonly IScalarValue scMinusOne_;
@@ -203,11 +247,13 @@ namespace fin.language.equations.fixedFunction.impl {
       this.equations_ = equations;
 
       this.Zero = equations.CreateScalarConstant(0);
+      this.Half = equations.CreateScalarConstant(.5f);
       this.One = equations.CreateScalarConstant(1);
       this.scMinusOne_ = equations.CreateScalarConstant(-1);
     }
 
     public override IScalarValue Zero { get; }
+    public override IScalarValue Half { get; }
     public override IScalarValue One { get; }
 
     public override IScalarValue? AddWithScalar(
@@ -226,9 +272,11 @@ namespace fin.language.equations.fixedFunction.impl {
         if (lhsIsZero && rhsIsZero) {
           return null;
         }
+
         if (lhsIsZero) {
           return rhs;
         }
+
         if (rhsIsZero) {
           return lhs;
         }
@@ -249,9 +297,11 @@ namespace fin.language.equations.fixedFunction.impl {
         if ((lhsIsZero && rhsIsZero) || lhs == rhs) {
           return null;
         }
+
         if (lhsIsZero) {
           return rhs?.Multiply(this.scMinusOne_);
         }
+
         if (rhsIsZero) {
           return lhs;
         }
@@ -281,9 +331,11 @@ namespace fin.language.equations.fixedFunction.impl {
         if (lhsIsOne && rhsIsOne) {
           return this.One;
         }
+
         if (lhsIsOne) {
           return rhs;
         }
+
         if (rhsIsOne) {
           return lhs;
         }

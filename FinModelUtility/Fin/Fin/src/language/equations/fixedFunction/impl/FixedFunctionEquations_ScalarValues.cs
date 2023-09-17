@@ -96,12 +96,12 @@ namespace fin.language.equations.fixedFunction {
 
 
   public abstract class BScalarValue : IScalarValue {
-    public IScalarExpression Add(
+    public virtual IScalarExpression Add(
         IScalarValue term1,
         params IScalarValue[] terms)
       => new ScalarExpression(ListUtil.ReadonlyFrom(this, term1, terms));
 
-    public IScalarExpression Subtract(
+    public virtual IScalarExpression Subtract(
         IScalarValue term1,
         params IScalarValue[] terms)
       => new ScalarExpression(
@@ -109,12 +109,12 @@ namespace fin.language.equations.fixedFunction {
               this,
               this.NegateTerms(term1, terms)));
 
-    public IScalarTerm Multiply(
+    public virtual IScalarTerm Multiply(
         IScalarValue factor1,
         params IScalarValue[] factors)
       => new ScalarTerm(ListUtil.ReadonlyFrom(this, factor1, factors));
 
-    public IScalarTerm Divide(
+    public virtual IScalarTerm Divide(
         IScalarValue factor1,
         params IScalarValue[] factors)
       => new ScalarTerm(ListUtil.ReadonlyFrom(this),
@@ -157,13 +157,13 @@ namespace fin.language.equations.fixedFunction {
 
     public IReadOnlyList<IScalarValue> Terms { get; }
 
-    public IScalarExpression Add(
+    public override IScalarExpression Add(
         IScalarValue term1,
         params IScalarValue[] terms)
       => new ScalarExpression(
           ListUtil.ReadonlyConcat(this.Terms, new[] { term1 }, terms));
 
-    public IScalarExpression Subtract(
+    public override IScalarExpression Subtract(
         IScalarValue term1,
         params IScalarValue[] terms)
       => new ScalarExpression(
@@ -182,14 +182,14 @@ namespace fin.language.equations.fixedFunction {
     public IReadOnlyList<IScalarValue> NumeratorFactors { get; }
     public IReadOnlyList<IScalarValue>? DenominatorFactors { get; }
 
-    public IScalarTerm Multiply(
+    public override IScalarTerm Multiply(
         IScalarValue factor1,
         params IScalarValue[] factors)
       => new ScalarTerm(ListUtil.ReadonlyConcat(
                             this.NumeratorFactors,
                             ListUtil.ReadonlyFrom(factor1, factors)));
 
-    public IScalarTerm Divide(
+    public override IScalarTerm Divide(
         IScalarValue factor1,
         params IScalarValue[] factors)
       => new ScalarTerm(this.NumeratorFactors,

@@ -29,7 +29,7 @@
 
     public static bool IsIntensity(this GlTextureFormat format)
       => format is GlTextureFormat.L4
-                   or GlTextureFormat.L8 
+                   or GlTextureFormat.L8
                    or GlTextureFormat.Gas
                    or GlTextureFormat.Shadow;
 
@@ -149,6 +149,11 @@
     Texture3 = 0x84C3,
     PreviousBuffer = 0x8579,
     Constant = 0x8576,
+    Previous = 0x8578
+  }
+
+  public enum TexBufferSource : ushort {
+    PreviousBuffer = 0x8579,
     Previous = 0x8578
   }
 

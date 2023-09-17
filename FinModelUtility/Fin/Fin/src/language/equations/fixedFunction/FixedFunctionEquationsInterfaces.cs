@@ -72,9 +72,49 @@ namespace fin.language.equations.fixedFunction {
     TIdentifier Identifier { get; }
   }
 
-  public interface IValue { }
-
   public interface INamedValue : IValue {
     string Name { get; }
+  }
+
+  // Simple 
+  public interface IValue { }
+
+  public interface ITerm : IValue { }
+
+  public interface IExpression : IValue { }
+
+
+  // Typed
+  public interface IValue<in TValue, out TTerm, out TExpression>
+      : IValue
+      where TValue : IValue<TValue, TTerm, TExpression>
+      where TTerm : ITerm<TValue, TTerm, TExpression>
+      where TExpression : IExpression<TValue, TTerm, TExpression> {
+    TExpression Add(TValue term1, params TValue[] terms);
+    TExpression Subtract(TValue term1, params TValue[] terms);
+    TTerm Multiply(TValue factor1, params TValue[] factors);
+    TTerm Divide(TValue factor1, params TValue[] factors);
+
+    TExpression Add(IScalarValue term1, params IScalarValue[] terms);
+    TExpression Subtract(IScalarValue term1, params IScalarValue[] terms);
+    TTerm Multiply(IScalarValue factor1, params IScalarValue[] factors);
+    TTerm Divide(IScalarValue factor1, params IScalarValue[] factors);
+  }
+
+  public interface ITerm<TValue, out TTerm, out TExpression>
+      : ITerm, IValue<TValue, TTerm, TExpression>
+      where TValue : IValue<TValue, TTerm, TExpression>
+      where TTerm : ITerm<TValue, TTerm, TExpression>
+      where TExpression : IExpression<TValue, TTerm, TExpression> {
+    IReadOnlyList<TValue> NumeratorFactors { get; }
+    IReadOnlyList<TValue>? DenominatorFactors { get; }
+  }
+
+  public interface IExpression<TValue, out TTerm, out TExpression>
+      : IExpression, IValue<TValue, TTerm, TExpression>
+      where TValue : IValue<TValue, TTerm, TExpression>
+      where TTerm : ITerm<TValue, TTerm, TExpression>
+      where TExpression : IExpression<TValue, TTerm, TExpression> {
+    IReadOnlyList<TValue> Terms { get; }
   }
 }

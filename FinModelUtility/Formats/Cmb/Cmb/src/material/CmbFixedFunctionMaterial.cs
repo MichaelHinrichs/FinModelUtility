@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 using cmb.schema.cmb;
 
@@ -6,14 +7,19 @@ using fin.data.lazy;
 using fin.image;
 using fin.model;
 
+using CmbBlendMode = cmb.schema.cmb.BlendMode;
+using CmbBlendFactor = cmb.schema.cmb.BlendFactor;
 using CmbTextureMinFilter = cmb.schema.cmb.TextureMinFilter;
 using CmbTextureMagFilter = cmb.schema.cmb.TextureMagFilter;
+using FinBlendMode = fin.model.BlendMode;
+using FinBlendFactor = fin.model.BlendFactor;
 using FinTextureMinFilter = fin.model.TextureMinFilter;
 using FinTextureMagFilter = fin.model.TextureMagFilter;
+using Version = cmb.schema.cmb.Version;
 
 namespace cmb.material {
   public class CmbFixedFunctionMaterial {
-    private const bool USE_FIXED_FUNCTION = false;
+    private const bool USE_FIXED_FUNCTION = true;
 
     public CmbFixedFunctionMaterial(
         IModel finModel,
@@ -25,41 +31,69 @@ namespace cmb.material {
       var cmbMaterial = cmbMaterials[materialIndex];
 
       // Get associated texture
-      var finTextures = cmbMaterial.texMappers.Select(texMapper => {
-        var textureId = texMapper.textureId;
+      var finTextures =
+          cmbMaterial
+              .texMappers.Select((texMapper, i) => {
+                var textureId = texMapper.textureId;
 
-        ITexture? finTexture = null;
-        if (textureId != -1) {
-          var cmbTexture = cmb.tex.Data.textures[textureId];
-          var textureImage = textureImages[textureId];
+                ITexture? finTexture = null;
+                if (textureId != -1) {
+                  var cmbTexture = cmb.tex.Data.textures[textureId];
+                  var textureImage = textureImages[textureId];
 
-          finTexture = finModel.MaterialManager.CreateTexture(textureImage);
-          finTexture.Name = cmbTexture.name;
-          finTexture.WrapModeU = this.CmbToFinWrapMode(texMapper.wrapS);
-          finTexture.WrapModeV = this.CmbToFinWrapMode(texMapper.wrapT);
-          finTexture.MinFilter = texMapper.minFilter switch {
-            CmbTextureMinFilter.Nearest => FinTextureMinFilter.NEAR,
-            CmbTextureMinFilter.Linear => FinTextureMinFilter.LINEAR,
-            CmbTextureMinFilter.NearestMipmapNearest => FinTextureMinFilter
-                .NEAR_MIPMAP_NEAR,
-            CmbTextureMinFilter.LinearMipmapNearest => FinTextureMinFilter
-                .LINEAR_MIPMAP_NEAR,
-            CmbTextureMinFilter.NearestMipmapLinear => FinTextureMinFilter
-                .NEAR_MIPMAP_LINEAR,
-            CmbTextureMinFilter.LinearMipmapLinear => FinTextureMinFilter
-                .LINEAR_MIPMAP_LINEAR,
-          };
-          finTexture.MagFilter = texMapper.magFilter switch {
-            CmbTextureMagFilter.Nearest => FinTextureMagFilter.NEAR,
-            CmbTextureMagFilter.Linear => FinTextureMagFilter.LINEAR,
-          };
+                  var cmbTexCoord = cmbMaterial.texCoords[i];
 
-          var cmbBorderColor = texMapper.BorderColor;
-          finTexture.BorderColor = cmbBorderColor;
-        }
+                  finTexture =
+                      finModel.MaterialManager.CreateTexture(textureImage);
+                  finTexture.Name = cmbTexture.name;
+                  finTexture.WrapModeU = this.CmbToFinWrapMode(texMapper.wrapS);
+                  finTexture.WrapModeV = this.CmbToFinWrapMode(texMapper.wrapT);
+                  finTexture.MinFilter =
+                      texMapper.minFilter switch {
+                          CmbTextureMinFilter.Nearest =>
+                              FinTextureMinFilter.NEAR,
+                          CmbTextureMinFilter.Linear =>
+                              FinTextureMinFilter.LINEAR,
+                          CmbTextureMinFilter
+                                  .NearestMipmapNearest =>
+                              FinTextureMinFilter
+                                  .NEAR_MIPMAP_NEAR,
+                          CmbTextureMinFilter
+                                  .LinearMipmapNearest =>
+                              FinTextureMinFilter
+                                  .LINEAR_MIPMAP_NEAR,
+                          CmbTextureMinFilter
+                                  .NearestMipmapLinear =>
+                              FinTextureMinFilter
+                                  .NEAR_MIPMAP_LINEAR,
+                          CmbTextureMinFilter
+                                  .LinearMipmapLinear =>
+                              FinTextureMinFilter
+                                  .LINEAR_MIPMAP_LINEAR,
+                      };
+                  finTexture.MagFilter =
+                      texMapper.magFilter switch {
+                          CmbTextureMagFilter.Nearest =>
+                              FinTextureMagFilter.NEAR,
+                          CmbTextureMagFilter.Linear =>
+                              FinTextureMagFilter.LINEAR,
+                      };
+                  finTexture.UvIndex = cmbTexCoord.coordinateIndex;
 
-        return finTexture;
-      }).ToArray();
+                  finTexture.UvType =
+                      cmbTexCoord.mappingMethod ==
+                      TextureMappingType.UvCoordinateMap
+                          ? UvType.STANDARD
+                          : UvType.SPHERICAL;
+
+                  var cmbBorderColor =
+                      texMapper.BorderColor;
+                  finTexture.BorderColor = cmbBorderColor;
+                }
+
+                return finTexture;
+              })
+              .ToArray();
 
       // Create material
       if (!USE_FIXED_FUNCTION) {
@@ -91,30 +125,44 @@ namespace cmb.material {
 
         var bestTexture = firstColorFinTexture ?? firstTexture;
         var finMaterial = bestTexture != null
-            ? (IMaterial) finModel.MaterialManager.AddTextureMaterial(bestTexture)
+            ? (IMaterial) finModel.MaterialManager.AddTextureMaterial(
+                bestTexture)
             : finModel.MaterialManager.AddNullMaterial();
         this.Material = finMaterial;
       } else {
         var finMaterial = finModel.MaterialManager.AddFixedFunctionMaterial();
         this.Material = finMaterial;
 
-        // TODO: Implement fixed-function material logic
-
-        var combinerGenerator = new CmbCombinerGenerator(finMaterial);
-
-        var texEnvStageOffset =
-            cmbMaterials.Take(materialIndex)
-                        .Sum(material => material.texEnvStageCount);
-        var combiners =
-            mats.Combiners.Skip((int) texEnvStageOffset)
-                .Take((int) cmbMaterial.texEnvStageCount)
-                .ToArray();
-        var texEnvStages =
-            cmbMaterial.texEnvStagesIndices.Select(i => combiners[i]);
-
-        foreach (var texEnvStage in texEnvStages) {
-          combinerGenerator.AddCombiner(cmbMaterial, texEnvStage);
+        for (var i = 0; i < finTextures.Length; ++i) {
+          var finTexture = finTextures[i];
+          if (finTexture != null) {
+            finMaterial.SetTextureSource(i, finTexture);
+          }
         }
+
+        var combinerGenerator =
+            new CmbCombinerGenerator(cmbMaterial,
+                                     finMaterial,
+                                     cmb.header.version ==
+                                     Version.OCARINA_OF_TIME_3D);
+
+        var combiners = mats.Combiners;
+        var texEnvStages =
+            cmbMaterial.texEnvStagesIndices.Select(
+                           i => {
+                             if (i == -1) {
+                               return null;
+                             }
+
+                             if (i < 0 || i >= combiners.Length) {
+                               ;
+                             }
+
+                             return mats.Combiners[i];
+                           })
+                       .ToArray();
+
+        combinerGenerator.AddCombiners(texEnvStages);
 
         if (!cmbMaterial.alphaTestEnabled) {
           finMaterial.SetAlphaCompare(AlphaOp.Or,
@@ -140,6 +188,12 @@ namespace cmb.material {
               0);
         }
 
+        // TODO: not right
+        finMaterial.SetBlending(
+            FinBlendMode.ADD,
+            FinBlendFactor.ONE,
+            FinBlendFactor.ZERO,
+            LogicOp.UNDEFINED);
       }
 
       this.Material.Name = $"material{materialIndex}";
@@ -156,9 +210,24 @@ namespace cmb.material {
     public WrapMode CmbToFinWrapMode(TextureWrapMode cmbMode)
       => cmbMode switch {
           TextureWrapMode.ClampToBorder => WrapMode.CLAMP,
-          TextureWrapMode.Repeat => WrapMode.REPEAT,
-          TextureWrapMode.ClampToEdge => WrapMode.CLAMP,
-          TextureWrapMode.Mirror => WrapMode.MIRROR_REPEAT,
+          TextureWrapMode.Repeat        => WrapMode.REPEAT,
+          TextureWrapMode.ClampToEdge   => WrapMode.CLAMP,
+          TextureWrapMode.Mirror        => WrapMode.MIRROR_REPEAT,
+      };
+
+    public FinBlendFactor CmbBlendFactorToFin(CmbBlendFactor cmbBlendFactor)
+      => cmbBlendFactor switch {
+          CmbBlendFactor.Zero        => FinBlendFactor.ZERO,
+          CmbBlendFactor.One         => FinBlendFactor.ONE,
+          CmbBlendFactor.SourceColor => FinBlendFactor.SRC_COLOR,
+          CmbBlendFactor.OneMinusSourceColor => FinBlendFactor
+              .ONE_MINUS_SRC_COLOR,
+          CmbBlendFactor.SourceAlpha => FinBlendFactor.SRC_ALPHA,
+          CmbBlendFactor.OneMinusSourceAlpha => FinBlendFactor
+              .ONE_MINUS_SRC_ALPHA,
+          CmbBlendFactor.DestinationAlpha => FinBlendFactor.DST_ALPHA,
+          CmbBlendFactor.OneMinusDestinationAlpha => FinBlendFactor
+              .ONE_MINUS_DST_ALPHA,
       };
   }
 }

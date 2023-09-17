@@ -1,30 +1,26 @@
-﻿using System.Collections.Generic;
-
-namespace fin.language.equations.fixedFunction {
+﻿namespace fin.language.equations.fixedFunction {
   public interface IScalarNamedValue : INamedValue, IScalarFactor {
     IScalarValue ScalarValue { get; }
   }
 
-  public interface IScalarIdentifiedValue<TIdentifier> : IIdentifiedValue<TIdentifier>,
-                                                    IScalarFactor {
+  public interface IScalarIdentifiedValue<TIdentifier> :
+      IIdentifiedValue<TIdentifier>,
+      IScalarFactor {
     IScalarValue ScalarValue { get; }
   }
 
-  public interface IScalarInput<TIdentifier> : IScalarIdentifiedValue<TIdentifier> {
+  public interface
+      IScalarInput<TIdentifier> : IScalarIdentifiedValue<TIdentifier> {
     IScalarConstant DefaultValue { get; }
     IScalarConstant? CustomValue { get; set; }
   }
 
   public interface IScalarOutput<TIdentifier>
-      : IScalarIdentifiedValue<TIdentifier> {}
+      : IScalarIdentifiedValue<TIdentifier> { }
 
 
-  public interface IScalarValue : IValue {
-    IScalarExpression Add(IScalarValue term1, params IScalarValue[] terms);
-    IScalarExpression Subtract(IScalarValue term1, params IScalarValue[] terms);
-    IScalarTerm Multiply(IScalarValue factor1, params IScalarValue[] factors);
-    IScalarTerm Divide(IScalarValue factor1, params IScalarValue[] factors);
-
+  public interface IScalarValue
+      : IValue<IScalarValue, IScalarTerm, IScalarExpression> {
     bool Clamp { get; set; }
 
     IColorValueTernaryOperator TernaryOperator(
@@ -34,16 +30,16 @@ namespace fin.language.equations.fixedFunction {
         IColorValue falseValue);
   }
 
-  public interface IScalarExpression : IScalarValue {
-    IReadOnlyList<IScalarValue> Terms { get; }
-  }
+  public interface IScalarTerm
+      : IScalarValue,
+        ITerm<IScalarValue, IScalarTerm, IScalarExpression> { }
 
-  public interface IScalarTerm : IScalarValue {
-    IReadOnlyList<IScalarValue> NumeratorFactors { get; }
-    IReadOnlyList<IScalarValue>? DenominatorFactors { get; }
-  }
+  public interface IScalarExpression
+      : IScalarValue,
+        IExpression<IScalarValue, IScalarTerm, IScalarExpression> { }
 
-  public interface IScalarFactor : IScalarValue {}
+
+  public interface IScalarFactor : IScalarValue { }
 
   public interface IScalarConstant : IScalarFactor {
     double Value { get; }

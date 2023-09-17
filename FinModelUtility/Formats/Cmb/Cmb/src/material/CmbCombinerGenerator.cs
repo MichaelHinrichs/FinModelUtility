@@ -1,61 +1,288 @@
-﻿using cmb.schema.cmb.mats;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+using cmb.schema.cmb;
+using cmb.schema.cmb.mats;
 
 using fin.language.equations.fixedFunction;
 using fin.language.equations.fixedFunction.impl;
 using fin.model;
+using fin.schema.color;
+
+using Material = cmb.schema.cmb.mats.Material;
 
 namespace cmb.material {
   /// <summary>
   ///   Shamelessly copied from https://github.com/naclomi/noclip.website/blob/8b0de601d6d8f596683f0bdee61a9681a42512f9/src/oot3d/render.ts
   /// </summary>
   public class CmbCombinerGenerator {
+    private readonly Material cmbMaterial_;
     private readonly IFixedFunctionEquations<FixedFunctionSource> equations_;
     private readonly ColorFixedFunctionOps cOps_;
     private readonly ScalarFixedFunctionOps sOps_;
+    private readonly bool useLightHack_;
 
-    public CmbCombinerGenerator(IFixedFunctionMaterial material) {
-      this.equations_ = material.Equations;
+    private Rgba32 constColor_;
+
+    private IColorValue? previousColor_;
+    private IColorValue? previousColorBuffer_;
+    private IScalarValue? previousAlpha_;
+    private IScalarValue? previousAlphaBuffer_;
+
+    public CmbCombinerGenerator(
+        Material cmbMaterial,
+        IFixedFunctionMaterial finMaterial,
+        bool useLightHack) {
+      this.cmbMaterial_ = cmbMaterial;
+      this.equations_ = finMaterial.Equations;
       this.cOps_ = new ColorFixedFunctionOps(this.equations_);
       this.sOps_ = new ScalarFixedFunctionOps(this.equations_);
+      this.useLightHack_ = useLightHack;
+
+      var bufferColor = cmbMaterial.bufferColor;
+      this.previousColorBuffer_ =
+          new ColorConstant(bufferColor[0], bufferColor[1], bufferColor[2]);
+      this.previousAlpha_ = new ScalarConstant(bufferColor[3]);
     }
 
-    /*private LazyDictionary<(TexCombinerSource src, TexCombinerColorOp op),
-            IColorValue>
-        colorInGenerators_ = new(srcAndOp => {
-          var (src, op) = srcAndOp;
+    public void AddCombiners(IReadOnlyList<Combiner?> cmbCombiners) {
+      foreach (var cmbCombiner in cmbCombiners) {
+        if (cmbCombiner == null) {
+          continue;
+        }
 
-          var color = src switch {
-              TexCombinerSource.PrimaryColor           => expr,
-              TexCombinerSource.FragmentPrimaryColor   => expr,
-              TexCombinerSource.FragmentSecondaryColor => expr,
-              TexCombinerSource.Texture0               => expr,
-              TexCombinerSource.Texture1               => expr,
-              TexCombinerSource.Texture2               => expr,
-              TexCombinerSource.Texture3               => expr,
-              TexCombinerSource.PreviousBuffer         => expr,
-              TexCombinerSource.Constant               => expr,
-              TexCombinerSource.Previous               => expr,
-              _                                        => throw new ArgumentOutOfRangeException()
-          };
+        this.AddCombiner_(cmbCombiner);
+      }
 
-          return op switch {
-              TexCombinerColorOp.Color         => color,
-              TexCombinerColorOp.OneMinusColor => expr,
-              TexCombinerColorOp.Alpha         => expr,
-              TexCombinerColorOp.OneMinusAlpha => expr,
-              TexCombinerColorOp.Red           => expr,
-              TexCombinerColorOp.OneMinusRed   => expr,
-              TexCombinerColorOp.Green         => expr,
-              TexCombinerColorOp.OneMinusGreen => expr,
-              TexCombinerColorOp.Blue          => expr,
-              TexCombinerColorOp.OneMinusBlue  => expr,
-              _                                => throw new ArgumentOutOfRangeException()
-          }
-        });*/
+      // TODO: Hack for colors being way too bright
+      if (this.useLightHack_ &&
+          (this.equations_.HasInput(FixedFunctionSource.LIGHT_0_COLOR) ||
+           this.equations_.HasInput(FixedFunctionSource.LIGHT_0_ALPHA))) {
+        this.previousColor_ =
+            this.cOps_.Multiply(this.previousColor_, this.cOps_.Half);
+      }
 
-    public void AddCombiner(
-        Material cmbMaterial,
-        Combiner cmbCombiner) {
+      this.equations_.CreateColorOutput(
+          FixedFunctionSource.OUTPUT_COLOR,
+          this.previousColor_ ?? this.cOps_.Zero);
+      this.equations_.CreateScalarOutput(
+          FixedFunctionSource.OUTPUT_ALPHA,
+          this.previousAlpha_ ?? this.sOps_.Zero);
+    }
+
+    public void AddCombiner_(Combiner cmbCombiner) {
+      this.constColor_ =
+          this.cmbMaterial_.constantColors[cmbCombiner.constColorIndex];
+
+      // Combine values
+      var colorSources =
+          cmbCombiner.colorSources
+                     .Zip(cmbCombiner.colorOperands)
+                     .Select(this.GetOppedSourceColor_)
+                     .ToArray();
+      var newPreviousColor = this.Combine_(
+          this.cOps_,
+          colorSources,
+          cmbCombiner.combinerModeColor,
+          cmbCombiner.scaleColor);
+
+      var alphaSources =
+          cmbCombiner.alphaSources
+                     .Zip(cmbCombiner.alphaOperands)
+                     .Select(this.GetOppedSourceAlpha_)
+                     .ToArray();
+      var newPreviousAlpha = this.Combine_(
+          this.sOps_,
+          alphaSources,
+          cmbCombiner.combinerModeAlpha,
+          cmbCombiner.scaleAlpha);
+
+      // Get buffer
+      var newPreviousColorBuffer = cmbCombiner.bufferColor switch {
+          TexBufferSource.PreviousBuffer => this.previousColorBuffer_,
+          TexBufferSource.Previous       => this.previousColor_,
+      };
+      var newPreviousAlphaBuffer = cmbCombiner.bufferAlpha switch {
+          TexBufferSource.PreviousBuffer => this.previousAlphaBuffer_,
+          TexBufferSource.Previous       => this.previousAlpha_,
+      };
+
+      this.previousColor_ = newPreviousColor;
+      this.previousColorBuffer_ = newPreviousColorBuffer;
+      this.previousAlpha_ = newPreviousAlpha;
+      this.previousAlphaBuffer_ = newPreviousAlphaBuffer;
+    }
+
+    private IColorValue? GetOppedSourceColor_(
+        (TexCombinerSource combinerSource, TexCombinerColorOp colorOp) input) {
+      var (combinerSource, colorOp) = input;
+
+      if (colorOp is TexCombinerColorOp.Color
+                     or TexCombinerColorOp.OneMinusColor) {
+        var colorValue = this.GetColorValue_(combinerSource);
+
+        if (colorOp is TexCombinerColorOp.OneMinusColor) {
+          colorValue = this.cOps_.Subtract(this.cOps_.One, colorValue);
+        }
+
+        return colorValue;
+      }
+
+      var channelValue = this.GetScalarValue_(
+          combinerSource,
+          this.GetChannelAndIsOneMinus_(
+              (TexCombinerAlphaOp) colorOp));
+      return channelValue != null ? new ColorWrapper(channelValue) : null;
+    }
+
+    private IScalarValue? GetOppedSourceAlpha_(
+        (TexCombinerSource combinerSource, TexCombinerAlphaOp alphaOp) input)
+      => this.GetScalarValue_(input.combinerSource,
+                              this.GetChannelAndIsOneMinus_(input.alphaOp));
+
+    private IColorValue? GetColorValue_(TexCombinerSource combinerSource)
+      => combinerSource switch {
+          // TODO: This doesn't appear to be correct based on noclip's implementation
+          TexCombinerSource.Texture0 => this.equations_.CreateOrGetColorInput(
+              FixedFunctionSource.TEXTURE_COLOR_0),
+          TexCombinerSource.Texture1 => this.equations_.CreateOrGetColorInput(
+              FixedFunctionSource.TEXTURE_COLOR_1),
+          TexCombinerSource.Texture2 => this.equations_.CreateOrGetColorInput(
+              FixedFunctionSource.TEXTURE_COLOR_2),
+          TexCombinerSource.Texture3 => this.equations_.CreateOrGetColorInput(
+              FixedFunctionSource.TEXTURE_COLOR_3),
+          TexCombinerSource.Constant => this.equations_.CreateColorConstant(
+              this.constColor_.Rf,
+              this.constColor_.Gf,
+              this.constColor_.Bf),
+          TexCombinerSource.PrimaryColor
+              => this.equations_.CreateOrGetColorInput(
+                  FixedFunctionSource.VERTEX_COLOR_0),
+          TexCombinerSource.Previous       => this.previousColor_,
+          TexCombinerSource.PreviousBuffer => this.previousColorBuffer_,
+          // TODO: This appears to be lighting
+          TexCombinerSource.FragmentPrimaryColor => this.equations_
+              .CreateOrGetColorInput(FixedFunctionSource.LIGHT_0_COLOR),
+          TexCombinerSource.FragmentSecondaryColor => this.equations_
+              .CreateOrGetColorInput(FixedFunctionSource.LIGHT_0_COLOR),
+      };
+
+    private IScalarValue? GetScalarValue_(
+        TexCombinerSource combinerSource,
+        (Channel, bool) channelAndIsOneMinus) {
+      IScalarValue? channelValue;
+
+      var (channel, isOneMinus) = channelAndIsOneMinus;
+      if (channel != Channel.A) {
+        var colorValue = this.GetColorValue_(combinerSource);
+        channelValue = channel switch {
+            Channel.R => colorValue?.R,
+            Channel.G => colorValue?.G,
+            Channel.B => colorValue?.B,
+        };
+      } else {
+        channelValue = combinerSource switch {
+            // TODO: This doesn't appear to be correct based on noclip's implementation
+            TexCombinerSource.Texture0 =>
+                this.equations_.CreateOrGetScalarInput(
+                    FixedFunctionSource.TEXTURE_ALPHA_0),
+            TexCombinerSource.Texture1 =>
+                this.equations_.CreateOrGetScalarInput(
+                    FixedFunctionSource.TEXTURE_ALPHA_1),
+            TexCombinerSource.Texture2 =>
+                this.equations_.CreateOrGetScalarInput(
+                    FixedFunctionSource.TEXTURE_ALPHA_2),
+            TexCombinerSource.Texture3 =>
+                this.equations_.CreateOrGetScalarInput(
+                    FixedFunctionSource.TEXTURE_ALPHA_3),
+            TexCombinerSource.Constant => this.equations_.CreateScalarConstant(
+                this.constColor_.Af),
+            TexCombinerSource.PrimaryColor
+                => this.equations_.CreateOrGetScalarInput(
+                    FixedFunctionSource.VERTEX_ALPHA_0),
+            TexCombinerSource.Previous       => this.previousAlpha_,
+            TexCombinerSource.PreviousBuffer => this.previousAlphaBuffer_,
+            // TODO: This appears to be lighting
+            TexCombinerSource.FragmentPrimaryColor => this.equations_
+                .CreateOrGetScalarInput(FixedFunctionSource.LIGHT_0_ALPHA),
+            TexCombinerSource.FragmentSecondaryColor => this.equations_
+                .CreateOrGetScalarInput(FixedFunctionSource.LIGHT_0_ALPHA),
+        };
+      }
+
+      if (isOneMinus) {
+        channelValue = this.sOps_.Subtract(this.sOps_.One, channelValue);
+      }
+
+      return channelValue;
+    }
+
+    private enum Channel {
+      R,
+      G,
+      B,
+      A
+    }
+
+    private (Channel, bool) GetChannelAndIsOneMinus_(
+        TexCombinerAlphaOp scalarOp)
+      => scalarOp switch {
+          TexCombinerAlphaOp.Red           => (Channel.R, false),
+          TexCombinerAlphaOp.OneMinusRed   => (Channel.R, true),
+          TexCombinerAlphaOp.Green         => (Channel.G, false),
+          TexCombinerAlphaOp.OneMinusGreen => (Channel.G, true),
+          TexCombinerAlphaOp.Blue          => (Channel.B, false),
+          TexCombinerAlphaOp.OneMinusBlue  => (Channel.B, true),
+          TexCombinerAlphaOp.Alpha         => (Channel.A, false),
+          TexCombinerAlphaOp.OneMinusAlpha => (Channel.A, true),
+      };
+
+    private TValue? Combine_<TValue, TTerm, TExpression>(
+        IFixedFunctionOps<TValue, TTerm, TExpression> fixedFunctionOps,
+        IReadOnlyList<TValue?> sources,
+        TexCombineMode combineMode,
+        TexCombineScale combineScale)
+        where TValue : IValue<TValue, TTerm, TExpression>
+        where TTerm : ITerm<TValue, TTerm, TExpression>
+        where TExpression : IExpression<TValue, TTerm, TExpression> {
+      // TODO: Implement dot-product ones
+      var combinedValue = combineMode switch {
+          TexCombineMode.Replace => sources[0],
+          TexCombineMode.Modulate => fixedFunctionOps.Multiply(
+              sources[0],
+              sources[1]),
+          TexCombineMode.Add => fixedFunctionOps.Add(sources[0], sources[1]),
+          TexCombineMode.AddSigned => fixedFunctionOps.Subtract(
+              fixedFunctionOps.Add(sources[0], sources[1]),
+              fixedFunctionOps.Half),
+          TexCombineMode.Subtract => fixedFunctionOps.Subtract(
+              sources[0],
+              sources[1]),
+          TexCombineMode.MultAdd => fixedFunctionOps.Add(
+              fixedFunctionOps.Multiply(sources[0], sources[1]),
+              sources[2]),
+          TexCombineMode.AddMult => fixedFunctionOps.Multiply(
+              fixedFunctionOps.Add(sources[0], sources[1]),
+              sources[2]),
+          TexCombineMode.Interpolate => fixedFunctionOps.Add(
+              fixedFunctionOps.Multiply(sources[0],
+                                        fixedFunctionOps.Subtract(
+                                            fixedFunctionOps.One,
+                                            sources[2])),
+              fixedFunctionOps.Multiply(sources[1], sources[2])),
+          _ => throw new NotImplementedException()
+      };
+
+      return combineScale switch {
+          TexCombineScale.One => combinedValue,
+          TexCombineScale.Two => fixedFunctionOps.MultiplyWithConstant(
+              combinedValue,
+              2),
+          TexCombineScale.Four => fixedFunctionOps.MultiplyWithConstant(
+              combinedValue,
+              4),
+      };
     }
   }
 }
