@@ -32,8 +32,7 @@ namespace fin.language.equations.fixedFunction.impl {
     public abstract TValue Half { get; }
     public abstract TValue One { get; }
 
-    public bool IsZero(TValue? value)
-      => value == null || value.Equals(this.Zero);
+    public bool IsZero(TValue? value) => value?.Equals(this.Zero) ?? true;
 
     public abstract TValue? Add(TValue? lhs, TValue? rhs);
     public abstract TValue? AddWithScalar(TValue? lhs, IScalarValue? rhs);
@@ -97,8 +96,8 @@ namespace fin.language.equations.fixedFunction.impl {
       this.scMinusOne_ = equations.CreateScalarConstant(-1);
     }
 
-    private bool IsZero(IScalarValue? value)
-      => value == null || value == this.scZero_;
+    private bool IsZero_(IScalarValue? value)
+      => value?.Equals(this.scZero_) ?? true;
 
     public override IColorValue Zero { get; }
     public override IColorValue Half { get; }
@@ -135,7 +134,7 @@ namespace fin.language.equations.fixedFunction.impl {
         rhs ??= this.scZero_;
       } else {
         var lhsIsZero = this.IsZero(lhs);
-        var rhsIsZero = this.IsZero(rhs);
+        var rhsIsZero = this.IsZero_(rhs);
 
         if (lhsIsZero && rhsIsZero) {
           return null;
@@ -161,7 +160,7 @@ namespace fin.language.equations.fixedFunction.impl {
         var lhsIsZero = this.IsZero(lhs);
         var rhsIsZero = this.IsZero(rhs);
 
-        if ((lhsIsZero && rhsIsZero) || lhs == rhs) {
+        if ((lhsIsZero && rhsIsZero) || (lhs?.Equals(rhs) ?? false)) {
           return null;
         }
 
@@ -186,8 +185,8 @@ namespace fin.language.equations.fixedFunction.impl {
           return null;
         }
 
-        var lhsIsOne = lhs == this.One;
-        var rhsIsOne = rhs == this.One;
+        var lhsIsOne = lhs?.Equals(this.One) ?? false;
+        var rhsIsOne = rhs?.Equals(this.One) ?? false;
 
         if (lhsIsOne && rhsIsOne) {
           return this.One;
@@ -212,12 +211,12 @@ namespace fin.language.equations.fixedFunction.impl {
         lhs ??= this.Zero;
         rhs ??= this.scZero_;
       } else {
-        if (this.IsZero(lhs) || this.IsZero(rhs)) {
+        if (this.IsZero(lhs) || this.IsZero_(rhs)) {
           return null;
         }
 
-        var lhsIsOne = lhs == this.One;
-        var rhsIsOne = rhs == this.scOne_;
+        var lhsIsOne = lhs?.Equals(this.One) ?? false;
+        var rhsIsOne = rhs?.Equals(this.scOne_) ?? false;
 
         if (lhsIsOne && rhsIsOne) {
           return this.One;
@@ -294,7 +293,7 @@ namespace fin.language.equations.fixedFunction.impl {
         var lhsIsZero = this.IsZero(lhs);
         var rhsIsZero = this.IsZero(rhs);
 
-        if ((lhsIsZero && rhsIsZero) || lhs == rhs) {
+        if ((lhsIsZero && rhsIsZero) || (lhs?.Equals(rhs) ?? false)) {
           return null;
         }
 
@@ -325,8 +324,8 @@ namespace fin.language.equations.fixedFunction.impl {
           return null;
         }
 
-        var lhsIsOne = lhs == this.One;
-        var rhsIsOne = rhs == this.One;
+        var lhsIsOne = lhs?.Equals(this.One) ?? false;
+        var rhsIsOne = rhs?.Equals(this.One) ?? false;
 
         if (lhsIsOne && rhsIsOne) {
           return this.One;

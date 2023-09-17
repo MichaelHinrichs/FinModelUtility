@@ -1,5 +1,6 @@
 # version 400
 
+
 struct Light {
   bool enabled;
   vec3 position;
@@ -8,53 +9,37 @@ struct Light {
 };
 
 uniform Light lights[8];
-uniform vec3 ambientLightColor;
 
-uniform sampler2D diffuseTexture;
-uniform float useLighting;
+uniform sampler2D texture0;
+
+in vec3 vertexNormal;
+in vec4 vertexColor0;
+in vec2 uv0;
+in vec2 uv1;
 
 out vec4 fragColor;
 
-in vec4 vertexColor0;
-in vec3 vertexNormal;
-in vec2 uv0;
+vec4 getLightColor(Light light) {
+  if (!light.enabled) {
+    return vec4(0);
+  }
 
-vec3 getDiffuseLightColor(Light light, vec3 vertexNormal) {
   vec3 diffuseLightNormal = normalize(light.normal);
   float diffuseLightAmount = max(-dot(vertexNormal, diffuseLightNormal), 0);
   float lightAmount = min(diffuseLightAmount, 1);
-  return lightAmount * light.color.rgb;
-}
-
-vec3 getMergedDiffuseLightColor(vec3 vertexNormal) {
-  int enabledLightCount;
-
-  vec3 mergedLightColor;
-  for (int i = 0; i < 8; ++i) {
-    if (lights[i].enabled) {
-      enabledLightCount++;
-      mergedLightColor += getDiffuseLightColor(lights[i], vertexNormal);
-    }
-  }
-
-  return enabledLightCount == 0 ? vec3(1) : mergedLightColor / enabledLightCount;
-}
-
-vec3 applyLightingColor(vec3 diffuseColor, vec3 vertexNormal) {
-  vec3 mergedDiffuseLightColor = getMergedDiffuseLightColor(vertexNormal);
-
-  vec3 mergedLightColor = min(ambientLightColor + mergedDiffuseLightColor, 1);
-  return diffuseColor * mergedLightColor;
+  return lightAmount * light.color;
 }
 
 void main() {
-  vec4 diffuseColor = texture(diffuseTexture, uv0);
-
-  fragColor = diffuseColor * vertexColor0;
-  fragColor.rgb =
-      mix(fragColor.rgb, applyLightingColor(fragColor.rgb, vertexNormal),  useLighting);
-
-  if (fragColor.a < .95) {
-    discard;
+  vec4 individualLightColors[8];
+  for (int i = 0; i < 8; ++i) {
+    vec4 lightColor = getLightColor(lights[i]);
+    individualLightColors[i] = lightColor;
   }
+
+  vec3 colorComponent = vec3(0.6470588445663452)*individualLightColors[0].rgb + individualLightColors[0].rgb*texture(texture0, uv0).rgb;
+
+  float alphaComponent = vertexColor0.a;
+
+  fragColor = vec4(colorComponent, alphaComponent);
 }

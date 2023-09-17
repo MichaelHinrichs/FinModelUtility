@@ -34,7 +34,8 @@ namespace fin.language.equations.fixedFunction {
         double b) {
       var key = (r, g, b);
       if (this.doubleColorConstants_.TryGetValue(
-              key, out var colorConstant)) {
+              key,
+              out var colorConstant)) {
         return colorConstant;
       }
 
@@ -45,7 +46,8 @@ namespace fin.language.equations.fixedFunction {
         double intensity) {
       var key = (intensity, intensity, intensity);
       if (this.doubleColorConstants_.TryGetValue(
-              key, out var colorConstant)) {
+              key,
+              out var colorConstant)) {
         return colorConstant;
       }
 
@@ -58,7 +60,8 @@ namespace fin.language.equations.fixedFunction {
         IScalarValue b) {
       var key = (r, g, b);
       if (this.scalarValueColorConstants_.TryGetValue(
-              key, out var colorConstant)) {
+              key,
+              out var colorConstant)) {
         return colorConstant;
       }
 
@@ -69,7 +72,8 @@ namespace fin.language.equations.fixedFunction {
         IScalarValue intensity) {
       var key = (intensity, intensity, intensity);
       if (this.scalarValueColorConstants_.TryGetValue(
-              key, out var colorConstant)) {
+              key,
+              out var colorConstant)) {
         return colorConstant;
       }
 
@@ -96,6 +100,7 @@ namespace fin.language.equations.fixedFunction {
         input = new ColorInput(identifier, defaultValue);
         this.colorInputs_[identifier] = input;
       }
+
       return input;
     }
 
@@ -161,7 +166,8 @@ namespace fin.language.equations.fixedFunction {
 
 
     private class ColorNamedValueSwizzle : BScalarValue,
-        IColorNamedValueSwizzle<TIdentifier> {
+                                           IColorNamedValueSwizzle<
+                                               TIdentifier> {
       public ColorNamedValueSwizzle(
           IColorIdentifiedValue<TIdentifier> source,
           ColorSwizzle swizzleType) {
@@ -232,12 +238,15 @@ namespace fin.language.equations.fixedFunction {
         return new ScalarExpression(numeratorAs.Select(a => a!).ToArray());
       }
     }
+
     public override IScalarValue R
       => new ScalarExpression(this.Terms.Select(factor => factor.R)
                                   .ToArray());
+
     public override IScalarValue G
       => new ScalarExpression(this.Terms.Select(factor => factor.G)
                                   .ToArray());
+
     public override IScalarValue B
       => new ScalarExpression(this.Terms.Select(factor => factor.B)
                                   .ToArray());
@@ -327,12 +336,46 @@ namespace fin.language.equations.fixedFunction {
               .ToArray());
   }
 
+  public static class FixedFunctionUtils {
+    public const float TOLERANCE = 1 / 255f;
+
+    public static bool CompareColorConstants(double lhsR,
+                                             double lhsG,
+                                             double lhsB,
+                                             double? lhsIntensity,
+                                             double rhsR,
+                                             double rhsG,
+                                             double rhsB,
+                                             double? rhsIntensity) {
+      if (CompareScalarConstants(lhsIntensity, rhsIntensity)) {
+        return true;
+      }
+
+      if (lhsIntensity == null && rhsIntensity == null) {
+        return Math.Abs(lhsR - rhsR) < TOLERANCE &&
+               Math.Abs(lhsG - rhsG) < TOLERANCE &&
+               Math.Abs(lhsB - rhsB) < TOLERANCE;
+      }
+
+      return false;
+    }
+
+    public static bool CompareScalarConstants(double? lhsIntensity,
+                                              double? rhsIntensity) {
+      if (lhsIntensity != null && rhsIntensity != null) {
+        return Math.Abs(lhsIntensity.Value - rhsIntensity.Value) < TOLERANCE;
+      }
+
+      return false;
+    }
+  }
+
   public class ColorConstant : BColorValue, IColorConstant {
     public static readonly ColorConstant NEGATIVE_ONE = new(-1);
 
     public ColorConstant(double r, double g, double b) {
-      var tolerance = 1 / 255f;
-      if (Math.Abs(r - g) < tolerance && Math.Abs(r - b) < tolerance) {
+      if (Math.Abs(r - g) < FixedFunctionUtils.TOLERANCE &&
+          Math.Abs(r - b) < FixedFunctionUtils.TOLERANCE) {
         this.IntensityValue = r;
         this.Intensity = new ScalarConstant(r);
       }
@@ -370,6 +413,40 @@ namespace fin.language.equations.fixedFunction {
     public override IScalarValue B { get; }
 
     public override string ToString() => $"<{R}, {G}, {B}>";
+
+    public override bool Equals(object? other) {
+      if (Object.ReferenceEquals(this, other)) {
+        return true;
+      }
+
+      if (other is IScalarConstant otherScalar) {
+        return FixedFunctionUtils.CompareScalarConstants(
+            this.IntensityValue,
+            otherScalar.Value);
+      }
+
+      if (other is IColorConstant otherColor) {
+        return FixedFunctionUtils.CompareColorConstants(
+            this.RValue,
+            this.GValue,
+            this.BValue,
+            this.IntensityValue,
+            otherColor.RValue,
+            otherColor.GValue,
+            otherColor.BValue,
+            otherColor.IntensityValue);
+      }
+
+      if (other is ColorWrapper colorWrapper) {
+        if (colorWrapper.Intensity is IScalarConstant intensityWrapper) {
+          return FixedFunctionUtils.CompareScalarConstants(
+              this.IntensityValue,
+              intensityWrapper.Value);
+        }
+      }
+
+      return false;
+    }
   }
 
   public class ColorWrapper : BColorValue, IColorFactor {
@@ -396,6 +473,20 @@ namespace fin.language.equations.fixedFunction {
 
     public override string ToString()
       => this.Intensity != null ? $"{this.Intensity}" : $"<{R}, {G}, {B}>";
+
+    public override bool Equals(object? other) {
+      if (Object.ReferenceEquals(this, other)) {
+        return true;
+      }
+
+      if (other is IScalarConstant otherScalar) {
+        return FixedFunctionUtils.CompareScalarConstants(
+            (this.Intensity as IScalarConstant)?.Value,
+            otherScalar.Value);
+      }
+
+      return false;
+    }
   }
 
   public class ColorValueTernaryOperator : BColorValue,

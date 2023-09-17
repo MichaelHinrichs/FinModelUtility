@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using fin.util.asserts;
@@ -209,5 +210,34 @@ namespace fin.language.equations.fixedFunction {
     public double Value { get; }
 
     public override string ToString() => $"{this.Value}";
+
+
+    public override bool Equals(object? other) {
+      if (Object.ReferenceEquals(this, other)) {
+        return true;
+      }
+
+      if (other is IScalarConstant otherScalar) {
+        return FixedFunctionUtils.CompareScalarConstants(
+            this.Value,
+            otherScalar.Value);
+      }
+
+      if (other is IColorConstant otherColor) {
+        return FixedFunctionUtils.CompareScalarConstants(
+            this.Value,
+            otherColor.IntensityValue);
+      }
+
+      if (other is ColorWrapper {
+              Intensity: IScalarConstant colorWrapperIntensity
+          }) {
+        return FixedFunctionUtils.CompareScalarConstants(
+            this.Value,
+            colorWrapperIntensity.Value);
+      }
+
+      return false;
+    }
   }
 }

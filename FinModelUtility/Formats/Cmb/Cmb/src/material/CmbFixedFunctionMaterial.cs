@@ -141,10 +141,7 @@ namespace cmb.material {
         }
 
         var combinerGenerator =
-            new CmbCombinerGenerator(cmbMaterial,
-                                     finMaterial,
-                                     cmb.header.version ==
-                                     Version.OCARINA_OF_TIME_3D);
+            new CmbCombinerGenerator(cmbMaterial, finMaterial);
 
         var combiners = mats.Combiners;
         var texEnvStages =
@@ -194,6 +191,23 @@ namespace cmb.material {
             FinBlendFactor.ONE,
             FinBlendFactor.ZERO,
             LogicOp.UNDEFINED);
+
+        finMaterial.DepthCompareType = cmbMaterial.depthTestFunction switch {
+            TestFunc.Never    => DepthCompareType.Never,
+            TestFunc.Less     => DepthCompareType.Less,
+            TestFunc.Equal    => DepthCompareType.Equal,
+            TestFunc.Lequal   => DepthCompareType.LEqual,
+            TestFunc.Greater  => DepthCompareType.Greater,
+            TestFunc.Notequal => DepthCompareType.NEqual,
+            TestFunc.Gequal   => DepthCompareType.GEqual,
+            TestFunc.Always   => DepthCompareType.Always,
+        };
+        finMaterial.DepthMode = cmbMaterial.depthTestEnabled switch {
+            true => cmbMaterial.depthWriteEnabled
+                ? DepthMode.USE_DEPTH_BUFFER
+                : DepthMode.SKIP_WRITE_TO_DEPTH_BUFFER,
+            false => DepthMode.IGNORE_DEPTH_BUFFER,
+        };
       }
 
       this.Material.Name = $"material{materialIndex}";

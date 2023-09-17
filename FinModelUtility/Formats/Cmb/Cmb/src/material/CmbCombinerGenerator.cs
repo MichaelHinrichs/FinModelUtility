@@ -9,6 +9,7 @@ using fin.language.equations.fixedFunction;
 using fin.language.equations.fixedFunction.impl;
 using fin.model;
 using fin.schema.color;
+using fin.util.enumerables;
 
 using Material = cmb.schema.cmb.mats.Material;
 
@@ -21,7 +22,6 @@ namespace cmb.material {
     private readonly IFixedFunctionEquations<FixedFunctionSource> equations_;
     private readonly ColorFixedFunctionOps cOps_;
     private readonly ScalarFixedFunctionOps sOps_;
-    private readonly bool useLightHack_;
 
     private Rgba32 constColor_;
 
@@ -30,15 +30,15 @@ namespace cmb.material {
     private IScalarValue? previousAlpha_;
     private IScalarValue? previousAlphaBuffer_;
 
-    public CmbCombinerGenerator(
-        Material cmbMaterial,
-        IFixedFunctionMaterial finMaterial,
-        bool useLightHack) {
+    private IColorValue? lightColor_;
+    private IScalarValue? lightAlpha_;
+
+    public CmbCombinerGenerator(Material cmbMaterial,
+                                IFixedFunctionMaterial finMaterial) {
       this.cmbMaterial_ = cmbMaterial;
       this.equations_ = finMaterial.Equations;
       this.cOps_ = new ColorFixedFunctionOps(this.equations_);
       this.sOps_ = new ScalarFixedFunctionOps(this.equations_);
-      this.useLightHack_ = useLightHack;
 
       var bufferColor = cmbMaterial.bufferColor;
       this.previousColorBuffer_ =
@@ -47,6 +47,50 @@ namespace cmb.material {
     }
 
     public void AddCombiners(IReadOnlyList<Combiner?> cmbCombiners) {
+      var dependsOnLights =
+          cmbCombiners
+              .Nonnull()
+              .SelectMany(combiner
+                              => combiner.colorSources.Concat(
+                                  combiner.alphaSources))
+              .Any(source => source is TexCombinerSource.FragmentPrimaryColor
+                                       or TexCombinerSource
+                                           .FragmentSecondaryColor);
+
+      if (dependsOnLights) {
+        /*var ambientRgba = this.cmbMaterial_.ambientColor;
+        var ambientColor =
+            new ColorConstant(ambientRgba.Rf, ambientRgba.Gf, ambientRgba.Bf);
+        var ambientAlpha = new ScalarConstant(ambientRgba.Af);
+
+        var diffuseRgba = this.cmbMaterial_.diffuseRgba;
+        var diffuseColor =
+            new ColorConstant(diffuseRgba.Rf, diffuseRgba.Gf, diffuseRgba.Bf);
+        var diffuseAlpha = new ScalarConstant(diffuseRgba.Af);
+
+        this.lightColor_ =
+            this.cOps_.Add(ambientColor,
+                           this.cOps_.Multiply(
+                               this.equations_
+                                   .CreateOrGetColorInput(
+                                       FixedFunctionSource.LIGHT_0_COLOR),
+                               diffuseColor));
+        this.lightAlpha_ =
+            this.sOps_.Add(ambientAlpha,
+                           this.sOps_.Multiply(
+                               this.equations_
+                                   .CreateOrGetScalarInput(
+                                       FixedFunctionSource.LIGHT_0_ALPHA),
+                               diffuseAlpha));*/
+
+        this.lightColor_ =
+            this.equations_.CreateOrGetColorInput(
+                FixedFunctionSource.LIGHT_0_COLOR);
+        this.lightAlpha_ =
+            this.equations_.CreateOrGetScalarInput(
+                FixedFunctionSource.LIGHT_0_ALPHA);
+      }
+
       foreach (var cmbCombiner in cmbCombiners) {
         if (cmbCombiner == null) {
           continue;
@@ -55,12 +99,19 @@ namespace cmb.material {
         this.AddCombiner_(cmbCombiner);
       }
 
-      // TODO: Hack for colors being way too bright
-      if (this.useLightHack_ &&
-          (this.equations_.HasInput(FixedFunctionSource.LIGHT_0_COLOR) ||
-           this.equations_.HasInput(FixedFunctionSource.LIGHT_0_ALPHA))) {
+      // TODO: This doesn't seem right, it seems like this should be light attributes instead??
+      // Applies diffuse to the final color to fix weird issue where things are
+      // twice as bright as they should be.
+      {
+        var diffuseRgba = this.cmbMaterial_.diffuseRgba;
+        var diffuseColor =
+            new ColorConstant(diffuseRgba.Rf, diffuseRgba.Gf, diffuseRgba.Bf);
+        var diffuseAlpha = new ScalarConstant(diffuseRgba.Af);
+
         this.previousColor_ =
-            this.cOps_.Multiply(this.previousColor_, this.cOps_.Half);
+            this.cOps_.Multiply(this.previousColor_, diffuseColor);
+        this.previousAlpha_ =
+            this.sOps_.Multiply(this.previousAlpha_, diffuseAlpha);
       }
 
       this.equations_.CreateColorOutput(
@@ -159,13 +210,10 @@ namespace cmb.material {
           TexCombinerSource.PrimaryColor
               => this.equations_.CreateOrGetColorInput(
                   FixedFunctionSource.VERTEX_COLOR_0),
-          TexCombinerSource.Previous       => this.previousColor_,
-          TexCombinerSource.PreviousBuffer => this.previousColorBuffer_,
-          // TODO: This appears to be lighting
-          TexCombinerSource.FragmentPrimaryColor => this.equations_
-              .CreateOrGetColorInput(FixedFunctionSource.LIGHT_0_COLOR),
-          TexCombinerSource.FragmentSecondaryColor => this.equations_
-              .CreateOrGetColorInput(FixedFunctionSource.LIGHT_0_COLOR),
+          TexCombinerSource.Previous               => this.previousColor_,
+          TexCombinerSource.PreviousBuffer         => this.previousColorBuffer_,
+          TexCombinerSource.FragmentPrimaryColor   => this.lightColor_,
+          TexCombinerSource.FragmentSecondaryColor => this.lightColor_,
       };
 
     private IScalarValue? GetScalarValue_(
@@ -201,13 +249,10 @@ namespace cmb.material {
             TexCombinerSource.PrimaryColor
                 => this.equations_.CreateOrGetScalarInput(
                     FixedFunctionSource.VERTEX_ALPHA_0),
-            TexCombinerSource.Previous       => this.previousAlpha_,
+            TexCombinerSource.Previous => this.previousAlpha_,
             TexCombinerSource.PreviousBuffer => this.previousAlphaBuffer_,
-            // TODO: This appears to be lighting
-            TexCombinerSource.FragmentPrimaryColor => this.equations_
-                .CreateOrGetScalarInput(FixedFunctionSource.LIGHT_0_ALPHA),
-            TexCombinerSource.FragmentSecondaryColor => this.equations_
-                .CreateOrGetScalarInput(FixedFunctionSource.LIGHT_0_ALPHA),
+            TexCombinerSource.FragmentPrimaryColor => this.lightAlpha_,
+            TexCombinerSource.FragmentSecondaryColor => this.lightAlpha_,
         };
       }
 

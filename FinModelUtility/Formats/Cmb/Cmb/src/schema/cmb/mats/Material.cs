@@ -24,14 +24,13 @@ namespace cmb.schema.cmb.mats {
     public readonly TexMapper[] texMappers = new TexMapper[3];
     public readonly TexCoords[] texCoords = new TexCoords[3];
 
-    public Rgba32 emissionColor { get; private set; } = new();
-    public Rgba32 ambientColor { get; private set; } = new();
-    public Rgba32 diffuseColor { get; private set; } = new();
-    public Rgba32 specular0Color { get; private set; } = new();
-    public Rgba32 specular1Color { get; private set; } = new();
+    public Rgba32 emissionColor { get; private set; }
+    public Rgba32 ambientColor { get; private set; }
+    public Rgba32 diffuseRgba { get; private set; }
+    public Rgba32 specular0Color { get; private set; }
+    public Rgba32 specular1Color { get; private set; }
 
-    public Rgba32[] constantColors { get; } =
-      Arrays.From(6, () => new Rgba32());
+    public Rgba32[] constantColors { get; } = new Rgba32[6];
 
     public readonly float[] bufferColor = new float[4];
 
@@ -76,15 +75,15 @@ namespace cmb.schema.cmb.mats {
 
     public bool stencilEnabled;
     public byte stencilReferenceValue;
-    public byte bufferMask;
-    public byte buffer;
+    public byte stencilBufferMask;
+    public byte stencilBuffer;
     public TestFunc stencilFunc;
-    public StencilTestOp failOP;
-    public StencilTestOp zFailOP;
-    public StencilTestOp zPassOP;
+    public StencilTestOp stencilFailOp;
+    public StencilTestOp stencilZFailOp;
+    public StencilTestOp stencilZPassOp;
 
     [Unknown]
-    public uint unk1; // CRC32 of something
+    public uint stenilUnk1; // CRC32 of something
 
     public void Read(IEndianBinaryReader r) {
       this.isFragmentLightingEnabled = r.ReadByte() != 0;
@@ -118,11 +117,11 @@ namespace cmb.schema.cmb.mats {
         this.texCoords[i] = texCoord;
       }
 
-      this.emissionColor.Read(r);
-      this.ambientColor.Read(r);
-      this.diffuseColor.Read(r);
-      this.specular0Color.Read(r);
-      this.specular1Color.Read(r);
+      this.emissionColor = r.ReadNew<Rgba32>();
+      this.ambientColor = r.ReadNew<Rgba32>();
+      this.diffuseRgba = r.ReadNew<Rgba32>();
+      this.specular0Color = r.ReadNew<Rgba32>();
+      this.specular1Color = r.ReadNew<Rgba32>();
 
       for (var i = 0; i < this.constantColors.Length; ++i) {
         this.constantColors[i] = r.ReadNew<Rgba32>();
@@ -175,13 +174,13 @@ namespace cmb.schema.cmb.mats {
       if (CmbHeader.Version.SupportsStencilBuffer()) {
         this.stencilEnabled = r.ReadByte() != 0;
         this.stencilReferenceValue = r.ReadByte();
-        this.bufferMask = r.ReadByte();
-        this.buffer = r.ReadByte();
+        this.stencilBufferMask = r.ReadByte();
+        this.stencilBuffer = r.ReadByte();
         this.stencilFunc = (TestFunc) r.ReadUInt16();
-        this.failOP = (StencilTestOp) r.ReadUInt16();
-        this.zFailOP = (StencilTestOp) r.ReadUInt16();
-        this.zPassOP = (StencilTestOp) r.ReadUInt16();
-        this.unk1 = r.ReadUInt32();
+        this.stencilFailOp = (StencilTestOp) r.ReadUInt16();
+        this.stencilZFailOp = (StencilTestOp) r.ReadUInt16();
+        this.stencilZPassOp = (StencilTestOp) r.ReadUInt16();
+        this.stenilUnk1 = r.ReadUInt32();
       }
     }
 
