@@ -4,45 +4,101 @@ using OpenTK.Graphics.OpenGL;
 
 using FinLogicOp = fin.model.LogicOp;
 using GlLogicOp = OpenTK.Graphics.OpenGL.LogicOp;
+using FinBlendEquation = fin.model.BlendEquation;
+using GlBlendEquation = OpenTK.Graphics.OpenGL.BlendEquationMode;
+using FinBlendFactor = fin.model.BlendFactor;
+using GlBlendFactor = OpenTK.Graphics.OpenGL.BlendingFactor;
+using GlBlendFactorSrc = OpenTK.Graphics.OpenGL.BlendingFactorSrc;
+using GlBlendFactorDst = OpenTK.Graphics.OpenGL.BlendingFactorDest;
 
 
 namespace fin.ui.rendering.gl {
   public partial class GlState {
-    public (BlendMode, BlendFactor, BlendFactor, FinLogicOp)
-        CurrentBlending { get; set; } = (BlendMode.ADD, BlendFactor.SRC_ALPHA,
-                                         BlendFactor.ONE_MINUS_SRC_ALPHA,
-                                         FinLogicOp.UNDEFINED);
+    public (FinBlendEquation colorBlendEquation, FinBlendFactor colorSrcFactor,
+        FinBlendFactor colorDstFactor,
+        FinBlendEquation alphaBlendEquation, FinBlendFactor alphaSrcFactor,
+        FinBlendFactor alphaDstFactor, FinLogicOp)
+        CurrentBlending { get; set; } = (
+        FinBlendEquation.ADD, FinBlendFactor.SRC_ALPHA,
+        FinBlendFactor.ONE_MINUS_SRC_ALPHA,
+        FinBlendEquation.ADD, FinBlendFactor.SRC_ALPHA,
+        FinBlendFactor.ONE_MINUS_SRC_ALPHA,
+        FinLogicOp.UNDEFINED);
   }
 
   public static partial class GlUtil {
-    public static void ResetBlending() => SetBlending(BlendMode.ADD,
-      BlendFactor.SRC_ALPHA,
-      BlendFactor.ONE_MINUS_SRC_ALPHA,
-      FinLogicOp.UNDEFINED);
-
+    public static void ResetBlending() => SetBlending(
+        FinBlendEquation.ADD,
+        FinBlendFactor.SRC_ALPHA,
+        FinBlendFactor.ONE_MINUS_SRC_ALPHA,
+        FinLogicOp.UNDEFINED);
 
     public static bool SetBlending(
-        BlendMode blendMode,
-        BlendFactor srcFactor,
-        BlendFactor dstFactor,
+        FinBlendEquation blendEquation,
+        FinBlendFactor srcFactor,
+        FinBlendFactor dstFactor,
+        FinLogicOp logicOp)
+      => SetBlendingSeparate(blendEquation,
+                             srcFactor,
+                             dstFactor,
+                             blendEquation,
+                             srcFactor,
+                             dstFactor,
+                             logicOp);
+
+    public static bool SetBlendingSeparate(
+        FinBlendEquation colorBlendEquation,
+        FinBlendFactor colorSrcFactor,
+        FinBlendFactor colorDstFactor,
+        FinBlendEquation alphaBlendEquation,
+        FinBlendFactor alphaSrcFactor,
+        FinBlendFactor alphaDstFactor,
         FinLogicOp logicOp) {
       if (GlUtil.currentState_.CurrentBlending ==
-          (blendMode, srcFactor, dstFactor, logicOp)) {
+          (colorBlendEquation, colorSrcFactor, colorDstFactor,
+           alphaBlendEquation, alphaSrcFactor, alphaDstFactor, logicOp)) {
         return false;
       }
 
       GlUtil.currentState_.CurrentBlending =
-          (blendMode, srcFactor, dstFactor, logicOp);
+          (colorBlendEquation, colorSrcFactor, colorDstFactor,
+           alphaBlendEquation, alphaSrcFactor, alphaDstFactor, logicOp);
 
-      if (blendMode is BlendMode.NONE) {
+      var isColorNone = colorBlendEquation is FinBlendEquation.NONE;
+      var isAlphaNone = alphaBlendEquation is FinBlendEquation.NONE;
+
+      if (isColorNone && isAlphaNone) {
         GL.Disable(EnableCap.Blend);
-        GL.BlendEquation(BlendEquationMode.FuncAdd);
-        GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+        GL.BlendEquation(GlBlendEquation.FuncAdd);
+        GL.BlendFunc(GlBlendFactor.SrcAlpha, GlBlendFactor.OneMinusSrcAlpha);
       } else {
         GL.Enable(EnableCap.Blend);
-        GL.BlendEquation(GlUtil.ConvertFinBlendModeToGl_(blendMode));
-        GL.BlendFunc(GlUtil.ConvertFinBlendFactorToGl_(srcFactor),
-                     GlUtil.ConvertFinBlendFactorToGl_(dstFactor));
+
+        GlBlendEquation colorBlendEquationGl = GlBlendEquation.FuncAdd;
+        GlBlendFactorSrc colorSrcFactorGl = GlBlendFactorSrc.SrcAlpha;
+        GlBlendFactorDst colorDstFactorGl = GlBlendFactorDst.OneMinusSrcAlpha;
+        if (!isColorNone) {
+          colorBlendEquationGl =
+              GlUtil.ConvertFinBlendEquationToGl_(colorBlendEquation);
+          colorSrcFactorGl = ConvertFinBlendFactorToGlSrc_(colorSrcFactor);
+          colorDstFactorGl = ConvertFinBlendFactorToGlDst_(colorDstFactor);
+        }
+
+        GlBlendEquation alphaBlendEquationGl = GlBlendEquation.FuncAdd;
+        GlBlendFactorSrc alphaSrcFactorGl = GlBlendFactorSrc.SrcAlpha;
+        GlBlendFactorDst alphaDstFactorGl = GlBlendFactorDst.OneMinusSrcAlpha;
+        if (isAlphaNone) {
+          alphaBlendEquationGl =
+              GlUtil.ConvertFinBlendEquationToGl_(alphaBlendEquation);
+          alphaSrcFactorGl = ConvertFinBlendFactorToGlSrc_(alphaSrcFactor);
+          alphaDstFactorGl = ConvertFinBlendFactorToGlDst_(alphaDstFactor);
+        }
+
+        GL.BlendEquationSeparate(colorBlendEquationGl, alphaBlendEquationGl);
+        GL.BlendFuncSeparate(colorSrcFactorGl,
+                             colorDstFactorGl,
+                             alphaSrcFactorGl,
+                             alphaDstFactorGl);
       }
 
       if (logicOp == FinLogicOp.UNDEFINED) {
@@ -55,30 +111,96 @@ namespace fin.ui.rendering.gl {
       return true;
     }
 
-    private static BlendEquationMode ConvertFinBlendModeToGl_(
-        BlendMode finBlendMode)
-      => finBlendMode switch {
-          BlendMode.ADD              => BlendEquationMode.FuncAdd,
-          BlendMode.SUBTRACT         => BlendEquationMode.FuncSubtract,
-          BlendMode.REVERSE_SUBTRACT => BlendEquationMode.FuncReverseSubtract,
+    private static GlBlendEquation ConvertFinBlendEquationToGl_(
+        FinBlendEquation finBlendEquation)
+      => finBlendEquation switch {
+          FinBlendEquation.ADD      => GlBlendEquation.FuncAdd,
+          FinBlendEquation.SUBTRACT => GlBlendEquation.FuncSubtract,
+          FinBlendEquation.REVERSE_SUBTRACT => GlBlendEquation
+              .FuncReverseSubtract,
+          FinBlendEquation.MIN => GlBlendEquation.Min,
+          FinBlendEquation.MAX => GlBlendEquation.Max,
           _ => throw new ArgumentOutOfRangeException(
-                   nameof(finBlendMode), finBlendMode, null)
+              nameof(finBlendEquation),
+              finBlendEquation,
+              null)
       };
 
-    private static BlendingFactor ConvertFinBlendFactorToGl_(
-        BlendFactor finBlendFactor)
+    private static GlBlendFactor ConvertFinBlendFactorToGl_(
+        FinBlendFactor finBlendFactor)
       => finBlendFactor switch {
-          BlendFactor.ZERO                => BlendingFactor.Zero,
-          BlendFactor.ONE                 => BlendingFactor.One,
-          BlendFactor.SRC_COLOR           => BlendingFactor.SrcColor,
-          BlendFactor.ONE_MINUS_SRC_COLOR => BlendingFactor.OneMinusSrcColor,
-          BlendFactor.SRC_ALPHA           => BlendingFactor.SrcAlpha,
-          BlendFactor.ONE_MINUS_SRC_ALPHA => BlendingFactor.OneMinusSrcAlpha,
-          BlendFactor.DST_ALPHA           => BlendingFactor.DstAlpha,
-          BlendFactor.ONE_MINUS_DST_ALPHA => BlendingFactor.OneMinusDstAlpha,
+          FinBlendFactor.ZERO                => GlBlendFactor.Zero,
+          FinBlendFactor.ONE                 => GlBlendFactor.One,
+          FinBlendFactor.SRC_COLOR           => GlBlendFactor.SrcColor,
+          FinBlendFactor.ONE_MINUS_SRC_COLOR => GlBlendFactor.OneMinusSrcColor,
+          FinBlendFactor.SRC_ALPHA           => GlBlendFactor.SrcAlpha,
+          FinBlendFactor.ONE_MINUS_SRC_ALPHA => GlBlendFactor.OneMinusSrcAlpha,
+          FinBlendFactor.DST_ALPHA           => GlBlendFactor.DstAlpha,
+          FinBlendFactor.ONE_MINUS_DST_ALPHA => GlBlendFactor.OneMinusDstAlpha,
+          FinBlendFactor.CONST_COLOR         => GlBlendFactor.ConstantColor,
+          FinBlendFactor.ONE_MINUS_CONST_COLOR => GlBlendFactor
+              .OneMinusConstantColor,
+          FinBlendFactor.CONST_ALPHA => GlBlendFactor.ConstantColor,
+          FinBlendFactor.ONE_MINUS_CONST_ALPHA => GlBlendFactor
+              .OneMinusConstantAlpha,
           _ => throw new ArgumentOutOfRangeException(
-                   nameof(finBlendFactor), finBlendFactor, null)
+              nameof(finBlendFactor),
+              finBlendFactor,
+              null)
       };
+
+    private static GlBlendFactorSrc ConvertFinBlendFactorToGlSrc_(
+        FinBlendFactor finBlendFactor)
+      => finBlendFactor switch {
+          FinBlendFactor.ZERO      => GlBlendFactorSrc.Zero,
+          FinBlendFactor.ONE       => GlBlendFactorSrc.One,
+          FinBlendFactor.SRC_COLOR => GlBlendFactorSrc.SrcColor,
+          FinBlendFactor.ONE_MINUS_SRC_COLOR => GlBlendFactorSrc
+              .OneMinusSrcColor,
+          FinBlendFactor.SRC_ALPHA => GlBlendFactorSrc.SrcAlpha,
+          FinBlendFactor.ONE_MINUS_SRC_ALPHA => GlBlendFactorSrc
+              .OneMinusSrcAlpha,
+          FinBlendFactor.DST_ALPHA => GlBlendFactorSrc.DstAlpha,
+          FinBlendFactor.ONE_MINUS_DST_ALPHA => GlBlendFactorSrc
+              .OneMinusDstAlpha,
+          FinBlendFactor.CONST_COLOR => GlBlendFactorSrc.ConstantColor,
+          FinBlendFactor.ONE_MINUS_CONST_COLOR => GlBlendFactorSrc
+              .OneMinusConstantColor,
+          FinBlendFactor.CONST_ALPHA => GlBlendFactorSrc.ConstantColor,
+          FinBlendFactor.ONE_MINUS_CONST_ALPHA => GlBlendFactorSrc
+              .OneMinusConstantAlpha,
+          _ => throw new ArgumentOutOfRangeException(
+              nameof(finBlendFactor),
+              finBlendFactor,
+              null)
+      };
+
+    private static GlBlendFactorDst ConvertFinBlendFactorToGlDst_(
+        FinBlendFactor finBlendFactor)
+      => finBlendFactor switch {
+          FinBlendFactor.ZERO      => GlBlendFactorDst.Zero,
+          FinBlendFactor.ONE       => GlBlendFactorDst.One,
+          FinBlendFactor.SRC_COLOR => GlBlendFactorDst.SrcColor,
+          FinBlendFactor.ONE_MINUS_SRC_COLOR => GlBlendFactorDst
+              .OneMinusSrcColor,
+          FinBlendFactor.SRC_ALPHA => GlBlendFactorDst.SrcAlpha,
+          FinBlendFactor.ONE_MINUS_SRC_ALPHA => GlBlendFactorDst
+              .OneMinusSrcAlpha,
+          FinBlendFactor.DST_ALPHA => GlBlendFactorDst.DstAlpha,
+          FinBlendFactor.ONE_MINUS_DST_ALPHA => GlBlendFactorDst
+              .OneMinusDstAlpha,
+          FinBlendFactor.CONST_COLOR => GlBlendFactorDst.ConstantColor,
+          FinBlendFactor.ONE_MINUS_CONST_COLOR => GlBlendFactorDst
+              .OneMinusConstantColor,
+          FinBlendFactor.CONST_ALPHA => GlBlendFactorDst.ConstantColor,
+          FinBlendFactor.ONE_MINUS_CONST_ALPHA => GlBlendFactorDst
+              .OneMinusConstantAlpha,
+          _ => throw new ArgumentOutOfRangeException(
+              nameof(finBlendFactor),
+              finBlendFactor,
+              null)
+      };
+
 
     private static GlLogicOp ConvertFinLogicOpToGl_(FinLogicOp finLogicOp)
       => finLogicOp switch {
@@ -99,7 +221,9 @@ namespace fin.ui.rendering.gl {
           FinLogicOp.NAND          => GlLogicOp.Nand,
           FinLogicOp.SET           => GlLogicOp.Set,
           _ => throw new ArgumentOutOfRangeException(
-                   nameof(finLogicOp), finLogicOp, null)
+              nameof(finLogicOp),
+              finLogicOp,
+              null)
       };
   }
 }

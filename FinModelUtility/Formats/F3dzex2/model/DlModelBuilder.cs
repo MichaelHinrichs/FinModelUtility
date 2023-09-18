@@ -256,7 +256,7 @@ namespace f3dzex2.model {
                                               .5f,
                                               AlphaCompareType.Always,
                                               0);
-                  finMaterial.SetBlending(BlendMode.ADD,
+                  finMaterial.SetBlending(BlendEquation.ADD,
                                           BlendFactor.SRC_ALPHA,
                                           BlendFactor.ONE_MINUS_SRC_ALPHA,
                                           LogicOp.UNDEFINED);

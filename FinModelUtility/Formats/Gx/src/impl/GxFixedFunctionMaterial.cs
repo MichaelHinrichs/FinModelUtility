@@ -66,7 +66,7 @@ namespace gx {
       switch (populatedMaterial.BlendMode.BlendMode) {
         case GxBlendMode.NONE: {
           material.SetBlending(
-              BlendMode.ADD,
+              BlendEquation.ADD,
               BlendFactor.ONE,
               BlendFactor.ZERO,
               LogicOp.UNDEFINED);
@@ -74,7 +74,7 @@ namespace gx {
         }
         case GxBlendMode.BLEND: {
           material.SetBlending(
-              BlendMode.ADD,
+              BlendEquation.ADD,
               this.ConvertGxBlendFactorToFin_(
                   populatedMaterial.BlendMode.SrcFactor),
               this.ConvertGxBlendFactorToFin_(
@@ -85,7 +85,7 @@ namespace gx {
         case GxBlendMode.LOGIC: {
           // TODO: Might not be correct?
           material.SetBlending(
-              BlendMode.NONE,
+              BlendEquation.NONE,
               this.ConvertGxBlendFactorToFin_(
                   populatedMaterial.BlendMode.SrcFactor),
               this.ConvertGxBlendFactorToFin_(
@@ -95,7 +95,7 @@ namespace gx {
         }
         case GxBlendMode.SUBTRACT: {
           material.SetBlending(
-              BlendMode.REVERSE_SUBTRACT,
+              BlendEquation.REVERSE_SUBTRACT,
               BlendFactor.ONE,
               BlendFactor.ONE,
               LogicOp.UNDEFINED);

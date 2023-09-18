@@ -56,26 +56,56 @@ namespace fin.model.impl {
       public ITexture? CompiledTexture { get; set; }
 
       public IFixedFunctionMaterial SetBlending(
-          BlendMode blendMode,
+          BlendEquation blendEquation,
           BlendFactor srcFactor,
           BlendFactor dstFactor,
+          LogicOp logicOp)
+        => this.SetBlendingSeparate(blendEquation,
+                                    srcFactor,
+                                    dstFactor,
+                                    blendEquation,
+                                    srcFactor,
+                                    dstFactor,
+                                    logicOp);
+
+      public IFixedFunctionMaterial SetBlendingSeparate(
+          BlendEquation colorBlendEquation,
+          BlendFactor colorSrcFactor,
+          BlendFactor colorDstFactor,
+          BlendEquation alphaBlendEquation,
+          BlendFactor alphaSrcFactor,
+          BlendFactor alphaDstFactor,
           LogicOp logicOp) {
-        this.BlendMode = blendMode;
-        this.SrcFactor = srcFactor;
-        this.DstFactor = dstFactor;
+        this.ColorBlendEquation = colorBlendEquation;
+        this.ColorSrcFactor = colorSrcFactor;
+        this.ColorDstFactor = colorDstFactor;
+        this.AlphaBlendEquation = alphaBlendEquation;
+        this.AlphaSrcFactor = alphaSrcFactor;
+        this.AlphaDstFactor = alphaDstFactor;
         this.LogicOp = logicOp;
         return this;
       }
 
-      public BlendMode BlendMode { get; private set; } = BlendMode.ADD;
+      public BlendEquation ColorBlendEquation { get; private set; } =
+        BlendEquation.ADD;
 
-      public BlendFactor SrcFactor { get; private set; } =
+      public BlendFactor ColorSrcFactor { get; private set; } =
         BlendFactor.SRC_ALPHA;
 
-      public BlendFactor DstFactor { get; private set; } =
+      public BlendFactor ColorDstFactor { get; private set; } =
+        BlendFactor.ONE_MINUS_SRC_ALPHA;
+
+      public BlendEquation AlphaBlendEquation { get; private set; } =
+        BlendEquation.ADD;
+
+      public BlendFactor AlphaSrcFactor { get; private set; } =
+        BlendFactor.SRC_ALPHA;
+
+      public BlendFactor AlphaDstFactor { get; private set; } =
         BlendFactor.ONE_MINUS_SRC_ALPHA;
 
       public LogicOp LogicOp { get; private set; } = LogicOp.COPY;
+
 
       public IFixedFunctionMaterial SetAlphaCompare(
           AlphaOp alphaOp,

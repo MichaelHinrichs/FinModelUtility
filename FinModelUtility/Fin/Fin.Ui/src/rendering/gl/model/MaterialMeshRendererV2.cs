@@ -90,10 +90,14 @@ namespace fin.ui.rendering.gl.model {
 
       if (this.material_ is IReadOnlyFixedFunctionMaterial
           fixedFunctionMaterial) {
-        GlUtil.SetBlending(fixedFunctionMaterial.BlendMode,
-                           fixedFunctionMaterial.SrcFactor,
-                           fixedFunctionMaterial.DstFactor,
-                           fixedFunctionMaterial.LogicOp);
+        GlUtil.SetBlendingSeparate(
+            fixedFunctionMaterial.ColorBlendEquation,
+            fixedFunctionMaterial.ColorSrcFactor,
+            fixedFunctionMaterial.ColorDstFactor,
+            fixedFunctionMaterial.AlphaBlendEquation,
+            fixedFunctionMaterial.AlphaSrcFactor,
+            fixedFunctionMaterial.AlphaDstFactor,
+            fixedFunctionMaterial.LogicOp);
       } else {
         GlUtil.ResetBlending();
       }

@@ -5,14 +5,19 @@ using cmb.schema.cmb;
 
 using fin.data.lazy;
 using fin.image;
+using fin.image.formats;
 using fin.model;
+using fin.util.image;
 
+using SixLabors.ImageSharp.PixelFormats;
+
+using FinBlendEquation = fin.model.BlendEquation;
+using FinBlendFactor = fin.model.BlendFactor;
 using CmbBlendMode = cmb.schema.cmb.BlendMode;
+using CmbBlendEquation = cmb.schema.cmb.BlendEquation;
 using CmbBlendFactor = cmb.schema.cmb.BlendFactor;
 using CmbTextureMinFilter = cmb.schema.cmb.TextureMinFilter;
 using CmbTextureMagFilter = cmb.schema.cmb.TextureMagFilter;
-using FinBlendMode = fin.model.BlendMode;
-using FinBlendFactor = fin.model.BlendFactor;
 using FinTextureMinFilter = fin.model.TextureMinFilter;
 using FinTextureMagFilter = fin.model.TextureMagFilter;
 using Version = cmb.schema.cmb.Version;
@@ -21,7 +26,7 @@ namespace cmb.material {
   public class CmbFixedFunctionMaterial {
     private const bool USE_FIXED_FUNCTION = true;
 
-    public CmbFixedFunctionMaterial(
+    public unsafe CmbFixedFunctionMaterial(
         IModel finModel,
         Cmb cmb,
         int materialIndex,
@@ -39,7 +44,53 @@ namespace cmb.material {
                 ITexture? finTexture = null;
                 if (textureId != -1) {
                   var cmbTexture = cmb.tex.Data.textures[textureId];
-                  var textureImage = textureImages[textureId];
+
+                  var rawTextureImage = textureImages[textureId];
+
+                  // TODO: Is this logic possibly right????
+                  IImage textureImage;
+                  if (ImageUtil.GetTransparencyType(rawTextureImage) !=
+                      ImageTransparencyType.OPAQUE) {
+                    textureImage = rawTextureImage;
+                  } else {
+                    var backgroundColor = texMapper.BorderColor;
+
+                    var processedImage = new Rgba32Image(
+                        rawTextureImage.PixelFormat,
+                        rawTextureImage.Width,
+                        rawTextureImage.Height);
+                    textureImage = processedImage;
+
+                    rawTextureImage.Access(srcGetHandler => {
+                      using var dstLock = processedImage.Lock();
+                      var dstPtr = dstLock.pixelScan0;
+                      for (var y = 0; y < rawTextureImage.Height; y++) {
+                        for (var x = 0; x < rawTextureImage.Width; x++) {
+                          srcGetHandler(x,
+                                        y,
+                                        out var r,
+                                        out var g,
+                                        out var b,
+                                        out var a);
+
+                          if (r == backgroundColor.Rb &&
+                              g == backgroundColor.Gb &&
+                              b == backgroundColor.Bb) {
+                            a = 0;
+                          }
+
+                          dstPtr[y * rawTextureImage.Width + x] =
+                              new Rgba32(r, g, b, a);
+                        }
+                      }
+                    });
+                  }
+
+                  /**
+                  var cmbBorderColor =
+                      texMapper.BorderColor;
+                  finTexture.BorderColor = cmbBorderColor;
+                   */
 
                   var cmbTexCoord = cmbMaterial.texCoords[i];
 
@@ -85,10 +136,6 @@ namespace cmb.material {
                       TextureMappingType.UvCoordinateMap
                           ? UvType.STANDARD
                           : UvType.SPHERICAL;
-
-                  var cmbBorderColor =
-                      texMapper.BorderColor;
-                  finTexture.BorderColor = cmbBorderColor;
                 }
 
                 return finTexture;
@@ -186,11 +233,37 @@ namespace cmb.material {
         }
 
         // TODO: not right
-        finMaterial.SetBlending(
-            FinBlendMode.ADD,
-            FinBlendFactor.ONE,
-            FinBlendFactor.ZERO,
-            LogicOp.UNDEFINED);
+        switch (cmbMaterial.blendMode) {
+          case CmbBlendMode.BlendNone: {
+            finMaterial.SetBlending(
+                FinBlendEquation.ADD,
+                FinBlendFactor.ONE,
+                FinBlendFactor.ZERO,
+                LogicOp.UNDEFINED);
+            break;
+          }
+          case CmbBlendMode.Blend: {
+            finMaterial.SetBlending(
+                CmbBlendEquationToFin(cmbMaterial.colorEquation),
+                CmbBlendFactorToFin(cmbMaterial.colorSrcFunc),
+                CmbBlendFactorToFin(cmbMaterial.colorDstFunc),
+                LogicOp.UNDEFINED);
+            break;
+          }
+          case CmbBlendMode.BlendSeparate: {
+            finMaterial.SetBlendingSeparate(
+                CmbBlendEquationToFin(cmbMaterial.colorEquation),
+                CmbBlendFactorToFin(cmbMaterial.colorSrcFunc),
+                CmbBlendFactorToFin(cmbMaterial.colorDstFunc),
+                CmbBlendEquationToFin(cmbMaterial.alphaEquation),
+                CmbBlendFactorToFin(cmbMaterial.alphaSrcFunc),
+                CmbBlendFactorToFin(cmbMaterial.alphaDstFunc),
+                LogicOp.UNDEFINED);
+            break;
+          }
+          case CmbBlendMode.LogicalOp: break;
+          default:                     throw new ArgumentOutOfRangeException();
+        }
 
         finMaterial.DepthCompareType = cmbMaterial.depthTestFunction switch {
             TestFunc.Never    => DepthCompareType.Never,
@@ -227,6 +300,21 @@ namespace cmb.material {
           TextureWrapMode.Repeat        => WrapMode.REPEAT,
           TextureWrapMode.ClampToEdge   => WrapMode.CLAMP,
           TextureWrapMode.Mirror        => WrapMode.MIRROR_REPEAT,
+      };
+
+    public FinBlendEquation CmbBlendEquationToFin(
+        CmbBlendEquation cmbBlendEquation)
+      => cmbBlendEquation switch {
+          CmbBlendEquation.FuncAdd      => FinBlendEquation.ADD,
+          CmbBlendEquation.FuncSubtract => FinBlendEquation.SUBTRACT,
+          CmbBlendEquation.FuncReverseSubtract => FinBlendEquation
+              .REVERSE_SUBTRACT,
+          CmbBlendEquation.Min => FinBlendEquation.MIN,
+          CmbBlendEquation.Max => FinBlendEquation.MAX,
+          _ => throw new ArgumentOutOfRangeException(
+              nameof(cmbBlendEquation),
+              cmbBlendEquation,
+              null)
       };
 
     public FinBlendFactor CmbBlendFactorToFin(CmbBlendFactor cmbBlendFactor)

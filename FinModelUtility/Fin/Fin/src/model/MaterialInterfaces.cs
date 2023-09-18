@@ -104,12 +104,13 @@ namespace fin.model {
   // TODO: Support lit/unlit
   // TODO: Support merged diffuse/normal/etc. materials
 
-  public enum BlendMode {
+  public enum BlendEquation {
     NONE,
     ADD,
     SUBTRACT,
     REVERSE_SUBTRACT,
-    MULTIPLY,
+    MIN,
+    MAX
   }
 
   public enum BlendFactor {
@@ -121,6 +122,10 @@ namespace fin.model {
     ONE_MINUS_SRC_ALPHA,
     DST_ALPHA,
     ONE_MINUS_DST_ALPHA,
+    CONST_COLOR,
+    ONE_MINUS_CONST_COLOR,
+    CONST_ALPHA,
+    ONE_MINUS_CONST_ALPHA,
   }
 
   public enum LogicOp {
@@ -241,9 +246,12 @@ namespace fin.model {
 
     ITexture? CompiledTexture { get; }
 
-    BlendMode BlendMode { get; }
-    BlendFactor SrcFactor { get; }
-    BlendFactor DstFactor { get; }
+    BlendEquation ColorBlendEquation { get; }
+    BlendFactor ColorSrcFactor { get; }
+    BlendFactor ColorDstFactor { get; }
+    BlendEquation AlphaBlendEquation { get; }
+    BlendFactor AlphaSrcFactor { get; }
+    BlendFactor AlphaDstFactor { get; }
     LogicOp LogicOp { get; }
 
     AlphaOp AlphaOp { get; }
@@ -261,9 +269,18 @@ namespace fin.model {
 
     // TODO: Merge this into a single type
     IFixedFunctionMaterial SetBlending(
-        BlendMode blendMode,
+        BlendEquation blendEquation,
         BlendFactor srcFactor,
         BlendFactor dstFactor,
+        LogicOp logicOp);
+
+    IFixedFunctionMaterial SetBlendingSeparate(
+        BlendEquation colorBlendEquation,
+        BlendFactor colorSrcFactor,
+        BlendFactor colorDstFactor,
+        BlendEquation alphaBlendEquation,
+        BlendFactor alphaSrcFactor,
+        BlendFactor alphaDstFactor,
         LogicOp logicOp);
 
     // TODO: Merge this into a single type
