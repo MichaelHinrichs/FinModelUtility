@@ -119,17 +119,17 @@ Then, follow the steps below.
 
 The tool can also be used to convert models via the command-line like so:
 ```
-  cli/tools/universal_model_utility/universal_model_utility.exe convert -i [input files] -o [output file]
+  cli/tools/universal_asset_tool/universal_asset_tool.exe convert -i [input files] -o [output file]
 ```
 
 Here's an example with some files from Pikmin 1:
 ```
-  cli/tools/universal_model_utility/universal_model_utility.exe convert -i chappy.mod chappy.anm -o chappy.fbx
+  cli/tools/universal_asset_tool/universal_asset_tool.exe convert -i chappy.mod chappy.anm -o chappy.fbx
 ```
 
 The best plugin will automatically be detected based on the list of input files. For a list of supported plugins, use the following command:
 ```
-  cli/tools/universal_model_utility/universal_model_utility.exe list_plugins
+  cli/tools/universal_asset_tool/universal_asset_tool.exe list_plugins
 ```
 
 ## Notes about exported models
